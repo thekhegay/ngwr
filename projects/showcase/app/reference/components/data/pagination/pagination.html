@@ -1,0 +1,106 @@
+<ngwr-doc-page
+  title="Pagination"
+  description="Page navigation for a long list."
+  [keywords]="['pagination', 'wr-pagination']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Basic usage" description="Bind `[total]` and `[(page)]`.">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%">
+        <wr-pagination [total]="120" [(page)]="page" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Sizes" description="`size`: `sm`, `md` or `lg`.">
+    <ngwr-doc-snippet [code]="snippets.sizes">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 1rem">
+        <wr-pagination [total]="120" [(page)]="page" size="sm" />
+        <wr-pagination [total]="120" [(page)]="page" size="md" />
+        <wr-pagination [total]="120" [(page)]="page" size="lg" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Shape" description="`square` flattens the corners, for example inside a data table.">
+    <ngwr-doc-snippet [code]="snippets.shapes">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 1rem">
+        <wr-pagination [total]="120" [(page)]="page" shape="rounded" />
+        <wr-pagination [total]="120" [(page)]="page" shape="square" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="With total + size changer"
+    description='`showTotal` adds the range, `showSizeChanger` a page-size select, and `align="end"` moves it right.'
+  >
+    <ngwr-doc-snippet [code]="snippets.full">
+      <div style="width: 100%">
+        <wr-pagination [total]="320" [(page)]="fullPage" [(pageSize)]="size" showTotal showSizeChanger align="end" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Narrow container (container query)"
+    description="With `responsive`, the strip turns into a compact pager when its own box is narrow."
+  >
+    <ngwr-doc-snippet code='<div style="width: 260px"><wr-pagination responsive [total]="120" [(page)]="page" /></div>'>
+      <div style="width: 260px; max-width: 100%">
+        <wr-pagination responsive [total]="120" [(page)]="page" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Server-side paging"
+    description="While `total` is 0, as during a request, the pager keeps the page you set and emits nothing for it."
+  >
+    <ngwr-doc-snippet [code]="snippets.serverHtml">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 0.5rem">
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          page {{ serverPage() }} — total {{ serverTotal() }}{{ serverTotal() === 0 ? ' (request in flight)' : '' }}
+        </span>
+        <wr-pagination [total]="serverTotal()" [page]="serverPage()" (pageChange)="onServerPage($event)" />
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.serverTs" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Page size is the host's decision"
+    description="Choosing a size only emits `pageSizeChange`. The page stays as it is: reset it yourself if you want."
+  >
+    <ngwr-doc-code [code]="snippets.sizeHtml" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.sizeReset" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keeping the last good total"
+    description="To keep the strip steady during a request, hold the last total in a `linkedSignal`."
+  >
+    <ngwr-doc-code [code]="snippets.lastGoodTotal" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard, roles and accessible names"
+    description="Every cell is a tab stop; Enter or Space activates it."
+  >
+    <ul>
+      <li>
+        <code>label</code>, <code>prevLabel</code>, <code>nextLabel</code> and <code>itemsPerPageLabel</code> override
+        the text from the i18n catalog.
+      </li>
+      <li>
+        In end-to-end tests, use <code>getByRole('button', &#123; name: 'Go to page 2' &#125;)</code>; the current page
+        has <code>aria-current="page"</code>.
+      </li>
+      <li>In unit tests, use <code>WrPaginationHarness</code> from <code>ngwr/pagination/testing</code>.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

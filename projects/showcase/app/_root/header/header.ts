@@ -1,5 +1,5 @@
 import { type Direction } from '@angular/cdk/bidi';
-import { isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Component, DestroyRef, ElementRef, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -8,19 +8,29 @@ import { WrBurger } from 'ngwr/burger';
 import { WrCommandPalette, type WrCommandItem } from 'ngwr/command-palette';
 import { WrDensity, type WrDensityValue } from 'ngwr/density';
 import { WrDrawer } from 'ngwr/drawer';
-import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
-import { provideWrIcons, WrIcon } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { WrDropdown, WrDropdownItem, WrDropdownMenu } from 'ngwr/dropdown';
+import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
+import { WrPopover } from 'ngwr/popover';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { WrTheme, type WrThemeMode } from 'ngwr/theme';
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
+import { NGWR_PACKAGE } from '../../docs/package-spec';
+
 import { BRAND_ICONS } from '#core/icons';
-import { DocsSearch, PrimaryColor, SiteDirection } from '#core/services';
-import { routes } from '#routing';
+import { DocsSearch, SiteDirection } from '#core/services';
+import { ROUTES, wrPath } from '#routes';
+
+/**
+ * The branch the StackBlitz starter opens from: `next` while the site documents
+ * a prerelease, `main` once it is stable. Read off `NGWR_PACKAGE` rather than
+ * the version, so the install snippets and the playground switch on one rule —
+ * the npm dist-tag and the branch share the name `next`.
+ */
+const STARTER_BRANCH = NGWR_PACKAGE.endsWith('@next') ? 'next' : 'main';
 
 interface NavLink {
-  readonly url: string[];
+  readonly url: string;
   readonly label: string;
 }
 
@@ -38,12 +48,11 @@ interface ActionLink {
  * lands on the 404 shell.
  */
 const SUGGESTION_ROUTES: Readonly<Record<string, string>> = {
-  's:install': `/${routes.start.index}/${routes.start.installation}`,
-  's:forms': `/${routes.guides.index}/${routes.guides.forms}`,
-  's:theming': `/${routes.guides.index}/${routes.guides.theming}`,
-  's:components': `/${routes.reference.index}/${routes.reference.components}`,
-  's:playground': `/${routes.start.index}/${routes.start.playground}`,
-  's:migration': `/${routes.start.index}/${routes.start.migration}`,
+  's:install': wrPath(ROUTES.docs, ROUTES.docs.installation),
+  's:forms': wrPath(ROUTES.guides, ROUTES.guides.forms),
+  's:theming': wrPath(ROUTES.guides, ROUTES.guides.theming),
+  's:components': wrPath(ROUTES.reference, ROUTES.reference.components),
+  's:migration': wrPath(ROUTES.docs, ROUTES.docs.migration),
 };
 
 /** First major with an archived docs snapshot — nothing older was ever frozen. */
@@ -52,6 +61,26 @@ const OLDEST_ARCHIVED_MAJOR = 7;
 /** Archived majors, newest first: v7 … v(current − 1). */
 function archivedMajors(current: number): readonly number[] {
   return Array.from({ length: Math.max(0, current - OLDEST_ARCHIVED_MAJOR) }, (_, i) => current - 1 - i);
+}
+
+interface DocVersion {
+  readonly label: string;
+  readonly url: string;
+  readonly active: boolean;
+}
+
+function docVersionList(major: number, next: boolean): readonly DocVersion[] {
+  // The next major is served from its own host, so its links back are absolute.
+  const stable = next ? 'https://ngwr.dev' : '';
+  const archived = (current: number): DocVersion[] =>
+    archivedMajors(current).map(v => ({ label: `v${v}`, url: `${stable}/v${v}/`, active: false }));
+  return next
+    ? [
+        { label: 'next', url: '/', active: true },
+        { label: `v${major - 1} · latest`, url: `${stable}/`, active: false },
+        ...archived(major - 1),
+      ]
+    : [{ label: `v${major} · latest`, url: '/', active: true }, ...archived(major)];
 }
 
 @Component({
@@ -66,7 +95,9 @@ function archivedMajors(current: number): readonly number[] {
     WrDrawer,
     WrIcon,
     WrDropdown,
+    WrDropdownItem,
     WrDropdownMenu,
+    WrPopover,
     WrSegmented,
   ],
   providers: [
@@ -102,7 +133,6 @@ export class Header {
     { id: 's:forms', label: 'Signal Forms', description: 'The wedge, and what it replaces', group: 'Start here' },
     { id: 's:theming', label: 'Theming', description: 'Tokens, light / dark, your own palette', group: 'Start here' },
     { id: 's:components', label: 'Components', description: 'The full catalog', group: 'Browse' },
-    { id: 's:playground', label: 'Playground', description: 'Try it in the browser', group: 'Browse' },
     { id: 's:migration', label: 'Migration guide', description: 'Every step back to v6', group: 'Browse' },
   ].map(item => ({ ...item, action: (): void => void this.router.navigate([SUGGESTION_ROUTES[item.id]]) }));
 
@@ -137,13 +167,23 @@ export class Header {
     this.searching.set(false);
   }
 
+  /**
+   * The settings panel's name. Bound rather than written as a static
+   * `ariaLabel="…"`, which would also land on the button as a stray
+   * `arialabel` attribute.
+   */
+  protected readonly settingsLabel = 'Settings';
   protected readonly theme = inject(WrTheme);
   protected readonly density = inject(WrDensity);
-  protected readonly primary = inject(PrimaryColor);
   protected readonly direction = inject(SiteDirection);
 
+  private readonly version = String(inject(NGWR_VERSION_TOKEN));
+
   /** Current major (e.g. `v8`) shown on the version-switcher trigger. */
-  protected readonly major = `v${String(inject(NGWR_VERSION_TOKEN)).split('.')[0]}`;
+  protected readonly major = `v${this.version.split('.')[0]}`;
+
+  /** A prerelease is the next major, deployed at next.ngwr.dev beside the previous major's stable site. */
+  protected readonly next = this.version.includes('-');
 
   /**
    * Documentation versions, each a separate static deployment. The live site is
@@ -154,12 +194,21 @@ export class Header {
    * every major release, so the archives are exactly v7 … v(current − 1) — and a
    * hand-written list is precisely what went wrong before: v8 and v9 were
    * archived and deployed, but nobody added them here, so for two majors the
-   * snapshots existed on the server with nothing linking to them.
+   * snapshots existed on the server with nothing linking to them. On the next
+   * major, `latest` is the major below it.
    */
-  protected readonly docVersions: readonly { readonly label: string; readonly url: string }[] = [
-    { label: `${this.major} · latest`, url: '/' },
-    ...archivedMajors(Number(this.major.slice(1))).map(v => ({ label: `v${v}`, url: `/v${v}/` })),
-  ];
+  protected readonly docVersions = docVersionList(Number(this.major.slice(1)), this.next);
+
+  private readonly document = inject(DOCUMENT);
+
+  /**
+   * A full-page load, because each version is its own deployment. A menu item is
+   * not an anchor, so the navigation is the click's — which is also what Enter
+   * and Space on the item fire.
+   */
+  protected openVersion(url: string): void {
+    this.document.location.assign(url);
+  }
 
   /** Theme segmented — user choice (`auto` resolves via `prefers-color-scheme`). */
   protected readonly themeOptions: readonly WrSegmentedOption<WrThemeMode>[] = [
@@ -185,7 +234,7 @@ export class Header {
     { value: 'lg', label: 'lg' },
   ];
 
-  protected readonly routes = routes;
+  protected readonly routes = ROUTES;
   /**
    * Five doors, ordered by what the reader is doing. The previous thirteen
    * mirrored how the code is organised (Components / Directives / Pipes /
@@ -194,15 +243,24 @@ export class Header {
    * the job you are actually doing.
    */
   protected readonly nav: readonly NavLink[] = [
-    { url: [routes.index, routes.start.index], label: 'Start' },
-    { url: [routes.index, routes.guides.index], label: 'Guides' },
-    { url: [routes.index, routes.reference.index], label: 'Reference' },
-    { url: [routes.index, routes.icons.index], label: 'Icons' },
-    { url: [routes.index, routes.animations.index], label: 'Animations' },
+    { url: wrPath(ROUTES.docs), label: ROUTES.docs.title },
+    { url: wrPath(ROUTES.guides), label: ROUTES.guides.title },
+    { url: wrPath(ROUTES.reference), label: ROUTES.reference.title },
+    { url: wrPath(ROUTES.icons), label: ROUTES.icons.title },
+    { url: wrPath(ROUTES.charts), label: ROUTES.charts.title },
+    { url: wrPath(ROUTES.bits), label: ROUTES.bits.title },
   ];
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'github', modifier: 'github', label: 'GitHub' },
     { url: 'https://www.npmjs.com/package/ngwr', icon: 'npm', modifier: 'npm', label: 'npm' },
+    // Replaces the Playground page: the same thing, run where a reader can
+    // actually edit it, instead of a tile on a docs site pretending to.
+    {
+      url: `https://stackblitz.com/github/thekhegay/ngwr/tree/${STARTER_BRANCH}/projects/starter?file=src/app/app.ts`,
+      icon: 'stackblitz',
+      modifier: 'stackblitz',
+      label: 'Playground on StackBlitz',
+    },
   ];
 
   /** Mobile nav sheet — the inline nav collapses to a burger below `xl`. */

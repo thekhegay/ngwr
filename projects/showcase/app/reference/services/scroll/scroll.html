@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="WrScroll"
-  description="Smooth-scroll utility. Resolves elements / ids / selectors / coords; subtracts an `offset` for sticky headers; auto-falls back to instant scrolling when the user has `prefers-reduced-motion: reduce`."
+  description="Scroll to an element, id, selector or position, with an offset for sticky headers."
   [keywords]="['service', 'scroll', 'WrScroll']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section title="Usage">
+  <ngwr-doc-section title="Usage" description="Pass `container` to scroll an element instead of the window.">
     <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
@@ -12,21 +12,10 @@
           <button wr-btn size="sm" outlined type="button" (click)="scrollToSection('one')">Section one</button>
           <button wr-btn size="sm" outlined type="button" (click)="scrollToSection('two')">Section two</button>
           <button wr-btn size="sm" outlined type="button" (click)="scrollToSection('three')">Section three</button>
-          <button wr-btn size="sm" outlined type="button" (click)="scrollToTop()">Page top (offset 80)</button>
+          <button wr-btn size="sm" outlined type="button" (click)="scrollToTop()">Page top</button>
         </div>
-        <!-- `tabindex="0"`: a region that scrolls has to be reachable by keyboard,
-             or its content can only be read with a pointer. -->
-        <div
-          #scrollBox
-          tabindex="0"
-          style="
-            height: 18rem;
-            overflow-y: auto;
-            border: 1px solid var(--wr-color-light);
-            border-radius: 0.5rem;
-            padding: 1rem;
-          "
-        >
+        <!-- tabindex: a scrolling region must be reachable by keyboard. -->
+        <div #scrollBox class="scroll-demo" tabindex="0">
           @for (section of sections; track section.id) {
             <div [id]="`scroll-demo-${section.id}`" style="min-height: 16rem">
               <p style="margin: 0 0 0.5rem; font-weight: 600">{{ section.title }}</p>
@@ -37,11 +26,6 @@
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="`scrollIntoView` can't offset for a sticky header and `window.scrollTo` doesn't understand containers or selectors. This wraps both behind one API with offsets, smooth-scroll opt-out, and SSR safety."
-  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

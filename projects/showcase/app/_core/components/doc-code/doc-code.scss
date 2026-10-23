@@ -1,12 +1,22 @@
+@use 'showcase/styles/mixins' as site;
+
 :host {
   --ngwr-doc-code-padding: 1rem;
   --ngwr-doc-code-radius: var(--wr-border-radius-base);
-  --ngwr-doc-code-bg: rgba(var(--wr-color-light-rgb), 0.2);
-  // `--wr-color-dark` IS the primary text token (near-black in light
-  // mode, near-white in dark). `--wr-color-dark-contrast` would be the
+  // A FILL role, deliberately not a 20% wash of `--wr-border-base`, which is
+  // what this was. `--wr-border-base` is a BORDER token, and
+  // `prefers-contrast: more` darkens it on purpose so hairlines stay visible —
+  // which turned the code well from `#f5f7f9` into `#e3e8ef` and dropped the
+  // shiki comment colour (`#66707b`, fixed by the theme and not a `--wr-*`)
+  // from 4.69:1 to 4.09:1. High-contrast mode made the code HARDER to read,
+  // on every page with a snippet. `--wr-color-fill-subtle` is the faintest
+  // wash of the ramp, no contrast mode touches it, and it lands at 4.77:1.
+  --ngwr-doc-code-bg: var(--wr-color-fill-subtle);
+  // `--wr-color-on-surface` IS the primary text token (near-black in light
+  // mode, near-white in dark). `--wr-color-surface` would be the
   // paired color (white in light, near-black in dark) — invisible on
   // the matching surface.
-  --ngwr-doc-code-fg: var(--wr-color-dark);
+  --ngwr-doc-code-fg: var(--wr-color-on-surface);
   --ngwr-doc-code-font-size: 0.8125rem;
   --ngwr-doc-code-line-height: 1.5;
 
@@ -29,11 +39,10 @@
 // The strip and the code body are ONE control, so they share one surface: the
 // strip paints nothing and lets the host's `--ngwr-doc-code-bg` through, and a
 // hairline rule is what separates header from body. It used to carry its own
-// `rgba(var(--wr-color-dark-rgb), 0.04)` over a host tinted with
-// `rgba(var(--wr-color-light-rgb), 0.2)` — two different fills, mixed from two
-// different bases, so the block read as two mismatched slabs stacked with no
-// boundary between them (worst in dark, where one tint is warm-neutral over a
-// blue one).
+// 4% wash of the old `dark` intent over a host tinted 20% with the old `light`
+// one — two different fills, mixed from two different bases, so the block read
+// as two mismatched slabs stacked with no boundary between them (worst in dark,
+// where one tint is warm-neutral over a blue one).
 //
 // The rule is an inset shadow rather than `border-bottom` so the active tab's
 // own 2px indicator paints directly OVER the line instead of stacking above
@@ -46,7 +55,7 @@
   // No bottom padding: the tab has to reach the strip's edge for its indicator
   // to land on the rule.
   padding: 0 0.375rem;
-  box-shadow: inset 0 -1px 0 var(--wr-color-outline);
+  box-shadow: inset 0 -1px 0 var(--wr-border-base);
   font-family: var(--wr-font-family-base);
 }
 
@@ -69,9 +78,7 @@
   letter-spacing: 0.03em;
   text-transform: uppercase;
   cursor: pointer;
-  transition:
-    border-color var(--wr-transition-base),
-    color var(--wr-transition-base);
+  @include site.transition(border-color color);
 
   &:hover {
     color: var(--wr-color-on-surface);
@@ -86,13 +93,19 @@
     border-bottom-color: var(--wr-color-primary);
   }
 
+  // Inset: the host clips its overflow, so a ring outside the tab is cut off
+  // along the top edge.
   &:focus-visible {
-    outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+    @include site.focus-ring;
     outline-offset: -2px;
   }
 }
 
+// The positioning context for the copy button. It is the panel rather than the
+// host because the host also holds the tab strip, and a button anchored to the
+// host's top-right corner lands on the tabs.
 .panel {
+  position: relative;
   display: block;
 }
 
@@ -101,6 +114,15 @@
 // picks up our padding / font sizing, same as the `.fallback` pre.
 :host ::ng-deep pre {
   margin: 0;
+  // Inherited, not re-declared — but it has to be SAID. `font-family` is an
+  // inherited property and the host above sets the mono token, so this reads
+  // like a no-op; it is not, because the UA stylesheet gives `pre` a
+  // `font-family: monospace` of its own, and a rule that matches the element
+  // beats what it would otherwise inherit. Without this line every code block
+  // on the site rendered in the browser's default monospace and the token was
+  // decorative — which is how a change of mono typeface reached `main` with
+  // the font loaded, declared, and visible nowhere.
+  font-family: inherit;
   padding: var(--ngwr-doc-code-padding);
   overflow-x: auto;
   font-size: var(--ngwr-doc-code-font-size);
@@ -112,22 +134,25 @@
   // rtl-ok: a code block is LTR by definition, not by reading order
   direction: ltr;
   text-align: left;
+
+  // The block scrolls by keyboard, so the `<pre>` (Shiki's and the fallback)
+  // is a tab stop. Inset for the same reason as the tabs: the host clips.
+  &:focus-visible {
+    @include site.focus-ring;
+    outline-offset: -2px;
+  }
 }
 
 // Shiki ships both `github-light-high-contrast` and `github-dark-high-contrast`
 // palettes as CSS vars
-// (`--shiki-light` / `--shiki-dark`) per token. Toggle which one wins
-// against the active theme so syntax highlighting tracks the rest of
-// the UI instead of staying stuck on light colors over the dark canvas.
+// (`--shiki-light` / `--shiki-dark`) per token. `light-dark()` picks the one
+// matching the `color-scheme` in effect, so syntax highlighting tracks the
+// rest of the UI — a subtree forced to `color-scheme: dark` included —
+// instead of staying stuck on light colors over the dark canvas.
 :host ::ng-deep .shiki,
 :host ::ng-deep .shiki span {
-  color: var(--shiki-light);
+  color: light-dark(var(--shiki-light), var(--shiki-dark));
   background-color: transparent;
-}
-
-:host-context([data-theme='dark']) ::ng-deep .shiki,
-:host-context([data-theme='dark']) ::ng-deep .shiki span {
-  color: var(--shiki-dark);
 }
 
 .copy {
@@ -135,6 +160,7 @@
 
   position: absolute;
   top: 0.5rem;
+  // rtl-ok: the code under it is always LTR, so the button keeps to its right edge
   right: 0.5rem;
   display: inline-flex;
   align-items: center;
@@ -144,8 +170,12 @@
   padding: 0;
   border: 0;
   border-radius: var(--wr-border-radius-sm);
-  background: rgba(var(--wr-color-dark-rgb), 0.25);
-  color: var(--wr-color-white);
+  // Quiet at rest: the code surface itself, so it reads as no fill at all and
+  // still masks a code line scrolled under the corner. The muted icon is about
+  // 7.2:1 on that surface in both themes, over the 3:1 an icon needs (token
+  // arithmetic, not a painted measurement).
+  background: var(--ngwr-doc-code-bg);
+  color: var(--wr-color-on-surface-muted);
   cursor: pointer;
   opacity: 0;
   // Invisible has to mean intangible. The `<pre>` scrolls under this corner, so
@@ -153,12 +183,19 @@
   // transparent-but-hit-testable square silently ate the tap: it copied the
   // block, flipped its own label to "Copied", and never became visible.
   pointer-events: none;
-  transition:
-    background var(--wr-transition-base),
-    opacity var(--wr-transition-base);
+  @include site.transition(background-color color opacity);
 
-  &:hover {
-    background: rgba(var(--wr-color-primary-rgb), 0.375);
+  &:hover,
+  &:focus-visible {
+    background: var(--wr-color-fill-strong);
+    color: var(--wr-color-on-surface);
+  }
+
+  // Keyboard focus shows the button at once: a fade from 0 would fade its ring
+  // in with it. The hover reveal keeps the fade.
+  &:focus-visible {
+    @include site.focus-ring;
+    @include site.transition(background-color color);
   }
 }
 

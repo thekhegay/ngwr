@@ -16,6 +16,7 @@ import {
 @Component({
   selector: 'ngwr-svc-scroll-page',
   templateUrl: './scroll.html',
+  styleUrl: './scroll.scss',
   imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class ScrollServicePageComponent {
@@ -32,12 +33,12 @@ export default class ScrollServicePageComponent {
     {
       id: 'three',
       title: 'Section three',
-      body: 'The page-top button scrolls the window instead, with an 80px offset.',
+      body: 'The page-top button scrolls the window instead.',
     },
   ] as const;
 
   protected scrollToTop(): void {
-    this.scroll.toTop({ offset: 80 });
+    this.scroll.toTop();
   }
 
   protected scrollToSection(id: string): void {
@@ -65,7 +66,7 @@ this.scroll.intoView(myEl, { offset: 64 });`,
     },
     {
       name: 'intoView(el, options?)',
-      description: 'Convenience for an Element — same options as `to`.',
+      description: 'Scroll to an element. Same options as `to()`.',
       type: '(el, opts?) => void',
       default: '—',
     },
@@ -77,19 +78,19 @@ this.scroll.intoView(myEl, { offset: 64 });`,
     },
     {
       name: 'options.offset',
-      description: 'Pixel offset subtracted from the target (sticky-header compensation).',
+      description: 'Pixels subtracted from the target, for a sticky header. No effect on `toTop()`.',
       type: 'number',
       default: '0',
     },
     {
       name: 'options.smooth',
-      description: 'Smooth or instant. Auto-falls back to instant for `prefers-reduced-motion: reduce`.',
+      description: 'Smooth or instant. Always instant under `prefers-reduced-motion: reduce`.',
       type: 'boolean',
       default: 'true',
     },
     {
       name: 'options.container',
-      description: 'Override the scroll container.',
+      description: 'The element to scroll instead of the window.',
       type: 'Window | Element',
       default: 'window',
     },

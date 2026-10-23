@@ -6,4 +6,4 @@ export type {
   WrTransferItemHarnessFilters,
   WrTransferPaneHarnessFilters,
   WrTransferSide,
-} from './interfaces';
+} from './types';

@@ -29,8 +29,9 @@
         [class.wr-tabs__tab--disabled]="tab.disabled()"
         [attr.aria-disabled]="tab.disabled() ? true : null"
         [attr.aria-selected]="tab.routerActive()"
-        [attr.tabindex]="tab.disabled() ? -1 : 0"
+        [attr.tabindex]="tab === routerStop() ? 0 : -1"
         (click)="onRouterTabClick(tab, $event)"
+        (keydown.space)="onRouterTabSpace($event)"
       >
         {{ tab.title() }}
       </a>

@@ -28,15 +28,10 @@ import {
   ],
 })
 export default class AutofocusPage {
-  protected readonly autofocusOn = signal(true);
-
-  /** Re-trigger even when focus was lost by clicking elsewhere — a plain
-   * boolean toggle would need two clicks to come back around to `true`. */
+  /** Starts false so the page does not take focus on load. */
+  protected readonly autofocusOn = signal(false);
 
   protected readonly snippets = {
-    install: `import { WrButton } from 'ngwr/button';
-import { WrAutofocus } from 'ngwr/directives';
-import { WrInput } from 'ngwr/input';`,
     usage: `<input wrAutofocus placeholder="Focused on init" />
 <input [wrAutofocus]="shouldFocus()" />`,
   };
@@ -44,9 +39,9 @@ import { WrInput } from 'ngwr/input';`,
   protected readonly api: readonly DocApiRow[] = [
     {
       name: '[wrAutofocus]',
-      description: 'Focus host on init, or whenever the bound expression becomes truthy.',
-      type: 'boolean (default true)',
-      default: '—',
+      description: 'Focus the host on init, or when the binding turns true.',
+      type: 'boolean',
+      default: 'true',
     },
   ];
 }

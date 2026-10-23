@@ -6,12 +6,24 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Injector,
+  ViewEncapsulation,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
+import { getFocusableElements } from 'ngwr/utils';
 
-import type { WrAlertType } from './interfaces';
+import type { WrAlertType } from './types';
 
 /**
  * Inline status banner. Use for feedback messages — saved/failed/notice etc.
@@ -30,6 +42,14 @@ import type { WrAlertType } from './interfaces';
   imports: [WrIcon],
   encapsulation: ViewEncapsulation.None,
   host: {
+    // `title` is an input, and a static attribute that feeds an input is ALSO
+    // written onto the host — where the browser shows it as a native tooltip
+    // over the whole component, and where it feeds the accessible name of any
+    // element that has a role. `<wr-alert title="Heads up">` is the documented
+    // spelling, so every page writing it shipped both. A bound `[title]` never
+    // did this, which is why the two forms behaved differently for no reason a
+    // reader could see.
+    '[attr.title]': 'null',
     '[class]': 'classes()',
     '[attr.role]': 'liveRole()',
     '[attr.aria-live]': 'liveLevel()',
@@ -85,7 +105,10 @@ export class WrAlert {
   readonly closable = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Emitted when the user dismisses the alert via the close button.
+   * Emitted when the user dismisses the alert via the close button. If the close
+   * button had focus, focus moves on to the next focusable element after the alert
+   * (or the one before it, when nothing follows) — unless a `(closed)` handler has
+   * placed it somewhere itself.
    */
   readonly closed = output<void>();
 
@@ -105,8 +128,34 @@ export class WrAlert {
     this.dismissed() ? null : this.type() === 'danger' || this.type() === 'warning' ? 'assertive' : 'polite'
   );
 
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
+
   protected onClose(): void {
+    const host = this.host.nativeElement;
+    const hadFocus = host.contains(host.ownerDocument.activeElement);
     this.dismissed.set(true);
     this.closed.emit();
+    if (hadFocus) afterNextRender(() => this.handOnFocus(), { injector: this.injector });
+  }
+
+  /**
+   * The close button is removed with the rest of the content, and a focused element
+   * that leaves the DOM drops the caret on `<body>`: a keyboard user's next Tab, and
+   * a screen reader's reading position, started over from the top of the page. Run
+   * after the render that removed it, so a `(closed)` handler that moved focus on
+   * purpose is seen and left alone.
+   */
+  private handOnFocus(): void {
+    const host = this.host.nativeElement;
+    const doc = host.ownerDocument;
+    const active = doc.activeElement;
+    if (active && active !== doc.body) return;
+    // Tab stops only: a roving composite parks its other items at -1. The host has
+    // nothing focusable left inside it, so every stop is either before or after it.
+    const stops = getFocusableElements(doc.body).filter(el => el.tabIndex >= 0);
+    // eslint-disable-next-line no-bitwise -- compareDocumentPosition answers with a bitmask
+    const after = stops.findIndex(el => (host.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0);
+    (after >= 0 ? stops[after] : stops.at(-1))?.focus();
   }
 }

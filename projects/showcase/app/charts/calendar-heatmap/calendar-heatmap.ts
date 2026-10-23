@@ -1,0 +1,70 @@
+import { Component } from '@angular/core';
+
+import { WrCalendarHeatmap, type WrHeatmapDatum } from 'ngwr/charts/calendar-heatmap';
+
+import {
+  DocApiComponent,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+  type DocApiRow,
+} from '#core/components';
+import { API } from '#core/generated/api';
+
+function makeHeatmap(): readonly WrHeatmapDatum[] {
+  const out: WrHeatmapDatum[] = [];
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    if (Math.random() > 0.3) out.push({ date: d, value: Math.round(Math.random() * 8) });
+  }
+  return out;
+}
+
+@Component({
+  selector: 'ngwr-calendar-heatmap-page',
+  templateUrl: './calendar-heatmap.html',
+  imports: [
+    WrCalendarHeatmap,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
+})
+export default class CalendarHeatmapPageComponent {
+  protected readonly data = makeHeatmap();
+
+  protected readonly snippets = {
+    basic: `<wr-calendar-heatmap [data]="contributions" />`,
+    tooltip: `<wr-calendar-heatmap [data]="contributions" [tooltip]="false" />`,
+  };
+
+  protected readonly typeSnippet = `interface WrHeatmapDatum {
+  date: string | Date;
+  value: number;
+}`;
+
+  protected readonly api = API.WrCalendarHeatmap;
+
+  protected readonly typeRows: readonly DocApiRow[] = [
+    { name: 'WrHeatmapDatum', description: 'One contribution cell.', type: 'interface' },
+    {
+      name: 'date',
+      description: 'ISO date string (YYYY-MM-DD) or Date.',
+      type: 'string | Date',
+      required: true,
+      sub: true,
+    },
+    {
+      name: 'value',
+      description: 'Count for the day, shown as a shade.',
+      type: 'number',
+      required: true,
+      sub: true,
+    },
+  ];
+}

@@ -1,0 +1,37 @@
+<ngwr-doc-page
+  title="Shiny Text"
+  updated="15.0.0"
+  description="Text with a light stripe sweeping across it."
+  [keywords]="['shiny-text', 'wr-shiny-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="shiny-text" category="text-animations" />
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-shiny-text
+        [text]="text()"
+        [speed]="speed()"
+        [spread]="spread()"
+        [direction]="direction()"
+        [yoyo]="yoyo()"
+        [pauseOnHover]="pauseOnHover()"
+        style="font-size: 2.5rem; font-weight: 700"
+      />
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Directive variant ([wrShimmer])"
+    description="`[wrShimmer]` adds the same sweep to any element."
+  >
+    <ngwr-doc-code [code]="snippets.shimmer" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <h2 wrShimmer style="margin: 0; font-size: 2rem; font-weight: 700">Premium</h2>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -30,8 +30,7 @@ export default class GridPageComponent {
   protected readonly cols = [1, 2, 3, 4, 6, 12];
 
   protected readonly snippets = {
-    optIn: `// Grid is opt-in — utilities don't come with the umbrella.
-@use 'ngwr/grid';`,
+    optIn: `@use 'ngwr/grid';`,
     grid: `<div class="grid">
   <div class="col-12 col-md-6 col-lg-4">A</div>
   <div class="col-12 col-md-6 col-lg-4">B</div>

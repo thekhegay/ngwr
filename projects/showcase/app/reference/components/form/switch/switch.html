@@ -1,0 +1,28 @@
+<ngwr-doc-page
+  title="Switch"
+  updated="15.0.0"
+  description="Turn a setting on or off."
+  [keywords]="['switch', 'toggle', 'wr-switch']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Bind the boolean with `[(checked)]` or [any Angular form](/guides/forms)."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-switch [(checked)]="enabled">Notifications</wr-switch>
+      <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ enabled() }}</span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled">
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <wr-switch disabled>Off</wr-switch>
+      <wr-switch disabled [(checked)]="enabled">On + disabled</wr-switch>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

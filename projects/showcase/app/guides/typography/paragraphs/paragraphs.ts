@@ -25,18 +25,14 @@ import {
 })
 export default class TypographyTextPage {
   protected readonly snippets = {
-    defaultP: `<p wrTypography variant="body">…</p>`,
-    leadP: `<p wrTypography variant="lead">…</p>`,
     variants: `<p wrTypography variant="lead">Lead paragraph — calmer subhead under a headline.</p>
 <p wrTypography>Body copy in the default variant.</p>
 <p wrTypography variant="small">Small print.</p>
 <p wrTypography variant="caption">Captions and helper text.</p>
 <p wrTypography variant="overline">Section label</p>`,
-    tones: `<!-- No tone at all is the default: each variant keeps its own colour. -->
-<p wrTypography>Body, untoned</p>
-
-<p wrTypography tone="dark">Dark</p>
-<p wrTypography tone="medium">Muted</p>
+    tones: `<p wrTypography>Body, untoned</p>
+<p wrTypography tone="base">Base</p>
+<p wrTypography tone="muted">Muted</p>
 <p wrTypography tone="primary">Primary</p>
 <p wrTypography tone="success">Success</p>
 <p wrTypography tone="warning">Warning</p>
@@ -55,7 +51,6 @@ export default class TypographyTextPage {
       kind: 'Directive',
       title: '[wrTypography]',
       url: ['/reference/directives', 'typography'],
-      description: 'Every input, the full variant union, and the classes the directive emits.',
     },
   ];
 }

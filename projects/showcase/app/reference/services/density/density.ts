@@ -3,7 +3,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
-import { WrDensity, WrDensityDirective, type WrDensityValue } from 'ngwr/density';
+import { WrDensity, WrDensityDirective, type WrDensityValue, wrDensityPrePaintScript } from 'ngwr/density';
 import { WrInput } from 'ngwr/input';
 import { WrSelect, WrOption } from 'ngwr/select';
 
@@ -49,26 +49,28 @@ export default class DensityServicePage {
     this.density.set(value);
   }
 
+  /** Generated rather than typed out, so the page cannot print a recipe the library does not run. */
+  protected readonly prePaint = `<script>${wrDensityPrePaintScript()}</script>`;
+
   protected readonly snippets = {
-    install: `import { provideWrDensity, WrDensity } from 'ngwr/density';
+    usage: `private readonly density = inject(WrDensity);
 
-bootstrapApplication(AppComponent, {
-  providers: [
-    provideWrDensity({ defaultDensity: 'sm' }),
-  ],
-});
+this.density.set('touch');
+this.density.cycle();
+this.density.current(); // 'sm' | 'md' | 'lg' | 'touch'`,
+    provider: `import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
 
-// Switch it later:
-const density = inject(WrDensity);
-density.set('lg');
-density.cycle();`,
-    directive: `<!-- Scope an override to a subtree — descendants get sm, the rest of the app keeps the global value. -->
-<aside wrDensity="sm">
+providers: [provideWr(withDensity({ defaultDensity: 'sm' }))],`,
+    directive: `<aside wrDensity="sm">
   <wr-list ...></wr-list>
 </aside>`,
-    tokens: `/* Override the multipliers in your own stylesheet. */
-[data-wr-density='sm'] {
-  --wr-density-y: 0.5;     /* even tighter vertical padding */
+    prePaintCustom: `import { wrDensityPrePaintScript } from 'ngwr/density';
+
+// Pass the values you gave withDensity() and withStorage():
+wrDensityPrePaintScript({ defaultDensity: 'sm', storageKey: 'app-density', storagePrefix: 'myapp:' });`,
+    tokens: `[data-wr-density='sm'] {
+  --wr-density-y: 0.5;
   --wr-density-x: 0.8;
 }`,
   };
@@ -77,7 +79,7 @@ density.cycle();`,
     { name: 'WrDensity', description: 'Injectable service.', type: 'service', default: '—' },
     {
       name: 'current',
-      description: 'Active density signal. Read-only — use `set(d)` / `cycle()` to write.',
+      description: 'Active density. Write it with `set()` or `cycle()`.',
       type: 'Signal<WrDensityValue>',
       default: "'md'",
       sub: true,
@@ -96,14 +98,21 @@ density.cycle();`,
     },
     {
       name: '[wrDensity]',
-      description: 'Attribute directive — scope a density override to one subtree.',
+      description: 'Give one subtree its own density.',
       type: 'Directive',
+      default: '—',
+    },
+    {
+      name: 'wrDensityPrePaintScript(options?)',
+      description:
+        'Source of the script that applies a stored density before the first paint. Takes the `withDensity()` and `withStorage()` values.',
+      type: '(options?: WrDensityPrePaintOptions) => string',
       default: '—',
     },
     {
       name: 'CSS tokens',
       description:
-        '`--wr-density-y`, `--wr-density-x`, `--wr-density-text`, `--wr-density-gap` — multipliers components apply to their paddings via `calc()`.',
+        '`--wr-density-y` and `--wr-density-x` scale control padding, `--wr-density-gap` the gaps in layout components. `--wr-density-text` is for your own `calc()`.',
       type: 'CSS custom property',
       default: '1',
     },
@@ -114,13 +123,11 @@ density.cycle();`,
       kind: 'Guide',
       title: 'Theming',
       url: ['/guides', 'theming'],
-      description: 'How density fits alongside palette, dark mode, and design-token overrides.',
     },
     {
       kind: 'Service',
       title: 'WrTheme',
       url: ['/reference/services', 'theme'],
-      description: 'Sibling — light / dark / auto. Pair both for a full appearance API.',
     },
   ];
 }

@@ -102,14 +102,14 @@ describe('WrCarouselHarness', () => {
 
   /**
    * jsdom implements neither `TouchEvent` nor layout, so a touch is a plain event
-   * carrying the one field the component reads — the staging `carousel.spec.ts` uses.
+   * carrying the two fields the component reads — the staging `carousel.spec.ts` uses.
    * The harness never drags, but the track it reads goes through `calc()` while a
    * finger is down, and stripping that back to the settled percentage is a promise
    * only a live drag can hold it to.
    */
   const touch = (type: string, clientX?: number): Event => {
     const event = new Event(type, { bubbles: true, cancelable: true });
-    Object.assign(event, { touches: clientX === undefined ? [] : [{ clientX }] });
+    Object.assign(event, { touches: clientX === undefined ? [] : [{ clientX, clientY: 0 }] });
     return event;
   };
 

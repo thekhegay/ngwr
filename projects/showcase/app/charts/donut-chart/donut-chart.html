@@ -1,0 +1,45 @@
+<ngwr-doc-page
+  title="Donut Chart"
+  updated="15.0.0"
+  description="Parts of a whole as a ring or a pie."
+  [keywords]="['donut-chart', 'pie', 'wr-donut-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="With center label">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-donut-chart [segments]="segments" centerLabel="Disk" centerValue="60%" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Solid pie" description="Set `thickness` to `0`.">
+    <ngwr-doc-code [code]="snippets.solid" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-donut-chart [segments]="segments" thickness="0" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Tooltip" description='Set `[tooltip]="false"` to turn it off.'>
+    <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
+        <div style="flex: 1 1 16rem; min-width: 0">
+          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">On (default)</p>
+          <wr-donut-chart [segments]="segments" style="width: 100%" />
+        </div>
+        <div style="flex: 1 1 16rem; min-width: 0">
+          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+            <code>[tooltip]="false"</code>
+          </p>
+          <wr-donut-chart [segments]="segments" [tooltip]="false" style="width: 100%" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="apiRows" />
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

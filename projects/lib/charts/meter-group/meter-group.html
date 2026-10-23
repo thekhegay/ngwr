@@ -1,0 +1,38 @@
+<div
+  class="wr-meter-group__bar"
+  role="progressbar"
+  [attr.aria-label]="resolvedAriaLabel()"
+  [attr.aria-valuemin]="0"
+  [attr.aria-valuemax]="resolvedMax()"
+  [attr.aria-valuenow]="totalValue()"
+  [attr.aria-valuetext]="totalText()"
+>
+  @for (slice of slices(); track $index) {
+    <!-- `data-label` is what the harness reads a band's label from; the `title` it
+         used to read is only written while the tooltip is off. -->
+    <span
+      #slice
+      class="wr-meter-group__slice"
+      [attr.title]="tooltip() ? null : slice.label"
+      [attr.data-label]="slice.label"
+      [style.width.%]="slice.percent"
+      [style.background]="slice.color"
+      (mouseenter)="tip.enter($index)"
+      (mouseleave)="tip.leave($event)"
+    ></span>
+  }
+</div>
+
+@if (showLegend() && slices().length > 0) {
+  <ul class="wr-meter-group__legend">
+    @for (slice of slices(); track $index) {
+      <li class="wr-meter-group__legend-item">
+        <span class="wr-meter-group__swatch" aria-hidden="true" [style.background]="slice.color"></span>
+        <span class="wr-meter-group__legend-label">{{ slice.label }}</span>
+        @if (showValues()) {
+          <span class="wr-meter-group__legend-value">{{ slice.text }}</span>
+        }
+      </li>
+    }
+  </ul>
+}

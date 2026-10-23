@@ -2,7 +2,7 @@
   "$schema": "../../../node_modules/@angular-devkit/schematics/collection-schema.json",
   "schematics": {
     "ng-add": {
-      "description": "Wire ngwr into the workspace — install peer deps, append `@use 'ngwr';` to global styles, and print next-steps for bootstrap providers.",
+      "description": "Wire ngwr into the workspace — install peer deps, add `@use 'ngwr/theme';` to the top of the global styles, and print next-steps for providers and per-component styles.",
       "factory": "./ng-add/index#default",
       "schema": "./ng-add/schema.json"
     },
@@ -18,12 +18,12 @@
       "schema": "./use/schema.json"
     },
     "provider": {
-      "description": "Add a `provideWr*()` call to your bootstrap providers (overlay / icons / toast / i18n / date-adapter / density / storage / theme).",
+      "description": "Add a provider to your app config: `provideWrIcons()` / `provideWrI18n()` / `provideWrLoadingBarRouter()`, or a `withToast()` / `withDensity()` / `withStorage()` / `withTheme()` feature inside `provideWr()`.",
       "factory": "./provider/index#default",
       "schema": "./provider/schema.json"
     },
     "component-style": {
-      "description": "Append `@use 'ngwr/<name>';` to the project's global stylesheet — for opt-in per-component styles.",
+      "description": "Add `@use 'ngwr/<name>';` to the project's global stylesheet, after the theme line — every component you render needs its own.",
       "factory": "./component-style/index#default",
       "schema": "./component-style/schema.json",
       "aliases": ["style"]

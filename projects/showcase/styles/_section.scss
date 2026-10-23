@@ -1,0 +1,74 @@
+@use 'lib/styles/breakpoints' as bp;
+
+// A home page section and its head. Global rather than in `home.scss`, which is
+// emulated and so cannot reach the opt-in or the components bento — and three
+// copies of one head is how the three came to sit at three different offsets.
+.ngwr-section {
+  padding: 5rem 0;
+
+  @include bp.media-down(md) {
+    padding: 3rem 0;
+  }
+
+  // The split head: the lede at the start, a short aside at the end, on one
+  // baseline; stacked on a phone.
+  &__head {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 4rem;
+    margin-bottom: 3rem;
+
+    @include bp.media-down(md) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    // The centred head (the components bento). Later in source than the phone
+    // rule above at the same specificity, so it stays centred there too.
+    &--center {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      max-width: 48rem;
+      margin: 0 auto 3rem;
+      text-align: center;
+    }
+  }
+
+  // Section chip + heading, as one unit. `wr-tag` has no margin of its own and
+  // `wrTypography` zeroes the heading's, so in a plain wrapper the chip lands
+  // flush on the heading; the gap lives here, once. `align-items` keeps the
+  // chip at its natural width.
+  &__lede {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  // Supporting copy beside the lede, quieter than the heading. Pushed to the
+  // end with a logical margin, so it mirrors in RTL; reset when the head
+  // stacks, where the auto margin pushed it off the column's start edge.
+  &__aside {
+    max-width: 22rem;
+    margin-block: 0;
+    margin-inline-start: auto;
+    color: var(--wr-color-on-surface-muted);
+    line-height: 1.6;
+
+    @include bp.media-down(md) {
+      margin-inline-start: 0;
+    }
+  }
+
+  // The row of links under a section.
+  &__footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+}

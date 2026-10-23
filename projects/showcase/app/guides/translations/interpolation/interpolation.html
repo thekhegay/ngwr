@@ -1,25 +1,22 @@
 <ngwr-doc-page
   title="Interpolation"
-  description="Double-brace placeholders inside catalog values get filled at render time. Missing params resolve to an empty string — never a stray brace in the UI."
+  description="Fill placeholders in a translation with values."
   [keywords]="['i18n', 'translate', 'interpolation', 'placeholder', 'params']"
   [labels]="['Service']"
 >
   <ngwr-doc-section
     title="Catalog shape"
-    description="Use double braces around the param name — any string-coercible value (string, number, boolean) is rendered as-is. Objects fall back to `JSON.stringify`."
+    description="Wrap the param name in double braces; a param missing from the object renders as nothing."
   >
     <ngwr-doc-code [code]="snippets.catalog" language="typescript" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Live"
-    description="The same key, two locales, one input — type your name to see the placeholder resolve in real time."
-  >
+  <ngwr-doc-section title="Live" description="Type a name.">
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 24rem">
         <input wrInput placeholder="Your name" [value]="name()" (input)="onName($event)" />
         <p wrTypography variant="h3">{{ 'app.hello' | wrT: { name: name() } }}</p>
-        <p wrTypography tone="medium">Locale: {{ locale() }}</p>
+        <p wrTypography tone="muted">Locale: {{ locale() }}</p>
       </div>
     </ngwr-doc-snippet>
     <ngwr-doc-code [code]="snippets.pipe" language="angular-html" />
@@ -27,7 +24,7 @@
 
   <ngwr-doc-section
     title="Reusable formatter"
-    description="`useI18nFormatter(key)` returns a `(params) => string` helper — handy when the same parametrized label gets reused inside expressions."
+    description="`useI18nFormatter(key, fallback)` returns a function of the params, for a label reused per row."
   >
     <ngwr-doc-code [code]="snippets.formatter" language="typescript" />
   </ngwr-doc-section>

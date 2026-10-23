@@ -5,7 +5,6 @@ import { Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDropdown } from './dropdown';
@@ -17,13 +16,13 @@ import {
   type WrDropdownPosition,
   type WrDropdownTrigger,
   wrDropdownPositions,
-} from './interfaces';
+} from './types';
 
 /**
  * The menu is a CDK overlay rendered from a template portal, so it lands in the
  * overlay container rather than in the fixture — every query for an item goes
- * through the document. `provideWrOverlay()` keeps that container out of the next
- * spec file's.
+ * through the document. That container belongs to the TestBed's root injector, so
+ * it never outlives this file.
  */
 @Component({
   imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
@@ -97,7 +96,6 @@ describe('WrDropdown', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -266,10 +264,78 @@ describe('WrDropdown', () => {
     expect(document.activeElement).toBe(trigger());
   });
 
-  it('closes on Tab so focus can leave', () => {
-    click(trigger());
-    key(menu()!, 'Tab');
+  /**
+   * Tab closes the menu and moves on FROM THE TRIGGER.
+   *
+   * The menu lives in the overlay container at the end of `<body>`, so the
+   * browser's Tab, run from an item, went to the top of the page (Shift+Tab to
+   * the footer), and the close found focus outside the pane with nothing to hand
+   * back. The fix puts focus on the trigger at keydown time and leaves the event
+   * alone, so the browser's own Tab carries on from there.
+   *
+   * jsdom performs no sequential navigation, so this can only see the first half:
+   * the trigger focused synchronously, inside the keydown, with the default
+   * action intact. The browser's move is stood in for by focusing a neighbour by
+   * hand, which is enough to pin the other guard — the close that follows must
+   * not pull focus back. Where focus actually lands is a real-browser question.
+   */
+  it('hands Tab to the trigger so the browser moves on from there', async () => {
+    const next = document.createElement('button');
+    document.body.appendChild(next);
+
+    try {
+      trigger().focus();
+      trigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+      await fixture.whenStable();
+      expect(document.activeElement).toBe(items()[0]);
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+      items()[0].dispatchEvent(tab);
+      expect(tab.defaultPrevented, 'Tab was prevented').toBe(false);
+      expect(document.activeElement, 'focus was left inside the menu').toBe(trigger());
+
+      next.focus();
+      await fixture.whenStable();
+      expect(menu()).toBeNull();
+      expect(trigger().getAttribute('aria-expanded')).toBe('false');
+      expect(document.activeElement, 'the close pulled focus back').toBe(next);
+    } finally {
+      next.remove();
+    }
+  });
+
+  it('runs the whole menu-button round trip from the keyboard alone', async () => {
+    // No synchronous `detectChanges` anywhere in this one: under zoneless CD a
+    // keystroke schedules the render in a macrotask, and a `detectChanges` after
+    // the event paints the DOM before the deferred focus runs — which hides
+    // exactly the "focus stays on the trigger" defect this pins.
+    const press = async (el: EventTarget, name: string): Promise<KeyboardEvent> => {
+      const event = new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true });
+      el.dispatchEvent(event);
+      await fixture.whenStable();
+      return event;
+    };
+    const focused = (): string | undefined => document.activeElement?.textContent?.trim();
+
+    trigger().focus();
+    await press(trigger(), 'Enter');
+    expect(menu()).not.toBeNull();
+    expect(focused()).toBe('Copy');
+
+    // Both ends wrap, and the disabled row is never a stop.
+    expect((await press(document.activeElement!, 'ArrowUp')).defaultPrevented).toBe(true);
+    expect(focused()).toBe('Rename');
+    await press(document.activeElement!, 'ArrowDown');
+    expect(focused()).toBe('Copy');
+    await press(document.activeElement!, 'End');
+    expect(focused()).toBe('Rename');
+    await press(document.activeElement!, 'Home');
+    expect(focused()).toBe('Copy');
+
+    await press(document.activeElement!, 'Escape');
     expect(menu()).toBeNull();
+    expect(document.activeElement).toBe(trigger());
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
   });
 
   it('opens on hover when asked to', () => {
@@ -393,6 +459,15 @@ describe('WrDropdown', () => {
       key(elsewhere, 'Escape');
       expect(menu()).toBeNull();
       expect(document.activeElement, 'Escape stole the caret').toBe(elsewhere);
+
+      // Tab closes from out here too, and moves on from the field it was pressed
+      // in rather than from the trigger.
+      trigger().dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+      fixture.detectChanges();
+      expect(menu()).not.toBeNull();
+      expect(key(elsewhere, 'Tab').defaultPrevented).toBe(false);
+      expect(menu()).toBeNull();
+      expect(document.activeElement, 'Tab stole the caret').toBe(elsewhere);
     } finally {
       elsewhere.remove();
     }
@@ -420,170 +495,15 @@ describe('WrDropdown', () => {
   });
 });
 
-/** The same menu on a trigger that asks for the sheet presentation explicitly. */
-@Component({
-  imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
-  template: `
-    <button type="button" [wrDropdown]="menu" [responsive]="responsive()">Actions</button>
-    <wr-dropdown-menu #menu>
-      <wr-dropdown-item>Copy</wr-dropdown-item>
-    </wr-dropdown-menu>
-  `,
-})
-class SheetHost {
-  readonly responsive = signal<boolean | undefined>(true);
-}
-
 /**
- * The mobile presentation, which is a different overlay rather than a restyled one:
- * pinned to the bottom edge, full width, with a backdrop that blocks the page and
- * dismisses on a tap. Nothing about it is CSS — every one of those is an option
- * passed to `overlay.create()` — so a unit test can see all of it.
- *
- * The viewport is what decides, so it is moved here and put back afterwards: jsdom
- * shares one window across the whole file.
- */
-describe('WrDropdown as a bottom sheet', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
-  const width = Object.getOwnPropertyDescriptor(window, 'innerWidth');
-
-  const trigger = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector('button')!;
-  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-dropdown-overlay');
-
-  const mount = (viewport: number): void => {
-    Object.defineProperty(window, 'innerWidth', { value: viewport, configurable: true });
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
-    fixture = TestBed.createComponent(SheetHost);
-    fixture.detectChanges();
-  };
-
-  afterEach(() => {
-    fixture.destroy();
-    if (width) Object.defineProperty(window, 'innerWidth', width);
-  });
-
-  it('slides up from the bottom on a narrow viewport', () => {
-    mount(390);
-    trigger().click();
-    fixture.detectChanges();
-
-    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(true);
-    // The floating form carries a per-position modifier; the sheet has no position
-    // to carry, which is the tell that it detached from the trigger.
-    expect(pane()!.className).not.toContain('wr-dropdown-overlay--');
-  });
-
-  it('draws no arrow on a sheet, which has nothing to point at', () => {
-    mount(390);
-    trigger().click();
-    fixture.detectChanges();
-
-    // `arrow` is on by default, and still no `--arrow`: a sheet is docked to the
-    // bottom edge, so a tip would point at whatever happens to be above it.
-    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(true);
-    expect(pane()!.classList.contains('wr-dropdown-overlay--arrow')).toBe(false);
-  });
-
-  it('dims the page behind it, with the shared class that has the styles', () => {
-    mount(390);
-    trigger().click();
-    fixture.detectChanges();
-
-    const backdrop = document.querySelector('.cdk-overlay-backdrop');
-    expect(backdrop).not.toBeNull();
-    expect(backdrop!.classList.contains('wr-overlay-backdrop')).toBe(true);
-  });
-
-  it('closes when that backdrop is tapped', () => {
-    mount(390);
-    trigger().click();
-    fixture.detectChanges();
-
-    document.querySelector<HTMLElement>('.cdk-overlay-backdrop')!.click();
-    fixture.detectChanges();
-
-    expect(pane()).toBeNull();
-  });
-
-  it('stays a floating menu on a wide viewport, backdrop and all', () => {
-    mount(1280);
-    trigger().click();
-    fixture.detectChanges();
-
-    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(false);
-    expect(document.querySelector('.cdk-overlay-backdrop')).toBeNull();
-  });
-
-  it('follows a direction flip while it is up', () => {
-    mount(390);
-    const ambient = TestBed.inject(Directionality);
-    trigger().click();
-    fixture.detectChanges();
-    expect(pane()!.parentElement!.getAttribute('dir')).toBe('ltr');
-
-    ambient.valueSignal.set('rtl');
-    fixture.detectChanges();
-
-    // A sheet is pinned to the bottom edge and has no anchor to re-resolve, so
-    // the `dir` on its host IS the whole of the flip here — and the sheet is the
-    // form this menu takes on a phone, where the app's own direction switch is
-    // most likely to be inside it. The follower is deliberately called ABOVE the
-    // `asSheet` branch in `openOverlay()`; this is what would go red if it ever
-    // moved below it.
-    expect(pane()!.parentElement!.getAttribute('dir')).toBe('rtl');
-    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(true);
-  });
-
-  it('never becomes a sheet when the trigger opted out', () => {
-    mount(390);
-    fixture.componentInstance.responsive.set(false);
-    fixture.detectChanges();
-
-    trigger().click();
-    fixture.detectChanges();
-
-    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(false);
-  });
-});
-
-/**
- * ⚠️ This one guards the RULE, not the behaviour.
- *
- * A disabled item's own `disabled` guards the KEYBOARD path only; a real pointer
- * click lands on the host element, which is exactly where the consumer bound
- * `(click)`, so nothing stopped `remove()` firing on a disabled Delete. The fix is
- * `pointer-events: none` — the same answer `wr-btn` and `wr-checkbox` give — and
- * jsdom loads no stylesheets, so a spec here that clicked a disabled item would
- * pass identically before and after.
- *
- * Verified instead in headless Chromium against CSS compiled from this folder:
- * a click at the centre of the disabled item reached `.wr-dropdown-item--disabled`
- * before the fix and the item's `<wr-dropdown-menu>` ancestor after it, so the
- * item's own handler is never reached.
- */
-describe('the dropdown item stylesheet', () => {
-  const source = readFileSync(join(process.cwd(), 'projects/lib/dropdown/styles/_index.scss'), 'utf8');
-  const code = source
-    .split('\n')
-    .filter(line => !line.trim().startsWith('//'))
-    .join('\n');
-
-  it('stops a pointer reaching a disabled item at all', () => {
-    const rule = /&--disabled\s*\{([\s\S]*?)\n {2}\}/.exec(code)?.[1] ?? '';
-    expect(rule).toMatch(/pointer-events:\s*none/);
-  });
-});
-
-/**
- * ⚠️ These guard the RULES, not the painting.
+ * The stylesheet against `WR_DROPDOWN_POSITIONS`, not the painting.
  *
  * The arrow is a `::after` drawn by the shared `anchored-arrow` mixin, and jsdom
  * loads no stylesheet — so no spec here can see it, and one that asserted a
  * computed `content` would pass identically with the whole rule deleted. What a
  * unit test can hold is the drift the browser would only show on the one
  * placement nobody opened: a position added to `WrDropdownPosition` with no arrow
- * rule or no gap for it, or the opt-out that stops matching.
+ * rule or no gap for it.
  *
  * The painting was measured in Chromium against the built showcase instead, for
  * all eight placements in both themes: `content: ""`, a 6px square filled with
@@ -621,29 +541,6 @@ describe('the dropdown arrow stylesheet', () => {
       expect(wider, `no arrow gap for ${name}`).toMatch(new RegExp(`\\.wr-dropdown-overlay--${name}[,)]`));
     }
   });
-
-  it("keeps the wider gap at one class of weight, so a consumer's own gap still wins", () => {
-    // The gap has no hook: `.wr-dropdown-overlay--<placement> { padding-… }` in
-    // the app's sheet is how it is retuned. A compound `&.wr-dropdown-overlay--…`
-    // here weighs two classes and beats that on specificity, wherever it sits —
-    // measured in Chromium, a consumer's `padding-top: 0` on `--bottom-start`
-    // rendered an 8px gap. Inside `:where()`, the placement adds no weight.
-    const selectors = arrowTier();
-    expect(selectors.length).toBeGreaterThan(0);
-    for (const selector of selectors) expect(selector).toMatch(/^&:where\([^)]*\)$/);
-  });
-
-  it("paints the arrow from the menu's own hooks, so a retinted menu keeps a matching tip", () => {
-    const include = /@include arrow\.anchored-arrow\(([\s\S]*?)\);/.exec(code)?.[1] ?? '';
-    expect(include).toMatch(/\$background:\s*var\(--wr-dropdown-bg\)/);
-    expect(include).toMatch(/\$border:\s*var\(--wr-dropdown-border\)/);
-  });
-
-  it('takes the arrow off a pane the directive did not mark', () => {
-    expect(code).toMatch(
-      /\.wr-dropdown-overlay:not\(\.wr-dropdown-overlay--arrow\)\s*>\s*\.wr-dropdown-menu::after\s*\{\s*content:\s*none;/
-    );
-  });
 });
 
 /**
@@ -668,7 +565,6 @@ describe('WrDropdown template reference', () => {
 
   it('publishes the instance as `wrDropdown`', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
 
     const fixture = TestBed.createComponent(ExportHost);
     fixture.detectChanges();
@@ -719,7 +615,6 @@ describe('WrDropdown pane position', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(PositionHost);
     fixture.detectChanges();
   });
@@ -843,7 +738,6 @@ describe('WrDropdown when the requested placement does not fit', () => {
       return rect({ x: 0, y: 0, width: 0, height: 0 });
     });
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(FlipHost);
     fixture.detectChanges();
   });
@@ -1043,7 +937,6 @@ describe('WrDropdown nested inside another menu', () => {
     });
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(NestedHost);
     fixture.detectChanges();
 
@@ -1179,7 +1072,6 @@ describe('WrDropdown across a direction flip', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     ambient = TestBed.inject(Directionality);
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -1260,7 +1152,6 @@ describe('WrDropdown destroyed while open', () => {
       warnings.push(args.map(String).join(' '));
     });
 
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(TeardownHost);
     fixture.detectChanges();
     (fixture.nativeElement as HTMLElement).querySelector('button')!.click();

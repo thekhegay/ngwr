@@ -17,21 +17,12 @@ export default class IsDefinedPage {
   protected readonly snippet = `import { isDefined } from 'ngwr/utils';
 
 const items: (string | null | undefined)[] = ['a', null, 'b', undefined];
-const present = items.filter(isDefined);   // string[] — narrowed`;
-
-  protected readonly whySnippet = `// Native — TS doesn't narrow through an inline arrow predicate.
-const items: (string | null | undefined)[] = ['a', null, 'b'];
-const a = items.filter(x => x !== null && x !== undefined);
-//    ^? (string | null | undefined)[]      ← still nullable!
-
-// ngwr — type predicate signature narrows the result.
-const b = items.filter(isDefined);
-//    ^? string[]                          ← clean`;
+const present = items.filter(isDefined); // string[]`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'isDefined(v)',
-      description: 'Type-narrowing guard that excludes `null` and `undefined`. Composes cleanly with `Array.filter`.',
+      description: 'Narrows out `null` and `undefined`. Pass it straight to `Array.filter`.',
       type: '<T>(v: T | null | undefined) => v is T',
       default: '—',
     },

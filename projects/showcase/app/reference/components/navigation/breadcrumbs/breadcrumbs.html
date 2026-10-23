@@ -1,0 +1,21 @@
+<ngwr-doc-page
+  title="Breadcrumbs"
+  description="Shows where the current page sits in the site."
+  [keywords]="['breadcrumbs', 'wr-breadcrumbs', 'navigation', 'a11y']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Playground" description="An item with no `routerLink` or `href` is the current page.">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-breadcrumbs [separator]="separator()" [ariaLabel]="ariaLabel()">
+        <wr-breadcrumbs-item icon="home" routerLink="/">Home</wr-breadcrumbs-item>
+        <wr-breadcrumbs-item icon="folder" routerLink="/reference/components">Components</wr-breadcrumbs-item>
+        <wr-breadcrumbs-item routerLink="/reference/components/breadcrumbs">Breadcrumbs</wr-breadcrumbs-item>
+        <wr-breadcrumbs-item>Current page</wr-breadcrumbs-item>
+      </wr-breadcrumbs>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

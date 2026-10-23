@@ -9,7 +9,7 @@ import { ContentContainerComponentHarness, HarnessPredicate, TestKey, type TestE
 
 import type { WrDrawerPosition } from 'ngwr/drawer';
 
-import type { WrDrawerHarnessFilters } from './interfaces';
+import type { WrDrawerHarnessFilters } from './types';
 
 const POSITIONS: readonly WrDrawerPosition[] = ['left', 'right', 'top', 'bottom'];
 
@@ -114,8 +114,8 @@ export class WrDrawerHarness extends ContentContainerComponentHarness {
    * bottom edges, where it spans the full viewport width and takes its size from
    * `height` / `maxHeight`.
    *
-   * This answers the axis only. The bottom-sheet look is that plus `rounded` and
-   * `showHandle`, which {@link isRounded} and {@link hasHandle} answer separately.
+   * This answers the axis only. The bottom-sheet look is that plus `rounded`,
+   * which {@link isRounded} answers separately.
    */
   async isSheet(): Promise<boolean> {
     const position = await this.getPosition();
@@ -130,18 +130,6 @@ export class WrDrawerHarness extends ContentContainerComponentHarness {
   /** Whether the trailing edge is padded for the device's safe area (`safeArea`). */
   async hasSafeArea(): Promise<boolean> {
     return (await this.panel()).hasClass('wr-drawer__panel--safe-area');
-  }
-
-  /**
-   * Whether the drawer draws a grab handle (`showHandle`), which is also what
-   * enables swipe-to-dismiss.
-   *
-   * Always `false` for a `WrDrawerManager.open()` drawer, and not a defect: the
-   * handle lives in the component's own wrapper markup, which the service path
-   * replaces with the caller's component.
-   */
-  async hasHandle(): Promise<boolean> {
-    return (await this.locatorForOptional('.wr-drawer__handle')()) !== null;
   }
 
   /**
@@ -237,7 +225,11 @@ export class WrDrawerHarness extends ContentContainerComponentHarness {
     await backdrop.click();
   }
 
-  /** Whether focus is currently inside the drawer, where the trap should hold it. */
+  /**
+   * Whether focus is currently inside the drawer — where the trap holds it on a
+   * modal drawer. A drawer without a backdrop is non-modal and lets focus leave,
+   * so there this reads only where focus is now.
+   */
   async isFocusTrapped(): Promise<boolean> {
     return (await this.host()).matchesSelector(':focus-within');
   }

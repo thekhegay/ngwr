@@ -7,7 +7,7 @@ import { WrScroll } from 'ngwr/scroll';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrAnchor } from './anchor';
-import type { WrAnchorLink } from './interfaces';
+import type { WrAnchorLink } from './types';
 
 const LINKS: readonly WrAnchorLink[] = [
   { id: 'intro', label: 'Introduction' },
@@ -33,6 +33,7 @@ const LINKS: readonly WrAnchorLink[] = [
     <h2 id="usage">Usage</h2>
     <h3 id="basic">Basic</h3>
     <h3 id="advanced">Advanced</h3>
+    <h4 id="deeper">Deeper</h4>
   `,
 })
 class Host {
@@ -193,6 +194,33 @@ describe('WrAnchor', () => {
     expect(activeIds()).toEqual(['basic']);
   });
 
+  it('keeps a clicked entry lit where the page runs out of scroll short of its target', () => {
+    // jsdom has no scrollable height, so a click here always lands at the end of
+    // the page — exactly where it broke: the last target stops below the cursor
+    // line, and the spy handed the highlight straight back to the entry above it.
+    const scrollTo = (y: number): void => {
+      Object.defineProperty(window, 'scrollY', { value: y, configurable: true, writable: true });
+    };
+    try {
+      placeTargets({ intro: -400, usage: -200, basic: 20, advanced: 300 });
+      expect(activeIds()).toEqual(['basic']);
+
+      linkFor('advanced').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      // The scroll that ends the trip, with the target still below the line.
+      placeTargets({ intro: -400, usage: -200, basic: 20, advanced: 300 });
+      expect(activeIds()).toEqual(['advanced']);
+
+      // Scrolling away from where the click went is the reader's own doing, and
+      // the spy takes over again.
+      scrollTo(240);
+      placeTargets({ intro: -160, usage: 40, basic: 260, advanced: 540 });
+      expect(activeIds()).toEqual(['usage']);
+    } finally {
+      scrollTo(0);
+    }
+  });
+
   it('drops its listener when it goes away', () => {
     const remove = vi.spyOn(window, 'removeEventListener');
     fixture.destroy();
@@ -207,6 +235,31 @@ describe('WrAnchor', () => {
     expect(links().length).toBe(4);
     expect(add).not.toHaveBeenCalledWith('scroll', expect.anything(), expect.anything());
     expect(activeIds()).toEqual([]);
+  });
+
+  it('never makes a grandchild active, because no link renders one', () => {
+    // `WrAnchorLink` documents one level of nesting and the template renders
+    // exactly that. The spy used to walk the tree all the way down, so a third
+    // level became `activeId` while no rendered link carried the id: scrolling
+    // through that region dropped the highlight entirely instead of leaving it
+    // on the parent.
+    fixture.componentInstance.links.set([
+      { id: 'intro', label: 'Introduction' },
+      {
+        id: 'usage',
+        label: 'Usage',
+        children: [{ id: 'basic', label: 'Basic', children: [{ id: 'deeper', label: 'Deeper' }] }],
+      },
+    ]);
+    fixture.detectChanges();
+
+    // Only the two levels the template draws exist as links.
+    expect(links().map(a => a.getAttribute('href'))).toEqual(['#intro', '#usage', '#basic']);
+
+    // The cursor is past every target, including the grandchild's.
+    placeTargets({ intro: -300, usage: -200, basic: -100, deeper: -50 });
+
+    expect(activeIds()).toEqual(['basic']);
   });
 });
 

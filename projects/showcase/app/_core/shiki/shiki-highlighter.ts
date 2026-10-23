@@ -21,7 +21,7 @@ let instance: Promise<HighlighterCore> | null = null;
 export function getHighlighter(): Promise<HighlighterCore> {
   instance ??= createHighlighterCore({
     // The high-contrast pair, not the plain one. Measured against the code
-    // block's own background — `rgba(--wr-color-light, 0.2)`, which composites
+    // block's own background — `rgba(--wr-border-base, 0.2)`, which composites
     // to #f5f7f9 in light and #101727 in dark, NOT the page white — every
     // foreground in `github-light` that renders as text on it failed WCAG AA:
     // variable #e36209 at 3.25, keyword #d73a49 4.26, tag #22863a 4.31, comment
@@ -41,9 +41,9 @@ export function getHighlighter(): Promise<HighlighterCore> {
       import('shiki/langs/scss.mjs'),
       import('shiki/langs/bash.mjs'),
       import('shiki/langs/diff.mjs'),
-      // For the `markdown` page, which documents a markdown renderer and so
-      // shows markdown SOURCE. Its embedded languages are declared lazily by the
-      // grammar, so this is one 65 KB chunk rather than the whole bundle.
+      // For the MCP page, whose tool responses are markdown. Its embedded
+      // languages are declared lazily by the grammar, so this is one 65 KB
+      // chunk rather than the whole bundle.
       import('shiki/langs/markdown.mjs'),
     ],
     engine: createOnigurumaEngine(import('shiki/wasm')),

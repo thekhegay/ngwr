@@ -81,6 +81,7 @@ export const wrJa: WrI18nCatalog = {
   },
   stepper: {
     optional: '任意',
+    completed: '完了',
   },
   transfer: {
     source: '選択可能',
@@ -95,29 +96,6 @@ export const wrJa: WrI18nCatalog = {
   },
   form: {
     optional: '任意',
-  },
-  validation: {
-    required: '必須項目です。',
-    requiredTrue: 'チェックが必要です。',
-    email: '有効なメールアドレスを入力してください。',
-    minlength: '{{requiredLength}}文字以上で入力してください。',
-    maxlength: '{{requiredLength}}文字以内で入力してください。',
-    min: '{{min}}以上で入力してください。',
-    max: '{{max}}以下で入力してください。',
-    pattern: '形式が正しくありません。',
-    noWhitespace: 'スペースは使用できません。',
-    hexColor: '#1a2b3c 形式のカラーコードを入力してください。',
-    url: '有効なURLを入力してください。',
-    cardNumber: '有効なカード番号を入力してください。',
-    cvc: '{{length}}桁のセキュリティコードを入力してください。',
-    iban: '有効なIBANを入力してください。',
-    match: '2つの値が一致しません。',
-    matchFields: '入力内容が一致しません。',
-    oneOf: '許可された値から選択してください。',
-    minDate: 'これより後の日付を選択してください。',
-    maxDate: 'これより前の日付を選択してください。',
-    dateFormat: '入力例：{{example}}',
-    dateFilter: 'この日付は選択できません。',
   },
   select: {
     label: '選択',
@@ -247,13 +225,15 @@ export const wrJa: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: '棒グラフ',
+  },
   calendarHeatmap: {
     label: 'カレンダーヒートマップ',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: '折れ線グラフ',
-    thousands: '{{value}}千',
   },
   donutChart: {
     label: 'ドーナツグラフ',
@@ -269,9 +249,6 @@ export const wrJa: WrI18nCatalog = {
     pagination: 'カルーセルのページ送り',
     roledescription: 'カルーセル',
     slideRoledescription: 'スライド',
-  },
-  actionSheet: {
-    label: 'アクション',
   },
   alert: {
     close: 'アラートを閉じる',
@@ -300,12 +277,6 @@ export const wrJa: WrI18nCatalog = {
   },
   popover: {
     label: 'ポップオーバー',
-  },
-  markdown: {
-    copy: 'コードをコピー',
-    copied: 'コピーしました',
-    taskDone: '完了：',
-    taskTodo: '未完了：',
   },
   editor: {
     label: 'リッチテキスト',
@@ -377,6 +348,9 @@ export const wrJa: WrI18nCatalog = {
   },
   sidebar: {
     label: 'サイドバー',
+    containsCurrent: '現在のページを含む',
+    subpages: '{{title}} のサブページ',
+    separator: '、',
   },
   spinner: {
     label: '読み込み中',

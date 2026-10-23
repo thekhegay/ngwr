@@ -14,48 +14,55 @@ import {
 @Component({
   selector: 'ngwr-affix-page',
   templateUrl: './affix.html',
+  styleUrl: './affix.scss',
   imports: [WrAffix, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class AffixPage {
   protected readonly affixed = signal(false);
+  protected readonly gridAffixed = signal(false);
 
   protected readonly snippets = {
-    install: `import { WrAffix } from 'ngwr/affix';`,
+    grid: `<div style="display: grid; grid-template-columns: 12rem 1fr; gap: 1rem">
+  <aside wrAffix [wrAffixOffsetTop]="16" style="align-self: start">…</aside>
+  <main>…</main>
+</div>`,
     usage: `<header wrAffix [wrAffixOffsetTop]="0" (wrAffixChange)="onAffix($event)">
   …
 </header>`,
-    scss: `/* Style the stuck state via the .wr-affix--active modifier */
-header.wr-affix--active {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  background: var(--wr-color-white);
+    scss: `header.wr-affix.wr-affix--active {
+  box-shadow: var(--wr-shadow-sm);
+  background: var(--wr-color-surface);
 }`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: '[wrAffix]',
-      description:
-        'Apply to any element. Adds `position: sticky` + an IntersectionObserver sentinel that toggles `wr-affix--active` while the element is pinned.',
+      description: 'Makes the host sticky and adds `wr-affix--active` while it is pinned.',
       type: 'directive',
       default: '—',
     },
     {
       name: '[wrAffixOffsetTop]',
-      description:
-        'Pixels from the top of the scroll container when stuck. Drives both `style.top` and the observer threshold — and it is live: an `IntersectionObserver` cannot change its `rootMargin`, so a new offset builds a new observer rather than letting the pinned position and the state flip apart.',
+      description: 'Pixels from the top of the scroll container when stuck.',
       type: 'number',
       default: '0',
     },
     {
       name: '(wrAffixChange)',
-      description:
-        'Emits `true` on stick, `false` on release — transitions only. The observer reports STATE, so it delivers an entry the moment it starts watching and can repeat one the host is already in; a repeat is swallowed rather than emitted.',
+      description: 'Emits `true` on stick and `false` on release.',
       type: 'boolean',
       default: '—',
     },
     {
+      name: '.wr-affix',
+      description: 'Always on the host. Sets `z-index: 10`; override it here to restack.',
+      type: 'class',
+      default: '—',
+    },
+    {
       name: '.wr-affix--active',
-      description: 'Class added to the host while pinned. Hook your active-state styles here.',
+      description: 'On the host while pinned.',
       type: 'class',
       default: '—',
     },

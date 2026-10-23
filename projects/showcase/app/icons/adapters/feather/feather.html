@@ -1,0 +1,12 @@
+<ngwr-doc-page
+  title="Feather adapter"
+  removed="15.0.0"
+  description="A Feather helper over `icons.json`. v15 removed it: register Feather's own SVG files."
+  [keywords]="['feather', 'featherIcons', 'ngwr/icon/adapters/feather', 'icon adapter', 'removed']"
+>
+  <ngwr-doc-removed
+    was="`ngwr/icon/adapters/feather`, with `featherIcons()`, which built Feather glyphs from its `icons.json`."
+    why="Feather ships plain SVG files, and the helper only wrapped markup those files already carry."
+    instead="Register Feather's SVG files with `svgIcon()` from `ngwr/icon`, like every other set. See [Feather](/icons/feather)."
+  />
+</ngwr-doc-page>

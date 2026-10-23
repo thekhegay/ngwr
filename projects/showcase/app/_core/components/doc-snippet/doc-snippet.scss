@@ -4,7 +4,7 @@
   // descendants (sticky needs an unclipped chain to the scroll root,
   // which is what the anchor + back-top demos rely on). Border-radius
   // clipping is handled at `.demo` / `.code` instead.
-  border: 1px solid var(--wr-color-light);
+  border: 1px solid var(--wr-border-base);
   border-radius: var(--wr-border-radius-base);
 }
 
@@ -16,28 +16,13 @@
   justify-content: flex-start;
   gap: 0.75rem;
   padding: 1.5rem;
-  border-bottom: 1px solid var(--wr-color-light);
+  border-bottom: 1px solid var(--wr-border-base);
 
-  // Collapse when nothing is projected (a code-only snippet). The demo is now
-  // wrapped for the phone frame, so `:empty` no longer matches — key off the
-  // screen having no element children instead.
-  //
-  // This takes the actions row down with it, so a code-only snippet has no
-  // "Open in StackBlitz" affordance even when its source would run. Left that
-  // way deliberately: the alternative is a 2.75rem band of chrome over an empty
-  // box on every one of those pages, to reach a snippet the reader is looking
-  // at as reference rather than as a demo.
+  // Collapse when nothing is projected (a code-only snippet). The demo sits
+  // inside `.demo__screen`, so `:empty` never matches — key off the screen
+  // having no element children instead.
   &:not(:has(.demo__screen > *)) {
     display: none;
-  }
-
-  // The actions row is absolutely positioned 0.5rem into a 1.5rem padding box
-  // and is 1.75rem tall, so it used to hang 12px into the CONTENT box and clip
-  // the top-right corner of anything that fills the demo (a block button, a
-  // heatmap, a colour picker — 80 routes across the three viewports).
-  // Reserve a band for it instead of letting it sit on the demo.
-  &:has(.demo__actions) {
-    padding-top: 2.75rem;
   }
 
   // No source block underneath — drop the divider.
@@ -46,72 +31,8 @@
   }
 }
 
-// Demo actions — StackBlitz, phone-frame preview ----------------------------
-
-.demo__actions {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  // Above whatever the demo itself stacks. At `z-index: 1` a lightbox thumb
-  // (`z-index: 2`) painted over the toggle, and a segmented option that merely
-  // TIED it won on DOM order — a tap 3px inside the toggle's own box opened the
-  // lightbox instead of framing the demo.
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  // Both buttons clear the 24px `target-size` asks for on their own, and the
-  // gap keeps that true: axe measures the box a neighbouring target does not
-  // overlap, not the box the CSS declares.
-  gap: 0.25rem;
-}
-
-.demo__action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  border: 1px solid var(--wr-color-light);
-  border-radius: var(--wr-border-radius-sm);
-  background: var(--wr-color-surface);
-  color: var(--wr-color-on-surface-muted);
-  cursor: pointer;
-  opacity: 0.55;
-  transition:
-    opacity var(--wr-duration-base) var(--wr-ease-out),
-    color var(--wr-duration-base) var(--wr-ease-out);
-  --wr-icon-size: 1rem;
-
-  &:hover,
-  &[aria-pressed='true'] {
-    opacity: 1;
-    color: var(--wr-color-on-surface);
-  }
-
-  // The library's ring, spelled out rather than pulled in: `lib/theme/styles/focus`
-  // carries 21 global selectors across 16 rule blocks alongside the mixin, so
-  // `@use`-ing it here would copy every one of them into this component's sheet.
-  // Counts: `grep -c '^\.' projects/lib/theme/styles/_focus.scss` and
-  // `grep -c '@include focus-ring' projects/lib/theme/styles/_focus.scss`.
-  // The tokens are the API; the declarations below are `@mixin focus-ring` verbatim.
-  &:focus-visible {
-    opacity: 1;
-    outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
-    outline-offset: var(--wr-focus-ring-offset);
-    box-shadow: 0 0 0 var(--wr-focus-ring-offset) var(--wr-focus-ring-halo);
-  }
-
-  // Only reachable while the sandbox chunk is in flight — a fraction of a
-  // second, and only on the first click of a session.
-  &:disabled {
-    cursor: progress;
-    opacity: 0.35;
-  }
-}
-
-// Transparent by default so the demo lays out exactly as before; the wrappers
-// become the device shell only once framed.
+// Left from the phone frame v15 removed: `display: contents` keeps both
+// wrappers out of the layout.
 .demo__viewport,
 .demo__screen {
   display: contents;
@@ -127,32 +48,6 @@
 .demo__screen > * {
   min-width: 0;
   max-width: 100%;
-}
-
-.demo--framed {
-  justify-content: center;
-  padding: 2.75rem 1.5rem 2rem;
-  background: var(--wr-color-hover);
-}
-
-.demo--framed .demo__viewport {
-  display: flex;
-  flex-direction: column;
-  width: min(100%, 21rem);
-  height: min(70vh, 40rem);
-  overflow: hidden;
-  background: var(--wr-color-surface);
-  border: 1px solid var(--wr-color-light);
-  border-radius: 2rem;
-  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.18);
-}
-
-.demo--framed .demo__screen {
-  display: block;
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  padding: 1.25rem;
 }
 
 .code {

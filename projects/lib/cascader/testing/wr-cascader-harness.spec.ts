@@ -3,7 +3,6 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrCascader, type WrCascaderOption } from 'ngwr/cascader';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrCascaderHarness } from './wr-cascader-harness';
@@ -79,8 +78,8 @@ class TwoHost {
 /**
  * The panel is a template portal in the overlay container, so none of the columns
  * this spec reads are reachable from the fixture — which is why the harness scopes
- * every panel read by the id the trigger publishes as `aria-controls`. The spec
- * provides `provideWrOverlay()` to keep its container out of the next file's.
+ * every panel read by the id the trigger publishes as `aria-controls`. The
+ * container belongs to the TestBed's root injector, so it never outlives this file.
  */
 describe('WrCascaderHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -90,7 +89,6 @@ describe('WrCascaderHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -348,19 +346,19 @@ describe('WrCascaderHarness', () => {
     await expect(cascader.getColumn(3)).rejects.toThrow(/no column at level 3 — the panel is showing 1/);
   });
 
-  it('gives every option its own tab stop, and commits from the keyboard', async () => {
+  it('keeps one tab stop in the panel, and commits from the keyboard', async () => {
     const cascader = await loader.getHarness(WrCascaderHarness);
     await cascader.selectPath(['Asia']);
 
-    // Not a roving cursor: there is no container-owned arrow-nav model here, which
-    // is the documented reason virtual scrolling is deferred for this component.
-    // A keyboard user Tabs to the option they want and presses Enter, so that is
-    // the keyboard path the harness offers.
+    // A roving stop, as in the APG tree pattern: one option is reachable with Tab
+    // and the arrows walk the rest. With Asia open, the stop is on Asia.
+    const stops: string[] = [];
     for (const column of await cascader.getColumns()) {
-      for (const option of await column.getOptions({ disabled: false })) {
-        expect(await option.getTabIndex()).toBe(0);
+      for (const option of await column.getOptions()) {
+        if ((await option.getTabIndex()) === 0) stops.push(await option.getText());
       }
     }
+    expect(stops).toEqual(['Asia']);
 
     const antarctica = await cascader.getOption({ text: 'Antarctica' });
     await antarctica.focus();
@@ -472,7 +470,6 @@ describe('WrCascaderHarness — two on one page', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TwoHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

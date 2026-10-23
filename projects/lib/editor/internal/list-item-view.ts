@@ -15,12 +15,12 @@ interface WrTaskLabels {
 }
 
 /**
- * List items as the editor draws them, which differs from the HTML it writes
- * only for a TASK item.
+ * List items as the editor draws them, which differs from the schema's `toDOM` —
+ * what a copy puts on the clipboard — only for a TASK item.
  *
- * A task item's box is presentational, with its state as text beside it —
- * exactly what `<wr-markdown>` renders. A real `<input type="checkbox">` would be
- * an unlabelled form control inside the text, and making it operable would
+ * A task item's box is presentational, with its state as text beside it — the
+ * same drawing as the read-only rendering. A real `<input type="checkbox">` would
+ * be an unlabelled form control inside the text, and making it operable would
  * promise an interaction v1 does not have. The box and the words sit outside the
  * editable content, so ProseMirror neither edits nor serializes them; the words
  * come from the catalog, which is why this is a node view the component builds

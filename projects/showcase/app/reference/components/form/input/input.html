@@ -1,0 +1,132 @@
+<ngwr-doc-page
+  title="Input"
+  updated="15.0.0"
+  description="A directive that styles a native `<input>` or `<textarea>`."
+  [keywords]="['input', 'wrInput', 'mask', 'ngx-mask', 'text']"
+  [labels]="['Directive', 'a11y']"
+>
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <input wrInput placeholder="Type here…" [(ngModel)]="text" />
+      <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ text() }}</span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types" description="Set any native `type`.">
+    <ngwr-doc-snippet [code]="snippets.types">
+      <input wrInput type="email" placeholder="you@example.com" />
+      <input wrInput type="number" placeholder="0" />
+      <input wrInput type="search" placeholder="Search" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Prefix & suffix"
+    description="Wrap the input in `<wr-input-group>` and mark its siblings with `wrInputPrefix` or `wrInputSuffix`."
+  >
+    <ngwr-doc-snippet [code]="snippets.affixes">
+      <wr-input-group>
+        <span wrInputPrefix>$</span>
+        <input wrInput type="number" placeholder="0" [(ngModel)]="amount" />
+        <span wrInputSuffix>USD</span>
+      </wr-input-group>
+      <wr-input-group>
+        <span wrInputPrefix>https://</span>
+        <input wrInput placeholder="example.com" />
+      </wr-input-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rounded">
+    <ngwr-doc-snippet [code]="snippets.rounded">
+      <input wrInput rounded placeholder="Rounded" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Password reveal"
+    description="`<wr-password-toggle [for]>` switches its input between `password` and `text`."
+  >
+    <ngwr-doc-snippet [code]="snippets.password">
+      <wr-input-group>
+        <input
+          wrInput
+          type="password"
+          autocomplete="new-password"
+          placeholder="Password"
+          [(ngModel)]="password"
+          #pwInput
+        />
+        <wr-password-toggle [for]="pwInput" />
+      </wr-input-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Input masking — with ngx-mask"
+    description="ngwr ships no mask. Put `ngx-mask` on the same `<input>`."
+  >
+    <ngwr-doc-install packages="ngx-mask" />
+    <ngwr-doc-code [code]="snippets.maskSetup" language="angular-ts" />
+    <ngwr-doc-snippet [code]="snippets.maskUsage">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem">
+        <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          Phone
+          <input wrInput mask="(000) 000-0000" placeholder="(555) 555-5555" [(ngModel)]="phone" />
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          Credit card
+          <input wrInput mask="0000 0000 0000 0000" placeholder="4242 4242 4242 4242" [(ngModel)]="card" />
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          Expiry (MM/YY)
+          <input wrInput mask="00/00" placeholder="12/29" [(ngModel)]="expiry" />
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          CVC
+          <input wrInput mask="000" placeholder="123" [(ngModel)]="cvc" />
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          Date (DD/MM/YYYY)
+          <input wrInput mask="00/00/0000" placeholder="31/12/2026" [(ngModel)]="date" />
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          Money
+          <wr-input-group>
+            <span wrInputPrefix>$</span>
+            <input wrInput mask="separator.2" placeholder="1,234.56" [(ngModel)]="money" />
+          </wr-input-group>
+        </label>
+      </div>
+    </ngwr-doc-snippet>
+
+    <p>Mask tokens: <a href="https://jsdaddy.github.io/ngx-mask" target="_blank" rel="noopener">ngx-mask docs</a>.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled">
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <input wrInput placeholder="Disabled" disabled />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="In a form"
+    description="Binds like any native input, so `updateOn` and `{ emitEvent: false }` work. See [Forms](/guides/forms)."
+  />
+
+  <ngwr-doc-section title="[wrInput] directive">
+    <ngwr-doc-api [rows]="directiveApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="<wr-input-group>">
+    <ngwr-doc-api [rows]="groupApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Prefix & suffix directives">
+    <ngwr-doc-api [rows]="affixApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="<wr-password-toggle>">
+    <ngwr-doc-api [rows]="passwordToggleApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

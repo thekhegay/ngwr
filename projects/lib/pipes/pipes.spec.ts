@@ -5,6 +5,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { WrBytes } from './bytes';
+import { WrDate } from './date';
 import { WrMark } from './mark';
 import { WrPlural } from './plural';
 import { WrRange } from './range';
@@ -103,6 +104,47 @@ describe('wrTruncate', () => {
   it('handles nothing and a zero length', () => {
     expect(pipe.transform(null)).toBe('');
     expect(pipe.transform('abc', 0)).toBe('…');
+  });
+
+  it('counts what a reader sees as one character, never half of one', () => {
+    // Counted in UTF-16 units, the cut landed between the two halves of an
+    // emoji and printed a lone surrogate, which renders as a replacement box.
+    expect(pipe.transform(`a${'😀'.repeat(30)}`, 3)).toBe('a😀😀…');
+    expect(pipe.transform('👨‍👩‍👧‍👦👨‍👩‍👧‍👦', 1)).toBe('👨‍👩‍👧‍👦…');
+    expect(pipe.transform('e\u0301e\u0301e\u0301', 2)).toBe('e\u0301e\u0301…');
+    // Longer than `length` in units, not in characters: nothing to cut.
+    expect(pipe.transform('😀😀😀', 4)).toBe('😀😀😀');
+  });
+});
+
+/**
+ * `wrDate` hands the adapter a `Date`, so what it decides is the INSTANT a
+ * string stands for. A date-only string is a calendar day: read as UTC midnight
+ * it is the evening before anywhere west of Greenwich, so the time it carries is
+ * the assertion that holds in every zone but UTC itself.
+ */
+describe('wrDate', () => {
+  const pipe = (): WrDate => {
+    TestBed.resetTestingModule();
+    return TestBed.configureTestingModule({
+      providers: [{ provide: LOCALE_ID, useValue: 'en-US' }],
+    }).runInInjectionContext(() => new WrDate());
+  };
+
+  it('reads a date-only string as local midnight, the way DatePipe does', () => {
+    expect(pipe().transform('2026-01-01', 'yyyy-MM-dd HH:mm')).toBe('2026-01-01 00:00');
+    expect(pipe().transform('2026-03', 'yyyy-MM-dd HH:mm')).toBe('2026-03-01 00:00');
+  });
+
+  it('leaves a string with a time, or a zone, to the engine', () => {
+    expect(pipe().transform('2026-01-01T09:30', 'yyyy-MM-dd HH:mm')).toBe('2026-01-01 09:30');
+    const instant = '2026-01-01T09:30:00Z';
+    expect(pipe().transform(instant, 'HH:mm')).toBe(pipe().transform(new Date(instant), 'HH:mm'));
+  });
+
+  it('prints nothing for a date the engine refuses', () => {
+    expect(pipe().transform('2026-13-01')).toBe('');
+    expect(pipe().transform('')).toBe('');
   });
 });
 

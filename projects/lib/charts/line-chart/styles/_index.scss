@@ -1,0 +1,251 @@
+@use '../../../theme/styles' as theme;
+
+.wr-line-chart {
+  --wr-line-chart-font-family: var(--wr-font-family-base);
+  // The room round the drawing inside the plot, which the dots and the hover ring
+  // overhang into: the drawing runs edge to edge, so a point at either end is drawn
+  // half outside it. The y labels read the block one to meet the gridlines, the x labels
+  // and the tooltip the inline one to meet the points.
+  --wr-line-chart-plot-inset-x: var(--wr-space-md);
+  --wr-line-chart-plot-inset-y: var(--wr-space-sm);
+
+  // Where a point is, for the x labels and the tooltip. Both sit in a box as wide as the
+  // plot — the drawing plus its inline padding — and are handed the point's x as a
+  // percentage of the DRAWING, so the length from either side of that box to the point
+  // is the padding plus that share of what is left. The padding is room an end label
+  // may use too: measured in Chromium, "Mon" sits within a pixel of centred under the
+  // first dot, where a strip as wide as the drawing pushed it 12px off.
+  $inset: var(--wr-line-chart-plot-inset-x);
+  $x: var(--wr-line-chart-x, 50);
+  $point: calc($inset + (100% - 2 * $inset) * $x / 100);
+  $room-start: calc($inset + (100cqw - 2 * $inset) * $x / 100);
+  $room-end: calc($inset + (100cqw - 2 * $inset) * (100 - $x) / 100);
+
+  display: block;
+  font-family: var(--wr-line-chart-font-family);
+  color: var(--wr-color-on-surface);
+
+  &__legend {
+    --wr-line-chart-legend-margin-bottom: var(--wr-space-md);
+    --wr-line-chart-legend-row-gap: var(--wr-space-sm);
+    --wr-line-chart-legend-column-gap: var(--wr-space-lg);
+
+    list-style: none;
+    margin: 0 0 var(--wr-line-chart-legend-margin-bottom);
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--wr-line-chart-legend-row-gap) var(--wr-line-chart-legend-column-gap);
+  }
+
+  &__legend-item {
+    --wr-line-chart-legend-item-gap: var(--wr-space-sm);
+    --wr-line-chart-legend-item-font-size: var(--wr-text-xs);
+
+    display: inline-flex;
+    align-items: center;
+    gap: var(--wr-line-chart-legend-item-gap);
+    font-size: var(--wr-line-chart-legend-item-font-size);
+  }
+
+  // A short line rather than a dot, because it now carries the series' dash
+  // pattern and a 10px circle cannot show one.
+  &__swatch {
+    width: 1rem;
+    height: 0.125rem;
+    overflow: visible;
+    flex: 0 0 auto;
+    // The tooltip's swatch is an inline `background`, which forced colors resets
+    // to `Canvas`, while the line it names keeps its SVG stroke.
+    forced-color-adjust: none;
+  }
+
+  // The y labels at inline start, the plot beside them, and the x labels under the plot
+  // alone. A grid follows `direction`, so the gutter is on the right under RTL with no
+  // rule of its own; the drawing itself does not mirror, as it never has.
+  &__body {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  // As wide as the longest label, which is the point: every label is in flow, in the one
+  // cell of a one-cell grid, so the column sizes to the widest and none is clipped or
+  // stretched — while the column's height is one label, which never grows the row past
+  // the plot. Stretched to that row, the cell is as tall as the plot, and each label
+  // moves down from its top by its own gridline's share of the drawing, inside the
+  // plot's block padding, then up by half itself. Spreading the labels with
+  // `space-between` instead drifted them off their lines as soon as their stack outgrew
+  // the plot: measured in Chromium, six labels on an 80px plot grew the row to 96px and
+  // left the last one 16px low.
+  &__y-axis {
+    --wr-line-chart-tick-gap: var(--wr-space-xs);
+    --wr-line-chart-tick-font-size: var(--wr-text-xs);
+    --wr-line-chart-tick-line-height: var(--wr-text-xs-leading);
+    --wr-line-chart-tick-color: var(--wr-color-on-surface-muted);
+
+    grid-column: 1;
+    grid-row: 1;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    padding-inline-end: var(--wr-line-chart-tick-gap);
+    font-size: var(--wr-line-chart-tick-font-size);
+    line-height: var(--wr-line-chart-tick-line-height);
+    color: var(--wr-line-chart-tick-color);
+    text-align: end;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // `top` in percent is the grid area's height — the cell is the containing block — and
+  // relative positioning leaves the label's place in flow, so the column keeps its width.
+  &__tick {
+    $inset: var(--wr-line-chart-plot-inset-y);
+
+    grid-area: 1 / 1;
+    align-self: start;
+    position: relative;
+    top: calc($inset + (100% - 2 * $inset) * var(--wr-line-chart-y, 0) / 100);
+    transform: translateY(-50%);
+  }
+
+  &__plot {
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    padding: var(--wr-line-chart-plot-inset-y) var(--wr-line-chart-plot-inset-x);
+  }
+
+  // The plot's drawing by its class, never a bare `svg`: the legend swatch is an
+  // `<svg>` too, and `.wr-line-chart svg` (0,1,1) outranks `&__swatch` (0,1,0), so
+  // the 1rem × 0.125rem dash stretched to the legend row — measured in Chromium at
+  // 337 × 44px, a solid bar across the series names it was meant to mark.
+  //
+  // Overflow is visible because the drawing runs edge to edge: the end dots, the top and
+  // bottom gridlines and the hover ring all sit half outside it, over the plot's padding.
+  &__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  // What the tooltip's `cqw` resolves against: the plot's width, padding included. On
+  // the plot itself the containment would take the SVG out of the
+  // chart's intrinsic width — measured in Chromium, a `width: max-content` chart went
+  // from 480px to 0 — while this layer is out of flow and contributes nothing either
+  // way. Never hittable: it covers the plot, and taking the `mousemove` would close
+  // the tooltip it holds.
+  &__tooltip-layer {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+    pointer-events: none;
+  }
+
+  &__tooltip {
+    --wr-line-chart-tooltip-border: var(--wr-border-base);
+    --wr-line-chart-tooltip-radius: var(--wr-border-radius-base);
+    --wr-line-chart-tooltip-padding-y: var(--wr-space-sm);
+    --wr-line-chart-tooltip-padding-x: var(--wr-space-md);
+    --wr-line-chart-tooltip-font-size: var(--wr-text-xs);
+
+    position: absolute;
+    // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
+    left: $point;
+    top: var(--wr-line-chart-plot-inset-y);
+    // Centred on its point, but never past either end of the plot — the x labels' clamp:
+    // the shift is the smaller of half the box and the room actually left on that side,
+    // so a tooltip that fits sits exactly over its crosshair and only the ones near an
+    // end move inwards. Centred with nothing bounding it, the tooltip at the last point
+    // hung half its width past the chart — measured at 52px over the right edge in
+    // Chromium, cut off by any container that clips and a sideways scroll on a phone for
+    // any that does not.
+    // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
+    transform: translate(clamp(calc(-1 * $room-start), -50%, calc($room-end - 100%)), 0.5rem);
+    background: var(--wr-color-surface);
+    border: 1px solid var(--wr-line-chart-tooltip-border);
+    border-radius: var(--wr-line-chart-tooltip-radius);
+    box-shadow: var(--wr-shadow-sm);
+    padding: var(--wr-line-chart-tooltip-padding-y) var(--wr-line-chart-tooltip-padding-x);
+    font-size: var(--wr-line-chart-tooltip-font-size);
+    pointer-events: none;
+    z-index: 1;
+    min-width: 6rem;
+  }
+
+  &__tooltip-label {
+    --wr-line-chart-tooltip-label-font-weight: var(--wr-font-weight-semibold);
+    --wr-line-chart-tooltip-label-margin-bottom: var(--wr-space-xs);
+
+    font-weight: var(--wr-line-chart-tooltip-label-font-weight);
+    margin-bottom: var(--wr-line-chart-tooltip-label-margin-bottom);
+  }
+
+  &__tooltip-row {
+    --wr-line-chart-tooltip-row-gap: var(--wr-space-sm);
+
+    display: flex;
+    align-items: center;
+    gap: var(--wr-line-chart-tooltip-row-gap);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__tooltip-name {
+    flex: 1 1 auto;
+    color: var(--wr-color-on-surface-muted);
+  }
+
+  &__tooltip-value {
+    --wr-line-chart-tooltip-value-font-weight: var(--wr-font-weight-semibold);
+
+    font-weight: var(--wr-line-chart-tooltip-value-font-weight);
+  }
+
+  &__x-labels {
+    --wr-line-chart-x-labels-margin-top: var(--wr-space-xs);
+    --wr-line-chart-x-labels-font-size: var(--wr-text-xs);
+
+    grid-column: 2;
+    grid-row: 2;
+    position: relative;
+    margin-top: var(--wr-line-chart-x-labels-margin-top);
+    font-size: var(--wr-line-chart-x-labels-font-size);
+    // The labels are absolutely positioned onto their points, so the strip has no
+    // content of its own to give it a height. Without this it collapses and the
+    // labels overlap whatever the page puts under the chart.
+    height: 1.25em;
+    // A `translateX` percentage means the LABEL's own width, so the room left beside it
+    // has to arrive in another unit — `cqw` is this strip's. Every label is out of flow,
+    // so the strip contributes no intrinsic width either way and the containment this
+    // turns on costs the layout nothing.
+    container-type: inline-size;
+  }
+
+  &__x-label {
+    position: absolute;
+    // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
+    left: $point;
+    // Centred on the point it names, but never past either end of the strip: the shift
+    // is the smaller of half the label and the room actually left on that side, so a
+    // label that fits sits exactly on its dot and only the outermost ones move inwards.
+    // Physical for the same reason `left` is. Together with the width bound below, a
+    // label stays inside its own slot: measured in Chromium at 600px, twelve month names
+    // went from four overlapping pairs and 13px hanging outside the chart to neither.
+    // jsdom has no layout, so no spec can hold that — the spec pins the two numbers the
+    // template hands this rule instead.
+    transform: translateX(clamp(calc(-1 * $room-start), -50%, calc($room-end - 100%)));
+    // Its own slot — half the way to a neighbour on each side — cut back to the room
+    // between its point and the end of the strip, padding included. The slot is the
+    // strip's `--wr-line-chart-x-slot`, a percentage of the drawing like the x.
+    max-width: min(
+      calc((100% - 2 * $inset) * var(--wr-line-chart-x-slot, 100) / 100),
+      calc($inset + (100% - 2 * $inset) * ($x + var(--wr-line-chart-x-slot, 100) / 2) / 100),
+      calc($inset + (100% - 2 * $inset) * (100 - $x + var(--wr-line-chart-x-slot, 100) / 2) / 100)
+    );
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: inherit;
+    color: var(--wr-color-on-surface-muted);
+    white-space: nowrap;
+  }
+}

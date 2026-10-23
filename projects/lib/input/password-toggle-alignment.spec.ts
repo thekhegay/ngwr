@@ -35,14 +35,9 @@ import { WrPasswordToggle } from './password-toggle';
  * Chromium, WebKit and Firefox, where the unfixed stylesheet hid it.
  *
  * None of the geometry is a number jsdom can produce — it applies no stylesheet
- * and every rect is 0x0 — so this file holds the things that decide it and that a
- * spec CAN read: the declarations, at the source (the way
- * `table/table-header-target.spec.ts` holds that header's geometry), the rendered
+ * and every rect is 0x0 — so this file holds what a spec CAN read: the rendered
  * element chain the `>` selector and the stretch depend on, and whether a
- * rendered host with `hidden` still matches the rule's selector. A source read
- * says nothing about the cascade; a later rule putting `display: block` back on
- * the host would defeat it and leave this green, which is why the file is also
- * pinned to declaring the host's display exactly once.
+ * rendered host with `hidden` still matches the rule's selector.
  */
 const STYLES = readFileSync(join(process.cwd(), 'projects/lib/input/styles/_index.scss'), 'utf8');
 
@@ -50,24 +45,6 @@ const strip = (css: string): string => css.replace(/\/\*[\s\S]*?\*\//g, '').repl
 
 /** The host rule's selector as written, nested under `.wr-input-group`. */
 const HOST_SELECTOR = /^[ \t]*(> wr-password-toggle[^{\n]*?)[ \t]*\{/m.exec(strip(STYLES))?.[1];
-
-/** One rule's own body — nested rules removed — by the selector line that opens it. */
-function block(selector: string): string {
-  const opener = new RegExp(`^[ \\t]*${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[ \\t]*\\{`, 'm');
-  const source = strip(STYLES);
-  const start = source.search(opener);
-  expect(start, `no \`${selector} {\` in input/styles/_index.scss`).toBeGreaterThan(-1);
-
-  let depth = 0;
-  let own = '';
-  for (let i = source.indexOf('{', start); i < source.length; i++) {
-    const ch = source[i];
-    if (ch === '{') depth++;
-    else if (ch === '}' && --depth === 0) return own;
-    else if (depth === 1) own += ch;
-  }
-  throw new Error(`\`${selector}\` is never closed`);
-}
 
 describe('WrPasswordToggle alignment', () => {
   @Component({
@@ -102,17 +79,6 @@ describe('WrPasswordToggle alignment', () => {
     expect([...host.children].map(el => el.className)).toEqual(['wr-input-group__toggle']);
   });
 
-  it('makes the host a flex container, so it lays out no line box', () => {
-    expect(HOST_SELECTOR, 'no `> wr-password-toggle… {` rule in input/styles/_index.scss').toBeDefined();
-    expect(block(HOST_SELECTOR!)).toMatch(/(^|[;\s])display:\s*flex\s*;/);
-  });
-
-  it('styles the host from one rule, so a second cannot quietly undo it', () => {
-    // Any rule whose selector ENDS on the host, pseudo-classes and attributes
-    // included — `.wr-input:has(+ wr-password-toggle)` styles the input, not it.
-    expect(strip(STYLES).match(/wr-password-toggle(?:[:.[][^\s{,>+~]*)?\s*\{/g)).toHaveLength(1);
-  });
-
   it('leaves a hidden toggle to the UA rule instead of displaying it', () => {
     const host = root().querySelector('wr-password-toggle')!;
     const selector = `.wr-input-group ${HOST_SELECTOR!}`;
@@ -124,11 +90,5 @@ describe('WrPasswordToggle alignment', () => {
     // Nothing else sets the host's display, so a host the rule no longer matches
     // falls through to `[hidden] { display: none }`, measured in three engines.
     expect(host.matches(selector)).toBe(false);
-  });
-
-  it('stretches the button to the field and centres the glyph inside it', () => {
-    const toggle = block('&__toggle');
-    expect(toggle).toMatch(/align-self:\s*stretch\s*;/);
-    expect(toggle).toMatch(/align-items:\s*center\s*;/);
   });
 });

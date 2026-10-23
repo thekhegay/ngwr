@@ -1,33 +1,17 @@
 <ngwr-doc-page
   title="WrMeta"
-  description="Centralised `<head>` manager — title, description, keywords, canonical, Open Graph and Twitter Card. Stack-based push/pop so route overrides auto-revert."
+  updated="15.0.0"
+  description="Set the page title, description and social tags, and restore them when a page leaves."
   [keywords]="['service', 'meta', 'head', 'SEO', 'WrMeta']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section title="Install">
-    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Push / pop">
+  <ngwr-doc-section
+    title="Push / pop"
+    description="`push()` returns a handle; `pop()` on it restores what was underneath."
+  >
     <ngwr-doc-code [code]="snippets.push" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Directive form">
-    <ngwr-doc-code [code]="snippets.directive" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <button
-        type="button"
-        style="
-          padding: 0.4rem 0.875rem;
-          border-radius: 0.375rem;
-          border: 1px solid var(--wr-color-light);
-          background: var(--wr-color-white);
-          cursor: pointer;
-        "
-        (click)="pushMeta()"
-      >
-        Push demo meta (auto-pops after 4s)
-      </button>
+      <wr-btn (click)="pushMeta()">Push demo meta (auto-pops after 4s)</wr-btn>
       <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
         Open devtools → Elements → &lt;head&gt; to watch tags update.
       </small>
@@ -35,8 +19,40 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Directive form"
+    description="`[wrMeta]` pushes on init and pops on destroy, so nothing has to undo it."
+  >
+    <ngwr-doc-code [code]="snippets.directive" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.625rem; align-items: flex-start">
+        <wr-btn (click)="directiveMounted.set(!directiveMounted())">
+          {{ directiveMounted() ? 'Unmount the block' : 'Mount a block with [wrMeta]' }}
+        </wr-btn>
+
+        @if (directiveMounted()) {
+          <div
+            [wrMeta]="{ title: 'Pricing — pushed by [wrMeta]', description: 'Plans for every team.' }"
+            style="
+              padding: 0.75rem 1rem;
+              border: 1px dashed var(--wr-border-base);
+              border-radius: 0.5rem;
+              background: var(--wr-color-fill-subtle);
+            "
+          >
+            This element carries <code>[wrMeta]</code>. The tab title is its title until it unmounts.
+          </div>
+        }
+
+        <small style="color: var(--wr-color-on-surface-muted)">
+          Nothing calls <code>pop()</code> — destroying the element does it.
+        </small>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Reactive title (i18n)"
-    description="`bind()` runs its factory inside an effect — read `WrI18n.t()` (or any signal) and the `<head>` re-renders on every locale switch, with no manual re-`set()`."
+    description="`bind()` re-applies whenever a signal its factory reads changes, such as the locale."
   >
     <ngwr-doc-code [code]="snippets.reactive" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -44,7 +60,7 @@
         <wr-btn (click)="toggleReactiveTitle()">
           {{ reactiveBound() ? 'Unbind title' : 'Bind title to i18n' }}
         </wr-btn>
-        <wr-btn color="light" [disabled]="!reactiveBound()" (click)="toggleLocale()">
+        <wr-btn [disabled]="!reactiveBound()" (click)="toggleLocale()">
           Switch locale (current: {{ i18n.locale() }})
         </wr-btn>
       </div>
@@ -60,9 +76,11 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Angular's `Title` and `Meta` are low-level setters — every app rebuilds the same canonical-URL / OpenGraph / Twitter-card plumbing on top. `WrMeta` is that layer, with a title template and per-route overrides."
-  />
+    title="App-wide defaults"
+    description="`withMeta()` sets the title template and the defaults every page starts from; `reset()` returns to them."
+  >
+    <ngwr-doc-code [code]="snippets.defaults" language="angular-ts" />
+  </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

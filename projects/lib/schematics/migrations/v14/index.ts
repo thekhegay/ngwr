@@ -455,7 +455,8 @@ function ngUpdateV14(): Rule {
           "takes Angular's LOCALE_ID instead of navigator.language, so a prerendered page and its hydrated " +
           'self finally agree and an app that set LOCALE_ID stops rendering an English calendar inside ' +
           "itself. If you genuinely wanted the browser's tag, say so: " +
-          'provideWrDateAdapter({ locale: navigator.language }).'
+          '`provideWr(withDates({ locale: navigator.language }))` on v15, ' +
+          '`provideWrDateAdapter({ locale: navigator.language })` on v14.'
       );
       for (const file of dateAdapters) context.logger.warn(`  ${file}`);
     }

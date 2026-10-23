@@ -8,13 +8,15 @@
 /**
  * Providers a symbol cannot work without.
  *
- * Hard-coded, and the list is short on purpose: these are the five cases where
+ * Hard-coded, and the list is short on purpose: these are the three cases where
  * the component compiles, renders nothing useful, and gives no error that names
- * the cause. Everything else is discoverable from the docs page.
+ * the cause. Everything else is discoverable from the docs page. The date
+ * components left it in v15, when `WrDateAdapter` gained the native adapter as
+ * its default.
  *
  * It sits in its own file because two things ship it: `get_ngwr_setup` in the
- * MCP server, and the generated agent skill (`scripts/gen-ai-assets.ts`), which
- * writes the same five rules into `skills/ngwr/SKILL.md`. One table, imported
+ * MCP server, and the generated agent skill (`scripts/gen/ai-assets.ts`), which
+ * writes the same three rules into `skills/ngwr/SKILL.md`. One table, imported
  * twice — the alternative is two lists that agree until one of them is edited.
  */
 interface RequiredProvider {
@@ -26,24 +28,9 @@ interface RequiredProvider {
 
 const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
   {
-    test: /^Wr(Dialog|Drawer|Toast|Popover|Popconfirm|ContextMenu|Select|Dropdown|CommandPalette|Cascader|Mention|DatePicker|Tour|Lightbox|Editor)/,
-    provider: "provideWrOverlay() // from 'ngwr/overlay'",
-    why: 'gives ngwr overlays their own container, so they never collide with other CDK overlays',
-  },
-  {
     test: /^WrIcon/,
-    provider: "provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon' + 'ngwr/icon/adapters/lucide'",
+    provider: "provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon'",
     why: 'icons resolve by name from a registry you populate',
-  },
-  {
-    test: /^WrDatePicker|^WrCalendar|^WrEventCalendar/,
-    // The one-line wrapper, not `provideWrDateAdapter({ adapter: WrDateFnsAdapter })`:
-    // both compile, but this is one import from one entry point, and it is the form
-    // the docs recommend. It used to read `provideWrDateAdapter(wrDateFnsAdapter)`,
-    // which is wrong three ways at once — `ngwr/date/adapters/fns` exports neither
-    // identifier, and the real `provideWrDateAdapter` takes an options object.
-    provider: "provideWrDateFnsAdapter() // from 'ngwr/date/adapters/fns'",
-    why: 'every date mode goes through an adapter; there is no built-in default',
   },
   {
     // The bar itself needs no provider — `start()` / `complete()` work bare — so
@@ -74,7 +61,7 @@ const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
     // has to be the form that survives the app adding its first `common` key.
     provider:
       "provideWrI18n() + provideWrI18nBaseCatalogs({ en: wrEn }) + provideWrI18nStaticLoader({ en: { … } }) // from 'ngwr/i18n' + 'ngwr/i18n/en'",
-    why: "the pipe and directive read from a catalog you provide. Register ngwr's with `provideWrI18nBaseCatalogs`, never spread it into yours: a spread is shallow, so any namespace you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged — ngwr's components fall back to English and a `wrT` read of a lost key renders the raw key",
+    why: "the pipe and directive read from a catalog you provide. Register ngwr's with `provideWrI18nBaseCatalogs`, never spread it into yours: a spread is shallow, so any namespace you share with ngwr, e.g. `common` or `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged — ngwr's components fall back to English and a `wrT` read of a lost key renders the raw key",
   },
 ];
 

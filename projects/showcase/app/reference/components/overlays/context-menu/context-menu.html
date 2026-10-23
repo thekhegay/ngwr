@@ -1,0 +1,121 @@
+<ngwr-doc-page
+  title="Context Menu"
+  description="A right-click menu for any element."
+  [keywords]="['context menu', 'right click', 'menu', 'submenu', 'wr-context-menu']"
+  [labels]="['Overlay']"
+>
+  <ngwr-doc-section
+    title="Opening it"
+    description="Opens on right-click, long press, Shift+F10 or the Menu key; put `[wrContextMenu]` on a focusable element."
+  />
+
+  <ngwr-doc-section title="Basic" description="Right-click the area below.">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div [wrContextMenu]="basicMenu" class="ngwr-cm-demo" tabindex="0">Right-click here</div>
+
+      <wr-context-menu #basicMenu>
+        <wr-context-menu-item icon="copy" (click)="pick('copy')">Copy</wr-context-menu-item>
+        <wr-context-menu-item icon="document" (click)="pick('paste')">Paste</wr-context-menu-item>
+        <wr-context-menu-item icon="trash" (click)="pick('delete')">Delete</wr-context-menu-item>
+      </wr-context-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Dividers" description="Put `<wr-context-menu-divider />` between items to group them.">
+    <ngwr-doc-code [code]="snippets.divider" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div [wrContextMenu]="dividerMenu" class="ngwr-cm-demo" tabindex="0">Right-click for grouped actions</div>
+
+      <wr-context-menu #dividerMenu>
+        <wr-context-menu-item icon="copy" (click)="pick('copy')">Copy</wr-context-menu-item>
+        <wr-context-menu-item icon="document" (click)="pick('paste')">Paste</wr-context-menu-item>
+        <wr-context-menu-item icon="cog" (click)="pick('settings')">Settings</wr-context-menu-item>
+        <wr-context-menu-divider />
+        <wr-context-menu-item icon="trash" (click)="pick('delete')">Delete</wr-context-menu-item>
+      </wr-context-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Submenus"
+    description="Pass another `<wr-context-menu>` to `[submenu]`. It opens on hover or the arrow key toward it, and can nest further."
+  >
+    <ngwr-doc-code [code]="snippets.submenu" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div [wrContextMenu]="rootMenu" class="ngwr-cm-demo" tabindex="0">Right-click for nested options</div>
+
+      <wr-context-menu #rootMenu>
+        <wr-context-menu-item icon="copy" (click)="pick('copy')">Copy</wr-context-menu-item>
+        <wr-context-menu-item icon="document" (click)="pick('paste')">Paste</wr-context-menu-item>
+        <wr-context-menu-divider />
+        <wr-context-menu-item icon="cog" [submenu]="moreMenu">Share</wr-context-menu-item>
+        <wr-context-menu-divider />
+        <wr-context-menu-item icon="trash" (click)="pick('delete')">Delete</wr-context-menu-item>
+      </wr-context-menu>
+
+      <wr-context-menu #moreMenu>
+        <wr-context-menu-item (click)="pick('share-link')">Copy link</wr-context-menu-item>
+        <wr-context-menu-item (click)="pick('share-email')">Email…</wr-context-menu-item>
+        <wr-context-menu-divider />
+        <wr-context-menu-item [submenu]="exportMenu">Export as…</wr-context-menu-item>
+      </wr-context-menu>
+
+      <wr-context-menu #exportMenu>
+        <wr-context-menu-item (click)="pick('export-pdf')">PDF</wr-context-menu-item>
+        <wr-context-menu-item (click)="pick('export-png')">PNG</wr-context-menu-item>
+        <wr-context-menu-item (click)="pick('export-svg')">SVG</wr-context-menu-item>
+      </wr-context-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom templates"
+    description="The menu and its items render any content you project, such as a header or a key hint."
+  >
+    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div [wrContextMenu]="customMenu" class="ngwr-cm-demo" tabindex="0">Right-click for a richer menu</div>
+
+      <wr-context-menu #customMenu>
+        <div class="ngwr-cm-header">
+          <span class="ngwr-cm-header__title">readme.md</span>
+          <span class="ngwr-cm-header__sub">2 KB · modified just now</span>
+        </div>
+        <wr-context-menu-divider />
+        <wr-context-menu-item icon="copy" (click)="pick('copy')">
+          Copy
+          <wr-kbd size="sm" class="ngwr-cm-kbd">⌘C</wr-kbd>
+        </wr-context-menu-item>
+        <wr-context-menu-item icon="document" (click)="pick('paste')">
+          Paste
+          <wr-kbd size="sm" class="ngwr-cm-kbd">⌘V</wr-kbd>
+        </wr-context-menu-item>
+        <wr-context-menu-divider />
+        <wr-context-menu-item icon="trash" (click)="pick('delete')">
+          Delete
+          <wr-kbd size="sm" class="ngwr-cm-kbd">⌫</wr-kbd>
+        </wr-context-menu-item>
+      </wr-context-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Template reference"
+    description="Export the trigger as `wrContextMenuTrigger` to close the menu from another control."
+  >
+    <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Directive API">
+    <ngwr-doc-api [rows]="directiveApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Panel API">
+    <ngwr-doc-api [rows]="panelApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Item API">
+    <ngwr-doc-api [rows]="itemApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

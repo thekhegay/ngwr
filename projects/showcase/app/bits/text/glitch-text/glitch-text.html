@@ -1,0 +1,38 @@
+<ngwr-doc-page
+  title="Glitch Text"
+  updated="15.0.0"
+  description="Text with a colour-split glitch, on hover or all the time."
+  [keywords]="['glitch-text', 'wr-glitch-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="glitch-text" category="text-animations" />
+
+  <ngwr-doc-section title="Playground" description="On a card, set `background` to the card colour.">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <div
+        style="
+          padding: 2rem;
+          background: transparent;
+          border-radius: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+        "
+      >
+        <wr-glitch-text
+          [text]="text()"
+          [speed]="speed()"
+          [enableShadows]="enableShadows()"
+          [enableOnHover]="enableOnHover()"
+          background="var(--wr-color-surface)"
+          style="font-size: clamp(2rem, 8vw, 6rem); color: var(--wr-color-on-surface)"
+        />
+      </div>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

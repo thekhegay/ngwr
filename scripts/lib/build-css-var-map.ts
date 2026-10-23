@@ -49,12 +49,12 @@
  * from rather than picking one and calling it the default.
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { extname, join, relative, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { relative } from 'node:path';
 
+import { entryFiles, libEntryPoints } from './entry-points';
 import { ROOT_PATH } from './paths/root';
-
-const LIB_ROOT = resolve(ROOT_PATH, 'projects/lib');
+import { blankComments } from './ts-lex';
 
 /**
  * Entry points whose stylesheet IS the token layer rather than a component.
@@ -64,9 +64,6 @@ const LIB_ROOT = resolve(ROOT_PATH, 'projects/lib');
  */
 const TOKEN_LAYER = new Set(['theme']);
 
-/** Directory names the walk never descends into. */
-const SKIP_DIRS = new Set(['node_modules', 'schematics', 'mcp']);
-
 interface RawDeclaration {
   readonly name: string;
   readonly value: string;
@@ -74,41 +71,6 @@ interface RawDeclaration {
   readonly base: boolean;
   readonly file: string;
   readonly line: number;
-}
-
-interface EntryPoint {
-  /** Path under `projects/lib`: `alert`, `icon/adapters/lucide`. */
-  readonly entry: string;
-  readonly dir: string;
-}
-
-/** Every secondary entry point under `projects/lib`, in path order. */
-function entryPoints(dir = LIB_ROOT, prefix = ''): EntryPoint[] {
-  const out: EntryPoint[] = [];
-  for (const name of readdirSync(dir).sort()) {
-    if (name.startsWith('.') || SKIP_DIRS.has(name)) continue;
-    const full = join(dir, name);
-    if (!statSync(full).isDirectory()) continue;
-    const entry = prefix ? `${prefix}/${name}` : name;
-    if (existsSync(join(full, 'ng-package.json')) && !TOKEN_LAYER.has(entry)) out.push({ entry, dir: full });
-    out.push(...entryPoints(full, entry));
-  }
-  return out;
-}
-
-/** Files under `dir` with one of `extensions`, without descending into `stopAt`. */
-function filesIn(dir: string, extensions: ReadonlySet<string>, stopAt: ReadonlySet<string>): string[] {
-  const out: string[] = [];
-  for (const name of readdirSync(dir).sort()) {
-    if (name.startsWith('.') || SKIP_DIRS.has(name)) continue;
-    const full = join(dir, name);
-    if (statSync(full).isDirectory()) {
-      if (!stopAt.has(full)) out.push(...filesIn(full, extensions, stopAt));
-      continue;
-    }
-    if (extensions.has(extname(name))) out.push(full);
-  }
-  return out;
 }
 
 /**
@@ -130,25 +92,9 @@ interface Frame {
   readonly conditional: boolean;
 }
 
-/**
- * The one interpolation the library writes into a selector, and what it compiles
- * to under the default configuration.
- *
- * `theme.dark-selector()` returns `[data-theme='dark']`, built from
- * `$theme-attribute` so a consumer can rename the attribute. Nine component
- * stylesheets key their dark block on it, and the scanner is a text scan: left
- * as `#{…}` the selector carries neither the `[` nor the `--` that
- * {@link isBaseSelector} looks for, so a dark override reads as the component's
- * own base rule and its value is published as the DEFAULT — which is how
- * `--wr-aurora-stop-1` briefly documented itself as the dark `#5227ff`.
- * Substituting the default keeps the row identical to the one a hand-written
- * literal produced, which is what a reader of the docs page wants either way.
- */
-const DARK_SELECTOR = /#\{\s*(?:[\w-]+\.)?dark-selector\(\)\s*\}/g;
-
 /** `&--open` under `.wr-select` → `.wr-select--open`; `.a` under `.b` → `.b .a`. */
 function resolveSelector(parent: string, own: string): string {
-  const head = own.split(',')[0].trim().replace(DARK_SELECTOR, "[data-theme='dark']");
+  const head = own.split(',')[0].trim();
   if (!parent) return head.replaceAll('&', '').trim() || head;
   if (head.includes('&')) return head.replaceAll('&', parent);
   return `${parent} ${head}`;
@@ -200,7 +146,15 @@ function declarationsIn(file: string): { declarations: RawDeclaration[]; blocks:
     const scope = stack.length > 0 ? stack[stack.length - 1].selector : '';
     out.push({
       name,
-      value: text.slice(colon + 1).trim().replace(/\s+/g, ' '),
+      // Collapsed to one line, and tidied inside the parentheses: a
+      // `light-dark(` pair with a colour per line is the usual way a themed
+      // hook is written, and collapsing alone printed `light-dark( #fff, #000 )`.
+      value: text
+        .slice(colon + 1)
+        .trim()
+        .replace(/\s+/g, ' ')
+        .replace(/\( /g, '(')
+        .replace(/ \)/g, ')'),
       scope,
       base:
         scope !== '' &&
@@ -263,12 +217,15 @@ function declarationsIn(file: string): { declarations: RawDeclaration[]; blocks:
     // entering it on the `#` left `depth` at 0 and the `while` ended the run
     // after one character. The `{` then reached the block branch below and
     // opened a frame, the `}` closed it, and a rule whose selector STARTS with an
-    // interpolation — `#{theme.dark-selector()} .wr-aurora` — came out as a bare
-    // `.wr-aurora` at the top level. Nothing failed: the dark override read as
-    // the component's own base rule, and `--wr-aurora-stop-1` published the dark
-    // `#5227ff` as its documented default. Interpolation had until now only ever
-    // appeared mid-token (`--wr-color-#{$name}-dark`), where the resulting
-    // frame's declarations were rejected by the `--wr-*` name test anyway.
+    // interpolation — `#{theme.dark-selector()} .wr-aurora`, the shape every
+    // bit's dark block had before v15 moved dark values into `light-dark()` —
+    // came out as a bare `.wr-aurora` at the top level. Nothing failed: the dark
+    // override read as the component's own base rule, and `--wr-aurora-stop-1`
+    // published the dark `#5227ff` as its documented default. Interpolation had
+    // until then only ever appeared mid-token (`--wr-color-#{$name}-dark`), where
+    // the resulting frame's declarations were rejected by the `--wr-*` name test
+    // anyway — and a selector still starts with one today (`#{&}` in the
+    // typography sheet, `#{$pane}` in the overlay arrow), so the order stays.
     if (ch === '#' && src[index + 1] === '{') {
       buffer += ch;
       index++;
@@ -337,10 +294,7 @@ function declarationsIn(file: string): { declarations: RawDeclaration[]; blocks:
 
 /** `var(--wr-x)` and `getPropertyValue('--wr-x')`, comments stripped. */
 function readsIn(source: string): Set<string> {
-  const src = source
-    .replace(/\/\*[\s\S]*?\*\//g, ' ')
-    .replace(/^[ \t]*\/\/.*$/gm, ' ')
-    .replace(/<!--[\s\S]*?-->/g, ' ');
+  const src = blankComments(source, { html: true });
   const out = new Set<string>();
   for (const [, name] of src.matchAll(/var\(\s*(--wr-[a-z0-9-]+)/g)) out.add(name);
   for (const [, name] of src.matchAll(/getPropertyValue\(\s*['"`](--wr-[a-z0-9-]+)['"`]/g)) out.add(name);
@@ -362,18 +316,16 @@ function isTestSource(file: string): boolean {
 
 /** The catalogue, from the library's stylesheets and the code that reads them. */
 export function buildCssVarMap(): WrCssVarMap {
-  const eps = entryPoints();
-  const dirs = new Set(eps.map(e => e.dir));
+  const eps = libEntryPoints().filter(entry => !TOKEN_LAYER.has(entry));
 
   const declared = new Map<string, RawDeclaration[]>();
   const declarers = new Map<string, Set<string>>();
   const blocks = new Map<string, Set<string>>();
   const reads = new Set<string>();
 
-  for (const ep of eps) {
-    const nested = new Set([...dirs].filter(d => d !== ep.dir && d.startsWith(`${ep.dir}/`)));
-    const styles = filesIn(ep.dir, new Set(['.scss']), nested);
-    const code = filesIn(ep.dir, new Set(['.ts', '.html']), nested).filter(f => !isTestSource(f));
+  for (const entry of eps) {
+    const styles = entryFiles(entry, { extensions: ['.scss'], skipInternal: false });
+    const code = entryFiles(entry, { extensions: ['.ts', '.html'], skipInternal: false }).filter(f => !isTestSource(f));
 
     const own: RawDeclaration[] = [];
     const owned = new Set<string>();
@@ -385,11 +337,11 @@ export function buildCssVarMap(): WrCssVarMap {
     }
     for (const file of code) for (const name of readsIn(readFileSync(file, 'utf8'))) reads.add(name);
 
-    declared.set(ep.entry, own);
-    blocks.set(ep.entry, owned);
+    declared.set(entry, own);
+    blocks.set(entry, owned);
     for (const d of own) {
       if (!declarers.has(d.name)) declarers.set(d.name, new Set());
-      declarers.get(d.name)!.add(ep.entry);
+      declarers.get(d.name)!.add(entry);
     }
   }
 
@@ -401,7 +353,7 @@ export function buildCssVarMap(): WrCssVarMap {
   // `/guides/tokens/*` pages already carry is not a component's hook, wherever a
   // component happens to retune it.
   const themeTokens = new Set<string>();
-  for (const file of filesIn(join(LIB_ROOT, 'theme'), new Set(['.scss']), new Set())) {
+  for (const file of entryFiles('theme', { extensions: ['.scss'], skipInternal: false })) {
     const source = readFileSync(file, 'utf8');
     for (const name of readsIn(source)) reads.add(name);
     for (const d of declarationsIn(file).declarations) themeTokens.add(d.name);
@@ -486,7 +438,12 @@ export function buildCssVarMap(): WrCssVarMap {
 export interface WrCssVar {
   /** The property, with its leading dashes: `--wr-alert-bg`. */
   readonly name: string;
-  /** The value shipped where {@link scope} declares it, verbatim from the SCSS. */
+  /**
+   * The value shipped where {@link scope} declares it, verbatim from the SCSS.
+   * A `light-dark()` pair is kept whole: which side applies is decided where
+   * the hook is read, by that element's `color-scheme`, so neither side alone
+   * is the default.
+   */
   readonly value: string;
   /** The selector the value above is declared on: `.wr-alert`, `:root`. */
   readonly scope: string;

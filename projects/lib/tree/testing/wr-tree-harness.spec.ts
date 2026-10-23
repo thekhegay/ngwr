@@ -2,7 +2,6 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrTree, type WrTreeNode, type WrTreeSelectionMode } from 'ngwr/tree';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -139,7 +138,6 @@ describe('WrTreeHarness', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -405,7 +403,6 @@ describe('WrTreeHarness — keyboard', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     tree = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrTreeHarness);
@@ -497,8 +494,8 @@ describe('WrTreeHarness — keyboard', () => {
  * `openOn="overlay"` turns the same component into a combobox whose rows live in a
  * template portal in the SHARED overlay container — not inside the host. Every row this
  * block reads therefore comes through the document root, scoped by the id the trigger
- * publishes as `aria-controls`. `provideWrOverlay()` keeps the container out of the next
- * spec file's.
+ * publishes as `aria-controls`. The container belongs to the TestBed's root injector, so it
+ * never outlives this file.
  */
 describe('WrTreeHarness — overlay combobox', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<OverlayHost>>;
@@ -507,7 +504,6 @@ describe('WrTreeHarness — overlay combobox', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(OverlayHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -593,7 +589,6 @@ describe('WrTreeHarness — overlay multi with chips', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(OverlayMultiHost);
     fixture.detectChanges();
     tree = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrTreeHarness);
@@ -709,7 +704,6 @@ describe('WrTreeHarness — a windowed tree', () => {
     Reflect.set(Element.prototype, 'scrollTo', () => undefined);
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(VirtualHost);
     fixture.detectChanges();
     tree = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrTreeHarness);
@@ -832,7 +826,6 @@ describe('WrTreeHarness — two trees on one page', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TwoHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -907,7 +900,6 @@ describe('WrTreeHarness — two inline trees on one page', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TwoInlineHost);
     fixture.detectChanges();
     [first, second] = await TestbedHarnessEnvironment.loader(fixture).getAllHarnesses(WrTreeHarness);
@@ -942,7 +934,6 @@ describe('WrTreeHarness — an inline tree beside an overlay one', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(MixedHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

@@ -1,0 +1,394 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+/**
+ * Writes a markdown twin of every docs page next to the prerendered HTML:
+ * `/reference/components/button` also ships as `/reference/components/button.md`.
+ *
+ * Why: `llms-full.txt` is one ~35 KB blob covering the whole catalog, which is
+ * the right shape for "what is ngwr" and the wrong one for "how do I use
+ * `wr-select`". An agent that already knows the component should be able to
+ * fetch that component alone, and appending `.md` to the URL it already has is
+ * the convention that costs it no lookup.
+ *
+ * Runs AFTER `build:showcase`, converting the PRERENDERED HTML rather than the
+ * page sources. That direction is deliberate, and is the same lesson
+ * `gen/sitemap.ts` records: a generator that re-reads `app/` re-implements the
+ * docs IA and drifts the first time something is renamed. The rendered page
+ * cannot drift from what shipped — if a section stops rendering, its markdown
+ * disappears with it, and the floor check below turns that into a failed build.
+ *
+ * What is deliberately dropped: the live demo itself (`.demo`), playground
+ * controls, and the icon grids. They are rendered UI, not documentation — the
+ * source block that sits under each demo is what carries the information, and
+ * dumping the demo's own DOM would bury it.
+ *
+ * A route that prerenders as a redirect stub gets a three-line twin naming
+ * where it went, rather than none. See the second loop in `main()` for why the
+ * absence was worse than it looks.
+ */
+
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { exit } from 'node:process';
+
+import { JSDOM } from 'jsdom';
+
+import { prerenderedPages, routeFile } from '../lib/dist-site';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
+
+const SITE = 'https://ngwr.dev';
+
+/**
+ * Floor, set AT the current number rather than below it. Slack in a floor
+ * licenses exactly the silent erosion this check exists to catch — which only
+ * holds if it is raised alongside the export: the floor read 190 while the
+ * export wrote 198, and then 198 while the export wrote 201. Both times the
+ * gap was invisible, because a floor that passes says nothing about by how
+ * much. The routes in {@link NO_TWIN} are outside the count by design and
+ * always were, and so is `/` — the home page is not an `<ngwr-doc-page>`.
+ *
+ * 209 was 201 plus the eight `/reference` catalog roots, which used to redirect
+ * and so exported a meta-refresh stub instead of a page. 210 is that plus
+ * `/reference/utils/is-composing`, added in v14 — the third time the floor was
+ * left behind by the export it guards, and the reason this paragraph now names
+ * every increment. 216 is that plus `/start/versioning`, `/guides/forms`,
+ * `/guides/ssr`, `/reference/components/graph` and `/reference/components/schema-form`,
+ * none of which raised it, and `/reference/components/editor`, which did.
+ *
+ * 210 is the first LOWERING, and it is deliberate: v15 cut four pages from the
+ * docs cluster — `playground` became a StackBlitz link in the header,
+ * `versioning` folded into Migration, `quality` into Introduction and
+ * `schematics` into Installation. A floor is only worth having if it tracks
+ * the export it guards, so it moves down when pages are removed on purpose
+ * and never to make a red run green. 209 is 210 less the charts cluster's own
+ * index redirect, which `/reference/components` no longer carries.
+ * `/guides/typography/styles` and `/reference/utils/resolve-css-color` arrived
+ * as `/guides/tokens/builder` and `/reference/services/media` went, which nets
+ * to nothing. 208 is 209 less `/reference/components/markdown`, which v15
+ * deleted with `ngwr/markdown`.
+ */
+const MIN_PAGES = 208;
+
+/**
+ * Doc pages that will never have a twin, named so the decision is on the record.
+ *
+ * Six of the raw-SVG icon galleries are `RenderMode.Client` on purpose (see
+ * `app.routes.server.ts`): prerendering one means up to 240 inlined arbitrary
+ * SVGs — the lucide and feather galleries, which DO prerender, weigh ~230 KB
+ * each — to produce a twin under a kilobyte, because the grid is dropped from the export
+ * anyway. That is the wrong trade, and re-deriving a twin from `app/` instead
+ * is exactly the drift this generator exists to avoid. So they get none.
+ *
+ * They still render `<ngwr-doc-page>`, which advertises a `.md` alternate
+ * unconditionally — that link points at nothing for these six, and fixing it
+ * means an opt-out on the doc-page component, not a change here.
+ */
+const NO_TWIN: readonly string[] = [
+  '/icons/tabler',
+  '/icons/phosphor',
+  '/icons/heroicons',
+  '/icons/iconoir',
+  '/icons/radix',
+  '/icons/bootstrap',
+];
+
+/** Elements whose subtree is rendered UI — kept off the page, not summarized. */
+const SKIP = new Set(['div.demo', 'div.controls', 'div.preview', 'ngwr-icon-grid']);
+
+const isSkipped = (el: Element): boolean => {
+  const cls = typeof el.className === 'string' ? el.className.trim().split(/\s+/)[0] : '';
+  return SKIP.has(`${el.tagName.toLowerCase()}.${cls}`) || SKIP.has(el.tagName.toLowerCase());
+};
+
+/**
+ * The catalog's "new" mark, and the sr-only comma that makes it read as an
+ * aside — both INSIDE the `<a>`, so they are part of the link's text and not of
+ * the component's name.
+ *
+ * Left in, the two cluster-index twins list a component called "Graph, new",
+ * and those twins are what an agent reads to enumerate the catalog: the mark
+ * becomes part of the name for the life of a release line. It is the same
+ * mistake the `Kind:` line was fixed for one surface over — a nav ornament
+ * standing in a slot that means something else. The page's own twin still
+ * carries the version, off the `since` chip, which is where the fact belongs.
+ *
+ * Kept apart from {@link SKIP} rather than folded into it: that set is checked
+ * on BLOCK children only, and widening its reach would silently change every
+ * paragraph and table cell that happens to hold one of its four selectors.
+ */
+const MARKS = new Set(['index__sep', 'index__badge']);
+
+/** Collapse runs of whitespace the way HTML rendering does. */
+const squash = (text: string): string => text.replace(/\s+/g, ' ');
+
+/**
+ * Prose is full of literal tag names — "renders as `<wr-btn>`" — and a markdown
+ * reader parses those as inline HTML and drops them. Escaping only `<` keeps
+ * the text intact without littering it: backticks are left alone because the
+ * pages already use them as markdown, and `>` is only special at line start.
+ */
+const escapeTags = (text: string): string => text.replace(/</g, '\\<');
+
+/** Inline markup — the leaves of a paragraph, a heading or a table cell. */
+function inline(node: Node): string {
+  if (node.nodeType === 3) return escapeTags(squash(node.textContent ?? ''));
+  if (node.nodeType !== 1) return '';
+
+  const el = node as Element;
+  if (typeof el.className === 'string' && el.className.trim().split(/\s+/).some(c => MARKS.has(c))) return '';
+
+  const kids = (): string => Array.from(el.childNodes).map(inline).join('');
+
+  switch (el.tagName.toLowerCase()) {
+    case 'code':
+    case 'kbd': {
+      // A backtick inside the code text would close the span early; the CommonMark
+      // answer is a longer fence, not an escape.
+      const text = squash(el.textContent ?? '').trim();
+      const fence = '`'.repeat(Math.max(1, ...[...text.matchAll(/`+/g)].map(m => m[0].length + 1)));
+      return `${fence}${text}${fence}`;
+    }
+    case 'strong':
+    case 'b':
+      return `**${kids()}**`;
+    case 'em':
+    case 'i':
+      return `_${kids()}_`;
+    case 'a': {
+      const href = el.getAttribute('href') ?? '';
+      const text = kids().trim();
+      if (!href || !text) return text;
+      return `[${text}](${href.startsWith('/') ? SITE + href : href})`;
+    }
+    case 'br':
+      return ' ';
+    default:
+      return kids();
+  }
+}
+
+const text = (el: Element | null): string => (el ? inline(el).trim() : '');
+
+/** ```lang fence. The language rides on the host element (see `doc-code.ts`). */
+function fence(code: Element, out: string[]): void {
+  if (code.hasAttribute('data-empty')) return;
+
+  const body = (code.querySelector('pre > code') ?? code.querySelector('pre'))?.textContent ?? '';
+  if (!body.trim()) return;
+
+  const lang = code.getAttribute('data-language') ?? code.getAttribute('language') ?? '';
+  out.push(`\`\`\`${lang}\n${body.replace(/\s+$/, '')}\n\`\`\``);
+
+  // A tab strip means the page shows several files and only the OPEN one is in
+  // the panel — `doc-code` holds one panel and swaps what it contains. The rest
+  // ride along as `data-inactive-files` for exactly this, because naming them
+  // instead of printing them is how 85 twins came to say "Also shown on the
+  // page: SCSS" directly under prose insisting both halves of an installation
+  // are needed, and then print only the TypeScript half.
+  for (const file of inactiveFiles(code)) {
+    out.push(`\`\`\`${file.language}\n${file.code.replace(/\s+$/, '')}\n\`\`\``);
+  }
+}
+
+/** The tabs `doc-code` reflected but did not render. Malformed JSON yields none. */
+function inactiveFiles(code: Element): readonly { label: string; language: string; code: string }[] {
+  const raw = code.getAttribute('data-inactive-files');
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (f): f is { label: string; language: string; code: string } =>
+        typeof f === 'object' && f !== null && typeof (f as { code?: unknown }).code === 'string'
+    );
+  } catch {
+    return [];
+  }
+}
+
+/** A `<table>` becomes a markdown table; cells keep their inline markup. */
+function table(el: Element, out: string[]): void {
+  const cell = (td: Element): string => inline(td).trim().replace(/\|/g, '\\|');
+  const rows = Array.from(el.querySelectorAll('tr')).map(tr => Array.from(tr.children).map(cell));
+  if (rows.length === 0) return;
+
+  const [head, ...body] = rows;
+  const width = Math.max(...rows.map(r => r.length));
+  const pad = (r: string[]): string => `| ${[...r, ...Array<string>(width - r.length).fill('')].join(' | ')} |`;
+
+  out.push([pad(head), `| ${Array<string>(width).fill('---').join(' | ')} |`, ...body.map(pad)].join('\n'));
+}
+
+function list(el: Element, out: string[]): void {
+  const ordered = el.tagName.toLowerCase() === 'ol';
+  const items = Array.from(el.children)
+    .filter(li => li.tagName.toLowerCase() === 'li')
+    .map((li, i) => `${ordered ? `${i + 1}.` : '-'} ${inline(li).trim()}`)
+    .filter(line => line.length > 2);
+  if (items.length > 0) out.push(items.join('\n'));
+}
+
+/** Everything under a section's body, in document order. */
+function blocks(el: Element, out: string[]): void {
+  for (const child of Array.from(el.children)) {
+    if (isSkipped(child)) continue;
+
+    switch (child.tagName.toLowerCase()) {
+      case 'ngwr-doc-code':
+        fence(child, out);
+        break;
+      case 'ngwr-doc-snippet':
+      case 'ngwr-doc-playground':
+        // The demo is skipped by SKIP; what is left worth keeping is its source.
+        for (const code of Array.from(child.querySelectorAll('ngwr-doc-code'))) fence(code, out);
+        break;
+      case 'ngwr-doc-api':
+        for (const t of Array.from(child.querySelectorAll('table'))) table(t, out);
+        break;
+      case 'p': {
+        const line = text(child);
+        if (line) out.push(line);
+        break;
+      }
+      case 'ul':
+      case 'ol':
+        list(child, out);
+        break;
+      case 'h3':
+        out.push(`### ${text(child)}`);
+        break;
+      case 'h4':
+        out.push(`#### ${text(child)}`);
+        break;
+      case 'table':
+        table(child, out);
+        break;
+      case 'pre':
+        out.push(`\`\`\`\n${(child.textContent ?? '').replace(/\s+$/, '')}\n\`\`\``);
+        break;
+      default:
+        blocks(child, out);
+    }
+  }
+}
+
+/** `null` when the route is not a docs page (the 404, redirect stubs, …). */
+function render(document: Document, route: string): string | null {
+  const page = document.querySelector('ngwr-doc-page');
+  const header = page?.querySelector(':scope > header');
+  const title = text(header?.querySelector('h1') ?? null);
+  if (!page || !title) return null;
+
+  const out: string[] = [`# ${title}`];
+
+  const description = text(header?.querySelector('p.description') ?? null);
+  if (description) out.push(`> ${description}`);
+
+  // The version chip shares the header's chip row and is NOT a kind — it says
+  // when the thing arrived, not what it is. Left in the same sweep it read as
+  // `Kind: Component, Standalone, Added in v14.5`, which is a false claim in the
+  // one line an agent reads to classify a page.
+  const labels = Array.from(header?.querySelectorAll('.labels wr-badge:not(.since)') ?? []).map(b => text(b));
+  const since = text(header?.querySelector('.labels wr-badge.since') ?? null);
+  const meta = [`Source: ${SITE}${route}`];
+  if (labels.length > 0) meta.push(`Kind: ${labels.join(', ')}`);
+  if (since) meta.push(since);
+  out.push(meta.join('  \n'));
+
+  for (const section of Array.from(page.querySelectorAll(':scope > .content > ngwr-doc-section'))) {
+    const heading = text(section.querySelector(':scope > header > h2'));
+    if (heading) out.push(`## ${heading}`);
+
+    const intro = text(section.querySelector(':scope > header > p.description'));
+    if (intro) out.push(intro);
+
+    const body = section.querySelector(':scope > .content');
+    if (body) blocks(body, out);
+  }
+
+  const seeAlso = Array.from(page.querySelectorAll('ngwr-doc-see-also .ngwr-link-card'));
+  if (seeAlso.length > 0) {
+    out.push('## See also');
+    out.push(
+      seeAlso
+        .map(card => {
+          const href = card.getAttribute('href') ?? '';
+          const name = text(card.querySelector('.ngwr-link-card__title'));
+          const desc = text(card.querySelector('.ngwr-link-card__desc'));
+          return `- [${name}](${SITE}${href})${desc ? ` — ${desc}` : ''}`;
+        })
+        .join('\n')
+    );
+  }
+
+  return `${out.join('\n\n')}\n`;
+}
+
+function main(): void {
+  let written = 0;
+  let bytes = 0;
+  /** Routes that render a meta-refresh, with where they point. Handled after. */
+  const moved = new Map<string, string>();
+
+  for (const { route, file, redirectTo } of prerenderedPages('md docs', { followsBuild: true })) {
+    // Redirect stubs render a meta-refresh and nothing else.
+    if (redirectTo !== null) {
+      moved.set(route, redirectTo);
+      continue;
+    }
+
+    const markdown = render(new JSDOM(readFileSync(file, 'utf8')).window.document, route);
+    if (!markdown) continue;
+
+    // `/reference/components/button` -> `…/button.md`, a sibling of its own
+    // directory, so the URL an agent already holds works with `.md` appended.
+    writeFileSync(routeFile(route, 'md'), markdown);
+    written++;
+    bytes += Buffer.byteLength(markdown);
+  }
+
+  // A stub gets a twin too, and the reason is the defect that prompted it: the
+  // site advertises "append `.md` to any page URL", the origin falls back to the
+  // SPA shell for anything it has no file for, and `/reference/validators.md`
+  // therefore answered 200 with 301 KB of `text/html`. A machine-readable
+  // convention that returns the wrong content type is worse than one that
+  // 404s — a reader compares file SIZES to notice. Three lines of markdown
+  // naming the new location is both honest and useful; the redirect the HTML
+  // performs has no equivalent a markdown fetch can follow.
+  for (const [route, to] of moved) {
+    const twin = routeFile(to, 'md');
+    const trail = existsSync(twin) ? `Markdown: ${SITE}${to}.md` : 'There is no markdown twin at the new location.';
+    const body = `# Moved\n\n> This page has moved to ${SITE}${to}\n\n${trail}\n`;
+    writeFileSync(routeFile(route, 'md'), body);
+  }
+
+  // A recorded exemption that has quietly stopped applying is worse than no
+  // record at all: it keeps asserting a decision someone already reversed. If
+  // one of these prerenders again its twin was just written above, so the entry
+  // has to go rather than sit there explaining an absence that isn't.
+  const stale = NO_TWIN.filter(route => existsSync(routeFile(route, 'html')));
+  if (stale.length > 0) {
+    err(
+      `\n✘ md docs: ${stale.join(', ')} now prerender, so NO_TWIN is stale.\n` +
+        `  Drop them from the list in scripts/gen/md-docs.ts and raise MIN_PAGES.\n`
+    );
+    exit(1);
+  }
+
+  if (written < MIN_PAGES) {
+    err(
+      `\n✘ md docs: only ${written} pages exported (expected >= ${MIN_PAGES}).\n` +
+        `  The prerender output or the doc-page markup changed — not shipping a stunted export.\n`
+    );
+    exit(1);
+  }
+
+  info(`✓ markdown docs — ${written} pages, ${Math.round(bytes / 1024)} KB, ${moved.size} moved stubs`);
+}
+
+main();

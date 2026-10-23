@@ -12,127 +12,55 @@
 // the default palette deliberately does not meet, each for a recorded reason.
 //
 // THE DE-EMPHASIS TIER IS WHAT HIGH CONTRAST SPENDS. `--wr-color-text-faint`
-// and `--wr-color-text-muted` are the muted ink at 0.6 and 0.95 alpha, and
-// under this query both go to 1.0 and collapse onto the deepened role. That is
-// not a shortcut: 7:1 is UNREACHABLE at any alpha in the light theme, because
-// the base itself only reaches 5.35:1 — the alpha is not the lever, the base
-// is. Keeping a visibly fainter tier at 7:1 would need a base of `#353c46`,
-// which measures 11.13:1 on its own and is no longer a muted role at all. A
-// reader who asked for more contrast is asking for the tiers to close up.
+// and `--wr-color-text-muted` used to be the muted ink at 0.6 and 0.95 alpha,
+// and under this query both went to 1.0 and collapsed onto the deepened role. A
+// reader who asked for more contrast is asking for the tiers to close up. Since
+// v15 both already ARE `var(--wr-color-gray-5)` in the default theme, declared
+// on the same `:root` as the override below, so they follow the deepened base
+// with no line of their own — and so does `--wr-color-placeholder`, which is the
+// muted role, carried to 8.16:1 and 8.30:1.
 //
-// WHAT THIS ONCE REPAIRED BY ACCIDENT. At the default 0.6, `text-faint`
-// measures **2.43:1** in light and 3.46:1 in dark, and this block used to be
-// the only thing lifting its three consumers — an `input-otp` `::placeholder`
-// (text, 1.4.3) plus the textarea resize grip and the avatar spinner (graphics,
-// 1.4.11 → 3:1). All three left the tier in the DEFAULT theme: the placeholder
-// for `--wr-color-placeholder`, the two graphics for `-on-surface-muted`. So the
-// faint override below carries a consumer's own use of the tier and nothing of
-// the library's. `--wr-color-placeholder` needs no line of its own here: it IS
-// the muted role, so the deepened base carries it to 8.16:1 and 8.30:1.
-//
-// TWO BLOCKS, NOT ONE, and this is the part that would silently half-work. A
-// `@media { :root { … } }` resolves its `var()` references against the element
-// it declares on, so a single `:root` block freezes LIGHT values into any
-// subtree-scoped `[data-theme='dark']`. The dark half has to be declared on the
-// dark selector itself.
+// ONE BLOCK, and both schemes are in it. Each override that differs between the
+// schemes is a `light-dark()`, resolved on the element that paints with it, so a
+// `color-scheme: dark` subtree gets the dark override with nothing re-declared.
+// Until v15 this was two blocks, because a `@media { :root { … } }` froze LIGHT
+// values into a subtree-scoped `[data-theme='dark']`, and the dark half had to
+// be declared on the dark selector itself.
 //
 // Every figure in the comments below is WCAG relative-luminance arithmetic on
 // solid colours, which reproduces what axe measures. Figures involving an alpha
 // composite are marked as such — those carry ±0.05 and the browser is the
 // authority. `pnpm check:contrast --contrast=more` is that authority.
 
-@use 'sass:map';
 @use 'colors';
-@use 'dark';
 
-/// The `-ink` shares under high contrast.
-///
-/// `-ink` is text by definition, so the target moves from the default 5.0:1 to
-/// AAA 7:1 — measured, as the default shares are, against the intent's own
-/// `-soft` tint rather than the plain canvas, because the tint is the darker of
-/// the two backgrounds `-ink` is documented for and therefore the binding one.
-///
-/// Each share is the MOST saturated value that still reaches 7:1 in BOTH
-/// themes, so the binding theme decides it. Dark binds for six of the seven;
-/// `warning` is the exception and binds on light, where white cannot reach it
-/// at any tone worth shipping.
-$ink-mix-more: (
-  primary: 53%,
-  secondary: 47%,
-  success: 55%,
-  warning: 36%,
-  danger: 53%,
-  info: 54%,
-  medium: 57%,
-) !default;
+// The `-ink` shares under high contrast are `$ink-mix-more` in `_colors.scss`,
+// which says how they were derived. They live there because `rebrand()`
+// re-emits them too, after the default shares its `derived()` re-declares.
 
 @media (prefers-contrast: more) {
   :root {
-    // 8.16:1 on the page, 7.07:1 on `#ebeff4` — the lightest surface the
-    // library paints, and the reference the rest of the theme layer solves
-    // against. The default `#5f6c7d` reaches 5.35 and 4.63 respectively.
-    --wr-color-muted-text: #47505d;
-    --wr-color-muted-text-rgb: 71, 80, 93;
+    // Muted text. Light: 8.16:1 on the page and 7.07:1 on `#ebeff4` — the
+    // lightest surface the library paints, and the reference the rest of the
+    // theme layer solves against — where the default `gray-600` (`#4b5563`)
+    // reaches 7.56 and 6.54. Dark: 8.30:1 on the canvas. Dark needed far less —
+    // the default `#9ea6b2` already reaches 7.67 there and misses only on
+    // `fill-strong` (`#1a232f`), the harshest surface the library paints, at
+    // 6.45; this lifts that to 6.98.
+    --wr-color-gray-5: light-dark(#47505d, #a2adbe);
 
-    // The de-emphasis tier closes up — see the note at the top of this file.
-    --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 1);
-    // unused-ok: the library paints with nothing at the faint strength any
-    // more — see the note at its declaration in `_colors.scss`. The override
-    // stays so a CONSUMER using the tier is carried into high contrast too.
-    --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 1);
+    // The hairline. Light: 3.47:1 on the page and 3.00:1 on `#ebeff4`, against
+    // the default `gray-300` (`#d1d5db`) at 1.47:1. Dark: 3.56:1 on the canvas,
+    // against the default `#243040` at 1.41:1. This is the value AGENTS.md
+    // already records as the honest one, and the reason it is not the default is
+    // recorded there too: the token carries over a hundred declarations, only
+    // sixteen of which are control boundaries that 1.4.11 reaches, and darkening
+    // all of them was refused on how it looks. Under an explicit request for more
+    // contrast that trade flips — the reader has said which side they want.
+    --wr-color-gray-4: light-dark(#718cad, #566b9b);
 
-    // 3.47:1 on the page and 3.00:1 on `#ebeff4`, against the default
-    // `#cbd5e1`'s 1.48:1. This is the value AGENTS.md already records as the
-    // honest one, and the reason it is not the default is recorded there too:
-    // the token carries 103 declarations, only 15 of which are control
-    // boundaries that 1.4.11 reaches, and darkening all 103 was refused on how
-    // it looks. Under an explicit request for more contrast that trade flips —
-    // the reader has said which side they want.
-    --wr-color-outline: #718cad;
-    --wr-color-outline-rgb: 113, 140, 173;
-
-    @each $name, $share in $ink-mix-more {
-      --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-dark));
-    }
-  }
-
-  #{dark.dark-selector()} {
-    // 8.30:1 on the dark canvas. Dark needed far less than light — the default
-    // `#9aa6b8` already reaches 7.64 there and only misses on `fill-strong`,
-    // the harshest surface the library paints, which this closes.
-    --wr-color-muted-text: #a2adbe;
-    --wr-color-muted-text-rgb: 162, 173, 190;
-
-    --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 1);
-    // unused-ok: the library paints with nothing at the faint strength any
-    // more — see the note at its declaration in `_colors.scss`. The override
-    // stays so a CONSUMER using the tier is carried into high contrast too.
-    --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 1);
-
-    // 3.56:1 on the dark canvas, against the default `#262f44`'s 1.41:1.
-    --wr-color-outline: #566b9b;
-    --wr-color-outline-rgb: 86, 107, 155;
-
-    @each $name, $share in $ink-mix-more {
-      --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-dark));
-    }
-  }
-}
-
-// Adding a tenth intent to `$base-colors` without a share here would leave it
-// on its default ink under high contrast — a silent hole rather than a build
-// error, which is the failure this repo keeps finding in its own claims. So the
-// two lists are held together at COMPILE time.
-//
-// `light` and `dark` are excluded on both sides for the reason `_colors.scss`
-// records: `light` is a surface tone with no darkening that stays recognisable
-// AND readable, and `dark` already IS the ink.
-@each $name, $seed in colors.$base-colors {
-  @if $name != 'light' and $name != 'dark' {
-    @if not map.has-key($ink-mix-more, $name) {
-      @error 'No high-contrast ink share for intent `#{$name}`. Add one to ' +
-        '`$ink-mix-more` in theme/styles/_contrast.scss, derived at 7:1 against ' +
-        "that intent's own `-soft` tint in whichever theme binds.";
+    @each $name, $share in colors.$ink-mix-more {
+      --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-gray-6));
     }
   }
 }

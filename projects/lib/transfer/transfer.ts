@@ -29,7 +29,7 @@ import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrInput } from 'ngwr/input';
 
-import type { WrTransferItem } from './interfaces';
+import type { WrTransferItem } from './types';
 
 /** A pane's rows plus the header state derived from them. */
 interface PaneState {
@@ -303,12 +303,24 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
     box.set([...next]);
   }
 
-  /** Header checkbox — stages or clears every enabled row the filter shows. */
+  /**
+   * Header checkbox — stages or clears every enabled row the filter shows, and
+   * only those. Staging outlives a filter change, so a row the filter hides keeps
+   * whatever state it had: setting the whole box here unstaged hidden rows on a
+   * clear and dropped them on a select, which the pane only revealed once the
+   * search was emptied.
+   */
   protected toggleAll(pane: 'source' | 'target', checked: boolean): void {
     if (this.readonly()) return;
     const state = pane === 'source' ? this.source() : this.target();
     const box = pane === 'source' ? this.sourceChecked : this.targetChecked;
-    box.set(checked ? state.rows.filter(item => !item.disabled).map(item => item.value) : []);
+    const next = new Set(box());
+    for (const item of state.rows) {
+      if (item.disabled) continue;
+      if (checked) next.add(item.value);
+      else next.delete(item.value);
+    }
+    box.set([...next]);
   }
 
   protected onSearch(pane: 'source' | 'target', event: Event): void {

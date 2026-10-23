@@ -1,26 +1,47 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { Component, type EnvironmentProviders, type Provider, signal } from '@angular/core';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { FormField, form } from '@angular/forms/signals';
 
-import { provideWrDateAdapter } from 'ngwr/date';
+import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
 import type { WrDateFormat } from 'ngwr/date';
 import { WrFormField } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDatePicker } from './date-picker';
 
 /**
+ * The app's own copy for the picker's four refusals. ngwr ships no error texts: a
+ * refusal carries a `message`, and the live region says it, only when the app's
+ * catalog has `validation.<kind>` — so a spec that reads the sentence provides one,
+ * the way an app would. The static loader lands a microtask after the first pass,
+ * so a fixture waits for it before typing.
+ */
+const REFUSAL_COPY: (Provider | EnvironmentProviders)[] = [
+  provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
+  provideWrI18nStaticLoader({
+    en: {
+      validation: {
+        dateFormat: 'Expected format: {{example}}',
+        minDate: 'Choose a later date.',
+        maxDate: 'Choose an earlier date.',
+        dateFilter: 'This date is not available.',
+      },
+    },
+  }),
+];
+
+/**
  * The picker is a text field plus a popover, and the popover is a CDK overlay —
  * the calendar / time panel land in the overlay container, not in the fixture,
- * so every query for panel content goes through the document. `provideWrOverlay`
- * keeps that container private to this file (a shared CDK root would hand its
- * leftovers to the next spec), and `provideWrDateAdapter` is mandatory: without
- * an adapter the picker cannot format or parse anything.
+ * so every query for panel content goes through the document. That container
+ * belongs to the TestBed's root injector, so it never outlives this file.
+ * `withDates({ locale: 'en-US' })` pins the locale; the native adapter itself
+ * needs no provider.
  *
  * The locale is pinned to `en-US` so the grid's first day of week is stable, and
  * the host passes an explicit token `format` — the named keys (`shortDate`, …)
@@ -38,6 +59,7 @@ import { WrDatePicker } from './date-picker';
       [max]="max()"
       [dateFilter]="dateFilter()"
       [timeFormat]="timeFormat()"
+      [showSeconds]="showSeconds()"
       [panelAriaLabel]="panelAriaLabel()"
       [disabled]="disabled()"
       [readonly]="readonly()"
@@ -53,6 +75,7 @@ class Host {
   readonly max = signal<Date | undefined>(undefined);
   readonly dateFilter = signal<((date: Date) => boolean) | null>(null);
   readonly timeFormat = signal<'auto' | '12h' | '24h'>('24h');
+  readonly showSeconds = signal(false);
   readonly panelAriaLabel = signal<string | null>(null);
   readonly disabled = signal(false);
   readonly readonly = signal(false);
@@ -102,7 +125,7 @@ describe('WrDatePicker', () => {
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -578,6 +601,59 @@ describe('WrDatePicker', () => {
     expect(calendar()).toBeTruthy();
   });
 
+  it('keeps the field on the held date when a readonly calendar is clicked', () => {
+    // The write was refused at `commitValue`, but `commit` had already rewritten the
+    // field's text — so the field said 20.01.2025 while the model, and the form that
+    // submits it, still held the 15th.
+    fixture.componentInstance.readonly.set(true);
+    fixture.detectChanges();
+    const before = picked();
+    open();
+
+    day(20).click();
+    fixture.detectChanges();
+
+    expect(picked()).toBe(before);
+    expect(field().value).toBe('15.01.2025');
+  });
+
+  it('keeps a readonly datetime panel on the held date and time', () => {
+    fixture.componentInstance.readonly.set(true);
+    fixture.componentInstance.mode.set('datetime');
+    fixture.componentInstance.format.set('dd.MM.yyyy HH:mm');
+    fixture.detectChanges();
+    const before = picked();
+    open();
+
+    day(20).click();
+    fixture.detectChanges();
+
+    expect(picked()).toBe(before);
+    expect(field().value).toBe('15.01.2025 10:30');
+    // The grid inside the open panel must not announce the refused day as picked.
+    expect(day(20).getAttribute('aria-selected')).not.toBe('true');
+    expect(day(15).getAttribute('aria-selected')).toBe('true');
+    // The time half refuses the same way the field does: no stepper, no typing.
+    expect(stepper('Increment hours').disabled).toBe(true);
+    expect(timeInput('Hours').readOnly).toBe(true);
+  });
+
+  it('offers no way to step a readonly time', () => {
+    fixture.componentInstance.readonly.set(true);
+    fixture.componentInstance.mode.set('time');
+    fixture.componentInstance.format.set('HH:mm');
+    fixture.detectChanges();
+    const before = picked();
+    open();
+
+    expect(stepper('Increment hours').disabled).toBe(true);
+    expect(timeInput('Hours').readOnly).toBe(true);
+    clickThrough(stepper('Increment hours'));
+
+    expect(picked()).toBe(before);
+    expect(field().value).toBe('10:30');
+  });
+
   it('closes the open calendar when disabled arrives, and refuses the write', () => {
     open();
     expect(calendar()).toBeTruthy();
@@ -675,6 +751,76 @@ describe('WrDatePicker', () => {
       // seed that lands on an unselectable day.
       expect(document.activeElement).toBe(ring());
       expect((document.activeElement as HTMLButtonElement).disabled).toBe(false);
+    });
+
+    /**
+     * jsdom lays nothing out, so `getFocusableElements` would drop every stop but the
+     * focused one; and it has no Tab of its own, so what is asserted is the half the
+     * picker owns — where focus is handed before the browser's Tab runs from it.
+     */
+    describe('Tab out of the open panel', () => {
+      beforeEach(() => {
+        vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+      });
+      afterEach(() => vi.restoreAllMocks());
+
+      const tab = (shiftKey = false): KeyboardEvent => {
+        const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true });
+        document.activeElement!.dispatchEvent(event);
+        fixture.detectChanges();
+        return event;
+      };
+
+      it('hands focus to the trigger and closes on Tab past the last stop', async () => {
+        trigger().focus();
+        open();
+        await fixture.whenStable();
+        expect(document.activeElement).toBe(ring());
+
+        // The day cell is the last stop. Left to itself the browser's Tab went from
+        // the overlay container at the end of `<body>` to the top of the page.
+        const event = tab();
+
+        expect(event.defaultPrevented).toBe(false);
+        expect(calendar()).toBeNull();
+        expect(document.activeElement).toBe(trigger());
+      });
+
+      it('lets Tab move between stops inside the panel', async () => {
+        trigger().focus();
+        open();
+        await fixture.whenStable();
+        document.querySelector<HTMLElement>('.wr-calendar__nav--prev')!.focus();
+
+        tab();
+
+        expect(calendar()).not.toBeNull();
+        expect(document.activeElement).toBe(document.querySelector('.wr-calendar__nav--prev'));
+      });
+
+      it('hands focus to the trigger on Shift+Tab before the first stop', async () => {
+        trigger().focus();
+        open();
+        await fixture.whenStable();
+        document.querySelector<HTMLElement>('.wr-calendar__nav--prev')!.focus();
+
+        tab(true);
+
+        expect(calendar()).toBeNull();
+        expect(document.activeElement).toBe(trigger());
+      });
+
+      it('leaves a Tab from the field alone while the panel is open beside it', async () => {
+        field().focus();
+        field().click();
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        tab();
+
+        expect(calendar()).not.toBeNull();
+        expect(document.activeElement).toBe(field());
+      });
     });
 
     it('leaves the caret alone when the panel is opened by clicking the field', async () => {
@@ -853,8 +999,7 @@ describe('WrDatePicker under a localized catalog', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrDateAdapter(),
-        provideWrOverlay(),
+        provideWr(withDates()),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -903,13 +1048,16 @@ describe('WrDatePicker retyping its own value', () => {
   const mount = (
     locale: string,
     mode: 'date' | 'time' | 'datetime',
-    value: Date
+    value: Date,
+    providers: (Provider | EnvironmentProviders)[] = []
   ): ReturnType<typeof TestBed.createComponent<Host>> => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale })), ...providers] });
     const fixture = TestBed.createComponent(Host);
     // `null` is the case that broke: the picker then derives a NAMED format from the mode.
     fixture.componentInstance.format.set(null);
+    // The locale's own clock: `timeFormat` and `showSeconds` have cases of their own below.
+    fixture.componentInstance.timeFormat.set('auto');
     fixture.componentInstance.mode.set(mode);
     fixture.componentInstance.picked.set(value);
     fixture.detectChanges();
@@ -946,10 +1094,12 @@ describe('WrDatePicker retyping its own value', () => {
     });
   }
 
-  it('leaves the committed value alone when the text cannot be read', () => {
+  it('leaves the committed value alone when the text cannot be read', async () => {
     // The contract `wr-input-number` follows: refusing is correct, committing a guess is
     // the defect. `3/15/2026` in a `d.M.y` locale is unreadable, not 3 January.
-    const fixture = mount('de-DE', 'date', new Date(2026, 2, 15));
+    const fixture = mount('de-DE', 'date', new Date(2026, 2, 15), REFUSAL_COPY);
+    await fixture.whenStable();
+    fixture.detectChanges();
     const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
 
     input.value = '3/15/2026';
@@ -967,6 +1117,80 @@ describe('WrDatePicker retyping its own value', () => {
     expect(input.getAttribute('aria-invalid')).toBe('true');
     const reason = (fixture.nativeElement as HTMLElement).querySelector('[role="status"]')!.textContent.trim();
     expect(reason).toBe(`Expected format: 31.12.${new Date().getFullYear()}`);
+    fixture.destroy();
+  });
+
+  /**
+   * With no `[format]`, the field writes the clock the time panel draws. It used to
+   * print `time` / `shortDateTime` whatever the panel showed, so a picker with
+   * `showSeconds` dropped the seconds on every retype — the parse read none and
+   * committed `:00` — and `timeFormat="24h"` printed `02:30 PM` in en-US.
+   */
+  it('shows the seconds when showSeconds asks for them, and keeps them when retyped', () => {
+    for (const mode of ['time', 'datetime'] as const) {
+      const fixture = mount('en-GB', mode, new Date(2026, 2, 15, 14, 30, 5));
+      fixture.componentInstance.showSeconds.set(true);
+      fixture.detectChanges();
+      const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+      const printed = input.value;
+      expect(printed, mode).toBe(mode === 'time' ? '14:30:05' : '15/03/2026, 14:30:05');
+
+      retype(fixture, printed);
+
+      expect(input.value, mode).toBe(printed);
+      const picked = fixture.componentInstance.picked()!;
+      expect([picked.getHours(), picked.getMinutes(), picked.getSeconds()], mode).toEqual([14, 30, 5]);
+      fixture.destroy();
+    }
+  });
+
+  it('writes the hour cycle timeFormat names, and reads it back', () => {
+    // ICU puts a NARROW NO-BREAK SPACE before the day period; compared as a plain one.
+    const plain = (text: string): string => text.replace(/\u202f/g, ' ');
+    const cases = [
+      { locale: 'en-US', mode: 'time', cycle: '24h', shown: '14:30' },
+      { locale: 'de-DE', mode: 'time', cycle: '12h', shown: '02:30 PM' },
+      { locale: 'en-US', mode: 'datetime', cycle: '24h', shown: '3/15/2026, 14:30' },
+    ] as const;
+    for (const { locale, mode, cycle, shown } of cases) {
+      const fixture = mount(locale, mode, new Date(2026, 2, 15, 14, 30));
+      fixture.componentInstance.timeFormat.set(cycle);
+      fixture.detectChanges();
+      const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+      expect(plain(input.value), `${locale} ${cycle}`).toBe(shown);
+
+      retype(fixture, input.value);
+
+      expect(fixture.componentInstance.picked()!.getHours(), `${locale} ${cycle}`).toBe(14);
+      fixture.destroy();
+    }
+  });
+
+  it('re-renders the field when showSeconds or timeFormat moves', () => {
+    const fixture = mount('en-GB', 'time', new Date(2026, 2, 15, 14, 30, 5));
+    const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+    expect(input.value).toBe('14:30');
+
+    fixture.componentInstance.showSeconds.set(true);
+    fixture.detectChanges();
+    expect(input.value).toBe('14:30:05');
+
+    fixture.componentInstance.timeFormat.set('12h');
+    fixture.detectChanges();
+    expect(input.value.replace(/\u202f/g, ' ')).toBe('02:30:05 pm');
+    fixture.destroy();
+  });
+
+  it('leaves an explicit [format] alone, whatever showSeconds and timeFormat say', () => {
+    const fixture = mount('en-GB', 'time', new Date(2026, 2, 15, 14, 30, 5));
+    fixture.componentInstance.format.set('HH:mm');
+    fixture.componentInstance.showSeconds.set(true);
+    fixture.componentInstance.timeFormat.set('12h');
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!.value).toBe(
+      '14:30'
+    );
     fixture.destroy();
   });
 
@@ -1018,7 +1242,7 @@ describe('WrDatePicker renders every documented named format', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })],
+      providers: [provideWr(withDates({ locale: 'en-US' }))],
     });
     fixture = TestBed.createComponent(FormatHost);
     fixture.detectChanges();
@@ -1102,7 +1326,7 @@ describe('WrDatePicker follows a direction flip while its panel is open', () => 
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -1229,9 +1453,13 @@ describe('WrDatePicker refusing typed text', () => {
     expect(announced()).toBe('');
   };
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+  beforeEach(async () => {
+    TestBed.configureTestingModule({
+      providers: [provideWr(withDates({ locale: 'en-US' })), ...REFUSAL_COPY],
+    });
     fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await fixture.whenStable();
     fixture.detectChanges();
   });
 
@@ -1386,7 +1614,7 @@ describe('WrDatePicker refusing typed text', () => {
     });
   });
 
-  it('names the bound a READABLE date broke, in the same words a form field uses', () => {
+  it('names the bound a READABLE date broke, under the key a form field reads too', () => {
     fixture.componentInstance.min.set(new Date(2025, 0, 10));
     fixture.componentInstance.max.set(new Date(2025, 0, 20));
     fixture.componentInstance.dateFilter.set(date => date.getDate() !== 17);
@@ -1522,9 +1750,15 @@ class ErrorReadingHost {
 }
 
 describe('WrDatePicker inputError', () => {
-  it('hands a host the reason the picker is SHOWING, so a rendered message agrees with the border', () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('hands a host the reason the picker is SHOWING, so a rendered message agrees with the border', async () => {
+    TestBed.configureTestingModule({
+      providers: [provideWr(withDates({ locale: 'en-US' })), ...REFUSAL_COPY],
+    });
     const fixture = TestBed.createComponent(ErrorReadingHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
     const input = el.querySelector<HTMLInputElement>('input')!;
@@ -1555,6 +1789,31 @@ describe('WrDatePicker inputError', () => {
     expect(output()).toBe(`dateFormat|Expected format: 31.12.${new Date().getFullYear()}`);
     type('17.09.2026');
     expect(output()).toBe('none|');
+    fixture.destroy();
+  });
+
+  it('refuses just the same with no app copy, and carries no message', () => {
+    // ngwr ships no error texts: without `validation.minDate` in the app's catalog the
+    // refusal stands — the value is kept, the field is invalid — and `message` is
+    // simply absent rather than an English default or the key itself.
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
+    const fixture = TestBed.createComponent(ErrorReadingHost);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    const input = el.querySelector<HTMLInputElement>('input')!;
+
+    input.value = '07.09.1994';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(el.querySelector('output')!.textContent.trim()).toBe('minDate|');
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(fixture.componentInstance.picked()?.getFullYear()).toBe(2026);
+    // Nothing to say, so nothing points at the empty live region either.
+    expect(el.querySelector('[role="status"]')!.textContent.trim()).toBe('');
+    expect(input.hasAttribute('aria-describedby')).toBe(false);
     fixture.destroy();
   });
 });
@@ -1605,36 +1864,46 @@ class UnboundFieldHost {
 describe('WrDatePicker refusals and forms', () => {
   const year = new Date().getFullYear();
 
-  const setUp = <T>(cmp: new () => T): ReturnType<typeof TestBed.createComponent<T>> => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+  const setUp = async <T>(
+    cmp: new () => T,
+    providers: (Provider | EnvironmentProviders)[] = REFUSAL_COPY
+  ): Promise<ComponentFixture<T>> => {
+    TestBed.configureTestingModule({
+      providers: [provideWr(withDates({ locale: 'en-US' })), ...providers],
+    });
     const fixture = TestBed.createComponent(cmp);
+    fixture.detectChanges();
+    await fixture.whenStable();
     fixture.detectChanges();
     return fixture;
   };
   const input = (fixture: { nativeElement: unknown }): HTMLInputElement =>
     (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
-  const type = async (fixture: ReturnType<typeof setUp>, text: string): Promise<void> => {
+  const type = async (fixture: ComponentFixture<unknown>, text: string): Promise<void> => {
     input(fixture).value = text;
     input(fixture).dispatchEvent(new Event('input', { bubbles: true }));
     await fixture.whenStable();
     fixture.detectChanges();
   };
-  const enter = async (fixture: ReturnType<typeof setUp>): Promise<void> => {
+  const enter = async (fixture: ComponentFixture<unknown>): Promise<void> => {
     input(fixture).dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
     await fixture.whenStable();
     fixture.detectChanges();
   };
-  const description = (fixture: ReturnType<typeof setUp>): string =>
+  const description = (fixture: ComponentFixture<unknown>): string =>
     (input(fixture).getAttribute('aria-describedby') ?? '')
       .split(' ')
       .filter(Boolean)
       .map(id => document.getElementById(id)?.textContent?.trim() ?? `<missing #${id}>`)
       .join(' | ');
 
-  afterEach(() => TestBed.resetTestingModule());
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    vi.restoreAllMocks();
+  });
 
   it('makes a reactive FormControl invalid with the reason, and leaves its value alone', async () => {
-    const fixture = setUp(ReactiveFieldHost);
+    const fixture = await setUp(ReactiveFieldHost);
     const due = fixture.componentInstance.due;
 
     await type(fixture, '07.09.19');
@@ -1659,7 +1928,7 @@ describe('WrDatePicker refusals and forms', () => {
     // the refused text is gone — Angular clears its copy of the error, and the
     // picker has to drop its own and the text with it, or the field shows garbage
     // over a valid form.
-    const fixture = setUp(ReactiveFieldHost);
+    const fixture = await setUp(ReactiveFieldHost);
     const due = fixture.componentInstance.due;
 
     await type(fixture, '07.09.19');
@@ -1678,7 +1947,7 @@ describe('WrDatePicker refusals and forms', () => {
   });
 
   it('puts the value back when a reset writes an EQUAL date — a fresh copy of the same day', async () => {
-    const fixture = setUp(ReactiveFieldHost);
+    const fixture = await setUp(ReactiveFieldHost);
     const due = fixture.componentInstance.due;
 
     await type(fixture, '07.09.19');
@@ -1695,7 +1964,7 @@ describe('WrDatePicker refusals and forms', () => {
   });
 
   it('puts the value back when a Signal Forms field is reset', async () => {
-    const fixture = setUp(SignalFieldHost);
+    const fixture = await setUp(SignalFieldHost);
     const due = fixture.componentInstance.f.due;
 
     await type(fixture, '07.09.19');
@@ -1713,7 +1982,7 @@ describe('WrDatePicker refusals and forms', () => {
   });
 
   it('joins a Signal Forms field’s errors, and the field says it — once', async () => {
-    const fixture = setUp(SignalFieldHost);
+    const fixture = await setUp(SignalFieldHost);
     const due = fixture.componentInstance.f.due;
     const el = fixture.nativeElement as HTMLElement;
 
@@ -1739,7 +2008,7 @@ describe('WrDatePicker refusals and forms', () => {
   });
 
   it('still says it inside a field bound only by [(value)], which has no control to read', async () => {
-    const fixture = setUp(UnboundFieldHost);
+    const fixture = await setUp(UnboundFieldHost);
     const el = fixture.nativeElement as HTMLElement;
 
     await type(fixture, '07.09.19');
@@ -1752,6 +2021,42 @@ describe('WrDatePicker refusals and forms', () => {
     // field, and must not cost the field its `for`.
     const label = el.querySelector<HTMLLabelElement>('label')!;
     expect(document.getElementById(label.htmlFor)).toBe(input(fixture));
+    fixture.destroy();
+  });
+
+  it('keeps the form invalid and says nothing when the app has no copy — and the field warns once', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const fixture = await setUp(SignalFieldHost, []);
+    const el = fixture.nativeElement as HTMLElement;
+
+    // Two refusals in a row: every pass re-resolves the key, and it is reported once.
+    await type(fixture, '07.09.19');
+    await enter(fixture);
+    await type(fixture, 'soon');
+    await enter(fixture);
+
+    expect(fixture.componentInstance.f.due().invalid()).toBe(true);
+    expect(input(fixture).getAttribute('aria-invalid')).toBe('true');
+    // Neither voice has words: no rendered message, an empty live region, and the
+    // input is never pointed at that region.
+    expect(el.querySelector('.wr-form-field__error')).toBeNull();
+    expect(el.querySelector('[role="status"]')!.textContent.trim()).toBe('');
+    expect(input(fixture).getAttribute('aria-describedby') ?? '').not.toContain('wr-date-picker-status');
+
+    const reports = warn.mock.calls.map(([text]) => String(text)).filter(text => text.includes('<wr-form-field>'));
+    expect(reports).toHaveLength(1);
+    expect(reports[0]).toContain('"validation.dateFormat"');
+    fixture.destroy();
+  });
+
+  it('marks a field bound only by [(value)] invalid, with nothing to describe, when the app has no copy', async () => {
+    const fixture = await setUp(UnboundFieldHost, []);
+
+    await type(fixture, '07.09.19');
+    await enter(fixture);
+
+    expect(input(fixture).getAttribute('aria-invalid')).toBe('true');
+    expect(input(fixture).hasAttribute('aria-describedby')).toBe(false);
     fixture.destroy();
   });
 });
@@ -1776,7 +2081,7 @@ describe('WrDatePicker focused by its bound field', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     fixture = TestBed.createComponent(FocusHost);
     fixture.detectChanges();
   });

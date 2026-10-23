@@ -1,0 +1,174 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import {
+  Component,
+  type ElementRef,
+  LOCALE_ID,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  viewChildren,
+} from '@angular/core';
+
+import { useI18nText } from 'ngwr/i18n';
+import { useChartTooltip } from 'ngwr/popover';
+
+import type { WrMeterSegment } from './types';
+
+/**
+ * Default series colours, in order.
+ *
+ * Four intents and the neutral role, and `info` is deliberately absent: it is the
+ * same blue as `primary` to every reader (1.061:1 apart in light, 1.004:1 in
+ * dark, and the same hue), so two adjacent series would be one series with a
+ * seam. The neutral closes the list because it is the one tone here that no
+ * intent is near — it used to be the `medium` intent, which v15 removed, and the
+ * role resolves to the same step of the gray ramp.
+ */
+const FALLBACK_COLORS = [
+  'var(--wr-color-primary)',
+  'var(--wr-color-success)',
+  'var(--wr-color-warning)',
+  'var(--wr-color-danger)',
+  'var(--wr-color-on-surface-muted)',
+];
+
+/**
+ * Stacked-segment progress bar. Visualises a breakdown of a total —
+ * disk usage, budget, vote share, etc. Each segment contributes a slice
+ * proportional to its `value` relative to the sum (or the explicit `max`).
+ *
+ * @example
+ * ```html
+ * <wr-meter-group
+ *   [segments]="[
+ *     { label: 'Used', value: 60 },
+ *     { label: 'Reserved', value: 25, color: 'var(--wr-color-warning)' }
+ *   ]"
+ *   [max]="100"
+ * />
+ * ```
+ *
+ * @see https://ngwr.dev/charts/meter-group
+ */
+@Component({
+  selector: 'wr-meter-group',
+  templateUrl: './meter-group.html',
+  encapsulation: ViewEncapsulation.None,
+  host: { class: 'wr-meter-group' },
+})
+export class WrMeterGroup {
+  /** Accessible name — the role needs one. Falls back to `meterGroup.label`. */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'meterGroup.label', 'Meter');
+
+  /**
+   * The parts of the bar, in order. Values are summed and each segment is drawn
+   * as its share of that total, so they need not add up to anything in particular.
+   */
+  readonly segments = input<readonly WrMeterSegment[]>([]);
+
+  /** Explicit total. When `0` (default), `max = sum(values)`. @default 0 */
+  readonly max = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
+
+  /** Show the labelled legend under the bar. @default true */
+  readonly showLegend = input(true, { transform: coerceBooleanProperty });
+
+  /** Show each segment's value in the legend, next to its label. @default true */
+  readonly showValues = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Show a tooltip with the segment's label and value on hover. It replaces the
+   * band's `title`, which is written only while this is off — or the browser would
+   * open a second copy a moment later. @default true
+   */
+  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Writes every value in the legend and the tooltip, and the total the bar announces
+   * as `aria-valuetext`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.
+   * `aria-valuenow` stays a number.
+   */
+  readonly valueFormat = input<((value: number) => string) | null>(null);
+
+  private readonly locale = inject(LOCALE_ID);
+  private readonly numbers = new Intl.NumberFormat(this.locale);
+  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
+  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
+
+  private formatValue(value: number): string {
+    const custom = this.valueFormat();
+    if (custom) return custom(value);
+    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
+  }
+
+  private readonly sliceEls = viewChildren<ElementRef<HTMLElement>>('slice');
+
+  /**
+   * A segment's contribution, floored at `0` and with anything non-finite read
+   * as `0`. One `NaN` used to poison the whole bar: the sum is `NaN` as soon as
+   * one value is, so the total fell back to `1` and every OTHER segment was
+   * asked for a width of `value * 100`%, while `aria-valuenow` announced `NaN`.
+   */
+  private static amount(raw: number): number {
+    return Number.isFinite(raw) ? Math.max(0, raw) : 0;
+  }
+
+  protected readonly resolvedMax = computed(() => {
+    const explicit = this.max();
+    if (explicit > 0) return explicit;
+    const sum = this.segments().reduce((acc, s) => acc + WrMeterGroup.amount(s.value), 0);
+    return sum > 0 ? sum : 1;
+  });
+
+  /**
+   * Sum of the segments, for `aria-valuenow`. `role="progressbar"` without it
+   * announces no value at all, so the bar was invisible to assistive tech.
+   *
+   * Capped at the total, because segments summing past an explicit `max` used
+   * to announce a value outside the range they were announced against.
+   */
+  protected readonly totalValue = computed(() =>
+    Math.min(
+      this.resolvedMax(),
+      this.segments().reduce((acc, s) => acc + WrMeterGroup.amount(s.value), 0)
+    )
+  );
+
+  /**
+   * The total as the bar announces it — `aria-valuetext`, written the way the legend
+   * writes each figure — so a `valueFormat` that adds a unit reaches a screen reader
+   * too, rather than a bare percentage of `aria-valuemax`. The gauge does the same.
+   */
+  protected readonly totalText = computed(() => this.formatValue(this.totalValue()));
+
+  protected readonly slices = computed(() =>
+    this.segments().map((segment, i) => ({
+      label: segment.label,
+      // The legend keeps a negative value visible — it is data the caller gave
+      // us — but not a non-finite one, which reads as the literal text `NaN`.
+      text: this.formatValue(Number.isFinite(segment.value) ? segment.value : 0),
+      color: segment.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length],
+      percent: (WrMeterGroup.amount(segment.value) / this.resolvedMax()) * 100,
+    }))
+  );
+
+  /**
+   * One tooltip for the whole bar, pointing at the hovered band, with the value as
+   * the legend prints it.
+   */
+  protected readonly tip = useChartTooltip(this.tooltip, index => {
+    const slice = this.slices()[index];
+    const el = this.sliceEls()[index]?.nativeElement;
+    if (!slice || !el) return null;
+    return { datum: { label: slice.label, value: slice.text, color: slice.color }, anchor: el };
+  });
+}

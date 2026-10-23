@@ -34,9 +34,9 @@
     // so the shimmer is visible over the reserved area while loading.
     background: linear-gradient(
       90deg,
-      rgba(var(--wr-color-surface-rgb), 0) 0%,
-      rgba(var(--wr-color-surface-rgb), 0.45) 50%,
-      rgba(var(--wr-color-surface-rgb), 0) 100%
+      transparent 0%,
+      color-mix(in srgb, var(--wr-color-surface) 45%, transparent) 50%,
+      transparent 100%
     );
     background-size: 200% 100%;
     animation: wr-lightbox-shimmer 1.4s linear infinite;
@@ -110,7 +110,7 @@
 }
 
 .wr-lightbox-backdrop {
-  background: rgba(var(--wr-color-backdrop-rgb), 0.85);
+  background: color-mix(in srgb, var(--wr-color-backdrop) 85%, transparent);
 }
 
 .wr-lightbox-overlay {
@@ -118,20 +118,25 @@
 }
 
 .wr-lightbox-viewer {
+  --wr-lightbox-viewer-gap: var(--wr-space-lg);
+  --wr-lightbox-viewer-padding: var(--wr-space-lg);
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: var(--wr-lightbox-viewer-gap);
   max-width: 95vw;
   max-height: 95vh;
   max-height: 95dvh;
-  padding: 1rem;
+  padding: var(--wr-lightbox-viewer-padding);
   animation: wr-lightbox-viewer-in 0.18s ease;
   outline: none;
   // Own the swipe-down-to-dismiss gesture; no scroll/zoom to defer to.
   touch-action: none;
 
   &__close {
+    --wr-lightbox-viewer-close-radius: var(--wr-border-radius-pill);
+
     // A bare `.wr-icon__svg` in a `<button>`: `1em`, and a button inherits no
     // font-size — so the ✕ came out at the browser's control font, about
     // 13.33px, inside a 36px circle, and at the surrounding text's size under
@@ -149,9 +154,14 @@
     height: 2.25rem;
     padding: 0;
     border: 0;
-    border-radius: 999px;
-    background: rgba(var(--wr-color-surface-rgb), 0.12);
-    color: rgba(var(--wr-color-surface-rgb), 0.9);
+    border-radius: var(--wr-lightbox-viewer-close-radius);
+    // White in BOTH schemes, as a literal. The control sits on the backdrop,
+    // which is black in both, while every role token follows the scheme:
+    // `--wr-color-surface`, which this used to read, is near-black in dark, so
+    // the button, its focus ring and the caption below all but vanished into
+    // the backdrop — and `--wr-color-white` turns into the dark canvas too.
+    background: rgb(255 255 255 / 12%);
+    color: rgb(255 255 255 / 90%);
     cursor: pointer;
     transition:
       background 0.15s ease,
@@ -160,7 +170,7 @@
     @include theme.touch-target($positioned: true); // 36px -> 44px tap area on touch
 
     &:hover {
-      background: rgba(var(--wr-color-surface-rgb), 0.2);
+      background: rgb(255 255 255 / 20%);
     }
 
     &:active {
@@ -168,25 +178,31 @@
     }
 
     &:focus-visible {
-      outline: 2px solid rgba(var(--wr-color-surface-rgb), 0.9);
+      outline: 2px solid rgb(255 255 255 / 90%);
       outline-offset: 2px;
     }
   }
 
   &__full {
+    --wr-lightbox-viewer-full-radius: var(--wr-border-radius-base);
+
     display: block;
     max-width: 100%;
     max-height: calc(95vh - 4rem);
     max-height: calc(95dvh - 4rem);
     object-fit: contain;
     cursor: zoom-out;
-    @include theme.smooth-br(0.5rem);
+    @include theme.smooth-br(var(--wr-lightbox-viewer-full-radius));
   }
 
   &__caption {
-    color: rgba(var(--wr-color-surface-rgb), 0.85);
-    font-family: var(--wr-font-family-base);
-    font-size: var(--wr-text-sm);
+    --wr-lightbox-viewer-caption-font-family: var(--wr-font-family-base);
+    --wr-lightbox-viewer-caption-font-size: var(--wr-text-sm);
+
+    // On the backdrop, so white in both schemes — see `__close`.
+    color: rgb(255 255 255 / 85%);
+    font-family: var(--wr-lightbox-viewer-caption-font-family);
+    font-size: var(--wr-lightbox-viewer-caption-font-size);
     text-align: center;
     max-width: 60ch;
   }

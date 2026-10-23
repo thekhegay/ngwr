@@ -1,0 +1,95 @@
+<ngwr-doc-page
+  title="Cascader"
+  updated="15.0.0"
+  description="Pick a path through nested options, one column per level."
+  [keywords]="['cascader', 'wr-cascader', 'multi-level', 'select']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Picking a leaf commits the whole path to `[(value)]` or [any Angular form](/guides/forms)."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 30rem">
+        <wr-cascader [options]="locations" [(value)]="picked" placeholder="Pick a location" />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem"> Value: {{ picked() | json }} </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="changeOnSelect" description="Commit on every click, parent levels included.">
+    <ngwr-doc-code [code]="snippets.changeOnSelect" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 30rem">
+        <wr-cascader [options]="locations" [(value)]="pickedAny" changeOnSelect placeholder="Pick any level" />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Value: {{ pickedAny() | json }}
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard"
+    description="The panel has one tab stop: the arrows move inside it, and Tab leaves it."
+  >
+    <div class="ngwr-table ngwr-keys">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">ArrowDown</wr-kbd> <wr-kbd size="sm">ArrowUp</wr-kbd></th>
+            <td>On the trigger, opens the panel. In a column, moves to the next or previous option.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Home</wr-kbd> <wr-kbd size="sm">End</wr-kbd></th>
+            <td>Moves to the first or last option of the column.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">ArrowRight</wr-kbd></th>
+            <td>Opens a branch and moves into its column. Mirrored under RTL.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">ArrowLeft</wr-kbd></th>
+            <td>Moves back to the option the column belongs to. Mirrored under RTL.</td>
+          </tr>
+          <tr>
+            <th scope="row">A letter</th>
+            <td>Moves to the next option in the column that starts with what you typed.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Enter</wr-kbd> <wr-kbd size="sm">Space</wr-kbd></th>
+            <td>Picks the option. A leaf commits the path and closes the panel.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Escape</wr-kbd></th>
+            <td>Closes the panel and returns focus to the trigger.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Backspace</wr-kbd></th>
+            <td>On the closed trigger, clears the path.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Width"
+    description="The default is `12rem`; change it with `--wr-cascader-min-width`, not a `min-width` on `.wr-cascader__trigger`."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-api [rows]="typesApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

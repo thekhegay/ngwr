@@ -1,5 +1,20 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../icon/styles' as icon-styles; // WrIcon
+@use '../../spinner/styles' as spinner-styles; // WrSpinner
+
 .wr-btn {
   display: inline-flex;
   align-items: center;
@@ -19,14 +34,29 @@
   // Defaults — modifiers override
   --wr-btn-color: var(--wr-color-on-surface);
   --wr-btn-bg: var(--wr-color-surface);
-  --wr-btn-border: var(--wr-color-outline);
+  --wr-btn-border: var(--wr-border-base);
   --wr-btn-radius: var(--wr-control-radius-md);
-  --wr-btn-gap: 0.375rem;
+  --wr-btn-gap: var(--wr-space-sm);
   --wr-btn-padding-y: var(--wr-control-padding-y-md);
-  --wr-btn-padding-x: 0.875rem; // 14px — buttons sit a touch wider than input/select
+  // 16px. Buttons sit a touch WIDER than input and select, which is why this one
+  // reads the spacing scale while every other control dimension here reads the
+  // `--wr-control-*` contract. The conversion to tokens briefly took it onto
+  // `--wr-control-padding-x-*` (8 / 12 / 16), which deleted that offset and
+  // narrowed `sm` from 12px to 8px — straight into the WCAG 2.5.8 finding
+  // recorded at the size block below, where a packed row of `sm` buttons already
+  // fails the spacing exception and a narrower button fails it harder.
+  //
+  // The ramp was 12 / 14 / 18 and is now 12 / 16 / 24. `sm` is exact; the other
+  // two are the only assignment the five-step scale allows that keeps three
+  // distinct tiers, since 14 and 18 both sit nearest to 16 and taking that for
+  // either one collapses it into a neighbour.
+  --wr-btn-padding-x: var(--wr-space-lg);
+  --wr-btn-font-family: var(--wr-font-family-base);
   --wr-btn-font-size: var(--wr-control-font-size-md);
-  --wr-btn-font-weight: 500;
+  --wr-btn-font-weight: var(--wr-font-weight-medium);
   --wr-btn-line-height: var(--wr-control-line-height-md);
+  // Literal: no global scale sizes an icon box — the 14 / 16 / 18 ramp is the
+  // glyph's own geometry, so the hook is the only override point there is.
   --wr-btn-icon-size: 1rem;
 
   color: var(--wr-btn-color);
@@ -34,11 +64,17 @@
   border: 1px solid var(--wr-btn-border);
   @include theme.smooth-br(var(--wr-btn-radius));
   padding: calc(var(--wr-btn-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-btn-padding-x) * var(--wr-density-x, 1));
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-btn-font-family);
   font-size: var(--wr-btn-font-size);
   font-weight: var(--wr-btn-font-weight);
   line-height: var(--wr-btn-line-height);
-  transition: var(--wr-transition-base);
+  // Named rather than `all`: the focus ring is an outline plus a box-shadow, and
+  // under `all` it eased in from a 3px outline in the text colour at offset 0.
+  transition:
+    color var(--wr-transition-base),
+    background var(--wr-transition-base),
+    border-color var(--wr-transition-base),
+    opacity var(--wr-transition-base);
 
   &:hover {
     --wr-btn-bg: var(--wr-color-hover);
@@ -63,10 +99,10 @@
     // Lucide and feather draw on a 24-unit grid with a 2-unit safe area, so a
     // twelfth of the icon box is transparent on each side. `padding-x` sits
     // outside that slack and `gap` inside it, so the declared numbers and the
-    // optical ones diverge — measured at md: 14.6px from the button edge to the
-    // first ink against 11.9px on the label side, and 8.7px to the label against
-    // a declared 6px gap. Reclaiming the slack makes the spacing look like what
-    // the tokens say.
+    // optical ones diverge — measured at md, back when padding-x was 14px and
+    // the gap 6px: 14.6px from the button edge to the first ink against 11.9px
+    // on the label side, and 8.7px to the label against the declared 6px.
+    // Reclaiming the slack makes the spacing look like what the tokens say.
     margin-inline: calc(var(--wr-btn-icon-size) / -12);
   }
 
@@ -118,8 +154,8 @@
   }
 
   // Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px) so button,
-  // input and select line up in a row. Buttons keep a slightly wider padding-x
-  // (12 / 14 / 18) than input/select; gap + icon step with the size.
+  // input and select line up in a row. Padding-x is the one exception and keeps
+  // its own wider ramp (12 / 16 / 24); gap + icon step with the size.
   // `sm` is 22px tall (16 line-height + 2·2 padding + 2·1 border) and that is
   // BELOW the 24×24 WCAG 2.2 asks of a target — deliberately, and it is the
   // consumer's layout that decides whether it passes. 2.5.8 has a spacing
@@ -138,9 +174,9 @@
   // Space the targets, or use `md` where they sit together.
   &--sm {
     --wr-btn-radius: var(--wr-control-radius-sm);
-    --wr-btn-gap: 0.25rem;
+    --wr-btn-gap: var(--wr-space-xs);
     --wr-btn-padding-y: var(--wr-control-padding-y-sm);
-    --wr-btn-padding-x: 0.75rem; // 12px
+    --wr-btn-padding-x: var(--wr-space-md);
     --wr-btn-font-size: var(--wr-control-font-size-sm);
     --wr-btn-line-height: var(--wr-control-line-height-sm);
     --wr-btn-icon-size: 0.875rem; // 14px
@@ -148,9 +184,9 @@
 
   &--lg {
     --wr-btn-radius: var(--wr-control-radius-lg);
-    --wr-btn-gap: 0.5rem;
+    --wr-btn-gap: var(--wr-space-md);
     --wr-btn-padding-y: var(--wr-control-padding-y-lg);
-    --wr-btn-padding-x: 1.125rem; // 18px
+    --wr-btn-padding-x: var(--wr-space-xl);
     --wr-btn-font-size: var(--wr-control-font-size-lg);
     --wr-btn-line-height: var(--wr-control-line-height-lg);
     --wr-btn-icon-size: 1.125rem; // 18px
@@ -188,19 +224,41 @@
     flex-direction: row-reverse;
   }
 
-  // Loading — hide label/icon contents but keep their footprint
+  // Loading — hide label/icon contents but keep their footprint. The label by
+  // `opacity` rather than `visibility`: a `visibility: hidden` label leaves the
+  // accessibility tree, and the button was then named after its spinner, so every
+  // loading button on a page was called "Loading".
   &--loading {
-    .wr-btn__label,
+    .wr-btn__label {
+      opacity: 0;
+    }
+
     .wr-btn__icon {
       visibility: hidden;
     }
   }
 
+  // Outlined, with no intent. Every other outlined rule lives inside the intent
+  // loop below, so before v15 a bare `<wr-btn outlined>` was styled by nothing
+  // at all and painted identically to a plain one — a documented boolean input
+  // with a state in which it did nothing. It went unseen while the neutral
+  // button was rarely drawn; cutting the palette made neutral the answer
+  // wherever a removed intent had been, and the docs page put the two side by
+  // side. Transparent rather than a tint: the border is the whole of what
+  // outlined means here, and the surface behind it belongs to the host.
+  &--outlined {
+    --wr-btn-bg: transparent;
+
+    &:hover {
+      --wr-btn-bg: var(--wr-color-hover);
+    }
+
+    &:active {
+      --wr-btn-bg: var(--wr-color-fill-strong);
+    }
+  }
+
   // Color variants
-  // color-ok: a button's intent is emphasis, not a state — the label names the
-  // action and the intent only ranks it against its neighbours. A destructive
-  // button says `Delete`; a red `OK` is the author's colour-only cue, and no
-  // rule here can supply the word.
   @each $name in theme.$colors {
     &--#{$name} {
       --wr-btn-color: var(--wr-color-#{$name}-contrast);
@@ -218,14 +276,16 @@
       }
 
       &.wr-btn--outlined {
-        // `-ink` is the intent darkened (light) / lightened (dark) until it
-        // clears 4.5:1 as its own label — the base hue does not: in light,
-        // warning as a label is 1.71:1. `--wr-color-light-ink` resolves to the
-        // page's own ink, which is why the `light` special case is gone; the
-        // border still carries the intent.
+        // `-ink`, not the bare intent. The label is TEXT on whatever surface the
+        // host gives the transparent button, and the bare token does not clear
+        // AA there: `#3567ff` on the dark canvas measures 4.06:1, and in light
+        // `warning` is 1.71:1 on white. `-ink` is the token calibrated for exactly
+        // this role — it darkens in light and lightens in dark, so one declaration
+        // answers both. It reads a shade off the solid variant's fill rather than
+        // identical to it, which is the price of a label anyone can read.
         --wr-btn-color: var(--wr-color-#{$name}-ink);
         --wr-btn-bg: transparent;
-        --wr-btn-border: rgba(var(--wr-color-#{$name}-rgb), 0.4);
+        --wr-btn-border: color-mix(in srgb, var(--wr-color-#{$name}) 40%, transparent);
 
         &:hover {
           --wr-btn-color: var(--wr-color-#{$name}-contrast);
@@ -270,21 +330,23 @@
   }
 
   // Solid colored segments share border and background color, so adjacent
-  // buttons fuse into one slab — draw a subtle divider on the right edge of
-  // every non-last segment. Outlined/default variants keep their own visible
+  // buttons fuse into one slab — draw a subtle divider on the inline-end edge
+  // of every non-last segment. Outlined/default variants keep their own visible
   // borders. On hover/focus the segment raises its own border (z-index above
   // neighbours), which would otherwise double-paint that edge — so drop the
   // seam there and let the raised border own it cleanly.
-  // color-ok: not an intent cue — the seam is the same 20% black hairline for
-  // all nine; the loop only picks WHICH segments are solid enough to need it.
   @each $name in theme.$colors {
     > .wr-btn--#{$name}:not(.wr-btn--outlined):not(:last-child) {
-      // `box-shadow` offsets are physical by spec — there is no logical form to
-      // convert to. The seam lands on the wrong edge under RTL; fixing it needs a
-      // `[dir]` rule or a real border, which is beyond a property-level rewrite.
-      // rtl-ok: box-shadow has no logical equivalent — see above
-      box-shadow: inset -1px 0 0 rgba(var(--wr-color-black-rgb), 0.2);
+      // rtl-ok: `box-shadow` offsets are physical by spec, with no logical form,
+      // so the inline-end edge is spelled once per direction. `:dir()` reads the
+      // element's own direction, so no ancestor selector is involved.
+      box-shadow: inset -1px 0 0 color-mix(in srgb, var(--wr-color-black) 20%, transparent);
 
+      &:dir(rtl) {
+        box-shadow: inset 1px 0 0 color-mix(in srgb, var(--wr-color-black) 20%, transparent);
+      }
+
+      // After the `:dir(rtl)` rule, which it ties on specificity.
       &:hover,
       &:focus-visible {
         box-shadow: none;

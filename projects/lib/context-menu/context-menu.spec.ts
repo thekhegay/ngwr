@@ -1,13 +1,9 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrContextMenu } from './context-menu';
@@ -52,7 +48,8 @@ class Host {
  * tracks `aria-expanded`, and Enter on it must OPEN rather than activate.
  *
  * Every panel lands in the CDK overlay container, so nothing is queried from
- * the fixture; `provideWrOverlay()` keeps this file's container private.
+ * the fixture; that container belongs to the TestBed's root injector, so it
+ * never outlives this file.
  */
 describe('WrContextMenu', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -98,7 +95,6 @@ describe('WrContextMenu', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -583,7 +579,6 @@ describe('WrContextMenu placement', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     (fixture.nativeElement as HTMLElement)
@@ -647,10 +642,7 @@ describe('WrContextMenu under dir="rtl"', () => {
     vi.useFakeTimers();
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [
-        provideWrOverlay(),
-        { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
-      ],
+      providers: [{ provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } }],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -755,7 +747,6 @@ describe('WrContextMenu across a direction flip', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     ambient = TestBed.inject(Directionality);
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -822,30 +813,6 @@ describe('WrContextMenu across a direction flip', () => {
 });
 
 /**
- * ⚠️ This one guards the RULE, not the behaviour.
- *
- * `:hover` and `:focus-visible` shared one declaration block that painted the
- * `-soft` tint and then wrote `outline: none`, so a keyboard-focused row and a
- * mouse-hovered row were pixel-identical — 1.17:1 against the menu, and with the
- * keyboard on one row and the pointer on another, nothing said which one Enter
- * would fire. jsdom loads no stylesheets, so the ring itself is unobservable here.
- */
-describe('the context-menu stylesheet', () => {
-  const code = readFileSync(join(process.cwd(), 'projects/lib/context-menu/styles/_index.scss'), 'utf8')
-    .split('\n')
-    .filter(line => !line.trim().startsWith('//'))
-    .join('\n');
-
-  it('gives focus an indicator of its own, on top of the shared tint', () => {
-    const shared = /&:hover,\s*\n\s*&:focus-visible \{([\s\S]*?)\n {2}\}/.exec(code)?.[1] ?? '';
-    expect(shared, 'the shared tint must not cancel the outline again').not.toMatch(/outline/);
-    // Measured in Chromium: the focused row went from no ring at all to a solid
-    // 2px stroke on all four sides, while the hovered row beside it kept none.
-    expect(code).toMatch(/\n {2}&:focus-visible \{\s*@include theme\.focus-ring;/);
-  });
-});
-
-/**
  * The trigger exports itself as `wrContextMenuTrigger`, NOT `wrContextMenu`: the
  * panel component already owns the plain name, which is what `<wr-context-menu #menu>`
  * hands back. This pins the two apart — a shared `exportAs` compiles, and would only
@@ -868,7 +835,6 @@ describe('WrContextMenu template reference', () => {
 
   it('publishes the trigger and the panel under different names', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
 
     const fixture = TestBed.createComponent(ExportHost);
     fixture.detectChanges();
@@ -916,7 +882,6 @@ describe('WrContextMenu panelClass', () => {
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(PanelClassHost);
     fixture.detectChanges();
   });

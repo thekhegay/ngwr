@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrColorFormat } from '../interfaces';
+import type { WrColorFormat } from '../types';
 
 import { rgbToHsl } from './rgb-to-hsl';
 import { toHex } from './to-hex';

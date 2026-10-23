@@ -2,10 +2,8 @@
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
 > Over two hundred secondary entry points, built on `@angular/cdk` primitives.
-> The only runtime dependency is `tslib`. Docs and live demos: https://ngwr.dev
-> (the current counts of entry points, components, harnesses and tests are on
-> https://ngwr.dev/start/quality, generated from the repository). Source:
-> https://github.com/thekhegay/ngwr
+> No runtime dependencies. Docs and live demos: https://ngwr.dev
+> Source: https://github.com/thekhegay/ngwr
 
 This file orients AI agents and LLMs that consume ngwr. For exact, current
 component APIs, read the bundled TypeScript types
@@ -13,10 +11,27 @@ component APIs, read the bundled TypeScript types
 fetching a route returns real HTML you can read; the machine-readable resources
 listed at the bottom are still the faster path for bulk API lookups.
 
+## Docs map
+
+ngwr.dev has six sections:
+
+- `/docs/*` — getting started: introduction, installation, configuration
+  (`provideWr()`), migration, the agent skill and the MCP server.
+  e.g. https://ngwr.dev/docs/installation
+- `/guides/*` — how to use a subsystem: theming, tokens, forms, overlays,
+  translations, SSR, testing. e.g. https://ngwr.dev/guides/forms
+- `/reference/<kind>/<name>` — one page per public API; `<kind>` is
+  components, directives, pipes, services, utils, validators or interfaces.
+  e.g. https://ngwr.dev/reference/components/select
+- `/charts/<name>` — the charts. e.g. https://ngwr.dev/charts/bar-chart
+- `/icons/<set>` — the icon-set browsers. e.g. https://ngwr.dev/icons/lucide
+- `/bits/<name>` — animation and visual-effect components.
+  e.g. https://ngwr.dev/bits/aurora
+
 ## Install
 
-Preferred — the schematic installs ngwr + its peers, adds `@use 'ngwr'` to your
-global styles, and prints a tailored provider snippet to paste into bootstrap:
+Preferred — the schematic installs ngwr + its peers, adds `@use 'ngwr/theme'` to
+your global styles, and prints a tailored provider snippet to paste into bootstrap:
 
 ```
 ng add ngwr
@@ -28,85 +43,118 @@ Or add it manually (pnpm / npm / yarn):
 pnpm add ngwr @angular/cdk
 ```
 
-Requires Angular / CDK `>= 22.0.0` (peers: `@angular/cdk`, `@angular/common`,
-`@angular/core`, `@angular/forms`, `@angular/platform-browser`, `rxjs ^7`.
-Optional: `@angular/router`, which `wr-sidebar`, a breadcrumb `routerLink` and
-the two router adapters need; `date-fns` / `luxon` for their date adapters; and
-the eight `prosemirror-*` packages that only `ngwr/editor` imports. Icon sets
-such as `lucide` are not peers, since the adapters take the icon data). On
-Angular 21 or older the INSTALL succeeds — every package manager treats an unmet
-peer as a warning — and the `ng build` fails instead, in
-the linker, with `Unsupported enum value for [object Object]`. The floor is real
-and the ceiling is absent — an Angular newer than the release has not been built
-or tested against, and nothing warns. There is no `engines` field and no
-TypeScript peer either: both come from your Angular. What that range does and
-does not promise: https://ngwr.dev/start/versioning
+Requires Angular 22: the `@angular/*` peers are `^22.0.0` (`@angular/cdk`,
+`@angular/common`, `@angular/core`, `@angular/forms`,
+`@angular/platform-browser`), plus `rxjs ^7`. A newer Angular major joins the
+range in a release once CI has run the suite on it. Optional: `@angular/router`,
+which `wr-sidebar`, a breadcrumb `routerLink` and the two router adapters need,
+and the eight `prosemirror-*` packages that only `ngwr/editor` imports. Icon
+sets such as `lucide` are not peers, since `lucideIcons()` and `svgIcon()` take
+the icon data. Outside that range npm refuses the install with `ERESOLVE`, while
+pnpm and yarn only warn; on Angular 21 or older the `ng build` then fails in the
+linker with `Unsupported enum value for [object Object]`. There is no `engines`
+field and no TypeScript peer: both come from your Angular. Browsers: Chrome 123,
+Firefox 120, Safari 17.5 or newer, since the theme uses `light-dark()`.
+Compatibility per major: https://ngwr.dev/docs/installation
 
-**There is no root barrel: `import { X } from 'ngwr'` is always wrong.** The root
-entry point exports nothing, so an IDE auto-import from it gives `TS2305` and no
-hint. Every symbol comes from its entry point — `import { WrButton } from
-'ngwr/button'` — and for most components the entry point is the last segment of
-the docs URL. Not for all of them: `/reference/components/qrcode` is `ngwr/qr`,
-`form-field` is `ngwr/form` and `button-group` is `ngwr/button`, while the
+**There is no root barrel: `import { X } from 'ngwr'` is wrong for every
+component.** The root entry point exports only `provideWr()`, so an IDE
+auto-import of a component from it gives `TS2305` and no hint. Every symbol
+comes from its entry point — `import { WrButton } from 'ngwr/button'` — and for
+most components the entry point is the last segment of the docs URL. Not for
+all of them: charts and bits are nested, so `/charts/bar-chart` is
+`ngwr/charts/bar-chart` and `/bits/aurora` is `ngwr/bits/aurora`;
+`/reference/components/qrcode` is `ngwr/qr`, `form-field` is
+`ngwr/form` and `button-group` is `ngwr/button`, while the
 directive, pipe, util and validator pages share `ngwr/directives`, `ngwr/pipes`,
 `ngwr/utils` and `ngwr/validators`. Each page's import snippet names the right
 one. Mind the ones that do not match the selector: `<wr-btn>` and
 `<wr-btn-group>` are `ngwr/button`, `<wr-tag>` is `ngwr/badge`, `<wr-option>` is
 `ngwr/select`, `<wr-accordion>` is `ngwr/collapse`, `<wr-form-field>` is
-`ngwr/form`, `<wr-sortable-list>` is `ngwr/drag-drop`, `<wr-kbd>` is
-`ngwr/keyboard`, `<wr-count-up>` is `ngwr/counter`, and `[wrAutofocus]`,
-`[wrAutosize]`, `[wrClickOutside]` and `[wrCopyToClipboard]` are
-`ngwr/directives`.
+`ngwr/form`, `<wr-kbd>` is `ngwr/keyboard`, `<wr-count-up>` is `ngwr/counter`,
+and `[wrAutofocus]`, `[wrAutosize]`, `[wrClickOutside]` and
+`[wrCopyToClipboard]` are `ngwr/directives`.
 
-Styles: `@use 'ngwr'` (everything, over 300 kB of minified CSS) or
-`@use 'ngwr/<name>'` per component in your global SCSS. **Per component, the
-theme tokens come with each entry but the other components it renders do not**,
-and nothing warns — the control just paints wrong. Always add `ngwr/icon` (the
-inline chevrons, carets and sort arrows are bare SVGs sized by `.wr-icon__svg`),
-`ngwr/density` (nothing else declares the `--wr-density-*` multipliers, so
-`provideWrDensity()` silently does nothing without it) and `ngwr/overlay` (the
-responsive bottom sheet). Then follow what a component renders:
-`ngwr/table` needs checkbox / dropdown / pagination / spinner, `ngwr/pagination`
-needs button / select, `ngwr/date-picker` needs calendar / input,
-`ngwr/editor` needs button / input / popover, and a service
-mounts a component no template names — `WrDialog.open()` needs `ngwr/dialog`,
-`WrToast.show()` needs `ngwr/toast`. Full table:
-https://ngwr.dev/start/installation
+Styles: in your global SCSS, `@use 'ngwr/theme'` first, then one
+`@use 'ngwr/<name>'` per component a template renders; there is no
+`@use 'ngwr'` umbrella. Only a module's first load can be configured, so
+`@use 'ngwr/theme' with (…)` below a component line fails the build. A
+component's sheet brings the sheets of what it renders inside (`ngwr/table`
+styles its checkboxes and pager). **Two kinds of sheet need a line although no
+template names them**, and nothing warns without them: `ngwr/density` with
+`withDensity()` or `[wrDensity]` (nothing else declares the `--wr-density-*`
+multipliers, so density silently does nothing), and the sheet of a component a
+service opens — `WrDialog.open()` needs `ngwr/dialog`, `WrToast.show()`
+`ngwr/toast`, `WrDrawerManager.open()` `ngwr/drawer`, `WrWindowManager.open()`
+`ngwr/window` and `WrTour.start()` `ngwr/tour`. Optional sheets no component
+needs: `ngwr/reset`, `ngwr/grid`, `ngwr/typography-utilities`,
+`ngwr/breakpoints` (mixins for your own SCSS) and `ngwr/animations` (keyframes
+and animation classes; the animation components are `ngwr/bits/*`).
+`ngwr/reset`, `ngwr/typography-utilities` and `ngwr/animations` load the theme,
+so they go below a configured `@use 'ngwr/theme' with (…)` like any component
+line. Details: https://ngwr.dev/docs/installation
 
 ## Providers (main.ts)
 
-Add from their entry points as needed:
+App-wide configuration is ONE call, `provideWr()` from `ngwr` (the root entry
+point's only export), taking a feature per setting, each imported from the entry
+point it configures — only the features an app imports are bundled:
 
-- `provideWrOverlay()` — strongly recommended for any overlay (dialog / select /
-  dropdown / popover / toast / drawer): gives ngwr its own CDK overlay container
-  so it never collides with other CDK consumers, and installs the visual-viewport
-  tracker mobile sheets need to clear the on-screen keyboard. Without it overlays
-  still work, falling back to CDK's shared root container — but
-  `--wr-keyboard-inset` stays 0 and sheets won't lift above the keyboard. Add
-  `provideWrResponsiveOverlays()` for mobile sheets — both from `ngwr/overlay`,
-  not from the component's own entry point. Optional does not mean free: what it
-  references is CDK's overlay module, the heaviest dependency in the catalog, so
-  it is near-zero in an app with any overlay on screen and the whole of it in an
-  app with none.
+```ts
+import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
+import { withToast } from 'ngwr/toast';
+import { withDates } from 'ngwr/date';
+
+providers: [
+  provideWr(
+    withDensity({ defaultDensity: 'sm' }),
+    withToast({ duration: 6000 }),
+    withDates({ locale: 'ru-RU' }),
+  ),
+],
+```
+
+The features are `withDensity` (`ngwr/density`), `withTheme` (`ngwr/theme`),
+`withToast` (`ngwr/toast`), `withDates` (`ngwr/date`), `withStorage`
+(`ngwr/storage`) and `withMeta` (`ngwr/meta`). Every one is optional, the same
+feature twice throws in dev mode, and all but `withDates` configure a root
+service, so they belong at bootstrap rather than in a route. The theme needs no
+feature: the `--wr-*` tokens are plain CSS and dark mode follows
+`color-scheme`; `withTheme()` only changes the default and boots `WrTheme`
+(Theme, below). There is no `provideWrDensity()`, `provideWrToastConfig()`,
+`provideWrStorage()`, `provideWrMeta()`, `provideWrTheme()` or
+`provideWrDateAdapter()` since v15. Details:
+https://ngwr.dev/docs/configuration
+
+The rest are calls of their own, added from their entry points as needed:
+
+- `provideWrOverlay()` is gone (v15), because overlays need no provider: every
+  overlay (dialog / select / dropdown / popover / toast / drawer) renders into
+  ngwr's own CDK overlay container, `.wr-overlay-container`, so it never
+  collides with Material, NG-ZORRO or other CDK consumers. `WrVisualViewport`
+  and `--wr-keyboard-inset` went with it; read `window.visualViewport` for the
+  keyboard inset. Overlays always float; a sheet on a phone is a
+  `<wr-drawer position="bottom">` you open yourself.
 - `provideWrIcons(lucideIcons({ check: Check }))` — icon registry (`ngwr/icon`,
-  adapters under `ngwr/icon/adapters/*`).
-- `provideWrTheme()` — `--wr-*` design tokens. `provideWrDensity()` — sizing.
-- `provideWrConfig({ button: { size: 'sm' }, select: { rounded: true } })`
-  (`ngwr/config`) — app-wide component DEFAULTS. A value bound on the element always
-  wins, and a bound `false` beats a configured `true`, so a config never has to be
-  escaped. Covers `size` on the form controls, `rounded` on `input` / `inputNumber`
-  / `select`, `format` on `editor` (what the app stores: HTML, markdown or JSON),
-  and `linkTarget` / `copyable` on `markdown`. There is deliberately no
-  `color` key — a bound `[color]="null"` means "no intent", which a default cannot
-  express without inventing a sentinel.
+  which holds `lucideIcons()` too; every other set, feather included, registers
+  its raw SVG with `svgIcon()`).
+- `ngwr/config` and `provideWrConfig()` are gone (v15): `size` and `rounded`
+  default to the value written on the input. Bind them where you want another
+  value, or wrap the component in your own.
 - `provideWrI18n(...)` + `provideWrI18nBaseCatalogs({ en: wrEn })` +
   `provideWrI18nStaticLoader(...)` — localization. ngwr's catalogs go in as a
   BASE, never spread into yours: a spread is shallow, so any namespace you share
-  with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread
+  with ngwr, e.g. `common`, `form`, `table`, keeps only the side spread
   last, and the other side's keys stop resolving with nothing logged — ngwr's
   components fall back to English and a `wrT` read renders the raw key.
-- `provideWrDateAdapter(...)` — calendar + date-picker (`ngwr/date/adapters/fns`
-  or `ngwr/date/adapters/luxon`).
+- Calendar, event calendar and date-picker need no date provider:
+  `WrDateAdapter` resolves to the native adapter (`Date` + `Intl`, locale from
+  `LOCALE_ID`). `provideWr(withDates({ locale }))` (`ngwr/date`) pins another
+  locale; for another date library, extend `WrDateAdapter` and pass the class as
+  `withDates({ adapter })`. Its `format` and `parse` handle every `WrDateFormat`
+  key, including the `12h`, `24h` and `Seconds` variants of `time` and
+  `shortDateTime` (`time24h`, `shortDateTime12hSeconds`) that v15 added.
 
 Injected rather than provided: `WrTour` (`ngwr/tour`) runs a guided onboarding
 tour — `tour.start([{ target: '[data-tour="save"]', content: '…' }])` spotlights
@@ -114,13 +162,18 @@ one element at a time; a step whose target is missing is skipped, not floated.
 
 ## Schematics — let `ng` wire it
 
-- `ng add ngwr` — installs peers, adds `@use 'ngwr'` to styles, prints provider setup.
+- `ng add ngwr` — installs peers, adds `@use 'ngwr/theme'` to styles, prints provider setup.
 - `ng g ngwr:use WrFoo --path src/app/x.ts` — adds the import + splices `WrFoo` into that
   component's `@Component` imports.
-- `ng g ngwr:provider <overlay|icons|toast|i18n|date-adapter|density|theme|…>` —
-  adds the matching `provideWr*()` to bootstrap.
+- `ng g ngwr:provider <name>` — splices a provider into the app's providers:
+  `provideWrIcons()`, `provideWrI18n()` or `provideWrLoadingBarRouter()`, or a
+  feature inside `provideWr()`: `withToast()`, `withDensity()`, `withStorage()`
+  or `withTheme()`. Density also needs `@use 'ngwr/density'` in your styles.
 - `ng g ngwr:icon-set` — scaffolds a tree-shaken icon barrel.
-- `ng g ngwr:component-style <name>` — appends `@use 'ngwr/<name>'` (opt-in styles).
+- `ng g ngwr:component-style <name>` — adds `@use 'ngwr/<name>'` to the global
+  stylesheet, after the theme line and after the last `@use` already there.
+  Every component a template renders needs its line. A name from before v15
+  (`bar-chart`) lands on its nested entry point (`ngwr/charts/bar-chart`).
 - `ng g ngwr:page <form|table|dashboard>` — starter page wired with ngwr.
 - `ng update ngwr` — runs upgrade migrations.
 
@@ -130,22 +183,75 @@ Run `ng update ngwr` once, from whatever major the app is on. It installs the
 latest release and runs every migration between the installed version and that
 release, in order. Do not step through the majors, and never target a 7.x, 8.x or
 9.x release: their schematics die with `exports is not defined in ES module
-scope`. A migration rewrites what is a pure rename and REPORTS, by file, what
-needs a decision only the app can make. Read its output, because the reported
+scope`. A migration rewrites what is a pure rename and REPORTS, by file (by
+file and line for v15), what needs a decision only the app can make. Read its output, because the reported
 half is where the silent failures are. Every breaking change, newest first, each
-with a diff: https://ngwr.dev/start/migration
+with a diff: https://ngwr.dev/docs/migration
 
 Names older majors used, which code written for them (and a model trained on
-that code) still spells. The migration for each major rewrites them:
+that code) still spells. Each major's migration rewrites them, v15's included:
+`ng update ngwr` runs `migration-v15`, which moves the paths, the provider
+calls, the readable `-rgb` reads and the renamed token reads, and lists the
+rest. The lists below are the ones an agent most often meets;
+https://ngwr.dev/docs/migration is the complete list.
 
+- v15, providers: `provideWrDensity`, `provideWrToastConfig`,
+  `provideWrStorage`, `provideWrMeta`, `provideWrTheme` and
+  `provideWrDateAdapter` are `withDensity`, `withToast`, `withStorage`,
+  `withMeta`, `withTheme` and `withDates`, passed to one `provideWr()` from
+  `ngwr` (a bare `provideWrDateAdapter()` just goes: the native adapter is the
+  default). A `WR_THEME_CONFIG` provider is `withTheme()` too, which also boots
+  `WrTheme`. `WrDateAdapterOptions` and `ProvideWrStorageOptions` are
+  `WrDatesOptions` and `WrStorageOptions`. `provideWrOverlay()`,
+  `provideWrConfig()`, `provideWrResponsiveOverlays()` and
+  `provideWrFormErrors()` are gone, with `WR_CONFIG`, `useConfigValue()`,
+  `WR_RESPONSIVE_OVERLAYS`, `wrPresentAsSheet`, `WR_FORM_ERRORS` and
+  `WR_FORM_ERROR_FALLBACKS`.
+- v15, paths: every chart and animation entry point is nested, so
+  `ngwr/bar-chart` is `ngwr/charts/bar-chart` and `ngwr/aurora` is
+  `ngwr/bits/aurora`; `ngwr/drag-drop` is `ngwr/sortable-list`, and the list no
+  longer owns its loop — write your own, one `<wr-sortable-item>` per row, with
+  no `trackBy`; `ngwr/icon/adapters/lucide` is `ngwr/icon` (`lucideIcons`,
+  `lucide` and `LucideIconNode` keep their names). Gone outright:
+  `ngwr/icon/adapters/feather` (register feather's own SVG files with
+  `svgIcon()`); `ngwr/date/adapters/fns` and `ngwr/date/adapters/luxon` (use the
+  native adapter or your own `WrDateAdapter` subclass, and note that a date-fns
+  token `[format]` such as `EEEE` or `PPP` prints verbatim on the native one);
+  `ngwr/config`; `ngwr/media` (use the CDK's `BreakpointObserver`);
+  `ngwr/markdown` (use `<wr-editor readonly [toolbar]="false">`);
+  `ngwr/squircle` (`wrSquircle` is `shape="squircle"` on `wr-btn`, `wr-avatar`
+  and `wr-badge`, or the `theme.smooth-br()` mixin elsewhere); and
+  `ngwr/action-sheet` (a `<wr-drawer position="bottom" rounded>` with your own
+  rows). `@use 'ngwr'` and `@use 'ngwr/overlay'` no longer resolve.
+- v15, tokens: `--wr-color-light` and `--wr-color-outline` are
+  `--wr-border-base`; `--wr-color-border`, `--wr-color-border-subtle` and
+  `--wr-color-border-strong` are all `--wr-border-subtle`, or
+  `--wr-border-base` for a firmer line. `--wr-border-strong` is new, and darker
+  than any v14 border, so it replaces none of them. `--wr-color-dark`, and the
+  dark theme's `--wr-color-white-contrast`, are `--wr-color-on-surface`, and
+  `--wr-color-medium` and `--wr-color-muted-text` are
+  `--wr-color-on-surface-muted`. Every `-rgb` token is gone:
+  `--wr-color-backdrop-rgb` is the colour `--wr-color-backdrop`,
+  `--wr-calendar-accent-rgb` is `--wr-calendar-accent`, `--wr-color-picker-rgb`
+  is `--wr-color-picker-color`, and the rest become a `color-mix()`.
+  `wrThemeTokens()`, `wrIntentTokens()` and `wrContrastFor()` are gone (rebrand
+  at build time with `$base-colors` or `theme.rebrand()`), so are
+  `theme.dark-selector()` and `$theme-attribute`, and code that read
+  `data-theme` reads `WrTheme.resolved()`.
+- v15, components: `[wrTypography]`'s `tone="dark"` and `tone="medium"` are
+  `tone="base"` and `tone="muted"`; `<wr-timeline-item color="medium">` is
+  `color="neutral"`; a `WrSidebarItem`'s `badge: 'new'` and `badge: '12'` are
+  `badge: { text: 'New', tone: 'primary' }` and `count: 12`, and a
+  `WrSidebarGroup` child can itself be a group, so check `'children' in child`
+  before reading `url`.
 - v14: `<wr-alert closeable>` is `closable`; `[wrInput]`'s `wrSize` is `size`;
   `<wr-table [totalItems]>` is `[total]`; `<wr-pagination [(currentPage)]>` and
   `(currentPageChange)` are `[(page)]` and `(pageChange)`;
   `isDisabledWhenLoading` is `disabledWhenLoading`; the window `chromeSize`
   values `'compact' | 'normal'` are `'sm' | 'md'`.
-- v12: `ngwr/date-adapter`, `ngwr/date-adapter-fns` and
-  `ngwr/date-adapter-luxon` are `ngwr/date`, `ngwr/date/adapters/fns` and
-  `ngwr/date/adapters/luxon`.
+- v12: `ngwr/date-adapter` is `ngwr/date`; `ngwr/date-adapter-fns` and
+  `ngwr/date-adapter-luxon` moved under `ngwr/date/adapters/`, which v15
+  removed.
 - v9: a grouped `<wr-checkbox value="…">` is `checkboxValue`.
 - v8: the density values `compact` / `default` / `comfortable` are `sm` / `md`
   / `lg`.
@@ -156,6 +262,36 @@ that code) still spells. The migration for each major rewrites them:
 
 Changes no migration rewrites. All but the last fail silently:
 
+- Dark mode is `color-scheme` plus `light-dark()` (v15): `[data-theme]` and
+  every `-rgb` token are gone, so a `[data-theme='dark']` selector matches
+  nothing and a `var(--wr-…-rgb)` the codemod could not read drops the whole
+  declaration holding it (see Theme, below). The same major removed the `secondary`, `light`,
+  `medium` and `dark` intents; which intent each use becomes is the app's call.
+  Without `strictTemplates` a removed `color` value renders neutral, and a
+  `var()` at any removed token drops its whole declaration.
+- Inputs v15 removed still compile as plain attributes and do nothing: a bare
+  `wrSquircle`, `<wr-drawer showHandle>`, `responsive` on `wr-select`,
+  `[wrDropdown]`, `[wrPopover]` and `wr-command-palette`, and
+  `<wr-editor format>`. Rules on `.wr-overlay-sheet`, `.wr-overlay-backdrop`
+  and `.wr-command-palette--sheet` match nothing.
+- A `<wr-sortable-list>` that still holds an `<ng-template>` renders nothing,
+  and `<wr-editor>` refuses an HTML or markdown string, and `''`: its value is
+  a `WrEditorJson` tree, or `null` when empty (v15).
+- `<wr-sidebar>` draws no icons by default (v15): bind `defaultGroupIcon` and
+  `defaultItemIcon` to keep them. Its row classes were renamed in the same
+  release — `.wr-sidebar__entry` and `.wr-sidebar__item` are `.wr-sidebar__row`,
+  `.wr-sidebar__group-toggle` is `.wr-sidebar__row--group` and
+  `.wr-sidebar__item-title` is `.wr-sidebar__title` — so a rule on the old
+  names matches nothing. `--wr-sidebar-padding`, the only sidebar hook v14
+  published, is unchanged.
+- ngwr ships no validation text (v15). Without a validator's `{ message }` or a
+  `validation.<key>` in your own catalog a field shows no error, and only dev
+  mode warns.
+- `wrDate` with no provider changed its output (v15): `shortDate` from
+  `3/15/26` to `3/15/2026`, `time` from `2:30 PM` to `02:30 PM`, and a token
+  format such as `'dd.MM.yyyy'` is honoured where it fell back to `shortDate`.
+- Deleting `provideWrConfig()` (v15) resets every control it configured to
+  `md` and the standard radius: bind those inputs first.
 - `<wr-pagination ofLabel>` is gone (v14), and the `pagination.of` catalog key
   with it. The range is one `pagination.range` template with `{{from}}` /
   `{{to}}` / `{{total}}` placeholders, and a catalog still carrying the old key
@@ -192,12 +328,12 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   value is the whole path), `[wrMention]` (ngwr/mention, on a textarea or input),
   `wr-file-upload`, `wr-form-field` (in ngwr/form), `wr-color-picker`,
   `wr-transfer` (dual listbox; the value is the RIGHT pane), `wr-editor`
-  (ngwr/editor — rich text on ProseMirror, an optional peer; `format` makes the
-  value an HTML string, a markdown string or a JSON tree, and every value is
-  sanitised through the schema; a value it cannot read is refused and the editor
-  keeps its document), `wr-schema-form` (ngwr/schema-form; draws a form from the
-  `WR_FIELD` metadata on a Signal Forms schema, and skips a field that carries
-  none).
+  (ngwr/editor — rich text on ProseMirror, an optional peer; the value is the
+  document as a JSON tree, `null` when empty, validated against the schema; a
+  value it cannot read is refused and the editor keeps its document; an app that
+  stores HTML or markdown converts at its own boundary), `wr-schema-form`
+  (ngwr/schema-form; draws a form from the `WR_FIELD` metadata on a Signal Forms
+  schema, and skips a field that carries none).
 - **Data** — `wr-table` (column pin/resize/drag-reorder, row selection,
   expandable rows, grouping, tree rows (`childrenKey`), summary rows,
   CSV export, virtualized body),
@@ -205,39 +341,44 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-event-calendar` (see Scheduling below), `wr-graph` (read-only layered
   diagram: `nodes` plus `{ from, to }` parent-to-child `edges`, each node a
   default card or an `ng-template wrGraphNode`), `wr-virtual-scroll`,
-  `wr-sortable-list` (drag-to-reorder, with `[wrDragHandle]` — both in
-  ngwr/drag-drop).
+  `wr-sortable-list` (drag-to-reorder, one `<wr-sortable-item>` per row from
+  your own loop, with `[wrDragHandle]` — all in ngwr/sortable-list).
 - **Charts** — `wr-line-chart`, `wr-bar-chart`, `wr-donut-chart`,
   `wr-sparkline`, `wr-gauge`, `wr-calendar-heatmap`, `wr-meter-group`, each its
-  own entry point, themed through the `--wr-*` tokens and each with a hover
-  tooltip.
+  own entry point at `ngwr/charts/<name>` (`ngwr/charts/bar-chart`), documented
+  under https://ngwr.dev/charts/, themed through the `--wr-*` tokens and each
+  with a hover tooltip. Every chart writes its numbers with `Intl.NumberFormat`
+  in `LOCALE_ID` (line-chart ticks and bar-chart labels compact from a thousand
+  up, `5K`, unless the full numbers are shorter; tooltips never), and takes
+  `valueFormat: (value: number) => string` for any other format.
 - **Feedback** — `wr-alert`, `wr-result`, `wr-empty`, `wr-skeleton`,
   `wr-spinner`, `wr-progress`, `wr-loading-bar`.
 - **Layout / Display** — `wr-layout` (with header / sider / content / footer),
   `wr-page-header`, `wr-card`, `wr-divider`, `wr-carousel`, `wr-collapse`,
-  `wr-splitter`, `wr-toolbar`, `wr-window`, `wr-descriptions`, `wr-statistic`,
+  `wr-splitter`, `wr-toolbar`, `wr-descriptions`, `wr-statistic`,
   `wr-avatar`, `wr-badge` and `wr-tag` (both ngwr/badge), `wr-qr` (ngwr/qr),
-  `wr-lightbox`, `wr-image-cropper`, `wr-compare`, `wr-pull-to-refresh`,
-  `wr-markdown` (renders markdown as DOM, never as HTML — raw HTML in the source
-  is escaped; `[streaming]` for a partial document;
-  `provideWrMarkdownHighlighter()` takes coloured spans, not markup). The same
-  entry point exports `parseMarkdown()`, which returns the block tree, and
-  `serializeMarkdown()`, which writes a tree back as markdown: the pair
-  round-trips, and what this dialect cannot express is normalised rather than
-  guessed at.
+  `wr-lightbox`, `wr-image-cropper`, `wr-compare`, `wr-pull-to-refresh`. There
+  is no markdown renderer since v15: a stored rich-text document is shown by
+  `<wr-editor readonly>`, which mounts no ProseMirror.
 - **Navigation** — `wr-tabs`, `wr-stepper`, `wr-breadcrumbs`, `wr-anchor`,
   `wr-sidebar` (follows the active route by injecting `Router`),
   `wr-back-top`, `[wrAffix]`, `wr-dropdown-menu` (with its `[wrDropdown]`
   trigger — both in ngwr/dropdown).
 - **Overlays** — `wr-drawer` (or `WrDrawerManager.open()` to open a component as
-  a drawer from code), `wr-action-sheet`, `[wrPopover]` (directive; has a
+  a drawer from code; with `hasBackdrop` off it is a non-modal side panel, with
+  no focus trap and no `aria-modal`), `[wrPopover]` (directive; has a
   `tooltip` mode), `wr-command-palette`, `wr-context-menu`, `wr-popconfirm`.
   (Dialog and toast are service-opened — inject `WrDialog` / `WrToast`.
   Content inside a service-opened dialog or drawer can `inject(WrDialogRef)` /
-  `inject(WrDrawerRef)` to close itself.)
-- **Animations** — text effects, cursor effects and backgrounds, each its own
-  entry point, documented under https://ngwr.dev/animations/ and listed in
-  `llms-full.txt`.
+  `inject(WrDrawerRef)` to close itself. Windows are service-opened too: there
+  is no `<wr-window>`, `WrWindowManager.open()` (ngwr/window) opens one and
+  moves focus into it (`autoFocus: false` for a background window), and
+  `<wr-window-taskbar>` lists the minimized ones.)
+- **Bits** — the animation and visual-effect components: text effects, cursor
+  effects, backgrounds and blocks, each its own entry point at
+  `ngwr/bits/<name>` (`ngwr/bits/aurora`), documented under
+  https://ngwr.dev/bits/ and listed in `llms-full.txt`. Not to be confused with
+  `@use 'ngwr/animations'`, the keyframe sheet.
 
 ## Patterns
 
@@ -257,6 +398,10 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   control showing the old value; `<wr-select>` compares object values by `===`
   with no `compareWith`. What the bridge carries, what it drops, and what a form
   does about each: https://ngwr.dev/guides/forms
+  ngwr ships no validation copy. For an error no `<wr-form-error key>` claims,
+  `<wr-form-field>` shows the validator's own `{ message }`, else
+  `validation.<key>` from YOUR i18n catalog; with neither it shows nothing, and
+  only dev mode warns.
 - **Icons** — register via `provideWrIcons`, render `<wr-icon name="check" />`.
 - **Router** — only what is about routes touches `@angular/router`:
   `wr-sidebar` injects `Router` to follow the active route, and
@@ -270,19 +415,37 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 - **i18n** — `{{ 'key' | wrT }}` (pipe from `ngwr/i18n`). The locale defaults to
   Angular's `LOCALE_ID`, not the browser, for both copy and dates; an app that
   wants the browser's tag writes
-  `provideWrDateAdapter({ locale: navigator.language })`. A named date format
+  `provideWr(withDates({ locale: navigator.language }))`. A named date format
   (`shortDate`, `time`, …) parses through the same `Intl` formatter that printed
   it, so input it cannot read returns null and leaves the committed value alone.
   A field that must accept a specific pattern takes an explicit token `[format]`.
-- **Theme** — CSS custom properties `--wr-color-*`, `--wr-border-radius-*`, … set
-  by `provideWrTheme()`. Two contrast tokens per intent, easy to confuse:
+- **Theme** — CSS custom properties `--wr-color-*`, `--wr-border-radius-*`, …
+  from `@use 'ngwr/theme'`, no provider needed. Dark mode is `color-scheme` plus
+  `light-dark()`: `:root` declares `color-scheme: light dark`, so the page
+  follows the OS with no JavaScript, and `WrTheme.set('light' | 'dark' | 'auto')`
+  forces or releases it by writing `color-scheme` on `<html>`. `WrTheme` applies
+  a stored choice or a non-`auto` `defaultMode` when it is first injected;
+  `provideWr(withTheme({ defaultMode, storageKey }))` configures it and creates
+  it at boot, and `wrThemePrePaintScript()` with the same options covers the
+  first paint of a prerendered page. There is no
+  `[data-theme]`, no `theme.dark` mixin and no `-rgb` token: write your own dark
+  values as `color: light-dark(#0f172a, #e6ebf3)`, and a translucent tint as
+  `color-mix(in srgb, var(--wr-color-primary) 12%, transparent)`, never
+  `rgba(var(--wr-color-primary-rgb), 0.12)`. A canvas cannot draw a
+  `light-dark()` value, and `getPropertyValue()` returns it unresolved, so read
+  a colour for canvas from an element's computed `color` —
+  `resolveCssColor()` (`ngwr/utils`) does exactly that — and redraw a still
+  frame from `watchColorScheme(scheme => …)` (`ngwr/utils`, in an injection
+  context or with `{ injector }`), which calls back with `'light'` or `'dark'`
+  when the page's scheme changes. Two contrast tokens
+  per intent, easy to confuse:
   `--wr-color-<intent>-contrast` is the label ON a filled intent;
   `--wr-color-<intent>-ink` is the intent used AS text on a surface or its own
   `-soft` tint. A bare `--wr-color-<intent>` as text clears AA on a plain light
-  surface for every intent but `warning` and `light`, but still fails on the `-soft`
+  surface for every intent but `warning`, but still fails on the `-soft`
   tint — which is exactly where outlined / ghost / tinted variants paint it, so use
-  `-ink` there. For muted prose use `--wr-color-on-surface-muted`, not the `medium`
-  intent, and for placeholder text `--wr-color-placeholder` (never
+  `-ink` there. For muted prose use `--wr-color-on-surface-muted`, and for
+  placeholder text `--wr-color-placeholder` (never
   `--wr-color-text-faint`, which is decorative only). An intent colour on a tag,
   badge or typography tone is decoration or category: the words carry the state.
 - **SSR** — everything renders on the server; the library contains no
@@ -290,31 +453,36 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   nothing from it. Two calls are NOT no-ops there and ship an overlay into a
   cached page: `WrToast.show()` and `WrDialog.open()` (`WrTour.start()` is the
   one that returns early) — guard them with `afterNextRender` or `WrPlatform`'s
-  `isBrowser`. `WrMedia` has no viewport to measure, so `matches()` is `false`
-  and `current()` is `'xs'` until hydration: reflow with the `responsive`
-  container-query modifiers rather than a template branch. And a server has no
-  `localStorage`, so a dark-mode visitor sees a light page until the bundle
-  boots — `wrThemePrePaintScript()` (`ngwr/theme`) is the blocking `<head>`
-  reader that closes it: https://ngwr.dev/guides/ssr
-- **Mobile** — overlays collapse to sheets (`provideWrResponsiveOverlays()`), a
-  `responsive` input reflows layout components, a `touch` density preset enlarges
-  controls, and `WrHaptics` (ngwr/platform) fires vibration feedback.
+  `isBrowser`. A breakpoint signal has no viewport to measure (ngwr ships none
+  since v15 removed `ngwr/media`; the CDK's `BreakpointObserver` answers `false`
+  until hydration): reflow with the `responsive` container-query modifiers
+  rather than a template branch. The scheme needs
+  nothing on the server when it follows the OS, since that is CSS; a visitor
+  who CHOSE light or dark has that choice in `localStorage`, which a server
+  cannot read, so `wrThemePrePaintScript()` (`ngwr/theme`) is the blocking
+  `<head>` reader that applies it before first paint, and
+  `wrDensityPrePaintScript()` (`ngwr/density`) does the same for a stored
+  density: https://ngwr.dev/guides/ssr
+- **Mobile** — a `responsive` input reflows layout components (`wr-table`,
+  `wr-toolbar`, `wr-stepper`, …; no overlay has one since v15), a `touch`
+  density preset enlarges controls, and `WrHaptics` (ngwr/platform) fires
+  vibration feedback.
 - **Large datasets** — `virtualScroll` is an opt-in input on `wr-table`,
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
 - **Testing** — CDK component harnesses ship beside the components they drive, at
-  `ngwr/<name>/testing` (how many there are is on https://ngwr.dev/start/quality).
+  `ngwr/<entry>/testing` (`ngwr/select/testing`, `ngwr/charts/bar-chart/testing`).
   Every control, every overlay and every chart has one: the form controls
   (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
   `input-number`, `input-otp`, `slider`, `rating`, `file-upload`, `color-picker`,
   `knob`, `segmented`, `editor`, and `form` for `<wr-form-field>`), the overlays
-  (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `action-sheet`,
+  (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`,
   `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`,
   `mention`), the data views (`table`, `tree`, `graph`), the navigation and
   disclosure set (`tabs`, `stepper`, `carousel`, `pagination`, `collapse`,
-  `transfer`), `markdown`, `splitter`, `speed-dial`, `lightbox`, `tour`,
-  `calendar`, `event-calendar`, `window`, `image-cropper`, and every animation
-  but three. `WrCalendarDayHarness` ships under two entry points, since a date
+  `transfer`), `splitter`, `speed-dial`, `lightbox`, `tour`,
+  `calendar`, `event-calendar`, `window`, `image-cropper`, and every bit but
+  three. `WrCalendarDayHarness` ships under two entry points, since a date
   picker's popup IS a calendar. `aurora`, `click-spark`, `confetti` and
   `virtual-scroll` deliberately have none: what they do is a canvas or a measured
   viewport, so every honest method would read the same for a working component
@@ -330,7 +498,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   group / item, `WrRadioGroupHarness` + radio, `WrSliderHarness` + thumb,
   `WrInputOtpHarness` + box, `WrRatingHarness` + item, `WrContextMenuHarness` +
   item (submenus included), `WrMentionHarness` + option, `WrTransferHarness` +
-  pane / item, `WrMarkdownHarness` + code block.
+  pane / item.
   A unit test has no layout, so anything a mouse would drag (slider, rating,
   file-upload's drop zone) is driven by the KEYBOARD or by real events, never by
   coordinates. Guide: https://ngwr.dev/guides/testing
@@ -342,31 +510,21 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 
 ## Deciding whether to use it
 
-Four pages exist for the question before installation, and everything on them
-is meant to be checkable rather than taken on trust:
+- **What it is and how it is tested** — the features, the spec counts and the
+  three CI tiers: https://ngwr.dev/docs/introduction
+- **A live app to try before installing anything** — the StackBlitz starter,
+  on ngwr from npm:
+  https://stackblitz.com/github/thekhegay/ngwr/tree/main/projects/starter
+- **What each major needs and what it broke** — the compatibility table at
+  https://ngwr.dev/docs/installation, every breaking change at
+  https://ngwr.dev/docs/migration, and the security support window in the
+  repository's `SECURITY.md`: the latest major gets every fix, the one before
+  it mechanical fixes only.
 
-- **Why ngwr, and when not to** — the wedge (the value controls are Signal
-  Forms controls; no `ControlValueAccessor` in the library), a comparison against
-  Material / PrimeNG / NG-ZORRO / Taiga / Spartan, and a per-competitor "choose
-  something else if" section: https://ngwr.dev/start/comparison
-- **What gates a change** — the gates every PR must pass, three separate
-  accessibility sweeps and what each one cannot see, the nightly baselines and
-  what is accepted in them, plus what the test suite does NOT cover:
-  https://ngwr.dev/start/quality
-- **A live Signal Forms demo** you can read before installing anything:
-  https://ngwr.dev/start/playground
-- **What a version number promises** — what a major is allowed to break, and the
-  one semver rule made mechanical: `release:prepare` refuses a minor or patch
-  bump when any commit since the last tag is marked breaking, so a caret range
-  on a major is a safe range (12.2.0 was a minor carrying a breaking change,
-  which is why the guard exists). Also the support window — current major in
-  full, previous major mechanical security fixes only, ending when the next
-  major ships — and the actual cadence: https://ngwr.dev/start/versioning
-
-The honest shape of the project, since these pages say it too: one maintainer,
-MIT, eight majors between 2026-06-12 (v7.0.0) and 2026-09-04 (v14.0.0), a
-codemod for every break a codemod can repair and a reported diagnosis for the
-rest, no commercial support.
+The shape of the project: one maintainer, MIT, no commercial support. Every
+major ships a codemod for each break a codemod can repair, and a reported
+diagnosis for the rest; `ng update ngwr` runs them all in order, v15's
+included.
 
 Public API is three surfaces and all three move only in a major: the exported
 TypeScript, the `.wr-*` BEM class names (every component ships
@@ -374,9 +532,8 @@ TypeScript, the `.wr-*` BEM class names (every component ships
 TSDoc means not API and survives into the published types, so
 `grep -rn "@internal" node_modules/ngwr/types` answers it. A few helpers are
 exported, unmarked and undocumented — `wrAppendOverlayClose`, `wrMirrorOffsets`,
-`wrPresentAsSheet`, `wrFollowDirection`, `WrOutsideClick`, `useConfigValue`,
-`useFormFieldAria`, `squirclePath`, `wrContrastFor`, `wrIntentTokens`,
-`isSafeCssValue`, and a handful of `WR_*` context tokens such as `WR_STEPPER` —
+`wrFollowDirection`, `WrOutsideClick`, `useFormFieldAria`, `isSafeCssValue`, and
+a handful of `WR_*` context tokens such as `WR_STEPPER` —
 and carry no stability statement; do not build on them.
 
 ## Resources (machine-readable)
@@ -400,22 +557,16 @@ and carry no stability statement; do not build on them.
   network, no commands. It reads the resources listed here rather than
   embedding a copy of them. Client config for Claude Code / Claude Desktop /
   Cursor, and a worked example of each tool:
-  https://ngwr.dev/guides/mcp
+  https://ngwr.dev/docs/mcp-server
 - **Agent skill — the rules, not the catalog.** `skills/ngwr/SKILL.md` in the
   installed package (also at https://ngwr.dev/skills/ngwr/SKILL.md) is about a
   page of the things this library does that a reasonable guess gets wrong: the
   button's selector is `wr-btn`, a checkbox's group identity is `checkboxValue`,
   there is no `ControlValueAccessor`, imports come from the entry point rather
-  than a barrel. `references/catalog.md` and `references/setup.md` sit beside it
-  for the long tail. Generated from the same pass as `llms-full.txt`:
-  https://ngwr.dev/guides/agent-skill
-- **Registry — an open format for shareable theme presets and blocks.** One
-  installable unit per JSON file, hosted anywhere; the contract is
-  https://ngwr.dev/registry/schema.json and worked examples sit beside it at
-  `/registry/items/`, theme presets and a block. `cssVars` keys are
-  `--wr-*` tokens, `entryPoints` names `ngwr/*` subpaths, and a `files[].target`
-  is always relative:
-  https://ngwr.dev/guides/registry
+  than a barrel, app-wide config is one `provideWr()`, and there are five
+  intents and no `[data-theme]`. `references/catalog.md` and
+  `references/setup.md` sit beside it for the long tail. Generated from the same pass as `llms-full.txt`:
+  https://ngwr.dev/docs/skills
 - All site URLs (for crawlers): https://ngwr.dev/sitemap.xml
 - Source, README, per-component `.d.ts` types: https://github.com/thekhegay/ngwr
   (installed at `node_modules/ngwr/types/ngwr-<name>.d.ts`; the package also

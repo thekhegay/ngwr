@@ -1,0 +1,14 @@
+<!--
+  `dir="auto"`: each word is an inline-block, which the bidi algorithm reads as a
+  neutral, so without it the PAGE's direction ordered the words and an English
+  sentence read backwards on an RTL page. `auto` takes it from the text, as plain
+  text does; the stylesheet keeps the alignment the page's.
+-->
+<div #wordsContainer class="wr-falling-text__words" dir="auto" [style.font-size]="fontSize()">
+  @for (w of words(); track $index) {
+    <span class="wr-falling-text__word" [class.wr-falling-text__word--hl]="w.highlighted">{{ w.text }}</span>
+    @if (!$last) {
+      <span class="wr-falling-text__space">&nbsp;</span>
+    }
+  }
+</div>

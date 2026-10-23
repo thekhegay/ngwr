@@ -1,16 +1,19 @@
-<ngwr-doc-page title="Lucide" [description]="lede()" [keywords]="['icons', 'lucide']" [labels]="['Adapter', 'ISC']">
-  <ngwr-doc-section title="Install">
-    <ngwr-doc-code [code]="install" language="bash" />
-  </ngwr-doc-section>
-
+<ngwr-doc-page
+  title="Lucide"
+  updated="15.0.0"
+  description="A modern, community-maintained Feather fork of 24px stroke icons."
+  [keywords]="['icons', 'lucide']"
+  [labels]="['lucideIcons()', 'ISC']"
+>
   <ngwr-doc-section
     title="Wire icons"
-    description="Use the `lucide` / `lucideIcons` adapter from `ngwr/icon/adapters/lucide`. Tree-shakes per icon — only what you import ships."
+    description="Install `lucide`, then pass the icons you import from it to `lucideIcons()` from `ngwr/icon`. Tree-shakes per icon — only what you import ships."
   >
+    <ngwr-doc-install packages="lucide" />
     <ngwr-doc-code [code]="usage" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Browse the catalog">
+  <ngwr-doc-section title="Browse the catalog" [description]="catalogLine()">
     <ngwr-icon-grid [icons]="icons()" [snippetFor]="snippetFor" />
   </ngwr-doc-section>
 </ngwr-doc-page>

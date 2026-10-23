@@ -1,10 +1,6 @@
 @use 'lib/styles/breakpoints' as bp;
-@use 'showcase/styles/a11y';
-@use 'showcase/styles/badge';
 
 :host {
-  --ngwr-sidebar-width: 14rem;
-
   // Below `md` the host renders inside the layout's wr-drawer and just
   // fills the panel; the sticky-column chrome is desktop-only.
   display: block;
@@ -14,263 +10,49 @@
 
   padding: 1.5rem 0.75rem 2rem;
 
-  // `sticky` here resolves against the document scroller, and every ngwr
-  // overlay that blocks scroll (dialog, drawer, action-sheet, lightbox, and
-  // the sheet-mode select / dropdown / popover) takes that scroller away:
-  // CDK's `BlockScrollStrategy` puts `position: fixed` on `<html>` with
-  // `top: -<scrollY>px`. Read cold that looks like it must drop this column
-  // to its static position — i.e. off the top of the screen by however far
-  // the page was scrolled.
-  //
-  // It does not, in Chromium. Measured on `/reference/components/dialog` at
-  // 1280x900, 1280x640 and 1024x800, scrolled 700–1200px: opening the dialog
-  // moves nothing — a rect diff over all 1065 elements outside the overlay
-  // container reports zero, across 145 consecutive animation frames, with
-  // this host's own `scrollTop` and `documentElement.clientWidth` unchanged
-  // either side. Chromium keeps a sticky offset resolved at the frozen scroll
-  // position, and `.cdk-global-scrollblock` carries `overflow-y: scroll` so
-  // the gutter survives too. Same result for drawer, action-sheet and
-  // lightbox, which share the one CDK strategy.
-  //
-  // So: not a defect to chase here. If a jump does turn up in another engine,
-  // the fix is to stop depending on the document scroller (fix the column and
-  // reserve its track on the grid), not to weaken the dialog's scroll block —
-  // `block()` is what makes a modal modal.
+  // `sticky` against the document scroller, which every overlay that blocks
+  // scroll takes away — CDK's `BlockScrollStrategy` puts `position: fixed` on
+  // `<html>`. Where that drops this column to its static position, the global
+  // `html.cdk-global-scrollblock` block in `styles.scss` pins it instead; the
+  // long version of why is written there. Chromium does not need it and is
+  // not harmed by it, which is how the problem survived a measurement here.
   @include bp.media-up(md) {
     position: sticky;
     height: calc(100vh - var(--ngwr-header-height, 4rem));
     top: var(--ngwr-header-height, 4rem);
 
     align-self: start;
-    width: var(--ngwr-sidebar-width);
+    // Inherited from `.ngwr-layout`, which declares it because its grid track
+    // needs the same number. The fallback is for the copy of this host that
+    // renders inside the mobile drawer, outside that grid.
+    width: var(--ngwr-sidebar-width, 14rem);
 
-    border-right: 1px solid var(--wr-color-light-lighter);
+    border-inline-end: 1px solid var(--wr-border-subtle);
   }
 }
 
-.ngwr-sidebar {
-  &__inner {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-  }
+// The host already insets the column, so the nav's own inset would double it.
+// Set on `.wr-sidebar` itself: the component declares its default there, which
+// shadows anything inherited from the host.
+.wr-sidebar {
+  --wr-sidebar-padding: 0;
+}
 
-  // Leading icon shared by groups + links.
-  &__icon {
-    flex: 0 0 auto;
-    color: var(--wr-color-on-surface-muted);
-    transition: color var(--wr-transition-base);
-  }
+// The drawer reserves a band for its × as `padding-block-start` on this host,
+// which is also the scroll box, so a scrolled list ran under the button; and
+// the drawer opens scrolled to the current row. A margin keeps the band outside
+// the box. Same value as the drawer's own rule, which this one follows in the
+// cascade at the same specificity.
+:host(.ngwr-sidebar--touch) {
+  margin-block-start: 3.25rem;
+  padding-block-start: var(--wr-space-sm);
+}
 
-  // Expandable group
-  &__group {
-    display: flex;
-    flex-direction: column;
-
-    &-toggle {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      width: 100%;
-      margin: 0;
-      padding: 0.5rem 0.75rem;
-      background: transparent;
-      border: 0;
-      border-radius: var(--wr-border-radius-sm);
-      color: var(--wr-color-dark);
-      cursor: pointer;
-      text-align: left;
-      transition: background var(--wr-transition-base);
-
-      &:hover {
-        background: rgba(var(--wr-color-light-rgb), 0.5);
-
-        .ngwr-sidebar__icon {
-          color: var(--wr-color-primary-ink);
-        }
-      }
-    }
-
-    &-title {
-      flex: 1 1 auto;
-      font-size: 0.875rem;
-      font-weight: 600;
-      letter-spacing: 0.01em;
-    }
-
-    &-chevron {
-      --wr-icon-size: 1rem;
-      flex: 0 0 auto;
-      color: var(--wr-color-on-surface-muted);
-      transition: transform var(--wr-transition-base);
-    }
-
-    &--collapsed &-chevron {
-      transform: rotate(-90deg);
-    }
-
-    // Smooth collapse using grid-template-rows.
-    &-wrap {
-      display: grid;
-      grid-template-rows: 1fr;
-      transition: grid-template-rows 0.25s ease;
-    }
-
-    &--collapsed &-wrap {
-      grid-template-rows: 0fr;
-    }
-
-    &-body {
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      overflow: hidden;
-    }
-
-    &-inner {
-      padding: 0.125rem 0 0.375rem 0.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-  }
-
-  // Direct-link group (no expand)
-  &__group-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: var(--wr-border-radius-sm);
-    color: var(--wr-color-dark);
-    font-size: 0.875rem;
-    font-weight: 600;
-    line-height: 1.25rem;
-    transition:
-      background var(--wr-transition-base),
-      color var(--wr-transition-base);
-
-    &:hover {
-      background: rgba(var(--wr-color-light-rgb), 0.5);
-
-      .ngwr-sidebar__icon {
-        color: var(--wr-color-primary-ink);
-      }
-    }
-
-    &--active {
-      color: var(--wr-color-primary-ink);
-      background: rgba(var(--wr-color-primary-rgb), 0.1);
-      pointer-events: none;
-
-      .ngwr-sidebar__icon {
-        color: var(--wr-color-primary-ink);
-      }
-    }
-  }
-
-  // Child links (inside an expanded group)
-  &__list {
-    list-style: none;
-    margin: 0;
-    padding: 0 0 0 0.625rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.0625rem;
-    border-left: 1px solid var(--wr-color-light);
-  }
-
-  &__link {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.3125rem 0.75rem;
-    border-radius: var(--wr-border-radius-sm);
-    color: var(--wr-color-dark);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    line-height: 1.25rem;
-    transition: var(--wr-transition-base);
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0.125rem;
-      bottom: 0.125rem;
-      left: -0.6875rem;
-      width: 2px;
-      border-radius: 1px;
-      background: transparent;
-      transition: background var(--wr-transition-base);
-    }
-
-    &-title {
-      flex: 1 1 auto;
-    }
-
-    &:hover {
-      color: var(--wr-color-primary-ink);
-      background: rgba(var(--wr-color-primary-rgb), 0.06);
-
-      .ngwr-sidebar__icon {
-        color: var(--wr-color-primary-ink);
-      }
-    }
-
-    &--active {
-      // `-ink`, not the bare intent: this is text on a primary TINT, and the
-      // bare token lands at 4.28:1 there — under AA by a hair, on every page,
-      // because one link is always active.
-      color: var(--wr-color-primary-ink);
-      background: rgba(var(--wr-color-primary-rgb), 0.1);
-      pointer-events: none;
-
-      &::before {
-        background: var(--wr-color-primary);
-      }
-
-      .ngwr-sidebar__icon {
-        color: var(--wr-color-primary-ink);
-      }
-    }
-
-    &--disabled {
-      // Muted role at 0.8, not the `medium` intent at 0.7: the old pair
-      // composited to 2.10:1. WCAG exempts disabled controls, but 3.54:1 is
-      // still legible, and the state already reads from the missing hover.
-      color: rgba(var(--wr-color-on-surface-muted-rgb), 0.8);
-      pointer-events: none;
-      cursor: default;
-
-      &:hover {
-        background: transparent;
-      }
-    }
-  }
-
-  // Two rows wear this: the `soon` chip on a planned page, and the `new` mark on
-  // a page from the current release line. Same box, opposite jobs — `soon` is an
-  // aside, `new` is the thing a reader is scanning for — so the tone is a
-  // modifier and the geometry is not. Neither ever carries a version number;
-  // that is the maintainer's rule for the second one.
-  //
-  // Both tones come from `showcase/styles/_badge.scss`, shared with the catalog
-  // page's own mark: only the BOX is local, because this one is a flex child of
-  // the row and that one is an inline chip after the link text. The colours are
-  // not a box question, and two copies of them is how both came to fail AA.
-  &__badge {
-    @include badge.row-mark;
-    @include badge.row-mark-quiet;
-    flex: 0 0 auto;
-
-    &--new {
-      @include badge.row-mark-new;
-    }
-  }
-
-  // The comma between a row's title and its mark — read, never seen.
-  &__sep {
-    @include a11y.sr-only;
-  }
+// The drawer copy is drawn at touch size whatever the pointer: the same three
+// hooks `<wr-sidebar>` moves under `pointer: coarse`, so a phone gets nothing
+// it would not have had anyway.
+:host(.ngwr-sidebar--touch) .wr-sidebar {
+  --wr-sidebar-row-height: 2.75rem;
+  --wr-sidebar-row-padding-y: 0.75rem;
+  --wr-sidebar-chevron-size: 1rem;
 }

@@ -2,7 +2,6 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrTour, type WrTourStep } from 'ngwr/tour';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -53,7 +52,6 @@ describe('WrTourHarness', () => {
     Element.prototype.scrollIntoView = (): undefined => undefined;
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     rootLoader = TestbedHarnessEnvironment.documentRootLoader(fixture);

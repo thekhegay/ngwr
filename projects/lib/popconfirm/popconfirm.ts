@@ -26,8 +26,14 @@ import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from '
 import type { WrColor } from 'ngwr/theme';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
-import { WR_POPCONFIRM_POSITIONS, type WrPopconfirmPosition } from './interfaces';
 import { WrPopconfirmPanel } from './popconfirm-panel';
+import { type WrPopconfirmPosition, wrPopconfirmPositions } from './types';
+
+/**
+ * How close, in px, `withPush` may park the panel to the viewport edge — the
+ * `--wr-space-sm` step, and the value `wr-popover` uses.
+ */
+const VIEWPORT_MARGIN = 8;
 
 /**
  * Small "Are you sure?" panel anchored to its trigger. Fires `confirmed`
@@ -70,7 +76,7 @@ export class WrPopconfirm {
   /** Confirmation message. */
   readonly message = input.required<string>({ alias: 'wrPopconfirm' });
 
-  /** Anchor side. @default 'top' */
+  /** Anchor side; the panel flips to another side when this one has no room. @default 'top' */
   readonly position = input<WrPopconfirmPosition>('top');
 
   /** Label for the confirm button. @default 'Confirm' */
@@ -154,21 +160,26 @@ export class WrPopconfirm {
     // Read ONCE, here, and mirror this list rather than the input: the side is
     // chosen at open and a later `position` write moves nothing, so a follower
     // that re-read the signal would let a direction flip quietly adopt a
-    // position the panel never opened with — and the `wr-popconfirm-overlay--…`
-    // class minted from the same read below, which is what the stylesheet hangs
-    // the arrow and the spacing off, would still name the old one.
-    const positions = WR_POPCONFIRM_POSITIONS[this.position()];
+    // position the panel never opened with.
+    //
+    // The list is a fallback CHAIN, each link tagged with its own
+    // `wr-popconfirm-overlay--<side>` class, so the panel flips when the side
+    // asked for has no room and the arrow names the side it landed on. The
+    // viewport margin is `wr-popover`'s, for the same reason: without it a pushed
+    // panel parks its border on the glass.
+    const positions = wrPopconfirmPositions(this.position());
 
     const positionStrategy = this.overlay
       .position()
       .flexibleConnectedTo(this.host)
       .withPositions(wrMirrorOffsets(positions, this.isRtl()))
-      .withPush(true);
+      .withPush(true)
+      .withViewportMargin(VIEWPORT_MARGIN);
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: toClassList('wr-popconfirm-overlay', `wr-popconfirm-overlay--${this.position()}`, this.panelClass()),
+      panelClass: toClassList('wr-popconfirm-overlay', this.panelClass()),
     });
 
     // `isRtl()` above answered once, at `create()`, and so did the CDK's own
@@ -207,6 +218,11 @@ export class WrPopconfirm {
     // only way to confirm was unreachable. Cancel first: the action being confirmed
     // is usually the destructive one.
     pane.querySelector<HTMLElement>('.wr-popconfirm__actions wr-btn')?.focus();
+    // And it has to LEAVE with the panel: Tab past Confirm went on to the end of
+    // `<body>` and Shift+Tab before Cancel to the foot of the page, each with the
+    // question still on screen and `aria-expanded` still true. See `onPaneKeydown`.
+    pane.addEventListener('keydown', this.onPaneKeydown);
+    pane.addEventListener('focusout', this.onPaneFocusOut);
     this.isOpen.set(true);
 
     ref.instance.confirmed.subscribe(() => {
@@ -250,11 +266,73 @@ export class WrPopconfirm {
     // drop it to `<body>` — hand it back to the trigger instead, as `wr-dropdown`
     // does on Escape. Only when focus is still IN there: if the user has already
     // clicked elsewhere, taking it back would be stealing.
-    const returnFocus = this.overlayRef.overlayElement.contains(document.activeElement);
+    const pane = this.overlayRef.overlayElement;
+    const returnFocus = pane.contains(document.activeElement);
+    // Before the dispose: Chromium fires `focusout` for a focused node as it is
+    // removed, and the pane is about to be.
+    pane.removeEventListener('keydown', this.onPaneKeydown);
+    pane.removeEventListener('focusout', this.onPaneFocusOut);
     this.overlayRef.dispose();
     this.overlayRef = null;
     this.isOpen.set(false);
     if (returnFocus) this.host.nativeElement.focus();
+  }
+
+  /**
+   * Tab off either end of the panel dismisses it and takes focus back to the
+   * trigger — `wr-popover`'s disclosure behaviour, for a non-modal panel whose
+   * DOM sits nowhere near its trigger. Leaving is a dismissal, so `cancelled`
+   * fires, as it does for Escape and an outside click.
+   *
+   * Forward, the trigger is focused WITHOUT `preventDefault`, so the browser's
+   * own Tab runs on from there and lands on whatever follows the trigger, where a
+   * panel rendered in place would have let it go. Backward, the trigger itself is
+   * the destination, so the default is stopped. The panel holds two stops, Cancel
+   * and Confirm, in that order.
+   */
+  private readonly onPaneKeydown = (event: KeyboardEvent): void => {
+    const pane = this.overlayRef?.overlayElement;
+    if (!pane || event.key !== 'Tab' || event.defaultPrevented) return;
+    const stops = [...pane.querySelectorAll<HTMLElement>('.wr-popconfirm__action')];
+    const active = document.activeElement;
+    if (event.shiftKey) {
+      if (active !== stops[0]) return;
+      event.preventDefault();
+    } else if (active !== stops.at(-1)) {
+      return;
+    }
+    this.host.nativeElement.focus();
+    this.dismiss();
+  };
+
+  /**
+   * Focus that leaves the panel by any other road (a click on something
+   * focusable elsewhere) dismisses it too, and is left where it went. A `null`
+   * destination is the window losing focus or a focused node being removed,
+   * neither of which is leaving.
+   */
+  private readonly onPaneFocusOut = (event: FocusEvent): void => {
+    const next = event.relatedTarget as Node | null;
+    if (!next || this.holdsFocus(next)) return;
+    this.dismiss();
+  };
+
+  /**
+   * Whether focus on `node` still belongs to this panel: inside the pane, on the
+   * trigger (a press there is about to toggle it), or in an overlay opened AFTER
+   * this one — the stacking `wr-popover` and `WrOutsideClick` honour, so a
+   * second panel raised by `open()` does not dismiss the first by taking focus.
+   */
+  private holdsFocus(node: Node): boolean {
+    const ref = this.overlayRef;
+    if (!ref) return false;
+    if (ref.overlayElement.contains(node) || this.host.nativeElement.contains(node)) return true;
+    const box = ref.hostElement;
+    return (
+      (box.parentElement?.contains(node) ?? false) &&
+      // eslint-disable-next-line no-bitwise -- compareDocumentPosition answers with a bitmask
+      (box.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+    );
   }
 
   /**

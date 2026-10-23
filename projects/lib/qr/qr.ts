@@ -10,10 +10,10 @@ import type { ElementRef } from '@angular/core';
 import { Component, PLATFORM_ID, ViewEncapsulation, effect, inject, input, viewChild } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, resolveCssColor } from 'ngwr/utils';
 
 import { drawQrCode } from './generator';
-import type { WrQrErrorLevel } from './interfaces';
+import type { WrQrErrorLevel } from './types';
 
 /**
  * Renders a QR code on a `<canvas>`.
@@ -42,13 +42,36 @@ export class WrQr {
   /** Side length of the rendered canvas, in pixels. @default 160 */
   readonly size = input(160, { transform: numAttr(160) });
 
-  /** Outer quiet-zone padding in pixels. @default 10 */
+  /**
+   * Outer quiet-zone padding, in BITMAP units — not the CSS pixels `size`
+   * is in. The canvas is drawn at ten bitmap units per QR module and then
+   * scaled to `size`, so the default 10 is exactly one module, and what it
+   * comes to on screen shrinks as the payload grows and the code gains
+   * modules. `iconSize` is the other way round, in CSS pixels, and is scaled
+   * into the bitmap on the way in.
+   *
+   * The QR spec asks for a four-module quiet zone, i.e. `40`. One module is
+   * enough for a phone decoder reading a screen, where the page around the
+   * canvas extends the margin anyway; raise it for a code that will be
+   * printed small or sit on a busy background.
+   *
+   * @default 10
+   */
   readonly padding = input(10, { transform: numAttr(10) });
 
-  /** Module (dot) color. @default '#000000' */
+  /**
+   * Module (dot) color. Any CSS colour, `var()` and `light-dark()` included: it is
+   * resolved against the canvas when the code is drawn, and redrawn only when an
+   * input changes, so a colour scheme switched afterwards is not followed. Keep the
+   * modules much darker than the background, or phones will not read the code.
+   * @default '#000000'
+   */
   readonly color = input<string>('#000000');
 
-  /** Background color of the canvas + host. @default '#ffffff' */
+  /**
+   * Background color of the canvas + host. Any CSS colour, resolved the way
+   * `color` is. @default '#ffffff'
+   */
   readonly bgColor = input<string>('#ffffff');
 
   /** Optional image URL or data URL to overlay in the center. */
@@ -86,7 +109,15 @@ export class WrQr {
       if (!this.isBrowser) return;
       const el = this.canvas()?.nativeElement;
       if (!el) return;
-      drawQrCode(el, opts);
+      // A 2D context reads no CSS: it refuses a `var()` or a `light-dark()` and keeps
+      // its previous fill, so a token colour drew every module in the background's
+      // colour, or the whole code as one black square. Resolved through the cascade
+      // the way the other canvas components do.
+      drawQrCode(el, {
+        ...opts,
+        color: resolveCssColor(el, opts.color, '#000000'),
+        bgColor: resolveCssColor(el, opts.bgColor, '#ffffff'),
+      });
     });
   }
 }

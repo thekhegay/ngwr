@@ -1,0 +1,96 @@
+<ngwr-doc-page
+  title="MCP server"
+  description="Let your AI agent search ngwr and read its API."
+  [keywords]="['mcp', 'model context protocol', 'agent', 'ai', 'claude', 'cursor', 'ngwr-mcp']"
+>
+  <ngwr-doc-section
+    title="Add it to your agent"
+    description="`ngwr-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that ships in the `ngwr` package."
+  >
+    <ngwr-doc-code [code]="snippets.claudeCode" language="bash" />
+    <p>Or add this to the client's config file:</p>
+    <ngwr-doc-code [code]="snippets.config" language="typescript" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Client</th>
+            <th scope="col">Config file</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Claude Code</th>
+            <td><code>.mcp.json</code> in the project root</td>
+          </tr>
+          <tr>
+            <th scope="row">Claude Desktop, macOS</th>
+            <td><code>~/Library/Application Support/Claude/claude_desktop_config.json</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Claude Desktop, Windows</th>
+            <td><code>%APPDATA%\Claude\claude_desktop_config.json</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Cursor</th>
+            <td><code>.cursor/mcp.json</code> in the project, or <code>~/.cursor/mcp.json</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Restart Claude Desktop after you edit its config.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Pin your installed version"
+    description="`npx` runs the latest release when the project has no ngwr; `node` runs your installed copy."
+  >
+    <ngwr-doc-code [code]="snippets.pinned" language="typescript" />
+    <p>The path is relative to where the client starts the server: the project root for Claude Code.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tools">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Tool</th>
+            <th scope="col">Arguments</th>
+            <th scope="col">Returns</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>search_ngwr</code></th>
+            <td><code>query</code>, <code>limit</code> (10, at most 40)</td>
+            <td>Matching entry points with import line and selector. Start here.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>get_ngwr_component</code></th>
+            <td><code>name</code>: entry point, symbol or selector</td>
+            <td>Selectors, exports, import line, <code>&#64;use</code> line and docs URLs</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>get_ngwr_api</code></th>
+            <td>
+              <code>symbol</code>: a class or a function, <code>kind</code> to narrow a class (<code>input</code>,
+              <code>output</code>, <code>method</code>, …)
+            </td>
+            <td>
+              Inputs, models, outputs and methods of one class, or the signature of one function
+              (<code>provideWr</code>, a <code>with*()</code> feature)
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>get_ngwr_setup</code></th>
+            <td><code>symbols</code>: an array of names</td>
+            <td>The install, <code>ng g ngwr:use</code>, <code>&#64;use</code> and provider lines, as text</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>It reads only its own package: no network, no writes, and it never runs the commands it returns.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

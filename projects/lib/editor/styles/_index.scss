@@ -1,5 +1,21 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../button/styles' as button-styles; // WrButton
+@use '../../input/styles' as input-styles; // WrInput
+@use '../../popover/styles' as popover-styles; // WrPopover
+
 .wr-editor {
   display: flex;
   flex-direction: column;
@@ -10,20 +26,42 @@
   --wr-editor-color: var(--wr-color-on-surface);
   --wr-editor-placeholder: var(--wr-color-placeholder);
   --wr-editor-bg: var(--wr-color-surface);
-  --wr-editor-border: var(--wr-color-outline);
+  --wr-editor-border: var(--wr-border-base);
   --wr-editor-radius: var(--wr-control-radius-md);
   --wr-editor-ring: transparent;
   --wr-editor-min-height: 8rem;
   --wr-editor-max-height: none;
-  --wr-editor-padding-y: 0.5rem;
+  --wr-editor-padding-y: var(--wr-space-sm);
   --wr-editor-padding-x: var(--wr-control-padding-x-md);
+  --wr-editor-font-family: var(--wr-font-family-base);
   --wr-editor-font-size: var(--wr-text-sm);
-  --wr-editor-line-height: 1.6;
+  --wr-editor-line-height: var(--wr-leading-relaxed);
   --wr-editor-toolbar-bg: var(--wr-color-fill-subtle);
-  --wr-editor-toolbar-border: var(--wr-color-outline);
-  --wr-editor-toolbar-gap: 0.125rem;
+  --wr-editor-toolbar-border: var(--wr-border-base);
+  --wr-editor-toolbar-gap: var(--wr-space-xs);
+  --wr-editor-toolbar-padding: var(--wr-space-xs);
+  --wr-editor-separator-margin: var(--wr-space-xs);
   --wr-editor-tool-active-bg: var(--wr-color-primary-soft);
   --wr-editor-tool-active-color: var(--wr-color-primary-ink);
+  --wr-editor-task-radius: var(--wr-border-radius-sm);
+
+  // The rendered document — the elements ProseMirror and the static preview
+  // both draw, so one hook per role covers them together.
+  --wr-editor-content-heading-font-weight: var(--wr-font-weight-semibold);
+  --wr-editor-content-heading-line-height: var(--wr-leading-tight);
+  --wr-editor-content-h1-font-size: var(--wr-text-2xl);
+  --wr-editor-content-h2-font-size: var(--wr-text-xl);
+  --wr-editor-content-h3-font-size: var(--wr-text-lg);
+  --wr-editor-content-strong-font-weight: var(--wr-font-weight-semibold);
+  --wr-editor-content-code-font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+  --wr-editor-content-code-radius: var(--wr-border-radius-sm);
+  --wr-editor-content-pre-padding: var(--wr-space-md);
+  --wr-editor-content-pre-radius: var(--wr-border-radius-base);
+  --wr-editor-content-table-font-size: var(--wr-text-sm);
+  --wr-editor-content-cell-padding-y: var(--wr-space-sm);
+  --wr-editor-content-cell-padding-x: var(--wr-space-md);
+  --wr-editor-content-th-font-weight: var(--wr-font-weight-semibold);
+  --wr-editor-content-image-radius: var(--wr-border-radius-sm);
 
   background: var(--wr-editor-bg);
   color: var(--wr-editor-color);
@@ -32,12 +70,11 @@
   box-shadow: 0 0 0 3px var(--wr-editor-ring);
   transition:
     border-color var(--wr-transition-base),
-    box-shadow var(--wr-transition-base),
     background var(--wr-transition-base);
 
   &--focused {
     --wr-editor-border: var(--wr-color-primary);
-    --wr-editor-ring: rgba(var(--wr-color-primary-rgb), 0.15);
+    --wr-editor-ring: color-mix(in srgb, var(--wr-color-primary) 15%, transparent);
   }
 
   &--readonly &__surface {
@@ -59,7 +96,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--wr-editor-toolbar-gap);
-    padding: 0.25rem;
+    padding: var(--wr-editor-toolbar-padding);
     border-block-end: 1px solid var(--wr-editor-toolbar-border);
     background: var(--wr-editor-toolbar-bg);
     // The frame's corners, which the toolbar would otherwise square off.
@@ -70,8 +107,8 @@
   &__separator {
     align-self: stretch;
     inline-size: 1px;
-    margin-block: 0.25rem;
-    margin-inline: 0.25rem;
+    margin-block: var(--wr-editor-separator-margin);
+    margin-inline: var(--wr-editor-separator-margin);
     background: var(--wr-editor-toolbar-border);
   }
 
@@ -143,7 +180,7 @@
     overflow-y: auto;
     padding: calc(var(--wr-editor-padding-y) * var(--wr-density-y, 1))
       calc(var(--wr-editor-padding-x) * var(--wr-density-x, 1));
-    font-family: var(--wr-font-family-base);
+    font-family: var(--wr-editor-font-family);
     font-size: var(--wr-editor-font-size);
     line-height: var(--wr-editor-line-height);
     text-align: start;
@@ -218,24 +255,24 @@
     h2,
     h3 {
       margin-block: 1.25em 0.5em;
-      font-weight: var(--wr-font-weight-semibold);
-      line-height: 1.3;
+      font-weight: var(--wr-editor-content-heading-font-weight);
+      line-height: var(--wr-editor-content-heading-line-height);
     }
 
     h1 {
-      font-size: var(--wr-text-2xl);
+      font-size: var(--wr-editor-content-h1-font-size);
     }
 
     h2 {
-      font-size: var(--wr-text-xl);
+      font-size: var(--wr-editor-content-h2-font-size);
     }
 
     h3 {
-      font-size: var(--wr-text-lg);
+      font-size: var(--wr-editor-content-h3-font-size);
     }
 
     strong {
-      font-weight: var(--wr-font-weight-semibold);
+      font-weight: var(--wr-editor-content-strong-font-weight);
     }
 
     a {
@@ -246,19 +283,19 @@
 
     code {
       padding: 0.1em 0.3em;
-      border-radius: var(--wr-border-radius-sm);
+      border-radius: var(--wr-editor-content-code-radius);
       background: var(--wr-color-fill);
       // `-ink`: code on a tint is text, and the bare colour fails AA there.
-      color: var(--wr-color-dark-ink);
-      font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+      color: var(--wr-color-on-surface);
+      font-family: var(--wr-editor-content-code-font-family);
       font-size: 0.9em;
     }
 
     pre {
       margin-block: 0 0.75em;
-      padding: 0.75rem;
+      padding: var(--wr-editor-content-pre-padding);
       overflow-x: auto;
-      border-radius: var(--wr-border-radius-base);
+      border-radius: var(--wr-editor-content-pre-radius);
       background: var(--wr-color-fill);
       white-space: pre-wrap;
       tab-size: 2;
@@ -277,7 +314,7 @@
       margin-block: 0 0.75em;
       margin-inline: 0;
       padding-inline-start: 1em;
-      border-inline-start: 3px solid var(--wr-color-outline);
+      border-inline-start: 3px solid var(--wr-border-base);
       color: var(--wr-color-on-surface-muted);
     }
 
@@ -304,20 +341,20 @@
     hr {
       margin-block: 1.25em;
       border: 0;
-      border-block-start: 1px solid var(--wr-color-outline);
+      border-block-start: 1px solid var(--wr-border-base);
     }
 
     table {
       border-collapse: collapse;
       width: 100%;
       margin-block: 0 0.75em;
-      font-size: var(--wr-text-sm);
+      font-size: var(--wr-editor-content-table-font-size);
     }
 
     th,
     td {
-      padding: 0.375rem 0.625rem;
-      border: 1px solid var(--wr-color-outline);
+      padding: var(--wr-editor-content-cell-padding-y) var(--wr-editor-content-cell-padding-x);
+      border: 1px solid var(--wr-border-base);
       vertical-align: top;
 
       > p {
@@ -327,18 +364,18 @@
 
     th {
       background: var(--wr-color-fill-subtle);
-      font-weight: var(--wr-font-weight-semibold);
+      font-weight: var(--wr-editor-content-th-font-weight);
     }
 
     img {
       max-width: 100%;
       height: auto;
-      border-radius: var(--wr-border-radius-sm);
+      border-radius: var(--wr-editor-content-image-radius);
     }
   }
 
   // Task items — the box is presentational and the state is read from the words
-  // beside it, the way `<wr-markdown>` draws them.
+  // beside it: a real checkbox would be an unlabelled control inside the text.
   &__item--task {
     display: flex;
     gap: 0.5em;
@@ -352,14 +389,11 @@
     inline-size: 1em;
     block-size: 1em;
     margin-block-start: 0.3em;
-    border: 1px solid var(--wr-color-outline);
-    border-radius: var(--wr-border-radius-sm);
+    border: 1px solid var(--wr-border-base);
+    border-radius: var(--wr-editor-task-radius);
     background: var(--wr-color-surface);
     user-select: none;
 
-    // color-ok: the nested `&::after` draws a tick out of two borders, and the
-    // unchecked box has no pseudo-element at all — the glyph appears, the tint
-    // only backs it.
     &--checked {
       border-color: var(--wr-color-primary);
       background: var(--wr-color-primary);
@@ -427,30 +461,37 @@
 // ---------------------------------------------------------------------------
 
 .wr-editor-link {
+  --wr-editor-link-body-gap: var(--wr-space-sm);
+  --wr-editor-link-body-padding: var(--wr-space-md);
+  --wr-editor-link-label-font-size: var(--wr-text-sm);
+  --wr-editor-link-label-font-weight: var(--wr-font-weight-medium);
+  --wr-editor-link-error-font-size: var(--wr-text-xs);
+  --wr-editor-link-actions-gap: var(--wr-space-sm);
+
   inline-size: min(22rem, calc(100vw - 2rem));
 
   &__body {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem;
+    gap: var(--wr-editor-link-body-gap);
+    padding: var(--wr-editor-link-body-padding);
   }
 
   &__label {
-    font-size: var(--wr-text-sm);
-    font-weight: var(--wr-font-weight-medium);
+    font-size: var(--wr-editor-link-label-font-size);
+    font-weight: var(--wr-editor-link-label-font-weight);
     color: var(--wr-color-on-surface);
   }
 
   &__error {
     margin: 0;
-    font-size: var(--wr-text-xs);
+    font-size: var(--wr-editor-link-error-font-size);
     color: var(--wr-color-danger-ink);
   }
 
   &__actions {
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
+    gap: var(--wr-editor-link-actions-gap);
   }
 }

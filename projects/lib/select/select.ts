@@ -6,7 +6,7 @@
  */
 
 import { Directionality } from '@angular/cdk/bidi';
-import { type BooleanInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
@@ -50,22 +50,23 @@ import {
   timer,
 } from 'rxjs';
 
-import { useConfigValue } from 'ngwr/config';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrFollowDirection, wrPresentAsSheet } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { isComposing, toClassList, type WrClassInput } from 'ngwr/utils';
 
+import { WrOption } from './option';
+import { WrOptionLeading } from './option-leading';
+import { WR_SELECT } from './tokens';
 import type {
   WrOptionLeadingContext,
   WrSelectMode,
   WrSelectSearchLoader,
   WrSelectTagValidator,
   WrSelectSize,
-} from './interfaces';
-import { WrOption } from './option';
-import { WrOptionLeading } from './option-leading';
-import { WR_SELECT, type WrSelectContext, type WrSelectOptionRegistration } from './tokens';
+  WrSelectContext,
+  WrSelectOptionRegistration,
+} from './types';
 
 let listboxUid = 0;
 
@@ -259,42 +260,15 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
 
-  /**
-   * Pill-shaped corners on the trigger. Unset falls back to the `select.rounded`
-   * app default from `provideWrConfig()`; `[rounded]="false"` turns a configured
-   * `true` back off. @default false
-   */
-  readonly rounded = input<boolean | null, BooleanInput>(null, {
-    // Null-preserving, like `responsive` below: the plain `coerceBooleanProperty`
-    // folds `null` into `false`, which would make "not set" and "set to false"
-    // the same value — and a config default nothing could ever supply.
-    transform: (v: BooleanInput): boolean | null => (v == null ? null : coerceBooleanProperty(v)),
-  });
+  /** Pill-shaped corners on the trigger. @default false */
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Control size — shares the `--wr-control-*` contract. Unset falls back to the
-   * `select.size` app default from `provideWrConfig()`. @default 'md'
+   * Control size — shares the `--wr-control-*` contract. Read by the trigger's
+   * host classes AND by the overlay panel, which builds its size modifier
+   * separately. @default 'md'
    */
-  readonly size = input<WrSelectSize | null>(null);
-
-  /** `rounded`, then the app config, then `false`. @internal */
-  protected readonly resolvedRounded = useConfigValue(this.rounded, c => c.select?.rounded, false);
-
-  /**
-   * `size`, then the app config, then `md`. Read by the trigger's host classes AND
-   * by the overlay panel, which builds its size modifier separately.
-   */
-  protected readonly resolvedSize = useConfigValue(this.size, c => c.select?.size, 'md');
-
-  /**
-   * Present the option panel as a full-width bottom-sheet on small
-   * viewports instead of an anchored dropdown. `undefined` follows the
-   * app-wide `provideWrResponsiveOverlays()` setting; `true`/`false`
-   * overrides it. @default undefined
-   */
-  readonly responsive = input<boolean | undefined, BooleanInput>(undefined, {
-    transform: (v: BooleanInput): boolean | undefined => (v == null ? undefined : coerceBooleanProperty(v)),
-  });
+  readonly size = input<WrSelectSize>('md');
 
   /**
    * Behavior mode. `<wr-select>` is the unified combobox primitive —
@@ -545,8 +519,9 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   readonly panelClass = input<WrClassInput>(null);
 
   /**
-   * Cap on selected items (multi mode). `0` = unlimited. Once reached,
-   * additional clicks on unselected options are ignored. @default 0
+   * Cap on selected items (multi mode). `0` = unlimited. Once reached, the
+   * unselected options are marked unavailable — `aria-disabled` and the
+   * disabled look — and refuse a pick until one is removed. @default 0
    */
   readonly maxItems = input(0, {
     transform: (v: unknown): number => Math.max(0, Number(v) || 0),
@@ -786,8 +761,8 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   protected readonly classes = computed(() => {
     const parts = ['wr-select'];
     if (this.open()) parts.push('wr-select--open');
-    if (this.resolvedRounded()) parts.push('wr-select--rounded');
-    const size = this.resolvedSize();
+    if (this.rounded()) parts.push('wr-select--rounded');
+    const size = this.size();
     if (size !== 'md') parts.push(`wr-select--${size}`);
     if (this.isMulti()) parts.push('wr-select--multi');
     if (this.isTag()) parts.push('wr-select--tag');
@@ -1291,7 +1266,6 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
   private readonly outsideClick = inject(WrOutsideClick);
-  private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
@@ -1308,9 +1282,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   constructor() {
     // A component destroyed while the panel is open takes its overlay with it.
-    // Without this the pane stays in the CDK container forever, and in sheet
-    // mode the block scroll strategy is never released, so the page can no
-    // longer scroll at all.
+    // Without this the pane stays in the CDK container forever.
     this.destroyRef.onDestroy(() => this.closeOverlay());
 
     // Close the panel if the control goes read-only or disabled while it is up —
@@ -1541,6 +1513,14 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     const cap = this.maxItems();
     return cap > 0 && this.asArray(this.value()).length >= cap;
   });
+
+  /**
+   * Whether a multi select already holds `maxItems`, so an option it does not
+   * hold cannot be added. The options read it to say so: they used to look and
+   * announce as choosable and then ignore the click or Enter in silence.
+   * @internal
+   */
+  readonly atMaxItems = computed(() => this.isMulti() && this.atCapacity());
 
   protected onTagInput(event: Event): void {
     if (this.isDisabled() || this.isReadonly()) return;
@@ -1796,46 +1776,31 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   private openOverlay(): void {
     if (this.overlayRef) return;
 
-    // On small viewports (when opted in) detach from the trigger and present
-    // the panel as a full-width slide-up sheet pinned to the bottom edge.
-    const asSheet = wrPresentAsSheet(this.responsive(), this.responsiveConfig);
-
-    const positionStrategy = asSheet
-      ? this.overlay.position().global().centerHorizontally().bottom('0')
-      : this.overlay
-          .position()
-          .flexibleConnectedTo(this.host)
-          .withPositions([
-            { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
-            { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
-          ])
-          .withPush(true);
+    const positionStrategy = this.overlay
+      .position()
+      .flexibleConnectedTo(this.host)
+      .withPositions([
+        { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
+        { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
+      ])
+      .withPush(true);
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
-      scrollStrategy: asSheet ? this.scrollStrategies.block() : this.scrollStrategies.reposition(),
+      scrollStrategy: this.scrollStrategies.reposition(),
       // Floor the panel at the trigger width (it can still grow for long
       // options) instead of pinning it. The panel fills this via `width: 100%`,
       // so the flex overlay pane has no transparent gutter beside a
       // content-narrow panel — that gutter would otherwise sit "inside" the
       // overlay and swallow outside-clicks, leaving the panel open. Mirrors how
       // mat-select sizes its overlay.
-      width: asSheet ? '100%' : undefined,
-      minWidth: asSheet ? undefined : this.host.nativeElement.getBoundingClientRect().width,
-      hasBackdrop: asSheet,
-      // `wr-overlay-backdrop`, not a name of our own: that class is what carries
-      // the dim and the blur (overlay/styles), and this stylesheet already
-      // imports it for exactly this. A custom class also REPLACES the CDK
-      // default, so the sheet had an invisible scrim that still ate clicks.
-      backdropClass: asSheet ? 'wr-overlay-backdrop' : undefined,
-      panelClass: toClassList('wr-select-overlay', asSheet && 'wr-overlay-sheet', this.panelClass()),
+      minWidth: this.host.nativeElement.getBoundingClientRect().width,
+      panelClass: toClassList('wr-select-overlay', this.panelClass()),
     });
 
-    // Unconditional, sheet or panel: the CDK captured a direction STRING when
-    // this ref was created and never looks again, so a flip while the list is
-    // open leaves the options mirroring the wrong way. The sheet needs it as
-    // much as the connected panel — its geometry is direction-free, its
-    // CONTENT is not.
+    // The CDK captured a direction STRING when this ref was created and never
+    // looks again, so a flip while the list is open leaves the options
+    // mirroring the wrong way.
     wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
@@ -1862,13 +1827,6 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     if (!this.virtualActive()) {
       this.ensureVisible(this.activeIndex());
       afterNextRender(() => this.ensureVisible(this.activeIndex()), { injector: this.injector });
-    }
-
-    if (asSheet) {
-      this.overlayRef
-        .backdropClick()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => this.open.set(false));
     }
 
     this.outsideClick

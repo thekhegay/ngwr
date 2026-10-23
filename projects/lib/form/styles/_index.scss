@@ -1,24 +1,24 @@
 @use '../../theme/styles' as theme;
 
 .wr-form-item {
+  --wr-form-item-gap: var(--wr-space-sm);
+  --wr-form-item-label-font-size: var(--wr-text-sm);
+  --wr-form-item-label-font-weight: var(--wr-font-weight-medium);
+  --wr-form-item-label-line-height: var(--wr-text-sm-leading);
+
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: var(--wr-form-item-gap);
   width: 100%;
 
   > label {
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-sm);
-    font-weight: 500;
-    line-height: 1.25rem;
+    font-size: var(--wr-form-item-label-font-size);
+    font-weight: var(--wr-form-item-label-font-weight);
+    line-height: var(--wr-form-item-label-line-height);
     transition: color var(--wr-transition-base);
   }
 
-  // color-ok: `wr-form-item` lays out what it is given and prints nothing, so
-  // the channel is the `<wr-form-error>` text the author projects beside the
-  // control; the label and border colours repeat it. A row with `hasError` and
-  // no message is colour-only, and the author's to catch — `wr-form-field`
-  // resolves and prints the message itself.
   &--error {
     > label {
       color: var(--wr-color-danger-ink);
@@ -33,26 +33,43 @@
 }
 
 .wr-form-error {
+  --wr-form-error-font-size: var(--wr-text-xs);
+  --wr-form-error-line-height: var(--wr-text-xs-leading);
+
   display: block;
   color: var(--wr-color-danger-ink);
-  font-size: var(--wr-text-xs);
-  line-height: 1rem;
+  font-size: var(--wr-form-error-font-size);
+  line-height: var(--wr-form-error-line-height);
 }
 
 .wr-form-field {
+  --wr-form-field-gap: var(--wr-space-sm);
+  --wr-form-field-font-family: var(--wr-font-family-base);
+  --wr-form-field-label-gap: var(--wr-space-xs);
+  --wr-form-field-label-font-size: var(--wr-text-sm);
+  --wr-form-field-label-font-weight: var(--wr-font-weight-medium);
+  --wr-form-field-label-line-height: var(--wr-text-sm-leading);
+  --wr-form-field-optional-font-size: var(--wr-text-sm);
+  --wr-form-field-optional-font-weight: var(--wr-font-weight-regular);
+  --wr-form-field-hint-font-size: var(--wr-text-xs);
+  --wr-form-field-hint-line-height: var(--wr-leading-tight);
+  --wr-form-field-errors-gap: var(--wr-space-xs);
+  --wr-form-field-error-font-size: var(--wr-text-sm);
+  --wr-form-field-error-line-height: var(--wr-leading-tight);
+
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
-  font-family: var(--wr-font-family-base);
+  gap: var(--wr-form-field-gap);
+  font-family: var(--wr-form-field-font-family);
 
   &__label {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: var(--wr-form-field-label-gap);
     color: var(--wr-color-on-surface);
-    font-size: var(--wr-text-sm);
-    font-weight: 500;
-    line-height: 1.25rem;
+    font-size: var(--wr-form-field-label-font-size);
+    font-weight: var(--wr-form-field-label-font-weight);
+    line-height: var(--wr-form-field-label-line-height);
   }
 
   &__required {
@@ -61,8 +78,8 @@
 
   &__optional {
     color: var(--wr-color-on-surface-muted);
-    font-weight: 400;
-    font-size: var(--wr-text-sm);
+    font-weight: var(--wr-form-field-optional-font-weight);
+    font-size: var(--wr-form-field-optional-font-size);
   }
 
   &__control {
@@ -72,14 +89,14 @@
 
   &__hint {
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-xs);
-    line-height: 1.25;
+    font-size: var(--wr-form-field-hint-font-size);
+    line-height: var(--wr-form-field-hint-line-height);
   }
 
   &__errors {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: var(--wr-form-field-errors-gap);
   }
 
   &__error--hidden {
@@ -88,8 +105,8 @@
 
   &__error {
     color: var(--wr-color-danger-ink);
-    font-size: var(--wr-text-sm);
-    line-height: 1.25;
+    font-size: var(--wr-form-field-error-font-size);
+    line-height: var(--wr-form-field-error-line-height);
   }
 
   // Visual states — invalid stripes the projected control too.
@@ -101,10 +118,6 @@
   // is set here rather than the component's border hook, the way the select's
   // is, so the error edge holds while the trigger is focused or open — both of
   // those set `border-color` directly and would otherwise paint it primary.
-  // color-ok: `danger` against the default `--wr-color-outline` separates in
-  // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
-  // compared with each other this survives greyscale, and the error MESSAGE
-  // the field renders below is the channel that does the real work.
   &--invalid &__control input,
   &--invalid &__control textarea,
   &--invalid &__control select,
@@ -132,7 +145,7 @@
   // 2.90:1 dark — so unlike two intents compared with each other, this cue
   // mostly survives a reader who cannot separate hue. Mostly: the dark figure
   // is under the 3:1 that WCAG 1.4.11 asks of a control boundary, which is the
-  // same shortfall `--wr-color-outline` carries by decision, and it is the
+  // same shortfall `--wr-border-base` carries by decision, and it is the
   // message underneath that does the load-bearing work either way.
   //
   // THE HOOK HAS TO LAND ON THE ELEMENT THAT READS IT. The checkbox declares
@@ -143,10 +156,6 @@
   // version of this block set the hook on the host only, and hovering an
   // invalid checkbox turned it back to primary. Naming the inner element takes
   // the selector to (0,4,0), which outranks the component's (0,3,0) hover.
-  // color-ok: `danger` against the default `--wr-color-outline` separates in
-  // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
-  // compared with each other this survives greyscale, and the error MESSAGE
-  // the field renders below is the channel that does the real work.
   &--invalid &__control .wr-input-group {
     --wr-input-group-border: var(--wr-color-danger);
   }
@@ -157,19 +166,11 @@
   // announcements of one group error is nine times the cost; an eye takes nine
   // red boxes in at once and reads one signal. The reason the ARIA rule exists
   // does not transfer to the visual channel.
-  // color-ok: `danger` against the default `--wr-color-outline` separates in
-  // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
-  // compared with each other this survives greyscale, and the error MESSAGE
-  // the field renders below is the channel that does the real work.
   &--invalid &__control .wr-checkbox,
   &--invalid &__control .wr-checkbox .wr-checkbox__box {
     --wr-checkbox-border: var(--wr-color-danger);
   }
 
-  // color-ok: `danger` against the default `--wr-color-outline` separates in
-  // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
-  // compared with each other this survives greyscale, and the error MESSAGE
-  // the field renders below is the channel that does the real work.
   &--invalid &__control .wr-radio,
   &--invalid &__control .wr-radio .wr-radio__dot {
     --wr-radio-border: var(--wr-color-danger);

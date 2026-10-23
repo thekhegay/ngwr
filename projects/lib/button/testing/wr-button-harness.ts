@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import { WR_COLORS, type WrColor } from 'ngwr/theme';
 
-import type { WrButtonHarnessFilters } from './interfaces';
+import type { WrButtonHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-btn>` — drive a button from a consumer's spec without

@@ -5,7 +5,7 @@ import { type WrI18nCatalog } from 'ngwr/i18n';
  * `provideWrI18nBaseCatalogs` and keep only your own keys in the loader.
  *
  * Do not spread it into your own catalog. A spread is shallow, so any namespace
- * you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the keys
+ * you share with ngwr, e.g. `common`, `form`, `table`, keeps only the keys
  * of the side spread last, and the other side's keys stop resolving with nothing
  * logged: ngwr's components fall back to their English defaults, and a `wrT`
  * read of a lost key renders the raw key under the default missing handler. A
@@ -121,6 +121,9 @@ export const wrEn: WrI18nCatalog = {
     // Rendered as a badge beside the step's own label, so it reads as part of the
     // header rather than as a sentence — lowercase on purpose.
     optional: 'optional',
+    // Visually hidden after a completed step's label, so the state the check mark
+    // draws is announced too. Lowercase for the same reason.
+    completed: 'completed',
   },
   transfer: {
     source: 'Available',
@@ -138,42 +141,6 @@ export const wrEn: WrI18nCatalog = {
     // lowercase word and no locale has to repeat the punctuation. Same shape as
     // `stepper.optional`, and unlike the `*` marker this one is NOT `aria-hidden`.
     optional: 'optional',
-  },
-  validation: {
-    required: 'This field is required.',
-    requiredTrue: 'This field must be checked.',
-    email: 'Enter a valid email address.',
-    // A noun straight after a count is a plural bug waiting for the value 1 —
-    // "Enter at least 1 characters." — and there is no plural machinery anywhere
-    // in this layer, so the wording has to be right at EVERY value rather than
-    // at the common ones. Putting the number last does it: the sentence reads
-    // the same at 1 and at 80.
-    //
-    // The other twenty-one catalogs carry the same shape in their own
-    // morphology — ru's "символов" is genitive plural, correct for 5–20 and
-    // wrong for 1 and for 2–4. Each needs a native speaker; guessing at Czech
-    // plural rules from here would be the same mistake in a new language.
-    minlength: 'Minimum length is {{requiredLength}}.',
-    maxlength: 'Maximum length is {{requiredLength}}.',
-    min: 'Enter {{min}} or more.',
-    max: 'Enter {{max}} or less.',
-    pattern: 'This value is not in the expected format.',
-    noWhitespace: 'This value cannot contain spaces.',
-    hexColor: 'Enter a hex colour, e.g. #1a2b3c.',
-    url: 'Enter a valid URL.',
-    cardNumber: 'Enter a valid card number.',
-    cvc: 'Enter the {{length}}-digit security code.',
-    iban: 'Enter a valid IBAN.',
-    match: 'The two values do not match.',
-    matchFields: 'These fields do not match.',
-    oneOf: 'Choose one of the allowed values.',
-    minDate: 'Choose a later date.',
-    maxDate: 'Choose an earlier date.',
-    // A date picker's refused entry. The example is a date written in the field's own
-    // format, so it is data rather than prose and takes no full stop — `31.12.2026.`
-    // would read as part of the format.
-    dateFormat: 'Expected format: {{example}}',
-    dateFilter: 'This date is not available.',
   },
   select: {
     label: 'Select',
@@ -337,17 +304,15 @@ export const wrEn: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Bar chart',
+  },
   calendarHeatmap: {
     label: 'Calendar heatmap',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Line chart',
-    // The Y-axis tick abbreviation. `k` is a Latin convention — ru writes
-    // `тыс.` — and the axis had it hardcoded, so it was the one number on the
-    // chart no locale could reach. The digits go through `Intl.NumberFormat`,
-    // so the catalog owns the suffix and whether a space sits before it.
-    thousands: '{{value}}k',
   },
   donutChart: {
     label: 'Donut chart',
@@ -366,9 +331,6 @@ export const wrEn: WrI18nCatalog = {
     pagination: 'Carousel pagination',
     roledescription: 'carousel',
     slideRoledescription: 'slide',
-  },
-  actionSheet: {
-    label: 'Actions',
   },
   alert: {
     close: 'Close alert',
@@ -401,14 +363,6 @@ export const wrEn: WrI18nCatalog = {
   popover: {
     label: 'Popover',
   },
-  markdown: {
-    copy: 'Copy code',
-    copied: 'Copied',
-    // Read before a task item's text, so a screen reader gets the state that the
-    // checkbox glyph carries visually.
-    taskDone: 'Done:',
-    taskTodo: 'To do:',
-  },
   // `<wr-editor>`. `heading` is one template for the three levels, and
   // `shortcut` joins a label to its key chord in a tooltip, so a locale owns
   // the punctuation (ja and zh use full-width brackets). The three `key*`
@@ -440,6 +394,8 @@ export const wrEn: WrI18nCatalog = {
     keyCtrl: 'Ctrl',
     keyShift: 'Shift',
     keyAlt: 'Alt',
+    // Read before a task item's text, so a screen reader gets the state that the
+    // checkbox glyph carries visually.
     taskDone: 'Done:',
     taskTodo: 'To do:',
   },
@@ -489,6 +445,11 @@ export const wrEn: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Sidebar',
+    containsCurrent: 'contains the current page',
+    subpages: 'Sub-pages of {{title}}',
+    // Heard, never seen: it joins a row's title, badge and count into one name
+    // ("Charts, New, 18 pages"), so a frozen comma is heard on every row.
+    separator: ',',
   },
   spinner: {
     label: 'Loading',

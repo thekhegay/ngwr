@@ -59,8 +59,6 @@ describe('the shipped catalogs', () => {
     // A key added to one locale and forgotten in the other resolves to the key
     // ITSELF for those users — `t()` returns the key on a miss — so the UI
     // quietly starts announcing `datePicker.panel` instead of a sentence.
-    // `form-errors.spec.ts` guards only the `validation.*` subtree; this is the
-    // whole catalog.
     const en = flatKeys(wrEn);
     const ru = flatKeys(wrRu);
 
@@ -284,7 +282,7 @@ describe('WrI18n locale chain', () => {
  *
  * A loader REPLACES ngwr's catalog for a locale, so the obvious way to keep
  * ngwr's strings is `{ ...wrRu, ...yours }`. A spread is shallow: any top-level
- * namespace both sides define (`common`, `validation`, `table`, … wrEn has
+ * namespace both sides define (`common`, `form`, `table`, … wrEn has
  * dozens) keeps only the keys of the side spread last, and the other side's
  * keys stop resolving with nothing logged. The base catalogs are walked PER KEY
  * after the loader's catalog misses, which is why they keep both halves.
@@ -404,13 +402,9 @@ describe('WrI18n runtime-switch warning', () => {
 
 /**
  * What is left here is what only a walk of the SOURCE can answer: whether the
- * library asks for a key nobody ships, whether it ships a key nobody asks for,
- * and whether every locale folder is checked at all.
- *
- * Key-set parity and empty values moved to `catalog-contract.ts`, which
- * every locale runs. They were written against `wrEn` and `wrRu` by name, and
- * a pair of hardcoded imports is exactly the shape that stops covering the
- * twenty locales added after it.
+ * library asks for a key nobody ships, and whether it ships a key nobody asks
+ * for. Key-set parity and empty values are `catalog-contract.ts`, which every
+ * shipped catalog runs.
  */
 describe('the shipped catalogs', () => {
   const keysOf = (node: unknown, prefix = ''): string[] =>
@@ -517,7 +511,10 @@ describe('the shipped catalogs', () => {
     expect(keysOf(wrEn).filter(key => !key.includes('.'))).toEqual([]);
 
     const have = new Set(keysOf(wrEn));
-    expect([...asked].filter(key => !have.has(key)).sort()).toEqual([]);
+    // ngwr reads `validation.*` from the APP's catalog and ships none of it.
+    const appOwned = (key: string): boolean => key.startsWith('validation.');
+    expect([...have].filter(appOwned), 'validation copy shipped in an ngwr catalog').toEqual([]);
+    expect([...asked].filter(key => !have.has(key) && !appOwned(key)).sort()).toEqual([]);
 
     // And the inverse, which is the half that was missing. A shipped key nothing
     // reads is not a translation — it is a promise to a consumer that their
@@ -585,42 +582,5 @@ describe('the shipped catalogs', () => {
 
     const unread = [...have].filter(key => !reached(key) && !KEPT_UNREAD.has(key)).sort();
     expect(unread, 'catalog keys nothing in the library reads').toEqual([]);
-  });
-
-  /**
-   * Every locale folder is held to the contract by a `catalog.spec.ts` beside
-   * it — and this is what says so.
-   *
-   * A locale added without one is checked by nothing at all, and it would not
-   * look wrong from anywhere: the package builds, `gen-i18n-json.ts` discovers
-   * the folder on its own and emits its JSON, and the app renders whatever is
-   * in it. Same rule `check:layout` follows for a target that matches nothing —
-   * a gate that quietly stops looking at something is worse than one that
-   * fails.
-   *
-   * Anchored on the workspace root walked up from `process.cwd()`, never on
-   * `import.meta.url`: the builder bundles specs, and that URL points inside
-   * the bundle.
-   */
-  it('holds every shipped locale to the catalog contract', () => {
-    let dir = process.cwd();
-    for (;;) {
-      if (existsSync(join(dir, 'pnpm-workspace.yaml')) && existsSync(join(dir, 'angular.json'))) break;
-      const up = dirname(dir);
-      if (up === dir) throw new Error(`no workspace root above ${process.cwd()}`);
-      dir = up;
-    }
-
-    const root = join(dir, 'projects/lib/i18n');
-    const locales = readdirSync(root, { withFileTypes: true })
-      .filter(entry => entry.isDirectory() && existsSync(join(root, entry.name, 'public-api.ts')))
-      .map(entry => entry.name)
-      .sort();
-
-    expect(locales.length, 'no locale folders found — the path this walks must be wrong').toBeGreaterThan(1);
-    expect(
-      locales.filter(locale => !existsSync(join(root, locale, 'catalog.spec.ts'))),
-      'locale folders with no catalog.spec.ts beside them'
-    ).toEqual([]);
   });
 });

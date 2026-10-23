@@ -2,7 +2,6 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrOption, WrOptionLeading, WrSelect } from 'ngwr/select';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -80,7 +79,7 @@ class LeadingHost {
  * The panel is a template portal in the overlay container, so nothing this spec
  * asserts about options is reachable from the fixture — which is the whole reason
  * the harness scopes its option queries by the trigger's `aria-controls` id. The
- * spec provides `provideWrOverlay()` to keep its container out of the next file's.
+ * container belongs to the TestBed's root injector, so it never outlives this file.
  */
 describe('WrSelectHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -88,7 +87,6 @@ describe('WrSelectHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -168,7 +166,6 @@ describe('WrSelectHarness — multi', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(MultiHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -225,7 +222,6 @@ describe('WrSelectHarness — search', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(SearchHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -275,7 +271,6 @@ describe('WrSelectHarness — two on one page', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TwoHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -309,7 +304,6 @@ describe('WrSelectHarness — options with a leading visual', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(LeadingHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

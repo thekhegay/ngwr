@@ -1,0 +1,76 @@
+<ngwr-doc-page
+  title="Sortable List"
+  updated="15.0.0"
+  description="A list the user reorders by drag or keyboard."
+  [keywords]="[
+    'sortable-list',
+    'drag-drop',
+    'wr-sortable-list',
+    'wr-sortable-item',
+    'wrDragHandle',
+    'reorder',
+    'touch',
+  ]"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Peer dependencies" description="Needs `@angular/cdk`.">
+    <ngwr-doc-install packages="@angular/cdk" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Bind `[(items)]` and write one `<wr-sortable-item>` per item in your own loop. A row has no padding, border or background: style it yourself."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.basicStyles" language="scss" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-sortable-demo">
+        <wr-sortable-list [(items)]="tasks" (reorder)="onReorder($event)">
+          @for (task of tasks(); track task.id) {
+            <wr-sortable-item>
+              <div class="ngwr-sortable-demo__row">
+                <span class="ngwr-sortable-demo__index">#{{ $index + 1 }}</span>
+                <span>{{ task.label }}</span>
+              </div>
+            </wr-sortable-item>
+          }
+        </wr-sortable-list>
+        <p wrTypography variant="small" tone="muted">Last reorder: {{ lastReorder() }}</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="With a drag handle"
+    description="Put `wrDragHandle` on one element in the row, and only that element starts a drag."
+  >
+    <ngwr-doc-code [code]="snippets.handle" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-sortable-demo">
+        <wr-sortable-list [(items)]="tasks">
+          @for (task of tasks(); track task.id) {
+            <wr-sortable-item>
+              <div class="ngwr-sortable-demo__row ngwr-sortable-demo__row--handled">
+                <span wrDragHandle class="ngwr-sortable-demo__grip">≡</span>
+                <span>{{ task.label }}</span>
+              </div>
+            </wr-sortable-item>
+          }
+        </wr-sortable-list>
+        <p wrTypography variant="small" tone="muted">Only the ≡ handle starts a drag.</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Keyboard" description="Every row is a tab stop.">
+    <ngwr-doc-api [rows]="keys" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Related">
+    <ngwr-doc-api [rows]="related" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

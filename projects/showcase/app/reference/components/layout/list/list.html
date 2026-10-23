@@ -1,0 +1,34 @@
+<ngwr-doc-page
+  title="List"
+  description="A list of rows with leading, body and trailing slots."
+  [keywords]="['list', 'wr-list', 'wr-list-item']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-list [bordered]="bordered()" [dividers]="dividers()" [dense]="dense()" style="width: 100%; max-width: 26rem">
+        @for (row of rows; track row.label) {
+          <wr-list-item [interactive]="interactive()" (click)="pick(row.label)">
+            <span ngProjectAs="[wrListItemLeading]" style="font-size: 1.125rem">📁</span>
+            {{ row.label }}
+            <span ngProjectAs="[wrListItemTrailing]" style="font-variant-numeric: tabular-nums">{{ row.meta }}</span>
+          </wr-list-item>
+        }
+        <wr-list-item disabled>
+          <span ngProjectAs="[wrListItemLeading]">🔒</span>
+          Archived
+          <span ngProjectAs="[wrListItemTrailing]">—</span>
+        </wr-list-item>
+      </wr-list>
+      @if (lastPick()) {
+        <small style="display: block; margin-top: 0.75rem; color: var(--wr-color-on-surface-muted)"
+          >Picked: {{ lastPick() }}</small
+        >
+      }
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

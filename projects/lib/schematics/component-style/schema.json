@@ -6,9 +6,9 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "Subpath under `ngwr/` — e.g. `button`, `select`, `theme`. Matches the dir name in the lib's `exports` block.",
+      "description": "The entry point's path under `ngwr/`, nested ones included — e.g. `button`, `select`, `charts/bar-chart`, `bits/aurora`. Must be an `exports` key with a stylesheet.",
       "$default": { "$source": "argv", "index": 0 },
-      "x-prompt": "Which subpath? (e.g. button, select, theme)"
+      "x-prompt": "Which entry point? (e.g. button, select, charts/bar-chart)"
     },
     "project": {
       "type": "string",

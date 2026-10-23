@@ -6,10 +6,12 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
   DestroyRef,
   type AfterContentChecked,
+  PLATFORM_ID,
   ViewEncapsulation,
   computed,
   contentChild,
@@ -18,7 +20,9 @@ import {
   forwardRef,
   inject,
   input,
+  isDevMode,
   signal,
+  untracked,
 } from '@angular/core';
 import { AbstractControl, NgControl, type ValidationErrors } from '@angular/forms';
 
@@ -26,19 +30,36 @@ import { EMPTY, type Subscription } from 'rxjs';
 
 import { WrI18n, useI18nText } from 'ngwr/i18n';
 
-import { WR_FORM_ERRORS, WR_FORM_ERROR_FALLBACKS, type WrFormErrorMessage } from './form-errors';
 import { WR_FORM_FIELD, type WrFormFieldContext } from './tokens';
 
 let uid = 0;
 
-/** A message is either literal text or a function over the validator's payload. */
-function render(message: WrFormErrorMessage, key: string, error: unknown, label: string): string {
-  return typeof message === 'function' ? message({ key, error, label }) : message;
-}
+/**
+ * Error keys already reported on the server. Every prerendered route and every
+ * request builds its fields afresh, so the per-field memo alone would repeat one
+ * warning per page; the browser keeps it per field, where it names the field the
+ * developer is looking at.
+ */
+const warnedOnServer = new Set<string>();
 
 /** Validator payloads are plain objects; anything else interpolates nothing. */
 function toParams(error: unknown): Record<string, unknown> | undefined {
   return error && typeof error === 'object' ? (error as Record<string, unknown>) : undefined;
+}
+
+/**
+ * The sentence the validator carries itself, or `null`.
+ *
+ * Signal Forms validators take `{ message }` and keep it on the error object, and
+ * the interop `NgControl` this field reads lists that object AS IS under its
+ * `kind` (`signalErrorsToValidationErrors` in `@angular/forms`), so the message
+ * arrives here untouched. A custom control's parse errors take the same road in
+ * both forms flavours, which is how a `wr-date-picker` refusal is read. A classic
+ * validator's payload has no `message` unless the app put one there.
+ */
+function ownMessage(error: unknown): string | null {
+  const message = toParams(error)?.['message'];
+  return typeof message === 'string' && message.trim() !== '' ? message : null;
 }
 
 /**
@@ -47,15 +68,11 @@ function toParams(error: unknown): Record<string, unknown> | undefined {
  *
  * Reactive forms emit `minlength` / `maxlength` carrying `requiredLength`;
  * Signal Forms emit `minLength` / `maxLength` carrying `minLength` / `maxLength`.
- * Nothing bridged them, so the library's FLAGSHIP forms flavour rendered an
- * empty error block for both: the key missed every message source in turn — the
- * app's own map, all twenty-two i18n catalogs, and the built-in fallbacks — and
- * `resolve` returns `''` for a miss, which the caller then filters out. A field
- * over its length limit was invalid, marked invalid, and said nothing.
- *
- * Normalised here rather than by adding two keys to twenty-two catalogs,
- * because the message is the SAME message: one sentence about a length, reached
- * by two spellings of one rule.
+ * Restated before the catalog lookup so one `validation.minlength` entry in an
+ * app's catalog answers both spellings, with `{{requiredLength}}` filled either
+ * way — the message is the SAME message, one sentence about a length reached by
+ * two spellings of one rule, and asking every app for two keys would only get
+ * one of them written.
  */
 const SIGNAL_FORMS_ALIASES: Readonly<Record<string, { readonly key: string; readonly from: string }>> = {
   minLength: { key: 'minlength', from: 'minLength' },
@@ -63,8 +80,8 @@ const SIGNAL_FORMS_ALIASES: Readonly<Record<string, { readonly key: string; read
 };
 
 /**
- * A Signal Forms length error, restated in the classic shape every message
- * source already understands. Anything else passes through untouched.
+ * A Signal Forms length error, restated in the classic shape the catalog lookup
+ * reads. Anything else passes through untouched.
  */
 function normalizeError(key: string, error: unknown): { readonly key: string; readonly error: unknown } {
   const alias = SIGNAL_FORMS_ALIASES[key];
@@ -82,6 +99,10 @@ function normalizeError(key: string, error: unknown): { readonly key: string; re
  * One error message tied to a validator key. Renders only when the parent
  * form-field has a matching error in `control.errors`, and only once the
  * control is touched or dirty.
+ *
+ * A keyed message CLAIMS its key: the field renders no automatic message for it,
+ * so per-field markup wins over the validator's own `message` and over the app's
+ * `validation.*` catalog.
  *
  * @example
  * ```html
@@ -136,8 +157,16 @@ export class WrFormError {
  * - Auto-binds `label[for]` to the projected control via a generated id
  *   (or use the form-control's `[id]` if you set one).
  * - Reads the projected control's `NgControl` to surface validation
- *   errors only when the control has been touched / submitted.
+ *   errors only once the control is touched or dirty. A submit shows them
+ *   only by marking the controls touched, as `markAllAsTouched()` and Signal
+ *   Forms' `submit()` do.
  * - Optional `[required]` / `[optional]` markers next to the label.
+ *
+ * **ngwr ships no error texts.** Each error shows the first copy that exists for
+ * it: a projected `<wr-form-error key>`, then the validator's own `message`
+ * (`required(path.email, { message: 'Enter your email.' })`), then
+ * `validation.<key>` in the app's i18n catalog, interpolated with the error's
+ * payload. A key none of them answers renders nothing, and dev mode says so once.
  *
  * @example
  * ```html
@@ -335,23 +364,27 @@ export class WrFormField implements WrFormFieldContext, AfterContentChecked {
   readonly labelId = computed(() => (this.label() ? `${this.controlId()}-label` : null));
 
   /**
-   * Render a catalog message for any error the markup does not already answer.
+   * Render a message for any error the markup does not already answer: the
+   * validator's own `message`, else `validation.<key>` from the app's i18n
+   * catalog. ngwr ships no error texts, so a key neither of them answers renders
+   * nothing, and dev mode warns once for it.
    *
-   * On by default: a field with no `<wr-form-error>` at all is the common case,
-   * and an empty error block helps nobody. Turn it off for a field whose copy is
-   * entirely hand-written. @default true
+   * On by default: a field with no `<wr-form-error>` at all is the common case.
+   * Turn it off for a field whose copy is entirely hand-written. @default true
    */
   readonly autoErrors = input(true, { transform: coerceBooleanProperty });
 
   private readonly projectedErrors = contentChildren(WrFormError);
-  private readonly appMessages = inject(WR_FORM_ERRORS);
   private readonly i18n = inject(WrI18n, { optional: true });
+  private readonly isServer = !isPlatformBrowser(inject(PLATFORM_ID));
+
+  /** Error keys this field has already warned about — see {@link warnNoCopy}. */
+  private readonly warned = new Set<string>();
 
   /**
    * Errors with no projected `<wr-form-error key>` to answer them, resolved to
-   * text: the app catalog first, then the `validation.*` i18n keys, then a
-   * built-in English sentence. Per-field markup always wins — it is the most
-   * specific thing the author wrote.
+   * text. Per-field markup always wins — it is the most specific thing the author
+   * wrote — and a key nothing answers is left out rather than rendered empty.
    */
   protected readonly autoMessages = computed<readonly { key: string; text: string }[]>(() => {
     if (!this.autoErrors()) return [];
@@ -364,30 +397,55 @@ export class WrFormField implements WrFormFieldContext, AfterContentChecked {
         .filter(Boolean)
     );
 
-    return Object.entries(errors)
-      .filter(([key]) => !claimed.has(key))
-      .map(([key, error]) => ({ key, text: this.resolve(key, error) }))
-      .filter(m => m.text.length > 0);
+    const messages: { key: string; text: string }[] = [];
+    for (const [key, error] of Object.entries(errors)) {
+      if (claimed.has(key)) continue;
+      const text = this.resolve(key, error);
+      if (text) messages.push({ key, text });
+      else if (isDevMode()) untracked(() => this.warnNoCopy(key));
+    }
+    return messages;
   });
 
-  private resolve(rawKey: string, rawError: unknown): string {
-    // A consumer's own map is consulted under BOTH spellings — theirs first, so
-    // someone who already worked around this by writing `minLength` keeps
-    // winning, and the normalised one after.
-    const appRaw = this.appMessages[rawKey];
-    if (appRaw !== undefined) return render(appRaw, rawKey, rawError, this.label());
-
-    const { key, error } = normalizeError(rawKey, rawError);
-    const app = this.appMessages[key];
-    if (app !== undefined) return render(app, key, error, this.label());
+  private resolve(rawKey: string, rawError: unknown): string | null {
+    const own = ownMessage(rawError);
+    if (own) return own;
 
     // `t()` reads the service's revision signal, so this recomputes on a locale
-    // switch; a miss returns the key itself, which is the documented signal.
+    // switch and when a loader-backed catalog lands; a miss returns the key itself.
+    // ngwr's own catalogs carry no `validation` namespace, so only the app answers.
+    const { key, error } = normalizeError(rawKey, rawError);
     const translated = this.i18n?.t(`validation.${key}`, toParams(error));
-    if (translated && translated !== `validation.${key}`) return translated;
+    return translated && translated !== `validation.${key}` ? translated : null;
+  }
 
-    const fallback = WR_FORM_ERROR_FALLBACKS[key];
-    return fallback === undefined ? '' : render(fallback, key, error, this.label());
+  /**
+   * Say once, in dev, that an error is showing with nothing to read.
+   *
+   * Nothing on screen gives it away: the field still goes red and the control is
+   * still marked invalid, so an empty error block survives review. With no
+   * built-in copy that is the ordinary state of a validator nobody wrote words
+   * for, not an edge case. Once per field and key — and once per key on the
+   * server, where every prerendered page builds its fields again. The catalog key
+   * is the normalised one, the markup key the one the control reported, because
+   * those are what each of the two reads.
+   */
+  private warnNoCopy(rawKey: string): void {
+    if (this.warned.has(rawKey)) return;
+    this.warned.add(rawKey);
+    if (this.isServer) {
+      if (warnedOnServer.has(rawKey)) return;
+      warnedOnServer.add(rawKey);
+    }
+
+    const catalogKey = normalizeError(rawKey, undefined).key;
+    const field = this.label() ? `"${this.label()}"` : `#${this.labelFor()}`;
+    // eslint-disable-next-line no-console -- dev-mode validation
+    console.warn(
+      `[NGWR] <wr-form-field> ${field}: the "${rawKey}" error has no copy, so nothing is shown for it — ` +
+        `ngwr ships no error texts. Supply one: { message } on the validator, "validation.${catalogKey}" ` +
+        `in the app's i18n catalog, or <wr-form-error key="${rawKey}"> inside the field.`
+    );
   }
 
   protected readonly classes = computed(() => {

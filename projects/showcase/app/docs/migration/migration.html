@@ -1,0 +1,317 @@
+<ngwr-doc-page
+  title="Migration guide"
+  description="Upgrade ngwr from any earlier major."
+  [keywords]="['migration', 'ng update', 'upgrade', 'breaking changes', 'codemod', 'schematics']"
+>
+  <ng-template #changes let-rows let-head="head">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            @for (h of head; track h) {
+              <th scope="col">{{ h }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows; track row.before) {
+            <tr>
+              <th scope="row" [innerHTML]="row.before | wrDocRich"></th>
+              <td [innerHTML]="row.after | wrDocRich"></td>
+              @if (row.update) {
+                <td>{{ row.update }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </ng-template>
+
+  <ngwr-doc-section title="Update" description="Commit first, then run one command from any major.">
+    <ngwr-doc-code [code]="snippets.update" language="bash" />
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: majors, head: ['Major', 'What ng update does'] }" />
+    <ul>
+      <li>
+        Never target a 7.x, 8.x or 9.x release with <code>ng update</code>, <code>ng add</code> or
+        <code>ng g ngwr:*</code>. Their schematics do not load.
+      </li>
+      <li>pnpm: on <code>ERR_PNPM_IGNORED_BUILDS</code>, allow the builds and run again.</li>
+      <li>pnpm holds a new release back for a day, so <code>ng update</code> may find nothing yet.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="If an update failed"
+    description="A failed or killed run skips its migration: update, commit, then run it by name."
+  >
+    <ngwr-doc-code [code]="snippets.recover" language="bash" />
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: recovery, head: ['If', 'Migration'] }" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15"
+    description="Needs Angular 22 and Chrome 123, Firefox 120 or Safari 17.5. `ng update` runs `migration-v15`."
+  >
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Codemod, head: ['ng update', 'What'] }" />
+    <ul>
+      <li>Most of what it lists fails silently. Work through the report rather than waiting for the build.</li>
+      <li>Each table below says what the codemod does with each row.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15: providers"
+    description="One `provideWr()` call from `ngwr`, one feature per setting, with the same options."
+  >
+    <ngwr-doc-code [code]="snippets.v15Providers" language="diff" />
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v15Providers, head: ['Before', 'After', 'Codemod'] }"
+    />
+    <ul>
+      <li>
+        Put <code>withDensity()</code>, <code>withToast()</code> and <code>withTheme()</code> in the app providers. A
+        lazy route never reads them.
+      </li>
+      <li>
+        <code>provideWrIcons()</code>, the i18n providers and <code>provideWrLoadingBarRouter()</code> are unchanged.
+      </li>
+      <li>
+        The codemod moves a call only when it is a plain entry of a <code>providers</code> array. It lists one kept in a
+        variable, a spread or a ternary, a second call of one kind in the same array, and a
+        <code>provideWrTheme()</code> that passes <code>attribute</code>.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15: imports and styles"
+    description="Symbols keep their names; only import, `@use` and `/testing` paths move."
+  >
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Paths, head: ['Before', 'After', 'Codemod'] }" />
+    <ul>
+      <li>
+        The umbrella also carried the density scale. With <code>withDensity()</code> or <code>[wrDensity]</code>, add
+        <code>&#64;use 'ngwr/density'</code>, or the setting does nothing.
+      </li>
+      <li>
+        <code>ngwr/reset</code>, <code>ngwr/animations</code> and <code>ngwr/typography-utilities</code> load the theme
+        now. Write them below a configured <code>&#64;use 'ngwr/theme' with (…)</code>, or the build fails.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15: colour tokens"
+    description="Neutral colours are role tokens now, such as `--wr-color-surface` and `--wr-border-base`."
+  >
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v15Tokens, head: ['Before', 'After', 'Codemod'] }"
+    />
+    <ul>
+      <li>
+        A <code>var()</code> at a removed token drops its whole declaration, with no error. The codemod rewrites the
+        reads, and lists a declaration, since which role it should set is your call. That includes a
+        <code>[style.--…]</code> binding, <code>setProperty()</code> and a style-object key.
+      </li>
+      <li>Without <code>strictTemplates</code>, a removed <code>color</code> value renders neutral, with no error.</li>
+      <li><code>--wr-border-strong</code> is new, and darker than any border v14 had.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15: dark mode"
+    description="`[data-theme]` is gone: the theme follows the OS through `color-scheme` and `light-dark()`."
+  >
+    <ngwr-doc-code [code]="snippets.v15Scheme" language="diff" />
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v15Scheme, head: ['Before', 'After', 'Codemod'] }"
+    />
+    <ul>
+      <li>A leftover <code>[data-theme]</code> selector compiles and matches nothing.</li>
+      <li>
+        To stay light, add <code>:root &#123; color-scheme: light; &#125;</code> after
+        <code>&#64;use 'ngwr/theme'</code>.
+      </li>
+      <li>
+        Add <code>withTheme()</code> so a stored choice applies at boot; on a prerendered page also ship
+        <code>wrThemePrePaintScript()</code>.
+      </li>
+      <li><code>light-dark()</code> takes colours only.</li>
+      <li>
+        In canvas code, read a token with
+        <a routerLink="/reference/utils/resolve-css-color"><code>resolveCssColor()</code></a
+        >, not <code>getPropertyValue()</code>.
+      </li>
+      <li>
+        For the old dark <code>wr-border-glow</code>, set <code>--wr-border-glow-halo-blend: plus-lighter</code>,
+        <code>--wr-border-glow-fill-blend: soft-light</code> and <code>--wr-border-glow-fill-scale: 1</code> on the dark
+        section.
+      </li>
+      <li>
+        <code>[wrTilt]</code>'s glare blends <code>normal</code> in both schemes, so your own
+        <code>--wr-tilt-glare-color</code> paints at face value.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="v14 to v15: components">
+    <ngwr-doc-code [code]="snippets.v15Sortable" language="diff" />
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v15Components, head: ['Before', 'After', 'Codemod'] }"
+    />
+    <ul>
+      <li>
+        A <code>&lt;wr-sortable-list&gt;</code> that still holds an <code>&lt;ng-template&gt;</code> renders nothing.
+      </li>
+      <li>
+        Bare <code>wrSquircle</code>, <code>showHandle</code>, <code>responsive</code> and
+        <code>format</code> attributes compile and do nothing. So do rules on <code>.wr-overlay-sheet</code>,
+        <code>.wr-overlay-backdrop</code> and <code>.wr-command-palette--sheet</code>.
+      </li>
+      <li>
+        <code>&lt;wr-editor&gt;</code> refuses an HTML or markdown string, and <code>''</code>: convert to
+        <code>WrEditorJson</code>, or <code>null</code> for empty.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="v14 to v15: removed entry points">
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v15Removed, head: ['Removed', 'Use instead', 'Codemod'] }"
+    />
+    <ngwr-doc-code [code]="snippets.v15Removed" language="diff" />
+    <ul>
+      <li>
+        Deleting <code>provideWrConfig()</code> resets every control it set to <code>md</code> and the standard radius.
+        Bind those inputs first.
+      </li>
+      <li>
+        <code>WrMedia</code>'s <code>md</code> is <code>(min-width: 768px)</code>. The other widths are
+        <code>$breakpoints</code> in <code>ngwr/breakpoints</code>.
+      </li>
+      <li>A Feather glyph no longer has the <code>wr-icon__svg</code> class. Style <code>.wr-icon svg</code>.</li>
+      <li>A <code>var(--wr-keyboard-inset, 0px)</code> compiles and stays <code>0px</code>.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15: validation messages"
+    description="ngwr ships no error text: `provideWrFormErrors()`, `WR_FORM_ERRORS`, `WR_FORM_ERROR_FALLBACKS` and the catalogs' `validation` keys are gone."
+  >
+    <ngwr-doc-code [code]="snippets.v15Validation" language="diff" />
+    <ul>
+      <li>
+        Without your text a field shows no message; only dev mode warns. <code>&lt;wr-form-error key&gt;</code> still
+        works.
+      </li>
+      <li>
+        The codemod lists <code>provideWrFormErrors()</code>. While no catalog has a <code>validation</code> namespace,
+        it also lists every <code>&lt;wr-form-field&gt;</code> without a <code>&lt;wr-form-error&gt;</code>. While none
+        has <code>validation.dateFormat</code>, it lists every date picker.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15: dates"
+    description="The native adapter needs no provider and follows `LOCALE_ID`."
+  >
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Dates, head: ['Before', 'After', 'Codemod'] }" />
+    <ul>
+      <li>
+        Native format tokens are <code>yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a</code>. Others, such as date-fns'
+        <code>EEEE</code> or <code>PPP</code>, print as letters.
+      </li>
+      <li>Your own adapter: see <a routerLink="/docs/configuration">Configuration</a>.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15: behaviour"
+    description="Nothing here fails to compile, and `migration-v15` neither rewrites nor lists these."
+  >
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v15Behaviour, head: ['Before', 'After', 'Codemod'] }"
+    />
+    <ul>
+      <li>A test that found a table control by its old shared name, or tabbed through a cascader, needs the change.</li>
+      <li>
+        A drawer that has to stay modal keeps its backdrop. If the dimming was what you turned off, hide it:
+        <code>.wr-drawer-backdrop &#123; background: none; backdrop-filter: none; &#125;</code>.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15: looks different"
+    description="No API change and nothing to search for. Check the pages."
+  >
+    <ul>
+      <li>
+        The gray scale moved from Tailwind's slate to its gray, so neutral surfaces, text and borders are less blue:
+        <code>--wr-color-gray-500</code> from <code>#64748b</code> to <code>#6b7280</code>,
+        <code>--wr-color-gray-900</code> from <code>#0f172a</code> to <code>#111827</code>.
+      </li>
+      <li>
+        Paddings, gaps and margins snapped to the <code>--wr-space-*</code> scale, so many components moved by a pixel
+        or two. <code>wr-alert</code>'s padding went from <code>0.625rem 0.875rem</code> to <code>0.75rem 1rem</code>.
+      </li>
+      <li>
+        <code>&lt;wr-btn outlined&gt;</code> with no <code>color</code> is transparent with a hover tint. It used to
+        look like a plain button.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="v13 to v14">
+    <p><code>ng update</code> rewrites:</p>
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v14Rewrites, head: ['Before', 'After'] }" />
+    <p>By hand (<code>ng update</code> lists the files for most):</p>
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v14Manual, head: ['Before', 'After'] }" />
+    <ngwr-doc-code [code]="snippets.v14" language="diff" />
+    <ul>
+      <li>Without <code>provideWrLoadingBarRouter()</code> the bar stays at 0% on navigation, with no error.</li>
+      <li>A catalog that still defines <code>pagination.of</code> shows that line in English.</li>
+      <li>
+        Date output changed too: <code>MMMM</code> declines beside a day, <code>a</code> prints the locale's marker, and
+        the calendar is always Gregorian.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v12 to v13"
+    description="`[id]` on `<wr-checkbox>`, `<wr-radio>` and `<wr-switch>` lands on the inner `<input>`, not the host."
+  >
+    <ngwr-doc-code [code]="snippets.v13" language="diff" />
+    <p>
+      <code>&lt;wr-checkbox-group&gt;</code> and <code>&lt;wr-radio-group&gt;</code> keep their host <code>id</code>.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="v11 to v12">
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v12, head: ['Before', 'After', 'Codemod'] }" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="v8 to v9">
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v9, head: ['Before', 'After', 'Codemod'] }" />
+    <ul>
+      <li>
+        A static <code>value</code> left on <code>&lt;wr-checkbox&gt;</code> makes the whole group toggle together.
+      </li>
+      <li>
+        A camelCase Lucide key stops rendering with no error. Quote the key:
+        <code>'chevron-down': ChevronDown</code>.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="v7 to v8">
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v8, head: ['Before', 'After', 'Codemod'] }" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="v6 to v7" description="`ng update` rewrites the tags, imports and `@use` paths.">
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v7, head: ['Before', 'After'] }" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,0 +1,115 @@
+<ngwr-doc-page
+  title="Calendar"
+  updated="15.0.0"
+  description="A month calendar for picking a date or a date range."
+  [keywords]="['calendar', 'date', 'range', 'wr-calendar']"
+  [labels]="['a11y']"
+>
+  <ngwr-doc-section
+    title="Single date"
+    description="Bind `[(date)]`. Click the header label to pick a month or a year."
+  >
+    <ngwr-doc-code [code]="snippets.single" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-calendar [(date)]="single" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Date range" description='Set `mode="range"` and bind `[(range)]` to a `[start, end]` pair.'>
+    <ngwr-doc-code [code]="snippets.range" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-calendar mode="range" [(range)]="range" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Bounds + filter"
+    description="`min` and `max` limit the range. `dateFilter` turns single dates off, here weekends."
+  >
+    <ngwr-doc-code [code]="snippets.bounds" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-calendar [(date)]="bounded" [min]="minDate" [max]="maxDate" [dateFilter]="isWeekday" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard"
+    description="The grid is one tab stop. The arrows move the cursor and skip dates that cannot be picked."
+  >
+    <div class="ngwr-table ngwr-keys">
+      <table>
+        <caption>
+          Day view
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">ArrowLeft</wr-kbd> <wr-kbd size="sm">ArrowRight</wr-kbd></th>
+            <td>Previous / next day. Swapped under <code>dir="rtl"</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">ArrowUp</wr-kbd> <wr-kbd size="sm">ArrowDown</wr-kbd></th>
+            <td>Same weekday, one week back / forward.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Home</wr-kbd> <wr-kbd size="sm">End</wr-kbd></th>
+            <td>First / last day of the week, for the locale.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">PageUp</wr-kbd> <wr-kbd size="sm">PageDown</wr-kbd></th>
+            <td>Previous / next month.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Shift + PageUp</wr-kbd> <wr-kbd size="sm">Shift + PageDown</wr-kbd></th>
+            <td>Previous / next year.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Enter</wr-kbd> <wr-kbd size="sm">Space</wr-kbd></th>
+            <td>Picks the day.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ngwr-table ngwr-keys">
+      <table>
+        <caption>
+          Month and year views
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">ArrowLeft</wr-kbd> <wr-kbd size="sm">ArrowRight</wr-kbd></th>
+            <td>Previous / next chip. Swapped under <code>dir="rtl"</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">ArrowUp</wr-kbd> <wr-kbd size="sm">ArrowDown</wr-kbd></th>
+            <td>One row up / down.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Home</wr-kbd> <wr-kbd size="sm">End</wr-kbd></th>
+            <td>First / last chip on the page.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Enter</wr-kbd> <wr-kbd size="sm">Space</wr-kbd></th>
+            <td>Picks the chip.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

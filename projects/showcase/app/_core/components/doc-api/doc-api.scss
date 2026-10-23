@@ -1,21 +1,15 @@
-:host {
-  display: block;
-  border: 1px solid var(--wr-color-light);
-  border-radius: var(--wr-border-radius-base);
-  overflow: hidden;
-}
-
-.scroll {
-  overflow-x: auto;
-}
+// The frame, the scroll, the header row, the cells and the separators are the
+// site's one table box, `.ngwr-table` (`styles/_table.scss`), which the host
+// carries; the chips are the global inline-code rule. What stays here is what
+// only this table needs: the declared columns and the name cell.
 
 // The four columns are DECLARED, and `fixed` is what makes the declaration
 // stick. Under `auto` the browser sizes by content volume, and the two failure
-// modes are opposite ends of the same fault: on `/animations/circular-text` —
+// modes are opposite ends of the same fault: on `/bits/circular-text` —
 // three short descriptions and one long union — it handed Type 413px and
-// Description 319px, so the widest column was the one nobody reads; on
-// `/reference/components/markdown`, whose descriptions come from the library's
-// own JSDoc, it handed Description 727px and left Name 75px and Type 83px, which
+// Description 319px, so the widest column was the one nobody reads; on the
+// markdown page v15 removed, whose descriptions came from the library's own
+// JSDoc, it handed Description 727px and left Name 75px and Type 83px, which
 // is where `boolean` rendered as `boolea` / `n` and `headingIdPrefix` as three
 // stacked fragments. Neither is a wrapping bug — both are one column's content
 // deciding another column's width.
@@ -49,53 +43,12 @@
 }
 
 .table {
-  width: 100%;
   // Percentages alone keep shrinking, and below roughly this the columns stop
-  // holding one chip each. The `.scroll` wrapper above is what the table is
-  // meant to overflow into at that point — it existed for this and, while `auto`
-  // layout was free to crush the columns instead, never once triggered.
+  // holding one chip each. The host's scroll (`.ngwr-table`) is what the table
+  // is meant to overflow into at that point — it existed for this and, while
+  // `auto` layout was free to crush the columns instead, never once triggered.
   min-width: 45rem;
   table-layout: fixed;
-  border-collapse: collapse;
-  font-size: 0.8125rem;
-  line-height: 1.25rem;
-
-  th,
-  td {
-    padding: 0.625rem 0.875rem;
-    // Logical, not `left`: the columns mirror under RTL but the text used to
-    // stay jammed against the physical left wall, leaving up to 587px of empty
-    // gutter on the reading side. It also carries the sub-row indent and the
-    // `.branch` connector below — both are no-ops while the cell is
-    // left-aligned in a right-to-left table.
-    text-align: start;
-    vertical-align: top;
-  }
-
-  th {
-    background: rgba(var(--wr-color-light-rgb), 0.25);
-    color: var(--wr-color-on-surface-muted);
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    text-transform: uppercase;
-    font-size: 0.6875rem;
-  }
-
-  td {
-    color: var(--wr-color-dark);
-    border-top: 1px solid var(--wr-color-light);
-  }
-
-  code {
-    display: inline-block;
-    padding: 0.125rem 0.3125rem;
-    border-radius: var(--wr-border-radius-sm);
-    background: rgba(var(--wr-color-light-rgb), 0.35);
-    color: var(--wr-color-dark);
-    line-height: 1.25;
-    font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-    font-size: 0.75rem;
-  }
 }
 
 // The name and its badge, on one line while there is room for both. A flex row
@@ -118,7 +71,7 @@
 .required {
   padding: 0.125rem 0.3125rem;
   border-radius: var(--wr-border-radius-sm);
-  background: rgba(var(--wr-color-danger-rgb), 0.12);
+  background: color-mix(in srgb, var(--wr-color-danger) 12%, transparent);
   // Danger as TEXT on its own tint wants the ink ramp — the bare intent is
   // 3.12:1 against this 10px label, on every page with a required row.
   color: var(--wr-color-danger-ink);
@@ -134,7 +87,7 @@
 
 // Sub-row of a primary row — indented + visually connected by a corner
 // glyph drawn in CSS so it renders identically on every font.
-.sub td:first-child {
+.sub th:first-child {
   padding-inline-start: 2.25rem;
   position: relative;
 }
@@ -148,7 +101,7 @@
   // L-bend: a stroke down the reading-start edge, turning under the row. All
   // three sides are logical so the glyph mirrors to `┘` in RTL instead of being
   // drawn at the far end of the cell facing the wrong way.
-  border-inline-start: 1px solid rgba(var(--wr-color-medium-rgb), 0.4);
-  border-bottom: 1px solid rgba(var(--wr-color-medium-rgb), 0.4);
+  border-inline-start: 1px solid color-mix(in srgb, var(--wr-color-on-surface-muted) 40%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--wr-color-on-surface-muted) 40%, transparent);
   border-end-start-radius: 0.25rem;
 }

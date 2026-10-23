@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { type BooleanInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
   type ElementRef,
@@ -22,7 +22,6 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { useConfigValue } from 'ngwr/config';
 import { useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix, type WrInputSize } from 'ngwr/input';
 import { clamp, round } from 'ngwr/utils';
@@ -35,6 +34,39 @@ function resolveSeparators(locale: string): { decimal: string; group: string } {
   const decimal = parts.find(p => p.type === 'decimal')?.value ?? '.';
   const group = parts.find(p => p.type === 'group')?.value ?? '';
   return { decimal, group };
+}
+
+/**
+ * The ten digits `locale` writes, index 0 to 9 — empty when the system is
+ * algorithmic. ar-EG prints `١٬٢٣٤٫٥`, and `Number()` reads none of those digits,
+ * so an edit to the field's own display could never commit. A copy of the time
+ * panel's helper in `ngwr/date-picker`, kept a copy for the reason given there.
+ */
+function resolveNumerals(locale: string): readonly string[] {
+  try {
+    const formatter = new Intl.NumberFormat(locale, { useGrouping: false });
+    const digits: string[] = [];
+    for (let i = 0; i < 10; i++) {
+      const digit = formatter.format(i);
+      if ([...digit].length !== 1 || digits.includes(digit)) return [];
+      digits.push(digit);
+    }
+    return digits;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Characters a user types for a separator the locale prints as something else:
+ * a keyboard sends a plain space where ru / uk / kk group with U+00A0 and fr with
+ * U+202F, and a plain apostrophe where de-CH groups with U+2019.
+ */
+function groupPattern(group: string): RegExp | null {
+  if (!group) return null;
+  if (/\s/.test(group)) return /\s/g;
+  if (/['\u2019]/.test(group)) return /['\u2019]/g;
+  return new RegExp(group.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
 }
 
 /**
@@ -86,11 +118,14 @@ export class WrInputNumber implements FormValueControl<number | null> {
   readonly step = input(1, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 1)) });
 
   /**
-   * Fixed number of decimals shown on blur. `null` keeps the entered precision.
+   * Fixed number of decimals. Rounds the value as it is COMMITTED, and fixes the
+   * digits shown once the field reformats on blur. `null` keeps the entered
+   * precision and formats with up to 20.
    *
-   * Clamped to what `toFixed` accepts — 0 to 100 — because it is the one numeric
-   * input on this component that had no transform, and the value goes straight
-   * into `toFixed`, which THROWS a `RangeError` outside that range rather than
+   * Clamped to 0–100, the range `Intl.NumberFormat`'s `minimumFractionDigits` /
+   * `maximumFractionDigits` accept — because it is the one numeric input on this
+   * component that had no transform, and the value goes straight into the
+   * formatter, which THROWS a `RangeError` outside that range rather than
    * degrading. A `[decimals]="-1"` bound from a config object took the whole
    * component down on blur.
    *
@@ -105,43 +140,13 @@ export class WrInputNumber implements FormValueControl<number | null> {
   readonly showSteppers = input(true, { transform: coerceBooleanProperty });
 
   /**
-   * Control size — forwarded to the field, and shares the `--wr-control-*`
-   * contract. Unset falls back to the `inputNumber.size` app default from
-   * `provideWrConfig()`, then to the `input.size` one, then to `md`. @default 'md'
+   * Control size — forwarded to the field's `[size]`, and shares the
+   * `--wr-control-*` contract. @default 'md'
    */
-  readonly size = input<WrInputSize | null>(null);
+  readonly size = input<WrInputSize>('md');
 
-  /**
-   * Pill-shaped corners. Unset falls back to the `inputNumber.rounded` app default
-   * from `provideWrConfig()`, then to the `input.rounded` one;
-   * `[rounded]="false"` turns a configured `true` back off. @default false
-   */
-  readonly rounded = input<boolean | null, BooleanInput>(null, {
-    // Null-preserving: the plain `coerceBooleanProperty` folds `null` into
-    // `false`, which would make "not set" and "set to false" the same value —
-    // and a config default nothing could ever supply.
-    transform: (v: BooleanInput): boolean | null => (v == null ? null : coerceBooleanProperty(v)),
-  });
-
-  /**
-   * `size`, then the app config, then `md` — bound to the field's `[size]`.
-   *
-   * The chrome this control is built from resolves the same pair for itself, so
-   * the config lookup falls through to `input.*` rather than stopping at
-   * `inputNumber.*`: binding a value down always wins there, and an unchained
-   * lookup would therefore SUPPRESS an `input.size` an app had set — the field
-   * inside a number input would be the one `[wrInput]` in the app that ignored it.
-   * Chained, the specific key wins where it is set and the general one still
-   * applies where it is not.
-   */
-  protected readonly resolvedSize = useConfigValue(this.size, c => c.inputNumber?.size ?? c.input?.size, 'md');
-
-  /** `rounded`, then the app config, then `false` — bound to the group AND the field. */
-  protected readonly resolvedRounded = useConfigValue(
-    this.rounded,
-    c => c.inputNumber?.rounded ?? c.input?.rounded,
-    false
-  );
+  /** Pill-shaped corners — forwarded to the group AND the field. @default false */
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   /** Optional prefix label (e.g. `"$"`). */
   readonly prefix = input<string>('');
@@ -202,6 +207,8 @@ export class WrInputNumber implements FormValueControl<number | null> {
 
   private readonly locale = inject(LOCALE_ID);
   private readonly separators = resolveSeparators(this.locale);
+  private readonly numerals = resolveNumerals(this.locale);
+  private readonly group = groupPattern(this.separators.group);
 
   /** Text currently in the input (may be partial / invalid mid-type). */
   protected readonly text = signal<string>('');
@@ -232,9 +239,9 @@ export class WrInputNumber implements FormValueControl<number | null> {
    */
   protected readonly classes = computed(() => {
     const parts = ['wr-input-number'];
-    const size = this.resolvedSize();
+    const size = this.size();
     if (size !== 'md') parts.push(`wr-input-number--${size}`);
-    if (this.resolvedRounded()) parts.push('wr-input-number--rounded');
+    if (this.rounded()) parts.push('wr-input-number--rounded');
     if (this.disabled()) parts.push('wr-input-number--disabled');
     return parts.join(' ');
   });
@@ -385,10 +392,20 @@ export class WrInputNumber implements FormValueControl<number | null> {
   private parse(raw: string): number | null {
     const trimmed = raw.trim();
     if (!trimmed) return null;
+    // The locale's own digits to ASCII, its minus sign (U+2212 in sv, fi, …) to a
+    // hyphen, and the bidi marks it puts around a negative number dropped — every one
+    // of them is in the text this field formats, and `Number()` reads none of them.
+    let normalised = [...trimmed]
+      .map(ch => {
+        const digit = this.numerals.indexOf(ch);
+        return digit < 0 ? ch : String(digit);
+      })
+      .join('')
+      .replace(/[\u200e\u200f\u061c]/g, '')
+      .replace(/\u2212/g, '-');
     // Strip group separators, normalise the decimal separator to `.`.
-    let normalised = trimmed;
-    if (this.separators.group) {
-      normalised = normalised.split(this.separators.group).join('');
+    if (this.group) {
+      normalised = normalised.replace(this.group, '');
     }
     if (this.separators.decimal !== '.') {
       normalised = normalised.split(this.separators.decimal).join('.');

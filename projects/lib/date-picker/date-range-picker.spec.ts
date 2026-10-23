@@ -4,19 +4,32 @@ import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { FormField, form } from '@angular/forms/signals';
 
-import { provideWrDateAdapter } from 'ngwr/date';
+import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
 import { WrFormField } from 'ngwr/form';
-import { provideWrOverlay } from 'ngwr/overlay';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDateRangePicker } from './date-range-picker';
-import type { WrDateRange } from './interfaces';
+import type { WrDateRange } from './types';
+
+/**
+ * The app's copy for the refusals the cases below read aloud. ngwr ships no error
+ * texts, so a refusal is announced only in words the app's catalog supplies under
+ * `validation.<kind>`; the sibling single-picker spec explains the wait it needs.
+ */
+const REFUSAL_COPY = [
+  provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
+  provideWrI18nStaticLoader({
+    en: { validation: { dateFormat: 'Expected format: {{example}}', minDate: 'Choose a later date.' } },
+  }),
+];
 
 /**
  * Sibling of `date-picker.spec.ts`, and the same overlay caveat applies: the
  * panel mounts into the CDK container rather than the fixture, so panel content
- * is queried off `document` and `provideWrOverlay()` keeps this file's container
- * out of the next one's.
+ * is queried off `document`, and the container belongs to the TestBed's root
+ * injector, so it never outlives this file.
  *
  * What is NOT shared is the reason this suite exists. The range picker carries
  * two text inputs over one calendar, and almost everything that can go wrong
@@ -37,6 +50,7 @@ import type { WrDateRange } from './interfaces';
       [maxDate]="maxDate()"
       [dateFilter]="dateFilter()"
       [timeFormat]="timeFormat()"
+      [showSeconds]="showSeconds()"
       [disabled]="disabled()"
       [readonly]="readonly()"
       (touch)="touched.set(touched() + 1)"
@@ -51,6 +65,7 @@ class Host {
   readonly maxDate = signal<Date | null>(null);
   readonly dateFilter = signal<((date: Date) => boolean) | null>(null);
   readonly timeFormat = signal<'auto' | '12h' | '24h'>('24h');
+  readonly showSeconds = signal(false);
   readonly disabled = signal(false);
   readonly readonly = signal(false);
   readonly touched = signal(0);
@@ -101,7 +116,7 @@ describe('WrDateRangePicker', () => {
     d ? `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}` : null;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -125,6 +140,24 @@ describe('WrDateRangePicker', () => {
     fixture.detectChanges();
 
     expect([startField().value, endField().value]).toEqual(['15.01.2025', '20.01.2025']);
+  });
+
+  it('writes the clock its panels draw when no [format] is given, on both ends', () => {
+    // It printed `shortDateTime` whatever `timeFormat` and `showSeconds` said, so
+    // the seconds a user set were gone on the next retype of either end.
+    fixture.componentInstance.format.set(null);
+    fixture.componentInstance.mode.set('datetime');
+    fixture.componentInstance.period.set([new Date(2026, 2, 15, 9, 5, 7), new Date(2026, 2, 20, 18, 45, 30)]);
+    fixture.detectChanges();
+    expect([startField().value, endField().value]).toEqual(['3/15/2026, 09:05', '3/20/2026, 18:45']);
+
+    // Moved at runtime, so the texts re-render rather than wait for the next value.
+    fixture.componentInstance.showSeconds.set(true);
+    fixture.detectChanges();
+    expect([startField().value, endField().value]).toEqual(['3/15/2026, 09:05:07', '3/20/2026, 18:45:30']);
+
+    type(endField(), '3/20/2026, 18:45:31');
+    expect(period()![1]!.getSeconds()).toBe(31);
   });
 
   it('leaves the other input empty while the range is half-picked', () => {
@@ -192,6 +225,36 @@ describe('WrDateRangePicker', () => {
 
     blurTo(endField(), null);
     expect(fixture.componentInstance.touched()).toBe(1);
+  });
+
+  it('settles the range and emits touch when Tab leaves by way of the calendar button', () => {
+    // Tab from the end field lands on the trigger, which is inside the host, so the
+    // field's blur is not leaving — and the trigger had no blur of its own, so the
+    // leave never happened: the ends stayed inverted and a bound field was never
+    // touched, which is the only thing that shows a required range's error.
+    type(startField(), '20.01.2025');
+    type(endField(), '15.01.2025');
+    blurTo(endField(), trigger());
+    expect(fixture.componentInstance.touched()).toBe(0);
+
+    trigger().dispatchEvent(new FocusEvent('blur', { relatedTarget: null }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.touched()).toBe(1);
+    expect([startField().value, endField().value]).toEqual(['15.01.2025', '20.01.2025']);
+    expect([iso(period()?.[0]), iso(period()?.[1])]).toEqual(['2025-1-15 0:0', '2025-1-20 0:0']);
+  });
+
+  it('does not count the hop from the calendar button back into a field as leaving', () => {
+    type(startField(), '20.01.2025');
+    type(endField(), '15.01.2025');
+    blurTo(endField(), trigger());
+
+    trigger().dispatchEvent(new FocusEvent('blur', { relatedTarget: endField() }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.touched()).toBe(0);
+    expect([startField().value, endField().value]).toEqual(['20.01.2025', '15.01.2025']);
   });
 
   it('does not mark a bound field dirty just for tabbing through an untouched pair', () => {
@@ -356,6 +419,30 @@ describe('WrDateRangePicker', () => {
       // would greenlight a seed that lands on an unselectable day.
       expect(document.activeElement).toBe(ring());
       expect((document.activeElement as HTMLButtonElement).disabled).toBe(false);
+    });
+
+    it('hands focus to the trigger and closes on Tab past the last stop, so Tab leaves from there', async () => {
+      // jsdom lays nothing out — without a box every stop but the focused one is
+      // dropped — and it has no Tab of its own, so this asserts the half the picker
+      // owns: where focus stands when the browser's Tab runs.
+      vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+      try {
+        trigger().focus();
+        open();
+        await fixture.whenStable();
+        const days = [...document.querySelectorAll<HTMLElement>('.wr-calendar__day[tabindex="0"]')];
+        days[days.length - 1].focus();
+
+        const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+        document.activeElement!.dispatchEvent(event);
+        fixture.detectChanges();
+
+        expect(event.defaultPrevented).toBe(false);
+        expect(calendar()).toBeNull();
+        expect(document.activeElement).toBe(trigger());
+      } finally {
+        vi.restoreAllMocks();
+      }
     });
 
     it('leaves the caret alone when a field click opens it', async () => {
@@ -610,7 +697,7 @@ describe('WrDateRangePicker inside a form field', () => {
   let fixture: ComponentFixture<FieldHost>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     fixture = TestBed.createComponent(FieldHost);
     fixture.detectChanges();
   });
@@ -681,7 +768,7 @@ describe('WrDateRangePicker follows a direction flip while its panel is open', (
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -765,10 +852,14 @@ describe('WrDateRangePicker refusing typed text', () => {
     return id ? (document.getElementById(id)?.textContent?.trim() ?? `<missing #${id}>`) : null;
   };
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+  beforeEach(async () => {
+    TestBed.configureTestingModule({
+      providers: [provideWr(withDates({ locale: 'en-US' })), ...REFUSAL_COPY],
+    });
     fixture = TestBed.createComponent(Host);
     fixture.componentInstance.period.set([new Date(2025, 0, 10), new Date(2025, 0, 20)]);
+    fixture.detectChanges();
+    await fixture.whenStable();
     fixture.detectChanges();
   });
 
@@ -977,6 +1068,35 @@ describe('WrDateRangePicker refusing typed text', () => {
   });
 });
 
+describe('WrDateRangePicker refusing typed text the app has no copy for', () => {
+  it('marks the end invalid and announces nothing, rather than an English default', () => {
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.period.set([new Date(2025, 0, 10), new Date(2025, 0, 20)]);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const [start, end] = [...root.querySelectorAll<HTMLInputElement>('input.wr-input')];
+
+    start.value = 'soon';
+    start.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    end.value = '07.09.19';
+    end.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    end.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(start.getAttribute('aria-invalid')).toBe('true');
+    expect(end.getAttribute('aria-invalid')).toBe('true');
+    expect(fixture.componentInstance.period()?.map(d => d?.getDate())).toEqual([10, 20]);
+    // No sentence for either end, so the region stays empty and nothing points at it.
+    expect(root.querySelector('[role="status"]')!.textContent.trim()).toBe('');
+    expect(start.hasAttribute('aria-describedby')).toBe(false);
+    expect(end.hasAttribute('aria-describedby')).toBe(false);
+    fixture.destroy();
+  });
+});
+
 @Component({
   imports: [WrDateRangePicker],
   template: `
@@ -993,7 +1113,7 @@ class ErrorReadingRangeHost {
 
 describe('WrDateRangePicker inputErrors', () => {
   it('lists the refusals the picker is SHOWING, end by end', () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     const fixture = TestBed.createComponent(ErrorReadingRangeHost);
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
@@ -1040,7 +1160,7 @@ class ReactiveRangeHost {
 
 describe('WrDateRangePicker refusals and forms', () => {
   it('makes the bound control invalid for either end, and marks the end input that is wrong', async () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     const fixture = TestBed.createComponent(ReactiveRangeHost);
     fixture.detectChanges();
     const [start, end] = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('input')];
@@ -1085,7 +1205,7 @@ describe('WrDateRangePicker refusals and forms', () => {
     // committing the start moves the model. The end still holds text that is not
     // its date, so the form has to hear about it again, or it goes valid and
     // submits the old end under the user's garbage.
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     const fixture = TestBed.createComponent(ReactiveRangeHost);
     fixture.detectChanges();
     const [start, end] = inputsOf(fixture);
@@ -1104,7 +1224,7 @@ describe('WrDateRangePicker refusals and forms', () => {
   });
 
   it('keeps a Signal Forms field invalid for a refused end while the OTHER end commits', async () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     const fixture = TestBed.createComponent(SignalRangeHost);
     fixture.detectChanges();
     const [start, end] = inputsOf(fixture);
@@ -1140,7 +1260,7 @@ describe('WrDateRangePicker refusals and forms', () => {
   });
 
   it('puts the range back in both fields when the control is reset to the range it holds', async () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     const fixture = TestBed.createComponent(ReactiveRangeHost);
     fixture.detectChanges();
     const [start, end] = inputsOf(fixture);
@@ -1163,7 +1283,7 @@ describe('WrDateRangePicker refusals and forms', () => {
   });
 
   it('puts the range back when a reset writes an EQUAL range — fresh copies of the same days', async () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     const fixture = TestBed.createComponent(ReactiveRangeHost);
     fixture.detectChanges();
     const [start, end] = inputsOf(fixture);
@@ -1220,7 +1340,7 @@ describe('WrDateRangePicker focused by its bound field', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
     fixture = TestBed.createComponent(FocusHost);
     fixture.detectChanges();
   });

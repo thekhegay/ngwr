@@ -1,68 +1,59 @@
 .ngwr-translate-overview {
-  &__hero {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1.5rem 0;
-  }
-
   &__switcher {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    gap: var(--wr-space-sm);
+    margin-bottom: var(--wr-space-lg);
   }
 
-  &__chip {
-    appearance: none;
-    border: 1px solid var(--wr-color-light);
-    background: transparent;
-    color: var(--wr-color-dark);
-    padding: 0.25rem 0.625rem;
-    border-radius: var(--wr-border-radius-pill);
-    font: inherit;
-    cursor: pointer;
-    transition:
-      background var(--wr-transition-base),
-      color var(--wr-transition-base),
-      border-color var(--wr-transition-base);
-
-    &:hover {
-      border-color: var(--wr-color-primary);
-    }
-
-    &--active {
-      background: var(--wr-color-primary);
-      color: var(--wr-color-primary-contrast);
-      border-color: var(--wr-color-primary);
-    }
-  }
-
+  // Three tiles a row on a desktop column, two on a tablet, one on a phone: six
+  // tiles divide evenly at every count, so no row is left half full.
   &__grid {
-    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+    gap: var(--wr-space-md);
     margin: 0;
     padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    gap: 1rem;
+    list-style: none;
+
+    // A grid item, so each card stretches to its row's height.
+    > li {
+      display: grid;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+    }
   }
 
-  &__card {
+  // The same tile as the typography overview's: the name as a chip on top, the
+  // demo under it, no header bar. The demos differ in height, so each one sits
+  // in the middle of the space its row leaves under the chip.
+  &__tile {
     display: flex;
     flex-direction: column;
-    gap: 0.375rem;
-    padding: 1rem 1.125rem;
-    border: 1px solid var(--wr-color-light);
-    border-radius: var(--wr-border-radius-base);
-    color: inherit;
-    text-decoration: none;
-    transition:
-      border-color var(--wr-transition-base),
-      transform var(--wr-transition-base);
+    gap: var(--wr-space-sm);
+    min-width: 0;
+    height: 100%;
 
-    &:hover {
-      border-color: var(--wr-color-primary);
-      transform: translateY(-1px);
+    > code {
+      align-self: flex-start;
     }
+
+    > :last-child {
+      margin-block: auto;
+    }
+
+    // `wr-empty` claims its parent's whole height, which here would stack the
+    // chip's height on top of it and push it out of the card.
+    > wr-empty {
+      min-height: auto;
+    }
+  }
+
+  &__note {
+    margin: var(--wr-space-md) 0 0;
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-text-sm);
   }
 }

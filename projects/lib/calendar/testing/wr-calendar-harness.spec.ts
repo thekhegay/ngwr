@@ -2,8 +2,9 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWr } from 'ngwr';
 import { WrCalendar, type WrCalendarMode, type WrCalendarRange } from 'ngwr/calendar';
-import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
+import { withDates } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -52,7 +53,7 @@ describe('WrCalendarHarness', () => {
 
   const mount = (providers: unknown[] = []): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter(), ...(providers as never[])] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates()), ...(providers as never[])] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -89,13 +90,13 @@ describe('WrCalendarHarness', () => {
     // screen beside it. A spec reading only `getText()` cannot tell that apart
     // from a working grid, which is why the harness offers both.
     //
-    // date-fns writes `PPP` here — an ordinal day — so this pins the harness and
-    // the arrangement, not `Intl`'s field order.
+    // The date half is the adapter's `longDate`, so its field order is `Intl`'s;
+    // what this pins is the harness reading the name, weekday first.
     const harness = await calendar();
     const fifteenth = await harness.getDay(15);
 
     expect(await fifteenth.getText()).toBe('15');
-    expect(await fifteenth.getAccessibleName()).toBe('Sunday, March 15th, 2026');
+    expect(await fifteenth.getAccessibleName()).toBe('Sunday, March 15, 2026');
   });
 
   it('addresses a day of THIS month, skipping the spill days', async () => {

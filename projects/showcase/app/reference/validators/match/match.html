@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="match"
-  description="Value must equal a sibling control. The classic 'confirm password' validator — pass the sibling's name."
+  description="Check that a control equals a sibling, such as a password confirmation."
   [keywords]="['match', 'confirm', 'password', 'validator', 'wr-validators']"
   [labels]="['Validator']"
 >
@@ -10,9 +10,23 @@
         [formGroup]="form"
         style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 20rem"
       >
-        <input wrInput formControlName="password" placeholder="password" type="password" />
-        <input wrInput formControlName="confirm" placeholder="confirm" type="password" />
-        <code style="font-size: 0.8125rem">confirm.errors: {{ form.controls.confirm.errors | json }}</code>
+        <input
+          wrInput
+          formControlName="password"
+          placeholder="password"
+          type="text"
+          style="-webkit-text-security: disc"
+          autocomplete="off"
+        />
+        <input
+          wrInput
+          formControlName="confirm"
+          placeholder="confirm"
+          type="text"
+          style="-webkit-text-security: disc"
+          autocomplete="off"
+        />
+        <code>confirm.errors: {{ form.controls.confirm.errors | json }}</code>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -22,13 +36,8 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Cross-field equality (password confirmation) is awkward with built-ins — every project ends up hand-writing the same group-level validator. This one reads the sibling control by name."
-  />
-
-  <ngwr-doc-section
-    title="It cannot see a mismatch that was there from the start"
-    description="A control runs its validators inside its own constructor, before it has been attached to a parent — so the sibling lookup finds nothing and this returns null, and joining the group does not re-run it. `formControlName` revalidates when it binds, so a form rendered through the reactive-forms directives corrects itself on its first change detection. The window is open for whatever reads validity FIRST — a route guard or resolver checking `form.valid`, a form built and submitted from a service, a unit test. Put `matchFields` on the group to close it and keep this one on the child for the per-field message; they use different error keys and do not conflict."
+    title="Initial mismatch"
+    description="Code that reads `form.valid` before the template binds misses it; add [`matchFields`](/reference/validators/match-fields) to the group."
   />
 
   <ngwr-doc-section title="API">

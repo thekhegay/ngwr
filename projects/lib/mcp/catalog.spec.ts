@@ -17,7 +17,7 @@ import { type CatalogEntry, Catalog, parseCatalog } from './catalog.js';
  * The catalog reader's spec.
  *
  * `parseCatalog` is one half of a contract between two files in this repo:
- * `scripts/gen-ai-assets.ts` writes `llms-full.txt`, this reads it. So the
+ * `scripts/gen/ai-assets.ts` writes `llms-full.txt`, this reads it. So the
  * samples below are copied from the real generated shapes rather than invented
  * — a parser tested against text no generator emits proves nothing. The shapes
  * that matter are the four the generator actually produces: one selector,
@@ -50,7 +50,7 @@ const SECTION = {
   overlay: [
     '## ngwr/overlay',
     "- import: `import { WrOutsideClick } from 'ngwr/overlay'`",
-    '- exports: provideWrOverlay, WrOutsideClick, WR_OVERLAY',
+    '- exports: WrOutsideClick, WrOverlayContainer, WR_OVERLAY',
   ],
   english: ['## ngwr/i18n/en', "- import: `import { wrEn } from 'ngwr/i18n/en'`", '- exports: wrEn'],
 };
@@ -70,7 +70,7 @@ const SYMBOL_MAP = {
   WrAlert: 'ngwr/alert',
   WrBadge: 'ngwr/badge',
   WrTag: 'ngwr/badge',
-  provideWrOverlay: 'ngwr/overlay',
+  WrOverlayContainer: 'ngwr/overlay',
 };
 
 /**
@@ -125,7 +125,7 @@ describe('parseCatalog', () => {
     // stray empty string in the middle of a rendered answer.
     expect(entry.selectors).toEqual([]);
     expect(entry.description).toBe('');
-    expect(entry.exports).toEqual(['provideWrOverlay', 'WrOutsideClick', 'WR_OVERLAY']);
+    expect(entry.exports).toEqual(['WrOutsideClick', 'WrOverlayContainer', 'WR_OVERLAY']);
   });
 
   it('keeps a nested entry point path whole', () => {
@@ -135,6 +135,16 @@ describe('parseCatalog', () => {
     // is the part after `ngwr/`, and `ngwr/i18n/en` is a real import path.
     expect(entry.path).toBe('ngwr/i18n/en');
     expect(entry.name).toBe('i18n/en');
+  });
+
+  it('reads the root entry point, where provideWr() lives', () => {
+    const [entry] = parseCatalog(
+      ['## ngwr', "- import: `import { provideWr } from 'ngwr'`", '- exports: provideWr', '- One call.'].join('\n')
+    );
+
+    // Skipped as "not an entry point path" until v15 made it the one place
+    // app-wide configuration starts, so `provideWr` was unfindable.
+    expect(entry).toMatchObject({ path: 'ngwr', name: 'ngwr', exports: ['provideWr'], description: 'One call.' });
   });
 
   it('takes the bullet with no `label:` prefix as the description', () => {
@@ -351,7 +361,7 @@ describe('Catalog', () => {
     const catalog = new Catalog(root);
 
     // `ngwr/i18n/en` ships as `types/ngwr-i18n-en.d.ts` — every slash becomes a
-    // dash, which is how ng-packagr flattens them.
+    // dash, which is how the library build flattens them.
     expect(catalog.types('ngwr/i18n/en')).toBe('declare const wrEn: object;\n');
     expect(catalog.types('ngwr/badge')).toBeNull();
   });
@@ -392,5 +402,72 @@ describe('Catalog', () => {
       expect(catalog.declarable('WrNotThere', 'ngwr/chip')).toBeNull();
       expect(catalog.declarable('WrChip', 'ngwr/no-such-entry')).toBeNull();
     });
+  });
+});
+
+describe('Catalog — v15 names', () => {
+  let root: string;
+
+  beforeAll(() => {
+    root = mkdtempSync(join(tmpdir(), 'ngwr-mcp-names-'));
+
+    writeFileSync(
+      join(root, 'llms-full.txt'),
+      [
+        '## ngwr',
+        "- import: `import { provideWr } from 'ngwr'`",
+        '- exports: provideWr',
+        '',
+        '## ngwr/bits/aurora',
+        "- import: `import { WrAurora } from 'ngwr/bits/aurora'`",
+        '- exports: WrAurora',
+        '',
+        '## ngwr/bits/aurora/testing',
+        "- import: `import { WrAuroraHarness } from 'ngwr/bits/aurora/testing'`",
+        '- exports: WrAuroraHarness',
+        '',
+        '## ngwr/loading-bar/router',
+        "- import: `import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router'`",
+        '- exports: provideWrLoadingBarRouter',
+        '',
+        '## ngwr/tabs/router',
+        "- import: `import { WrTabsRouting } from 'ngwr/tabs/router'`",
+        '- exports: WrTabsRouting',
+        '',
+      ].join('\n')
+    );
+    writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'ngwr', exports: { '.': {} } }));
+    mkdirSync(join(root, 'schematics', 'provider'), { recursive: true });
+    writeFileSync(
+      join(root, 'schematics', 'provider', 'schema.json'),
+      JSON.stringify({ properties: { name: { enum: ['icons', 'density', 42] } } })
+    );
+  });
+
+  afterAll(() => rmSync(root, { recursive: true, force: true }));
+
+  it('finds the root entry point by its name and by provideWr', () => {
+    const catalog = new Catalog(root);
+
+    expect(catalog.find('ngwr')).toMatchObject({ path: 'ngwr' });
+    expect(catalog.find('provideWr')).toMatchObject({ path: 'ngwr' });
+    // `@use 'ngwr'` does not resolve since v15: the root key has no `sass` condition.
+    expect(catalog.hasStyles('ngwr')).toBe(false);
+  });
+
+  it('lands a bare name from before v15 on the one nested entry point ending with it', () => {
+    const catalog = new Catalog(root);
+
+    // `aurora` was a whole path until v15; its harness is not what anyone means.
+    expect(catalog.find('aurora')).toMatchObject({ path: 'ngwr/bits/aurora' });
+    // Two entry points end in `/router`, so guessing either would be wrong half the time.
+    expect(catalog.find('router')).toBeNull();
+    // A partial path is not a bare name.
+    expect(catalog.find('x/aurora')).toBeNull();
+  });
+
+  it('reads the provider names the shipped schematic takes, strings only', () => {
+    expect(new Catalog(root).providerSchematics()).toEqual(['icons', 'density']);
+    expect(new Catalog(mkdtempSync(join(tmpdir(), 'ngwr-mcp-none-'))).providerSchematics()).toEqual([]);
   });
 });

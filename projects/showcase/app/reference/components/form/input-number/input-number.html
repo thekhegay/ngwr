@@ -1,0 +1,63 @@
+<ngwr-doc-page
+  title="Number Input"
+  updated="15.0.0"
+  description="A number field with stepper buttons and locale formatting."
+  [keywords]="['number', 'input', 'stepper', 'numeric', 'wr-input-number']"
+  [labels]="['Signal Forms']"
+>
+  <ngwr-doc-section title="Basic" description="The value is `number | null`, formatted in Angular's `LOCALE_ID`.">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-input-number ariaLabel="Quantity" [(value)]="basic" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Min / max / step"
+    description="Edits stay inside `[min]` / `[max]`; arrows move one `step`, Shift + arrow ten."
+  >
+    <ngwr-doc-code [code]="snippets.bounded" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-input-number ariaLabel="Percentage" [(value)]="bounded" [min]="0" [max]="100" [step]="5" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Prefix and decimals"
+    description="`decimals` rounds the value and shows that many places on blur."
+  >
+    <ngwr-doc-code [code]="snippets.price" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-input-number ariaLabel="Price" prefix="$" [(value)]="price" [decimals]="2" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Suffix and fractional step">
+    <ngwr-doc-code [code]="snippets.weight" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-input-number ariaLabel="Weight" suffix="kg" [(value)]="weight" [decimals]="1" [step]="0.1" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Without steppers" description='`[showSteppers]="false"` hides the buttons.'>
+    <ngwr-doc-code [code]="snippets.noSteppers" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-input-number ariaLabel="Value" [(value)]="noSteppers" [showSteppers]="false" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Gotchas">
+    <ul>
+      <li>An emptied field is <code>null</code>, not <code>0</code>.</li>
+      <li>
+        A value set from outside <code>[min]</code> / <code>[max]</code> is kept as is. Flag it with
+        <code>Validators.max</code>.
+      </li>
+      <li>With <code>[formField]</code>, set the bounds with the schema's <code>min()</code> / <code>max()</code>.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

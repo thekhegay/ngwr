@@ -10,14 +10,17 @@ import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { addPackageJsonDependency, NodeDependencyType } from '@schematics/angular/utility/dependencies';
 import { getWorkspace } from '@schematics/angular/utility/workspace';
 
+import { NOT_SASS_ADVICE, addStyleUse } from '../utility/global-styles';
+
 import type { Schema } from './schema';
 
 /**
  * Base peers, regardless of prompt answers.
  *
  * `lucide` is here because the bootstrap snippet this schematic prints registers
- * icons through the lucide adapter — leaving it out made the very first snippet
- * a consumer pastes fail to resolve.
+ * icons through `lucideIcons()`, which converts glyphs the app imports from
+ * `lucide` itself — leaving it out made the very first snippet a consumer pastes
+ * fail to resolve.
  *
  * `@angular/forms` is a REQUIRED peer in `projects/lib/package.json` and is
  * deliberately NOT here: every `ng new` app already depends on it, so installing
@@ -25,67 +28,30 @@ import type { Schema } from './schema';
  * because a consumer can remove it; this list is about what `ng add` has to add.
  */
 const BASE_PEERS: readonly (readonly [string, string])[] = [
-  ['@angular/cdk', '>=22.0.0'],
+  ['@angular/cdk', '^22.0.0'],
   ['lucide', '>=1.0.0'],
 ];
 
-/** Extra peers contributed by the `dateAdapter` choice. */
-const DATE_ADAPTER_PEERS: Record<NonNullable<Schema['dateAdapter']>, readonly (readonly [string, string])[]> = {
-  none: [],
-  native: [],
-  // Keep these identical to `peerDependencies` in projects/lib/package.json.
-  // They had drifted to `>=` unions, which reduce to an uncapped `>=3.0.0` and
-  // would happily install a future major the library does not support.
-  'date-fns': [['date-fns', '^3.0.0 || ^4.0.0']],
-  luxon: [['luxon', '^3.0.0']],
-};
-
-/** Adapter classes named in the next-steps snippet for each choice. */
-const DATE_ADAPTER_PROVIDER: Record<NonNullable<Schema['dateAdapter']>, string | null> = {
+/** Default density → the `withDensity(...)` feature passed to `provideWr()`. */
+const DENSITY_FEATURE: Record<NonNullable<Schema['density']>, string | null> = {
   none: null,
-  native: 'provideWrDateAdapter()',
-  'date-fns': 'provideWrDateAdapter({ adapter: WrDateFnsAdapter })',
-  luxon: 'provideWrDateAdapter({ adapter: WrLuxonAdapter })',
+  sm: "withDensity({ defaultDensity: 'sm' })",
+  lg: "withDensity({ defaultDensity: 'lg' })",
 };
 
-/** Default density → `provideWrDensity(...)` call. */
-const DENSITY_PROVIDER: Record<NonNullable<Schema['density']>, string | null> = {
-  none: null,
-  sm: "provideWrDensity({ defaultDensity: 'sm' })",
-  lg: "provideWrDensity({ defaultDensity: 'lg' })",
-};
-
-/** Theme preset → `provideWrTheme(...)` call. */
-const THEME_PROVIDER: Record<NonNullable<Schema['theme']>, string | null> = {
-  none: null,
-  light: "provideWrTheme({ defaultMode: 'light' })",
-  dark: "provideWrTheme({ defaultMode: 'dark' })",
-  system: "provideWrTheme({ defaultMode: 'auto' })",
-};
-
-const STYLES_DIRECTIVE_SCSS = "@use 'ngwr';";
+const STYLES_DIRECTIVE_SCSS = "@use 'ngwr/theme';";
 
 /**
- * What a project whose global stylesheet is plain CSS is told, instead of a
- * line that cannot work.
- *
- * ngwr ships Sass SOURCES and no compiled CSS: every `exports` entry in
- * `projects/lib/package.json` carries a `sass` condition and nothing else that
- * a stylesheet can reach. So `@import 'ngwr'` from a `.css` file resolves
- * through `default` to `fesm2022/ngwr.mjs` and esbuild — the bundler Angular 22
- * uses — stops the build with `Cannot import ".../ngwr.mjs" into a CSS file`.
- *
- * That mattered more than it sounds: `ng new` takes CSS unless you ask for
- * something else, so the default path was `ng add ngwr` followed by a build
- * that failed, naming a `.mjs` nobody had typed. Writing nothing and saying why
- * is the same choice the three branches below already make when they cannot
- * find a stylesheet to edit.
+ * The density sheet, which `withDensity()` and `[wrDensity]` need and nothing
+ * loads for them: no component sheet `@use`s it, so without this line the
+ * `data-wr-density` attribute lands on `<html>` and no multiplier changes.
  */
-const CSS_PROJECT_ADVICE =
-  'ngwr ships Sass sources and no compiled CSS, so it cannot be reached from a plain CSS file. ' +
-  'Rename the global stylesheet to .scss (and update its path in angular.json), then add ' +
-  `\`${STYLES_DIRECTIVE_SCSS}\` to it — or keep CSS and pull in only what you use with ` +
-  '`ng g ngwr:component-style <name>`.';
+const DENSITY_DIRECTIVE_SCSS = "@use 'ngwr/density';";
+
+/** Whether the answers configure density, which is what makes the density sheet load-bearing. */
+function wantsDensity(options: Schema): boolean {
+  return DENSITY_FEATURE[options.density ?? 'none'] !== null;
+}
 
 function ngAdd(options: Schema): Rule {
   return (tree: Tree, context: SchematicContext) => {
@@ -97,17 +63,14 @@ function ngAdd(options: Schema): Rule {
 }
 
 /**
- * Adds peer deps for the user's choices and schedules a single install
- * task (unless `--skipPeerInstall` was passed).
+ * Adds the base peers and schedules a single install task (unless
+ * `--skipPeerInstall` was passed). No prompt answer adds one of its own.
  */
 function installPeerDeps(options: Schema, context: SchematicContext): Rule {
   if (options.skipPeerInstall) return (tree: Tree) => tree;
 
   return (tree: Tree) => {
-    const deps = [...BASE_PEERS, ...DATE_ADAPTER_PEERS[options.dateAdapter ?? 'none']];
-    if (!deps.length) return tree;
-
-    for (const [name, version] of deps) {
+    for (const [name, version] of BASE_PEERS) {
       addPackageJsonDependency(tree, {
         type: NodeDependencyType.Default,
         name,
@@ -121,12 +84,28 @@ function installPeerDeps(options: Schema, context: SchematicContext): Rule {
 }
 
 /**
- * Appends `@use 'ngwr';` to the project's first global stylesheet when
- * `styles === 'all'`. Skipped entirely when `styles === 'none'` — the
- * user is expected to opt in per component via `ng g ngwr:component-style`.
+ * Puts `@use 'ngwr/theme';` at the top of the project's first global stylesheet
+ * when `styles === 'theme'`, and `@use 'ngwr/density';` after it when a density
+ * was picked. Skipped entirely when `styles === 'none'`.
+ *
+ * The theme layer and NOT the components, because v15 removed the `@use 'ngwr'`
+ * umbrella: a sheet that compiled every component stylesheet for a page
+ * rendering two of them was measured here at 287 kB against 44 kB. What a
+ * project does want globally is the token layer — `:root` with both schemes in
+ * it, the box-sizing reset — which every component sheet loads anyway, so
+ * writing it first costs nothing and buys the one thing order matters for: this
+ * is the line that can carry `with ($base-colors: ...)`, and only the first
+ * load of a module can be configured. Components go in per component, after it,
+ * through `ng g ngwr:component-style <name>` — the next-steps message says so.
+ *
+ * The density line is the one exception, and only when a density was picked:
+ * the snippet this schematic prints carries `withDensity()`, which writes an
+ * attribute on `<html>` that only the density sheet reads. Printing the
+ * provider and leaving the sheet out made the pick do nothing, silently. It
+ * goes after the last top-level `@use`, so the theme line stays the first load.
  */
 function registerStyles(options: Schema): Rule {
-  if ((options.styles ?? 'all') === 'none') {
+  if ((options.styles ?? 'theme') === 'none') {
     return (tree: Tree) => tree;
   }
 
@@ -144,6 +123,11 @@ function registerStyles(options: Schema): Rule {
       return tree;
     }
 
+    const density = wantsDensity(options);
+    const manual = density
+      ? `\`${STYLES_DIRECTIVE_SCSS}\` and \`${DENSITY_DIRECTIVE_SCSS}\` after it`
+      : `\`${STYLES_DIRECTIVE_SCSS}\``;
+
     const build = project.targets.get('build');
     const buildOptions = (build?.options ?? {}) as { readonly styles?: readonly (string | { input: string })[] };
     const styles = buildOptions.styles ?? [];
@@ -151,99 +135,133 @@ function registerStyles(options: Schema): Rule {
 
     if (!stylesPath) {
       context.logger.warn(
-        `ngwr: no global stylesheet found for project "${project.root || '<root>'}" — add \`${STYLES_DIRECTIVE_SCSS}\` manually.`
+        `ngwr: no global stylesheet found for project "${project.root || '<root>'}" — add ${manual} manually.`
       );
       return tree;
     }
 
     if (!tree.exists(stylesPath)) {
-      context.logger.warn(`ngwr: styles file ${stylesPath} not found — add \`${STYLES_DIRECTIVE_SCSS}\` manually.`);
+      context.logger.warn(`ngwr: styles file ${stylesPath} not found — add ${manual} manually.`);
       return tree;
     }
 
-    // `.sass` is the indented syntax and takes `@use` like `.scss`; `.less` is
-    // the other one that cannot reach a Sass source.
+    // `ng new` takes CSS unless asked otherwise, so this is the default path.
+    // A CSS file CAN `@import 'ngwr/<name>'` — Angular's bundler resolves the
+    // `sass` condition — but each import is a compilation of its own, with the
+    // theme copied into it and no way to configure it. Writing nothing and saying
+    // why is the choice the branches above make when there is no stylesheet to
+    // edit. `.sass` is the indented syntax and takes `@use` like `.scss`.
     if (stylesPath.endsWith('.css') || stylesPath.endsWith('.less')) {
-      context.logger.warn(`ngwr: ${stylesPath} is not Sass. ${CSS_PROJECT_ADVICE}`);
+      const densityAdvice = density
+        ? ` The density you picked also needs \`${DENSITY_DIRECTIVE_SCSS}\` after the theme.`
+        : '';
+      context.logger.warn(`ngwr: ${stylesPath} is not Sass. ${NOT_SASS_ADVICE}${densityAdvice}`);
       return tree;
     }
 
     const directive = STYLES_DIRECTIVE_SCSS;
     const existing = tree.readText(stylesPath);
+    let next = existing;
 
-    if (existing.includes(directive) || existing.includes("'ngwr'") || existing.includes('"ngwr"')) {
-      context.logger.info(`ngwr: ${stylesPath} already imports ngwr — skipping.`);
-      return tree;
+    // Matched on the subpath rather than on the whole line, so a stylesheet
+    // that already configures the layer — `@use 'ngwr/theme' with (...)` — is
+    // left alone instead of getting a second, unconfigured load above it,
+    // which Sass refuses outright.
+    if (existing.includes("'ngwr/theme'") || existing.includes('"ngwr/theme"')) {
+      context.logger.info(`ngwr: ${stylesPath} already imports ngwr/theme — leaving it as it is.`);
+    } else {
+      const body = existing.length && !existing.endsWith('\n') ? `${existing}\n` : existing;
+      next = `${directive}\n${body}`;
+      context.logger.info(`ngwr: added \`${directive}\` to ${stylesPath}.`);
     }
 
-    const next = existing.length && !existing.endsWith('\n') ? `${existing}\n` : existing;
-    tree.overwrite(stylesPath, `${directive}\n${next}`);
-    context.logger.info(`ngwr: added \`${directive}\` to ${stylesPath}.`);
+    // The theme is loaded by now, so this adds the density line alone, after
+    // the last top-level `@use` — and nothing when the sheet already loads it.
+    if (density) {
+      const edit = addStyleUse(next, 'density', stylesPath.endsWith('.sass'));
+      next = edit.source;
+      if (edit.added.length === 0) {
+        context.logger.info(`ngwr: ${stylesPath} already imports ngwr/density — leaving it as it is.`);
+      }
+      for (const line of edit.added) context.logger.info(`ngwr: added \`${line}\` to ${stylesPath}.`);
+    }
+
+    if (next !== existing) tree.overwrite(stylesPath, next);
     return tree;
   };
 }
 
 /**
  * Renders a tailored next-steps message — imports + provider list shaped
- * by the prompt answers. We deliberately don't AST-edit `main.ts`; a
+ * by the prompt answers. We deliberately don't AST-edit the app config; a
  * clear copy-pasteable snippet is more robust across project shapes
  * (standalone bootstrap, NgModule bootstrap, server entry, etc.).
+ *
+ * The snippet is the `appConfig` that `ng new` writes, in
+ * `src/app/app.config.ts`, which is where `ng g ngwr:provider` splices too.
+ * It also says what the install did not do: each component needs its own
+ * `@use` after the theme, and one without it renders unstyled with no error.
  */
 function printNextSteps(options: Schema, context: SchematicContext): Rule {
   return (tree: Tree) => {
-    const adapter = options.dateAdapter ?? 'none';
     const density = options.density ?? 'none';
-    const theme = options.theme ?? 'none';
 
-    // `ngwr/icon` exports only WrIcon / provideWrIcons / svgIcon — there are no
-    // bare icon exports, so the old `{ plus, trash }` import did not compile.
-    // Icons come from an adapter (lucide / feather) or from svgIcon().
-    const imports: string[] = [
-      "import { provideWrOverlay } from 'ngwr/overlay';",
-      "import { provideWrIcons } from 'ngwr/icon';",
-      "import { lucideIcons } from 'ngwr/icon/adapters/lucide';",
-      "import { Plus, Trash2 } from 'lucide';",
-    ];
-    const providers: string[] = ['provideWrOverlay()', 'provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))'];
+    const imports: string[] = [];
+    const providers: string[] = [];
 
-    const adapterCall = DATE_ADAPTER_PROVIDER[adapter];
-    if (adapterCall) {
-      imports.push("import { provideWrDateAdapter } from 'ngwr/date';");
-      if (adapter === 'date-fns') {
-        imports.push("import { WrDateFnsAdapter } from 'ngwr/date/adapters/fns';");
-      } else if (adapter === 'luxon') {
-        imports.push("import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon';");
-      }
-      providers.push(adapterCall);
+    // App-wide options are features of ONE `provideWr()` call from the root
+    // entry point, each imported from the entry point it configures — so the
+    // call is printed only when a prompt answer gave it a feature to carry.
+    const densityFeature = DENSITY_FEATURE[density];
+    if (densityFeature) {
+      imports.push("import { provideWr } from 'ngwr';", "import { withDensity } from 'ngwr/density';");
+      providers.push(`provideWr(${densityFeature})`);
     }
 
-    const densityCall = DENSITY_PROVIDER[density];
-    if (densityCall) {
-      imports.push("import { provideWrDensity } from 'ngwr/density';");
-      providers.push(densityCall);
-    }
-
-    const themeCall = THEME_PROVIDER[theme];
-    if (themeCall) {
-      imports.push("import { provideWrTheme } from 'ngwr/theme';");
-      providers.push(themeCall);
-    }
+    // `ngwr/icon` ships no icons — there are no bare icon exports, so the old
+    // `{ plus, trash }` import did not compile. Glyphs come from the app's own
+    // icon package, through `lucideIcons()` for lucide or `svgIcon()` for a set
+    // that ships SVG.
+    imports.push("import { provideWrIcons, lucideIcons } from 'ngwr/icon';", "import { Plus, Trash2 } from 'lucide';");
+    providers.push('provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))');
 
     const importBlock = imports.join('\n');
     const providerBlock = providers.map(p => `      ${p},`).join('\n');
 
+    // `withDensity()` in the snippet reads nothing without the density sheet,
+    // so the sheet joins the example right after the theme, and says why.
+    const densityLine = densityFeature ? `  ${DENSITY_DIRECTIVE_SCSS}\n` : '';
+    const densityNote = densityFeature
+      ? `\nwithDensity() also needs \`${DENSITY_DIRECTIVE_SCSS}\`, after the theme. No component loads it,\n` +
+        'and without it the density you picked does nothing.\n'
+      : '';
+
     const message = `
 ngwr installed.
 
-Add the providers to your bootstrap (typically src/main.ts):
+Add the providers to your app config (src/app/app.config.ts in an \`ng new\` app):
 
 ${importBlock}
 
-  bootstrapApplication(AppComponent, {
+  export const appConfig: ApplicationConfig = {
     providers: [
 ${providerBlock}
     ],
-  });
+  };
+
+Every component you render needs its own stylesheet line, after the theme.
+Without it the component renders unstyled, and nothing says so:
+
+  @use 'ngwr/theme';
+${densityLine}  @use 'ngwr/button';
+  @use 'ngwr/charts/bar-chart';
+
+\`ng g ngwr:component-style <entry point>\` adds one in the right place.
+${densityNote}
+Light and dark follow the operating system with no provider. To let the user
+choose, inject WrTheme from 'ngwr/theme' and call set('light' | 'dark' | 'auto'),
+and pass withTheme() from 'ngwr/theme' to provideWr() from 'ngwr' so a stored
+choice lands at boot.
 
 ${snapshotSummary(options)}
 Browse the full catalog at https://ngwr.dev.
@@ -256,10 +274,8 @@ Browse the full catalog at https://ngwr.dev.
 
 function snapshotSummary(options: Schema): string {
   const lines: string[] = ['Selected:'];
-  lines.push(`  • styles      = ${options.styles ?? 'all'}`);
-  lines.push(`  • dateAdapter = ${options.dateAdapter ?? 'none'}`);
-  lines.push(`  • density     = ${options.density ?? 'none'}`);
-  lines.push(`  • theme       = ${options.theme ?? 'none'}`);
+  lines.push(`  • styles  = ${options.styles ?? 'theme'}`);
+  lines.push(`  • density = ${options.density ?? 'none'}`);
   return `${lines.join('\n')}\n\n`;
 }
 

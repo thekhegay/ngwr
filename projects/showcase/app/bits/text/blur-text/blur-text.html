@@ -1,0 +1,33 @@
+<ngwr-doc-page
+  title="Blur Text"
+  updated="15.0.0"
+  description="Text that blurs into place when it scrolls into view."
+  [keywords]="['blur-text', 'wr-blur-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="blur-text" category="text-animations" />
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls" [showReplay]="true" (replay)="replay()">
+      @for (k of [replayKey()]; track k) {
+        <wr-blur-text
+          [text]="text()"
+          [animateBy]="animateBy()"
+          [direction]="direction()"
+          [delay]="delay()"
+          [stepDuration]="stepDuration()"
+          style="font-size: 2rem; font-weight: 700; color: var(--wr-color-on-surface)"
+        />
+      }
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Server rendering"
+    description="Prerendered text stays as it is when the page hydrates. The entrance plays when the component is created in the browser and when `text` changes. Since v15."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

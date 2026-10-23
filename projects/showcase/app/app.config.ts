@@ -4,23 +4,43 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import { provideRouter, withInMemoryScrolling, withNavigationErrorHandler } from '@angular/router';
 
-import { provideWrDateAdapter } from 'ngwr/date';
-import { provideWrDensity } from 'ngwr/density';
+import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
 import { provideWrI18n, provideWrI18nBaseCatalogs, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrIcons } from 'ngwr/icon';
 import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router';
-import { provideWrMarkdownHighlighter } from 'ngwr/markdown';
-import { provideWrOverlay } from 'ngwr/overlay';
-import { provideWrTheme } from 'ngwr/theme';
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 
+import { VALIDATION_EN, VALIDATION_RU } from './app.validation';
+import { routing } from './routing';
+
 import { COMMON_ICONS } from '#core/icons';
-import { shikiMarkdownHighlighter } from '#core/shiki';
-import { routing } from '#routing';
+
+/**
+ * A tab opened before a deploy asks for lazy chunks the deploy removed, and the
+ * navigation fails. Load the URL afresh onto the new build instead — once per
+ * URL, so a chunk missing from the new build too cannot loop.
+ */
+function reloadOnStaleChunk(error: unknown, url: string): void {
+  const message = error instanceof Error ? error.message : String(error);
+  if (
+    typeof location === 'undefined' ||
+    !/dynamically imported module|Importing a module script failed/i.test(message)
+  ) {
+    return;
+  }
+  try {
+    if (sessionStorage.getItem('ngwr-stale-chunk') === url) return;
+    sessionStorage.setItem('ngwr-stale-chunk', url);
+  } catch {
+    // No storage to remember the attempt: reload anyway.
+  }
+  location.assign(url);
+}
 
 /**
  * Providers shared by the browser entry (`main.ts`) and the prerender entry
@@ -48,29 +68,26 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     // Reset to top on every forward navigation; back / forward restores
     // the previous position. `anchorScrolling` makes `#fragment` links work.
-    provideRouter(routing, withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
+    provideRouter(
+      routing,
+      withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' }),
+      withNavigationErrorHandler(({ error, url }) => reloadOnStaleChunk(error, url))
+    ),
     // ngwr
-    provideWrOverlay(),
     provideWrLoadingBarRouter(),
     // Default icon registry — names every showcase page can reference
     // without re-registering. Page-level `provideWrIcons(...)` adds on
     // top (the lib merges root + element-level multi-providers).
     provideWrIcons([...COMMON_ICONS]),
-    provideWrDateAdapter(),
-    // Colour for every fenced code block `<wr-markdown>` renders. Returns
-    // coloured SPANS rather than HTML — see the adapter — and answers `null`
-    // during prerender, so the static HTML ships plain code and gains colour on
-    // hydration.
-    provideWrMarkdownHighlighter(shikiMarkdownHighlighter),
-    provideWrTheme(),
-    provideWrDensity(),
+    provideWr(withDensity()),
     provideWrI18n({ availableLocales: ['en', 'ru'], defaultLocale: 'en' }),
-    // ngwr's own strings as a base, so the loader carries only the demo's keys —
-    // the form every docs page recommends, rather than a shallow spread.
+    // ngwr's own strings as a base, so the loader carries only the site's keys —
+    // the form every docs page recommends, rather than a shallow spread. The
+    // validation copy is ours: ngwr ships none.
     provideWrI18nBaseCatalogs({ en: wrEn, ru: wrRu }),
     provideWrI18nStaticLoader({
-      en: { app: { title: 'ngwr i18n demo', hello: 'Hello, {{name}}!' } },
-      ru: { app: { title: 'Демо ngwr i18n', hello: 'Привет, {{name}}!' } },
+      en: { app: { title: 'ngwr i18n demo', hello: 'Hello, {{name}}!' }, validation: VALIDATION_EN },
+      ru: { app: { title: 'Демо ngwr i18n', hello: 'Привет, {{name}}!' }, validation: VALIDATION_RU },
     }),
     // third-party — for the integration guide
     provideEnvironmentNgxMask(),

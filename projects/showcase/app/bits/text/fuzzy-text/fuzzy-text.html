@@ -1,0 +1,38 @@
+<ngwr-doc-page
+  title="Fuzzy Text"
+  updated="15.0.0"
+  description="Text drawn on a canvas with a TV-static jitter."
+  [keywords]="['fuzzy-text', 'wr-fuzzy-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="fuzzy-text" category="text-animations" />
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <div
+        style="
+          padding: 2rem;
+          background: var(--wr-color-surface);
+          border-radius: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+        "
+      >
+        <wr-fuzzy-text
+          [text]="text()"
+          [fuzzRange]="fuzzRange()"
+          [baseIntensity]="baseIntensity()"
+          [hoverIntensity]="hoverIntensity()"
+          [direction]="direction()"
+          [glitchMode]="glitchMode()"
+        />
+      </div>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

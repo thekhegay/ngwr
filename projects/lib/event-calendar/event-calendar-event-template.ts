@@ -7,7 +7,7 @@
 
 import { Directive, TemplateRef, inject } from '@angular/core';
 
-import type { WrCalendarEventContext } from './interfaces';
+import type { WrCalendarEventContext } from './types';
 
 /**
  * Replace the chip's contents. The event is the implicit context; the chip

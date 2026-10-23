@@ -2,14 +2,8 @@ import { Component } from '@angular/core';
 
 import { WR_COLORS } from 'ngwr/theme';
 
-import {
-  DocApiComponent,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSeeAlsoComponent,
-} from '#core/components';
-import type { DocApiRow, DocSeeAlsoLink } from '#core/components';
+import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent } from '#core/components';
+import type { DocSeeAlsoLink } from '#core/components';
 
 interface Swatch {
   /** Token suffix appended to `--wr-color-{intent}`. */
@@ -18,298 +12,103 @@ interface Swatch {
   readonly label: string;
 }
 
+interface Token {
+  readonly name: string;
+  readonly use?: string;
+  readonly value?: string;
+}
+
 @Component({
   selector: 'ngwr-tokens-colors',
   templateUrl: './colors.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent, DocSeeAlsoComponent],
+  styleUrl: './colors.scss',
+  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocSeeAlsoComponent],
 })
 export default class TokensColorsPage {
-  /**
-   * Every intent that gets a full generated shade set in `_colors.scss`.
-   *
-   * Taken from the tuple rather than retyped: this page's whole job is showing
-   * what the palette contains, so a copy that can fall behind it is the one
-   * thing it must not have. `scripts/check-color-parity.ts` keeps the tuple
-   * itself honest against `$base-colors`.
-   */
+  /** Taken from the tuple, so the page cannot fall behind the palette. */
   protected readonly intents = WR_COLORS;
 
-  /**
-   * Intents that additionally get the soft set (light + dark are excluded).
-   *
-   * Still hand-written, because the lib does not export this subset — it is
-   * the literal `@each $name in (…)` list in `_colors.scss`, so it cannot be
-   * derived from anything importable. Adding a colour to the palette does NOT
-   * add it here or there; both are manual.
-   */
-  protected readonly softIntents = ['primary', 'secondary', 'success', 'warning', 'danger', 'info', 'medium'] as const;
-
-  /** Generated shade variants every intent exposes. */
   protected readonly shades: readonly Swatch[] = [
     { suffix: '', label: 'base' },
-    { suffix: '-dark', label: 'dark −5%' },
-    { suffix: '-darker', label: 'darker −10%' },
-    { suffix: '-light', label: 'light +5%' },
-    { suffix: '-lighter', label: 'lighter +10%' },
+    { suffix: '-dark', label: 'dark' },
+    { suffix: '-darker', label: 'darker' },
+    { suffix: '-light', label: 'light' },
+    { suffix: '-lighter', label: 'lighter' },
   ];
 
-  /** The four soft-set tokens, with the alpha each is baked at. */
-  protected readonly softTokens: readonly DocApiRow[] = [
-    {
-      name: '--wr-color-{intent}-soft',
-      type: 'rgba(var(--wr-color-{intent}-rgb), 0.12)',
-      description: 'Canonical low-alpha fill. The tinted surface behind soft badges, alerts, selected rows.',
-    },
-    {
-      name: '--wr-color-{intent}-soft-border',
-      type: 'rgba(var(--wr-color-{intent}-rgb), 0.3)',
-      description: 'Matching hairline for a soft fill — the 1px border that pairs with `-soft`.',
-    },
-    {
-      name: '--wr-color-{intent}-active',
-      type: 'rgba(var(--wr-color-{intent}-rgb), 0.2)',
-      description: 'Pressed / active tint — one notch stronger than `-soft` for the held state.',
-    },
-    {
-      name: '--wr-color-{intent}-soft-contrast',
-      type: 'color-mix(in srgb, var(--wr-color-{intent}) 62%, var(--wr-color-dark))',
-      description:
-        'Readable same-hue text on a soft fill. Deep in light mode, light in dark — it follows `--wr-color-dark`.',
-    },
+  protected readonly intentTokens: readonly Token[] = [
+    { name: '--wr-color-{intent}', use: 'Solid fill' },
+    { name: '--wr-color-{intent}-contrast', use: 'Text on the solid fill' },
+    { name: '--wr-color-{intent}-dark, -darker', use: 'Hover and pressed fill' },
+    { name: '--wr-color-{intent}-light, -lighter', use: 'Lighter shades' },
+    { name: '--wr-color-{intent}-soft', use: 'Tinted fill' },
+    { name: '--wr-color-{intent}-soft-border', use: 'Border on a tinted fill' },
+    { name: '--wr-color-{intent}-active', use: 'Pressed tinted fill' },
+    { name: '--wr-color-{intent}-ink', use: 'The intent as text, on a surface or a tinted fill' },
+    { name: '--wr-color-{intent}-soft-contrast', use: 'Older text-on-tint token. Use -ink instead' },
   ];
 
-  /** The intent used as text on the page surface, not on a filled intent. */
-  protected readonly inkTokens: readonly DocApiRow[] = [
-    {
-      name: '--wr-color-{intent}-ink',
-      type: 'color-mix(in srgb, var(--wr-color-{intent}) 48–78%, var(--wr-color-dark))',
-      description:
-        "The intent darkened (light) / lightened (dark) until it clears WCAG AA **as its own label** — what outlined and ghost variants, tags and tinted chips paint with. The bare intent does not: on white, `warning` is 1.71:1 and `success` 3.33:1. The share is per intent, each the most saturated value that still reaches 5.0:1 against that intent's own `-soft` tint in BOTH themes — primary 78%, secondary 75%, danger 72%, info 71%, success 67%, medium 65%, warning 48%. Warning travels furthest because a yellow readable on white is not yellow. `primary` was re-derived from 86% when the dark base deepened to `#3567ff`: a deeper base makes the ink deeper too, which on a dark tint is the losing direction, and axe measured the old share at 4.48:1 on the sidebar's own tint. The 5.0 target is deliberate headroom over AA's 4.5: an earlier pass aimed at 4.5 exactly and a slightly different background pushed `wr-typography--code` back under it. `light-ink` is `--wr-color-on-surface` (a surface tone has no readable darkening) and `dark-ink` is `--wr-color-dark`.",
-    },
+  protected readonly neutralTokens: readonly Token[] = [
+    { name: '--wr-color-surface', use: 'Page and card background' },
+    { name: '--wr-color-on-surface', use: 'Body text' },
+    { name: '--wr-color-on-surface-muted', use: 'Secondary text' },
+    { name: '--wr-color-placeholder', use: 'Placeholder text' },
+    { name: '--wr-color-hover', use: 'Hover tint on rows and icon buttons' },
+    { name: '--wr-color-fill-subtle, -fill, -fill-strong', use: 'Neutral washes: a band, a header, a track' },
+    { name: '--wr-border-subtle, -base, -strong', use: 'Borders and dividers' },
+    { name: '--wr-color-overlay', use: 'Modal and drawer scrim' },
   ];
 
-  /** Semantic neutral tokens — not per-intent, one place each. */
-  protected readonly neutralTokens: readonly DocApiRow[] = [
-    {
-      name: '--wr-color-white',
-      type: '#ffffff → #0b1120 (dark)',
-      description: 'The page surface. Flips to a deep slate canvas in dark mode.',
-    },
-    {
-      name: '--wr-color-black',
-      type: '#000000',
-      description: 'Pure black. Does not flip — true black regardless of theme.',
-    },
-    {
-      name: '--wr-color-hover',
-      type: 'rgba(var(--wr-color-light-rgb), 0.4)',
-      description:
-        'Generic subtle hover tint (icon buttons, list rows). Adapts in dark via the flipping `light` channel.',
-    },
-    {
-      name: '--wr-color-border',
-      type: 'rgba(var(--wr-color-light-rgb), 0.5)',
-      description: 'Default divider / border. Translucent so it reads on any surface.',
-    },
-    {
-      name: '--wr-color-border-subtle',
-      type: 'rgba(var(--wr-color-light-rgb), 0.35)',
-      description: 'Quieter hairline — for low-emphasis separators.',
-    },
-    {
-      name: '--wr-color-border-strong',
-      type: 'rgba(var(--wr-color-light-rgb), 0.6)',
-      description: 'Heavier border — for focused or emphasized edges.',
-    },
-    {
-      name: '--wr-color-overlay',
-      type: 'rgba(var(--wr-color-backdrop-rgb), 0.45)',
-      description: 'Modal / drawer scrim. Built on `-backdrop-rgb` so it stays a black dim in both themes.',
-    },
-    {
-      name: '--wr-color-backdrop-rgb',
-      type: '0, 0, 0',
-      description:
-        'Always-black channel for scrims. Not wired to `-dark-rgb`, which would flip to a white wash in dark.',
-    },
-    {
-      name: '--wr-color-text-muted',
-      type: 'rgba(var(--wr-color-muted-text-rgb), 0.95)',
-      description:
-        'De-emphasized text — muted labels, captions. 0.95, not a rounder 0.85: wrapping the role at 0.85 composited to 3.90:1 on the light surface, under the AA bar. 0.95 is the most softening that still clears it (4.81).',
-    },
-    {
-      name: '--wr-color-text-faint',
-      type: 'rgba(var(--wr-color-muted-text-rgb), 0.6)',
-      description:
-        'Decorative only — 2.43:1 on the light surface, under the 4.5:1 text needs and the 3:1 a graphic needs, so nothing in the library paints with it. Not for placeholders: those read `--wr-color-placeholder`.',
-    },
-  ];
-
-  /** Fixed slate gray ramp — a non-flipping primitive scale (50…950). */
+  /** The fixed ramp. It does not follow dark mode. */
   protected readonly grayRamp = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
 
-  /** Semantic role aliases layered over the flipping neutrals. */
-  protected readonly roleTokens: readonly DocApiRow[] = [
-    {
-      name: '--wr-color-surface',
-      type: 'var(--wr-color-white)',
-      description: 'Page / card background. Flips with the theme (white → slate canvas).',
-    },
-    {
-      name: '--wr-color-on-surface',
-      type: 'var(--wr-color-dark)',
-      description: 'Primary text on a surface. Flips with the theme.',
-    },
-    {
-      name: '--wr-color-on-surface-muted',
-      type: 'var(--wr-color-muted-text)',
-      description: 'Secondary / muted text on a surface.',
-    },
-    {
-      name: '--wr-color-placeholder',
-      type: 'var(--wr-color-on-surface-muted)',
-      description:
-        'Placeholder text, in every field the library draws — `[wrInput]`, `wr-textarea`, `wr-input-otp`, the select, cascader and tree triggers, the command palette and the table filter. A placeholder is text, so it has to clear 4.5:1: this one is 5.34:1 on the light surface, 4.76:1 on a readonly field and 7.63:1 in dark. Written as the muted role, so dark mode and `prefers-contrast: more` carry it without a line of their own.',
-    },
-    {
-      name: '--wr-color-outline',
-      type: 'var(--wr-color-light)',
-      description:
-        'The opaque hairline components draw 1px rules with — borders, dividers, table gridlines. Distinct from `--wr-color-border`, which is the same hue at 50% alpha so it reads over any fill; swapping one for the other changes appearance, not just naming.',
-    },
-  ];
-
-  /** The neutral wash a header, a track or a readonly field sits on. */
-  protected readonly fillTokens: readonly DocApiRow[] = [
-    {
-      name: '--wr-color-fill-subtle',
-      type: 'rgba(var(--wr-color-light-rgb), 0.15)',
-      description: 'Barely there — a hovered table row, a detail row, a group band.',
-    },
-    {
-      name: '--wr-color-fill',
-      type: 'rgba(var(--wr-color-light-rgb), 0.3)',
-      description: 'The default neutral surface — a table header, a readonly field, a grouped control.',
-    },
-    {
-      name: '--wr-color-fill-strong',
-      type: 'rgba(var(--wr-color-light-rgb), 0.55)',
-      description: 'The pronounced one — a code chip, a progress track, a drop zone.',
-    },
-  ];
-
-  /**
-   * The keyboard focus indicator. Colour and geometry together, because the
-   * interesting property spans both.
-   */
-  protected readonly focusTokens: readonly DocApiRow[] = [
-    {
-      name: '--wr-focus-ring-color',
-      type: 'var(--wr-color-primary)',
-      description:
-        'The outline colour. Measured against the page it draws on: **4.89:1 in light, 4.07:1 in dark**, where WCAG 1.4.11 asks 3:1 of a focus indicator.',
-    },
-    {
-      name: '--wr-focus-ring-width',
-      type: '2px',
-      description: 'Outline thickness.',
-    },
-    {
-      name: '--wr-focus-ring-offset',
-      type: '2px',
-      description:
-        'Gap between the control and the outline, and the halo spread — the halo fills exactly that gap, so the two read as one ring. A component whose target sits inside a clipping container insets it instead (`outline-offset: -2px`).',
-    },
-    {
-      name: '--wr-focus-ring-halo',
-      type: 'rgba(var(--wr-color-primary-rgb), 0.25)',
-      description:
-        'The soft second channel. It used to be the ONLY channel, at 1.41:1 light / 1.31:1 dark, alongside an `outline: none` — so no part of the indicator met the bar.',
-    },
+  protected readonly focusTokens: readonly Token[] = [
+    { name: '--wr-focus-ring-color', value: 'var(--wr-color-primary)' },
+    { name: '--wr-focus-ring-width', value: '2px' },
+    { name: '--wr-focus-ring-offset', value: '2px' },
+    { name: '--wr-focus-ring-halo', value: 'color-mix(in srgb, var(--wr-color-primary) 25%, transparent)' },
   ];
 
   protected readonly snippets = {
-    focus: `/* Retheme the ring once and every control that DRAWS one follows —
-   the library's own mixin reads nothing else. */
-:root {
-  --wr-focus-ring-color: var(--wr-color-secondary);
+    usage: `.toast {
+  background: var(--wr-color-primary);
+  color: var(--wr-color-primary-contrast);
+}
+.toast:hover { background: var(--wr-color-primary-dark); }
+
+.alert {
+  background: var(--wr-color-danger-soft);
+  border: 1px solid var(--wr-color-danger-soft-border);
+  color: var(--wr-color-danger-ink);
+}
+
+.card {
+  background: var(--wr-color-surface);
+  border: 1px solid var(--wr-border-base);
+  color: var(--wr-color-on-surface);
+}
+.card__meta { color: var(--wr-color-on-surface-muted); }
+
+// Any token at any alpha
+.ring {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--wr-color-primary) 20%, transparent);
+}`,
+
+    focus: `:root {
+  --wr-focus-ring-color: var(--wr-color-success);
   --wr-focus-ring-width: 3px;
 }
 
-/* The exception, and it is deliberate: a text field does not draw the ring.
-   It marks focus by raising its own border and halo to --wr-color-primary,
-   which is a field convention rather than an oversight — but it means these
-   tokens do not reach it. Retheme both, or give the field the ring: */
+// Text fields: recolour their focused border too.
 .wr-input:focus,
 .wr-input-group:focus-within,
 .wr-textarea--focused {
   --wr-input-border: var(--wr-focus-ring-color);
   --wr-input-group-border: var(--wr-focus-ring-color);
   --wr-textarea-border: var(--wr-focus-ring-color);
-}
-
-/* What the mixin emits. Override the offset AFTER an include when the
-   target sits inside a clipping container, the way the list rows do. */
-.wr-list__item--interactive:focus-visible {
-  outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
-  outline-offset: -2px;
 }`,
 
-    intent: `/* Solid surface: pair the base with its auto-computed contrast. */
-.toast {
-  background: var(--wr-color-primary);
-  color: var(--wr-color-primary-contrast);
-}
-
-/* Hover / pressed shades come for free, no Sass needed at runtime. */
-.toast:hover  { background: var(--wr-color-primary-dark); }
-.toast:active { background: var(--wr-color-primary-darker); }`,
-
-    soft: `/* Soft set — tinted surface + matching hairline + same-hue text. */
-.alert--danger {
-  background: var(--wr-color-danger-soft);          /* α 0.12 */
-  border: 1px solid var(--wr-color-danger-soft-border); /* α 0.30 */
-  color: var(--wr-color-danger-soft-contrast);      /* mixed 62% + dark */
-}
-
-.alert--danger:active {
-  background: var(--wr-color-danger-active);         /* α 0.20 */
-}`,
-
-    rgb: `/* The -rgb channel composes any alpha you need at the call site. */
-.ring {
-  box-shadow: 0 0 0 4px rgba(var(--wr-color-primary-rgb), 0.2);
-}`,
-
-    gray: `/* Fixed slate primitive — does NOT flip; pick a step by job. */
-.code-block {
-  background: var(--wr-color-gray-50);   /* subtlest surface */
-  border: 1px solid var(--wr-color-gray-200);
-}
-.ink-strong { color: var(--wr-color-gray-900); }`,
-
-    roles: `/* Role aliases — intent-free, theme-aware surface / text. */
-.panel {
-  background: var(--wr-color-surface);
-  color: var(--wr-color-on-surface);
-}
-.panel__caption { color: var(--wr-color-on-surface-muted); }
-.panel__field::placeholder { color: var(--wr-color-placeholder); }`,
-
-    neutral: `/* Semantic neutrals — theme-correct surfaces, borders, muted text. */
-.card {
-  background: var(--wr-color-white);              /* page surface */
-  border: 1px solid var(--wr-color-border);
-  color: var(--wr-color-dark);                    /* body text */
-}
-.card__meta  { color: var(--wr-color-text-muted); }
-.card__row:hover { background: var(--wr-color-hover); }`,
-
-    iterateScss: `/* Author an intent-aware component the way the lib itself does.
-   \`$colors\` is \`map.keys($base-colors)\`, so it tracks the palette — rebrand
-   with extra intents and your own component picks them up for free. */
-@use 'ngwr/theme' as theme;
+    iterateScss: `@use 'ngwr/theme';
 
 .my-badge {
   @each $name in theme.$colors {
@@ -320,49 +119,13 @@ export default class TokensColorsPage {
   }
 }`,
 
-    iterateTs: `import { WR_COLORS, type WrColor } from 'ngwr/theme';
+    iterateTs: `import { WR_COLORS } from 'ngwr/theme';
 
-@Component({...})
-export class Palette {
-  // The TS-side intent list — drives \`WrColor\`, the type every \`color\`
-  // input accepts.
-  readonly colors = WR_COLORS;
-}`,
-
-    dark: `/* The neutrals swap roles; four intents are re-tuned for the canvas
-   (primary, success, warning, danger). secondary and info keep their
-   light values.
-   --wr-color-white  = page surface  → #0b1120 in dark
-   --wr-color-dark   = body text     → #e6ebf3 in dark
-   --wr-color-light  = borders/tints → #262f44 in dark
-   --wr-color-medium = medium FILL   → #6d7682 in dark
-
-   Secondary TEXT is --wr-color-on-surface-muted (#9aa6b8 in dark) — a
-   different token on purpose: lighter is what makes text legible on a dark
-   canvas, the opposite direction from a fill. */
-[data-theme='dark'] {
-  /* set automatically by provideWrTheme(); shown here for reference */
-}
-
-/* So this card needs NO dark-mode override — the tokens carry it: */
-.card {
-  background: var(--wr-color-white); /* light page / dark canvas */
-  color: var(--wr-color-dark);       /* dark ink  / light ink   */
-}`,
+WR_COLORS; // ['primary', 'success', 'warning', 'danger', 'info']`,
   };
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
-    {
-      kind: 'Guide',
-      title: 'Theming',
-      url: ['/guides', 'theming'],
-      description: 'Wiring `provideWrTheme()`, the dark-mode toggle, and rebranding the palette at build or runtime.',
-    },
-    {
-      kind: 'Guide',
-      title: 'Density tokens',
-      url: ['/guides/tokens', 'density'],
-      description: 'The spacing scale these colours sit on.',
-    },
+    { kind: 'Guide', title: 'Theming', url: ['/guides', 'theming'] },
+    { kind: 'Guide', title: 'Sizing', url: ['/guides/tokens', 'sizing'] },
   ];
 }

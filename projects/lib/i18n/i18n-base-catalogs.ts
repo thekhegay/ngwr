@@ -26,8 +26,8 @@ export type WrI18nBaseCatalogs = Readonly<Record<string, WrI18nCatalog>>;
  *
  * It has to be handed in by the consumer rather than wired up inside
  * `provideWrI18n()`: the catalogs are their own entry points (`ngwr/i18n/ru`)
- * and they already import from `ngwr/i18n`, so importing them back here is a
- * circular entry-point dependency that ng-packagr rejects outright. Passing
- * them in also keeps the locales you don't ship out of your bundle.
+ * and they already import from `ngwr/i18n`, so importing them back here would
+ * be a circular dependency between entry points. Passing them in also keeps
+ * the locales you don't ship out of your bundle.
  */
 export const WR_I18N_BASE_CATALOGS = new InjectionToken<readonly WrI18nBaseCatalogs[]>('WR_I18N_BASE_CATALOGS');

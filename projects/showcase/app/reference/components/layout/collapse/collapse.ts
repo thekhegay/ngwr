@@ -1,0 +1,55 @@
+import { Component } from '@angular/core';
+
+import { WrAccordion, WrCollapse, WrCollapseGroup } from 'ngwr/collapse';
+
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
+import { API } from '#core/generated/api';
+
+@Component({
+  selector: 'ngwr-collapse-page',
+  templateUrl: './collapse.html',
+  imports: [
+    WrAccordion,
+    WrCollapse,
+    WrCollapseGroup,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocApiComponent,
+  ],
+})
+export default class CollapsePageComponent {
+  protected readonly snippets = {
+    basic: `<wr-collapse title="Section title">
+  Section body…
+</wr-collapse>`,
+    accordion: `<wr-accordion>
+  <wr-collapse title="A">…</wr-collapse>
+  <wr-collapse title="B">…</wr-collapse>
+  <wr-collapse title="C">…</wr-collapse>
+</wr-accordion>
+
+<!-- Same as -->
+<wr-collapse-group accordion>
+  <wr-collapse title="A">…</wr-collapse>
+  <wr-collapse title="B">…</wr-collapse>
+</wr-collapse-group>`,
+  };
+
+  protected readonly api = API.WrCollapse;
+
+  protected readonly groupApi: readonly DocApiRow[] = [
+    {
+      name: 'accordion',
+      description: 'When true, opening one child closes the others.',
+      type: 'boolean',
+      default: 'false',
+    },
+  ];
+}

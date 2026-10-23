@@ -30,13 +30,21 @@
     transition: width var(--wr-transition-base);
   }
 
-  // color-ok: the VALUE is the bar's length and its `aria-valuenow`; the intent
-  // only tints it. A host that uses `danger` to mean "failed" has to say so in
-  // words — the `ariaLabel`, the text beside the bar — because six intents
-  // share one lightness and the bar has no second channel for a status.
+  // Forced colors paints every background `Canvas`, the page itself, so the
+  // track and the bar both vanished and left a progressbar with nothing drawn.
+  // The track gets an edge and the bar the text colour, the two system colours
+  // that are always far apart.
+  @media (forced-colors: active) {
+    outline: 1px solid CanvasText;
+
+    &__bar {
+      background: CanvasText;
+    }
+  }
+
   @each $name in theme.$colors {
     &--#{$name} {
-      --wr-progress-track: rgba(var(--wr-color-#{$name}-rgb), 0.2);
+      --wr-progress-track: color-mix(in srgb, var(--wr-color-#{$name}) 20%, transparent);
       --wr-progress-bar: var(--wr-color-#{$name});
     }
   }

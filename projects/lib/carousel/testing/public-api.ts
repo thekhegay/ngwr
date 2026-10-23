@@ -1,2 +1,2 @@
 export { WrCarouselHarness } from './wr-carousel-harness';
-export type { WrCarouselHarnessFilters } from './interfaces';
+export type { WrCarouselHarnessFilters } from './types';

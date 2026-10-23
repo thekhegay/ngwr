@@ -1,0 +1,41 @@
+<ngwr-doc-page
+  title="Click Spark"
+  updated="15.0.0"
+  description="Sparks that burst from wherever you click inside it."
+  [keywords]="['click-spark', 'wr-click-spark', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="click-spark" />
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-click-spark
+        [sparkColor]="sparkColor()"
+        [sparkCount]="sparkCount()"
+        [sparkRadius]="sparkRadius()"
+        [sparkSize]="sparkSize()"
+        [duration]="duration()"
+        [easing]="easing()"
+        style="
+          display: flex;
+          width: 100%;
+          min-height: 12rem;
+          background: var(--wr-color-surface);
+          color: var(--wr-color-on-surface);
+          border: 1px solid var(--wr-border-strong);
+          border-radius: 0.75rem;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-weight: 600;
+        "
+      >
+        Click anywhere
+      </wr-click-spark>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

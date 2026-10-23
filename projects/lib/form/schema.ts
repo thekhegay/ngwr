@@ -76,8 +76,8 @@ export interface WrFieldSpec {
  *
  * ```ts
  * const userSchema = schema<User>(path => {
- *   required(path.email);
- *   email(path.email);
+ *   required(path.email, { message: 'Enter your email.' });
+ *   email(path.email, { message: 'That is not an email address.' });
  *   metadata(path.email, WR_FIELD, () => ({ kind: 'input', type: 'email', label: 'Work email' }));
  *   metadata(path.role, WR_FIELD, () => ({ kind: 'select', options: ROLES }));
  * });

@@ -1,0 +1,371 @@
+<ngwr-doc-page
+  title="Table"
+  updated="15.0.0"
+  description="Rows of data with sorting, filtering, paging and custom cells."
+  [keywords]="['table', 'wr-table']"
+  [labels]="['Component', 'Directive']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Columns are a record keyed by row property; rows are plain objects."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%">
+        <wr-table [columns]="columns" [items]="visibleRows()" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sort + filter + custom cell"
+    description="`[(sort)]` holds the sort, `filterChange` reports the filter, and `[wrTableCell]` replaces a column's cells."
+  >
+    <ngwr-doc-snippet [code]="snippets.custom">
+      <div style="width: 100%">
+        <wr-table [columns]="columns" [items]="visibleRows()" [(sort)]="sort" (filterChange)="onFilter($event)">
+          <ng-template wrTableCell="role" let-value>
+            <wr-tag [color]="value === 'admin' ? 'danger' : value === 'editor' ? 'primary' : null" transparent>
+              {{ value }}
+            </wr-tag>
+          </ng-template>
+        </wr-table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="One column carrying both controls"
+    description="One column can have both `sortable` and `filterItems`. With a mouse, both controls are below the 24px minimum target size."
+  >
+    <ngwr-doc-snippet [code]="snippets.sortAndFilter">
+      <div style="width: 100%">
+        <wr-table
+          [columns]="bothColumns"
+          [items]="bothRows()"
+          [(sort)]="bothSort"
+          (filterChange)="onBothFilter($event)"
+        />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sorting is state, not a sort"
+    description="The table never reorders `items`: sort them yourself from `sort()`."
+  >
+    <ngwr-doc-code [code]="snippets.sortState" language="angular-ts" />
+    <ul>
+      <li><code>sort</code> is an array, one entry per sorted column; the first entry is the primary key.</li>
+      <li>
+        Only the primary column announces <code>aria-sort</code>. With several sorted columns, each shows its place in
+        the order as a number. Since v15.
+      </li>
+      <li>
+        Only the sort button sorts, not the whole header. In tests, <code>getSortDirection()</code> reads
+        <code>aria-sort</code>; <code>getSortIndicator()</code> and <code>getSortOrder()</code> read every sorted
+        column.
+      </li>
+      <li>Sorting does not reset <code>page</code>. Reset it in your sort handler if you want.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What a cell template can read"
+    description='`let-value` is the cell value and `let-row="item"` the row. A bare `let-row` binds the value again.'
+  >
+    <ngwr-doc-code [code]="snippets.cellContext" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Row actions"
+    description='Give the action column a key no row property uses and an empty title, and read the row with `let-row="item"`.'
+  >
+    <ngwr-doc-snippet [code]="snippets.rowActions">
+      <div style="width: 100%">
+        <wr-table [columns]="actionColumns" [items]="actionRows()" emptyLabel="Every row deleted.">
+          <ng-template wrTableCell="actions" let-row="item">
+            <wr-btn size="sm" color="danger" outlined (click)="removeRow(row)">Delete</wr-btn>
+          </ng-template>
+        </wr-table>
+        <wr-btn size="sm" style="margin-top: 0.75rem" (click)="restoreRows()">Restore rows</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Loading, empty — and error"
+    description="`[loading]` shows a spinner and `emptyLabel` the empty text. There is no error input: show a `<wr-alert>` beside the table."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Pagination"
+    description="`[pageSize]` pages the rows and adds a pager. Add `[total]` to page on the server."
+  >
+    <ngwr-doc-snippet [code]="snippets.paginated">
+      <div style="width: 100%">
+        <wr-table [columns]="columns" [items]="paginatedRows" [pageSize]="5" [(page)]="page" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Server-side paging — what to bind, what fires"
+    description="With `[total]`, the table shows `items` as given. Listen to `(pageChange)`, or bind `[(page)]`."
+  >
+    <ngwr-doc-code [code]="snippets.serverHtml" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.serverTs" language="typescript" />
+    <ul>
+      <li><code>[pageSize]</code> is still required: without it no pager renders.</li>
+      <li>
+        The pager has no range label or size changer. For those, leave <code>pageSize</code> at 0 and add your own
+        <a routerLink="/reference/components/pagination"><code>&lt;wr-pagination&gt;</code></a
+        >.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Virtual scroll"
+    description="Set `virtualScroll` and `viewportHeight`; all rows share one height."
+  >
+    <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table
+          virtualScroll
+          [rowHeight]="41"
+          [viewportHeight]="440"
+          [columns]="virtualColumns"
+          [items]="virtualRows"
+        />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>Grouping, tree rows, expandable rows, <code>responsive</code> and a pager turn it off.</li>
+      <li>
+        For SSR, set <code>rowHeight</code>: 41 at <code>md</code>, 32 at <code>sm</code>, 48 at <code>lg</code>, 55 at
+        <code>touch</code>.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Row selection"
+    description="Set `rowSelection` to `'multiple'` or `'single'`, `rowKey` to a property or function, and bind `[(selection)]` to the selected keys."
+  >
+    <ngwr-doc-code [code]="snippets.selection" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table
+          rowSelection="multiple"
+          rowKey="email"
+          [(selection)]="selected"
+          [columns]="columns"
+          [items]="visibleRows()"
+        />
+        <div style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+          selected: <strong>{{ selected().length }}</strong>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        Each row's checkbox is named by an action word and the row's first cell: "Select row Roman". The same goes for
+        the expand and tree toggles, and the group controls take the group's label. Since v15.
+      </li>
+      <li><code>selectRowLabel</code> and the other <code>*Label</code> inputs set the action word.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Expandable rows"
+    description="`<ng-template wrTableExpand let-row>` adds a detail panel per row. Set `rowKey` and bind `[(expanded)]`."
+  >
+    <ngwr-doc-code [code]="snippets.expandable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table rowKey="email" [(expanded)]="expanded" [columns]="columns" [items]="visibleRows()">
+          <ng-template wrTableExpand let-row>
+            <div style="font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+              <strong>{{ row.name }}</strong> — {{ row.email }} · role: {{ row.role }}
+            </div>
+          </ng-template>
+        </wr-table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Summary row"
+    description="A column's `summary` adds a footer row: `'sum'`, `'avg'`, `'count'`, `'min'`, `'max'`, or a function of the rows and a context."
+  >
+    <ngwr-doc-code [code]="snippets.summary" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table [columns]="summaryColumns" [items]="summaryRows" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Row grouping"
+    description="Set `groupBy` to a property or function; `[(collapsedGroups)]` holds the collapsed groups. Grouping runs after paging, so sort by the same key or set `pageSize` to 0."
+  >
+    <ngwr-doc-code [code]="snippets.grouping" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table groupBy="role" [(collapsedGroups)]="groupCollapsed" [columns]="columns" [items]="visibleRows()" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Group subtotals"
+    description="`groupSummary` adds a subtotal row under each group. A summary function's second argument says which row it computes: `scope` is `'group'` or `'total'`. Set `pageSize` to 0 with it, since the footer totals every row."
+  >
+    <ngwr-doc-code [code]="snippets.groupSummary" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table groupBy="region" groupSummary [columns]="salesColumns" [items]="salesRows" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom group header"
+    description="`<ng-template wrTableGroupHeader>` replaces the group label. It gets `value`, `count`, `collapsed`, `toggle()` and more."
+  >
+    <ngwr-doc-code [code]="snippets.groupHeader" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table groupBy="role" [columns]="columns" [items]="visibleRows()">
+          <ng-template wrTableGroupHeader let-value let-count="count">
+            <wr-tag color="primary" transparent>{{ value }}</wr-tag>
+            <small style="color: var(--wr-color-on-surface-muted)">{{ count }} users</small>
+          </ng-template>
+        </wr-table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="CSV export"
+    description="`exportCsv()` downloads the current `items`, so one page in server mode. `toCsv()` returns the text; `{ selectedOnly: true }` exports the selection."
+  >
+    <ngwr-doc-code [code]="snippets.csv" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; width: 100%; flex-direction: column; gap: 0.75rem">
+        <wr-table #csvTable [columns]="columns" [items]="visibleRows()" />
+        <div>
+          <wr-btn size="sm" (click)="csvTable.exportCsv({ filename: 'users.csv' })">Export CSV</wr-btn>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Pinned columns"
+    description="`pin: 'left'` or `pin: 'right'` keeps a column in place while the rest scrolls sideways."
+  >
+    <ngwr-doc-code [code]="snippets.pinned" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 34rem; max-width: 100%">
+        <wr-table [columns]="wideColumns" [items]="wideRows" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Resizable columns"
+    description="`resizable: true` adds a drag handle to the header; `width` sets the starting width in px."
+  >
+    <ngwr-doc-code [code]="snippets.resizable" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table [columns]="resizableColumns" [items]="visibleRows()" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Reorderable columns"
+    description="With `reorderable`, headers can be dragged; `[(columnOrder)]` holds the order. Pinned columns do not move."
+  >
+    <ngwr-doc-code [code]="snippets.reorderable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table reorderable [columns]="columns" [items]="visibleRows()" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Narrow container (stacked cards)"
+    description="With `responsive`, rows become labelled cards when the table's own box is narrow."
+  >
+    <ngwr-doc-snippet code='<div style="width: 360px"><wr-table responsive [columns]="columns" [items]="rows" /></div>'>
+      <div style="width: 360px; max-width: 100%">
+        <wr-table responsive [columns]="columns" [items]="visibleRows()" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tree rows"
+    description="Set `childrenKey` and `items` become the roots. `rowKey` and `[(expanded)]` work as for expandable rows; `treeColumn` picks the indented column."
+  >
+    <ngwr-doc-code [code]="snippets.tree" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table
+          rowKey="id"
+          childrenKey="reports"
+          treeColumn="name"
+          rowSelection="multiple"
+          [columns]="orgColumns"
+          [items]="org"
+          [(expanded)]="openRows"
+          [(selection)]="picked"
+        />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        The rows take the keyboard: Tab reaches one row, Up and Down move, Right opens a row or steps into it, Left
+        closes it or climbs to the parent, Home and End jump. Enter and Space select the row when
+        <code>rowSelection</code> is set. Tab moves on into the row's own controls. Since v15.
+      </li>
+      <li><code>pageSize</code> pages the roots. Select all selects only the rows on screen.</li>
+      <li>
+        Tree rows do not combine with <code>groupBy</code>, <code>[wrTableExpand]</code> or <code>virtualScroll</code>.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Templates">
+    <ngwr-doc-api [rows]="templatesApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Methods" description="Call them through a template reference.">
+    <ngwr-doc-api [rows]="methodsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="&lt;wr-table-filter&gt;">
+    <ngwr-doc-api [rows]="filterApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="&lt;wr-table-sort&gt;">
+    <ngwr-doc-api [rows]="sortApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

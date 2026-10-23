@@ -8,7 +8,7 @@
 import { LOCALE_ID, Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
-import type { WrPluralForms, WrPluralOptions } from './interfaces';
+import type { WrPluralForms, WrPluralOptions } from './types';
 
 /**
  * Locale-aware pluralization via `Intl.PluralRules`. Picks the right word
@@ -44,4 +44,4 @@ export class WrPlural implements PipeTransform {
   }
 }
 
-export type { WrPluralForms, WrPluralOptions } from './interfaces';
+export type { WrPluralForms, WrPluralOptions } from './types';

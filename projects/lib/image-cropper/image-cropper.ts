@@ -15,6 +15,7 @@ import {
   effect,
   inject,
   input,
+  isDevMode,
   output,
   signal,
   viewChild,
@@ -23,7 +24,7 @@ import {
 import { useI18nText } from 'ngwr/i18n';
 import { clamp, randomId } from 'ngwr/utils';
 
-import type { WrCropHandle, WrCropRect, WrImageCropperStatus, WrImageLoadError, WrImageOutputType } from './interfaces';
+import type { WrCropHandle, WrCropRect, WrImageCropperStatus, WrImageLoadError, WrImageOutputType } from './types';
 
 /**
  * `[maxOutputSize]`'s transform. Anything that is not a positive, finite number —
@@ -155,6 +156,11 @@ function resizeFrom(
  * `'failed'` and puts `wr-image-cropper--failed` on the host. The component renders
  * no message of its own for it — what went wrong and what to do next is the host's
  * to say.
+ *
+ * The image is requested with `crossorigin="anonymous"`, because a canvas will not
+ * export pixels from another origin otherwise. A URL on another origin therefore has
+ * to be served with `Access-Control-Allow-Origin`; one that is not fails to load and
+ * fires `(loadError)`, where it used to show and then refuse every export.
  *
  * @example
  * ```html
@@ -659,7 +665,10 @@ export class WrImageCropper {
 
   // Public API
 
-  /** Render the current crop as a Blob. */
+  /**
+   * Render the current crop as a Blob. Rejects while `status()` is anything but
+   * `'loaded'`, since there is no image to draw.
+   */
   async toBlob(type: WrImageOutputType = this.outputType(), quality: number = this.outputQuality()): Promise<Blob> {
     const canvas = this.toCanvas();
     return new Promise<Blob>((resolve, reject) => {
@@ -674,7 +683,10 @@ export class WrImageCropper {
     });
   }
 
-  /** Render the current crop as a data URL. */
+  /**
+   * Render the current crop as a data URL. Throws while `status()` is anything but
+   * `'loaded'`, since there is no image to draw.
+   */
   toDataUrl(type: WrImageOutputType = this.outputType(), quality: number = this.outputQuality()): string {
     return this.toCanvas().toDataURL(type, quality);
   }
@@ -703,6 +715,13 @@ export class WrImageCropper {
   }
 
   private toCanvas(): HTMLCanvasElement {
+    // Without this, no image threw NG0951 from the required `imgEl` query, and a
+    // `'failed'` one the canvas's own complaint about a broken image: two internals
+    // messages for one plain fact.
+    const status = this.status();
+    if (status !== 'loaded') {
+      throw new Error(`[NGWR] <wr-image-cropper>: there is no loaded image to export (status "${status}").`);
+    }
     const img = this.imgEl().nativeElement;
     const c = this.cropRect();
     const canvas = document.createElement('canvas');
@@ -717,11 +736,18 @@ export class WrImageCropper {
   }
 
   private async emitCropped(): Promise<void> {
+    if (this.status() !== 'loaded') return;
     try {
       const blob = await this.toBlob();
       this.cropped.emit(blob);
-    } catch {
-      // Swallow — invalid state (image not loaded, crop empty, etc.).
+    } catch (error) {
+      // An image IS loaded, so a failure here is the browser refusing to encode it,
+      // and `(cropped)` not firing has to be visible to the developer. It used to be
+      // swallowed, which is how a tainted cross-origin canvas went unnoticed.
+      if (isDevMode()) {
+        // eslint-disable-next-line no-console -- dev-mode diagnostics
+        console.warn('[NGWR] <wr-image-cropper>: the crop could not be encoded, so (cropped) did not fire.', error);
+      }
     }
   }
 }

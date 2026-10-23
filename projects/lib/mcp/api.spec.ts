@@ -10,13 +10,13 @@ import { dirname, join, resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { type ApiMember, declaredClasses, extractClass } from './api.js';
+import { type ApiMember, declaredClasses, extractClass, extractFunction } from './api.js';
 
 /**
  * The declaration reader's spec.
  *
  * Every fixture below is emitted-`.d.ts` shape, copied from what ng-packagr
- * actually writes into `dist/lib/types/`: four-space members, both namespace
+ * wrote into `dist/lib/types/` through v14: four-space members, both namespace
  * aliases (`_angular_core.` and `i0.`), `private` fields with no type,
  * constructors, getters, abstract members, and the `ɵcmp` line carrying the
  * input map. A scanner tested against tidied-up TypeScript would pass and then
@@ -29,7 +29,7 @@ import { type ApiMember, declaredClasses, extractClass } from './api.js';
  * inputs in the fixture differ in the map and are identical in the type.
  */
 
-/** A component as ng-packagr flattens it, panel class first so the name-prefix case is real. */
+/** A component as ng-packagr flattened it, panel class first so the name-prefix case is real. */
 const SELECT = `
 import * as _angular_core from '@angular/core';
 
@@ -147,9 +147,9 @@ declare class WrDialog {
 /**
  * An abstract base under the `i0` alias, carrying the shapes that got mangled.
  *
- * ng-packagr writes Angular as `i0` in 25 of the 167 shipped declaration files
- * and as `_angular_core` in the other 99, so a reader that knows only one of
- * them is blind to a sixth of the library. `rowKey` is `wr-table`'s own type,
+ * ng-packagr wrote Angular as `i0` in 25 of the 167 shipped declaration files
+ * and as `_angular_core` in the other 99, so a reader that knew only one of
+ * them was blind to a sixth of the library. `rowKey` is `wr-table`'s own type,
  * and `loading` is its own doc comment — the tag on the same line as the prose,
  * which JSDoc allows and a line-based reader misses.
  */
@@ -328,6 +328,19 @@ describe('extractClass', () => {
     expect(found?.docs).toBe('https://ngwr.dev/reference/components/select');
   });
 
+  it('reads the doc above an `export declare class`, the shape the library build writes', () => {
+    const found = extractClass(
+      '/**\n * Trigger an action.\n *\n * @see https://ngwr.dev/reference/components/button\n */\nexport declare class WrX {}\n',
+      'WrX'
+    );
+
+    // `@angular/build:library` exports nearly every class this way. Read from
+    // `declare`, the word `export` sat between the doc and the class, and the
+    // summary, the example and the docs link were lost for almost all of them.
+    expect(found?.description).toBe('Trigger an action.');
+    expect(found?.docs).toBe('https://ngwr.dev/reference/components/button');
+  });
+
   it('leaves the description empty when the doc block belongs to something else', () => {
     const found = extractClass(DETACHED, 'WrLoner');
 
@@ -383,6 +396,21 @@ describe('extractClass', () => {
         required: false,
         alias: null,
       },
+    ]);
+  });
+
+  it('unwraps the inline-import wrapper @angular/build:library writes', () => {
+    const declarations = `
+declare class WrBuilt {
+    readonly label: import("@angular/core").InputSignal<string | null>;
+    readonly open: import("@angular/core").ModelSignal<boolean>;
+    readonly closed: import("@angular/core").OutputEmitterRef<void>;
+}`;
+
+    expect(extractClass(declarations, 'WrBuilt')?.members.map(m => [m.name, m.kind, m.type])).toEqual([
+      ['label', 'input', 'string | null'],
+      ['open', 'model', 'boolean'],
+      ['closed', 'output', 'void'],
     ]);
   });
 
@@ -476,6 +504,26 @@ describe('extractClass', () => {
     // documenting. Silently, and from the answer an agent trusts most.
     expect(names).toEqual(['register(icons: Record<string, string>)']);
     expect(names).not.toContain('store()');
+  });
+
+  it('hides a one-line @internal, with or without text after it', () => {
+    const found = extractClass(
+      [
+        'declare class WrList {',
+        '    /** @internal */',
+        '    a(): void;',
+        '    /** @internal A row reports itself. */',
+        '    b(): void;',
+        '    /** Public. */',
+        '    c(): void;',
+        '}',
+      ].join('\n'),
+      'WrList'
+    );
+
+    // The space after `/**` hid the tag from both the inline and the line rule,
+    // so these were listed as API with "@internal" for a description.
+    expect(found?.members.map(member => member.name)).toEqual(['c()']);
   });
 
   it('reads a class whose declarations were cut off, without members', () => {
@@ -761,9 +809,10 @@ describe('extractClass', () => {
  * library it reads is full of the shape in question. They used to read
  * `dist/lib/types/*.d.ts` and skip when it was absent, which was never once
  * satisfied on CI — the suite runs before `build:lib` — so two tests read as
- * coverage while never executing. The class doc comment is what ng-packagr
- * copies into the declaration verbatim, and it is on disk in every checkout, so
- * the same two examples go through the same parser with nothing to skip.
+ * coverage while never executing. The class doc comment is what the library
+ * build copies into the declaration verbatim, and it is on disk in every
+ * checkout, so the same two examples go through the same parser with nothing to
+ * skip.
  */
 /**
  * The workspace root, found by walking UP from the process's working directory.
@@ -809,6 +858,45 @@ const documented = (file: string, symbol: string): string => {
   return `${source.slice(start, end)}\ndeclare class ${symbol} {\n}\n`;
 };
 
+describe('extractFunction', () => {
+  const ROOT = [
+    'import { EnvironmentProviders } from "@angular/core";',
+    '/**',
+    ' * App-wide configuration, in one call.',
+    ' *',
+    ' * @example',
+    ' * ```ts',
+    ' * provideWr(withDensity())',
+    ' * ```',
+    ' */',
+    'export declare function provideWr(...features: readonly WrFeature[]): EnvironmentProviders;',
+    '/** A feature. */',
+    "declare function withDensity(config?: Partial<{ a: string }>): WrFeature<'density'>;",
+    '',
+  ].join('\n');
+
+  it('reads the doc and the signature of an exported function', () => {
+    // The configuration API is functions, and they were answered "not a class".
+    expect(extractFunction(ROOT, 'provideWr')).toEqual({
+      name: 'provideWr',
+      signature: 'provideWr(...features: readonly WrFeature[]): EnvironmentProviders',
+      description: 'App-wide configuration, in one call.',
+      example: '```ts\nprovideWr(withDensity())\n```',
+      docs: null,
+    });
+  });
+
+  it('reads one declared without `export`, through a brace in its parameters', () => {
+    expect(extractFunction(ROOT, 'withDensity')?.signature).toBe(
+      "withDensity(config?: Partial<{ a: string }>): WrFeature<'density'>"
+    );
+  });
+
+  it('returns null for a function the file does not declare', () => {
+    expect(extractFunction(ROOT, 'provide')).toBeNull();
+  });
+});
+
 describe("the library's own examples", () => {
   it('keeps the example a fenced @for used to cut in half', () => {
     const example = extractClass(documented('pipes/range.ts', 'WrRange'), 'WrRange')?.example ?? '';
@@ -824,7 +912,8 @@ describe("the library's own examples", () => {
 
   it('keeps the lines an @ViewChild used to cut off an example', () => {
     const example =
-      extractClass(documented('rotating-text/rotating-text.ts', 'WrRotatingText'), 'WrRotatingText')?.example ?? '';
+      extractClass(documented('bits/rotating-text/rotating-text.ts', 'WrRotatingText'), 'WrRotatingText')?.example ??
+      '';
 
     // `WrRotatingText`'s example demonstrates the imperative half of its API,
     // and the demonstration is exactly the part that was lost: everything from

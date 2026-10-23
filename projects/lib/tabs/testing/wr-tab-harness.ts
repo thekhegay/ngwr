@@ -12,7 +12,7 @@ import {
   type TestElement,
 } from '@angular/cdk/testing';
 
-import type { WrTabHarnessFilters } from './interfaces';
+import type { WrTabHarnessFilters } from './types';
 
 /**
  * Test harness for one tab of a `<wr-tabs>` strip — the header, and the panel it
@@ -123,10 +123,9 @@ export class WrTabHarness extends ContentContainerComponentHarness {
   /**
    * Whether a Tab press can land on this header.
    *
-   * A content strip is ONE tab stop and hands it to the selected tab; a router
-   * strip makes every enabled tab a stop of its own. See
-   * `WrTabsHarness.getTabStopLabels()` — the difference is a mode difference, not
-   * a rounding error.
+   * Either strip is ONE tab stop: a content strip hands it to the selected tab, a
+   * router strip to the tab the route selects, or to the first enabled one while
+   * no route matches. See `WrTabsHarness.getTabStopLabels()`.
    *
    * A non-negative `tabindex` is not enough on its own, which is why `disabled` is
    * read too: `<wr-tabs>` gives the roving `tabindex="0"` to whatever `active`

@@ -1,0 +1,127 @@
+<ngwr-doc-page
+  title="Window"
+  updated="15.0.0"
+  description="Draggable, resizable windows that you open from code with `WrWindowManager`."
+  [keywords]="['window', 'floating', 'panel', 'wr-window']"
+  [labels]="['Service', 'a11y']"
+>
+  <ngwr-doc-section
+    title="Setup"
+    description="Inject `WrWindowManager`, and add `<wr-window-taskbar />` once to your shell for minimized windows."
+  >
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic"
+    description="`open()` returns a `WrWindowRef`; `afterClosed()` resolves with the value passed to `close()`."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openBasic()">Open window</wr-btn>
+      @if (lastProgrammaticResult(); as result) {
+        <small style="display: block; margin-top: 0.75rem; color: var(--wr-color-on-surface-muted)">
+          afterClosed() resolved with: <code>{{ result }}</code>
+        </small>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="OS chrome presets"
+    description="`os` picks the title-bar style; `'auto'` (default) follows the visitor's platform."
+  >
+    <ngwr-doc-code [code]="snippets.os" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openOs('auto')">Auto (detect)</wr-btn>
+      <wr-btn outlined (click)="openOs('macos')">macOS</wr-btn>
+      <wr-btn outlined (click)="openOs('windows')">Windows</wr-btn>
+      <wr-btn outlined (click)="openOs('linux')">Linux</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Compact chrome" description="`chromeSize: 'sm'` makes the title bar smaller.">
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openCompact()">Open compact window</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Persisted position"
+    description="`storage` saves the window's geometry, so it reopens where it was left."
+  >
+    <ngwr-doc-code [code]="snippets.persist" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openPersisted()">Open persisted window</wr-btn>
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)"
+        >Move/resize, close it, click again — same spot.</small
+      >
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Snap regions" description="`snap: 'edges'` snaps to halves; `'all'` adds the corners.">
+    <ngwr-doc-code [code]="snippets.snap" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openSnap()">Open snappable window</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Taskbar"
+    description="`<wr-window-taskbar />` lists minimized windows; `taskbar: false` leaves a window out. On Linux a window has no minimize button unless you pass `showMinimize: true`."
+  >
+    <ngwr-doc-code [code]="snippets.taskbar" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openTaskbarDemo('Inbox')">Open inbox</wr-btn>
+      <wr-btn (click)="openTaskbarDemo('Editor')">Open editor</wr-btn>
+      <wr-btn (click)="openTaskbarDemo('Logs')">Open logs</wr-btn>
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)"
+        >Minimize any of them: it lands in the strip at the bottom of the page.</small
+      >
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Workspace save / restore"
+    description="`saveLayout(name)` saves every open window; `restoreLayout(name)` puts them back, matched by `id`."
+  >
+    <ngwr-doc-code [code]="snippets.workspace" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="saveLayout()">Save layout</wr-btn>
+      <wr-btn outlined (click)="restoreLayout()">Restore layout</wr-btn>
+      <wr-btn outlined (click)="closeAll()">Close all</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Focus"
+    description="Since v15 focus follows the window: into it on open, to its taskbar tab on minimize, back in from the tab, and back to the opener on close."
+  >
+    <ngwr-doc-code [code]="snippets.focus" language="angular-ts" />
+    <p>
+      Opening focuses <code>cdkFocusInitial</code>, else the first control in the body, else the window. Windows that
+      <code>restoreLayout()</code> reopens keep focus where it is unless the opener passes <code>autoFocus: true</code>.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Driving the window from inside"
+    description="Inject `WR_WINDOW_REF` and `WR_WINDOW_DATA` in the window's component; `beforeClose` can veto a close."
+  >
+    <ngwr-doc-code [code]="snippets.refInside" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrWindowConfig">
+    <ngwr-doc-api [rows]="configApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrWindowManager">
+    <ngwr-doc-api [rows]="managerApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrWindowRef">
+    <ngwr-doc-api [rows]="refApi" />
+  </ngwr-doc-section>
+
+  <wr-window-taskbar />
+</ngwr-doc-page>

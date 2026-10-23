@@ -1,0 +1,39 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+/** Options for {@link WrConfetti.fire}. */
+export interface WrConfettiOptions {
+  /** Number of particles. @default 80 */
+  readonly count?: number;
+  /** Spread cone in degrees. @default 60 */
+  readonly spread?: number;
+  /** Launch direction in degrees — 90 is straight up, 0 fires right. @default 90 */
+  readonly angle?: number;
+  /** Initial particle speed (px/frame). @default 12 */
+  readonly velocity?: number;
+  /** Particle gravity (px/frame²). @default 0.35 */
+  readonly gravity?: number;
+  /** Air drag coefficient. @default 0.92 */
+  readonly drag?: number;
+  /**
+   * Origin as viewport ratios — `{ x: 0.5, y: 0.5 }` = center.
+   * Defaults to bottom-center.
+   */
+  readonly origin?: { readonly x: number; readonly y: number };
+  /**
+   * Color palette — any CSS colour each, a `var()` token or a `light-dark()` pair
+   * included, resolved when the burst is fired. The default reads the theme's
+   * intent tokens (`primary`, `success-light`, `warning`, `danger`,
+   * `danger-light`, `info`), so it follows the colour scheme.
+   * @default theme intent tokens
+   */
+  readonly colors?: readonly string[];
+  /** Particle frame size in px. @default 8 */
+  readonly size?: number;
+  /** Lifetime in frames (~60fps). @default 180 */
+  readonly ttl?: number;
+}

@@ -1,0 +1,96 @@
+import { Component } from '@angular/core';
+
+import { Check, CircleCheck, OctagonAlert } from 'lucide';
+import { type WrBadgeShape, WrBadge, WrTag } from 'ngwr/badge';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { WR_COLORS } from 'ngwr/theme';
+
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
+import { API } from '#core/generated/api';
+
+@Component({
+  selector: 'ngwr-badge-page',
+  templateUrl: './badge.html',
+  imports: [
+    WrBadge,
+    WrTag,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
+  providers: [
+    provideWrIcons(lucideIcons({ checkmark: Check, 'circle-check': CircleCheck, 'octagon-alert': OctagonAlert })),
+  ],
+})
+export default class BadgeComponent {
+  protected readonly colors = WR_COLORS;
+  protected readonly shapes: readonly WrBadgeShape[] = ['rounded', 'pill', 'squircle'];
+
+  protected readonly snippets = {
+    basic: `<wr-badge>New</wr-badge>`,
+    colors: `<wr-badge color="primary">Primary</wr-badge>
+<wr-badge color="success">Success</wr-badge>`,
+    sizes: `<wr-badge size="sm">12</wr-badge>
+<wr-badge size="md">12</wr-badge>
+<wr-badge size="lg">12</wr-badge>`,
+    shape: `<wr-badge color="primary">Beta</wr-badge>
+<wr-badge color="primary" shape="pill">Beta</wr-badge>
+<wr-badge color="primary" shape="squircle">Beta</wr-badge>`,
+    outlined: `<wr-badge color="primary" outlined>Beta</wr-badge>`,
+    tag: `<wr-tag color="success" icon="checkmark">Done</wr-tag>
+<wr-tag color="primary" outlined rounded>Beta</wr-tag>
+<wr-tag color="warning" loading>Saving</wr-tag>`,
+    statusIcons: `import { CircleCheck, OctagonAlert } from 'lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+
+@Component({
+  providers: [provideWrIcons(lucideIcons({ 'circle-check': CircleCheck, 'octagon-alert': OctagonAlert }))],
+})
+export class BuildStatus {}`,
+    status: `<wr-tag color="success" icon="circle-check">Passed</wr-tag>
+<wr-tag color="danger" icon="octagon-alert">Failed</wr-tag>
+<wr-badge color="warning">Degraded</wr-badge>`,
+  };
+
+  protected readonly api = API.WrBadge;
+
+  protected readonly tagApi: readonly DocApiRow[] = [
+    {
+      name: 'color',
+      description: 'Intent colour. `null` is neutral gray.',
+      type: 'WrColor | null',
+      default: "'primary'",
+    },
+    {
+      name: 'icon',
+      description: 'Icon beside the label.',
+      type: 'WrIconName | null',
+      default: 'null',
+    },
+    { name: 'iconPosition', description: 'Which side the icon sits on.', type: `'start' | 'end'`, default: "'start'" },
+    {
+      name: 'outlined',
+      description: 'Coloured text and ring on a light tint.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'transparent',
+      description: 'Coloured text on a low-opacity tint, no border.',
+      type: 'boolean',
+      default: 'false',
+    },
+    { name: 'rounded', description: 'Pill radius instead of the default.', type: 'boolean', default: 'false' },
+    { name: 'hoverable', description: 'Add a hover affordance.', type: 'boolean', default: 'false' },
+    { name: 'loading', description: 'Swap the icon for a spinner.', type: 'boolean', default: 'false' },
+  ];
+}

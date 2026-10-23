@@ -1,11 +1,15 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, PLATFORM_ID, signal } from '@angular/core';
+import { Component, PLATFORM_ID, type Provider, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
+import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCarousel } from './carousel';
@@ -54,10 +58,11 @@ describe('WrCarousel', () => {
     fixture.detectChanges();
   };
 
-  const mount = (platform = 'browser', dir: Direction = 'ltr'): void => {
+  const mount = (platform = 'browser', dir: Direction = 'ltr', extra: Provider[] = []): void => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
+        ...extra,
         { provide: PLATFORM_ID, useValue: platform },
         // `Directionality` resolves the document's direction when it is constructed,
         // so a fake is the only way to test the other one without writing
@@ -74,12 +79,12 @@ describe('WrCarousel', () => {
 
   /**
    * jsdom implements neither `TouchEvent` nor layout, so a touch is a plain event
-   * carrying the one field the component reads, and the viewport's width — which
+   * carrying the two fields the component reads, and the viewport's width — which
    * sets the 20% swipe threshold — is declared.
    */
-  const touch = (type: string, clientX?: number): Event => {
+  const touch = (type: string, clientX?: number, clientY = 0): Event => {
     const event = new Event(type, { bubbles: true, cancelable: true });
-    Object.assign(event, { touches: clientX === undefined ? [] : [{ clientX }] });
+    Object.assign(event, { touches: clientX === undefined ? [] : [{ clientX, clientY }] });
     return event;
   };
 
@@ -102,6 +107,25 @@ describe('WrCarousel', () => {
     click(next());
     expect(active()).toBe(1);
     expect(track().style.transform).toBe('translateX(-100%)');
+  });
+
+  it('disables the arrow that has nowhere to go, only without looping', () => {
+    // Looping, both arrows always lead somewhere.
+    expect(prev().disabled).toBe(false);
+    expect(next().disabled).toBe(false);
+
+    fixture.componentInstance.loop.set(false);
+    fixture.detectChanges();
+    // An enabled arrow at the end it points past was a control that did nothing,
+    // still focusable and still announced as a button.
+    expect(prev().disabled).toBe(true);
+    expect(next().disabled).toBe(false);
+
+    click(next());
+    click(next());
+    expect(active()).toBe(2);
+    expect(prev().disabled).toBe(false);
+    expect(next().disabled).toBe(true);
   });
 
   it('wraps at both ends while looping, and stops without it', () => {
@@ -245,6 +269,26 @@ describe('WrCarousel', () => {
 
       swipe(20);
       expect(active()).toBe(0);
+    });
+
+    it('leaves the slide alone when the touch is a page scroll', () => {
+      // 240px up with 90px of sideways drift is someone scrolling the page past
+      // the carousel. The track used to follow the drift and, past 20% of the
+      // width, change the slide under the scroll — in either direction.
+      for (const dir of ['ltr', 'rtl'] as const) {
+        mount('browser', dir);
+        const el = viewport();
+        Object.defineProperty(el, 'offsetWidth', { value: 300, configurable: true });
+
+        el.dispatchEvent(touch('touchstart', 200, 400));
+        for (let i = 1; i <= 12; i++) el.dispatchEvent(touch('touchmove', 200 - 7.5 * i, 400 - 20 * i));
+        fixture.detectChanges();
+        expect(track().style.transform, dir).toBe('translateX(0%)');
+
+        el.dispatchEvent(touch('touchend'));
+        fixture.detectChanges();
+        expect(active(), dir).toBe(0);
+      }
     });
 
     it('drags the track WITH the finger in both directions — the offset is not mirrored', () => {
@@ -427,6 +471,57 @@ describe('WrCarousel', () => {
       advance(5000);
       expect(active()).toBe(0);
     });
+
+    /**
+     * `prefers-reduced-motion` asks a page to drop motion the reader did not start,
+     * and autoplay is that by definition. The stylesheet already switched slides in
+     * place under it, but the panel still changed every interval. jsdom evaluates no
+     * media query, so the preference arrives through `WrPlatform`, as a signal the
+     * spec can flip the way a reader flips the system setting.
+     */
+    describe('under prefers-reduced-motion', () => {
+      let reduced: ReturnType<typeof signal<boolean>>;
+
+      const mountReduced = (on: boolean): void => {
+        reduced = signal(on);
+        mount('browser', 'ltr', [{ provide: WrPlatform, useValue: { prefersReducedMotion: reduced.asReadonly() } }]);
+        fixture.componentInstance.autoplay.set(true);
+        fixture.detectChanges();
+      };
+
+      it('does not advance while the preference is on', () => {
+        mountReduced(true);
+
+        advance(5000);
+        expect(active()).toBe(0);
+      });
+
+      it('follows the preference live, in both directions', () => {
+        mountReduced(false);
+        advance(500);
+        expect(active()).toBe(1);
+
+        reduced.set(true);
+        fixture.detectChanges();
+        advance(5000);
+        expect(active()).toBe(1);
+
+        // Turned off again, autoplay resumes rather than staying latched off.
+        reduced.set(false);
+        fixture.detectChanges();
+        advance(500);
+        expect(active()).toBe(2);
+      });
+
+      it('still pages when the reader asks to', () => {
+        mountReduced(true);
+
+        click(next());
+        expect(active()).toBe(1);
+        click(dots()[2]);
+        expect(active()).toBe(2);
+      });
+    });
   });
 });
 
@@ -465,5 +560,21 @@ describe('WrCarousel under a localized catalog', () => {
     expect(el.querySelector('wr-carousel-slide')!.getAttribute('aria-roledescription')).toBe('слайд');
 
     fixture.destroy();
+  });
+});
+
+/**
+ * A SOURCE assertion, because jsdom evaluates no media query and applies no
+ * stylesheet: what it can hold is that the track's slide is switched off under
+ * `prefers-reduced-motion`, inside the track's own rule. Autoplay moved a
+ * full-width panel across the screen every four seconds with the preference on.
+ */
+describe('WrCarousel stylesheet', () => {
+  it('switches slides in place under prefers-reduced-motion', () => {
+    const scss = readFileSync(join(process.cwd(), 'projects/lib/carousel/styles/_index.scss'), 'utf8');
+    const track = /&__track \{([\s\S]*?)\n {2}\}/.exec(scss)?.[1] ?? '';
+
+    expect(track).toMatch(/transition: transform/);
+    expect(track).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*transition: none;/);
   });
 });

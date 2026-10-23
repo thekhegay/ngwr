@@ -3,7 +3,6 @@ import { TestBed } from '@angular/core/testing';
 import { FormControl, FormsModule, NgModel, ReactiveFormsModule, RequiredValidator, Validators } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrOption, WrSelect } from 'ngwr/select';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -182,7 +181,6 @@ describe('WrSelect under the classic forms bridge (a `value` model)', () => {
   };
 
   beforeEach(async () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(SelectHost);
     await fixture.whenStable();
   });
@@ -222,7 +220,6 @@ describe('template validator directives under the classic forms bridge', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<ValidatorsHost>>;
 
   beforeEach(async () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(ValidatorsHost);
     await fixture.whenStable();
   });

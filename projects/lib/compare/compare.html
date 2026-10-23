@@ -5,13 +5,13 @@
   [attr.aria-orientation]="orientation()"
   [attr.aria-valuemin]="minPosition()"
   [attr.aria-valuemax]="maxPosition()"
-  [attr.aria-valuenow]="position()"
+  [attr.aria-valuenow]="valueNow()"
   [attr.aria-disabled]="disabled() || null"
   [attr.tabindex]="disabled() ? -1 : 0"
   (pointerdown)="onPointerDown($event)"
   (pointermove)="onPointerMove($event)"
   (pointerup)="onPointerUp($event)"
-  (pointercancel)="onPointerUp($event)"
+  (pointercancel)="onPointerCancel($event)"
   (keydown)="onKeydown($event)"
 >
   <div class="wr-compare__layers">

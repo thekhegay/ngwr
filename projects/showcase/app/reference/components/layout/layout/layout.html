@@ -1,0 +1,47 @@
+<ngwr-doc-page
+  title="Layout"
+  description="An app shell: header, sider, content and footer."
+  [keywords]="['layout', 'shell', 'header', 'sider', 'wr-layout']"
+  [labels]="['Composite']"
+>
+  <ngwr-doc-section title="Header / content / footer">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-layout
+        style="height: 14rem; border: 1px solid var(--wr-border-base); border-radius: 0.5rem; overflow: hidden"
+      >
+        <wr-layout-header>App bar</wr-layout-header>
+        <wr-layout-content>Main content area</wr-layout-content>
+        <wr-layout-footer>© 2026</wr-layout-footer>
+      </wr-layout>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Collapsible sider"
+    description="A `<wr-layout>` holding a `<wr-layout-sider>` becomes a row. Bind `[(collapsed)]` on the sider."
+  >
+    <ngwr-doc-code [code]="snippets.withSider" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-layout
+        style="height: 16rem; border: 1px solid var(--wr-border-base); border-radius: 0.5rem; overflow: hidden"
+      >
+        <wr-layout-header>
+          <button type="button" wr-btn size="sm" outlined (click)="toggleSider()">
+            {{ collapsed() ? 'Expand' : 'Collapse' }} sider
+          </button>
+        </wr-layout-header>
+        <wr-layout>
+          <wr-layout-sider [(collapsed)]="collapsed" width="12rem">
+            <div style="padding: 0.75rem; font-size: 0.8125rem">Sidebar</div>
+          </wr-layout-sider>
+          <wr-layout-content>Main content area</wr-layout-content>
+        </wr-layout>
+      </wr-layout>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

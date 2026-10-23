@@ -1,0 +1,381 @@
+import { Component, LOCALE_ID, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { WrBarChart } from './bar-chart';
+import type { WrBarChartDatum } from './types';
+
+const DATA: readonly WrBarChartDatum[] = [
+  { label: 'Mon', value: 10 },
+  { label: 'Tue', value: 20 },
+  { label: 'Wed', value: 5, color: '#abcdef' },
+];
+
+@Component({
+  imports: [WrBarChart],
+  template: `
+    <wr-bar-chart [data]="data()" [max]="max()" [height]="height()" [showValues]="showValues()" [color]="color()" />
+  `,
+})
+class Host {
+  readonly data = signal<readonly WrBarChartDatum[]>(DATA);
+  readonly max = signal(0);
+  readonly height = signal(200);
+  readonly showValues = signal(true);
+  readonly color = signal('var(--wr-color-primary)');
+}
+
+/**
+ * A bar's share of the plot is written inline as its `flex-grow`, which jsdom
+ * reports verbatim — so the scale is checkable without layout. The interesting half of
+ * this component is what the scale does when the data is not what it promised.
+ */
+describe('WrBarChart', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const columns = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-bar-chart__column')];
+  const bars = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-bar-chart__bar')];
+  const shares = (): string[] => bars().map(bar => bar.style.flexGrow);
+  const names = (): (string | null)[] => columns().map(column => column.getAttribute('aria-label'));
+  const labels = (): string[] => [...root().querySelectorAll('.wr-bar-chart__label')].map(el => el.textContent.trim());
+  const values = (): string[] => [...root().querySelectorAll('.wr-bar-chart__value')].map(el => el.textContent.trim());
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('draws one bar per datum, labelled and valued', () => {
+    expect(bars().length).toBe(3);
+    expect(labels()).toEqual(['Mon', 'Tue', 'Wed']);
+    expect(values()).toEqual(['10', '20', '5']);
+  });
+
+  it('scales every bar against the largest value', () => {
+    expect(shares()).toEqual(['0.5', '1', '0.25']);
+  });
+
+  it('scales the bar against what the column has left under its value, not the whole column', () => {
+    // A `height` percentage resolved against the whole column, value label included,
+    // so the tallest bars overflowed it and flex-shrink squashed them alone: 24 drew at
+    // 183px beside 12 at 99.5px, and 22 at the same height as 24. A grow factor below 1
+    // takes that share of the space left after the value. The pixels are measured in a
+    // browser; what jsdom can hold is that no height percentage is written any more.
+    for (const bar of bars()) expect(bar.style.height).toBe('');
+  });
+
+  it('scales against an explicit max instead', () => {
+    fixture.componentInstance.max.set(40);
+    fixture.detectChanges();
+
+    expect(shares()).toEqual(['0.25', '0.5', '0.125']);
+  });
+
+  it('pairs the label with the value in each bar name', () => {
+    // The label row and the value row are separate containers, so a screen
+    // reader read three numbers and then three labels with nothing tying them
+    // together — and with `showValues` off the numbers were not in the
+    // accessible tree at all.
+    expect(names()).toEqual(['Mon: 10', 'Tue: 20', 'Wed: 5']);
+    for (const column of columns()) expect(column.getAttribute('role')).toBe('img');
+    // And no `img` above them: it is children-presentational, so a conforming user agent
+    // drops every name inside one — WebKit does, which is why the donut moved its own.
+    const plot = root().querySelector<HTMLElement>('.wr-bar-chart__plot')!;
+    expect(plot.getAttribute('role')).toBe('group');
+    expect(plot.getAttribute('aria-label')).toBe('Bar chart');
+    for (const column of columns()) expect(column.parentElement!.closest('[role="img"]')).toBeNull();
+    expect(root().querySelector('.wr-bar-chart__labels')!.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('keeps the names when the visible values are hidden', () => {
+    fixture.componentInstance.showValues.set(false);
+    fixture.detectChanges();
+
+    expect(values()).toEqual([]);
+    expect(names()).toEqual(['Mon: 10', 'Tue: 20', 'Wed: 5']);
+  });
+
+  it('keeps one non-finite datum from rescaling every other bar', () => {
+    // `Math.max(...values)` is NaN as soon as one value is, so the scale fell
+    // back to 1 and asked the healthy bars for a height of `value * 100`%.
+    fixture.componentInstance.data.set([
+      { label: 'Mon', value: 10 },
+      { label: 'Tue', value: 20 },
+      { label: 'Bad', value: Number.NaN },
+    ]);
+    fixture.detectChanges();
+
+    expect(shares()).toEqual(['0.5', '1', '0']);
+    expect(values()).toEqual(['10', '20', '0']);
+    expect(root().textContent).not.toContain('NaN');
+  });
+
+  it('reads a negative value as an empty bar without hiding the number', () => {
+    fixture.componentInstance.data.set([
+      { label: 'Mon', value: 10 },
+      { label: 'Tue', value: -4 },
+    ]);
+    fixture.detectChanges();
+
+    expect(shares()).toEqual(['1', '0']);
+    expect(values()).toEqual(['10', '-4']);
+  });
+
+  it('draws flat bars rather than dividing by zero when everything is zero', () => {
+    fixture.componentInstance.data.set([
+      { label: 'Mon', value: 0 },
+      { label: 'Tue', value: 0 },
+    ]);
+    fixture.detectChanges();
+
+    expect(shares()).toEqual(['0', '0']);
+  });
+
+  it('renders nothing at all for an empty data set', () => {
+    fixture.componentInstance.data.set([]);
+    fixture.detectChanges();
+
+    expect(bars()).toEqual([]);
+    expect(labels()).toEqual([]);
+  });
+
+  it('takes the colour from the datum, then from the input', () => {
+    expect(bars()[0].style.background).toBe('var(--wr-color-primary)');
+    expect(bars()[2].style.background).toBe('rgb(171, 205, 239)');
+
+    fixture.componentInstance.color.set('var(--wr-color-success)');
+    fixture.detectChanges();
+    expect(bars()[0].style.background).toBe('var(--wr-color-success)');
+  });
+
+  it('keeps the plot tall enough to be a chart', () => {
+    const plot = (): HTMLElement => root().querySelector<HTMLElement>('.wr-bar-chart__plot')!;
+    expect(plot().style.height).toBe('200px');
+
+    fixture.componentInstance.height.set(10);
+    fixture.detectChanges();
+    expect(plot().style.height).toBe('40px');
+  });
+});
+
+@Component({
+  imports: [WrBarChart],
+  template: `<wr-bar-chart [data]="data" [tooltip]="tooltip()" />`,
+})
+class TooltipHost {
+  readonly data = DATA;
+  readonly tooltip = signal(true);
+}
+
+/**
+ * The tooltip renders into a CDK overlay, so it is read off `document`. What it SAYS is
+ * asserted here; what it points at, with laid-out boxes stubbed in, in the block after.
+ */
+describe('WrBarChart tooltip', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TooltipHost>>;
+
+  const columns = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-bar-chart__column'),
+  ];
+  const chip = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-chart-tooltip');
+  const part = (name: string): HTMLElement | null =>
+    chip()?.querySelector<HTMLElement>(`.wr-chart-tooltip__${name}`) ?? null;
+
+  const hover = (el: HTMLElement): void => {
+    el.dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(TooltipHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('shows the hovered bar with its label, its printed value and its colour', () => {
+    hover(columns()[2]);
+
+    expect(part('label')!.textContent.trim()).toBe('Wed');
+    expect(part('value')!.textContent.trim()).toBe('5');
+    expect(part('swatch')!.style.background).toBe('rgb(171, 205, 239)');
+  });
+
+  it('keeps one chip for the chart as the pointer crosses the bars', () => {
+    hover(columns()[0]);
+    hover(columns()[1]);
+
+    expect(document.querySelectorAll('.wr-chart-tooltip')).toHaveLength(1);
+    expect(part('label')!.textContent.trim()).toBe('Tue');
+  });
+
+  it('leaves the accessible name where it was — the tooltip is not the way to the number', () => {
+    hover(columns()[0]);
+
+    expect(columns()[0].getAttribute('aria-label')).toBe('Mon: 10');
+    expect(columns()[0].hasAttribute('aria-describedby')).toBe(false);
+  });
+
+  it('shows nothing with `tooltip` off', () => {
+    fixture.componentInstance.tooltip.set(false);
+    fixture.detectChanges();
+
+    hover(columns()[0]);
+
+    expect(chip()).toBeNull();
+  });
+});
+
+@Component({
+  imports: [WrBarChart],
+  template: `<wr-bar-chart [data]="data" />`,
+})
+class AnchorHost {
+  readonly data: readonly WrBarChartDatum[] = [
+    { label: 'Mon', value: 10 },
+    { label: 'Off', value: 0 },
+    { label: 'Refund', value: -4 },
+  ];
+}
+
+/**
+ * Where the chip points. jsdom lays nothing out, so each column and each bar is given a
+ * box — the columns the full 200px of the plot from y = 100, the bars from their top down
+ * to the baseline at y = 300 — and the case reads the box the CDK lays the pane out in,
+ * whose bottom edge is the anchor's top. That the chip paints there is measured in a
+ * browser.
+ */
+describe('WrBarChart tooltip anchor', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<AnchorHost>>;
+
+  const doc = document.documentElement;
+  const columns = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-bar-chart__column'),
+  ];
+  const style = (): CSSStyleDeclaration =>
+    document.querySelector<HTMLElement>('.wr-tooltip-overlay')!.parentElement!.style;
+  const hover = (el: HTMLElement): void => {
+    el.dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    Object.defineProperty(doc, 'clientWidth', { configurable: true, value: 1024 });
+    Object.defineProperty(doc, 'clientHeight', { configurable: true, value: 768 });
+    fixture = TestBed.createComponent(AnchorHost);
+    fixture.detectChanges();
+
+    // Mon is 150px tall; the other two have nothing to draw and keep their 1px floor.
+    const tops = [150, 299, 299];
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      const column = columns().findIndex(c => c === this || c.querySelector('.wr-bar-chart__bar') === this);
+      if (column < 0) return this.classList.contains('cdk-overlay-pane') ? new DOMRect(0, 0, 90, 26) : new DOMRect();
+      const left = 100 + column * 60;
+      return this.classList.contains('wr-bar-chart__column')
+        ? new DOMRect(left, 100, 50, 200)
+        : new DOMRect(left, tops[column], 50, 300 - tops[column]);
+    });
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+    Reflect.deleteProperty(doc, 'clientWidth');
+    Reflect.deleteProperty(doc, 'clientHeight');
+  });
+
+  it('points at the top of the hovered BAR, not at the top of its column', () => {
+    hover(columns()[0]);
+
+    // Above y = 150, where the bar starts — the column would say 100.
+    expect(768 - Number.parseFloat(style().bottom)).toBeCloseTo(150, 3);
+    expect(Number.parseFloat(style().left) + Number.parseFloat(style().width) / 2).toBeCloseTo(125, 3);
+  });
+
+  it('points a bar with nothing to draw at its floor on the baseline', () => {
+    hover(columns()[1]);
+    expect(768 - Number.parseFloat(style().bottom)).toBeCloseTo(299, 3);
+
+    hover(columns()[2]);
+    expect(768 - Number.parseFloat(style().bottom)).toBeCloseTo(299, 3);
+    expect(Number.parseFloat(style().left) + Number.parseFloat(style().width) / 2).toBeCloseTo(245, 3);
+  });
+});
+
+@Component({
+  imports: [WrBarChart],
+  template: `<wr-bar-chart [data]="data()" [valueFormat]="valueFormat()" />`,
+})
+class FormatHost {
+  readonly data = signal<readonly WrBarChartDatum[]>([
+    { label: 'Mon', value: 12.5 },
+    { label: 'Tue', value: 1234.5 },
+    { label: 'Wed', value: 3_400_000 },
+  ]);
+  readonly valueFormat = signal<((value: number) => string) | null>(null);
+}
+
+/**
+ * How a number is written: `Intl` in Angular's `LOCALE_ID` unless `valueFormat` says
+ * otherwise, compact above the bars from a thousand up, and the whole figure in the
+ * tooltip and the accessible name.
+ */
+describe('WrBarChart number format', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FormatHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const values = (): string[] => [...root().querySelectorAll('.wr-bar-chart__value')].map(el => el.textContent.trim());
+  const columns = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-bar-chart__column')];
+  const names = (): (string | null)[] => columns().map(column => column.getAttribute('aria-label'));
+  const tooltipValue = (index: number): string => {
+    columns()[index].dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+    return document.querySelector('.wr-chart-tooltip__value')!.textContent.trim();
+  };
+
+  const create = (locale?: string): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: locale ? [{ provide: LOCALE_ID, useValue: locale }] : [] });
+    fixture = TestBed.createComponent(FormatHost);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('abbreviates the labels above the bars from a thousand up, and nothing else', () => {
+    create();
+
+    // Below a thousand there is nothing to abbreviate, and compact rounding would print
+    // 12.5 as `13`.
+    expect(values()).toEqual(['12.5', '1.2K', '3.4M']);
+    expect(names()).toEqual(['Mon: 12.5', 'Tue: 1,234.5', 'Wed: 3,400,000']);
+    expect(tooltipValue(1)).toBe('1,234.5');
+  });
+
+  it("follows LOCALE_ID's own convention by default", () => {
+    create('de');
+
+    // German abbreviates no thousands, and writes millions as `Mio.`.
+    expect(values()).toEqual(['12,5', '1235', '3,4\u00a0Mio.']);
+    expect(names()).toEqual(['Mon: 12,5', 'Tue: 1.234,5', 'Wed: 3.400.000']);
+    expect(tooltipValue(1)).toBe('1.234,5');
+  });
+
+  it('writes every number through `valueFormat` when one is given, over the locale', () => {
+    create('de');
+    fixture.componentInstance.valueFormat.set(value => `$${value.toFixed(2)}`);
+    fixture.detectChanges();
+
+    expect(values()).toEqual(['$12.50', '$1234.50', '$3400000.00']);
+    expect(names()).toEqual(['Mon: $12.50', 'Tue: $1234.50', 'Wed: $3400000.00']);
+    expect(tooltipValue(2)).toBe('$3400000.00');
+  });
+});

@@ -9,7 +9,7 @@ import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, isDevMode } from '@angular/core';
 
 import { WrIconRegistry } from './icon-registry';
-import type { WrIconDef, WrIconName } from './interfaces';
+import type { WrIconDef, WrIconName } from './types';
 import { type WrIconStripReport, sanitizeIcon } from './utils';
 
 /**
@@ -35,6 +35,10 @@ import { type WrIconStripReport, sanitizeIcon } from './utils';
   },
 })
 export class WrIcon {
+  /**
+   * Name the icon was registered under in `provideWrIcons()`. An unregistered
+   * name renders nothing and logs in dev mode — ngwr ships no icons itself.
+   */
   readonly name = input.required<WrIconName>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -89,7 +93,7 @@ export class WrIcon {
       // ran an `onload` on the root, an `<image onerror>`, an `<img>` smuggled
       // in after a closed `</svg>` and anything inside a `<foreignObject>` —
       // in production builds, with the app's own origin. `provideWrIcons()`
-      // data is untrusted the same way `<wr-markdown>`'s input is: a tenant
+      // data is untrusted the same way `<wr-editor>`'s value is: a tenant
       // logo or a fetched icon pack is a normal way to fill it. Building nodes
       // also keeps `<wr-icon>` clear of Trusted Types, which refuses the
       // `innerHTML` write outright.

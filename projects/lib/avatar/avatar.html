@@ -17,5 +17,12 @@
     @if (!loaded()) {
       <wr-spinner class="wr-avatar__spin" />
     }
+  } @else if (resolvedAlt()) {
+    <!--
+      The broken <img> is removed so the fallback can show, and its `alt` went with
+      it: with no initials projected, the avatar was left with no name at all. With
+      initials, the stylesheet hides this and they name the avatar, as before.
+    -->
+    <span class="wr-avatar__alt" role="img" [attr.aria-label]="resolvedAlt()"></span>
   }
 }

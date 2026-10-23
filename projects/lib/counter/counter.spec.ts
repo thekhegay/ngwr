@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCountUp } from './count-up';
 import { WrCounter } from './counter';
-import type { WrCounterMode, WrCountUpTrigger } from './interfaces';
+import type { WrCounterMode, WrCountUpTrigger } from './types';
 
 @Component({
   imports: [WrCounter],
@@ -158,6 +158,91 @@ describe('WrCounter', () => {
     finish();
 
     expect(srText()).toBe('42');
+  });
+
+  describe('odometer roll', () => {
+    const wheels = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-counter__strip')];
+    const blanks = (): Element[] =>
+      [...root().querySelectorAll('.wr-counter__static')].filter(cell => cell.textContent === '');
+    /** The digit each wheel shows, fraction included. */
+    const readings = (): number[] =>
+      wheels().map(strip => Number(/translateY\(-([\d.]+)em\)/.exec(strip.style.transform)?.[1]));
+
+    const rollTo = (value: number): void => {
+      fixture.componentInstance.value.set(value);
+      fixture.detectChanges();
+      vi.advanceTimersByTime(80);
+      fixture.detectChanges();
+    };
+
+    beforeEach(() => {
+      fixture.componentInstance.mode.set('odometer');
+      fixture.componentInstance.value.set(123456);
+      fixture.detectChanges();
+      finish();
+    });
+
+    it('rolls every digit of a large decrease, not only the last', () => {
+      expect(readings()).toEqual([1, 2, 3, 4, 5, 6]);
+
+      rollTo(7);
+
+      // A wheel was kept only where the target AND the live value had a digit, so
+      // 123456 to 7 rolled the ones column and blanked the other five at once.
+      expect(wheels()).toHaveLength(6);
+      expect(blanks()).toHaveLength(0);
+      // Mid-roll, short of both ends: the hundred-thousands wheel is on its way to 0.
+      const [leading] = readings();
+      expect(leading).toBeGreaterThan(0);
+      expect(leading).toBeLessThan(1.23);
+
+      finish();
+      expect(readings()).toEqual([7]);
+      expect(srText()).toBe('7');
+    });
+
+    it('rolls the places a large increase adds up from 0, rather than printing them', () => {
+      rollTo(7);
+      finish();
+
+      rollTo(123456);
+
+      expect(wheels()).toHaveLength(6);
+      expect(root().querySelectorAll('.wr-counter__static')).toHaveLength(1); // the group separator
+      expect(readings()[0]).toBeLessThan(1);
+
+      finish();
+      expect(readings()).toEqual([1, 2, 3, 4, 5, 6]);
+    });
+
+    it('keeps a negative sign in front of every wheel while the roll is below zero', () => {
+      rollTo(-1234);
+      finish();
+
+      rollTo(5);
+
+      // Laid out with the places, the live value's sign landed inside the wider start's
+      // layout: `0-935`, a minus between the thousands wheel and the hundreds.
+      const odo = root().querySelector('.wr-counter__odo')!;
+      expect(odo.firstElementChild!.textContent).toBe('-');
+      expect([...odo.querySelectorAll('.wr-counter__static')].map(cell => cell.textContent)).toEqual(['-', ',']);
+
+      finish();
+      expect(readings()).toEqual([5]);
+      expect(odo.querySelectorAll('.wr-counter__static')).toHaveLength(0);
+    });
+
+    it('keeps the ones wheel when the columns to its left go', () => {
+      const ones = wheels().at(-1);
+
+      rollTo(7);
+      finish();
+
+      // Columns are keyed from the right, so the wheel that was showing the ones is the
+      // one still showing them — keyed by index, the hundred-thousands wheel took over
+      // and visibly rolled from 0 to 7 as the roll ended.
+      expect(wheels()).toEqual([ones]);
+    });
   });
 
   it('shows a number rather than the word NaN', () => {

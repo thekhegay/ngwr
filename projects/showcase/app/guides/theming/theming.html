@@ -1,164 +1,134 @@
 <ngwr-doc-page
   title="Theming"
-  description="ngwr is themed entirely with CSS custom properties — no SCSS rebuild required for most changes. Wire up the providers, load the stylesheet, and you get light + dark out of the box with a palette you can rebrand at compile time or at runtime."
-  [keywords]="['theme', 'theming', 'dark mode', 'palette', 'rebrand', 'css variables']"
+  updated="15.0.0"
+  description="Load the theme, switch light and dark, and rebrand the palette."
+  [keywords]="['theme', 'theming', 'dark mode', 'color-scheme', 'light-dark', 'palette', 'rebrand', 'css variables']"
   [labels]="['Core']"
 >
   <ngwr-doc-section
     title="Wire it up"
-    description="Two providers: theme (mode + persistence) and density (spacing scale)."
-  >
-    <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Load the stylesheet"
-    description="One umbrella for everything, or pick individual entry-points if you bundle by component."
+    description="In your global stylesheet: the theme first, then one `@use` per component you render."
   >
     <ngwr-doc-code [code]="snippets.styles" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Light / dark / auto"
-    description="`mode` is what the user picked. `resolved()` is what the DOM actually has — `auto` resolves through `prefers-color-scheme`. Writes `data-theme` on `<html>` and persists via WrStorage."
+    description="The page follows the OS by default. `WrTheme` switches it and remembers the choice."
   >
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-          @for (m of modes; track m) {
-            <button wr-btn type="button" [color]="mode() === m ? 'primary' : null" (click)="setMode(m)">
-              {{ m }}
-            </button>
-          }
-        </div>
+        <wr-segmented
+          aria-label="Theme mode"
+          [options]="modeOptions"
+          [value]="mode()"
+          (valueChange)="setMode($event)"
+        />
         <p style="margin: 0">
           mode: <code>{{ mode() }}</code> · resolved: <code>{{ resolved() }}</code>
         </p>
       </div>
     </ngwr-doc-snippet>
     <ngwr-doc-code [code]="snippets.darkMode" language="angular-ts" />
+    <p>
+      On a prerendered site, add the <a routerLink="/reference/services/theme">pre-paint script</a> so a stored choice
+      applies before first paint.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Renaming the theme attribute"
-    description="`provideWrTheme({ attribute })` moves the attribute `WrTheme` writes on `&lt;html&gt;` — useful when another design system on the page already owns `data-theme`. It has a second half: a CSS selector cannot read a provider value, so the stylesheet takes the same name as the Sass variable `$theme-attribute`, and **the two must be set to the same string**. Set only the provider and dark mode silently never applies — the service reports `resolved() === 'dark'`, the attribute lands on `&lt;html&gt;`, and nothing matches it. In development `WrTheme` compares the two and warns when they disagree; the compiled stylesheet publishes what it keys on as `--wr-theme-attribute` so it can."
+    title="One subtree in the other scheme"
+    description="`color-scheme: dark` on any element puts its whole subtree in dark."
   >
-    <ngwr-doc-code [code]="snippets.attribute" language="scss" />
+    <ngwr-doc-snippet code="">
+      <div
+        style="
+          color-scheme: dark;
+          display: flex;
+          gap: 0.75rem;
+          align-items: center;
+          flex-wrap: wrap;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          background: var(--wr-color-surface);
+          color: var(--wr-color-on-surface);
+        "
+      >
+        <span>Always dark</span>
+        <button wr-btn type="button" color="primary">Primary</button>
+        <button wr-btn type="button">Default</button>
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.subtree" language="angular-html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Dark mode in a component stylesheet"
-    description="The same mixin, and it emits TWO rules to get there. Angular's emulated encapsulation appends `_ngcontent-…` to every compound of a selector, the ancestor included, so a plain `[data-theme=\'dark\'] .login` is shimmed into `[data-theme=dark][_ngcontent-x] .login[_ngcontent-x]` — and `&lt;html&gt;` carries no such attribute, so the rule compiles, ships, and matches nothing. `:host-context()` is the one form Angular leaves the ancestor untagged in, so the mixin writes both and lets whichever cannot match in a given compilation sit inert. Two rules rather than one selector list, deliberately: `:host-context()` is Chromium-only, and an unknown pseudo-class invalidates the whole list it sits in, so sharing one would take the working arm down with it wherever the pseudo-class reaches a browser instead of being compiled away."
-  >
+  <ngwr-doc-section title="Your own dark values" description="Write both sides in one declaration with `light-dark()`.">
     <ngwr-doc-code [code]="snippets.componentDark" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Rebrand — at compile time"
-    description="Pass your hex values to the SCSS palette module before `@use 'ngwr'`. NGWR re-derives all variants (dark, darker, light, lighter, contrast) — **in the light theme, which is the whole of what `$base-colors` configures.** Dark mode does not follow, and that is a boundary rather than an oversight: the dark intents are hand-tuned for the dark canvas, not lightened from the light ones. `success` and `danger` are moved 33% and 21% so their labels can go white on a dark ground, `warning` is deliberately left where it is because white cannot reach it at any tone worth shipping, and `primary` is deepened for the same flip — a direction no formula would take on its own. Deriving dark from your seed would swap a visibly wrong colour for an invisible failing contrast ratio, so the library refuses to guess and hands you the same arithmetic instead: `theme.rebrand()`, wrapped in `theme.dark`. Pick the dark seed FOR the dark canvas — usually lighter than the light one — and measure it."
+    title="Rebrand"
+    description="Set `$base-colors` for the light scheme, and use `theme.rebrand()` for dark or for one subtree."
   >
-    <ngwr-doc-code [code]="snippets.paletteScss" language="scss" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Rebrand — one subtree"
-    description="Recolouring a section is `theme.rebrand()` on that selector, and hand-writing the three obvious properties is not enough — it leaves every derived token on the page's own hue, in two different ways. The four shades (`-dark`, `-darker`, `-light`, `-lighter`) are Sass arithmetic resolved at compile time, so no runtime value reaches them and a pink button turns blue on hover, which paints `-dark`. The tint and ink family (`-soft`, `-soft-border`, `-soft-contrast`, `-active`, `-ink`) IS written in terms of `var()` — but a custom property's references are substituted on the element that declares it, and those are declared on `:root`, so what inherits into your section is the substituted literal. An outlined button inside a pink `.marketing` drew a pink border around blue text. The mixin does both halves: it recomputes the shades and re-includes the composed tokens on your element, where they resolve against your base."
-  >
-    <ngwr-doc-code [code]="snippets.paletteScoped" language="scss" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Rebrand — at runtime"
-    description="Override the CSS variables on `:root`. Set the base color, the `-rgb` channel — components use it for `rgba()` rings and tints — and the `-contrast`, which is the one the compile-time path derives for you and this one does not: it was baked from the old fill, so a runtime base change leaves the label behind. Re-pick it the way the theme does, by taking whichever of black or white scores higher against the new fill. On `:root` the tint and ink family re-resolves by itself, because it is declared on the same element you are overriding; the four shades still cannot, so set those too — or let `wrThemeTokens()` compute all seven from one hex, which is what it is for."
-  >
-    <ngwr-doc-code [code]="snippets.paletteRoot" language="scss" />
+    <ngwr-doc-code [code]="snippets.rebrand" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Per-component tokens"
-    description="Every component also exposes its own scoped CSS variables (`--wr-btn-radius`, `--wr-tag-bg`, …). Override at the element level when you only need to nudge one widget."
+    description="Each component has its own `--wr-<name>-*` hooks, listed on its page."
   >
     <ngwr-doc-code [code]="snippets.component" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Reduced motion"
-    description="The theme layer ships one `@media (prefers-reduced-motion: reduce)` block covering the always-on chrome — the enter animations on dialog, drawer, dropdown, popconfirm, toast, the lightbox viewer and the responsive bottom sheet, plus the skeleton and lightbox shimmers. You get it with the stylesheet; there is nothing to opt into. What it does is decided per animation rather than globally: an enter animation is removed (the panel still arrives, it just does not travel), a decorative shimmer is removed, a **spinner is slowed rather than stopped** — a frozen spinner reads as hung, not as calm — and the toast's progress bar keeps running, because it is a countdown and a bar frozen full would state something untrue. Override any of it on the same classes; the block is `!important` only because the theme layer loads before every component stylesheet."
-  />
-
-  <ngwr-doc-section
-    title="Every !important in the library"
-    description="Thirty-eight declarations, and knowing where they are is the difference between an override that works and an afternoon. **Eighteen are the reduced-motion block above** and its per-component counterparts — `marquee`, `star-border`, `glitch-text`, `shiny-text`, `gradient-text` and the `ngwr/animations` utility classes — where `!important` is structural: the theme layer loads before every component stylesheet, so an ordinary rule there loses to the animation it is trying to remove. **The other twenty sit on seven selectors, and fifteen of them are fighting an inline style rather than your CSS** — CDK's, written onto the pane after attach and re-written on every reposition, which no ordinary rule at any specificity can reach. Two are `.wr-window--no-anim`, the window's own opt-out modifier, doing to its subtree what you would do by hand. The last three are ProseMirror's own rule for the `img.ProseMirror-separator` it inserts into `wr-editor`, restated because ngwr does not ship ProseMirror's stylesheet: the image has to stay inline, borderless and marginless whatever a page's `img` rules say, `ngwr/reset` among them."
-  >
-    <ngwr-doc-code [code]="snippets.importantList" language="scss" />
-
-    <p wrTypography variant="small" tone="medium">
-      <strong>Overriding the bottom sheet takes an <code>!important</code> of your own</strong>, in a stylesheet that
-      loads after ngwr's, at equal or higher specificity — that is the whole trick, and a rule on the BEM class without
-      it simply does nothing. Twelve of the twenty are on <code>.wr-overlay-sheet</code>, the presentation dialog,
-      select, dropdown and popover share on small viewports: eight on the sheet itself (width, min / max width, the two
-      <code>max-height</code> declarations, the top-only radius, the keyboard lift and the slide-up animation) and four
-      stretching its direct children and squaring their bottom corners. Reach for the sheet's own tokens first —
-      <code>--wr-overlay-duration</code> and <code>--wr-overlay-ease</code> are read from <code>var()</code>, so a
-      custom property beats the declaration without any specificity fight at all.
-    </p>
-
-    <ngwr-doc-code [code]="snippets.importantOverride" language="scss" />
-
-    <p wrTypography variant="small" tone="medium">
-      <strong>One of the twelve cannot be beaten by a plain rule at any specificity.</strong>
-      <code>margin-bottom</code> on the sheet is fighting an inline style: all four sheet users pin the pane with a CDK
-      <code>GlobalPositionStrategy</code>, whose <code>apply()</code> writes <code>margin-bottom: 0px</code> onto that
-      very element on every reposition. The same is true of the three <code>position</code> declarations —
-      <code>.wr-context-menu-overlay</code>, <code>.wr-dialog-panel</code> and <code>.wr-drawer__panel</code> each undo
-      an inline <code>position: static</code> that CDK re-applies after attach. If you need different geometry there,
-      change what the strategy is given rather than what the rule says: the panel width and the radius are ordinary
-      declarations you can win.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Styling one instance: the class hooks"
-    description="A BEM rule reaches every instance on the page at once, and inside an overlay it often reaches nothing at all — the pane is appended to the overlay container, so no selector written around your trigger encloses it. Where the element is ngwr's rather than yours, there is an input that puts your classes on it. **Seventeen overlays take a `panelClass`** — select, dropdown, popover and tooltip, both date pickers, cascader, tree in overlay mode, mention, popconfirm, the colour-picker trigger, lightbox, drawer, dialog and the drawer service through their options, window through its config, and the context menu on the panel itself so a whole cascade is covered by one input per menu. A **toast takes `class`** rather than `panelClass`, and the difference is not cosmetic: the pane there holds the whole stack and outlives every toast in it. A **tour step** takes its own, since each step builds its own pane. And `wr-table` takes two, because a `<th>`, `<td>` and `<tr>` are elements no template slot renders as: `class` on a column for its header and body cells, `rowClass` for a predicate over the row."
+    title="Styling one instance"
+    description="Overlays take `panelClass`, a toast takes `class`, and a table takes `class` per column and `rowClass`."
   >
     <ngwr-doc-code [code]="snippets.classHooks" language="angular-html" />
     <ngwr-doc-code [code]="snippets.classHooksTs" language="angular-ts" />
-
-    <p wrTypography variant="small" tone="medium">
-      <strong>A space-separated string is the point</strong> — an array works too, but the CDK hands an overlay's
-      classes to <code>classList.add()</code> without splitting them, so a single <code>'p-4 rounded-xl'</code> used to
-      throw <code>InvalidCharacterError</code> and take the overlay down with it. Every hook here runs its value through
-      <a href="/reference/utils/to-class-list"><code>toClassList</code></a> first, which is exported for the same lists
-      you build yourself. <code>null</code> and <code>undefined</code> mean "add nothing", so a hook bound to a signal
-      that is not ready yet needs no guard.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      <strong>What lands where is worth knowing before you write the rule.</strong> A pane is a positioning wrapper: for
-      dialog and the drawer service the content IS the pane, so your classes paint the box, while for select, dropdown
-      and the pickers the box that paints is inside it — so <code>.my-class .wr-select-panel</code> is the rule, not
-      <code>.my-class</code>. The context menu is on the box itself, and the drawer component matches its service rather
-      than its pane. Each input's JSDoc names its element.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      <strong>This does not rescue an encapsulated component stylesheet.</strong> The element belongs to ngwr's view, so
-      it carries no <code>_ngcontent</code> attribute of yours and a rule in your component's own
-      <code>.scss</code> will not match it — the class has to be global, which is what a utility framework's classes
-      already are. Where you want a value rather than a rule, the component's own <code>--wr-*</code> hook is still the
-      shorter road, and every component page catalogues its own.
-    </p>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="What is stable, and what is not"
-    description="Three layers, and they carry different promises. The **global tokens** (`--wr-color-*`, `--wr-border-radius-*`, `--wr-text-*`) and the **per-component tokens** (`--wr-btn-radius`, `--wr-tag-bg`) are public API: they are named deliberately and a rename is a breaking change with a migration note. The **BEM class names** (`.wr-checkbox__box`, `.wr-collapse__body`) are public too — components render with `ViewEncapsulation.None` precisely so you can reach them, and they are treated as API when the library changes: renaming or restructuring one is breaking, and the changelog says so. What is **not** stable is everything a class name does not cover — the element nesting inside a component, which element carries which class, and the presence of a wrapper. So a class NAME is safe to key on across a minor; a descendant selector that assumes a shape (`.wr-select__trigger > span > svg`) is not. **A stable name is not the same as a winning rule, and the difference bites 27 components** — `card`, `list`, `breadcrumbs`, `cascader`, `lightbox`, `loading-bar`, `virtual-scroll`, `drag-drop` and the nineteen animation and canvas ones each ship their own stylesheet, which Angular emits as a `<style>` block AFTER your linked `styles.css`. At equal specificity theirs wins, so `.wr-card { background: … }` in your global sheet does nothing while `.wr-btn { … }` works. Override those through their own token (`--wr-card-bg`), which is what the token catalogue on each component page is for, or raise specificity (`wr-card.wr-card`). Everything else in the catalog has no component stylesheet and takes a plain single-class rule. Anything you style should also be something you can see break: pin exact versions and keep a visual regression test, because a token change repaints without failing a build."
-  />
-
-  <ngwr-doc-section
-    title="Where to go next"
-    description="Theming wires the system up; the tokens are catalogued one family per page. [Colors](/guides/tokens/colors) — intents, the soft set, semantic neutrals and how dark mode flips. [Sizing](/guides/tokens/sizing) — the control-sizing contract and the radius scale. [Typography](/guides/tokens/typography) — the type scale, families and weights. [Density](/guides/tokens/density) — the spacing scale, `provideWrDensity()` and the `[wrDensity]` subtree override. [Motion](/guides/tokens/motion) — easings, durations and the overlay timing hook."
-  />
+  <ngwr-doc-section title="Gotchas">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Symptom</th>
+            <th scope="col">Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>withDensity()</code> and <code>[wrDensity]</code> change nothing</th>
+            <td>Add <code>&#64;use 'ngwr/density'</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">A rebranded subtree keeps the old hue on hover and soft fills</th>
+            <td>Use <code>theme.rebrand()</code>, not a hand-set <code>--wr-color-*</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">A <code>light-dark()</code> declaration is ignored</th>
+            <td>It takes colours only.</td>
+          </tr>
+          <tr>
+            <th scope="row">A global <code>.wr-card</code> rule has no effect</th>
+            <td>Card, list and a few others override it; set their <code>--wr-*</code> hook instead.</td>
+          </tr>
+          <tr>
+            <th scope="row">A <code>panelClass</code> rule does not match</th>
+            <td>
+              Put it in a global stylesheet. On select, dropdown and the pickers, target the panel inside:
+              <code>.my-class .wr-select-panel</code>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">A selector breaks after an update</th>
+            <td>Key on <code>.wr-*</code> class names, not on element nesting.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
 
   <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>

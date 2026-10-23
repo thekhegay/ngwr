@@ -12,7 +12,7 @@ import { TOOLS, callTool, validateArguments } from './tools.js';
  * The ngwr MCP server — stdio, JSON-RPC 2.0, no dependencies.
  *
  * **Hand-rolled rather than built on the MCP SDK, and that is a deliberate
- * trade.** This ships inside `ngwr`, whose only runtime dependency is `tslib`;
+ * trade.** This ships inside `ngwr`, which has no runtime dependency;
  * an SDK would put a dependency tree behind every `npm i ngwr` for a feature most
  * consumers never run. The protocol surface a tools-only server needs is a
  * handful of methods and a framing rule.

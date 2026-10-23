@@ -1,18 +1,11 @@
 <ngwr-doc-page
   title="badgeLog"
-  description="Console log helper that prints a coloured pill badge before the message — useful for spotting events in a noisy devtools panel."
+  description="Logs a message to the browser console behind a coloured badge."
   [keywords]="['badgeLog', 'console', 'utils']"
   [labels]="['Util']"
 >
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Coloured-pill devtools logs are great for spotting events in a noisy console — but the native recipe (`console.log('%cTAG', '<long css string>', '…')`) is unreadable to write and easy to typo. The helper wraps the CSS so the call site only carries the badge text, colour and message."
-  >
-    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

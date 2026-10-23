@@ -31,14 +31,13 @@ export default class ClickOutsidePage {
   }
 
   protected readonly snippets = {
-    install: `import { WrClickOutside } from 'ngwr/directives';`,
     usage: `<div class="popup" (wrClickOutside)="close()"> … </div>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: '(wrClickOutside)',
-      description: 'Emits when a mousedown event lands outside the host element.',
+      description: 'Emits on a mousedown outside the host.',
       type: 'MouseEvent',
       default: '—',
     },

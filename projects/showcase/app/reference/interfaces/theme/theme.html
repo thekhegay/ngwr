@@ -1,16 +1,13 @@
 <ngwr-doc-page
   title="Theme types"
-  description="Unions exported from `ngwr/theme` — the palette names every colored component accepts, and the mode values `WrTheme` works with."
+  updated="15.0.0"
+  description="The intent and mode unions from `ngwr/theme`."
   [keywords]="['types', 'WrColor', 'WrThemeMode', 'theme']"
   [labels]="['Type']"
 >
-  <ngwr-doc-section title="Import">
-    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
-  </ngwr-doc-section>
-
   <ngwr-doc-section
     title="WrColor"
-    description="The palette union behind every `[color]` input. Values map 1:1 to the `--wr-color-*` custom properties, so a custom palette automatically flows into components."
+    description="Bind it to `[color]` on `wr-badge`, `wr-tag`, `wr-btn`, `wr-divider`, `wr-progress` and `wr-skeleton`."
   >
     <ngwr-doc-code [code]="snippets.color" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -18,6 +15,9 @@
         <wr-badge [color]="c">{{ c }}</wr-badge>
       }
     </ngwr-doc-snippet>
+    <p>
+      <code>wr-timeline-item</code> takes <code>WrTimelineColor</code> instead, and the charts take a CSS colour string.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

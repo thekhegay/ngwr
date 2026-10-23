@@ -6,6 +6,7 @@ import {
   type ElementRef,
   inject,
   input,
+  model,
   resource,
   signal,
   untracked,
@@ -14,8 +15,7 @@ import {
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 
 import { Check, Copy } from 'lucide';
-import { provideWrIcons, WrIcon } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 
 import type { DocCodeFile } from './types';
 
@@ -52,11 +52,27 @@ let docCodeUid = 0;
   templateUrl: './doc-code.html',
   styleUrl: './doc-code.scss',
   host: {
+    class: 'wr-not-typeset',
     '[attr.data-empty]': 'tabs().length === 0 ? "" : null',
-    // Reflected for `scripts/gen-md-docs.ts`, which fences the block by it. A
+    // Reflected for `scripts/gen/md-docs.ts`, which fences the block by it. A
     // static `language="ts"` already lands in the DOM; a bound one does not,
     // and every snippet binds it — so read the active tab instead of the input.
     '[attr.data-language]': 'activeTab()?.language ?? null',
+    // The same reflection, for the files the panel is NOT currently showing.
+    //
+    // One panel holds whichever tab is open (see the template for why), so the
+    // prerendered HTML carries exactly one file and the markdown twin could
+    // only name the rest: 85 pages printed "Also shown on the page: SCSS" and
+    // then no `@use` line, directly under prose insisting that **both halves
+    // are needed**. v15 is what made that half load-bearing, by removing the
+    // `@use 'ngwr'` umbrella — so the twin was teaching the installation whose
+    // omission fails silently.
+    //
+    // An attribute rather than a second panel: it changes nothing on the page,
+    // enters no accessibility tree, and needs no decision about how a tabs
+    // pattern should hide an inactive panel. `JSON.stringify` keeps newlines
+    // and quotes intact through attribute serialisation.
+    '[attr.data-inactive-files]': 'inactiveFilesJson()',
   },
   providers: [provideWrIcons(lucideIcons({ copy: Copy, check: Check }))],
 })
@@ -80,6 +96,9 @@ export class DocCodeComponent {
 
   protected readonly activeIndex = signal(0);
 
+  /** The selected tab's label, two-way: blocks bound to one value switch together. */
+  readonly tab = model<string | null>(null);
+
   protected readonly activeTab = computed(() => this.tabs()[this.activeIndex()] ?? null);
 
   /** A tab strip only exists once there is more than one file to choose from. */
@@ -88,6 +107,21 @@ export class DocCodeComponent {
   protected readonly normalized = computed(() => {
     const t = this.activeTab();
     return t ? stripIndent(t.code) : '';
+  });
+
+  /**
+   * The tabs the panel is not showing, as JSON — read by
+   * `scripts/gen/md-docs.ts` and by nothing else. `null` while there is only
+   * one file, so a single-file block carries no attribute at all.
+   */
+  protected readonly inactiveFilesJson = computed<string | null>(() => {
+    const all = this.tabs();
+    if (all.length < 2) return null;
+    const active = this.activeIndex();
+    const rest = all
+      .filter((_, i) => i !== active)
+      .map(f => ({ label: f.label, language: f.language, code: stripIndent(f.code) }));
+    return rest.length > 0 ? JSON.stringify(rest) : null;
   });
 
   protected readonly copied = signal(false);
@@ -139,6 +173,15 @@ export class DocCodeComponent {
     effect(() => {
       const next = this.highlighted.value();
       if (next != null) untracked(() => this.lastHtml.set(next));
+    });
+
+    // Follow an outside `tab` write: another block bound to the same value switched.
+    effect(() => {
+      const label = this.tab();
+      const i = label === null ? -1 : this.tabs().findIndex(t => t.label === label);
+      untracked(() => {
+        if (i >= 0 && i !== this.activeIndex()) this.activeIndex.set(i);
+      });
     });
 
     // Reset cached HTML + clamp index when the file list changes.
@@ -218,6 +261,7 @@ export class DocCodeComponent {
 
   protected select(i: number): void {
     this.activeIndex.set(i);
+    this.tab.set(this.tabs()[i]?.label ?? null);
   }
 
   protected async copy(): Promise<void> {

@@ -1,0 +1,28 @@
+<ngwr-doc-page
+  title="Gradient Text"
+  updated="15.0.0"
+  description="Text filled with a moving gradient."
+  [keywords]="['gradient-text', 'wr-gradient-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="gradient-text" category="text-animations" />
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-gradient-text
+        [animationSpeed]="animationSpeed()"
+        [direction]="direction()"
+        [yoyo]="yoyo()"
+        [pauseOnHover]="pauseOnHover()"
+        [showBorder]="showBorder()"
+        style="font-size: 3rem; font-weight: 700"
+      >
+        {{ text() }}
+      </wr-gradient-text>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

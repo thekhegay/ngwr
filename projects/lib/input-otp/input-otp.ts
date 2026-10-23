@@ -25,12 +25,11 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { useConfigValue } from 'ngwr/config';
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { isComposing } from 'ngwr/utils';
 
-import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
+import type { WrInputOtpMode, WrInputOtpSize } from './types';
 
 /**
  * Fixed-length one-time-code input. Renders one `<input>` per character,
@@ -40,7 +39,8 @@ import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
  * A signal-forms native control: it implements `FormValueControl<string>`, so
  * `[formField]` binds straight to its `value` model — no
  * `ControlValueAccessor` in between. `[(value)]` works standalone. Emits
- * `completed` once all cells are filled (useful for auto-submission).
+ * `completed` whenever the code changes while all cells are filled (useful for
+ * auto-submission).
  *
  * @example
  * ```html
@@ -82,20 +82,12 @@ export class WrInputOtp implements FormValueControl<string> {
   readonly mode = input<WrInputOtpMode>('numeric');
 
   /**
-   * Control size — shares the `--wr-control-*` contract. Unset falls back to the
-   * `inputOtp.size` app default from `provideWrConfig()`. @default 'md'
+   * Control size — shares the `--wr-control-*` contract. A box carries no size
+   * of its own: the host modifier sets `--wr-input-otp-size` / `-font` /
+   * `-radius` / `-gap` and every box reads them from the cascade, so one value
+   * sizes the whole strip however many boxes `length` renders. @default 'md'
    */
-  readonly size = input<WrInputOtpSize | null>(null);
-
-  /**
-   * `size`, then the app config, then `md`.
-   *
-   * Read ONCE, here: a box carries no size of its own — the host modifier sets
-   * `--wr-input-otp-size` / `-font` / `-radius` / `-gap` and every box reads them
-   * from the cascade — so one resolution sizes the whole strip however many boxes
-   * `length` renders.
-   */
-  protected readonly resolvedSize = useConfigValue(this.size, c => c.inputOtp?.size, 'md');
+  readonly size = input<WrInputOtpSize>('md');
 
   /** Mask the typed characters like a password. @default false */
   readonly mask = input(false, { transform: coerceBooleanProperty });
@@ -150,7 +142,12 @@ export class WrInputOtp implements FormValueControl<string> {
   /** The entered code. Bound by `[formField]`, or two-way via `[(value)]`. */
   readonly value = model<string>('');
 
-  /** Fires once when every cell holds a character. */
+  /**
+   * Fires on every change made while every cell holds a character — so
+   * correcting a digit of an already-complete code emits again. Not latched on
+   * the incomplete-to-complete transition: a host auto-submitting on it has to
+   * guard its own re-entry, and gets the corrected code for free.
+   */
   readonly completed = output<string>();
 
   /** Emitted on blur so a bound field can mark itself touched. */
@@ -160,7 +157,7 @@ export class WrInputOtp implements FormValueControl<string> {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-input-otp'];
-    const size = this.resolvedSize();
+    const size = this.size();
     if (size !== 'md') parts.push(`wr-input-otp--${size}`);
     if (this.disabled()) parts.push('wr-input-otp--disabled');
     else if (this.readonly()) parts.push('wr-input-otp--readonly');
@@ -176,13 +173,29 @@ export class WrInputOtp implements FormValueControl<string> {
   protected readonly cellRefs = viewChildren<ElementRef<HTMLInputElement>>('cell');
 
   constructor() {
-    // Resize the cell array whenever `length` changes — preserves existing values.
+    // Resize the cell array whenever `length` changes — preserves existing
+    // values, and tells the model about the ones it dropped.
+    //
+    // The write-back is the half that was missing. Shrinking `length` trimmed
+    // the cells and left `value` holding the longer string: six boxes with
+    // `123456` typed in, `length` set to 4, four boxes showing `1234` and a
+    // form still submitting `123456` — a code the user could not see and had
+    // no way to correct, since nothing resynced until the next keystroke. The
+    // other effect cannot cover it: it tracks `value` alone and reads `length`
+    // inside `untracked`, so a `length` change never re-runs it.
     effect(() => {
       const len = this.length();
-      const current = this.cells();
+      const current = untracked(() => this.cells());
       if (current.length === len) return;
       const next = Array.from({ length: len }, (_, i) => current[i] ?? '');
       this.cells.set(next);
+
+      // ONLY when the resize threw characters away. Emitting on every resize
+      // clobbers the first render — the array is sized before the `value`
+      // effect has split an incoming code into it, so an empty `next` would
+      // write `''` over the value the host just set.
+      const dropped = current.slice(len).join('');
+      if (dropped !== '') this.emitChange();
     });
 
     // Split an external `value` write back into cells (mirrors the old
@@ -237,7 +250,12 @@ export class WrInputOtp implements FormValueControl<string> {
       target.value = this.cells()[index] ?? '';
       return;
     }
-    const char = this.sanitiseChar(target.value.slice(-1));
+    // The character just typed is the one before the caret, not the last one in the
+    // box: typing into a filled box puts the new character beside the old, and where
+    // depends on the caret — WebKit put it in FRONT, so `slice(-1)` kept the old one.
+    const caret = target.selectionStart;
+    const typed = caret ? target.value.slice(caret - 1, caret) : target.value.slice(-1);
+    const char = this.sanitiseChar(typed);
     target.value = char;
     this.update(index, char);
     if (char) this.focusCell(index + 1);
@@ -310,6 +328,17 @@ export class WrInputOtp implements FormValueControl<string> {
     afterNextRender(() => this.focusCell(Math.min(trimmed.length, this.length() - 1)), {
       injector: this.injector,
     });
+  }
+
+  /**
+   * A click selects the box's character, the way Tab into it already does, so the
+   * next keystroke replaces it. Left with the caret beside it, `maxlength="1"` made
+   * the browser refuse the keystroke outright — the box kept its digit and nothing
+   * said why. On `click` rather than `focus`, because the browser places the caret
+   * at the pointer after focusing, which would undo a select made on focus.
+   */
+  protected onClick(event: MouseEvent): void {
+    (event.target as HTMLInputElement).select();
   }
 
   protected onBlur(): void {

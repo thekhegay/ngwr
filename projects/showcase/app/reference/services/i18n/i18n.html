@@ -1,28 +1,22 @@
 <ngwr-doc-page
   title="WrI18n"
-  description="Reactive i18n service. Active locale lives on a signal, catalogs load lazily through a swappable loader (HTTP or static), and double-brace placeholders interpolate at render time. Scopes let feature modules ship and load their own catalogs. Keep ngwr's own strings with `provideWrI18nBaseCatalogs` rather than spreading `wrEn` into your catalog: a spread is shallow, so any namespace you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged — ngwr's components fall back to English and a `wrT` read of a lost key renders the raw key."
+  description="Translate strings at runtime and switch the locale without a reload."
   [keywords]="['i18n', 'translation', 'locale', 'transloco', 'wr-i18n', 'service']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Angular's built-in i18n bakes translations in at build time — one bundle per locale, no runtime switching. This service swaps catalogs at runtime, scopes keys per feature, and interpolates parameters."
-  />
-
-  <ngwr-doc-section
-    title="Live demo"
-    description="Switch the active locale — every binding on the page updates without a re-render."
-  >
+  <ngwr-doc-section title="Live demo" description="Switch the locale; every `wrT` binding updates.">
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
         <p style="margin: 0">
           <strong>Active locale:</strong> <code>{{ locale() }}</code>
         </p>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-          @for (lc of available; track lc) {
-            <button type="button" (click)="use(lc)">{{ lc }}</button>
-          }
-        </div>
+        <wr-segmented
+          aria-label="Locale"
+          size="sm"
+          [options]="localeOptions"
+          [value]="locale()"
+          (valueChange)="use($event)"
+        />
         <p style="margin: 0">
           <strong>Pipe:</strong> {{ 'app.title' | wrT }} — {{ 'app.hello' | wrT: { name: name() } }}
         </p>
@@ -41,77 +35,72 @@
 
   <ngwr-doc-section
     title="Reading a key from TypeScript"
-    description="There are two families here and picking the wrong one fails at runtime rather than at compile time. `useI18nText()`, `readI18nText()` and `useI18nFormatter()` all call `inject()`, so they only run in an **injection context** — a field initializer, a constructor, or inside `runInInjectionContext()`. Call one from a click handler, a `setTimeout`, a route resolver body or a module-level constant and Angular throws `NG0203`. The service's own `t()` and `translate()` have no such rule: you already hold the instance, so they work anywhere."
+    description="The `use…` and `read…` helpers need an injection context; `t()` and `translate()` work anywhere."
   >
-    <div style="overflow-x: auto">
+    <div class="ngwr-table">
       <table>
-        <caption>
-          Which one to reach for.
-        </caption>
         <thead>
           <tr>
             <th scope="col">Call</th>
             <th scope="col">Returns</th>
-            <th scope="col">Where it may run</th>
+            <th scope="col">Runs in</th>
             <th scope="col">Use it for</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>useI18nText(input, key, fallback)</code></td>
+            <th scope="row"><code>useI18nText(input, key, fallback)</code></th>
             <td><code>Signal&lt;string&gt;</code></td>
             <td>Injection context</td>
-            <td>A component string a consumer can override with an input</td>
+            <td>A string with an override input</td>
           </tr>
           <tr>
-            <td><code>readI18nText(key, fallback)</code></td>
+            <th scope="row"><code>readI18nText(key, fallback)</code></th>
             <td><code>Signal&lt;string&gt;</code></td>
             <td>Injection context</td>
-            <td>The same, with no override input to forward</td>
+            <td>A string with no override input</td>
           </tr>
           <tr>
-            <td><code>useI18nFormatter(key, fallback)</code></td>
+            <th scope="row"><code>useI18nFormatter(key, fallback)</code></th>
             <td><code>(params) =&gt; string</code></td>
             <td>Injection context</td>
-            <td>A label that interpolates per row</td>
+            <td>A label with params per row</td>
           </tr>
           <tr>
-            <td><code>i18n.translate(key, params?)</code></td>
+            <th scope="row"><code>i18n.translate(key, params?)</code></th>
             <td><code>Signal&lt;string&gt;</code></td>
             <td>Anywhere</td>
-            <td>A reactive string built after construction</td>
+            <td>A reactive string, created later</td>
           </tr>
           <tr>
-            <td><code>i18n.t(key, params?)</code></td>
+            <th scope="row"><code>i18n.t(key, params?)</code></th>
             <td><code>string</code></td>
             <td>Anywhere</td>
-            <td>A one-shot read — a toast message, a log line</td>
+            <td>A one-off read, such as a toast</td>
           </tr>
         </tbody>
       </table>
     </div>
     <ngwr-doc-code [code]="snippets.injectionContext" language="typescript" />
-    <p>
-      <code>readI18nText()</code> returns a <em>signal</em>, and that is not a style choice: catalogs land a microtask
-      after the first change-detection pass even with the static loader, so anything that read a plain string at
-      construction time would freeze the English fallback for the life of the app. Keep the signal and call it in the
-      template.
-    </p>
+    <p>Call the signal in the template: a read at construction freezes the English fallback.</p>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Service" description="Everything on the injected `WrI18n` instance.">
+  <ngwr-doc-section title="Service">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Providers" description="Wire the service up at bootstrap. Pick exactly one loader.">
+  <ngwr-doc-section
+    title="Providers"
+    description="Pick one loader, and add ngwr's own strings with `provideWrI18nBaseCatalogs`, never by spreading `wrEn` into your catalog."
+  >
     <ngwr-doc-api [rows]="providerApi" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Template helpers" description="The same service, reached from a template.">
+  <ngwr-doc-section title="Template helpers">
     <ngwr-doc-api [rows]="templateApi" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="[wrT] inputs" description="The directive form, bound on any element.">
+  <ngwr-doc-section title="[wrT] inputs">
     <ngwr-doc-api [rows]="directiveApi" />
   </ngwr-doc-section>
 

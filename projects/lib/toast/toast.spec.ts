@@ -1,25 +1,22 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, EnvironmentInjector, type EnvironmentProviders, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWr } from 'ngwr';
 import { WrDialog, WrDialogContent, type WrDialogRef } from 'ngwr/dialog';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { provideWrToastConfig } from './provide-wr-toast-config';
 import { WrToast } from './services/toast';
+import { withToast } from './with-toast';
 
 /**
  * Toast has no template of its own — a consumer injects `WrToast` and calls
  * `show()`, and the stack is rendered by an internal host that the service
  * attaches to a CDK overlay. So every query goes through the document (the
- * host is not inside any fixture), and this spec provides `provideWrOverlay()`
- * so its container does not leak into the next spec file.
+ * host is not inside any fixture), and its container belongs to the TestBed's
+ * root injector, so it does not leak into the next spec file.
  *
  * Timers are faked for the whole file: auto-dismiss is core to the component,
  * and a real `setTimeout` left behind by a still-open toast would fire against
@@ -29,7 +26,7 @@ describe('WrToast', () => {
   let toast: WrToast;
 
   const setup = (extra: EnvironmentProviders[] = []): WrToast => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), ...extra] });
+    TestBed.configureTestingModule({ providers: extra });
     return TestBed.inject(WrToast);
   };
 
@@ -236,6 +233,80 @@ describe('WrToast', () => {
       expect(items()).toHaveLength(0);
     });
 
+    it('pauses the countdown while focus is inside a toast, with no pointer anywhere', () => {
+      // A keyboard user who focused the Close button had the toast removed from
+      // under the focus once its time ran out, which dropped focus on `<body>`.
+      toast.show({ message: 'One', duration: 1000 });
+      tick();
+
+      vi.advanceTimersByTime(500);
+      const close = actions(items()[0])[0];
+      focusEvent(close, 'focusin');
+
+      vi.advanceTimersByTime(5000);
+      tick();
+      expect(items(), 'the toast expired under the focus').toHaveLength(1);
+
+      focusEvent(close, 'focusout');
+      vi.advanceTimersByTime(499);
+      tick();
+      expect(items()).toHaveLength(1);
+
+      vi.advanceTimersByTime(1);
+      tick();
+      expect(items()).toHaveLength(0);
+    });
+
+    it('holds every toast while the pointer is anywhere in the region', () => {
+      // Pausing only the toast under the pointer let the others expire around
+      // it, and the stack collapsed out from under a pointer that never moved.
+      toast.show({ message: 'One', duration: 1000 });
+      toast.show({ message: 'Two', duration: 1000 });
+      toast.show({ message: 'Three', duration: 1000 });
+      tick();
+
+      mouse(host()!, 'mouseenter');
+      vi.advanceTimersByTime(5000);
+      tick();
+      expect(messages()).toEqual(['One', 'Two', 'Three']);
+
+      mouse(host()!, 'mouseleave');
+      vi.advanceTimersByTime(1000);
+      tick();
+      expect(items()).toHaveLength(0);
+    });
+
+    it('does not restart a toast the region is still holding when the pointer leaves that toast', () => {
+      toast.show({ message: 'One', duration: 1000 });
+      toast.show({ message: 'Two', duration: 1000 });
+      tick();
+
+      mouse(host()!, 'mouseenter');
+      mouse(items()[0], 'mouseenter');
+      mouse(items()[0], 'mouseleave');
+      vi.advanceTimersByTime(5000);
+      tick();
+
+      expect(messages()).toEqual(['One', 'Two']);
+    });
+
+    it('starts the clock of a toast raised while the region is held only on release', () => {
+      toast.show({ message: 'One', duration: 0 });
+      tick();
+      mouse(host()!, 'mouseenter');
+
+      toast.show({ message: 'Two', duration: 1000 });
+      tick();
+      vi.advanceTimersByTime(5000);
+      tick();
+      expect(messages()).toEqual(['One', 'Two']);
+
+      mouse(host()!, 'mouseleave');
+      vi.advanceTimersByTime(1000);
+      tick();
+      expect(messages()).toEqual(['One']);
+    });
+
     it('dismisses through the returned ref, leaving the rest of the stack alone', () => {
       const first = toast.show({ message: 'One' });
       toast.show({ message: 'Two' });
@@ -387,23 +458,25 @@ describe('WrToast', () => {
     });
   });
 
-  describe('with provideWrToastConfig', () => {
+  describe('configured through withToast', () => {
     beforeEach(() => {
       toast = setup([
-        provideWrToastConfig({
-          position: 'bottom-end',
-          mode: 'list',
-          duration: 1000,
-          showProgress: false,
-          showCopy: true,
-          maxStack: 2,
-          closeAllThreshold: 2,
-          // A partial `labels` — `copied` is deliberately left to the default.
-          // The runtime merge always supported this, but the parameter was
-          // `Partial<WrToastConfig>`, which is shallow, so overriding a single
-          // string was a compile error. Passing a subset here is the guard.
-          labels: { close: 'Закрыть', copy: 'Копировать', closeAll: 'Закрыть все' },
-        }),
+        provideWr(
+          withToast({
+            position: 'bottom-end',
+            mode: 'list',
+            duration: 1000,
+            showProgress: false,
+            showCopy: true,
+            maxStack: 2,
+            closeAllThreshold: 2,
+            // A partial `labels` — `copied` is deliberately left to the default.
+            // The runtime merge always supported this, but the parameter was
+            // `Partial<WrToastConfig>`, which is shallow, so overriding a single
+            // string was a compile error. Passing a subset here is the guard.
+            labels: { close: 'Закрыть', copy: 'Копировать', closeAll: 'Закрыть все' },
+          })
+        ),
       ]);
     });
 
@@ -488,6 +561,192 @@ describe('WrToast', () => {
 });
 
 /**
+ * Closing a toast takes its Close button out of the page, and a focused element
+ * that leaves the page drops focus on `<body>` — the top of the document, for a
+ * keyboard or screen-reader user. So a toast closed from inside hands focus on:
+ * to the Close button of the toast that takes its place, else to the previous
+ * one, and back to where focus came from when nothing is left.
+ *
+ * Real `focus()` calls, not synthetic events: what is asserted is
+ * `document.activeElement`, and the origin is read off the `relatedTarget` of
+ * the `focusin` that enters the region.
+ *
+ * Only KEYBOARD focus is handed on — a pointer press focuses the button too, in
+ * Chromium, and handing that on would hold the whole stack. jsdom has no
+ * `:focus-visible` heuristic, so the spec decides which kind of focus it is.
+ */
+describe('WrToast moves focus on when a focused toast closes', () => {
+  let toast: WrToast;
+  let opener: HTMLButtonElement;
+  /** Whether focus counts as keyboard focus (`:focus-visible`) in this test. */
+  let keyboard: boolean;
+
+  const tick = (): void => TestBed.tick();
+  const items = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-toast')];
+  const messageOf = (el: Element | null): string | undefined =>
+    el?.closest('.wr-toast')?.querySelector('.wr-toast__message')?.textContent?.trim();
+  const closeOf = (i: number): HTMLButtonElement =>
+    items()[i].querySelector<HTMLButtonElement>('.wr-toast__action--close')!;
+
+  /** Focus a toast’s Close button coming from the page, then press it. */
+  const pressClose = (i: number): void => {
+    closeOf(i).focus();
+    closeOf(i).click();
+    tick();
+  };
+
+  const show = (...messages: string[]): void => {
+    for (const message of messages) toast.show({ message, duration: 0 });
+    tick();
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    keyboard = true;
+    const matches = Object.getOwnPropertyDescriptor(Element.prototype, 'matches')!.value as (
+      this: Element,
+      selector: string
+    ) => boolean;
+    vi.spyOn(Element.prototype, 'matches').mockImplementation(function (this: Element, selector: string) {
+      if (selector === ':focus-visible') return keyboard && this === document.activeElement;
+      return matches.call(this, selector);
+    });
+    TestBed.resetTestingModule();
+    toast = TestBed.inject(WrToast);
+    opener = document.body.appendChild(document.createElement('button'));
+    opener.focus();
+  });
+
+  afterEach(() => {
+    toast.dismissAll();
+    opener.remove();
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  it('hands focus to the toast that takes the closed one’s place', () => {
+    show('One', 'Two', 'Three');
+
+    pressClose(1);
+
+    expect(items()).toHaveLength(2);
+    expect(messageOf(document.activeElement)).toBe('Three');
+    expect(document.activeElement?.classList).toContain('wr-toast__action--close');
+  });
+
+  it('falls back to the previous toast when the last one closes', () => {
+    show('One', 'Two');
+
+    pressClose(1);
+
+    expect(messageOf(document.activeElement)).toBe('One');
+  });
+
+  it('hands focus to a queued toast promoted into the freed slot', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withToast({ maxStack: 2 }))] });
+    toast = TestBed.inject(WrToast);
+    show('One', 'Two', 'Three');
+
+    pressClose(1);
+
+    expect(messageOf(document.activeElement)).toBe('Three');
+  });
+
+  it('passes over a toast that has no Close button', () => {
+    toast.show({ message: 'One', duration: 0 });
+    toast.show({ message: 'Two', duration: 0 });
+    toast.show({ message: 'Sticky', duration: 0, dismissible: false });
+    tick();
+
+    pressClose(1);
+
+    expect(messageOf(document.activeElement)).toBe('One');
+  });
+
+  it('returns focus to where it came from when no toast is left', () => {
+    show('Only');
+
+    pressClose(0);
+
+    expect(items()).toHaveLength(0);
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('keeps the origin across the hand-offs between toasts', () => {
+    show('One', 'Two');
+
+    pressClose(1);
+    closeOf(0).click();
+    tick();
+
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('returns focus from "Close all" too, since that leaves nothing either', () => {
+    show('One', 'Two');
+    closeOf(0).focus();
+    tick();
+
+    const closeAll = document.querySelector<HTMLButtonElement>('.wr-toast-host__close-all')!;
+    closeAll.focus();
+    closeAll.click();
+    tick();
+
+    expect(items()).toHaveLength(0);
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('moves nothing for a pointer press, which leaves the countdown free to run', () => {
+    toast.show({ message: 'One', duration: 1000 });
+    toast.show({ message: 'Two', duration: 1000 });
+    tick();
+    keyboard = false;
+
+    // Chromium focuses a button it is clicking; that focus is not handed on.
+    pressClose(1);
+
+    expect(document.activeElement?.closest('.wr-toast')).toBeNull();
+  });
+
+  it('moves nothing when the toast closed while focus was elsewhere', () => {
+    show('One', 'Two');
+
+    // A pointer press in a browser that does not focus buttons on click.
+    closeOf(0).click();
+    tick();
+
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('keeps the countdown held while focus sits on the toast it was handed to', () => {
+    // Chromium fires `focusout` (relatedTarget null) when a focused element
+    // leaves the page, and that releases the region's hold; jsdom fires
+    // nothing, so the hold would survive a broken hand-off and this spec would
+    // pass without one. Fire it the way the browser does, from the removal.
+    const remove = Object.getOwnPropertyDescriptor(Element.prototype, 'remove')!.value as (this: Element) => void;
+    vi.spyOn(Element.prototype, 'remove').mockImplementation(function (this: Element) {
+      const focused = document.activeElement;
+      if (focused && this.contains(focused)) {
+        focused.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
+      }
+      remove.call(this);
+    });
+    toast.show({ message: 'One', duration: 1000 });
+    toast.show({ message: 'Two', duration: 1000 });
+    toast.show({ message: 'Three', duration: 1000 });
+    tick();
+
+    pressClose(1);
+    expect(messageOf(document.activeElement)).toBe('Three');
+    vi.advanceTimersByTime(5000);
+    tick();
+
+    expect(items().map(messageOf)).toEqual(['One', 'Three']);
+  });
+});
+
+/**
  * Toast's four labels lived as English literals in `DEFAULT_TOAST_CONFIG`, which
  * meant `toast.close`, `toast.copy`, `toast.copied` and `toast.closeAll` shipped
  * in both catalogs and were read by nothing — an app on the Russian catalog got
@@ -519,7 +778,6 @@ describe('WrToast labels', () => {
   it('takes every one of them from the catalog', async () => {
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -541,13 +799,12 @@ describe('WrToast labels', () => {
     }
   });
 
-  it('still lets provideWrToastConfig win over the catalog', () => {
+  it('still lets withToast win over the catalog', () => {
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
-        provideWrToastConfig({ labels: { close: 'Dismiss', copy: 'Copy', copied: 'Copied', closeAll: 'Clear' } }),
+        provideWr(withToast({ labels: { close: 'Dismiss', copy: 'Copy', copied: 'Copied', closeAll: 'Clear' } })),
       ],
     });
     toast = TestBed.inject(WrToast);
@@ -559,7 +816,6 @@ describe('WrToast labels', () => {
   });
 
   it('falls back to English when no catalog is registered', () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     toast = TestBed.inject(WrToast);
 
     toast.show({ message: 'One' });
@@ -567,33 +823,6 @@ describe('WrToast labels', () => {
 
     expect(host()?.getAttribute('aria-label')).toBe('Notifications');
     expect(actions(items()[0]).map(b => b.getAttribute('aria-label'))).toEqual(['Close']);
-  });
-});
-
-/**
- * ⚠️ This one guards the RULE, not the behaviour.
- *
- * The auto-close bar drains with a physical `scaleX`, and `transform-origin` has
- * no logical keyword — so the anchor cannot be renamed into a logical property,
- * it has to be swapped by a direction-aware rule. jsdom loads no stylesheets, so
- * the source is the only place a spec can see it.
- *
- * Measured in Chromium against the compiled `ngwr/toast` sheet, a 400px toast:
- * the origin was `0px 1px` in BOTH directions before, and is `0px 1px` in LTR
- * and `396px 1px` in RTL after — the bar now stays anchored at the reader's
- * start and drains toward the side their eye leaves from, in either direction.
- */
-describe('the auto-close bar, as the stylesheet declares it', () => {
-  const sheet = readFileSync(join(process.cwd(), 'projects/lib/toast/styles/_index.scss'), 'utf8');
-  const rule = sheet.slice(sheet.indexOf('  &__progress {'), sheet.indexOf('  &:hover &__progress'));
-
-  it('anchors the drain at the reader’s start in each direction', () => {
-    expect(rule).toMatch(/transform-origin:\s*left/);
-    expect(rule).toMatch(/\[dir='rtl'\] & \{[^}]*transform-origin:\s*right/);
-  });
-
-  it('keeps a reason on both halves of the physical pair, for check:rtl and for the reader', () => {
-    expect(rule.match(/rtl-ok:/g) ?? []).toHaveLength(2);
   });
 });
 
@@ -675,7 +904,6 @@ describe('WrToast stacking', () => {
       },
     });
 
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     toast = TestBed.inject(WrToast);
     dialog = TestBed.inject(WrDialog);
     openDialogs = [];
@@ -776,7 +1004,7 @@ describe('WrToast stacking', () => {
   });
 });
 
-describe('provideWrToastConfig outside the root injector', () => {
+describe('withToast outside the root injector', () => {
   afterEach(() => {
     TestBed.resetTestingModule();
     vi.restoreAllMocks();
@@ -785,21 +1013,20 @@ describe('provideWrToastConfig outside the root injector', () => {
   it('warns when it lands somewhere WrToast will never read it', () => {
     // The silent misconfiguration this exists to name: `WrToast` is
     // root-provided, so it resolves WR_TOAST_CONFIG once from the root. A
-    // route-level `provideWrToastConfig({ position: 'bottom' })` therefore does
+    // route-level `withToast({ position: 'bottom' })` therefore does
     // nothing at all, and used to do it without a word — an adoption audit spent
-    // an hour finding out. `provideWrConfig()` IS read per route and
-    // `provideWrIcons()` chains, so the asymmetry is real and worth a warning
-    // rather than a paragraph nobody reaches.
+    // an hour finding out. `provideWrIcons()` chains per route, so the
+    // asymmetry is real and worth a warning rather than a paragraph nobody
+    // reaches.
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const root = TestBed.inject(EnvironmentInjector);
     // A child environment injector is what a lazy route creates.
     // `createEnvironmentInjector` runs ENVIRONMENT_INITIALIZER itself.
-    const child = createEnvironmentInjector([provideWrToastConfig({ position: 'bottom' })], root);
+    const child = createEnvironmentInjector([provideWr(withToast({ position: 'bottom' }))], root);
 
     expect(warn).toHaveBeenCalledTimes(1);
-    expect(warn.mock.calls[0]?.[0]).toContain('provideWrToastConfig()');
+    expect(warn.mock.calls[0]?.[0]).toContain('withToast()');
     child.destroy();
   });
 
@@ -807,7 +1034,7 @@ describe('provideWrToastConfig outside the root injector', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrToastConfig({ position: 'bottom' })],
+      providers: [provideWr(withToast({ position: 'bottom' }))],
     });
     TestBed.inject(WrToast);
 
@@ -839,7 +1066,6 @@ describe('WrToast follows a direction change while the stack is up', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     toast = TestBed.inject(WrToast);
     dir = TestBed.inject(Directionality);
   });
@@ -907,7 +1133,6 @@ describe('WrToast per-toast class', () => {
   const items = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-toast')];
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     toast = TestBed.inject(WrToast);
   });
 

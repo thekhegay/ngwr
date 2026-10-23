@@ -1,4 +1,5 @@
-import type { SidebarGroup } from '../sidebar.types';
+import { ROUTES, wrLink } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /**
  * The Validators group of the Reference sidebar — one row per `WrValidators`
@@ -8,16 +9,16 @@ import type { SidebarGroup } from '../sidebar.types';
 export const VALIDATORS_GROUP: SidebarGroup = {
   title: 'Validators',
   children: [
-    { title: 'cardNumber', url: ['/reference/validators', 'card-number'] },
-    { title: 'cvc', url: ['/reference/validators', 'cvc'] },
-    { title: 'hexColor', url: ['/reference/validators', 'hex-color'] },
-    { title: 'iban', url: ['/reference/validators', 'iban'] },
-    { title: 'match', url: ['/reference/validators', 'match'] },
-    { title: 'matchFields', url: ['/reference/validators', 'match-fields'] },
-    { title: 'maxDate', url: ['/reference/validators', 'max-date'] },
-    { title: 'minDate', url: ['/reference/validators', 'min-date'] },
-    { title: 'noWhitespace', url: ['/reference/validators', 'no-whitespace'] },
-    { title: 'oneOf', url: ['/reference/validators', 'one-of'] },
-    { title: 'url', url: ['/reference/validators', 'url'] },
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.cardNumber),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.cvc),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.hexColor),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.iban),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.match),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.matchFields),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.maxDate),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.minDate),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.noWhitespace),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.oneOf),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.urlValidator),
   ],
 };

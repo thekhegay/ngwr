@@ -37,16 +37,19 @@ import type { WrColor } from 'ngwr/theme';
 })
 export class WrSkeleton {
   /**
-   * Color tint for the placeholder.
+   * Intent tint for the placeholder. `null`, the default, paints the neutral
+   * gray a placeholder almost always wants.
    *
-   * Default is `'light'` because it's theme-stable — the `light` token is
-   * slate-300 in light mode (subtle gray on white) and slate-800 in dark
-   * mode (subtle lift on near-black). The `'dark'` value flips to a near-
-   * white wash in dark mode and breaks the placeholder affordance.
+   * It used to default to the `light` intent, chosen because that one token was
+   * theme-stable — slate-300 on white, slate-800 on near-black. The neutral ramp
+   * does that job now and does it by construction, so the default is the absence
+   * of an intent rather than a particular one. An intent here tints a thing that
+   * is not yet content, so reach for it only when the placeholder stands in for
+   * something the colour already identifies.
    *
-   * @default 'light'
+   * @default null
    */
-  readonly color = input<WrColor>('light');
+  readonly color = input<WrColor | null>(null);
 
   /**
    * Whether the shimmer animation runs.
@@ -56,7 +59,11 @@ export class WrSkeleton {
   readonly animated = input(true, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-skeleton', `wr-skeleton--${this.color()}`];
+    const parts = ['wr-skeleton'];
+
+    const color = this.color();
+    if (color) parts.push(`wr-skeleton--${color}`);
+
     if (this.animated()) parts.push('wr-skeleton--animated');
     return parts.join(' ');
   });

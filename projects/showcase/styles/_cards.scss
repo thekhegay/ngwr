@@ -1,0 +1,114 @@
+@use 'mixins' as site;
+
+// A grid of link cards: See also, the docs index pages, the home page's doors.
+// `auto-fit` rather than `auto-fill`, so two links share the row instead of
+// leaving an empty third track beside them; `min()` so a column never asks for
+// more than the container has on a phone.
+//
+// `--ngwr-link-grid-min` is the narrowest a column may get before the row
+// wraps. A grid in a narrow column sets it on its own class beside this one —
+// `<ul class="ngwr-link-grid my-links">` with `.my-links { --ngwr-link-grid-min:
+// 15rem }` — rather than restating the grid.
+.ngwr-link-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--ngwr-link-grid-min, 16rem), 100%), 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  // A grid item, so the card inside stretches to the row's height and two cards
+  // whose descriptions wrap to different line counts still end level.
+  // `min-width: 0` so a line that will not wrap (`__desc--line`) is cut inside
+  // its card instead of widening the column.
+  > li {
+    display: grid;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+// One link, as a card. The card IS the anchor, rather than a `wr-card` inside an
+// `<a>`, so the focus ring follows the box a reader sees.
+.ngwr-link-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  height: 100%;
+  padding: var(--wr-space-md) var(--wr-space-lg);
+  border: 1px solid var(--wr-border-base);
+  border-radius: var(--wr-border-radius-base);
+  background: var(--wr-color-surface);
+  color: var(--wr-color-on-surface);
+  font-weight: var(--wr-font-weight-regular);
+  text-decoration: none;
+  // The hover shadow snaps rather than fades: `box-shadow` is the focus halo too.
+  @include site.transition(border-color);
+
+  &:hover {
+    border-color: var(--wr-color-primary);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--wr-color-primary) 8%, transparent);
+  }
+
+  &:focus-visible {
+    @include site.focus-ring;
+  }
+
+  &__title {
+    color: var(--wr-color-on-surface);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.5rem;
+  }
+
+  &__desc {
+    color: var(--wr-color-on-surface-muted);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  // One line, cut with an ellipsis: for a grid whose descriptions are not
+  // written for it — See also reads each page's own lede — where the line count
+  // would otherwise differ from card to card in one row. Only the paint is cut;
+  // the whole sentence stays in the link's accessible name.
+  &__desc--line {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+// An icon on a soft tint of its tone: the Introduction's feature tiles, the home
+// page's Why tiles. Text-on-tint rules apply to the glyph too, so each intent
+// paints it in `-ink` on its own `-soft`, the pair `-ink` is calibrated against.
+// No `data-tone`, or `neutral`, is the fill role with the muted glyph.
+.ngwr-icon-chip {
+  --wr-icon-size: 1.25rem;
+
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--wr-border-radius-base);
+  background: var(--wr-color-fill);
+  color: var(--wr-color-on-surface-muted);
+
+  @each $tone in primary, success, warning, danger, info {
+    &[data-tone='#{$tone}'] {
+      background: var(--wr-color-#{$tone}-soft);
+      color: var(--wr-color-#{$tone}-ink);
+    }
+  }
+
+  &--sm {
+    --wr-icon-size: 1rem;
+
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--wr-border-radius-sm);
+  }
+}

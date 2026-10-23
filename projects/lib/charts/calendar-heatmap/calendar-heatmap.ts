@@ -1,0 +1,343 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import {
+  Component,
+  type ElementRef,
+  LOCALE_ID,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
+
+import { WR_DATE_LOCALE } from 'ngwr/date';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { useChartTooltip } from 'ngwr/popover';
+
+import type { WrHeatmapDatum } from './types';
+
+interface Cell {
+  readonly iso: string;
+  /** The day as the reader's locale writes it — see `cellTitle`. */
+  readonly date: Date;
+  readonly value: number;
+  readonly intensity: number;
+  readonly week: number;
+  readonly day: number;
+}
+
+function toIso(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function parseInput(value: string | Date): Date {
+  return value instanceof Date ? new Date(value) : new Date(`${value}T00:00:00`);
+}
+
+/** Which rows carry a weekday label: three of seven, or they do not fit. */
+const LABELLED_ROWS = new Set([1, 3, 5]);
+
+/**
+ * A day's contribution, with anything non-finite read as `0`.
+ *
+ * One `NaN` used to flatten the entire rendered window rather than its own day:
+ * `Math.max(a, NaN)` is `NaN`, so the data set's maximum became `NaN`, `max > 0`
+ * was false, and every cell fell to intensity 0 — a map that reads as a stretch
+ * with no activity at all. The bad day also printed the literal text `NaN` in its
+ * `title`.
+ */
+function amount(raw: number): number {
+  return Number.isFinite(raw) ? raw : 0;
+}
+
+/**
+ * GitHub-style year-grid heatmap. One column per ISO week, one row per
+ * weekday — cells coloured by `value` relative to the data set's max.
+ *
+ * @example
+ * ```html
+ * <wr-calendar-heatmap [data]="contributions" />
+ * <wr-calendar-heatmap [data]="data" [endDate]="today" [weeks]="26" color="#10b981" />
+ * ```
+ *
+ * @see https://ngwr.dev/charts/calendar-heatmap
+ */
+@Component({
+  selector: 'wr-calendar-heatmap',
+  templateUrl: './calendar-heatmap.html',
+  encapsulation: ViewEncapsulation.None,
+  host: { class: 'wr-calendar-heatmap' },
+})
+export class WrCalendarHeatmap {
+  /**
+   * One entry per day — `{ date, value }`. Days you pass nothing for render as
+   * empty cells, so a sparse array is the normal shape rather than a gap.
+   */
+  readonly data = input<readonly WrHeatmapDatum[]>([]);
+
+  /**
+   * Accessible name of the whole grid. Its cells are bare spans whose `title` a screen
+   * reader on a role-less element does not read, so the map used to be several hundred
+   * anonymous nodes with no name. Falls back to `calendarHeatmap.label`.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'calendarHeatmap.label', 'Calendar heatmap');
+
+  private readonly cellText = useI18nFormatter('calendarHeatmap.cell', '{{date}}: {{count}}');
+
+  /**
+   * A cell's tooltip, with both halves formatted and the sentence in the catalog.
+   *
+   * It used to be `` `${cell.iso}: ${cell.value}` `` — a raw ISO date beside an
+   * unformatted number, joined by a hard-coded `': '`. Three things were wrong
+   * at once and none of them are visible from the template: `2026-09-10` is not
+   * how most of the world writes a date, `1234` is not how every locale groups
+   * digits (`ar-SA` does not even use these ones), and the separator and order
+   * were frozen into a shape a translator could not reach.
+   *
+   * Both halves go through `Intl`: the date in `WR_DATE_LOCALE`, which the weekday
+   * and month labels use too and which follows Angular's `LOCALE_ID` unless
+   * `withDates()` pins it, and the count in `LOCALE_ID` itself — or through
+   * `valueFormat` — as every chart writes its numbers. The key ships as
+   * `{{date}}: {{count}}` everywhere, so nothing reorders today and every locale can.
+   */
+  protected cellTitle(cell: { readonly date: Date; readonly value: number }): string {
+    return this.cellText({ date: this.dateFormat().format(cell.date), count: this.formatValue(cell.value) });
+  }
+
+  /**
+   * The formatters, built once. They were built per call, and with `tooltip` off
+   * the template asks for every square's title on every pass — so each `mousemove`
+   * over the grid, which still marks the view for check, built 740 of them: 44,400
+   * for 60 moves, measured in dev mode at 907–931ms against 348–358ms with the
+   * tooltip on.
+   */
+  private readonly dateFormat = computed(() => new Intl.DateTimeFormat(this.locale, { dateStyle: 'medium' }));
+
+  /**
+   * Every square's `title`, and only while the tooltip is off — the tooltip carries the
+   * same sentence, and the browser would open a second copy a moment later. Worked out
+   * when the days or the catalog change, not on every pass of the template.
+   */
+  protected readonly titles = computed(() => (this.tooltip() ? null : this.cells().map(cell => this.cellTitle(cell))));
+
+  /** Last day to render. @default today */
+  readonly endDate = input<string | Date | null>(null);
+
+  /** Number of weeks (columns) to render. @default 53 */
+  readonly weeks = input(53, { transform: (v: unknown): number => Math.max(4, coerceNumberProperty(v, 53)) });
+
+  /** Cell side in CSS pixels. @default 11 */
+  readonly cellSize = input(11, { transform: (v: unknown): number => Math.max(4, coerceNumberProperty(v, 11)) });
+
+  /** Pixel gap between cells. @default 2 */
+  readonly cellGap = input(2, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 2)) });
+
+  /** Cell fill colour at full intensity. @default primary */
+  readonly color = input<string>('var(--wr-color-primary)');
+
+  /** Background colour for zero-value days. @default color-mix(in srgb, var(--wr-border-base) 50%, transparent) */
+  readonly emptyColor = input<string>('color-mix(in srgb, var(--wr-border-base) 50%, transparent)');
+
+  /** Show the weekday + month labels around the grid. @default true */
+  readonly showLabels = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Show a tooltip with the day and its count on hover. It is the sentence the
+   * square's `title` carried, so the `title` is written only while this is off —
+   * or the browser would open a second copy a moment later. @default true
+   */
+  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Writes each day's count in the tooltip and the `title`. `null` uses
+   * `Intl.NumberFormat` in `LOCALE_ID`.
+   */
+  readonly valueFormat = input<((value: number) => string) | null>(null);
+
+  private readonly numberLocale = inject(LOCALE_ID);
+  private readonly numbers = new Intl.NumberFormat(this.numberLocale);
+  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
+  private readonly smallNumbers = new Intl.NumberFormat(this.numberLocale, { maximumSignificantDigits: 3 });
+
+  private formatValue(value: number): string {
+    const custom = this.valueFormat();
+    if (custom) return custom(value);
+    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
+  }
+
+  private readonly daysEl = viewChild<ElementRef<HTMLElement>>('days');
+
+  private readonly locale = inject(WR_DATE_LOCALE);
+
+  /**
+   * Weekday names from the locale rather than a hard-coded English list — the row order is
+   * Sunday-first, matching the grid's own alignment, so 7 Jan 2024 (a Sunday) is the
+   * reference. Rows without a label stay blank on purpose: seven labels do not fit.
+   */
+  protected readonly weekdayLabels = computed<readonly string[]>(() => {
+    const formatter = new Intl.DateTimeFormat(this.locale, { weekday: 'short' });
+    const sunday = new Date(2024, 0, 7);
+    return Array.from({ length: 7 }, (_, row) => {
+      if (!LABELLED_ROWS.has(row)) return '';
+      const day = new Date(sunday);
+      day.setDate(sunday.getDate() + row);
+      return formatter.format(day);
+    });
+  });
+
+  private readonly monthNames = computed<readonly string[]>(() => {
+    const formatter = new Intl.DateTimeFormat(this.locale, { month: 'short' });
+    return Array.from({ length: 12 }, (_, month) => formatter.format(new Date(2024, month, 15)));
+  });
+
+  protected readonly cells = computed<readonly Cell[]>(() => {
+    const end = this.endDate() ? parseInput(this.endDate()!) : new Date();
+    end.setHours(0, 0, 0, 0);
+    const weeks = this.weeks();
+
+    // Build value lookup.
+    const map = new Map<string, number>();
+    for (const d of this.data()) {
+      const iso = toIso(parseInput(d.date));
+      map.set(iso, (map.get(iso) ?? 0) + amount(d.value));
+    }
+    const max = [...map.values()].reduce((a, b) => Math.max(a, b), 0);
+
+    // Walk backwards from end day; arrange into columns by week, rows by weekday.
+    const out: Cell[] = [];
+    // Exactly `weeks` columns, the last of them the week `end` falls in, every
+    // column starting on a Sunday (matches GitHub).
+    //
+    // Counted in WEEKS rather than in days. It used to allocate `weeks * 7`
+    // days and then align the start back to a Sunday, which adds up to six
+    // more — so any alignment at all produced one column more than asked for:
+    // 54 for the default 53, with `--wr-calendar-heatmap-columns` reporting 54 and a
+    // container sized from `weeks * (cellSize + cellGap)` one column short.
+    const start = new Date(end);
+    start.setDate(end.getDate() - end.getDay() - (weeks - 1) * 7);
+
+    const cursor = new Date(start);
+    let column = 0;
+    while (cursor <= end) {
+      for (let row = 0; row < 7; row++) {
+        // Stop at `end`. The inner loop always walks a whole week, so once the
+        // cursor crossed `end` mid-week it kept going to Saturday — up to six
+        // days AFTER the last day to render, drawn as ordinary `value: 0`
+        // squares and indistinguishable from a past day of no activity. With
+        // the default that is today plus five future days.
+        if (cursor > end) break;
+        const iso = toIso(cursor);
+        const value = map.get(iso) ?? 0;
+        // Clamped at the BOTTOM as well as the top. A negative value produced a
+        // negative intensity, which is not zero — so `colorFor` painted it in
+        // the accent colour and `opacityFor` put it in the lightest band,
+        // rendering a day of negative activity exactly like a day of light
+        // activity, and unlike the empty day it should have matched. The scale
+        // has no negative half; the honest floor is "nothing".
+        const intensity = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
+        out.push({ iso, date: new Date(cursor), value, intensity, week: column, day: row });
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      column++;
+    }
+    return out;
+  });
+
+  protected readonly monthLabels = computed(() => {
+    // Pull the first cell of each visible month → render a label centered
+    // over its column.
+    const cells = this.cells();
+    const seen = new Set<string>();
+    return cells
+      .filter(cell => {
+        const date = new Date(`${cell.iso}T00:00:00`);
+        if (date.getDate() !== 1) return false;
+        const key = `${date.getFullYear()}-${date.getMonth()}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .map(cell => ({
+        label: this.monthNames()[new Date(`${cell.iso}T00:00:00`).getMonth()],
+        week: cell.week,
+      }));
+  });
+
+  protected readonly columnCount = computed(() => {
+    const cells = this.cells();
+    return cells.length === 0 ? 0 : cells[cells.length - 1].week + 1;
+  });
+
+  /** Each day's position in `cells()`, for the square the pointer lands on. */
+  private readonly indexByIso = computed(() => new Map(this.cells().map((cell, index) => [cell.iso, index])));
+
+  /**
+   * One tooltip for the whole year, pointing at the hovered day: above its square,
+   * below it when there is no room above, and slid along the viewport edge for the
+   * first and last weeks with the arrow still on the square. A listener on the grid
+   * rather than one per square: a year is 371 of them.
+   *
+   * The box is the square's LAYOUT box rather than its client rect. The hovered square
+   * grows by `:hover` over a transition, and a rect read part way through it would
+   * move the chip by up to a fifth of a square depending on when it was measured;
+   * the scale is centred, so the layout box is the rect's centre and the square's
+   * own size.
+   */
+  protected readonly tip = useChartTooltip(this.tooltip, index => {
+    const cell = this.cells()[index];
+    // The squares are the container's only children, drawn in `cells()` order.
+    const square = cell ? this.daysEl()?.nativeElement.children.item(index) : null;
+    if (!cell || !(square instanceof HTMLElement)) return null;
+    const rect = square.getBoundingClientRect();
+    const width = square.offsetWidth;
+    const height = square.offsetHeight;
+    return {
+      datum: { value: this.cellTitle(cell) },
+      anchor: {
+        x: (rect.left + rect.right - width) / 2,
+        y: (rect.top + rect.bottom - height) / 2,
+        width,
+        height,
+      },
+    };
+  });
+
+  /**
+   * Which square the pointer is on, from a `mousemove` on the grid. Over the gap
+   * between two squares it is on none, and the tooltip starts to leave.
+   */
+  protected onCellsPointer(event: MouseEvent): void {
+    const iso = (event.target as Element | null)?.closest<HTMLElement>('.wr-calendar-heatmap__cell')?.dataset['date'];
+    const index = iso === undefined ? undefined : this.indexByIso().get(iso);
+    if (index === undefined) this.tip.leave(event);
+    else this.tip.enter(index);
+  }
+
+  protected colorFor(intensity: number): string {
+    if (intensity === 0) return this.emptyColor();
+    return this.color();
+  }
+
+  protected opacityFor(intensity: number): number {
+    if (intensity === 0) return 1;
+    // 4 levels — match the GitHub aesthetic.
+    if (intensity < 0.25) return 0.25;
+    if (intensity < 0.5) return 0.5;
+    if (intensity < 0.75) return 0.75;
+    return 1;
+  }
+}
+
+export type { WrHeatmapDatum } from './types';

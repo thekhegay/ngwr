@@ -43,7 +43,7 @@ username.setValue('foo bar');
 username.errors; // { noWhitespace: true }`;
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'signature', description: 'Static — drop into a `validators` array.', type: 'ValidatorFn', default: '—' },
+    { name: 'signature', description: 'Add it to a `validators` array.', type: 'ValidatorFn', default: '—' },
     {
       name: 'error key',
       description: 'On failure: `{ noWhitespace: true }`. Empty value passes.',
@@ -57,13 +57,12 @@ username.errors; // { noWhitespace: true }`;
       kind: 'Component',
       title: 'wr-input',
       url: ['/reference/components', 'input'],
-      description: 'Usernames / handles where stray spaces sneak in.',
     },
     {
       kind: 'Validator',
       title: 'match',
       url: ['/reference/validators', 'match'],
-      description: 'Another cross-field staple for signup forms.',
+      description: 'Confirm a password.',
     },
   ];
 }

@@ -1,23 +1,20 @@
 <ngwr-doc-page
   title="wrAutofocus"
-  description="Moves DOM focus to the host on init. Bind a boolean to focus reactively whenever the expression becomes truthy."
+  description="Focus an element on init, or each time a binding turns true."
   [keywords]="['wrAutofocus', 'autofocus', 'directive']"
   [labels]="['Directive']"
 >
-  <ngwr-doc-section title="Import">
-    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Usage">
+  <ngwr-doc-section title="Usage" description="Setting the binding back to `false` does not blur the element.">
     <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap">
-        <wr-btn (click)="demoInput.focus()">Focus input</wr-btn>
+        <wr-btn (click)="autofocusOn.set(!autofocusOn())">
+          {{ autofocusOn() ? 'Set the binding false' : 'Set the binding true' }}
+        </wr-btn>
         <input
-          #demoInput
           wrInput
           [wrAutofocus]="autofocusOn()"
-          placeholder="I focus when toggled on"
+          placeholder="I focus when the binding flips to true"
           style="max-width: 18rem"
         />
       </div>

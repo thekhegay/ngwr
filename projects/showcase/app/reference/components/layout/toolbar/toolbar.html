@@ -1,0 +1,42 @@
+<ngwr-doc-page
+  title="Toolbar"
+  description="An action bar with start, center and end zones."
+  [keywords]="['toolbar', 'wr-toolbar']"
+  [labels]="['Composite']"
+>
+  <ngwr-doc-section title="Basic" description="An empty zone takes no space.">
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-toolbar>
+        <div wrToolbarStart><strong>Items</strong></div>
+        <div wrToolbarCenter>
+          <wr-btn>Grid</wr-btn>
+          <wr-btn>List</wr-btn>
+        </div>
+        <div wrToolbarEnd><wr-btn color="primary">New</wr-btn></div>
+      </wr-toolbar>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Narrow container (container query)"
+    description="With `responsive`, the zones stack when the toolbar itself is narrow."
+  >
+    <ngwr-doc-snippet code='<div style="width: 320px"><wr-toolbar responsive>…</wr-toolbar></div>'>
+      <div style="width: 320px; max-width: 100%">
+        <wr-toolbar responsive>
+          <div wrToolbarStart><strong>Items</strong></div>
+          <div wrToolbarCenter>
+            <wr-btn>Grid</wr-btn>
+            <wr-btn>List</wr-btn>
+          </div>
+          <div wrToolbarEnd><wr-btn color="primary">New</wr-btn></div>
+        </wr-toolbar>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

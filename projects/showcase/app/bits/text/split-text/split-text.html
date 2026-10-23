@@ -1,0 +1,33 @@
+<ngwr-doc-page
+  title="Split Text"
+  updated="15.0.0"
+  description="Reveals text piece by piece when it scrolls into view."
+  [keywords]="['split-text', 'wr-split-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="split-text" category="text-animations" />
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls" [showReplay]="true" (replay)="replay()">
+      @for (k of [replayKey()]; track k) {
+        <wr-split-text
+          [text]="text()"
+          [splitType]="splitType()"
+          [delay]="delay()"
+          [duration]="duration()"
+          rootMargin="0px"
+          style="width: 100%; font-size: 2rem; font-weight: 700; color: var(--wr-color-on-surface)"
+        />
+      }
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Server rendering"
+    description="Prerendered text stays as it is when the page hydrates. The entrance plays when the component is created in the browser and when `text` changes. Since v15."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

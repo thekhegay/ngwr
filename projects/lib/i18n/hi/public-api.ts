@@ -79,6 +79,7 @@ export const wrHi: WrI18nCatalog = {
   },
   stepper: {
     optional: 'वैकल्पिक',
+    completed: 'पूर्ण',
   },
   transfer: {
     source: 'उपलब्ध',
@@ -93,29 +94,6 @@ export const wrHi: WrI18nCatalog = {
   },
   form: {
     optional: 'वैकल्पिक',
-  },
-  validation: {
-    required: 'यह फ़ील्ड ज़रूरी है।',
-    requiredTrue: 'इस पर निशान लगाना ज़रूरी है।',
-    email: 'मान्य ईमेल पता दर्ज करें।',
-    minlength: 'कम से कम {{requiredLength}} वर्ण दर्ज करें।',
-    maxlength: 'ज़्यादा से ज़्यादा {{requiredLength}} वर्ण दर्ज करें।',
-    min: '{{min}} या उससे ज़्यादा दर्ज करें।',
-    max: '{{max}} या उससे कम दर्ज करें।',
-    pattern: 'यह मान अपेक्षित फ़ॉर्मैट में नहीं है।',
-    noWhitespace: 'इस मान में स्पेस नहीं होने चाहिए।',
-    hexColor: 'हेक्स रंग दर्ज करें, जैसे #1a2b3c।',
-    url: 'मान्य URL दर्ज करें।',
-    cardNumber: 'मान्य कार्ड नंबर दर्ज करें।',
-    cvc: '{{length}}-अंकीय सुरक्षा कोड दर्ज करें।',
-    iban: 'मान्य IBAN दर्ज करें।',
-    match: 'दोनों मान मेल नहीं खाते।',
-    matchFields: 'ये फ़ील्ड मेल नहीं खाते।',
-    oneOf: 'अनुमत मानों में से कोई एक चुनें।',
-    minDate: 'इसके बाद की तारीख़ चुनें।',
-    maxDate: 'इससे पहले की तारीख़ चुनें।',
-    dateFormat: 'अपेक्षित फ़ॉर्मैट: {{example}}',
-    dateFilter: 'यह तारीख़ उपलब्ध नहीं है।',
   },
   select: {
     label: 'चुनें',
@@ -243,13 +221,15 @@ export const wrHi: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'बार चार्ट',
+  },
   calendarHeatmap: {
     label: 'कैलेंडर हीटमैप',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'लाइन चार्ट',
-    thousands: '{{value}} हज़ार',
   },
   donutChart: {
     label: 'डोनट चार्ट',
@@ -265,9 +245,6 @@ export const wrHi: WrI18nCatalog = {
     pagination: 'कैरोसेल नेविगेशन',
     roledescription: 'कैरोसेल',
     slideRoledescription: 'स्लाइड',
-  },
-  actionSheet: {
-    label: 'कार्रवाइयां',
   },
   alert: {
     close: 'अलर्ट बंद करें',
@@ -296,12 +273,6 @@ export const wrHi: WrI18nCatalog = {
   },
   popover: {
     label: 'पॉपओवर',
-  },
-  markdown: {
-    copy: 'कोड कॉपी करें',
-    copied: 'कॉपी हो गया',
-    taskDone: 'पूरा हुआ:',
-    taskTodo: 'करना बाकी:',
   },
   editor: {
     label: 'फ़ॉर्मैट किया गया टेक्स्ट',
@@ -373,6 +344,9 @@ export const wrHi: WrI18nCatalog = {
   },
   sidebar: {
     label: 'साइडबार',
+    containsCurrent: 'वर्तमान पृष्ठ शामिल है',
+    subpages: '{{title}} के उप-पृष्ठ',
+    separator: ',',
   },
   spinner: {
     label: 'लोड हो रहा है',

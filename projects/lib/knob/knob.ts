@@ -11,7 +11,6 @@ import {
   ElementRef,
   ViewEncapsulation,
   computed,
-  effect,
   inject,
   input,
   model,
@@ -33,8 +32,9 @@ const ARC_SWEEP = ARC_END - ARC_START;
  * `FormValueControl<number>`, so `[formField]` binds straight to its `value`
  * model — no `ControlValueAccessor` in between. `[(value)]` works standalone.
  *
- * The value is clamped to `[min, max]`. Drag the indicator around the dial or
- * use ←→ / ↑↓ to step.
+ * The dial shows the value clamped to `[min, max]`, and a drag or a key press
+ * commits one in range; a value written from outside stays as it was. Drag the
+ * indicator around the dial or use ←→ / ↑↓ to step.
  *
  * @example
  * ```html
@@ -79,8 +79,8 @@ export class WrKnob implements FormValueControl<number> {
     transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 8)),
   });
 
-  /** Track (unfilled) color. @default rgba(--wr-color-light, 0.6) */
-  readonly trackColor = input<string>('rgba(var(--wr-color-light-rgb), 0.6)');
+  /** Track (unfilled) color. @default color-mix(in srgb, var(--wr-border-base) 60%, transparent) */
+  readonly trackColor = input<string>('color-mix(in srgb, var(--wr-border-base) 60%, transparent)');
 
   /** Filled-arc color. @default var(--wr-color-primary) */
   readonly valueColor = input<string>('var(--wr-color-primary)');
@@ -151,11 +151,20 @@ export class WrKnob implements FormValueControl<number> {
   // the arc and the dial vanishes — which a fat stroke reaches at 99.
   protected readonly radius = computed(() => Math.max(1, 50 - this.strokeWidth() / 2 - 0.5));
 
+  /**
+   * The value the dial shows and announces: the model, held to `[min, max]`.
+   * Only the display is clamped. Writing the clamped number back into the model
+   * turned a form's out-of-range value into a different one and marked the
+   * field dirty before anyone touched it — the rule `wr-input-number` and
+   * `wr-slider` already follow. A key press or a drag commits a value in range.
+   */
+  protected readonly shown = computed(() => clamp(this.value(), this.minValue(), this.maxValue()));
+
   /** Ratio of the filled arc — `0` at min, `1` at max. */
   protected readonly ratio = computed(() => {
     const range = this.maxValue() - this.minValue();
     if (range <= 0) return 0;
-    return clamp((this.value() - this.minValue()) / range, 0, 1);
+    return (this.shown() - this.minValue()) / range;
   });
 
   /** SVG path `d` for the background arc. */
@@ -179,16 +188,6 @@ export class WrKnob implements FormValueControl<number> {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly surface = viewChild.required<ElementRef<HTMLElement>>('surface');
-
-  constructor() {
-    // Keep the value within `[min, max]` even when written externally (via
-    // `[formField]` / `[(value)]`). Interactive changes are already clamped in
-    // `commit`, so this only normalizes out-of-range external writes.
-    effect(() => {
-      const clamped = clamp(this.value(), this.minValue(), this.maxValue());
-      if (clamped !== this.value()) this.value.set(clamped);
-    });
-  }
 
   /**
    * Focus the dial — what Signal Forms calls to focus this control, from
@@ -255,9 +254,8 @@ export class WrKnob implements FormValueControl<number> {
    * right-hand side of the arc in RTL, and swapping the keys would be the thing
    * that broke the mapping.
    *
-   * That is why nothing here injects `Directionality`, and why the stylesheet
-   * carries no `rtl-ok:` marker: there is no physical CSS in the value path at
-   * all, only fixed SVG geometry.
+   * That is why nothing here injects `Directionality`: there is no physical CSS
+   * in the value path at all, only fixed SVG geometry.
    */
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.interactive()) return;
@@ -266,11 +264,11 @@ export class WrKnob implements FormValueControl<number> {
     switch (event.key) {
       case 'ArrowRight':
       case 'ArrowUp':
-        next = this.value() + step;
+        next = this.shown() + step;
         break;
       case 'ArrowLeft':
       case 'ArrowDown':
-        next = this.value() - step;
+        next = this.shown() - step;
         break;
       case 'Home':
         next = this.minValue();

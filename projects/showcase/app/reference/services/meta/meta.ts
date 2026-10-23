@@ -1,8 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrI18n } from 'ngwr/i18n';
-import { WrMeta, type WrMetaHandle } from 'ngwr/meta';
+import { WrMeta, WrMetaBinding, type WrMetaHandle } from 'ngwr/meta';
 
 import {
   DocApiComponent,
@@ -16,7 +16,15 @@ import {
 @Component({
   selector: 'ngwr-svc-meta-page',
   templateUrl: './meta.html',
-  imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrButton,
+    WrMetaBinding,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
 export default class MetaServicePageComponent {
   private readonly metaService = inject(WrMeta);
@@ -24,6 +32,18 @@ export default class MetaServicePageComponent {
 
   private reactiveHandle: WrMetaHandle | null = null;
   protected readonly reactiveBound = signal(false);
+
+  /** Mounts the `[wrMeta]` block, so the directive's own lifecycle is what the demo shows. */
+  protected readonly directiveMounted = signal(false);
+
+  constructor() {
+    // The page's own `reactive` snippet tells a reader to pop the handle on
+    // destroy, and the page did not. `bind()` creates its effect on the
+    // ROOT-provided service's injector, so navigating away left the layer and
+    // its effect alive: switch the locale on another page and the stale
+    // binding re-applies, overwriting whatever title that page had pushed.
+    inject(DestroyRef).onDestroy(() => this.reactiveHandle?.pop());
+  }
 
   protected pushMeta(): void {
     const handle = this.metaService.push({
@@ -50,17 +70,19 @@ export default class MetaServicePageComponent {
   }
 
   protected readonly snippets = {
-    install: `import { provideWrMeta, WrMeta } from 'ngwr/meta';
+    defaults: `import { provideWr } from 'ngwr';
+import { withMeta } from 'ngwr/meta';
 
-bootstrapApplication(AppComponent, {
-  providers: [
-    provideWrMeta({
-      titleTemplate: '{{ title }} · NGWR',
-      og: { siteName: 'NGWR', type: 'website' },
-      twitter: { card: 'summary_large_image', creator: '@thekhegay' },
+providers: [
+  provideWr(
+    withMeta({
+      titleTemplate: '{{ title }} · My app',
+      description: 'What the app does, in one line.',
+      og: { siteName: 'My app', type: 'website' },
+      twitter: { card: 'summary_large_image' },
     }),
-  ],
-});`,
+  ),
+],`,
     push: `private readonly meta = inject(WrMeta);
 
 ngOnInit() {
@@ -71,17 +93,13 @@ ngOnInit() {
   });
   this.destroyRef.onDestroy(() => handle.pop());
 }`,
-    directive: `<!-- Auto-pops on destroy. Perfect for route components. -->
-<div [wrMeta]="{ title: 'Pricing', description: 'Plans for every team.' }">
+    directive: `<div [wrMeta]="{ title: 'Pricing', description: 'Plans for every team.' }">
   …
 </div>`,
     reactive: `private readonly meta = inject(WrMeta);
 private readonly i18n = inject(WrI18n);
 
 ngOnInit() {
-  // \`i18n.t(...)\` tracks the active locale, so the document title
-  // re-renders automatically whenever the language changes — no
-  // manual re-set on \`NavigationEnd\` or a locale subscription.
   const handle = this.meta.bind(() => ({
     title: this.i18n.t('home.title'),
     description: this.i18n.t('home.description'),
@@ -99,33 +117,38 @@ ngOnInit() {
     },
     {
       name: 'push(config)',
-      description: 'Push a new layer. Returns `{ pop }` — call `.pop()` to remove.',
+      description: 'Push a layer. Returns `{ pop }`.',
       type: '(config: WrMetaConfig) => WrMetaHandle',
       default: '—',
     },
     {
       name: 'bind(factory)',
-      description:
-        'Reactive layer — re-applies whenever a signal read inside `factory` changes (e.g. `WrI18n.t()` on locale switch). Returns `{ pop }`.',
+      description: 'Push a layer that re-applies when a signal read in `factory` changes. Returns `{ pop }`.',
       type: '(factory: () => WrMetaConfig) => WrMetaHandle',
       default: '—',
     },
     { name: 'pop()', description: 'Pop the most recently pushed layer.', type: '() => void', default: '—' },
     {
       name: 'reset()',
-      description: 'Clear all overrides, restore defaults registered via provideWrMeta.',
+      description: 'Clear every layer and restore the `withMeta()` defaults.',
       type: '() => void',
       default: '—',
     },
     {
       name: 'current()',
-      description: 'Snapshot of the resolved metadata currently applied to <head>.',
+      description: 'A snapshot of `<head>` now. Not a signal: a template should read `resolved()`.',
       type: '() => Readonly<WrMetaConfig>',
       default: '—',
     },
     {
+      name: 'resolved()',
+      description: 'The merged configuration as a signal.',
+      type: 'Signal<WrMetaConfig>',
+      default: '—',
+    },
+    {
       name: '[wrMeta]',
-      description: 'Directive: pushes on init, re-pushes on input change, pops on destroy.',
+      description: 'Pushes on init, re-pushes on change, pops on destroy.',
       type: 'WrMetaConfig',
       default: '—',
     },

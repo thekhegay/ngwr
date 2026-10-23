@@ -1,0 +1,32 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+import type { Signal } from '@angular/core';
+
+/**
+ * Contract a radio uses to talk to its parent `<wr-radio-group>`.
+ *
+ * @internal
+ */
+export interface WrRadioGroupContext {
+  /** Shared `name` attribute applied to every native input in the group. */
+  readonly name: Signal<string>;
+  /** Currently selected value. */
+  readonly value: Signal<unknown>;
+  /** Whether the entire group is disabled. */
+  readonly isDisabled: Signal<boolean>;
+  /** Whether the entire group refuses edits while staying focusable. */
+  readonly isReadonly: Signal<boolean>;
+  /** Select the given value. */
+  select(value: unknown): void;
+  /**
+   * Mark the group as touched (called on blur from any child). Named
+   * `markTouched` rather than `touch` so it doesn't clash with the
+   * `FormUiControl.touch` output the group now exposes for signal forms.
+   */
+  markTouched(): void;
+}

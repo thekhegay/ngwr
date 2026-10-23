@@ -1,20 +1,37 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../button/styles' as button-styles; // WrButton
+
 // The cut-out. A bare box sized to the spotlit element, dimming everything
 // around it with one enormous spread shadow — the target itself is never
 // covered, so it stays readable and clickable.
 .wr-tour__spotlight {
+  --wr-tour-spotlight-radius: var(--wr-border-radius-base);
+
   position: fixed;
   // Below CDK's `.cdk-overlay-container` (1000), deliberately. Both are fixed
   // children of `<body>`, so at equal z-index the DOM order decides — and the
   // service appends a fresh cut-out on every step while the container stays put, so
   // from the second step on the dimming shadow painted OVER the tour's own card.
-  // `.wr-tour-overlay { z-index: 1001 }` cannot help: it sits on the pane INSIDE the
-  // container, whose own stacking context scopes it.
+  // A `z-index` on `.wr-tour-overlay` cannot help: that sits on the pane INSIDE
+  // the container, whose own stacking context scopes it — which is why the pane
+  // carries none.
   z-index: 999;
   pointer-events: none;
-  border-radius: var(--wr-border-radius-base);
-  box-shadow: 0 0 0 9999px rgba(var(--wr-color-backdrop-rgb), 0.55);
+  border-radius: var(--wr-tour-spotlight-radius);
+  box-shadow: 0 0 0 9999px color-mix(in srgb, var(--wr-color-backdrop) 55%, transparent);
   transition:
     top var(--wr-transition-base),
     left var(--wr-transition-base),
@@ -23,39 +40,53 @@
 }
 
 .wr-tour-popup {
+  --wr-tour-popup-padding: var(--wr-space-lg);
+  --wr-tour-popup-border: var(--wr-border-base);
+  --wr-tour-popup-radius: var(--wr-border-radius-base);
+  --wr-tour-popup-font-family: var(--wr-font-family-base);
+  --wr-tour-popup-progress-margin-bottom: var(--wr-space-sm);
+  --wr-tour-popup-progress-font-size: var(--wr-text-xs);
+  --wr-tour-popup-title-margin-bottom: var(--wr-space-sm);
+  --wr-tour-popup-title-font-size: var(--wr-text-base);
+  --wr-tour-popup-title-font-weight: var(--wr-font-weight-semibold);
+  --wr-tour-popup-content-margin-bottom: var(--wr-space-lg);
+  --wr-tour-popup-content-font-size: var(--wr-text-sm);
+  --wr-tour-popup-content-line-height: var(--wr-leading-normal);
+  --wr-tour-popup-actions-gap: var(--wr-space-sm);
+
   display: block;
   max-width: 20rem;
-  padding: 1rem;
+  padding: var(--wr-tour-popup-padding);
   background: var(--wr-color-surface);
   color: var(--wr-color-on-surface);
-  border: 1px solid var(--wr-color-outline);
-  @include theme.smooth-br(var(--wr-border-radius-base));
-  box-shadow: 0 12px 24px rgba(var(--wr-color-backdrop-rgb), 0.24);
-  font-family: var(--wr-font-family-base);
+  border: 1px solid var(--wr-tour-popup-border);
+  @include theme.smooth-br(var(--wr-tour-popup-radius));
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--wr-color-backdrop) 24%, transparent);
+  font-family: var(--wr-tour-popup-font-family);
 
   &__progress {
-    margin: 0 0 0.375rem;
-    font-size: var(--wr-text-xs);
+    margin: 0 0 var(--wr-tour-popup-progress-margin-bottom);
+    font-size: var(--wr-tour-popup-progress-font-size);
     color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
   }
 
   &__title {
-    margin: 0 0 0.375rem;
-    font-size: var(--wr-text-base);
-    font-weight: var(--wr-font-weight-semibold);
+    margin: 0 0 var(--wr-tour-popup-title-margin-bottom);
+    font-size: var(--wr-tour-popup-title-font-size);
+    font-weight: var(--wr-tour-popup-title-font-weight);
   }
 
   &__content {
-    margin: 0 0 0.875rem;
-    font-size: var(--wr-text-sm);
-    line-height: var(--wr-leading-normal);
+    margin: 0 0 var(--wr-tour-popup-content-margin-bottom);
+    font-size: var(--wr-tour-popup-content-font-size);
+    line-height: var(--wr-tour-popup-content-line-height);
   }
 
   &__actions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--wr-tour-popup-actions-gap);
   }
 
   &__spacer {
@@ -64,6 +95,5 @@
 }
 
 // The popup rides above the cut-out.
-.wr-tour-overlay {
-  z-index: 1001;
-}
+// No `z-index` on the pane — the comment above `.wr-tour-cutout` already said
+// one here "cannot help", and it was carrying 1001 anyway.

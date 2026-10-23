@@ -141,14 +141,6 @@ export const STATES: readonly State[] = [
     scope: '.wr-drawer__panel',
   },
   {
-    id: 'action-sheet/open',
-    route: `${REF}/action-sheet`,
-    steps: [{ click: demo('.wr-btn:has-text("Open action sheet")') }],
-    target: '.wr-action-sheet__action',
-    scope: '.wr-action-sheet',
-    note: 'Its actions paint the intent as TEXT, which is the -ink case.',
-  },
-  {
     id: 'popconfirm/open',
     route: `${REF}/popconfirm`,
     steps: [{ click: demo('.wr-popconfirm-trigger') }],
@@ -254,7 +246,13 @@ export const STATES: readonly State[] = [
     id: 'tour/step',
     // A service, so its page is under /reference/services rather than /components.
     route: '/reference/services/tour',
-    steps: [{ click: demo('.wr-btn--secondary') }, { wait: 400 }],
+    // By TEXT, not by intent. It used to be `.wr-btn--secondary`, which was
+    // unique only because `secondary` was the one intent this page used twice —
+    // v15 removed that intent and the demo's two buttons are both `primary` now,
+    // so a class selector picks "Save changes" and the tour never opens. A state
+    // that did not paint fails the run, which is how this was caught, but the
+    // label is the honest anchor either way.
+    steps: [{ click: demo('.wr-btn:has-text("Show me around")') }, { wait: 400 }],
     target: '.wr-tour-popup',
     scope: '.wr-tour-popup',
   },
@@ -471,8 +469,8 @@ export const STATES: readonly State[] = [
   {
     id: 'sidebar/item-active',
     route: `${REF}/sidebar`,
-    steps: [{ hover: demo('.wr-sidebar__item--active') }],
-    target: demo('.wr-sidebar__item--active'),
+    steps: [{ hover: demo('.wr-sidebar__row--active') }],
+    target: demo('.wr-sidebar__row--active'),
     scope: demo('.wr-sidebar'),
   },
   {
@@ -568,13 +566,6 @@ export const STATES: readonly State[] = [
     scope: demo('.wr-input-number'),
   },
   {
-    id: 'markdown/copy-button',
-    route: `${REF}/markdown`,
-    steps: [{ hover: demo('.wr-markdown__copy') }],
-    target: demo('.wr-markdown__copy'),
-    scope: demo('.wr-markdown'),
-  },
-  {
     id: 'event-calendar/month',
     route: `${REF}/event-calendar`,
     steps: [{ hover: demo('.wr-event-calendar__daynum') }],
@@ -595,66 +586,15 @@ export const STATES: readonly State[] = [
     target: demo('.wr-textarea__resize'),
     scope: demo('.wr-textarea-wrap, .wr-textarea'),
   },
-  // ── Bottom sheets. `wrPresentAsSheet` swaps the whole presentation at 640px
-  // and under, and both other gates load every page at 1280 wide, so none of
-  // this markup has ever been measured — a different panel, a different
-  // backdrop, and a `.wr-overlay-sheet` class that exists nowhere else.
+  // ── A phone. Every other gate loads each page at 1280 wide, so nothing
+  // measures what a 390px screen with a touch pointer gets.
   {
-    id: 'sheet/select',
-    route: `${REF}/select`,
-    viewport: 'mobile',
-    steps: [{ click: demo('wr-select[responsive] .wr-select__trigger') }, { wait: 300 }],
-    target: '.wr-overlay-sheet .wr-option',
-    scope: '.wr-overlay-sheet',
-  },
-  {
-    id: 'sheet/dropdown',
-    route: `${REF}/dropdown`,
-    viewport: 'mobile',
-    steps: [{ click: demo('.wr-dropdown-trigger[responsive]') }, { wait: 300 }],
-    target: '.wr-overlay-sheet .wr-dropdown-item',
-    scope: '.wr-overlay-sheet',
-  },
-  {
-    id: 'sheet/popover',
-    route: `${REF}/popover`,
-    viewport: 'mobile',
-    steps: [{ click: demo('.wr-popover-trigger[responsive]') }, { wait: 300 }],
-    target: '.wr-overlay-sheet',
-    scope: '.wr-overlay-sheet',
-  },
-  {
-    id: 'sheet/command-palette',
-    route: `${REF}/command-palette`,
-    viewport: 'mobile',
-    steps: [{ click: demo('.wr-btn:has-text("Open palette")') }, { wait: 300 }],
-    target: '.wr-command-palette__option--active',
-    scope: '.wr-command-palette',
-  },
-  {
-    id: 'sheet/dialog',
-    route: `${REF}/dialog`,
-    viewport: 'mobile',
-    steps: [{ click: demo('.wr-btn:has-text("Open responsive dialog")') }, { wait: 300 }],
-    target: '.wr-dialog-panel',
-    scope: '.wr-dialog-panel',
-  },
-  {
-    id: 'sheet/drawer',
+    id: 'drawer/mobile',
     route: `${REF}/drawer`,
     viewport: 'mobile',
     steps: [{ click: demo('.wr-btn:has-text("Open drawer")') }, { wait: 300 }],
     target: '.wr-drawer__panel',
     scope: '.wr-drawer__panel',
-  },
-  {
-    id: 'sheet/action-sheet',
-    route: `${REF}/action-sheet`,
-    viewport: 'mobile',
-    steps: [{ click: demo('.wr-btn:has-text("Open action sheet")') }, { wait: 300 }],
-    target: '.wr-action-sheet__action',
-    scope: '.wr-action-sheet',
-    note: 'Not responsive-gated — an action sheet is a sheet everywhere — but a phone is where it is used.',
   },
 
   // ── At-rest variants the other gates DO see, but only through two rules.
@@ -710,14 +650,8 @@ export const STATES: readonly State[] = [
     target: demo('.wr-table__tree-toggle'),
   },
   {
-    id: 'markdown/task-checked',
-    route: `${REF}/markdown`,
-    steps: [],
-    target: demo('.wr-markdown__task--checked'),
-  },
-  {
-    id: 'drag-drop/handle',
-    route: `${REF}/drag-drop`,
+    id: 'sortable-list/handle',
+    route: `${REF}/sortable-list`,
     steps: [],
     target: demo('.wr-drag-handle'),
   },
@@ -858,7 +792,7 @@ export const STATES: readonly State[] = [
     id: 'editor/tool-active',
     route: `${REF}/editor`,
     // No step: the first demo opens on a heading, and ProseMirror puts the caret
-    // at the start of the document, so Heading 2 is pressed from the first frame.
+    // at the start of the document, so Heading 3 is pressed from the first frame.
     steps: [],
     target: demo('.wr-editor__tool--active'),
     scope: demo('.wr-editor__toolbar'),
@@ -932,8 +866,8 @@ export interface State {
   /** What axe runs over. Defaults to `target`; widen it to cover a whole panel. */
   readonly scope?: string;
   /**
-   * `'mobile'` runs the state at 390×844 with touch on, which is what turns a
-   * responsive overlay into a bottom sheet. Defaults to `'desktop'`.
+   * `'mobile'` runs the state at 390×844 with touch on, which is what a phone
+   * gets. Defaults to `'desktop'`.
    */
   readonly viewport?: 'desktop' | 'mobile';
   readonly note?: string;

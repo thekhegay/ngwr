@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrSplitterArrowKey, WrSplitterHarnessFilters, WrSplitterPaneSizes } from './interfaces';
+import type { WrSplitterArrowKey, WrSplitterHarnessFilters, WrSplitterPaneSizes } from './types';
 
 const ARROWS: Record<WrSplitterArrowKey, TestKey> = {
   left: TestKey.LEFT_ARROW,
@@ -197,9 +197,9 @@ export class WrSplitterHarness extends ComponentHarness {
    * mirroring all live on this path.
    *
    * Throws rather than half-arriving. A target outside `[min, max]` is unreachable by
-   * construction, and so is any target the walk cannot hit exactly — the position is a
-   * float that a previous drag may have left mid-step, and whole-unit keys cannot get
-   * off a fractional offset. Both say so, with where it actually stopped.
+   * construction, and so is a FRACTIONAL target — an arrow step lands on a whole
+   * number, even from a fraction a drag left behind. Both say so, with where it
+   * actually stopped.
    */
   async setPosition(target: number): Promise<void> {
     const [min, max] = [await this.getMinPosition(), await this.getMaxPosition()];
@@ -246,8 +246,8 @@ export class WrSplitterHarness extends ComponentHarness {
     const landed = await this.getPosition();
     if (landed !== target) {
       throw new Error(
-        `WrSplitterHarness.setPosition(${target}): the walk stopped at ${landed}. The arrows move in whole ` +
-          'units, so a position left on a fraction by a drag cannot be walked onto a whole number.'
+        `WrSplitterHarness.setPosition(${target}): the walk stopped at ${landed}. The arrows land on whole ` +
+          'numbers, so a fractional position cannot be walked onto.'
       );
     }
   }

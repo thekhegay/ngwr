@@ -24,12 +24,32 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, type WrClassInput } from 'ngwr/utils';
+import { getFocusableElements, toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { WrColorPicker } from './color-picker';
-import type { WrColorFormat } from './interfaces';
+import type { WrColorFormat } from './types';
 
 let triggerUid = 0;
+
+/**
+ * Whether a keydown is a Tab that takes focus out past either end of the open
+ * panel. The pane lives in the overlay container at the end of `<body>`, so the
+ * browser's own Tab out of its last stop went to `<body>` — the top of the page —
+ * with the panel left standing. The caller focuses the trigger synchronously and
+ * does NOT `preventDefault`, so the browser's Tab carries on from there to the
+ * trigger's real neighbour — the move `wr-dropdown` makes for its menu. The same
+ * check lives beside `wr-date-picker`, which cannot share it across entry points.
+ */
+function tabLeavesPane(pane: HTMLElement, event: KeyboardEvent): boolean {
+  if (event.key !== 'Tab' || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return false;
+  const active = pane.ownerDocument.activeElement;
+  if (!active || !pane.contains(active)) return false;
+  const all = getFocusableElements(pane);
+  const at = all.indexOf(active as HTMLElement);
+  if (at < 0) return false;
+  const beyond = event.shiftKey ? all.slice(0, at) : all.slice(at + 1);
+  return !beyond.some(el => el.tabIndex >= 0);
+}
 
 /**
  * Opens a `<wr-color-picker>` in an overlay anchored to the host element.
@@ -208,13 +228,18 @@ export class WrColorPickerTrigger {
         this.close();
       });
 
-    // Escape → close.
+    // Escape → close; Tab past either end → close, leaving from the trigger.
     this.overlayRef
       .keydownEvents()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
+          this.close();
+          return;
+        }
+        if (this.overlayRef && tabLeavesPane(this.overlayRef.overlayElement, event)) {
+          this.host.nativeElement.focus();
           this.close();
         }
       });

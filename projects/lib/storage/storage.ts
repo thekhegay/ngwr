@@ -8,9 +8,9 @@
 import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Service, PLATFORM_ID, type Signal, type WritableSignal, inject, signal } from '@angular/core';
 
-import type { WrStorageEnvelope } from './interfaces';
 import { WR_STORAGE_CONFIG } from './storage-config';
 import { WR_STORAGE_ENGINE } from './storage-engine';
+import type { WrStorageEnvelope } from './types';
 
 function isEnvelope(x: unknown): x is WrStorageEnvelope {
   return x !== null && typeof x === 'object' && 'v' in x;
@@ -20,7 +20,7 @@ function isEnvelope(x: unknown): x is WrStorageEnvelope {
  * Reactive key/value storage on top of any `Storage`-compatible engine.
  *
  * - **Swap engines** through {@link WR_STORAGE_ENGINE} or
- *   {@link provideWrStorage}. Default: `localStorage` with an in-memory
+ *   `provideWr(withStorage(...))`. Default: `localStorage` with an in-memory
  *   fallback for SSR / private mode.
  * - **Namespacing** via `prefix` (config) — every key is transparently
  *   prefixed on read / write.
@@ -72,7 +72,13 @@ export class WrStorage {
 
   // Public API
 
-  /** Is `key` present (regardless of value / expiry)? */
+  /**
+   * Is `key` present? A raw presence check: it does not parse the envelope, so
+   * an EXPIRED entry still answers `true` until something reads it — `get()`
+   * is what notices the TTL and removes the key on its way out. Branch on
+   * `get() !== null` when the answer has to respect expiry; this one is for
+   * "is there anything under this key at all", quota accounting included.
+   */
   has(key: string): boolean {
     return this.engine.getItem(this.fullKey(key)) !== null;
   }

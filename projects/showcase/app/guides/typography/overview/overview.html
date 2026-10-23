@@ -1,30 +1,89 @@
 <ngwr-doc-page
   title="Typography"
-  description="A complete type system for ngwr apps. Semantic variants, color tones, alignment, truncation, and monospace — all driven by the shared `--wr-text-*` / `--wr-font-weight-*` / `--wr-leading-*` tokens so a single theme override re-skins everything."
-  [keywords]="['typography', 'wr-typography', 'fonts', 'headings', 'body']"
+  description="Style any text with one directive, `[wrTypography]`."
+  [keywords]="['typography', 'wr-typography', 'fonts', 'headings', 'body', 'type scale', 'tone']"
   [labels]="['Section']"
 >
   <ngwr-doc-section title="At a glance">
-    <div class="ngwr-typography-overview__hero">
+    <div class="ngwr-typography-overview__hero wr-not-typeset">
       <p wrTypography variant="overline" tone="primary">ngwr/typography</p>
       <p wrTypography variant="display">Build interfaces</p>
       <p wrTypography variant="display" tone="primary">that read beautifully.</p>
-      <p wrTypography variant="lead" tone="medium">
-        A single `[wrTypography]` directive covers every text role. Pick a variant, optional tone, and you’re done.
-      </p>
     </div>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Sections">
-    <ul class="ngwr-typography-overview__grid">
-      @for (card of cards; track card.title) {
-        <li>
-          <a class="ngwr-typography-overview__card" [routerLink]="card.url">
-            <p wrTypography variant="h4">{{ card.title }}</p>
-            <p wrTypography tone="medium">{{ card.body }}</p>
-          </a>
-        </li>
-      }
-    </ul>
+  <ngwr-doc-section
+    title="Variants"
+    description="Each word is set in the `variant` it names. Sizes and tokens are on [Styles](/guides/typography/styles)."
+  >
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-typography-overview__specimen">
+        <div class="ngwr-typography-overview__strip">
+          @for (variant of headings; track variant) {
+            <p wrTypography [variant]="variant">{{ variant }}</p>
+          }
+        </div>
+        <div class="ngwr-typography-overview__strip">
+          @for (variant of text; track variant) {
+            @switch (variant) {
+              @case ('code') {
+                <code wrTypography variant="code">{{ variant }}</code>
+              }
+              @case ('link') {
+                <a wrTypography variant="link" [routerLink]="linksPage">{{ variant }}</a>
+              }
+              @case ('list') {
+                <ul wrTypography variant="list">
+                  <li>{{ variant }}</li>
+                </ul>
+              }
+              @default {
+                <p wrTypography [variant]="variant">{{ variant }}</p>
+              }
+            }
+          }
+        </div>
+      </div>
+    </ngwr-doc-snippet>
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tones"
+    description="`tone` works on any variant. It adds emphasis; the words carry the state."
+  >
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-typography-overview__specimen">
+        <div class="ngwr-typography-overview__tones">
+          @for (tone of tones; track tone) {
+            <p wrTypography variant="h5" [tone]="tone">{{ tone }}</p>
+          }
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Modifiers" description="Inputs that combine with any variant.">
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-typography-overview__specimen">
+        <div class="ngwr-typography-overview__modifiers">
+          <div class="ngwr-typography-overview__modifier">
+            <code>align="center"</code>
+            <p wrTypography align="center" class="ngwr-typography-overview__line">Step 2 of 3</p>
+          </div>
+          <div class="ngwr-typography-overview__modifier">
+            <code>truncate</code>
+            <p wrTypography truncate class="ngwr-typography-overview__line">
+              Invoices are emailed on the first of each month and kept for seven years.
+            </p>
+          </div>
+          <div class="ngwr-typography-overview__modifier">
+            <code>mono</code>
+            <p wrTypography mono class="ngwr-typography-overview__line">Order 0042-1187</p>
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also title="Sections" [links]="sections" />
 </ngwr-doc-page>

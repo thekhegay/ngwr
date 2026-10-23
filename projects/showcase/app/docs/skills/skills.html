@@ -1,0 +1,45 @@
+<ngwr-doc-page
+  title="Agent skill"
+  description="Give your AI agent the ngwr rules and catalog as a skill."
+  [keywords]="['agent skill', 'skill.md', 'claude', 'cursor', 'ai', 'llms.txt', 'agents.md']"
+>
+  <ngwr-doc-section
+    title="Use it"
+    description="The skill ships in the `ngwr` package; copy it into your agent's skills folder."
+  >
+    <ngwr-doc-code [code]="snippets.install" language="bash" />
+    <p>Copy it again after you upgrade ngwr.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Files"
+    description="In `node_modules/ngwr/skills/ngwr/`, and online at [ngwr.dev/skills/ngwr/SKILL.md](https://ngwr.dev/skills/ngwr/SKILL.md)."
+  >
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">File</th>
+            <th scope="col">What it holds</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>SKILL.md</code></th>
+            <td>Where to look things up, the rules agents get wrong, setup and testing</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>references/catalog.md</code></th>
+            <td>Every entry point with its import line and selectors</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>references/setup.md</code></th>
+            <td>Bootstrap, styles and the providers a component needs</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

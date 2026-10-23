@@ -1,0 +1,36 @@
+<ngwr-doc-page
+  title="resolveCssColor"
+  since="15.0.0"
+  description="Resolves a CSS colour, such as a `var()` or `light-dark()`, to a value a canvas can paint with."
+  [keywords]="[
+    'resolveCssColor',
+    'watchColorScheme',
+    'canvas',
+    'color',
+    'light-dark',
+    'color-mix',
+    'color-scheme',
+    'css variables',
+    'utils',
+  ]"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="Call it in the browser, from `afterNextRender`, with the element you draw on, the expression and a fallback."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+    <ngwr-doc-code [code]="formsSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Redraw on a scheme switch"
+    description="A resolved colour is a snapshot. `watchColorScheme()` calls back when the page's colour scheme changes, so a still canvas can draw again."
+  >
+    <ngwr-doc-code [code]="schemeSnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -44,18 +44,14 @@ export default class WrTruncatePipePage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrTruncate } from 'ngwr/pipes';
-
-@Component({ imports: [WrTruncate] })
-export class MyComponent { /* ... */ }`,
-    basic: `{{ longText | wrTruncate: 24 }}  <!-- "Lorem ipsum dolor sit a…" -->`,
+    basic: `{{ longText | wrTruncate: 24 }}  <!-- "Lorem ipsum dolor sit am…" -->`,
     ellipsis: `{{ longText | wrTruncate: 24 : ' [more]' }}`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'wrTruncate',
-      description: 'Clamp string length with optional ellipsis.',
+      description: 'Cuts a string to `length` and appends `ellipsis`.',
       type: "(value: string | null | undefined, length = 80, ellipsis = '…') => string",
       default: '—',
     },

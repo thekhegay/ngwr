@@ -1,22 +1,18 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Title } from '@angular/platform-browser';
 
-import { Zap } from 'lucide';
 import { WrColorPickerTrigger } from 'ngwr/color-picker';
-import { provideWrIcons, WrIcon } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrInput } from 'ngwr/input';
 import { WrOption, WrSelect } from 'ngwr/select';
 import { WrSlider } from 'ngwr/slider';
 import { WrSwitch } from 'ngwr/switch';
 
 import { DocCodeComponent } from '../doc-code/doc-code';
+import { useExampleFiles } from '../doc-code/example-files';
 import type { DocCodeFile } from '../doc-code/types';
 
 import type { DocControl, DocSliderControl } from './types';
 
-import { canSandbox, SandboxService, toSandboxFiles } from '#core/sandbox';
 import type { ShikiLang } from '#core/shiki';
 
 /**
@@ -58,24 +54,10 @@ import type { ShikiLang } from '#core/shiki';
  */
 @Component({
   selector: 'ngwr-doc-playground',
+  host: { class: 'wr-not-typeset' },
   templateUrl: './doc-playground.html',
   styleUrl: './doc-playground.scss',
-  imports: [
-    DocCodeComponent,
-    FormsModule,
-    WrColorPickerTrigger,
-    WrIcon,
-    WrInput,
-    WrOption,
-    WrSelect,
-    WrSlider,
-    WrSwitch,
-  ],
-  // Adds to the root set rather than replacing it — `WrIconRegistry` walks the
-  // injector chain — so the chips' own components keep their icons. The glyph
-  // is lucide's `Zap` under a name that says what the button DOES; it is not
-  // the StackBlitz mark.
-  providers: [provideWrIcons(lucideIcons({ stackblitz: Zap }))],
+  imports: [DocCodeComponent, FormsModule, WrColorPickerTrigger, WrInput, WrOption, WrSelect, WrSlider, WrSwitch],
 })
 export class DocPlaygroundComponent {
   /** Single source snippet shown beneath the preview. Pass `''` to omit. */
@@ -87,8 +69,15 @@ export class DocPlaygroundComponent {
   /** Multi-file source — rendered with a tab strip when set. */
   readonly files = input<readonly DocCodeFile[] | null>(null);
 
+  /**
+   * The HTML / TS pair the code block shows — the same derivation
+   * `<ngwr-doc-snippet>` uses, so a playground and a plain demo answer the
+   * question the same way. Twenty-one pages carry only a playground.
+   */
+  protected readonly resolvedFiles = useExampleFiles({ code: this.code, language: this.language, files: this.files });
+
   protected readonly hasCode = computed(() => {
-    const fs = this.files();
+    const fs = this.resolvedFiles();
     if (fs?.some(f => f.code.trim().length > 0)) return true;
     return this.code().trim().length > 0;
   });
@@ -101,34 +90,6 @@ export class DocPlaygroundComponent {
 
   /** Fired when the replay button is clicked. */
   readonly replay = output<void>();
-
-  /**
-   * Offer the "Open in StackBlitz" action on this demo. @default true
-   *
-   * The mirror of `<ngwr-doc-snippet>`'s input of the same name, kept so the
-   * two components answer the same question the same way — including the
-   * default. The reason it reads `true` again, and what was fixed to get there,
-   * is recorded on that one. Flip both together, not one.
-   */
-  readonly sandboxable = input(true);
-
-  /** Name the generated project carries on StackBlitz. @default the page title */
-  readonly sandboxTitle = input<string>('');
-
-  protected readonly sandbox = inject(SandboxService);
-
-  private readonly pageTitle = inject(Title);
-
-  protected readonly sandboxFiles = computed(() => toSandboxFiles(this.files(), this.code(), this.language()));
-
-  protected readonly canOpenSandbox = computed(() => this.sandboxable() && canSandbox(this.sandboxFiles()));
-
-  protected openSandbox(): void {
-    void this.sandbox.open({
-      title: this.sandboxTitle() || this.pageTitle.getTitle() || 'ngwr example',
-      files: this.sandboxFiles(),
-    });
-  }
 
   protected readonly hasControls = computed(() => this.controls().length > 0);
 

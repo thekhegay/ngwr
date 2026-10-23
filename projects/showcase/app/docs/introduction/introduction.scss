@@ -1,0 +1,103 @@
+@use 'lib/styles/breakpoints' as bp;
+@use 'showcase/styles/mixins' as site;
+
+// Twelve cards fill the last row at three, two and one column.
+.intro-features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--wr-space-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @include bp.media-down(lg) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include bp.media-down(sm) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.intro-feature {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wr-space-sm);
+  padding: var(--wr-space-lg);
+  border: 1px solid var(--wr-border-base);
+  border-radius: var(--wr-border-radius-base);
+  background: var(--wr-color-surface);
+
+  &__title {
+    margin: 0;
+    color: var(--wr-color-on-surface);
+    font-size: var(--wr-text-base);
+    font-weight: 600;
+    line-height: var(--wr-text-base-leading);
+
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        @include site.focus-ring;
+      }
+    }
+  }
+
+  &__text {
+    margin: 0;
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-text-sm);
+    line-height: var(--wr-text-sm-leading);
+  }
+}
+
+.intro-support {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wr-space-md);
+  padding: var(--wr-space-xl);
+  border: 1px dashed var(--wr-border-base);
+  border-radius: var(--wr-border-radius-lg);
+  text-align: center;
+
+  p {
+    max-width: 36rem;
+    margin: 0;
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-text-base);
+    line-height: 1.75;
+  }
+
+  &__mark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--wr-space-xs);
+    padding: var(--wr-space-sm) var(--wr-space-md);
+    border-radius: var(--wr-border-radius-pill);
+    background: var(--wr-color-fill);
+    color: var(--wr-color-on-surface);
+    font-size: 1.5rem;
+  }
+
+  &__heart {
+    color: var(--wr-color-danger);
+    font-size: 1.125rem;
+
+    ::ng-deep svg {
+      fill: currentColor;
+    }
+  }
+}
+
+.intro-gates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wr-space-xs);
+}

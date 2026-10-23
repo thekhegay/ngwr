@@ -1,0 +1,183 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import {
+  Component,
+  type ElementRef,
+  LOCALE_ID,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
+
+import { useI18nText } from 'ngwr/i18n';
+import { useChartTooltip } from 'ngwr/popover';
+import { clamp } from 'ngwr/utils';
+
+/**
+ * Semicircle progress gauge. Display-only — for interactive use see the
+ * {@link WrKnob} from `ngwr/knob`.
+ *
+ * @example
+ * ```html
+ * <wr-gauge [value]="72" />
+ * <wr-gauge [value]="9.5" [min]="0" [max]="10" suffix="/10" valueColor="var(--wr-color-warning)" />
+ * ```
+ *
+ * @see https://ngwr.dev/charts/gauge
+ */
+@Component({
+  selector: 'wr-gauge',
+  templateUrl: './gauge.html',
+  encapsulation: ViewEncapsulation.None,
+  host: { class: 'wr-gauge' },
+})
+export class WrGauge {
+  /** Accessible name — the role needs one. Falls back to `gauge.label`. */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'gauge.label', 'Gauge');
+
+  /**
+   * The reading. Coerced like every other numeric input here — it was the only one
+   * without it, so a NaN reached the arc's `d` as the literal text `NaN`, which is
+   * invalid path geometry and drops the arc.
+   */
+  readonly value = input.required<number, unknown>({
+    transform: (v: unknown): number => coerceNumberProperty(v, 0),
+  });
+  /**
+   * Low end of the scale — where the arc starts. Values below it clamp here.
+   */
+  readonly min = input(0, { transform: (v: unknown): number => coerceNumberProperty(v, 0) });
+  /**
+   * High end of the scale — where the arc completes. Values above it clamp here.
+   */
+  readonly max = input(100, { transform: (v: unknown): number => coerceNumberProperty(v, 100) });
+
+  /** Diameter in CSS pixels. @default 160 */
+  readonly size = input(160, { transform: (v: unknown): number => Math.max(48, coerceNumberProperty(v, 160)) });
+
+  /** Arc stroke thickness in viewBox units (out of 100). @default 10 */
+  readonly strokeWidth = input(10, {
+    transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 10)),
+  });
+
+  /**
+   * Colour of the unfilled arc behind the value. Any CSS colour; the default is
+   * the outline token at 60%, which reads as a hairline in both themes.
+   */
+  readonly trackColor = input<string>('color-mix(in srgb, var(--wr-border-base) 60%, transparent)');
+  /**
+   * Colour of the filled arc. Any CSS colour — pass an intent token to tie it to
+   * a threshold, e.g. `var(--wr-color-danger)` once the value crosses one.
+   */
+  readonly valueColor = input<string>('var(--wr-color-primary)');
+
+  /** Show the value text in the center. @default true */
+  readonly showValue = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Unit printed immediately after the number — `%`, `/10`, ` GB`. It goes into
+   * the accessible text too, so the gauge is announced the way it reads.
+   */
+  readonly suffix = input<string>('');
+
+  /**
+   * Show a tooltip with the reading on hover, named by `ariaLabel` when one is
+   * given. Pointer only — the meter announces the same reading. @default true
+   */
+  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Writes the reading in the centre, the tooltip and `aria-valuetext`, before
+   * `suffix`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. `aria-valuenow` stays a
+   * number.
+   */
+  readonly valueFormat = input<((value: number) => string) | null>(null);
+
+  private readonly locale = inject(LOCALE_ID);
+  private readonly numbers = new Intl.NumberFormat(this.locale);
+  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
+  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
+
+  private readonly surface = viewChild<ElementRef<HTMLElement>>('surface');
+
+  // Geometry — semicircle in a 100×56 viewBox (centre at 50, 50).
+  protected readonly cx = 50;
+  protected readonly cy = 50;
+  // A negative radius is invalid in the SVG path grammar, so the browser drops the arc
+  // and the dial vanishes — which a fat stroke reaches at 99. `wr-knob` floors it too.
+  protected readonly radius = computed(() => Math.max(1, 50 - this.strokeWidth() / 2 - 0.5));
+
+  /**
+   * The reading as it can actually be shown. Only `ratio` used to be clamped, so an
+   * over-range value drew a full bar while `aria-valuenow` announced the raw number
+   * against `aria-valuemax` — an invalid state for `role="meter"` — and the printed
+   * text disagreed with the bar as well.
+   */
+  protected readonly displayValue = computed(() => clamp(this.value(), this.min(), this.max()));
+
+  /** The reading as the centre prints it, without the suffix. */
+  protected readonly displayText = computed(() => {
+    const value = this.displayValue();
+    const custom = this.valueFormat();
+    if (custom) return custom(value);
+    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
+  });
+
+  protected readonly ratio = computed(() => {
+    const range = this.max() - this.min();
+    if (range <= 0) return 0;
+    return clamp((this.value() - this.min()) / range, 0, 1);
+  });
+
+  protected readonly trackPath = computed(() => {
+    const r = this.radius();
+    return `M ${this.cx - r} ${this.cy} A ${r} ${r} 0 0 1 ${this.cx + r} ${this.cy}`;
+  });
+
+  protected readonly valuePath = computed(() => {
+    // Nothing to draw at zero. A zero-length arc is not nothing: its round cap paints a
+    // dot a stroke wide at the start of the track, so 0 read as a small reading.
+    if (this.ratio() === 0) return null;
+    const r = this.radius();
+    const angle = Math.PI * (1 - this.ratio());
+    const ex = this.cx + r * Math.cos(angle);
+    const ey = this.cy - r * Math.sin(angle);
+    // The arc always spans `π × ratio` radians (≤ 180°), so largeArc stays 0.
+    // Previously this was set to 1 when ratio > 0.5, which made the swept arc
+    // take the long way round and visually flipped the bar.
+    return `M ${this.cx - r} ${this.cy} A ${r} ${r} 0 0 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
+  });
+
+  protected readonly viewBox = '0 0 100 56';
+
+  /**
+   * The reading as the meter announces it — `aria-valuetext`, the number plus the
+   * suffix — so the tooltip, the printed value and a screen reader all say one
+   * thing.
+   */
+  protected readonly valueText = computed(() => `${this.displayText()}${this.suffix()}`);
+
+  /**
+   * One tooltip, pointing at the top of the dial. The whole gauge is one section.
+   * The label is the `ariaLabel` input and not the catalog fallback, which names
+   * the kind of widget rather than the reading.
+   */
+  protected readonly tip = useChartTooltip(this.tooltip, () => {
+    const el = this.surface()?.nativeElement;
+    if (!el) return null;
+    return {
+      datum: { label: this.ariaLabel() ?? undefined, value: this.valueText(), color: this.valueColor() },
+      anchor: el,
+    };
+  });
+}

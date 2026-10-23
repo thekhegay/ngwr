@@ -25,7 +25,8 @@ import {
 } from '@angular/core';
 
 import { WrTab } from './tab';
-import { WR_TABS, WR_TABS_ROUTING, type WrTabsContext } from './tokens';
+import { WR_TABS, WR_TABS_ROUTING } from './tokens';
+import type { WrTabsContext } from './types';
 
 /**
  * Instance counter for the header / panel ids. Deterministic under prerender,
@@ -163,6 +164,17 @@ export class WrTabs implements WrTabsContext {
     return tabs.find(t => t.key() === key) ?? tabs.find(t => !t.disabled()) ?? tabs[0];
   });
 
+  /**
+   * Router mode: the one tab in the tab order — the tab the route selects, else
+   * the first enabled one, so a URL no tab matches still leaves the strip
+   * reachable. The roving stop content mode keeps; without it every router tab
+   * was a Tab stop of its own.
+   */
+  protected readonly routerStop = computed(() => {
+    const enabled = this.tabs().filter(t => !t.disabled());
+    return enabled.find(t => t.routerActive()) ?? enabled[0] ?? null;
+  });
+
   // WrTabsContext
 
   activate(key: string): void {
@@ -189,21 +201,38 @@ export class WrTabs implements WrTabsContext {
   protected readonly canScrollEnd = signal(false);
 
   constructor() {
-    // Seed `active` with the first tab's key, once the content children exist
-    // and their inputs are bound. Without this the model writes back a
-    // generated id like `wr-tab-b1crta5aix0v`: the strip still highlighted the
-    // right tab, because `activeTab()` falls back to `tabs[0]`, so the only
-    // visible symptom was a two-way binding holding a key the consumer had
-    // never heard of.
+    // Seed `active` with the first tab's key, once the content children exist.
+    // Without this the model writes back a generated id like
+    // `wr-tab-b1crta5aix0v`: the strip still highlighted the right tab, because
+    // `activeTab()` falls back to `tabs[0]`, so the only visible symptom was a
+    // two-way binding holding a key the consumer had never heard of.
+    //
+    // `previousKeys` is what the last run saw. The first runs can see a `[key]`
+    // binding still on its generated default — measured with keys bound inside
+    // an `@for` — so "the bound key is not among the tabs" cannot mean "removed"
+    // on its own: it would throw away a key the consumer bound before its tab
+    // had bound its own. The same memory is what lets a seed that landed on a
+    // generated default correct itself once the real keys arrive.
+    let previousKeys: ReadonlySet<string> = new Set();
     effect(() => {
       const tabs = this.tabs();
+      const keys = tabs.map(t => t.key());
+      const key = this.active();
+      // Also re-seed when the active tab LEAVES the list. `activeTab()` falls
+      // back on its own, so the strip showed the fallback while `[(active)]`
+      // kept the gone key: a host persisting the selection saved a tab that no
+      // longer existed, and a tab later added under that key took the
+      // selection back without anyone asking. A key the list has never held is
+      // left alone — that is a tab still on its way, not one that went.
+      const removed = key !== null && previousKeys.has(key) && !keys.includes(key);
+      previousKeys = new Set(keys);
       // The first ENABLED tab, not the first tab. Every other path already
       // skips a disabled one — `onStripKeydown` filters them out and
       // `onTabClick` returns early — so a strip whose first tab is behind a
       // flag seeded `active` to a key nothing can select: the roving stop is
       // `tab === activeTab() && !tab.disabled()`, which no button then
       // satisfied, and the whole strip left the tab order.
-      if (tabs.length > 0 && this.active() === null) {
+      if (tabs.length > 0 && (key === null || removed)) {
         this.active.set((tabs.find(t => !t.disabled()) ?? tabs[0]).key());
       }
     });
@@ -254,6 +283,17 @@ export class WrTabs implements WrTabsContext {
    */
   protected onRouterTabClick(tab: WrTab, event: MouseEvent): void {
     tab.navigate(event);
+  }
+
+  /**
+   * Space on a router tab. The anchor answers Enter on its own, as a link does,
+   * but `role="tab"` promises Space as well (WAI-ARIA APG), and on a bare link
+   * Space scrolls the page instead. Routed through a real click so the one
+   * navigation path above handles both keys.
+   */
+  protected onRouterTabSpace(event: Event): void {
+    event.preventDefault();
+    (event.currentTarget as HTMLElement).click();
   }
 
   /** Per-instance prefix, so keys only have to be unique within one group. */

@@ -5,40 +5,39 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { safeMarkdownUrl } from 'ngwr/markdown';
-import { type Mark, type MarkSpec, type Node, type NodeSpec, Schema } from 'prosemirror-model';
+import { type MarkSpec, type Node, type NodeSpec, Schema } from 'prosemirror-model';
 
-import { languageValue } from './markdown';
+import { safeUrl } from './safe-url';
 
 /**
- * How deep blockquotes and list items may nest: the deepest document markdown
- * reads back with its structure. `parseMarkdown` parses twelve block levels and
- * keeps whatever sits at the twelfth as literal text, so the CONTENT of a twelfth
- * quote or item would come back flattened — a heading in there reads back as a
- * paragraph saying `## …`. Each quote and each list item is one level, as it is
- * there.
+ * How deep blockquotes and list items may nest through editing. Each quote and
+ * each list item is one level.
+ *
+ * Some limit has to exist, because the editor must read back what it writes: a
+ * bound value nesting past `MAX_JSON_DEPTH` is refused unread, so a Mod-] held
+ * down long enough would otherwise store a document the next load refuses.
+ * Eleven is deeper than any outline anyone writes and far inside that bound.
  */
 const MAX_NESTING = 11;
 
-/** The `align` values a table cell may carry — `ngwr/markdown`'s own vocabulary. */
+/** The `align` values a table cell may carry. */
 const ALIGNS: ReadonlySet<unknown> = new Set([null, 'start', 'center', 'end']);
 
-/** The largest ordinal the markdown parser reads back (`\d{1,9}`). */
+/** The largest list start: nine digits, the most the `1. ` input rule reads. */
 const MAX_ORDER = 999999999;
 
 /**
- * The one URL policy of all three formats, as a schema rule.
+ * The URL policy as a schema rule.
  *
- * `safeMarkdownUrl` is what `parseMarkdown` already applies, so the markdown path
- * never produces a refused URL. The HTML path asks it in `getAttrs`, where a
- * refusal drops the link and keeps its text. And the JSON path — plus every
- * attribute ProseMirror validates since view 1.42.3, clipboard slice context
- * included — hits these validators, which THROW: a JSON value holding a refused
- * URL is refused as a whole, the same as one holding an unknown node.
+ * A paste asks it in `getAttrs`, where a refusal drops the link and keeps its
+ * text. A bound value — plus every attribute ProseMirror validates since view
+ * 1.42.3, clipboard slice context included — hits these validators, which THROW:
+ * a value holding a refused URL is refused as a whole, the same as one holding
+ * an unknown node.
  */
 function requireUrl(kind: 'link' | 'image') {
   return (value: unknown): void => {
-    if (typeof value !== 'string' || safeMarkdownUrl(value, kind) !== value) {
+    if (typeof value !== 'string' || safeUrl(value, kind) !== value) {
       throw new RangeError(`<wr-editor>: refused ${kind} URL`);
     }
   };
@@ -49,17 +48,17 @@ function nullableString(value: unknown): void {
 }
 
 /**
- * The attributes of an `<a>` a pasted or bound document may keep: the href, and
- * only when the policy allows it. `false` drops the mark and keeps the text —
- * which is why this refuses rather than rewrites.
+ * The attributes of an `<a>` a pasted document may keep: the href, and only when
+ * the policy allows it. `false` drops the mark and keeps the text — which is why
+ * this refuses rather than rewrites.
  */
 function linkAttrs(dom: HTMLElement): false | { href: string; title: string | null } {
-  const href = safeMarkdownUrl(dom.getAttribute('href') ?? '', 'link');
+  const href = safeUrl(dom.getAttribute('href') ?? '', 'link');
   return href ? { href, title: dom.getAttribute('title') } : false;
 }
 
 function imageAttrs(dom: HTMLElement): false | { src: string; alt: string; title: string | null } {
-  const src = safeMarkdownUrl(dom.getAttribute('src') ?? '', 'image');
+  const src = safeUrl(dom.getAttribute('src') ?? '', 'image');
   return src ? { src, alt: dom.getAttribute('alt') ?? '', title: dom.getAttribute('title') } : false;
 }
 
@@ -88,6 +87,16 @@ function alignOf(dom: HTMLElement): 'start' | 'center' | 'end' | null {
   if (word === 'start' || word === 'left') return 'start';
   if (word === 'end' || word === 'right') return 'end';
   return null;
+}
+
+/**
+ * A code block's language: the first word, lowercased, and nothing past 64
+ * characters — or `null`. It becomes a class name and a data attribute, so the
+ * one rule for it on every path in is that nothing can break out of a word.
+ */
+function languageValue(raw: string | null): string | null {
+  const word = (raw ?? '').trim().split(/\s+/)[0].toLowerCase();
+  return word && word.length <= 64 ? word : null;
 }
 
 function languageOf(dom: HTMLElement): string | null {
@@ -252,7 +261,7 @@ const nodes: Record<string, NodeSpec> = {
     toDOM: node => {
       // Re-asked here: validators do not run on `type.create()`, so a node built
       // in code never passed through them.
-      const src = safeMarkdownUrl(String(node.attrs['src'] ?? ''), 'image');
+      const src = safeUrl(String(node.attrs['src'] ?? ''), 'image');
       const title = node.attrs['title'] as string | null;
       return ['img', { src: src ?? '', alt: String(node.attrs['alt'] ?? ''), ...(title ? { title } : {}) }];
     },
@@ -292,86 +301,68 @@ function cell(tag: 'th' | 'td'): NodeSpec {
 
 /**
  * Marks in nesting order, outermost first — which is also how `toDOM` nests
- * them in the HTML this writes.
+ * them, on the surface and in the HTML a copy puts on the clipboard.
  */
-function marks(underline: boolean): Record<string, MarkSpec> {
-  return {
-    link: {
-      inclusive: false,
-      attrs: {
-        href: { validate: requireUrl('link') },
-        title: { default: null, validate: nullableString },
-      },
-      parseDOM: [{ tag: 'a[href]', getAttrs: linkAttrs }],
-      toDOM: (mark: Mark) => {
-        const href = safeMarkdownUrl(String(mark.attrs['href'] ?? ''), 'link');
-        if (!href) return ['span', 0];
-        const title = mark.attrs['title'] as string | null;
-        return ['a', { href, ...(title ? { title } : {}), rel: 'noopener noreferrer nofollow' }, 0];
-      },
+const marks: Record<string, MarkSpec> = {
+  link: {
+    inclusive: false,
+    attrs: {
+      href: { validate: requireUrl('link') },
+      title: { default: null, validate: nullableString },
     },
-    strong: {
-      parseDOM: [
-        { tag: 'strong' },
-        // Google Docs wraps a whole paste in `<b style="font-weight: normal">`.
-        { tag: 'b', getAttrs: dom => dom.style.fontWeight !== 'normal' && null },
-        { style: 'font-weight=400', clearMark: mark => mark.type.name === 'strong' },
-        { style: 'font-weight', getAttrs: value => /^(bold(er)?|[5-9]\d{2,})$/.test(value) && null },
-      ],
-      toDOM: () => ['strong', 0],
+    parseDOM: [{ tag: 'a[href]', getAttrs: linkAttrs }],
+    toDOM: mark => {
+      const href = safeUrl(String(mark.attrs['href'] ?? ''), 'link');
+      if (!href) return ['span', 0];
+      const title = mark.attrs['title'] as string | null;
+      return ['a', { href, ...(title ? { title } : {}), rel: 'noopener noreferrer nofollow' }, 0];
     },
-    em: {
-      parseDOM: [
-        { tag: 'i' },
-        { tag: 'em' },
-        { style: 'font-style=italic' },
-        { style: 'font-style=normal', clearMark: mark => mark.type.name === 'em' },
-      ],
-      toDOM: () => ['em', 0],
-    },
-    ...(underline
-      ? {
-          underline: {
-            parseDOM: [
-              { tag: 'u' },
-              { style: 'text-decoration=underline' },
-              { style: 'text-decoration-line=underline' },
-            ],
-            toDOM: () => ['u', 0],
-          } satisfies MarkSpec,
-        }
-      : {}),
-    strike: {
-      parseDOM: [
-        { tag: 's' },
-        { tag: 'del' },
-        { tag: 'strike' },
-        { style: 'text-decoration=line-through' },
-        { style: 'text-decoration-line=line-through' },
-      ],
-      toDOM: () => ['s', 0],
-    },
-    code: {
-      code: true,
-      parseDOM: [{ tag: 'code' }],
-      toDOM: () => ['code', 0],
-    },
-  };
-}
+  },
+  strong: {
+    parseDOM: [
+      { tag: 'strong' },
+      // Google Docs wraps a whole paste in `<b style="font-weight: normal">`.
+      { tag: 'b', getAttrs: dom => dom.style.fontWeight !== 'normal' && null },
+      { style: 'font-weight=400', clearMark: mark => mark.type.name === 'strong' },
+      { style: 'font-weight', getAttrs: value => /^(bold(er)?|[5-9]\d{2,})$/.test(value) && null },
+    ],
+    toDOM: () => ['strong', 0],
+  },
+  em: {
+    parseDOM: [
+      { tag: 'i' },
+      { tag: 'em' },
+      { style: 'font-style=italic' },
+      { style: 'font-style=normal', clearMark: mark => mark.type.name === 'em' },
+    ],
+    toDOM: () => ['em', 0],
+  },
+  underline: {
+    parseDOM: [{ tag: 'u' }, { style: 'text-decoration=underline' }, { style: 'text-decoration-line=underline' }],
+    toDOM: () => ['u', 0],
+  },
+  strike: {
+    parseDOM: [
+      { tag: 's' },
+      { tag: 'del' },
+      { tag: 'strike' },
+      { style: 'text-decoration=line-through' },
+      { style: 'text-decoration-line=line-through' },
+    ],
+    toDOM: () => ['s', 0],
+  },
+  code: {
+    code: true,
+    parseDOM: [{ tag: 'code' }],
+    toDOM: () => ['code', 0],
+  },
+};
 
-let full: Schema | null = null;
-let markdown: Schema | null = null;
+let schema: Schema | null = null;
 
-/**
- * The schema for a format, built on first use and shared after that.
- *
- * Markdown gets its own, one mark short: it has no underline, and a mark the
- * value cannot carry would paint on screen and vanish on save — from a paste,
- * where no toolbar button could have kept it out.
- */
-function editorSchema(format: 'html' | 'markdown' | 'json'): Schema {
-  if (format === 'markdown') return (markdown ??= new Schema({ nodes, marks: marks(false) }));
-  return (full ??= new Schema({ nodes, marks: marks(true) }));
+/** The editor's schema, built on first use and shared after that. */
+function editorSchema(): Schema {
+  return (schema ??= new Schema({ nodes, marks }));
 }
 
 /** How many blockquotes and list items deep the document's deepest block sits. */
@@ -407,10 +398,9 @@ function isEmptyDoc(doc: Node): boolean {
  * alone is not.
  *
  * Decided by content rather than by shape, because every one of these looks
- * empty and markdown already wrote them as `''`: Enter on an empty editor (two
- * empty paragraphs), a lone Shift-Enter, a few spaces, and a list, a quote or a
- * heading chosen on an empty editor. Written as anything else, `required()`
- * passed in `html` and `json` over an editor with nothing in it.
+ * empty: Enter on an empty editor (two empty paragraphs), a lone Shift-Enter, a
+ * few spaces, and a list, a quote or a heading chosen on an empty editor. Written
+ * as anything but `null`, `required()` passes over an editor with nothing in it.
  */
 function isBlankDoc(doc: Node): boolean {
   let written = false;

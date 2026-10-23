@@ -32,40 +32,42 @@ function pad(n: number, width: number): string {
   return String(n).padStart(width, '0');
 }
 
+/**
+ * The format's tokens, longest first inside the alternation so `DD` beats `D`,
+ * `HH` beats `H`, `mm` beats `m` and `SSS` beats `ss` beats `s`. Matched in one pass
+ * so the output is never re-scanned: a sequential `.replace()` chain turned
+ * `D days HH:mm:ss` into `1 day42 11:59:42`, its last `/s/g` step re-matching the
+ * literal `s` inside `days`.
+ */
+const TOKEN = /(?<![A-Za-z])(?:SSS|DD|HH|mm|ss|D|H|m|s)(?![A-Za-z])/g;
+
+/** Each unit's length, largest first, keyed by its token's letter. */
+const UNITS = [
+  ['D', 86_400_000],
+  ['H', 3_600_000],
+  ['m', 60_000],
+  ['s', 1000],
+  ['S', 1],
+] as const;
+
+/**
+ * A unit the format does not show is carried into the next larger one it does:
+ * `HH:mm:ss` with three days left reads `73:00:00`. Every unit was taken modulo
+ * the next one whatever the format held, so the default format dropped whole days
+ * and showed `00:59:59` for three days and an hour.
+ */
 function formatRemaining(ms: number, fmt: string): string {
-  const days = Math.floor(ms / 86_400_000);
-  const hours = Math.floor((ms % 86_400_000) / 3_600_000);
-  const minutes = Math.floor((ms % 3_600_000) / 60_000);
-  const seconds = Math.floor((ms % 60_000) / 1000);
-  const millis = ms % 1000;
-  // Single-pass tokenizer so we never re-scan output for tokens. The
-  // previous sequential `.replace()` chain leaked: e.g. `D days HH:mm:ss`
-  // → `1 day42 11:59:42` because the `/s/g` step at the end re-matched
-  // the literal `s` inside `days`. Longest-token-first ordering inside
-  // the alternation handles `DD`>`D`, `HH`>`H`, `mm`>`m`, `SSS`>`ss`>`s`.
-  return fmt.replace(/(?<![A-Za-z])(?:SSS|DD|HH|mm|ss|D|H|m|s)(?![A-Za-z])/g, token => {
-    switch (token) {
-      case 'DD':
-        return pad(days, 2);
-      case 'D':
-        return String(days);
-      case 'HH':
-        return pad(hours, 2);
-      case 'H':
-        return String(hours);
-      case 'mm':
-        return pad(minutes, 2);
-      case 'm':
-        return String(minutes);
-      case 'ss':
-        return pad(seconds, 2);
-      case 's':
-        return String(seconds);
-      case 'SSS':
-        return pad(millis, 3);
-      default:
-        return token;
-    }
+  const shown = new Set((fmt.match(TOKEN) ?? []).map(token => token[0]));
+  const value: Record<string, number> = {};
+  let rest = ms;
+  for (const [unit, size] of UNITS) {
+    if (!shown.has(unit)) continue;
+    value[unit] = Math.floor(rest / size);
+    rest -= value[unit] * size;
+  }
+  return fmt.replace(TOKEN, token => {
+    const n = value[token[0]];
+    return token === 'SSS' ? pad(n, 3) : token.length === 2 ? pad(n, 2) : String(n);
   });
 }
 
@@ -103,7 +105,9 @@ export class WrStatisticCountdown {
   /**
    * Format string. Tokens: `D`/`DD` (days), `H`/`HH` (hours),
    * `m`/`mm` (minutes), `s`/`ss` (seconds), `SSS` (milliseconds).
-   * Double-letter forms zero-pad to width 2. @default 'HH:mm:ss'
+   * Double-letter forms zero-pad to width 2. A unit the format leaves out is
+   * carried into the next larger one it shows, so `HH:mm:ss` reads `73:00:00`
+   * with three days and an hour left. @default 'HH:mm:ss'
    */
   readonly format = input<string>('HH:mm:ss');
 

@@ -1,5 +1,19 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../input/styles' as input-styles; // WrInput
+
 .wr-input-number {
   // Box the ▲ / ▼ chevron draws in — square, because the glyph is the same
   // stroked chevron `wr-select` and `wr-pagination` use and its 24-unit viewBox
@@ -13,6 +27,10 @@
   // `--wr-btn-icon-size` does, because the column is one fixed-width strip
   // whose height is not: at `sm` each half-button is 10px tall.
   --wr-input-number-step-icon-size: var(--wr-control-font-size-md); // 14px
+  // End cap for the pill variant's hover / pressed tints. Deliberately far
+  // larger than the half-button, which is what scales it down to a quarter-disc
+  // (see `&--rounded` below); the pill token is the library's own "oversized".
+  --wr-input-number-step-cap-radius: var(--wr-border-radius-pill);
 
   display: inline-block;
 
@@ -67,8 +85,18 @@
     // No inline padding: `min-width` below is the hit area, and 8px a side left
     // the chevron 8px of a 24px box to draw in.
     padding: 0;
-    flex: 1 1 50%;
+    // Halves of whatever height the FIELD gives the column, and nothing of their
+    // own: a 50% basis of an auto-height column falls back to the content, so the
+    // two glyph boxes summed to a floor of their own (28px at `md`) and the group
+    // came out 30px under `sm` density, where the input and the select beside it
+    // are 26.4px. A zero basis contributes nothing, so the column is exactly as
+    // tall as the input's density-scaled padding makes the row.
+    flex: 1 1 0;
     min-height: 0;
+    // At `sm` density a half is shorter than the glyph's square box. The chevron
+    // is the middle quarter of that box and stays whole; the empty margin is
+    // clipped rather than laid over the other half's hit area.
+    overflow: hidden;
     min-width: 1.5rem;
     display: inline-flex;
     align-items: center;
@@ -82,13 +110,13 @@
 
     &:hover:not(:disabled) {
       color: var(--wr-color-primary);
-      background: rgba(var(--wr-color-primary-rgb), 0.08);
+      background: color-mix(in srgb, var(--wr-color-primary) 8%, transparent);
     }
 
     // Pressed state — clearer feedback on click + held auto-repeat.
     &:active:not(:disabled) {
       color: var(--wr-color-primary);
-      background: rgba(var(--wr-color-primary-rgb), 0.18);
+      background: color-mix(in srgb, var(--wr-color-primary) 18%, transparent);
     }
 
     // Suppress the focus ring from mouse clicks — buttons are tabindex="-1"
@@ -139,11 +167,11 @@
       border-radius: 0;
 
       &:first-child {
-        border-start-end-radius: 999px;
+        border-start-end-radius: var(--wr-input-number-step-cap-radius);
       }
 
       &:last-child {
-        border-end-end-radius: 999px;
+        border-end-end-radius: var(--wr-input-number-step-cap-radius);
       }
     }
   }

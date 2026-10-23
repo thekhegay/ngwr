@@ -25,9 +25,8 @@
  * reads the apostrophe in `// mark busy, don't block` — a real comment inside
  * `wr-table`'s `host: { … }` block — as the start of a string, loses balance,
  * and walks off the end of the file. A prototype dropped `wr-table` from the map
- * exactly that way: no error, just a missing entry. So the scan is a character
- * state machine (code / line comment / block comment / the three quote forms,
- * template substitutions included) rather than a regex.
+ * exactly that way: no error, just a missing entry. So the scan reads the file
+ * through `ts-lex` rather than through a regex.
  *
  * **A regex over text with no completeness assertion.** Every occurrence of
  * `@Component(` / `@Directive(` in code has to end in a record or an explicit
@@ -39,13 +38,15 @@
  * a figure copied into this comment would be the stale half of the same problem.
  */
 
-import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { relative, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { basename, relative } from 'node:path';
 
 import { buildSymbolMap } from './build-symbol-map';
+import { walkFiles } from './fs/walk-files';
+import { LIB_PATH } from './paths/lib';
 import { ROOT_PATH } from './paths/root';
+import { isWordChar, lexTs, TsClass, type TsToken } from './ts-lex';
 
-const LIB_ROOT = resolve(ROOT_PATH, 'projects/lib');
 
 /**
  * Directory names the scan never descends into.
@@ -56,180 +57,101 @@ const LIB_ROOT = resolve(ROOT_PATH, 'projects/lib');
  * at all. `testing/` holds harnesses and no components; excluded for speed
  * rather than correctness, which is why it is safe to have it here.
  */
-const SKIP_DIRS = new Set(['schematics', 'mcp', 'testing', 'node_modules']);
+const SKIP_DIRS = ['schematics', 'mcp', 'testing', 'node_modules'];
 
-/** One declaration, as the scanner reads it out of a file. */
-interface Declaration {
-  readonly klass: string;
-  readonly selector: string | null;
-  /** Byte offset of the `@` — the coordinate every thrown error quotes. */
-  readonly offset: number;
-}
-
-type ScanState = 'code' | 'line-comment' | 'block-comment' | 'single' | 'double' | 'template';
-
-const DECORATOR_RE = /@(?:Component|Directive)\s*\(/g;
+/** The decorators that carry a selector; {@link decoratedClasses} takes pipes too. */
+const SELECTOR_DECORATOR_RE = /@(Component|Directive)\s*\(/g;
+const DECORATOR_RE = /@(Component|Directive|Pipe)\s*\(/g;
 
 /** Every `.ts` file the scan covers, sorted so two runs emit the same file. */
 function sourceFiles(dir: string): string[] {
-  const out: string[] = [];
-  for (const name of readdirSync(dir).sort()) {
-    if (name.startsWith('.') || SKIP_DIRS.has(name)) continue;
-    const full = resolve(dir, name);
-    if (statSync(full).isDirectory()) {
-      out.push(...sourceFiles(full));
-      continue;
-    }
+  return walkFiles(dir, {
+    skipDirs: SKIP_DIRS,
+    skipDotDirs: true,
+    sort: true,
     // Specs declare host components with selectors like `wr-inner-cmp` that
     // exist for one `describe` and ship nowhere.
-    if (!name.endsWith('.ts') || name.endsWith('.spec.ts')) continue;
-    out.push(full);
-  }
-  return out;
-}
-
-function isWordChar(ch: string | undefined): boolean {
-  return ch !== undefined && /[\w$]/.test(ch);
+    include: path => path.endsWith('.ts') && !path.endsWith('.spec.ts') && !basename(path).startsWith('.'),
+  });
 }
 
 /**
  * Walk the decorator body from its opening `{` to the matching `}`, returning
  * the top-level `selector` literal (or `null`) and where the body ends.
  *
- * One pass, because the two questions are the same walk: the state machine that
- * keeps braces balanced through `// don't` is also the thing that knows a
- * `selector:` it passes is real code and not the word inside a doc comment. The
- * key is only honoured at depth 1 — `host: { … }` has no `selector`, but a
- * nested object that grew one must not be mistaken for the component's.
+ * Comments and literals are stepped over whole, so `// don't` cannot unbalance
+ * the braces. The key is only honoured at depth 1 — `host: { … }` has no
+ * `selector`, but a nested object that grew one must not be mistaken for the
+ * component's.
  */
-function readDecoratorBody(source: string, open: number, where: string): { selector: string | null; end: number } {
-  let state: ScanState = 'code';
+function readDecoratorBody(
+  source: string,
+  starts: ReadonlyMap<number, TsToken>,
+  open: number,
+  where: string
+): { selector: string | null; end: number } {
   let depth = 0;
   let selector: string | null = null;
   let awaiting = false;
   let literalStart = -1;
-  /** Brace depths at which a `${` substitution opened, innermost last. */
-  const substitutions: number[] = [];
 
   for (let i = open; i < source.length; i++) {
+    const token = starts.get(i);
+    if (token) {
+      if (token.kind === 'string' || (token.kind === 'template' && source[i] === '`')) literalStart = i + 1;
+      // A substitution's braces count, so a `selector:` inside `${…}` is not at depth 1.
+      if (token.kind === 'template' && source[i] === '}') depth--;
+      if (token.kind === 'template' && token.closed && source[token.end - 1] !== '`') depth++;
+      const closesLiteral =
+        token.closed && (token.kind === 'string' || (token.kind === 'template' && source[token.end - 1] === '`'));
+      if (awaiting && closesLiteral) {
+        // `selector: \`wr-${name}\`` is not something this map can resolve,
+        // and guessing would be the silent-shortfall bug in another costume.
+        const raw = source.slice(literalStart, token.end - 1);
+        if (token.kind === 'template' && raw.includes('${')) {
+          throw new Error(`${where}: computed selector \`${raw}\` — cannot be resolved statically`);
+        }
+        selector = raw;
+        awaiting = false;
+      }
+      i = token.end - 1;
+      continue;
+    }
+
     const ch = source[i];
-    const next = source[i + 1];
-
-    switch (state) {
-      case 'line-comment':
-        if (ch === '\n') state = 'code';
-        break;
-
-      case 'block-comment':
-        if (ch === '*' && next === '/') {
-          state = 'code';
-          i++;
-        }
-        break;
-
-      case 'single':
-      case 'double':
-        if (ch === '\\') {
-          i++;
-          break;
-        }
-        if (ch === (state === 'single' ? "'" : '"')) {
-          if (awaiting) {
-            selector = source.slice(literalStart, i);
-            awaiting = false;
-          }
-          state = 'code';
-        }
-        break;
-
-      case 'template':
-        if (ch === '\\') {
-          i++;
-          break;
-        }
-        if (ch === '$' && next === '{') {
-          // A substitution is code again, and its closing `}` is a brace the
-          // depth counter must see open first or it will close the decorator.
-          depth++;
-          substitutions.push(depth);
-          state = 'code';
-          i++;
-          break;
-        }
-        if (ch === '`') {
-          if (awaiting) {
-            // `selector: \`wr-${name}\`` is not something this map can resolve,
-            // and guessing would be the silent-shortfall bug in another costume.
-            const raw = source.slice(literalStart, i);
-            if (raw.includes('${')) throw new Error(`${where}: computed selector \`${raw}\` — cannot be resolved statically`);
-            selector = raw;
-            awaiting = false;
-          }
-          state = 'code';
-        }
-        break;
-
-      case 'code':
-        if (ch === '/' && next === '/') {
-          state = 'line-comment';
-          i++;
-          break;
-        }
-        if (ch === '/' && next === '*') {
-          state = 'block-comment';
-          i++;
-          break;
-        }
-        if (ch === "'" || ch === '"' || ch === '`') {
-          state = ch === "'" ? 'single' : ch === '"' ? 'double' : 'template';
-          literalStart = i + 1;
-          break;
-        }
-        if (ch === '{') {
-          depth++;
-          break;
-        }
-        if (ch === '}') {
-          if (substitutions.length > 0 && substitutions[substitutions.length - 1] === depth) {
-            substitutions.pop();
-            depth--;
-            state = 'template';
-            break;
-          }
-          depth--;
-          if (depth === 0) return { selector, end: i };
-          break;
-        }
-        if (depth === 1 && ch === 's' && !isWordChar(source[i - 1]) && source.startsWith('selector', i)) {
-          const after = /^\s*:/.exec(source.slice(i + 'selector'.length));
-          if (after && !isWordChar(source[i + 'selector'.length])) {
-            awaiting = true;
-            i += 'selector'.length + after[0].length - 1;
-          }
-        }
-        break;
+    if (ch === '{') depth++;
+    else if (ch === '}') {
+      depth--;
+      if (depth === 0) return { selector, end: i };
+    } else if (depth === 1 && ch === 's' && !isWordChar(source[i - 1]) && source.startsWith('selector', i)) {
+      const after = /^\s*:/.exec(source.slice(i + 'selector'.length));
+      if (after && !isWordChar(source[i + 'selector'.length])) {
+        awaiting = true;
+        i += 'selector'.length + after[0].length - 1;
+      }
     }
   }
 
   throw new Error(`${where}: unbalanced decorator body — brace matching walked off the end of the file`);
 }
 
-/** Every declaration in one file, plus the count of non-code mentions. */
-function declarationsIn(file: string): { declarations: Declaration[]; mentions: number } {
+/** Every declaration `pattern` finds in one file, plus the count of non-code mentions. */
+function declarationsIn(file: string, pattern: RegExp): { declarations: DecoratedClass[]; mentions: number } {
   const source = readFileSync(file, 'utf8');
   const rel = relative(ROOT_PATH, file);
-  const declarations: Declaration[] = [];
+  const lex = lexTs(source);
+  const starts = new Map(lex.tokens.map(token => [token.start, token]));
+  const declarations: DecoratedClass[] = [];
   let mentions = 0;
 
-  DECORATOR_RE.lastIndex = 0;
-  for (const match of source.matchAll(DECORATOR_RE)) {
+  for (const match of source.matchAll(pattern)) {
     const offset = match.index;
     const where = `${rel}:${offset}`;
 
     // The token also appears in prose — a JSDoc paragraph explaining what the
     // decorator does. Those are mentions, not declarations, and they are
     // reported rather than dropped, so the tally still adds up.
-    if (!inCode(source, offset)) {
+    if (lex.mask[offset] !== TsClass.Code) {
       mentions++;
       continue;
     }
@@ -241,75 +163,15 @@ function declarationsIn(file: string): { declarations: Declaration[]; mentions: 
     const between = source.slice(offset + match[0].length, open);
     if (between.trim() !== '') throw new Error(`${where}: ${match[0]}${between.trim()} — metadata is not an inline object literal`);
 
-    const { selector, end } = readDecoratorBody(source, open, where);
+    const { selector, end } = readDecoratorBody(source, starts, open, where);
     const tail = source.slice(end + 1, end + 200);
     const klass = /^\s*\)\s*(?:export\s+)?(?:declare\s+)?(?:abstract\s+)?class\s+(\w+)/.exec(tail)?.[1];
     if (!klass) throw new Error(`${where}: no class declaration follows the decorator (saw ${JSON.stringify(tail.slice(0, 60))})`);
 
-    declarations.push({ klass, selector, offset });
+    declarations.push({ klass, kind: match[1] as DecoratedClass['kind'], selector, offset, bodyEnd: end });
   }
 
   return { declarations, mentions };
-}
-
-/**
- * Whether `offset` sits in code rather than inside a comment or a string.
- *
- * Same state machine as {@link readDecoratorBody}, run from the top of the file
- * without the brace bookkeeping — a decorator token in a `/** … *\/` block is
- * documentation, and treating it as a declaration would make the completeness
- * assertion fail on prose.
- */
-function inCode(source: string, offset: number): boolean {
-  let state: ScanState = 'code';
-  const substitutions: boolean[] = [];
-
-  for (let i = 0; i < offset; i++) {
-    const ch = source[i];
-    const next = source[i + 1];
-
-    switch (state) {
-      case 'line-comment':
-        if (ch === '\n') state = 'code';
-        break;
-      case 'block-comment':
-        if (ch === '*' && next === '/') {
-          state = 'code';
-          i++;
-        }
-        break;
-      case 'single':
-      case 'double':
-        if (ch === '\\') i++;
-        else if (ch === (state === 'single' ? "'" : '"')) state = 'code';
-        break;
-      case 'template':
-        if (ch === '\\') i++;
-        else if (ch === '$' && next === '{') {
-          substitutions.push(true);
-          state = 'code';
-          i++;
-        } else if (ch === '`') state = 'code';
-        break;
-      case 'code':
-        if (ch === '/' && next === '/') {
-          state = 'line-comment';
-          i++;
-        } else if (ch === '/' && next === '*') {
-          state = 'block-comment';
-          i++;
-        } else if (ch === "'") state = 'single';
-        else if (ch === '"') state = 'double';
-        else if (ch === '`') state = 'template';
-        else if (ch === '}' && substitutions.length > 0) {
-          substitutions.pop();
-          state = 'template';
-        }
-        break;
-    }
-  }
-
-  return state === 'code';
 }
 
 /** A single matcher out of a comma-separated selector: `button[wr-btn]`. */
@@ -363,10 +225,30 @@ function sortKeys(bucket: Record<string, WrSelectorTarget>): Record<string, WrSe
   return Object.fromEntries(Object.entries(bucket).sort(([a], [b]) => a.localeCompare(b)));
 }
 
+/**
+ * Every `@Component`, `@Directive` and `@Pipe` class declared in `file`, in
+ * source order. Throws on a decorator it cannot read rather than skipping it.
+ */
+export function decoratedClasses(file: string): DecoratedClass[] {
+  return declarationsIn(file, DECORATOR_RE).declarations;
+}
+
+/** One decorated class, as the scan reads it out of a file. */
+export interface DecoratedClass {
+  readonly klass: string;
+  readonly kind: 'Component' | 'Directive' | 'Pipe';
+  /** The top-level `selector` literal; `null` for every pipe and for abstract bases. */
+  readonly selector: string | null;
+  /** Byte offset of the `@` — the coordinate every thrown error quotes. */
+  readonly offset: number;
+  /** Index of the `}` that closes the decorator's metadata object. */
+  readonly bodyEnd: number;
+}
+
 /** Build the selector map, with the tally that proves it is complete. */
 export function buildSelectorMap(): WrSelectorMap {
   const symbols = buildSymbolMap();
-  const files = sourceFiles(LIB_ROOT);
+  const files = sourceFiles(LIB_PATH);
 
   const tags: Record<string, WrSelectorTarget> = {};
   const attributes: Record<string, WrSelectorTarget> = {};
@@ -382,7 +264,7 @@ export function buildSelectorMap(): WrSelectorMap {
   let internal = 0;
 
   for (const file of files) {
-    const found = declarationsIn(file);
+    const found = declarationsIn(file, SELECTOR_DECORATOR_RE);
     mentions += found.mentions;
 
     for (const decl of found.declarations) {

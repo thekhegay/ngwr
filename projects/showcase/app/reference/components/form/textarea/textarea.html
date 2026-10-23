@@ -1,0 +1,42 @@
+<ngwr-doc-page
+  title="Textarea"
+  updated="15.0.0"
+  description="A multi-line text field that can grow with its content."
+  [keywords]="['textarea', 'wr-textarea']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Bind the text with `[(value)]` or [any Angular form](/guides/forms)."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%"><wr-textarea placeholder="Notes" [(value)]="text" /></div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rows" description="`rows` sets the starting height.">
+    <ngwr-doc-snippet [code]="snippets.rows">
+      <div style="width: 100%"><wr-textarea [rows]="5" placeholder="5 rows" /></div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Autosize" description="`autosize` grows the field with its text; `maxRows` caps it.">
+    <ngwr-doc-snippet [code]="snippets.autosize">
+      <div style="width: 100%">
+        <wr-textarea autosize ariaLabel="Autosizing notes" [maxRows]="6" [(value)]="autoText" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Fixed size" description='`[resizable]="false"` removes the resize handle.'>
+    <ngwr-doc-snippet [code]="snippets.fixed">
+      <div style="width: 100%">
+        <wr-textarea [resizable]="false" [rows]="4" placeholder="No resize handle" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

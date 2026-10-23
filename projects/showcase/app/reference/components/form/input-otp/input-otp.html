@@ -1,0 +1,56 @@
+<ngwr-doc-page
+  title="Input OTP"
+  updated="15.0.0"
+  description="Enter a one-time code, one character per box."
+  [keywords]="['otp', 'pin', 'code', 'verification', 'wr-input-otp']"
+  [labels]="['Signal Forms', 'a11y']"
+>
+  <ngwr-doc-section
+    title="Basic (numeric, 6 cells)"
+    description="`completed` fires when every box is filled; paste `123456` to try it."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic" language="angular-html">
+      <wr-input-otp [(value)]="code" (completed)="onCompleted($event)" />
+      @if (lastCompleted(); as value) {
+        <p style="margin: 0.75rem 0 0; font-size: 0.8125rem; color: var(--wr-color-on-surface-muted)">
+          completed: <code>{{ value }}</code>
+        </p>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Custom length" description="`length` sets the number of boxes.">
+    <ngwr-doc-snippet [code]="snippets.length" language="angular-html">
+      <wr-input-otp [(value)]="codeShort" length="4" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Alphanumeric" description='`mode="alphanumeric"` accepts letters as well as digits.'>
+    <ngwr-doc-snippet [code]="snippets.alpha" language="angular-html">
+      <wr-input-otp [(value)]="alphaNumeric" mode="alphanumeric" length="8" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Masked" description="`mask` hides the characters like a password field.">
+    <ngwr-doc-snippet [code]="snippets.masked" language="angular-html">
+      <wr-input-otp [(value)]="secret" mask />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Disabled and read-only"
+    description="Disabled leaves the tab order and submits nothing; read-only keeps both and refuses typing and paste."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 1rem">
+        <wr-input-otp disabled [(value)]="lockedCode" />
+        <wr-input-otp readonly [(value)]="lockedCode" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -19,6 +19,7 @@
     type="button"
     class="wr-carousel__nav wr-carousel__nav--prev"
     [attr.aria-label]="resolvedPrevLabel()"
+    [disabled]="atStart()"
     (click)="prev()"
   >
     <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
@@ -29,6 +30,7 @@
     type="button"
     class="wr-carousel__nav wr-carousel__nav--next"
     [attr.aria-label]="resolvedNextLabel()"
+    [disabled]="atEnd()"
     (click)="next()"
   >
     <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">

@@ -79,6 +79,7 @@ export const wrId: WrI18nCatalog = {
   },
   stepper: {
     optional: 'opsional',
+    completed: 'selesai',
   },
   transfer: {
     source: 'Tersedia',
@@ -93,29 +94,6 @@ export const wrId: WrI18nCatalog = {
   },
   form: {
     optional: 'opsional',
-  },
-  validation: {
-    required: 'Kolom ini wajib diisi.',
-    requiredTrue: 'Kolom ini harus dicentang.',
-    email: 'Masukkan alamat email yang valid.',
-    minlength: 'Masukkan minimal {{requiredLength}} karakter.',
-    maxlength: 'Masukkan maksimal {{requiredLength}} karakter.',
-    min: 'Masukkan {{min}} atau lebih.',
-    max: 'Masukkan {{max}} atau kurang.',
-    pattern: 'Format nilai ini tidak sesuai.',
-    noWhitespace: 'Nilai ini tidak boleh mengandung spasi.',
-    hexColor: 'Masukkan warna heksadesimal, misalnya #1a2b3c.',
-    url: 'Masukkan URL yang valid.',
-    cardNumber: 'Masukkan nomor kartu yang valid.',
-    cvc: 'Masukkan kode keamanan {{length}} digit.',
-    iban: 'Masukkan IBAN yang valid.',
-    match: 'Kedua nilai tidak cocok.',
-    matchFields: 'Kolom-kolom ini tidak cocok.',
-    oneOf: 'Pilih salah satu nilai yang diizinkan.',
-    minDate: 'Pilih tanggal yang lebih baru.',
-    maxDate: 'Pilih tanggal yang lebih awal.',
-    dateFormat: 'Format yang diharapkan: {{example}}',
-    dateFilter: 'Tanggal ini tidak tersedia.',
   },
   select: {
     label: 'Pilih',
@@ -243,13 +221,15 @@ export const wrId: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Diagram batang',
+  },
   calendarHeatmap: {
     label: 'Peta panas kalender',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Diagram garis',
-    thousands: '{{value}} rb',
   },
   donutChart: {
     label: 'Diagram donat',
@@ -265,9 +245,6 @@ export const wrId: WrI18nCatalog = {
     pagination: 'Navigasi korsel',
     roledescription: 'korsel',
     slideRoledescription: 'slide',
-  },
-  actionSheet: {
-    label: 'Tindakan',
   },
   alert: {
     close: 'Tutup pemberitahuan',
@@ -296,12 +273,6 @@ export const wrId: WrI18nCatalog = {
   },
   popover: {
     label: 'Panel sembulan',
-  },
-  markdown: {
-    copy: 'Salin kode',
-    copied: 'Tersalin',
-    taskDone: 'Selesai:',
-    taskTodo: 'Belum selesai:',
   },
   editor: {
     label: 'Teks berformat',
@@ -373,6 +344,9 @@ export const wrId: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Bilah sisi',
+    containsCurrent: 'berisi halaman saat ini',
+    subpages: 'Subhalaman {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Memuat',

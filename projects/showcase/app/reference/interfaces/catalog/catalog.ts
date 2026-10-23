@@ -32,7 +32,7 @@ export default class TypesCatalogPage {
         { name: 'SafeAny', description: 'Greppable, deliberate any.', url: ['/reference/interfaces', 'common'] },
         {
           name: 'WrColor',
-          description: 'Palette union behind every [color] input.',
+          description: 'Intent union — primary, success, warning, danger, info.',
           url: ['/reference/interfaces', 'theme'],
         },
         { name: 'WrThemeMode', description: 'light / dark / auto.', url: ['/reference/interfaces', 'theme'] },
@@ -86,40 +86,18 @@ export default class TypesCatalogPage {
           url: ['/reference/components', 'table'],
         },
         { name: 'WrTreeNode', description: 'Immutable tree node.', url: ['/reference/components', 'tree'] },
-        {
-          name: 'WrMarkdownBlock',
-          description: 'One node of a parsed markdown document.',
-          url: ['/reference/components', 'markdown'],
-        },
-        {
-          name: 'WrMarkdownHighlighter',
-          description: 'Code-to-spans function a highlighter provides.',
-          url: ['/reference/components', 'markdown'],
-        },
-        { name: 'WrMarqueeItem', description: 'Image or template marquee entry.', url: ['/animations', 'marquee'] },
+        { name: 'WrMarqueeItem', description: 'Image or template marquee entry.', url: ['/bits', 'marquee'] },
         { name: 'WrTimelineColor', description: 'Dot color union.', url: ['/reference/components', 'timeline'] },
       ],
     },
     {
       title: 'Charts',
       items: [
-        { name: 'WrBarChartDatum', description: 'One bar of data.', url: ['/reference/components', 'bar-chart'] },
-        { name: 'WrLineSeries', description: 'One plotted line.', url: ['/reference/components', 'line-chart'] },
-        {
-          name: 'WrDonutSegment',
-          description: 'One slice of the ring.',
-          url: ['/reference/components', 'donut-chart'],
-        },
-        {
-          name: 'WrHeatmapDatum',
-          description: 'One contribution cell.',
-          url: ['/reference/components', 'calendar-heatmap'],
-        },
-        {
-          name: 'WrMeterSegment',
-          description: 'One meter-group segment.',
-          url: ['/reference/components', 'meter-group'],
-        },
+        { name: 'WrBarChartDatum', description: 'One bar of data.', url: ['/charts', 'bar-chart'] },
+        { name: 'WrLineSeries', description: 'One plotted line.', url: ['/charts', 'line-chart'] },
+        { name: 'WrDonutSegment', description: 'One slice of the ring.', url: ['/charts', 'donut-chart'] },
+        { name: 'WrHeatmapDatum', description: 'One contribution cell.', url: ['/charts', 'calendar-heatmap'] },
+        { name: 'WrMeterSegment', description: 'One meter-group segment.', url: ['/charts', 'meter-group'] },
       ],
     },
     {
@@ -161,14 +139,12 @@ export default class TypesCatalogPage {
     {
       title: 'Services & config',
       items: [
-        { name: 'WrConfig', description: 'App-wide component defaults.', url: ['/start', 'configuration'] },
-        { name: 'WrThemeConfig', description: 'provideWrTheme options.', url: ['/reference/services', 'theme'] },
+        { name: 'WrThemeConfig', description: 'Default mode + storage key.', url: ['/reference/services', 'theme'] },
         { name: 'WrScrollOptions', description: 'Scroll target + behavior.', url: ['/reference/services', 'scroll'] },
         { name: 'WrHotkeySpec', description: 'Key combo descriptor.', url: ['/reference/services', 'hotkey'] },
         { name: 'WrMetaConfig', description: 'Title template + tag defaults.', url: ['/reference/services', 'meta'] },
         { name: 'WrStorageConfig', description: 'Prefix + engine selection.', url: ['/reference/services', 'storage'] },
         { name: 'WrCookieOptions', description: 'Expiry / path / SameSite.', url: ['/reference/services', 'cookie'] },
-        { name: 'WrBreakpoint', description: 'Named responsive breakpoint.', url: ['/reference/services', 'media'] },
         { name: 'WrPluralForms', description: 'CLDR plural category map.', url: ['/reference/pipes', 'wr-plural'] },
       ],
     },

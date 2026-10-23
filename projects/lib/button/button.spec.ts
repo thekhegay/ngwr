@@ -1,13 +1,14 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrConfig } from 'ngwr/config';
 import type { WrColor } from 'ngwr/theme';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrButton } from './button';
-import { WrButtonGroup } from './button-group';
-import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './interfaces';
+import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types';
 
 @Component({
   imports: [WrButton],
@@ -149,42 +150,31 @@ describe('WrButton', () => {
 });
 
 /**
- * `size`, `shape` and `color` resolve through `provideWrConfig()` now, so their
- * inputs default to `null` — "not set" had to become expressible before a config
- * could fill it in.
- *
- * The assertions read the CLASS LIST rather than the resolved signals, for two
- * reasons: the `wr-btn--*` modifiers are public API, and one `computed()` builds
- * all of them, so a read left on an unresolved input shows up here as a missing
- * class rather than hiding behind a passing unit.
+ * The assertions read the CLASS LIST rather than the inputs, because the
+ * `wr-btn--*` modifiers are public API and one `computed()` builds all of them,
+ * so a read left on the wrong signal shows up here as a missing class.
  */
 @Component({
-  imports: [WrButton, WrButtonGroup],
+  imports: [WrButton],
   template: `
     <wr-btn>Element</wr-btn>
     <button type="button" wr-btn>Native</button>
     <a wr-btn>Link</a>
     <wr-btn id="bound" [size]="size()" [shape]="shape()" [color]="color()">Bound</wr-btn>
-    <wr-btn-group [shape]="groupShape()">
-      <button type="button" wr-btn id="grouped">Grouped</button>
-      <button type="button" wr-btn id="grouped-bound" [shape]="shape()">Grouped, opinionated</button>
-    </wr-btn-group>
   `,
 })
-class ConfigHost {
-  readonly size = signal<WrButtonSize | null>(null);
+class ModifierHost {
+  readonly size = signal<WrButtonSize>('md');
   readonly shape = signal<WrButtonShape | null>(null);
   readonly color = signal<WrColor | null>(null);
-  readonly groupShape = signal<WrButtonShape | null>(null);
 }
 
-describe('WrButton config defaults', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<ConfigHost>>;
+describe('WrButton modifiers', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ModifierHost>>;
 
-  const mount = (providers: unknown[] = []): ConfigHost => {
+  const mount = (): ModifierHost => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: providers as never[] });
-    fixture = TestBed.createComponent(ConfigHost);
+    fixture = TestBed.createComponent(ModifierHost);
     fixture.detectChanges();
     return fixture.componentInstance;
   };
@@ -197,34 +187,19 @@ describe('WrButton config defaults', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('renders exactly as before when no config is provided', () => {
+  it('emits no modifier for the defaults, on every host shape', () => {
     mount();
 
-    // The whole change rests on this: `md` + `rounded` + no intent emit no
-    // modifier at all, on every one of the three host shapes.
+    // `md` + `rounded` + no intent emit no modifier at all.
     expect(classesOf('wr-btn')).toEqual(['wr-btn']);
     expect(classesOf('button[wr-btn]')).toEqual(['wr-btn']);
     expect(classesOf('a[wr-btn]')).toEqual(['wr-btn']);
-    // And a template that binds `null` explicitly is the same as one that binds
-    // nothing — `null` is the absence marker, not a value.
+    // A bound `md` and a bound `null` shape / colour are the same as binding nothing.
     expect(classesOf('#bound')).toEqual(['wr-btn']);
   });
 
-  it('takes the configured size when the template names none', () => {
-    mount([provideWrConfig({ button: { size: 'lg' } })]);
-
-    expect(classesOf('wr-btn')).toEqual(['wr-btn', 'wr-btn--lg']);
-  });
-
-  it('applies the config to the attribute host shapes too', () => {
-    mount([provideWrConfig({ button: { size: 'sm' } })]);
-
-    expect(classesOf('button[wr-btn]')).toEqual(['wr-btn', 'wr-btn--sm']);
-    expect(classesOf('a[wr-btn]')).toEqual(['wr-btn', 'wr-btn--sm']);
-  });
-
-  it('lets a bound value beat the config', () => {
-    const host = mount([provideWrConfig({ button: { size: 'lg' } })]);
+  it('turns bound values into modifiers', () => {
+    const host = mount();
     host.size.set('sm');
     host.shape.set('squircle');
     host.color.set('danger');
@@ -233,33 +208,17 @@ describe('WrButton config defaults', () => {
     expect(classesOf('#bound')).toEqual(['wr-btn', 'wr-btn--danger', 'wr-btn--sm', 'wr-btn--squircle']);
   });
 
-  it('lets a bound default turn a configured one back off', () => {
-    // The counterpart of `[rounded]="false"` for a scale: binding the value the
-    // component would have chosen anyway has to escape the config, or a global
-    // becomes something templates cannot opt out of.
-    const host = mount([provideWrConfig({ button: { size: 'lg' } })]);
+  it('drops the modifiers when a binding goes back to the default', () => {
+    const host = mount();
+    host.size.set('lg');
+    host.shape.set('pill');
+    fixture.detectChanges();
+    expect(classesOf('#bound')).toEqual(['wr-btn', 'wr-btn--lg', 'wr-btn--pill']);
+
     host.size.set('md');
     host.shape.set('rounded');
     fixture.detectChanges();
-
     expect(classesOf('#bound')).toEqual(['wr-btn']);
-  });
-
-  it('picks the config back up when a binding goes back to null', () => {
-    const host = mount([provideWrConfig({ button: { size: 'lg' } })]);
-    host.size.set('sm');
-    fixture.detectChanges();
-    expect(classesOf('#bound')).toEqual(['wr-btn', 'wr-btn--sm']);
-
-    host.size.set(null);
-    fixture.detectChanges();
-    expect(classesOf('#bound')).toEqual(['wr-btn', 'wr-btn--lg']);
-  });
-
-  it('ignores a config that names other components', () => {
-    mount([provideWrConfig({ select: { size: 'sm', rounded: true } })]);
-
-    expect(classesOf('wr-btn')).toEqual(['wr-btn']);
   });
 });
 
@@ -553,5 +512,144 @@ describe('WrButton emits a modifier for every documented shape and icon position
     fixture.componentInstance.iconPosition.set(position);
     fixture.detectChanges();
     expect(host().classList).toContain(`wr-btn--icon-${position}`);
+  });
+});
+
+/**
+ * `<a wr-btn>` is a native element with a role of its own, so it needs no role
+ * stamped on it — but `disabled` is as inert on a link as on a custom element. A
+ * disabled or loading link kept its tab stop, was announced as an enabled link
+ * and followed its `href` on Enter; only the mouse was stopped, by CSS.
+ */
+describe('WrButton on a link', () => {
+  @Component({
+    imports: [WrButton],
+    template: `
+      <a wr-btn href="#next" [disabled]="disabled()" [loading]="loading()" (click)="clicks.set(clicks() + 1)">Next</a>
+    `,
+  })
+  class LinkHost {
+    readonly disabled = signal(false);
+    readonly loading = signal(false);
+    readonly clicks = signal(0);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<LinkHost>>;
+  const link = (): HTMLAnchorElement => (fixture.nativeElement as HTMLElement).querySelector('a')!;
+  const set = (patch: { disabled?: boolean; loading?: boolean }): void => {
+    if (patch.disabled !== undefined) fixture.componentInstance.disabled.set(patch.disabled);
+    if (patch.loading !== undefined) fixture.componentInstance.loading.set(patch.loading);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(LinkHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('leaves an enabled link alone', () => {
+    expect(link().getAttribute('role')).toBeNull();
+    expect(link().getAttribute('tabindex')).toBeNull();
+    expect(link().getAttribute('aria-disabled')).toBeNull();
+
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+    link().dispatchEvent(click);
+    expect([click.defaultPrevented, fixture.componentInstance.clicks()]).toEqual([false, 1]);
+  });
+
+  it.each([{ disabled: true }, { loading: true }])('leaves the tab order and says it is unavailable (%o)', state => {
+    set(state);
+
+    expect(link().getAttribute('tabindex')).toBe('-1');
+    expect(link().getAttribute('aria-disabled')).toBe('true');
+    // Still a link, not a button: no role is stamped on it.
+    expect(link().getAttribute('role')).toBeNull();
+  });
+
+  it('does not follow its href on Enter while disabled', () => {
+    set({ disabled: true });
+
+    const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+    link().dispatchEvent(enter);
+
+    expect(enter.defaultPrevented).toBe(true);
+  });
+
+  it('activates nothing while disabled: no navigation and no click listener', () => {
+    set({ disabled: true });
+
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+    link().dispatchEvent(click);
+
+    expect(click.defaultPrevented).toBe(true);
+    expect(fixture.componentInstance.clicks()).toBe(0);
+  });
+
+  it('gives the tab stop back when it is enabled again', () => {
+    set({ disabled: true });
+    set({ disabled: false });
+
+    expect(link().getAttribute('tabindex')).toBeNull();
+    expect(link().getAttribute('aria-disabled')).toBeNull();
+  });
+});
+
+/**
+ * A loading button keeps its own name. The spinner is a `role="status"` region named
+ * "Loading", and with the label at `visibility: hidden` — which takes it out of the
+ * accessibility tree — the spinner became the name of every loading button on a
+ * page.
+ */
+describe('WrButton while loading', () => {
+  @Component({
+    imports: [WrButton],
+    template: `<button type="button" wr-btn loading>Saving</button>`,
+  })
+  class SavingHost {}
+
+  it('keeps the spinner out of the name and says it is busy instead', () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(SavingHost);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('wr-spinner')!.getAttribute('aria-hidden')).toBe('true');
+    expect(root.querySelector('button')!.getAttribute('aria-busy')).toBe('true');
+    fixture.destroy();
+  });
+});
+
+/**
+ * What the stylesheet promises that jsdom cannot show — it has no cascade from a
+ * sheet — held against the COMPILED CSS. `sass` is resolved through `@angular/build`,
+ * as `theme/sass-entry.spec.ts` does.
+ */
+describe('WrButton stylesheet', () => {
+  interface Sass {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  }
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
+  const css = sass
+    .compileString("@use 'button/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  /** The declarations of the rule whose selector is exactly `selector`. */
+  const rule = (selector: string): string =>
+    new RegExp(`(?:^|\\n)${selector.replace(/[.()>:]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+
+  it('hides a loading label from sight only, never from the accessibility tree', () => {
+    const label = rule('.wr-btn--loading .wr-btn__label');
+    expect(label).toMatch(/opacity:\s*0/);
+    expect(label).not.toMatch(/visibility:\s*hidden/);
+  });
+
+  it('draws the seam between filled group members on the inline-end edge in both directions', () => {
+    // `box-shadow` offsets are physical, so one declaration put the seam on the
+    // group's outer edge under RTL and left the two buttons fused.
+    const seam = '.wr-btn-group > .wr-btn--primary:not(.wr-btn--outlined):not(:last-child)';
+    expect(rule(seam)).toMatch(/box-shadow:\s*inset -1px 0 0/);
+    expect(rule(`${seam}:dir(rtl)`)).toMatch(/box-shadow:\s*inset 1px 0 0/);
   });
 });

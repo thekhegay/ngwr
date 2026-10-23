@@ -2,8 +2,7 @@ import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrColorPickerTrigger } from './color-picker-trigger';
 
@@ -32,8 +31,8 @@ class Host {
  * would only make it harder to leave.
  *
  * The panel lives in the NGWR overlay container rather than in the fixture, so
- * it is queried off the document — and `provideWrOverlay()` keeps this file's
- * container out of the next one's.
+ * it is queried off the document — and that container belongs to the TestBed's
+ * root injector, so it never outlives this file.
  */
 describe('[wrColorPickerTrigger] focus', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -56,7 +55,6 @@ describe('[wrColorPickerTrigger] focus', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -109,6 +107,61 @@ describe('[wrColorPickerTrigger] focus', () => {
     expect(document.activeElement).toBe(elsewhere());
   });
 
+  describe('Tab out of the open panel', () => {
+    // jsdom lays nothing out, so without a box every stop but the focused one is
+    // dropped; and it has no Tab of its own, so what is asserted is where focus
+    // stands when the browser's Tab runs.
+    beforeEach(() => {
+      vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+    });
+    afterEach(() => vi.restoreAllMocks());
+
+    const tab = (shiftKey = false): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true });
+      document.activeElement!.dispatchEvent(event);
+      fixture.detectChanges();
+      return event;
+    };
+    const stops = (): HTMLElement[] =>
+      [
+        ...document.querySelectorAll<HTMLElement>(
+          '.wr-color-picker [tabindex], .wr-color-picker button, .wr-color-picker input'
+        ),
+      ].filter(el => el.tabIndex >= 0);
+
+    it('closes and leaves from the trigger on Tab past the last stop', () => {
+      // The pane sits at the end of `<body>`, so the browser's Tab out of its last
+      // stop went to the top of the page with the panel still open.
+      open();
+      const all = stops();
+      all[all.length - 1].focus();
+
+      const event = tab();
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(panel()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+    });
+
+    it('lets Tab move between the stops inside the panel', () => {
+      open();
+
+      tab();
+
+      expect(panel()).not.toBeNull();
+      expect(document.activeElement).toBe(surface());
+    });
+
+    it('closes and leaves from the trigger on Shift+Tab before the first stop', () => {
+      open();
+
+      tab(true);
+
+      expect(panel()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+    });
+  });
+
   it('does not trap: everything in the panel stays reachable from the page', () => {
     open();
 
@@ -135,7 +188,6 @@ describe('WrColorPickerTrigger template reference', () => {
 
   it('publishes the instance as `wrColorPickerTrigger`', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
 
     const fixture = TestBed.createComponent(ExportHost);
     fixture.detectChanges();
@@ -210,7 +262,6 @@ describe('[wrColorPickerTrigger] follows a direction flip while its panel is ope
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });

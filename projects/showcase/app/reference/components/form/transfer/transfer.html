@@ -1,0 +1,50 @@
+<ngwr-doc-page
+  title="Transfer"
+  description="Move items between two lists; the right one is the value."
+  [keywords]="['transfer', 'dual listbox', 'picklist', 'shuttle', 'wr-transfer']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="`[items]` is the full set and `[(value)]` the values on the right; ticked rows move when you press an arrow."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-transfer [items]="permissions" [(value)]="granted" />
+        <p style="margin: 0.75rem 0 0; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+          Value: {{ granted() | json }}
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Search and titles"
+    description="`searchable` adds a filter to each list; `sourceTitle` and `targetTitle` name them."
+  >
+    <ngwr-doc-code [code]="snippets.searchable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-transfer
+          searchable
+          sourceTitle="All permissions"
+          targetTitle="Granted"
+          [items]="permissions"
+          [(value)]="searchGranted"
+        />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="In a form"
+    description="`[formField]` or [any Angular form](/guides/forms) binds the values on the right."
+  >
+    <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,0 +1,28 @@
+<ngwr-doc-page
+  title="Confetti"
+  updated="15.0.0"
+  description="A confetti burst you fire from code."
+  [keywords]="['confetti', 'WrConfetti']"
+  [labels]="['Effect', 'Service']"
+>
+  <ngwr-doc-section title="Playground" description="Inject `WrConfetti` and call `fire()`.">
+    <ngwr-doc-playground
+      [code]="snippet()"
+      language="angular-ts"
+      [controls]="controls"
+      [showReplay]="true"
+      (replay)="fire()"
+    >
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center">
+        <wr-btn color="primary" (click)="fire()">Fire confetti</wr-btn>
+        @for (placement of placements; track placement.label) {
+          <wr-btn outlined (click)="fireFrom(placement)">{{ placement.label }}</wr-btn>
+        }
+      </div>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

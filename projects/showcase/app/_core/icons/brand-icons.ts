@@ -9,11 +9,28 @@
 
 import { svgIcon, type WrIconDef } from 'ngwr/icon';
 
-/** Angular shield (single-color, currentColor-friendly). */
-const ANGULAR_SVG = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M9.93 12.645h4.134L11.996 7.74M11.996.009.686 4.029l1.725 14.94 9.585 5.022 9.588-5.022 1.725-14.94zm7.058 18.297h-2.636l-1.42-3.501H8.995l-1.42 3.501H4.937l7.06-15.648z"/></svg>`;
+/**
+ * The Angular mark as angular.dev draws it today: the gradient shield, red
+ * through magenta to violet, with a pink highlight laid over it. Paths, stops
+ * and gradient geometry are copied from the site's own header logo; only the
+ * ids changed, from `a` / `b` / `c` to names no other SVG on a page will use.
+ *
+ * Unlike every other mark here it carries its own colours and ignores
+ * `currentColor`: `<wr-icon>`'s allowlist keeps `<defs>`, both gradients and
+ * the `url(#…)` fills, and a presentation attribute outranks the `fill` the
+ * icon host passes down. It replaced the single-colour shield of the old
+ * brand, which the page tinted red because the mark itself had no colour.
+ */
+const ANGULAR_SVG = `<svg viewBox="0 0 223 236" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#ngwr-angular-clip)"><path fill="url(#ngwr-angular-base)" d="m222.077 39.192-8.019 125.923L137.387 0l84.69 39.192Zm-53.105 162.825-57.933 33.056-57.934-33.056 11.783-28.556h92.301l11.783 28.556ZM111.039 62.675l30.357 73.803H80.681l30.358-73.803ZM7.937 165.115 0 39.192 84.69 0 7.937 165.115Z"/><path fill="url(#ngwr-angular-glow)" d="m222.077 39.192-8.019 125.923L137.387 0l84.69 39.192Zm-53.105 162.825-57.933 33.056-57.934-33.056 11.783-28.556h92.301l11.783 28.556ZM111.039 62.675l30.357 73.803H80.681l30.358-73.803ZM7.937 165.115 0 39.192 84.69 0 7.937 165.115Z"/></g><defs><linearGradient id="ngwr-angular-base" x1="49.009" x2="225.829" y1="213.75" y2="129.722" gradientUnits="userSpaceOnUse"><stop stop-color="#E40035"/><stop offset=".24" stop-color="#F60A48"/><stop offset=".352" stop-color="#F20755"/><stop offset=".494" stop-color="#DC087D"/><stop offset=".745" stop-color="#9717E7"/><stop offset="1" stop-color="#6C00F5"/></linearGradient><linearGradient id="ngwr-angular-glow" x1="41.025" x2="156.741" y1="28.344" y2="160.344" gradientUnits="userSpaceOnUse"><stop stop-color="#FF31D9"/><stop offset="1" stop-color="#FF5BE1" stop-opacity="0"/></linearGradient><clipPath id="ngwr-angular-clip"><path fill="#fff" d="M0 0h223v236H0z"/></clipPath></defs></svg>`;
 
 /** GitHub Octocat (single-color). */
 const GITHUB_SVG = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>`;
+
+/** The ngwr mark — the header logo's outline, one colour. */
+const NGWR_SVG = `<svg viewBox="0 0 300 300" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M149.8.1C79.7.1 22.8 33 22.8 113.3S69.1 300 149.8 300s126.9-106.5 126.9-186.7S219.9.1 149.8.1zM131 157c-2.9 29.7-4.5 65.8-2.6 94.6.3 4.5-5.8 6.2-7.9 2.2-10.7-21.2-20.5-49.5-25.7-79.3-.9-4.9 1.6-9.8 6.1-12 7.3-3.6 14.3-7.8 19.7-10.8.4-.2.7-.4 1-.6 4.5-2.7 9.9.8 9.4 5.9zm74.3 17.4c-5.2 29.8-15 58.1-25.7 79.3-2 4.1-8.1 2.4-7.9-2.2 1.8-28.8.2-64.9-2.6-94.6-.5-5.1 4.9-8.6 9.4-6 .4.2.7.4 1 .6 5.4 3.1 12.4 7.2 19.7 10.8 4.5 2.3 7 7.2 6.1 12.1zM189 132.7c-12.7-7.2-24-15.8-39.2-15.8-15.2 0-26.5 8.6-39.2 15.8C89 145 40.7 176.1 57.7 102.6c8.2-35.3 29.8-50.2 50-56 5.6-1.6 11.7.1 15.5 4.5 5.7 6.6 16.4 11.9 26.6 11.9s20.8-5.4 26.6-11.9c3.9-4.4 10-6.1 15.5-4.5 20.2 5.9 41.8 20.7 50 56 17 73.5-31.3 42.4-52.9 30.1z"/></svg>`;
+
+/** StackBlitz lightning mark. */
+const STACKBLITZ_SVG = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M10.797 14.182H3.635L16.728 0l-3.525 9.818h7.162L7.272 24l3.525-9.818Z"/></svg>`;
 
 /** npm wordmark (single-color square). */
 const NPM_SVG = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"/></svg>`;
@@ -43,5 +60,7 @@ export const BRAND_ICONS: readonly WrIconDef[] = [
   svgIcon('logo-angular', ANGULAR_SVG),
   svgIcon('github', GITHUB_SVG),
   svgIcon('npm', NPM_SVG),
+  svgIcon('stackblitz', STACKBLITZ_SVG),
+  svgIcon('ngwr', NGWR_SVG),
   svgIcon('algolia', ALGOLIA_SVG),
 ];

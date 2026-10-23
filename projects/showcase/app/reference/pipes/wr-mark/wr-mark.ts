@@ -43,24 +43,14 @@ export default class WrMarkPipePage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrMark } from 'ngwr/pipes';
+    usage: `<span [innerHTML]="row.name | wrMark: query()"></span>
 
-@Component({ imports: [WrMark] })
-export class MyComponent { /* ... */ }`,
+<!-- Case-sensitive -->
+<span [innerHTML]="row.name | wrMark: query() : true"></span>`,
 
-    usage: `<!-- The output is SafeHtml — bind with [innerHTML]. -->
-<span [innerHTML]="row.name | wrMark: query()"></span>
-
-<!-- Case-sensitive: -->
-<span [innerHTML]="row.name | wrMark: query() : true"></span>
-
-<!-- Empty / null query is a pass-through: -->
-<span [innerHTML]="row.name | wrMark: null"></span>`,
-
-    style: `/* Style the wrap globally — every match shares the same class. */
-mark {
-  background: rgba(var(--wr-color-warning-rgb), 0.4);
-  color: inherit;
+    style: `mark {
+  background: color-mix(in srgb, var(--wr-color-warning) 40%, transparent);
+  color: var(--wr-color-on-surface);
   padding: 0 2px;
   border-radius: 2px;
 }`,
@@ -75,7 +65,7 @@ mark {
     },
     {
       name: 'query',
-      description: 'Search term. Empty / null leaves the value untouched.',
+      description: 'Search term. Empty / null skips the wrap, leaving the escaped text.',
       type: 'string | null | undefined',
       default: '—',
     },
@@ -87,8 +77,7 @@ mark {
     },
     {
       name: 'returns',
-      description:
-        'SafeHtml — bind with `[innerHTML]`. Input is HTML-escaped first so user-supplied values cannot inject markup.',
+      description: 'Bind with `[innerHTML]`. The text is escaped first.',
       type: 'SafeHtml',
       default: '—',
     },
@@ -99,13 +88,13 @@ mark {
       kind: 'Component',
       title: 'wr-select',
       url: ['/reference/components', 'select'],
-      description: 'Most common host — highlight the typed query inside each suggestion.',
+      description: 'Highlight in suggestions.',
     },
     {
       kind: 'Component',
       title: 'wr-command-palette',
       url: ['/reference/components', 'command-palette'],
-      description: 'Same pattern — visually link the query to the matching item label.',
+      description: 'Highlight in commands.',
     },
   ];
 }

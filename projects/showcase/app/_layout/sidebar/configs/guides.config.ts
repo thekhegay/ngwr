@@ -1,4 +1,5 @@
-import type { SidebarGroup } from '../sidebar.types';
+import { ROUTES, wrLink } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /**
  * Sidebar for `/guides/*` — how to do a job that spans several APIs. Each
@@ -15,56 +16,57 @@ import type { SidebarGroup } from '../sidebar.types';
  */
 export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
   // Make it look right.
-  { title: 'Theming', url: ['/guides', 'theming'] },
+  wrLink(ROUTES.guides, ROUTES.guides.theming),
   {
     title: 'Design tokens',
     children: [
-      { title: 'Colors', url: ['/guides/tokens', 'colors'] },
-      { title: 'Sizing', url: ['/guides/tokens', 'sizing'] },
-      { title: 'Typography', url: ['/guides/tokens', 'typography'] },
-      { title: 'Density', url: ['/guides/tokens', 'density'] },
-      { title: 'Motion', url: ['/guides/tokens', 'motion'] },
-      { title: 'Theme builder', url: ['/guides/tokens', 'builder'] },
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.colors),
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.sizing),
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.typography),
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.density),
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.motion),
+      // A tombstone: `removed` on the page marks the row and sorts it last.
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.builder),
     ],
   },
   {
     title: 'Typography',
     children: [
-      { title: 'Overview', url: ['/guides/typography', 'overview'] },
-      { title: 'Headings', url: ['/guides/typography', 'headings'] },
-      { title: 'Paragraphs', url: ['/guides/typography', 'paragraphs'] },
-      { title: 'Links', url: ['/guides/typography', 'links'] },
-      { title: 'Lists', url: ['/guides/typography', 'lists'] },
-      { title: 'Code', url: ['/guides/typography', 'code'] },
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.overview),
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.styles),
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.headings),
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.paragraphs),
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.links),
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.lists),
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.code),
       // Leaves the guide on purpose — the API table is maintained once, in
       // reference. Headings, Paragraphs and Code each used to carry a partial
       // copy, and they had drifted into contradicting each other.
-      { title: 'wrTypography API', url: ['/reference/directives', 'typography'] },
+      wrLink(ROUTES.reference, ROUTES.reference.directives, ROUTES.reference.directives.typography),
     ],
   },
-  { title: 'Grid', url: ['/guides', 'grid'] },
+  wrLink(ROUTES.guides, ROUTES.guides.grid),
   // Cross-cutting subsystems users typically meet later.
-  { title: 'Reactive forms', url: ['/guides', 'forms'] },
-  { title: 'Overlay', url: ['/guides', 'overlay'] },
-  { title: 'Mobile & responsive', url: ['/guides', 'mobile'] },
+  wrLink(ROUTES.guides, ROUTES.guides.forms),
+  wrLink(ROUTES.guides, ROUTES.guides.overlay),
+  wrLink(ROUTES.guides, ROUTES.guides.mobile),
   {
     title: 'Translations (i18n)',
     children: [
-      { title: 'Overview', url: ['/guides/translations', 'overview'] },
-      { title: 'Setup & loaders', url: ['/guides/translations', 'setup'] },
-      { title: 'Usage in templates', url: ['/guides/translations', 'usage'] },
-      { title: 'Interpolation', url: ['/guides/translations', 'interpolation'] },
-      { title: 'Scopes', url: ['/guides/translations', 'scopes'] },
+      wrLink(ROUTES.guides, ROUTES.guides.translations, ROUTES.guides.translations.overview),
+      wrLink(ROUTES.guides, ROUTES.guides.translations, ROUTES.guides.translations.setup),
+      wrLink(ROUTES.guides, ROUTES.guides.translations, ROUTES.guides.translations.usage),
+      wrLink(ROUTES.guides, ROUTES.guides.translations, ROUTES.guides.translations.interpolation),
+      wrLink(ROUTES.guides, ROUTES.guides.translations, ROUTES.guides.translations.scopes),
       // Same hand-off: the WrI18n table lives in reference, and the guide copy
       // that used to sit here had drifted ahead of the "real" one.
-      { title: 'WrI18n API', url: ['/reference/services', 'i18n'] },
+      wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.i18n),
     ],
   },
-  { title: 'Keyboard', url: ['/guides', 'keyboard'] },
-  { title: 'Server-side rendering', url: ['/guides', 'ssr'] },
-  { title: 'Testing', url: ['/guides', 'testing'] },
-  { title: 'MCP server', url: ['/guides', 'mcp'] },
-  { title: 'Agent skill', url: ['/guides', 'agent-skill'] },
-  { title: 'Registry', url: ['/guides', 'registry'] },
-  { title: 'Content Security Policy', url: ['/guides', 'csp'] },
+  wrLink(ROUTES.guides, ROUTES.guides.keyboard),
+  wrLink(ROUTES.guides, ROUTES.guides.ssr),
+  wrLink(ROUTES.guides, ROUTES.guides.testing),
+  wrLink(ROUTES.guides, ROUTES.guides.csp),
+  // A tombstone: `removed` on the page marks the row and sorts it last.
+  wrLink(ROUTES.guides, ROUTES.guides.registry),
 ];

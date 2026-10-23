@@ -1,0 +1,135 @@
+@use 'lib/styles/breakpoints' as bp;
+
+// The copy in a fixed column beside the code, centred against it.
+@mixin split {
+  grid-template-columns: 16rem minmax(0, 1fr);
+  grid-template-rows: auto;
+  align-items: center;
+  column-gap: 2rem;
+
+  > .ngwr-optin__code {
+    align-self: stretch;
+  }
+}
+
+// The section frame and head are the global `.ngwr-section` rules
+// (`showcase/styles/_section.scss`), the icon is `.ngwr-icon-chip`, inline
+// code is the site's one chip and the arrow's RTL flip is global too.
+
+:host {
+  display: block;
+}
+
+.ngwr-optin {
+  // One column, then two from `xl`: below 1200px half a row is narrower than
+  // the samples' longest lines, and a code block that scrolls sideways is the
+  // thing this layout must not produce.
+  &__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    @include bp.media-up(xl) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  // A grid of one, so the card stretches to the height of its row and every
+  // card in a row ends on the same line.
+  &__item {
+    display: grid;
+    min-width: 0;
+  }
+
+  &__card {
+    --wr-card-radius: var(--wr-border-radius-lg);
+    --wr-card-padding-x: 1.25rem;
+    --wr-card-padding-y: 1.25rem;
+
+    min-width: 0;
+
+    // The body is `wr-card`'s own element, so it carries no scoping attribute.
+    // A grid, so `__body` below fills it and the code well can take the rest
+    // of the card's height.
+    ::ng-deep .wr-card__body {
+      display: grid;
+      min-width: 0;
+    }
+  }
+
+  // Copy above code. `minmax(0, …)` on every track: a column sized `auto`
+  // grows to the longest line of the code block inside it, and the page
+  // scrolls sideways on a phone.
+  &__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  // Copy beside code, where a card has the whole width to itself: every card
+  // between `lg` and `xl`, while the grid is one column.
+  @include bp.media-up(lg) {
+    @include bp.media-down(xl) {
+      &__body {
+        @include split;
+      }
+    }
+  }
+
+  &__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  &__label {
+    margin: 0;
+    color: var(--wr-color-on-surface);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  &__caption {
+    margin: 0;
+    color: var(--wr-color-on-surface-muted);
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  // `wr-card-footer`, so the links sit on the card's bottom edge whatever the
+  // height of the code above them. No rule and no top padding: the code well
+  // already closes the body, and a hairline under it drew a second edge.
+  &__links {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  // Stretched to the row the body gives it, so the code wells in one row of
+  // the grid end level with each other.
+  &__code {
+    display: block;
+    min-width: 0;
+
+    // `ngwr-doc-install` wraps a `ngwr-doc-code`, which has to stretch too.
+    &--install {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

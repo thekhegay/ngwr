@@ -1,0 +1,26 @@
+import { Component } from '@angular/core';
+
+import { WrSkeleton } from 'ngwr/skeleton';
+import { WR_COLORS } from 'ngwr/theme';
+
+import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
+import { API } from '#core/generated/api';
+
+@Component({
+  selector: 'ngwr-skeleton-page',
+  templateUrl: './skeleton.html',
+  imports: [WrSkeleton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
+})
+export default class SkeletonComponent {
+  protected readonly colors = WR_COLORS;
+
+  protected readonly snippets = {
+    basic: `<wr-skeleton />`,
+    colors: `<wr-skeleton color="primary" />
+<wr-skeleton color="success" />`,
+    custom: `<wr-skeleton style="--wr-skeleton-height: 4rem; --wr-skeleton-radius: 1rem" />`,
+    static: `<wr-skeleton [animated]="false" />`,
+  };
+
+  protected readonly api = API.WrSkeleton;
+}

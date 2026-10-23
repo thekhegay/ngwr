@@ -18,11 +18,6 @@ import {
 })
 export default class RangePipePageComponent {
   protected readonly snippets = {
-    install: `import { WrRange } from 'ngwr/pipes';
-
-@Component({ imports: [WrRange] })
-export class MyComponent { /* ... */ }`,
-
     usage: `@for (i of (5 | wrRange); track i) {
   <li>Item {{ i + 1 }}</li>
 }`,
@@ -31,7 +26,7 @@ export class MyComponent { /* ... */ }`,
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'wrRange',
-      description: 'Create `[0, 1, …, length - 1]` — useful for `@for` over a fixed count.',
+      description: 'Returns `[0, 1, …, length - 1]`.',
       type: '(length: number) => number[]',
       default: '—',
     },

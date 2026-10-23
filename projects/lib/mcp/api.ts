@@ -27,17 +27,28 @@ interface ApiClass {
   readonly members: readonly ApiMember[];
 }
 
+/** An exported function, as the shipped declarations describe it. */
+interface ApiFunction {
+  readonly name: string;
+  /** From the name to the return type, on one line: `provideWr(...features: readonly WrFeature[]): EnvironmentProviders`. */
+  readonly signature: string;
+  readonly description: string;
+  readonly example: string | null;
+  readonly docs: string | null;
+}
+
 /**
- * Angular's signal wrappers, behind whichever namespace alias ng-packagr used.
+ * Angular's signal wrappers, behind an optional namespace alias.
  *
- * BOTH aliases, which is not decoration: ng-packagr writes `_angular_core` for
- * most of the shipped declarations and `i0` for a couple of dozen of them, and
- * which file gets which moves with every entry point added — so the rule is here
- * and the census deliberately is not. Matching the first alias alone hid every
- * binding in the `i0` files, `WrIcon` among them, whose single required input is
- * the entire component.
+ * Any alias, which is not decoration: ng-packagr, which built the library
+ * through v14, wrote `_angular_core` for most of the shipped declarations and
+ * `i0` for a couple of dozen of them, and matching the first alone hid every
+ * binding in the `i0` files, `WrIcon` among them, whose single required input
+ * is the entire component. `@angular/build:library` writes the wrapper as
+ * `import("@angular/core").InputSignal<…>`, so an inline import is a prefix too.
  */
-const SIGNAL_WRAPPER = /^(?:[A-Za-z_$][\w$]*\.)?(InputSignal|InputSignalWithTransform|ModelSignal|OutputEmitterRef)</;
+const SIGNAL_WRAPPER =
+  /^(?:[A-Za-z_$][\w$]*\.|import\("[^"]+"\)\.)?(InputSignal|InputSignalWithTransform|ModelSignal|OutputEmitterRef)</;
 
 /** Modifiers that may precede a member name in a `.d.ts`. */
 const MODIFIERS = new Set([
@@ -79,7 +90,7 @@ const HIDDEN = new Set(['private', 'protected', 'static']);
  * `protected` declarations into prose.
  *
  * `typescript` would parse this properly and is not an option: this ships inside a
- * package whose only runtime dependency is `tslib`. A scanner over ng-packagr's
+ * package with no runtime dependency. A scanner over the build's
  * OUTPUT — a generated, regular subset of the language — is the middle path, and
  * it is small enough to reason about.
  */
@@ -99,14 +110,51 @@ function extractClass(declarations: string, symbol: string): ApiClass | null {
   };
 }
 
+/**
+ * An exported function's signature and doc, or `null`.
+ *
+ * The configuration API is functions, not classes: `provideWr()` and every
+ * `with*()` feature it takes. They carry the same JSDoc a class does, and an
+ * agent asking how to configure ngwr was told they were "not a class". The
+ * first overload is the one read.
+ */
+function extractFunction(declarations: string, symbol: string): ApiFunction | null {
+  const match = new RegExp(`(?:export\\s+)?declare function ${escapeRegExp(symbol)}\\b`).exec(declarations);
+  if (!match) return null;
+
+  const doc = docCommentBefore(declarations, match.index);
+  const name = match.index + match[0].length - symbol.length;
+
+  return {
+    name: symbol,
+    signature: collapse(declarations.slice(name, declarationEnd(declarations, name))),
+    description: summaryOf(doc),
+    example: tagOf(doc, 'example'),
+    docs: tagOf(doc, 'see'),
+  };
+}
+
 /** Every class the file declares, `abstract` ones included. */
 function declaredClasses(declarations: string): readonly string[] {
   return [...declarations.matchAll(/declare (?:abstract )?class (\w+)/g)].map(match => match[1]);
 }
 
-/** Where `declare class X` / `declare abstract class X` begins, or -1. */
+/** Every function the file declares, each once however many overloads it has. */
+function declaredFunctions(declarations: string): readonly string[] {
+  return [...new Set([...declarations.matchAll(/declare function (\w+)/g)].map(match => match[1]))];
+}
+
+/**
+ * Where `declare class X` / `declare abstract class X` begins, or -1.
+ *
+ * From the `export` when there is one, because `@angular/build:library` writes
+ * `export declare class X` for nearly every class, and the doc comment sits
+ * above the `export`. Starting at `declare` left that word between the two, so
+ * {@link docCommentBefore} found no doc for nearly every class: no summary, no
+ * example and no docs link.
+ */
 function findClass(source: string, symbol: string): number {
-  return source.search(new RegExp(`declare (?:abstract )?class ${escapeRegExp(symbol)}\\b`));
+  return source.search(new RegExp(`(?:export\\s+)?declare (?:abstract )?class ${escapeRegExp(symbol)}\\b`));
 }
 
 /**
@@ -201,11 +249,17 @@ interface Doc {
 
 /** JSDoc furniture removed, nothing else interpreted. */
 function docLines(doc: string): string[] {
-  return doc
-    .replace(/^\s*\/\*\*/, '')
-    .replace(/\*\/\s*$/, '')
-    .split('\n')
-    .map(line => line.replace(/^\s*\* ?/, ''));
+  return (
+    doc
+      // The space after `/**` goes with it. Left in, a one-line `/** @internal */`
+      // started with a space: the inline-tag rule ignores a tag at the start of a
+      // line and the line rule wants `@` first, so neither read it, and an
+      // internal member was listed as API described "@internal".
+      .replace(/^\s*\/\*\*[^\S\n]*/, '')
+      .replace(/\*\/\s*$/, '')
+      .split('\n')
+      .map(line => line.replace(/^\s*\* ?/, ''))
+  );
 }
 
 /**
@@ -596,5 +650,5 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export { declaredClasses, extractClass };
-export type { ApiClass, ApiMember };
+export { declaredClasses, declaredFunctions, extractClass, extractFunction };
+export type { ApiClass, ApiFunction, ApiMember };

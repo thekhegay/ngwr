@@ -81,6 +81,7 @@ export const wrVi: WrI18nCatalog = {
   },
   stepper: {
     optional: 'tùy chọn',
+    completed: 'đã hoàn thành',
   },
   transfer: {
     source: 'Có sẵn',
@@ -95,29 +96,6 @@ export const wrVi: WrI18nCatalog = {
   },
   form: {
     optional: 'tùy chọn',
-  },
-  validation: {
-    required: 'Trường này là bắt buộc.',
-    requiredTrue: 'Cần đánh dấu vào ô này.',
-    email: 'Nhập địa chỉ email hợp lệ.',
-    minlength: 'Nhập ít nhất {{requiredLength}} ký tự.',
-    maxlength: 'Nhập tối đa {{requiredLength}} ký tự.',
-    min: 'Nhập {{min}} trở lên.',
-    max: 'Nhập {{max}} trở xuống.',
-    pattern: 'Giá trị không đúng định dạng.',
-    noWhitespace: 'Giá trị không được chứa dấu cách.',
-    hexColor: 'Nhập mã màu hex, ví dụ #1a2b3c.',
-    url: 'Nhập URL hợp lệ.',
-    cardNumber: 'Nhập số thẻ hợp lệ.',
-    cvc: 'Nhập mã bảo mật {{length}} chữ số.',
-    iban: 'Nhập số IBAN hợp lệ.',
-    match: 'Hai giá trị không khớp nhau.',
-    matchFields: 'Các trường này không khớp nhau.',
-    oneOf: 'Chọn một trong các giá trị cho phép.',
-    minDate: 'Chọn ngày muộn hơn.',
-    maxDate: 'Chọn ngày sớm hơn.',
-    dateFormat: 'Định dạng cần nhập: {{example}}',
-    dateFilter: 'Không thể chọn ngày này.',
   },
   select: {
     label: 'Chọn',
@@ -252,13 +230,15 @@ export const wrVi: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Biểu đồ cột',
+  },
   calendarHeatmap: {
     label: 'Bản đồ nhiệt theo lịch',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Biểu đồ đường',
-    thousands: '{{value}} N',
   },
   donutChart: {
     label: 'Biểu đồ vành khuyên',
@@ -277,9 +257,6 @@ export const wrVi: WrI18nCatalog = {
     pagination: 'Phân trang băng chuyền',
     roledescription: 'băng chuyền',
     slideRoledescription: 'trang chiếu',
-  },
-  actionSheet: {
-    label: 'Thao tác',
   },
   alert: {
     close: 'Đóng cảnh báo',
@@ -311,12 +288,6 @@ export const wrVi: WrI18nCatalog = {
   // bằng `[ariaLabel]`.
   popover: {
     label: 'Bảng bật lên',
-  },
-  markdown: {
-    copy: 'Sao chép mã',
-    copied: 'Đã sao chép',
-    taskDone: 'Đã xong:',
-    taskTodo: 'Chưa xong:',
   },
   editor: {
     label: 'Văn bản có định dạng',
@@ -390,6 +361,9 @@ export const wrVi: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Thanh bên',
+    containsCurrent: 'chứa trang hiện tại',
+    subpages: 'Trang con của {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Đang tải',

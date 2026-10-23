@@ -79,6 +79,7 @@ export const wrZhTw: WrI18nCatalog = {
   },
   stepper: {
     optional: '選用',
+    completed: '已完成',
   },
   transfer: {
     source: '可選項目',
@@ -93,29 +94,6 @@ export const wrZhTw: WrI18nCatalog = {
   },
   form: {
     optional: '選填',
-  },
-  validation: {
-    required: '此欄位為必填。',
-    requiredTrue: '必須勾選此項目。',
-    email: '請輸入有效的電子郵件地址。',
-    minlength: '請至少輸入 {{requiredLength}} 個字元。',
-    maxlength: '最多只能輸入 {{requiredLength}} 個字元。',
-    min: '請輸入 {{min}} 以上的數值。',
-    max: '請輸入 {{max}} 以下的數值。',
-    pattern: '此值的格式不正確。',
-    noWhitespace: '此值不可包含空格。',
-    hexColor: '請輸入十六進位色碼，例如 #1a2b3c。',
-    url: '請輸入有效的網址。',
-    cardNumber: '請輸入有效的卡號。',
-    cvc: '請輸入 {{length}} 位數的安全碼。',
-    iban: '請輸入有效的 IBAN。',
-    match: '兩個值不相符。',
-    matchFields: '這些欄位不相符。',
-    oneOf: '請從允許的值中選擇。',
-    minDate: '請選擇較晚的日期。',
-    maxDate: '請選擇較早的日期。',
-    dateFormat: '格式應為：{{example}}',
-    dateFilter: '此日期無法選擇。',
   },
   select: {
     label: '選擇',
@@ -246,13 +224,15 @@ export const wrZhTw: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: '長條圖',
+  },
   calendarHeatmap: {
     label: '行事曆熱圖',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: '折線圖',
-    thousands: '{{value}}千',
   },
   donutChart: {
     label: '環圈圖',
@@ -270,9 +250,6 @@ export const wrZhTw: WrI18nCatalog = {
     pagination: '輪播分頁',
     roledescription: '輪播',
     slideRoledescription: '投影片',
-  },
-  actionSheet: {
-    label: '動作',
   },
   alert: {
     close: '關閉警示',
@@ -303,12 +280,6 @@ export const wrZhTw: WrI18nCatalog = {
   // 讀出。可在個別實例以 `[ariaLabel]` 覆寫。
   popover: {
     label: '快顯面板',
-  },
-  markdown: {
-    copy: '複製程式碼',
-    copied: '已複製',
-    taskDone: '已完成：',
-    taskTodo: '待完成：',
   },
   editor: {
     label: '豐富文字',
@@ -380,6 +351,9 @@ export const wrZhTw: WrI18nCatalog = {
   },
   sidebar: {
     label: '側邊欄',
+    containsCurrent: '包含目前頁面',
+    subpages: '{{title}} 的子頁面',
+    separator: '，',
   },
   spinner: {
     label: '載入中',

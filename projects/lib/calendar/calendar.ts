@@ -25,7 +25,7 @@ import {
 import { WrDateAdapter } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 
-import type { WrCalendarMode, WrCalendarRange } from './interfaces';
+import type { WrCalendarMode, WrCalendarRange } from './types';
 
 /**
  * Stands in for the consumer input `useI18nText` expects, for labels the calendar
@@ -50,8 +50,8 @@ const YEAR_COLS = 4;
  * date-range selection (`mode="range"`). Reusable on its own; consumed by
  * `<wr-date-picker>` inside an overlay.
  *
- * Uses {@link WrDateAdapter} for all date math and formatting — register
- * one via {@link provideWrDateAdapter} at bootstrap.
+ * Uses {@link WrDateAdapter} for all date math and formatting — the native
+ * one unless `provideWr(withDates(...))` registers another.
  *
  * @example
  * ```html
@@ -382,6 +382,9 @@ export class WrCalendar {
       this.setViewMode('month');
     } else if (this.viewMode() === 'month') {
       this.setViewMode('year');
+      // The label is disabled on the year page, and disabling the button that
+      // holds focus drops it to `<body>`. The page that opened takes it instead.
+      afterNextRender(() => this.focusActiveChip(), { injector: this.injector });
     }
   }
 

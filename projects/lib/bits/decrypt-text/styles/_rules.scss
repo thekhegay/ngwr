@@ -1,0 +1,40 @@
+.wr-decrypt-text {
+  display: inline-block;
+  white-space: pre-wrap;
+
+  &__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  &__char {
+    display: inline;
+  }
+
+  // `click` mode makes the host a button. The ring is written from the shared
+  // `--wr-focus-ring-*` tokens, the way `theme.focus-ring` writes it: this is the
+  // component stylesheet's half, which loads no theme module, since one that did
+  // would carry a second copy of the token layer.
+  &--interactive {
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+      outline-offset: var(--wr-focus-ring-offset);
+      box-shadow: 0 0 0 var(--wr-focus-ring-offset) var(--wr-focus-ring-halo);
+    }
+  }
+
+  // Hook for consumers to style the scrambled state distinctly (e.g. dim
+  // the scramble glyphs). Apply via `[encryptedClassName]`-style overrides
+  // by extending `.wr-decrypt-text__char--encrypted`.
+  &__char--encrypted {
+    /* default: no visual change; consumers override as needed */
+  }
+}

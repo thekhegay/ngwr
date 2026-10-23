@@ -1,0 +1,55 @@
+<ngwr-doc-page
+  title="Button Group"
+  description="Joins buttons into one control with shared borders."
+  [keywords]="['button group', 'wr-btn-group']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-btn-group>
+        <button type="button" wr-btn>Left</button>
+        <button type="button" wr-btn>Middle</button>
+        <button type="button" wr-btn>Right</button>
+      </wr-btn-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Colored">
+    <ngwr-doc-snippet [code]="snippets.colors">
+      <wr-btn-group>
+        <button type="button" wr-btn color="primary">Save</button>
+        <button type="button" wr-btn color="primary">Save & Continue</button>
+      </wr-btn-group>
+      <wr-btn-group>
+        <button type="button" wr-btn color="success" outlined>Approve</button>
+        <button type="button" wr-btn color="success" outlined>Approve all</button>
+      </wr-btn-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Shape"
+    description="`shape` on the group sets every button's corners; a button's own `shape` is ignored."
+  >
+    <ngwr-doc-snippet [code]="snippets.shape">
+      <wr-btn-group shape="rounded">
+        <button type="button" wr-btn>One</button>
+        <button type="button" wr-btn>Two</button>
+        <button type="button" wr-btn>Three</button>
+      </wr-btn-group>
+      <wr-btn-group shape="pill">
+        <button type="button" wr-btn>One</button>
+        <button type="button" wr-btn>Two</button>
+        <button type="button" wr-btn>Three</button>
+      </wr-btn-group>
+      <wr-btn-group shape="pill">
+        <button type="button" wr-btn>Forced</button>
+        <button type="button" wr-btn shape="rounded">Pill anyway</button>
+      </wr-btn-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,0 +1,35 @@
+<ngwr-doc-page
+  title="Rotating Text"
+  updated="15.0.0"
+  description="Cycles through a list of words in one place."
+  [keywords]="['rotating-text', 'wr-rotating-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="rotating-text" category="text-animations" />
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <span
+        style="display: inline-flex; gap: 0.5rem; font-size: 2rem; font-weight: 700; color: var(--wr-color-on-surface)"
+      >
+        We
+        <wr-rotating-text
+          [texts]="texts()"
+          [rotationInterval]="rotationInterval()"
+          [splitBy]="splitBy()"
+          [duration]="duration()"
+          [easing]="easing()"
+          [staggerDuration]="staggerDuration()"
+          [staggerFrom]="staggerFrom()"
+          [loop]="loop()"
+          style="color: var(--wr-color-primary)"
+        />
+        every day.
+      </span>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

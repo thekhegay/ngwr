@@ -19,6 +19,10 @@ import { DestroyRef, Directive, ElementRef, NgZone, inject, output } from '@angu
  */
 @Directive({ selector: '[wrClickOutside]' })
 export class WrClickOutside {
+  /**
+   * Fires on a pointer press that landed outside the host element. Close a
+   * menu or commit an inline edit with it; the event is the original click.
+   */
   readonly wrClickOutside = output<MouseEvent>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);

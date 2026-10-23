@@ -1,5 +1,7 @@
 /// The docs' tiny row mark — "new" beside a nav row, "soon" beside a planned
-/// one — as one box, in two tones, included by the sidebar and the catalog page.
+/// one, "updated" and "removed" beside a page whose subject a release changed or
+/// deleted — as one box, in two tones, included by the catalog page. Only `new`
+/// takes the loud tone; the other three are asides and share the quiet one.
 ///
 /// **One box and two tones, because the two marks say opposite things.** `new`
 /// is meant to be caught from across the page: it is the whole point of the
@@ -11,8 +13,8 @@
 /// it happens to wear.
 ///
 /// **Both fills are OPAQUE, and that is load-bearing rather than taste.** The
-/// first version of this mark was translucent — `rgba(var(--wr-color-light-rgb),
-/// 0.6)` under `--wr-color-on-surface-muted` — so it was measured against
+/// first version of this mark was translucent — a 60% wash of the old `light`
+/// intent under `--wr-color-on-surface-muted` — so it was measured against
 /// whatever it landed on: 4.25:1 on the plain surface, 4.02:1 inside the active
 /// row's primary tint, and something else again over the catalog link's hover
 /// tint. All three under the 4.5:1 this size is held to, and one of them in a
@@ -36,8 +38,7 @@
 /// failure on a route already in the baseline passes in silence.
 @mixin row-mark {
   padding: 0.0625rem 0.25rem;
-  // Tracks the row it sits in, which is `--wr-border-radius-sm` on both
-  // surfaces. Twin of the library's own `.wr-sidebar__badge`.
+  // Tracks the row it sits in, which is `--wr-border-radius-sm`.
   border-radius: var(--wr-border-radius-sm);
   font-size: 0.5625rem;
   font-weight: 600;
@@ -49,11 +50,11 @@
   letter-spacing: 0.04em;
 }
 
-/// `soon` — present, not announced. The hairline is what gives an unfilled chip
-/// its shape.
+/// `soon`, `updated`, `removed` — present, not announced. The hairline is what
+/// gives an unfilled chip its shape.
 @mixin row-mark-quiet {
   background: var(--wr-color-surface);
-  box-shadow: inset 0 0 0 1px var(--wr-color-outline);
+  box-shadow: inset 0 0 0 1px var(--wr-border-base);
   color: var(--wr-color-on-surface-muted);
 }
 

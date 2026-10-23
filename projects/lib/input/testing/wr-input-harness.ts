@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrInputHarnessFilters } from './interfaces';
+import type { WrInputHarnessFilters } from './types';
 
 /**
  * Test harness for `[wrInput]` — the directive form, on a real `<input>` or

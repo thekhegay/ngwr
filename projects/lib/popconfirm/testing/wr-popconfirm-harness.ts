@@ -16,7 +16,7 @@ import {
 import type { WrPopconfirmPosition } from 'ngwr/popconfirm';
 import { WR_COLORS, type WrColor } from 'ngwr/theme';
 
-import type { WrPopconfirmHarnessFilters } from './interfaces';
+import type { WrPopconfirmHarnessFilters } from './types';
 
 /** The two answers a popconfirm offers, which are also its two action modifiers. */
 type WrPopconfirmAction = 'confirm' | 'cancel';
@@ -287,11 +287,11 @@ export class WrPopconfirmHarness extends ContentContainerComponentHarness {
   /**
    * Which side of the trigger the panel is anchored to.
    *
-   * The side that was ASKED for, read off the pane's public modifier class —
-   * `position` is an input, so a bound one never reaches the DOM, and the panel's
-   * own offset is a CDK inline style that says nothing in a layout-less jsdom.
-   * Not where the panel ended up: the position strategy is flexible and pushes,
-   * so a panel with no room on that side moves without the class changing.
+   * Read off the pane's public modifier class — `position` is an input, so a
+   * bound one never reaches the DOM, and the panel's own offset is a CDK inline
+   * style that says nothing in a layout-less jsdom. The class names the side the
+   * panel LANDED on, which is the one asked for unless it had no room there and
+   * flipped; in jsdom, with no layout to run out of, the two are the same.
    */
   async getPosition(): Promise<WrPopconfirmPosition | null> {
     const classes = (await (await this.pane()).getAttribute('class')) ?? '';

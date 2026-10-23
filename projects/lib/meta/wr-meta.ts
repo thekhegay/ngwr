@@ -9,8 +9,8 @@ import { DOCUMENT } from '@angular/common';
 import { Injector, Service, computed, effect, inject, signal, untracked } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
-import type { WrMetaConfig, WrMetaHandle } from './interfaces';
 import { WR_META_DEFAULTS } from './tokens';
+import type { WrMetaConfig, WrMetaHandle } from './types';
 
 /** Deep-merge two `WrMetaConfig` layers — later wins for scalars + nested groups. */
 function merge(base: WrMetaConfig, top: WrMetaConfig): WrMetaConfig {
@@ -63,6 +63,19 @@ export class WrMeta {
 
   /** Last applied snapshot — used to diff against the next resolution. */
   private applied: WrMetaConfig = {};
+
+  /**
+   * The `<title>` that was in the document before this service ever wrote one,
+   * captured lazily on the first write.
+   *
+   * Popping back to a configuration with no title used to write `''`, which is
+   * the one restore that is always wrong: a blank tab, and in an app where
+   * something else also owns the title — Angular's `Title` from a route
+   * resolver, a server-rendered `<title>` — it silently erased that too. "Auto-
+   * revert" has to mean reverting to what was there, and only the first write
+   * knows what that was.
+   */
+  private titleBeforeFirstWrite: string | null = null;
 
   constructor() {
     // Apply defaults immediately on construction.
@@ -171,7 +184,7 @@ export class WrMeta {
     this.apply();
   }
 
-  /** Clear all overrides, restore the defaults registered via `provideWrMeta`. */
+  /** Clear all overrides, restore the defaults registered via `withMeta()`. */
   reset(): void {
     this.stack.set([this.defaults]);
     this.apply();
@@ -190,13 +203,21 @@ export class WrMeta {
   private diffTitle(next: WrMetaConfig): void {
     if (next.title === this.applied.title && next.titleTemplate === this.applied.titleTemplate) return;
     if (next.title) {
-      // `{{ title }}` reads like Angular; `%s` stays for printf fans.
+      this.titleBeforeFirstWrite ??= this.title.getTitle();
+      // `{{ title }}` reads like Angular; `%s` stays for printf fans. One pass over
+      // the TEMPLATE, with a function, so the title goes in literally: a string
+      // replacement expands `$&` / `$1` inside it, and a second pass would replace a
+      // `%s` the title itself carries.
+      const title = next.title;
+      let percent = 0;
       const formatted = next.titleTemplate
-        ? next.titleTemplate.replace(/\{\{\s*title\s*\}\}/g, next.title).replace('%s', next.title)
-        : next.title;
+        ? next.titleTemplate.replace(/\{\{\s*title\s*\}\}|%s/g, token =>
+            token !== '%s' || percent++ === 0 ? title : token
+          )
+        : title;
       this.title.setTitle(formatted);
     } else if (this.applied.title) {
-      this.title.setTitle('');
+      this.title.setTitle(this.titleBeforeFirstWrite ?? '');
     }
   }
 

@@ -4,22 +4,23 @@ import { Component, type EnvironmentProviders, type Provider, signal } from '@an
 import { TestBed } from '@angular/core/testing';
 import { FormField, email, form, minLength, required } from '@angular/forms/signals';
 
-import { WrFormError, WrFormField, WrFormItem, provideWrFormErrors } from 'ngwr/form';
+import { WrFormError, WrFormField, WrFormItem } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { WrInput } from 'ngwr/input';
 import { WrInputHarness } from 'ngwr/input/testing';
 import { WrInputNumber } from 'ngwr/input-number';
 import { WrInputNumberHarness } from 'ngwr/input-number/testing';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrFormFieldHarness } from './wr-form-field-harness';
 import { WrFormItemHarness } from './wr-form-item-harness';
 
 /**
- * Three fields, one per path through the copy chain: `Email` answers from the
- * consumer's own markup, `Display name` from whatever the field resolves, and
- * `Bio` from a validator key nothing has copy for.
+ * Three fields, one per source of copy: `Email` answers from the consumer's own
+ * markup, `Display name` from the validator's own `message`, and `Bio` from
+ * nothing at all — a validator with no message, which ngwr leaves unanswered
+ * unless the app's catalog carries the key, since it ships no error texts.
  *
  * Signal Forms bound straight to `[wrInput]`, because that is how a consumer
  * writes it — and because the gate the whole component sits behind (touched or
@@ -51,7 +52,7 @@ class Host {
   readonly profile = form(this.model, path => {
     required(path.email);
     email(path.email);
-    required(path.name);
+    required(path.name, { message: 'Tell us what to call you.' });
     minLength(path.bio, 10);
   });
 }
@@ -187,16 +188,17 @@ describe('WrFormFieldHarness', () => {
     expect(bySuppressed.length).toBe(0);
   });
 
-  it('gives a field with no <wr-form-error> a message anyway', async () => {
+  it('renders the validator’s own message for a field with no <wr-form-error>', async () => {
     const name = await field('Display name');
     await name.blurControl();
 
-    // The zero-configuration case, and the component's whole reason for existing:
-    // no markup, no app catalog, no i18n catalog, and the user still gets a
-    // sentence. `resolved` is as precise as the DOM can be — the three links in the
-    // chain render the identical element.
-    expect(await name.getErrors()).toEqual([{ key: 'required', text: 'This field is required.', source: 'resolved' }]);
-    expect(await name.getAnnouncedDescription()).toBe('This field is required.');
+    // No markup and no catalog: the sentence rides on the rule itself, which is the
+    // common case for Signal Forms. `resolved` is as precise as the DOM can be — a
+    // message and a catalog entry render the identical element.
+    expect(await name.getErrors()).toEqual([
+      { key: 'required', text: 'Tell us what to call you.', source: 'resolved' },
+    ]);
+    expect(await name.getAnnouncedDescription()).toBe('Tell us what to call you.');
     expect(await name.isControlInvalid()).toBe(true);
   });
 
@@ -214,23 +216,6 @@ describe('WrFormFieldHarness', () => {
     // an element with nothing in it. That is the failure the named check is for:
     // the field goes red either way, which is what makes it survive review.
     expect(await name.getAnnouncedDescription()).toBe('');
-  });
-
-  it('answers a Signal Forms length error, which used to render an empty block', async () => {
-    const bio = await field('Bio');
-    await (await bio.getHarness(WrInputHarness)).setValue('too short');
-
-    expect(await bio.isInvalid()).toBe(true);
-    // This assertion used to be `[]`, pinned with a note calling it a bug and
-    // deferring it because "the copy tables live outside this entry point".
-    // They do; the BRIDGE does not. Signal Forms spells the rule `minLength`
-    // and carries the bound under that name, reactive forms spell it
-    // `minlength` and carry `requiredLength`, and `form-field.ts` now restates
-    // the first as the second before it asks anyone for copy — so one sentence
-    // serves both spellings and no catalog had to grow two more keys.
-    expect(await bio.getErrorTexts()).toEqual(['Minimum length is 10.']);
-    expect(await bio.hasEmptyErrorBlock()).toBe(false);
-    expect(await bio.getAnnouncedDescription()).toBe('Minimum length is 10.');
   });
 
   it('links the label to the control it wraps, one id per field', async () => {
@@ -256,7 +241,7 @@ describe('WrFormFieldHarness', () => {
 
     // The list path: every message-collecting call is scoped to its own field.
     expect(await emailField.getErrorTexts()).toEqual(['Email is required.']);
-    expect(await name.getErrorTexts()).toEqual(['This field is required.']);
+    expect(await name.getErrorTexts()).toEqual(['Tell us what to call you.']);
     expect(await emailField.getSuppressedErrorKeys()).toEqual(['email']);
     expect(await name.getSuppressedErrorKeys()).toEqual([]);
 
@@ -267,9 +252,9 @@ describe('WrFormFieldHarness', () => {
     expect(await emailField.getLabel()).toBe('Email');
     expect(await name.getLabel()).toBe('Display name');
     expect(await emailField.getErrorText('required')).toBe('Email is required.');
-    expect(await name.getErrorText('required')).toBe('This field is required.');
+    expect(await name.getErrorText('required')).toBe('Tell us what to call you.');
     expect(await emailField.getAnnouncedDescription()).toBe('Email is required.');
-    expect(await name.getAnnouncedDescription()).toBe('This field is required.');
+    expect(await name.getAnnouncedDescription()).toBe('Tell us what to call you.');
     expect(await emailField.isLabelLinkedToControl()).toBe(true);
     expect(await name.isLabelLinkedToControl()).toBe(true);
 
@@ -388,16 +373,21 @@ describe('WrFormFieldHarness — fields with no working control link', () => {
 });
 
 /**
- * The copy chain, one link at a time — app catalog, then the i18n catalog, then
- * the built-in sentence the first describe already covers. Every one of them
- * renders the same element, so what these cases pin is the ORDER and the text,
- * which is all the DOM has to offer.
+ * The copy contract, one source at a time. ngwr ships no error texts, so every
+ * sentence here is the consumer's: the validator's own `message`, then
+ * `validation.<key>` in the app's i18n catalog, with per-field markup over both.
+ * The two automatic sources render the same element, so what these cases pin is
+ * the ORDER and the text, which is all the DOM has to offer.
  */
-describe('WrFormFieldHarness — the copy chain', () => {
+describe('WrFormFieldHarness — the copy contract', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
-  const catalog = provideWrI18nStaticLoader({ en: { validation: { required: 'Please fill this in.' } } });
-  const appCopy = provideWrFormErrors({ required: ({ label }) => `${label} is required.` });
+  const catalog = [
+    provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
+    provideWrI18nStaticLoader({
+      en: { validation: { required: 'Please fill this in.', minlength: 'At least {{requiredLength}} characters.' } },
+    }),
+  ];
 
   const mount = async (providers: (Provider | EnvironmentProviders)[]): Promise<HarnessLoader> => {
     TestBed.resetTestingModule();
@@ -411,47 +401,85 @@ describe('WrFormFieldHarness — the copy chain', () => {
     return TestbedHarnessEnvironment.loader(fixture);
   };
 
-  afterEach(() => fixture.destroy());
+  /** The field's own dev-mode reports, out of whatever else the run logged. */
+  const reportsIn = (warn: { mock: { calls: unknown[][] } }): string[] =>
+    warn.mock.calls.map(([text]) => String(text)).filter(text => text.includes('<wr-form-field>'));
 
-  it('takes the app catalog’s wording, and hands it the field’s label', async () => {
-    const loader = await mount([appCopy]);
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('takes the validator’s own message over the app catalog', async () => {
+    const loader = await mount(catalog);
     const name = await loader.getHarness(WrFormFieldHarness.with({ label: 'Display name' }));
     await name.blurControl();
 
-    // A message function is handed the field's own label, which is the only reason
-    // one app-wide sentence can name every field it lands on.
+    // The catalog has `validation.required` too; the rule's own sentence is the
+    // more specific of the two, so it wins.
     expect(await name.getErrors()).toEqual([
-      { key: 'required', text: 'Display name is required.', source: 'resolved' },
+      { key: 'required', text: 'Tell us what to call you.', source: 'resolved' },
     ]);
+  });
 
-    // Per-field markup still wins over app-wide copy — and unlike the app catalog,
-    // THAT difference the DOM can see.
+  it('reads the app catalog for a rule with no message, filled from its payload', async () => {
+    const loader = await mount(catalog);
+    const bio = await loader.getHarness(WrFormFieldHarness.with({ label: 'Bio' }));
+    await (await bio.getHarness(WrInputHarness)).setValue('too short');
+
+    // Signal Forms reports `minLength` carrying `minLength`; the field restates it
+    // as the classic `minlength` carrying `requiredLength` before it asks the
+    // catalog, so one entry answers both spellings. The key on the element stays
+    // the one the control reported.
+    expect(await bio.getErrors()).toEqual([{ key: 'minLength', text: 'At least 10 characters.', source: 'resolved' }]);
+    expect(await bio.getAnnouncedDescription()).toBe('At least 10 characters.');
+    expect(await bio.hasEmptyErrorBlock()).toBe(false);
+  });
+
+  it('lets per-field markup claim its key over both', async () => {
+    const loader = await mount(catalog);
     const emailField = await loader.getHarness(WrFormFieldHarness.with({ label: 'Email' }));
     await emailField.blurControl();
+
+    // Unlike the two automatic sources, THIS difference the DOM can see.
     expect(await emailField.getErrors()).toEqual([
       { key: 'required', text: 'Email is required.', source: 'projected' },
     ]);
   });
 
-  it('reads the i18n catalog when the app names no override', async () => {
-    const loader = await mount([provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }), catalog]);
-    const name = await loader.getHarness(WrFormFieldHarness.with({ label: 'Display name' }));
-    await name.blurControl();
+  it('renders nothing for a key no source answers, and warns once for that field and key', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const loader = await mount([]);
+    const bio = await loader.getHarness(WrFormFieldHarness.with({ label: 'Bio' }));
+    const input = await bio.getHarness(WrInputHarness);
 
-    expect(await name.getErrorText('required')).toBe('Please fill this in.');
-    expect(await name.getAnnouncedDescription()).toBe('Please fill this in.');
+    // Several passes over the same failing key — every keystroke re-resolves it.
+    await input.setValue('too short');
+    await input.setValue('short');
+    await bio.blurControl();
+
+    expect(await bio.isInvalid()).toBe(true);
+    expect(await bio.getErrors()).toEqual([]);
+    expect(await bio.hasEmptyErrorBlock()).toBe(true);
+
+    const reports = reportsIn(warn);
+    expect(reports).toHaveLength(1);
+    expect(reports[0]).toContain('"Bio"');
+    expect(reports[0]).toContain('"minLength"');
+    // The three ways to supply copy, each spelled the way its reader reads it: the
+    // catalog under the normalised key, the markup under the reported one.
+    expect(reports[0]).toContain('{ message }');
+    expect(reports[0]).toContain('"validation.minlength"');
+    expect(reports[0]).toContain('<wr-form-error key="minLength">');
   });
 
-  it('lets the app catalog win over the i18n catalog', async () => {
-    const loader = await mount([provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }), catalog, appCopy]);
-    const name = await loader.getHarness(WrFormFieldHarness.with({ label: 'Display name' }));
-    await name.blurControl();
+  it('does not warn about a key the markup claims, or one the validator words itself', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const loader = await mount([]);
+    await (await loader.getHarness(WrFormFieldHarness.with({ label: 'Email' }))).blurControl();
+    await (await loader.getHarness(WrFormFieldHarness.with({ label: 'Display name' }))).blurControl();
 
-    expect(await name.getErrorText('required')).toBe('Display name is required.');
-    // Same element, same `source`, three different sentences: reading `source` to
-    // find out WHICH link answered is the one thing this harness cannot do, and the
-    // JSDoc says so rather than guessing.
-    expect((await name.getErrors())[0].source).toBe('resolved');
+    expect(reportsIn(warn)).toEqual([]);
   });
 });
 
@@ -473,7 +501,7 @@ class NumberHost {
   private readonly model = signal<{ qty: number | null }>({ qty: null });
 
   readonly order = form(this.model, path => {
-    required(path.qty);
+    required(path.qty, { message: 'How many boxes?' });
   });
 }
 
@@ -509,8 +537,8 @@ describe('WrFormFieldHarness — around a component control', () => {
     // which is how a custom control marks a bound field touched — the DOM blur
     // event alone means nothing to Signal Forms here.
     await qty.blurControl();
-    expect(await qty.getErrorTexts()).toEqual(['This field is required.']);
-    expect(await qty.getAnnouncedDescription()).toBe('This field is required.');
+    expect(await qty.getErrorTexts()).toEqual(['How many boxes?']);
+    expect(await qty.getAnnouncedDescription()).toBe('How many boxes?');
     expect(await qty.isControlInvalid()).toBe(true);
 
     await number.setValue(4);
@@ -543,8 +571,8 @@ class CompositeHost {
   private readonly model = signal({ phone: '', raw: '' });
 
   readonly contact = form(this.model, path => {
-    required(path.phone);
-    required(path.raw);
+    required(path.phone, { message: 'Enter a phone number.' });
+    required(path.raw, { message: 'Enter something.' });
   });
 }
 
@@ -576,7 +604,7 @@ describe('WrFormFieldHarness — when the control is not the obvious element', (
 
     await phone.blurControl();
     expect(await phone.isInvalid()).toBe(true);
-    expect(await phone.getErrorTexts()).toEqual(['This field is required.']);
+    expect(await phone.getErrorTexts()).toEqual(['Enter a phone number.']);
     expect(await phone.isControlInvalid()).toBe(true);
   });
 
@@ -590,7 +618,7 @@ describe('WrFormFieldHarness — when the control is not the obvious element', (
     // different elements, and this is the case that proves it — collapse
     // `isControlInvalid()` into the host's modifier and this is what stops failing.
     expect(await raw.isInvalid()).toBe(true);
-    expect(await raw.getErrorTexts()).toEqual(['This field is required.']);
+    expect(await raw.getErrorTexts()).toEqual(['Enter something.']);
     expect(await raw.isControlInvalid()).toBe(false);
     expect(await raw.getDescribedByIds()).toEqual([]);
     expect(await raw.getAnnouncedDescription()).toBeNull();
@@ -618,7 +646,7 @@ class NestedHost {
   private readonly model = signal({ city: '' });
 
   readonly place = form(this.model, path => {
-    required(path.city);
+    required(path.city, { message: 'Which city?' });
   });
 }
 
@@ -655,7 +683,7 @@ describe('WrFormFieldHarness — a field nested in a field', () => {
     // invalid for the inner field's error and shows the sentence IT was given.
     expect(await outer.isInvalid()).toBe(true);
     expect(await outer.getErrorTexts()).toEqual(['Street and city, please.']);
-    expect(await inner.getErrorTexts()).toEqual(['This field is required.']);
+    expect(await inner.getErrorTexts()).toEqual(['Which city?']);
     expect(await outer.getSuppressedErrorKeys()).toEqual([]);
   });
 });

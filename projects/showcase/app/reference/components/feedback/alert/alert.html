@@ -1,0 +1,72 @@
+<ngwr-doc-page
+  title="Alert"
+  description="An inline status message."
+  [keywords]="['alert', 'banner', 'wr-alert']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%">
+        <wr-alert title="Heads up" message="Your trial ends in 3 days." />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-snippet [code]="snippets.types">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%">
+        @for (t of types; track t) {
+          <wr-alert [title]="t" message="Sample message" [type]="t" />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="With title" description="Pair a `title` with a secondary `message`.">
+    <ngwr-doc-snippet [code]="snippets.withTitle">
+      <div style="width: 100%">
+        <wr-alert title="Update available" message="Version 2.0 is ready to install." type="info" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Without title" description="Without a `title`, the `message` is the only line.">
+    <ngwr-doc-snippet [code]="snippets.noTitle">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%">
+        <wr-alert message="Your changes are live." type="success" />
+        <wr-alert message="Connection lost." type="offline" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Custom icon" description="`iconName` replaces the icon of the `type`.">
+    <ngwr-doc-snippet [code]="snippets.customIcon">
+      <div style="width: 100%">
+        <wr-alert iconName="sparkles" title="What's new" message="Smarter search just landed." />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Closable"
+    description="`closable` adds a close button; `(closed)` fires when it hides the alert."
+  >
+    <ngwr-doc-snippet [code]="snippets.closable">
+      <div style="width: 100%">
+        <wr-alert title="Saved" message="Your changes are live." type="success" closable />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Without icon" description='`[icon]="false"` hides the icon.'>
+    <ngwr-doc-snippet [code]="snippets.noIcon">
+      <div style="width: 100%">
+        <wr-alert title="Plain" message="No leading icon." [icon]="false" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

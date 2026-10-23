@@ -1,43 +1,83 @@
 # ngwr entry points
 
 Generated from the library source. Import from the subpath — there is no
-root barrel for components.
+root barrel for components: the root `ngwr` exports only `provideWr()`.
 
 | Entry point | Import | Selector(s) |
 | --- | --- | --- |
-| `ngwr/action-sheet` | `import { WrActionSheet } from 'ngwr/action-sheet'` | `wr-action-sheet` |
-| `ngwr/action-sheet/testing` | `import { WrActionSheetActionHarness } from 'ngwr/action-sheet/testing'` | — |
+| `ngwr` | `import { provideWr } from 'ngwr'` | — |
 | `ngwr/affix` | `import { WrAffix } from 'ngwr/affix'` | `[wrAffix]` |
 | `ngwr/alert` | `import { WrAlert } from 'ngwr/alert'` | `wr-alert` |
 | `ngwr/anchor` | `import { WrAnchor } from 'ngwr/anchor'` | `wr-anchor` |
-| `ngwr/aurora` | `import { WrAurora } from 'ngwr/aurora'` | `wr-aurora` |
 | `ngwr/avatar` | `import { WrAvatar } from 'ngwr/avatar'` | `wr-avatar` |
 | `ngwr/back-top` | `import { WrBackTop } from 'ngwr/back-top'` | `wr-back-top` |
 | `ngwr/badge` | `import { WrBadge } from 'ngwr/badge'` | `wr-badge` `wr-tag` |
-| `ngwr/bar-chart` | `import { WrBarChart } from 'ngwr/bar-chart'` | `wr-bar-chart` |
-| `ngwr/bar-chart/testing` | `import { WrBarChartHarness } from 'ngwr/bar-chart/testing'` | — |
-| `ngwr/blur-text` | `import { WrBlurText } from 'ngwr/blur-text'` | `wr-blur-text` |
-| `ngwr/blur-text/testing` | `import { WrBlurTextHarness } from 'ngwr/blur-text/testing'` | — |
-| `ngwr/border-glow` | `import { WrBorderGlow } from 'ngwr/border-glow'` | `wr-border-glow` |
-| `ngwr/border-glow/testing` | `import { WrBorderGlowHarness } from 'ngwr/border-glow/testing'` | — |
+| `ngwr/bits/aurora` | `import { WrAurora } from 'ngwr/bits/aurora'` | `wr-aurora` |
+| `ngwr/bits/blur-text` | `import { WrBlurText } from 'ngwr/bits/blur-text'` | `wr-blur-text` |
+| `ngwr/bits/blur-text/testing` | `import { WrBlurTextHarness } from 'ngwr/bits/blur-text/testing'` | — |
+| `ngwr/bits/border-glow` | `import { WrBorderGlow } from 'ngwr/bits/border-glow'` | `wr-border-glow` |
+| `ngwr/bits/border-glow/testing` | `import { WrBorderGlowHarness } from 'ngwr/bits/border-glow/testing'` | — |
+| `ngwr/bits/circular-text` | `import { WrCircularText } from 'ngwr/bits/circular-text'` | `wr-circular-text` |
+| `ngwr/bits/circular-text/testing` | `import { WrCircularTextHarness } from 'ngwr/bits/circular-text/testing'` | — |
+| `ngwr/bits/click-spark` | `import { WrClickSpark } from 'ngwr/bits/click-spark'` | `wr-click-spark` |
+| `ngwr/bits/confetti` | `import { WrConfetti } from 'ngwr/bits/confetti'` | — |
+| `ngwr/bits/decrypt-text` | `import { WrDecryptText } from 'ngwr/bits/decrypt-text'` | `wr-decrypt-text` |
+| `ngwr/bits/decrypt-text/testing` | `import { WrDecryptTextHarness } from 'ngwr/bits/decrypt-text/testing'` | — |
+| `ngwr/bits/falling-text` | `import { WrFallingText } from 'ngwr/bits/falling-text'` | `wr-falling-text` |
+| `ngwr/bits/falling-text/testing` | `import { WrFallingTextHarness } from 'ngwr/bits/falling-text/testing'` | — |
+| `ngwr/bits/fuzzy-text` | `import { WrFuzzyText } from 'ngwr/bits/fuzzy-text'` | `wr-fuzzy-text` |
+| `ngwr/bits/fuzzy-text/testing` | `import { WrFuzzyTextHarness } from 'ngwr/bits/fuzzy-text/testing'` | — |
+| `ngwr/bits/glitch-text` | `import { WrGlitchText } from 'ngwr/bits/glitch-text'` | `wr-glitch-text` |
+| `ngwr/bits/glitch-text/testing` | `import { WrGlitchTextHarness } from 'ngwr/bits/glitch-text/testing'` | — |
+| `ngwr/bits/gradient-text` | `import { WrGradientText } from 'ngwr/bits/gradient-text'` | `wr-gradient-text` |
+| `ngwr/bits/gradient-text/testing` | `import { WrGradientTextHarness } from 'ngwr/bits/gradient-text/testing'` | — |
+| `ngwr/bits/marquee` | `import { WrMarquee } from 'ngwr/bits/marquee'` | `wr-marquee` |
+| `ngwr/bits/marquee/testing` | `import { WrMarqueeHarness } from 'ngwr/bits/marquee/testing'` | — |
+| `ngwr/bits/rotating-text` | `import { WrRotatingText } from 'ngwr/bits/rotating-text'` | `wr-rotating-text` |
+| `ngwr/bits/rotating-text/testing` | `import { WrRotatingTextHarness } from 'ngwr/bits/rotating-text/testing'` | — |
+| `ngwr/bits/shiny-text` | `import { WrShinyText } from 'ngwr/bits/shiny-text'` | `[wrShimmer]` `wr-shiny-text` |
+| `ngwr/bits/shiny-text/testing` | `import { WrShinyTextHarness } from 'ngwr/bits/shiny-text/testing'` | — |
+| `ngwr/bits/splash-cursor` | `import { WrSplashCursor } from 'ngwr/bits/splash-cursor'` | `wr-splash-cursor` |
+| `ngwr/bits/splash-cursor/testing` | `import { WrSplashCursorHarness } from 'ngwr/bits/splash-cursor/testing'` | — |
+| `ngwr/bits/split-text` | `import { WrSplitText } from 'ngwr/bits/split-text'` | `wr-split-text` |
+| `ngwr/bits/split-text/testing` | `import { WrSplitTextHarness } from 'ngwr/bits/split-text/testing'` | — |
+| `ngwr/bits/spotlight-card` | `import { WrSpotlightCard } from 'ngwr/bits/spotlight-card'` | `wr-spotlight-card` `[wrSpotlight]` |
+| `ngwr/bits/spotlight-card/testing` | `import { WrSpotlightCardHarness } from 'ngwr/bits/spotlight-card/testing'` | — |
+| `ngwr/bits/star-border` | `import { WrStarBorder } from 'ngwr/bits/star-border'` | `wr-star-border` `[wr-star-border]` |
+| `ngwr/bits/star-border/testing` | `import { WrStarBorderHarness } from 'ngwr/bits/star-border/testing'` | — |
+| `ngwr/bits/tilt-card` | `import { WrTiltCard } from 'ngwr/bits/tilt-card'` | `wr-tilt-card` `[wrTilt]` |
+| `ngwr/bits/tilt-card/testing` | `import { WrTiltHarness } from 'ngwr/bits/tilt-card/testing'` | — |
+| `ngwr/bits/typewriter` | `import { WrTypewriter } from 'ngwr/bits/typewriter'` | `wr-typewriter` |
+| `ngwr/bits/typewriter/testing` | `import { WrTypewriterHarness } from 'ngwr/bits/typewriter/testing'` | — |
+| `ngwr/bits/waves` | `import { WrWaves } from 'ngwr/bits/waves'` | `wr-waves` |
+| `ngwr/bits/waves/testing` | `import { WrWavesHarness } from 'ngwr/bits/waves/testing'` | — |
 | `ngwr/breadcrumbs` | `import { WrBreadcrumbs } from 'ngwr/breadcrumbs'` | `wr-breadcrumbs-item` `wr-breadcrumbs` |
 | `ngwr/burger` | `import { WrBurger } from 'ngwr/burger'` | `wr-burger` |
 | `ngwr/button` | `import { WrButton } from 'ngwr/button'` | `wr-btn-group` `wr-btn` `button[wr-btn]` `a[wr-btn]` |
 | `ngwr/button/testing` | `import { WrButtonHarness } from 'ngwr/button/testing'` | — |
 | `ngwr/calendar` | `import { WrCalendar } from 'ngwr/calendar'` | `wr-calendar` |
-| `ngwr/calendar-heatmap` | `import { WrCalendarHeatmap } from 'ngwr/calendar-heatmap'` | `wr-calendar-heatmap` |
-| `ngwr/calendar-heatmap/testing` | `import { WrCalendarHeatmapHarness } from 'ngwr/calendar-heatmap/testing'` | — |
 | `ngwr/calendar/testing` | `import { WrCalendarDayHarness } from 'ngwr/calendar/testing'` | — |
 | `ngwr/card` | `import { WrCard } from 'ngwr/card'` | `wr-card` `wr-card-header` `wr-card-footer` |
 | `ngwr/carousel` | `import { WrCarousel } from 'ngwr/carousel'` | `wr-carousel-slide` `wr-carousel` |
 | `ngwr/carousel/testing` | `import { WrCarouselHarness } from 'ngwr/carousel/testing'` | — |
 | `ngwr/cascader` | `import { WrCascader } from 'ngwr/cascader'` | `wr-cascader` |
 | `ngwr/cascader/testing` | `import { WrCascaderColumnHarness } from 'ngwr/cascader/testing'` | — |
+| `ngwr/charts/bar-chart` | `import { WrBarChart } from 'ngwr/charts/bar-chart'` | `wr-bar-chart` |
+| `ngwr/charts/bar-chart/testing` | `import { WrBarChartHarness } from 'ngwr/charts/bar-chart/testing'` | — |
+| `ngwr/charts/calendar-heatmap` | `import { WrCalendarHeatmap } from 'ngwr/charts/calendar-heatmap'` | `wr-calendar-heatmap` |
+| `ngwr/charts/calendar-heatmap/testing` | `import { WrCalendarHeatmapHarness } from 'ngwr/charts/calendar-heatmap/testing'` | — |
+| `ngwr/charts/donut-chart` | `import { WrDonutChart } from 'ngwr/charts/donut-chart'` | `wr-donut-chart` |
+| `ngwr/charts/donut-chart/testing` | `import { WrDonutChartHarness } from 'ngwr/charts/donut-chart/testing'` | — |
+| `ngwr/charts/gauge` | `import { WrGauge } from 'ngwr/charts/gauge'` | `wr-gauge` |
+| `ngwr/charts/gauge/testing` | `import { WrGaugeHarness } from 'ngwr/charts/gauge/testing'` | — |
+| `ngwr/charts/line-chart` | `import { WrLineChart } from 'ngwr/charts/line-chart'` | `wr-line-chart` |
+| `ngwr/charts/line-chart/testing` | `import { WrLineChartHarness } from 'ngwr/charts/line-chart/testing'` | — |
+| `ngwr/charts/meter-group` | `import { WrMeterGroup } from 'ngwr/charts/meter-group'` | `wr-meter-group` |
+| `ngwr/charts/meter-group/testing` | `import { WrMeterGroupHarness } from 'ngwr/charts/meter-group/testing'` | — |
+| `ngwr/charts/sparkline` | `import { WrSparkline } from 'ngwr/charts/sparkline'` | `wr-sparkline` |
+| `ngwr/charts/sparkline/testing` | `import { WrSparklineHarness } from 'ngwr/charts/sparkline/testing'` | — |
 | `ngwr/checkbox` | `import { WrCheckbox } from 'ngwr/checkbox'` | `wr-checkbox-group` `wr-checkbox` |
 | `ngwr/checkbox/testing` | `import { WrCheckboxHarness } from 'ngwr/checkbox/testing'` | — |
-| `ngwr/circular-text` | `import { WrCircularText } from 'ngwr/circular-text'` | `wr-circular-text` |
-| `ngwr/circular-text/testing` | `import { WrCircularTextHarness } from 'ngwr/circular-text/testing'` | — |
-| `ngwr/click-spark` | `import { WrClickSpark } from 'ngwr/click-spark'` | `wr-click-spark` |
 | `ngwr/clipboard` | `import { WrClipboard } from 'ngwr/clipboard'` | — |
 | `ngwr/collapse` | `import { WrCollapse } from 'ngwr/collapse'` | `wr-accordion` `wr-collapse-group` `wr-collapse` |
 | `ngwr/collapse/testing` | `import { WrCollapseGroupHarness } from 'ngwr/collapse/testing'` | — |
@@ -46,8 +86,6 @@ root barrel for components.
 | `ngwr/command-palette` | `import { WrCommandPalette } from 'ngwr/command-palette'` | `wr-command-palette` |
 | `ngwr/command-palette/testing` | `import { WrCommandPaletteGroupHarness } from 'ngwr/command-palette/testing'` | — |
 | `ngwr/compare` | `import { WrCompare } from 'ngwr/compare'` | `wr-compare` |
-| `ngwr/confetti` | `import { WrConfetti } from 'ngwr/confetti'` | — |
-| `ngwr/config` | `import { provideWrConfig } from 'ngwr/config'` | — |
 | `ngwr/context-menu` | `import { WrContextMenu } from 'ngwr/context-menu'` | `wr-context-menu-divider` `wr-context-menu-item` `wr-context-menu` `[wrContextMenu]` |
 | `ngwr/context-menu/testing` | `import { WrContextMenuHarness } from 'ngwr/context-menu/testing'` | — |
 | `ngwr/cookie` | `import { WrCookie } from 'ngwr/cookie'` | — |
@@ -55,19 +93,12 @@ root barrel for components.
 | `ngwr/date` | `import { WrDateAdapter } from 'ngwr/date'` | — |
 | `ngwr/date-picker` | `import { WrDatePicker } from 'ngwr/date-picker'` | `wr-date-picker` `wr-date-range-picker` |
 | `ngwr/date-picker/testing` | `import { WrDatePickerDayHarness } from 'ngwr/date-picker/testing'` | — |
-| `ngwr/date/adapters/fns` | `import { WrDateFnsAdapter } from 'ngwr/date/adapters/fns'` | — |
-| `ngwr/date/adapters/luxon` | `import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon'` | — |
-| `ngwr/decrypt-text` | `import { WrDecryptText } from 'ngwr/decrypt-text'` | `wr-decrypt-text` |
-| `ngwr/decrypt-text/testing` | `import { WrDecryptTextHarness } from 'ngwr/decrypt-text/testing'` | — |
 | `ngwr/density` | `import { WrDensity } from 'ngwr/density'` | `[wrDensity]` |
 | `ngwr/descriptions` | `import { WrDescriptions } from 'ngwr/descriptions'` | `wr-description-item` `wr-descriptions` |
 | `ngwr/dialog` | `import { WrDialog } from 'ngwr/dialog'` | `[wrDialogClose]` `[wrDialogContent]` `[wrDialogFooter]` `[wrDialogTitle]` |
 | `ngwr/dialog/testing` | `import { WrDialogHarness } from 'ngwr/dialog/testing'` | — |
 | `ngwr/directives` | `import { WrAutofocus } from 'ngwr/directives'` | `[wrAutofocus]` `textarea[wrAutosize]` `[wrClickOutside]` `[wrCopyToClipboard]` |
 | `ngwr/divider` | `import { WrDivider } from 'ngwr/divider'` | `wr-divider` |
-| `ngwr/donut-chart` | `import { WrDonutChart } from 'ngwr/donut-chart'` | `wr-donut-chart` |
-| `ngwr/donut-chart/testing` | `import { WrDonutChartHarness } from 'ngwr/donut-chart/testing'` | — |
-| `ngwr/drag-drop` | `import { WrSortableList } from 'ngwr/drag-drop'` | `[wrDragHandle]` `wr-sortable-list` |
 | `ngwr/drawer` | `import { WrDrawer } from 'ngwr/drawer'` | `[wrDrawerClose]` `[wrDrawerContent]` `[wrDrawerFooter]` `[wrDrawerTitle]` `wr-drawer` |
 | `ngwr/drawer/testing` | `import { WrDrawerHarness } from 'ngwr/drawer/testing'` | — |
 | `ngwr/dropdown` | `import { WrDropdown } from 'ngwr/dropdown'` | `wr-dropdown-item` `wr-dropdown-menu` `[wrDropdown]` |
@@ -77,20 +108,10 @@ root barrel for components.
 | `ngwr/empty` | `import { WrEmpty } from 'ngwr/empty'` | `wr-empty` |
 | `ngwr/event-calendar` | `import { WrEventCalendar } from 'ngwr/event-calendar'` | `ng-template[wrCalendarEvent]` `wr-event-calendar` |
 | `ngwr/event-calendar/testing` | `import { WrEventCalendarChipHarness } from 'ngwr/event-calendar/testing'` | — |
-| `ngwr/falling-text` | `import { WrFallingText } from 'ngwr/falling-text'` | `wr-falling-text` |
-| `ngwr/falling-text/testing` | `import { WrFallingTextHarness } from 'ngwr/falling-text/testing'` | — |
 | `ngwr/file-upload` | `import { WrFileUpload } from 'ngwr/file-upload'` | `wr-file-upload` |
 | `ngwr/file-upload/testing` | `import { WrFileUploadHarness } from 'ngwr/file-upload/testing'` | — |
-| `ngwr/form` | `import { WrFormItem } from 'ngwr/form'` | `wr-form-error` `wr-form-field` `wr-form-item` |
+| `ngwr/form` | `import { WrFormField } from 'ngwr/form'` | `wr-form-error` `wr-form-field` `wr-form-item` |
 | `ngwr/form/testing` | `import { WrFormFieldHarness } from 'ngwr/form/testing'` | — |
-| `ngwr/fuzzy-text` | `import { WrFuzzyText } from 'ngwr/fuzzy-text'` | `wr-fuzzy-text` |
-| `ngwr/fuzzy-text/testing` | `import { WrFuzzyTextHarness } from 'ngwr/fuzzy-text/testing'` | — |
-| `ngwr/gauge` | `import { WrGauge } from 'ngwr/gauge'` | `wr-gauge` |
-| `ngwr/gauge/testing` | `import { WrGaugeHarness } from 'ngwr/gauge/testing'` | — |
-| `ngwr/glitch-text` | `import { WrGlitchText } from 'ngwr/glitch-text'` | `wr-glitch-text` |
-| `ngwr/glitch-text/testing` | `import { WrGlitchTextHarness } from 'ngwr/glitch-text/testing'` | — |
-| `ngwr/gradient-text` | `import { WrGradientText } from 'ngwr/gradient-text'` | `wr-gradient-text` |
-| `ngwr/gradient-text/testing` | `import { WrGradientTextHarness } from 'ngwr/gradient-text/testing'` | — |
 | `ngwr/graph` | `import { WrGraph } from 'ngwr/graph'` | `ng-template[wrGraphNode]` `wr-graph` |
 | `ngwr/graph/testing` | `import { WrGraphHarness } from 'ngwr/graph/testing'` | — |
 | `ngwr/hotkey` | `import { WrHotkey } from 'ngwr/hotkey'` | `[wrHotkey]` |
@@ -118,8 +139,6 @@ root barrel for components.
 | `ngwr/i18n/zh` | `import { wrZh } from 'ngwr/i18n/zh'` | — |
 | `ngwr/i18n/zh-TW` | `import { wrZhTw } from 'ngwr/i18n/zh-TW'` | — |
 | `ngwr/icon` | `import { WrIcon } from 'ngwr/icon'` | `wr-icon` |
-| `ngwr/icon/adapters/feather` | `import { feather } from 'ngwr/icon/adapters/feather'` | — |
-| `ngwr/icon/adapters/lucide` | `import { lucide } from 'ngwr/icon/adapters/lucide'` | — |
 | `ngwr/image-cropper` | `import { WrImageCropper } from 'ngwr/image-cropper'` | `wr-image-cropper` |
 | `ngwr/image-cropper/testing` | `import { WrImageCropperHarness } from 'ngwr/image-cropper/testing'` | — |
 | `ngwr/input` | `import { WrInput } from 'ngwr/input'` | `[wrInputPrefix]` `[wrInputSuffix]` `input[wrInput]` `textarea[wrInput]` `wr-input-group` `wr-password-toggle` |
@@ -134,22 +153,13 @@ root barrel for components.
 | `ngwr/layout` | `import { WrLayout } from 'ngwr/layout'` | `wr-layout-content` `wr-layout-footer` `wr-layout-header` `wr-layout-sider` `wr-layout` |
 | `ngwr/lightbox` | `import { WrLightbox } from 'ngwr/lightbox'` | `wr-lightbox` |
 | `ngwr/lightbox/testing` | `import { WrLightboxHarness } from 'ngwr/lightbox/testing'` | — |
-| `ngwr/line-chart` | `import { WrLineChart } from 'ngwr/line-chart'` | `wr-line-chart` |
-| `ngwr/line-chart/testing` | `import { WrLineChartHarness } from 'ngwr/line-chart/testing'` | — |
 | `ngwr/list` | `import { WrList } from 'ngwr/list'` | `wr-list-item` `wr-list` |
 | `ngwr/loading-bar` | `import { WrLoadingBar } from 'ngwr/loading-bar'` | `wr-loading-bar` |
 | `ngwr/loading-bar/router` | `import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router'` | — |
-| `ngwr/markdown` | `import { WrMarkdown } from 'ngwr/markdown'` | `wr-markdown` |
-| `ngwr/markdown/testing` | `import { WrMarkdownCodeBlockHarness } from 'ngwr/markdown/testing'` | — |
-| `ngwr/marquee` | `import { WrMarquee } from 'ngwr/marquee'` | `wr-marquee` |
-| `ngwr/marquee/testing` | `import { WrMarqueeHarness } from 'ngwr/marquee/testing'` | — |
-| `ngwr/media` | `import { WrMedia } from 'ngwr/media'` | — |
 | `ngwr/mention` | `import { WrMention } from 'ngwr/mention'` | `wr-mention-panel` `[wrMention]` |
 | `ngwr/mention/testing` | `import { WrMentionHarness } from 'ngwr/mention/testing'` | — |
 | `ngwr/meta` | `import { WrMeta } from 'ngwr/meta'` | `[wrMeta]` |
-| `ngwr/meter-group` | `import { WrMeterGroup } from 'ngwr/meter-group'` | `wr-meter-group` |
-| `ngwr/meter-group/testing` | `import { WrMeterGroupHarness } from 'ngwr/meter-group/testing'` | — |
-| `ngwr/overlay` | `import { WrOutsideClick } from 'ngwr/overlay'` | — |
+| `ngwr/overlay` | `import { WrOverlayContainer } from 'ngwr/overlay'` | — |
 | `ngwr/page-header` | `import { WrPageHeader } from 'ngwr/page-header'` | `wr-page-header` |
 | `ngwr/pagination` | `import { WrPagination } from 'ngwr/pagination'` | `wr-pagination` |
 | `ngwr/pagination/testing` | `import { WrPaginationHarness } from 'ngwr/pagination/testing'` | — |
@@ -167,36 +177,22 @@ root barrel for components.
 | `ngwr/rating` | `import { WrRating } from 'ngwr/rating'` | `wr-rating` |
 | `ngwr/rating/testing` | `import { WrRatingHarness } from 'ngwr/rating/testing'` | — |
 | `ngwr/result` | `import { WrResult } from 'ngwr/result'` | `wr-result-404` `wr-result-403` `wr-result-500` `wr-result` |
-| `ngwr/rotating-text` | `import { WrRotatingText } from 'ngwr/rotating-text'` | `wr-rotating-text` |
-| `ngwr/rotating-text/testing` | `import { WrRotatingTextHarness } from 'ngwr/rotating-text/testing'` | — |
 | `ngwr/schema-form` | `import { WrSchemaForm } from 'ngwr/schema-form'` | `wr-schema-form` |
 | `ngwr/scroll` | `import { WrScroll } from 'ngwr/scroll'` | — |
 | `ngwr/segmented` | `import { WrSegmented } from 'ngwr/segmented'` | `wr-segmented` |
 | `ngwr/segmented/testing` | `import { WrSegmentedHarness } from 'ngwr/segmented/testing'` | — |
 | `ngwr/select` | `import { WrSelect } from 'ngwr/select'` | `wr-option-group` `ng-template[wrOptionLeading]` `wr-option` `wr-select` |
 | `ngwr/select/testing` | `import { WrOptionHarness } from 'ngwr/select/testing'` | — |
-| `ngwr/shiny-text` | `import { WrShinyText } from 'ngwr/shiny-text'` | `[wrShimmer]` `wr-shiny-text` |
-| `ngwr/shiny-text/testing` | `import { WrShinyTextHarness } from 'ngwr/shiny-text/testing'` | — |
 | `ngwr/sidebar` | `import { WrSidebar } from 'ngwr/sidebar'` | `wr-sidebar` |
 | `ngwr/skeleton` | `import { WrSkeleton } from 'ngwr/skeleton'` | `wr-skeleton` |
 | `ngwr/slider` | `import { WrSlider } from 'ngwr/slider'` | `wr-slider` |
 | `ngwr/slider/testing` | `import { WrSliderHarness } from 'ngwr/slider/testing'` | — |
-| `ngwr/sparkline` | `import { WrSparkline } from 'ngwr/sparkline'` | `wr-sparkline` |
-| `ngwr/sparkline/testing` | `import { WrSparklineHarness } from 'ngwr/sparkline/testing'` | — |
+| `ngwr/sortable-list` | `import { WrSortableList } from 'ngwr/sortable-list'` | `[wrDragHandle]` `wr-sortable-item` `wr-sortable-list` |
 | `ngwr/speed-dial` | `import { WrSpeedDial } from 'ngwr/speed-dial'` | `wr-speed-dial` |
 | `ngwr/speed-dial/testing` | `import { WrSpeedDialActionHarness } from 'ngwr/speed-dial/testing'` | — |
 | `ngwr/spinner` | `import { WrSpinner } from 'ngwr/spinner'` | `wr-spinner` |
-| `ngwr/splash-cursor` | `import { WrSplashCursor } from 'ngwr/splash-cursor'` | `wr-splash-cursor` |
-| `ngwr/splash-cursor/testing` | `import { WrSplashCursorHarness } from 'ngwr/splash-cursor/testing'` | — |
-| `ngwr/split-text` | `import { WrSplitText } from 'ngwr/split-text'` | `wr-split-text` |
-| `ngwr/split-text/testing` | `import { WrSplitTextHarness } from 'ngwr/split-text/testing'` | — |
 | `ngwr/splitter` | `import { WrSplitter } from 'ngwr/splitter'` | `wr-splitter` |
 | `ngwr/splitter/testing` | `import { WrSplitterHarness } from 'ngwr/splitter/testing'` | — |
-| `ngwr/spotlight-card` | `import { WrSpotlightCard } from 'ngwr/spotlight-card'` | `wr-spotlight-card` `[wrSpotlight]` |
-| `ngwr/spotlight-card/testing` | `import { WrSpotlightCardHarness } from 'ngwr/spotlight-card/testing'` | — |
-| `ngwr/squircle` | `import { WrSquircle } from 'ngwr/squircle'` | `wr-squircle` `[wrSquircle]` |
-| `ngwr/star-border` | `import { WrStarBorder } from 'ngwr/star-border'` | `wr-star-border` `[wr-star-border]` |
-| `ngwr/star-border/testing` | `import { WrStarBorderHarness } from 'ngwr/star-border/testing'` | — |
 | `ngwr/statistic` | `import { WrStatistic } from 'ngwr/statistic'` | `wr-statistic-countdown` `wr-statistic-group` `wr-statistic` |
 | `ngwr/stepper` | `import { WrStepper } from 'ngwr/stepper'` | `wr-step` `wr-stepper` |
 | `ngwr/stepper/testing` | `import { WrStepHarness } from 'ngwr/stepper/testing'` | — |
@@ -211,8 +207,6 @@ root barrel for components.
 | `ngwr/textarea` | `import { WrTextarea } from 'ngwr/textarea'` | `wr-textarea` |
 | `ngwr/textarea/testing` | `import { WrTextareaHarness } from 'ngwr/textarea/testing'` | — |
 | `ngwr/theme` | `import { WrTheme } from 'ngwr/theme'` | — |
-| `ngwr/tilt-card` | `import { WrTiltCard } from 'ngwr/tilt-card'` | `wr-tilt-card` `[wrTilt]` |
-| `ngwr/tilt-card/testing` | `import { WrTiltHarness } from 'ngwr/tilt-card/testing'` | — |
 | `ngwr/timeline` | `import { WrTimeline } from 'ngwr/timeline'` | `wr-timeline-item` `wr-timeline` |
 | `ngwr/toast` | `import { WrToast } from 'ngwr/toast'` | — |
 | `ngwr/toast/testing` | `import { WrToastHarness } from 'ngwr/toast/testing'` | — |
@@ -223,15 +217,11 @@ root barrel for components.
 | `ngwr/transfer/testing` | `import { WrTransferHarness } from 'ngwr/transfer/testing'` | — |
 | `ngwr/tree` | `import { WrTree } from 'ngwr/tree'` | `wr-tree` |
 | `ngwr/tree/testing` | `import { WrTreeHarness } from 'ngwr/tree/testing'` | — |
-| `ngwr/typewriter` | `import { WrTypewriter } from 'ngwr/typewriter'` | `wr-typewriter` |
-| `ngwr/typewriter/testing` | `import { WrTypewriterHarness } from 'ngwr/typewriter/testing'` | — |
 | `ngwr/typography` | `import { WrTypography } from 'ngwr/typography'` | `[wrTypography]` |
 | `ngwr/utils` | `import { isDefined } from 'ngwr/utils'` | — |
 | `ngwr/validators` | `import { WrValidators } from 'ngwr/validators'` | — |
 | `ngwr/version` | `import { NGWR_VERSION } from 'ngwr/version'` | — |
 | `ngwr/virtual-scroll` | `import { WrVirtualScroll } from 'ngwr/virtual-scroll'` | `wr-virtual-scroll` |
-| `ngwr/waves` | `import { WrWaves } from 'ngwr/waves'` | `wr-waves` |
-| `ngwr/waves/testing` | `import { WrWavesHarness } from 'ngwr/waves/testing'` | — |
 | `ngwr/window` | `import { WrWindowManager } from 'ngwr/window'` | `wr-window-taskbar` |
 | `ngwr/window/testing` | `import { WrWindowHarness } from 'ngwr/window/testing'` | — |
 

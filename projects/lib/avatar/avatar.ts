@@ -22,7 +22,7 @@ import { useI18nText } from 'ngwr/i18n';
 import { WrSpinner } from 'ngwr/spinner';
 import { resolveCssSize, type ResolvedCssSize } from 'ngwr/utils';
 
-import type { WrAvatarShape, WrAvatarSize } from './interfaces';
+import type { WrAvatarShape, WrAvatarSize } from './types';
 
 const DEFAULT_SIZE: WrAvatarSize = '6rem';
 
@@ -89,11 +89,22 @@ export class WrAvatar {
    * carries only the generic name, so the initials stay announced beside it —
    * visually hidden once it has loaded, never dropped.
    *
+   * `alt=""` marks the avatar decorative, as it does on an `<img>`: the image is
+   * silent and so are the initials while an image is in play — for an avatar beside
+   * a name that is already printed. After a failed load with nothing projected, the
+   * `alt` is still announced, so a broken image never leaves the avatar nameless.
+   *
    * @default null
    */
   readonly alt = input<string | null>(null);
 
-  protected readonly resolvedAlt = useI18nText(this.alt, 'avatar.alt', 'Avatar');
+  /** `alt=""`, given on purpose — see `alt`. */
+  private readonly decorative = computed(() => this.alt() === '');
+
+  private readonly namedAlt = useI18nText(this.alt, 'avatar.alt', 'Avatar');
+
+  /** The image's text alternative: empty when decorative, else the catalog's fallback for an unset one. */
+  protected readonly resolvedAlt = computed(() => (this.decorative() ? '' : this.namedAlt()));
 
   /**
    * Corner treatment. `rounded` (default) is a soft rounded square,
@@ -171,16 +182,19 @@ export class WrAvatar {
 
   /**
    * Whether the projected fallback is `aria-hidden`: an `<img>` is in the DOM
-   * (loading or loaded) AND the consumer named it. Then the image's `alt` owns
-   * the name, announced once and unchanged at the moment the photo arrives.
-   * Without a real `alt` the image is only "Avatar", and hiding the initials
-   * would drop the one thing that says who this is.
+   * (loading or loaded) AND the consumer named it, or marked it decorative with
+   * `alt=""`. Then the image's `alt` owns the name, announced once and unchanged
+   * at the moment the photo arrives. Without a real `alt` the image is only
+   * "Avatar", and hiding the initials would drop the one thing that says who
+   * this is.
    *
    * The stylesheet keys on the same attribute once `--loaded`: a hidden fallback
    * leaves the paint through `visibility`, a named-by-initials one is clipped and
    * stays in the accessibility tree. While loading it is painted either way.
    */
-  protected readonly fallbackHidden = computed(() => !!this.url() && !this.failed() && !!this.alt()?.trim());
+  protected readonly fallbackHidden = computed(
+    () => !!this.url() && !this.failed() && (this.decorative() || !!this.alt()?.trim())
+  );
 
   protected readonly cssSize = computed(() => this.resolved().cssValue);
   protected readonly pxSize = computed(() => this.resolved().pxValue);

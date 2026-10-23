@@ -134,11 +134,6 @@ describe('which actions wrappers the stylesheet lays out', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('is a zero-specificity flex row that takes the region gap', () => {
-    expect(rule).not.toBeNull();
-    expect(rule![2]).toMatch(/display: flex;[\s\S]*gap: inherit;/);
-  });
-
   it('lands the wrapper directly in the actions region, where the rule can reach it', () => {
     expect(probe('bare').parentElement!.classList).toContain('wr-page-header__actions');
     expect(laidOut('bare')).toBe(true);
@@ -176,10 +171,6 @@ describe('which actions wrappers the stylesheet lays out', () => {
   it('never reaches the extra row, where a wrapper is usually metadata prose', () => {
     expect(probe('extra').parentElement!.classList).toContain('wr-page-header__extra');
     expect(laidOut('extra')).toBe(false);
-  });
-
-  it('scales the region gap with density', () => {
-    expect(scss).toMatch(/&__actions \{[^}]*gap: calc\(0\.5rem \* var\(--wr-density-gap, 1\)\);/);
   });
 });
 

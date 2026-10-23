@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { ConfigurableFocusTrapFactory, type FocusTrap, FocusTrapFactory } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef } from '@angular/cdk/overlay';
@@ -35,7 +35,8 @@ import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { WrDrawerTitle } from './directives/drawer-title';
-import type { WrDrawerPosition } from './interfaces';
+import { drawerHasFocus, focusIsLost } from './drawer-focus';
+import type { WrDrawerPosition } from './types';
 
 /**
  * Side panel that slides in from an edge of the viewport. Two-way binds
@@ -94,19 +95,23 @@ export class WrDrawer {
   readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Render a grab handle at the leading edge and enable swipe-to-dismiss:
-   * drag the handle toward the drawer's edge (down for `bottom`, left for
-   * `left`, …) and release past ~30% of the panel to close. @default false
-   */
-  readonly showHandle = input(false, { transform: coerceBooleanProperty });
-
-  /**
    * Pad the trailing edge with `env(safe-area-inset-*)` so content
    * doesn't sit under the iOS home indicator. @default false
    */
   readonly safeArea = input(false, { transform: coerceBooleanProperty });
 
-  /** Show the dimming backdrop. @default true */
+  /**
+   * Show the dimming backdrop, and with it make the drawer MODAL: focus is
+   * trapped inside, the panel is announced with `aria-modal="true"`, and the
+   * page behind it does not scroll.
+   *
+   * `false` makes it a NON-MODAL side panel (since v15). The page stays
+   * clickable, scrollable and reachable with Tab; the panel keeps
+   * `role="dialog"` without `aria-modal`. Focus still moves into it on open,
+   * Escape closes it unless focus has moved on to the page, and on close
+   * focus goes back to the opener unless the reader has moved on likewise.
+   * Read when the drawer opens. @default true
+   */
   readonly hasBackdrop = input(true, { transform: coerceBooleanProperty });
 
   /** Close when the backdrop is clicked. @default true */
@@ -155,96 +160,10 @@ export class WrDrawer {
     if (this.rounded()) parts.push('wr-drawer__panel--rounded');
     if (this.safeArea()) parts.push('wr-drawer__panel--safe-area');
     if (this.closable()) parts.push('wr-drawer__panel--closable');
-    // The handle sits on the LEADING edge, which for `left` / `right` is a
-    // vertical rail rather than a row in the column — so it leaves the flow and
-    // the panel has to reserve the gutter it floats over. Only the panel can do
-    // that, and only if it knows the handle is there.
-    if (this.showHandle()) parts.push('wr-drawer__panel--handle');
     // Only when there is something to collide with: a closable drawer with a
     // title already clears the button, and an unclosable one has no button.
     if (this.closable() && !this.projectedTitle()) parts.push('wr-drawer__panel--untitled');
     return toClassList(parts, this.panelClass()).join(' ');
-  }
-
-  // Swipe-to-dismiss — gated to the grab handle, so it never fights the
-  // panel's own scrolling. The panel follows the finger toward the closing
-  // edge and closes past ~30% of its size, otherwise snaps back.
-
-  private swipeStartX = 0;
-  private swipeStartY = 0;
-  private swiping = false;
-
-  // Pointer, not Touch. The handle has always advertised itself to a mouse with
-  // `cursor: grab`, but the gesture was bound to touch events only, so on a
-  // desktop it could not be dragged at all. Pointer Events cover touch, mouse and
-  // pen through one path — the same idiom `wr-splitter` already uses.
-
-  protected onSwipeStart(event: PointerEvent): void {
-    // Ignore secondary contacts of a multi-touch gesture.
-    if (!event.isPrimary) return;
-    this.swipeStartX = event.clientX;
-    this.swipeStartY = event.clientY;
-    this.swiping = true;
-    // Capture, so the drag keeps reporting once the cursor leaves the 2.5rem
-    // grabber — without it a mouse drag dies the moment it slips off the handle.
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-  }
-
-  protected onSwipeMove(event: PointerEvent, panel: HTMLElement): void {
-    if (!this.swiping) return;
-    const { axis, sign } = this.closeAxis();
-    const delta = axis === 'y' ? event.clientY - this.swipeStartY : event.clientX - this.swipeStartX;
-    // Only follow the pointer when dragging toward the closing edge.
-    if (delta * sign <= 0) {
-      panel.style.transform = '';
-      return;
-    }
-    panel.style.transition = 'none';
-    panel.style.transform = axis === 'y' ? `translateY(${delta}px)` : `translateX(${delta}px)`;
-  }
-
-  /**
-   * A cancelled pointer is an ABANDONED swipe, not a completed one — the system
-   * took the gesture away (a call, a system gesture, an orientation change) and
-   * no `pointerup` ever arrives. Routing it through `onSwipeEnd` dismissed the
-   * drawer on an interruption the user did not ask for and, because the overlay
-   * is disposed with the dragged offset applied, could not take back. Same rule
-   * `wr-pull-to-refresh` states for `touchcancel`.
-   */
-  protected onSwipeCancel(panel: HTMLElement): void {
-    if (!this.swiping) return;
-    this.swiping = false;
-    panel.style.transition = '';
-    panel.style.transform = '';
-  }
-
-  protected onSwipeEnd(event: PointerEvent, panel: HTMLElement): void {
-    if (!this.swiping) return;
-    this.swiping = false;
-    const { axis, sign } = this.closeAxis();
-    const delta = axis === 'y' ? event.clientY - this.swipeStartY : event.clientX - this.swipeStartX;
-    const panelSize = axis === 'y' ? panel.offsetHeight : panel.offsetWidth;
-    if (delta * sign > panelSize * 0.3) {
-      this.open.set(false); // keep the dragged offset as the overlay disposes
-    } else {
-      panel.style.transition = '';
-      panel.style.transform = '';
-    }
-  }
-
-  /** Axis + sign of the closing direction for the current position. */
-  private closeAxis(): { axis: 'x' | 'y'; sign: number } {
-    switch (this.position()) {
-      case 'bottom':
-        return { axis: 'y', sign: 1 };
-      case 'top':
-        return { axis: 'y', sign: -1 };
-      case 'left':
-        return { axis: 'x', sign: -1 };
-      case 'right':
-      default:
-        return { axis: 'x', sign: 1 };
-    }
   }
 
   private readonly overlay = inject(WR_OVERLAY);
@@ -252,14 +171,15 @@ export class WrDrawer {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
+  private readonly plainFocusTrapFactory = inject(FocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   /**
    * The reading direction the open drawer has to keep up with, resolved off the
    * ENVIRONMENT injector rather than this component's.
    *
    * That is where the CDK read it: `createOverlayRef` takes `Directionality`
-   * from the `Overlay`'s own injector, which `provideWrOverlay()` parents to
-   * the application's, so a node-level CDK `[dir]` is never in the chain. A
+   * from the `Overlay`'s own injector, which `WR_OVERLAY` parents to the
+   * application's, so a node-level CDK `[dir]` is never in the chain. A
    * panel is not IN that island either — it is appended to the overlay
    * container on `<body>` — so following the node injector would not follow the
    * ref at all: it would rewrite a correctly-stamped panel to the island's
@@ -274,8 +194,10 @@ export class WrDrawer {
   private readonly dir = inject(EnvironmentInjector).get(Directionality, null);
 
   private overlayRef: OverlayRef | null = null;
-  private focusTrap: ConfigurableFocusTrap | null = null;
+  private focusTrap: FocusTrap | null = null;
   private previouslyFocused: HTMLElement | null = null;
+  /** Whether the open panel is modal — `hasBackdrop` as it was when it opened. */
+  private modal = true;
 
   constructor() {
     effect(() => {
@@ -325,13 +247,25 @@ export class WrDrawer {
     else positionStrategy.centerVertically();
 
     const cap = this.maxHeight();
+    const modal = this.hasBackdrop();
+    this.modal = modal;
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
-      hasBackdrop: this.hasBackdrop(),
+      hasBackdrop: modal,
       backdropClass: 'wr-drawer-backdrop',
       panelClass: ['wr-drawer-overlay', `wr-drawer-overlay--${pos}`],
-      scrollStrategy: this.overlay.scrollStrategies.block(),
+      // A non-modal panel leaves the page scrolling under it: nothing covers
+      // the page, so a blocked scroll would only freeze what the reader can
+      // still see and click.
+      scrollStrategy: modal ? this.overlay.scrollStrategies.block() : this.overlay.scrollStrategies.noop(),
+      // The CDK hands Escape to the topmost overlay wherever focus is. That is
+      // right for a modal, where focus cannot be anywhere else, and wrong for a
+      // panel beside a live page: an Escape meant for a field on the page
+      // closed the drawer. Declined, the key walks on to the next overlay.
+      // Focus on `<body>` still counts: a click on the panel's own text
+      // focuses nothing, so that is where a reader inside it usually is.
+      eventPredicate: modal ? undefined : () => drawerHasFocus(this.overlayRef) || focusIsLost(),
       width: isHorizontal ? this.width() : '100vw',
       height: isHorizontal ? undefined : this.height(),
       maxHeight: isHorizontal ? undefined : (cap ?? undefined),
@@ -356,8 +290,11 @@ export class WrDrawer {
       this.previouslyFocused = active instanceof HTMLElement ? active : null;
       const host = this.overlayRef.overlayElement;
       host.setAttribute('role', 'dialog');
-      host.setAttribute('aria-modal', 'true');
-      this.focusTrap = this.focusTrapFactory.create(host);
+      if (modal) host.setAttribute('aria-modal', 'true');
+      // Non-modal: a trap with no anchors and no inert strategy, which only
+      // moves focus in — `cdkFocusInitial` honoured the same way — and then
+      // lets Tab carry on out into the page.
+      this.focusTrap = modal ? this.focusTrapFactory.create(host) : this.plainFocusTrapFactory.create(host, true);
       void this.focusTrap.focusInitialElementWhenReady();
     }
 
@@ -387,9 +324,11 @@ export class WrDrawer {
     this.focusTrap = null;
     const restore = this.previouslyFocused;
     this.previouslyFocused = null;
+    // Read before disposal, which takes the focused element out of the page.
+    const returnFocus = this.modal || drawerHasFocus(this.overlayRef) || focusIsLost();
     this.overlayRef.dispose();
     this.overlayRef = null;
-    if (restore && typeof restore.focus === 'function') {
+    if (returnFocus && restore && typeof restore.focus === 'function') {
       restore.focus();
     }
   }

@@ -4,8 +4,7 @@
 
 ```
 _svg/
-├── *.svg                ← ngwr originals (tracked in git, drive the `icons/*.ts` exports)
-├── _tags.json           ← tag metadata for the originals
+├── README.md            ← the only tracked file here
 │
 ├── lucide/              ← reference sets below — gitignored, fetch on demand
 ├── phosphor/{regular,fill}/
@@ -17,7 +16,7 @@ _svg/
 
 Reference SVGs from popular icon libraries, kept locally for redesign work.
 Each subdirectory is **gitignored** so the repo stays lean (~48 MB total
-otherwise). Re-fetch with `pnpm icons:fetch` (or by hand — see below).
+otherwise). Re-fetch them by hand — see below.
 
 | Set       | Style                         | Count | Source                                    |
 | --------- | ----------------------------- | ----- | ----------------------------------------- |

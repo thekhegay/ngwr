@@ -60,50 +60,35 @@ export default class ClipboardServicePage {
   }
 
   protected readonly snippets = {
-    install: `import { WrClipboard } from 'ngwr/clipboard';
+    usage: `private readonly clip = inject(WrClipboard);
 
-@Component({ /* … */ })
-export class MyComponent {
-  private readonly clip = inject(WrClipboard);
-
-  protected async copy(value: string) {
-    const ok = await this.clip.write(value);
-    if (!ok) console.warn('Copy failed — denied permission or no clipboard');
-  }
-}`,
-    read: `// Read text. Returns null when unsupported or denied.
-const text = await this.clip.read();
-if (text) console.log('pasted:', text);`,
-    perm: `// Probe clipboard availability (capability + Permissions API).
-const state = await this.clip.permission('write');
-// 'granted' | 'denied' | 'prompt' | 'unsupported'`,
+const ok = await this.clip.write('Copied!'); // false when no write path worked
+const text = await this.clip.read(); // null when unsupported or denied
+const state = await this.clip.permission('read'); // 'granted' | 'denied' | 'prompt' | 'unsupported'`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'write(text)',
-      description:
-        'Write text to the clipboard. Falls back to a hidden-textarea + `execCommand` write when the async API is unavailable. Resolves to `true` on success.',
+      description: 'Write text. Falls back to `execCommand` outside a secure context. Resolves `true` on success.',
       type: '(text: string) => Promise<boolean>',
       default: '—',
     },
     {
       name: 'read()',
-      description:
-        'Read text from the clipboard. Returns `null` when unsupported (older browsers) or when the user denied the permission prompt.',
+      description: 'Read text. Resolves `null` when unsupported or denied.',
       type: '() => Promise<string | null>',
       default: '—',
     },
     {
       name: 'available()',
-      description: 'Is any clipboard write path available (async API or `execCommand`)?',
+      description: 'Whether any write path exists.',
       type: '() => boolean',
       default: '—',
     },
     {
       name: 'permission(name)',
-      description:
-        'Report read / write availability. Grounded in the actual Clipboard API capability, then refined by the Permissions API when the browser recognises `clipboard-read` / `clipboard-write`. Returns `unsupported` only when the capability is genuinely missing.',
+      description: 'Read or write permission. `unsupported` only when the Clipboard API is missing.',
       type: "(name: 'read' | 'write') => Promise<WrClipboardPermission>",
       default: '—',
     },
@@ -114,7 +99,7 @@ const state = await this.clip.permission('write');
       kind: 'Directive',
       title: '[wrCopyToClipboard]',
       url: ['/reference/directives', 'copy-to-clipboard'],
-      description: 'Host-click directive — drop-in copy button without writing the imperative call.',
+      description: 'Copy on click, without code.',
     },
   ];
 }

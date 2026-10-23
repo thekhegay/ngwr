@@ -36,7 +36,7 @@ import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
-import type { WrDateInputError, WrDateRange, WrDateRangeInputError } from './interfaces';
+import { clockFormat } from './internal/clock-format';
 import { WrDateRangePanel } from './internal/date-range-panel';
 import {
   WR_DATE_INPUT_FIELD_VIEW_PROVIDER,
@@ -45,6 +45,8 @@ import {
   useFormParseErrors,
 } from './internal/input-refusal';
 import { WrDateRangeEndInput } from './internal/range-end-input';
+import { tabLeavesPane } from './internal/tab-out';
+import type { WrDateInputError, WrDateRange, WrDateRangeInputError } from './types';
 
 /** Which end of the range an edit applies to. */
 type RangeEnd = 0 | 1;
@@ -113,8 +115,10 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   /**
    * Format used for both display and parsing, on both ends. When `null`
-   * (default), it is derived from `mode` (`shortDate` / `shortDateTime`). Pass
-   * a named key or raw token string to override.
+   * (default), it is derived from `mode` (`shortDate` / `shortDateTime`), with
+   * the hour cycle of `timeFormat` and the seconds of `showSeconds`
+   * (`shortDateTime24hSeconds`, …). Pass a named key or raw token string to
+   * override.
    */
   readonly format = input<WrDateFormat | (string & {}) | null>(null);
 
@@ -139,10 +143,17 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   /** Predicate to disable specific dates (forwarded to the calendar). */
   readonly dateFilter = input<((date: Date) => boolean) | null>(null);
 
-  /** Time-panel 12 / 24-hour format. Applies in `datetime` mode. @default 'auto' */
+  /**
+   * 12 / 24-hour clock, in the time panels and in both fields, unless `format`
+   * is set. `'auto'` follows the locale. Applies in `datetime` mode.
+   * @default 'auto'
+   */
   readonly timeFormat = input<'auto' | '12h' | '24h'>('auto');
 
-  /** Render the seconds column. Applies in `datetime` mode. @default false */
+  /**
+   * Show seconds, in the time panels and in both fields, unless `format` is set.
+   * Applies in `datetime` mode. @default false
+   */
   readonly showSeconds = input(false, { transform: coerceBooleanProperty });
 
   /** Minute / second step for the time panels. @default 1 */
@@ -213,9 +224,12 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   private autoFocusPanel = false;
 
   /** Resolved format — falls back to a mode-appropriate default. */
-  protected readonly resolvedFormat = computed<string>(() =>
-    this.format() ? String(this.format()) : this.mode() === 'datetime' ? 'shortDateTime' : 'shortDate'
-  );
+  protected readonly resolvedFormat = computed<string>(() => {
+    const explicit = this.format();
+    if (explicit) return String(explicit);
+    if (this.mode() !== 'datetime') return 'shortDate';
+    return clockFormat('shortDateTime', this.timeFormat(), this.showSeconds());
+  });
 
   protected readonly isDateTime = computed(() => this.mode() === 'datetime');
 
@@ -326,13 +340,14 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   /**
    * The live region's text: every refusal on show that a surrounding `<wr-form-field>`
-   * is not already rendering a message for, each sentence once.
+   * is not already rendering a message for, each sentence once. A refusal the app's
+   * catalog has no sentence for adds nothing.
    */
   protected readonly announcement = computed(() => {
     if (this.silenced()) return '';
     const messages = this.shownErrors()
       .filter((error): error is WrDateInputError => !!error && !this.inputField.saysAlready(error))
-      .map(error => error.message);
+      .flatMap(error => (error.message ? [error.message] : []));
     return [...new Set(messages)].join(' ');
   });
 
@@ -344,17 +359,19 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    * writer beside `wrInput`, and binds these only with no field around it. The END
    * input is hidden from the field on purpose (see `wrDateRangeEnd`), so its `wrInput`
    * never writes either attribute and the picker always owns them: an unreadable end
-   * date marks the end field, not only the start.
+   * date marks the end field, not only the start. Each end points at the region only
+   * when its OWN refusal has a sentence — the region is shared, and an end the app has
+   * no words for must not be described by the other end's.
    */
   protected readonly startAriaInvalid = computed<'true' | null>(() =>
     !this.inputField.outer && this.shownErrors()[0] ? 'true' : null
   );
   protected readonly endAriaInvalid = computed<'true' | null>(() => (this.shownErrors()[1] ? 'true' : null));
   protected readonly startDescribedBy = computed(() =>
-    !this.inputField.outer && this.shownErrors()[0] && this.announcement() ? this.statusId : null
+    !this.inputField.outer && this.shownErrors()[0]?.message && this.announcement() ? this.statusId : null
   );
   protected readonly endDescribedBy = computed(() =>
-    this.shownErrors()[1] && this.announcement() ? this.statusId : null
+    this.shownErrors()[1]?.message && this.announcement() ? this.statusId : null
   );
 
   protected readonly classes = computed(() => {
@@ -374,6 +391,9 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    * the echo of our own edits and never reformat text mid-type. */
   private lastValue: WrDateRange | null = null;
 
+  /** The format the texts were last written in — `null` until the first run. */
+  private lastFormat: string | null = null;
+
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.dispose();
@@ -385,16 +405,21 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.inputField.describe(computed(() => this.shownErrors()[0]));
 
     // Mirror external writes to `value` into the two display texts — and drop the
-    // refusals, whose text that write has just replaced.
+    // refusals, whose text that write has just replaced. The FORMAT is tracked too:
+    // `timeFormat` and `showSeconds` choose it, and a field left in the old one would
+    // then be parsed against the new one and refused.
     effect(() => {
       const v = this.value();
+      const fmt = this.resolvedFormat();
       untracked(() => {
+        const formatMoved = this.lastFormat !== null && fmt !== this.lastFormat;
+        this.lastFormat = fmt;
         // An equal range in a DIFFERENT tuple came from outside — `commitRange` hands the
         // model the very tuple it remembered. It leaves text being typed alone, but it
         // does replace text the picker refused.
         const outside = v !== this.lastValue;
         const [refusedStart, refusedEnd] = this.refusals();
-        if (this.sameRange(v, this.lastValue) && !(outside && (refusedStart || refusedEnd))) return;
+        if (!formatMoved && this.sameRange(v, this.lastValue) && !(outside && (refusedStart || refusedEnd))) return;
         this.lastValue = v;
         this.startText.set(this.display(v?.[0] ?? null));
         this.endText.set(this.display(v?.[1] ?? null));
@@ -455,6 +480,11 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     // end would mark a bound field touched mid-entry.
     const next = event.relatedTarget as Node | null;
     const leaving = !next || !this.host.nativeElement.contains(next);
+    // The calendar button is part of the pair too: Tab from the end field lands on it,
+    // which is not leaving, so leaving has to be noticed when focus goes on from HERE —
+    // or a keyboard user never settled the order and never touched a bound field. Its
+    // hop back into a field is neither a leave nor a blur of a field.
+    if (!leaving && event.target === this.triggerEl()?.nativeElement) return;
     if (leaving) this.touch.emit();
 
     // Typing leaves the ends in whatever order they were entered; settle it
@@ -760,6 +790,13 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
+          this.closeOverlay();
+          return;
+        }
+        // Non-modal, so Tab leaves — from the trigger, to the trigger's own neighbour,
+        // rather than off the end of `<body>`. See `tabLeavesPane`.
+        if (this.overlayRef && tabLeavesPane(this.overlayRef.overlayElement, event)) {
+          this.triggerEl()?.nativeElement.focus();
           this.closeOverlay();
         }
       });

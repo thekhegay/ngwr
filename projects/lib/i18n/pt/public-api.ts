@@ -79,6 +79,7 @@ export const wrPt: WrI18nCatalog = {
   },
   stepper: {
     optional: 'opcional',
+    completed: 'concluído',
   },
   transfer: {
     source: 'Disponíveis',
@@ -93,32 +94,6 @@ export const wrPt: WrI18nCatalog = {
   },
   form: {
     optional: 'opcional',
-  },
-  validation: {
-    required: 'Este campo é obrigatório.',
-    requiredTrue: 'É necessário assinalar esta opção.',
-    email: 'Introduza um endereço de e-mail válido.',
-    // The count goes last in all three: there is no plural machinery here, and
-    // "pelo menos 1 caracteres" / "de 1 dígitos" is broken Portuguese. A noun
-    // after the number has to agree with it, so these avoid the position.
-    minlength: 'Número mínimo de caracteres: {{requiredLength}}.',
-    maxlength: 'Número máximo de caracteres: {{requiredLength}}.',
-    min: 'Introduza {{min}} ou mais.',
-    max: 'Introduza {{max}} ou menos.',
-    pattern: 'O valor não corresponde ao formato esperado.',
-    noWhitespace: 'O valor não pode conter espaços.',
-    hexColor: 'Introduza uma cor hexadecimal, ex.: #1a2b3c.',
-    url: 'Introduza um URL válido.',
-    cardNumber: 'Introduza um número de cartão válido.',
-    cvc: 'Introduza o código de segurança. Dígitos necessários: {{length}}.',
-    iban: 'Introduza um IBAN válido.',
-    match: 'Os dois valores não coincidem.',
-    matchFields: 'Estes campos não coincidem.',
-    oneOf: 'Escolha um dos valores permitidos.',
-    minDate: 'Escolha uma data posterior.',
-    maxDate: 'Escolha uma data anterior.',
-    dateFormat: 'Formato esperado: {{example}}',
-    dateFilter: 'Esta data não está disponível.',
   },
   select: {
     label: 'Selecionar',
@@ -250,13 +225,15 @@ export const wrPt: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Gráfico de barras',
+  },
   calendarHeatmap: {
     label: 'Mapa de calor do calendário',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Gráfico de linhas',
-    thousands: '{{value}} mil',
   },
   donutChart: {
     label: 'Gráfico de anel',
@@ -272,9 +249,6 @@ export const wrPt: WrI18nCatalog = {
     pagination: 'Paginação do carrossel',
     roledescription: 'carrossel',
     slideRoledescription: 'slide',
-  },
-  actionSheet: {
-    label: 'Ações',
   },
   alert: {
     close: 'Fechar alerta',
@@ -303,12 +277,6 @@ export const wrPt: WrI18nCatalog = {
   },
   popover: {
     label: 'Painel emergente',
-  },
-  markdown: {
-    copy: 'Copiar código',
-    copied: 'Copiado',
-    taskDone: 'Concluído:',
-    taskTodo: 'Por fazer:',
   },
   editor: {
     label: 'Texto formatado',
@@ -382,6 +350,9 @@ export const wrPt: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Barra lateral',
+    containsCurrent: 'contém a página atual',
+    subpages: 'Subpáginas de {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'A carregar',

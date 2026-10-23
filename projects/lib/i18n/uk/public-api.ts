@@ -87,6 +87,7 @@ export const wrUk: WrI18nCatalog = {
   },
   stepper: {
     optional: 'необов’язково',
+    completed: 'завершено',
   },
   transfer: {
     source: 'Доступні',
@@ -101,29 +102,6 @@ export const wrUk: WrI18nCatalog = {
   },
   form: {
     optional: 'необов’язково',
-  },
-  validation: {
-    required: 'Обов’язкове поле.',
-    requiredTrue: 'Це поле потрібно позначити.',
-    email: 'Введіть коректну електронну адресу.',
-    minlength: 'Мінімальна довжина: {{requiredLength}}.',
-    maxlength: 'Максимальна довжина: {{requiredLength}}.',
-    min: 'Не менше {{min}}.',
-    max: 'Не більше {{max}}.',
-    pattern: 'Значення не відповідає формату.',
-    noWhitespace: 'Значення не може містити пробілів.',
-    hexColor: 'Введіть колір у форматі #1a2b3c.',
-    url: 'Введіть коректну URL-адресу.',
-    cardNumber: 'Введіть коректний номер картки.',
-    cvc: 'Введіть {{length}}-значний код безпеки.',
-    iban: 'Введіть коректний IBAN.',
-    match: 'Значення не збігаються.',
-    matchFields: 'Значення полів не збігаються.',
-    oneOf: 'Виберіть одне з допустимих значень.',
-    minDate: 'Виберіть пізнішу дату.',
-    maxDate: 'Виберіть ранішу дату.',
-    dateFormat: 'Очікуваний формат: {{example}}',
-    dateFilter: 'Ця дата недоступна.',
   },
   select: {
     label: 'Вибрати',
@@ -256,13 +234,15 @@ export const wrUk: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Стовпчаста діаграма',
+  },
   calendarHeatmap: {
     label: 'Календарна теплова карта',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Лінійний графік',
-    thousands: '{{value}} тис.',
   },
   donutChart: {
     label: 'Кільцева діаграма',
@@ -280,9 +260,6 @@ export const wrUk: WrI18nCatalog = {
     pagination: 'Нумерація слайдів',
     roledescription: 'карусель',
     slideRoledescription: 'слайд',
-  },
-  actionSheet: {
-    label: 'Дії',
   },
   alert: {
     close: 'Закрити оповіщення',
@@ -314,12 +291,6 @@ export const wrUk: WrI18nCatalog = {
   // через `[ariaLabel]`.
   popover: {
     label: 'Спливна панель',
-  },
-  markdown: {
-    copy: 'Копіювати код',
-    copied: 'Скопійовано',
-    taskDone: 'Виконано:',
-    taskTodo: 'Не виконано:',
   },
   editor: {
     label: 'Форматований текст',
@@ -394,6 +365,9 @@ export const wrUk: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Бічна панель',
+    containsCurrent: 'містить поточну сторінку',
+    subpages: 'Підсторінки: {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Завантаження',

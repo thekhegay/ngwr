@@ -41,11 +41,7 @@ export default class WrBytesPipePage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrBytes } from 'ngwr/pipes';
-
-@Component({ imports: [WrBytes] })
-export class MyComponent { /* ... */ }`,
-    basic: `{{ 1234 | wrBytes }}  <!-- "1.2 KB" -->`,
+    basic: `{{ 1234 | wrBytes }}  <!-- "1.2 kB" -->`,
     decimals: `{{ 1234567 | wrBytes: 0 }}  <!-- "1 MB" -->
 {{ 1234567 | wrBytes: 2 }}  <!-- "1.18 MB" -->`,
   };
@@ -53,8 +49,7 @@ export class MyComponent { /* ... */ }`,
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'wrBytes',
-      description:
-        'Humanise byte counts using binary (1024-based) units. A `null` / `undefined` / empty value renders as an empty string, so a nullable field needs no guard around it.',
+      description: 'Formats bytes in 1024-based units. `null`, `undefined` and empty render as an empty string.',
       type: '(value: number | string | null | undefined, decimals = 1) => string',
       default: '—',
     },
@@ -65,13 +60,13 @@ export class MyComponent { /* ... */ }`,
       kind: 'Component',
       title: 'wr-file-upload',
       url: ['/reference/components', 'file-upload'],
-      description: 'Show human-readable sizes next to picked files.',
+      description: 'File sizes in a picker.',
     },
     {
       kind: 'Pipe',
       title: 'wrNumber',
       url: ['/reference/pipes', 'wr-number'],
-      description: 'General locale-aware number formatting.',
+      description: 'Any other number.',
     },
   ];
 }

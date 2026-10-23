@@ -1,0 +1,402 @@
+<section class="ngwr-section">
+  <div class="container">
+    <!--
+      No `ngwr-section__lede` around the chip and the heading: the centred head
+      is already a column with the lede's gap, and the lede pins its children to
+      the start edge, which put the chip off-centre above the heading.
+    -->
+    <header class="ngwr-section__head ngwr-section__head--center">
+      <wr-tag color="primary" outlined>Components</wr-tag>
+      <h2 wrTypography variant="h1">Composed in context.</h2>
+      <!--
+        Two sentences, one line each on desktop. The `<br>` sets the break;
+        `&nbsp;` keeps a short word with the next one, so no line ends on
+        "a" or "the" and the last line is never one word.
+      -->
+      <p wrTypography variant="lead" class="ngwr-cbento__lead">
+        Forms, data, navigation and&nbsp;feedback, side&nbsp;by&nbsp;side as&nbsp;in&nbsp;an&nbsp;app.<br
+          class="ngwr-cbento__lead-break"
+        />
+        Every tile is&nbsp;live: type in&nbsp;a&nbsp;field, flip a&nbsp;switch, change the&nbsp;theme.
+      </p>
+    </header>
+
+    <div class="ngwr-cbento__grid">
+      <!-- Tile 1 — Create account (dense form) -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Create account</p>
+          <p wrTypography variant="caption" tone="muted">Form field + input + button</p>
+        </header>
+        <!--
+          No `type="password"` here, and that is the whole fix. An email beside
+          two password fields is a signup form to every browser heuristic, so
+          this tile was filling a visitor's real credential into a marketing
+          page and offering to save a fake one on the way out.
+
+          `autocomplete="new-password"` was the first attempt and it only
+          solves HALF: it suppresses autofill, while the offer to SAVE is a
+          separate heuristic that keys on a password-typed field having been
+          given a value — no `autocomplete` value turns that off, which is why
+          the prompt kept appearing on navigation away from the home page.
+
+          So the two secret fields are plain text masked by
+          `-webkit-text-security`, supported in Chromium, Safari and Firefox
+          112+. A password manager has nothing to recognise, the dots still
+          read as a password to a person, and `autocomplete="off"` on every
+          field keeps the surrounding group out of the autofill half too.
+          Nothing here is a real login, so losing the native reveal control and
+          the manager integration costs the demo nothing.
+        -->
+        <div class="ngwr-cbento__tile-body ngwr-cbento__signin">
+          <wr-form-field label="Full name" required>
+            <input wrInput autocomplete="off" [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" />
+          </wr-form-field>
+          <wr-form-field label="Work email" required>
+            <input
+              wrInput
+              type="email"
+              autocomplete="off"
+              [ngModel]="signupEmail()"
+              (ngModelChange)="signupEmail.set($event)"
+            />
+          </wr-form-field>
+          <wr-form-field label="Password" hint="At least 12 characters." required>
+            <input
+              wrInput
+              type="text"
+              class="ngwr-cbento__secret"
+              autocomplete="off"
+              [ngModel]="signupPassword()"
+              (ngModelChange)="signupPassword.set($event)"
+            />
+          </wr-form-field>
+          <wr-form-field label="Confirm password" required>
+            <input
+              wrInput
+              type="text"
+              class="ngwr-cbento__secret"
+              autocomplete="off"
+              [ngModel]="signupConfirm()"
+              (ngModelChange)="signupConfirm.set($event)"
+            />
+          </wr-form-field>
+          <div class="ngwr-cbento__signin-row">
+            <wr-checkbox [checked]="agreeTerms()" (checkedChange)="agreeTerms.set($event)">
+              I agree to the terms
+            </wr-checkbox>
+          </div>
+          <div class="ngwr-cbento__signin-actions">
+            <wr-btn color="primary" block (click)="onCreateAccount()">Create account</wr-btn>
+            <wr-btn block>Sign in instead</wr-btn>
+          </div>
+        </div>
+      </article>
+
+      <!-- Tile 2 — Stats counter -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Active users</p>
+          <p wrTypography variant="caption" tone="muted">Counter + delta chip</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__stat">
+          <div class="ngwr-cbento__stat-value">
+            <wr-counter [value]="42.1" mode="odometer" [decimals]="1" />
+            <span class="ngwr-cbento__stat-suffix">K</span>
+          </div>
+          <span class="ngwr-cbento__stat-delta">▲ 12.4%</span>
+          <p wrTypography variant="caption" tone="muted">+5.2K this week</p>
+        </div>
+      </article>
+
+      <!-- Tile 3 — Payment -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Amount</p>
+          <p wrTypography variant="caption" tone="muted">Input group + prefix</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__payment">
+          <wr-input-group>
+            <span wrInputPrefix>$</span>
+            <input wrInput aria-label="Amount" [ngModel]="payAmount()" (ngModelChange)="payAmount.set($event)" />
+          </wr-input-group>
+          <wr-form-field>
+            <input wrInput placeholder="Card holder" [ngModel]="payHolder()" (ngModelChange)="payHolder.set($event)" />
+          </wr-form-field>
+          <wr-btn color="primary" block icon="credit-card" iconPosition="start" (click)="onPay()"> Pay now </wr-btn>
+        </div>
+      </article>
+
+      <!-- Tile 4 — Settings switches -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Notifications</p>
+          <p wrTypography variant="caption" tone="muted">Switch stack</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__settings">
+          <div class="ngwr-cbento__setting">
+            <div>
+              <p>Push notifications</p>
+              <p wrTypography variant="caption" tone="muted">Real-time activity</p>
+            </div>
+            <wr-switch ariaLabel="Push notifications" [checked]="notifPush()" (checkedChange)="notifPush.set($event)" />
+          </div>
+          <div class="ngwr-cbento__setting">
+            <div>
+              <p>Daily digest</p>
+              <p wrTypography variant="caption" tone="muted">8:00 AM summary</p>
+            </div>
+            <wr-switch ariaLabel="Daily digest" [checked]="notifDigest()" (checkedChange)="notifDigest.set($event)" />
+          </div>
+          <div class="ngwr-cbento__setting">
+            <div>
+              <p>Beta features</p>
+              <p wrTypography variant="caption" tone="muted">Early access</p>
+            </div>
+            <wr-switch ariaLabel="Beta features" [checked]="notifBeta()" (checkedChange)="notifBeta.set($event)" />
+          </div>
+        </div>
+      </article>
+
+      <!-- Tile 5 — Alert -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Notification</p>
+          <p wrTypography variant="caption" tone="muted">Alert surface</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__alerts">
+          <wr-alert type="success" title="Payment received" message="$129.99 from Roman" />
+          <wr-alert type="info" title="2 new comments" message="View thread" />
+        </div>
+      </article>
+
+      <!-- Tile 6 — Empty state -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Empty state</p>
+          <p wrTypography variant="caption" tone="muted">Empty primitive</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__empty">
+          <wr-empty [title]="emptyTitle">
+            {{ emptyHint }}
+            <wr-btn wrEmptyActions size="sm" color="primary" (click)="onNewProject()">New project</wr-btn>
+          </wr-empty>
+        </div>
+      </article>
+
+      <!-- Tile 7 — Avatar stack + verified -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Team</p>
+          <p wrTypography variant="caption" tone="muted">Avatar stack + badge</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__avatars">
+          <div class="ngwr-cbento__avatar-stack">
+            <!-- Same photograph as the profile tile below, so it carries the same
+                 name — the other four are initials, which is why only this one
+                 needs one. -->
+            <wr-avatar shape="circle" size="2.5rem" url="images/image_1.webp" [alt]="profileName" />
+            <wr-avatar shape="circle" size="2.5rem" alt="Jamie M" class="ngwr-cbento__avatar-text">JM</wr-avatar>
+            <wr-avatar shape="circle" size="2.5rem" alt="Alex K" class="ngwr-cbento__avatar-text">AK</wr-avatar>
+            <wr-avatar shape="circle" size="2.5rem" alt="Riley T" class="ngwr-cbento__avatar-text">RT</wr-avatar>
+            <span role="img" class="ngwr-cbento__avatar-more" aria-label="4 more">+4</span>
+          </div>
+          <div class="ngwr-cbento__avatars-meta">
+            <p>8 collaborators</p>
+            <wr-badge color="success">Synced</wr-badge>
+          </div>
+        </div>
+      </article>
+
+      <!-- Tile 8 — Tags cluster -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Topics</p>
+          <p wrTypography variant="caption" tone="muted">Tag cluster</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__tags">
+          <wr-tag color="primary" outlined>Angular</wr-tag>
+          <wr-tag color="success" outlined>Standalone</wr-tag>
+          <wr-tag color="warning" outlined>Signals</wr-tag>
+          <wr-tag color="primary" outlined>SSR</wr-tag>
+          <wr-tag color="danger" outlined>Zoneless</wr-tag>
+          <wr-tag outlined>A11y</wr-tag>
+        </div>
+      </article>
+
+      <!-- Tile 9 — Tabs -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Tabbed view</p>
+          <p wrTypography variant="caption" tone="muted">Tabs + content</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__tabs">
+          <wr-tabs [(active)]="activeTab">
+            <wr-tab key="overview" title="Overview">
+              <p wrTypography variant="small" tone="muted">Standalone components, signals-first.</p>
+            </wr-tab>
+            <wr-tab key="changes" title="Changes">
+              <p wrTypography variant="small" tone="muted">See the changelog for what shipped.</p>
+            </wr-tab>
+          </wr-tabs>
+        </div>
+      </article>
+
+      <!-- Tile 10 — Pagination -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Page</p>
+          <p wrTypography variant="caption" tone="muted">Pagination</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__pager">
+          <wr-pagination [(page)]="page" [pageSize]="10" [total]="80" />
+          <p wrTypography variant="caption" tone="muted">Showing page {{ page() }} of 8</p>
+        </div>
+      </article>
+
+      <!-- Tile 11 — Profile fields with hint -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Profile</p>
+          <p wrTypography variant="caption" tone="muted">Form field + hint</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__validation">
+          <wr-form-field label="Username" hint="3–20 chars, no spaces." required>
+            <input wrInput [ngModel]="username()" (ngModelChange)="username.set($event)" />
+          </wr-form-field>
+          <wr-form-field label="Workspace" hint="Public, lowercase." optional>
+            <input wrInput [ngModel]="workspace()" (ngModelChange)="workspace.set($event)" />
+          </wr-form-field>
+        </div>
+      </article>
+
+      <!-- Tile 12 — Theme switcher (drives WrTheme) -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Theming</p>
+          <p wrTypography variant="caption" tone="muted">Segmented drives the page theme</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__theme">
+          <wr-segmented [options]="themeOptions" [value]="theme.mode()" (valueChange)="onThemeChange($event)" />
+          <div class="ngwr-cbento__swatches">
+            <span
+              role="img"
+              class="ngwr-cbento__swatch"
+              style="background: var(--wr-color-primary)"
+              aria-label="primary"
+            ></span>
+            <span
+              role="img"
+              class="ngwr-cbento__swatch"
+              style="background: var(--wr-color-info)"
+              aria-label="info"
+            ></span>
+            <span
+              role="img"
+              class="ngwr-cbento__swatch"
+              style="background: var(--wr-color-success)"
+              aria-label="success"
+            ></span>
+            <span
+              role="img"
+              class="ngwr-cbento__swatch"
+              style="background: var(--wr-color-warning)"
+              aria-label="warning"
+            ></span>
+            <span
+              role="img"
+              class="ngwr-cbento__swatch"
+              style="background: var(--wr-color-danger)"
+              aria-label="danger"
+            ></span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Tile 13 — Command palette hint (live search) -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Search</p>
+          <p wrTypography variant="caption" tone="muted">Input + kbd shortcut</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__cmd">
+          <wr-input-group>
+            <input
+              wrInput
+              placeholder="Search components, docs, …"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+            />
+            <span class="ngwr-cbento__cmd-hint">
+              <span class="ngwr-cbento__kbd">⌘</span><span class="ngwr-cbento__kbd">K</span>
+            </span>
+          </wr-input-group>
+          @if (searchQuery()) {
+            <p wrTypography variant="caption" tone="muted">Typing: "{{ searchQuery() }}"</p>
+          } @else {
+            <p wrTypography variant="caption" tone="muted">Press ⌘K from anywhere on the docs.</p>
+          }
+        </div>
+      </article>
+
+      <!-- Tile 14 — Loading skeleton card -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Loading</p>
+          <p wrTypography variant="caption" tone="muted">Skeleton placeholders</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__skeleton">
+          <div class="ngwr-cbento__sk-row">
+            <wr-skeleton class="ngwr-cbento__sk-avatar" />
+            <div class="ngwr-cbento__sk-lines">
+              <wr-skeleton class="ngwr-cbento__sk-line ngwr-cbento__sk-line--sm" />
+              <wr-skeleton class="ngwr-cbento__sk-line ngwr-cbento__sk-line--xs" />
+            </div>
+          </div>
+          <wr-skeleton class="ngwr-cbento__sk-line" />
+          <wr-skeleton class="ngwr-cbento__sk-line" />
+          <wr-skeleton class="ngwr-cbento__sk-line ngwr-cbento__sk-line--md" />
+        </div>
+      </article>
+
+      <!-- Tile 15 — Profile card -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Profile</p>
+          <p wrTypography variant="caption" tone="muted">Avatar + meta + tags</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__profile">
+          <div class="ngwr-cbento__profile-head">
+            <!-- `alt=""` is NOT decorative here: `WrAvatar` resolves an empty
+                 alt through the i18n catalog and lands on the generic "Avatar",
+                 so the portrait announced itself as nothing beside the name
+                 printed next to it. It takes the name. -->
+            <wr-avatar url="images/image_1.webp" size="3rem" [alt]="profileName" />
+            <div>
+              <p>{{ profileName }}</p>
+              <p wrTypography variant="caption" tone="muted">Founding engineer</p>
+            </div>
+          </div>
+          <div class="ngwr-cbento__profile-tags">
+            <wr-tag color="primary" outlined>Angular</wr-tag>
+            <wr-tag color="success" outlined>Lead</wr-tag>
+            <wr-tag outlined>Asia/Tashkent</wr-tag>
+          </div>
+          <wr-btn block icon="checkmark" iconPosition="start" (click)="onFollow()">Follow</wr-btn>
+        </div>
+      </article>
+
+      <!-- Tile 16 — Code snippet card -->
+      <article class="ngwr-cbento__tile">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Install</p>
+          <p wrTypography variant="caption" tone="muted">Drop-in component</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__code">
+          <ngwr-doc-code [code]="codeSnippet" language="angular-ts" />
+          <p wrTypography variant="caption" tone="muted">Each entry point compiles on its own.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

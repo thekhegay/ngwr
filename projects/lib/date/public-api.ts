@@ -1,6 +1,5 @@
-export { WrDateAdapter } from './wr-date-adapter';
-export { WrNativeDateAdapter } from './wr-native-date-adapter';
-export { provideWrDateAdapter, type WrDateAdapterOptions } from './provide-wr-date-adapter';
+export { WrDateAdapter, WrNativeDateAdapter, isNamedFormat } from './wr-date-adapter';
+export { toLocalDate } from './local-date';
+export { withDates } from './with-dates';
 export { WR_DATE_LOCALE } from './tokens';
-export type { WrDateFormat } from './interfaces';
-export { isNamedFormat } from './wr-native-date-adapter';
+export type { WrDateFormat, WrDatesOptions } from './types';

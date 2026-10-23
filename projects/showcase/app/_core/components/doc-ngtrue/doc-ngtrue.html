@@ -1,0 +1,53 @@
+@if (variant() === 'feature') {
+  <wr-card class="ngwr-ngtrue">
+    <div class="ngwr-ngtrue__grid">
+      <div class="ngwr-ngtrue__copy">
+        <div class="ngwr-ngtrue__brand">
+          <span class="ngwr-icon-chip" data-tone="primary" aria-hidden="true">
+            <wr-icon name="ngtrue" />
+          </span>
+          <h3 class="ngwr-ngtrue__name">ngtrue</h3>
+        </div>
+
+        <p class="ngwr-ngtrue__tagline">Checks that keep an Angular library true.</p>
+
+        <ul class="ngwr-ngtrue__items">
+          @for (item of items; track item.title) {
+            <li class="ngwr-ngtrue__item">
+              <span class="ngwr-icon-chip ngwr-icon-chip--sm" data-tone="primary" aria-hidden="true">
+                <wr-icon [name]="item.icon" />
+              </span>
+              <span class="ngwr-ngtrue__item-text">
+                <span class="ngwr-ngtrue__item-title">{{ item.title }}</span>
+                <span class="ngwr-ngtrue__item-desc" [innerHTML]="item.description | wrDocRich"></span>
+              </span>
+            </li>
+          }
+        </ul>
+
+        <div class="ngwr-ngtrue__cta">
+          <a wr-btn outlined icon="arrow-forward" iconPosition="end" [href]="docsUrl" target="_blank" rel="noreferrer">
+            ngtrue docs
+          </a>
+          <a wr-btn outlined icon="github" [href]="repoUrl" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+      </div>
+
+      <div class="ngwr-ngtrue__code">
+        <ngwr-doc-install packages="ngtrue" [dev]="true" />
+        <ngwr-doc-code [code]="sample" language="typescript" />
+      </div>
+    </div>
+  </wr-card>
+} @else {
+  <a class="ngwr-link-card ngwr-ngtrue-card" [href]="pageUrl()" target="_blank" rel="noreferrer">
+    <span class="ngwr-icon-chip ngwr-icon-chip--sm" data-tone="primary" aria-hidden="true">
+      <wr-icon name="ngtrue" />
+    </span>
+    <span class="ngwr-ngtrue-card__text">
+      <span class="ngwr-link-card__title">ngtrue</span>
+      <span class="ngwr-link-card__desc" [innerHTML]="pitch() | wrDocRich"></span>
+    </span>
+    <wr-icon class="ngwr-ngtrue-card__arrow" name="arrow-forward" />
+  </a>
+}

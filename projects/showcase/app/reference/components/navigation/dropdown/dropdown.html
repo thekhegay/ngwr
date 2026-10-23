@@ -1,0 +1,103 @@
+<ngwr-doc-page
+  title="Dropdown"
+  updated="15.0.0"
+  description="A menu that opens from any trigger."
+  [keywords]="['dropdown', 'menu', 'wr-dropdown', 'overlay']"
+  [labels]="['Directive', 'Components', 'CDK Overlay']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Point `[wrDropdown]` at a `<wr-dropdown-menu>`. A click on an item does not close the menu; call `close()` on the trigger."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <button type="button" wr-btn color="primary" [wrDropdown]="basicMenu">Actions</button>
+      <wr-dropdown-menu #basicMenu>
+        <wr-dropdown-item icon="copy-outline">Copy</wr-dropdown-item>
+        <wr-dropdown-item icon="download">Download</wr-dropdown-item>
+        <wr-dropdown-item icon="trash">Delete</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Positions" description="Set `position`. A menu that does not fit flips to the other side.">
+    <ngwr-doc-snippet [code]="snippets.positions">
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="bottom-start">Bottom start</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="bottom">Bottom</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="bottom-end">Bottom end</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="top-start">Top start</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="top">Top</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="top-end">Top end</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="left">Left</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="right">Right</button>
+      <wr-dropdown-menu #positionMenu>
+        <wr-dropdown-item icon="cog">Settings</wr-dropdown-item>
+        <wr-dropdown-item icon="external-outline">Help</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Arrow"
+    description='On by default. Set `[arrow]="false"` on a menu with no padding or with clipped overflow.'
+  >
+    <ngwr-doc-snippet [code]="snippets.arrow">
+      <button type="button" wr-btn [wrDropdown]="arrowMenu">With arrow</button>
+      <button type="button" wr-btn [wrDropdown]="arrowMenu" [arrow]="false">Without arrow</button>
+      <wr-dropdown-menu #arrowMenu>
+        <wr-dropdown-item icon="copy-outline">Copy</wr-dropdown-item>
+        <wr-dropdown-item icon="download">Download</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Hover trigger" description="Closes when the pointer leaves both the trigger and the menu.">
+    <ngwr-doc-snippet [code]="snippets.hover">
+      <button type="button" wr-btn [wrDropdown]="hoverMenu" trigger="hover">Hover me</button>
+      <wr-dropdown-menu #hoverMenu>
+        <wr-dropdown-item>Item 1</wr-dropdown-item>
+        <wr-dropdown-item>Item 2</wr-dropdown-item>
+        <wr-dropdown-item>Item 3</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled item">
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <button type="button" wr-btn [wrDropdown]="disabledMenu">Open</button>
+      <wr-dropdown-menu #disabledMenu>
+        <wr-dropdown-item icon="copy-outline">Copy</wr-dropdown-item>
+        <wr-dropdown-item icon="cog" disabled>Disabled item</wr-dropdown-item>
+        <wr-dropdown-item icon="trash">Delete</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Template reference"
+    description="The trigger exports `wrDropdown`, so the template can open, close or read the menu."
+  >
+    <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The trigger keeps its own id"
+    description="Set your own `id` for tests: the generated one changes between pages."
+  >
+    <ngwr-doc-code [code]="snippets.triggerId" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Scrolling containers"
+    description="Add `cdkScrollable` to your own scrolling box, or the menu drifts from its trigger. Every anchored ngwr overlay needs it."
+  >
+    <ngwr-doc-code [code]="snippets.scrollable" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Directive API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Item API">
+    <ngwr-doc-api [rows]="itemApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

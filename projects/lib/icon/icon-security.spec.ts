@@ -3,11 +3,11 @@ import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { feather } from './adapters/feather/adapter';
-import { lucide, type LucideIconNode } from './adapters/lucide/adapter';
 import { WrIcon } from './icon';
+import { lucide } from './lucide';
 import { provideWrIcons } from './providers/provide-wr-icons';
 import { svgIcon } from './svg-icon';
+import type { LucideIconNode } from './types';
 import { sanitizeIcon } from './utils';
 
 /**
@@ -34,12 +34,6 @@ const PAYLOADS = {
   foreignObject: `<svg viewBox="0 0 24 24"><foreignObject><body xmlns="http://www.w3.org/1999/xhtml"><img src=x onerror="window.__hit('icon-foreignobject')"></body></foreignObject></svg>`,
   script: `<svg viewBox="0 0 24 24"></svg><script>window.__hit('icon-script')</script>`,
   animate: `<svg viewBox="0 0 24 24"><a><animate attributeName="href" values="javascript:window.__hit('icon-animate')"/><text x="0" y="12">click</text></a></svg>`,
-} as const;
-
-/** Inner SVG handed to `feather()`, which interpolates it into a fixed shell. */
-const FEATHER_INNER = {
-  image: `<image href="x" onerror="window.__hit('feather-inner-image')"/>`,
-  shellEscape: `</svg><img src=x onerror="window.__hit('feather-shell-escape')">`,
 } as const;
 
 /** IconNode tuples handed to `lucide()`, whose serializer built `${key}="${value}"`. */
@@ -181,27 +175,9 @@ describe('WrIcon treats registered icon data as untrusted', () => {
     });
   });
 
-  describe('through the shipped adapters', () => {
-    it('neutralises inner SVG carrying a handler', () => {
-      const host = render(feather('plus', FEATHER_INNER.image).data);
-
-      expect(host.querySelector('image')).toBeNull();
-      expect(attributesOf(host)).not.toContain('onerror');
-    });
-
-    it('neutralises inner SVG that closes the envelope early', () => {
-      // `innerSvg` is markup by construction, so `feather()` cannot escape it
-      // and stay the adapter it is. Only the first <svg> root is rebuilt, so
-      // what the payload opens after closing the shell is not a child of
-      // anything and never lands.
-      const data = feather('plus', FEATHER_INNER.shellEscape).data;
-      expect(throughInnerHtml(data).querySelector('img')).not.toBeNull();
-
-      const host = render(data);
-
-      expect(host.querySelector('img')).toBeNull();
-    });
-
+  // Feather registers through `svgIcon()` like every other set that ships SVG,
+  // so its payloads are the direct-registration ones above.
+  describe('through the lucide converter', () => {
     it('serializes a hostile attribute value without letting it break out', () => {
       // The serialiser defect, tested where it lives: the quote in the value
       // used to close `href` and open `onerror` as a second, real attribute.

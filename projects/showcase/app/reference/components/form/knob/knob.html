@@ -1,0 +1,62 @@
+<ngwr-doc-page
+  title="Knob"
+  description="Pick a number by turning a dial."
+  [keywords]="['knob', 'dial', 'wr-knob']"
+  [labels]="['Signal Forms']"
+>
+  <ngwr-doc-section title="Basic" description="Bind a number with `[(value)]` or [any Angular form](/guides/forms).">
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center">
+        <wr-knob [(value)]="value" />
+        <wr-knob [(value)]="volume" suffix="%" valueColor="var(--wr-color-success)" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Size and stroke"
+    description="`size` is the diameter and `strokeWidth` the arc thickness, both numbers in px."
+  >
+    <ngwr-doc-code [code]="sizeSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center">
+        <wr-knob [(value)]="value" [size]="64" [strokeWidth]="5" />
+        <wr-knob [(value)]="value" [size]="120" />
+        <wr-knob [(value)]="value" [size]="160" [strokeWidth]="14" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Without the readout"
+    description='`[showValue]="false"` hides the number; give the knob an `ariaLabel`.'
+  >
+    <ngwr-doc-code [code]="noValueSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-knob [(value)]="volume" [showValue]="false" ariaLabel="Volume" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Read-only and disabled"
+    description="Read-only keeps its tab stop and refuses changes; disabled leaves the tab order."
+  >
+    <ngwr-doc-code [code]="statesSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center">
+        <wr-knob [value]="62" readonly ariaLabel="Read-only" />
+        <wr-knob [value]="62" disabled ariaLabel="Disabled" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard"
+    description="Arrows move one step, Shift + arrow ten steps, Home / End jump to the ends."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

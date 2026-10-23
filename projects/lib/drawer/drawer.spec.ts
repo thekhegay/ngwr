@@ -2,12 +2,11 @@ import { Dir, type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDrawerFooter, WrDrawerTitle } from './directives';
 import { WrDrawer } from './drawer';
-import type { WrDrawerPosition } from './interfaces';
+import type { WrDrawerPosition } from './types';
 
 @Component({
   imports: [WrDrawer],
@@ -19,7 +18,6 @@ import type { WrDrawerPosition } from './interfaces';
       [closeOnEscape]="closeOnEscape()"
       [closeOnBackdropClick]="closeOnBackdropClick()"
       [closeLabel]="closeLabel()"
-      [showHandle]="showHandle()"
     >
       <p class="body">Drawer body</p>
     </wr-drawer>
@@ -28,7 +26,6 @@ import type { WrDrawerPosition } from './interfaces';
 class Host {
   readonly open = signal(false);
   readonly position = signal<WrDrawerPosition>('right');
-  readonly showHandle = signal(false);
   readonly closable = signal(true);
   readonly closeOnEscape = signal(true);
   readonly closeOnBackdropClick = signal(true);
@@ -60,8 +57,8 @@ class TitleHost {
 /**
  * The declarative half of the drawer — the imperative `WrDrawerManager` has its
  * own suite. The panel mounts into the CDK overlay container rather than the
- * fixture, so everything inside it is queried off `document`, and
- * `provideWrOverlay()` keeps this file's container out of the next one's.
+ * fixture, so everything inside it is queried off `document`; the container
+ * belongs to the TestBed's root injector, so it never outlives this file.
  *
  * `position` is a real mode axis, not a style flag: `bottom` is how the drawer
  * doubles as a bottom sheet, and each side lands its own overlay class that
@@ -87,7 +84,6 @@ describe('WrDrawer', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -117,7 +113,6 @@ describe('WrDrawer', () => {
 
   it('names the dialog from whichever title is in the panel right now', async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const titled = TestBed.createComponent(TitleHost);
     titled.detectChanges();
 
@@ -305,112 +300,159 @@ describe('WrDrawer', () => {
       expect(fixture.componentInstance.open()).toBe(false);
     });
   });
+});
 
-  /**
-   * The handle belongs on the LEADING edge — the one the panel is dragged away
-   * from — so it is a row at the top of a bottom sheet and a rail on the inner
-   * vertical edge of a side drawer. On the two side positions it leaves the
-   * flow, which is why the panel publishes `--handle`: only the panel can
-   * reserve the gutter the rail floats over.
-   *
-   * The class is all a unit test can honestly hold. jsdom lays nothing out, so
-   * "the rail is on the inner edge" would answer identically for a working
-   * component and for the one that drew a horizontal bar on all four sides —
-   * that half is a rendered check.
-   */
-  describe('grab handle', () => {
-    const panelDiv = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer__panel')!;
+/**
+ * `hasBackdrop: false` is a NON-MODAL side panel. Nothing covers the page, so
+ * nothing may trap the reader either: the page stays reachable by Tab and
+ * pointer and keeps scrolling, an Escape pressed on the page belongs to the
+ * page, and closing never drags focus back off something the reader moved to.
+ * What a modal does on the way in and out still holds for focus that is INSIDE
+ * the panel.
+ *
+ * jsdom lays nothing out, so the CDK's `InteractivityChecker` reads every
+ * element as invisible and initial focus would never move: elements are handed
+ * a box, which is a test-environment shim and not a claim about the component.
+ */
+describe('WrDrawer without a backdrop', () => {
+  @Component({
+    imports: [WrDrawer],
+    template: `
+      <button type="button" class="opener" (click)="open.set(true)">Open</button>
+      <input class="page-field" />
+      <wr-drawer [(open)]="open" [hasBackdrop]="hasBackdrop()" [closable]="false">
+        <button type="button" class="inside">Inside</button>
+      </wr-drawer>
+    `,
+  })
+  class PanelHost {
+    readonly open = signal(false);
+    readonly hasBackdrop = signal(false);
+  }
 
-    it('draws no handle and claims no gutter by default', () => {
-      open();
+  let fixture: ReturnType<typeof TestBed.createComponent<PanelHost>>;
 
-      expect(document.querySelector('.wr-drawer__handle')).toBeNull();
-      expect(panelDiv().classList.contains('wr-drawer__panel--handle')).toBe(false);
-    });
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-drawer-overlay');
+  const q = (selector: string): HTMLElement => document.querySelector<HTMLElement>(selector)!;
+  const escapeFrom = (el: Element): void => {
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
 
-    it('marks the panel alongside every side, so the affordance can follow position', () => {
-      for (const position of ['left', 'right', 'top', 'bottom'] as const) {
-        fixture.componentInstance.position.set(position);
-        fixture.componentInstance.showHandle.set(true);
-        fixture.detectChanges();
-        open();
+  const openFrom = async (opener: HTMLElement): Promise<void> => {
+    opener.focus();
+    fixture.componentInstance.open.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
 
-        expect(document.querySelector('.wr-drawer__handle')).not.toBeNull();
-        expect(panelDiv().classList.contains('wr-drawer__panel--handle')).toBe(true);
-        expect(panelDiv().classList.contains(`wr-drawer__panel--${position}`)).toBe(true);
-
-        fixture.componentInstance.open.set(false);
-        fixture.detectChanges();
-      }
-    });
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      new DOMRect(0, 0, 120, 32),
+    ] as unknown as DOMRectList);
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(PanelHost);
+    fixture.detectChanges();
   });
 
-  describe('swipe to dismiss', () => {
-    const swipePanel = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer__panel')!;
-    const handle = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer__handle')!;
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
 
-    /**
-     * jsdom has neither `PointerEvent` nor pointer capture, so the gesture is
-     * driven with `MouseEvent`s carrying the two properties the handlers read —
-     * the idiom `wr-splitter`'s spec uses. `isPrimary` has to be set explicitly:
-     * it does not exist on `MouseEvent`, and the start guard rejects `undefined`.
-     */
-    const pointer = (type: string, clientY: number): void => {
-      const el = handle();
-      el.setPointerCapture = (): undefined => undefined;
-      el.releasePointerCapture = (): undefined => undefined;
-      const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientY });
-      Object.defineProperty(event, 'isPrimary', { value: true });
-      el.dispatchEvent(event);
-      fixture.detectChanges();
-    };
+  it('stays a dialog, without claiming to be modal', async () => {
+    await openFrom(q('.opener'));
 
-    const openSheet = (): void => {
-      fixture.componentInstance.position.set('bottom');
-      fixture.componentInstance.showHandle.set(true);
-      fixture.detectChanges();
-      open();
-      // jsdom lays nothing out, so the panel measures 0 and every drag clears
-      // 30% of it. A stubbed 400px gives the threshold a real number.
-      Object.defineProperty(swipePanel(), 'offsetHeight', { value: 400, configurable: true });
-    };
+    expect(panel()!.getAttribute('role')).toBe('dialog');
+    expect(panel()!.hasAttribute('aria-modal')).toBe(false);
+    expect(document.querySelector('.cdk-overlay-backdrop')).toBeNull();
+  });
 
-    it('closes on a release past 30% of the panel', () => {
-      openSheet();
+  it('still moves focus into the panel on open', async () => {
+    await openFrom(q('.opener'));
 
-      pointer('pointerdown', 0);
-      pointer('pointermove', 160);
-      pointer('pointerup', 160);
+    expect(document.activeElement).toBe(q('.inside'));
+  });
 
-      expect(fixture.componentInstance.open()).toBe(false);
-    });
+  it('lets focus leave for the page, and leaves it there', async () => {
+    await openFrom(q('.opener'));
 
-    it('snaps back on a release short of the threshold', () => {
-      openSheet();
+    // No trap anchors to wrap Tab around, and no inert strategy pulling focus
+    // back in — a modal trap re-focuses the panel a task after focus leaves it.
+    expect(document.querySelectorAll('.cdk-focus-trap-anchor')).toHaveLength(0);
+    q('.page-field').focus();
+    await new Promise(resolve => setTimeout(resolve));
 
-      pointer('pointerdown', 0);
-      pointer('pointermove', 40);
-      pointer('pointerup', 40);
+    expect(document.activeElement).toBe(q('.page-field'));
+  });
 
-      expect(fixture.componentInstance.open()).toBe(true);
-      expect(swipePanel().style.transform).toBe('');
-    });
+  it('leaves the page scrolling', async () => {
+    // The CDK's block strategy only engages on a page that can scroll at all.
+    vi.spyOn(document.documentElement, 'scrollHeight', 'get').mockReturnValue(5000);
+    await openFrom(q('.opener'));
 
-    it('abandons a cancelled swipe instead of dismissing on it', () => {
-      // `pointercancel` was wired to the RELEASE handler, so a gesture the
-      // system took away — a call, a second finger, an orientation change —
-      // dismissed the drawer past a threshold the user never let go at, and the
-      // overlay was disposed at the dragged offset so there was nothing to
-      // take back.
-      openSheet();
+    expect(document.documentElement.classList).not.toContain('cdk-global-scrollblock');
+  });
 
-      pointer('pointerdown', 0);
-      pointer('pointermove', 160);
-      pointer('pointercancel', 160);
+  it('closes on Escape while focus is inside it', async () => {
+    await openFrom(q('.opener'));
 
-      expect(fixture.componentInstance.open()).toBe(true);
-      expect(swipePanel().style.transform).toBe('');
-    });
+    escapeFrom(q('.inside'));
+
+    expect(fixture.componentInstance.open()).toBe(false);
+  });
+
+  it('leaves an Escape pressed on the page to the page', async () => {
+    await openFrom(q('.opener'));
+    q('.page-field').focus();
+
+    escapeFrom(q('.page-field'));
+
+    expect(fixture.componentInstance.open()).toBe(true);
+  });
+
+  it('still closes on Escape after a click on its text drops focus to the body', async () => {
+    await openFrom(q('.opener'));
+    // A click on non-focusable content inside the panel focuses nothing, so
+    // the browser parks focus on `<body>` — the commonest way of being inside.
+    q('.inside').blur();
+    expect(document.activeElement).toBe(document.body);
+
+    escapeFrom(document.body);
+
+    expect(fixture.componentInstance.open()).toBe(false);
+  });
+
+  it('returns focus to the opener when it closes from inside', async () => {
+    await openFrom(q('.opener'));
+
+    escapeFrom(q('.inside'));
+
+    expect(document.activeElement).toBe(q('.opener'));
+  });
+
+  it('does not take focus back from a page field the reader moved to', async () => {
+    await openFrom(q('.opener'));
+    q('.page-field').focus();
+
+    fixture.componentInstance.open.set(false);
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(q('.page-field'));
+  });
+
+  it('is modal again with a backdrop', async () => {
+    vi.spyOn(document.documentElement, 'scrollHeight', 'get').mockReturnValue(5000);
+    // The block strategy restores the scroll position on close; jsdom has no `scroll()`.
+    vi.spyOn(window, 'scroll').mockImplementation(() => undefined);
+    fixture.componentInstance.hasBackdrop.set(true);
+    await openFrom(q('.opener'));
+
+    expect(panel()!.getAttribute('aria-modal')).toBe('true');
+    expect(document.documentElement.classList).toContain('cdk-global-scrollblock');
+    q('.page-field').focus();
+    await new Promise(resolve => setTimeout(resolve));
+    expect(document.activeElement).toBe(q('.inside'));
   });
 });
 
@@ -486,7 +528,6 @@ describe('WrDrawer follows a direction change while it is open', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(DirHost);
     dir = TestBed.inject(Directionality);
     fixture.detectChanges();
@@ -510,8 +551,8 @@ describe('WrDrawer follows a direction change while it is open', () => {
 
     // `flex-end` on an RTL row IS the physical left. Without the reposition the
     // wrapper would keep `flex-start` under a reversed axis and the drawer
-    // would be on the right — with its rounded corners, its handle gutter and
-    // its safe-area padding all still cut for a left-anchored panel.
+    // would be on the right — with its rounded corners and its safe-area
+    // padding still cut for a left-anchored panel.
     expect(wrapper().style.justifyContent).toBe('flex-end');
   });
 
@@ -530,7 +571,7 @@ describe('WrDrawer follows a direction change while it is open', () => {
  * it: the panel is appended to the overlay container on `<body>`, and the CDK
  * stamps it with the direction it read from the APPLICATION's `Directionality`
  * — `createOverlayRef` resolves that off the `Overlay`'s own injector, which
- * `provideWrOverlay()` parents to the environment one, where a node-level
+ * `WR_OVERLAY` parents to the environment one, where a node-level
  * `[dir]` never appears. The follower reads that same instance, and these two
  * cases are what hold it there: an island must not rewrite a panel one pass
  * after it opened, and must not shadow a real application flip either.
@@ -566,7 +607,6 @@ describe('WrDrawer follows the application, not a scoped [dir] island', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(IslandHost);
     app = TestBed.inject(Directionality);
     fixture.detectChanges();

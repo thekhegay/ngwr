@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
-import { WrHaptics, WrPlatform, WrVisualViewport } from 'ngwr/platform';
+import { WrHaptics, WrPlatform } from 'ngwr/platform';
 
 import {
   DocApiComponent,
@@ -29,16 +29,12 @@ import {
 })
 export default class PlatformServicePageComponent {
   private readonly platformService = inject(WrPlatform);
-  private readonly visualViewport = inject(WrVisualViewport);
   protected readonly haptics = inject(WrHaptics);
   protected readonly hapticsSupported = this.haptics.supported;
 
   protected readonly prefersDark = this.platformService.prefersDark;
   protected readonly prefersReducedMotion = this.platformService.prefersReducedMotion;
   protected readonly isBrowser = this.platformService.isBrowser;
-
-  protected readonly bottomInset = this.visualViewport.bottomInset;
-  protected readonly offsetTop = this.visualViewport.offsetTop;
 
   protected readonly snippets = {
     usage: `private readonly platform = inject(WrPlatform);
@@ -47,30 +43,13 @@ if (this.platform.isBrowser) {
   localStorage.setItem('theme', 'dark');
 }
 
-protected readonly dark = this.platform.prefersDark;       // Signal<boolean>
-protected readonly reduce = this.platform.prefersReducedMotion;`,
-    viewport: `private readonly vv = inject(WrVisualViewport);
-
-// Height (px) the on-screen keyboard hides at the bottom — 0 when there
-// is none, on the server, or in browsers without the VisualViewport API.
-protected readonly keyboard = this.vv.bottomInset;         // Signal<number>
-
-// Also mirrored onto the document root as \`--wr-keyboard-inset\`, so purely
-// presentational surfaces can lift above the keyboard with CSS alone:
-//   padding-bottom: max(env(safe-area-inset-bottom), var(--wr-keyboard-inset, 0px));`,
+protected readonly dark = this.platform.prefersDark; // Signal<boolean>
+protected readonly reduce = this.platform.prefersReducedMotion; // Signal<boolean>`,
     haptics: `private readonly haptics = inject(WrHaptics);
 
-onConfirmDelete(): void {
-  this.haptics.warning();          // buzz before a destructive action
-}
-
-onToggle(): void {
-  this.haptics.selection();        // subtle tick on a switch / segmented change
-}
-
-// No-op off-device: false on the server, in browsers without the Vibration
-// API, and on iOS Safari (native-only haptics). Branch on \`supported\`.
-protected readonly canBuzz = this.haptics.supported;`,
+this.haptics.warning(); // before a destructive action
+this.haptics.selection(); // on a switch or segmented change
+this.haptics.supported; // false on the server and in iOS Safari`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -95,38 +74,22 @@ protected readonly canBuzz = this.haptics.supported;`,
     },
   ];
 
-  protected readonly viewportApi: readonly DocApiRow[] = [
-    {
-      name: 'bottomInset',
-      description:
-        'Height (px) the on-screen keyboard / browser chrome hides at the viewport bottom. `0` when nothing covers it, on the server, or without the API.',
-      type: 'Signal<number>',
-      default: '—',
-    },
-    {
-      name: 'offsetTop',
-      description: "The visual viewport's top offset (px).",
-      type: 'Signal<number>',
-      default: '—',
-    },
-  ];
-
   protected readonly hapticsApi: readonly DocApiRow[] = [
     {
       name: 'supported',
-      description: 'Whether the Vibration API is available (browser + `navigator.vibrate`; `false` on iOS Safari).',
+      description: 'Whether the Vibration API exists. `false` on iOS Safari.',
       type: 'boolean',
       default: '—',
     },
     {
       name: 'vibrate(pattern)',
-      description: 'Raw pattern — ms, or `[buzz, pause, …]`. Returns whether it fired; `0` / `[]` cancels.',
+      description: 'Vibrate for ms, or a `[buzz, pause, …]` pattern. `0` or `[]` cancels.',
       type: '(number | readonly number[]) => boolean',
       default: '—',
     },
     {
       name: 'impact(strength?)',
-      description: 'A physical tap — `light` / `medium` / `heavy`.',
+      description: 'A tap: `light`, `medium` or `heavy`.',
       type: "('light'|'medium'|'heavy') => boolean",
       default: "'medium'",
     },
@@ -138,7 +101,7 @@ protected readonly canBuzz = this.haptics.supported;`,
     },
     {
       name: 'success() / warning() / error()',
-      description: 'Notification pulses for completed / risky / failed actions.',
+      description: 'Pulses for a done, risky or failed action.',
       type: '() => boolean',
       default: '—',
     },
@@ -150,15 +113,6 @@ protected readonly canBuzz = this.haptics.supported;`,
       kind: 'Guide',
       title: 'Server-side rendering',
       url: ['/guides', 'ssr'],
-      description:
-        'What every browser-shaped API in the library answers during a server render, which two overlay calls are NOT no-ops there, and the two markup shapes that break hydration.',
-    },
-    {
-      kind: 'Service',
-      title: 'WrMedia',
-      url: ['/reference/services', 'media'],
-      description:
-        'Breakpoint signals. Like the probes here they never throw on the server — and like them they answer a default rather than the truth.',
     },
   ];
 }

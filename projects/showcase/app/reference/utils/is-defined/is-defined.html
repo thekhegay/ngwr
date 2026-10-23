@@ -1,18 +1,11 @@
 <ngwr-doc-page
   title="isDefined"
-  description="Type-narrowing predicate that filters out `null` and `undefined` — perfect as the callback for `Array.filter` when you want a strictly-typed non-nullish list."
+  description="Type guard that drops `null` and `undefined`, for use with `Array.filter`."
   [keywords]="['isDefined', 'type guard', 'utils']"
   [labels]="['Util']"
 >
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="TypeScript doesn't narrow through inline arrow predicates, so `arr.filter(x => x !== null && x !== undefined)` returns `(T | null | undefined)[]` — still nullable. A named function with a type-predicate signature narrows the array element. It's tiny but actually pays off in code that walks collections of optionals."
-  >
-    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

@@ -1,18 +1,11 @@
 <ngwr-doc-page
   title="getRootFontSize"
-  description="Read the document root's computed font-size in pixels. Used internally by `resolveCssSize` to convert rem-based values to px."
+  description="Reads the root font size in pixels, for converting `rem` to `px`."
   [keywords]="['getRootFontSize', 'rem', 'utils']"
   [labels]="['Util']"
 >
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="There's no built-in way to read the root font-size in TS — the recipe (`parseFloat(getComputedStyle(document.documentElement).fontSize)`) is verbose, easy to mistype (people often grab `body` instead of `documentElement`), and crashes during SSR where `document` is undefined. ngwr wraps it once, SSR-safely."
-  >
-    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

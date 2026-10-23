@@ -1,0 +1,108 @@
+<ngwr-doc-page
+  title="Image Cropper"
+  description="Crop an image and get the result as a `Blob`."
+  [keywords]="['image', 'cropper', 'crop', 'wr-image-cropper']"
+  [labels]="['Composite']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Drag the box to move it and a handle to resize it; `(cropped)` emits a `Blob` after each drag."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
+        <button wr-btn type="button" (click)="picker.click()">Choose an image</button>
+        <input #picker type="file" accept="image/*" hidden (change)="onFileChange($event)" />
+        <wr-image-cropper [src]="src()" (cropped)="onCropped($event)" />
+        @if (previewUrl()) {
+          <div>
+            <small style="display: block; color: var(--wr-color-on-surface-muted); margin-bottom: 0.25rem"
+              >Preview</small
+            >
+            <img
+              [src]="previewUrl()"
+              alt="Cropped preview"
+              style="
+                max-width: 12rem;
+                max-height: 12rem;
+                border: 1px solid var(--wr-border-base);
+                border-radius: 0.375rem;
+              "
+            />
+          </div>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Square (1:1)" description="`aspectRatio` locks the shape of the box.">
+    <ngwr-doc-code [code]="snippets.square" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-image-cropper [src]="square()" [aspectRatio]="1" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Load errors"
+    description="An unreadable source fires `(loadError)` and sets `status()` to `'failed'`; the cropper shows no message, so show your own. A URL on another origin needs CORS headers, or it fails the same way."
+  >
+    <ngwr-doc-code [code]="snippets.loadError" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.loadErrorTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+          <button wr-btn type="button" size="sm" (click)="pickUnreadable()">Pick an unreadable file</button>
+          <button wr-btn type="button" size="sm" outlined (click)="unreadable.set('/images/image_1.webp')">
+            Back to the photo
+          </button>
+        </div>
+        <wr-image-cropper #unreadableCropper [src]="unreadable()" (loadError)="lastError.set($event)" />
+        @if (unreadableCropper.status() === 'failed') {
+          <wr-alert type="danger" title="This image could not be opened" [message]="unreadableMessage()" />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Export size"
+    description="`maxOutputSize` caps the longest side of the exported image; a smaller crop is not upscaled."
+  >
+    <ngwr-doc-code [code]="snippets.maxOutputSize" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Keyboard" description="Focus the crop box to move and resize it from the keyboard.">
+    <div class="ngwr-table ngwr-keys">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Arrow keys</wr-kbd></th>
+            <td>Move by 1px.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Shift + arrows</wr-kbd></th>
+            <td>Move by 10px.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Alt + arrows</wr-kbd></th>
+            <td>Resize from the right or bottom edge: Left and Right change the width, Up and Down the height.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Shift + Alt + arrows</wr-kbd></th>
+            <td>Resize by 10px.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

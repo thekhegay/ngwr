@@ -1,0 +1,222 @@
+<ngwr-doc-page
+  title="Editor"
+  updated="15.0.0"
+  description="Rich-text editor whose value is the document as a JSON tree."
+  [keywords]="['editor', 'wr-editor', 'rich text', 'wysiwyg', 'prosemirror', 'json']"
+  [labels]="['Component', 'Signal Forms', 'SSR-safe']"
+  since="14.9.0"
+>
+  <ngwr-doc-section title="Peer dependencies" description="Install ProseMirror to use the editor.">
+    <ngwr-doc-install [packages]="prosemirror" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="`[(value)]` is the document as a `WrEditorJson` tree, or `null` while nothing is written."
+  >
+    <ngwr-doc-snippet [files]="basicFiles">
+      <div class="editor-demo">
+        <wr-editor ariaLabel="Agenda" placeholder="What is on the agenda?" [(value)]="agenda" />
+        <pre class="editor-demo__value" tabindex="0" role="region" aria-label="JSON value">{{ agenda() | json }}</pre>
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.value" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Storing HTML or markdown"
+    description="Convert the JSON yourself: to HTML with `prosemirror-model` and your own `Schema`, to markdown with any serializer."
+  >
+    <ngwr-doc-code [code]="snippets.html" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Toolbar"
+    description="`toolbar` lists the tools in order, with `'|'` between groups; `false` hides it and keeps the shortcuts."
+  >
+    <ngwr-doc-snippet [files]="toolbarFiles">
+      <div class="editor-demo">
+        <wr-editor ariaLabel="Comment" placeholder="Leave a comment" [toolbar]="commentTools" [(value)]="comment" />
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.toolbar" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.noToolbar" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Signal Forms"
+    description="`[formField]` binds the `value`; `required()` treats an empty editor as empty."
+  >
+    <ngwr-doc-snippet [files]="formFiles">
+      <div class="editor-demo">
+        <wr-form-field label="Description" hint="Required.">
+          <wr-editor placeholder="Describe the change" [formField]="ticket.description" />
+        </wr-form-field>
+        <pre class="editor-demo__value" tabindex="0" role="region" aria-label="Field value">{{
+          ticket.description().value() | json
+        }}</pre>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Read-only and disabled"
+    description="`readonly` shows the document without starting ProseMirror; `disabled` keeps the editor and takes it out of the tab order."
+  >
+    <ngwr-doc-snippet [code]="snippets.states" language="angular-html">
+      <div class="editor-demo editor-demo--pair">
+        <wr-editor ariaLabel="Published notes" readonly [toolbar]="false" [value]="agenda()" />
+        <wr-editor ariaLabel="Locked notes" disabled [value]="agenda()" />
+      </div>
+    </ngwr-doc-snippet>
+    <p>Bound to a signal, <code>readonly</code> mounts the editor the first time it turns false.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Keyboard" description="The toolbar is one tab stop; the arrow keys move between its tools.">
+    <div class="ngwr-table ngwr-keys">
+      <table>
+        <caption>
+          Focus is in the text. Mod is ⌘ on Apple keyboards and Ctrl elsewhere.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">
+              <wr-kbd size="sm">Mod + B</wr-kbd> · <wr-kbd size="sm">Mod + I</wr-kbd> ·
+              <wr-kbd size="sm">Mod + U</wr-kbd>
+            </th>
+            <td>Bold, italic, underline.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Mod + Shift + S</wr-kbd> · <wr-kbd size="sm">Mod + E</wr-kbd></th>
+            <td>Strikethrough, inline code.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Mod + Alt + 0</wr-kbd> … <wr-kbd size="sm">Mod + Alt + 3</wr-kbd></th>
+            <td>Paragraph, heading 1 to 3.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Mod + Shift + 8</wr-kbd> · <wr-kbd size="sm">Mod + Shift + 7</wr-kbd></th>
+            <td>Bulleted list, numbered list.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Mod + Shift + B</wr-kbd> · <wr-kbd size="sm">Mod + Alt + C</wr-kbd></th>
+            <td>Quote, code block.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Mod + ]</wr-kbd> · <wr-kbd size="sm">Mod + [</wr-kbd></th>
+            <td>Indent, outdent a list item.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Mod + K</wr-kbd></th>
+            <td>Open the link panel.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <wr-kbd size="sm">Mod + Z</wr-kbd> · <wr-kbd size="sm">Mod + Shift + Z</wr-kbd> ·
+              <wr-kbd size="sm">Ctrl + Y</wr-kbd>
+            </th>
+            <td>Undo, redo. <code>Ctrl + Y</code> is not bound on Apple keyboards.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Shift + Enter</wr-kbd></th>
+            <td>Line break.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <wr-kbd size="sm">Mod + Enter</wr-kbd> · <wr-kbd size="sm">ArrowDown</wr-kbd> ·
+              <wr-kbd size="sm">ArrowUp</wr-kbd>
+            </th>
+            <td>Leave a code block or a table onto a new paragraph.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <code>#</code>, <code>##</code>, <code>###</code>, <code>&gt;</code>, <code>-</code>, <code>1.</code> then
+              <wr-kbd size="sm">Space</wr-kbd>; <code>```</code>
+            </th>
+            <td>
+              At the start of a line: heading, quote, list, code block. <wr-kbd size="sm">Backspace</wr-kbd> right after
+              undoes it.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Untrusted input"
+    description="A bound value with an unknown node or mark, or a link or image the URL check refuses, is refused whole."
+  >
+    <ngwr-doc-code [code]="snippets.refused" language="angular-ts" />
+    <ul>
+      <li>
+        A refused value leaves the current document on screen, makes the editor read-only
+        (<code>wr-editor--refused</code>) and warns in dev mode.
+      </li>
+      <li>Pasted content is cleaned against the same schema.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Gotchas">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">What happens</th>
+            <th scope="col">What to do</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">With no name, every editor is announced as "Rich text".</th>
+            <td>Set <code>ariaLabel</code>, or put it in a <code>&lt;wr-form-field label&gt;</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>Tab</code> leaves the editor; it does not indent.</th>
+            <td>Indent list items with <code>Mod + ]</code> and <code>Mod + [</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              On Windows layouts with AltGr, the <code>Mod + Alt</code> chords type characters instead.
+            </th>
+            <td>Set block types from the toolbar.</td>
+          </tr>
+          <tr>
+            <th scope="row">A CSP <code>trusted-types</code> allowlist breaks paste.</th>
+            <td>Add <code>ProseMirrorClipboard</code> to the allowlist.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Bundle cost"
+    description="Wrap the editor in `@defer` to keep ProseMirror off the first paint."
+  >
+    <ngwr-doc-code [code]="snippets.defer" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="What it does not do">
+    <ul>
+      <li>Insert tables or images. Bound ones are kept, and table text stays editable.</li>
+      <li>Toggle a task item's box.</li>
+      <li>Colours, fonts, sizes, alignment, or headings past level three.</li>
+      <li>Mentions, collaborative editing, custom nodes or custom tools.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types" description="The value shape and the toolbar vocabulary.">
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

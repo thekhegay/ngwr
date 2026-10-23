@@ -51,6 +51,9 @@ interface Run {
   readonly logs: readonly string[];
 }
 
+/** The slice of the package's `exports` map these cases read: a button with a stylesheet. */
+const EXPORTS = { './button': { sass: './button/styles/_index.scss' }, './dialog': { default: './dialog.mjs' } };
+
 /** A context with nothing but the logger the rule writes to. */
 function run(tree: Tree, options: Schema): Run {
   const logs: string[] = [];
@@ -58,7 +61,7 @@ function run(tree: Tree, options: Schema): Run {
     logger: { info: (message: string) => logs.push(message), warn: (message: string) => logs.push(message) },
   } as unknown as SchematicContext;
 
-  const rule = useRule(options, SYMBOL_MAP) as (target: Tree, ctx: SchematicContext) => Tree;
+  const rule = useRule(options, SYMBOL_MAP, EXPORTS) as (target: Tree, ctx: SchematicContext) => Tree;
   rule(tree, context);
 
   return { tree, logs };
@@ -97,16 +100,16 @@ const LIB = resolve(workspaceRoot(), 'projects', 'lib');
 const stripComments = (source: string): string => source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 
 /**
- * The symbol → subpath map exactly as `scripts/lib/build-symbol-map.ts` builds
- * it: `Wr*` value exports of every entry point at ANY depth except `testing`,
- * first one wins.
+ * The symbol → subpath map as `scripts/lib/build-symbol-map.ts` builds it:
+ * `Wr*` value exports of every entry point at ANY depth except `testing`,
+ * first one wins. The generator reads the entry points from the `exports` map;
+ * this walks the tree, which gives the same set.
  *
  * Reproduced rather than imported because the generator writes its output
  * straight into `dist`, and a spec that read the built file would only be true
- * of the last build. Reproducing it means the RECURSION has to match too: both
- * sides were one level deep until `ngwr/date/adapters/*` existed, and a shallow
- * scan would now quietly drop the two date adapters from this comparison while
- * the shipped map still carried them.
+ * of the last build. The walk has to reach nested entry points: a shallow one
+ * would quietly drop `WrConfetti` (`ngwr/bits/confetti`) from this comparison
+ * while the shipped map still carried it.
  */
 function entryPointsUnder(dir: string, prefix = ''): string[] {
   const out: string[] = [];
@@ -115,7 +118,7 @@ function entryPointsUnder(dir: string, prefix = ''): string[] {
     const full = join(dir, name);
     if (!statSync(full).isDirectory()) continue;
     const entry = prefix ? `${prefix}/${name}` : name;
-    if (existsSync(join(full, 'public-api.ts')) && existsSync(join(full, 'ng-package.json'))) out.push(entry);
+    if (existsSync(join(full, 'public-api.ts'))) out.push(entry);
     out.push(...entryPointsUnder(full, entry));
   }
   return out;
@@ -217,6 +220,100 @@ describe('ng g ngwr:use', () => {
     expect(source).toContain("import { WrButton } from 'ngwr/button';");
     expect(source).toContain('imports: [WrButton]');
     expect(logs).toContain('✓ Added WrButton (from ngwr/button) to /src/app/page.ts.');
+  });
+
+  it('names the stylesheet line the entry point also needs', () => {
+    const { logs } = run(component(), { symbol: 'WrButton', path: 'src/app/page.ts' });
+
+    // Since v15 there is no umbrella sheet: a component wired this way and with
+    // no line of its own renders unstyled, and nothing else says why.
+    expect(logs).toContain(
+      "  Styles: add `@use 'ngwr/button';` after `@use 'ngwr/theme';` in your global stylesheet, " +
+        'or run `ng g ngwr:component-style button`.'
+    );
+  });
+
+  describe("edits the decorator's own imports, and nothing else that reads like it", () => {
+    /** Runs the rule over one file and hands back what it left there. */
+    function edit(source: string): { readonly source: string; readonly logs: readonly string[] } {
+      const tree = new HostTree();
+      tree.create('/src/app/page.ts', source);
+      const { logs } = run(tree, { symbol: 'WrButton', path: 'src/app/page.ts' });
+
+      return { source: tree.readText('/src/app/page.ts'), logs };
+    }
+
+    it('skips an `imports: [` in a comment above the decorator', () => {
+      const { source } = edit(
+        "import { Component } from '@angular/core';\n\n" +
+          '/** Register a component the usual way: `imports: [MyThing]`. */\n' +
+          "@Component({ selector: 'app-page', imports: [], template: '' })\n" +
+          'export class Page {}\n'
+      );
+
+      expect(source).toContain('`imports: [MyThing]`');
+      expect(source).toContain("@Component({ selector: 'app-page', imports: [WrButton], template: '' })");
+    });
+
+    it('skips an `imports: [` inside an inline template', () => {
+      const { source } = edit(
+        "import { Component } from '@angular/core';\n\n" +
+          "@Component({\n  selector: 'app-page',\n  template: `<pre>imports: [Foo]</pre>`,\n  imports: [],\n})\n" +
+          'export class Page {}\n'
+      );
+
+      expect(source).toContain('template: `<pre>imports: [Foo]</pre>`');
+      expect(source).toContain('  imports: [WrButton],\n');
+    });
+
+    it('adds the key to a decorator without one, not to the first array that reads like it', () => {
+      const { source } = edit(
+        "import { Component } from '@angular/core';\n\n" +
+          "const SNIPPET = 'imports: [Foo]';\n\n" +
+          "@Component({ selector: 'app-page', template: '' })\n" +
+          'export class Page {}\n'
+      );
+
+      expect(source).toContain("const SNIPPET = 'imports: [Foo]';");
+      expect(source).toContain("@Component({\n  imports: [WrButton], selector: 'app-page', template: '' })");
+    });
+
+    it('refuses an `imports` it cannot edit as text, rather than adding a second key', () => {
+      const before =
+        "import { Component } from '@angular/core';\nimport { FormsModule } from '@angular/forms';\n\n" +
+        'const SHARED = [FormsModule];\n\n' +
+        "@Component({ selector: 'app-page', imports: SHARED, template: '' })\n" +
+        'export class Page {}\n';
+      const { source, logs } = edit(before);
+
+      // Untouched, import line included: `imports: [WrButton], …, imports: SHARED`
+      // was TS1117, after a log line saying the symbol had been added.
+      expect(source).toBe(before);
+      expect(logs.join('\n')).toContain('its `imports` is not an array literal');
+      expect(logs.join('\n')).toContain("import { WrButton } from 'ngwr/button';");
+      expect(logs.some(line => line.startsWith('✓'))).toBe(false);
+    });
+
+    it('refuses a file declaring two components', () => {
+      const before =
+        "import { Component } from '@angular/core';\n\n" +
+        "@Component({ selector: 'app-one', template: '' })\nexport class One {}\n\n" +
+        "@Component({ selector: 'app-two', imports: [], template: '' })\nexport class Two {}\n";
+      const { source, logs } = edit(before);
+
+      expect(source).toBe(before);
+      expect(logs.join('\n')).toContain('it declares 2 components');
+    });
+
+    it('appends after the last entry, not after a trailing comment', () => {
+      const { source } = edit(
+        "import { Component } from '@angular/core';\n\n" +
+          "@Component({\n  selector: 'app-page',\n  imports: [\n    One,\n    Two // the last\n  ],\n  template: '',\n})\n" +
+          'export class Page {}\n'
+      );
+
+      expect(source).toContain('  imports: [\n    One,\n    Two, WrButton // the last\n  ],\n');
+    });
   });
 
   it('lists exactly the public symbols the library declares as non-declarable', () => {

@@ -1,3 +1,9 @@
+@use 'showcase/styles/mixins' as site;
+
+:host {
+  display: block;
+}
+
 .ngwr-icon-grid {
   display: flex;
   flex-direction: column;
@@ -11,7 +17,7 @@
     top: 0;
     z-index: 1;
     padding: 0.5rem 0;
-    background: var(--wr-color-white);
+    background: var(--wr-color-surface);
 
     input {
       flex: 1 1 auto;
@@ -34,7 +40,7 @@
   &__tile {
     appearance: none;
     background: transparent;
-    border: 1px solid var(--wr-color-light);
+    border: 1px solid var(--wr-border-base);
     border-radius: var(--wr-border-radius-base);
     padding: 0.875rem 0.5rem 0.5rem;
     color: inherit;
@@ -45,24 +51,22 @@
     align-items: center;
     gap: 0.5rem;
     text-align: center;
-    transition:
-      border-color 0.12s ease,
-      background 0.12s ease,
-      transform 0.06s ease;
+    @include site.transition(border-color background-color transform, var(--wr-transition-short));
 
     &:hover {
       border-color: var(--wr-color-primary);
-      background: rgba(var(--wr-color-primary-rgb), 0.04);
+      background: color-mix(in srgb, var(--wr-color-primary) 4%, transparent);
     }
 
     &:active {
       transform: scale(0.97);
     }
 
+    // The shared ring, plus the hover border so focus and hover agree on
+    // which tile is current.
     &:focus-visible {
-      outline: none;
+      @include site.focus-ring;
       border-color: var(--wr-color-primary);
-      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.18);
     }
   }
 
@@ -72,7 +76,7 @@
     justify-content: center;
     width: 2.5rem;
     height: 2.5rem;
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
 
     // The svg arrives via [innerHTML], so it never gets Angular's scoping
     // attribute — pierce the emulated encapsulation or the sizing below

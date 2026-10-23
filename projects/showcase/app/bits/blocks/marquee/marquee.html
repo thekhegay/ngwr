@@ -1,0 +1,46 @@
+<ngwr-doc-page
+  title="Marquee"
+  updated="15.0.0"
+  description="An endless scrolling row of logos, images or templates."
+  [keywords]="['marquee', 'wr-marquee', 'logo-loop', 'carousel', 'animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="logo-loop" category="animations" />
+
+  <ng-template #angularLogo><wr-icon name="logo-angular" style="--wr-icon-size: 36px" /></ng-template>
+  <ng-template #chromeLogo><wr-icon name="logo-chrome" style="--wr-icon-size: 36px" /></ng-template>
+  <ng-template #firebaseLogo><wr-icon name="logo-firebase" style="--wr-icon-size: 36px" /></ng-template>
+  <ng-template #githubLogo><wr-icon name="logo-github" style="--wr-icon-size: 36px" /></ng-template>
+  <ng-template #gitlabLogo><wr-icon name="logo-gitlab" style="--wr-icon-size: 36px" /></ng-template>
+  <ng-template #npmLogo><wr-icon name="logo-npm" style="--wr-icon-size: 36px" /></ng-template>
+  <ng-template #telegramLogo><wr-icon name="logo-telegram" style="--wr-icon-size: 36px" /></ng-template>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-marquee
+        [items]="items()"
+        [speed]="speed()"
+        [gap]="gap()"
+        [itemHeight]="itemHeight()"
+        [direction]="direction()"
+        [pauseOnHover]="pauseOnHover()"
+        [fadeOut]="fadeOut()"
+        style="width: 100%"
+      />
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Reduced motion"
+    description="With `prefers-reduced-motion`, the strip stops and scrolls instead: one copy of the items, no edge fades, and a tab stop on the strip when no item has one. Since v15."
+  />
+
+  <ngwr-doc-section title="Types" description="What `items` accepts.">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

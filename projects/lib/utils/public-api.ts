@@ -1,5 +1,5 @@
 // Types
-export type { Maybe, SafeAny, WrClassInput } from './interfaces';
+export type { Maybe, SafeAny, WrClassInput } from './types';
 
 // Guards
 export { isDefined, isNonEmptyArray, isObservable } from './guards';
@@ -21,7 +21,8 @@ export { resolveCssSize } from './css-size';
 export type { ResolveCssSizeOptions, ResolvedCssSize } from './css-size';
 
 // DOM
-export { getRootFontSize, getFocusableElements, trapFocus } from './dom';
+export { getRootFontSize, getFocusableElements, resolveCssColor, trapFocus, watchColorScheme } from './dom';
+export type { WatchColorSchemeOptions, WrColorScheme } from './dom';
 
 // ID
 export { randomId } from './id';
@@ -36,3 +37,7 @@ export type { WrKey } from './keyboard';
 
 // Log
 export { badgeLog } from './log';
+
+// Feature
+export { wrFeature } from './feature';
+export type { WrFeature } from './feature';

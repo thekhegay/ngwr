@@ -56,7 +56,7 @@ import { noop } from 'ngwr/utils';
  * this.overlayRef = this.overlay.create({ positionStrategy, ... });
  * wrFollowDirection(this.overlayRef, this.dir, this.injector, direction =>
  *   positionStrategy.withPositions(
- *     wrMirrorOffsets(WR_POPCONFIRM_POSITIONS[this.position()], direction === 'rtl')
+ *     wrMirrorOffsets(wrPopconfirmPositions(this.position()), direction === 'rtl')
  *   )
  * );
  * ```

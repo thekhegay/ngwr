@@ -7,7 +7,7 @@
 
 import { InjectionToken } from '@angular/core';
 
-import type { WrStorageEngine } from './interfaces';
+import type { WrStorageEngine } from './types';
 
 /**
  * Probe a `Storage` candidate to confirm it's writable. Safari private
@@ -54,13 +54,20 @@ export function createMemoryStorage(): WrStorageEngine {
 }
 
 /**
- * Injection token for the active storage engine. Override at any
- * injector level to swap engines (e.g. a feature module uses
- * `sessionStorage`; the rest uses `localStorage`):
+ * Injection token for the active storage engine. Provide it at BOOTSTRAP to
+ * swap engines (e.g. `sessionStorage` for a tab-only app):
  *
  * ```ts
  * providers: [{ provide: WR_STORAGE_ENGINE, useValue: sessionStorage }]
  * ```
+ *
+ * Not at an arbitrary injector level: `WrStorage` is root-provided and reads
+ * the token in a field initializer, so the singleton resolves its engine once
+ * and a token re-provided on a lazy route or in a component's `providers`
+ * reaches no existing `inject(WrStorage)` — every read and write still goes to
+ * the engine the root instance already took, with nothing thrown and nothing
+ * logged. A feature that genuinely needs its own engine provides its own
+ * `WrStorage` beside it.
  *
  * The default factory returns `localStorage` in the browser when it's
  * actually writable, an in-memory map otherwise.
@@ -73,4 +80,4 @@ export const WR_STORAGE_ENGINE = new InjectionToken<WrStorageEngine>('WR_STORAGE
   },
 });
 
-export type { WrStorageEngine } from './interfaces';
+export type { WrStorageEngine } from './types';

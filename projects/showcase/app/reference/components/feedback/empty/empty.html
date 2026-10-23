@@ -1,0 +1,42 @@
+<ngwr-doc-page
+  title="Empty"
+  description="A placeholder for a view with no data."
+  [keywords]="['empty', 'placeholder', 'no data', 'wr-empty']"
+  [labels]="['Display']"
+>
+  <ngwr-doc-section title="Default">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-empty />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="With description and action"
+    description="Project the text; put buttons in `wrEmptyActions`."
+  >
+    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-empty iconName="search" title="No results">
+        Try a different query or clear filters.
+        <ng-container wrEmptyActions>
+          <wr-btn>Reset filters</wr-btn>
+        </ng-container>
+      </wr-empty>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Without the illustration"
+    description='`[icon]="false"` hides the artwork, for a placeholder inside a card or a table.'
+  >
+    <ngwr-doc-code [code]="snippets.noIcon" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-empty [icon]="false" title="No results">Try a different query.</wr-empty>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

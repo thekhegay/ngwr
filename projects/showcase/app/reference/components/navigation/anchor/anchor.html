@@ -1,0 +1,42 @@
+<ngwr-doc-page
+  title="Anchor"
+  description="In-page links that highlight the section in view."
+  [keywords]="['anchor', 'scroll-spy', 'wr-anchor']"
+>
+  <ngwr-doc-section
+    title="Demo"
+    description="Pass `links` in document order; set `offset` to the height of a sticky header."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; min-width: 0">
+        <div style="flex: 0 0 12rem; max-width: 45%; position: sticky; top: 5rem; align-self: flex-start">
+          <wr-anchor [links]="links" [offset]="80" />
+        </div>
+        <div style="flex: 1 1 auto; min-width: 0">
+          <h3 id="anchor-intro" style="margin-top: 0">Introduction</h3>
+          <p>Anchor watches the page scroll and highlights the closest section.</p>
+          <div style="height: 22rem"></div>
+          <h3 id="anchor-usage">Usage</h3>
+          <h4 id="anchor-basic">Basic</h4>
+          <p>Pass an array of <code>&#123; id, label &#125;</code> and the component does the rest.</p>
+          <div style="height: 22rem"></div>
+          <h4 id="anchor-advanced">Advanced</h4>
+          <p>Children render one level of nested links.</p>
+          <div style="height: 22rem"></div>
+          <h3 id="anchor-api">API</h3>
+          <p>See the component reference below.</p>
+          <div style="height: 8rem"></div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <!-- No id: the demo's h3 owns `anchor-api`. -->
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

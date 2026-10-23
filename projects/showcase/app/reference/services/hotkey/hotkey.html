@@ -1,11 +1,15 @@
 <ngwr-doc-page
   title="WrHotkey"
-  description='Global keybinding registry. Specs like `mod+k` — `mod` auto-resolves to Cmd on macOS / Ctrl elsewhere. Skips bindings while an input / textarea has focus by default. `[wrHotkey]` is the declarative form of the same registry — also global unless you pass `[scoped]="true"` to limit it to the host element.'
+  description="Register keyboard shortcuts like `mod+k`, where `mod` is ⌘ on macOS and Ctrl elsewhere."
   [keywords]="['service', 'hotkey', 'keyboard', 'WrHotkey']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section title="Usage">
+  <ngwr-doc-section
+    title="Usage"
+    description="Unbind the handle `bind()` returns on destroy, or use `[wrHotkey]`, which unbinds itself."
+  >
     <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.directive" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="font-family: var(--wr-font-family-base); font-size: 0.875rem; line-height: 1.5">
         <div style="display: flex; align-items: center; gap: 0.375rem; flex-wrap: wrap">
@@ -20,19 +24,11 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Raw `keydown` listeners need platform-aware modifier mapping (⌘ vs Ctrl), input-field exclusion, and teardown. `WrHotkey` registers a declarative combo and cleans up with the host's `DestroyRef`."
-  />
-
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="[wrHotkey] inputs"
-    description="The directive form, bound on the element that owns the shortcut."
-  >
+  <ngwr-doc-section title="[wrHotkey] inputs" description="Global unless `scoped` limits it to the host element.">
     <ngwr-doc-api [rows]="bindingApi" />
   </ngwr-doc-section>
 

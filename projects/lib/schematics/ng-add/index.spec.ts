@@ -19,12 +19,13 @@ import type { Schema } from './schema';
  *
  * The case that carries the file is the DEFAULT one. `ng new` takes plain CSS
  * unless you ask for something else, and this schematic used to write
- * `@import 'ngwr';` into that stylesheet. ngwr ships Sass sources and no
- * compiled CSS — every `exports` entry has a `sass` condition and nothing a
- * stylesheet can otherwise reach — so the import resolved through `default` to
- * `fesm2022/ngwr.mjs`, and esbuild stopped the next build with
- * `Cannot import ".../ngwr.mjs" into a CSS file`. Measured with esbuild against
- * the built package, not reasoned about.
+ * `@import 'ngwr';` into that stylesheet. The root entry point has no `sass`
+ * condition, so the import resolved through `default` to `fesm2022/ngwr.mjs`,
+ * and esbuild stopped the next build with `Cannot import ".../ngwr.mjs" into a
+ * CSS file`. A per-entry-point `@import 'ngwr/button'` does build from CSS,
+ * since Angular's bundler resolves the `sass` condition, but each one is a Sass
+ * compilation of its own that copies the theme and cannot configure it. So a
+ * CSS project gets the rename advice and no line.
  *
  * Driven over a `HostTree` directly rather than through `SchematicTestRunner`,
  * for the reason `provider/index.spec.ts` gives: the runner reads
@@ -85,8 +86,8 @@ describe('ng-add', () => {
       BASE
     );
 
-    expect(read('/src/styles.scss')).toBe("@use 'ngwr';\nbody { margin: 0; }\n");
-    expect(said(logs, "added `@use 'ngwr';`")).toBe(true);
+    expect(read('/src/styles.scss')).toBe("@use 'ngwr/theme';\nbody { margin: 0; }\n");
+    expect(said(logs, "added `@use 'ngwr/theme';`")).toBe(true);
   });
 
   it('writes NOTHING into a css project, and says why', async () => {
@@ -95,8 +96,11 @@ describe('ng-add', () => {
 
     // The line it used to write here made the next `ng build` fail.
     expect(read('/src/styles.css')).toBe(before);
-    expect(said(logs, 'ships Sass sources and no compiled CSS')).toBe(true);
-    expect(said(logs, '@import')).toBe(false);
+    expect(said(logs, 'Rename the global stylesheet to .scss')).toBe(true);
+    // It names what an `@import` costs, and no longer sends a CSS project to
+    // `component-style`, which writes nothing into one.
+    expect(said(logs, 'each import is a Sass compilation of its own')).toBe(true);
+    expect(said(logs, 'keep CSS')).toBe(false);
   });
 
   it('treats less the same way — it cannot reach a Sass source either', async () => {
@@ -107,11 +111,11 @@ describe('ng-add', () => {
     );
 
     expect(read('/src/styles.less')).toBe(before);
-    expect(said(logs, 'ships Sass sources and no compiled CSS')).toBe(true);
+    expect(said(logs, 'Rename the global stylesheet to .scss')).toBe(true);
   });
 
   it('leaves a stylesheet that already pulls ngwr in alone', async () => {
-    const before = "@use 'ngwr';\nbody { margin: 0; }\n";
+    const before = "@use 'ngwr/theme';\nbody { margin: 0; }\n";
     const { read, logs } = await run(
       { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': before },
       BASE
@@ -145,22 +149,153 @@ describe('ng-add', () => {
       { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' },
       {
         ...BASE,
-        dateAdapter: 'luxon',
-        theme: 'system',
         density: 'sm',
       }
     );
 
-    const snippet = logs.find(line => line.includes('bootstrapApplication'))!;
-    expect(snippet).toContain("import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon';");
-    expect(snippet).toContain('provideWrDateAdapter({ adapter: WrLuxonAdapter })');
-    expect(snippet).toContain("provideWrTheme({ defaultMode: 'auto' })");
-    expect(snippet).toContain("provideWrDensity({ defaultDensity: 'sm' })");
+    const snippet = logs.find(line => line.includes('appConfig'))!;
+    // A feature of the one `provideWr()` call since v15, which replaced
+    // `provideWrDensity()` and its four siblings.
+    expect(snippet).toContain("provideWr(withDensity({ defaultDensity: 'sm' }))");
+    expect(snippet).not.toContain('provideWrDensity');
+    // v15 deleted `provideWrTheme`: the scheme follows the OS with no provider and
+    // `WrTheme` is root-provided, so a snippet naming it would not compile.
+    expect(snippet).not.toContain('provideWrTheme');
+    // Nor `provideWrOverlay`: ngwr's overlays are isolated from other CDK
+    // consumers by default, and the import would name an export that is gone.
+    expect(snippet).not.toContain('provideWrOverlay');
+    // Or a date feature: the date components run on the native adapter with
+    // nothing provided, so the line would register what is already there.
+    expect(snippet).not.toContain('withDates');
     // Every provider named in the snippet has an import above it — the pairing
     // that broke once already, when the icon block imported bare glyph names
     // `ngwr/icon` has never exported.
-    for (const symbol of ['provideWrOverlay', 'provideWrIcons', 'lucideIcons']) {
-      expect(snippet, symbol).toContain(`import { ${symbol} }`.slice(0, 20));
+    for (const symbol of ['provideWr', 'withDensity', 'provideWrIcons', 'lucideIcons']) {
+      expect(snippet, symbol).toMatch(new RegExp(`import \\{[^}]*\\b${symbol}\\b[^}]*\\} from`));
     }
+    // `provideWr` is the ROOT entry point's, and each feature comes from the
+    // entry point it configures.
+    expect(snippet).toContain("import { provideWr } from 'ngwr';");
+    expect(snippet).toContain("import { withDensity } from 'ngwr/density';");
+    // The converter ships in `ngwr/icon` itself since v15.
+    expect(snippet).toContain("import { provideWrIcons, lucideIcons } from 'ngwr/icon';");
+  });
+
+  it('prints the app config shape `ng new` writes, not a bootstrap call', async () => {
+    const { logs } = await run({ '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' }, BASE);
+
+    const snippet = logs.find(line => line.includes('appConfig'))!;
+    expect(snippet).toContain('src/app/app.config.ts');
+    expect(snippet).toContain('export const appConfig: ApplicationConfig = {');
+    expect(snippet).not.toContain('bootstrapApplication(AppComponent');
+  });
+
+  it('says that every component needs its own stylesheet line after the theme', async () => {
+    const { logs } = await run({ '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' }, BASE);
+
+    // The half of a v15 install that fails silently: no umbrella sheet, so a
+    // component without its line renders unstyled and nothing says so.
+    const message = logs.find(line => line.includes('ngwr installed.'))!;
+    expect(message).toContain('Every component you render needs its own stylesheet line, after the theme.');
+    expect(message).toContain("  @use 'ngwr/theme';\n  @use 'ngwr/button';");
+    expect(message).toContain('ng g ngwr:component-style <entry point>');
+  });
+
+  it('prints no provideWr() call when no answer gave it a feature', async () => {
+    const { logs } = await run({ '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' }, BASE);
+
+    const snippet = logs.find(line => line.includes('appConfig'))!;
+    // An empty `provideWr()` registers nothing, so the snippet would only teach
+    // an import to paste for no effect. Matched as a providers LINE: the theme
+    // advice below the snippet names `provideWr()` in prose.
+    expect(snippet).not.toMatch(/^\s*provideWr\(/m);
+    expect(snippet).not.toContain("from 'ngwr';");
+    expect(snippet).toContain('provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))');
+  });
+});
+
+/**
+ * A density pick prints `provideWr(withDensity(...))`, and that feature writes
+ * `data-wr-density` on `<html>` for a sheet only `ngwr/density` ships. No
+ * component sheet loads it, so writing the theme alone left the pick doing
+ * nothing, with nothing to say so.
+ */
+describe('ng-add — the density sheet', () => {
+  const DENSE: Schema = { ...BASE, density: 'sm' };
+
+  it('writes the density line after the theme when a density is picked', async () => {
+    const { read, logs } = await run(
+      { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': 'body { margin: 0; }\n' },
+      DENSE
+    );
+
+    expect(read('/src/styles.scss')).toBe("@use 'ngwr/theme';\n@use 'ngwr/density';\nbody { margin: 0; }\n");
+    expect(said(logs, "added `@use 'ngwr/density';`")).toBe(true);
+  });
+
+  it('writes no density line when none is picked', async () => {
+    const { read } = await run(
+      { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' },
+      { ...BASE, density: 'none' }
+    );
+
+    expect(read('/src/styles.scss')).not.toContain('ngwr/density');
+  });
+
+  it('adds it below a theme line that is already there, configured or not', async () => {
+    const before = "@use 'ngwr/theme' with (\n  $base-colors: (primary: #3567ff)\n);\n@use 'ngwr/button';\n";
+    const { read } = await run({ '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': before }, DENSE);
+
+    // The theme stays the first load, untouched, and the density line goes
+    // after every `@use` already there.
+    expect(read('/src/styles.scss')).toBe(`${before}@use 'ngwr/density';\n`);
+  });
+
+  it('leaves a stylesheet that already loads both alone', async () => {
+    const before = "@use 'ngwr/theme';\n@use 'ngwr/density';\nbody { margin: 0; }\n";
+    const { read, logs } = await run(
+      { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': before },
+      DENSE
+    );
+
+    expect(read('/src/styles.scss')).toBe(before);
+    expect(said(logs, 'already imports ngwr/density')).toBe(true);
+  });
+
+  it('names the density line in what it tells a css project', async () => {
+    const before = 'body { margin: 0; }\n';
+    const { read, logs } = await run(
+      { '/angular.json': workspace('src/styles.css'), '/src/styles.css': before },
+      DENSE
+    );
+
+    expect(read('/src/styles.css')).toBe(before);
+    expect(said(logs, "The density you picked also needs `@use 'ngwr/density';` after the theme.")).toBe(true);
+  });
+
+  it('names both lines when there is no stylesheet to write into', async () => {
+    const { logs } = await run({ '/angular.json': workspace(null) }, DENSE);
+
+    expect(said(logs, "add `@use 'ngwr/theme';` and `@use 'ngwr/density';` after it manually")).toBe(true);
+  });
+
+  it('writes nothing when styles are opted out, and the message still names the line', async () => {
+    const before = 'body { margin: 0; }\n';
+    const { read, logs } = await run(
+      { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': before },
+      { ...DENSE, styles: 'none' }
+    );
+
+    expect(read('/src/styles.scss')).toBe(before);
+    const message = logs.find(line => line.includes('ngwr installed.'))!;
+    expect(message).toContain("  @use 'ngwr/theme';\n  @use 'ngwr/density';\n  @use 'ngwr/button';");
+    expect(message).toContain("withDensity() also needs `@use 'ngwr/density';`, after the theme.");
+  });
+
+  it('leaves the density line out of the message when no density is picked', async () => {
+    const { logs } = await run({ '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' }, BASE);
+
+    const message = logs.find(line => line.includes('ngwr installed.'))!;
+    expect(message).not.toContain('ngwr/density');
   });
 });

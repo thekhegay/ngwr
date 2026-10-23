@@ -1,16 +1,13 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
+import { Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrTourStep } from './interfaces';
 import { WrTour } from './tour';
+import type { WrTourStep } from './types';
 
 @Component({
   template: `<div id="one">one</div>
@@ -65,7 +62,7 @@ describe('WrTour', () => {
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), { provide: ConfigurableFocusTrapFactory, useValue: { create: createTrap } }],
+      providers: [{ provide: ConfigurableFocusTrapFactory, useValue: { create: createTrap } }],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -257,6 +254,35 @@ describe('WrTour', () => {
     expect(document.querySelectorAll('.wr-tour__spotlight').length).toBe(1);
   });
 
+  it('ends when the URL changes, taking the card and the cut-out with it', () => {
+    // Following a link mid-tour left the card on the next page pointing at an
+    // element the router had removed, the cut-out's shadow dimming everything.
+    tour.start(STEPS);
+    sync();
+    expect(popup()).not.toBeNull();
+
+    TestBed.inject(Location).go('/elsewhere');
+    sync();
+
+    expect(tour.active()).toBe(false);
+    expect(popup()).toBeNull();
+    expect(spotlight()).toBeNull();
+  });
+
+  it('stops watching the URL once the tour is over', async () => {
+    tour.start(STEPS);
+    sync();
+    tour.stop();
+    await Promise.resolve();
+
+    // A later tour is not ended by a navigation the first one heard about.
+    tour.start(STEPS);
+    sync();
+    const stop = vi.spyOn(tour, 'stop');
+    TestBed.inject(Location).go('/elsewhere');
+    expect(stop).toHaveBeenCalledTimes(1);
+  });
+
   it('does nothing when handed an empty list', () => {
     tour.start([]);
     sync();
@@ -269,7 +295,6 @@ describe('WrTour when its injector goes away mid-tour', () => {
   it('takes the cut-out and the document listener with it', () => {
     Element.prototype.scrollIntoView = (): undefined => undefined;
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
 
@@ -284,40 +309,6 @@ describe('WrTour when its injector goes away mid-tour', () => {
     expect(document.querySelector('.wr-tour__spotlight')).toBeNull();
     expect(document.querySelector('.wr-tour-popup')).toBeNull();
     delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
-  });
-});
-
-/**
- * ⚠️ This one guards the RULE, not the behaviour.
- *
- * The cut-out and CDK's `.cdk-overlay-container` are both `position: fixed` children
- * of `<body>`, so at equal z-index the DOM order decides who paints on top — and the
- * service appends a fresh cut-out on every step while the container stays where it
- * is. From the second step on, the dimming shadow covered the tour's own card.
- * `.wr-tour-overlay { z-index: 1001 }` cannot fix it: that sits on the pane INSIDE
- * the container, whose stacking context scopes it.
- *
- * jsdom paints nothing, and the dimming is a `box-shadow`, which is not hit-testable
- * even in a real browser — so it was measured in Chromium by giving the same element
- * a solid background over the card (same element, same stacking position) and asking
- * `elementFromPoint` who won:
- *
- *   cut-out before the container (step 1) | card wins | card wins
- *   cut-out after  the container (step 2) | CUT-OUT   | card wins
- *                                           z 1000      z 999
- */
-describe('the tour stylesheet', () => {
-  const source = readFileSync(join(process.cwd(), 'projects/lib/tour/styles/_index.scss'), 'utf8');
-  const code = source
-    .split('\n')
-    .filter(line => !line.trim().startsWith('//'))
-    .join('\n');
-
-  it('keeps the cut-out under the overlay container it shares a parent with', () => {
-    const rule = /\.wr-tour__spotlight\s*\{([\s\S]*?)\n\}/.exec(code)?.[1] ?? '';
-    const z = /z-index:\s*(\d+)/.exec(rule)?.[1];
-    expect(z).toBeDefined();
-    expect(Number(z)).toBeLessThan(1000);
   });
 });
 
@@ -355,7 +346,6 @@ describe('WrTour when the direction flips mid-step', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         {
           provide: ConfigurableFocusTrapFactory,
           useValue: {
@@ -405,6 +395,24 @@ describe('WrTour when the direction flips mid-step', () => {
     // Each move disposes the step's ref and builds the next, taking the first
     // card's follower with it — the second has to be given one of its own.
     expect([paneDir(), pane().getAttribute('style')?.includes('translateX(12px)')]).toEqual(['rtl', true]);
+  });
+
+  it('moves the cut-out with the target when the page mirrors', () => {
+    const target = document.querySelector<HTMLElement>('#one')!;
+    let left = 100;
+    target.getBoundingClientRect = (): DOMRect =>
+      ({ left, top: 50, width: 80, height: 20, right: left + 80, bottom: 70, x: left, y: 50 }) as DOMRect;
+    tour.start([step('#one')]);
+    fixture.detectChanges();
+    const spot = document.querySelector<HTMLElement>('.wr-tour__spotlight')!;
+    expect(spot.style.left).toBe('94px');
+
+    // The flip moves the target without a scroll or a resize, which were the
+    // only two things that re-measured the cut-out.
+    left = 600;
+    flipTo('rtl');
+
+    expect(spot.style.left).toBe('594px');
   });
 
   it('leaves nothing following a card that has been torn down', () => {

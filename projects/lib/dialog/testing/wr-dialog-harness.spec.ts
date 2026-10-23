@@ -5,7 +5,6 @@ import { TestBed } from '@angular/core/testing';
 import { WrButton } from 'ngwr/button';
 import { WrButtonHarness } from 'ngwr/button/testing';
 import { WrDialog, WrDialogContent, WrDialogFooter, WrDialogTitle } from 'ngwr/dialog';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDialogHarness } from './wr-dialog-harness';
@@ -31,7 +30,8 @@ class Host {
 /**
  * A dialog is a service call, not an element in a template, and the panel it
  * creates is a sibling of the whole app — so this spec loads its harness from the
- * DOCUMENT ROOT. `provideWrOverlay()` keeps the container out of the next file's.
+ * DOCUMENT ROOT. The container belongs to the TestBed's root injector, so it never
+ * outlives this file.
  */
 describe('WrDialogHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -48,7 +48,6 @@ describe('WrDialogHarness', () => {
     ] as unknown as DOMRectList);
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     rootLoader = TestbedHarnessEnvironment.documentRootLoader(fixture);

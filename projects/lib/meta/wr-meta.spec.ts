@@ -1,10 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWr } from 'ngwr';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrMetaConfig } from './interfaces';
-import { provideWrMeta } from './provide-wr-meta';
+import type { WrMetaConfig } from './types';
+import { withMeta } from './with-meta';
 import { WrMeta } from './wr-meta';
 import { WrMetaBinding } from './wr-meta-binding';
 
@@ -41,7 +42,7 @@ describe('WrMeta', () => {
   let originalHead: ChildNode[];
 
   const setup = (defaults: WrMetaConfig = {}): WrMeta => {
-    TestBed.configureTestingModule({ providers: [provideWrMeta(defaults)] });
+    TestBed.configureTestingModule({ providers: [provideWr(withMeta(defaults))] });
     return TestBed.inject(WrMeta);
   };
 
@@ -73,7 +74,7 @@ describe('WrMeta', () => {
       expect(document.title).toBe('Pricing');
     });
 
-    it('runs the title through the template registered by provideWrMeta', () => {
+    it('runs the title through the template registered by withMeta', () => {
       setup({ titleTemplate: '{{ title }} · ngwr' }).set({ title: 'Pricing' });
 
       expect(document.title).toBe('Pricing · ngwr');
@@ -83,6 +84,25 @@ describe('WrMeta', () => {
       setup({ titleTemplate: '%s — ngwr' }).set({ title: 'Pricing' });
 
       expect(document.title).toBe('Pricing — ngwr');
+    });
+
+    it.each([
+      ['{{ title }} · ngwr', 'Save $& and $1 · ngwr'],
+      ['%s — ngwr', 'Save $& and $1 — ngwr'],
+    ])('inserts a title carrying replacement patterns literally (%s)', (titleTemplate, expected) => {
+      setup({ titleTemplate }).set({ title: 'Save $& and $1' });
+
+      // A string replacement reads `$&` as the match and `$1` as a group, so the tab
+      // showed the template's own placeholder where the title said `$&`.
+      expect(document.title).toBe(expected);
+    });
+
+    it('leaves a %s inside the title alone under a {{ title }} template', () => {
+      setup({ titleTemplate: '{{ title }} · ngwr' }).set({ title: '100%s off' });
+
+      // A second pass for `%s` ran over the already-inserted title and put the title
+      // into itself.
+      expect(document.title).toBe('100%s off · ngwr');
     });
 
     it('re-applies the template to every later title', () => {
@@ -111,8 +131,42 @@ describe('WrMeta', () => {
       meta.reset();
 
       // The defaults carry a template but no title, so there is nothing to
-      // render — " · ngwr" on its own is the bug this pins.
+      // render — " · ngwr" on its own is the bug this pins. Empty here because
+      // nothing had written a title before the service did; the test below is
+      // the case where something had.
       expect(document.title).toBe('');
+    });
+
+    it('pops back to the title that was there before it wrote one', () => {
+      // "Stack-based push/pop so route overrides auto-revert" has to mean
+      // REVERT. It used to write `''` on the way down, which blanks the tab —
+      // and in an app where something else also owns the title (Angular's own
+      // `Title` from a resolver, or a server-rendered `<title>`) it erased that
+      // too, silently and for the rest of the session.
+      document.title = 'Set by someone else';
+      const meta = setup();
+
+      const handle = meta.push({ title: 'Pricing' });
+      expect(document.title).toBe('Pricing');
+
+      handle.pop();
+      expect(document.title).toBe('Set by someone else');
+    });
+
+    it('remembers the title from its FIRST write, not from every one', () => {
+      // The floor is what was there before this service existed. A later pop
+      // must not restore some intermediate layer's title as if it were the
+      // document's own.
+      document.title = 'Original';
+      const meta = setup();
+
+      meta.push({ title: 'First' });
+      const second = meta.push({ title: 'Second' });
+      second.pop();
+      expect(document.title).toBe('First');
+
+      meta.reset();
+      expect(document.title).toBe('Original');
     });
   });
 

@@ -12,7 +12,7 @@ import {
   type TestElement,
 } from '@angular/cdk/testing';
 
-import type { WrFormFieldError, WrFormFieldHarnessFilters } from './interfaces';
+import type { WrFormFieldError, WrFormFieldHarnessFilters } from './types';
 
 /**
  * The messages this field is showing, or the ones it is holding back.
@@ -45,11 +45,12 @@ const HINT = ':scope > .wr-form-field__hint';
  *   `wr-form-field__error--hidden`, which is why {@link getErrors} filters and
  *   {@link getSuppressedErrorKeys} exists. A raw `.wr-form-error` query answers
  *   with the held-back copy too, and reads green on the wrong sentence.
- * - a message the field RESOLVED for an error no markup claimed:
- *   `provideWrFormErrors()`, then the `ngwr/i18n` `validation.*` catalog, then a
- *   built-in English sentence. All three render the identical `<div>`, so
- *   `source` is `'resolved'` for every one of them — the DOM genuinely cannot say
- *   which link answered, and this harness does not pretend otherwise.
+ * - a message the field RESOLVED for an error no markup claimed: the validator's
+ *   own `message`, else `validation.<key>` in the app's i18n catalog. Both render
+ *   the identical `<div>`, so `source` is `'resolved'` for either — the DOM
+ *   genuinely cannot say which one answered, and this harness does not pretend
+ *   otherwise. ngwr ships no copy of its own, so a key neither answers renders
+ *   nothing at all, which is {@link hasEmptyErrorBlock}.
  *
  * Nothing renders at all until the projected control is touched or dirty, so a
  * spec has to reach that gate first: {@link blurControl} is the shortest way
@@ -241,10 +242,11 @@ export class WrFormFieldHarness extends ContentContainerComponentHarness {
    *
    * Worth a named check because it is invisible in review — the field still goes
    * red, and `aria-describedby` still points at the block, so a screen reader is
-   * sent to an empty element. It happens when no link in the copy chain answers
-   * the key (`[autoErrors]="false"` with no markup, or a key nothing has copy for
-   * — Signal Forms reports `minLength`, while the chain only knows Angular's
-   * lowercase `minlength`).
+   * sent to an empty element. It happens when nothing supplies copy for the key:
+   * no `<wr-form-error>` claims it, the validator carries no `message`, and the
+   * app's catalog has no `validation.<key>` — or `[autoErrors]="false"` with no
+   * markup. ngwr ships no error texts, so this is what a validator nobody wrote
+   * words for looks like.
    */
   async hasEmptyErrorBlock(): Promise<boolean> {
     if (!(await this.isInvalid())) return false;

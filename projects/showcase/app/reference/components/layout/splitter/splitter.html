@@ -1,0 +1,42 @@
+<ngwr-doc-page
+  title="Splitter"
+  description="Two panes with a divider the user drags or moves with the arrow keys."
+  [keywords]="['splitter', 'pane', 'wr-splitter']"
+>
+  <ngwr-doc-section
+    title="Horizontal"
+    description="Give the splitter a height; bind `[(position)]`, a percentage from 0 to 100."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-splitter
+        [(position)]="horizontalPos"
+        style="height: 12rem; border: 1px solid var(--wr-border-base); border-radius: 0.5rem; overflow: hidden"
+      >
+        <div wrSplitterStart style="padding: 0.75rem; background: var(--wr-color-fill)">Files</div>
+        <div wrSplitterEnd style="padding: 0.75rem">Editor</div>
+      </wr-splitter>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Vertical"
+    description="`wrSplitterStart` is the top pane; `position` is measured from the top."
+  >
+    <ngwr-doc-code [code]="verticalSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-splitter
+        [(position)]="verticalPos"
+        orientation="vertical"
+        style="height: 16rem; border: 1px solid var(--wr-border-base); border-radius: 0.5rem; overflow: hidden"
+      >
+        <div wrSplitterStart style="padding: 0.75rem">Preview</div>
+        <div wrSplitterEnd style="padding: 0.75rem; background: var(--wr-color-fill)">Logs</div>
+      </wr-splitter>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

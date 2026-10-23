@@ -20,5 +20,9 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
   host: { class: 'wr-descriptions__row' },
 })
 export class WrDescriptionItem {
+  /**
+   * The term shown beside the projected value — "Email", "Created". Keep it a
+   * noun: it is read as the name of the value, not as a sentence.
+   */
   readonly label = input<string>('');
 }

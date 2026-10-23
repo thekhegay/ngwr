@@ -42,16 +42,11 @@ export default class HotkeyServicePageComponent {
   protected readonly snippets = {
     usage: `private readonly hotkeys = inject(WrHotkey);
 
-ngOnInit() {
-  const handle = this.hotkeys.bind('mod+k', () => this.openPalette(), {
-    preventDefault: true,
-    allowInInput: false,
-  });
-  this.destroyRef.onDestroy(() => handle.unbind());
-}
-
-// Or use the directive form:
-// <button [wrHotkey]="'mod+k'" (wrHotkeyMatch)="openPalette()">…</button>`,
+constructor() {
+  const handle = this.hotkeys.bind('mod+k', () => this.openPalette());
+  inject(DestroyRef).onDestroy(() => handle.unbind());
+}`,
+    directive: `<button [wrHotkey]="'mod+k'" (wrHotkeyMatch)="openPalette()">Search</button>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -73,6 +68,40 @@ ngOnInit() {
       type: 'string',
       default: '—',
     },
+    {
+      name: 'WrHotkeyOptions',
+      description: 'The third argument of `bind()`.',
+      type: 'interface',
+      default: '—',
+    },
+    {
+      name: 'element',
+      description: 'Listen on this element instead of `document`. It must hold focus, so add `tabindex="0"`.',
+      type: 'HTMLElement',
+      default: 'document',
+      sub: true,
+    },
+    {
+      name: 'preventDefault',
+      description: 'Call `event.preventDefault()` on a match.',
+      type: 'boolean',
+      default: 'true',
+      sub: true,
+    },
+    {
+      name: 'allowInInput',
+      description: 'Fire while an input, a textarea or a contenteditable has focus.',
+      type: 'boolean',
+      default: 'false',
+      sub: true,
+    },
+    {
+      name: 'priority',
+      description: 'Higher runs first; a handler calling `event.preventDefault()` stops the lower ones.',
+      type: 'number',
+      default: '0',
+      sub: true,
+    },
   ];
 
   protected readonly bindingApi = API.WrHotkeyBinding;
@@ -82,19 +111,18 @@ ngOnInit() {
       kind: 'Guide',
       title: 'Keyboard',
       url: ['/guides', 'keyboard'],
-      description: 'How chords, keycaps and key primitives fit together in one task.',
     },
     {
       kind: 'Component',
       title: 'WrKbd',
       url: ['/reference/components', 'keyboard'],
-      description: 'Render the chord you just bound so users can discover it.',
+      description: 'Show the shortcut.',
     },
     {
       kind: 'Util',
       title: 'KEYS',
       url: ['/reference/utils', 'keys'],
-      description: 'Canonical `KeyboardEvent.key` constants for your own handlers.',
+      description: 'KeyboardEvent.key constants.',
     },
   ];
 }

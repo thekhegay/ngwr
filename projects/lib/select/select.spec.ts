@@ -1,29 +1,23 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, type EnvironmentProviders, type Type, signal } from '@angular/core';
+import { Component, type Type, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, disabled, form, readonly, required } from '@angular/forms/signals';
 
-import { provideWrConfig } from 'ngwr/config';
 import { WrFormField } from 'ngwr/form';
 import { WrTPipe, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrSelectMode, WrSelectSize } from './interfaces';
 import { WrOption } from './option';
 import { WrOptionGroup } from './option-group';
 import { WrSelect } from './select';
+import type { WrSelectMode, WrSelectSize } from './types';
 
 /**
  * The panel is a CDK overlay, so its options land in the overlay container
  * rather than in the fixture's own DOM — every query for an option has to go
- * through the document. That is also why this spec provides `provideWrOverlay`:
- * without it the container is CDK's shared root, which the next spec file would
- * then inherit along with anything left in it.
+ * through the document. That container is ngwr's own and belongs to the
+ * TestBed's root injector, so the next spec file never inherits what is left in it.
  */
 @Component({
   imports: [WrSelect, WrOption],
@@ -42,7 +36,7 @@ class Host {
 @Component({
   imports: [WrSelect, WrOption],
   template: `
-    <wr-select mode="multi" placeholder="Pick sizes" ariaLabel="Sizes" [(value)]="sizes">
+    <wr-select mode="multi" placeholder="Pick sizes" ariaLabel="Sizes" [maxItems]="maxItems()" [(value)]="sizes">
       <wr-option value="sm">Small</wr-option>
       <wr-option value="md">Medium</wr-option>
       <wr-option value="lg">Large</wr-option>
@@ -51,6 +45,7 @@ class Host {
 })
 class MultiHost {
   readonly sizes = signal<unknown>([]);
+  readonly maxItems = signal(0);
 }
 
 @Component({
@@ -156,19 +151,6 @@ class ClearableSearchHost {
   `,
 })
 class ClearableMinCharsHost {
-  readonly size = signal<unknown>(null);
-}
-
-@Component({
-  imports: [WrSelect, WrOption],
-  template: `
-    <wr-select responsive placeholder="Pick a size" ariaLabel="Size" [(value)]="size">
-      <wr-option value="sm">Small</wr-option>
-      <wr-option value="md">Medium</wr-option>
-    </wr-select>
-  `,
-})
-class SheetHost {
   readonly size = signal<unknown>(null);
 }
 
@@ -313,9 +295,9 @@ class TagLimitsHost {
     </wr-select>
   `,
 })
-class ConfigHost {
-  readonly size = signal<WrSelectSize | null>(null);
-  readonly rounded = signal<boolean | null>(null);
+class ShapeHost {
+  readonly size = signal<WrSelectSize>('md');
+  readonly rounded = signal(false);
 }
 
 @Component({
@@ -394,7 +376,6 @@ describe('WrSelect', () => {
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -428,7 +409,7 @@ describe('WrSelect', () => {
 
   it('puts the panel in a container of its own, not CDK’s shared root', () => {
     openPanel();
-    // `provideWrOverlay()` exists so ngwr overlays cannot collide with
+    // ngwr overlays are isolated by default so they cannot collide with
     // Material's or NG-ZORRO's — a shared container is how z-index wars start.
     expect(document.querySelector('.wr-overlay-container')).toBeTruthy();
   });
@@ -560,12 +541,31 @@ describe('WrSelect in multi mode', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(MultiHost);
     fixture.detectChanges();
   });
 
   afterEach(() => fixture.destroy());
+
+  it('says which options it can no longer add once it holds maxItems', () => {
+    // They used to look and announce as choosable, then ignore the click or Enter
+    // with nothing on screen or in the accessibility tree to say why.
+    fixture.componentInstance.maxItems.set(2);
+    fixture.detectChanges();
+    open();
+    choose(0);
+    choose(1);
+
+    const unavailable = (el: HTMLElement): boolean =>
+      el.getAttribute('aria-disabled') === 'true' && el.classList.contains('wr-option--disabled');
+    expect(options().map(unavailable)).toEqual([false, false, true]);
+    choose(2);
+    expect(picked()).toEqual(['sm', 'md']);
+
+    // Removing one frees the rest again.
+    choose(0);
+    expect(options().map(unavailable)).toEqual([false, false, false]);
+  });
 
   it('announces that several options may be chosen', () => {
     open();
@@ -657,7 +657,6 @@ describe('WrSelect in search mode', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(SearchHost);
     fixture.detectChanges();
   });
@@ -837,7 +836,6 @@ describe('WrSelect panel: what the listbox owns', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(PanelStateHost);
     fixture.detectChanges();
     field().click();
@@ -940,7 +938,6 @@ describe('WrSelect with an async loader that fails', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(LoaderHost);
     fixture.detectChanges();
     field().click();
@@ -1003,7 +1000,6 @@ describe('WrSelect with an async loader that fails', () => {
 describe('WrSelect clearing a search selection from the keyboard', () => {
   const build = <T>(host: Type<T>): ReturnType<typeof TestBed.createComponent<T>> => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(host);
     fixture.detectChanges();
     return fixture;
@@ -1089,7 +1085,6 @@ describe('WrSelect in tag mode', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TagHost);
     fixture.detectChanges();
   });
@@ -1172,7 +1167,6 @@ describe('WrSelect tag paste splitting', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TagSeparatorsHost);
     fixture.detectChanges();
   });
@@ -1252,7 +1246,6 @@ describe('WrSelect in tag mode with a cap and duplicates', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TagLimitsHost);
     fixture.detectChanges();
   });
@@ -1345,7 +1338,6 @@ describe('WrSelect with a minimum query length', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(MinCharsHost);
     fixture.detectChanges();
   });
@@ -1413,50 +1405,6 @@ describe('WrSelect with a minimum query length', () => {
   });
 });
 
-describe('WrSelect as a bottom sheet', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
-  let width: number;
-
-  const trigger = (): HTMLElement =>
-    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="combobox"]')!;
-
-  beforeEach(() => {
-    // `wrPresentAsSheet` decides on `window.innerWidth` against a 640px default.
-    width = window.innerWidth;
-    Object.defineProperty(window, 'innerWidth', { value: 390, configurable: true });
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
-    fixture = TestBed.createComponent(SheetHost);
-    fixture.detectChanges();
-  });
-
-  afterEach(() => {
-    fixture.destroy();
-    Object.defineProperty(window, 'innerWidth', { value: width, configurable: true });
-  });
-
-  it('dims behind the sheet with the class that has the styles', () => {
-    // The sheet asked for a `wr-select-backdrop` that no stylesheet defines, and
-    // naming a custom class also drops CDK's own dark default — so the scrim was
-    // invisible while still swallowing every click meant for the page behind it.
-    // `wr-dropdown` and `wr-popover` both use the shared class, and this
-    // component's stylesheet already imports it.
-    trigger().click();
-    fixture.detectChanges();
-
-    const backdrop = document.querySelector('.cdk-overlay-backdrop');
-    expect(backdrop).not.toBeNull();
-    expect(backdrop!.classList.contains('wr-overlay-backdrop')).toBe(true);
-  });
-
-  it('presents the panel as a sheet', () => {
-    trigger().click();
-    fixture.detectChanges();
-
-    expect(document.querySelector('.wr-overlay-sheet')).not.toBeNull();
-  });
-});
-
 describe('WrSelect with both dynamic and projected options', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<MixedHost>>;
 
@@ -1474,7 +1422,6 @@ describe('WrSelect with both dynamic and projected options', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(MixedHost);
     fixture.detectChanges();
     field().dispatchEvent(new Event('focus'));
@@ -1529,22 +1476,16 @@ describe('WrSelect with both dynamic and projected options', () => {
 });
 
 /**
- * `provideWrConfig()` is a FALLBACK, not an override: the app-wide `select.size` /
- * `select.rounded` apply only where the template said nothing, and a bound value
- * still wins. Two things are specific to this component. The panel lives in the
- * overlay and builds its size modifier SEPARATELY from the trigger's host class,
- * so both are asserted — a resolved value read in only one of the two places is
- * exactly the half-configured state this pins down. And `rounded` is a boolean:
- * `[rounded]="false"` has to turn a configured `true` back off, which is the case a
- * `??` at the call site would get wrong.
+ * The panel lives in the overlay and builds its size modifier SEPARATELY from the
+ * trigger's host class, so both are asserted — a size read in only one of the two
+ * places is exactly the half-sized state this pins down.
  */
-describe('WrSelect + provideWrConfig', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<ConfigHost>>;
+describe('WrSelect size and shape', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ShapeHost>>;
 
-  const mount = (providers: EnvironmentProviders[] = []): HTMLElement => {
+  const mount = (): HTMLElement => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), ...providers] });
-    fixture = TestBed.createComponent(ConfigHost);
+    fixture = TestBed.createComponent(ShapeHost);
     fixture.detectChanges();
     return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-select')!;
   };
@@ -1558,62 +1499,31 @@ describe('WrSelect + provideWrConfig', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('renders the md default on trigger and panel when nothing is configured', () => {
+  it('renders the md default on trigger and panel with no modifier class', () => {
     const host = mount();
 
     expect(host.className).toBe('wr-select');
     expect([...panel().classList]).toEqual(['wr-select-panel']);
   });
 
-  it('takes the configured size on both the trigger and the overlay panel', () => {
-    const host = mount([provideWrConfig({ select: { size: 'sm' } })]);
-
-    expect(host.classList.contains('wr-select--sm')).toBe(true);
-    expect(panel().classList.contains('wr-select-panel--sm')).toBe(true);
-  });
-
-  it('lets a bound size beat the configured one, panel included', () => {
-    const host = mount([provideWrConfig({ select: { size: 'sm' } })]);
+  it('carries a bound size on both the trigger and the overlay panel', () => {
+    const host = mount();
     fixture.componentInstance.size.set('lg');
     fixture.detectChanges();
 
     expect(host.classList.contains('wr-select--lg')).toBe(true);
-    expect(host.classList.contains('wr-select--sm')).toBe(false);
-
-    const p = panel();
-    expect(p.classList.contains('wr-select-panel--lg')).toBe(true);
-    expect(p.classList.contains('wr-select-panel--sm')).toBe(false);
+    expect(panel().classList.contains('wr-select-panel--lg')).toBe(true);
   });
 
-  it('takes the configured rounded when the template binds none', () => {
-    expect(mount([provideWrConfig({ select: { rounded: true } })]).classList.contains('wr-select--rounded')).toBe(true);
-  });
+  it('rounds the trigger when bound, and squares it again for `false`', () => {
+    const host = mount();
+    fixture.componentInstance.rounded.set(true);
+    fixture.detectChanges();
+    expect(host.classList.contains('wr-select--rounded')).toBe(true);
 
-  it('lets a bound `false` turn a configured `rounded` back off', () => {
-    const host = mount([provideWrConfig({ select: { rounded: true } })]);
     fixture.componentInstance.rounded.set(false);
     fixture.detectChanges();
-
-    // The escape hatch: a global default a template cannot refuse is the failure
-    // mode this whole design exists to avoid.
     expect(host.classList.contains('wr-select--rounded')).toBe(false);
-  });
-
-  it('lets an explicitly bound `md` beat the configured size, panel included', () => {
-    const host = mount([provideWrConfig({ select: { size: 'sm' } })]);
-    fixture.componentInstance.size.set('md');
-    fixture.detectChanges();
-
-    // The size counterpart of `[rounded]="false"` above: `md` is the one bound
-    // value that renders as the ABSENCE of a class, so an implementation that
-    // treats it as "not set" is indistinguishable from a correct one in every
-    // other test here.
-    expect(host.className).toBe('wr-select');
-    expect([...panel().classList]).toEqual(['wr-select-panel']);
-  });
-
-  it('ignores a config that names other components', () => {
-    expect(mount([provideWrConfig({ input: { size: 'sm', rounded: true } })]).className).toBe('wr-select');
   });
 });
 
@@ -1622,7 +1532,6 @@ describe('WrSelect rounded attribute', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(RoundedAttrHost);
     fixture.detectChanges();
   });
@@ -1630,8 +1539,6 @@ describe('WrSelect rounded attribute', () => {
   afterEach(() => fixture.destroy());
 
   it('still reads a bare `rounded` as true', () => {
-    // Coercion has to keep running: the null-preserving transform buys `rounded`
-    // an "unset" state, and must not cost the bare-attribute form its meaning.
     const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-select')!;
 
     expect(host.classList.contains('wr-select--rounded')).toBe(true);
@@ -1665,7 +1572,7 @@ describe('WrSelect rounded attribute', () => {
 class FieldHost {
   private readonly model = signal({ country: '' });
   readonly profile = form(this.model, path => {
-    required(path.country);
+    required(path.country, { message: 'Choose a country.' });
   });
 }
 
@@ -1701,7 +1608,6 @@ describe('WrSelect inside a form field', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   const build = (component: Type<unknown>): ReturnType<typeof TestBed.createComponent> => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(component);
     fixture.detectChanges();
     return fixture;
@@ -1832,7 +1738,6 @@ describe('WrSelect with virtualScroll over grouped projected options', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(GroupedVirtualHost);
     fixture.detectChanges();
     field().dispatchEvent(new Event('focus'));
@@ -1874,7 +1779,6 @@ describe('WrSelect overflow chip', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -1887,7 +1791,6 @@ describe('WrSelect overflow chip', () => {
   };
 
   it('keeps its English wording when no catalog is configured', () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(OverflowMultiHost);
     fixture.detectChanges();
 
@@ -1924,7 +1827,6 @@ describe('WrSelect trigger label vs. option text that changes', () => {
     (fixture.nativeElement as HTMLElement).querySelector('.wr-select__value')!.textContent.trim();
 
   it('re-reads the selected option label when the option re-renders', async () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(RelabelHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -1943,7 +1845,6 @@ describe('WrSelect trigger label vs. option text that changes', () => {
   });
 
   it('re-reads it in multi mode too, where the label rides a chip', async () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(RelabelMultiHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -1963,7 +1864,6 @@ describe('WrSelect trigger label vs. option text that changes', () => {
   it('follows a catalog that lands after the first pass, the way pagination’s size changer does', async () => {
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -2093,7 +1993,6 @@ describe('WrSelect panel scrolling', () => {
       },
     });
 
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(LongHost);
     fixture.detectChanges();
   });
@@ -2236,7 +2135,6 @@ describe('WrSelect announces its autocomplete behaviour', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(ModeHost);
     fixture.detectChanges();
   });
@@ -2340,7 +2238,6 @@ describe('WrSelect virtual scrolling over a dynamic list', () => {
     });
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(VirtualHost);
     fixture.detectChanges();
     field().dispatchEvent(new Event('focus'));
@@ -2526,7 +2423,6 @@ describe('WrSelect with freeText', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(FreeTextHost);
     fixture.detectChanges();
     field().dispatchEvent(new Event('focus'));
@@ -2585,7 +2481,6 @@ describe('WrSelect with freeText', () => {
 describe('WrSelect edge paths in multi and tag mode', () => {
   const mount = <T>(host: Type<T>): ReturnType<typeof TestBed.createComponent<T>> => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(host);
     fixture.detectChanges();
     return fixture;
@@ -2696,7 +2591,6 @@ describe('WrSelect follows a direction flip while its panel is open', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -2743,82 +2637,6 @@ describe('WrSelect follows a direction flip while its panel is open', () => {
 });
 
 /**
- * The sheet is a GLOBAL overlay: its geometry is direction-free (full width,
- * pinned to the bottom edge), and its CONTENT is not. So it follows for the
- * same reason and through the same call — a check-boxed multi list that mirrors
- * on the page behind a sheet that does not is the same defect wearing a
- * different position strategy.
- */
-describe('WrSelect as a bottom sheet follows a direction flip', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
-  let width: number;
-
-  const trigger = (): HTMLElement =>
-    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="combobox"]')!;
-  const overlayHost = (): HTMLElement => document.querySelector<HTMLElement>('.wr-overlay-sheet')!.parentElement!;
-
-  beforeEach(() => {
-    // `wrPresentAsSheet` decides on `window.innerWidth` against a 640px default.
-    width = window.innerWidth;
-    Object.defineProperty(window, 'innerWidth', { value: 390, configurable: true });
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
-    fixture = TestBed.createComponent(SheetHost);
-    fixture.detectChanges();
-  });
-
-  afterEach(() => {
-    fixture.destroy();
-    Object.defineProperty(window, 'innerWidth', { value: width, configurable: true });
-  });
-
-  it('rewrites the open sheet’s `dir`', () => {
-    trigger().click();
-    fixture.detectChanges();
-    expect(overlayHost().getAttribute('dir')).toBe('ltr');
-
-    TestBed.inject(Directionality).valueSignal.set('rtl');
-    TestBed.tick();
-    fixture.detectChanges();
-
-    expect(overlayHost().getAttribute('dir')).toBe('rtl');
-  });
-});
-
-/** Every rule in one stylesheet, selector to declarations — read from source, see below. */
-const rulesOf = (file: string): Map<string, Record<string, string>> => {
-  const source = readFileSync(join(process.cwd(), file), 'utf8')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/(^|\s)\/\/[^\n]*/g, '$1');
-  const out = new Map<string, Record<string, string>>();
-  const stack: string[] = [];
-  let buffer = '';
-  for (const ch of source) {
-    if (ch === '{') {
-      const head = buffer.trim();
-      const parent = stack.at(-1);
-      stack.push(parent === undefined ? head : head.includes('&') ? head.replaceAll('&', parent) : `${parent} ${head}`);
-      buffer = '';
-    } else if (ch === ';' || ch === '}') {
-      const statement = buffer.trim();
-      const selector = stack.at(-1);
-      const colon = statement.indexOf(':');
-      if (selector !== undefined && colon > 0 && !statement.startsWith('@')) {
-        out.set(selector, {
-          ...out.get(selector),
-          [statement.slice(0, colon).trim()]: statement.slice(colon + 1).trim(),
-        });
-      }
-      if (ch === '}') stack.pop();
-      buffer = '';
-    } else {
-      buffer += ch;
-    }
-  }
-  return out;
-};
-
-/**
  * The width floor gives way to the layout. `--wr-select-min-width` used to be a
  * `min-width` on the TRIGGER, which no width on the host could beat: a
  * `<wr-select size="sm" style="width: 9rem">` drew a 160px trigger inside a
@@ -2826,24 +2644,19 @@ const rulesOf = (file: string): Map<string, Record<string, string>> => {
  * cell or flex row overhung it. The floor is now a zero-height spacer in a
  * one-column grid on the host.
  *
- * jsdom has no layout, so nothing here can measure a width — every rect is 0×0
- * and every one of these would pass on the stylesheet that overflowed. What a
- * spec CAN hold is the two halves the geometry rests on: the rendered DOM (the
- * trigger is the host's only element, so the spacer is the column's only other
- * item — a second top-level element would become a row of its own) and the
- * declarations, read from source the way `avatar.spec.ts` reads its own. The
- * widths were measured in Chromium, Firefox and WebKit.
+ * jsdom has no layout, so nothing here can measure a width. What a spec CAN
+ * hold is the rendered DOM the geometry rests on: the trigger is the host's only
+ * element, so the spacer is the column's only other item — a second top-level
+ * element would become a row of its own. The widths were measured in Chromium,
+ * Firefox and WebKit.
  */
 describe('WrSelect width floor', () => {
-  const SHEET = 'projects/lib/select/styles/_index.scss';
-
   it.each([
     ['a button trigger', Host, 'BUTTON'],
     ['a search trigger', SearchHost, 'DIV'],
     ['a tag trigger', TagHost, 'DIV'],
     ['a multi trigger', MultiHost, 'BUTTON'],
   ] as const)('renders %s as the host’s only element', (_, type: Type<unknown>, tag) => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(type);
     fixture.detectChanges();
 
@@ -2852,60 +2665,6 @@ describe('WrSelect width floor', () => {
       `${tag}.wr-select__trigger`,
     ]);
     fixture.destroy();
-  });
-
-  it('lays the host out as one column that can shrink to nothing', () => {
-    expect(rulesOf(SHEET).get('.wr-select')).toMatchObject({
-      display: 'inline-grid',
-      'grid-template-columns': 'minmax(0, 1fr)',
-      '--wr-select-min-width': '10rem',
-    });
-  });
-
-  it('gives a stretched host’s extra height to the trigger’s row, not the spacer’s', () => {
-    // An implicit second row would be `auto` and take a share of it: a host
-    // stretched to 60px by its flex row drew a 45px trigger over a 15px gap.
-    expect(rulesOf(SHEET).get('.wr-select')).toMatchObject({ 'grid-template-rows': 'auto 0' });
-  });
-
-  it('carries the floor on a spacer a narrower host caps', () => {
-    expect(rulesOf(SHEET).get('.wr-select::after')).toMatchObject({
-      content: "''",
-      width: 'var(--wr-select-min-width)',
-      'max-width': '100%',
-      height: '0',
-    });
-  });
-
-  it('lets the trigger follow the host down', () => {
-    expect(rulesOf(SHEET).get('.wr-select__trigger')).toMatchObject({ width: '100%', 'min-width': '0' });
-  });
-
-  it('keeps the tag field inside a chip row as narrow as the host', () => {
-    expect(rulesOf(SHEET).get('.wr-select__tag-input')).toMatchObject({
-      'min-width': 'min(4rem, 100%)',
-      'max-width': '100%',
-    });
-  });
-
-  it('is opted out of through the hook, never through the trigger', () => {
-    // A `min-width` on `.wr-select__trigger` no longer reaches the floor, so an
-    // override written that way is silently a no-op — which is what the pager's
-    // size changer was until it moved to the hook.
-    const sheets = (readdirSync(join(process.cwd(), 'projects/lib'), { recursive: true }) as string[])
-      .filter(file => file.endsWith('.scss') && !file.startsWith('select/'))
-      .map(file => `projects/lib/${file}`);
-    expect(sheets.length).toBeGreaterThan(50);
-
-    const reaching = sheets.flatMap(file =>
-      [...rulesOf(file)]
-        .filter(([selector, declarations]) => selector.includes('.wr-select__trigger') && 'min-width' in declarations)
-        .map(([selector]) => `${file}: ${selector}`)
-    );
-    expect(reaching).toEqual([]);
-    expect(rulesOf('projects/lib/pagination/styles/_index.scss').get('.wr-pagination__size.wr-select')).toEqual({
-      '--wr-select-min-width': '0',
-    });
   });
 });
 
@@ -2938,7 +2697,6 @@ describe('WrSelect panelClass', () => {
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(PanelClassHost);
     fixture.detectChanges();
   });
@@ -3026,7 +2784,6 @@ describe('WrSelect focused by its bound field', () => {
   const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-select')!;
 
   const build = (mode: WrSelectMode, searchable = false, setUp?: (host: FocusHost) => void): void => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(FocusHost);
     fixture.componentInstance.mode.set(mode);
     fixture.componentInstance.searchable.set(searchable);

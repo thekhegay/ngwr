@@ -2,8 +2,8 @@ import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
-import { createMemoryStorage, provideWrStorage } from 'ngwr/storage';
+import { provideWr } from 'ngwr';
+import { createMemoryStorage, withStorage } from 'ngwr/storage';
 // Through the ENTRY POINT, deliberately: `readLayout()`'s element type was declared
 // unexported in the service file, so a consumer compiled with `declaration: true`
 // — every downstream Angular library — could not store the result on an exported
@@ -29,7 +29,7 @@ describe('WrWindowManager', () => {
   const setup = (): WrWindowManager => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrStorage({ engine: () => engine })],
+      providers: [provideWr(withStorage({ engine: () => engine }))],
     });
     const created = TestBed.inject(WrWindowManager);
     TestBed.tick();
@@ -277,8 +277,10 @@ describe('WrWindowManager', () => {
     });
 
     it('closes the window in FRONT on Escape, not whichever opened last', () => {
-      const a = manager.open(Body, { id: 'a' });
-      const b = manager.open(Body, { id: 'b' });
+      // Focus outside every window is the case under test, so neither takes it
+      // on open: the window holding focus owns the key, which the next case pins.
+      const a = manager.open(Body, { id: 'a', autoFocus: false });
+      const b = manager.open(Body, { id: 'b', autoFocus: false });
       TestBed.tick();
 
       // The user brings A forward. Attach order does not follow — `focus()`
@@ -312,6 +314,35 @@ describe('WrWindowManager', () => {
       TestBed.tick();
 
       expect(manager.windows().map(w => w.id)).toEqual(['a']);
+    });
+
+    it('leaves a minimized window alone on Escape and closes the front one still on screen', () => {
+      const inbox = manager.open(Body, { id: 'inbox' });
+      const editor = manager.open(Body, { id: 'editor' });
+      TestBed.tick();
+      expect(editor.z()).toBeGreaterThan(inbox.z());
+
+      // The editor is in front by z, but `display: none` — closing it threw away
+      // a window the user could not see, along with its taskbar entry.
+      editor.minimize();
+      TestBed.tick();
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      TestBed.tick();
+
+      expect(manager.windows().map(w => w.id)).toEqual(['editor']);
+      expect(editor.state()).toBe('minimized');
+    });
+
+    it('puts one dialog role on a window, the named one', () => {
+      const ref = manager.open(Body, { title: 'Named' });
+      TestBed.tick();
+
+      const pane = ref._overlayRef.overlayElement;
+      const dialogs = [pane, ...pane.querySelectorAll('*')].filter(el => el.getAttribute('role') === 'dialog');
+      expect(dialogs).toHaveLength(1);
+      expect(dialogs[0].tagName.toLowerCase()).toBe('wr-window');
+      expect(dialogs[0].getAttribute('aria-labelledby')).toBeTruthy();
     });
 
     it('steps the spawn offset so two windows do not sit exactly on top of each other', () => {
@@ -517,7 +548,7 @@ describe('WrWindowManager follows a direction change while a window is open', ()
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrStorage({ engine: () => createMemoryStorage() })],
+      providers: [provideWr(withStorage({ engine: () => createMemoryStorage() }))],
     });
     manager = TestBed.inject(WrWindowManager);
     dir = TestBed.inject(Directionality);

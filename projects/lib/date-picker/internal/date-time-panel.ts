@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, ViewEncapsulation, computed, inject, input, output } from '@angular/core';
+import { Component, ViewEncapsulation, computed, inject, input, output, viewChild } from '@angular/core';
 
 import { WrCalendar } from 'ngwr/calendar';
 import { WrDateAdapter } from 'ngwr/date';
@@ -36,6 +36,13 @@ export class WrDateTimePanel {
   readonly step = input(1);
 
   /**
+   * The picker's `readonly`. The calendar stays browsable — that is the picker's
+   * contract — but a day click is refused here, and the time half takes the flag
+   * itself, so nothing in the panel moves to a value the model will not take.
+   */
+  readonly readonly = input(false);
+
+  /**
    * Forwarded to the calendar only: a datetime panel opened from the keyboard
    * lands on the day grid, never on the hours field. Picking the date first is
    * the order the panel is laid out in, and the time fields are one Tab away.
@@ -45,6 +52,7 @@ export class WrDateTimePanel {
   readonly changed = output<Date>();
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
+  private readonly calendar = viewChild.required(WrCalendar);
 
   /** Date portion used by the calendar — falls back to today when value is null. */
   protected readonly calendarValue = computed(() => this.value() ?? this.adapter.today());
@@ -54,6 +62,13 @@ export class WrDateTimePanel {
 
   protected onCalendarSelect(date: Date | null): void {
     if (!date) return;
+    if (this.readonly()) {
+      // The click has already moved the calendar's own model, and the `[date]` binding
+      // will not push an unchanged value back — so the grid would keep announcing the
+      // refused day as selected. Put it back by hand.
+      this.calendar().date.set(this.calendarValue());
+      return;
+    }
     const base = this.value() ?? this.adapter.today();
     const combined = this.adapter.setTime(
       this.adapter.createDate(this.adapter.getYear(date), this.adapter.getMonth(date), this.adapter.getDate(date)),

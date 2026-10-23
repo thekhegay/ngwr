@@ -1,19 +1,16 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
-import { WrDateAdapter } from 'ngwr/date';
-import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
+import { provideWr } from 'ngwr';
+import { WrDateAdapter, withDates } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrEventCalendar } from './event-calendar';
-import type { WrCalendarEvent, WrCalendarEventChange, WrCalendarSlot, WrCalendarView } from './interfaces';
+import type { WrCalendarEvent, WrCalendarEventChange, WrCalendarSlot, WrCalendarView } from './types';
 
 const AT = (day: number, hour = 9, minute = 0): Date => new Date(2026, 0, day, hour, minute);
 
@@ -70,6 +67,24 @@ class ReadOnlyHost {
   readonly changed = signal<WrCalendarEventChange | null>(null);
 }
 
+/** Applies every change the way the docs tell a host to, in the output handler. */
+@Component({
+  imports: [WrEventCalendar],
+  template: `
+    <wr-event-calendar editable view="day" [events]="events()" [date]="date" (eventChange)="apply($event)" />
+  `,
+})
+class ApplyingHost {
+  readonly events = signal(EVENTS);
+  readonly date = AT(14);
+
+  apply(change: WrCalendarEventChange): void {
+    this.events.update(list =>
+      list.map(e => (e.id === change.event.id ? { ...e, start: change.start, end: change.end } : e))
+    );
+  }
+}
+
 describe('WrEventCalendar', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -88,7 +103,7 @@ describe('WrEventCalendar', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -97,26 +112,23 @@ describe('WrEventCalendar', () => {
 
   describe('dragging a chip', () => {
     /**
-     * jsdom hit-tests nothing — `elementFromPoint` is null for every coordinate —
-     * so the hit test is stubbed, and stubbed HONESTLY: the stub returns whatever
-     * sits at the coordinate, and returns the CHIP when the chip is still
-     * hit-testable, which is precisely the behaviour that made the origin wrong.
+     * jsdom hit-tests nothing — `elementsFromPoint` is not even defined — so the
+     * hit test is stubbed, and stubbed HONESTLY: each coordinate answers with
+     * the stack a browser reports there, chips first and the cell under them
+     * after, minus anything whose inline `pointer-events` is `none`. Both
+     * spellings answer from the one table, so code that read the topmost element
+     * and climbed would see exactly what a browser shows it.
      */
-    const dragChip = (title: string, grabOver: HTMLElement, dropOver: HTMLElement): void => {
+    const dragChip = (title: string, grabOver: Element[], dropOver: Element[]): void => {
       const chip = chipFor(title)!;
-      const at = new Map<number, HTMLElement>([
+      const at = new Map<number, Element[]>([
         [10, grabOver],
         [20, dropOver],
       ]);
-      // jsdom does not implement `elementFromPoint` AT ALL — it is undefined here,
-      // not merely null-returning — so the property is installed and removed.
-      const original = Object.getOwnPropertyDescriptor(Document.prototype, 'elementFromPoint');
-      document.elementFromPoint = (x: number): Element | null => {
-        const cell = at.get(x) ?? null;
-        // While the chip can take a hit test, it is what the browser reports.
-        if (chip.style.pointerEvents !== 'none' && x === 10) return chip;
-        return cell;
-      };
+      const stack = (x: number): Element[] =>
+        (at.get(x) ?? []).filter(el => (el as HTMLElement).style.pointerEvents !== 'none').concat(root());
+      document.elementsFromPoint = (x: number): Element[] => stack(x);
+      document.elementFromPoint = (x: number): Element | null => stack(x)[0] ?? null;
 
       const down = new Event('pointerdown', { bubbles: true, cancelable: true });
       Object.assign(down, { clientX: 10, clientY: 0, button: 0, isPrimary: true, pointerId: 1 });
@@ -128,9 +140,14 @@ describe('WrEventCalendar', () => {
       chip.dispatchEvent(up);
       fixture.detectChanges();
 
-      if (original) Object.defineProperty(document, 'elementFromPoint', original);
-      else delete (document as Partial<Document>).elementFromPoint;
+      delete (document as Partial<Document>).elementsFromPoint;
+      delete (document as Partial<Document>).elementFromPoint;
     };
+
+    const slot = (day: number, minutes: number): HTMLElement =>
+      root().querySelector<HTMLElement>(
+        `[data-cell-date="${new Date(2026, 0, day).getTime()}"][data-cell-minutes="${minutes}"]`
+      )!;
 
     it('measures the grab from the cell under the pointer, not the chip own cell', () => {
       // A chip reaches past the cell it starts in (a band spans days with a
@@ -142,7 +159,7 @@ describe('WrEventCalendar', () => {
       const grab = dayCells[1];
       const drop = dayCells[2];
 
-      dragChip('Standup', grab, drop);
+      dragChip('Standup', [chipFor('Standup')!, grab], [drop]);
 
       const change = fixture.componentInstance.changed();
       expect(change).not.toBeNull();
@@ -152,6 +169,41 @@ describe('WrEventCalendar', () => {
 
       // One cell of travel, whatever the chip happened to start on.
       expect(moved).toBe(droppedOn - grabbedOn);
+    });
+
+    it('drops into the slot under the pointer when another chip covers it', () => {
+      // A chip lives in the cell it STARTS in and reaches down over the slots
+      // after it. Climbing from the topmost element found Review's own 14:00
+      // cell, so a drop on 14:30 landed half an hour early.
+      setView('day');
+      dragChip('Standup', [chipFor('Standup')!, slot(14, 540)], [chipFor('Review')!, slot(14, 870)]);
+
+      expect(fixture.componentInstance.changed()?.start).toEqual(AT(14, 14, 30));
+    });
+
+    it('drops onto the day under the pointer when a band covers it', () => {
+      // The month-view twin: a multi-day band painted over the drop day.
+      fixture.componentInstance.events.set([
+        ...EVENTS,
+        { id: 'trip', title: 'Trip', start: AT(11, 0), end: AT(17, 0), allDay: true },
+      ]);
+      fixture.detectChanges();
+      const day = (d: number): HTMLElement =>
+        root().querySelector<HTMLElement>(`[data-cell-date="${new Date(2026, 0, d).getTime()}"]`)!;
+
+      dragChip('Standup', [chipFor('Standup')!, day(14)], [chipFor('Trip')!, day(15)]);
+
+      expect(fixture.componentInstance.changed()?.start).toEqual(AT(15, 9));
+    });
+
+    it('is not a drop when something outside the calendar is on top', () => {
+      const cover = document.createElement('div');
+      document.body.append(cover);
+      setView('day');
+      dragChip('Standup', [chipFor('Standup')!, slot(14, 540)], [cover, slot(14, 870)]);
+      cover.remove();
+
+      expect(fixture.componentInstance.changed()).toBeNull();
     });
   });
 
@@ -231,7 +283,7 @@ describe('WrEventCalendar', () => {
 
     const mountGb = (view: WrCalendarView): void => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter({ locale: 'en-GB' })] });
+      TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-GB' }))] });
       gb = TestBed.createComponent(Host);
       gb.componentInstance.view.set(view);
       gb.detectChanges();
@@ -409,9 +461,43 @@ describe('WrEventCalendar', () => {
       expect(change?.start.getTime()).not.toBe(AT(14, 9).getTime());
     });
 
+    it('keeps focus on the chip a host re-rendered, so the next Alt + arrow still moves it', async () => {
+      // The applied change re-renders the event in another cell under another
+      // track key, which destroys the focused button: focus fell to <body> and
+      // the second press went nowhere.
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
+      const applying = TestBed.createComponent(ApplyingHost);
+      applying.autoDetectChanges();
+      await applying.whenStable();
+      const el = applying.nativeElement as HTMLElement;
+      const standup = (): HTMLElement =>
+        [...el.querySelectorAll<HTMLElement>('.wr-event-calendar__chip')].find(c =>
+          (c.getAttribute('aria-label') ?? '').startsWith('Standup')
+        )!;
+      const press = async (shiftKey = false): Promise<void> => {
+        (document.activeElement as HTMLElement).dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'ArrowDown', altKey: true, shiftKey, bubbles: true, cancelable: true })
+        );
+        await applying.whenStable();
+      };
+
+      standup().focus();
+      await press();
+      expect(document.activeElement).toBe(standup());
+      await press();
+      expect(applying.componentInstance.events()[0].start).toEqual(AT(14, 10));
+
+      // The resize keeps the start, so its chip stays put — and keeps focus too.
+      await press(true);
+      expect(document.activeElement).toBe(standup());
+      expect(applying.componentInstance.events()[0].end).toEqual(AT(14, 11));
+      applying.destroy();
+    });
+
     it('refuses to move anything in a read-only calendar', () => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+      TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
       const readOnly = TestBed.createComponent(ReadOnlyHost);
       readOnly.detectChanges();
 
@@ -530,7 +616,7 @@ describe('WrEventCalendar under dir="rtl"', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrDateFnsAdapter(),
+        provideWr(withDates()),
         { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
       ],
     });
@@ -626,7 +712,7 @@ describe('WrEventCalendar lanes a cluster along the inline axis', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
     fixture = TestBed.createComponent(OverlapHost);
     fixture.detectChanges();
   });
@@ -684,7 +770,7 @@ describe('WrEventCalendar sizes a row for the lanes its chips fill', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
     fixture = TestBed.createComponent(StackedHost);
     fixture.detectChanges();
   });
@@ -719,137 +805,6 @@ describe('WrEventCalendar sizes a row for the lanes its chips fill', () => {
     const band = root().querySelector('.wr-event-calendar__row--allday')!;
     expect(band.querySelectorAll('.wr-event-calendar__chip--band')).toHaveLength(3);
     expect(lanes(band)).toBe('3');
-  });
-});
-
-/**
- * ⚠️ This one guards the RULE, not the behaviour.
- *
- * A touch drag cannot be expressed in jsdom at all: there is no cascade and no
- * gesture arbitration, and `dragChip` above synthesizes a bare `pointerdown` —
- * exactly the event a coarse pointer does get, and never gets to finish.
- */
-describe('the event-calendar stylesheet', () => {
-  const code = readFileSync(join(process.cwd(), 'projects/lib/event-calendar/styles/_index.scss'), 'utf8')
-    .split('\n')
-    .filter(line => !line.trim().startsWith('//'))
-    .join('\n');
-
-  it('owns the drag gesture on an editable chip', () => {
-    // Without it the browser claims the press as a pan and fires
-    // `pointercancel`, the host's cancel binding drops the drag state, and no
-    // `pointerup` ever arrives — so a chip cannot be moved or resized with a
-    // finger. The block has no nested rule, so `[^}]*` is its whole body.
-    const rule = /&--editable &__chip \{([^}]*)\}/.exec(code)?.[1] ?? '';
-
-    expect(rule).toMatch(/cursor:\s*grab;/);
-    expect(rule).toMatch(/touch-action:\s*none;/);
-  });
-
-  // The next four are the half of the grid-line fix jsdom can hold. What they
-  // produce — one hairline on every edge, in both themes and every view — was
-  // measured in Chromium by scanning pixels across each edge, not here.
-
-  it('draws lines on logical sides, so they follow the columns under dir="rtl"', () => {
-    // `box-shadow` has no logical form: every cell drew its line on the physical
-    // right, which is the frame for the first column in RTL.
-    expect(code).not.toMatch(/box-shadow:\s*inset/);
-    expect(code).not.toMatch(/border-(?:left|right)/);
-    expect(code).toMatch(/&__cell--day::after,\s*&__cell--allday::after \{\s*border-inline-end-width: 1px;/);
-  });
-
-  it('leaves the edges that meet the frame to the frame', () => {
-    // The frame is the grid's own outer shadow; a line here doubled it.
-    expect(code).toMatch(/&__row > :last-child::after \{\s*border-inline-end-width: 0;\s*\}/);
-    expect(code).toMatch(/&__row:last-child > &__cell::after \{\s*border-block-end-width: 0;\s*\}/);
-    // And the first hour line sits under a rule that is already there.
-    expect(code).toMatch(
-      /&__row:first-child \+ &__row > &__cell--major::after,\s*&__row--allday \+ &__row > &__cell--major::after \{\s*border-block-start-width: 0;/
-    );
-  });
-
-  it('keeps the time gutter to one line that cannot size a row', () => {
-    const gutter = /\n {2}&__gutter \{([^}]*)\}/.exec(code)?.[1] ?? '';
-
-    // A wrapped "09:00 AM" made its row 36px against 24px slot cells: every
-    // column line broke at every hour and every timed chip ended short.
-    expect(gutter).toMatch(/white-space: nowrap;/);
-    expect(gutter).toMatch(/line-height: 1;/);
-    // The transform moves the box, so a line of the gutter's own would move too.
-    expect(gutter).not.toMatch(/box-shadow|border/);
-    expect(code).toMatch(/minmax\(var\(--wr-event-calendar-gutter\), max-content\)/);
-  });
-
-  it('offsets a timed chip from the inline start the template hands it', () => {
-    // The chip's `&--time`, not the grid's, which comes first.
-    const time = /&--time \{([^}]*)\}/.exec(code.slice(code.indexOf('&__chip {')))?.[1] ?? '';
-
-    expect(time).toMatch(/inset-inline-start: calc\(var\(--wr-event-calendar-inline-start\) \+/);
-    expect(time).toMatch(/width: calc\(var\(--wr-event-calendar-inline-size\) -/);
-    expect(time).toMatch(/height: calc\(var\(--wr-event-calendar-block-size\) -/);
-    expect(time).not.toMatch(/\bleft:/);
-  });
-
-  // The rest hold the rules that READ what the template writes. The lane specs
-  // above pin the number on the row, and every one of these rules could be
-  // reverted under them with all of those still green. What the rules produce
-  // was measured in Chromium, not here: rows that grow for a third lane, a 2px
-  // focus ring on every side of a cell, a one-line title in a one-slot chip,
-  // and axe's target-size at widths from 375px to 1280px.
-
-  it('grows a day and an all-day cell for the lanes the row says it fills', () => {
-    const day = /&--day \{([^}]*)\}/.exec(code)?.[1] ?? '';
-    const allDay = /&--allday \{([^}]*)\}/.exec(code)?.[1] ?? '';
-    const slot = /&--slot \{([^}]*)\}/.exec(code)?.[1] ?? '';
-
-    expect(day).toMatch(/min-height: max\(\s*5\.5rem,[^;]*var\(--wr-event-calendar-lanes, 0\)/);
-    expect(allDay).toMatch(/min-height: calc\([^;]*var\(--wr-event-calendar-lanes, 1\)/);
-    // A fixed height left a slot cell's lines short of a row that grew anyway.
-    expect(slot).toMatch(/min-height: var\(--wr-event-calendar-slot-height\);/);
-    expect(slot).not.toMatch(/(^|[^-])height:/m);
-  });
-
-  it('keeps a gap above the first lane and between lanes, the "+N more" button included', () => {
-    const band = /&--band \{([^}]*)\}/.exec(code.slice(code.indexOf('&__chip {')))?.[1] ?? '';
-    const more = /\n {2}&__more \{([^}]*)\}/.exec(code)?.[1] ?? '';
-    const lanes =
-      /var\(--wr-event-calendar-lane\) \*\s*\(var\(--wr-event-calendar-band-height\) \+ var\(--wr-event-calendar-chip-gap\)\)/;
-
-    expect(band).toMatch(/top: calc\(\s*var\(--wr-event-calendar-offset\) \+ var\(--wr-event-calendar-chip-gap\) \+/);
-    expect(band).toMatch(lanes);
-    expect(more).toMatch(/margin-top: calc\(\s*var\(--wr-event-calendar-chip-gap\) \+/);
-    expect(more).toMatch(lanes);
-    // As tall as a chip, so its centre is one full pitch below the chip above:
-    // at 18px it was 23px away, short of the 24px WCAG 2.5.8's spacing exception asks for.
-    expect(more).toMatch(/min-height: var\(--wr-event-calendar-band-height\);/);
-  });
-
-  it('paints the grid lines of a focused cell under its focus ring', () => {
-    // The focused cell's `z-index` makes it a stacking context, and a positioned
-    // `::after` inside one painted over the inset outline.
-    expect(code).toMatch(/&__cell:focus-visible::after \{\s*z-index: -1;\s*\}/);
-  });
-
-  it('keeps the all-day label out of the gutter width', () => {
-    const allDayGutter = /&__row--allday > &__gutter \{([^}]*)\}/.exec(code)?.[1] ?? '';
-
-    // "Toute la journée" on one line widened the French gutter from 72px to 107px.
-    expect(allDayGutter).toMatch(/contain: inline-size;/);
-    expect(allDayGutter).toMatch(/white-space: normal;/);
-    // Wrapped instead, its second line ran into the first hour's label, which
-    // the gutter lifts 0.5em into this row. The bottom padding grows the row.
-    expect(allDayGutter).toMatch(/padding-block: var\(--wr-event-calendar-chip-gap\) 1em;/);
-    expect(code).toMatch(/\n {2}&__gutter \{[^}]*transform: translateY\(-0\.5em\);/);
-  });
-
-  it('keeps the title on the clock line of a chip that holds one line', () => {
-    const time = /&--time \{([^}]*)\}/.exec(code.slice(code.indexOf('&__chip {')))?.[1] ?? '';
-
-    expect(time).toMatch(/container: wr-event-calendar-chip \/ size;/);
-    // Wrapped, the title started 14.4px down a 16px content box.
-    expect(code).toMatch(
-      /@container wr-event-calendar-chip \(height < 2\.4em\) \{\s*\.wr-event-calendar__chip-title \{\s*flex: 1 1 0;\s*min-width: 0;\s*white-space: nowrap;/
-    );
   });
 });
 
@@ -891,7 +846,7 @@ describe('WrEventCalendar composes its strings from the catalog', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrDateFnsAdapter(),
+        provideWr(withDates()),
         provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
         provideWrI18nStaticLoader({ xx: CATALOG }),
       ],

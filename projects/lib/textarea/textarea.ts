@@ -24,7 +24,6 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { useConfigValue } from 'ngwr/config';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 
 /**
@@ -77,17 +76,8 @@ export class WrTextarea implements FormValueControl<string> {
     return placeholder ? placeholder : null;
   });
 
-  /**
-   * Control size — shares the `--wr-control-*` contract. Unset, it falls back to
-   * `provideWrConfig({ textarea: { size } })`. @default 'md'
-   */
-  readonly size = input<WrTextareaSize | null>(null);
-
-  // `null` as the input's own default, not `'md'`: with a literal sitting there,
-  // "the template said nothing" and "the template said md" are the same value, so no
-  // app-wide default could ever apply. The effective default is the last argument
-  // below, which is where the old inline one moved to.
-  protected readonly resolvedSize = useConfigValue(this.size, c => c.textarea?.size, 'md');
+  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
+  readonly size = input<WrTextareaSize>('md');
 
   /** Visible row count. @default 3 */
   readonly rows = input(3, { transform: (v: unknown): number => coerceNumberProperty(v, 3) });
@@ -170,13 +160,20 @@ export class WrTextarea implements FormValueControl<string> {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-textarea'];
-    const size = this.resolvedSize();
+    const size = this.size();
     if (size !== 'md') parts.push(`wr-textarea--${size}`);
     if (this.autosize()) parts.push('wr-textarea--no-resize');
     const resize = this.effectiveResize();
     if (resize === 'horizontal' || resize === 'both') parts.push('wr-textarea--resize-x');
     if (this.focused()) parts.push('wr-textarea--focused');
     if (this.disabled()) parts.push('wr-textarea--disabled');
+    // Read-only has to LOOK different, or it is a box that silently refuses
+    // what is typed into it. `readonly` reached the native element and
+    // produced no class and no rule, so a read-only textarea was identical to
+    // an editable one: same fill, same border, same text cursor. The library's
+    // own contract for a value control is a `wr-<x>--readonly` class with a
+    // non-editable cue, which `.wr-input[readonly]` already draws.
+    if (this.readonly()) parts.push('wr-textarea--readonly');
     return parts.join(' ');
   });
 
@@ -315,16 +312,24 @@ export class WrTextarea implements FormValueControl<string> {
     if (!this.autosize()) return;
     el.style.height = 'auto';
 
+    // `scrollHeight` is the content PLUS the vertical padding, and the height it is
+    // turned into has to be in the box the field is sized by. The cap was the rows
+    // alone, compared against that padded figure — so `maxRows="6"` on a field with
+    // 8px of padding a side stopped at 5.2 rows, the top one half cut off.
+    const cs = getComputedStyle(el);
+    const paddingY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+    const borderY = (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.borderBottomWidth) || 0);
+    const toHeight = (scroll: number): number =>
+      cs.boxSizing === 'border-box' ? scroll + borderY : Math.max(0, scroll - paddingY);
+
     const maxRows = this.maxRows();
     if (maxRows && maxRows > 0) {
-      const cs = getComputedStyle(el);
       const lineHeight = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
-      const cap = lineHeight * maxRows;
-      const next = Math.min(el.scrollHeight, cap);
-      el.style.height = `${next}px`;
+      const cap = lineHeight * maxRows + paddingY;
+      el.style.height = `${toHeight(Math.min(el.scrollHeight, cap))}px`;
       el.style.overflowY = el.scrollHeight > cap ? 'auto' : 'hidden';
     } else {
-      el.style.height = `${el.scrollHeight}px`;
+      el.style.height = `${toHeight(el.scrollHeight)}px`;
       el.style.overflowY = 'hidden';
     }
   }

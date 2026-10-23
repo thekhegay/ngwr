@@ -79,6 +79,7 @@ export const wrTr: WrI18nCatalog = {
   },
   stepper: {
     optional: 'isteğe bağlı',
+    completed: 'tamamlandı',
   },
   transfer: {
     source: 'Kullanılabilir',
@@ -93,29 +94,6 @@ export const wrTr: WrI18nCatalog = {
   },
   form: {
     optional: 'isteğe bağlı',
-  },
-  validation: {
-    required: 'Bu alan zorunludur.',
-    requiredTrue: 'Bu alan işaretlenmelidir.',
-    email: 'Geçerli bir e-posta adresi girin.',
-    minlength: 'En az {{requiredLength}} karakter girin.',
-    maxlength: 'En fazla {{requiredLength}} karakter girin.',
-    min: 'En az {{min}} girin.',
-    max: 'En fazla {{max}} girin.',
-    pattern: 'Bu değer beklenen biçimde değil.',
-    noWhitespace: 'Bu değer boşluk içeremez.',
-    hexColor: 'Onaltılık renk kodu girin, örn. #1a2b3c.',
-    url: 'Geçerli bir URL girin.',
-    cardNumber: 'Geçerli bir kart numarası girin.',
-    cvc: '{{length}} haneli güvenlik kodunu girin.',
-    iban: 'Geçerli bir IBAN girin.',
-    match: 'İki değer eşleşmiyor.',
-    matchFields: 'Bu alanlar eşleşmiyor.',
-    oneOf: 'İzin verilen değerlerden birini seçin.',
-    minDate: 'Daha ileri bir tarih seçin.',
-    maxDate: 'Daha erken bir tarih seçin.',
-    dateFormat: 'Beklenen biçim: {{example}}',
-    dateFilter: 'Bu tarih seçilemez.',
   },
   select: {
     // `role="combobox"` denetiminin erişilebilir adı, yani buyruk değil ad
@@ -251,6 +229,9 @@ export const wrTr: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Çubuk grafiği',
+  },
   calendarHeatmap: {
     label: 'Takvim ısı haritası',
     cell: '{{date}}: {{count}}',
@@ -259,7 +240,6 @@ export const wrTr: WrI18nCatalog = {
     // Belirtisiz ad tamlaması: Türkçede tamlanan ad iyelik eki alır — “çizgi
     // grafiği”, “halka grafiği”, tıpkı yukarıdaki “takvim ısı haritası” gibi.
     label: 'Çizgi grafiği',
-    thousands: '{{value}} B',
   },
   donutChart: {
     label: 'Halka grafiği',
@@ -278,9 +258,6 @@ export const wrTr: WrI18nCatalog = {
     pagination: 'Karusel sayfalaması',
     roledescription: 'karusel',
     slideRoledescription: 'slayt',
-  },
-  actionSheet: {
-    label: 'İşlemler',
   },
   alert: {
     close: 'Uyarıyı kapat',
@@ -314,12 +291,6 @@ export const wrTr: WrI18nCatalog = {
   // değiştirin.
   popover: {
     label: 'Açılır panel',
-  },
-  markdown: {
-    copy: 'Kodu kopyala',
-    copied: 'Kopyalandı',
-    taskDone: 'Tamamlandı:',
-    taskTodo: 'Yapılacak:',
   },
   editor: {
     label: 'Zengin metin',
@@ -397,6 +368,9 @@ export const wrTr: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Kenar çubuğu',
+    containsCurrent: 'geçerli sayfayı içerir',
+    subpages: '{{title}} alt sayfaları',
+    separator: ',',
   },
   spinner: {
     label: 'Yükleniyor',

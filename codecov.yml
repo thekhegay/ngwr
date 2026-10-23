@@ -31,7 +31,7 @@ ignore:
   # Specs are excluded from `tsconfig.lib.json` and never ship to npm, so counting
   # them as covered source would only inflate the number.
   - '**/*.spec.ts'
-  # Barrels and ng-packagr entry files are re-exports with nothing to execute.
+  # Barrels and entry-point files are re-exports with nothing to execute.
   - '**/index.ts'
   - '**/public-api.ts'
   # The docs site is not the library. `lib:test` never instruments it, but naming

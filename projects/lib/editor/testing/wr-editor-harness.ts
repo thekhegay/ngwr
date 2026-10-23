@@ -18,7 +18,7 @@ import { WrButtonHarness } from 'ngwr/button/testing';
 import { WrInputHarness } from 'ngwr/input/testing';
 import { WrPopoverHarness } from 'ngwr/popover/testing';
 
-import type { WrEditorHarnessFilters } from './interfaces';
+import type { WrEditorHarnessFilters } from './types';
 
 /** The text surface ProseMirror mounts on. Not rendered at all while the editor is read-only. */
 const SURFACE = '.wr-editor__surface';
@@ -67,12 +67,12 @@ function primaryModifier(): ModifierKeys {
  * toolbar above it, and the link panel one of its buttons opens.
  *
  * **The value is not read here, and that is the first thing to know.** The model
- * holds an HTML string, a markdown string or a JSON tree depending on `format`, and
- * all three are written by the editor's codec, never by the DOM. What the surface
- * draws is ProseMirror's rendering of the document — a trailing `<br>` in an empty
- * paragraph, a presentational box beside a task item — so a string derived from it
- * would be a fourth format agreeing with none of the three. A spec reads the value
- * from what it bound (`form.body().value()`, the `[(value)]` signal); this harness
+ * holds the document as a JSON tree, written by the editor from its document and
+ * never from the DOM. What the surface draws is ProseMirror's rendering of that
+ * document — a trailing `<br>` in an empty paragraph, a presentational box beside a
+ * task item — so a value derived from it would be a second answer that agrees with
+ * the first only when nothing interesting is on screen. A spec reads the value from
+ * what it bound (`form.body().value()`, the `[(value)]` signal); this harness
  * answers the other question, what is DRAWN ({@link getText}), and a spec on an
  * editor should usually ask both.
  *
@@ -147,7 +147,10 @@ function primaryModifier(): ModifierKeys {
  * await (await body.getTool('Bold')).click();
  *
  * expect(await body.isToolPressed('Bold')).toBe(true);
- * expect(host.value()).toBe('<p><strong>Release notes</strong></p>');
+ * expect(host.value()).toEqual({
+ *   type: 'doc',
+ *   content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Release notes', marks: [{ type: 'strong' }] }] }],
+ * });
  * ```
  *
  * @see https://ngwr.dev/guides/testing
@@ -313,7 +316,7 @@ export class WrEditorHarness extends ComponentHarness {
    * the way Shift+Enter makes one; more paragraphs, lists and headings come from the
    * toolbar, {@link pressKey} or {@link pasteHtml}.
    *
-   * An empty `text` empties the document, which writes `''` (`null` in `json` format).
+   * An empty `text` empties the document, which writes `null`.
    *
    * Throws on a disabled or read-only editor, where no user could change a word — the
    * surface is not contenteditable then, and is not even rendered when read-only came
@@ -346,8 +349,8 @@ export class WrEditorHarness extends ComponentHarness {
    * `text/html` with `text` as its `text/plain` twin.
    *
    * This is the path to exercise what the editor strips from untrusted markup: the
-   * pasted HTML is parsed without executing anything and rebuilt from the schema,
-   * exactly as a bound HTML value is, so `onclick`, a `javascript:` link or an
+   * pasted HTML is parsed by ProseMirror without executing anything and rebuilt
+   * through the schema's parse rules, so `onclick`, a `javascript:` link or an
    * `<iframe>` never reaches the document. Read-only and disabled behave as in
    * {@link paste}.
    */
@@ -449,9 +452,8 @@ export class WrEditorHarness extends ComponentHarness {
   /**
    * The names of the drawn tools, in order, separators left out.
    *
-   * What is DRAWN, which is not always what was bound: `underline` is dropped in
-   * `markdown` format, which cannot store it, and a duplicate or a stray separator is
-   * dropped too.
+   * What is DRAWN, which is not always what was bound: a duplicate tool or a stray
+   * separator is dropped.
    */
   async getToolLabels(): Promise<string[]> {
     const tools = await this.locatorForAll(TOOL)();
@@ -477,7 +479,7 @@ export class WrEditorHarness extends ComponentHarness {
 
     throw new Error(
       `WrEditorHarness.getTool(): no tool is named ${label}. The toolbar draws ` +
-        `${JSON.stringify(await this.getToolLabels())} — note that underline is not drawn in markdown format.`
+        `${JSON.stringify(await this.getToolLabels())}.`
     );
   }
 

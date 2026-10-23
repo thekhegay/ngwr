@@ -1,8 +1,7 @@
-import { Component, type EnvironmentProviders, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, disabled, form, readonly } from '@angular/forms/signals';
 
-import { provideWrConfig } from 'ngwr/config';
 import { WrFormField } from 'ngwr/form';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -34,8 +33,8 @@ class Host {
 
 /**
  * `size` lives on the OPTION, not on the group — there is no `<wr-radio-group
- * size>` to inherit from — so the second radio is left unbound to show what the
- * app config reaches.
+ * size>` to inherit from — so the second radio is left unbound to show that a
+ * size reaches only the option it is bound on.
  */
 @Component({
   imports: [WrRadio, WrRadioGroup],
@@ -47,7 +46,7 @@ class Host {
   `,
 })
 class SizeHost {
-  readonly size = signal<WrRadioSize | null>(null);
+  readonly size = signal<WrRadioSize>('md');
 }
 
 @Component({
@@ -165,17 +164,14 @@ describe('WrRadio in a group', () => {
 });
 
 /**
- * `provideWrConfig()` is a FALLBACK, not an override: the app-wide `radio.size`
- * applies only where the template said nothing, and a bound `[size]` still wins.
- * The first test is the invariant the whole change rests on — with no config both
- * options render exactly what they always did, which for `md` is no modifier at all.
+ * The size lands as a BEM modifier on the one option that binds it, and `md` is
+ * the one value that renders as the ABSENCE of a class.
  */
-describe('WrRadio + provideWrConfig', () => {
+describe('WrRadio size', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<SizeHost>>;
 
-  const mount = (providers: EnvironmentProviders[] = []): HTMLElement[] => {
+  const mount = (): HTMLElement[] => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers });
     fixture = TestBed.createComponent(SizeHost);
     fixture.detectChanges();
     return [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('wr-radio')];
@@ -183,43 +179,19 @@ describe('WrRadio + provideWrConfig', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('renders the md default with no modifier class when nothing is configured', () => {
+  it('renders the md default with no modifier class', () => {
     expect(mount().map(h => h.className)).toEqual(['wr-radio', 'wr-radio']);
   });
 
-  it('takes the configured size on every option the template left unbound', () => {
-    expect(mount([provideWrConfig({ radio: { size: 'lg' } })]).map(h => h.className)).toEqual([
-      'wr-radio wr-radio--lg',
-      'wr-radio wr-radio--lg',
-    ]);
-  });
-
-  it('lets a bound size beat the configured one, per option', () => {
-    const hosts = mount([provideWrConfig({ radio: { size: 'lg' } })]);
+  it('sizes only the option that binds it, and drops the modifier again for md', () => {
+    const hosts = mount();
     fixture.componentInstance.size.set('sm');
     fixture.detectChanges();
+    expect(hosts.map(h => h.className)).toEqual(['wr-radio wr-radio--sm', 'wr-radio']);
 
-    // The bound option wins; its unbound sibling still follows the config.
-    expect(hosts.map(h => h.className)).toEqual(['wr-radio wr-radio--sm', 'wr-radio wr-radio--lg']);
-  });
-
-  it('lets an explicitly bound `md` beat the configured size', () => {
-    const hosts = mount([provideWrConfig({ radio: { size: 'lg' } })]);
     fixture.componentInstance.size.set('md');
     fixture.detectChanges();
-
-    // The size counterpart of `[rounded]="false"`: `md` is the one bound value
-    // that renders as the ABSENCE of a class, so an implementation that treats it
-    // as "not set" looks identical to a correct one in every other test here — the
-    // configured sibling next to it is what makes the difference visible.
-    expect(hosts.map(h => h.className)).toEqual(['wr-radio', 'wr-radio wr-radio--lg']);
-  });
-
-  it('ignores a config that names other components', () => {
-    expect(mount([provideWrConfig({ checkbox: { size: 'lg' } })]).map(h => h.className)).toEqual([
-      'wr-radio',
-      'wr-radio',
-    ]);
+    expect(hosts.map(h => h.className)).toEqual(['wr-radio', 'wr-radio']);
   });
 });
 

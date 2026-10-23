@@ -1,5 +1,5 @@
 export { WrStorage } from './storage';
-export { provideWrStorage, type ProvideWrStorageOptions } from './provide-wr-storage';
+export { withStorage } from './with-storage';
 export {
   WR_STORAGE_CONFIG,
   DEFAULT_WR_STORAGE_CONFIG,
@@ -7,4 +7,4 @@ export {
   type WrStorageConfigResolved,
 } from './storage-config';
 export { WR_STORAGE_ENGINE, createMemoryStorage, type WrStorageEngine } from './storage-engine';
-export type { WrStorageEnvelope } from './interfaces';
+export type { WrStorageEnvelope, WrStorageOptions } from './types';

@@ -7,7 +7,6 @@ import type { Subscription } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { provideWrOverlay } from './provide-wr-overlay';
 import { WR_OVERLAY } from './tokens/wr-overlay.token';
 import { WrOutsideClick } from './wr-outside-click';
 
@@ -59,7 +58,6 @@ describe('WrOutsideClick', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     outside = TestBed.inject(WrOutsideClick);
     overlay = TestBed.inject(WR_OVERLAY);
     elsewhere = document.createElement('button');
@@ -323,7 +321,7 @@ describe('WrOutsideClick', () => {
     it('subscribes to nothing and touches no document', () => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
-        providers: [provideWrOverlay(), { provide: PLATFORM_ID, useValue: 'server' }],
+        providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
       });
       const service = TestBed.inject(WrOutsideClick);
       const add = vi.spyOn(document, 'addEventListener');

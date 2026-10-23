@@ -1,0 +1,318 @@
+// Long-form text, ported from `@tailwindcss/typography` (the base `prose`
+// size). Put `.wr-typeset` on a container; mark anything inside it that is not
+// text — a demo, a code block, a table of data — with `.wr-not-typeset`.
+//
+// Selectors use `:where()` the way the original does, so a class on an element
+// inside still wins over the default set here. Where it departs: list markers and
+// bold text take the primary colour rather than gray, inline `code` is a chip
+// rather than the original's backtick-wrapped bold, a `pre` block sits on the
+// fill colour rather than a dark slab, and headings are tighter to their text,
+// with h5 and h6 set as well.
+
+$skip: ':not(:where(.wr-not-typeset, .wr-not-typeset *))';
+
+.wr-typeset {
+  // Headings, links, quotes and code take `on-surface`, which each scheme sets.
+  // The fixed gray scale is the same in both, so the rest carries its own dark
+  // step, inverted step for step as the original's `prose-invert`. Not
+  // `--wr-color-white`: in dark that is the canvas.
+  --wr-typeset-body: light-dark(var(--wr-color-gray-700), var(--wr-color-gray-300));
+  --wr-typeset-headings: var(--wr-color-on-surface);
+  --wr-typeset-lead: light-dark(var(--wr-color-gray-600), var(--wr-color-gray-400));
+  --wr-typeset-links: var(--wr-color-on-surface);
+  --wr-typeset-bold: var(--wr-color-primary-ink);
+  --wr-typeset-counters: light-dark(var(--wr-color-gray-500), var(--wr-color-gray-400));
+  --wr-typeset-bullets: var(--wr-color-primary);
+  --wr-typeset-hr: light-dark(var(--wr-color-gray-200), var(--wr-color-gray-700));
+  --wr-typeset-quotes: var(--wr-color-on-surface);
+  --wr-typeset-quote-borders: light-dark(var(--wr-color-gray-200), var(--wr-color-gray-700));
+  --wr-typeset-captions: light-dark(var(--wr-color-gray-500), var(--wr-color-gray-400));
+  --wr-typeset-code: var(--wr-color-on-surface);
+  --wr-typeset-pre-bg: var(--wr-color-fill);
+  --wr-typeset-th-borders: light-dark(var(--wr-color-gray-300), var(--wr-color-gray-600));
+  --wr-typeset-td-borders: light-dark(var(--wr-color-gray-200), var(--wr-color-gray-700));
+
+  color: var(--wr-typeset-body);
+  max-width: 65ch;
+  font-size: 1rem;
+  line-height: 1.75;
+
+  :where(p)#{$skip} {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+    // `ngwr/reset` sets `p { line-height }` on the element, which beats the
+    // 1.75 this container hands down. Take it back.
+    line-height: inherit;
+  }
+
+  :where(.wr-typeset-lead)#{$skip} {
+    color: var(--wr-typeset-lead);
+    font-size: 1.25em;
+    line-height: 1.6;
+    margin-top: 1.2em;
+    margin-bottom: 1.2em;
+  }
+
+  :where(a)#{$skip} {
+    color: var(--wr-typeset-links);
+    text-decoration: underline;
+    font-weight: 500;
+  }
+
+  :where(strong)#{$skip} {
+    color: var(--wr-typeset-bold);
+    font-weight: 600;
+  }
+
+  :where(ol, ul)#{$skip} {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+    padding-inline-start: 1.625em;
+  }
+
+  :where(ol)#{$skip} {
+    list-style-type: decimal;
+  }
+
+  :where(ul)#{$skip} {
+    list-style-type: disc;
+  }
+
+  :where(li)#{$skip} {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
+  :where(ol > li, ul > li)#{$skip} {
+    padding-inline-start: 0.375em;
+  }
+
+  :where(ol > li)#{$skip}::marker {
+    font-weight: 400;
+    color: var(--wr-typeset-counters);
+  }
+
+  :where(ul > li)#{$skip}::marker {
+    color: var(--wr-typeset-bullets);
+  }
+
+  :where(dl)#{$skip} {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+  }
+
+  :where(dt)#{$skip} {
+    color: var(--wr-typeset-headings);
+    font-weight: 600;
+    margin-top: 1.25em;
+  }
+
+  // A browser indents `dd` with a 40px margin; the indent here is the list's
+  // own, so a definition lines up with list text.
+  :where(dd)#{$skip} {
+    margin-top: 0.5em;
+    margin-inline-start: 0;
+    padding-inline-start: 1.625em;
+  }
+
+  :where(hr)#{$skip} {
+    border: 0;
+    border-top: 1px solid var(--wr-typeset-hr);
+    margin-top: 3em;
+    margin-bottom: 3em;
+  }
+
+  :where(blockquote)#{$skip} {
+    font-weight: 500;
+    font-style: italic;
+    color: var(--wr-typeset-quotes);
+    border-inline-start: 0.25rem solid var(--wr-typeset-quote-borders);
+    margin-top: 1.6em;
+    margin-bottom: 1.6em;
+    padding-inline-start: 1em;
+  }
+
+  // Headings sit closer to the text they introduce than to the text before
+  // them: a short margin and a tight line below, the long margin above. The
+  // original sizes h1–h3 and leaves the rest to Tailwind's preflight, which
+  // resets every heading to inherit; `ngwr/reset` gives h4–h6 sizes of their
+  // own, so all six are set here, each a step below the last.
+  :where(h1, h2, h3, h4, h5, h6)#{$skip} {
+    color: var(--wr-typeset-headings);
+    margin-bottom: 0.5em;
+  }
+
+  :where(h1)#{$skip} {
+    font-weight: 800;
+    font-size: 2.25em;
+    margin-top: 0;
+    line-height: 1.1111111;
+  }
+
+  :where(h2)#{$skip} {
+    font-weight: 700;
+    font-size: 1.5em;
+    margin-top: 2em;
+    line-height: 1.25;
+  }
+
+  :where(h3)#{$skip} {
+    font-weight: 600;
+    font-size: 1.25em;
+    margin-top: 1.6em;
+    line-height: 1.4;
+  }
+
+  :where(h4)#{$skip} {
+    font-weight: 600;
+    font-size: 1.125em;
+    margin-top: 1.5em;
+    line-height: 1.4;
+  }
+
+  :where(h5)#{$skip} {
+    font-weight: 600;
+    font-size: 1em;
+    margin-top: 1.5em;
+    line-height: 1.5;
+  }
+
+  :where(h6)#{$skip} {
+    font-weight: 600;
+    font-size: 0.875em;
+    margin-top: 1.5em;
+    line-height: 1.5;
+  }
+
+  // What follows a heading sits close to it: text, or a deeper heading. A
+  // heading of a higher level starts a new section and keeps its margin.
+  :where(hr + *)#{$skip},
+  :where(h1, h2, h3, h4, h5, h6) + :where(:not(h1, h2, h3, h4, h5, h6))#{$skip},
+  :where(
+      h1 + h2, h1 + h3, h1 + h4, h1 + h5, h1 + h6,
+      h2 + h3, h2 + h4, h2 + h5, h2 + h6,
+      h3 + h4, h3 + h5, h3 + h6,
+      h4 + h5, h4 + h6,
+      h5 + h6
+    )#{$skip} {
+    margin-top: 0;
+  }
+
+  :where(img, picture, video, figure)#{$skip} {
+    margin-top: 2em;
+    margin-bottom: 2em;
+  }
+
+  :where(img, video)#{$skip} {
+    max-width: 100%;
+    height: auto;
+  }
+
+  // A browser gives `figure` a 40px margin on each side.
+  :where(figure)#{$skip} {
+    margin-inline: 0;
+  }
+
+  // Inside a figure the figure carries the margin. Before `figcaption`, which
+  // takes its own back.
+  :where(figure > *, picture > img)#{$skip} {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  :where(figcaption)#{$skip} {
+    color: var(--wr-typeset-captions);
+    font-size: 0.875em;
+    line-height: 1.4285714;
+    margin-top: 0.8571429em;
+  }
+
+  :where(code)#{$skip} {
+    padding: 0.125rem 0.375rem;
+    border-radius: var(--wr-border-radius-sm);
+    background: var(--wr-color-fill);
+    color: var(--wr-typeset-code);
+    font-family: var(--wr-font-family-mono);
+    font-size: 0.875em;
+    font-weight: 500;
+  }
+
+  :where(h2 code)#{$skip} {
+    font-size: 0.875em;
+  }
+
+  :where(h3 code)#{$skip} {
+    font-size: 0.9em;
+  }
+
+  :where(a code, h1 code, h2 code, h3 code, h4 code, strong code)#{$skip} {
+    color: inherit;
+  }
+
+  :where(pre)#{$skip} {
+    overflow-x: auto;
+    padding: 0.8571429em 1.1428571em;
+    border-radius: var(--wr-border-radius-base);
+    background: var(--wr-typeset-pre-bg);
+    color: var(--wr-typeset-code);
+    font-family: var(--wr-font-family-mono);
+    font-size: 0.875em;
+    line-height: 1.7142857;
+    margin-top: 1.7142857em;
+    margin-bottom: 1.7142857em;
+  }
+
+  // The block already is the chip: code inside it takes the block's size,
+  // colour and weight instead of shrinking a second time.
+  :where(pre code)#{$skip} {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+  }
+
+  :where(table)#{$skip} {
+    width: 100%;
+    table-layout: auto;
+    // Row borders draw only in the collapsed model.
+    border-collapse: collapse;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    font-size: 0.875em;
+    line-height: 1.7142857;
+  }
+
+  :where(thead)#{$skip} {
+    border-bottom: 1px solid var(--wr-typeset-th-borders);
+  }
+
+  :where(thead th)#{$skip} {
+    color: var(--wr-typeset-headings);
+    font-weight: 600;
+    // A browser centres `th`; the cells under it start at the edge.
+    text-align: start;
+    vertical-align: bottom;
+    padding-inline: 0.5714286em;
+    padding-bottom: 0.5714286em;
+  }
+
+  :where(tbody tr)#{$skip} {
+    border-bottom: 1px solid var(--wr-typeset-td-borders);
+  }
+
+  :where(tbody td)#{$skip} {
+    vertical-align: baseline;
+    padding: 0.5714286em;
+  }
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}

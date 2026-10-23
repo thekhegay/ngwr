@@ -79,6 +79,7 @@ export const wrAr: WrI18nCatalog = {
   },
   stepper: {
     optional: 'اختياري',
+    completed: 'مكتملة',
   },
   transfer: {
     source: 'المتاح',
@@ -93,29 +94,6 @@ export const wrAr: WrI18nCatalog = {
   },
   form: {
     optional: 'اختياري',
-  },
-  validation: {
-    required: 'هذا الحقل مطلوب.',
-    requiredTrue: 'يجب تحديد هذا الحقل.',
-    email: 'أدخل عنوان بريد إلكتروني صالحًا.',
-    minlength: 'الحد الأدنى لعدد الأحرف: {{requiredLength}}.',
-    maxlength: 'الحد الأقصى لعدد الأحرف: {{requiredLength}}.',
-    min: 'أدخل {{min}} أو أكثر.',
-    max: 'أدخل {{max}} أو أقل.',
-    pattern: 'هذه القيمة لا تطابق التنسيق المتوقع.',
-    noWhitespace: 'لا يمكن أن تحتوي هذه القيمة على مسافات.',
-    hexColor: 'أدخل لونًا بالنظام الست عشري، مثل #1a2b3c.',
-    url: 'أدخل عنوان URL صالحًا.',
-    cardNumber: 'أدخل رقم بطاقة صالحًا.',
-    cvc: 'أدخل رمز الأمان (عدد الخانات: {{length}}).',
-    iban: 'أدخل رقم IBAN صالحًا.',
-    match: 'القيمتان غير متطابقتين.',
-    matchFields: 'الحقول غير متطابقة.',
-    oneOf: 'اختر إحدى القيم المسموح بها.',
-    minDate: 'اختر تاريخًا لاحقًا.',
-    maxDate: 'اختر تاريخًا سابقًا.',
-    dateFormat: 'التنسيق المتوقع: {{example}}',
-    dateFilter: 'هذا التاريخ غير متاح.',
   },
   select: {
     // The combobox's own accessible name, also read by `wr-tree` and
@@ -252,18 +230,15 @@ export const wrAr: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'مخطط شريطي',
+  },
   calendarHeatmap: {
     label: 'خريطة حرارية للتقويم',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'مخطط خطي',
-    // The one counted string that cannot dodge the noun — it IS the noun. Arabic
-    // wants «آلاف» from three to ten and «ألف» from eleven up, and one axis
-    // carries ticks from both ranges. «ألف» invariant is what Arabic analytics
-    // UIs print, and it is the correct form for the large ticks that are the
-    // reason to abbreviate at all.
-    thousands: '{{value}} ألف',
   },
   donutChart: {
     label: 'مخطط دائري مجوف',
@@ -282,9 +257,6 @@ export const wrAr: WrI18nCatalog = {
     pagination: 'ترقيم شرائح العرض الدوّار',
     roledescription: 'عرض دوّار',
     slideRoledescription: 'شريحة',
-  },
-  actionSheet: {
-    label: 'الإجراءات',
   },
   alert: {
     close: 'إغلاق التنبيه',
@@ -316,12 +288,6 @@ export const wrAr: WrI18nCatalog = {
   // `[ariaLabel]`.
   popover: {
     label: 'لوحة منبثقة',
-  },
-  markdown: {
-    copy: 'نسخ الكود',
-    copied: 'تم النسخ',
-    taskDone: 'تم:',
-    taskTodo: 'لم يتم:',
   },
   editor: {
     label: 'نص منسق',
@@ -356,12 +322,10 @@ export const wrAr: WrI18nCatalog = {
   // and at eleven-and-up, and the interpolator has no plural machinery — so a
   // string that counts ITEMS here does one of two things rather than write
   // "{{count}} <noun>" and be wrong at most counts. Either the number goes LAST,
-  // after a colon, so no noun has to agree with it (`mention.available`,
-  // `validation.minlength` / `.maxlength` / `.cvc`), or the noun is dropped: the
-  // overflow chips in `select`, `tree` and `eventCalendar` read
-  // «+{{count}} أخرى», the invariable feminine-singular form a non-human plural
-  // takes, leaving nothing for the count to inflect. `lineChart.thousands` is
-  // the one string that can do neither, and the note there says why.
+  // after a colon, so no noun has to agree with it (`mention.available`), or
+  // the noun is dropped: the overflow chips in `select`, `tree` and
+  // `eventCalendar` read «+{{count}} أخرى», the invariable feminine-singular
+  // form a non-human plural takes, leaving nothing for the count to inflect.
   marquee: {
     label: 'شريط متحرك',
     link: 'رابط',
@@ -403,6 +367,9 @@ export const wrAr: WrI18nCatalog = {
   },
   sidebar: {
     label: 'الشريط الجانبي',
+    containsCurrent: 'تحتوي على الصفحة الحالية',
+    subpages: 'الصفحات الفرعية لـ {{title}}',
+    separator: '،',
   },
   spinner: {
     label: 'جارٍ التحميل',

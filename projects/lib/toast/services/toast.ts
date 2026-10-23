@@ -12,10 +12,10 @@ import { type ComponentRef, Injector, Service, inject } from '@angular/core';
 
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 
-import type { WrToastOptions, WrToastPosition } from '../interfaces';
 import { WrToastHost } from '../toast-host';
 import { WrToastRef } from '../toast-ref';
 import { WR_TOAST_CONFIG } from '../tokens';
+import type { WrToastOptions, WrToastPosition } from '../types';
 
 type ActiveEntry = WrToastOptions & {
   readonly id: number;
@@ -35,7 +35,7 @@ type ActiveEntry = WrToastOptions & {
  * Opens toast notifications in a single shared overlay.
  *
  * Global defaults come from {@link WR_TOAST_CONFIG}; register
- * {@link provideWrToastConfig} once at bootstrap to customise. Each
+ * `provideWr(withToast(...))` once at bootstrap to customise. Each
  * `show()` call accepts per-toast overrides via {@link WrToastOptions}.
  *
  * @example
@@ -68,6 +68,9 @@ export class WrToast {
   /** Overflow waiting for a free slot — promoted FIFO as actives dismiss, so
    * nothing is ever silently dropped. */
   private queue: ActiveEntry[] = [];
+  /** The pointer or focus is inside the host: no countdown runs, a toast that
+   * arrives meanwhile included. See `WrToastHost.syncHold`. */
+  private held = false;
 
   /** Open a toast. Returns a handle you can `dismiss()` early. */
   show(options: WrToastOptions): WrToastRef {
@@ -147,7 +150,9 @@ export class WrToast {
   // Timer
 
   private startTimer(entry: ActiveEntry): void {
-    if (entry.remaining <= 0) return;
+    // Never a second timer for one entry: a toast's own pause and the host's
+    // hold both resume, and whichever comes second finds the clock running.
+    if (entry.remaining <= 0 || entry.timer || this.held) return;
     entry.startedAt = Date.now();
     entry.timer = setTimeout(() => this.dismiss(entry.id), entry.remaining);
   }
@@ -158,6 +163,14 @@ export class WrToast {
     entry.timer = undefined;
     if (entry.startedAt) {
       entry.remaining = Math.max(0, entry.remaining - (Date.now() - entry.startedAt));
+    }
+  }
+
+  private setHeld(held: boolean): void {
+    this.held = held;
+    for (const entry of this.active) {
+      if (held) this.pauseTimer(entry);
+      else this.startTimer(entry);
     }
   }
 
@@ -204,6 +217,7 @@ export class WrToast {
       const entry = this.active.find(t => t.id === id);
       if (entry) this.startTimer(entry);
     });
+    inst.holdChange.subscribe(held => this.setHeld(held));
 
     this.watchForNewerOverlays();
   }
@@ -259,9 +273,9 @@ export class WrToast {
    * for the rest of its duration, and no further `show()` is coming to fix it.
    *
    * Observing the host's own parent rather than a container resolved from the
-   * injector keeps this correct whether or not `provideWrOverlay()` is installed
-   * — the host is in whichever container it was actually appended to. Re-showing
-   * a popover moves nothing in the DOM, so this cannot re-trigger itself.
+   * injector keeps this correct even for an app that rebinds `WR_OVERLAY` — the
+   * host is in whichever container it was actually appended to. Re-showing a
+   * popover moves nothing in the DOM, so this cannot re-trigger itself.
    */
   private watchForNewerOverlays(): void {
     const parent = this.overlayRef?.hostElement.parentElement;
@@ -288,6 +302,8 @@ export class WrToast {
   }
 
   private disposeHost(): void {
+    // The next host starts with nobody in it.
+    this.held = false;
     this.containerObserver?.disconnect();
     this.containerObserver = null;
     if (this.overlayRef) {

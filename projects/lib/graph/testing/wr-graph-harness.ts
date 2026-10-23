@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrGraphHarnessFilters, WrGraphNodeHarnessFilters } from './interfaces';
+import type { WrGraphHarnessFilters, WrGraphNodeHarnessFilters } from './types';
 import { WrGraphNodeHarness } from './wr-graph-node-harness';
 
 /**

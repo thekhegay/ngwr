@@ -32,11 +32,7 @@ import {
   ],
 })
 export default class MatchFieldsValidatorPage {
-  /**
-   * Deliberately prefilled with two values that disagree — the case the
-   * child-level `match` cannot see, because it runs before the control has a
-   * parent. This group is invalid on the very first frame.
-   */
+  /** Prefilled with two values that disagree: invalid from the first frame. */
   protected readonly form = new FormGroup(
     {
       password: new FormControl('hunter2', { nonNullable: true }),
@@ -59,58 +55,50 @@ const form = new FormGroup(
   protected readonly pairing = `const form = new FormGroup(
   {
     password: new FormControl(''),
-    // match — gives the confirm field its own message, once touched
-    confirm:  new FormControl('', [WrValidators.match('password')]),
+    confirm:  new FormControl('', [WrValidators.match('password')]), // field message
   },
-  // matchFields — makes the form correct from the first frame
   { validators: [WrValidators.matchFields('password', 'confirm')] },
 );`;
 
-  protected readonly nested = `// Names are AbstractControl.get() paths.
-WrValidators.matchFields('billing.zip', 'shipping.zip');
-
-// N-ary: every name is compared against the first.
+  protected readonly nested = `WrValidators.matchFields('billing.zip', 'shipping.zip');
 WrValidators.matchFields('a', 'b', 'c');`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'signature',
-      description: 'Factory — call with two or more control names. Attach the result to the GROUP that owns them.',
+      description: 'Call it with two or more control names. Add it to the group that owns them.',
       type: '(first: string, second: string, ...rest: readonly string[]) => ValidatorFn',
       default: '—',
     },
     {
       name: 'lookup',
       description:
-        'Names are `AbstractControl.get()` paths, so `billing.zip` reaches into a nested group and `items.0` into a `FormArray`. Name a LEAF: a name that resolves to a group or an array is refused too, because comparing two containers by reference can never succeed. Either case turns the whole check off — never a partial comparison — and warns once per validator instance in dev.',
+        '`get()` paths: `billing.zip`, `items.0`. Name a leaf control. A missing name or a group turns the check off and warns in dev.',
       type: '—',
       default: '—',
     },
     {
       name: 'error key',
       description:
-        'On mismatch: `{ matchFields: { fields: [...] } }`, on the GROUP. The payload echoes the configured names and deliberately carries no control values.',
+        'On mismatch: `{ matchFields: { fields: [...] } }` on the group. `fields` lists the compared names, never values.',
       type: '{ matchFields: { fields } }',
       default: '—',
     },
     {
       name: 'empty values',
-      description:
-        '`null`, `undefined` and `""` count as the same empty value. All empty passes; one filled against one empty reports.',
+      description: '`null`, `undefined` and `""` are equal. All empty passes; filled against empty fails.',
       type: '—',
       default: '—',
     },
     {
       name: 'comparison',
-      description:
-        'Strict `===`, so two `Date` objects for the same instant are NOT equal — compare a derived primitive instead.',
+      description: 'Strict `===`: two `Date` objects for the same instant differ. Compare a primitive.',
       type: '—',
       default: '—',
     },
     {
       name: 'disabled controls',
-      description:
-        'Skipped, so the rule compares exactly what `group.value` contains. Fewer than two enabled names short-circuits to valid.',
+      description: 'Skipped. Fewer than two enabled names passes.',
       type: '—',
       default: '—',
     },
@@ -121,13 +109,13 @@ WrValidators.matchFields('a', 'b', 'c');`;
       kind: 'Validator',
       title: 'match',
       url: ['/reference/validators', 'match'],
-      description: 'The child-level half of the pairing — what gives a field its message.',
+      description: 'The field-level check.',
     },
     {
       kind: 'Component',
       title: 'wr-form-field',
       url: ['/reference/components', 'form-field'],
-      description: 'Renders a message per error key — for the one control projected into it.',
+      description: 'Label and error.',
     },
   ];
 }

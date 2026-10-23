@@ -1,0 +1,419 @@
+// Components bento — zardui-style 4-column grid of mini-UI tiles, each
+// linking to its component's docs page.
+
+// The section frame and the centred head are the global `.ngwr-section` rules
+// (`showcase/styles/_section.scss`), shared with every other home section.
+.ngwr-cbento {
+  display: block;
+
+  // Each sentence is one line from 48rem up (about 590px of text at the lead
+  // size, inside the 720px container). Below that the break goes away, the
+  // paragraph flows as one and `balance` evens its lines out.
+  &__lead {
+    text-wrap: balance;
+  }
+
+  &__lead-break {
+    @media (width < 48rem) {
+      display: none;
+    }
+  }
+
+  // The grid itself
+  // CSS multi-column gives us masonry / Pinterest-style packing: each
+  // tile takes its natural content height and the next tile flows into
+  // the gap below. That's what makes zardui's bento read as "dense
+  // composition" rather than a rigid 3×4 grid where everything is the
+  // same height.
+  &__grid {
+    column-count: 1;
+    column-gap: 1.25rem;
+
+    @media (min-width: 48rem) {
+      column-count: 2;
+    }
+
+    @media (min-width: 64rem) {
+      column-count: 3;
+      column-gap: 1.5rem;
+    }
+
+    @media (min-width: 80rem) {
+      column-count: 4;
+    }
+  }
+
+  // Tile shell
+  // Each tile is a passive container for live components — clicks land on
+  // the inner inputs / buttons / toggles, not the tile itself. Tiles take
+  // their natural height (no min-height); CSS-columns layout packs them
+  // into vertical streams. `break-inside: avoid` prevents the engine from
+  // slicing a tile across columns.
+  &__tile {
+    --ngwr-cbento-bg: var(--wr-color-surface);
+    --ngwr-cbento-border: var(--wr-border-base);
+    --ngwr-cbento-shadow: var(--wr-shadow-xs);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem;
+    margin: 0 0 1.25rem;
+    background: var(--ngwr-cbento-bg);
+    border: 1px solid var(--ngwr-cbento-border);
+    border-radius: var(--wr-border-radius-lg);
+    box-shadow: var(--ngwr-cbento-shadow);
+    overflow: hidden;
+    break-inside: avoid;
+  }
+
+  &__tile-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  &__tile-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  // Per-tile micro-layouts
+
+  // The sign-up tile's two secret fields. They are `type="text"`, not
+  // `type="password"`, so that no password manager recognises them — see the
+  // comment in the template. This is what puts the dots back.
+  //
+  // `-webkit-text-security` is the prefixed property every engine implements
+  // under that name: Chromium and Safari have had it for years, Firefox since
+  // 112. The unprefixed `text-security` is specified and shipped by nobody, so
+  // it is not worth writing. Where it is unsupported the field shows its text,
+  // which on a marketing demo holding a made-up string is the harmless end of
+  // the trade — the alternative is the credential prompt this replaced.
+  &__secret {
+    -webkit-text-security: disc;
+  }
+
+  &__signin {
+    &-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin: 0.25rem 0;
+    }
+
+    &-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+
+  // Command palette tile
+  &__cmd {
+    gap: 0.5rem;
+
+    &-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.125rem;
+      padding-right: 0.25rem;
+    }
+  }
+
+  &__kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.25rem;
+    background: var(--wr-color-surface);
+    border: 1px solid color-mix(in srgb, var(--wr-color-on-surface) 18%, transparent);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    color: var(--wr-color-on-surface);
+    font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+    font-size: 0.625rem;
+    line-height: 1;
+  }
+
+  // Skeleton-loader tile
+  &__skeleton {
+    gap: 0.625rem;
+  }
+
+  &__sk {
+    &-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.25rem;
+    }
+
+    &-avatar {
+      flex: 0 0 auto;
+      width: 2.5rem;
+      --wr-skeleton-height: 2.5rem;
+      --wr-skeleton-radius: 50%;
+    }
+
+    &-lines {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    &-line {
+      --wr-skeleton-height: 0.5rem;
+      --wr-skeleton-radius: 999px;
+
+      &--xs {
+        width: 35%;
+      }
+
+      &--sm {
+        width: 55%;
+      }
+
+      &--md {
+        width: 75%;
+      }
+    }
+  }
+
+  // Profile card tile
+  &__profile {
+    gap: 0.75rem;
+
+    &-head {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      > div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        min-width: 0;
+      }
+    }
+
+    &-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+    }
+  }
+
+  // Code snippet tile. The snippet is the standard `ngwr-doc-code` well, with
+  // its own background, type and copy button.
+  &__code {
+    gap: 0.5rem;
+  }
+
+  &__link {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  &__stat {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex: 1 1 auto;
+
+    &-value {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.125rem;
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--wr-color-on-surface);
+      font-variant-numeric: tabular-nums;
+    }
+
+    &-suffix {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--wr-color-on-surface-muted);
+    }
+
+    &-delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.125rem 0.5rem;
+      // Same call as the other showcase badges: a label nested in a card takes a
+      // corner smaller than the card's, not a stadium of its own. The tile is
+      // `--wr-border-radius-lg`, so `sm` reads as sitting inside it.
+      border-radius: var(--wr-border-radius-sm);
+      background: color-mix(in srgb, var(--wr-color-success) 12%, transparent);
+      color: var(--wr-color-success-ink);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  }
+
+  &__payment {
+    gap: 0.625rem;
+  }
+
+  &__settings {
+    gap: 0.75rem;
+  }
+
+  &__setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      min-width: 0;
+    }
+  }
+
+  &__alerts {
+    gap: 0.5rem;
+  }
+
+  &__empty {
+    align-items: stretch;
+    justify-content: center;
+    text-align: center;
+
+    wr-empty {
+      // Override the lib's `width: 100%; min-height: 100%` claim — inside
+      // a fixed-height tile, the empty primitive should sit compact in
+      // the centre rather than stretch the tile to absurd heights.
+      min-height: auto;
+      padding: 0.5rem;
+    }
+  }
+
+  &__avatars {
+    justify-content: space-between;
+
+    &-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+  }
+
+  &__avatar-stack {
+    display: flex;
+    align-items: center;
+
+    > wr-avatar,
+    > .ngwr-cbento__avatar-more {
+      // Each tile sits with ~25% overlap (10px on a 40px avatar) — enough
+      // to read as a stack, not so much they crowd the initials. The
+      // white ring lifts each item via `box-shadow` (replaces the lib's
+      // default inset hairline so the outline paints outward).
+      box-shadow: 0 0 0 2px var(--wr-color-surface);
+      margin-left: -0.625rem;
+
+      &:first-child {
+        margin-left: 0;
+      }
+    }
+
+    // Text-only avatars: lib defaults leave the projected initials with
+    // no background. Paint a token-tracked surface so they read as
+    // proper avatars next to the loaded image one.
+    .ngwr-cbento__avatar-text {
+      // Layered over an opaque surface — translucent fills let the avatar
+      // behind bleed through the stack overlap.
+      background-color: var(--wr-color-surface);
+      background-image: linear-gradient(
+        color-mix(in srgb, var(--wr-color-primary) 12%, transparent),
+        color-mix(in srgb, var(--wr-color-primary) 12%, transparent)
+      );
+      color: var(--wr-color-primary-ink);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+  }
+
+  &__avatar-more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    // One opaque fill, where this was a flat two-stop gradient laid over white.
+    // That construction hid a real AA failure from every gate: a contrast
+    // checker reads `background-color`, so axe measured the muted label against
+    // the WHITE underneath and reported 5.35:1, while the painted surface was
+    // `rgba(outline, 0.7)` over white — 4.08:1, and 3.62:1 under
+    // `prefers-contrast: more`, where the border token darkens. Same blind spot
+    // AGENTS.md records for a `::before` background. `--wr-color-fill` carries
+    // the muted label at 4.76:1 and no contrast mode moves it. NOT
+    // `-fill-strong`, which is closer to the old weight and reads 4.33:1 here.
+    background: var(--wr-color-fill);
+    color: var(--wr-color-on-surface-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  &__tags {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 0.375rem;
+  }
+
+  &__tabs {
+    // Tabs inside a tile — give the content panel a bit of breathing room
+    // and let the strip claim the natural width without scrolling.
+    --wr-tabs-color: var(--wr-color-on-surface-muted);
+  }
+
+  &__pager {
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 auto;
+  }
+
+  &__validation {
+    gap: 0.625rem;
+  }
+
+  &__theme {
+    gap: 1rem;
+
+    wr-segmented {
+      width: 100%;
+    }
+  }
+
+  &__swatches {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.375rem;
+  }
+
+  &__swatch {
+    flex: 1 1 0;
+    height: 1.75rem;
+    border-radius: var(--wr-border-radius-sm);
+    border: 1px solid color-mix(in srgb, var(--wr-color-backdrop) 6%, transparent);
+  }
+}

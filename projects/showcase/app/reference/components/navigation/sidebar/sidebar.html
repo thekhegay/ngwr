@@ -1,0 +1,40 @@
+<ngwr-doc-page
+  title="Sidebar"
+  updated="15.0.0"
+  description="Navigation drawn from data: pages and groups, three levels deep."
+  [keywords]="['sidebar', 'navigation', 'nav', 'wr-sidebar']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Pass `[entries]`: pages and groups. Every group above the current route opens."
+  >
+    <ngwr-doc-snippet [code]="snippets.template">
+      <div class="demo-sidebar">
+        <wr-sidebar [entries]="entries" />
+      </div>
+    </ngwr-doc-snippet>
+    <p>
+      To drop the inner padding, set <code>--wr-sidebar-padding: 0</code> on <code>.wr-sidebar</code>, not on its
+      container.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Subtitle, badge and count"
+    description="Any row can take a one-line `subtitle`, a word `badge` under the title and a `count` at the end. Give a group a `url` to make it a page too."
+  >
+    <ngwr-doc-code [code]="snippets.rows" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Which route counts as active"
+    description="Pages match by URL prefix, so give `['/']` `activeOptions: { exact: true }`, or it is the current page everywhere."
+  >
+    <ngwr-doc-code [code]="snippets.activeOptions" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

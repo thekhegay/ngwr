@@ -1,6 +1,19 @@
 @use '../../theme/styles' as theme;
-@use '../../overlay/styles'; // shared .wr-overlay-sheet / .wr-overlay-backdrop for responsive mode
 @use '../../overlay/styles/arrow';
+
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../icon/styles' as icon-styles; // WrIcon
 
 /// Gap between the trigger and the menu, as pane padding on the edge facing the
 /// trigger. Padding rather than a CDK offset so a pointer crossing it is still
@@ -28,11 +41,12 @@ $arrow-gap: 0.5rem;
 
 .wr-dropdown-menu {
   --wr-dropdown-bg: var(--wr-color-surface);
-  --wr-dropdown-border: var(--wr-color-outline);
+  --wr-dropdown-border: var(--wr-border-base);
   --wr-dropdown-radius: var(--wr-border-radius-base);
   --wr-dropdown-shadow: var(--wr-shadow-overlay);
   --wr-dropdown-min-width: 10rem;
-  --wr-dropdown-padding: 0.25rem;
+  --wr-dropdown-padding: var(--wr-space-xs);
+  --wr-dropdown-font-family: var(--wr-font-family-base);
 
   display: flex;
   flex-direction: column;
@@ -42,7 +56,7 @@ $arrow-gap: 0.5rem;
   border: 1px solid var(--wr-dropdown-border);
   @include theme.smooth-br(var(--wr-dropdown-radius));
   box-shadow: var(--wr-dropdown-shadow);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-dropdown-font-family);
   // Match popover / popconfirm / context-menu open feel.
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
   // `transform-origin` has no logical keyword form, and the corner it names is
@@ -123,22 +137,24 @@ $arrow-gap: 0.5rem;
 );
 
 // `[arrow]="false"` — the directive leaves `--arrow` off the pane and the square
-// is never generated. The mixin's own sheet rule covers `responsive`, which gets
-// no `--arrow` either.
+// is never generated.
 .wr-dropdown-overlay:not(.wr-dropdown-overlay--arrow) > .wr-dropdown-menu::after {
   content: none;
 }
 
 .wr-dropdown-item {
-  --wr-dropdown-item-padding-y: 0.375rem;
-  --wr-dropdown-item-padding-x: 0.625rem;
+  --wr-dropdown-item-padding-y: var(--wr-space-sm);
+  --wr-dropdown-item-padding-x: var(--wr-space-md);
+  --wr-dropdown-item-gap: var(--wr-space-sm);
   --wr-dropdown-item-color: var(--wr-color-on-surface);
   --wr-dropdown-item-bg-hover: var(--wr-color-hover);
   --wr-dropdown-item-radius: var(--wr-border-radius-sm);
+  --wr-dropdown-item-font-size: var(--wr-text-sm);
+  --wr-dropdown-item-line-height: var(--wr-text-sm-leading);
 
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--wr-dropdown-item-gap);
   appearance: none;
   background: transparent;
   border: 0;
@@ -146,8 +162,8 @@ $arrow-gap: 0.5rem;
   border-radius: var(--wr-dropdown-item-radius);
   color: var(--wr-dropdown-item-color);
   font: inherit;
-  font-size: var(--wr-text-sm);
-  line-height: 1.25rem;
+  font-size: var(--wr-dropdown-item-font-size);
+  line-height: var(--wr-dropdown-item-line-height);
   text-align: start;
   white-space: nowrap;
   cursor: pointer;

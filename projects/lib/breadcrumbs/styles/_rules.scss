@@ -12,15 +12,21 @@
 
 .wr-breadcrumbs {
   --wr-breadcrumbs-separator: '/';
-  --wr-breadcrumbs-gap: 0.5rem;
-  --wr-breadcrumbs-color: rgba(var(--wr-color-on-surface-rgb), 0.6);
+  --wr-breadcrumbs-gap: var(--wr-space-sm);
+  --wr-breadcrumbs-color: color-mix(in srgb, var(--wr-color-on-surface) 60%, transparent);
   --wr-breadcrumbs-current-color: var(--wr-color-on-surface);
   --wr-breadcrumbs-link-color: var(--wr-color-primary-ink);
-  --wr-breadcrumbs-separator-color: rgba(var(--wr-color-on-surface-rgb), 0.3);
+  --wr-breadcrumbs-separator-color: color-mix(in srgb, var(--wr-color-on-surface) 30%, transparent);
+  --wr-breadcrumbs-font-family: var(--wr-font-family-base);
+  --wr-breadcrumbs-font-size: var(--wr-text-sm);
+  --wr-breadcrumbs-link-gap: var(--wr-space-sm);
+  --wr-breadcrumbs-link-radius: var(--wr-border-radius-sm);
+  --wr-breadcrumbs-current-gap: var(--wr-space-sm);
+  --wr-breadcrumbs-current-font-weight: var(--wr-font-weight-semibold);
 
   display: block;
-  font-family: var(--wr-font-family-base);
-  font-size: var(--wr-text-sm);
+  font-family: var(--wr-breadcrumbs-font-family);
+  font-size: var(--wr-breadcrumbs-font-size);
   color: var(--wr-breadcrumbs-color);
 
   &__nav {
@@ -42,9 +48,12 @@
     align-items: center;
     gap: var(--wr-breadcrumbs-gap);
 
-    // Separator before every item except the first.
+    // Separator before every item except the first. The empty alternative text
+    // after the `/` keeps it out of the accessibility tree: generated content is
+    // read like any other text, so the trail was announced "Home, slash,
+    // Components, slash, …" and the current crumb as "slash Current page".
     &:not(:first-child)::before {
-      content: var(--wr-breadcrumbs-separator);
+      content: var(--wr-breadcrumbs-separator) / '';
       color: var(--wr-breadcrumbs-separator-color);
       user-select: none;
     }
@@ -53,10 +62,10 @@
   &__link {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: var(--wr-breadcrumbs-link-gap);
     color: var(--wr-breadcrumbs-link-color);
     text-decoration: none;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-breadcrumbs-link-radius);
     transition: color 0.15s ease;
 
     &:hover {
@@ -72,9 +81,9 @@
   &__current {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: var(--wr-breadcrumbs-current-gap);
     color: var(--wr-breadcrumbs-current-color);
-    font-weight: 600;
+    font-weight: var(--wr-breadcrumbs-current-font-weight);
   }
 
   &__icon {

@@ -11,10 +11,11 @@ function kebabToCamel(value: string): string {
 
 const SPEC: SvgSetSpec = {
   title: 'Iconoir',
-  description: 'A free 24px stroke set with 1300+ hand-crafted icons. Click any tile to copy the import snippet.',
+  description: count =>
+    `A free 24px stroke set with ${count} hand-crafted icons. Click any tile to copy the import snippet.`,
   homepage: 'https://iconoir.com',
   license: 'MIT',
-  install: 'pnpm add iconoir',
+  packages: 'iconoir',
   usage: `import plusSvg from 'iconoir/icons/regular/plus.svg?raw';
 import trashSvg from 'iconoir/icons/regular/trash.svg?raw';
 import { provideWrIcons, svgIcon } from 'ngwr/icon';

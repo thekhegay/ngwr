@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 
+import { provideWr } from 'ngwr';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { provideWrDateAdapter } from './provide-wr-date-adapter';
-import { WrDateAdapter } from './wr-date-adapter';
-import type { WrNativeDateAdapter } from './wr-native-date-adapter';
+import { withDates } from './with-dates';
+import { WrDateAdapter, type WrNativeDateAdapter, isNamedFormat } from './wr-date-adapter';
 
 /**
  * This adapter is what every date component computes with — the calendar grid, both
@@ -27,7 +27,7 @@ describe('WrNativeDateAdapter', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-GB' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-GB' }))] });
     adapter = TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
   });
 
@@ -172,6 +172,17 @@ describe('WrNativeDateAdapter', () => {
       expect(parsed).not.toBeNull();
       expect([parsed!.getMonth(), parsed!.getDate(), parsed!.getHours()]).toEqual([7, 11, 9]);
     });
+
+    it("reads '' inside a quoted run as a quote, the way DatePipe and LDML do", () => {
+      // The run used to end at the first quote, so the doubled one inside it was
+      // dropped: `o''clock` printed `oclock`.
+      expect(adapter.format(at(2026, 0, 5, 18), "h 'o''clock'")).toBe("6 o'clock");
+      expect(adapter.format(at(2026, 0, 5, 18), "'It''s' h")).toBe("It's 6");
+      expect(adapter.format(at(2026, 0, 5, 18), "h ''''")).toBe("6 '");
+
+      const parsed = adapter.parse("6 o'clock", "h 'o''clock'");
+      expect(parsed?.getHours()).toBe(6);
+    });
   });
 
   describe('token parsing', () => {
@@ -254,12 +265,27 @@ describe('WrNativeDateAdapter', () => {
     const named = ['shortDate', 'mediumDate', 'longDate', 'shortDateTime', 'mediumDateTime'] as const;
     // Every shape the fix has to survive: field order, a declining month name, a
     // 12-hour clock, a non-Latin numbering system with bidi marks in its separators,
-    // and a locale that writes the year first.
-    const locales = ['en-US', 'en-GB', 'de-DE', 'fi-FI', 'ru-RU', 'ja-JP', 'ar-SA', 'fr-FR', 'cs-CZ'];
+    // a locale that writes the year first, and a day period with a space inside it
+    // (es and ca write `p. m.`; es-CO's default clock is 12-hour, so its plain `time`
+    // carries one too).
+    const locales = [
+      'en-US',
+      'en-GB',
+      'de-DE',
+      'fi-FI',
+      'ru-RU',
+      'ja-JP',
+      'ar-SA',
+      'fr-FR',
+      'cs-CZ',
+      'es-ES',
+      'es-CO',
+      'ca-ES',
+    ];
 
     const adapterFor = (locale: string): WrNativeDateAdapter => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale })] });
+      TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale }))] });
       return TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
     };
 
@@ -292,6 +318,93 @@ describe('WrNativeDateAdapter', () => {
         expect([parsed!.getHours(), parsed!.getMinutes()], `${locale} printed ${printed}`).toEqual([14, 30]);
       });
     }
+
+    /**
+     * The date picker's `showSeconds` and `timeFormat` choose among these when no
+     * `[format]` is given. Before v15 there were none, so the field printed `time`
+     * whatever the panel showed: a picker with seconds dropped them on every retype,
+     * and `timeFormat="24h"` in en-US printed `02:30 PM` beside a 24-hour panel.
+     */
+    const variants = [
+      'time12h',
+      'time24h',
+      'timeSeconds',
+      'time12hSeconds',
+      'time24hSeconds',
+      'shortDateTime12h',
+      'shortDateTime24h',
+      'shortDateTimeSeconds',
+      'shortDateTime12hSeconds',
+      'shortDateTime24hSeconds',
+    ] as const;
+
+    for (const locale of locales) {
+      it(`reads back every seconds and hour-cycle variant it wrote in ${locale}`, () => {
+        const local = adapterFor(locale);
+        // Midnight and noon are where a 12-hour clock and a 24-hour one disagree.
+        for (const source of [at(2026, 2, 15, 14, 30, 5), at(2026, 2, 15, 0, 5, 9), at(2026, 2, 15, 12, 0, 59)]) {
+          for (const key of variants) {
+            const printed = local.format(source, key);
+            const parsed = local.parse(printed, key);
+            const label = `${locale} ${key} printed ${printed}`;
+
+            expect(parsed, label).not.toBeNull();
+            expect([parsed!.getHours(), parsed!.getMinutes(), parsed!.getSeconds()], label).toEqual([
+              source.getHours(),
+              source.getMinutes(),
+              key.endsWith('Seconds') ? source.getSeconds() : 0,
+            ]);
+            if (key.startsWith('shortDateTime')) {
+              expect([parsed!.getFullYear(), parsed!.getMonth(), parsed!.getDate()], label).toEqual([2026, 2, 15]);
+            }
+          }
+        }
+      });
+    }
+
+    it('pins the hour cycle a key names, whatever the locale prefers', () => {
+      // ICU separates the day period with a NARROW NO-BREAK SPACE; compared as a plain one.
+      const plain = (text: string): string => text.replace(/\u202f/g, ' ');
+      const us = adapterFor('en-US');
+      expect(us.format(at(2026, 2, 15, 14, 30, 5), 'time24h')).toBe('14:30');
+      expect(us.format(at(2026, 2, 15, 0, 5), 'time24h')).toBe('00:05');
+      expect(plain(us.format(at(2026, 2, 15, 14, 30, 5), 'time12hSeconds'))).toBe('02:30:05 PM');
+      expect(plain(us.format(at(2026, 2, 15, 14, 30, 5), 'shortDateTimeSeconds'))).toBe('3/15/2026, 02:30:05 PM');
+
+      const de = adapterFor('de-DE');
+      expect(de.format(at(2026, 2, 15, 14, 30, 5), 'time')).toBe('14:30');
+      expect(plain(de.format(at(2026, 2, 15, 14, 30, 5), 'time12h'))).toBe('02:30 PM');
+      expect(de.format(at(2026, 2, 15, 14, 30, 5), 'shortDateTime24hSeconds')).toBe('15.3.2026, 14:30:05');
+    });
+
+    /**
+     * V8 writes the space inside es's `p. m.` as U+0020 in `format()` and keeps U+202F
+     * in `formatToParts()`, which is what the parser's alternation is built from — so an
+     * exact match refused the string the same formatter had just printed, and only on
+     * the 12-hour keys. Whatever space someone types, or none, it is one day period, and
+     * the PM half has to stay PM: a token pattern that matched loosely and compared
+     * exactly would read 21:30 as 09:30 rather than refuse it.
+     */
+    it('reads a day period whatever space sits inside it', () => {
+      const es = adapterFor('es-ES');
+      for (const typed of ['9:30 p. m.', '9:30 p.\u202fm.', '9:30 p.m.', '09:30 P. M.']) {
+        const parsed = es.parse(typed, 'time12h');
+        expect(parsed, typed).not.toBeNull();
+        expect([parsed!.getHours(), parsed!.getMinutes()], typed).toEqual([21, 30]);
+      }
+      expect(es.parse('9:30 a. m.', 'time12h')?.getHours()).toBe(9);
+
+      for (const typed of ['09:30 p. m.', '09:30 p.\u202fm.', '09:30 p.m.']) {
+        expect(es.parse(typed, 'hh:mm a')?.getHours(), typed).toBe(21);
+      }
+    });
+
+    it('knows every variant as a named key, so none is read as a token pattern', () => {
+      // A key the adapter did not know fell through to the token formatter, which
+      // prints the letters it cannot read: `time24h` came out as `time24h`.
+      for (const key of variants) expect(isNamedFormat(key), key).toBe(true);
+      expect(isNamedFormat('time24hours')).toBe(false);
+    });
 
     it('does not commit a partial value on the way to a whole one', () => {
       // The defect was not that `15.3.2026` failed — it is that `1` SUCCEEDED, as the
@@ -397,7 +510,7 @@ describe('WrNativeDateAdapter', () => {
   describe('the month token declines beside a day', () => {
     const adapterFor = (locale: string): WrNativeDateAdapter => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale })] });
+      TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale }))] });
       return TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
     };
 
@@ -431,7 +544,7 @@ describe('WrNativeDateAdapter', () => {
   describe('the meridiem token and non-Latin digits', () => {
     const adapterFor = (locale: string): WrNativeDateAdapter => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale })] });
+      TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale }))] });
       return TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
     };
 
@@ -467,7 +580,7 @@ describe('WrNativeDateAdapter', () => {
   describe('under a different locale', () => {
     it('follows the locale it was given', () => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
+      TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
       const us = TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
 
       expect(us.getFirstDayOfWeek()).toBe(0);

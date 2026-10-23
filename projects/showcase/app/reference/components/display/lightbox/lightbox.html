@@ -1,0 +1,54 @@
+<ngwr-doc-page
+  title="Lightbox"
+  description="An image that opens full size in an overlay when clicked."
+  [keywords]="['lightbox', 'image', 'preview', 'zoom', 'wr-lightbox', 'wr-image']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Click to open; Escape, the backdrop, the close button or the image itself closes it."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-lightbox [src]="landscape" alt="Mountain lake" aspectRatio="3 / 2" style="width: 18rem" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Separate thumbnail"
+    description="`preview` is the small thumbnail, `src` the full-size image."
+  >
+    <ngwr-doc-snippet [code]="snippets.preview">
+      <wr-lightbox [src]="portrait" [preview]="portraitThumb" alt="Forest" aspectRatio="2 / 3" style="width: 12rem" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Caption" description="`caption` shows under the full image.">
+    <ngwr-doc-snippet [code]="snippets.caption">
+      <wr-lightbox
+        [src]="landscape"
+        [preview]="landscapeThumb"
+        alt="Geiranger"
+        caption="Geiranger, Norway — 2023"
+        aspectRatio="3 / 2"
+        style="width: 18rem"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disable preview" description="`disablePreview` turns the zoom off and leaves a plain image.">
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <wr-lightbox
+        [src]="portrait"
+        [preview]="portraitThumb"
+        alt="No zoom"
+        disablePreview
+        aspectRatio="2 / 3"
+        style="width: 12rem"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

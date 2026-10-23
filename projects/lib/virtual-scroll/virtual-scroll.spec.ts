@@ -1,9 +1,9 @@
-import { CdkFixedSizeVirtualScroll } from '@angular/cdk/scrolling';
+import { CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrVirtualScroll } from './virtual-scroll';
 
@@ -101,6 +101,24 @@ describe('WrVirtualScroll', () => {
     fixture.componentInstance.height.set('40vh');
     fixture.detectChanges();
     expect(viewport().style.height).toBe('40vh');
+  });
+
+  it('re-measures the viewport when its own height changes', async () => {
+    // The CDK measures once and then only on a WINDOW resize, so growing the box
+    // through `height` left the rendered window sized for the old one: a blank
+    // band under the last row. What is ours to check is that the re-measure is
+    // asked for; the band itself is layout, which jsdom has none of.
+    const cdk = fixture.debugElement
+      .query(By.directive(CdkVirtualScrollViewport))
+      .injector.get(CdkVirtualScrollViewport);
+    await fixture.whenStable();
+    const measure = vi.spyOn(cdk, 'checkViewportSize');
+
+    fixture.componentInstance.height.set(600);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(measure).toHaveBeenCalled();
   });
 
   it('derives both buffers from the item size when neither is given', () => {

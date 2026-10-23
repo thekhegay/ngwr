@@ -6,7 +6,10 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { exit, stderr } from 'node:process';
+import { createRequire } from 'node:module';
+import { execPath, exit } from 'node:process';
+
+import { err } from '../log/err';
 
 /**
  * Run one step of a build pipeline, and stop the pipeline if it fails.
@@ -19,25 +22,33 @@ import { exit, stderr } from 'node:process';
  *
  * `stdio: 'inherit'` on purpose, so a pipeline looks exactly like the chain it
  * replaces: progress streams live, colour survives, and a step that wants to
- * read its own output (`build-showcase-app.ts` greps for prerender errors)
+ * read its own output (`build/showcase-app.ts` greps for prerender errors)
  * keeps doing that for itself rather than through here.
  */
 export function step(label: string, command: string, args: readonly string[]): void {
   const { status, error } = spawnSync(command, [...args], { stdio: 'inherit', shell: false });
 
   if (error) {
-    stderr.write(`\n✘ ${label} could not start: ${error.message}\n`);
+    err(`\n✘ ${label} could not start: ${error.message}`);
     exit(1);
   }
   if (status !== 0) {
     // No summary of what came before: every step already printed its own
     // output, and a wrapper repeating it buries the message that matters.
-    stderr.write(`\n✘ ${label} failed (exit ${status ?? 'signal'}).\n`);
+    err(`\n✘ ${label} failed (exit ${status ?? 'signal'}).`);
     exit(status ?? 1);
   }
 }
 
-/** Run a repo script through tsx, which is how every step here is written. */
+/**
+ * Run a repo script through tsx, which is how every step here is written: this
+ * Node with tsx as its loader, rather than a `pnpm exec tsx` that starts pnpm first.
+ */
 export function tsx(label: string, script: string, args: readonly string[] = []): void {
-  step(label, 'pnpm', ['exec', 'tsx', script, ...args]);
+  step(label, execPath, ['--import', 'tsx', script, ...args]);
+}
+
+/** Compile one TypeScript project with `tsc -p`, run by this Node rather than through `pnpm exec`. */
+export function tsc(label: string, tsconfig: string): void {
+  step(label, execPath, [createRequire(import.meta.url).resolve('typescript/bin/tsc'), '-p', tsconfig]);
 }

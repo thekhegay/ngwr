@@ -1,13 +1,31 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../button/styles' as button-styles; // WrButton
+@use '../../checkbox/styles' as checkbox-styles; // WrCheckbox
+@use '../../input/styles' as input-styles; // WrInput
+
 .wr-transfer {
   --wr-transfer-pane-width: 14rem;
   --wr-transfer-pane-height: 15rem;
+  --wr-transfer-gap: var(--wr-space-md);
+  --wr-transfer-font-family: var(--wr-font-family-base);
 
   display: flex;
   align-items: stretch;
-  gap: 0.75rem;
-  font-family: var(--wr-font-family-base);
+  gap: var(--wr-transfer-gap);
+  font-family: var(--wr-transfer-font-family);
   color: var(--wr-color-on-surface);
 
   &--disabled {
@@ -15,22 +33,28 @@
   }
 
   &__pane {
+    --wr-transfer-pane-radius: var(--wr-border-radius-base);
+
     display: flex;
     flex-direction: column;
     flex: 1 1 var(--wr-transfer-pane-width);
     min-width: 0;
-    border: 1px solid var(--wr-color-outline);
-    @include theme.smooth-br(var(--wr-border-radius-base));
+    border: 1px solid var(--wr-border-base);
+    @include theme.smooth-br(var(--wr-transfer-pane-radius));
     background: var(--wr-color-surface);
     overflow: hidden;
   }
 
   &__head {
+    --wr-transfer-head-gap: var(--wr-space-sm);
+    --wr-transfer-head-padding-y: var(--wr-space-sm);
+    --wr-transfer-head-padding-x: var(--wr-space-md);
+
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.625rem;
-    border-bottom: 1px solid var(--wr-color-outline);
+    gap: var(--wr-transfer-head-gap);
+    padding: var(--wr-transfer-head-padding-y) var(--wr-transfer-head-padding-x);
+    border-bottom: 1px solid var(--wr-border-base);
     background: var(--wr-color-fill);
     // The checkbox and the count are intrinsically sized, so on a narrow pane
     // the title absorbed the entire shortfall: at 375px it was 26px of a 91px
@@ -42,6 +66,9 @@
   }
 
   &__title {
+    --wr-transfer-title-font-size: var(--wr-text-sm);
+    --wr-transfer-title-font-weight: var(--wr-font-weight-medium);
+
     // A small basis rather than `auto`: the title has to be the item that
     // yields, and with a content-sized basis a long title pushes ITSELF onto
     // the next line, leaving the select-all checkbox alone on a row and the
@@ -53,34 +80,45 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: var(--wr-text-sm);
-    font-weight: var(--wr-font-weight-medium);
+    font-size: var(--wr-transfer-title-font-size);
+    font-weight: var(--wr-transfer-title-font-weight);
   }
 
   &__count {
+    --wr-transfer-count-font-size: var(--wr-text-xs);
+
     flex: 0 0 auto;
-    font-size: var(--wr-text-xs);
+    font-size: var(--wr-transfer-count-font-size);
     color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
   }
 
   &__search {
-    padding: 0.5rem 0.625rem;
-    border-bottom: 1px solid var(--wr-color-outline);
+    --wr-transfer-search-padding-y: var(--wr-space-sm);
+    --wr-transfer-search-padding-x: var(--wr-space-md);
+
+    padding: var(--wr-transfer-search-padding-y) var(--wr-transfer-search-padding-x);
+    border-bottom: 1px solid var(--wr-border-base);
   }
 
   &__list {
+    --wr-transfer-list-padding: var(--wr-space-xs);
+
     flex: 1 1 auto;
     margin: 0;
-    padding: 0.25rem;
+    padding: var(--wr-transfer-list-padding);
     list-style: none;
     overflow-y: auto;
     max-height: var(--wr-transfer-pane-height);
   }
 
   &__item {
-    padding: 0.25rem 0.375rem;
-    border-radius: var(--wr-border-radius-sm);
+    --wr-transfer-item-padding-y: var(--wr-space-xs);
+    --wr-transfer-item-padding-x: var(--wr-space-sm);
+    --wr-transfer-item-radius: var(--wr-border-radius-sm);
+
+    padding: var(--wr-transfer-item-padding-y) var(--wr-transfer-item-padding-x);
+    border-radius: var(--wr-transfer-item-radius);
 
     &:hover {
       background: var(--wr-color-hover);
@@ -92,17 +130,23 @@
   }
 
   &__empty {
-    padding: 1rem 0.375rem;
+    --wr-transfer-empty-padding-y: var(--wr-space-lg);
+    --wr-transfer-empty-padding-x: var(--wr-space-sm);
+    --wr-transfer-empty-font-size: var(--wr-text-sm);
+
+    padding: var(--wr-transfer-empty-padding-y) var(--wr-transfer-empty-padding-x);
     text-align: center;
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-transfer-empty-font-size);
     color: var(--wr-color-on-surface-muted);
   }
 
   &__actions {
+    --wr-transfer-actions-gap: var(--wr-space-sm);
+
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 0.5rem;
+    gap: var(--wr-transfer-actions-gap);
     flex: 0 0 auto;
   }
 

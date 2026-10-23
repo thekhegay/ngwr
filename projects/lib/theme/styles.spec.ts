@@ -8,16 +8,15 @@ import { describe, expect, it } from 'vitest';
  *
  * Everything here is a SOURCE assertion, and that is a limit rather than a
  * shortcut: jsdom applies no stylesheet cascade, so no rendered-DOM spec in this
- * repo can see a token resolve, a dark block win, or a focus ring paint. The
- * house rule `palette.spec.ts` states — "a unit test cannot see Sass, so it must
- * not pretend to" — holds here too. What a file scan CAN hold is the structural
- * half, which is where all three of these defects lived: a stylesheet that
- * references a token layer it never loads, a dark block keyed on an attribute
- * name the consumer has renamed, and a documented token nothing includes.
+ * repo can see a token resolve, a `light-dark()` pick its side, or a focus ring
+ * paint. A unit test cannot see Sass, so it must not pretend to. What a file
+ * scan CAN hold is the structural half, which is where these defects lived: a
+ * stylesheet that references a token layer it never loads, a dark rule keyed on
+ * a selector instead of on the scheme, and a documented token nothing includes.
  *
- * The compiled result is covered elsewhere: `pnpm check:theme` reads the BUILT
- * stylesheet, and `pnpm build:showcase` compiles the umbrella, so a mixin that
- * does not parse fails there rather than here.
+ * The compiled result is covered elsewhere: `sass-entry.spec.ts` compiles the
+ * token layer, and `pnpm build:showcase` compiles every entry point, so a mixin
+ * that does not parse fails there rather than here.
  */
 const LIB = join(process.cwd(), 'projects/lib');
 const THEME_STYLES = join(LIB, 'theme/styles');
@@ -59,7 +58,6 @@ function loaded(entry: string): string[] {
   return [...seen];
 }
 
-/** Every `<name>/styles/_index.scss` under `projects/lib` — the public Sass entries. */
 /** Every `.scss` under `dir`, so a check can read the whole library at once. */
 function scssFiles(dir: string): string[] {
   const out: string[] = [];
@@ -75,42 +73,56 @@ function scssFiles(dir: string): string[] {
   return out;
 }
 
+/**
+ * Every public Sass entry, read from the `exports` map's `sass` conditions.
+ *
+ * **Not a directory walk, and that distinction is the whole reason this file's
+ * own invariant could sit here stated correctly while four of its subjects were
+ * broken.** The walk this replaced looked for `<dir>/styles/_index.scss`, which
+ * is the shape 108 of the entries happen to have — and the five utility sheets
+ * are `projects/lib/styles/_<name>.scss`, so `ngwr/grid`, `ngwr/reset`,
+ * `ngwr/animations`, `ngwr/typography-utilities` and `ngwr/breakpoints` were
+ * never enumerated at all. Three of the four that reference a token went on
+ * referencing one for several majors, and the fourth was broken on this branch
+ * by a spacing conversion, under a green run of this very spec.
+ *
+ * AGENTS.md already names the source of truth — "read from the `exports` map in
+ * `projects/lib/package.json`, not from the directory tree" — and
+ * `pnpm gen:exports` is what keeps it honest. `./theme` is skipped because it
+ * IS the layer.
+ */
 function styleEntries(): string[] {
-  const out: string[] = [];
-  const walk = (dir: string): void => {
-    for (const name of readdirSync(dir)) {
-      if (name === 'node_modules' || name === 'schematics' || name === 'mcp') continue;
-      const full = join(dir, name);
-      if (!statSync(full).isDirectory()) continue;
-      const index = join(full, 'styles/_index.scss');
-      if (existsSync(index)) out.push(index);
-      walk(full);
-    }
-  };
-  walk(LIB);
-  return out;
+  return Object.entries(styleExports())
+    .filter(([key]) => key !== './theme')
+    .map(([, target]) => join(LIB, target.replace(/^\.\//, '')));
 }
 
-/** Component file to the stylesheet its `styleUrl` names. */
-function styleUrls(): Map<string, string> {
-  const found = new Map<string, string>();
-  const walk = (dir: string): void => {
-    for (const name of readdirSync(dir)) {
-      if (name === 'node_modules') continue;
-      const full = join(dir, name);
-      if (statSync(full).isDirectory()) {
-        walk(full);
-        continue;
-      }
-      if (!name.endsWith('.ts') || name.endsWith('.spec.ts')) continue;
-      const url = /styleUrl:\s*'\.\/([\w.-]+\.scss)'/.exec(readFileSync(full, 'utf8'))?.[1];
-      if (url === undefined) continue;
-      const scss = join(dirname(full), url);
-      if (existsSync(scss)) found.set(relative(LIB, full), scss);
-    }
+/**
+ * The subset of {@link styleEntries} that belongs to a component.
+ *
+ * A utility sheet lives at `projects/lib/styles/_<name>.scss`, so going up two
+ * levels from it lands on the library root rather than on an entry's own
+ * folder. The check below keys by exactly that, and with the utility sheets in
+ * the list it read the root as one nameless entry and attributed every
+ * component in the library to it. A sheet with no component directory renders
+ * no component, which is the honest reason to leave it out rather than a
+ * special case.
+ */
+function componentStyleEntries(): string[] {
+  return styleEntries().filter(entry => dirname(dirname(entry)) !== LIB);
+}
+
+/** The `exports` keys that carry a `sass` condition, to the file each resolves to. */
+function styleExports(): Record<string, string> {
+  const manifest = JSON.parse(readFileSync(join(LIB, 'package.json'), 'utf8')) as {
+    exports: Record<string, { sass?: string } | string>;
   };
-  walk(LIB);
-  return found;
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(manifest.exports)) {
+    const target = typeof value === 'string' ? undefined : value.sass;
+    if (target !== undefined) out[key] = target;
+  }
+  return out;
 }
 
 const DECLARED = /(--wr-[a-z0-9-]+)\s*:/g;
@@ -173,52 +185,325 @@ describe('a style entry point loads the token layer it paints with', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('checks a plausible number of entry points', () => {
-    // A resolver that quietly matched nothing would report the invariant as held.
-    expect(styleEntries().length).toBeGreaterThanOrEqual(105);
+  /**
+   * Three guards, and each one is a way this spec has already read green while
+   * being blind.
+   *
+   * The count is held against the MANIFEST rather than a floor. The floor it
+   * replaces was `>= 105` against a walk that found 109 of the 113 — four
+   * missing entries fitted inside the slack, which is exactly what a floor is
+   * for and exactly why it was the wrong instrument here.
+   */
+  it('enumerates every entry point the manifest advertises styles for', () => {
+    const exported = Object.keys(styleExports()).filter(key => key !== './theme');
+    expect(styleEntries()).toHaveLength(exported.length);
+    for (const entry of styleEntries()) {
+      expect(existsSync(entry), `${relative(LIB, entry)} is in the exports map and not on disk`).toBe(true);
+    }
+  });
+
+  /**
+   * The five whose shape the directory walk could not reach, BY NAME.
+   *
+   * A count is satisfiable by any 113 files. Naming these pins the one shape
+   * that was missing, and no resolver that matched nothing can satisfy it.
+   */
+  it('includes the utility sheets that do not live in a <name>/styles folder', () => {
+    const keys = Object.keys(styleExports());
+    for (const key of ['./grid', './reset', './animations', './typography-utilities', './breakpoints']) {
+      expect(keys, `${key} has no sass condition in the exports map`).toContain(key);
+    }
+    const files = styleEntries().map(f => relative(LIB, f));
+    for (const name of ['styles/_grid.scss', 'styles/_reset.scss', 'styles/_animations.scss']) {
+      expect(files, `${name} is not enumerated`).toContain(name);
+    }
+  });
+
+  /**
+   * That the DETECTOR is alive, not merely that the roster is complete.
+   *
+   * "No offenders" and "the rule stopped matching" print identically, and this
+   * repo has shipped the second: a `\b` after a hyphen made a spec pass with
+   * the rule it tested deleted. So the same predicate that judges the catalog
+   * is pointed at a sheet built to fail.
+   */
+  it('reports a sheet that reads a theme token without loading the layer', () => {
+    const canary = join(LIB, 'styles/_breakpoints.scss');
+    const files = loaded(canary);
+    expect(
+      files.some(f => f.startsWith(THEME_STYLES)),
+      'the canary must not load the theme'
+    ).toBe(false);
+
+    const own = new Set<string>();
+    for (const file of files) for (const m of code(file).matchAll(DECLARED)) own.add(m[1]);
+
+    // The shape the real check looks for, against a token the theme does declare.
+    const synthetic = '.wr-canary { font-size: var(--wr-text-2xl); }';
+    const referenced = [...synthetic.matchAll(REFERENCED)].map(m => m[1]);
+    expect(referenced).toEqual(['--wr-text-2xl']);
+    expect(referenced.filter(name => !own.has(name) && isTheme(name))).toEqual(['--wr-text-2xl']);
   });
 });
 
-describe('the dark block is keyed on the configured attribute', () => {
+describe('the border strengths really ascend', () => {
   /**
-   * `provideWrTheme({ attribute: 'data-color-mode' })` has a Sass half — `@use
-   * 'ngwr' with ($theme-attribute: 'data-color-mode')` — and only the configured
-   * name is emitted, because keeping `data-theme` as a second selector re-couples
-   * ngwr to whatever design system already owns it. Seven component stylesheets
-   * wrote the literal anyway, so their dark values were the one part of the
-   * catalog a rename silently failed to carry.
+   * A strength scale whose middle step is the strongest is a scale that lies,
+   * and this one did: `-strong` was `rgba(gray-4, 0.6)` while `-base` was the
+   * OPAQUE `gray-4`, so composited on the canvas `strong` read 1.26:1 against
+   * `base`'s 1.48:1. Nothing caught it because the two halves lived in
+   * different namespaces — `--wr-color-outline` and `--wr-color-border-strong`
+   * — so nothing ever put them side by side.
+   *
+   * Resolved through the ramp rather than read as literals: every one of the
+   * three is a `var()` now, and a spec that accepted a string would pass on the
+   * inversion it exists to refuse. Each scheme is the matching argument of the
+   * `light-dark()` a token is declared with, or the one value where the two
+   * schemes agree.
    */
-  it('is written with `dark-selector()` everywhere outside the theme layer', () => {
-    const offenders: string[] = [];
+  const CANVAS = { light: '#ffffff', dark: '#0b1120' } as const;
 
-    for (const [, scss] of styleUrls()) {
-      for (const file of loaded(scss)) {
-        if (code(file).includes('[data-theme')) offenders.push(relative(LIB, file));
-      }
+  /** `light-dark(a, b)` read as `a` or `b`; any other value is the same in both schemes. */
+  function side(value: string, scheme: 'light' | 'dark'): string {
+    const pair = /^light-dark\(\s*((?:var\([^()]*\)|[^,()])+?)\s*,\s*((?:var\([^()]*\)|[^,()])+?)\s*\)$/.exec(value);
+    if (!pair) return value;
+    return scheme === 'light' ? pair[1] : pair[2];
+  }
+
+  function ramp(scheme: 'light' | 'dark'): Map<string, string> {
+    const src = code(join(THEME_STYLES, '_colors.scss'));
+    const out = new Map<string, string>();
+    for (const m of src.matchAll(/(--wr-color-gray-[\w-]+|--wr-border-[a-z]+):\s*([^;]+);/g)) {
+      out.set(m[1], side(m[2].trim(), scheme));
     }
-    for (const entry of styleEntries()) {
-      for (const file of loaded(entry)) {
-        if (file.startsWith(THEME_STYLES)) continue;
-        if (code(file).includes('[data-theme')) offenders.push(relative(LIB, file));
+    return out;
+  }
+
+  /** `var(--x)` chased to a `#rrggbb`, or `null` when it is not a plain hex. */
+  function hex(name: string, scale: Map<string, string>, depth = 0): string | null {
+    if (depth > 6) return null;
+    const raw = scale.get(name);
+    if (raw === undefined) return null;
+    if (/^#[0-9a-f]{6}$/i.test(raw)) return raw;
+    const ref = /^var\(\s*(--[\w-]+)\s*\)$/.exec(raw);
+    return ref ? hex(ref[1], scale, depth + 1) : null;
+  }
+
+  function contrast(fg: string, bg: string): number {
+    const lum = (h: string): number => {
+      const ch = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255);
+      const f = (c: number): number => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+      return 0.2126 * f(ch[0]) + 0.7152 * f(ch[1]) + 0.0722 * f(ch[2]);
+    };
+    const [a, b] = [lum(fg), lum(bg)];
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  }
+
+  it.each(['light', 'dark'] as const)('subtle < base < strong in the %s scheme', scheme => {
+    const scale = ramp(scheme);
+    const seen = (['--wr-border-subtle', '--wr-border-base', '--wr-border-strong'] as const).map(name => {
+      const value = hex(name, scale);
+      expect(value, `${name} does not resolve to a hex in ${scheme}`).not.toBeNull();
+      return { name, ratio: contrast(value!, CANVAS[scheme]) };
+    });
+
+    expect(seen.map(s => s.name)).toEqual([...seen].sort((a, b) => a.ratio - b.ratio).map(s => s.name));
+  });
+});
+
+describe('an entry point loads the styles of the components it renders', () => {
+  /**
+   * The same invariant as the token one above, one level up — and v15 is what
+   * exposed it. Removing the `@use 'ngwr'` umbrella means a consumer writes one
+   * `@use` per component they PLACE, and they never learn about the components a
+   * component places inside itself. Measured when this was written: 47 pairs.
+   * `@use 'ngwr/date-picker'` gave a date field with a raw browser input — grey,
+   * square, 2px inset — because the picker renders `[wrInput]` and loaded none of
+   * `ngwr/input`; `@use 'ngwr/table'` gave unstyled checkboxes and an unstyled
+   * pager; `@use 'ngwr/schema-form'` drew ten controls and styled none of them.
+   *
+   * Nothing said so. The component renders, the markup is right, every gate is
+   * green, and the only symptom is on screen.
+   *
+   * Read from the `imports: []` of each entry point's own components, because
+   * that is the list Angular itself resolves a template against — a class scan
+   * would miss `[wrInput]`, which adds `.wr-input` at runtime and appears in no
+   * template as text. An entry point that ships no stylesheet is skipped: there
+   * is nothing to load.
+   */
+  /** Every exported `Wr*` symbol to the entry point that exports it. */
+  function symbolOwners(): Map<string, string> {
+    const out = new Map<string, string>();
+    const walk = (dir: string): void => {
+      for (const name of readdirSync(dir)) {
+        if (name === 'node_modules' || name === 'testing') continue;
+        const full = join(dir, name);
+        if (statSync(full).isDirectory()) {
+          walk(full);
+          continue;
+        }
+        if (name !== 'public-api.ts') continue;
+        const sub = relative(LIB, dirname(full));
+        for (const m of readFileSync(full, 'utf8').matchAll(/export \{([^}]*)\} from/g)) {
+          for (const raw of m[1].split(',')) {
+            const symbol = raw.replace(/\btype\b/, '').trim();
+            if (/^Wr[A-Za-z0-9]+$/.test(symbol)) out.set(symbol, sub);
+          }
+        }
       }
+    };
+    walk(LIB);
+    return out;
+  }
+
+  it('leaves no component rendering another entry point it never loads', () => {
+    const owners = symbolOwners();
+    const entryOfStyle = new Map(componentStyleEntries().map(e => [relative(LIB, dirname(dirname(e))), e]));
+    const offenders = new Set<string>();
+
+    for (const [sub, entry] of entryOfStyle) {
+      const loadedFiles = new Set(loaded(entry));
+      const walk = (dir: string): void => {
+        for (const name of readdirSync(dir)) {
+          if (name === 'node_modules' || name === 'testing') continue;
+          const full = join(dir, name);
+          if (statSync(full).isDirectory()) {
+            walk(full);
+            continue;
+          }
+          if (!name.endsWith('.ts') || name.endsWith('.spec.ts')) continue;
+          const list = /imports:\s*\[([^\]]*)\]/.exec(readFileSync(full, 'utf8'))?.[1];
+          if (list === undefined) continue;
+          for (const raw of list.split(',')) {
+            const from = owners.get(raw.trim());
+            if (from === undefined || from === sub) continue;
+            const theirs = entryOfStyle.get(from);
+            if (theirs === undefined || loadedFiles.has(theirs)) continue;
+            offenders.add(`ngwr/${sub} renders ${raw.trim()} and never loads ngwr/${from}`);
+          }
+        }
+      };
+      walk(join(LIB, sub));
     }
 
-    expect([...new Set(offenders)]).toEqual([]);
+    expect([...offenders].sort()).toEqual([]);
   });
 
-  it('is never inlined into a component bundle', () => {
-    // The second half, and the one a `dark-selector()` sweep alone would miss. A
-    // `styleUrl` is compiled when the LIBRARY is built, where `$theme-attribute`
-    // can only be the default — and Angular appends that copy AFTER the app's
-    // linked stylesheet, so a bundled dark block does not merely miss the rename,
-    // it outranks the correctly-named rule beside it under the very attribute the
-    // rename exists to escape.
+  it('finds the components an entry point renders', () => {
+    // A symbol map that quietly matched nothing would report the invariant held.
+    expect(symbolOwners().size).toBeGreaterThanOrEqual(150);
+  });
+});
+
+describe('a bare .wr-icon__svg is sized by the entry point that draws it', () => {
+  /**
+   * The CLASS version of the invariant above, and it shipped broken.
+   *
+   * Fifteen entry points draw an inline `<svg class="wr-icon__svg">` for a bit
+   * of chrome — the alert and toast close ✕, the password-toggle eye, the
+   * pagination and select chevrons, the tree and cascader carets, the table's
+   * sort and filter glyphs. The rule that gives them a size lived in
+   * `ngwr/icon`, which none of those fifteen load and no component's documented
+   * installation asks for. An SVG with no intrinsic size is 0×0, so a consumer
+   * who followed `<wr-alert>`'s own install recipe got a close button 4px wide
+   * that still announced itself as "Close alert" — and nothing in the build,
+   * the console or any of the nine gates said a word.
+   *
+   * It is the only class in the library that one entry point draws and another
+   * declares, which is why this is pinned by name rather than swept: every
+   * other `.wr-*` class is written as a BEM nest under its own block, so a
+   * literal scan cannot see it and a compile-everything sweep is minutes.
+   */
+  const GLYPH = 'wr-icon__svg';
+
+  /** Entry points whose templates draw a bare `.wr-icon__svg`. */
+  function drawers(): string[] {
+    const out = new Set<string>();
+    const walk = (dir: string): void => {
+      for (const name of readdirSync(dir)) {
+        if (name === 'node_modules' || name === 'testing') continue;
+        const full = join(dir, name);
+        if (statSync(full).isDirectory()) {
+          walk(full);
+          continue;
+        }
+        const isTemplate = name.endsWith('.html') || (name.endsWith('.ts') && !name.endsWith('.spec.ts'));
+        if (!isTemplate || !readFileSync(full, 'utf8').includes(`class="${GLYPH}"`)) continue;
+        // Walk up to the directory holding `styles/_index.scss` — the entry point.
+        let at = dirname(full);
+        while (at.startsWith(LIB) && !existsSync(join(at, 'styles/_index.scss'))) at = dirname(at);
+        if (at.startsWith(LIB)) out.add(join(at, 'styles/_index.scss'));
+      }
+    };
+    walk(LIB);
+    return [...out].sort();
+  }
+
+  it("is declared somewhere in every drawing entry point's own load closure", () => {
+    // `\\b` is NOT enough: a hyphen is a non-word character, so a renamed
+    // `.wr-icon__svg-gone` would still match and this spec would pass on the
+    // very bug it exists for — which it did, until the rename was tried.
+    const rule = new RegExp(`\\.${GLYPH}\\s*[,{]`);
+    const offenders = drawers().filter(entry => !loaded(entry).some(f => rule.test(code(f))));
+
+    expect(offenders.map(f => relative(LIB, f))).toEqual([]);
+  });
+
+  it('finds the entry points that draw one', () => {
+    // A template scanner that matched nothing would report the invariant as held.
+    expect(drawers().length).toBeGreaterThanOrEqual(12);
+  });
+});
+
+describe('the colour scheme is one switch', () => {
+  /**
+   * v15 moved dark mode from a `[data-theme='dark']` selector to the CSS
+   * standard: `color-scheme: light dark` on `:root`, and every value that differs
+   * between the schemes written as a `light-dark()`. The two cannot be mixed. A
+   * rule keyed on the attribute matches nothing once `WrTheme` stops writing it;
+   * a `@media (prefers-color-scheme: …)` answers the OS while `WrTheme` has
+   * forced the other scheme inline; and either one ignores a subtree that sets
+   * its own `color-scheme`. None of the three fails a build or a test — the
+   * page simply paints the wrong scheme in one place.
+   */
+  const files = scssFiles(LIB);
+
+  it('keys no rule on a theme attribute or a dark helper', () => {
     const offenders: string[] = [];
 
-    for (const [component, scss] of styleUrls()) {
-      for (const file of loaded(scss)) {
-        if (/dark-selector\(\)|@include\s+(?:[\w-]+\.)?dark\b/.test(code(file))) {
-          offenders.push(`${component} reaches ${relative(LIB, file)}`);
+    for (const file of files) {
+      const src = code(file);
+      if (/\[data-theme|dark-selector\(|@include\s+(?:[\w-]+\.)?dark(?![\w-])|\$theme-attribute/.test(src)) {
+        offenders.push(relative(LIB, file));
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
+
+  it('never answers prefers-color-scheme from a stylesheet', () => {
+    const offenders = files
+      .filter(file => code(file).includes('prefers-color-scheme'))
+      .map(file => relative(LIB, file));
+
+    expect(offenders).toEqual([]);
+  });
+
+  /**
+   * A custom property registered as `<color>` resolves its `light-dark()` where
+   * it is DECLARED, so one that inherits from `:root` carries the root's scheme
+   * into a subtree that set its own — measured in every engine. A
+   * non-inheriting one declared on a component host resolves per host, which is
+   * the safe form, and the one a canvas component reaches for when it needs a
+   * resolved colour.
+   */
+  it('registers no inheriting colour property', () => {
+    const offenders: string[] = [];
+
+    for (const file of files) {
+      for (const m of code(file).matchAll(/@property\s+(--[\w-]+)\s*\{([^}]*)\}/g)) {
+        if (/syntax\s*:\s*['"]<color>['"]/.test(m[2]) && !/inherits\s*:\s*false/.test(m[2])) {
+          offenders.push(`${relative(LIB, file)}: ${m[1]}`);
         }
       }
     }
@@ -226,89 +511,9 @@ describe('the dark block is keyed on the configured attribute', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('reaches every component that has one, from the public Sass entry only', () => {
-    const withDark = styleEntries().filter(entry =>
-      loaded(entry).some(f => !f.startsWith(THEME_STYLES) && code(f).includes('dark-selector()'))
-    );
-
-    // aurora, border-glow, shiny-text, spotlight-card, star-border, tilt-card,
-    // waves — the seven that carried the literal.
-    expect(withDark.map(f => relative(LIB, f).split('/')[0]).sort()).toEqual([
-      'aurora',
-      'border-glow',
-      'shiny-text',
-      'spotlight-card',
-      'star-border',
-      'tilt-card',
-      'waves',
-    ]);
-  });
-});
-
-describe('a channel-list token is never used in slash form', () => {
-  /**
-   * `--wr-color-*-rgb` holds `95, 108, 125` — three comma-separated numbers, not a
-   * colour. CSS Color 4 allows `rgb(r g b / a)` with SPACES or the legacy
-   * `rgba(r, g, b, a)` with commas, and mixing the two is invalid: `rgb(95, 108,
-   * 125 / 30%)` parses as nothing and the declaration is dropped.
-   *
-   * It shipped twice — `.wr-card__spinner`'s ring and `.wr-loading-bar__fill`'s
-   * glow — and both painted black for as long as they existed. Nothing caught it:
-   * stylelint's `color-function-notation` and `alpha-value-notation` are null on
-   * purpose, `check:contrast` measures text and target size, and a dropped
-   * declaration leaves no trace in a build log. Measured in Chromium before the
-   * fix: `rgb(var(--ch) / 30%)` computes to `rgb(0, 0, 0)`.
-   */
-  it('has no `rgb(var(--…-rgb) / a)` anywhere in the library', () => {
-    const offenders: string[] = [];
-
-    for (const file of scssFiles(LIB)) {
-      const src = code(file);
-
-      for (const m of src.matchAll(/rgba?\(\s*var\(--wr-[\w-]+-rgb\)\s*\/[^)]*\)/g)) {
-        offenders.push(`${relative(LIB, file)}: ${m[0]}`);
-      }
-    }
-
-    expect(offenders).toEqual([]);
-  });
-});
-
-describe('the focus ring', () => {
-  const focus = code(join(THEME_STYLES, '_focus.scss'));
-
-  /** Selectors in `_focus.scss` whose whole focus style is the shared mixin. */
-  const included = new Set(
-    [...focus.matchAll(/([^{}]+)\{\s*@include focus-ring;/g)].flatMap(m =>
-      m[1]
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean)
-    )
-  );
-
-  it('reads nothing but its own tokens', () => {
-    // The guide's promise is "retheme the ring once and every control follows —
-    // the library's own mixin reads nothing else". A hard-coded colour or width
-    // in here makes that sentence false for every selector below it.
-    const body = /@mixin focus-ring \{([\s\S]*?)\n\}/.exec(focus)?.[1];
-    expect(body).toBeDefined();
-    expect([...body!.matchAll(/var\((--wr-[a-z0-9-]+)/g)].map(m => m[1]).sort()).toEqual([
-      '--wr-focus-ring-color',
-      '--wr-focus-ring-halo',
-      '--wr-focus-ring-offset',
-      '--wr-focus-ring-offset',
-      '--wr-focus-ring-width',
-    ]);
-  });
-
-  it('covers the button, and with it the pagination cells built out of one', () => {
-    // The widest hole the ring could have had: `.wr-btn` is the host class on all
-    // three forms of the button (`wr-btn`, `button[wr-btn]`, `a[wr-btn]`) and on
-    // every pagination page and arrow, and none of them had a rule — so a
-    // retheme of `--wr-focus-ring-*` left the UA outline, which no token reaches.
-    expect(included.has('.wr-btn:focus-visible')).toBe(true);
-    expect(included.has('.wr-table__sort-btn:focus-visible')).toBe(true);
+  it('finds the stylesheets it judges', () => {
+    // A walk that quietly matched nothing would report every rule as clean.
+    expect(files.length).toBeGreaterThanOrEqual(120);
   });
 });
 
@@ -411,14 +616,17 @@ describe('rebrand()', () => {
     // literally in `:root` for `check:tokens`, which resolves an `@each` against
     // the list it iterates and cannot follow a mixin parameter. Separate means
     // they can drift, and a shade added to one and not the other is exactly the
-    // half-recoloured subtree this mixin exists to end.
+    // half-recoloured subtree this mixin exists to end. Six: the base, its
+    // `-contrast` and four shades — the `-rgb` that made it seven left in v15.
     const root = /@each \$name, \$base in \$base-colors \{([\s\S]*?)\n {2}\}/.exec(colors)?.[1];
-    const rebrand = /@mixin rebrand\(\$colors\) \{([\s\S]*?)\n {2}\}/.exec(colors)?.[1];
+    const rebrand = /@mixin rebrand\(.*?\) \{[\s\S]*?@each \$name, \$base in \$colors \{([\s\S]*?)\n {2}\}/.exec(
+      colors
+    )?.[1];
 
     expect(root).toBeDefined();
     expect(rebrand).toBeDefined();
     expect(suffixes(rebrand!)).toEqual(suffixes(root!));
-    expect(suffixes(root!)).toHaveLength(7);
+    expect(suffixes(root!)).toHaveLength(6);
   });
 
   it('re-includes the composed tokens on the element it lands on', () => {
@@ -428,7 +636,14 @@ describe('rebrand()', () => {
     // THAT DECLARES IT — so declared at `:root` they inherit into a recoloured
     // subtree as the page's own literal, and an outlined button drew a pink
     // border around blue text.
-    expect(/@mixin rebrand\(\$colors\) \{[\s\S]*?\n {2}@include derived;\n\}/.test(colors)).toBe(true);
+    //
+    // Read inside the mixin's own body — up to the brace that closes it at
+    // column 0 — because `:root` includes `derived` too, and a lazy match from
+    // the mixin's head would find that one if this one went missing.
+    const body = /@mixin rebrand\(.*?\) \{([\s\S]*?)\n\}/.exec(colors)?.[1];
+
+    expect(body).toBeDefined();
+    expect(body).toContain('\n  @include derived;');
   });
 
   it('refuses an intent the token set has no room for', () => {

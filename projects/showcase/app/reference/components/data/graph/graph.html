@@ -1,0 +1,86 @@
+<ngwr-doc-page
+  title="Graph"
+  description="Draws blocks joined parent to child, top to bottom, for display only."
+  [keywords]="['graph', 'wr-graph', 'org chart', 'dependency graph', 'diagram', 'hierarchy', 'dag']"
+  [labels]="['Component', 'SSR-safe']"
+  since="14.5.0"
+>
+  <ngwr-doc-section
+    title="Nodes and edges"
+    description="Pass `nodes` and `edges`; each edge is `{ from, to }`, from parent to child. A node can have several parents."
+  >
+    <ngwr-doc-snippet [files]="workflowFiles">
+      <wr-graph style="width: 100%" [nodes]="workflowNodes" [edges]="workflowEdges" ariaLabel="Writing workflow" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom nodes"
+    description="`<ng-template wrGraphNode let-node>` replaces the card. Render `node.label` in it: screen readers name the node by it."
+  >
+    <ngwr-doc-snippet [files]="teamFiles">
+      <wr-graph
+        style="width: 100%"
+        [nodes]="teamNodes"
+        [edges]="teamEdges"
+        [nodeWidth]="176"
+        [nodeHeight]="56"
+        ariaLabel="Team structure"
+      >
+        <ng-template wrGraphNode let-node>
+          @if (node.data.kind === 'unit') {
+            <div class="unit">{{ node.label }}</div>
+          } @else {
+            <div class="person">
+              <wr-avatar class="person__avatar" [size]="32" shape="circle">
+                <span aria-hidden="true">{{ node.data.initials }}</span>
+              </wr-avatar>
+              <div class="person__text">
+                <span class="person__name">{{ node.label }}</span>
+                <span class="person__role">{{ node.data.role }}</span>
+              </div>
+            </div>
+          }
+        </ng-template>
+      </wr-graph>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Shared dependencies" description="Cycles and repeated edges between two nodes are allowed.">
+    <ngwr-doc-snippet [files]="packageFiles">
+      <wr-graph
+        style="width: 100%"
+        [nodes]="packageNodes"
+        [edges]="packageEdges"
+        [nodeWidth]="184"
+        [nodeHeight]="52"
+        ariaLabel="Dependencies"
+      >
+        <ng-template wrGraphNode let-node>
+          <div class="package">
+            <code class="package__name">{{ node.label }}</code>
+            <span class="package__version">{{ node.data.version }}</span>
+          </div>
+        </ng-template>
+      </wr-graph>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Accessibility"
+    description="Each node reads out its parents and children. Give every graph on a page its own `ariaLabel`."
+  />
+
+  <ngwr-doc-section
+    title="What it does not do"
+    description="No selection, zoom, editing or edge labels. Content larger than its node box spills over, so size the box."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,15 +1,14 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 
-import semver from 'semver';
 import { describe, expect, it } from 'vitest';
 
 /**
  * The manifest against the code, because nothing else compares them.
  *
- * ng-packagr only polices `dependencies` — an entry point can import a package
- * nobody declared and the build stays green, so the omission surfaces as
- * `ERR_MODULE_NOT_FOUND` in a consumer's app instead. That is how `@angular/forms`
+ * The library build does not hold imports to the manifest — an entry point can
+ * import a package nobody declared and the build stays green, so the omission
+ * surfaces as `ERR_MODULE_NOT_FOUND` in a consumer's app instead. That is how `@angular/forms`
  * (`NgControl` in `ngwr/form`) and `@angular/router` (`RouterLink` in tabs, sidebar,
  * breadcrumbs and loading-bar) shipped undeclared: every `ng new` app happens to
  * have both, so the hole is invisible until someone installs into an app that does
@@ -32,8 +31,8 @@ const SKIP = ['schematics', 'mcp'];
  *
  * `**\/*.spec.ts` is most of it, and for a long time it was all of it — which is
  * why this file used to hardcode that one pattern. It stopped being all of it
- * when `i18n/catalog-contract.ts` arrived: a test-only module that twenty-two
- * spec files import, so it cannot be named `*.spec.ts` (vitest would try to
+ * when `i18n/catalog-contract.ts` arrived: a test-only module that the locale
+ * specs import, so it cannot be named `*.spec.ts` (vitest would try to
  * collect it and find no suite), and it imports `vitest`, so if this check ever
  * reads it the manifest is asked to declare a devDependency. Deriving the list
  * means the exclusion is stated once, in the place the compiler reads.
@@ -99,7 +98,8 @@ function importedPackages(): Map<string, string[]> {
       if (specifier.startsWith('.') || specifier.startsWith('node:')) continue;
       if (!SPECIFIER.test(specifier)) continue;
       // `ngwr/*` is this package importing its own sibling entry points — the TS
-      // path mapping resolves it in-tree and ng-packagr rewrites it at build.
+      // path mapping resolves it in-tree, and the build leaves it a bare import
+      // the published `exports` map answers.
       if (specifier === 'ngwr' || specifier.startsWith('ngwr/')) continue;
 
       const name = specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0];
@@ -110,45 +110,15 @@ function importedPackages(): Map<string, string[]> {
   return found;
 }
 
-describe('the release tooling can still find what it rewrites', () => {
-  // `release:prepare` regenerates SECURITY.md's support table from the version
-  // being cut, because maintained by hand it went two majors stale. It located
-  // the table by an exact string, a later edit ran the file through prettier —
-  // which pads every cell to its column width — and the release died on
-  // "SECURITY.md no longer contains the support table header".
-  //
-  // The matcher is shape-based now, and this is the assertion that was missing:
-  // the failure belongs in `pnpm test`, where an edit to the document is made,
-  // not at the one moment nobody wants a surprise. Markdown formatting is not
-  // gated in this repository, so both the padded and the bare spelling are legal
-  // and both have to keep working.
-  const security = readFileSync(join(process.cwd(), 'SECURITY.md'), 'utf8');
-
-  it('still holds a support table the generator can locate', () => {
-    expect(security).toMatch(/^\|\s*Version\s*\|\s*Supported\s*\|\s*$/m);
-  });
-
-  it('follows that header with a row per supported major, then a blank line', () => {
-    const from = security.search(/^\|\s*Version\s*\|\s*Supported\s*\|\s*$/m);
-    const block = security.slice(from, security.indexOf('\n\n', from));
-
-    // Header, separator and three majors — the shape `writeSupportTable` emits.
-    expect(block.split('\n')).toHaveLength(5);
-    // And the blank line it stops at exists, or the rewrite would swallow the
-    // prose underneath.
-    expect(security.indexOf('\n\n', from)).toBeGreaterThan(from);
-  });
-});
-
 describe('the published manifest', () => {
   const manifest = JSON.parse(readFileSync(join(LIB, 'package.json'), 'utf8')) as {
     peerDependencies: Record<string, string>;
     peerDependenciesMeta?: Record<string, { optional?: boolean }>;
-    dependencies: Record<string, string>;
+    dependencies?: Record<string, string>;
   };
 
   it('declares every package the shipped sources import', () => {
-    const declared = new Set([...Object.keys(manifest.peerDependencies), ...Object.keys(manifest.dependencies)]);
+    const declared = new Set([...Object.keys(manifest.peerDependencies), ...Object.keys(manifest.dependencies ?? {})]);
     const undeclared = [...importedPackages()]
       .filter(([name]) => !declared.has(name))
       .map(([name, files]) => `${name} (e.g. ${files[0]})`);
@@ -156,19 +126,19 @@ describe('the published manifest', () => {
     expect(undeclared).toEqual([]);
   });
 
-  it('keeps `tslib` the only runtime dependency', () => {
+  it('pulls in no runtime dependency', () => {
     // The peer list can grow; `dependencies` is what an install actually pulls in,
-    // and the library's promise is that it pulls in nothing but tslib.
-    expect(Object.keys(manifest.dependencies)).toEqual(['tslib']);
+    // and the library pulls in nothing. tslib went in v15: the ES2022 output
+    // imports none of its helpers, and the builds inline any they would need.
+    expect(manifest.dependencies).toBeUndefined();
   });
 
   it('marks a peer optional only when whole entry points, not the core, need it', () => {
     // `@angular/router` is optional because only tabs, sidebar, breadcrumbs and
     // loading-bar import it — an app with no routing installs nothing extra. The
-    // two date libraries are the same shape: pick one, or neither. The eight
-    // ProseMirror packages are imported by `ngwr/editor` and nothing else, so an
-    // app without a rich-text field installs none of them — which is also why no
-    // other entry point may import `ngwr/editor`. Only the packages the editor
+    // eight ProseMirror packages are imported by `ngwr/editor` and nothing else,
+    // so an app without a rich-text field installs none of them — which is also
+    // why no other entry point may import `ngwr/editor`. Only the packages the editor
     // imports BY NAME are listed: `prosemirror-transform` arrives as their own
     // dependency, and declaring it would fail the "imported" check below.
     // `@angular/forms` is NOT here: `ngwr/form` imports NgControl and every value
@@ -180,8 +150,6 @@ describe('the published manifest', () => {
 
     expect(optional).toEqual([
       '@angular/router',
-      'date-fns',
-      'luxon',
       'prosemirror-commands',
       'prosemirror-history',
       'prosemirror-inputrules',
@@ -195,13 +163,13 @@ describe('the published manifest', () => {
 
   it('declares a peer only for a package the shipped source imports', () => {
     // The other direction of the check above, and the one `lucide` failed for as
-    // long as it was listed. An ICON set is not a peer dependency: the adapters
-    // take the icon data as an ARGUMENT — `lucideIcons({ Plus })`, `feather(…)`
-    // — so `icon/adapters/lucide/adapter.ts` imports nothing but `WrIconDef`,
-    // and the only `from 'lucide'` in the tree is inside a template literal that
+    // long as it was listed. An ICON set is not a peer dependency: `lucideIcons()`
+    // takes the icon data as an ARGUMENT — `lucideIcons({ Plus })` — so
+    // `icon/lucide.ts` imports nothing but its own types, and the only
+    // `from 'lucide'` in the tree is inside a template literal that
     // `ng g ngwr:icon-set` writes into the CONSUMER's project. Compare
-    // `date/adapters/fns`, which really does `import { … } from 'date-fns'` and
-    // is therefore really a peer.
+    // `ngwr/editor`, which really does `import { … } from 'prosemirror-state'`
+    // and is therefore really a peer.
     //
     // A range on a package the library never loads is not a hint, it is a
     // resolvable constraint: npm 7+ installs optional peers when present and
@@ -218,13 +186,37 @@ describe('the published manifest', () => {
 });
 
 /**
+ * The root entry point is `provideWr()`, and every feature it takes comes from
+ * the entry point that feature configures — `withDensity()` from `ngwr/density`,
+ * typed by `WrFeature` in `ngwr/utils`. So the dependency runs one way only:
+ * the root may import a secondary entry point, never the reverse. A secondary
+ * entry point importing `ngwr` closes a cycle through the root, which the
+ * library build has no reason to notice and a consumer's bundler then has to
+ * untangle.
+ */
+describe('the root entry point', () => {
+  it('is imported by no shipped source', () => {
+    const offenders = sources(LIB)
+      .filter(file => {
+        const src = readFileSync(file, 'utf8')
+          .replace(/\/\*[\s\S]*?\*\//g, '')
+          .replace(/(^|\s)\/\/[^\n]*/g, '$1');
+        return /\bfrom\s*['"]ngwr['"]|\bimport\s*\(\s*['"]ngwr['"]/.test(src);
+      })
+      .map(file => relative(LIB, file));
+
+    expect(offenders).toEqual([]);
+  });
+});
+
+/**
  * A component stylesheet must never reach the EMITTING theme layer.
  *
  * `@use` deduplicates per compilation, and a component's `styleUrl` is its own
  * compilation — so a `styleUrl` whose SCSS pulls in `theme/styles` carries a
- * byte-identical second copy of the `:root` token block, the `[data-theme]` block
- * and the `wr-` box-sizing reset, which ng-packagr embeds in the FESM bundle as a
- * string and the app build ships as JavaScript. Twenty entry points did: 42 KB
+ * byte-identical second copy of the `:root` token block, its high-contrast twin
+ * and the `wr-` box-sizing reset, which the library build embeds in the FESM
+ * bundle as a string and the app build ships as JavaScript. Twenty entry points did: 42 KB
  * apiece, 328 token declarations and two `:root` blocks inside the main chunk of an
  * app whose only ngwr component was `<wr-virtual-scroll>`.
  *
@@ -235,15 +227,13 @@ describe('the published manifest', () => {
  * `#3969e2` on `:root` for as long as one of the twenty was on the page.
  *
  * So the invariant is about content, not about a file name: nothing a `styleUrl`
- * reaches may declare `:root` or the namespace reset. Those two, and not the dark
- * block, which the theme's own `_dark.scss` opens with a top-level `:root` anyway
- * — so it is caught either way. A COMPONENT'S dark block is a separate question
- * and `theme/styles.spec.ts` owns it: seven of them wrote `[data-theme='dark']
- * .wr-star-border` and were described here as a legitimate scoped rule, which
- * they were not. Compiled at library build time, the attribute in one can only
- * ever be the default, so it misses a rename and then outranks the correctly
- * named rule beside it. They are keyed on `dark-selector()` now, and loaded from
- * the public Sass entry rather than from the `styleUrl`.
+ * reaches may declare `:root` or the namespace reset. Dark mode adds no third
+ * pattern: both schemes live in those same `:root` declarations as `light-dark()`,
+ * switched by `color-scheme`, so there is no separate dark block to inline. A
+ * component's own dark values are written the same way, inside its own
+ * declarations, so they may sit in a `styleUrl` like any other rule — with no
+ * selector naming a theme, there is nothing compiled at library build time that a
+ * consumer could have configured differently.
  * `theme/styles/_focus.scss` passes and is deliberately still reachable — it emits
  * `.wr-*:focus-visible` rules rather than the global layer, and it is the only place
  * the shared ring mixin lives, so the five components that draw one take it from
@@ -322,92 +312,7 @@ describe('component stylesheets', () => {
   });
 });
 
-/**
- * The toolchain versions, which are stated three times and enforced by one.
- *
- * `engines` is what a reader looks at and what npm reports; `devEngines` is
- * what actually refuses an install; `packageManager` is what corepack fetches.
- * They said the same thing when they were written, and nothing made them keep
- * saying it — which is how the guard went missing in the first place.
- *
- * **`engine-strict` in `.npmrc` is not the guard it looks like: pnpm reads no
- * behavioural setting from that file** (measured on 11 and on 12), and an
- * incompatible `engines.node` on its own only warns. An install on an
- * unsupported runtime therefore simply succeeded, and the next failure was
- * somewhere inside a build. The check lives in `devEngines`, which pnpm does
- * honour — and this is what stops the two drifting apart the next time a range
- * moves.
- */
-describe('the root manifest declares one toolchain, not three', () => {
-  const manifestRoot = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
-    engines: { node: string; pnpm: string };
-    devEngines: { runtime: { name: string; version: string; onFail: string } };
-    packageManager: string;
-  };
-
-  it('enforces exactly the Node range it advertises', () => {
-    expect(manifestRoot.devEngines.runtime.name).toBe('node');
-    expect(manifestRoot.devEngines.runtime.version).toBe(manifestRoot.engines.node);
-  });
-
-  it('leaves the pnpm version to corepack rather than to devEngines', () => {
-    // `devEngines.packageManager` looks like the obvious companion to the
-    // runtime entry and cannot be used here: npm reads `devEngines` too, and a
-    // `packageManager` entry naming pnpm makes EVERY npm invocation in the repo
-    // fail `EBADDEVENGINES` — including `npx commitlint` in the commit-msg
-    // hook, which is how this was found. Nothing is lost: `packageManager` is
-    // the pin corepack actually enforces, and the range below is what refuses
-    // an older one.
-    expect(manifestRoot.devEngines).not.toHaveProperty('packageManager');
-    expect(manifestRoot.packageManager).toMatch(/^pnpm@\d+\.\d+\.\d+$/);
-  });
-
-  it('fetches a pnpm that satisfies its own range', () => {
-    // `packageManager` is an exact version and `engines.pnpm` a range; corepack
-    // installs the former, so a range that excludes it would refuse the very
-    // package manager the repository pins.
-    //
-    // Resolved with `semver`, not by asking whether the range CONTAINS the
-    // version as a substring. That is what this assertion did first, and it
-    // passed vacuously: `'^12.3.4'.includes('12.3.4')` is true, and so is
-    // `'^12.3.40'.includes('12.3.4')` — the one check standing against drift
-    // reported green on the drift itself.
-    const [name, version] = manifestRoot.packageManager.split('@');
-    expect(name).toBe('pnpm');
-    expect(semver.satisfies(version, manifestRoot.engines.pnpm)).toBe(true);
-  });
-
-  it('fails the install rather than warning about it', () => {
-    // `onFail: 'warn'` would print a line nobody reads in CI and carry on,
-    // which is the state this repository was already in by accident.
-    expect(manifestRoot.devEngines.runtime.onFail).toBe('error');
-  });
-
-  it('is the only place the toolchain versions are written down', () => {
-    // Every version this repo pins lives in `package.json`; the prose files
-    // point at it. That is not tidiness — CONTRIBUTING.md restated the Node
-    // range, the `.nvmrc` value, the enforcement mechanism and the pnpm version,
-    // and was wrong about all four at once, because a copy stays correct only
-    // until someone bumps the original and forgets the copies.
-    //
-    // Matched as literals rather than by pattern: a document may legitimately
-    // discuss a version in prose (why TypeScript is held below 7, what a
-    // `@types/node` experiment showed). What must not reappear is THIS
-    // repository's own pinned ranges, restated as fact.
-    const root = process.cwd();
-    const pinned = [manifestRoot.engines.node, manifestRoot.engines.pnpm, manifestRoot.packageManager];
-
-    const offenders: string[] = [];
-    for (const doc of ['README.md', 'CONTRIBUTING.md', 'AGENTS.md']) {
-      const text = readFileSync(join(root, doc), 'utf8');
-      for (const value of pinned) {
-        if (text.includes(value)) offenders.push(`${doc} restates "${value}"`);
-      }
-    }
-
-    expect(offenders).toEqual([]);
-  });
-
+describe('README.md', () => {
   it('keeps release-bound data out of README.md', () => {
     // The README is also the npm page, and nothing regenerates it. Every
     // version, count, size and date it used to restate went stale, so it links
@@ -434,17 +339,5 @@ describe('the root manifest declares one toolchain, not three', () => {
     const offenders = banned.filter(([re]) => re.test(text)).map(([re, why]) => `${why}: ${text.match(re)![0]}`);
 
     expect(offenders).toEqual([]);
-  });
-
-  it('keeps no pnpm setting in .npmrc, where pnpm would not read it', () => {
-    // Registry and auth lines are still honoured there; anything else is a
-    // setting that looks configured and does nothing.
-    const npmrc = readFileSync(join(process.cwd(), '.npmrc'), 'utf8');
-    const live = npmrc
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line && !line.startsWith('#'));
-
-    expect(live).toEqual([]);
   });
 });

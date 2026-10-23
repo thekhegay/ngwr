@@ -1,11 +1,12 @@
 @use 'lib/styles/breakpoints' as bp;
+@use 'showcase/styles/mixins' as site;
 
 .ngwr-footer {
   display: block;
   // Match the sidebar's right border so the two divider lines
   // visually connect when the docs layout shows both at once.
-  border-top: 1px solid var(--wr-color-light-lighter);
-  background: var(--wr-color-white);
+  border-top: 1px solid var(--wr-border-subtle);
+  background: var(--wr-color-surface);
 
   &__inner {
     // No padding here — rows (`__top`, `__bottom`) carry their own
@@ -37,6 +38,8 @@
   }
 
   &__logo {
+    --ngwr-footer-logo-bg: transparent;
+
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -48,8 +51,25 @@
     text-decoration: none;
     width: max-content;
 
+    // The header logo's hover: a primary tint behind the mark. The padding
+    // gives the tint and the focus ring room, and the negative margin cancels
+    // it so the mark stays aligned with the tagline under it.
+    padding: 0.25rem 0.5rem;
+    margin: -0.25rem -0.5rem;
+    border-radius: 0.375rem;
+    background: var(--ngwr-footer-logo-bg);
+    @include site.transition(background-color);
+
     > span {
-      color: var(--wr-color-dark);
+      color: var(--wr-color-on-surface);
+    }
+
+    &:hover {
+      --ngwr-footer-logo-bg: color-mix(in srgb, var(--wr-color-primary) 12.5%, transparent);
+    }
+
+    &:focus-visible {
+      @include site.focus-ring;
     }
   }
 
@@ -76,7 +96,7 @@
 
     &-title {
       margin: 0 0 0.25rem;
-      color: var(--wr-color-dark);
+      color: var(--wr-color-on-surface);
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.08em;
@@ -95,10 +115,14 @@
         color: var(--wr-color-on-surface-muted);
         text-decoration: none;
         font-size: 0.875rem;
-        transition: color var(--wr-transition-base);
+        @include site.transition(color);
 
         &:hover {
           color: var(--wr-color-primary-ink);
+        }
+
+        &:focus-visible {
+          @include site.focus-ring;
         }
       }
     }
@@ -107,7 +131,7 @@
   // Bottom row: copyright + version
   &__bottom {
     padding: 1.25rem var(--wr-grid-gutter) 1.5rem;
-    border-top: 1px solid var(--wr-color-light-lighter);
+    border-top: 1px solid var(--wr-border-subtle);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -144,10 +168,14 @@
   &__version {
     color: var(--wr-color-on-surface-muted);
     text-decoration: none;
-    transition: color var(--wr-transition-base);
+    @include site.transition(color);
 
     &:hover {
       color: var(--wr-color-primary-ink);
+    }
+
+    &:focus-visible {
+      @include site.focus-ring;
     }
   }
 }

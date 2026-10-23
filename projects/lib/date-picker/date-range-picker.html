@@ -60,6 +60,7 @@
     [attr.aria-controls]="overlayOpen() ? panelId : null"
     [disabled]="disabled() || readonly()"
     (click)="toggleOverlay()"
+    (blur)="onBlur($event)"
   >
     <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
       <rect x="1.5" y="2.5" width="11" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2" />
@@ -75,6 +76,7 @@
 <!--
   Why a typed end was refused, for a screen reader — the same live region
   <wr-date-picker> carries, written when a refusal is shown and emptied when it is
-  corrected. Silent inside a <wr-form-field> bound to the same control.
+  corrected. Silent inside a <wr-form-field> bound to the same control, and for a
+  refusal the app's catalog has no `validation.*` sentence for.
 -->
 <span class="wr-date-range-picker__sr-only" role="status" [id]="statusId">{{ announcement() }}</span>

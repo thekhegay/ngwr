@@ -1,0 +1,58 @@
+<ngwr-doc-page
+  title="Card"
+  description="A surface that groups related content."
+  [keywords]="['card', 'panel', 'surface', 'wr-card']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Basic usage" description="`<wr-card-header>` and `<wr-card-footer>` are optional.">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-card style="max-width: 22rem">
+        <wr-card-header>
+          <h3 style="margin: 0; font-size: 1rem">Settings</h3>
+        </wr-card-header>
+        <p style="margin: 0">Manage account preferences and notification rules.</p>
+        <wr-card-footer>
+          <button wr-btn type="button">Cancel</button>
+          <button wr-btn type="button" color="primary">Save</button>
+        </wr-card-footer>
+      </wr-card>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Without header / footer">
+    <ngwr-doc-snippet [code]="snippets.bare">
+      <wr-card style="max-width: 22rem">
+        <p style="margin: 0">Just a surface around content.</p>
+      </wr-card>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Variants"
+    description="`hoverable` for clickable cards, `compact` for tight layouts, `loading` covers the body with a spinner."
+  >
+    <ngwr-doc-snippet [code]="snippets.variants">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem">
+        <wr-card hoverable>
+          <p style="margin: 0">Hoverable</p>
+        </wr-card>
+        <wr-card [bordered]="false">
+          <p style="margin: 0">No border</p>
+        </wr-card>
+        <wr-card compact>
+          <p style="margin: 0">Compact</p>
+        </wr-card>
+        <wr-card [loading]="loading()">
+          <p style="margin: 0">
+            Loading overlay
+            <button wr-btn type="button" size="sm" (click)="reload()" style="margin-left: 0.5rem">Reload</button>
+          </p>
+        </wr-card>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Icons"
+  updated="15.0.0"
   description="ngwr ships a registry-based icon system. Bring any icon set you like — install the upstream package separately, then wire icons via `provideWrIcons()`. The library bundles no upstream icons of its own."
   [keywords]="['icons', 'icon-set', 'lucide', 'feather', 'tabler', 'phosphor', 'heroicons']"
   [labels]="['Reference']"
@@ -13,23 +14,16 @@
 
   <ngwr-doc-section
     title="Pattern 1 — svgIcon() for raw SVG files"
-    description="The default path. Bundle the SVG as a string via your bundler's raw import, hand it to `svgIcon()`. Works with every set that ships SVG files — Tabler, Phosphor, Heroicons, Iconoir, Radix, Bootstrap, and any random icons your designer hands you."
+    description="The default path. Bundle the SVG as a string via your bundler's raw import, hand it to `svgIcon()`. Works with every set that ships SVG files — Feather, Tabler, Phosphor, Heroicons, Iconoir, Radix, Bootstrap, and any random icons your designer hands you."
   >
     <ngwr-doc-code [code]="snippets.svgIcon" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Pattern 2 — Lucide adapter"
-    description="Lucide doesn't ship SVG files — it exports per-icon IconNode tuples. The `ngwr/icon/adapters/lucide` adapter renders them into the same `WrIconDef` shape."
+    title="Pattern 2 — lucideIcons() for Lucide"
+    description="Lucide doesn't ship SVG files — it exports per-icon IconNode tuples. Pass the ones you import to `lucideIcons()` from `ngwr/icon`, which renders them into the same `WrIconDef` shape."
   >
     <ngwr-doc-code [code]="snippets.lucide" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Pattern 3 — Feather adapter"
-    description="Feather ships inner-SVG strings only. The adapter wraps each with Feather's default `<svg>` chrome (24×24, currentColor, stroke 2)."
-  >
-    <ngwr-doc-code [code]="snippets.feather" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section

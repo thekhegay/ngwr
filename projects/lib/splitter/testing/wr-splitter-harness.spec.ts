@@ -170,13 +170,22 @@ describe('WrSplitterHarness', () => {
     expect(await harness.getPosition()).toBe(50);
   });
 
-  it('says where it stopped when the walk cannot land exactly', async () => {
+  it('walks off a fraction a drag left behind, onto whole numbers', async () => {
+    // An arrow step lands on a whole number, so the fraction does not ride along
+    // (`50.5` used to step to `51.5`, `52.5`, … and never reach 60).
     fixture.componentInstance.position.set(50.5);
     await fixture.whenStable();
 
     const harness = await splitter();
+    await harness.setPosition(60);
 
-    await expect(harness.setPosition(60)).rejects.toThrow(/stopped at 59.5/);
+    expect(await harness.getPosition()).toBe(60);
+  });
+
+  it('says where it stopped when the walk cannot land exactly', async () => {
+    const harness = await splitter();
+
+    await expect(harness.setPosition(60.5)).rejects.toThrow(/stopped at 60\b/);
   });
 
   it('reports a disabled splitter, and refuses to walk one', async () => {

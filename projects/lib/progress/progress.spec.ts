@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -109,5 +112,31 @@ describe('WrProgress under a localized catalog', () => {
     expect(host.getAttribute('aria-label')).not.toBe('Progress');
 
     fixture.destroy();
+  });
+});
+
+/**
+ * What the stylesheet promises that jsdom cannot show — it has no cascade from a
+ * sheet and no forced-colors mode — held against the COMPILED CSS. That each rule
+ * then paints what it says was measured in Chromium with `forcedColors: 'active'`.
+ * `sass` is resolved through `@angular/build`, as `theme/sass-entry.spec.ts` does.
+ */
+describe('WrProgress under forced colors', () => {
+  interface Sass {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  }
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
+  const css = sass
+    .compileString("@use 'progress/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  /** The `@media (forced-colors: active)` blocks, joined. */
+  const forced = [...css.matchAll(/@media \(forced-colors: active\)\s*\{([\s\S]*?\})\s*\}/g)].map(m => m[1]).join('\n');
+  /** The declarations of the rule whose selector is exactly `selector`, in `source`. */
+  const rule = (source: string, selector: string): string =>
+    new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.()>:]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(source)?.[1] ?? '';
+
+  it('keeps the track and the bar visible, where forced colors paints both as the page', () => {
+    expect(rule(forced, '.wr-progress')).toMatch(/outline:\s*1px solid CanvasText/);
+    expect(rule(forced, '.wr-progress__bar')).toMatch(/background:\s*CanvasText/);
   });
 });

@@ -1,0 +1,14 @@
+@use 'showcase/styles/mixins' as site;
+
+// The box the service scrolls. It is focusable, so it takes the site's ring.
+.scroll-demo {
+  height: 18rem;
+  overflow-y: auto;
+  border: 1px solid var(--wr-border-base);
+  border-radius: 0.5rem;
+  padding: 1rem;
+
+  &:focus-visible {
+    @include site.focus-ring;
+  }
+}

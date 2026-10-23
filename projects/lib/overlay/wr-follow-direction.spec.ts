@@ -8,7 +8,6 @@ import { Subject } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { provideWrOverlay } from './provide-wr-overlay';
 import { WR_OVERLAY } from './tokens/wr-overlay.token';
 import { wrFollowDirection } from './wr-follow-direction';
 
@@ -41,7 +40,7 @@ describe('wrFollowDirection', () => {
   /** Fresh module per case: an overlay container must not outlive its test. */
   const configure = (extra: unknown[] = []): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), ...extra] });
+    TestBed.configureTestingModule({ providers: extra });
     overlay = TestBed.inject(WR_OVERLAY);
     injector = TestBed.inject(Injector);
     ambient = TestBed.inject(Directionality);

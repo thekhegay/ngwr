@@ -11,10 +11,10 @@ function kebabToCamel(value: string): string {
 
 const SPEC: SvgSetSpec = {
   title: 'Tabler',
-  description: 'A 24px stroke set with 5000+ outline icons. Click any tile to copy the import snippet.',
+  description: count => `A 24px stroke set with ${count} outline icons. Click any tile to copy the import snippet.`,
   homepage: 'https://tabler.io/icons',
   license: 'MIT',
-  install: 'pnpm add @tabler/icons',
+  packages: '@tabler/icons',
   usage: `import plusSvg from '@tabler/icons/icons/outline/plus.svg?raw';
 import trashSvg from '@tabler/icons/icons/outline/trash.svg?raw';
 import { provideWrIcons, svgIcon } from 'ngwr/icon';

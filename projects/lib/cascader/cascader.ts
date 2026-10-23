@@ -34,11 +34,34 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, type WrClassInput } from 'ngwr/utils';
+import { isPrintableKey, toClassList, type WrClassInput } from 'ngwr/utils';
 
-import type { WrCascaderOption } from './interfaces';
+import type { WrCascaderOption } from './types';
 
 let panelUid = 0;
+
+/**
+ * Whether a keydown is a Tab that takes focus out of the open panel. The pane
+ * lives in the overlay container at the end of `<body>`, so the browser's own Tab
+ * out of it went to `<body>` — the top of the page — with the panel left standing.
+ * The caller focuses the trigger synchronously and does NOT `preventDefault`, so
+ * the browser's Tab carries on from there to the trigger's real neighbour — the
+ * move `wr-dropdown` makes for its menu.
+ *
+ * Every Tab inside the pane leaves it, in either direction: the panel holds ONE
+ * tab stop (the roving one, see `tabStop`), so there is nowhere else inside it for
+ * Tab to go. Asking "is there a later stop" instead would also answer wrongly for
+ * the moment between an arrow key moving focus and the render that moves the
+ * `tabindex="0"` after it.
+ */
+function tabLeavesPane(pane: HTMLElement, event: KeyboardEvent): boolean {
+  if (event.key !== 'Tab' || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return false;
+  const active = pane.ownerDocument.activeElement;
+  return !!active && pane.contains(active);
+}
+
+/** How long a pause ends a type-ahead run, in milliseconds — the figure APG's examples use. */
+const TYPEAHEAD_MS = 500;
 
 /**
  * Multi-level select — drills down through hierarchical categories
@@ -195,6 +218,51 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   protected readonly activePath = signal<readonly T[]>([]);
 
   protected readonly open = signal(false);
+
+  /**
+   * The option the user last moved to inside the open panel — `null` until they
+   * move, and again on every open. Written by an option's `focus` event, so
+   * whatever moved the caret (an arrow, a click, a harness, a type-ahead letter)
+   * moves the tab stop with it.
+   */
+  private readonly cursor = signal<{ readonly col: number; readonly value: T } | null>(null);
+
+  /**
+   * The panel's ONE tab stop, as in the APG tree pattern: the option the user
+   * moved to, else the selected path's leaf, else the first enabled root. Every
+   * other option carries `tabindex="-1"` and is reached with the arrows, so a
+   * deep tree is one Tab to enter and one to leave instead of a stop per option.
+   *
+   * Validated against what is ON SCREEN rather than trusted: choosing a sibling
+   * prunes the deeper columns, and a value written from outside replaces the
+   * path, so a remembered position can name an option that is gone. A disabled
+   * option is never the stop — `focus()` would land on a choice nobody can make.
+   * When the leaf itself is not on screen or is disabled, the deepest ancestor on
+   * the path that is takes its place.
+   */
+  protected readonly tabStop = computed<{ readonly col: number; readonly value: T } | null>(() => {
+    const cols = this.columns();
+    const enabledAt = (col: number, value: T): boolean => !!cols[col]?.some(o => o.value === value && !o.disabled);
+
+    const at = this.cursor();
+    if (at && enabledAt(at.col, at.value)) return at;
+
+    const path = this.path();
+    const active = this.activePath();
+    for (let col = Math.min(path.length, cols.length) - 1; col >= 0; col--) {
+      // Column `col` lists the children of the ACTIVE path above it, so the path's
+      // node at that depth is on screen only while the two agree that far down.
+      if (!this.pathsEqual(path.slice(0, col), active.slice(0, col))) continue;
+      if (enabledAt(col, path[col])) return { col, value: path[col] };
+    }
+
+    const first = cols[0]?.find(o => !o.disabled);
+    return first ? { col: 0, value: first.value } : null;
+  });
+
+  /** Letters typed in quick succession, for type-ahead. */
+  private typeahead = '';
+  private typeaheadAt = 0;
 
   /** Panel id used by the trigger's `aria-controls`. */
   protected readonly panelId = `wr-cascader-panel-${++panelUid}`;
@@ -360,6 +428,9 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
 
     // Always update active column for visual feedback / next column.
     this.activePath.set(newPath);
+    // A pointer click focuses the option anyway (see `onOptionFocus`); a scripted
+    // `click()` does not, and the tab stop belongs where the choice was made.
+    this.cursor.set({ col: colIndex, value: opt.value });
 
     // Commit when we've reached a leaf, or when changeOnSelect is on.
     if (!hasChildren || this.changeOnSelect()) {
@@ -368,6 +439,128 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
       this.touch.emit();
       // Close once we hit a true leaf — parent commits keep the panel open.
       if (!hasChildren) this.open.set(false);
+    }
+  }
+
+  /**
+   * The tree keys the panel's roles promise, per the APG tree pattern: Up / Down
+   * within a column, Home / End to its ends, the inline-end arrow into a branch's
+   * children — opening the next column on the way — and the inline-start arrow back
+   * to the option the column belongs to, or, from a root, closing the column it
+   * opened. A letter moves to the next option in the column whose label starts with
+   * what was typed. Enter and Space stay the commit.
+   *
+   * These are the ONLY way between options: the panel holds one tab stop (see
+   * {@link tabStop}), and Tab leaves it.
+   */
+  protected onOptionKeydown(colIndex: number, opt: WrCascaderOption<T>, event: KeyboardEvent): void {
+    const current = event.currentTarget as HTMLElement;
+    const column = current.closest<HTMLElement>('[role="group"]');
+    if (!column) return;
+    // Before the modifier check, because Shift is how a capital letter is typed.
+    if (isPrintableKey(event) && event.key !== ' ') {
+      this.typeAhead(column, current, event.key);
+      event.preventDefault();
+      return;
+    }
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const rtl = this.dir?.value === 'rtl';
+    const inward = rtl ? 'ArrowLeft' : 'ArrowRight';
+    const outward = rtl ? 'ArrowRight' : 'ArrowLeft';
+    const enabled = [...column.querySelectorAll<HTMLElement>('[role="treeitem"]')].filter(
+      o => o.getAttribute('aria-disabled') !== 'true'
+    );
+    const at = enabled.indexOf(current);
+
+    switch (event.key) {
+      case 'ArrowDown':
+        enabled[at + 1]?.focus();
+        break;
+      case 'ArrowUp':
+        if (at > 0) enabled[at - 1].focus();
+        break;
+      case 'Home':
+        enabled[0]?.focus();
+        break;
+      case 'End':
+        enabled[enabled.length - 1]?.focus();
+        break;
+      case inward: {
+        if (opt.disabled || !opt.children?.length || this.disabled() || this.readonly()) break;
+        this.activePath.set([...this.activePath().slice(0, colIndex), opt.value]);
+        // The column is not in the DOM until the render this write schedules.
+        afterNextRender(
+          () =>
+            this.overlayRef?.overlayElement
+              .querySelector<HTMLElement>(
+                `#${this.columnId(colIndex + 1)} [role="treeitem"]:not([aria-disabled="true"])`
+              )
+              ?.focus(),
+          { injector: this.injector }
+        );
+        break;
+      }
+      case outward: {
+        if (colIndex > 0) {
+          const parent = this.parentOptionId(colIndex);
+          if (parent) this.overlayRef?.overlayElement.querySelector<HTMLElement>(`#${parent}`)?.focus();
+        } else if (opt.children?.length && this.isActiveAt(colIndex, opt.value)) {
+          this.activePath.set([]);
+        }
+        break;
+      }
+      case ' ':
+        // The commit is `(keydown.space)`'s; the page scrolling a screen under the
+        // panel is the browser's, and it went with every Space on an option.
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+  }
+
+  /** The caret reached an option, by whatever route — the tab stop follows it. */
+  protected onOptionFocus(colIndex: number, opt: WrCascaderOption<T>): void {
+    if (opt.disabled) return;
+    this.cursor.set({ col: colIndex, value: opt.value });
+  }
+
+  /** Whether this option is the panel's one `tabindex="0"`. */
+  protected isTabStop(colIndex: number, opt: WrCascaderOption<T>): boolean {
+    const stop = this.tabStop();
+    return !opt.disabled && stop !== null && stop.col === colIndex && stop.value === opt.value;
+  }
+
+  /**
+   * Move to the next enabled option in `column` whose label starts with the letters
+   * typed so far. A pause of {@link TYPEAHEAD_MS} starts a new run. One letter
+   * pressed again cycles through the options that start with it; a longer run keeps
+   * the option it already matches, so `g` then `e` stays on "Germany".
+   */
+  private typeAhead(column: HTMLElement, current: HTMLElement, key: string): void {
+    const now = Date.now();
+    this.typeahead = now - this.typeaheadAt > TYPEAHEAD_MS ? key : this.typeahead + key;
+    this.typeaheadAt = now;
+
+    const typed = this.typeahead.toLocaleLowerCase();
+    const repeated = [...typed].every(ch => ch === typed[0]);
+    const search = repeated ? typed[0] : typed;
+    const enabled = [...column.querySelectorAll<HTMLElement>('[role="treeitem"]')].filter(
+      o => o.getAttribute('aria-disabled') !== 'true'
+    );
+    const from = enabled.indexOf(current);
+    // A fresh letter (or a repeated one) starts AFTER the current option; a longer
+    // run starts AT it, so the option that matched the first letters can keep the
+    // match.
+    const start = search.length === 1 ? from + 1 : Math.max(from, 0);
+    const label = (o: HTMLElement): string =>
+      (o.querySelector('.wr-cascader__opt-label')?.textContent ?? '').trim().toLocaleLowerCase();
+    for (let i = 0; i < enabled.length; i++) {
+      const candidate = enabled[(start + i) % enabled.length];
+      if (label(candidate).startsWith(search)) {
+        candidate.focus();
+        return;
+      }
     }
   }
 
@@ -438,6 +631,8 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
 
   private openOverlay(): void {
     if (this.overlayRef) return;
+    // Each open starts from the selected path, not from where the last visit ended.
+    this.cursor.set(null);
 
     const positionStrategy = this.overlay
       .position()
@@ -489,33 +684,32 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
         if (event.key === 'Escape') {
           event.preventDefault();
           this.open.set(false);
+          return;
+        }
+        if (this.overlayRef && tabLeavesPane(this.overlayRef.overlayElement, event)) {
+          this.host.nativeElement.querySelector<HTMLElement>('.wr-cascader__trigger')?.focus();
+          this.open.set(false);
         }
       });
   }
 
   /**
-   * The option the panel opens on: the selected one in the first column when there is
-   * a selection, otherwise the first enabled root. A disabled option is skipped — it
-   * still carries `tabindex="-1"`, so `focus()` would land on it and answer for a
-   * choice nobody can make.
+   * The option the panel opens on: its tab stop, which on open is the selected path's
+   * leaf, else the first enabled root (see {@link tabStop}). A disabled option is
+   * never the stop, so `focus()` cannot land on a choice nobody can make.
    */
   private focusPanelOption(): void {
-    const pane = this.overlayRef?.overlayElement;
-    if (!pane) return;
-    const option =
-      pane.querySelector<HTMLElement>('.wr-cascader__opt--active:not(.wr-cascader__opt--disabled)') ??
-      pane.querySelector<HTMLElement>('.wr-cascader__opt:not(.wr-cascader__opt--disabled)');
-    option?.focus();
+    this.overlayRef?.overlayElement.querySelector<HTMLElement>('[role="treeitem"][tabindex="0"]')?.focus();
   }
 
   private closeOverlay(): void {
     if (!this.overlayRef) return;
-    // Every enabled option carries `tabindex="0"` and commits on Enter, so on
-    // the keyboard the caret is INSIDE the pane by design — and the ordinary
-    // way to finish choosing (`onOptionClick` on a leaf) closes it. Disposing
-    // without handing focus back dropped it on `<body>` on the SUCCESS path,
-    // not merely on dismissal: a keyboard user who had just picked a value then
-    // had to Tab from the top of the document to get back to the control.
+    // Opening moves the caret onto the panel's tab stop and every option commits
+    // on Enter, so on the keyboard the caret is INSIDE the pane by design — and
+    // the ordinary way to finish choosing (`onOptionClick` on a leaf) closes it.
+    // Disposing without handing focus back dropped it on `<body>` on the SUCCESS
+    // path, not merely on dismissal: a keyboard user who had just picked a value
+    // then had to Tab from the top of the document to get back to the control.
     // Untouched when focus had already moved elsewhere — that click is usually
     // what closed us, and stealing the caret back would fight the user for it.
     const pane = this.overlayRef.overlayElement;
@@ -526,4 +720,4 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   }
 }
 
-export type { WrCascaderOption } from './interfaces';
+export type { WrCascaderOption } from './types';

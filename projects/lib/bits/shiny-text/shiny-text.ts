@@ -1,0 +1,124 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ *
+ * Angular adaptation of the ShinyText effect by David Haz / reactbits.dev.
+ * Original: https://www.reactbits.dev/text-animations/shiny-text
+ *
+ * The reactbits version uses `motion/react` to drive `background-position`
+ * via rAF. This port is pure CSS — the same effect via a keyframe that
+ * sweeps `background-position`, parameterised by `[speed]` / `[delay]` /
+ * `[yoyo]` / `[direction]`.
+ */
+
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+
+import { isSafeCssValue, numAttr } from 'ngwr/utils';
+
+/**
+ * Animated shimmer-over-text effect. A bright stripe sweeps across the
+ * text using `background-clip: text` + an animated `background-position`.
+ *
+ * @example
+ * ```html
+ * <wr-shiny-text text="Premium" />
+ * <wr-shiny-text
+ *   text="Custom"
+ *   color="#444"
+ *   shineColor="#a0e0ff"
+ *   [speed]="3"
+ *   [delay]="0.5"
+ *   [yoyo]="true"
+ *   [pauseOnHover]="true"
+ * />
+ * ```
+ *
+ * @see https://www.reactbits.dev/text-animations/shiny-text
+ */
+@Component({
+  selector: 'wr-shiny-text',
+  template: '{{ text() }}',
+  styleUrl: './shiny-text.scss',
+  encapsulation: ViewEncapsulation.None,
+  host: {
+    class: 'wr-shiny-text',
+    '[class.wr-shiny-text--paused]': 'disabled()',
+    '[class.wr-shiny-text--pause-on-hover]': 'pauseOnHover()',
+    '[class.wr-shiny-text--yoyo]': 'yoyo()',
+    '[class.wr-shiny-text--reverse]': "direction() === 'right'",
+    '[style.background-image]': 'gradient()',
+    '[style.animation-duration]': "totalDuration() + 's'",
+    '[style.--wr-shiny-text-motion]': 'motion()',
+  },
+})
+export class WrShinyText {
+  /** Text to render. */
+  readonly text = input.required<string>();
+
+  /** Pause the animation. @default false */
+  readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  /** Time for the bright stripe to traverse the text, in seconds. @default 2 */
+  readonly speed = input(2, { transform: numAttr(2) });
+
+  /** Base text colour outside the bright stripe. Unset falls back to `--wr-shiny-text-base`. */
+  readonly color = input<string | null>(null);
+
+  /** Sweep highlight colour. Unset falls back to the theme token. */
+  readonly shineColor = input<string | null>(null);
+
+  /** Gradient angle in degrees. @default 120 */
+  readonly spread = input(120, { transform: numAttr(120) });
+
+  /** Bounce the stripe back-and-forth instead of restarting. @default false */
+  readonly yoyo = input(false, { transform: coerceBooleanProperty });
+
+  /** Pause the animation while hovered. @default false */
+  readonly pauseOnHover = input(false, { transform: coerceBooleanProperty });
+
+  /** Sweep direction. @default 'left' */
+  readonly direction = input<'left' | 'right'>('left');
+
+  /** Pause between sweeps in seconds. @default 0 */
+  readonly delay = input(0, { transform: numAttr(0) });
+
+  /** Sweep time, in seconds. Floored so a `0` never makes the cycle degenerate. */
+  private readonly sweep = computed(() => Math.max(0.01, this.speed()));
+
+  /** Rest between sweeps, in seconds. A negative value is no rest. */
+  private readonly rest = computed(() => Math.max(0, this.delay()));
+
+  /** Total animation cycle (speed + delay) in seconds. */
+  protected readonly totalDuration = computed(() => this.sweep() + this.rest());
+
+  /**
+   * The fraction of the cycle spent MOVING — `speed / (speed + delay)`. The
+   * stylesheet clamps the keyframe's linear `0 → 1` progress at it, so the
+   * motion ends there and the rest of the cycle is the rest. See the comment
+   * at the top of `styles/_rules.scss` for why the split cannot live in the
+   * keyframe or in an easing.
+   *
+   * `1` at `delay: 0`: nothing to clamp, one uninterrupted sweep.
+   */
+  protected readonly motion = computed(() => {
+    const share = this.sweep() / this.totalDuration();
+    return String(Math.round(share * 1e4) / 1e4);
+  });
+
+  protected readonly gradient = computed(() => {
+    // Both colours are CONCATENATED into the gradient below, so a value that
+    // balances the surrounding parens escapes its stop and adds a `url()` layer
+    // the browser then fetches. Anything that would not stay in its slot falls
+    // back to the theme token — see `isSafeCssValue`.
+    const base = this.slot(this.color(), 'var(--wr-shiny-text-base)');
+    const shine = this.slot(this.shineColor(), 'var(--wr-shiny-text-shine)');
+    return `linear-gradient(${this.spread()}deg, ${base} 0%, ${base} 35%, ${shine} 50%, ${base} 65%, ${base} 100%)`;
+  });
+
+  private slot(value: string | null, fallback: string): string {
+    return value !== null && isSafeCssValue(value) ? value : fallback;
+  }
+}

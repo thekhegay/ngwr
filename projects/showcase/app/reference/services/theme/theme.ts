@@ -43,11 +43,6 @@ export default class ThemeServicePageComponent {
   protected readonly prePaint = `<script>${wrThemePrePaintScript()}</script>`;
 
   protected readonly snippets = {
-    install: `import { provideWrTheme, WrTheme } from 'ngwr/theme';
-
-bootstrapApplication(AppComponent, {
-  providers: [provideWrTheme({ defaultMode: 'auto' })],
-});`,
     usage: `private readonly theme = inject(WrTheme);
 
 this.theme.set('dark');
@@ -55,71 +50,55 @@ this.theme.toggle();
 
 protected readonly resolved = this.theme.resolved; // Signal<'light' | 'dark'>
 protected readonly mode = this.theme.mode;         // Signal<'light' | 'dark' | 'auto'>`,
-    multiApp: `// Shell — the one application that owns <html data-theme> and the storage key.
-bootstrapApplication(ShellComponent, {
-  providers: [provideWrTheme({ defaultMode: 'auto' })],
-});
+    config: `import { provideWr } from 'ngwr';
+import { withTheme } from 'ngwr/theme';
 
-// Widget mounted on the same page — no provideWrTheme(), no inject(WrTheme).
-// Its ngwr components are themed already: the attribute and the tokens are on
-// the document, not on the injector.
-bootstrapApplication(WidgetComponent);
-
-// If the widget needs the value in TypeScript, observe the document instead of
-// constructing a second owner of it.
-const html = document.documentElement;
-const theme = signal(html.getAttribute('data-theme') ?? 'light');
-new MutationObserver(() => theme.set(html.getAttribute('data-theme') ?? 'light'))
-  .observe(html, { attributeFilter: ['data-theme'] });
-
-// Unavoidable second instance? At least stop the persisted choices colliding.
-bootstrapApplication(WidgetComponent, {
-  providers: [provideWrTheme({ storageKey: null })],
+bootstrapApplication(AppComponent, {
+  providers: [
+    // Defaults: 'auto' and 'wr-theme'; storageKey: null stops persisting.
+    provideWr(withTheme({ defaultMode: 'dark', storageKey: 'app-theme' })),
+  ],
 });`,
     prePaintCustom: `import { wrThemePrePaintScript } from 'ngwr/theme';
 
-// Same script, for an app that renamed the attribute, the key or the prefix.
-// Pass the same values you gave provideWrTheme() / provideWrStorage():
-wrThemePrePaintScript({
-  attribute: 'app-theme',    // provideWrTheme({ attribute })
-  storageKey: 'theme-mode',  // provideWrTheme({ storageKey })
-  defaultMode: 'dark',       // provideWrTheme({ defaultMode })
-  storagePrefix: 'myapp:',   // provideWrStorage({ prefix })
-});
+// Pass the values you gave withTheme() and withStorage():
+wrThemePrePaintScript({ storageKey: 'app-theme', defaultMode: 'dark', storagePrefix: 'myapp:' });
 
-// It returns the JS source with NO <script> wrapper, so an SSR template can
-// inline it — and a CSP that forbids 'unsafe-inline' can hash it instead of
-// reaching for a nonce:
-const source = wrThemePrePaintScript();
-const hash = createHash('sha256').update(source).digest('base64');
-// Content-Security-Policy: script-src 'sha256-\${hash}'`,
+// It returns the source without <script>, so a strict CSP can hash it:
+const hash = createHash('sha256').update(wrThemePrePaintScript()).digest('base64');`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'mode',
-      description: "User-selected mode — `'light' | 'dark' | 'auto'`.",
+      description: 'The chosen mode: `light`, `dark` or `auto`.',
       type: 'Signal<WrThemeMode>',
       default: '—',
     },
     {
       name: 'resolved',
-      description: 'Resolved theme actually applied to <html>.',
+      description: 'The scheme in effect; `auto` follows the OS.',
       type: "Signal<'light' | 'dark'>",
       default: '—',
     },
     { name: 'set(mode)', description: 'Switch to a specific mode.', type: '(m: WrThemeMode) => void', default: '—' },
-    { name: 'toggle()', description: 'Flip light ↔ dark (skips auto).', type: '() => void', default: '—' },
+    { name: 'toggle()', description: 'Flip between light and dark (skips auto).', type: '() => void', default: '—' },
     {
-      name: 'provideWrTheme(config?)',
-      description: 'Configure defaultMode, storageKey, attribute name.',
-      type: '(config?) => EnvironmentProviders',
+      name: 'WR_THEME_CONFIG',
+      description: 'Holds `defaultMode` and `storageKey`. Set it with `withTheme()`.',
+      type: 'InjectionToken<WrThemeConfig>',
+      default: '—',
+    },
+    {
+      name: 'withTheme(config?)',
+      description: 'The `provideWr()` feature: sets `WR_THEME_CONFIG` and creates `WrTheme` at boot.',
+      type: "(config?: Partial<WrThemeConfig>) => WrFeature<'theme'>",
       default: '—',
     },
     {
       name: 'wrThemePrePaintScript(options?)',
       description:
-        'Source of the blocking script that resolves the theme before first paint. Takes the same `attribute` / `storageKey` / `defaultMode` you passed `provideWrTheme()`, plus `storagePrefix` and `json` from `provideWrStorage()`.',
+        'Source of the script that applies a stored choice before the first paint. Takes the `withTheme()` and `withStorage()` values.',
       type: '(options?: WrThemePrePaintOptions) => string',
       default: '—',
     },

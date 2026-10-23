@@ -1,19 +1,21 @@
 @use 'sass:color';
 @use 'sass:map';
 @use 'sass:math';
+@use 'sass:meta';
 
 // Base palette
 //
 // Override the whole palette via:
-//   @use 'ngwr/theme/styles/colors' with (
+//   @use 'ngwr/theme' with (
 //     $base-colors: (primary: #...)
 //   );
 //
-// **This is the LIGHT palette, and configuring it does not reach the dark
-// theme.** `_dark.scss` re-tunes the intents by hand for the dark canvas and
-// hard-codes what it lands on, so an app that seeds an indigo `primary` here
-// gets indigo in light and the shipped `#3567ff` in dark, with nothing said
-// about it — which is exactly how it reads as a bug rather than a boundary.
+// **This is the LIGHT side of each intent, and configuring it does not move the
+// dark side.** Every intent is one `light-dark()` on `:root`, and its second
+// argument comes from `$_dark-intents` below, which is tuned by hand for the
+// dark canvas — so an app that seeds an indigo `primary` here gets indigo in
+// light and the shipped `#3567ff` in dark, with nothing said about it. That is
+// exactly how it reads as a bug rather than a boundary.
 //
 // It is a boundary, and the deriving is what could not be shipped. The dark
 // intents are not the light ones lightened: `success` and `danger` are moved
@@ -22,18 +24,19 @@
 // shipping, and `primary` is deepened until its label can go white — a
 // direction no formula would take on its own. A `color.scale()` applied to an
 // arbitrary seed reproduces none of that; what it reproduces is the class of
-// failure the hand-tuning exists to prevent, silently, in the theme where
+// failure the hand-tuning exists to prevent, silently, in the scheme where
 // nobody looks first. Deriving the dark palette from the seed would trade a
 // visible wrong colour for an invisible failing contrast ratio, and that is
 // the worse of the two.
 //
 // So carry a rebrand across yourself, with the same arithmetic the light
-// palette uses. `rebrand()` below is that arithmetic:
+// palette uses. `rebrand()` below is that arithmetic, and its second argument
+// is the dark side:
 //
 //   @use 'ngwr/theme' as theme;
 //
-//   @include theme.dark {
-//     @include theme.rebrand((primary: #818cf8));
+//   :root {
+//     @include theme.rebrand((primary: #4f46e5), (primary: #818cf8));
 //   }
 //
 // Pick the dark seed for the dark canvas rather than reusing the light one, and
@@ -49,27 +52,60 @@
 // merit and the labels read muddy on a saturated mid-tone.
 //
 // Each of the five now sits just past the flip: white 4.60–4.64, black 4.52–4.56.
-// The shift is 8–20% of the previous tone. `warning` and `light` are NOT in that
-// set and cannot be — white needs `#906900` on warning, which is brown, not a
-// warning colour; those two keep their black label, which is correct at 12.28 and
-// 14.14.
+// The shift is 8–20% of the previous tone. `warning` is NOT in that set and
+// cannot be — white needs `#906900` on it, which is brown, not a warning colour;
+// it keeps its black label, which is correct at 12.28.
 $base-colors: (
   primary: #3969e2,
-  secondary: #e21a62,
   success: #008800,
   warning: #ffba00,
   danger: #dc3137,
   info: #3472d9,
-  light: #cbd5e1,
-  medium: #6a7683,
-  dark: #0f172a,
 ) !default;
 
-// Deprecated: the old YIQ brightness cut-off. No longer read — `_contrast()`
-// compares real WCAG contrast ratios, which needs no threshold. Kept declared
-// so `@use 'ngwr/theme' with ($contrast-threshold: …)` in an existing app still
-// compiles instead of erroring on an unknown variable.
-$contrast-threshold: 150 !default;
+// The intents re-tuned for the dark canvas — the second argument of each
+// intent's `light-dark()` in the `:root` loop below. An intent missing here
+// (`info`) keeps its light value in both schemes.
+//
+// A colour is a SEED, and its four shades are derived the way the light ones
+// are. A map pins them by hand instead, which is what `primary` needs: its
+// shades are not `color.adjust()` of its base, and the shipped values are the
+// ones hover and focus were measured with.
+//
+// `primary`: the light base reads a touch dim on the deep canvas. What carries
+// here is SATURATION, not lightness — `#3567ff` is only ~7% more luminous than
+// the light base but runs the blue channel to 255, and the shades follow it so
+// hover and focus rings stay visible against slate-900. Deep enough for a WHITE
+// label, and no deeper: the previous `#5b85ff` sat at white 3.36 / black 6.24,
+// so it took a BLACK label while the light theme's primary took white — one
+// intent labelled two ways across the schemes. `#3567ff` reads white 4.63 /
+// black 4.54. Scaling the channels toward black reaches the same ratio at
+// `#4c6fd6`, but that is S 63%, duller, which is the opposite of what the
+// re-tune exists for.
+//
+// `success` and `danger` are past the black/white flip point here too — see the
+// note above `$base-colors`. The dark canvas wants a LIGHTER fill, so the
+// deepening costs more here than in the light theme (33% and 21%), and that is
+// the trade: a duller green, in exchange for a label that is legible rather than
+// muddy. `warning` is lightened only — white cannot reach it at any tone worth
+// shipping.
+//
+// Private on purpose. Configuring the dark side is `rebrand()`'s second
+// argument, which takes the same measuring as any other seed; a forwarded map
+// would be a second way to say it, and would replace all four entries the
+// moment an app named one.
+$_dark-intents: (
+  primary: (
+    base: #3567ff,
+    light: #547eff,
+    lighter: #7396ff,
+    dark: #2848aa,
+    darker: #183179,
+  ),
+  success: #23863c,
+  warning: #ffcc33,
+  danger: #ca4949,
+);
 
 // Dark text used on light backgrounds.
 //
@@ -85,11 +121,46 @@ $contrast-dark: #000000 !default;
 // Light text used on dark backgrounds.
 $contrast-light: #ffffff !default;
 
-// Helpers
+/// The `-ink` shares under `prefers-contrast: more`.
+///
+/// `-ink` is text by definition, so the target moves from the default 5.0:1 to
+/// AAA 7:1 — measured, as the default shares in `derived()` are, against the
+/// intent's own `-soft` tint rather than the plain canvas, because the tint is
+/// the darker of the two backgrounds `-ink` is documented for and therefore the
+/// binding one.
+///
+/// Each share is the MOST saturated value that still reaches 7:1 in BOTH
+/// schemes, so the binding scheme decides it — and since `-ink` mixes toward
+/// `--wr-color-gray-6`, which is itself a `light-dark()`, one share serves both.
+/// Dark binds for four of the five; `warning` is the exception and binds on
+/// light, where white cannot reach it at any tone worth shipping.
+///
+/// It lives here rather than beside the `@media` block in `_contrast.scss`
+/// because two places emit it: that block, for the page, and `rebrand()`, which
+/// re-declares every `-ink` at its default share and has to put these back
+/// after them. `_contrast.scss` loads this module, so the map cannot live there
+/// and be read here without a cycle.
+$ink-mix-more: (
+  primary: 53%,
+  success: 55%,
+  warning: 36%,
+  danger: 53%,
+  info: 54%,
+) !default;
 
-@function _rgb-channels($c) {
-  @return color.channel($c, 'red'), color.channel($c, 'green'), color.channel($c, 'blue');
+// Adding a sixth intent to `$base-colors` without a share above would leave it
+// on its default ink under high contrast — a silent hole rather than a build
+// error, which is the failure this repo keeps finding in its own claims. So the
+// two maps are held together at COMPILE time.
+@each $name, $seed in $base-colors {
+  @if not map.has-key($ink-mix-more, $name) {
+    @error 'No high-contrast ink share for intent `#{$name}`. Add one to ' +
+      '`$ink-mix-more` in theme/styles/_colors.scss, derived at 7:1 against ' +
+      "that intent's own `-soft` tint in whichever scheme binds.";
+  }
 }
+
+// Helpers
 
 /** One channel, linearised per WCAG 2.x. */
 @function _linear($channel) {
@@ -121,7 +192,8 @@ $contrast-light: #ffffff !default;
  *
  * Was a YIQ brightness threshold, which is a brightness *estimate*, not the
  * metric accessibility is judged by, and it mispicked on every mid-saturation
- * colour: five of the nine shipped intents got white text below AA
+ * colour: five of the nine intents the palette shipped at the time got white
+ * text below AA
  * (success 3.33:1, medium 3.10:1, danger and info 3.68:1, secondary 3.99:1)
  * where dark text would have cleared it (5.43 / 5.82 / 4.90 / 4.91 / 4.52).
  * Comparing the real ratios needs no threshold to tune.
@@ -134,13 +206,72 @@ $contrast-light: #ffffff !default;
 }
 
 /**
- * Public alias of {@link _contrast}. Any theme partial that re-tunes an intent
- * has to re-derive its `-contrast` token too, otherwise the token stays baked
- * from the light palette — which is how the dark theme ended up putting white
- * text on its lightened primary at 3.36:1.
+ * Public alias of {@link _contrast}. Anything that re-tunes an intent has to
+ * re-derive its `-contrast` token too, otherwise the token stays baked from the
+ * light palette — which is how the dark theme once put white text on its
+ * lightened primary at 3.36:1.
  */
 @function contrast($c) {
   @return _contrast($c);
+}
+
+/// `light-dark($light, $dark)`, or the one value when the two schemes agree.
+///
+/// Collapsing is not only tidiness: a token that reads the same in both schemes
+/// is easier to read in DevTools and in `getPropertyValue()`, which returns the
+/// declared text, never the resolved colour.
+@function _scheme($light, $dark) {
+  @if $dark == null or $dark == $light {
+    @return $light;
+  }
+  @return light-dark($light, $dark);
+}
+
+/// An intent's base and four shades in ONE scheme: from a seed, the shades are
+/// the same lightness steps both palettes have always used; from a map, any shade
+/// it names is taken as written.
+@function _shades($spec) {
+  $base: $spec;
+  @if meta.type-of($spec) == 'map' {
+    $base: map.get($spec, base);
+  }
+
+  $shades: (
+    base: $base,
+    dark: color.adjust($base, $lightness: -5%),
+    darker: color.adjust($base, $lightness: -10%),
+    light: color.adjust($base, $lightness: 5%),
+    lighter: color.adjust($base, $lightness: 10%),
+  );
+
+  @if meta.type-of($spec) == 'map' {
+    @return map.merge($shades, $spec);
+  }
+  @return $shades;
+}
+
+/// Every value an intent publishes, keyed by token suffix (`base` for the bare
+/// name), each already paired across the schemes. One function for the `:root`
+/// loop and for `rebrand()`, so the two cannot disagree about the arithmetic.
+/// They stay two LOOPS because `check:tokens` resolves the `:root` one against
+/// the list it iterates, and cannot follow a mixin parameter.
+///
+/// `-contrast` is picked per scheme, off each scheme's own base, and collapses
+/// when both picks agree — which they do for every shipped intent.
+@function _intent($light, $dark: null) {
+  $l: _shades($light);
+  $d: $l;
+  @if $dark != null {
+    $d: _shades($dark);
+  }
+
+  $out: (
+    contrast: _scheme(_contrast(map.get($l, base)), _contrast(map.get($d, base))),
+  );
+  @each $key in (base, dark, darker, light, lighter) {
+    $out: map.set($out, $key, _scheme(map.get($l, $key), map.get($d, $key)));
+  }
+  @return $out;
 }
 
 // CSS variables
@@ -150,49 +281,62 @@ $contrast-light: #ffffff !default;
 /// They live in a mixin rather than straight in `:root` because a custom
 /// property's `var()` references are substituted at computed-value time ON THE
 /// ELEMENT THAT DECLARES IT, and what inherits down the tree is the substituted
-/// LITERAL. Declared once at `:root`, `--wr-color-surface: var(--wr-color-white)`
-/// computes to `#ffffff` there and every descendant inherits `#ffffff` — not the
-/// reference. Re-tuning `--wr-color-white` further down the tree does nothing to
-/// it afterwards.
+/// value. Declared once at `:root`, `--wr-color-surface: var(--wr-color-white)`
+/// computes to whatever `--wr-color-white` holds THERE, and re-declaring
+/// `--wr-color-white` further down the tree does nothing to it afterwards.
 ///
-/// That costs nothing for the whole-page dark theme: `[data-theme='dark']`
-/// matches the same `<html>` that `:root` does, so the bases it re-tunes and the
-/// tokens composed off them resolve on ONE element and stay consistent. It
-/// breaks the moment the attribute goes on a SUBTREE — a forced-dark preview, a
-/// dark hero on a light page — where the bases flip and fifty composed tokens
-/// keep their light values. The docs' own colours guide does exactly that, and
-/// its forced-dark panel painted muted text at 3.27:1 with `--wr-color-surface`
-/// still reading `#ffffff` beside a `--wr-color-muted-text` that had correctly
-/// flipped.
+/// The colour SCHEME is not what this is for, and it no longer needs it. What
+/// `:root` substitutes is the `light-dark(#ffffff, #0b1120)` itself — an
+/// unregistered custom property carries the function unresolved — so the choice
+/// between its two arguments is made on the element that finally PAINTS with the
+/// token, against that element's own `color-scheme`. A `color-scheme: dark`
+/// subtree gets the dark side of every composed token with nothing re-declared.
+/// Until v15 dark mode was a `[data-theme='dark']` block of literals, and this
+/// mixin was re-included there for exactly that reason; a forced-dark panel
+/// painted muted text at 3.27:1 before it was.
 ///
-/// So `_dark.scss` includes this too: re-declaring the compositions ON the themed
-/// element is what makes them re-resolve against that element's own bases. A new
-/// token written in terms of `var()` gets that for free if it is added HERE, and
-/// is frozen again if it is added to `:root` directly — that is the whole rule.
+/// What still needs it is a re-tuned BASE on a subtree — `rebrand()` below,
+/// which includes this so `-soft`, `-ink` and the rest resolve against the
+/// recoloured bases on that element. A new token written in terms of `var()`
+/// gets that for free if it is added HERE, and is frozen on a rebranded subtree
+/// if it is added to `:root` directly — that is the whole rule.
 @mixin derived() {
   // Generic subtle hover-surface tint (icon buttons, list rows) — one place
   // so the hover strength stays consistent everywhere.
-  --wr-color-hover: rgba(var(--wr-color-light-rgb), 0.4);
+  --wr-color-hover: var(--wr-color-gray-2);
 
-  // Border / divider strengths — translucent so they read on any surface and
-  // auto-adapt in dark (via the flipping `light` channels). One place each.
+  // Border strengths — three OPAQUE steps, ascending, and the names say which
+  // is which.
   //
-  // unused-ok: for `-subtle` and `-strong`. The catalog draws its hairlines with
-  // the opaque `--wr-color-outline`, and `--wr-color-border` has one consumer
-  // (`wr-avatar`'s ring), so these two are the weaker and stronger ends of a
-  // scale offered to consumers rather than one we paint with. They were NOT the
-  // answer to the twenty-two files that hand-rolled
-  // `rgba(var(--wr-color-outline-rgb), α)` at eight alphas — four of which
-  // computed to exactly these values. Those were FILLS, and naming a fill after a
-  // hairline is how a token layer starts lying, so the `--wr-color-fill*` scale
-  // below absorbed them instead; not one of those hand-rolls is left.
-  --wr-color-border: rgba(var(--wr-color-light-rgb), 0.5);
-  --wr-color-border-subtle: rgba(var(--wr-color-light-rgb), 0.35);
-  --wr-color-border-strong: rgba(var(--wr-color-light-rgb), 0.6);
+  // This was four tokens whose names did not: an opaque `--wr-color-outline`
+  // that 209 declarations drew every hairline with, and three translucent
+  // `--wr-color-border*` at 0.35 / 0.5 / 0.6 that almost nothing read. Nobody
+  // could tell from the names which one was the real border — and measured on
+  // the canvas, the one called `strong` was WEAKER than the one everything
+  // used: 0.6 of the hairline composited on white reads 1.26:1 against the
+  // opaque 1.48:1. The alphas were invisible to each other because the two
+  // halves sat in different namespaces, so nothing ever put them side by side.
+  //
+  // Now they are steps of the ramp, which is what a strength scale has to be if
+  // the order is to hold on any ground. `-base` is unchanged — the rename moved
+  // 209 reads without moving a pixel. `-strong` is the one step the POSITIONAL
+  // ramp does not carry, so it reads the fixed scale directly, and since the
+  // fixed scale does not flip it names a different step in each scheme: the
+  // positional ramp has no step between the hairline and muted text in dark.
+  //
+  // **It is NOT a 1.4.11 border, and that is DECIDED — do not re-report it.**
+  // 2.54:1 in light and 2.49:1 in dark, where the criterion asks 3:1 of
+  // anything that identifies a control. Reaching three needs `#718cad` /
+  // `#4d608a`, which is darker than the ramp's own rhythm and would leave every
+  // input and checkbox edge visibly heavier than every other line on the page.
+  // The maintainer weighed that and kept the lighter step, the same call
+  // already recorded for `--wr-border-base` in AGENTS.md.
+  --wr-border-subtle: var(--wr-color-gray-3);
+  --wr-border-strong: light-dark(var(--wr-color-gray-400), var(--wr-color-gray-600));
 
   // Scrim behind modals / drawers — always black so the dim reads as "covered"
-  // regardless of theme.
-  --wr-color-overlay: rgba(var(--wr-color-backdrop-rgb), 0.45);
+  // regardless of scheme.
+  --wr-color-overlay: color-mix(in srgb, var(--wr-color-backdrop) 45%, transparent);
 
   // Neutral FILL scale — the low-contrast wash a table header, a track, a
   // readonly field or a code chip sits on. Three steps, because the catalog had
@@ -200,65 +344,60 @@ $contrast-light: #ffffff !default;
   // and `wr-table` alone used six of them; the values below are the weighted
   // centre of the three clusters those eight actually formed.
   //
-  // **Off `light-rgb`, deliberately NOT off `--wr-color-outline-rgb`**, even
-  // though the two resolve to the same channel today. That is the bug this scale
-  // exists to prevent: every one of those hand-rolls read the OUTLINE channel, so
-  // a hairline retuned for its own job — a plausible contrast fix — would have
-  // dragged 33 unrelated fills with it, and one measured pair in `wr-table` goes
-  // from 6.58:1 to 4.05:1 that way. A fill is not a hairline, which is also why
-  // these are not `--wr-color-border-*` under a new name: those three carry the
+  // **Off the ramp's own steps, deliberately NOT off `--wr-border-base`**, even
+  // where the two land close. That is the bug this scale exists to prevent:
+  // every one of those hand-rolls read the OUTLINE channel, so a hairline
+  // retuned for its own job — a plausible contrast fix — would have dragged 33
+  // unrelated fills with it, and one measured pair in `wr-table` goes from
+  // 6.58:1 to 4.05:1 that way. A fill is not a hairline, which is also why these
+  // are not `--wr-color-border-*` under a new name: those three carried the
   // right VALUES under the wrong noun.
-  --wr-color-fill-subtle: rgba(var(--wr-color-light-rgb), 0.15);
-  --wr-color-fill: rgba(var(--wr-color-light-rgb), 0.3);
-  --wr-color-fill-strong: rgba(var(--wr-color-light-rgb), 0.55);
+  --wr-color-fill-subtle: var(--wr-color-gray-1);
+  --wr-color-fill: var(--wr-color-gray-2);
+  --wr-color-fill-strong: var(--wr-color-gray-3);
 
-  // De-emphasized text — the muted ink at two strengths, and only the first is
-  // text. `-text-muted` is 0.95, not 0.85: the role itself is 5.35:1 on the
-  // light surface, but wrapping it at 0.85 composited to #778291 — 3.90:1,
-  // under the AA bar. 0.95 is the most softening that still clears it (4.81),
-  // which leaves this token barely distinguishable from the flat role it wraps.
-  // Every library rule that read it was a placeholder, and those read
-  // `--wr-color-placeholder` now; it stays for the muted labels a consumer
-  // writes. `-text-faint` is below every bar — see its marker.
-  --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 0.95);
-  // unused-ok: the library paints with nothing at this strength any more, and
-  // that is the finding rather than an oversight. It had exactly three
-  // consumers — the OTP placeholder, the textarea resize grip and the avatar
-  // spinner — and all three were FAILING: 2.43:1 in light, against 4.5:1 for
-  // placeholder text and 3:1 for an interactive affordance and a status
-  // indicator. "Decorative by design" was true of the token and not of any of
-  // the three, so the grip and the spinner moved to `-on-surface-muted` and the
-  // placeholder to `--wr-color-placeholder`. The tier stays published because a
-  // custom property is public API and a consumer may have genuinely decorative
-  // text; the library, it turns out, has none. No gate reports a GRAPHIC at
-  // this strength — axe has no non-text-contrast rule. A placeholder painted
-  // with it fails `check:contrast`'s probe only where the probe can reach one,
-  // an at-rest `::placeholder`; every other placeholder rule is held to
-  // `--wr-color-placeholder` at the source, by `theme/styles.spec.ts`.
-  --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 0.6);
+  // De-emphasized text. Two NAMES and one value, which is the state v15 left
+  // them in and is recorded here rather than tidied away.
+  //
+  // They were a two-strength ramp over the muted ink — `-text-muted` an 0.95
+  // alpha measuring 4.81:1, `-text-faint` a weaker tier at 2.43:1 — and both
+  // now resolve to `--wr-color-gray-5`, the ramp step the neutral roles resolve
+  // to as well. The collapse is not a slip in either direction. The muted tier
+  // was already barely distinguishable from the flat role it wrapped, and the
+  // faint one had exactly three consumers, all of them FAILING: the OTP
+  // placeholder, the textarea resize grip and the avatar spinner, against
+  // 4.5:1 for placeholder text and 3:1 for an affordance and a status
+  // indicator. "Decorative by design" was true of the token and of none of the
+  // three, so the grip and the spinner moved to `-on-surface-muted` and the
+  // placeholder to `--wr-color-placeholder`.
+  --wr-color-text-muted: var(--wr-color-gray-5);
+  --wr-color-text-faint: var(--wr-color-gray-5);
 
-  // Semantic role aliases over the flipping neutrals — prefer these in new code
-  // for intent-free surface / text / outline jobs. They resolve through
-  // `white` / `dark` / `medium` / `light`, so they flip with the theme
-  // automatically.
+  // Semantic role aliases over the gray ramp — the only names a component
+  // should paint an intent-free surface, text or outline job with. They resolve
+  // through `--wr-color-gray-*`, each of which is a `light-dark()`, so one
+  // declaration here follows the scheme and a component never has to know.
   //
-  // Why roles at all: the neutrals do double duty. `--wr-color-dark` is both
-  // the `color="dark"` INTENT (a button variant, public API) and the default
-  // text colour; `--wr-color-white` is both the `color="light"`-adjacent
-  // surface and the page background. Reading `dark` in a component tells you
-  // nothing about which job it is doing. The roles name the job, so a future
-  // reader — and a future re-theme — can tell them apart. The intent scale
-  // stays exactly as it is; these sit on top of it.
+  // Why roles at all: the neutrals used to do double duty. `--wr-color-dark`
+  // was both the `color="dark"` INTENT — a button variant, public API — and the
+  // default text colour, and `--wr-color-white` was both the surface and the
+  // page background. Reading `dark` in a component told you nothing about which
+  // job it was doing. v15 finished the split: the four neutral intents
+  // (`secondary`, `light`, `medium`, `dark`) are gone, because the first was a
+  // second brand colour nobody had and the other three were fills wearing the
+  // names of surfaces, and what replaced them is the six-step ramp plus these
+  // roles.
   //
-  // Each role mirrors the literal 1:1, including the `-rgb` channel list so
-  // translucent fills (`rgba(var(--wr-color-surface-rgb), α)`) never have to
-  // reach back down to a literal.
+  // A component paints with the ROLE and never with a ramp step: the step is
+  // the substrate, and reaching past the role is how a component ends up right
+  // in one scheme only. A translucent fill is a mix toward `transparent` —
+  // `color-mix(in srgb, var(--wr-color-surface) 80%, transparent)` is exactly
+  // the old `rgba(…, 0.8)` — and v15 removed every `-rgb` channel list for it:
+  // `light-dark()` takes colours, three bare numbers are not one, so a channel
+  // list cannot follow the scheme.
   --wr-color-surface: var(--wr-color-white);
-  --wr-color-surface-rgb: var(--wr-color-white-rgb);
-  --wr-color-on-surface: var(--wr-color-dark);
-  --wr-color-on-surface-rgb: var(--wr-color-dark-rgb);
-  --wr-color-on-surface-muted: var(--wr-color-muted-text);
-  --wr-color-on-surface-muted-rgb: var(--wr-color-muted-text-rgb);
+  --wr-color-on-surface: var(--wr-color-gray-6);
+  --wr-color-on-surface-muted: var(--wr-color-gray-5);
 
   // Placeholder text — its own role because placeholders are where the catalog
   // kept inventing strengths: four of them, down to `rgba(…, 0.7)` on
@@ -272,8 +411,8 @@ $contrast-light: #ffffff !default;
   // the readonly fill. The price is that an empty READONLY `[wrInput]` paints its
   // placeholder in the colour a readonly value takes; `-text-muted` would keep
   // them apart and fails there at 4.29. Written as the role rather than a
-  // literal, so dark and high contrast follow it on their own, and with no
-  // `-rgb` twin on purpose — an alpha over the muted channel is the defect this
+  // literal, so both schemes and high contrast follow it on their own, and never
+  // mixed toward `transparent` — an alpha over the muted role is the defect this
   // replaced. What measures it is narrower than "every placeholder":
   // `check:contrast` swaps in each `::placeholder` a page shows at rest, plain
   // `color-contrast` reads the select, cascader and tree triggers (text spans),
@@ -283,36 +422,25 @@ $contrast-light: #ffffff !default;
   // unmeasured ones sit at the measured value.
   --wr-color-placeholder: var(--wr-color-on-surface-muted);
 
-  // Solid hairline / divider colour. Distinct from `--wr-color-border` above,
-  // which is deliberately translucent (`light` at 50%) so it reads on any
-  // surface — `outline` is the opaque one components actually draw 1px rules
-  // with today. Both are kept: swapping one for the other changes appearance,
-  // not just naming.
-  --wr-color-outline: var(--wr-color-light);
-  // unused-ok: the channel form of the hairline, kept for a consumer writing
-  // their own `rgba()` rule. The library's twenty-two hand-rolls read it and
-  // moved to `--wr-color-fill*` above — deliberately off `light-rgb`, for the
-  // reason stated there — so nothing paints with the channels today. Until this
-  // check stopped counting comments as consumers, the paragraph at :152 was the
-  // only thing keeping it green.
-  --wr-color-outline-rgb: var(--wr-color-light-rgb);
+  // Solid hairline / divider colour — the one components draw 1px rules with.
+  // `--wr-border-strong` above is a step darker; swapping one for the other
+  // changes appearance, not just naming. A track that sits behind data at an
+  // alpha (`wr-gauge`, `wr-knob`, `wr-calendar-heatmap`, `wr-line-chart`) mixes
+  // this toward `transparent` rather than reaching for a ramp step.
+  --wr-border-base: var(--wr-color-gray-4);
 
-  // Soft trio per intent (+ `medium` for neutral surfaces) — tokenizes the
-  // ad-hoc `rgba(var(--*-rgb), α)` fills components hand-rolled at ~8
-  // different alphas, so each alpha lives in ONE place. `-soft` is the
-  // canonical low-alpha fill, `-soft-border` the matching hairline, and
-  // `-soft-contrast` the readable same-hue text on it (deep in light,
-  // light in dark — follows `--wr-color-dark`). All theme-correct over any
-  // background via the -rgb channels.
-  @each $name in (primary, secondary, success, warning, danger, info, medium) {
-    --wr-color-#{$name}-soft: rgba(var(--wr-color-#{$name}-rgb), 0.12);
-    --wr-color-#{$name}-soft-border: rgba(var(--wr-color-#{$name}-rgb), 0.3);
-    // unused-ok: superseded in practice by `-ink`, which is calibrated to 5.0:1
-    // against this very tint while this one is a flat 62% mix that was never
-    // measured. Kept because it is public and predates `-ink`; do not reach for
-    // it in new code, and do not delete it in a minor.
-    --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-dark));
-    --wr-color-#{$name}-active: rgba(var(--wr-color-#{$name}-rgb), 0.2);
+  // Soft trio per intent — tokenizes the ad-hoc translucent fills components
+  // hand-rolled at ~8 different alphas, so each alpha lives in ONE place.
+  // `-soft` is the canonical low-alpha fill, `-soft-border` the matching
+  // hairline, and `-soft-contrast` the readable same-hue text on it (deep in
+  // light, light in dark — follows `--wr-color-gray-6`). Each is a mix toward
+  // `transparent`, so it lands correctly over any background and carries the
+  // intent's `light-dark()` with it.
+  @each $name in (primary, success, warning, danger, info) {
+    --wr-color-#{$name}-soft: color-mix(in srgb, var(--wr-color-#{$name}) 12%, transparent);
+    --wr-color-#{$name}-soft-border: color-mix(in srgb, var(--wr-color-#{$name}) 30%, transparent);
+    --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-gray-6));
+    --wr-color-#{$name}-active: color-mix(in srgb, var(--wr-color-#{$name}) 20%, transparent);
   }
 
   // `-ink`: the intent used as TEXT on `--wr-color-surface`.
@@ -328,7 +456,7 @@ $contrast-light: #ffffff !default;
   // its bases are lighter for a dark canvas and that happens to be the
   // accessible direction.
   //
-  // Same recipe as `-soft-contrast`: mixing toward `--wr-color-dark` darkens in
+  // Same recipe as `-soft-contrast`: mixing toward `--wr-color-gray-6` darkens in
   // light and lightens in dark from ONE declaration, because that token itself
   // flips. The share is per intent rather than uniform — warning has to travel
   // furthest (a yellow readable on white is not yellow), and forcing every
@@ -356,49 +484,43 @@ $contrast-light: #ffffff !default;
   // is the losing direction. axe measured the old 86% at 4.48:1 on the sidebar's
   // own tint — under AA, never mind the target. 78% is the most saturated share
   // that reaches 5.0 there (5.04), and it only helps the light theme, where a
-  // lower share means MORE `--wr-color-dark` and a deeper ink on a pale tint.
+  // lower share means MORE `--wr-color-gray-6` and a deeper ink on a pale tint.
   // Solved against the exact pair axe resolved on the page (#4e79fd on #0f1a36),
   // because a hand-rolled composite of the tint over the canvas does not
   // reproduce what the browser paints — this file's own numbers are arithmetic,
   // and `pnpm check:contrast` is the authority.
   $ink-mix: (
     primary: 78%,
-    secondary: 75%,
     success: 67%,
     warning: 48%,
     danger: 72%,
     info: 71%,
-    medium: 65%,
   );
 
   @each $name, $share in $ink-mix {
-    --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-dark));
+    --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-gray-6));
   }
-
-  // `light` is a surface tone by definition — a hair off the page background in
-  // either theme — so there is no darkening that keeps it recognisable AND
-  // readable. It borrows the page's own ink; the border still carries the
-  // intent. `dark` already IS the ink.
-  // unused-ok: the two ends of the ink ramp that resolve to something already
-  // named. `light` borrows the page's own ink and `dark` IS the ink, so a
-  // component would write the role directly — these exist so that
-  // `var(--wr-color-#{$intent}-ink)` in a loop resolves for all nine intents
-  // instead of nine minus two.
-  --wr-color-light-ink: var(--wr-color-on-surface);
-  --wr-color-dark-ink: var(--wr-color-dark);
 }
 
-/// Re-emit an intent's WHOLE token set on the current selector, from one seed.
+/// Re-emit an intent's WHOLE token set on the current selector, from one seed —
+/// or from two, one per colour scheme.
 ///
-/// `$colors` is a map of intent name to base colour, keyed by the same nine
+/// `$colors` is a map of intent name to base colour, keyed by the same five
 /// names as `$base-colors`. Anything else is an `@error`: a typo would otherwise
 /// emit a family of `--wr-color-brnad-*` properties that resolve for nothing.
 ///
-/// **This is the supported way to recolour a SUBTREE, and hand-writing the three
-/// obvious properties is not.** Setting `--wr-color-primary`, its `-rgb` and its
-/// `-contrast` on a `.marketing` wrapper looks like it should be enough, and the
-/// guide used to say so. It is not, for two separate reasons, and each hits a
-/// different half of the set:
+/// `$dark` is the same shape, for the DARK scheme, and every name in it has to
+/// be in `$colors` too. An intent it names becomes `light-dark(<seed>, <dark
+/// seed>)` in every token; one it does not name takes its seed in BOTH schemes,
+/// which is what a recoloured subtree has always done. Nothing derives the dark
+/// side for you — see the note on `$base-colors` for why — so pick the dark seed
+/// for the dark canvas and measure it.
+///
+/// **This is the supported way to recolour a SUBTREE, and hand-writing the two
+/// obvious properties is not.** Setting `--wr-color-primary` and its `-contrast`
+/// on a `.marketing` wrapper looks like it should be enough, and the guide used
+/// to say so. It is not, for two separate reasons, and each hits a different
+/// half of the set:
 ///
 /// - `-dark`, `-darker`, `-light` and `-lighter` are `color.adjust()` — Sass
 ///   arithmetic, resolved when the stylesheet is COMPILED. No runtime value can
@@ -407,14 +529,19 @@ $contrast-light: #ffffff !default;
 ///   in terms of `var()`, which is the mechanism that lets them re-derive — but
 ///   a custom property's references are substituted ON THE ELEMENT THAT DECLARES
 ///   IT, and these are declared at `:root`. What inherits into the subtree is
-///   the substituted literal, so an outlined button inside a pink section drew a
-///   pink border around blue text: `-ink` had been frozen two levels up. It is
-///   the same trap `derived()` documents for a scoped dark block, arriving by a
-///   different door.
+///   the substituted value, so an outlined button inside a pink section drew a
+///   pink border around blue text: `-ink` had been frozen two levels up.
 ///
 /// So the mixin does both halves: it recomputes the four shades and the contrast
 /// pick in Sass, then re-includes `derived()` so every composed token resolves
 /// against the bases on THIS element.
+///
+/// Re-including `derived()` costs one thing it has to pay back: it re-declares
+/// all five `-ink` tokens at their DEFAULT shares, later in source than the
+/// theme's `@media (prefers-contrast: more)` block and at the same specificity on
+/// `:root`. Left there, a page-wide rebrand would switch the AAA ink off for
+/// every intent, not only the one it recolours. So the high-contrast shares
+/// follow, under the same query, for this selector.
 ///
 /// ```scss
 /// @use 'ngwr/theme' as theme;
@@ -422,114 +549,159 @@ $contrast-light: #ffffff !default;
 /// .marketing {
 ///   @include theme.rebrand((primary: #be123c));
 /// }
+///
+/// // The whole page, with a dark seed of its own.
+/// :root {
+///   @include theme.rebrand((primary: #4f46e5), (primary: #818cf8));
+/// }
 /// ```
 ///
-/// It is compile-time, so the seed has to be known when the app's stylesheet is
-/// built. For a colour chosen at runtime — a tenant, a builder, a preset picked
-/// from a registry — reach for `wrThemeTokens()` from `ngwr/theme` instead; it
-/// is the same recipe in TypeScript.
-///
-/// The dark theme needs the same treatment and does not get it for free: see the
-/// note on `$base-colors` for why compile-time configuration is light-only, and
-/// wrap this in `theme.dark` to carry a rebrand across.
-@mixin rebrand($colors) {
+/// It is compile-time, so every seed has to be known when the app's stylesheet
+/// is built. There is no runtime equivalent: the shades are Sass arithmetic, so
+/// a colour picked in the browser can set a base and its `-contrast` and reach
+/// nothing else.
+@mixin rebrand($colors, $dark: ()) {
+  @each $name in map.keys($dark) {
+    @if not map.has-key($colors, $name) {
+      @error 'rebrand(): `$dark` names `#{$name}`, which `$colors` does not. A dark seed re-tunes an intent the same call recolours.';
+    }
+  }
+
   @each $name, $base in $colors {
     @if not map.has-key($base-colors, $name) {
       @error 'rebrand(): unknown intent `#{$name}`. Expected one of: #{map.keys($base-colors)}.';
     }
 
-    --wr-color-#{$name}: #{$base};
-    --wr-color-#{$name}-rgb: #{_rgb-channels($base)};
-    --wr-color-#{$name}-contrast: #{_contrast($base)};
-    --wr-color-#{$name}-dark: #{color.adjust($base, $lightness: -5%)};
-    --wr-color-#{$name}-darker: #{color.adjust($base, $lightness: -10%)};
-    // unused-ok: `-light` and `-lighter`, for the reason their `:root` twins
-    // carry — hover and active DEEPEN an intent, so the catalog reads `-dark` /
-    // `-darker` and never these two, and a shade set with holes in it is worse
-    // than one half of which is for consumers. They are here rather than only
-    // there because a rebrand has to emit the SAME set the `:root` loop does: a
-    // subtree that redefines four shades out of six leaves a consumer's own
-    // `var(--wr-color-primary-lighter)` on the page palette, which is the
-    // half-recoloured subtree this mixin exists to end.
-    --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
-    --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
+    $tokens: _intent($base, map.get($dark, $name));
+
+    --wr-color-#{$name}: #{map.get($tokens, base)};
+    --wr-color-#{$name}-contrast: #{map.get($tokens, contrast)};
+    --wr-color-#{$name}-dark: #{map.get($tokens, dark)};
+    --wr-color-#{$name}-darker: #{map.get($tokens, darker)};
+    --wr-color-#{$name}-light: #{map.get($tokens, light)};
+    --wr-color-#{$name}-lighter: #{map.get($tokens, lighter)};
   }
 
   @include derived;
+
+  // After `derived()` and never before it: Sass emits a nested `@media` where it
+  // sits, so the declarations it carries win only if they come later.
+  @media (prefers-contrast: more) {
+    @each $name, $share in $ink-mix-more {
+      --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-gray-6));
+    }
+  }
 }
 
 :root {
-  // Declared here so the light token set also claims the light UA scheme.
-  // Without it the browser fell back to the OS preference, and an app running
-  // ngwr's LIGHT theme on a dark-mode machine got dark scrollbars and dark
-  // native controls (<textarea>, date/colour inputs) against light surfaces.
-  // `_dark.scss` still flips it to `dark` under [data-theme='dark'], which wins
-  // on specificity.
-  color-scheme: light;
+  // The scheme switch, and the only one. Every token that differs between the
+  // schemes is a `light-dark()` below, which resolves against the `color-scheme`
+  // in effect on the element that USES it. So this line alone makes the page
+  // follow the OS with no script; `WrTheme` forces one scheme by writing
+  // `color-scheme` inline on `<html>`, which outranks it; and any subtree can
+  // carry its own `color-scheme` and get the other scheme's values with nothing
+  // re-declared. It also claims the matching UA scheme, so scrollbars and native
+  // controls (<textarea>, date and colour inputs) follow the same switch rather
+  // than the OS on their own.
+  //
+  // Two rules keep that true. No theme token may be registered with
+  // `@property` as `<color>`: a registered token resolves `light-dark()` where
+  // it is DECLARED, at `:root`, and a subtree's own `color-scheme` stops
+  // reaching it. And `light-dark()` takes colours only — `light-dark(1px, 2px)`
+  // is invalid — so a token can differ between the schemes in colour and in
+  // nothing else.
+  color-scheme: light dark;
 
-  --wr-color-white: #ffffff;
-  --wr-color-white-rgb: 255, 255, 255;
-  // unused-ok: the flat primitive. Only `-black-rgb` is painted with (eleven
-  // sites, all of them building an `rgba()` scrim), but a library that ships
-  // `--wr-color-white` and not its opposite reads as an omission.
+  // The canvas. Named for its LIGHT value, which is history rather than a
+  // description: in dark it is the deep canvas, deeper than slate-900 so an
+  // elevated surface in slate-800 reads as a real layer rather than vanishing
+  // into the background. Paint with `--wr-color-surface`, the role over it; a
+  // colour that has to stay white in both schemes is a literal, never this.
+  --wr-color-white: light-dark(#ffffff, #0b1120);
+  // The flat primitive, the same in both schemes. A scrim built on it is a mix
+  // toward `transparent`: `color-mix(in srgb, var(--wr-color-black) 45%,
+  // transparent)`.
   --wr-color-black: #000000;
-  --wr-color-black-rgb: 0, 0, 0;
 
   // Overlay dim — used by dialog / drawer / image preview / command
-  // palette / image cropper for the behind-the-panel scrim. Always
-  // black so the dim reads as "covered" regardless of theme. Don't
-  // wire to `--wr-color-dark-rgb` — that flips to light in dark mode
-  // and turns the backdrop into a white wash.
-  --wr-color-backdrop-rgb: 0, 0, 0;
+  // palette / image cropper for the behind-the-panel scrim. Black in BOTH
+  // schemes so the dim reads as "covered" regardless of theme. Don't wire it to
+  // `--wr-color-gray-6` — that flips to light in dark mode and turns the
+  // backdrop into a white wash.
+  --wr-color-backdrop: #000000;
 
-  // Muted TEXT, deliberately its own token rather than an alias of the `medium`
-  // intent. The two roles pull in opposite directions and cannot share a value:
-  // as text it needs >= 4.5:1 against the lightest surface (#ebeff4), while as a
-  // fill it has to clear the bar the other way, against its own label. v11 pulled
-  // them further apart rather than closer — the `medium` fill went deeper
-  // (#6a7683, whose label is now white at 4.63) while this token stayed where a
-  // light canvas needs it. Aliasing them left secondary text at 2.69:1.
-  --wr-color-muted-text: #5f6c7d;
-  --wr-color-muted-text-rgb: 95, 108, 125;
+  // The neutral ramp the library PAINTS with. Six positions from the faintest
+  // wash to body text, each a `light-dark()` — that pair is what makes every
+  // role alias in `derived()` follow the scheme without being written twice.
+  //
+  // The LIGHT side reads a step of the FIXED scale further down rather than
+  // carrying a hex of its own. The two ramps had drifted into two palettes: the
+  // fixed scale was already slate to the byte, the painted one was six
+  // hand-picked neighbours of it, and `gray-4` / `gray-6` happened to land on
+  // `gray-300` / `gray-900` exactly while the other four sat a byte or two off.
+  //
+  // The DARK side is hand-tuned, and that is a MEASURED limit of the fixed scale
+  // rather than a preference. Between the dark canvas (`#0b1120`) and the
+  // hairline there are three tint steps to place — `fill-subtle`, `fill`,
+  // `fill-strong` — and the scale offers two, 900 and 800. Its 950 is DARKER
+  // than the canvas, so a "fill" built on it would sit below the surface it is
+  // meant to raise. Spreading the three over 950 / 900 / 800 was tried and
+  // measured: it lifted `fill-strong` from `#1a2234` to `#1e293b`, and
+  // `wr-typography--code` at `tone="primary"` fell from 4.78:1 to 4.40:1 — under
+  // AA, caught by `check:contrast` as a new route over its dark baseline. The
+  // dark steps are tuned to the chosen family's hue at each step's OWN
+  // luminance, so dark is no bluer than light: the muted-text step went from 30
+  // points of blue over red to 20, body text from 13 to 6, and every step's
+  // luminance was preserved to five decimal places.
+  //
+  // The one LIGHT position that MOVED rather than being renamed is `gray-5`, the
+  // muted-text step: it was `#5f6c7d`, between `gray-500` and `gray-600`, and
+  // tuned to clear AA by a hair — 4.63:1 on `#ebeff4`, the lightest surface the
+  // library paints. `gray-500` would read 4.12:1 there and FAIL, so this takes
+  // `gray-600` and reads 6.56:1. Muted prose gets darker; it also stops sitting
+  // one repaint away from failing.
+  --wr-color-gray-1: light-dark(var(--wr-color-gray-50), #101624);
+  --wr-color-gray-2: light-dark(var(--wr-color-gray-100), #131a2b);
+  --wr-color-gray-3: light-dark(var(--wr-color-gray-200), #1a232f);
+  --wr-color-gray-4: light-dark(var(--wr-color-gray-300), #243040);
+  --wr-color-gray-5: light-dark(var(--wr-color-gray-600), #9ea6b2);
+  --wr-color-gray-6: light-dark(var(--wr-color-gray-900), #e9ebef);
 
   // Neutral gray ramp — a FIXED primitive scale (slate). Each step is a stable
   // job (50 = subtlest surface tint … 950 = strongest ink) and, unlike the
-  // semantic neutrals, does NOT flip in dark mode. For theme-aware surface /
-  // text jobs reach for the role aliases in `derived()` above instead.
+  // positional ramp above, is the same in both schemes. For scheme-aware surface
+  // / text jobs reach for the role aliases in `derived()` instead.
   //
-  // unused-ok: and deliberately so — the sentence above IS the reason. A fixed
-  // ramp cannot serve a component that has to work in both themes, so the
-  // library paints with the flipping roles and ships this for consumers who want
-  // a stable step. Reaching for one of these inside a component would be the bug
-  // it exists to prevent.
-  --wr-color-gray-50: #f8fafc;
-  --wr-color-gray-100: #f1f5f9;
-  --wr-color-gray-200: #e2e8f0;
-  --wr-color-gray-300: #cbd5e1;
-  --wr-color-gray-400: #94a3b8;
-  --wr-color-gray-500: #64748b;
-  --wr-color-gray-600: #475569;
-  --wr-color-gray-700: #334155;
-  --wr-color-gray-800: #1e293b;
-  --wr-color-gray-900: #0f172a;
-  --wr-color-gray-950: #020617;
+  // The painted ramp above reads six of these on its light side, so this scale
+  // is no longer only for consumers — it is the single source of the light
+  // neutral values. A COMPONENT still must not reach for a step directly: a
+  // fixed step cannot serve markup that has to work in both schemes, which is
+  // what the positional ramp and the role aliases are for.
+  --wr-color-gray-50: #f9fafb;
+  --wr-color-gray-100: #f3f4f6;
+  --wr-color-gray-200: #e5e7eb;
+  --wr-color-gray-300: #d1d5db;
+  --wr-color-gray-400: #9ca3af;
+  --wr-color-gray-500: #6b7280;
+  --wr-color-gray-600: #4b5563;
+  --wr-color-gray-700: #374151;
+  --wr-color-gray-800: #1f2937;
+  --wr-color-gray-900: #111827;
+  --wr-color-gray-950: #030712;
 
   @each $name, $base in $base-colors {
-    --wr-color-#{$name}: #{$base};
-    --wr-color-#{$name}-rgb: #{_rgb-channels($base)};
-    --wr-color-#{$name}-contrast: #{_contrast($base)};
-    --wr-color-#{$name}-dark: #{color.adjust($base, $lightness: -5%)};
-    --wr-color-#{$name}-darker: #{color.adjust($base, $lightness: -10%)};
-    // unused-ok: the symmetric half. Hover and active DEEPEN an intent, so the
-    // catalog reads `-dark` / `-darker` and never these two — but a shade set
-    // with holes in it is worse than one half of which is for consumers, and the
-    // dark theme re-derives all four for the same reason.
-    --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
-    --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
+    $tokens: _intent($base, map.get($_dark-intents, $name));
+
+    --wr-color-#{$name}: #{map.get($tokens, base)};
+    --wr-color-#{$name}-contrast: #{map.get($tokens, contrast)};
+    --wr-color-#{$name}-dark: #{map.get($tokens, dark)};
+    --wr-color-#{$name}-darker: #{map.get($tokens, darker)};
+    --wr-color-#{$name}-light: #{map.get($tokens, light)};
+    --wr-color-#{$name}-lighter: #{map.get($tokens, lighter)};
   }
 
-  // Re-resolved per themed element — see the mixin above. Anything composed
-  // out of another token belongs in there, not here.
+  // Composed tokens — see the mixin above. Anything written in terms of another
+  // token belongs in there, not here, or `rebrand()` cannot re-resolve it.
   @include derived;
 }
 

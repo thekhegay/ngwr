@@ -1,6 +1,4 @@
-// Typography utility classes — opt-in.
-//
-// Not loaded by the umbrella `ngwr` entry. Bring in explicitly:
+// Typography utility classes — opt-in. Bring in explicitly:
 //
 //   @use 'ngwr/typography-utilities';
 //
@@ -9,7 +7,14 @@
 //
 // All values read from the `--wr-text-*` / `--wr-font-weight-*` /
 // `--wr-leading-*` / `--wr-tracking-*` tokens, so overriding the tokens
-// at `:root` re-themes every utility class in one place.
+// at `:root` re-themes every utility class in one place — which is also why
+// the token layer is loaded here rather than left to the consumer. Every one
+// of the thirty reads below is the WHOLE value of its declaration, so without
+// it each class is inert: `.wr-text-2xl` measured 16px instead of 24 and
+// `.wr-font-bold` weight 400 instead of 700. Sass deduplicates within one
+// compilation, so an app that also loads the theme or any component pays
+// nothing for this line.
+@use '../theme/styles';
 
 // Size
 .wr-text-xs {

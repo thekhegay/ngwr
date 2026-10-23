@@ -61,35 +61,11 @@ export default class CookieServicePage {
   }
 
   protected readonly snippets = {
-    install: `import { WrCookie } from 'ngwr/cookie';
-
-@Component({ /* … */ })
-export class MyComponent {
-  private readonly cookies = inject(WrCookie);
-
-  protected init() {
-    this.cookies.set('theme', 'dark', {
-      expires: 60 * 60 * 24 * 30,   // 30 days
-      sameSite: 'Strict',
-      secure: true,
-    });
-
-    this.cookies.get('theme');     // 'dark'
-    this.cookies.has('theme');     // true
-    this.cookies.remove('theme');
-  }
-}`,
-    expires: `// Numeric expires = seconds from now (Max-Age):
-cookies.set('session', token, { expires: 3600 });          // 1 hour
-
-// Date expires = absolute (HTTP-date):
-const at = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-cookies.set('preferences', JSON.stringify(p), { expires: at });
-
-// Omit expires → session cookie (deleted on browser close).
-cookies.set('csrf', token);`,
-    keys: `cookies.keys();    // every cookie key visible to this document
-cookies.clear();   // remove them all (path: '/')`,
+    expires: `cookies.set('session', token, { expires: 3600 }); // in an hour
+cookies.set('prefs', value, { expires: new Date('2027-01-01') }); // on a date
+cookies.set('csrf', token); // when the browser closes`,
+    keys: `cookies.keys(); // every key this document can see
+cookies.clear(); // removes them all, on path '/'`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -103,13 +79,13 @@ cookies.clear();   // remove them all (path: '/')`,
     {
       name: 'set(key, value, options?)',
       description:
-        "Write a cookie. `expires` accepts `Date` (`expires=…`) or `number` (seconds → `max-age=…`). Defaults: `path: '/'`, `sameSite: 'Lax'`. `sameSite: 'None'` implies `secure` — a browser rejects the pair without it, so asking for a cross-site cookie without `secure` would otherwise be a silent no-op.",
+        "Write a cookie. `expires` takes a `Date` or seconds. Defaults: `path: '/'`, `sameSite: 'Lax'`. `sameSite: 'None'` adds `secure`.",
       type: '(key, value, options?) => void',
       default: '—',
     },
     {
       name: 'remove(key, options?)',
-      description: 'Delete a cookie. Pass `path` / `domain` matching what `set()` used.',
+      description: 'Delete a cookie. Pass the `path` and `domain` that `set()` used.',
       type: '(key, options?) => void',
       default: '—',
     },
@@ -127,7 +103,7 @@ cookies.clear();   // remove them all (path: '/')`,
       kind: 'Service',
       title: 'WrStorage',
       url: ['/reference/services', 'storage'],
-      description: 'Sibling API for localStorage / sessionStorage / custom engines — same shape, no expiry headers.',
+      description: 'The same API for localStorage.',
     },
   ];
 }

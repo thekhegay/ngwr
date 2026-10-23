@@ -7,7 +7,7 @@
 
 import { ComponentHarness, type ComponentHarnessConstructor, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrGraphNodeHarnessFilters } from './interfaces';
+import type { WrGraphNodeHarnessFilters } from './types';
 
 /** The visually hidden relation sentence the graph writes into every node that has an edge. */
 const SR_ONLY = '.wr-graph__sr-only';

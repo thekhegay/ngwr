@@ -1,0 +1,41 @@
+<ngwr-doc-page
+  title="Segmented"
+  description="Pick one option from a row of buttons."
+  [keywords]="['segmented', 'wr-segmented', 'signal forms']"
+  [labels]="['Signal Forms']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Bind the picked value with `[(value)]` or [any Angular form](/guides/forms)."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-segmented [options]="rangeOptions" [(value)]="range" />
+      <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ range() }}</span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="With icons" description="Give an option an `icon`; an icon-only one needs an `ariaLabel`.">
+    <ngwr-doc-snippet [code]="snippets.icons">
+      <wr-segmented [options]="modeOptions" [(value)]="mode" />
+      <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ mode() }}</span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Signal Forms"
+    description="Inside `<wr-form-field>`, `[formField]` binds the value and the field labels the strip and shows its errors."
+  >
+    <ngwr-doc-code [code]="snippets.signalForms" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Keyboard" description="Tab moves between segments; Enter / Space picks one." />
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

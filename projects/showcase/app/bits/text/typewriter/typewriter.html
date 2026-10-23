@@ -1,0 +1,38 @@
+<ngwr-doc-page
+  title="Typewriter"
+  updated="15.0.0"
+  description="Types and deletes strings with a blinking cursor."
+  [keywords]="['typewriter', 'wr-typewriter', 'text-type', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="text-type" category="text-animations" />
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <span
+        style="
+          display: inline-flex;
+          gap: 0.5rem;
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: var(--wr-color-on-surface);
+        "
+      >
+        We
+        <wr-typewriter
+          [texts]="texts()"
+          [typingSpeed]="typingSpeed()"
+          [deletingSpeed]="deletingSpeed()"
+          [pauseDuration]="pauseDuration()"
+          [loop]="loop()"
+          [cursorCharacter]="cursorCharacter()"
+          style="color: var(--wr-color-primary)"
+        />
+      </span>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

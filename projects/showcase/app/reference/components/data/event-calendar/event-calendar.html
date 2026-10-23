@@ -1,0 +1,157 @@
+<ngwr-doc-page
+  title="Event calendar"
+  updated="15.0.0"
+  description="Month, week and day views of events the user can move and resize."
+  [keywords]="['calendar', 'scheduler', 'events', 'agenda', 'wr-event-calendar']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Date adapter"
+    description="Uses `LOCALE_ID` with no provider; for another date library, pass a `WrDateAdapter` subclass ([Configuration](/docs/configuration))."
+  >
+    <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Views"
+    description="`view` and `date` are two-way. To use your own toolbar, bind them and set `hideHeader`."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="html" />
+    <ngwr-doc-snippet code="">
+      <wr-event-calendar style="width: 100%" [events]="events()" [(view)]="view" [(date)]="anchor" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Events"
+    description="`end` is exclusive. `color` takes any intent; `editable: false` locks one event."
+  >
+    <ngwr-doc-code [code]="snippets.events" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Drag to move and resize"
+    description="Set `editable`. The calendar never changes `events`: apply `eventChange` to your own state, or ignore it to cancel the drag."
+  >
+    <ngwr-doc-code [code]="snippets.editable" language="html" />
+    <ngwr-doc-code [code]="snippets.apply" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%">
+        <wr-event-calendar
+          editable
+          view="week"
+          [events]="events()"
+          [dayStartHour]="8"
+          [dayEndHour]="19"
+          [(date)]="anchor"
+          (eventChange)="apply($event)"
+          (eventClick)="note(`clicked — ${$event.title}`)"
+        />
+        <p style="margin: 0; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+          Last output: {{ lastChange() }}
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The time grid"
+    description="`dayStartHour` and `dayEndHour` trim the visible band. `slotMinutes` sets both the row height and the drag snap."
+  >
+    <ngwr-doc-code [code]="snippets.time" language="html" />
+    <ngwr-doc-snippet code="">
+      <wr-event-calendar
+        style="width: 100%"
+        [events]="events()"
+        [views]="[]"
+        [slotMinutes]="15"
+        [dayStartHour]="9"
+        [dayEndHour]="14"
+        [(view)]="weekView"
+        [(date)]="anchor"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Creating from empty space"
+    description="A click on an empty slot, or `Enter` on an empty cell, emits `slotClick`."
+  >
+    <ngwr-doc-code [code]="snippets.slot" language="html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom chip contents"
+    description="`<ng-template wrCalendarEvent>` replaces a chip's content. Add `WrCalendarEventTemplate` to `imports`, or the template is ignored."
+  >
+    <ngwr-doc-code [code]="snippets.template" language="html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Keyboard" description="The grid is one tab stop; each chip is its own.">
+    <div class="ngwr-table ngwr-keys">
+      <table>
+        <caption>
+          On a cell
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">ArrowLeft</wr-kbd> <wr-kbd size="sm">ArrowRight</wr-kbd></th>
+            <td>Previous or next day.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">ArrowUp</wr-kbd> <wr-kbd size="sm">ArrowDown</wr-kbd></th>
+            <td>One week in month view, one slot in week and day view.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Home</wr-kbd> <wr-kbd size="sm">End</wr-kbd></th>
+            <td>First / last day of the current week row.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Enter</wr-kbd> <wr-kbd size="sm">Space</wr-kbd></th>
+            <td>Emits <code>slotClick</code> on an empty cell, or focuses the first chip.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ngwr-table ngwr-keys">
+      <table>
+        <caption>
+          On a chip
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Escape</wr-kbd></th>
+            <td>Back to the cell the chip lives in.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Alt + arrows</wr-kbd></th>
+            <td>Moves the event. Emits <code>eventChange</code> with <code>kind: 'move'</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Shift + Alt + arrows</wr-kbd></th>
+            <td>Moves the end only. Emits <code>eventChange</code> with <code>kind: 'resize'</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Chip keys need <code>editable</code> and skip events with <code>editable: false</code>.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

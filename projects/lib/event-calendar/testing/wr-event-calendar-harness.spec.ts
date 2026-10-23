@@ -2,7 +2,8 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
+import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
 import {
   WrEventCalendar,
   type WrCalendarEvent,
@@ -73,7 +74,7 @@ describe('WrEventCalendarHarness', () => {
     document.elementFromPoint = (): Element | null => null;
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter(), ...(providers as never[])] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates()), ...(providers as never[])] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

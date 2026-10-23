@@ -52,26 +52,25 @@ secure.errors; // { url: { allowed: ['https'] } }`;
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'signature',
-      description: 'Factory — call it to get a `ValidatorFn`.',
-      type: '(opts?) => ValidatorFn',
+      description: 'Call it to get a `ValidatorFn`.',
+      type: '(options?: { protocols?: readonly string[]; requireProtocol?: boolean }) => ValidatorFn',
       default: '—',
     },
     {
       name: 'options.protocols',
-      description: 'Whitelist of accepted schemes. Trailing `:` optional. Case-insensitive.',
+      description: 'Accepted schemes, any case, with or without `:`.',
       type: 'readonly string[]',
       default: 'any scheme',
     },
     {
       name: 'options.requireProtocol',
-      description: 'When `false`, bare domains like `ngwr.dev` are accepted (parsed as if prefixed with `https://`).',
+      description: 'When `false`, `ngwr.dev` passes, read as `https://ngwr.dev`.',
       type: 'boolean',
       default: 'true',
     },
     {
       name: 'error key',
-      description:
-        'On unparseable input: `{ url: true }`. On scheme mismatch: `{ url: { allowed: [...] } }`. Empty value passes.',
+      description: 'Not a URL: `{ url: true }`. Wrong scheme: `{ url: { allowed: [...] } }`. Empty value passes.',
       type: '{ url: true | { allowed: string[] } }',
       default: '—',
     },
@@ -82,13 +81,12 @@ secure.errors; // { url: { allowed: ['https'] } }`;
       kind: 'Component',
       title: 'wr-input',
       url: ['/reference/components', 'input'],
-      description: 'Host control for link entry.',
     },
     {
       kind: 'Component',
       title: 'wr-form-field',
       url: ['/reference/components', 'form-field'],
-      description: 'Label / hint / error scaffolding around it.',
+      description: 'Label and error.',
     },
   ];
 }

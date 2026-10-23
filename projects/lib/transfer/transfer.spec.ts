@@ -4,8 +4,8 @@ import { FormField, disabled, form, readonly } from '@angular/forms/signals';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrTransferItem } from './interfaces';
 import { WrTransfer } from './transfer';
+import type { WrTransferItem } from './types';
 
 const ITEMS: readonly WrTransferItem[] = [
   { value: 'read', label: 'Read' },
@@ -210,6 +210,28 @@ describe('WrTransfer', () => {
 
     press(toLeft());
     expect(granted()).toEqual(['read', 'delete']);
+  });
+
+  it('leaves rows the filter hides alone when the header box is used', () => {
+    // The header acts on what the pane SHOWS. It set the whole staging box, so
+    // unticking it under a filter unstaged a hidden row too, and ticking it
+    // dropped every hidden one.
+    fixture.componentInstance.searchable.set(true);
+    fixture.detectChanges();
+    check(0, 0);
+    check(0, 2);
+    search(0, 'delete');
+
+    headBox(0).click(); // all shown are staged, so this clears them
+    fixture.detectChanges();
+    search(0, '');
+    expect(rowBoxes(0).map(box => box.checked)).toEqual([true, false, false, false]);
+
+    search(0, 'delete');
+    headBox(0).click();
+    fixture.detectChanges();
+    search(0, '');
+    expect(rowBoxes(0).map(box => box.checked)).toEqual([true, false, true, false]);
   });
 
   it('never lands the same value on the right twice', () => {

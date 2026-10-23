@@ -1,0 +1,124 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+import type { WrClassInput } from 'ngwr/utils';
+
+import type { WrWindowChromeSize } from './window-chrome-size';
+import type { WrWindowOs } from './window-os';
+import type { WrWindowSize } from './window-size';
+import type { WrWindowSnap } from './window-snap';
+
+/** What slice of geometry the storage layer should keep in sync. */
+export type WrWindowPersistMode = 'position' | 'size' | 'all';
+
+/**
+ * Persistence configuration — drop into `WrWindowConfig.storage`.
+ *
+ * Reads and writes happen through the consumer's `WrStorage` instance.
+ * Swap the underlying engine at bootstrap with
+ * `provideWr(withStorage({ engine: window.sessionStorage }))` when you want
+ * session-scoped persistence instead of the default `localStorage`.
+ */
+export interface WrWindowStorageConfig {
+  /**
+   * Storage key for this window. Combined with `prefix` (if any) and a
+   * `wr:window:` namespace, e.g. `wr:window:my-app:editor`.
+   */
+  readonly key: string;
+  /** Namespace prefix (typically your app id). @default '' */
+  readonly prefix?: string;
+  /** What to persist. @default 'all' */
+  readonly persist?: WrWindowPersistMode;
+}
+
+/**
+ * Options accepted by `WrWindowManager.open(component, config)`.
+ *
+ * Every property has a sensible default — pass `{}` to open a window
+ * with the standard chrome at the cascaded position.
+ */
+export interface WrWindowConfig<D = unknown> {
+  /** Stable identifier — used by the taskbar, workspace save, and DI. */
+  readonly id?: string;
+
+  // Chrome
+  readonly title?: string;
+  readonly os?: WrWindowOs;
+  /** Initial size preset. Ignored when `width` / `height` are passed. */
+  readonly size?: WrWindowSize;
+  /** Title-bar density. @default 'md' */
+  readonly chromeSize?: WrWindowChromeSize;
+
+  // Initial geometry (pixels)
+  readonly x?: number;
+  readonly y?: number;
+  readonly width?: number;
+  readonly height?: number;
+  readonly minWidth?: number;
+  readonly minHeight?: number;
+  readonly maxWidth?: number;
+  readonly maxHeight?: number;
+
+  // Behaviour
+  readonly movable?: boolean;
+  readonly resizable?: boolean;
+  readonly keepInViewport?: boolean;
+  readonly closeOnEscape?: boolean;
+  /**
+   * Move focus into the window when it opens (since v15): to the element
+   * marked `cdkFocusInitial`, else the first control in its body, else the
+   * window itself. Closing it sends focus back to where it was when `open()`
+   * was called, if that element is still on the page.
+   *
+   * `false` leaves focus where it is — for a window opened in the background,
+   * or one that opens without a user asking for it. Windows that
+   * `restoreLayout()` re-opens default to `false`, so putting a workspace back
+   * does not walk focus through every window in it; pass `true` from the
+   * opener callback to override.
+   * @default true
+   */
+  readonly autoFocus?: boolean;
+  /** Snap-on-drag mode. @default 'none' */
+  readonly snap?: WrWindowSnap;
+
+  // Chrome actions
+  /**
+   * Show the minimize control. Omit to follow the chrome — every OS but Linux
+   * shows it, and the Linux preset is close-only by convention. Pass `true` to
+   * override that, which is what a Linux user needs before a window can reach
+   * `<wr-window-taskbar>`.
+   */
+  readonly showMinimize?: boolean;
+  /** Show the maximize control. Omit to follow the chrome, as with {@link showMinimize}. */
+  readonly showMaximize?: boolean;
+  /** Show the close control. Every chrome closes, so this is not per-OS. */
+  readonly showClose?: boolean;
+
+  // Taskbar
+  /** Show in `<wr-window-taskbar>` when minimized. @default true */
+  readonly taskbar?: boolean;
+
+  // Animations
+  readonly animations?: boolean;
+
+  // Drag scope
+  /** CSS selector inside the projected content that restricts the move-grab area. */
+  readonly dragHandle?: string;
+
+  // Persistence
+  readonly storage?: WrWindowStorageConfig;
+
+  /**
+   * Extra CSS classes for the window's overlay pane. The pane is only a mount
+   * point — `<wr-window>` inside it positions itself `fixed` — so a rule for the
+   * chrome reads `.my-class .wr-window`.
+   */
+  readonly panelClass?: WrClassInput;
+
+  // Payload for the projected component (`WR_WINDOW_DATA` token)
+  readonly data?: D;
+}

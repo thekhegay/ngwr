@@ -1,5 +1,4 @@
 @use '../../theme/styles' as theme;
-@use '../../overlay/styles'; // shared .wr-overlay-sheet / .wr-overlay-backdrop for responsive mode
 @use '../../overlay/styles/arrow';
 
 // The arrow — a rotated square tucked half under the panel — used to be written
@@ -10,18 +9,29 @@
 // rules that were here, for the same twelve placements.
 
 .wr-popover-overlay > * {
+  --wr-popover-border: var(--wr-border-base);
+  --wr-popover-radius: var(--wr-border-radius-base);
+  --wr-popover-font-family: var(--wr-font-family-base);
+
   display: block;
   min-width: 8rem;
   max-width: 22rem;
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-color-outline);
-  @include theme.smooth-br(var(--wr-border-radius-base));
+  border: 1px solid var(--wr-popover-border);
+  @include theme.smooth-br(var(--wr-popover-radius));
   box-shadow: var(--wr-shadow-overlay);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-popover-font-family);
   color: var(--wr-color-on-surface);
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
   // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
   transform-origin: top left;
+}
+
+// A click popover focuses its pane on open, as `tabindex="-1"`: a programmatic
+// target Tab never reaches, so it reports no state and draws no ring. The UA's
+// square `auto` outline otherwise boxed the rounded panel and its arrow.
+.wr-popover-overlay:focus {
+  outline: none;
 }
 
 //
@@ -45,22 +55,28 @@
   // Both halves are tokens, so an app that wants the inverted look back needs one
   // rule, not an override of every tooltip rule:
   //   .wr-tooltip { --wr-tooltip-bg: var(--wr-color-on-surface);
-  //                 --wr-tooltip-color: var(--wr-color-dark-contrast); }
+  //                 --wr-tooltip-color: var(--wr-color-surface); }
   --wr-tooltip-bg: var(--wr-color-surface);
   --wr-tooltip-color: var(--wr-color-on-surface);
-  --wr-tooltip-border: var(--wr-color-outline);
+  --wr-tooltip-border: var(--wr-border-base);
+  --wr-tooltip-radius: var(--wr-border-radius-sm);
+  --wr-tooltip-padding-y: var(--wr-space-xs);
+  --wr-tooltip-padding-x: var(--wr-space-sm);
+  --wr-tooltip-font-family: var(--wr-font-family-base);
+  --wr-tooltip-font-size: var(--wr-text-xs);
+  --wr-tooltip-line-height: var(--wr-text-xs-leading);
 
   position: relative;
   display: inline-block;
   max-width: 18rem;
-  padding: 0.3125rem 0.5rem;
+  padding: var(--wr-tooltip-padding-y) var(--wr-tooltip-padding-x);
   background: var(--wr-tooltip-bg);
   color: var(--wr-tooltip-color);
   border: 1px solid var(--wr-tooltip-border);
-  border-radius: var(--wr-border-radius-sm);
-  font-family: var(--wr-font-family-base);
-  font-size: var(--wr-text-xs);
-  line-height: 1rem;
+  border-radius: var(--wr-tooltip-radius);
+  font-family: var(--wr-tooltip-font-family);
+  font-size: var(--wr-tooltip-font-size);
+  line-height: var(--wr-tooltip-line-height);
   box-shadow: var(--wr-shadow-overlay);
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
   // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
@@ -82,6 +98,8 @@
 // them makes the chip dark — a muted grey picked against the light surface would
 // be the one thing that did not follow.
 .wr-chart-tooltip {
+  --wr-chart-tooltip-gap: var(--wr-space-sm);
+
   display: inline-flex;
   // Its own text's width, up to the tooltip's `max-width`, whatever room the pane has
   // left. The CDK pushes a chip against the viewport edge by its ROUNDED width, which
@@ -91,17 +109,22 @@
   flex-shrink: 0;
   width: max-content;
   align-items: center;
-  gap: 0.375rem;
+  gap: var(--wr-chart-tooltip-gap);
 
   &__swatch {
     flex: 0 0 auto;
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 50%;
+    // An inline `background`, which forced colors resets to `Canvas`, while the
+    // chart mark it names keeps its colour there — so the key keeps it too.
+    forced-color-adjust: none;
   }
 
   &__value {
-    font-weight: var(--wr-font-weight-semibold);
+    --wr-chart-tooltip-value-font-weight: var(--wr-font-weight-semibold);
+
+    font-weight: var(--wr-chart-tooltip-value-font-weight);
     font-variant-numeric: tabular-nums;
 
     // Alone, with no label or swatch beside it, the value is a whole sentence (a
@@ -121,7 +144,7 @@
   $pane: '.wr-popover-overlay',
   $panel: '> *',
   $background: var(--wr-color-surface),
-  $border: var(--wr-color-outline)
+  $border: var(--wr-popover-border)
 );
 
 // Tooltip: a known child, with the chip's border carried onto the arrow's outward

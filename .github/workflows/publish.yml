@@ -2,7 +2,7 @@ name: Publish
 
 on:
   push:
-    branches: [main]
+    branches: [main, next]
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -33,6 +33,10 @@ jobs:
             version="${BASH_REMATCH[1]}"
             tag="v$version"
             is_rc=$([[ "$version" == *-rc.* ]] && echo true || echo false)
+            if [[ "$is_rc" == false && "$GITHUB_REF_NAME" != main ]]; then
+              echo "::error::$version is a stable version on $GITHUB_REF_NAME; only main publishes stable releases."
+              exit 1
+            fi
             echo "is_release=true"  >> "$GITHUB_OUTPUT"
             echo "version=$version" >> "$GITHUB_OUTPUT"
             echo "tag=$tag"         >> "$GITHUB_OUTPUT"

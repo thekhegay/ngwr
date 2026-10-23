@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
 import { Directionality } from '@angular/cdk/bidi';
@@ -222,6 +222,68 @@ describe('WrCompare', () => {
     expect(slider().getAttribute('aria-valuenow')).not.toBe('NaN');
   });
 
+  it('announces a dragged position in whole percent, and steps from there', () => {
+    measureHost();
+    // 59.99 of 200px is 29.995%: the drag keeps it, a reader is told 30.
+    pointerDown({ clientX: 59.99 });
+    expect(position()).toBeCloseTo(29.995, 5);
+    expect(slider().getAttribute('aria-valuenow')).toBe('30');
+
+    // The arrow counts from the number that was announced, not from the fraction.
+    press('ArrowLeft');
+    expect(position()).toBe(29);
+    expect(slider().getAttribute('aria-valuenow')).toBe('29');
+  });
+
+  describe('under a finger', () => {
+    /** A touch pointer event; jsdom has no `PointerEvent`, so the fields are supplied. */
+    const touch = (type: string, clientX: number): MouseEvent => {
+      const el = slider();
+      el.setPointerCapture = () => undefined;
+      el.releasePointerCapture = () => undefined;
+      el.hasPointerCapture = () => true;
+      const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX });
+      Object.defineProperty(event, 'isPrimary', { value: true });
+      Object.defineProperty(event, 'pointerType', { value: 'touch' });
+      el.dispatchEvent(event);
+      fixture.detectChanges();
+      return event;
+    };
+
+    beforeEach(() => measureHost());
+
+    it('does not jump to where the finger lands, since the touch may yet be a scroll', () => {
+      touch('pointerdown', 40);
+      expect(position()).toBe(50);
+    });
+
+    it('follows a drag along its axis', () => {
+      touch('pointerdown', 40);
+      touch('pointermove', 60);
+      expect(position()).toBe(30);
+    });
+
+    it('puts the divider back when the browser takes the gesture as a scroll', () => {
+      // A vertical swipe over a horizontal comparison: `touch-action: pan-y` leaves
+      // it to the page, which cancels the pointer. Before, the divider jumped to the
+      // finger and stayed there, and the page did not scroll at all.
+      touch('pointerdown', 40);
+      touch('pointermove', 42);
+      touch('pointercancel', 42);
+      expect(position()).toBe(50);
+
+      // And the cancelled drag is over: a later move without a press does nothing.
+      touch('pointermove', 180);
+      expect(position()).toBe(50);
+    });
+
+    it('still sets the position from a tap', () => {
+      touch('pointerdown', 160);
+      touch('pointerup', 160);
+      expect(position()).toBe(80);
+    });
+  });
+
   it('carries the orientation into the class list', () => {
     expect(host().classList.contains('wr-compare--horizontal')).toBe(true);
 
@@ -417,27 +479,24 @@ describe('WrCompare under a localized catalog', () => {
 });
 
 /**
- * ⚠️ This one guards the RULE, not the behaviour.
- *
- * `.wr-compare__surface` is the `role="slider"` and the component's only keyboard
- * affordance, and it is coterminous with the host — which a rounded comparator has
- * to clip. jsdom has no layout and no stylesheets, so the ring cannot be seen here.
+ * The stylesheet half of the touch contract, held against the COMPILED CSS since
+ * jsdom has no cascade. `sass` is resolved through `@angular/build`, as
+ * `theme/sass-entry.spec.ts` does.
  */
-describe('the compare stylesheet', () => {
-  const code = readFileSync(join(process.cwd(), 'projects/lib/compare/styles/_index.scss'), 'utf8')
-    .split('\n')
-    .filter(line => !line.trim().startsWith('//'))
-    .join('\n');
+describe('WrCompare stylesheet', () => {
+  interface Sass {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  }
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
+  const css = sass
+    .compileString("@use 'compare/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = (cls: string): string => new RegExp(`(?:^|\\n)\\.${cls}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
 
-  it('paints the focus ring above the layers, inward from the edge', () => {
-    // Measured in Chromium over the built showcase: all three demos went from 0-2
-    // changed pixels between focused and blurred to a complete 2px ring. Merely
-    // flipping the offset sign is not enough — the projected images paint over the
-    // surface's own outline — so the ring has to be a stacked pseudo-element.
-    const ring = /&:focus-visible::after \{([\s\S]*?)\n {4}\}/.exec(code)?.[1] ?? '';
-    expect(ring).toMatch(/position:\s*absolute/);
-    expect(ring).toMatch(/z-index:\s*2/);
-    expect(ring).toMatch(/outline:\s*var\(--wr-focus-ring-width\)/);
-    expect(ring).toMatch(/outline-offset:\s*calc\(-1 \* var\(--wr-focus-ring-width\)\)/);
+  it('claims only the axis the divider moves along, leaving the other to the page', () => {
+    // `touch-action: none` took every gesture, so a full-width comparison could not be
+    // scrolled past on a phone.
+    expect(rule('wr-compare')).toMatch(/touch-action:\s*pan-y/);
+    expect(rule('wr-compare--vertical')).toMatch(/touch-action:\s*pan-x/);
   });
 });

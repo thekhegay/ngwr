@@ -1,0 +1,7 @@
+@if (link()) {
+  <a class="doc-label" [class.doc-label--sm]="size() === 'sm'" [attr.data-tone]="tone()" [routerLink]="url()">{{
+    label()
+  }}</a>
+} @else {
+  <span class="doc-label" [class.doc-label--sm]="size() === 'sm'" [attr.data-tone]="tone()">{{ label() }}</span>
+}

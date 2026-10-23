@@ -1,8 +1,8 @@
 <header class="header">
-  @if (labels().length || addedIn()) {
+  @if (shownLabels().length || addedIn() || updatedIn() || removedIn() || optional()) {
     <div class="labels">
-      @for (label of labels(); track label) {
-        <wr-badge size="sm" shape="pill" [color]="labelColor(label)">{{ label }}</wr-badge>
+      @for (label of shownLabels(); track label) {
+        <ngwr-doc-label [label]="label" />
       }
 
       <!--
@@ -12,7 +12,16 @@
         own, and it says the whole phrase rather than a bare version.
       -->
       @if (addedIn(); as added) {
-        <wr-badge class="since" size="sm" shape="pill" color="light">{{ added }}</wr-badge>
+        <wr-badge class="since" size="sm" shape="pill">{{ added }}</wr-badge>
+      }
+      @if (updatedIn(); as updated) {
+        <wr-badge class="since" size="sm" shape="pill">{{ updated }}</wr-badge>
+      }
+      @if (removedIn(); as removed) {
+        <wr-badge class="since--removed" color="danger" size="sm" shape="pill">{{ removed }}</wr-badge>
+      }
+      @if (optional()) {
+        <wr-badge class="since" size="sm" shape="pill">Optional</wr-badge>
       }
     </div>
   }
@@ -20,22 +29,83 @@
   <h1 wrTypography variant="h3" class="title">{{ title() }}</h1>
 
   @if (description(); as d) {
-    <p wrTypography variant="body" tone="medium" class="description" [innerHTML]="d | wrDocRich"></p>
+    <p class="description" [innerHTML]="d | wrDocRich"></p>
   }
 </header>
 
-<div class="content">
+<div class="content wr-typeset">
+  <!--
+    FIRST section on the page, and rendered by the shell for the same reason as
+    the CSS-variables one below: 128 pages wrote the import by hand and not one
+    wrote the `@use`, which v15 made load-bearing when it removed the umbrella.
+    Generated from the page's own imports, so it cannot drift from the page.
+  -->
+  @if (install(); as files) {
+    <ngwr-doc-section title="Installation" [description]="installDescription()">
+      <ngwr-doc-code [files]="files" />
+    </ngwr-doc-section>
+  }
+
   <ng-content />
 
   <!--
-    Last section on the page, and rendered by the shell rather than by the page:
-    the catalogue is generated, so a component that grows a hook gets the row
-    without anyone remembering to ask for it. `null` for every route that
-    documents no entry point, which is most of `/guides` and `/start`.
+    Rendered by the shell rather than by the page, after its API: the catalogue
+    is generated, so a component that grows a hook gets the row without anyone
+    remembering to ask for it. `null` for every route that documents no entry
+    point, which is most of `/guides` and `/docs`.
   -->
   @if (cssVars(); as vars) {
     <ngwr-doc-section title="CSS variables" [description]="cssVarsDescription(vars.subpath)">
       <ngwr-doc-css-vars [rows]="vars.vars" />
     </ngwr-doc-section>
   }
+
+  @if (deps(); as rows) {
+    <ngwr-doc-section title="Dependencies">
+      <div class="ngwr-table">
+        <table class="deps">
+          <tbody>
+            @for (row of rows; track row.label) {
+              <tr>
+                <th scope="row">{{ row.label }}</th>
+                <td>
+                  @for (item of row.items; track item.text; let last = $last) {
+                    @if (item.url) {
+                      <a [routerLink]="item.url">{{ item.text }}</a>
+                    } @else {
+                      <code>{{ item.text }}</code>
+                    }
+                    @if (item.note) {
+                      <span class="ngwr-table__note">({{ item.note }})</span>
+                    }
+                    @if (!last) {
+                      <span>, </span>
+                    }
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-section>
+  }
+
+  <!--
+    LAST, whoever wrote it. A page that hand-picks its See also writes the block
+    itself, and the default slot above would put it before the CSS variables and
+    the Dependencies the shell adds; this slot keeps it where the shell's own
+    goes.
+  -->
+  <ng-content select="ngwr-doc-see-also" />
+  @if (!ownSeeAlso()) {
+    <ngwr-doc-see-also />
+  }
 </div>
+
+@if (tocLinks().length > 1) {
+  <aside class="toc" aria-labelledby="toc-heading">
+    <p class="toc__title" id="toc-heading">On this page</p>
+    <wr-anchor [links]="tocLinks()" [offset]="96" />
+  </aside>
+}

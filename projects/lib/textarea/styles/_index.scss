@@ -10,13 +10,14 @@
   // 2.91:1, until both moved onto the theme's one placeholder token.
   --wr-textarea-placeholder: var(--wr-color-placeholder);
   --wr-textarea-bg: var(--wr-color-surface);
-  --wr-textarea-border: var(--wr-color-outline);
+  --wr-textarea-border: var(--wr-border-base);
   --wr-textarea-radius: var(--wr-control-radius-md);
   --wr-textarea-ring: transparent;
-  --wr-textarea-padding-y: 0.5rem;
+  --wr-textarea-padding-y: var(--wr-space-sm);
   --wr-textarea-padding-x: var(--wr-control-padding-x-md);
+  --wr-textarea-font-family: var(--wr-font-family-base);
   --wr-textarea-font-size: var(--wr-text-sm);
-  --wr-textarea-line-height: 1.375rem;
+  --wr-textarea-line-height: var(--wr-control-line-height-md);
 
   background: var(--wr-textarea-bg);
   color: var(--wr-textarea-color);
@@ -25,18 +26,25 @@
   box-shadow: 0 0 0 3px var(--wr-textarea-ring);
   transition:
     border-color var(--wr-transition-base),
-    box-shadow var(--wr-transition-base),
     background var(--wr-transition-base);
 
   &--focused {
     --wr-textarea-border: var(--wr-color-primary);
-    --wr-textarea-ring: rgba(var(--wr-color-primary-rgb), 0.15);
+    --wr-textarea-ring: color-mix(in srgb, var(--wr-color-primary) 15%, transparent);
   }
 
   &--disabled {
     --wr-textarea-color: var(--wr-color-on-surface-muted);
     --wr-textarea-bg: var(--wr-color-fill);
     cursor: not-allowed;
+  }
+
+  // Read-only keeps the tab stop, keeps announcing its value and still
+  // submits — so the cue is the fill and the cursor, never the disabled
+  // treatment. The same pair `.wr-input[readonly]` draws.
+  &--readonly {
+    --wr-textarea-bg: var(--wr-color-fill);
+    cursor: default;
   }
 
   // Horizontal resize needs a shrinkable, explicit-width box (not full-width block).
@@ -48,18 +56,18 @@
   // Sizes — radius, padding, font + line-height scale; height stays content-driven.
   &--sm {
     --wr-textarea-radius: var(--wr-control-radius-sm);
-    --wr-textarea-padding-y: 0.375rem;
+    --wr-textarea-padding-y: var(--wr-space-xs);
     --wr-textarea-padding-x: var(--wr-control-padding-x-sm);
     --wr-textarea-font-size: var(--wr-text-xs);
-    --wr-textarea-line-height: 1.125rem;
+    --wr-textarea-line-height: var(--wr-control-line-height-sm);
   }
 
   &--lg {
     --wr-textarea-radius: var(--wr-control-radius-lg);
-    --wr-textarea-padding-y: 0.625rem;
+    --wr-textarea-padding-y: var(--wr-space-md);
     --wr-textarea-padding-x: var(--wr-control-padding-x-lg);
     --wr-textarea-font-size: var(--wr-text-base);
-    --wr-textarea-line-height: 1.625rem;
+    --wr-textarea-line-height: var(--wr-control-line-height-lg);
   }
 
   &--no-resize &__native {
@@ -75,7 +83,7 @@
     outline: 0;
     margin: 0;
     color: inherit;
-    font-family: var(--wr-font-family-base);
+    font-family: var(--wr-textarea-font-family);
     font-size: var(--wr-textarea-font-size);
     line-height: var(--wr-textarea-line-height);
     padding: calc(var(--wr-textarea-padding-y) * var(--wr-density-y, 1))

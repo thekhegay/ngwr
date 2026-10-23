@@ -1,53 +1,87 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
 
+import { WrCard } from 'ngwr/card';
+import { WrEmpty } from 'ngwr/empty';
+import { WrFileUpload } from 'ngwr/file-upload';
+import { WrFormField } from 'ngwr/form';
 import { WrI18n, WrTPipe } from 'ngwr/i18n';
+import { WrInput } from 'ngwr/input';
+import { WrPagination } from 'ngwr/pagination';
+import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
+import { WrSelect } from 'ngwr/select';
 import { WrTypography } from 'ngwr/typography';
 
-import { DocPageComponent, DocSectionComponent } from '#core/components';
+import { DocPageComponent, DocSectionComponent, DocSeeAlsoComponent, type DocSeeAlsoLink } from '#core/components';
+
+/** Options that read the same in every language, so what changes is the select's own text. */
+const FORMATS = ['CSV', 'JSON', 'PDF', 'XLSX', 'XML'] as const;
 
 @Component({
   selector: 'ngwr-translate-overview-page',
   templateUrl: './overview.html',
   styleUrl: './overview.scss',
-  imports: [RouterLink, WrTPipe, WrTypography, DocPageComponent, DocSectionComponent],
+  imports: [
+    WrCard,
+    WrEmpty,
+    WrFileUpload,
+    WrFormField,
+    WrInput,
+    WrPagination,
+    WrSegmented,
+    WrSelect,
+    WrTPipe,
+    WrTypography,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class TranslateOverviewPage {
   private readonly i18n = inject(WrI18n);
   protected readonly locale = this.i18n.locale;
-  protected readonly available = this.i18n.available();
+  protected readonly localeOptions: readonly WrSegmentedOption<string>[] = this.i18n
+    .available()
+    .map(code => ({ value: code, label: code }));
 
-  protected use(locale: string): void {
-    this.i18n.use(locale);
+  protected readonly page = signal(1);
+  protected readonly formats = FORMATS;
+  protected readonly format = signal<string | null>(null);
+
+  protected use(locale: string | null): void {
+    if (locale) this.i18n.use(locale);
   }
 
-  protected readonly cards = [
+  private readonly cards = [
     {
-      url: ['/guides/translations', 'setup'] as const,
+      url: '/guides/translations/setup',
       title: 'Setup & loaders',
-      body: 'Wire `provideWrI18n` plus a static or HTTP catalog loader. Two-snippet bootstrap.',
+      body: 'Providers, loaders and the shipped catalogs.',
     },
     {
-      url: ['/guides/translations', 'usage'] as const,
+      url: '/guides/translations/usage',
       title: 'Usage in templates',
-      body: 'Three call sites — `| wrT` pipe, `[wrT]` directive, or `inject(WrI18n)` for code.',
+      body: 'The wrT pipe, the wrT directive and the WrI18n service.',
     },
     {
-      url: ['/guides/translations', 'scopes'] as const,
+      url: '/guides/translations/scopes',
       title: 'Scopes',
-      body: 'Feature-scoped catalogs load on demand. Ship the root, lazy-load the rest.',
+      body: 'Load a feature’s catalog when the feature loads.',
     },
     {
-      url: ['/guides/translations', 'interpolation'] as const,
+      url: '/guides/translations/interpolation',
       title: 'Interpolation',
-      body: '`{{name}}` placeholders and helper formatters for plurals, dates, numbers.',
+      body: 'Fill {{name}} placeholders with values.',
     },
     {
-      // Points OUT of the guide — the API table lives in reference, and is
-      // maintained in exactly one place. This card is the hand-off.
-      url: ['/reference/services', 'i18n'] as const,
+      url: '/reference/services/i18n',
       title: 'API reference',
-      body: 'Every method, signal, provider and template helper on `WrI18n`.',
+      body: 'Every method, signal and provider.',
     },
   ];
+
+  protected readonly sections: readonly DocSeeAlsoLink[] = this.cards.map(({ title, url, body }) => ({
+    title,
+    url: [url],
+    description: body,
+  }));
 }

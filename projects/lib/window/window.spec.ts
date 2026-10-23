@@ -1,13 +1,21 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
-import { WrWindowManager } from 'ngwr/window';
+import { WrWindowManager, WrWindowTaskbar } from 'ngwr/window';
 import type { WrWindowChromeSize, WrWindowOs, WrWindowSize, WrWindowSnap } from 'ngwr/window';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 @Component({ template: '<p>body</p>' })
 class Body {}
+
+@Component({ template: '<p>Name</p><input class="field" /><button type="button" class="save">Save</button>' })
+class FormBody {}
+
+@Component({ template: '<input class="first" /><input class="picked" cdkFocusInitial />' })
+class PickedBody {}
+
+@Component({ imports: [WrWindowTaskbar], template: '<wr-window-taskbar />' })
+class TaskbarHost {}
 
 /**
  * The window is opened through the manager rather than by importing `WrWindow`,
@@ -41,7 +49,6 @@ describe('WrWindow drag lifecycle', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     manager = TestBed.inject(WrWindowManager);
     manager.open(Body, { title: 'Untitled', os: 'windows', x: 100, y: 100, width: 480, height: 320 });
     TestBed.tick();
@@ -110,7 +117,6 @@ describe('WrWindow presentational inputs', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     manager = TestBed.inject(WrWindowManager);
   });
 
@@ -219,7 +225,6 @@ describe('WrWindow snapping', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     manager = TestBed.inject(WrWindowManager);
   });
 
@@ -389,7 +394,6 @@ describe('WrWindow resize geometry', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     manager = TestBed.inject(WrWindowManager);
   });
 
@@ -497,5 +501,330 @@ describe('WrWindow resize geometry', () => {
     ref.resizeTo(9000, 320);
     TestBed.tick();
     expect(ref.width()).toBe(600);
+  });
+});
+
+/**
+ * The viewport is a signal the window listens to, not a number it reads once.
+ * jsdom's window is 1024×768 and never resizes on its own, so the size is
+ * redefined and a `resize` dispatched, which is what a browser does.
+ */
+describe('WrWindow against the viewport', () => {
+  let manager: WrWindowManager;
+  const saved = {
+    width: Object.getOwnPropertyDescriptor(window, 'innerWidth'),
+    height: Object.getOwnPropertyDescriptor(window, 'innerHeight'),
+  };
+
+  const host = (): HTMLElement => document.querySelector<HTMLElement>('wr-window')!;
+  const box = (): string => [host().style.left, host().style.top, host().style.width, host().style.height].join(' ');
+
+  const viewport = (width: number, height: number): void => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: height });
+    window.dispatchEvent(new Event('resize'));
+    TestBed.tick();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    manager = TestBed.inject(WrWindowManager);
+  });
+
+  afterEach(() => {
+    manager.closeAll();
+    TestBed.resetTestingModule();
+    for (const [key, descriptor] of [
+      ['innerWidth', saved.width],
+      ['innerHeight', saved.height],
+    ] as const) {
+      if (descriptor) Object.defineProperty(window, key, descriptor);
+      else Reflect.deleteProperty(window, key);
+    }
+  });
+
+  it('keeps a maximized window filling the viewport after the page is resized', () => {
+    const ref = manager.open(Body, { title: 'T', os: 'windows', x: 100, y: 100, width: 480, height: 320 });
+    TestBed.tick();
+    ref.maximize();
+    TestBed.tick();
+    expect(box()).toBe('0px 0px 1024px 768px');
+
+    // It stayed 1024×768 in a smaller viewport, its close button off-screen.
+    viewport(800, 600);
+
+    expect(box()).toBe('0px 0px 800px 600px');
+    expect([ref.width(), ref.height()]).toEqual([800, 600]);
+  });
+
+  it('pulls a window back into reach when the viewport shrinks under it', () => {
+    const ref = manager.open(Body, { title: 'T', os: 'windows', x: 100, y: 100, width: 480, height: 320 });
+    TestBed.tick();
+    ref.moveTo(980, 700);
+    TestBed.tick();
+    expect(box()).toBe('980px 700px 480px 320px');
+
+    viewport(800, 600);
+
+    // The same 24px reach a drag is held to: entirely off-screen before.
+    expect(box()).toBe('776px 576px 480px 320px');
+  });
+
+  it('opens no wider than a phone, and wholly on it', () => {
+    viewport(390, 844);
+
+    manager.open(Body, { title: 'T', os: 'windows' });
+    TestBed.tick();
+
+    const left = parseFloat(host().style.left);
+    const width = parseFloat(host().style.width);
+    expect(width).toBeLessThanOrEqual(390);
+    expect(left).toBeGreaterThanOrEqual(0);
+    expect(left + width, 'the chrome buttons were off the glass').toBeLessThanOrEqual(390);
+  });
+
+  it('leaves the geometry alone when the window may leave the viewport', () => {
+    viewport(390, 844);
+
+    manager.open(Body, { title: 'T', os: 'windows', x: 50, y: 50, width: 480, height: 320, keepInViewport: false });
+    TestBed.tick();
+
+    expect(box()).toBe('50px 50px 480px 320px');
+  });
+});
+
+/**
+ * Focus follows a window: into it on open, onto its taskbar tab when it is
+ * minimized, back into it from the tab, and back to where it came from when it
+ * closes. A window is not modal and traps nothing, so each move happens only
+ * where focus would otherwise be lost, or where the user asked for the window.
+ *
+ * jsdom lays nothing out, so the CDK's `InteractivityChecker` reads every
+ * element as invisible and no control would ever be found: elements are handed
+ * a box, a test-environment shim and not a claim about the component.
+ */
+describe('WrWindow focus', () => {
+  let manager: WrWindowManager;
+  let opener: HTMLButtonElement;
+
+  const active = (): Element | null => document.activeElement;
+  const q = (selector: string): HTMLElement | null => document.querySelector<HTMLElement>(selector);
+  const escapeFrom = (el: Element): void => {
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    TestBed.tick();
+  };
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      new DOMRect(0, 0, 120, 32),
+    ] as unknown as DOMRectList);
+    TestBed.resetTestingModule();
+    manager = TestBed.inject(WrWindowManager);
+    opener = document.body.appendChild(document.createElement('button'));
+    opener.focus();
+  });
+
+  afterEach(() => {
+    manager.closeAll();
+    TestBed.resetTestingModule();
+    opener.remove();
+    vi.restoreAllMocks();
+  });
+
+  describe('on open', () => {
+    it('moves to the first control in the body', () => {
+      manager.open(FormBody, { title: 'Form' });
+      TestBed.tick();
+
+      expect(active()).toBe(q('.field'));
+    });
+
+    it('honours cdkFocusInitial, like the dialog and the drawer', () => {
+      manager.open(PickedBody, { title: 'Picked' });
+      TestBed.tick();
+
+      expect(active()).toBe(q('.picked'));
+    });
+
+    it('lands on the window itself when the body has no control, never on the chrome', () => {
+      // macOS puts Close first in the title bar — the one button a window must
+      // not open onto.
+      manager.open(Body, { title: 'Plain', os: 'macos' });
+      TestBed.tick();
+
+      const win = q('wr-window')!;
+      expect(active()).toBe(win);
+      expect(win.getAttribute('tabindex')).toBe('-1');
+    });
+
+    it('leaves focus alone with autoFocus off', () => {
+      manager.open(FormBody, { title: 'Background', autoFocus: false });
+      TestBed.tick();
+
+      expect(active()).toBe(opener);
+    });
+
+    it('leaves focus alone for the windows restoreLayout re-opens', () => {
+      manager.open(FormBody, { id: 'one', title: 'One', autoFocus: false });
+      manager.open(FormBody, { id: 'two', title: 'Two', autoFocus: false });
+      TestBed.tick();
+      manager.saveLayout('focus-spec');
+      manager.closeAll();
+      TestBed.tick();
+      opener.focus();
+
+      manager.restoreLayout('focus-spec', (id, snap) => manager.open(FormBody, { id, title: snap.title }));
+      TestBed.tick();
+
+      expect(manager.windows()).toHaveLength(2);
+      expect(active()).toBe(opener);
+    });
+
+    it('moves into the window a second open() of the same id brings back', () => {
+      manager.open(FormBody, { id: 'settings', title: 'Settings' });
+      TestBed.tick();
+      opener.focus();
+
+      manager.open(FormBody, { id: 'settings', title: 'Settings' });
+      TestBed.tick();
+
+      expect(active()).toBe(q('.field'));
+    });
+  });
+
+  describe('on close', () => {
+    it('returns to the opener on Escape', () => {
+      manager.open(FormBody, { title: 'Form' });
+      TestBed.tick();
+      q('.field')!.focus();
+
+      escapeFrom(q('.field')!);
+
+      expect(manager.windows()).toHaveLength(0);
+      expect(active()).toBe(opener);
+    });
+
+    it('returns to the opener from the window’s own close button', () => {
+      manager.open(FormBody, { title: 'Form', os: 'windows' });
+      TestBed.tick();
+
+      const close = q('.wr-window__chrome-action--close')!;
+      close.focus();
+      close.click();
+      TestBed.tick();
+
+      expect(active()).toBe(opener);
+    });
+
+    it('stays put when the opener is gone', () => {
+      manager.open(FormBody, { title: 'Form' });
+      TestBed.tick();
+      opener.remove();
+
+      escapeFrom(q('.field')!);
+
+      expect(active()).toBe(document.body);
+    });
+
+    it('does not pull focus off the page when code closes a window the reader left', () => {
+      const ref = manager.open(FormBody, { title: 'Form' });
+      TestBed.tick();
+      const elsewhere = document.body.appendChild(document.createElement('input'));
+      elsewhere.focus();
+
+      void ref.close();
+      TestBed.tick();
+
+      expect(active()).toBe(elsewhere);
+      elsewhere.remove();
+    });
+  });
+
+  describe('through the taskbar', () => {
+    const restoreTab = (): HTMLElement | null => q('.wr-window-taskbar__tab-restore');
+
+    beforeEach(() => {
+      TestBed.createComponent(TaskbarHost).detectChanges();
+    });
+
+    it('moves to the window’s tab when the window is minimized with focus inside', () => {
+      manager.open(FormBody, { title: 'Inbox', os: 'windows' });
+      TestBed.tick();
+      expect(active()).toBe(q('.field'));
+
+      q('.wr-window__chrome-action--minimize')!.click();
+      TestBed.tick();
+
+      expect(restoreTab()).not.toBeNull();
+      expect(active()).toBe(restoreTab());
+    });
+
+    it('leaves focus where it is when code minimizes a window focus is not in', () => {
+      const ref = manager.open(FormBody, { title: 'Inbox', autoFocus: false });
+      TestBed.tick();
+
+      ref.minimize();
+      TestBed.tick();
+
+      expect(active()).toBe(opener);
+    });
+
+    it('moves back into the window when it is restored from its tab', () => {
+      manager.open(FormBody, { title: 'Inbox', os: 'windows' });
+      TestBed.tick();
+      q('.wr-window__chrome-action--minimize')!.click();
+      TestBed.tick();
+
+      restoreTab()!.click();
+      TestBed.tick();
+
+      expect(restoreTab()).toBeNull();
+      expect(active()).toBe(q('.field'));
+    });
+
+    it('leaves every window open on an Escape pressed on a minimized window’s tab', () => {
+      manager.open(FormBody, { id: 'inbox', title: 'Inbox', os: 'windows' });
+      TestBed.tick();
+      manager.open(FormBody, { id: 'editor', title: 'Editor', os: 'windows' });
+      TestBed.tick();
+      const minimize = document.querySelectorAll<HTMLElement>('.wr-window__chrome-action--minimize');
+      minimize[minimize.length - 1].click();
+      TestBed.tick();
+      expect(active()).toBe(restoreTab());
+
+      // The tab is the minimized window's focus, and a minimized window takes
+      // no Escape — so no other window may take it either. Handing the key to
+      // the front-most one closed Inbox while the reader sat on Editor's tab.
+      escapeFrom(restoreTab()!);
+
+      expect(manager.windows().map(w => `${w.id}:${w.state()}`)).toEqual(['inbox:normal', 'editor:minimized']);
+    });
+
+    it('returns to the opener when the window is closed from its tab', () => {
+      manager.open(FormBody, { title: 'Inbox', os: 'windows' });
+      TestBed.tick();
+      q('.wr-window__chrome-action--minimize')!.click();
+      TestBed.tick();
+
+      const close = q('.wr-window-taskbar__tab-close')!;
+      close.focus();
+      close.click();
+      TestBed.tick();
+
+      expect(manager.windows()).toHaveLength(0);
+      expect(active()).toBe(opener);
+    });
+
+    it('puts the window back where it was: moving focus is not moving the window', () => {
+      const ref = manager.open(FormBody, { title: 'Inbox', os: 'windows', x: 100, y: 100 });
+      TestBed.tick();
+
+      q('.wr-window__chrome-action--minimize')!.click();
+      TestBed.tick();
+      restoreTab()!.click();
+      TestBed.tick();
+
+      expect([ref.x(), ref.y()]).toEqual([100, 100]);
+    });
   });
 });

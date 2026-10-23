@@ -1,0 +1,93 @@
+<ngwr-doc-page
+  title="Introduction"
+  description="A free, MIT-licensed Angular UI library built on signals."
+  [keywords]="['angular ui library', 'signal forms', 'zoneless', 'standalone components', 'ssr']"
+>
+  <ngwr-doc-section title="What you get">
+    <ul class="intro-features wr-not-typeset">
+      @for (feature of features; track feature.title) {
+        <li class="intro-feature">
+          <span class="ngwr-icon-chip" [attr.data-tone]="feature.tone">
+            <wr-icon [name]="feature.icon" />
+          </span>
+          <h3 class="intro-feature__title">
+            @if (feature.url) {
+              <a [routerLink]="feature.url">{{ feature.title }}</a>
+            } @else {
+              {{ feature.title }}
+            }
+          </h3>
+          <p class="intro-feature__text" [innerHTML]="feature.text | wrDocRich"></p>
+        </li>
+      }
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="How it is tested"
+    description="Every entry point has a spec beside its code. The locale catalogs share one."
+  >
+    <wr-statistic-group class="wr-not-typeset" min="9rem" [columns]="3">
+      <wr-statistic label="Spec files" [value]="counts.specFiles" [animate]="false" />
+      <wr-statistic label="Test cases" [value]="counts.testCases" [animate]="false" />
+      <wr-statistic label="Entry points" [value]="counts.entryPoints" [animate]="false" />
+    </wr-statistic-group>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Tier</th>
+            <th scope="col">Runs</th>
+            <th scope="col">Checks</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (tier of tiers; track tier.name) {
+            <tr>
+              <th scope="row">{{ tier.name }}</th>
+              <td>{{ tier.when }}</td>
+              <td>
+                @if (tier.gates.length) {
+                  <span class="intro-gates">
+                    @for (gate of tier.gates; track gate) {
+                      <code>{{ gate }}</code>
+                    }
+                  </span>
+                } @else {
+                  {{ tier.note }}
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>
+        Coverage goes to
+        <a href="https://app.codecov.io/gh/thekhegay/ngwr" target="_blank" rel="noreferrer">Codecov</a> on every pull
+        request. It informs; it does not gate.
+      </li>
+      <li>
+        Packaging and Signal Forms conformance are checked with
+        <a href="https://ngtrue.khegay.dev" target="_blank" rel="noreferrer">ngtrue</a>: checks that keep an Angular
+        library true.
+      </li>
+      <li>Your own tests can use the same <a [routerLink]="paths.testing">CDK harnesses</a>.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <div class="intro-support wr-not-typeset">
+    <div class="intro-support__mark">
+      <wr-icon name="ngwr" />
+      <wr-icon name="heart" class="intro-support__heart" />
+    </div>
+    <h2 wrTypography variant="h5">Support Open Source</h2>
+    <p>If ngwr saves you time, star it on GitHub.</p>
+    <a wr-btn color="primary" icon="github" href="https://github.com/thekhegay/ngwr" target="_blank" rel="noreferrer">
+      Star on GitHub
+    </a>
+  </div>
+
+  <ngwr-doc-see-also [links]="next" />
+</ngwr-doc-page>

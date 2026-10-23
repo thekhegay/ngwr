@@ -1,7 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrDateAdapter } from 'ngwr/date';
+import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -31,7 +32,7 @@ describe('WrTimePanel accessible names', () => {
   beforeEach(() => localStorage.clear());
 
   const mount = async (providers: unknown[] = []): Promise<ReturnType<typeof TestBed.createComponent<Host>>> => {
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter(), ...(providers as never[])] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates()), ...(providers as never[])] });
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -119,7 +120,7 @@ class TwoWayHost {
 describe('WrTimePanel numerals and separator', () => {
   const mount = (locale: string): ReturnType<typeof TestBed.createComponent<Host>> => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale }))] });
     const fixture = TestBed.createComponent(Host);
     fixture.componentInstance.value.set(new Date(2025, 0, 15, 14, 30, 5));
     fixture.detectChanges();
@@ -149,7 +150,7 @@ describe('WrTimePanel numerals and separator', () => {
     // An Arabic keyboard sends `٠٩`, which `Number()` reads as NaN — the handler used to
     // drop it silently. A Latin keyboard on the same page sends `09`.
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'ar-SA' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'ar-SA' }))] });
     const fixture = TestBed.createComponent(TwoWayHost);
     fixture.detectChanges();
     const hours = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-time-picker__input')!;
@@ -163,5 +164,60 @@ describe('WrTimePanel numerals and separator', () => {
     hours.dispatchEvent(new Event('input', { bubbles: true }));
     fixture.detectChanges();
     expect(fixture.componentInstance.value()!.getHours()).toBe(7);
+  });
+});
+
+@Component({
+  imports: [WrTimePanel],
+  template: `<wr-time-picker format="12h" [(value)]="value" />`,
+})
+class TwelveHourHost {
+  readonly value = signal<Date | null>(new Date(2025, 0, 15, 10, 30));
+}
+
+/**
+ * Typing into the hours box one key at a time, the way a browser does: each keystroke
+ * lands on whatever the box holds after the previous one was rendered.
+ */
+describe('WrTimePanel typed hours', () => {
+  const mount = (): ReturnType<typeof TestBed.createComponent<TwelveHourHost>> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
+    const fixture = TestBed.createComponent(TwelveHourHost);
+    fixture.detectChanges();
+    return fixture;
+  };
+  const hoursBox = (fixture: { nativeElement: HTMLElement }): HTMLInputElement =>
+    fixture.nativeElement.querySelector<HTMLInputElement>('.wr-time-picker__input')!;
+
+  const typeKeys = (fixture: ReturnType<typeof mount>, keys: string): void => {
+    const box = hoursBox(fixture);
+    box.value = '';
+    for (const key of keys) {
+      box.value += key;
+      box.dispatchEvent(new Event('input', { bubbles: true }));
+      fixture.detectChanges();
+    }
+  };
+
+  it('takes a leading zero on a 12-hour clock as the start of 01–09, not as 12', () => {
+    // A 12-hour clock has no hour 0, so the `0` was clamped to 1 and re-rendered as
+    // `01` — and the `9` then landed after it, making `019`, which clamped to 12 AM.
+    const fixture = mount();
+    typeKeys(fixture, '09');
+
+    expect(fixture.componentInstance.value()!.getHours()).toBe(9);
+    expect(hoursBox(fixture).value).toBe('09');
+  });
+
+  it('puts the shown hour back when the box is left on a lone zero', () => {
+    const fixture = mount();
+    typeKeys(fixture, '0');
+    expect(fixture.componentInstance.value()!.getHours()).toBe(10);
+
+    hoursBox(fixture).dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+
+    expect(hoursBox(fixture).value).toBe('10');
   });
 });

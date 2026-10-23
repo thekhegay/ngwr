@@ -9,8 +9,8 @@ import { Subject } from 'rxjs';
 import { WrFormField } from 'ngwr/form';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrSegmentedOption } from './interfaces';
 import { WrSegmented } from './segmented';
+import type { WrSegmentedOption } from './types';
 
 @Component({
   imports: [WrSegmented],
@@ -250,7 +250,7 @@ class FieldHost {
 
   readonly model = signal({ range: '' });
   readonly schedule = form(this.model, path => {
-    required(path.range);
+    required(path.range, { message: 'Pick a range.' });
   });
 }
 
@@ -325,8 +325,8 @@ describe('WrSegmented as a signal-forms control', () => {
   });
 
   it('surfaces the required error through <wr-form-field> once touched', () => {
-    // No `<wr-form-error>` markup anywhere above: the copy comes from the field's
-    // own catalog lookup, which is the whole point of implementing the interface.
+    // No `<wr-form-error>` markup anywhere above: the copy is the rule's own
+    // `message`, and the field finding it unaided is the point of implementing the interface.
     expect(root().querySelector('.wr-form-field__error')).toBeNull();
 
     leave();

@@ -12,7 +12,11 @@ export interface Schema {
   /** Starter shape. */
   preset: PagePreset;
 
-  /** Component dir name. */
+  /**
+   * Component dir name — `--name`, never a second positional: `ng generate`
+   * orders positionals by a sort that reads index 0 as none, so `name` at
+   * index 1 took the first argument (see `../collection.spec.ts`).
+   */
   name?: string;
 
   /** Parent directory. */

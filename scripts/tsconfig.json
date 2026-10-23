@@ -5,6 +5,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": true,
+    "rootDir": "..",
     "experimentalDecorators": false,
     "lib": ["ES2023"]
   },

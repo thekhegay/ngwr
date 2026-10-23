@@ -1,0 +1,27 @@
+import { Component, signal } from '@angular/core';
+
+import { WrProgress } from 'ngwr/progress';
+import { WrSlider } from 'ngwr/slider';
+import { WR_COLORS } from 'ngwr/theme';
+
+import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
+import { API } from '#core/generated/api';
+
+@Component({
+  selector: 'ngwr-progress-page',
+  templateUrl: './progress.html',
+  imports: [WrProgress, WrSlider, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
+})
+export default class ProgressComponent {
+  protected readonly colors = WR_COLORS;
+  protected readonly demoValue = signal(35);
+
+  protected readonly snippets = {
+    basic: `<wr-progress [value]="42" />`,
+    colors: `<wr-progress color="success" [value]="80" />`,
+    interactive: `<wr-progress [value]="value()" />
+<wr-slider [(value)]="value" />`,
+  };
+
+  protected readonly api = API.WrProgress;
+}

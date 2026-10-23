@@ -1,6 +1,6 @@
 import { NGWR_VERSION } from 'ngwr/version';
 
-import { SINCE } from '#core/generated/since';
+import { REMOVED, SINCE, UPDATED } from '#core/generated/since';
 
 /**
  * Widened on purpose. `SINCE` keeps its keys literal so anyone who wants the
@@ -12,6 +12,8 @@ import { SINCE } from '#core/generated/since';
  * be a red build.
  */
 const DECLARED: Readonly<Record<string, string>> = SINCE;
+const DECLARED_UPDATED: Readonly<Record<string, string>> = UPDATED;
+const DECLARED_REMOVED: Readonly<Record<string, string>> = REMOVED;
 
 /**
  * `'14.5.0'` → `[14, 5]`, `'14.5.0-rc.1'` → `[14, 5]`; `null` for anything else.
@@ -76,20 +78,25 @@ export function isNewIn(since: string, current: string): boolean {
 }
 
 /**
- * The short form a page prints — `'14.5.0'` → `'v14.5'`, `'14.4.2'` → `'v14.4.2'`.
+ * The short form a page prints — `'14.5.0'` → `'v14.5'`, `'15.0.0'` → `'v15'`,
+ * `'14.4.2'` → `'v14.4.2'`.
  *
  * A trailing `.0` is dropped because a feature ships in a MINOR, and "v14.5.0"
- * spends three characters saying so twice. A non-zero patch is kept: something
- * that first shipped in 14.4.2 did not exist in 14.4.0, and rounding it down
- * would state a falsehood a reader can act on.
+ * spends three characters saying so twice; a major's `.0.0` goes for the same
+ * reason, since "Removed in v15" is how a reader names that release. A non-zero
+ * patch is kept: something that first shipped in 14.4.2 did not exist in
+ * 14.4.0, and rounding it down would state a falsehood a reader can act on.
  */
 export function releaseLabel(version: string): string {
-  return `v${version.trim().replace(/^(\d+\.\d+)\.0$/, '$1')}`;
+  return `v${version
+    .trim()
+    .replace(/^(\d+)\.0\.0$/, '$1')
+    .replace(/^(\d+\.\d+)\.0$/, '$1')}`;
 }
 
-/** `['/reference/components', 'graph']` → `'reference/components/graph'`, the key the generated map uses. */
-export function routeKey(url: readonly string[]): string {
-  return url.join('/').replace(/^\/+|\/+$/g, '');
+/** `'/reference/components/graph'` → `'reference/components/graph'`, the key the generated map uses. */
+export function routeKey(url: string): string {
+  return url.replace(/^\/+|\/+$/g, '');
 }
 
 /**
@@ -102,14 +109,51 @@ export function sinceOf(route: string): string | null {
   return Object.hasOwn(DECLARED, route) ? (DECLARED[route] ?? null) : null;
 }
 
+/** The version a route's page says its public API changed in, or `null` — see `updated` on `<ngwr-doc-page>`. */
+export function updatedOf(route: string): string | null {
+  return Object.hasOwn(DECLARED_UPDATED, route) ? (DECLARED_UPDATED[route] ?? null) : null;
+}
+
+/** The version that removed a route's subject, or `null` for a live page — see `removed` on `<ngwr-doc-page>`. */
+export function removedOf(route: string): string | null {
+  return Object.hasOwn(DECLARED_REMOVED, route) ? (DECLARED_REMOVED[route] ?? null) : null;
+}
+
 /**
  * Whether a nav link points at a page declared for the current release line.
  *
  * Used by both surfaces that list the same links — the sidebar and the cluster
  * index pages — so the two cannot disagree about what is new.
  */
-export function isNewLink(url: readonly string[] | undefined, current: string = NGWR_VERSION): boolean {
+export function isNewLink(url: string | undefined, current: string = NGWR_VERSION): boolean {
   if (!url) return false;
   const since = sinceOf(routeKey(url));
   return since !== null && isNewIn(since, current);
 }
+
+/**
+ * The one mark a nav row wears, decided from what its page declares — the rule
+ * both nav surfaces (the sidebar and the cluster index pages) draw from.
+ *
+ * - `removed` whenever the page declares `removed`, with no expiry: the page is
+ *   a tombstone, and the mark is the reason it is still in the nav at all.
+ * - `new` while `since` is on the current release line ({@link isNewIn}).
+ * - `updated` while `updated` is on the current release line, by the same rule
+ *   and so expiring the same way, when the next minor ships.
+ *
+ * One mark per row, in that order. A page cannot declare `updated` beside
+ * `removed`, nor either one no later than `since` — `pnpm gen:api-docs` refuses
+ * both — so the order only settles a page whose `since` and `updated` both sit
+ * on a line still current, where "new" is the stronger news.
+ */
+export function linkMark(url: string | undefined, current: string = NGWR_VERSION): DocLinkMark | null {
+  if (!url) return null;
+  const route = routeKey(url);
+  if (removedOf(route) !== null) return 'removed';
+  if (isNewLink(url, current)) return 'new';
+  const updated = updatedOf(route);
+  return updated !== null && isNewIn(updated, current) ? 'updated' : null;
+}
+
+/** Which of the three marks a nav row wears, if any. See {@link linkMark}. */
+export type DocLinkMark = 'new' | 'updated' | 'removed';

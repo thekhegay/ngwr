@@ -9,15 +9,8 @@
  * What an `@each` in the stylesheets iterates, read out of the SCSS without
  * compiling it.
  *
- * Two gates need that answer, and the one thing they must not do is disagree
- * about it. `check:tokens` expands `var(--wr-color-#{$name}-dark)` into the nine
- * names it stands for, so a concretely-named declaration can be seen as painted
- * with; `check:color-only` unrolls `&--#{$name}` into the nine modifiers it
- * emits, so each can be judged on its own declarations. The resolution used to
- * live inside `check-tokens.ts`, and a second copy in the colour gate would be
- * two readings of one loop: a list one of them drops and the other expands is a
- * token called alive by the first and a rule the second never looks at, with
- * both runs green. So it lives here once and both import it.
+ * `check:tokens` expands `var(--wr-color-#{$name}-dark)` into the names it
+ * stands for, so each read is checked against a declaration.
  *
  * What it can read is deliberately narrow — a FLAT list or map literal assigned
  * at the start of a line (`$alert-colors: (info: info, …)`) whose every key is a
@@ -26,37 +19,11 @@
  * inline `(a, b, c)`. Anything else — a map of maps, a quoted key, a mixin
  * argument, a `map.keys()` written in the `@each` itself — resolves to
  * `undefined` rather than to a best guess, because a guess is the one answer
- * neither caller can tell from the truth. What not knowing means is each
- * caller's decision rather than this module's: `check:tokens` falls back to
- * matching the interpolation as a pattern, `check:color-only` demands a marker.
+ * the caller cannot tell from the truth; an unresolved loop is simply not
+ * expanded.
  */
 
-import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { extname, join } from 'node:path';
-
-function scssFiles(dir: string): string[] {
-  const out: string[] = [];
-  for (const entry of readdirSync(dir)) {
-    if (entry === 'node_modules' || entry === 'dist') continue;
-    const path = join(dir, entry);
-    if (statSync(path).isDirectory()) out.push(...scssFiles(path));
-    else if (extname(path) === '.scss') out.push(path);
-  }
-  return out;
-}
-
-/**
- * A list declared inside a comment is not a list.
- *
- * Only a `//` that opens its line is stripped, which is the reading
- * `check:tokens` had before this module existed and is kept so its results did
- * not move when it started importing. A trailing `//` inside a multi-line map
- * would cost the member after it — none of the maps under `projects/` carries
- * one today.
- */
-function withoutComments(src: string): string {
-  return src.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
-}
+import { blankComments } from './ts-lex';
 
 /**
  * Members of `(a, b, c)` or `(a: 1, b: 2)`, as the `@each` binds them — or
@@ -66,8 +33,8 @@ function withoutComments(src: string): string {
  * 'danger': y)` used to come back as `[success]`, and the loop over it was then
  * unrolled for one member and judged green while the other went unread. A key
  * that is quoted, a space-separated list or anything computed makes the whole
- * list unknown, which each caller already has an answer for. Values may be
- * anything — a hex, a length — and are kept only where they are plain names.
+ * list unknown. Values may be anything — a hex, a length — and are kept only
+ * where they are plain names.
  */
 function members(body: string): LoopList | undefined {
   const keys: string[] = [];
@@ -96,8 +63,7 @@ export interface LoopList {
  * any variables past the second are matched and not captured. Both used to end
  * the match — `.+?` cannot cross a newline, and a third `$glyph` was not in the
  * pattern at all — and a loop the pattern does not see is neither unrolled nor
- * reported: it passed. `check:tokens` tests one line at a time, where the two
- * spellings agree.
+ * reported: it passed.
  *
  * Callers must test it against text whose `#{…}` interpolations are already
  * masked, or a `#{` inside the expression ends the match early.
@@ -105,23 +71,13 @@ export interface LoopList {
 export const EACH = /@each\s+\$([\w-]+)(?:\s*,\s*\$([\w-]+))?(?:\s*,\s*\$[\w-]+)*\s+in\s+([^{]+?)\s*\{/;
 
 /**
- * Every list an `@each` under `roots` can iterate, by BARE name.
+ * Every list an `@each` in the stylesheet `sources` can iterate, by BARE name.
  *
  * `theme.$colors` in a component and `$colors` in the theme are one list under
  * two spellings, so the namespace is dropped on the way in. Two files declaring
  * the same name with different members is the case this cannot resolve, so it
- * drops the name rather than guessing — an expansion that is wrong calls a dead
- * token alive, or judges a modifier the stylesheet never emits, and either is
- * worse than not expanding at all.
- */
-export function loopLists(roots: readonly string[]): Map<string, LoopList> {
-  return listsIn(roots.flatMap(root => scssFiles(root).map(file => readFileSync(file, 'utf8'))));
-}
-
-/**
- * The same reading over stylesheet SOURCES rather than a tree — what
- * `check:color-only` feeds its own fixtures through, so a regression in how a
- * list is read fails that gate's self-test instead of passing on the tree.
+ * drops the name rather than guessing — an expansion that is wrong is worse
+ * than not expanding at all.
  */
 export function listsIn(sources: readonly string[]): Map<string, LoopList> {
   const out = new Map<string, LoopList>();
@@ -135,7 +91,10 @@ export function listsIn(sources: readonly string[]): Map<string, LoopList> {
   };
 
   for (const source of sources) {
-    const src = withoutComments(source);
+    // A list declared inside a comment is not a list. Only a `//` that opens
+    // its line is blanked, so a trailing one inside a multi-line map would cost
+    // the member after it — none of the maps under `projects/` carries one.
+    const src = blankComments(source);
     // Every `$name: (` is looked at, and only a FLAT literal closed by its own
     // `)` is read. `[^)]*` used to cut a map of maps at its first `)`, so
     // overlay's `$placements` came back as `[top, center]` — a key and a value
@@ -165,7 +124,7 @@ export function listsIn(sources: readonly string[]): Map<string, LoopList> {
 
 /**
  * The list behind an `@each`'s expression — an inline `(a, b)`, over as many
- * lines as it likes, or a name `loopLists()` resolved — or `undefined` when it
+ * lines as it likes, or a name `listsIn()` resolved — or `undefined` when it
  * is neither.
  */
 export function resolveLoopList(expression: string, lists: ReadonlyMap<string, LoopList>): LoopList | undefined {

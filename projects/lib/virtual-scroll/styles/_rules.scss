@@ -3,6 +3,8 @@
 // host a block-level container and tames default overflow behaviour.
 
 .wr-virtual-scroll {
+  --wr-virtual-scroll-thumb-radius: var(--wr-border-radius-pill);
+
   display: block;
   width: 100%;
   overflow: hidden;
@@ -20,8 +22,8 @@
       height: 0.5rem;
     }
     &::-webkit-scrollbar-thumb {
-      background: rgba(var(--wr-color-on-surface-rgb), 0.2);
-      border-radius: 999px;
+      background: color-mix(in srgb, var(--wr-color-on-surface) 20%, transparent);
+      border-radius: var(--wr-virtual-scroll-thumb-radius);
     }
   }
 }

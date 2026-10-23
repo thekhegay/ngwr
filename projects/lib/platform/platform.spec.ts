@@ -5,13 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrHaptics } from './wr-haptics';
 import { WrPlatform } from './wr-platform';
-import { WrVisualViewport } from './wr-visual-viewport';
 
 /**
- * Three thin wrappers over host capabilities that are routinely missing:
- * `matchMedia` and `visualViewport` do not exist in Node — where every showcase
- * route is prerendered — and `navigator.vibrate` does not exist on iOS Safari at
- * all. So "the API is absent" is the ordinary case here, not the edge, and it is
+ * Two thin wrappers over host capabilities that are routinely missing:
+ * `matchMedia` does not exist in Node — where every showcase route is
+ * prerendered — and `navigator.vibrate` does not exist on iOS Safari at all.
+ * So "the API is absent" is the ordinary case here, not the edge, and it is
  * what most of these tests are about.
  */
 describe('platform services', () => {
@@ -179,130 +178,6 @@ describe('platform services', () => {
       expect(haptics.supported).toBe(false);
       expect(haptics.impact()).toBe(false);
       expect(vibrate).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('WrVisualViewport', () => {
-    let handlers: Map<string, (() => void)[]>;
-    let removedCount: number;
-    let viewport: { height: number; offsetTop: number } | null;
-
-    const stubViewport = (initial: { height: number; offsetTop: number } | null): void => {
-      handlers = new Map();
-      removedCount = 0;
-      viewport = initial;
-      Object.defineProperty(window, 'visualViewport', {
-        configurable: true,
-        value:
-          initial === null
-            ? undefined
-            : {
-                get height() {
-                  return viewport!.height;
-                },
-                get offsetTop() {
-                  return viewport!.offsetTop;
-                },
-                addEventListener: (type: string, fn: () => void) => {
-                  handlers.set(type, [...(handlers.get(type) ?? []), fn]);
-                },
-                removeEventListener: () => removedCount++,
-              },
-      });
-    };
-
-    const inset = (): string => document.documentElement.style.getPropertyValue('--wr-keyboard-inset');
-
-    const setup = (platform: 'browser' | 'server' = 'browser'): WrVisualViewport => {
-      TestBed.resetTestingModule();
-      TestBed.configureTestingModule({
-        providers: platform === 'server' ? [{ provide: PLATFORM_ID, useValue: 'server' }] : [],
-      });
-      return TestBed.inject(WrVisualViewport);
-    };
-
-    beforeEach(() => {
-      // jsdom reports 0 for `clientHeight`, so the layout viewport is stubbed
-      // too — without it every inset computes to 0 and the maths is untestable.
-      Object.defineProperty(document.documentElement, 'clientHeight', { value: 800, configurable: true });
-    });
-
-    afterEach(() => {
-      Object.defineProperty(window, 'visualViewport', { value: undefined, configurable: true });
-      document.documentElement.style.removeProperty('--wr-keyboard-inset');
-    });
-
-    it('publishes the keyboard band as a custom property', () => {
-      stubViewport({ height: 500, offsetTop: 0 });
-      const vv = setup();
-
-      // 800 layout - 500 visible = a 300px keyboard. Overlays read this to sit
-      // above it, so a wrong number puts a bottom sheet under the keyboard.
-      expect(vv.bottomInset()).toBe(300);
-      expect(inset()).toBe('300px');
-    });
-
-    it('reports no inset when nothing is covering the viewport', () => {
-      stubViewport({ height: 800, offsetTop: 0 });
-      const vv = setup();
-
-      expect([vv.bottomInset(), inset()]).toEqual([0, '0px']);
-    });
-
-    it('follows the keyboard opening and closing again', () => {
-      stubViewport({ height: 800, offsetTop: 0 });
-      const vv = setup();
-
-      viewport = { height: 460, offsetTop: 0 };
-      for (const fn of handlers.get('resize') ?? []) fn();
-      expect([vv.bottomInset(), inset()]).toEqual([340, '340px']);
-
-      viewport = { height: 800, offsetTop: 0 };
-      for (const fn of handlers.get('resize') ?? []) fn();
-      // Left stale, every overlay keeps a 340px gap at the bottom of the screen
-      // after the keyboard is gone.
-      expect([vv.bottomInset(), inset()]).toEqual([0, '0px']);
-    });
-
-    it('counts the offset when the page is scrolled under the viewport', () => {
-      stubViewport({ height: 500, offsetTop: 100 });
-      const vv = setup();
-
-      expect([vv.bottomInset(), vv.offsetTop()]).toEqual([200, 100]);
-    });
-
-    it('never reports a negative inset', () => {
-      // A visual viewport taller than the layout one happens on desktop Safari
-      // with the URL bar collapsing; a negative custom property is a broken
-      // `calc()` everywhere it is used.
-      stubViewport({ height: 900, offsetTop: 0 });
-
-      expect(setup().bottomInset()).toBe(0);
-    });
-
-    it('cleans up its listeners and its custom property', () => {
-      stubViewport({ height: 500, offsetTop: 0 });
-      setup();
-      expect(inset()).toBe('300px');
-
-      TestBed.resetTestingModule();
-
-      expect(removedCount).toBe(2);
-      expect(inset()).toBe('');
-    });
-
-    it('stays at zero where there is no visualViewport at all', () => {
-      stubViewport(null);
-      const vv = setup();
-
-      expect([vv.bottomInset(), vv.offsetTop(), inset()]).toEqual([0, 0, '']);
-    });
-
-    it('writes nothing during prerender', () => {
-      stubViewport({ height: 500, offsetTop: 0 });
-      const vv = setup('server');
-
-      expect([vv.bottomInset(), inset()]).toEqual([0, '']);
     });
   });
 });

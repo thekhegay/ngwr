@@ -22,7 +22,7 @@ import { useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
 import { WrScroll } from 'ngwr/scroll';
 
-import type { WrAnchorLink } from './interfaces';
+import type { WrAnchorLink } from './types';
 
 /**
  * Scroll-spy in-page navigation. Renders a list of links to elements on
@@ -52,6 +52,11 @@ import type { WrAnchorLink } from './interfaces';
   host: { class: 'wr-anchor', role: 'navigation', '[attr.aria-label]': 'resolvedAriaLabel()' },
 })
 export class WrAnchor {
+  /**
+   * The entries, in DOCUMENT ORDER — the scroll spy walks them top to bottom
+   * and stops at the first target below the cursor line, so a list in any other
+   * order highlights the wrong entry.
+   */
   readonly links = input<readonly WrAnchorLink[]>([]);
 
   /**
@@ -71,16 +76,20 @@ export class WrAnchor {
 
   protected readonly activeId = signal<string | null>(null);
 
-  /** Flat list of all ids (top-level + children) — used for scroll spy. */
+  /**
+   * Flat list of the ids the template RENDERS — top level plus one level of
+   * children, which is the nesting `WrAnchorLink` documents. It used to recurse
+   * all the way down, so a third level was spied on and drawn nowhere: scrolling
+   * through a grandchild made it active, no rendered link matched the id, and
+   * the highlight vanished for that whole region rather than resting on its
+   * parent.
+   */
   protected readonly flatIds = computed<readonly string[]>(() => {
     const out: string[] = [];
-    const walk = (list: readonly WrAnchorLink[]): void => {
-      for (const item of list) {
-        out.push(item.id);
-        if (item.children) walk(item.children);
-      }
-    };
-    walk(this.links());
+    for (const item of this.links()) {
+      out.push(item.id);
+      for (const child of item.children ?? []) out.push(child.id);
+    }
     return out;
   });
 
@@ -89,9 +98,33 @@ export class WrAnchor {
   private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
+  /**
+   * The entry a click asked for, and the scroll position that click sends the
+   * page to. A target near the end of the page can never reach the cursor line —
+   * the page runs out of scroll first — so the spy took the highlight straight
+   * back from the entry just clicked and handed it to the one above. While the
+   * page is still travelling toward that position, or parked on it, the clicked
+   * entry stays lit; the first scroll AWAY from it is the reader's own, and the
+   * spy takes over again.
+   */
+  private pinned: { readonly id: string; readonly y: number } | null = null;
+  private lastY = 0;
+
   constructor() {
     if (!this.platform.isBrowser) return;
     const handler = (): void => {
+      const y = window.scrollY;
+      const pin = this.pinned;
+      if (pin) {
+        const distance = Math.abs(pin.y - y);
+        if (distance <= 1 || distance < Math.abs(pin.y - this.lastY)) {
+          this.lastY = y;
+          if (pin.id !== this.activeId()) this.zone.run(() => this.activeId.set(pin.id));
+          return;
+        }
+        this.pinned = null;
+      }
+      this.lastY = y;
       const cursor = this.offset() + this.hitArea();
       let active: string | null = null;
       for (const id of this.flatIds()) {
@@ -114,9 +147,18 @@ export class WrAnchor {
 
   protected onClick(id: string, event: MouseEvent): void {
     event.preventDefault();
+    const target = document.getElementById(id);
+    if (target) {
+      // Where `WrScroll` sends the page, clamped the way the browser clamps it.
+      const root = document.documentElement;
+      const max = Math.max(0, root.scrollHeight - root.clientHeight);
+      const y = target.getBoundingClientRect().top + window.scrollY - this.offset();
+      this.pinned = { id, y: Math.min(max, Math.max(0, y)) };
+      this.lastY = window.scrollY;
+    }
     this.scroll.to(`#${id}`, { offset: this.offset() });
     this.activeId.set(id);
   }
 }
 
-export type { WrAnchorLink } from './interfaces';
+export type { WrAnchorLink } from './types';

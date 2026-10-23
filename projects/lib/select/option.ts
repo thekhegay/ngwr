@@ -24,9 +24,9 @@ import {
   viewChild,
 } from '@angular/core';
 
-import type { WrOptionLeadingContext } from './interfaces';
 import { WrOptionLeading } from './option-leading';
 import { WR_SELECT } from './tokens';
+import type { WrOptionLeadingContext } from './types';
 
 let uid = 0;
 
@@ -62,7 +62,7 @@ const ELEMENT_NODE = 1;
     '[attr.id]': 'id',
     '[class]': 'classes()',
     '[attr.aria-selected]': 'selected()',
-    '[attr.aria-disabled]': 'disabled() ? true : null',
+    '[attr.aria-disabled]': 'unavailable() ? true : null',
     '(click)': 'onClick()',
   },
 })
@@ -165,6 +165,13 @@ export class WrOption {
     return parent.isSelected(this.value());
   });
 
+  /**
+   * @internal — disabled, or not chosen in a multi select that already holds
+   * `maxItems`: either way a pick is refused, so the row says so rather than
+   * looking choosable.
+   */
+  protected readonly unavailable = computed(() => this.disabled() || (!this.selected() && !!this.parent?.atMaxItems()));
+
   /** @internal — true when this option is the keyboard cursor target. */
   protected readonly active = computed(() => this.parent?.activeOptionId() === this.id);
 
@@ -187,7 +194,7 @@ export class WrOption {
     const parts = ['wr-option'];
     if (this.selected()) parts.push('wr-option--selected');
     if (this.active()) parts.push('wr-option--active');
-    if (this.disabled()) parts.push('wr-option--disabled');
+    if (this.unavailable()) parts.push('wr-option--disabled');
     if (this.hidden()) parts.push('wr-option--hidden');
     return parts.join(' ');
   });

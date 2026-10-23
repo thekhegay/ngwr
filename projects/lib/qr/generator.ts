@@ -7,8 +7,8 @@
 
 import { isDevMode } from '@angular/core';
 
-import type { WrQrErrorLevel } from './interfaces';
 import qrcodegen from './qrcodegen';
+import type { WrQrErrorLevel } from './types';
 
 interface DrawOptionsInternal {
   readonly value: string;
@@ -56,10 +56,10 @@ function drawModules(ctx: CanvasRenderingContext2D, code: qrcodegen.QrCode, padd
  * itself. The library does the loading here, so the app loses that protection
  * without being told.
  *
- * Same rules as `safeMarkdownUrl` in `ngwr/markdown`, and deliberately a copy
- * rather than an import: an entry point may not depend on another's internals,
- * and one call site does not earn a shared util. A third would — put it in
- * `ngwr/utils` beside `isSafeCssValue` when that happens.
+ * Same rules as the link and image URL check inside `ngwr/editor`, and
+ * deliberately a copy rather than an import: an entry point may not depend on
+ * another's internals, and one call site does not earn a shared util. A third
+ * would — put it in `ngwr/utils` beside `isSafeCssValue` when that happens.
  *
  * `data:` is allowed for raster types only. An SVG can carry script, and
  * `data:text/html` is a same-origin document.

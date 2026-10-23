@@ -24,11 +24,23 @@ import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';
 import { randomId, toClassList } from 'ngwr/utils';
 
-import type { WrWindowConfig, WrWindowLayoutSnapshot, WrWindowStorageConfig } from '../interfaces';
 import { storageKey } from '../storage-key';
 import { WR_WINDOW_DATA, WR_WINDOW_REF } from '../tokens';
+import type { WrWindowConfig, WrWindowLayoutSnapshot, WrWindowStorageConfig } from '../types';
 import { WrWindowContainer } from '../window-container';
 import { WrWindowRef } from '../window-ref';
+
+/**
+ * What `WrWindowManager` needs from a `<wr-window-taskbar>` on the page: the
+ * row a window's tab sits in, so focus can land on it when the window is
+ * minimized and be recognised there when the window is closed from it.
+ *
+ * @internal
+ */
+export interface WrWindowTaskbarTabs {
+  /** The `.wr-window-taskbar__tab` row for `ref`, or `null` when this taskbar does not list it. */
+  tabFor(ref: WrWindowRef<unknown, unknown>): HTMLElement | null;
+}
 
 /**
  * Owns the open `<wr-window>` stack, hands out z-indexes, cascades the
@@ -77,6 +89,9 @@ export class WrWindowManager {
    */
   private readonly pendingRestores = new Map<string, WrWindowLayoutSnapshot>();
 
+  /** The taskbars on the page, registered by each `<wr-window-taskbar>` for its lifetime. */
+  private readonly taskbars = new Set<WrWindowTaskbarTabs>();
+
   /** All currently-open programmatic windows. */
   readonly windows: Signal<readonly WrWindowRef<unknown, unknown>[]> = this._windows.asReadonly();
 
@@ -108,11 +123,21 @@ export class WrWindowManager {
    * "Settings" menu item that should always re-focus the same window).
    */
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, config: WrWindowConfig<D> = {}): WrWindowRef<C, R> {
+    // Where focus goes back to when the window closes — read before anything
+    // here moves it.
+    const opener = this.focusedElement();
+
     if (config.id) {
       const existing = this.findById(config.id);
       if (existing) {
         existing.restore();
         existing.focus();
+        // A second open is still an open: focus goes to the window, and back to
+        // whatever asked for it this time — unless that was the window itself.
+        if (config.autoFocus !== false) {
+          if (opener && !existing._overlayRef.overlayElement?.contains(opener)) existing._returnFocus = opener;
+          existing._doFocusInitial?.();
+        }
         return existing as WrWindowRef<C, R>;
       }
     }
@@ -197,10 +222,15 @@ export class WrWindowManager {
     container.ref = ref as WrWindowRef<C, unknown>;
     container.componentType = component;
     container.childInjector = childInjector;
+    // A window `restoreLayout()` re-opens stays out of focus's way unless its
+    // opener says otherwise: a workspace of five windows coming back must not
+    // pull focus through each of them and leave it in whichever came last.
+    container.autoFocus = config.autoFocus ?? !pending;
+    ref._returnFocus = opener;
 
-    if (this.isBrowser) {
-      overlayRef.overlayElement.setAttribute('role', 'dialog');
-    }
+    // No role on the pane: `<wr-window>` inside it is the named `role="dialog"`,
+    // and a second, unnamed one around it read as "dialog > dialog" and tripped
+    // axe's `aria-dialog-name` on every open window.
 
     if (config.closeOnEscape !== false) {
       overlayRef.keydownEvents().subscribe(event => {
@@ -215,10 +245,17 @@ export class WrWindowManager {
     // ref's `close()` already runs the beforeClose hook before reaching
     // this bridge.
     ref._doClose = result => {
+      // Read before disposal takes the focused element out of the page. Focus
+      // goes back only when it was the window's to give: inside it, on its
+      // taskbar tab, or already lost. A window closed by code while the reader
+      // works elsewhere leaves them there.
+      const back = this.holdsFocus(ref as unknown as WrWindowRef<unknown, unknown>) ? ref._returnFocus : null;
+      ref._returnFocus = null;
       overlayRef.dispose();
       ref._closed.next(result);
       ref._closed.complete();
       this._windows.update(list => list.filter(r => r !== (ref as unknown as WrWindowRef<unknown, unknown>)));
+      if (back?.isConnected) back.focus();
     };
 
     this._windows.update(list => [...list, ref as unknown as WrWindowRef<unknown, unknown>]);
@@ -243,13 +280,79 @@ export class WrWindowManager {
    * order. A tie (nothing has ever been focused, so no z has been handed out
    * yet) leaves every window willing, and the dispatcher's newest-first walk
    * settles it as before.
+   *
+   * A MINIMIZED window never owns a key it did not receive through focus, and
+   * never counts as being in front: it is `display: none`, so an Escape pressed
+   * on the page closed a window the user could not see — and threw away its
+   * taskbar entry with it — while the visible one stayed put.
+   *
+   * Focus on a taskbar tab is the minimized window's (as `holdsFocus` reads
+   * it), so NO window owns that key: a tab lists only minimized windows, and
+   * handing the key to the front-most one closed a window the reader was not
+   * in, right after minimizing had put them on the tab.
    */
   private ownsKeyboard(ref: WrWindowRef<unknown, unknown>): boolean {
     const open = this._windows();
     const active = this.isBrowser ? document.activeElement : null;
     const focused = active ? open.find(w => w._overlayRef.overlayElement?.contains(active)) : undefined;
     if (focused) return focused === ref;
-    return open.every(w => w === ref || w.z() <= ref.z());
+    if (active && open.some(w => this.taskbarTab(w)?.contains(active))) return false;
+    if (ref.state() === 'minimized') return false;
+    return open.every(w => w === ref || w.state() === 'minimized' || w.z() <= ref.z());
+  }
+
+  /**
+   * Register a taskbar for as long as it is on the page. Returns the
+   * unregister call.
+   *
+   * @internal
+   */
+  _registerTaskbar(taskbar: WrWindowTaskbarTabs): () => void {
+    this.taskbars.add(taskbar);
+    return () => this.taskbars.delete(taskbar);
+  }
+
+  /**
+   * A window was minimized while it held focus, and the render that lists it
+   * in the taskbar has happened: put focus on its tab's restore button. With no
+   * taskbar listing it (none on the page, or `taskbar: false`), focus goes back
+   * to where the window was opened from rather than being left on `<body>`.
+   *
+   * @internal
+   */
+  _focusAfterMinimize(ref: WrWindowRef<unknown, unknown>): void {
+    // The restore button is the row's first: the close button sits after it.
+    const restore = this.taskbarTab(ref)?.querySelector<HTMLElement>('button');
+    if (restore) restore.focus();
+    else if (ref._returnFocus?.isConnected) ref._returnFocus.focus();
+    // Nowhere to go: at least never leave focus parked inside a window that is
+    // `display: none`, where it would keep claiming every Escape. Browsers
+    // that run the focus fixup rule have already done this.
+    const active = this.focusedElement();
+    if (active && ref._overlayRef.overlayElement?.contains(active)) active.blur();
+  }
+
+  private taskbarTab(ref: WrWindowRef<unknown, unknown>): HTMLElement | null {
+    for (const taskbar of this.taskbars) {
+      const tab = taskbar.tabFor(ref);
+      if (tab) return tab;
+    }
+    return null;
+  }
+
+  /** The focused element, or `null` when that is `<body>` or nothing. */
+  private focusedElement(): HTMLElement | null {
+    if (!this.isBrowser) return null;
+    const active = document.activeElement;
+    return active instanceof HTMLElement && active !== document.body ? active : null;
+  }
+
+  /** Whether focus is `ref`'s to hand back: inside it, on its taskbar tab, or nowhere. */
+  private holdsFocus(ref: WrWindowRef<unknown, unknown>): boolean {
+    if (!this.isBrowser) return false;
+    const active = this.focusedElement();
+    if (!active) return true;
+    return !!ref._overlayRef.overlayElement?.contains(active) || !!this.taskbarTab(ref)?.contains(active);
   }
 
   /** Close every programmatically-opened window. */

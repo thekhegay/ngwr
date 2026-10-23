@@ -41,6 +41,19 @@ export default class WrDatePipePage {
     'mediumDateTime',
   ] as const;
 
+  protected readonly clockKeys = [
+    'time12h',
+    'time24h',
+    'timeSeconds',
+    'time12hSeconds',
+    'time24hSeconds',
+    'shortDateTime12h',
+    'shortDateTime24h',
+    'shortDateTimeSeconds',
+    'shortDateTime12hSeconds',
+    'shortDateTime24hSeconds',
+  ] as const;
+
   protected readonly format = signal<string>('mediumDateTime');
 
   protected readonly playgroundSnippet = computed(() => `{{ now | wrDate: '${this.format()}' }}`);
@@ -57,25 +70,23 @@ export default class WrDatePipePage {
         'time',
         'shortDateTime',
         'mediumDateTime',
+        'time24hSeconds',
+        'shortDateTime12h',
         'dd.MM.yyyy',
-        // Token strings only, and only tokens `WrNativeDateAdapter` has — the
-        // showcase provides that adapter, and an unknown token (`EEEE`) is
-        // emitted verbatim rather than refused, so a bad option here reads as a
-        // broken pipe.
+        // Only tokens the native adapter knows; an unknown one prints as is.
         'd MMMM yyyy',
       ],
     },
   ];
 
   protected readonly snippets = {
-    install: `import { WrDate } from 'ngwr/pipes';
-
-@Component({ imports: [WrDate] })
-export class MyComponent { /* ... */ }`,
     named: `{{ now | wrDate }}                    <!-- shortDate (default) -->
 {{ now | wrDate: 'mediumDate' }}      <!-- Jun 12, 2026        -->
 {{ now | wrDate: 'time' }}            <!-- 10:51 AM            -->
 {{ now | wrDate: 'mediumDateTime' }}  <!-- Jun 12, 2026, 10:51 AM -->`,
+    clock: `{{ now | wrDate: 'time24h' }}               <!-- 10:51     -->
+{{ now | wrDate: 'time12hSeconds' }}        <!-- 10:51:07 AM -->
+{{ now | wrDate: 'shortDateTimeSeconds' }}  <!-- 6/12/2026, 10:51:07 AM -->`,
     tokens: `{{ now | wrDate: 'dd.MM.yyyy' }}  <!-- 12.06.2026   -->
 {{ now | wrDate: 'd MMMM yyyy' }} <!-- 12 June 2026 -->`,
   };
@@ -83,8 +94,7 @@ export class MyComponent { /* ... */ }`,
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'wrDate',
-      description:
-        'Delegates to WrDateAdapter when provided; falls back to Intl.DateTimeFormat with the same named keys.',
+      description: 'Formats through `WrDateAdapter`: the native one, or your own.',
       type: "(value: Date | string | number | null | undefined, format: WrDateFormat | string = 'shortDate') => string",
       default: '—',
     },
@@ -95,13 +105,13 @@ export class MyComponent { /* ... */ }`,
       kind: 'Component',
       title: 'wr-date-picker',
       url: ['/reference/components', 'date-picker'],
-      description: 'Produces the Date values this pipe renders.',
+      description: 'Pick the date.',
     },
     {
       kind: 'Guide',
       title: 'Date adapters',
-      url: ['/start', 'configuration'],
-      description: 'Wire date-fns or Luxon to unlock token strings.',
+      url: ['/docs', 'configuration'],
+      description: 'Pin the locale or bring your own.',
     },
   ];
 }

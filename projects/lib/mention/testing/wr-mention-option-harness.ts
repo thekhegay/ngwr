@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrMentionOptionHarnessFilters } from './interfaces';
+import type { WrMentionOptionHarnessFilters } from './types';
 
 /**
  * Test harness for one suggestion inside a `[wrMention]` panel.
@@ -77,6 +77,11 @@ export class WrMentionOptionHarness extends ComponentHarness {
    * as it does the keyboard one.
    */
   async hover(): Promise<void> {
-    return (await this.host()).hover();
+    const host = await this.host();
+    await host.hover();
+    // The panel follows a pointer that MOVES — `mouseenter` alone is what a still
+    // pointer gets when the panel opens under it — and the CDK's `hover()` sends
+    // `mouseover` / `mouseenter` only.
+    await host.dispatchEvent('mousemove');
   }
 }

@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrEditorTool } from './interfaces';
+import type { WrEditorTool } from './types';
 
 /**
  * The toolbar `<wr-editor>` draws when `toolbar` is not bound — every tool, in
@@ -14,8 +14,6 @@ import type { WrEditorTool } from './interfaces';
  * ```ts
  * readonly tools = WR_EDITOR_TOOLBAR.filter(tool => tool !== 'code');
  * ```
- *
- * `underline` is dropped in `markdown` format whether it is listed or not.
  */
 export const WR_EDITOR_TOOLBAR: readonly WrEditorTool[] = [
   'bold',

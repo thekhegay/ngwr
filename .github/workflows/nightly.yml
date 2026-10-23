@@ -2,18 +2,241 @@ name: Nightly
 
 on:
   schedule:
-    - cron: '0 3 * * *'
+    # 01:00 Almaty: scheduled runs start hours late, the report is due by morning.
+    - cron: '0 20 * * *'
   workflow_dispatch:
 
 concurrency:
   group: nightly
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
-  legacy-node:
-    name: Node ${{ matrix.node }} (an LTS line engines still accepts)
+  changed:
+    name: Did main move?
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+
+    steps:
+      # A manual run always runs. A scheduled one runs only when main is not at
+      # the commit the last finished nightly checked; a failed lookup runs too.
+      - id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          if [ "$EVENT" != schedule ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          last=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/nightly.yml/runs?branch=main&status=completed&per_page=20" \
+            --jq '[.workflow_runs[] | select(.conclusion == "success" or .conclusion == "failure")][0].head_sha // ""') || last=''
+          if [ "$last" = "$SHA" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "main is still at $SHA, which the last nightly checked. Skipped." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Build the showcase
+    needs: changed
+    if: needs.changed.outputs.run == 'true'
     runs-on: ubuntu-latest
 
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build:showcase
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: showcase
+          path: dist/showcase
+          if-no-files-found: error
+          retention-days: 1
+
+  a11y:
+    name: Structural a11y
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: showcase
+          path: dist/showcase
+
+      - run: pnpm check:a11y
+
+  contrast:
+    name: Contrast & target size
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: showcase
+          path: dist/showcase
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      # shell: bash adds pipefail, so tee cannot hide a failing check.
+      - run: pnpm check:contrast --verbose 2>&1 | tee contrast-report.txt
+        shell: bash
+
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: contrast-report
+          path: contrast-report.txt
+          retention-days: 30
+
+  state-a11y:
+    name: Interactive-state a11y
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: showcase
+          path: dist/showcase
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - run: pnpm check:state-a11y --verbose --probe 2>&1 | tee state-a11y-report.txt
+        shell: bash
+
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: state-a11y-report
+          path: state-a11y-report.txt
+          retention-days: 30
+
+  layout:
+    name: Layout geometry
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: showcase
+          path: dist/showcase
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - run: pnpm check:layout 2>&1 | tee layout-report.txt
+        shell: bash
+
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: layout-report
+          path: layout-report.txt
+          retention-days: 30
+
+  rtl-layout:
+    name: RTL layout
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: showcase
+          path: dist/showcase
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - run: pnpm check:rtl-layout --verbose 2>&1 | tee rtl-layout-report.txt
+        shell: bash
+
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rtl-layout-report
+          path: rtl-layout-report.txt
+          retention-days: 30
+
+  legacy-node:
+    name: Node ${{ matrix.node }} (an older LTS line engines accepts)
+    needs: changed
+    if: needs.changed.outputs.run == 'true'
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -35,123 +258,39 @@ jobs:
 
       - run: pnpm build:lib
 
-  contrast:
-    name: Contrast & target size
+  # One open "Nightly failed" issue at a time: opened or commented on when a
+  # job fails, closed by the next green nightly.
+  report:
+    name: Morning report
+    needs: [changed, build, a11y, contrast, state-a11y, layout, rtl-layout, legacy-node]
+    if: always() && needs.changed.outputs.run == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
 
     steps:
-      - uses: actions/checkout@v7
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NEEDS: ${{ toJSON(needs) }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title='Nightly failed'
+          today=$(date -u +%F)
+          failed=$(jq -r 'to_entries[] | select(.key != "changed" and .value.result == "failure") | "- `\(.key)`"' <<< "$NEEDS")
+          green=$(jq -r '[to_entries[] | select(.key != "changed") | .value.result] | all(. == "success")' <<< "$NEEDS")
+          issue=$(gh issue list --state open --limit 100 --json number,title \
+            --jq "[.[] | select(.title == \"$title\")][0].number // empty")
 
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 26
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - run: pnpm build:showcase
-
-      - run: pnpm exec playwright install --with-deps chromium
-
-      # shell: bash adds pipefail, so tee cannot hide a failing check.
-      - run: pnpm check:contrast --verbose 2>&1 | tee contrast-report.txt
-        shell: bash
-
-      - if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: contrast-report
-          path: contrast-report.txt
-          retention-days: 30
-
-  state-a11y:
-    name: Interactive-state a11y
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 26
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - run: pnpm build:showcase
-
-      - run: pnpm exec playwright install --with-deps chromium
-
-      - run: pnpm check:state-a11y --verbose --probe 2>&1 | tee state-a11y-report.txt
-        shell: bash
-
-      - if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: state-a11y-report
-          path: state-a11y-report.txt
-          retention-days: 30
-
-  layout:
-    name: Layout geometry
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 26
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - run: pnpm build:showcase
-
-      - run: pnpm exec playwright install --with-deps chromium
-
-      - run: pnpm check:layout 2>&1 | tee layout-report.txt
-        shell: bash
-
-      - if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: layout-report
-          path: layout-report.txt
-          retention-days: 30
-
-  rtl-layout:
-    name: RTL layout
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 26
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - run: pnpm build:showcase
-
-      - run: pnpm exec playwright install --with-deps chromium
-
-      - run: pnpm check:rtl-layout --verbose 2>&1 | tee rtl-layout-report.txt
-        shell: bash
-
-      - if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: rtl-layout-report
-          path: rtl-layout-report.txt
-          retention-days: 30
+          if [ -n "$failed" ]; then
+            body=$(printf '%s\n\n%s\n\n%s\n' "$today: the nightly failed on main at $SHA." "$failed" "$RUN_URL")
+            if [ -n "$issue" ]; then
+              gh issue edit "$issue" --body "$body"
+              gh issue comment "$issue" --body "$body"
+            else
+              gh issue create --title "$title" --body "$body"
+            fi
+          elif [ "$green" = true ] && [ -n "$issue" ]; then
+            gh issue close "$issue" --comment "$today: the nightly passed on main at $SHA. $RUN_URL"
+          fi

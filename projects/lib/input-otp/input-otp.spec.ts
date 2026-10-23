@@ -1,17 +1,16 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, type EnvironmentProviders, type Type, signal } from '@angular/core';
+import { Component, type Type, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormField, form } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
 
-import { provideWrConfig } from 'ngwr/config';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrInputOtp } from './input-otp';
-import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
+import type { WrInputOtpMode, WrInputOtpSize } from './types';
 
 @Component({
   imports: [WrInputOtp],
@@ -94,6 +93,38 @@ describe('WrInputOtp', () => {
     typeInto(2, '3');
 
     expect(code()).toBe('123');
+    expect(document.activeElement).toBe(boxes()[3]);
+  });
+
+  it('selects a filled box that is clicked, so the next keystroke replaces it', () => {
+    fixture.componentInstance.code.set('123456');
+    fixture.detectChanges();
+    const third = boxes()[2];
+    third.focus();
+    third.setSelectionRange(1, 1);
+
+    // A click leaves the caret beside the character, and with `maxlength="1"` the
+    // browser then refused the keystroke outright — the box kept its old digit.
+    third.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect([third.selectionStart, third.selectionEnd]).toEqual([0, 1]);
+  });
+
+  it('takes the character just typed, wherever the caret put it in a filled box', () => {
+    fixture.componentInstance.code.set('123456');
+    fixture.detectChanges();
+    const third = boxes()[2];
+    third.focus();
+
+    // WebKit put the new character IN FRONT of the old one, and `slice(-1)` kept
+    // the old one — then walked focus on as if the edit had landed.
+    third.value = '93';
+    third.setSelectionRange(1, 1);
+    third.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(code()).toBe('129456');
     expect(document.activeElement).toBe(boxes()[3]);
   });
 
@@ -231,28 +262,25 @@ describe('WrInputOtp under dir="rtl"', () => {
 });
 
 /**
- * One host that binds `[size]` and one binding of `null` inside it, because the
- * only thing that makes an app-wide default safe is that a template can still
- * override it. A shorter `length` is in here too: the strip is sized ONCE, on the
- * host, and every box reads that through the cascade — a per-box resolution would
- * be the thing that silently sizes only some of them.
+ * A shorter `length` is in here too: the strip is sized ONCE, on the host, and
+ * every box reads that through the cascade — a per-box size would be the thing
+ * that silently sizes only some of them.
  */
 @Component({
   imports: [WrInputOtp],
   template: `<wr-input-otp [size]="size()" [length]="length()" />`,
 })
-class ConfigHost {
-  readonly size = signal<WrInputOtpSize | null>(null);
+class SizeHost {
+  readonly size = signal<WrInputOtpSize>('md');
   readonly length = signal(6);
 }
 
-describe('WrInputOtp defaults from provideWrConfig', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<ConfigHost>>;
+describe('WrInputOtp size', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SizeHost>>;
 
-  const mount = (providers: EnvironmentProviders[] = []): ConfigHost => {
+  const mount = (): SizeHost => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers });
-    fixture = TestBed.createComponent(ConfigHost);
+    fixture = TestBed.createComponent(SizeHost);
     fixture.detectChanges();
     return fixture.componentInstance;
   };
@@ -264,42 +292,26 @@ describe('WrInputOtp defaults from provideWrConfig', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('renders exactly as before when no config is provided', () => {
-    // The invariant the whole change rests on: an unbound strip is `md`, which
-    // means no modifier class at all.
+  it('renders the md default with no modifier class', () => {
     mount();
 
     expect(host().className).toBe('wr-input-otp');
   });
 
-  it('takes the configured size when the template binds none', () => {
-    mount([provideWrConfig({ inputOtp: { size: 'sm' } })]);
-
-    expect(host().className).toBe('wr-input-otp wr-input-otp--sm');
-  });
-
-  it('lets a bound size beat the configured one', () => {
-    const instance = mount([provideWrConfig({ inputOtp: { size: 'sm' } })]);
-    instance.size.set('lg');
+  it('turns a bound size into its modifier, and drops it again for md', () => {
+    const instance = mount();
+    instance.size.set('sm');
     fixture.detectChanges();
+    expect(host().className).toBe('wr-input-otp wr-input-otp--sm');
 
-    expect(host().classList.contains('wr-input-otp--lg')).toBe(true);
-    expect(host().classList.contains('wr-input-otp--sm')).toBe(false);
-  });
-
-  it('lets a bound `md` turn a configured size back to the default', () => {
-    // `md` is the value that renders NO modifier, so it is this control's
-    // equivalent of the bound `false` that has to escape a configured `true`:
-    // treated as an absence it would fall straight back to the config.
-    const instance = mount([provideWrConfig({ inputOtp: { size: 'lg' } })]);
     instance.size.set('md');
     fixture.detectChanges();
-
     expect(host().className).toBe('wr-input-otp');
   });
 
-  it('sizes the whole strip from one resolution, whatever the length', () => {
-    const instance = mount([provideWrConfig({ inputOtp: { size: 'lg' } })]);
+  it('sizes the whole strip from the host, whatever the length', () => {
+    const instance = mount();
+    instance.size.set('lg');
     instance.length.set(4);
     fixture.detectChanges();
 
@@ -308,26 +320,6 @@ describe('WrInputOtp defaults from provideWrConfig', () => {
     expect(host().classList.contains('wr-input-otp--lg')).toBe(true);
     expect(boxes()).toHaveLength(4);
     expect(boxes().every(box => box.className === 'wr-input-otp__cell')).toBe(true);
-  });
-
-  it('goes back to the config when a binding is cleared', () => {
-    const instance = mount([provideWrConfig({ inputOtp: { size: 'sm' } })]);
-    instance.size.set('lg');
-    fixture.detectChanges();
-    expect(host().classList.contains('wr-input-otp--lg')).toBe(true);
-
-    instance.size.set(null);
-    fixture.detectChanges();
-    expect(host().classList.contains('wr-input-otp--sm')).toBe(true);
-  });
-
-  it('ignores a config that names other components', () => {
-    // Including `input`, whose key governs `[wrInput]` fields — the boxes are
-    // plain inputs of this control's own, not `[wrInput]`s, so they must not
-    // follow it.
-    mount([provideWrConfig({ input: { size: 'sm' }, inputNumber: { size: 'lg' } })]);
-
-    expect(host().className).toBe('wr-input-otp');
   });
 });
 
@@ -417,6 +409,54 @@ describe('WrInputOtp names', () => {
     TestBed.configureTestingModule({});
 
     expect(groupName(mount(LabelledHost))).toBe('Код подтверждения');
+  });
+});
+
+describe('WrInputOtp when `length` shrinks', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  it('drops the characters it stopped showing from the value too', () => {
+    const boxes = (): HTMLInputElement[] => [
+      ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('input'),
+    ];
+
+    fixture.componentInstance.code.set('123456');
+    fixture.detectChanges();
+    expect(boxes()).toHaveLength(6);
+
+    fixture.componentInstance.length.set(4);
+    fixture.detectChanges();
+
+    // Four boxes showing `1234`, and the model agrees. It used to keep the
+    // six-character string: a form submitted a code the user could neither
+    // see nor correct, and nothing resynced until the next keystroke.
+    expect(boxes()).toHaveLength(4);
+    expect(
+      boxes()
+        .map(b => b.value)
+        .join('')
+    ).toBe('1234');
+    expect(fixture.componentInstance.code()).toBe('1234');
+  });
+
+  it('leaves a value alone when the resize throws nothing away', () => {
+    // Growing, and shrinking past empty cells, must not touch the model —
+    // the guard that keeps the first render from writing `''` over an
+    // incoming code before the value effect has split it.
+    fixture.componentInstance.code.set('12');
+    fixture.detectChanges();
+
+    fixture.componentInstance.length.set(4);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.code()).toBe('12');
   });
 });
 

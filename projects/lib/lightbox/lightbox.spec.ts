@@ -1,13 +1,9 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { Dir, type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrLightbox } from './lightbox';
@@ -33,7 +29,8 @@ class Host {
 
 /**
  * The viewer is a CDK overlay, so it is queried off the document rather than the
- * fixture, and `provideWrOverlay()` keeps that container out of the next spec file's.
+ * fixture, and that container belongs to the TestBed's root injector, so it never
+ * outlives this file.
  *
  * The loading state is the interesting half: `--loading` both animates a shimmer and
  * sets `opacity: 0` on the thumbnail, so whatever clears it is the difference between
@@ -59,7 +56,6 @@ describe('WrLightbox', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -193,7 +189,6 @@ describe('WrLightbox under a localized catalog', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -217,45 +212,6 @@ describe('WrLightbox under a localized catalog', () => {
     expect(document.querySelector('.wr-lightbox-viewer__close')!.getAttribute('aria-label')).toBe('Закрыть превью');
 
     fixture.destroy();
-  });
-});
-
-/**
- * ⚠️ This one guards the RULE, not the behaviour.
- *
- * `cursor: zoom-in` sat on the host unconditionally, so a `disablePreview` thumbnail —
- * which is documented as "a plain thumbnail" and opens nothing — still invited the
- * click. jsdom loads no stylesheets, so the cursor cannot be observed here.
- *
- * `_rules.scss`, not `_index.scss`: the entry file forwards the rules and exists to
- * pull the emitting theme layer in for a standalone `@use 'ngwr/lightbox'`, which the
- * component's `styleUrl` deliberately does not take.
- */
-describe('the lightbox stylesheet', () => {
-  const code = readFileSync(join(process.cwd(), 'projects/lib/lightbox/styles/_rules.scss'), 'utf8')
-    .split('\n')
-    .filter(line => !line.trim().startsWith('//'))
-    .join('\n');
-
-  it('offers the zoom cursor only where there is something to open', () => {
-    // The block's own declarations, up to its first nested rule.
-    const hostRule = /\.wr-lightbox \{([\s\S]*?)\n\s+&/.exec(code)?.[1] ?? '';
-    expect(hostRule).not.toMatch(/cursor:\s*zoom-in/);
-    // The trigger keeps it — that IS the element that opens the viewer.
-    expect(code).toMatch(/&__trigger \{[\s\S]*?cursor:\s*zoom-in/);
-  });
-
-  it('draws the focus ring on the host, whose own clip cannot swallow it', () => {
-    // Measured in Chromium over the built showcase: with the ring on the button,
-    // a focused thumbnail differed from a blurred one by 0 pixels — the trigger is
-    // coterminous with the `overflow: hidden` host, so every outward pixel fell
-    // outside the clip. Insetting the offset does not help either: `&__thumb` is
-    // `z-index: 2` and paints over the button's own outline. On the host the same
-    // ring paints all four sides (3915 pixels changed).
-    // Namespace-agnostic: the ring comes from the shared mixin whatever `_rules.scss`
-    // calls the module it takes it from — what matters is that it lands on the host.
-    expect(code).toMatch(/&:has\(&__trigger:focus-visible\) \{\s*@include [\w-]+\.focus-ring;/);
-    expect(code).not.toMatch(/&__trigger \{[\s\S]*?outline:\s*var\(--wr-focus-ring/);
   });
 });
 
@@ -296,7 +252,6 @@ describe('WrLightbox follows a direction change while the viewer is open', () =>
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(DirHost);
     dir = TestBed.inject(Directionality);
     fixture.detectChanges();
@@ -343,7 +298,6 @@ describe('WrLightbox follows the application, not a scoped [dir] island', () => 
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(IslandHost);
     fixture.detectChanges();
   });

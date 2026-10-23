@@ -1,0 +1,101 @@
+import { Component, signal } from '@angular/core';
+
+import { Moon, Settings, Sun } from 'lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
+
+import {
+  DocApiComponent,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+  type DocApiRow,
+} from '#core/components';
+import { API } from '#core/generated/api';
+
+@Component({
+  selector: 'ngwr-segmented-page',
+  templateUrl: './segmented.html',
+  imports: [WrSegmented, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  providers: [provideWrIcons(lucideIcons({ sun: Sun, moon: Moon, cog: Settings }))],
+})
+export default class SegmentedPageComponent {
+  protected readonly range = signal<string>('week');
+  protected readonly mode = signal<string>('light');
+
+  protected readonly rangeOptions: readonly WrSegmentedOption<string>[] = [
+    { value: 'day', label: 'Day' },
+    { value: 'week', label: 'Week' },
+    { value: 'month', label: 'Month' },
+    { value: 'year', label: 'Year' },
+  ];
+
+  protected readonly modeOptions: readonly WrSegmentedOption<string>[] = [
+    { value: 'light', label: 'Light', icon: 'sun' },
+    { value: 'dark', label: 'Dark', icon: 'moon' },
+    { value: 'system', label: 'System', icon: 'cog' },
+  ];
+
+  protected readonly snippets = {
+    basic: `<wr-segmented [options]="options" [(value)]="range" />`,
+    icons: `<wr-segmented
+  [options]="[
+    { value: 'light', label: 'Light', icon: 'sun' },
+    { value: 'dark', label: 'Dark', icon: 'moon' },
+  ]"
+  [(value)]="mode"
+/>`,
+    signalForms: `import { Component, signal } from '@angular/core';
+import { FormField, form, required } from '@angular/forms/signals';
+import { WrFormField } from 'ngwr/form';
+import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
+
+@Component({
+  selector: 'app-schedule',
+  imports: [FormField, WrFormField, WrSegmented],
+  template: \`
+    <wr-form-field label="Range">
+      <wr-segmented [options]="ranges" [formField]="schedule.range" />
+    </wr-form-field>
+  \`,
+})
+export class ScheduleComponent {
+  protected readonly ranges: readonly WrSegmentedOption<string>[] = [
+    { value: 'day', label: 'Day' },
+    { value: 'week', label: 'Week' },
+    { value: 'month', label: 'Month' },
+  ];
+
+  private readonly model = signal({ range: '' });
+  protected readonly schedule = form(this.model, path => {
+    required(path.range, { message: 'Pick a range.' });
+  });
+}`,
+  };
+
+  protected readonly api = API.WrSegmented;
+
+  protected readonly typeSnippet = `interface WrSegmentedOption<T = unknown> {
+  value: T;
+  label?: string;
+  icon?: WrIconName;
+  disabled?: boolean;
+  /** Accessible name for an icon-only segment, which has no text to read. */
+  ariaLabel?: string;
+}`;
+
+  protected readonly typeRows: readonly DocApiRow[] = [
+    {
+      name: 'ariaLabel',
+      description: 'Accessible name for an icon-only option. Falls back to `value`.',
+      type: 'string',
+      default: '—',
+    },
+    { name: 'WrSegmentedOption', description: 'One entry in the track.', type: 'interface' },
+    { name: 'value', description: 'Model value when this segment is picked.', type: 'T', required: true, sub: true },
+    { name: 'label', description: 'Visible text; omit for icon-only segments.', type: 'string', sub: true },
+    { name: 'icon', description: 'Leading icon.', type: 'WrIconName', sub: true },
+    { name: 'disabled', description: 'Disable this segment.', type: 'boolean', default: 'false', sub: true },
+  ];
+}

@@ -1,0 +1,59 @@
+<ngwr-doc-page
+  title="Line Chart"
+  updated="15.0.0"
+  description="One or more series of values as lines."
+  [keywords]="['line-chart', 'wr-line-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Multi-series">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-line-chart style="width: 100%" [series]="series" [xLabels]="xLabels" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Tooltip" description='`[tooltip]="false"` also hides the crosshair and markers.'>
+    <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
+        <div style="flex: 1 1 16rem; min-width: 0">
+          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">On (default)</p>
+          <wr-line-chart [series]="series" [xLabels]="xLabels" style="width: 100%" />
+        </div>
+        <div style="flex: 1 1 16rem; min-width: 0">
+          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+            <code>[tooltip]="false"</code>
+          </p>
+          <wr-line-chart [series]="series" [xLabels]="xLabels" [tooltip]="false" style="width: 100%" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Number format"
+    description="Numbers follow `LOCALE_ID`, with compact ticks. `valueFormat` replaces it on the axis and in the tooltip."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
+        <div style="flex: 1 1 16rem; min-width: 0">
+          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Default</p>
+          <wr-line-chart [series]="revenue" [xLabels]="xLabels" style="width: 100%" />
+        </div>
+        <div style="flex: 1 1 16rem; min-width: 0">
+          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+            <code>[valueFormat]="usd"</code>
+          </p>
+          <wr-line-chart [series]="revenue" [xLabels]="xLabels" [valueFormat]="usd" style="width: 100%" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

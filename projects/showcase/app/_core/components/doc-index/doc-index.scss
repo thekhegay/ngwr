@@ -1,5 +1,6 @@
 @use 'showcase/styles/a11y';
 @use 'showcase/styles/badge';
+@use 'showcase/styles/mixins' as site;
 
 .index {
   list-style: none;
@@ -26,11 +27,16 @@
     }
 
     &:focus-visible {
-      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
-      outline-offset: var(--wr-focus-ring-offset);
+      @include site.focus-ring;
     }
 
     &--disabled {
+      color: var(--wr-color-on-surface-muted);
+    }
+
+    // A tombstone: still a link, since its page says what replaced it, but
+    // quieter than every live row beside it.
+    &--removed {
       color: var(--wr-color-on-surface-muted);
     }
   }
@@ -50,6 +56,8 @@
     vertical-align: 0.0625rem;
     margin-inline-start: 0.375rem;
 
+    // `updated` and `removed` keep the quiet tone: only `new` is meant to pull
+    // the eye, and the word says which of the other two a row wears.
     &--new {
       @include badge.row-mark-new;
     }

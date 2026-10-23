@@ -1,0 +1,277 @@
+<ngwr-doc-page
+  title="Styles"
+  updated="15.0.0"
+  description="Pick a text style and see the tokens behind it."
+  [keywords]="['typography', 'type scale', 'font size', 'font weight', 'line height', 'tokens', 'typeset', 'prose']"
+>
+  <ngwr-doc-section
+    title="Text styles"
+    description="Set `variant` on `[wrTypography]`; each variant reads the tokens listed under it."
+  >
+    <div class="rows wr-not-typeset">
+      @for (row of styles; track row.variant) {
+        <div class="row">
+          <div class="label">
+            <code wrTypography variant="code">variant="{{ row.variant }}"</code>
+            <span wrTypography variant="small" tone="muted">{{ row.meaning }}</span>
+          </div>
+          <div class="body">
+            <div class="specimen" [attr.data-variant]="row.variant">
+              @switch (row.variant) {
+                @case ('code') {
+                  <code wrTypography variant="code">{{ row.sample }}</code>
+                }
+                @case ('link') {
+                  <a wrTypography variant="link" [routerLink]="overview">{{ row.sample }}</a>
+                }
+                @case ('list') {
+                  <ul wrTypography variant="list">
+                    <li>Standalone components</li>
+                    <li>Signal inputs</li>
+                  </ul>
+                }
+                @default {
+                  <p wrTypography class="specimen__line" [variant]="row.variant">{{ row.sample }}</p>
+                }
+              }
+            </div>
+            <div class="tokens">
+              @for (token of row.tokens; track token) {
+                <code wrTypography variant="code" tone="muted">{{ token }}</code>
+              }
+              @if (measured()[row.variant]; as value) {
+                <span wrTypography variant="caption" mono>{{ value }}</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tones"
+    description="`tone` changes the colour only, so the words still have to name the state."
+  >
+    <div class="rows wr-not-typeset">
+      @for (row of tones; track row.tone) {
+        <div class="row">
+          <div class="label">
+            <code wrTypography variant="code">tone="{{ row.tone }}"</code>
+            <span wrTypography variant="small" tone="muted">{{ row.meaning }}</span>
+          </div>
+          <div class="body">
+            <p wrTypography class="specimen" [tone]="row.tone">{{ row.sample }}</p>
+            <div class="tokens">
+              <code wrTypography variant="code" tone="muted">{{ row.token }}</code>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Hooks" description="Set a hook on an element or a container to restyle only there.">
+    <div class="rows wr-not-typeset">
+      @for (row of hooks; track row.token) {
+        <div class="row">
+          <div class="label">
+            <code wrTypography variant="code">{{ row.token }}</code>
+            <span wrTypography variant="small" tone="muted">{{ row.meaning }}</span>
+          </div>
+          <div class="body">
+            <div class="tokens">
+              <code wrTypography variant="code" tone="muted">{{ row.value }}</code>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Long-form text"
+    description="Put `.wr-typeset` on a container of plain HTML; mark anything inside that is not text `.wr-not-typeset`."
+  >
+    <div class="typeset-sample">
+      <h3>Release notes</h3>
+      <p>
+        Version 15 moves charts and bits into their own folders. <strong>Import paths change</strong>; component names
+        do not. The <a [routerLink]="overview">typography overview</a> has the rest.
+      </p>
+      <ul>
+        <li>Charts live under <code>ngwr/charts</code>.</li>
+        <li>Bits live under <code>ngwr/bits</code>.</li>
+      </ul>
+      <dl>
+        <dt>Entry point</dt>
+        <dd>A path you import from, such as <code>ngwr/button</code>.</dd>
+        <dt>Bit</dt>
+        <dd>An animation or visual effect, such as a text reveal.</dd>
+      </dl>
+      <p>Update with one command:</p>
+      <pre><code>ng update ngwr</code></pre>
+      <figure>
+        <img src="/icon.svg" alt="The ngwr mark" width="64" height="64" />
+        <figcaption>The mark, as a figure with a caption.</figcaption>
+      </figure>
+      <blockquote>Nothing to do if you only use form controls.</blockquote>
+    </div>
+
+    <p>Colour hooks, set on the container:</p>
+
+    <div class="rows wr-not-typeset">
+      @for (row of typeset; track row.token) {
+        <div class="row">
+          <div class="label">
+            <code wrTypography variant="code">{{ row.token }}</code>
+            <span wrTypography variant="small" tone="muted">{{ row.meaning }}</span>
+          </div>
+          <div class="body">
+            @if (row.line) {
+              <div class="specimen specimen--rule" [style.background]="`var(${row.token})`"></div>
+            } @else {
+              <p class="specimen" [style.color]="`var(${row.token})`">{{ row.sample }}</p>
+            }
+            <div class="tokens">
+              <code wrTypography variant="code" tone="muted">{{ typesetDefault(row.token) }}</code>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Size"
+    description="Each step has a matching `-leading`; control text sizes are in [Sizing](/guides/tokens/sizing)."
+  >
+    <div class="rows wr-not-typeset">
+      @for (row of sizes; track row.token) {
+        <div class="row">
+          <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
+          <div class="body">
+            <p
+              class="specimen specimen__line"
+              [attr.data-token]="row.token"
+              [style.font-size]="`var(${row.token})`"
+              [style.line-height]="`var(${row.token}-leading)`"
+            >
+              {{ sample }}
+            </p>
+            <div class="tokens">
+              <code wrTypography variant="code" tone="muted">{{ row.token }}-leading</code>
+              <ng-container *ngTemplateOutlet="extras; context: { $implicit: row }" />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Weight" description="Regular for body text, heavier for what the eye should find first.">
+    <div class="rows wr-not-typeset">
+      @for (row of weights; track row.token) {
+        <div class="row">
+          <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
+          <div class="body">
+            <p class="specimen specimen__line" [attr.data-token]="row.token" [style.font-weight]="`var(${row.token})`">
+              {{ sample }}
+            </p>
+            <div class="tokens"><ng-container *ngTemplateOutlet="extras; context: { $implicit: row }" /></div>
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Line height" description="Unitless; long paragraphs need more than short lines.">
+    <div class="rows wr-not-typeset">
+      @for (row of leading; track row.token) {
+        <div class="row">
+          <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
+          <div class="body">
+            <p
+              class="specimen specimen--paragraph"
+              [attr.data-token]="row.token"
+              [style.line-height]="`var(${row.token})`"
+            >
+              {{ paragraph }}
+            </p>
+            <div class="tokens"><ng-container *ngTemplateOutlet="extras; context: { $implicit: row }" /></div>
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Letter spacing" description="Tighten large headings, widen small uppercase labels.">
+    <div class="rows wr-not-typeset">
+      @for (row of tracking; track row.token) {
+        <div class="row">
+          <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
+          <div class="body">
+            <p
+              class="specimen specimen__line"
+              [attr.data-token]="row.token"
+              [style.letter-spacing]="`var(${row.token})`"
+            >
+              {{ sample }}
+            </p>
+            <div class="tokens"><ng-container *ngTemplateOutlet="extras; context: { $implicit: row }" /></div>
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Font family" description="System fonts by default; set these on `:root` to use your own.">
+    <div class="rows wr-not-typeset">
+      @for (row of families; track row.token) {
+        <div class="row">
+          <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
+          <div class="body">
+            <p class="specimen" [attr.data-token]="row.token" [style.font-family]="`var(${row.token})`">
+              {{ sample }} 0123456789
+            </p>
+            <div class="tokens"><ng-container *ngTemplateOutlet="extras; context: { $implicit: row }" /></div>
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Line breaking" description="Classes that change where a line breaks.">
+    <div class="rows wr-not-typeset">
+      @for (row of breaking; track row.utility) {
+        <div class="row">
+          <div class="label">
+            <code wrTypography variant="code">{{ row.utility }}</code>
+            <span wrTypography variant="small" tone="muted">{{ row.meaning }}</span>
+          </div>
+          <div class="body">
+            <p [class]="['specimen', 'specimen--paragraph', row.utility.slice(1)]">{{ paragraph }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+</ngwr-doc-page>
+
+<!-- The token and when to use it — the left column of every scale row. -->
+<ng-template #label let-row>
+  <div class="label">
+    <code wrTypography variant="code">{{ row.token }}</code>
+    <span wrTypography variant="small" tone="muted">{{ row.meaning }}</span>
+  </div>
+</ng-template>
+
+<!-- The utility class that applies the token, and the value it resolves to here. -->
+<ng-template #extras let-row>
+  @if (row.utility) {
+    <code wrTypography variant="code" tone="muted">{{ row.utility }}</code>
+  }
+  @if (measured()[row.token]; as value) {
+    <span wrTypography variant="caption" mono>{{ value }}</span>
+  }
+</ng-template>

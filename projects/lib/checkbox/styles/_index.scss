@@ -1,26 +1,42 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../icon/styles' as icon-styles; // WrIcon
+
 .wr-checkbox {
   --wr-checkbox-size: 1.125rem; // md box (18px)
   --wr-checkbox-radius: var(--wr-control-radius-md);
+  --wr-checkbox-font-family: var(--wr-font-family-base);
   --wr-checkbox-font-size: var(--wr-text-sm);
   --wr-checkbox-line-height: var(--wr-control-line-height-md);
+  --wr-checkbox-label-gap: var(--wr-space-sm);
   --wr-checkbox-bg: var(--wr-color-surface);
-  --wr-checkbox-border: var(--wr-color-outline);
+  --wr-checkbox-border: var(--wr-border-base);
   --wr-checkbox-mark: transparent;
   --wr-checkbox-color: var(--wr-color-on-surface);
 
   display: inline-flex;
   vertical-align: middle;
   color: var(--wr-checkbox-color);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-checkbox-font-family);
   font-size: var(--wr-checkbox-font-size);
   line-height: var(--wr-checkbox-line-height);
 
   &__label {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--wr-checkbox-label-gap);
     cursor: pointer;
     user-select: none;
   }
@@ -52,7 +68,10 @@
     border: 1px solid var(--wr-checkbox-border);
     border-radius: var(--wr-checkbox-radius);
     color: var(--wr-checkbox-mark);
-    transition: var(--wr-transition-base);
+    transition:
+      background var(--wr-transition-base),
+      border-color var(--wr-transition-base),
+      color var(--wr-transition-base);
   }
 
   &__mark,
@@ -94,9 +113,6 @@
     --wr-checkbox-line-height: var(--wr-control-line-height-lg);
   }
 
-  // color-ok: the cue is the tick arriving — `.wr-checkbox__mark` (or a custom
-  // `__icon`) goes from `opacity: 0` at 70% scale to full in the nested rule
-  // below. The fill only backs it.
   &--checked {
     --wr-checkbox-bg: var(--wr-color-primary);
     --wr-checkbox-border: var(--wr-color-primary);
@@ -112,7 +128,6 @@
   // Indeterminate: same filled box as checked, but reveals the dash. Takes
   // visual precedence over `--checked` (the two classes are mutually exclusive
   // in the host binding).
-  // color-ok: the dash arriving is the cue, as the tick is for `--checked`.
   &--indeterminate {
     --wr-checkbox-bg: var(--wr-color-primary);
     --wr-checkbox-border: var(--wr-color-primary);
@@ -139,7 +154,9 @@
 }
 
 .wr-checkbox-group {
+  --wr-checkbox-group-gap: var(--wr-space-sm);
+
   display: inline-flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--wr-checkbox-group-gap);
 }

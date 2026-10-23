@@ -1,54 +1,26 @@
-.grid-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-
-  th,
-  td {
-    text-align: left;
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--wr-color-light);
-  }
-
-  th {
-    color: var(--wr-color-on-surface-muted);
-    font-size: 0.6875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  code {
-    font-family: var(--wr-font-family-mono);
-    font-size: 0.75rem;
-    background: rgba(var(--wr-color-light-rgb), 0.4);
-    padding: 0.125rem 0.375rem;
-    border-radius: var(--wr-border-radius-sm);
-  }
-}
-
 .grid-demo {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   padding: 1rem;
-  // A grid item's automatic minimum size is its min-content width, so a row of
-  // twelve `.col-1` cells cannot shrink below twelve `.col-1` labels plus the
-  // eleven gutters between them — 802px, against a 311px row on a phone. The
-  // tracks then overflowed the row, the card and the document (+459px at 375,
-  // +298px at 768). Scroll the demo instead of the page; `overflow-x` also
-  // resolves this box's OWN `min-width: auto` to zero, so it collapses into the
-  // content column rather than widening it.
+  // The columns fit any row since `ngwr/grid` gave its tracks a zero minimum, so
+  // twelve `.col-1` LABELS no longer fit twelve columns on a phone: each cell is
+  // ~12px wide there and the text would spill across its neighbours. The rows
+  // keep the width the labels need and the demo scrolls instead of the page;
+  // `overflow-x` also resolves this box's OWN `min-width: auto` to zero, so it
+  // collapses into the content column rather than widening it.
   overflow-x: auto;
-  background: rgba(var(--wr-color-light-rgb), 0.15);
+  background: var(--wr-color-fill-subtle);
   border-radius: var(--wr-border-radius-base);
 
   &__row {
     width: 100%;
+    // Twelve `.col-1` labels plus eleven gutters.
+    min-width: 50rem;
   }
 
   &__cell {
-    background: rgba(var(--wr-color-primary-rgb), 0.1);
+    background: color-mix(in srgb, var(--wr-color-primary) 10%, transparent);
     // The role token, not an intent. 12px mono needs 4.5:1, and against this
     // tint the ink ramp reaches 4.49 — AA by one hundredth, which is a coin
     // toss the next token tweak decides rather than a margin. `-dark` clears

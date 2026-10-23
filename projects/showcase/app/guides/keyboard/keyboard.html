@@ -1,71 +1,31 @@
 <ngwr-doc-page
   title="Keyboard"
-  description="Shortcuts, keycaps and key primitives live in three separate entry points — `ngwr/hotkey`, `ngwr/keyboard` and `ngwr/utils` — because they have nothing to do with each other at runtime. One task usually needs all three, so this page walks the whole job end to end: bind a chord, show the hint, handle the leftovers yourself."
-  [keywords]="['keyboard', 'hotkey', 'shortcut', 'kbd', 'keys', 'tutorial']"
+  description="Bind shortcuts, show them as keycaps, and see which keys each component handles."
+  [keywords]="['keyboard', 'hotkey', 'shortcut', 'kbd', 'keys']"
   [labels]="['Core']"
 >
   <ngwr-doc-section
-    title="Bind a chord"
-    description="Two forms of the same registry. The directive is the usual one — bind it where the action lives. Reach for the service when the binding has no element to hang on, or when you need to add and remove it dynamically."
+    title="Bind a shortcut"
+    description="Global by default, or `scoped` to the host; `mod` is ⌘ on macOS and Ctrl elsewhere."
   >
-    <ngwr-doc-code [code]="snippets.declarative" language="angular-html" />
-    <ngwr-doc-code [code]="snippets.imperative" language="angular-ts" />
-
-    <p wrTypography variant="small" tone="medium">
-      Specs are written as <code>mod+k</code>, <code>shift+/</code>, <code>escape</code>.
-      <strong><code>mod</code></strong> is the point of the whole notation: it resolves to <kbd>⌘</kbd> on macOS and
-      <kbd>Ctrl</kbd> everywhere else, so you write the binding once instead of branching on the platform.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Global or scoped"
-    description="Both forms are GLOBAL by default — the listener sits on the document, not on the host. Pass `scoped` to narrow it to the element."
-  >
-    <ngwr-doc-snippet
-      title="Try it"
-      description="This box is scoped: click inside it, then press `escape`. Outside it, nothing happens."
-    >
-      <div
-        tabindex="0"
-        wrHotkey="escape"
-        [scoped]="true"
-        (wrHotkeyMatch)="hits.set(hits() + 1)"
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          min-height: 5rem;
-          border-radius: var(--wr-border-radius-base);
-          box-shadow: inset 0 0 0 1px var(--wr-color-border);
-        "
-      >
+    <ngwr-doc-snippet [code]="snippets.declarative" language="angular-html">
+      <div class="keyboard-demo" tabindex="0" wrHotkey="escape" [scoped]="true" (wrHotkeyMatch)="hits.set(hits() + 1)">
         <span>Focus me, then press</span>
         <wr-kbd>Esc</wr-kbd>
         <span>— caught {{ hits() }}×</span>
       </div>
     </ngwr-doc-snippet>
 
-    <p wrTypography variant="small" tone="medium">
-      Typing never fires a shortcut: while an <code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code> or
-      contenteditable has focus, bindings are skipped unless you opt in with <code>allowInInput</code>.
-    </p>
+    <ngwr-doc-code [code]="snippets.imperative" language="angular-ts" />
 
     <ngwr-doc-api [rows]="bindingApi" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Show the hint"
-    description="A shortcut nobody can see is a shortcut nobody uses. `<wr-kbd>` is a presentational keycap — one chip per key — and knows nothing about the registry."
-  >
-    <ngwr-doc-code [code]="snippets.hint" language="angular-html" />
-
-    <ngwr-doc-snippet title="Keycaps" description="One chip per key; combine them for a chord.">
+  <ngwr-doc-section title="Show the keys" description="`<wr-kbd>` draws one keycap per key.">
+    <ngwr-doc-snippet [code]="snippets.hint" language="angular-html">
       <div style="display: flex; align-items: center; gap: 0.375rem">
         <wr-kbd>⌘</wr-kbd>
         <wr-kbd>K</wr-kbd>
-        <span wrTypography variant="small" tone="medium">or</span>
         <wr-kbd size="sm">Ctrl</wr-kbd>
         <wr-kbd size="sm">K</wr-kbd>
       </div>
@@ -73,89 +33,77 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Handle the rest yourself"
-    description="Chords are the easy half. Type-ahead, arrow navigation and “ignore the browser’s own shortcuts” are plain `keydown` handlers — ngwr ships three small primitives for writing them."
+    title="Handle keys yourself"
+    description="Helpers from `ngwr/utils` for your own `keydown` handlers."
   >
     <ngwr-doc-code [code]="snippets.keys" language="angular-ts" />
 
-    <p wrTypography variant="small" tone="medium">
-      <a routerLink="/reference/utils/keys">KEYS</a> spells the <code>KeyboardEvent.key</code> values correctly, so a
-      typo like <code>'Esacpe'</code> is a compile error rather than a handler that never fires;
-      <a routerLink="/reference/utils/has-modifier">hasModifier</a> is how you avoid stealing <kbd>⌘C</kbd>;
-      <a routerLink="/reference/utils/is-printable-key">isPrintableKey</a> separates “the user typed a character” from
-      “the user pressed F5”.
-    </p>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Helper</th>
+            <th scope="col">Use</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (helper of helpers; track helper.name) {
+            <tr>
+              <th scope="row">
+                <a [routerLink]="helper.url"
+                  ><code>{{ helper.name }}</code></a
+                >
+              </th>
+              <td>{{ helper.use }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="What the components already do"
-    description="Every interactive component follows its WAI-ARIA APG pattern, and until now that was a claim rather than a contract you could write a test against. Here it is, one table per focused element, read off each component's own `keydown` handler. Nothing below needs configuring — it is what the component does out of the box."
-  >
-    <p wrTypography variant="small" tone="medium">
-      Two conventions run through all of it. <strong>Arrows that name a side of the screen mirror under</strong>
-      <code>dir="rtl"</code> — the tab strip, the calendar grid, the tree and a context menu's cascade all swap
-      ArrowLeft and ArrowRight, while <wr-kbd size="sm">Home</wr-kbd> and <wr-kbd size="sm">End</wr-kbd> name a position
-      and never do. And <strong>a composite widget is ONE tab stop</strong>: the arrows rove inside it, so tabbing
-      through a month does not mean tabbing through 42 cells. The exception is
-      <a routerLink="/reference/components/pagination">pagination</a>, and it is deliberate — a pager is a landmark of
-      independent destinations, not a composite.
-    </p>
+  <ngwr-doc-section title="What the components handle" description="Built in, nothing to configure.">
+    <ul>
+      <li>A composite widget is one tab stop; the arrows move inside it.</li>
+      <li>Left and right arrows swap under <code>dir="rtl"</code>; Home and End do not.</li>
+    </ul>
 
-    <p wrTypography variant="small" tone="medium">
-      These tables are about KEYS. Where focus lands when an overlay opens, and where it goes back to for each of the
-      four ways of closing one, is the other half —
-      <a routerLink="/guides/overlay">the overlay guide</a> owns that, so the two are not maintained twice.
-    </p>
-
-    @for (table of contracts; track table.title) {
-      <h3 wrTypography variant="h6">{{ table.title }}</h3>
-      <div class="ngwr-keys">
-        <table>
-          <caption>
-            {{
-              table.caption
-            }}
-          </caption>
-          <thead>
+    <div class="ngwr-table ngwr-keys">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Component</th>
+            <th scope="col">Keys</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (contract of contracts; track contract.component) {
             <tr>
-              <th scope="col">Key</th>
-              <th scope="col">Does</th>
-              <th scope="col">When</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of table.rows; track row.does + row.when) {
-              <tr>
-                <td>
-                  @for (key of row.keys; track key; let last = $last) {
-                    <wr-kbd size="sm">{{ key }}</wr-kbd>
-                    @if (!last) {
-                      <span class="ngwr-keys__or">/</span>
+              <th scope="row">
+                <a [routerLink]="contract.url">{{ contract.component }}</a>
+              </th>
+              <td>
+                @for (row of contract.rows; track row.does) {
+                  <div>
+                    @for (key of row.keys; track key) {
+                      <wr-kbd size="sm">{{ key }}</wr-kbd>
                     }
-                  }
-                </td>
-                <td [innerHTML]="row.does | wrDocRich"></td>
-                <td>
-                  @if (row.when) {
-                    <span [innerHTML]="row.when | wrDocRich"></span>
-                  } @else {
-                    <span aria-hidden="true">—</span>
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
+                    <span [innerHTML]="row.does | wrDocRich"></span>
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
-    <p wrTypography variant="small" tone="medium">
-      Five more components document their own grid on their own page, because the keys mean something only next to the
-      thing they move: <a routerLink="/reference/components/calendar">calendar</a>,
+    <p>
+      <a routerLink="/reference/components/calendar">Calendar</a>,
       <a routerLink="/reference/components/event-calendar">event calendar</a>,
-      <a routerLink="/reference/components/date-picker">date picker</a> (whose popup IS a calendar),
+      <a routerLink="/reference/components/date-picker">date picker</a>,
       <a routerLink="/reference/components/image-cropper">image cropper</a> and
-      <a routerLink="/reference/components/editor">editor</a>.
+      <a routerLink="/reference/components/editor">editor</a> list their keys on their own pages.
     </p>
   </ngwr-doc-section>
 

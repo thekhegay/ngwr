@@ -79,6 +79,7 @@ export const wrEs: WrI18nCatalog = {
   },
   stepper: {
     optional: 'opcional',
+    completed: 'completado',
   },
   transfer: {
     source: 'Disponibles',
@@ -93,29 +94,6 @@ export const wrEs: WrI18nCatalog = {
   },
   form: {
     optional: 'opcional',
-  },
-  validation: {
-    required: 'Este campo es obligatorio.',
-    requiredTrue: 'Es necesario marcar esta casilla.',
-    email: 'La dirección de correo no es válida.',
-    minlength: 'Número mínimo de caracteres: {{requiredLength}}.',
-    maxlength: 'Número máximo de caracteres: {{requiredLength}}.',
-    min: 'El valor mínimo es {{min}}.',
-    max: 'El valor máximo es {{max}}.',
-    pattern: 'El valor no tiene el formato esperado.',
-    noWhitespace: 'El valor no puede contener espacios.',
-    hexColor: 'El color debe ser hexadecimal, p. ej. #1a2b3c.',
-    url: 'La dirección URL no es válida.',
-    cardNumber: 'El número de tarjeta no es válido.',
-    cvc: 'Longitud del código de seguridad: {{length}}.',
-    iban: 'El IBAN no es válido.',
-    match: 'Los dos valores no coinciden.',
-    matchFields: 'Los campos no coinciden.',
-    oneOf: 'Debe ser uno de los valores permitidos.',
-    minDate: 'La fecha debe ser posterior.',
-    maxDate: 'La fecha debe ser anterior.',
-    dateFormat: 'Formato esperado: {{example}}',
-    dateFilter: 'Esta fecha no está disponible.',
   },
   select: {
     label: 'Seleccionar',
@@ -243,13 +221,15 @@ export const wrEs: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Gráfico de barras',
+  },
   calendarHeatmap: {
     label: 'Mapa de calor del calendario',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Gráfico de líneas',
-    thousands: '{{value}} k',
   },
   donutChart: {
     label: 'Gráfico de anillo',
@@ -265,9 +245,6 @@ export const wrEs: WrI18nCatalog = {
     pagination: 'Paginación del carrusel',
     roledescription: 'carrusel',
     slideRoledescription: 'diapositiva',
-  },
-  actionSheet: {
-    label: 'Acciones',
   },
   alert: {
     close: 'Cerrar la alerta',
@@ -296,12 +273,6 @@ export const wrEs: WrI18nCatalog = {
   },
   popover: {
     label: 'Panel emergente',
-  },
-  markdown: {
-    copy: 'Copiar código',
-    copied: 'Copiado',
-    taskDone: 'Hecho:',
-    taskTodo: 'Pendiente:',
   },
   editor: {
     label: 'Texto enriquecido',
@@ -373,6 +344,9 @@ export const wrEs: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Barra lateral',
+    containsCurrent: 'contiene la página actual',
+    subpages: 'Subpáginas de {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Cargando',

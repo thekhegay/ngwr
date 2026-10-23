@@ -1,0 +1,36 @@
+<ngwr-doc-page
+  title="Falling Text"
+  updated="15.0.0"
+  description="Words that fall like objects and can be dragged around."
+  [keywords]="['falling-text', 'wr-falling-text', 'text animation', 'physics', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="falling-text" category="text-animations" />
+
+  <ngwr-doc-section title="Playground" description="Give it a height; the words fall to its bottom edge.">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls" [showReplay]="true" (replay)="replay()">
+      @for (k of [replayKey()]; track k) {
+        <wr-falling-text
+          [text]="text()"
+          [trigger]="trigger()"
+          [gravity]="gravity()"
+          [highlightWords]="highlightWords"
+          [fontSize]="fontSize()"
+          style="
+            display: block;
+            width: 100%;
+            height: 18rem;
+            background: var(--wr-color-fill-subtle);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            line-height: 1.4;
+          "
+        />
+      }
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

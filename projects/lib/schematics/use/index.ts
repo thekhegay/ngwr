@@ -7,10 +7,12 @@
 
 import type { Rule } from '@angular-devkit/schematics';
 
+import { shippedExports } from '../utility/global-styles';
+
 import { useRule } from './rule';
 import type { Schema } from './schema';
 
-// Bundled at build time by `scripts/build-symbol-map.ts`. Map of every
+// Generated at build time by `scripts/build/schematics.ts`. Map of every
 // `Wr*` public symbol → the subpath it lives under.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const SYMBOL_MAP = require('./symbol-map.json') as Record<string, string>;
@@ -26,7 +28,7 @@ const SYMBOL_MAP = require('./symbol-map.json') as Record<string, string>;
  * one un-runnable line instead of the whole schematic.
  */
 function use(options: Schema): Rule {
-  return useRule(options, SYMBOL_MAP);
+  return useRule(options, SYMBOL_MAP, shippedExports());
 }
 
 export default use;

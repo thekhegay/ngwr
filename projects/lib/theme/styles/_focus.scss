@@ -41,10 +41,33 @@
   @include focus-ring;
 }
 
-// Table column-sort control — a bare `<button>` inside `.wr-table__th-inner`,
-// with no focus style of its own.
-.wr-table__sort-btn:focus-visible {
+// Table controls — every one a bare `<button>` with no focus style of its own:
+// the column sort and the filter funnel beside it in `.wr-table__th-inner`, the
+// row-expansion chevron, the group band's toggle and the tree row's toggle. Each
+// sits inside a cell's padding, which is wider than the ring's 4px reach, so the
+// ring stays OUTSET even where a fixed-layout cell clips its overflow.
+.wr-table__sort-btn:focus-visible,
+.wr-table-filter__trigger:focus-visible,
+.wr-table__expand-btn:focus-visible,
+.wr-table__group-toggle:focus-visible,
+.wr-table__tree-toggle:focus-visible {
   @include focus-ring;
+}
+
+// Virtualized table body — the scroller takes a tab stop of its own so the
+// keyboard can scroll it. The ring is MOVED to the table's frame, the way
+// `wr-lightbox` moves its trigger's: the scroller runs flush to the host's
+// border and the host is `overflow: hidden`, so an outset ring is clipped away,
+// and an inset one loses its top stroke under the sticky header, which paints
+// an opaque background over it. An element's outline is not clipped by its own
+// `overflow`, so the frame draws a whole ring. The scroller's own `outline: none`
+// only keeps the UA ring from leaking through in a second colour.
+.wr-table:has(> .wr-table__scroll:focus-visible) {
+  @include focus-ring;
+}
+
+.wr-table__scroll:focus-visible {
+  outline: none;
 }
 
 // Tabs — `.wr-tabs__strip` is `overflow-y: hidden` (to suppress a stray
@@ -55,16 +78,19 @@
   outline-offset: -2px;
 }
 
-// Sidebar
-.wr-sidebar__entry:focus-visible,
-.wr-sidebar__group-toggle:focus-visible {
+// Tab panel — a tab stop of its own (`tabindex="0"`), so a keyboard user can
+// reach a panel with nothing focusable inside it. Safe as an OUTSET ring: the
+// strip above it is transparent, and the panel sets no `overflow`.
+.wr-tabs__panel:focus-visible {
   @include focus-ring;
 }
 
-// `.wr-sidebar__group-body` is `overflow: hidden` so the group can animate
-// `grid-template-rows` from 1fr to 0fr, and the item runs flush to its inline
-// end — an outset ring loses its whole inline-end stroke there.
-.wr-sidebar__item:focus-visible {
+// Sidebar — inset on every level. `.wr-sidebar__group-body` is `overflow: hidden`
+// so the group can animate `grid-template-rows` from 1fr to 0fr, and a nested row
+// runs flush to its inline end, so an outset ring loses its inline-end stroke
+// there; level 1 takes the same ring so the three levels draw one shape.
+.wr-sidebar__row:focus-visible,
+.wr-sidebar__toggle:focus-visible {
   @include focus-ring;
   outline-offset: -2px;
 }
@@ -136,8 +162,9 @@
   @include focus-ring;
 }
 
-// Stepper step headers
-.wr-stepper__header:focus-visible {
+// Stepper step headers — the BUTTON inside each `<li class="wr-stepper__header">`
+// is what takes focus; a ring keyed on the `<li>` never matched anything.
+.wr-stepper__header-button:focus-visible {
   @include focus-ring;
 }
 
@@ -169,5 +196,69 @@
 // scrolling it needs to see where focus is. Safe as an OUTSET ring: the outline
 // sits outside the scroller's own box, and `.wr-graph` sets no `overflow`.
 .wr-graph__viewport:focus-visible {
+  @include focus-ring;
+}
+
+// Pull to refresh — the host is the scroller, and a list of plain rows leaves
+// it the only thing a keyboard user can focus to scroll. An element's own
+// `overflow` does not clip its outline, so the ring stays OUTSET.
+.wr-pull-to-refresh:focus-visible {
+  @include focus-ring;
+}
+
+// Tree expand toggle — `tabindex="-1"`, so Tab never lands on it, but a click
+// does, and Enter or Space then toggles it again: the next key makes it
+// `:focus-visible`, and it has to say so. It sits in the row's padding, which
+// is wider than the ring's reach.
+.wr-tree__toggle:focus-visible {
+  @include focus-ring;
+}
+
+// Colour picker — the SV canvas and the hue / alpha tracks are the picker's
+// keyboard surfaces. The picker's padding and the gap between them are both
+// wider than the ring's reach, so it stays OUTSET.
+.wr-color-picker__sv:focus-visible,
+.wr-color-picker__slider:focus-visible {
+  @include focus-ring;
+}
+
+// Password reveal — the button runs flush to the group's inline end and its
+// full height, so an outset ring would draw over the group's own border and
+// focus glow.
+.wr-input-group__toggle:focus-visible {
+  @include focus-ring;
+  outline-offset: -2px;
+}
+
+// Number steppers — `tabindex="-1"`, reached by a click the way the tree toggle
+// is. The square column is `overflow: hidden` to round its outer corners, which
+// cuts an outset ring away on every side.
+.wr-input-number__step:focus-visible {
+  @include focus-ring;
+  outline-offset: -2px;
+}
+
+// File upload — the drop zone is the control (`role="button"`); its border tint
+// on focus is the same as on hover, so it said nothing on its own.
+.wr-file-upload__zone:focus-visible,
+.wr-file-upload__remove:focus-visible {
+  @include focus-ring;
+}
+
+// Event calendar "+N more" — the cells and chips draw rings of their own. The
+// grid lines are each cell's positioned `::after`, which paints over a
+// non-positioned button: the ring's outer edge lands on the cell's bottom line
+// and lost that pixel, and a phone-width button overflowing into the next cell
+// was crossed by its line too. `relative` with no offsets moves nothing, and
+// `z-index: 1` paints the button after every cell's lines, as a chip's does.
+.wr-event-calendar__more:focus-visible {
+  @include focus-ring;
+  position: relative;
+  z-index: 1;
+}
+
+// Star border used as a button or a link (`<button wr-star-border>`). The host
+// is `overflow: hidden` to clip the comets, which does not clip its own outline.
+.wr-star-border:focus-visible {
   @include focus-ring;
 }

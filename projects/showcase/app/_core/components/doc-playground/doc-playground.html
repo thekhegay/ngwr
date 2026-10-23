@@ -1,21 +1,6 @@
 <div class="card">
   <div class="preview">
     <ng-content />
-    @if (canOpenSandbox()) {
-      <button
-        class="sandbox"
-        type="button"
-        aria-label="Open this example in StackBlitz"
-        title="Open in StackBlitz"
-        [class.sandbox--alone]="!showReplay()"
-        [disabled]="sandbox.busy()"
-        (pointerenter)="sandbox.preload()"
-        (focus)="sandbox.preload()"
-        (click)="openSandbox()"
-      >
-        <wr-icon name="stackblitz" />
-      </button>
-    }
     @if (showReplay()) {
       <button class="replay" type="button" (click)="onReplayClick()" aria-label="Replay animation" title="Replay">
         <svg
@@ -36,7 +21,7 @@
     }
   </div>
   @if (hasCode()) {
-    <ngwr-doc-code class="code" [code]="code()" [language]="language()" [files]="files()" />
+    <ngwr-doc-code class="code" [code]="code()" [language]="language()" [files]="resolvedFiles()" />
   }
 </div>
 
@@ -114,7 +99,7 @@
               [swatches]="ctrl.swatches ?? []"
               wrColorPickerTrigger
             >
-              <span class="chip__color-swatch" [style.background]="ctrl.signal()"></span>
+              <span class="chip__color-swatch" [style.backgroundColor]="ctrl.signal()"></span>
               <span class="chip__color-value">{{ ctrl.signal() }}</span>
             </button>
           }

@@ -1,0 +1,120 @@
+<ngwr-doc-page
+  title="Toast"
+  updated="15.0.0"
+  description="Short notifications that stack in a corner of the screen."
+  [keywords]="['toast', 'notification', 'wr-toast']"
+  [labels]="['Service', 'CDK Overlay']"
+>
+  <ngwr-doc-section
+    title="Global config"
+    description="Set defaults once with `withToast()` in `provideWr()`. Fields you omit keep the library default."
+  >
+    <ngwr-doc-code [code]="snippets.config" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Show a toast" description="`show()` opens a toast and returns a ref with `dismiss()`.">
+    <ngwr-doc-code [code]="snippets.show" language="angular-ts" />
+
+    <ngwr-doc-snippet code="toast.show(...)">
+      <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.75rem">
+        <wr-checkbox [(checked)]="showProgress">Show progress</wr-checkbox>
+        <wr-checkbox [(checked)]="showCopy">Show copy button</wr-checkbox>
+      </div>
+
+      <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap">
+        <wr-btn (click)="fire('info')">Info</wr-btn>
+        <wr-btn color="success" (click)="fire('success')">Success</wr-btn>
+        <wr-btn color="warning" (click)="fire('warning')">Warning</wr-btn>
+        <wr-btn color="danger" (click)="fire('danger')">Danger</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Per-toast overrides" description="`show()` takes every field of the global config.">
+    <ngwr-doc-code [code]="snippets.overrides" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="fireCopy()">Show with copy button</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Close all"
+    description="“Close all” appears once `closeAllThreshold` toasts are open; in `stack` mode, when the stack is expanded."
+  >
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="fireStack()">Open 3 toasts</wr-btn>
+      <wr-btn outlined (click)="dismissAll()">Dismiss all programmatically</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Persistent toast"
+    description="`duration: 0` turns off auto-dismiss and hides the progress bar."
+  >
+    <ngwr-doc-code [code]="snippets.persistent" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn color="warning" (click)="firePersistent()">Open persistent</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Layout mode"
+    description="`stack` (default) piles toasts up and fans them out on hover; `list` shows a column. Set it with `withToast({ mode })` or `setMode()`."
+  >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap">
+        <wr-segmented [options]="modeOptions" [value]="mode()" (valueChange)="$event && onModeChange($event)" />
+        <wr-btn (click)="fireStack()">Open 3 toasts</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Position"
+    description="All toasts share one stack, so a per-call `position` moves the whole stack."
+  >
+    <ngwr-doc-code [code]="snippets.position" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap">
+        <wr-segmented [options]="positionOptions" [value]="position()" (valueChange)="onPositionChange($event)" />
+        <wr-btn (click)="firePosition()">Fire here</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard"
+    description="Focus inside the stack pauses every countdown, and expands a collapsed stack so “Close all” can be reached."
+  >
+    <p>
+      Since v15, closing a toast from the keyboard moves focus to the Close button of the toast that takes its place,
+      else the one before it. Closing the last one returns focus to where it was before it entered the stack.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Lifetime and scope"
+    description="A toast outlives the component that raised it and survives navigation. Keep the ref to remove it early."
+  >
+    <ngwr-doc-code [code]="snippets.scope" language="typescript" />
+    <p>
+      <code>withToast()</code> in a route's <code>providers</code> is ignored: set it at bootstrap, or pass the value
+      per call.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Service API">
+    <ngwr-doc-api [rows]="serviceApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrToastOptions"
+    description="Per-call options for `show()`. Omitted fields fall back to `WrToastConfig`."
+  >
+    <ngwr-doc-api [rows]="optionsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrToastConfig" description="Set once with `withToast()`.">
+    <ngwr-doc-api [rows]="configApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

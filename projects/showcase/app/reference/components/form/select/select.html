@@ -1,0 +1,337 @@
+<ngwr-doc-page
+  title="Select"
+  updated="15.0.0"
+  description="Pick one or several values from a list, with search and free-text tags."
+  [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
+  [labels]="['Component', 'CDK Overlay']"
+>
+  <ngwr-doc-section title="Basic usage" description="`[(value)]` holds the picked option's `value`.">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-select placeholder="Pick a size" [(value)]="size">
+          <wr-option value="sm">Small</wr-option>
+          <wr-option value="md">Medium</wr-option>
+          <wr-option value="lg">Large</wr-option>
+          <wr-option value="xl" disabled>Extra large — out of stock</wr-option>
+        </wr-select>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ size() ?? 'none' }}</span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Groups" description="Label related options with `<wr-option-group>`.">
+    <ngwr-doc-snippet [code]="snippets.groups">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-select [(value)]="framework">
+          <wr-option-group label="Frontend">
+            <wr-option value="angular">Angular</wr-option>
+            <wr-option value="react">React</wr-option>
+            <wr-option value="vue">Vue</wr-option>
+          </wr-option-group>
+          <wr-option-group label="Backend">
+            <wr-option value="nest">NestJS</wr-option>
+            <wr-option value="fastify">Fastify</wr-option>
+          </wr-option-group>
+        </wr-select>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem"
+          >Value: {{ framework() ?? 'none' }}</span
+        >
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled">
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <wr-select placeholder="Disabled" disabled />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Width"
+    description="A select is `10rem` wide by default. Change that with `--wr-select-min-width`; a `min-width` on `.wr-select__trigger` has no effect."
+  />
+
+  <ngwr-doc-section
+    title="Multi mode"
+    description="The `multi` mode makes the value an array, shown as chips. `clearable` adds a clear-all button."
+  >
+    <ngwr-doc-snippet [code]="snippets.multi">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
+        <wr-select mode="multi" clearable placeholder="Pick tags" [(value)]="tags">
+          <wr-option value="typescript">TypeScript</wr-option>
+          <wr-option value="angular">Angular</wr-option>
+          <wr-option value="rxjs">RxJS</wr-option>
+          <wr-option value="signals">Signals</wr-option>
+        </wr-select>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ tags() | json }}</span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Chip overflow + max items"
+    description="`[maxTagCount]` folds extra chips into `+N more`; `[maxItems]` caps how many can be picked."
+  >
+    <ngwr-doc-snippet [code]="snippets.multiOverflow">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
+        <wr-select mode="multi" [maxTagCount]="2" [maxItems]="4" [(value)]="manyTags">
+          <wr-option value="typescript">TypeScript</wr-option>
+          <wr-option value="angular">Angular</wr-option>
+          <wr-option value="rxjs">RxJS</wr-option>
+          <wr-option value="signals">Signals</wr-option>
+          <wr-option value="cdk">CDK</wr-option>
+          <wr-option value="ssr">SSR</wr-option>
+        </wr-select>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ manyTags() | json }}</span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Search mode"
+    description="The `search` mode filters the options as you type. `clearable` adds a clear button and lets Backspace clear the value."
+  >
+    <ngwr-doc-snippet [code]="snippets.search">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
+        <wr-select mode="search" clearable placeholder="Search a country" [(value)]="country">
+          @for (c of countries; track c) {
+            <wr-option [value]="c">{{ c }}</wr-option>
+          }
+        </wr-select>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Picked: <code>{{ country() ?? '—' }}</code>
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Searchable multi-select"
+    description="Add `searchable` to `multi` for a filter field beside the chips."
+  >
+    <ngwr-doc-snippet [code]="snippets.searchableMulti">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
+        <wr-select mode="multi" searchable placeholder="Filter categories" [(value)]="categories">
+          @for (c of allCategories; track c) {
+            <wr-option [value]="c">{{ c }}</wr-option>
+          }
+        </wr-select>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem"
+          >Value: {{ categories() | json }}</span
+        >
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Leading visuals and an explicit label"
+    description="Put an avatar or icon in an `<ng-template wrOptionLeading>`, not straight into the option. Set `label` when the row shows more than the name."
+  >
+    <ngwr-doc-code [code]="snippets.leading" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.leadingTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 28rem">
+        <wr-select placeholder="Assign to" ariaLabel="Assignee" [(value)]="assignee">
+          @for (p of people; track p.id) {
+            <wr-option [value]="p.id" [label]="p.name">
+              <ng-template wrOptionLeading let-placement="placement">
+                <wr-avatar
+                  style="background: var(--wr-color-primary-soft); color: var(--wr-color-primary-ink); font-weight: 600"
+                  shape="circle"
+                  [size]="avatarPx[placement]"
+                  [style.font-size.px]="avatarPx[placement] * 0.42"
+                  >{{ p.initials }}</wr-avatar
+                >
+              </ng-template>
+              {{ p.name }}
+              <small style="margin-inline-start: auto; font-size: 0.75em">{{ p.team }}</small>
+            </wr-option>
+          }
+        </wr-select>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Assignee: <code>{{ assignee() ?? '—' }}</code>
+        </span>
+
+        <wr-select mode="search" clearable placeholder="Search people" ariaLabel="Reviewer" [(value)]="reviewer">
+          @for (p of people; track p.id) {
+            <wr-option [value]="p.id" [label]="p.name">
+              <ng-template wrOptionLeading let-placement="placement">
+                <wr-avatar
+                  style="background: var(--wr-color-primary-soft); color: var(--wr-color-primary-ink); font-weight: 600"
+                  shape="circle"
+                  [size]="avatarPx[placement]"
+                  [style.font-size.px]="avatarPx[placement] * 0.42"
+                  >{{ p.initials }}</wr-avatar
+                >
+              </ng-template>
+              {{ p.name }}
+              <small style="margin-inline-start: auto; font-size: 0.75em">{{ p.team }}</small>
+            </wr-option>
+          }
+        </wr-select>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Reviewer: <code>{{ reviewer() ?? '—' }}</code> — click the field and the avatar steps aside for the query.
+        </span>
+
+        <wr-select
+          mode="multi"
+          searchable
+          clearable
+          placeholder="Add assignees"
+          ariaLabel="Assignees"
+          [(value)]="assignees"
+        >
+          @for (p of people; track p.id) {
+            <wr-option [value]="p.id" [label]="p.name">
+              <ng-template wrOptionLeading let-placement="placement">
+                <wr-avatar
+                  style="background: var(--wr-color-primary-soft); color: var(--wr-color-primary-ink); font-weight: 600"
+                  shape="circle"
+                  [size]="avatarPx[placement]"
+                  [style.font-size.px]="avatarPx[placement] * 0.42"
+                  >{{ p.initials }}</wr-avatar
+                >
+              </ng-template>
+              {{ p.name }}
+              <small style="margin-inline-start: auto; font-size: 0.75em">{{ p.team }}</small>
+            </wr-option>
+          }
+        </wr-select>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem"
+          >Assignees: {{ assignees() | json }}</span
+        >
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Server-side search"
+    description="Fetch on `(searchChange)`, pass the results to `[options]` and `[loading]`, and add `serverSearch` to turn off the local filter."
+  >
+    <ngwr-doc-code [code]="snippets.serverSearch" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.serverSearchTs" language="typescript" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
+        <wr-select
+          mode="search"
+          serverSearch
+          placeholder="Search a country"
+          [options]="serverResults()"
+          [loading]="serverPending()"
+          [(value)]="serverPicked"
+          (searchChange)="onServerSearch($event)"
+        />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Picked: <code>{{ serverPicked() ?? '—' }}</code>
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard"
+    description="Arrow keys move the highlight, Home and End jump to the ends, Enter picks, Escape closes. Focus stays on the trigger."
+  />
+
+  <ngwr-doc-section
+    title="Search mode — virtual scroll"
+    description="Add `virtualScroll` for a long `[options]` array. Projected `<wr-option>`s are not virtualized."
+  >
+    <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
+        <wr-select
+          mode="search"
+          virtualScroll
+          placeholder="Search 5,000 items"
+          [options]="bigOptions"
+          [(value)]="bigPick"
+        />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Picked: <code>{{ bigPick() ?? '—' }}</code>
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tag mode"
+    description="The `tag` mode turns typed text into chips. `[separators]` commit (Enter and comma by default), `[validate]` filters, `[maxItems]` caps."
+  >
+    <ngwr-doc-snippet [code]="snippets.tag">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 28rem">
+        <wr-select mode="tag" placeholder="Add a tag" [(value)]="freeTags" />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ freeTags() | json }}</span>
+
+        <wr-select
+          mode="tag"
+          placeholder="Add an email and press Enter or ,"
+          [(value)]="recipients"
+          [separators]="['Enter', ',', ' ']"
+          [validate]="isEmail"
+          [maxItems]="5"
+        />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Emails: {{ recipients() | json }} (validated; max 5)
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Use it in a form"
+    description="`[formField]`, `formControlName` and `[(ngModel)]` all bind `value`. See [Forms](/guides/forms)."
+  >
+    <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formsTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <form
+        [formGroup]="reactiveForm"
+        (ngSubmit)="submitReactive()"
+        style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 22rem"
+      >
+        <wr-form-field label="Framework" required>
+          <wr-select formControlName="framework" placeholder="Pick one">
+            <wr-option value="angular">Angular</wr-option>
+            <wr-option value="react">React</wr-option>
+            <wr-option value="vue">Vue</wr-option>
+          </wr-select>
+          <wr-form-error key="required">Pick a framework.</wr-form-error>
+        </wr-form-field>
+        <button wr-btn type="submit" color="primary" style="align-self: flex-start">Submit</button>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Control value: {{ reactiveForm.controls.framework.value ?? 'null' }} · touched:
+          {{ reactiveForm.controls.framework.touched }}
+        </span>
+      </form>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="How a value matches an option"
+    description="Values match with `===`, so a re-fetched object shows the placeholder: bind a primitive key."
+  >
+    <ngwr-doc-code [code]="snippets.identity" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.identityTs" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Select API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Select outputs">
+    <ngwr-doc-api [rows]="outputsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Option API">
+    <ngwr-doc-api [rows]="optionApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Option leading template">
+    <ngwr-doc-api [rows]="leadingApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Option Group API">
+    <ngwr-doc-api [rows]="groupApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

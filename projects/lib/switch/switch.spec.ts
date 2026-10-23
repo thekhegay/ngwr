@@ -1,8 +1,7 @@
-import { Component, type EnvironmentProviders, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, disabled, form } from '@angular/forms/signals';
 
-import { provideWrConfig } from 'ngwr/config';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrSwitch, type WrSwitchSize } from './switch';
@@ -27,7 +26,7 @@ class Host {
   template: `<wr-switch [size]="size()">Notifications</wr-switch>`,
 })
 class SizeHost {
-  readonly size = signal<WrSwitchSize | null>(null);
+  readonly size = signal<WrSwitchSize>('md');
 }
 
 @Component({
@@ -116,17 +115,14 @@ describe('WrSwitch', () => {
 });
 
 /**
- * `provideWrConfig()` is a FALLBACK, not an override: the app-wide `switch.size`
- * applies only where the template said nothing, and a bound `[size]` still wins.
- * The first test is the invariant the whole change rests on — with no config the
- * switch renders exactly what it always did, which for `md` is no modifier at all.
+ * The size lands as a BEM modifier, and `md` is the one value that renders as
+ * the ABSENCE of a class.
  */
-describe('WrSwitch + provideWrConfig', () => {
+describe('WrSwitch size', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<SizeHost>>;
 
-  const mount = (providers: EnvironmentProviders[] = []): HTMLElement => {
+  const mount = (): HTMLElement => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers });
     fixture = TestBed.createComponent(SizeHost);
     fixture.detectChanges();
     return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-switch')!;
@@ -134,36 +130,19 @@ describe('WrSwitch + provideWrConfig', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('renders the md default with no modifier class when nothing is configured', () => {
+  it('renders the md default with no modifier class', () => {
     expect(mount().className).toBe('wr-switch');
   });
 
-  it('takes the configured size when the template binds none', () => {
-    expect(mount([provideWrConfig({ switch: { size: 'sm' } })]).className).toBe('wr-switch wr-switch--sm');
-  });
-
-  it('lets a bound size beat the configured one', () => {
-    const host = mount([provideWrConfig({ switch: { size: 'sm' } })]);
-    fixture.componentInstance.size.set('lg');
+  it('turns a bound size into its modifier, and drops it again for md', () => {
+    const host = mount();
+    fixture.componentInstance.size.set('sm');
     fixture.detectChanges();
+    expect(host.className).toBe('wr-switch wr-switch--sm');
 
-    expect(host.classList.contains('wr-switch--lg')).toBe(true);
-    expect(host.classList.contains('wr-switch--sm')).toBe(false);
-  });
-
-  it('lets an explicitly bound `md` beat the configured size', () => {
-    const host = mount([provideWrConfig({ switch: { size: 'sm' } })]);
     fixture.componentInstance.size.set('md');
     fixture.detectChanges();
-
-    // The size counterpart of `[rounded]="false"`: `md` is the one bound value
-    // that renders as the ABSENCE of a class, so an implementation that treats it
-    // as "not set" looks identical to a correct one in every other test here.
     expect(host.className).toBe('wr-switch');
-  });
-
-  it('ignores a config that names other components', () => {
-    expect(mount([provideWrConfig({ checkbox: { size: 'lg' } })]).className).toBe('wr-switch');
   });
 });
 

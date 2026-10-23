@@ -1,15 +1,16 @@
-import type { SidebarGroup } from '../sidebar.types';
+import { ROUTES, wrLink } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /** The Pipes group of the Reference sidebar — one row per pipe. */
 export const PIPES_GROUP: SidebarGroup = {
   title: 'Pipes',
   children: [
-    { title: 'wrBytes', url: ['/reference/pipes', 'wr-bytes'] },
-    { title: 'wrDate', url: ['/reference/pipes', 'wr-date'] },
-    { title: 'wrMark', url: ['/reference/pipes', 'wr-mark'] },
-    { title: 'wrNumber', url: ['/reference/pipes', 'wr-number'] },
-    { title: 'wrPlural', url: ['/reference/pipes', 'wr-plural'] },
-    { title: 'wrRange', url: ['/reference/pipes', 'wr-range'] },
-    { title: 'wrTruncate', url: ['/reference/pipes', 'wr-truncate'] },
+    wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrBytes),
+    wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrDate),
+    wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrMark),
+    wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrNumber),
+    wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrPlural),
+    wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrRange),
+    wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrTruncate),
   ],
 };

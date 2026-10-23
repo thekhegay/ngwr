@@ -88,8 +88,10 @@ export class WrCompare {
   /** Disable interaction (divider stays put). @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  /** Initial position transform — accepts any number / numeric string. */
+  /** Lowest position the divider may reach, in percent. @default 0 */
   readonly minPosition = input(0, { transform: (v: unknown): number => coerceNumberProperty(v, 0) });
+
+  /** Highest position the divider may reach, in percent. @default 100 */
   readonly maxPosition = input(100, { transform: (v: unknown): number => coerceNumberProperty(v, 100) });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -107,6 +109,17 @@ export class WrCompare {
   private readonly rtl = signal(this.dir?.value === 'rtl');
 
   private dragging = false;
+
+  /** Where the divider was when the live drag began — see `onPointerCancel`. */
+  private dragStart = 0;
+
+  /**
+   * `aria-valuenow`, in whole percent. A drag sets `position` to wherever the
+   * pointer fell, and a reader announced all of it: `29.99999788072374`.
+   */
+  protected readonly valueNow = computed(() =>
+    clamp(Math.round(this.position()), this.minPosition(), this.maxPosition())
+  );
 
   constructor() {
     this.dir?.change.pipe(takeUntilDestroyed()).subscribe(value => this.rtl.set(value === 'rtl'));
@@ -160,12 +173,16 @@ export class WrCompare {
     if (event.button !== 0 || !event.isPrimary) return;
     event.preventDefault();
     this.dragging = true;
+    this.dragStart = this.position();
     const surface = event.currentTarget as HTMLElement;
     surface.setPointerCapture(event.pointerId);
     // `preventDefault` above also suppresses the click's default focus, so the arrows
     // did nothing after a mouse drag until the divider was found again with Tab.
     surface.focus();
-    this.updateFromPointer(event);
+    // A touch may still turn out to be a scroll along the other axis, which the
+    // browser takes over with `pointercancel`, so it moves the divider from its first
+    // move (or a tap's lift) rather than jumping it to where the finger came down.
+    if (event.pointerType !== 'touch') this.updateFromPointer(event);
   }
 
   protected onPointerMove(event: PointerEvent): void {
@@ -175,25 +192,43 @@ export class WrCompare {
 
   protected onPointerUp(event: PointerEvent): void {
     if (!this.dragging) return;
+    // A tap: the touch that never moved still sets the position where it lifted.
+    if (event.pointerType === 'touch') this.updateFromPointer(event);
     this.dragging = false;
     (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
+  }
+
+  /**
+   * The browser took the gesture over — a scroll along the axis `touch-action` leaves
+   * to the page — so the drag never happened, and the divider goes back to where it
+   * was rather than keeping whatever the first moves of a swipe said.
+   */
+  protected onPointerCancel(event: PointerEvent): void {
+    if (!this.dragging) return;
+    this.dragging = false;
+    this.position.set(this.dragStart);
+    const surface = event.currentTarget as HTMLElement;
+    if (surface.hasPointerCapture(event.pointerId)) surface.releasePointerCapture(event.pointerId);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
     if (this.disabled()) return;
     const step = event.shiftKey ? 10 : 1;
+    // Steps count from the whole percent a reader was told, so a key after a drag
+    // lands on a round number instead of carrying the drag's fraction along.
+    const from = this.valueNow();
     let next: number | null = null;
     if (this.orientation() === 'horizontal') {
       // Arrows follow the VISUAL axis (WAI-ARIA APG). Under `dir="rtl"` the "before"
       // side grows from the right, so the visual right is the low end of this slider's
       // range and ArrowRight has to decrease the value.
       const inline = this.rtl() ? -step : step;
-      if (event.key === 'ArrowLeft') next = this.position() - inline;
-      else if (event.key === 'ArrowRight') next = this.position() + inline;
+      if (event.key === 'ArrowLeft') next = from - inline;
+      else if (event.key === 'ArrowRight') next = from + inline;
     } else {
       // Block axis: unaffected by `dir`.
-      if (event.key === 'ArrowUp') next = this.position() - step;
-      else if (event.key === 'ArrowDown') next = this.position() + step;
+      if (event.key === 'ArrowUp') next = from - step;
+      else if (event.key === 'ArrowDown') next = from + step;
     }
     // Home/End are semantic — first/last, not left/right — so they never mirror.
     if (event.key === 'Home') next = this.minPosition();

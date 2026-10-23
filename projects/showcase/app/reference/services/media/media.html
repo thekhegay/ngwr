@@ -1,39 +1,13 @@
 <ngwr-doc-page
   title="WrMedia"
-  description="Signal-backed viewport queries. Named breakpoints mirror `_breakpoints.scss`; raw matchMedia strings work too."
-  [keywords]="['service', 'media', 'breakpoint', 'WrMedia']"
+  removed="15.0.0"
+  description="Viewport queries as signals. v15 removed it: use the CDK's `BreakpointObserver`."
+  [keywords]="['WrMedia', 'ngwr/media', 'breakpoint', 'removed']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section title="Install">
-    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Usage">
-    <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
-    <ngwr-doc-snippet code="">
-      <div style="font-family: var(--wr-font-family-base); font-size: 0.875rem; line-height: 1.5">
-        <div>
-          Current breakpoint: <strong>{{ currentBreakpoint() }}</strong>
-        </div>
-        <div>
-          matches('md'): <strong>{{ isMd() }}</strong>
-        </div>
-        <div>
-          matches('lg'): <strong>{{ isLg() }}</strong>
-        </div>
-        <small style="color: var(--wr-color-on-surface-muted)">Resize the window — values update live.</small>
-      </div>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="`matchMedia` is imperative and needs manual listener cleanup; this exposes breakpoint queries as signals that just work in templates and `computed()`."
+  <ngwr-doc-removed
+    was="`WrMedia` from `ngwr/media`, with `provideWrMedia()` and `WR_BREAKPOINTS`: named breakpoints as signals."
+    why="Nothing in the library read it, and the CDK already ships the same query."
+    instead="`BreakpointObserver` from `@angular/cdk/layout`, through `toSignal()`. A name becomes its width: `md` is `(min-width: 768px)`. The mixins in `@use 'ngwr/breakpoints'` are unchanged. See [Mobile &amp; responsive](/guides/mobile)."
   />
-
-  <ngwr-doc-section title="API">
-    <ngwr-doc-api [rows]="api" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>

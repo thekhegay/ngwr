@@ -6,16 +6,15 @@ import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
 import { WrDrawerManager } from 'ngwr/drawer';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { WR_POPOVER_FALLBACKS, WR_POPOVER_POSITIONS, type WrPopoverPosition, wrPopoverPositions } from './interfaces';
 import { WrPopover } from './popover';
+import { WR_POPOVER_FALLBACKS, WR_POPOVER_POSITIONS, type WrPopoverPosition, wrPopoverPositions } from './types';
 
 /**
  * `[wrPopover]` renders its panel into a CDK overlay, so nothing it opens is
  * reachable from the fixture — every query for a panel goes through the
- * document. `provideWrOverlay()` keeps that container isolated so it cannot
+ * document. That container belongs to the TestBed's root injector, so it cannot
  * leak into the next spec file.
  *
  * The directive is really two components in one: `mode="popover"` (template
@@ -68,6 +67,26 @@ class Host {
 @Component({ template: '<p>Filters</p>' })
 class DrawerPanel {}
 
+/**
+ * A real window for the CDK to place panels in, for every case in the file.
+ *
+ * jsdom reports `<html>` — the box the CDK measures the viewport by — as 0×0,
+ * and the directive's viewport margin narrows that to a NEGATIVE one. Nothing
+ * fits there, and the fallback is ranked on products of negative lengths, which
+ * sends a `left` panel to the right. A 1024×768 window gives the 0×0 pane room
+ * on every side, so the placement asked for is the one taken.
+ */
+beforeEach(() => {
+  Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1024 });
+  Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: 768 });
+});
+
+afterEach(() => {
+  // Own properties shadowing jsdom's prototype getters; deleting them restores those.
+  Reflect.deleteProperty(document.documentElement, 'clientWidth');
+  Reflect.deleteProperty(document.documentElement, 'clientHeight');
+});
+
 describe('WrPopover', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -114,7 +133,6 @@ describe('WrPopover', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -149,7 +167,7 @@ describe('WrPopover', () => {
 
     it('puts the panel in the isolated overlay container, not in the fixture', () => {
       open();
-      // `provideWrOverlay()` exists so ngwr panels cannot land in the same
+      // ngwr overlays are isolated by default, so a panel cannot land in the same
       // container as Material's or NG-ZORRO's.
       expect(root().querySelector('.panel-body')).toBeNull();
       expect(document.querySelector('.wr-overlay-container .panel-body')?.textContent).toContain(
@@ -382,6 +400,43 @@ describe('WrPopover', () => {
       leave(pane);
 
       tick(120);
+      expect(popoverPane()).toBeNull();
+    });
+
+    /**
+     * The trigger announces `aria-haspopup="dialog"` in every popover mode, and
+     * hover is something a keyboard cannot do — so a hover popover with no key
+     * of its own was content only a mouse could reach.
+     */
+    it.each(['Enter', ' '])('opens from the keyboard with %j, and takes focus like a click popover', key => {
+      trigger('hover').focus();
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      trigger('hover').dispatchEvent(event);
+      fixture.detectChanges();
+
+      const pane = popoverPane()!;
+      expect(pane, 'the keyboard could not open it').toBeTruthy();
+      expect(trigger('hover').getAttribute('aria-expanded')).toBe('true');
+      expect(document.activeElement, 'opened behind the tab order').toBe(pane);
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('leaves a keyboard-opened hover popover by Tab, back through the trigger', () => {
+      trigger('hover').focus();
+      press('Enter', trigger('hover'));
+      const action = document.querySelector<HTMLButtonElement>('.panel-action')!;
+      action.focus();
+
+      press('Tab', action);
+
+      expect(popoverPane()).toBeNull();
+      expect(document.activeElement).toBe(trigger('hover'));
+    });
+
+    it('does not open a click popover twice from Enter — its click does that', () => {
+      trigger('click').focus();
+      press('Enter', trigger('click'));
+
       expect(popoverPane()).toBeNull();
     });
 
@@ -749,6 +804,184 @@ describe('WrPopover', () => {
 });
 
 /**
+ * Tab out of a click popover, both ways, from the keyboard alone.
+ *
+ * The pane renders at the end of `<body>`, nowhere near its trigger, so the
+ * browser's own Tab walked out of it — Shift+Tab to the foot of the page, Tab
+ * off the document — and left the dialog open behind the user with
+ * `aria-expanded` still true. jsdom has no sequential navigation, so what is
+ * asserted is the directive's half: where it puts focus, and whether it leaves
+ * the move to the browser. The browser's half, forward Tab carrying on from the
+ * trigger to the control after it, was measured in Chromium on the docs
+ * header's Settings panel.
+ *
+ * No synchronous `detectChanges` after a keystroke: the close lands in a render
+ * zoneless CD schedules, and painting by hand would hide one never scheduled.
+ */
+describe('WrPopover keyboard round trip', () => {
+  @Component({
+    imports: [WrPopover],
+    template: `
+      <button type="button" class="trigger" [wrPopover]="panel">Settings</button>
+      <button type="button" class="after">After</button>
+
+      <ng-template #panel>
+        <button type="button" class="first">First</button>
+        <button type="button" class="last">Last</button>
+        <!-- Focusable, but parked out of the tab order the way a roving composite parks its other items. -->
+        <button type="button" class="parked" tabindex="-1">Parked</button>
+      </ng-template>
+    `,
+  })
+  class TabHost {}
+
+  let fixture: ReturnType<typeof TestBed.createComponent<TabHost>>;
+
+  const outside = (cls: 'trigger' | 'after'): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(`.${cls}`)!;
+  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popover-overlay');
+  const inside = (cls: 'first' | 'last'): HTMLElement => pane()!.querySelector<HTMLElement>(`.${cls}`)!;
+
+  /** Tab on `from`, focused first: a browser dispatches the keydown on whatever holds focus. */
+  const tab = async (from: HTMLElement, shiftKey = false): Promise<KeyboardEvent> => {
+    from.focus();
+    const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true });
+    from.dispatchEvent(event);
+    await fixture.whenStable();
+    return event;
+  };
+
+  /** Enter on a `<button>`: focus on it, then a click with no pointer behind it. */
+  const openFromKeyboard = async (): Promise<void> => {
+    outside('trigger').focus();
+    outside('trigger').click();
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => {
+    // jsdom lays nothing out, so `getFocusableElements` would drop every control
+    // in the panel but the focused one as unrendered.
+    vi.spyOn(Element.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(TabHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('hands Tab off the last stop to the trigger, leaves the move to the browser, and closes', async () => {
+    await openFromKeyboard();
+    expect(document.activeElement).toBe(pane());
+
+    // `.parked` follows it in the DOM and is not a stop.
+    const event = await tab(inside('last'));
+
+    expect(event.defaultPrevented, 'the browser would not carry on past the trigger').toBe(false);
+    expect(document.activeElement).toBe(outside('trigger'));
+    expect(pane()).toBeNull();
+    expect(outside('trigger').getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('takes the pane out before the browser carries the Tab on', async () => {
+    await openFromKeyboard();
+    inside('last').focus();
+    // No `whenStable()` in between: the browser moves focus right after this
+    // dispatch, and a pane still attached then would catch a trigger that is the
+    // last stop before the overlay container.
+    inside('last').dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+
+    expect(pane()).toBeNull();
+    expect(document.activeElement).toBe(outside('trigger'));
+  });
+
+  it('lands Shift+Tab off the first stop on the trigger itself, and closes', async () => {
+    await openFromKeyboard();
+    const event = await tab(inside('first'), true);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(outside('trigger'));
+    expect(pane()).toBeNull();
+  });
+
+  it('treats the focused pane as the first stop', async () => {
+    await openFromKeyboard();
+    const event = await tab(pane()!, true);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(outside('trigger'));
+    expect(pane()).toBeNull();
+  });
+
+  it('leaves Tab between the panel’s own stops to the browser', async () => {
+    await openFromKeyboard();
+    const fromPane = await tab(pane()!);
+    const forward = await tab(inside('first'));
+    const back = await tab(inside('last'), true);
+
+    expect([fromPane, forward, back].map(e => e.defaultPrevented)).toEqual([false, false, false]);
+    expect(pane()).not.toBeNull();
+    expect(outside('trigger').getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('closes when focus leaves for the page some other way, and leaves it there', async () => {
+    await openFromKeyboard();
+    outside('after').focus();
+    await fixture.whenStable();
+
+    expect(pane()).toBeNull();
+    expect(document.activeElement, 'the close pulled focus back to the trigger').toBe(outside('after'));
+  });
+
+  it('stays open for focus on the trigger, and for an overlay stacked above it', async () => {
+    await openFromKeyboard();
+    // A press on the trigger focuses it before its click toggles the panel —
+    // closing here would have that click open it straight back.
+    outside('trigger').focus();
+    await fixture.whenStable();
+    expect(pane()).not.toBeNull();
+
+    // A `wr-date-picker` or `wr-dropdown` inside the panel moves focus into a
+    // pane of its own, later in the same container.
+    const later = document.createElement('button');
+    pane()!.parentElement!.parentElement!.appendChild(later);
+    try {
+      inside('first').focus();
+      later.focus();
+      await fixture.whenStable();
+      expect(pane()).not.toBeNull();
+    } finally {
+      later.remove();
+    }
+  });
+
+  /**
+   * Chromium reports no destination when the window loses focus and when the
+   * focused node is removed, and closing for either would shut a panel the user
+   * is still in. Tab walking off the end of the document reports none too, and
+   * that one is leaving — reached here through a stop the keydown check does
+   * not recognise as the last one.
+   */
+  it('reads a focusout to nowhere as leaving only during a Tab', async () => {
+    await openFromKeyboard();
+    const first = inside('first');
+    first.focus();
+
+    first.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
+    await fixture.whenStable();
+    expect(pane(), 'a window blur closed the panel').not.toBeNull();
+
+    // Same task as the keystroke, as the browser's own Tab would be.
+    first.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    first.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
+    await fixture.whenStable();
+    expect(pane()).toBeNull();
+  });
+});
+
+/**
  * The CDK mirrors a connected position's anchors under `dir="rtl"` — a `start`
  * origin resolves to the trigger's right edge — but it adds `offsetX` to the
  * final PHYSICAL x without mirroring it. Left alone, the 8px that held a
@@ -763,10 +996,7 @@ describe('WrPopover under dir="rtl"', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [
-        provideWrOverlay(),
-        { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
-      ],
+      providers: [{ provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } }],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -793,109 +1023,6 @@ describe('WrPopover under dir="rtl"', () => {
 
     // `dir` governs the inline axis only: a panel below its trigger stays below.
     expect(pane()?.getAttribute('style')).toContain('translateY(8px)');
-  });
-});
-
-/** A popover and a tooltip on one page, both asking for the sheet presentation. */
-@Component({
-  imports: [WrPopover],
-  template: `
-    <button type="button" class="sheet-trigger" [wrPopover]="panel" [responsive]="responsive()">Details</button>
-    <button type="button" class="sheet-tip" wrPopover="Save" mode="tooltip" [responsive]="true">Save</button>
-    <ng-template #panel>Panel body</ng-template>
-  `,
-})
-class SheetHost {
-  readonly responsive = signal<boolean | undefined>(true);
-}
-
-/**
- * Sheet presentation is popover-only, and the reason is in the component: a tooltip
- * is a transient label that follows its trigger, and docking one to the bottom of the
- * viewport would leave a caption floating a screen away from the thing it captions.
- * That exclusion is a `!tooltip &&` in one expression, which is exactly the kind of
- * condition that gets simplified away — so both halves are asserted here.
- *
- * Everything the sheet changes is an overlay OPTION rather than a stylesheet rule, so
- * a unit test sees all of it: the panel class, the backdrop, and the position
- * modifier that disappears once the panel stops being anchored to anything.
- */
-describe('WrPopover as a bottom sheet', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
-  const width = Object.getOwnPropertyDescriptor(window, 'innerWidth');
-
-  const click = (selector: string): void => {
-    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(selector)!.click();
-    fixture.detectChanges();
-  };
-  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popover-overlay');
-
-  const mount = (viewport: number): void => {
-    Object.defineProperty(window, 'innerWidth', { value: viewport, configurable: true });
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
-    fixture = TestBed.createComponent(SheetHost);
-    fixture.detectChanges();
-  };
-
-  // The tooltip case waits out a show delay, which is a real timer here.
-  beforeEach(() => vi.useFakeTimers());
-
-  afterEach(() => {
-    fixture.destroy();
-    vi.useRealTimers();
-    if (width) Object.defineProperty(window, 'innerWidth', width);
-  });
-
-  it('slides the panel up from the bottom on a narrow viewport', () => {
-    mount(390);
-    click('.sheet-trigger');
-
-    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(true);
-    // No `--<position>` modifier: there is no trigger to be positioned against.
-    expect(pane()!.className).not.toContain('wr-popover-overlay--');
-    expect(document.querySelector('.cdk-overlay-backdrop')?.classList).toContain('wr-overlay-backdrop');
-  });
-
-  it('closes when the backdrop is tapped', () => {
-    mount(390);
-    click('.sheet-trigger');
-
-    document.querySelector<HTMLElement>('.cdk-overlay-backdrop')!.click();
-    fixture.detectChanges();
-
-    expect(pane()).toBeNull();
-  });
-
-  it('leaves a TOOLTIP anchored, however narrow the viewport', () => {
-    mount(390);
-    (fixture.nativeElement as HTMLElement)
-      .querySelector<HTMLElement>('.sheet-tip')!
-      .dispatchEvent(new MouseEvent('mouseenter'));
-    vi.advanceTimersByTime(1000);
-    fixture.detectChanges();
-
-    const tip = document.querySelector<HTMLElement>('.wr-tooltip-overlay');
-    expect(tip).not.toBeNull();
-    expect(tip!.classList.contains('wr-overlay-sheet')).toBe(false);
-    expect(tip!.className).toContain('wr-tooltip-overlay--');
-  });
-
-  it('stays anchored on a wide viewport', () => {
-    mount(1280);
-    click('.sheet-trigger');
-
-    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(false);
-    expect(pane()!.className).toContain('wr-popover-overlay--');
-  });
-
-  it('never becomes a sheet when the trigger opted out', () => {
-    mount(390);
-    fixture.componentInstance.responsive.set(false);
-    fixture.detectChanges();
-    click('.sheet-trigger');
-
-    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(false);
   });
 });
 
@@ -1004,7 +1131,6 @@ describe('WrPopover template reference', () => {
 
   it('publishes the instance as `wrPopover`', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
 
     const fixture = TestBed.createComponent(ExportHost);
     fixture.detectChanges();
@@ -1058,7 +1184,6 @@ describe('WrPopover when the direction flips while it is open', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     dir = TestBed.inject(Directionality);
@@ -1115,39 +1240,5 @@ describe('WrPopover when the direction flips while it is open', () => {
     // Nothing here is one-way: the mirror is rebuilt from the direction it is
     // handed, not toggled.
     expect([paneDir(), pane().getAttribute('style')?.includes('translateX(-8px)')]).toEqual(['ltr', true]);
-  });
-});
-
-/**
- * A sheet is anchored to nothing — a global strategy with no position list to
- * mirror — which is exactly why it is easy to leave out of the wiring. Its host
- * still carries the `dir` every logical rule inside the panel reads.
- */
-describe('WrPopover as a sheet when the direction flips', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
-  const width = Object.getOwnPropertyDescriptor(window, 'innerWidth');
-
-  afterEach(() => {
-    fixture.destroy();
-    if (width) Object.defineProperty(window, 'innerWidth', width);
-  });
-
-  it('rewrites the sheet’s `dir` even with no positions to rebuild', () => {
-    Object.defineProperty(window, 'innerWidth', { value: 390, configurable: true });
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
-    fixture = TestBed.createComponent(SheetHost);
-    fixture.detectChanges();
-
-    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.sheet-trigger')!.click();
-    fixture.detectChanges();
-    const sheet = document.querySelector<HTMLElement>('.wr-popover-overlay')!;
-    expect(sheet.classList.contains('wr-overlay-sheet')).toBe(true);
-    expect(sheet.parentElement!.getAttribute('dir')).toBe('ltr');
-
-    TestBed.inject(Directionality).valueSignal.set('rtl');
-    TestBed.tick();
-
-    expect(sheet.parentElement!.getAttribute('dir')).toBe('rtl');
   });
 });

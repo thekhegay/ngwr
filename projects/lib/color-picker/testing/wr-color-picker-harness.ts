@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/c
 
 import { WrSegmentedHarness } from 'ngwr/segmented/testing';
 
-import type { WrColorPickerHarnessFilters, WrColorPickerTab, WrColorPickerThumbs } from './interfaces';
+import type { WrColorPickerHarnessFilters, WrColorPickerTab, WrColorPickerThumbs } from './types';
 
 /**
  * One labelled numeric field — internal. A `TestElement` cannot be queried into, so

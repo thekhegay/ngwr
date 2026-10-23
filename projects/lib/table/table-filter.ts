@@ -11,7 +11,20 @@ import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { isComposing } from 'ngwr/utils';
 
-import type { WrTableFilterItem } from './interfaces';
+import type { WrTableFilterItem } from './types';
+
+/**
+ * Bumped on every selection change, by EVERY filter.
+ *
+ * `items` belongs to the CONSUMER — the column definition hands the same array
+ * back on every render — and a filter flips `selected` on those objects in
+ * place. No signal sees a property mutation, so anything derived from it has to
+ * be told. One counter for all instances rather than one each, because a column
+ * definition is routinely shared: two tables over one `columns` object hold the
+ * same objects, and a per-instance counter left the table that was not clicked
+ * showing no badge over a panel with a ticked box.
+ */
+const selectionVersion = signal(0);
 
 /**
  * Filter dropdown rendered in a filterable column's header.
@@ -67,6 +80,10 @@ export class WrTableFilter {
   protected readonly resolvedSearchLabel = useI18nText(this.searchLabel, 'table.search', 'Search');
   protected readonly resolvedResetLabel = useI18nText(this.resetLabel, 'table.reset', 'Reset');
 
+  /**
+   * The values the column can be filtered by. Shown as a checkbox list, so pass
+   * the distinct values rather than one entry per row.
+   */
   readonly items = input.required<readonly WrTableFilterItem[]>();
 
   /** Fires whenever the selection changes. */
@@ -82,19 +99,8 @@ export class WrTableFilter {
     return all.filter(i => i.title.toLowerCase().includes(q));
   });
 
-  /**
-   * Bumped on every selection change.
-   *
-   * `items` belongs to the CONSUMER — the column definition hands the same array
-   * back on every render — and this component flips `selected` on those objects in
-   * place. No signal sees a property mutation, so `selectedCount` memoised its
-   * first answer: the count badge never appeared and the `--active` class never
-   * arrived, however many boxes were ticked.
-   */
-  private readonly selectionVersion = signal(0);
-
   protected readonly selectedCount = computed(() => {
-    this.selectionVersion();
+    selectionVersion();
     return this.items().filter(i => i.selected).length;
   });
 
@@ -136,13 +142,13 @@ export class WrTableFilter {
 
   protected onToggle(item: WrTableFilterItem): void {
     item.selected = !item.selected;
-    this.selectionVersion.update(v => v + 1);
+    selectionVersion.update(v => v + 1);
     this.emitSelected();
   }
 
   protected onReset(): void {
     for (const item of this.items()) item.selected = false;
-    this.selectionVersion.update(v => v + 1);
+    selectionVersion.update(v => v + 1);
     this.selectionChange.emit([]);
   }
 

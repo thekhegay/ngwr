@@ -1,2 +1,2 @@
 export { WrDivider } from './divider';
-export type { WrDividerType, WrDividerAlign } from './interfaces';
+export type { WrDividerType, WrDividerAlign } from './types';

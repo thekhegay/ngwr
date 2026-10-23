@@ -3,11 +3,10 @@ import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrDialog } from 'ngwr/dialog';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrMentionCommit, WrMentionItem } from './interfaces';
 import { WrMention } from './mention';
+import type { WrMentionCommit, WrMentionItem } from './types';
 
 const PEOPLE: readonly WrMentionItem[] = [
   { id: 'ada', label: 'Ada Lovelace' },
@@ -93,7 +92,6 @@ describe('WrMention', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -183,7 +181,6 @@ describe('WrMention', () => {
 
     it('takes a custom filter over the substring default', () => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
       const prefixed = TestBed.createComponent(PrefixHost);
       prefixed.detectChanges();
 
@@ -246,6 +243,24 @@ describe('WrMention', () => {
 
       press('ArrowUp');
       expect(activeOption()!.textContent.trim()).toBe(first);
+    });
+
+    it('keeps the first option when the panel opens under a pointer that has not moved', () => {
+      // The browser fires `mouseenter` for an element that appears under a still
+      // pointer, and the panel opens under the caret — where a pointer resting in the
+      // field usually is. The option under it took the highlight, and Enter inserted
+      // that person instead of the first.
+      type('hey @');
+      const options = [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+      options[3].dispatchEvent(new MouseEvent('mouseenter'));
+      options[3].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+      fixture.detectChanges();
+      expect(activeOption()!.textContent.trim()).toBe('Ada Lovelace');
+
+      // A pointer that moves is pointing.
+      options[3].dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
+      fixture.detectChanges();
+      expect(activeOption()!.textContent.trim()).toBe('Linus Torvalds');
     });
 
     it('commits on Enter and reports the trigger and query with the item', () => {
@@ -486,7 +501,6 @@ describe('WrMention inside a dialog', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
     fixture.componentInstance.dialog.open(DialogBody);
@@ -563,7 +577,6 @@ describe('WrMention when the direction flips while the panel is up', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     dir = TestBed.inject(Directionality);

@@ -8,7 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DestroyRef, Directive, ElementRef, effect, inject, input, output } from '@angular/core';
 
-import type { WrHotkeyHandle, WrHotkeySpec } from './interfaces';
+import type { WrHotkeyHandle, WrHotkeySpec } from './types';
 import { WrHotkey } from './wr-hotkey';
 
 /**
@@ -26,6 +26,10 @@ import { WrHotkey } from './wr-hotkey';
  */
 @Directive({ selector: '[wrHotkey]' })
 export class WrHotkeyBinding {
+  /**
+   * The chord to listen for — `'mod+k'`, `'shift+?'`, or the full spec object.
+   * `mod` resolves to ⌘ on macOS and Ctrl everywhere else.
+   */
   readonly wrHotkey = input.required<WrHotkeySpec>();
 
   /** Scope the binding to the host element instead of `document`. @default false */

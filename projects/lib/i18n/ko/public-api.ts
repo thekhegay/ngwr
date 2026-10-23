@@ -79,6 +79,7 @@ export const wrKo: WrI18nCatalog = {
   },
   stepper: {
     optional: '선택 사항',
+    completed: '완료',
   },
   transfer: {
     source: '사용 가능',
@@ -93,29 +94,6 @@ export const wrKo: WrI18nCatalog = {
   },
   form: {
     optional: '선택',
-  },
-  validation: {
-    required: '필수 입력 항목입니다.',
-    requiredTrue: '이 항목을 선택해야 합니다.',
-    email: '올바른 이메일 주소를 입력하세요.',
-    minlength: '{{requiredLength}}자 이상 입력하세요.',
-    maxlength: '{{requiredLength}}자 이하로 입력하세요.',
-    min: '{{min}} 이상 입력하세요.',
-    max: '{{max}} 이하로 입력하세요.',
-    pattern: '형식이 올바르지 않습니다.',
-    noWhitespace: '공백은 사용할 수 없습니다.',
-    hexColor: '#1a2b3c 형식의 색상 값을 입력하세요.',
-    url: '올바른 URL을 입력하세요.',
-    cardNumber: '올바른 카드 번호를 입력하세요.',
-    cvc: '{{length}}자리 보안 코드를 입력하세요.',
-    iban: '올바른 IBAN을 입력하세요.',
-    match: '두 값이 일치하지 않습니다.',
-    matchFields: '입력한 항목이 서로 일치하지 않습니다.',
-    oneOf: '허용된 값 중 하나를 선택하세요.',
-    minDate: '더 늦은 날짜를 선택하세요.',
-    maxDate: '더 빠른 날짜를 선택하세요.',
-    dateFormat: '입력 형식: {{example}}',
-    dateFilter: '이 날짜는 선택할 수 없습니다.',
   },
   select: {
     label: '선택',
@@ -248,13 +226,15 @@ export const wrKo: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: '막대 차트',
+  },
   calendarHeatmap: {
     label: '캘린더 히트맵',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: '선 차트',
-    thousands: '{{value}}천',
   },
   donutChart: {
     label: '도넛 차트',
@@ -272,9 +252,6 @@ export const wrKo: WrI18nCatalog = {
     pagination: '캐러셀 페이지 탐색',
     roledescription: '캐러셀',
     slideRoledescription: '슬라이드',
-  },
-  actionSheet: {
-    label: '작업',
   },
   alert: {
     close: '알림 닫기',
@@ -305,12 +282,6 @@ export const wrKo: WrI18nCatalog = {
   // `role="dialog"`는 아예 읽히지 않는다. 개별 사용처에서 `[ariaLabel]`로 덮어쓴다.
   popover: {
     label: '팝오버',
-  },
-  markdown: {
-    copy: '코드 복사',
-    copied: '복사됨',
-    taskDone: '완료:',
-    taskTodo: '할 일:',
   },
   editor: {
     label: '서식 있는 텍스트',
@@ -385,6 +356,9 @@ export const wrKo: WrI18nCatalog = {
   },
   sidebar: {
     label: '사이드바',
+    containsCurrent: '현재 페이지 포함',
+    subpages: '{{title}} 하위 페이지',
+    separator: ',',
   },
   spinner: {
     label: '불러오는 중',

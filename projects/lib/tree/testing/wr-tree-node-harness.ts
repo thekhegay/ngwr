@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrTreeNodeHarnessFilters } from './interfaces';
+import type { WrTreeNodeHarnessFilters } from './types';
 
 /**
  * Test harness for one node of a `<wr-tree>` — a `role="treeitem"` row.

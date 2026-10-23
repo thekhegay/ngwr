@@ -1,0 +1,55 @@
+<ngwr-doc-page
+  title="Command Palette"
+  updated="15.0.0"
+  description="A ⌘K search box that finds and runs your app's actions."
+  [keywords]="['command palette', 'cmd-k', 'spotlight', 'wr-command-palette']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Add one palette to your app shell; `mod+k` opens it. `(picked)` fires after the item's own `action()`."
+  >
+    <ngwr-doc-code [code]="snippets.template" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Live demo"
+    description="Press ⌘⇧K / Ctrl+Shift+K: the site header owns ⌘K, and when two palettes share a hotkey the first one wins."
+  >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start">
+        <button wr-btn type="button" color="primary" (click)="open.set(true)">Open palette</button>
+        <p style="margin: 0; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          @if (last(); as picked) {
+            Last picked: <code>{{ picked }}</code>
+          } @else {
+            Nothing picked yet.
+          }
+        </p>
+      </div>
+      <wr-command-palette [items]="items" [(open)]="open" trigger="mod+shift+k" (picked)="onPicked($event)" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Programmatic control"
+    description='Bind `[(open)]`; `[trigger]="null"` turns off the hotkey.'
+  >
+    <ngwr-doc-code [code]="snippets.controlled" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Backed by a server"
+    description="Fetch on `(searchChange)` and feed the result into `[items]`. `serverSearch` turns off the built-in filter; `[loading]` shows “Searching…”."
+  >
+    <ngwr-doc-code [code]="snippets.server" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-api [rows]="typesApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

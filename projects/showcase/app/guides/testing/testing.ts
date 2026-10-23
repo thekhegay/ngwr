@@ -1,43 +1,34 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-
-import { WrTypography } from 'ngwr/typography';
 
 import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  DocNgtrueComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSeeAlsoComponent,
   type DocSeeAlsoLink,
 } from '#core/components';
-import { QUALITY } from '#core/generated/quality';
 
 @Component({
   selector: 'ngwr-gs-testing-page',
   templateUrl: './testing.html',
   imports: [
-    RouterLink,
-    WrTypography,
     DocPageComponent,
     DocSectionComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocNgtrueComponent,
     DocSeeAlsoComponent,
   ],
 })
 export default class TestingGuidePageComponent {
   protected readonly snippets = {
-    axeTriage: `// Gate on violations. \`incomplete\` is axe asking a human, not a finding.
-const results = await new AxeBuilder({ page }).analyze();
+    axeTriage: `const results = await new AxeBuilder({ page }).analyze();
 expect(results.violations).toEqual([]);
 
-// If your gate DOES read \`incomplete\` — some do, and it is a defensible
-// choice — triage the rule rather than excluding the page or the component.
-// Every closed combobox trigger publishes aria-controls for a listbox that
-// does not exist until the panel opens, and axe cannot tell that apart from
-// a typo. Drop only those nodes; keep the rule on for every other node.
+// Only if your gate also reads \`incomplete\`: drop the closed-combobox nodes.
 const forReview = results.incomplete.filter(
   r =>
     r.id !== 'aria-valid-attr-value' ||
@@ -45,63 +36,32 @@ const forReview = results.incomplete.filter(
 );
 expect(forReview).toEqual([]);`,
 
-    tableName: `<!-- <wr-table> renders no <caption> and takes no name input, so name the
-     REGION around it. The heading does double duty: visible on the page,
-     and the landmark's accessible name. -->
+    tableName: `<!-- The visible heading names the region. -->
 <section role="region" aria-labelledby="open-orders-heading">
   <h2 id="open-orders-heading">Open orders</h2>
   <wr-table [columns]="cols" [items]="orders()" />
 </section>
 
-<!-- No visible heading to point at? Name the region directly. -->
+<!-- No heading? Name the region directly. -->
 <section role="region" aria-label="Archived orders">
   <wr-table [columns]="cols" [items]="archived()" />
 </section>`,
-
-    install: `// The harnesses live beside the components they drive, one entry point each.
-// ${QUALITY.testingEntryPoints} so far, publishing ${QUALITY.harnessClasses} harness classes: every form control,
-// every overlay, the three data views, the whole navigation / disclosure set,
-// every chart, eighteen of the twenty-one animations, <wr-markdown>, and the
-// standalone widgets — calendar, event-calendar, window, image-cropper, tour,
-// lightbox, speed-dial, splitter.
-import { WrButtonHarness } from 'ngwr/button/testing';
-import { WrInputHarness } from 'ngwr/input/testing';
-import { WrCheckboxHarness } from 'ngwr/checkbox/testing';
-import { WrRadioGroupHarness } from 'ngwr/radio/testing';
-import { WrFormFieldHarness } from 'ngwr/form/testing';
-import { WrEditorHarness } from 'ngwr/editor/testing';
-
-// The overlay ones — panels that render outside your fixture.
-import { WrSelectHarness } from 'ngwr/select/testing';
-import { WrDialogHarness } from 'ngwr/dialog/testing';
-import { WrContextMenuHarness } from 'ngwr/context-menu/testing';
-import { WrCommandPaletteHarness } from 'ngwr/command-palette/testing';
-
-// The data views come as families.
-import { WrTableHarness, WrTableRowHarness } from 'ngwr/table/testing';
-import { WrTreeHarness, WrTreeNodeHarness } from 'ngwr/tree/testing';
-import { WrGraphHarness, WrGraphNodeHarness } from 'ngwr/graph/testing';
-
-// The environment comes from the CDK, which is already a peer dependency.
-import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';`,
 
     first: `import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { TestBed } from '@angular/core/testing';
 import { WrButtonHarness } from 'ngwr/button/testing';
 
-it('saves the form', async () => {
+it('disables Save until the form is filled', async () => {
   const fixture = TestBed.createComponent(CheckoutPage);
   fixture.detectChanges();
 
   const loader = TestbedHarnessEnvironment.loader(fixture);
   const save = await loader.getHarness(WrButtonHarness.with({ text: 'Save' }));
 
-  expect(await save.isDisabled()).toBe(true);   // nothing filled in yet
+  expect(await save.isDisabled()).toBe(true);
 });`,
 
-    filters: `// Every harness ships a \`with()\` predicate. A string is an exact match, a
-// RegExp is tested, and several options AND together.
-await loader.getHarness(WrButtonHarness.with({ text: 'Save' }));
+    filters: `await loader.getHarness(WrButtonHarness.with({ text: 'Save' }));
 await loader.getAllHarnesses(WrButtonHarness.with({ text: /^S/ }));
 await loader.getAllHarnesses(WrButtonHarness.with({ disabled: true }));
 
@@ -122,8 +82,7 @@ await loader.getHarness(WrSwitchHarness.with({ label: 'Dark mode', on: false }))
   expect(await save.isDisabled()).toBe(false);
 });`,
 
-    overlay: `// A component that renders into an overlay is NOT inside the fixture, so load
-// it from the document root instead.
+    overlay: `const loader = TestbedHarnessEnvironment.loader(fixture);
 const rootLoader = TestbedHarnessEnvironment.documentRootLoader(fixture);
 
 it('confirms before deleting', async () => {
@@ -132,8 +91,7 @@ it('confirms before deleting', async () => {
   const dialog = await rootLoader.getHarness(WrDialogHarness);
   expect(await dialog.getTitleText()).toBe('Delete item');
 
-  // A dialog is a content CONTAINER: harnesses resolve inside it, so a second
-  // dialog's buttons can't be picked up by mistake.
+  // Searches inside this dialog only.
   await (await dialog.getHarness(WrButtonHarness.with({ text: 'Confirm' }))).click();
 
   const toast = await rootLoader.getHarness(WrToastHarness.with({ type: 'success' }));
@@ -155,9 +113,6 @@ it('filters as you type', async () => {
 
   await select.open();
   await select.typeSearch('la');
-
-  // Filtered-out options stay in the DOM and collapse via CSS — the harness
-  // drops them, so this is the list a user can actually reach.
   expect(await select.getOptionLabels()).toEqual(['Large']);
 });
 
@@ -177,18 +132,15 @@ it('builds up a multi selection', async () => {
 
   await menu.open();
   expect(await menu.getItemTexts()).toEqual(['Rename', 'Duplicate', 'Delete']);
-
-  // Focus starts on the first ENABLED item and the arrows skip the rest.
   expect(await menu.getFocusedItemText()).toBe('Rename');
 
   await menu.clickItem({ text: 'Rename' });
-  // Picking does not close the menu — there is no close-on-select.
-  expect(await menu.isOpen()).toBe(true);
+  expect(await menu.isOpen()).toBe(true);   // picking does not close the menu
 });`,
 
-    datePicker: `// A picker needs a date adapter, the same one your app provides.
+    datePicker: `// Pin the locale your assertions are written in.
 TestBed.configureTestingModule({
-  providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })],
+  providers: [provideWr(withDates({ locale: 'en-US' }))],
 });
 
 it('picks a departure date', async () => {
@@ -210,7 +162,6 @@ it('reads the state of a day cell', async () => {
   expect(await day.isSelected()).toBe(true);
   expect(await day.isToday()).toBe(false);
 
-  // selectDay() refuses a disabled cell instead of clicking into the void.
   await expect(picker.selectDay(5)).rejects.toThrow(/disabled/);
 });
 
@@ -243,24 +194,7 @@ it('sets a time and steps it', async () => {
   await drawer.close();
 });`,
 
-    actionSheet: `it('offers a choice, and names itself either way', async () => {
-  const sheet = await rootLoader.getHarness(WrActionSheetHarness);
-
-  // No visible title, so the name is the screen-reader-only fallback.
-  expect(await sheet.getAccessibleName()).toBe('Actions');
-  expect(await sheet.isNamed()).toBe(true);
-
-  expect(await sheet.getActionGroups()).toEqual([
-    ['Take Photo', 'Choose from Library', 'Delete'],
-    ['Cancel'],
-  ]);
-
-  // Picking emits and closes in one call, so the harness goes stale after it.
-  await sheet.select({ role: 'destructive' });
-  expect(await sheet.isOpen()).toBe(false);
-});`,
-
-    colorPicker: `it('picks a colour through the fields, not a drag', async () => {
+    colorPicker: `it('picks a colour through the fields', async () => {
   const trigger = await loader.getHarness(WrColorPickerTriggerHarness);
   const picker = await trigger.open();
 
@@ -271,26 +205,21 @@ it('sets a time and steps it', async () => {
   expect(await picker.getRgb()).toEqual({ r: 57, g: 105, b: 226 });
 
   await picker.setAlphaPercent(50);
-  // The surfaces followed, and the thumbs say so without any layout.
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
     animations: `it('animates text without losing it', async () => {
   const headline = await loader.getHarness(WrBlurTextHarness);
 
-  // Two questions, not one: what is announced, and what is drawn.
   expect(await headline.getAccessibleText()).toBe('Welcome to ngwr');
   expect(await headline.getPieces()).toEqual(['Welcome', 'to', 'ngwr']);
   expect(await headline.isTextHidden()).toBe(true);
-
-  // And the split has to be lossless — this is what catches a dropped space.
   expect(await headline.getRenderedText()).toBe(await headline.getAccessibleText());
 });`,
 
     charts: `it('reads the data, not the drawing', async () => {
   const bars = await loader.getHarness(WrBarChartHarness);
 
-  // The label row is aria-hidden; the column carries the real name.
   expect(await bars.getLabels()).toEqual(['Mon', 'Tue', 'Wed']);
   expect(await bars.getAccessibleNames()).toEqual(['Mon: 12', 'Tue: 24', 'Wed: 6']);
   expect((await bars.getBars()).map(b => b.heightPercent)).toEqual([50, 100, 25]);
@@ -308,7 +237,7 @@ it('sets a time and steps it', async () => {
   const [standup] = await calendar.getChips({ title: 'Standup' });
   await standup.move('right');
 
-  // The calendar only EMITS — applying the change is the host's job.
+  // The calendar only emits eventChange; the host applies it.
   expect(changed()?.kind).toBe('move');
   expect(changed()?.start.getDate()).toBe(15);
 });`,
@@ -316,7 +245,7 @@ it('sets a time and steps it', async () => {
     imageCropper: `it('opens a crop window once the image is measured', async () => {
   const cropper = await loader.getHarness(WrImageCropperHarness);
 
-  // jsdom loads nothing, so hand the <img> the two numbers the component reads.
+  // jsdom has no layout: give the image a size first.
   const img = fixture.nativeElement.querySelector('.wr-image-cropper__image');
   img.getBoundingClientRect = () => ({ width: 400, height: 400, x: 0, y: 0 });
   Object.defineProperty(img, 'naturalWidth', { value: 800 });
@@ -334,8 +263,7 @@ it('sets a time and steps it', async () => {
   const win = await rootLoader.getHarness(WrWindowHarness.with({ title: 'Untitled.md' }));
   await win.minimize();
 
-  // Minimized is a state, not a dismissal.
-  expect(await win.isOpen()).toBe(true);
+  expect(await win.isOpen()).toBe(true);   // minimized is still open
   expect(await win.getState()).toBe('minimized');
 
   const taskbar = await loader.getHarness(WrWindowTaskbarHarness);
@@ -367,7 +295,7 @@ it('sets a time and steps it', async () => {
 
   await first.next();
 
-  // The card is rebuilt per step, so fetch a fresh harness rather than reusing one.
+  // Each step is a new card, so get a fresh harness.
   const second = await rootLoader.getHarness(WrTourHarness);
   expect(await second.getProgress()).toEqual({ current: 2, total: 2 });
   expect(await second.getPrimaryLabel()).toBe('Done');
@@ -376,8 +304,7 @@ it('sets a time and steps it', async () => {
     lightbox: `it('opens the full image', async () => {
   const lightbox = await loader.getHarness(WrLightboxHarness.with({ alt: 'Mountain' }));
 
-  // Nothing to read yet — the viewer is an overlay that does not exist while shut.
-  await expect(lightbox.getFullSrc()).rejects.toThrow();
+  await expect(lightbox.getFullSrc()).rejects.toThrow();   // no viewer while closed
 
   await lightbox.open();
   expect(await lightbox.isModal()).toBe(true);
@@ -390,8 +317,7 @@ it('sets a time and steps it', async () => {
     speedDial: `it('fans out and picks', async () => {
   const dial = await loader.getHarness(WrSpeedDialHarness);
 
-  // Closed, the buttons are in the DOM but unreachable — so the harness refuses.
-  await expect(dial.getActions()).rejects.toThrow();
+  await expect(dial.getActions()).rejects.toThrow();   // closed
 
   await dial.open();
   expect(await dial.getActionLabels()).toEqual(['Share', 'Copy link']);
@@ -404,8 +330,6 @@ it('sets a time and steps it', async () => {
   const knob = await loader.getHarness(WrKnobHarness);
 
   await knob.setValue(60);
-
-  // The announced number and the printed string are different questions.
   expect(await knob.getValue()).toBe(60);
   expect(await knob.getDisplayValue()).toBe('60%');
 
@@ -416,14 +340,13 @@ it('sets a time and steps it', async () => {
     splitter: `it('resizes from the keyboard', async () => {
   const splitter = await loader.getHarness(WrSplitterHarness);
 
-  // Panes side by side; the divider drawn between them is a vertical line.
+  // Side-by-side panes have a vertical divider.
   expect(await splitter.getOrientation()).toBe('horizontal');
   expect(await splitter.getDividerOrientation()).toBe('vertical');
 
   await splitter.setPosition(70);
   expect(await splitter.getPaneSizes()).toEqual({ start: 70, end: 30 });
 
-  // Home and End are semantic — they never mirror under RTL.
   await splitter.pressHome();
   expect(await splitter.getPosition()).toBe(await splitter.getMinPosition());
 });`,
@@ -464,9 +387,7 @@ it('announces a tree', async () => {
 
   expect(await group.getRadioLabels()).toEqual(['Small', 'Medium', 'Large']);
   expect(await group.getSelectedLabel()).toBeNull();
-
-  // Nothing is picked yet, so the tab stop is option one — NOT the selection.
-  expect(await group.getTabStopLabel()).toBe('Small');
+  expect(await group.getTabStopLabel()).toBe('Small');   // nothing picked yet
 
   await group.select({ label: 'Large' });
   expect(await group.getSelectedLabel()).toBe('Large');
@@ -508,8 +429,6 @@ it('separates the field text from the value', async () => {
     slider: `it('moves the slider', async () => {
   const slider = await loader.getHarness(WrSliderHarness);
 
-  // Keyboard-driven on purpose: a unit test has no layout, so a drag would write
-  // the wrong number or NaN. This is the accessible path anyway.
   await slider.setValue(70);
   expect(await slider.getValue()).toBe(70);
 
@@ -518,7 +437,7 @@ it('separates the field text from the value', async () => {
   expect(await slider.getValue()).toBe(await slider.getMax());
 });
 
-it('moves the far end of a range first', async () => {
+it('sets a range', async () => {
   const slider = await loader.getHarness(WrSliderHarness);   // range
 
   await slider.setRange(90, 95);
@@ -539,7 +458,7 @@ it('moves the far end of a range first', async () => {
   expect(await rating.getValue()).toBe(0);
 });`,
 
-    upload: `it('takes a dropped file and drops a rejected one', async () => {
+    upload: `it('takes a dropped file and removes it', async () => {
   const upload = await loader.getHarness(WrFileUploadHarness);
 
   await upload.dropFiles([new File(['hello'], 'notes.txt', { type: 'text/plain' })]);
@@ -552,7 +471,7 @@ it('moves the far end of a range first', async () => {
     contextMenu: `it('copies from the context menu', async () => {
   const menu = await loader.getHarness(WrContextMenuHarness);
 
-  await menu.open();                        // a real \`contextmenu\` event, not a click
+  await menu.open();
   expect(await menu.getItemTexts()).toEqual(['Copy', 'Cut', 'Paste']);
 
   await menu.clickItem({ text: 'Copy' });
@@ -591,9 +510,6 @@ it('walks into a submenu', async () => {
 
   await palette.moveToNextItem();
   expect(await palette.getActiveItemLabel()).toBe('Set theme');
-
-  // The query field owns the list through aria-activedescendant, so the
-  // highlighted row is announced without focus ever leaving the input.
   expect(await palette.isActiveItemAnnounced()).toBe(true);
 
   await palette.runActiveItem();
@@ -605,7 +521,6 @@ it('walks into a submenu', async () => {
   await cascader.open();
   expect(await cascader.getColumnCount()).toBe(1);
 
-  // Each column is one level, and opening a parent is what creates the next.
   await cascader.selectPath(['Europe', 'Portugal', 'Lisbon']);
 
   expect(await cascader.getValueText()).toBe('Europe / Portugal / Lisbon');
@@ -630,8 +545,7 @@ it('announces the hierarchy', async () => {
   const app = await tree.getNode({ label: 'app' });
 
   expect(await app.getLevel()).toBe(2);
-  // Per SIBLING GROUP, not per flat list — 'app' and 'main.ts' are the two
-  // children of 'src'.
+  // Per sibling group: 'app' and 'main.ts' are the children of 'src'.
   expect(await app.getSetSize()).toBe(2);
   expect(await app.getPosInSet()).toBe(1);
 });`,
@@ -639,13 +553,11 @@ it('announces the hierarchy', async () => {
     graph: `it('reads the structure, not the drawing', async () => {
   const graph = await loader.getHarness(WrGraphHarness.with({ ariaLabel: 'Team structure' }));
 
-  // Lines speak in ids — the only place the DOM writes one — in the order given.
   expect(await graph.getEdges()).toEqual([
     { from: 'lead', to: 'design' },
     { from: 'lead', to: 'build' },
   ]);
 
-  // Two questions, not one: what the node draws, and what it announces.
   const design = await graph.getNode({ label: 'Design' });
   expect(await design.getText()).toBe('Design');
   expect(await design.getRelationText()).toBe('Parents: Lead');
@@ -662,37 +574,42 @@ it('announces the hierarchy', async () => {
   expect(await mention.getValue()).toBe('hey @ada ');
 });`,
 
-    editor: `it('writes through the editor, and reads the value from the model', async () => {
+    editor: `// jsdom has no Range geometry. Delete these again in afterEach.
+beforeEach(() => {
+  Range.prototype.getClientRects = () => [] as unknown as DOMRectList;
+  Range.prototype.getBoundingClientRect = () => new DOMRect();
+  document.elementFromPoint = () => null;
+});
+
+it('writes through the editor, and reads the value from the model', async () => {
   const body = await loader.getHarness(WrEditorHarness.with({ label: 'Body' }));
 
   await body.setText('Release notes');
   await body.selectAll();
   await (await body.getTool('Bold')).click();
 
-  // Two questions: what the surface draws, and what the model holds.
   expect(await body.getText()).toBe('Release notes');
   expect(await body.isToolPressed('Bold')).toBe(true);
-  expect(fixture.componentInstance.body()).toBe('<p><strong>Release notes</strong></p>');
+  expect(fixture.componentInstance.body()).toEqual({
+    type: 'doc',
+    content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Release notes', marks: [{ type: 'strong' }] }] }],
+  });
 
-  // A refused address leaves the panel open with its message.
   await body.setLink('javascript:alert(1)');
   expect(await body.getLinkError()).toBe('This address cannot be used as a link.');
 });`,
 
-    formField: `it('shows a message the app never wrote', async () => {
+    formField: `it('shows the message the rule carries', async () => {
   const field = await loader.getHarness(WrFormFieldHarness);
   const email = await loader.getHarness(WrInputHarness);
 
   await email.setValue('nope');
   await email.blur();
 
-  // No <wr-form-error> in the template: the copy comes from the i18n catalog
-  // through provideWrFormErrors(), which is the whole point of the component.
-  expect(await field.getErrorText('email')).toBeTruthy();
+  // From the rule: email(path.email, { message: 'Enter a valid email address.' })
+  expect(await field.getErrorText('email')).toBe('Enter a valid email address.');
   expect(await field.isInvalid()).toBe(true);
 
-  // And the control is actually wired to it — a message nothing points at is
-  // decoration a screen reader never reads.
   expect(await field.getAnnouncedDescription()).toBe(await field.getErrorText('email'));
   expect(await field.isLabelLinkedToControl()).toBe(true);
 });`,
@@ -706,7 +623,6 @@ it('announces the hierarchy', async () => {
   await tabs.select({ label: 'Details' });
   expect(await tabs.getSelectedLabel()).toBe('Details');
 
-  // The panel has to be the one THIS tab names, or a screen reader lands nowhere.
   const details = (await tabs.getTabs({ label: 'Details' }))[0];
   expect(await details.isPanelBound()).toBe(true);
 });
@@ -717,8 +633,6 @@ it('walks focus without moving the selection', async () => {
   await tabs.focusTabStop();
   await tabs.pressArrowRight();
 
-  // Two different questions. A strip that answered the selection for both would
-  // look right in a test and be dead to a keyboard user.
   expect(await tabs.getFocusedLabel()).toBe('Details');
   expect(await tabs.getSelectedLabel()).toBe('Overview');
 });`,
@@ -733,7 +647,7 @@ it('walks focus without moving the selection', async () => {
   expect(await stepper.getActiveLabel()).toBe('Address');
   expect(await stepper.getCompletedLabels()).toEqual(['Cart']);
 
-  // A linear stepper refuses a jump, and says so rather than doing nothing.
+  // A linear stepper refuses a jump.
   expect(await stepper.canGoTo(2)).toBe(false);
   await expect(stepper.goTo(2)).rejects.toThrow();
 });`,
@@ -744,15 +658,12 @@ it('walks focus without moving the selection', async () => {
   expect(await pager.getCurrentPage()).toBe(1);
   expect(await pager.isPreviousDisabled()).toBe(true);
 
-  // The gaps are not pages. \`getStrip()\` shows them for what they are.
   expect(await pager.getPages()).toEqual([1, 2, 3, 4, 5, 10]);
   expect(await pager.getStrip()).toEqual([1, 2, 3, 4, 5, '…', 10]);
 
   await pager.goToPage(10);
   expect(await pager.isNextDisabled()).toBe(true);
 
-  // The page-size control is a wr-select, so compose its harness rather than
-  // querying a panel that already has one.
   await pager.setPageSize(50);
   expect(await pager.getPageSize()).toBe(50);
 });`,
@@ -782,38 +693,9 @@ it('walks focus without moving the selection', async () => {
   await transfer.moveTo('target');
   expect(await (await transfer.getPane('target')).getItemLabels()).toEqual(['Write']);
 
-  // Nothing staged, so the button is disabled — and the harness refuses rather
-  // than pressing it and resolving as if something had happened.
   await expect(transfer.moveTo('target')).rejects.toThrow(/nothing staged/);
 });`,
 
-    markdown: `import { WrMarkdownHarness } from 'ngwr/markdown/testing';
-
-const md = await loader.getHarness(WrMarkdownHarness);
-
-expect(await md.getHeadings()).toEqual([
-  { level: 1, text: 'Release notes', id: 'user-content-release-notes' },
-]);
-
-// Links carry what a reviewer actually cares about. \`rel\` is only set when
-// the host opts into a target — this one renders linkTarget="_blank".
-const [link] = await md.getLinks();
-expect(link.href).toBe('https://ngwr.dev');
-expect(link.rel).toBe('noopener noreferrer');
-
-// Code blocks are their own harness.
-const block = await md.getCodeBlock({ language: 'ts' });
-expect(await block.getCode()).toBe('const a = 1;');
-expect(await block.canCopy()).toBe(true);
-await block.copy();
-
-// Task state is a field, not something to parse out of the text.
-expect(await md.getTaskItems()).toEqual([
-  { text: 'ship it', checked: true, stateLabel: 'Done:' },
-]);
-
-// Mid-stream, the host says so.
-expect(await md.isStreaming()).toBe(true);`,
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 export class MyWidgetHarness extends ComponentHarness {
@@ -832,1685 +714,1114 @@ export class MyWidgetHarness extends ComponentHarness {
   };
 
   protected readonly buttonApi: readonly DocApiRow[] = [
-    { name: 'getText()', description: "The button's visible label, trimmed.", type: 'Promise<string>', default: '—' },
+    { name: 'getText()', description: 'The visible label.', type: 'Promise<string>' },
     {
       name: 'isDisabled()',
-      description:
-        'Whether the button refuses interaction. Reads both `disabled` and `aria-disabled`, and answers `true` for a loading button.',
+      description: '`true` when disabled, `aria-disabled` or loading.',
       type: 'Promise<boolean>',
-      default: '—',
     },
-    { name: 'isLoading()', description: 'Whether the spinner is showing.', type: 'Promise<boolean>', default: '—' },
-    {
-      name: 'getColor()',
-      description: 'The intent modifier, matched against `WR_COLORS`. `null` when the button carries none.',
-      type: 'Promise<WrColor | null>',
-      default: '—',
-    },
-    { name: 'click()', description: 'Click the button.', type: 'Promise<void>', default: '—' },
-    { name: 'focus()', description: 'Move keyboard focus to it.', type: 'Promise<void>', default: '—' },
-    { name: 'isFocused()', description: 'Whether it currently has focus.', type: 'Promise<boolean>', default: '—' },
+    { name: 'isLoading()', description: 'Whether the spinner shows.', type: 'Promise<boolean>' },
+    { name: 'getColor()', description: 'The intent, or `null`.', type: 'Promise<WrColor | null>' },
+    { name: 'click()', description: 'Clicks the button.', type: 'Promise<void>' },
+    { name: 'focus() / isFocused()', description: 'Focus.', type: 'Promise<void> | Promise<boolean>' },
   ];
 
   protected readonly inputApi: readonly DocApiRow[] = [
-    { name: 'getValue()', description: 'The current value.', type: 'Promise<string>', default: '—' },
-    {
-      name: 'setValue(value)',
-      description:
-        "Type a value in. `input` carries the value — signal forms AND `[(ngModel)]` both listen to that one. `change` follows it for a consumer's own `(change)` handler, which a browser would only fire on commit.",
-      type: 'Promise<void>',
-      default: '—',
-    },
-    { name: 'clear()', description: 'Empty the field, same events.', type: 'Promise<void>', default: '—' },
-    { name: 'getPlaceholder()', description: 'The placeholder text.', type: 'Promise<string>', default: '—' },
-    { name: 'isDisabled()', description: 'Whether the field is disabled.', type: 'Promise<boolean>', default: '—' },
-    { name: 'isReadonly()', description: 'Whether the field is read-only.', type: 'Promise<boolean>', default: '—' },
-    {
-      name: 'isInvalid()',
-      description: 'Whether `aria-invalid` is set — what a screen reader is told, not what the model thinks.',
-      type: 'Promise<boolean>',
-      default: '—',
-    },
-    { name: 'getTagName()', description: "`'input'` or `'textarea'`.", type: 'Promise<string>', default: '—' },
-    {
-      name: 'focus() / blur() / isFocused()',
-      description: 'Focus management.',
-      type: 'Promise<void> | Promise<boolean>',
-      default: '—',
-    },
+    { name: 'getValue()', description: 'The current value.', type: 'Promise<string>' },
+    { name: 'setValue(value)', description: 'Types a value: fires `input`, then `change`.', type: 'Promise<void>' },
+    { name: 'clear()', description: 'Empties the field.', type: 'Promise<void>' },
+    { name: 'getPlaceholder()', description: 'The placeholder.', type: 'Promise<string>' },
+    { name: 'isDisabled() / isReadonly()', description: 'Field state.', type: 'Promise<boolean>' },
+    { name: 'isInvalid()', description: 'Whether `aria-invalid` is set.', type: 'Promise<boolean>' },
+    { name: 'getTagName()', description: "`'input'` or `'textarea'`.", type: 'Promise<string>' },
+    { name: 'focus() / blur() / isFocused()', description: 'Focus.', type: 'Promise<void> | Promise<boolean>' },
   ];
 
   protected readonly checkboxApi: readonly DocApiRow[] = [
-    { name: 'getLabel()', description: 'The projected label, trimmed.', type: 'Promise<string>', default: '—' },
-    { name: 'isChecked()', description: 'Whether the box is ticked.', type: 'Promise<boolean>', default: '—' },
-    {
-      name: 'isIndeterminate()',
-      description: 'Whether it is in the third state. Read from the DOM property, which is where that state lives.',
-      type: 'Promise<boolean>',
-      default: '—',
-    },
-    { name: 'isDisabled()', description: 'Whether the box is disabled.', type: 'Promise<boolean>', default: '—' },
+    { name: 'getLabel()', description: 'The label.', type: 'Promise<string>' },
+    { name: 'isChecked() / isIndeterminate() / isDisabled()', description: 'Box state.', type: 'Promise<boolean>' },
     {
       name: 'getCheckboxValue()',
-      description:
-        'The group identity — `checkboxValue`, not the form value. `null` when there is none, or when it is not a primitive: an object identity has no attribute form and a harness reads the DOM.',
+      description: 'The `checkboxValue` group identity, or `null` when it is not a primitive.',
       type: 'Promise<string | null>',
-      default: '—',
     },
     {
       name: 'toggle() / check() / uncheck()',
-      description: '`check` and `uncheck` are no-ops when the box is already in that state.',
+      description: '`check` and `uncheck` do nothing when already there.',
       type: 'Promise<void>',
-      default: '—',
     },
-    {
-      name: 'focus() / isFocused()',
-      description: 'Focus lands on the real control inside the label.',
-      type: 'Promise<void> | Promise<boolean>',
-      default: '—',
-    },
+    { name: 'focus() / isFocused()', description: 'Focus.', type: 'Promise<void> | Promise<boolean>' },
   ];
 
   protected readonly switchApi: readonly DocApiRow[] = [
-    { name: 'getLabel()', description: 'The projected label, trimmed.', type: 'Promise<string>', default: '—' },
-    { name: 'isOn()', description: 'Whether the switch is on.', type: 'Promise<boolean>', default: '—' },
-    { name: 'isDisabled()', description: 'Whether the switch is disabled.', type: 'Promise<boolean>', default: '—' },
-    {
-      name: 'getRole()',
-      description: "`'switch'` — the difference between this control and a checkbox.",
-      type: 'Promise<string | null>',
-      default: '—',
-    },
+    { name: 'getLabel()', description: 'The label.', type: 'Promise<string>' },
+    { name: 'isOn() / isDisabled()', description: 'Switch state.', type: 'Promise<boolean>' },
+    { name: 'getRole()', description: "`'switch'`.", type: 'Promise<string | null>' },
     {
       name: 'toggle() / turnOn() / turnOff()',
-      description: '`turnOn` and `turnOff` are no-ops when the switch is already there.',
+      description: '`turnOn` and `turnOff` do nothing when already there.',
       type: 'Promise<void>',
-      default: '—',
     },
-    {
-      name: 'focus() / isFocused()',
-      description: 'Focus management.',
-      type: 'Promise<void> | Promise<boolean>',
-      default: '—',
-    },
+    { name: 'focus() / isFocused()', description: 'Focus.', type: 'Promise<void> | Promise<boolean>' },
   ];
 
   protected readonly selectApi: readonly DocApiRow[] = [
     {
       name: 'open() / close()',
-      description:
-        '`open()` throws rather than resolving quietly when no panel appears — a tag-mode select has none, and a `minChars` select opens on the query.',
+      description: '`open()` throws when no panel appears, as in tag mode or before `minChars`.',
       type: 'Promise<void>',
-      default: '—',
     },
-    { name: 'isOpen()', description: 'Whether the panel is showing.', type: 'Promise<boolean>', default: '—' },
+    { name: 'isOpen()', description: 'Whether the panel shows.', type: 'Promise<boolean>' },
     {
       name: 'getValueText()',
-      description:
-        "The trigger's current selection: the chip labels joined by `', '`, the single label, or the search input's text.",
+      description: "The selection as shown: chips joined by `', '`, the label, or the search text.",
       type: 'Promise<string>',
-      default: '—',
     },
     {
       name: 'getPlaceholder()',
-      description: 'The placeholder, or `null` when a selection is hiding it.',
+      description: 'The placeholder, or `null` when a selection hides it.',
       type: 'Promise<string | null>',
-      default: '—',
     },
     {
       name: 'getOptions(filters?)',
-      description:
-        'The options a user can actually reach — filtered-out ones are dropped. Throws while the panel is closed. Filters: `text`, `selected`, `disabled`.',
+      description: 'Reachable options; throws while closed. Filters: `text`, `selected`, `disabled`.',
       type: 'Promise<WrOptionHarness[]>',
-      default: '—',
     },
-    {
-      name: 'getOptionLabels()',
-      description: 'Those options as plain strings, in DOM order.',
-      type: 'Promise<string[]>',
-      default: '—',
-    },
+    { name: 'getOptionLabels()', description: 'Those options as strings.', type: 'Promise<string[]>' },
     {
       name: 'selectOption(filters)',
-      description: 'Open if needed, then click the first matching option.',
+      description: 'Opens if needed, then clicks the first match.',
       type: 'Promise<void>',
-      default: '—',
     },
-    {
-      name: 'typeSearch(query)',
-      description: "Replace a search or tag select's query.",
-      type: 'Promise<void>',
-      default: '—',
-    },
+    { name: 'typeSearch(query)', description: 'Replaces the search or tag query.', type: 'Promise<void>' },
     {
       name: 'getChipLabels() / removeChip(label)',
-      description: 'The visible chips in multi and tag modes. The `+N more` overflow chip is not one of them.',
+      description: 'Chips in multi and tag modes, without the `+N more` chip.',
       type: 'Promise<string[]> | Promise<void>',
-      default: '—',
     },
-    { name: 'clear()', description: 'Click the clear (×) control.', type: 'Promise<void>', default: '—' },
+    { name: 'clear()', description: 'Clicks the clear control.', type: 'Promise<void>' },
     {
       name: 'getNoResultsText() / isLoading()',
-      description: "The panel's empty and async-loading rows.",
+      description: 'The empty and loading rows.',
       type: 'Promise<string | null> | Promise<boolean>',
-      default: '—',
     },
     {
       name: 'isMultiple() / isDisabled() / focus()',
       description: 'Mode and state.',
       type: 'Promise<boolean> | Promise<void>',
-      default: '—',
-    },
-  ];
-
-  protected readonly optionApi: readonly DocApiRow[] = [
-    {
-      name: 'getText()',
-      description:
-        "The option's text as drawn, trimmed, without its `wrOptionLeading` visual. Not the `label` input: what the select reports for the option is `getValueText()` or `getChipLabels()` on `WrSelectHarness`.",
-      type: 'Promise<string>',
-      default: '—',
     },
     {
-      name: 'hasLeading()',
-      description:
-        'Whether the row is drawing a `wrOptionLeading` visual right now, so it answers `false` while the panel is closed.',
+      name: 'Option: getText() / hasLeading()',
+      description: '`WrOptionHarness`: the drawn text, and whether a `wrOptionLeading` visual shows.',
+      type: 'Promise<string> | Promise<boolean>',
+    },
+    {
+      name: 'Option: isSelected() / isDisabled() / isActive() / isHidden()',
+      description: '`isActive` is the keyboard cursor; `isHidden` means filtered out.',
       type: 'Promise<boolean>',
-      default: '—',
     },
-    {
-      name: 'isSelected() / isDisabled() / isActive()',
-      description:
-        '`isActive` is the keyboard cursor, not focus — a virtualized panel moves it with `aria-activedescendant`.',
-      type: 'Promise<boolean>',
-      default: '—',
-    },
-    {
-      name: 'isHidden()',
-      description:
-        'Whether a search query filtered this option out. It stays in the DOM so registration order survives.',
-      type: 'Promise<boolean>',
-      default: '—',
-    },
-    { name: 'click()', description: 'Click the option.', type: 'Promise<void>', default: '—' },
+    { name: 'Option: click()', description: 'Clicks the option.', type: 'Promise<void>' },
   ];
 
   protected readonly dialogApi: readonly DocApiRow[] = [
     {
       name: 'getTitleText() / getContentText()',
-      description: 'The `[wrDialogTitle]` and `[wrDialogContent]` text, or `null` when the dialog projects neither.',
+      description: 'The title and content text, or `null`.',
       type: 'Promise<string | null>',
-      default: '—',
     },
-    {
-      name: 'getHarness(…)',
-      description:
-        'Inherited from `ContentContainerComponentHarness` — resolves any harness INSIDE this dialog, so a stacked dialog cannot answer instead.',
-      type: 'Promise<T>',
-      default: '—',
-    },
+    { name: 'getHarness(…)', description: 'Finds a harness inside this dialog only.', type: 'Promise<T>' },
     {
       name: 'getRole() / isModal()',
-      description:
-        'Set on the OVERLAY element, not on your component — a consumer looking for them on their own host would not find them.',
+      description: 'Read from the overlay element.',
       type: 'Promise<string | null> | Promise<boolean>',
-      default: '—',
     },
     {
       name: 'isClosable() / getCloseLabel() / close()',
-      description: 'The built-in dismiss button. `close()` throws on a dialog opened `closable: false`.',
+      description: '`close()` throws when opened with `closable: false`.',
       type: 'Promise<boolean> | Promise<string | null> | Promise<void>',
-      default: '—',
     },
     {
       name: 'sendEscape()',
-      description: 'Press Escape. A dialog opened `closeOnEscape: false` ignores it — assert, do not assume.',
+      description: 'Presses Escape; ignored with `closeOnEscape: false`.',
       type: 'Promise<void>',
-      default: '—',
     },
-    {
-      name: 'isFocusTrapped()',
-      description: 'Whether focus is inside the dialog, where the trap should hold it.',
-      type: 'Promise<boolean>',
-      default: '—',
-    },
+    { name: 'isFocusTrapped()', description: 'Whether focus is inside the dialog.', type: 'Promise<boolean>' },
   ];
 
   protected readonly toastApi: readonly DocApiRow[] = [
     {
       name: 'getMessage() / getTitle()',
-      description: 'The two text lines. `getTitle()` is `null` for a toast shown without one.',
+      description: 'The text; `getTitle()` is `null` without a title.',
       type: 'Promise<string> | Promise<string | null>',
-      default: '—',
     },
-    {
-      name: 'getType()',
-      description: 'The intent, from the `wr-toast--*` modifier.',
-      type: 'Promise<WrToastType | null>',
-      default: '—',
-    },
+    { name: 'getType()', description: 'The intent.', type: 'Promise<WrToastType | null>' },
     {
       name: 'getRole() / getLiveLevel()',
-      description:
-        'How urgently the toast announces itself: `alert` / `assertive` for danger, `status` / `assertive` for warning, `status` / `polite` otherwise.',
+      description: 'Danger: `alert` / `assertive`. Warning: `status` / `assertive`. Others: `status` / `polite`.',
       type: 'Promise<string | null>',
-      default: '—',
     },
     {
       name: 'isDismissible() / dismiss()',
-      description: 'The close button. `dismiss()` throws on a toast shown `dismissible: false`.',
+      description: '`dismiss()` throws when shown with `dismissible: false`.',
       type: 'Promise<boolean> | Promise<void>',
-      default: '—',
     },
     {
       name: 'hasCopyAction() / copy()',
-      description: 'The copy button, present only with `showCopy: true`.',
+      description: 'The copy button, with `showCopy: true`.',
       type: 'Promise<boolean> | Promise<void>',
-      default: '—',
     },
     {
       name: 'hasProgressBar()',
-      description: 'Whether the auto-dismiss bar is showing — it needs both `showProgress` and a non-zero duration.',
+      description: 'Needs `showProgress` and a non-zero duration.',
       type: 'Promise<boolean>',
-      default: '—',
     },
-    {
-      name: 'hover() / mouseAway()',
-      description: 'Hovering is what pauses the auto-dismiss timer.',
-      type: 'Promise<void>',
-      default: '—',
-    },
+    { name: 'hover() / mouseAway()', description: 'Hover pauses auto-dismiss.', type: 'Promise<void>' },
   ];
 
   protected readonly dropdownApi: readonly DocApiRow[] = [
     {
       name: 'open() / openByKeyboard() / close()',
-      description:
-        '`open()` hovers then clicks, so it works whatever the `trigger` mode is. `openByKeyboard()` is the third route — the component takes ArrowDown in every mode.',
+      description: '`open()` works in any `trigger` mode; `openByKeyboard()` presses ArrowDown.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'isOpen() / getTriggerText()',
-      description: 'The trigger publishes `aria-controls` only while its menu is up, which is what `isOpen()` reads.',
+      description: 'Menu state and trigger label.',
       type: 'Promise<boolean> | Promise<string>',
-      default: '—',
     },
     {
       name: 'getItems(filters?) / getItemTexts()',
-      description: 'The menu is in the overlay, scoped to this dropdown by its menu id. Filters: `text`, `disabled`.',
+      description: 'The menu items. Filters: `text`, `disabled`.',
       type: 'Promise<WrDropdownItemHarness[]> | Promise<string[]>',
-      default: '—',
     },
     {
       name: 'clickItem(filters)',
-      description:
-        'Open if needed, then click the first match. Picking does NOT close the menu — there is no close-on-select.',
+      description: 'Opens if needed, then clicks the first match. The menu stays open.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'getFocusedItemText()',
-      description:
-        'Where the roving focus is now. It starts on the first ENABLED item and the arrows step over disabled ones.',
+      description: 'Where the roving focus is.',
       type: 'Promise<string | null>',
-      default: '—',
     },
     {
       name: 'getMenuRole() / isMenuLabelledByTrigger()',
-      description: 'The menu announces `menu` and names itself from the trigger.',
+      description: 'The menu role and name.',
       type: 'Promise<string | null> | Promise<boolean>',
-      default: '—',
     },
     {
       name: 'clickTrigger() / hoverTrigger() / mouseAwayFromTrigger()',
-      description: 'One gesture at a time, when you want to assert that a mode ignores the other.',
+      description: 'Single gestures, to test one `trigger` mode.',
       type: 'Promise<void>',
-      default: '—',
-    },
-  ];
-
-  protected readonly dropdownItemApi: readonly DocApiRow[] = [
-    { name: 'getText()', description: 'The label, without a leading icon.', type: 'Promise<string>', default: '—' },
-    {
-      name: 'getRole() / isDisabled() / isFocused()',
-      description: 'Role, state and whether the roving focus is on it.',
-      type: 'Promise<string | null> | Promise<boolean>',
-      default: '—',
     },
     {
-      name: 'hasIcon() / getIconName()',
-      description: 'The leading icon, if the item has one.',
-      type: 'Promise<boolean> | Promise<string | null>',
-      default: '—',
+      name: 'Item: getText() / hasIcon() / getIconName()',
+      description: '`WrDropdownItemHarness`: the label and its leading icon.',
+      type: 'Promise<…>',
     },
-    { name: 'click()', description: 'Click the item.', type: 'Promise<void>', default: '—' },
+    {
+      name: 'Item: getRole() / isDisabled() / isFocused() / click()',
+      description: 'Role, state and click.',
+      type: 'Promise<…>',
+    },
   ];
 
   protected readonly datePickerApi: readonly DocApiRow[] = [
     {
       name: 'open() / close() / isOpen()',
-      description:
-        "`close()` toggles this picker's own trigger rather than sending Escape, which would go to whichever overlay opened last.",
+      description: "`close()` toggles this picker's own trigger.",
       type: 'Promise<void> | Promise<boolean>',
-      default: '—',
     },
     {
       name: 'getValueText() / setValueText(text) / clear()',
-      description:
-        'The text in the field. Typing is how a user enters a date, so `setValueText` goes through the input.',
+      description: 'The field text; `setValueText` types it.',
       type: 'Promise<string> | Promise<void>',
-      default: '—',
     },
     {
       name: 'getPanelHeader() / getView() / getWeekdayLabels()',
-      description:
-        '`getView()` is `day` / `month` / `year`; the header reads `January 2025`, `2025` or `2016 – 2027` to match.',
+      description: '`getView()` is `day`, `month` or `year`.',
       type: 'Promise<string> | Promise<string[]>',
-      default: '—',
     },
     {
       name: 'next() / previous() / zoomOut()',
-      description:
-        'One step means what the nav button says it means: a month in the day view, a year in the month view, twelve years in the year view.',
+      description: 'One step of the current view.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'selectMonth(month) / selectYear(year)',
-      description: 'Pick from the zoomed-out views. A month takes a 0-based index or the label the locale renders.',
+      description: 'A month takes a 0-based index or its label.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'getDays(filters?) / getDay(n) / selectDay(n)',
-      description:
-        '`selectDay` refuses a disabled cell instead of clicking into the void. Filters: `text`, `selected`, `disabled`, `inRange` — today and the out-of-month padding are questions you ask a cell harness, not the query.',
+      description: '`selectDay` throws on a disabled day. Filters: `text`, `selected`, `disabled`, `inRange`.',
       type: 'Promise<WrDatePickerDayHarness[]> | Promise<void>',
-      default: '—',
     },
     {
       name: 'getTime() / setTime(fields) / stepTime(unit, ±1) / toggleMeridiem()',
-      description: 'The `time` and `datetime` modes only. Ordering settles on blur, not per keystroke.',
+      description: '`time` and `datetime` modes only.',
       type: 'Promise<string> | Promise<void>',
-      default: '—',
     },
     {
       name: 'getMode() / isDisabled() / isReadonly() / focus() / blur() / isFocused()',
-      description: 'Mode and field state. A readonly picker still opens; a readonly RANGE picker does not.',
+      description: 'Mode and field state.',
       type: 'Promise<…>',
-      default: '—',
     },
-  ];
-
-  protected readonly datePickerDayApi: readonly DocApiRow[] = [
     {
-      name: 'getDayOfMonth() / getText()',
-      description: 'The number the cell shows.',
+      name: 'Day: getDayOfMonth() / getText()',
+      description: '`WrDatePickerDayHarness`: the day number.',
       type: 'Promise<number> | Promise<string>',
-      default: '—',
     },
     {
-      name: 'isSelected() / isDisabled() / isToday() / isInRange()',
-      description: 'Cell state, read from ARIA and the `wr-calendar__day--*` modifiers.',
+      name: 'Day: isSelected() / isDisabled() / isToday() / isInRange() / isOutOfMonth() / isActive()',
+      description: 'Cell state. `isActive` is the tab stop, not the selection.',
       type: 'Promise<boolean>',
-      default: '—',
     },
     {
-      name: 'isOutOfMonth()',
-      description: "Whether this is a neighbouring month's padding cell — those are real, clickable days.",
-      type: 'Promise<boolean>',
-      default: '—',
-    },
-    {
-      name: 'isActive()',
-      description:
-        'The roving tab stop, which is NOT the same as selected. At most one cell answers true, and after a month step none does.',
-      type: 'Promise<boolean>',
-      default: '—',
-    },
-  ];
-
-  protected readonly dateRangeApi: readonly DocApiRow[] = [
-    {
-      name: 'getStartText() / getEndText() / getSeparator()',
-      description: 'The two fields and the separator between them.',
+      name: 'Range: getStartText() / getEndText() / getSeparator()',
+      description: '`WrDateRangePickerHarness`: the two fields and the separator.',
       type: 'Promise<string>',
-      default: '—',
     },
     {
-      name: 'setStartText(text) / setEndText(text) / clear()',
-      description: 'Type into one end without disturbing the other.',
+      name: 'Range: setStartText(text) / setEndText(text) / clear()',
+      description: 'Types into one end.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
-      name: 'focus(end) / blur(end) / isFocused(end) / getPlaceholder(end)',
-      description: "Every per-end method takes `'start'` or `'end'`.",
+      name: 'Range: focus(end) / blur(end) / isFocused(end) / getPlaceholder(end)',
+      description: "`end` is `'start'` or `'end'`.",
       type: 'Promise<…>',
-      default: '—',
     },
     {
-      name: 'getTime(end) / setTime(end, fields) / stepTime(end, unit, ±1) / toggleMeridiem(end)',
-      description: 'A datetime range renders one stepper per end — stepping one must not drag the other with it.',
+      name: 'Range: getTime(end) / setTime(end, fields) / stepTime(end, unit, ±1) / toggleMeridiem(end)',
+      description: 'Time per end. The panel methods above work on both pickers.',
       type: 'Promise<…>',
-      default: '—',
-    },
-    {
-      name: 'Everything on the day grid',
-      description: 'The panel methods above are shared: both pickers extend the same base.',
-      type: '—',
-      default: '—',
     },
   ];
 
   protected readonly popoverApi: readonly DocApiRow[] = [
     {
       name: 'getMode()',
-      description:
-        'Read from ARIA, not from the `mode` input: a bound `[mode]` never reaches the DOM. It gates what `open()` does and which attribute names the panel.',
+      description: '`popover` or `tooltip`.',
       type: "Promise<'popover' | 'tooltip'>",
-      default: '—',
     },
     {
       name: 'open(timeout?) / close(timeout?)',
-      description:
-        'Performs the gesture this instance takes, then WAITS: both modes have show / hide delays, so an immediate assertion would read the frame before.',
+      description: 'The right gesture for the mode, then waits for the panel.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'waitUntilOpen(timeout?) / waitUntilClosed(timeout?)',
-      description: 'The wait on its own, for when you drove the gesture yourself.',
+      description: 'Only the wait.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'click() / hover() / mouseAway() / focus() / blur() / sendEscape()',
-      description: 'One gesture, no waiting — assert that a click-mode popover ignores a hover.',
+      description: 'One gesture, no wait.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'getContentText() / getDescriptionText()',
-      description:
-        'The panel text. A tooltip also names its trigger through `aria-describedby`, which is what a screen reader reads — `getDescriptionText()` follows that reference.',
+      description: "The panel text, and a tooltip's `aria-describedby` text.",
       type: 'Promise<string> | Promise<string | null>',
-      default: '—',
     },
-    {
-      name: 'getRole() / getLabel() / isModal()',
-      description: '`tooltip` in tooltip mode, `dialog` in popover mode.',
-      type: 'Promise<…>',
-      default: '—',
-    },
-    {
-      name: 'getPosition() / isSheet()',
-      description: 'The placement modifier, and whether it collapsed to a bottom sheet on a small viewport.',
-      type: 'Promise<WrPopoverPosition | null> | Promise<boolean>',
-      default: '—',
-    },
+    { name: 'getRole() / getLabel() / isModal()', description: '`tooltip` or `dialog`.', type: 'Promise<…>' },
+    { name: 'getPosition()', description: 'The placement.', type: 'Promise<WrPopoverPosition | null>' },
   ];
 
   protected readonly drawerApi: readonly DocApiRow[] = [
-    {
-      name: 'isOpen()',
-      description: "Whether this drawer's pane is attached to the document — a disposed pane is not open.",
-      type: 'Promise<boolean>',
-      default: '—',
-    },
+    { name: 'isOpen()', description: 'Whether the pane is attached.', type: 'Promise<boolean>' },
     {
       name: 'getTitleText() / getContentText()',
-      description: 'The `[wrDrawerTitle]` and `[wrDrawerContent]` text.',
+      description: 'Title and content text.',
       type: 'Promise<string | null>',
-      default: '—',
     },
     {
-      name: 'getPosition() / isSheet() / isRounded() / hasSafeArea() / hasHandle()',
-      description: 'Which edge it came from and how it is presented.',
+      name: 'getPosition() / isSheet() / isRounded() / hasSafeArea()',
+      description: 'Edge and presentation.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getRole() / isModal() / isLabelledByTitle()',
-      description:
-        'Written onto the OVERLAY element by both flavours, not onto your markup. `isLabelledByTitle()` resolves the reference rather than trusting that one is present.',
+      description: 'Read from the overlay element.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'isClosable() / getCloseLabel() / close() / sendEscape()',
-      description: '`close()` throws on a drawer opened `closable: false`; Escape is a separate opt-out.',
+      description: '`close()` throws when opened with `closable: false`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'hasBackdrop() / clickBackdrop()',
-      description: 'The backdrop belonging to THIS drawer, not whichever one is on top.',
+      description: "This drawer's backdrop.",
       type: 'Promise<boolean> | Promise<void>',
-      default: '—',
     },
-    {
-      name: 'isFocusTrapped()',
-      description: 'Whether focus is inside the drawer, where the trap should hold it.',
-      type: 'Promise<boolean>',
-      default: '—',
-    },
-  ];
-
-  protected readonly actionSheetApi: readonly DocApiRow[] = [
-    {
-      name: 'isOpen() / getTitle() / getMessage()',
-      description:
-        'A sheet you are HOLDING; a closed one has no harness to get. Title and message are `null` when the sheet was opened without them.',
-      type: 'Promise<…>',
-      default: '—',
-    },
-    {
-      name: 'getAccessibleName() / isTitleVisible() / isNamed()',
-      description:
-        'An untitled sheet still names its dialog, with a string only a screen reader gets. `isNamed()` resolves the panel’s `aria-labelledby` rather than trusting that the attribute is there.',
-      type: 'Promise<…>',
-      default: '—',
-    },
-    {
-      name: 'getActions(filters?) / getActionLabels() / getActionGroups() / hasCancelGroup()',
-      description:
-        'The rows, flat and grouped. The grouping is what pins the cancel row to its own block. Filters: `label`, `role`, `disabled`.',
-      type: 'Promise<…>',
-      default: '—',
-    },
-    {
-      name: 'select(filters) / sendEscape()',
-      description:
-        'The two ways out. Picking emits `action` and closes; Escape closes and emits nothing. A disabled or unmatched row throws instead of doing nothing quietly.',
-      type: 'Promise<void>',
-      default: '—',
-    },
-    {
-      name: 'Row: getLabel() / getRole() / isDisabled() / hasIcon() / getIconName() / click() / focus() / isFocused()',
-      description:
-        '`WrActionSheetActionHarness`. The role is `default` / `destructive` / `cancel` as the component painted it; the icon name comes from `wr-icon`’s reflected `data-icon`, the only place it reaches the DOM.',
-      type: 'Promise<…>',
-      default: '—',
-    },
+    { name: 'isFocusTrapped()', description: 'Whether focus is inside the drawer.', type: 'Promise<boolean>' },
   ];
 
   protected readonly colorPickerApi: readonly DocApiRow[] = [
     {
       name: 'getHex() / setHex(text) / blurHex() / isHexFocused()',
-      description:
-        'The canonical colour — 8 digits with alpha, 6 without. Typed rather than assigned, because the field commits on every keystroke; text that never parses leaves the colour alone until the blur snaps the field back.',
+      description: 'The colour as hex, 8 digits with alpha. Not the same as `value`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getTab() / setTab(tab) / getTabs()',
-      description:
-        'Which numeric fields are showing. The switcher is a `<wr-segmented>`, so `getTabs()` hands back `WrSegmentedHarness` rather than re-querying its buttons.',
+      description: 'The field tab; `getTabs()` returns a `WrSegmentedHarness`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getRgb() / setRgbChannel(ch, n) / getHsl() / setHslChannel(ch, n)',
-      description:
-        'The channels of the ACTIVE tab; reading the other tab’s throws, naming `setTab`. A write lands once rather than per keystroke — typing 128 would commit 1, then 12, and clearing first would commit 0, since `Number("")` is 0.',
+      description: 'Channels of the active tab; the other tab throws.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getAlphaPercent() / setAlphaPercent(n) / hasAlpha()',
-      description:
-        'Alpha as the whole percent the numeric tabs show. `null` means the picker has no alpha; the HEX tab throws instead, because there the alpha is the last two hex digits.',
+      description: 'Alpha in percent; `null` without alpha. Throws on the HEX tab.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getSwatches() / pickSwatch(color) / getThumbs() / isDisabled()',
-      description:
-        'Presets are matched on the string the consumer passed — the button’s accessible name — because the painted background comes back normalised. `getThumbs()` is the inline percentages, the only position a spec without layout can read.',
+      description: 'Presets by the string you passed, and the thumb positions.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'Trigger: isOpen() / open() / close() / toggle() / sendEscape() / getPicker() / isDisabled()',
-      description:
-        '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
+      description: '`WrColorPickerTriggerHarness`. `open()` returns the picker.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly animationApi: readonly DocApiRow[] = [
     {
       name: 'Text splitters: getAccessibleText() / getPieces() / getRenderedText() / isTextHidden() / hasStagedMotion()',
-      description:
-        '`WrBlurTextHarness`, `WrSplitTextHarness`. The announced copy and the drawn pieces are separate reads because they can disagree; comparing them is what catches a split that lost a space.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`WrBlurTextHarness`, `WrSplitTextHarness`.',
+      type: 'Promise<…>',
     },
     {
       name: 'Circular / rotating: getAccessibleText() / getCharacters() / getCharacterAngles() / getOrbitOffsets() / isBonkers() / getWordCount() / isSettled()',
-      description:
-        '`WrCircularTextHarness`, `WrRotatingTextHarness`. Angles and offsets are parsed from the inline transform each character carries — a computed read would answer `none` for a ring that placed them correctly.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`WrCircularTextHarness`, `WrRotatingTextHarness`.',
+      type: 'Promise<…>',
     },
     {
-      name: 'Typewriter / decrypt: getText() / hasCursor() / getCursorBlinkDuration() / getRevealedIndices() / getEncryptedCount() / isFullyRevealed() / hover() / click()',
-      description:
-        '`WrTypewriterHarness`, `WrDecryptTextHarness`. The typewriter’s accessible text IS the painted fragment — there is no second copy and none is wanted. Decrypt-text’s per-character reveal is a real state machine and reads exactly.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      name: 'Typewriter / decrypt: getText() / getAccessibleText() / hasCursor() / getCursorBlinkDuration() / getRevealedIndices() / getEncryptedCount() / isFullyRevealed() / hover() / click()',
+      description: '`WrTypewriterHarness`, `WrDecryptTextHarness`.',
+      type: 'Promise<…>',
     },
     {
       name: 'CSS-driven text: getText() / getCloneText() / isCloneTextInSync() / getDurations() / getColors() / getGradient() / isPaused() / isYoyo() / pausesOnHover()',
-      description:
-        '`WrGlitchTextHarness`, `WrGradientTextHarness`, `WrShinyTextHarness`. Everything here is a custom property the component computed from an input — a seconds string, a gradient, a degree — so a lost unit is a visible break and these are what catch it.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`WrGlitchTextHarness`, `WrGradientTextHarness`, `WrShinyTextHarness`.',
+      type: 'Promise<…>',
     },
     {
-      name: 'Surfaces: getWords() / getHighlightedWords() / release() / getCopyCount() / getAnnouncedCopyCount() / getItems() / isSingleRay() / getSpeedSeconds()',
-      description:
-        '`WrFallingTextHarness`, `WrMarqueeHarness` (+ item), `WrStarBorderHarness`. The marquee duplicates its sequence and hides every copy but the first: `getAnnouncedCopyCount()` is the assertion that catches a duplicate leaking into the accessibility tree.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      name: 'Surfaces: getWords() / getHighlightedWords() / release() / getCopyCount() / getAnnouncedCopyCount() / getItems() / isScrollable() / isSingleRay() / getSpeedSeconds()',
+      description: '`WrFallingTextHarness`, `WrMarqueeHarness`, `WrStarBorderHarness`.',
+      type: 'Promise<…>',
     },
     {
       name: 'Pointer effects: movePointerTo(x, y) / leave() / isFlat() / getTilt() / getSpotlightPosition() / hasGlare() / getGlarePosition()',
       description:
-        '`WrTiltHarness`, `WrSpotlightHarness`, `WrSpotlightCardHarness`, `WrBorderGlowHarness`. These divide by the host’s measured box, so stub `getBoundingClientRect` in the spec first — each JSDoc says so. `isFlat()` after a move is the reduced-motion assertion.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+        '`WrTiltHarness`, `WrSpotlightHarness`, `WrSpotlightCardHarness`, `WrBorderGlowHarness`. Stub `getBoundingClientRect` first.',
+      type: 'Promise<…>',
     },
     {
       name: 'Canvas-backed: getText() / isDecorative() / hasCanvas() / isTextVisuallyHidden() / isPainted() / getLineGapPx() / isFullscreen()',
       description:
-        '`WrFuzzyTextHarness`, `WrWavesHarness`, `WrSplashCursorHarness`. The DOM half only. `isPainted()` is the handover flag that retires the CSS stand-in once the canvas has drawn — false in a unit test, which is the contract rather than a limitation.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+        '`WrFuzzyTextHarness`, `WrWavesHarness`, `WrSplashCursorHarness`. DOM only; `isPainted()` is false in jsdom.',
+      type: 'Promise<…>',
     },
   ];
 
   protected readonly chartApi: readonly DocApiRow[] = [
     {
       name: 'Bar: getBars() / getLabels() / getAccessibleNames() / getBarCount() / hasValues() / getPlotHeight()',
-      description:
-        '`WrBarChartHarness`. Heights come back as a percentage of the chart’s maximum — the one number that survives a test with no layout, and the component’s actual job.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: "`WrBarChartHarness`. Heights are a percent of the chart's maximum.",
+      type: 'Promise<…>',
     },
     {
       name: 'Line: getSeriesLabels() / getLineCount() / getDotCount() / getYTicks() / getXLabels() / hasGrid() / hasLegend()',
-      description:
-        '`WrLineChartHarness`. Comparing the line count with the legend catches a series that got filtered out of one of them.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`WrLineChartHarness`.',
+      type: 'Promise<…>',
     },
     {
       name: 'Line: hasTooltip() / getTooltipLabel() / getTooltipRows()',
-      description:
-        'Readable, but there is no `hoverAt()`: the tooltip resolves the cursor’s x against a MEASURED plot, and jsdom reports 0×0, so a synthetic move lands nowhere.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'Reads the tooltip. There is no `hoverAt()`.',
+      type: 'Promise<…>',
     },
     {
       name: 'Donut: getSliceCount() / getLegend() / getCenterValue() / getCenterLabel() / getAccessibleName() / getSize()',
-      description:
-        '`WrDonutChartHarness`. The ring is `aria-hidden` and its slices are paths, so the legend is the only textual form the data has — and the chart’s own name is what survives `showLegend: false`.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`WrDonutChartHarness`.',
+      type: 'Promise<…>',
     },
     {
       name: 'Sparkline: isDecorative() / getRole() / getAccessibleName() / hasLine() / hasArea() / hasTip() / getColor()',
-      description:
-        '`WrSparklineHarness`. Named means `role="img"`; unnamed means `aria-hidden`. The pair is the assertion — a nameless graphic a screen reader stops on is the failure.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`WrSparklineHarness`. Named is `role="img"`, unnamed is `aria-hidden`.',
+      type: 'Promise<…>',
     },
     {
       name: 'Gauge: getRole() / getValue() / getMin() / getMax() / getValueText() / getDisplayValue() / getSuffix()',
-      description:
-        '`WrGaugeHarness`. The arc is `aria-hidden` and the printed number is optional, so `role="meter"` plus `aria-valuetext` is the whole readable surface — a gauge with `showValue` off still announces `72%`.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`WrGaugeHarness`.',
+      type: 'Promise<…>',
     },
     {
       name: 'Meter group: getValue() / getMax() / getSlices() / getLegendLabels() / getLegendValues() / hasLegend()',
-      description:
-        '`WrMeterGroupHarness`. The bar is ONE `progressbar` carrying the total; the bands announce nothing and are read by their `title` and their inline share.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`WrMeterGroupHarness`.',
+      type: 'Promise<…>',
     },
     {
       name: 'Heatmap: getCellCount() / getCells() / getValueFor(iso) / getWeekdayLabels() / getMonthLabels() / hasLabels()',
-      description:
-        '`WrCalendarHeatmapHarness`. Every square is `aria-hidden` and the grid is one named image — a year of announced days would be unusable — so a square’s `title` is the only text there is. Four weekday labels are blank by design.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`WrCalendarHeatmapHarness`.',
+      type: 'Promise<…>',
     },
   ];
 
   protected readonly eventCalendarApi: readonly DocApiRow[] = [
     {
       name: 'getView() / getTitle() / previous() / next() / goToday() / setView(label) / getViewLabels() / getActiveViewLabel()',
-      description:
-        'The view is read off the GRID rather than the `view` model — month has its own shape, and week and day are told apart by their column count. The switcher is addressed by the label it prints, since the view value never reaches the DOM.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'Navigation. `setView` takes the label the switcher shows.',
+      type: 'Promise<…>',
     },
     {
       name: 'getChips(filters?) / getChipLabels() / getCellChips(day, minutes?)',
-      description:
-        'A multi-day event has ONE chip, in the cell it starts in — so this counts events in view, not event-days. Filters: `label`, `title`, `band`.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'One chip per event, in its start cell. Filters: `label`, `title`, `band`.',
+      type: 'Promise<…>',
     },
     {
       name: 'clickCell(day, minutes?) / getCellLabel(day, minutes?) / focusCell(day, minutes?) / getCursor() / pressArrow(arrow) / pressHome() / pressEnd()',
-      description:
-        '`minutes` is -1 for a month cell or the all-day band. The grid roves a single tab stop rather than making every cell tabbable, and `getCursor()` is where it is.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`minutes` from midnight, or -1 for a month cell or the all-day row.',
+      type: 'Promise<…>',
     },
     {
       name: 'getWeekdayNames() / getDayNumbers() / getSlotLabels() / hasAllDayRow() / getOverflowLabels() / openOverflow()',
-      description:
-        'The month grid is always six weeks. The all-day row appears only when something needs it, and the “+N more” button only when a cell holds more than `maxLanes` lets it show.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'Grid labels and the “+N more” button.',
+      type: 'Promise<…>',
     },
     {
       name: 'Chip: getLabel() / getTitle() / getTime() / isBand() / continuesBefore() / continuesAfter() / click() / move(arrow) / resize(arrow)',
-      description:
-        '`WrEventCalendarChipHarness`. The drawn text is `aria-hidden`, so `getLabel()` is what is announced and `getTitle()` what is printed. `move()` is Alt + arrow, `resize()` adds Shift and moves the end alone.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`WrEventCalendarChipHarness`. `move()` is Alt + arrow; `resize()` adds Shift.',
+      type: 'Promise<…>',
     },
   ];
 
   protected readonly imageCropperApi: readonly DocApiRow[] = [
     {
       name: 'isEmpty() / getEmptyText() / getImageSrc() / isReady()',
-      description:
-        'Two different questions: a cropper with a `src` is not empty, but it is not READY until the image has been measured — the crop window is a fraction of the rendered box.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'A cropper with a `src` is not ready until its image is measured.',
+      type: 'Promise<…>',
     },
     {
       name: 'dispatchImageLoad()',
-      description:
-        'Fires the event, not a real load. Stub `getBoundingClientRect()` and `naturalWidth` on the `<img>` first, or the crop UI stays shut — which is what a browser does with a zero-sized image too.',
+      description: "Fires `load`. Stub the image's `getBoundingClientRect()` and `naturalWidth` first.",
       type: 'Promise<void>',
-      default: '\u2014',
     },
     {
       name: 'getCropBox() / getHandles() / hasBackdrop()',
-      description:
-        'The crop window in DISPLAY pixels, from the inline styles. Not what a consumer receives: `cropRect()` converts to the image’s natural pixels, and that is component API rather than DOM.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'The crop window in display pixels.',
+      type: 'Promise<…>',
     },
   ];
 
   protected readonly windowApi: readonly DocApiRow[] = [
     {
       name: 'getTitle() / getState() / isOpen() / getBodyText() / getStatusBarText() / getTitleExtraText()',
-      description:
-        '`isOpen()` is for a harness you are HOLDING, and stays true for a MINIMIZED window — that is a state, not a dismissal.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`isOpen()` stays true while minimized.',
+      type: 'Promise<…>',
     },
     {
       name: 'close() / minimize() / maximize() / doubleClickChrome() / sendEscape() / focusWindow()',
-      description:
-        'The same button minimizes and restores, and the same one maximizes and restores down. A button the chrome does not render throws, naming why — `showClose: false`, or the Linux chrome.',
+      description: 'A button the chrome does not render throws.',
       type: 'Promise<void>',
-      default: '\u2014',
     },
     {
       name: 'getBox() / getZIndex() / isResizable() / getResizeHandles()',
-      description:
-        'Geometry from the inline styles the component writes — the only readable answer without layout, and the same numbers a drag or a snap changes. `getZIndex()` is how you assert the stack order.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'Position, size and stack order.',
+      type: 'Promise<…>',
     },
     {
       name: 'getCloseLabel() / getMinimizeLabel() / getMaximizeLabel() / hasCloseButton() / hasMinimizeButton() / hasMaximizeButton() / getOs() / getChromeSize()',
-      description:
-        'The chrome is icon-only, so those labels are the buttons’ only names — and they change with the state and with the OS the chrome is dressed as.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'The chrome buttons; labels change with state and OS.',
+      type: 'Promise<…>',
     },
     {
       name: 'getRole() / isLabelledByTitle() / isHiddenFromAssistiveTech()',
-      description:
-        'A non-modal `role="dialog"` named by its own title element — resolved rather than trusted, since with several windows open the ids are what keeps them apart.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'A non-modal dialog named by its title.',
+      type: 'Promise<…>',
     },
     {
       name: 'Taskbar: isEmpty() / getTabTitles() / restore(title) / closeTab(title) / getRestoreLabel(title) / getRailLabel() / getPosition()',
-      description:
-        '`WrWindowTaskbarHarness`, from the FIXTURE loader. An untitled window still gets a named tab. `closeTab()` closes without restoring, which is the nesting worth asserting.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`WrWindowTaskbarHarness`. `closeTab()` closes without restoring.',
+      type: 'Promise<…>',
     },
   ];
 
   protected readonly calendarApi: readonly DocApiRow[] = [
     {
       name: 'getView() / getHeaderLabel() / clickHeader() / previous() / next()',
-      description:
-        'The header walks day → month → year and is disabled at the top, where `clickHeader()` throws rather than clicking a button the DOM ignores.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'The header walks day, month, year; `clickHeader()` throws at the top.',
+      type: 'Promise<…>',
     },
     {
       name: 'getDays(filters?) / getDay(n) / getSelectedDayNumbers() / getInRangeDayNumbers() / getActiveDayNumber()',
       description:
-        '`getDay(n)` skips the spill days of the neighbouring months. `getActiveDayNumber()` is the roving tab stop, and `null` is a real answer after paging. Filters: `text`, `selected`, `disabled`, `inRange`.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+        'Days of the shown month. `getActiveDayNumber()` can be `null` after paging. Filters: `text`, `selected`, `disabled`, `inRange`.',
+      type: 'Promise<…>',
     },
     {
       name: 'getMonths() / getYears() / selectChip(label)',
-      description:
-        'The chips of the two picker views, each with its selected / current / disabled state. Throws on the day view, which has none.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'The month and year views; throws in the day view.',
+      type: 'Promise<…>',
     },
     {
       name: 'pressArrow(arrow) / pressHome() / pressEnd() / pressPageUp({ shift }) / pressPageDown({ shift }) / pressEnter()',
-      description:
-        'Sent to the host, where the component listens. Home and End are the ends of the WEEK, not of the month; shift turns a page into a year.',
+      description: 'Home and End go to the ends of the week; `shift` pages a year.',
       type: 'Promise<void>',
-      default: '\u2014',
     },
     {
       name: 'getWeekdayNames() / getWeekCount() / getGridRole() / getPreviousLabel() / getNextLabel() / getMode() / isDisabled()',
-      description:
-        'Six rows always, so the grid never reflows. The grid role is on the body rather than the host, which also holds the nav. The arrow names change with the view.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'Shape and labels.',
+      type: 'Promise<…>',
     },
     {
       name: 'Day: getText() / getAccessibleName() / getDayOfMonth() / isSelected() / isDisabled() / isToday() / isOutOfMonth() / isInRange() / isActive() / click()',
-      description:
-        '`WrCalendarDayHarness` — the same class `ngwr/date-picker/testing` exports as `WrDatePickerDayHarness`. ' +
-        '`getText()` is the drawn number and `getAccessibleName()` is what a screen reader says; they are two ' +
-        'questions, and before v14 the second had no answer.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`WrCalendarDayHarness`, also exported as `WrDatePickerDayHarness`.',
+      type: 'Promise<…>',
     },
   ];
 
   protected readonly tourApi: readonly DocApiRow[] = [
     {
       name: 'getTitle() / getContent() / getProgressText() / getProgress()',
-      description:
-        'The step as printed. `getProgress()` parses the two numbers out of the line and answers `null` rather than guessing if a catalog spells them differently; its `total` counts the steps the tour was STARTED with, skipped ones included.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'The step. `getProgress()` counts skipped steps too.',
+      type: 'Promise<…>',
     },
     {
       name: 'next() / back() / skipTour() / hasBack()',
-      description:
-        'The three buttons, driven through `WrButtonHarness`. `back()` throws on the first step, where the button is not rendered at all.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`back()` throws on the first step.',
+      type: 'Promise<…>',
     },
     {
       name: 'getPrimaryLabel() / getBackLabel() / getSkipLabel()',
-      description:
-        '`getPrimaryLabel()` is how you tell the last step: the service looks ahead for a reachable target, so it reads "Done" one card early when the final step is hidden — which no count can show.',
+      description: '`getPrimaryLabel()` reads “Done” on the last reachable step.',
       type: 'Promise<string>',
-      default: '\u2014',
     },
     {
       name: 'isShowing() / isModal() / getAccessibleName()',
-      description:
-        '`isShowing()` is for a harness you are HOLDING — it goes false when the step is torn down. The card is an `aria-modal` dialog named by its title plus the progress line, or by the progress line alone.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`isShowing()` turns false when the step is torn down.',
+      type: 'Promise<…>',
     },
   ];
 
   protected readonly lightboxApi: readonly DocApiRow[] = [
     {
       name: 'isOpen() / open() / close() / clickImage() / sendEscape()',
-      description:
-        'Open state from the host modifier — the viewer itself is gone when closed, so a query for it cannot tell "shut" from "never opened". `clickImage()` drives the zoom-out affordance, which is not a tab stop.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'Open state, and the ways in and out.',
+      type: 'Promise<…>',
     },
     {
       name: 'getAlt() / getThumbSrc() / getFullSrc()',
-      description:
-        'The thumbnail shows `preview` when there is one and never swaps to `src`, so the two sources are different questions.',
+      description: 'Alt text, thumbnail and full image.',
       type: 'Promise<string>',
-      default: '\u2014',
     },
     {
       name: 'getCaption() / getViewerLabel() / getCloseLabel() / isModal() / isFocusTrapped()',
-      description:
-        'Everything inside the viewer, and all of it throws while closed. `isFocusTrapped()` is what makes `aria-modal` true rather than a claim — hand jsdom a box first, or the trap finds nothing tabbable.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'The viewer; throws while closed.',
+      type: 'Promise<…>',
     },
     {
       name: 'isInteractive() / getOpenLabel() / isLoading() / isViewerBound()',
-      description:
-        '`disablePreview` removes the button entirely. `isLoading()` clears on a FAILED load too — the loading state hides the image, so a broken src would otherwise shimmer for ever.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: '`isInteractive()` is false with `disablePreview`.',
+      type: 'Promise<…>',
     },
   ];
 
   protected readonly speedDialApi: readonly DocApiRow[] = [
     {
       name: 'isOpen() / open() / close() / toggle() / sendEscape()',
-      description:
-        'Open state from the trigger’s `aria-expanded`. Escape closes AND returns focus to the trigger, which is the half worth asserting.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'Escape closes and focuses the trigger.',
+      type: 'Promise<…>',
     },
     {
       name: 'getActions(filters?) / getActionLabels() / pick(filters) / getActionCount()',
       description:
-        'The first three refuse while the dial is closed — the buttons are still in the DOM and only `visibility` hides them. `pick()` opens first, then clicks. Filters: `label`, `disabled`.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+        '`getActions()` and `getActionLabels()` throw while closed; `pick()` opens first. Filters: `label`, `disabled`.',
+      type: 'Promise<…>',
     },
     {
       name: 'getTriggerLabel() / getTriggerIcon() / getDirection() / hasSafeArea() / isDisabled()',
-      description:
-        'The trigger is icon-only, so its `aria-label` is its ONLY name. Direction comes from the host modifier.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'The trigger and layout.',
+      type: 'Promise<…>',
     },
+    { name: 'getMenuRole() / isMenuBound()', description: 'The trigger-to-menu link.', type: 'Promise<…>' },
     {
-      name: 'getMenuRole() / isMenuBound()',
-      description:
-        'The `aria-controls` pairing, checked in both directions: the menu must be this dial’s own, and no other element may answer to the same id.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
-    },
-    {
-      name: 'Action: getLabel() / getInitial() / hasIcon() / getIconName() / getRole() / isDisabled() / click()',
-      description:
-        '`WrSpeedDialActionHarness`. `getLabel()` is the accessible name; `getInitial()` is the single glyph drawn when there is no icon — a whole emoji, not half a surrogate pair.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      name: 'Action: getLabel() / getInitial() / hasIcon() / getIconName() / isDisabled() / click()',
+      description: '`WrSpeedDialActionHarness`. `getLabel()` is the name; `getInitial()` the drawn glyph.',
+      type: 'Promise<…>',
     },
   ];
 
   protected readonly knobApi: readonly DocApiRow[] = [
-    {
-      name: 'getValue() / getMin() / getMax()',
-      description: 'The dial as `role="slider"` reports it — the three `aria-value*` attributes.',
-      type: 'Promise<number>',
-      default: '\u2014',
-    },
+    { name: 'getValue() / getMin() / getMax()', description: 'The `aria-value*` numbers.', type: 'Promise<number>' },
     {
       name: 'getDisplayValue() / getSuffix()',
-      description:
-        'The text in the middle of the dial, suffix included, or `null` when `showValue` is off. Not the same as the announced value, and deliberately not merged with it.',
+      description: 'The printed text with suffix, or `null` with `showValue` off.',
       type: 'Promise<string | null>',
-      default: '\u2014',
     },
     {
       name: 'pressArrow(arrow, { shift }) / pressHome() / pressEnd() / setValue(n)',
-      description:
-        'All four arrows are live, and `shift` is ten steps. `setValue` walks and measures the step as it goes, then asserts its landing; a target between grid points throws with where it stopped.',
+      description: '`shift` is ten steps. `setValue` throws if it cannot land exactly.',
       type: 'Promise<void>',
-      default: '\u2014',
     },
     {
       name: 'getHandlePosition()',
-      description:
-        'The handle dot in viewBox units, from its `cx` / `cy` — the arc and the dot are the whole visual, and neither can be measured without layout.',
+      description: 'The handle in viewBox units.',
       type: 'Promise<{ x: number; y: number }>',
-      default: '\u2014',
     },
     {
       name: 'isDisabled() / isReadonly() / isFocusable() / focus() / blur() / getLabel()',
-      description:
-        'Both off states leave the tab order, so `isFocusable()` is worth asking separately: a read-only dial a keyboard cannot reach is one nobody can read either. `blur()` is what emits `touch`.',
-      type: 'Promise<\u2026>',
-      default: '\u2014',
+      description: 'State and focus. `blur()` emits `touch`.',
+      type: 'Promise<…>',
     },
   ];
 
   protected readonly splitterApi: readonly DocApiRow[] = [
     {
       name: 'getPosition() / getMinPosition() / getMaxPosition()',
-      description: 'The divider, from the `aria-value*` trio it publishes as a `role="separator"`.',
+      description: "The divider's `aria-value*` numbers.",
       type: 'Promise<number>',
-      default: '—',
     },
     {
       name: 'getOrientation() / getDividerOrientation()',
-      description:
-        'The component’s axis and the divider’s, which are opposites: panes side by side need a vertical line between them.',
+      description: 'Opposites: side-by-side panes have a vertical divider.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'pressArrow(arrow, { shift }) / pressHome() / pressEnd() / setPosition(n)',
       description:
-        'The key a user presses, not a semantic direction — under RTL the start pane is on the right, so ArrowRight shrinks. `setPosition` walks and asserts its landing.',
+        'The key pressed, not a direction: in RTL, ArrowRight shrinks. `setPosition` throws if it cannot land.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'getPaneSizes() / getStartText() / getEndText()',
-      description:
-        'The share each pane asks for, from the inline `flex-basis` — a measured width is zero for both in a unit test.',
+      description: 'Pane sizes, from the inline `flex-basis`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'isDisabled() / isDividerFocusable() / focusDivider() / isDividerFocused() / getDividerLabel()',
-      description:
-        'Announced state and tab stop, asked separately: a divider announced as disabled that is still a tab stop is a control the keyboard can reach and not use.',
+      description: 'Divider state and focus.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly tableApi: readonly DocApiRow[] = [
     {
       name: 'getRole() / isTree()',
-      description:
-        'A flat table sets no role and announces the native `table`. `childrenKey` makes it a `treegrid` — and that role is the only place the hierarchy exists for a screen reader; the indent is decoration.',
+      description: '`treegrid` with `childrenKey`, else `table`.',
       type: "Promise<'treegrid' | 'table'>",
-      default: '—',
     },
     {
       name: 'getHeaderCells(filters?) / getHeaderTexts()',
-      description:
-        'Columns are addressed by their header TITLE — the `columns` key never reaches the DOM. The selection and expand headers are not columns.',
+      description: 'Columns by header title.',
       type: 'Promise<WrTableHeaderCellHarness[]> | Promise<string[]>',
-      default: '—',
     },
     {
       name: 'sortByColumn(title) / getSortDirection(title)',
       description:
-        'One step of none → ascending → descending. `<wr-table>` publishes the intent and never reorders `items` itself, so a spec expecting rows to move has to sort the data too.',
+        "One sort step. The table does not reorder `items`; your app does. `getSortDirection()` reads `aria-sort`: only the primary column announces a direction, and every other sortable column, a secondary key included, answers `'none'`.",
       type: 'Promise<void> | Promise<…>',
-      default: '—',
+    },
+    {
+      name: 'getSortIndicator(title) / getSortOrder(title)',
+      description: 'The drawn direction and the 1-based place in the sort, for every sorted column.',
+      type: "Promise<'ascending' | 'descending' | null> | Promise<number | null>",
     },
     {
       name: 'getRows(filters?) / getCellTexts()',
-      description:
-        'The rows RENDERED, in order — which for a virtualized body is the window, not the dataset. Group bands, subtotals, detail rows and the empty row are not rows.',
+      description: 'Rendered rows only; a virtual body renders a window.',
       type: 'Promise<WrTableRowHarness[]> | Promise<string[][]>',
-      default: '—',
     },
     {
       name: 'hasSelectAll() / isAllSelected() / isPartiallySelected() / toggleSelectAll()',
-      description:
-        "Its scope is the render list: a collapsed group's rows are out, a virtualized table's off-window rows are IN. While the selection is partial the box reads unchecked, so one click selects everything.",
+      description: 'The select-all box.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getGroupLabels() / isGroupCollapsed(label) / toggleGroup(label)',
-      description:
-        'The built-in bands. A `[wrTableGroupHeader]` template replaces the label with your own markup, and then this list is empty.',
+      description: 'Group bands; empty with a custom group header.',
       type: 'Promise<…>',
-      default: '—',
     },
-    {
-      name: 'getDetailTexts()',
-      description:
-        'Each open detail row. A detail row sits NEXT TO its row, so it is neither a row nor one of its cells.',
-      type: 'Promise<string[]>',
-      default: '—',
-    },
+    { name: 'getDetailTexts()', description: 'Open detail rows.', type: 'Promise<string[]>' },
     {
       name: 'getFooterTexts() / getEmptyText() / isLoading() / isVirtual() / getAriaRowCount()',
-      description:
-        '`isVirtual()` answers what actually happened: `virtualScroll` is a request the table drops whenever the layout stops being uniform.',
+      description: '`getAriaRowCount()` is the total row count.',
       type: 'Promise<…>',
-      default: '—',
     },
-  ];
-
-  protected readonly tableRowApi: readonly DocApiRow[] = [
     {
-      name: 'getCells(filters?) / getCellTexts()',
-      description: "The row's cells, lead cells excluded so they line up with the header list.",
+      name: 'Row: getCells(filters?) / getCellTexts()',
+      description: "`WrTableRowHarness`: the row's data cells.",
       type: 'Promise<WrTableCellHarness[]> | Promise<string[]>',
-      default: '—',
     },
     {
-      name: 'isSelectable() / isSelected() / toggleSelection() / select() / deselect()',
-      description: '`select` and `deselect` are no-ops when the row is already there.',
+      name: 'Row: isSelectable() / isSelected() / toggleSelection() / select() / deselect()',
+      description: 'Row selection.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
-      name: 'isExpandable() / isExpanded() / toggleExpand()',
-      description: "Both the `[wrTableExpand]` detail row and a tree row's children.",
+      name: 'Row: isExpandable() / isExpanded() / toggleExpand()',
+      description: 'Detail rows and tree children.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
-      name: 'getLevel() / getPosInSet() / getSetSize() / getRowIndex()',
-      description:
-        'What a tree row announces. `aria-setsize` counts the sibling set INCLUDING this row, and `aria-posinset` is per sibling group, not per flat list.',
+      name: 'Row: getLevel() / getPosInSet() / getSetSize() / getRowIndex()',
+      description: 'Tree position, per sibling group.',
       type: 'Promise<number | null>',
-      default: '—',
-    },
-  ];
-
-  protected readonly tableCellApi: readonly DocApiRow[] = [
-    { name: 'getText()', description: 'The cell text, whitespace collapsed.', type: 'Promise<string>', default: '—' },
-    {
-      name: 'getColumnTitle()',
-      description: 'Which column this cell belongs to — useful when a filter or a drag has moved the columns.',
-      type: 'Promise<string | null>',
-      default: '—',
     },
     {
-      name: 'getPin()',
-      description: 'Whether the column is pinned, and to which edge.',
-      type: "Promise<'left' | 'right' | null>",
-      default: '—',
-    },
-    {
-      name: 'Header cells add: isSortable() / sort() / getSortDirection() / isFilterable()',
-      description: '`isFilterable()` needs a NON-EMPTY `filterItems` — an empty array renders no control.',
+      name: 'Cell: getText() / getColumnTitle() / getPin()',
+      description: '`WrTableCellHarness`: text, column title and pinned edge.',
       type: 'Promise<…>',
-      default: '—',
+    },
+    {
+      name: 'Header cell: isSortable() / sort() / getSortDirection() / getSortIndicator() / getSortOrder() / isFilterable()',
+      description: '`WrTableHeaderCellHarness`. `isFilterable()` needs non-empty `filterItems`.',
+      type: 'Promise<…>',
     },
   ];
 
   protected readonly radioApi: readonly DocApiRow[] = [
     {
       name: 'getRadios(filters?) / getRadioLabels()',
-      description: 'The options in DOM order, scoped to THIS group. Filters: `label`, `value`, `checked`, `disabled`.',
+      description: "This group's radios. Filters: `label`, `value`, `checked`, `disabled`.",
       type: 'Promise<WrRadioHarness[]> | Promise<string[]>',
-      default: '—',
     },
     {
       name: 'getSelectedRadio() / getSelectedLabel() / select(filters)',
-      description:
-        '`select()` throws if the option is still unchecked after the click — which is what a disabled option does, silently.',
+      description: '`select()` throws if the radio stays unchecked.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getTabStopLabel() / focusTabStop() / getFocusedLabel()',
-      description:
-        'The roving tab stop is the CHECKED option, or the first enabled one while the question is unanswered — not the same thing, and the difference is what a keyboard user feels.',
+      description: 'The tab stop: the checked radio, else the first enabled one.',
       type: 'Promise<…>',
-      default: '—',
     },
-    {
-      name: 'getName()',
-      description:
-        'Read off the radios, because that is where a bound `[name]` lands. A literal `name="size"` also survives on the group element — do not "simplify" a lookup into that trap.',
-      type: 'Promise<string | null>',
-      default: '—',
-    },
+    { name: 'getName()', description: "The radios' `name`; throws for an empty group.", type: 'Promise<string>' },
     {
       name: 'getAccessibleName()',
-      description:
-        '`aria-labelledby` first, then `aria-label` — the order the name computation uses. They are not interchangeable.',
+      description: 'From `aria-labelledby`, then `aria-label`.',
       type: 'Promise<string | null>',
-      default: '—',
     },
     {
       name: 'getRole() / isDisabled()',
-      description: '`radiogroup`. The group counts as disabled only when every option is.',
+      description: '`radiogroup`; disabled only when every radio is.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
-      name: 'One radio: getLabel() / getValue() / isChecked() / isDisabled() / getSize() / hasIcon() / isLabelBound() / check() / focus() / blur() / isFocused()',
-      description:
-        '`getLabel()` is the text only — an icon lives in the dot, and a consumer icon carrying a `<title>` would otherwise join the label.',
+      name: 'Radio: getLabel() / getValue() / isChecked() / isDisabled() / getSize() / hasIcon() / isLabelBound() / check() / focus() / blur() / isFocused()',
+      description: '`WrRadioHarness`. `getLabel()` is the text only.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly textareaApi: readonly DocApiRow[] = [
     {
       name: 'getValue() / setValue(text) / clear()',
-      description:
-        'The `<textarea>` value never reaches its text content, so this is the property. A write refuses on a disabled or readonly field instead of pretending.',
+      description: 'The value. Writes throw on a disabled or readonly field.',
       type: 'Promise<string> | Promise<void>',
-      default: '—',
     },
     {
       name: 'getLabel() / getPlaceholder()',
-      description: "`getLabel()` answers `null`, not `''`, for a field with neither an `ariaLabel` nor a placeholder.",
+      description: '`getLabel()` is `null` with no `ariaLabel` or placeholder.',
       type: 'Promise<string | null> | Promise<string>',
-      default: '—',
     },
     {
       name: 'isDisabled() / isReadonly() / isInvalid()',
-      description:
-        'Read off the native element, where the form and a screen reader read them. A native `aria-invalid="false"` wins over one on the wrapper rather than falling through to it.',
+      description: 'Read from the native element.',
       type: 'Promise<boolean>',
-      default: '—',
     },
     {
       name: 'isAutosizing() / hasFittedHeight() / getRows() / getSize() / getResizeDirection()',
-      description:
-        'Autosize is reported as the handover it is: whether the component has written a height at all. jsdom has no layout, so a harness that claimed to measure one would be lying.',
+      description: 'Sizing. `hasFittedHeight()` means a height was written.',
       type: 'Promise<…>',
-      default: '—',
     },
-    {
-      name: 'focus() / blur() / isFocused()',
-      description: 'Focus lands on the native element inside the wrapper.',
-      type: 'Promise<…>',
-      default: '—',
-    },
+    { name: 'focus() / blur() / isFocused()', description: 'Focus.', type: 'Promise<…>' },
   ];
 
   protected readonly numberApi: readonly DocApiRow[] = [
     {
       name: 'getValue(locale?) / getValueText()',
       description:
-        'Two different questions. The text is what the field shows — a separator, a prefix, a half-typed number; `getValue()` parses it and THROWS when the field holds something the control has not accepted yet.',
+        'The number and the shown text. `getValue()` throws on text the control has not accepted; pass your `LOCALE_ID`.',
       type: 'Promise<number | null> | Promise<string>',
-      default: '—',
     },
     {
       name: 'setValue(n) / setValueText(text) / clear()',
-      description: '`setValueText` is the mid-type state; `setValue` is the committed one.',
+      description: '`setValueText` leaves it mid-type; `setValue` commits.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'increment() / decrement() / isIncrementDisabled() / isDecrementDisabled() / hasSteppers()',
-      description: 'The buttons, including how they disable at a bound.',
+      description: 'The stepper buttons.',
       type: 'Promise<…>',
-      default: '—',
     },
-    {
-      name: 'stepUp() / stepDown()',
-      description: 'The keyboard path — ArrowUp / ArrowDown on the field, which works with no steppers rendered.',
-      type: 'Promise<void>',
-      default: '—',
-    },
+    { name: 'stepUp() / stepDown()', description: 'ArrowUp and ArrowDown.', type: 'Promise<void>' },
     {
       name: 'getPrefix() / getSuffix() / getPlaceholder() / getAriaLabel()',
-      description: 'The decorations around the field, which are part of why the text is not the value.',
+      description: 'Field decorations.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'isDisabled() / isReadonly() / focus() / blur() / isFocused()',
       description: 'State and focus.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly otpApi: readonly DocApiRow[] = [
     {
       name: 'getValue() / getBoxValues() / isComplete() / getLength()',
-      description:
-        'The code assembled from the boxes. It can differ from the bound model: a value the boxes cannot hold (a letter in numeric mode) leaves the model holding what the harness cannot see.',
+      description: 'The code in the boxes. After an outside write, assert your model too.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'setValue(code) / type(text) / paste(code) / backspace() / clear()',
-      description:
-        '`paste` drives the real `paste` event, which is how a user delivers a code from an SMS. `clear()` skips boxes that are already empty, so it does not drag focus through the control or re-fire `touch`.',
+      description: '`paste` fires a real `paste` event.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'getBoxes(filters?) / getBox(i) / getFocusedIndex() / moveFocus(i)',
-      description: "Per-box access. Filters: `value`, `empty`, `label` (the box's `aria-label`, e.g. `Digit 3`).",
+      description: 'Per box. Filters: `value`, `empty`, `label`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'isMasked() / getInputMode() / getSize() / getPlaceholder() / getLabel() / isDisabled()',
-      description: 'How the control presents itself, including the keyboard a phone will show.',
+      description: 'Presentation.',
       type: 'Promise<…>',
-      default: '—',
     },
-    {
-      name: 'focus() / blur()',
-      description: '`blur()` blurs the box that HAS focus, not box zero.',
-      type: 'Promise<void>',
-      default: '—',
-    },
+    { name: 'focus() / blur()', description: '`blur()` blurs the focused box.', type: 'Promise<void>' },
   ];
 
   protected readonly sliderApi: readonly DocApiRow[] = [
     {
       name: 'setValue(n) / setRange(low, high)',
-      description:
-        'Keyboard-driven, and not a shortcut: a unit test has no layout, so a coordinate write produces a bound or `NaN`. The walk takes the ten-step stride first, then single steps, and THROWS if it settles anywhere but the value asked for — including a `max` that is not a whole number of steps from `min`.',
+      description: 'Walks with the keys; throws if the value cannot be reached.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'getValue()',
-      description: 'A number, or a `[low, high]` tuple on a range slider.',
-      type: 'Promise<number | [number, number]>',
-      default: '—',
+      description: 'A number, or `[low, high]` on a range.',
+      type: 'Promise<number | readonly [number, number]>',
     },
-    {
-      name: 'stepUp() / stepDown() / toMin() / toMax()',
-      description: 'One press each — arrows, Home and End.',
-      type: 'Promise<void>',
-      default: '—',
-    },
+    { name: 'stepUp() / stepDown() / toMin() / toMax()', description: 'Arrows, Home and End.', type: 'Promise<void>' },
     {
       name: 'getThumbs() / getLowThumb() / getHighThumb()',
-      description:
-        'A thumb harness carries the ARIA range trio, its label, its role and `largeStepUp/Down`. On a range slider each thumb bounds the other, which is why `setRange` moves the far end first.',
+      description: 'A `WrSliderThumbHarness` per thumb.',
       type: 'Promise<WrSliderThumbHarness[]>',
-      default: '—',
     },
     {
       name: 'isRange() / isDisabled() / getMin() / getMax() / getLabelText() / focus() / isFocused()',
       description: 'Shape and state.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly ratingApi: readonly DocApiRow[] = [
     {
       name: 'setValue(n) / clear() / stepUp() / stepDown()',
-      description: 'Picking by click (clicks need no coordinates) and the keyboard path.',
+      description: 'Click or keyboard.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'getValue() / getMax() / getCount() / getFills()',
-      description: '`getFills()` is the per-item fill fraction — how a half rating actually renders.',
+      description: "`getFills()` is each item's fill fraction.",
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getItems()',
       description:
-        'An item harness answers `getFill()`, `isFilled()`, `isPartiallyFilled()`, `isInteractive()`, and drives `click()`, `clickHalf()` and `hover()`.',
+        '`WrRatingItemHarness`: `getFill()`, `isFilled()`, `isPartiallyFilled()`, `isInteractive()`, `click()`, `clickHalf()`, `hover()`.',
       type: 'Promise<WrRatingItemHarness[]>',
-      default: '—',
     },
-    {
-      name: 'unhover()',
-      description: 'Ends a hover preview, which otherwise leaves the control showing a value it does not hold.',
-      type: 'Promise<void>',
-      default: '—',
-    },
+    { name: 'unhover()', description: 'Ends a hover preview.', type: 'Promise<void>' },
     {
       name: 'getRole() / getLabel() / getSize() / isReadonly() / isDisabled() / isFocusable() / focus() / blur() / isFocused()',
       description: 'Shape, state and focus.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly uploadApi: readonly DocApiRow[] = [
-    {
-      name: 'selectFiles(files)',
-      description:
-        'Goes through the hidden `<input type="file">` — the one method that reaches past the zone, because `FileList` cannot be constructed by hand and the CDK has no file API.',
-      type: 'Promise<void>',
-      default: '—',
-    },
+    { name: 'selectFiles(files)', description: 'Through the hidden file input.', type: 'Promise<void>' },
     {
       name: 'dropFiles(files) / dragOver() / dragLeave() / isDragging()',
-      description:
-        'A real drag: `dragenter`, `dragover`, then `drop`, each carrying a `DataTransfer`. The zone is reachable by class even though coordinates are not.',
+      description: 'A full drag: `dragenter`, `dragover`, `drop`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getFileNames() / getFileSizes() / getFileCount()',
-      description: 'The rendered list. Sizes are as SHOWN (`4.9 KB`) — the byte count never reaches the DOM.',
+      description: 'The file list. Sizes as shown, like `4.9 KB`.',
       type: 'Promise<…>',
-      default: '—',
     },
-    {
-      name: 'removeFile(i) / removeFileNamed(name)',
-      description: 'By index or by an EXACT name — a substring match would take `backup-a.png` when asked for `a.png`.',
-      type: 'Promise<void>',
-      default: '—',
-    },
+    { name: 'removeFile(i) / removeFileNamed(name)', description: 'By index or exact name.', type: 'Promise<void>' },
     {
       name: 'getLabel() / getPickText() / getDropText() / getHelperText() / getAccept() / isMultiple() / isDisabled()',
-      description: '`accept` and `multiple` are read off the picker; everything else off the zone.',
+      description: 'Copy and settings.',
       type: 'Promise<…>',
-      default: '—',
     },
-    {
-      name: 'focus() / isFocused()',
-      description: 'Focus goes to the ZONE, which is the tab stop — the picker is `aria-hidden` and `tabindex="-1"`.',
-      type: 'Promise<…>',
-      default: '—',
-    },
+    { name: 'focus() / isFocused()', description: 'Focus goes to the drop zone.', type: 'Promise<…>' },
   ];
 
   protected readonly contextMenuApi: readonly DocApiRow[] = [
     {
       name: 'open() / rightClick() / openByLongPress() / close() / closeByOutsidePress()',
-      description:
-        'A context menu opens on a real `contextmenu` event, so `open()` sends one rather than clicking. The close paths WAIT for the pane to be disposed — it lingers for its exit animation, and a harness that returned early would report a menu that is on its way out as gone.',
+      description: '`open()` fires `contextmenu`. Closing waits until the pane is gone.',
       type: 'Promise<void>',
-      default: '—',
     },
-    {
-      name: 'isOpen()',
-      description:
-        "Read from the target's `aria-controls`, not from whether a pane exists: during the exit animation both are true of the DOM and only one is true of the component.",
-      type: 'Promise<boolean>',
-      default: '—',
-    },
+    { name: 'isOpen()', description: "From the target's `aria-controls`.", type: 'Promise<boolean>' },
     {
       name: 'getItems(filters?) / getItemTexts() / clickItem(filters)',
-      description: 'Filters: `text`, `disabled`, `hasSubmenu`. Dividers are not items and never appear here.',
+      description: 'Items, without dividers. Filters: `text`, `disabled`, `hasSubmenu`.',
       type: 'Promise<…>',
-      default: '—',
     },
-    {
-      name: 'getDividerCount()',
-      description:
-        'Counted by `role="separator"`, so a separator you wrote yourself counts too — the role is what tells a screen reader where one group ends.',
-      type: 'Promise<number>',
-      default: '—',
-    },
+    { name: 'getDividerCount()', description: 'Counts `role="separator"`.', type: 'Promise<number>' },
     {
       name: 'getMenuRole() / getMenuText() / getTargetText()',
-      description: 'The menu announces `menu`.',
+      description: 'The menu and its target.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
-      name: 'An item adds: hasSubmenu() / isSubmenuOpen() / openSubmenu() / openSubmenuByHover() / closeSubmenu() / getSubmenuItems() / clickSubmenuItem()',
-      description:
-        'Each submenu is its own overlay pane, scoped by the id its parent item publishes — so the same harness walks any depth without the panes reading each other.',
+      name: 'Item: hasSubmenu() / isSubmenuOpen() / openSubmenu() / openSubmenuByHover() / closeSubmenu() / getSubmenuItems() / clickSubmenuItem()',
+      description: '`WrContextMenuItemHarness`. Submenus at any depth.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly popconfirmApi: readonly DocApiRow[] = [
     {
       name: 'open() / close() / confirm() / cancel() / sendEscape() / clickOutside()',
-      description:
-        'Four ways out, and they are not equivalent: confirm emits `confirmed`, the other three emit `cancelled`.',
+      description: '`confirm()` emits `confirmed`; cancel, Escape and an outside click emit `cancelled`.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'getMessage() / getConfirmText() / getCancelText() / getActionLabels()',
-      description: 'The copy, including whatever the i18n catalog resolved the button labels to.',
+      description: 'The question and button labels.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getRole() / isModal() / getLabel() / getDescriptionText()',
-      description:
-        'A popconfirm is a NON-modal dialog that names itself and has the question as its description — it deliberately does not trap focus, so the description is how a screen-reader user hears the question.',
+      description: 'A non-modal dialog; the question is its description.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getConfirmColor() / getPosition() / getFocusedActionLabel() / isTriggerFocused()',
-      description: 'Intent, placement and where focus sits.',
+      description: 'Intent, placement and focus.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly paletteApi: readonly DocApiRow[] = [
     {
       name: 'open() / close() / pressTrigger() / pressHotkey() / clickBackdrop()',
-      description: 'Every route in and out, including the hotkey the palette owns.',
+      description: 'Ways in and out.',
       type: 'Promise<void>',
-      default: '—',
     },
-    {
-      name: 'setQuery(text) / getQuery() / getPlaceholder()',
-      description: 'The search field drives the list.',
-      type: 'Promise<…>',
-      default: '—',
-    },
+    { name: 'setQuery(text) / getQuery() / getPlaceholder()', description: 'The search field.', type: 'Promise<…>' },
     {
       name: 'getItems(filters?) / getItemLabels() / runItem(filters) / getGroups() / getGroupTitles()',
-      description: 'The results as filtered, grouped the way the palette groups them.',
+      description: 'Filtered results and their groups.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getActiveItem() / getActiveItemLabel() / getActiveItemIndex() / moveToNextItem() / moveToPreviousItem() / moveToFirstItem() / moveToLastItem() / runActiveItem()',
-      description: 'The highlighted row and the arrow-key walk.',
+      description: 'The highlighted row and the arrow keys.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'isActiveItemAnnounced() / isSearchWiredToList()',
-      description:
-        'The palette keeps focus in the input and points at the highlighted row with `aria-activedescendant`. These two check that link holds — without it a screen-reader user hears nothing as the arrows move.',
+      description: 'Whether `aria-activedescendant` points at the highlighted row.',
       type: 'Promise<boolean>',
-      default: '—',
     },
     {
-      name: 'getRole() / isModal() / getLabel() / isPresentedAsSheet() / getEmptyText() / focus() / blur() / isSearchInputFocused()',
+      name: 'getRole() / isModal() / getLabel() / getEmptyText() / focus() / blur() / isSearchInputFocused()',
       description: 'Shape, state and focus.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly cascaderApi: readonly DocApiRow[] = [
     {
       name: 'getColumns() / getColumnCount() / getColumn(i) / getColumnLabels()',
-      description:
-        'One column per level, and which columns exist depends on what is open — that relationship IS the component. A column harness answers its options and its active one.',
+      description: 'One column per open level.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'selectPath(labels) / getOption(path) / getActiveTrail()',
-      description:
-        '`selectPath` walks level by level, opening each parent before reaching for the next — the same order a user does it in.',
+      description: '`selectPath` opens each level in turn.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'open() / close() / clickTrigger() / clear() / focus() / blur() / isFocused()',
       description: 'The trigger.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getValueText() / getPlaceholder() / getAccessibleName() / isDisabled() / isOpen()',
-      description: 'What the trigger shows and announces.',
+      description: 'What the trigger shows.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getPopupRole() / getPanelRole() / getPanelId() / isPanelWiredToTrigger()',
-      description:
-        "The panel reference the harness itself relies on: one cascader cannot answer with another's options while both are open.",
+      description: 'The trigger-to-panel link.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly treeApi: readonly DocApiRow[] = [
     {
       name: 'getNodes(filters?) / getNodeLabels() / getNode(filters)',
-      description:
-        'The VISIBLE nodes in order. While the tree is virtualized this is the window, not the dataset — the spacer rows are not nodes.',
+      description: 'Visible nodes; a window when virtual.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'selectNode(filters) / getSelectedLabels() / expandAll() / clear()',
-      description: 'Selection and bulk expansion.',
+      description: 'Selection and expansion.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'focusNext() / focusPrevious() / focusFirst() / focusLast() / expandActive() / collapseActive() / selectActive() / getActiveNodeLabel()',
-      description:
-        'The keyboard walk. While virtual the tree moves a cursor with `aria-activedescendant` rather than real focus, which is why these are named for the ACTIVE node.',
+      description: 'The keyboard walk, on the active node.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'isOverlay() / isOpen() / open() / close() / getValueText() / getChipLabels() / getOverflowText() / removeChip(label)',
-      description: 'The select-like shape, for a tree used as a picker.',
+      description: 'For a tree used as a picker.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getRole() / isMultiple() / getSelectionMode() / isVirtual() / isDisabled()',
       description: 'Shape and mode.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
-      name: 'A node adds: getLabel() / getLevel() / getPosInSet() / getSetSize() / getIndex() / isExpandable() / isExpanded() / expand() / collapse() / isSelected() / isDisabled() / isActive() / click() / ctrlClick()',
-      description:
-        "`aria-setsize` counts the node's SIBLING GROUP including itself and `aria-posinset` is its place in that group — neither is a position in the flat list, and reading them that way is a classic tree bug.",
+      name: 'Node: getLabel() / getLevel() / getPosInSet() / getSetSize() / getIndex() / isExpandable() / isExpanded() / expand() / collapse() / isSelected() / isDisabled() / isActive() / click() / ctrlClick()',
+      description: '`WrTreeNodeHarness`. Set size and position are per sibling group.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly graphApi: readonly DocApiRow[] = [
     {
       name: 'getAccessibleName() / getNodes(filters?) / getNode(filters)',
-      description:
-        "The viewport's name, and this graph's own nodes in READING order — layer, then inline position — which is DOM order. Node filter: `label`, matched against the drawn text. Graph filters: `ariaLabel`, `nodeLabel`.",
+      description: 'Nodes in reading order. Filters: `label`. Graph filters: `ariaLabel`, `nodeLabel`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getEdges()',
-      description:
-        'One `{ from, to }` per line, off `data-from` / `data-to`, in the order given with skipped edges left out. Throws on a graph that draws no nodes: `[]` would read the same for empty data and for a layout that drew nothing.',
+      description: '`{ from, to }` per line, by node id. Throws on a graph with no nodes.',
       type: 'Promise<{ from: string; to: string }[]>',
-      default: '—',
     },
     {
-      name: 'A node adds: getText() / getRelationText()',
-      description:
-        'What the node draws (the card or your template, hidden text left out) and the sentence a screen reader hears about its parents and children — `null` for a node with no edges.',
+      name: 'Node: getText() / getRelationText()',
+      description: '`WrGraphNodeHarness`: the drawn text, and the parents and children sentence.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
@@ -2518,486 +1829,271 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'getText() / getLabel() / getPlaceholder() / isMounted()',
       description:
-        'What the surface DRAWS, one textblock per line, the task-item words left out; the accessible name, with a field label resolved through `aria-labelledby`; the placeholder as announced, `null` once the document holds anything. The value is not here — read it from the model you bound. Filters: `label`, `text`, `disabled`, `readonly`.',
+        'What the surface draws; read the value from your model. Filters: `label`, `text`, `disabled`, `readonly`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'setText(text) / paste(text) / pasteHtml(html, text?) / selectAll() / pressKey(key, modifiers?)',
-      description:
-        'The writes. `setText` replaces the document through the DOM change ProseMirror reads; `paste` / `pasteHtml` insert at the selection, through the same schema a bound value goes through; `pressKey` refuses a printable character with no modifier, since a key event types nothing in jsdom.',
+      description: 'Edits. `pressKey` refuses a printable key with no modifier.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'getTool(label) / getToolLabels() / isToolPressed(label) / getToolShortcuts(label) / getToolbarTabStop()',
-      description:
-        'A tool by its accessible name, as a `WrButtonHarness`; the drawn tools; `aria-pressed` (throws for a tool that is not a toggle); `aria-keyshortcuts`; the one tool in the tab order.',
+      description: 'Toolbar tools; `getTool` returns a `WrButtonHarness`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'openLinkPanel() / setLink(url) / removeLink() / getLinkError() / isLinkPanelOpen()',
-      description:
-        'The link panel, scoped by the id its button publishes — `openLinkPanel()` hands back the `WrPopoverHarness`. `setLink` resolves either way; a refused address leaves the panel open and `getLinkError()` reads its message.',
+      description: 'The link panel. A refused URL leaves it open with an error.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly mentionApi: readonly DocApiRow[] = [
     {
       name: 'type(text) / setValue(text) / getValue() / clear()',
-      description:
-        'Typing is the only way in: the panel opens off a trigger character the directive detects at the caret, so a value written straight to the field does not open anything.',
+      description: 'Only `type()` opens the panel.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getOptions(filters?) / getOptionLabels() / pick(filters)',
-      description: 'The suggestions, capped at `maxResults`.',
+      description: 'Suggestions, up to `maxResults`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'nextOption() / previousOption() / getActiveOptionLabel() / getActiveOptionIndex() / getActiveOptionId() / commit() / commitWithTab()',
-      description: 'The arrow walk and the two commit keys, which insert the mention into the field.',
+      description: 'The arrow walk and the two commit keys.',
       type: 'Promise<…>',
-      default: '—',
     },
-    {
-      name: 'dismiss() / blur() / isOpen()',
-      description:
-        'Escape dismisses without picking. Note the harness sends a real keydown AND keyup pair, which is what a browser does — and what exposed a bug where the keyup reopened the panel Escape had just closed.',
-      type: 'Promise<…>',
-      default: '—',
-    },
+    { name: 'dismiss() / blur() / isOpen()', description: 'Escape closes without picking.', type: 'Promise<…>' },
     {
       name: 'getAutocomplete() / getPopupRole() / getListboxRole() / getListboxLabel() / getStatusMessage()',
-      description: 'The combobox wiring the field publishes while the panel is up.',
+      description: 'Combobox ARIA while the panel is open.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly formFieldApi: readonly DocApiRow[] = [
     {
       name: 'getErrors() / getErrorTexts() / getErrorText(key)',
-      description:
-        'The messages the field is SHOWING, by validator key. `getErrorText` throws rather than answering `null`, and its message says which of the two happened: the key is not in error, or its copy resolved to nothing.',
+      description: 'Shown messages by key. `getErrorText` throws when none shows.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getSuppressedErrorKeys() / hasEmptyErrorBlock()',
-      description:
-        'Keys in error with no copy to show. That combination is the failure this component exists to prevent — a field that knows it is invalid and cannot say why.',
+      description: 'Keys in error with no copy to show.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getLabel() / isRequired() / isOptional() / getHint()',
-      description: 'The surrounding copy.',
+      description: 'Label and hint.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'isLabelLinkedToControl() / getLabelFor() / getControlId()',
-      description:
-        'A real `<label for>` link to the projected control. An `aria-label` on the wrapper does NOT reach the native control inside it, so this link is why the field is nameable at all.',
+      description: 'The `<label for>` link to the control.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getDescribedByIds() / getAnnouncedDescription()',
-      description:
-        'What the control points at, resolved to text: the hint and the error a screen reader will actually read. A message nothing references is decoration.',
+      description: 'What `aria-describedby` reads out.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'isInvalid() / isControlInvalid() / focusControl() / blurControl()',
-      description:
-        'Two different questions: what the field PAINTS, and what the control announces through `aria-invalid`.',
+      description: "The field's painted state, and the control's `aria-invalid`.",
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'WrFormItemHarness: getLabel() / isInvalid() / getErrorTexts()',
-      description: 'The same three questions for `<wr-form-item>`.',
+      description: 'The same for `<wr-form-item>`.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly tabsApi: readonly DocApiRow[] = [
     {
       name: 'getTabLabels() / getTabs(filters?) / getSelectedLabel() / select(filters) / selectByIndex(i)',
-      description:
-        '`select()` verifies the tab actually became selected and throws if it did not — a disabled content tab fires no click at all, and a router strip may navigate somewhere else entirely. Filters: `label`, `selected`, `disabled`.',
+      description: '`select()` throws if the tab does not become selected. Filters: `label`, `selected`, `disabled`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getTabStopLabels() / isRoving() / getFocusedLabel() / focusTabStop()',
-      description:
-        'The roving tab stop, which is NOT the selection once focus has moved. A strip that answered one for the other would look correct in a test and be dead to a keyboard user. A disabled tab is never a tab stop, even when it is the active one.',
+      description: 'The roving tab stop, separate from the selection.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'pressArrowRight() / pressArrowLeft() / pressHome() / pressEnd()',
-      description:
-        'Sent at the `role="tablist"` strip, which owns the handler. The arrows mirror under `dir="rtl"`; Home and End do not.',
+      description: 'Arrows mirror in RTL; Home and End do not.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'isRouterMode() / getRole() / getOrientation() / getSize() / getFades()',
-      description: "Shape and chrome. `getFades()` reads the edge fades from the strip's scroll metrics.",
+      description: 'Shape and edge fades.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
-      name: 'A tab adds: getLabel() / isSelected() / isDisabled() / isTabStop() / isLink() / getHref() / getPanelId() / isPanelBound() / getPanelText()',
-      description:
-        '`isPanelBound()` walks the `aria-controls` / `aria-labelledby` round trip both ways — a panel wired to the wrong header is invisible to a sighted user and fatal to a screen-reader one.',
+      name: 'Tab: getLabel() / isSelected() / isDisabled() / isTabStop() / isLink() / getHref() / getPanelId() / isPanelBound() / getPanelText()',
+      description: '`WrTabHarness`. `isPanelBound()` checks the tab and panel point at each other.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly stepperApi: readonly DocApiRow[] = [
     {
       name: 'getStepLabels() / getSteps(filters?) / getActiveLabel() / getActiveIndex() / getCompletedLabels()',
-      description:
-        'The steps and where the flow is. Filters: `label`, `active`, `completed`, `disabled`, `reachable`, `optional`.',
+      description: 'Steps and progress. Filters: `label`, `active`, `completed`, `disabled`, `reachable`, `optional`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'next() / previous() / goTo(i) / goToLabel(label) / canGoTo(i)',
-      description:
-        'A LINEAR stepper refuses a jump, so `canGoTo()` answers first and `goTo()` throws rather than silently doing nothing.',
+      description: 'In a linear stepper, `goTo()` throws on a jump.',
       type: 'Promise<…>',
-      default: '—',
     },
-    {
-      name: 'getActiveStepText() / getStepTexts()',
-      description: 'The content of the active step, and of each.',
-      type: 'Promise<…>',
-      default: '—',
-    },
+    { name: 'getActiveStepText() / getStepTexts()', description: 'Step content.', type: 'Promise<…>' },
     {
       name: 'isLinear() / getOrientation() / isResponsive() / getListRole() / getTabStopLabels() / getFocusedLabel()',
-      description: 'Shape, and the roving tab stop again.',
+      description: 'Shape and tab stop.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
-      name: 'A step adds: getLabel() / getDescription() / isOptional() / getAccessibleName() / isActive() / isCompleted() / isReachable() / select()',
-      description: '`isReachable()` is the linear question per step; `select()` respects it.',
+      name: 'Step: getLabel() / getDescription() / isOptional() / getAccessibleName() / isActive() / isCompleted() / isReachable() / select()',
+      description: '`WrStepHarness`. `select()` respects `isReachable()`.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly carouselApi: readonly DocApiRow[] = [
     {
       name: 'getSlideCount() / getSlideTexts() / getActiveIndex() / getActiveSlideText()',
-      description: 'What is on show.',
+      description: 'What is shown.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'next() / previous() / goTo(i)',
-      description:
-        'Next stays next in both directions — only the travel mirrors under `dir="rtl"`. A drag is pointer-driven and jsdom has no layout, so there is no drag method: the buttons and the keyboard are the honest paths.',
+      description: 'Next stays next in RTL. There is no drag method.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'hasDots() / getDotCount() / getDotLabels() / hasArrows() / getPreviousLabel() / getNextLabel()',
-      description: 'The controls, including their accessible names.',
+      description: 'Dots, arrows and their labels.',
       type: 'Promise<…>',
-      default: '—',
     },
-    {
-      name: 'hover() / mouseAway()',
-      description: 'What pauses and resumes autoplay.',
-      type: 'Promise<void>',
-      default: '—',
-    },
+    { name: 'hover() / mouseAway()', description: 'Pauses and resumes autoplay.', type: 'Promise<void>' },
     {
       name: 'getRole() / getRoleDescription() / getSlideRoleDescriptions() / getAccessibleName() / getTrackOffsetPercent()',
-      description:
-        'What the carousel announces. The track offset is the one geometric answer, read from the inline style rather than measured.',
+      description: 'Roles, name and track offset.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly paginationApi: readonly DocApiRow[] = [
     {
       name: 'getPages() / getStrip() / getCurrentPage() / getTotalPages()',
-      description:
-        '`getPages()` is the numbers only; `getStrip()` shows the ellipsis gaps for what they are. A gap is a `<span>`, not a page, and counting it as one is the classic pager bug.',
+      description: "`getPages()` is numbers only; `getStrip()` includes the `'…'` gaps.",
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'goToPage(n) / goToFirst() / goToLast() / next() / previous()',
-      description: 'Moving. `aria-current` is what says where you landed.',
+      description: 'Moving between pages.',
       type: 'Promise<void>',
-      default: '—',
     },
     {
       name: 'isNextDisabled() / isPreviousDisabled() / isDisabled()',
       description: 'The ends, and the whole control.',
       type: 'Promise<boolean>',
-      default: '—',
     },
     {
       name: 'hasPageSizeChanger() / getPageSizeSelect() / getPageSize() / setPageSize(n)',
-      description:
-        'The size control is a `wr-select`, so `getPageSizeSelect()` hands back `WrSelectHarness` rather than re-querying a panel that already has a harness.',
+      description: '`getPageSizeSelect()` returns a `WrSelectHarness`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'hasTotal() / getTotalText() / getLabel() / getSize() / isResponsive()',
-      description: 'The surrounding copy and chrome.',
+      description: 'Copy and chrome.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly segmentedApi: readonly DocApiRow[] = [
     {
       name: 'getOptionLabels() / getOptions(filters?) / getSelectedLabel() / getSelectedIndex() / select(filters) / selectAt(i)',
-      description: 'The options and the choice. Filters: `label`, `selected`, `disabled`.',
+      description: 'Options and the choice. Filters: `label`, `selected`, `disabled`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getTabStopLabels() / getFocusedLabel()',
-      description: 'The roving tab stop, separate from the selection as everywhere else.',
+      description: 'The roving tab stop.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getThumbIndex() / getThumbCount() / isThumbVisible() / isThumbTransitionEnabled()',
-      description:
-        'The sliding thumb is decoration, so these read what is actually there — its index comes from the inline custom property the component writes, not from a measured position jsdom does not have.',
+      description: 'The sliding thumb.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'getRole() / getAccessibleName() / getSize() / isDisabled()',
       description: 'Shape and state.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly collapseApi: readonly DocApiRow[] = [
     {
       name: 'Group: getPanelTitles() / getPanels(filters?) / getPanel(filters) / getPanelAt(i) / getOpenTitles()',
-      description: 'The accordion. Filters: `title`, `open`, `disabled`.',
+      description: '`WrCollapseGroupHarness`. Filters: `title`, `open`, `disabled`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'Group: openPanel(filters) / closePanel(filters) / closeAll() / getFocusedTitle()',
-      description: 'In accordion mode opening one closes the rest — assert that, it is the interesting behaviour.',
+      description: 'In accordion mode, opening one closes the rest.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'Panel: isOpen() / open() / close() / toggle() / getContentText()',
-      description:
-        "Open and closed come from the header's `aria-expanded`, never from a measured height — the animation is invisible in jsdom, and a harness that measured it would answer about a frame.",
+      description: '`WrCollapseHarness`. Open state comes from `aria-expanded`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'Panel: getRegionId() / isRegionBound() / isContentHidden()',
-      description: 'The `aria-controls` pairing between header and region, checked in both directions.',
+      description: 'The header and region point at each other.',
       type: 'Promise<…>',
-      default: '—',
-    },
-  ];
-
-  protected readonly markdownApi: readonly DocApiRow[] = [
-    {
-      name: 'getText()',
-      description: 'The whole document as prose, whitespace collapsed, hidden task labels left out.',
-      type: 'Promise<string>',
-      default: '—',
-    },
-    {
-      name: 'getHeadings()',
-      description:
-        'Level, text and id per heading. The level comes from the element, so it also asserts that a real `<h2>` was rendered rather than a styled div.',
-      type: 'Promise<WrMarkdownHarnessHeading[]>',
-      default: '—',
-    },
-    {
-      name: 'getLinks()',
-      description:
-        'Text, `href`, `title`, `target` and `rel`. A `_blank` without `rel="noopener noreferrer"` is the assertion worth writing.',
-      type: 'Promise<WrMarkdownHarnessLink[]>',
-      default: '—',
-    },
-    {
-      name: 'getCodeBlocks(filters?)',
-      description:
-        'Every fenced block, nested ones included. `getCodeBlock(filters?)` returns the first match and throws naming the languages present.',
-      type: 'Promise<WrMarkdownCodeBlockHarness[]>',
-      default: '—',
-    },
-    {
-      name: 'getTaskItems()',
-      description: 'Text, checked state and the screen-reader label that carries it.',
-      type: 'Promise<WrMarkdownHarnessTaskItem[]>',
-      default: '—',
-    },
-    {
-      name: 'getTables()',
-      description:
-        'Headers, rows and per-column alignment, read from the inline style the renderer wrote rather than from computed style — a `<th>` centres by default, which would make "no alignment" indistinguishable from `center`.',
-      type: 'Promise<WrMarkdownHarnessTable[]>',
-      default: '—',
-    },
-    {
-      name: 'getParagraphs() / getListItems() / getQuotes() / getInlineCode() / getImages() / getRuleCount()',
-      description: 'The rest of the document, each in the terms a reader would use.',
-      type: 'Promise<string[]> etc.',
-      default: '—',
-    },
-    {
-      name: 'isStreaming() / isEmpty()',
-      description:
-        '`isStreaming()` reads the host modifier that paints the caret. `isEmpty()` means nothing rendered at all, which is not the same as no text.',
-      type: 'Promise<boolean>',
-      default: '—',
-    },
-    {
-      name: 'WrMarkdownCodeBlockHarness',
-      description:
-        '`getLanguage()`, `getCode()` (exact, never trimmed), `isHighlighted()`, `canCopy()`, `getCopyLabel()`, `copy()`.',
-      type: 'ComponentHarness',
-      default: '—',
     },
   ];
 
   protected readonly transferApi: readonly DocApiRow[] = [
-    {
-      name: 'getPane(side)',
-      description:
-        "The two panes are symmetric, so the API takes a side — `'source'` or `'target'` — rather than duplicating every method.",
-      type: 'Promise<WrTransferPaneHarness>',
-      default: '—',
-    },
+    { name: 'getPane(side)', description: "`'source'` or `'target'`.", type: 'Promise<WrTransferPaneHarness>' },
     {
       name: 'canMoveTo(side) / moveTo(side) / moveAllTo(side) / getMoveLabel(side)',
-      description:
-        '`moveTo()` refuses a disabled button instead of pressing it: a native disabled `<button>` swallows the click before Angular sees it, so the call would otherwise resolve having moved nothing. The error names the pane that is empty.',
+      description: '`moveTo()` throws when nothing is staged.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'Pane: getItemLabels() / getItems(filters?) / getItem(filters) / getCheckedLabels() / getEmptyText()',
-      description: 'The rows a pane is showing. Filters: `label`, `checked`, `disabled`.',
+      description: 'The rows shown. Filters: `label`, `checked`, `disabled`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'Pane: toggleSelectAll() / checkAll() / uncheckAll() / isAllChecked() / isPartiallyChecked() / isSelectAllDisabled()',
-      description: 'Select-all is scoped to what the pane is SHOWING — a search narrows it.',
+      description: 'Select-all covers the rows shown.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
       name: 'Pane: hasSearch() / search(query) / getSearchValue() / getCountText() / getTitle() / getListRole()',
-      description: 'The per-pane search and header. `search()` throws when `searchable` is off.',
+      description: '`search()` throws without `searchable`.',
       type: 'Promise<…>',
-      default: '—',
     },
     {
-      name: 'An item adds: getLabel() / isChecked() / isDisabled() / toggle() / check() / uncheck()',
-      description: '`check` and `uncheck` are no-ops when the row is already there; a disabled row refuses.',
+      name: 'Item: getLabel() / isChecked() / isDisabled() / toggle() / check() / uncheck()',
+      description: '`WrTransferItemHarness`. A disabled row refuses.',
       type: 'Promise<…>',
-      default: '—',
     },
   ];
 
   protected readonly seeAlso: readonly DocSeeAlsoLink[] = [
-    {
-      title: 'wr-btn',
-      kind: 'Component',
-      description: 'The component WrButtonHarness drives.',
-      url: ['/reference/components', 'button'],
-    },
-    {
-      title: '[wrInput]',
-      kind: 'Directive',
-      description: 'The directive WrInputHarness drives.',
-      url: ['/reference/components', 'input'],
-    },
-    {
-      title: 'wr-checkbox',
-      kind: 'Component',
-      description: 'Including the `checkboxValue` identity the harness reads.',
-      url: ['/reference/components', 'checkbox'],
-    },
-    {
-      title: 'wr-switch',
-      kind: 'Component',
-      description: 'The `role="switch"` control behind WrSwitchHarness.',
-      url: ['/reference/components', 'switch'],
-    },
-    {
-      title: 'wr-select',
-      kind: 'Component',
-      description: 'Single, multi, tag and search — one harness covers all four.',
-      url: ['/reference/components', 'select'],
-    },
-    {
-      title: 'WrDialog',
-      kind: 'Service',
-      description: 'Opens the panel WrDialogHarness drives.',
-      url: ['/reference/components', 'dialog'],
-    },
-    {
-      title: 'WrToast',
-      kind: 'Service',
-      description: 'Shows the toasts WrToastHarness reads.',
-      url: ['/reference/components', 'toast'],
-    },
-    {
-      title: 'wr-table',
-      kind: 'Component',
-      description: 'Sorting, selection, tree rows — the harness family mirrors them.',
-      url: ['/reference/components', 'table'],
-    },
-    {
-      title: 'wr-date-picker',
-      kind: 'Component',
-      description: 'Date, time and datetime in one component.',
-      url: ['/reference/components', 'date-picker'],
-    },
-    {
-      title: '[wrDropdown]',
-      kind: 'Directive',
-      description: 'The trigger WrDropdownHarness drives.',
-      url: ['/reference/components', 'dropdown'],
-    },
-    {
-      title: '[wrPopover]',
-      kind: 'Directive',
-      description: 'Popover and tooltip modes behind one harness.',
-      url: ['/reference/components', 'popover'],
-    },
+    { title: 'Forms', kind: 'Guide', url: ['/guides', 'forms'] },
+    { title: 'Overlay', kind: 'Guide', url: ['/guides', 'overlay'] },
+    { title: 'wr-select', kind: 'Component', url: ['/reference/components', 'select'] },
+    { title: 'wr-table', kind: 'Component', url: ['/reference/components', 'table'] },
   ];
 }

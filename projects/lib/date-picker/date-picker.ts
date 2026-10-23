@@ -37,7 +37,7 @@ import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
-import type { WrDateInputError } from './interfaces';
+import { clockFormat } from './internal/clock-format';
 import { WrDateTimePanel } from './internal/date-time-panel';
 import {
   WR_DATE_INPUT_FIELD_VIEW_PROVIDER,
@@ -45,7 +45,9 @@ import {
   useDateInputRefusals,
   useFormParseErrors,
 } from './internal/input-refusal';
+import { tabLeavesPane } from './internal/tab-out';
 import { WrTimePanel } from './internal/time-panel';
+import type { WrDateInputError } from './types';
 
 let panelUid = 0;
 
@@ -79,7 +81,9 @@ const SILENCE_MS = 100;
  * token strings (`'dd.MM.yyyy'`, `'HH:mm'`). When `format` is left at the
  * default (`null`), the picker derives the right named key from `mode`:
  * `'date'` gives `'shortDate'`, `'time'` gives `'time'`, `'datetime'` gives
- * `'shortDateTime'`.
+ * `'shortDateTime'` — with the suffixes {@link timeFormat} and
+ * {@link showSeconds} ask for, so the field writes the clock the panel draws:
+ * `timeFormat="24h"` with `showSeconds` gives `'time24hSeconds'`.
  *
  * @example
  * ```html
@@ -113,8 +117,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   /**
    * Format used for both display and parsing. When `null` (default), the
-   * format is derived from `mode` (`shortDate` / `time` / `shortDateTime`).
-   * Pass a named key or raw token string to override.
+   * format is derived from `mode` (`shortDate` / `time` / `shortDateTime`),
+   * with the hour cycle of `timeFormat` and the seconds of `showSeconds`
+   * (`time24hSeconds`, …). Pass a named key or raw token string to override.
    */
   readonly format = input<WrDateFormat | (string & {}) | null>(null);
 
@@ -134,10 +139,17 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode. */
   readonly dateFilter = input<((date: Date) => boolean) | null>(null);
 
-  /** Time-panel 12 / 24-hour format. Applies in `time` + `datetime` modes. @default 'auto' */
+  /**
+   * 12 / 24-hour clock, in the time panel and in the field, unless `format` is
+   * set. `'auto'` follows the locale. Applies in `time` + `datetime` modes.
+   * @default 'auto'
+   */
   readonly timeFormat = input<'auto' | '12h' | '24h'>('auto');
 
-  /** Render the seconds column. Applies in `time` + `datetime` modes. @default false */
+  /**
+   * Show seconds, in the time panel and in the field, unless `format` is set.
+   * Applies in `time` + `datetime` modes. @default false
+   */
   readonly showSeconds = input(false, { transform: coerceBooleanProperty });
 
   /** Minute / second step for the time panel. @default 1 */
@@ -193,17 +205,18 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Whether the panel this open cycle should take focus. */
   private autoFocusPanel = false;
 
-  /** Resolved format — falls back to a mode-appropriate default. */
+  /**
+   * Resolved format — falls back to a mode-appropriate default. Only named keys:
+   * `shortTime` was once returned here, is not a member of WrDateFormat, and so
+   * fell through to being read as a raw token pattern. One backed by date-fns
+   * threw on the unescaped letters; the native adapter degraded silently.
+   */
   protected readonly resolvedFormat = computed<string>(() => {
     const explicit = this.format();
     if (explicit) return explicit;
     const m = this.mode();
-    if (m === 'datetime') return 'shortDateTime';
-    // `time`, not `shortTime` — the latter is not a member of WrDateFormat, so
-    // adapters fell through to treating it as a raw token pattern. date-fns then
-    // threw on the unescaped letters; the native adapter degraded silently.
-    if (m === 'time') return 'time';
-    return 'shortDate';
+    if (m === 'date') return 'shortDate';
+    return clockFormat(m === 'datetime' ? 'shortDateTime' : 'time', this.timeFormat(), this.showSeconds());
   });
 
   protected readonly isTime = computed(() => this.mode() === 'time');
@@ -320,11 +333,15 @@ export class WrDatePicker implements FormValueControl<Date | null> {
    * dirty. Read this through a template reference when the picker is bound with
    * `[(value)]` alone and the reason should be on screen.
    *
+   * `message` comes from `validation.<kind>` in the app's i18n catalog and is absent
+   * without one — ngwr ships no error texts — so a template either relies on that
+   * catalog or words the refusal by its `kind`.
+   *
    * @example
    * ```html
    * <wr-date-picker #due [(value)]="due" format="dd.MM.yyyy" />
    * @if (due.inputError(); as error) {
-   *   <small>{{ error.message }}</small>
+   *   <small>{{ error.message ?? 'Type a date like 31.12.2026.' }}</small>
    * }
    * ```
    */
@@ -345,12 +362,13 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /**
    * What the picker's own live region says: the refusal on show, unless a surrounding
    * `<wr-form-field>` is already rendering a message for it — that message is a
-   * `role="alert"`, and a second voice would repeat it.
+   * `role="alert"`, and a second voice would repeat it. Nothing when the app's
+   * catalog has no sentence for the refusal: an empty region is better than a key.
    */
   protected readonly announcement = computed(() => {
     const shown = this.inputError();
     if (!shown || this.silenced() || this.inputField.saysAlready(shown)) return '';
-    return shown.message;
+    return shown.message ?? '';
   });
 
   /**
@@ -499,6 +517,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       ref.setInput('format', this.timeFormat());
       ref.setInput('showSeconds', this.showSeconds());
       ref.setInput('step', this.step());
+      // A readonly picker refuses the write wherever it comes from, so the panel's own
+      // steppers and boxes refuse it too rather than moving digits the model never takes.
+      ref.setInput('readonly', this.readonly());
     });
 
     // The datetime panel had no live sync at all: a date typed into the field
@@ -515,6 +536,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       ref.setInput('timeFormat', this.timeFormat());
       ref.setInput('showSeconds', this.showSeconds());
       ref.setInput('step', this.step());
+      ref.setInput('readonly', this.readonly());
     });
   }
 
@@ -812,6 +834,13 @@ export class WrDatePicker implements FormValueControl<Date | null> {
           // the guarded restore and dragged the caret backwards out of whatever
           // they had moved on to. Same rule as `wr-date-range-picker`.
           this.closeOverlay();
+          return;
+        }
+        // Non-modal, so Tab leaves — from the trigger, to the trigger's own neighbour,
+        // rather than off the end of `<body>`. See `tabLeavesPane`.
+        if (this.overlayRef && tabLeavesPane(this.overlayRef.overlayElement, event)) {
+          this.triggerEl()?.nativeElement.focus();
+          this.closeOverlay();
         }
       });
   }
@@ -839,6 +868,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     ref.setInput('showSeconds', this.showSeconds());
     ref.setInput('step', this.step());
     ref.setInput('autoFocus', this.autoFocusPanel);
+    ref.setInput('readonly', this.readonly());
     ref.setInput('value', this.value() ?? this.adapter.today());
     this.timeRef.set(ref);
     ref.instance.value.subscribe((next: Date | null) => {
@@ -858,16 +888,23 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     ref.setInput('timeFormat', this.timeFormat());
     ref.setInput('showSeconds', this.showSeconds());
     ref.setInput('step', this.step());
+    ref.setInput('readonly', this.readonly());
     ref.setInput('autoFocus', this.autoFocusPanel);
     this.dateTimeRef.set(ref);
     ref.instance.changed.subscribe(next => {
       this.lastFromPanel = next;
       this.commit(next);
-      ref.setInput('value', next);
+      // What the model holds now, not what the panel asked for — the two differ when
+      // the write was refused.
+      ref.setInput('value', this.value());
     });
   }
 
   private commit(next: Date): void {
+    // Before the text, not after it: `commitValue` refuses the same write, and a field
+    // rewritten ahead of that refusal showed a date the model never took — the date a
+    // readonly calendar's day click named, while the form still submitted the old one.
+    if (this.readonly() || this.disabled()) return;
     this.text.set(this.adapter.format(next, this.resolvedFormat()));
     this.commitValue(next);
     this.refuse(null);

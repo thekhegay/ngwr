@@ -1,0 +1,48 @@
+<ngwr-doc-page
+  title="Collapse"
+  description="A panel that opens and closes from its header."
+  [keywords]="['collapse', 'accordion', 'wr-collapse', 'wr-accordion', 'wr-collapse-group']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Basic usage" description="Set `title`; bind `[(open)]` to control it.">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%">
+        <wr-collapse title="What is NGWR?">
+          A signals-first Angular component library. Bring your own design tokens.
+        </wr-collapse>
+        <wr-collapse title="How do I install it?" [open]="true">
+          <code>pnpm add ngwr @angular/cdk</code> — then import the styles and the components you use.
+        </wr-collapse>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Accordion"
+    description="One panel open at a time. `<wr-accordion>` is short for `<wr-collapse-group accordion>`; import the one you use."
+  >
+    <ngwr-doc-snippet [code]="snippets.accordion">
+      <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%">
+        <wr-accordion>
+          <wr-collapse title="One">First panel body — `&lt;wr-accordion&gt;`.</wr-collapse>
+          <wr-collapse title="Two">Second panel body.</wr-collapse>
+          <wr-collapse title="Three">Third panel body.</wr-collapse>
+        </wr-accordion>
+
+        <wr-collapse-group accordion>
+          <wr-collapse title="One">First panel body — `&lt;wr-collapse-group accordion&gt;`.</wr-collapse>
+          <wr-collapse title="Two">Second panel body.</wr-collapse>
+          <wr-collapse title="Three">Third panel body.</wr-collapse>
+        </wr-collapse-group>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Collapse API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Collapse Group API">
+    <ngwr-doc-api [rows]="groupApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

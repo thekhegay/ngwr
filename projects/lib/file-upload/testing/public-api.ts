@@ -1,2 +1,2 @@
 export { WrFileUploadHarness } from './wr-file-upload-harness';
-export type { WrFileUploadHarnessFilters } from './interfaces';
+export type { WrFileUploadHarnessFilters } from './types';

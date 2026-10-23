@@ -79,6 +79,7 @@ export const wrSv: WrI18nCatalog = {
   },
   stepper: {
     optional: 'valfritt',
+    completed: 'slutfört',
   },
   transfer: {
     source: 'Tillgängliga',
@@ -93,29 +94,6 @@ export const wrSv: WrI18nCatalog = {
   },
   form: {
     optional: 'valfritt',
-  },
-  validation: {
-    required: 'Fältet är obligatoriskt.',
-    requiredTrue: 'Fältet måste markeras.',
-    email: 'Ange en giltig e-postadress.',
-    minlength: 'Ange minst {{requiredLength}} tecken.',
-    maxlength: 'Ange högst {{requiredLength}} tecken.',
-    min: 'Ange {{min}} eller mer.',
-    max: 'Ange {{max}} eller mindre.',
-    pattern: 'Värdet har fel format.',
-    noWhitespace: 'Värdet får inte innehålla mellanslag.',
-    hexColor: 'Ange en hexfärgkod, t.ex. #1a2b3c.',
-    url: 'Ange en giltig webbadress.',
-    cardNumber: 'Ange ett giltigt kortnummer.',
-    cvc: 'Ange den {{length}}-siffriga säkerhetskoden.',
-    iban: 'Ange ett giltigt IBAN.',
-    match: 'Värdena stämmer inte överens.',
-    matchFields: 'Fälten stämmer inte överens.',
-    oneOf: 'Välj ett av de tillåtna värdena.',
-    minDate: 'Välj ett senare datum.',
-    maxDate: 'Välj ett tidigare datum.',
-    dateFormat: 'Förväntat format: {{example}}',
-    dateFilter: 'Det här datumet är inte tillgängligt.',
   },
   select: {
     label: 'Välj',
@@ -243,13 +221,15 @@ export const wrSv: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Stapeldiagram',
+  },
   calendarHeatmap: {
     label: 'Kalendervärmekarta',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Linjediagram',
-    thousands: '{{value}} tn',
   },
   donutChart: {
     label: 'Ringdiagram',
@@ -265,9 +245,6 @@ export const wrSv: WrI18nCatalog = {
     pagination: 'Karusellnavigering',
     roledescription: 'karusell',
     slideRoledescription: 'bild',
-  },
-  actionSheet: {
-    label: 'Åtgärder',
   },
   alert: {
     close: 'Stäng meddelandet',
@@ -296,12 +273,6 @@ export const wrSv: WrI18nCatalog = {
   },
   popover: {
     label: 'Popover',
-  },
-  markdown: {
-    copy: 'Kopiera kod',
-    copied: 'Kopierat',
-    taskDone: 'Klart:',
-    taskTodo: 'Att göra:',
   },
   editor: {
     label: 'Formaterad text',
@@ -373,6 +344,9 @@ export const wrSv: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Sidopanel',
+    containsCurrent: 'innehåller den aktuella sidan',
+    subpages: 'Undersidor till {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Läser in',

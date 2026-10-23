@@ -35,15 +35,7 @@
   }
 }
 
-// Inline SVG icons that live OUTSIDE a `<wr-icon>` host (used by
-// chrome bits like pagination chevrons, alert close, sidebar caret,
-// password toggle eye, tree expand, etc.). These get a sensible
-// default sizing so they're never collapsed to 0×0 inside flex
-// parents. Override by adding a second class with a custom size.
-.wr-icon__svg {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  vertical-align: middle;
-  flex: 0 0 auto;
-}
+// `.wr-icon__svg` — the bare inline SVGs fifteen other entry points draw — is
+// sized by the THEME layer (`theme/styles/_box-model.scss`), not here. It lived
+// in this file and collapsed to 0×0 in every app that did not also
+// `@use 'ngwr/icon'`, which no component's documented installation asks for.

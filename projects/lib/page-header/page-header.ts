@@ -43,7 +43,9 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
   selector: 'wr-page-header',
   templateUrl: './page-header.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-page-header', '[class.wr-page-header--responsive]': 'responsive()' },
+  // See `WrAlert`: a static `title=` feeds the input AND lands on the host,
+  // where the browser draws it as a tooltip over the whole component.
+  host: { class: 'wr-page-header', '[class.wr-page-header--responsive]': 'responsive()', '[attr.title]': 'null' },
 })
 export class WrPageHeader {
   /** Primary title shown as an h1. */

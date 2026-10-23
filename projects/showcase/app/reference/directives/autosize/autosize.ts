@@ -31,17 +31,29 @@ export default class AutosizePage {
   protected readonly textareaValue = signal('Type more lines\nto see\nthis grow…');
 
   protected readonly snippets = {
-    install: `import { WrAutosize } from 'ngwr/directives';
-import { WrInput } from 'ngwr/input';`,
     usage: `<textarea wrAutosize minRows="2" maxRows="8" [(ngModel)]="text"></textarea>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: '[wrAutosize]',
-      description: 'Auto-grow <textarea> based on scrollHeight; bounded by minRows / maxRows.',
+      description: 'Grows the `<textarea>` with its content.',
       type: 'directive on textarea',
       default: '—',
+    },
+    {
+      name: 'minRows',
+      description: 'Fewest rows.',
+      type: 'number',
+      default: '1',
+      sub: true,
+    },
+    {
+      name: 'maxRows',
+      description: 'Most rows. `0` means no limit.',
+      type: 'number',
+      default: '0',
+      sub: true,
     },
   ];
 }

@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
-import type { SidebarLink } from '../../../_layout/sidebar/sidebar.types';
 import { DocPageComponent } from '../doc-page/doc-page';
 import { DocSectionComponent } from '../doc-section/doc-section';
 
 import type { DocIndexData, DocIndexSection } from './types';
 
-import { isNewLink } from '#core/utils';
+import { type DocLinkMark, linkMark } from '#core/utils';
+import type { SidebarLink } from '#types';
 
 /**
  * A section's table of contents, as a real page.
@@ -20,10 +20,10 @@ import { isNewLink } from '#core/utils';
  * a list answered with a single component out of eighty-four.
  *
  * It also closes a quieter defect. A redirect prerenders as a meta-refresh
- * stub, `gen-md-docs.ts` skips those, and the SPA fallback then answered
- * `/reference/validators.md` with 301 KB of `text/html` — HTTP 200, for a URL
- * whose whole convention promises markdown. A real page at the route gives the
- * generator something to convert.
+ * stub, `scripts/gen/md-docs.ts` skips those, and the SPA fallback then
+ * answered `/reference/validators.md` with 301 KB of `text/html` — HTTP 200,
+ * for a URL whose whole convention promises markdown. A real page at the route
+ * gives the generator something to convert.
  *
  * Content comes from route `data.index` (see {@link DocIndexData}); the groups
  * are the section's OWN sidebar config, narrowed to the links under this
@@ -50,12 +50,12 @@ export default class DocIndexComponent {
   protected readonly sections: readonly DocIndexSection[] = this.build();
 
   /**
-   * The sidebar's "new" mark, on the page that lists the same links — one rule
-   * (`isNewLink()`) rather than a second copy of it, so the catalog and the nav
-   * can never disagree about what arrived in this release.
+   * The sidebar's mark — `new`, `updated` or `removed` — on the page that lists
+   * the same links: one rule (`linkMark()`) rather than a second copy of it, so
+   * the catalog and the nav can never disagree about what this release changed.
    */
-  protected isNew(link: SidebarLink): boolean {
-    return isNewLink(link.url);
+  protected mark(link: SidebarLink): DocLinkMark | null {
+    return link.disabled ? null : linkMark(link.url);
   }
 
   private build(): readonly DocIndexSection[] {
@@ -66,28 +66,37 @@ export default class DocIndexComponent {
     if (!this.page) throw new Error('ngwr-doc-index: the route carries no `data.index`. See DocIndexData.');
 
     const base = `/${this.route.snapshot.pathFromRoot.flatMap(r => r.url.map(s => s.path)).join('/')}`;
-    const under = (url: readonly string[] | undefined): boolean => {
+    const under = (url: string | undefined): boolean => {
       if (!url) return false;
-      const href = url.join('/');
-      return href === base || href.startsWith(`${base}/`);
+      return url === base || url.startsWith(`${base}/`);
     };
 
     const sections: DocIndexSection[] = [];
     // A group carrying `url` instead of `children` is a single row the sidebar
-    // deliberately left ungrouped (Squircle). One heading over one link reads
-    // as a mistake, so they collect into a trailing section instead.
+    // deliberately left ungrouped. One heading over one link reads as a
+    // mistake, so they collect into a trailing section instead. No cluster
+    // under /reference has one today — the last was Squircle, which v15
+    // removed — so this branch is dormant rather than dead: the /icons
+    // sidebar is built entirely out of that shape.
     const loose: SidebarLink[] = [];
+
+    // Tombstones after the live rows, in the order the sidebar puts them — the
+    // catalog lists what ships first, and what a release removed after it.
+    const liveFirst = (links: readonly SidebarLink[]): readonly SidebarLink[] => [
+      ...links.filter(link => this.mark(link) !== 'removed'),
+      ...links.filter(link => this.mark(link) === 'removed'),
+    ];
 
     for (const group of this.page.groups) {
       if (group.children) {
-        const links = group.children.filter(link => under(link.url));
+        const links = liveFirst(group.children.filter(link => under(link.url)));
         if (links.length > 0) sections.push({ title: group.title, links });
       } else if (under(group.url)) {
         loose.push({ title: group.title, url: group.url });
       }
     }
 
-    if (loose.length > 0) sections.push({ title: 'Other', links: loose });
+    if (loose.length > 0) sections.push({ title: 'Other', links: liveFirst(loose) });
 
     // A cluster whose single group repeats the page's own name — "Validators"
     // under "Validators" — reads as a stutter, so name that one section for

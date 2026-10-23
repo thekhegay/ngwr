@@ -1,0 +1,56 @@
+// 3D mouse-tilt card. The transform is set imperatively by `[wrTilt]`,
+// so this stylesheet just covers the card chrome + the optional glare
+// overlay that the directive appends when `[glare]="true"`.
+
+.wr-tilt-card {
+  --wr-tilt-card-padding: var(--wr-space-xl);
+  --wr-tilt-card-radius: var(--wr-border-radius-base);
+
+  display: block;
+  position: relative;
+  padding: var(--wr-tilt-card-padding);
+  border-radius: var(--wr-tilt-card-radius);
+  border: 1px solid var(--wr-border-base);
+  background: var(--wr-color-surface);
+  color: var(--wr-color-on-surface);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--wr-color-backdrop) 6%, transparent);
+  // Card itself doesn't need overflow:hidden by default — the directive
+  // toggles overflow when glare is enabled. Authors can opt in.
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+}
+
+// Glare overlay (appended by `[wrTilt]` when `[glare]="true"`)
+// Lives in this package so the visual lives with the card chrome.
+//
+// Light surfaces: the glare reads as a soft moving shade, dark gets the
+// classic white sheen. `--wr-tilt-glare-color` is read with its default as the
+// fallback rather than declared here, so a value set on the card, or on any
+// ancestor, still reaches the glare.
+//
+// One blend mode for both schemes, because `light-dark()` carries colours only.
+// The two the effect used to pick between each erase it in the other scheme:
+// `multiply` cannot lighten, so a white sheen leaves a dark card exactly as it
+// was, and `overlay` (like `screen` and `soft-light`) leaves a pure white
+// surface untouched, so the shade disappears from a light card. `normal` draws
+// in both, and over a white surface it is the same picture `multiply` painted,
+// since multiplying by white returns the colour itself. The dark arm is 3%
+// white because it approximates the old sheen: 25% white under `overlay` lifts
+// a channel by about a quarter of itself, which on the navy surface peaks near
+// `#0e1528`, and 3% composited at face value lands within a few steps of that.
+// Carrying the 25%, or the light side's 12%, over to `normal` would paint a
+// sheen several times brighter than the one the dark card used to have.
+.wr-tilt-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--wr-tilt-glare-x, 50%) var(--wr-tilt-glare-y, 50%),
+    var(
+      --wr-tilt-glare-color,
+      light-dark(color-mix(in srgb, var(--wr-color-on-surface) 12%, transparent), rgb(255 255 255 / 3%))
+    ),
+    transparent 60%
+  );
+  mix-blend-mode: normal;
+}

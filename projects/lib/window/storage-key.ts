@@ -1,4 +1,4 @@
-import type { WrWindowStorageConfig } from './interfaces';
+import type { WrWindowStorageConfig } from './types';
 
 /** Namespaced localStorage key for a persisted window / workspace. */
 export function storageKey(cfg: WrWindowStorageConfig): string {

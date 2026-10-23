@@ -1,17 +1,15 @@
 <ngwr-doc-page
   title="WrDensity"
-  description="Density scale — `sm` / `md` / `lg` / `touch` — applied as CSS-variable multipliers on per-component paddings. `md` is the default and resolves to `1` everywhere; `touch` enlarges hit areas for finger input. Persisted via WrStorage and overrideable per-subtree with the `[wrDensity]` directive."
+  updated="15.0.0"
+  description="Switch control spacing between `sm`, `md`, `lg` and `touch`."
   [keywords]="['density', 'sm', 'md', 'lg', 'touch', 'spacing', 'wr-density', 'service']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section title="Install">
-    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
-  </ngwr-doc-section>
-
   <ngwr-doc-section
     title="Live demo — global"
-    description="Pick a density. Every densified component on this page updates in place."
+    description="`set()` changes the density for the whole app, and the choice is stored."
   >
+    <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 1rem; align-items: flex-start">
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
@@ -43,7 +41,7 @@
 
   <ngwr-doc-section
     title="Per-subtree override"
-    description="Drop `[wrDensity]` on any element to scope an override. The toolbar below stays sm regardless of the page's global density."
+    description="Put `[wrDensity]` on an element to give its subtree its own density."
   >
     <ngwr-doc-snippet [code]="snippets.directive">
       <div
@@ -53,7 +51,7 @@
           gap: 0.5rem;
           align-items: center;
           padding: 0.5rem;
-          border: 1px dashed var(--wr-color-light);
+          border: 1px dashed var(--wr-border-base);
           border-radius: 0.5rem;
         "
       >
@@ -66,30 +64,25 @@
 
   <ngwr-doc-section
     title="Override the multipliers"
-    description="Each level resolves to `--wr-density-y`, `--wr-density-x`, `--wr-density-text`, and `--wr-density-gap`. Components multiply their static paddings by these. Retune them by re-declaring the level you are on — `[data-wr-density='md']`, say — rather than on `:root`."
+    description="Re-declare them on the level's `[data-wr-density]` selector; on `:root` the shipped values win."
   >
     <ngwr-doc-code [code]="snippets.tokens" language="scss" />
-    <p>
-      <strong>Why not <code>:root</code>.</strong> <code>provideWrDensity()</code> writes
-      <code>data-wr-density</code> on <code>&lt;html&gt;</code> — including the default <code>md</code> — and the
-      library&#39;s own <code>[data-wr-density='md']</code> block re-declares all four multipliers to <code>1</code>.
-      That block and your <code>:root</code> rule match the same element at the same specificity, so the one that comes
-      later in the cascade wins, and the library&#39;s stylesheet is normally later. The symptom is a retune that half
-      applies: whatever is inside a subtree carrying its own <code>[wrDensity]</code> picks the new number up,
-      everything under <code>&lt;html&gt;</code> keeps the shipped one. Declare on the attribute selector and the
-      question does not arise.
-    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Where the provider goes"
-    description="`WrDensity` is root-provided — one instance per application, holding one active level — and it reads `WR_DENSITY_CONFIG` from the root injector. So `provideWrDensity()` belongs in the application's own providers: put it in a lazy route and the service never sees it, leaving `defaultDensity`, `storageKey` and a renamed `attribute` at their bootstrap values with nothing reported. To vary density by feature, use the `[wrDensity]` directive on the subtree, which is what it is for — it writes the attribute on its own element and needs no provider at all."
-  />
+    title="Configure"
+    description="Add `withDensity()` to the app's own `provideWr()`; in a route's providers it is ignored."
+  >
+    <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
+  </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Compact/comfortable spacing usually ends up as ad-hoc CSS overrides per screen. Density tokens flip the whole catalog (or a subtree) through one provider switch."
-  />
+    title="SSR: no jump after boot"
+    description="Put this script in `<head>`, next to the theme one, so a stored density applies before the first paint. New in v15."
+  >
+    <ngwr-doc-code [code]="prePaint" language="html" />
+    <ngwr-doc-code [code]="snippets.prePaintCustom" language="typescript" />
+  </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

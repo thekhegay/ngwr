@@ -27,7 +27,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
  * bit and all.
  * The artifact is built HERE, into a temp package laid out like an installed
  * `ngwr`, with the same `tsc -p mcp/tsconfig.json` invocation and the same two
- * finishing touches `scripts/build-mcp.ts` applies.
+ * finishing touches `scripts/build/mcp.ts` applies.
  *
  * It used to point at `dist/lib/mcp/server.js` and skip when that was missing,
  * which read as coverage and was not: CI runs the suite twenty-one lines BEFORE
@@ -83,11 +83,12 @@ const TSCONFIG = resolve(ROOT, 'projects', 'lib', 'mcp', 'tsconfig.json');
 const PACKAGE_VERSION = '9.9.9-fixture';
 
 /**
- * The catalog the fixture answers from, in `gen-ai-assets.ts`'s own format.
+ * The catalog the fixture answers from, in `scripts/gen/ai-assets.ts`'s own
+ * format.
  *
  * Three entry points, chosen for what the wire tests ask of them: `select` for a
  * class with a full API surface, `table` for the biggest answer the server has,
- * and `markdown` so a query that is not an entry-point name still has something
+ * and `alert` so a query that is not an entry-point name still has something
  * to hit.
  */
 const CATALOG = [
@@ -96,11 +97,11 @@ const CATALOG = [
   '> Generated from the library source: every entry point with its import path,',
   '> selector(s), public exports, and description. Concise quick-ref: /llms.txt',
   '',
-  '## ngwr/markdown',
-  "- import: `import { WrMarkdown } from 'ngwr/markdown'`",
-  '- selector: `wr-markdown`',
-  '- exports: WrMarkdown',
-  '- Renders markdown as DOM, never as HTML — raw HTML in the source is escaped.',
+  '## ngwr/alert',
+  "- import: `import { WrAlert } from 'ngwr/alert'`",
+  '- selector: `wr-alert`',
+  '- exports: WrAlert',
+  '- Inline status banner — info, success, warning, danger, neutral, offline.',
   '',
   '## ngwr/select',
   "- import: `import { WrSelect } from 'ngwr/select'`",
@@ -117,14 +118,14 @@ const CATALOG = [
 ].join('\n');
 
 const SYMBOL_MAP = {
-  WrMarkdown: 'ngwr/markdown',
+  WrAlert: 'ngwr/alert',
   WrSelect: 'ngwr/select',
   WrTable: 'ngwr/table',
 };
 
 /** The package's own `exports` map — where `hasStyles` gets its answer. */
 const EXPORTS = {
-  './markdown': { sass: './markdown/styles/_index.scss' },
+  './alert': { sass: './alert/styles/_index.scss' },
   './select': { sass: './select/styles/_index.scss' },
   './table': { sass: './table/styles/_index.scss' },
 };
@@ -186,7 +187,7 @@ const TABLE_TYPES = [
   ' */',
   'declare class WrTable<T> {',
   ...Array.from({ length: 60 }, (_, index) => [
-    `    /** Binding ${index}: one of the many switches the table carries, documented the way ng-packagr emits it. */`,
+    `    /** Binding ${index}: one of the many switches the table carries, documented the way ng-packagr emitted it. */`,
     `    readonly binding${index}: _angular_core.InputSignal<readonly WrTableColumn[] | null>;`,
   ]).flat(),
   '}',
@@ -203,13 +204,13 @@ beforeAll(() => {
   root = mkdtempSync(join(tmpdir(), 'ngwr-mcp-server-'));
   server = join(root, 'mcp', 'server.js');
 
-  // The compiler invocation `scripts/build-mcp.ts` runs, pointed at the fixture
+  // The compiler invocation `scripts/build/mcp.ts` runs, pointed at the fixture
   // instead of `dist/lib`. Failing loudly here is the whole point of the change:
   // a compiler that cannot be found must not read as a suite with nothing to do.
   execFileSync(process.execPath, [TSC, '-p', TSCONFIG, '--outDir', join(root, 'mcp')], { stdio: 'pipe' });
   // A `bin` has to name its interpreter and be executable, and tsc emits
-  // neither, so `build-mcp.ts` adds both after compiling. What ships is what
-  // should be under test.
+  // neither, so `scripts/build/mcp.ts` adds both after compiling. What ships is
+  // what should be under test.
   writeFileSync(server, `#!/usr/bin/env node\n${readFileSync(server, 'utf8')}`);
   chmodSync(server, 0o755);
 
@@ -228,7 +229,7 @@ beforeAll(() => {
   mkdirSync(join(root, 'types'), { recursive: true });
   writeFileSync(join(root, 'types', 'ngwr-select.d.ts'), SELECT_TYPES);
   writeFileSync(join(root, 'types', 'ngwr-table.d.ts'), TABLE_TYPES);
-  // No declarations for `markdown`: an entry point whose declarations are
+  // No declarations for `alert`: an entry point whose declarations are
   // missing has to answer, not throw.
 }, 60_000);
 
@@ -681,7 +682,7 @@ describe('ngwr-mcp over stdio', () => {
       JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }),
       request(2, 'tools/list'),
       'not json at all',
-      request(3, 'tools/call', { name: 'search_ngwr', arguments: { query: 'markdown' } }),
+      request(3, 'tools/call', { name: 'search_ngwr', arguments: { query: 'banner' } }),
       request(4, 'ping'),
     ]);
 

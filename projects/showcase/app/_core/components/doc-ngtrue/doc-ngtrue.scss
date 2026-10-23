@@ -1,0 +1,173 @@
+@use 'lib/styles/breakpoints' as bp;
+
+// The one place the site draws ngtrue. The feature frame is `wr-card`, set
+// through its hooks; the icon chips are `.ngwr-icon-chip` and the compact card
+// is `.ngwr-link-card` (both `showcase/styles/_cards.scss`, which own the box,
+// the hover and the focus ring); inline code is the site's one chip and the
+// arrow's RTL flip is global. Only the layout and the wash are this block's own.
+//
+// Both shapes carry the same wash: a primary tint from the corner the mark sits
+// in, over the surface, so the card in a guide reads as the block on the home
+// page made small. The mark is at the inline start, so under RTL the tint moves
+// to the other corner with it.
+
+:host {
+  --ngwr-ngtrue-wash-at: 0% 0%;
+  --ngwr-ngtrue-wash:
+    radial-gradient(
+      120% 90% at var(--ngwr-ngtrue-wash-at),
+      color-mix(in srgb, var(--wr-color-primary) 7%, transparent),
+      transparent 60%
+    ),
+    var(--wr-color-surface);
+
+  display: block;
+}
+
+:host(:dir(rtl)) {
+  --ngwr-ngtrue-wash-at: 100% 0%;
+}
+
+// Feature: a `wr-card`, copy beside the code, stacked below `lg`.
+.ngwr-ngtrue {
+  --wr-card-bg: var(--ngwr-ngtrue-wash);
+  --wr-card-radius: var(--wr-border-radius-lg);
+  --wr-card-padding-x: 2.5rem;
+  --wr-card-padding-y: 2.5rem;
+
+  @include bp.media-down(lg) {
+    --wr-card-padding-x: var(--wr-space-xl);
+    --wr-card-padding-y: var(--wr-space-xl);
+  }
+
+  @include bp.media-down(sm) {
+    --wr-card-padding-x: 1.25rem;
+    --wr-card-padding-y: 1.25rem;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: 3rem;
+
+    @include bp.media-down(lg) {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2rem;
+    }
+  }
+
+  &__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--wr-space-lg);
+    min-width: 0;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--wr-space-md);
+  }
+
+  &__name {
+    margin: 0;
+    color: var(--wr-color-on-surface);
+    font-size: 1.75rem;
+    font-weight: var(--wr-font-weight-bold);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  &__tagline {
+    margin: 0;
+    color: var(--wr-color-on-surface-muted);
+    font-size: 1.0625rem;
+    line-height: 1.5;
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wr-space-lg);
+    margin: var(--wr-space-xs) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // The chip and the text, and nothing else: a bare text node in a flex row
+  // would become a box of its own.
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--wr-space-md);
+  }
+
+  &__item-text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  &__item-title {
+    color: var(--wr-color-on-surface);
+    font-weight: var(--wr-font-weight-semibold);
+    line-height: 1.5;
+  }
+
+  &__item-desc {
+    color: var(--wr-color-on-surface-muted);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  &__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--wr-space-md);
+    margin-top: var(--wr-space-sm);
+  }
+
+  // Install over the spec. `minmax(0, …)` so the spec's longest line scrolls
+  // inside its well instead of widening the page on a phone.
+  &__code {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--wr-space-md);
+    min-width: 0;
+  }
+}
+
+// Compact: one link card, chip and text in a row with the arrow at the end.
+// The chip lines up with the title, as in the feature's items, and stays there
+// when the pitch wraps on a phone; the arrow stays centred.
+.ngwr-ngtrue-card {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--wr-space-md);
+  background: var(--ngwr-ngtrue-wash);
+
+  &__text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  &__arrow {
+    --wr-icon-size: 1rem;
+
+    flex: none;
+    align-self: center;
+    color: var(--wr-color-on-surface-muted);
+    transition: color var(--wr-transition-base);
+  }
+
+  &:hover &__arrow {
+    color: var(--wr-color-primary-ink);
+  }
+}

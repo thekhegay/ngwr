@@ -7,7 +7,6 @@
 
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import type { ComponentRef, TemplateRef } from '@angular/core';
@@ -28,19 +27,12 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import {
-  WR_OVERLAY,
-  WR_RESPONSIVE_OVERLAYS,
-  WrOutsideClick,
-  wrFollowDirection,
-  wrMirrorOffsets,
-  wrPresentAsSheet,
-} from 'ngwr/overlay';
-import { KEYS, numAttr, toClassList, type WrClassInput } from 'ngwr/utils';
+import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
+import { KEYS, getFocusableElements, numAttr, toClassList, type WrClassInput } from 'ngwr/utils';
 
-import { type WrPopoverPosition, wrPopoverPositions } from './interfaces';
 import { WrCurrentKeystroke } from './internal/keystroke';
 import { WrPopoverTextPanel } from './internal/text-panel';
+import { type WrPopoverPosition, wrPopoverPositions } from './types';
 
 /**
  * Keys the USER moves focus with: Tab through the page, the arrows / Home /
@@ -65,6 +57,17 @@ const NAVIGATION_KEYS = new Set<string>([
 ]);
 
 /**
+ * How close, in px, `withPush` may park a pane to the viewport edge — 8px, the
+ * `--wr-space-sm` step. Without it a 224px panel opened `bottom-end` from a
+ * phone's header landed at exactly `x = 0`, its border and corner on the glass.
+ *
+ * The CDK measures the right and bottom edges against the viewport width and
+ * height with the margin taken off BOTH sides, so a pane pushed back from one
+ * of those stops 16px short of it rather than 8 — measured, and left alone.
+ */
+const VIEWPORT_MARGIN = 8;
+
+/**
  * Anchored content panel. The same directive covers two shapes:
  *
  * - **Popover** (default, `mode="popover"`) — `[wrPopover]` takes a
@@ -78,7 +81,9 @@ const NAVIGATION_KEYS = new Set<string>([
  *   `aria-describedby` instead of `aria-haspopup` and is rendered into a small
  *   dark text panel.
  *
- * Built on CDK Overlay so it auto-flips, closes on outside-click and Escape.
+ * Built on CDK Overlay so it auto-flips, closes on outside-click and Escape. A
+ * click popover also closes when Tab leaves it, by way of the trigger, so focus
+ * moves on as if the panel were rendered beside it.
  *
  * @example
  * ```html
@@ -119,6 +124,8 @@ let popoverUid = 0;
     // focus event cannot say where the focus came from. `FocusMonitor` can — see
     // the constructor.
     '(keydown.escape)': 'onEscape()',
+    '(keydown.enter)': 'onActivateKey($event)',
+    '(keydown.space)': 'onActivateKey($event)',
   },
 })
 export class WrPopover {
@@ -141,7 +148,9 @@ export class WrPopover {
 
   /**
    * How the popover opens. Ignored in tooltip mode — a tooltip is always hover
-   * plus keyboard focus. @default 'click'
+   * plus keyboard focus. A `hover` popover still opens from the keyboard, with
+   * Enter or Space on the trigger, and then takes focus the way a click one
+   * does. @default 'click'
    */
   readonly trigger = input<'click' | 'hover'>('click');
 
@@ -153,16 +162,6 @@ export class WrPopover {
 
   /** Tooltip only — delay before hiding, in ms. @default 60 */
   readonly hideDelay = input(60, { transform: numAttr(60) });
-
-  /**
-   * Popover mode only — present the panel as a full-width bottom-sheet on
-   * small viewports instead of an anchored panel. `undefined` follows the
-   * app-wide `provideWrResponsiveOverlays()` setting; `true`/`false`
-   * overrides it. Tooltips never become sheets. @default undefined
-   */
-  readonly responsive = input<boolean | undefined, BooleanInput>(undefined, {
-    transform: (v: BooleanInput): boolean | undefined => (v == null ? undefined : coerceBooleanProperty(v)),
-  });
 
   /**
    * Popover mode only — accessible name of the panel. `role="dialog"` with no
@@ -194,7 +193,6 @@ export class WrPopover {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly dir = inject(Directionality, { optional: true });
   private readonly outsideClick = inject(WrOutsideClick);
-  private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
@@ -220,6 +218,13 @@ export class WrPopover {
   /** Whether the HOST itself holds focus — not a descendant of it. */
   private hostFocused = false;
   private hoverCloseTimer: ReturnType<typeof setTimeout> | null = null;
+  /**
+   * Whether Enter or Space opened a `trigger="hover"` popover. The pointer owns
+   * a hover popover and must leave the caret alone; the keyboard has nothing
+   * else to reach the content with, so a keyboard open moves focus in, exactly
+   * as a click popover's open does.
+   */
+  private openedByKeyboard = false;
   private showTimer: ReturnType<typeof setTimeout> | null = null;
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -309,6 +314,15 @@ export class WrPopover {
     this.isOpen.set(false);
   }
 
+  /**
+   * Flip the panel, from the TRIGGER.
+   *
+   * A control outside the trigger should use {@link open} / {@link close}
+   * instead: the click reaching it has already run the document's
+   * capture-phase outside-click listener, which closed the panel — so
+   * `toggle()` reads `false` and flips it straight back open, and the panel
+   * can never be closed from there.
+   */
   toggle(): void {
     this.isOpen.update(v => !v);
   }
@@ -350,6 +364,22 @@ export class WrPopover {
     // Delay so the pointer can cross the gap between trigger and panel —
     // entering the panel cancels the close (see attach listeners).
     this.scheduleHoverClose();
+  }
+
+  /**
+   * Enter or Space on a `trigger="hover"` popover's trigger opens it, for the
+   * keyboard user the pointer-only trigger left out — the trigger announces a
+   * dialog popup with `aria-haspopup`, and hover is something a keyboard cannot
+   * do. `wr-dropdown` opens a hover menu from the keyboard the same way. A click
+   * popover needs none of this: its trigger's own click answers both keys.
+   *
+   * @internal
+   */
+  protected onActivateKey(event: Event): void {
+    if (this.isTooltip() || this.trigger() !== 'hover' || this.isOpen()) return;
+    event.preventDefault();
+    this.openedByKeyboard = true;
+    this.isOpen.set(true);
   }
 
   /** @internal */
@@ -419,37 +449,24 @@ export class WrPopover {
     const tooltip = this.isTooltip();
     const position = this.resolvedPosition();
 
-    // Sheet presentation is popover-only — tooltips are transient labels and
-    // never dock to the bottom. On small viewports (when opted in) detach
-    // from the trigger and slide the panel up from the bottom edge.
-    const asSheet = !tooltip && wrPresentAsSheet(this.responsive(), this.responsiveConfig);
     const paneClass = tooltip ? 'wr-tooltip-overlay' : 'wr-popover-overlay';
 
-    // Kept as its own binding rather than inlined into the ternary: it is the
-    // half a direction flip has to rebuild, and a sheet — anchored to nothing —
-    // has no list at all, which is what `null` says here.
-    const connected = asSheet
-      ? null
-      : this.overlay
-          .position()
-          .flexibleConnectedTo(this.host)
-          .withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), this.isRtl()))
-          .withPush(true);
-
-    const positionStrategy = connected ?? this.overlay.position().global().centerHorizontally().bottom('0');
+    // Kept as its own binding: it is the half a direction flip has to rebuild.
+    const connected = this.overlay
+      .position()
+      .flexibleConnectedTo(this.host)
+      .withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), this.isRtl()))
+      .withPush(true)
+      .withViewportMargin(VIEWPORT_MARGIN);
 
     // The `--<placement>` half is no longer set here: each fallback position
     // carries its own, so the pane names the placement it landed on instead of
-    // the one that was requested, and the arrow follows a flip. A sheet has no
-    // anchor and so no placement class at all.
-    const overlayClass = toClassList(paneClass, asSheet && 'wr-overlay-sheet', this.panelClass());
+    // the one that was requested, and the arrow follows a flip.
+    const overlayClass = toClassList(paneClass, this.panelClass());
 
     this.overlayRef = this.overlay.create({
-      positionStrategy,
-      scrollStrategy: asSheet ? this.scrollStrategies.block() : this.scrollStrategies.reposition(),
-      width: asSheet ? '100%' : undefined,
-      hasBackdrop: asSheet,
-      backdropClass: asSheet ? 'wr-overlay-backdrop' : undefined,
+      positionStrategy: connected,
+      scrollStrategy: this.scrollStrategies.reposition(),
       panelClass: overlayClass,
     });
 
@@ -459,18 +476,9 @@ export class WrPopover {
     // laying themselves out the other way. Rebuilding the list matters as much
     // as the attribute: `wrMirrorOffsets` turned the 8px gap around at open, and
     // an unmirrored offset puts a side-placed panel back on top of its trigger.
-    // A sheet has no list, and `connected?.` is what says so — the arguments are
-    // never evaluated for one.
     wrFollowDirection(this.overlayRef, this.dir, this.injector, direction =>
-      connected?.withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), direction === 'rtl'))
+      connected.withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), direction === 'rtl'))
     );
-
-    if (asSheet) {
-      this.overlayRef
-        .backdropClick()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => this.isOpen.set(false));
-    }
 
     const content = this.content();
 
@@ -499,7 +507,7 @@ export class WrPopover {
       // "dialog" and trips axe's `aria-dialog-name`.
       pane.setAttribute('aria-label', this.resolvedAriaLabel());
 
-      if (this.trigger() === 'click') {
+      if (this.trigger() === 'click' || this.openedByKeyboard) {
         // Render the projected content before focus moves, the way
         // `wr-popconfirm` does — a reader announcing the dialog reads what is in
         // it, and on an empty pane that is nothing.
@@ -513,11 +521,18 @@ export class WrPopover {
         // reaches that first control anyway, since the pane precedes its own
         // content in document order.
         //
-        // Click-triggered only — a hover popover must not pull the caret out of
-        // what the user is typing in, and `scheduleHoverClose()` would then
-        // dispose the pane out from under the focused element.
+        // Click- or keyboard-opened only — a hover popover must not pull the
+        // caret out of what the user is typing in, and `scheduleHoverClose()`
+        // would then dispose the pane out from under the focused element.
         pane.tabIndex = -1;
         pane.focus();
+        // And it has to LEAVE with the panel. Non-modal means Tab is not
+        // trapped, not that it walks out and strands the dialog open behind it:
+        // the pane sits at the end of `<body>`, so Tab past its last control went
+        // to the browser chrome and Shift+Tab past its first to the foot of the
+        // page, each with `aria-expanded` still true. See `onPaneKeydown`.
+        pane.addEventListener('keydown', this.onPaneKeydown);
+        pane.addEventListener('focusout', this.onPaneFocusOut);
       }
     }
     this.overlayRef.overlayElement.id = this.panelId;
@@ -574,6 +589,7 @@ export class WrPopover {
       this.overlayRef.overlayElement.removeEventListener('mouseleave', this.onOverlayLeave);
     }
     this.clearHoverClose();
+    this.openedByKeyboard = false;
     // Take the focus back before the pane goes, and only if it was in there.
     //
     // A popover is not a tooltip: it attaches a `TemplatePortal` under
@@ -586,6 +602,10 @@ export class WrPopover {
     // for the caret.
     const pane = this.overlayRef.overlayElement;
     const focusWasInside = pane.contains(this.host.nativeElement.ownerDocument.activeElement);
+    // Before the dispose: Chromium fires `focusout` for a focused node as it is
+    // removed, and the pane is about to be.
+    pane.removeEventListener('keydown', this.onPaneKeydown);
+    pane.removeEventListener('focusout', this.onPaneFocusOut);
     this.overlayRef.dispose();
     this.overlayRef = null;
     // Disposing destroys the panel component; a retained ref would pin its view.
@@ -594,6 +614,82 @@ export class WrPopover {
       if (focusWasInside) this.host.nativeElement.focus();
       this.closed.emit();
     }
+  }
+
+  /**
+   * Tab off either end of a click popover takes focus back to the trigger and
+   * closes the panel — the disclosure pattern, for a non-modal popup whose DOM
+   * sits nowhere near its trigger.
+   *
+   * Forward, the trigger is focused WITHOUT `preventDefault`: the browser's own
+   * Tab then runs from there, so focus lands on whatever follows the trigger in
+   * the page, which is where a panel rendered in place would have let it go.
+   * Backward, the trigger itself is the destination, so the default is stopped.
+   * The pane counts as the first stop (it precedes its content) and, when
+   * nothing inside can take focus, as the last as well.
+   *
+   * The pane is disposed right here, not by the `isOpen` effect: that runs after
+   * the browser's Tab, and a trigger that is the last stop before the overlay
+   * container would send that Tab straight back into the still-attached pane.
+   *
+   * Stops are told by `tabIndex`, because `getFocusableElements` lists every
+   * focusable element and a roving composite parks its other items at -1. What
+   * that misreads — a native radio group, one stop that lists as several —
+   * falls through to `onPaneFocusOut`, which still closes the panel; it just
+   * cannot choose where focus goes.
+   */
+  private readonly onPaneKeydown = (event: KeyboardEvent): void => {
+    const pane = this.overlayRef?.overlayElement;
+    // A control inside that spends Tab on itself (`wr-mention` accepting a
+    // suggestion) has said so by preventing it.
+    if (!pane || event.key !== KEYS.TAB || event.defaultPrevented) return;
+    const active = this.host.nativeElement.ownerDocument.activeElement;
+    const stops = getFocusableElements(pane).filter(el => el.tabIndex >= 0);
+    if (event.shiftKey) {
+      if (active !== pane && active !== stops[0]) return;
+      event.preventDefault();
+    } else if (active !== (stops.at(-1) ?? pane)) {
+      return;
+    }
+    this.host.nativeElement.focus();
+    this.closeOverlay();
+    this.isOpen.set(false);
+  };
+
+  /**
+   * Focus that leaves the panel by any other road closes it, and is left where
+   * it went — the close hands focus back only when it was still inside.
+   *
+   * A `null` destination is three different things, and only one of them is
+   * leaving: Tab walking off the end of the document. The window losing focus
+   * (switching tabs) and the focused control being removed from the panel
+   * report `null` too, and closing for either would shut a panel the user is
+   * still working in.
+   */
+  private readonly onPaneFocusOut = (event: FocusEvent): void => {
+    const next = event.relatedTarget as Node | null;
+    if (next ? this.holdsFocus(next) : this.keystroke.key !== KEYS.TAB) return;
+    this.isOpen.set(false);
+  };
+
+  /**
+   * Whether focus on `node` still belongs to this panel: inside the pane, on
+   * the trigger (a press there is about to toggle it, and closing first would
+   * have that click open it again), or in an overlay opened AFTER this one. A
+   * `wr-date-picker` or `wr-dropdown` inside the panel moves focus into a pane
+   * of its own, later in the same container, and closing under it would destroy
+   * the control that opened it — the same stacking `WrOutsideClick` honours.
+   */
+  private holdsFocus(node: Node): boolean {
+    const ref = this.overlayRef;
+    if (!ref) return false;
+    if (ref.overlayElement.contains(node) || this.host.nativeElement.contains(node)) return true;
+    const box = ref.hostElement;
+    return (
+      (box.parentElement?.contains(node) ?? false) &&
+      // eslint-disable-next-line no-bitwise -- compareDocumentPosition answers with a bitmask
+      (box.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+    );
   }
 
   private readonly onOverlayLeave = (event: MouseEvent): void => {

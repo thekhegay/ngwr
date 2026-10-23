@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Links"
-  description="`variant='link'` — medium weight in the brand color, always underlined. Works on anchors and router links alike."
+  description='Style an anchor or a router link with `variant="link"`.'
   [keywords]="['typography', 'link', 'anchor']"
   [labels]="['Directive']"
 >
@@ -13,10 +13,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Inline in a paragraph"
-    description="Inherits the surrounding font size; weight, colour and a permanent underline mark it. The underline is not decoration — brand colour alone measures 2.72:1 against body text, under the 3:1 that would let colour carry a link on its own."
-  >
+  <ngwr-doc-section title="Inline in a paragraph" description="Takes the font size of the text around it.">
     <ngwr-doc-code [code]="snippets.inline" language="angular-html" />
     <ngwr-doc-snippet code="">
       <p wrTypography variant="body" style="max-width: 42rem">
@@ -29,7 +26,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="With icon">
+  <ngwr-doc-section
+    title="With icon"
+    description="The icon scales with the text; set `--wr-icon-size` to fix its size."
+  >
     <ngwr-doc-code [code]="snippets.icon" language="angular-html" />
     <ngwr-doc-snippet code="">
       <a

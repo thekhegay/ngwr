@@ -1,0 +1,120 @@
+<ngwr-doc-page
+  title="Installation"
+  description="Add ngwr to an Angular app."
+  [keywords]="['install', 'setup', 'getting started', 'schematics', 'ng-add', 'ng-generate', 'ng-update', 'cli']"
+  [labels]="['Getting started']"
+>
+  <ngwr-doc-section title="Install" description="`ng add` installs the peers and adds the theme to your global styles.">
+    <ngwr-doc-code [code]="snippets.ngAdd" language="bash" />
+    <p>Or by hand:</p>
+    <ngwr-doc-install [packages]="packages" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Styles"
+    description="In your global stylesheet: the theme first, then one line per component you render."
+  >
+    <ngwr-doc-code [code]="snippets.styles" language="scss" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Optional sheet</th>
+            <th scope="col">What it adds</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (sheet of optionalSheets; track sheet.use) {
+            <tr>
+              <th scope="row">
+                <code>{{ sheet.use }}</code>
+              </th>
+              <td>
+                @if (sheet.link) {
+                  <a [routerLink]="sheet.link">{{ sheet.what }}</a>
+                } @else {
+                  {{ sheet.what }}
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Write them below the theme line: <code>reset</code>, <code>animations</code> and
+      <code>typography-utilities</code> load the token layer too.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Use a component"
+    description="Import each component from its own entry point: `ngwr/button`, not `ngwr`."
+  >
+    <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Icons"
+    description="Install an icon set and register the icons you use. [All icon sets](/icons)."
+  >
+    <ngwr-doc-install packages="lucide" />
+    <ngwr-doc-code [code]="snippets.icons" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Configure"
+    description="Optional. One `provideWr()` call, one feature per setting. `withDensity()` also needs `@use 'ngwr/density'`. [Configuration](/docs/configuration)."
+  >
+    <ngwr-doc-code [code]="snippets.configure" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Schematics">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Command</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of schematics; track s.command) {
+            <tr>
+              <th scope="row">
+                <code>{{ s.command }}</code>
+              </th>
+              <td>{{ s.does }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Compatibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">ngwr</th>
+            <th scope="col">Angular</th>
+            <th scope="col">CDK</th>
+            <th scope="col">Node</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of compatibility; track row.ngwr) {
+            <tr>
+              <th scope="row">{{ row.ngwr }}</th>
+              <td>{{ row.angular }}</td>
+              <td>{{ row.cdk }}</td>
+              <td>{{ row.node }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p>Browsers: Chrome 123, Firefox 120, Safari 17.5 and newer.</p>
+  </ngwr-doc-section>
+</ngwr-doc-page>

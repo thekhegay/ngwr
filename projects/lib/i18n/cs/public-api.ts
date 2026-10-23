@@ -79,6 +79,7 @@ export const wrCs: WrI18nCatalog = {
   },
   stepper: {
     optional: 'nepovinné',
+    completed: 'dokončeno',
   },
   transfer: {
     source: 'Dostupné',
@@ -93,29 +94,6 @@ export const wrCs: WrI18nCatalog = {
   },
   form: {
     optional: 'nepovinné',
-  },
-  validation: {
-    required: 'Toto pole je povinné.',
-    requiredTrue: 'Toto pole musí být zaškrtnuté.',
-    email: 'Zadejte platnou e-mailovou adresu.',
-    minlength: 'Minimální počet znaků: {{requiredLength}}.',
-    maxlength: 'Maximální počet znaků: {{requiredLength}}.',
-    min: 'Zadejte {{min}} nebo více.',
-    max: 'Zadejte {{max}} nebo méně.',
-    pattern: 'Hodnota nemá očekávaný formát.',
-    noWhitespace: 'Hodnota nesmí obsahovat mezery.',
-    hexColor: 'Zadejte barvu ve formátu #1a2b3c.',
-    url: 'Zadejte platnou adresu URL.',
-    cardNumber: 'Zadejte platné číslo karty.',
-    cvc: 'Zadejte {{length}}místný bezpečnostní kód.',
-    iban: 'Zadejte platný IBAN.',
-    match: 'Hodnoty se neshodují.',
-    matchFields: 'Tato pole se neshodují.',
-    oneOf: 'Vyberte jednu z povolených hodnot.',
-    minDate: 'Vyberte pozdější datum.',
-    maxDate: 'Vyberte dřívější datum.',
-    dateFormat: 'Očekávaný formát: {{example}}',
-    dateFilter: 'Toto datum není k dispozici.',
   },
   select: {
     label: 'Vybrat',
@@ -243,13 +221,15 @@ export const wrCs: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Sloupcový graf',
+  },
   calendarHeatmap: {
     label: 'Kalendářní tepelná mapa',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Spojnicový graf',
-    thousands: '{{value}} tis.',
   },
   donutChart: {
     label: 'Prstencový graf',
@@ -265,9 +245,6 @@ export const wrCs: WrI18nCatalog = {
     pagination: 'Stránkování karuselu',
     roledescription: 'karusel',
     slideRoledescription: 'snímek',
-  },
-  actionSheet: {
-    label: 'Akce',
   },
   alert: {
     close: 'Zavřít upozornění',
@@ -296,12 +273,6 @@ export const wrCs: WrI18nCatalog = {
   },
   popover: {
     label: 'Vyskakovací panel',
-  },
-  markdown: {
-    copy: 'Kopírovat kód',
-    copied: 'Zkopírováno',
-    taskDone: 'Splněno:',
-    taskTodo: 'Nesplněno:',
   },
   editor: {
     label: 'Formátovaný text',
@@ -373,6 +344,9 @@ export const wrCs: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Postranní panel',
+    containsCurrent: 'obsahuje aktuální stránku',
+    subpages: 'Podstránky položky {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Načítání',

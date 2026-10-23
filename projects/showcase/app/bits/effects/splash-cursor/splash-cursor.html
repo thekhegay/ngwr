@@ -1,0 +1,61 @@
+<ngwr-doc-page
+  title="Splash Cursor"
+  updated="15.0.0"
+  description="A fluid simulation that splashes colour where the pointer moves."
+  [keywords]="['splash-cursor', 'wr-splash-cursor', 'fluid', 'webgl', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="splash-cursor" category="animations" />
+
+  <ngwr-doc-section
+    title="Playground"
+    description="Move the pointer through the box, or turn on fullscreen to cover the page."
+  >
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <div
+        style="
+          position: relative;
+          width: 100%;
+          height: 22rem;
+          border: 1px solid var(--wr-border-strong);
+          border-radius: 0.75rem;
+          overflow: hidden;
+          background: var(--wr-color-surface);
+        "
+      >
+        <wr-splash-cursor
+          [fullscreen]="fullscreen()"
+          [rainbow]="rainbow()"
+          [color]="color()"
+          [splatRadius]="splatRadius()"
+          [curl]="curl()"
+        />
+        <p
+          style="
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            margin: 0;
+            color: var(--wr-color-on-surface);
+            pointer-events: none;
+          "
+        >
+          Move your mouse in here
+        </p>
+      </div>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Gotchas">
+    <ul>
+      <li>With <code>fullscreen</code> off, it fills the nearest positioned parent.</li>
+      <li>It draws nothing with <code>prefers-reduced-motion</code> or without WebGL.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

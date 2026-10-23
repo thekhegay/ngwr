@@ -82,6 +82,7 @@ export const wrHe: WrI18nCatalog = {
   },
   stepper: {
     optional: 'רשות',
+    completed: 'הושלם',
   },
   transfer: {
     source: 'זמינים',
@@ -96,29 +97,6 @@ export const wrHe: WrI18nCatalog = {
   },
   form: {
     optional: 'רשות',
-  },
-  validation: {
-    required: 'שדה חובה.',
-    requiredTrue: 'יש לסמן את השדה.',
-    email: 'יש להזין כתובת אימייל תקינה.',
-    minlength: 'מספר התווים המינימלי: {{requiredLength}}.',
-    maxlength: 'מספר התווים המקסימלי: {{requiredLength}}.',
-    min: 'יש להזין {{min}} או יותר.',
-    max: 'יש להזין {{max}} או פחות.',
-    pattern: 'הערך אינו בתבנית הנדרשת.',
-    noWhitespace: 'הערך אינו יכול להכיל רווחים.',
-    hexColor: 'יש להזין צבע בפורמט HEX, למשל #1a2b3c.',
-    url: 'יש להזין כתובת אינטרנט תקינה.',
-    cardNumber: 'יש להזין מספר כרטיס תקין.',
-    cvc: 'יש להזין קוד אבטחה באורך {{length}}.',
-    iban: 'יש להזין IBAN תקין.',
-    match: 'שני הערכים אינם זהים.',
-    matchFields: 'הערכים בשדות אינם זהים.',
-    oneOf: 'יש לבחור אחד מהערכים המותרים.',
-    minDate: 'יש לבחור תאריך מאוחר יותר.',
-    maxDate: 'יש לבחור תאריך מוקדם יותר.',
-    dateFormat: 'התבנית הנדרשת: {{example}}',
-    dateFilter: 'תאריך זה אינו זמין.',
   },
   select: {
     label: 'בחירה',
@@ -256,15 +234,15 @@ export const wrHe: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'תרשים עמודות',
+  },
   calendarHeatmap: {
     label: 'מפת חום לפי תאריכים',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'תרשים קווים',
-    // «אלף» אינו מתאים את עצמו למספר שלפניו: זו בדיוק הצורה ש-CLDR של עברית נותן
-    // לכל קטגוריית ריבוי («1 אלף», «2 אלף», «5 אלף»), ולכן היא נכונה בכל ערך.
-    thousands: '{{value}} אלף',
   },
   donutChart: {
     label: 'תרשים טבעת',
@@ -283,9 +261,6 @@ export const wrHe: WrI18nCatalog = {
     pagination: 'ניווט בין שקופיות',
     roledescription: 'קרוסלה',
     slideRoledescription: 'שקופית',
-  },
-  actionSheet: {
-    label: 'פעולות',
   },
   alert: {
     close: 'סגירת ההתראה',
@@ -316,12 +291,6 @@ export const wrHe: WrI18nCatalog = {
   // מוכרז כלל. אפשר לדרוס לכל מופע דרך `[ariaLabel]`.
   popover: {
     label: 'חלונית קופצת',
-  },
-  markdown: {
-    copy: 'העתקת הקוד',
-    copied: 'הועתק',
-    taskDone: 'בוצע:',
-    taskTodo: 'לביצוע:',
   },
   editor: {
     label: 'טקסט מעוצב',
@@ -396,6 +365,9 @@ export const wrHe: WrI18nCatalog = {
   },
   sidebar: {
     label: 'סרגל צד',
+    containsCurrent: 'מכיל את הדף הנוכחי',
+    subpages: 'דפי משנה של {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'טוען',

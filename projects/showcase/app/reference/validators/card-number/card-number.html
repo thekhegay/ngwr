@@ -1,16 +1,16 @@
 <ngwr-doc-page
   title="cardNumber"
-  description="13–19 digit credit card number with Luhn checksum. Spaces and dashes are stripped before checking. Empty values pass."
+  description="Check a card number: 13 to 19 digits with a valid Luhn checksum."
   [keywords]="['cardNumber', 'luhn', 'payment', 'validator', 'wr-validators']"
   [labels]="['Validator']"
 >
-  <ngwr-doc-section title="Live demo" description="Use a Stripe test number like `4242 4242 4242 4242`.">
+  <ngwr-doc-section title="Live demo" description="Try the test number `4242 4242 4242 4242`.">
     <ngwr-doc-snippet code="">
       <div
         style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: min(22rem, 100%)"
       >
         <input wrInput [formControl]="control" placeholder="4242 4242 4242 4242" />
-        <code style="font-size: 0.8125rem">errors: {{ control.errors | json }}</code>
+        <code>errors: {{ control.errors | json }}</code>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -18,11 +18,6 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="A Luhn checksum catches mistyped card numbers client-side, before a failed payment round-trip. Angular ships nothing for payments and pulling a payments SDK for one check is overkill."
-  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

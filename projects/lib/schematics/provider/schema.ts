@@ -6,20 +6,29 @@
  */
 
 /**
- * Providers this schematic can splice into a bootstrap.
+ * Providers this schematic can splice into an app's providers.
  *
- * `loading-bar` and `cookie` are deliberately absent: those entry points ship the
- * injectable services `WrLoadingBar` / `WrCookie` and no provider function, so
- * there is nothing to add to `providers`.
+ * `toast`, `density`, `storage` and `theme` are `provideWr()` features since
+ * v15: the schematic adds `withToast()` / `withDensity()` / `withStorage()` /
+ * `withTheme()` inside the `provideWr(...)` already in `providers`, or adds
+ * `provideWr(withX())` when there is none. `icons`, `i18n` and
+ * `loading-bar-router` stay calls of their own. `density` also adds
+ * `@use 'ngwr/density';` to the global stylesheet, after the theme: no
+ * component sheet loads it, and without it `withDensity()` does nothing.
+ *
+ * `cookie` is deliberately absent: `WrCookie` is an injectable service with no
+ * provider function, so there is nothing to add to `providers`. `overlay` is
+ * absent since v15 for the same reason: the isolated container is the default.
+ * `meta` and `date` have features, and exist to carry values only the app knows.
  */
-export type ProviderName = 'overlay' | 'icons' | 'toast' | 'i18n' | 'date-adapter' | 'density' | 'storage' | 'theme';
+export type ProviderName = 'icons' | 'toast' | 'i18n' | 'density' | 'storage' | 'theme' | 'loading-bar-router';
 
 /** Inputs accepted by `ng g ngwr:provider`. Mirrors `schema.json`. */
 export interface Schema {
   /** Provider key. */
   name: ProviderName;
 
-  /** Main bootstrap file. */
+  /** File that holds the providers array. */
   path?: string;
 
   /** Target Angular project. */

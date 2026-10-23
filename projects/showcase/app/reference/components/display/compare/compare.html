@@ -1,0 +1,108 @@
+<ngwr-doc-page
+  title="Compare"
+  description="A before and after view split by a draggable divider."
+  [keywords]="['compare', 'slider', 'diff', 'before-after', 'wr-compare']"
+  [labels]="['Composite']"
+>
+  <ngwr-doc-section
+    title="Image compare"
+    description="Mark the layers `wrCompareBefore` and `wrCompareAfter`; drag the divider or use the arrow keys (Shift moves 10 points)."
+  >
+    <ngwr-doc-code [code]="snippets.images" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-compare
+        [(position)]="imagePos"
+        style="
+          display: block;
+          width: 100%;
+          max-width: 36rem;
+          aspect-ratio: 16 / 10;
+          border-radius: 0.5rem;
+          overflow: hidden;
+        "
+      >
+        <img wrCompareBefore src="/images/image_1.webp" alt="Before" style="filter: grayscale(1)" />
+        <img wrCompareAfter src="/images/image_1.webp" alt="After" />
+      </wr-compare>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Vertical split" description='`orientation="vertical"` splits top from bottom.'>
+    <ngwr-doc-code [code]="snippets.vertical" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-compare
+        [(position)]="verticalPos"
+        orientation="vertical"
+        style="
+          display: block;
+          width: 100%;
+          max-width: 36rem;
+          aspect-ratio: 16 / 10;
+          border-radius: 0.5rem;
+          overflow: hidden;
+        "
+      >
+        <img wrCompareBefore src="/images/image_1.webp" alt="Before" style="filter: sepia(1)" />
+        <img wrCompareAfter src="/images/image_1.webp" alt="After" />
+      </wr-compare>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Arbitrary content"
+    description="Any content works; without an image to size it, set a height on `<wr-compare>`."
+  >
+    <ngwr-doc-code [code]="snippets.text" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-compare
+        [(position)]="textPos"
+        style="
+          display: block;
+          width: 100%;
+          max-width: 36rem;
+          height: 12rem;
+          border: 1px solid var(--wr-border-base);
+          border-radius: 0.5rem;
+          overflow: hidden;
+        "
+      >
+        <div
+          wrCompareBefore
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: var(--wr-color-fill-strong);
+            color: var(--wr-color-on-surface);
+            font-weight: 600;
+          "
+        >
+          Before
+        </div>
+        <div
+          wrCompareAfter
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: var(--wr-color-primary);
+            color: var(--wr-color-primary-contrast);
+            font-weight: 600;
+          "
+        >
+          After
+        </div>
+      </wr-compare>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Content slots">
+    <ngwr-doc-api [rows]="slotsApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

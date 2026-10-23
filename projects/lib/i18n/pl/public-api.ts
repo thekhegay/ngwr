@@ -82,6 +82,7 @@ export const wrPl: WrI18nCatalog = {
   },
   stepper: {
     optional: 'opcjonalnie',
+    completed: 'ukończono',
   },
   transfer: {
     source: 'Dostępne',
@@ -96,32 +97,6 @@ export const wrPl: WrI18nCatalog = {
   },
   form: {
     optional: 'opcjonalnie',
-  },
-  validation: {
-    required: 'To pole jest wymagane.',
-    requiredTrue: 'To pole musi być zaznaczone.',
-    email: 'Wpisz poprawny adres e-mail.',
-    minlength: 'Minimalna liczba znaków: {{requiredLength}}.',
-    maxlength: 'Maksymalna liczba znaków: {{requiredLength}}.',
-    min: 'Wpisz {{min}} lub więcej.',
-    max: 'Wpisz {{max}} lub mniej.',
-    pattern: 'Wartość ma nieprawidłowy format.',
-    noWhitespace: 'Wartość nie może zawierać spacji.',
-    hexColor: 'Wpisz kolor w formacie szesnastkowym, np. #1a2b3c.',
-    url: 'Wpisz poprawny adres URL.',
-    cardNumber: 'Wpisz poprawny numer karty.',
-    cvc: 'Wpisz {{length}}-cyfrowy kod zabezpieczający.',
-    iban: 'Wpisz poprawny numer IBAN.',
-    // „Nie są zgodne” to zwrot, którym polskie formularze mówią o niepasujących
-    // do siebie polach — „nie są takie same” brzmi jak porównanie samych pól,
-    // a nie ich wartości.
-    match: 'Wartości nie są zgodne.',
-    matchFields: 'Pola nie są zgodne.',
-    oneOf: 'Wybierz jedną z dozwolonych wartości.',
-    minDate: 'Wybierz późniejszą datę.',
-    maxDate: 'Wybierz wcześniejszą datę.',
-    dateFormat: 'Oczekiwany format: {{example}}',
-    dateFilter: 'Ta data jest niedostępna.',
   },
   select: {
     // Dostępna nazwa elementu `role="combobox"`, więc rzeczownik, a nie polecenie
@@ -261,13 +236,15 @@ export const wrPl: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Wykres słupkowy',
+  },
   calendarHeatmap: {
     label: 'Mapa cieplna kalendarza',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Wykres liniowy',
-    thousands: '{{value}} tys.',
   },
   donutChart: {
     label: 'Wykres pierścieniowy',
@@ -285,9 +262,6 @@ export const wrPl: WrI18nCatalog = {
     pagination: 'Paginacja karuzeli',
     roledescription: 'karuzela',
     slideRoledescription: 'slajd',
-  },
-  actionSheet: {
-    label: 'Działania',
   },
   alert: {
     close: 'Zamknij komunikat',
@@ -319,12 +293,6 @@ export const wrPl: WrI18nCatalog = {
   // `[ariaLabel]`.
   popover: {
     label: 'Okno podręczne',
-  },
-  markdown: {
-    copy: 'Kopiuj kod',
-    copied: 'Skopiowano',
-    taskDone: 'Zrobione:',
-    taskTodo: 'Do zrobienia:',
   },
   editor: {
     label: 'Tekst sformatowany',
@@ -399,6 +367,9 @@ export const wrPl: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Panel boczny',
+    containsCurrent: 'zawiera bieżącą stronę',
+    subpages: 'Podstrony: {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Ładowanie',

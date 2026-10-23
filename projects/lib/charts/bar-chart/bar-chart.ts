@@ -1,0 +1,185 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import {
+  Component,
+  type ElementRef,
+  LOCALE_ID,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  viewChildren,
+} from '@angular/core';
+
+import { useI18nText } from 'ngwr/i18n';
+import { useChartTooltip } from 'ngwr/popover';
+
+import type { WrBarChartDatum } from './types';
+
+/**
+ * Minimal vertical bar chart. Pass `[data]` — each datum becomes a bar.
+ * Axis-free; for the simple "show me a comparison" case.
+ *
+ * @example
+ * ```html
+ * <wr-bar-chart [data]="[
+ *   { label: 'Mon', value: 12 },
+ *   { label: 'Tue', value: 18, color: 'var(--wr-color-success)' },
+ *   { label: 'Wed', value: 9 }
+ * ]" />
+ * ```
+ *
+ * @see https://ngwr.dev/charts/bar-chart
+ */
+@Component({
+  selector: 'wr-bar-chart',
+  templateUrl: './bar-chart.html',
+  encapsulation: ViewEncapsulation.None,
+  host: { class: 'wr-bar-chart' },
+})
+export class WrBarChart {
+  /**
+   * The bars, left to right. One series: a datum with no `color` of its own
+   * takes the chart's `color`, so by default every bar comes out the same.
+   */
+  readonly data = input<readonly WrBarChartDatum[]>([]);
+
+  /**
+   * Accessible name of the CHART. Falls back to `barChart.label`, then
+   * `'Bar chart'`.
+   *
+   * Every bar already carries its own `role="img"` and its own "Mon: 12", and
+   * that is what the plot had instead of a name of its own — so the chart
+   * announced as whatever its first bar said, and a page with three bar charts
+   * offered a reader three images called by a weekday. The four sibling charts
+   * all name the plot; this one was the omission.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'barChart.label', 'Bar chart');
+
+  /** Default bar colour when a datum has none. @default primary */
+  readonly color = input<string>('var(--wr-color-primary)');
+
+  /** Show value labels above each bar. @default true */
+  readonly showValues = input(true, { transform: coerceBooleanProperty });
+
+  /** Pixel height of the chart area. @default 200 */
+  readonly height = input(200, { transform: (v: unknown): number => Math.max(40, coerceNumberProperty(v, 200)) });
+
+  /** Explicit max value. `0` = auto. @default 0 */
+  readonly max = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
+
+  /**
+   * Show a tooltip with the bar's label and value on hover. Pointer only — the
+   * column's accessible name already carries both. @default true
+   */
+  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Writes every number the chart shows: the labels above the bars, the tooltip and
+   * each bar's accessible name. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with
+   * compact labels from a thousand up (`1.2K`, `3.4M`).
+   */
+  readonly valueFormat = input<((value: number) => string) | null>(null);
+
+  private readonly locale = inject(LOCALE_ID);
+  private readonly numbers = new Intl.NumberFormat(this.locale);
+  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
+  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
+  private readonly compactNumbers = new Intl.NumberFormat(this.locale, { notation: 'compact' });
+
+  /** A value as the tooltip and the accessible name write it. */
+  private formatValue(value: number): string {
+    const custom = this.valueFormat();
+    if (custom) return custom(value);
+    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
+  }
+
+  /**
+   * A value as the label above its bar writes it: compact from a thousand up, where a
+   * column is too narrow for `1,234,567`, and exactly as the tooltip writes it below —
+   * compact rounding would print 12.5 as `13`, and below a thousand there is nothing to
+   * abbreviate.
+   */
+  private formatLabel(value: number): string {
+    if (this.valueFormat() || Math.abs(value) < 1000) return this.formatValue(value);
+    return this.compactNumbers.format(value);
+  }
+
+  private readonly barEls = viewChildren<ElementRef<HTMLElement>>('barEl');
+
+  /**
+   * A datum's value, with anything non-finite read as `0`.
+   *
+   * One `NaN` used to take out the whole chart rather than its own bar:
+   * `Math.max(...values)` is `NaN` as soon as one value is, so the scale fell
+   * back to `1` and every OTHER bar was asked for a height of `value * 100`%.
+   * The bad bar also printed the literal text `NaN` above itself.
+   */
+  private static value(raw: number): number {
+    return Number.isFinite(raw) ? raw : 0;
+  }
+
+  protected readonly resolvedMax = computed(() => {
+    const explicit = this.max();
+    if (explicit > 0) return explicit;
+    const data = this.data();
+    if (data.length === 0) return 1;
+    const top = Math.max(...data.map(d => WrBarChart.value(d.value)), 0);
+    return top > 0 ? top : 1;
+  });
+
+  protected readonly bars = computed(() =>
+    this.data().map(d => {
+      const value = WrBarChart.value(d.value);
+      const text = this.formatValue(value);
+      return {
+        label: d.label,
+        value,
+        /** The label printed above the bar. */
+        display: this.formatLabel(value),
+        /** The whole figure, for the tooltip. */
+        text,
+        color: d.color ?? this.color(),
+        /**
+         * The bar's share of the plot, from 0 to 1, written as its `flex-grow` — see
+         * the stylesheet for why a grow factor and not a `height` percentage.
+         */
+        share: Math.min(1, Math.max(0, value) / this.resolvedMax()),
+        /**
+         * The bar's accessible name. The label and the value sit in separate
+         * rows, so a screen reader read every number and then every label with
+         * nothing tying the two together — and with `showValues` off the
+         * numbers were not in the accessible tree at all.
+         */
+        name: `${d.label}: ${text}`,
+      };
+    })
+  );
+
+  /**
+   * One tooltip for the whole chart, with the whole figure — the label above the bar
+   * may be compact, and the tooltip is where a reader goes for the exact one. It points at the top edge of the BAR — above it, below it when there is
+   * no room — rather than at the column, which is the full height of the plot and
+   * would put the chip above every bar alike. A bar with nothing to draw (zero, a
+   * negative value) keeps its 1px floor on the baseline, so its chip points there.
+   *
+   * The bar is the anchor element itself, so an open chip follows it through the
+   * height transition a data change starts.
+   */
+  protected readonly tip = useChartTooltip(this.tooltip, index => {
+    const bar = this.bars()[index];
+    const anchor = this.barEls()[index]?.nativeElement;
+    if (!bar || !anchor) return null;
+    return { datum: { label: bar.label, value: bar.text, color: bar.color }, anchor };
+  });
+}
+
+export type { WrBarChartDatum } from './types';

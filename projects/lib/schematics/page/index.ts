@@ -8,8 +8,23 @@
 import { type Rule, type SchematicContext, SchematicsException, type Tree } from '@angular-devkit/schematics';
 import { getWorkspace } from '@schematics/angular/utility/workspace';
 
-import type { Schema } from './schema';
+import { addStyleUse, globalStylesheet, isSass } from '../utility/global-styles';
+
+import type { PagePreset, Schema } from './schema';
 import { render } from './templates';
+
+/**
+ * The style entry points each preset renders, in the order its template uses
+ * them. Since v15 a page without them renders unstyled, so the schematic adds
+ * them to the global stylesheet, after the theme, the way
+ * `ng g ngwr:component-style` does.
+ */
+const PRESET_STYLES: Readonly<Record<PagePreset, readonly string[]>> = {
+  form: ['form', 'input', 'button'],
+  // The pager is the table's own, and `ngwr/table` carries its styles.
+  table: ['table'],
+  dashboard: ['card', 'statistic'],
+};
 
 function page(options: Schema): Rule {
   return async (tree: Tree, context: SchematicContext) => {
@@ -17,7 +32,10 @@ function page(options: Schema): Rule {
     if (!preset) throw new SchematicsException('ngwr:page: missing `preset` (form / table / dashboard).');
 
     const workspace = await getWorkspace(tree);
-    const projectName = options.project ?? (workspace.extensions.defaultProject as string | undefined);
+    // Narrowed rather than read off the index signature: the spec beside this
+    // file puts it in the root program, which sets `noPropertyAccessFromIndexSignature`.
+    const extensions = workspace.extensions as { readonly defaultProject?: string };
+    const projectName = options.project ?? extensions.defaultProject;
     const project = (projectName && workspace.projects.get(projectName)) ?? workspace.projects.values().next().value;
     if (!project) throw new SchematicsException('ngwr:page: no Angular project found.');
 
@@ -48,11 +66,44 @@ function page(options: Schema): Rule {
     context.logger.info(`  • ${tsPath}`);
     context.logger.info(`  • ${htmlPath}`);
     if (out.scss) context.logger.info(`  • ${scssPath}`);
+    await addPresetStyles(tree, context, options.project, PRESET_STYLES[preset]);
     context.logger.info(
       `\nAdd it to your routes:\n  { path: '${dashName}', loadComponent: () => import('./pages/${dashName}/${dashName}') }`
     );
     return tree;
   };
+}
+
+/** Adds the preset's `@use` lines to a Sass global stylesheet, or prints them for any other. */
+async function addPresetStyles(
+  tree: Tree,
+  context: SchematicContext,
+  project: string | undefined,
+  entries: readonly string[]
+): Promise<void> {
+  const stylesPath = await globalStylesheet(tree, project);
+
+  if (!stylesPath || !isSass(stylesPath)) {
+    const lines = ["@use 'ngwr/theme';", ...entries.map(entry => `@use 'ngwr/${entry}';`)];
+    context.logger.warn(
+      `\nThe page renders unstyled until your global Sass stylesheet loads its components, after the theme:\n` +
+        `${lines.map(line => `  ${line}`).join('\n')}`
+    );
+    return;
+  }
+
+  let source = tree.readText(stylesPath);
+  const added: string[] = [];
+  for (const entry of entries) {
+    const edit = addStyleUse(source, entry, stylesPath.endsWith('.sass'));
+    source = edit.source;
+    added.push(...edit.added);
+  }
+
+  if (added.length === 0) return;
+
+  tree.overwrite(stylesPath, source);
+  context.logger.info(`✓ Added to ${stylesPath}: ${added.join(' ')}`);
 }
 
 function dasherize(value: string): string {

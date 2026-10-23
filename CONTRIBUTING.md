@@ -54,11 +54,10 @@ Use the appropriate template:
 
 ## Commits
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/). Both
-are enforced — PR titles by CI
-([`pr-title.yml`](./.github/workflows/pr-title.yml)) and every local commit by
-a commitlint `commit-msg` hook, installed via `simple-git-hooks` on
-`pnpm install`. Subjects must be lowercase; the header is capped at 100 chars.
+We follow [Conventional Commits](https://www.conventionalcommits.org/),
+enforced on every local commit by a commitlint `commit-msg` hook, installed via
+`simple-git-hooks` on `pnpm install`. Subjects must be lowercase; the header is
+capped at 100 chars.
 Types:
 
 | Type | When |
@@ -82,7 +81,8 @@ Scope is the component or area in kebab-case: `feat(button)`, `fix(select)`,
 
 ## Pull requests
 
-1. Branch from `main`.
+1. Branch from `main`. A breaking change for the next major branches from
+   `next` instead.
 2. Make focused changes — one PR per concern.
 3. Run `pnpm lint && pnpm test && pnpm build:lib && pnpm build:showcase` before
    pushing — and check `pnpm lint`'s exit code rather than its output, for the
@@ -90,9 +90,8 @@ Scope is the component or area in kebab-case: `feat(button)`, `fix(select)`,
    files (`projects/showcase/app/_core/generated/*.ts` and `skills/ngwr/**`), so
    run `git status` afterwards and commit whatever moved. They are not the whole
    gate set: CI runs more, listed in the style guide.
-4. PR title must be a valid conventional commit (CI enforces this).
-5. Fill in the PR template — describe **what** changed and **why**.
-6. Merging is **rebase or merge commit** — squash merging is disabled on the
+4. Fill in the PR template — describe **what** changed and **why**.
+5. Merging is **rebase or merge commit** — squash merging is disabled on the
    repository, so `gh pr merge --squash` fails outright. Keep the branch to one
    focused commit and `--rebase` lands exactly that commit on `main`.
 
@@ -102,42 +101,43 @@ need to bump versions.
 
 ## Adding a new component
 
-Each component is its own ng-packagr secondary entry point. Use an existing
+Each component is its own secondary entry point. Use an existing
 small component (`projects/lib/alert` is a good template) and replicate the
 structure:
 
 ```
 projects/lib/<name>/
-├── ng-package.json
 ├── index.ts
 ├── public-api.ts
 ├── <name>.ts                  # encapsulation: None, signals-only
 ├── <name>.html
-├── styles/_index.scss
-└── interfaces/index.ts        # public types, re-exported from public-api.ts
+├── styles/_index.scss         # @use 'ngwr/<name>'
+└── types/index.ts             # public types, re-exported from public-api.ts
 ```
+
+A component with a `styleUrl` splits its styles: the rules go in
+`styles/_rules.scss`, and `_index.scss` only loads the theme and forwards
+them. AGENTS.md says why.
 
 Then:
 
-1. Add the entry to the umbrella SCSS at `projects/lib/styles.scss`.
-2. Add a `sass` condition for it to the `exports` map in
-   `projects/lib/package.json`, pointing at `styles/_index.scss`, so
-   `@use 'ngwr/<name>'` resolves. ng-packagr writes the TypeScript entries
-   itself.
-3. Add a docs page under
-   `projects/showcase/app/reference/components/<name>/` (`<name>.ts` +
-   `<name>.html`).
-4. Add the path constant to `projects/showcase/app/routing.ts` (the
-   `components` map).
-5. Add the lazy route to
-   `projects/showcase/app/reference/components/components.routing.ts`.
-6. Add the sidebar entry to
+1. Run `pnpm gen:exports`. It adds the entry point to the `exports` map in
+   `projects/lib/package.json`, with a `sass` condition when
+   `styles/_index.scss` exists, and adds it to the showcase's stylesheet.
+2. Add a docs page under
+   `projects/showcase/app/reference/components/<group>/<name>/` (`<name>.ts` +
+   `<name>.html`), in the group the sidebar shows it under.
+3. Add the route constant to `projects/showcase/app/_core/constants/routes.ts`
+   (the `components` map).
+4. Add the lazy route to
+   `projects/showcase/app/reference/components/<group>/routing.ts`.
+5. Add the sidebar entry to
    `projects/showcase/app/_layout/sidebar/configs/components.config.ts`.
-7. Add a `<name>.spec.ts` beside the component. Every entry point in the catalog
+6. Add a `<name>.spec.ts` beside the component. Every component in the catalog
    has one, and the specs assert the rendered DOM — roles, ARIA state and the
    `.wr-*` classes — rather than component internals. Copy `projects/lib/tabs/`
    for a plain component, or `projects/lib/select/` for one with an overlay.
-8. Declare the version it first ships in on the page's own
+7. Declare the version it first ships in on the page's own
    `<ngwr-doc-page since="14.5.0">` — the next release, not the current one, if
    yours has not shipped yet. The page prints "Added in v14.5" beside its title,
    and the sidebar's "new" mark is derived from that one attribute, so nothing
@@ -145,13 +145,16 @@ Then:
    current minor line and leaves by itself when the next one ships. A page that
    declares nothing shows nothing, which is right for everything that was
    already here.
-9. Run `pnpm gen:api-docs` and commit `projects/showcase/app/_core/generated/api.ts`
-   and `since.ts`. This is the one gate no build regenerates for you:
+8. Run `pnpm gen:api-docs` and commit `projects/showcase/app/_core/generated/api.ts`
+   and `since.ts`. No build regenerates these for you:
    `build:showcase` refreshes the selector, CSS-variable and quality data, but
    the API tables are generated on demand and `check:api-docs` compares both
    committed files against the source — the JSDoc for one, the pages' own
    `since` attributes for the other. Skip it and CI fails on a file you never
    touched.
+9. Run `pnpm gen:install` and commit `projects/showcase/app/_core/generated/install.ts`,
+   which draws the page's Installation section. `pnpm lint` fails on a stale
+   copy.
 
 ## Style guide
 
@@ -169,21 +172,18 @@ Then:
   `--wr-*` tokens; consumers can override per-instance.
 - **Verify lint by exit code.** `pnpm lint` is an `&&` chain: `ng lint`, then
   `eslint scripts`, `lint:styles` (stylelint) and the repo's own `check:*`
-  scripts. The `lint` script in `package.json` is the list, and `pnpm gen:quality`
-  renders it on [/start/quality](https://ngwr.dev/start/quality). The first
-  stage prints `All files pass linting.` even when a later stage fails, so run
-  `pnpm lint; echo $?` and trust the code, not the output. CI gates every PR on
-  the steps in [`ci.yml`](./.github/workflows/ci.yml), which today are `lint`,
-  `test:coverage`, `check:api-docs`, `check:llms`, `check:css-vars`,
-  `build:lib`, `build:showcase`, `check:theme` and `check:a11y`; the last two
-  need the prerendered site, which is why they sit after the showcase build.
-  The browser checks need a real Chromium and hundreds of page loads, so they
-  run nightly instead ([`nightly.yml`](./.github/workflows/nightly.yml)):
-  `check:contrast`, `check:state-a11y`, `check:layout` and `check:rtl-layout`.
-  A green PR therefore says nothing about painted contrast, box geometry or RTL
-  overflow. The nightly also re-runs the suite and the library build on the
-  older LTS Node lines `engines` still accepts, which nothing else exercises
-  now that every other job runs the `.nvmrc` version.
+  scripts; the `lint` script in `package.json` is the list. The first stage
+  prints `All files pass linting.` even when a later stage fails, so run
+  `pnpm lint; echo $?` and trust the code, not the output.
+- **Three tiers of checks.** Every PR runs the steps in
+  [`ci.yml`](./.github/workflows/ci.yml): `lint`, `test`, `check:api-docs`,
+  `check:css-vars`, `build:lib`, `check:package` and `build:showcase`. The site
+  checks (`check:a11y`, `check:contrast`, `check:state-a11y`, `check:layout`,
+  `check:rtl-layout`) run in [`nightly.yml`](./.github/workflows/nightly.yml),
+  only on a night `main` moved, along with the suite and the library build on
+  Node 22 and 24; a failure opens a `Nightly failed` issue. The Release PR
+  workflow runs everything first. `pnpm check:nightly` and
+  `pnpm check:release` run a tier locally.
 
 ## Setting up your editor
 

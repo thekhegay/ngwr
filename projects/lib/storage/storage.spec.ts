@@ -1,12 +1,13 @@
 import { EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWr } from 'ngwr';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrStorageEngine } from './interfaces';
-import { provideWrStorage } from './provide-wr-storage';
 import { WrStorage } from './storage';
 import { createMemoryStorage } from './storage-engine';
+import type { WrStorageEngine, WrStorageOptions } from './types';
+import { withStorage } from './with-storage';
 
 /**
  * `WrStorage` is the persistence floor under `WrI18n` and `WrTheme`, so a bug
@@ -22,8 +23,8 @@ import { createMemoryStorage } from './storage-engine';
 describe('WrStorage', () => {
   let engine: WrStorageEngine;
 
-  const setup = (options: Parameters<typeof provideWrStorage>[0] = {}): WrStorage => {
-    TestBed.configureTestingModule({ providers: [provideWrStorage({ engine: () => engine, ...options })] });
+  const setup = (options: WrStorageOptions = {}): WrStorage => {
+    TestBed.configureTestingModule({ providers: [provideWr(withStorage({ engine: () => engine, ...options }))] });
     return TestBed.inject(WrStorage);
   };
 
@@ -213,7 +214,7 @@ describe('WrStorage', () => {
       // the window afterwards — still driving the watcher signals of an instance
       // the router had already thrown away, and keeping that instance, its
       // watchers map and every signal in it reachable for the life of the page.
-      TestBed.configureTestingModule({ providers: [provideWrStorage({ engine: () => engine })] });
+      TestBed.configureTestingModule({ providers: [provideWr(withStorage({ engine: () => engine }))] });
       const child = createEnvironmentInjector([WrStorage], TestBed.inject(EnvironmentInjector));
       const theme = child.get(WrStorage).watch<string>('theme', 'light');
 

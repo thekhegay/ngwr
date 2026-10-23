@@ -1,11 +1,12 @@
 import { Component, computed } from '@angular/core';
 
 import * as LucideAll from 'lucide';
-import { lucide } from 'ngwr/icon/adapters/lucide';
+import { lucide } from 'ngwr/icon';
 
 import { IconGridComponent, type IconEntry } from '../_grid/icon-grid';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
+import { DocCodeComponent, DocInstallComponent, DocPageComponent, DocSectionComponent } from '#core/components';
+import { formatCount } from '#core/utils';
 
 let cached: readonly IconEntry[] | null = null;
 
@@ -49,7 +50,7 @@ function kebabToPascal(value: string): string {
 @Component({
   selector: 'ngwr-icons-lucide',
   templateUrl: './lucide.html',
-  imports: [DocCodeComponent, DocPageComponent, DocSectionComponent, IconGridComponent],
+  imports: [DocCodeComponent, DocInstallComponent, DocPageComponent, DocSectionComponent, IconGridComponent],
 })
 export default class LucideBrowser {
   /**
@@ -60,22 +61,21 @@ export default class LucideBrowser {
   protected readonly icons = computed<readonly IconEntry[]>(() => buildLucideEntries());
 
   /**
-   * The lede, with the set's size DERIVED rather than written down. It was a
-   * literal `~1700` until lucide 1.43 made that 22% short: a count a reader
+   * The catalog's line, with the set's size DERIVED rather than written down. It
+   * was a literal `~1700` until lucide 1.43 made that 22% short: a count a reader
    * uses to judge whether the set covers them is exactly the number that must
    * not be a claim someone has to remember to update.
+   *
+   * Here rather than in the page's lede, which is a static `description` because
+   * `gen:deps` reads it for every See also card that links this page — a bound
+   * one reads as `null`, and the cards beside it lose their descriptions too.
    */
-  protected readonly lede = computed(
-    () =>
-      `A modern, community-maintained Feather fork. ${this.icons().length} 24px stroke icons. ` +
-      `Click any tile to copy the import snippet.`
+  protected readonly catalogLine = computed(
+    () => `${formatCount(this.icons().length)} icons. Click any tile to copy the import snippet.`
   );
 
-  protected readonly install = 'pnpm add lucide';
-
   protected readonly usage = `import { Plus, Trash2 } from 'lucide';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -89,5 +89,5 @@ bootstrapApplication(AppComponent, {
 // Then in any template: <wr-icon name="add" />`;
 
   protected readonly snippetFor = (entry: IconEntry): string =>
-    `import { ${kebabToPascal(entry.name)} } from 'lucide';\nimport { lucideIcons } from 'ngwr/icon/adapters/lucide';\n\nprovideWrIcons(lucideIcons({ '${entry.name}': ${kebabToPascal(entry.name)} }));`;
+    `import { ${kebabToPascal(entry.name)} } from 'lucide';\nimport { lucideIcons, provideWrIcons } from 'ngwr/icon';\n\nprovideWrIcons(lucideIcons({ '${entry.name}': ${kebabToPascal(entry.name)} }));`;
 }

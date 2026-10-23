@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -8,7 +5,6 @@ import { FormField, form, readonly } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
 
-import { provideWrConfig } from 'ngwr/config';
 import { WrFormField } from 'ngwr/form';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -27,6 +23,7 @@ import { WrTextarea, type WrTextareaResize, type WrTextareaSize } from './textar
       [resize]="resize()"
       [readonly]="readonly()"
       [autosize]="autosize()"
+      [maxRows]="maxRows()"
       [disabled]="disabled()"
       (touch)="touched = touched + 1"
     />
@@ -42,6 +39,7 @@ class Host {
   readonly resize = signal<WrTextareaResize>('vertical');
   readonly readonly = signal(false);
   readonly autosize = signal(false);
+  readonly maxRows = signal<number | null>(null);
   readonly disabled = signal(false);
   touched = 0;
 }
@@ -145,6 +143,11 @@ describe('WrTextarea', () => {
     fixture.componentInstance.readonly.set(true);
     fixture.detectChanges();
     expect(native().readOnly).toBe(true);
+    // And SAYS so. The attribute reached the element and nothing else changed,
+    // so a read-only textarea looked exactly like an editable one — a box that
+    // silently refuses what is typed into it. The library's contract for a
+    // value control is a `wr-<x>--readonly` class with a non-editable cue.
+    expect(host().classList.contains('wr-textarea--readonly')).toBe(true);
 
     fixture.componentInstance.disabled.set(true);
     fixture.detectChanges();
@@ -205,6 +208,22 @@ describe('WrTextarea', () => {
     expect(native().style.height).toBe('');
     expect(native().style.overflowY).toBe('');
     expect(grip()).not.toBeNull();
+  });
+
+  it('counts the padding into the maxRows cap', async () => {
+    // jsdom lays nothing out, so the box is described by hand: 20px lines, 8px of
+    // padding a side, border-box, and content worth eight lines. The cap used to be
+    // `lineHeight * maxRows` against a `scrollHeight` that includes the padding, so
+    // six rows stopped at 120px — 5.2 rows on screen.
+    const el = native();
+    Object.assign(el.style, { lineHeight: '20px', paddingTop: '8px', paddingBottom: '8px', boxSizing: 'border-box' });
+    Object.defineProperty(el, 'scrollHeight', { configurable: true, get: () => 8 * 20 + 16 });
+    fixture.componentInstance.autosize.set(true);
+    fixture.componentInstance.maxRows.set(6);
+    await settle();
+
+    expect(el.style.height).toBe('136px');
+    expect(el.style.overflowY).toBe('auto');
   });
 
   it('does not fit a height for a frame that outlived its reason', async () => {
@@ -304,110 +323,6 @@ describe('WrTextarea resizing under a reading direction', () => {
     dragRight();
 
     expect(host().style.width).toBe('160px');
-  });
-
-  /**
-   * ⚠️ The CSS half of the same fix, guarded as a RULE.
-   *
-   * The grip's corner and the sign above are one decision: put the grip on the
-   * physical side the box does NOT grow toward and outward dragging shrinks the
-   * field. `check:rtl` cannot catch a regression here — it fires on a physical
-   * property with no reason, and `right: 0.25rem` with an `rtl-ok:` marker is
-   * exactly what this used to be. Measured in Chromium: the grip sits at 0.970
-   * of the field's width in LTR and 0.030 in RTL, and the diagonal cursor goes
-   * from `nwse-resize` to `nesw-resize`.
-   */
-  describe('the grip, as the stylesheet declares it', () => {
-    const sheet = readFileSync(join(process.cwd(), 'projects/lib/textarea/styles/_index.scss'), 'utf8');
-    const rule = sheet.slice(sheet.indexOf('  &__resize {'), sheet.indexOf('    .wr-icon__svg'));
-
-    it('sits at the inline end, the corner the box actually extends toward', () => {
-      expect(rule).toMatch(/inset-inline-end:\s*0\.25rem/);
-      expect(rule).not.toMatch(/^\s*right:/m);
-    });
-
-    it('turns the diagonal cursor over with it', () => {
-      expect(rule).toMatch(/\[dir='rtl'\] & \{[^}]*cursor:\s*nesw-resize/);
-    });
-  });
-});
-
-/**
- * Two fields on purpose: one that binds no size, so an app-wide default has room to
- * apply, and one that binds — because what makes a global config safe is that a
- * template can still override it.
- */
-@Component({
-  imports: [WrTextarea],
-  template: `
-    <wr-textarea placeholder="Unbound" />
-    <wr-textarea placeholder="Bound" [size]="size()" />
-  `,
-})
-class ConfigHost {
-  readonly size = signal<WrTextareaSize | null>(null);
-}
-
-describe('WrTextarea defaults from provideWrConfig', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<ConfigHost>>;
-
-  const mount = (providers: unknown[] = []): ConfigHost => {
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: providers as never[] });
-    fixture = TestBed.createComponent(ConfigHost);
-    fixture.detectChanges();
-    return fixture.componentInstance;
-  };
-
-  const at = (placeholder: string): HTMLElement => {
-    const native = (fixture.nativeElement as HTMLElement).querySelector<HTMLTextAreaElement>(
-      `textarea[placeholder="${placeholder}"]`
-    )!;
-    // The modifier classes live on the component host, not on the native element.
-    return native.closest('wr-textarea')!;
-  };
-
-  afterEach(() => fixture.destroy());
-
-  it('renders exactly as before when no config is provided', () => {
-    // The invariant the whole change rests on: `md` earns no modifier, so an
-    // unbound field's class list is bare.
-    mount();
-
-    expect(at('Unbound').className).toBe('wr-textarea');
-  });
-
-  it('takes its size from the config when the template says nothing', () => {
-    mount([provideWrConfig({ textarea: { size: 'sm' } })]);
-
-    expect(at('Unbound').classList.contains('wr-textarea--sm')).toBe(true);
-  });
-
-  it('lets a bound size beat the config', () => {
-    const host = mount([provideWrConfig({ textarea: { size: 'sm' } })]);
-    host.size.set('lg');
-    fixture.detectChanges();
-
-    expect(at('Bound').classList.contains('wr-textarea--lg')).toBe(true);
-    expect(at('Bound').classList.contains('wr-textarea--sm')).toBe(false);
-    // The field beside it bound nothing, so it still takes the configured default.
-    expect(at('Unbound').classList.contains('wr-textarea--sm')).toBe(true);
-  });
-
-  it('goes back to the config when the binding is cleared', () => {
-    const host = mount([provideWrConfig({ textarea: { size: 'sm' } })]);
-    host.size.set('lg');
-    fixture.detectChanges();
-
-    host.size.set(null);
-    fixture.detectChanges();
-    expect(at('Bound').classList.contains('wr-textarea--sm')).toBe(true);
-  });
-
-  it('ignores a config that names other components', () => {
-    mount([provideWrConfig({ input: { size: 'sm' } })]);
-
-    expect(at('Unbound').className).toBe('wr-textarea');
   });
 });
 

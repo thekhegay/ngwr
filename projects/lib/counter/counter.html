@@ -6,7 +6,7 @@
     @if (prefix()) {
       <span class="wr-counter__static">{{ prefix() }}</span>
     }
-    @for (cell of cells(); track $index) {
+    @for (cell of cells(); track cell.key) {
       @if (cell.kind === 'digit') {
         <span class="wr-counter__digit">
           <span class="wr-counter__strip" [style.transform]="`translateY(-${cell.fraction}em)`">

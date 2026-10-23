@@ -79,6 +79,7 @@ export const wrIt: WrI18nCatalog = {
   },
   stepper: {
     optional: 'facoltativo',
+    completed: 'completato',
   },
   transfer: {
     source: 'Disponibili',
@@ -93,31 +94,6 @@ export const wrIt: WrI18nCatalog = {
   },
   form: {
     optional: 'facoltativo',
-  },
-  validation: {
-    required: 'Campo obbligatorio.',
-    requiredTrue: 'Questa casella deve essere selezionata.',
-    email: 'Inserisci un indirizzo email valido.',
-    // Count last in both: "almeno {{n}} caratteri" is wrong at one, and there is
-    // no plural machinery here. Same reason the `cvc` message splits in two.
-    minlength: 'Numero minimo di caratteri: {{requiredLength}}.',
-    maxlength: 'Numero massimo di caratteri: {{requiredLength}}.',
-    min: 'Inserisci un valore maggiore o uguale a {{min}}.',
-    max: 'Inserisci un valore minore o uguale a {{max}}.',
-    pattern: 'Il valore non è nel formato previsto.',
-    noWhitespace: 'Il valore non può contenere spazi.',
-    hexColor: 'Inserisci un colore esadecimale, ad es. #1a2b3c.',
-    url: 'Inserisci un URL valido.',
-    cardNumber: 'Inserisci un numero di carta valido.',
-    cvc: 'Inserisci il codice di sicurezza. Cifre richieste: {{length}}.',
-    iban: 'Inserisci un IBAN valido.',
-    match: 'I due valori non coincidono.',
-    matchFields: 'I campi non coincidono.',
-    oneOf: 'Scegli uno dei valori consentiti.',
-    minDate: 'Scegli una data successiva.',
-    maxDate: 'Scegli una data precedente.',
-    dateFormat: 'Formato previsto: {{example}}',
-    dateFilter: 'Questa data non è disponibile.',
   },
   select: {
     label: 'Seleziona',
@@ -250,13 +226,15 @@ export const wrIt: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Grafico a barre',
+  },
   calendarHeatmap: {
     label: 'Mappa di calore del calendario',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Grafico a linee',
-    thousands: '{{value}}k',
   },
   donutChart: {
     label: 'Grafico ad anello',
@@ -275,9 +253,6 @@ export const wrIt: WrI18nCatalog = {
     pagination: 'Paginazione del carosello',
     roledescription: 'carosello',
     slideRoledescription: 'diapositiva',
-  },
-  actionSheet: {
-    label: 'Azioni',
   },
   alert: {
     close: 'Chiudi avviso',
@@ -309,12 +284,6 @@ export const wrIt: WrI18nCatalog = {
   // per caso con `[ariaLabel]`.
   popover: {
     label: 'Riquadro a comparsa',
-  },
-  markdown: {
-    copy: 'Copia il codice',
-    copied: 'Copiato',
-    taskDone: 'Fatto:',
-    taskTodo: 'Da fare:',
   },
   editor: {
     label: 'Testo formattato',
@@ -389,6 +358,9 @@ export const wrIt: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Barra laterale',
+    containsCurrent: 'contiene la pagina corrente',
+    subpages: 'Sottopagine di {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Caricamento',

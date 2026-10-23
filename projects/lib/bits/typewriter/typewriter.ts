@@ -1,0 +1,286 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ *
+ * Angular adaptation of the TextType effect by David Haz / reactbits.dev.
+ * Original: https://www.reactbits.dev/text-animations/text-type
+ *
+ * The reactbits version uses GSAP for the cursor blink. This port is
+ * dependency-free — vanilla `setTimeout` loop for typing/deleting,
+ * pure-CSS keyframes for the cursor blink.
+ */
+
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  PLATFORM_ID,
+  ViewEncapsulation,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
+
+import { WrPlatform } from 'ngwr/platform';
+import { numAttr } from 'ngwr/utils';
+
+import type { WrTypewriterVariableSpeed } from './types';
+
+/**
+ * Classic typewriter — types out a string char-by-char, optionally
+ * deletes it, then types the next string. Cycles through `[texts]` (or
+ * a single string) with a blinking cursor.
+ *
+ * @example
+ * ```html
+ * <wr-typewriter [texts]="['design.', 'ship.', 'iterate.']" />
+ * <wr-typewriter
+ *   text="Hello, ngwr."
+ *   [loop]="false"
+ *   [typingSpeed]="35"
+ *   cursorCharacter="▎"
+ * />
+ * ```
+ *
+ * @see https://www.reactbits.dev/text-animations/text-type
+ */
+@Component({
+  selector: 'wr-typewriter',
+  templateUrl: './typewriter.html',
+  styleUrl: './typewriter.scss',
+  encapsulation: ViewEncapsulation.None,
+  host: {
+    class: 'wr-typewriter',
+    '[style.color]': 'activeColor()',
+    '[style.--wr-typewriter-cursor-blink]': "cursorBlinkDuration() + 's'",
+  },
+})
+export class WrTypewriter {
+  /** Single string. Use either `text` or `texts`. */
+  readonly text = input<string | undefined>(undefined);
+
+  /** Strings to cycle. Use either `text` or `texts`. */
+  readonly texts = input<readonly string[] | undefined>(undefined);
+
+  /** Per-char typing speed in ms. @default 50 */
+  readonly typingSpeed = input(50, { transform: numAttr(50) });
+
+  /** Initial delay before typing starts, in ms. @default 0 */
+  readonly initialDelay = input(0, { transform: numAttr(0) });
+
+  /** Pause between sentences (after typing complete, before deleting), in ms. @default 2000 */
+  readonly pauseDuration = input(2000, { transform: numAttr(2000) });
+
+  /** Per-char deletion speed in ms. @default 30 */
+  readonly deletingSpeed = input(30, { transform: numAttr(30) });
+
+  /** Loop back to the first string after the last. @default true */
+  readonly loop = input(true, { transform: coerceBooleanProperty });
+
+  /** Show the cursor. @default true */
+  readonly showCursor = input(true, { transform: coerceBooleanProperty });
+
+  /** Hide the cursor while typing / deleting. @default false */
+  readonly hideCursorWhileTyping = input(false, { transform: coerceBooleanProperty });
+
+  /** Cursor glyph. @default '|' */
+  readonly cursorCharacter = input('|');
+
+  /** Cursor blink half-cycle in seconds. @default 0.5 */
+  readonly cursorBlinkDuration = input(0.5, { transform: numAttr(0.5) });
+
+  /** Cycle through these colours per string. */
+  readonly textColors = input<readonly string[]>([]);
+
+  /** Randomise typing speed per char between `min` and `max`. */
+  readonly variableSpeed = input<WrTypewriterVariableSpeed | undefined>(undefined);
+
+  /** Reverse the string (type it backwards). @default false */
+  readonly reverseMode = input(false, { transform: coerceBooleanProperty });
+
+  /** Start typing only after the host enters the viewport. @default false */
+  readonly startOnVisible = input(false, { transform: coerceBooleanProperty });
+
+  /** Emits with `(text, index)` when a string finishes typing. */
+  readonly sentenceComplete = output<{ text: string; index: number }>();
+
+  protected readonly displayed = signal('');
+  protected readonly cursorVisible = computed(() => {
+    if (!this.showCursor()) return false;
+    if (!this.hideCursorWhileTyping()) return true;
+    // While typing or deleting, cursor stays hidden.
+    return this.phase() === 'idle';
+  });
+  protected readonly activeColor = computed(() => {
+    const colours = this.textColors();
+    if (colours.length === 0) return 'inherit';
+    return colours[this.currentTextIndex() % colours.length];
+  });
+
+  /** Resolved list of strings (either `texts` or wrap `text` in an array). */
+  private readonly textArray = computed<readonly string[]>(() => {
+    const list = this.texts();
+    if (list && list.length > 0) return list;
+    const single = this.text();
+    return single ? [single] : [];
+  });
+
+  private readonly currentTextIndex = signal(0);
+
+  /**
+   * The sentence being typed, whole — the screen-reader copy. The typed fragment is
+   * `aria-hidden`, so a reader landing mid-word hears the phrase rather than
+   * `'desi'`, or nothing while it deletes. Read off the same clamped index the
+   * machine types, and never reversed: `reverseMode` is a visual effect.
+   */
+  protected readonly phrase = computed(() => {
+    const arr = this.textArray();
+    return arr.length === 0 ? '' : arr[Math.min(this.currentTextIndex(), arr.length - 1)];
+  });
+  private readonly phase = signal<'idle' | 'typing' | 'deleting'>('idle');
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
+
+  private timer: ReturnType<typeof setTimeout> | undefined;
+  private isVisible = false;
+
+  constructor() {
+    if (!this.isBrowser) {
+      // SSR: type nothing, but settle on the first phrase so prerendered
+      // HTML carries real text instead of an empty span. Mirrors
+      // `wr-decrypt-text`.
+      effect(() => this.displayed.set(this.textArray()[0] ?? ''));
+      return;
+    }
+    afterNextRender(() => this.boot());
+    this.destroyRef.onDestroy(() => clearTimeout(this.timer));
+  }
+
+  private boot(): void {
+    if (this.startOnVisible()) {
+      const io = new IntersectionObserver(
+        (entries, obs) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              obs.disconnect();
+              this.isVisible = true;
+              this.scheduleNext(this.initialDelay());
+              break;
+            }
+          }
+        },
+        { threshold: 0.1 }
+      );
+      io.observe(this.host.nativeElement);
+      this.destroyRef.onDestroy(() => io.disconnect());
+    } else {
+      this.isVisible = true;
+      this.scheduleNext(this.initialDelay());
+    }
+  }
+
+  private scheduleNext(delay: number): void {
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.tick(), delay);
+  }
+
+  private tick(): void {
+    if (!this.isVisible) return;
+    const arr = this.textArray();
+    if (arr.length === 0) return;
+
+    // Clamped, because `texts` can shrink under a running index — a filtered or
+    // reloaded list — and nothing resets `currentTextIndex`. Unclamped, `arr[idx]`
+    // came back `undefined` and threw inside the `setTimeout`: on the spread below
+    // under `reverseMode`, on the `target.length` read otherwise. Either way the
+    // throw pre-empts `scheduleNext`, so the typewriter stopped for good. Same
+    // guard as `wr-rotating-text`. Written back so `activeColor`, which reads the
+    // signal directly, picks the same sentence.
+    const idx = Math.min(this.currentTextIndex(), arr.length - 1);
+    this.currentTextIndex.set(idx);
+    const raw = arr[idx];
+    // Reversed by CODE POINT: `split('')` reverses UTF-16 units, which turns an
+    // emoji into a pair of lone surrogates rather than typing it backwards.
+    const target = this.reverseMode() ? [...raw].reverse().join('') : raw;
+    const displayed = this.displayed();
+
+    // Reduced motion: show each sentence whole — no per-char typing or
+    // deleting. Multi-text setups still advance on the pause cadence,
+    // since the sentence swap itself is content, not decoration.
+    if (this.platform.prefersReducedMotion()) {
+      if (displayed !== target) {
+        this.displayed.set(target);
+        this.phase.set('idle');
+        this.sentenceComplete.emit({ text: raw, index: idx });
+      }
+      if (arr.length === 1 || (!this.loop() && idx === arr.length - 1)) return;
+      this.currentTextIndex.set((idx + 1) % arr.length);
+      this.scheduleNext(this.pauseDuration());
+      return;
+    }
+
+    if (this.phase() === 'deleting') {
+      if (displayed.length === 0) {
+        // Finished deleting → advance to next text.
+        this.phase.set('idle');
+        const nextIndex = (idx + 1) % arr.length;
+        // Non-loop: stop if we just finished the last sentence.
+        if (!this.loop() && idx === arr.length - 1) return;
+        this.currentTextIndex.set(nextIndex);
+        this.scheduleNext(this.pauseDuration());
+        return;
+      }
+      // Continue deleting — one CODE POINT, as typing adds one; `slice(0, -1)`
+      // took half an emoji and left a lone surrogate on screen for a tick.
+      this.displayed.set([...displayed].slice(0, -1).join(''));
+      this.scheduleNext(this.deletingSpeed());
+      return;
+    }
+
+    // Typing or idle. Counted in CODE POINTS, like the reversal above: sliced by
+    // UTF-16 unit, an emoji arrived as a lone high surrogate — a broken glyph —
+    // for one tick before its second half.
+    const typed = [...displayed].length;
+    const glyphs = [...target];
+    if (typed < glyphs.length) {
+      this.phase.set('typing');
+      this.displayed.set(glyphs.slice(0, typed + 1).join(''));
+      const delay = this.variableSpeed()
+        ? Math.random() * (this.variableSpeed()!.max - this.variableSpeed()!.min) + this.variableSpeed()!.min
+        : this.typingSpeed();
+      this.scheduleNext(delay);
+      return;
+    }
+
+    // Typing complete for this sentence.
+    this.sentenceComplete.emit({ text: raw, index: idx });
+
+    // Single text + no loop → stop here.
+    if (arr.length === 1 && !this.loop()) {
+      this.phase.set('idle');
+      return;
+    }
+    // Non-loop on last sentence → stop here.
+    if (!this.loop() && idx === arr.length - 1) {
+      this.phase.set('idle');
+      return;
+    }
+
+    // Start deleting after the pause.
+    this.phase.set('deleting');
+    this.scheduleNext(this.pauseDuration());
+  }
+}
+
+export type { WrTypewriterVariableSpeed } from './types';

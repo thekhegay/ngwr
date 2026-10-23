@@ -1,857 +1,328 @@
 <ngwr-doc-page
   title="Testing"
-  description="CDK test harnesses for ngwr components — drive a button, a field or a checkbox from your own specs without reaching into ngwr's markup."
+  updated="15.0.0"
+  description="Drive ngwr components from your specs with Angular CDK test harnesses."
   [keywords]="['testing', 'harness', 'cdk', 'vitest', 'jest', 'TestbedHarnessEnvironment', 'spec']"
 >
-  <ngwr-doc-section title="What a harness is for">
-    <p wrTypography>
-      A spec that queries <code>.wr-btn__label</code> by hand is a spec that breaks when the library moves a
-      <code>&lt;span&gt;</code>. A harness is the supported way to drive a component: it exposes what the control DOES —
-      click it, read its label, ask whether it is disabled — and absorbs the markup underneath. These are
-      <a href="https://material.angular.dev/cdk/testing/overview" target="_blank" rel="noreferrer noopener"
-        >Angular CDK component harnesses</a
-      >, so if you have used Material's, these behave identically.
-    </p>
-
-    <p wrTypography>
-      They ship beside the components they drive, one entry point each, and they are not part of the runtime bundle —
-      importing <code>ngwr/button/testing</code> from a spec pulls nothing into your app.
-    </p>
-
-    <ngwr-doc-code [code]="snippets.install" language="typescript" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Your first harness test" description="Load a harness from the fixture, then talk to it.">
+  <ngwr-doc-section
+    title="First test"
+    description="Import a harness from `ngwr/<name>/testing` and load it from the fixture."
+  >
     <ngwr-doc-code [code]="snippets.first" language="typescript" />
 
-    <p wrTypography variant="small" tone="medium">
-      Every harness method is <code>async</code>. That is the CDK's contract, not a quirk of ngwr: the same harness code
-      has to work in a unit test and in a real browser over WebDriver, where nothing can be read synchronously. Await
-      each call and you never need <code>detectChanges()</code> between them — the environment flushes for you.
-    </p>
+    <p>Every method is async. Await each call; you need no <code>detectChanges()</code> between them.</p>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Finding the right one" description="`with()` narrows the query.">
+  <ngwr-doc-section
+    title="Finding a harness"
+    description="`with()` narrows the query: a string matches exactly, a RegExp is tested, and options combine."
+  >
     <ngwr-doc-code [code]="snippets.filters" language="typescript" />
 
-    <p wrTypography variant="small" tone="medium">
-      <code>getHarness</code> throws when nothing matches, which is usually what you want in a spec — a silent
-      <code>null</code> turns into a confusing failure three lines later. Use <code>getAllHarnesses</code> when zero is
-      a legitimate answer, and <code>getHarnessOrNull</code> when you mean to check.
-    </p>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Method</th>
+            <th scope="col">When nothing matches</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>getHarness()</code></th>
+            <td>Throws</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>getHarnessOrNull()</code></th>
+            <td>Returns <code>null</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>getAllHarnesses()</code></th>
+            <td>Returns <code>[]</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="A form, end to end">
     <ngwr-doc-code [code]="snippets.form" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      <code>setValue</code> dispatches <code>input</code> and then <code>change</code>. The first is the one that
-      carries the value: ngwr's value controls are Signal Forms native and listen to it, and so does Angular's
-      <code>DefaultValueAccessor</code>, which is what <code>[(ngModel)]</code> and a reactive form bind through — its
-      listeners are <code>input</code>, <code>blur</code> and the two composition events, and <code>change</code> is not
-      one of them. <code>change</code> follows for your own <code>(change)</code> handler, which a browser would defer
-      to the commit that a harness write never reaches.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Components that render into an overlay">
-    <p wrTypography>
-      A dialog, a select panel or a toast is not inside your fixture — it lands in the overlay container, which is a
-      sibling of it. Load those from the document root:
-    </p>
-
-    <ngwr-doc-code [code]="snippets.overlay" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      Two loaders, one fixture: <code>loader()</code> for your own template, <code>documentRootLoader()</code> for
-      anything the overlay owns. A harness looked up in the wrong one simply does not find its component, which is why
-      the error you get is "failed to find element" rather than something about overlays.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      Which is which follows the component, not the panel. A dialog, a toast and a service-opened drawer have no element
-      in your template at all, so they come from <code>documentRootLoader()</code>. A select, a date picker, a dropdown,
-      a popover, a context menu, a popconfirm, a cascader and a mention ARE elements in your template — the normal
-      <code>loader()</code> finds them, and the harness reaches into the overlay for you, scoped to that one instance by
-      the id its trigger publishes. Two of them open at once cannot answer for each other; a hand-written
-      <code>document.querySelector('.wr-select-panel')</code> can, and quietly will.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Driving a select" description="Options live in the panel, not in the select.">
-    <ngwr-doc-code [code]="snippets.select" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      <code>WrSelectHarness</code> itself is found with the normal fixture loader — it is an element in your template.
-      Only its options are in the overlay, and the harness reaches them for you, scoped by the id the trigger publishes
-      as <code>aria-controls</code>. That scoping is not decoration: the overlay container is shared, so a query by
-      class would happily answer with a different select's options.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrSelectHarness" description="`ngwr/select/testing`">
-    <ngwr-doc-api [rows]="selectApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrOptionHarness" description="`ngwr/select/testing`">
-    <ngwr-doc-api [rows]="optionApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrDialogHarness" description="`ngwr/dialog/testing`">
-    <ngwr-doc-api [rows]="dialogApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrToastHarness" description="`ngwr/toast/testing`">
-    <ngwr-doc-api [rows]="toastApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrButtonHarness" description="`ngwr/button/testing`">
-    <ngwr-doc-api [rows]="buttonApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrInputHarness" description="`ngwr/input/testing`">
-    <ngwr-doc-api [rows]="inputApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrCheckboxHarness" description="`ngwr/checkbox/testing`">
-    <ngwr-doc-api [rows]="checkboxApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrSwitchHarness" description="`ngwr/switch/testing`">
-    <ngwr-doc-api [rows]="switchApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Driving a dropdown" description="Three ways in, and only one of them is a click.">
-    <ngwr-doc-code [code]="snippets.dropdown" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      <code>open()</code> hovers and then clicks, so it works whatever <code>trigger</code> is set to — which is what
-      you want most of the time. When the point of the test IS the mode, drive the single gestures
-      (<code>hoverTrigger()</code>, <code>clickTrigger()</code>) and assert that the other one does nothing.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrDropdownHarness" description="`ngwr/dropdown/testing`">
-    <ngwr-doc-api [rows]="dropdownApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrDropdownItemHarness" description="`ngwr/dropdown/testing`">
-    <ngwr-doc-api [rows]="dropdownItemApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Driving a date picker" description="A field, a calendar grid and a time stepper.">
-    <ngwr-doc-code [code]="snippets.datePicker" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      Day cells are addressed by their number, and the harness answers with a cell harness rather than a boolean soup:
-      selected, disabled, today, in-range and the roving tab stop are separate questions, and conflating the last two is
-      the mistake worth guarding against — a range picker has two selected ends and only one tab stop.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrDatePickerHarness" description="`ngwr/date-picker/testing`">
-    <ngwr-doc-api [rows]="datePickerApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrDatePickerDayHarness" description="`ngwr/date-picker/testing`">
-    <ngwr-doc-api [rows]="datePickerDayApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrDateRangePickerHarness" description="`ngwr/date-picker/testing`">
-    <ngwr-doc-api [rows]="dateRangeApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Popovers and tooltips" description="Same directive, two shapes.">
-    <ngwr-doc-code [code]="snippets.popover" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      Both shapes have show and hide delays, so <code>open()</code> and <code>close()</code> wait for the panel to
-      actually arrive or go instead of handing you the frame before. That is also why the harness reads the mode from
-      ARIA rather than from the <code>mode</code> input: a bound <code>[mode]</code> never reaches the DOM, and the mode
-      decides which gesture opens it and which attribute names the panel.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrPopoverHarness" description="`ngwr/popover/testing`">
-    <ngwr-doc-api [rows]="popoverApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Drawers and sheets" description="Element or service — one harness.">
-    <ngwr-doc-code [code]="snippets.drawer" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      A drawer can be an element in your template or opened from <code>WrDrawerManager</code>; either way the pane lands
-      in the overlay, so the harness comes from <code>documentRootLoader()</code>. The role, the modality and the
-      <code>aria-labelledby</code> link are written onto that pane rather than onto your markup — looking for them on
-      your own host is why they seem to be missing.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrDrawerHarness" description="`ngwr/drawer/testing`">
-    <ngwr-doc-api [rows]="drawerApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Action sheet" description="A name you cannot see, and a group you can.">
-    <ngwr-doc-code [code]="snippets.actionSheet" language="typescript" />
-
-    <p wrTypography>
-      The sheet renders through <code>&lt;wr-drawer&gt;</code>, so it comes from the document root like everything else
-      in an overlay — but each sheet anchors on its own <code>.wr-action-sheet</code> root, so two open at once never
-      answer for each other's rows. Dismissal by backdrop or ✕ belongs to the drawer underneath;
-      <code>WrDrawerHarness</code> answers those from the same loader.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      Two things are worth asserting because nothing on screen shows them. A sheet with no
-      <code>title</code> is still an <code>aria-modal</code> dialog, and it names itself with a screen-reader-only
-      string — <code>getAccessibleName()</code> reads it, <code>isNamed()</code> checks the panel is actually wired to
-      it. And <code>getActionGroups()</code> keeps the cancel row's separate group visible, which the flat label list
-      cannot: a cancel row that stopped being pinned to the bottom would still come last.
-    </p>
-
-    <ngwr-doc-api [rows]="actionSheetApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Colour picker" description="No drag, and no reading the preview.">
-    <ngwr-doc-code [code]="snippets.colorPicker" language="typescript" />
-
-    <p wrTypography>
-      Two absences are the design. There is no <code>setHue()</code>: the SV canvas and the two sliders are pointer
-      surfaces that divide by a measured box, and a unit test has no layout, so a synthetic drag writes
-      <code>NaN</code> and reports success. The numeric fields reach the same state and are the component's only
-      keyboard path anyway. <code>getThumbs()</code> then reads where the thumbs ended up, from the percentages the
-      component writes inline — that is how you check a surface followed a colour set through a field.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      And there is no <code>getColor()</code> reading the preview swatch. The preview paints the colour as a CSS
-      background, which jsdom normalises to <code>rgb(…)</code> and strips the alpha from, so <code>#ff880080</code> and
-      <code>#ff8800ff</code> come back identical — a method that answers one thing in a spec and another in a browser.
-      <code>getHex()</code> is the colour; it is also not the same as <code>value</code>, which <code>format</code> may
-      write as <code>rgb()</code> or <code>hsl()</code>.
-    </p>
-
-    <ngwr-doc-api [rows]="colorPickerApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Splitter" description="Two words for the axis, and they are opposites.">
-    <ngwr-doc-code [code]="snippets.splitter" language="typescript" />
-
-    <p wrTypography>
-      <code>orientation="horizontal"</code> means the panes sit side by side, which needs a VERTICAL divider — so that
-      is what <code>aria-orientation</code> says. The harness answers both, because a spec that conflated them would
-      look right and assert nothing. <code>getPaneSizes()</code> reads the <code>flex-basis</code> the component writes
-      inline, which is the only evidence a test without layout has that the panes followed the divider.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      <code>setPosition()</code> WALKS with the arrow keys rather than assigning — ten-unit hops, then single steps —
-      because assigning would prove the harness can write a signal and nothing about the clamp, the bounds, or the RTL
-      mirroring, which all live on that path. It works out which key grows the number by pressing one and putting it
-      back, so it is right in both reading directions; a target it cannot land on exactly (the position is a float, and
-      a drag can leave it mid-step) throws with where it stopped.
-    </p>
-
-    <ngwr-doc-api [rows]="splitterApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Animations" description="What a test can see of something that moves.">
-    <ngwr-doc-code [code]="snippets.animations" language="typescript" />
-
-    <p wrTypography>
-      Eighteen of the animation components have a harness, and they all obey one rule: nothing reports on the MOTION. A
-      tween's progress is a compositor frame, a <code>&#64;keyframes</code> rule lives in a stylesheet a unit test never
-      loads, and jsdom implements neither Web Animations nor a canvas — so there is no
-      <code>isAnimating()</code> anywhere in the set, and each class says in its own docs which method you might have
-      reached for and why it is absent. What is left is everything an animation writes down: the split it made of your
-      text, the ARIA around it, and the custom properties its inputs turn into.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      The pattern worth copying is the pair. A component that animates text per character carries the whole string once
-      in a visually-hidden span and marks the pieces <code>aria-hidden</code>, so <code>getAccessibleText()</code> is
-      what a screen reader hears and <code>getPieces()</code> is what is drawn — and a spec that asserts only the second
-      passes on a component that announces <code>W. e. l. c. o. m. e.</code> Comparing the two is also how you catch a
-      split that lost a space.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      Three components deliberately have NO harness: <code>aurora</code>, <code>click-spark</code> and
-      <code>confetti</code> draw into a canvas whose context is <code>null</code> in a unit test, so every honest method
-      would answer the same for a working component and a dead one. Where a harness does exist for a canvas-backed
-      effect — <code>fuzzy-text</code>, <code>waves</code>, <code>splash-cursor</code> — it reports the DOM half only:
-      the accessible copy of the text, the <code>aria-hidden</code> on the canvas, and the handover flag that says the
-      drawing took over from the CSS stand-in.
-    </p>
-
-    <ngwr-doc-api [rows]="animationApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Charts" description="Read what is textual; a path is not an assertion.">
-    <ngwr-doc-code [code]="snippets.charts" language="typescript" />
-
-    <p wrTypography>
-      Every chart has a harness — <code>bar-chart</code>, <code>line-chart</code>, <code>donut-chart</code>,
-      <code>sparkline</code>, <code>gauge</code>, <code>meter-group</code> and <code>calendar-heatmap</code> — and they
-      share one rule: an SVG path's <code>d</code> is a rendering detail that moves with the viewBox, the padding and
-      the value range, so none of them lets you assert one. What they read instead is everything with words or a count
-      in it: legends, axis ticks, x labels, slice counts, and the bar heights, which the chart writes as a PERCENTAGE of
-      its own maximum and are therefore readable with no layout.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      Three ARIA shapes are worth pinning. A gauge is a <code>role="meter"</code> whose
-      <code>aria-valuetext</code> carries the suffix, which is what keeps it readable with its number hidden; a heatmap
-      is ONE named image with <code>aria-hidden</code> squares, because a year of announced days would be unusable. A
-      bar chart names each column with its label AND its value, while the printed label row underneath is
-      <code>aria-hidden</code> decoration — so asserting only the drawn labels would pass on a chart that announces
-      nothing. And a sparkline is either named, in which case it is a <code>role="img"</code>, or it is decoration and
-      must be <code>aria-hidden</code>: getting that backwards leaves a screen reader stopping on a graphic with nothing
-      to say.
-    </p>
-
-    <ngwr-doc-api [rows]="chartApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Event calendar" description="A chip lives in the cell its event starts in.">
-    <ngwr-doc-code [code]="snippets.eventCalendar" language="typescript" />
-
-    <p wrTypography>
-      Every chip sits inside the <code>role="gridcell"</code> where its event STARTS and reaches out from there — a
-      <code>calc()</code> width for a band, a percentage height for a timed block — which is what lets
-      <code>getCellChips()</code> scope to one cell at all. Cells are addressed by their DAY and, in a time view, the
-      minutes from midnight of their row: those come off the data attributes the drag's own hit-testing publishes, and
-      they are the only names that mean the same thing in all three views.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      Moving and resizing go through the keyboard — <code>Alt</code> and an arrow to move, <code>Alt</code> +
-      <code>Shift</code> to resize — which is the accessible path and the only one a test without layout can drive. Both
-      only EMIT: <code>events</code> is an input the calendar never writes to, so a spec whose host ignores
-      <code>eventChange</code> is asserting a cancelled gesture. One jsdom note: an editable chip's click needs
-      <code>document.elementFromPoint</code> stubbed, because the CDK dispatches a real pointer sequence and the chip
-      hit-tests for the cell under it.
-    </p>
-
-    <ngwr-doc-api [rows]="eventCalendarApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Image cropper" description="The smallest honest surface here.">
-    <ngwr-doc-code [code]="snippets.imageCropper" language="typescript" />
-
-    <p wrTypography>
-      Almost everything the cropper does is measured — the image's rendered box, its <code>naturalWidth</code>, the
-      conversion between display and source pixels, the pointer deltas — and jsdom measures nothing. So there is
-      deliberately no <code>moveCrop()</code> or <code>resizeCrop()</code>: either would divide by a zero-sized rect,
-      write <code>NaN</code>, and report success. What a spec can do is give the image the two numbers
-      <code>onImageLoad</code> reads and call <code>dispatchImageLoad()</code>; from there the crop window's geometry is
-      written inline and is a real answer.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      Note that <code>isEmpty()</code> and <code>isReady()</code> are different questions: a cropper with a perfectly
-      good <code>src</code> shows nothing but the image until it has been measured. And the cropper renders no buttons
-      at all — <code>crop()</code> and <code>cropRect()</code> are component API a consumer reaches through a
-      <code>viewChild</code>, which is outside what any harness can see.
-    </p>
-
-    <ngwr-doc-api [rows]="imageCropperApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Window" description="Non-modal, several at once, and a rail for the rest.">
-    <ngwr-doc-code [code]="snippets.window" language="typescript" />
-
-    <p wrTypography>
-      <code>WrWindow</code> is not exported — a window is always a <code>WrWindowManager.open()</code> call — so the
-      harness comes from <code>documentRootLoader()</code>, while <code>&lt;wr-window-taskbar&gt;</code> is an element
-      in your template and comes from the normal one. The window harness is a content container, like the dialog's: the
-      component you opened is projected into the body, so a nested harness reads ITS content and cannot reach another
-      window's — which matters here, because windows are non-modal and several are normally open.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      Geometry comes from the inline styles the component writes, never from a measured box:
-      <code>getBox()</code> is how you assert a move, a resize or a snap, and <code>getZIndex()</code> is how you assert
-      that clicking a window brought it to the front. Two states to keep apart: MINIMIZED is not closed —
-      <code>isOpen()</code> stays true — and the same button minimizes and restores, which is why
-      <code>getMinimizeLabel()</code> changes with the state. On Linux the chrome renders the close button alone by
-      DEFAULT — <code>showMinimize: true</code> puts the button back, so assert the configuration you opened rather than
-      an invariant.
-    </p>
-
-    <ngwr-doc-api [rows]="windowApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Calendar" description="Three views behind one header.">
-    <ngwr-doc-code [code]="snippets.calendar" language="typescript" />
-
-    <p wrTypography>
-      Clicking the header walks <code>day → month → year</code>, and each view renders something else — a
-      <code>role="grid"</code> of day cells, or a <code>role="listbox"</code> of chips. Every day method throws off the
-      day view rather than answering with an empty list, which would read as a month with no days.
-      <code>getDay(20)</code> addresses a day of the DISPLAYED month: the grid is always six weeks, so most numbers
-      appear twice and the spill days are skipped.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      The roving cell is not the selection, and it does not follow <code>next()</code> — paging is a view change, so a
-      grid moved away from the roving month has no tab stop at all until a key or a click puts one back.
-      <code>getActiveDayNumber()</code> answers <code>null</code> there, which is the behaviour rather than a failure.
-      Keys go to the host, where the component listens, so a spec does not depend on jsdom having focused anything.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      <code>WrCalendarDayHarness</code> is the same class <code>ngwr/date-picker/testing</code> exports as
-      <code>WrDatePickerDayHarness</code> — a picker's popup IS a calendar, and there is one implementation of its cell.
-      Either name works with either query.
-    </p>
-
-    <ngwr-doc-api [rows]="calendarApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Tour" description="One card at a time, and last is not a count.">
-    <ngwr-doc-code [code]="snippets.tour" language="typescript" />
-
-    <p wrTypography>
-      <code>WrTour</code> is a service with no element of its own, so the card comes from
-      <code>documentRootLoader()</code> and there is nothing to load while the tour is idle — which makes
-      <code>getHarnessOrNull()</code> the way to ask whether one is running. Only one card exists at a time: the service
-      tears a step down before opening the next, so a harness held across <code>next()</code> is pointed at a detached
-      element.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      The assertion worth writing is <code>getPrimaryLabel()</code>, not the count. A step whose target is not on the
-      page is skipped, so a three-step tour can show two — and the service looks AHEAD for a reachable step to decide
-      whether the button reads "Next" or "Done". <code>current === total</code> disagrees with it exactly when the last
-      step is hidden, which is the case that used to end the tour from a card still saying "Next".
-    </p>
-
-    <ngwr-doc-api [rows]="tourApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Lightbox" description="A viewer that does not exist until it does.">
-    <ngwr-doc-code [code]="snippets.lightbox" language="typescript" />
-
-    <p wrTypography>
-      The thumbnail is in your fixture and the viewer is an overlay, so the harness crosses between them — scoped by the
-      id the trigger publishes as <code>aria-controls</code>, which means two lightboxes open at once still answer for
-      their own image. Unlike a collapse or a speed dial, a closed lightbox has no viewer at ALL: the overlay is created
-      on open and disposed on close, so every viewer read throws while it is shut rather than answering about a stale
-      element.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      Two things worth asserting that nothing else covers. <code>clickImage()</code> drives the full image, which is
-      styled <code>cursor: zoom-out</code> and deliberately kept OUT of the tab order — a mouse affordance whose promise
-      nothing else checks. And <code>[disablePreview]</code> removes the button rather than disabling it, so the
-      thumbnail becomes a bare <code>&lt;img&gt;</code>: <code>isInteractive()</code> is how you tell, and
-      <code>open()</code> explains itself instead of failing to find an element.
-    </p>
-
-    <ngwr-doc-api [rows]="lightboxApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Speed dial" description="The actions are always in the DOM.">
-    <ngwr-doc-code [code]="snippets.speedDial" language="typescript" />
-
-    <p wrTypography>
-      A collapsed dial still holds its buttons — the fan-out has to have something to animate — and what actually hides
-      them is <code>visibility</code>, which is also what keeps them out of the tab order. A unit test applies no CSS,
-      so those buttons look perfectly reachable to a query. <code>getActions()</code> and <code>pick()</code> therefore
-      refuse while the dial is closed; <code>getActionCount()</code> answers either way, because counting is not
-      reaching.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      An action draws an ICON, or the first glyph of its label — so its visible text is <code>"C"</code> for "Copy
-      link". <code>getLabel()</code> reads the accessible name and <code>getInitial()</code> what is drawn. The Escape
-      assertion is worth writing: <code>role="menu"</code> promises a way out, and the actions are ordinary tab stops,
-      so focus has to come back to the trigger.
-    </p>
-
-    <ngwr-doc-api [rows]="speedDialApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Knob" description="The number it announces, and the string it prints.">
-    <ngwr-doc-code [code]="snippets.knob" language="typescript" />
-
-    <p wrTypography>
-      <code>getValue()</code> is <code>aria-valuenow</code>; <code>getDisplayValue()</code> is the text in the middle of
-      the dial, which a <code>suffix</code> makes <code>"50%"</code> while the announced value stays <code>50</code>.
-      Two methods because they can disagree — and because <code>[showValue]="false"</code> takes the text away without
-      touching the value.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      <code>setValue()</code> walks with the arrows and measures the step as it goes: <code>step</code> is an input with
-      no DOM presence, and a value written from outside is clamped but never snapped, so the first press can move by
-      less than a step as it lands on the grid. A target BETWEEN two grid points is only discovered by overshooting it,
-      and the error says where it stopped. There is no <code>turnTo()</code> — the drag measures an angle from the
-      centre of a box a unit test never lays out, so it would write the same end of the arc for any coordinates and
-      report success.
-    </p>
-
-    <ngwr-doc-api [rows]="knobApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Driving a table" description="A family of harnesses, because a table is a tree.">
-    <ngwr-doc-code [code]="snippets.table" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      Columns are addressed by their header title — the <code>columns</code> key never reaches the DOM, so it would be a
-      name only your spec could see. Two caveats worth knowing before you assert: sorting publishes an intent and does
-      not reorder <code>items</code> (your app does that), and a virtualized body renders a WINDOW, so
-      <code>getRows()</code> is the window while <code>getAriaRowCount()</code> is the total.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrTableHarness" description="`ngwr/table/testing`">
-    <ngwr-doc-api [rows]="tableApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrTableRowHarness" description="`ngwr/table/testing`">
-    <ngwr-doc-api [rows]="tableRowApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrTableCellHarness / WrTableHeaderCellHarness" description="`ngwr/table/testing`">
-    <ngwr-doc-api [rows]="tableCellApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Radio groups" description="The value lives on the group, not the radio.">
-    <ngwr-doc-code [code]="snippets.radio" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      The one thing worth pinning in a radio spec is that the tab stop and the selection are different questions. A
-      group with nothing picked yet is still reachable by keyboard — its first enabled option carries the tab stop — and
-      once an option is picked the tab stop moves onto it. A harness that answered "the checked one" for both would look
-      right in every test and be wrong for every keyboard user.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrRadioGroupHarness / WrRadioHarness" description="`ngwr/radio/testing`">
-    <ngwr-doc-api [rows]="radioApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrTextareaHarness" description="`ngwr/textarea/testing`">
-    <p wrTypography>
-      For the <code>&lt;wr-textarea&gt;</code> component. A native <code>&lt;textarea wrInput&gt;</code> is the
-      <code>[wrInput]</code> directive instead, and <code>WrInputHarness</code> covers that one.
-    </p>
-
-    <ngwr-doc-api [rows]="textareaApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Numbers, and the gap between text and value">
-    <ngwr-doc-code [code]="snippets.number" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      A number field shows a string and holds a number, and mid-type the two disagree — a separator, a prefix, a lone
-      minus sign. So the harness asks them separately: <code>getValueText()</code> is what a user sees and
-      <code>getValue()</code> is the number, which THROWS rather than guessing when the field holds something the
-      control has not accepted. If your app sets its own <code>LOCALE_ID</code>, pass it:
-      <code>getValue('de-DE')</code>.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrInputNumberHarness" description="`ngwr/input-number/testing`">
-    <ngwr-doc-api [rows]="numberApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="One-time codes" description="Typed, pasted, or backspaced away.">
-    <ngwr-doc-code [code]="snippets.otp" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      Pasting is how most people deliver a code, so <code>paste()</code> drives the real <code>paste</code> event rather
-      than typing character by character. One caveat the harness cannot paper over: the assembled code is what the BOXES
-      hold, and a value the boxes cannot accept — a letter in numeric mode — leaves the bound model holding something
-      the harness cannot see. Assert the model as well when a write comes from outside the control.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrInputOtpHarness / WrInputOtpBoxHarness" description="`ngwr/input-otp/testing`">
-    <ngwr-doc-api [rows]="otpApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Sliders" description="Driven by the keyboard, and that is not a shortcut.">
-    <ngwr-doc-code [code]="snippets.slider" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      A unit test has no layout: every element measures 0×0, so a drag computed from an offset resolves to a bound — or
-      to <code>NaN</code> when the offset is zero. A coordinate-driven <code>setValue</code> would therefore write the
-      wrong number and report success. The harness walks the value with the keys instead (the accessible path a real
-      user with no mouse takes), takes the ten-step stride before single steps, and throws if it settles anywhere but
-      the value you asked for — a <code>max</code> that is not a whole number of steps from <code>min</code> is not
-      reachable, and you should hear about it rather than get a silent 99.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrSliderHarness / WrSliderThumbHarness" description="`ngwr/slider/testing`">
-    <ngwr-doc-api [rows]="sliderApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Ratings">
-    <ngwr-doc-code [code]="snippets.rating" language="typescript" />
-
-    <ngwr-doc-api [rows]="ratingApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="File uploads" description="Real drag events, and a real FileList.">
-    <ngwr-doc-code [code]="snippets.upload" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      <code>FileList</code> has no constructor, so files are delivered through a <code>DataTransfer</code> — which is
-      also what a real drop carries. <code>dropFiles()</code> plays the whole gesture (<code>dragenter</code>,
-      <code>dragover</code>, <code>drop</code>) rather than the last event of it, because a component that stopped
-      disarming its drop zone would pass a drop-only test. Focus goes to the zone, not to the hidden picker: the picker
-      is <code>aria-hidden</code> and out of the tab order.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrFileUploadHarness" description="`ngwr/file-upload/testing`">
-    <ngwr-doc-api [rows]="uploadApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Context menus" description="Opened by a right-click, closed on a timer.">
-    <ngwr-doc-code [code]="snippets.contextMenu" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      Two things about this component would trip a hand-written spec. It opens on a real
-      <code>contextmenu</code> event, not a click — and its pane stays in the DOM through an exit animation, so "is a
-      pane present" is not the same question as "is the menu open". The harness reads the target's
-      <code>aria-controls</code> for the second one, and its close methods wait for the pane to actually be disposed.
-      Submenus each get their own overlay pane, scoped by the id their parent item publishes, so one harness walks any
-      depth.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrContextMenuHarness" description="`ngwr/context-menu/testing`">
-    <ngwr-doc-api [rows]="contextMenuApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Popconfirm" description="Four ways out, and they mean different things.">
-    <ngwr-doc-code [code]="snippets.popconfirm" language="typescript" />
-
-    <ngwr-doc-api [rows]="popconfirmApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Command palette">
-    <ngwr-doc-code [code]="snippets.palette" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      Focus never leaves the query field: the highlighted row is published with
-      <code>aria-activedescendant</code>, which is what a screen reader announces as the arrows move.
-      <code>isActiveItemAnnounced()</code> checks that link holds — the arrows can look right in a test while a
-      screen-reader user hears nothing at all.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrCommandPaletteHarness" description="`ngwr/command-palette/testing`">
-    <ngwr-doc-api [rows]="paletteApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Cascader" description="One column per level.">
-    <ngwr-doc-code [code]="snippets.cascader" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      Which columns exist depends on what is open, so the columns are the component rather than a detail of it.
-      <code>selectPath()</code> walks level by level the way a user does, opening each parent before reaching for the
-      next.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrCascaderHarness" description="`ngwr/cascader/testing`">
-    <ngwr-doc-api [rows]="cascaderApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Trees" description="Levels, sibling groups, and a window.">
-    <ngwr-doc-code [code]="snippets.tree" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      <code>aria-setsize</code> counts a node's sibling group including itself, and <code>aria-posinset</code> is its
-      place in that group — neither is a position in the flat list of visible rows, and reading them that way is the
-      classic tree bug. While the tree is virtualized <code>getNodes()</code> is the WINDOW, not the dataset, and the
-      keyboard methods are named for the ACTIVE node because a virtual tree moves a cursor with
-      <code>aria-activedescendant</code> rather than real focus.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrTreeHarness / WrTreeNodeHarness" description="`ngwr/tree/testing`">
-    <ngwr-doc-api [rows]="treeApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Graphs" description="Ids on the lines, words on the nodes.">
-    <ngwr-doc-code [code]="snippets.graph" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      The lines are <code>aria-hidden</code>, so a node's relation sentence is the only form the structure takes for a
-      screen reader — which is why <code>getText()</code> and <code>getRelationText()</code> are two methods: read
-      together, a spec would pass on a graph that named the wrong neighbours. A node's id is written nowhere in the DOM,
-      so nodes are addressed by what they draw and ids are read off the edges.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      Three things are deliberately not offered: a path's <code>d</code>, node positions, and "is scrollable". jsdom
-      lays nothing out, and the coordinates belong to a layout that is internal in this release — the layout's own spec
-      pins them. Every query is anchored to the graph's own parts, so a graph drawn inside a node template never answers
-      for the one around it.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrGraphHarness / WrGraphNodeHarness" description="`ngwr/graph/testing`">
-    <ngwr-doc-api [rows]="graphApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Mentions" description="The panel comes from what you typed.">
-    <ngwr-doc-code [code]="snippets.mention" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      Typing is the only way in — the directive detects a trigger character at the caret, so a value written straight to
-      the field opens nothing. The harness sends real keydown and keyup pairs, which is what a browser does; writing it
-      that way is what surfaced a bug where Escape's keyup reopened the panel its keydown had just dismissed.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrMentionHarness" description="`ngwr/mention/testing`">
-    <ngwr-doc-api [rows]="mentionApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Editors" description="The drawn text here, the value in the model.">
-    <ngwr-doc-code [code]="snippets.editor" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      The value is an HTML string, a markdown string or a JSON tree, written by the editor's codec and never by the DOM,
-      so the harness does not pretend to read it — a string rebuilt from the surface would be a fourth format that
-      agrees with none of the three. Typing is refused for the reason <code>pressKey()</code> gives: a browser inserts
-      the character into a contenteditable and ProseMirror reads the change, and jsdom inserts nothing.
-      <code>setText()</code> writes the surface the way the CDK defines writing a contenteditable, which ProseMirror
-      reads as a real change, so the edit reaches the model through the editor's own path.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      Your spec installs one stub: ProseMirror scrolls the selection into view after an edit made with focus, and
-      jsdom's <code>Range</code> has no <code>getClientRects()</code>. Without it the edit throws from a DOM listener
-      after the document changed, the model keeps its old value, and the error surfaces only as an unhandled one. The
-      harness class docs have the three lines. There is no caret placement beyond <code>selectAll()</code>, no heights,
-      and no "is the placeholder visible" — it is CSS <code>content</code>, so <code>getPlaceholder()</code> reads what
-      is announced instead.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrEditorHarness" description="`ngwr/editor/testing`">
-    <ngwr-doc-api [rows]="editorApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Form fields" description="Where the validation copy actually comes from.">
-    <ngwr-doc-code [code]="snippets.formField" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      <code>&lt;wr-form-field&gt;</code> resolves a message per error key through
-      <a routerLink="/reference/components/form">provideWrFormErrors()</a>, then the <code>ngwr/i18n</code>
-      <code>validation.*</code> catalog, then a built-in fallback — so a field needs no
-      <code>&lt;wr-form-error&gt;</code> markup to say something useful. The two questions worth asserting are whether a
-      message is showing AND whether the control points at it: a message nothing references is decoration a screen
-      reader never reads, which is what <code>getAnnouncedDescription()</code> and <code>hasEmptyErrorBlock()</code> are
-      for.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrFormFieldHarness" description="`ngwr/form/testing`">
-    <ngwr-doc-api [rows]="formFieldApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Tabs" description="Focus and selection are different questions.">
-    <ngwr-doc-code [code]="snippets.tabs" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      A tab strip roves focus, so "which tab is active" has two answers, and a harness that gave the selection for both
-      would look right in every test while the strip was dead to a keyboard user. Both are exposed. The other thing
-      worth asserting is the panel pairing: <code>isPanelBound()</code> walks the <code>aria-controls</code> /
-      <code>aria-labelledby</code> round trip in both directions, because a panel wired to the wrong header looks fine
-      and reads as nothing.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrTabsHarness / WrTabHarness" description="`ngwr/tabs/testing`">
-    <ngwr-doc-api [rows]="tabsApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Stepper" description="A linear flow refuses a jump.">
-    <ngwr-doc-code [code]="snippets.stepper" language="typescript" />
-
-    <ngwr-doc-api [rows]="stepperApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrCarouselHarness" description="`ngwr/carousel/testing`">
-    <p wrTypography>
-      Next stays next in both reading directions — only the travel mirrors. There is deliberately no drag method: a drag
-      is pointer-driven and a unit test has no layout, so one would write the wrong slide index and report success.
-    </p>
-
-    <ngwr-doc-api [rows]="carouselApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Pagination" description="The gaps are not pages.">
-    <ngwr-doc-code [code]="snippets.pagination" language="typescript" />
-
-    <p wrTypography variant="small" tone="medium">
-      <code>getPages()</code> is the numbers a user can reach; <code>getStrip()</code> shows the ellipsis gaps for what
-      they are. Counting a gap as a page is the classic pager bug, and it is why these are two methods rather than one.
-      The page-size control is a <code>wr-select</code>, so the harness hands back <code>WrSelectHarness</code> instead
-      of re-querying a panel that already has one.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrPaginationHarness" description="`ngwr/pagination/testing`">
-    <ngwr-doc-api [rows]="paginationApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="WrSegmentedHarness" description="`ngwr/segmented/testing`">
-    <ngwr-doc-api [rows]="segmentedApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Collapse" description="Open is an ARIA state, not a measured height.">
-    <ngwr-doc-code [code]="snippets.collapse" language="typescript" />
-
-    <ngwr-doc-api [rows]="collapseApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Transfer" description="Two symmetric panes, one side argument.">
-    <ngwr-doc-code [code]="snippets.transfer" language="typescript" />
-
-    <ngwr-doc-api [rows]="transferApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Markdown" description="A rendered document, read the way a reader sees it.">
-    <ngwr-doc-code [code]="snippets.markdown" language="typescript" />
-
-    <p wrTypography>
-      The harness answers in terms of the DOCUMENT rather than the markup that produced it — headings with their level
-      and id, links with their <code>href</code> and <code>rel</code>, task items with their checked state. That is
-      deliberate: the parser has its own spec, and a harness that re-asserted the tree would test the same thing twice
-      while missing the half that only the DOM can answer.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      Two details worth copying if you write something similar. Prose reads exclude the hidden task-state labels, so an
-      assertion on an item's text does not have to know that <code>Done:</code> is spliced in front of it — the state is
-      a field of its own instead. And a code block's text is read exactly, never trimmed: a snippet's leading
-      indentation and blank lines are its content, and a harness that collapsed them would pass on a component that had
-      destroyed them.
-    </p>
-
-    <ngwr-doc-api [rows]="markdownApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Names, for the tests that are not harness tests"
-    description="A harness queries by class and by role, so it never has to know what a control is CALLED. An end-to-end test does — the accessible name IS the locator, `Go to page 2` and nothing else — and until you read the i18n catalog those strings are undiscoverable. These are the ones the library renders itself."
+    title="Overlays"
+    description="Pick the loader by whether the component is an element in your template."
   >
-    <div class="ngwr-keys">
+    <ngwr-doc-code [code]="snippets.overlay" language="typescript" />
+
+    <div class="ngwr-table">
       <table>
-        <caption>
-          Built-in accessible names, and the two ways to change one.
-        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Loader</th>
+            <th scope="col">Use for</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>loader(fixture)</code></th>
+            <td>
+              Anything in your template. Overlays you open from it (select, dropdown, popover, …) find their own panel.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>documentRootLoader(fixture)</code></th>
+            <td>Dialog, toast, drawer, window and tour.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>A harness looked up in the wrong loader fails with “failed to find element”.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Select" description="`ngwr/select/testing`">
+    <ngwr-doc-code [code]="snippets.select" language="typescript" />
+    <ngwr-doc-api [rows]="selectApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Dialog" description="`ngwr/dialog/testing`">
+    <ngwr-doc-api [rows]="dialogApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Toast" description="`ngwr/toast/testing`">
+    <ngwr-doc-api [rows]="toastApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Button" description="`ngwr/button/testing`">
+    <ngwr-doc-api [rows]="buttonApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Input" description="`ngwr/input/testing`">
+    <ngwr-doc-api [rows]="inputApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Checkbox" description="`ngwr/checkbox/testing`">
+    <ngwr-doc-api [rows]="checkboxApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Switch" description="`ngwr/switch/testing`">
+    <ngwr-doc-api [rows]="switchApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Dropdown" description="`ngwr/dropdown/testing`">
+    <ngwr-doc-code [code]="snippets.dropdown" language="typescript" />
+    <ngwr-doc-api [rows]="dropdownApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Date picker" description="`ngwr/date-picker/testing`">
+    <ngwr-doc-code [code]="snippets.datePicker" language="typescript" />
+    <ngwr-doc-api [rows]="datePickerApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Popover and tooltip" description="`ngwr/popover/testing`">
+    <ngwr-doc-code [code]="snippets.popover" language="typescript" />
+    <ngwr-doc-api [rows]="popoverApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Drawer" description="`ngwr/drawer/testing`">
+    <ngwr-doc-code [code]="snippets.drawer" language="typescript" />
+    <ngwr-doc-api [rows]="drawerApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Colour picker" description="`ngwr/color-picker/testing`">
+    <ngwr-doc-code [code]="snippets.colorPicker" language="typescript" />
+    <ngwr-doc-api [rows]="colorPickerApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Splitter" description="`ngwr/splitter/testing`">
+    <ngwr-doc-code [code]="snippets.splitter" language="typescript" />
+    <ngwr-doc-api [rows]="splitterApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Animations" description="`ngwr/bits/<name>/testing`">
+    <ngwr-doc-code [code]="snippets.animations" language="typescript" />
+    <ngwr-doc-api [rows]="animationApi" />
+
+    <p><code>aurora</code>, <code>click-spark</code> and <code>confetti</code> have no harness.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Charts" description="`ngwr/charts/<name>/testing`">
+    <ngwr-doc-code [code]="snippets.charts" language="typescript" />
+    <ngwr-doc-api [rows]="chartApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Event calendar" description="`ngwr/event-calendar/testing`">
+    <ngwr-doc-code [code]="snippets.eventCalendar" language="typescript" />
+    <ngwr-doc-api [rows]="eventCalendarApi" />
+
+    <p>Stub <code>document.elementFromPoint</code> before you click an editable chip.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Image cropper" description="`ngwr/image-cropper/testing`">
+    <ngwr-doc-code [code]="snippets.imageCropper" language="typescript" />
+    <ngwr-doc-api [rows]="imageCropperApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Window" description="`ngwr/window/testing`">
+    <ngwr-doc-code [code]="snippets.window" language="typescript" />
+    <ngwr-doc-api [rows]="windowApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Calendar" description="`ngwr/calendar/testing`">
+    <ngwr-doc-code [code]="snippets.calendar" language="typescript" />
+    <ngwr-doc-api [rows]="calendarApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tour" description="`ngwr/tour/testing`">
+    <ngwr-doc-code [code]="snippets.tour" language="typescript" />
+    <ngwr-doc-api [rows]="tourApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Lightbox" description="`ngwr/lightbox/testing`">
+    <ngwr-doc-code [code]="snippets.lightbox" language="typescript" />
+    <ngwr-doc-api [rows]="lightboxApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Speed dial" description="`ngwr/speed-dial/testing`">
+    <ngwr-doc-code [code]="snippets.speedDial" language="typescript" />
+    <ngwr-doc-api [rows]="speedDialApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Knob" description="`ngwr/knob/testing`">
+    <ngwr-doc-code [code]="snippets.knob" language="typescript" />
+    <ngwr-doc-api [rows]="knobApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Table" description="`ngwr/table/testing`">
+    <ngwr-doc-code [code]="snippets.table" language="typescript" />
+    <ngwr-doc-api [rows]="tableApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Radio" description="`ngwr/radio/testing`">
+    <ngwr-doc-code [code]="snippets.radio" language="typescript" />
+    <ngwr-doc-api [rows]="radioApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Textarea" description="`ngwr/textarea/testing`">
+    <p>
+      For <code>&lt;wr-textarea&gt;</code>. A native <code>&lt;textarea wrInput&gt;</code> uses
+      <code>WrInputHarness</code>.
+    </p>
+    <ngwr-doc-api [rows]="textareaApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Input number" description="`ngwr/input-number/testing`">
+    <ngwr-doc-code [code]="snippets.number" language="typescript" />
+    <ngwr-doc-api [rows]="numberApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="One-time code" description="`ngwr/input-otp/testing`">
+    <ngwr-doc-code [code]="snippets.otp" language="typescript" />
+    <ngwr-doc-api [rows]="otpApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Slider" description="`ngwr/slider/testing`">
+    <ngwr-doc-code [code]="snippets.slider" language="typescript" />
+    <ngwr-doc-api [rows]="sliderApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rating" description="`ngwr/rating/testing`">
+    <ngwr-doc-code [code]="snippets.rating" language="typescript" />
+    <ngwr-doc-api [rows]="ratingApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="File upload" description="`ngwr/file-upload/testing`">
+    <ngwr-doc-code [code]="snippets.upload" language="typescript" />
+    <ngwr-doc-api [rows]="uploadApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Context menu" description="`ngwr/context-menu/testing`">
+    <ngwr-doc-code [code]="snippets.contextMenu" language="typescript" />
+    <ngwr-doc-api [rows]="contextMenuApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Popconfirm" description="`ngwr/popconfirm/testing`">
+    <ngwr-doc-code [code]="snippets.popconfirm" language="typescript" />
+    <ngwr-doc-api [rows]="popconfirmApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Command palette" description="`ngwr/command-palette/testing`">
+    <ngwr-doc-code [code]="snippets.palette" language="typescript" />
+    <ngwr-doc-api [rows]="paletteApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Cascader" description="`ngwr/cascader/testing`">
+    <ngwr-doc-code [code]="snippets.cascader" language="typescript" />
+    <ngwr-doc-api [rows]="cascaderApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tree" description="`ngwr/tree/testing`">
+    <ngwr-doc-code [code]="snippets.tree" language="typescript" />
+    <ngwr-doc-api [rows]="treeApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Graph" description="`ngwr/graph/testing`">
+    <ngwr-doc-code [code]="snippets.graph" language="typescript" />
+    <ngwr-doc-api [rows]="graphApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Mention" description="`ngwr/mention/testing`">
+    <ngwr-doc-code [code]="snippets.mention" language="typescript" />
+    <ngwr-doc-api [rows]="mentionApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Editor" description="`ngwr/editor/testing`">
+    <ngwr-doc-code [code]="snippets.editor" language="typescript" />
+    <ngwr-doc-api [rows]="editorApi" />
+
+    <p>Without the <code>Range</code> stub, an edit never reaches the model.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Form field" description="`ngwr/form/testing`">
+    <ngwr-doc-code [code]="snippets.formField" language="typescript" />
+    <ngwr-doc-api [rows]="formFieldApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tabs" description="`ngwr/tabs/testing`">
+    <ngwr-doc-code [code]="snippets.tabs" language="typescript" />
+    <ngwr-doc-api [rows]="tabsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Stepper" description="`ngwr/stepper/testing`">
+    <ngwr-doc-code [code]="snippets.stepper" language="typescript" />
+    <ngwr-doc-api [rows]="stepperApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Carousel" description="`ngwr/carousel/testing`">
+    <ngwr-doc-api [rows]="carouselApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Pagination" description="`ngwr/pagination/testing`">
+    <ngwr-doc-code [code]="snippets.pagination" language="typescript" />
+    <ngwr-doc-api [rows]="paginationApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Segmented" description="`ngwr/segmented/testing`">
+    <ngwr-doc-api [rows]="segmentedApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Collapse" description="`ngwr/collapse/testing`">
+    <ngwr-doc-code [code]="snippets.collapse" language="typescript" />
+    <ngwr-doc-api [rows]="collapseApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Transfer" description="`ngwr/transfer/testing`">
+    <ngwr-doc-code [code]="snippets.transfer" language="typescript" />
+    <ngwr-doc-api [rows]="transferApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Accessible names for end-to-end tests"
+    description="The names ngwr renders itself, for role and name locators."
+  >
+    <div class="ngwr-table">
+      <table>
         <thead>
           <tr>
             <th scope="col">Element</th>
@@ -861,54 +332,86 @@
         </thead>
         <tbody>
           <tr>
-            <td>Pagination landmark</td>
-            <td><code>Pagination</code> (on <code>role="navigation"</code>)</td>
+            <th scope="row">Pagination landmark</th>
+            <td><code>Pagination</code></td>
             <td><code>[label]</code> · <code>pagination.label</code></td>
           </tr>
           <tr>
-            <td>Pagination page cell</td>
+            <th scope="row">Pagination page</th>
             <td><code>Go to page 3</code></td>
             <td><code>pagination.goToPage</code></td>
           </tr>
           <tr>
-            <td>Pagination previous / next</td>
+            <th scope="row">Pagination previous / next</th>
             <td><code>Previous page</code> · <code>Next page</code></td>
             <td>
               <code>[prevLabel]</code> / <code>[nextLabel]</code> · <code>pagination.prev</code> / <code>.next</code>
             </td>
           </tr>
           <tr>
-            <td>Pagination size changer</td>
+            <th scope="row">Pagination size changer</th>
             <td><code>Items per page</code></td>
             <td><code>pagination.itemsPerPage</code></td>
           </tr>
           <tr>
-            <td>Table sort button</td>
-            <td><code>Sort column</code> — the same on EVERY sortable column</td>
+            <th scope="row">Table sort button</th>
+            <td><code>Sort Name</code> (the column title)</td>
             <td><code>[sortLabel]</code> · <code>table.sort</code></td>
           </tr>
           <tr>
-            <td>Table row / all checkboxes</td>
-            <td><code>Select row</code> · <code>Select all rows</code></td>
-            <td><code>table.selectRow</code> / <code>.selectAll</code></td>
+            <th scope="row">Table row checkbox</th>
+            <td>
+              <code>Select row Ada</code>: since v15 the action word, then the row's label cell (the first column, or
+              the tree column in tree mode)
+            </td>
+            <td><code>[selectRowLabel]</code> · <code>table.selectRow</code>, the action word only</td>
           </tr>
           <tr>
-            <td>Table loading overlay</td>
-            <td><code>Loading…</code> (on <code>role="status"</code>)</td>
+            <th scope="row">Table select-all checkbox</th>
+            <td><code>Select all rows</code></td>
+            <td><code>[selectAllLabel]</code> · <code>table.selectAll</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Table detail / tree toggle</th>
+            <td><code>Toggle row details Ada</code> · <code>Toggle child rows Engineering</code></td>
+            <td>
+              <code>[expandRowLabel]</code> · <code>table.expandRow</code> / <code>[toggleRowLabel]</code> ·
+              <code>table.toggleRow</code>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Table group checkbox / toggle</th>
+            <td>
+              <code>Select group admin</code> · <code>Toggle group admin 2</code>: the group's label, then its row count
+              while the badge shows
+            </td>
+            <td>
+              <code>[selectGroupLabel]</code> · <code>table.selectGroup</code> / <code>[toggleGroupLabel]</code> ·
+              <code>table.toggleGroup</code>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Table loading overlay</th>
+            <td><code>Loading…</code></td>
             <td><code>[loadingLabel]</code> · <code>table.loading</code></td>
           </tr>
           <tr>
-            <td>Dialog / drawer ✕</td>
+            <th scope="row">Dialog ✕</th>
             <td><code>Close dialog</code></td>
             <td><code>closeLabel</code> · <code>dialog.close</code></td>
           </tr>
           <tr>
-            <td>Select clear ✕</td>
+            <th scope="row">Drawer ✕</th>
+            <td><code>Close drawer</code></td>
+            <td><code>closeLabel</code> · <code>drawer.close</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Select clear ✕</th>
             <td><code>Clear selection</code></td>
             <td><code>select.clearSelection</code></td>
           </tr>
           <tr>
-            <td>Select chip remove</td>
+            <th scope="row">Select chip remove</th>
             <td><code>Remove Berlin</code></td>
             <td><code>select.removeItem</code></td>
           </tr>
@@ -916,67 +419,37 @@
       </table>
     </div>
 
-    <p wrTypography variant="small" tone="medium">
-      Two of those are traps. <strong>Every sort button carries the same name</strong>, so a query for a button named
-      <code>Sort column</code> is ambiguous the moment a table has two sortable columns — scope the query to the header
-      cell, or use <code>WrTableHeaderCellHarness</code>, which addresses a column by its visible title. And an
-      <code>aria-label</code> written on a component's HOST names nothing: the host of
-      <code>&lt;wr-select&gt;</code> carries no role, and the <code>role="combobox"</code> lives on the trigger inside
-      it. That is why the components that need one expose an <code>ariaLabel</code> INPUT — bind that.
-    </p>
+    <ul>
+      <li>A <code>[sortLabel]</code> gives every sort button the same name: scope the query to its header cell.</li>
+      <li>An <code>aria-label</code> on a component's host names nothing: bind its <code>ariaLabel</code> input.</li>
+    </ul>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Naming a table"
-    description="`<wr-table>` renders no `<caption>` and takes no name input, so a screen reader announces it as “table” and a page with two of them offers no way to tell which is which. That is the current contract, not an oversight you can configure around — the `<table>` element is inside the component and out of reach."
-  >
+  <ngwr-doc-section title="Naming a table" description="`<wr-table>` takes no name, so wrap it in a named region.">
     <ngwr-doc-code [code]="snippets.tableName" language="angular-html" />
-
-    <p wrTypography variant="small" tone="medium">
-      Wrapping in a named <code>region</code> is the recipe, and it is worth doing even for one table: the name reaches
-      the landmark list, so a screen-reader user can jump to “Open orders” directly, and an end-to-end test gets a
-      stable scope — a <code>region</code> role with that accessible name — to run every other query inside. Use a real
-      heading as the label where the page already has one — a <code>&lt;caption&gt;</code>-shaped
-      <code>aria-label</code> that duplicates a visible <code>&lt;h2&gt;</code> is two names for one thing.
-    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Running axe over your own app"
-    description='One result you will see on every page that has a select, and it is a contract rather than a defect. `<wr-select>`, `<wr-cascader>` and an `openOn="overlay"` `<wr-tree>` each publish `aria-controls` on their trigger naming the listbox they own — and the listbox is created when the panel opens, so while the control is closed that attribute names an id no element carries. A combobox is supposed to describe what it owns before you open it, which is why the attribute is written unconditionally; the two date pickers take the other route and drop it while closed, so they give you nothing to triage.'
+    description="A closed select, cascader or overlay tree reports `aria-valid-attr-value` as incomplete: filter those nodes, not the rule."
   >
-    <p wrTypography variant="small" tone="medium">
-      axe cannot tell a deliberate forward reference from a typo, so it does the only honest thing and asks: the rule is
-      <code>aria-valid-attr-value</code>, the result is <strong>incomplete</strong> — “needs review” — and it carries
-      <strong>critical</strong> impact, which makes it look far louder than it is. It is not a violation, and a gate
-      that asserts on <code>results.violations</code> never sees it. A gate that treats <code>incomplete</code> as
-      failure sees one per closed combobox on every page, forever.
-    </p>
-
     <ngwr-doc-code [code]="snippets.axeTriage" language="typescript" />
 
-    <p wrTypography variant="small" tone="medium">
-      <strong>Triage the rule, never the page.</strong> Suppressing <code>aria-valid-attr-value</code> for a route, or
-      excluding the component's subtree, also hides the real thing that rule is for — an
-      <code>aria-labelledby</code> pointing at an id you renamed, which is silent everywhere else and is exactly the
-      class of bug this sweep exists to catch. Filtering the nodes keeps the rule live for everything else on the page.
-    </p>
-
-    <p wrTypography variant="small" tone="medium">
-      <strong>And run it on a page in the state you care about.</strong> This project's own structural sweep reads
-      prerendered HTML, so nothing inside an overlay is in it — no open panel, no dialog, no focus ring, no hover.
-      Whatever your own gate asserts about an ngwr overlay, open the overlay in the test first;
-      <a routerLink="/start/quality">Quality</a> describes the three sweeps here and what each of them cannot see.
-    </p>
+    <p>Open an overlay in the test before you scan it.</p>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Writing one for your own component">
-    <p wrTypography>
-      The same base class is available to you. If your app wraps an ngwr control in something of its own, a harness for
-      the wrapper keeps your specs as stable as ours:
-    </p>
-
+  <ngwr-doc-section
+    title="Your own harness"
+    description="Wrap your own components the same way, with the CDK base class."
+  >
     <ngwr-doc-code [code]="snippets.own" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Your own controls" description="Check a Signal Forms control you write.">
+    <ngwr-doc-ngtrue
+      page="guide/assert-signal-forms-control"
+      pitch="`assertSignalFormsControl` runs the conformance suite ngwr's own controls pass."
+    />
   </ngwr-doc-section>
 
   <ngwr-doc-see-also [links]="seeAlso" />

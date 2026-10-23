@@ -4,13 +4,16 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
-import { provideWrOverlay } from 'ngwr/overlay';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDrawerManager } from './drawer-manager';
+import type { WrDrawerRef } from './drawer-ref';
 
 @Component({ template: '<p>panel body</p>' })
 class Panel {}
+
+@Component({ template: '<button type="button" class="inside">Inside</button>' })
+class ButtonPanel {}
 
 /**
  * The manager opens a drawer imperatively, so everything it owns is written
@@ -24,11 +27,10 @@ describe('WrDrawerManager', () => {
     TestBed.configureTestingModule({
       providers: withCatalog
         ? [
-            provideWrOverlay(),
             provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
             provideWrI18nStaticLoader({ en: { drawer: { close: 'Dismiss the panel' } } }),
           ]
-        : [provideWrOverlay()],
+        : [],
     });
     return TestBed.inject(WrDrawerManager);
   };
@@ -159,6 +161,115 @@ describe('WrDrawerManager', () => {
 });
 
 /**
+ * The imperative half of the non-modal rule `<wr-drawer>` pins: with
+ * `hasBackdrop: false` nothing covers the page, so nothing traps it either.
+ * Elements are handed a box because jsdom lays nothing out and the CDK's
+ * `InteractivityChecker` would otherwise find nothing to focus.
+ */
+describe('WrDrawerManager without a backdrop', () => {
+  let opener: HTMLButtonElement;
+  let field: HTMLInputElement;
+
+  const panel = (): HTMLElement | null => document.querySelector('.wr-drawer__panel');
+  const inside = (): HTMLElement => document.querySelector<HTMLElement>('.inside')!;
+  const escapeFrom = (el: Element): void => {
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+  };
+
+  const openPanel = async (hasBackdrop = false): Promise<WrDrawerRef<ButtonPanel>> => {
+    opener.focus();
+    const ref = TestBed.inject(WrDrawerManager).open(ButtonPanel, { hasBackdrop, closable: false });
+    TestBed.tick();
+    await Promise.resolve();
+    return ref;
+  };
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      new DOMRect(0, 0, 120, 32),
+    ] as unknown as DOMRectList);
+    TestBed.resetTestingModule();
+    opener = document.body.appendChild(document.createElement('button'));
+    field = document.body.appendChild(document.createElement('input'));
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    opener.remove();
+    field.remove();
+    vi.restoreAllMocks();
+  });
+
+  it('stays a dialog, without claiming to be modal', async () => {
+    await openPanel();
+
+    expect(panel()!.getAttribute('role')).toBe('dialog');
+    expect(panel()!.hasAttribute('aria-modal')).toBe(false);
+  });
+
+  it('moves focus in, and lets it leave for the page', async () => {
+    await openPanel();
+    expect(document.activeElement).toBe(inside());
+
+    field.focus();
+    await new Promise(resolve => setTimeout(resolve));
+
+    expect(document.activeElement).toBe(field);
+  });
+
+  it('closes on Escape from inside and returns focus to the opener', async () => {
+    const ref = await openPanel();
+    const closed = ref.awaitClose();
+
+    escapeFrom(inside());
+
+    await expect(closed).resolves.toBeUndefined();
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('leaves an Escape pressed on the page to the page', async () => {
+    await openPanel();
+    field.focus();
+
+    escapeFrom(field);
+
+    expect(panel()).not.toBeNull();
+  });
+
+  it('still closes on Escape after a click on its text drops focus to the body', async () => {
+    const ref = await openPanel();
+    const closed = ref.awaitClose();
+    // What a click on non-focusable content inside the panel leaves behind.
+    inside().blur();
+    expect(document.activeElement).toBe(document.body);
+
+    escapeFrom(document.body);
+
+    await expect(closed).resolves.toBeUndefined();
+    expect(panel()).toBeNull();
+  });
+
+  it('does not take focus back from a page field the reader moved to', async () => {
+    const ref = await openPanel();
+    field.focus();
+
+    ref.close();
+
+    expect(panel()).toBeNull();
+    expect(document.activeElement).toBe(field);
+  });
+
+  it('is modal with a backdrop', async () => {
+    await openPanel(true);
+
+    expect(panel()!.getAttribute('aria-modal')).toBe('true');
+    field.focus();
+    await new Promise(resolve => setTimeout(resolve));
+    expect(document.activeElement).toBe(inside());
+  });
+});
+
+/**
  * The imperative half of the drawer's direction contract, and the same two
  * halves as `<wr-drawer>`: the CDK reads the direction once at create, and the
  * `dir` it writes lands on the flex wrapper the panel is placed inside — so the
@@ -171,7 +282,6 @@ describe('WrDrawerManager follows a direction change while a drawer is open', ()
 
   const setup = (): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     manager = TestBed.inject(WrDrawerManager);
     dir = TestBed.inject(Directionality);
   };

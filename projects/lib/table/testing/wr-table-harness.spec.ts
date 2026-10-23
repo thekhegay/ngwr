@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { WrButton } from 'ngwr/button';
 import { WrButtonHarness } from 'ngwr/button/testing';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrTable, WrTableCell, WrTableExpand, type WrTableColumns, type WrTableSortState } from 'ngwr/table';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -164,10 +163,6 @@ class TwoHost {
  * several cases below assert against the RAW `tbody tr` count on purpose: a harness
  * that queried that would answer with rows that have no cells, and every count in
  * a consumer's spec would be quietly wrong.
- *
- * `provideWrOverlay()` is here because the `Role` column is filterable: its header
- * renders a `wr-dropdown` trigger, and an isolated container keeps anything the
- * dropdown creates out of the next spec file.
  */
 describe('WrTableHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -177,7 +172,6 @@ describe('WrTableHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -366,7 +360,6 @@ describe('WrTableHarness — row selection', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.componentInstance.rowSelection.set('multiple');
     fixture.detectChanges();
@@ -469,7 +462,6 @@ describe('WrTableHarness — detail rows', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(ExpandHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -577,7 +569,6 @@ describe('WrTableHarness — tree rows', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TreeHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -647,7 +638,6 @@ describe('WrTableHarness — group bands', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(GroupHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -825,5 +815,87 @@ describe('WrTableHarness — two tables on one page', () => {
     // instead of to the host answers with the wrong table's rows.
     expect(await people.getCellTexts()).toEqual([['Ada'], ['Linus'], ['Grace']]);
     expect(await files.getCellTexts()).toEqual([['src'], ['README.md']]);
+  });
+});
+
+@Component({
+  imports: [WrTable],
+  template: `<wr-table [columns]="columns" [items]="items" [(sort)]="sort" />`,
+})
+class MultiSortHost {
+  readonly columns: WrTableColumns = {
+    name: { title: 'Name', sortable: true },
+    role: { title: 'Role', sortable: true },
+    score: { title: 'Score' },
+  };
+  readonly items = ROWS;
+  readonly sort = signal<readonly WrTableSortState[]>([]);
+}
+
+/**
+ * `aria-sort` goes on ONE header — the primary key's — so the harness method that
+ * reads it answers `'none'` for a secondary key whose arrow plainly says
+ * "descending". A spec asserting a multi-column sort through `aria-sort` alone
+ * would read that as a broken table. These two read the drawn half instead.
+ */
+describe('WrTableHarness — a multi-column sort', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<MultiSortHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(MultiSortHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('announces the primary key alone, and reads every key from what the header draws', async () => {
+    const table = await loader.getHarness(WrTableHarness);
+
+    await table.sortByColumn('Name');
+    await table.sortByColumn('Role');
+    await table.sortByColumn('Role');
+    expect(fixture.componentInstance.sort()).toEqual([
+      { key: 'name', direction: 'asc' },
+      { key: 'role', direction: 'desc' },
+    ]);
+
+    expect(await table.getSortDirection('Name')).toBe('ascending');
+    expect(await table.getSortDirection('Role')).toBe('none');
+
+    expect(await table.getSortIndicator('Name')).toBe('ascending');
+    expect(await table.getSortIndicator('Role')).toBe('descending');
+    expect(await table.getSortOrder('Name')).toBe(1);
+    expect(await table.getSortOrder('Role')).toBe(2);
+  });
+
+  it('answers 1 for a lone sorted column and null for the rest', async () => {
+    const table = await loader.getHarness(WrTableHarness);
+
+    await table.sortByColumn('Role');
+
+    expect(await table.getSortOrder('Role')).toBe(1);
+    expect(await table.getSortOrder('Name')).toBeNull();
+    // A plain column has no indicator to read at all.
+    expect(await table.getSortIndicator('Score')).toBeNull();
+    expect(await table.getSortOrder('Score')).toBeNull();
+  });
+
+  it('promotes the secondary key once the primary one is cleared', async () => {
+    fixture.componentInstance.sort.set([
+      { key: 'name', direction: 'asc' },
+      { key: 'role', direction: 'desc' },
+    ]);
+    fixture.detectChanges();
+    const table = await loader.getHarness(WrTableHarness);
+
+    await table.sortByColumn('Name'); // asc → desc
+    await table.sortByColumn('Name'); // desc → off
+
+    expect(await table.getSortDirection('Role')).toBe('descending');
+    expect(await table.getSortOrder('Role')).toBe(1);
+    expect(await table.getSortDirection('Name')).toBe('none');
   });
 });

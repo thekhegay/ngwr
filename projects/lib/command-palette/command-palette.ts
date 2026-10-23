@@ -6,7 +6,8 @@
  */
 
 import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
-import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { type BlockScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -31,10 +32,10 @@ import { debounce, skip, timer } from 'rxjs';
 import { WrHotkey, type WrHotkeyHandle, type WrHotkeySpec } from 'ngwr/hotkey';
 import { readI18nText, useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
-import { WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
+import { WR_OVERLAY_CONTAINER } from 'ngwr/overlay';
 import { isComposing } from 'ngwr/utils';
 
-import type { WrCommandItem } from './interfaces';
+import type { WrCommandItem } from './types';
 
 interface Bucket {
   readonly title: string | null;
@@ -131,17 +132,6 @@ export class WrCommandPalette {
   /** Auto-close on `(picked)`. Set false to keep open. @default true */
   readonly closeOnPick = input(true, { transform: coerceBooleanProperty });
 
-  /**
-   * Present the palette full-screen on small viewports instead of a centred
-   * modal. `undefined` follows the app-wide `provideWrResponsiveOverlays()`
-   * setting; `true`/`false` overrides it. The palette docks to the top (it
-   * auto-focuses its input, so the on-screen keyboard stays clear).
-   * @default undefined
-   */
-  readonly responsive = input<boolean | undefined, BooleanInput>(undefined, {
-    transform: (v: BooleanInput): boolean | undefined => (v == null ? undefined : coerceBooleanProperty(v)),
-  });
-
   /** Fires when the user commits an item (Enter / click). */
   readonly picked = output<WrCommandItem>();
 
@@ -193,8 +183,6 @@ export class WrCommandPalette {
 
   protected readonly activeIndex = signal(0);
 
-  /** Whether the current opening is presented full-screen. Decided on open. */
-  protected readonly presentAsSheet = signal(false);
   protected readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('input');
   protected readonly panelEl = viewChild<ElementRef<HTMLElement>>('panel');
 
@@ -223,12 +211,21 @@ export class WrCommandPalette {
   });
 
   private readonly hotkeys = inject(WrHotkey);
-  private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly destroyRef = inject(DestroyRef);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly scrollStrategies = inject(ScrollStrategyOptions);
+  private readonly overlayContainer = inject(WR_OVERLAY_CONTAINER);
   private bindingHandle: WrHotkeyHandle | null = null;
   private focusTrap: ConfigurableFocusTrap | null = null;
+  /**
+   * The page behind a modal does not scroll, and this one announces
+   * `aria-modal="true"` over a backdrop: wheeling over that backdrop scrolled the
+   * document 500px while the palette stayed open. The palette renders in place
+   * rather than through an overlay, so it borrows the CDK's own block strategy —
+   * the one `WrDialog` gets from its overlay.
+   */
+  private scrollBlock: BlockScrollStrategy | null = null;
   private previouslyFocused: HTMLElement | null = null;
 
   /**
@@ -319,19 +316,18 @@ export class WrCommandPalette {
       this.activeIndex.set(0);
     });
 
-    // Sheet presentation, kept OUT of the reset above: reading `responsive()` there
-    // made the reset depend on it, so a `[responsive]` bound to a signal that
-    // flipped while the palette was open wiped whatever the user had typed.
-    effect(() => {
-      this.presentAsSheet.set(wrPresentAsSheet(this.responsive(), this.responsiveConfig));
-    });
-
     // Focus trap + restore.
     effect(() => {
       if (!this.isBrowser) return;
       if (this.open()) {
         const active = document.activeElement;
         this.previouslyFocused = active instanceof HTMLElement ? active : null;
+        // The strategy's `cdk-global-scrollblock` class is styled by the CDK's
+        // structural sheet, which the overlay container loads — and an app may
+        // open this before it has ever opened an overlay.
+        this.overlayContainer.getContainerElement();
+        this.scrollBlock ??= this.scrollStrategies.block();
+        this.scrollBlock.enable();
         queueMicrotask(() => {
           if (this.destroyed) return;
           const host = this.panelEl()?.nativeElement;
@@ -341,6 +337,7 @@ export class WrCommandPalette {
           void this.focusTrap.focusInitialElementWhenReady();
         });
       } else {
+        this.scrollBlock?.disable();
         this.focusTrap?.destroy();
         this.focusTrap = null;
         const restore = this.previouslyFocused;
@@ -373,6 +370,8 @@ export class WrCommandPalette {
       // trap holding the removed panel and its document listeners.
       this.focusTrap?.destroy();
       this.focusTrap = null;
+      // Same reason: the close branch never runs for a palette destroyed open.
+      this.scrollBlock?.disable();
     });
   }
 
@@ -490,6 +489,12 @@ export class WrCommandPalette {
   }
 
   private commit(item: WrCommandItem): void {
+    // Let the page go BEFORE the command runs when the pick also closes the
+    // palette. A command commonly opens a dialog, and the CDK block strategy will
+    // not engage while the page is already blocked — so the dialog would open
+    // unblocked, and the palette's own release a moment later would leave the
+    // page scrolling behind it.
+    if (this.closeOnPick()) this.scrollBlock?.disable();
     item.action?.();
     this.picked.emit(item);
     if (this.closeOnPick()) this.close();

@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { Location } from '@angular/common';
@@ -5,21 +8,20 @@ import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDialog } from './dialog';
 import { WrDialogRef } from './dialog-ref';
 import { WrDialogClose, WrDialogContent, WrDialogFooter, WrDialogTitle } from './directives';
-import type { WrDialogOptions } from './interfaces';
 import { WR_DIALOG_DATA } from './tokens';
+import type { WrDialogOptions } from './types';
 
 /**
  * `WrDialog` is a service, so there is no element to render in a host template:
  * the dialog is a component mounted into a CDK overlay, and every assertion goes
- * through `document` rather than the fixture. The spec provides
- * `provideWrOverlay()` for the same reason `select.spec.ts` does — its container
- * is torn down with the injector instead of leaking into the next spec file.
+ * through `document` rather than the fixture. Its container belongs to the
+ * TestBed's root injector, so it is torn down with the injector instead of
+ * leaking into the next spec file.
  */
 interface ConfirmData {
   readonly message: string;
@@ -102,7 +104,6 @@ describe('WrDialog', () => {
       new DOMRect(0, 0, 120, 32),
     ] as unknown as DOMRectList);
 
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -121,8 +122,8 @@ describe('WrDialog', () => {
 
     expect(panel()).toBeTruthy();
     expect(panel()!.textContent).toContain('Delete item');
-    // The isolated container is the point of `provideWrOverlay()`: an ngwr
-    // dialog must never share a stacking context with Material or NG-ZORRO.
+    // ngwr overlays are isolated by default: an ngwr dialog must never share a
+    // stacking context with Material or NG-ZORRO.
     expect(document.querySelector('.wr-overlay-container')?.contains(panel())).toBe(true);
     expect((fixture.nativeElement as HTMLElement).contains(panel())).toBe(false);
   });
@@ -300,7 +301,6 @@ describe('WrDialog', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
         provideWrI18nStaticLoader({ en: { dialog: { close: 'Zavrit' } } }),
       ],
@@ -562,7 +562,6 @@ describe('WrDialog follows a direction change while a dialog is open', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     dir = TestBed.inject(Directionality);
     fixture.detectChanges();
@@ -603,5 +602,33 @@ describe('WrDialog follows a direction change while a dialog is open', () => {
     await flip('rtl');
 
     expect(dirs()).toEqual(['rtl']);
+  });
+});
+
+/**
+ * What the stylesheet promises that jsdom cannot show: it applies no sheet, and
+ * the CDK's structural one arrives at runtime. Held against the COMPILED CSS;
+ * that the gutter then holds was measured in Chromium at 390px.
+ */
+describe('WrDialog panel gutter', () => {
+  interface Sass {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  }
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
+  const css = sass
+    .compileString("@use 'dialog/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  /** Every rule block whose selector list is exactly `selector`, joined. */
+  const rules = (selector: string): string =>
+    [...css.matchAll(new RegExp(`(?:^|\\n)${selector.replace(/\./g, '\\.')} \\{([^}]*)\\}`, 'g'))]
+      .map(m => m[1])
+      .join('\n');
+
+  it('out-specifies the CDK pane rule that caps it at 100%', () => {
+    // `.cdk-overlay-pane { max-width: 100%; max-height: 100% }` is injected after
+    // the app stylesheet, so a one-class rule here loses on source order.
+    expect(rules('.wr-dialog-panel.cdk-overlay-pane')).toMatch(/max-width:\s*calc\(100vw - 2rem\)/);
+    expect(rules('.wr-dialog-panel.cdk-overlay-pane')).toMatch(/max-height:\s*calc\(100dvh - 2rem\)/);
+    expect(rules('.wr-dialog-panel')).not.toMatch(/max-(width|height)/);
   });
 });

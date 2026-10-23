@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -29,6 +32,69 @@ class Host {
   `,
 })
 class ScrollerHost {}
+
+@Component({
+  imports: [WrAffix],
+  template: `
+    <div class="layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+      <p class="before">first</p>
+      <div wrAffix>Header</div>
+      <p class="after">last</p>
+    </div>
+  `,
+})
+class GridHost {}
+
+@Component({
+  imports: [WrAffix],
+  template: `
+    <div class="layout" style="display: inline-flex; flex-direction: column; gap: 16px">
+      <p class="before">first</p>
+      <div wrAffix>Header</div>
+      <p class="after">last</p>
+    </div>
+  `,
+})
+class FlexHost {}
+
+@Component({
+  imports: [WrAffix],
+  template: `
+    <div class="layout" style="display: flex; position: absolute">
+      <div wrAffix>Header</div>
+    </div>
+  `,
+})
+class PositionedFlexHost {}
+
+/** Sticky group headers in one list, the first of which a filter can remove. */
+@Component({
+  imports: [WrAffix],
+  template: `
+    <div class="layout" style="display: flex; flex-direction: column">
+      @if (first()) {
+        <div wrAffix class="first">Group A</div>
+      }
+      <p class="row">row</p>
+      <div wrAffix class="second">Group B</div>
+    </div>
+  `,
+})
+class GroupsHost {
+  readonly first = signal(true);
+}
+
+/**
+ * The CSS `ngwr/affix` ships, compiled rather than restated, so the class the
+ * directive tags a parent with is held to the rule that styles it. `sass` comes
+ * through `@angular/build`, as in `theme/sass-entry.spec.ts`.
+ */
+const affixCss = (): string =>
+  (
+    createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
+      compileString(source: string, options: { loadPaths: string[] }): { css: string };
+    }
+  ).compileString("@use 'affix/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')] }).css;
 
 /** One observer the directive created, with the levers a test needs. */
 interface Recorded {
@@ -62,8 +128,9 @@ interface Recorded {
  * record the constructor options, because the offset only reaches the browser through
  * them. NOT covered here, and not fakeable: the geometry itself — that a zero-height
  * sentinel at that place in the DOM really does leave the viewport exactly when the host
- * becomes stuck, and that the sentinel does not disturb its parent's layout (in a flex
- * or grid parent it is a real child with a real gap). That needs a browser.
+ * becomes stuck, and that the out-of-flow sentinel in a flex or grid parent adds no gap
+ * and no track. That needs a browser; what this file holds for flex and grid is the
+ * request — out of the flow, zero-sized, at the host's measured natural top.
  *
  * The two halves of the offset used to disagree: the sticky `top` is a live binding and
  * followed every change, while `rootMargin` was read once when the observer was built and
@@ -202,10 +269,21 @@ describe('WrAffix', () => {
     // so the sentinel counts as gone exactly when the host reaches it. A dropped minus
     // sign grows the root instead and the state flips a whole offset too late; a margin
     // on another edge moves the line sideways.
-    expect(observers[0].options?.rootMargin).toBe('-0px 0px 0px 0px');
+    expect(observers[0].options?.rootMargin).toBe('0px 0px 0px 0px');
 
     await mount(64);
     expect(observers[0].options?.rootMargin).toBe('-64px 0px 0px 0px');
+  });
+
+  it('takes a negative offset, which grows the root above its edge instead', async () => {
+    // A negative sticky `top` is valid CSS — the host pins partly above the edge —
+    // and the margin used to be built as `-${offset}px`, which made `-10` into
+    // `--10px`. A real `IntersectionObserver` refuses that with a SyntaxError, so
+    // the state class and `(wrAffixChange)` never fired at all.
+    await mount(-10);
+
+    expect(affixed().style.top).toBe('-10px');
+    expect(observers[0].options?.rootMargin).toBe('10px 0px 0px 0px');
   });
 
   it('measures against the element the host sticks to, not the viewport', async () => {
@@ -243,7 +321,7 @@ describe('WrAffix', () => {
     // animates its offset would otherwise pin at the new line and keep flipping state
     // at the old one — visible only while scrolling, which is why nothing caught it.
     expect(observers).toHaveLength(1);
-    expect(observers[0].options?.rootMargin).toBe('-0px 0px 0px 0px');
+    expect(observers[0].options?.rootMargin).toBe('0px 0px 0px 0px');
 
     fixture.componentInstance.offset.set(64);
     fixture.detectChanges();
@@ -364,5 +442,223 @@ describe('WrAffix', () => {
 
     expect(isActive()).toBe(true);
     expect(fixture.componentInstance.events).toEqual([true]);
+  });
+
+  /**
+   * A flow sentinel is inert only in block layout. In a flex parent it is an item,
+   * with a `gap` on each side; in a grid parent it takes a cell and shifts every item
+   * after it. There it leaves the flow and is placed by measurement instead.
+   *
+   * jsdom computes `display` from the inline style but lays nothing out, so the host's
+   * offsets are supplied: 120 / 40 where it sits in the flow, 300 / 90 wherever the
+   * sticky shift has moved it — a sentinel placed from the second pair would mark the
+   * stuck position rather than the line the host leaves its place at.
+   */
+  describe('in a flex or grid parent', () => {
+    let resizeObservers: { targets: Element[]; fire: () => void; disconnected: boolean }[];
+    const natural = { top: 120, left: 40 };
+
+    const layout = (): HTMLElement => root().querySelector<HTMLElement>('.layout')!;
+
+    const mountIn = async (host: unknown): Promise<void> => {
+      resizeObservers = [];
+      class StubResizeObserver {
+        readonly targets: Element[] = [];
+        disconnected = false;
+        constructor(private readonly callback: ResizeObserverCallback) {
+          resizeObservers.push(this);
+        }
+        observe(target: Element): void {
+          this.targets.push(target);
+          this.disconnected = false;
+        }
+        disconnect(): void {
+          this.targets.length = 0;
+          this.disconnected = true;
+        }
+        fire(): void {
+          this.callback([], this as unknown as ResizeObserver);
+        }
+      }
+      const offset = (flow: () => number, stuck: number) =>
+        function (this: HTMLElement): number {
+          if (!this.classList.contains('wr-affix')) return 0;
+          return this.style.position === 'static' ? flow() : stuck;
+        };
+      Object.defineProperty(HTMLElement.prototype, 'offsetTop', {
+        configurable: true,
+        get: offset(() => natural.top, 300),
+      });
+      Object.defineProperty(HTMLElement.prototype, 'offsetLeft', {
+        configurable: true,
+        get: offset(() => natural.left, 90),
+      });
+      // Stubbed before `mount`, not after: the sentinel is placed in the
+      // `afterNextRender` the mount awaits.
+      vi.stubGlobal('ResizeObserver', StubResizeObserver);
+      await mount(0, [], host);
+    };
+
+    afterEach(() => {
+      Reflect.deleteProperty(HTMLElement.prototype, 'offsetTop');
+      Reflect.deleteProperty(HTMLElement.prototype, 'offsetLeft');
+      natural.top = 120;
+      natural.left = 40;
+    });
+
+    it('takes the sentinel out of the flow, at zero size, in either kind of parent', async () => {
+      for (const host of [GridHost, FlexHost]) {
+        await mountIn(host);
+        const marker = sentinel()!;
+
+        // Still the host's previous sibling, so everything above about which
+        // element is observed holds — only its box is gone from the layout.
+        expect(affixed().previousElementSibling, host.name).toBe(marker);
+        expect(marker.style.position, host.name).toBe('absolute');
+        expect([marker.style.width, marker.style.height], host.name).toEqual(['0px', '0px']);
+        expect(observers[observers.length - 1].targets, host.name).toEqual([marker]);
+      }
+    });
+
+    it('puts the sentinel on the host natural top edge, read with sticky switched off', async () => {
+      await mountIn(GridHost);
+
+      expect([sentinel()!.style.top, sentinel()!.style.left]).toEqual(['120px', '40px']);
+      // The measurement borrows the host's position for one synchronous read.
+      expect(affixed().style.position).toBe('sticky');
+    });
+
+    it('makes a static parent the containing block, and gives it back on destroy', async () => {
+      // An absolute box scrolls with a scroller's content only when its containing
+      // block is inside that scroller — otherwise it holds still while the host
+      // scrolls away, and the state never flips. No stylesheet is loaded here, so
+      // nothing positions the tagged parent and the inline fallback is what does it.
+      await mountIn(GridHost);
+      const parent = layout();
+      expect(parent.classList).toContain('wr-affix__container');
+      expect(parent.style.position).toBe('relative');
+
+      fixture.destroy();
+      expect(parent.style.position).toBe('');
+      expect(parent.classList).not.toContain('wr-affix__container');
+    });
+
+    it('tags the parent rather than styling it when ngwr/affix is loaded, so an author position wins', async () => {
+      // An inline `position` beats every stylesheet rule on the parent, so a
+      // sidebar a media query makes `fixed` on phones stayed `relative`. The
+      // library rule is `:where()`: zero specificity, so the author rule wins even
+      // declared BEFORE it.
+      const sheet = document.createElement('style');
+      sheet.textContent = affixCss();
+      document.head.append(sheet);
+      try {
+        await mountIn(GridHost);
+        const parent = layout();
+        expect(parent.style.position).toBe('');
+        expect(parent.classList).toContain('wr-affix__container');
+        expect(getComputedStyle(parent).position).toBe('relative');
+
+        const author = document.createElement('style');
+        author.textContent = '.layout { position: fixed; }';
+        document.head.prepend(author);
+        try {
+          expect(getComputedStyle(parent).position).toBe('fixed');
+        } finally {
+          author.remove();
+        }
+
+        fixture.destroy();
+        expect(parent.classList).not.toContain('wr-affix__container');
+        expect(parent.style.position).toBe('');
+      } finally {
+        sheet.remove();
+      }
+    });
+
+    it('keeps the parent the containing block until the last affix in it is gone', async () => {
+      // Group headers in a filtered list: the first one to mount is not the last
+      // one to leave. When it took the parent's `relative` with it, the survivor's
+      // sentinel was laid out against a box outside the scroller and never flipped.
+      await mountIn(GroupsHost);
+      const parent = layout();
+      const marker = root().querySelector('.second')!.previousElementSibling as HTMLElement;
+      expect(marker.classList).toContain('wr-affix__sentinel');
+      const placed = [marker.style.position, marker.style.top, marker.style.left];
+
+      (fixture.componentInstance as unknown as GroupsHost).first.set(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(root().querySelector('.first')).toBeNull();
+      expect(root().querySelectorAll('.wr-affix__sentinel')).toHaveLength(1);
+      expect(parent.style.position).toBe('relative');
+      expect(parent.classList).toContain('wr-affix__container');
+      expect(marker.isConnected).toBe(true);
+      expect([marker.style.position, marker.style.top, marker.style.left]).toEqual(placed);
+
+      fixture.destroy();
+      expect(parent.classList).not.toContain('wr-affix__container');
+      expect(parent.style.position).toBe('');
+    });
+
+    it('leaves a parent that is already positioned alone', async () => {
+      await mountIn(PositionedFlexHost);
+      const parent = layout();
+      expect(sentinel()!.style.position).toBe('absolute');
+      expect(parent.style.position).toBe('absolute');
+
+      fixture.destroy();
+      expect(parent.style.position).toBe('absolute');
+    });
+
+    it('follows the layout: re-measured when the parent or anything before the host resizes', async () => {
+      await mountIn(FlexHost);
+      const [resize] = resizeObservers;
+      const before = root().querySelector('.before')!;
+      const after = root().querySelector('.after')!;
+
+      expect(resize.targets).toEqual(expect.arrayContaining([layout(), affixed(), before]));
+      // Nothing after the host moves its top.
+      expect(resize.targets).not.toContain(after);
+      expect(resize.targets).not.toContain(sentinel());
+
+      natural.top = 200;
+      resize.fire();
+      expect(sentinel()!.style.top).toBe('200px');
+
+      fixture.destroy();
+      expect(resize.disconnected).toBe(true);
+    });
+
+    it('re-measures when an element is inserted before the host, and watches it', async () => {
+      // A notice appearing above a section header in a fixed-height scroll panel
+      // moves the host without resizing anything already watched, and the class
+      // flipped early by the notice's height.
+      await mountIn(FlexHost);
+      const [resize] = resizeObservers;
+      const notice = document.createElement('p');
+      layout().insertBefore(notice, root().querySelector('.before'));
+      natural.top = 220;
+      // A MutationObserver delivers in a microtask.
+      await Promise.resolve();
+
+      expect(sentinel()!.style.top).toBe('220px');
+      expect(resize.targets).toContain(notice);
+
+      const disconnect = vi.spyOn(MutationObserver.prototype, 'disconnect');
+      fixture.destroy();
+      expect(disconnect).toHaveBeenCalled();
+    });
+
+    it('keeps the block-layout sentinel exactly as it was', async () => {
+      await mountIn(Host);
+      const marker = sentinel()!;
+
+      expect(marker.style.position).toBe('');
+      expect(marker.style.width).toBe('100%');
+      expect(marker.style.top).toBe('');
+      expect(root().querySelector<HTMLElement>('.scroller')!.style.position).toBe('');
+      expect(resizeObservers).toEqual([]);
+    });
   });
 });

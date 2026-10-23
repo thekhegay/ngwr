@@ -1,5 +1,20 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../calendar/styles' as calendar-styles; // WrCalendar
+@use '../../input/styles' as input-styles; // WrInput
+
 // The refusal's live region — a screen reader's copy of what the border says. One
 // element per block, since a BEM class is public API: the range picker's is its own.
 .wr-date-picker__sr-only,
@@ -52,9 +67,11 @@
   }
 
   &__separator {
+    --wr-date-range-picker-separator-padding-x: var(--wr-space-xs);
+
     display: inline-flex;
     align-items: center;
-    padding: 0 0.25rem;
+    padding: 0 var(--wr-date-range-picker-separator-padding-x);
     color: var(--wr-color-on-surface-muted);
     user-select: none;
   }
@@ -71,29 +88,38 @@
 // is the group's, set exactly as `.wr-form-field--invalid` sets it, and at the
 // same (0,3,0) so a focused group's primary border does not win it back while
 // the user is correcting the text.
-// color-ok: the colour is the SIGHTED half of a state that is not carried by
-// colour alone — the input takes `aria-invalid` and the reason is announced
-// through the picker's live region, or through the surrounding field's message.
-// `danger` against the default `--wr-color-outline` also separates in lightness
-// (3.11:1 light), so the cue survives greyscale.
 .wr-date-picker.wr-date-picker--invalid .wr-input-group,
 .wr-date-range-picker.wr-date-range-picker--invalid .wr-input-group {
   --wr-input-group-border: var(--wr-color-danger);
 }
 
-// Overlay pane — z-index isolation only. <wr-calendar> + the time panel
-// bring their own chrome.
-.wr-date-picker-overlay {
-  z-index: 1050;
-}
+// A `z-index` on an overlay PANE does nothing, and this is where the three that
+// tried it lived.
+//
+// CDK promotes each pane into the top layer through the popover API, where
+// paint order is the sequence of `showPopover()` calls and `z-index` has no
+// say. Below that, the pane is scoped by `.cdk-overlay-container`'s own
+// stacking context, so a value here only ever competed with sibling panes —
+// and `ngwr/dialog` re-emits `.cdk-overlay-pane { z-index: 1000 }`, a selector
+// of equal specificity, so which one won came down to the order a consumer
+// happened to write their `@use` lines in. Measured both ways with a picker
+// open under a modal dialog: the dialog's backdrop intercepts either way, the
+// calendar is unreachable either way, and nothing on screen moves.
+//
+// <wr-calendar> and the time panel bring their own chrome, so the pane needs
+// no rule at all.
 
 // Time-only mode attaches the bare stepper as the overlay content — it
 // has to bring the panel chrome the calendar otherwise provides.
 .wr-date-picker-overlay > .wr-time-picker {
-  padding: 0.5rem 0.75rem;
+  --wr-time-picker-overlay-padding-y: var(--wr-space-sm);
+  --wr-time-picker-overlay-padding-x: var(--wr-space-md);
+  --wr-time-picker-overlay-radius: var(--wr-border-radius-base);
+
+  padding: var(--wr-time-picker-overlay-padding-y) var(--wr-time-picker-overlay-padding-x);
   background: var(--wr-time-picker-bg);
   border: 1px solid var(--wr-time-picker-border);
-  border-radius: var(--wr-border-radius-base);
+  border-radius: var(--wr-time-picker-overlay-radius);
   box-shadow: var(--wr-shadow-overlay);
 }
 
@@ -106,25 +132,37 @@
 .wr-time-picker {
   --wr-time-picker-col-width: 3rem;
   --wr-time-picker-bg: var(--wr-color-surface);
-  --wr-time-picker-border: var(--wr-color-outline);
+  --wr-time-picker-border: var(--wr-border-base);
   --wr-time-picker-color: var(--wr-color-on-surface);
   --wr-time-picker-muted: var(--wr-color-on-surface-muted);
+  --wr-time-picker-font-family: var(--wr-font-family-base);
+  --wr-time-picker-gap: var(--wr-space-xs);
+  // The AM/PM label is drawn by `&__col--ampm &__label`, a modifier selector —
+  // its hooks are declared here so the documented default is the base one.
+  --wr-time-picker-label-radius: var(--wr-border-radius-sm);
+  --wr-time-picker-label-font-size: var(--wr-text-sm);
+  --wr-time-picker-label-font-weight: var(--wr-font-weight-semibold);
 
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  font-family: var(--wr-font-family-base);
+  gap: var(--wr-time-picker-gap);
+  font-family: var(--wr-time-picker-font-family);
 
   // Each stepper column = ▲ button + input + ▼ button stacked vertically.
   &__col {
+    --wr-time-picker-col-gap: var(--wr-space-xs);
+
     display: inline-flex;
     flex-direction: column;
     align-items: stretch;
     width: var(--wr-time-picker-col-width);
-    gap: 0.125rem;
+    gap: var(--wr-time-picker-col-gap);
   }
 
   &__step {
+    --wr-time-picker-step-line-height: var(--wr-leading-none);
+    --wr-time-picker-step-radius: var(--wr-border-radius-sm);
+
     appearance: none;
     display: inline-flex;
     align-items: center;
@@ -134,13 +172,13 @@
     padding: 0;
     height: 1.25rem;
     color: var(--wr-time-picker-muted);
-    line-height: 1;
+    line-height: var(--wr-time-picker-step-line-height);
 
     svg {
       width: 0.875rem;
       height: 0.875rem;
     }
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-time-picker-step-radius);
     cursor: pointer;
     transition:
       color var(--wr-transition-base),
@@ -162,23 +200,27 @@
   }
 
   &__input {
+    --wr-time-picker-input-padding: var(--wr-space-xs);
+    --wr-time-picker-input-radius: var(--wr-border-radius-sm);
+    --wr-time-picker-input-font-size: var(--wr-text-sm);
+    --wr-time-picker-input-line-height: var(--wr-text-sm-leading);
+    --wr-time-picker-input-font-weight: var(--wr-font-weight-semibold);
+
     width: 100%;
-    padding: 0.3125rem 0.25rem;
+    padding: var(--wr-time-picker-input-padding);
     appearance: none;
     -moz-appearance: textfield;
     background: var(--wr-time-picker-bg);
     border: 1px solid var(--wr-time-picker-border);
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-time-picker-input-radius);
     color: var(--wr-time-picker-color);
-    font-family: var(--wr-font-family-base);
-    font-size: var(--wr-text-sm);
-    line-height: 1.25rem;
-    font-weight: 600;
+    font-family: var(--wr-time-picker-font-family);
+    font-size: var(--wr-time-picker-input-font-size);
+    line-height: var(--wr-time-picker-input-line-height);
+    font-weight: var(--wr-time-picker-input-font-weight);
     text-align: center;
     outline: 0;
-    transition:
-      border-color var(--wr-transition-base),
-      box-shadow var(--wr-transition-base);
+    transition: border-color var(--wr-transition-base);
 
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
@@ -188,7 +230,7 @@
 
     &:focus {
       border-color: var(--wr-color-primary);
-      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--wr-color-primary) 15%, transparent);
     }
 
     &:disabled {
@@ -207,22 +249,27 @@
     height: 2rem;
     background: var(--wr-time-picker-bg);
     border: 1px solid var(--wr-time-picker-border);
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-time-picker-label-radius);
     color: var(--wr-time-picker-color);
-    font-family: var(--wr-font-family-base);
-    font-size: var(--wr-text-sm);
-    font-weight: 600;
+    font-family: var(--wr-time-picker-font-family);
+    font-size: var(--wr-time-picker-label-font-size);
+    font-weight: var(--wr-time-picker-label-font-weight);
     user-select: none;
   }
 
   &__sep {
+    --wr-time-picker-sep-font-size: var(--wr-text-lg);
+    --wr-time-picker-sep-font-weight: var(--wr-font-weight-semibold);
+    --wr-time-picker-sep-line-height: var(--wr-leading-none);
+    --wr-time-picker-sep-padding-top: var(--wr-space-sm);
+
     color: var(--wr-time-picker-muted);
-    font-size: var(--wr-text-lg);
-    font-weight: 600;
-    line-height: 1;
+    font-size: var(--wr-time-picker-sep-font-size);
+    font-weight: var(--wr-time-picker-sep-font-weight);
+    line-height: var(--wr-time-picker-sep-line-height);
     user-select: none;
     align-self: center;
-    padding-top: 0.5rem;
+    padding-top: var(--wr-time-picker-sep-padding-top);
   }
 
   &--disabled {
@@ -246,13 +293,17 @@
   }
 
   &__time {
+    --wr-date-time-panel-time-padding: var(--wr-space-md);
+    --wr-date-time-panel-time-border: var(--wr-border-base);
+    --wr-date-time-panel-time-radius: var(--wr-border-radius-base);
+
     display: flex;
     justify-content: center;
-    padding: 0.75rem;
+    padding: var(--wr-date-time-panel-time-padding);
     background: var(--wr-color-surface);
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-date-time-panel-time-border);
     border-top: 0;
-    border-radius: 0 0 var(--wr-border-radius-base) var(--wr-border-radius-base);
+    border-radius: 0 0 var(--wr-date-time-panel-time-radius) var(--wr-date-time-panel-time-radius);
   }
 }
 
@@ -270,26 +321,37 @@
   }
 
   &__times {
+    --wr-date-range-panel-times-gap-y: var(--wr-space-md);
+    --wr-date-range-panel-times-gap-x: var(--wr-space-xl);
+    --wr-date-range-panel-times-padding: var(--wr-space-md);
+    --wr-date-range-panel-times-border: var(--wr-border-base);
+    --wr-date-range-panel-times-radius: var(--wr-border-radius-base);
+
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.75rem 1.25rem;
-    padding: 0.75rem;
+    gap: var(--wr-date-range-panel-times-gap-y) var(--wr-date-range-panel-times-gap-x);
+    padding: var(--wr-date-range-panel-times-padding);
     background: var(--wr-color-surface);
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-date-range-panel-times-border);
     border-top: 0;
-    border-radius: 0 0 var(--wr-border-radius-base) var(--wr-border-radius-base);
+    border-radius: 0 0 var(--wr-date-range-panel-times-radius) var(--wr-date-range-panel-times-radius);
   }
 
   &__time {
+    --wr-date-range-panel-time-gap: var(--wr-space-xs);
+
     display: inline-flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--wr-date-range-panel-time-gap);
   }
 
   &__time-label {
+    --wr-date-range-panel-time-label-font-size: var(--wr-text-xs);
+    --wr-date-range-panel-time-label-font-weight: var(--wr-font-weight-semibold);
+
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-xs);
-    font-weight: 600;
+    font-size: var(--wr-date-range-panel-time-label-font-size);
+    font-weight: var(--wr-date-range-panel-time-label-font-weight);
   }
 }

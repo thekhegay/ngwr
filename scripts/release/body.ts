@@ -1,0 +1,47 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+/**
+ * Builds the GitHub Release body for the most recent `CHANGELOG.md` section.
+ * Rewrites the `###` group headings with emojis (🚀 Features, 🐛 Bug Fixes, …)
+ * so the published release matches the look in the docs, names the author and
+ * pull request behind each entry, and ends with GitHub's New Contributors list
+ * and compare link. Needs `gh`, which reads `GH_TOKEN` in CI.
+ *
+ * Usage:
+ *   pnpm release:body                       # → stdout
+ *   pnpm release:body --output=BODY.md      # → file
+ */
+
+import { writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+import { parseFlags } from '../lib/args';
+import { extractLatestSection } from '../lib/changelog/extract-latest-section';
+import { releaseFooter } from '../lib/changelog/release-footer';
+import { withEmojiHeadings } from '../lib/changelog/with-emoji-headings';
+import { withPullRequests } from '../lib/changelog/with-pull-requests';
+import { repoSlug } from '../lib/github/gh-api';
+import { out } from '../lib/log/out';
+import { ROOT_PATH } from '../lib/paths/root';
+import { readCurrentVersion } from '../lib/version/read-current';
+
+const { output } = parseFlags('release:body [--output=<file>]', { output: { type: 'string' } });
+
+const repo = repoSlug();
+const body = [
+  withEmojiHeadings(withPullRequests(extractLatestSection(), repo)),
+  releaseFooter(repo, readCurrentVersion()),
+]
+  .filter(Boolean)
+  .join('\n\n');
+
+if (output) {
+  writeFileSync(resolve(ROOT_PATH, output), `${body}\n`);
+} else {
+  out(`${body}\n`);
+}

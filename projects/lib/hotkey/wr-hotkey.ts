@@ -10,8 +10,8 @@ import { DestroyRef, Service, NgZone, inject } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 
-import type { WrHotkeyHandle, WrHotkeyOptions, WrHotkeySpec } from './interfaces';
 import { matchesHotkey, parseHotkeySpec, type WrParsedHotkey } from './parse-spec';
+import type { WrHotkeyHandle, WrHotkeyOptions, WrHotkeySpec } from './types';
 
 interface Binding {
   readonly parsed: WrParsedHotkey;

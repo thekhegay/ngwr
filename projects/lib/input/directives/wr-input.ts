@@ -5,13 +5,12 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Directive, ElementRef, computed, inject, input } from '@angular/core';
 
-import { useConfigValue } from 'ngwr/config';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 
-import type { WrInputSize } from '../interfaces';
+import type { WrInputSize } from '../types';
 
 /**
  * Applies NGWR input styling to a native `<input>` element.
@@ -86,8 +85,7 @@ export class WrInput {
   protected readonly ariaInvalid = this.fieldAria.ariaInvalid;
 
   /**
-   * Control size. Unset, it falls back to
-   * `provideWrConfig({ input: { size } })`. @default 'md'
+   * Control size. @default 'md'
    *
    * Called `wrSize` until v14, to dodge the native `<input size>` attribute —
    * which measures the field in characters and which `.wr-input`'s `width: 100%`
@@ -97,33 +95,16 @@ export class WrInput {
    * NATIVE `size` on an ngwr input can no longer have it — but `width: 100%`
    * meant they never did.
    */
-  readonly size = input<WrInputSize | null>(null);
+  readonly size = input<WrInputSize>('md');
 
-  /**
-   * Pill-shaped corners. Unset, it falls back to
-   * `provideWrConfig({ input: { rounded } })`; `[rounded]="false"` turns a
-   * configured `true` back off. @default false
-   */
-  readonly rounded = input<boolean | null, BooleanInput>(null, {
-    // Null-preserving: the plain `coerceBooleanProperty` folds `null` into `false`,
-    // which would make "not set" and "set to false" the same value — and a config
-    // default nothing could ever supply. A valueless `rounded` attribute still
-    // arrives as `''` and still coerces to `true`.
-    transform: (v: BooleanInput): boolean | null => (v == null ? null : coerceBooleanProperty(v)),
-  });
-
-  // `null` as each input's own default, not `'md'` / `false`: with a literal sitting
-  // there, "the template said nothing" and "the template said md" are the same value,
-  // so no app-wide default could ever apply. The effective default is the last
-  // argument below, which is where the old inline one moved to.
-  protected readonly resolvedSize = useConfigValue(this.size, c => c.input?.size, 'md');
-  protected readonly resolvedRounded = useConfigValue(this.rounded, c => c.input?.rounded, false);
+  /** Pill-shaped corners. @default false */
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
     const parts = ['wr-input'];
-    const size = this.resolvedSize();
+    const size = this.size();
     if (size !== 'md') parts.push(`wr-input--${size}`);
-    if (this.resolvedRounded()) parts.push('wr-input--rounded');
+    if (this.rounded()) parts.push('wr-input--rounded');
     return parts.join(' ');
   });
 }

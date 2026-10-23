@@ -1,0 +1,116 @@
+<ngwr-doc-page
+  title="Dialog"
+  updated="15.0.0"
+  description="Open any component as a modal dialog and await its result."
+  [keywords]="['dialog', 'modal', 'wr-dialog', 'overlay', 'portal']"
+  [labels]="['Service', 'Directives', 'CDK Dialog']"
+>
+  <ngwr-doc-section
+    title="Open a dialog"
+    description="`open()` returns a ref; `awaitClose()` resolves with the value the dialog closed with."
+  >
+    <ngwr-doc-code [code]="snippets.open" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.template" language="angular-html" />
+
+    <ngwr-doc-snippet code="dialog.open(ConfirmComponent, { data, width: '24rem' })">
+      <wr-btn color="danger" (click)="openConfirm()">Open confirm dialog</wr-btn>
+      <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; align-self: center">
+        Last result: {{ lastResult() }}
+      </span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Closing from the content"
+    description="Inject `WrDialogRef` and call `close(result)`; `[wrDialogClose]` does the same on click."
+  >
+    <ngwr-doc-code [code]="snippets.selfClose" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Lifetime"
+    description="A dialog outlives the component that opened it. It closes on navigation; anything else is yours to close."
+  >
+    <ngwr-doc-code [code]="snippets.lifetime" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The close button"
+    description="A ✕ is shown by default. `closable: false` hides it, `closeLabel` renames it."
+  >
+    <ngwr-doc-code [code]="snippets.closeButton" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Focus"
+    description="Focus moves to `cdkFocusInitial`, else to the first tabbable element, and returns to the trigger on close."
+  >
+    <ngwr-doc-code [code]="snippets.focus" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Gotchas">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">What happens</th>
+            <th scope="col">What to do</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">A click outside an open select inside the dialog closes the select and the dialog.</th>
+            <td>Open a dialog that holds a form with <code>closeOnBackdropClick: false</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              No <code>z-index</code> puts your element above a dialog: overlays live in the top layer.
+            </th>
+            <td>
+              Make that element a <code>popover</code> too, or provide <code>OVERLAY_DEFAULT_CONFIG</code> with
+              <code>{{ '{' }} usePopover: false {{ '}' }}</code
+              >.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">
+              An ngwr overlay inside a native <code>&lt;dialog&gt;</code> opened with <code>showModal()</code> ignores
+              clicks.
+            </th>
+            <td>Use <code>WrDialog</code> instead of the native dialog.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              If the dialog's result removes its trigger, focus falls back to <code>&lt;body&gt;</code>.
+            </th>
+            <td>Move focus yourself after <code>awaitClose()</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Service API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrDialogRef"
+    description="Every dismissal closes with `undefined`, so close with a value of your own to tell them apart."
+  >
+    <ngwr-doc-api [rows]="refApi" />
+    <ngwr-doc-code [code]="snippets.refResult" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrDialogOptions">
+    <ngwr-doc-api [rows]="optionsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Layout directives">
+    <ngwr-doc-api [rows]="directivesApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Available inside the dialog">
+    <ngwr-doc-api [rows]="injectablesApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

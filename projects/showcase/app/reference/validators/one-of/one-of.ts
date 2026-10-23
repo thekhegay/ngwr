@@ -34,7 +34,6 @@ const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
   ],
 })
 export default class OneOfValidatorPage {
-  protected readonly sizes = SIZES;
   protected readonly control = new FormControl('', {
     nonNullable: true,
     validators: [WrValidators.oneOf(SIZES)],
@@ -50,13 +49,13 @@ const size = new FormControl('', [
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'signature',
-      description: 'Factory — call with the whitelist.',
+      description: 'Call it with the allowed values.',
       type: '<T>(allowed: readonly T[]) => ValidatorFn',
       default: '—',
     },
     {
       name: 'comparison',
-      description: 'Strict `===`. Pass a typed const tuple to keep the union narrow on the consumer side.',
+      description: 'Strict `===`.',
       type: '—',
       default: '—',
     },
@@ -73,13 +72,13 @@ const size = new FormControl('', [
       kind: 'Component',
       title: 'wr-select',
       url: ['/reference/components', 'select'],
-      description: 'Constrained choice control - validate free input against its options.',
+      description: 'Pick from a list.',
     },
     {
       kind: 'Component',
       title: 'wr-segmented',
       url: ['/reference/components', 'segmented'],
-      description: 'Inline single-choice alternative.',
+      description: 'Pick one inline.',
     },
   ];
 }

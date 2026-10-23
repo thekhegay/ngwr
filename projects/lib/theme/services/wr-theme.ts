@@ -6,7 +6,7 @@
  */
 
 import { DOCUMENT } from '@angular/common';
-import { Service, type Signal, afterNextRender, computed, effect, inject, isDevMode, signal } from '@angular/core';
+import { Service, type Signal, computed, effect, inject, signal } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 import { WrStorage } from 'ngwr/storage';
@@ -23,25 +23,39 @@ function isThemeMode(v: unknown): v is WrThemeMode {
  * Light / dark theme manager.
  *
  * - `mode` is what the user picked (`light` | `dark` | `auto`).
- * - `resolved` is what's actually applied — `auto` resolves through
+ * - `resolved` is what is on screen — `auto` resolves through
  *   {@link WrPlatform.prefersDark}.
- * - Writes `[data-theme]` (or your configured attribute) on `<html>`.
+ * - Writes `color-scheme` inline on `<html>` for an explicit `light` or `dark`,
+ *   and clears its own write for `auto`. A `color-scheme` the page wrote on
+ *   `<html>` itself is left alone until the user picks a scheme.
  * - Persists the selected mode via {@link WrStorage} (defaults to
  *   `localStorage`; swap the storage engine globally to change where).
  *
- * A configured `attribute` has to be given to the STYLESHEET too — a CSS
- * selector cannot read a provider value — so pair it with
- * `@use 'ngwr' with ($theme-attribute: '...')`. In dev mode the service compares
- * the two and warns when they disagree.
+ * The stylesheet does the theming, not this service. `ngwr/theme` declares
+ * `color-scheme: light dark` on `:root` and every token that differs between
+ * the schemes as a `light-dark()`, so a page follows the OS with no script at
+ * all — which is why `auto` writes nothing and nothing has to provide this. An
+ * inline `color-scheme` on `<html>` outranks the stylesheet's, so an explicit
+ * choice is one property, and clearing it hands the page back to the OS.
  *
- * **Under SSR or prerendering this service cannot prevent a flash of the wrong
- * theme, and nothing inside the application can.** The server has no
- * `localStorage` and no `prefers-color-scheme`, so every rendered page ships the
- * same attribute (`light` under the default config); by the time the client
- * bundle boots and the effect below corrects it, the browser has already
- * painted. Closing that window takes a script that runs before first paint —
- * {@link wrThemePrePaintScript} emits one that reads the persisted mode exactly
- * the way this service does.
+ * Root-provided, so nothing has to provide it. Change the default mode or
+ * storage key with `provideWr(withTheme({ … }))`.
+ *
+ * **Nothing creates it until something injects it**, and that is when a stored
+ * choice or a non-`auto` `defaultMode` is applied. An app whose theme toggle
+ * sits behind a lazy route would follow the OS until that route loads. So boot
+ * it with `provideWr(withTheme())`, whose initializer injects it at startup —
+ * or inject it once in the root component — and ship
+ * {@link wrThemePrePaintScript} with the same options, which applies the same
+ * choice before first paint and so prevents the flash as well.
+ *
+ * **Under SSR or prerendering the server writes nothing**, so the prerendered
+ * HTML carries no inline style and an `auto` visitor is right before any script
+ * runs. A visitor who CHOSE a scheme is not: the server has no `localStorage`,
+ * and by the time the client bundle boots and the effect below applies the
+ * choice, the browser has painted the OS scheme. Closing that window takes a
+ * script that runs before first paint — {@link wrThemePrePaintScript} emits one
+ * that reads the persisted mode exactly the way this service does.
  *
  * @example
  * ```ts
@@ -60,10 +74,21 @@ export class WrTheme {
   private readonly storage = inject(WrStorage);
   private readonly config = inject(WR_THEME_CONFIG);
 
+  /**
+   * Whether the inline `color-scheme` on `<html>` is this service's own write.
+   * `auto` clears only that, so a scheme the page set itself survives a service
+   * that boots in `auto` — and once the user picks one, the user's choice is
+   * what going back to `auto` hands to the OS. The pre-paint script needs no
+   * flag of its own: it writes only for a stored `light` / `dark` or a
+   * non-`auto` default, where this service boots in that same mode and writes
+   * over it, so the value becomes this service's to clear.
+   */
+  private wroteScheme = false;
+
   /** User-selected mode. */
   readonly mode = signal<WrThemeMode>(this.readPersisted() ?? this.config.defaultMode);
 
-  /** Resolved theme actually applied to the DOM. */
+  /** Resolved scheme actually on screen. */
   readonly resolved: Signal<WrResolvedTheme> = computed(() => {
     const m = this.mode();
     if (m === 'auto') return this.platform.prefersDark() ? 'dark' : 'light';
@@ -71,19 +96,27 @@ export class WrTheme {
   });
 
   constructor() {
-    // Whenever the resolved theme changes, mirror it to the DOM + persist mode.
-    effect(() => {
-      const value = this.resolved();
-      const html = this.doc.documentElement;
-      if (html) html.setAttribute(this.config.attribute, value);
-      this.persist(this.mode());
-    });
+    // Browser only. A server write would serialise into the prerendered
+    // `<html style>` and pin every visitor to the server's guess — `auto` there
+    // is only ever `light`, since a server has no `prefers-color-scheme`.
+    if (!this.platform.isBrowser) return;
 
-    if (isDevMode() && this.platform.isBrowser) {
-      // After render, so nothing here is constructor-time DOM access — and so
-      // the stylesheet has had its chance to apply.
-      afterNextRender(() => this.warnOnAttributeMismatch());
-    }
+    // Whenever the mode changes, mirror it to the DOM + persist it. Keyed on the
+    // MODE rather than on `resolved`: `auto` is the absence of an inline scheme,
+    // so the stylesheet's `light dark` follows the OS on its own, including a
+    // change made while the page is open.
+    effect(() => {
+      const mode = this.mode();
+      const style = this.doc.documentElement.style;
+      if (mode !== 'auto') {
+        style.colorScheme = mode;
+        this.wroteScheme = true;
+      } else if (this.wroteScheme) {
+        style.colorScheme = '';
+        this.wroteScheme = false;
+      }
+      this.persist(mode);
+    });
   }
 
   /** Switch to a specific mode. */
@@ -94,39 +127,6 @@ export class WrTheme {
   /** Cycle: light → dark → light (skips auto). */
   toggle(): void {
     this.mode.set(this.resolved() === 'dark' ? 'light' : 'dark');
-  }
-
-  /**
-   * Dev-mode check that the STYLESHEET keys on the same attribute this service
-   * writes.
-   *
-   * `attribute` is a runtime value and a CSS selector cannot read one, so the
-   * dark block is keyed on a Sass variable (`$theme-attribute`) the consumer
-   * configures separately. That makes disagreement possible, and disagreement is
-   * silent in the worst way: the service resolves `dark`, writes the attribute,
-   * reports success — and the page stays light forever, because nothing matches.
-   *
-   * The compiled theme publishes the name it keys on as `--wr-theme-attribute`,
-   * which is what this reads. An empty value means no ngwr stylesheet is loaded
-   * (a unit test, a consumer bundling their own CSS) or that it predates v13, so
-   * the check stays quiet — it can only fire on a real mismatch, never on an
-   * absence it cannot interpret.
-   *
-   * Production builds drop the call entirely via `isDevMode()` tree-shaking.
-   */
-  private warnOnAttributeMismatch(): void {
-    const view = this.doc.defaultView;
-    if (!view) return;
-
-    const declared = view.getComputedStyle(this.doc.documentElement).getPropertyValue('--wr-theme-attribute').trim();
-    if (!declared || declared === this.config.attribute) return;
-
-    // eslint-disable-next-line no-console -- dev-mode validation
-    console.warn(
-      `[NGWR] Theme attribute mismatch: provideWrTheme({ attribute: '${this.config.attribute}' }) ` +
-        `but the stylesheet keys its dark block on '${declared}'. Dark mode will never apply. ` +
-        `Configure both: @use 'ngwr' with ($theme-attribute: '${this.config.attribute}');`
-    );
   }
 
   // Persistence

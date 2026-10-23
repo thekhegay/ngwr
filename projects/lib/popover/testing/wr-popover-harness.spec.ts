@@ -4,9 +4,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { WrButton } from 'ngwr/button';
 import { WrButtonHarness } from 'ngwr/button/testing';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrPopover } from 'ngwr/popover';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrPopoverHarness } from './wr-popover-harness';
 
@@ -45,15 +44,6 @@ class TwoHost {
 
 @Component({
   imports: [WrPopover],
-  template: `
-    <button type="button" responsive [wrPopover]="panel">Filters</button>
-    <ng-template #panel><p>Sheet content.</p></ng-template>
-  `,
-})
-class SheetHost {}
-
-@Component({
-  imports: [WrPopover],
   // `[mode]` BOUND, not the static `mode="tooltip"` the other hosts use: a
   // property binding leaves nothing in the DOM, which is the case the harness's
   // "read the ARIA contract, not the input" rule exists for.
@@ -65,10 +55,26 @@ class BoundModeHost {
 }
 
 /**
+ * A real window for the CDK to place panels in. jsdom reports `<html>` as 0×0,
+ * the directive's viewport margin narrows that to a negative box nothing fits,
+ * and the CDK's fallback then sends a `top` panel to the bottom. See
+ * `popover.spec.ts`.
+ */
+beforeEach(() => {
+  Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1024 });
+  Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: 768 });
+});
+
+afterEach(() => {
+  Reflect.deleteProperty(document.documentElement, 'clientWidth');
+  Reflect.deleteProperty(document.documentElement, 'clientHeight');
+});
+
+/**
  * `[wrPopover]` renders into a CDK overlay, so nothing this spec asserts about a
  * panel is reachable from the fixture — which is exactly why the harness scopes
- * its panel queries by the id the trigger publishes. `provideWrOverlay()` keeps
- * the container out of the next spec file's.
+ * its panel queries by the id the trigger publishes. The container belongs to the
+ * TestBed's root injector, so it never outlives this file.
  *
  * Real timers throughout, deliberately: the tooltip's show / hide delays and the
  * hover popover's grace period are real `setTimeout`s, and under zoneless change
@@ -84,7 +90,6 @@ describe('WrPopoverHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -130,7 +135,6 @@ describe('WrPopoverHarness', () => {
     // Non-modal is deliberate: focus is not trapped, the panel dismisses on
     // outside click / Escape rather than blocking the page.
     expect(await details.isModal()).toBe(false);
-    expect(await details.isSheet()).toBe(false);
     // Resolved, not given — the directive defaults a popover to `bottom`.
     expect(await details.getPosition()).toBe('bottom');
   });
@@ -275,7 +279,6 @@ describe('WrPopoverHarness — two panels open at once', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TwoHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -326,7 +329,6 @@ describe('WrPopoverHarness — mode bound rather than set statically', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(BoundModeHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -349,41 +351,5 @@ describe('WrPopoverHarness — mode bound rather than set statically', () => {
     await bound.open();
     expect(await bound.getRole()).toBe('tooltip');
     expect(await bound.getDescriptionText()).toBe('Bound tip');
-  });
-});
-
-describe('WrPopoverHarness — presented as a sheet', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
-  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
-
-  beforeEach(() => {
-    // `responsive` docks the panel to the bottom edge below 640px. jsdom reports
-    // a 1024px window and offers no way to resize it, so the width is stubbed —
-    // and stubs are not auto-restored, so afterEach undoes it or the next file
-    // opens every popover as a sheet.
-    vi.spyOn(window, 'innerWidth', 'get').mockReturnValue(400);
-
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
-    fixture = TestBed.createComponent(SheetHost);
-    fixture.detectChanges();
-    loader = TestbedHarnessEnvironment.loader(fixture);
-  });
-
-  afterEach(() => {
-    fixture.destroy();
-    vi.restoreAllMocks();
-  });
-
-  it('reports a sheet, which has no anchor and so no placement', async () => {
-    const filters = await loader.getHarness(WrPopoverHarness);
-    await filters.open();
-
-    expect(await filters.isSheet()).toBe(true);
-    // No position modifier on the pane: a sheet is docked to the viewport, not
-    // pointed at the trigger, and its arrow is switched off in CSS to match.
-    expect(await filters.getPosition()).toBeNull();
-    expect(await filters.getContentText()).toBe('Sheet content.');
-    expect(await filters.getRole()).toBe('dialog');
   });
 });

@@ -9,11 +9,13 @@ import { Subject } from 'rxjs';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { noop } from 'ngwr/utils';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrTableSortDirection, WrTableColumns } from './interfaces';
 import { WrTable } from './table';
+import { WrTableExpand } from './table-expand';
+import { WrTableGroupHeader } from './table-group-header';
 import { WrTableSort } from './table-sort';
+import type { WrTableSortDirection, WrTableColumns, WrTableSummaryContext } from './types';
 
 @Component({
   imports: [WrTable],
@@ -1078,8 +1080,8 @@ describe('WrTableSort emits a modifier for every documented direction', () => {
  * larger one. What is asserted here is the arrangement: both controls, in that
  * row, in that order, beside the title. The geometry is not — jsdom applies no
  * stylesheet, so a rect here is 0x0 and a computed style is the initial value.
- * The declarations live in `table-header-target.spec.ts`, and the painted
- * numbers come from a real Chromium, with a fine pointer and with a coarse one.
+ * The painted numbers come from a real Chromium, with a fine pointer and with a
+ * coarse one.
  */
 describe('WrTable renders both header controls for a sortable, filterable column', () => {
   @Component({
@@ -1132,6 +1134,169 @@ describe('WrTable renders both header controls for a sortable, filterable column
     const th = headerFor('Id');
     expect(th.querySelector('.wr-table__sort-btn')).toBeNull();
     expect(th.querySelector('wr-table-filter')).toBeNull();
+  });
+});
+
+/**
+ * Tree rows refuse three modes rather than half-support them, and each refusal
+ * is invisible on screen — the other mode is simply not there. Dev mode names it.
+ */
+describe('WrTable tree rows with a refused mode', () => {
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table
+      rowKey="id"
+      childrenKey="kids"
+      [groupBy]="groupBy()"
+      [virtualScroll]="virtual()"
+      [columns]="columns"
+      [items]="items"
+    />`,
+  })
+  class RefusedHost {
+    protected readonly columns: WrTableColumns = { name: { title: 'Name' } };
+    protected readonly items = [{ id: 1, name: 'Root', kids: [{ id: 2, name: 'Leaf' }] }];
+    readonly groupBy = signal<string | null>(null);
+    readonly virtual = signal(false);
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    TestBed.resetTestingModule();
+  });
+
+  it('warns once per refused pair, and not for a tree on its own', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const fixture = TestBed.createComponent(RefusedHost);
+    fixture.detectChanges();
+    expect(warn).not.toHaveBeenCalled();
+
+    fixture.componentInstance.groupBy.set('name');
+    fixture.componentInstance.virtual.set(true);
+    fixture.detectChanges();
+    fixture.componentInstance.groupBy.set(null);
+    fixture.detectChanges();
+    fixture.componentInstance.groupBy.set('name');
+    fixture.detectChanges();
+
+    const messages = warn.mock.calls.map(call => String(call[0]));
+    expect(messages).toHaveLength(2);
+    expect(messages.some(m => m.includes('`groupBy`'))).toBe(true);
+    expect(messages.some(m => m.includes('`virtualScroll`'))).toBe(true);
+    fixture.destroy();
+  });
+});
+
+/**
+ * `sort` is an array whose FIRST entry is the primary key. Flipping a column's
+ * direction is not a new sort, so it keeps its place: re-clicking the primary
+ * column used to move it to the end, and the rows re-sorted by the secondary
+ * key while the header still said the primary was the one descending.
+ */
+describe('WrTable multi-column sort order', () => {
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table [columns]="columns" [items]="items" [(sort)]="sort" />`,
+  })
+  class SortHost {
+    protected readonly items = [{ id: 1, name: 'Ada', role: 'admin' }];
+    protected readonly columns: WrTableColumns = {
+      name: { title: 'Name', sortable: true },
+      role: { title: 'Role', sortable: true },
+    };
+    readonly sort = signal<readonly { key: string; direction: WrTableSortDirection }[]>([]);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<SortHost>>;
+  const click = (title: string): void => {
+    const th = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('th')].find(h =>
+      h.textContent.includes(title)
+    )!;
+    th.querySelector<HTMLElement>('.wr-table__sort-btn')!.click();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(SortHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps a reversed column where it was in the order', () => {
+    click('Name');
+    click('Role');
+    click('Name');
+
+    expect(fixture.componentInstance.sort()).toEqual([
+      { key: 'name', direction: 'desc' },
+      { key: 'role', direction: 'asc' },
+    ]);
+  });
+
+  it('appends a newly sorted column and drops one cycled back to unsorted', () => {
+    click('Name');
+    click('Role');
+    click('Name');
+    click('Name');
+
+    expect(fixture.componentInstance.sort()).toEqual([{ key: 'role', direction: 'asc' }]);
+  });
+
+  const header = (title: string): HTMLElement =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('th')].find(h =>
+      h.textContent.includes(title)
+    )!;
+  const order = (title: string): string | null =>
+    header(title).querySelector('.wr-table__sort-order')?.textContent?.trim() ?? null;
+
+  it('announces aria-sort on the primary key only, and draws every key in its place', () => {
+    click('Name');
+    click('Role');
+    click('Role');
+
+    // ARIA puts `aria-sort` on one header at a time. Two headers both saying a
+    // direction left a screen reader unable to tell which one orders the rows —
+    // the second only breaks ties inside the first.
+    expect(header('Name').getAttribute('aria-sort')).toBe('ascending');
+    expect(header('Role').getAttribute('aria-sort')).toBe('none');
+
+    // The secondary key still SHOWS its direction and its rank.
+    expect(header('Role').querySelector('.wr-table-sort--desc')).not.toBeNull();
+    expect(order('Name')).toBe('1');
+    expect(order('Role')).toBe('2');
+
+    // Beside the button, never in it: a digit inside "Sort Role" is visible text
+    // the button's name does not contain (WCAG 2.5.3, label in name).
+    const button = header('Role').querySelector('.wr-table__sort-btn')!;
+    expect(button.querySelector('.wr-table__sort-order')).toBeNull();
+    expect(button.textContent.trim()).toBe('');
+    expect(header('Role').querySelector('.wr-table__sort-order')!.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('draws no rank for a lone sorted column, and hands aria-sort on when the primary leaves', () => {
+    click('Name');
+    expect(order('Name')).toBeNull();
+
+    click('Role');
+    click('Name');
+    click('Name');
+
+    expect(header('Role').getAttribute('aria-sort')).toBe('ascending');
+    expect(header('Name').getAttribute('aria-sort')).toBe('none');
+    expect(order('Role')).toBeNull();
+  });
+
+  it('skips an entry with no direction when it picks the primary key', () => {
+    fixture.componentInstance.sort.set([
+      { key: 'name', direction: null },
+      { key: 'role', direction: 'desc' },
+    ]);
+    fixture.detectChanges();
+
+    expect(header('Role').getAttribute('aria-sort')).toBe('descending');
+    expect(header('Name').getAttribute('aria-sort')).toBe('none');
   });
 });
 
@@ -1227,5 +1392,495 @@ describe('WrTable class hooks', () => {
     fixture.detectChanges();
     expect(rows()[0].classList.contains('bg-red-50')).toBe(false);
     expect(rows()[0].classList.contains('wr-table__tr')).toBe(true);
+  });
+});
+
+/**
+ * A `treegrid` promises a keyboard model, and announcing the role without one left
+ * the hierarchy reachable by mouse alone. This is the APG's ROW-focus variant: the
+ * rows are the items, one holds the tab stop, and the controls inside a row keep
+ * their own tab stops.
+ */
+describe('WrTable treegrid row focus', () => {
+  @Component({
+    imports: [WrTable],
+    template: `
+      <wr-table
+        rowKey="id"
+        childrenKey="kids"
+        [columns]="columns"
+        [items]="items"
+        [rowSelection]="rowSelection()"
+        [(expanded)]="expanded"
+        [(selection)]="selection"
+      />
+    `,
+  })
+  class TreeKeysHost {
+    protected readonly columns = COLUMNS;
+    protected readonly items = FOREST;
+    readonly rowSelection = signal<'single' | 'multiple' | null>(null);
+    readonly expanded = signal<readonly unknown[]>([]);
+    readonly selection = signal<readonly unknown[]>([]);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<TreeKeysHost>>;
+
+  const rows = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('tbody tr.wr-table__tr'),
+  ];
+  /** A row's name: its first DATA cell, past the selection cell when there is one. */
+  const nameOf = (tr: Element | null | undefined): string | null =>
+    tr?.querySelector('td:not(.wr-table__td--select)')?.textContent?.trim() ?? null;
+  const names = (): (string | null)[] => rows().map(nameOf);
+  const row = (name: string): HTMLElement => rows().find(r => nameOf(r) === name)!;
+  const focused = (): string | null => nameOf((document.activeElement as HTMLElement | null)?.closest('tr'));
+
+  /** Press a key on whatever has focus, then let the deferred focus move land. */
+  const press = async (key: string, init: KeyboardEventInit = {}): Promise<void> => {
+    (document.activeElement as HTMLElement).dispatchEvent(
+      new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init })
+    );
+    await fixture.whenStable();
+  };
+
+  const mount = (direction: Direction = 'ltr'): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: Directionality, useValue: { value: direction, change: new Subject<Direction>() } }],
+    });
+    fixture = TestBed.createComponent(TreeKeysHost);
+    fixture.autoDetectChanges();
+  };
+
+  beforeEach(async () => {
+    mount();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('gives exactly one row the tab stop', () => {
+    expect(rows().map(r => r.getAttribute('tabindex'))).toEqual(['0', '-1']);
+
+    // The checkbox and the toggle keep their natural tab stops, so Tab walks
+    // from the row into its controls instead of the arrows being the only way.
+    expect(row('src').querySelector('.wr-table__tree-toggle')!.hasAttribute('tabindex')).toBe(false);
+  });
+
+  it('moves between visible rows with the arrows, Home and End', async () => {
+    fixture.componentInstance.expanded.set(['src']);
+    await fixture.whenStable();
+    row('src').focus();
+
+    await press('ArrowDown');
+    expect(focused()).toBe('app');
+    await press('ArrowDown');
+    await press('ArrowDown');
+    expect(focused()).toBe('README.md');
+    await press('ArrowDown');
+    expect(focused()).toBe('README.md');
+
+    await press('Home');
+    expect(focused()).toBe('src');
+    await press('ArrowUp');
+    expect(focused()).toBe('src');
+    await press('End');
+    expect(focused()).toBe('README.md');
+
+    // The tab stop travels with focus, so Tab back into the grid lands where
+    // the keyboard left it.
+    expect(row('README.md').getAttribute('tabindex')).toBe('0');
+    expect(row('src').getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('moves focus in the same keystroke, without waiting for a render', async () => {
+    fixture.componentInstance.expanded.set(['src']);
+    await fixture.whenStable();
+    row('src').focus();
+
+    row('src').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+    // Read before any change detection: a deferred focus lagged one pass behind
+    // every key, so a held arrow kept acting on the row focus had not yet left.
+    expect(focused()).toBe('app');
+
+    (document.activeElement as HTMLElement).dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })
+    );
+    expect(focused()).toBe('styles.css');
+  });
+
+  it('opens a closed parent with ArrowRight, then steps into its first child', async () => {
+    row('src').focus();
+
+    await press('ArrowRight');
+    expect(fixture.componentInstance.expanded()).toEqual(['src']);
+    expect(row('src').getAttribute('aria-expanded')).toBe('true');
+    expect(names()).toEqual(['src', 'app', 'styles.css', 'README.md']);
+    expect(focused()).toBe('src');
+
+    await press('ArrowRight');
+    expect(focused()).toBe('app');
+  });
+
+  it('closes an open parent with ArrowLeft, and climbs from a child to its parent', async () => {
+    fixture.componentInstance.expanded.set(['src', 'app']);
+    await fixture.whenStable();
+    row('main.ts').focus();
+
+    await press('ArrowLeft');
+    expect(focused()).toBe('app');
+
+    await press('ArrowLeft');
+    expect(fixture.componentInstance.expanded()).toEqual(['src']);
+    expect(focused()).toBe('app');
+
+    await press('ArrowLeft');
+    expect(focused()).toBe('src');
+  });
+
+  it('does nothing with ArrowRight on a leaf or ArrowLeft on a root', async () => {
+    row('README.md').focus();
+    await press('ArrowRight');
+    await press('ArrowLeft');
+
+    expect(focused()).toBe('README.md');
+    expect(fixture.componentInstance.expanded()).toEqual([]);
+  });
+
+  it('swaps the two inline arrows under RTL, where children indent leftward', async () => {
+    fixture.destroy();
+    mount('rtl');
+    await fixture.whenStable();
+    row('src').focus();
+
+    await press('ArrowLeft');
+    expect(fixture.componentInstance.expanded()).toEqual(['src']);
+
+    await press('ArrowRight');
+    expect(fixture.componentInstance.expanded()).toEqual([]);
+  });
+
+  it('toggles the row selection with Enter and Space when the table selects', async () => {
+    fixture.componentInstance.rowSelection.set('multiple');
+    await fixture.whenStable();
+    row('src').focus();
+
+    expect(row('src').getAttribute('aria-selected')).toBe('false');
+    await press(' ');
+    expect(fixture.componentInstance.selection()).toEqual(['src']);
+    expect(row('src').getAttribute('aria-selected')).toBe('true');
+
+    await press('Enter');
+    expect(fixture.componentInstance.selection()).toEqual([]);
+  });
+
+  it('leaves Enter and Space alone when there is nothing to select', () => {
+    row('src').focus();
+    const space = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true });
+    row('src').dispatchEvent(space);
+
+    // Not prevented: the key is not the table's, so a page scroll still happens.
+    expect(space.defaultPrevented).toBe(false);
+    expect(row('src').hasAttribute('aria-selected')).toBe(false);
+  });
+
+  it('leaves a key pressed inside a row control to that control', async () => {
+    fixture.componentInstance.rowSelection.set('multiple');
+    await fixture.whenStable();
+    const box = row('src').querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+    box.focus();
+
+    await press('ArrowDown');
+    expect(document.activeElement).toBe(box);
+  });
+
+  it('makes the row a control was focused in the tab stop', async () => {
+    fixture.componentInstance.rowSelection.set('multiple');
+    await fixture.whenStable();
+
+    row('README.md').querySelector<HTMLInputElement>('input[type="checkbox"]')!.focus();
+    await fixture.whenStable();
+
+    // Shift+Tab out of that box now lands on its own row rather than skipping
+    // past it to the previous row's controls.
+    expect(row('README.md').getAttribute('tabindex')).toBe('0');
+    expect(row('src').getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('keeps a tab stop when the row holding it is collapsed out of view', async () => {
+    fixture.componentInstance.expanded.set(['src']);
+    await fixture.whenStable();
+    row('app').focus();
+    await fixture.whenStable();
+
+    fixture.componentInstance.expanded.set([]);
+    await fixture.whenStable();
+
+    expect(rows().filter(r => r.getAttribute('tabindex') === '0')).toHaveLength(1);
+  });
+});
+
+/**
+ * Every row control used to carry one generic name — ten checkboxes called
+ * "Select row" — so a screen reader moving down the selection column never heard
+ * which row a box belonged to. Each now points `aria-labelledby` at an action word
+ * AND its row's label cell.
+ */
+describe('WrTable names each row control by its row', () => {
+  @Component({
+    imports: [WrTable, WrTableExpand],
+    template: `
+      <wr-table
+        rowKey="id"
+        [columns]="columns"
+        [items]="items()"
+        [rowSelection]="rowSelection()"
+        [childrenKey]="childrenKey()"
+        [groupBy]="groupBy()"
+        [selectRowLabel]="selectRowLabel()"
+      >
+        @if (detail()) {
+          <ng-template wrTableExpand let-row>{{ row.name }}</ng-template>
+        }
+      </wr-table>
+    `,
+  })
+  class NamesHost {
+    protected readonly columns = COLUMNS;
+    readonly items = signal<readonly Record<string, unknown>[]>(ROWS);
+    readonly rowSelection = signal<'single' | 'multiple' | null>('multiple');
+    readonly childrenKey = signal<string | null>(null);
+    readonly groupBy = signal<string | null>(null);
+    readonly selectRowLabel = signal<string | null>(null);
+    readonly detail = signal(false);
+  }
+
+  @Component({
+    imports: [WrTable, WrTableGroupHeader],
+    template: `
+      <wr-table rowKey="id" groupBy="role" rowSelection="multiple" [columns]="columns" [items]="items">
+        <ng-template wrTableGroupHeader let-count="count">{{ count }} people</ng-template>
+      </wr-table>
+    `,
+  })
+  class CustomGroupHost {
+    protected readonly columns = COLUMNS;
+    protected readonly items = ROWS;
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<NamesHost>>;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+
+  /**
+   * The name `aria-labelledby` computes: each id resolved inside the fixture, its
+   * text taken, joined with a space. Resolving the ids is the point — an id that
+   * matches nothing is skipped by a browser, so a dangling reference would leave
+   * a name that still LOOKS wired in the attribute.
+   */
+  const nameOf = (el: Element, host: HTMLElement = root()): string =>
+    (el.getAttribute('aria-labelledby') ?? '')
+      .split(/\s+/)
+      .filter(Boolean)
+      .map(id => {
+        const target = host.querySelector(`[id="${id}"]`);
+        expect(target, `aria-labelledby names "${id}", which is not in the table`).not.toBeNull();
+        return target!.textContent.replace(/\s+/g, ' ').trim();
+      })
+      .join(' ');
+
+  const rowBoxes = (): HTMLInputElement[] => [
+    ...root().querySelectorAll<HTMLInputElement>('tbody .wr-table__td--select input[type="checkbox"]'),
+  ];
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(NamesHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('names every row checkbox by the action and the row', () => {
+    expect(rowBoxes().map(box => nameOf(box))).toEqual(['Select row Ada', 'Select row Linus', 'Select row Grace']);
+    // `aria-labelledby` is the name now; a leftover `aria-label` would be dead
+    // weight that a reader of the DOM takes for the real one.
+    expect(rowBoxes()[0].hasAttribute('aria-label')).toBe(false);
+  });
+
+  it('gives a flat table no row tab stops, since it promises no row keyboard', () => {
+    const flatRows = [...root().querySelectorAll('tbody tr.wr-table__tr')];
+    expect(flatRows).toHaveLength(3);
+    expect(flatRows.some(r => r.hasAttribute('tabindex') || r.hasAttribute('aria-selected'))).toBe(false);
+  });
+
+  it('keeps the select-all its own static name', () => {
+    expect(root().querySelector('thead input[type="checkbox"]')!.getAttribute('aria-label')).toBe('Select all rows');
+  });
+
+  it('takes the action word from the label input', () => {
+    fixture.componentInstance.selectRowLabel.set('Pick');
+    fixture.detectChanges();
+
+    expect(nameOf(rowBoxes()[1])).toBe('Pick Linus');
+  });
+
+  it('builds ids that are unique per row and per table, and the same on every render', () => {
+    const second = TestBed.createComponent(NamesHost);
+    second.detectChanges();
+
+    const ids = [fixture, second].flatMap(f =>
+      [...(f.nativeElement as HTMLElement).querySelectorAll('[id]')].map(el => el.id)
+    );
+    expect(new Set(ids).size).toBe(ids.length);
+    // Counted, not random: the prerendered id has to be the one the client renders.
+    expect(rowBoxes()[0].getAttribute('aria-labelledby')).toMatch(/^wr-table-\d+-select-row wr-table-\d+-r0-label$/);
+    second.destroy();
+  });
+
+  it('names a detail toggle by the row it opens', () => {
+    fixture.componentInstance.detail.set(true);
+    fixture.detectChanges();
+
+    const toggles = [...root().querySelectorAll('.wr-table__expand-btn')];
+    expect(toggles.map(t => nameOf(t))).toEqual([
+      'Toggle row details Ada',
+      'Toggle row details Linus',
+      'Toggle row details Grace',
+    ]);
+    expect(toggles[0].hasAttribute('aria-label')).toBe(false);
+  });
+
+  it('names a tree toggle by its row, and keeps it out of its row label', () => {
+    fixture.componentInstance.items.set(FOREST);
+    fixture.componentInstance.childrenKey.set('kids');
+    fixture.detectChanges();
+
+    const toggle = root().querySelector('button.wr-table__tree-toggle')!;
+    expect(nameOf(toggle)).toBe('Toggle child rows src');
+    // The toggle sits INSIDE the label cell. With an `aria-label` of its own, that
+    // label would be read into every other control's name: "Select row Toggle
+    // child rows src".
+    expect(toggle.hasAttribute('aria-label')).toBe(false);
+    expect(rowBoxes().map(box => nameOf(box))).toEqual(['Select row src', 'Select row README.md']);
+  });
+
+  it('labels the row by the tree column, wherever it sits', () => {
+    fixture.destroy();
+    @Component({
+      imports: [WrTable],
+      template: `<wr-table
+        rowKey="id"
+        childrenKey="kids"
+        treeColumn="name"
+        rowSelection="single"
+        [columns]="columns"
+        [items]="items"
+      />`,
+    })
+    class TreeColumnHost {
+      protected readonly columns: WrTableColumns = { role: { title: 'Role' }, name: { title: 'Name' } };
+      protected readonly items = FOREST;
+    }
+    const tree = TestBed.createComponent(TreeColumnHost);
+    tree.detectChanges();
+    const host = tree.nativeElement as HTMLElement;
+
+    const box = host.querySelector('tbody input[type="checkbox"]')!;
+    expect(nameOf(box, host)).toBe('Select row src');
+    tree.destroy();
+  });
+
+  it('names a group by its label, its toggle with the count', () => {
+    fixture.componentInstance.groupBy.set('role');
+    fixture.detectChanges();
+
+    const groupBoxes = [...root().querySelectorAll('.wr-table__group-select input')];
+    const toggles = [...root().querySelectorAll('.wr-table__group-toggle')];
+    expect(groupBoxes.map(b => nameOf(b))).toEqual(['Select group admin', 'Select group user']);
+    expect(toggles.map(t => nameOf(t))).toEqual(['Toggle group admin 2', 'Toggle group user 1']);
+    // The toggle's visible text has to sit inside its name, space included —
+    // "admin2" is not in "Toggle group admin 2" to a label-in-name check.
+    expect(toggles[0].textContent.trim()).toBe('admin 2');
+  });
+
+  it('names a group by its label beside a custom header too', () => {
+    fixture.destroy();
+    const custom = TestBed.createComponent(CustomGroupHost);
+    custom.detectChanges();
+    const host = custom.nativeElement as HTMLElement;
+
+    const toggle = host.querySelector('.wr-table__group-toggle--icon')!;
+    expect(nameOf(toggle, host)).toBe('Toggle group admin');
+    expect(toggle.hasAttribute('aria-label')).toBe(false);
+    expect(nameOf(host.querySelector('.wr-table__group-select input')!, host)).toBe('Select group admin');
+    custom.destroy();
+  });
+});
+
+/**
+ * One `summary` function feeds the grand footer AND every group subtotal, and the
+ * rows cannot tell them apart: with a single group both are handed the same rows.
+ */
+describe('WrTable summary scope', () => {
+  const seen: WrTableSummaryContext[] = [];
+
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table groupBy="role" groupSummary [columns]="columns" [items]="items()" />`,
+  })
+  class ScopeHost {
+    readonly items = signal<readonly Record<string, unknown>[]>(ROWS);
+    protected readonly columns: WrTableColumns = {
+      name: {
+        title: 'Name',
+        summary: (rows, context) => {
+          seen.push(context);
+          return context.scope === 'group' ? `Subtotal ${context.group.label}` : `Total ${rows.length}`;
+        },
+      },
+      // A one-argument function, written before the context existed, still fits.
+      role: { title: 'Role', summary: rows => rows.length },
+    };
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<ScopeHost>>;
+  const texts = (selector: string): string[] =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(selector)].map(td =>
+      td.textContent.trim()
+    );
+
+  beforeEach(() => {
+    seen.length = 0;
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(ScopeHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('tells the function which footer it is computing', () => {
+    expect(texts('.wr-table__group-foot-row .wr-table__foot-cell')).toEqual([
+      'Subtotal admin',
+      '2',
+      'Subtotal user',
+      '1',
+    ]);
+    expect(texts('tfoot .wr-table__foot-cell')).toEqual(['Total 3', '3']);
+
+    const total = seen.find(c => c.scope === 'total');
+    expect(total?.group).toBeNull();
+    const groups = seen.filter(c => c.scope === 'group').map(c => (c.scope === 'group' ? c.group.value : null));
+    expect(groups).toEqual(expect.arrayContaining(['admin', 'user']));
+  });
+
+  it('still says which is which when one group holds every row', () => {
+    fixture.componentInstance.items.set(ROWS.filter(r => r.role === 'admin'));
+    fixture.detectChanges();
+
+    // The case the rows alone cannot answer: the subtotal and the total get the
+    // very same two rows.
+    expect(texts('.wr-table__group-foot-row .wr-table__foot-cell')[0]).toBe('Subtotal admin');
+    expect(texts('tfoot .wr-table__foot-cell')[0]).toBe('Total 2');
   });
 });

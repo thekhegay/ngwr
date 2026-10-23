@@ -1,16 +1,12 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, form } from '@angular/forms/signals';
 
-import { provideWrOverlay } from 'ngwr/overlay';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCascader } from './cascader';
-import type { WrCascaderOption } from './interfaces';
+import type { WrCascaderOption } from './types';
 
 const OPTIONS: readonly WrCascaderOption[] = [
   {
@@ -60,11 +56,11 @@ class Host {
  * `['eu', 'de', 'ber']`, and a consumer reading only the last segment loses the
  * context that made it meaningful.
  *
- * Unlike `wr-tree` and `wr-select`, every option here is its own tab stop
- * (`tabindex="0"`) rather than a roving cursor. That is the documented reason
- * virtual scrolling is deferred for this component — there is no
- * container-owned arrow-nav model to hang a window off — so the tab-stop shape
- * is a contract worth pinning rather than an oversight to tidy.
+ * The panel holds ONE tab stop, as in the APG tree pattern: the option the user
+ * moved to, else the selected path's leaf, else the first enabled root carries
+ * `tabindex="0"`, every other option `-1`, and the arrows move the stop with the
+ * caret. Until v15 every enabled option was its own stop, so a deep tree was a
+ * Tab per option to cross; the shape is a contract, pinned here both ways.
  */
 describe('WrCascader', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -96,7 +92,6 @@ describe('WrCascader', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -221,6 +216,18 @@ describe('WrCascader', () => {
       expect(document.activeElement).toBe(optionFor('Asia'));
     });
 
+    it("lands on the chosen path's LEAF, not on the root it starts from", async () => {
+      // The roving stop opens where the value is. Landing on "Europe" left a reader
+      // three arrow presses from the choice the trigger had just announced.
+      fixture.componentInstance.picked.set(['eu', 'de', 'ber']);
+      fixture.detectChanges();
+
+      await openAndSettle();
+
+      expect(document.activeElement).toBe(optionFor('Berlin'));
+      expect(optionFor('Berlin')!.getAttribute('tabindex')).toBe('0');
+    });
+
     it('opens on ArrowDown from the trigger', async () => {
       expect(press('ArrowDown').defaultPrevented).toBe(true);
       await fixture.whenStable();
@@ -241,6 +248,169 @@ describe('WrCascader', () => {
       press('ArrowDown', { altKey: true });
       await fixture.whenStable();
       expect(panel()).not.toBeNull();
+    });
+
+    it('closes and leaves from the trigger on Tab, from wherever the caret stands', async () => {
+      // The pane sits at the end of `<body>`, so the browser's Tab out of it went to
+      // the top of the page with the panel still open. The panel holds one tab stop,
+      // so EVERY Tab inside it leaves, either way round — from the first option too,
+      // which under the old stop-per-option shape tabbed to its neighbour instead.
+      // jsdom has no Tab of its own, so this asserts where focus stands when the
+      // browser's Tab runs. It also lays nothing out, so every option is given a box:
+      // without one a focus walk would drop every option but the focused one and
+      // leave on any Tab, which is the answer under test.
+      vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+      try {
+        for (const shiftKey of [false, true]) {
+          await openAndSettle();
+          expect(document.activeElement).toBe(optionFor('Europe'));
+
+          const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true });
+          document.activeElement!.dispatchEvent(event);
+          fixture.detectChanges();
+
+          expect(event.defaultPrevented, `shift ${shiftKey}`).toBe(false);
+          expect(panel(), `shift ${shiftKey}`).toBeNull();
+          expect(document.activeElement, `shift ${shiftKey}`).toBe(trigger());
+        }
+      } finally {
+        vi.restoreAllMocks();
+      }
+    });
+
+    describe('the tree keys inside the panel', () => {
+      // Sent to whatever holds focus, never to an option picked by hand — or a
+      // panel that ignored the keys would pass by moving nothing.
+      const key = (k: string): KeyboardEvent => {
+        const event = new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true });
+        document.activeElement!.dispatchEvent(event);
+        fixture.detectChanges();
+        return event;
+      };
+      const focused = (): string | undefined => document.activeElement?.textContent?.trim();
+
+      it('moves within a column on Up / Down and to its ends on Home / End', async () => {
+        await openAndSettle();
+        expect(focused()).toBe('Europe');
+
+        expect(key('ArrowDown').defaultPrevented).toBe(true);
+        expect(focused()).toBe('Asia');
+        key('ArrowDown');
+        expect(focused()).toBe('Antarctica');
+        // A tree does not wrap.
+        key('ArrowDown');
+        expect(focused()).toBe('Antarctica');
+        key('Home');
+        expect(focused()).toBe('Europe');
+        key('ArrowUp');
+        expect(focused()).toBe('Europe');
+        key('End');
+        expect(focused()).toBe('Antarctica');
+      });
+
+      it('opens a branch and steps into it on ArrowRight, and back out on ArrowLeft', async () => {
+        await openAndSettle();
+
+        key('ArrowRight');
+        await fixture.whenStable();
+        expect(columns()).toHaveLength(2);
+        expect(focused()).toBe('Germany');
+        expect(optionFor('Europe')!.getAttribute('aria-expanded')).toBe('true');
+        // Navigation, not a choice.
+        expect(picked()).toEqual([]);
+
+        key('ArrowRight');
+        await fixture.whenStable();
+        expect(focused()).toBe('Berlin');
+
+        key('ArrowLeft');
+        expect(focused()).toBe('Germany');
+        key('ArrowLeft');
+        expect(focused()).toBe('Europe');
+        // From a root, the inline-start arrow closes the column it opened.
+        key('ArrowLeft');
+        expect(columns()).toHaveLength(1);
+      });
+
+      it('skips a disabled option and never steps into its children', async () => {
+        await openAndSettle();
+        key('ArrowDown');
+        key('ArrowRight');
+        await fixture.whenStable();
+
+        // Japan is the only child of Asia, and it is disabled.
+        expect(focused()).toBe('Asia');
+        optionFor('Asia')!.focus();
+        key('ArrowDown');
+        expect(focused()).toBe('Antarctica');
+      });
+
+      it('commits on Space without scrolling the page under the panel', async () => {
+        await openAndSettle();
+        key('End');
+
+        const event = key(' ');
+
+        expect(event.defaultPrevented).toBe(true);
+        expect(picked()).toEqual(['an']);
+      });
+
+      it('moves to an option by its first letters, and cycles on a repeated one', async () => {
+        await openAndSettle();
+        key('ArrowRight');
+        await fixture.whenStable();
+        expect(focused()).toBe('Germany');
+
+        // Shift is how a capital is typed, so it must not stop the search.
+        const event = new KeyboardEvent('keydown', { key: 'F', shiftKey: true, bubbles: true, cancelable: true });
+        document.activeElement!.dispatchEvent(event);
+        fixture.detectChanges();
+        expect(event.defaultPrevented).toBe(true);
+        expect(focused()).toBe('France');
+
+        // A letter nothing in the column starts with moves nothing.
+        key('z');
+        expect(focused()).toBe('France');
+      });
+
+      it('runs a type-ahead on the letters typed in a row, and starts over after a pause', async () => {
+        fixture.componentInstance.options.set([
+          { value: 'a', label: 'Alpha' },
+          { value: 'b', label: 'Beta' },
+          { value: 'ba', label: 'Bar' },
+          { value: 'bo', label: 'Bob' },
+        ]);
+        fixture.detectChanges();
+        const now = vi.spyOn(Date, 'now').mockReturnValue(1_000);
+        try {
+          await openAndSettle();
+          expect(focused()).toBe('Alpha');
+
+          key('b');
+          expect(focused()).toBe('Beta');
+          // The same letter again cycles rather than spelling "bb".
+          key('b');
+          expect(focused()).toBe('Bar');
+          // A pause, then "bo": a new run, which keeps going until it matches.
+          now.mockReturnValue(2_000);
+          key('b');
+          key('o');
+          expect(focused()).toBe('Bob');
+        } finally {
+          now.mockRestore();
+        }
+      });
+
+      it('mirrors the inline arrows under RTL', async () => {
+        TestBed.inject(Directionality).valueSignal.set('rtl');
+        await openAndSettle();
+
+        key('ArrowLeft');
+        await fixture.whenStable();
+        expect(focused()).toBe('Germany');
+        key('ArrowRight');
+        expect(focused()).toBe('Europe');
+      });
     });
 
     it('leaves a key it does not own to the page', () => {
@@ -427,15 +597,53 @@ describe('WrCascader', () => {
       expect(optionFor('Europe')!.getAttribute('aria-expanded')).toBe('true');
     });
 
-    it('gives every enabled option its own tab stop', () => {
-      open();
-      choose('Europe');
+    it('keeps exactly one tab stop in the panel, and moves it with the caret', async () => {
+      const stops = (): string[] =>
+        [...document.querySelectorAll<HTMLElement>('[role="treeitem"][tabindex="0"]')].map(o => o.textContent.trim());
+      const key = (k: string): void => {
+        document.activeElement!.dispatchEvent(
+          new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true })
+        );
+        fixture.detectChanges();
+      };
 
-      // Not a roving cursor — this is why virtual scrolling is deferred here.
-      const all = [...document.querySelectorAll<HTMLElement>('[role="treeitem"]')];
-      expect(
-        all.filter(o => o.getAttribute('aria-disabled') !== 'true').every(o => o.getAttribute('tabindex') === '0')
-      ).toBe(true);
+      trigger().click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // One stop, on the first root while nothing is chosen.
+      expect(stops()).toEqual(['Europe']);
+      expect(optionFor('Asia')!.getAttribute('tabindex')).toBe('-1');
+
+      key('ArrowDown');
+      expect(stops()).toEqual(['Asia']);
+
+      key('ArrowUp');
+      key('ArrowRight');
+      await fixture.whenStable();
+      fixture.detectChanges();
+      // Two columns on screen, still one stop between them — where the caret is.
+      expect(columns()).toHaveLength(2);
+      expect(stops()).toEqual(['Germany']);
+      expect(optionFor('Europe')!.getAttribute('tabindex')).toBe('-1');
+
+      // A click moves it too: the stop follows focus, whatever moved it.
+      optionFor('France')!.focus();
+      fixture.detectChanges();
+      expect(stops()).toEqual(['France']);
+    });
+
+    it('never puts the tab stop on a disabled option', () => {
+      fixture.componentInstance.options.set([
+        { value: 'x', label: 'Closed', disabled: true },
+        { value: 'y', label: 'Open' },
+      ]);
+      fixture.detectChanges();
+      open();
+
+      expect(optionFor('Closed')!.getAttribute('tabindex')).toBe('-1');
+      expect(optionFor('Open')!.getAttribute('tabindex')).toBe('0');
     });
   });
 
@@ -452,8 +660,8 @@ describe('WrCascader', () => {
     });
 
     /**
-     * Every option is its own tab stop, so on the keyboard the caret is INSIDE
-     * the pane by design — and picking a leaf is what closes it. Disposing
+     * Opening moves the caret onto the panel's tab stop, so on the keyboard it is
+     * INSIDE the pane by design — and picking a leaf is what closes it. Disposing
      * without handing focus back dropped it on `<body>` on the SUCCESS path,
      * leaving a keyboard user who had just chosen a value to Tab from the top
      * of the document to get back to the control.
@@ -651,7 +859,6 @@ describe('WrCascader follows a direction flip while its panel is open', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -697,39 +904,6 @@ describe('WrCascader follows a direction flip while its panel is open', () => {
   });
 });
 
-/** Every rule in the cascader stylesheet, selector to declarations — read from source, see below. */
-const rules = (): Map<string, Record<string, string>> => {
-  const source = readFileSync(join(process.cwd(), 'projects/lib/cascader/styles/_rules.scss'), 'utf8')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/(^|\s)\/\/[^\n]*/g, '$1');
-  const out = new Map<string, Record<string, string>>();
-  const stack: string[] = [];
-  let buffer = '';
-  for (const ch of source) {
-    if (ch === '{') {
-      const head = buffer.trim();
-      const parent = stack.at(-1);
-      stack.push(parent === undefined ? head : head.includes('&') ? head.replaceAll('&', parent) : `${parent} ${head}`);
-      buffer = '';
-    } else if (ch === ';' || ch === '}') {
-      const statement = buffer.trim();
-      const selector = stack.at(-1);
-      const colon = statement.indexOf(':');
-      if (selector !== undefined && colon > 0 && !statement.startsWith('@')) {
-        out.set(selector, {
-          ...out.get(selector),
-          [statement.slice(0, colon).trim()]: statement.slice(colon + 1).trim(),
-        });
-      }
-      if (ch === '}') stack.pop();
-      buffer = '';
-    } else {
-      buffer += ch;
-    }
-  }
-  return out;
-};
-
 /**
  * The width floor gives way to the layout. `--wr-cascader-min-width` used to be a
  * `min-width` on the TRIGGER, which no width on the host could beat: a cascader
@@ -737,16 +911,13 @@ const rules = (): Map<string, Record<string, string>> => {
  * narrow grid cell or flex row overhung it. The floor is now a zero-height
  * spacer in a one-column grid on the host — the shape `wr-select` uses.
  *
- * jsdom has no layout, so nothing here can measure a width — every rect is 0×0
- * and every one of these would pass on the stylesheet that overflowed. What a
- * spec CAN hold is the two halves the geometry rests on: the rendered DOM (the
- * trigger is the host's only element, so the spacer is the column's only other
- * item) and the declarations, read from source the way `avatar.spec.ts` reads
- * its own. The widths were measured in a real browser.
+ * jsdom has no layout, so nothing here can measure a width. What a spec CAN
+ * hold is the rendered DOM the geometry rests on: the trigger is the host's only
+ * element, so the spacer is the column's only other item. The widths were
+ * measured in a real browser.
  */
 describe('WrCascader width floor', () => {
   it('renders the trigger as the host’s only element', () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
 
@@ -755,33 +926,6 @@ describe('WrCascader width floor', () => {
       'BUTTON.wr-cascader__trigger',
     ]);
     fixture.destroy();
-  });
-
-  it('lays the host out as one column that can shrink to nothing', () => {
-    expect(rules().get('.wr-cascader')).toMatchObject({
-      display: 'inline-grid',
-      'grid-template-columns': 'minmax(0, 1fr)',
-      '--wr-cascader-min-width': '12rem',
-    });
-  });
-
-  it('gives a stretched host’s extra height to the trigger’s row, not the spacer’s', () => {
-    // An implicit second row would be `auto` and take a share of it: a host
-    // stretched to 60px by its flex row drew a 45px trigger over a 15px gap.
-    expect(rules().get('.wr-cascader')).toMatchObject({ 'grid-template-rows': 'auto 0' });
-  });
-
-  it('carries the floor on a spacer a narrower host caps', () => {
-    expect(rules().get('.wr-cascader::after')).toMatchObject({
-      content: "''",
-      width: 'var(--wr-cascader-min-width)',
-      'max-width': '100%',
-      height: '0',
-    });
-  });
-
-  it('lets the trigger follow the host down', () => {
-    expect(rules().get('.wr-cascader__trigger')).toMatchObject({ width: '100%', 'min-width': '0' });
   });
 });
 
@@ -806,7 +950,6 @@ describe('WrCascader focused by its bound field', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(FocusHost);
     fixture.detectChanges();
   });

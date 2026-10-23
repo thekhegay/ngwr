@@ -1,17 +1,22 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, computed, contentChild, contentChildren, effect, inject, input, viewChildren } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 
+import { WrAnchor, type WrAnchorLink } from 'ngwr/anchor';
 import { WrBadge } from 'ngwr/badge';
-import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
 
+import { DocCodeComponent } from '../doc-code/doc-code';
+import type { DocCodeFile } from '../doc-code/types';
 import { DocCssVarsComponent } from '../doc-css-vars/doc-css-vars';
+import { DocLabelComponent } from '../doc-label/doc-label';
 import { DocRichPipe, docRichToText } from '../doc-rich/doc-rich';
 import { DocSectionComponent } from '../doc-section/doc-section';
+import { DocSeeAlsoComponent } from '../doc-see-also/doc-see-also';
 
 import { CSS_VARS, type DocCssVarRoute, type DocCssVars } from '#core/generated/css-vars';
+import { INSTALL, type DocInstallEntry, type DocInstallRoute } from '#core/generated/install';
 import { MetaService } from '#core/services';
-import { releaseLabel } from '#core/utils';
+import { depsOf, docPageOf, entryOfRoute, isOptionalLink, pageLabels, releaseLabel } from '#core/utils';
 
 const FALLBACK_CATEGORY = 'Docs';
 
@@ -27,7 +32,9 @@ const CLUSTER_CATEGORY: Readonly<Record<string, string>> = {
 
 const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   components: 'Components',
-  animations: 'Animations',
+  bits: 'Bits',
+  charts: 'Charts',
+  docs: 'Docs',
   directives: 'Directives',
   icons: 'Icons',
   pipes: 'Pipes',
@@ -38,7 +45,6 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   tokens: 'Design tokens',
   utils: 'Utils',
   validators: 'Validators',
-  start: 'Start',
 };
 
 /**
@@ -50,7 +56,7 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
  *
  * **Category** — the document-title category (e.g. "Components", "Utils") is
  * derived from the URL by default, so per-page boilerplate stays minimal. It is
- * the CLUSTER segment that decides: `animations` / `icons` / `start` sit at the
+ * the CLUSTER segment that decides: `bits` / `icons` / `start` sit at the
  * top level and name themselves, while `reference` and `guides` are containers
  * and the label comes from the segment under them. Override `[category]` only
  * for the rare page that needs a forced label.
@@ -61,23 +67,67 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
  *   title="Badge"
  *   description="Small status indicator with color variants."
  *   [keywords]="['badge', 'wr-badge']"
- *   [labels]="['Component', 'Standalone']"
+ *   [labels]="['Component', 'CDK Overlay']"
  * >
  *   <ngwr-doc-section title="Basic usage">...</ngwr-doc-section>
  * </ngwr-doc-page>
  * ```
  */
+interface DepsItem {
+  readonly text: string;
+  readonly url?: string;
+  readonly note?: string;
+}
+
+interface DepsRow {
+  readonly label: string;
+  readonly items: readonly DepsItem[];
+}
+
 @Component({
-  imports: [DocCssVarsComponent, DocRichPipe, DocSectionComponent, WrBadge, WrTypography],
+  imports: [
+    DocCodeComponent,
+    DocCssVarsComponent,
+    DocLabelComponent,
+    DocRichPipe,
+    DocSectionComponent,
+    DocSeeAlsoComponent,
+    RouterLink,
+    WrAnchor,
+    WrBadge,
+    WrTypography,
+  ],
   selector: 'ngwr-doc-page',
   templateUrl: './doc-page.html',
   styleUrl: './doc-page.scss',
   // `title` is an input, and a static attribute that feeds an input is still written
   // onto the host, where the browser shows it as a native tooltip over the whole
   // page or section.
-  host: { '[attr.title]': 'null' },
+  host: { '[attr.title]': 'null', '[class.removed]': '!!removed()' },
 })
 export class DocPageComponent {
+  /**
+   * "On this page", built from the sections the page renders.
+   *
+   * Two sources, because the shell renders some of the sections itself:
+   * `contentChildren` sees what the PAGE projected, `viewChildren` the
+   * Installation, CSS-variables and Dependencies blocks this template adds.
+   *
+   * Order follows the DOM: Installation first, the page's own sections next,
+   * then CSS variables and Dependencies — which is why the view list is split
+   * around the projected one rather than concatenated after it.
+   */
+  private readonly projected = contentChildren(DocSectionComponent);
+  private readonly own = viewChildren(DocSectionComponent);
+
+  protected readonly tocLinks = computed<readonly WrAnchorLink[]>(() => {
+    const shell = this.own();
+    const install = shell.filter(s => s.title() === 'Installation');
+    const tail = shell.filter(s => s.title() === 'CSS variables' || s.title() === 'Dependencies');
+    const all = [...install, ...this.projected(), ...tail];
+    return all.map(s => ({ id: s.anchorId(), label: s.title() }));
+  });
+
   /** Page title. Used as the H1 and in the document title. */
   readonly title = input.required<string>();
 
@@ -115,6 +165,41 @@ export class DocPageComponent {
   readonly since = input<string | null>(null);
 
   /**
+   * The library version this page's subject last changed its PUBLIC API in —
+   * an input, an output, an export, a token, or the entry point's own path —
+   * `'15.0.0'`. Prints "Updated in v15" beside the title, and the nav marks the
+   * row `Updated` while that version is on the current release line, the same
+   * expiring rule as {@link since}. A restyle or a bug fix is not an update; a
+   * change a consumer has to act on is.
+   *
+   * A plain attribute, read by `pnpm gen:api-docs` into `#core/generated/since`
+   * for the same reason as `since`. Never beside `removed`, and never a version
+   * no later than `since`: the generator refuses both.
+   *
+   * @example
+   * ```html
+   * <ngwr-doc-page title="Bar Chart" updated="15.0.0"> … </ngwr-doc-page>
+   * ```
+   */
+  readonly updated = input<string | null>(null);
+
+  /**
+   * The library version that DELETED this page's subject — `'15.0.0'`. The page
+   * is a tombstone: it says what the thing was, why it went and what to use
+   * instead, so a published link and an old import still land somewhere that
+   * answers. Prints "Removed in v15", styles the header as a tombstone, and the
+   * nav marks the row `Removed` for as long as the page exists, sorted after the
+   * live rows of its group — the mark does not expire, since the page has no
+   * other reason to be in the nav.
+   *
+   * @example
+   * ```html
+   * <ngwr-doc-page title="Markdown" removed="15.0.0"> … </ngwr-doc-page>
+   * ```
+   */
+  readonly removed = input<string | null>(null);
+
+  /**
    * Override the auto-derived category. Pass `null` to use the URL-derived
    * value (default behaviour). The derived value comes from the cluster
    * segment, mapped via {@link CATEGORY_BY_SEGMENT}.
@@ -140,6 +225,18 @@ export class DocPageComponent {
     return version ? `Added in ${releaseLabel(version)}` : null;
   });
 
+  /** "Updated in v15", or `null`. The same chip as {@link addedIn}, for the same reasons. */
+  protected readonly updatedIn = computed(() => {
+    const version = this.updated();
+    return version ? `Updated in ${releaseLabel(version)}` : null;
+  });
+
+  /** "Removed in v15", or `null`. Its own chip tone, since it is the fact the whole page is about. */
+  protected readonly removedIn = computed(() => {
+    const version = this.removed();
+    return version ? `Removed in ${releaseLabel(version)}` : null;
+  });
+
   /**
    * The `--wr-*` hooks this page's component publishes, or `null` for a route
    * that documents no entry point.
@@ -154,8 +251,119 @@ export class DocPageComponent {
    * them listed. The catalogue is written by `pnpm gen:css-vars` from the
    * library's stylesheets, so a renamed hook moves on the next build.
    */
+  /**
+   * The two halves of an installation, rendered by the SHELL.
+   *
+   * The import was always here, written by hand on 128 pages. The `@use` was
+   * on none of them — and v15 is the release that made it load-bearing, by
+   * removing the `@use 'ngwr'` umbrella. A page that shows only the import
+   * teaches half an installation, and the half it omits fails silently: the
+   * component renders, unstyled, with nothing in the build or the console.
+   *
+   * Generated from the page's own imports (`#core/generated/install`), so the
+   * recipe cannot disagree with the page it sits on, and a component that
+   * moves entry point carries its install line with it.
+   */
+  /** A page that writes its own `<ngwr-doc-see-also>`; the shell adds one otherwise. */
+  protected readonly ownSeeAlso = contentChild(DocSeeAlsoComponent);
+
+  /** The Dependencies table: what the documented entry point needs and what uses it. */
+  protected readonly deps = computed<readonly DepsRow[] | null>(() => {
+    const d = depsOf(entryOfRoute(this.router.url));
+    if (!d) return null;
+    const link = (ep: string): DepsItem => {
+      const page = docPageOf(ep);
+      return page ? { text: page.title, url: `/${page.route}` } : { text: `ngwr/${ep}` };
+    };
+    const rows: DepsRow[] = [];
+    for (const p of d.peers) {
+      const note = p.optional ? 'optional peer' : undefined;
+      if (p.pkg === '@angular/cdk') rows.push({ label: 'Angular CDK', items: p.parts.map(part => ({ text: part })) });
+      else if (p.pkg === 'prosemirror')
+        rows.push({
+          label: 'ProseMirror',
+          items: [{ text: 'prosemirror-*', note: `${p.parts.length} packages${p.optional ? ', optional peers' : ''}` }],
+        });
+      else rows.push({ label: p.pkg, items: [{ text: p.pkg, note }] });
+    }
+    if (d.addons.length) {
+      rows.push({
+        label: 'Add-on',
+        items: d.addons.map(a => ({
+          text: `ngwr/${a.path}`,
+          note: a.peers.length ? `needs ${a.peers.join(', ')}` : undefined,
+        })),
+      });
+    }
+    if (d.uses.length) rows.push({ label: 'Built on', items: d.uses.map(link) });
+    if (d.usedBy.length) rows.push({ label: 'Used by', items: d.usedBy.map(link) });
+    return rows.length ? rows : null;
+  });
+
+  /** The header chips: the page's kind from its route, then the traits it declares. */
+  protected readonly shownLabels = computed(() => {
+    const derived = pageLabels(this.router.url);
+    return derived.length ? derived : this.labels();
+  });
+
+  /** Whether this page documents an opt-in part of ngwr. */
+  protected readonly optional = computed(() => isOptionalLink(this.router.url));
+
+  /** The URL with its leading and trailing slashes off — how both generated maps are keyed. */
+  private readonly routeKey = computed(() => this.router.url.split(/[?#]/)[0].replace(/^\/+|\/+$/g, ''));
+
+  protected readonly install = computed<readonly DocCodeFile[] | null>(() => {
+    // `DocInstallEntry`, not a restatement of its fields. The inline shape this
+    // replaces had gone stale the moment the generator grew `declarables`, and
+    // a structural cast is exactly the kind that goes stale silently.
+    const entries = INSTALL[this.routeKey() as DocInstallRoute] as readonly DocInstallEntry[] | undefined;
+    if (!entries || entries.length === 0) return null;
+
+    const withSymbols = entries.filter(e => e.symbols.length > 0);
+    const imports = withSymbols.map(e => `import { ${e.symbols.join(', ')} } from '${e.path}';`).join('\n');
+    // Only a `@Component`, `@Directive` or `@Pipe` may go in `imports: []`, so
+    // a provider function or a service is imported and used elsewhere. There
+    // is no footnote saying which is which any more: the recipe now carries the
+    // page's OWN entry point alone, so everything in it belongs to the thing
+    // the page documents, and a reader is not asked to sort a demo's
+    // scaffolding out of their own installation.
+    const declared = withSymbols.flatMap(e => e.declarables);
+
+    const ts =
+      declared.length > 0
+        ? `import { Component } from '@angular/core';\n${imports}\n\n` +
+          `@Component({ imports: [${declared.join(', ')}] })\nexport class MyComponent {}`
+        : imports;
+
+    // One line, and no `@use 'ngwr/theme'` above it: every component entry
+    // loads the token layer itself, measured — `@use 'ngwr/button'` alone emits
+    // the whole `:root` block, both schemes in it, and the box-sizing reset. The
+    // theme line is needed only to CONFIGURE the layer, which is a different
+    // recipe and lives on the theming guide.
+    const styled = entries.filter(e => e.styled);
+    const scss = styled.map(e => `@use '${e.path}';`).join('\n');
+
+    const files: DocCodeFile[] = [];
+    if (ts) files.push({ label: 'TS', language: 'typescript', code: ts });
+    if (scss) files.push({ label: 'SCSS', language: 'scss', code: scss });
+    return files.length > 0 ? files : null;
+  });
+
+  /**
+   * The section's own description, which follows whether an SCSS half was
+   * emitted. `ngwr/pipes`, `ngwr/validators`, `ngwr/utils` and `ngwr/date` carry
+   * no `sass` condition, so there is no second half to insist on — and insisting
+   * sends a careful reader looking for the line the page did not print, where
+   * `@use 'ngwr/pipes'` fails the Sass build outright rather than doing nothing.
+   */
+  protected readonly installDescription = computed(() =>
+    this.install()?.some(f => f.language === 'scss')
+      ? 'Import the class, and `@use` the entry point in your global styles: without it the component renders unstyled.'
+      : 'Import the class. This entry point has no stylesheet.'
+  );
+
   protected readonly cssVars = computed<DocCssVars | null>(() => {
-    const route = this.router.url.split(/[?#]/)[0].replace(/^\/+|\/+$/g, '');
+    const route = this.routeKey();
     return Object.hasOwn(CSS_VARS, route) ? CSS_VARS[route as DocCssVarRoute] : null;
   });
 
@@ -168,12 +376,7 @@ export class DocPageComponent {
    * reader has to know before the table is usable.
    */
   protected cssVarsDescription(subpath: string): string {
-    return (
-      `Custom properties \`${subpath}\` publishes. Each default below is declared on the component's ` +
-      `own selector, so a \`:root\` override is shadowed by it — set them on that selector, on a ` +
-      'wrapper you scope yourself, or inline on the element. Unlike the BEM class names, these are ' +
-      'the supported way to restyle the component.'
-    );
+    return `Set these on the component's selector or a wrapper, not on \`:root\`: the defaults are declared on \`${subpath}\`'s own element.`;
   }
 
   constructor() {
@@ -196,17 +399,13 @@ export class DocPageComponent {
     });
   }
 
-  protected labelColor(label: string): WrColor {
-    return label === 'Experimental' ? 'danger' : 'light';
-  }
-
   private deriveCategoryFromUrl(): string {
     // `/reference/utils/clamp` → ['reference', 'utils', 'clamp'].
     const [first = '', second = ''] = this.router.url.split(/[/?#]/).filter(s => s.length > 0);
 
     // Read the cluster before the first segment: the IA moved every page under
     // `/reference/*`, `/guides/*` and `/start/*`, and a first-segment-only
-    // lookup then missed for all but `animations` and `icons` — 174 prerendered
+    // lookup then missed for all but `bits` and `icons` — 174 prerendered
     // pages shipped `<title>… · Docs · ngwr</title>` off the fallback below,
     // which is exactly what a fallback looks like when it is doing the work.
     // A cluster page with nothing mapped under it keeps the cluster's own name.

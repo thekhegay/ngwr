@@ -1,77 +1,66 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-
-import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
+
+/** One row of the "when narrow" table. */
+interface Reflow {
+  readonly component: string;
+  readonly narrow: string;
+}
 
 @Component({
   selector: 'ngwr-mobile-page',
   templateUrl: './mobile.html',
-  imports: [RouterLink, WrTypography, DocPageComponent, DocSectionComponent, DocCodeComponent],
+  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent],
 })
 export default class MobilePageComponent {
+  protected readonly reflows: readonly Reflow[] = [
+    { component: 'wr-descriptions', narrow: 'Columns stack.' },
+    { component: 'wr-stepper', narrow: 'Turns vertical.' },
+    { component: 'wr-page-header', narrow: 'Actions move below the title.' },
+    { component: 'wr-toolbar', narrow: 'Wraps.' },
+    { component: 'wr-pagination', narrow: 'Collapses to current / total.' },
+    { component: 'wr-table', narrow: 'Rows become labelled cards.' },
+    { component: 'wr-tabs', narrow: 'Scrolls with an edge fade. No flag needed.' },
+  ];
+
   protected readonly snippets = {
-    overlaysProvider: `import { provideWrOverlay, provideWrResponsiveOverlays } from 'ngwr/overlay';
-
-bootstrapApplication(AppComponent, {
-  providers: [
-    provideWrOverlay(),
-    // App-wide opt-in: on viewports at or below the breakpoint, dialog /
-    // select / dropdown / popover collapse to a bottom-sheet, and the
-    // command-palette goes full-screen. Defaults to 640px.
-    provideWrResponsiveOverlays({ breakpoint: 640 }),
-  ],
-});`,
-    overlaysInput: `<!-- Or opt in one overlay at a time, without the global provider -->
-<wr-select responsive [(value)]="size">…</wr-select>
-
-// Dialog is service-opened, so pass it as an option:
-this.dialog.open(EditProfile, { responsive: true });`,
-    containerQuery: `<!-- Reflows on its OWN width (a container query), not the viewport — so it
-     adapts inside a narrow card or split pane even on a wide screen. -->
-<wr-descriptions responsive inline bordered>…</wr-descriptions>
+    containerQuery: `<wr-descriptions responsive inline bordered>…</wr-descriptions>
 <wr-stepper responsive>…</wr-stepper>
 <wr-page-header responsive title="Settings">…</wr-page-header>
 <wr-toolbar responsive>…</wr-toolbar>
 <wr-pagination responsive [(page)]="page" [total]="200" />
 <wr-table responsive [columns]="cols" [items]="rows" />`,
-    density: `import { provideWrDensity } from 'ngwr/density';
+    density: `import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
 
-// App-wide default — sm | md | lg | touch.
-provideWrDensity({ defaultDensity: 'touch' });
+// App-wide: sm | md | lg | touch
+provideWr(withDensity({ defaultDensity: 'touch' }));
 
-// …or scope it to a subtree with the directive:
-// <section wrDensity="touch">…</section>`,
-    swipe: `<!-- Drawer: render a grab handle, then drag it toward the edge to close -->
-<wr-drawer position="bottom" showHandle>…</wr-drawer>
+// One subtree: <section wrDensity="touch">…</section>`,
+    safeArea: `<wr-drawer position="bottom" safeArea>…</wr-drawer>`,
+    mediaScss: `@use 'ngwr/breakpoints' as bp;
 
-<!-- The rest is automatic — no input needed:
-       lightbox   swipe down       → close
-       toast      swipe sideways   → dismiss
-       carousel   swipe left/right → change slide -->`,
-    safeArea: `<!-- Edge-anchored drawers can pad the system safe-area inset -->
-<wr-drawer position="bottom" safeArea>…</wr-drawer>`,
-    media: `import { inject } from '@angular/core';
-import { WrMedia } from 'ngwr/media';
+.toolbar {
+  flex-direction: column;
+
+  @include bp.media-up(md) {
+    flex-direction: row;
+  }
+}`,
+    media: `import { BreakpointObserver } from '@angular/cdk/layout';
+import { inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 
 export class Toolbar {
-  private readonly media = inject(WrMedia);
+  private readonly breakpoints = inject(BreakpointObserver);
 
-  // Signals — recompute when the viewport crosses a breakpoint.
-  protected readonly isMd = this.media.matches('md');
-  protected readonly isWide = this.media.matches('(min-width: 1200px)');
-}`,
-
-    mediaSsr: `<!-- Reflows in CSS. Same markup on the server and in the browser, so
-     hydration matches and nothing jumps. -->
-<wr-table responsive [columns]="cols" [items]="rows" />
-
-<!-- Branches in the template. \`isMd()\` is false on the server, so the
-     prerendered HTML is always the narrow arm and the aside appears only
-     once the bundle has booted. -->
-@if (isMd()) {
-  <aside class="filters">…</aside>
+  // 768px is the \`md\` breakpoint in ngwr/breakpoints.
+  protected readonly isMd = toSignal(
+    this.breakpoints.observe('(min-width: 768px)').pipe(map(state => state.matches)),
+    { initialValue: false }
+  );
 }`,
   };
 }

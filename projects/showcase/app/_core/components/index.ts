@@ -2,6 +2,8 @@ export { DocPageComponent } from './doc-page/doc-page';
 export { DocSectionComponent } from './doc-section/doc-section';
 export { DocSnippetComponent } from './doc-snippet/doc-snippet';
 export { DocCodeComponent } from './doc-code/doc-code';
+export { DocInstallComponent } from './doc-install/doc-install';
+export { DocLabelComponent } from './doc-label/doc-label';
 export type { DocCodeFile } from './doc-code/types';
 export { DocApiComponent } from './doc-api/doc-api';
 export type { DocApiRow } from './doc-api/types';
@@ -17,6 +19,9 @@ export type {
   DocToggleControl,
 } from './doc-playground/types';
 export { DocSeeAlsoComponent } from './doc-see-also/doc-see-also';
+export { DocRemovedComponent } from './doc-removed/doc-removed';
+export { DocNgtrueComponent } from './doc-ngtrue/doc-ngtrue';
+export type { DocNgtrueVariant } from './doc-ngtrue/types';
 export type { DocIndexData, DocIndexSection } from './doc-index/types';
 export type { DocSeeAlsoKind, DocSeeAlsoLink } from './doc-see-also/types';
 export { DocRichPipe } from './doc-rich/doc-rich';

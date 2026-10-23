@@ -9,7 +9,7 @@ import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angul
 import { Directionality } from '@angular/cdk/bidi';
 import { type ConnectedPosition, type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { isPlatformBrowser } from '@angular/common';
+import { Location, isPlatformBrowser } from '@angular/common';
 import {
   DOCUMENT,
   DestroyRef,
@@ -25,8 +25,8 @@ import {
 import { WR_OVERLAY, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import { toClassList } from 'ngwr/utils';
 
-import type { WrTourPlacement, WrTourStep } from './interfaces';
 import { WR_TOUR_STEP, WrTourPopup } from './tour-popup';
+import type { WrTourPlacement, WrTourStep } from './types';
 
 /** Fallback order per preferred side — the opposite side first, then the sides. */
 const FALLBACKS: Record<WrTourPlacement, readonly WrTourPlacement[]> = {
@@ -83,6 +83,7 @@ export class WrTour {
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly document = inject(DOCUMENT);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly location = inject(Location);
 
   private readonly steps = signal<readonly WrTourStep[]>([]);
   private readonly cursor = signal(-1);
@@ -93,6 +94,7 @@ export class WrTour {
   private detachKeydown: (() => void) | null = null;
   private detachReposition: (() => void) | null = null;
   private restoreFocus: HTMLElement | null = null;
+  private stopWatchingUrl: (() => void) | null = null;
 
   /** Whether a tour is running. */
   readonly active = computed(() => this.cursor() >= 0);
@@ -155,6 +157,14 @@ export class WrTour {
     this.stop();
     this.steps.set(steps);
     this.restoreFocus = this.document.activeElement as HTMLElement | null;
+    // A tour belongs to the page it was started on, the way `WrDialog` and
+    // `WrDrawerManager` tie a modal to its URL. Nothing ended it on navigation,
+    // so following a link mid-tour left the card pointing at an element the
+    // router had just removed — the cut-out collapsed to a 12px box at the
+    // corner, its 9999px shadow dimming the whole new page, and focus trapped in
+    // a card about the page the user had left. `onUrlChange` rather than
+    // `subscribe()`, which hears popstate alone and misses `router.navigate()`.
+    this.stopWatchingUrl = this.location.onUrlChange(() => this.stop());
     this.goTo(0, 1);
   }
 
@@ -170,6 +180,12 @@ export class WrTour {
 
   /** End the tour and return focus where it was. */
   stop(): void {
+    // Unhooked a microtask late, as `WrDialog` does: `Location` notifies with a
+    // `forEach`, and unregistering from inside that notification splices the
+    // array it is walking, which would skip the listener after ours.
+    const unwatch = this.stopWatchingUrl;
+    this.stopWatchingUrl = null;
+    if (unwatch) queueMicrotask(unwatch);
     this.teardownStep();
     this.steps.set([]);
     this.cursor.set(-1);
@@ -267,9 +283,16 @@ export class WrTour {
     // without this the card keeps the direction the step opened in, with the
     // 12px gap that held it clear of the spotlight now pointing into it.
     // Per step, because every move disposes this ref and builds the next.
-    wrFollowDirection(this.overlayRef, this.dir, this.injector, direction =>
-      positionStrategy.withPositions(this.stepPositions(placement, direction === 'rtl'))
-    );
+    //
+    // The cut-out moves with it. The target itself changes place when the page
+    // mirrors, and the spotlight is re-measured only on scroll and resize, so a
+    // flip left it highlighting empty space while the card, re-placed by the CDK,
+    // pointed at the target sitting under the dim. The flip has already been laid
+    // out by the time this runs — the CDK measures the same element right after.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector, direction => {
+      positionStrategy.withPositions(this.stepPositions(placement, direction === 'rtl'));
+      this.placeSpotlight(target);
+    });
 
     const portal = new ComponentPortal(
       WrTourPopup,

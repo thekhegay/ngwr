@@ -276,6 +276,10 @@ export class WrTimePanel implements FormValueControl<Date | null> {
     const n = readNumber(raw, this.numerals);
     if (Number.isNaN(n)) return;
     if (this.is12h()) {
+      // A 12-hour clock has no hour 0, so a zero is the first digit of 01–09, not a
+      // request for 1: clamped and re-rendered as `01`, it put the next digit after
+      // it, and `019` clamped to 12 — typing `09` set 12 AM.
+      if (Math.trunc(n) === 0) return;
       const h12 = clamp(Math.trunc(n), 1, 12) % 12;
       this.hours.set(this.isPm() ? h12 + 12 : h12);
     } else {
@@ -306,7 +310,13 @@ export class WrTimePanel implements FormValueControl<Date | null> {
     this.emit();
   }
 
-  protected onBlur(): void {
+  /**
+   * Leaving a box puts its number back. A box held mid-retype — emptied, or left on
+   * a 12-hour clock's lone `0` — commits nothing, and the `[value]` binding writes
+   * only when the number changes, so the box kept that text over the time it holds.
+   */
+  protected onBlur(event: FocusEvent, shown: string): void {
+    (event.target as HTMLInputElement).value = shown;
     this.touch.emit();
   }
 

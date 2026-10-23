@@ -2,10 +2,10 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrAlert } from './alert';
-import type { WrAlertType } from './interfaces';
+import type { WrAlertType } from './types';
 
 @Component({
   imports: [WrAlert],
@@ -205,5 +205,86 @@ describe('WrAlert emits a modifier for every documented type', () => {
     fixture.componentInstance.type.set(type);
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('wr-alert')!.classList).toContain(`wr-alert--${type}`);
+  });
+});
+
+/**
+ * The close button leaves the DOM with the rest of the alert, and a focused element
+ * that leaves drops the caret on `<body>`: the next Tab, and a screen reader's place,
+ * started over from the top of the page. jsdom lays nothing out, so every candidate
+ * is given a box; `getFocusableElements` drops what has none.
+ */
+describe('WrAlert dismissed from the keyboard', () => {
+  @Component({
+    imports: [WrAlert],
+    template: `
+      <button id="before" type="button">Before</button>
+      <wr-alert title="Saved" closable (closed)="onClosed()" />
+      @if (showAfter()) {
+        <button id="after" type="button">After</button>
+      }
+      <button id="elsewhere" type="button">Elsewhere</button>
+    `,
+  })
+  class FocusHost {
+    readonly showAfter = signal(true);
+    moveTo: string | null = null;
+    onClosed(): void {
+      if (this.moveTo) document.getElementById(this.moveTo)!.focus();
+    }
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+
+  const dismiss = async (): Promise<void> => {
+    const close = root().querySelector<HTMLButtonElement>('.wr-alert__close')!;
+    close.focus();
+    close.click();
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      { width: 1, height: 1 },
+    ] as unknown as DOMRectList);
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(FocusHost);
+    document.body.appendChild(fixture.nativeElement);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('moves focus on to whatever follows the alert', async () => {
+    await dismiss();
+    expect(document.activeElement?.id).toBe('after');
+  });
+
+  it('moves it back to whatever precedes it when nothing follows', async () => {
+    fixture.componentInstance.showAfter.set(false);
+    fixture.detectChanges();
+    root().querySelector('#elsewhere')!.remove();
+
+    await dismiss();
+    expect(document.activeElement?.id).toBe('before');
+  });
+
+  it('leaves focus where a (closed) handler put it', async () => {
+    fixture.componentInstance.moveTo = 'elsewhere';
+    await dismiss();
+    expect(document.activeElement?.id).toBe('elsewhere');
+  });
+
+  it('takes no focus it did not have', async () => {
+    const before = root().querySelector<HTMLButtonElement>('#before')!;
+    before.focus();
+    root().querySelector<HTMLButtonElement>('.wr-alert__close')!.click();
+    await fixture.whenStable();
+
+    expect(document.activeElement).toBe(before);
   });
 });

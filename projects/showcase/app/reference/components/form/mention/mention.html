@@ -1,0 +1,51 @@
+<ngwr-doc-page
+  title="Mention"
+  description="Suggest names or tags while typing `@` in a text field."
+  [keywords]="['mention', 'autocomplete', 'wr-mention', 'tagging']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Type `@` at the start of a word to open the list; arrows move, Enter or Tab inserts, Esc closes."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <textarea
+        wrInput
+        wrMention
+        aria-label="Message with @mentions"
+        [wrMentionItems]="users"
+        [displayWith]="userDisplay"
+        [(ngModel)]="basicText"
+        rows="3"
+      ></textarea>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom trigger"
+    description="`triggers` sets the characters that open the list, such as `#` for tags."
+  >
+    <ngwr-doc-code [code]="snippets.multi" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <textarea
+        wrInput
+        wrMention
+        aria-label="Message with # tags"
+        [wrMentionItems]="tags"
+        [triggers]="['#']"
+        [(ngModel)]="multiText"
+        rows="3"
+      ></textarea>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

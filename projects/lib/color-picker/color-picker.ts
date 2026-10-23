@@ -31,7 +31,6 @@ import { clamp } from 'ngwr/utils';
 
 import {
   formatColor,
-  hslToRgb,
   hsvToRgb,
   parseColor,
   parseHex,
@@ -41,7 +40,7 @@ import {
   type WrHsl,
   type WrRgb,
 } from './color';
-import type { WrColorFormat } from './interfaces';
+import type { WrColorFormat } from './types';
 
 type Tab = 'hex' | 'rgb' | 'hsl';
 
@@ -92,7 +91,7 @@ function hasAlphaDigits(hex: string): boolean {
     role: 'group',
     '[attr.aria-labelledby]': 'labelledBy()',
     '[style.--wr-color-picker-hue]': 'hueCss()',
-    '[style.--wr-color-picker-rgb]': 'rgbCss()',
+    '[style.--wr-color-picker-color]': 'opaqueCss()',
   },
   // The picker is the control a `<wr-form-field>` wraps; the `<wr-segmented>` tab
   // strip in its own template is a part, not a control. Without this shield the
@@ -178,10 +177,14 @@ export class WrColorPicker implements FormValueControl<string> {
   /** SV canvas background colour (full-saturation hue). */
   protected readonly hueCss = computed(() => `hsl(${this.h()}, 100%, 50%)`);
 
-  /** RGB string used for the alpha-slider gradient. */
-  protected readonly rgbCss = computed(() => {
+  /**
+   * The current colour at full opacity, the far end of the alpha slider's ramp.
+   * A whole colour rather than a channel list, so the stylesheet fades it with
+   * `transparent` instead of splicing channels into `rgba()`.
+   */
+  protected readonly opaqueCss = computed(() => {
     const { r, g, b } = this.rgb();
-    return `${r}, ${g}, ${b}`;
+    return `rgb(${r} ${g} ${b})`;
   });
 
   /**
@@ -209,8 +212,24 @@ export class WrColorPicker implements FormValueControl<string> {
   /** Active tab in the input switcher. */
   protected readonly activeTab = signal<Tab>('hex');
 
-  /** HSL view of the current colour, computed lazily. */
-  protected readonly hslView = computed<WrHsl>(() => rgbToHsl(this.rgb()));
+  /**
+   * The HSL last typed into the HSL boxes, with the value it produced.
+   *
+   * HSL read back off a colour has no hue at grey and no saturation at black or
+   * white, so the boxes re-derived after `L` = 0 came back `0, 0, 0`, and the next
+   * keystroke built on that: retyping the lightness turned any colour grey for
+   * good. Kept only while `value` is still the one it produced — a drag, a swatch
+   * or an outside write reads the colour again.
+   */
+  private readonly typedHsl = signal<{ readonly hsl: WrHsl; readonly value: string } | null>(null);
+
+  /** HSL view of the current colour, computed lazily — see {@link typedHsl}. */
+  protected readonly hslView = computed<WrHsl>(() => {
+    const typed = this.typedHsl();
+    if (typed?.value === this.value()) return typed.hsl;
+    // The hue the surfaces hold, not the one RGB reports — which is 0 at every grey.
+    return { ...rgbToHsl(this.rgb()), h: this.h() };
+  });
 
   /** Alpha as integer percent — the numeric tabs and the alpha slider's `aria-valuenow`. */
   protected readonly alphaPercent = computed(() => Math.round(this.a() * 100));
@@ -525,10 +544,23 @@ export class WrColorPicker implements FormValueControl<string> {
     if (tab) this.activeTab.set(tab);
   }
 
+  /**
+   * The number in a channel box, or `null` while there is none. An emptied box is
+   * someone mid-retype, not a request for zero: `Number('')` is 0, so committing it
+   * turned the colour black — or, for the alpha box, fully transparent.
+   */
+  private channelValue(event: Event): number | null {
+    const raw = (event.target as HTMLInputElement).value;
+    if (!raw.trim()) return null;
+    const n = Number(raw);
+    return Number.isNaN(n) ? null : n;
+  }
+
   protected onRgbChannel(channel: 'r' | 'g' | 'b', event: Event): void {
     if (this.disabled() || this.readonly()) return;
-    const n = clamp(Number((event.target as HTMLInputElement).value), 0, 255);
-    if (Number.isNaN(n)) return;
+    const typed = this.channelValue(event);
+    if (typed === null) return;
+    const n = clamp(typed, 0, 255);
     const current = this.rgb();
     const next: WrRgb = { ...current, [channel]: n };
     this.applyRgb(next);
@@ -536,19 +568,25 @@ export class WrColorPicker implements FormValueControl<string> {
 
   protected onHslChannel(channel: 'h' | 's' | 'l', event: Event): void {
     if (this.disabled() || this.readonly()) return;
-    const n = Number((event.target as HTMLInputElement).value);
-    if (Number.isNaN(n)) return;
+    const n = this.channelValue(event);
+    if (n === null) return;
     const current = this.hslView();
     const next: WrHsl =
       channel === 'h' ? { ...current, h: clamp(n, 0, 360) } : { ...current, [channel]: clamp(n, 0, 100) / 100 };
-    this.applyRgb(hslToRgb(next));
+    // Straight into HSV rather than through RGB, which has no hue to hand back at grey.
+    const v = next.l + next.s * Math.min(next.l, 1 - next.l);
+    this.h.set(next.h);
+    this.s.set(v === 0 ? 0 : 2 * (1 - next.l / v));
+    this.v.set(v);
+    this.emit();
+    this.typedHsl.set({ hsl: next, value: this.value() });
   }
 
   protected onAlphaPercent(event: Event): void {
     if (this.disabled() || this.readonly()) return;
-    const n = clamp(Number((event.target as HTMLInputElement).value), 0, 100);
-    if (Number.isNaN(n)) return;
-    this.a.set(n / 100);
+    const typed = this.channelValue(event);
+    if (typed === null) return;
+    this.a.set(clamp(typed, 0, 100) / 100);
     this.emit();
   }
 

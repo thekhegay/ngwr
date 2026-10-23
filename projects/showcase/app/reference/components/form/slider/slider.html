@@ -1,0 +1,59 @@
+<ngwr-doc-page
+  title="Slider"
+  description="Pick a number, or a range of two, by dragging a thumb."
+  [keywords]="['slider', 'range', 'wr-slider']"
+  [labels]="['Signal Forms', 'a11y']"
+>
+  <ngwr-doc-section
+    title="Single value"
+    description="Bind a number with `[(value)]` or [any Angular form](/guides/forms)."
+  >
+    <ngwr-doc-snippet [code]="snippets.single" language="angular-html">
+      <wr-slider [(value)]="volume" min="0" max="100" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Range" description="Set `range` to render two thumbs. The bound value is `[low, high]`.">
+    <ngwr-doc-snippet [code]="snippets.range" language="angular-html">
+      <wr-slider [(value)]="priceRange" range min="0" max="1000" step="50" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Step"
+    description="Steps count from `min`: with `min` 5 and `step` 10 the thumb stops on 5, 15, 25."
+  >
+    <ngwr-doc-snippet [code]="snippets.stepped" language="angular-html">
+      <wr-slider [(value)]="stepped" min="0" max="100" step="25" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled">
+    <ngwr-doc-snippet [code]="snippets.disabled" language="angular-html">
+      <wr-slider [(value)]="volume" disabled />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard"
+    description="Arrows move one step, Shift + arrow and PageUp / PageDown ten steps, Home / End jump to the ends."
+  />
+
+  <ngwr-doc-section title="Gotchas">
+    <ul>
+      <li>
+        A value outside <code>[min]</code> / <code>[max]</code> is drawn at the end of the track but stays in the model.
+        Flag it with <code>Validators.max</code>.
+      </li>
+      <li><code>null</code> is ignored, so <code>reset()</code> leaves the thumb in place. Reset to a number.</li>
+      <li>
+        In <code>range</code> mode, bind <code>[low, high]</code>: a single number puts the high thumb at
+        <code>max</code>.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

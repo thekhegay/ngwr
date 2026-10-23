@@ -79,6 +79,7 @@ export const wrFr: WrI18nCatalog = {
   },
   stepper: {
     optional: 'facultatif',
+    completed: 'terminé',
   },
   transfer: {
     source: 'Disponibles',
@@ -93,32 +94,6 @@ export const wrFr: WrI18nCatalog = {
   },
   form: {
     optional: 'facultatif',
-  },
-  validation: {
-    required: 'Ce champ est obligatoire.',
-    requiredTrue: 'Cette case doit être cochée.',
-    email: 'Saisissez une adresse e-mail valide.',
-    // Le nombre en dernier dans les deux : « au moins {{requiredLength}}
-    // caractères » est faux à un, le français mettant le nom au singulier à
-    // zéro comme à un, et il n'existe ici aucune machinerie de pluriel.
-    minlength: 'Nombre minimal de caractères : {{requiredLength}}.',
-    maxlength: 'Nombre maximal de caractères : {{requiredLength}}.',
-    min: 'Saisissez {{min}} ou plus.',
-    max: 'Saisissez {{max}} ou moins.',
-    pattern: "Cette valeur n'est pas au format attendu.",
-    noWhitespace: "Cette valeur ne peut pas contenir d'espaces.",
-    hexColor: 'Saisissez une couleur hexadécimale, par ex. #1a2b3c.',
-    url: 'Saisissez une URL valide.',
-    cardNumber: 'Saisissez un numéro de carte valide.',
-    cvc: 'Saisissez le code de sécurité à {{length}} chiffres.',
-    iban: 'Saisissez un IBAN valide.',
-    match: 'Les deux valeurs ne correspondent pas.',
-    matchFields: 'Ces champs ne correspondent pas.',
-    oneOf: "Choisissez l'une des valeurs autorisées.",
-    minDate: 'Choisissez une date ultérieure.',
-    maxDate: 'Choisissez une date antérieure.',
-    dateFormat: 'Format attendu : {{example}}',
-    dateFilter: "Cette date n'est pas disponible.",
   },
   select: {
     label: 'Sélectionner',
@@ -252,13 +227,15 @@ export const wrFr: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Graphique à barres',
+  },
   calendarHeatmap: {
     label: 'Carte de chaleur du calendrier',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Graphique en courbes',
-    thousands: '{{value}} k',
   },
   donutChart: {
     label: 'Graphique en anneau',
@@ -277,9 +254,6 @@ export const wrFr: WrI18nCatalog = {
     pagination: 'Pagination du carrousel',
     roledescription: 'carrousel',
     slideRoledescription: 'diapositive',
-  },
-  actionSheet: {
-    label: 'Actions',
   },
   alert: {
     close: "Fermer l'alerte",
@@ -311,15 +285,6 @@ export const wrFr: WrI18nCatalog = {
   // cas avec `[ariaLabel]`.
   popover: {
     label: 'Fenêtre contextuelle',
-  },
-  markdown: {
-    copy: 'Copier le code',
-    copied: 'Copié',
-    // En français un deux-points est précédé d'une espace insécable, et c'est
-    // bien U+00A0 qui se trouve dans ces deux valeurs — invisible à la relecture,
-    // à ne pas remplacer par une espace ordinaire. Idem dans `mention`.
-    taskDone: 'Fait :',
-    taskTodo: 'À faire :',
   },
   editor: {
     label: 'Texte enrichi',
@@ -359,6 +324,9 @@ export const wrFr: WrI18nCatalog = {
   },
   mention: {
     listbox: 'Mentions',
+    // En français un deux-points est précédé d'une espace insécable, et c'est
+    // bien U+00A0 qui se trouve dans ces deux valeurs — invisible à la relecture,
+    // à ne pas remplacer par une espace ordinaire.
     available: 'Correspondances disponibles : {{count}}',
     inserted: 'Inséré : {{label}}',
   },
@@ -394,6 +362,9 @@ export const wrFr: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Barre latérale',
+    containsCurrent: 'contient la page actuelle',
+    subpages: 'Sous-pages de {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Chargement',

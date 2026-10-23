@@ -1,52 +1,79 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../counter/styles' as counter-styles; // WrCountUp
+
 .wr-statistic {
+  --wr-statistic-font-family: var(--wr-font-family-base);
+  --wr-statistic-gap: var(--wr-space-xs);
+  --wr-statistic-label-font-size: var(--wr-text-sm);
+  --wr-statistic-label-line-height: var(--wr-leading-normal);
+  --wr-statistic-value-gap: var(--wr-space-xs);
+  --wr-statistic-value-font-size: var(--wr-text-3xl);
+  --wr-statistic-value-font-weight: var(--wr-font-weight-semibold);
+  --wr-statistic-value-line-height: var(--wr-leading-tight);
+  --wr-statistic-value-letter-spacing: var(--wr-tracking-tight);
+  // One hook for both affixes — `__prefix` and `__suffix` are the same slot on
+  // either side of the value, the way `--wr-input-group-affix` covers both.
+  --wr-statistic-affix-font-size: var(--wr-text-lg);
+  --wr-statistic-affix-font-weight: var(--wr-font-weight-medium);
+  --wr-statistic-delta-gap: var(--wr-space-xs);
+  --wr-statistic-delta-font-size: var(--wr-text-xs);
+  --wr-statistic-delta-font-weight: var(--wr-font-weight-semibold);
+
   display: inline-flex;
   flex-direction: column;
-  gap: 0.25rem;
-  font-family: var(--wr-font-family-base);
+  gap: var(--wr-statistic-gap);
+  font-family: var(--wr-statistic-font-family);
   color: var(--wr-color-on-surface);
 
   &__label {
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-statistic-label-font-size);
     color: var(--wr-color-on-surface-muted);
-    line-height: var(--wr-leading-normal);
+    line-height: var(--wr-statistic-label-line-height);
   }
 
   &__value {
     display: inline-flex;
     align-items: baseline;
-    gap: 0.25rem;
-    font-size: var(--wr-text-3xl);
-    font-weight: var(--wr-font-weight-semibold);
-    line-height: var(--wr-leading-tight);
-    letter-spacing: var(--wr-tracking-tight);
+    gap: var(--wr-statistic-value-gap);
+    font-size: var(--wr-statistic-value-font-size);
+    font-weight: var(--wr-statistic-value-font-weight);
+    line-height: var(--wr-statistic-value-line-height);
+    letter-spacing: var(--wr-statistic-value-letter-spacing);
     font-variant-numeric: tabular-nums;
   }
 
   &__prefix,
   &__suffix {
-    font-size: var(--wr-text-lg);
-    font-weight: var(--wr-font-weight-medium);
+    font-size: var(--wr-statistic-affix-font-size);
+    font-weight: var(--wr-statistic-affix-font-weight);
     color: var(--wr-color-on-surface-muted);
   }
 
   &__delta {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: var(--wr-text-xs);
-    font-weight: var(--wr-font-weight-semibold);
+    gap: var(--wr-statistic-delta-gap);
+    font-size: var(--wr-statistic-delta-font-size);
+    font-weight: var(--wr-statistic-delta-font-weight);
     font-variant-numeric: tabular-nums;
 
-    // color-ok: direction is DRAWN — statistic.html gives up and down two
-    // different triangle paths (apex up `M5 1 L9 8 L1 8 Z`, apex down
-    // `M5 9 L9 2 L1 2 Z`), and the value reads +12.4% against -0.4%.
     &--up {
       color: var(--wr-color-success-ink);
     }
 
-    // color-ok: see `--up` above — the two triangles point opposite ways.
     &--down {
       color: var(--wr-color-danger-ink);
     }
@@ -63,12 +90,13 @@
 // descendant). The column count follows the GROUP's own inline size — not the
 // viewport — so it reflows correctly inside any column, card, or split pane.
 .wr-statistic-group {
-  --wr-statistic-group-gap: 1.5rem;
+  --wr-statistic-group-gap: var(--wr-space-xl);
+  --wr-statistic-group-font-family: var(--wr-font-family-base);
 
   container: wr-statistic-group / inline-size;
   display: block;
   width: 100%;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-statistic-group-font-family);
 
   // Intrinsic "RAM" grid (Repeat, Auto-fit, Minmax): each column is at least
   // `--wr-statistic-group-min`, but also at least the width needed to keep the
@@ -100,6 +128,6 @@
 // viewport.
 @container wr-statistic-group (max-width: 28rem) {
   .wr-statistic-group__grid {
-    --wr-statistic-group-gap: 1rem;
+    --wr-statistic-group-gap: var(--wr-space-lg);
   }
 }

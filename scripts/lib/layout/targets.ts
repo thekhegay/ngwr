@@ -12,9 +12,8 @@
  * of everything that renders. A regression this gate exists to catch looks like
  * "a density multiplier moved and every control grew two pixels" or "a padding
  * token changed and the table row is now taller than the design" — silent
- * changes that no other gate reports, because `check:contrast` measures colour,
- * `check:state-a11y` measures roles and names, and `check:rtl-layout` only
- * compares a page against its own mirror.
+ * changes that no other gate reports, because `check:contrast` measures colour
+ * and `check:state-a11y` measures roles and names.
  *
  * Adding one: measure a component's own root, not a wrapper the showcase owns.
  * The selectors are the library's `.wr-*` classes, which are public API — a demo

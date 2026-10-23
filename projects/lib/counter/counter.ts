@@ -24,10 +24,16 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 
 import { easeOutCubic } from './easing';
-import type { WrCounterMode } from './interfaces';
+import type { WrCounterMode } from './types';
 
-/** Visual cell in odometer mode — either a 0-9 column or a static glyph. */
-type Cell = { readonly kind: 'digit'; readonly fraction: number } | { readonly kind: 'static'; readonly char: string };
+/**
+ * Visual cell in odometer mode — either a 0-9 column or a static glyph. `key` is the
+ * column's place counted from the RIGHT, so a wheel keeps its element when columns
+ * come or go on the left.
+ */
+type Cell = { readonly key: number } & (
+  { readonly kind: 'digit'; readonly fraction: number } | { readonly kind: 'static'; readonly char: string }
+);
 
 /**
  * Animated number display with two modes:
@@ -90,6 +96,8 @@ export class WrCounter {
   });
 
   private readonly current = signal<number>(0);
+  /** Where the running roll started; read only while `current` is short of the value. */
+  private readonly from = signal<number>(0);
   private readonly locale = inject(LOCALE_ID);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly platform = inject(WrPlatform);
@@ -106,33 +114,44 @@ export class WrCounter {
    */
   protected readonly odoText = computed(() => `${this.prefix()}${this.format(this.value())}${this.suffix()}`);
 
-  /** Odometer cells — one per character in the formatted target string. */
+  /** Odometer cells — one per character of the widest string the roll passes through. */
   protected readonly cells = computed<readonly Cell[]>(() => {
-    // Build the string with target sign + max length so we can interpolate
-    // each digit position smoothly.
     const target = this.value();
     const live = this.current();
-    const formattedTarget = this.format(target);
-    const formattedLive = this.format(live);
-
-    // Right-align so trailing digits line up.
-    const maxLen = Math.max(formattedTarget.length, formattedLive.length);
-    const padTarget = formattedTarget.padStart(maxLen, ' ');
-    const padLive = formattedLive.padStart(maxLen, ' ');
+    // The layout of the whole roll is the longer of where it started and where it ends,
+    // right-aligned so trailing digits line up. Laid out from the target and the live
+    // value alone, a large decrease kept a wheel only where BOTH had a digit: 123456 to
+    // 7 rolled the ones column and blanked the other five at once. Every column either
+    // end has is a wheel now, so each rolls to its own digit — down to 0 for a place the
+    // target does not have — and the width holds still until the roll lands.
+    const values = live === target ? [target, live] : [target, live, this.from()];
+    // Places only: a sign laid out with them landed mid-number whenever the start was
+    // wider than the live value (-1,234 to 5 drew `0-935`), so it goes in front below.
+    const strings = values.map(n => this.format(Math.abs(n)));
+    const maxLen = Math.max(...strings.map(s => s.length));
+    const padded = strings.map(s => s.padStart(maxLen, ' '));
 
     const cells: Cell[] = [];
-    for (let i = 0; i < maxLen; i++) {
-      const t = padTarget[i];
-      const l = padLive[i];
-      if (/[0-9]/.test(t) && /[0-9]/.test(l)) {
+    let digitsRight = 0;
+    for (let i = maxLen - 1; i >= 0; i--) {
+      const chars = padded.map(s => s[i]);
+      const key = maxLen - i;
+      if (chars.some(c => /[0-9]/.test(c))) {
         // Interpolate the fractional digit so the strip rolls smoothly —
         // multi-digit rollover (9 → 0 carries 1) looks continuous.
-        const fraction = this.digitFractionAt(live, target, i, maxLen);
-        cells.push({ kind: 'digit', fraction });
+        const fraction = this.digitFraction(live, target, digitsRight - this.decimals());
+        cells.unshift({ key, kind: 'digit', fraction });
+        digitsRight++;
       } else {
-        cells.push({ kind: 'static', char: t === ' ' ? '' : t });
+        // A separator, the target's first; a pad is nothing.
+        cells.unshift({ key, kind: 'static', char: chars.find(c => c !== ' ') ?? '' });
       }
     }
+
+    // The live value's sign, whatever the locale writes ahead of its digits.
+    const signed = this.format(live);
+    const sign = signed.endsWith(strings[1]) ? signed.slice(0, signed.length - strings[1].length) : '';
+    if (sign) cells.unshift({ key: maxLen + 1, kind: 'static', char: sign });
     return cells;
   });
 
@@ -154,6 +173,7 @@ export class WrCounter {
         return;
       }
       this.cancel();
+      this.from.set(start);
       const startTs = performance.now();
       const dur = this.duration();
       const tick = (now: number): void => {
@@ -188,22 +208,13 @@ export class WrCounter {
   }
 
   /**
-   * Compute the smoothly-interpolated digit (0..10) at column `i` of the
-   * formatted live string. Returns the integer digit + a fraction so the
-   * strip CSS translate looks like a real rolling odometer.
+   * The smoothly-interpolated digit (0..10) of `live` at the column whose place value is
+   * `10 ** placePower`. Returns the integer digit + a fraction so the strip CSS translate
+   * looks like a real rolling odometer.
    */
-  private digitFractionAt(live: number, target: number, columnIndex: number, totalLen: number): number {
-    // Determine the place value at this column. Account for grouping separators
-    // and the decimal point by counting digits to the right of this column in
-    // the formatted target.
-    const formattedTarget = this.format(target);
-    const padded = formattedTarget.padStart(totalLen, ' ');
-    const tail = padded.slice(columnIndex + 1);
-    const digitsRight = (tail.match(/[0-9]/g) ?? []).length;
-    const placePower = digitsRight - this.decimals();
+  private digitFraction(live: number, target: number, placePower: number): number {
     const place = Math.pow(10, placePower);
-    const absLive = Math.abs(live);
-    const raw = absLive / place;
+    const raw = Math.abs(live) / place;
     // Modulo 10 gives the digit at this column with fractional rollover —
     // mid-animation this looks like a real wheel rolling between digits.
     const mod = raw - Math.floor(raw / 10) * 10;

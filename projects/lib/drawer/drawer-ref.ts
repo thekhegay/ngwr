@@ -5,11 +5,13 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { ConfigurableFocusTrap } from '@angular/cdk/a11y';
+import type { FocusTrap } from '@angular/cdk/a11y';
 import type { OverlayRef } from '@angular/cdk/overlay';
 import type { ComponentRef } from '@angular/core';
 
 import { ReplaySubject } from 'rxjs';
+
+import { drawerHasFocus, focusIsLost } from './drawer-focus';
 
 /**
  * Handle returned by `WrDrawerManager.open()`.
@@ -55,10 +57,13 @@ export class WrDrawerRef<C, R = unknown> {
   componentRef: ComponentRef<C> | null = null;
 
   /** @internal */
-  focusTrap: ConfigurableFocusTrap | null = null;
+  focusTrap: FocusTrap | null = null;
 
   /** @internal */
   previouslyFocused: HTMLElement | null = null;
+
+  /** @internal — `false` for a drawer opened with `hasBackdrop: false`. */
+  modal = true;
 
   constructor(private readonly _overlayRef: OverlayRef) {}
 
@@ -94,12 +99,16 @@ export class WrDrawerRef<C, R = unknown> {
     this.focusTrap = null;
     const restore = this.previouslyFocused;
     this.previouslyFocused = null;
+    // A non-modal drawer sends focus back only from inside itself, or when it
+    // has been lost: a reader already working on the page stays there. Read
+    // before disposal, which takes the focused element out of the page.
+    const returnFocus = this.modal || drawerHasFocus(this._overlayRef) || focusIsLost();
     this._overlayRef.dispose();
     // Drop the destroyed component so a retained ref doesn't pin its instance,
     // host element and view in memory.
     this.componentRef = null;
     // Restore focus after disposal so the trigger is reachable again.
-    if (restore && typeof restore.focus === 'function') {
+    if (returnFocus && restore && typeof restore.focus === 'function') {
       restore.focus();
     }
   }

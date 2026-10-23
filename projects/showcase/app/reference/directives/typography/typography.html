@@ -1,15 +1,11 @@
 <ngwr-doc-page
   title="wrTypography"
-  description="One directive covering every text role. It sets no element of its own — put it on the `<p>`, `<h1>`, `<code>` or `<ul>` you already have, pick a variant, and it applies the shared `--wr-text-*` / `--wr-font-weight-*` / `--wr-leading-*` tokens by binding a class."
+  updated="15.0.0"
+  description="Style any text element with a shared text role."
   [keywords]="['typography', 'wr-typography', 'variant', 'tone', 'align', 'truncate', 'mono', 'directive']"
   [labels]="['Directive']"
 >
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Type is the one system every screen touches, and hand-rolled heading styles drift apart the moment two people write CSS. Routing every text role through one directive means a theme override re-skins the whole app, and the roles stay a closed set instead of a pile of one-off classes."
-  />
-
-  <ngwr-doc-section title="Selector" description="Attribute directive — it styles the host element, never replaces it.">
+  <ngwr-doc-section title="Selector" description="Put it on the element you already have and pick a `variant`.">
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start">
         <p wrTypography variant="overline" tone="primary">ngwr/typography</p>
@@ -21,21 +17,15 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Inputs" description="The complete surface — five inputs, no outputs, no public methods.">
+  <ngwr-doc-section title="Inputs">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Variants"
-    description="`WrTypographyVariant` in full. Several carry their own colour, which is what `tone: null` preserves."
-  >
+  <ngwr-doc-section title="Variants" description="Some variants have their own colour, which `tone` overrides.">
     <ngwr-doc-api [rows]="variants" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Emitted classes"
-    description="The directive binds `[class]` to a single computed string. Useful when you need to target its output from your own stylesheet."
-  >
+  <ngwr-doc-section title="Emitted classes" description="Target these from your own stylesheet.">
     <ngwr-doc-api [rows]="classes" />
   </ngwr-doc-section>
 

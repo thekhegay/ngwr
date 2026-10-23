@@ -38,7 +38,7 @@ import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
-import type { WrTreeNode, WrTreeSelectionMode } from './interfaces';
+import type { WrTreeNode, WrTreeSelectionMode } from './types';
 
 interface FlatNode<TId> {
   readonly node: WrTreeNode<TId>;
@@ -167,6 +167,10 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
    * Accessible name of the overlay trigger. Falls back to the placeholder, then
    * to `select.label` — a `role="combobox"` with nothing selected and no
    * placeholder otherwise has no name at all.
+   *
+   * An INLINE tree puts it on the `role="tree"` itself, which ARIA requires to
+   * have a name — an `aria-label` on the `<wr-tree>` host never reaches it.
+   * Inside a `<wr-form-field>` the field's label names the tree instead.
    */
   readonly ariaLabel = input<string | null>(null);
 
@@ -273,17 +277,48 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   protected readonly focusedIndex = signal(0);
 
   /**
-   * The cursor as the DOM sees it, clamped to the list that exists RIGHT NOW.
+   * The node the cursor is on, written with {@link focusedIndex}. The index alone
+   * names a SLOT: opening a branch above the cursor or collapsing one around it
+   * moves every row below, and the tab stop then sat on whichever node took the
+   * slot — the next arrow walked from a row the user had never been on.
+   */
+  private readonly cursorId = signal<{ readonly id: TId } | null>(null);
+
+  /** Each node's parent id, so a cursor hidden by a collapse can climb to a visible row. */
+  private readonly parentMap = computed<ReadonlyMap<TId, TId>>(() => {
+    const map = new Map<TId, TId>();
+    const walk = (list: readonly WrTreeNode<TId>[], parent: TId | null): void => {
+      for (const n of list) {
+        if (parent !== null) map.set(n.id, parent);
+        if (n.children?.length) walk(n.children, n.id);
+      }
+    };
+    walk(this.nodes(), null);
+    return map;
+  });
+
+  /**
+   * The cursor as the DOM sees it: the row of the cursor's node, else its
+   * nearest visible ancestor when a collapse hid it, else the raw index clamped
+   * to the list that exists RIGHT NOW.
    *
-   * The raw index is only ever written when a row is focused, and nothing shrank
-   * it when the list did: collapsing a branch above the cursor left the index
-   * past the end, which gave the tree zero rows with `tabindex="0"` (no way back
-   * in with Tab) and made every arrow key a no-op, because `onKeydown` bails when
-   * `flat[i]` is undefined.
+   * The clamp is the last resort for a node that left the data altogether.
+   * Nothing shrank the raw index when the list did: collapsing a branch above
+   * the cursor left it past the end, which gave the tree zero rows with
+   * `tabindex="0"` (no way back in with Tab) and made every arrow key a no-op,
+   * because `onKeydown` bails when `flat[i]` is undefined.
    */
   protected readonly cursorIndex = computed(() => {
-    const last = Math.max(0, this.flat().length - 1);
-    return Math.min(this.focusedIndex(), last);
+    const flat = this.flat();
+    const cursor = this.cursorId();
+    if (cursor) {
+      const parents = this.parentMap();
+      for (let id: TId | undefined = cursor.id; id !== undefined; id = parents.get(id)) {
+        const at = flat.findIndex(f => f.node.id === id);
+        if (at !== -1) return at;
+      }
+    }
+    return Math.min(this.focusedIndex(), Math.max(0, flat.length - 1));
   });
 
   /** Resolved ARIA labels — signals, so they follow both a late catalog and a locale switch. */
@@ -757,6 +792,15 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
    * an open panel owns the keyboard.
    */
   protected onTriggerKey(event: KeyboardEvent): void {
+    // The APG combobox keys, and the ones `wr-select` and `wr-cascader` open on:
+    // ArrowDown / ArrowUp, with or without Alt. Enter and Space already open it
+    // through the native button click.
+    if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && !this.open()) {
+      if (this.disabled() || this.readonly()) return;
+      event.preventDefault();
+      this.open.set(true);
+      return;
+    }
     if (event.key !== 'Backspace') return;
     if (this.disabled() || this.readonly() || this.open() || !this.hasSelection()) return;
 
@@ -793,9 +837,15 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   private toggleExpanded(id: TId): void {
     const set = new Set(this.expanded());
-    if (set.has(id)) set.delete(id);
+    const collapsing = set.has(id);
+    if (collapsing) set.delete(id);
     else set.add(id);
     this.expanded.set([...set]);
+    // A collapse that hid the cursor hands it to the row that hid it, the APG's
+    // rule — so reopening the branch does not pull the tab stop back inside.
+    if (!collapsing) return;
+    const row = this.flat()[this.cursorIndex()];
+    if (row) this.cursorId.set({ id: row.node.id });
   }
 
   private select(id: TId, additive: boolean): void {
@@ -848,6 +898,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   private focusIndex(i: number): void {
     this.focusedIndex.set(i);
+    const row = this.flat()[i];
+    this.cursorId.set(row ? { id: row.node.id } : null);
     if (this.virtualized()) {
       // Managed-focus (aria-activedescendant): focus stays on the list container.
       // Setting `scrollTop` synchronously materializes row `i` in the SAME change
@@ -954,6 +1006,23 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
+          this.open.set(false);
+          return;
+        }
+        if (event.key === 'Tab') {
+          // Tab closes the panel and moves on from the TRIGGER, as `wr-dropdown`
+          // does. Left alone, the browser's Tab ran from the row, and the pane
+          // sits at the end of `<body>`: focus left the document and the panel
+          // stayed open over a combobox nobody was on. So the trigger takes
+          // focus here, synchronously and with no `preventDefault`, and the
+          // browser's own Tab carries on from it to its real neighbour. Not from
+          // a field outside the panel: the dispatcher routes every document
+          // keydown to the topmost overlay, and that caret is not ours to move.
+          const typedIn = event.target;
+          const ours =
+            typedIn instanceof Node &&
+            (this.host.nativeElement.contains(typedIn) || (this.overlayRef?.overlayElement.contains(typedIn) ?? false));
+          if (ours) this.host.nativeElement.querySelector<HTMLElement>('.wr-tree__trigger')?.focus();
           this.open.set(false);
         }
       });

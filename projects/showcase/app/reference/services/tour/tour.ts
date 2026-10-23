@@ -57,26 +57,25 @@ export default class TourComponent {
   }
 
   protected readonly snippets = {
-    install: `import { WrTour } from 'ngwr/tour';
-
-// Nothing to import into a component — the service owns the overlay.
-private readonly tour = inject(WrTour);`,
     start: `this.tour.start([
   { target: '[data-tour="search"]', title: 'Start here', content: 'Type a name…' },
   { target: '[data-tour="filter"]', content: 'Filters stack.', placement: 'right' },
   { target: '[data-tour="save"]', content: 'Nothing is saved until you press this.', placement: 'top' },
 ]);`,
-    state: `// Signals, so a template can react without a subscription.
-tour.active();  // is a tour running
-tour.index();   // 0-based step, -1 when idle
-tour.total();   // how many steps
-tour.step();    // the current WrTourStep | null`,
+    state: `tour.active(); // is a tour running
+tour.index(); // 0-based step, -1 when idle
+tour.total(); // step count
+tour.step(); // the current WrTourStep | null
+
+// Use these, not index() === 0: missing steps are skipped.
+tour.isFirst(); // no step before this one
+tour.isLast(); // no step after this one`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'WrTour',
-      description: 'Injectable service. No module, no component to place.',
+      description: 'Injectable service. No component to place.',
       type: 'service',
       default: '—',
     },
@@ -118,6 +117,20 @@ tour.step();    // the current WrTourStep | null`,
     },
     { name: 'total', description: 'Step count of the running tour.', type: 'Signal<number>', default: '0', sub: true },
     {
+      name: 'isFirst',
+      description: 'No step before this one. Use it, not `index() === 0`, since missing steps are skipped.',
+      type: 'Signal<boolean>',
+      default: 'true',
+      sub: true,
+    },
+    {
+      name: 'isLast',
+      description: 'No step after this one; decides between Next and Done.',
+      type: 'Signal<boolean>',
+      default: 'false',
+      sub: true,
+    },
+    {
       name: 'step',
       description: 'The step being shown.',
       type: 'Signal<WrTourStep | null>',
@@ -127,8 +140,7 @@ tour.step();    // the current WrTourStep | null`,
     { name: 'WrTourStep', description: 'One stop on the tour.', type: 'interface', default: '—' },
     {
       name: 'target',
-      description:
-        'CSS selector resolved when the step opens, or the element itself. A step matching nothing is SKIPPED.',
+      description: 'A CSS selector or the element. A step that matches nothing is skipped.',
       type: 'string | HTMLElement',
       sub: true,
     },
@@ -143,7 +155,7 @@ tour.step();    // the current WrTourStep | null`,
     },
     {
       name: 'panelClass',
-      description: "Extra classes on this step's overlay pane. Per step, since each step builds its own.",
+      description: "Extra classes on this step's overlay pane.",
       type: 'WrClassInput',
       sub: true,
     },

@@ -11,11 +11,11 @@ function kebabToCamel(value: string): string {
 
 const SPEC: SvgSetSpec = {
   title: 'Bootstrap Icons',
-  description:
-    "The Bootstrap team's set. 2000+ icons across outline and filled variants. Click any tile to copy the import snippet.",
+  description: count =>
+    `The Bootstrap team's set. ${count} icons across outline and filled variants. Click any tile to copy the import snippet.`,
   homepage: 'https://icons.getbootstrap.com',
   license: 'MIT',
-  install: 'pnpm add bootstrap-icons',
+  packages: 'bootstrap-icons',
   usage: `import plusSvg from 'bootstrap-icons/icons/plus.svg?raw';
 import trashSvg from 'bootstrap-icons/icons/trash.svg?raw';
 import { provideWrIcons, svgIcon } from 'ngwr/icon';

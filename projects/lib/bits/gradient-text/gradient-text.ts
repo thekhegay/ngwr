@@ -1,0 +1,120 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ *
+ * Angular adaptation of the GradientText effect by David Haz / reactbits.dev.
+ * Original: https://www.reactbits.dev/text-animations/gradient-text
+ *
+ * The reactbits version uses `motion/react` to drive `background-position`
+ * via rAF. This port is pure CSS — same effect via keyframes on
+ * `background-position`, parameterised by inputs.
+ */
+
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+
+import { isSafeCssValue, numAttr } from 'ngwr/utils';
+
+import type { WrGradientTextDirection } from './types';
+
+const DEFAULT_COLORS: readonly string[] = ['#5227FF', '#FF9FFC', '#B497CF'];
+
+/**
+ * Animated multi-stop gradient text. The gradient slides across the text
+ * via `background-clip: text`. Optional `[showBorder]` wraps the text in
+ * a surface-coloured pill with the same animated gradient as a border ring.
+ *
+ * @example
+ * ```html
+ * <wr-gradient-text>Hello, ngwr!</wr-gradient-text>
+ * <wr-gradient-text
+ *   [colors]="['#5227FF', '#FF9FFC', '#B497CF']"
+ *   direction="diagonal"
+ *   [animationSpeed]="6"
+ *   [showBorder]="true"
+ * >
+ *   Premium feature
+ * </wr-gradient-text>
+ * ```
+ *
+ * @see https://www.reactbits.dev/text-animations/gradient-text
+ */
+@Component({
+  selector: 'wr-gradient-text',
+  templateUrl: './gradient-text.html',
+  styleUrl: './gradient-text.scss',
+  encapsulation: ViewEncapsulation.None,
+  host: {
+    class: 'wr-gradient-text',
+    '[class.wr-gradient-text--border]': 'showBorder()',
+    '[class.wr-gradient-text--pause-on-hover]': 'pauseOnHover()',
+    '[class.wr-gradient-text--yoyo]': 'yoyo()',
+    '[class.wr-gradient-text--vertical]': "direction() === 'vertical'",
+    '[class.wr-gradient-text--diagonal]': "direction() === 'diagonal'",
+    '[style.--wr-gradient-text-image]': 'gradient()',
+    '[style.--wr-gradient-text-size]': 'size()',
+    '[style.--wr-gradient-text-duration]': "animationSpeed() + 's'",
+  },
+})
+export class WrGradientText {
+  /** Gradient stops. @default ['#5227FF', '#FF9FFC', '#B497CF'] */
+  readonly colors = input<readonly string[]>(DEFAULT_COLORS);
+
+  /** Seconds per full sweep (or per half if `[yoyo]` is on). @default 8 */
+  readonly animationSpeed = input(8, { transform: numAttr(8) });
+
+  /** Wrap the text in a surface-coloured pill with the gradient as a border. @default false */
+  readonly showBorder = input(false, { transform: coerceBooleanProperty });
+
+  /** Gradient slide direction. @default 'horizontal' */
+  readonly direction = input<WrGradientTextDirection>('horizontal');
+
+  /** Pause the animation while hovered. @default false */
+  readonly pauseOnHover = input(false, { transform: coerceBooleanProperty });
+
+  /** Bounce back-and-forth instead of restarting. @default true */
+  readonly yoyo = input(true, { transform: coerceBooleanProperty });
+
+  protected readonly gradient = computed(() => {
+    // The stops are JOINED into the gradient below and published as
+    // `--wr-gradient-text-image`, which the stylesheet substitutes into
+    // `background-image`. An entry that closes the library's own paren escapes
+    // into a sibling background layer, so one unsafe stop discards the palette
+    // rather than being repaired in place — a half-validated gradient is worse
+    // to look at than the default one.
+    const raw = this.colors();
+    const cols = raw.length > 0 && raw.every(color => isSafeCssValue(color)) ? raw : DEFAULT_COLORS;
+    // Duplicate the first colour at the end for seamless looping.
+    const stops = [...cols, cols[0]].join(', ');
+    const angle = this.directionAngle();
+    return `linear-gradient(${angle}, ${stops})`;
+  });
+
+  protected readonly size = computed(() => {
+    switch (this.direction()) {
+      case 'vertical':
+        return '100% 300%';
+      case 'diagonal':
+        return '300% 300%';
+      case 'horizontal':
+      default:
+        return '300% 100%';
+    }
+  });
+
+  private directionAngle(): string {
+    switch (this.direction()) {
+      case 'vertical':
+        return 'to bottom';
+      case 'diagonal':
+        return 'to bottom right';
+      case 'horizontal':
+      default:
+        return 'to right';
+    }
+  }
+}
+
+export type { WrGradientTextDirection } from './types';

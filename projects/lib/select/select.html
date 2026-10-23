@@ -228,6 +228,30 @@
         </svg>
       </span>
     }
+
+    <!-- Only for the searchable MULTI, never for tag mode. The two share this
+         trigger and differ in the one thing a chevron stands for: the searchable
+         multi's input is a `role="combobox"` with `aria-haspopup="listbox"` and
+         a panel of options behind it, while tag mode takes free text and has no
+         popup at all. Folding the second into this branch left it as the only
+         combobox shape in the component with no affordance saying it opens —
+         `mode="search"` has one, a searchable single has one, the button trigger
+         has one, and this one rendered a bare field. -->
+    @if (hasChipSearch()) {
+      <svg
+        class="wr-icon__svg wr-select__chevron"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    }
   </div>
 } @else {
   <button
@@ -361,8 +385,8 @@
 <ng-template #panelTpl>
   <div
     class="wr-select-panel"
-    [class.wr-select-panel--sm]="resolvedSize() === 'sm'"
-    [class.wr-select-panel--lg]="resolvedSize() === 'lg'"
+    [class.wr-select-panel--sm]="size() === 'sm'"
+    [class.wr-select-panel--lg]="size() === 'lg'"
     [class.wr-select-panel--virtual]="virtualActive()"
     role="listbox"
     [attr.id]="listboxId"
@@ -395,7 +419,9 @@
             [id]="virtualRowId(entry.index)"
             [class.wr-option--active]="entry.index === activeIndex()"
             [class.wr-option--selected]="isSelected(entry.item)"
+            [class.wr-option--disabled]="atMaxItems() && !isSelected(entry.item)"
             [attr.aria-selected]="isSelected(entry.item)"
+            [attr.aria-disabled]="atMaxItems() && !isSelected(entry.item) ? true : null"
             [attr.aria-setsize]="filteredDynamicOptions().length"
             [attr.aria-posinset]="entry.index + 1"
             (click)="selectOption(entry.item)"

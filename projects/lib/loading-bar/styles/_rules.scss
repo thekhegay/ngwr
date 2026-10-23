@@ -10,6 +10,14 @@
     overflow: hidden;
     opacity: 0;
     transition: opacity 0.2s ease;
+
+    // Going idle drops the progress to 0 in the same frame the fade starts, and
+    // the fill's 0.15s width transition ran a full-width bar back across the
+    // screen while it was still mostly opaque — on every navigation. While the
+    // track is fading the width snaps instead, once the fade is over.
+    &:not(.wr-loading-bar--active) .wr-loading-bar__fill {
+      transition: width 0s linear 0.2s;
+    }
   }
 
   &--active {
@@ -20,7 +28,7 @@
     width: 0;
     height: 2px;
     background: var(--wr-color-primary);
-    box-shadow: 0 0 8px rgba(var(--wr-color-primary-rgb), 0.6);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--wr-color-primary) 60%, transparent);
     transition:
       width 0.15s ease-out,
       opacity 0.2s ease;

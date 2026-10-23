@@ -1,13 +1,9 @@
 <ngwr-doc-page
   title="wrBytes"
-  description="Humanise byte counts using binary (1024-based) units."
+  description="Show a byte count as kB, MB or GB."
   [keywords]="['pipe', 'wrBytes', 'bytes', 'size', 'humanise']"
   [labels]="['Pipe']"
 >
-  <ngwr-doc-section title="Import">
-    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
-  </ngwr-doc-section>
-
   <ngwr-doc-section title="Basic usage">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -15,7 +11,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Decimals" description="Second argument controls the fraction digits.">
+  <ngwr-doc-section title="Decimals" description="The second argument sets the decimals.">
     <ngwr-doc-code [code]="snippets.decimals" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div>{{ 1234567 | wrBytes: 0 }} · {{ 1234567 | wrBytes: 2 }} · {{ 1234567 | wrBytes: 3 }}</div>

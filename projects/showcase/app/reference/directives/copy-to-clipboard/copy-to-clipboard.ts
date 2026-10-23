@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrCopyToClipboard } from 'ngwr/directives';
 
 import {
@@ -17,6 +18,7 @@ import {
   selector: 'ngwr-copy-to-clipboard-page',
   templateUrl: './copy-to-clipboard.html',
   imports: [
+    WrButton,
     WrCopyToClipboard,
     DocPageComponent,
     DocSectionComponent,
@@ -35,16 +37,29 @@ export default class CopyToClipboardPage {
   }
 
   protected readonly snippets = {
-    install: `import { WrCopyToClipboard } from 'ngwr/directives';`,
     usage: `<button [wrCopyToClipboard]="value" (copied)="toast('Copied!')">Copy</button>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: '[wrCopyToClipboard]',
-      description: 'Copies the bound string on host click. `(copied)` / `(copyFailed)` outputs.',
+      description: 'The string copied on host click. Required.',
+      type: 'string',
+      required: true,
+    },
+    {
+      name: '(copied)',
+      description: 'The text that reached the clipboard.',
       type: 'string',
       default: '—',
+      sub: true,
+    },
+    {
+      name: '(copyFailed)',
+      description: 'What the write threw, such as a denied permission.',
+      type: 'unknown',
+      default: '—',
+      sub: true,
     },
   ];
 
@@ -53,7 +68,7 @@ export default class CopyToClipboardPage {
       kind: 'Service',
       title: 'WrClipboard',
       url: ['/reference/services', 'clipboard'],
-      description: "Programmatic read + write API — what to reach for when you don't want a host-click directive.",
+      description: 'Copy from code.',
     },
   ];
 }

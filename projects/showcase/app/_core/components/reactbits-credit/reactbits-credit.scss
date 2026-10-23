@@ -3,10 +3,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border: 1px solid rgba(var(--wr-color-primary-rgb), 0.25);
+  border: 1px solid var(--wr-color-primary-soft-border);
   border-radius: var(--wr-border-radius-base);
-  background: rgba(var(--wr-color-primary-rgb), 0.06);
-  color: var(--wr-color-dark);
+  background: var(--wr-color-primary-soft);
+  color: var(--wr-color-on-surface);
   font-size: 0.875rem;
   line-height: 1.25rem;
 
@@ -15,18 +15,9 @@
     font-weight: 700;
   }
 
+  // Its two links are `.ngwr-doc-link`, the site's one prose link: underlined
+  // at rest, so a reader can tell them from the sentence around them.
   &__text {
     flex: 1 1 auto;
-  }
-
-  &__author,
-  &__link {
-    color: var(--wr-color-primary-ink);
-    text-decoration: none;
-    font-weight: 600;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 }

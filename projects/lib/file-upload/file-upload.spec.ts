@@ -7,7 +7,7 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrFileUpload } from './file-upload';
-import type { WrFileUploadRejection } from './interfaces';
+import type { WrFileUploadRejection } from './types';
 
 @Component({
   imports: [WrFileUpload],
@@ -193,6 +193,74 @@ describe('WrFileUpload', () => {
       expect((picked() as readonly File[]).map(f => f.name)).toEqual(['a.png', 'b.png']);
       expect(rejections().map(r => [r.file.name, r.reason])).toEqual([['c.png', 'count']]);
     });
+  });
+
+  describe('removing a file from the keyboard', () => {
+    const removes = (): HTMLButtonElement[] => [
+      ...root().querySelectorAll<HTMLButtonElement>('.wr-file-upload__remove'),
+    ];
+    const remove = async (index: number): Promise<void> => {
+      const button = removes()[index];
+      button.focus();
+      button.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+    };
+
+    it('moves focus to the zone when the only file goes, rather than dropping it on <body>', async () => {
+      choose(file('only.png'));
+
+      await remove(0);
+
+      expect(picked()).toBeNull();
+      expect(document.activeElement).toBe(zone());
+    });
+
+    it('moves focus to the row before when the last file goes', async () => {
+      fixture.componentInstance.multiple.set(true);
+      fixture.detectChanges();
+      choose(file('a.png'), file('b.png'), file('c.png'));
+
+      await remove(2);
+
+      expect(removes()).toHaveLength(2);
+      expect(document.activeElement).toBe(removes()[1]);
+    });
+
+    it('keeps focus on the row that takes a removed one’s place', async () => {
+      fixture.componentInstance.multiple.set(true);
+      fixture.detectChanges();
+      choose(file('a.png'), file('b.png'), file('c.png'));
+
+      await remove(0);
+
+      expect((picked() as readonly File[]).map(f => f.name)).toEqual(['b.png', 'c.png']);
+      expect(document.activeElement).toBe(removes()[0]);
+    });
+  });
+
+  it('keeps the drag highlight while the pointer crosses the zone’s own text', () => {
+    // The browser fires `dragleave` on the zone when the pointer moves onto one of its
+    // children, right after `dragenter` on the child — and the highlight read that
+    // as leaving, so it flickered off over the label and on again over the padding.
+    const host = root().querySelector('wr-file-upload')!;
+    const label = root().querySelector<HTMLElement>('.wr-file-upload__hint strong')!;
+    const drag = (type: string, target: HTMLElement): void => {
+      target.dispatchEvent(new Event(type, { bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+    };
+    const lit = (): boolean => host.classList.contains('wr-file-upload--dragging');
+
+    drag('dragenter', zone());
+    expect(lit()).toBe(true);
+    drag('dragenter', label);
+    drag('dragleave', zone());
+    expect(lit()).toBe(true);
+    drag('dragenter', zone());
+    drag('dragleave', label);
+    expect(lit()).toBe(true);
+    drag('dragleave', zone());
+    expect(lit()).toBe(false);
   });
 
   it('takes nothing while disabled', () => {

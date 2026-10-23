@@ -1,0 +1,55 @@
+<ngwr-doc-page
+  title="Rating"
+  description="Rate something with stars, in whole or half steps."
+  [keywords]="['rating', 'stars', 'review', 'wr-rating']"
+  [labels]="['Signal Forms']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Bind a `number | null` with `[(value)]` or [any Angular form](/guides/forms)."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-rating [(value)]="basic" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Half stars" description='`step="0.5"` allows half stars.'>
+    <ngwr-doc-code [code]="snippets.halves" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-rating [(value)]="halves" step="0.5" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Custom count" description="`count` sets the number of stars.">
+    <ngwr-doc-code [code]="snippets.tenStar" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-rating [(value)]="tenStar" [count]="10" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Read-only" description="Shows a rating that cannot be changed.">
+    <ngwr-doc-code [code]="snippets.readonlyDemo" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-rating [value]="readonlyValue()" step="0.5" [readonly]="true" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard"
+    description="Arrows move one step, Home / End jump to 0 and the maximum, Delete / Backspace clears."
+  />
+
+  <ngwr-doc-section title="Gotchas">
+    <ul>
+      <li>
+        A value above <code>count</code> is drawn as full stars but stays in the model. Flag it with a
+        <code>max()</code> rule.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

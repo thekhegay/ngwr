@@ -4,7 +4,14 @@
   display: block;
   position: relative;
   user-select: none;
-  touch-action: none;
+  // Only the axis the divider moves along is claimed. `none` took every gesture,
+  // so on a phone a vertical swipe over a full-width comparison moved the divider
+  // and the page could not be scrolled from there at all.
+  touch-action: pan-y;
+
+  &--vertical {
+    touch-action: pan-x;
+  }
 
   &__surface {
     position: relative;
@@ -79,7 +86,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 0 1px rgba(var(--wr-color-black-rgb), 0.2);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--wr-color-black) 20%, transparent);
   }
 
   &--horizontal &__divider {
@@ -109,7 +116,7 @@
     background: var(--wr-color-surface);
     color: var(--wr-color-on-surface);
     border-radius: 50%;
-    box-shadow: 0 2px 6px rgba(var(--wr-color-black-rgb), 0.25);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--wr-color-black) 25%, transparent);
     pointer-events: none;
   }
 }

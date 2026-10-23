@@ -1,4 +1,5 @@
 @use 'lib/styles/breakpoints' as bp;
+@use 'showcase/styles/mixins' as site;
 
 :host {
   display: block;
@@ -11,7 +12,7 @@
 }
 
 .ngwr-header {
-  --ngwr-header-border: var(--wr-color-light-lighter);
+  --ngwr-header-border: var(--wr-border-subtle);
   --ngwr-header-item-height: 2rem;
   --ngwr-header-item-width: var(--ngwr-header-item-height);
 
@@ -22,16 +23,20 @@
 
   padding: 0.5rem var(--wr-grid-gutter);
 
-  background: rgba(var(--wr-color-white-rgb), 0.5);
+  background: color-mix(in srgb, var(--wr-color-surface) 50%, transparent);
   border-bottom: 1px solid var(--ngwr-header-border);
   backdrop-filter: blur(8px);
 
   &__logo {
     --ngwr-header-logo-bg: transparent;
-    // The droplet mark (`__bg`) is painted in the live primary color, so
-    // picking a preset in the settings panel recolors the logo in real
-    // time. The inner blob (`__icon`) stays white for contrast.
-    --ngwr-header-logo-mark-color: var(--wr-color-white);
+    // The droplet mark (`__bg`) is painted in the primary color.
+    // The inner blob (`__icon`) takes the LABEL token for that fill, which is
+    // what `-contrast` is: it picks whichever of black and white scores higher
+    // and lands on white for every shipped primary. It used to read
+    // `--wr-color-white`, which is the CANVAS token — #0b1120 in dark — so the
+    // blob inverted to near-black on a blue droplet and the comment beside it
+    // said "stays white" about a rule that did the opposite.
+    --ngwr-header-logo-mark-color: var(--wr-color-primary-contrast);
     --ngwr-header-logo-mark-bg: var(--wr-color-primary);
 
     display: inline-flex;
@@ -45,12 +50,16 @@
     border-radius: 0.375rem;
     background: var(--ngwr-header-logo-bg);
 
-    transition: var(--wr-transition-base);
+    @include site.transition(color background-color border-color);
 
     padding: 0.25rem;
 
     &:hover {
-      --ngwr-header-logo-bg: rgba(var(--wr-color-primary-rgb), 0.125);
+      --ngwr-header-logo-bg: color-mix(in srgb, var(--wr-color-primary) 12.5%, transparent);
+    }
+
+    &:focus-visible {
+      @include site.focus-ring;
     }
 
     &-mark {
@@ -81,7 +90,7 @@
     }
 
     &-link {
-      --ngwr-header-nav-link-color: var(--wr-color-dark);
+      --ngwr-header-nav-link-color: var(--wr-color-on-surface);
       --ngwr-header-nav-link-bg: transparent;
 
       color: var(--ngwr-header-nav-link-color);
@@ -94,11 +103,15 @@
       border-radius: 0.375rem;
       padding: 0.375rem 0.5rem;
 
-      transition: var(--wr-transition-base);
+      @include site.transition(color background-color border-color);
 
       &:hover {
         --ngwr-header-nav-link-color: var(--wr-color-primary-ink);
-        --ngwr-header-nav-link-bg: rgba(var(--wr-color-primary-rgb), 0.1);
+        --ngwr-header-nav-link-bg: color-mix(in srgb, var(--wr-color-primary) 10%, transparent);
+      }
+
+      &:focus-visible {
+        @include site.focus-ring;
       }
 
       // Active route — soft neutral pill (light token at low opacity)
@@ -106,10 +119,15 @@
       // "you are here" marker instead of competing with the primary CTAs.
       // `routerLinkActive` toggles this class via partial-match (default),
       // so `/components/button` also lights up "Components" in the nav.
-      &--active,
-      &--active:hover {
+      &--active {
         --ngwr-header-nav-link-color: var(--wr-color-on-surface-muted);
-        --ngwr-header-nav-link-bg: rgba(var(--wr-color-light-rgb), 0.3);
+        --ngwr-header-nav-link-bg: var(--wr-color-fill);
+      }
+
+      // Still a link (to the section's root), so it still answers the pointer.
+      &--active:hover {
+        --ngwr-header-nav-link-color: var(--wr-color-on-surface);
+        --ngwr-header-nav-link-bg: var(--wr-color-fill-strong);
       }
     }
   }
@@ -120,12 +138,12 @@
     justify-content: flex-end;
 
     gap: calc(var(--wr-grid-gutter) / 3);
-    margin-left: auto;
+    margin-inline-start: auto;
   }
 
   &__action {
-    --ngwr-header-action-border-color: var(--wr-color-light-lighter);
-    --ngwr-header-action-icon-color: var(--wr-color-dark);
+    --ngwr-header-action-border-color: var(--wr-border-subtle);
+    --ngwr-header-action-icon-color: var(--wr-color-on-surface);
     --ngwr-header-action-icon-bg: transparent;
 
     --wr-icon-size: 1.125rem;
@@ -146,56 +164,60 @@
     color: var(--ngwr-header-action-icon-color);
     background: var(--ngwr-header-action-icon-bg);
 
-    transition: var(--wr-transition-base);
+    @include site.transition(color background-color border-color);
 
-    // &:hover {
-    //  color: var(--wr-color-white);
-    //  border-color: var(--ngwr-header-action-fg);
-    //  background: var(--ngwr-header-action-fg);
-    // }
+    // The neutral hover every action without a brand colour takes — search,
+    // the version trigger, settings. The brand modifiers below override it on
+    // source order (same weight).
+    &:hover {
+      --ngwr-header-action-icon-color: var(--wr-color-on-surface);
+      --ngwr-header-action-icon-bg: var(--wr-color-hover);
+    }
+
+    // Every action — the anchors (GitHub, npm, StackBlitz) as well as the
+    // buttons — takes the library's ring, not the UA's 1px auto outline.
+    &:focus-visible {
+      @include site.focus-ring;
+    }
 
     &--github {
-      --ngwr-header-action-icon-color: #24292e;
+      // GitHub brand black (#24292e) sits ~on the dark canvas (#0b1120), so
+      // the dark side rests the silhouette on plain white and mirrors the
+      // hover pair. Literals, not `--wr-color-white` / `-black`: the brand
+      // colour is fixed, so its label is too. 14.67:1 either way round.
+      --ngwr-header-action-icon-color: light-dark(#24292e, #fff);
 
       &:hover {
-        --ngwr-header-action-icon-color: var(--wr-color-white);
-        --ngwr-header-action-icon-bg: #24292e;
-      }
-
-      // GitHub brand black (#24292e) sits ~on the dark canvas (#0b1120)
-      // → invisible. Rest the silhouette on plain white (literal — the
-      // --wr-color-white token flips to the canvas color in dark mode),
-      // and mirror the hover surface/glyph pair the light-mode rule uses.
-      // :host-context, not `[data-theme] &` — the theme attribute lives
-      // on <html>, outside this component's encapsulation scope.
-      :host-context([data-theme='dark']) & {
-        --ngwr-header-action-icon-color: #fff;
-
-        &:hover {
-          --ngwr-header-action-icon-color: #24292e;
-          --ngwr-header-action-icon-bg: #fff;
-        }
+        --ngwr-header-action-icon-color: light-dark(#fff, #24292e);
+        --ngwr-header-action-icon-bg: light-dark(#24292e, #fff);
       }
     }
 
     &--npm {
-      --ngwr-header-action-icon-color: #cb0201;
+      // npm brand red is dark enough that its chroma reads as muddy against
+      // the slate-900-ish canvas, so the dark side lifts the RESTING glyph to
+      // a brighter red.
+      --ngwr-header-action-icon-color: light-dark(#cb0201, #ff5050);
 
+      // The hover pair does not flip: npm's brand red is fixed, so its white
+      // label is too. 5.92:1 in both schemes.
       &:hover {
-        --ngwr-header-action-icon-color: var(--wr-color-white);
+        --ngwr-header-action-icon-color: #fff;
         --ngwr-header-action-icon-bg: #cb0201;
       }
+    }
 
-      // npm brand red is dark enough that its chroma reads as muddy
-      // against the slate-900-ish canvas. Lift the resting glyph to
-      // a brighter red; hover keeps the brand-red surface.
-      :host-context([data-theme='dark']) & {
-        --ngwr-header-action-icon-color: #ff5050;
+    &--stackblitz {
+      // StackBlitz brand blue. 3.97:1 on white as a GRAPHIC, which is what the
+      // criterion asks of one (3:1); the label is the `aria-label`, not the
+      // mark, so it is not held to text contrast.
+      --ngwr-header-action-icon-color: #1389fd;
 
-        &:hover {
-          --ngwr-header-action-icon-color: var(--wr-color-dark);
-          --ngwr-header-action-icon-bg: #cb0201;
-        }
+      // The brand blue holds on the dark canvas (#0b1120) at 4.46:1, so unlike
+      // GitHub's black it needs no dark side at all.
+      &:hover {
+        --ngwr-header-action-icon-color: #fff;
+        --ngwr-header-action-icon-bg: #1389fd;
       }
     }
 
@@ -208,15 +230,10 @@
 
       --ngwr-header-action-icon-color: var(--wr-color-on-surface-muted);
 
-      &:hover,
+      // Held in the hover look while its panel is open.
       &[aria-expanded='true'] {
-        --ngwr-header-action-icon-color: var(--wr-color-dark);
-        --ngwr-header-action-icon-bg: rgba(var(--wr-color-light-rgb), 0.4);
-      }
-
-      &:focus-visible {
-        outline: 2px solid var(--wr-color-primary);
-        outline-offset: 2px;
+        --ngwr-header-action-icon-color: var(--wr-color-on-surface);
+        --ngwr-header-action-icon-bg: var(--wr-color-hover);
       }
     }
   }
@@ -239,34 +256,16 @@
     }
   }
 
-  &__versions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-    padding: 0.25rem;
-    min-width: 9rem;
+  // A `wr-dropdown-item`: padding, hover and the focus ring are the library's.
+  // Only the current deployment is marked.
+  &__version-item--active {
+    --wr-dropdown-item-color: var(--wr-color-primary-ink);
+
+    font-weight: 600;
   }
 
-  &__version-item {
-    display: block;
-    padding: 0.375rem 0.625rem;
-    border-radius: 0.375rem;
-    font-size: var(--wr-text-sm);
-    color: var(--wr-color-dark);
-    text-decoration: none;
-
-    &:hover {
-      background: var(--wr-color-hover);
-    }
-
-    &--active {
-      color: var(--wr-color-primary-ink);
-      font-weight: 600;
-    }
-  }
-
-  // Settings panel — stacked live controls rendered inside the dropdown
-  // overlay (theme · density · primary color).
+  // Settings panel — stacked live controls (theme · density · direction). It is
+  // the popover's panel: `wr-popover` draws the surface, border and shadow.
   &__settings {
     display: flex;
     flex-direction: column;
@@ -282,51 +281,9 @@
     }
 
     &-label {
-      color: var(--wr-color-text-muted);
+      color: var(--wr-color-on-surface-muted);
       font-size: var(--wr-text-xs);
       font-weight: var(--wr-font-weight-medium);
-    }
-  }
-
-  // Primary-color swatches — circular preset buttons; the chosen one gets a
-  // ring. Each swatch's own color comes from the inline `--ngwr-swatch-color`
-  // (the preset hex — feature data, not a theme token).
-  &__swatches {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  &__swatch {
-    appearance: none;
-    cursor: pointer;
-
-    width: 1.5rem;
-    height: 1.5rem;
-    padding: 0;
-
-    border: none;
-    border-radius: 50%;
-
-    background: var(--ngwr-swatch-color);
-
-    box-shadow: 0 0 0 1px rgba(var(--wr-color-dark-rgb), 0.12);
-
-    transition: var(--wr-transition-base);
-
-    &:hover {
-      transform: scale(1.1);
-    }
-
-    &--active {
-      box-shadow:
-        0 0 0 2px var(--wr-color-white),
-        0 0 0 4px var(--ngwr-swatch-color);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
-      outline-offset: 2px;
     }
   }
 
@@ -344,8 +301,8 @@
     }
   }
 
-  // Close toggle row, pinned to the top-right of the drawer panel so it
-  // lands roughly where the header burger was.
+  // Close toggle row, pinned to the outer top corner of the drawer panel (the
+  // top-right in LTR) so it lands roughly where the header burger was.
   &__sheet-top {
     display: flex;
     justify-content: flex-end;
@@ -366,7 +323,7 @@
       align-items: center;
       gap: 0.5rem;
 
-      color: var(--wr-color-dark);
+      color: var(--wr-color-on-surface);
       font-size: 0.9375rem;
       font-weight: 600;
       line-height: 1.25rem;
@@ -374,26 +331,34 @@
       border-radius: 0.375rem;
       padding: 0.625rem 0.75rem;
 
-      transition: var(--wr-transition-base);
+      @include site.transition(color background-color border-color);
 
       --wr-icon-size: 1rem;
 
       &:hover {
         color: var(--wr-color-primary-ink);
-        background: rgba(var(--wr-color-primary-rgb), 0.1);
+        background: color-mix(in srgb, var(--wr-color-primary) 10%, transparent);
       }
 
-      &--active,
-      &--active:hover {
+      &:focus-visible {
+        @include site.focus-ring;
+      }
+
+      &--active {
         color: var(--wr-color-on-surface-muted);
-        background: rgba(var(--wr-color-light-rgb), 0.3);
+        background: var(--wr-color-fill);
+      }
+
+      &--active:hover {
+        color: var(--wr-color-on-surface);
+        background: var(--wr-color-fill-strong);
       }
     }
 
     &-divider {
       height: 1px;
       margin: 0.5rem 0.75rem;
-      background: var(--wr-color-light-lighter);
+      background: var(--wr-border-subtle);
     }
   }
 
@@ -485,7 +450,7 @@
   //  padding: 0 0.5rem 0 0.75rem;
   //  border: 1px solid var(--ngwr-header-border);
   //  border-radius: var(--wr-border-radius-base);
-  //  background: rgba(var(--wr-color-light-rgb), 0.35);
+  //  background: color-mix(in srgb, var(--wr-color-light) 35%, transparent);
   //  color: var(--wr-color-on-surface-muted);
   //  font-size: var(--wr-text-sm);
   //  cursor: pointer;
@@ -497,7 +462,7 @@
   //  &:hover {
   //    border-color: var(--wr-color-primary);
   //    color: var(--wr-color-dark);
-  //    background: var(--wr-color-white);
+  //    background: var(--wr-color-surface);
   //  }
   //
   //  @include bp.media-down(md) {
@@ -518,7 +483,7 @@
   //  padding: 0.0625rem 0.4375rem;
   //  border: 1px solid var(--wr-color-light);
   //  border-radius: var(--wr-border-radius-sm);
-  //  background: var(--wr-color-white);
+  //  background: var(--wr-color-surface);
   //  color: var(--wr-color-on-surface-muted);
   //  font-family: var(--wr-font-family-base);
   //  font-size: var(--wr-text-xs);
@@ -591,6 +556,8 @@
   color: var(--wr-color-on-surface-muted);
   font-size: var(--wr-text-xs);
   text-decoration: none;
+  // Only so the focus ring has corners like every other header control.
+  border-radius: var(--wr-border-radius-sm);
 
   // The wordmark is 2196.2 x 500, and `.wr-icon` is square by construction —
   // it sets both axes from `--wr-icon-size`. Height comes from the hook, width
@@ -603,15 +570,15 @@
     --wr-icon-size: 0.75rem;
 
     width: calc(var(--wr-icon-size) * 4.3924);
-    color: #003dff;
-  }
-
-  :host-context([data-theme='dark']) & .wr-icon {
-    color: #fff;
+    color: light-dark(#003dff, #fff);
   }
 
   &:hover,
   &:focus-visible {
     color: var(--wr-color-on-surface);
+  }
+
+  &:focus-visible {
+    @include site.focus-ring;
   }
 }

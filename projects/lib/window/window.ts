@@ -5,9 +5,12 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { FocusTrapFactory } from '@angular/cdk/a11y';
 import { type BooleanInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
+  DestroyRef,
+  ElementRef,
   ViewEncapsulation,
   afterNextRender,
   computed,
@@ -22,6 +25,7 @@ import {
 import { useI18nText } from 'ngwr/i18n';
 import { clamp, randomId } from 'ngwr/utils';
 
+import { WrWindowManager } from './services/window-manager';
 import type {
   WrWindowChromeSize,
   WrWindowOs,
@@ -30,8 +34,7 @@ import type {
   WrWindowSnap,
   WrWindowSnapTarget,
   WrWindowState,
-} from './interfaces';
-import { WrWindowManager } from './services/window-manager';
+} from './types';
 
 /**
  * Stands in for the consumer input `useI18nText` expects. The chrome buttons take no
@@ -120,7 +123,14 @@ function viewportHeight(): number {
   templateUrl: './window.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    // See `WrAlert`: a static `title=` feeds the input AND lands on the host.
+    '[attr.title]': 'null',
     role: 'dialog',
+    // Focusable by script, never by Tab: it is where focus lands when the
+    // window opens with no control in its body, and it is what a click on the
+    // window's own surface focuses, so the window the user is in is the one
+    // `WrWindowManager` hands Escape to.
+    tabindex: '-1',
     '[class]': 'classes()',
     '[style.left.px]': 'x()',
     '[style.top.px]': 'y()',
@@ -168,6 +178,10 @@ export class WrWindow {
   readonly initialX = input<number | null>(null, {
     transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 0)),
   });
+  /**
+   * Initial top offset in px. `null` = auto-cascade from the manager, which is
+   * what keeps several windows from opening on top of each other.
+   */
   readonly initialY = input<number | null>(null, {
     transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 0)),
   });
@@ -183,6 +197,10 @@ export class WrWindow {
   readonly initialWidth = input<number | null>(null, {
     transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 480)),
   });
+  /**
+   * Initial height in px, overriding the `size` preset. Clamped to `minHeight` /
+   * `maxHeight` before it is applied.
+   */
   readonly initialHeight = input<number | null>(null, {
     transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 320)),
   });
@@ -219,17 +237,41 @@ export class WrWindow {
    */
   readonly animations = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Narrowest the user may drag it. Also the floor for `initialWidth`.
+   */
   readonly minWidth = input<number>(220, { transform: (v: unknown): number => coerceNumberProperty(v, 220) });
+  /**
+   * Shortest the user may drag it. Also the floor for `initialHeight`.
+   */
   readonly minHeight = input<number>(140, { transform: (v: unknown): number => coerceNumberProperty(v, 140) });
+  /**
+   * Widest the user may drag it. Unbounded by default.
+   */
   readonly maxWidth = input<number>(Number.POSITIVE_INFINITY, {
     transform: (v: unknown): number => (v == null ? Number.POSITIVE_INFINITY : coerceNumberProperty(v, Infinity)),
   });
+  /**
+   * Tallest the user may drag it. Unbounded by default.
+   */
   readonly maxHeight = input<number>(Number.POSITIVE_INFINITY, {
     transform: (v: unknown): number => (v == null ? Number.POSITIVE_INFINITY : coerceNumberProperty(v, Infinity)),
   });
 
+  /**
+   * Allow dragging by the header. `false` pins the window where it opened; the
+   * header still carries the title and the action buttons.
+   */
   readonly movable = input(true, { transform: coerceBooleanProperty });
+  /**
+   * Allow dragging the edges and corners. `false` also hides the maximize button,
+   * since there would be no way back to a custom size.
+   */
   readonly resizable = input(true, { transform: coerceBooleanProperty });
+  /**
+   * Hold the window inside the viewport while it is dragged or the page is
+   * resized. `false` lets it go off-screen, which only a custom chrome wants.
+   */
   readonly keepInViewport = input(true, { transform: coerceBooleanProperty });
 
   /** Drag-to-edge snap behaviour. @default 'none' */
@@ -268,17 +310,44 @@ export class WrWindow {
   readonly closed = output<void>();
 
   /**
-   * Fires while the header is DRAGGED, once per pointer move. Programmatic moves
-   * (`moveTo`, `center`, the initial cascade) are silent: the caller already knows
-   * where it put the window, and echoing those back would double-count for a
-   * consumer persisting the position.
+   * Fires ONCE when a header drag ends — on `pointerup` or `pointercancel` —
+   * with the window's final position. Not per pointer move: a consumer
+   * persisting the position wants the landing, not the path.
+   *
+   * Programmatic moves (`moveTo`, `center`, the initial cascade) are silent:
+   * the caller already knows where it put the window, and echoing those back
+   * would double-count.
    */
   readonly moved = output<{ readonly x: number; readonly y: number }>();
 
-  /** Fires while an edge is DRAGGED, and once when a snap target is applied. */
+  /** Fires once when an edge drag ends, and once when a snap target is applied. */
   readonly resized = output<{ readonly width: number; readonly height: number }>();
 
+  /**
+   * Fires when the window is minimized while focus is inside it. A minimized
+   * window is `display: none`, so the focus it held is gone, and the container
+   * hands it to the window's taskbar tab.
+   *
+   * @internal
+   */
+  readonly minimizedWithFocus = output<void>();
+
   private readonly manager = inject(WrWindowManager);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly elRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly focusTraps = inject(FocusTrapFactory);
+
+  /**
+   * The viewport, as a SIGNAL. The maximized geometry and the keep-in-viewport
+   * clamp used to read `window.innerWidth` / `innerHeight` directly, which no
+   * computed can depend on: a window maximized at 1440×900 stayed 1440×900 in a
+   * 1024×700 viewport with its close and maximize buttons off-screen, and a
+   * window dragged to the bottom-right corner was left entirely outside an
+   * 800×600 one — while `keepInViewport` promised to hold it "while it is
+   * dragged or the page is resized". Kept in step by a `resize` listener
+   * installed after the first render; on the server it holds the fallback size.
+   */
+  private readonly viewport = signal({ width: viewportWidth(), height: viewportHeight() });
 
   // Position / size signals are the source of truth at runtime.
   // Inputs (x/y/initialWidth/initialHeight) seed them in afterNextRender.
@@ -311,10 +380,10 @@ export class WrWindow {
   // x_/y_/width_/height_ and fill the viewport instead.
   readonly x = computed(() => (this.state() === 'maximized' ? 0 : this.x_()));
   readonly y = computed(() => (this.state() === 'maximized' ? 0 : this.y_()));
-  readonly width = computed(() => (this.state() === 'maximized' ? viewportWidth() : this.width_()));
+  readonly width = computed(() => (this.state() === 'maximized' ? this.viewport().width : this.width_()));
   readonly height = computed(() =>
     this.state() === 'maximized'
-      ? viewportHeight()
+      ? this.viewport().height
       : this.state() === 'minimized'
         ? this.minimizedHeight()
         : this.height_()
@@ -331,7 +400,13 @@ export class WrWindow {
   readonly snapTarget = signal<WrWindowSnapTarget | null>(null);
 
   constructor() {
-    afterNextRender(() => this.seedInitialGeometry());
+    afterNextRender(() => {
+      const measure = (): void => this.viewport.set({ width: viewportWidth(), height: viewportHeight() });
+      measure();
+      window.addEventListener('resize', measure);
+      this.destroyRef.onDestroy(() => window.removeEventListener('resize', measure));
+      this.seedInitialGeometry();
+    });
 
     // Re-clamp into viewport when window or viewport changes.
     effect(() => {
@@ -357,7 +432,12 @@ export class WrWindow {
   }
 
   minimize(): void {
-    this.state.set(this.state() === 'minimized' ? 'normal' : 'minimized');
+    const minimizing = this.state() !== 'minimized';
+    // Read before the state flips: once the class lands, nothing inside has
+    // a box and the browser has already dropped focus on `<body>`.
+    const hadFocus = minimizing && this.hasFocus();
+    this.state.set(minimizing ? 'minimized' : 'normal');
+    if (hadFocus) this.minimizedWithFocus.emit();
   }
 
   maximize(): void {
@@ -399,13 +479,43 @@ export class WrWindow {
   center(): void {
     const w = this.width_();
     const h = this.height_();
-    this.x_.set(Math.max(0, (viewportWidth() - w) / 2));
-    this.y_.set(Math.max(0, (viewportHeight() - h) / 2));
+    const { width: vw, height: vh } = this.viewport();
+    this.x_.set(Math.max(0, (vw - w) / 2));
+    this.y_.set(Math.max(0, (vh - h) / 2));
   }
 
   /** Bring this window to the top of the stack. */
   focus(): void {
     this.z.set(this.manager.bringToFront());
+  }
+
+  /**
+   * Move focus into the window: to `[cdkFocusInitial]` or the first control in
+   * its body — the CDK's rule, the one `WrDialog` and `WrDrawer` follow — else
+   * to the window itself. The chrome buttons are not candidates: landing on
+   * Close, the first of them on macOS, is the one place a window must not open
+   * onto. Called after a render, by the container.
+   *
+   * @internal
+   */
+  focusInitial(): void {
+    const host = this.elRef.nativeElement;
+    if (!host.isConnected || this.state() === 'minimized') return;
+    const body = host.querySelector<HTMLElement>('.wr-window__body');
+    if (body) {
+      // `deferAnchors`: no anchors go into the page, and nothing is trapped.
+      const finder = this.focusTraps.create(body, true);
+      const moved = finder.focusInitialElement({ preventScroll: true });
+      finder.destroy();
+      if (moved) return;
+    }
+    host.focus({ preventScroll: true });
+  }
+
+  /** Whether focus is inside the window. @internal */
+  hasFocus(): boolean {
+    const host = this.elRef.nativeElement;
+    return host.contains(host.ownerDocument.activeElement);
   }
 
   // Host handlers
@@ -465,8 +575,7 @@ export class WrWindow {
     const mode = this.snap();
     if (mode === 'none') return null;
     const HOT = 12;
-    const vw = viewportWidth();
-    const vh = viewportHeight();
+    const { width: vw, height: vh } = this.viewport();
     const nearLeft = clientX <= HOT;
     const nearRight = clientX >= vw - HOT;
     const nearTop = clientY <= HOT;
@@ -485,8 +594,7 @@ export class WrWindow {
 
   /** Move + resize the window into the requested snap region. */
   private applySnap(target: WrWindowSnapTarget): void {
-    const vw = viewportWidth();
-    const vh = viewportHeight();
+    const { width: vw, height: vh } = this.viewport();
     const halfW = Math.floor(vw / 2);
     const halfH = Math.floor(vh / 2);
     switch (target) {
@@ -614,29 +722,46 @@ export class WrWindow {
     const preset = sizePreset ? SIZE_PRESETS[sizePreset] : SIZE_PRESETS.md;
     const explicitW = this.initialWidth();
     const explicitH = this.initialHeight();
-    const w = clamp(explicitW ?? preset.width, this.minWidth(), this.maxWidth());
-    const h = clamp(explicitH ?? preset.height, this.minHeight(), this.maxHeight());
+    const keep = this.keepInViewport();
+    const { width: vw, height: vh } = this.viewport();
+    // A window OPENS on screen when it can. The preset is a desktop size — `md`
+    // is 480px — and a phone is 390: the window opened at x=50 with its right
+    // edge at 530, and the Windows chrome's three buttons off the glass. So the
+    // size is capped at the viewport (the minimum still wins, since it is the
+    // consumer's floor), and a CASCADE position is moved in until the whole box
+    // fits. A coordinate the consumer passed is theirs, held only to the same
+    // reach a drag is.
+    const fit = (size: number, room: number): number => (keep ? Math.min(size, room) : size);
+    const w = clamp(fit(explicitW ?? preset.width, vw), this.minWidth(), this.maxWidth());
+    const h = clamp(fit(explicitH ?? preset.height, vh), this.minHeight(), this.maxHeight());
     this.width_.set(w);
     this.height_.set(h);
 
     const xIn = this.initialX();
     const yIn = this.initialY();
+    let x: number;
+    let y: number;
     if (xIn != null && yIn != null) {
-      this.x_.set(xIn);
-      this.y_.set(yIn);
+      x = xIn;
+      y = yIn;
     } else {
       const cascade = this.manager.nextStartOffset();
-      this.x_.set(xIn ?? cascade.x);
-      this.y_.set(yIn ?? cascade.y);
+      x = xIn ?? cascade.x;
+      y = yIn ?? cascade.y;
     }
+    this.x_.set(keep && xIn == null ? clamp(x, 0, Math.max(0, vw - w)) : x);
+    this.y_.set(keep && yIn == null ? clamp(y, 0, Math.max(0, vh - h)) : y);
 
     this.clampToViewport();
   }
 
+  /**
+   * Keep enough of the window on screen to grab it again. Reads the viewport
+   * SIGNAL, so the constructor's effect re-runs it when the page is resized.
+   */
   private clampToViewport(): void {
     if (!this.keepInViewport()) return;
-    const vw = viewportWidth();
-    const vh = viewportHeight();
+    const { width: vw, height: vh } = this.viewport();
     const w = this.width_();
     this.x_.set(clamp(this.x_(), MIN_ON_VIEWPORT - w, vw - MIN_ON_VIEWPORT));
     this.y_.set(clamp(this.y_(), 0, vh - MIN_ON_VIEWPORT));

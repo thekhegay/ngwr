@@ -1,44 +1,61 @@
 <ngwr-doc-page
   title="wrDate"
-  description="Uses `WrDateAdapter` when `provideWrDateAdapter()` is wired up; otherwise falls back to `Intl.DateTimeFormat` with the same named format keys."
+  updated="15.0.0"
+  description="Format a date with a named preset or a token string."
   [keywords]="['pipe', 'wrDate', 'date', 'format', 'intl']"
   [labels]="['Pipe']"
 >
-  <ngwr-doc-section title="Import">
-    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
-  </ngwr-doc-section>
-
   <ngwr-doc-section
     title="Named keys"
-    description="Six locale-aware presets work with or without an adapter — they map to `Intl` date/time styles."
+    description="Six presets that follow the app locale. With no argument, `shortDate`."
   >
     <ngwr-doc-code [code]="snippets.named" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <!-- The `<tbody>` is load-bearing, not tidiness: rows written straight
-           into `<table>` serialize that way, but the browser's HTML parser
-           inserts an implicit `<tbody>` around them, so the live DOM no longer
-           matches what the server wrote. Hydration then walks off the end of
-           the table and throws — `NG0501` under `ng serve`, reported in the
-           optimized build as a `nextSibling` TypeError — and the page loses its
-           title to the meta fallback. -->
-      <table class="ngwr-pipe-table">
-        <tbody>
-          @for (key of namedKeys; track key) {
-            <tr>
-              <td>
-                <code>{{ key }}</code>
-              </td>
-              <td>{{ now() | wrDate: key }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      <!-- Keep the <tbody>: without it hydration fails (NG0501). -->
+      <div class="ngwr-table">
+        <table>
+          <tbody>
+            @for (key of namedKeys; track key) {
+              <tr>
+                <th scope="row">
+                  <code>{{ key }}</code>
+                </th>
+                <td>{{ now() | wrDate: key }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Seconds and hour cycle"
+    description="`time` and `shortDateTime` take a `12h` or `24h` suffix to pin the clock, then `Seconds` to add seconds. New in v15."
+  >
+    <ngwr-doc-code [code]="snippets.clock" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <!-- Keep the <tbody>: without it hydration fails (NG0501). -->
+      <div class="ngwr-table">
+        <table>
+          <tbody>
+            @for (key of clockKeys; track key) {
+              <tr>
+                <th scope="row">
+                  <code>{{ key }}</code>
+                </th>
+                <td>{{ now() | wrDate: key }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Token strings"
-    description="A raw format string goes straight to the adapter, so the tokens are whichever ones THAT adapter knows — not a fixed language. The demo below runs on `WrNativeDateAdapter`, whose set is `yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a` plus single-quoted literals. It has no weekday token: `EEEE` is not recognised and comes out verbatim. `ngwr/date/adapters/fns` forwards the pattern to date-fns untouched, so there the token set is date-fns's."
+    description="Tokens: `yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a`, plus 'quoted' text. There is no weekday token."
   >
     <ngwr-doc-code [code]="snippets.tokens" language="angular-html" />
     <ngwr-doc-snippet code="">

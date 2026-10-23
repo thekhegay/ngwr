@@ -1,0 +1,41 @@
+<ngwr-doc-page
+  title="Icon"
+  updated="15.0.0"
+  description="Renders an SVG icon you register by name; ngwr ships none of its own."
+  [keywords]="['icon', 'wr-icon', 'svg']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Register icons"
+    description="`lucideIcons()` for Lucide, `svgIcon()` for any set that ships SVG files."
+  >
+    <ngwr-doc-install packages="lucide" />
+    <ngwr-doc-code [code]="snippets.register" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Use"
+    description="The icon is hidden from screen readers, so an icon-only button needs its own `aria-label`."
+  >
+    <ngwr-doc-code [code]="snippets.use" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 0.75rem; align-items: center; font-size: 1.25rem">
+        <wr-icon name="plus" />
+        <wr-icon name="trash" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom inline SVG"
+    description="Wrap a one-off SVG in `svgIcon()` and style it with `fill` and `stroke`: `style`, `<style>`, `<image>`, `<a>`, `<foreignObject>`, filters and SMIL are removed."
+  >
+    <ngwr-doc-code [code]="snippets.custom" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

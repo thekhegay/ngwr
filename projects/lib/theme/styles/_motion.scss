@@ -3,7 +3,7 @@
 // Why this lives in the theme layer rather than in each component. The
 // animation catalogue (`ngwr/glitch-text`, `ngwr/gradient-text`, …) guards
 // itself, component by component — those are opt-in effects, and each one knows
-// what its own stillness should look like. The ten blocks below are the
+// what its own stillness should look like. The nine blocks below are the
 // opposite: chrome nobody opted into. A spinner and a skeleton animate on
 // essentially every page of every app, and four of the animations here never
 // stop at all (`wr-spinner-rotate`, `wr-spinner-dash`, `wr-skeleton-shimmer`,
@@ -17,9 +17,7 @@
 // component, and a standalone `@use 'ngwr/spinner'` pulls it in ahead of the
 // spinner's own rules — so at equal specificity the component always wins on
 // source order. `!important` is the only lever a stylesheet that must come first
-// has. `.wr-overlay-sheet` needs one more: its animation is itself `!important`
-// (it has to beat four components' panel sizing), so the class is doubled here
-// to out-specify it.
+// has.
 //
 // What reduced motion MEANS is decided per animation, not globally:
 //
@@ -55,14 +53,6 @@
   .wr-drawer__panel--right,
   .wr-drawer__panel--top,
   .wr-drawer__panel--bottom {
-    animation: none !important;
-  }
-
-  // The responsive bottom sheet, which slides a full panel height up the
-  // screen — the largest single translation the library performs. Doubled
-  // class: `overlay/styles/_index.scss` sets this animation `!important`, and it
-  // is loaded after this file.
-  .wr-overlay-sheet.wr-overlay-sheet {
     animation: none !important;
   }
 

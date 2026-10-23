@@ -1,25 +1,41 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../icon/styles' as icon-styles; // WrIcon
+
 .wr-radio {
   --wr-radio-size: 1.125rem; // md (18px)
+  --wr-radio-font-family: var(--wr-font-family-base);
   --wr-radio-font-size: var(--wr-text-sm);
   --wr-radio-line-height: var(--wr-control-line-height-md);
+  --wr-radio-label-gap: var(--wr-space-sm);
   --wr-radio-bg: var(--wr-color-surface);
-  --wr-radio-border: var(--wr-color-outline);
+  --wr-radio-border: var(--wr-border-base);
   --wr-radio-dot: transparent;
   --wr-radio-color: var(--wr-color-on-surface);
 
   display: inline-flex;
   vertical-align: middle;
   color: var(--wr-radio-color);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-radio-font-family);
   font-size: var(--wr-radio-font-size);
   line-height: var(--wr-radio-line-height);
 
   &__label {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--wr-radio-label-gap);
     cursor: pointer;
     user-select: none;
   }
@@ -50,7 +66,9 @@
     background: var(--wr-radio-bg);
     border: 1px solid var(--wr-radio-border);
     border-radius: 50%;
-    transition: var(--wr-transition-base);
+    transition:
+      background var(--wr-transition-base),
+      border-color var(--wr-transition-base);
 
     &::after {
       content: '';
@@ -94,16 +112,10 @@
     display: none;
   }
 
-  // color-ok: the cue is the glyph arriving — `.wr-radio__icon` goes from
-  // `opacity: 0` to `1` in the `--checked` rule below. This fill only backs it,
-  // since `--has-icon` turns the default dot off.
   &--has-icon.wr-radio--checked {
     --wr-radio-bg: var(--wr-color-primary);
   }
 
-  // color-ok: the cue is the inner dot arriving — `.wr-radio__dot::after` goes
-  // from `scale(0)` to `scale(1)` below, or the icon fades in under
-  // `--has-icon`. The ring and dot colours only back it.
   &--checked {
     --wr-radio-border: var(--wr-color-primary);
     --wr-radio-dot: var(--wr-color-primary);
@@ -126,7 +138,9 @@
 }
 
 .wr-radio-group {
+  --wr-radio-group-gap: var(--wr-space-sm);
+
   display: inline-flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--wr-radio-group-gap);
 }

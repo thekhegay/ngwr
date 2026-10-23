@@ -1,0 +1,90 @@
+<ngwr-doc-page
+  title="Configuration"
+  updated="15.0.0"
+  description="Set app-wide options at bootstrap."
+  [keywords]="['configuration', 'providers', 'bootstrap', 'provideWr', 'features']"
+  [labels]="['Getting started']"
+>
+  <ngwr-doc-section title="provideWr" description="Optional: pass only the features whose defaults you change.">
+    <ngwr-doc-code [code]="snippets.provideWr" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Feature</th>
+            <th scope="col">Entry point</th>
+            <th scope="col">What it sets</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (f of features; track f.feature) {
+            <tr>
+              <th scope="row">
+                <code>{{ f.feature }}</code>
+              </th>
+              <td>
+                <code>{{ f.entry }}</code>
+              </td>
+              <td>{{ f.sets }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>Pass features at bootstrap. Only <code>withDates()</code> also works in a route's <code>providers</code>.</li>
+      <li>The same feature twice throws in dev mode.</li>
+      <li>
+        <code>withDensity()</code> and <code>[wrDensity]</code> need <code>&#64;use 'ngwr/density'</code> in your global
+        styles. No component loads it, and without it the setting does nothing.
+      </li>
+      <li>
+        On a prerendered page, also ship <a [routerLink]="themePath"><code>wrThemePrePaintScript()</code></a> with the
+        same options as <code>withTheme()</code>.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Other providers"
+    description="Icons, i18n and the loading-bar router are calls of their own."
+  >
+    <ngwr-doc-code [code]="snippets.other" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Call</th>
+            <th scope="col">Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>provideWrIcons()</code></th>
+            <td>Works at any level. A route adds to its parent's icons. <a routerLink="/icons">Icon sets</a>.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>provideWrI18nBaseCatalogs()</code></th>
+            <td>
+              Registers ngwr's strings under yours. Do not spread them into your catalog.
+              <a [routerLink]="i18nPath">Translations</a>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>provideWrLoadingBarRouter()</code></th>
+            <td>Without it the loading bar never moves on navigation, and nothing warns.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Your own date adapter"
+    description="For another date library, extend `WrDateAdapter<Date>` and pass the class to `withDates()`."
+  >
+    <ngwr-doc-code [code]="snippets.dateAdapter" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

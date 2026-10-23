@@ -3,22 +3,30 @@
 .wr-tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--wr-tag-gap);
   vertical-align: middle;
 
   appearance: none;
   text-decoration: none;
   white-space: nowrap;
 
-  // Defaults — color and style modifiers override
+  // Defaults — color and style modifiers override. `color` is nullable and a
+  // null one carries no modifier, so this trio IS the neutral tag: the gray
+  // ramp does the job the removed `medium` intent used to stand in for.
   --wr-tag-color: var(--wr-color-on-surface);
-  --wr-tag-bg: var(--wr-color-surface);
-  --wr-tag-border: var(--wr-color-outline);
+  --wr-tag-bg: var(--wr-color-fill);
+  --wr-tag-border: var(--wr-border-base);
   --wr-tag-radius: var(--wr-border-radius-sm);
+  --wr-tag-gap: var(--wr-space-xs);
+  // NOT on the spacing scale: this is solved against the 22px box the comment
+  // below names, which is the shared `sm` control height — a tag sits beside an
+  // `sm` input. The scale's nearest step is 4px, which makes the tag 25px, stops
+  // `--wr-tag-min-height` binding, and breaks that alignment.
   --wr-tag-padding-y: 0.125rem;
-  --wr-tag-padding-x: 0.5rem;
+  --wr-tag-padding-x: var(--wr-space-sm);
+  --wr-tag-font-family: var(--wr-font-family-base);
   --wr-tag-font-size: var(--wr-text-xs);
-  --wr-tag-font-weight: 500;
+  --wr-tag-font-weight: var(--wr-font-weight-medium);
   // `normal`, not a fixed `1rem`: a 16px line box against the font's own 15px
   // content area leaves half a pixel of leading per side, Blink floors it, and
   // the label paints 1px high — 3px above / 4px below, while an adornment icon
@@ -35,7 +43,7 @@
   border-radius: var(--wr-tag-radius);
   min-height: var(--wr-tag-min-height);
   padding: calc(var(--wr-tag-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-tag-padding-x) * var(--wr-density-x, 1));
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-tag-font-family);
   font-size: var(--wr-tag-font-size);
   font-weight: var(--wr-tag-font-weight);
   line-height: var(--wr-tag-line-height);
@@ -44,7 +52,7 @@
   // Shape
   &--rounded {
     --wr-tag-radius: var(--wr-border-radius-pill);
-    --wr-tag-padding-x: 0.625rem;
+    --wr-tag-padding-x: var(--wr-space-md);
   }
 
   // Icon slot sizing
@@ -68,12 +76,6 @@
   }
 
   // Colored variants
-  // color-ok: a tag's colour is decoration or category — the label carries the
-  // state (`Failed`, not a red `Build`), because six of the nine intents share
-  // one lightness and `success` against `danger` is 1.004:1. When a tag has to
-  // stand for a status on its own, its `icon` input is the channel. Nothing is
-  // drawn per intent by default: tags are categories too, and a check on
-  // `Standalone` would say something false.
   @each $name in theme.$colors {
     &--#{$name} {
       --wr-tag-color: var(--wr-color-#{$name}-contrast);
@@ -85,29 +87,18 @@
       // place, which is the reason the soft trio exists. 0.25 -> 0.30 is the
       // whole visual change here. The 6% fill stays, and that is the one place
       // the two deliberately differ: a tag is a chip you can click, hover and
-      // dismiss, so it keeps a body the badge has none of. `light` and `dark`
-      // fall back exactly as the badge does — see the note there.
+      // dismiss, so it keeps a body the badge has none of.
       &.wr-tag--outlined {
         --wr-tag-color: var(--wr-color-#{$name}-ink);
-        --wr-tag-bg: rgba(var(--wr-color-#{$name}-rgb), 0.06);
-        --wr-tag-border: var(--wr-color-#{$name}-soft-border, rgba(var(--wr-color-#{$name}-rgb), 0.3));
+        --wr-tag-bg: color-mix(in srgb, var(--wr-color-#{$name}) 6%, transparent);
+        --wr-tag-border: var(--wr-color-#{$name}-soft-border);
       }
 
       &.wr-tag--transparent {
         --wr-tag-color: var(--wr-color-#{$name}-ink);
-        --wr-tag-bg: rgba(var(--wr-color-#{$name}-rgb), 0.1);
+        --wr-tag-bg: color-mix(in srgb, var(--wr-color-#{$name}) 10%, transparent);
         --wr-tag-border: transparent;
       }
     }
-  }
-
-  // `light` outlined, after the loop for the same reason the badge carries the
-  // same rule: 30% of a surface tone is not a line. At full strength it IS
-  // `--wr-color-outline`, which is already this component's default border.
-  // color-ok: every outlined tag already draws a border — this only gives the
-  // one intent that cannot tint one a literal colour. Telling two INTENTS
-  // apart is the label's job, as the marker above the loop says.
-  &--light.wr-tag--outlined {
-    --wr-tag-border: var(--wr-color-outline);
   }
 }

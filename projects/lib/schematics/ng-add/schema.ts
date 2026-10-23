@@ -10,17 +10,11 @@ export interface Schema {
   /** Target Angular project. Defaults to the workspace default. */
   project?: string;
 
-  /** How to wire styles. `all` = `@use 'ngwr';`, `none` = skip. */
-  styles?: 'all' | 'none';
+  /** How to wire styles. `theme` = `@use 'ngwr/theme';`, `none` = skip. */
+  styles?: 'theme' | 'none';
 
-  /** Date adapter wired via `provideWrDateAdapter`. */
-  dateAdapter?: 'none' | 'native' | 'date-fns' | 'luxon';
-
-  /** Default density wired via `provideWrDensity`. */
+  /** Default density wired via `provideWr(withDensity())`, plus `@use 'ngwr/density';` in the global stylesheet. */
   density?: 'none' | 'sm' | 'lg';
-
-  /** Theme starter applied to `<html data-wr-theme="...">`. */
-  theme?: 'none' | 'light' | 'dark' | 'system';
 
   /** Skip the NodePackageInstallTask (peers won't be installed). */
   skipPeerInstall?: boolean;

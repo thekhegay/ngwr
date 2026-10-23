@@ -8,12 +8,13 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Directive, computed, input } from '@angular/core';
 
-import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from './interfaces';
+import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from './types';
 
 /**
  * Semantic typography directive. Attaches to any native element and
  * applies the visual treatment for the chosen `variant` (`h1`–`h6`,
- * `display`, `lead`, `body`, `small`, `caption`, `overline`, `code`).
+ * `display`, `lead`, `body`, `small`, `caption`, `overline`, `code`, `list`,
+ * `link`).
  *
  * Reads from the same `--wr-text-*` / `--wr-font-weight-*` / `--wr-leading-*`
  * tokens used by the opt-in typography utility classes — themeable by
@@ -24,7 +25,7 @@ import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from '.
  * <h1 wrTypography variant="display">Build interfaces</h1>
  * <h2 wrTypography variant="h2" tone="primary">that feel alive.</h2>
  * <p wrTypography variant="lead">A developer-first library.</p>
- * <span wrTypography variant="caption" tone="medium">v1.6.0 — released today</span>
+ * <span wrTypography variant="caption" tone="muted">v1.6.0 — released today</span>
  * <code wrTypography variant="code">inject(WrTheme)</code>
  * ```
  *
@@ -39,12 +40,15 @@ export class WrTypography {
   readonly variant = input<WrTypographyVariant>('body');
 
   /**
-   * Color tone. `null` (default) keeps the variant's own color — the base
-   * dark for headings/body, medium for lead/caption, primary for links.
-   * Emphasis only: a tone never carries a state on its own. Six of the nine
-   * intents share one lightness, and `success` against `danger` is 1.05:1 as
-   * text, so the words have to name the state (`500 Server Error`, not a red
-   * `Request`) — or reach for `<wr-alert>`, which draws a glyph per type.
+   * Color tone. `null` (default) keeps the variant's own color — the page ink
+   * for headings and body, the muted role for `lead`, `caption`, `overline`
+   * and `list`, primary for links. `tone="base"` pulls a muted variant back to
+   * the page ink.
+   * Every other tone is emphasis only: a tone never carries a state on its
+   * own. Four of the five intents share one lightness, and `success` against
+   * `danger` is 1.05:1 as text, so the words have to name the state
+   * (`500 Server Error`, not a red `Request`) — or reach for `<wr-alert>`,
+   * which draws a glyph per type.
    */
   readonly tone = input<WrTypographyTone | null>(null);
 

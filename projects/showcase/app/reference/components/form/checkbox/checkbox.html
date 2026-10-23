@@ -1,0 +1,109 @@
+<ngwr-doc-page
+  title="Checkbox"
+  updated="15.0.0"
+  description="A checkbox for one boolean, or a group of them for an array."
+  [keywords]="['checkbox', 'wr-checkbox', 'wr-checkbox-group']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Standalone"
+    description="Bind the boolean with `[(checked)]` or [any Angular form](/guides/forms)."
+  >
+    <ngwr-doc-snippet [code]="snippets.standalone">
+      <wr-checkbox [(checked)]="agree">I agree to the terms</wr-checkbox>
+      <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ agree() }}</span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Inside a group"
+    description="Give each box a `checkboxValue`, not `value`; the group's `value` is the array of checked ones."
+  >
+    <ngwr-doc-snippet [code]="snippets.group">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
+        <wr-checkbox-group [(value)]="features">
+          <wr-checkbox checkboxValue="autosave">Autosave</wr-checkbox>
+          <wr-checkbox checkboxValue="notifications">Notifications</wr-checkbox>
+          <wr-checkbox checkboxValue="darkmode">Dark mode</wr-checkbox>
+        </wr-checkbox-group>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem"
+          >Value: [{{ features().join(', ') }}]</span
+        >
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Indeterminate"
+    description="`[indeterminate]` shows a dash for a partly checked parent. You set it and clear it."
+  >
+    <ngwr-doc-snippet [code]="snippets.indeterminate">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-checkbox [checked]="allChecked()" (checkedChange)="toggleAll()" [indeterminate]="someChecked()">
+          Select all
+        </wr-checkbox>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; padding-inline-start: 1.5rem">
+          @for (p of permItems; track p) {
+            <wr-checkbox [checked]="perms().includes(p)" (checkedChange)="togglePerm(p)">{{ p }}</wr-checkbox>
+          }
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Sizes" description="`sm`, `md` (default) or `lg`.">
+    <ngwr-doc-code [code]="snippets.sizes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap">
+        @for (s of sizes; track s) {
+          <wr-checkbox [size]="s" [checked]="true">{{ s }}</wr-checkbox>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Disabled and read-only"
+    description="Disabled leaves the tab order and submits nothing; read-only keeps its tab stop and submits, but refuses the toggle."
+  >
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-checkbox [disabled]="true">Disabled</wr-checkbox>
+        <wr-checkbox [disabled]="true" [(checked)]="agree">Disabled (checked)</wr-checkbox>
+        <wr-checkbox [readonly]="true">Read-only</wr-checkbox>
+        <wr-checkbox [readonly]="true" [checked]="true">Read-only (checked)</wr-checkbox>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Use it in a form"
+    description="A single checkbox binds a boolean and the group an array; [Forms](/guides/forms) lists what reactive forms ignore."
+  >
+    <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formsTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <form [formGroup]="reactiveForm" style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
+        <wr-checkbox formControlName="agree">I agree to the terms</wr-checkbox>
+        <wr-checkbox-group formControlName="features">
+          <wr-checkbox checkboxValue="autosave">Autosave</wr-checkbox>
+          <wr-checkbox checkboxValue="notifications">Notifications</wr-checkbox>
+          <wr-checkbox checkboxValue="darkmode">Dark mode</wr-checkbox>
+        </wr-checkbox-group>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          agree: {{ reactiveForm.controls.agree.value }} · features: [{{
+            reactiveForm.controls.features.value.join(', ')
+          }}] · form valid: {{ reactiveForm.valid }}
+        </span>
+      </form>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Checkbox API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Checkbox Group API">
+    <ngwr-doc-api [rows]="groupApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

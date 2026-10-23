@@ -16,6 +16,7 @@
     [style.--wr-table-row-h.px]="virtualized() ? effRowH() : null"
     [attr.aria-rowcount]="virtualized() ? renderRows().length + 1 + (hasSummary() && items()?.length ? 1 : 0) : null"
     [attr.role]="treeMode() ? 'treegrid' : null"
+    [attr.aria-multiselectable]="treeMode() && rowSelection() === 'multiple' ? true : null"
   >
     <colgroup>
       @if (rowSelection()) {
@@ -85,6 +86,15 @@
                 >
                   <wr-table-sort [direction]="directionFor(col.key)" />
                 </button>
+                <!-- A column's place in a multi-column sort. Drawn, because only the
+                     primary key announces `aria-sort` (see ariaSortFor). Beside the
+                     button rather than in it: inside, the digit is visible text the
+                     button's name ("Sort Role") does not contain, which is a WCAG
+                     2.5.3 label-in-name failure. Hidden, so the column header's own
+                     name stays its title. -->
+                @if (sortOrderFor(col.key); as order) {
+                  <span class="wr-table__sort-order" aria-hidden="true">{{ order }}</span>
+                }
               }
 
               @if (col.column.filterItems; as filterItems) {
@@ -135,7 +145,7 @@
                       [checked]="groupChecked(entry.group.rows)"
                       [indeterminate]="groupIndeterminate(entry.group.rows)"
                       (checkedChange)="toggleGroupSelection(entry.group.rows, $event)"
-                      [ariaLabel]="resolvedSelectGroupLabel()"
+                      [ariaLabelledby]="groupControlLabelledby('select-group', entry.id)"
                     />
                   }
                   @if (groupTemplate(); as tpl) {
@@ -143,7 +153,7 @@
                       type="button"
                       class="wr-table__group-toggle wr-table__group-toggle--icon"
                       [attr.aria-expanded]="!entry.group.collapsed"
-                      [attr.aria-label]="resolvedToggleGroupLabel()"
+                      [attr.aria-labelledby]="groupControlLabelledby('toggle-group', entry.id)"
                       (click)="toggleGroupCollapse(entry.group.value)"
                     >
                       <svg
@@ -160,11 +170,15 @@
                       </svg>
                     </button>
                     <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="entry.group" />
+                    <!-- The group's name for the two controls above. A custom header
+                         is the consumer's markup, with nothing in it to point at. -->
+                    <span hidden [id]="groupLabelId(entry.id)">{{ entry.group.label }}</span>
                   } @else {
                     <button
                       type="button"
                       class="wr-table__group-toggle"
                       [attr.aria-expanded]="!entry.group.collapsed"
+                      [attr.aria-labelledby]="groupToggleLabelledby(entry.id)"
                       (click)="toggleGroupCollapse(entry.group.value)"
                     >
                       <svg
@@ -179,9 +193,16 @@
                       >
                         <path d="m9 18 6-6-6-6" />
                       </svg>
-                      <span class="wr-table__group-label">{{ entry.group.label }}</span>
+                      <span class="wr-table__group-label" [id]="groupLabelId(entry.id)">{{ entry.group.label }}</span>
                       @if (showGroupCount()) {
-                        <span class="wr-table__group-count">{{ entry.group.count }}</span>
+                        <!-- A real space between the label and the count. Whitespace
+                             alone draws nothing in a flex row, and without it the
+                             button's text reads "admin2" — which the name
+                             "Toggle group admin 2" does not contain, a label-in-name
+                             mismatch for any tool that compares the two. -->
+                        &ngsp;<span class="wr-table__group-count" [id]="groupCountId(entry.id)">{{
+                          entry.group.count
+                        }}</span>
                       }
                     </button>
                   }
@@ -212,6 +233,7 @@
             </tr>
           } @else {
             <tr
+              #rowEl
               [class]="rowClasses(entry.row, i)"
               [class.wr-table__tr--selected]="rowSelection() && isRowSelected(entry.row)"
               [class.wr-table__tr--child]="entry.depth > 0"
@@ -220,6 +242,8 @@
               [attr.aria-posinset]="treeMode() ? entry.posinset : null"
               [attr.aria-setsize]="treeMode() ? entry.setsize : null"
               [attr.aria-expanded]="entry.open"
+              [attr.aria-selected]="treeMode() && rowSelection() ? isRowSelected(entry.row) : null"
+              [attr.tabindex]="treeMode() ? (entry.id === tabStopRowId() ? 0 : -1) : null"
               [style.--wr-table-depth]="treeMode() ? entry.depth : null"
             >
               @if (rowSelection()) {
@@ -228,7 +252,7 @@
                     size="sm"
                     [checked]="isRowSelected(entry.row)"
                     (checkedChange)="toggleRow(entry.row, $event)"
-                    [ariaLabel]="resolvedSelectRowLabel()"
+                    [ariaLabelledby]="rowControlLabelledby('select-row', entry.id)"
                   />
                 </td>
               }
@@ -239,7 +263,7 @@
                     class="wr-table__expand-btn"
                     [class.wr-table__expand-btn--open]="isExpanded(entry.row)"
                     [attr.aria-expanded]="isExpanded(entry.row)"
-                    [attr.aria-label]="resolvedExpandRowLabel()"
+                    [attr.aria-labelledby]="rowControlLabelledby('expand-row', entry.id)"
                     (click)="toggleExpand(entry.row)"
                   >
                     <svg
@@ -268,6 +292,7 @@
                   [style.inset-inline-start.px]="leftPin(col.key)"
                   [style.inset-inline-end.px]="rightPin(col.key)"
                   [attr.data-label]="col.column.title"
+                  [attr.id]="col.key === labelColumnKey() ? rowLabelId(entry.id) : null"
                 >
                   @if (treeMode() && col.key === treeColumnKey()) {
                     <span class="wr-table__tree-lead">
@@ -277,7 +302,7 @@
                           class="wr-table__tree-toggle"
                           [class.wr-table__tree-toggle--open]="entry.open"
                           [attr.aria-expanded]="entry.open"
-                          [attr.aria-label]="resolvedToggleRowLabel()"
+                          [attr.aria-labelledby]="rowControlLabelledby('toggle-row', entry.id)"
                           (click)="toggleTreeRow(entry.row)"
                         >
                           <svg
@@ -373,5 +398,29 @@
 @if (showPager()) {
   <div class="wr-table__pager">
     <wr-pagination [(page)]="page" [pageSize]="pageSize()" [total]="resolvedTotal()" />
+  </div>
+}
+
+<!-- The action words the row and group controls are named with, once per table.
+     `aria-labelledby` reads a hidden element it points at, so each control joins
+     one of these to its own row's (or group's) label. Only the words a control
+     in this table uses are rendered. -->
+@if (rowSelection() || expandable() || treeMode() || groupBy() !== null) {
+  <div hidden>
+    @if (rowSelection()) {
+      <span [id]="actionId('select-row')">{{ resolvedSelectRowLabel() }}</span>
+    }
+    @if (expandable()) {
+      <span [id]="actionId('expand-row')">{{ resolvedExpandRowLabel() }}</span>
+    }
+    @if (treeMode()) {
+      <span [id]="actionId('toggle-row')">{{ resolvedToggleRowLabel() }}</span>
+    }
+    @if (groupBy() !== null) {
+      @if (rowSelection() === 'multiple') {
+        <span [id]="actionId('select-group')">{{ resolvedSelectGroupLabel() }}</span>
+      }
+      <span [id]="actionId('toggle-group')">{{ resolvedToggleGroupLabel() }}</span>
+    }
   </div>
 }

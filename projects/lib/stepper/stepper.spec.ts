@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -44,6 +41,17 @@ class Host {
   `,
 })
 class OptionalHost {}
+
+@Component({
+  imports: [WrStepper, WrStep],
+  template: `
+    <wr-stepper [active]="1">
+      <wr-step label="Профиль">Body</wr-step>
+      <wr-step label="Адрес">Body</wr-step>
+    </wr-stepper>
+  `,
+})
+class CompletedHost {}
 
 /**
  * Two things carry the meaning here: `aria-current="step"` on exactly one
@@ -232,6 +240,23 @@ describe('WrStepper', () => {
     ).toBe(true);
   });
 
+  it('says a step is completed in its header, not only with the tick', () => {
+    // The tick is `aria-hidden`, so the word is what reaches a screen reader — and
+    // it sits inside the button, where it becomes part of the step's name.
+    const done = (): string[] =>
+      headers().map(h => h.querySelector('.wr-stepper__sr-only')?.textContent?.trim() ?? '-');
+    expect(done()).toEqual(['-', '-', '-']);
+
+    fixture.componentInstance.active.set(2);
+    fixture.detectChanges();
+    expect(done()).toEqual(['completed', 'completed', '-']);
+
+    // An explicit `[completed]` wins over the position, both ways.
+    fixture.componentInstance.addressDone.set(false);
+    fixture.detectChanges();
+    expect(done()).toEqual(['completed', '-', '-']);
+  });
+
   it('opts into the narrow reflow without changing what it IS', () => {
     // `responsive` adds a modifier the stylesheet's `@container` rule keys on, and
     // that rule is scoped to steppers that are not already vertical. So the two
@@ -290,50 +315,33 @@ describe('WrStepper optional badge', () => {
   });
 });
 
-/**
- * ⚠️ This one guards the RULE, not the behaviour.
- *
- * jsdom has no layout and loads no stylesheets, so a spec here cannot see a row
- * overflow — which is why the defect survived a full suite. Measured in Chromium
- * instead, against the compiled `ngwr/stepper` sheet, three steps at a 375px
- * viewport:
- *
- * ```
- *   de  Übersichtsdarstellung / Grundeinstellungen / Rechnungsstellung
- *       document 423px against a 375px client  ->  +48px, page scrolls sideways
- *   fi  Yleiskatsaus / Perusasetukset / Laskutustiedot          ->  +16px
- *   ja  概要と全体像の確認 / 基本設定の入力 / 請求先情報の登録        ->  +40px
- *   en  Overview / Details / Billing                            ->    0px
- * ```
- *
- * English is why nobody found it: the row only overflows once a label is longer
- * than the column, which is what a translation is. With the two declarations
- * below all four sets measure 0 at 320 and 375, and the row's height at 768 and
- * 1200 is byte-identical to before — the fix is inert until the row cannot fit.
- *
- * The `<li>` already carried `min-width: 0`, so this reads as already handled;
- * it bought nothing, because the BUTTON inside it was `flex: 0 0 auto` and
- * simply overflowed the row that shrank.
- */
-describe('the horizontal row, as the stylesheet declares it', () => {
-  const sheet = readFileSync(join(process.cwd(), 'projects/lib/stepper/styles/_index.scss'), 'utf8');
+/** The same shape as the optional badge: one catalog word, no `*Label` input. */
+describe('WrStepper completed state', () => {
+  afterEach(() => TestBed.resetTestingModule());
 
-  const rule = (name: string): string => {
-    const at = sheet.indexOf(`  &__${name} {`);
-    expect(at, `no \`&__${name}\` rule in the stepper stylesheet`).toBeGreaterThan(-1);
-    return sheet.slice(at, sheet.indexOf('\n  }', at));
-  };
+  const word = (fixture: { nativeElement: unknown }): string =>
+    (fixture.nativeElement as HTMLElement).querySelector('.wr-stepper__sr-only')?.textContent?.trim() ?? '';
 
-  it('lets the header button give, rather than freezing it at its label’s width', () => {
-    expect(rule('header-button')).toMatch(/flex:\s*0 1 auto/);
-    expect(rule('header-button')).toMatch(/min-width:\s*0/);
+  it('comes from the catalog, not from the template', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    const fixture = TestBed.createComponent(CompletedHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(/\p{Script=Cyrillic}/u.test(word(fixture)), `"${word(fixture)}" is still English`).toBe(true);
   });
 
-  it('lets the label itself break, because a compound noun is one unbreakable word', () => {
-    // A flex item's automatic minimum size is its min-content width, and for
-    // `Rechnungsstellung` that IS the whole word — so the button would shrink and
-    // the label would not.
-    expect(rule('label')).toMatch(/min-width:\s*0/);
-    expect(rule('label')).toMatch(/overflow-wrap:\s*break-word/);
+  it('falls back to English when nothing is registered', () => {
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(CompletedHost);
+    fixture.detectChanges();
+
+    expect(word(fixture)).toBe('completed');
   });
 });

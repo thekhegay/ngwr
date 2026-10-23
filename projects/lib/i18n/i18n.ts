@@ -92,8 +92,8 @@ export function wrInterpolate(template: string, params: WrI18nParams | undefined
  * calendar, because the date token defaulted to `navigator.language`. The
  * precedence is now stated, highest first:
  *
- * 1. **A subsystem's own explicit option.** `provideWrDateAdapter({ locale })`
- *    pins dates; `provideWrI18n({ defaultLocale })` pins the catalog. The most
+ * 1. **A subsystem's own explicit option.** `withDates({ locale })` pins
+ *    dates; `provideWrI18n({ defaultLocale })` pins the catalog. The most
  *    specific statement wins, because it can only have been deliberate.
  * 2. **`WrI18n.locale()` — the runtime value.** The only one of the three that
  *    can change without a reload, so it is what a language switcher writes.
@@ -107,10 +107,11 @@ export function wrInterpolate(template: string, params: WrI18nParams | undefined
  *
  * **What a runtime switch reaches, and what it does not.** `use()` repaints
  * every catalog string. It does not move `LOCALE_ID`, which is a constant, so
- * anything keyed on it — `wrDate` / `wrNumber` / `wrPlural`, `wr-input-number`,
+ * anything keyed on it — `wrNumber` / `wrPlural`, `wr-input-number`,
  * `wr-statistic`, `wr-counter` — and anything keyed on `WR_DATE_LOCALE` — the
- * date adapter, and so `wr-calendar` and `wr-date-picker` — stays where it was.
- * `use()` says so once in dev mode rather than leaving it to be discovered.
+ * date adapter, and so `wr-calendar`, `wr-date-picker` and `wrDate` — stays
+ * where it was. `use()` says so once in dev mode rather than leaving it to be
+ * discovered.
  *
  * @example
  * ```ts

@@ -1,8 +1,9 @@
 import { RenderMode, type ServerRoute } from '@angular/ssr';
 
-import { routes } from '#routing';
+import { labelIndex } from '#core/utils';
+import { ROUTES } from '#routes';
 
-const icons = routes.icons;
+const icons = ROUTES.icons;
 
 /**
  * Per-route render modes for the static prerender (`outputMode: 'static'`).
@@ -15,12 +16,14 @@ const icons = routes.icons;
  *    route. Prerendering a parameterised path requires `getPrerenderParams`;
  *    since these URLs only bounce to `/interfaces/*`, client rendering is
  *    cheaper than enumerating them.
- * 2. The raw-SVG icon galleries — each inlines up to `VISIBLE_CAP` (240)
+ * 2. Six raw-SVG icon galleries — each inlines up to `VISIBLE_CAP` (240)
  *    arbitrary, alphabetically-first SVGs whose search is client-only, so the
- *    static HTML would carry weight with no SEO value. The adapter pages
- *    (overview / lucide / feather) stay prerendered: those are real docs.
+ *    static HTML would carry weight with no SEO value. The overview and lucide
+ *    pages stay prerendered as real docs. Feather's page is the same
+ *    `svgIcon()` gallery as the six and stays prerendered only because it was
+ *    before v15, when it documented an adapter.
  *
- * Client-rendered routes emit no HTML and fall through to the existing nginx
+ * Client-rendered routes emit no HTML and fall through to the existing Angie
  * SPA fallback, exactly as today.
  *
  * The `**` entry below reads as "prerender everything else", and for the app's
@@ -50,15 +53,30 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'validators/**', renderMode: RenderMode.Client },
   { path: 'interfaces/**', renderMode: RenderMode.Client },
   { path: 'types/**', renderMode: RenderMode.Client },
-  // `/docs/*` is the pre-v7 prefix; same shape, same reason.
-  { path: 'docs/**', renderMode: RenderMode.Client },
+  // `/start/*` is the pre-v15 prefix for what is now `/docs`; parameterised,
+  // so it is client-rendered like every other redirect rule.
+  { path: 'start/**', renderMode: RenderMode.Client },
+  // `/animations/*` is the pre-v15 name of `/bits`, parameterised the same way.
+  { path: 'animations/**', renderMode: RenderMode.Client },
+  // The pre-v7 `docs/*` redirects, named one sub-prefix at a time rather than
+  // as `docs/**`: `/docs` is a REAL cluster since v15, and a blanket rule here
+  // would stop every page in it prerendering.
+  { path: 'docs/components/**', renderMode: RenderMode.Client },
+  { path: 'docs/getting-started/**', renderMode: RenderMode.Client },
+  { path: 'docs/core/**', renderMode: RenderMode.Client },
 
-  { path: `${icons.index}/${icons.tabler}`, renderMode: RenderMode.Client },
-  { path: `${icons.index}/${icons.phosphor}`, renderMode: RenderMode.Client },
-  { path: `${icons.index}/${icons.heroicons}`, renderMode: RenderMode.Client },
-  { path: `${icons.index}/${icons.iconoir}`, renderMode: RenderMode.Client },
-  { path: `${icons.index}/${icons.radix}`, renderMode: RenderMode.Client },
-  { path: `${icons.index}/${icons.bootstrap}`, renderMode: RenderMode.Client },
+  { path: `${icons.path}/${icons.tabler.path}`, renderMode: RenderMode.Client },
+  { path: `${icons.path}/${icons.phosphor.path}`, renderMode: RenderMode.Client },
+  { path: `${icons.path}/${icons.heroicons.path}`, renderMode: RenderMode.Client },
+  { path: `${icons.path}/${icons.iconoir.path}`, renderMode: RenderMode.Client },
+  { path: `${icons.path}/${icons.radix.path}`, renderMode: RenderMode.Client },
+  { path: `${icons.path}/${icons.bootstrap.path}`, renderMode: RenderMode.Client },
+
+  {
+    path: 'labels/:label',
+    renderMode: RenderMode.Prerender,
+    getPrerenderParams: () => Promise.resolve([...labelIndex().keys()].map(label => ({ label }))),
+  },
 
   { path: '**', renderMode: RenderMode.Prerender },
 ];

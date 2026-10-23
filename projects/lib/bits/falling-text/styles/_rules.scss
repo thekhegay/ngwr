@@ -1,0 +1,44 @@
+.wr-falling-text {
+  position: relative;
+  display: block;
+  overflow: hidden;
+
+  &__words {
+    line-height: 1.4;
+    // The words take their ORDER from the text (`dir="auto"` in the template)
+    // and their alignment from the page, which is what plain text does: a Latin
+    // sentence on an RTL page still sits at the right. Chromium knows only the
+    // prefixed keyword and drops the standard one, which Firefox needs.
+    // rtl-ok: `match-parent` IS direction-aware — `start` resolved against the parent
+    text-align: -webkit-match-parent;
+    text-align: match-parent;
+  }
+
+  &__word {
+    display: inline-block;
+    will-change: transform;
+    user-select: none;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    // Only a released word takes its touches for the drag. On the whole host this
+    // made the block a scroll dead zone on every touch screen — before the words
+    // fell, and under reduced motion, where they never do.
+    .wr-falling-text--released & {
+      touch-action: none;
+    }
+
+    &--hl {
+      // A highlighted WORD is text the user reads, decorative motion or not.
+      color: var(--wr-color-primary-ink);
+    }
+  }
+
+  &__space {
+    display: inline;
+    white-space: pre;
+  }
+}

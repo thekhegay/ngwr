@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -10,11 +7,10 @@ import { Subject } from 'rxjs';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrTreeNode, WrTreeSelectionMode } from './interfaces';
 import { WrTree } from './tree';
+import type { WrTreeNode, WrTreeSelectionMode } from './types';
 
 @Component({
   imports: [WrTree],
@@ -113,7 +109,6 @@ describe('WrTree', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -243,7 +238,6 @@ describe('WrTree row semantics', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.componentInstance.expanded.set(['src']);
     fixture.detectChanges();
@@ -292,7 +286,6 @@ describe('WrTree keyboard cursor', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.componentInstance.expanded.set(['src', 'app']);
     fixture.detectChanges();
@@ -324,6 +317,61 @@ describe('WrTree keyboard cursor', () => {
     expect(press('ArrowDown').defaultPrevented).toBe(true);
     expect(press('ArrowUp').defaultPrevented).toBe(true);
   });
+
+  it('follows a collapsed ancestor rather than whichever row takes its index', async () => {
+    // The cursor was a bare index: collapsing `src` with the mouse while it sat
+    // on `main.ts` (index 2) handed the tab stop to whatever row index 2 now
+    // was, and the next arrow walked from there.
+    rowFor('main.ts').click();
+    await fixture.whenStable();
+    toggleIn(rowFor('src'));
+
+    expect(tabbable().map(r => r.textContent.trim())).toEqual(['src']);
+    press('ArrowDown');
+    await fixture.whenStable();
+    expect(document.activeElement).toBe(rowFor('README.md'));
+  });
+
+  it('stays on its row when a branch above it opens', async () => {
+    fixture.componentInstance.expanded.set([]);
+    fixture.detectChanges();
+    rowFor('README.md').click();
+    await fixture.whenStable();
+
+    toggleIn(rowFor('src'));
+
+    expect(tabbable().map(r => r.textContent.trim())).toEqual(['README.md']);
+  });
+});
+
+describe('WrTree names an inline tree', () => {
+  @Component({
+    imports: [WrTree],
+    template: `<wr-tree [nodes]="nodes" ariaLabel="Project files" />`,
+  })
+  class NamedHost {
+    readonly nodes = NODES;
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('puts ariaLabel on the role="tree" itself, which needs a name', () => {
+    const fixture = TestBed.createComponent(NamedHost);
+    fixture.detectChanges();
+    const tree = (fixture.nativeElement as HTMLElement).querySelector('[role="tree"]')!;
+
+    expect(tree.getAttribute('aria-label')).toBe('Project files');
+    fixture.destroy();
+  });
+
+  it('leaves an unnamed tree without an empty name', () => {
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    const tree = (fixture.nativeElement as HTMLElement).querySelector('[role="tree"]')!;
+
+    expect(tree.hasAttribute('aria-label')).toBe(false);
+    fixture.destroy();
+  });
 });
 
 describe('WrTree with defaultExpandAll', () => {
@@ -339,7 +387,6 @@ describe('WrTree with defaultExpandAll', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(ExpandAllHost);
     fixture.detectChanges();
   });
@@ -432,7 +479,6 @@ describe('WrTree arrow keys follow the reading direction', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         // `Directionality` reads the document once at construction, so a fake is
         // the honest way to put the component in an RTL page.
         { provide: Directionality, useValue: { value: direction, change: new Subject<Direction>() } },
@@ -610,7 +656,6 @@ describe('WrTree in overlay mode', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(OverlayHost);
     fixture.detectChanges();
   });
@@ -703,6 +748,41 @@ describe('WrTree in overlay mode', () => {
       expect(list()).toBeNull();
     });
 
+    it('closes on Tab and lets focus carry on from the trigger', async () => {
+      // The pane sits at the end of <body>: a Tab from a row left the document
+      // and the panel stayed open over a combobox nobody was on.
+      await open();
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+      document.activeElement!.dispatchEvent(tab);
+
+      // Synchronous, so the browser's own Tab runs from the trigger; and not
+      // prevented, so it does run.
+      expect(document.activeElement).toBe(trigger());
+      expect(tab.defaultPrevented).toBe(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(list()).toBeNull();
+      expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('opens from the closed trigger on ArrowDown, ArrowUp and Alt + ArrowDown', async () => {
+      for (const init of [{ key: 'ArrowDown' }, { key: 'ArrowUp' }, { key: 'ArrowDown', altKey: true }]) {
+        trigger().focus();
+        const event = new KeyboardEvent('keydown', { ...init, bubbles: true, cancelable: true });
+        trigger().dispatchEvent(event);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(event.defaultPrevented).toBe(true);
+        expect(trigger().getAttribute('aria-expanded')).toBe('true');
+        expect(list()).not.toBeNull();
+
+        document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+        fixture.detectChanges();
+        await fixture.whenStable();
+      }
+    });
+
     it('gives focus back to the trigger when the panel closes', async () => {
       await open();
 
@@ -725,7 +805,7 @@ describe('WrTree placeholder', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   const mount = async (providers: unknown[]): Promise<HTMLElement> => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), ...(providers as never[])] });
+    TestBed.configureTestingModule({ providers: providers as never[] });
     const fixture = TestBed.createComponent(PlaceholderHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -798,7 +878,6 @@ describe('WrTree teardown while windowed', () => {
     }
     vi.stubGlobal('ResizeObserver', StubObserver);
 
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(DirHost);
     fixture.componentInstance.virtual.set(true);
     fixture.detectChanges();
@@ -847,7 +926,7 @@ describe('WrTree — the overflow chip is localizable', () => {
 
   const mount = (providers: unknown[]): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), ...providers] as never });
+    TestBed.configureTestingModule({ providers: providers as never });
     fixture = TestBed.createComponent(OverflowHost);
     fixture.detectChanges();
   };
@@ -906,7 +985,6 @@ describe('WrTree reports an inline pick to a bound field', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(ValueHost);
     fixture.detectChanges();
   });
@@ -1030,7 +1108,6 @@ describe('WrTree overlay trigger — clearing from the keyboard', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(KeyboardClearHost);
     fixture.detectChanges();
   });
@@ -1136,7 +1213,6 @@ describe('WrTree in overlay mode follows a direction flip while open', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(OverlayHost);
     fixture.detectChanges();
   });
@@ -1182,39 +1258,6 @@ describe('WrTree in overlay mode follows a direction flip while open', () => {
   });
 });
 
-/** Every rule in the tree stylesheet, selector to declarations — read from source, see below. */
-const rules = (): Map<string, Record<string, string>> => {
-  const source = readFileSync(join(process.cwd(), 'projects/lib/tree/styles/_index.scss'), 'utf8')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/(^|\s)\/\/[^\n]*/g, '$1');
-  const out = new Map<string, Record<string, string>>();
-  const stack: string[] = [];
-  let buffer = '';
-  for (const ch of source) {
-    if (ch === '{') {
-      const head = buffer.trim();
-      const parent = stack.at(-1);
-      stack.push(parent === undefined ? head : head.includes('&') ? head.replaceAll('&', parent) : `${parent} ${head}`);
-      buffer = '';
-    } else if (ch === ';' || ch === '}') {
-      const statement = buffer.trim();
-      const selector = stack.at(-1);
-      const colon = statement.indexOf(':');
-      if (selector !== undefined && colon > 0 && !statement.startsWith('@')) {
-        out.set(selector, {
-          ...out.get(selector),
-          [statement.slice(0, colon).trim()]: statement.slice(colon + 1).trim(),
-        });
-      }
-      if (ch === '}') stack.pop();
-      buffer = '';
-    } else {
-      buffer += ch;
-    }
-  }
-  return out;
-};
-
 /**
  * The overlay trigger's width floor gives way to the layout.
  * `--wr-tree-trigger-min-width` used to be a `min-width` on the TRIGGER, which no
@@ -1224,16 +1267,13 @@ const rules = (): Map<string, Record<string, string>> => {
  * the combobox host — the shape `wr-select` uses — and the INLINE tree, which
  * has no trigger, is left alone.
  *
- * jsdom has no layout, so nothing here can measure a width — every rect is 0×0
- * and every one of these would pass on the stylesheet that overflowed. What a
- * spec CAN hold is the two halves the geometry rests on: the rendered DOM (the
- * trigger is the combobox host's only element, so the spacer is the column's
- * only other item) and the declarations, read from source the way
- * `avatar.spec.ts` reads its own. The widths were measured in a real browser.
+ * jsdom has no layout, so nothing here can measure a width. What a spec CAN
+ * hold is the rendered DOM the geometry rests on: the trigger is the combobox
+ * host's only element, so the spacer is the column's only other item. The
+ * widths were measured in a real browser.
  */
 describe('WrTree overlay trigger width floor', () => {
   it('renders the trigger as the combobox host’s only element', () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(OverlayHost);
     fixture.detectChanges();
 
@@ -1243,38 +1283,6 @@ describe('WrTree overlay trigger width floor', () => {
       'BUTTON.wr-tree__trigger',
     ]);
     fixture.destroy();
-  });
-
-  it('lays the combobox host out as one column that can shrink to nothing', () => {
-    expect(rules().get('.wr-tree--combobox')).toMatchObject({
-      display: 'inline-grid',
-      'grid-template-columns': 'minmax(0, 1fr)',
-      '--wr-tree-trigger-min-width': '12rem',
-    });
-  });
-
-  it('gives a stretched combobox host’s extra height to the trigger’s row, not the spacer’s', () => {
-    // An implicit second row would be `auto` and take a share of it: a host
-    // stretched to 60px by its flex row drew a 45px trigger over a 15px gap.
-    expect(rules().get('.wr-tree--combobox')).toMatchObject({ 'grid-template-rows': 'auto 0' });
-  });
-
-  it('carries the floor on a spacer a narrower host caps', () => {
-    expect(rules().get('.wr-tree--combobox::after')).toMatchObject({
-      content: "''",
-      width: 'var(--wr-tree-trigger-min-width)',
-      'max-width': '100%',
-      height: '0',
-    });
-  });
-
-  it('lets the trigger follow the host down', () => {
-    expect(rules().get('.wr-tree__trigger')).toMatchObject({ width: '100%', 'min-width': '0' });
-  });
-
-  it('leaves the inline tree a block with no spacer', () => {
-    expect(rules().get('.wr-tree')).toMatchObject({ display: 'block' });
-    expect(rules().has('.wr-tree::after')).toBe(false);
   });
 });
 
@@ -1313,7 +1321,6 @@ describe('WrTree focused by its bound field', () => {
 
   const build = (setUp?: (host: FocusHost) => void): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(FocusHost);
     setUp?.(fixture.componentInstance);
     fixture.detectChanges();

@@ -1,0 +1,83 @@
+// The one table box on the site. Every table — the API and CSS-variables
+// tables, the Dependencies row, the keyboard contracts and every table a page
+// writes into its prose — sits in a wrapper carrying `.ngwr-table` (a `<div>`,
+// or the component's own host), so a header, a row header, a separator and a
+// cell look the same wherever a reader meets them.
+//
+// Every selector is rooted at `.ngwr-table`, so it scores at least (0,1,1) and
+// beats the typeset's `.wr-typeset :where(...)` table rules at (0,1,0) without
+// the wrapper having to opt out of the typeset.
+//
+// No default `min-width`. With chips set to `overflow-wrap: break-word`, an
+// auto-layout table's min-content is its longest token, and below that it
+// overflows into this wrapper's own scroll rather than the page's. The two
+// fixed-layout tables (doc-api, doc-css-vars) keep their column widths and
+// their `min-width` locally, beside the reasons for them.
+.ngwr-table {
+  display: block;
+  border: 1px solid var(--wr-border-base);
+  border-radius: var(--wr-border-radius-base);
+  overflow-x: auto;
+
+  > table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+  }
+
+  // The typeset rules a border under `thead` and under every body row; the
+  // separators below are the only lines here.
+  :is(thead, tr) {
+    border: 0;
+  }
+
+  th,
+  td {
+    padding: 0.625rem 0.875rem;
+    // Logical, so the text mirrors with the columns under RTL. A browser
+    // centres a `th`, which is how a row header (Pull request / Nightly /
+    // Release) came out centred over start-aligned cells.
+    text-align: start;
+    vertical-align: top;
+    color: var(--wr-color-on-surface);
+  }
+
+  thead th {
+    background: var(--wr-color-fill-subtle);
+    color: var(--wr-color-on-surface-muted);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--wr-tracking-wide);
+  }
+
+  // A row header is the same box as a cell — start-aligned, top-aligned, the
+  // same padding — and only heavier.
+  tbody th {
+    font-weight: 600;
+  }
+
+  // One rule between rows, and one between the header row and the first body
+  // row. No last-row rule: the frame closes the table.
+  tbody tr + tr > *,
+  thead + tbody > tr:first-child > * {
+    border-block-start: 1px solid var(--wr-border-base);
+  }
+
+  // Inside the frame, above the header row, inset like a cell so its text
+  // starts where the columns' does.
+  caption {
+    padding: 0.625rem 0.875rem;
+    text-align: start;
+    color: var(--wr-color-on-surface-muted);
+    font-size: 0.8125rem;
+  }
+
+  // A qualifier beside or under a value — "(optional)", "+2 variant overrides".
+  &__note {
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-text-xs);
+  }
+}

@@ -1,21 +1,31 @@
 <ngwr-doc-page [title]="page.title" [description]="page.description" [keywords]="page.keywords ?? []">
   @for (section of sections; track section.title) {
     <ngwr-doc-section [title]="section.title">
-      <ul class="index">
+      <!-- Out of the typeset: its `li` margins skip the first item, which set the
+           first link 8px above the rest of its row. -->
+      <ul class="index wr-not-typeset">
         @for (link of section.links; track link.title) {
           <li>
             @if (link.url && !link.disabled) {
-              <!-- The same mark the sidebar draws, off the same rule: this page lists the
-                   same links, so a reader who arrived at the catalog instead of the nav
-                   sees the same thing. The comma is a real text node, read and never
-                   seen — without it the link's accessible name computes as "Graphnew" —
-                   and the title sits in its own element so Angular drops the whitespace
-                   around it and the name reads "Graph, new" rather than "Graph , new". -->
-              <a class="index__link" [routerLink]="link.url">
+              <!-- The same mark the sidebar draws (new, updated or removed), off the same
+                   rule: this page lists the same links, so a reader who arrived at the
+                   catalog instead of the nav sees the same thing. The comma is a real text
+                   node, read and never seen — without it the link's accessible name computes
+                   as "Graphnew" — and the title sits in its own element so Angular drops the
+                   whitespace around it and the name reads "Graph, new" rather than
+                   "Graph , new". -->
+              @let linkMark = mark(link);
+              <a class="index__link" [class.index__link--removed]="linkMark === 'removed'" [routerLink]="link.url">
                 <span>{{ link.title }}</span>
-                @if (isNew(link)) {
+                @if (linkMark) {
                   <span class="index__sep">,&nbsp;</span>
-                  <small class="index__badge index__badge--new">new</small>
+                  <small
+                    class="index__badge"
+                    [class.index__badge--new]="linkMark === 'new'"
+                    [class.index__badge--updated]="linkMark === 'updated'"
+                    [class.index__badge--removed]="linkMark === 'removed'"
+                    >{{ linkMark }}</small
+                  >
                 }
               </a>
             } @else {

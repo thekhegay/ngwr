@@ -1,18 +1,43 @@
 <ngwr-doc-page
   title="Type conventions"
-  description="ngwr declares its public shapes as interfaces and exports a small set of shared type aliases. This page explains the conventions behind that choice — see the Catalog for the types you meet most often."
+  description="How ngwr declares and exports its public types."
   [keywords]="['types', 'interfaces', 'Maybe', 'SafeAny', 'conventions']"
   [labels]="['Reference']"
 >
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Inline `T | null | undefined` unions repeat everywhere a value can be absent; `Maybe<T>` names the pattern once and keeps public signatures short. `SafeAny` exists because a bare `any` is invisible in review and impossible to grep — the alias marks every deliberate type-system escape so they can be found and burned down later."
-  />
+  <ngwr-doc-section title="Conventions">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Rule</th>
+            <th scope="col">Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">An object shape is an <code>interface</code>, so you can <code>extends</code> it.</th>
+            <td><code>WrTableColumn</code></td>
+          </tr>
+          <tr>
+            <th scope="row">A union or an alias is a <code>type</code>.</th>
+            <td><code>WrColor</code>, <code>Maybe&lt;T&gt;</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Import a type from the entry point that uses it.</th>
+            <td><code>ngwr/select</code> exports <code>WrSelectMode</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Shared aliases live in <code>ngwr/utils</code>.</th>
+            <td><code>Maybe&lt;T&gt;</code>, <code>SafeAny</code>, <code>WrClassInput</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Why interfaces, not types"
-    description="ngwr declares every object shape as an `interface` — errors point at the named shape instead of an expanded literal, consumers can `extends` them, and declaration merging stays available. `type` is reserved for what interfaces can't express: unions (`WrColor`, mode strings) and aliases (`Maybe<T>`). The lib folders mirror the convention — every entry keeps its shapes in `interfaces/`. Note that `export type { WrCascaderOption }` is just TypeScript's type-only **export syntax** (erased at runtime) — the declaration behind it is still an `interface`."
-  />
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippet" language="typescript" />
+  </ngwr-doc-section>
 
   <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>

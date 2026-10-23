@@ -79,6 +79,7 @@ export const wrNl: WrI18nCatalog = {
   },
   stepper: {
     optional: 'optioneel',
+    completed: 'voltooid',
   },
   transfer: {
     source: 'Beschikbaar',
@@ -93,31 +94,6 @@ export const wrNl: WrI18nCatalog = {
   },
   form: {
     optional: 'optioneel',
-  },
-  validation: {
-    required: 'Dit veld is verplicht.',
-    requiredTrue: 'Dit veld moet aangevinkt zijn.',
-    email: 'Voer een geldig e-mailadres in.',
-    // Count last, because the interpolator has no plural machinery and
-    // "minimaal 1 tekens" would be wrong at one.
-    minlength: 'Minimaal aantal tekens: {{requiredLength}}.',
-    maxlength: 'Maximaal aantal tekens: {{requiredLength}}.',
-    min: 'Voer {{min}} of meer in.',
-    max: 'Voer {{max}} of minder in.',
-    pattern: 'Deze waarde heeft niet de verwachte indeling.',
-    noWhitespace: 'Deze waarde mag geen spaties bevatten.',
-    hexColor: 'Voer een hexadecimale kleurcode in, bijv. #1a2b3c.',
-    url: 'Voer een geldige URL in.',
-    cardNumber: 'Voer een geldig kaartnummer in.',
-    cvc: 'Voer de {{length}}-cijferige beveiligingscode in.',
-    iban: 'Voer een geldig IBAN in.',
-    match: 'De twee waarden komen niet overeen.',
-    matchFields: 'Deze velden komen niet overeen.',
-    oneOf: 'Kies een van de toegestane waarden.',
-    minDate: 'Kies een latere datum.',
-    maxDate: 'Kies een eerdere datum.',
-    dateFormat: 'Verwachte notatie: {{example}}',
-    dateFilter: 'Deze datum is niet beschikbaar.',
   },
   select: {
     label: 'Selecteren',
@@ -250,13 +226,15 @@ export const wrNl: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Staafdiagram',
+  },
   calendarHeatmap: {
     label: 'Kalenderheatmap',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Lijndiagram',
-    thousands: '{{value}}k',
   },
   donutChart: {
     label: 'Ringdiagram',
@@ -275,9 +253,6 @@ export const wrNl: WrI18nCatalog = {
     pagination: 'Carrouselpaginering',
     roledescription: 'carrousel',
     slideRoledescription: 'dia',
-  },
-  actionSheet: {
-    label: 'Acties',
   },
   alert: {
     close: 'Melding sluiten',
@@ -309,12 +284,6 @@ export const wrNl: WrI18nCatalog = {
   // per instantie met `[ariaLabel]`.
   popover: {
     label: 'Zwevend paneel',
-  },
-  markdown: {
-    copy: 'Code kopiëren',
-    copied: 'Gekopieerd',
-    taskDone: 'Klaar:',
-    taskTodo: 'Te doen:',
   },
   editor: {
     label: 'Opgemaakte tekst',
@@ -389,6 +358,9 @@ export const wrNl: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Zijbalk',
+    containsCurrent: 'bevat de huidige pagina',
+    subpages: "Subpagina's van {{title}}",
+    separator: ',',
   },
   spinner: {
     label: 'Laden',

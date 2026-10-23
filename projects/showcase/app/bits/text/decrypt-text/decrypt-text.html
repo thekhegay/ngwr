@@ -1,0 +1,34 @@
+<ngwr-doc-page
+  title="Decrypt Text"
+  updated="15.0.0"
+  description="Text that scrambles, then resolves into the real string."
+  [keywords]="['decrypt-text', 'wr-decrypt-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="decrypted-text" category="text-animations" />
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls" [showReplay]="true" (replay)="replay()">
+      @for (k of [replayKey()]; track k) {
+        <wr-decrypt-text
+          [text]="text()"
+          [speed]="speed()"
+          [sequential]="sequential()"
+          [revealDirection]="revealDirection()"
+          [animateOn]="animateOn()"
+          [useOriginalCharsOnly]="useOriginalCharsOnly()"
+          style="
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            color: var(--wr-color-on-surface);
+          "
+        />
+      }
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

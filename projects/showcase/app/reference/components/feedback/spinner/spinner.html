@@ -1,0 +1,32 @@
+<ngwr-doc-page
+  title="Spinner"
+  description="An inline loading indicator."
+  [keywords]="['spinner', 'loading', 'wr-spinner']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-spinner />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Sizes" description="Sizes are in `em`, so the spinner scales with the text.">
+    <ngwr-doc-snippet [code]="snippets.sizes">
+      <wr-spinner size="sm" />
+      <wr-spinner size="md" />
+      <wr-spinner size="lg" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Color" description="The spinner takes the text colour: set `color` on the parent.">
+    <ngwr-doc-snippet [code]="snippets.color">
+      <div style="color: var(--wr-color-primary)"><wr-spinner /></div>
+      <div style="color: var(--wr-color-success)"><wr-spinner /></div>
+      <div style="color: var(--wr-color-danger)"><wr-spinner /></div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

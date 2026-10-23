@@ -1,0 +1,36 @@
+<ngwr-doc-page
+  title="Pull to Refresh"
+  description="Pull down from the top of a scrolling list to refresh it."
+  [keywords]="['pull-to-refresh', 'pull to refresh', 'refresh', 'mobile', 'gesture']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Start the fetch on `(refresh)` and keep `refreshing` true until it settles; the button does the same without touch."
+  >
+    <ngwr-doc-code [code]="htmlSnippet" language="angular-html" />
+    <ngwr-doc-code [code]="tsSnippet" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="max-width: 22rem">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem">
+          <wr-btn size="sm" [disabled]="loading()" (click)="reload()">Refresh programmatically</wr-btn>
+        </div>
+        <!-- tabindex: the rows are plain text, so the scroll container takes focus itself -->
+        <wr-pull-to-refresh
+          tabindex="0"
+          style="height: 16rem; border: 1px solid var(--wr-border-base); border-radius: var(--wr-border-radius-base)"
+          [refreshing]="loading()"
+          (refresh)="reload()"
+        >
+          @for (item of items(); track item) {
+            <div style="padding: 0.875rem 1rem; border-bottom: 1px solid var(--wr-border-base)">{{ item }}</div>
+          }
+        </wr-pull-to-refresh>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

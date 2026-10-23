@@ -16,12 +16,13 @@ import { REQUIRED_PROVIDERS } from './providers.js';
  * Every line in the provider table, checked against the library's real exports.
  *
  * This table is copy-paste code: `get_ngwr_setup` prints it, and
- * `gen-ai-assets.ts` writes the same strings into `skills/ngwr/SKILL.md`. Both
- * of those only ever checked that the string SURVIVES, which cannot tell a
- * snippet that compiles from one that does not — and under that check the date
- * rule shipped `provideWrDateAdapter(wrDateFnsAdapter) // from 'ngwr/date/adapters/fns'`,
- * naming two identifiers that entry point has never exported, with a call shape
- * the real `provideWrDateAdapter` would reject anyway.
+ * `scripts/gen/ai-assets.ts` writes the same strings into
+ * `skills/ngwr/SKILL.md`. Both of those only ever checked that the string
+ * SURVIVES, which cannot tell a snippet that compiles from one that does not —
+ * and under that check the date rule shipped
+ * `provideWrDateAdapter(wrDateFnsAdapter)` from the since-deleted date-fns
+ * entry point, naming two identifiers it never exported, with a call shape the
+ * real `provideWrDateAdapter` would reject anyway.
  *
  * So the assertion is the one a reader makes when they paste the line: does the
  * entry point named in the comment exist, and does it export what the code
@@ -107,7 +108,7 @@ function allValueExports(): Set<string> {
     for (const name of readdirSync(dir)) {
       const full = join(dir, name);
       if (!statSync(full).isDirectory()) continue;
-      if (existsSync(join(full, 'ng-package.json')) && existsSync(join(full, 'public-api.ts'))) {
+      if (existsSync(join(full, 'public-api.ts'))) {
         for (const symbol of valueExports(relative(LIB, full))) out.add(symbol);
       }
       walk(full);
@@ -161,7 +162,7 @@ describe('REQUIRED_PROVIDERS', () => {
       for (const path of paths) {
         expect(path, required.provider).toMatch(/^ngwr\//);
         expect(
-          existsSync(join(LIB, path.replace(/^ngwr\//, ''), 'ng-package.json')),
+          existsSync(join(LIB, path.replace(/^ngwr\//, ''), 'public-api.ts')),
           `${required.provider} — ${path} is not an entry point`
         ).toBe(true);
       }
@@ -179,6 +180,17 @@ describe('REQUIRED_PROVIDERS', () => {
           `${required.provider} — /${alternative}/ matches nothing the library exports, so the rule never fires for it`
         ).not.toHaveLength(0);
       }
+    }
+  });
+
+  it('asks nothing of the date components, which run on the native adapter by default', () => {
+    // `WrDateAdapter` resolves to `WrNativeDateAdapter` with nothing provided, so a
+    // rule here would have every agent paste a provider that changes nothing.
+    for (const symbol of ['WrCalendar', 'WrDatePicker', 'WrDateRangePicker', 'WrEventCalendar']) {
+      expect(
+        REQUIRED_PROVIDERS.filter(required => required.test.test(symbol)).map(required => required.provider),
+        symbol
+      ).toEqual([]);
     }
   });
 

@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -110,12 +113,24 @@ describe('WrBreadcrumbs', () => {
     fixture.componentInstance.separator.set('›');
     fixture.detectChanges();
 
-    // Drawn by a `::before` from `--wr-breadcrumbs-separator`, deliberately —
-    // a real element between the steps would be announced, and the trail would
-    // read "Home slash Docs slash Breadcrumbs".
+    // Drawn by a `::before` from `--wr-breadcrumbs-separator` rather than as an
+    // element between the steps. A pseudo-element alone is NOT silent — generated
+    // content is read like text — which is what the empty alternative text in the
+    // case below is for.
     const host = root().querySelector<HTMLElement>('wr-breadcrumbs')!;
     expect(host.style.getPropertyValue('--wr-breadcrumbs-separator')).toBe('"›"');
     expect(root().querySelector('.wr-breadcrumbs__separator')).toBeNull();
+  });
+
+  it('gives the drawn separator empty alternative text, so it is never announced', () => {
+    // A SOURCE assertion: jsdom builds no accessibility tree and computes no
+    // generated content. In a browser the trail read "Home, slash, Components,
+    // slash, …" and the current crumb "slash Current page" until the `content`
+    // carried `/ ''`.
+    const scss = readFileSync(join(process.cwd(), 'projects/lib/breadcrumbs/styles/_rules.scss'), 'utf8');
+    const rule = /&:not\(:first-child\)::before \{([^}]*)\}/.exec(scss)?.[1] ?? '';
+
+    expect(rule).toMatch(/content: var\(--wr-breadcrumbs-separator\) \/ '';/);
   });
 
   it('links a crumb given a plain href, not just a routerLink', () => {

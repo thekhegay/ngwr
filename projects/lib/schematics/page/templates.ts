@@ -27,24 +27,31 @@ function render(preset: PagePreset, dashName: string, pascalName: string): Rende
 
 function renderForm(dashName: string, pascalName: string): Rendered {
   const ts = `import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, type NgForm } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
-import { WrFormField } from 'ngwr/form';
+import { WrFormError, WrFormField } from 'ngwr/form';
 import { WrInput } from 'ngwr/input';
 
 @Component({
   selector: 'app-${dashName}',
   templateUrl: './${dashName}.html',
   styleUrl: './${dashName}.scss',
-  imports: [FormsModule, WrButton, WrFormField, WrInput],
+  imports: [FormsModule, WrButton, WrFormError, WrFormField, WrInput],
 })
 export default class ${pascalName} {
   protected readonly name = signal('');
   protected readonly email = signal('');
   protected readonly submitting = signal(false);
 
-  protected async onSubmit(): Promise<void> {
+  protected async onSubmit(form: NgForm): Promise<void> {
+    // A field shows its error once touched, so an invalid submit touches them
+    // all, the ones never reached included, and sends nothing.
+    if (form.invalid) {
+      form.control.markAllAsTouched();
+      return;
+    }
+
     this.submitting.set(true);
     try {
       await fetch('/api/${dashName}', {
@@ -58,15 +65,17 @@ export default class ${pascalName} {
 }
 `;
 
-  const html = `<form class="${dashName}" (ngSubmit)="onSubmit()">
+  const html = `<form class="${dashName}" #form="ngForm" (ngSubmit)="onSubmit(form)">
   <h1>${titleCase(pascalName)}</h1>
 
   <wr-form-field label="Name" required>
     <input wrInput [(ngModel)]="name" name="name" required />
+    <wr-form-error key="required">Enter your name.</wr-form-error>
   </wr-form-field>
 
   <wr-form-field label="Email" required>
     <input wrInput type="email" [(ngModel)]="email" name="email" required />
+    <wr-form-error key="required">Enter your email.</wr-form-error>
   </wr-form-field>
 
   <button wr-btn color="primary" type="submit" [loading]="submitting()">
@@ -89,11 +98,10 @@ export default class ${pascalName} {
 }
 
 function renderTable(dashName: string, pascalName: string): Rendered {
-  const ts = `import { Component, signal } from '@angular/core';
+  const ts = `import { Component, computed, signal } from '@angular/core';
 
 import { WrTable } from 'ngwr/table';
-import type { WrTableColumns } from 'ngwr/table';
-import { WrPagination } from 'ngwr/pagination';
+import type { WrTableColumns, WrTableSortState } from 'ngwr/table';
 
 interface Row {
   readonly id: number;
@@ -105,7 +113,7 @@ interface Row {
   selector: 'app-${dashName}',
   templateUrl: './${dashName}.html',
   styleUrl: './${dashName}.scss',
-  imports: [WrTable, WrPagination],
+  imports: [WrTable],
 })
 export default class ${pascalName} {
   protected readonly columns: WrTableColumns = {
@@ -120,21 +128,39 @@ export default class ${pascalName} {
     { id: 3, name: 'Charlie', status: 'active' },
   ]);
 
+  /** wr-table writes the sort and never reorders \`items\`: applying it is the page's job. */
+  protected readonly sort = signal<readonly WrTableSortState[]>([]);
+
+  protected readonly sortedRows = computed(() => {
+    const rules = this.sort().filter(rule => rule.direction !== null);
+    if (rules.length === 0) return this.rows();
+
+    return [...this.rows()].sort((a, b) => {
+      for (const { key, direction } of rules) {
+        const order = String(a[key as keyof Row]).localeCompare(String(b[key as keyof Row]), undefined, {
+          numeric: true,
+        });
+        if (order !== 0) return direction === 'asc' ? order : -order;
+      }
+      return 0;
+    });
+  });
+
+  /** The table slices \`items\` itself, and draws its pager once they outgrow a page. */
   protected readonly page = signal(1);
-  protected readonly pageSize = signal(10);
-  protected readonly total = signal(3);
+  protected readonly pageSize = 10;
 }
 `;
 
   const html = `<section class="${dashName}">
   <h1>${titleCase(pascalName)}</h1>
 
-  <wr-table [columns]="columns" [items]="rows()" />
-
-  <wr-pagination
+  <wr-table
+    [columns]="columns"
+    [items]="sortedRows()"
+    [(sort)]="sort"
+    [pageSize]="pageSize"
     [(page)]="page"
-    [(pageSize)]="pageSize"
-    [total]="total()"
   />
 </section>
 `;

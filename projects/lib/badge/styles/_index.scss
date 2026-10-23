@@ -5,6 +5,21 @@
 @use '../../theme/styles' as theme;
 @forward 'tag';
 
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../icon/styles' as icon-styles; // WrIcon
+@use '../../spinner/styles' as spinner-styles; // WrSpinner
+
 .wr-badge {
   display: inline-flex;
   align-items: center;
@@ -24,9 +39,20 @@
   line-height: normal;
   white-space: nowrap;
 
+  // The neutral default, READ. The three hooks below were declared with a
+  // comment saying they are "what a badge paints when nothing asks for an
+  // intent" and nothing read any of them, so `<wr-badge [color]="null">` — a
+  // typed, documented, public option — painted no fill and no text colour and
+  // rendered as bare inherited text. `--wr-tag-*` next door was always read
+  // this way; the badge simply never caught up. No `border` here: the filled
+  // intents carry none either, and adding one would widen every badge in the
+  // catalogue by 2px. The neutral RING is the outlined variant's job, below.
+  background-color: var(--wr-badge-bg);
+  color: var(--wr-badge-color);
+
   // Defaults — sized modifiers override these
-  --wr-badge-padding-y: 0.25rem;
-  --wr-badge-padding-x: 0.5rem;
+  --wr-badge-padding-y: var(--wr-space-xs);
+  --wr-badge-padding-x: var(--wr-space-sm);
   --wr-badge-radius: var(--wr-border-radius-sm);
   --wr-badge-font-size: var(--wr-text-xs);
   --wr-badge-min-height: 1.5rem;
@@ -60,7 +86,7 @@
 
   &--pill {
     --wr-badge-radius: var(--wr-border-radius-pill);
-    --wr-badge-padding-x: 0.75rem;
+    --wr-badge-padding-x: var(--wr-space-md);
   }
 
   // Squircle — overrides the plain `border-radius` with the
@@ -72,15 +98,24 @@
 
   // Colors
 
-  // color-ok: a badge's colour is decoration or category, never the state —
-  // the LABEL carries that. Six of the nine intents share one lightness
-  // (`success` against `danger` is 1.004:1), so a badge whose words do not name
-  // the state tells a reader without hue nothing, and no palette can fix that
-  // without giving up the white labels the intents were tuned for.
+  // Neutral, and the default: `color` is nullable and a null one carries no
+  // modifier, so this trio is what a badge paints when nothing asks for an
+  // intent. The neutral roles do the job the removed `medium` intent used to.
+  --wr-badge-bg: var(--wr-color-fill);
+  --wr-badge-color: var(--wr-color-on-surface);
+  --wr-badge-border: var(--wr-border-base);
+
+  // An intent sets the three hooks rather than the properties they feed, the way
+  // `wr-tag` does, so the hooks the docs list still restyle a coloured badge —
+  // which is every badge by default, since `color` defaults to `primary`. Writing
+  // `background-color` and `color` here left `--wr-badge-bg` / `-color` / `-border`
+  // working only with `[color]="null"`.
   @each $name in theme.$colors {
     &--#{$name} {
-      background-color: var(--wr-color-#{$name});
-      color: var(--wr-color-#{$name}-contrast);
+      --wr-badge-bg: var(--wr-color-#{$name});
+      --wr-badge-color: var(--wr-color-#{$name}-contrast);
+      // Read only by the outlined ring below.
+      --wr-badge-border: var(--wr-color-#{$name}-soft-border);
     }
   }
 
@@ -93,42 +128,21 @@
   // wrapped around text of exactly that strength, and the two cannot be
   // separated while they share one value. `-soft-border` is the same intent at
   // 0.3 alpha: the theme's canonical hairline, already per intent and already
-  // theme-correct through the `-rgb` channels. `wr-tag--outlined` draws the same
-  // ring from the same token; the tag keeps its 6% fill, because a tag is a
-  // chip you can click and a badge is a label you cannot.
-  //
-  // The soft trio covers the seven CHROMATIC intents, so `light` and `dark` have
-  // no `-soft-border` and the `var()` carries the token's own recipe as its
-  // fallback. That fallback is load-bearing twice over: an undefined custom
-  // property with no fallback invalidates the whole declaration, which would
-  // leave those two badges with no ring at all rather than a soft one — and
-  // 0.3 alpha is what keeps `dark` in the same family as the other eight
-  // instead of the only ring still drawn at full label strength, which is the
-  // weight this rule exists to stop drawing.
-  //
-  // `light` is the one intent the recipe cannot serve: it is a surface tone by
-  // definition, a hair off the page in either theme, so 30% of it over the page
-  // is nothing. At FULL strength it is `--wr-color-outline` — the hairline every
-  // bordered surface in the library already draws — so it is reached by that
-  // name, after the loop, rather than by an alpha that happens to land there.
+  // correct in both schemes, since it mixes the intent itself. `wr-tag--outlined`
+  // draws the same ring from the same token; the tag keeps its 6% fill, because
+  // a tag is a chip you can click and a badge is a label you cannot.
   &--outlined {
-    background-color: transparent;
-    box-shadow: inset 0 0 0 1px currentcolor;
+    --wr-badge-bg: transparent;
+    // `--wr-badge-border` rather than `currentcolor`, for the reason the note
+    // above gives: a ring drawn in the text colour is a hairline at full label
+    // strength around text of exactly that strength. An intent sets the hook to
+    // its `-soft-border` in the loop above.
+    box-shadow: inset 0 0 0 1px var(--wr-badge-border);
 
-    // color-ok: the decision the filled loop above records — decoration or
-    // category, with the label carrying the state.
     @each $name in theme.$colors {
       &.wr-badge--#{$name} {
-        color: var(--wr-color-#{$name}-ink);
-        box-shadow: inset 0 0 0 1px var(--wr-color-#{$name}-soft-border, rgba(var(--wr-color-#{$name}-rgb), 0.3));
+        --wr-badge-color: var(--wr-color-#{$name}-ink);
       }
-    }
-
-    // color-ok: this ADDS a hairline no other intent carries — `light` is a
-    // near-surface tone, so without it the badge has no edge at all. A border
-    // appearing is the channel; its colour is incidental.
-    &.wr-badge--light {
-      box-shadow: inset 0 0 0 1px var(--wr-color-outline);
     }
   }
 }

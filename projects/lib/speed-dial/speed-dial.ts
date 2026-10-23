@@ -22,7 +22,7 @@ import {
 import { useI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 
-import type { WrSpeedDialAction, WrSpeedDialDirection } from './interfaces';
+import type { WrSpeedDialAction, WrSpeedDialDirection } from './types';
 
 let menuUid = 0;
 
@@ -52,6 +52,10 @@ let menuUid = 0;
   imports: [WrIcon],
 })
 export class WrSpeedDial {
+  /**
+   * The buttons that fan out when the dial opens, in order from the trigger
+   * outwards. Each needs a label: it is the accessible name as well as the tooltip.
+   */
   readonly actions = input<readonly WrSpeedDialAction[]>([]);
 
   /**
@@ -154,4 +158,4 @@ export class WrSpeedDial {
   }
 }
 
-export type { WrSpeedDialAction, WrSpeedDialDirection } from './interfaces';
+export type { WrSpeedDialAction, WrSpeedDialDirection } from './types';

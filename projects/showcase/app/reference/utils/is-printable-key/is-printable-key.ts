@@ -18,46 +18,24 @@ import {
 export default class IsPrintableKeyPage {
   protected readonly snippet = `import { isPrintableKey } from 'ngwr/utils';
 
-// Type-to-search: only consume printable keys, ignore arrows/Enter/etc.
+// Type-to-search: ignore arrows, Enter and chords.
 @HostListener('keydown', ['$event']) onKey(e: KeyboardEvent) {
   if (isPrintableKey(e)) buffer.push(e.key);
 }`;
-
-  protected readonly whySnippet = `// Native — "length === 1" looks right but matches modifier chords.
-if (e.key.length === 1) buffer.push(e.key);
-// → Ctrl+A: e.key is 'a' (length 1), so this pushes 'a'. Bug.
-
-// ngwr — excludes chorded keys explicitly.
-if (isPrintableKey(e)) buffer.push(e.key);`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'isPrintableKey(event)',
       description:
-        'True when the key is a single printable character with no modifiers. Use for type-to-search and inline-edit flows.',
+        'True for a single printable character with no Ctrl, Cmd or Alt held. Shift is accepted, so capitals arrive.',
       type: '(e: KeyboardEvent) => boolean',
       default: '—',
     },
   ];
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
-    {
-      kind: 'Guide',
-      title: 'Keyboard',
-      url: ['/guides', 'keyboard'],
-      description: 'How chords, keycaps and key primitives fit together in one task.',
-    },
-    {
-      kind: 'Util',
-      title: 'hasModifier',
-      url: ['/reference/utils', 'has-modifier'],
-      description: 'Skip the browser’s own chords before testing for a character.',
-    },
-    {
-      kind: 'Util',
-      title: 'KEYS',
-      url: ['/reference/utils', 'keys'],
-      description: 'Canonical `KeyboardEvent.key` constants.',
-    },
+    { kind: 'Guide', title: 'Keyboard', url: ['/guides', 'keyboard'] },
+    { kind: 'Util', title: 'hasModifier', url: ['/reference/utils', 'has-modifier'] },
+    { kind: 'Util', title: 'KEYS', url: ['/reference/utils', 'keys'] },
   ];
 }

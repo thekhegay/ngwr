@@ -10,7 +10,7 @@ import { type ComponentRef, type Signal, type WritableSignal, signal } from '@an
 
 import { ReplaySubject, Subject } from 'rxjs';
 
-import type { WrWindowState, WrWindowBeforeCloseHook } from './interfaces';
+import type { WrWindowState, WrWindowBeforeCloseHook } from './types';
 
 /**
  * Handle returned by `WrWindowManager.open()`.
@@ -117,6 +117,14 @@ export class WrWindowRef<C, R = unknown> {
   /** @internal */ _doResizeTo: ((w: number, h: number) => void) | null = null;
   /** @internal */ _doCenter: (() => void) | null = null;
   /** @internal */ _doSetTitle: ((title: string) => void) | null = null;
+  /** @internal — move focus into the window after the next render. */
+  _doFocusInitial: (() => void) | null = null;
+
+  /**
+   * @internal — what had focus when `open()` was called, and where closing the
+   * window sends it back. `null` when focus was on nothing.
+   */
+  _returnFocus: HTMLElement | null = null;
 
   constructor(
     id: string,
@@ -232,4 +240,4 @@ export class WrWindowRef<C, R = unknown> {
   }
 }
 
-export type { WrWindowBeforeCloseHook } from './interfaces';
+export type { WrWindowBeforeCloseHook } from './types';

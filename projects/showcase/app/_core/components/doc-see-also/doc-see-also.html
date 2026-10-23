@@ -1,16 +1,20 @@
-<section class="see-also" aria-label="See also">
-  <h2 class="see-also__title">{{ title() }}</h2>
-  <ul class="see-also__grid">
-    @for (link of links(); track link.url.join('/')) {
-      <li>
-        <a class="see-also__card" [routerLink]="link.url">
-          <span class="see-also__kind" [attr.data-kind]="link.kind">{{ link.kind }}</span>
-          <span class="see-also__name">{{ link.title }}</span>
-          @if (link.description) {
-            <span class="see-also__desc">{{ link.description }}</span>
-          }
-        </a>
-      </li>
-    }
-  </ul>
-</section>
+@if (all().length) {
+  <section class="see-also" [attr.aria-label]="title()">
+    <h2 wrTypography variant="h4" class="see-also__title">{{ title() }}</h2>
+    <ul class="ngwr-link-grid">
+      @for (link of all(); track link.url.join('/')) {
+        <li>
+          <a class="ngwr-link-card" [routerLink]="link.url">
+            @if (showKind() && link.kind; as kind) {
+              <ngwr-doc-label class="see-also__kind" [label]="kind" [link]="false" size="sm" />
+            }
+            <span class="ngwr-link-card__title">{{ link.title }}</span>
+            @if (showDescription() && link.description; as description) {
+              <span class="ngwr-link-card__desc ngwr-link-card__desc--line">{{ description }}</span>
+            }
+          </a>
+        </li>
+      }
+    </ul>
+  </section>
+}

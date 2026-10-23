@@ -79,6 +79,7 @@ export const wrZh: WrI18nCatalog = {
   },
   stepper: {
     optional: '可选',
+    completed: '已完成',
   },
   transfer: {
     source: '待选',
@@ -93,29 +94,6 @@ export const wrZh: WrI18nCatalog = {
   },
   form: {
     optional: '选填',
-  },
-  validation: {
-    required: '此项为必填项。',
-    requiredTrue: '请勾选此项。',
-    email: '请输入有效的电子邮箱地址。',
-    minlength: '请至少输入 {{requiredLength}} 个字符。',
-    maxlength: '最多可输入 {{requiredLength}} 个字符。',
-    min: '请输入不小于 {{min}} 的值。',
-    max: '请输入不大于 {{max}} 的值。',
-    pattern: '此值的格式不正确。',
-    noWhitespace: '此值不能包含空格。',
-    hexColor: '请输入十六进制颜色值，例如 #1a2b3c。',
-    url: '请输入有效的网址。',
-    cardNumber: '请输入有效的卡号。',
-    cvc: '请输入 {{length}} 位安全码。',
-    iban: '请输入有效的 IBAN。',
-    match: '两个值不一致。',
-    matchFields: '这些字段的值不一致。',
-    oneOf: '请从允许的值中选择。',
-    minDate: '请选择更晚的日期。',
-    maxDate: '请选择更早的日期。',
-    dateFormat: '格式应为：{{example}}',
-    dateFilter: '此日期不可选。',
   },
   select: {
     label: '选择',
@@ -241,13 +219,15 @@ export const wrZh: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: '柱状图',
+  },
   calendarHeatmap: {
     label: '日历热力图',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: '折线图',
-    thousands: '{{value}}千',
   },
   donutChart: {
     label: '环形图',
@@ -263,9 +243,6 @@ export const wrZh: WrI18nCatalog = {
     pagination: '轮播分页',
     roledescription: '轮播图',
     slideRoledescription: '幻灯片',
-  },
-  actionSheet: {
-    label: '操作',
   },
   alert: {
     close: '关闭提示',
@@ -294,12 +271,6 @@ export const wrZh: WrI18nCatalog = {
   },
   popover: {
     label: '弹出面板',
-  },
-  markdown: {
-    copy: '复制代码',
-    copied: '已复制',
-    taskDone: '已完成：',
-    taskTodo: '待办：',
   },
   editor: {
     label: '富文本',
@@ -371,6 +342,9 @@ export const wrZh: WrI18nCatalog = {
   },
   sidebar: {
     label: '侧边栏',
+    containsCurrent: '包含当前页面',
+    subpages: '{{title}} 的子页面',
+    separator: '，',
   },
   spinner: {
     label: '加载中',

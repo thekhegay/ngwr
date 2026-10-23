@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 
 import { ArrowRight } from 'lucide';
-import { provideWrIcons, WrIcon } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
@@ -19,10 +18,7 @@ export default class TypographyLinksPage {
     inline: `<p wrTypography variant="body">
   … the <a wrTypography variant="link" href="…">getting started guide</a> …
 </p>`,
-    icon: `<!-- \`<wr-icon>\` takes no size input — it reads --wr-icon-size, which
-     defaults to 1.2em, so beside link text it is already proportional.
-     Override the property when you want a specific size. -->
-<a wrTypography variant="link" href="…">
+    icon: `<a wrTypography variant="link" href="…">
   Read the changelog
   <wr-icon name="arrow-forward" style="--wr-icon-size: 0.875rem" />
 </a>`,

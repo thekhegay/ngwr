@@ -79,6 +79,7 @@ export const wrRu: WrI18nCatalog = {
   },
   stepper: {
     optional: 'необязательно',
+    completed: 'завершено',
   },
   transfer: {
     source: 'Доступно',
@@ -93,29 +94,6 @@ export const wrRu: WrI18nCatalog = {
   },
   form: {
     optional: 'необязательно',
-  },
-  validation: {
-    required: 'Обязательное поле.',
-    requiredTrue: 'Нужно поставить отметку.',
-    email: 'Введите корректный адрес почты.',
-    minlength: 'Не короче {{requiredLength}} символов.',
-    maxlength: 'Не длиннее {{requiredLength}} символов.',
-    min: 'Не меньше {{min}}.',
-    max: 'Не больше {{max}}.',
-    pattern: 'Значение не соответствует формату.',
-    noWhitespace: 'Значение не может содержать пробелы.',
-    hexColor: 'Введите цвет в формате #1a2b3c.',
-    url: 'Введите корректный адрес.',
-    cardNumber: 'Введите корректный номер карты.',
-    cvc: 'Введите {{length}}-значный код проверки.',
-    iban: 'Введите корректный IBAN.',
-    match: 'Значения не совпадают.',
-    matchFields: 'Значения полей не совпадают.',
-    oneOf: 'Выберите одно из допустимых значений.',
-    minDate: 'Выберите более позднюю дату.',
-    maxDate: 'Выберите более раннюю дату.',
-    dateFormat: 'Ожидаемый формат: {{example}}',
-    dateFilter: 'Эта дата недоступна.',
   },
   select: {
     label: 'Выбрать',
@@ -248,13 +226,15 @@ export const wrRu: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Столбчатая диаграмма',
+  },
   calendarHeatmap: {
     label: 'Календарная тепловая карта',
     cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Линейный график',
-    thousands: '{{value}} тыс.',
   },
   donutChart: {
     label: 'Круговая диаграмма',
@@ -272,9 +252,6 @@ export const wrRu: WrI18nCatalog = {
     pagination: 'Пагинация карусели',
     roledescription: 'карусель',
     slideRoledescription: 'слайд',
-  },
-  actionSheet: {
-    label: 'Действия',
   },
   alert: {
     close: 'Закрыть оповещение',
@@ -306,12 +283,6 @@ export const wrRu: WrI18nCatalog = {
   // через `[ariaLabel]`.
   popover: {
     label: 'Всплывающая панель',
-  },
-  markdown: {
-    copy: 'Скопировать код',
-    copied: 'Скопировано',
-    taskDone: 'Сделано:',
-    taskTodo: 'Не сделано:',
   },
   editor: {
     label: 'Форматированный текст',
@@ -386,6 +357,9 @@ export const wrRu: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Боковая панель',
+    containsCurrent: 'содержит текущую страницу',
+    subpages: 'Подстраницы: {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Загрузка',

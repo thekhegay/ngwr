@@ -8,8 +8,8 @@
 import { type Provider, isDevMode } from '@angular/core';
 
 import { WrIconRegistry } from '../icon-registry';
-import type { WrIconDef } from '../interfaces';
 import { WR_ICONS } from '../tokens';
+import type { WrIconDef } from '../types';
 import { validateIcon } from '../utils';
 
 /**
@@ -32,10 +32,9 @@ import { validateIcon } from '../utils';
  *
  * @example
  * ```ts
- * // App-level registration, from an icon package through its adapter.
+ * // App-level registration, from the app's own `lucide` install.
  * import { Home, Settings, User } from 'lucide';
- * import { provideWrIcons } from 'ngwr/icon';
- * import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+ * import { lucideIcons, provideWrIcons } from 'ngwr/icon';
  *
  * export const appConfig: ApplicationConfig = {
  *   providers: [provideWrIcons(lucideIcons({ home: Home, user: User, settings: Settings }))],

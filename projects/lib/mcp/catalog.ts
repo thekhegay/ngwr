@@ -11,9 +11,9 @@ import { fileURLToPath } from 'node:url';
 
 /** One entry point, as `llms-full.txt` describes it. */
 interface CatalogEntry {
-  /** `ngwr/select` */
+  /** `ngwr/select`, or `ngwr` for the root entry point. */
   readonly path: string;
-  /** `select` */
+  /** `select`, or `ngwr` for the root. */
   readonly name: string;
   /** `import { WrSelect } from 'ngwr/select'` */
   readonly import: string;
@@ -27,15 +27,14 @@ interface CatalogEntry {
  * The catalog, read from the files the package already ships.
  *
  * **No second copy of anything, and that is the design constraint this whole
- * server was built under.** `llms-full.txt` (~57 KB, 204 entry points) and
- * `schematics/use/symbol-map.json` (216 symbols) are already in the tarball for
- * other reasons, and the `.d.ts` bundle carries every signature. A server that
- * embedded its own index would be a fourth copy to keep in step with the library,
- * and the first one to go stale.
+ * server was built under.** `llms-full.txt` and `schematics/use/symbol-map.json`
+ * are already in the tarball for other reasons, and the `.d.ts` bundle carries
+ * every signature. A server that embedded its own index would be a fourth copy
+ * to keep in step with the library, and the first one to go stale.
  *
  * What it adds on top is the part none of those files have: a way to ASK. An
  * agent that does not already know an entry point's name cannot use a `.d.ts`,
- * and reading ~57 KB of catalog to answer "what renders markdown" is the cost this
+ * and reading the whole catalog to answer "what edits rich text" is the cost this
  * exists to remove.
  */
 class Catalog {
@@ -43,6 +42,7 @@ class Catalog {
   private entries: readonly CatalogEntry[] | null = null;
   private symbols: Readonly<Record<string, string>> | null = null;
   private exports: Record<string, unknown> | null = null;
+  private providers: readonly string[] | null = null;
 
   constructor(root?: string) {
     this.root = root ?? defaultRoot();
@@ -73,15 +73,15 @@ class Catalog {
   /**
    * Does this entry point ship a stylesheet?
    *
-   * Read from the package's own `exports` map rather than assumed: 96 of the 204
-   * entry points ship no `styles/_index.scss` — the testing harnesses, the
-   * services, the adapters — and telling a consumer to `@use` one of those breaks
+   * Read from the package's own `exports` map rather than assumed: about half
+   * the entry points ship no `styles/_index.scss` — the testing harnesses, the
+   * services, the root — and telling a consumer to `@use` one of those breaks
    * their Sass build.
    *
    * Count them with `hasStyles()` rather than by tallying `sass` conditions in the
-   * `exports` map: six of those keys are not catalog entry points at all (the root
-   * plus `animations`, `breakpoints`, `grid`, `reset`, `typography-utilities`), so
-   * that arithmetic comes out six short.
+   * `exports` map: some of those keys are not catalog entry points at all
+   * (`animations`, `breakpoints`, `grid`, `reset`, `typography-utilities`), so
+   * that arithmetic comes out short.
    */
   hasStyles(path: string): boolean {
     this.exports ??= (() => {
@@ -96,19 +96,51 @@ class Catalog {
     return typeof entry === 'object' && entry !== null && 'sass' in entry;
   }
 
-  /** An entry point by `ngwr/select`, by `select`, or by any symbol it exports. */
+  /**
+   * An entry point by `ngwr/select`, by `select`, by any symbol it exports, or by
+   * its selector.
+   *
+   * Last, by the last segment of a nested path when exactly one entry point ends
+   * with it: `aurora` and `bar-chart` were whole paths until v15 nested them under
+   * `bits/` and `charts/`, and an agent that learned the old name should land on
+   * the new one rather than pay a round trip for it.
+   */
   find(query: string): CatalogEntry | null {
     const wanted = query.trim();
     const mapped: unknown = this.symbolMap()[wanted];
     const path = typeof mapped === 'string' ? mapped : undefined;
-    const normalised = (path ?? (wanted.startsWith('ngwr/') ? wanted : `ngwr/${wanted}`)).toLowerCase();
+    const rooted = wanted === 'ngwr' || wanted.startsWith('ngwr/');
+    const normalised = (path ?? (rooted ? wanted : `ngwr/${wanted}`)).toLowerCase();
+    const leaf = `/${wanted.toLowerCase()}`;
+    const nested = this.all().filter(
+      entry => entry.path.toLowerCase().endsWith(leaf) && !entry.path.endsWith('/testing')
+    );
 
     return (
       this.all().find(entry => entry.path.toLowerCase() === normalised) ??
       this.all().find(entry => entry.exports.some(name => name.toLowerCase() === wanted.toLowerCase())) ??
       this.all().find(entry => entry.selectors.some(selector => selector === wanted)) ??
-      null
+      (nested.length === 1 && !wanted.includes('/') ? nested[0] : null)
     );
+  }
+
+  /**
+   * The names `ng g ngwr:provider` accepts, from its own shipped schema.
+   *
+   * Read rather than restated, so `get_ngwr_setup` offers the schematic for
+   * exactly the providers the installed version can splice, and a name added to
+   * the schematic is offered with no edit here.
+   */
+  providerSchematics(): readonly string[] {
+    this.providers ??= (() => {
+      const raw = this.read(join('schematics', 'provider', 'schema.json'));
+      const parsed = raw ? (JSON.parse(raw) as { properties?: { name?: { enum?: unknown } } }) : {};
+      const names = parsed.properties?.name?.enum;
+
+      return Array.isArray(names) ? names.filter((name): name is string => typeof name === 'string') : [];
+    })();
+
+    return this.providers;
   }
 
   /**
@@ -188,8 +220,8 @@ function defaultRoot(): string {
 /**
  * `llms-full.txt` into entries.
  *
- * The generator's format is fixed and checked by `pnpm check:llms`, so parsing it
- * is a contract between two files in the same repo rather than a guess at someone
+ * The generator's format is fixed (`scripts/gen/ai-assets.ts`), so parsing it is
+ * a contract between two files in the same repo rather than a guess at someone
  * else's output.
  */
 function parseCatalog(source: string | null): readonly CatalogEntry[] {
@@ -200,7 +232,9 @@ function parseCatalog(source: string | null): readonly CatalogEntry[] {
   for (const section of source.split(/^## /m).slice(1)) {
     const [heading, ...lines] = section.split('\n');
     const path = heading.trim();
-    if (!path.startsWith('ngwr/')) continue;
+    // The root entry point too: it is where `provideWr()` lives, and an agent
+    // asking how to configure ngwr has to be able to find it.
+    if (path !== 'ngwr' && !path.startsWith('ngwr/')) continue;
 
     const field = (label: string): string =>
       lines
@@ -217,7 +251,7 @@ function parseCatalog(source: string | null): readonly CatalogEntry[] {
 
     entries.push({
       path,
-      name: path.slice('ngwr/'.length),
+      name: path === 'ngwr' ? path : path.slice('ngwr/'.length),
       import: unquote(field('import')),
       selectors: unquote(field('selector'))
         .split(',')

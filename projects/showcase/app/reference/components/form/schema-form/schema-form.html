@@ -1,0 +1,66 @@
+<ngwr-doc-page
+  title="Schema Form"
+  description="Draws a whole form from a Signal Forms schema."
+  [keywords]="['schema form', 'signal forms', 'generated form', 'metadata', 'wr-schema-form']"
+  [labels]="['Component', 'Signal Forms']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Describe each field with `WR_FIELD` next to its rules. Error text comes from each rule's `{ message }` or your i18n catalog."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic" language="angular-ts">
+      <div style="max-width: 34rem">
+        <wr-schema-form [field]="signup" [columns]="2" />
+        <button wr-btn type="button" color="primary" style="margin-top: 1rem" (click)="submit()">Submit</button>
+      </div>
+    </ngwr-doc-snippet>
+
+    <ngwr-doc-code [code]="snippets.template" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Layout"
+    description="`columns` sets the grid. A field's `span` widens it, up to the number of columns."
+  >
+    <ngwr-doc-code [code]="snippets.layout" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Reactive specs"
+    description="The spec is a function, so a label, hint or option list can depend on another field."
+  >
+    <ngwr-doc-code [code]="snippets.reactive" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="State lives in the schema"
+    description="`required`, `disabled`, `readonly`, `hidden`, `min` and `max` are schema rules, not spec keys. A hidden field is not drawn."
+  >
+    <ngwr-doc-code [code]="snippets.state" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A field with no spec is skipped"
+    description="Write a field that needs its own markup by hand, beside the form. Both bind to the same form."
+  >
+    <ngwr-doc-code [code]="snippets.escape" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A nested group is one form each"
+    description="A nested object field is skipped: point a second `<wr-schema-form>` at it."
+  >
+    <ngwr-doc-code [code]="snippets.group" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types" description="What a `WR_FIELD` entry may carry. Only `kind` is required.">
+    <ngwr-doc-code [code]="typeSnippet" language="typescript" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

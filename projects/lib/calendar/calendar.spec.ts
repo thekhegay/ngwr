@@ -4,14 +4,14 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
-import { provideWrDateAdapter } from 'ngwr/date';
-import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
+import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
 import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrCalendar } from './calendar';
-import type { WrCalendarRange } from './interfaces';
+import type { WrCalendarRange } from './types';
 
 @Component({
   imports: [WrCalendar],
@@ -54,7 +54,7 @@ describe('WrCalendar keyboard focus', () => {
   ];
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
     fixture = TestBed.createComponent(Host);
   });
 
@@ -164,7 +164,7 @@ describe('WrCalendar keyboard focus', () => {
 describe('WrCalendar autoFocus', () => {
   const cell = (): HTMLElement | null => document.querySelector('.wr-calendar__day--focused');
 
-  beforeEach(() => TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] }));
+  beforeEach(() => TestBed.configureTestingModule({ providers: [provideWr(withDates())] }));
 
   it('takes focus in range mode with neither end picked', async () => {
     // The seed reads `date() ?? range()[0] ?? today()`, so range mode leans on
@@ -231,7 +231,7 @@ describe('WrCalendar header and chip keys', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
     fixture = TestBed.createComponent(WritebackHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -322,7 +322,7 @@ describe('WrCalendar month and year listbox keys', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -432,6 +432,21 @@ describe('WrCalendar month and year listbox keys', () => {
     expect(root().querySelectorAll('.wr-calendar__day[tabindex="0"]')).toHaveLength(1);
   });
 
+  it('keeps real focus in the calendar when the header opens the year page', async () => {
+    // The label is disabled on the year page, and a browser drops focus from a
+    // button that becomes disabled — so it has to land on the page that opened.
+    await climb(1);
+    const label = root().querySelector<HTMLButtonElement>('.wr-calendar__label')!;
+    label.focus();
+    label.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(label.disabled).toBe(true);
+    expect(document.activeElement?.className ?? '').toContain('wr-calendar__chip');
+    expect((document.activeElement as HTMLElement).textContent.trim()).toBe(ringed());
+  });
+
   it('keeps real focus in the calendar when a year is picked', async () => {
     await climb(2);
     chips()[1].click();
@@ -465,7 +480,7 @@ describe('WrCalendar under dir="rtl"', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrDateFnsAdapter(),
+        provideWr(withDates()),
         { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
       ],
     });
@@ -542,11 +557,10 @@ describe('WrCalendar — header and cell names', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        // The NATIVE adapter here, not the date-fns one the specs above use:
-        // `longDate` is `Intl` with `{ year, month: 'long', day }`, where
-        // date-fns's `PPP` writes an ordinal ("January 15th, 2026"). Both are
-        // correct for their adapter; this file needs one exact string.
-        provideWrDateAdapter(),
+        // `longDate` is `Intl` with `{ year, month: 'long', day }`, so the exact
+        // strings below are the native adapter's. A subclass may write the same
+        // date another way, and that would be correct for it.
+        provideWr(withDates()),
         ...(catalog
           ? [
               provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
@@ -606,8 +620,8 @@ describe('WrCalendar — header and cell names', () => {
 
   it('picks the weekday by calendar day, not by column index', async () => {
     // `getDayOfWeekNames` returns COLUMN order — index 0 is the locale's first
-    // day of the week, which date-fns's default en-US makes Sunday and most
-    // locales make Monday. Indexing it with `getDayOfWeek()` (0 = Sunday)
+    // day of the week, which en-US makes Sunday and most locales make
+    // Monday. Indexing it with `getDayOfWeek()` (0 = Sunday)
     // directly is off by one in every Monday-first locale, and reads plausibly
     // in en-US, which is where it would have been checked.
     await mount(wrEn);
@@ -641,6 +655,35 @@ describe('WrCalendar — header and cell names', () => {
     );
 
     expect(header()).toBe('January 2026');
+    expect(fifteenth!.getAttribute('aria-label')).toBe('Thursday, January 15, 2026');
+  });
+});
+
+/**
+ * `WrDateAdapter` defaults to the native adapter since v15, so a calendar needs
+ * no date provider at all. Without one it used to throw `NullInjectorError`
+ * before it drew a single cell.
+ */
+describe('WrCalendar with no date provider', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  afterEach(() => fixture.destroy());
+
+  it('draws the month on the native adapter', async () => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const fifteenth = [...root.querySelectorAll<HTMLElement>('.wr-calendar__day')].find(
+      d => d.textContent.trim() === '15' && !d.classList.contains('wr-calendar__day--out-of-month')
+    );
+
+    expect(root.querySelector('.wr-calendar__label')!.textContent.trim()).toBe('January 2026');
     expect(fifteenth!.getAttribute('aria-label')).toBe('Thursday, January 15, 2026');
   });
 });

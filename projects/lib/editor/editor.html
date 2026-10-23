@@ -199,8 +199,9 @@
 </ng-template>
 
 <!--
-  Recursion runs through `ngTemplateOutlet`, as in `<wr-markdown>`, so the preview
-  is exactly the document with no wrapper between a `<ul>` and its `<li>`.
+  Recursion runs through `ngTemplateOutlet` rather than a child component, so the
+  preview is exactly the document with no host element between a `<ul>` and its
+  `<li>`.
 -->
 <ng-template #previewBlocks let-raw>
   @for (node of nodesOf(raw); track $index) {

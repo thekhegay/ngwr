@@ -1,0 +1,86 @@
+<ngwr-doc-page
+  title="Popover"
+  updated="15.0.0"
+  description="Show a template, or a text tooltip, next to its trigger."
+  [keywords]="['popover', 'tooltip', 'wr-popover', 'overlay']"
+  [labels]="['Directive', 'CDK Overlay']"
+>
+  <ngwr-doc-section title="Basic usage" description="Pass an `<ng-template>` to `[wrPopover]`; a click opens it.">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-btn color="primary" [wrPopover]="info">Details</wr-btn>
+
+      <ng-template #info>
+        <div style="padding: 1rem; max-width: 18rem">
+          <p style="margin: 0 0 0.375rem; font-weight: 600">About NGWR</p>
+          <p style="margin: 0; color: var(--wr-color-on-surface-muted); font-size: 0.8125rem">
+            A signals-first Angular component library. Pop anything in here — forms, code, summaries.
+          </p>
+        </div>
+      </ng-template>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Hover trigger"
+    description='`trigger="hover"` opens on hover and closes when the pointer leaves both trigger and panel.'
+  >
+    <ngwr-doc-snippet [code]="snippets.hover">
+      <wr-btn [wrPopover]="card" trigger="hover">Hover me</wr-btn>
+
+      <ng-template #card>
+        <div style="padding: 0.875rem 1rem; color: var(--wr-color-on-surface-muted); font-size: 0.8125rem">
+          Closes when the pointer leaves both trigger and panel.
+        </div>
+      </ng-template>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Positions" description="The panel flips when there is no room.">
+    <ngwr-doc-snippet [code]="snippets.positions">
+      <wr-btn [wrPopover]="hint" position="bottom-start">Bottom start</wr-btn>
+      <wr-btn [wrPopover]="hint" position="top-end">Top end</wr-btn>
+      <wr-btn [wrPopover]="hint" position="left-start">Left start</wr-btn>
+      <wr-btn [wrPopover]="hint" position="right-start">Right start</wr-btn>
+      <wr-btn [wrPopover]="hint" position="right-end">Right end</wr-btn>
+
+      <ng-template #hint>
+        <div style="padding: 0.625rem 0.875rem; font-size: 0.8125rem">CDK auto-flips if there's no room.</div>
+      </ng-template>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tooltip mode"
+    description='Pass a string and `mode="tooltip"`. It opens on hover or keyboard focus.'
+  >
+    <ngwr-doc-snippet [code]="snippets.tooltip">
+      <wr-btn color="primary" wrPopover="Save changes" mode="tooltip" position="top">Save</wr-btn>
+      <wr-btn wrPopover="Remove permanently" mode="tooltip" position="bottom">Delete</wr-btn>
+      <wr-btn wrPopover="Open in a new window" mode="tooltip" position="right">Open</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tooltip — custom delays">
+    <ngwr-doc-snippet [code]="snippets.tooltipDelays">
+      <wr-btn wrPopover="Slow to appear" mode="tooltip" [showDelay]="500" [hideDelay]="100">Hover</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Template reference"
+    description="Export as `wrPopover` to open or close the panel from another control."
+  >
+    <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Scrolling containers"
+    description="Add `cdkScrollable` to your own scrolling box, or the panel stays put while it scrolls."
+  >
+    <ngwr-doc-code [code]="snippets.scrollable" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

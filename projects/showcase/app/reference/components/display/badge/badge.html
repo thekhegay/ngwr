@@ -1,0 +1,95 @@
+<ngwr-doc-page
+  title="Badge"
+  updated="15.0.0"
+  description="A small label for a count or a status."
+  [keywords]="['badge', 'tag', 'status', 'wr-badge', 'wr-tag']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-badge>New</wr-badge>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Colors">
+    <ngwr-doc-snippet [code]="snippets.colors">
+      @for (c of colors; track c) {
+        <wr-badge [color]="c">{{ c }}</wr-badge>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Sizes">
+    <ngwr-doc-snippet [code]="snippets.sizes">
+      <wr-badge size="sm">12</wr-badge>
+      <wr-badge size="md">12</wr-badge>
+      <wr-badge size="lg">12</wr-badge>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Shape" description="`shape` is `rounded` (default), `pill` or `squircle`.">
+    <ngwr-doc-snippet [code]="snippets.shape">
+      <div
+        style="
+          display: grid;
+          grid-template-columns: auto 1fr;
+          align-items: center;
+          justify-items: start;
+          gap: 0.75rem 1.25rem;
+        "
+      >
+        @for (s of shapes; track s) {
+          <code>{{ s }}</code>
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap">
+            @for (c of colors; track c) {
+              <wr-badge [color]="c" [shape]="s">{{ c }}</wr-badge>
+            }
+          </div>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Outlined" description="`outlined` drops the fill and keeps a coloured ring.">
+    <ngwr-doc-snippet [code]="snippets.outlined">
+      @for (c of colors; track c) {
+        <wr-badge [color]="c" outlined>{{ c }}</wr-badge>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tag"
+    description="`<wr-tag>`, also from `ngwr/badge`, adds `icon`, `loading` and `transparent`."
+  >
+    <ngwr-doc-code [code]="snippets.tag" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+        <wr-tag color="success" icon="checkmark">Done</wr-tag>
+        <wr-tag color="primary" outlined rounded>Beta</wr-tag>
+        <wr-tag color="warning" loading>Saving</wr-tag>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colour is not a label"
+    description="Write the state in the label (`Failed`, not a red `Build`), and give a status tag an `icon` you register."
+  >
+    <ngwr-doc-code [code]="snippets.statusIcons" language="angular-ts" />
+    <ngwr-doc-snippet [code]="snippets.status">
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+        <wr-tag color="success" icon="circle-check">Passed</wr-tag>
+        <wr-tag color="danger" icon="octagon-alert">Failed</wr-tag>
+        <wr-badge color="warning">Degraded</wr-badge>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API" description="Inputs of &lt;wr-badge&gt;.">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Tag API" description="Inputs of &lt;wr-tag&gt;.">
+    <ngwr-doc-api [rows]="tagApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

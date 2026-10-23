@@ -19,7 +19,6 @@ import {
 } from '@angular/core';
 import type { FormCheckboxControl } from '@angular/forms/signals';
 
-import { useConfigValue } from 'ngwr/config';
 import { useFormFieldAria } from 'ngwr/form';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { randomId } from 'ngwr/utils';
@@ -134,6 +133,19 @@ export class WrCheckbox implements FormCheckboxControl {
   readonly ariaLabel = input<string | null>(null);
 
   /**
+   * Ids of the elements that name this checkbox, space-separated, for a box
+   * whose name is already on screen somewhere else — a table row's label cell,
+   * say, joined to an action word. Lands on the inner `<input>` as
+   * `aria-labelledby`, which wins over `ariaLabel` and over projected text.
+   *
+   * The ids have to resolve in the same document; one that matches nothing is
+   * skipped, and with none left the box falls back to `ariaLabel`.
+   *
+   * @default null
+   */
+  readonly ariaLabelledby = input<string | null>(null);
+
+  /**
    * Checked state — the form value. Bound by `[formField]`, two-way via
    * `[(checked)]`, or `[(ngModel)]`. Ignored inside a `<wr-checkbox-group>`,
    * where the group's array is the source of truth.
@@ -164,14 +176,8 @@ export class WrCheckbox implements FormCheckboxControl {
    */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
 
-  /**
-   * Control size — shares the `--wr-control-*` contract. Unset falls back to the
-   * `checkbox.size` app default from `provideWrConfig()`. @default 'md'
-   */
-  readonly size = input<WrCheckboxSize | null>(null);
-
-  /** `size`, then the app config, then `md`. @internal */
-  protected readonly resolvedSize = useConfigValue(this.size, c => c.checkbox?.size, 'md');
+  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
+  readonly size = input<WrCheckboxSize>('md');
 
   /**
    * Optional icon name rendered inside the box when checked, in place of the
@@ -224,7 +230,7 @@ export class WrCheckbox implements FormCheckboxControl {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-checkbox'];
-    const size = this.resolvedSize();
+    const size = this.size();
     if (size !== 'md') parts.push(`wr-checkbox--${size}`);
     if (this.indeterminate()) parts.push('wr-checkbox--indeterminate');
     else if (this.isChecked()) parts.push('wr-checkbox--checked');
