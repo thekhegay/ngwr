@@ -19,6 +19,8 @@ import semver from 'semver';
 import { CHANGELOG_PATH } from '../paths/changelog';
 import { LIB_PKG_PATH } from '../paths/lib-pkg';
 
+import { moveShowcaseEntries } from './showcase-section';
+
 export async function regenerateChangelog(): Promise<void> {
   const { version } = JSON.parse(readFileSync(LIB_PKG_PATH, 'utf8')) as { version: string };
   // A stable release after release candidates describes everything since the
@@ -41,6 +43,6 @@ export async function regenerateChangelog(): Promise<void> {
   // newest and previous release sections every time.
   const existing = readFileSync(CHANGELOG_PATH, 'utf8');
   const body = existing.replace(/^# Changelog\s*\n+/, '');
-  const block = section.replace(/\n*$/, '\n\n');
+  const block = moveShowcaseEntries(section).replace(/\n*$/, '\n\n');
   writeFileSync(CHANGELOG_PATH, `# Changelog\n\n${block}${body}`);
 }
