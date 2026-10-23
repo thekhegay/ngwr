@@ -2,13 +2,14 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, PLATFORM_ID, signal } from '@angular/core';
+import { Component, PLATFORM_ID, type Provider, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
+import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCarousel } from './carousel';
@@ -57,10 +58,11 @@ describe('WrCarousel', () => {
     fixture.detectChanges();
   };
 
-  const mount = (platform = 'browser', dir: Direction = 'ltr'): void => {
+  const mount = (platform = 'browser', dir: Direction = 'ltr', extra: Provider[] = []): void => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
+        ...extra,
         { provide: PLATFORM_ID, useValue: platform },
         // `Directionality` resolves the document's direction when it is constructed,
         // so a fake is the only way to test the other one without writing
@@ -468,6 +470,57 @@ describe('WrCarousel', () => {
 
       advance(5000);
       expect(active()).toBe(0);
+    });
+
+    /**
+     * `prefers-reduced-motion` asks a page to drop motion the reader did not start,
+     * and autoplay is that by definition. The stylesheet already switched slides in
+     * place under it, but the panel still changed every interval. jsdom evaluates no
+     * media query, so the preference arrives through `WrPlatform`, as a signal the
+     * spec can flip the way a reader flips the system setting.
+     */
+    describe('under prefers-reduced-motion', () => {
+      let reduced: ReturnType<typeof signal<boolean>>;
+
+      const mountReduced = (on: boolean): void => {
+        reduced = signal(on);
+        mount('browser', 'ltr', [{ provide: WrPlatform, useValue: { prefersReducedMotion: reduced.asReadonly() } }]);
+        fixture.componentInstance.autoplay.set(true);
+        fixture.detectChanges();
+      };
+
+      it('does not advance while the preference is on', () => {
+        mountReduced(true);
+
+        advance(5000);
+        expect(active()).toBe(0);
+      });
+
+      it('follows the preference live, in both directions', () => {
+        mountReduced(false);
+        advance(500);
+        expect(active()).toBe(1);
+
+        reduced.set(true);
+        fixture.detectChanges();
+        advance(5000);
+        expect(active()).toBe(1);
+
+        // Turned off again, autoplay resumes rather than staying latched off.
+        reduced.set(false);
+        fixture.detectChanges();
+        advance(500);
+        expect(active()).toBe(2);
+      });
+
+      it('still pages when the reader asks to', () => {
+        mountReduced(true);
+
+        click(next());
+        expect(active()).toBe(1);
+        click(dots()[2]);
+        expect(active()).toBe(2);
+      });
     });
   });
 });

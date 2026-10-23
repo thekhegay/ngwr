@@ -24,6 +24,7 @@ import {
 } from '@angular/core';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { WrPlatform } from 'ngwr/platform';
 
 import { WrCarouselSlide } from './carousel-slide';
 import { WR_CAROUSEL } from './tokens';
@@ -124,7 +125,12 @@ export class WrCarousel implements WrCarouselContext {
   /** Show dot indicators below the slides. @default true */
   readonly showDots = input(true, { transform: coerceBooleanProperty });
 
-  /** Auto-advance slides. @default false */
+  /**
+   * Auto-advance slides. Held while the pointer or keyboard focus is inside the
+   * carousel and during a swipe, and does not run at all while the reader prefers
+   * reduced motion — followed live, so turning the setting on mid-session stops
+   * the slides and turning it off starts them. @default false
+   */
   readonly autoplay = input(false, { transform: coerceBooleanProperty });
 
   /** Autoplay interval (ms). @default 4000 */
@@ -201,6 +207,16 @@ export class WrCarousel implements WrCarouselContext {
   private readonly focusWithin = signal(false);
   private readonly paused = computed(() => this.hovered() || this.focusWithin() || this.dragging());
 
+  /**
+   * Autoplay is motion the reader did not start, which is exactly what
+   * `prefers-reduced-motion` asks a page to drop: the stylesheet already switches
+   * slides in place under it, and a panel that still changed every four seconds
+   * was the half that stylesheet cannot reach. A signal, so the preference is
+   * followed while the page is open. There is no play control to restart it, so
+   * the arrows and dots are how a reader with the preference on pages through.
+   */
+  private readonly reducedMotion = inject(WrPlatform).prefersReducedMotion;
+
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
@@ -210,7 +226,7 @@ export class WrCarousel implements WrCarouselContext {
       this.timer = null;
       // `isBrowser` first: without it the prerender ran the timer too, doing work
       // nobody will ever see on a slide index that then gets serialized.
-      if (!this.isBrowser || !this.autoplay() || this.paused() || this.count() < 2) return;
+      if (!this.isBrowser || !this.autoplay() || this.paused() || this.reducedMotion() || this.count() < 2) return;
       const interval = this.intervalMs();
       this.timer = setInterval(() => this.next(), interval);
     });
