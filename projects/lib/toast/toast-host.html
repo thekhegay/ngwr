@@ -1,5 +1,5 @@
 @if (closeAllVisible()) {
-  <button type="button" class="wr-toast-host__close-all" (click)="dismissAllRequested.emit()">
+  <button type="button" class="wr-toast-host__close-all" (click)="onCloseAll()">
     {{ closeAllLabel() }} ({{ totalCount() }})
   </button>
 }
@@ -16,7 +16,7 @@
     [extraClass]="toast.class ?? null"
     [duration]="toast.resolvedDuration"
     [labels]="labels()"
-    (dismissed)="dismissed.emit(toast.id)"
+    (dismissed)="onItemDismissed(toast.id, $index)"
     (pauseRequested)="pauseRequested.emit(toast.id)"
     (resumeRequested)="resumeRequested.emit(toast.id)"
   />

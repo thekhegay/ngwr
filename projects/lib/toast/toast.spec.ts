@@ -561,6 +561,192 @@ describe('WrToast', () => {
 });
 
 /**
+ * Closing a toast takes its Close button out of the page, and a focused element
+ * that leaves the page drops focus on `<body>` — the top of the document, for a
+ * keyboard or screen-reader user. So a toast closed from inside hands focus on:
+ * to the Close button of the toast that takes its place, else to the previous
+ * one, and back to where focus came from when nothing is left.
+ *
+ * Real `focus()` calls, not synthetic events: what is asserted is
+ * `document.activeElement`, and the origin is read off the `relatedTarget` of
+ * the `focusin` that enters the region.
+ *
+ * Only KEYBOARD focus is handed on — a pointer press focuses the button too, in
+ * Chromium, and handing that on would hold the whole stack. jsdom has no
+ * `:focus-visible` heuristic, so the spec decides which kind of focus it is.
+ */
+describe('WrToast moves focus on when a focused toast closes', () => {
+  let toast: WrToast;
+  let opener: HTMLButtonElement;
+  /** Whether focus counts as keyboard focus (`:focus-visible`) in this test. */
+  let keyboard: boolean;
+
+  const tick = (): void => TestBed.tick();
+  const items = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-toast')];
+  const messageOf = (el: Element | null): string | undefined =>
+    el?.closest('.wr-toast')?.querySelector('.wr-toast__message')?.textContent?.trim();
+  const closeOf = (i: number): HTMLButtonElement =>
+    items()[i].querySelector<HTMLButtonElement>('.wr-toast__action--close')!;
+
+  /** Focus a toast’s Close button coming from the page, then press it. */
+  const pressClose = (i: number): void => {
+    closeOf(i).focus();
+    closeOf(i).click();
+    tick();
+  };
+
+  const show = (...messages: string[]): void => {
+    for (const message of messages) toast.show({ message, duration: 0 });
+    tick();
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    keyboard = true;
+    const matches = Object.getOwnPropertyDescriptor(Element.prototype, 'matches')!.value as (
+      this: Element,
+      selector: string
+    ) => boolean;
+    vi.spyOn(Element.prototype, 'matches').mockImplementation(function (this: Element, selector: string) {
+      if (selector === ':focus-visible') return keyboard && this === document.activeElement;
+      return matches.call(this, selector);
+    });
+    TestBed.resetTestingModule();
+    toast = TestBed.inject(WrToast);
+    opener = document.body.appendChild(document.createElement('button'));
+    opener.focus();
+  });
+
+  afterEach(() => {
+    toast.dismissAll();
+    opener.remove();
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  it('hands focus to the toast that takes the closed one’s place', () => {
+    show('One', 'Two', 'Three');
+
+    pressClose(1);
+
+    expect(items()).toHaveLength(2);
+    expect(messageOf(document.activeElement)).toBe('Three');
+    expect(document.activeElement?.classList).toContain('wr-toast__action--close');
+  });
+
+  it('falls back to the previous toast when the last one closes', () => {
+    show('One', 'Two');
+
+    pressClose(1);
+
+    expect(messageOf(document.activeElement)).toBe('One');
+  });
+
+  it('hands focus to a queued toast promoted into the freed slot', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withToast({ maxStack: 2 }))] });
+    toast = TestBed.inject(WrToast);
+    show('One', 'Two', 'Three');
+
+    pressClose(1);
+
+    expect(messageOf(document.activeElement)).toBe('Three');
+  });
+
+  it('passes over a toast that has no Close button', () => {
+    toast.show({ message: 'One', duration: 0 });
+    toast.show({ message: 'Two', duration: 0 });
+    toast.show({ message: 'Sticky', duration: 0, dismissible: false });
+    tick();
+
+    pressClose(1);
+
+    expect(messageOf(document.activeElement)).toBe('One');
+  });
+
+  it('returns focus to where it came from when no toast is left', () => {
+    show('Only');
+
+    pressClose(0);
+
+    expect(items()).toHaveLength(0);
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('keeps the origin across the hand-offs between toasts', () => {
+    show('One', 'Two');
+
+    pressClose(1);
+    closeOf(0).click();
+    tick();
+
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('returns focus from "Close all" too, since that leaves nothing either', () => {
+    show('One', 'Two');
+    closeOf(0).focus();
+    tick();
+
+    const closeAll = document.querySelector<HTMLButtonElement>('.wr-toast-host__close-all')!;
+    closeAll.focus();
+    closeAll.click();
+    tick();
+
+    expect(items()).toHaveLength(0);
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('moves nothing for a pointer press, which leaves the countdown free to run', () => {
+    toast.show({ message: 'One', duration: 1000 });
+    toast.show({ message: 'Two', duration: 1000 });
+    tick();
+    keyboard = false;
+
+    // Chromium focuses a button it is clicking; that focus is not handed on.
+    pressClose(1);
+
+    expect(document.activeElement?.closest('.wr-toast')).toBeNull();
+  });
+
+  it('moves nothing when the toast closed while focus was elsewhere', () => {
+    show('One', 'Two');
+
+    // A pointer press in a browser that does not focus buttons on click.
+    closeOf(0).click();
+    tick();
+
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('keeps the countdown held while focus sits on the toast it was handed to', () => {
+    // Chromium fires `focusout` (relatedTarget null) when a focused element
+    // leaves the page, and that releases the region's hold; jsdom fires
+    // nothing, so the hold would survive a broken hand-off and this spec would
+    // pass without one. Fire it the way the browser does, from the removal.
+    const remove = Object.getOwnPropertyDescriptor(Element.prototype, 'remove')!.value as (this: Element) => void;
+    vi.spyOn(Element.prototype, 'remove').mockImplementation(function (this: Element) {
+      const focused = document.activeElement;
+      if (focused && this.contains(focused)) {
+        focused.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
+      }
+      remove.call(this);
+    });
+    toast.show({ message: 'One', duration: 1000 });
+    toast.show({ message: 'Two', duration: 1000 });
+    toast.show({ message: 'Three', duration: 1000 });
+    tick();
+
+    pressClose(1);
+    expect(messageOf(document.activeElement)).toBe('Three');
+    vi.advanceTimersByTime(5000);
+    tick();
+
+    expect(items().map(messageOf)).toEqual(['One', 'Three']);
+  });
+});
+
+/**
  * Toast's four labels lived as English literals in `DEFAULT_TOAST_CONFIG`, which
  * meant `toast.close`, `toast.copy`, `toast.copied` and `toast.closeAll` shipped
  * in both catalogs and were read by nothing — an app on the Russian catalog got

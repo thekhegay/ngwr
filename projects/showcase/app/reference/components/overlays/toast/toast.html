@@ -83,6 +83,16 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Keyboard"
+    description="Focus inside the stack pauses every countdown, and expands a collapsed stack so “Close all” can be reached."
+  >
+    <p>
+      Since v15, closing a toast from the keyboard moves focus to the Close button of the toast that takes its place,
+      else the one before it. Closing the last one returns focus to where it was before it entered the stack.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Lifetime and scope"
     description="A toast outlives the component that raised it and survives navigation. Keep the ref to remove it early."
   >
