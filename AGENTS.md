@@ -1241,9 +1241,8 @@ Both are still on the user-facing migration guide at `/docs/migration`, which
 carries every step back to v6. **The newest section is the one a consumer
 follows** (`ng update ngwr`) — the guide is ordered newest-first for that reason.
 
-**Versioning.** **v14 is the stable line, on `main` and npm's `latest`; v15 is
-in release candidates, on `next` and npm's `next`.** When 15.0.0 ships, this
-sentence becomes "v15 is the current major line". `projects/lib/package.json`,
+**Versioning.** **v15 is the current major line, on `main` and npm's
+`latest`;** `next` carries the major after it once that work starts. `projects/lib/package.json`,
 the `NGWR_VERSION` constant, the `SECURITY.md` support table and
 `CHANGELOG.md` are written by `release:prepare`, so read the version from there
 rather than from this file, and never hand-edit any of the four. A FIFTH copy
@@ -1276,8 +1275,7 @@ to `next` redeploys `next.ngwr.dev` (`deploy-next.yml`, the `next` environment,
 no approval; the server marks the host noindex). The SECURITY table moves only
 with the stable release, and a stable version can only publish from `main`.
 
-**Work for the next major (v15 today) branches from `next`, not from
-`main`.** Open the PR with
+**Work for the next major branches from `next`, not from `main`.** Open the PR with
 `gh pr create --base next`, since `gh` targets `main` by default, and resync
 after a merge with `git fetch --prune origin && git merge --ff-only origin/next`.
 **No PR CI and no nightly run on `next`**: `ci.yml` triggers on `main` only, and
