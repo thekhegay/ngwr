@@ -117,18 +117,18 @@ export class WrCascaderOptionHarness extends ComponentHarness {
   }
 
   /**
-   * The option's tab index — `0` for every enabled option, `-1` for a disabled
-   * one.
+   * The option's tab index — `0` for the panel's one tab stop, `-1` for every
+   * other option, disabled ones included.
    *
-   * Worth asking: a cascader column is NOT a roving-cursor listbox. Every
-   * enabled option is its own tab stop, in every column, which is the documented
-   * reason virtual scrolling is deferred for this component — there is no
-   * container-owned arrow-nav model to hang a window off.
+   * Worth asking: the panel holds ONE stop, as in the APG tree pattern — the
+   * option the caret last moved to, else the selected path's leaf, else the first
+   * enabled root — and the arrows move it. Until v15 every enabled option was its
+   * own stop.
    *
    * Read as the element's `tabIndex` PROPERTY rather than the attribute, so an
    * option that carried no `tabindex` at all answers `-1` — what the DOM says of a
    * bare `<li>` — instead of a made-up `0` that would report an unfocusable option
-   * as a tab stop if this component ever moved to a roving cursor.
+   * as the tab stop.
    */
   async getTabIndex(): Promise<number> {
     return (await this.host()).getProperty<number>('tabIndex');
@@ -150,13 +150,11 @@ export class WrCascaderOptionHarness extends ComponentHarness {
    * Activate the option from the keyboard (Enter; Space is bound to the same
    * handler).
    *
-   * This is the component's entire keyboard model — the columns bind
-   * `keydown.enter` / `keydown.space` per option and nothing else, so there are
-   * no arrow keys to walk levels with. A keyboard user reaches the option they
-   * want with Tab and presses Enter. Opening the panel does move focus into it —
-   * `focusPanelOption()` lands on the active option, or the first enabled one —
-   * so the walk starts there rather than from the trigger; this JSDoc claimed
-   * the opposite for a while and was simply wrong.
+   * Sent to THIS option, wherever the caret is. A keyboard user reaches it with
+   * the arrows (and type-ahead) from the panel's one tab stop — opening the panel
+   * moves focus onto the selected path's leaf, else the first enabled root — and
+   * Tab leaves the panel rather than walking it. Call {@link focus} first when a
+   * spec wants the caret where a reader's would be.
    */
   async selectByKeyboard(): Promise<void> {
     return (await this.host()).sendKeys(TestKey.ENTER);

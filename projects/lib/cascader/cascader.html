@@ -117,6 +117,10 @@
             prefer: only the selected node, leaning on treeitem's implicit false,
             which is quieter in a long column and loses the "this row is
             selectable" signal that presence carries.
+
+            `tabindex` is a ROVING stop, as in the APG tree pattern: one option
+            carries `0` (see `tabStop`) and every other one `-1`, so the panel is
+            one Tab to enter and one to leave, and the arrows move between options.
           -->
           <li
             class="wr-cascader__opt"
@@ -124,7 +128,7 @@
             [attr.id]="optionId(colIndex, optIndex)"
             [class.wr-cascader__opt--active]="isActiveAt(colIndex, opt.value)"
             [class.wr-cascader__opt--disabled]="opt.disabled"
-            [attr.tabindex]="opt.disabled ? -1 : 0"
+            [attr.tabindex]="isTabStop(colIndex, opt) ? 0 : -1"
             [attr.aria-disabled]="opt.disabled ? true : null"
             [attr.aria-level]="colIndex + 1"
             [attr.aria-setsize]="$count"
@@ -135,6 +139,7 @@
               opt.children?.length && isActiveAt(colIndex, opt.value) ? columnId(colIndex + 1) : null
             "
             (click)="onOptionClick(colIndex, opt, $event)"
+            (focus)="onOptionFocus(colIndex, opt)"
             (keydown)="onOptionKeydown(colIndex, opt, $event)"
             (keydown.enter)="onOptionClick(colIndex, opt, $event)"
             (keydown.space)="onOptionClick(colIndex, opt, $event)"

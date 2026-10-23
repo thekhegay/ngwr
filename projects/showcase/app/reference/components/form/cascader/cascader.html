@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Cascader"
+  updated="15.0.0"
   description="Pick a path through nested options, one column per level."
   [keywords]="['cascader', 'wr-cascader', 'multi-level', 'select']"
   [labels]="['Component']"
@@ -29,7 +30,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Keyboard" description="The panel is not modal: Tab leaves it.">
+  <ngwr-doc-section
+    title="Keyboard"
+    description="The panel has one tab stop: the arrows move inside it, and Tab leaves it."
+  >
     <div class="ngwr-table ngwr-keys">
       <table>
         <thead>
@@ -54,6 +58,10 @@
           <tr>
             <th scope="row"><wr-kbd size="sm">ArrowLeft</wr-kbd></th>
             <td>Moves back to the option the column belongs to. Mirrored under RTL.</td>
+          </tr>
+          <tr>
+            <th scope="row">A letter</th>
+            <td>Moves to the next option in the column that starts with what you typed.</td>
           </tr>
           <tr>
             <th scope="row"><wr-kbd size="sm">Enter</wr-kbd> <wr-kbd size="sm">Space</wr-kbd></th>

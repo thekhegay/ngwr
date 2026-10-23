@@ -56,11 +56,11 @@ class Host {
  * `['eu', 'de', 'ber']`, and a consumer reading only the last segment loses the
  * context that made it meaningful.
  *
- * Unlike `wr-tree` and `wr-select`, every option here is its own tab stop
- * (`tabindex="0"`) rather than a roving cursor. That is the documented reason
- * virtual scrolling is deferred for this component — there is no
- * container-owned arrow-nav model to hang a window off — so the tab-stop shape
- * is a contract worth pinning rather than an oversight to tidy.
+ * The panel holds ONE tab stop, as in the APG tree pattern: the option the user
+ * moved to, else the selected path's leaf, else the first enabled root carries
+ * `tabindex="0"`, every other option `-1`, and the arrows move the stop with the
+ * caret. Until v15 every enabled option was its own stop, so a deep tree was a
+ * Tab per option to cross; the shape is a contract, pinned here both ways.
  */
 describe('WrCascader', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -216,6 +216,18 @@ describe('WrCascader', () => {
       expect(document.activeElement).toBe(optionFor('Asia'));
     });
 
+    it("lands on the chosen path's LEAF, not on the root it starts from", async () => {
+      // The roving stop opens where the value is. Landing on "Europe" left a reader
+      // three arrow presses from the choice the trigger had just announced.
+      fixture.componentInstance.picked.set(['eu', 'de', 'ber']);
+      fixture.detectChanges();
+
+      await openAndSettle();
+
+      expect(document.activeElement).toBe(optionFor('Berlin'));
+      expect(optionFor('Berlin')!.getAttribute('tabindex')).toBe('0');
+    });
+
     it('opens on ArrowDown from the trigger', async () => {
       expect(press('ArrowDown').defaultPrevented).toBe(true);
       await fixture.whenStable();
@@ -238,23 +250,29 @@ describe('WrCascader', () => {
       expect(panel()).not.toBeNull();
     });
 
-    it('closes and leaves from the trigger on Tab past the last stop', async () => {
-      // The pane sits at the end of `<body>`, so the browser's Tab out of the last
-      // option went to the top of the page with the panel still open. jsdom lays
-      // nothing out (every stop but the focused one would be dropped) and has no Tab
-      // of its own, so this asserts where focus stands when the browser's Tab runs.
+    it('closes and leaves from the trigger on Tab, from wherever the caret stands', async () => {
+      // The pane sits at the end of `<body>`, so the browser's Tab out of it went to
+      // the top of the page with the panel still open. The panel holds one tab stop,
+      // so EVERY Tab inside it leaves, either way round — from the first option too,
+      // which under the old stop-per-option shape tabbed to its neighbour instead.
+      // jsdom has no Tab of its own, so this asserts where focus stands when the
+      // browser's Tab runs. It also lays nothing out, so every option is given a box:
+      // without one a focus walk would drop every option but the focused one and
+      // leave on any Tab, which is the answer under test.
       vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
       try {
-        await openAndSettle();
-        optionFor('Antarctica')!.focus();
+        for (const shiftKey of [false, true]) {
+          await openAndSettle();
+          expect(document.activeElement).toBe(optionFor('Europe'));
 
-        const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
-        document.activeElement!.dispatchEvent(event);
-        fixture.detectChanges();
+          const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true });
+          document.activeElement!.dispatchEvent(event);
+          fixture.detectChanges();
 
-        expect(event.defaultPrevented).toBe(false);
-        expect(panel()).toBeNull();
-        expect(document.activeElement).toBe(trigger());
+          expect(event.defaultPrevented, `shift ${shiftKey}`).toBe(false);
+          expect(panel(), `shift ${shiftKey}`).toBeNull();
+          expect(document.activeElement, `shift ${shiftKey}`).toBe(trigger());
+        }
       } finally {
         vi.restoreAllMocks();
       }
@@ -335,6 +353,52 @@ describe('WrCascader', () => {
 
         expect(event.defaultPrevented).toBe(true);
         expect(picked()).toEqual(['an']);
+      });
+
+      it('moves to an option by its first letters, and cycles on a repeated one', async () => {
+        await openAndSettle();
+        key('ArrowRight');
+        await fixture.whenStable();
+        expect(focused()).toBe('Germany');
+
+        // Shift is how a capital is typed, so it must not stop the search.
+        const event = new KeyboardEvent('keydown', { key: 'F', shiftKey: true, bubbles: true, cancelable: true });
+        document.activeElement!.dispatchEvent(event);
+        fixture.detectChanges();
+        expect(event.defaultPrevented).toBe(true);
+        expect(focused()).toBe('France');
+
+        // A letter nothing in the column starts with moves nothing.
+        key('z');
+        expect(focused()).toBe('France');
+      });
+
+      it('runs a type-ahead on the letters typed in a row, and starts over after a pause', async () => {
+        fixture.componentInstance.options.set([
+          { value: 'a', label: 'Alpha' },
+          { value: 'b', label: 'Beta' },
+          { value: 'ba', label: 'Bar' },
+          { value: 'bo', label: 'Bob' },
+        ]);
+        fixture.detectChanges();
+        const now = vi.spyOn(Date, 'now').mockReturnValue(1_000);
+        try {
+          await openAndSettle();
+          expect(focused()).toBe('Alpha');
+
+          key('b');
+          expect(focused()).toBe('Beta');
+          // The same letter again cycles rather than spelling "bb".
+          key('b');
+          expect(focused()).toBe('Bar');
+          // A pause, then "bo": a new run, which keeps going until it matches.
+          now.mockReturnValue(2_000);
+          key('b');
+          key('o');
+          expect(focused()).toBe('Bob');
+        } finally {
+          now.mockRestore();
+        }
       });
 
       it('mirrors the inline arrows under RTL', async () => {
@@ -533,15 +597,53 @@ describe('WrCascader', () => {
       expect(optionFor('Europe')!.getAttribute('aria-expanded')).toBe('true');
     });
 
-    it('gives every enabled option its own tab stop', () => {
-      open();
-      choose('Europe');
+    it('keeps exactly one tab stop in the panel, and moves it with the caret', async () => {
+      const stops = (): string[] =>
+        [...document.querySelectorAll<HTMLElement>('[role="treeitem"][tabindex="0"]')].map(o => o.textContent.trim());
+      const key = (k: string): void => {
+        document.activeElement!.dispatchEvent(
+          new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true })
+        );
+        fixture.detectChanges();
+      };
 
-      // Not a roving cursor — this is why virtual scrolling is deferred here.
-      const all = [...document.querySelectorAll<HTMLElement>('[role="treeitem"]')];
-      expect(
-        all.filter(o => o.getAttribute('aria-disabled') !== 'true').every(o => o.getAttribute('tabindex') === '0')
-      ).toBe(true);
+      trigger().click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // One stop, on the first root while nothing is chosen.
+      expect(stops()).toEqual(['Europe']);
+      expect(optionFor('Asia')!.getAttribute('tabindex')).toBe('-1');
+
+      key('ArrowDown');
+      expect(stops()).toEqual(['Asia']);
+
+      key('ArrowUp');
+      key('ArrowRight');
+      await fixture.whenStable();
+      fixture.detectChanges();
+      // Two columns on screen, still one stop between them — where the caret is.
+      expect(columns()).toHaveLength(2);
+      expect(stops()).toEqual(['Germany']);
+      expect(optionFor('Europe')!.getAttribute('tabindex')).toBe('-1');
+
+      // A click moves it too: the stop follows focus, whatever moved it.
+      optionFor('France')!.focus();
+      fixture.detectChanges();
+      expect(stops()).toEqual(['France']);
+    });
+
+    it('never puts the tab stop on a disabled option', () => {
+      fixture.componentInstance.options.set([
+        { value: 'x', label: 'Closed', disabled: true },
+        { value: 'y', label: 'Open' },
+      ]);
+      fixture.detectChanges();
+      open();
+
+      expect(optionFor('Closed')!.getAttribute('tabindex')).toBe('-1');
+      expect(optionFor('Open')!.getAttribute('tabindex')).toBe('0');
     });
   });
 
@@ -558,8 +660,8 @@ describe('WrCascader', () => {
     });
 
     /**
-     * Every option is its own tab stop, so on the keyboard the caret is INSIDE
-     * the pane by design — and picking a leaf is what closes it. Disposing
+     * Opening moves the caret onto the panel's tab stop, so on the keyboard it is
+     * INSIDE the pane by design — and picking a leaf is what closes it. Disposing
      * without handing focus back dropped it on `<body>` on the SUCCESS path,
      * leaving a keyboard user who had just chosen a value to Tab from the top
      * of the document to get back to the control.
