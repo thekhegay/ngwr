@@ -115,6 +115,11 @@
         <code>[style.--…]</code> binding, <code>setProperty()</code> and a style-object key.
       </li>
       <li>Without <code>strictTemplates</code>, a removed <code>color</code> value renders neutral, with no error.</li>
+      <li>
+        For a neutral <code>wr-tag</code> or <code>wr-badge</code>, bind <code>[color]="null"</code>: their
+        <code>color</code> defaults to primary, so deleting the attribute gives a primary tag. On <code>wr-btn</code>,
+        <code>wr-divider</code> and <code>wr-skeleton</code>, omit it.
+      </li>
       <li><code>--wr-border-strong</code> is new, and darker than any border v14 had.</li>
     </ul>
   </ngwr-doc-section>
