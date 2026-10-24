@@ -1,0 +1,223 @@
+@use '../../../theme/styles' as theme;
+@use '../../../popover/styles' as popover-styles; // the `.wr-tooltip` chip the hover tooltip renders into
+
+// Styles for the entry points this component's own markup renders. With `dataTable`, the
+// figures render as a `<wr-chart-table>` beside the stages, which its own sheet clips out
+// of sight.
+@use '../../core/styles' as core-styles; // WrChartTable
+
+.wr-funnel-chart {
+  --wr-funnel-chart-font-family: var(--wr-font-family-base);
+  --wr-funnel-chart-color: var(--wr-color-on-surface);
+  // Three columns: the labels at inline start, the bars centred in the track, the figures
+  // at inline end. The label column is at most this wide and gives way first, ellipsised;
+  // the track never takes less than its share, so a phone keeps a funnel to look at.
+  --wr-funnel-chart-column-gap: var(--wr-space-md);
+  --wr-funnel-chart-label-max-width: 12rem;
+  --wr-funnel-chart-track-min-width: 40%;
+  --wr-funnel-chart-label-font-size: var(--wr-text-sm);
+  --wr-funnel-chart-label-line-height: var(--wr-text-sm-leading);
+  --wr-funnel-chart-label-color: var(--wr-color-on-surface);
+  --wr-funnel-chart-value-font-size: var(--wr-text-sm);
+  --wr-funnel-chart-value-line-height: var(--wr-text-sm-leading);
+  --wr-funnel-chart-value-font-weight: var(--wr-font-weight-medium);
+  --wr-funnel-chart-value-color: var(--wr-color-on-surface);
+  // The conversions: under each value, and between the bars.
+  --wr-funnel-chart-conversion-font-size: var(--wr-text-xs);
+  --wr-funnel-chart-conversion-line-height: var(--wr-text-xs-leading);
+  --wr-funnel-chart-conversion-color: var(--wr-color-on-surface-muted);
+  // A bar is as tall as a value with its conversion under it, so every bar is the same
+  // height whether its stage prints one line beside it or two; and as tall as its row if
+  // that is taller, so the band above and below always meets its edge.
+  --wr-funnel-chart-bar-height: calc(
+    var(--wr-funnel-chart-value-line-height) + var(--wr-funnel-chart-conversion-line-height)
+  );
+  --wr-funnel-chart-bar-radius: var(--wr-border-radius-sm);
+  // The gap between two bars, which the band fills and the share of the stage above sits on.
+  --wr-funnel-chart-step-height: 1.5rem;
+  // The band is a faint wash of the two stages' colours: it carries no value of its own,
+  // only the narrowing the two bars' widths already state.
+  --wr-funnel-chart-band-opacity: 0.2;
+  // The share between the bars, on a wash of the surface: the band runs under it.
+  --wr-funnel-chart-step-label-bg: color-mix(in srgb, var(--wr-color-surface) 85%, transparent);
+  --wr-funnel-chart-step-label-padding-x: var(--wr-space-xs);
+  --wr-funnel-chart-step-label-radius: var(--wr-border-radius-sm);
+  // The row the open tooltip is about, washed from edge to edge with the label and the
+  // figures inset from the wash.
+  --wr-funnel-chart-active-bg: var(--wr-color-hover);
+  --wr-funnel-chart-stage-radius: var(--wr-border-radius-sm);
+  --wr-funnel-chart-stage-padding-x: var(--wr-space-xs);
+
+  display: block;
+  // The containing block of the out-of-flow `dataTable` copy, as on every chart that
+  // renders it: a static host lets that 1px box resolve against an ancestor outside the
+  // chart and keep its place in an unpositioned scroller's content. No z-index, so no
+  // stacking context.
+  position: relative;
+  font-family: var(--wr-funnel-chart-font-family);
+  color: var(--wr-funnel-chart-color);
+
+  // One grid for every row, so a label, a bar and a figure line up down the funnel
+  // whatever their own widths: each stage and each step between two stages is a subgrid
+  // of it.
+  //
+  // The figures column is `max-content`, so the labels give way first and a figure is
+  // never cut. `minmax(0, max-content)` was measured and refused: grid shares the room two
+  // intrinsic columns compete for out equally, so at 320px, with short labels, it cut a
+  // figure on every stage of a 1,234,567,890 funnel and every value of a $12,345,678.90
+  // one. The cost is a figure wider than the room left beside the track's floor, such as
+  // an 18-digit value on a phone, which overflows instead.
+  &__plot {
+    display: grid;
+    grid-template-columns:
+      fit-content(var(--wr-funnel-chart-label-max-width))
+      minmax(var(--wr-funnel-chart-track-min-width), 1fr)
+      max-content;
+    column-gap: var(--wr-funnel-chart-column-gap);
+  }
+
+  &__stage,
+  &__step {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  // The inline padding sits outside the first and last tracks, which the subgrid adds to
+  // their size; the track in the middle, where the bars and the bands are, does not move.
+  &__stage {
+    align-items: center;
+    min-height: var(--wr-funnel-chart-bar-height);
+    padding-inline: var(--wr-funnel-chart-stage-padding-x);
+    border-radius: var(--wr-funnel-chart-stage-radius);
+  }
+
+  &__stage--active {
+    background: var(--wr-funnel-chart-active-bg);
+  }
+
+  // `min-width: 0` and the clip are what let the column give way: an item that hides its
+  // overflow has no automatic minimum, so the label is ellipsised rather than pushing the
+  // track narrower than its share. Every stage's name, the tooltip and the data table carry
+  // the whole label.
+  &__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--wr-funnel-chart-label-font-size);
+    line-height: var(--wr-funnel-chart-label-line-height);
+    color: var(--wr-funnel-chart-label-color);
+  }
+
+  // The bar's column: the bar is centred in it, and as tall as the row.
+  &__track {
+    display: flex;
+    justify-content: center;
+    align-self: stretch;
+    min-width: 0;
+  }
+
+  // The component writes the width, a percentage of the track: the largest stage, or
+  // `max`, is the full track. Zero and below are written as `0%`, and the floor keeps a
+  // hairline there, so a stage of zero still shows where it is and has an anchor for the
+  // tooltip; a missing stage renders no bar at all.
+  &__bar {
+    min-width: 1px;
+    border-radius: var(--wr-funnel-chart-bar-radius);
+    transition: width var(--wr-duration-slow) var(--wr-ease-out);
+    // The bar is an inline `background`, which forced colors resets to `Canvas`: every bar
+    // would vanish into the page and leave its figures floating. The SVG charts keep their
+    // fills there, so the HTML marks do too.
+    forced-color-adjust: none;
+  }
+
+  &__figures {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  &__value {
+    font-size: var(--wr-funnel-chart-value-font-size);
+    line-height: var(--wr-funnel-chart-value-line-height);
+    font-weight: var(--wr-funnel-chart-value-font-weight);
+    color: var(--wr-funnel-chart-value-color);
+  }
+
+  &__overall {
+    font-size: var(--wr-funnel-chart-conversion-font-size);
+    line-height: var(--wr-funnel-chart-conversion-line-height);
+    color: var(--wr-funnel-chart-conversion-color);
+  }
+
+  &__step {
+    height: var(--wr-funnel-chart-step-height);
+  }
+
+  // The band and the share sit in the same cell: the track's column, the step's height.
+  &__band,
+  &__step-label {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  // A polygon on the track's width, written by the component, from the upper bar's width
+  // at its top edge to the lower bar's at its bottom — both centred, so the shape is the
+  // same in either direction. The two stages' paints arrive as the custom properties
+  // below, so a stage with a colour of its own carries it into its band.
+  &__band {
+    align-self: stretch;
+    background: linear-gradient(
+      var(--wr-funnel-chart-band-from, currentColor),
+      var(--wr-funnel-chart-band-to, currentColor)
+    );
+    opacity: var(--wr-funnel-chart-band-opacity);
+    transition: clip-path var(--wr-duration-slow) var(--wr-ease-out);
+    // Painted in the stages' colours, which forced colors would reset with the bars'.
+    forced-color-adjust: none;
+  }
+
+  // Positioned, so it paints above the band: the band's `opacity` makes it a stacking
+  // context, which paints over in-flow content beside it whatever the order in the DOM,
+  // and would lay the wash over the text.
+  //
+  // Bounded by the track and ellipsised, as a label is: at its 40% floor the track is
+  // about 115px on a 320px phone, and a long share — a custom `percentFormat`, or two
+  // significant digits of a tiny ratio — hung out of it over the label column. The
+  // tooltip, the stage's name and the data table carry the whole share.
+  &__step-label {
+    position: relative;
+    place-self: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 var(--wr-funnel-chart-step-label-padding-x);
+    border-radius: var(--wr-funnel-chart-step-label-radius);
+    background: var(--wr-funnel-chart-step-label-bg);
+    font-size: var(--wr-funnel-chart-conversion-font-size);
+    line-height: var(--wr-funnel-chart-conversion-line-height);
+    color: var(--wr-funnel-chart-conversion-color);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+}
+
+// A bar that grows or shrinks to its new value is motion nothing asked for twice: the new
+// width is what matters, and it is drawn at once.
+@media (prefers-reduced-motion: reduce) {
+  .wr-funnel-chart__bar,
+  .wr-funnel-chart__band {
+    transition: none;
+  }
+}
+
+// Forced colors paints the active row's wash as the page, so the row the tooltip is about
+// needs an edge instead.
+@media (forced-colors: active) {
+  .wr-funnel-chart__stage--active {
+    outline: 1px solid Highlight;
+  }
+}
