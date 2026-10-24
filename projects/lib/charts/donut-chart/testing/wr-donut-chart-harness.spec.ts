@@ -65,6 +65,7 @@ describe('WrDonutChartHarness', () => {
     const harness = await chart();
 
     expect(await harness.getSliceCount()).toBe(3);
+    expect(await harness.hasLegend()).toBe(true);
     expect(await harness.getLegend()).toEqual([
       { label: 'Direct', value: '30' },
       { label: 'Search', value: '50' },

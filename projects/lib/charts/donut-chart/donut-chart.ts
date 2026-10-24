@@ -214,7 +214,10 @@ export class WrDonutChart {
       return {
         label: s.label,
         value,
-        text: this.numbers.value(value),
+        // The segment's own figure, which a negative one keeps although it draws nothing:
+        // the weight is the arc's, not the data's, and printing it named a "0" the data
+        // never had. A value that is not a number has no figure to print.
+        text: Number.isFinite(s.value) ? this.numbers.value(s.value) : '',
         color: s.color ?? chartColor(i),
         hidden: isHidden,
         path: isHidden ? '' : this.arcPath(startAngle, endAngle),
@@ -312,9 +315,13 @@ export class WrDonutChart {
     });
   });
 
-  /** The legend's rows: every slice, hidden ones included, each with its value. */
+  /**
+   * The legend's rows: every slice, hidden ones included, each with its own figure — a
+   * negative one included, which draws no slice — and no value at all for a segment whose
+   * value is not a number.
+   */
   protected readonly legendItems = computed<readonly WrChartLegendItem[]>(() =>
-    this.slices().map(({ label, color, text }) => ({ label, color, value: text }))
+    this.slices().map(({ label, color, text }) => ({ label, color, value: text === '' ? null : text }))
   );
 
   /**

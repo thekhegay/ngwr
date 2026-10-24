@@ -55,8 +55,9 @@ describe('WrDonutChart', () => {
   const legendRows = (): string[] =>
     [...root().querySelectorAll('.wr-donut-chart__legend-item')].map(el => {
       const label = el.querySelector('.wr-donut-chart__legend-label')!.textContent.trim();
-      const value = el.querySelector('.wr-donut-chart__legend-value')!.textContent.trim();
-      return `${label} ${value}`;
+      // A segment with no figure to print has no value element at all.
+      const value = el.querySelector('.wr-donut-chart__legend-value')?.textContent.trim();
+      return value === undefined ? label : `${label} ${value}`;
     });
 
   beforeEach(() => {
@@ -150,8 +151,9 @@ describe('WrDonutChart', () => {
 
     expect(paths().length).toBe(3);
     for (const path of paths()) expect(path.getAttribute('d')).not.toContain('NaN');
-    // The bad datum counts as nothing rather than poisoning the ones behind it.
-    expect(legendRows()).toEqual(['ok 10', 'broken 0', 'after 30']);
+    // The bad datum counts as nothing rather than poisoning the ones behind it — and is
+    // printed as nothing too, where it used to print a "0" the data never had.
+    expect(legendRows()).toEqual(['ok 10', 'broken', 'after 30']);
     const withBadDatum = paths()[0].getAttribute('d');
 
     // And it must not count towards the TOTAL either. A NaN in the sum collapses
@@ -165,14 +167,16 @@ describe('WrDonutChart', () => {
     expect(paths()[0].getAttribute('d')).toBe(withBadDatum);
   });
 
-  it('treats a negative value as nothing', () => {
+  it('draws a negative value as nothing, and still prints its own figure', () => {
     fixture.componentInstance.segments.set([
       { label: 'up', value: 40 },
       { label: 'down', value: -10 },
     ]);
     fixture.detectChanges();
 
-    expect(legendRows()).toEqual(['up 40', 'down 0']);
+    // The arc takes no share of the ring; the legend keeps the segment's figure rather
+    // than the "0" its arc is weighted by.
+    expect(legendRows()).toEqual(['up 40', 'down -10']);
     for (const path of paths()) expect(path.getAttribute('d')).not.toContain('NaN');
   });
 
