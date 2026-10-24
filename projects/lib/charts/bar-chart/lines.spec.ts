@@ -5,7 +5,7 @@ import { chartColor, chartDash, chartMarker, chartMarkerExtent } from 'ngwr/char
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrBarChart } from './bar-chart';
-import type { WrBarChartDatum, WrBarChartLine, WrBarChartOrientation, WrBarSeries } from './types';
+import type { WrBarChartDatum, WrBarLine, WrBarOrientation, WrBarSeries } from './types';
 
 const CATEGORIES = ['Q1', 'Q2', 'Q3'];
 
@@ -14,7 +14,7 @@ const SERIES: readonly WrBarSeries[] = [
   { label: 'South', data: [30, 10, 15] },
 ];
 
-const TARGET: WrBarChartLine = { label: 'Target', data: [15, 15, 15] };
+const TARGET: WrBarLine = { label: 'Target', data: [15, 15, 15] };
 
 const DATA: readonly WrBarChartDatum[] = [
   { label: 'Mon', value: 10 },
@@ -44,9 +44,9 @@ class Host {
   readonly series = signal<readonly WrBarSeries[]>(SERIES);
   readonly categories = signal<readonly string[]>(CATEGORIES);
   readonly data = signal<readonly WrBarChartDatum[]>([]);
-  readonly lines = signal<readonly WrBarChartLine[]>([TARGET]);
+  readonly lines = signal<readonly WrBarLine[]>([TARGET]);
   readonly stacked = signal(false);
-  readonly orientation = signal<WrBarChartOrientation>('vertical');
+  readonly orientation = signal<WrBarOrientation>('vertical');
   readonly max = signal(0);
   readonly toggleable = signal(false);
   readonly dataTable = signal(false);
@@ -383,6 +383,31 @@ describe('WrBarChart lines', () => {
       expect(all('.wr-chart-table thead th').map(th => th.textContent.trim())).toEqual(['Value']);
     });
 
+    it('leaves a missing bar an empty cell, as a missing line value is', () => {
+      // A NaN bar was tabled as "0" beside an empty cell for the line's hole in the same
+      // row: one table saying two different things about two holes.
+      set(h => {
+        h.dataTable.set(true);
+        h.data.set([...DATA.slice(0, 2), { label: 'Wed', value: Number.NaN }]);
+        h.lines.set([{ label: 'Target', data: [15, null, 12.5] }]);
+      });
+
+      const table = (): string[][] =>
+        all('.wr-chart-table tbody tr').map(row => all('th, td', row).map(cell => cell.textContent.trim()));
+      expect(table()).toEqual([
+        ['Mon', '10', '15'],
+        ['Tue', '20', ''],
+        ['Wed', '', '12.5'],
+      ]);
+      // Its column draws an empty bar named by its label alone; its line point keeps its own.
+      expect(all('.wr-bar-chart__column').map(c => c.getAttribute('aria-label'))).toEqual([
+        'Mon: 10',
+        'Tue: 20',
+        'Wed',
+      ]);
+      expect(names()).toEqual(['Mon: 15', 'Wed: 12.5']);
+    });
+
     it('tracks the hidden room copies by position, so live data does not re-create them with a warning', () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
       set(h => h.data.set(DATA.map(d => ({ ...d, value: d.value + 1 }))));
@@ -533,7 +558,7 @@ class TooltipHost {
   ]);
   readonly data = signal<readonly WrBarChartDatum[]>([]);
   readonly categories = ['Q1', 'Q2'];
-  readonly lines: readonly WrBarChartLine[] = [{ label: 'Target', data: [2000, 7] }];
+  readonly lines: readonly WrBarLine[] = [{ label: 'Target', data: [2000, 7] }];
 }
 
 /** The chip renders into a CDK overlay, so it is read off `document`. */

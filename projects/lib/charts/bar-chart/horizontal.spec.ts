@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrBarChart } from './bar-chart';
-import type { WrBarChartDatum, WrBarChartOrientation, WrBarSeries } from './types';
+import type { WrBarChartDatum, WrBarOrientation, WrBarSeries } from './types';
 
 const DATA: readonly WrBarChartDatum[] = [
   { label: 'Mon', value: 10 },
@@ -29,7 +29,7 @@ class Host {
   readonly data = signal<readonly WrBarChartDatum[]>(DATA);
   readonly series = signal<readonly WrBarSeries[]>([]);
   readonly categories = ['North', 'South'];
-  readonly orientation = signal<WrBarChartOrientation>('horizontal');
+  readonly orientation = signal<WrBarOrientation>('horizontal');
   readonly showValues = signal(true);
 }
 

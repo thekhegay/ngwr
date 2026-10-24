@@ -1,7 +1,11 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { CHART_DASHES, chartColor } from 'ngwr/charts/core';
+import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrBarChart } from './bar-chart';
@@ -178,9 +182,10 @@ describe('WrBarChart series', () => {
     expect(root().textContent).not.toContain('NaN');
   });
 
-  it('names a category past the end of `categories` by its position', () => {
+  it('names a category past the end of `categories` by its position, counting from 1', () => {
+    // From 0 it named the third category "2", the way an index reads and no reader counts.
     set(h => h.categories.set(['Q1']));
-    expect(categories().map(c => c.getAttribute('aria-label'))).toEqual(['Q1', '1', '2']);
+    expect(categories().map(c => c.getAttribute('aria-label'))).toEqual(['Q1', '2', '3']);
   });
 
   it('holds the positive end to an explicit max and still fits the negative end', () => {
@@ -461,5 +466,78 @@ describe('WrBarChart series tooltip', () => {
   it('opens nothing over a category no series has a value in', () => {
     hover(categories()[1]);
     expect(chip()).toBeNull();
+  });
+});
+
+/**
+ * A series' bar paints through `[style.--wr-bar-chart-color]` and a `color-mix()`
+ * background, and a line through SVG attributes inside an HTML box — neither of which the
+ * shared scan of `[style.background]` marks in `charts/stylesheets.spec.ts` reaches. Both
+ * keep their colour under forced colors only because the sheet says so, so the sheet is
+ * read here. `sass` is resolved through `@angular/build`, as that file does.
+ */
+describe('WrBarChart series under forced colors', () => {
+  interface Sass {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  }
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
+  const css = sass
+    .compileString(`@use 'charts/bar-chart/styles';`, {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = (cls: string): string => new RegExp(`(?:^|\\n)\\.${cls}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+
+  it("keeps a series bar's tint and a line's strokes and points", () => {
+    expect(rule('wr-bar-chart__series-bar')).toMatch(/forced-color-adjust:\s*none/);
+    expect(rule('wr-bar-chart__line')).toMatch(/forced-color-adjust:\s*none/);
+  });
+});
+
+/** Every name the chart builds joins a label and a figure through the catalog, not a hard-coded `: `. */
+describe('WrBarChart names from the catalog', () => {
+  const catalog: WrI18nCatalog = { barChart: { datum: '{{label}} — {{value}}', total: 'Somme' } };
+
+  @Component({
+    imports: [WrBarChart],
+    template: `
+      <wr-bar-chart [categories]="['Q1']" [series]="series" [lines]="lines" stacked />
+      <wr-bar-chart [data]="data" />
+    `,
+  })
+  class CatalogHost {
+    readonly series: readonly WrBarSeries[] = [
+      { label: 'North', data: [10] },
+      { label: 'South', data: [5] },
+    ];
+    readonly lines = [{ label: 'Target', data: [12] }];
+    readonly data: readonly WrBarChartDatum[] = [{ label: 'Mon', value: 7 }];
+  }
+
+  it('names a bar, a pile and a point through `barChart.datum`', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
+        provideWrI18nStaticLoader({ xx: catalog }),
+      ],
+    });
+    const fixture = TestBed.createComponent(CatalogHost);
+    fixture.detectChanges();
+    // The static loader resolves through a promise even for a catalog already in memory.
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const label = (selector: string): (string | null)[] =>
+      [...root.querySelectorAll(selector)].map(el => el.getAttribute('aria-label'));
+    expect(label('.wr-bar-chart__series-bar')).toEqual(['North — 10', 'South — 5']);
+    expect(label('.wr-bar-chart__value[role="img"]')).toEqual(['Somme — 15']);
+    expect(label('.wr-bar-chart__point')).toEqual(['Q1 — 12']);
+    expect(label('.wr-bar-chart__column')).toEqual(['Mon — 7']);
+    fixture.destroy();
   });
 });

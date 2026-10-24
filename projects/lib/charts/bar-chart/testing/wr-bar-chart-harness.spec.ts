@@ -5,8 +5,8 @@ import { TestBed } from '@angular/core/testing';
 import {
   WrBarChart,
   type WrBarChartDatum,
-  type WrBarChartLine,
-  type WrBarChartOrientation,
+  type WrBarLine,
+  type WrBarOrientation,
   type WrBarSeries,
 } from 'ngwr/charts/bar-chart';
 import { chartColor } from 'ngwr/charts/core';
@@ -30,6 +30,27 @@ class Host {
   readonly height = signal(200);
   readonly max = signal(0);
 }
+
+/** `stacked` piles `series` and nothing else, so a `data` chart that sets it is not stacked. */
+@Component({
+  imports: [WrBarChart],
+  template: '<wr-bar-chart [data]="data" stacked />',
+})
+class StackedDataHost {
+  readonly data = DATA;
+}
+
+describe('WrBarChartHarness on a data chart with `stacked`', () => {
+  it('answers that it is not stacked, since there is no pile to read', async () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(StackedDataHost);
+    fixture.detectChanges();
+    const harness = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrBarChartHarness);
+
+    expect(await harness.isStacked()).toBe(false);
+    fixture.destroy();
+  });
+});
 
 /**
  * Heights are read as PERCENTAGES of the chart's maximum — the one number that
@@ -155,7 +176,7 @@ const SERIES: readonly WrBarSeries[] = [
 class SeriesHost {
   readonly series = signal<readonly WrBarSeries[]>(SERIES);
   readonly stacked = signal(false);
-  readonly orientation = signal<WrBarChartOrientation>('vertical');
+  readonly orientation = signal<WrBarOrientation>('vertical');
   readonly dataTable = signal(false);
   readonly showLegend = signal(true);
   readonly hidden = signal<readonly number[]>([]);
@@ -200,9 +221,11 @@ describe('WrBarChartHarness with series', () => {
   });
 
   it('reads the pile under stacked', async () => {
-    await set(h => h.stacked.set(true));
     const harness = await chart();
+    // Grouped until asked: an answer that was always `true` would pass the half below alone.
+    expect(await harness.isStacked()).toBe(false);
 
+    await set(h => h.stacked.set(true));
     expect(await harness.isStacked()).toBe(true);
     expect((await harness.getSeriesBars()).map(bar => [bar.startPercent, bar.sizePercent])).toEqual([
       [0, 25],
@@ -285,11 +308,11 @@ describe('WrBarChartHarness with series', () => {
 class LinesHost {
   readonly series = signal<readonly WrBarSeries[]>([{ label: 'North', data: [10, 20, 40] }]);
   readonly data = signal<readonly WrBarChartDatum[]>([]);
-  readonly lines = signal<readonly WrBarChartLine[]>([
+  readonly lines = signal<readonly WrBarLine[]>([
     { label: 'Target', data: [20, null, 30] },
     { label: 'Rate', data: [5, 10, 15], color: '#123456' },
   ]);
-  readonly orientation = signal<WrBarChartOrientation>('vertical');
+  readonly orientation = signal<WrBarOrientation>('vertical');
   readonly dataTable = signal(false);
   readonly hiddenLines = signal<readonly number[]>([]);
 }

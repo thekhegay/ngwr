@@ -8,17 +8,35 @@
 // its own sheet clips out of sight.
 @use '../../core/styles' as core-styles; // WrChartTable
 
+// The gap between two categories standing up: the plot's gap, but never more than a
+// quarter of the track shared out among the gaps. A fixed gap took the whole track once
+// there were enough categories — measured in Chromium, forty on a phone left every bar
+// 0.77px wide and a hundred left none at all, with nothing to say so. The component writes
+// how many categories there are; below about one per 32px of track the hook's own gap is
+// the smaller and nothing moves. Standing up only: lying down the rows keep a floor of
+// their own and grow the plot instead, and a percentage gap down a column has no height to
+// resolve against. The label row under the bars is held the same way, so each name stays
+// under its bar.
+$plot-gap: min(var(--wr-bar-chart-plot-gap), calc(25% / var(--wr-bar-chart-categories, 1)));
+
 // How far one of `lines`' boxes sits in from each end of the track: half a category. The
 // categories are equal shares of the track with the plot's gap between them, so their
 // middles are evenly spaced from the first to the last, and a box between those two puts
 // category `c` of `n` at `c / (n - 1)` of its length — the percentage the component
 // writes. With one category the box is the whole track, and its point sits in the middle.
 // A Sass value rather than a hook: the component's percentages depend on it, so it is
-// geometry rather than a look.
-$line-inset: calc(
-  (100% - (var(--wr-bar-chart-count, 1) - 1) * var(--wr-bar-chart-plot-gap)) / (2 * var(--wr-bar-chart-count, 1)) *
-    clamp(0, var(--wr-bar-chart-count, 1) - 1, 1)
-);
+// geometry rather than a look. It takes the gap the track itself lays the categories out
+// with — `$plot-gap` standing up, which resolves against the same width, and the hook's
+// own lying down.
+@function line-inset($gap) {
+  @return calc(
+    (100% - (var(--wr-bar-chart-count, 1) - 1) * #{$gap}) / (2 * var(--wr-bar-chart-count, 1)) *
+      clamp(0, var(--wr-bar-chart-count, 1) - 1, 1)
+  );
+}
+
+$line-inset: line-inset($plot-gap);
+$line-inset-across: line-inset(var(--wr-bar-chart-plot-gap));
 
 // The ring round each of `lines`' points: its stroke is twice this, half of it under the fill.
 $point-ring: 2px;
@@ -32,6 +50,11 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
 
 .wr-bar-chart {
   --wr-bar-chart-font-family: var(--wr-font-family-base);
+  --wr-bar-chart-text-color: var(--wr-color-on-surface);
+  // The gap between two categories, which the label row under the bars keeps too, so each
+  // name stays under its bar. Declared here rather than on the plot, so one override on
+  // the chart moves both rows.
+  --wr-bar-chart-plot-gap: var(--wr-space-sm);
   // Beside `lines`: the ring round each point and the halo behind each printed value, so a
   // point reads on the bar under it and a number stays readable where a line crosses it.
   // The surface the chart sits on, by default.
@@ -43,10 +66,9 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
   // its place in an unpositioned scroller's content. No z-index, so no stacking context.
   position: relative;
   font-family: var(--wr-bar-chart-font-family);
-  color: var(--wr-color-on-surface);
+  color: var(--wr-bar-chart-text-color);
 
   &__plot {
-    --wr-bar-chart-plot-gap: var(--wr-space-sm);
     --wr-bar-chart-plot-border: var(--wr-border-base);
     // Lying down, the least each bar's row takes — a category's, or a series' lane in it:
     // one line of the small text the values and the names are set in. The rows share the
@@ -57,7 +79,7 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
 
     display: flex;
     align-items: flex-end;
-    gap: var(--wr-bar-chart-plot-gap);
+    gap: $plot-gap;
     border-bottom: 1px solid var(--wr-bar-chart-plot-border);
   }
 
@@ -80,6 +102,7 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     // How far a value sits past the end of its bar where it is placed there rather than
     // stacked on the bar: with `series`, and in the horizontal layout.
     --wr-bar-chart-value-offset: var(--wr-space-xs);
+    --wr-bar-chart-value-color: var(--wr-color-on-surface-muted);
 
     flex: none;
     // Bounded by its column and ellipsised, as the label under it is. With no bound,
@@ -91,9 +114,13 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: var(--wr-bar-chart-value-font-size);
-    color: var(--wr-color-on-surface-muted);
+    color: var(--wr-bar-chart-value-color);
     font-variant-numeric: tabular-nums;
     line-height: var(--wr-bar-chart-value-line-height);
+    // A value has no strong character of its own, so on an RTL page the minus of `-3`
+    // landed after the digits, `3-`; plaintext takes the direction from the text. Every
+    // value box is as wide as its text or centred, so its alignment does not move.
+    unicode-bidi: plaintext;
   }
 
   // The component writes the bar's share of the plot as its `flex-grow`, from 0
@@ -119,11 +146,13 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
   }
 
   &__labels {
-    --wr-bar-chart-labels-gap: var(--wr-space-sm);
+    --wr-bar-chart-labels-gap: var(--wr-bar-chart-plot-gap);
     --wr-bar-chart-labels-margin-top: var(--wr-space-sm);
 
     display: flex;
-    gap: var(--wr-bar-chart-labels-gap);
+    // Held as the plot's gap is (`$plot-gap`), against the same width, so each name stays
+    // under its bar however many there are.
+    gap: min(var(--wr-bar-chart-labels-gap), calc(25% / var(--wr-bar-chart-categories, 1)));
     margin-top: var(--wr-bar-chart-labels-margin-top);
   }
 
@@ -132,14 +161,18 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     // The widest a category name runs in the horizontal layout's gutter before it is
     // ellipsised; the gutter is as wide as the longest name up to this.
     --wr-bar-chart-label-max-width: 10rem;
+    --wr-bar-chart-label-color: var(--wr-color-on-surface-muted);
 
     flex: 1 1 0;
     text-align: center;
     font-size: var(--wr-bar-chart-label-font-size);
-    color: var(--wr-color-on-surface-muted);
+    color: var(--wr-bar-chart-label-color);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    // A name is the host's own text, in whatever language: it takes its direction from
+    // that text, so a Latin name on an RTL page keeps a trailing `$` or `%` at its end.
+    unicode-bidi: plaintext;
   }
 
   &__legend {
@@ -175,7 +208,7 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
   &__track {
     position: relative;
     display: flex;
-    gap: var(--wr-bar-chart-plot-gap);
+    gap: $plot-gap;
     min-width: 0;
     min-height: 0;
   }
@@ -200,7 +233,9 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
 
     display: flex;
     flex: 1 1 0;
-    gap: var(--wr-bar-chart-category-gap);
+    // Standing up, never more than a tenth of the category, for the reason `$plot-gap`
+    // gives: grouped bars on a phone are a few pixels wide, and fixed gaps took them all.
+    gap: min(var(--wr-bar-chart-category-gap), 10%);
     min-width: 0;
     min-height: 0;
   }
@@ -476,8 +511,11 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     padding-inline-end: var(--wr-bar-chart-labels-gap);
   }
 
+  // Shrunk to the name against the bars' side of the gutter, so its own direction can
+  // follow its text (`plaintext`) without moving it off the bars.
   .wr-bar-chart__label {
     align-self: center;
+    justify-self: end;
     max-width: var(--wr-bar-chart-label-max-width);
     text-align: end;
   }
@@ -495,6 +533,7 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     grid-column: 3;
     grid-row: 1;
     flex-direction: column;
+    gap: var(--wr-bar-chart-plot-gap);
   }
 
   .wr-bar-chart__room--max {
@@ -523,6 +562,7 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
   .wr-bar-chart__category {
     flex-direction: column;
     min-height: auto;
+    gap: var(--wr-bar-chart-category-gap);
   }
 
   .wr-bar-chart__lane {
@@ -593,10 +633,10 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
   // Lying down, a line's box runs down the rows, from the middle of the first to the
   // middle of the last, and across the whole track.
   .wr-bar-chart__line {
-    inset-block-start: $line-inset;
+    inset-block-start: $line-inset-across;
     inset-inline-start: 0;
     inline-size: 100%;
-    block-size: calc(100% - 2 * #{$line-inset});
+    block-size: calc(100% - 2 * #{$line-inset-across});
   }
 }
 
@@ -638,12 +678,13 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
   }
 }
 
-// The new layouts' movement is a bar growing to its value; with reduced motion it lands
-// there at once. A `data` bar lying down — or standing beside `lines` — lands with the
-// value placed past its end, which would otherwise jump ahead and leave the bar sliding up
-// to it; beside `lines` the value and the spacer the bar stands on stop where they are
+// Every layout's movement is a bar growing to its value; with reduced motion it lands there
+// at once. A `data` bar lying down — or standing beside `lines` — lands with the value
+// placed past its end, which would otherwise jump ahead and leave the bar sliding up to
+// it; beside `lines` the value and the spacer the bar stands on stop where they are
 // declared. The lines move at once regardless.
 @media (prefers-reduced-motion: reduce) {
+  .wr-bar-chart__bar,
   .wr-bar-chart__series-bar,
   .wr-bar-chart--horizontal .wr-bar-chart__series-bar,
   .wr-bar-chart--horizontal .wr-bar-chart__bar,

@@ -9,9 +9,11 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import {
   Component,
   type ElementRef,
+  LOCALE_ID,
   ViewEncapsulation,
   computed,
   effect,
+  inject,
   input,
   isDevMode,
   model,
@@ -30,11 +32,11 @@ import {
   chartMarkerPath,
   useChartNumbers,
 } from 'ngwr/charts/core';
-import { readI18nText, useI18nText } from 'ngwr/i18n';
+import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, type WrChartTooltipTarget, useChartTooltip } from 'ngwr/popover';
 import { clamp } from 'ngwr/utils';
 
-import type { WrBarChartDatum, WrBarChartLine, WrBarChartOrientation, WrBarSeries } from './types';
+import type { WrBarChartDatum, WrBarLine, WrBarOrientation, WrBarSeries } from './types';
 
 /** A share of the value axis for an inline style: four decimals, `-0` folded to `0`. */
 const short = (value: number): number => Math.round(value * 1e4) / 1e4 || 0;
@@ -213,6 +215,9 @@ interface LineLayer {
     // How far the largest of `lines`' markers reaches along the value axis: the room the
     // stylesheet keeps at each end of the track, so a point there stays in the chart's box.
     '[style.--wr-bar-chart-reach]': 'hasLines() ? lineReach() : null',
+    // How many categories share the track: standing up, the gaps between them are held to
+    // a share of the track by it, so a long list keeps its bars rather than gaps alone.
+    '[style.--wr-bar-chart-categories]': 'categoryTotal() || null',
   },
   imports: [WrChartLegend, WrChartTable],
 })
@@ -221,7 +226,9 @@ export class WrBarChart {
    * The bars, left to right. One series: a datum with no `color` of its own
    * takes the chart's `color`, so by default every bar comes out the same.
    * A negative value draws an empty bar with its number printed — or, beside `lines`,
-   * a bar down from zero. Ignored while `series` has entries.
+   * a bar down from zero. A value that is not a finite number is MISSING: an empty bar
+   * with no number printed, named by its label alone, an empty cell in the data table.
+   * Ignored while `series` has entries.
    */
   readonly data = input<readonly WrBarChartDatum[]>([]);
 
@@ -236,8 +243,8 @@ export class WrBarChart {
   /**
    * The categories' names for `series`, in order: a series takes one value per
    * category. A category past the end of this list, which a longer series reaches, is
-   * named by its position from 0. Not read with `data`, whose datums carry their own
-   * labels.
+   * named by its position, counting from 1, in `LOCALE_ID`'s digits. Not read with
+   * `data`, whose datums carry their own labels.
    */
   readonly categories = input<readonly string[]>([]);
 
@@ -262,7 +269,7 @@ export class WrBarChart {
    * track keeps room at each end of the value axis for the largest marker, ring included,
    * so a point on either end is not cut off.
    */
-  readonly lines = input<readonly WrBarChartLine[]>([]);
+  readonly lines = input<readonly WrBarLine[]>([]);
 
   /**
    * Pile each category's bars on each other, in series order, so the end of the pile
@@ -284,17 +291,11 @@ export class WrBarChart {
    * (one line of the value's text), so a long list of categories or series grows the
    * chart rather than thinning its bars to nothing. @default 'vertical'
    */
-  readonly orientation = input<WrBarChartOrientation>('vertical');
+  readonly orientation = input<WrBarOrientation>('vertical');
 
   /**
-   * Accessible name of the CHART. Falls back to `barChart.label`, then
-   * `'Bar chart'`. It is also the data table's caption.
-   *
-   * Every bar already carries its own `role="img"` and its own "Mon: 12", and
-   * that is what the plot had instead of a name of its own — so the chart
-   * announced as whatever its first bar said, and a page with three bar charts
-   * offered a reader three images called by a weekday. The four sibling charts
-   * all name the plot; this one was the omission.
+   * Accessible name of the chart. Falls back to `barChart.label`, then `'Bar chart'`.
+   * Also the data table's caption.
    */
   readonly ariaLabel = input<string | null>(null);
 
@@ -312,7 +313,16 @@ export class WrBarChart {
    */
   private readonly valueText = readI18nText('barChart.value', 'Value');
 
-  /** Default bar colour when a datum has none. `data` only. @default primary */
+  /**
+   * How a bar, a point and a pile's total name themselves: a label and a figure, "Mon: 12",
+   * from the catalog, so a language that joins the two another way can.
+   */
+  private readonly datumText = useI18nFormatter('barChart.datum', '{{label}}: {{value}}');
+
+  /** A category with no name of its own, by its position from 1 in the reader's own digits. */
+  private readonly ordinals = new Intl.NumberFormat(inject(LOCALE_ID));
+
+  /** Default bar colour when a datum has none. `data` only. @default 'var(--wr-color-primary)' */
   readonly color = input<string>('var(--wr-color-primary)');
 
   /**
@@ -446,16 +456,25 @@ export class WrBarChart {
   protected readonly hasLines = computed(() => this.lines().length > 0);
 
   /**
-   * A datum's value, with anything non-finite read as `0`.
+   * A datum's value, with anything non-finite read as `0` for the geometry.
    *
    * One `NaN` used to take out the whole chart rather than its own bar:
    * `Math.max(...values)` is `NaN` as soon as one value is, so the scale fell
    * back to `1` and every OTHER bar was asked for a height of `value * 100`%.
-   * The bad bar also printed the literal text `NaN` above itself.
+   * The bad bar also printed the literal text `NaN` above itself. It is not a zero
+   * either, so nothing a reader meets prints one for it (see `bars`).
    */
   private static value(raw: number): number {
     return Number.isFinite(raw) ? raw : 0;
   }
+
+  /** A label and a figure, as a name: "Mon: 12". */
+  private name(label: string, value: number): string {
+    return this.datumText({ label, value: this.numbers.value(value) });
+  }
+
+  /** How many categories the chart draws, whichever input it draws. */
+  protected readonly categoryTotal = computed(() => (this.seriesMode() ? this.categoryCount() : this.data().length));
 
   /**
    * The value axis for `data`, from `lo` to `hi`: from zero to the tallest bar, or to
@@ -502,14 +521,18 @@ export class WrBarChart {
     const zero = this.zero();
     return this.data().map(d => {
       const value = WrBarChart.value(d.value);
-      const text = this.numbers.value(value);
+      // A missing value is drawn as the empty bar a zero is, and printed as nothing.
+      const missing = !Number.isFinite(d.value);
+      const text = missing ? '' : this.numbers.value(value);
       const below = combo && value < 0;
       const share = below ? Math.min(floor, -value / (hi - lo)) : Math.min(1 - floor, Math.max(0, value) / (hi - lo));
       return {
         label: d.label,
         value,
+        /** Whether the datum's value is not a finite number: no figure is printed, named or tabled for it. */
+        missing,
         /** The label printed above the bar. */
-        display: this.numbers.label(value),
+        display: missing ? '' : this.numbers.label(value),
         /** The whole figure, for the tooltip. */
         text,
         color: d.color ?? this.color(),
@@ -531,9 +554,10 @@ export class WrBarChart {
          * The bar's accessible name. The label and the value sit in separate
          * rows, so a screen reader read every number and then every label with
          * nothing tying the two together — and with `showValues` off the
-         * numbers were not in the accessible tree at all.
+         * numbers were not in the accessible tree at all. A missing value is the
+         * label alone.
          */
-        name: `${d.label}: ${text}`,
+        name: missing ? d.label : this.name(d.label, value),
       };
     });
   });
@@ -650,10 +674,10 @@ export class WrBarChart {
     const labels = this.categories();
     const values = this.showValues();
     const zero = this.at(0);
-    const name = (label: string, value: number): string => `${label}: ${this.numbers.value(value)}`;
+    const name = (label: string, value: number): string => this.name(label, value);
 
     return Array.from({ length: this.categoryCount() }, (_, c): Category => {
-      const label = labels[c] ?? String(c);
+      const label = labels[c] ?? this.ordinals.format(c + 1);
       if (!this.stacked()) {
         const lanes = series.map((s): Lane => {
           const v = s.data[c];
@@ -741,8 +765,8 @@ export class WrBarChart {
     if (!this.seriesMode()) {
       const bars = this.bars();
       return {
-        max: [...new Set(bars.filter(b => !b.below).map(b => b.display))],
-        min: [...new Set(bars.filter(b => b.below).map(b => b.display))],
+        max: [...new Set(bars.filter(b => !b.below && !b.missing).map(b => b.display))],
+        min: [...new Set(bars.filter(b => b.below && !b.missing).map(b => b.display))],
       };
     }
     const ends = this.seriesCategories().flatMap(c => c.lanes.flatMap(lane => lane.ends));
@@ -784,7 +808,7 @@ export class WrBarChart {
         }
         const position = place(c, value);
         if (previous) segments.push({ from: previous, to: position });
-        points.push({ ...position, category: c, name: `${labels[c] ?? String(c)}: ${this.numbers.value(value)}` });
+        points.push({ ...position, category: c, name: this.name(labels[c] ?? this.ordinals.format(c + 1), value) });
         previous = position;
       }
       return {
@@ -867,7 +891,7 @@ export class WrBarChart {
   protected readonly tableData = computed<WrChartTableData>(() => {
     const bars = this.seriesMode()
       ? this.visibleSeries()
-      : [{ label: this.valueText(), data: this.data().map(d => WrBarChart.value(d.value)) }];
+      : [{ label: this.valueText(), data: this.data().map(d => (Number.isFinite(d.value) ? d.value : null)) }];
     const columns = [...bars, ...this.visibleLines()];
     const labels = this.categoryLabels();
     const rows =
@@ -891,8 +915,8 @@ export class WrBarChart {
    * no room — rather than at the column, which is the full height of the plot and
    * would put the chip above every bar alike. A bar with nothing to draw (zero, or a
    * negative value without `lines`) keeps its 1px floor on the baseline, so its chip
-   * points there. The
-   * bar is the anchor element itself, so an open chip follows it through the
+   * points there; a missing value opens none, unless a line has a value in its category.
+   * The bar is the anchor element itself, so an open chip follows it through the
    * height transition a data change starts.
    *
    * With `series` it is one chip per category: the category's name and a row per series
@@ -912,7 +936,9 @@ export class WrBarChart {
     const anchor = this.barEls()[index]?.nativeElement;
     if (!bar || !anchor) return null;
     const rows = this.lineRows(index);
-    if (rows.length === 0) return { datum: { label: bar.label, value: bar.text, color: bar.color }, anchor };
+    // A missing value has nothing to say but its label, which is already under the bar.
+    if (rows.length === 0)
+      return bar.missing ? null : { datum: { label: bar.label, value: bar.text, color: bar.color }, anchor };
     return {
       datum: { label: bar.label, value: bar.text, color: bar.color, rows },
       anchor: WrBarChart.around([anchor.getBoundingClientRect(), ...this.pointBoxes(index)]),
@@ -972,4 +998,4 @@ export class WrBarChart {
   }
 }
 
-export type { WrBarChartDatum, WrBarChartLine, WrBarChartOrientation, WrBarSeries } from './types';
+export type { WrBarChartDatum, WrBarLine, WrBarOrientation, WrBarSeries } from './types';

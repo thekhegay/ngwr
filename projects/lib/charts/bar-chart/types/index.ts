@@ -1,7 +1,15 @@
-/** One bar's worth of data. */
+/** One bar's worth of data, for a `<wr-bar-chart>` drawn from `data`. */
 interface WrBarChartDatum {
+  /** The category's name: under the bar, in the tooltip, the bar's accessible name and the data table's row header. */
   readonly label: string;
+  /**
+   * The bar's value. A negative one draws an empty bar with its number printed — or, beside
+   * `lines`, a bar down from zero. One that is not a finite number is MISSING: an empty
+   * bar with no number printed, named by its label alone, and an empty cell in the data
+   * table.
+   */
   readonly value: number;
+  /** Any CSS colour, `var(--wr-…)` included. Left out, the bar takes the chart's `color`. */
   readonly color?: string;
 }
 
@@ -27,7 +35,7 @@ interface WrBarSeries {
  * each category, on the bars' own value axis: a name, one value per category, and
  * optionally its own colour.
  */
-interface WrBarChartLine {
+interface WrBarLine {
   /** The line's name, in the legend, the tooltip, the accessible name of its points' group and the data table's column heading. */
   readonly label: string;
   /**
@@ -51,6 +59,6 @@ interface WrBarChartLine {
  * categories; `horizontal` lays them along the inline axis, the categories in a
  * gutter at inline start — on the right under RTL, with the bars growing leftwards.
  */
-type WrBarChartOrientation = 'vertical' | 'horizontal';
+type WrBarOrientation = 'vertical' | 'horizontal';
 
-export type { WrBarChartDatum, WrBarChartLine, WrBarChartOrientation, WrBarSeries };
+export type { WrBarChartDatum, WrBarLine, WrBarOrientation, WrBarSeries };

@@ -58,6 +58,17 @@ describe('WrBarChart', () => {
     expect(values()).toEqual(['10', '20', '5']);
   });
 
+  it('tells the stylesheet how many categories share the track', () => {
+    // Standing up, the gaps between categories are held to a share of the track by it, so
+    // a long list keeps its bars; jsdom has no layout, so what holds here is the number.
+    const chart = root().querySelector<HTMLElement>('wr-bar-chart')!;
+    expect(chart.style.getPropertyValue('--wr-bar-chart-categories')).toBe('3');
+
+    fixture.componentInstance.data.set([]);
+    fixture.detectChanges();
+    expect(chart.style.getPropertyValue('--wr-bar-chart-categories')).toBe('');
+  });
+
   it('scales every bar against the largest value', () => {
     expect(shares()).toEqual(['0.5', '1', '0.25']);
   });
@@ -113,8 +124,24 @@ describe('WrBarChart', () => {
     fixture.detectChanges();
 
     expect(shares()).toEqual(['0.5', '1', '0']);
-    expect(values()).toEqual(['10', '20', '0']);
     expect(root().textContent).not.toContain('NaN');
+  });
+
+  it('draws a non-finite datum as an empty bar, and never prints, names or tables a zero for it', () => {
+    // A NaN is not a zero. It used to be read as one everywhere a reader met it: "Bad: 0"
+    // as the bar's name, a "0" printed over it and a "0" in the data table — a figure the
+    // data never had, beside an empty cell for the same hole in a line.
+    fixture.componentInstance.data.set([
+      { label: 'Mon', value: 10 },
+      { label: 'Bad', value: Number.NaN },
+      { label: 'Far', value: Number.POSITIVE_INFINITY },
+    ]);
+    fixture.detectChanges();
+
+    expect(bars().length).toBe(3);
+    expect(shares()).toEqual(['1', '0', '0']);
+    expect(values()).toEqual(['10']);
+    expect(names()).toEqual(['Mon: 10', 'Bad', 'Far']);
   });
 
   it('reads a negative value as an empty bar without hiding the number', () => {
