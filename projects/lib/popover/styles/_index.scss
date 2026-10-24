@@ -132,6 +132,10 @@
 
     font-weight: var(--wr-chart-tooltip-value-font-weight);
     font-variant-numeric: tabular-nums;
+    // A value has no strong character of its own, so on an RTL page the minus of
+    // `−350` lands after the digits; plaintext takes its direction from the text,
+    // which keeps the sign first and still reads an Arabic sentence right to left.
+    unicode-bidi: plaintext;
 
     // Alone, with no label or swatch beside it, the value is a whole sentence (a
     // heatmap day's), and a sentence in semibold reads as shouting.
@@ -194,6 +198,8 @@
     flex: none;
     font-weight: var(--wr-chart-tooltip-row-value-font-weight);
     font-variant-numeric: tabular-nums;
+    // As the lone value above: the sign stays before the digits on an RTL page.
+    unicode-bidi: plaintext;
   }
 }
 
