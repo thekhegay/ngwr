@@ -1,0 +1,57 @@
+@let active = tip.active();
+<!-- The drawing: one named image, every tile inside it positioned by percentages of it.
+     The tiles are siblings rather than nested, parents first, so a child is drawn over
+     its parent and leaving it for the parent's edge is a `mouseleave` like any other. -->
+<div
+  #plot
+  class="wr-treemap-chart__plot"
+  role="img"
+  [attr.aria-label]="resolvedAriaLabel()"
+  [style.height.px]="height()"
+  (mousemove)="onPointerMove($event)"
+  (mouseleave)="tip.leave($event)"
+>
+  <!-- `inset-inline-start`, not `left`: the layout starts at the inline-start edge, and
+       under RTL the whole drawing mirrors with it. `data-index` is what the pointer
+       handler reads the tile off. -->
+  @for (tile of tiles(); track tile.key) {
+    <div
+      #tile
+      class="wr-treemap-chart__tile"
+      [class.wr-treemap-chart__tile--group]="tile.group"
+      [class.wr-treemap-chart__tile--leaf]="!tile.group"
+      [class.wr-treemap-chart__tile--active]="$index === active"
+      [attr.data-index]="$index"
+      [style.--wr-treemap-chart-tile-color]="tile.node.color"
+      [style.inset-inline-start.%]="tile.start"
+      [style.top.%]="tile.top"
+      [style.width.%]="tile.width"
+      [style.height.%]="tile.height"
+    >
+      <!-- A name takes its direction from its own text (`dir="auto"`), so a Latin name in an
+           RTL tile is cut at its end, not its start, and a Hebrew one in an LTR tile too. -->
+      @if (tile.header) {
+        <!-- As tall as the strip the layout left above the children, written here so the
+             stylesheet and the layout cannot disagree about it. -->
+        <span class="wr-treemap-chart__header" [style.height.px]="headerHeight">
+          <span class="wr-treemap-chart__label" dir="auto">{{ tile.node.label }}</span>
+          @if (showValues() && tile.text) {
+            <span class="wr-treemap-chart__value">{{ tile.text }}</span>
+          }
+        </span>
+      } @else if (tile.labelled) {
+        <span class="wr-treemap-chart__label" dir="auto">{{ tile.node.label }}</span>
+        @if (tile.valued && tile.text) {
+          <span class="wr-treemap-chart__value">{{ tile.text }}</span>
+        }
+      }
+    </div>
+  }
+</div>
+
+@if (dataTable()) {
+  <!-- The figures for a screen reader, beside the drawing's `img` and never inside it:
+       `img` makes everything it holds presentational. Clipped to nothing by its own
+       stylesheet, so it takes no room and draws nothing. -->
+  <wr-chart-table [data]="tableData()" />
+}
