@@ -69,10 +69,14 @@ describe('WrSparkline', () => {
     expect(ys()).toEqual([20, 20, 20]);
   });
 
-  it('centres a lone datum', () => {
+  it('centres a lone datum, and draws it even with the tip off', () => {
+    // A subpath of one `M` is never stroked, so with `showTip` off a one-value sparkline
+    // drew nothing at all; the point repeated gives the round cap something to paint.
     fixture.componentInstance.data.set([7]);
+    fixture.componentInstance.showTip.set(false);
     fixture.detectChanges();
-    expect(line()!.getAttribute('d')).toBe('M 50.00 20.00');
+    expect(line()!.getAttribute('d')).toBe('M 50.00 20.00 L 50.00 20.00');
+    expect(line()!.getAttribute('stroke-linecap')).toBe('round');
   });
 
   it('draws nothing at all for an empty series', () => {

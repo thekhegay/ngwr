@@ -11,7 +11,8 @@
   (mouseleave)="tip.leave($event)"
 >
   @if (showArea() && areaPath()) {
-    <path class="wr-sparkline__area" [attr.d]="areaPath()" [attr.fill]="color()" fill-opacity="0.15" stroke="none" />
+    <!-- The fill's share of its colour is the stylesheet's, from `--wr-sparkline-area-opacity`. -->
+    <path class="wr-sparkline__area" [attr.d]="areaPath()" [attr.fill]="color()" stroke="none" />
   }
   @if (linePath()) {
     <path

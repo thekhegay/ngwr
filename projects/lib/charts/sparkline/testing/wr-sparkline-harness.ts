@@ -62,7 +62,10 @@ export class WrSparklineHarness extends ComponentHarness {
     return (await (await this.svg()).getAttribute('aria-hidden')) === 'true';
   }
 
-  /** Whether a trend line was drawn — `false` for an empty or single-point dataset. */
+  /**
+   * Whether a trend line was drawn — `false` for an empty dataset. A single point is a
+   * line that returns to its start, which the round cap paints as a dot, so it is `true`.
+   */
   async hasLine(): Promise<boolean> {
     return (await this.locatorForOptional('.wr-sparkline__line')()) !== null;
   }
