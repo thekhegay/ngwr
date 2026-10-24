@@ -5,7 +5,7 @@ description: Build Angular UIs with the ngwr component library (standalone, sign
 
 # ngwr
 
-An Angular 22 UI library: 238 tree-shakable entry points, 121 of them shipping a selector.
+An Angular 22 UI library: 239 tree-shakable entry points, 121 of them shipping a selector.
 Standalone, signals-first, zoneless, `ViewEncapsulation.None`. No runtime
 dependencies.
 
@@ -55,7 +55,13 @@ guess gets backwards.
   `wr-date-picker` covers date / time / datetime, `wr-popover` has a tooltip
   mode, `wr-drawer` doubles as a bottom sheet (and, with `hasBackdrop` off,
   a non-modal side panel), `wr-table` owns pinning,
-  resizing, grouping, tree rows, CSV export and virtual scroll.
+  resizing, grouping, tree rows, CSV export and virtual scroll. The charts too:
+  a pie is `wr-donut-chart` with `pie`, an area chart `wr-line-chart` with
+  `showArea` (and `stacked` for a stacked area), a polar area chart
+  `wr-radar-chart` with `variant="polar-area"`, a stacked, horizontal or
+  combo bar chart `wr-bar-chart` with `series` + `stacked`,
+  `orientation="horizontal"` or `lines`, and a bubble chart
+  `wr-scatter-chart` with a `size` per point.
 - **There is no `ControlValueAccessor`.** Value components implement Signal
   Forms' `FormValueControl` / `FormCheckboxControl`. Bind
   `[formField]="form.x"`, or use the two-way model standalone —

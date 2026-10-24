@@ -429,15 +429,18 @@ one component folder. Reach for them instead of hand-rolling:
   `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrRange`), and
   `ngwr/validators` (`WrValidators`). A chart builds on `ngwr/charts/core` —
   the palette, dashes and markers, `useChartNumbers`, `chartAxis` and the
-  visually hidden `WrChartTable` behind the opt-in `dataTable` input on every
-  chart with a table of figures behind it (bar, line, scatter, radar, heatmap,
-  funnel, waterfall, treemap, box plot, candlestick) — every export `@internal`, so it stays out of
+  visually hidden `WrChartTable` behind the opt-in `dataTable` input on bar,
+  line, scatter, radar, heatmap chart, calendar heatmap, funnel, waterfall,
+  treemap, box plot and candlestick — every export `@internal`, so it stays out of
   `llms-full.txt` and the skill catalog; a chart that renders the table
   positions its host. Its legend is `ul[wr-chart-legend]`
   (`ngwr/charts/chart-legend`), whose opt-in `toggleable` rows are
   `<button aria-pressed>` over a `hiddenSeries` model the chart feeds to its
-  axis, tooltip and table; the chart provides `WR_CHART_LEGEND_BLOCK` in
-  `viewProviders`, since the legend reads it with `host: true`.
+  axis, tooltip and table. Only the three charts whose legends predate the
+  shared one — line, donut and meter group — provide `WR_CHART_LEGEND_BLOCK` in
+  `viewProviders` (the legend reads it with `host: true`), so their old public
+  `.wr-<block>__legend-item` classes stay on the same elements; a new chart
+  provides nothing, and gets no legacy classes it never had.
 - **Scheduling** (`ngwr/event-calendar`) — `wr-event-calendar` is month / week /
   day in one component. `events` is an input it never mutates: a drag emits
   `eventChange` and the host applies it, so an unhandled output is a cancelled

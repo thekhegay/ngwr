@@ -29,11 +29,6 @@ unscheduled; everything under [Deferred](#deferred) is explicitly not now.
       cursor effects. Each one a
       Signal-input component on theme tokens, honouring
       `prefers-reduced-motion`, with a docs page under `/bits`.
-- [ ] **F2. More charts** (L) — `ngwr/charts` has seven (bar, line, donut,
-      gauge, sparkline, meter group, calendar heatmap). **Area, scatter and
-      radar do not exist**, and legends are implemented three times over, in
-      `donut-chart`, `line-chart` and `meter-group`, rather than shared. The
-      differentiator is theme-token integration — do not build a chart engine.
 
 ## Deferred
 
