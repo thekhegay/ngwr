@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, LOCALE_ID, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -588,5 +591,52 @@ describe('WrBoxplotChart number format', () => {
 
   it("follows LOCALE_ID's own convention, for the numbers and for the list", () => {
     expect(cells('de')).toEqual(['0,0004', '1.234,5', '2.000', '3.000,25', '4.000', '9.000 und 12.000,5']);
+  });
+});
+
+/**
+ * What the stylesheet promises that no rendered DOM in jsdom can show, held against the
+ * COMPILED sheet; `sass` is resolved through `@angular/build`, as `charts/stylesheets.spec.ts`
+ * does. That each rule then paints what it says is measured in a browser.
+ */
+describe('WrBoxplotChart stylesheet', () => {
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  };
+  const css = sass
+    .compileString(`@use 'charts/boxplot-chart/styles';`, {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = (block: string, selector: string): string =>
+    new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(block)?.[1] ??
+    '';
+  /** Every `forced-colors` block of the sheet, the chart's own and any it loads. */
+  const forced = [...css.matchAll(/@media \(forced-colors: active\)\s*\{([\s\S]*?)\n\}/g)].map(m => m[1]).join('\n');
+
+  it('keeps the gridlines in the system muted colour under forced colors, and leaves every other mark to it', () => {
+    // Forced colors repaints the borders in the text colour, which is the right drawing
+    // for the marks and would make the gridlines as heavy as the boxes.
+    const line = rule(forced, '.wr-boxplot-chart__grid-line');
+    expect(line).toMatch(/border-color: GrayText/);
+    expect(line).toMatch(/forced-color-adjust: none/);
+    expect(forced).not.toMatch(/\.wr-boxplot-chart__box\s*\{/);
+  });
+
+  it('washes the slot being read see-through, so the gridlines read across it', () => {
+    // The groups are drawn over the gridlines, and the theme's hover fill is opaque.
+    expect(css).toMatch(
+      /--wr-boxplot-chart-active-bg: color-mix\(in srgb, var\(--wr-color-on-surface\) 6%, transparent\)/
+    );
+    expect(rule(css, '.wr-boxplot-chart__group--active')).toMatch(/background: var\(--wr-boxplot-chart-active-bg\)/);
+  });
+
+  it("cuts a group's name at its own end, with no direction of its own that would move its box", () => {
+    // Under RTL two Latin names read `… America`. `dir="auto"` would resolve the box's
+    // `inset-inline-start` against the name's own direction, under the wrong slot.
+    const label = rule(css, '.wr-boxplot-chart__x-label');
+    expect(label).toMatch(/unicode-bidi: plaintext/);
+    expect(label).toMatch(/inset-inline-start:/);
   });
 });

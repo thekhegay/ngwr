@@ -227,16 +227,19 @@ export class WrBoxplotChartHarness extends ComponentHarness {
   }
 
   /**
-   * The data table's column headings: the group column, the five numbers from the lower
-   * whisker up, and the outliers once a group has one.
+   * The data table's column headings: the five numbers from the lower whisker up, and the
+   * outliers once a group has one — one per cell of {@link getTableRows}, as the other
+   * charts' harnesses read them.
    *
    * Throws when the chart renders no table (`dataTable` off), rather than answering with
    * no columns.
    */
   async getTableColumns(): Promise<string[]> {
     await this.assertDataTable('getTableColumns');
-    const headings = await this.locatorForAll('.wr-chart-table thead th[scope="col"]')();
-    return Promise.all(headings.map(heading => heading.text()));
+    // The first cell is the corner over the row headers — what one row is, `xLabel` or
+    // the catalog's "Group" — not a column of figures.
+    const cells = await this.locatorForAll('.wr-chart-table thead tr > *')();
+    return Promise.all(cells.slice(1).map(cell => cell.text()));
   }
 
   /**

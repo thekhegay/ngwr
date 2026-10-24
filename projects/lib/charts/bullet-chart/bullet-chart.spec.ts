@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -200,6 +203,35 @@ describe('WrBulletChart', () => {
       // A value below it gives the first band room again.
       set(host => host.value.set(-20));
       expect(bands().map(band => band.dataset['index'])).toEqual(['0', '1', '2']);
+    });
+
+    it('starts at a negative target, which is not labelled unless it is a round step', () => {
+      // The scale runs from -20 to 100: the bar from 0 to 40 is a sixth in and a third
+      // long, and the marker sits on the start. A scale that ignored the target would put
+      // the bar at 0, 0.4 long.
+      set(host => {
+        host.value.set(40);
+        host.target.set(-20);
+        host.ranges.set([50, 100]);
+      });
+
+      expect(written(bar(), 'start')).toBeCloseTo(1 / 6, 4);
+      expect(written(bar(), 'size')).toBeCloseTo(1 / 3, 4);
+      expect(written(marker(), 'at')).toBe(0);
+      expect(ticks()).toEqual(['0', '50', '100']);
+    });
+
+    it('counts a repeated limit once, so the shades step evenly over the bands drawn', () => {
+      // Without that, the zero-length band between the two 30s would still take a shade:
+      // 0%, 67% and 100% instead of 0%, 50% and 100%.
+      set(host => host.ranges.set([30, 30, 60, 100]));
+
+      expect(bands()).toHaveLength(3);
+      expect(bands().map(band => band.style.getPropertyValue('--wr-bullet-chart-range-mix'))).toEqual([
+        '0%',
+        '50%',
+        '100%',
+      ]);
     });
 
     it('draws none with no ranges, leaving the track as the frame', () => {
@@ -623,6 +655,68 @@ describe('WrBulletChart tooltip', () => {
 
 @Component({
   imports: [WrBulletChart],
+  template: `<div [attr.dir]="dir()"><wr-bullet-chart label="Share" [value]="25" [max]="100" /></div>`,
+})
+class AnchorHost {
+  readonly dir = signal<'ltr' | 'rtl'>('ltr');
+}
+
+/**
+ * The chip points at the end of the bar, from above. The bullet is the one chart whose
+ * anchor has a direction of its own: the drawing mirrors under RTL, so the bar's end is
+ * measured from the track's RIGHT edge there.
+ */
+describe('WrBulletChart tooltip anchor', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<AnchorHost>>;
+
+  const doc = document.documentElement;
+  const drawing = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-bullet-chart__track')!;
+  /** The x the chip is centred on, off the pane the overlay positioned. */
+  const pointedAt = (): number => {
+    const style = document.querySelector<HTMLElement>('.wr-tooltip-overlay')!.parentElement!.style;
+    return Number.parseFloat(style.left) + Number.parseFloat(style.width) / 2;
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    Object.defineProperty(doc, 'clientWidth', { configurable: true, value: 1024 });
+    Object.defineProperty(doc, 'clientHeight', { configurable: true, value: 768 });
+    fixture = TestBed.createComponent(AnchorHost);
+    fixture.detectChanges();
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      if (this.classList.contains('wr-bullet-chart__track')) return new DOMRect(100, 300, 200, 20);
+      return this.classList.contains('cdk-overlay-pane') ? new DOMRect(0, 0, 80, 40) : new DOMRect();
+    });
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+    Reflect.deleteProperty(doc, 'clientWidth');
+    Reflect.deleteProperty(doc, 'clientHeight');
+  });
+
+  it("points at the bar's end a quarter of the way from the left", () => {
+    drawing().dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+
+    expect(pointedAt()).toBeCloseTo(150, 3);
+  });
+
+  it("points at the bar's end a quarter of the way from the right under RTL", () => {
+    // The anchor reads the track's computed direction, which jsdom resolves from `dir`.
+    fixture.componentInstance.dir.set('rtl');
+    fixture.detectChanges();
+    drawing().dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+
+    expect(pointedAt()).toBeCloseTo(250, 3);
+  });
+});
+
+@Component({
+  imports: [WrBulletChart],
   template: `
     <wr-bullet-chart [value]="1" subLabel="First" />
     <wr-bullet-chart [value]="2" subLabel="Second" />
@@ -642,5 +736,46 @@ describe('WrBulletChart on a page with another', () => {
     expect(new Set(ids).size).toBe(2);
     expect(ids.map(id => document.getElementById(id)?.textContent.trim())).toEqual(['First', 'Second']);
     fixture.destroy();
+  });
+});
+
+/**
+ * What the stylesheet promises that no rendered DOM in jsdom can show, held against the
+ * COMPILED sheet; `sass` is resolved through `@angular/build`, as `charts/stylesheets.spec.ts`
+ * does. That each rule then paints what it says is measured in a browser.
+ */
+describe('WrBulletChart stylesheet', () => {
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  };
+  const css = sass
+    .compileString(`@use 'charts/bullet-chart/styles';`, {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = (block: string, selector: string): string =>
+    new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(block)?.[1] ??
+    '';
+  /** Every `forced-colors` block of the sheet, the chart's own and any it loads. */
+  const forced = [...css.matchAll(/@media \(forced-colors: active\)\s*\{([\s\S]*?)\n\}/g)].map(m => m[1]).join('\n');
+
+  it('keeps the bar and the marker in their paint under forced colors, which would reset them to the page', () => {
+    expect(rule(forced, '.wr-bullet-chart__bar,\n  .wr-bullet-chart__target')).toMatch(/forced-color-adjust: none/);
+    expect(forced).toMatch(/--wr-bullet-chart-value-color: CanvasText/);
+    expect(forced).toMatch(/--wr-bullet-chart-target-color: CanvasText/);
+  });
+
+  it('draws each band as a rule in the muted system colour under forced colors, on the page colour', () => {
+    const band = rule(forced, '.wr-bullet-chart__range');
+    expect(band).toMatch(/forced-color-adjust: none/);
+    expect(band).toMatch(/background: Canvas/);
+    expect(band).toMatch(/border-inline-start: 1px solid GrayText/);
+    expect(rule(forced, '.wr-bullet-chart__ranges')).toMatch(/outline: 1px solid CanvasText/);
+  });
+
+  it('lets a negative tick take its direction from its own text', () => {
+    // Under RTL a `-` in front of digits would land on their far side: `20-`.
+    expect(rule(css, '.wr-bullet-chart__tick-label')).toMatch(/unicode-bidi: plaintext/);
   });
 });

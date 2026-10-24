@@ -218,8 +218,13 @@
     }
   }
 
+  // Its direction follows its own text (`plaintext`), as the waterfall's and the box
+  // plot's ticks do: a negative tick is a `-` in front of digits, neither of which has a
+  // direction of its own, and under RTL the sign would land on the far side — `20-`. It is
+  // shrunk to its text in the zero-width column above, so it keeps its place either way.
   &__tick-label {
     white-space: nowrap;
+    unicode-bidi: plaintext;
   }
 }
 

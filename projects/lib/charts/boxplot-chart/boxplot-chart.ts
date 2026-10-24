@@ -185,7 +185,7 @@ export class WrBoxplotChart {
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  /** The exact figures and the axis' compact ticks, in `LOCALE_ID` unless `valueFormat` is given. */
+  /** The figures in full and the axis' compact ticks, in `LOCALE_ID` unless `valueFormat` is given. */
   private readonly numbers = useChartNumbers(this.valueFormat);
 
   private readonly locale = inject(LOCALE_ID);
@@ -203,7 +203,7 @@ export class WrBoxplotChart {
    */
   private readonly list = new Intl.ListFormat(this.locale, { type: 'conjunction', style: 'narrow' });
 
-  /** The colour of every group with no `color` of its own. Any CSS colour. @default primary */
+  /** The colour of every group with no `color` of its own. Any CSS colour. @default 'var(--wr-color-primary)' */
   readonly color = input<string>('var(--wr-color-primary)');
 
   /**

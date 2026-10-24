@@ -49,8 +49,10 @@
   // An outlier is a ring, hollow so two that overlap stay two.
   --wr-boxplot-chart-outlier-size: 0.5rem;
   --wr-boxplot-chart-outlier-fill: var(--wr-color-surface);
-  // The hovered group's slot, washed top to bottom.
-  --wr-boxplot-chart-hover-bg: var(--wr-color-hover);
+  // The slot the tooltip is reading, washed top to bottom. See-through, as the box is, so
+  // the gridlines read across it: the theme's hover fill is opaque, and the slot is drawn
+  // over the gridlines. The waterfall's wash, under the same name.
+  --wr-boxplot-chart-active-bg: color-mix(in srgb, var(--wr-color-on-surface) 6%, transparent);
 
   $inset-y: var(--wr-boxplot-chart-plot-inset-y);
   $line: var(--wr-boxplot-chart-line-width);
@@ -164,7 +166,7 @@
   }
 
   &__group--active {
-    background: var(--wr-boxplot-chart-hover-bg);
+    background: var(--wr-boxplot-chart-active-bg);
   }
 
   &__whisker,
@@ -262,6 +264,11 @@
     color: var(--wr-boxplot-chart-label-color);
   }
 
+  // A name is the host's own text, in whatever language it is, so it takes its direction
+  // from that text (`plaintext`) and is ellipsised at its own end, not at the page's — the
+  // waterfall's labels, for the same reason: two Latin names under RTL read `… America`.
+  // Not `dir="auto"`: the box is placed by `inset-inline-start`, which would then resolve
+  // against the name's own direction and put it under the wrong slot.
   &__x-label {
     position: absolute;
     top: 0;
@@ -273,6 +280,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     text-align: center;
+    unicode-bidi: plaintext;
   }
 }
 

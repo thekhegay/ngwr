@@ -154,8 +154,8 @@ describe('WrBoxplotChartHarness', () => {
     host().dataTable.set(true);
     await fixture.whenStable();
 
+    // One heading per cell: the corner over the row headers is not a column.
     expect(await harness.getTableColumns()).toEqual([
-      'Group',
       'Lower whisker',
       'Q1',
       'Median',
