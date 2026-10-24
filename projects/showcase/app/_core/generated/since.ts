@@ -27,9 +27,16 @@
  * wants it. The runtime lookups widen it back — see `_core/utils/since.ts`.
  */
 export const SINCE = {
+  "charts/boxplot-chart": "15.1.0",
+  "charts/bullet-chart": "15.1.0",
+  "charts/candlestick-chart": "15.1.0",
   "charts/chart-legend": "15.1.0",
+  "charts/funnel-chart": "15.1.0",
+  "charts/heatmap-chart": "15.1.0",
   "charts/radar-chart": "15.1.0",
   "charts/scatter-chart": "15.1.0",
+  "charts/treemap-chart": "15.1.0",
+  "charts/waterfall-chart": "15.1.0",
   "reference/components/editor": "14.9.0",
   "reference/components/graph": "14.5.0",
   "reference/utils/resolve-css-color": "15.0.0",
@@ -59,7 +66,7 @@ export const UPDATED = {
   "bits/tilt-card": "15.0.0",
   "bits/typewriter": "15.0.0",
   "bits/waves": "15.0.0",
-  "charts/bar-chart": "15.0.0",
+  "charts/bar-chart": "15.1.0",
   "charts/calendar-heatmap": "15.0.0",
   "charts/donut-chart": "15.1.0",
   "charts/gauge": "15.0.0",

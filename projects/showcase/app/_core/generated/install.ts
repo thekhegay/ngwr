@@ -105,8 +105,17 @@ export const INSTALL = {
   "charts/bar-chart": [
       { path: "ngwr/charts/bar-chart", symbols: ["WrBarChart"], declarables: ["WrBarChart"], styled: true },
   ],
+  "charts/boxplot-chart": [
+      { path: "ngwr/charts/boxplot-chart", symbols: ["WrBoxplotChart"], declarables: ["WrBoxplotChart"], styled: true },
+  ],
+  "charts/bullet-chart": [
+      { path: "ngwr/charts/bullet-chart", symbols: ["WrBulletChart"], declarables: ["WrBulletChart"], styled: true },
+  ],
   "charts/calendar-heatmap": [
       { path: "ngwr/charts/calendar-heatmap", symbols: ["WrCalendarHeatmap"], declarables: ["WrCalendarHeatmap"], styled: true },
+  ],
+  "charts/candlestick-chart": [
+      { path: "ngwr/charts/candlestick-chart", symbols: ["WrCandlestickChart"], declarables: ["WrCandlestickChart"], styled: true },
   ],
   "charts/chart-legend": [
       { path: "ngwr/charts/chart-legend", symbols: ["WrChartLegend"], declarables: ["WrChartLegend"], styled: true },
@@ -114,8 +123,14 @@ export const INSTALL = {
   "charts/donut-chart": [
       { path: "ngwr/charts/donut-chart", symbols: ["WrDonutChart"], declarables: ["WrDonutChart"], styled: true },
   ],
+  "charts/funnel-chart": [
+      { path: "ngwr/charts/funnel-chart", symbols: ["WrFunnelChart"], declarables: ["WrFunnelChart"], styled: true },
+  ],
   "charts/gauge": [
       { path: "ngwr/charts/gauge", symbols: ["WrGauge"], declarables: ["WrGauge"], styled: true },
+  ],
+  "charts/heatmap-chart": [
+      { path: "ngwr/charts/heatmap-chart", symbols: ["WrHeatmapChart"], declarables: ["WrHeatmapChart"], styled: true },
   ],
   "charts/line-chart": [
       { path: "ngwr/charts/line-chart", symbols: ["WrLineChart"], declarables: ["WrLineChart"], styled: true },
@@ -131,6 +146,12 @@ export const INSTALL = {
   ],
   "charts/sparkline": [
       { path: "ngwr/charts/sparkline", symbols: ["WrSparkline"], declarables: ["WrSparkline"], styled: true },
+  ],
+  "charts/treemap-chart": [
+      { path: "ngwr/charts/treemap-chart", symbols: ["WrTreemapChart"], declarables: ["WrTreemapChart"], styled: true },
+  ],
+  "charts/waterfall-chart": [
+      { path: "ngwr/charts/waterfall-chart", symbols: ["WrWaterfallChart"], declarables: ["WrWaterfallChart"], styled: true },
   ],
   "icons/lucide": [
       { path: "ngwr/icon", symbols: ["lucide"], declarables: [], styled: true },

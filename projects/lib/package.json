@@ -309,12 +309,33 @@
     "./charts/bar-chart/testing": {
       "default": "./charts/bar-chart/testing/public-api.ts"
     },
+    "./charts/boxplot-chart": {
+      "sass": "./charts/boxplot-chart/styles/_index.scss",
+      "default": "./charts/boxplot-chart/public-api.ts"
+    },
+    "./charts/boxplot-chart/testing": {
+      "default": "./charts/boxplot-chart/testing/public-api.ts"
+    },
+    "./charts/bullet-chart": {
+      "sass": "./charts/bullet-chart/styles/_index.scss",
+      "default": "./charts/bullet-chart/public-api.ts"
+    },
+    "./charts/bullet-chart/testing": {
+      "default": "./charts/bullet-chart/testing/public-api.ts"
+    },
     "./charts/calendar-heatmap": {
       "sass": "./charts/calendar-heatmap/styles/_index.scss",
       "default": "./charts/calendar-heatmap/public-api.ts"
     },
     "./charts/calendar-heatmap/testing": {
       "default": "./charts/calendar-heatmap/testing/public-api.ts"
+    },
+    "./charts/candlestick-chart": {
+      "sass": "./charts/candlestick-chart/styles/_index.scss",
+      "default": "./charts/candlestick-chart/public-api.ts"
+    },
+    "./charts/candlestick-chart/testing": {
+      "default": "./charts/candlestick-chart/testing/public-api.ts"
     },
     "./charts/chart-legend": {
       "sass": "./charts/chart-legend/styles/_index.scss",
@@ -334,12 +355,26 @@
     "./charts/donut-chart/testing": {
       "default": "./charts/donut-chart/testing/public-api.ts"
     },
+    "./charts/funnel-chart": {
+      "sass": "./charts/funnel-chart/styles/_index.scss",
+      "default": "./charts/funnel-chart/public-api.ts"
+    },
+    "./charts/funnel-chart/testing": {
+      "default": "./charts/funnel-chart/testing/public-api.ts"
+    },
     "./charts/gauge": {
       "sass": "./charts/gauge/styles/_index.scss",
       "default": "./charts/gauge/public-api.ts"
     },
     "./charts/gauge/testing": {
       "default": "./charts/gauge/testing/public-api.ts"
+    },
+    "./charts/heatmap-chart": {
+      "sass": "./charts/heatmap-chart/styles/_index.scss",
+      "default": "./charts/heatmap-chart/public-api.ts"
+    },
+    "./charts/heatmap-chart/testing": {
+      "default": "./charts/heatmap-chart/testing/public-api.ts"
     },
     "./charts/line-chart": {
       "sass": "./charts/line-chart/styles/_index.scss",
@@ -375,6 +410,20 @@
     },
     "./charts/sparkline/testing": {
       "default": "./charts/sparkline/testing/public-api.ts"
+    },
+    "./charts/treemap-chart": {
+      "sass": "./charts/treemap-chart/styles/_index.scss",
+      "default": "./charts/treemap-chart/public-api.ts"
+    },
+    "./charts/treemap-chart/testing": {
+      "default": "./charts/treemap-chart/testing/public-api.ts"
+    },
+    "./charts/waterfall-chart": {
+      "sass": "./charts/waterfall-chart/styles/_index.scss",
+      "default": "./charts/waterfall-chart/public-api.ts"
+    },
+    "./charts/waterfall-chart/testing": {
+      "default": "./charts/waterfall-chart/testing/public-api.ts"
     },
     "./checkbox": {
       "sass": "./checkbox/styles/_index.scss",
