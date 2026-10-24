@@ -7,7 +7,21 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrCalendarHeatmapCell, WrCalendarHeatmapHarnessFilters } from './types';
+import type { WrCalendarHeatmapCell, WrCalendarHeatmapHarnessFilters, WrCalendarHeatmapTableRow } from './types';
+
+/**
+ * One body row of the heatmap's data table, so its header and cells are read off the row
+ * they sit in rather than matched up by position across the whole table.
+ */
+class TableRowHarness extends ComponentHarness {
+  static hostSelector = '.wr-chart-table tbody tr';
+
+  async read(): Promise<WrCalendarHeatmapTableRow> {
+    const header = await this.locatorFor('th[scope="row"]')();
+    const cells = await this.locatorForAll('td')();
+    return { header: await header.text(), cells: await Promise.all(cells.map(cell => cell.text())) };
+  }
+}
 
 /**
  * Test harness for `<wr-calendar-heatmap>`.
@@ -27,6 +41,11 @@ import type { WrCalendarHeatmapCell, WrCalendarHeatmapHarnessFilters } from './t
  * a grid this dense. {@link getWeekdayLabels} returns them as they are, empties
  * included, rather than filtering — a spec asserting seven entries with four blanks
  * is pinning the real layout.
+ *
+ * **Whether the year scrolls is not read.** The host is a tab stop while the grid is
+ * wider than its container, decided by measuring the layout after render; jsdom has none,
+ * so a method asking would answer "no" for a chart that scrolls and for one that is broken
+ * alike.
  *
  * @see https://ngwr.dev/guides/testing
  */
@@ -106,5 +125,41 @@ export class WrCalendarHeatmapHarness extends ComponentHarness {
   async getMonthLabels(): Promise<string[]> {
     const labels = await this.locatorForAll('.wr-calendar-heatmap__month')();
     return Promise.all(labels.map(label => label.text()));
+  }
+
+  /** Whether the hidden data table is rendered (`dataTable`). */
+  async hasDataTable(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-chart-table')()) !== null;
+  }
+
+  /**
+   * The data table's column headings: the seven weekdays, Sunday first.
+   *
+   * Throws when the heatmap renders no table (`dataTable` off) rather than answering with
+   * no columns.
+   */
+  async getTableColumns(): Promise<string[]> {
+    await this.assertDataTable('getTableColumns');
+    const headings = await this.locatorForAll('.wr-chart-table thead th[scope="col"]')();
+    return Promise.all(headings.map(heading => heading.text()));
+  }
+
+  /**
+   * The data table's rows, one per week: its dates and each weekday's count, as a screen
+   * reader walks them. Throws when the heatmap renders no table, as
+   * {@link getTableColumns} does.
+   */
+  async getTableRows(): Promise<WrCalendarHeatmapTableRow[]> {
+    await this.assertDataTable('getTableRows');
+    const rows = await this.locatorForAll(TableRowHarness)();
+    return Promise.all(rows.map(row => row.read()));
+  }
+
+  private async assertDataTable(method: string): Promise<void> {
+    if (!(await this.hasDataTable())) {
+      throw new Error(
+        `WrCalendarHeatmapHarness.${method}(): the heatmap renders no data table — \`dataTable\` is off. Ask hasDataTable() first.`
+      );
+    }
   }
 }

@@ -24,3 +24,14 @@ export interface WrCalendarHeatmapCell {
   /** Which weekday row it sits in, one-based. */
   readonly day: number;
 }
+
+/**
+ * One row of the heatmap's data table (`dataTable`): a week, headed by its dates, and one
+ * cell per weekday, Sunday first.
+ */
+export interface WrCalendarHeatmapTableRow {
+  /** The row header — the week's first and last day drawn. */
+  readonly header: string;
+  /** Each weekday's count, written as the tooltip writes it; `''` for a day after the last one drawn. */
+  readonly cells: readonly string[];
+}

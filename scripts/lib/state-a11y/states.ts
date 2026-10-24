@@ -596,6 +596,14 @@ export const STATES: readonly State[] = [
     target: '.wr-drawer__panel',
     scope: '.wr-drawer__panel',
   },
+  {
+    id: 'calendar-heatmap/mobile-scroller',
+    route: '/charts/calendar-heatmap',
+    viewport: 'mobile',
+    steps: [{ focus: demo('wr-calendar-heatmap[tabindex="0"]') }],
+    target: demo('wr-calendar-heatmap[tabindex="0"]'),
+    note: 'Narrower than its year, the host scrolls sideways; the tab stop is what `scrollable-region-focusable` asks of it.',
+  },
 
   // ── At-rest variants the other gates DO see, but only through two rules.
   // `check:contrast` runs `color-contrast` and `target-size` and nothing else;
@@ -758,11 +766,7 @@ export const STATES: readonly State[] = [
   {
     id: 'tree/overlay-clear',
     route: `${REF}/tree`,
-    steps: [
-      { click: demo('.wr-tree__trigger') },
-      { click: '.wr-tree-panel .wr-tree__row' },
-      { press: 'Escape' },
-    ],
+    steps: [{ click: demo('.wr-tree__trigger') }, { click: '.wr-tree-panel .wr-tree__row' }, { press: 'Escape' }],
     target: demo('.wr-tree__clear'),
   },
   {

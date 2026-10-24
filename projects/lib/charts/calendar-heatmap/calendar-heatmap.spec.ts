@@ -476,3 +476,212 @@ describe('WrCalendarHeatmap number format', () => {
     expect(title()).toMatch(/: 1235 commits$/);
   });
 });
+
+@Component({
+  imports: [WrCalendarHeatmap],
+  template: `
+    <wr-calendar-heatmap
+      [data]="data"
+      endDate="2025-08-13"
+      [weeks]="4"
+      [dataTable]="dataTable()"
+      [ariaLabel]="ariaLabel()"
+    />
+  `,
+})
+class TableHost {
+  readonly data: readonly WrHeatmapDatum[] = [
+    { date: '2025-08-11', value: 4 },
+    { date: '2025-08-12', value: 1234.5 },
+  ];
+  readonly dataTable = signal(true);
+  readonly ariaLabel = signal<string | null>('Commits');
+}
+
+/**
+ * The grid is one named `img` and every square is hidden, so the table is the one place a
+ * screen reader can walk the days' values: a row per week, a column per weekday.
+ */
+describe('WrCalendarHeatmap data table', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TableHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const table = (): HTMLTableElement | null => root().querySelector<HTMLTableElement>('.wr-chart-table table');
+  const texts = (selector: string): string[] =>
+    [...table()!.querySelectorAll(selector)].map(el => el.textContent.trim());
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: WR_DATE_LOCALE, useValue: 'en-GB' },
+        { provide: LOCALE_ID, useValue: 'en-US' },
+      ],
+    });
+    fixture = TestBed.createComponent(TableHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('renders nothing until asked', () => {
+    fixture.componentInstance.dataTable.set(false);
+    fixture.detectChanges();
+    expect(root().querySelector('wr-chart-table')).toBeNull();
+  });
+
+  it('sits beside the picture, never inside it, captioned with its name', () => {
+    const host = root().querySelector('wr-chart-table')!;
+    expect(host.closest('[role="img"]')).toBeNull();
+    expect(table()!.querySelector('caption')!.textContent.trim()).toBe('Commits');
+  });
+
+  it('heads a column per weekday, Sunday first as the rows are, in the date locale', () => {
+    expect(texts('thead th[scope="col"]')).toEqual([
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ]);
+  });
+
+  it('writes a row per week, headed by its dates, every count as the tooltip writes it', () => {
+    const range = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium' });
+    const rows = [...table()!.querySelectorAll('tbody tr')];
+    expect(rows).toHaveLength(4);
+    expect(rows[0].querySelector('th[scope="row"]')!.textContent.trim()).toBe(
+      range.formatRange(new Date(2025, 6, 20), new Date(2025, 6, 26))
+    );
+    // The last week stops at `endDate`, a Wednesday: the days after it are empty cells.
+    const last = rows[3];
+    expect(last.querySelector('th[scope="row"]')!.textContent.trim()).toBe(
+      range.formatRange(new Date(2025, 7, 10), new Date(2025, 7, 13))
+    );
+    expect([...last.querySelectorAll('td')].map(td => td.textContent.trim())).toEqual([
+      '0',
+      '4',
+      '1,234.5',
+      '0',
+      '',
+      '',
+      '',
+    ]);
+  });
+});
+
+/**
+ * A year is a fixed width, so a narrow container scrolls it. jsdom lays nothing out, so the
+ * measurement is stubbed: the host's `scrollWidth` and `clientWidth`, and a `ResizeObserver`
+ * whose reports the spec makes by hand.
+ */
+describe('WrCalendarHeatmap scrolling', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  let report: (() => void) | null;
+  let observed: Element[];
+  let disconnected: boolean;
+  let widths: { scroll: number; client: number };
+
+  const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector('wr-calendar-heatmap')!;
+
+  const render = async (dir: 'ltr' | 'rtl' = 'ltr'): Promise<void> => {
+    fixture = TestBed.createComponent(Host);
+    const el = host();
+    el.style.direction = dir;
+    Object.defineProperty(el, 'scrollWidth', { configurable: true, get: () => widths.scroll });
+    Object.defineProperty(el, 'clientWidth', { configurable: true, get: () => widths.client });
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  /** The observer's report, as a resize would make it. */
+  const resize = async (scroll: number, client: number): Promise<void> => {
+    widths = { scroll, client };
+    report!();
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => {
+    report = null;
+    observed = [];
+    disconnected = false;
+    widths = { scroll: 721, client: 308 };
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          report = callback;
+        }
+        observe(target: Element): void {
+          observed.push(target);
+        }
+        disconnect(): void {
+          disconnected = true;
+        }
+      }
+    );
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: WR_DATE_LOCALE, useValue: 'en-GB' }] });
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.unstubAllGlobals();
+  });
+
+  it('watches the host and the grid, and stops when destroyed', async () => {
+    await render();
+    expect(observed).toEqual([host(), host().querySelector('.wr-calendar-heatmap__grid')]);
+    fixture.destroy();
+    expect(disconnected).toBe(true);
+  });
+
+  it('is a tab stop only while it scrolls', async () => {
+    await render();
+    expect(host().getAttribute('tabindex')).toBeNull();
+
+    await resize(721, 308);
+    expect(host().getAttribute('tabindex')).toBe('0');
+
+    await resize(721, 721);
+    expect(host().getAttribute('tabindex')).toBeNull();
+  });
+
+  it('carries no name of its own: focus lands on the named picture', async () => {
+    await render();
+    await resize(721, 308);
+    expect(host().hasAttribute('aria-label')).toBe(false);
+    expect(host().hasAttribute('role')).toBe(false);
+  });
+
+  it('opens on the newest weeks, at the inline end', async () => {
+    await render();
+    await resize(721, 308);
+    expect(host().scrollLeft).toBe(721);
+  });
+
+  it('opens on the newest weeks under RTL too, where the end is a negative scrollLeft', async () => {
+    await render('rtl');
+    await resize(721, 308);
+    expect(host().scrollLeft).toBe(-721);
+  });
+
+  it('leaves a scroller the reader already moved where it is', async () => {
+    await render();
+    await resize(721, 308);
+    host().scrollLeft = 40;
+    await resize(740, 308);
+    expect(host().scrollLeft).toBe(40);
+  });
+
+  it('measures nothing where there is no ResizeObserver, as on the server', async () => {
+    vi.unstubAllGlobals();
+    vi.stubGlobal('ResizeObserver', undefined);
+    await render();
+    expect(report).toBeNull();
+    expect(host().getAttribute('tabindex')).toBeNull();
+  });
+});
