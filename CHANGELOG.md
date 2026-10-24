@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.0.1](https://github.com/thekhegay/ngwr/compare/v15.0.0...v15.0.1) (2026-10-24)
+
+### Bug Fixes
+
+* **package:** angular peers start at 22.2, the first minor with every import ([9b401ef](https://github.com/thekhegay/ngwr/commit/9b401ef4acbf420c38405fd64c9a43d17cfabaa6))
+* **release:** an rc with library features is a minor candidate, not a patch ([36f3d54](https://github.com/thekhegay/ngwr/commit/36f3d54f9a9d05d57d8763c96bde2ef3f7b1213f))
+* **schematics:** the removed-colour report says a neutral tag binds a null color ([2dbf816](https://github.com/thekhegay/ngwr/commit/2dbf8161d33f4f14e90e2b4d6a48fa918769d5e6))
+
 ## [15.0.0](https://github.com/thekhegay/ngwr/compare/v14.12.1...v15.0.0) (2026-10-23)
 
 ### ⚠ BREAKING CHANGES
