@@ -162,15 +162,40 @@ describe('WrGauge', () => {
     // The meter still reads out, which is the reason the role is there at all.
     expect(meter().getAttribute('aria-valuenow')).toBe('40');
   });
+
+  it('lets the browser decide which way the reading and its unit read', () => {
+    // ⚠️ This one guards the MECHANISM, not the rendering, as `wr-knob`'s twin does.
+    // jsdom runs no BiDi algorithm and lays nothing out, so the order is unassertable
+    // here and the attribute is the whole of the fix.
+    //
+    // Measured in Chromium at 390px on an `<html dir="rtl">` page: the centre text is a
+    // flex row of the number's text and the suffix's span, and it ran right to left, so
+    // `72%` was drawn `% 72` and `9.5/10` as `10/ 9.5`. With `dir="auto"` the number
+    // comes first and the suffix keeps its gap after it, and an Arabic suffix still
+    // reads right to left, which is why this is not a hard `dir="ltr"`.
+    fixture.componentInstance.suffix.set('%');
+    fixture.detectChanges();
+
+    const label = root().querySelector<HTMLElement>('.wr-gauge__text')!;
+    expect(label.getAttribute('dir')).toBe('auto');
+    expect(label.textContent?.trim()).toBe('40%');
+  });
 });
 
 @Component({
   imports: [WrGauge],
-  template: `<wr-gauge [value]="130" suffix="%" [ariaLabel]="ariaLabel()" [tooltip]="tooltip()" />`,
+  template: `<wr-gauge
+    [value]="130"
+    suffix="%"
+    [ariaLabel]="ariaLabel()"
+    [tooltip]="tooltip()"
+    [valueColor]="valueColor()"
+  />`,
 })
 class TooltipHost {
   readonly ariaLabel = signal<string | null>('CPU');
   readonly tooltip = signal(true);
+  readonly valueColor = signal('var(--wr-color-primary)');
 }
 
 describe('WrGauge tooltip', () => {
@@ -203,6 +228,16 @@ describe('WrGauge tooltip', () => {
     expect(part('value')!.textContent.trim()).toBe('100%');
     expect(surface().getAttribute('aria-valuetext')).toBe('100%');
     expect(part('label')!.textContent.trim()).toBe('CPU');
+  });
+
+  it("keys the reading with the bar's own colour, and follows a bound one", () => {
+    hover();
+    // Off the `style` attribute the panel wrote: jsdom resolves no `var()`.
+    expect(part('swatch')!.getAttribute('style')).toContain('var(--wr-color-primary)');
+
+    fixture.componentInstance.valueColor.set('var(--wr-color-danger)');
+    fixture.detectChanges();
+    expect(part('swatch')!.getAttribute('style')).toContain('var(--wr-color-danger)');
   });
 
   it('leaves the label out rather than printing the generic name from the catalog', () => {

@@ -10,11 +10,19 @@ import { WrGaugeHarness } from './wr-gauge-harness';
 @Component({
   imports: [WrGauge],
   template: `
-    <wr-gauge [value]="value()" [max]="max()" [suffix]="suffix()" [showValue]="showValue()" [size]="size()" />
+    <wr-gauge
+      [value]="value()"
+      [min]="min()"
+      [max]="max()"
+      [suffix]="suffix()"
+      [showValue]="showValue()"
+      [size]="size()"
+    />
   `,
 })
 class Host {
   readonly value = signal(72);
+  readonly min = signal(0);
   readonly max = signal(100);
   readonly suffix = signal('%');
   readonly showValue = signal(true);
@@ -65,6 +73,16 @@ describe('WrGaugeHarness', () => {
     expect([await harness.getDisplayValue(), await harness.getSuffix()]).toEqual([null, null]);
     // The point of the meter role: the value is still announced.
     expect([await harness.getValue(), await harness.getValueText()]).toEqual([72, '72%']);
+  });
+
+  it('reads a range that does not start at zero', async () => {
+    fixture.componentInstance.min.set(-20);
+    fixture.componentInstance.max.set(40);
+    fixture.componentInstance.value.set(-5);
+    await fixture.whenStable();
+
+    const harness = await gauge();
+    expect([await harness.getMin(), await harness.getValue(), await harness.getMax()]).toEqual([-20, -5, 40]);
   });
 
   it('clamps the announced value to its own range', async () => {

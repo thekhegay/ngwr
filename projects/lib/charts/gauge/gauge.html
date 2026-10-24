@@ -35,7 +35,17 @@
     />
   </svg>
   @if (showValue()) {
-    <div class="wr-gauge__text">
+    <!--
+      `dir="auto"`, as on `wr-knob`'s value: a number and its unit read as one phrase,
+      and the browser is the only thing that knows which way that phrase runs. In an
+      RTL page the flex row ran right to left, so `72%` was drawn `% 72` and `9.5/10`
+      as `10/ 9.5`. `dir="auto"` takes the direction from the first strong character,
+      so a Latin or symbol `suffix` keeps the number first, and an Arabic one still
+      reads right to left. `unicode-bidi: isolate` does nothing here, since the flip
+      happens inside the element; a hard `dir="ltr"` would be wrong for that Arabic
+      suffix.
+    -->
+    <div class="wr-gauge__text" dir="auto">
       {{ displayText() }}<span class="wr-gauge__suffix">{{ suffix() }}</span>
     </div>
   }
