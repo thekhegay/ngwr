@@ -227,6 +227,8 @@ export const wrPt: WrI18nCatalog = {
   },
   barChart: {
     label: 'Gráfico de barras',
+    total: 'Total',
+    value: 'Valor',
   },
   calendarHeatmap: {
     label: 'Mapa de calor do calendário',
@@ -238,6 +240,7 @@ export const wrPt: WrI18nCatalog = {
   },
   donutChart: {
     label: 'Gráfico de anel',
+    pieLabel: 'Gráfico de pizza',
   },
   chartLegend: {
     toggleLabel: 'Mostrar ou ocultar séries',
@@ -251,6 +254,59 @@ export const wrPt: WrI18nCatalog = {
   },
   radarChart: {
     label: 'Gráfico de radar',
+    polarAreaLabel: 'Gráfico de área polar',
+  },
+  heatmapChart: {
+    label: 'Mapa de calor',
+    noData: 'Sem dados',
+  },
+  funnelChart: {
+    label: 'Gráfico de funil',
+    stage: 'Etapa',
+    value: 'Valor',
+    fromPrevious: 'Da anterior',
+    fromFirst: 'Da primeira',
+    ofPrevious: '{{percent}} da anterior',
+    ofFirst: '{{percent}} da primeira',
+  },
+  waterfallChart: {
+    label: 'Gráfico de cascata',
+    step: 'Passo',
+    change: 'Variação',
+    runningTotal: 'Total acumulado',
+    changeStep: '{{label}}: {{change}}, total acumulado {{total}}',
+    totalStep: '{{label}}: total {{total}}',
+  },
+  treemapChart: {
+    label: 'Mapa de árvore',
+    value: 'Valor',
+    share: 'Participação',
+  },
+  bulletChart: {
+    label: 'Gráfico de marcadores',
+    target: 'Meta',
+    summary: '{{label}}: {{value}} de uma meta de {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: sem valor, meta {{target}}',
+    noValue: '{{label}}: sem valor',
+  },
+  boxplotChart: {
+    label: 'Diagrama de caixa',
+    group: 'Grupo',
+    upperWhisker: 'Bigode superior',
+    q3: 'Q3',
+    median: 'Mediana',
+    q1: 'Q1',
+    lowerWhisker: 'Bigode inferior',
+    outliers: 'Valores atípicos',
+    moreOutliers: '+{{count}} a mais',
+  },
+  candlestickChart: {
+    label: 'Gráfico de velas',
+    open: 'Abertura',
+    high: 'Máxima',
+    low: 'Mínima',
+    close: 'Fechamento',
   },
   compare: {
     label: 'Divisor de comparação',

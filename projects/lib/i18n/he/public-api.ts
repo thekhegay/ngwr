@@ -236,6 +236,8 @@ export const wrHe: WrI18nCatalog = {
   },
   barChart: {
     label: 'תרשים עמודות',
+    total: 'סה״כ',
+    value: 'ערך',
   },
   calendarHeatmap: {
     label: 'מפת חום לפי תאריכים',
@@ -247,6 +249,7 @@ export const wrHe: WrI18nCatalog = {
   },
   donutChart: {
     label: 'תרשים טבעת',
+    pieLabel: 'תרשים עוגה',
   },
   chartLegend: {
     toggleLabel: 'הצגה או הסתרה של סדרות',
@@ -260,6 +263,59 @@ export const wrHe: WrI18nCatalog = {
   },
   radarChart: {
     label: 'תרשים רדאר',
+    polarAreaLabel: 'תרשים שטח קוטבי',
+  },
+  heatmapChart: {
+    label: 'מפת חום',
+    noData: 'אין נתונים',
+  },
+  funnelChart: {
+    label: 'תרשים משפך',
+    stage: 'שלב',
+    value: 'ערך',
+    fromPrevious: 'מהקודם',
+    fromFirst: 'מהראשון',
+    ofPrevious: '{{percent}} מהקודם',
+    ofFirst: '{{percent}} מהראשון',
+  },
+  waterfallChart: {
+    label: 'תרשים מפל',
+    step: 'צעד',
+    change: 'שינוי',
+    runningTotal: 'סכום מצטבר',
+    changeStep: '{{label}}: {{change}}, סכום מצטבר {{total}}',
+    totalStep: '{{label}}: סה״כ {{total}}',
+  },
+  treemapChart: {
+    label: 'מפת עץ',
+    value: 'ערך',
+    share: 'נתח',
+  },
+  bulletChart: {
+    label: 'תרשים תבליט',
+    target: 'יעד',
+    summary: '{{label}}: {{value}} מתוך יעד {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: אין ערך, יעד {{target}}',
+    noValue: '{{label}}: אין ערך',
+  },
+  boxplotChart: {
+    label: 'תרשים קופסה',
+    group: 'קבוצה',
+    upperWhisker: 'שפם עליון',
+    q3: 'Q3',
+    median: 'חציון',
+    q1: 'Q1',
+    lowerWhisker: 'שפם תחתון',
+    outliers: 'ערכים חריגים',
+    moreOutliers: 'עוד {{count}}',
+  },
+  candlestickChart: {
+    label: 'תרשים נרות',
+    open: 'פתיחה',
+    high: 'גבוה',
+    low: 'נמוך',
+    close: 'סגירה',
   },
   compare: {
     label: 'מפריד ההשוואה',

@@ -227,6 +227,8 @@ export const wrJa: WrI18nCatalog = {
   },
   barChart: {
     label: '棒グラフ',
+    total: '合計',
+    value: '値',
   },
   calendarHeatmap: {
     label: 'カレンダーヒートマップ',
@@ -238,6 +240,7 @@ export const wrJa: WrI18nCatalog = {
   },
   donutChart: {
     label: 'ドーナツグラフ',
+    pieLabel: '円グラフ',
   },
   chartLegend: {
     toggleLabel: '系列の表示を切り替え',
@@ -251,6 +254,59 @@ export const wrJa: WrI18nCatalog = {
   },
   radarChart: {
     label: 'レーダーチャート',
+    polarAreaLabel: 'ポーラーエリアチャート',
+  },
+  heatmapChart: {
+    label: 'ヒートマップ',
+    noData: 'データなし',
+  },
+  funnelChart: {
+    label: 'ファネルチャート',
+    stage: 'ステージ',
+    value: '値',
+    fromPrevious: '前段階比',
+    fromFirst: '初段階比',
+    ofPrevious: '前段階の{{percent}}',
+    ofFirst: '初段階の{{percent}}',
+  },
+  waterfallChart: {
+    label: 'ウォーターフォールチャート',
+    step: 'ステップ',
+    change: '増減',
+    runningTotal: '累計',
+    changeStep: '{{label}}: {{change}}、累計 {{total}}',
+    totalStep: '{{label}}: 合計 {{total}}',
+  },
+  treemapChart: {
+    label: 'ツリーマップ',
+    value: '値',
+    share: '割合',
+  },
+  bulletChart: {
+    label: 'ブレットチャート',
+    target: '目標',
+    summary: '{{label}}: {{value}}（目標 {{target}}）',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: 値なし、目標 {{target}}',
+    noValue: '{{label}}: 値なし',
+  },
+  boxplotChart: {
+    label: '箱ひげ図',
+    group: 'グループ',
+    upperWhisker: '上ひげ',
+    q3: 'Q3',
+    median: '中央値',
+    q1: 'Q1',
+    lowerWhisker: '下ひげ',
+    outliers: '外れ値',
+    moreOutliers: '他 {{count}} 件',
+  },
+  candlestickChart: {
+    label: 'ローソク足チャート',
+    open: '始値',
+    high: '高値',
+    low: '安値',
+    close: '終値',
   },
   compare: {
     label: '比較スライダー',

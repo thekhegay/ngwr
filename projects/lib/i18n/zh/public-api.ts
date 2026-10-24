@@ -221,6 +221,8 @@ export const wrZh: WrI18nCatalog = {
   },
   barChart: {
     label: '柱状图',
+    total: '合计',
+    value: '值',
   },
   calendarHeatmap: {
     label: '日历热力图',
@@ -232,6 +234,7 @@ export const wrZh: WrI18nCatalog = {
   },
   donutChart: {
     label: '环形图',
+    pieLabel: '饼图',
   },
   chartLegend: {
     toggleLabel: '切换系列显示',
@@ -245,6 +248,59 @@ export const wrZh: WrI18nCatalog = {
   },
   radarChart: {
     label: '雷达图',
+    polarAreaLabel: '极坐标面积图',
+  },
+  heatmapChart: {
+    label: '热力图',
+    noData: '无数据',
+  },
+  funnelChart: {
+    label: '漏斗图',
+    stage: '阶段',
+    value: '值',
+    fromPrevious: '较上一阶段',
+    fromFirst: '较第一阶段',
+    ofPrevious: '上一阶段的 {{percent}}',
+    ofFirst: '第一阶段的 {{percent}}',
+  },
+  waterfallChart: {
+    label: '瀑布图',
+    step: '步骤',
+    change: '变化',
+    runningTotal: '累计',
+    changeStep: '{{label}}: {{change}}，累计 {{total}}',
+    totalStep: '{{label}}: 合计 {{total}}',
+  },
+  treemapChart: {
+    label: '矩形树图',
+    value: '值',
+    share: '占比',
+  },
+  bulletChart: {
+    label: '子弹图',
+    target: '目标',
+    summary: '{{label}}: {{value}}，目标 {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: 无值，目标 {{target}}',
+    noValue: '{{label}}: 无值',
+  },
+  boxplotChart: {
+    label: '箱线图',
+    group: '分组',
+    upperWhisker: '上须',
+    q3: 'Q3',
+    median: '中位数',
+    q1: 'Q1',
+    lowerWhisker: '下须',
+    outliers: '异常值',
+    moreOutliers: '另有 {{count}} 个',
+  },
+  candlestickChart: {
+    label: 'K 线图',
+    open: '开盘',
+    high: '最高',
+    low: '最低',
+    close: '收盘',
   },
   compare: {
     label: '对比分隔条',

@@ -223,6 +223,8 @@ export const wrId: WrI18nCatalog = {
   },
   barChart: {
     label: 'Diagram batang',
+    total: 'Total',
+    value: 'Nilai',
   },
   calendarHeatmap: {
     label: 'Peta panas kalender',
@@ -234,6 +236,7 @@ export const wrId: WrI18nCatalog = {
   },
   donutChart: {
     label: 'Diagram donat',
+    pieLabel: 'Diagram lingkaran',
   },
   chartLegend: {
     toggleLabel: 'Tampilkan atau sembunyikan seri',
@@ -247,6 +250,59 @@ export const wrId: WrI18nCatalog = {
   },
   radarChart: {
     label: 'Diagram radar',
+    polarAreaLabel: 'Diagram area polar',
+  },
+  heatmapChart: {
+    label: 'Peta panas',
+    noData: 'Tidak ada data',
+  },
+  funnelChart: {
+    label: 'Diagram corong',
+    stage: 'Tahap',
+    value: 'Nilai',
+    fromPrevious: 'Dari sebelumnya',
+    fromFirst: 'Dari pertama',
+    ofPrevious: '{{percent}} dari sebelumnya',
+    ofFirst: '{{percent}} dari pertama',
+  },
+  waterfallChart: {
+    label: 'Diagram air terjun',
+    step: 'Langkah',
+    change: 'Perubahan',
+    runningTotal: 'Total berjalan',
+    changeStep: '{{label}}: {{change}}, total berjalan {{total}}',
+    totalStep: '{{label}}: total {{total}}',
+  },
+  treemapChart: {
+    label: 'Peta pohon',
+    value: 'Nilai',
+    share: 'Porsi',
+  },
+  bulletChart: {
+    label: 'Diagram peluru',
+    target: 'Sasaran',
+    summary: '{{label}}: {{value}} dari sasaran {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: tanpa nilai, sasaran {{target}}',
+    noValue: '{{label}}: tanpa nilai',
+  },
+  boxplotChart: {
+    label: 'Diagram kotak',
+    group: 'Grup',
+    upperWhisker: 'Kumis atas',
+    q3: 'Q3',
+    median: 'Median',
+    q1: 'Q1',
+    lowerWhisker: 'Kumis bawah',
+    outliers: 'Pencilan',
+    moreOutliers: '+{{count}} lagi',
+  },
+  candlestickChart: {
+    label: 'Diagram lilin',
+    open: 'Pembukaan',
+    high: 'Tertinggi',
+    low: 'Terendah',
+    close: 'Penutupan',
   },
   compare: {
     label: 'Pembatas perbandingan',

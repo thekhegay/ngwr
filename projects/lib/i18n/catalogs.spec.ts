@@ -40,7 +40,7 @@ import type { WrI18nCatalog } from './i18n-config';
  * A row carries what only that locale knows: the script its prose is written
  * in (non-Latin only) and the keys whose value is correctly the same as
  * English. `COMMON` is what every locale shares: key caps, colour-channel
- * letters, axis letters, format names and bare ratios.
+ * letters, axis letters, quartile notation, format names and bare ratios.
  */
 const COMMON = [
   'commandPalette.escHint',
@@ -62,6 +62,8 @@ const COMMON = [
   'editor.keyAlt',
   'scatterChart.x',
   'scatterChart.y',
+  'boxplotChart.q1',
+  'boxplotChart.q3',
 ];
 
 interface Row {
@@ -136,6 +138,7 @@ const LOCALES: Record<string, Row> = {
       'date.months.aug',
       'date.months.sep',
       'date.months.nov',
+      'boxplotChart.median',
     ],
   },
   es: {
@@ -156,6 +159,8 @@ const LOCALES: Record<string, Row> = {
       'calendar.dayLabel',
       'statistic.delta',
       'editor.keyCtrl',
+      'barChart.total',
+      'waterfallChart.totalStep',
     ],
   },
   fr: {
@@ -181,6 +186,8 @@ const LOCALES: Record<string, Row> = {
       'speedDial.label',
       'statistic.delta',
       'editor.keyCtrl',
+      'barChart.total',
+      'waterfallChart.totalStep',
     ],
   },
   he: {
@@ -248,6 +255,9 @@ const LOCALES: Record<string, Row> = {
       'date.months.nov',
       'editor.keyCtrl',
       'editor.keyShift',
+      'barChart.total',
+      'waterfallChart.totalStep',
+      'boxplotChart.median',
     ],
   },
   it: {
@@ -377,6 +387,8 @@ const LOCALES: Record<string, Row> = {
       'statistic.delta',
       'editor.keyCtrl',
       'editor.keyShift',
+      'barChart.total',
+      'waterfallChart.totalStep',
     ],
   },
   sv: {
@@ -399,6 +411,7 @@ const LOCALES: Record<string, Row> = {
       'eventCalendar.slotLabel',
       'eventCalendar.allDayCellLabel',
       'editor.keyCtrl',
+      'boxplotChart.median',
     ],
   },
   tr: {

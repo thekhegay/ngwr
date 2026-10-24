@@ -228,6 +228,8 @@ export const wrIt: WrI18nCatalog = {
   },
   barChart: {
     label: 'Grafico a barre',
+    total: 'Totale',
+    value: 'Valore',
   },
   calendarHeatmap: {
     label: 'Mappa di calore del calendario',
@@ -239,6 +241,7 @@ export const wrIt: WrI18nCatalog = {
   },
   donutChart: {
     label: 'Grafico ad anello',
+    pieLabel: 'Grafico a torta',
   },
   chartLegend: {
     toggleLabel: 'Mostra o nascondi le serie',
@@ -252,6 +255,59 @@ export const wrIt: WrI18nCatalog = {
   },
   radarChart: {
     label: 'Grafico radar',
+    polarAreaLabel: 'Grafico ad area polare',
+  },
+  heatmapChart: {
+    label: 'Mappa di calore',
+    noData: 'Nessun dato',
+  },
+  funnelChart: {
+    label: 'Grafico a imbuto',
+    stage: 'Fase',
+    value: 'Valore',
+    fromPrevious: 'Dalla precedente',
+    fromFirst: 'Dalla prima',
+    ofPrevious: '{{percent}} della precedente',
+    ofFirst: '{{percent}} della prima',
+  },
+  waterfallChart: {
+    label: 'Grafico a cascata',
+    step: 'Passo',
+    change: 'Variazione',
+    runningTotal: 'Totale progressivo',
+    changeStep: '{{label}}: {{change}}, totale progressivo {{total}}',
+    totalStep: '{{label}}: totale {{total}}',
+  },
+  treemapChart: {
+    label: 'Mappa ad albero',
+    value: 'Valore',
+    share: 'Quota',
+  },
+  bulletChart: {
+    label: 'Grafico bullet',
+    target: 'Obiettivo',
+    summary: '{{label}}: {{value}} su un obiettivo di {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: nessun valore, obiettivo {{target}}',
+    noValue: '{{label}}: nessun valore',
+  },
+  boxplotChart: {
+    label: 'Diagramma a scatola',
+    group: 'Gruppo',
+    upperWhisker: 'Baffo superiore',
+    q3: 'Q3',
+    median: 'Mediana',
+    q1: 'Q1',
+    lowerWhisker: 'Baffo inferiore',
+    outliers: 'Valori anomali',
+    moreOutliers: '+{{count}} in più',
+  },
+  candlestickChart: {
+    label: 'Grafico a candele',
+    open: 'Apertura',
+    high: 'Massimo',
+    low: 'Minimo',
+    close: 'Chiusura',
   },
   compare: {
     label: 'Divisore di confronto',

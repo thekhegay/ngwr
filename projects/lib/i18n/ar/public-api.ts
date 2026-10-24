@@ -232,6 +232,8 @@ export const wrAr: WrI18nCatalog = {
   },
   barChart: {
     label: 'مخطط شريطي',
+    total: 'الإجمالي',
+    value: 'القيمة',
   },
   calendarHeatmap: {
     label: 'خريطة حرارية للتقويم',
@@ -243,6 +245,7 @@ export const wrAr: WrI18nCatalog = {
   },
   donutChart: {
     label: 'مخطط دائري مجوف',
+    pieLabel: 'مخطط دائري',
   },
   chartLegend: {
     toggleLabel: 'إظهار السلاسل أو إخفاؤها',
@@ -256,6 +259,59 @@ export const wrAr: WrI18nCatalog = {
   },
   radarChart: {
     label: 'مخطط راداري',
+    polarAreaLabel: 'مخطط مساحي قطبي',
+  },
+  heatmapChart: {
+    label: 'خريطة حرارية',
+    noData: 'لا توجد بيانات',
+  },
+  funnelChart: {
+    label: 'مخطط قمعي',
+    stage: 'المرحلة',
+    value: 'القيمة',
+    fromPrevious: 'من السابقة',
+    fromFirst: 'من الأولى',
+    ofPrevious: '{{percent}} من السابقة',
+    ofFirst: '{{percent}} من الأولى',
+  },
+  waterfallChart: {
+    label: 'مخطط شلالي',
+    step: 'الخطوة',
+    change: 'التغيير',
+    runningTotal: 'الإجمالي التراكمي',
+    changeStep: '{{label}}: {{change}}، الإجمالي التراكمي {{total}}',
+    totalStep: '{{label}}: الإجمالي {{total}}',
+  },
+  treemapChart: {
+    label: 'مخطط شجري',
+    value: 'القيمة',
+    share: 'الحصة',
+  },
+  bulletChart: {
+    label: 'مخطط رصاصي',
+    target: 'الهدف',
+    summary: '{{label}}: {{value}} من هدف {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: لا قيمة، الهدف {{target}}',
+    noValue: '{{label}}: لا قيمة',
+  },
+  boxplotChart: {
+    label: 'مخطط الصندوق',
+    group: 'المجموعة',
+    upperWhisker: 'الشارب العلوي',
+    q3: 'Q3',
+    median: 'الوسيط',
+    q1: 'Q1',
+    lowerWhisker: 'الشارب السفلي',
+    outliers: 'القيم الشاذة',
+    moreOutliers: '+{{count}} أخرى',
+  },
+  candlestickChart: {
+    label: 'مخطط الشموع',
+    open: 'الافتتاح',
+    high: 'الأعلى',
+    low: 'الأدنى',
+    close: 'الإغلاق',
   },
   compare: {
     label: 'فاصل المقارنة',

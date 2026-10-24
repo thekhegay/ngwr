@@ -223,6 +223,8 @@ export const wrSv: WrI18nCatalog = {
   },
   barChart: {
     label: 'Stapeldiagram',
+    total: 'Totalt',
+    value: 'Värde',
   },
   calendarHeatmap: {
     label: 'Kalendervärmekarta',
@@ -234,6 +236,7 @@ export const wrSv: WrI18nCatalog = {
   },
   donutChart: {
     label: 'Ringdiagram',
+    pieLabel: 'Cirkeldiagram',
   },
   chartLegend: {
     toggleLabel: 'Växla synlighet för serier',
@@ -247,6 +250,59 @@ export const wrSv: WrI18nCatalog = {
   },
   radarChart: {
     label: 'Polärdiagram',
+    polarAreaLabel: 'Polärt ytdiagram',
+  },
+  heatmapChart: {
+    label: 'Värmekarta',
+    noData: 'Inga data',
+  },
+  funnelChart: {
+    label: 'Trattdiagram',
+    stage: 'Steg',
+    value: 'Värde',
+    fromPrevious: 'Från föregående',
+    fromFirst: 'Från första',
+    ofPrevious: '{{percent}} av föregående',
+    ofFirst: '{{percent}} av första',
+  },
+  waterfallChart: {
+    label: 'Vattenfallsdiagram',
+    step: 'Steg',
+    change: 'Förändring',
+    runningTotal: 'Löpande summa',
+    changeStep: '{{label}}: {{change}}, löpande summa {{total}}',
+    totalStep: '{{label}}: summa {{total}}',
+  },
+  treemapChart: {
+    label: 'Trädkarta',
+    value: 'Värde',
+    share: 'Andel',
+  },
+  bulletChart: {
+    label: 'Bulletdiagram',
+    target: 'Mål',
+    summary: '{{label}}: {{value}} av målet {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: inget värde, mål {{target}}',
+    noValue: '{{label}}: inget värde',
+  },
+  boxplotChart: {
+    label: 'Lådagram',
+    group: 'Grupp',
+    upperWhisker: 'Övre morrhår',
+    q3: 'Q3',
+    median: 'Median',
+    q1: 'Q1',
+    lowerWhisker: 'Nedre morrhår',
+    outliers: 'Extremvärden',
+    moreOutliers: '+{{count}} till',
+  },
+  candlestickChart: {
+    label: 'Candlestickdiagram',
+    open: 'Öppning',
+    high: 'Högsta',
+    low: 'Lägsta',
+    close: 'Stängning',
   },
   compare: {
     label: 'Skiljelinje för jämförelse',

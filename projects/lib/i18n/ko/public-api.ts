@@ -228,6 +228,8 @@ export const wrKo: WrI18nCatalog = {
   },
   barChart: {
     label: '막대 차트',
+    total: '합계',
+    value: '값',
   },
   calendarHeatmap: {
     label: '캘린더 히트맵',
@@ -239,6 +241,7 @@ export const wrKo: WrI18nCatalog = {
   },
   donutChart: {
     label: '도넛 차트',
+    pieLabel: '원형 차트',
   },
   chartLegend: {
     toggleLabel: '계열 표시 전환',
@@ -252,6 +255,59 @@ export const wrKo: WrI18nCatalog = {
   },
   radarChart: {
     label: '방사형 차트',
+    polarAreaLabel: '극좌표 영역 차트',
+  },
+  heatmapChart: {
+    label: '히트맵 차트',
+    noData: '데이터 없음',
+  },
+  funnelChart: {
+    label: '깔때기 차트',
+    stage: '단계',
+    value: '값',
+    fromPrevious: '이전 대비',
+    fromFirst: '처음 대비',
+    ofPrevious: '이전의 {{percent}}',
+    ofFirst: '처음의 {{percent}}',
+  },
+  waterfallChart: {
+    label: '폭포 차트',
+    step: '항목',
+    change: '변동',
+    runningTotal: '누계',
+    changeStep: '{{label}}: {{change}}, 누계 {{total}}',
+    totalStep: '{{label}}: 합계 {{total}}',
+  },
+  treemapChart: {
+    label: '트리맵 차트',
+    value: '값',
+    share: '비율',
+  },
+  bulletChart: {
+    label: '불릿 차트',
+    target: '목표',
+    summary: '{{label}}: {{value}}, 목표 {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: 값 없음, 목표 {{target}}',
+    noValue: '{{label}}: 값 없음',
+  },
+  boxplotChart: {
+    label: '상자 그림',
+    group: '그룹',
+    upperWhisker: '위쪽 수염',
+    q3: 'Q3',
+    median: '중앙값',
+    q1: 'Q1',
+    lowerWhisker: '아래쪽 수염',
+    outliers: '이상값',
+    moreOutliers: '외 {{count}}개',
+  },
+  candlestickChart: {
+    label: '캔들스틱 차트',
+    open: '시가',
+    high: '고가',
+    low: '저가',
+    close: '종가',
   },
   compare: {
     label: '비교 구분선',

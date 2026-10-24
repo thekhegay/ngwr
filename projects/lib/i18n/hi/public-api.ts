@@ -223,6 +223,8 @@ export const wrHi: WrI18nCatalog = {
   },
   barChart: {
     label: 'बार चार्ट',
+    total: 'कुल',
+    value: 'मान',
   },
   calendarHeatmap: {
     label: 'कैलेंडर हीटमैप',
@@ -234,6 +236,7 @@ export const wrHi: WrI18nCatalog = {
   },
   donutChart: {
     label: 'डोनट चार्ट',
+    pieLabel: 'पाई चार्ट',
   },
   chartLegend: {
     toggleLabel: 'सीरीज़ दिखाएँ या छिपाएँ',
@@ -247,6 +250,59 @@ export const wrHi: WrI18nCatalog = {
   },
   radarChart: {
     label: 'रडार चार्ट',
+    polarAreaLabel: 'ध्रुवीय क्षेत्र चार्ट',
+  },
+  heatmapChart: {
+    label: 'हीटमैप चार्ट',
+    noData: 'कोई डेटा नहीं',
+  },
+  funnelChart: {
+    label: 'फ़नल चार्ट',
+    stage: 'चरण',
+    value: 'मान',
+    fromPrevious: 'पिछले से',
+    fromFirst: 'पहले से',
+    ofPrevious: 'पिछले का {{percent}}',
+    ofFirst: 'पहले का {{percent}}',
+  },
+  waterfallChart: {
+    label: 'वॉटरफ़ॉल चार्ट',
+    step: 'चरण',
+    change: 'बदलाव',
+    runningTotal: 'संचयी योग',
+    changeStep: '{{label}}: {{change}}, संचयी योग {{total}}',
+    totalStep: '{{label}}: कुल {{total}}',
+  },
+  treemapChart: {
+    label: 'ट्रीमैप चार्ट',
+    value: 'मान',
+    share: 'हिस्सा',
+  },
+  bulletChart: {
+    label: 'बुलेट चार्ट',
+    target: 'लक्ष्य',
+    summary: '{{label}}: लक्ष्य {{target}} में से {{value}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: कोई मान नहीं, लक्ष्य {{target}}',
+    noValue: '{{label}}: कोई मान नहीं',
+  },
+  boxplotChart: {
+    label: 'बॉक्स प्लॉट',
+    group: 'समूह',
+    upperWhisker: 'ऊपरी व्हिस्कर',
+    q3: 'Q3',
+    median: 'माध्यिका',
+    q1: 'Q1',
+    lowerWhisker: 'निचला व्हिस्कर',
+    outliers: 'बाहरी मान',
+    moreOutliers: '+{{count}} और',
+  },
+  candlestickChart: {
+    label: 'कैंडलस्टिक चार्ट',
+    open: 'शुरुआती',
+    high: 'उच्चतम',
+    low: 'न्यूनतम',
+    close: 'समापन',
   },
   compare: {
     label: 'तुलना विभाजक',

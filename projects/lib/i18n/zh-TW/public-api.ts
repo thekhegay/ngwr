@@ -226,6 +226,8 @@ export const wrZhTw: WrI18nCatalog = {
   },
   barChart: {
     label: '長條圖',
+    total: '合計',
+    value: '值',
   },
   calendarHeatmap: {
     label: '行事曆熱圖',
@@ -237,6 +239,7 @@ export const wrZhTw: WrI18nCatalog = {
   },
   donutChart: {
     label: '環圈圖',
+    pieLabel: '圓餅圖',
   },
   chartLegend: {
     toggleLabel: '切換數列顯示',
@@ -250,6 +253,59 @@ export const wrZhTw: WrI18nCatalog = {
   },
   radarChart: {
     label: '雷達圖',
+    polarAreaLabel: '極座標面積圖',
+  },
+  heatmapChart: {
+    label: '熱力圖',
+    noData: '無資料',
+  },
+  funnelChart: {
+    label: '漏斗圖',
+    stage: '階段',
+    value: '值',
+    fromPrevious: '較上一階段',
+    fromFirst: '較第一階段',
+    ofPrevious: '上一階段的 {{percent}}',
+    ofFirst: '第一階段的 {{percent}}',
+  },
+  waterfallChart: {
+    label: '瀑布圖',
+    step: '步驟',
+    change: '變化',
+    runningTotal: '累計',
+    changeStep: '{{label}}: {{change}}，累計 {{total}}',
+    totalStep: '{{label}}: 合計 {{total}}',
+  },
+  treemapChart: {
+    label: '矩形樹狀圖',
+    value: '值',
+    share: '占比',
+  },
+  bulletChart: {
+    label: '子彈圖',
+    target: '目標',
+    summary: '{{label}}: {{value}}，目標 {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: 無值，目標 {{target}}',
+    noValue: '{{label}}: 無值',
+  },
+  boxplotChart: {
+    label: '盒鬚圖',
+    group: '群組',
+    upperWhisker: '上鬚',
+    q3: 'Q3',
+    median: '中位數',
+    q1: 'Q1',
+    lowerWhisker: '下鬚',
+    outliers: '離群值',
+    moreOutliers: '另有 {{count}} 個',
+  },
+  candlestickChart: {
+    label: 'K 線圖',
+    open: '開盤',
+    high: '最高',
+    low: '最低',
+    close: '收盤',
   },
   compare: {
     label: '比較分隔線',

@@ -238,6 +238,8 @@ export const wrPl: WrI18nCatalog = {
   },
   barChart: {
     label: 'Wykres słupkowy',
+    total: 'Suma',
+    value: 'Wartość',
   },
   calendarHeatmap: {
     label: 'Mapa cieplna kalendarza',
@@ -249,6 +251,7 @@ export const wrPl: WrI18nCatalog = {
   },
   donutChart: {
     label: 'Wykres pierścieniowy',
+    pieLabel: 'Wykres kołowy',
   },
   chartLegend: {
     toggleLabel: 'Przełącz widoczność serii',
@@ -262,6 +265,59 @@ export const wrPl: WrI18nCatalog = {
   },
   radarChart: {
     label: 'Wykres radarowy',
+    polarAreaLabel: 'Wykres biegunowy obszarowy',
+  },
+  heatmapChart: {
+    label: 'Mapa cieplna',
+    noData: 'Brak danych',
+  },
+  funnelChart: {
+    label: 'Wykres lejkowy',
+    stage: 'Etap',
+    value: 'Wartość',
+    fromPrevious: 'Względem poprzedniego',
+    fromFirst: 'Względem pierwszego',
+    ofPrevious: '{{percent}} poprzedniego',
+    ofFirst: '{{percent}} pierwszego',
+  },
+  waterfallChart: {
+    label: 'Wykres kaskadowy',
+    step: 'Krok',
+    change: 'Zmiana',
+    runningTotal: 'Suma bieżąca',
+    changeStep: '{{label}}: {{change}}, suma bieżąca {{total}}',
+    totalStep: '{{label}}: suma {{total}}',
+  },
+  treemapChart: {
+    label: 'Mapa drzewa',
+    value: 'Wartość',
+    share: 'Udział',
+  },
+  bulletChart: {
+    label: 'Wykres bullet',
+    target: 'Cel',
+    summary: '{{label}}: {{value}} przy celu {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: brak wartości, cel {{target}}',
+    noValue: '{{label}}: brak wartości',
+  },
+  boxplotChart: {
+    label: 'Wykres pudełkowy',
+    group: 'Grupa',
+    upperWhisker: 'Górny wąs',
+    q3: 'Q3',
+    median: 'Mediana',
+    q1: 'Q1',
+    lowerWhisker: 'Dolny wąs',
+    outliers: 'Wartości odstające',
+    moreOutliers: 'jeszcze {{count}}',
+  },
+  candlestickChart: {
+    label: 'Wykres świecowy',
+    open: 'Otwarcie',
+    high: 'Maksimum',
+    low: 'Minimum',
+    close: 'Zamknięcie',
   },
   compare: {
     label: 'Suwak porównania',

@@ -229,6 +229,8 @@ export const wrFr: WrI18nCatalog = {
   },
   barChart: {
     label: 'Graphique à barres',
+    total: 'Total',
+    value: 'Valeur',
   },
   calendarHeatmap: {
     label: 'Carte de chaleur du calendrier',
@@ -240,6 +242,7 @@ export const wrFr: WrI18nCatalog = {
   },
   donutChart: {
     label: 'Graphique en anneau',
+    pieLabel: 'Graphique en secteurs',
   },
   chartLegend: {
     toggleLabel: 'Afficher ou masquer les séries',
@@ -253,6 +256,59 @@ export const wrFr: WrI18nCatalog = {
   },
   radarChart: {
     label: 'Graphique en radar',
+    polarAreaLabel: 'Graphique en aires polaires',
+  },
+  heatmapChart: {
+    label: 'Carte de chaleur',
+    noData: 'Aucune donnée',
+  },
+  funnelChart: {
+    label: 'Graphique en entonnoir',
+    stage: 'Étape',
+    value: 'Valeur',
+    fromPrevious: 'Depuis la précédente',
+    fromFirst: 'Depuis la première',
+    ofPrevious: '{{percent}} de la précédente',
+    ofFirst: '{{percent}} de la première',
+  },
+  waterfallChart: {
+    label: 'Graphique en cascade',
+    step: 'Étape',
+    change: 'Variation',
+    runningTotal: 'Cumul',
+    changeStep: '{{label}}: {{change}}, cumul {{total}}',
+    totalStep: '{{label}}: total {{total}}',
+  },
+  treemapChart: {
+    label: 'Carte proportionnelle',
+    value: 'Valeur',
+    share: 'Part',
+  },
+  bulletChart: {
+    label: 'Graphique à puces',
+    target: 'Objectif',
+    summary: '{{label}}: {{value}} pour un objectif de {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: aucune valeur, objectif {{target}}',
+    noValue: '{{label}}: aucune valeur',
+  },
+  boxplotChart: {
+    label: 'Boîte à moustaches',
+    group: 'Groupe',
+    upperWhisker: 'Moustache supérieure',
+    q3: 'Q3',
+    median: 'Médiane',
+    q1: 'Q1',
+    lowerWhisker: 'Moustache inférieure',
+    outliers: 'Valeurs aberrantes',
+    moreOutliers: '+{{count}} de plus',
+  },
+  candlestickChart: {
+    label: 'Graphique en chandeliers',
+    open: 'Ouverture',
+    high: 'Plus haut',
+    low: 'Plus bas',
+    close: 'Clôture',
   },
   compare: {
     label: 'Séparateur de comparaison',

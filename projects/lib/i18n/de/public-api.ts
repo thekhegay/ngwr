@@ -231,6 +231,8 @@ export const wrDe: WrI18nCatalog = {
   },
   barChart: {
     label: 'Balkendiagramm',
+    total: 'Gesamt',
+    value: 'Wert',
   },
   calendarHeatmap: {
     label: 'Kalender-Heatmap',
@@ -242,6 +244,7 @@ export const wrDe: WrI18nCatalog = {
   },
   donutChart: {
     label: 'Ringdiagramm',
+    pieLabel: 'Kreisdiagramm',
   },
   chartLegend: {
     toggleLabel: 'Sichtbarkeit der Datenreihen umschalten',
@@ -255,6 +258,59 @@ export const wrDe: WrI18nCatalog = {
   },
   radarChart: {
     label: 'Netzdiagramm',
+    polarAreaLabel: 'Polarflächendiagramm',
+  },
+  heatmapChart: {
+    label: 'Heatmap',
+    noData: 'Keine Daten',
+  },
+  funnelChart: {
+    label: 'Trichterdiagramm',
+    stage: 'Stufe',
+    value: 'Wert',
+    fromPrevious: 'Gegenüber vorheriger',
+    fromFirst: 'Gegenüber erster',
+    ofPrevious: '{{percent}} der vorherigen',
+    ofFirst: '{{percent}} der ersten',
+  },
+  waterfallChart: {
+    label: 'Wasserfalldiagramm',
+    step: 'Schritt',
+    change: 'Änderung',
+    runningTotal: 'Laufende Summe',
+    changeStep: '{{label}}: {{change}}, laufende Summe {{total}}',
+    totalStep: '{{label}}: Summe {{total}}',
+  },
+  treemapChart: {
+    label: 'Treemap-Diagramm',
+    value: 'Wert',
+    share: 'Anteil',
+  },
+  bulletChart: {
+    label: 'Bullet-Diagramm',
+    target: 'Ziel',
+    summary: '{{label}}: {{value}} von Ziel {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: kein Wert, Ziel {{target}}',
+    noValue: '{{label}}: kein Wert',
+  },
+  boxplotChart: {
+    label: 'Boxplot',
+    group: 'Gruppe',
+    upperWhisker: 'Oberer Whisker',
+    q3: 'Q3',
+    median: 'Median',
+    q1: 'Q1',
+    lowerWhisker: 'Unterer Whisker',
+    outliers: 'Ausreißer',
+    moreOutliers: '+{{count}} weitere',
+  },
+  candlestickChart: {
+    label: 'Kerzendiagramm',
+    open: 'Eröffnung',
+    high: 'Hoch',
+    low: 'Tief',
+    close: 'Schluss',
   },
   compare: {
     label: 'Vergleichsregler',

@@ -236,6 +236,8 @@ export const wrUk: WrI18nCatalog = {
   },
   barChart: {
     label: 'Стовпчаста діаграма',
+    total: 'Разом',
+    value: 'Значення',
   },
   calendarHeatmap: {
     label: 'Календарна теплова карта',
@@ -247,6 +249,7 @@ export const wrUk: WrI18nCatalog = {
   },
   donutChart: {
     label: 'Кільцева діаграма',
+    pieLabel: 'Кругова діаграма',
   },
   chartLegend: {
     toggleLabel: 'Показати або приховати ряди',
@@ -260,6 +263,59 @@ export const wrUk: WrI18nCatalog = {
   },
   radarChart: {
     label: 'Пелюсткова діаграма',
+    polarAreaLabel: 'Полярна діаграма з областями',
+  },
+  heatmapChart: {
+    label: 'Теплова карта',
+    noData: 'Немає даних',
+  },
+  funnelChart: {
+    label: 'Діаграма-воронка',
+    stage: 'Етап',
+    value: 'Значення',
+    fromPrevious: 'Від попереднього',
+    fromFirst: 'Від першого',
+    ofPrevious: '{{percent}} від попереднього',
+    ofFirst: '{{percent}} від першого',
+  },
+  waterfallChart: {
+    label: 'Каскадна діаграма',
+    step: 'Крок',
+    change: 'Зміна',
+    runningTotal: 'Наростальний підсумок',
+    changeStep: '{{label}}: {{change}}, наростальний підсумок {{total}}',
+    totalStep: '{{label}}: підсумок {{total}}',
+  },
+  treemapChart: {
+    label: 'Деревоподібна карта',
+    value: 'Значення',
+    share: 'Частка',
+  },
+  bulletChart: {
+    label: 'Кульова діаграма',
+    target: 'Ціль',
+    summary: '{{label}}: {{value}} за цілі {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: немає значення, ціль {{target}}',
+    noValue: '{{label}}: немає значення',
+  },
+  boxplotChart: {
+    label: 'Діаграма розмаху',
+    group: 'Група',
+    upperWhisker: 'Верхній вус',
+    q3: 'Q3',
+    median: 'Медіана',
+    q1: 'Q1',
+    lowerWhisker: 'Нижній вус',
+    outliers: 'Викиди',
+    moreOutliers: 'ще {{count}}',
+  },
+  candlestickChart: {
+    label: 'Свічковий графік',
+    open: 'Відкриття',
+    high: 'Максимум',
+    low: 'Мінімум',
+    close: 'Закриття',
   },
   compare: {
     label: 'Роздільник порівняння',

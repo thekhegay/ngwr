@@ -228,6 +228,8 @@ export const wrRu: WrI18nCatalog = {
   },
   barChart: {
     label: 'Столбчатая диаграмма',
+    total: 'Итого',
+    value: 'Значение',
   },
   calendarHeatmap: {
     label: 'Календарная тепловая карта',
@@ -238,7 +240,8 @@ export const wrRu: WrI18nCatalog = {
     areaLabel: 'Диаграмма с областями',
   },
   donutChart: {
-    label: 'Круговая диаграмма',
+    label: 'Кольцевая диаграмма',
+    pieLabel: 'Круговая диаграмма',
   },
   chartLegend: {
     toggleLabel: 'Показать или скрыть ряды',
@@ -252,6 +255,59 @@ export const wrRu: WrI18nCatalog = {
   },
   radarChart: {
     label: 'Лепестковая диаграмма',
+    polarAreaLabel: 'Полярная диаграмма с областями',
+  },
+  heatmapChart: {
+    label: 'Тепловая карта',
+    noData: 'Нет данных',
+  },
+  funnelChart: {
+    label: 'Диаграмма-воронка',
+    stage: 'Этап',
+    value: 'Значение',
+    fromPrevious: 'От предыдущего',
+    fromFirst: 'От первого',
+    ofPrevious: '{{percent}} от предыдущего',
+    ofFirst: '{{percent}} от первого',
+  },
+  waterfallChart: {
+    label: 'Каскадная диаграмма',
+    step: 'Шаг',
+    change: 'Изменение',
+    runningTotal: 'Нарастающий итог',
+    changeStep: '{{label}}: {{change}}, нарастающий итог {{total}}',
+    totalStep: '{{label}}: итого {{total}}',
+  },
+  treemapChart: {
+    label: 'Древовидная карта',
+    value: 'Значение',
+    share: 'Доля',
+  },
+  bulletChart: {
+    label: 'Пулевая диаграмма',
+    target: 'Цель',
+    summary: '{{label}}: {{value}} при цели {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: нет значения, цель {{target}}',
+    noValue: '{{label}}: нет значения',
+  },
+  boxplotChart: {
+    label: 'Диаграмма размаха',
+    group: 'Группа',
+    upperWhisker: 'Верхний ус',
+    q3: 'Q3',
+    median: 'Медиана',
+    q1: 'Q1',
+    lowerWhisker: 'Нижний ус',
+    outliers: 'Выбросы',
+    moreOutliers: 'ещё {{count}}',
+  },
+  candlestickChart: {
+    label: 'Свечной график',
+    open: 'Открытие',
+    high: 'Максимум',
+    low: 'Минимум',
+    close: 'Закрытие',
   },
   compare: {
     label: 'Разделитель сравнения',

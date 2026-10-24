@@ -223,6 +223,8 @@ export const wrEs: WrI18nCatalog = {
   },
   barChart: {
     label: 'Gráfico de barras',
+    total: 'Total',
+    value: 'Valor',
   },
   calendarHeatmap: {
     label: 'Mapa de calor del calendario',
@@ -234,6 +236,7 @@ export const wrEs: WrI18nCatalog = {
   },
   donutChart: {
     label: 'Gráfico de anillo',
+    pieLabel: 'Gráfico circular',
   },
   chartLegend: {
     toggleLabel: 'Mostrar u ocultar series',
@@ -247,6 +250,59 @@ export const wrEs: WrI18nCatalog = {
   },
   radarChart: {
     label: 'Gráfico radial',
+    polarAreaLabel: 'Gráfico de área polar',
+  },
+  heatmapChart: {
+    label: 'Mapa de calor',
+    noData: 'Sin datos',
+  },
+  funnelChart: {
+    label: 'Gráfico de embudo',
+    stage: 'Etapa',
+    value: 'Valor',
+    fromPrevious: 'Desde la anterior',
+    fromFirst: 'Desde la primera',
+    ofPrevious: '{{percent}} de la anterior',
+    ofFirst: '{{percent}} de la primera',
+  },
+  waterfallChart: {
+    label: 'Gráfico de cascada',
+    step: 'Paso',
+    change: 'Variación',
+    runningTotal: 'Total acumulado',
+    changeStep: '{{label}}: {{change}}, total acumulado {{total}}',
+    totalStep: '{{label}}: total {{total}}',
+  },
+  treemapChart: {
+    label: 'Mapa de árbol',
+    value: 'Valor',
+    share: 'Proporción',
+  },
+  bulletChart: {
+    label: 'Gráfico de viñetas',
+    target: 'Objetivo',
+    summary: '{{label}}: {{value}} de un objetivo de {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: sin valor, objetivo {{target}}',
+    noValue: '{{label}}: sin valor',
+  },
+  boxplotChart: {
+    label: 'Diagrama de caja',
+    group: 'Grupo',
+    upperWhisker: 'Bigote superior',
+    q3: 'Q3',
+    median: 'Mediana',
+    q1: 'Q1',
+    lowerWhisker: 'Bigote inferior',
+    outliers: 'Valores atípicos',
+    moreOutliers: '+{{count}} más',
+  },
+  candlestickChart: {
+    label: 'Gráfico de velas',
+    open: 'Apertura',
+    high: 'Máximo',
+    low: 'Mínimo',
+    close: 'Cierre',
   },
   compare: {
     label: 'Divisor de comparación',

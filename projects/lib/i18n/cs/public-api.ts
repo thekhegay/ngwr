@@ -223,6 +223,8 @@ export const wrCs: WrI18nCatalog = {
   },
   barChart: {
     label: 'Sloupcový graf',
+    total: 'Celkem',
+    value: 'Hodnota',
   },
   calendarHeatmap: {
     label: 'Kalendářní tepelná mapa',
@@ -234,6 +236,7 @@ export const wrCs: WrI18nCatalog = {
   },
   donutChart: {
     label: 'Prstencový graf',
+    pieLabel: 'Koláčový graf',
   },
   chartLegend: {
     toggleLabel: 'Přepnout viditelnost řad',
@@ -247,6 +250,59 @@ export const wrCs: WrI18nCatalog = {
   },
   radarChart: {
     label: 'Paprskový graf',
+    polarAreaLabel: 'Polární plošný graf',
+  },
+  heatmapChart: {
+    label: 'Teplotní mapa',
+    noData: 'Žádná data',
+  },
+  funnelChart: {
+    label: 'Trychtýřový graf',
+    stage: 'Fáze',
+    value: 'Hodnota',
+    fromPrevious: 'Z předchozí',
+    fromFirst: 'Z první',
+    ofPrevious: '{{percent}} z předchozí',
+    ofFirst: '{{percent}} z první',
+  },
+  waterfallChart: {
+    label: 'Vodopádový graf',
+    step: 'Krok',
+    change: 'Změna',
+    runningTotal: 'Průběžný součet',
+    changeStep: '{{label}}: {{change}}, průběžný součet {{total}}',
+    totalStep: '{{label}}: součet {{total}}',
+  },
+  treemapChart: {
+    label: 'Stromová mapa',
+    value: 'Hodnota',
+    share: 'Podíl',
+  },
+  bulletChart: {
+    label: 'Odrážkový graf',
+    target: 'Cíl',
+    summary: '{{label}}: {{value}} z cíle {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: bez hodnoty, cíl {{target}}',
+    noValue: '{{label}}: bez hodnoty',
+  },
+  boxplotChart: {
+    label: 'Krabicový graf',
+    group: 'Skupina',
+    upperWhisker: 'Horní vous',
+    q3: 'Q3',
+    median: 'Medián',
+    q1: 'Q1',
+    lowerWhisker: 'Dolní vous',
+    outliers: 'Odlehlé hodnoty',
+    moreOutliers: 'ještě {{count}}',
+  },
+  candlestickChart: {
+    label: 'Svíčkový graf',
+    open: 'Otevření',
+    high: 'Maximum',
+    low: 'Minimum',
+    close: 'Uzavření',
   },
   compare: {
     label: 'Oddělovač porovnání',

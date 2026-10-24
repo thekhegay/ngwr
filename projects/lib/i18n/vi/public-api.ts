@@ -232,6 +232,8 @@ export const wrVi: WrI18nCatalog = {
   },
   barChart: {
     label: 'Biểu đồ cột',
+    total: 'Tổng',
+    value: 'Giá trị',
   },
   calendarHeatmap: {
     label: 'Bản đồ nhiệt theo lịch',
@@ -243,6 +245,7 @@ export const wrVi: WrI18nCatalog = {
   },
   donutChart: {
     label: 'Biểu đồ vành khuyên',
+    pieLabel: 'Biểu đồ tròn',
   },
   chartLegend: {
     toggleLabel: 'Bật/tắt hiển thị chuỗi dữ liệu',
@@ -256,6 +259,59 @@ export const wrVi: WrI18nCatalog = {
   },
   radarChart: {
     label: 'Biểu đồ radar',
+    polarAreaLabel: 'Biểu đồ vùng cực',
+  },
+  heatmapChart: {
+    label: 'Biểu đồ nhiệt',
+    noData: 'Không có dữ liệu',
+  },
+  funnelChart: {
+    label: 'Biểu đồ phễu',
+    stage: 'Giai đoạn',
+    value: 'Giá trị',
+    fromPrevious: 'So với bước trước',
+    fromFirst: 'So với bước đầu',
+    ofPrevious: '{{percent}} so với bước trước',
+    ofFirst: '{{percent}} so với bước đầu',
+  },
+  waterfallChart: {
+    label: 'Biểu đồ thác nước',
+    step: 'Bước',
+    change: 'Thay đổi',
+    runningTotal: 'Tổng lũy kế',
+    changeStep: '{{label}}: {{change}}, tổng lũy kế {{total}}',
+    totalStep: '{{label}}: tổng {{total}}',
+  },
+  treemapChart: {
+    label: 'Biểu đồ dạng cây',
+    value: 'Giá trị',
+    share: 'Tỷ lệ',
+  },
+  bulletChart: {
+    label: 'Biểu đồ bullet',
+    target: 'Mục tiêu',
+    summary: '{{label}}: {{value}} trên mục tiêu {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: không có giá trị, mục tiêu {{target}}',
+    noValue: '{{label}}: không có giá trị',
+  },
+  boxplotChart: {
+    label: 'Biểu đồ hộp',
+    group: 'Nhóm',
+    upperWhisker: 'Râu trên',
+    q3: 'Q3',
+    median: 'Trung vị',
+    q1: 'Q1',
+    lowerWhisker: 'Râu dưới',
+    outliers: 'Giá trị ngoại lai',
+    moreOutliers: '+{{count}} nữa',
+  },
+  candlestickChart: {
+    label: 'Biểu đồ nến',
+    open: 'Mở cửa',
+    high: 'Cao nhất',
+    low: 'Thấp nhất',
+    close: 'Đóng cửa',
   },
   compare: {
     label: 'Thanh trượt so sánh',
