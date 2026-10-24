@@ -245,7 +245,9 @@ function placeTiles(
  * **Names are written inside the tiles that have room** — a group's in its strip, a
  * leaf's in its corner with its value under it — and ellipsised past the tile's width.
  * A tile smaller than about 36 × 22 px writes nothing; the tooltip and the data table
- * name every node in full, with its whole path.
+ * name every node in full, with its whole path. A value is never cut: one wider than its
+ * tile, or than the room its group's name leaves in the strip, is left out, since `$12…`
+ * reads as another number, and the tooltip and the data table carry it whole.
  *
  * **What a screen reader gets.** The drawing is one named `role="img"`, and nothing in it
  * is announced. The tooltip is pointer only, so say what the chart shows in `ariaLabel`,
@@ -322,9 +324,19 @@ export class WrTreemapChart {
   /**
    * Writes every value the chart shows: inside the tiles, in the tooltip and in the data
    * table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, compact inside the tiles
-   * (`1.2K`). Shares are percentages in `LOCALE_ID` either way.
+   * (`1.2K`). A value wider than its tile is left out of it rather than cut. Shares are
+   * `percentFormat`'s.
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
+
+  /**
+   * Writes every share the chart shows, given as a RATIO — `0.25` for a quarter — the
+   * number `Intl.NumberFormat`'s `percent` style takes, so one of those can be passed as
+   * it is: in the tooltip and in the data table. `null` uses that style in `LOCALE_ID`,
+   * with up to one fraction digit, and two significant digits below 1% so a sliver is not
+   * printed as `0%`.
+   */
+  readonly percentFormat = input<((ratio: number) => string) | null>(null);
 
   /**
    * Render the chart's figures as a table that only assistive technology reaches: a row
@@ -503,11 +515,13 @@ export class WrTreemapChart {
     else this.tip.leave(event);
   }
 
-  /** A node's share of the whole, or `''` for one with no area. */
+  /** A node's share of the whole, through `percentFormat` or as a percentage in `LOCALE_ID`, or `''` for one with no area. */
   private share(node: ResolvedNode): string {
     const total = this.total();
     if (node.size <= 0 || total <= 0) return '';
     const share = node.size / total;
+    const custom = this.percentFormat();
+    if (custom) return custom(share);
     return (share < 0.01 ? this.smallShares : this.shares).format(share);
   }
 }

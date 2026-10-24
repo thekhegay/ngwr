@@ -29,20 +29,21 @@
       [style.height.%]="tile.height"
     >
       <!-- A name takes its direction from its own text (`dir="auto"`), so a Latin name in an
-           RTL tile is cut at its end, not its start, and a Hebrew one in an LTR tile too. -->
+           RTL tile is cut at its end, not its start, and a Hebrew one in an LTR tile too. A
+           value does the same, so `$120K` reads in its own order beside a Hebrew name. -->
       @if (tile.header) {
         <!-- As tall as the strip the layout left above the children, written here so the
              stylesheet and the layout cannot disagree about it. -->
         <span class="wr-treemap-chart__header" [style.height.px]="headerHeight">
           <span class="wr-treemap-chart__label" dir="auto">{{ tile.node.label }}</span>
           @if (showValues() && tile.text) {
-            <span class="wr-treemap-chart__value">{{ tile.text }}</span>
+            <span class="wr-treemap-chart__value" dir="auto">{{ tile.text }}</span>
           }
         </span>
       } @else if (tile.labelled) {
         <span class="wr-treemap-chart__label" dir="auto">{{ tile.node.label }}</span>
         @if (tile.valued && tile.text) {
-          <span class="wr-treemap-chart__value">{{ tile.text }}</span>
+          <span class="wr-treemap-chart__value" dir="auto">{{ tile.text }}</span>
         }
       }
     </div>

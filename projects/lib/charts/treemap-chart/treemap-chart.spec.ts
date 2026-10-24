@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, LOCALE_ID, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -43,6 +46,7 @@ const FOOD: readonly WrTreemapNode[] = [
       [ariaLabel]="ariaLabel()"
       [valueLabel]="valueLabel()"
       [valueFormat]="valueFormat()"
+      [percentFormat]="percentFormat()"
     />
   `,
 })
@@ -55,7 +59,29 @@ class Host {
   readonly ariaLabel = signal<string | null>(null);
   readonly valueLabel = signal<string | null>(null);
   readonly valueFormat = signal<((value: number) => string) | null>(null);
+  readonly percentFormat = signal<((ratio: number) => string) | null>(null);
 }
+
+/**
+ * Three levels: Org holds Eng and Ops, and Eng holds Web and Mobile. Org is the whole
+ * 640 × 280 plot; Eng is the 422.67 px column of Org's inside, 3 px in and 20 px down
+ * under Org's strip, and Web and Mobile share Eng's inside the same way.
+ */
+const DEEP: readonly WrTreemapNode[] = [
+  {
+    label: 'Org',
+    children: [
+      {
+        label: 'Eng',
+        children: [
+          { label: 'Web', value: 30 },
+          { label: 'Mobile', value: 10 },
+        ],
+      },
+      { label: 'Ops', value: 20 },
+    ],
+  },
+];
 
 /** A tile's rectangle as the component wrote it, in percent of the plot. */
 interface Box {
@@ -163,6 +189,87 @@ describe('WrTreemapChart', () => {
     expect(header.style.height).toBe('20px');
     expect(header.querySelector('.wr-treemap-chart__label')!.textContent.trim()).toBe('Veg');
     expect(header.querySelector('.wr-treemap-chart__value')!.textContent.trim()).toBe('60');
+  });
+
+  it('draws every level at once, each group inside its own parent', () => {
+    set(h => {
+      h.data.set(DEEP);
+      h.dataTable.set(true);
+    });
+    expect(names()).toEqual(['Org', 'Eng', 'Web', 'Mobile', 'Ops']);
+    expect(tiles().map(tile => tile.classList.contains('wr-treemap-chart__tile--group'))).toEqual([
+      true,
+      true,
+      false,
+      false,
+      false,
+    ]);
+    // Web and Mobile lie inside Eng, and Eng inside Org.
+    const [org, eng, web, mobile] = tiles().map(boxOf);
+    const inside = (inner: Box, outer: Box): boolean =>
+      inner.start >= outer.start &&
+      inner.top >= outer.top &&
+      inner.start + inner.width <= outer.start + outer.width + 1e-6 &&
+      inner.top + inner.height <= outer.top + outer.height + 1e-6;
+    expect(inside(eng, org)).toBe(true);
+    expect(inside(web, eng)).toBe(true);
+    expect(inside(mobile, eng)).toBe(true);
+    // Eng's own strip sits under Org's: its children start 20 px into it, 40 px down.
+    expect(web.top).toBeCloseTo((40 / 280) * 100, 2);
+    // The top-level node's colour, handed down two levels.
+    const colors = tiles().map(tile => tile.style.getPropertyValue('--wr-treemap-chart-tile-color'));
+    expect(new Set(colors).size).toBe(1);
+    expect(colors[0]).not.toBe('');
+    expect(text('.wr-chart-table tbody th[scope="row"]')).toEqual([
+      'Org',
+      'Org / Eng',
+      'Org / Eng / Web',
+      'Org / Eng / Mobile',
+      'Org / Ops',
+    ]);
+  });
+
+  it('draws a group too small to hold its children as one block, and still lists them', () => {
+    // 10000 to 2: Tiny is a sliver under a pixel wide, with no room inside for anything.
+    set(h => {
+      h.data.set([
+        { label: 'Big', value: 10000 },
+        {
+          label: 'Tiny',
+          children: [
+            { label: 'a', value: 1 },
+            { label: 'b', value: 1 },
+          ],
+        },
+      ]);
+      h.dataTable.set(true);
+    });
+    expect(tiles()).toHaveLength(2);
+    expect(tiles()[1].classList).toContain('wr-treemap-chart__tile--leaf');
+    expect(tiles()[1].classList).not.toContain('wr-treemap-chart__tile--group');
+    expect(text('.wr-chart-table tbody th[scope="row"]')).toEqual(['Big', 'Tiny', 'Tiny / a', 'Tiny / b']);
+  });
+
+  it('gives a group too short for a strip no header, and draws its children 3 px in', () => {
+    // 60 / 35 / 5: C is the 256 × 35 px tile under B, too short for a 20 px strip and the
+    // children under it, so its children start 3 px down rather than 20.
+    set(h =>
+      h.data.set([
+        { label: 'A', value: 60 },
+        { label: 'B', value: 35 },
+        {
+          label: 'C',
+          children: [
+            { label: 'c1', value: 3 },
+            { label: 'c2', value: 2 },
+          ],
+        },
+      ])
+    );
+    const c = tiles()[2];
+    expect(c.classList).toContain('wr-treemap-chart__tile--group');
+    expect(c.querySelector('.wr-treemap-chart__header')).toBeNull();
+    expect(boxOf(tiles()[3]).top - boxOf(c).top).toBeCloseTo((3 / 280) * 100, 3);
   });
 
   it('sums a group from its children when it has no value of its own', () => {
@@ -402,6 +509,26 @@ describe('WrTreemapChart', () => {
     ]);
   });
 
+  it('writes every share through `percentFormat`, given as a ratio', () => {
+    set(h => {
+      h.percentFormat.set(ratio => `${(ratio * 100).toFixed(2)} pct`);
+      h.dataTable.set(true);
+    });
+    expect(all('.wr-chart-table tbody tr').map(row => row.querySelectorAll('td')[1].textContent.trim())).toEqual([
+      '40.00 pct',
+      '30.00 pct',
+      '10.00 pct',
+      '60.00 pct',
+      '40.00 pct',
+      '20.00 pct',
+    ]);
+  });
+
+  it('gives every value its own direction, as every name has', () => {
+    for (const value of all('.wr-treemap-chart__value')) expect(value.getAttribute('dir')).toBe('auto');
+    expect(all('.wr-treemap-chart__value').length).toBeGreaterThan(0);
+  });
+
   it('renders no data table unless asked', () => {
     expect(root().querySelector('wr-chart-table')).toBeNull();
   });
@@ -575,11 +702,12 @@ describe('WrTreemapChart numbers', () => {
 
 @Component({
   imports: [WrTreemapChart],
-  template: `<wr-treemap-chart [data]="data" [tooltip]="tooltip()" />`,
+  template: `<wr-treemap-chart [data]="data()" [tooltip]="tooltip()" [percentFormat]="percentFormat()" />`,
 })
 class TooltipHost {
-  readonly data = FOOD;
+  readonly data = signal<readonly WrTreemapNode[]>(FOOD);
   readonly tooltip = signal(true);
+  readonly percentFormat = signal<((ratio: number) => string) | null>(null);
 }
 
 /**
@@ -639,6 +767,16 @@ describe('WrTreemapChart tooltip', () => {
     expect(rows()).toEqual(['Share 40%']);
   });
 
+  it('heads a tile two levels down with its whole path, and writes its share through `percentFormat`', () => {
+    fixture.componentInstance.data.set(DEEP);
+    fixture.componentInstance.percentFormat.set(ratio => `${ratio * 100} pct`);
+    fixture.detectChanges();
+    move(tiles()[2]);
+
+    expect(heading()).toEqual(['Org / Eng / Web', '30']);
+    expect(rows()).toEqual(['Share 50 pct']);
+  });
+
   it("reads the group off its strip and its edge, with the group's total", () => {
     move(tiles()[3].querySelector('.wr-treemap-chart__header')!);
     expect(heading()).toEqual(['Fruit', '40']);
@@ -683,5 +821,50 @@ describe('WrTreemapChart tooltip', () => {
     move(tiles()[1]);
     expect(chip()).toBeNull();
     expect(root().querySelector('.wr-treemap-chart__tile--active')).toBeNull();
+  });
+});
+
+/**
+ * What the stylesheet promises that no rendered DOM in jsdom can show, held against the
+ * COMPILED sheet; `sass` is resolved through `@angular/build`, as `charts/stylesheets.spec.ts`
+ * does. That each rule then paints what it says is measured in a browser.
+ */
+describe('WrTreemapChart stylesheet', () => {
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  };
+  const css = sass
+    .compileString(`@use 'charts/treemap-chart/styles';`, {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = (block: string, selector: string): string =>
+    new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(block)?.[1] ??
+    '';
+  /** Every `forced-colors` block of the sheet, the chart's own and any it loads. */
+  const forced = [...css.matchAll(/@media \(forced-colors: active\)\s*\{([\s\S]*?)\n\}/g)].map(m => m[1]).join('\n');
+
+  it("prints a leaf's value whole or not at all: a wrapping line one line tall, led by a zero-width item", () => {
+    const value = rule(css, '.wr-treemap-chart__tile > .wr-treemap-chart__value');
+    expect(value).toMatch(/display: flex/);
+    expect(value).toMatch(/flex-wrap: wrap/);
+    expect(value).toMatch(/block-size: var\(--wr-treemap-chart-label-line-height\)/);
+    const before = rule(css, '.wr-treemap-chart__tile > .wr-treemap-chart__value::before');
+    expect(before).toMatch(/flex: 0 0 0/);
+    expect(before).toMatch(/block-size: 100%/);
+    // Never ellipsised: `$12…` for $120K would print another number. A name still is.
+    expect(css).not.toMatch(/\.wr-treemap-chart__value[^{]*\{[^}]*text-overflow/);
+    expect(rule(css, '.wr-treemap-chart__label')).toMatch(/text-overflow: ellipsis/);
+  });
+
+  it('keeps every tile edge under forced colors, the reading tile in the selection colour', () => {
+    // The tints are left to forced colors, which paints them as the page; the edge is
+    // what tells the tiles apart there.
+    expect(rule(forced, '.wr-treemap-chart__tile')).toMatch(/outline: var\(--wr-treemap-chart-gap\) solid CanvasText/);
+    expect(rule(forced, '.wr-treemap-chart__tile--active')).toMatch(
+      /outline: var\(--wr-treemap-chart-active-ring-width\) solid Highlight/
+    );
+    expect(rule(forced, '.wr-treemap-chart__tile')).not.toMatch(/forced-color-adjust/);
   });
 });

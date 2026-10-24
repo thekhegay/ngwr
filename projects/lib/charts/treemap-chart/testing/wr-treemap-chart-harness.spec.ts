@@ -101,7 +101,7 @@ describe('WrTreemapChartHarness', () => {
     ]);
   });
 
-  it('reads the height the component wrote', async () => {
-    expect(await chart.getHeight()).toBe(300);
+  it('reads the plot height the component wrote', async () => {
+    expect(await chart.getPlotHeight()).toBe(300);
   });
 });

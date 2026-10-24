@@ -30,7 +30,11 @@ export interface WrTreemapChartTileBox {
 export interface WrTreemapChartTile {
   /** The name written on the tile, in its strip or in its corner; `null` when it has no room for one. */
   readonly label: string | null;
-  /** The figure written on the tile, compact; `null` when it has no room for one or `showValues` is off. */
+  /**
+   * The figure the component wrote on the tile, compact; `null` when the tile is too
+   * short for one or `showValues` is off. One wider than the tile is written and then
+   * wrapped out of sight by the stylesheet, which jsdom cannot show, so it is read here.
+   */
   readonly value: string | null;
   /** Whether its children are drawn inside it. A group too small for its children is drawn as one block, and is `false`. */
   readonly group: boolean;

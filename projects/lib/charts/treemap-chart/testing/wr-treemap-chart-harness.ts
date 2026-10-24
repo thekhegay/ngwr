@@ -77,7 +77,9 @@ class TileHarness extends ComponentHarness {
  * its name and figure as text, and the data table. Those are what the layout and the
  * data wiring produce, and what breaks when either does. jsdom lays nothing out, so a
  * name is read in full whether a browser would ellipsise it or not, and there is no
- * method for whether it was.
+ * method for whether it was. Nor for whether a value fits: the stylesheet hides a value
+ * wider than its tile by wrapping it out of sight, which takes a layout jsdom does not
+ * have, so {@link getTiles} gives the text the component printed, fitting or not.
  *
  * **The layout is cut for the plot's measured size**, and jsdom measures nothing: in a
  * spec the chart cuts it for the width it assumes before measuring, 640 px, at its
@@ -195,12 +197,12 @@ export class WrTreemapChartHarness extends ComponentHarness {
    * `style` ATTRIBUTE of the plot rather than through `getCssValue()`, which answers from
    * the laid-out box and so agrees in jsdom and not in a browser.
    */
-  async getHeight(): Promise<number> {
+  async getPlotHeight(): Promise<number> {
     const style = (await (await this.locatorFor('.wr-treemap-chart__plot')()).getAttribute('style')) ?? '';
     const written = declaration(style, 'height');
     if (!written?.endsWith('px')) {
       throw new Error(
-        `WrTreemapChartHarness.getHeight(): no inline height on .wr-treemap-chart__plot (style: "${style}"). ` +
+        `WrTreemapChartHarness.getPlotHeight(): no inline height on .wr-treemap-chart__plot (style: "${style}"). ` +
           'The component writes one unconditionally, so its absence is the bug rather than a zero.'
       );
     }
