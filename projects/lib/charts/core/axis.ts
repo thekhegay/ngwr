@@ -19,6 +19,23 @@ const EMPTY: WrChartAxis = { min: 0, max: 1, step: 0.25, ticks: [1, 0.75, 0.5, 0
 const LADDER = [1, 0.5, 0.25, 0.2] as const;
 
 /**
+ * How many fraction digits a tick on an axis stepping by `step` is rounded to: two past
+ * the step's own leading digit, and never fewer than six or more than fifteen.
+ *
+ * It was a fixed six, which cannot write a tick finer than a millionth: an axis stepping
+ * by 2.5e-7 — a micro-priced asset — came back as five ticks of `0.000013` and
+ * `0.000012`, one stepping by 5e-10 as five zeros, and one stepping by 2.5e-6 put two of
+ * its gridlines at the wrong height. Every tick is a whole multiple of the step, whose
+ * last digit is at most one place past its leading one (2.5, and 0.25 on the
+ * centred axis' ladder, two), so two past the leading digit writes every tick exactly.
+ * The floor of six keeps every axis that was already exact bit for bit what it was,
+ * and keeps a step no rung divides — a third, centred — at the six it always had.
+ */
+function tickDigits(step: number): number {
+  return Math.min(15, Math.max(6, Math.ceil(-Math.log10(step)) + 2));
+}
+
+/**
  * The `symmetric` axis for data with no span: the value in the MIDDLE, as a tick of
  * its own, with one step either side.
  *
@@ -47,7 +64,13 @@ function centredAxis(value: number): WrChartAxis {
       }
     }
   }
-  return { min: value - step, max: value + step, step, ticks: [round(value + step, 6), value, round(value - step, 6)] };
+  const digits = tickDigits(step);
+  return {
+    min: value - step,
+    max: value + step,
+    step,
+    ticks: [round(value + step, digits), value, round(value - step, digits)],
+  };
 }
 
 /**
@@ -119,7 +142,8 @@ export function chartAxis(min: number, max: number, options: WrChartAxisOptions 
   // Floating-point: 0.1 + 0.2 walks past an exact bound, so count in integers and
   // multiply, and stop on the count rather than on `value >= min`.
   const gaps = Math.round((top - bottom) / step);
+  const digits = tickDigits(step);
   const ticks: number[] = [];
-  for (let i = 0; i <= gaps; i++) ticks.push(round(top - i * step, 6));
+  for (let i = 0; i <= gaps; i++) ticks.push(round(top - i * step, digits));
   return { min: bottom, max: top, step, ticks };
 }

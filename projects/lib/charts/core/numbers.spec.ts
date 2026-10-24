@@ -185,6 +185,17 @@ const SERIES: readonly (readonly number[])[] = (() => {
 const format = (custom: ((value: number) => string) | null = null, locale = 'en-US'): WrChartNumbers =>
   useChartNumbers(signal(custom), locale);
 
+/**
+ * Whether six fraction digits write every tick of an axis stepping by `step`: where the
+ * v15 axis was exact. Finer than that it rounded every tick, and its labels with them,
+ * to six digits — two ticks of `0.000013` on an axis stepping by 2.5e-7 — so the oracle
+ * holds only down to here, and below it the axis is held to being right instead.
+ */
+const sixDigitsHold = (step: number): boolean => lastDigit(step) >= -6;
+
+const lineAxis = (data: readonly number[]): ReturnType<typeof chartAxis> =>
+  data.length === 0 ? chartAxis(Number.NaN, Number.NaN) : chartAxis(Math.min(0, ...data), Math.max(...data));
+
 describe('useChartNumbers', () => {
   describe('writes exactly what the v15 charts wrote', () => {
     it.each(LOCALES)('a full value, in %s', locale => {
@@ -197,12 +208,12 @@ describe('useChartNumbers', () => {
       for (const value of VALUES) expect(numbers.label(value), String(value)).toBe(v15BarLabel(locale, null, value));
     });
 
-    it.each(LOCALES)("the line chart's y axis, in %s", locale => {
+    it.each(LOCALES)("the line chart's y axis, in %s, wherever it was exact", locale => {
       const numbers = format(null, locale);
       for (const data of SERIES) {
         const oracle = v15LineAxis(data);
-        const axis =
-          data.length === 0 ? chartAxis(Number.NaN, Number.NaN) : chartAxis(Math.min(0, ...data), Math.max(...data));
+        if (!sixDigitsHold(oracle.step)) continue;
+        const axis = lineAxis(data);
         expect({ min: axis.min, max: axis.max, step: axis.step }, String(data)).toEqual({
           min: oracle.min,
           max: oracle.max,
@@ -215,6 +226,14 @@ describe('useChartNumbers', () => {
       }
     });
 
+    it('and the sweep still reaches both sides of where it was exact', () => {
+      // A partition that put every series on one side would make one of the two cases
+      // around it vacuous.
+      const steps = SERIES.map(data => v15LineAxis(data).step);
+      expect(steps.filter(sixDigitsHold).length).toBeGreaterThan(100);
+      expect(steps.filter(step => !sixDigitsHold(step)).length).toBeGreaterThan(5);
+    });
+
     it('a custom `valueFormat`, in all three', () => {
       const custom = (value: number): string => `${value} ms`;
       const numbers = format(custom, 'de');
@@ -224,6 +243,62 @@ describe('useChartNumbers', () => {
       }
       expect(numbers.ticks([40, 30, 20, 10, 0], 10)).toEqual(v15TickLabels('de', custom, [40, 30, 20, 10, 0], 10));
     });
+  });
+
+  it.each(LOCALES)('writes an axis finer than a millionth exactly, where v15 rounded it, in %s', locale => {
+    const numbers = format(null, locale);
+    for (const data of SERIES) {
+      const oracle = v15LineAxis(data);
+      if (sixDigitsHold(oracle.step)) continue;
+      const axis = lineAxis(data);
+      // The bounds and the step never moved; only the rounding of what lies between.
+      expect({ min: axis.min, max: axis.max, step: axis.step }, String(data)).toEqual({
+        min: oracle.min,
+        max: oracle.max,
+        step: oracle.step,
+      });
+      for (const [i, tick] of axis.ticks.entries()) {
+        expect(tick, String(data)).toBeCloseTo(axis.max - i * axis.step, 15);
+        expect(Math.abs(tick / axis.step - Math.round(tick / axis.step)), String(data)).toBeLessThan(1e-6);
+      }
+      const labels = numbers.ticks(axis.ticks, axis.step);
+      expect(new Set(labels).size, `${String(data)} → ${labels.join(' | ')}`).toBe(labels.length);
+    }
+  });
+
+  it.each([
+    // A micro-priced candlestick: v15 read 0.000013 / 0.000013 / 0.000013 / 0.000012 / 0.000012.
+    [0.00001205, 0.00001291, true, 2.5e-7, ['0.000013', '0.00001275', '0.0000125', '0.00001225', '0.000012']],
+    // Two of v15's ticks were wrong, so two gridlines sat at the wrong height under wrong labels.
+    [0.0000012, 0.0000098, false, 2.5e-6, ['0.00001', '0.0000075', '0.000005', '0.0000025', '0']],
+    // v15 drew five zeros: six digits cannot reach a step of 5e-10, and a step below 1e-9 was whole.
+    [1e-9, 3e-9, false, 5e-10, ['0.000000003', '0.0000000025', '0.000000002', '0.0000000015', '0.000000001']],
+  ] as const)(
+    'ticks %s to %s (symmetric: %s) by %s, every one distinct and exact',
+    (lo, hi, symmetric, step, expected) => {
+      const axis = chartAxis(lo, hi, { symmetric });
+      expect(axis.step).toBeCloseTo(step, 20);
+      expect(axis.ticks.slice(0, expected.length).map(tick => format().ticks([tick], axis.step)[0])).toEqual(
+        expected.map(String)
+      );
+      expect(new Set(axis.ticks).size).toBe(axis.ticks.length);
+      expect(new Set(format().ticks(axis.ticks, axis.step)).size).toBe(axis.ticks.length);
+    }
+  );
+
+  it('writes a figure to the precision it is asked for, through valueFormat when set', () => {
+    const numbers = format();
+    // `value` rounds to three fraction digits; `exact` writes what it is told to.
+    expect(numbers.value(1.08345)).toBe('1.083');
+    expect(numbers.exact(1.08345, 5)).toBe('1.08345');
+    expect(numbers.exact(1.08, 5)).toBe('1.08');
+    expect(numbers.exact(0.00001275, 8)).toBe('0.00001275');
+    expect(numbers.exact(1234.5, 0)).toBe('1,235');
+    // Out of range or not a number: clamped to Intl's 0..20, or three for nonsense.
+    expect(numbers.exact(1.5, -2)).toBe('2');
+    expect(numbers.exact(1.23456, Number.NaN)).toBe('1.235');
+    expect(format(null, 'de').exact(1234.56789, 4)).toBe('1.234,5679');
+    expect(format(value => `${value} $`).exact(1.08345, 2)).toBe('1.08345 $');
   });
 
   it('never abbreviates a full value, and keeps a tiny one off zero', () => {

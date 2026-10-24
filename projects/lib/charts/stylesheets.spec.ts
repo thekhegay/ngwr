@@ -53,12 +53,14 @@ const marks = drawn.flatMap(({ name }) => {
 });
 
 /**
- * Every chart mark drawn as an HTML box keeps its colour under `forced-colors`. The SVG
- * charts keep their fills and strokes there, but a mark painted with an inline
- * `background` does not: forced colors resets `background-color` to `Canvas`, so the
- * bars, the meter's slices and the heatmap's squares vanished into the page and left
- * only their labels. Every element painted that way is read off the TEMPLATES, so a
- * new one is held to the rule too.
+ * Every chart mark painted by an inline `[style.background]` keeps its colour under
+ * `forced-colors`. The SVG charts keep their fills and strokes there, but a mark painted
+ * with an inline `background` does not: forced colors resets `background-color` to
+ * `Canvas`, so the bars, the meter's slices and the heatmap's squares vanished into the
+ * page and left only their labels. Every element painted that way is read off the
+ * TEMPLATES, so a new one is held to the rule too. A mark painted through one of its
+ * chart's own hooks instead is out of this scan's reach, and is pinned in that chart's
+ * own spec.
  */
 describe('chart marks under forced colors', () => {
   it('reads the template of every folder that draws', () => {
@@ -90,7 +92,8 @@ describe('chart geometry', () => {
     // bar: a 50/100 meter of five slices filled 55% of it, and a zero slice still added
     // its margin. An outline takes no room.
     const css = compile('meter-group');
-    expect(rule(css, 'wr-meter-group__slice')).toMatch(/outline: calc\(var\(--wr-space-xs\) \/ 2\) solid/);
+    expect(rule(css, 'wr-meter-group__slice')).toMatch(/outline: var\(--wr-meter-group-slice-gap\) solid/);
+    expect(rule(css, 'wr-meter-group')).toMatch(/--wr-meter-group-slice-gap: calc\(var\(--wr-space-xs\) \/ 2\)/);
     expect(rule(css, 'wr-meter-group__slice')).not.toMatch(/margin/);
     expect(css).not.toMatch(/\.wr-meter-group__slice \+ \.wr-meter-group__slice/);
   });
@@ -148,5 +151,31 @@ describe('charts with a data table', () => {
 
   it.each(tabled)('%s positions its host', chart => {
     expect(rule(compile(chart), `wr-${chart}`)).toMatch(/position:\s*relative/);
+  });
+});
+
+/**
+ * Every chart that opens its tooltip through `useChartTooltip()` loads the sheet of the
+ * chip it renders into. That chip is `ngwr/popover`'s, and the dependency is a FUNCTION
+ * call rather than an entry in `imports: []`, so the rule in `theme/styles.spec.ts` that
+ * fails a component rendering an entry point it never loads cannot see it: deleting the
+ * popover `@use` from a chart's `_index.scss` shipped an unstyled chip under every gate,
+ * since jsdom renders the chip's markup whether its sheet loads or not. Read off the
+ * sources, so a chart that gains a tooltip is held to it.
+ */
+describe('charts with a tooltip', () => {
+  const tipped = drawn
+    .map(({ name }) => name)
+    .filter(name => readFileSync(join(CHARTS, name, `${name}.ts`), 'utf8').includes('useChartTooltip('));
+
+  it('finds the charts it checks', () => {
+    expect(tipped).toEqual(expect.arrayContaining(['bar-chart', 'funnel-chart', 'gauge', 'calendar-heatmap']));
+  });
+
+  it.each(tipped)('%s loads the chip its tooltip renders into', chart => {
+    const css = compile(chart);
+    // `.wr-chart-tooltip` rather than `.wr-tooltip\b`, which `.wr-tooltip-overlay` matches too.
+    expect(css).toMatch(/\.wr-chart-tooltip\s*\{/);
+    expect(css).toMatch(/\.wr-chart-tooltip__swatch\b/);
   });
 });

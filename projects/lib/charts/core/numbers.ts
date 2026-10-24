@@ -11,7 +11,10 @@ import { clamp } from 'ngwr/utils';
 
 import type { WrChartNumbers } from './types';
 
-/** The fewest fraction digits that write `value` exactly, up to six. */
+/**
+ * The fewest fraction digits that write `value` exactly, up to six: the precision of a
+ * step no power of ten divides, such as the third a flat range is centred with.
+ */
 function fractionDigits(value: number): number {
   for (let d = 0; d <= 6; d++) if (Math.abs(value * 10 ** d - Math.round(value * 10 ** d)) < 1e-9) return d;
   return 6;
@@ -42,17 +45,19 @@ function lastDigit(step: number): number {
 
 /**
  * The number writers of one chart: its axis ticks, the labels it prints in tight
- * spaces, and the exact figures of its tooltip and its accessible names — every
- * one through the chart's `valueFormat` when it has one, else through `Intl` in
+ * spaces, and the figures of its tooltip and its accessible names — every one
+ * through the chart's `valueFormat` when it has one, else through `Intl` in
  * `locale`.
  *
  * Seven charts kept their own copy of the `Intl` half until 15.1, each with the
  * same two formatters and the same `formatValue`, and the line chart a second,
  * axis-wide copy for its ticks. The rules are theirs, unchanged:
  *
- * - `value` is never compact: the tooltip is where a reader goes for the exact
- *   figure the axis rounds. Below one it keeps three SIGNIFICANT digits, since the
- *   default three fraction digits write a reading of 0.0004 as `0`.
+ * - `value` is never compact, and is `Intl`'s default otherwise: up to three
+ *   fraction digits, and below one three SIGNIFICANT digits, since three fraction
+ *   digits write a reading of 0.0004 as `0`. It is not the exact figure: 1.08345
+ *   is `1.083`, and an axis stepping by 0.00025 is finer than it. A chart that has
+ *   to write a figure to a known precision asks `exact`.
  * - `label` is compact from a thousand up, where a bar is too narrow for
  *   `1,234,567`, and below a thousand it is `value`: compact rounding would print
  *   12.5 as `13`, and there is nothing to abbreviate.
@@ -61,7 +66,11 @@ function lastDigit(step: number): number {
  *   needs — a fixed count printed 1250 beside 1000 as `1.3k` and `1k` on an axis
  *   stepping by 250. And when abbreviating would make the labels LONGER (a fine
  *   step on large numbers, where `-1.025K` is wider than `-1,025`) the whole axis
- *   is written in full instead, so no axis mixes `-1K` with `-1,025`.
+ *   is written in full instead, so no axis mixes `-1K` with `-1,025`. Written in
+ *   full, a tick has as many fraction digits as the step's last digit needs, however
+ *   fine: they stopped at six, so an axis stepping by 2.5e-7 printed `0.000013` twice.
+ * - `exact` writes a figure to a precision the chart decides — the step of its axis,
+ *   a price's tick size — never compact, through `valueFormat` when there is one.
  *
  * `valueFormat` takes whatever extra arguments the chart passes it, so a chart can
  * tell its formatter which axis a number is for while a `(value) => string`
@@ -98,8 +107,11 @@ export function useChartNumbers<A extends readonly unknown[] = []>(
     const last = lastDigit(step);
     // A CEILING rather than a fixed count, so trailing zeros are dropped: a 0.25 step
     // wants two digits on 0.25 and none on 1, and `1.00` beside `0.25` reads as
-    // spurious precision.
-    const full = new Intl.NumberFormat(locale, { maximumFractionDigits: fractionDigits(step) });
+    // spurious precision. Down to the step's last digit, however fine — the six digits
+    // `fractionDigits` stops at printed a 2.5e-7 step as `0.000013` twice, and called
+    // a step below 1e-9 whole. A step with no last digit (a third) keeps those six.
+    const digits = last <= -21 ? fractionDigits(step) : clamp(-last, 0, 20);
+    const full = new Intl.NumberFormat(locale, { maximumFractionDigits: digits });
     const plain = values.map(v => full.format(v));
     const compact = values.map(v =>
       v === 0
@@ -113,5 +125,20 @@ export function useChartNumbers<A extends readonly unknown[] = []>(
     return longest(compact) <= longest(plain) ? compact : plain;
   };
 
-  return { value, label, ticks };
+  /** One formatter per precision asked for, since a chart asks with the same one on every pass. */
+  const exactNumbers = new Map<number, Intl.NumberFormat>();
+
+  const exact = (v: number, fractionDigits: number, ...args: A): string => {
+    const custom = valueFormat();
+    if (custom) return custom(v, ...args);
+    const digits = Number.isFinite(fractionDigits) ? clamp(Math.round(fractionDigits), 0, 20) : 3;
+    let writer = exactNumbers.get(digits);
+    if (!writer) {
+      writer = new Intl.NumberFormat(locale, { maximumFractionDigits: digits });
+      exactNumbers.set(digits, writer);
+    }
+    return writer.format(v);
+  };
+
+  return { value, label, ticks, exact };
 }

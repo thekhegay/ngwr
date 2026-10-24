@@ -42,7 +42,11 @@ interface WrChartAxis {
   readonly max: number;
   /** The gap between two ticks: 1, 2, 2.5 or 5 times a power of ten. */
   readonly step: number;
-  /** Every tick from the top down, the order a y axis reads, rounded to six fraction digits. */
+  /**
+   * Every tick from the top down, the order a y axis reads, rounded to two digits past
+   * the step's leading one (at least six fraction digits), so a decimal step does not
+   * drift and a fine one is written exactly.
+   */
   readonly ticks: readonly number[];
 }
 
@@ -81,9 +85,10 @@ interface WrChartAxisOptions {
 interface WrChartNumbers<A extends readonly unknown[] = []> {
   /**
    * A value written in full, never compact: the tooltip, a legend value, an
-   * accessible name — wherever a reader goes for the exact figure. Below one it
-   * keeps three significant digits rather than three fraction digits, which
-   * would write 0.0004 as `0`.
+   * accessible name. Up to three fraction digits, and below one three significant
+   * digits rather than three fraction digits, which would write 0.0004 as `0`. Not
+   * the exact figure — 1.08345 is `1.083` — so a chart that has to write one to a
+   * known precision asks {@link exact}.
    */
   value(value: number, ...args: A): string;
   /**
@@ -98,6 +103,13 @@ interface WrChartNumbers<A extends readonly unknown[] = []> {
    * makes the longest label longer than writing every tick in full.
    */
   ticks(values: readonly number[], step: number, ...args: A): string[];
+  /**
+   * A value written in full to at most `fractionDigits` fraction digits (0 to 20),
+   * trailing zeros dropped: a figure whose precision the chart knows — its axis step,
+   * a price's tick size — where {@link value} would round it to three. Through
+   * `valueFormat` when one is set, which is given `args` as every method gives them.
+   */
+  exact(value: number, fractionDigits: number, ...args: A): string;
 }
 
 export type { WrChartAxis, WrChartAxisOptions, WrChartMarkerExtent, WrChartMarkerShape, WrChartNumbers };

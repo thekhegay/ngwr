@@ -101,6 +101,21 @@ describe('chartAxis', () => {
     });
   });
 
+  it('rounds each tick to the step rather than to six digits, so a fine axis is exact', () => {
+    // Six digits cannot write a tick of a step finer than a millionth: v15 read this one
+    // 0.000013 / 0.000013 / 0.000013 / 0.000012 / 0.000012.
+    expect(chartAxis(0.00001205, 0.00001291, { symmetric: true }).ticks).toEqual([
+      0.000013, 0.00001275, 0.0000125, 0.00001225, 0.000012,
+    ]);
+    // Two of these were wrong — 0.000008 and 0.000003 — so two gridlines sat at the wrong height.
+    expect(chartAxis(0.0000012, 0.0000098).ticks).toEqual([0.00001, 0.0000075, 0.000005, 0.0000025, 0]);
+    // And these were all zero.
+    expect(chartAxis(1e-9, 3e-9).ticks).toEqual([3e-9, 2.5e-9, 2e-9, 1.5e-9, 1e-9]);
+    expect(chartAxis(1e-8, 5e-8).ticks).toEqual([6e-8, 5e-8, 4e-8, 3e-8, 2e-8, 1e-8]);
+    // A flat value centred the same way: v15 read 0.000001 / 0.0000012 / 0.000001.
+    expect(chartAxis(0.0000012, 0.0000012, { symmetric: true }).ticks).toEqual([0.0000014, 0.0000012, 0.000001]);
+  });
+
   it('aims for another number of gaps when asked', () => {
     expect(chartAxis(0, 100, { tickCount: 2 }).step).toBe(50);
     expect(chartAxis(0, 100, { tickCount: 10 }).step).toBe(10);
