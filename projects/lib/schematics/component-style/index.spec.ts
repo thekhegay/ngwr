@@ -153,6 +153,25 @@ describe('ng g ngwr:component-style', () => {
     expect(logs).toContain('ngwr: bar-chart is ngwr/charts/bar-chart since v15.');
   });
 
+  it('lands a bare name first shipped nested on its entry point, with no v15 history', async () => {
+    // `heatmap-chart` and `chart-legend` arrived in 15.1 under `charts/` and were
+    // never flat, so "since v15" would describe a move that never happened.
+    const { read, logs } = await run('src/styles.scss', THEMED, 'heatmap-chart', 'chart-legend');
+
+    expect(read()).toContain("@use 'ngwr/charts/heatmap-chart';\n@use 'ngwr/charts/chart-legend';\n");
+    expect(logs).toContain('ngwr: heatmap-chart is ngwr/charts/heatmap-chart.');
+    expect(logs).toContain('ngwr: chart-legend is ngwr/charts/chart-legend.');
+    expect(logs.join('\n')).not.toContain('since v15');
+  });
+
+  it('never reads a bare `core` as the internal chart helpers', async () => {
+    // `ngwr/charts/core` is loaded by every chart for itself; nobody typing
+    // "core" means it, and writing it would report a v15 move it never made.
+    await expect(run('src/styles.scss', THEMED, 'core')).rejects.toThrow(
+      /ngwr\/core is not an entry point with a stylesheet/
+    );
+  });
+
   it('refuses a name with no stylesheet, and writes nothing', async () => {
     // `ngwr/date` ships no sheet, and `ngwr/markdown` is gone: either line would
     // be reported as added and fail the next build.
