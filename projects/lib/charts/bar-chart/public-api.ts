@@ -1,1 +1,7 @@
-export { WrBarChart, type WrBarChartDatum } from './bar-chart';
+export {
+  WrBarChart,
+  type WrBarChartDatum,
+  type WrBarChartLine,
+  type WrBarChartOrientation,
+  type WrBarSeries,
+} from './bar-chart';

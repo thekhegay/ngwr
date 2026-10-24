@@ -1,26 +1,234 @@
-<!-- A named `group`, not an `img`: `img` is a children-presentational role, so the
-     bars' own `img` names inside it are dropped by a user agent that follows the spec —
-     WebKit drops exactly such a subtree, which is why the donut moved its `img` off the
-     wrapper. -->
-<div class="wr-bar-chart__plot" role="group" [attr.aria-label]="resolvedAriaLabel()" [style.height.px]="height()">
-  @for (bar of bars(); track $index) {
-    <div
-      class="wr-bar-chart__column"
-      role="img"
-      [attr.aria-label]="bar.name"
-      (mouseenter)="tip.enter($index)"
-      (mouseleave)="tip.leave($event)"
-    >
-      @if (showValues()) {
-        <span class="wr-bar-chart__value">{{ bar.display }}</span>
+@let isSeries = seriesMode();
+@let isHorizontal = horizontal();
+@let isCombo = hasLines();
+@if ((isSeries || isCombo) && showLegend() && legendItems().length > 0) {
+  <!-- Every row keys its series by the series' own dash, the one its bars' outlines are
+       drawn in, and each line by its dash and its marker. Rows are tracked by position, so
+       two series that share a label are two rows. -->
+  <ul
+    wr-chart-legend
+    class="wr-bar-chart__legend"
+    [items]="legendItems()"
+    [toggleable]="toggleableLegend()"
+    [hiddenSeries]="legendHidden()"
+    (hiddenSeriesChange)="onLegendHidden($event)"
+  ></ul>
+}
+
+@if (!isSeries && !isHorizontal && !isCombo) {
+  <!-- A named `group`, not an `img`: `img` is a children-presentational role, so the
+       bars' own `img` names inside it are dropped by a user agent that follows the spec —
+       WebKit drops exactly such a subtree, which is why the donut moved its `img` off the
+       wrapper. -->
+  <div class="wr-bar-chart__plot" role="group" [attr.aria-label]="resolvedAriaLabel()" [style.height.px]="height()">
+    @for (bar of bars(); track $index) {
+      <div
+        class="wr-bar-chart__column"
+        role="img"
+        [attr.aria-label]="bar.name"
+        (mouseenter)="tip.enter($index)"
+        (mouseleave)="tip.leave($event)"
+      >
+        @if (showValues()) {
+          <span class="wr-bar-chart__value">{{ bar.display }}</span>
+        }
+        <div #barEl class="wr-bar-chart__bar" [style.flex-grow]="bar.share" [style.background]="bar.color"></div>
+      </div>
+    }
+  </div>
+  <!-- Named on the column above, so the visible label row is decoration here. -->
+  <div class="wr-bar-chart__labels" aria-hidden="true">
+    @for (bar of bars(); track $index) {
+      <span class="wr-bar-chart__label">{{ bar.label }}</span>
+    }
+  </div>
+} @else {
+  <!-- The layout `series`, `orientation="horizontal"` and `lines` share: the plot is a grid
+       of the track the bars run along, a room past each end of it for the values printed
+       there, and — sideways — the gutter of category names. Still a named `group`, for the
+       reason the vertical `data` plot gives. Sideways, `height` is a floor rather than a
+       height: each row keeps room for a line of text, so many rows grow the plot. -->
+  <div
+    class="wr-bar-chart__plot"
+    role="group"
+    [attr.aria-label]="resolvedAriaLabel()"
+    [style.height.px]="isHorizontal ? null : height()"
+    [style.min-height.px]="isHorizontal ? height() : null"
+  >
+    @if (isHorizontal) {
+      <!-- In the plot, so the rows share its gap with the track; decoration, as under the
+           vertical bars: each row's group or image is named. -->
+      <div class="wr-bar-chart__labels" aria-hidden="true">
+        @for (label of categoryLabels(); track $index) {
+          <span class="wr-bar-chart__label">{{ label }}</span>
+        }
+      </div>
+    }
+    @if (showValues()) {
+      <!-- Hidden copies of the values printed past each end of the axis, stacked in one
+           cell: each room is as large as the largest of them, in the value's own font, so
+           a value past the longest bar has exactly the space it needs. Tracked by position:
+           they are measuring copies, and live data changes every text at once. -->
+      <div class="wr-bar-chart__room wr-bar-chart__room--max" aria-hidden="true">
+        @for (text of rooms().max; track $index) {
+          <span class="wr-bar-chart__value">{{ text }}</span>
+        }
+      </div>
+      <div class="wr-bar-chart__room wr-bar-chart__room--min" aria-hidden="true">
+        @for (text of rooms().min; track $index) {
+          <span class="wr-bar-chart__value">{{ text }}</span>
+        }
+      </div>
+    }
+    <div class="wr-bar-chart__track" [style.--wr-bar-chart-zero]="zero()">
+      @if (isSeries) {
+        @for (category of seriesCategories(); track $index) {
+          <div
+            #categoryEl
+            class="wr-bar-chart__category"
+            role="group"
+            [attr.aria-label]="category.label"
+            (mouseenter)="tip.enter($index)"
+            (mouseleave)="tip.leave($event)"
+          >
+            @for (lane of category.lanes; track lane.key) {
+              <div class="wr-bar-chart__lane">
+                <!-- By position, not by label: two series may share one. Each bar hands the
+                     stylesheet where it starts and how much of the axis it covers. -->
+                @for (bar of lane.bars; track bar.series) {
+                  <div
+                    class="wr-bar-chart__series-bar"
+                    role="img"
+                    [attr.aria-label]="bar.name"
+                    [style.--wr-bar-chart-color]="bar.color"
+                    [style.--wr-bar-chart-start]="bar.start"
+                    [style.--wr-bar-chart-size]="bar.size"
+                  >
+                    <!-- The outline, in the series' colour and its own dash: what tells two
+                         series apart without hue, and what the legend's key draws. Sized in
+                         pixels, so a dash is the same length on every bar. -->
+                    <svg class="wr-bar-chart__edge" aria-hidden="true" focusable="false">
+                      <rect
+                        width="100%"
+                        height="100%"
+                        fill="none"
+                        [attr.stroke]="bar.color"
+                        [attr.stroke-dasharray]="bar.dash || null"
+                      />
+                    </svg>
+                  </div>
+                }
+                @for (end of lane.ends; track $index) {
+                  <!-- Past one bar, hidden: the bar's own name carries its value. Past a pile,
+                       an image named "Total: 20": no bar's name carries the total, and a
+                       reader should not have to add the names up. -->
+                  <span
+                    class="wr-bar-chart__value"
+                    [class.wr-bar-chart__value--below]="end.below"
+                    [style.--wr-bar-chart-at]="end.at"
+                    [attr.role]="end.name ? 'img' : null"
+                    [attr.aria-label]="end.name"
+                    [attr.aria-hidden]="end.name ? null : 'true'"
+                    >{{ end.text }}</span
+                  >
+                }
+              </div>
+            }
+          </div>
+        }
+      } @else {
+        @for (bar of bars(); track $index) {
+          <!-- Beside `lines`, the column also hands the stylesheet where its bar starts: on
+               zero, or at its own end for a bar hanging below it. -->
+          <div
+            class="wr-bar-chart__column"
+            role="img"
+            [attr.aria-label]="bar.name"
+            [style.--wr-bar-chart-start]="isCombo ? bar.start : null"
+            (mouseenter)="tip.enter($index)"
+            (mouseleave)="tip.leave($event)"
+          >
+            @if (showValues()) {
+              <span
+                class="wr-bar-chart__value"
+                [class.wr-bar-chart__value--below]="bar.below"
+                [style.--wr-bar-chart-at]="bar.at"
+                >{{ bar.display }}</span
+              >
+            }
+            <div
+              #barEl
+              class="wr-bar-chart__bar"
+              [class.wr-bar-chart__bar--below]="bar.below"
+              [style.flex-grow]="bar.share"
+              [style.background]="bar.color"
+            ></div>
+          </div>
+        }
       }
-      <div #barEl class="wr-bar-chart__bar" [style.flex-grow]="bar.share" [style.background]="bar.color"></div>
+      <!-- After the bars, so it is drawn over them where zero runs through the plot. -->
+      <div class="wr-bar-chart__baseline"></div>
+      @for (line of lineLayers(); track line.index) {
+        <!-- Over the bars and the baseline, and out of the pointer's way, so hovering a
+             point still opens its category's tooltip. Each line is a group named by the
+             line, holding a named image per point; its runs are decoration. The box runs
+             from the middle of the first category to the middle of the last, which the
+             stylesheet works out from `count`, and every position in it is a percentage,
+             so nothing stretches: a dash and a marker keep their size at any width. -->
+        <svg
+          class="wr-bar-chart__line"
+          role="group"
+          focusable="false"
+          [attr.aria-label]="line.label"
+          [style.--wr-bar-chart-count]="line.count"
+        >
+          @for (segment of line.segments; track $index) {
+            <line
+              class="wr-bar-chart__line-segment"
+              [attr.x1]="`${segment.from.x}%`"
+              [attr.y1]="`${segment.from.y}%`"
+              [attr.x2]="`${segment.to.x}%`"
+              [attr.y2]="`${segment.to.y}%`"
+              [attr.stroke]="line.color"
+              [attr.stroke-dasharray]="line.dash || null"
+            />
+          }
+          @for (point of line.points; track point.category) {
+            <!-- A nested `<svg>` placed by percentage with its marker drawn about its origin
+                 in px, as the scatter chart places its points: one pixel of viewport, and
+                 `overflow` lets the marker reach outside it. -->
+            <svg
+              #pointEl
+              class="wr-bar-chart__point"
+              role="img"
+              width="1"
+              height="1"
+              overflow="visible"
+              [attr.aria-label]="point.name"
+              [attr.x]="`${point.x}%`"
+              [attr.y]="`${point.y}%`"
+              [attr.data-marker]="line.marker"
+            >
+              <path [attr.d]="line.d" [attr.fill]="line.color" />
+            </svg>
+          }
+        </svg>
+      }
+    </div>
+  </div>
+  @if (!isHorizontal) {
+    <!-- Named on each category's group above, so the visible label row is decoration. -->
+    <div class="wr-bar-chart__labels" aria-hidden="true">
+      @for (label of categoryLabels(); track $index) {
+        <span class="wr-bar-chart__label">{{ label }}</span>
+      }
     </div>
   }
-</div>
-<!-- Named on the column above, so the visible label row is decoration here. -->
-<div class="wr-bar-chart__labels" aria-hidden="true">
-  @for (bar of bars(); track $index) {
-    <span class="wr-bar-chart__label">{{ bar.label }}</span>
-  }
-</div>
+}
+
+@if (dataTable() && (isSeries || bars().length > 0)) {
+  <!-- The figures for a screen reader who wants to move cell by cell. Clipped to nothing
+       by its own stylesheet, so it takes no room and draws nothing. With `data`, one
+       column for the bars, then one per line. -->
+  <wr-chart-table [data]="tableData()" />
+}
