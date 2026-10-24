@@ -1398,11 +1398,17 @@ that sequence is a position rather than an oversight:
   A migration that pretended to have handled any of those would be worse than
   none, because the silence reads as "nothing to do".
 
-**The `@angular/*` peers are a caret on the major the repository builds with,
+**The `@angular/*` peers are a caret on the MINOR the repository builds with,
 never an open `>=`.** Angular's library guide supports an app only on the same
 or a newer Angular than the one that built the library, so the published
-package is built on the lowest major it promises. A newer framework major joins
-the range in a release once a CI job has run the suite on it; building on that
+package is built on the lowest version it promises, and the minor counts as
+much as the major. 15.0.0 promised `^22.0.0` while building on 22.2:
+`ngwr/schema-form` imports `isFieldTree`, which arrived in 22.1, and
+`ngwr/sidebar` imports `containsTree`, which arrived in 22.2, so an app on
+22.1 failed its build on an export that did not exist. `package.spec.ts` holds
+each peer's floor to the major and minor of the version the repository
+installs, so a bump to a new Angular minor is red until the peers move with
+it. A newer framework major joins the range in a release once a CI job has run the suite on it; building on that
 major instead would break every app still on the one below. v14 shipped
 `>=22.0.0`, which promised every future major untested, and v15 closed it. The
 library builder does not force the move: `@angular/build:library` arrives in a

@@ -43,7 +43,7 @@ Or add it manually (pnpm / npm / yarn):
 pnpm add ngwr @angular/cdk
 ```
 
-Requires Angular 22: the `@angular/*` peers are `^22.0.0` (`@angular/cdk`,
+Requires Angular 22.2 or a later 22.x: the `@angular/*` peers are `^22.2.0` (`@angular/cdk`,
 `@angular/common`, `@angular/core`, `@angular/forms`,
 `@angular/platform-browser`), plus `rxjs ^7`. A newer Angular major joins the
 range in a release once CI has run the suite on it. Optional: `@angular/router`,

@@ -107,8 +107,10 @@ nothing declares — so go through the report rather than waiting for the build.
 review the rewrites with `git diff`. An app already on 15.0.0-rc.0 or rc.1, which shipped without
 the codemod, gets it on its next `ng update ngwr`; running it again changes nothing.
 
-**The Angular peers are `^22.0.0`**, where v14 accepted every later major (`>=22.0.0`). A newer
-Angular major joins the range in a release once ngwr has been tested on it.
+**The Angular peers are `^22.2.0`**, where v14 accepted every later major (`>=22.0.0`). 15.0.0
+said `^22.0.0` and was wrong: `ngwr/schema-form` needs 22.1 and `ngwr/sidebar` 22.2, and an older
+22.x fails the build. A newer Angular major joins the range in a release once ngwr has been tested
+on it.
 
 ### Dark mode follows `color-scheme`
 
