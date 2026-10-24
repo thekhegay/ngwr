@@ -932,8 +932,11 @@ const REPORTS: readonly Report[] = [
     lead: 'a `color` naming a removed intent',
     body:
       'The palette is five intents — primary, success, warning, danger, info. `secondary` was a second brand ' +
-      'colour, and `light`, `medium` and `dark` were neutral fills; omitting `color` gives the neutral variant, ' +
-      'which is a different thing from a dark slab. Choose per site. With strictTemplates this is a compile error; ' +
+      'colour, and `light`, `medium` and `dark` were neutral fills. The neutral variant is a different thing from ' +
+      'a dark slab, and how you ask for it depends on the component: omit `color` on `wr-btn`, `wr-divider` and ' +
+      '`wr-skeleton`, but bind `[color]="null"` on `wr-tag` and `wr-badge`, whose `color` defaults to primary — ' +
+      'deleting the attribute there gives a primary tag. `wr-progress` has no neutral variant. Choose per site. ' +
+      'With strictTemplates this is a compile error; ' +
       'without it the component renders neutral and says nothing.',
     find: file =>
       isMarkup(file)

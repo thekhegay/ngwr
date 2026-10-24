@@ -107,8 +107,10 @@ nothing declares — so go through the report rather than waiting for the build.
 review the rewrites with `git diff`. An app already on 15.0.0-rc.0 or rc.1, which shipped without
 the codemod, gets it on its next `ng update ngwr`; running it again changes nothing.
 
-**The Angular peers are `^22.0.0`**, where v14 accepted every later major (`>=22.0.0`). A newer
-Angular major joins the range in a release once ngwr has been tested on it.
+**The Angular peers are `^22.2.0`**, where v14 accepted every later major (`>=22.0.0`). 15.0.0
+said `^22.0.0` and was wrong: `ngwr/schema-form` needs 22.1 and `ngwr/sidebar` 22.2, and an older
+22.x fails the build. A newer Angular major joins the range in a release once ngwr has been tested
+on it.
 
 ### Dark mode follows `color-scheme`
 
@@ -195,7 +197,10 @@ Their `-rgb` companions follow the table into `color-mix()`: the codemod turns
 `color-mix(in srgb, var(--wr-color-on-surface) 50%, transparent)`. The shades and tints of a
 removed intent have no successor. A `color` naming a removed intent is a compile error under
 `strictTemplates` and renders neutral without it; which intent it should become, if any, is your
-call — `<wr-btn color="dark">` and `<wr-btn>` are different buttons. A `.wr-*--secondary` (or
+call — `<wr-btn color="dark">` and `<wr-btn>` are different buttons. For the neutral variant, omit
+`color` on `wr-btn`, `wr-divider` and `wr-skeleton`, but bind `[color]="null"` on `wr-tag` and
+`wr-badge`: their `color` defaults to `primary`, so deleting the attribute gives a primary tag.
+`wr-progress` has no neutral variant. A `.wr-*--secondary` (or
 `--light`, `--medium`, `--dark`) selector stops matching, and a `$base-colors` map still carrying
 one of the four keys stops the Sass build. The codemod lists every file with one of these: a removed
 `color`, a removed class, a `--wr-color-secondary*` token, a shade of a removed intent, a
