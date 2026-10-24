@@ -14,6 +14,4 @@ export const OVERLAYS_ROUTES = [
   { path: components.popover.path, loadComponent: () => import('./popover/popover') },
   { path: components.toast.path, loadComponent: () => import('./toast/toast') },
   { path: components.window.path, loadComponent: () => import('./window/window') },
-  // A tombstone for an entry point v15 removed. It says what replaced it.
-  { path: components.actionSheet.path, loadComponent: () => import('./action-sheet/action-sheet') },
 ] satisfies Routes;

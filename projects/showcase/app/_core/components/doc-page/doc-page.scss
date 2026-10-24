@@ -70,22 +70,6 @@
     color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
   }
-
-  // The fact a tombstone page is about: the badge's own filled danger, so the
-  // page says at a glance that the thing it documents is gone.
-  wr-badge.since--removed {
-    font-variant-numeric: tabular-nums;
-  }
-}
-
-// A tombstone page (`removed` on the page). The title is struck through and
-// muted: the chip above says the same in words, which is what a screen reader
-// hears, since a line-through is not announced.
-:host(.removed) .title {
-  color: var(--wr-color-on-surface-muted);
-  text-decoration: line-through;
-  text-decoration-color: var(--wr-border-strong);
-  text-decoration-thickness: 0.0625em;
 }
 
 .title {

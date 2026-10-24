@@ -31,10 +31,10 @@ export default [
   ...OVERLAYS_ROUTES,
 
   // Slugs that were published and then renamed or folded. Every one was a page
-  // at some point, so every one keeps resolving. A slug whose entry point v15
-  // REMOVED is not here: `action-sheet`, `markdown` and `squircle` are pages
-  // again, tombstones that say what replaced them, where a redirect would land
-  // on a page that never mentions the thing the reader came for.
+  // at some point, so every one keeps resolving. A slug whose entry point was
+  // REMOVED is not here: its page went with it, and a redirect would land on a
+  // page that never mentions the thing the reader came for. What replaced it is
+  // on /docs/migration.
   { path: 'drag-drop', redirectTo: components.sortableList.path },
   { path: components.typography.path, redirectTo: '/guides/typography/overview' },
   { path: 'tag', redirectTo: components.badge.path },

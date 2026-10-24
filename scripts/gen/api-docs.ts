@@ -148,7 +148,7 @@
  *
  * **A second, much smaller artifact is written from the same walk:
  * `generated/since.ts`, the version marks each page declares — first shipped
- * in, public API changed in, removed in** (see `scanMarks()`). It is here rather than in a generator of its own for one
+ * in and public API changed in** (see `scanMarks()`). It is here rather than in a generator of its own for one
  * reason, and it is the same reason `staleGenerated()` is here: this run already
  * opens every showcase page, and `--check` already re-derives what it writes and
  * diffs it against the committed copy. A map keyed off pages that nothing
@@ -1697,27 +1697,24 @@ function staleGenerated(api: Map<string, ApiEntry>): { readonly lines: string[];
 const MARK_VERSION = /^\d+\.\d+\.\d+$/;
 
 /**
- * The three version marks a page may declare on its own `<ngwr-doc-page>`, each
+ * The two version marks a page may declare on its own `<ngwr-doc-page>`, each
  * a plain attribute holding one version:
  *
  *   - `since` — the version the page's subject FIRST SHIPPED IN. The nav marks it
  *     `New` while that version is on the current release line.
  *   - `updated` — the version the subject's PUBLIC API changed in, a move of its
  *     entry point included. Marked `Updated` on the same expiring rule.
- *   - `removed` — the version that deleted the subject. The page is a tombstone,
- *     kept so a published link still says what happened, and it is marked
- *     `Removed` for as long as it exists: there is nothing for that mark to
- *     expire into.
  *
- * One scan, one generated file, one staleness check for all three, because the
+ * One scan, one generated file, one staleness check for both, because the
  * reason for each is the same and so is the failure: a mark the page states and
- * the nav never shows.
+ * the nav never shows. A removed subject has no page: its page is deleted with
+ * it, and `/docs/migration` says what replaced it.
  */
-const MARKS = ['since', 'updated', 'removed'] as const;
+const MARKS = ['since', 'updated'] as const;
 type WrMark = (typeof MARKS)[number];
 
 /** The export each mark is written under in `generated/since.ts`. */
-const MARK_EXPORT: Readonly<Record<WrMark, string>> = { since: 'SINCE', updated: 'UPDATED', removed: 'REMOVED' };
+const MARK_EXPORT: Readonly<Record<WrMark, string>> = { since: 'SINCE', updated: 'UPDATED' };
 
 interface MarkScan {
   /** Mark → route (`reference/components/graph`) → the version its page declares. */
@@ -1736,8 +1733,8 @@ function compareVersions(a: string, b: string): number {
 }
 
 /**
- * The versions each docs page declares — first shipped, API changed, removed —
- * keyed by route.
+ * The versions each docs page declares — first shipped, API changed — keyed by
+ * route.
  *
  * **The page is the source of the fact, and that is the whole design.** Nothing
  * in `projects/lib` carries `@since` — there is no history to backfill from, and
@@ -1764,17 +1761,15 @@ function compareVersions(a: string, b: string): number {
  * Refused rather than skipped, because each one is a mark that would quietly
  * never appear or would say something false:
  *
- *   - **A bound `[since]`, `[updated]` or `[removed]`.** A text scan cannot
+ *   - **A bound `[since]` or `[updated]`.** A text scan cannot
  *     resolve an expression, and a page whose version lives in TypeScript would
  *     print its line and be absent from every nav.
  *   - **A version that is not `major.minor.patch`.** `'14.5'` and `'v14.5.0'`
  *     read as versions and match no release line, so the mark never lights up
  *     and nothing says why.
- *   - **`updated` beside `removed`.** A removed subject has no API left to
- *     change, and the nav shows one mark per row.
- *   - **`updated` or `removed` no later than `since`.** A subject cannot change
- *     or go in the release that added it; the mark would claim a history the
- *     page's own other line contradicts.
+ *   - **`updated` no later than `since`.** A subject cannot change in the
+ *     release that added it; the mark would claim a history the page's own
+ *     other line contradicts.
  *   - **A template no single route renders.** `icons/svg-only/` is one template
  *     behind six galleries; one declared version cannot mean six pages, and
  *     picking one of them by walk order is the silent half of that.
@@ -1786,7 +1781,7 @@ function compareVersions(a: string, b: string): number {
  * the component rather than a page, and their directories are not routes.
  */
 function scanMarks(pageRoutes: WrPageRoutes): MarkScan {
-  const marks: Record<WrMark, Map<string, string>> = { since: new Map(), updated: new Map(), removed: new Map() };
+  const marks: Record<WrMark, Map<string, string>> = { since: new Map(), updated: new Map() };
   // A route map that could not be built is not a smaller route map: every page
   // would then look unroutable, so the cause is reported once and the scan below
   // reports nothing it cannot stand behind.
@@ -1839,17 +1834,10 @@ function scanMarks(pageRoutes: WrPageRoutes): MarkScan {
 
       const since = declared.get('since');
       const updated = declared.get('updated');
-      const removed = declared.get('removed');
-      if (updated !== undefined && removed !== undefined) {
-        problems.push(`${rel}  declares both \`updated\` and \`removed\` — a removed page has no API left to update`);
+      if (updated !== undefined && since !== undefined && compareVersions(updated, since) <= 0) {
+        problems.push(`${rel}  declares updated="${updated}", which is not later than its since="${since}"`);
         continue;
       }
-      const later = (mark: 'updated' | 'removed', version: string | undefined): boolean => {
-        if (version === undefined || since === undefined || compareVersions(version, since) > 0) return true;
-        problems.push(`${rel}  declares ${mark}="${version}", which is not later than its since="${since}"`);
-        return false;
-      };
-      if (!later('updated', updated) || !later('removed', removed)) continue;
 
       if (served.length === 0) {
         problems.push(`${rel}  declares a version, but no route renders a component out of its directory`);
@@ -1896,15 +1884,15 @@ function serializeMarks(marks: MarkScan['marks']): string {
  * GENERATED by \`pnpm gen:api-docs\` from the pages themselves — do not edit.
  *
  * The version marks each docs page declares on its own \`<ngwr-doc-page>\`, keyed
- * by route: \`since\` (first shipped in), \`updated\` (public API changed in) and
- * \`removed\` (deleted in). Add the attribute there and re-run. A route absent
- * from a map declares nothing for it and shows nothing, which is most of them.
+ * by route: \`since\` (first shipped in) and \`updated\` (public API changed in).
+ * Add the attribute there and re-run. A route absent from a map declares nothing
+ * for it and shows nothing, which is most of them.
  *
  * Read by \`#core/utils\`'s \`linkMark()\`, which gives a nav entry \`New\` or
- * \`Updated\` while the declared version is on the CURRENT release line, and
- * \`Removed\` for as long as the page exists — so a mark is derived from one
- * string rather than typed a second time beside the link, and the first two
- * expire by themselves when \`NGWR_VERSION\` moves on.
+ * \`Updated\` while the declared version is on the CURRENT release line — the
+ * later of \`NGWR_VERSION\`'s and the newest one declared here (\`markVersion()\`)
+ * — so a mark is derived from one string rather than typed a second time beside
+ * the link, and it expires by itself when the next feature release moves on.
  */`)}
 
 /**
@@ -1916,13 +1904,10 @@ export const ${MARK_EXPORT.since} = ${body('since')} satisfies Record<string, st
 
 /** The version each page's subject last changed its public API in, a moved entry point included. */
 export const ${MARK_EXPORT.updated} = ${body('updated')} satisfies Record<string, string>;
-
-/** The version that removed each page's subject. The page is a tombstone, and its mark never expires. */
-export const ${MARK_EXPORT.removed} = ${body('removed')} satisfies Record<string, string>;
 `;
 }
 
-/** `12 since, 3 updated, 0 removed` — the run's own count, so nobody has to restate it. */
+/** `12 since, 3 updated` — the run's own count, so nobody has to restate it. */
 function markCounts(marks: MarkScan['marks']): string {
   return MARKS.map(mark => `${marks[mark].size} ${mark}`).join(', ');
 }
@@ -2065,7 +2050,7 @@ async function main(): Promise<void> {
       }
       if (marksStale.length > 0) {
         console.error(
-          `\n✘ ${relative(ROOT_PATH, SINCE_FILE)} no longer matches the \`since\` / \`updated\` / \`removed\`` +
+          `\n✘ ${relative(ROOT_PATH, SINCE_FILE)} no longer matches the \`since\` / \`updated\`` +
             ` attributes on the pages. Run \`pnpm gen:api-docs\` and commit the result — until then a page states` +
             ` a version the nav cannot mark, which nothing else would report.`
         );
@@ -2073,7 +2058,7 @@ async function main(): Promise<void> {
       if (marks.problems.length > 0) {
         console.error(
           `\n✘ ${marks.problems.length} version mark(s) above cannot be turned into a nav mark, and each line names` +
-            ` the template it is on. Write the version as a plain \`since\`, \`updated\` or \`removed\` attribute` +
+            ` the template it is on. Write the version as a plain \`since\` or \`updated\` attribute` +
             ` (\`updated="15.0.0"\`) on a page that ONE route renders — there is no allowlist for this, because a` +
             ` version nothing can key to a route is a page that states one and a nav that never says so.`
         );

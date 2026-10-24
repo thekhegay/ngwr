@@ -19,7 +19,4 @@ export const DISPLAY_ROUTES = [
   { path: components.qrCode.path, loadComponent: () => import('./qr/qr') },
   { path: components.statistic.path, loadComponent: () => import('./statistic/statistic') },
   { path: components.timeline.path, loadComponent: () => import('./timeline/timeline') },
-  // Tombstones for two entry points v15 removed. Each says what replaced it.
-  { path: components.markdown.path, loadComponent: () => import('./markdown/markdown') },
-  { path: components.squircle.path, loadComponent: () => import('./squircle/squircle') },
 ] satisfies Routes;

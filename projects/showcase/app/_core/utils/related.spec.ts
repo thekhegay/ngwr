@@ -6,8 +6,8 @@ import { RELATED } from './related';
 /**
  * `relatedOf()` drops a candidate the site serves no page for, silently, so a
  * curated See also link to a route outside `DOC_ROUTES` renders as nothing and
- * no build says so. One shipped that way: the Feather adapter tombstone named
- * `icons/feather`, which is the shared svg-only gallery and has no page entry.
+ * no build says so. One shipped that way: a curated link named `icons/feather`,
+ * which is the shared svg-only gallery and has no page entry.
  */
 describe('the curated See also map', () => {
   it('keys every entry by a page the site serves', () => {

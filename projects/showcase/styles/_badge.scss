@@ -1,7 +1,7 @@
 /// The docs' tiny row mark — "new" beside a nav row, "soon" beside a planned
-/// one, "updated" and "removed" beside a page whose subject a release changed or
-/// deleted — as one box, in two tones, included by the catalog page. Only `new`
-/// takes the loud tone; the other three are asides and share the quiet one.
+/// one, "updated" beside a page whose subject a release changed — as one box, in
+/// two tones, included by the catalog page. Only `new` takes the loud tone; the
+/// other two are asides and share the quiet one.
 ///
 /// **One box and two tones, because the two marks say opposite things.** `new`
 /// is meant to be caught from across the page: it is the whole point of the
@@ -50,7 +50,7 @@
   letter-spacing: 0.04em;
 }
 
-/// `soon`, `updated`, `removed` — present, not announced. The hairline is what
+/// `soon`, `updated` — present, not announced. The hairline is what
 /// gives an unfilled chip its shape.
 @mixin row-mark-quiet {
   background: var(--wr-color-surface);

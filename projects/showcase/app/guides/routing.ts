@@ -27,9 +27,6 @@ export default [
   { path: guides.ssr.path, loadComponent: () => import('./ssr/ssr') },
   { path: guides.testing.path, loadComponent: () => import('./testing/testing') },
   { path: guides.csp.path, loadComponent: () => import('./csp/csp') },
-  // The registry's presets were `wrThemeTokens()` output, which v15 removed.
-  // Its page is a tombstone that points at the compile-time rebrand.
-  { path: guides.registry.path, loadComponent: () => import('./registry/registry') },
   // These three are multi-page clusters, but they deliberately do NOT declare
   // their own `data.sidebar`: the sidebar resolves from the deepest activated
   // route, so a child sidebar would replace the guides nav on entry. They nest

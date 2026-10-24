@@ -7,9 +7,9 @@ import { describe, expect, it } from 'vitest';
 
 import * as SIDEBARS from '../../_layout/sidebar/configs';
 import { sidebarEntries } from '../../_layout/sidebar/entries';
-import { REMOVED, SINCE, UPDATED } from '../generated/since';
+import { SINCE, UPDATED } from '../generated/since';
 
-import { isNewIn, isNewLink, linkMark, releaseLabel, removedOf, routeKey, sinceOf, updatedOf } from './since';
+import { isNewIn, isNewLink, linkMark, markVersion, releaseLabel, routeKey, sinceOf, updatedOf } from './since';
 
 import type { SidebarGroup } from '#types';
 
@@ -81,12 +81,10 @@ describe('the docs "new" rule', () => {
   });
 });
 
-describe('the docs "updated" and "removed" marks', () => {
-  it('reads both out of the generated map', () => {
+describe('the docs "updated" mark', () => {
+  it('reads it out of the generated map', () => {
     expect(updatedOf('docs/configuration')).toBe('15.0.0');
-    expect(removedOf('reference/components/markdown')).toBe('15.0.0');
     expect(updatedOf('reference/components/alert')).toBeNull();
-    expect(removedOf('reference/components/alert')).toBeNull();
   });
 
   // `updated` rides the same expiring rule as `since`: a reader's question is
@@ -97,19 +95,80 @@ describe('the docs "updated" and "removed" marks', () => {
     expect(linkMark('/docs/configuration', '15.1.0')).toBeNull();
   });
 
-  // A tombstone has no other reason to be in the nav, so its mark has nothing
-  // to expire into: it stays until the page is deleted.
-  it('keeps a removal marked on every line after it', () => {
-    expect(linkMark('/reference/components/markdown', '15.0.0')).toBe('removed');
-    expect(linkMark('/reference/components/markdown', '16.3.0')).toBe('removed');
-  });
-
   it('gives a page one mark, and "new" wins over "updated"', () => {
     // The editor declares since 14.9.0 and updated 15.0.0.
     expect(linkMark('/reference/components/editor', '14.9.0')).toBe('new');
     expect(linkMark('/reference/components/editor', '15.0.0')).toBe('updated');
     expect(linkMark('/reference/components/alert', '15.0.0')).toBeNull();
     expect(linkMark(undefined, '15.0.0')).toBeNull();
+  });
+});
+
+/**
+ * Which line counts as current: the later of `NGWR_VERSION`'s and the newest
+ * one any page declares. On `next` the pages declare the release ahead while
+ * the constant still names the patch `main` last shipped, and the nav is meant
+ * to say what THAT release adds, not what the last two did.
+ */
+describe('the line the marks are judged against', () => {
+  it('stays on the shipped line while nothing is declared ahead of it', () => {
+    const current = markVersion('15.0.1', ['14.5.0', '15.0.0']);
+
+    expect(current).toBe('15.0.1');
+    expect(isNewIn('15.0.0', current)).toBe(true);
+    expect(isNewIn('14.5.0', current)).toBe(false);
+    expect(markVersion('15.0.1', [])).toBe('15.0.1');
+  });
+
+  it('hides the older line once a page declares the next one', () => {
+    const current = markVersion('15.0.1', ['15.0.0', '15.1.0']);
+
+    expect(current).toBe('15.1.0');
+    expect(isNewIn('15.1.0', current)).toBe(true);
+    expect(isNewIn('15.0.0', current)).toBe(false);
+    expect(markVersion('15.3.2', ['15.3.0', '16.0.0'])).toBe('16.0.0');
+  });
+
+  it('changes nothing once that release ships, and lets it expire after', () => {
+    expect(markVersion('15.1.0', ['15.0.0', '15.1.0'])).toBe('15.1.0');
+    expect(markVersion('15.1.2', ['15.0.0', '15.1.0'])).toBe('15.1.2');
+    expect(markVersion('15.1.0-rc.0', ['15.1.0'])).toBe('15.1.0-rc.0');
+    expect(isNewIn('15.1.0', markVersion('15.1.0-rc.0', ['15.1.0']))).toBe(true);
+    expect(isNewIn('15.1.0', markVersion('15.2.0', ['15.1.0']))).toBe(false);
+  });
+
+  // Fails closed on the constant, the way `isNewIn` always has: an unreadable
+  // `NGWR_VERSION` takes every mark off rather than guessing at a line.
+  it('passes an unreadable shipped version through and skips an unreadable declaration', () => {
+    expect(markVersion('next', ['15.1.0'])).toBe('next');
+    expect(markVersion('15.0.1', ['v99', '15.1'])).toBe('15.0.1');
+  });
+
+  it('runs the live constant and the live map through the rule', () => {
+    const current = markVersion();
+
+    expect(current).toBe(markVersion(NGWR_VERSION, [...Object.values(SINCE), ...Object.values(UPDATED)]));
+    expect(isNewIn(current, current)).toBe(true);
+    // Never behind the constant: the declarations can only move the line on.
+    expect(isNewIn(current, NGWR_VERSION)).toBe(true);
+  });
+
+  // One declaration far ahead by mistake would move the line past every other
+  // mark on the site, so a page may declare the next major at the latest.
+  it('holds every declared version to the next major at the latest', () => {
+    const major = Number(NGWR_VERSION.split('.')[0]);
+    const declared = [...Object.values(SINCE), ...Object.values(UPDATED)] as string[];
+
+    expect(declared.filter(version => Number(version.split('.')[0]) > major + 1)).toEqual([]);
+  });
+
+  it('marks the release ahead on the live map and steps the one behind back', () => {
+    const ahead = markVersion('15.0.1', ['15.0.0', '15.1.0']);
+
+    // `docs/configuration` was updated in 15.0, the popover in 15.1.
+    expect(linkMark('/docs/configuration', '15.0.1')).toBe('updated');
+    expect(linkMark('/docs/configuration', ahead)).toBeNull();
+    expect(linkMark('/reference/components/popover', ahead)).toBe('updated');
   });
 });
 
@@ -169,7 +228,7 @@ describe('the surfaces that draw it', () => {
   it('keys the map by something a nav row can look up', () => {
     const linked = new Set(navRows().flatMap(row => (row.url ? [routeKey(row.url)] : [])));
 
-    for (const map of [SINCE, UPDATED, REMOVED]) {
+    for (const map of [SINCE, UPDATED]) {
       const declared = Object.keys(map);
       expect(declared.length).toBeGreaterThan(0);
       expect(declared.filter(route => !linked.has(route))).toEqual([]);
@@ -181,17 +240,19 @@ describe('the surfaces that draw it', () => {
       .filter(row => isNewLink(row.url, '14.4.0'))
       .map(row => row.title);
 
+    // Sidebar order: the charts run group by group (comparison, trend, part to
+    // whole, distribution, single value, building blocks), alphabetical inside one.
     expect(marked).toEqual([
-      'Box Plot',
-      'Bullet Chart',
-      'Candlestick Chart',
-      'Chart Legend',
       'Funnel Chart',
-      'Heatmap Chart',
       'Radar Chart',
-      'Scatter Chart',
-      'Treemap Chart',
       'Waterfall Chart',
+      'Candlestick Chart',
+      'Treemap Chart',
+      'Box Plot',
+      'Heatmap Chart',
+      'Scatter Chart',
+      'Bullet Chart',
+      'Chart Legend',
       'Graph',
       'Editor',
       'resolveCssColor',
@@ -225,7 +286,7 @@ describe('the surfaces that draw it', () => {
     ]);
   });
 
-  it('gives the sidebar every "updated" and "removed" mark the rule gives a row', () => {
+  it('gives the sidebar every "updated" mark the rule gives a row', () => {
     const badges = new Map<string, string>();
     const visit = (entries: readonly WrSidebarEntry[]): void => {
       for (const entry of entries) {
@@ -236,45 +297,46 @@ describe('the surfaces that draw it', () => {
     for (const config of Object.values(SIDEBARS as Record<string, readonly SidebarGroup[]>)) {
       visit(sidebarEntries(config, '15.0.0'));
     }
-    const expected = (mark: 'updated' | 'removed'): string[] =>
-      navRows()
-        .filter(row => linkMark(row.url, '15.0.0') === mark)
-        .map(row => routeKey(row.url ?? ''))
-        .sort();
-    const drawn = (text: string): string[] =>
-      [...badges]
-        .filter(([, badge]) => badge === text)
-        .map(([route]) => route)
-        .sort();
+    const expected = navRows()
+      .filter(row => linkMark(row.url, '15.0.0') === 'updated')
+      .map(row => routeKey(row.url ?? ''))
+      .sort();
+    const drawn = [...badges]
+      .filter(([, badge]) => badge === 'Updated')
+      .map(([route]) => route)
+      .sort();
 
-    expect(drawn('Updated')).toEqual(expected('updated'));
-    expect(drawn('Removed')).toEqual(expected('removed'));
-    expect(drawn('Removed')).toEqual(Object.keys(REMOVED).sort());
+    expect(drawn).toEqual(expected);
+    expect(drawn.length).toBeGreaterThan(0);
   });
 
-  // A tombstone is not part of the catalog: it goes after the live rows of its
-  // group whatever order the config lists it in, and the count leaves it out.
-  it('sorts a removed row after the live ones and keeps it out of the count', () => {
-    const [group] = sidebarEntries(
-      [
-        {
-          title: 'Display',
-          children: [
-            { title: 'Markdown', url: '/reference/components/markdown' },
-            { title: 'Avatar', url: '/reference/components/avatar' },
-            { title: 'Charts', url: '/charts/bar-chart' },
-          ],
-        },
-      ],
-      '15.0.0'
-    );
+  // With no line pinned, every surface judges against `markVersion()`: the
+  // newest declared line or the shipped one, whichever is later. So no row of
+  // an older line is marked while a page declares a newer one — the state `next`
+  // is in for as long as its release has not shipped.
+  it('marks only the newest declared line when nothing pins one', () => {
+    const declared = [...Object.values(SINCE), ...Object.values(UPDATED)] as string[];
+    const newestDeclared = markVersion('0.0.0', declared);
+    const marked = navRows().filter(row => linkMark(row.url) !== null);
 
-    expect(group).toMatchObject({ count: 2, countLabel: '2 pages' });
-    expect('children' in group ? group.children : []).toEqual([
-      { title: 'Avatar', url: ['/reference/components/avatar'] },
-      { title: 'Charts', url: ['/charts/bar-chart'], badge: { text: 'Updated', tone: 'neutral' } },
-      { title: 'Markdown', url: ['/reference/components/markdown'], badge: { text: 'Removed', tone: 'neutral' } },
-    ]);
+    for (const row of marked) {
+      const route = routeKey(row.url ?? '');
+      const version = linkMark(row.url) === 'new' ? sinceOf(route) : updatedOf(route);
+      expect(isNewIn(version ?? '', newestDeclared)).toBe(true);
+      expect(linkMark(row.url)).toBe(linkMark(row.url, markVersion()));
+    }
+
+    const badges: string[] = [];
+    const visit = (entries: readonly WrSidebarEntry[]): void => {
+      for (const entry of entries) {
+        if ('children' in entry) visit(entry.children);
+        else if (entry.badge?.text === 'New' || entry.badge?.text === 'Updated') badges.push(String(entry.url[0]));
+      }
+    };
+    for (const config of Object.values(SIDEBARS as Record<string, readonly SidebarGroup[]>))
+      visit(sidebarEntries(config));
+
+    expect([...new Set(badges)].sort()).toEqual(marked.map(row => row.url ?? '').sort());
   });
 
   it('draws the same marks on the cluster index pages', () => {
@@ -282,9 +344,10 @@ describe('the surfaces that draw it', () => {
 
     expect(html).toMatch(/@let linkMark = mark\(link\);/);
     expect(html).toMatch(/@if \(linkMark\) \{ <span class="index__sep">,&nbsp;<\/span> <small class="index__badge"/);
-    for (const mark of ['new', 'updated', 'removed']) {
+    for (const mark of ['new', 'updated']) {
       expect(html).toContain(`[class.index__badge--${mark}]="linkMark === '${mark}'"`);
     }
+    expect(html).not.toContain('removed');
   });
 
   // The two marks share a box and must not share a tone. `new` is the one thing
@@ -319,9 +382,6 @@ describe('the surfaces that draw it', () => {
     expect(html).toMatch(
       /@if \(updatedIn\(\); as updated\) \{ <wr-badge class="since"[^>]*>\{\{ updated \}\}<\/wr-badge>/
     );
-    expect(html).toMatch(
-      /@if \(removedIn\(\); as removed\) \{ <wr-badge class="since--removed" color="danger"[^>]*>\{\{ removed \}\}<\/wr-badge>/
-    );
     expect(html).toMatch(/<h1 [^>]*class="title">\{\{ title\(\) \}\}<\/h1>/);
   });
 
@@ -344,6 +404,6 @@ describe('the surfaces that draw it', () => {
     expect(generator.match(/\bscanMarks\(pageRoutes\)/g)).toHaveLength(2);
     expect(generator).toMatch(/\bstaleMarks\(marks\.marks\)/);
     expect(generator).toMatch(/file: SINCE_FILE,\s*content: serializeMarks\(marks\.marks\)/);
-    expect(generator).toMatch(/const MARKS = \['since', 'updated', 'removed'\] as const;/);
+    expect(generator).toMatch(/const MARKS = \['since', 'updated'\] as const;/);
   });
 });
