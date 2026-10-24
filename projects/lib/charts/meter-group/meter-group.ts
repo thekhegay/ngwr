@@ -18,7 +18,8 @@ import type { WrMeterSegment } from './types';
 /**
  * Stacked-segment progress bar. Visualises a breakdown of a total —
  * disk usage, budget, vote share, etc. Each segment contributes a slice
- * proportional to its `value` relative to the sum (or the explicit `max`).
+ * proportional to its `value` relative to the sum of the segments shown (or the
+ * explicit `max`).
  *
  * @example
  * ```html
@@ -54,12 +55,13 @@ export class WrMeterGroup {
   protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'meterGroup.label', 'Meter');
 
   /**
-   * The parts of the bar, in order. Values are summed and each segment is drawn
-   * as its share of that total, so they need not add up to anything in particular.
+   * The parts of the bar, in order. Each segment is drawn as its share of `max` when
+   * set, else of the sum of the segments shown, so they need not add up to anything in
+   * particular.
    */
   readonly segments = input<readonly WrMeterSegment[]>([]);
 
-  /** Explicit total. When `0` (default), `max = sum(values)`. @default 0 */
+  /** Explicit total, a capacity the segments fill. `0` (default) uses the sum of the segments shown. @default 0 */
   readonly max = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
 
   /** Show the labelled legend under the bar. @default true */
@@ -108,7 +110,7 @@ export class WrMeterGroup {
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  /** Each value as the legend, the tooltip and the bar print it: exact, in `LOCALE_ID` unless `valueFormat` is given. */
+  /** Each value as the legend, the tooltip and the bar print it: never compact, in `LOCALE_ID` unless `valueFormat` is given. */
   private readonly numbers = useChartNumbers(this.valueFormat);
 
   private readonly sliceEls = viewChildren<ElementRef<HTMLElement>>('slice');

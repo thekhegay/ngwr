@@ -65,12 +65,28 @@ export class WrMeterGroupHarness extends ComponentHarness {
 
   /** The total the bands add up to, from `aria-valuenow`. */
   async getValue(): Promise<number> {
-    return Number(await (await this.bar()).getAttribute('aria-valuenow'));
+    return this.numberAttribute('aria-valuenow', 'getValue');
   }
 
   /** The full capacity, from `aria-valuemax` — given, or the sum of the bands. */
   async getMax(): Promise<number> {
-    return Number(await (await this.bar()).getAttribute('aria-valuemax'));
+    return this.numberAttribute('aria-valuemax', 'getMax');
+  }
+
+  /**
+   * A finite number off one of the bar's attributes, or a sentence saying which one it
+   * lacks. `Number(null)` is `0`, so a lost binding read as an empty bar.
+   */
+  private async numberAttribute(name: string, method: string): Promise<number> {
+    const raw = await (await this.bar()).getAttribute(name);
+    const value = raw === null ? Number.NaN : Number.parseFloat(raw);
+    if (!Number.isFinite(value)) {
+      throw new Error(
+        `WrMeterGroupHarness.${method}(): the bar carries ${name}="${raw ?? ''}", which the component writes as a ` +
+          'finite number on every meter group.'
+      );
+    }
+    return value;
   }
 
   /** The bands, in order, with the share of the bar each takes. A hidden segment draws no band. */

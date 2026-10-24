@@ -96,6 +96,7 @@ describe('WrMeterGroupHarness', () => {
   it('lists the bands in the legend, with their values', async () => {
     const harness = await meter();
 
+    expect(await harness.hasLegend()).toBe(true);
     expect(await harness.getLegendLabels()).toEqual(['Apps', 'Photos', 'Free']);
     expect(await harness.getLegendValues()).toEqual(['30', '50', '20']);
   });
@@ -144,6 +145,9 @@ describe('WrMeterGroupHarness', () => {
   });
 
   it('matches on the name and on a band label', async () => {
+    // The catalog's fallback name, since the host binds none.
+    expect(await loader.getHarnessOrNull(WrMeterGroupHarness.with({ ariaLabel: 'Meter' }))).not.toBeNull();
+    expect(await loader.getHarnessOrNull(WrMeterGroupHarness.with({ ariaLabel: /storage/i }))).toBeNull();
     expect(await loader.getHarnessOrNull(WrMeterGroupHarness.with({ sliceLabel: 'Photos' }))).not.toBeNull();
     expect(await loader.getHarnessOrNull(WrMeterGroupHarness.with({ sliceLabel: 'Music' }))).toBeNull();
   });

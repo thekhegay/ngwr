@@ -9,7 +9,7 @@
 export interface WrMeterSegment {
   /** Label shown in the legend. */
   readonly label: string;
-  /** Magnitude — interpreted as a portion of the sum of all segments. */
+  /** Its share of the bar: of `max` when set, else of the sum of the segments shown. */
   readonly value: number;
   /** CSS color for the bar slice and legend swatch. Defaults to `--wr-color-primary` etc. */
   readonly color?: string;
