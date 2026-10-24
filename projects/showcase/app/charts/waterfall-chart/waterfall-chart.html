@@ -1,0 +1,141 @@
+<ngwr-doc-page
+  title="Waterfall Chart"
+  since="15.1.0"
+  description="How a figure gets from one value to another, one change at a time."
+  [keywords]="['waterfall-chart', 'waterfall', 'bridge-chart', 'wr-waterfall-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="A change floats from the running total. A total is a bar from zero. Up, down and total each have their own colour, sign and direction."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-waterfall-chart style="width: 100%" ariaLabel="Profit bridge" [steps]="bridge" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Totals"
+    description="A total shows the running total, and its `value` is checked rather than drawn: in dev mode, a value the steps above do not add up to warns. A total before every change opens the chart at its value."
+  >
+    <ngwr-doc-code [code]="snippets.totals" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.totalsTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-waterfall-chart style="width: 100%" ariaLabel="First half, by month" [steps]="months" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Below zero"
+    description="The value axis always includes zero. A running total below it hangs under the zero line."
+  >
+    <ngwr-doc-code [code]="snippets.negative" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-waterfall-chart style="width: 100%" ariaLabel="Cash flow" [steps]="cash" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colours"
+    description="`increaseColor`, `decreaseColor` and `totalColor` take any CSS colour. Success, danger and primary by default."
+  >
+    <ngwr-doc-code [code]="snippets.colors" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-waterfall-chart
+        style="width: 100%"
+        ariaLabel="Profit bridge"
+        totalColor="var(--wr-color-on-surface-muted)"
+        [steps]="bridge"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Number format"
+    description="Numbers follow `LOCALE_ID`. `valueFormat` replaces it. Every figure arrives as its magnitude, and the chart writes the sign."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-waterfall-chart style="width: 100%" ariaLabel="Profit bridge" [steps]="bridge" [valueFormat]="format" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Quieter"
+    description="`showValues`, `showGrid` and `showConnectors` each turn one layer off. Keep the figures or the connectors: with both off, only colour tells up from down. The names, the tooltip and the data table keep every figure."
+  >
+    <ngwr-doc-code [code]="snippets.quiet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-waterfall-chart
+        style="width: 100%"
+        ariaLabel="Profit bridge"
+        [steps]="bridge"
+        [showValues]="false"
+        [showGrid]="false"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` renders every figure as a table only screen readers reach: a row per step, with its change and the running total. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="snippets.table" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-waterfall-chart style="width: 100%" ariaLabel="Profit bridge" dataTable [steps]="bridge" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Chart</th>
+            <td>A <code>role="group"</code>, named by <code>ariaLabel</code>. No tab stop.</td>
+          </tr>
+          <tr>
+            <th scope="row">Steps</th>
+            <td>One <code>role="img"</code> each, named with the change and the running total.</td>
+          </tr>
+          <tr>
+            <th scope="row">Up, down, total</th>
+            <td>
+              Told apart by direction, by a <code>+</code> or <code>−</code> sign and by a heavier total label, not only
+              colour. Turning off both <code>showValues</code> and <code>showConnectors</code> leaves only colour.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Zero change</th>
+            <td>A neutral hairline, printed <code>0</code>. Not an increase.</td>
+          </tr>
+          <tr>
+            <th scope="row">Tooltip</th>
+            <td>Pointer only. <kbd>Escape</kbd> closes it.</td>
+          </tr>
+          <tr>
+            <th scope="row">Forced colours</th>
+            <td>Bars keep their colours. Lines take system colours.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

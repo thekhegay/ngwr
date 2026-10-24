@@ -50,6 +50,13 @@ export default class RadarChartPageComponent {
     { label: 'East', data: [66, 59, 70, 83, 77] },
   ];
 
+  protected readonly directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+
+  protected readonly wind: readonly WrRadarSeries[] = [
+    { label: 'Winter', data: [42, 30, 12, 8, 10, 18, 36, 48] },
+    { label: 'Summer', data: [12, 16, 28, 34, 30, 22, 14, 10] },
+  ];
+
   protected readonly hiddenSeries = signal<readonly number[]>([]);
 
   protected readonly snippets = {
@@ -66,6 +73,14 @@ export default class RadarChartPageComponent {
 
 <!-- Fixed: a rating out of 5, one ring per point -->
 <wr-radar-chart [axes]="skills" [series]="ratings" [max]="5" />`,
+    polar: `<wr-radar-chart variant="polar-area" [axes]="directions" [series]="wind" toggleableLegend />`,
+    polarTs: `directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+
+// Hours of wind from each direction. A wedge's area, not its radius, is the value.
+wind: WrRadarSeries[] = [
+  { label: 'Winter', data: [42, 30, 12, 8, 10, 18, 36, 48] },
+  { label: 'Summer', data: [12, 16, 28, 34, 30, 22, 14, 10] },
+];`,
     gaps: `<wr-radar-chart [axes]="axes" [series]="survey" [max]="100" />`,
     gapsTs: `survey: WrRadarSeries[] = [
   { label: '2025', data: [62, 71, 58, 66, 74] },
@@ -81,7 +96,9 @@ export default class RadarChartPageComponent {
   label: string;
   data: readonly number[];
   color?: string;
-}`;
+}
+
+type WrRadarVariant = 'polygon' | 'polar-area';`;
 
   protected readonly api = API.WrRadarChart;
 
@@ -101,6 +118,11 @@ export default class RadarChartPageComponent {
       type: 'string',
       default: 'palette',
       sub: true,
+    },
+    {
+      name: 'WrRadarVariant',
+      description: 'How the series are drawn: polygons, or wedges whose area is the value.',
+      type: "'polygon' | 'polar-area'",
     },
   ];
 }

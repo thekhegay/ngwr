@@ -1,0 +1,143 @@
+<ngwr-doc-page
+  title="Box Plot"
+  since="15.1.0"
+  description="How the values of several groups are spread: the median, the middle half, the range and the outliers of each, side by side."
+  [keywords]="['boxplot-chart', 'box-plot', 'box-and-whisker', 'quartiles', 'distribution', 'wr-boxplot-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Pass each group's raw `values`. The chart works out the quartiles, the whiskers and the outliers. The value axis fits the data and does not start at zero."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-boxplot-chart style="width: 100%" xLabel="Region" yLabel="Response time, ms" [groups]="regions" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Reading a box"
+    description="Quartiles use linear interpolation: type 7, the default in R and NumPy, and Excel's QUARTILE.INC. Whiskers follow Tukey's rule."
+  >
+    <ngwr-doc-code [code]="snippets.anatomy" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-boxplot-chart style="width: 100%" [height]="200" [groups]="anatomy" />
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Mark</th>
+            <th scope="col">Means</th>
+            <th scope="col">Here</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Box</th>
+            <td>The first quartile to the third: the middle half of the values.</td>
+            <td>16 to 23</td>
+          </tr>
+          <tr>
+            <th scope="row">Line in the box</th>
+            <td>The median.</td>
+            <td>19</td>
+          </tr>
+          <tr>
+            <th scope="row">Whiskers</th>
+            <td>The farthest values within 1.5 × the box's height (the IQR) of the box.</td>
+            <td>12 and 27</td>
+          </tr>
+          <tr>
+            <th scope="row">Dots</th>
+            <td>Outliers: values past the whiskers' reach.</td>
+            <td>48, past 23 + 1.5 × 7</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Precomputed stats"
+    description="Already have the summary? Pass `stats` instead of `values`. It is drawn as given. A group's `color` overrides the chart's."
+  >
+    <ngwr-doc-code [code]="snippets.stats" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.statsTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-boxplot-chart style="width: 100%" yLabel="Build time, s" [groups]="releases" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Number format"
+    description="Numbers follow `LOCALE_ID`. `valueFormat` replaces it for the ticks, the tooltip and the data table."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-boxplot-chart style="width: 100%" yLabel="Build time" [groups]="releases" [valueFormat]="seconds" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` adds a table only screen readers reach: a row per group, its five numbers and its outliers. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="snippets.table" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-boxplot-chart
+        style="width: 100%"
+        ariaLabel="Response time by region"
+        xLabel="Region"
+        yLabel="Response time, ms"
+        dataTable
+        [groups]="regions"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Plot</th>
+            <td>One <code>role="img"</code>, named by <code>ariaLabel</code>. No tab stop.</td>
+          </tr>
+          <tr>
+            <th scope="row">Values</th>
+            <td>Only in the tooltip, unless <code>dataTable</code> is on.</td>
+          </tr>
+          <tr>
+            <th scope="row">Groups</th>
+            <td>Named under their boxes. Colour carries nothing the name does not.</td>
+          </tr>
+          <tr>
+            <th scope="row">Tooltip</th>
+            <td>Pointer only. <kbd>Escape</kbd> closes it.</td>
+          </tr>
+          <tr>
+            <th scope="row">Forced colours</th>
+            <td>Every mark is drawn as an outline in the system text colour.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

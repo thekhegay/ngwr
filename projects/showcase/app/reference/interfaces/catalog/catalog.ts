@@ -94,6 +94,13 @@ export default class TypesCatalogPage {
       title: 'Charts',
       items: [
         { name: 'WrBarChartDatum', description: 'One bar of data.', url: ['/charts', 'bar-chart'] },
+        { name: 'WrBarSeries', description: 'One series of bars, grouped or stacked.', url: ['/charts', 'bar-chart'] },
+        {
+          name: 'WrBarChartOrientation',
+          description: 'Bars standing up or lying down.',
+          url: ['/charts', 'bar-chart'],
+        },
+        { name: 'WrBarChartLine', description: 'A line drawn over the bars.', url: ['/charts', 'bar-chart'] },
         { name: 'WrLineSeries', description: 'One plotted line.', url: ['/charts', 'line-chart'] },
         { name: 'WrDonutSegment', description: 'One slice of the ring.', url: ['/charts', 'donut-chart'] },
         { name: 'WrHeatmapDatum', description: 'One contribution cell.', url: ['/charts', 'calendar-heatmap'] },
@@ -106,6 +113,39 @@ export default class TypesCatalogPage {
           url: ['/charts', 'scatter-chart'],
         },
         { name: 'WrRadarSeries', description: 'One polygon across the axes.', url: ['/charts', 'radar-chart'] },
+        { name: 'WrRadarVariant', description: 'Polygons or polar-area wedges.', url: ['/charts', 'radar-chart'] },
+        {
+          name: 'WrHeatmapMatrix',
+          description: 'Rows × columns of values; null is an empty cell.',
+          url: ['/charts', 'heatmap-chart'],
+        },
+        { name: 'WrFunnelStage', description: 'One stage of a funnel.', url: ['/charts', 'funnel-chart'] },
+        {
+          name: 'WrFunnelConversion',
+          description: 'Which conversions the drawing prints.',
+          url: ['/charts', 'funnel-chart'],
+        },
+        {
+          name: 'WrWaterfallStep',
+          description: 'One change, or a running total.',
+          url: ['/charts', 'waterfall-chart'],
+        },
+        {
+          name: 'WrTreemapNode',
+          description: 'A leaf, or a group drawn round its children.',
+          url: ['/charts', 'treemap-chart'],
+        },
+        {
+          name: 'WrBoxplotGroup',
+          description: 'One box: raw values or a summary.',
+          url: ['/charts', 'boxplot-chart'],
+        },
+        { name: 'WrBoxplotStats', description: 'A five-number summary.', url: ['/charts', 'boxplot-chart'] },
+        {
+          name: 'WrCandlestickDatum',
+          description: "One period's open, high, low and close.",
+          url: ['/charts', 'candlestick-chart'],
+        },
         { name: 'WrChartLegendItem', description: 'One legend row.', url: ['/charts', 'chart-legend'] },
         { name: 'WrChartLegendToggle', description: 'What a toggled row emits.', url: ['/charts', 'chart-legend'] },
         { name: 'WrChartMarker', description: 'A point marker shape.', url: ['/charts', 'chart-legend'] },

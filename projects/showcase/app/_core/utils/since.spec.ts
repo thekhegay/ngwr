@@ -83,7 +83,7 @@ describe('the docs "new" rule', () => {
 
 describe('the docs "updated" and "removed" marks', () => {
   it('reads both out of the generated map', () => {
-    expect(updatedOf('charts/bar-chart')).toBe('15.0.0');
+    expect(updatedOf('charts/gauge')).toBe('15.0.0');
     expect(removedOf('reference/components/markdown')).toBe('15.0.0');
     expect(updatedOf('reference/components/alert')).toBeNull();
     expect(removedOf('reference/components/alert')).toBeNull();
@@ -92,9 +92,9 @@ describe('the docs "updated" and "removed" marks', () => {
   // `updated` rides the same expiring rule as `since`: a reader's question is
   // what changed in THIS feature release, so the mark leaves with the next one.
   it('marks an update on its own line and drops it when the next minor ships', () => {
-    expect(linkMark('/charts/bar-chart', '15.0.0')).toBe('updated');
-    expect(linkMark('/charts/bar-chart', '15.0.0-rc.1')).toBe('updated');
-    expect(linkMark('/charts/bar-chart', '15.1.0')).toBeNull();
+    expect(linkMark('/charts/gauge', '15.0.0')).toBe('updated');
+    expect(linkMark('/charts/gauge', '15.0.0-rc.1')).toBe('updated');
+    expect(linkMark('/charts/gauge', '15.1.0')).toBeNull();
   });
 
   // A tombstone has no other reason to be in the nav, so its mark has nothing
@@ -182,9 +182,16 @@ describe('the surfaces that draw it', () => {
       .map(row => row.title);
 
     expect(marked).toEqual([
+      'Box Plot',
+      'Bullet Chart',
+      'Candlestick Chart',
       'Chart Legend',
+      'Funnel Chart',
+      'Heatmap Chart',
       'Radar Chart',
       'Scatter Chart',
+      'Treemap Chart',
+      'Waterfall Chart',
       'Graph',
       'Editor',
       'resolveCssColor',

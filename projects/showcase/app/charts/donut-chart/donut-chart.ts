@@ -30,6 +30,13 @@ export default class DonutChartPageComponent {
     { label: 'Free', value: 15 },
   ];
 
+  protected readonly devices: readonly WrDonutSegment[] = [
+    { label: 'Desktop', value: 5440 },
+    { label: 'Mobile', value: 3920 },
+    { label: 'Tablet', value: 560 },
+    { label: 'Other', value: 80 },
+  ];
+
   protected readonly sources: readonly WrDonutSegment[] = [
     { label: 'Direct', value: 4812 },
     { label: 'Search', value: 3206 },
@@ -41,7 +48,7 @@ export default class DonutChartPageComponent {
 
   protected readonly snippets = {
     basic: `<wr-donut-chart [segments]="segments" centerLabel="Disk" centerValue="60%" />`,
-    solid: `<wr-donut-chart [segments]="segments" thickness="0" />`,
+    pie: `<wr-donut-chart [segments]="segments" pie />`,
     tooltip: `<wr-donut-chart [segments]="segments" />
 <wr-donut-chart [segments]="segments" [tooltip]="false" />`,
     toggle: `<wr-donut-chart [segments]="segments" toggleableLegend [(hiddenSegments)]="hidden" />`,
@@ -63,16 +70,23 @@ export default class DonutChartPageComponent {
     },
     {
       name: 'ariaLabel',
-      description: 'Accessible name of the chart. Falls back to the `donutChart.label` catalog key.',
+      description:
+        'Accessible name of the chart. Falls back to `donutChart.label`, or `donutChart.pieLabel` with `pie`.',
       type: 'string | null',
       default: 'null',
     },
     { name: 'size', description: 'Diameter in CSS pixels (min 48).', type: 'number', default: '200' },
     {
       name: 'thickness',
-      description: 'Ring thickness as a % of the radius. `0` draws a solid pie.',
+      description: 'Ring thickness as a % of the radius. `0` fills to the centre. Ignored with `pie`.',
       type: 'number',
       default: '30',
+    },
+    {
+      name: 'pie',
+      description: 'Fill every slice to the centre. No centre text. The name falls back to `donutChart.pieLabel`.',
+      type: 'boolean',
+      default: 'false',
     },
     { name: 'showLegend', description: 'Show the legend under the chart.', type: 'boolean', default: 'true' },
     {
@@ -88,11 +102,21 @@ export default class DonutChartPageComponent {
       type: 'readonly number[]',
       default: '[]',
     },
-    { name: 'centerValue', description: 'Bold value text in the center.', type: 'string', default: "''" },
-    { name: 'centerLabel', description: 'Smaller label under the center value.', type: 'string', default: "''" },
+    {
+      name: 'centerValue',
+      description: 'Bold value text in the center. Not drawn with `pie`.',
+      type: 'string',
+      default: "''",
+    },
+    {
+      name: 'centerLabel',
+      description: 'Smaller label under the center value. Not drawn with `pie`.',
+      type: 'string',
+      default: "''",
+    },
     {
       name: 'tooltip',
-      description: 'Show the slice label and value on hover.',
+      description: 'Show the slice label and value on hover. With `pie`, a thin slice gets a wider hover target.',
       type: 'boolean',
       default: 'true',
     },

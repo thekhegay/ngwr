@@ -1,0 +1,122 @@
+<ngwr-doc-page
+  title="Candlestick Chart"
+  since="15.1.0"
+  description="Prices over time: a candle per period, its wick from the low to the high and its body from the open to the close."
+  [keywords]="['candlestick-chart', 'candlestick', 'ohlc', 'stock-chart', 'wr-candlestick-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="One candle per period, evenly spaced. The y axis fits the lows and highs and is not forced to zero."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.basicTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-candlestick-chart style="width: 100%" ariaLabel="ACME, daily" [data]="month" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Up and down"
+    description="A rising candle is hollow, a falling one filled, so the fill tells them apart without colour. `upColor` and `downColor` swap the colours for a market that draws rises in red. The fill stays."
+  >
+    <ngwr-doc-code [code]="snippets.colors" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-candlestick-chart
+        style="width: 100%"
+        ariaLabel="ACME, daily, rises in red"
+        upColor="var(--wr-color-danger)"
+        downColor="var(--wr-color-success)"
+        [data]="month"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Many candles"
+    description="Bodies narrow with the room they have. Under 4px a rising body is dotted rather than hollow. The labels thin out to what fits."
+  >
+    <ngwr-doc-code [code]="snippets.many" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-candlestick-chart style="width: 100%" ariaLabel="ACME, 2026" [data]="year" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Number format"
+    description="Prices follow `LOCALE_ID`. `valueFormat` replaces it for the ticks, the tooltip and the data table."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-candlestick-chart
+        style="width: 100%"
+        ariaLabel="ACME, daily, in dollars"
+        [data]="month"
+        [valueFormat]="format"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` renders every price as a table only screen readers reach: a row per period. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="snippets.table" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-candlestick-chart style="width: 100%" ariaLabel="ACME, daily, with a table" dataTable [data]="month" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Plot</th>
+            <td>One <code>role="img"</code>, named by <code>ariaLabel</code>. No tab stop.</td>
+          </tr>
+          <tr>
+            <th scope="row">Prices</th>
+            <td>Only in the tooltip, unless <code>dataTable</code> is on.</td>
+          </tr>
+          <tr>
+            <th scope="row">Up and down</th>
+            <td>
+              Told apart by fill as well as colour: hollow or dotted up, filled down. Every body is drawn tall enough to
+              show its fill, even when the price barely moved.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Tooltip</th>
+            <td>Pointer only. <kbd>Escape</kbd> closes it.</td>
+          </tr>
+          <tr>
+            <th scope="row">Forced colours</th>
+            <td>Candles keep their colours and their fill.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Very many candles"
+    description="Past one candle per pixel the candles overlap. Aggregate the periods first: weeks instead of days."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

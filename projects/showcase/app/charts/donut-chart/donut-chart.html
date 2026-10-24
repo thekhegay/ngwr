@@ -12,10 +12,13 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Solid pie" description="Set `thickness` to `0`.">
-    <ngwr-doc-code [code]="snippets.solid" language="angular-html" />
+  <ngwr-doc-section
+    title="Pie"
+    description="`pie` fills every slice to the centre. A pie prints no centre text. A thin slice gets a wider hover target where the slices beside it can spare the arc. The legend lists every slice."
+  >
+    <ngwr-doc-code [code]="snippets.pie" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-donut-chart [segments]="segments" thickness="0" />
+      <wr-donut-chart [segments]="devices" pie />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
   <ngwr-doc-section title="Tooltip" description='Set `[tooltip]="false"` to turn it off.'>

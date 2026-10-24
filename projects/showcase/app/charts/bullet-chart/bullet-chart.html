@@ -1,0 +1,155 @@
+<ngwr-doc-page
+  title="Bullet Chart"
+  since="15.1.0"
+  description="One measure against its target, over qualitative bands: Stephen Few's bullet graph, a compact replacement for a gauge."
+  [keywords]="['bullet-chart', 'bullet-graph', 'kpi', 'target', 'wr-bullet-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="The value is the bar, the target the marker across it. `ranges` are the upper limits of the bands, drawn as greys that fade from zero outwards."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-bullet-chart
+        style="width: 100%"
+        label="Revenue"
+        subLabel="USD, thousands"
+        [value]="270"
+        [target]="250"
+        [ranges]="[150, 225, 300]"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A column of measures"
+    description="Give the label column one width with `--wr-bullet-chart-label-width`, and stacked bullets line up."
+  >
+    <ngwr-doc-code [code]="snippets.column" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%">
+        @for (kpi of kpis; track kpi.label) {
+          <wr-bullet-chart
+            style="--wr-bullet-chart-label-width: 7rem"
+            [label]="kpi.label"
+            [subLabel]="kpi.subLabel"
+            [value]="kpi.value"
+            [target]="kpi.target"
+            [ranges]="kpi.ranges"
+          />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Scale"
+    description="With no `max` the scale ends at the largest of the value, the target and the ranges. A fixed `max` draws anything past it to the end. A negative value starts the scale below zero, and a narrow chart prints fewer ticks."
+  >
+    <ngwr-doc-code [code]="snippets.scale" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%">
+        <wr-bullet-chart
+          style="--wr-bullet-chart-label-width: 5rem"
+          label="Default"
+          [value]="270"
+          [target]="250"
+          [ranges]="[150, 225, 300]"
+        />
+        <wr-bullet-chart
+          style="--wr-bullet-chart-label-width: 5rem"
+          label="max 250"
+          [value]="270"
+          [target]="200"
+          [ranges]="[150, 225, 300]"
+          [max]="250"
+        />
+        <wr-bullet-chart
+          style="--wr-bullet-chart-label-width: 5rem"
+          label="Margin"
+          subLabel="%"
+          [value]="-20"
+          [target]="10"
+          [ranges]="[0, 20, 40]"
+        />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Number format"
+    description="Numbers follow `LOCALE_ID`. `valueFormat` replaces it for the ticks, the tooltip and the accessible name."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-bullet-chart
+        style="width: 100%"
+        label="Revenue"
+        [value]="270"
+        [target]="250"
+        [ranges]="[150, 225, 300]"
+        [valueFormat]="format"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Missing values"
+    description="A value that is not a number draws no bar, and the accessible name says there is none rather than reading zero. Without a target there is no marker."
+  >
+    <ngwr-doc-code [code]="snippets.missing" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%">
+        <wr-bullet-chart label="Revenue" [value]="null" [target]="250" [ranges]="[150, 225, 300]" />
+        <wr-bullet-chart label="Revenue" [value]="270" [ranges]="[150, 225, 300]" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Drawing</th>
+            <td>
+              One <code>role="img"</code>, named by a sentence: "Revenue: 270 of target 250". <code>ariaLabel</code>
+              replaces it.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Labels</th>
+            <td>
+              Hidden from screen readers, since the name already carries the label. The sub-label is the drawing's
+              description.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Bands</th>
+            <td>Not announced: they have no names. Say what they mean in <code>ariaLabel</code> where it matters.</td>
+          </tr>
+          <tr>
+            <th scope="row">Colour</th>
+            <td>The bands differ in lightness, and the bar and the marker in shape, so none of it relies on hue.</td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>No tab stop. The tooltip is pointer only and says what the name says.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

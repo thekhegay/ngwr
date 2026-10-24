@@ -1,0 +1,199 @@
+<ngwr-doc-page
+  title="Heatmap Chart"
+  since="15.1.0"
+  description="A matrix of values, each cell a step of one colour, where two categories meet."
+  [keywords]="['heatmap-chart', 'heatmap', 'matrix', 'wr-heatmap-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="One array per row, one value per column. The scale runs from the lowest value to the highest, cut into five steps."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.basicTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-heatmap-chart
+        style="width: 100%"
+        [rows]="days"
+        [columns]="slots"
+        [data]="visits"
+        ariaLabel="Visits by weekday and time"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Values"
+    description="`showValues` prints each value in its cell, in black or white, whichever reads better there. A value wider than its cell is left out, never cut."
+  >
+    <ngwr-doc-code [code]="snippets.values" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-heatmap-chart
+        style="width: 100%"
+        [rows]="days"
+        [columns]="slots"
+        [data]="visits"
+        ariaLabel="Visits by weekday and time"
+        showValues
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Scale"
+    description="`min` and `max` hold the scale, so two charts read the same. `steps` sets how many shares it is cut into, from 2 to 10."
+  >
+    <ngwr-doc-code [code]="snippets.scale" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.scaleTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-heatmap-chart
+        style="width: 100%"
+        [rows]="features"
+        [columns]="releases"
+        [data]="adoption"
+        [min]="0"
+        [max]="100"
+        [steps]="4"
+        [valueFormat]="percent"
+        ariaLabel="Feature adoption by release"
+        showValues
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Missing values"
+    description="A `null` cell is no data, not zero: it is hatched and outlined, and the legend keys it. `noDataLabel` names it."
+  >
+    <ngwr-doc-code [code]="snippets.empty" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.emptyTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-heatmap-chart
+        style="width: 100%"
+        [rows]="stores"
+        [columns]="days"
+        [data]="sales"
+        ariaLabel="Sales by store and day"
+        noDataLabel="Closed"
+        showValues
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Many columns"
+    description="Names wider than their columns are thinned to every second, third or later one. A screen reader, the tooltip and the table still get every name."
+  >
+    <ngwr-doc-code [code]="snippets.hours" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.hoursTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-heatmap-chart
+        style="width: 100%"
+        [rows]="days"
+        [columns]="hours"
+        [data]="orders"
+        ariaLabel="Orders by weekday and hour"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colour"
+    description="`color` is the highest step. Every lower step is mixed from it toward the surface."
+  >
+    <ngwr-doc-code [code]="snippets.color" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-heatmap-chart
+        style="width: 100%"
+        [rows]="stores"
+        [columns]="days"
+        [data]="sales"
+        color="var(--wr-color-success)"
+        ariaLabel="Sales by store and day"
+        noDataLabel="Closed"
+        showValues
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` adds a table only screen readers reach: a row per row, a column per column. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="snippets.dataTable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-heatmap-chart
+        style="width: 100%"
+        [rows]="days"
+        [columns]="slots"
+        [data]="visits"
+        ariaLabel="Visits by weekday and time"
+        dataTable
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Cells</th>
+            <td>One <code>role="img"</code>, named by <code>ariaLabel</code>. The cells announce nothing.</td>
+          </tr>
+          <tr>
+            <th scope="row">Value</th>
+            <td>
+              Colour is the only thing that encodes it, as in every heatmap. <code>showValues</code> and
+              <code>dataTable</code> give it in text.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Equal values</th>
+            <td>
+              One step, the lowest, and one swatch in the legend: an all-zero matrix is a faint tint, not the peak.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Empty cell</th>
+            <td>Hatched and outlined, so it differs from the lowest step without colour.</td>
+          </tr>
+          <tr>
+            <th scope="row">Row and column names</th>
+            <td>
+              Real text. Column names that do not fit are thinned to every n-th, and the rest stay readable to a screen
+              reader. A long row name is cut with an ellipsis. The tooltip and the table carry every name whole.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Legend</th>
+            <td>Hidden from screen readers, like an axis. The table has the figures.</td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>No tab stop. The tooltip is pointer only.</td>
+          </tr>
+          <tr>
+            <th scope="row">RTL</th>
+            <td>The matrix mirrors, like a table: the row names move to the right.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

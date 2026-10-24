@@ -1139,6 +1139,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'Bar: getOrientation() / isStacked() / getSeriesBars() / getValues() / getZeroPercent() / getLines() / getLineCount()',
+      description:
+        'Series, stacked, horizontal and combo modes. `with({ ariaLabel })` filters; the table reads throw while `dataTable` is off.',
+      type: 'Promise<…>',
+    },
+    {
       name: 'Line: getSeriesLabels() / getLineCount() / getDotCount() / getYTicks() / getXLabels() / hasGrid() / hasLegend()',
       description: '`WrLineChartHarness`.',
       type: 'Promise<…>',
@@ -1154,8 +1160,8 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Donut: getSliceCount() / getLegend() / getCenterValue() / getCenterLabel() / getAccessibleName() / getSize()',
-      description: '`WrDonutChartHarness`.',
+      name: 'Donut: getSliceCount() / getLegend() / getCenterValue() / getCenterLabel() / getAccessibleName() / getSize() / isPie()',
+      description: '`WrDonutChartHarness`. `isPie()` reads the `pie` mode.',
       type: 'Promise<…>',
     },
     {
@@ -1189,9 +1195,60 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'Radar: getVariant()',
+      description: "`'polygon'` or `'polar-area'`, read off the host's modifier class.",
+      type: 'Promise<WrRadarVariant>',
+    },
+    {
+      name: 'Heatmap chart: getRowLabels() / getColumnLabels() / getCells() / getCell(row, column) / getScaleLabels() / getStepCount() / getNoDataLabel()',
+      description:
+        '`WrHeatmapChartHarness`. Cells are read from what the component wrote: value, level, empty. No hover method.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Funnel: getStages() / getStageCount() / getLabels() / getStepLabels() / getBandCount() / hasValues()',
+      description:
+        '`WrFunnelChartHarness`. Each stage carries its value and both conversions; there is no hover method.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Waterfall: getSteps() / getStepCount() / getLabels() / getConnectorCount() / getTicks() / getZeroPercent() / getPlotHeight()',
+      description:
+        "`WrWaterfallChartHarness`. Each step's kind, running totals and bar ends in percent; there is no hover method.",
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Treemap: getTiles() / getTileCount() / getGroupCount() / getLeafCount() / getLabels() / getHeight()',
+      description:
+        "`WrTreemapChartHarness`. `getTiles()` gives each tile's name, value, kind, colour and box; no hover method.",
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Bullet: getLabel() / getSubLabel() / getValueExtent() / getTargetPosition() / getRanges() / getScaleLabels() / getDescription()',
+      description: '`WrBulletChartHarness`. Extents and the target are shares of the scale, from 0 to 1.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Box plot: getGroups() / getGroupLabels() / getGroupCount() / getYTicks() / getAxisTitles() / getPlotHeight()',
+      description:
+        "`WrBoxplotChartHarness`. Each group's five numbers, outliers and positions; there is no hover method.",
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Candlestick: getCandles() / getCandleCount() / isDense() / getYTicks() / getXLabels() / getPlotHeight()',
+      description: "`WrCandlestickChartHarness`. Each candle's prices and direction; there is no hover method.",
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Every new chart: getAccessibleName() / hasDataTable() / getTableColumns() / getTableRows()',
+      description:
+        'The heatmap, funnel, waterfall, treemap, box plot and candlestick harnesses. The table reads throw while `dataTable` is off.',
+      type: 'Promise<…>',
+    },
+    {
       name: 'Legend: getItems() / getLabels() / getItemCount() / getHidden() / isToggleable() / toggle(index) / getAccessibleName()',
       description:
-        '`WrChartLegendHarness`, standalone or from `getLegendHarness()` on the line, donut, meter group, scatter and radar harnesses.',
+        '`WrChartLegendHarness`, standalone or from `getLegendHarness()` on the bar, line, donut, meter group, scatter and radar harnesses.',
       type: 'Promise<…>',
     },
   ];
