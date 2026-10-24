@@ -209,10 +209,10 @@ function outline(points: readonly (Point | null)[]): string {
  * about 1.06:1 of each other in luminance, so a dash is what tells two outlines apart
  * without hue, the line chart's remedy. The fills sit under every outline.
  *
- * **A missing value is a gap, never a guess.** A value that is not a finite number, or
- * one a shorter `data` does not reach, breaks the outline on either side of its axis and
- * the series is drawn OPEN and UNFILLED: closing the polygon across the gap would draw a
- * reading the data never took, and filling an open outline means closing it.
+ * **A missing value is a gap, never a guess.** A `null`, a value that is not a finite
+ * number, or one a shorter `data` does not reach, breaks the outline on either side of
+ * its axis and the series is drawn OPEN and UNFILLED: closing the polygon across the gap
+ * would draw a reading the data never took, and filling an open outline means closing it.
  *
  * **`variant="polar-area"` draws wedges instead of polygons.** Each axis owns an equal
  * slice of the circle, centred on it, and each series draws one wedge per value there,
@@ -234,8 +234,9 @@ function outline(points: readonly (Point | null)[]): string {
  * names sit outside the outer ring, in a gutter round the drawing, each aligned away from
  * the centre and ellipsised past the room it has — the tooltip and the data table carry
  * the whole name. The ring values sit beside the first axis and are `aria-hidden`, as an
- * axis' ticks are on every chart here. The drawing does not mirror under RTL, as no chart
- * here does, and the labels follow the drawing.
+ * axis' ticks are on every chart here. The drawing keeps its clockwise order under RTL,
+ * as every SVG chart here keeps its own — the HTML layouts (bar, bullet, treemap) are the
+ * ones that mirror — and the labels follow the drawing.
  *
  * **What a screen reader gets.** The drawing is one named `role="img"` — on the `<svg>`
  * itself, as on the donut, since WebKit drops the whole subtree of an `img` wrapper and
@@ -377,12 +378,13 @@ export class WrRadarChart {
   readonly showDots = input(true, { transform: coerceBooleanProperty });
 
   /**
-   * Fill each closed polygon with its colour, faintly, under every outline. A series
-   * with a missing value is never filled, whatever this says: its outline is open. In
-   * the polar-area variant every wedge is filled, since the outline round them always
+   * Fill each closed polygon with its colour, faintly (`--wr-radar-chart-area-opacity`),
+   * under every outline — the name the line chart and the sparkline give the same fill. A
+   * series with a missing value is never filled, whatever this says: its outline is open.
+   * In the polar-area variant every wedge is filled, since the outline round them always
    * closes, and a missing value is a missing wedge. @default true
    */
-  readonly fill = input(true, { transform: coerceBooleanProperty });
+  readonly showArea = input(true, { transform: coerceBooleanProperty });
 
   /**
    * Show a tooltip for the axis nearest the pointer: its name, and every series' value
@@ -496,7 +498,7 @@ export class WrRadarChart {
       dash: chartDash(index),
       values: Array.from({ length: count }, (_, a): number | null => {
         const value = s.data[a];
-        return Number.isFinite(value) ? value : null;
+        return typeof value === 'number' && Number.isFinite(value) ? value : null;
       }),
     }));
   });

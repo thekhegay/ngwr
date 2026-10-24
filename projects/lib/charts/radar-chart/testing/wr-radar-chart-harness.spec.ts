@@ -108,6 +108,8 @@ describe('WrRadarChartHarness', () => {
   });
 
   it('refuses a legend the chart does not draw', async () => {
+    // Drawn until it is switched off: an answer that was always `false` would pass alone.
+    expect(await chart.hasLegend()).toBe(true);
     fixture.componentInstance.showLegend.set(false);
     expect(await chart.hasLegend()).toBe(false);
     await expect(chart.getLegendHarness()).rejects.toThrow(/draws no legend/);

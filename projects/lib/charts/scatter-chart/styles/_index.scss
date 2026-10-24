@@ -77,7 +77,8 @@
 
   // The y labels at inline start, the plot beside them, and the x labels under the plot
   // alone. A grid follows `direction`, so the gutter is on the right under RTL with no
-  // rule of its own; the drawing itself does not mirror, as no chart's does.
+  // rule of its own; the drawing itself keeps its x axis running left to right, as every
+  // SVG chart here does — the HTML layouts (bar, bullet, treemap) are the ones that mirror.
   &__body {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
@@ -85,18 +86,24 @@
 
   // The axes' names, set horizontally: the y one above the plot at the gutter's side,
   // where a reader looks first, and the x one centred under its ticks. A name turned on
-  // its side reads in neither direction comfortably.
+  // its side reads in neither direction comfortably. A name is the host's own text, in
+  // whatever language, so it takes its direction from that text (`plaintext`): on an RTL
+  // page "Revenue, k$" read "$Revenue, k", its trailing sign carried to the page's start.
   &__y-title,
   &__x-title {
     font-size: var(--wr-scatter-chart-title-font-size);
     font-weight: var(--wr-scatter-chart-title-font-weight);
     color: var(--wr-scatter-chart-title-color);
     overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
   }
 
+  // Shrunk to its text at the gutter's side, so following its own direction does not move
+  // it across the chart.
   &__y-title {
     grid-column: 1 / -1;
     grid-row: 1;
+    justify-self: start;
     margin-block-end: var(--wr-scatter-chart-title-gap);
     text-align: start;
   }
@@ -127,10 +134,15 @@
     font-variant-numeric: tabular-nums;
   }
 
+  // Shrunk to its text against the plot's side of the column, so its own direction can
+  // follow its text (`plaintext`): a negative tick is a `-` in front of digits, neither of
+  // which has a direction, and under RTL the sign would land on the far side — `350-`.
   &__y-tick {
     grid-area: 1 / 1;
     align-self: start;
+    justify-self: end;
     position: relative;
+    unicode-bidi: plaintext;
     top: calc($inset-y + (100% - 2 * $inset-y) * var(--wr-scatter-chart-y, 0) / 100);
     transform: translateY(-50%);
   }
@@ -186,8 +198,9 @@
     color: var(--wr-scatter-chart-tick-color);
     font-variant-numeric: tabular-nums;
     // The labels are absolutely positioned onto their gridlines, so the strip has no
-    // content of its own to give it a height.
-    height: 1.25em;
+    // content of its own to give it a height: one line of their own leading. `1.25em` is
+    // a pixel short of the 16px line, so each label hung that far over what came next.
+    height: 1lh;
     // A `translateX` percentage means the LABEL's own width, so the room left beside it
     // has to arrive in another unit — `cqw` is this strip's. Every label is out of flow,
     // so the containment costs the layout nothing.
@@ -213,6 +226,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    // As a y tick: the sign stays before the digits. The box is as wide as its text, so
+    // where it sits does not move.
+    unicode-bidi: plaintext;
   }
 }
 

@@ -25,21 +25,22 @@
   --wr-radar-chart-label-max-width: 10rem;
   --wr-radar-chart-gutter-x: 5rem;
   --wr-radar-chart-gutter-y: calc(var(--wr-radar-chart-label-line-height) + var(--wr-radar-chart-label-gap));
-  // The ring values beside the first axis, muted as every axis' ticks are, on a wash of
-  // the surface: the first axis carries every series' first value, so an outline leaving
-  // it crosses the values more often than not.
+  // The ring values beside the first axis, muted as every axis' ticks are, with a halo of
+  // the surface round each glyph: the first axis carries every series' first value, so an
+  // outline leaving it crosses the values more often than not, and the halo keeps a number
+  // readable where a line runs behind it while the line still shows round it. A chip with
+  // a wash of the surface veiled the outlines under it instead, and on a phone took a
+  // large part of a quadrant.
   --wr-radar-chart-ring-label-color: var(--wr-color-on-surface-muted);
-  --wr-radar-chart-ring-label-bg: color-mix(in srgb, var(--wr-color-surface) 80%, transparent);
-  --wr-radar-chart-ring-label-offset: var(--wr-space-xs);
-  --wr-radar-chart-ring-label-padding-x: var(--wr-space-xs);
-  --wr-radar-chart-ring-label-radius: var(--wr-border-radius-sm);
+  --wr-radar-chart-ring-label-halo: var(--wr-color-surface);
+  --wr-radar-chart-ring-label-offset: var(--wr-space-sm);
   // The web, as faint as the line chart's gridlines.
   --wr-radar-chart-grid-color: color-mix(in srgb, var(--wr-border-base) 70%, transparent);
   --wr-radar-chart-grid-width: 1px;
   // The series: an outline, a faint fill under it, and a dot at every value. In pixels,
   // whatever the drawing's size, since every stroke here does not scale.
   --wr-radar-chart-line-width: 2px;
-  --wr-radar-chart-fill-opacity: 0.15;
+  --wr-radar-chart-area-opacity: 0.15;
   --wr-radar-chart-dot-size: 6px;
   // What the open tooltip marks: its axis' spoke, and a ring round each value on it.
   --wr-radar-chart-crosshair-color: var(--wr-color-on-surface-muted);
@@ -84,7 +85,7 @@
   }
 
   &__area {
-    fill-opacity: var(--wr-radar-chart-fill-opacity);
+    fill-opacity: var(--wr-radar-chart-area-opacity);
   }
 
   &__line {
@@ -124,19 +125,23 @@
   // Beside the first axis, just past its spoke and level with its ring, so a value reads
   // against the line it names. Past the spoke rather than on it, because the first
   // axis' dots are on the spoke and a value laid over one would hide it. `top` in
-  // percent is the layer's height, which is the drawing's.
+  // percent is the layer's height, which is the drawing's. A fitted scale can run below
+  // zero, and a value has no strong character of its own, so `plaintext` keeps the sign
+  // of `-20` before its digits on an RTL page.
   &__ring-label {
     position: absolute;
     // rtl-ok: beside the first axis' spoke, which the drawing does not mirror
     left: 50%;
     top: calc(var(--wr-radar-chart-y, 0) * 1%);
     transform: translate(var(--wr-radar-chart-ring-label-offset), -50%);
-    padding: 0 var(--wr-radar-chart-ring-label-padding-x);
-    border-radius: var(--wr-radar-chart-ring-label-radius);
-    background: var(--wr-radar-chart-ring-label-bg);
     color: var(--wr-radar-chart-ring-label-color);
+    text-shadow:
+      0 0 2px var(--wr-radar-chart-ring-label-halo),
+      0 0 2px var(--wr-radar-chart-ring-label-halo),
+      0 0 1px var(--wr-radar-chart-ring-label-halo);
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+    unicode-bidi: plaintext;
   }
 
   // Each name starts a gap out from the end of its spoke, along the spoke, and is aligned
@@ -172,6 +177,9 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     color: var(--wr-radar-chart-label-color);
+    // A name is the host's own text, in whatever language: it takes its direction from
+    // that text. Its box is as wide as its text, so where it sits does not move.
+    unicode-bidi: plaintext;
   }
 
   &__legend {

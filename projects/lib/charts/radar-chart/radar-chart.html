@@ -35,7 +35,7 @@
          wherever two series overlap. An open outline is never filled: filling it would
          close it across a value the series does not have. A polar-area outline is the
          silhouette of the series' wedges, which always closes, so it always fills. -->
-    @if (fill()) {
+    @if (showArea()) {
       @for (s of shapes(); track s.index) {
         @if (s.closed) {
           <path class="wr-radar-chart__area" [attr.d]="s.d" [attr.fill]="s.color" stroke="none" />

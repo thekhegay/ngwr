@@ -10,11 +10,12 @@ interface WrRadarSeries {
   /** The series' name, in the legend, the tooltip and the data table's column heading. */
   readonly label: string;
   /**
-   * One value per axis, in the order of `axes`. A value that is not a finite number, or
-   * one past the end of a shorter list, is MISSING: the outline breaks there and the
-   * series is not filled. A value past the last axis is ignored.
+   * One value per axis, in the order of `axes`. `null`, a value that is not a finite
+   * number, or one past the end of a shorter list, is MISSING: the outline breaks there and
+   * the series is not filled — in the polar-area variant, its wedge is not drawn. A value
+   * past the last axis is ignored.
    */
-  readonly data: readonly number[];
+  readonly data: readonly (number | null)[];
   /** Any CSS colour, `var(--wr-…)` included. Left out, the series takes the next palette colour. */
   readonly color?: string;
 }

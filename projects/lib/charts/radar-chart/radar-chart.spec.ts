@@ -28,7 +28,7 @@ const SERIES: readonly WrRadarSeries[] = [
       [showGrid]="showGrid()"
       [showLegend]="showLegend()"
       [showDots]="showDots()"
-      [fill]="fill()"
+      [showArea]="showArea()"
       [dataTable]="dataTable()"
       [ariaLabel]="ariaLabel()"
       [toggleableLegend]="toggleable()"
@@ -47,7 +47,7 @@ class Host {
   readonly showGrid = signal(true);
   readonly showLegend = signal(true);
   readonly showDots = signal(true);
-  readonly fill = signal(true);
+  readonly showArea = signal(true);
   readonly dataTable = signal(false);
   readonly ariaLabel = signal<string | null>(null);
   readonly toggleable = signal(false);
@@ -217,6 +217,16 @@ describe('WrRadarChart', () => {
     expect(dots()).toHaveLength(6);
   });
 
+  it('reads a `null` as missing, as `NaN` is, so a JSON gap needs no conversion', () => {
+    set(h => {
+      h.axes.set(['N', 'E', 'S', 'W']);
+      h.max.set(100);
+      h.series.set([{ label: 'A', data: [50, null, 50, 50] }]);
+    });
+    expect(lines()[0].getAttribute('d')).toBe('M 50.00 75.00 L 25.00 50.00 L 50.00 25.00');
+    expect(areas()).toHaveLength(0);
+  });
+
   it('keeps a lone value between two gaps visible with the dots off', () => {
     // A subpath of one `M` is not stroked at all; repeating the point gives the round cap
     // something to paint.
@@ -282,8 +292,8 @@ describe('WrRadarChart', () => {
     expect(root().querySelector('.wr-radar-chart__axis-labels')!.hasAttribute('aria-hidden')).toBe(false);
   });
 
-  it('draws no fill with `fill` off, and no dots with `showDots` off', () => {
-    set(h => h.fill.set(false));
+  it('draws no fill with `showArea` off, and no dots with `showDots` off', () => {
+    set(h => h.showArea.set(false));
     expect(areas()).toHaveLength(0);
     expect(lines()).toHaveLength(2);
     expect(dots()).toHaveLength(10);
@@ -548,7 +558,7 @@ describe('WrRadarChart polar area', () => {
     expect(dots()).toHaveLength(6);
     expect(dots()[0].getAttribute('d')).toBe('M 50.00 5.28 h 0');
 
-    set(h => h.fill.set(false));
+    set(h => h.showArea.set(false));
     expect(areas()).toHaveLength(0);
   });
 
