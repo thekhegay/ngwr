@@ -429,8 +429,9 @@ one component folder. Reach for them instead of hand-rolling:
   `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrRange`), and
   `ngwr/validators` (`WrValidators`). A chart builds on `ngwr/charts/core` —
   the palette, dashes and markers, `useChartNumbers`, `chartAxis` and the
-  visually hidden `WrChartTable` behind the opt-in `dataTable` input on line,
-  scatter and radar — every export `@internal`, so it stays out of
+  visually hidden `WrChartTable` behind the opt-in `dataTable` input on every
+  chart with a table of figures behind it (bar, line, scatter, radar, heatmap,
+  funnel, waterfall, treemap, box plot, candlestick) — every export `@internal`, so it stays out of
   `llms-full.txt` and the skill catalog; a chart that renders the table
   positions its host. Its legend is `ul[wr-chart-legend]`
   (`ngwr/charts/chart-legend`), whose opt-in `toggleable` rows are

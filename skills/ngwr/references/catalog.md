@@ -64,14 +64,24 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/cascader/testing` | `import { WrCascaderColumnHarness } from 'ngwr/cascader/testing'` | — |
 | `ngwr/charts/bar-chart` | `import { WrBarChart } from 'ngwr/charts/bar-chart'` | `wr-bar-chart` |
 | `ngwr/charts/bar-chart/testing` | `import { WrBarChartHarness } from 'ngwr/charts/bar-chart/testing'` | — |
+| `ngwr/charts/boxplot-chart` | `import { WrBoxplotChart } from 'ngwr/charts/boxplot-chart'` | `wr-boxplot-chart` |
+| `ngwr/charts/boxplot-chart/testing` | `import { WrBoxplotChartHarness } from 'ngwr/charts/boxplot-chart/testing'` | — |
+| `ngwr/charts/bullet-chart` | `import { WrBulletChart } from 'ngwr/charts/bullet-chart'` | `wr-bullet-chart` |
+| `ngwr/charts/bullet-chart/testing` | `import { WrBulletChartHarness } from 'ngwr/charts/bullet-chart/testing'` | — |
 | `ngwr/charts/calendar-heatmap` | `import { WrCalendarHeatmap } from 'ngwr/charts/calendar-heatmap'` | `wr-calendar-heatmap` |
 | `ngwr/charts/calendar-heatmap/testing` | `import { WrCalendarHeatmapHarness } from 'ngwr/charts/calendar-heatmap/testing'` | — |
+| `ngwr/charts/candlestick-chart` | `import { WrCandlestickChart } from 'ngwr/charts/candlestick-chart'` | `wr-candlestick-chart` |
+| `ngwr/charts/candlestick-chart/testing` | `import { WrCandlestickChartHarness } from 'ngwr/charts/candlestick-chart/testing'` | — |
 | `ngwr/charts/chart-legend` | `import { WrChartLegend } from 'ngwr/charts/chart-legend'` | `ul[wr-chart-legend]` |
 | `ngwr/charts/chart-legend/testing` | `import { WrChartLegendHarness } from 'ngwr/charts/chart-legend/testing'` | — |
 | `ngwr/charts/donut-chart` | `import { WrDonutChart } from 'ngwr/charts/donut-chart'` | `wr-donut-chart` |
 | `ngwr/charts/donut-chart/testing` | `import { WrDonutChartHarness } from 'ngwr/charts/donut-chart/testing'` | — |
+| `ngwr/charts/funnel-chart` | `import { WrFunnelChart } from 'ngwr/charts/funnel-chart'` | `wr-funnel-chart` |
+| `ngwr/charts/funnel-chart/testing` | `import { WrFunnelChartHarness } from 'ngwr/charts/funnel-chart/testing'` | — |
 | `ngwr/charts/gauge` | `import { WrGauge } from 'ngwr/charts/gauge'` | `wr-gauge` |
 | `ngwr/charts/gauge/testing` | `import { WrGaugeHarness } from 'ngwr/charts/gauge/testing'` | — |
+| `ngwr/charts/heatmap-chart` | `import { WrHeatmapChart } from 'ngwr/charts/heatmap-chart'` | `wr-heatmap-chart` |
+| `ngwr/charts/heatmap-chart/testing` | `import { WrHeatmapChartHarness } from 'ngwr/charts/heatmap-chart/testing'` | — |
 | `ngwr/charts/line-chart` | `import { WrLineChart } from 'ngwr/charts/line-chart'` | `wr-line-chart` |
 | `ngwr/charts/line-chart/testing` | `import { WrLineChartHarness } from 'ngwr/charts/line-chart/testing'` | — |
 | `ngwr/charts/meter-group` | `import { WrMeterGroup } from 'ngwr/charts/meter-group'` | `wr-meter-group` |
@@ -82,6 +92,10 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/charts/scatter-chart/testing` | `import { WrScatterChartHarness } from 'ngwr/charts/scatter-chart/testing'` | — |
 | `ngwr/charts/sparkline` | `import { WrSparkline } from 'ngwr/charts/sparkline'` | `wr-sparkline` |
 | `ngwr/charts/sparkline/testing` | `import { WrSparklineHarness } from 'ngwr/charts/sparkline/testing'` | — |
+| `ngwr/charts/treemap-chart` | `import { WrTreemapChart } from 'ngwr/charts/treemap-chart'` | `wr-treemap-chart` |
+| `ngwr/charts/treemap-chart/testing` | `import { WrTreemapChartHarness } from 'ngwr/charts/treemap-chart/testing'` | — |
+| `ngwr/charts/waterfall-chart` | `import { WrWaterfallChart } from 'ngwr/charts/waterfall-chart'` | `wr-waterfall-chart` |
+| `ngwr/charts/waterfall-chart/testing` | `import { WrWaterfallChartHarness } from 'ngwr/charts/waterfall-chart/testing'` | — |
 | `ngwr/checkbox` | `import { WrCheckbox } from 'ngwr/checkbox'` | `wr-checkbox-group` `wr-checkbox` |
 | `ngwr/checkbox/testing` | `import { WrCheckboxHarness } from 'ngwr/checkbox/testing'` | — |
 | `ngwr/clipboard` | `import { WrClipboard } from 'ngwr/clipboard'` | — |
