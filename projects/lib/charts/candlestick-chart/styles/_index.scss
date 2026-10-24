@@ -1,0 +1,300 @@
+@use '../../../theme/styles' as theme;
+@use '../../../popover/styles' as popover-styles; // the `.wr-tooltip` chip the hover tooltip renders into
+
+// Styles for the entry points this component's own markup renders. With `dataTable`,
+// the figures render as a `<wr-chart-table>` beside the plot, which its own sheet clips
+// out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable
+
+// The lengths inside a candle, each against the candle's own height as every percentage
+// inside it is: the upper wick's share and the lower wick's, as the component writes
+// them, and the body's own height between them.
+$-upper: calc(var(--wr-candlestick-chart-upper, 0) * 1%);
+$-lower: calc(var(--wr-candlestick-chart-lower, 0) * 1%);
+$-body: calc(100% - $-upper - $-lower);
+
+// The body's height: its own, or `$min` where that is taller.
+@function _body-height($min) {
+  @return max($min, $-body);
+}
+
+// The wick at the `$near` end of a body `$min` tall, the other wick's share being `$far`;
+// for the upper one, that is also where the body starts. A body grown past its own height
+// takes the same from both wicks where both have it, so its middle stays on its true
+// middle; it is held inside the candle where one has not, so it never passes the high
+// or the low; and where the whole candle is shorter than the body it is centred on the
+// candle and neither wick is left. Measured from its own end, so the lower wick is the
+// upper one's mirror, and each stops at the grown edge rather than crossing a hollow
+// body's inside.
+@function _wick($min, $near, $far) {
+  // What the body leaves of the candle for the two wicks: below zero where it is taller.
+  $room: calc(100% - _body-height($min));
+  @return clamp(min(calc($room / 2), 0px), calc(($room + $near - $far) / 2), $room);
+}
+
+.wr-candlestick-chart {
+  --wr-candlestick-chart-font-family: var(--wr-font-family-base);
+  --wr-candlestick-chart-color: var(--wr-color-on-surface);
+  // A rising candle and a falling one. The two intents sit within 1.004:1 of each other
+  // in luminance, so they are never the only thing that tells the candles apart: a
+  // rising body is hollow and a falling one filled, whatever these say. Both measure
+  // over 4:1 against the surface in either scheme, past the 3:1 WCAG 1.4.11 asks of a
+  // mark a reader needs.
+  --wr-candlestick-chart-up-color: var(--wr-color-success);
+  --wr-candlestick-chart-down-color: var(--wr-color-danger);
+  // The room above and below the drawing inside the plot, which the y labels read to
+  // meet their gridlines.
+  --wr-candlestick-chart-plot-inset-y: var(--wr-space-sm);
+  --wr-candlestick-chart-grid-color: color-mix(in srgb, var(--wr-border-base) 70%, transparent);
+  --wr-candlestick-chart-tick-gap: var(--wr-space-xs);
+  --wr-candlestick-chart-tick-font-size: var(--wr-text-xs);
+  --wr-candlestick-chart-tick-line-height: var(--wr-text-xs-leading);
+  --wr-candlestick-chart-tick-color: var(--wr-color-on-surface-muted);
+  // A body is 70% of its slot, never under 1px and never over this; the gap between two
+  // candles is the rest of the slot, so it closes as the candles crowd.
+  --wr-candlestick-chart-body-max-width: 1.5rem;
+  --wr-candlestick-chart-body-border-width: 1px;
+  --wr-candlestick-chart-wick-width: 1px;
+  // The band behind the candle being read.
+  --wr-candlestick-chart-cursor-color: var(--wr-color-hover);
+
+  display: block;
+  // The containing block of the out-of-flow `dataTable` copy, as on the line chart: a
+  // static host lets that 1px box resolve against an ancestor outside the chart and keep
+  // its place in an unpositioned scroller's content. No z-index, so no stacking context.
+  position: relative;
+  font-family: var(--wr-candlestick-chart-font-family);
+  color: var(--wr-candlestick-chart-color);
+
+  // The y labels at inline start, the plot beside them, and the period labels under the
+  // plot alone. A grid follows `direction`, so the gutter is on the right under RTL with
+  // no rule of its own; the drawing itself does not mirror — time runs left to right in
+  // a price chart in every language, as no chart's drawing mirrors.
+  &__body {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  // As wide as the longest label: every label is in flow, in the one cell of a one-cell
+  // grid, so the column sizes to the widest while its height stays one label. Stretched
+  // to the plot's row, each label moves down from the top by its own gridline's share of
+  // the drawing, inside the plot's block padding, then up by half itself.
+  &__y-axis {
+    grid-column: 1;
+    grid-row: 1;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    padding-inline-end: var(--wr-candlestick-chart-tick-gap);
+    font-size: var(--wr-candlestick-chart-tick-font-size);
+    line-height: var(--wr-candlestick-chart-tick-line-height);
+    color: var(--wr-candlestick-chart-tick-color);
+    text-align: end;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__y-tick {
+    $inset: var(--wr-candlestick-chart-plot-inset-y);
+
+    grid-area: 1 / 1;
+    align-self: start;
+    position: relative;
+    top: calc($inset + (100% - 2 * $inset) * var(--wr-candlestick-chart-y, 0) / 100);
+    transform: translateY(-50%);
+  }
+
+  &__plot {
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    padding-block: var(--wr-candlestick-chart-plot-inset-y);
+  }
+
+  // Edge to edge across the plot: the first and the last candle sit half a slot in, so
+  // no inline padding is needed to keep them off the frame.
+  &__drawing {
+    position: relative;
+    height: 100%;
+  }
+
+  &__grid-line {
+    position: absolute;
+    inset-inline: 0;
+    border-block-start: 1px solid var(--wr-candlestick-chart-grid-color);
+  }
+
+  // One slot wide, the full height of the drawing.
+  &__cursor {
+    position: absolute;
+    inset-block: 0;
+    width: calc(var(--wr-candlestick-chart-slot, 100) * 1%);
+    background: var(--wr-candlestick-chart-cursor-color);
+    pointer-events: none;
+  }
+
+  // A body is drawn at least tall enough to show what tells a rising one from a falling
+  // one: its two edges and a 2px inside while hollow, or two dashes and the gap between
+  // them while dense. Shorter — a candle that barely moved — it would draw as a solid
+  // line in either direction, and leave colour the only channel. Both directions grow
+  // alike, so a small rise never looks larger than a fall of the same size, and a body
+  // grows into its own wicks, so the high and the low stay where they are (see the
+  // functions at the top).
+  $dash: 2px;
+  $body-min: calc(2 * var(--wr-candlestick-chart-body-border-width) + 2px);
+  $dense-body-min: 2 * $dash + 1px;
+
+  // From the high to the low, as wide as the body and centred on its slot. The colour is
+  // the candle's `color`, which the body and both wicks paint with.
+  &__candle {
+    position: absolute;
+    width: clamp(1px, calc(var(--wr-candlestick-chart-slot, 100) * 0.7%), var(--wr-candlestick-chart-body-max-width));
+    // rtl-ok: centred against a physical translateX, and the drawing's x does not flip with `direction`
+    transform: translateX(-50%);
+    pointer-events: none;
+
+    &--up {
+      color: var(--wr-candlestick-chart-up-color);
+    }
+
+    &--down {
+      color: var(--wr-candlestick-chart-down-color);
+    }
+
+    // The wicks: above the body and below it, never through it, so a hollow body is
+    // empty. Each is a share of the candle's own height, written by the component.
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      // rtl-ok: centred against a physical translateX, and the drawing's x does not flip with `direction`
+      left: 50%;
+      width: var(--wr-candlestick-chart-wick-width);
+      // rtl-ok: the pair to `left: 50%` above
+      transform: translateX(-50%);
+      background: currentColor;
+    }
+
+    &::before {
+      top: 0;
+      height: max(0px, _wick($body-min, $-upper, $-lower));
+    }
+
+    &::after {
+      bottom: 0;
+      height: max(0px, _wick($body-min, $-lower, $-upper));
+    }
+  }
+
+  // Between the wicks, grown to the least height above when it is shorter — a candle
+  // that opened and closed on one price (a doji) included.
+  &__candle-body {
+    position: absolute;
+    inset-inline: 0;
+    top: _wick($body-min, $-upper, $-lower);
+    height: _body-height($body-min);
+    border: var(--wr-candlestick-chart-body-border-width) solid currentColor;
+  }
+
+  &__candle--down &__candle-body {
+    background: currentColor;
+  }
+
+  // A body under 4px wide has no inside to leave hollow — its two edges and at most a
+  // pixel between them read as one bar — so a rising body is DOTTED instead, solid
+  // pixels with gaps between them down its length, and a falling one stays solid. A
+  // pattern is a channel that survives greyscale, where a lighter tint of the colour
+  // would fall under 3:1 against the surface.
+  &--dense &__candle::before {
+    height: max(0px, _wick($dense-body-min, $-upper, $-lower));
+  }
+
+  &--dense &__candle::after {
+    height: max(0px, _wick($dense-body-min, $-lower, $-upper));
+  }
+
+  &--dense &__candle-body {
+    top: _wick($dense-body-min, $-upper, $-lower);
+    height: _body-height($dense-body-min);
+    border-width: 0;
+  }
+
+  &--dense &__candle--up &__candle-body {
+    background: repeating-linear-gradient(to bottom, currentColor 0 $dash, transparent $dash 2 * $dash);
+  }
+
+  &__x-axis {
+    grid-column: 2;
+    grid-row: 2;
+    position: relative;
+    margin-block-start: var(--wr-candlestick-chart-tick-gap);
+    font-size: var(--wr-candlestick-chart-tick-font-size);
+    line-height: var(--wr-candlestick-chart-tick-line-height);
+    color: var(--wr-candlestick-chart-tick-color);
+    font-variant-numeric: tabular-nums;
+    // The labels are absolutely positioned under their candles, so the strip has no
+    // content of its own to give it a height.
+    height: 1.25em;
+    // A `translateX` percentage means the LABEL's own width, so the room left beside it
+    // has to arrive in another unit — `cqw` is this strip's. Every label is out of flow,
+    // so the containment costs the layout nothing.
+    container-type: inline-size;
+    // A label held to its room is cut there, never past the strip.
+    overflow: hidden;
+  }
+
+  // Every label, a line each, laid out and never seen: the component measures it to
+  // decide how many labels fit. A line breaks only where the component put a break, and
+  // spaces collapse as a printed label's do, so the copy is exactly as wide as the widest
+  // label.
+  &__x-probe {
+    position: absolute;
+    width: max-content;
+    visibility: hidden;
+    white-space: pre-line;
+  }
+
+  &__x-tick {
+    $x: var(--wr-candlestick-chart-x, 50);
+    $slot: var(--wr-candlestick-chart-x-slot, 100);
+
+    position: absolute;
+    // rtl-ok: the drawing's own x, which does not flip with `direction`
+    left: calc(100% * $x / 100);
+    // Centred under its candle. The component prints only the labels that fit there,
+    // measured as wide as the widest, so this clamp is the net under its estimate before
+    // a browser has measured: a label still too wide for its place near an end moves
+    // inwards, never past either end of the strip.
+    // rtl-ok: the drawing's own x, which does not flip with `direction`
+    transform: translateX(clamp(calc(-100cqw * $x / 100), -50%, calc(100cqw * (100 - $x) / 100 - 100%)));
+    // Its own room — every n-th slot, half the way to the next printed label on each
+    // side — so a label longer than the measure allowed for is ellipsised rather than
+    // run into its neighbour.
+    max-width: calc(100% * $slot / 100);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// The candles keep their colours under forced colors, as every chart's marks do, and so
+// keep both channels: a mark painted with `background` would otherwise be reset to
+// `Canvas` and vanish into the page, taking the filled body with it. The grid and the
+// band are drawn in theme colours that mean nothing on a forced palette, so they take
+// the system's own: the band an outline in the selection colour, since a background is
+// reset.
+@media (forced-colors: active) {
+  .wr-candlestick-chart {
+    --wr-candlestick-chart-grid-color: GrayText;
+  }
+
+  .wr-candlestick-chart__candle {
+    forced-color-adjust: none;
+  }
+
+  .wr-candlestick-chart__cursor {
+    forced-color-adjust: none;
+    background: transparent;
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+}
