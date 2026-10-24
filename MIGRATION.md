@@ -197,7 +197,10 @@ Their `-rgb` companions follow the table into `color-mix()`: the codemod turns
 `color-mix(in srgb, var(--wr-color-on-surface) 50%, transparent)`. The shades and tints of a
 removed intent have no successor. A `color` naming a removed intent is a compile error under
 `strictTemplates` and renders neutral without it; which intent it should become, if any, is your
-call — `<wr-btn color="dark">` and `<wr-btn>` are different buttons. A `.wr-*--secondary` (or
+call — `<wr-btn color="dark">` and `<wr-btn>` are different buttons. For the neutral variant, omit
+`color` on `wr-btn`, `wr-divider` and `wr-skeleton`, but bind `[color]="null"` on `wr-tag` and
+`wr-badge`: their `color` defaults to `primary`, so deleting the attribute gives a primary tag.
+`wr-progress` has no neutral variant. A `.wr-*--secondary` (or
 `--light`, `--medium`, `--dark`) selector stops matching, and a `$base-colors` map still carrying
 one of the four keys stops the Sass build. The codemod lists every file with one of these: a removed
 `color`, a removed class, a `--wr-color-secondary*` token, a shade of a removed intent, a
