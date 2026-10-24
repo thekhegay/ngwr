@@ -35,7 +35,7 @@ export default class InstallationPageComponent {
   protected readonly packages = `${NGWR_PACKAGE} @angular/cdk`;
 
   protected readonly compatibility: readonly CompatRow[] = [
-    { ngwr: '15.x', angular: '22', cdk: '22', node: '22.22+, 24.15+, 26' },
+    { ngwr: '15.x', angular: '^22.2', cdk: '^22.2', node: '22.22+, 24.15+, 26' },
     { ngwr: '14.x', angular: '22+', cdk: '22+', node: '22.22+, 24.15+, 26' },
     { ngwr: '7.x to 13.x', angular: '22+', cdk: '22+', node: '24.16+, 26' },
     { ngwr: '6.x', angular: '17+', cdk: '17+', node: '24+' },
