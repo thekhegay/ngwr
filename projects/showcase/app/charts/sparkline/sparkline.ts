@@ -20,8 +20,8 @@ export default class SparklinePageComponent {
   protected readonly data = [12, 18, 9, 22, 30, 25, 27, 35, 32, 41, 38, 45];
 
   protected readonly snippets = {
-    basic: `<wr-sparkline [data]="[12, 14, 9, 17, 21, 18, 23]" />`,
-    area: `<wr-sparkline [data]="data" [showArea]="true" color="var(--wr-color-success)" />`,
+    basic: `<wr-sparkline [data]="data" width="100%" height="4rem" />`,
+    area: `<wr-sparkline [data]="data" [showArea]="true" color="var(--wr-color-success)" width="100%" height="4rem" />`,
     tooltip: `<wr-sparkline [data]="data" ariaLabel="Signups" />
 <wr-sparkline [data]="data" ariaLabel="Signups" [tooltip]="false" />`,
   };

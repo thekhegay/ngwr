@@ -60,11 +60,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'charts/candlestick-chart': ['charts/line-chart', 'charts/boxplot-chart', 'charts/bar-chart', 'charts/sparkline'],
   'charts/chart-legend': [
     'charts/line-chart',
+    'charts/bar-chart',
     'charts/donut-chart',
     'charts/meter-group',
     'charts/scatter-chart',
     'charts/radar-chart',
-    'charts/sparkline',
   ],
   'charts/donut-chart': [
     'charts/meter-group',

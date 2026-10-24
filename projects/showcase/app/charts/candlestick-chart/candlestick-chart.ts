@@ -80,8 +80,8 @@ export default class CandlestickChartPageComponent {
 ];`,
     colors: `<wr-candlestick-chart
   [data]="days"
-  upColor="var(--wr-color-danger)"
-  downColor="var(--wr-color-success)"
+  increaseColor="var(--wr-color-danger)"
+  decreaseColor="var(--wr-color-success)"
 />`,
     many: `<wr-candlestick-chart ariaLabel="ACME, 2026" [data]="year" />`,
     format: `<wr-candlestick-chart [data]="days" [valueFormat]="format" />`,

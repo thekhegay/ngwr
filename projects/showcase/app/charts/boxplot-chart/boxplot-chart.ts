@@ -52,6 +52,7 @@ export default class BoxplotChartPageComponent {
 
   protected readonly snippets = {
     basic: `<wr-boxplot-chart
+  ariaLabel="Response time by region"
   xLabel="Region"
   yLabel="Response time, ms"
   [groups]="[
@@ -59,14 +60,17 @@ export default class BoxplotChartPageComponent {
     { label: 'Asia', values: [120, 131, 140, 148, 155, 161] }
   ]"
 />`,
-    stats: `<wr-boxplot-chart yLabel="Build time, s" [groups]="releases" />`,
+    stats: `<wr-boxplot-chart ariaLabel="Build time by release" yLabel="Build time, s" [groups]="releases" />`,
     statsTs: `releases: WrBoxplotGroup[] = [
   { label: 'v14', stats: { min: 80, q1: 101, median: 118, q3: 134, max: 170, outliers: [240, 262] } },
   { label: 'v15', stats: { min: 70, q1: 92, median: 104, q3: 121, max: 150, outliers: [31] } },
   { label: 'v15.1', stats: { min: 61, q1: 80, median: 90, q3: 101, max: 128 }, color: 'var(--wr-color-success)' },
 ];`,
-    anatomy: `<wr-boxplot-chart [groups]="[{ label: 'Sample', values: [12, 14, 15, 17, 18, 19, 21, 22, 24, 27, 48] }]" />`,
-    format: `<wr-boxplot-chart yLabel="Build time" [groups]="releases" [valueFormat]="seconds" />`,
+    anatomy: `<wr-boxplot-chart
+  ariaLabel="Eleven values, one outlier"
+  [groups]="[{ label: 'Sample', values: [12, 14, 15, 17, 18, 19, 21, 22, 24, 27, 48] }]"
+/>`,
+    format: `<wr-boxplot-chart ariaLabel="Build time by release" yLabel="Build time" [groups]="releases" [valueFormat]="seconds" />`,
     formatTs: `const unit = new Intl.NumberFormat('en-US', { style: 'unit', unit: 'second' });
 
 seconds = (value: number): string => unit.format(value);`,

@@ -1,13 +1,13 @@
 <ngwr-doc-page
   title="Heatmap Chart"
   since="15.1.0"
-  description="A matrix of values, each cell a step of one colour, where two categories meet."
+  description="A matrix of values, each cell a level of one colour, where two categories meet."
   [keywords]="['heatmap-chart', 'heatmap', 'matrix', 'wr-heatmap-chart']"
   [labels]="['Component']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="One array per row, one value per column. The scale runs from the lowest value to the highest, cut into five steps."
+    description="One array per row, one value per column. The scale runs from the lowest value to the highest, cut into five levels."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-code [code]="snippets.basicTs" language="angular-ts" />
@@ -41,21 +41,21 @@
 
   <ngwr-doc-section
     title="Scale"
-    description="`min` and `max` hold the scale, so two charts read the same. `steps` sets how many shares it is cut into, from 2 to 10."
+    description="`min` and `max` hold the scale, so two charts read the same. `levels` sets how many shares it is cut into, from 2 to 10."
   >
     <ngwr-doc-code [code]="snippets.scale" language="angular-html" />
     <ngwr-doc-code [code]="snippets.scaleTs" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <wr-heatmap-chart
         style="width: 100%"
-        [rows]="features"
-        [columns]="releases"
-        [data]="adoption"
+        [rows]="teams"
+        [columns]="months"
+        [data]="resolved"
         [min]="0"
         [max]="100"
-        [steps]="4"
+        [levels]="4"
         [valueFormat]="percent"
-        ariaLabel="Feature adoption by release"
+        ariaLabel="Tickets resolved within a day, by team and month"
         showValues
       />
     </ngwr-doc-snippet>
@@ -99,7 +99,7 @@
 
   <ngwr-doc-section
     title="Colour"
-    description="`color` is the highest step. Every lower step is mixed from it toward the surface."
+    description="`color` is the highest level. Every lower level is mixed from it toward the surface."
   >
     <ngwr-doc-code [code]="snippets.color" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -157,12 +157,12 @@
           <tr>
             <th scope="row">Equal values</th>
             <td>
-              One step, the lowest, and one swatch in the legend: an all-zero matrix is a faint tint, not the peak.
+              One level, the lowest, and one swatch in the legend: an all-zero matrix is a faint tint, not the peak.
             </td>
           </tr>
           <tr>
             <th scope="row">Empty cell</th>
-            <td>Hatched and outlined, so it differs from the lowest step without colour.</td>
+            <td>Hatched and outlined, so it differs from the lowest level without colour.</td>
           </tr>
           <tr>
             <th scope="row">Row and column names</th>

@@ -24,13 +24,13 @@
   <ngwr-doc-section title="Tooltip" description='Set `[tooltip]="false"` to turn it off.'>
     <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
-        <div style="flex: 1 1 16rem; min-width: 0">
-          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">On (default)</p>
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">On (default)</p>
           <wr-donut-chart [segments]="segments" style="width: 100%" />
         </div>
-        <div style="flex: 1 1 16rem; min-width: 0">
-          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+        <div>
+          <p class="ngwr-demo-pair__caption">
             <code>[tooltip]="false"</code>
           </p>
           <wr-donut-chart [segments]="segments" [tooltip]="false" style="width: 100%" />
@@ -39,7 +39,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
   <ngwr-doc-section
-    title="Toggle slices"
+    title="Toggle segments"
     description="`toggleableLegend` makes each legend row a button. The slices still shown fill the ring between them."
   >
     <ngwr-doc-code [code]="snippets.toggle" language="angular-html" />
@@ -48,8 +48,41 @@
       <wr-donut-chart [segments]="sources" toggleableLegend [(hiddenSegments)]="hiddenSegments" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Drawing</th>
+            <td>
+              One <code>role="img"</code>, named by <code>ariaLabel</code>. The slices announce nothing; the centre text
+              is real text.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Numbers</th>
+            <td>In the legend, and in the tooltip, which is pointer only.</td>
+          </tr>
+          <tr>
+            <th scope="row">Slices</th>
+            <td>A gap in the surface colour parts every two, so neighbours differ without hue.</td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>No tab stop, unless <code>toggleableLegend</code> makes the legend rows buttons.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
   <ngwr-doc-section title="API">
-    <ngwr-doc-api [rows]="apiRows" />
+    <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
   <ngwr-doc-section title="Types">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />

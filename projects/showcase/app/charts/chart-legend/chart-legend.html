@@ -7,7 +7,7 @@
 >
   <ngwr-doc-section
     title="Basic"
-    description="It sits on a `<ul>` and renders the rows. Use it for a key several charts share; the line, donut, meter group, scatter and radar charts draw their own legends with it."
+    description="It sits on a `<ul>` and renders the rows. Use it for a key several charts share; the bar, line, donut, meter group, scatter and radar charts draw their own legends with it."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -80,12 +80,12 @@
     </div>
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Types">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="API">
-    <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 </ngwr-doc-page>

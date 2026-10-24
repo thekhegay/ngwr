@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Sparkline"
-  updated="15.0.0"
+  updated="15.1.0"
   description="A small trend line with no axes, to sit beside a number."
   [keywords]="['sparkline', 'trend', 'wr-sparkline']"
   [labels]="['Component']"
@@ -29,13 +29,13 @@
   <ngwr-doc-section title="Tooltip" description='Set `[tooltip]="false"` to turn it off.'>
     <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
-        <div style="flex: 1 1 16rem; min-width: 0">
-          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">On (default)</p>
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">On (default)</p>
           <wr-sparkline [data]="data" ariaLabel="Signups" style="width: 100%" />
         </div>
-        <div style="flex: 1 1 16rem; min-width: 0">
-          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+        <div>
+          <p class="ngwr-demo-pair__caption">
             <code>[tooltip]="false"</code>
           </p>
           <wr-sparkline [data]="data" ariaLabel="Signups" [tooltip]="false" style="width: 100%" />

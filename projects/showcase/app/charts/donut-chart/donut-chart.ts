@@ -10,6 +10,7 @@ import {
   DocSnippetComponent,
   type DocApiRow,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-donut-chart-page',
@@ -48,10 +49,10 @@ export default class DonutChartPageComponent {
 
   protected readonly snippets = {
     basic: `<wr-donut-chart [segments]="segments" centerLabel="Disk" centerValue="60%" />`,
-    pie: `<wr-donut-chart [segments]="segments" pie />`,
+    pie: `<wr-donut-chart [segments]="devices" pie />`,
     tooltip: `<wr-donut-chart [segments]="segments" />
 <wr-donut-chart [segments]="segments" [tooltip]="false" />`,
-    toggle: `<wr-donut-chart [segments]="segments" toggleableLegend [(hiddenSegments)]="hidden" />`,
+    toggle: `<wr-donut-chart [segments]="sources" toggleableLegend [(hiddenSegments)]="hidden" />`,
     toggleTs: `hidden = signal<readonly number[]>([]);`,
   };
 
@@ -61,77 +62,18 @@ export default class DonutChartPageComponent {
   color?: string;
 }`;
 
-  protected readonly apiRows: readonly DocApiRow[] = [
-    {
-      name: 'segments',
-      description: 'Slices to render.',
-      type: 'readonly WrDonutSegment[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the chart. Falls back to `donutChart.label`, or `donutChart.pieLabel` with `pie`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'size', description: 'Diameter in CSS pixels (min 48).', type: 'number', default: '200' },
-    {
-      name: 'thickness',
-      description: 'Ring thickness as a % of the radius. `0` fills to the centre. Ignored with `pie`.',
-      type: 'number',
-      default: '30',
-    },
-    {
-      name: 'pie',
-      description: 'Fill every slice to the centre. No centre text. The name falls back to `donutChart.pieLabel`.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'showLegend', description: 'Show the legend under the chart.', type: 'boolean', default: 'true' },
-    {
-      name: 'toggleableLegend',
-      description: 'Make each legend row a toggle button that shows and hides its slice.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'hiddenSegments',
-      description:
-        'Positions in `segments` of the hidden slices. Two-way. The slices still shown fill the ring; the legend keeps the hidden rows.',
-      type: 'readonly number[]',
-      default: '[]',
-    },
-    {
-      name: 'centerValue',
-      description: 'Bold value text in the center. Not drawn with `pie`.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'centerLabel',
-      description: 'Smaller label under the center value. Not drawn with `pie`.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'tooltip',
-      description: 'Show the slice label and value on hover. With `pie`, a thin slice gets a wider hover target.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'valueFormat',
-      description: 'Writes each value in the legend and the tooltip. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.',
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-  ];
+  protected readonly api = API.WrDonutChart;
 
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrDonutSegment', description: 'One slice of the ring.', type: 'interface' },
     { name: 'label', description: 'Legend label.', type: 'string', required: true, sub: true },
-    { name: 'value', description: 'Slice size, as a share of the total.', type: 'number', required: true, sub: true },
+    {
+      name: 'value',
+      description: 'Slice size, as a share of the total. A negative or non-finite value draws no slice.',
+      type: 'number',
+      required: true,
+      sub: true,
+    },
     { name: 'color', description: 'CSS color for the slice.', type: 'string', default: 'palette', sub: true },
   ];
 }

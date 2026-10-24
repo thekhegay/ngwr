@@ -95,12 +95,8 @@ export default class TypesCatalogPage {
       items: [
         { name: 'WrBarChartDatum', description: 'One bar of data.', url: ['/charts', 'bar-chart'] },
         { name: 'WrBarSeries', description: 'One series of bars, grouped or stacked.', url: ['/charts', 'bar-chart'] },
-        {
-          name: 'WrBarChartOrientation',
-          description: 'Bars standing up or lying down.',
-          url: ['/charts', 'bar-chart'],
-        },
-        { name: 'WrBarChartLine', description: 'A line drawn over the bars.', url: ['/charts', 'bar-chart'] },
+        { name: 'WrBarOrientation', description: 'Bars standing up or lying down.', url: ['/charts', 'bar-chart'] },
+        { name: 'WrBarLine', description: 'A line drawn over the bars.', url: ['/charts', 'bar-chart'] },
         { name: 'WrLineSeries', description: 'One plotted line.', url: ['/charts', 'line-chart'] },
         { name: 'WrDonutSegment', description: 'One slice of the ring.', url: ['/charts', 'donut-chart'] },
         { name: 'WrHeatmapDatum', description: 'One contribution cell.', url: ['/charts', 'calendar-heatmap'] },
@@ -128,6 +124,11 @@ export default class TypesCatalogPage {
         {
           name: 'WrWaterfallStep',
           description: 'One change, or a running total.',
+          url: ['/charts', 'waterfall-chart'],
+        },
+        {
+          name: 'WrWaterfallValueContext',
+          description: 'Where a formatted figure is printed.',
           url: ['/charts', 'waterfall-chart'],
         },
         {

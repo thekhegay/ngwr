@@ -84,6 +84,7 @@ export default class FunnelChartPageComponent {
 
   protected readonly snippets = {
     basic: `<wr-funnel-chart
+  ariaLabel="Sign-up funnel"
   [stages]="[
     { label: 'Visited', value: 12000 },
     { label: 'Signed up', value: 4800 },
@@ -91,9 +92,9 @@ export default class FunnelChartPageComponent {
     { label: 'Paid', value: 720 }
   ]"
 />`,
-    conversion: `<wr-funnel-chart [stages]="signups" [conversion]="conversion()" />`,
+    conversion: `<wr-funnel-chart ariaLabel="Sign-up funnel" [stages]="signups" [conversion]="conversion()" />`,
     conversionTs: `conversion = signal<WrFunnelConversion>('both'); // 'previous' | 'first' | 'none'`,
-    honest: `<wr-funnel-chart [stages]="campaign" />`,
+    honest: `<wr-funnel-chart ariaLabel="Email campaign" [stages]="campaign" />`,
     honestTs: `campaign: WrFunnelStage[] = [
   { label: 'Emailed', value: 5000 },
   { label: 'Opened', value: 2100 },
@@ -107,7 +108,7 @@ export default class FunnelChartPageComponent {
     scale: `<!-- One full width for both: the larger funnel's top stage -->
 <wr-funnel-chart ariaLabel="Web" [stages]="web" [max]="9000" />
 <wr-funnel-chart ariaLabel="Mobile" [stages]="mobile" [max]="9000" />`,
-    format: `<wr-funnel-chart [stages]="orders" [valueFormat]="money" [percentFormat]="percent" />`,
+    format: `<wr-funnel-chart ariaLabel="Orders by value" [stages]="orders" [valueFormat]="money" [percentFormat]="percent" />`,
     formatTs: `usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact' });
 money = (value: number) => this.usd.format(value);
 
@@ -147,7 +148,7 @@ type WrFunnelConversion = 'both' | 'previous' | 'first' | 'none';`;
       name: 'color',
       description: 'CSS colour for the bar and its bands.',
       type: 'string',
-      default: 'color',
+      default: "the chart's `color`",
       sub: true,
     },
     {

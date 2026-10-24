@@ -11,7 +11,7 @@
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-funnel-chart style="width: 100%" [stages]="signups" />
+      <wr-funnel-chart style="width: 100%" ariaLabel="Sign-up funnel" [stages]="signups" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -29,7 +29,7 @@
           [value]="conversion()"
           (valueChange)="conversion.set($event ?? 'both')"
         />
-        <wr-funnel-chart [stages]="signups" [conversion]="conversion()" />
+        <wr-funnel-chart ariaLabel="Sign-up funnel" [stages]="signups" [conversion]="conversion()" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -41,7 +41,7 @@
     <ngwr-doc-code [code]="snippets.honest" language="angular-html" />
     <ngwr-doc-code [code]="snippets.honestTs" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <wr-funnel-chart style="width: 100%" [stages]="campaign" />
+      <wr-funnel-chart style="width: 100%" ariaLabel="Email campaign" [stages]="campaign" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -65,7 +65,13 @@
     <ngwr-doc-code [code]="snippets.format" language="angular-html" />
     <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <wr-funnel-chart style="width: 100%" [stages]="orders" [valueFormat]="money" [percentFormat]="percent" />
+      <wr-funnel-chart
+        style="width: 100%"
+        ariaLabel="Orders by value"
+        [stages]="orders"
+        [valueFormat]="money"
+        [percentFormat]="percent"
+      />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

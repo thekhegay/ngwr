@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrWaterfallChart, type WrWaterfallStep } from 'ngwr/charts/waterfall-chart';
+import { WrWaterfallChart, type WrWaterfallStep, type WrWaterfallValueContext } from 'ngwr/charts/waterfall-chart';
 
 import {
   DocApiComponent,
@@ -64,8 +64,19 @@ export default class WaterfallChartPageComponent {
     maximumFractionDigits: 0,
   });
 
-  /** Dollars, whole. The chart writes the sign in front of every figure. */
-  protected readonly format = (value: number): string => this.usd.format(value);
+  private readonly compactUsd = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+  });
+
+  /**
+   * Dollars: compact past the bars, where a phone's columns are narrow, and whole
+   * everywhere else, so the tooltip, the names and the data table keep every dollar. The
+   * chart writes the sign in front of every figure.
+   */
+  protected readonly format = (value: number, where: WrWaterfallValueContext): string =>
+    (where === 'label' ? this.compactUsd : this.usd).format(value);
 
   protected readonly snippets = {
     basic: `<wr-waterfall-chart
@@ -94,9 +105,12 @@ export default class WaterfallChartPageComponent {
     colors: `<wr-waterfall-chart totalColor="var(--wr-color-on-surface-muted)" [steps]="bridge" />`,
     format: `<wr-waterfall-chart [steps]="bridge" [valueFormat]="format" />`,
     formatTs: `const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+const compactUsd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact' });
 
+// Compact past the bars ('label'), whole on the axis and in the tooltip, names and table.
 // Every figure arrives as its magnitude; the chart writes + or − in front.
-format = (value: number): string => usd.format(value);`,
+format = (value: number, where: WrWaterfallValueContext): string =>
+  (where === 'label' ? compactUsd : usd).format(value);`,
     quiet: `<wr-waterfall-chart [steps]="bridge" [showValues]="false" [showGrid]="false" />`,
     table: `<wr-waterfall-chart ariaLabel="Profit bridge" dataTable [steps]="bridge" />`,
   };
@@ -105,7 +119,9 @@ format = (value: number): string => usd.format(value);`,
   label: string;
   value: number;
   total?: boolean;
-}`;
+}
+
+type WrWaterfallValueContext = 'label' | 'tick' | 'value';`;
 
   protected readonly api = API.WrWaterfallChart;
 
@@ -132,6 +148,12 @@ format = (value: number): string => usd.format(value);`,
       type: 'boolean',
       default: 'false',
       sub: true,
+    },
+    {
+      name: 'WrWaterfallValueContext',
+      description:
+        "Where `valueFormat` is writing: `'label'` past a bar, `'tick'` on the axis, `'value'` in the tooltip, the names and the data table.",
+      type: "'label' | 'tick' | 'value'",
     },
   ];
 }

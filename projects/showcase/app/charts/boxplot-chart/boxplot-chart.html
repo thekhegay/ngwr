@@ -7,11 +7,17 @@
 >
   <ngwr-doc-section
     title="Basic"
-    description="Pass each group's raw `values`. The chart works out the quartiles, the whiskers and the outliers. The value axis fits the data and does not start at zero."
+    description="Pass each group's raw `values`. The chart works out the quartiles, the whiskers and the outliers. The value axis fits the data and is not forced to zero."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-boxplot-chart style="width: 100%" xLabel="Region" yLabel="Response time, ms" [groups]="regions" />
+      <wr-boxplot-chart
+        style="width: 100%"
+        ariaLabel="Response time by region"
+        xLabel="Region"
+        yLabel="Response time, ms"
+        [groups]="regions"
+      />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -21,7 +27,7 @@
   >
     <ngwr-doc-code [code]="snippets.anatomy" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-boxplot-chart style="width: 100%" [height]="200" [groups]="anatomy" />
+      <wr-boxplot-chart style="width: 100%" ariaLabel="Eleven values, one outlier" [height]="200" [groups]="anatomy" />
     </ngwr-doc-snippet>
     <div class="ngwr-table">
       <table>
@@ -65,7 +71,12 @@
     <ngwr-doc-code [code]="snippets.stats" language="angular-html" />
     <ngwr-doc-code [code]="snippets.statsTs" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <wr-boxplot-chart style="width: 100%" yLabel="Build time, s" [groups]="releases" />
+      <wr-boxplot-chart
+        style="width: 100%"
+        ariaLabel="Build time by release"
+        yLabel="Build time, s"
+        [groups]="releases"
+      />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -76,7 +87,13 @@
     <ngwr-doc-code [code]="snippets.format" language="angular-html" />
     <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <wr-boxplot-chart style="width: 100%" yLabel="Build time" [groups]="releases" [valueFormat]="seconds" />
+      <wr-boxplot-chart
+        style="width: 100%"
+        ariaLabel="Build time by release"
+        yLabel="Build time"
+        [groups]="releases"
+        [valueFormat]="seconds"
+      />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

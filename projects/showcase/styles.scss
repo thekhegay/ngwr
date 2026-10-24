@@ -15,11 +15,12 @@
 @use 'styles/fonts';
 
 // The site's shared boxes: one table, one link card and icon chip, one home
-// section. Global because each is used across emulated components that cannot
-// reach one another's styles.
+// section, one pair of captioned demos. Global because each is used across
+// emulated components that cannot reach one another's styles.
 @use 'styles/table';
 @use 'styles/cards';
 @use 'styles/section';
+@use 'styles/demo';
 
 // The showcase's focus ring, for the prose links below. Declares no rules.
 @use 'styles/mixins' as site;

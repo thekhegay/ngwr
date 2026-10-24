@@ -38,15 +38,9 @@
   >
     <ngwr-doc-code [code]="snippets.horizontal" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
-        <wr-bar-chart style="flex: 1 1 16rem; min-width: 0" [data]="browsers" orientation="horizontal" [height]="180" />
-        <wr-bar-chart
-          style="flex: 1 1 16rem; min-width: 0"
-          [categories]="quarters"
-          [series]="regions"
-          orientation="horizontal"
-          [height]="240"
-        />
+      <div class="ngwr-demo-pair">
+        <wr-bar-chart [data]="browsers" orientation="horizontal" [height]="180" />
+        <wr-bar-chart [categories]="quarters" [series]="regions" orientation="horizontal" [height]="240" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -57,15 +51,9 @@
     <ngwr-doc-code [code]="snippets.combo" language="angular-html" />
     <ngwr-doc-code [code]="snippets.comboTs" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
-        <wr-bar-chart
-          style="flex: 1 1 16rem; min-width: 0"
-          [categories]="quarters"
-          [series]="regions"
-          [lines]="target"
-          stacked
-        />
-        <wr-bar-chart style="flex: 1 1 16rem; min-width: 0" [data]="week" [lines]="lastWeek" />
+      <div class="ngwr-demo-pair">
+        <wr-bar-chart [categories]="quarters" [series]="regions" [lines]="target" stacked />
+        <wr-bar-chart [data]="week" [lines]="lastWeek" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -103,13 +91,13 @@
   <ngwr-doc-section title="Tooltip" description='Set `[tooltip]="false"` to turn it off.'>
     <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
-        <div style="flex: 1 1 16rem; min-width: 0">
-          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">On (default)</p>
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">On (default)</p>
           <wr-bar-chart [data]="bars" style="width: 100%" />
         </div>
-        <div style="flex: 1 1 16rem; min-width: 0">
-          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+        <div>
+          <p class="ngwr-demo-pair__caption">
             <code>[tooltip]="false"</code>
           </p>
           <wr-bar-chart [data]="bars" [tooltip]="false" style="width: 100%" />

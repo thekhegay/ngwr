@@ -41,7 +41,7 @@ export default class RadarChartPageComponent {
 
   protected readonly survey: readonly WrRadarSeries[] = [
     { label: '2025', data: [62, 71, 58, 66, 74] },
-    { label: '2026', data: [70, 76, Number.NaN, 72, 79] },
+    { label: '2026', data: [70, 76, null, 72, 79] },
   ];
 
   protected readonly teams: readonly WrRadarSeries[] = [
@@ -85,7 +85,7 @@ wind: WrRadarSeries[] = [
     gapsTs: `survey: WrRadarSeries[] = [
   { label: '2025', data: [62, 71, 58, 66, 74] },
   // No Range figure for 2026: the outline breaks there and is not filled.
-  { label: '2026', data: [70, 76, NaN, 72, 79] },
+  { label: '2026', data: [70, 76, null, 72, 79] },
 ];`,
     toggle: `<wr-radar-chart [axes]="axes" [series]="teams" [max]="100" toggleableLegend [(hiddenSeries)]="hidden" />`,
     toggleTs: `hidden = signal<readonly number[]>([]);`,
@@ -94,7 +94,7 @@ wind: WrRadarSeries[] = [
 
   protected readonly typeSnippet = `interface WrRadarSeries {
   label: string;
-  data: readonly number[];
+  data: readonly (number | null)[];
   color?: string;
 }
 
@@ -107,8 +107,8 @@ type WrRadarVariant = 'polygon' | 'polar-area';`;
     { name: 'label', description: 'Legend, tooltip and table name.', type: 'string', required: true, sub: true },
     {
       name: 'data',
-      description: 'One value per axis, in the order of `axes`. A non-finite or absent value is missing.',
-      type: 'readonly number[]',
+      description: 'One value per axis, in the order of `axes`. `null`, a non-finite or an absent value is missing.',
+      type: 'readonly (number | null)[]',
       required: true,
       sub: true,
     },

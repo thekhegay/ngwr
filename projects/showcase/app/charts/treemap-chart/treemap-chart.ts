@@ -115,7 +115,18 @@ export default class TreemapChartPageComponent {
     },
   ];
 
-  protected readonly usd = (value: number): string => `$${value}K`;
+  private readonly dollars = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+
+  /** Thousands of dollars, exact: `$1,110K` rather than a compact `$1.1M` the tooltip and table would round. */
+  protected readonly usd = (value: number): string => `${this.dollars.format(value)}K`;
+
+  private readonly percents = new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 1 });
+
+  protected readonly percent = (ratio: number): string => this.percents.format(ratio);
 
   protected readonly snippets = {
     basic: `<wr-treemap-chart ariaLabel="Budget by department" [data]="budget" />`,
@@ -159,8 +170,18 @@ export default class TreemapChartPageComponent {
 
 <!-- Names only -->
 <wr-treemap-chart ariaLabel="Repository by lines of code" [data]="repo" [showValues]="false" />`,
-    format: `<wr-treemap-chart ariaLabel="Budget by department" [data]="budget" [valueFormat]="usd" />`,
-    formatTs: `usd = (value: number) => \`$\${value}K\`;`,
+    format: `<wr-treemap-chart
+  ariaLabel="Budget by department"
+  [data]="budget"
+  [valueFormat]="usd"
+  [percentFormat]="percent"
+/>`,
+    formatTs: `dollars = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+usd = (value: number) => \`\${this.dollars.format(value)}K\`; // $1,110K
+
+// A ratio in, as Intl's percent style takes it: 0.25 is a quarter.
+percents = new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 1 });
+percent = (ratio: number) => this.percents.format(ratio);`,
     rtl: `<div dir="rtl">
   <wr-treemap-chart ariaLabel="Budget by department" [data]="budget" />
 </div>`,

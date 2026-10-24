@@ -89,7 +89,8 @@ usd = (value: number): string => usdFormat.format(value);`,
     { name: 'label', description: 'Legend label.', type: 'string', required: true, sub: true },
     {
       name: 'data',
-      description: 'Y values, evenly spaced along the x axis.',
+      description:
+        'Y values, evenly spaced along the x axis. A non-finite value (`NaN`) is a hole: the line breaks there.',
       type: 'readonly number[]',
       required: true,
       sub: true,

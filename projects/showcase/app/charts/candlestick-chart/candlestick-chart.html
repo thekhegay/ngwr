@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Candlestick Chart"
   since="15.1.0"
-  description="Prices over time: a candle per period, its wick from the low to the high and its body from the open to the close."
+  description="Prices over time (OHLC): a candle per period, its wick from the low to the high and its body from the open to the close."
   [keywords]="['candlestick-chart', 'candlestick', 'ohlc', 'stock-chart', 'wr-candlestick-chart']"
   [labels]="['Component']"
 >
@@ -18,15 +18,15 @@
 
   <ngwr-doc-section
     title="Up and down"
-    description="A rising candle is hollow, a falling one filled, so the fill tells them apart without colour. `upColor` and `downColor` swap the colours for a market that draws rises in red. The fill stays."
+    description="A rising candle is hollow, a falling one filled, so the fill tells them apart without colour. `increaseColor` and `decreaseColor` swap the colours for a market that draws rises in red. The fill stays."
   >
     <ngwr-doc-code [code]="snippets.colors" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-candlestick-chart
         style="width: 100%"
         ariaLabel="ACME, daily, rises in red"
-        upColor="var(--wr-color-danger)"
-        downColor="var(--wr-color-success)"
+        increaseColor="var(--wr-color-danger)"
+        decreaseColor="var(--wr-color-success)"
         [data]="month"
       />
     </ngwr-doc-snippet>

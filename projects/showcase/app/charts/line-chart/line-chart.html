@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Line Chart"
   updated="15.1.0"
-  description="One or more series of values as lines or filled areas."
+  description="One or more series of values as lines or as an area chart, overlaid or stacked."
   [keywords]="['line-chart', 'wr-line-chart', 'area-chart', 'stacked-area']"
   [labels]="['Component']"
 >
@@ -32,13 +32,13 @@
   <ngwr-doc-section title="Tooltip" description='`[tooltip]="false"` also hides the crosshair and markers.'>
     <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
-        <div style="flex: 1 1 16rem; min-width: 0">
-          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">On (default)</p>
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">On (default)</p>
           <wr-line-chart [series]="series" [xLabels]="xLabels" style="width: 100%" />
         </div>
-        <div style="flex: 1 1 16rem; min-width: 0">
-          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+        <div>
+          <p class="ngwr-demo-pair__caption">
             <code>[tooltip]="false"</code>
           </p>
           <wr-line-chart [series]="series" [xLabels]="xLabels" [tooltip]="false" style="width: 100%" />
@@ -69,13 +69,13 @@
     <ngwr-doc-code [code]="snippets.format" language="angular-html" />
     <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
-        <div style="flex: 1 1 16rem; min-width: 0">
-          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Default</p>
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Default</p>
           <wr-line-chart [series]="revenue" [xLabels]="xLabels" style="width: 100%" />
         </div>
-        <div style="flex: 1 1 16rem; min-width: 0">
-          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+        <div>
+          <p class="ngwr-demo-pair__caption">
             <code>[valueFormat]="usd"</code>
           </p>
           <wr-line-chart [series]="revenue" [xLabels]="xLabels" [valueFormat]="usd" style="width: 100%" />
@@ -91,6 +91,47 @@
     <ngwr-doc-snippet code="">
       <wr-line-chart style="width: 100%" [series]="series" [xLabels]="xLabels" ariaLabel="Weekly traffic" dataTable />
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Plot</th>
+            <td>One <code>role="img"</code>, named by <code>ariaLabel</code>. The lines announce nothing.</td>
+          </tr>
+          <tr>
+            <th scope="row">Numbers</th>
+            <td>In the tooltip, which is pointer only, and in the table <code>dataTable</code> adds.</td>
+          </tr>
+          <tr>
+            <th scope="row">Series</th>
+            <td>Each has its own dash as well as its colour, so lines differ without hue.</td>
+          </tr>
+          <tr>
+            <th scope="row">X labels</th>
+            <td>Real text. A long axis prints every n-th label; the tooltip and the table name every x.</td>
+          </tr>
+          <tr>
+            <th scope="row">Tooltip</th>
+            <td>
+              Pointer only. <kbd>Escape</kbd> closes it. It moves to the bottom of the plot when the top would cover the
+              points it reads.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>No tab stop, unless <code>toggleableLegend</code> makes the legend rows buttons.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

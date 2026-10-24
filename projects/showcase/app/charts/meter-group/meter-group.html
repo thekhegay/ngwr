@@ -5,10 +5,13 @@
   [keywords]="['meter', 'progress', 'wr-meter-group']"
   [labels]="['Display']"
 >
-  <ngwr-doc-section title="Disk usage" description="Each segment takes its share of the sum, or of `max` when set.">
+  <ngwr-doc-section
+    title="Disk usage"
+    description="Each segment takes its share of the sum, or of `max` when set. What the segments leave of `max` is empty track."
+  >
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-meter-group style="width: 100%" [segments]="diskUsage" />
+      <wr-meter-group style="width: 100%" [segments]="quota" [max]="100" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -27,12 +30,57 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Types">
-    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
-    <ngwr-doc-api [rows]="typeRows" />
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Bar</th>
+            <td>
+              One <code>role="progressbar"</code>, named by <code>ariaLabel</code>. It announces the total of the
+              segments shown, written as the legend writes a value.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Segments</th>
+            <td>Announce nothing of their own. The legend names each one with its value.</td>
+          </tr>
+          <tr>
+            <th scope="row">Legend</th>
+            <td>A real list. A hidden segment's row is struck through, and says so to a screen reader.</td>
+          </tr>
+          <tr>
+            <th scope="row">Toggle row</th>
+            <td>
+              With <code>toggleableLegend</code>, a <code>&lt;button aria-pressed&gt;</code>. Pressed means shown.
+              <kbd>Tab</kbd> moves between rows, <kbd>Space</kbd> or <kbd>Enter</kbd> toggles.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Tooltip</th>
+            <td>Pointer only. The legend carries the same values.</td>
+          </tr>
+          <tr>
+            <th scope="row">Forced colours</th>
+            <td>The segments keep their colours, and the track gets an outline.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
   </ngwr-doc-section>
 </ngwr-doc-page>

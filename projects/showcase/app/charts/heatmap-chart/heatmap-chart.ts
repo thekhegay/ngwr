@@ -49,12 +49,12 @@ export default class HeatmapChartPageComponent {
     )
   );
 
-  protected readonly releases = ['14.8', '14.9', '14.10', '14.11', '14.12', '15.0'];
+  protected readonly months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
 
-  protected readonly features = ['Tables', 'Forms', 'Overlays', 'Charts'];
+  protected readonly teams = ['Billing', 'Shipping', 'Returns', 'Accounts'];
 
-  /** The share of apps using each feature, in percent. */
-  protected readonly adoption: WrHeatmapMatrix = [
+  /** The share of each team's tickets resolved within a day, in percent. */
+  protected readonly resolved: WrHeatmapMatrix = [
     [62, 64, 67, 69, 71, 74],
     [48, 51, 55, 58, 63, 66],
     [35, 37, 42, 47, 52, 58],
@@ -91,16 +91,16 @@ export default class HeatmapChartPageComponent {
   ariaLabel="Visits by weekday and time"
   showValues
 />`,
-    scale: `<!-- Held at 0 to 100, in four steps -->
+    scale: `<!-- Held at 0 to 100, in four levels -->
 <wr-heatmap-chart
-  [rows]="features"
-  [columns]="releases"
-  [data]="adoption"
+  [rows]="teams"
+  [columns]="months"
+  [data]="resolved"
   [min]="0"
   [max]="100"
-  [steps]="4"
+  [levels]="4"
   [valueFormat]="percent"
-  ariaLabel="Feature adoption by release"
+  ariaLabel="Tickets resolved within a day, by team and month"
   showValues
 />`,
     scaleTs: `percent = (value: number) => \`\${value}%\`;`,

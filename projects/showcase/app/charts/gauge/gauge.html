@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Gauge"
-  updated="15.0.0"
+  updated="15.1.0"
   description="A read-only semicircle dial for a single value."
   [keywords]="['gauge', 'progress', 'wr-gauge']"
   [labels]="['Component']"
@@ -19,7 +19,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Tooltip" description='Set `[tooltip]="false"` to turn it off.'>
+  <ngwr-doc-section
+    title="Tooltip"
+    description='The tooltip names the reading by `ariaLabel`. With `showValue` off it is the only printed value. `[tooltip]="false"` turns it off.'
+  >
     <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-gauge [value]="72" suffix="%" [showValue]="false" ariaLabel="CPU" />

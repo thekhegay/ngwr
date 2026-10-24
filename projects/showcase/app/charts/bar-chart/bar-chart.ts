@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 
-import { WrBarChart, type WrBarChartDatum, type WrBarChartLine, type WrBarSeries } from 'ngwr/charts/bar-chart';
+import { WrBarChart, type WrBarChartDatum, type WrBarLine, type WrBarSeries } from 'ngwr/charts/bar-chart';
 
 import {
   DocApiComponent,
@@ -44,9 +44,9 @@ export default class BarChartPageComponent {
 
   protected readonly week: readonly WrBarChartDatum[] = this.bars.map(({ label, value }) => ({ label, value }));
 
-  protected readonly target: readonly WrBarChartLine[] = [{ label: 'Target', data: [30, 34, 36, 42] }];
+  protected readonly target: readonly WrBarLine[] = [{ label: 'Target', data: [30, 34, 36, 42] }];
 
-  protected readonly lastWeek: readonly WrBarChartLine[] = [{ label: 'Last week', data: [10, 15, 12, 20, 19, 8, 9] }];
+  protected readonly lastWeek: readonly WrBarLine[] = [{ label: 'Last week', data: [10, 15, 12, 20, 19, 8, 9] }];
 
   protected readonly browsers: readonly WrBarChartDatum[] = [
     { label: 'Chrome', value: 64 },
@@ -78,9 +78,9 @@ export default class BarChartPageComponent {
     horizontal: `<wr-bar-chart [data]="browsers" orientation="horizontal" [height]="180" />
 <wr-bar-chart [categories]="quarters" [series]="regions" orientation="horizontal" [height]="240" />`,
     combo: `<wr-bar-chart [categories]="quarters" [series]="regions" [lines]="target" stacked />
-<wr-bar-chart [data]="bars" [lines]="lastWeek" />`,
-    comboTs: `target: WrBarChartLine[] = [{ label: 'Target', data: [30, 34, 36, 42] }];
-lastWeek: WrBarChartLine[] = [{ label: 'Last week', data: [10, 15, 12, 20, 19, 8, 9] }];`,
+<wr-bar-chart [data]="week" [lines]="lastWeek" />`,
+    comboTs: `target: WrBarLine[] = [{ label: 'Target', data: [30, 34, 36, 42] }];
+lastWeek: WrBarLine[] = [{ label: 'Last week', data: [10, 15, 12, 20, 19, 8, 9] }];`,
     toggle: `<wr-bar-chart [categories]="quarters" [series]="regions" toggleableLegend [(hiddenSeries)]="hidden" />`,
     toggleTs: `hidden = signal<readonly number[]>([]);`,
     dataTable: `<wr-bar-chart [categories]="quarters" [series]="regions" ariaLabel="Sales by region" dataTable />`,
@@ -100,20 +100,26 @@ interface WrBarSeries {
   color?: string;
 }
 
-interface WrBarChartLine {
+interface WrBarLine {
   label: string;
   data: readonly (number | null)[];
   color?: string;
 }
 
-type WrBarChartOrientation = 'vertical' | 'horizontal';`;
+type WrBarOrientation = 'vertical' | 'horizontal';`;
 
   protected readonly api = API.WrBarChart;
 
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrBarChartDatum', description: 'One bar of data.', type: 'interface' },
     { name: 'label', description: 'Category label under the bar.', type: 'string', required: true, sub: true },
-    { name: 'value', description: 'Bar magnitude.', type: 'number', required: true, sub: true },
+    {
+      name: 'value',
+      description: 'Bar magnitude. A non-finite value is missing: an empty bar, no number.',
+      type: 'number',
+      required: true,
+      sub: true,
+    },
     {
       // NOT a palette — that is the donut and the line chart, which rotate
       // through a fallback list per series. A bar chart is one series, so an
@@ -147,7 +153,7 @@ type WrBarChartOrientation = 'vertical' | 'horizontal';`;
       default: 'palette',
       sub: true,
     },
-    { name: 'WrBarChartLine', description: 'One line of `lines`.', type: 'interface' },
+    { name: 'WrBarLine', description: 'One line of `lines`.', type: 'interface' },
     {
       name: 'label',
       description: 'Legend, tooltip, group name and table heading.',
@@ -170,7 +176,7 @@ type WrBarChartOrientation = 'vertical' | 'horizontal';`;
       sub: true,
     },
     {
-      name: 'WrBarChartOrientation',
+      name: 'WrBarOrientation',
       description: 'Which way the bars run.',
       type: "'vertical' | 'horizontal'",
     },

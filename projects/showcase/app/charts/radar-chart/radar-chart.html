@@ -30,7 +30,7 @@
 
   <ngwr-doc-section
     title="Polar area"
-    description="With `variant` set to `polar-area`, each axis gets an equal wedge per series, the series overlaid with their own dashes. A wedge's area is the value: its radius grows with the square root, so twice the value paints twice the ink and the rings bunch towards the edge, where a ring value closer than a line to the next is left out. The scale starts at zero, and a missing value is a missing wedge."
+    description="With `variant` set to `polar-area`, each axis gets a wedge per series. The area of a wedge is its value. A missing value is a missing wedge."
   >
     <ngwr-doc-code [code]="snippets.polar" language="angular-html" />
     <ngwr-doc-code [code]="snippets.polarTs" language="angular-ts" />
@@ -41,7 +41,7 @@
 
   <ngwr-doc-section
     title="Missing values"
-    description="A value that is not a finite number breaks the outline at its axis. The series is drawn open and not filled, so no reading is invented."
+    description="A missing value, `null` or a non-finite number, breaks the outline at its axis. The series is drawn open and not filled, so no reading is invented."
   >
     <ngwr-doc-code [code]="snippets.gaps" language="angular-html" />
     <ngwr-doc-code [code]="snippets.gapsTs" language="angular-ts" />

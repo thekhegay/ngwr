@@ -53,7 +53,7 @@
 
   <ngwr-doc-section
     title="Number format"
-    description="Numbers follow `LOCALE_ID`. `valueFormat` replaces it. Every figure arrives as its magnitude, and the chart writes the sign."
+    description="Numbers follow `LOCALE_ID`. `valueFormat` replaces it, and is told where each figure goes: `'label'` past a bar, `'tick'` on the axis, `'value'` in the tooltip, the names and the data table. So the drawing can go compact and the rest stay exact. Every figure arrives as its magnitude, and the chart writes the sign. A figure too wide for its column is left out, never cut."
   >
     <ngwr-doc-code [code]="snippets.format" language="angular-html" />
     <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />

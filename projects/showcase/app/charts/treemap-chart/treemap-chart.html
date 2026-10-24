@@ -41,13 +41,19 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Formatting"
-    description="`valueFormat` writes every value: in the tiles, the tooltip and the data table. Shares stay percentages."
+    title="Number format"
+    description="Values and shares follow `LOCALE_ID`. `valueFormat` writes every value: in the tiles, the tooltip and the data table. A value wider than its tile is left out of it, never cut. `percentFormat` writes the shares, and it takes a ratio, so 0.25 is a quarter."
   >
     <ngwr-doc-code [code]="snippets.format" language="angular-html" />
     <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <wr-treemap-chart style="width: 100%" ariaLabel="Budget by department" [data]="budget" [valueFormat]="usd" />
+      <wr-treemap-chart
+        style="width: 100%"
+        ariaLabel="Budget by department"
+        [data]="budget"
+        [valueFormat]="usd"
+        [percentFormat]="percent"
+      />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -78,11 +84,6 @@
       />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Drill-down"
-    description="Not in this version. Every level is drawn at once and nothing zooms into a group: give a deep tree one level at a time, or split it into several charts."
-  />
 
   <ngwr-doc-section title="Accessibility">
     <div class="ngwr-table">
@@ -117,6 +118,10 @@
             <td>Cut with an ellipsis where a tile is narrow. The tooltip and the table carry the whole path.</td>
           </tr>
           <tr>
+            <th scope="row">Values</th>
+            <td>Never cut: a value wider than its tile is left out. The tooltip and the table carry it whole.</td>
+          </tr>
+          <tr>
             <th scope="row">Forced colours</th>
             <td>The tints give way to the system palette; every tile keeps an outline in the text colour.</td>
           </tr>
@@ -128,6 +133,11 @@
       </table>
     </div>
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Drill-down"
+    description="Not in this version. Every level is drawn at once and nothing zooms into a group: give a deep tree one level at a time, or split it into several charts."
+  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
