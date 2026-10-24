@@ -34,12 +34,13 @@ class TableRowHarness extends ComponentHarness {
  * axis ticks, the x labels and the tooltip. Those are what a reader gets, and they
  * are what breaks when the data wiring does.
  *
- * **The tooltip cannot be opened from a spec, and the reason is worth knowing.** It
- * follows a `mousemove` over the plot, and the component turns the cursor's x into
- * an index by measuring the plot's box — which jsdom reports as 0×0, so every
- * synthetic move resolves to the same index or to none at all. There is deliberately
- * no `hoverAt()`; {@link getTooltipRows} reads the tooltip when something else has
- * opened it, which in practice means a browser-run harness.
+ * **The harness opens no tooltip, and the reason is worth knowing.** It follows a
+ * `mousemove` over the plot, and the component turns the cursor's x into an index by
+ * measuring the drawing's box — which jsdom reports as 0×0, so every synthetic move
+ * resolves to the same index or to none at all. There is deliberately no `hoverAt()`;
+ * {@link getTooltipRows} reads the tooltip once something else has opened it: a
+ * browser-run harness, or a spec that gives the drawing a box (`getBoundingClientRect`)
+ * and dispatches the move itself.
  *
  * @example
  * ```ts
@@ -189,7 +190,11 @@ export class WrLineChartHarness extends ComponentHarness {
     return Promise.all(ticks.map(tick => tick.text()));
   }
 
-  /** The x-axis labels under the plot, in order. */
+  /**
+   * The x-axis labels printed under the plot, in order: every one while the widest fits
+   * between two points, and every n-th otherwise — the labels a reader sees, not the
+   * whole of `xLabels`. The tooltip and the data table name every x.
+   */
   async getXLabels(): Promise<string[]> {
     const labels = await this.locatorForAll('.wr-line-chart__x-label')();
     return Promise.all(labels.map(label => label.text()));

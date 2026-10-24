@@ -6,17 +6,23 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   Component,
+  DestroyRef,
   type ElementRef,
+  LOCALE_ID,
+  PLATFORM_ID,
   ViewEncapsulation,
+  afterNextRender,
+  afterRenderEffect,
   computed,
   effect,
   inject,
   input,
   model,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 
@@ -33,6 +39,43 @@ import { useI18nText } from 'ngwr/i18n';
 import { clamp } from 'ngwr/utils';
 
 import type { WrLineSeries } from './types';
+
+/**
+ * The drawing's width in CSS px, assumed until a browser has measured it: what the server
+ * and the first paint thin the x labels against.
+ */
+const ASSUMED_WIDTH = 560;
+
+/** The plot's inline padding in CSS px — `--wr-line-chart-plot-inset-x` — until measured. */
+const ASSUMED_INSET = 16;
+
+/** How wide a character of an x label is taken to be, in CSS px, before a browser has measured the widest. */
+const CHAR_WIDTH = 7;
+
+/** The least room between two printed x labels, in CSS px. */
+const LABEL_GAP = 8;
+
+/** The hover marker's radius in CSS px: half the 12px stroke its ring is drawn with. */
+const HOVER_RADIUS = 6;
+
+/**
+ * How far a readout set beside the crosshair (`--left` / `--right`) keeps from it, in CSS
+ * px: the marker's radius and as much again. The stylesheet's `$beside`.
+ */
+const BESIDE = 12;
+
+/**
+ * Where the readout sits: over the crosshair at the top of the plot, over it at the bottom,
+ * or at the top beside it on either side. Physical, as the drawing's own x is.
+ */
+type TooltipPlacement = 'top' | 'below' | 'left' | 'right';
+
+/** What a browser measured, in CSS px: the drawing's width, the plot's inline padding and the widest x label. */
+interface Measured {
+  readonly width: number;
+  readonly inset: number;
+  readonly label: number;
+}
 
 /** A series as it is drawn: `tops` is what each x is plotted at, `bases` where its band starts under `stacked`. */
 interface PlottedSeries {
@@ -69,6 +112,11 @@ interface PlottedSeries {
  * ```html
  * <wr-line-chart [series]="series" [xLabels]="labels" showArea stacked />
  * ```
+ *
+ * The x labels are printed every one while the widest fits between two points, and every
+ * n-th otherwise, so a long axis keeps whole labels rather than a row of ellipses; the
+ * tooltip and the data table name every x. The drawing keeps time running left to right
+ * under RTL, as every SVG chart here does; the y labels move to the right of it.
  *
  * @see https://ngwr.dev/charts/line-chart
  */
@@ -117,7 +165,12 @@ export class WrLineChart {
   /** The tooltip's exact figures and the axis' compact ticks, in `LOCALE_ID` unless `valueFormat` is given. */
   private readonly numbers = useChartNumbers(this.valueFormat);
 
-  /** Labels for the X axis (one per data point). */
+  /**
+   * Labels for the X axis (one per data point). Printed every one while the widest fits
+   * between two points, and every n-th otherwise. An x past the end of this list is named
+   * by its position, counting from 1, in `LOCALE_ID`'s digits, in the tooltip and the data
+   * table.
+   */
   readonly xLabels = input<readonly string[]>([]);
 
   /** Chart pixel height. @default 240 */
@@ -218,6 +271,25 @@ export class WrLineChart {
 
   private readonly svg = viewChild.required<ElementRef<SVGSVGElement>>('svg');
 
+  private readonly plot = viewChild.required<ElementRef<HTMLElement>>('plot');
+
+  private readonly probe = viewChild<ElementRef<HTMLElement>>('probe');
+
+  private readonly tooltipEl = viewChild<ElementRef<HTMLElement>>('tooltip');
+
+  /** An x with no label of its own, by its position from 1 in the reader's own digits. */
+  private readonly ordinals = new Intl.NumberFormat(inject(LOCALE_ID));
+
+  /** What a browser measured, once it has: `null` on the server and until the first render. */
+  private readonly measured = signal<Measured | null>(null);
+
+  /**
+   * Where the readout sits (see `placeTooltip`): at the top of the plot unless that covers
+   * a marker it reads. Decided in a browser, from the readout's own size, each time the
+   * hovered x changes.
+   */
+  protected readonly tooltipPlacement = signal<TooltipPlacement>('top');
+
   /** Hovered point index (across all series) — null when no hover. */
   protected readonly hoveredIndex = signal<number | null>(null);
 
@@ -248,6 +320,31 @@ export class WrLineChart {
       document.addEventListener('keydown', onKeydown);
       onCleanup(() => document.removeEventListener('keydown', onKeydown));
     });
+
+    // Measured after render, in a browser: the drawing's width and the widest x label,
+    // which decide how many labels print, and the readout's height, which decides where it
+    // sits. Never on the server, which thins the labels against `ASSUMED_WIDTH`.
+    if (!isPlatformBrowser(inject(PLATFORM_ID))) return;
+    const destroyRef = inject(DestroyRef);
+
+    afterRenderEffect(() => {
+      this.probeText();
+      untracked(() => this.measure());
+    });
+
+    afterRenderEffect(() => {
+      const points = this.hoverPoints();
+      const tooltip = this.tooltipEl()?.nativeElement;
+      if (points.length === 0 || !tooltip) return;
+      untracked(() => this.placeTooltip(points, tooltip));
+    });
+
+    afterNextRender(() => {
+      if (typeof ResizeObserver === 'undefined') return;
+      const observer = new ResizeObserver(() => this.measure());
+      observer.observe(this.svg().nativeElement);
+      destroyRef.onDestroy(() => observer.disconnect());
+    });
   }
 
   /**
@@ -269,7 +366,7 @@ export class WrLineChart {
       index: i,
       label: s.label,
       dash: chartDash(i),
-      data: s.data.map(v => (Number.isFinite(v) ? v : null)),
+      data: s.data.map(v => (typeof v === 'number' && Number.isFinite(v) ? v : null)),
       color: s.color ?? chartColor(i),
     }))
   );
@@ -331,10 +428,18 @@ export class WrLineChart {
    * short of it would cut the fills off and misstate every band.
    */
   protected readonly bounds = computed(() => {
-    const all = this.plottedSeries().flatMap(s => s.tops.filter((v): v is number => v !== null));
-    if (all.length === 0) return chartAxis(Number.NaN, Number.NaN);
-    const min = Math.min(...all);
-    const max = Math.max(...all);
+    // A loop rather than `Math.min(...values)`: a spread of every plotted value overflows
+    // the stack past about 125k of them, and the chart rendered nothing at all.
+    let min = Number.POSITIVE_INFINITY;
+    let max = Number.NEGATIVE_INFINITY;
+    for (const s of this.plottedSeries()) {
+      for (const v of s.tops) {
+        if (v === null) continue;
+        if (v < min) min = v;
+        if (v > max) max = v;
+      }
+    }
+    if (min > max) return chartAxis(Number.NaN, Number.NaN);
     if (this.showArea() || this.stacked()) return chartAxis(min, max, { includeZero: true });
     return chartAxis(Math.min(0, min), max);
   });
@@ -360,15 +465,13 @@ export class WrLineChart {
    */
   protected pathFor(values: readonly (number | null)[]): string {
     const { min, max } = this.bounds();
-    const count = this.pointCount();
-    if (count <= 1) return '';
 
     const commands: string[] = [];
     let run = 0;
     let last = '';
-    // A subpath of one `M` is not stroked at all, so a point with a gap on both sides
-    // would simply vanish when `showDots` is off. Repeating it gives the round linecap
-    // something to paint.
+    // A subpath of one `M` is not stroked at all, so a point with a gap on both sides —
+    // or the only point of a one-point chart — would simply vanish when `showDots` is off.
+    // Repeating it gives the round linecap something to paint.
     const closeRun = (): void => {
       if (run === 1) commands.push(`L ${last}`);
       run = 0;
@@ -379,7 +482,7 @@ export class WrLineChart {
         closeRun();
         return;
       }
-      const x = (i / (count - 1)) * this.vbW;
+      const x = this.pointX(i);
       const y = ((max - v) / (max - min)) * this.vbH;
       last = `${x.toFixed(2)} ${y.toFixed(2)}`;
       commands.push(`${run === 0 ? 'M' : 'L'} ${last}`);
@@ -389,6 +492,22 @@ export class WrLineChart {
 
     return commands.join(' ');
   }
+
+  /**
+   * Every series shown as the template draws it: its line's path, and with `showDots` a
+   * dot's path per x, `null` on a hole. Built once per change to the data or the axis, so
+   * moving the pointer from x to x, which re-renders the hover layer, rebuilds no path.
+   */
+  protected readonly drawn = computed(() => {
+    const dots = this.showDots();
+    return this.plottedSeries().map(s => ({
+      index: s.index,
+      color: s.color,
+      dash: s.dash,
+      d: this.pathFor(s.tops),
+      dots: dots ? s.tops.map((v, i) => (v === null ? null : this.dotPath(this.pointX(i), this.pointY(v)))) : [],
+    }));
+  });
 
   /**
    * The fills under the lines with `showArea`: one per unbroken run of two points or
@@ -448,16 +567,69 @@ export class WrLineChart {
   }
 
   /**
-   * How far apart two neighbouring points are, as a percentage of the drawing's width —
-   * the room each x label has, half on either side of its point. The stylesheet bounds a
-   * label to it, cut back at the ends of the strip, and ellipsises past that. Centring a
-   * label on its point says nothing about its WIDTH, and with no bound at all twelve
-   * month names printed over each other and the last one hung outside the chart.
+   * How far apart two neighbouring printed labels are, as a percentage of the drawing's
+   * width — the room each x label has, half on either side of its point: the distance
+   * between two points times the step `xAxis` prints at. The stylesheet bounds a label to
+   * it, cut back at the ends of the strip, and ellipsises past that. Centring a label on its
+   * point says nothing about its WIDTH, and with no bound at all twelve month names printed
+   * over each other and the last one hung outside the chart.
    */
   protected readonly xSlot = computed(() => {
     const count = this.pointCount();
     // A single label has no neighbour to collide with and the whole strip to sit in.
-    return count <= 1 ? 100 : 100 / (count - 1);
+    return count <= 1 ? 100 : Math.min(100, (100 * this.xAxis().every) / (count - 1));
+  });
+
+  /**
+   * Every x label once, a line each: the hidden copy the labels' room is measured against.
+   * Laid out as wide as its widest line, so it measures the widest label rather than the
+   * one with the most characters — `WWWWW` is wider than `iiiiiii`.
+   */
+  protected readonly probeText = computed(() =>
+    [...new Set(this.xLabels().map(label => label.replace(/\r\n?|\n/g, ' ')))].join('\n')
+  );
+
+  /**
+   * Which x labels print. Every one while the widest label and a gap fit between two
+   * points, as before there was any thinning; otherwise every `every`-th from the first,
+   * the smallest step whose labels keep that gap — the first label included, which the
+   * strip's start moves inwards when it is wider than the room before its point — and the
+   * last one printed is left out if moving it inwards from the strip's end brings it
+   * within the gap of the one before. The step is decided in a browser from the widest
+   * label as laid out and the drawing's width, and against `ASSUMED_WIDTH` and seven
+   * pixels a character before that, so the server thins a long axis too.
+   *
+   * Only the printed labels render: a label laid out and hidden still costs its share of
+   * every resize.
+   */
+  protected readonly xAxis = computed(() => {
+    const labels = this.xLabels();
+    const count = this.pointCount();
+    const measured = this.measured();
+    const width = measured?.width ?? ASSUMED_WIDTH;
+    const inset = measured?.inset ?? ASSUMED_INSET;
+    const strip = width + 2 * inset;
+    const longest = labels.reduce((most, label) => Math.max(most, label.length), 0);
+    const label = Math.min(measured && measured.label > 0 ? measured.label : longest * CHAR_WIDTH, strip);
+    const step = count <= 1 ? strip : width / (count - 1);
+    /** Where a printed label's box starts, in px from the strip's start: centred on its point, moved in at either end. */
+    const start = (index: number): number =>
+      clamp(inset + this.pointX(index) * (width / this.vbW) - label / 2, 0, strip - label);
+    // A hair of slack on every comparison, so the regular spacing never fails on a rounding.
+    const crowds = (from: number, previousEnd: number): boolean => from + 1e-6 < previousEnd + LABEL_GAP;
+
+    let every = count <= 1 ? 1 : Math.max(1, Math.ceil((label + LABEL_GAP - 1e-6) / step));
+    while (every < labels.length - 1 && crowds(start(every), start(0) + label)) every++;
+
+    const ticks: { readonly index: number; readonly label: string; readonly x: number }[] = [];
+    let end = Number.NEGATIVE_INFINITY;
+    for (let index = 0; index < labels.length; index += every) {
+      const from = start(index);
+      if (every > 1 && crowds(from, end)) break;
+      ticks.push({ index, label: labels[index], x: this.xPercent(index) });
+      end = from + label;
+    }
+    return { every, ticks };
   });
 
   /**
@@ -484,7 +656,7 @@ export class WrLineChart {
   protected readonly hoverLabel = computed(() => {
     const i = this.activeIndex();
     if (i === null) return '';
-    return this.xLabels()[i] ?? String(i);
+    return this.xLabels()[i] ?? this.ordinals.format(i + 1);
   });
 
   /**
@@ -519,6 +691,70 @@ export class WrLineChart {
   /** A zero-length line at a point, which a round cap paints as a dot. */
   protected dotPath(x: number, y: number): string {
     return `M ${x.toFixed(2)} ${y.toFixed(2)} h 0`;
+  }
+
+  /**
+   * Read the drawing's width, the plot's inline padding and the widest x label off the
+   * layout. A hidden chart measures 0 and keeps its last reading rather than thin to
+   * nothing; with no label to measure the estimate stays in charge.
+   */
+  private measure(): void {
+    const box = this.svg().nativeElement.getBoundingClientRect();
+    if (box.width <= 0) return;
+    const inset = box.left - this.plot().nativeElement.getBoundingClientRect().left;
+    const label = this.probe()?.nativeElement.getBoundingClientRect().width ?? 0;
+    const last = this.measured();
+    if (last?.width === box.width && last.inset === inset && last.label === label) return;
+    this.measured.set({ width: box.width, inset, label });
+  }
+
+  /**
+   * Place the readout clear of the markers it reads. Over the crosshair at the top of the
+   * plot, as it always sat, while that covers none of them; else at the bottom, while that
+   * covers none; else beside the crosshair at the top, on the side with more room, which
+   * covers none of them as long as it fits there — every marker is on the crosshair. Where
+   * each covers some, the one that covers fewest, in that order on a tie.
+   *
+   * Every candidate is worked out from the readout's own size and from how far inside the
+   * drawing's edge it sits, which is the same at the top and, moved below, at the bottom —
+   * so the choice never depends on where it is now, and settles in one pass.
+   */
+  private placeTooltip(points: readonly { readonly x: number; readonly y: number }[], tooltip: HTMLElement): void {
+    const box = this.svg().nativeElement.getBoundingClientRect();
+    const plot = this.plot().nativeElement.getBoundingClientRect();
+    const rect = tooltip.getBoundingClientRect();
+    if (box.height <= 0 || rect.height <= 0 || rect.width <= 0) return;
+    const current = this.tooltipPlacement();
+    const inset = current === 'below' ? box.bottom - rect.bottom : rect.top - box.top;
+    const { width, height } = rect;
+    // Every marker of one x is on the crosshair.
+    const x = box.left + (points[0].x / this.vbW) * box.width;
+    const ys = points.map(p => box.top + (p.y / this.vbH) * box.height);
+    /** Held inside the plot, as the stylesheet's clamp holds it. */
+    const across = (left: number): number => clamp(left, plot.left, plot.right - width);
+    const top = box.top + inset;
+    const candidates: readonly { placement: TooltipPlacement; left: number; top: number }[] = [
+      { placement: 'top', left: across(x - width / 2), top },
+      { placement: 'below', left: across(x - width / 2), top: box.bottom - inset - height },
+      x - plot.left > plot.right - x
+        ? { placement: 'left', left: across(x - BESIDE - width), top }
+        : { placement: 'right', left: across(x + BESIDE), top },
+    ];
+    const covers = (c: { left: number; top: number }): number =>
+      x + HOVER_RADIUS > c.left && x - HOVER_RADIUS < c.left + width
+        ? ys.filter(y => y + HOVER_RADIUS > c.top && y - HOVER_RADIUS < c.top + height).length
+        : 0;
+    let best = candidates[0];
+    let fewest = covers(best);
+    for (const candidate of candidates.slice(1)) {
+      if (fewest === 0) break;
+      const count = covers(candidate);
+      if (count < fewest) {
+        best = candidate;
+        fewest = count;
+      }
+    }
+    if (best.placement !== current) this.tooltipPlacement.set(best.placement);
   }
 
   /**
@@ -566,7 +802,7 @@ export class WrLineChart {
       series.length === 0
         ? []
         : Array.from({ length: this.pointCount() }, (_, i) => ({
-            header: labels[i] ?? String(i),
+            header: labels[i] ?? this.ordinals.format(i + 1),
             cells: series.map(s => {
               const value = s.data[i];
               return value === undefined || value === null ? '' : this.numbers.value(value);

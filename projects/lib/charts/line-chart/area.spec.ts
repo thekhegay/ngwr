@@ -80,7 +80,7 @@ describe('WrLineChart area, stack and data table', () => {
     [...root().querySelectorAll('.wr-line-chart__tooltip-value')].map(el => el.textContent.trim());
   /** The hover rings: a coloured one and a white one per point, both drawn at the marker. */
   const rings = (): string[] =>
-    [...drawing().querySelectorAll('path:not([class])')].map(p => p.getAttribute('d')!).filter((_, i) => i % 2 === 0);
+    [...drawing().querySelectorAll('path.wr-line-chart__hover-dot')].map(p => p.getAttribute('d')!);
 
   beforeEach(() => {
     TestBed.resetTestingModule();
@@ -273,11 +273,12 @@ describe('WrLineChart area, stack and data table', () => {
     it('leaves a hole as an empty cell and heads an unlabelled x as the tooltip does', () => {
       host().series.set([{ label: 'Visits', data: [10, Number.NaN, 30, 40] }]);
       render();
+      // By its position counting from 1, as a reader counts: from 0 the fourth x read "3".
       expect(rows()).toEqual([
         ['Mon', '10'],
         ['Tue', ''],
         ['Wed', '30'],
-        ['3', '40'],
+        ['4', '40'],
       ]);
     });
 
@@ -323,6 +324,34 @@ describe('wr-line-chart area stylesheet', () => {
     expect(rule(source, '.wr-line-chart__area')).toMatch(/fill-opacity:\s*var\(--wr-line-chart-area-opacity\)/);
     expect(rule(source, '.wr-line-chart')).toMatch(/--wr-line-chart-area-opacity:\s*0\.15/);
     expect(rule(source, '.wr-line-chart--stacked')).toMatch(/--wr-line-chart-area-opacity:\s*0\.3/);
+  });
+
+  it('paints the grid, the crosshair and the hover centre through hooks, and gives forced colors its own', () => {
+    // They were presentation attributes holding theme colours, which forced colors keeps
+    // as written: on a dark forced canvas the gridlines measured about 1.3:1.
+    const source = css();
+    expect(rule(source, '.wr-line-chart__grid-line')).toMatch(/stroke:\s*var\(--wr-line-chart-grid-color\)/);
+    expect(rule(source, '.wr-line-chart__crosshair')).toMatch(/stroke:\s*var\(--wr-line-chart-crosshair-color\)/);
+    expect(rule(source, '.wr-line-chart__hover-dot-center')).toMatch(/stroke:\s*var\(--wr-line-chart-hover-center\)/);
+    const forced = /@media \(forced-colors: active\)\s*\{([\s\S]*?)\n\}/.exec(source)?.[1] ?? '';
+    expect(rule(forced.replace(/^ {2}/gm, ''), '.wr-line-chart__grid-line')).toMatch(/stroke:\s*GrayText/);
+    expect(rule(forced.replace(/^ {2}/gm, ''), '.wr-line-chart__crosshair')).toMatch(/stroke:\s*CanvasText/);
+    expect(rule(forced.replace(/^ {2}/gm, ''), '.wr-line-chart__hover-dot-center')).toMatch(/stroke:\s*Canvas\b/);
+  });
+
+  it('keeps the sign of a tick and of a tooltip value before its digits on an RTL page', () => {
+    const source = css();
+    for (const selector of ['.wr-line-chart__tick', '.wr-line-chart__tooltip-value', '.wr-line-chart__x-label']) {
+      expect(rule(source, selector), selector).toMatch(/unicode-bidi:\s*plaintext/);
+    }
+    // Shrunk to its text, so following its own direction does not move a tick off the plot's side.
+    expect(rule(source, '.wr-line-chart__tick')).toMatch(/justify-self:\s*end/);
+  });
+
+  it("sizes the x labels' strip to one line of their own leading", () => {
+    const strip = rule(css(), '.wr-line-chart__x-labels');
+    expect(strip).toMatch(/line-height:\s*var\(--wr-line-chart-x-labels-line-height\)/);
+    expect(strip).toMatch(/height:\s*1lh/);
   });
 
   it('loads the data table sheet, which clips the table out of sight', () => {

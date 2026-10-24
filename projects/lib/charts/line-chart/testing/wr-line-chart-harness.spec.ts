@@ -59,8 +59,9 @@ class TwoCharts {
 
 /**
  * Everything asserted here is textual or countable. A line's `d` is a rendering
- * detail, and the tooltip needs a measured plot to open — jsdom reports 0×0, so a
- * synthetic pointer move resolves to nothing and there is deliberately no `hoverAt()`.
+ * detail, and the tooltip needs a measured drawing to open — jsdom reports 0×0, so the
+ * harness has deliberately no `hoverAt()`, and the one spec that reads an open tooltip
+ * gives the drawing a box and moves the pointer itself.
  */
 describe('WrLineChartHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -81,6 +82,7 @@ describe('WrLineChartHarness', () => {
   it('draws one line per series and lists them in the legend', async () => {
     const harness = await chart();
 
+    expect(await harness.hasLegend()).toBe(true);
     expect(await harness.getSeriesLabels()).toEqual(['Revenue', 'Costs']);
     expect(await harness.getLineCount()).toBe(2);
     expect(await harness.getDotCount()).toBe(6);
@@ -114,11 +116,25 @@ describe('WrLineChartHarness', () => {
     expect(await harness.getLineCount()).toBe(2);
   });
 
-  it('shows no tooltip until something hovers the plot', async () => {
+  it('shows no tooltip until something hovers the plot, then reads the one it opened', async () => {
     const harness = await chart();
 
     expect([await harness.hasTooltip(), await harness.getTooltipLabel()]).toEqual([false, null]);
     expect(await harness.getTooltipRows()).toEqual([]);
+
+    // jsdom lays nothing out, so the drawing is given a box: 600px wide at the origin reads
+    // a clientX as a viewBox x, and 310 is nearest the middle of the three points.
+    const root = fixture.nativeElement as HTMLElement;
+    const svg = root.querySelector<SVGSVGElement>('.wr-line-chart__svg')!;
+    svg.getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
+    svg.dispatchEvent(new MouseEvent('mousemove', { clientX: 310, bubbles: true }));
+    await fixture.whenStable();
+
+    expect([await harness.hasTooltip(), await harness.getTooltipLabel()]).toEqual([true, 'Feb']);
+    expect(await harness.getTooltipRows()).toEqual([
+      { label: 'Revenue', value: '40' },
+      { label: 'Costs', value: '20' },
+    ]);
   });
 
   it('reads the plot height the component wrote', async () => {

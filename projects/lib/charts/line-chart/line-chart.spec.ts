@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrLineChart } from './line-chart';
 import type { WrLineSeries } from './types';
@@ -539,6 +539,184 @@ describe('WrLineChart', () => {
   it('keeps the svg stretchable', () => {
     expect(svg().getAttribute('preserveAspectRatio')).toBe('none');
     expect(svg().getAttribute('viewBox')).toBe('0 0 600 300');
+  });
+
+  it('draws the only point of a one-point chart, with or without its dot', () => {
+    // A lone `M` is never stroked, so a one-point chart with `showDots` off drew nothing at
+    // all; repeated, the round cap paints it, as for a lone point mid-series.
+    fixture.componentInstance.series.set([{ label: 'Visits', data: [5] }]);
+    fixture.componentInstance.xLabels.set(['Mon']);
+    fixture.detectChanges();
+
+    expect(lines()[0].getAttribute('d')).toMatch(/^M 300\.00 (\S+) L 300\.00 \1$/);
+  });
+
+  it('names an x past the end of `xLabels` by its position, counting from 1', () => {
+    svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
+    fixture.componentInstance.xLabels.set([]);
+    fixture.detectChanges();
+    svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 0, bubbles: true }));
+    fixture.detectChanges();
+
+    expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('1');
+  });
+});
+
+describe('WrLineChart with a very long series', () => {
+  @Component({
+    imports: [WrLineChart],
+    template: `<wr-line-chart [series]="series" [showDots]="false" />`,
+  })
+  class LongHost {
+    readonly series: readonly WrLineSeries[] = [
+      { label: 'Visits', data: Array.from({ length: 200_000 }, (_, i) => i % 1000) },
+    ];
+  }
+
+  it('fits the axis to more values than a spread can pass, rather than drawing nothing', () => {
+    // `Math.min(...values)` overflows the stack past about 125k arguments, inside a computed,
+    // and the chart rendered nothing at all.
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(LongHost);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('.wr-line-chart__tick')!.textContent.trim()).toBe('1K');
+    expect(root.querySelector('.wr-line-chart__line')!.getAttribute('d')!.length).toBeGreaterThan(0);
+    fixture.destroy();
+  });
+});
+
+/**
+ * The readout sits at the top of the plot unless that covers a marker it reads; then at the
+ * bottom, or beside the crosshair. jsdom lays nothing out, so the plot and its drawing are
+ * given a 600 × 300 box at the origin, and the readout a 100 × 60 one, 8px inside whichever
+ * edge its modifier puts it at — which is what the stylesheet does.
+ */
+describe('WrLineChart readout placement', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const tooltip = (): HTMLElement => root().querySelector<HTMLElement>('.wr-line-chart__tooltip')!;
+  const modifiers = (): string[] =>
+    [...tooltip().classList].filter(name => name.startsWith('wr-line-chart__tooltip--'));
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      if (this.classList.contains('wr-line-chart__plot')) return new DOMRect(0, 0, 600, 300);
+      if (!this.classList.contains('wr-line-chart__tooltip')) return new DOMRect(0, 0, 0, 0);
+      return new DOMRect(250, this.classList.contains('wr-line-chart__tooltip--below') ? 232 : 8, 100, 60);
+    });
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    // One series reaching 38 of a 0–40 axis at Wed: its marker sits 15px from the top.
+    fixture.componentInstance.series.set([{ label: 'Visits', data: [10, 20, 38] }]);
+    fixture.detectChanges();
+    root().querySelector<SVGSVGElement>('.wr-line-chart__svg')!.getBoundingClientRect = () =>
+      new DOMRect(0, 0, 600, 300);
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  const hoverAt = async (clientX: number): Promise<void> => {
+    root()
+      .querySelector('.wr-line-chart__svg')!
+      .dispatchEvent(new MouseEvent('mousemove', { clientX, bubbles: true }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  it('moves to the bottom over a marker in the band the top would cover, and back up when the top is clear', async () => {
+    await hoverAt(600);
+    expect(modifiers()).toEqual(['wr-line-chart__tooltip--below']);
+
+    // Mon's 10 sits at 225px, clear of the top band.
+    await hoverAt(0);
+    expect(modifiers()).toEqual([]);
+  });
+
+  it('sits beside the crosshair, on the side with room, where the top and the bottom each cover a marker', async () => {
+    // At Wed one marker is 15px from the top and the other 15px from the bottom.
+    fixture.componentInstance.series.set([
+      { label: 'Visits', data: [10, 20, 38] },
+      { label: 'Signups', data: [0, 5, 2] },
+    ]);
+    fixture.detectChanges();
+    await hoverAt(600);
+    // Wed is at the right end of the plot, so the room is on its left.
+    expect(modifiers()).toEqual(['wr-line-chart__tooltip--left']);
+  });
+});
+
+/**
+ * The x labels print every one while the widest fits between two points, and every n-th
+ * otherwise. jsdom lays nothing out, so before anything is measured the chart assumes a
+ * 560px drawing, a 16px inset and seven pixels a character — which is what the server
+ * renders with too.
+ */
+describe('WrLineChart x labels', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const printed = (): string[] =>
+    [...root().querySelectorAll<HTMLElement>('.wr-line-chart__x-label')].map(el => el.textContent.trim());
+  const days = Array.from({ length: 30 }, (_, i) => `Jan ${i + 1}`);
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('prints every n-th label of a long axis in full, rather than every one cut to nothing', () => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.series.set([{ label: 'Visits', data: days.map((_, i) => i) }]);
+    fixture.componentInstance.xLabels.set(days);
+    fixture.detectChanges();
+
+    // Six characters at 7px and an 8px gap need 50px; thirty points across 560px are 19.3px
+    // apart, so every third label prints, from the first.
+    expect(printed()).toEqual([
+      'Jan 1',
+      'Jan 4',
+      'Jan 7',
+      'Jan 10',
+      'Jan 13',
+      'Jan 16',
+      'Jan 19',
+      'Jan 22',
+      'Jan 25',
+      'Jan 28',
+    ]);
+    const strip = root().querySelector<HTMLElement>('.wr-line-chart__x-labels')!;
+    expect(Number.parseFloat(strip.style.getPropertyValue('--wr-line-chart-x-slot'))).toBeCloseTo((100 * 3) / 29, 6);
+    // Each printed label stays on its own point.
+    const xs = [...root().querySelectorAll<HTMLElement>('.wr-line-chart__x-label')].map(el =>
+      Number.parseFloat(el.style.getPropertyValue('--wr-line-chart-x'))
+    );
+    expect(xs[1]).toBeCloseTo((100 * 3) / 29, 6);
+    // The probe the widest is measured against holds every label, a line each.
+    expect(root().querySelector('.wr-line-chart__x-probe')!.textContent).toBe(days.join('\n'));
+  });
+
+  it('thins against the widest label and the drawing as a browser lays them out', async () => {
+    // A 300px drawing 16px inside the plot, and a widest label 40px wide.
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      if (this.classList.contains('wr-line-chart__svg')) return new DOMRect(16, 0, 300, 240);
+      if (this.classList.contains('wr-line-chart__x-probe')) return new DOMRect(0, 0, 40, 16);
+      return new DOMRect(0, 0, 0, 0);
+    });
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.series.set([{ label: 'Visits', data: days.slice(0, 12).map((_, i) => i) }]);
+    fixture.componentInstance.xLabels.set(days.slice(0, 12));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // Twelve points across 300px are 27.3px apart, and a 40px label with its gap needs two.
+    expect(printed()).toEqual(['Jan 1', 'Jan 3', 'Jan 5', 'Jan 7', 'Jan 9', 'Jan 11']);
   });
 });
 

@@ -63,9 +63,11 @@ function splitSelectors(list: string): string[] {
 
 /**
  * The stylesheet's rules with `&` resolved. The file is one `.wr-line-chart` block
- * nesting its rules one level deep, and that is the only shape this reads: anything it
- * cannot place — a second nesting level, an at-rule or include inside the block, a rule
- * outside it — THROWS, because a rule it skipped is a rule whose reach goes unchecked.
+ * nesting its rules one level deep, followed by `@media` blocks of plain rules written
+ * with their whole selectors (the forced-colors overrides), and that is the only shape
+ * this reads: anything it cannot place — a second nesting level, an at-rule or include
+ * inside the block, any other rule outside it — THROWS, because a rule it skipped is a
+ * rule whose reach goes unchecked.
  */
 function rules(): Rule[] {
   const code = SOURCE.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/[^\n]*/g, '$1');
@@ -98,7 +100,41 @@ function rules(): Rule[] {
       buffer += ch;
     }
   }
-  if (code.slice(i + 1).trim()) throw new Error('a rule after the `.wr-line-chart` block goes unread');
+  found.push(...mediaRules(code.slice(i + 1)));
+  return found;
+}
+
+/**
+ * The rules of the `@media` blocks after the `.wr-line-chart` block, each written with its
+ * whole selector. Anything else there — a bare rule, a nested block, another at-rule —
+ * throws, for the reason {@link rules} gives.
+ */
+function mediaRules(rest: string): Rule[] {
+  const found: Rule[] = [];
+  let code = rest.trim();
+  while (code) {
+    const media = /^@media[^{]*\{/.exec(code);
+    if (!media) throw new Error(`a rule after the \`.wr-line-chart\` block goes unread: ${code.slice(0, 60)}`);
+    let i = media[0].length;
+    for (; code[i] !== '}'; i++) {
+      if (i >= code.length) throw new Error('an unclosed `@media` block after the `.wr-line-chart` block');
+      const open = code.indexOf('{', i);
+      const close = code.indexOf('}', i);
+      if (open < 0 || close < open) {
+        if (code.slice(i, close).trim()) throw new Error(`\`${code.slice(i, close).trim()}\` goes unread`);
+        i = close - 1;
+        continue;
+      }
+      const selector = code.slice(i, open).trim();
+      const body = code.slice(open + 1, close);
+      if (selector.startsWith('@') || selector.includes('&') || body.includes('{')) {
+        throw new Error(`\`${selector}\` in a \`@media\` block is a shape this reader cannot place — extend it`);
+      }
+      for (const part of splitSelectors(selector)) found.push({ selector: part, body });
+      i = close;
+    }
+    code = code.slice(i + 1).trim();
+  }
   return found;
 }
 
