@@ -57,7 +57,7 @@ describe('WrCandlestickChartHarness', () => {
         high: 110,
         low: 95,
         close: 105,
-        direction: 'up',
+        direction: 'increase',
         left: 25,
         top: 20,
         height: 60,
@@ -70,7 +70,7 @@ describe('WrCandlestickChartHarness', () => {
         high: 108,
         low: 98,
         close: 100,
-        direction: 'down',
+        direction: 'decrease',
         left: 75,
         top: 28,
         height: 40,
@@ -87,7 +87,7 @@ describe('WrCandlestickChartHarness', () => {
     expect((await (await chart()).getCandles()).map(candle => candle.index)).toEqual([1, 2]);
   });
 
-  it('reads the ticks and the labels, and none without the grid', async () => {
+  it('reads the ticks and the labels, and keeps the labels without the grid', async () => {
     const harness = await chart();
 
     expect(await harness.hasGrid()).toBe(true);
@@ -97,7 +97,12 @@ describe('WrCandlestickChartHarness', () => {
     host().showGrid.set(false);
     await fixture.whenStable();
 
-    expect([await harness.hasGrid(), await harness.getYTicks(), await harness.getXLabels()]).toEqual([false, [], []]);
+    // The period labels are the time axis, not part of the grid.
+    expect([await harness.hasGrid(), await harness.getYTicks(), await harness.getXLabels()]).toEqual([
+      false,
+      [],
+      ['Mon', 'Tue'],
+    ]);
   });
 
   it('reads the dense decision and the thinned labels for many candles', async () => {

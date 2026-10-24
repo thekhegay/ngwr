@@ -30,13 +30,13 @@ class CandleHarness extends ComponentHarness {
 
   async read(): Promise<WrCandlestickChartHarnessCandle> {
     const candle = await this.host();
-    const up = await candle.hasClass('wr-candlestick-chart__candle--up');
-    const down = await candle.hasClass('wr-candlestick-chart__candle--down');
-    if (up === down) {
-      const carries = up ? 'both' : 'neither';
+    const increase = await candle.hasClass('wr-candlestick-chart__candle--increase');
+    const decrease = await candle.hasClass('wr-candlestick-chart__candle--decrease');
+    if (increase === decrease) {
+      const carries = increase ? 'both' : 'neither';
       throw new Error(
-        `WrCandlestickChartHarness.getCandles(): a candle carries ${carries} of \`--up\` and \`--down\`, and the ` +
-          'component writes exactly one, which decides its fill.'
+        `WrCandlestickChartHarness.getCandles(): a candle carries ${carries} of \`--increase\` and \`--decrease\`, ` +
+          'and the component writes exactly one, which decides its fill.'
       );
     }
     const style = (await candle.getAttribute('style')) ?? '';
@@ -46,7 +46,7 @@ class CandleHarness extends ComponentHarness {
       high: await numberAttribute(candle, 'data-high'),
       low: await numberAttribute(candle, 'data-low'),
       close: await numberAttribute(candle, 'data-close'),
-      direction: up ? 'up' : 'down',
+      direction: increase ? 'increase' : 'decrease',
       left: styleNumber(style, 'left', '%'),
       top: styleNumber(style, 'top', '%'),
       height: styleNumber(style, 'height', '%'),
@@ -95,8 +95,8 @@ function styleNumber(style: string, property: string, unit: '%' | ''): number {
  * period's prices in `data-*` attributes beside that placement — so {@link getCandles}
  * answers both questions a spec has: which period is this, and where did the chart put
  * it. A candle with the right prices at the wrong height is exactly the defect worth
- * catching. Hollow or filled is read as the `--up` / `--down` modifier the stylesheet
- * draws it from; what that paints is a browser's question.
+ * catching. Hollow or filled is read as the `--increase` / `--decrease` modifier the
+ * stylesheet draws it from; what that paints is a browser's question.
  *
  * **A body's width is not read**: it is a share of the slot that the stylesheet holds
  * between 1px and a ceiling, and jsdom has no stylesheet. {@link isDense} reads the
@@ -116,7 +116,7 @@ function styleNumber(style: string, property: string, unit: '%' | ''): number {
  * const chart = await loader.getHarness(WrCandlestickChartHarness);
  *
  * expect(await chart.getCandleCount()).toBe(20);
- * expect((await chart.getCandles())[0]).toMatchObject({ open: 102, close: 106, direction: 'up' });
+ * expect((await chart.getCandles())[0]).toMatchObject({ open: 102, close: 106, direction: 'increase' });
  * ```
  *
  * @see https://ngwr.dev/guides/testing
@@ -177,11 +177,11 @@ export class WrCandlestickChartHarness extends ComponentHarness {
 
   /**
    * The period labels printed under the candles, left to right — every n-th where they
-   * do not all fit; `[]` with `showGrid` off. The hidden copy the chart measures is not
-   * one of them.
+   * do not all fit, and with `showGrid` off too, since they are the time axis. The hidden
+   * copy the chart measures is not one of them.
    */
   async getXLabels(): Promise<string[]> {
-    const labels = await this.locatorForAll('.wr-candlestick-chart__x-tick')();
+    const labels = await this.locatorForAll('.wr-candlestick-chart__x-label')();
     return Promise.all(labels.map(label => label.text()));
   }
 

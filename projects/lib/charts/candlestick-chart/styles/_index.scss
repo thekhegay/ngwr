@@ -35,13 +35,13 @@ $-body: calc(100% - $-upper - $-lower);
 .wr-candlestick-chart {
   --wr-candlestick-chart-font-family: var(--wr-font-family-base);
   --wr-candlestick-chart-color: var(--wr-color-on-surface);
-  // A rising candle and a falling one. The two intents sit within 1.004:1 of each other
-  // in luminance, so they are never the only thing that tells the candles apart: a
-  // rising body is hollow and a falling one filled, whatever these say. Both measure
-  // over 4:1 against the surface in either scheme, past the 3:1 WCAG 1.4.11 asks of a
-  // mark a reader needs.
-  --wr-candlestick-chart-up-color: var(--wr-color-success);
-  --wr-candlestick-chart-down-color: var(--wr-color-danger);
+  // A rising candle and a falling one, named as the waterfall's change up and change
+  // down are. The two intents sit within 1.004:1 of each other in luminance, so they are
+  // never the only thing that tells the candles apart: a rising body is hollow and a
+  // falling one filled, whatever these say. Both measure over 4:1 against the surface in
+  // either scheme, past the 3:1 WCAG 1.4.11 asks of a mark a reader needs.
+  --wr-candlestick-chart-increase-color: var(--wr-color-success);
+  --wr-candlestick-chart-decrease-color: var(--wr-color-danger);
   // The room above and below the drawing inside the plot, which the y labels read to
   // meet their gridlines.
   --wr-candlestick-chart-plot-inset-y: var(--wr-space-sm);
@@ -55,8 +55,8 @@ $-body: calc(100% - $-upper - $-lower);
   --wr-candlestick-chart-body-max-width: 1.5rem;
   --wr-candlestick-chart-body-border-width: 1px;
   --wr-candlestick-chart-wick-width: 1px;
-  // The band behind the candle being read.
-  --wr-candlestick-chart-cursor-color: var(--wr-color-hover);
+  // The band behind the candle being read, under the gridlines, so they read across it.
+  --wr-candlestick-chart-cursor-bg: var(--wr-color-hover);
 
   display: block;
   // The containing block of the out-of-flow `dataTable` copy, as on the line chart: a
@@ -69,7 +69,8 @@ $-body: calc(100% - $-upper - $-lower);
   // The y labels at inline start, the plot beside them, and the period labels under the
   // plot alone. A grid follows `direction`, so the gutter is on the right under RTL with
   // no rule of its own; the drawing itself does not mirror — time runs left to right in
-  // a price chart in every language, as no chart's drawing mirrors.
+  // a price chart in every language, as in every SVG chart here. The HTML layouts (bar,
+  // bullet, treemap) are the ones that mirror.
   &__body {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
@@ -93,12 +94,18 @@ $-body: calc(100% - $-upper - $-lower);
     font-variant-numeric: tabular-nums;
   }
 
+  // Shrunk to its text against the plot's side of the column, so its own direction can
+  // follow its text (`plaintext`), as the waterfall's and the box plot's ticks do: a
+  // price below zero is a `-` in front of digits, neither of which has a direction of its
+  // own, and under RTL the sign would land on the far side — `50-`.
   &__y-tick {
     $inset: var(--wr-candlestick-chart-plot-inset-y);
 
     grid-area: 1 / 1;
     align-self: start;
+    justify-self: end;
     position: relative;
+    unicode-bidi: plaintext;
     top: calc($inset + (100% - 2 * $inset) * var(--wr-candlestick-chart-y, 0) / 100);
     transform: translateY(-50%);
   }
@@ -128,7 +135,7 @@ $-body: calc(100% - $-upper - $-lower);
     position: absolute;
     inset-block: 0;
     width: calc(var(--wr-candlestick-chart-slot, 100) * 1%);
-    background: var(--wr-candlestick-chart-cursor-color);
+    background: var(--wr-candlestick-chart-cursor-bg);
     pointer-events: none;
   }
 
@@ -152,12 +159,12 @@ $-body: calc(100% - $-upper - $-lower);
     transform: translateX(-50%);
     pointer-events: none;
 
-    &--up {
-      color: var(--wr-candlestick-chart-up-color);
+    &--increase {
+      color: var(--wr-candlestick-chart-increase-color);
     }
 
-    &--down {
-      color: var(--wr-candlestick-chart-down-color);
+    &--decrease {
+      color: var(--wr-candlestick-chart-decrease-color);
     }
 
     // The wicks: above the body and below it, never through it, so a hollow body is
@@ -195,7 +202,7 @@ $-body: calc(100% - $-upper - $-lower);
     border: var(--wr-candlestick-chart-body-border-width) solid currentColor;
   }
 
-  &__candle--down &__candle-body {
+  &__candle--decrease &__candle-body {
     background: currentColor;
   }
 
@@ -218,7 +225,7 @@ $-body: calc(100% - $-upper - $-lower);
     border-width: 0;
   }
 
-  &--dense &__candle--up &__candle-body {
+  &--dense &__candle--increase &__candle-body {
     background: repeating-linear-gradient(to bottom, currentColor 0 $dash, transparent $dash 2 * $dash);
   }
 
@@ -253,7 +260,7 @@ $-body: calc(100% - $-upper - $-lower);
     white-space: pre-line;
   }
 
-  &__x-tick {
+  &__x-label {
     $x: var(--wr-candlestick-chart-x, 50);
     $slot: var(--wr-candlestick-chart-x-slot, 100);
 

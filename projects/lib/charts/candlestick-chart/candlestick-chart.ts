@@ -59,6 +59,23 @@ const LABEL_GAP = 12;
 /** A percentage to three decimals, so an attribute stays short. */
 const percent = (value: number): number => Math.round(value * 1000) / 1000;
 
+/**
+ * The most fraction digits a price is written with by default: past it a decimal is
+ * float noise — 0.1 + 0.2 is 0.30000000000000004 — rather than precision, and every
+ * instrument quotes fewer. Crypto's eight places fit.
+ */
+const MAX_PRICE_DIGITS = 10;
+
+/**
+ * How many fraction digits the shortest decimal that reads back as `value` has: 5 for
+ * 1.08345, 0 for 120, 8 for 1.2e-7. `toString()` is that shortest form, written with an
+ * exponent past 1e21 and below 1e-6, which this reads too.
+ */
+function fractionDigits(value: number): number {
+  const [mantissa, exponent = '0'] = Math.abs(value).toString().split('e');
+  return Math.max(0, (mantissa.split('.')[1]?.length ?? 0) - Number(exponent));
+}
+
 /** What a browser measured: the drawing's width, the widest x label's and one body's, in px. */
 interface Measured {
   readonly width: number;
@@ -75,8 +92,8 @@ interface DrawnCandle {
   readonly high: number;
   readonly low: number;
   readonly close: number;
-  /** Whether it closed at or above its open: drawn hollow in the up colour, else filled in the down one. */
-  readonly up: boolean;
+  /** Whether it closed at or above its open: drawn hollow in the increase colour, else filled in the decrease one. */
+  readonly increase: boolean;
   /** Its centre, as a percentage of the drawing's width from the left. */
   readonly left: number;
   /** Its top — the higher of the high and the body — as a percentage of the drawing's height from the top. */
@@ -106,12 +123,14 @@ interface DrawnCandle {
  * />
  * ```
  *
- * **Up and down are told apart twice.** A rising candle, one that closed at or above
- * its open, is drawn HOLLOW in the up colour, success by default; a falling one FILLED
- * in the down colour, danger by default. The two intents sit within 1.004:1 of each
- * other in luminance, so the fill is what a reader without red-green vision reads, and
- * what survives greyscale and print. `upColor` and `downColor` swap the colours — for a
- * market that draws rises in red — and leave the fill alone. So the fill always has room
+ * **A rise and a fall are told apart twice.** A rising candle, one that closed at or
+ * above its open, is drawn HOLLOW in the increase colour, success by default; a falling
+ * one FILLED in the decrease colour, danger by default — the words, the modifiers and
+ * the hooks the waterfall chart uses for a change up and a change down. The two intents
+ * sit within 1.004:1 of each other in luminance, so the fill is what a reader without
+ * red-green vision reads, and what survives greyscale and print. `increaseColor` and
+ * `decreaseColor` swap the colours — for a market that draws rises in red — and leave
+ * the fill alone. So the fill always has room
  * to show, every body is drawn at least tall enough to hold it: its two edges and a 2px
  * inside (4px at the default edge), or two dashes and the gap between them while dense
  * (5px). It grows into its own wicks, so the high and the low stay put. A candle that
@@ -145,8 +164,8 @@ interface DrawnCandle {
     // A body too narrow to leave hollow is dotted instead; see `dense`.
     '[class.wr-candlestick-chart--dense]': 'dense()',
     // Written only when given, so the stylesheet's hooks stay the default.
-    '[style.--wr-candlestick-chart-up-color]': 'upColor()',
-    '[style.--wr-candlestick-chart-down-color]': 'downColor()',
+    '[style.--wr-candlestick-chart-increase-color]': 'increaseColor()',
+    '[style.--wr-candlestick-chart-decrease-color]': 'decreaseColor()',
   },
   imports: [WrChartTable],
 })
@@ -169,32 +188,38 @@ export class WrCandlestickChart {
 
   /**
    * The colour of a rising candle, any CSS colour. `null` keeps
-   * `--wr-candlestick-chart-up-color`, which is `var(--wr-color-success)`. A rising
+   * `--wr-candlestick-chart-increase-color`, which is `var(--wr-color-success)`. A rising
    * candle is hollow whatever its colour. @default null
    */
-  readonly upColor = input<string | null>(null);
+  readonly increaseColor = input<string | null>(null);
 
   /**
    * The colour of a falling candle, any CSS colour. `null` keeps
-   * `--wr-candlestick-chart-down-color`, which is `var(--wr-color-danger)`. A falling
+   * `--wr-candlestick-chart-decrease-color`, which is `var(--wr-color-danger)`. A falling
    * candle is filled whatever its colour. @default null
    */
-  readonly downColor = input<string | null>(null);
+  readonly decreaseColor = input<string | null>(null);
 
   /**
    * Writes every price the chart shows: the y-axis ticks, the tooltip and the data
-   * table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ticks (`1.2K`)
-   * unless the full numbers are shorter.
+   * table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`: compact ticks (`1.2K`) unless
+   * the full numbers are shorter, and in the tooltip and the table every price at the
+   * data's own precision — as many fraction digits as the most precise price given, up
+   * to ten, and never fewer than the axis step needs — so a forex quote of 1.08345 is
+   * not written `1.083`.
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  /** The exact figures and the axis' compact ticks, in `LOCALE_ID` unless `valueFormat` is given. */
+  /** The axis' compact ticks and the prices at the data's own precision, in `LOCALE_ID` unless `valueFormat` is given. */
   private readonly numbers = useChartNumbers(this.valueFormat);
 
   /** The plot's height in px, at least 80. @default 240 */
   readonly height = input(240, { transform: (v: unknown): number => Math.max(80, coerceNumberProperty(v, 240)) });
 
-  /** Show the gridlines, the y-axis ticks and the period labels under the candles. @default true */
+  /**
+   * Show the gridlines and the y-axis ticks. The period labels under the candles are the
+   * time axis, so they stay either way, as the line chart's `xLabels` do. @default true
+   */
   readonly showGrid = input(true, { transform: coerceBooleanProperty });
 
   /** Show a tooltip with the period's open, high, low and close under the pointer. Pointer only. @default true */
@@ -239,7 +264,6 @@ export class WrCandlestickChart {
     afterRenderEffect(() => {
       this.candles();
       this.probeText();
-      this.showGrid();
       untracked(() => this.measure());
     });
 
@@ -302,7 +326,7 @@ export class WrCandlestickChart {
           high: d.high,
           low: d.low,
           close: d.close,
-          up: d.close >= d.open,
+          increase: d.close >= d.open,
           left: percent(((index + 0.5) / slots) * 100),
           top: percent(y(top)),
           height: percent(y(bottom) - y(top)),
@@ -378,7 +402,7 @@ export class WrCandlestickChart {
    * keeping both would let them touch. With one candle and a label wider than the
    * drawing, that label is printed alone, ellipsised.
    */
-  protected readonly xTicks = computed(() => {
+  protected readonly xLabels = computed(() => {
     const every = this.labelEvery();
     const slots = this.slots();
     const slotPx = this.slotPx();
@@ -392,15 +416,15 @@ export class WrCandlestickChart {
     const start =
       slots > every && crowds(at(every), at(0) + label) ? Math.max(0, Math.ceil(label / 2 / slotPx - 0.5 - 1e-6)) : 0;
 
-    const ticks: { readonly index: number; readonly label: string; readonly left: number }[] = [];
+    const labels: { readonly index: number; readonly label: string; readonly left: number }[] = [];
     let end = Number.NEGATIVE_INFINITY;
     for (let index = start; index < slots; index += every) {
       const left = at(index);
       if (crowds(left, end)) break;
-      ticks.push({ index, label: data[index].label, left: percent(((index + 0.5) / slots) * 100) });
+      labels.push({ index, label: data[index].label, left: percent(((index + 0.5) / slots) * 100) });
       end = left + label;
     }
-    return ticks;
+    return labels;
   });
 
   /** The room each printed label has, as a percentage of the drawing's width: `labelEvery` slots, at most all of it. */
@@ -412,6 +436,29 @@ export class WrCandlestickChart {
     const labels = this.numbers.ticks(ticks, step);
     return ticks.map((value, i) => ({ label: labels[i], top: percent(((max - value) / (max - min)) * 100) }));
   });
+
+  /**
+   * How many fraction digits an exact price is written with, at most: as many as the
+   * most precise finite price in `data` has, and at least as many as the axis step,
+   * held to {@link MAX_PRICE_DIGITS}. A ceiling rather than a count, so `120` stays `120`
+   * beside `120.25`. The shared `value` writer stops at three, which wrote the four
+   * prices of a forex candle — 1.08345, 1.08391, 1.08301, 1.08362 — as two numbers,
+   * coarser than the axis beside them.
+   */
+  private readonly priceDigits = computed(() => {
+    let digits = fractionDigits(this.axis().step);
+    for (const d of this.data()) {
+      for (const price of [d.open, d.high, d.low, d.close]) {
+        if (Number.isFinite(price)) digits = Math.max(digits, fractionDigits(price));
+      }
+    }
+    return Math.min(digits, MAX_PRICE_DIGITS);
+  });
+
+  /** A price as the tooltip and the data table write it: through `valueFormat`, else at the data's precision. */
+  private price(value: number): string {
+    return this.numbers.exact(value, this.priceDigits());
+  }
 
   /**
    * One tooltip for the candle under the pointer: the period as its heading, then a row
@@ -436,10 +483,10 @@ export class WrCandlestickChart {
           label: candle.label,
           value: '',
           rows: [
-            { label: this.openText(), value: this.numbers.value(candle.open) },
-            { label: this.highText(), value: this.numbers.value(candle.high) },
-            { label: this.lowText(), value: this.numbers.value(candle.low) },
-            { label: this.closeText(), value: this.numbers.value(candle.close) },
+            { label: this.openText(), value: this.price(candle.open) },
+            { label: this.highText(), value: this.price(candle.high) },
+            { label: this.lowText(), value: this.price(candle.low) },
+            { label: this.closeText(), value: this.price(candle.close) },
           ],
         },
         anchor,
@@ -461,7 +508,7 @@ export class WrCandlestickChart {
    * a finite number.
    */
   protected readonly tableData = computed<WrChartTableData>(() => {
-    const cell = (value: number): string => (Number.isFinite(value) ? this.numbers.value(value) : '');
+    const cell = (value: number): string => (Number.isFinite(value) ? this.price(value) : '');
     return {
       caption: this.resolvedAriaLabel(),
       columns: [this.openText(), this.highText(), this.lowText(), this.closeText()],
@@ -509,7 +556,7 @@ export class WrCandlestickChart {
   /**
    * Read the drawing's width, the widest label's and one body's off the layout. A
    * hidden chart measures 0 and keeps its last reading rather than thin to nothing; a
-   * label or a body with nothing to measure — no grid, no candle — reads 0 and leaves
+   * label or a body with nothing to measure — no period, no candle — reads 0 and leaves
    * the estimate in charge of what it decides.
    */
   private measure(): void {

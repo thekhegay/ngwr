@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, LOCALE_ID, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -18,6 +21,16 @@ const DATA: readonly WrCandlestickDatum[] = [
   { label: 'Thu', open: 102, high: 106, low: 100, close: 102 },
 ];
 
+/**
+ * Two days of a forex pair, quoted to five places. The shared exact writer stops at three
+ * fraction digits, which wrote Mon's four prices as two numbers — 1.083 and 1.084 — and
+ * its low as its open.
+ */
+const FOREX: readonly WrCandlestickDatum[] = [
+  { label: 'Mon', open: 1.08345, high: 1.08391, low: 1.08301, close: 1.08362 },
+  { label: 'Tue', open: 1.0836, high: 1.0841, low: 1.0833, close: 1.084 },
+];
+
 /** `count` rising days labelled D1, D2, …, each a step above the one before. */
 const many = (count: number): WrCandlestickDatum[] =>
   Array.from({ length: count }, (_, i) => ({ label: `D${i + 1}`, open: i, high: i + 2, low: i - 1, close: i + 1 }));
@@ -28,8 +41,8 @@ const many = (count: number): WrCandlestickDatum[] =>
     <wr-candlestick-chart
       [data]="data()"
       [ariaLabel]="ariaLabel()"
-      [upColor]="upColor()"
-      [downColor]="downColor()"
+      [increaseColor]="increaseColor()"
+      [decreaseColor]="decreaseColor()"
       [valueFormat]="valueFormat()"
       [height]="height()"
       [showGrid]="showGrid()"
@@ -41,8 +54,8 @@ const many = (count: number): WrCandlestickDatum[] =>
 class Host {
   readonly data = signal<readonly WrCandlestickDatum[]>(DATA);
   readonly ariaLabel = signal<string | null>(null);
-  readonly upColor = signal<string | null>(null);
-  readonly downColor = signal<string | null>(null);
+  readonly increaseColor = signal<string | null>(null);
+  readonly decreaseColor = signal<string | null>(null);
   readonly valueFormat = signal<((value: number) => string) | null>(null);
   readonly height = signal<number>(240);
   readonly showGrid = signal(true);
@@ -52,7 +65,7 @@ class Host {
 
 interface Drawn {
   readonly index: string | null;
-  readonly direction: 'up' | 'down' | null;
+  readonly direction: 'increase' | 'decrease' | null;
   readonly left: string;
   readonly top: string;
   readonly height: string;
@@ -75,10 +88,10 @@ describe('WrCandlestickChart', () => {
   const candles = (): Drawn[] =>
     candleEls().map(candle => ({
       index: candle.getAttribute('data-index'),
-      direction: candle.classList.contains('wr-candlestick-chart__candle--up')
-        ? 'up'
-        : candle.classList.contains('wr-candlestick-chart__candle--down')
-          ? 'down'
+      direction: candle.classList.contains('wr-candlestick-chart__candle--increase')
+        ? 'increase'
+        : candle.classList.contains('wr-candlestick-chart__candle--decrease')
+          ? 'decrease'
           : null,
       left: candle.style.left,
       top: candle.style.top,
@@ -106,7 +119,7 @@ describe('WrCandlestickChart', () => {
     });
 
     it('marks each candle rising or falling, a close equal to the open counting as rising', () => {
-      expect(candles().map(c => c.direction)).toEqual(['up', 'down', 'up', 'up']);
+      expect(candles().map(c => c.direction)).toEqual(['increase', 'decrease', 'increase', 'increase']);
       // The body sits in exactly one of the two modifiers, which the stylesheet draws
       // hollow and filled.
       for (const candle of candleEls()) {
@@ -160,7 +173,7 @@ describe('WrCandlestickChart', () => {
         ['2', '83.333%'],
       ]);
       // The label stays under its empty slot.
-      expect(texts('.wr-candlestick-chart__x-tick')).toEqual(['Mon', 'Gap', 'Wed']);
+      expect(texts('.wr-candlestick-chart__x-label')).toEqual(['Mon', 'Gap', 'Wed']);
     });
 
     it('draws the empty frame and no candle for no data', () => {
@@ -169,7 +182,7 @@ describe('WrCandlestickChart', () => {
 
       expect(candleEls()).toHaveLength(0);
       expect(texts('.wr-candlestick-chart__y-tick')).toEqual(['1', '0.75', '0.5', '0.25', '0']);
-      expect(texts('.wr-candlestick-chart__x-tick')).toEqual([]);
+      expect(texts('.wr-candlestick-chart__x-label')).toEqual([]);
     });
 
     it('centres a single flat candle with a step either side', () => {
@@ -183,18 +196,18 @@ describe('WrCandlestickChart', () => {
 
   describe('colours', () => {
     it('leaves the colours to the stylesheet unless asked', () => {
-      expect(chart().style.getPropertyValue('--wr-candlestick-chart-up-color')).toBe('');
-      expect(chart().style.getPropertyValue('--wr-candlestick-chart-down-color')).toBe('');
+      expect(chart().style.getPropertyValue('--wr-candlestick-chart-increase-color')).toBe('');
+      expect(chart().style.getPropertyValue('--wr-candlestick-chart-decrease-color')).toBe('');
     });
 
     it('writes the colours it is given onto its own hooks, and keeps the fill', () => {
-      host().upColor.set('var(--wr-color-danger)');
-      host().downColor.set('var(--wr-color-success)');
+      host().increaseColor.set('var(--wr-color-danger)');
+      host().decreaseColor.set('var(--wr-color-success)');
       render();
 
-      expect(chart().style.getPropertyValue('--wr-candlestick-chart-up-color')).toBe('var(--wr-color-danger)');
-      expect(chart().style.getPropertyValue('--wr-candlestick-chart-down-color')).toBe('var(--wr-color-success)');
-      expect(candles().map(c => c.direction)).toEqual(['up', 'down', 'up', 'up']);
+      expect(chart().style.getPropertyValue('--wr-candlestick-chart-increase-color')).toBe('var(--wr-color-danger)');
+      expect(chart().style.getPropertyValue('--wr-candlestick-chart-decrease-color')).toBe('var(--wr-color-success)');
+      expect(candles().map(c => c.direction)).toEqual(['increase', 'decrease', 'increase', 'increase']);
     });
   });
 
@@ -213,7 +226,7 @@ describe('WrCandlestickChart', () => {
     });
 
     it('prints every period label while each fits its slot', () => {
-      expect(texts('.wr-candlestick-chart__x-tick')).toEqual(['Mon', 'Tue', 'Wed', 'Thu']);
+      expect(texts('.wr-candlestick-chart__x-label')).toEqual(['Mon', 'Tue', 'Wed', 'Thu']);
     });
 
     it('prints every n-th label where they do not, each centred under its candle inside the strip', () => {
@@ -224,7 +237,7 @@ describe('WrCandlestickChart', () => {
       // D1, moved inwards to the frame, would end 1.4px short of where D16 starts — inside
       // the gap — so the labels start at the first candle whose label needs no move, the
       // sixth, and step by 15 from there.
-      const labels = texts('.wr-candlestick-chart__x-tick');
+      const labels = texts('.wr-candlestick-chart__x-label');
       expect(labels.slice(0, 3)).toEqual(['D6', 'D21', 'D36']);
       expect(labels.at(-1)).toBe('D186');
       expect(labels).toHaveLength(13);
@@ -236,7 +249,7 @@ describe('WrCandlestickChart', () => {
       host().data.set(many(20).map((d, i) => ({ ...d, label: `Wk ${String(i + 1).padStart(2, '0')}` })));
       render();
 
-      const labels = texts('.wr-candlestick-chart__x-tick');
+      const labels = texts('.wr-candlestick-chart__x-label');
       expect(labels.slice(0, 3)).toEqual(['Wk 01', 'Wk 03', 'Wk 05']);
       expect(labels).toHaveLength(10);
     });
@@ -245,7 +258,7 @@ describe('WrCandlestickChart', () => {
       host().data.set([{ ...DATA[0], label: 'x'.repeat(100) }]);
       render();
 
-      expect(texts('.wr-candlestick-chart__x-tick')).toEqual(['x'.repeat(100)]);
+      expect(texts('.wr-candlestick-chart__x-label')).toEqual(['x'.repeat(100)]);
     });
 
     it('hands every printed label its room, n slots wide', () => {
@@ -274,13 +287,15 @@ describe('WrCandlestickChart', () => {
   });
 
   describe('axes', () => {
-    it('drops the gridlines, the ticks and the labels with `showGrid` off', () => {
+    it('drops the gridlines and the ticks with `showGrid` off, and keeps the period labels', () => {
       host().showGrid.set(false);
       render();
 
       expect(root().querySelector('.wr-candlestick-chart__grid-line')).toBeNull();
       expect(root().querySelector('.wr-candlestick-chart__y-axis')).toBeNull();
-      expect(root().querySelector('.wr-candlestick-chart__x-axis')).toBeNull();
+      // The period labels are the time axis, as the line chart's `xLabels` are: without
+      // them the candles are prices with no dates.
+      expect(texts('.wr-candlestick-chart__x-label')).toEqual(['Mon', 'Tue', 'Wed', 'Thu']);
       expect(candleEls()).toHaveLength(4);
     });
 
@@ -358,6 +373,26 @@ describe('WrCandlestickChart', () => {
 
       expect(rows()[0]).toEqual(['Mon', '$100', '$110', '$95', '$105']);
     });
+
+    it("writes every price at the data's own precision, five places for a forex quote", () => {
+      host().dataTable.set(true);
+      host().data.set(FOREX);
+      render();
+
+      expect(rows()).toEqual([
+        ['Mon', '1.08345', '1.08391', '1.08301', '1.08362'],
+        // A ceiling, not a fixed count: a price quoted to fewer places keeps them.
+        ['Tue', '1.0836', '1.0841', '1.0833', '1.084'],
+      ]);
+    });
+
+    it('stops at ten places, where a decimal is float noise rather than precision', () => {
+      host().dataTable.set(true);
+      host().data.set([{ label: 'Noise', open: 0.1 + 0.2, high: 1, low: 0.1, close: 120.43000000000001 }]);
+      render();
+
+      expect(rows()).toEqual([['Noise', '0.3', '1', '0.1', '120.43']]);
+    });
   });
 
   describe('tooltip', () => {
@@ -403,6 +438,23 @@ describe('WrCandlestickChart', () => {
       expect(chipTexts('.wr-chart-tooltip__row-value')).toEqual(['$100.00', '$110.00', '$95.00', '$105.00']);
     });
 
+    it("writes the prices at the data's own precision, five places for a forex quote", () => {
+      host().data.set(FOREX);
+      render();
+      moveTo(10, 100);
+
+      expect(chipTexts('.wr-chart-tooltip__row-value')).toEqual(['1.08345', '1.08391', '1.08301', '1.08362']);
+    });
+
+    it('draws the band behind the gridlines, so they read across it', () => {
+      moveTo(130, 100);
+
+      // Positioned siblings paint in document order, so the band comes first.
+      const layers = [...drawing().children].map(child => child.classList[0]);
+      expect(layers.indexOf('wr-candlestick-chart__cursor')).toBe(0);
+      expect(layers.indexOf('wr-candlestick-chart__grid-line')).toBeGreaterThan(0);
+    });
+
     it('opens on nothing over a slot with no candle, or off the drawing', () => {
       host().data.set([DATA[0], { label: 'Gap', open: Number.NaN, high: 1, low: 0, close: 1 }, DATA[2], DATA[3]]);
       render();
@@ -440,7 +492,7 @@ describe('WrCandlestickChart measured', () => {
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const chart = (): HTMLElement => root().querySelector<HTMLElement>('wr-candlestick-chart')!;
   const labels = (): string[] =>
-    [...root().querySelectorAll('.wr-candlestick-chart__x-tick')].map(element => element.textContent.trim());
+    [...root().querySelectorAll('.wr-candlestick-chart__x-label')].map(element => element.textContent.trim());
 
   beforeEach(() => {
     widths = { drawing: 1000, probe: 30, candle: 10 };
@@ -555,7 +607,7 @@ describe('WrCandlestickChart on the server', () => {
 
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelectorAll('.wr-candlestick-chart__candle')).toHaveLength(4);
-    expect(root.querySelectorAll('.wr-candlestick-chart__x-tick')).toHaveLength(4);
+    expect(root.querySelectorAll('.wr-candlestick-chart__x-label')).toHaveLength(4);
     expect(root.querySelectorAll('.wr-chart-table tbody tr')).toHaveLength(4);
     expect(measure).not.toHaveBeenCalled();
     fixture.destroy();
@@ -589,5 +641,47 @@ describe('WrCandlestickChart number format', () => {
 
   it("follows LOCALE_ID's own convention", () => {
     expect(cells('de')).toEqual(['1.234,5', '2.000', '0,0004', '1.500']);
+  });
+});
+
+/**
+ * What the stylesheet promises that no rendered DOM in jsdom can show, held against the
+ * COMPILED sheet; `sass` is resolved through `@angular/build`, as `charts/stylesheets.spec.ts`
+ * does. That each rule then paints what it says is measured in a browser.
+ */
+describe('WrCandlestickChart stylesheet', () => {
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  };
+  const css = sass
+    .compileString(`@use 'charts/candlestick-chart/styles';`, {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = (block: string, selector: string): string =>
+    new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(block)?.[1] ??
+    '';
+  /** Every `forced-colors` block of the sheet, the chart's own and any it loads. */
+  const forced = [...css.matchAll(/@media \(forced-colors: active\)\s*\{([\s\S]*?)\n\}/g)].map(m => m[1]).join('\n');
+
+  it('keeps the candles in their colours under forced colors, and so their fill', () => {
+    // Painted by `background` and `currentColor`: forced colors would reset a falling body
+    // to the page and lose the one channel that is not colour.
+    expect(rule(forced, '.wr-candlestick-chart__candle')).toMatch(/forced-color-adjust: none/);
+  });
+
+  it('marks the slot being read with an outline in the selection colour under forced colors', () => {
+    const band = rule(forced, '.wr-candlestick-chart__cursor');
+    expect(band).toMatch(/background: transparent/);
+    expect(band).toMatch(/outline: 2px solid Highlight/);
+    expect(forced).toMatch(/--wr-candlestick-chart-grid-color: GrayText/);
+  });
+
+  it('lets a negative tick take its direction from its own text, shrunk against the plot', () => {
+    // Under RTL a `-` in front of digits would land on their far side: `50-`.
+    const tick = rule(css, '.wr-candlestick-chart__y-tick');
+    expect(tick).toMatch(/unicode-bidi: plaintext/);
+    expect(tick).toMatch(/justify-self: end/);
   });
 });

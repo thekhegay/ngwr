@@ -28,16 +28,16 @@
          and a stretched viewBox cannot. Hidden as well as presentational: `img` already
          makes it so, and a tree of hundreds of empty boxes is work for nothing. -->
     <div #drawing class="wr-candlestick-chart__drawing" aria-hidden="true" [style.--wr-candlestick-chart-slot]="slot()">
+      @if (active) {
+        <!-- The slot being read, behind its candle, so the reading is marked by more than
+             the tooltip's arrow. Before the gridlines, so they are drawn over it. -->
+        <div class="wr-candlestick-chart__cursor" [style.left.%]="active.left"></div>
+      }
+
       @if (showGrid()) {
         @for (tick of yTicks(); track $index) {
           <div class="wr-candlestick-chart__grid-line" [style.top.%]="tick.top"></div>
         }
-      }
-
-      @if (active) {
-        <!-- The slot being read, behind its candle, so the reading is marked by more than
-             the tooltip's arrow. -->
-        <div class="wr-candlestick-chart__cursor" [style.left.%]="active.left"></div>
       }
 
       @for (candle of candles(); track candle.index) {
@@ -47,8 +47,8 @@
         <div
           #candleEl
           class="wr-candlestick-chart__candle"
-          [class.wr-candlestick-chart__candle--up]="candle.up"
-          [class.wr-candlestick-chart__candle--down]="!candle.up"
+          [class.wr-candlestick-chart__candle--increase]="candle.increase"
+          [class.wr-candlestick-chart__candle--decrease]="!candle.increase"
           [style.left.%]="candle.left"
           [style.top.%]="candle.top"
           [style.height.%]="candle.height"
@@ -66,18 +66,16 @@
     </div>
   </div>
 
-  @if (showGrid()) {
-    <!-- The strip is as wide as the plot, and hands the stylesheet the room each label
-         has; each label hands it the x of its candle, as a percentage of the drawing's
-         width. The hidden copy of every label, a line each, is what that room is
-         measured against: it is as wide as the widest. -->
-    <div class="wr-candlestick-chart__x-axis" aria-hidden="true" [style.--wr-candlestick-chart-x-slot]="xSlot()">
-      <span #probe class="wr-candlestick-chart__x-probe">{{ probeText() }}</span>
-      @for (tick of xTicks(); track tick.index) {
-        <span class="wr-candlestick-chart__x-tick" [style.--wr-candlestick-chart-x]="tick.left">{{ tick.label }}</span>
-      }
-    </div>
-  }
+  <!-- The time axis, with or without the grid: the strip is as wide as the plot, and hands
+       the stylesheet the room each label has; each label hands it the x of its candle, as
+       a percentage of the drawing's width. The hidden copy of every label, a line each, is
+       what that room is measured against: it is as wide as the widest. -->
+  <div class="wr-candlestick-chart__x-axis" aria-hidden="true" [style.--wr-candlestick-chart-x-slot]="xSlot()">
+    <span #probe class="wr-candlestick-chart__x-probe">{{ probeText() }}</span>
+    @for (label of xLabels(); track label.index) {
+      <span class="wr-candlestick-chart__x-label" [style.--wr-candlestick-chart-x]="label.left">{{ label.label }}</span>
+    }
+  </div>
 </div>
 
 @if (dataTable()) {
