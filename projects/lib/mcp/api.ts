@@ -16,6 +16,8 @@ interface ApiMember {
   readonly required: boolean;
   /** Set only when the template name differs from the property name. */
   readonly alias: string | null;
+  /** Set, to `true`, only on a member declared with `?`; an interface field that may be left out. */
+  readonly optional?: true;
 }
 
 /** A class, as the shipped declarations describe it. */
@@ -35,6 +37,24 @@ interface ApiFunction {
   readonly description: string;
   readonly example: string | null;
   readonly docs: string | null;
+}
+
+/** An exported interface or type alias, as the shipped declarations describe it. */
+interface ApiType {
+  readonly name: string;
+  /** `interface WrX<T> extends WrY` or `type WrX<T>`, as declared, up to its body or its `=`. */
+  readonly heading: string;
+  readonly description: string;
+  readonly example: string | null;
+  readonly docs: string | null;
+  /** The fields of an interface, or of an alias to one object literal; empty for any other alias. */
+  readonly fields: readonly ApiMember[];
+  /**
+   * What the type stands for, on one line, whenever it has no fields to list: a union
+   * (`'circle' | 'square'`), a function type, or a body holding only an index signature.
+   * `null` when `fields` says it.
+   */
+  readonly type: string | null;
 }
 
 /**
@@ -132,6 +152,84 @@ function extractFunction(declarations: string, symbol: string): ApiFunction | nu
     example: tagOf(doc, 'example'),
     docs: tagOf(doc, 'see'),
   };
+}
+
+/**
+ * An exported interface's fields, or a type alias's right-hand side, or `null`.
+ *
+ * A chart's data is an interface — `WrBarSeries`, `WrWaterfallStep`,
+ * `WrChartLegendItem` — and a component's own answer points at one: the
+ * waterfall's summary says "See {@link WrWaterfallStep}", and this tool then
+ * refused the very name it had been sent to. The build writes a type with no
+ * `declare` and no `export` (it is exported once, at the foot, through
+ * `export type { … }`), so the declaration is matched at the start of a line with
+ * both words optional — never in prose, where "a type WrX" can appear.
+ *
+ * The fields are read by the same scanner as a class body, so a field's JSDoc
+ * summary and `@default` come through the same way, plus whether it is optional.
+ */
+function extractType(declarations: string, symbol: string): ApiType | null {
+  const match = new RegExp(
+    `^[ \\t]*(?:export\\s+)?(?:declare\\s+)?(interface|type)\\s+${escapeRegExp(symbol)}\\b`,
+    'm'
+  ).exec(declarations);
+  if (!match) return null;
+
+  const start = match.index + match[0].length - match[0].trimStart().length;
+  const after = match.index + match[0].length;
+  const doc = docCommentBefore(declarations, start);
+  const known = { name: symbol, description: summaryOf(doc), example: tagOf(doc, 'example'), docs: tagOf(doc, 'see') };
+
+  // A body with no field to list — `readonly [key: string]: …` and nothing else —
+  // is shown whole rather than as an empty list.
+  const shape = (heading: string, body: string): ApiType => {
+    const fields = membersOf(body, new Map());
+    return { ...known, heading, fields, type: fields.length > 0 ? null : collapse(`{ ${body} }`) };
+  };
+
+  if (match[1] === 'interface') {
+    const open = bodyBrace(declarations, after);
+    const body = classBody(declarations, after);
+    const heading = collapse(declarations.slice(start, open === -1 ? after : open));
+    return body === null ? { ...known, heading, fields: [], type: null } : shape(heading, body);
+  }
+
+  const equals = aliasEquals(declarations, after);
+  if (equals === -1) return null;
+
+  const rhs = declarations.slice(equals + 1, declarationEnd(declarations, equals + 1)).trim();
+  const heading = collapse(declarations.slice(start, equals));
+  const literal = rhs.startsWith('{') ? classBody(rhs, 0) : null;
+  // An object literal only when its brace closes the whole right-hand side: `{ a: 1 } & WrB` is not one.
+  if (literal !== null && rhs.length === literal.length + 2) return shape(heading, literal);
+
+  return { ...known, heading, fields: [], type: collapse(rhs) };
+}
+
+/** The `=` of a type alias, past any generics — `type WrX<T = string> = …` has two. */
+function aliasEquals(source: string, from: number): number {
+  let angles = 0;
+
+  for (let i = from; i < source.length; i++) {
+    const char = source[i];
+    if (char === '<') angles++;
+    if (char === '>' && source[i - 1] !== '=') angles--;
+    if (char === '=' && angles === 0 && source[i + 1] !== '>') return i;
+    if (char === ';' || char === '{') return -1;
+  }
+
+  return -1;
+}
+
+/** Every interface and type alias the file declares, by name. */
+function declaredTypes(declarations: string): readonly string[] {
+  return [
+    ...new Set(
+      [...declarations.matchAll(/^[ \t]*(?:export\s+)?(?:declare\s+)?(?:interface|type)\s+(\w+)/gm)].map(
+        match => match[1]
+      )
+    ),
+  ];
 }
 
 /** Every class the file declares, `abstract` ones included. */
@@ -514,6 +612,7 @@ function parseMember(text: string, doc: string, declared: ReadonlyMap<string, Bi
   const binding = declared.get(name);
 
   return {
+    ...(named[2] ? { optional: true as const } : {}),
     // A method carries its signature, because that is what a caller has to know.
     // A getter does not: `get componentInstance(): C` is read as a property, and
     // naming it `componentInstance()` invites a call that does not exist.
@@ -650,5 +749,5 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export { declaredClasses, declaredFunctions, extractClass, extractFunction };
-export type { ApiClass, ApiFunction, ApiMember };
+export { declaredClasses, declaredFunctions, declaredTypes, extractClass, extractFunction, extractType };
+export type { ApiClass, ApiFunction, ApiMember, ApiType };

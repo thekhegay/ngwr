@@ -105,8 +105,27 @@ describe('parseCatalog', () => {
       import: "import { WrAlert } from 'ngwr/alert'",
       selectors: ['wr-alert'],
       exports: ['WrAlert', 'WrAlertType'],
+      // No `- keywords:` line, which is every entry point with no docs page.
+      keywords: [],
       description: 'Inline status banner — info, success, warning, danger, neutral, offline.',
     });
+  });
+
+  it('reads the search words off their own line, never into the description', () => {
+    const [entry] = parseCatalog(
+      [
+        '## ngwr/charts/candlestick-chart',
+        "- import: `import { WrCandlestickChart } from 'ngwr/charts/candlestick-chart'`",
+        '- selector: `wr-candlestick-chart`',
+        '- exports: WrCandlestickChart, WrCandlestick',
+        '- keywords: candlestick, ohlc, stock-chart',
+        '- Open, high, low and close, one candle per period.',
+      ].join('\n')
+    );
+
+    // The words a page's `[keywords]` gives: what `search_ngwr` answers "ohlc" by.
+    expect(entry.keywords).toEqual(['candlestick', 'ohlc', 'stock-chart']);
+    expect(entry.description).toBe('Open, high, low and close, one candle per period.');
   });
 
   it('keeps every selector when one entry point declares several', () => {
@@ -422,6 +441,11 @@ describe('Catalog — v15 names', () => {
         "- import: `import { WrAurora } from 'ngwr/bits/aurora'`",
         '- exports: WrAurora',
         '',
+        '## ngwr/charts/chart-legend',
+        "- import: `import { WrChartLegend } from 'ngwr/charts/chart-legend'`",
+        '- selector: `ul[wr-chart-legend]`',
+        '- exports: WrChartLegend',
+        '',
         '## ngwr/bits/aurora/testing',
         "- import: `import { WrAuroraHarness } from 'ngwr/bits/aurora/testing'`",
         '- exports: WrAuroraHarness',
@@ -464,6 +488,18 @@ describe('Catalog — v15 names', () => {
     expect(catalog.find('router')).toBeNull();
     // A partial path is not a bare name.
     expect(catalog.find('x/aurora')).toBeNull();
+  });
+
+  it('finds an attribute selector by the name inside its brackets', () => {
+    const catalog = new Catalog(root);
+
+    // Written by analogy with every `wr-<name>-chart` element, `wr-chart-legend`
+    // answered "may have moved or been removed in an earlier major".
+    expect(catalog.find('wr-chart-legend')).toMatchObject({ path: 'ngwr/charts/chart-legend' });
+    expect(catalog.find('[wr-chart-legend]')).toMatchObject({ path: 'ngwr/charts/chart-legend' });
+    expect(catalog.find('ul[wr-chart-legend]')).toMatchObject({ path: 'ngwr/charts/chart-legend' });
+    // Still case-sensitive, as a template is.
+    expect(catalog.find('WR-CHART-LEGEND')).toBeNull();
   });
 
   it('reads the provider names the shipped schematic takes, strings only', () => {

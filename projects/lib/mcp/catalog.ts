@@ -20,6 +20,12 @@ interface CatalogEntry {
   /** `wr-select`, or several, or none for a service-only entry point. */
   readonly selectors: readonly string[];
   readonly exports: readonly string[];
+  /**
+   * The words a reader searches by that the name and selectors do not already say
+   * (`ohlc`, `stock-chart` for the candlestick), from the docs page's `[keywords]`.
+   * Empty for an entry point with no page, and for a catalog written before 15.1.
+   */
+  readonly keywords: readonly string[];
   readonly description: string;
 }
 
@@ -98,7 +104,10 @@ class Catalog {
 
   /**
    * An entry point by `ngwr/select`, by `select`, by any symbol it exports, or by
-   * its selector.
+   * its selector — written whole, or as the name inside it: `wr-chart-legend` and
+   * `[wr-chart-legend]` both reach `ul[wr-chart-legend]`, since an agent writes the
+   * legend by analogy with every `wr-<name>-chart` element, and the miss told it the
+   * name had moved in an earlier major.
    *
    * Last, by the last segment of a nested path when exactly one entry point ends
    * with it: `aurora` and `bar-chart` were whole paths until v15 nested them under
@@ -107,6 +116,7 @@ class Catalog {
    */
   find(query: string): CatalogEntry | null {
     const wanted = query.trim();
+    const bare = (selector: string): string => selector.replace(/^[a-z-]*\[|\]$/g, '');
     const mapped: unknown = this.symbolMap()[wanted];
     const path = typeof mapped === 'string' ? mapped : undefined;
     const rooted = wanted === 'ngwr' || wanted.startsWith('ngwr/');
@@ -120,6 +130,7 @@ class Catalog {
       this.all().find(entry => entry.path.toLowerCase() === normalised) ??
       this.all().find(entry => entry.exports.some(name => name.toLowerCase() === wanted.toLowerCase())) ??
       this.all().find(entry => entry.selectors.some(selector => selector === wanted)) ??
+      this.all().find(entry => entry.selectors.some(selector => bare(selector) === bare(wanted))) ??
       (nested.length === 1 && !wanted.includes('/') ? nested[0] : null)
     );
   }
@@ -260,6 +271,10 @@ function parseCatalog(source: string | null): readonly CatalogEntry[] {
       exports: field('exports')
         .split(',')
         .map(name => name.trim())
+        .filter(Boolean),
+      keywords: field('keywords')
+        .split(',')
+        .map(word => word.trim())
         .filter(Boolean),
       description,
     });
