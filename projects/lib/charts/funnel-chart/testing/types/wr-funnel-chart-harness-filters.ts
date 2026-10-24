@@ -16,7 +16,7 @@ export interface WrFunnelChartHarnessFilters extends BaseHarnessFilters {
 }
 
 /** One stage, as the chart draws and announces it. */
-export interface WrFunnelChartStage {
+export interface WrFunnelChartHarnessStage {
   /** The label printed beside the bar — the full text, ellipsised on screen or not. */
   readonly label: string;
   /**

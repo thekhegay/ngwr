@@ -79,19 +79,22 @@ describe('WrFunnelChartHarness', () => {
   });
 
   it('reads the shares between the bars, and the bands a missing stage breaks', async () => {
-    expect(await chart.getStepLabels()).toEqual(['40%', null, null]);
+    expect(await chart.getGapLabels()).toEqual(['40%', null, null]);
     expect(await chart.getBandCount()).toBe(1);
 
     fixture.componentInstance.stages.set(STAGES.filter(stage => stage.label !== 'Lost'));
-    expect(await chart.getStepLabels()).toEqual(['40%', '15%']);
+    expect(await chart.getGapLabels()).toEqual(['40%', '15%']);
     expect(await chart.getBandCount()).toBe(2);
   });
 
   it('follows `conversion` and `showValues` on the drawing, and keeps the names whole', async () => {
+    // Printed by default, so the answer below is the input's doing, not a harness that
+    // always says no.
+    expect(await chart.hasValues()).toBe(true);
     fixture.componentInstance.conversion.set('none');
     fixture.componentInstance.showValues.set(false);
     const [, signedUp] = await chart.getStages();
-    expect(await chart.getStepLabels()).toEqual([null, null, null]);
+    expect(await chart.getGapLabels()).toEqual([null, null, null]);
     expect(signedUp.value).toBeNull();
     expect(signedUp.fromFirst).toBeNull();
     expect(signedUp.name).toBe('Signed up: 400, 40% of previous, 40% of first');

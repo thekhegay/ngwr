@@ -1,5 +1,5 @@
 export type {
   WrFunnelChartHarnessFilters,
-  WrFunnelChartStage,
+  WrFunnelChartHarnessStage,
   WrFunnelChartTableRow,
 } from './wr-funnel-chart-harness-filters';

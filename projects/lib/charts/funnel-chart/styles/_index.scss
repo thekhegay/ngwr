@@ -34,14 +34,14 @@
   );
   --wr-funnel-chart-bar-radius: var(--wr-border-radius-sm);
   // The gap between two bars, which the band fills and the share of the stage above sits on.
-  --wr-funnel-chart-step-height: 1.5rem;
+  --wr-funnel-chart-gap-height: 1.5rem;
   // The band is a faint wash of the two stages' colours: it carries no value of its own,
   // only the narrowing the two bars' widths already state.
   --wr-funnel-chart-band-opacity: 0.2;
   // The share between the bars, on a wash of the surface: the band runs under it.
-  --wr-funnel-chart-step-label-bg: color-mix(in srgb, var(--wr-color-surface) 85%, transparent);
-  --wr-funnel-chart-step-label-padding-x: var(--wr-space-xs);
-  --wr-funnel-chart-step-label-radius: var(--wr-border-radius-sm);
+  --wr-funnel-chart-gap-label-bg: color-mix(in srgb, var(--wr-color-surface) 85%, transparent);
+  --wr-funnel-chart-gap-label-padding-x: var(--wr-space-xs);
+  --wr-funnel-chart-gap-label-radius: var(--wr-border-radius-sm);
   // The row the open tooltip is about, washed from edge to edge with the label and the
   // figures inset from the wash.
   --wr-funnel-chart-active-bg: var(--wr-color-hover);
@@ -58,7 +58,7 @@
   color: var(--wr-funnel-chart-color);
 
   // One grid for every row, so a label, a bar and a figure line up down the funnel
-  // whatever their own widths: each stage and each step between two stages is a subgrid
+  // whatever their own widths: each stage and each gap between two stages is a subgrid
   // of it.
   //
   // The figures column is `max-content`, so the labels give way first and a figure is
@@ -77,7 +77,7 @@
   }
 
   &__stage,
-  &__step {
+  &__gap {
     display: grid;
     grid-column: 1 / -1;
     grid-template-columns: subgrid;
@@ -99,7 +99,9 @@
   // `min-width: 0` and the clip are what let the column give way: an item that hides its
   // overflow has no automatic minimum, so the label is ellipsised rather than pushing the
   // track narrower than its share. Every stage's name, the tooltip and the data table carry
-  // the whole label.
+  // the whole label. It takes its direction from its own text (`dir="auto"`), so a Latin
+  // label on an RTL page is cut at its end, not its start; it keeps its grid cell either
+  // way, and lines up on its own text's start, as the treemap's names do.
   &__label {
     min-width: 0;
     overflow: hidden;
@@ -132,12 +134,24 @@
     forced-color-adjust: none;
   }
 
+  // Each figure shrunk to its text against the bar's side of the column, so its own
+  // direction can follow its text (`plaintext`) and it still sits by the bar: a negative
+  // value, printed as given, is a `-` in front of digits, neither of which has a direction,
+  // and under RTL the sign would land on the far side — `20-` — while "30% of first" would
+  // read "of first 30%". Stretched, a plaintext figure would align to its own text's
+  // start, at the column's far edge under RTL.
   &__figures {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: flex-start;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+  }
+
+  &__value,
+  &__overall {
+    unicode-bidi: plaintext;
   }
 
   &__value {
@@ -153,13 +167,13 @@
     color: var(--wr-funnel-chart-conversion-color);
   }
 
-  &__step {
-    height: var(--wr-funnel-chart-step-height);
+  &__gap {
+    height: var(--wr-funnel-chart-gap-height);
   }
 
-  // The band and the share sit in the same cell: the track's column, the step's height.
+  // The band and the share sit in the same cell: the track's column, the gap's height.
   &__band,
-  &__step-label {
+  &__gap-label {
     grid-column: 2;
     grid-row: 1;
   }
@@ -188,15 +202,15 @@
   // about 115px on a 320px phone, and a long share — a custom `percentFormat`, or two
   // significant digits of a tiny ratio — hung out of it over the label column. The
   // tooltip, the stage's name and the data table carry the whole share.
-  &__step-label {
+  &__gap-label {
     position: relative;
     place-self: center;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 0 var(--wr-funnel-chart-step-label-padding-x);
-    border-radius: var(--wr-funnel-chart-step-label-radius);
-    background: var(--wr-funnel-chart-step-label-bg);
+    padding: 0 var(--wr-funnel-chart-gap-label-padding-x);
+    border-radius: var(--wr-funnel-chart-gap-label-radius);
+    background: var(--wr-funnel-chart-gap-label-bg);
     font-size: var(--wr-funnel-chart-conversion-font-size);
     line-height: var(--wr-funnel-chart-conversion-line-height);
     color: var(--wr-funnel-chart-conversion-color);

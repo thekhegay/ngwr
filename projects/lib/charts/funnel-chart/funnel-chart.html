@@ -10,7 +10,7 @@
     @if (!$first) {
       <!-- The band between two bars and the share of the stage above, both repeated in the
            stage's own name, so hidden here. -->
-      <div class="wr-funnel-chart__step" aria-hidden="true">
+      <div class="wr-funnel-chart__gap" aria-hidden="true">
         @if (row.band) {
           <span
             class="wr-funnel-chart__band"
@@ -20,7 +20,7 @@
           ></span>
         }
         @if (previous && row.previousText) {
-          <span class="wr-funnel-chart__step-label">{{ row.previousText }}</span>
+          <span class="wr-funnel-chart__gap-label">{{ row.previousText }}</span>
         }
       </div>
     }
@@ -35,7 +35,9 @@
       (mouseenter)="tip.enter($index)"
       (mouseleave)="tip.leave($event)"
     >
-      <span class="wr-funnel-chart__label">{{ row.label }}</span>
+      <!-- The host's own text, in whatever language it is, so it takes its direction from
+           that text and is ellipsised at its own end, not at the page's. -->
+      <span class="wr-funnel-chart__label" dir="auto">{{ row.label }}</span>
       <span class="wr-funnel-chart__track">
         <!-- A missing stage draws no bar at all; zero and below keep a hairline. -->
         @if (row.value !== null) {

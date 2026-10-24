@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrFunnelChartHarnessFilters, WrFunnelChartStage, WrFunnelChartTableRow } from './types';
+import type { WrFunnelChartHarnessFilters, WrFunnelChartHarnessStage, WrFunnelChartTableRow } from './types';
 
 /** The `width: <n>%` the component writes onto a bar, out of its inline `style`. */
 const BAR_WIDTH = /(?:^|;)\s*width\s*:\s*([\d.]+)%/;
@@ -20,7 +20,7 @@ const BAR_WIDTH = /(?:^|;)\s*width\s*:\s*([\d.]+)%/;
 class StageHarness extends ComponentHarness {
   static hostSelector = '.wr-funnel-chart__stage';
 
-  async read(): Promise<WrFunnelChartStage> {
+  async read(): Promise<WrFunnelChartHarnessStage> {
     const host = await this.host();
     const label = await this.locatorFor('.wr-funnel-chart__label')();
     const value = await this.locatorForOptional('.wr-funnel-chart__value')();
@@ -50,11 +50,11 @@ class StageHarness extends ComponentHarness {
 }
 
 /** The gap between two stages: the band and the share of the stage above. */
-class StepHarness extends ComponentHarness {
-  static hostSelector = '.wr-funnel-chart__step';
+class GapHarness extends ComponentHarness {
+  static hostSelector = '.wr-funnel-chart__gap';
 
   async label(): Promise<string | null> {
-    const label = await this.locatorForOptional('.wr-funnel-chart__step-label')();
+    const label = await this.locatorForOptional('.wr-funnel-chart__gap-label')();
     return label ? label.text() : null;
   }
 }
@@ -83,10 +83,10 @@ class TableRowHarness extends ComponentHarness {
  * is the stylesheet's floor, so no method reports it.
  *
  * **Two questions are not one.** A stage's printed text and its accessible name are read
- * separately ({@link WrFunnelChartStage.value} and {@link WrFunnelChartStage.name}): the
+ * separately ({@link WrFunnelChartHarnessStage.value} and {@link WrFunnelChartHarnessStage.name}): the
  * row is an `img`, so the name is what a screen reader gets, and asserting only what is
  * drawn would pass on a stage that announces nothing. The shares printed between the bars
- * are `aria-hidden` for the same reason — {@link getStepLabels} reads what is drawn, the
+ * are `aria-hidden` for the same reason — {@link getGapLabels} reads what is drawn, the
  * names carry the same figures.
  *
  * **The bands' shapes are not read.** Each is a `clip-path` polygon from one bar's width
@@ -105,7 +105,7 @@ class TableRowHarness extends ComponentHarness {
  *
  * expect(await chart.getLabels()).toEqual(['Visited', 'Signed up', 'Paid']);
  * expect((await chart.getStages())[1].widthPercent).toBe(40);
- * expect(await chart.getStepLabels()).toEqual(['40%', '15%']);
+ * expect(await chart.getGapLabels()).toEqual(['40%', '15%']);
  * ```
  *
  * @see https://ngwr.dev/guides/testing
@@ -133,7 +133,7 @@ export class WrFunnelChartHarness extends ComponentHarness {
   }
 
   /** Every stage, from the top of the funnel down: what it prints, what it announces and how wide its bar is. */
-  async getStages(): Promise<WrFunnelChartStage[]> {
+  async getStages(): Promise<WrFunnelChartHarnessStage[]> {
     const stages = await this.locatorForAll(StageHarness)();
     return Promise.all(stages.map(stage => stage.read()));
   }
@@ -154,9 +154,9 @@ export class WrFunnelChartHarness extends ComponentHarness {
    * one entry per gap, so one fewer than there are stages. `null` where none is printed:
    * a stage with no such share, or a `conversion` that leaves it off the drawing.
    */
-  async getStepLabels(): Promise<(string | null)[]> {
-    const steps = await this.locatorForAll(StepHarness)();
-    return Promise.all(steps.map(step => step.label()));
+  async getGapLabels(): Promise<(string | null)[]> {
+    const gaps = await this.locatorForAll(GapHarness)();
+    return Promise.all(gaps.map(gap => gap.label()));
   }
 
   /**

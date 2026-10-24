@@ -91,13 +91,18 @@ interface Stage {
  *
  * **What a screen reader gets.** The chart is a named `role="group"` of one `role="img"`
  * per stage, as the bar chart's columns are, each named with its label, its value and both
- * conversions — "Signed up: 4,800, 40% of previous, 40% of first". The bands and the
- * percentages between the bars are `aria-hidden`, since every figure they show is in a
- * name already. `dataTable` adds the same figures as a table a reader can walk cell by
- * cell. No part of the chart is a tab stop.
+ * conversions — "Signed up: 4,800, 40% of previous, 40% of first". The whole sentence is a
+ * catalog template, one per shape — `funnelChart.stageName` with no conversion,
+ * `stageNameOne` with one and `stageNameBoth` with both — so a locale sets its own
+ * punctuation and order round the figures. The bands and the percentages between the bars
+ * are `aria-hidden`, since every figure they show is in a name already. `dataTable` adds
+ * the same figures as a table a reader can walk cell by cell. No part of the chart is a
+ * tab stop.
  *
  * Under RTL the labels and the figures swap sides; the bars and the bands are centred,
- * so they read the same in both directions.
+ * so they read the same in both directions. A label takes its direction from its own
+ * text, so a Latin one is ellipsised at its end on an RTL page, and a figure from its
+ * own, so a sign stays in front of its digits.
  *
  * @see https://ngwr.dev/charts/funnel-chart
  */
@@ -126,8 +131,9 @@ export class WrFunnelChart {
 
   /**
    * The colour of a stage with no `color` of its own. One colour by default, because the
-   * stages are one quantity measured at successive steps, not categories: every stage is
-   * named in text beside its bar, so colour tells nothing apart here. @default primary
+   * stages are one quantity measured along a sequence, not categories: every stage is
+   * named in text beside its bar, so colour tells nothing apart here.
+   * @default 'var(--wr-color-primary)'
    */
   readonly color = input<string>('var(--wr-color-primary)');
 
@@ -154,6 +160,12 @@ export class WrFunnelChart {
 
   /** Print each stage's value beside its bar. @default true */
   readonly showValues = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * What the values count — visitors, orders — as the heading of the data table's value
+   * column. Falls back to `funnelChart.value` ("Value").
+   */
+  readonly valueLabel = input<string | null>(null);
 
   /**
    * Show a tooltip with the stage's label, value and both conversions on hover. Pointer
@@ -188,7 +200,7 @@ export class WrFunnelChart {
    */
   readonly dataTable = input(false, { transform: coerceBooleanProperty });
 
-  /** The exact figures, in `LOCALE_ID` unless `valueFormat` is given. */
+  /** The figures in full, never compact, in `LOCALE_ID` unless `valueFormat` is given. */
   private readonly numbers = useChartNumbers(this.valueFormat);
 
   private readonly locale = inject(LOCALE_ID);
@@ -200,11 +212,26 @@ export class WrFunnelChart {
   });
 
   private readonly stageName = readI18nText('funnelChart.stage', 'Stage');
-  private readonly valueName = readI18nText('funnelChart.value', 'Value');
+  private readonly valueName = useI18nText(this.valueLabel, 'funnelChart.value', 'Value');
   private readonly fromPreviousName = readI18nText('funnelChart.fromPrevious', 'From previous');
   private readonly fromFirstName = readI18nText('funnelChart.fromFirst', 'From first');
   private readonly ofPrevious = useI18nFormatter('funnelChart.ofPrevious', '{{percent}} of previous');
   private readonly ofFirst = useI18nFormatter('funnelChart.ofFirst', '{{percent}} of first');
+  /**
+   * A stage's accessible name, one sentence per shape, so a locale places the colon, the
+   * commas and the order itself: with no conversion (the first stage, or none that means
+   * anything), with one, and with both. Each conversion arrives already worded — "40% of
+   * previous" — from the two templates above.
+   */
+  private readonly stageNameText = useI18nFormatter('funnelChart.stageName', '{{label}}: {{value}}');
+  private readonly stageNameOneText = useI18nFormatter(
+    'funnelChart.stageNameOne',
+    '{{label}}: {{value}}, {{conversion}}'
+  );
+  private readonly stageNameBothText = useI18nFormatter(
+    'funnelChart.stageNameBoth',
+    '{{label}}: {{value}}, {{previous}}, {{first}}'
+  );
 
   private readonly stageEls = viewChildren<ElementRef<HTMLElement>>('stageEl');
 
@@ -259,10 +286,8 @@ export class WrFunnelChart {
       const valueText = stage.value === null ? '' : this.numbers.value(stage.value);
       const previousText = stage.fromPrevious === null ? '' : this.percent(stage.fromPrevious);
       const firstText = stage.fromFirst === null ? '' : this.percent(stage.fromFirst);
+      const ofPreviousText = previousText ? this.ofPrevious({ percent: previousText }) : '';
       const ofFirstText = firstText ? this.ofFirst({ percent: firstText }) : '';
-      const parts = [stage.value === null ? stage.label : `${stage.label}: ${valueText}`];
-      if (previousText) parts.push(this.ofPrevious({ percent: previousText }));
-      if (ofFirstText) parts.push(ofFirstText);
 
       const above = stages[Math.max(0, i - 1)];
       let band: string | null = null;
@@ -286,7 +311,7 @@ export class WrFunnelChart {
         /** The share of the first stage as it is printed under the value: "40% of first". */
         ofFirstText,
         /** What the stage announces: its label, its value and both conversions. */
-        name: parts.join(', '),
+        name: stage.value === null ? stage.label : this.nameOf(stage.label, valueText, ofPreviousText, ofFirstText),
         band,
         /** The paint of the stage above, where the band starts. */
         bandFrom: above.color,
@@ -340,6 +365,16 @@ export class WrFunnelChart {
     const row = index === null ? undefined : this.rows().at(index);
     return row && row.value !== null ? index : null;
   });
+
+  /**
+   * The accessible name of a stage with a value: the sentence for the conversions it has,
+   * each already worded. A missing stage is named by its label alone.
+   */
+  private nameOf(label: string, value: string, ofPrevious: string, ofFirst: string): string {
+    if (ofPrevious && ofFirst) return this.stageNameBothText({ label, value, previous: ofPrevious, first: ofFirst });
+    if (ofPrevious || ofFirst) return this.stageNameOneText({ label, value, conversion: ofPrevious || ofFirst });
+    return this.stageNameText({ label, value });
+  }
 
   /** A conversion as the chart prints it: through `percentFormat`, or as a percentage in `LOCALE_ID`. */
   private percent(ratio: number): string {

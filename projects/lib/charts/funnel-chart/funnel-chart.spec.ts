@@ -1,6 +1,10 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, LOCALE_ID, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrFunnelChart } from './funnel-chart';
@@ -26,6 +30,7 @@ const STAGES: readonly WrFunnelStage[] = [
       [ariaLabel]="ariaLabel()"
       [valueFormat]="valueFormat()"
       [percentFormat]="percentFormat()"
+      [valueLabel]="valueLabel()"
     />
   `,
 })
@@ -38,6 +43,7 @@ class Host {
   readonly ariaLabel = signal<string | null>(null);
   readonly valueFormat = signal<((value: number) => string) | null>(null);
   readonly percentFormat = signal<((ratio: number) => string) | null>(null);
+  readonly valueLabel = signal<string | null>(null);
 }
 
 /**
@@ -60,9 +66,9 @@ describe('WrFunnelChart', () => {
   const names = (): (string | null)[] => stages().map(stage => stage.getAttribute('aria-label'));
   const bands = (): string[] => all('.wr-funnel-chart__band').map(band => band.style.clipPath);
   /** The share printed in each gap between two stages, `null` where none is. */
-  const steps = (): (string | null)[] =>
-    all('.wr-funnel-chart__step').map(
-      step => step.querySelector('.wr-funnel-chart__step-label')?.textContent.trim() ?? null
+  const gaps = (): (string | null)[] =>
+    all('.wr-funnel-chart__gap').map(
+      gap => gap.querySelector('.wr-funnel-chart__gap-label')?.textContent.trim() ?? null
     );
   /** What each stage prints under its value, `null` where nothing is. */
   const overall = (): (string | null)[] =>
@@ -116,13 +122,13 @@ describe('WrFunnelChart', () => {
 
   it('prints the share of the previous stage between the bars and of the first under the value', () => {
     // One gap per pair of stages, and nothing for the first stage, which is the reference.
-    expect(steps()).toEqual(['40%', '60%', '25%']);
+    expect(gaps()).toEqual(['40%', '60%', '25%']);
     expect(overall()).toEqual([null, '40% of first', '24% of first', '6% of first']);
   });
 
   it('hides the bands and the shares between the bars, which every name repeats', () => {
-    expect(all('.wr-funnel-chart__step').every(step => step.getAttribute('aria-hidden') === 'true')).toBe(true);
-    for (const step of all('.wr-funnel-chart__step')) expect(step.closest('[role="img"]')).toBeNull();
+    expect(all('.wr-funnel-chart__gap').every(gap => gap.getAttribute('aria-hidden') === 'true')).toBe(true);
+    for (const gap of all('.wr-funnel-chart__gap')) expect(gap.closest('[role="img"]')).toBeNull();
   });
 
   it('paints a stage in the chart colour unless it has its own', () => {
@@ -142,7 +148,7 @@ describe('WrFunnelChart', () => {
       ])
     );
     expect(widths()).toEqual(['66.667%', '100%', '40%']);
-    expect(steps()).toEqual(['150%', '40%']);
+    expect(gaps()).toEqual(['150%', '40%']);
     expect(overall()).toEqual([null, '150% of first', '60% of first']);
     // The band widens downwards, as the data does.
     expect(bands()[0]).toBe('polygon(16.667% 0%, 83.333% 0%, 100% 100%, 0% 100%)');
@@ -160,7 +166,7 @@ describe('WrFunnelChart', () => {
     expect(widths()).toEqual(['100%', '0%', '10%']);
     expect(text('.wr-funnel-chart__value')).toEqual(['100', '0', '10']);
     // B kept none of A; C has no share of B, since there is nothing to be a share of.
-    expect(steps()).toEqual(['0%', null]);
+    expect(gaps()).toEqual(['0%', null]);
     expect(overall()).toEqual([null, '0% of first', '10% of first']);
     expect(names()[2]).toBe('C: 10, 10% of first');
     // The band narrows to a point at the zero, and opens again from it.
@@ -182,7 +188,7 @@ describe('WrFunnelChart', () => {
     // Printed as given: it is what the data says.
     expect(text('.wr-funnel-chart__value')).toEqual(['100', '-5', '40']);
     expect(names()).toEqual(['A: 100', 'B: -5', 'C: 40, 40% of first']);
-    expect(steps()).toEqual([null, null]);
+    expect(gaps()).toEqual([null, null]);
     for (const band of bands()) expect(band).not.toMatch(/-\d/);
   });
 
@@ -198,9 +204,9 @@ describe('WrFunnelChart', () => {
     expect(text('.wr-funnel-chart__value')).toEqual(['100', '40']);
     expect(names()).toEqual(['A: 100', 'B', 'C: 40, 40% of first']);
     // The gaps are still there, as space; no band and no share crosses the missing stage.
-    expect(all('.wr-funnel-chart__step')).toHaveLength(2);
+    expect(all('.wr-funnel-chart__gap')).toHaveLength(2);
     expect(bands()).toEqual([]);
-    expect(steps()).toEqual([null, null]);
+    expect(gaps()).toEqual([null, null]);
   });
 
   it('works out no share of a missing first stage', () => {
@@ -213,7 +219,7 @@ describe('WrFunnelChart', () => {
     );
     expect(widths()).toEqual([null, '100%', '50%']);
     expect(overall()).toEqual([null, null, null]);
-    expect(steps()).toEqual([null, '50%']);
+    expect(gaps()).toEqual([null, '50%']);
   });
 
   it('draws a funnel of zeros as hairlines rather than dividing by nothing', () => {
@@ -224,7 +230,7 @@ describe('WrFunnelChart', () => {
       ])
     );
     expect(widths()).toEqual(['0%', '0%']);
-    expect(steps()).toEqual([null]);
+    expect(gaps()).toEqual([null]);
     for (const el of all('[style]')) expect(el.getAttribute('style')).not.toContain('NaN');
   });
 
@@ -236,21 +242,21 @@ describe('WrFunnelChart', () => {
     expect(widths()).toEqual(['100%', '60%', '36%', '9%']);
     // The figure, the conversions and the table keep the stage's own value.
     expect(text('.wr-funnel-chart__value')[0]).toBe('12,000');
-    expect(steps()[0]).toBe('40%');
+    expect(gaps()[0]).toBe('40%');
     expect(all('.wr-chart-table tbody tr')[0].querySelector('td')!.textContent.trim()).toBe('12,000');
   });
 
   it('prints only the conversions `conversion` asks for, and names every stage with both', () => {
     set(h => h.conversion.set('previous'));
-    expect(steps()).toEqual(['40%', '60%', '25%']);
+    expect(gaps()).toEqual(['40%', '60%', '25%']);
     expect(overall()).toEqual([null, null, null, null]);
 
     set(h => h.conversion.set('first'));
-    expect(steps()).toEqual([null, null, null]);
+    expect(gaps()).toEqual([null, null, null]);
     expect(overall()).toEqual([null, '40% of first', '24% of first', '6% of first']);
 
     set(h => h.conversion.set('none'));
-    expect(steps()).toEqual([null, null, null]);
+    expect(gaps()).toEqual([null, null, null]);
     expect(overall()).toEqual([null, null, null, null]);
     // The funnel keeps its shape, and every stage still says both shares.
     expect(bands()).toHaveLength(3);
@@ -271,7 +277,7 @@ describe('WrFunnelChart', () => {
         { label: 'Bought', value: 400 },
       ])
     );
-    expect(steps()).toEqual(['0.04%']);
+    expect(gaps()).toEqual(['0.04%']);
     expect(overall()[1]).toBe('0.04% of first');
   });
 
@@ -282,7 +288,7 @@ describe('WrFunnelChart', () => {
       h.dataTable.set(true);
     });
     expect(text('.wr-funnel-chart__value')[1]).toBe('4800 users');
-    expect(steps()[0]).toBe('40 pc');
+    expect(gaps()[0]).toBe('40 pc');
     expect(overall()[1]).toBe('40 pc of first');
     expect(names()[1]).toBe('Signed up: 4800 users, 40 pc of previous, 40 pc of first');
     expect(text('.wr-chart-table tbody tr:nth-child(2) td')).toEqual(['4800 users', '40 pc', '40 pc']);
@@ -317,10 +323,34 @@ describe('WrFunnelChart', () => {
     ]);
   });
 
+  it("heads the table's value column with `valueLabel`", () => {
+    set(h => {
+      h.dataTable.set(true);
+      h.valueLabel.set('Visitors');
+    });
+    expect(text('.wr-chart-table thead th')).toEqual(['Stage', 'Visitors', 'From previous', 'From first']);
+  });
+
+  it('names a stage with the one conversion it has where the other means nothing', () => {
+    // C has no share of the missing B before it, and still has its share of A.
+    set(h =>
+      h.stages.set([
+        { label: 'A', value: 100 },
+        { label: 'B', value: Number.NaN },
+        { label: 'C', value: 50 },
+      ])
+    );
+    expect(names()).toEqual(['A: 100', 'B', 'C: 50, 50% of first']);
+  });
+
+  it('lets a label take its direction from its own text, so it is cut at its own end', () => {
+    expect(all('.wr-funnel-chart__label').every(label => label.getAttribute('dir') === 'auto')).toBe(true);
+  });
+
   it('draws nothing at all with no stages', () => {
     set(h => h.stages.set([]));
     expect(stages()).toHaveLength(0);
-    expect(all('.wr-funnel-chart__step')).toHaveLength(0);
+    expect(all('.wr-funnel-chart__gap')).toHaveLength(0);
     expect(root().querySelector('.wr-funnel-chart__plot')!.getAttribute('aria-label')).toBe('Funnel chart');
   });
 
@@ -364,7 +394,7 @@ describe('WrFunnelChart numbers', () => {
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.wr-funnel-chart__value')!.textContent.trim()).toBe('1.500,5');
     // German separates the sign with a no-break space, and writes the fraction with a comma.
-    expect(root.querySelector('.wr-funnel-chart__step-label')!.textContent.trim()).toBe('40 %');
+    expect(root.querySelector('.wr-funnel-chart__gap-label')!.textContent.trim()).toBe('40 %');
     fixture.destroy();
   });
 });
@@ -486,5 +516,99 @@ describe('WrFunnelChart tooltip', () => {
     hover(1);
     expect(chip()).toBeNull();
     expect(stages()[1].classList).not.toContain('wr-funnel-chart__stage--active');
+  });
+});
+
+@Component({
+  imports: [WrFunnelChart],
+  template: `<wr-funnel-chart [stages]="stages()" />`,
+})
+class CatalogHost {
+  readonly stages = signal<readonly WrFunnelStage[]>(STAGES);
+}
+
+/**
+ * Every stage's name is one catalog sentence per shape, so a locale places its own
+ * punctuation and order round the figures: Japanese joins them with `、`, where English
+ * hard-coded `, ` and `: ` used to announce "登録: 4,800, 前段階の40%, 初段階の40%".
+ */
+describe('WrFunnelChart catalog', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<CatalogHost>>;
+
+  const names = (): (string | null)[] =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll('.wr-funnel-chart__stage')].map(stage =>
+      stage.getAttribute('aria-label')
+    );
+
+  const catalog: WrI18nCatalog = {
+    funnelChart: {
+      ofPrevious: '前段階の{{percent}}',
+      ofFirst: '初段階の{{percent}}',
+      stageName: '{{label}}：{{value}}',
+      stageNameOne: '{{label}}：{{value}}、{{conversion}}',
+      stageNameBoth: '{{label}}：{{value}}、{{previous}}、{{first}}',
+    },
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
+        provideWrI18nStaticLoader({ xx: catalog }),
+      ],
+    });
+    fixture = TestBed.createComponent(CatalogHost);
+    fixture.detectChanges();
+    // The static loader resolves through a promise even for a catalog already in memory.
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('builds each name from the sentence for its shape, with no punctuation of its own', () => {
+    expect(names()).toEqual([
+      'Visited：12,000',
+      'Signed up：4,800、前段階の40%、初段階の40%',
+      'Activated：2,880、前段階の60%、初段階の24%',
+      'Paid：720、前段階の25%、初段階の6%',
+    ]);
+
+    fixture.componentInstance.stages.set([
+      { label: 'A', value: 100 },
+      { label: 'B', value: Number.NaN },
+      { label: 'C', value: 50 },
+    ]);
+    fixture.detectChanges();
+    expect(names()).toEqual(['A：100', 'B', 'C：50、初段階の50%']);
+  });
+});
+
+/**
+ * What the stylesheet promises that no rendered DOM in jsdom can show, held against the
+ * COMPILED sheet; `sass` is resolved through `@angular/build`, as `charts/stylesheets.spec.ts`
+ * does. That each rule then paints what it says is measured in a browser.
+ */
+describe('WrFunnelChart stylesheet', () => {
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  };
+  const css = sass
+    .compileString(`@use 'charts/funnel-chart/styles';`, {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = (selector: string): string =>
+    new RegExp(`(?:^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+
+  it('lets each figure take its direction from its own text, shrunk against the bar', () => {
+    // Under RTL a negative value read `20-` and "30% of first" read "of first 30%".
+    expect(rule('.wr-funnel-chart__value, .wr-funnel-chart__overall')).toMatch(/unicode-bidi: plaintext/);
+    // Stretched, a plaintext figure lines up on its own text's start: the column's far edge.
+    expect(rule('.wr-funnel-chart__figures')).toMatch(/align-items: flex-start/);
   });
 });
