@@ -21,7 +21,7 @@ import { WrChartTable, type WrChartTableData, chartAxis, useChartNumbers } from 
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
 
-import type { WrWaterfallStep } from './types';
+import type { WrWaterfallStep, WrWaterfallValueContext } from './types';
 
 /** What a step is: a change up, a change down, a change of nothing, or a total from zero. */
 type Kind = 'increase' | 'decrease' | 'flat' | 'total';
@@ -79,7 +79,7 @@ interface DrawnStep {
   readonly hi: number;
   /** The bar's paint, or `null` on a change of zero, which the stylesheet's neutral hook paints. */
   readonly color: string | null;
-  /** The figure printed on the drawing: the signed change, compact from a thousand up, or the total. */
+  /** The figure printed on the drawing: the signed change, or the total, as `valueFormat` writes a `'label'`. */
   readonly display: string;
   /** Whether that figure goes under the bar — a change down, a total below zero — rather than over it. */
   readonly below: boolean;
@@ -135,7 +135,8 @@ interface DrawnStep {
  * `showConnectors` off leaves colour alone to tell a change up from a change down on
  * screen: a +100 and a following −100 float over the same span. Each step's name and the
  * data table still carry the change; keep one of the two on wherever the chart has to
- * read without hue.
+ * read without hue. On a narrow chart a figure too wide for its column is left out (see
+ * `showValues`), and there the connectors are the cue that stays.
  *
  * Every figure below zero is written with `−` (U+2212 MINUS SIGN) in front of its
  * magnitude — a change, a running total, a total and a tick alike — so a name reads
@@ -150,6 +151,9 @@ interface DrawnStep {
  * The value axis always includes zero, so a total is a bar from the zero line and a
  * running total that goes negative hangs below it. Under RTL the steps run from the
  * right, with the value axis at the inline start, as every part of the layout is logical.
+ * The gap between two bars is `--wr-waterfall-chart-gap`, held to a quarter of one step's
+ * share of the drawing, so a chart of many steps narrows its gaps with its bars rather
+ * than running out of room.
  *
  * @see https://ngwr.dev/charts/waterfall-chart
  */
@@ -161,6 +165,9 @@ interface DrawnStep {
     class: 'wr-waterfall-chart',
     // Room over and under the drawing for the figure printed past a bar's end.
     '[class.wr-waterfall-chart--values]': 'showValues()',
+    // How many columns share the drawing: what the stylesheet holds the gap to, so many
+    // steps narrow it with their bars rather than run out of room (see `$gap-in-row`).
+    '[style.--wr-waterfall-chart-steps]': 'steps().length || 1',
   },
   imports: [WrChartTable],
 })
@@ -180,13 +187,13 @@ export class WrWaterfallChart {
 
   protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'waterfallChart.label', 'Waterfall chart');
 
-  /** The colour of a change up. Any CSS colour, `var(--wr-…)` included. @default success */
+  /** The colour of a change up. Any CSS colour, `var(--wr-…)` included. @default 'var(--wr-color-success)' */
   readonly increaseColor = input<string>('var(--wr-color-success)');
 
-  /** The colour of a change down. @default danger */
+  /** The colour of a change down. Any CSS colour. @default 'var(--wr-color-danger)' */
   readonly decreaseColor = input<string>('var(--wr-color-danger)');
 
-  /** The colour of a total. @default primary */
+  /** The colour of a total. Any CSS colour. @default 'var(--wr-color-primary)' */
   readonly totalColor = input<string>('var(--wr-color-primary)');
 
   /** The plot's height in px, at least 80. @default 240 */
@@ -198,8 +205,13 @@ export class WrWaterfallChart {
   /**
    * Print each step's figure past the end of its bar: a change with its sign, over the bar
    * when it runs up and under it when it runs down, and a total with no `+`. Compact from
-   * a thousand up (`+1.2K`), where a bar is too narrow for the whole figure; the tooltip,
-   * the names and the data table carry it in full.
+   * a thousand up (`+1.2K`) by default; with `valueFormat`, whatever it writes for
+   * `'label'`, so a formatter can go compact here and stay exact everywhere else.
+   *
+   * A figure is printed whole or not at all: one wider than its column and a quarter of
+   * the gap on either side — which keeps it clear of its neighbours' — is left out rather
+   * than cut, since `+$1,…` is not a figure and `−$9…` reads as −$9. The tooltip, the
+   * names and the data table carry every figure in full.
    *
    * The sign is one of the two cues besides colour that tell a change up from a change
    * down; the connectors are the other. Off together with `showConnectors`, colour is the
@@ -242,14 +254,20 @@ export class WrWaterfallChart {
    * tooltip, the accessible names and the data table. Every figure is handed over as its
    * MAGNITUDE, never below zero, and the chart writes the sign in front: `+` or `−`
    * (U+2212 MINUS SIGN) on a change, `−` on a running total, a total or a tick below zero.
-   * So one formatter writes every figure, and one minus sign appears throughout. `null`
-   * uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ticks (`1.2K`, `3.4M`) unless
-   * the full numbers are shorter.
+   * So one formatter writes every figure, and one minus sign appears throughout.
+   *
+   * It is told where the figure goes (see {@link WrWaterfallValueContext}): `'label'` past
+   * a bar, where a compact form fits a narrow column; `'tick'` on the value axis; `'value'`
+   * in the tooltip, the names and the data table, which a reader goes to for the exact
+   * figure. A `(value) => string` written for another chart fits too, and writes all three
+   * alike. `null` uses `Intl.NumberFormat` in `LOCALE_ID`: compact past the bars from a
+   * thousand up, compact ticks (`1.2K`, `3.4M`) unless the full numbers are shorter, and
+   * the exact figure everywhere else.
    */
-  readonly valueFormat = input<((value: number) => string) | null>(null);
+  readonly valueFormat = input<((value: number, context: WrWaterfallValueContext) => string) | null>(null);
 
   /** The figures, the compact labels and the ticks, in `LOCALE_ID` unless `valueFormat` is given. */
-  private readonly numbers = useChartNumbers(this.valueFormat);
+  private readonly numbers = useChartNumbers<[WrWaterfallValueContext]>(this.valueFormat);
 
   private readonly stepName = readI18nText('waterfallChart.step', 'Step');
   private readonly changeName = readI18nText('waterfallChart.change', 'Change');
@@ -348,7 +366,8 @@ export class WrWaterfallChart {
     // Magnitudes, with the chart's own minus in front, as every other figure here.
     const labels = this.numbers.ticks(
       ticks.map(value => Math.abs(value)),
-      step
+      step,
+      'tick'
     );
     return ticks.map((value, i) => {
       const bottom = this.level(value);
@@ -370,8 +389,8 @@ export class WrWaterfallChart {
     };
     return steps.map((step, i): DrawnStep => {
       const from = step.kind === 'total' ? 0 : step.start;
-      const totalText = this.written(step.end, v => this.numbers.value(v));
-      const changeText = step.change === null ? '' : this.signed(step.change, v => this.numbers.value(v));
+      const totalText = this.written(step.end, v => this.numbers.value(v, 'value'));
+      const changeText = step.change === null ? '' : this.signed(step.change, v => this.numbers.value(v, 'value'));
       const next = steps[i + 1];
       // A change starts from the running total, and so does a total that shows it; a total
       // before every change starts one of its own, and a line into it would lead nowhere.
@@ -386,8 +405,8 @@ export class WrWaterfallChart {
         color: colors[step.kind],
         display:
           step.change === null
-            ? this.written(step.end, v => this.numbers.label(v))
-            : this.signed(step.change, v => this.numbers.label(v)),
+            ? this.written(step.end, v => this.numbers.label(v, 'label'))
+            : this.signed(step.change, v => this.numbers.label(v, 'label')),
         below: step.kind === 'decrease' || (step.kind === 'total' && step.end < 0),
         changeText,
         totalText,
@@ -451,4 +470,4 @@ export class WrWaterfallChart {
   }
 }
 
-export type { WrWaterfallStep } from './types';
+export type { WrWaterfallStep, WrWaterfallValueContext } from './types';

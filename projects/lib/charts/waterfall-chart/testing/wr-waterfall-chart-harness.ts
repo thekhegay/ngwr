@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrWaterfallChartHarnessFilters, WrWaterfallChartStep, WrWaterfallChartTableRow } from './types';
+import type { WrWaterfallChartHarnessFilters, WrWaterfallChartHarnessStep, WrWaterfallChartTableRow } from './types';
 
 const KINDS = ['increase', 'decrease', 'flat', 'total'] as const;
 
@@ -39,7 +39,7 @@ async function numberAttribute(element: TestElement, name: string, method: strin
 class StepHarness extends ComponentHarness {
   static hostSelector = '.wr-waterfall-chart__step';
 
-  async read(label: string): Promise<WrWaterfallChartStep> {
+  async read(label: string): Promise<WrWaterfallChartHarnessStep> {
     const host = await this.host();
     const value = await this.locatorForOptional('.wr-waterfall-chart__value')();
     const connector = await this.locatorForOptional('.wr-waterfall-chart__connector')();
@@ -66,7 +66,7 @@ class StepHarness extends ComponentHarness {
     };
   }
 
-  private static async kindOf(host: TestElement, label: string): Promise<WrWaterfallChartStep['kind']> {
+  private static async kindOf(host: TestElement, label: string): Promise<WrWaterfallChartHarnessStep['kind']> {
     for (const kind of KINDS) {
       if (await host.hasClass(`wr-waterfall-chart__step--${kind}`)) return kind;
     }
@@ -102,11 +102,17 @@ class TableRowHarness extends ComponentHarness {
  * is the stylesheet's floor, so no method reports it.
  *
  * **Two questions are not one.** A step's printed figure and its accessible name are read
- * separately ({@link WrWaterfallChartStep.value} and {@link WrWaterfallChartStep.name}):
- * the column is an `img`, so the name is what a screen reader gets, and asserting only
- * what is drawn would pass on a step that announces nothing.
+ * separately ({@link WrWaterfallChartHarnessStep.value} and
+ * {@link WrWaterfallChartHarnessStep.name}): the column is an `img`, so the name is what a
+ * screen reader gets, and asserting only what is drawn would pass on a step that announces
+ * nothing.
  *
- * **What tells the kinds apart is read as such.** {@link WrWaterfallChartStep.kind} comes
+ * **Whether a printed figure fits is not read.** The stylesheet hides a figure wider than
+ * its column by wrapping it out of sight, which takes a layout jsdom does not have;
+ * {@link WrWaterfallChartHarnessStep.value} gives the text the component printed, fitting
+ * or not.
+ *
+ * **What tells the kinds apart is read as such.** {@link WrWaterfallChartHarnessStep.kind} comes
  * off the modifier class, not off the colour, and the sign is in the printed figure — so a
  * spec can assert the channels that are not colour, which are the ones a reader without
  * hue relies on. A change of zero is `'flat'`, neither way, so a missing figure the chart
@@ -168,7 +174,7 @@ export class WrWaterfallChartHarness extends ComponentHarness {
    * Throws on a step missing anything the component writes on every one, rather than
    * answering with a `NaN` a spec could compare against.
    */
-  async getSteps(): Promise<WrWaterfallChartStep[]> {
+  async getSteps(): Promise<WrWaterfallChartHarnessStep[]> {
     const steps = await this.locatorForAll(StepHarness)();
     const labels = await this.getLabels();
     if (labels.length !== steps.length) {
@@ -196,7 +202,7 @@ export class WrWaterfallChartHarness extends ComponentHarness {
   }
 
   /** The value axis' tick labels, top to bottom; `[]` with `showGrid` off. */
-  async getTicks(): Promise<string[]> {
+  async getYTicks(): Promise<string[]> {
     const ticks = await this.locatorForAll('.wr-waterfall-chart__tick')();
     return Promise.all(ticks.map(tick => tick.text()));
   }

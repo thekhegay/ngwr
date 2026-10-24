@@ -16,7 +16,7 @@ export interface WrWaterfallChartHarnessFilters extends BaseHarnessFilters {
 }
 
 /** One step, as the chart draws and announces it. */
-export interface WrWaterfallChartStep {
+export interface WrWaterfallChartHarnessStep {
   /** The label printed under the bar — the full text, ellipsised on screen or not. */
   readonly label: string;
   /**
@@ -28,7 +28,8 @@ export interface WrWaterfallChartStep {
   readonly name: string | null;
   /**
    * The figure printed past the bar's end — a signed change, or a total — or `null` when
-   * none is printed (`showValues` off).
+   * none is printed (`showValues` off). One wider than its column is printed and then
+   * wrapped out of sight by the stylesheet, which jsdom cannot show, so it is read here.
    */
   readonly value: string | null;
   /** The running total before the step. */

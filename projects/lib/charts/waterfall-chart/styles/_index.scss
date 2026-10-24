@@ -9,7 +9,8 @@
 .wr-waterfall-chart {
   --wr-waterfall-chart-font-family: var(--wr-font-family-base);
   --wr-waterfall-chart-color: var(--wr-color-on-surface);
-  // Between two bars, and so the length of the connector that crosses it.
+  // Between two bars, and so the length of the connector that crosses it. Held to a
+  // quarter of one step's share of the drawing (see `$gap-in-row` below).
   --wr-waterfall-chart-gap: var(--wr-space-sm);
   // The room over and under the drawing with no figures printed; with them it grows to a
   // figure's line (see `$value-room` below).
@@ -53,6 +54,17 @@
     var(--wr-waterfall-chart-plot-inset-y),
     calc(var(--wr-waterfall-chart-value-line-height) + var(--wr-waterfall-chart-value-gap))
   );
+
+  // The gap as drawn: the hook, held to a quarter of one step's share of the drawing, so
+  // a chart of many steps narrows its gaps with its bars instead of squeezing the bars to
+  // nothing and running out of its box. `--wr-waterfall-chart-steps` is the count, which
+  // the component writes on the host. A percentage is of the box that reads it, so the
+  // one length is written twice: against the row — the track and the labels, `25% / n` —
+  // and against a step — the connector and the figure, `n / (3n + 1)` of it. Those are
+  // the same: a step is an nth of the row less its share of the gaps.
+  $steps: var(--wr-waterfall-chart-steps, 1);
+  $gap-in-row: min(var(--wr-waterfall-chart-gap), calc(25% / $steps));
+  $gap-in-step: min(var(--wr-waterfall-chart-gap), calc(100% * $steps / (3 * $steps + 1)));
 
   display: block;
   // The containing block of the out-of-flow `dataTable` copy, as on every chart that
@@ -116,7 +128,7 @@
   &__track {
     position: relative;
     display: flex;
-    gap: var(--wr-waterfall-chart-gap);
+    gap: $gap-in-row;
     height: 100%;
   }
 
@@ -175,26 +187,48 @@
   }
 
   // Past the end the step runs to: over its top, or under its bottom with `--below`.
-  // Bounded by its column and half the gap on either side, which no neighbour's figure
-  // reaches into, and ellipsised past that; the tooltip, the name and the data table carry
-  // the whole figure. `plaintext` lays a sign out where its own text puts it: a `−` in
-  // front of digits has no direction of its own, so under RTL it would otherwise land on
-  // the digits' far side and read as the opposite change.
+  // Its room is its column and half the gap on either side, less a quarter of the gap of
+  // padding, so two neighbours' figures always stand half a gap apart.
+  //
+  // A figure is printed whole or not at all, with no measuring, as the heatmap's values
+  // are: the box is a wrapping flex line one figure tall, led by a zero-width item. A
+  // figure that fits shares that first line and is centred on it; one that does not
+  // cannot join it, so it wraps onto a second line, under the first, where `overflow`
+  // hides it. A figure cut to `+$1,…` is no figure, and `−$9…` reads as −$9; the tooltip,
+  // the name and the data table carry the whole figure.
   &__value {
     position: absolute;
-    inset-inline: calc(var(--wr-waterfall-chart-gap) / -2);
+    inset-inline: calc($gap-in-step / -2);
     bottom: calc(var(--wr-waterfall-chart-hi, 0) * 1% + var(--wr-waterfall-chart-value-gap));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    box-sizing: border-box;
+    block-size: var(--wr-waterfall-chart-value-line-height);
+    padding-inline: calc($gap-in-step / 4);
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-align: center;
-    unicode-bidi: plaintext;
     font-size: var(--wr-waterfall-chart-value-font-size);
     line-height: var(--wr-waterfall-chart-value-line-height);
     color: var(--wr-waterfall-chart-value-color);
     font-variant-numeric: tabular-nums;
     pointer-events: none;
     transition: bottom var(--wr-duration-slow) var(--wr-ease-out);
+
+    &::before {
+      content: '';
+      flex: 0 0 0;
+      block-size: 100%;
+    }
+  }
+
+  // Never shrunk, so a figure too wide for the line wraps rather than squeezing. Its
+  // direction follows its own text (`plaintext`): a `−` in front of digits has no
+  // direction of its own, so under RTL it would otherwise land on the digits' far side and
+  // read as the opposite change.
+  &__value-text {
+    flex: none;
+    white-space: nowrap;
+    unicode-bidi: plaintext;
   }
 
   // Not past either end of the plot, where there is no gap to borrow: past the last bar
@@ -224,7 +258,7 @@
     position: absolute;
     inset-inline-start: 100%;
     bottom: calc(var(--wr-waterfall-chart-level, 0) * 1%);
-    inline-size: var(--wr-waterfall-chart-gap);
+    inline-size: $gap-in-step;
     border-block-start: var(--wr-waterfall-chart-connector-width) dashed var(--wr-waterfall-chart-connector-color);
     transform: translateY(50%);
     pointer-events: none;
@@ -236,7 +270,7 @@
     grid-column: 2;
     grid-row: 2;
     display: flex;
-    gap: var(--wr-waterfall-chart-gap);
+    gap: $gap-in-row;
     margin-block-start: var(--wr-waterfall-chart-labels-margin-top);
   }
 

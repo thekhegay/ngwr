@@ -1,9 +1,12 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, LOCALE_ID, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrWaterfallStep } from './types';
+import type { WrWaterfallStep, WrWaterfallValueContext } from './types';
 import { WrWaterfallChart } from './waterfall-chart';
 
 /**
@@ -48,7 +51,7 @@ class Host {
   readonly showGrid = signal(true);
   readonly showConnectors = signal(true);
   readonly dataTable = signal(false);
-  readonly valueFormat = signal<((value: number) => string) | null>(null);
+  readonly valueFormat = signal<((value: number, context: WrWaterfallValueContext) => string) | null>(null);
   readonly increaseColor = signal('var(--wr-color-success)');
   readonly decreaseColor = signal('var(--wr-color-danger)');
   readonly totalColor = signal('var(--wr-color-primary)');
@@ -375,6 +378,41 @@ describe('WrWaterfallChart', () => {
     expect(text('.wr-waterfall-chart__tick')).toEqual(['$800', '$600', '$400', '$200', '$0']);
   });
 
+  it('tells `valueFormat` where each figure goes, so the drawing can go compact and the rest stay exact', () => {
+    const format = (value: number, context: WrWaterfallValueContext): string =>
+      context === 'label' ? `${value / 100}h` : context === 'tick' ? `${value}t` : `${value}`;
+    set(h => {
+      h.valueFormat.set(format);
+      h.dataTable.set(true);
+    });
+    // Past the bars: what it wrote for 'label'.
+    expect(text('.wr-waterfall-chart__value')).toEqual(['4h', '+3h', `${MINUS}1h`, `${MINUS}2h`, '4h']);
+    // On the axis: what it wrote for 'tick'.
+    expect(text('.wr-waterfall-chart__tick')).toEqual(['800t', '600t', '400t', '200t', '0t']);
+    // In the names and the data table: what it wrote for 'value', the exact figure.
+    expect(names()[2]).toBe(`Refunds: ${MINUS}100, running total 600`);
+    expect(text('.wr-chart-table tbody td')).toEqual([
+      '',
+      '400',
+      '+300',
+      '700',
+      `${MINUS}100`,
+      '600',
+      `${MINUS}200`,
+      '400',
+      '',
+      '400',
+    ]);
+  });
+
+  it('writes the step count on the host, which the stylesheet holds the gap to', () => {
+    const chart = (): HTMLElement => root().querySelector<HTMLElement>('wr-waterfall-chart')!;
+    expect(chart().style.getPropertyValue('--wr-waterfall-chart-steps')).toBe('5');
+    // Never zero, which the stylesheet divides by.
+    set(h => h.steps.set([]));
+    expect(chart().style.getPropertyValue('--wr-waterfall-chart-steps')).toBe('1');
+  });
+
   it('prints no figure with `showValues` off, and keeps every name', () => {
     set(h => h.showValues.set(false));
     expect(all('.wr-waterfall-chart__value')).toHaveLength(0);
@@ -589,5 +627,73 @@ describe('WrWaterfallChart tooltip', () => {
     hover(1);
     expect(chip()).toBeNull();
     expect(steps()[1].classList).not.toContain('wr-waterfall-chart__step--active');
+  });
+});
+
+/**
+ * What the stylesheet promises that no rendered DOM in jsdom can show, held against the
+ * COMPILED sheet; `sass` is resolved through `@angular/build`, as `charts/stylesheets.spec.ts`
+ * does. That each rule then paints what it says is measured in a browser.
+ */
+describe('WrWaterfallChart stylesheet', () => {
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  };
+  const css = sass
+    .compileString(`@use 'charts/waterfall-chart/styles';`, {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = (selector: string): string =>
+    new RegExp(`(?:^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+  const inRow = 'min(var(--wr-waterfall-chart-gap), 25% / var(--wr-waterfall-chart-steps, 1))';
+  const inStep =
+    'min(var(--wr-waterfall-chart-gap), 100% * var(--wr-waterfall-chart-steps, 1) / (3 * var(--wr-waterfall-chart-steps, 1) + 1))';
+
+  it('prints a figure whole or not at all: a wrapping line one figure tall, led by a zero-width item', () => {
+    const value = rule('.wr-waterfall-chart__value');
+    expect(value).toMatch(/display: flex/);
+    expect(value).toMatch(/flex-wrap: wrap/);
+    expect(value).toMatch(/overflow: hidden/);
+    expect(value).toMatch(/block-size: var\(--wr-waterfall-chart-value-line-height\)/);
+    // A quarter of the gap of padding either side, so two neighbours' figures stand apart.
+    expect(value).toContain(`padding-inline: calc(${inStep} / 4)`);
+    const before = rule('.wr-waterfall-chart__value::before');
+    expect(before).toMatch(/flex: 0 0 0/);
+    expect(before).toMatch(/block-size: 100%/);
+    // Never ellipsised: `+$1,…` is no figure, and `−$9…` reads as −$9.
+    expect(css).not.toMatch(/\.wr-waterfall-chart__value[^{]*\{[^}]*text-overflow/);
+    const figure = rule('.wr-waterfall-chart__value-text');
+    expect(figure).toMatch(/flex: none/);
+    expect(figure).toMatch(/white-space: nowrap/);
+    // A `−` in front of digits keeps its side under RTL.
+    expect(figure).toMatch(/unicode-bidi: plaintext/);
+  });
+
+  it('holds every reader of the gap to a quarter of one step, in the box each one resolves against', () => {
+    // A fixed 8px gap squeezed the bars of a 150-step chart to nothing and pushed the page
+    // sideways. The track and the labels resolve a percentage against the row, the
+    // connector and the figure against a step; the two lengths are the same.
+    expect(rule('.wr-waterfall-chart__track')).toContain(`gap: ${inRow}`);
+    expect(rule('.wr-waterfall-chart__labels')).toContain(`gap: ${inRow}`);
+    expect(rule('.wr-waterfall-chart__connector')).toContain(`inline-size: ${inStep}`);
+    expect(rule('.wr-waterfall-chart__value')).toContain(`inset-inline: calc(${inStep} / -2)`);
+    expect(css).not.toMatch(/(?:gap|inline-size|inset-inline): var\(--wr-waterfall-chart-gap\)/);
+  });
+
+  it('works out the step-relative cap to the same length as the row-relative one', () => {
+    // A step is an nth of the row less its share of the gaps: s = (W − (n − 1)g) / n.
+    for (const [width, n, hook] of [
+      [1000, 150, 8],
+      [343, 40, 8],
+      [1000, 12, 8],
+      [300, 3, 8],
+    ]) {
+      const gap = Math.min(hook, (0.25 * width) / n);
+      const step = (width - (n - 1) * gap) / n;
+      expect(Math.min(hook, (step * n) / (3 * n + 1))).toBeCloseTo(gap, 9);
+      expect(step).toBeGreaterThan(0);
+    }
   });
 });

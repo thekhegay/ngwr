@@ -61,9 +61,11 @@
           <!-- A change of zero writes no paint: its neutral hairline is the stylesheet's hook. -->
           <span #barEl class="wr-waterfall-chart__bar" [style.background]="step.color"></span>
           @if (values) {
-            <span class="wr-waterfall-chart__value" [class.wr-waterfall-chart__value--below]="step.below">{{
-              step.display
-            }}</span>
+            <!-- A line one figure tall that the figure joins only where it fits whole; one
+                 that does not wraps out of sight below it (see the stylesheet). -->
+            <span class="wr-waterfall-chart__value" [class.wr-waterfall-chart__value--below]="step.below"
+              ><span class="wr-waterfall-chart__value-text">{{ step.display }}</span></span
+            >
           }
           @if (connectors && step.connector !== null) {
             <!-- Across the gap to the next bar, at the running total that bar starts from. -->

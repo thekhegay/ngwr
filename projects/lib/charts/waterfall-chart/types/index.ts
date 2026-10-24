@@ -33,4 +33,13 @@ interface WrWaterfallStep {
   readonly total?: boolean;
 }
 
-export type { WrWaterfallStep };
+/**
+ * Where a `<wr-waterfall-chart>` is about to write a figure, handed to its `valueFormat`
+ * as the second argument: `'label'` for the figure printed past a bar, where room is
+ * tight and a compact form fits (`1.2K`); `'tick'` for the value axis; `'value'` for the
+ * tooltip, the accessible names and the data table, where a reader goes for the exact
+ * figure.
+ */
+type WrWaterfallValueContext = 'label' | 'tick' | 'value';
+
+export type { WrWaterfallStep, WrWaterfallValueContext };

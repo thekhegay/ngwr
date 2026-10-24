@@ -153,7 +153,7 @@ describe('WrWaterfallChartHarness', () => {
 
   it('reads the ticks and the zero line, and no ticks with `showGrid` off', async () => {
     expect(await chart.hasGrid()).toBe(true);
-    expect(await chart.getTicks()).toEqual(['800', '600', '400', '200', '0']);
+    expect(await chart.getYTicks()).toEqual(['800', '600', '400', '200', '0']);
     expect(await chart.getZeroPercent()).toBe(0);
 
     set(h =>
@@ -166,7 +166,7 @@ describe('WrWaterfallChartHarness', () => {
 
     set(h => h.showGrid.set(false));
     expect(await chart.hasGrid()).toBe(false);
-    expect(await chart.getTicks()).toEqual([]);
+    expect(await chart.getYTicks()).toEqual([]);
   });
 
   it('reads the plot height off the style the component wrote', async () => {

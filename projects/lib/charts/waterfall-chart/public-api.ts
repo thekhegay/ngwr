@@ -1,1 +1,1 @@
-export { WrWaterfallChart, type WrWaterfallStep } from './waterfall-chart';
+export { WrWaterfallChart, type WrWaterfallStep, type WrWaterfallValueContext } from './waterfall-chart';

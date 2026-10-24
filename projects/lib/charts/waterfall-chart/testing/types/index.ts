@@ -1,5 +1,5 @@
 export type {
   WrWaterfallChartHarnessFilters,
-  WrWaterfallChartStep,
+  WrWaterfallChartHarnessStep,
   WrWaterfallChartTableRow,
 } from './wr-waterfall-chart-harness-filters';
