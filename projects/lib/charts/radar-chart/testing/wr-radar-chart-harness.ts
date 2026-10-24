@@ -8,6 +8,7 @@
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import { WrChartLegendHarness } from 'ngwr/charts/chart-legend/testing';
+import type { WrRadarVariant } from 'ngwr/charts/radar-chart';
 
 import type { WrRadarChartHarnessFilters, WrRadarChartPolygon, WrRadarChartTableRow } from './types';
 
@@ -82,6 +83,24 @@ export class WrRadarChartHarness extends ComponentHarness {
     return (await this.locatorFor('.wr-radar-chart__svg')()).getAttribute('aria-label');
   }
 
+  /**
+   * How the chart draws its series (`variant`): `'polygon'` or `'polar-area'`, read off
+   * the host's BEM modifier, which the component writes for either one.
+   *
+   * Throws when the host carries neither modifier rather than answering `'polygon'` by
+   * default: a chart that lost its variant binding would otherwise read as the default
+   * exactly when the binding is what broke.
+   */
+  async getVariant(): Promise<WrRadarVariant> {
+    const host = await this.host();
+    if (await host.hasClass('wr-radar-chart--polar-area')) return 'polar-area';
+    if (await host.hasClass('wr-radar-chart--polygon')) return 'polygon';
+    throw new Error(
+      'WrRadarChartHarness.getVariant(): the host carries neither .wr-radar-chart--polygon nor ' +
+        '.wr-radar-chart--polar-area. The component writes one unconditionally, so its absence is the bug.'
+    );
+  }
+
   /** The axis names round the drawing, clockwise from twelve o'clock, as given — the full text, ellipsised or not. */
   async getAxisLabels(): Promise<string[]> {
     const labels = await this.locatorForAll('.wr-radar-chart__axis-label')();
@@ -101,7 +120,9 @@ export class WrRadarChartHarness extends ComponentHarness {
 
   /**
    * How many series outlines were drawn: one per series shown that has at least one
-   * value, and none at all with fewer than three axes.
+   * value, and none at all with fewer than three axes. In the polar-area variant a
+   * series' outline is the one silhouette round its wedges, so this still counts series,
+   * not wedges.
    *
    * Worth comparing with the legend: both come from the same list, so a mismatch is a
    * series filtered out of one of them. The difference by design is a series hidden
@@ -115,7 +136,9 @@ export class WrRadarChartHarness extends ComponentHarness {
   /**
    * Every outline drawn, in order: the colour and dash the component wrote on it, and
    * whether it closes. Closed is read off the path's own closing command, which is what
-   * makes a browser close the shape.
+   * makes a browser close the shape. In the polar-area variant the outline is the
+   * silhouette round the series' wedges, which always closes, and a missing value is a
+   * missing wedge — which {@link getDotCount} and the data table show instead.
    */
   async getPolygons(): Promise<WrRadarChartPolygon[]> {
     const lines = await this.locatorForAll('.wr-radar-chart__line')();
@@ -131,7 +154,8 @@ export class WrRadarChartHarness extends ComponentHarness {
   /**
    * How many polygons are filled (`fill`). Only a closed outline is ever filled, so with
    * `fill` on this is the number of closed outlines in {@link getPolygons}; anything more
-   * is a fill drawn across a missing value.
+   * is a fill drawn across a missing value. In the polar-area variant it is one per
+   * series drawn, each fill covering that series' wedges.
    */
   async getAreaCount(): Promise<number> {
     return (await this.locatorForAll('.wr-radar-chart__area')()).length;

@@ -23,7 +23,9 @@ export interface WrRadarChartPolygon {
   readonly dash: string;
   /**
    * Whether the outline closes through every axis. A series with a missing value is
-   * drawn open, across the gap, and is never filled.
+   * drawn open, across the gap, and is never filled. In the polar-area variant the
+   * outline is the silhouette round the wedges, which always closes, so this is always
+   * `true` there.
    */
   readonly closed: boolean;
 }

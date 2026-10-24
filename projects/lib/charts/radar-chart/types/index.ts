@@ -19,4 +19,14 @@ interface WrRadarSeries {
   readonly color?: string;
 }
 
-export type { WrRadarSeries };
+/**
+ * How a `<wr-radar-chart>` draws its series.
+ *
+ * - `'polygon'` — each series is a polygon through its values, one vertex per axis.
+ * - `'polar-area'` — each axis is an equal-angle wedge per series, whose AREA encodes
+ *   the value: the radius grows with its square root, so twice the value is twice the
+ *   ink.
+ */
+type WrRadarVariant = 'polygon' | 'polar-area';
+
+export type { WrRadarSeries, WrRadarVariant };

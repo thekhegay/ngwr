@@ -1,1 +1,1 @@
-export { WrRadarChart, type WrRadarSeries } from './radar-chart';
+export { WrRadarChart, type WrRadarSeries, type WrRadarVariant } from './radar-chart';

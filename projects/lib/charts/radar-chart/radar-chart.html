@@ -33,7 +33,8 @@
 
     <!-- Every fill under every outline, so the outlines and their dashes stay on top
          wherever two series overlap. An open outline is never filled: filling it would
-         close it across a value the series does not have. -->
+         close it across a value the series does not have. A polar-area outline is the
+         silhouette of the series' wedges, which always closes, so it always fills. -->
     @if (fill()) {
       @for (s of shapes(); track s.index) {
         @if (s.closed) {

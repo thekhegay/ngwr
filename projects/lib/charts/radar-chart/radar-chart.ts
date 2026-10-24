@@ -8,13 +8,17 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
-  type ElementRef,
+  DestroyRef,
+  ElementRef,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   effect,
+  inject,
   input,
   isDevMode,
   model,
+  signal,
   viewChild,
 } from '@angular/core';
 
@@ -32,7 +36,7 @@ import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { clamp, round } from 'ngwr/utils';
 
-import type { WrRadarSeries } from './types';
+import type { WrRadarSeries, WrRadarVariant } from './types';
 
 /** The drawing's centre, in its 100 × 100 viewBox. */
 const CENTRE = 50;
@@ -45,6 +49,13 @@ const RADIUS = 50;
  * of the radius: the dots on the outer ring overhang it.
  */
 const REACH = 1.1;
+
+/**
+ * A ring value's line box in CSS pixels — `--wr-text-xs-leading`, which
+ * `--wr-radar-chart-label-line-height` defaults to — until a browser has laid one out to
+ * measure.
+ */
+const LABEL_LINE = 16;
 
 /** The nice-number ladder's mantissas: the steps a fitted scale snaps to, times a power of ten. */
 const LADDER = [1, 2, 2.5, 5];
@@ -84,9 +95,10 @@ interface Point {
   readonly y: number;
 }
 
-/** One axis: its name and the unit vector it runs along. */
+/** One axis: its name, its angle from three o'clock, clockwise, and the unit vector it runs along. */
 interface Axis {
   readonly label: string;
+  readonly angle: number;
   readonly cos: number;
   readonly sin: number;
 }
@@ -100,6 +112,45 @@ const short = (value: number): number => Math.round(value * 1e4) / 1e4 || 0;
 const at = (point: Point): string => `${fixed(point.x)} ${fixed(point.y)}`;
 
 const along = (axis: Axis, r: number): Point => ({ x: CENTRE + r * axis.cos, y: CENTRE + r * axis.sin });
+
+/** The point `r` out from the centre at `angle`, clockwise from three o'clock. */
+const toward = (angle: number, r: number): Point => ({
+  x: CENTRE + r * Math.cos(angle),
+  y: CENTRE + r * Math.sin(angle),
+});
+
+/**
+ * A polar-area series' outline: the silhouette of its wedges, walked once round. Each
+ * wedge is an arc of its own radius across its slice — `half` either side of its axis —
+ * and the step from one wedge to the next is a straight run along the edge they share.
+ * A wedge with no area (`null` or `0`) is the centre, so the walk dips to it there and
+ * draws no arc: a missing value invents nothing, and its neighbours keep their edges.
+ *
+ * One closed path rather than a closed wedge per value, because two wedges side by side
+ * share an edge: stroked twice, at two different dash phases, the dashes fill each
+ * other's gaps and the edge reads solid, which is the one channel besides hue that tells
+ * two series apart. The fill is the same path, which is every wedge's area at once.
+ *
+ * With three axes or more a slice spans 120° at most, so every arc is the small one, and
+ * it sweeps clockwise as the axes run.
+ */
+function silhouette(axes: readonly Axis[], half: number, radii: readonly (number | null)[]): string {
+  const commands: string[] = [];
+  let last = '';
+  const to = (point: Point): void => {
+    const next = at(point);
+    if (next !== last) commands.push(`${commands.length === 0 ? 'M' : 'L'} ${next}`);
+    last = next;
+  };
+  radii.forEach((radius, a) => {
+    const r = radius ?? 0;
+    to(toward(axes[a].angle - half, r));
+    if (r <= 0) return;
+    last = at(toward(axes[a].angle + half, r));
+    commands.push(`A ${fixed(r)} ${fixed(r)} 0 0 1 ${last}`);
+  });
+  return `${commands.join(' ')} Z`;
+}
 
 /** A ring with no polygon to follow — fewer than three axes — as a circle: two arcs, since one arc back to its start draws nothing. */
 const circle = (r: number): string =>
@@ -134,9 +185,10 @@ function outline(points: readonly (Point | null)[]): string {
 }
 
 /**
- * Radar chart: several series over the same axes, each a polygon on a polar grid. For
- * comparing a few profiles — products, players, releases — across the same handful of
- * measures. SVG-only — no external dependency.
+ * Radar chart: several series over the same axes, each a polygon on a polar grid — or,
+ * with `variant="polar-area"`, a wedge per axis whose area is the value. For comparing a
+ * few profiles — products, players, releases — across the same handful of measures.
+ * SVG-only — no external dependency.
  *
  * @example
  * ```html
@@ -161,6 +213,22 @@ function outline(points: readonly (Point | null)[]): string {
  * one a shorter `data` does not reach, breaks the outline on either side of its axis and
  * the series is drawn OPEN and UNFILLED: closing the polygon across the gap would draw a
  * reading the data never took, and filling an open outline means closing it.
+ *
+ * **`variant="polar-area"` draws wedges instead of polygons.** Each axis owns an equal
+ * slice of the circle, centred on it, and each series draws one wedge per value there,
+ * the series overlaid with their fills translucent and their outlines in their own
+ * dashes — one outline round each series' wedges, so the edge two wedges share is
+ * stroked once and its dash survives. The value is the wedge's AREA: every wedge has the
+ * same angle, so its area grows with the square of its radius, and the radius is the
+ * square ROOT of the value's share of the scale — twice the value is twice the ink, where
+ * a radius proportional to the value would paint four times as much. The rings are
+ * circles, labelled with values, and they bunch towards the outside for the same reason,
+ * so a ring value that would sit closer than a line to the one outside it is left out
+ * and its ring still drawn. The scale starts at zero: a wedge grows from the centre, so
+ * a negative value has no area and sits at the centre, and the tooltip and the data
+ * table keep its figure. A missing value is a missing wedge, and every other wedge of
+ * the series is drawn and filled, since each stands on its own value. The spokes run
+ * between the wedges rather than through them.
  *
  * **Labels are HTML beside the drawing**, so they keep their size at any `size`: the axis
  * names sit outside the outer ring, in a gutter round the drawing, each aligned away from
@@ -188,7 +256,11 @@ function outline(points: readonly (Point | null)[]): string {
   selector: 'wr-radar-chart',
   templateUrl: './radar-chart.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-radar-chart' },
+  host: {
+    class: 'wr-radar-chart',
+    '[class.wr-radar-chart--polygon]': '!polar()',
+    '[class.wr-radar-chart--polar-area]': 'polar()',
+  },
   imports: [WrChartLegend, WrChartTable],
 })
 export class WrRadarChart {
@@ -205,13 +277,30 @@ export class WrRadarChart {
   readonly series = input<readonly WrRadarSeries[]>([]);
 
   /**
-   * Accessible name of the drawing. The polygons carry no text and the legend has the
+   * How the series are drawn. `'polygon'` joins each series' values into a polygon, one
+   * vertex per axis. `'polar-area'` gives each axis an equal-angle wedge per series whose
+   * AREA is the value — the radius grows with the square root of the value, so the ink
+   * a wedge paints is proportional to what it stands for — with the series overlaid. The
+   * legend, the toggle, the tooltip and the data table are the same in both.
+   * @default 'polygon'
+   */
+  readonly variant = input<WrRadarVariant>('polygon');
+
+  /**
+   * Accessible name of the drawing. The shapes carry no text and the legend has the
    * series names only, so this is where to say what the chart shows — or turn on
-   * `dataTable`. Falls back to `radarChart.label`, which is also the data table's caption.
+   * `dataTable`. Falls back to `radarChart.label`, or to `radarChart.polarAreaLabel` in
+   * the polar-area variant, which is also the data table's caption.
    */
   readonly ariaLabel = input<string | null>(null);
 
-  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'radarChart.label', 'Radar chart');
+  private readonly polygonAriaLabel = useI18nText(this.ariaLabel, 'radarChart.label', 'Radar chart');
+
+  private readonly polarAreaAriaLabel = useI18nText(this.ariaLabel, 'radarChart.polarAreaLabel', 'Polar area chart');
+
+  protected readonly resolvedAriaLabel = computed(() =>
+    this.polar() ? this.polarAreaAriaLabel() : this.polygonAriaLabel()
+  );
 
   /**
    * The value of the outer ring. `0` fits the scale to the series shown, on a readable
@@ -281,13 +370,17 @@ export class WrRadarChart {
    */
   readonly hiddenSeries = model<readonly number[]>([]);
 
-  /** Show a dot at every value. @default true */
+  /**
+   * Show a dot at every value: on the polygon's vertex, or in the polar-area variant on
+   * the middle of the wedge's arc, where the value reads against the rings. @default true
+   */
   readonly showDots = input(true, { transform: coerceBooleanProperty });
 
   /**
    * Fill each closed polygon with its colour, faintly, under every outline. A series
-   * with a missing value is never filled, whatever this says: its outline is open.
-   * @default true
+   * with a missing value is never filled, whatever this says: its outline is open. In
+   * the polar-area variant every wedge is filled, since the outline round them always
+   * closes, and a missing value is a missing wedge. @default true
    */
   readonly fill = input(true, { transform: coerceBooleanProperty });
 
@@ -322,7 +415,38 @@ export class WrRadarChart {
 
   private readonly svg = viewChild<ElementRef<SVGSVGElement>>('svg');
 
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  /**
+   * The drawing's laid-out width and a ring value's line box, both in CSS pixels, once a
+   * browser has measured them: the drawing shrinks below `size` in a narrow container, and
+   * how close two ring values may sit is a question of pixels, not of the viewBox.
+   */
+  private readonly measured = signal<{ readonly width: number; readonly line: number } | null>(null);
+
   constructor() {
+    const destroyRef = inject(DestroyRef);
+    // Measured after render, so the server and the first paint assume `size` and a 16px
+    // line, and nothing here touches the DOM before a browser has one.
+    afterNextRender(() => {
+      const svg = this.svg()?.nativeElement;
+      if (!svg || typeof ResizeObserver === 'undefined') return;
+      const observer = new ResizeObserver(([entry]) => {
+        const width = entry.contentRect.width;
+        // A hidden chart measures nothing; keep the last reading rather than thin to it.
+        if (width <= 0) return;
+        const label = this.host.nativeElement.querySelector('.wr-radar-chart__ring-label');
+        // No value laid out — `showGrid` off — measures 0: keep the line already known.
+        const height = label?.getBoundingClientRect().height ?? 0;
+        const last = this.measured();
+        const line = height > 0 ? height : (last?.line ?? LABEL_LINE);
+        if (last?.width === width && last.line === line) return;
+        this.measured.set({ width, line });
+      });
+      observer.observe(svg);
+      destroyRef.onDestroy(() => observer.disconnect());
+    });
+
     // A radar of two axes is a line and one of one a point, so neither can hold a
     // polygon; the chart draws the grid and nothing else, which on screen looks like
     // data that failed to load rather than a refusal.
@@ -346,11 +470,17 @@ export class WrRadarChart {
     const axes = this.axes();
     return axes.map((label, i) => {
       const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length;
-      return { label, cos: Math.cos(angle), sin: Math.sin(angle) };
+      return { label, angle, cos: Math.cos(angle), sin: Math.sin(angle) };
     });
   });
 
-  /** Whether there are axes enough for a polygon: three make the smallest one. */
+  /** Whether the series are wedges rather than polygons. Anything but `'polar-area'` is the polygon. */
+  protected readonly polar = computed(() => this.variant() === 'polar-area');
+
+  /**
+   * Whether there are axes enough for a polygon: three make the smallest one. The
+   * polar-area variant keeps the same floor, so the two draw the same data.
+   */
   private readonly drawable = computed(() => this.axes().length >= 3);
 
   /**
@@ -383,8 +513,9 @@ export class WrRadarChart {
    * the series shown, including zero: the centre is zero unless a value is negative, and
    * then the scale's own minimum, which a radar shows as a smaller polygon rather than as
    * anything below a baseline — readable, and worth a fixed `max` where negative values
-   * are the norm.
-   * With nothing to fit it is the empty 0 to 1 frame.
+   * are the norm. The polar-area variant always starts at zero, since a wedge grows from
+   * the centre: it is fitted to the largest value alone, and a negative value has no area.
+   * With nothing to fit — or, for wedges, nothing above zero — it is the empty 0 to 1 frame.
    */
   private readonly scale = computed<WrChartAxis>(() => {
     const explicit = this.max();
@@ -397,25 +528,45 @@ export class WrRadarChart {
     }
     const values = this.visibleSeries().flatMap(s => s.values.filter((v): v is number => v !== null));
     if (values.length === 0) return chartAxis(Number.NaN, Number.NaN);
-    return chartAxis(Math.min(...values), Math.max(...values), { includeZero: true, tickCount: rings });
+    const peak = Math.max(...values);
+    if (this.polar()) {
+      return peak > 0 ? chartAxis(0, peak, { includeZero: true, tickCount: rings }) : chartAxis(Number.NaN, Number.NaN);
+    }
+    return chartAxis(Math.min(...values), peak, { includeZero: true, tickCount: rings });
   });
 
-  /** How far from the centre a value sits, in the viewBox, held to the scale. */
+  /**
+   * How far from the centre a value sits, in the viewBox, held to the scale: in proportion
+   * to the value's share of the scale for a polygon, and to its square root for a wedge, so
+   * a wedge's area — which grows with the square of its radius — is in proportion to the
+   * value. The rings go through here too, so a ring labelled 25 out of 100 sits at half
+   * the radius in the polar-area variant and a wedge reaching it has a quarter of the
+   * outer ring's area.
+   */
   private radius(value: number): number {
     const { min, max } = this.scale();
-    return RADIUS * clamp((value - min) / (max - min), 0, 1);
+    const share = clamp((value - min) / (max - min), 0, 1);
+    return RADIUS * (this.polar() ? Math.sqrt(share) : share);
   }
 
   /**
-   * The polygons, one per series shown that has at least one value: its outline, whether
+   * The shapes, one per series shown that has at least one value: its outline, whether
    * that outline is closed, and the point at each axis (`null` where the value is missing).
    * Nothing at all with fewer than three axes.
+   *
+   * A polygon is closed only with a value on every axis. In the polar-area variant the
+   * outline is the silhouette of the series' wedges, which always closes, and the point
+   * at an axis is the middle of that wedge's arc — where its dot goes and its value reads
+   * against the rings.
    */
   protected readonly shapes = computed(() => {
     if (!this.drawable()) return [];
     const axes = this.axisGeometry();
+    const polar = this.polar();
+    const half = Math.PI / axes.length;
     return this.visibleSeries().flatMap(s => {
-      const points = s.values.map((v, a) => (v === null ? null : along(axes[a], this.radius(v))));
+      const radii = s.values.map(v => (v === null ? null : this.radius(v)));
+      const points = radii.map((r, a) => (r === null ? null : along(axes[a], r)));
       if (points.every(p => p === null)) return [];
       return [
         {
@@ -423,8 +574,8 @@ export class WrRadarChart {
           color: s.color,
           dash: s.dash,
           points,
-          closed: points.every(p => p !== null),
-          d: outline(points),
+          closed: polar || points.every(p => p !== null),
+          d: polar ? silhouette(axes, half, radii) : outline(points),
         },
       ];
     });
@@ -432,32 +583,64 @@ export class WrRadarChart {
 
   /**
    * The rings, from the outer one in: a polygon through every axis, or a circle while
-   * there are fewer than three axes to follow. The centre is the scale's minimum and gets
-   * no ring.
+   * there are fewer than three axes to follow — and always a circle in the polar-area
+   * variant, whose wedges end in arcs. The centre is the scale's minimum and gets no ring.
    */
   protected readonly ringPaths = computed(() => {
     const { min, ticks } = this.scale();
     const axes = this.axisGeometry();
+    const polygon = axes.length >= 3 && !this.polar();
     return ticks
       .filter(tick => tick > min)
       .map(tick => {
         const r = this.radius(tick);
-        return axes.length >= 3 ? `M ${axes.map(axis => at(along(axis, r))).join(' L ')} Z` : circle(r);
+        return polygon ? `M ${axes.map(axis => at(along(axis, r))).join(' L ')} Z` : circle(r);
       });
   });
 
-  /** A spoke per axis, from the centre to the outer ring. */
-  protected readonly spokes = computed(() => this.axisGeometry().map(axis => along(axis, RADIUS)));
+  /**
+   * A spoke per axis, from the centre to the outer ring: along the axis for a polygon,
+   * and on the edge between two wedges in the polar-area variant, where a spoke through
+   * the middle of a wedge would cut its area in two.
+   */
+  protected readonly spokes = computed(() => {
+    const axes = this.axisGeometry();
+    if (!this.polar()) return axes.map(axis => along(axis, RADIUS));
+    const half = Math.PI / axes.length;
+    return axes.map(axis => toward(axis.angle - half, RADIUS));
+  });
 
   /**
    * The ring values, from the outer ring in, each with the height of its ring as a
    * percentage of the drawing, where the first axis crosses it. Decided for the whole
    * scale, as an axis' ticks are (`useChartNumbers().ticks`).
+   *
+   * In the polar-area variant the rings sit at square-root radii, which bunch towards the
+   * outer ring, so a value closer than one line to the last one kept is left out, walking
+   * inwards from the outer ring — whose value always stays — while its ring is still
+   * drawn. The distance is in pixels of the drawing as laid out (`measured`), or of `size`
+   * until a browser has measured it. The polygon's rings are evenly spaced, and `rings`
+   * is how a host spaces them.
    */
   protected readonly ringLabels = computed(() => {
     const { min, ticks, step } = this.scale();
     const texts = this.numbers.ticks(ticks, step);
-    return ticks.flatMap((tick, i) => (tick > min ? [{ text: texts[i], y: short(CENTRE - this.radius(tick)) }] : []));
+    const labels = ticks.flatMap((tick, i) => {
+      if (tick <= min) return [];
+      const r = this.radius(tick);
+      return [{ text: texts[i], r, y: short(CENTRE - r) }];
+    });
+    if (!this.polar()) return labels;
+    const { width, line } = this.measured() ?? { width: this.size(), line: LABEL_LINE };
+    // One line, in the viewBox's units: the drawing is 100 of them wide.
+    const room = (line / width) * 100;
+    let kept = Number.POSITIVE_INFINITY;
+    return labels.filter(label => {
+      // A hair under a line still counts as one, so rounding never drops a value that fits.
+      if (kept - label.r < room - 1e-6) return false;
+      kept = label.r;
+      return true;
+    });
   });
 
   /**
@@ -509,9 +692,10 @@ export class WrRadarChart {
    * for the two at three and nine o'clock — so the chip sits outside the web, over the
    * axis' own name, which it repeats in full.
    *
-   * The axis is chosen by POSITION, anywhere over the web: by angle, the nearest spoke to
-   * the pointer. So the helper is told which axis any spot reads, and a pointer moving
-   * round the chart scrubs from axis to axis.
+   * The axis is chosen by POSITION, anywhere over the web: by angle, the nearest axis to
+   * the pointer — in the polar-area variant, the axis whose wedges the pointer is over. So
+   * the helper is told which axis any spot reads, and a pointer moving round the chart
+   * scrubs from axis to axis.
    */
   protected readonly tip = useChartTooltip(
     this.tooltip,
@@ -597,4 +781,4 @@ export class WrRadarChart {
   }
 }
 
-export type { WrRadarSeries } from './types';
+export type { WrRadarSeries, WrRadarVariant } from './types';
