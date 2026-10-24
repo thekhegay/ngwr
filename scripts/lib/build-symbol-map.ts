@@ -26,10 +26,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-import { libEntryPoints } from './entry-points';
+import { entryFiles, INTERNAL_ENTRY_POINTS, libEntryPoints } from './entry-points';
 import { LIB_PATH } from './paths/lib';
 import { blankTs } from './ts-lex';
-
 
 /** `export { WrFoo, WrBar as Baz, type Quux } from './…';`, the bare form included. */
 const EXPORT_LIST_RE = /export\s*(type\s*)?\{([^}]*)\}(?:\s*from\s*'([^']+)')?/g;
@@ -114,13 +113,45 @@ export function publicExports(entry: string): PublicExport[] {
   return [...out.values()];
 }
 
+/**
+ * Throws unless every export of every {@link INTERNAL_ENTRY_POINTS} entry point is
+ * declared under a JSDoc carrying `@internal`.
+ *
+ * A class may carry a decorator between its JSDoc and `export class` — the data table
+ * is a `@Component` — so one decorator call is stepped over. Its arguments may hold
+ * no comment end and no `export`, which keeps the step from running on into the next
+ * declaration.
+ */
+export function assertInternalEntryPoints(): void {
+  for (const entry of INTERNAL_ENTRY_POINTS) {
+    const sources = entryFiles(entry).map(file => readFileSync(file, 'utf8'));
+    for (const { name } of publicExports(entry)) {
+      const declaration = new RegExp(
+        String.raw`/\*\*((?:(?!\*/)[\s\S])*)\*/\s*(?:@[A-Za-z]\w*\((?:(?!\*/|\bexport\s)[\s\S])*\)\s*)?export\s+(?:declare\s+)?(?:abstract\s+)?(?:const|let|function|class|type|interface|enum)\s+${name}\b|/\*\*((?:(?!\*/)[\s\S])*)\*/\s*(?:type|interface)\s+${name}\b`
+      );
+      const doc = sources.map(source => declaration.exec(source)).find(Boolean);
+      if (!doc || !/@internal\b/.test(doc[1] ?? doc[2] ?? '')) {
+        throw new Error(
+          `ngwr/${entry} is kept out of every catalog as internal, but \`${name}\` is not marked \`@internal\`. ` +
+            'Mark it, or move it to an entry point the catalogs list (INTERNAL_ENTRY_POINTS in scripts/lib/entry-points.ts).'
+        );
+      }
+    }
+  }
+}
+
 /** Build the full symbol → subpath map. */
 export function buildSymbolMap(): Record<string, string> {
+  assertInternalEntryPoints();
+
   // `<name>/testing` is an entry point and its harnesses are public, but a
   // harness is never something `ng g ngwr:use` splices into a component — it
   // belongs in a spec. Pulling the seventy of them in would quadruple the
-  // schematic's non-declarable table for symbols nobody will ask it for.
-  const entries = libEntryPoints().filter(entry => !entry.split('/').includes('testing'));
+  // schematic's non-declarable table for symbols nobody will ask it for. The
+  // internal entry points are out for the reason their list gives.
+  const entries = libEntryPoints().filter(
+    entry => !entry.split('/').includes('testing') && !INTERNAL_ENTRY_POINTS.has(entry)
+  );
 
   const map: Record<string, string> = {};
   for (const entry of entries) {

@@ -56,6 +56,28 @@ export function libEntryPoints(libRoot = LIB_PATH): string[] {
 }
 
 /**
+ * Entry points that publish nothing an app imports, so no catalog lists them:
+ * not `llms-full.txt`, not the agent skill, not the `ng g ngwr:use` symbol map
+ * and not the selector map built from it.
+ *
+ * `ngwr/charts/core` holds the helpers the charts share — the palette, the number
+ * writers, the axis, the data table — in an entry point of its own so that no chart
+ * imports another. Every export is `@internal`: listing it would hand an agent an
+ * import line, and `ng g ngwr:use WrChartTable` a component to splice into an app,
+ * for helpers with no stability promise. One list, so the catalogs cannot disagree
+ * about it — the MCP server used to call `WrChartTable` "not in the catalog" while
+ * the schematic offered to import it. `assertInternalEntryPoints()` in
+ * `build-symbol-map.ts` holds the tag at run time, export by export, so a public
+ * symbol added here fails the run instead of vanishing from every catalog.
+ *
+ * Deliberately a list of ENTRY POINTS and not a filter on the `@internal` tag:
+ * in this repo the tag does not mean "undocumented" (`WrTableFilter` and
+ * `WrTableSort` carry it, and the table's page documents both — see
+ * `extract-api.ts`).
+ */
+export const INTERNAL_ENTRY_POINTS: ReadonlySet<string> = new Set(['charts/core']);
+
+/**
  * The subpaths `@use 'ngwr/<name>'` resolves, sorted: every `exports` key with a
  * `sass` condition, stylesheet-only keys that are not entry points included.
  */
