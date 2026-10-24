@@ -234,6 +234,7 @@ export const wrAr: WrI18nCatalog = {
     label: 'مخطط شريطي',
     total: 'الإجمالي',
     value: 'القيمة',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'خريطة حرارية للتقويم',
@@ -273,6 +274,9 @@ export const wrAr: WrI18nCatalog = {
     fromFirst: 'من الأولى',
     ofPrevious: '{{percent}} من السابقة',
     ofFirst: '{{percent}} من الأولى',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}، {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}، {{previous}}، {{first}}',
   },
   waterfallChart: {
     label: 'مخطط شلالي',

@@ -230,6 +230,7 @@ export const wrRu: WrI18nCatalog = {
     label: 'Столбчатая диаграмма',
     total: 'Итого',
     value: 'Значение',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Календарная тепловая карта',
@@ -269,6 +270,9 @@ export const wrRu: WrI18nCatalog = {
     fromFirst: 'От первого',
     ofPrevious: '{{percent}} от предыдущего',
     ofFirst: '{{percent}} от первого',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'Каскадная диаграмма',

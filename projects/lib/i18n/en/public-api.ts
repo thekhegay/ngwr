@@ -308,6 +308,7 @@ export const wrEn: WrI18nCatalog = {
     label: 'Bar chart',
     total: 'Total',
     value: 'Value',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Calendar heatmap',
@@ -353,6 +354,9 @@ export const wrEn: WrI18nCatalog = {
     fromFirst: 'From first',
     ofPrevious: '{{percent}} of previous',
     ofFirst: '{{percent}} of first',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   // `changeStep` and `totalStep` are each step's accessible name; `{{change}}`
   // arrives signed and formatted, so the sentence carries no sign of its own.

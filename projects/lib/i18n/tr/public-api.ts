@@ -233,6 +233,7 @@ export const wrTr: WrI18nCatalog = {
     label: 'Çubuk grafiği',
     total: 'Toplam',
     value: 'Değer',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Takvim ısı haritası',
@@ -274,6 +275,9 @@ export const wrTr: WrI18nCatalog = {
     fromFirst: 'İlkine göre',
     ofPrevious: 'Öncekinin {{percent}}',
     ofFirst: 'İlkinin {{percent}}',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'Şelale grafiği',

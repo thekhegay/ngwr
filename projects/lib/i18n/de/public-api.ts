@@ -233,6 +233,7 @@ export const wrDe: WrI18nCatalog = {
     label: 'Balkendiagramm',
     total: 'Gesamt',
     value: 'Wert',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Kalender-Heatmap',
@@ -272,6 +273,9 @@ export const wrDe: WrI18nCatalog = {
     fromFirst: 'Gegenüber erster',
     ofPrevious: '{{percent}} der vorherigen',
     ofFirst: '{{percent}} der ersten',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'Wasserfalldiagramm',

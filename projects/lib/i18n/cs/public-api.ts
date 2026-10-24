@@ -225,6 +225,7 @@ export const wrCs: WrI18nCatalog = {
     label: 'Sloupcový graf',
     total: 'Celkem',
     value: 'Hodnota',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Kalendářní tepelná mapa',
@@ -264,6 +265,9 @@ export const wrCs: WrI18nCatalog = {
     fromFirst: 'Z první',
     ofPrevious: '{{percent}} z předchozí',
     ofFirst: '{{percent}} z první',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'Vodopádový graf',

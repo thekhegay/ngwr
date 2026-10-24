@@ -230,6 +230,7 @@ export const wrKo: WrI18nCatalog = {
     label: '막대 차트',
     total: '합계',
     value: '값',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: '캘린더 히트맵',
@@ -269,6 +270,9 @@ export const wrKo: WrI18nCatalog = {
     fromFirst: '처음 대비',
     ofPrevious: '이전의 {{percent}}',
     ofFirst: '처음의 {{percent}}',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: '폭포 차트',

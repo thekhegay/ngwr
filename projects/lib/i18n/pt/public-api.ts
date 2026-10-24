@@ -229,6 +229,7 @@ export const wrPt: WrI18nCatalog = {
     label: 'Gráfico de barras',
     total: 'Total',
     value: 'Valor',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Mapa de calor do calendário',
@@ -268,6 +269,9 @@ export const wrPt: WrI18nCatalog = {
     fromFirst: 'Da primeira',
     ofPrevious: '{{percent}} da anterior',
     ofFirst: '{{percent}} da primeira',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'Gráfico de cascata',

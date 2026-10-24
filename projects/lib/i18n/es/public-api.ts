@@ -225,6 +225,7 @@ export const wrEs: WrI18nCatalog = {
     label: 'Gráfico de barras',
     total: 'Total',
     value: 'Valor',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Mapa de calor del calendario',
@@ -264,6 +265,9 @@ export const wrEs: WrI18nCatalog = {
     fromFirst: 'Desde la primera',
     ofPrevious: '{{percent}} de la anterior',
     ofFirst: '{{percent}} de la primera',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'Gráfico de cascada',

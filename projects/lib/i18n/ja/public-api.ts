@@ -229,6 +229,7 @@ export const wrJa: WrI18nCatalog = {
     label: '棒グラフ',
     total: '合計',
     value: '値',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'カレンダーヒートマップ',
@@ -268,6 +269,9 @@ export const wrJa: WrI18nCatalog = {
     fromFirst: '初段階比',
     ofPrevious: '前段階の{{percent}}',
     ofFirst: '初段階の{{percent}}',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}、{{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}、{{previous}}、{{first}}',
   },
   waterfallChart: {
     label: 'ウォーターフォールチャート',

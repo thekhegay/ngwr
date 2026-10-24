@@ -223,6 +223,7 @@ export const wrZh: WrI18nCatalog = {
     label: '柱状图',
     total: '合计',
     value: '值',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: '日历热力图',
@@ -262,6 +263,9 @@ export const wrZh: WrI18nCatalog = {
     fromFirst: '较第一阶段',
     ofPrevious: '上一阶段的 {{percent}}',
     ofFirst: '第一阶段的 {{percent}}',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}，{{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}，{{previous}}，{{first}}',
   },
   waterfallChart: {
     label: '瀑布图',

@@ -240,6 +240,7 @@ export const wrPl: WrI18nCatalog = {
     label: 'Wykres słupkowy',
     total: 'Suma',
     value: 'Wartość',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Mapa cieplna kalendarza',
@@ -279,6 +280,9 @@ export const wrPl: WrI18nCatalog = {
     fromFirst: 'Względem pierwszego',
     ofPrevious: '{{percent}} poprzedniego',
     ofFirst: '{{percent}} pierwszego',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'Wykres kaskadowy',

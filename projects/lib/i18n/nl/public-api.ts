@@ -230,6 +230,7 @@ export const wrNl: WrI18nCatalog = {
     label: 'Staafdiagram',
     total: 'Totaal',
     value: 'Waarde',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Kalenderheatmap',
@@ -269,6 +270,9 @@ export const wrNl: WrI18nCatalog = {
     fromFirst: 'Van eerste',
     ofPrevious: '{{percent}} van vorige',
     ofFirst: '{{percent}} van eerste',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'Watervaldiagram',

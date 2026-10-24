@@ -234,6 +234,7 @@ export const wrVi: WrI18nCatalog = {
     label: 'Biểu đồ cột',
     total: 'Tổng',
     value: 'Giá trị',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Bản đồ nhiệt theo lịch',
@@ -273,6 +274,9 @@ export const wrVi: WrI18nCatalog = {
     fromFirst: 'So với bước đầu',
     ofPrevious: '{{percent}} so với bước trước',
     ofFirst: '{{percent}} so với bước đầu',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'Biểu đồ thác nước',

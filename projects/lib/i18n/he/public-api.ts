@@ -238,6 +238,7 @@ export const wrHe: WrI18nCatalog = {
     label: 'תרשים עמודות',
     total: 'סה״כ',
     value: 'ערך',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'מפת חום לפי תאריכים',
@@ -277,6 +278,9 @@ export const wrHe: WrI18nCatalog = {
     fromFirst: 'מהראשון',
     ofPrevious: '{{percent}} מהקודם',
     ofFirst: '{{percent}} מהראשון',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'תרשים מפל',

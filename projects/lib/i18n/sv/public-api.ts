@@ -225,6 +225,7 @@ export const wrSv: WrI18nCatalog = {
     label: 'Stapeldiagram',
     total: 'Totalt',
     value: 'Värde',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Kalendervärmekarta',
@@ -264,6 +265,9 @@ export const wrSv: WrI18nCatalog = {
     fromFirst: 'Från första',
     ofPrevious: '{{percent}} av föregående',
     ofFirst: '{{percent}} av första',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'Vattenfallsdiagram',

@@ -225,6 +225,7 @@ export const wrId: WrI18nCatalog = {
     label: 'Diagram batang',
     total: 'Total',
     value: 'Nilai',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Peta panas kalender',
@@ -264,6 +265,9 @@ export const wrId: WrI18nCatalog = {
     fromFirst: 'Dari pertama',
     ofPrevious: '{{percent}} dari sebelumnya',
     ofFirst: '{{percent}} dari pertama',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'Diagram air terjun',

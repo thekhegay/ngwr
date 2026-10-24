@@ -225,6 +225,7 @@ export const wrHi: WrI18nCatalog = {
     label: 'बार चार्ट',
     total: 'कुल',
     value: 'मान',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'कैलेंडर हीटमैप',
@@ -264,6 +265,9 @@ export const wrHi: WrI18nCatalog = {
     fromFirst: 'पहले से',
     ofPrevious: 'पिछले का {{percent}}',
     ofFirst: 'पहले का {{percent}}',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
   },
   waterfallChart: {
     label: 'वॉटरफ़ॉल चार्ट',
