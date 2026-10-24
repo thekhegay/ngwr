@@ -315,11 +315,15 @@ describe('useChartTooltip', () => {
   });
 
   it('takes the side each section asks for, and changes it on the one open chip', () => {
+    // The pane is tagged with the placement it TOOK, which is what the arrow keys on; in
+    // the middle of a laid-out page every placement fits, so the one asked for is the one
+    // taken. Not at jsdom's 0×0 origin: with the 8px viewport margin, a section in the
+    // very corner of a page with no size has room on no side at all.
+    layout(new DOMRect(0, 0, 90, 26));
+    fixture.componentInstance.box.set({ x: 500, y: 300 });
     fixture.componentInstance.lowerSecond.set(true);
     settle();
 
-    // The pane is tagged with the placement it TOOK, which is what the arrow keys on;
-    // with nothing laid out every placement fits, so the one asked for is the one taken.
     enter(sections()[0]);
     expect(panes()[0].classList).toContain('wr-tooltip-overlay--top');
 
@@ -429,11 +433,13 @@ describe('useChartTooltip', () => {
   });
 
   it('sends a side placement above its anchor when there is no room beside it, running away from the chart', () => {
-    // 14px short of room to the right of x = 940. The LEFT would fit — and to the left of
+    // 14px short of room to the right of x = 924: the chip and its 8px gap end at 1022,
+    // and the CDK holds a pane 16px off the right edge of 1024 — the 8px viewport margin,
+    // which it takes off both sides of the width. The LEFT would fit — and to the left of
     // a point on a donut's arc is the donut. So the chip goes above the point with its left
     // end just past it: its box starts at the point, and it is drawn 14px back.
     layout(new DOMRect(0, 0, 90, 26));
-    fixture.componentInstance.box.set({ x: 940, y: 300 });
+    fixture.componentInstance.box.set({ x: 924, y: 300 });
     fixture.componentInstance.side.set('right');
     settle();
     enter(sections()[0]);
@@ -441,7 +447,7 @@ describe('useChartTooltip', () => {
     const pane = panes()[0];
     expect(pane.classList).toContain('wr-tooltip-overlay--top');
     expect(pane.classList).not.toContain('wr-tooltip-overlay--left');
-    expect(pane.parentElement!.style.left).toBe('940px');
+    expect(pane.parentElement!.style.left).toBe('924px');
     expect(pane.getAttribute('style')).toContain('translateX(-14px)');
   });
 
@@ -698,7 +704,13 @@ describe('useChartTooltip under dir="rtl"', () => {
 
   const pane = (): HTMLElement => document.querySelector<HTMLElement>('.wr-tooltip-overlay')!;
 
+  /**
+   * Opens the first section's chip on `side`, from a point in the middle of a 1024×768
+   * page, where every placement fits: at jsdom's 0×0 origin, the 8px viewport margin
+   * leaves no room on any side, and the placement taken would not be the one asked for.
+   */
   const openOn = (side: 'top' | 'left' | 'right'): void => {
+    fixture.componentInstance.box.set({ x: 500, y: 300 });
     fixture.componentInstance.side.set(side);
     fixture.detectChanges();
     (fixture.nativeElement as HTMLElement).querySelector('.section')!.dispatchEvent(new MouseEvent('mouseenter'));
@@ -710,11 +722,18 @@ describe('useChartTooltip under dir="rtl"', () => {
     TestBed.configureTestingModule({
       providers: [{ provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } }],
     });
+    const root = document.documentElement;
+    Object.defineProperty(root, 'clientWidth', { configurable: true, value: 1024 });
+    Object.defineProperty(root, 'clientHeight', { configurable: true, value: 768 });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
 
-  afterEach(() => fixture.destroy());
+  afterEach(() => {
+    fixture.destroy();
+    Reflect.deleteProperty(document.documentElement, 'clientWidth');
+    Reflect.deleteProperty(document.documentElement, 'clientHeight');
+  });
 
   it('keeps a chip that belongs on the right on the right', () => {
     openOn('right');

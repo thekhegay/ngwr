@@ -28,6 +28,7 @@ import type { Subscription } from 'rxjs';
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 
 import { WrChartTooltipPanel } from './internal/chart-tooltip-panel';
+import { VIEWPORT_MARGIN } from './internal/viewport-margin';
 import type { WrChartTooltip, WrChartTooltipTarget } from './types';
 
 /**
@@ -497,12 +498,18 @@ export function useChartTooltip(
       // chip once pushed against the viewport edge — a donut's nine o'clock on a phone —
       // left every later chip that box, so the next one overflowed its pane and the arrow,
       // measured off the pane, pointed 9–13px wide of its slice. `wr-dropdown` hit the same.
+      //
+      // `withViewportMargin`, as `[wrPopover]` has: pushed by a section on the very edge,
+      // the chip otherwise landed flush against the glass — the last candle of a
+      // candlestick at 390px put it at 292–390.7, past the viewport — and `aim` keeps the
+      // arrow on the anchor from wherever it parks.
       strategy = overlay
         .position()
         .flexibleConnectedTo(anchor)
         .withPositions(chartTooltipPositions(side, direction === 'rtl'))
         .withPush(true)
-        .withGrowAfterOpen(true);
+        .withGrowAfterOpen(true)
+        .withViewportMargin(VIEWPORT_MARGIN);
       overlayRef = overlay.create({
         positionStrategy: strategy,
         // No scroll strategy: `reanchor` repositions, for every scroll container.
