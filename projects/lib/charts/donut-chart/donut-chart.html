@@ -17,6 +17,7 @@
            what the tooltip looks it up by. -->
       @if (!slice.hidden) {
         <path
+          class="wr-donut-chart__slice"
           [attr.d]="slice.path"
           [attr.fill]="slice.color"
           stroke="var(--wr-color-surface)"
@@ -27,8 +28,23 @@
         />
       }
     }
+    <!-- A sliver's wider hover target in a pie, filled with nothing: see `hits`, which is
+         empty for the ring and with the tooltip off. Last, so it wins the pointer over the
+         slices it reaches into; `fill`, so the unpainted stroke is not hit-tested and the
+         edges stay where `hits` put them. -->
+    @for (hit of hits(); track hit.index) {
+      <path
+        class="wr-donut-chart__hit"
+        [attr.d]="hit.path"
+        fill="none"
+        pointer-events="fill"
+        (mouseenter)="tip.enter(hit.index)"
+        (mouseleave)="tip.leave($event)"
+      />
+    }
   </svg>
-  @if (centerValue() || centerLabel()) {
+  <!-- Never with `pie`: a pie has no hole to print in. -->
+  @if (showCenter()) {
     <div class="wr-donut-chart__center">
       @if (centerValue()) {
         <div class="wr-donut-chart__center-value">{{ centerValue() }}</div>

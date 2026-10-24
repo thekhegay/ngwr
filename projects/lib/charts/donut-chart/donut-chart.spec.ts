@@ -207,7 +207,7 @@ describe('WrDonutChart under a localized catalog', () => {
     fixture.detectChanges();
 
     const drawing = (fixture.nativeElement as HTMLElement).querySelector('.wr-donut-chart__surface svg')!;
-    expect(drawing.getAttribute('aria-label')).toBe('Круговая диаграмма');
+    expect(drawing.getAttribute('aria-label')).toBe('Кольцевая диаграмма');
 
     fixture.destroy();
   });

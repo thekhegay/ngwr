@@ -25,8 +25,22 @@ function weight(value: number): number {
 }
 
 /**
- * Donut chart. Set `thickness` to 0 for a solid pie. Optional center
- * text via inputs.
+ * How wide a slice's hover target is at least, along the outer edge, in CSS px. A
+ * slice narrower than that — a share of a percent or two, which at the default 200px
+ * is a few px of arc — is a target no pointer lands on, so it gets a wider one; see
+ * `hits`.
+ */
+const HIT_PX = 12;
+
+/**
+ * The widest that target may grow, in radians, whatever the chart's size: on a 48px
+ * chart 12px of arc is a third of a quarter turn, which would take too much of the
+ * slices beside it.
+ */
+const MAX_HIT_ANGLE = Math.PI / 12;
+
+/**
+ * Donut chart, and with `pie` a pie chart. Optional center text via inputs.
  *
  * @example
  * ```html
@@ -34,6 +48,8 @@ function weight(value: number): number {
  *   { label: 'Used', value: 60 },
  *   { label: 'Free', value: 40 }
  * ]" centerLabel="Disk" centerValue="60%" />
+ *
+ * <wr-donut-chart [segments]="segments" pie />
  * ```
  *
  * The legend is a `ul[wr-chart-legend]` (`ngwr/charts/chart-legend`), and with
@@ -45,7 +61,7 @@ function weight(value: number): number {
   selector: 'wr-donut-chart',
   templateUrl: './donut-chart.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-donut-chart' },
+  host: { class: 'wr-donut-chart', '[class.wr-donut-chart--pie]': 'pie()' },
   imports: [WrChartLegend],
   // The legend's rows keep the classes this chart drew before it drew them through
   // `WrChartLegend`: `.wr-donut-chart__legend-item`, `__swatch`, `__legend-label` and
@@ -62,19 +78,36 @@ export class WrDonutChart {
   /**
    * Accessible name of the drawing. The arcs carry no text and the legend is optional, so
    * with `showLegend: false` this and the centre text are the whole of what a screen reader
-   * gets. Falls back to `donutChart.label`.
+   * gets. Falls back to `donutChart.label`, or to `donutChart.pieLabel` with `pie`.
    */
   readonly ariaLabel = input<string | null>(null);
 
-  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'donutChart.label', 'Donut chart');
+  private readonly donutLabel = useI18nText(this.ariaLabel, 'donutChart.label', 'Donut chart');
+  private readonly pieLabel = useI18nText(this.ariaLabel, 'donutChart.pieLabel', 'Pie chart');
+
+  protected readonly resolvedAriaLabel = computed(() => (this.pie() ? this.pieLabel() : this.donutLabel()));
 
   /** Diameter in CSS pixels. @default 200 */
   readonly size = input(200, { transform: (v: unknown): number => Math.max(48, coerceNumberProperty(v, 200)) });
 
-  /** Inner-ring thickness as a percent of radius (0–100). `0` = solid pie. @default 30 */
+  /**
+   * Inner-ring thickness as a percent of radius (0–100). `0` fills to the centre, and
+   * keeps the centre text; `pie` ignores it. @default 30
+   */
   readonly thickness = input(30, {
     transform: (v: unknown): number => Math.min(100, Math.max(0, coerceNumberProperty(v, 30))),
   });
+
+  /**
+   * Draw a pie chart: every slice fills to the centre, whatever `thickness` says, and
+   * the host takes the `wr-donut-chart--pie` modifier. A pie has no hole to print in, so
+   * `centerValue` and `centerLabel` are not rendered. Everything else is the donut's: the
+   * slices run clockwise from twelve o'clock, with the same gap between them, the legend
+   * and its toggle, and the tooltip — which in a pie also opens from a wider, invisible
+   * target over a slice too thin to point at (see `tooltip`). The drawing's name falls
+   * back to `donutChart.pieLabel`. @default false
+   */
+  readonly pie = input(false, { transform: coerceBooleanProperty });
 
   /** Show the legend under the chart. @default true */
   readonly showLegend = input(true, { transform: coerceBooleanProperty });
@@ -104,16 +137,25 @@ export class WrDonutChart {
    */
   readonly hiddenSegments = model<readonly number[]>([]);
 
-  /** Bold value text in the center. */
+  /** Bold value text in the center. Not rendered with `pie`, which has no hole to hold it. */
   readonly centerValue = input<string>('');
 
-  /** Smaller label under the value. */
+  /** Smaller label under the value. Not rendered with `pie`, which has no hole to hold it. */
   readonly centerLabel = input<string>('');
+
+  /** Whether the centre text renders: some is given, and there is a hole to print it in. */
+  protected readonly showCenter = computed(() => !this.pie() && (!!this.centerValue() || !!this.centerLabel()));
 
   /**
    * Show a tooltip with the slice's label and value on hover. Pointer only — the
    * legend prints the same numbers, and with `showLegend` off `ariaLabel` is where
-   * to say them. @default true
+   * to say them. With `pie`, a slice too thin to land a pointer on, a sliver of a few
+   * degrees, is hovered over a wider strip than it draws, through an invisible
+   * `.wr-donut-chart__hit` over the pie: widened toward 12px of outer arc (15° on a chart
+   * under about 92px) out of what the wider slices beside it can spare, each of which keeps
+   * that much of its own. A sliver whose neighbours are slivers too, or have little to
+   * spare, gets a narrower target or none, and is read in the legend. The ring draws no
+   * such target. @default true
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
@@ -135,8 +177,8 @@ export class WrDonutChart {
 
   protected readonly innerR = computed(() => {
     const thickness = this.thickness();
-    // 0 = solid pie: fill all the way to the center, not a zero-width ring.
-    if (thickness === 0) return 0;
+    // A pie, or a thickness of 0: fill all the way to the center, not a zero-width ring.
+    if (this.pie() || thickness === 0) return 0;
     return this.outerR * (1 - thickness / 100);
   });
 
@@ -177,8 +219,96 @@ export class WrDonutChart {
         hidden: isHidden,
         path: isHidden ? '' : this.arcPath(startAngle, endAngle),
         percent: (share / total) * 100,
+        startAngle,
+        endAngle,
         midAngle: (startAngle + endAngle) / 2,
       };
+    });
+  });
+
+  /**
+   * In a pie, a wider hover target for every slice too thin to land a pointer on: an
+   * invisible wedge over the slice, drawn above the pie, widened toward `HIT_PX` of outer
+   * arc (`MAX_HIT_ANGLE` at most, which binds below about 92px) out of the wider slices
+   * beside it.
+   *
+   * A wider slice gives away only what it can spare: it keeps `HIT_PX` of outer arc of its
+   * own (the same `MAX_HIT_ANGLE` cap), however many slivers reach into it, so a slice
+   * that was easy to point at stays easy, and its middle, where its own chip points, is
+   * never covered. Two slivers reaching into one slice from either side split what it
+   * spares. A sliver asks half its shortfall of each wider neighbour, or all of it of the
+   * only one; what one side cannot give, the other gives if it can. Between two slivers
+   * side by side the boundary stays their shared edge, so of a run of slivers only the two
+   * at its ends grow, and the legend is where the rest are read — as it is for a sliver
+   * whose neighbours have little to spare, which gets the narrower target they leave it.
+   * A slice that draws nothing — a zero, or a hidden slice — has nothing to point at and
+   * gets no target, and nor does one with no wider neighbour.
+   *
+   * Pie only, and only while the tooltip is on, which is all it is for: the ring draws
+   * exactly what it drew before `pie` existed. The wedge is filled with nothing and
+   * hit-tested through `pointer-events="fill"`, which reads its interior whatever its
+   * paint and never its unpainted stroke, so its edges are the ones computed here; it
+   * paints in no theme and in no forced-colors palette.
+   */
+  protected readonly hits = computed(() => {
+    if (!this.pie() || !this.tooltip()) return [];
+    const min = Math.min(MAX_HIT_ANGLE, HIT_PX / (this.size() / 2));
+    const drawn = this.slices()
+      .map((slice, index) => ({ index, start: slice.startAngle, end: slice.endAngle }))
+      .filter(slice => slice.end - slice.start > 0);
+    const count = drawn.length;
+    if (count < 2) return [];
+    const width = drawn.map(slice => slice.end - slice.start);
+    const thin = width.map(w => w < min);
+    const prev = (k: number): number => (k - 1 + count) % count;
+    const next = (k: number): number => (k + 1) % count;
+    // What each wider slice can give away and still keep `min` of its own.
+    const spare = width.map((w, k) => (thin[k] ? 0 : w - min));
+    // How far each sliver asks to reach on each side: into a wider neighbour only.
+    const ask = width.map((w, k) => {
+      if (!thin[k]) return { before: 0, after: 0 };
+      const before = !thin[prev(k)];
+      const after = !thin[next(k)];
+      const share = (min - w) / (before && after ? 2 : 1);
+      return { before: before ? share : 0, after: after ? share : 0 };
+    });
+    const reach = width.map(() => ({ before: 0, after: 0 }));
+    // A wider slice is reached into by the sliver before it, past its own end, and by the
+    // one after it, past its own start — the same sliver from both sides when there are
+    // only two slices. Each gets what it asks while the two fit in the spare; past that,
+    // at least half of it, and more where the other asks for less.
+    width.forEach((_, j) => {
+      if (thin[j]) return;
+      const fromBefore = thin[prev(j)] ? ask[prev(j)].after : 0;
+      const fromAfter = thin[next(j)] ? ask[next(j)].before : 0;
+      const claims = (fromBefore > 0 ? 1 : 0) + (fromAfter > 0 ? 1 : 0);
+      if (claims === 0) return;
+      const fair = spare[j] / claims;
+      const toBefore = Math.min(fromBefore, Math.max(fair, spare[j] - fromAfter));
+      const toAfter = Math.min(fromAfter, Math.max(fair, spare[j] - fromBefore));
+      if (toBefore > 0) reach[prev(j)].after = toBefore;
+      if (toAfter > 0) reach[next(j)].before = toAfter;
+      spare[j] = Math.max(0, spare[j] - toBefore - toAfter);
+    });
+    // What one side could not give, the other side gives out of what it has left.
+    width.forEach((w, k) => {
+      if (!thin[k]) return;
+      let short = min - w - reach[k].before - reach[k].after;
+      for (const [side, j] of [
+        ['before', prev(k)],
+        ['after', next(k)],
+      ] as const) {
+        if (short <= 0 || thin[j]) continue;
+        const more = Math.min(short, spare[j]);
+        reach[k][side] += more;
+        spare[j] -= more;
+        short -= more;
+      }
+    });
+    return drawn.flatMap((slice, k) => {
+      const { before, after } = reach[k];
+      if (!thin[k] || before + after <= 0) return [];
+      return [{ index: slice.index, path: this.arcPath(slice.start - before, slice.end + after) }];
     });
   });
 

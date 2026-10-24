@@ -67,9 +67,23 @@ export class WrDonutChartHarness extends ComponentHarness {
     return (await this.locatorFor('.wr-donut-chart__surface svg')()).getAttribute('aria-label');
   }
 
-  /** How many wedges were drawn. A hidden slice draws none. */
+  /**
+   * How many wedges were drawn. A hidden slice draws none. The invisible hover target a
+   * sliver gets over the ring (`.wr-donut-chart__hit`) is not a wedge and is not counted.
+   */
   async getSliceCount(): Promise<number> {
-    return (await this.locatorForAll('.wr-donut-chart__surface path')()).length;
+    return (await this.locatorForAll('.wr-donut-chart__slice')()).length;
+  }
+
+  /**
+   * Whether the chart is a pie (`pie`), read off its `wr-donut-chart--pie` modifier.
+   * Not whether the slices reach the centre — a `thickness` of 0 does that too, and keeps
+   * the centre text — since a path's `d` is not read, for the reason given in the class
+   * note. A pie renders no centre text: {@link getCenterValue} and {@link getCenterLabel}
+   * answer `null` for it whatever was bound.
+   */
+  async isPie(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-donut-chart--pie');
   }
 
   /** Whether the legend is rendered (`showLegend`, and at least one slice). */
@@ -109,13 +123,13 @@ export class WrDonutChartHarness extends ComponentHarness {
     );
   }
 
-  /** The big number in the middle, or `null` when the chart has none. */
+  /** The big number in the middle, or `null` when the chart has none — a pie never has. */
   async getCenterValue(): Promise<string | null> {
     const center = await this.locatorForOptional('.wr-donut-chart__center-value')();
     return center ? center.text() : null;
   }
 
-  /** The caption under the centre value, or `null`. */
+  /** The caption under the centre value, or `null` — a pie never has one. */
   async getCenterLabel(): Promise<string | null> {
     const center = await this.locatorForOptional('.wr-donut-chart__center-label')();
     return center ? center.text() : null;

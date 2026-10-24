@@ -23,6 +23,7 @@ const SEGMENTS: readonly WrDonutSegment[] = [
       [centerLabel]="centerLabel()"
       [size]="size()"
       [toggleableLegend]="toggleable()"
+      [pie]="pie()"
       [(hiddenSegments)]="hidden"
     />
   `,
@@ -35,6 +36,7 @@ class Host {
   readonly size = signal(200);
   readonly toggleable = signal(false);
   readonly hidden = signal<readonly number[]>([]);
+  readonly pie = signal(false);
 }
 
 /**
@@ -136,6 +138,37 @@ describe('WrDonutChartHarness', () => {
     await fixture.whenStable();
 
     await expect((await chart()).getLegendHarness()).rejects.toThrow(/draws no legend/);
+  });
+
+  it('says whether it is a pie, which prints no centre text', async () => {
+    fixture.componentInstance.centerValue.set('100');
+    fixture.componentInstance.centerLabel.set('total');
+    await fixture.whenStable();
+
+    const harness = await chart();
+    expect(await harness.isPie()).toBe(false);
+
+    fixture.componentInstance.pie.set(true);
+    await fixture.whenStable();
+
+    expect(await harness.isPie()).toBe(true);
+    expect([await harness.getCenterValue(), await harness.getCenterLabel()]).toEqual([null, null]);
+    expect(await harness.getAccessibleName()).toBe('Pie chart');
+    expect(await harness.getSliceCount()).toBe(3);
+  });
+
+  it("counts a pie sliver's wedge once, and not its hover target", async () => {
+    fixture.componentInstance.pie.set(true);
+    fixture.componentInstance.segments.set([
+      { label: 'Sliver', value: 1 },
+      { label: 'Most', value: 74 },
+      { label: 'Rest', value: 25 },
+    ]);
+    await fixture.whenStable();
+
+    // The target is a path over the ring too, so a count of every path would say four.
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.wr-donut-chart__surface path')).toHaveLength(4);
+    expect(await (await chart()).getSliceCount()).toBe(3);
   });
 
   it('matches on the name and on a legend label', async () => {
