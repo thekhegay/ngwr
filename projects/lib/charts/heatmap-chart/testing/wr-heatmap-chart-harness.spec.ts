@@ -63,7 +63,7 @@ describe('WrHeatmapChartHarness', () => {
     expect(await chart.getCellCount()).toBe(6);
   });
 
-  it("reads every cell's position, value and step, and tells an empty cell from the lowest step", async () => {
+  it("reads every cell's position, value and level, and tells an empty cell from the lowest level", async () => {
     expect(await chart.getCells()).toEqual([
       { row: 0, column: 0, value: 0, level: 0, empty: false, text: '' },
       { row: 0, column: 1, value: 50, level: 0, empty: false, text: '' },
@@ -81,11 +81,11 @@ describe('WrHeatmapChartHarness', () => {
     await expect(chart.getCell(2, 0)).rejects.toThrow(/no cell at row 2, column 0/);
   });
 
-  it('reads the legend: the scale, its steps and the key for an empty cell', async () => {
+  it('reads the legend: the scale, its levels and the key for an empty cell', async () => {
     expect(await chart.hasLegend()).toBe(true);
     // Compact from a thousand, as the cells print them; the table has the whole figure.
-    expect(await chart.getScaleLabels()).toEqual({ min: '0', max: '1.2K' });
-    expect(await chart.getStepCount()).toBe(5);
+    expect(await chart.getScaleRange()).toEqual({ min: '0', max: '1.2K' });
+    expect(await chart.getLevelCount()).toBe(5);
     expect(await chart.getNoDataLabel()).toBe('No data');
 
     fixture.componentInstance.noDataLabel.set('Closed');
@@ -97,14 +97,20 @@ describe('WrHeatmapChartHarness', () => {
     ]);
     expect(await chart.getNoDataLabel()).toBeNull();
 
-    // A scale with no span is one step, keyed by one figure that is both ends.
+    // A scale with no span is one level, keyed by one figure that is both ends.
     fixture.componentInstance.data.set([
       [0, 0, 0],
       [0, 0, 0],
     ]);
-    expect(await chart.getScaleLabels()).toEqual({ min: '0', max: '0' });
-    expect(await chart.getStepCount()).toBe(1);
+    expect(await chart.getScaleRange()).toEqual({ min: '0', max: '0' });
+    expect(await chart.getLevelCount()).toBe(1);
     expect((await chart.getCell(0, 0)).level).toBe(0);
+  });
+
+  it('throws for a cell whose position it cannot read, rather than reading it as 0', async () => {
+    const first = (fixture.nativeElement as HTMLElement).querySelector('.wr-heatmap-chart__cell')!;
+    first.removeAttribute('data-row');
+    await expect(chart.getCells()).rejects.toThrow(/data-row=""/);
   });
 
   it('refuses a scale the legend does not draw', async () => {
@@ -114,11 +120,11 @@ describe('WrHeatmapChartHarness', () => {
     // Every cell empty: the legend keys the hatching alone.
     expect(await other.hasLegend()).toBe(true);
     expect(await other.getNoDataLabel()).toBe('No data');
-    await expect(other.getScaleLabels()).rejects.toThrow(/draws no scale/);
+    await expect(other.getScaleRange()).rejects.toThrow(/draws no scale/);
 
     fixture.componentInstance.showLegend.set(false);
     expect(await chart.hasLegend()).toBe(false);
-    await expect(chart.getStepCount()).rejects.toThrow(/draws no scale/);
+    await expect(chart.getLevelCount()).rejects.toThrow(/draws no scale/);
   });
 
   it('reads the data table, and refuses one that is not rendered', async () => {

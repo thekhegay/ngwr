@@ -43,7 +43,7 @@
     (mouseleave)="tip.leave($event)"
   >
     @for (cell of cells(); track $index) {
-      <!-- A step's paint is the stylesheet's, from the level written here; an empty cell has
+      <!-- A level's paint is the stylesheet's, from the level written here; an empty cell has
            no level and is hatched instead. -->
       <span
         class="wr-heatmap-chart__cell"
@@ -73,7 +73,7 @@
           <span class="wr-heatmap-chart__swatch" [style.--wr-heatmap-chart-level]="level"></span>
         }
       </span>
-      <!-- A scale with no span is one step, keyed by one figure. -->
+      <!-- A scale with no span is one level, keyed by one figure. -->
       @if (key.max !== null) {
         <span class="wr-heatmap-chart__legend-label">{{ key.max }}</span>
       }

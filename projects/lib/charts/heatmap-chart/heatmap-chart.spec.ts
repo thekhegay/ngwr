@@ -12,7 +12,7 @@ import type { WrHeatmapMatrix } from './types';
 const ROWS = ['Mon', 'Tue', 'Wed'];
 const COLUMNS = ['Morning', 'Afternoon', 'Evening'];
 
-/** 0 to 100 in the corners, a missing value in the middle, and every band of five steps in between. */
+/** 0 to 100 in the corners, a missing value in the middle, and every band of five levels in between. */
 const DATA: WrHeatmapMatrix = [
   [0, 20, 40],
   [60, null, 80],
@@ -29,7 +29,7 @@ const DATA: WrHeatmapMatrix = [
       [color]="color()"
       [min]="min()"
       [max]="max()"
-      [steps]="steps()"
+      [levels]="levels()"
       [showValues]="showValues()"
       [showLegend]="showLegend()"
       [dataTable]="dataTable()"
@@ -46,7 +46,7 @@ class Host {
   readonly color = signal('var(--wr-color-primary)');
   readonly min = signal<number | null>(null);
   readonly max = signal<number | null>(null);
-  readonly steps = signal(5);
+  readonly levels = signal(5);
   readonly showValues = signal(false);
   readonly showLegend = signal(true);
   readonly dataTable = signal(false);
@@ -56,8 +56,8 @@ class Host {
 }
 
 /**
- * A cell's step is read through the level the component writes on it, from 0 (the lowest
- * step) to 1 (the colour itself): the stylesheet turns that into paint, and jsdom has no
+ * A cell's level is read off the `--wr-heatmap-chart-level` the component writes on it, from
+ * 0 (the lowest level) to 1 (the colour itself): the stylesheet turns that into paint, and jsdom has no
  * cascade to resolve it, so the level is the honest thing to hold. That the paint then
  * follows it is measured in a browser.
  */
@@ -120,13 +120,13 @@ describe('WrHeatmapChart', () => {
     expect(matrix.style.getPropertyValue('--wr-heatmap-chart-columns')).toBe('3');
   });
 
-  it("puts each value on its band's step, the scale cut into equal shares from the data's lowest to highest", () => {
+  it("puts each value on its band's level, the scale cut into equal shares from the data's lowest to highest", () => {
     // Five bands of 20 over 0..100: a value on a band's edge belongs to the band above,
-    // 19.99 to the band below, and the top value to the top step.
+    // 19.99 to the band below, and the top value to the top level.
     expect(levels()).toEqual(['0', '0.25', '0.5', '0.75', null, '1', '1', '0', '1']);
   });
 
-  it('holds the scale at a given min and max, and draws a value past either on the end step', () => {
+  it('holds the scale at a given min and max, and draws a value past either on the end level', () => {
     set(h => {
       h.min.set(20);
       h.max.set(60);
@@ -150,7 +150,7 @@ describe('WrHeatmapChart', () => {
     expect(levels()).toEqual(['0', '0.25', '0.5', '0.75', null, '1', '1', '0', '1']);
   });
 
-  it('draws a scale with no span as one step, the lowest, keyed by one swatch and one figure', () => {
+  it('draws a scale with no span as one level, the lowest, keyed by one swatch and one figure', () => {
     // An all-zero matrix is a day with nothing in it: a faint tint, never the peak.
     set(h =>
       h.data.set([
@@ -177,18 +177,18 @@ describe('WrHeatmapChart', () => {
     expect(text('.wr-heatmap-chart__legend > .wr-heatmap-chart__legend-label')).toEqual(['7']);
   });
 
-  it('cuts the scale into `steps` shares, held to 2..10', () => {
-    set(h => h.steps.set(3));
+  it('cuts the scale into `levels` shares, held to 2..10', () => {
+    set(h => h.levels.set(3));
     expect(levels()).toEqual(['0', '0', '0.5', '0.5', null, '1', '1', '0', '1']);
     expect(all('.wr-heatmap-chart__scale .wr-heatmap-chart__swatch')).toHaveLength(3);
 
-    set(h => h.steps.set(1));
+    set(h => h.levels.set(1));
     expect(all('.wr-heatmap-chart__scale .wr-heatmap-chart__swatch')).toHaveLength(2);
-    set(h => h.steps.set(40));
+    set(h => h.levels.set(40));
     expect(all('.wr-heatmap-chart__scale .wr-heatmap-chart__swatch')).toHaveLength(10);
   });
 
-  it('draws an empty cell as no data, never as the lowest step', () => {
+  it('draws an empty cell as no data, never as the lowest level', () => {
     // A null, a NaN, an infinity and a value a shorter row does not reach.
     set(h => {
       h.rows.set(['A', 'B']);
@@ -280,14 +280,14 @@ describe('WrHeatmapChart', () => {
     expect(all('.wr-heatmap-chart__value')).toHaveLength(3);
   });
 
-  it('writes the color on the host for the stylesheet to mix every step from', () => {
+  it('writes the color on the host for the stylesheet to mix every level from', () => {
     const chart = root().querySelector<HTMLElement>('wr-heatmap-chart')!;
     expect(chart.style.getPropertyValue('--wr-heatmap-chart-scale-color')).toBe('var(--wr-color-primary)');
     set(h => h.color.set('var(--wr-color-success)'));
     expect(chart.style.getPropertyValue('--wr-heatmap-chart-scale-color')).toBe('var(--wr-color-success)');
   });
 
-  it('keys the steps from the scale minimum to its maximum, hidden from a screen reader', () => {
+  it('keys the levels from the scale minimum to its maximum, hidden from a screen reader', () => {
     const legend = root().querySelector('.wr-heatmap-chart__legend')!;
     expect(legend.getAttribute('aria-hidden')).toBe('true');
     expect(text('.wr-heatmap-chart__legend > .wr-heatmap-chart__legend-label')).toEqual(['0', '100']);
@@ -686,17 +686,17 @@ describe('WrHeatmapChart stylesheet', () => {
     expect(Math.sqrt(1.05 * 0.05) - 0.05).toBeCloseTo(0.17913, 5);
   });
 
-  it('mixes every step in OKLab from the colour toward the surface, the lowest keeping a share of it', () => {
+  it('mixes every level in OKLab from the colour toward the surface, the lowest keeping a share of it', () => {
     for (const selector of ['.wr-heatmap-chart__cell', '.wr-heatmap-chart__swatch']) {
       expect(rule(selector)).toMatch(
         /background: color-mix\(in oklab, var\(--wr-heatmap-chart-scale-color, var\(--wr-color-primary\)\) calc\(var\(--wr-heatmap-chart-min-share\) \+ \(100% - var\(--wr-heatmap-chart-min-share\)\) \* var\(--wr-heatmap-chart-level, 1\)\), var\(--wr-heatmap-chart-surface\)\)/
       );
-      // The steps are the chart: forced colors would paint them as the page.
+      // The levels are the chart: forced colors would paint them as the page.
       expect(rule(selector)).toMatch(/forced-color-adjust: none/);
     }
   });
 
-  it('hatches and outlines an empty cell AFTER every step, so it replaces the paint', () => {
+  it('hatches and outlines an empty cell AFTER every level, so it replaces the paint', () => {
     const empty = css.indexOf('.wr-heatmap-chart__cell--empty, .wr-heatmap-chart__swatch--empty {');
     expect(empty).toBeGreaterThan(css.indexOf('.wr-heatmap-chart__swatch {'));
     expect(empty).toBeGreaterThan(css.indexOf('.wr-heatmap-chart__cell {'));
@@ -704,6 +704,22 @@ describe('WrHeatmapChart stylesheet', () => {
     expect(css.slice(empty)).toMatch(/^[^}]*outline: 1px dashed/);
     // The reading cell's ring comes later still, so an empty cell under the pointer is ringed.
     expect(css.indexOf('.wr-heatmap-chart__cell--active {')).toBeGreaterThan(empty);
+  });
+
+  it('positions every cell for good, so the ring under the pointer only raises one', () => {
+    // A hover that switched a grid item to `position: relative` laid the whole grid out
+    // again on every move: 5.6ms a move on a 100×100 matrix, against 1.8ms.
+    expect(rule('.wr-heatmap-chart__cell')).toMatch(/position: relative/);
+    expect(rule('.wr-heatmap-chart__cell')).toMatch(/z-index: 0/);
+    const active = rule('.wr-heatmap-chart__cell--active');
+    expect(active).toMatch(/z-index: 1/);
+    expect(active).not.toMatch(/position/);
+  });
+
+  it('keeps the sign of a figure first on an RTL page', () => {
+    // A figure has no strong character, so `-50` was laid out `50-` under `dir="rtl"`.
+    expect(rule('.wr-heatmap-chart__value')).toMatch(/unicode-bidi: plaintext/);
+    expect(rule('.wr-heatmap-chart__legend-label')).toMatch(/unicode-bidi: plaintext/);
   });
 
   it('keeps the empty cell and the ring in system colours under forced colors', () => {

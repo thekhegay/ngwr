@@ -5,9 +5,31 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
+import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
 import type { WrHeatmapChartCell, WrHeatmapChartHarnessFilters, WrHeatmapChartTableRow } from './types';
+
+/**
+ * A finite number off one of a cell's `data-*` attributes, or a sentence saying which one
+ * it lacks: `Number(null)` is `0`, so a lost binding read as a matrix of cells all at row 0,
+ * column 0, and every `getCell()` but the first threw about the wrong thing.
+ */
+async function numberAttribute(element: TestElement, name: string): Promise<number> {
+  const raw = await element.getAttribute(name);
+  const value = raw === null ? Number.NaN : Number.parseFloat(raw);
+  if (!Number.isFinite(value)) {
+    throw new Error(
+      `WrHeatmapChartHarness.getCells(): a cell carries ${name}="${raw ?? ''}", which the component writes as a ` +
+        'finite number on every cell.'
+    );
+  }
+  return value;
+}
+
+/** A cell's `data-value`: `null` for an empty cell, which writes none, else a finite number. */
+async function valueAttribute(element: TestElement): Promise<number | null> {
+  return (await element.getAttribute('data-value')) === null ? null : numberAttribute(element, 'data-value');
+}
 
 /** Whether any of `values` matches `pattern`. */
 async function anyMatches(values: Promise<string[]>, pattern: string | RegExp): Promise<boolean> {
@@ -36,9 +58,9 @@ class TableRowHarness extends ComponentHarness {
  *
  * **A cell's colour is not read.** Its paint is a `color-mix()` the stylesheet works out
  * from the level the component writes on it, and jsdom has no cascade to resolve one — a
- * computed read would answer the same for a cell on the right step and one on the wrong
+ * computed read would answer the same for a cell on the right level and one on the wrong
  * one. What {@link getCells} reads instead is what the component WROTE: the value and the
- * position on `data-*`, the step's level off the `style` attribute, and whether the cell
+ * position on `data-*`, the level off the `style` attribute, and whether the cell
  * is drawn empty. Those are what break when the data wiring does.
  *
  * **Whether a printed value fits is not read either.** The stylesheet hides a value wider
@@ -63,7 +85,7 @@ class TableRowHarness extends ComponentHarness {
  *
  * expect(await chart.getRowLabels()).toEqual(['Mon', 'Tue']);
  * expect((await chart.getCell(1, 0)).empty).toBe(true);
- * expect(await chart.getScaleLabels()).toEqual({ min: '0', max: '41' });
+ * expect(await chart.getScaleRange()).toEqual({ min: '0', max: '41' });
  * ```
  *
  * @see https://ngwr.dev/guides/testing
@@ -108,7 +130,7 @@ export class WrHeatmapChartHarness extends ComponentHarness {
   }
 
   /**
-   * Every cell, row by row: its position, its value, the step it was drawn on and the text
+   * Every cell, row by row: its position, its value, the level it was drawn on and the text
    * it prints. Read from `data-row`, `data-column` and `data-value`, which the component
    * writes for exactly this, and the level off the `style` ATTRIBUTE — never through
    * `getCssValue()`, which would resolve whatever the stylesheet says at exactly the
@@ -119,22 +141,15 @@ export class WrHeatmapChartHarness extends ComponentHarness {
     return Promise.all(
       cells.map(async cell => {
         const [row, column, value, style, empty, text] = await Promise.all([
-          cell.getAttribute('data-row'),
-          cell.getAttribute('data-column'),
-          cell.getAttribute('data-value'),
+          numberAttribute(cell, 'data-row'),
+          numberAttribute(cell, 'data-column'),
+          valueAttribute(cell),
           cell.getAttribute('style'),
           cell.hasClass('wr-heatmap-chart__cell--empty'),
           cell.text(),
         ]);
         const level = /--wr-heatmap-chart-level:\s*([\d.]+)/.exec(style ?? '');
-        return {
-          row: Number(row),
-          column: Number(column),
-          value: value === null ? null : Number(value),
-          level: level ? Number(level[1]) : null,
-          empty,
-          text,
-        };
+        return { row, column, value, level: level ? Number(level[1]) : null, empty, text };
       })
     );
   }
@@ -165,19 +180,19 @@ export class WrHeatmapChartHarness extends ComponentHarness {
    * Throws when the legend draws no scale — `showLegend` off, or no value and no bound to
    * scale — rather than answering with two empty strings.
    */
-  async getScaleLabels(): Promise<{ min: string; max: string }> {
-    await this.assertScale('getScaleLabels');
+  async getScaleRange(): Promise<{ min: string; max: string }> {
+    await this.assertScale('getScaleRange');
     const labels = await this.locatorForAll('.wr-heatmap-chart__legend > .wr-heatmap-chart__legend-label')();
     const [min, max = min] = await Promise.all(labels.map(label => label.text()));
     return { min, max };
   }
 
   /**
-   * How many steps the legend keys — `steps`, as drawn, or 1 for a scale with no span.
-   * Throws when it draws no scale, as {@link getScaleLabels} does.
+   * How many levels the legend keys — `levels`, as drawn, or 1 for a scale with no span.
+   * Throws when it draws no scale, as {@link getScaleRange} does.
    */
-  async getStepCount(): Promise<number> {
-    await this.assertScale('getStepCount');
+  async getLevelCount(): Promise<number> {
+    await this.assertScale('getLevelCount');
     return (await this.locatorForAll('.wr-heatmap-chart__scale .wr-heatmap-chart__swatch')()).length;
   }
 
@@ -209,7 +224,7 @@ export class WrHeatmapChartHarness extends ComponentHarness {
 
   /**
    * The data table's rows, one per row: its name and each column's value, as a screen
-   * reader walks them. A value outside a given `min` or `max` is drawn on the end step and
+   * reader walks them. A value outside a given `min` or `max` is drawn on the end level and
    * tabulated as itself; an empty cell is `noDataLabel`.
    *
    * Throws when the chart renders no table (`dataTable` off), for the reason

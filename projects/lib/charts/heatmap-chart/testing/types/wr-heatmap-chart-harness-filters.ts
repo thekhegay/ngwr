@@ -26,8 +26,8 @@ export interface WrHeatmapChartCell {
   /** Its value, or `null` for an empty cell: no data, which is not zero. */
   readonly value: number | null;
   /**
-   * Its step's place on the scale as the component wrote it, from 0 (the lowest step) to
-   * 1 (the colour itself); `null` for an empty cell, which is hatched instead.
+   * Its level as a place on the scale, as the component wrote it, from 0 (the lowest level)
+   * to 1 (the colour itself); `null` for an empty cell, which is hatched instead.
    */
   readonly level: number | null;
   /** Whether it is drawn as empty — hatched and outlined. */

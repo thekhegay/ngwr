@@ -11,7 +11,7 @@
  *
  * A cell is EMPTY — no data, which is not zero — when its value is `null`, is not a
  * finite number, or lies past the end of a shorter row. An empty cell is drawn hatched
- * and outlined, never as the lowest step of the scale.
+ * and outlined, never as the lowest level of the scale.
  */
 type WrHeatmapMatrix = readonly (readonly (number | null)[])[];
 

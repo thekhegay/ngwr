@@ -30,7 +30,7 @@ import { clamp } from 'ngwr/utils';
 
 import type { WrHeatmapMatrix } from './types';
 
-/** The scale's bounds: the lowest and the highest value a step is drawn for. */
+/** The scale's bounds: the lowest and the highest value a level is drawn for. */
 interface Scale {
   readonly min: number;
   readonly max: number;
@@ -55,7 +55,7 @@ interface Cell {
   /** Its value, or `null` for an empty cell: no data, which is not zero. */
   readonly value: number | null;
   /**
-   * Its step's place on the scale, from 0 (the lowest step) to 1 (the colour itself),
+   * Its level as a place on the scale, from 0 (the lowest level) to 1 (the colour itself),
    * rounded so the inline style stays short. `null` for an empty cell.
    */
   readonly level: number | null;
@@ -63,7 +63,7 @@ interface Cell {
   readonly text: string;
 }
 
-/** A value as a step reads it: a finite number, or `null` for an empty cell. */
+/** A value as the scale reads it: a finite number, or `null` for an empty cell. */
 const valueOf = (raw: unknown): number | null => (typeof raw === 'number' && Number.isFinite(raw) ? raw : null);
 
 /** A bound input: a finite number, or `null` for "from the data". */
@@ -78,7 +78,7 @@ const short = (value: number): number => Math.round(value * 1e4) / 1e4 || 0;
 
 /**
  * Heatmap chart: a matrix of values, a row per category on one side and a column per
- * category on the other, each cell painted a step of one colour by its value. For where
+ * category on the other, each cell painted a level of one colour by its value. For where
  * two categories meet — weekday by hour, region by month, feature by release. For a year
  * of days, `<wr-calendar-heatmap>` lays them out as a calendar. HTML and CSS only — no
  * external dependency.
@@ -98,20 +98,20 @@ const short = (value: number): number => Math.round(value * 1e4) / 1e4 || 0;
  * ```
  *
  * **The scale.** It runs from `min` to `max`, each the data's own unless given, and is cut
- * into `steps` equal bands. A cell takes its band's step: the lowest is a faint tint of
- * `color` and the highest is `color` itself, every step between mixed from the two in
- * OKLab, whose lightness moves evenly, so the steps look evenly spaced in either colour
- * scheme. A value outside a given `min` or `max` takes the end step; the tooltip and the
- * data table still give its own figure. A legend under the matrix keys the steps from the
+ * into `levels` equal bands. A cell takes its band's level: the lowest is a faint tint of
+ * `color` and the highest is `color` itself, every level between mixed from the two in
+ * OKLab, whose lightness moves evenly, so the levels look evenly spaced in either colour
+ * scheme. A value outside a given `min` or `max` takes the end level; the tooltip and the
+ * data table still give its own figure. A legend under the matrix keys the levels from the
  * scale's minimum to its maximum. A scale with no span — every value the same, an
- * all-zero matrix included — has one step, the lowest, and the legend keys that one.
+ * all-zero matrix included — has one level, the lowest, and the legend keys that one.
  *
  * **An empty cell is no data, never zero.** A `null`, a value that is not a finite number,
  * or one a shorter row does not reach is drawn hatched and outlined, not as the lowest
- * step, and the legend keys it while any cell is empty (`noDataLabel`).
+ * level, and the legend keys it while any cell is empty (`noDataLabel`).
  *
  * **Colour is the only thing that encodes a value here, by nature** — a heatmap is a
- * picture of where the values are high and low, and its steps are told apart by
+ * picture of where the values are high and low, and its levels are told apart by
  * lightness alone. So the value has a second channel in TEXT: `showValues` prints each
  * number in its cell, where it fits, and `dataTable` renders the whole matrix as a table a
  * screen reader walks. With neither, say what the chart shows in `ariaLabel`. A printed
@@ -141,7 +141,7 @@ const short = (value: number): number => Math.round(value * 1e4) / 1e4 || 0;
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-heatmap-chart',
-    // The highest step's colour, which every lower step is mixed from: read by the cells
+    // The highest level's colour, which every lower level is mixed from: read by the cells
     // and the legend's swatches.
     '[style.--wr-heatmap-chart-scale-color]': 'color()',
   },
@@ -152,7 +152,7 @@ export class WrHeatmapChart {
    * The values, rows × columns: one array per row, in the order of `rows`, each with one
    * value per column, in the order of `columns`. A `null`, a value that is not a finite
    * number, or one past the end of a shorter row is an EMPTY cell — no data, drawn hatched
-   * and outlined rather than as the lowest step.
+   * and outlined rather than as the lowest level.
    */
   readonly data = input<WrHeatmapMatrix>([]);
 
@@ -175,34 +175,34 @@ export class WrHeatmapChart {
   readonly columns = input<readonly string[]>([]);
 
   /**
-   * The colour of the highest step: any CSS colour, `var(--wr-…)` included. Every lower
-   * step is mixed from it toward the surface, the lowest a faint tint.
+   * The colour of the highest level: any CSS colour, `var(--wr-…)` included. Every lower
+   * level is mixed from it toward the surface, the lowest a faint tint.
    * @default 'var(--wr-color-primary)'
    */
   readonly color = input<string>('var(--wr-color-primary)');
 
   /**
-   * The value of the lowest step. `null` takes the lowest value in `data`; a value given
-   * holds the scale there, and a cell below it takes the lowest step. @default null
+   * The value of the lowest level. `null` takes the lowest value in `data`; a value given
+   * holds the scale there, and a cell below it takes the lowest level. @default null
    */
   readonly min = input<number | null, unknown>(null, { transform: boundOf });
 
   /**
-   * The value of the highest step. `null` takes the highest value in `data`; a value given
-   * holds the scale there, and a cell above it takes the highest step. Bounds given in the
+   * The value of the highest level. `null` takes the highest value in `data`; a value given
+   * holds the scale there, and a cell above it takes the highest level. Bounds given in the
    * wrong order are swapped. A scale with no span — every value the same, or `min` equal
-   * to `max` — has one step, the lowest: every value is drawn on it, an all-zero matrix
-   * as a faint tint rather than as the peak, and the legend keys that one step.
+   * to `max` — has one level, the lowest: every value is drawn on it, an all-zero matrix
+   * as a faint tint rather than as the peak, and the legend keys that one level.
    * @default null
    */
   readonly max = input<number | null, unknown>(null, { transform: boundOf });
 
   /**
-   * How many steps the scale is cut into, each an equal share of it from `min` to `max`:
-   * whole numbers from 2 to 10. Fewer steps are easier to tell apart; the value text and
-   * the data table carry what the steps round. @default 5
+   * How many levels the scale is cut into, each an equal share of it from `min` to `max`:
+   * whole numbers from 2 to 10. Fewer levels are easier to tell apart; the value text and
+   * the data table carry what the levels round. @default 5
    */
-  readonly steps = input(5, {
+  readonly levels = input(5, {
     transform: (v: unknown): number => {
       const value = Math.round(coerceNumberProperty(v, 5));
       return Number.isFinite(value) ? clamp(value, 2, 10) : 5;
@@ -215,7 +215,7 @@ export class WrHeatmapChart {
    * tooltip and the data table still carry it. Black or white, whichever reads better on
    * the cell — picked with CSS relative colour syntax; a browser without it (Firefox
    * before 128) prints the value on a small chip of the surface in the chart's text
-   * colour instead, which reads on every step. An empty cell prints nothing.
+   * colour instead, which reads on every level. An empty cell prints nothing.
    * @default false
    */
   readonly showValues = input(false, { transform: coerceBooleanProperty });
@@ -266,7 +266,7 @@ export class WrHeatmapChart {
 
   protected readonly resolvedNoDataLabel = useI18nText(this.noDataLabel, 'heatmapChart.noData', 'No data');
 
-  /** The cells' compact text and the exact figures, in `LOCALE_ID` unless `valueFormat` is given. */
+  /** The cells' compact text and the full figures, in `LOCALE_ID` unless `valueFormat` is given. */
   private readonly numbers = useChartNumbers(this.valueFormat);
 
   /** A row or column with no name is named by its position, written in `LOCALE_ID`. */
@@ -324,12 +324,20 @@ export class WrHeatmapChart {
     let lo = this.min();
     let hi = this.max();
     if (lo === null || hi === null) {
-      const values = this.values()
-        .flat()
-        .filter((v): v is number => v !== null);
-      if (values.length > 0) {
-        lo ??= Math.min(...values);
-        hi ??= Math.max(...values);
+      // A loop rather than `Math.min(...values)`: a spread passes every cell as an
+      // argument, and a large enough matrix overflows the call stack.
+      let low = Infinity;
+      let high = -Infinity;
+      for (const row of this.values()) {
+        for (const v of row) {
+          if (v === null) continue;
+          if (v < low) low = v;
+          if (v > high) high = v;
+        }
+      }
+      if (low !== Infinity) {
+        lo ??= low;
+        hi ??= high;
       }
     }
     if (lo === null || hi === null) return null;
@@ -337,13 +345,13 @@ export class WrHeatmapChart {
   });
 
   /**
-   * Every cell, row by row: its value, its step, and the text it prints. The step is the
-   * value's band — the scale cut into `steps` equal shares — as a place from 0 to 1; a
-   * scale with no span has one step, the lowest, and puts every value on it.
+   * Every cell, row by row: its value, its level, and the text it prints. The level is the
+   * value's band — the scale cut into `levels` equal shares — as a place from 0 to 1; a
+   * scale with no span has one level, the lowest, and puts every value on it.
    */
   protected readonly cells = computed<readonly Cell[]>(() => {
     const scale = this.scale();
-    const steps = this.steps();
+    const levels = this.levels();
     const print = this.showValues();
     return this.values().flatMap((row, r) =>
       row.map((value, c): Cell => {
@@ -351,12 +359,12 @@ export class WrHeatmapChart {
         const span = scale.max - scale.min;
         // The epsilon keeps a value ON a band's edge in the band above it: 0.3 × 10 is
         // 2.9999999999999996 in floating point.
-        const band = span === 0 ? 0 : Math.floor(clamp((value - scale.min) / span, 0, 1) * steps + 1e-9);
+        const band = span === 0 ? 0 : Math.floor(clamp((value - scale.min) / span, 0, 1) * levels + 1e-9);
         return {
           row: r,
           column: c,
           value,
-          level: short(Math.min(band, steps - 1) / (steps - 1)),
+          level: short(Math.min(band, levels - 1) / (levels - 1)),
           text: print ? this.numbers.label(value) : '',
         };
       })
@@ -368,19 +376,19 @@ export class WrHeatmapChart {
 
   /**
    * The legend's scale: its two ends, compact from a thousand as the cells print a value,
-   * and one swatch per step, each at its place on the scale. A scale with no span has one
-   * step, so one swatch and one label, and `max` is `null`. `null` with nothing to scale,
+   * and one swatch per level, each at its place on the scale. A scale with no span has one
+   * level, so one swatch and one label, and `max` is `null`. `null` with nothing to scale,
    * when the legend keys an empty cell alone.
    */
   protected readonly legend = computed(() => {
     const scale = this.scale();
     if (scale === null) return null;
     if (scale.min === scale.max) return { min: this.numbers.label(scale.min), max: null, levels: [0] };
-    const steps = this.steps();
+    const levels = this.levels();
     return {
       min: this.numbers.label(scale.min),
       max: this.numbers.label(scale.max),
-      levels: Array.from({ length: steps }, (_, k) => short(k / (steps - 1))),
+      levels: Array.from({ length: levels }, (_, k) => short(k / (levels - 1))),
     };
   });
 
