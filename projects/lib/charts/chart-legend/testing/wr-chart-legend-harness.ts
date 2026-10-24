@@ -110,8 +110,8 @@ class WrChartLegendRowHarness extends ComponentHarness {
 
 /**
  * Test harness for a `ul[wr-chart-legend]`, standalone or inside a chart that draws
- * its legend with one — the line, donut, meter group, scatter and radar harnesses
- * hand it back from `getLegendHarness()`.
+ * its legend with one — the bar, line, donut, meter group, scatter and radar
+ * harnesses hand it back from `getLegendHarness()`.
  *
  * **Everything it reads is text, ARIA or what the component wrote**: the rows' labels
  * and values, the colour written on each key (a dot's inline `background`, a line's
@@ -142,16 +142,16 @@ export class WrChartLegendHarness extends ComponentHarness {
 
   /** Build a predicate that narrows the query — pass to `getHarness` / `getAllHarnesses`. */
   static with(options: WrChartLegendHarnessFilters = {}): HarnessPredicate<WrChartLegendHarness> {
-    return new HarnessPredicate(WrChartLegendHarness, options).addOption(
-      'label',
-      options.label,
-      async (harness, label) => {
+    return new HarnessPredicate(WrChartLegendHarness, options)
+      .addOption('itemLabel', options.itemLabel, async (harness, label) => {
         for (const text of await harness.getLabels()) {
           if (await HarnessPredicate.stringMatches(text, label)) return true;
         }
         return false;
-      }
-    );
+      })
+      .addOption('ariaLabel', options.ariaLabel, (harness, label) =>
+        HarnessPredicate.stringMatches(harness.getAccessibleName(), label)
+      );
   }
 
   private readonly rows = this.locatorForAll(WrChartLegendRowHarness);

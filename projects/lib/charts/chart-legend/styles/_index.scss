@@ -84,6 +84,11 @@
 .wr-chart-legend__value {
   color: var(--wr-chart-legend-value-color);
   font-variant-numeric: tabular-nums;
+  // A value has no strong character of its own, so on an RTL page the minus of `-350` —
+  // a meter group keeps a negative segment's value on purpose — landed after the
+  // digits. Plaintext takes the direction from the text, as the tooltip's value does:
+  // the sign stays first, and a value written in Arabic still reads right to left.
+  unicode-bidi: plaintext;
 }
 
 // A whole row is the button: the key, the name and the value are one target, and the

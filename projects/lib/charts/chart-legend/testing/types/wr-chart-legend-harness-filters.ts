@@ -10,7 +10,9 @@ import type { BaseHarnessFilters } from '@angular/cdk/testing';
 /** Narrows which `ul[wr-chart-legend]` a harness query matches. */
 export interface WrChartLegendHarnessFilters extends BaseHarnessFilters {
   /** Match a legend holding a row with this label. */
-  readonly label?: string | RegExp;
+  readonly itemLabel?: string | RegExp;
+  /** Match a legend by the list's accessible name. */
+  readonly ariaLabel?: string | RegExp;
 }
 
 /** One legend row as {@link WrChartLegendHarness.getItems} reads it. */

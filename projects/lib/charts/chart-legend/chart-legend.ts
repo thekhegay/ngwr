@@ -21,8 +21,8 @@ const NO_OVERRIDE = signal<string | null>(null).asReadonly();
 /**
  * A chart's key: one row per series, each a swatch, a name and an optional value.
  * It stands on its own for a key that several charts share — one legend above a row
- * of sparklines — and the line, donut, meter group, scatter and radar charts draw
- * their own legends with it.
+ * of sparklines — and the bar, line, donut, meter group, scatter and radar charts
+ * draw their own legends with it.
  *
  * It sits on a `<ul>` the way `button[wr-btn]` sits on a `<button>`, and renders the
  * `<li>`s, so the list is the consumer's element: its class, its placement, its

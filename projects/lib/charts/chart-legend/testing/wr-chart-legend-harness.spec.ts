@@ -17,7 +17,7 @@ const ITEMS: readonly WrChartLegendItem[] = [
   imports: [WrChartLegend],
   template: `
     <ul wr-chart-legend [items]="items()" [toggleable]="toggleable()" [(hiddenSeries)]="hidden"></ul>
-    <ul wr-chart-legend [items]="other"></ul>
+    <ul wr-chart-legend [items]="other" ariaLabel="Other sources"></ul>
   `,
 })
 class Host {
@@ -31,7 +31,8 @@ describe('WrChartLegendHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
   let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
 
-  const legend = (): Promise<WrChartLegendHarness> => loader.getHarness(WrChartLegendHarness.with({ label: 'Visits' }));
+  const legend = (): Promise<WrChartLegendHarness> =>
+    loader.getHarness(WrChartLegendHarness.with({ itemLabel: 'Visits' }));
   const list = (): HTMLUListElement => (fixture.nativeElement as HTMLElement).querySelector('ul')!;
 
   beforeEach(() => {
@@ -45,9 +46,16 @@ describe('WrChartLegendHarness', () => {
 
   it('finds a legend by a label it holds', async () => {
     expect(await loader.getAllHarnesses(WrChartLegendHarness)).toHaveLength(2);
-    expect(await (await loader.getHarness(WrChartLegendHarness.with({ label: /where/ }))).getLabels()).toEqual([
+    expect(await (await loader.getHarness(WrChartLegendHarness.with({ itemLabel: /where/ }))).getLabels()).toEqual([
       'Elsewhere',
     ]);
+  });
+
+  it("finds a legend by the list's own name", async () => {
+    expect(
+      await (await loader.getHarness(WrChartLegendHarness.with({ ariaLabel: 'Other sources' }))).getLabels()
+    ).toEqual(['Elsewhere']);
+    expect(await loader.getAllHarnesses(WrChartLegendHarness.with({ ariaLabel: /nothing/ }))).toHaveLength(0);
   });
 
   it('reads every row: its text, the key and the colour written on it', async () => {
@@ -86,7 +94,7 @@ describe('WrChartLegendHarness', () => {
   it('reads a solid line as an empty dash', async () => {
     fixture.componentInstance.items.set([{ label: 'Solid', color: 'red', dash: '' }]);
     fixture.detectChanges();
-    const [item] = await (await loader.getHarness(WrChartLegendHarness.with({ label: 'Solid' }))).getItems();
+    const [item] = await (await loader.getHarness(WrChartLegendHarness.with({ itemLabel: 'Solid' }))).getItems();
     expect(item.dash).toBe('');
   });
 
