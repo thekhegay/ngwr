@@ -120,7 +120,7 @@ export const UPDATED = {
   "reference/components/textarea": "15.0.0",
   "reference/components/timeline": "15.0.0",
   "reference/components/toast": "15.0.0",
-  "reference/components/window": "15.0.0",
+  "reference/components/window": "15.1.0",
   "reference/directives/typography": "15.0.0",
   "reference/interfaces/catalog": "15.1.0",
   "reference/interfaces/theme": "15.0.0",
