@@ -86,7 +86,7 @@
     "@types/jsdom": "^30.0.0",
     "@types/node": "^26.6.5",
     "@types/semver": "^7.8.0",
-    "@vitest/coverage-v8": "4.1.11",
+    "@vitest/coverage-v8": "4.1.12",
     "angular-eslint": "^22.6.0",
     "axe-core": "^4.14.0",
     "bootstrap-icons": "^1.13.2",
@@ -111,15 +111,15 @@
     "prosemirror-model": "^1.25.12",
     "prosemirror-schema-list": "^1.5.1",
     "prosemirror-state": "^1.4.4",
-    "prosemirror-view": "^1.42.6",
+    "prosemirror-view": "^1.42.8",
     "semver": "^7.8.5",
     "simple-git-hooks": "^2.14.0",
     "stylelint": "^17.16.0",
     "stylelint-config-standard-scss": "^17.0.0",
-    "stylelint-scss": "^7.3.0",
+    "stylelint-scss": "^7.4.0",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.72.0",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   }
 }
