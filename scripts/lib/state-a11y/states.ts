@@ -268,7 +268,47 @@ export const STATES: readonly State[] = [
     steps: [{ click: demo('.wr-btn:has-text("macOS")') }, { wait: 300 }],
     target: '.wr-window',
     scope: '.wr-window',
-    note: 'macOS chrome: three 14px traffic lights, all under the 24px target size.',
+    note: 'macOS chrome: 24px buttons painting 14px traffic lights, so target-size passes since 15.1.0.',
+  },
+  {
+    id: 'window/inactive',
+    route: `${REF}/window`,
+    // Two windows: the second takes the keyboard, and the first dims its title
+    // bar and greys its traffic lights. A colour pair no page at rest paints,
+    // and the one 15.1.0 added.
+    steps: [
+      { click: demo('.wr-btn:has-text("Open first")') },
+      { wait: 300 },
+      { click: demo('.wr-btn:has-text("Open second")') },
+      { wait: 300 },
+    ],
+    target: '.wr-window--inactive .wr-window__title',
+    scope: '.wr-window--inactive',
+  },
+  {
+    id: 'window/keyboard-move',
+    route: `${REF}/window`,
+    // Alt+F7's mode: the dashed ring and the live region that says how to use
+    // it. Reached through the demo's own button, since a forced key press would
+    // need focus inside a window that has just opened.
+    steps: [
+      { click: '#keyboard-move-and-resize ngwr-doc-snippet .wr-btn:has-text("Open window")' },
+      { wait: 300 },
+      { click: demo('.wr-btn:has-text("Move with the keyboard")') },
+      { wait: 200 },
+    ],
+    target: '.wr-window--keyboard-moving',
+    scope: '.wr-window--keyboard-moving',
+  },
+  {
+    id: 'window/slots',
+    route: `${REF}/window`,
+    // Consumer content in the title bar (a tag) and a status bar under the body,
+    // both new in 15.1.0 and both inside the dialog's own name and structure.
+    // The section's id, since its one button reads "Open window" like three others.
+    steps: [{ click: '#title-bar-and-status-bar ngwr-doc-snippet .wr-btn' }, { wait: 300 }],
+    target: '.wr-window__status-bar',
+    scope: '.wr-window:has(.wr-window__status-bar)',
   },
   {
     id: 'window/chrome-windows',
@@ -497,6 +537,21 @@ export const STATES: readonly State[] = [
       { wait: 400 },
     ],
     target: '.wr-window-taskbar__tab',
+    scope: '.wr-window-taskbar',
+  },
+  {
+    id: 'window/taskbar-all',
+    route: `${REF}/window`,
+    // `show="all"`: a tab per open window, the active one pressed. Its own
+    // modifier and `aria-pressed`, neither of which the minimized-only rail has.
+    steps: [
+      { click: demo('.wr-segmented__option:has-text("All")') },
+      { click: demo('.wr-btn:has-text("Open inbox")') },
+      { wait: 300 },
+      { click: demo('.wr-btn:has-text("Open editor")') },
+      { wait: 400 },
+    ],
+    target: '.wr-window-taskbar__tab--active',
     scope: '.wr-window-taskbar',
   },
   {
