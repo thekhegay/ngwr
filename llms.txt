@@ -117,7 +117,8 @@ providers: [
 
 The features are `withDensity` (`ngwr/density`), `withTheme` (`ngwr/theme`),
 `withToast` (`ngwr/toast`), `withDates` (`ngwr/date`), `withStorage`
-(`ngwr/storage`) and `withMeta` (`ngwr/meta`). Every one is optional, the same
+(`ngwr/storage`), `withMeta` (`ngwr/meta`) and `withWindows` (`ngwr/window`).
+Every one is optional, the same
 feature twice throws in dev mode, and all but `withDates` configure a root
 service, so they belong at bootstrap rather than in a route. The theme needs no
 feature: the `--wr-*` tokens are plain CSS and dark mode follows
@@ -391,7 +392,10 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `inject(WrDrawerRef)` to close itself. Windows are service-opened too: there
   is no `<wr-window>`, `WrWindowManager.open()` (ngwr/window) opens one and
   moves focus into it (`autoFocus: false` for a background window), and
-  `<wr-window-taskbar>` lists the minimized ones.)
+  `<wr-window-taskbar>` lists the minimized ones, or every window with
+  `show="all"`. Alt+F7 / Alt+F8 move and resize the focused window from the
+  keyboard, and the manager can `cascade()`, `tile()` and cycle the active
+  window.)
 - **Bits** — the animation and visual-effect components: text effects, cursor
   effects, backgrounds and blocks, each its own entry point at
   `ngwr/bits/<name>` (`ngwr/bits/aurora`), documented under

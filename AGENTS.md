@@ -156,7 +156,7 @@ one component folder. Reach for them instead of hand-rolling:
 
 - **App-wide configuration is ONE call since v15: `provideWr(...features)`**,
   in the shape Angular gives `provideRouter(routes, withX())` —
-  `provideWr(withDensity(), withToast({ duration: 6000 }), withTheme(), withDates(), withStorage(), withMeta())`.
+  `provideWr(withDensity(), withToast({ duration: 6000 }), withTheme(), withDates(), withStorage(), withMeta(), withWindows())`.
   `provideWr` is the only export of the ROOT entry point
   (`projects/lib/provide-wr.ts`, re-exported by `public-api.ts`): it flattens
   the features through `makeEnvironmentProviders`, works at bootstrap and in a
@@ -2133,13 +2133,15 @@ because it is guidance rather than a plan.
 - `wr-alert` does not use one live region: danger interrupts
   (`role="alert"` / assertive), warning is assertive without interrupting,
   the rest wait their turn — and all of it goes away on dismiss.
-- `<wr-window>`'s `moved` fires ONCE when a header drag ends, with the final
-  position, and stays silent for `moveTo()` / `center()` / the opening cascade:
+- `WrWindowRef.moved` fires ONCE when a drag or a keyboard move ends, with the
+  final position, and when a drag snaps the window; a press that moved nothing
+  emits nothing, and `moveTo()` / `center()` / the opening cascade stay silent:
   the caller already knows where it put the window. `resized` is the same shape.
-  This entry used to say "while the header is dragged, once per pointer move",
-  and so did the output's own JSDoc — both wrong since the emit has always sat
-  in the `pointerup` / `pointercancel` cleanup. A consumer persisting the
-  position wants the landing rather than the path, which is what it does.
+  The pair lived on the internal `<wr-window>` until 15.1.0 moved them to the
+  ref. This entry used to say "while the header is dragged, once per pointer
+  move", and so did the output's own JSDoc — both wrong since the emit has
+  always sat in the drag's cleanup. A consumer persisting the position wants
+  the landing rather than the path, which is what it does.
 - `wr-tour` skips a step whose target is missing (a tour has to survive a
   feature behind a flag) while the progress line still counts every step it
   was given.
