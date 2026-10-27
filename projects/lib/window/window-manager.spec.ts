@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
 import { createMemoryStorage, withStorage } from 'ngwr/storage';
+import { withWindows } from 'ngwr/window';
 // Through the ENTRY POINT, deliberately: `readLayout()`'s element type was declared
 // unexported in the service file, so a consumer compiled with `declaration: true`
 // — every downstream Angular library — could not store the result on an exported
@@ -168,7 +169,7 @@ describe('WrWindowManager', () => {
       expect(hook).toHaveBeenCalledTimes(1);
       expect(manager.windows()).toEqual([ref]);
       expect(windowEl(ref).classList.contains('wr-window--closed')).toBe(false);
-      expect(windowEl(ref).getAttribute('aria-hidden')).toBe('false');
+      expect(windowEl(ref).getAttribute('aria-hidden')).not.toBe('true');
     });
 
     it('still closes from the chrome button when the hook agrees', async () => {
@@ -334,6 +335,30 @@ describe('WrWindowManager', () => {
       expect(editor.state()).toBe('minimized');
     });
 
+    it('leaves an Escape that something inside the window already claimed', () => {
+      manager.open(Body, { id: 'a' });
+      TestBed.tick();
+      const host = document.querySelector<HTMLElement>('wr-window')!;
+      host.addEventListener('keydown', event => event.preventDefault());
+
+      host.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      TestBed.tick();
+
+      expect(manager.windows()).toHaveLength(1);
+    });
+
+    it('reads closeOnEscape when the key arrives, so update() reaches an open window', () => {
+      const ref = manager.open(Body, { id: 'a' });
+      TestBed.tick();
+      ref.update({ closeOnEscape: false });
+      const host = document.querySelector<HTMLElement>('wr-window')!;
+
+      host.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      TestBed.tick();
+
+      expect(manager.windows()).toHaveLength(1);
+    });
+
     it('puts one dialog role on a window, the named one', () => {
       const ref = manager.open(Body, { title: 'Named' });
       TestBed.tick();
@@ -353,15 +378,36 @@ describe('WrWindowManager', () => {
       expect([b.x - a.x, b.y - a.y]).toEqual([30, 30]);
     });
 
-    it('wraps the cascade instead of walking off the screen', () => {
-      const first = manager.nextStartOffset();
-      for (let i = 0; i < 9; i++) manager.nextStartOffset();
-      const eleventh = manager.nextStartOffset();
+    it('wraps the cascade instead of walking off the screen, shifting each lap', () => {
+      const lap = Array.from({ length: 10 }, () => manager.nextStartOffset());
+      const next = Array.from({ length: 10 }, () => manager.nextStartOffset());
 
-      // Ten opens later the offset returns to the start; without the wrap the
-      // eleventh window spawns 300px further down and the twentieth is off the
-      // bottom of the viewport.
-      expect(eleventh).toEqual(first);
+      // Ten opens later the offset comes back near the start; without the wrap
+      // the eleventh window spawns 300px further down and the twentieth is off
+      // the bottom of the viewport.
+      expect(next[0].x - lap[0].x).toBeLessThan(30);
+      expect(next[0].y).toBe(lap[0].y);
+      // And not EXACTLY to the start: windows eleven to twenty used to open
+      // precisely on top of windows one to ten, ten of twenty hidden.
+      const firstLap = new Set(lap.map(o => `${o.x},${o.y}`));
+      expect(next.filter(o => firstLap.has(`${o.x},${o.y}`))).toEqual([]);
+    });
+
+    it('puts no two of fifty windows exactly on top of each other', () => {
+      const all = Array.from({ length: 50 }, () => manager.nextStartOffset()).map(o => `${o.x},${o.y}`);
+
+      // A shift on both axes put lap three exactly onto lap one, a step along.
+      expect(new Set(all).size).toBe(50);
+    });
+
+    it('starts the cascade from the right edge in a right-to-left page', () => {
+      TestBed.inject(Directionality).valueSignal.set('rtl');
+      const ref = manager.open(Body, { width: 300, height: 200 });
+      TestBed.tick();
+
+      // jsdom's viewport is 1024 wide: the first cascade step is 50px in from
+      // the START edge, which is the right one here.
+      expect(ref.x() + ref.width()).toBe(1024 - 50);
     });
   });
 
@@ -372,9 +418,9 @@ describe('WrWindowManager', () => {
 
       manager.saveLayout('default');
 
-      const saved: readonly WrWindowLayoutSnapshot[] | null = manager.readLayout('default');
-      expect(saved).toHaveLength(1);
-      expect(saved![0].id).toBe('editor');
+      const layout: readonly WrWindowLayoutSnapshot[] | null = manager.readLayout('default');
+      expect(layout).toHaveLength(1);
+      expect(layout![0].id).toBe('editor');
     });
 
     it('saves the geometry the user chose, not the one the state imposes', () => {
@@ -469,7 +515,7 @@ describe('WrWindowManager', () => {
     });
 
     it('seeds the reopened window at the saved geometry, not the cascade', () => {
-      manager.open(Body, { id: 'editor', title: 'Untitled.md', x: 400, y: 250, width: 640, height: 480 });
+      manager.open(Body, { id: 'editor', title: 'Untitled.md', x: 300, y: 250, width: 640, height: 480 });
       TestBed.tick();
       manager.saveLayout('default');
       manager.closeAll();
@@ -485,8 +531,27 @@ describe('WrWindowManager', () => {
       const reopened = manager.findById('editor')!;
       // Seeded as INITIAL config, not applied after mount: applying it later is
       // what makes a restored workspace flicker through the cascade position.
-      expect([reopened.x(), reopened.y(), reopened.width(), reopened.height()]).toEqual([400, 250, 640, 480]);
+      expect([reopened.x(), reopened.y(), reopened.width(), reopened.height()]).toEqual([300, 250, 640, 480]);
       expect(reopened.title()).toBe('Untitled.md');
+    });
+
+    it('saves and restores the half a window was snapped to', () => {
+      const ref = manager.open(Body, { id: 'editor', x: 100, y: 100, width: 400, height: 300 });
+      TestBed.tick();
+      ref.snapTo('left');
+      manager.saveLayout('default');
+      manager.closeAll();
+      TestBed.tick();
+
+      manager.restoreLayout('default', id => manager.open(Body, { id }));
+      TestBed.tick();
+
+      const back = manager.findById('editor')!;
+      expect(back.snap()).toBe('left');
+      expect([back.x(), back.width()]).toEqual([0, 512]);
+      // And its own geometry is still underneath, for when it leaves the snap.
+      back.restore();
+      expect([back.x(), back.y(), back.width(), back.height()]).toEqual([100, 100, 400, 300]);
     });
 
     it('drops a pending restore the opener never used', () => {
@@ -511,6 +576,55 @@ describe('WrWindowManager', () => {
   });
 
   describe('persisted position', () => {
+    const saved = (key: string): unknown => engine.getItem(key) && JSON.parse(engine.getItem(key)!);
+
+    /** Let the debounced autosave land. */
+    const settle = async (): Promise<void> => {
+      await new Promise<void>(resolve => setTimeout(resolve, 250));
+      TestBed.tick();
+    };
+
+    it('saves the geometry as it changes and opens there next time', async () => {
+      const cfg = { key: 'editor', prefix: 'app' };
+      const first = manager.open(Body, { id: 'editor', storage: cfg, x: 100, y: 100, width: 400, height: 300 });
+      TestBed.tick();
+      first.moveTo(220, 140);
+      first.resizeTo(500, 320);
+      TestBed.tick();
+      await settle();
+      expect(saved('wr:window:app:editor')).toBeTruthy();
+      await first.close();
+      TestBed.tick();
+
+      const again = manager.open(Body, { id: 'editor', storage: cfg });
+      TestBed.tick();
+
+      expect([again.x(), again.y(), again.width(), again.height()]).toEqual([220, 140, 500, 320]);
+    });
+
+    it('fits saved geometry into a smaller viewport, the way it fits a cascade', () => {
+      // Saved on a desktop: 1100 wide at x 900.
+      engine.setItem('wr:window:app:editor', JSON.stringify({ x: 900, y: 300, width: 1100, height: 700 }));
+
+      const ref = manager.open(Body, { id: 'editor', storage: { key: 'editor', prefix: 'app' } });
+      TestBed.tick();
+
+      // jsdom's 1024x768: it used to open 1100 wide at x 900, its close button
+      // far off the right edge and 24px of it on the glass.
+      expect(ref.x()).toBeGreaterThanOrEqual(0);
+      expect(ref.x() + ref.width()).toBeLessThanOrEqual(1024);
+      expect(ref.y() + ref.height()).toBeLessThanOrEqual(768);
+    });
+
+    it("holds saved geometry to the window's own bounds", () => {
+      engine.setItem('wr:window:app:editor', JSON.stringify({ x: 10, y: 10, width: 100, height: 50 }));
+
+      const ref = manager.open(Body, { storage: { key: 'editor', prefix: 'app' }, minWidth: 300, minHeight: 200 });
+      TestBed.tick();
+
+      expect([ref.width(), ref.height()]).toEqual([300, 200]);
+    });
+
     it('clears the key a window stores its geometry under', () => {
       const cfg = { key: 'editor', prefix: 'my-app' };
       manager.open(Body, { id: 'editor', storage: cfg });
@@ -594,5 +708,76 @@ describe('WrWindowManager follows a direction change while a window is open', ()
     flip('rtl');
 
     expect(wrappers().map(w => w.getAttribute('dir'))).toEqual(['rtl']);
+  });
+});
+
+/**
+ * The work area: what maximize, snapping, keep-in-viewport and the cascade
+ * keep a window inside. jsdom's viewport is 1024x768 and lays nothing out, so
+ * an element used as bounds is given a box by hand.
+ */
+describe('WrWindowManager work area', () => {
+  let manager: WrWindowManager;
+
+  const mount = (providers: unknown[] = []): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [provideWr(withStorage({ engine: () => createMemoryStorage() }), ...(providers as never[]))],
+    });
+    manager = TestBed.inject(WrWindowManager);
+  };
+
+  afterEach(() => {
+    manager.closeAll();
+    TestBed.resetTestingModule();
+    vi.restoreAllMocks();
+  });
+
+  it('maximizes and snaps inside viewport insets', () => {
+    mount();
+    const ref = manager.open(Body, { bounds: { top: 64, left: 200 } });
+    TestBed.tick();
+
+    ref.maximize();
+    expect([ref.x(), ref.y(), ref.width(), ref.height()]).toEqual([200, 64, 824, 704]);
+
+    ref.snapTo('right');
+    expect([ref.x(), ref.y(), ref.width(), ref.height()]).toEqual([200 + 412, 64, 412, 704]);
+  });
+
+  it('cascades from the corner of the work area and keeps a window below its top', () => {
+    mount();
+    const ref = manager.open(Body, { bounds: { top: 64 } });
+    TestBed.tick();
+    expect(ref.y()).toBe(64 + 50);
+
+    ref.moveTo(100, 0);
+    expect(ref.y()).toBe(64);
+  });
+
+  it("takes the app-wide bounds from withWindows(), and a window's own over them", () => {
+    mount([provideWr(withWindows({ bounds: { top: 100 } }))]);
+    const app = manager.open(Body, {});
+    const own = manager.open(Body, { bounds: 'viewport' });
+    TestBed.tick();
+    app.maximize();
+    own.maximize();
+
+    expect([app.y(), own.y()]).toEqual([100, 0]);
+  });
+
+  it('keeps a window inside an element used as bounds', () => {
+    mount();
+    const desk = document.body.appendChild(document.createElement('div'));
+    vi.spyOn(desk, 'getBoundingClientRect').mockReturnValue(new DOMRect(100, 50, 600, 400));
+
+    const ref = manager.open(Body, { bounds: desk, width: 300, height: 200 });
+    TestBed.tick();
+    expect(ref.x()).toBeGreaterThanOrEqual(100);
+    expect(ref.y()).toBeGreaterThanOrEqual(50);
+
+    ref.maximize();
+    expect([ref.x(), ref.y(), ref.width(), ref.height()]).toEqual([100, 50, 600, 400]);
+    desk.remove();
   });
 });

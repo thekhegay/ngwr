@@ -349,6 +349,11 @@ export const wrIt: WrI18nCatalog = {
     closeWindow: 'Chiudi finestra',
     untitled: 'Senza titolo',
     taskbar: 'Finestre ridotte a icona',
+    taskbarAll: 'Finestre aperte',
+    moveMode: 'Spostamento della finestra. Usa i tasti freccia, Invio per terminare ed Esc per annullare.',
+    resizeMode: 'Ridimensionamento della finestra. Usa i tasti freccia, Invio per terminare ed Esc per annullare.',
+    moved: 'Finestra spostata in {{x}}, {{y}}',
+    resized: 'Finestra ridimensionata a {{width}} per {{height}}',
   },
   dialog: {
     close: 'Chiudi finestra di dialogo',

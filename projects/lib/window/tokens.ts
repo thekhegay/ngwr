@@ -7,6 +7,7 @@
 
 import { InjectionToken } from '@angular/core';
 
+import type { WrWindowDefaults } from './types';
 import type { WrWindowRef } from './window-ref';
 
 /** Resolves to the active `WrWindowRef` inside a programmatically-opened window's content tree. */
@@ -14,3 +15,6 @@ export const WR_WINDOW_REF = new InjectionToken<WrWindowRef<unknown, unknown>>('
 
 /** Resolves to the `data` passed in `WrWindowConfig.data`. */
 export const WR_WINDOW_DATA = new InjectionToken<unknown>('WR_WINDOW_DATA');
+
+/** What `withWindows()` provides. @internal */
+export const WR_WINDOW_DEFAULTS = new InjectionToken<WrWindowDefaults>('WR_WINDOW_DEFAULTS');

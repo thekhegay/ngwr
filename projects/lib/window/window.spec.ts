@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { WrWindowManager, WrWindowTaskbar } from 'ngwr/window';
+import { WR_WINDOW_REF, WrWindowManager, WrWindowTaskbar } from 'ngwr/window';
 import type { WrWindowChromeSize, WrWindowOs, WrWindowSize, WrWindowSnap } from 'ngwr/window';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -16,6 +16,34 @@ class PickedBody {}
 
 @Component({ imports: [WrWindowTaskbar], template: '<wr-window-taskbar />' })
 class TaskbarHost {}
+
+@Component({ template: '<p class="grip">Drag me</p><button type="button" class="in-grip">Go</button>' })
+class GripBody {}
+
+/** A body that drives its window from its own constructor — before the window has rendered. */
+@Component({ template: '<p>eager</p>' })
+class EagerBody {
+  constructor() {
+    const ref = inject(WR_WINDOW_REF);
+    ref.setTitle('Set in constructor');
+    ref.moveTo(300, 200);
+    ref.maximize();
+  }
+}
+
+const pointerEvent = (type: string, init: Record<string, unknown> = {}): Event => {
+  const event = new Event(type, { bubbles: true, cancelable: true });
+  Object.assign(event, { pointerId: 1, button: 0, isPrimary: true, clientX: 0, clientY: 0, ...init });
+  return event;
+};
+
+/** A complete drag on `el`: press at `from`, move to `to`, let go. */
+const dragOn = (el: HTMLElement, from: readonly [number, number], to: readonly [number, number]): void => {
+  el.dispatchEvent(pointerEvent('pointerdown', { clientX: from[0], clientY: from[1] }));
+  el.dispatchEvent(pointerEvent('pointermove', { clientX: to[0], clientY: to[1], buttons: 1 }));
+  el.dispatchEvent(pointerEvent('pointerup', { clientX: to[0], clientY: to[1] }));
+  TestBed.tick();
+};
 
 /**
  * The window is opened through the manager rather than by importing `WrWindow`,
@@ -158,6 +186,71 @@ describe('WrWindow presentational inputs', () => {
     expect(host().style.width).toBe(`${width}px`);
     expect(host().style.height).toBe(`${height}px`);
   });
+});
+
+/**
+ * The caption glyphs, which are each platform's own and are drawn on its own
+ * grid: 10px for Windows 11, Adwaita's 16px for GNOME, 8px for the macOS lights.
+ * jsdom paints nothing, so what these hold is the part a refactor breaks without
+ * anyone looking: which grid each chrome draws on, that every glyph stays out of
+ * the accessibility tree (the button's `aria-label` is its name), and that the
+ * maximize button draws a DIFFERENT glyph once the window is maximized. The
+ * label changing while the picture stays put is how a restore button lies.
+ */
+describe('WrWindow caption glyphs', () => {
+  let manager: WrWindowManager;
+
+  const host = (): HTMLElement => document.querySelector<HTMLElement>('.wr-window')!;
+  const glyphs = (): SVGSVGElement[] => [...host().querySelectorAll<SVGSVGElement>('.wr-window__chrome-action svg')];
+  const maximizeGlyph = (): string =>
+    host().querySelector('.wr-window__chrome-action--maximize .wr-window__chrome-action-glyph')!.innerHTML;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    manager = TestBed.inject(WrWindowManager);
+  });
+
+  afterEach(() => {
+    manager.closeAll();
+    TestBed.resetTestingModule();
+  });
+
+  it.each<[Exclude<WrWindowOs, 'auto'>, string]>([
+    ['windows', '0 0 10 10'],
+    ['linux', '0 0 16 16'],
+    ['macos', '0 0 8 8'],
+  ])('%s draws every glyph on its own grid, hidden from assistive tech', (os, viewBox) => {
+    manager.open(Body, { title: 'T', os, showMinimize: true, showMaximize: true });
+    TestBed.tick();
+
+    const svgs = glyphs();
+    expect(svgs).toHaveLength(3);
+    for (const svg of svgs) {
+      expect(svg.classList).toContain('wr-window__chrome-action-glyph');
+      expect(svg.getAttribute('viewBox')).toBe(viewBox);
+      expect(svg.getAttribute('aria-hidden')).toBe('true');
+    }
+  });
+
+  it.each<Exclude<WrWindowOs, 'auto'>>(['windows', 'linux', 'macos'])(
+    '%s draws restore differently from maximize',
+    os => {
+      const ref = manager.open(Body, { title: 'T', os, showMaximize: true });
+      TestBed.tick();
+      const maximize = maximizeGlyph();
+
+      ref.maximize();
+      TestBed.tick();
+
+      expect(host().classList).toContain('wr-window--maximized');
+      expect(maximizeGlyph()).not.toBe(maximize);
+
+      ref.restore();
+      TestBed.tick();
+
+      expect(maximizeGlyph()).toBe(maximize);
+    }
+  );
 });
 
 /**
@@ -826,5 +919,377 @@ describe('WrWindow focus', () => {
 
       expect([ref.x(), ref.y()]).toEqual([100, 100]);
     });
+  });
+});
+
+/**
+ * One spec per defect the v15.1 window audit found, each written to fail on the
+ * code it was found in. The window is driven the way a user or a host drives it
+ * — pointer events, the ref — and the answer read off inline styles, classes and
+ * the ref's signals.
+ */
+describe('WrWindow audit regressions', () => {
+  let manager: WrWindowManager;
+
+  const host = (): HTMLElement => document.querySelector<HTMLElement>('wr-window')!;
+  const box = (): string => [host().style.left, host().style.top, host().style.width, host().style.height].join(' ');
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    manager = TestBed.inject(WrWindowManager);
+  });
+
+  afterEach(() => {
+    manager.closeAll();
+    TestBed.resetTestingModule();
+  });
+
+  describe('dragHandle', () => {
+    it('moves the window from a handle in the BODY', () => {
+      manager.open(GripBody, {
+        title: 'T',
+        os: 'windows',
+        x: 200,
+        y: 150,
+        width: 480,
+        height: 320,
+        dragHandle: '.grip',
+      });
+      TestBed.tick();
+
+      // The press used to be heard on the title bar only, so a selector naming
+      // anything in the body could never match and the window never moved.
+      dragOn(host().querySelector<HTMLElement>('.grip')!, [300, 300], [360, 340]);
+
+      expect([host().style.left, host().style.top]).toEqual(['260px', '190px']);
+    });
+
+    it('replaces the title bar as the grab area, unless the selector names it', () => {
+      manager.open(GripBody, { title: 'T', os: 'windows', x: 200, y: 150, dragHandle: '.grip' });
+      TestBed.tick();
+      dragOn(host().querySelector<HTMLElement>('.wr-window__title')!, [300, 160], [360, 200]);
+      expect(host().style.left).toBe('200px');
+      manager.closeAll();
+      TestBed.tick();
+
+      manager.open(GripBody, { title: 'T', os: 'windows', x: 200, y: 150, dragHandle: '.wr-window__chrome, .grip' });
+      TestBed.tick();
+      dragOn(host().querySelector<HTMLElement>('.wr-window__title')!, [300, 160], [360, 200]);
+      expect(host().style.left).toBe('260px');
+    });
+
+    it('never starts a drag from a control, even inside a handle', () => {
+      manager.open(GripBody, { title: 'T', os: 'windows', x: 200, y: 150, dragHandle: '.wr-window__body' });
+      TestBed.tick();
+
+      dragOn(host().querySelector<HTMLElement>('.in-grip')!, [300, 300], [360, 340]);
+
+      expect(host().style.left).toBe('200px');
+    });
+  });
+
+  describe('geometry against the bounds', () => {
+    const VW = 1024;
+    const VH = 768;
+
+    it('holds a snapped half to minWidth, against the edge it snapped to', () => {
+      const ref = manager.open(Body, { title: 'T', os: 'windows', snap: 'edges', minWidth: 700 });
+      TestBed.tick();
+
+      ref.snapTo('right');
+      TestBed.tick();
+
+      // Half of 1024 is 512, under the 700 floor: the window keeps 700 and stays
+      // flush with the right edge rather than hanging off it.
+      expect([ref.x(), ref.width()]).toEqual([VW - 700, 700]);
+    });
+
+    it('maximizes no larger than maxWidth / maxHeight, centred in the work area', () => {
+      const ref = manager.open(Body, { title: 'T', os: 'windows', maxWidth: 600, maxHeight: 400 });
+      TestBed.tick();
+
+      ref.maximize();
+      TestBed.tick();
+
+      expect(box()).toBe(`${(VW - 600) / 2}px ${(VH - 400) / 2}px 600px 400px`);
+    });
+
+    it('lands a moveTo / resizeTo made while maximized when the window restores down', () => {
+      const ref = manager.open(Body, { title: 'T', os: 'windows', x: 200, y: 150, width: 500, height: 300 });
+      TestBed.tick();
+      ref.maximize();
+      TestBed.tick();
+
+      ref.moveTo(10, 20);
+      ref.resizeTo(700, 400);
+      ref.maximize();
+      TestBed.tick();
+
+      // A saved copy of the pre-maximize geometry used to be written back over
+      // both calls on the way out.
+      expect(box()).toBe('10px 20px 700px 400px');
+    });
+
+    it('comes back maximized from the taskbar when it was minimized maximized', () => {
+      TestBed.createComponent(TaskbarHost).detectChanges();
+      const ref = manager.open(Body, { title: 'Inbox', os: 'windows' });
+      TestBed.tick();
+      ref.maximize();
+      ref.minimize();
+      TestBed.tick();
+
+      document.querySelector<HTMLElement>('.wr-window-taskbar__tab-restore')!.click();
+      TestBed.tick();
+
+      expect(ref.state()).toBe('maximized');
+      // `restore()` keeps its documented meaning: back to normal.
+      ref.restore();
+      expect(ref.state()).toBe('normal');
+    });
+
+    it('writes whole pixels from a drag with fractional pointer coordinates', () => {
+      manager.open(Body, { title: 'T', os: 'windows', x: 100, y: 100, width: 480, height: 320 });
+      TestBed.tick();
+
+      dragOn(host().querySelector<HTMLElement>('.wr-window__title')!, [300, 120], [333.6, 140.4]);
+
+      expect([host().style.left, host().style.top]).toEqual(['134px', '120px']);
+    });
+
+    it('ignores a double-click on the maximize button itself', () => {
+      manager.open(Body, { title: 'T', os: 'windows' });
+      TestBed.tick();
+      const button = host().querySelector<HTMLElement>('.wr-window__chrome-action--maximize')!;
+
+      // What a double-click is: two clicks, then the dblclick.
+      button.click();
+      button.click();
+      button.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+      TestBed.tick();
+
+      expect(host().classList).toContain('wr-window--normal');
+    });
+  });
+
+  describe('the ref', () => {
+    it('reads true the moment open() returns, and right after a write', () => {
+      const ref = manager.open(Body, { title: 'T', os: 'windows', x: 100, y: 120, width: 400, height: 300 });
+
+      // Copied over by effects after the first render, these read 0.
+      expect([ref.x(), ref.y(), ref.width(), ref.height()]).toEqual([100, 120, 400, 300]);
+
+      ref.moveTo(300, 250);
+      ref.maximize();
+      expect([ref.state(), ref.x(), ref.y()]).toEqual(['maximized', 0, 0]);
+    });
+
+    it('keeps a maximize() made in the same tick as open()', () => {
+      const ref = manager.open(Body, { title: 'T', os: 'windows' });
+      ref.maximize();
+      TestBed.tick();
+
+      expect(host().classList).toContain('wr-window--maximized');
+    });
+
+    it('keeps what the body did to its window from its own constructor', () => {
+      const ref = manager.open(EagerBody, {
+        title: 'From config',
+        os: 'windows',
+        x: 10,
+        y: 10,
+        width: 400,
+        height: 300,
+      });
+      TestBed.tick();
+
+      expect(ref.title()).toBe('Set in constructor');
+      expect(ref.state()).toBe('maximized');
+      ref.restore();
+      expect([ref.x(), ref.y()]).toEqual([300, 200]);
+    });
+  });
+
+  describe('the minimize button', () => {
+    // It does not wait for a `<wr-window-taskbar>`: an app may list minimized
+    // windows in a dock of its own, and the macOS chrome never drops a light.
+    it('is offered with no taskbar on the page, on every chrome but Linux', () => {
+      manager.open(Body, { title: 'W', os: 'windows', taskbar: false });
+      manager.open(Body, { title: 'M', os: 'macos' });
+      manager.open(Body, { title: 'L', os: 'linux' });
+      TestBed.tick();
+
+      const minimize = (os: string): Element | null =>
+        document.querySelector(`.wr-window--os-${os} .wr-window__chrome-action--minimize`);
+      expect([!!minimize('windows'), !!minimize('macos'), !!minimize('linux')]).toEqual([true, true, false]);
+    });
+
+    it('follows showMinimize either way', () => {
+      manager.open(Body, { title: 'L', os: 'linux', showMinimize: true });
+      manager.open(Body, { title: 'W', os: 'windows', showMinimize: false });
+      TestBed.tick();
+
+      expect(document.querySelector('.wr-window--os-linux .wr-window__chrome-action--minimize')).not.toBeNull();
+      expect(document.querySelector('.wr-window--os-windows .wr-window__chrome-action--minimize')).toBeNull();
+    });
+
+    it('tells the title bar how many buttons it drew, so the macOS title centres on the whole bar', () => {
+      manager.open(Body, { title: 'Three', os: 'macos' });
+      manager.open(Body, { title: 'Two', os: 'macos', showMinimize: false });
+      TestBed.tick();
+
+      const counts = [...document.querySelectorAll<HTMLElement>('.wr-window__chrome')].map(chrome =>
+        chrome.style.getPropertyValue('--wr-window-chrome-action-count')
+      );
+      expect(counts).toEqual(['3', '2']);
+    });
+  });
+
+  describe('the z stack', () => {
+    it('does not climb when the window already on top is clicked', () => {
+      const ref = manager.open(Body, { title: 'T', os: 'windows' });
+      TestBed.tick();
+      const z = ref.z();
+
+      for (let i = 0; i < 5; i++) host().querySelector('.wr-window__body')!.dispatchEvent(pointerEvent('pointerdown'));
+      TestBed.tick();
+
+      expect(ref.z()).toBe(z);
+    });
+
+    it('measures the viewport with one listener, however many windows are open', () => {
+      const spy = vi.spyOn(window, 'addEventListener');
+      for (let i = 0; i < 4; i++) manager.open(Body, { title: `W${i}` });
+      TestBed.tick();
+
+      expect(spy.mock.calls.filter(([type]) => type === 'resize')).toHaveLength(1);
+      spy.mockRestore();
+    });
+  });
+});
+
+/**
+ * The active window: the one that has the keyboard. Focus decides it, and a
+ * press on a window's title bar has to move focus as well as the z-index, or
+ * the window in front is not the window Escape reaches.
+ */
+describe('WrWindow activation', () => {
+  let manager: WrWindowManager;
+
+  const win = (title: string): HTMLElement =>
+    [...document.querySelectorAll<HTMLElement>('wr-window')].find(
+      w => w.querySelector('.wr-window__title')!.textContent === title
+    )!;
+  const escape = (): void => {
+    (document.activeElement ?? document.body).dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+    );
+    TestBed.tick();
+  };
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      new DOMRect(0, 0, 120, 32),
+    ] as unknown as DOMRectList);
+    TestBed.resetTestingModule();
+    manager = TestBed.inject(WrWindowManager);
+  });
+
+  afterEach(() => {
+    manager.closeAll();
+    TestBed.resetTestingModule();
+    vi.restoreAllMocks();
+  });
+
+  it('moves focus into a background window when its title bar is pressed, so Escape closes THAT one', () => {
+    manager.open(FormBody, { id: 'a', title: 'A', os: 'windows', x: 100, y: 100 });
+    manager.open(FormBody, { id: 'b', title: 'B', os: 'windows', x: 300, y: 200 });
+    TestBed.tick();
+    expect(win('B').contains(document.activeElement)).toBe(true);
+
+    // The drag's `preventDefault()` stopped the browser moving focus, and the
+    // press only raised the window: A came to the front with focus still in B.
+    const title = win('A').querySelector<HTMLElement>('.wr-window__title')!;
+    title.dispatchEvent(pointerEvent('pointerdown', { clientX: 150, clientY: 110 }));
+    title.dispatchEvent(pointerEvent('pointerup', { clientX: 150, clientY: 110 }));
+    TestBed.tick();
+
+    expect(win('A').contains(document.activeElement)).toBe(true);
+    expect(manager.active()?.id).toBe('a');
+    escape();
+    expect(manager.windows().map(w => w.id)).toEqual(['b']);
+  });
+
+  it('marks one window active, by class and on the ref, and follows focus', () => {
+    const a = manager.open(FormBody, { id: 'a', title: 'A', os: 'windows' });
+    const b = manager.open(FormBody, { id: 'b', title: 'B', os: 'windows' });
+    TestBed.tick();
+
+    expect([a.isActive(), b.isActive()]).toEqual([false, true]);
+    expect(win('A').classList).toContain('wr-window--inactive');
+    expect(win('B').classList).toContain('wr-window--active');
+
+    win('A').querySelector<HTMLElement>('.field')!.focus();
+    TestBed.tick();
+    expect([a.isActive(), b.isActive()]).toEqual([true, false]);
+
+    // Focus in another overlay — a menu opened from the window — keeps it.
+    const menu = document.querySelector('.wr-overlay-container')!.appendChild(document.createElement('button'));
+    menu.focus();
+    TestBed.tick();
+    expect(a.isActive()).toBe(true);
+    menu.remove();
+
+    // Focus on the page, outside every window: none of them has the keyboard.
+    const outside = document.body.appendChild(document.createElement('button'));
+    outside.focus();
+    TestBed.tick();
+    expect(manager.active()).toBeNull();
+    expect(win('A').classList).toContain('wr-window--inactive');
+    outside.remove();
+  });
+
+  it('switches back to the control the window had last, not its first', () => {
+    const a = manager.open(FormBody, { id: 'a', title: 'A', os: 'windows' });
+    manager.open(FormBody, { id: 'b', title: 'B', os: 'windows' });
+    TestBed.tick();
+    win('A').querySelector<HTMLElement>('.save')!.focus();
+    win('B').querySelector<HTMLElement>('.field')!.focus();
+    TestBed.tick();
+
+    a.activate();
+    TestBed.tick();
+
+    expect(document.activeElement).toBe(win('A').querySelector('.save'));
+    expect(a.z()).toBeGreaterThan(manager.findById('b')!.z());
+  });
+
+  it('leaves the window alone on an Escape pressed in the page', () => {
+    manager.open(FormBody, { title: 'A', os: 'windows' });
+    TestBed.tick();
+    const search = document.body.appendChild(document.createElement('input'));
+    search.focus();
+
+    // The front window used to take every Escape pressed outside all windows.
+    escape();
+
+    expect(manager.windows()).toHaveLength(1);
+    search.remove();
+  });
+
+  it('cycles through the windows in the order they opened', () => {
+    manager.open(FormBody, { id: 'a', title: 'A', os: 'windows' });
+    manager.open(FormBody, { id: 'b', title: 'B', os: 'windows' });
+    manager.open(FormBody, { id: 'c', title: 'C', os: 'windows' });
+    TestBed.tick();
+    expect(manager.active()?.id).toBe('c');
+
+    manager.activateNext();
+    TestBed.tick();
+    expect([manager.active()?.id, win('A').contains(document.activeElement)]).toEqual(['a', true]);
+
+    manager.activatePrevious();
+    manager.activatePrevious();
+    TestBed.tick();
+    expect(manager.active()?.id).toBe('b');
   });
 });

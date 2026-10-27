@@ -6,35 +6,31 @@
  */
 
 import { FocusTrapFactory } from '@angular/cdk/a11y';
-import { type BooleanInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { Directionality } from '@angular/cdk/bidi';
+import type { ComponentType } from '@angular/cdk/portal';
+import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   DestroyRef,
   ElementRef,
+  type Injector,
+  type OnInit,
+  TemplateRef,
   ViewEncapsulation,
-  afterNextRender,
   computed,
-  effect,
   inject,
   input,
-  model,
   output,
   signal,
 } from '@angular/core';
 
-import { useI18nText } from 'ngwr/i18n';
-import { clamp, randomId } from 'ngwr/utils';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { randomId } from 'ngwr/utils';
 
 import { WrWindowManager } from './services/window-manager';
-import type {
-  WrWindowChromeSize,
-  WrWindowOs,
-  WrWindowResolvedOs,
-  WrWindowSize,
-  WrWindowSnap,
-  WrWindowSnapTarget,
-  WrWindowState,
-} from './types';
+import type { WrWindowResolvedOs, WrWindowSlotContent, WrWindowSlotContext, WrWindowSnapTarget } from './types';
+import type { WrWindowKeyboardMode, WrWindowModel } from './window-model';
+import type { WrWindowRef } from './window-ref';
 
 /**
  * Stands in for the consumer input `useI18nText` expects. The chrome buttons take no
@@ -73,23 +69,20 @@ function detectOs(): WrWindowResolvedOs {
 
 const DETECTED_OS = detectOs();
 
-/**
- * `coerceBooleanProperty` that keeps `null` as `null`.
- *
- * The plain coercion maps `null` and `undefined` to `false`, which is the one
- * thing a tri-state input must not do: "unset" has to survive as its own value
- * or the OS default can never be told apart from an explicit `false`. Attribute
- * presence (`<wr-window showMinimize>`, i.e. `''`) still means `true`.
- */
-function optionalBoolean(value: BooleanInput | null): boolean | null {
-  return value === null || value === undefined ? null : coerceBooleanProperty(value);
-}
+/** How close to an edge of the work area the pointer has to be to snap there. */
+const SNAP_HOT_ZONE = 12;
 
-const SIZE_PRESETS: Readonly<Record<WrWindowSize, { width: number; height: number }>> = {
-  sm: { width: 320, height: 200 },
-  md: { width: 480, height: 320 },
-  lg: { width: 720, height: 480 },
-};
+/** How far a drag on a maximized or snapped window travels before the window restores under it. */
+const DRAG_THRESHOLD = 4;
+
+/**
+ * What never starts a drag, even inside a `dragHandle`: a press on a control is
+ * for the control. Checked only up to the window's own element.
+ */
+const INTERACTIVE =
+  'button, input, select, textarea, a[href], label, [contenteditable]:not([contenteditable="false"]), ' +
+  '[role="button"], [role="link"], [role="checkbox"], [role="switch"], [role="radio"], [role="slider"], ' +
+  '[role="spinbutton"], [role="textbox"], [role="combobox"], [role="tab"], [role="menuitem"], [role="option"]';
 
 interface Edges {
   readonly t?: boolean;
@@ -98,23 +91,23 @@ interface Edges {
   readonly l?: boolean;
 }
 
-const MIN_ON_VIEWPORT = 24; // keep at least this many px of the window inside the viewport
-
-function viewportWidth(): number {
-  return typeof window === 'undefined' ? 1024 : window.innerWidth;
+function asTemplate(content: WrWindowSlotContent | null): TemplateRef<WrWindowSlotContext> | null {
+  return content instanceof TemplateRef ? content : null;
 }
 
-function viewportHeight(): number {
-  return typeof window === 'undefined' ? 768 : window.innerHeight;
+function asComponent(content: WrWindowSlotContent | null): ComponentType<unknown> | null {
+  return content && !(content instanceof TemplateRef) ? content : null;
 }
 
 /**
  * Internal rendering primitive for a single floating window.
  *
  * Not part of the public API — windows are opened through
- * `WrWindowManager.open(Component, config)`, which portals this
- * component for each call. Inputs map 1:1 to `WrWindowConfig`
- * fields so the container can wire them up declaratively.
+ * `WrWindowManager.open(Component, config)`, which creates the window's
+ * `WrWindowModel` and portals this component to draw it. Every state and
+ * geometry change goes through the model; this component turns pointer and
+ * key events into calls on it and owns the DOM-only parts: focus and the live
+ * region.
  *
  * @internal
  */
@@ -122,9 +115,8 @@ function viewportHeight(): number {
   selector: 'wr-window',
   templateUrl: './window.html',
   encapsulation: ViewEncapsulation.None,
+  imports: [NgTemplateOutlet, NgComponentOutlet],
   host: {
-    // See `WrAlert`: a static `title=` feeds the input AND lands on the host.
-    '[attr.title]': 'null',
     role: 'dialog',
     // Focusable by script, never by Tab: it is where focus lands when the
     // window opens with no control in its body, and it is what a click on the
@@ -132,25 +124,38 @@ function viewportHeight(): number {
     // `WrWindowManager` hands Escape to.
     tabindex: '-1',
     '[class]': 'classes()',
-    '[style.left.px]': 'x()',
-    '[style.top.px]': 'y()',
-    '[style.width.px]': 'width()',
-    '[style.height.px]': 'height()',
-    '[style.z-index]': 'z()',
-    '[attr.aria-hidden]': '!open()',
+    '[style.left.px]': 'rect().left',
+    '[style.top.px]': 'rect().top',
+    '[style.width.px]': 'rect().width',
+    '[style.height.px]': 'rect().height',
+    '[style.z-index]': 'model().z()',
     '[attr.aria-labelledby]': 'titleId',
-    '(pointerdown)': 'focusWindow()',
+    '(pointerdown)': 'onPointerDown($event)',
+    '(dblclick)': 'onBodyDblClick($event)',
+    '(keydown)': 'onKeydown($event)',
+    '(focusin)': 'onFocusIn($event)',
+    '(focusout)': 'onFocusOut($event)',
   },
 })
-export class WrWindow {
-  /** Two-way bindable visibility. `false` removes the window from the layer. */
-  readonly open = model<boolean>(true);
+export class WrWindow implements OnInit {
+  /** The window's state and geometry. */
+  readonly model = input.required<WrWindowModel>();
+  /** The ref, handed to slot templates as `$implicit` and to the manager on activation. */
+  readonly windowRef = input<WrWindowRef<unknown, unknown> | null>(null);
+  /** The window's injector — what a slot component resolves `WR_WINDOW_REF` from. */
+  readonly injector = input<Injector | undefined>(undefined);
+  /** Content for the title bar, between the title and the buttons. */
+  readonly titleExtra = input<WrWindowSlotContent | null>(null);
+  /** Content for the status bar. */
+  readonly statusBar = input<WrWindowSlotContent | null>(null);
 
-  /** Two-way bindable state. */
-  readonly state = model<WrWindowState>('normal');
-
-  /** Header title. */
-  readonly title = input<string>('');
+  /**
+   * A REQUEST to close, not the close itself. `WrWindowContainer` binds
+   * `(closed)` to `WrWindowRef.close()`, which awaits the `beforeClose` hook and
+   * — only if the hook agrees — disposes the overlay, so the owner is what takes
+   * the window away and this component never has to hide itself.
+   */
+  readonly closed = output<void>();
 
   /** Auto-generated id for the title element, referenced by `aria-labelledby`. */
   protected readonly titleId = randomId('wr-window-title');
@@ -163,6 +168,73 @@ export class WrWindow {
   private readonly maximizeLabel = useI18nText(NO_OVERRIDE, 'window.maximize', 'Maximize');
   private readonly restoreLabel = useI18nText(NO_OVERRIDE, 'window.restore', 'Restore');
   private readonly restoreDownLabel = useI18nText(NO_OVERRIDE, 'window.restoreDown', 'Restore down');
+  // The taskbar has named an untitled window this way since v13; the window
+  // itself announced an empty name — `aria-labelledby` pointing at nothing.
+  private readonly untitled = useI18nText(NO_OVERRIDE, 'window.untitled', 'Untitled');
+  private readonly moveModeText = useI18nText(
+    NO_OVERRIDE,
+    'window.moveMode',
+    'Moving the window. Use the arrow keys, Enter to finish, Escape to cancel.'
+  );
+  private readonly resizeModeText = useI18nText(
+    NO_OVERRIDE,
+    'window.resizeMode',
+    'Resizing the window. Use the arrow keys, Enter to finish, Escape to cancel.'
+  );
+  private readonly movedText = useI18nFormatter('window.moved', 'Window moved to {{x}}, {{y}}');
+  private readonly resizedText = useI18nFormatter('window.resized', 'Window resized to {{width}} by {{height}}');
+
+  private readonly manager = inject(WrWindowManager);
+  private readonly elRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly focusTraps = inject(FocusTrapFactory);
+  private readonly dir = inject(Directionality, { optional: true });
+
+  /** Ends the pointer move in progress, if any: its listeners are on the document. */
+  private endMove: (() => void) | null = null;
+
+  constructor() {
+    // A window closed in the middle of a drag (a shortcut, the app) must not
+    // leave its listeners on the document, writing to a model nobody draws.
+    inject(DestroyRef).onDestroy(() => this.endMove?.());
+  }
+
+  /** What the live region says: written by the keyboard modes only. */
+  protected readonly announcement = signal('');
+
+  /** The control focus was on last, so switching back to the window lands there. */
+  private lastFocused: HTMLElement | null = null;
+
+  protected readonly state = computed(() => this.model().state());
+  protected readonly rect = computed(() => this.model().rect());
+  private readonly options = computed(() => this.model().options());
+
+  protected readonly displayTitle = computed(() => this.model().title() || this.untitled());
+
+  /** Resolved OS — `auto` → detected platform. */
+  readonly resolvedOs = computed<WrWindowResolvedOs>(() => {
+    const os = this.options().os;
+    return os === 'auto' ? DETECTED_OS : os;
+  });
+
+  /**
+   * Whether each control is rendered: the option wins, the chrome decides the
+   * default. Linux is close-only unless asked otherwise. Minimize does NOT hang
+   * on a `<wr-window-taskbar>` being on the page: an app may list minimized
+   * windows in a dock of its own from `WrWindowManager.minimized()`, and the
+   * macOS chrome never drops a light.
+   */
+  protected readonly minimizeVisible = computed(() => this.options().showMinimize ?? this.resolvedOs() !== 'linux');
+  protected readonly maximizeVisible = computed(() => this.options().showMaximize ?? this.resolvedOs() !== 'linux');
+  protected readonly showClose = computed(() => this.options().showClose);
+
+  /**
+   * How many caption buttons are drawn. The macOS chrome centres its title on
+   * the whole bar by padding it as wide as the cluster on the other side, and a
+   * window without one of the lights has a narrower cluster.
+   */
+  protected readonly actionCount = computed(
+    () => Number(this.minimizeVisible()) + Number(this.maximizeVisible()) + Number(this.showClose())
+  );
 
   /** The minimize button doubles as restore, and says which it is. */
   protected readonly minimizeActionLabel = computed(() =>
@@ -174,320 +246,52 @@ export class WrWindow {
     this.state() === 'maximized' ? this.restoreDownLabel() : this.maximizeLabel()
   );
 
-  /** Initial position. `null` = auto-cascade from the manager. */
-  readonly initialX = input<number | null>(null, {
-    transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 0)),
-  });
-  /**
-   * Initial top offset in px. `null` = auto-cascade from the manager, which is
-   * what keeps several windows from opening on top of each other.
-   */
-  readonly initialY = input<number | null>(null, {
-    transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 0)),
-  });
-
-  /**
-   * Size preset — seeds initial width / height when `[initialWidth]` /
-   * `[initialHeight]` are not provided. `null` keeps the explicit
-   * pixel inputs in charge. @default 'md'
-   */
-  readonly size = input<WrWindowSize | null>('md');
-
-  /** Initial / forced size in pixels. Wins over `[size]` when set. */
-  readonly initialWidth = input<number | null>(null, {
-    transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 480)),
-  });
-  /**
-   * Initial height in px, overriding the `size` preset. Clamped to `minHeight` /
-   * `maxHeight` before it is applied.
-   */
-  readonly initialHeight = input<number | null>(null, {
-    transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 320)),
-  });
-
-  /**
-   * OS chrome style. `'auto'` reads `navigator.userAgentData.platform`
-   * / `navigator.platform` and picks the matching preset (SSR-safe;
-   * unknown platforms fall back to `windows`).
-   * @default 'auto'
-   */
-  readonly os = input<WrWindowOs>('auto');
-
-  /** Resolved OS — `auto` → detected platform. */
-  readonly resolvedOs = computed<WrWindowResolvedOs>(() => {
-    const o = this.os();
-    return o === 'auto' ? DETECTED_OS : o;
-  });
-
-  /**
-   * Whether each control is rendered: the input wins, the chrome decides the
-   * default. Linux is close-only unless asked otherwise — see
-   * {@link showMinimize} for why that is an input and not a template gate.
-   */
-  protected readonly minimizeVisible = computed(() => this.showMinimize() ?? this.resolvedOs() !== 'linux');
-  protected readonly maximizeVisible = computed(() => this.showMaximize() ?? this.resolvedOs() !== 'linux');
-
-  /** Title-bar density. @default 'md' */
-  readonly chromeSize = input<WrWindowChromeSize>('md');
-
-  /**
-   * Enter / leave animations. Set to `false` to disable the open-fade
-   * and the minimize / maximize transitions. Honoured automatically
-   * when `prefers-reduced-motion: reduce`. @default true
-   */
-  readonly animations = input(true, { transform: coerceBooleanProperty });
-
-  /**
-   * Narrowest the user may drag it. Also the floor for `initialWidth`.
-   */
-  readonly minWidth = input<number>(220, { transform: (v: unknown): number => coerceNumberProperty(v, 220) });
-  /**
-   * Shortest the user may drag it. Also the floor for `initialHeight`.
-   */
-  readonly minHeight = input<number>(140, { transform: (v: unknown): number => coerceNumberProperty(v, 140) });
-  /**
-   * Widest the user may drag it. Unbounded by default.
-   */
-  readonly maxWidth = input<number>(Number.POSITIVE_INFINITY, {
-    transform: (v: unknown): number => (v == null ? Number.POSITIVE_INFINITY : coerceNumberProperty(v, Infinity)),
-  });
-  /**
-   * Tallest the user may drag it. Unbounded by default.
-   */
-  readonly maxHeight = input<number>(Number.POSITIVE_INFINITY, {
-    transform: (v: unknown): number => (v == null ? Number.POSITIVE_INFINITY : coerceNumberProperty(v, Infinity)),
-  });
-
-  /**
-   * Allow dragging by the header. `false` pins the window where it opened; the
-   * header still carries the title and the action buttons.
-   */
-  readonly movable = input(true, { transform: coerceBooleanProperty });
-  /**
-   * Allow dragging the edges and corners. `false` also hides the maximize button,
-   * since there would be no way back to a custom size.
-   */
-  readonly resizable = input(true, { transform: coerceBooleanProperty });
-  /**
-   * Hold the window inside the viewport while it is dragged or the page is
-   * resized. `false` lets it go off-screen, which only a custom chrome wants.
-   */
-  readonly keepInViewport = input(true, { transform: coerceBooleanProperty });
-
-  /** Drag-to-edge snap behaviour. @default 'none' */
-  readonly snap = input<WrWindowSnap>('none');
-
-  /**
-   * CSS selector inside the projected body that restricts the move
-   * grab — pointer-downs outside this selector won't start a drag.
-   * Use to keep interactive body content (sliders, inputs) from
-   * hijacking the title-bar drag. `null` (default) means the whole
-   * title bar is grabbable.
-   */
-  readonly dragHandle = input<string | null>(null);
-
-  // Tri-state, and the third state is the point. While this defaulted to `true`,
-  // "not set" and "explicitly asked for" were the same value, so the Linux
-  // preset had to gate minimize out of the template unconditionally — and
-  // `<wr-window-taskbar>` became unreachable on that chrome: `ref.minimize()`
-  // still filed a window into it, but no user could press anything to get it
-  // there. `null` restores the distinction the chrome docs always claimed.
-  /**
-   * Show the minimize control. `null` (the default) follows the chrome: every OS
-   * but Linux shows it, and the Linux preset is close-only by convention. Pass
-   * `true` to override that — on Linux it is what puts a window within reach of
-   * `<wr-window-taskbar>`.
-   */
-  readonly showMinimize = input<boolean | null, BooleanInput | null>(null, { transform: optionalBoolean });
-
-  /** Show the maximize control. `null` (the default) follows the chrome, as with {@link showMinimize}. */
-  readonly showMaximize = input<boolean | null, BooleanInput | null>(null, { transform: optionalBoolean });
-
-  /** Show the close control. Not per-OS: every chrome closes. */
-  readonly showClose = input(true, { transform: coerceBooleanProperty });
-
-  /** Fires when the window closes — from the header button or from `close()`. */
-  readonly closed = output<void>();
-
-  /**
-   * Fires ONCE when a header drag ends — on `pointerup` or `pointercancel` —
-   * with the window's final position. Not per pointer move: a consumer
-   * persisting the position wants the landing, not the path.
-   *
-   * Programmatic moves (`moveTo`, `center`, the initial cascade) are silent:
-   * the caller already knows where it put the window, and echoing those back
-   * would double-count.
-   */
-  readonly moved = output<{ readonly x: number; readonly y: number }>();
-
-  /** Fires once when an edge drag ends, and once when a snap target is applied. */
-  readonly resized = output<{ readonly width: number; readonly height: number }>();
-
-  /**
-   * Fires when the window is minimized while focus is inside it. A minimized
-   * window is `display: none`, so the focus it held is gone, and the container
-   * hands it to the window's taskbar tab.
-   *
-   * @internal
-   */
-  readonly minimizedWithFocus = output<void>();
-
-  private readonly manager = inject(WrWindowManager);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly elRef = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly focusTraps = inject(FocusTrapFactory);
-
-  /**
-   * The viewport, as a SIGNAL. The maximized geometry and the keep-in-viewport
-   * clamp used to read `window.innerWidth` / `innerHeight` directly, which no
-   * computed can depend on: a window maximized at 1440×900 stayed 1440×900 in a
-   * 1024×700 viewport with its close and maximize buttons off-screen, and a
-   * window dragged to the bottom-right corner was left entirely outside an
-   * 800×600 one — while `keepInViewport` promised to hold it "while it is
-   * dragged or the page is resized". Kept in step by a `resize` listener
-   * installed after the first render; on the server it holds the fallback size.
-   */
-  private readonly viewport = signal({ width: viewportWidth(), height: viewportHeight() });
-
-  // Position / size signals are the source of truth at runtime.
-  // Inputs (x/y/initialWidth/initialHeight) seed them in afterNextRender.
-  /** Live X (top-left). @internal */ readonly x_ = signal(0);
-  /** Live Y (top-left). @internal */ readonly y_ = signal(0);
-  /** Live width. @internal */ readonly width_ = signal(0);
-  /** Live height. @internal */ readonly height_ = signal(0);
-
-  // Saved geometry to restore from `maximized`.
-  private restoreGeometry: { x: number; y: number; width: number; height: number } | null = null;
-
-  /** Stack z-index — pulled from the manager on focus. @internal */
-  readonly z = signal(this.manager.bringToFront());
+  protected readonly resizeHandles = computed(() => this.options().resizable && this.state() === 'normal');
 
   protected readonly classes = computed(() => {
+    const model = this.model();
     const parts = [
       'wr-window',
       `wr-window--${this.state()}`,
       `wr-window--os-${this.resolvedOs()}`,
-      `wr-window--chrome-${this.chromeSize()}`,
+      `wr-window--chrome-${this.options().chromeSize}`,
+      model.isActive() ? 'wr-window--active' : 'wr-window--inactive',
     ];
-    if (!this.open()) parts.push('wr-window--closed');
-    if (this.resizable() && this.state() === 'normal') parts.push('wr-window--resizable');
-    if (!this.animations()) parts.push('wr-window--no-anim');
+    if (this.resizeHandles()) parts.push('wr-window--resizable');
+    if (!this.options().animations) parts.push('wr-window--no-anim');
+    const mode = model.keyboardMode();
+    if (mode) parts.push(mode === 'move' ? 'wr-window--keyboard-moving' : 'wr-window--keyboard-resizing');
     return parts.join(' ');
   });
 
-  // Effective geometry exposed to the host bindings AND to programmatic
-  // consumers (`WrWindowRef`). When maximized we ignore the live
-  // x_/y_/width_/height_ and fill the viewport instead.
-  readonly x = computed(() => (this.state() === 'maximized' ? 0 : this.x_()));
-  readonly y = computed(() => (this.state() === 'maximized' ? 0 : this.y_()));
-  readonly width = computed(() => (this.state() === 'maximized' ? this.viewport().width : this.width_()));
-  readonly height = computed(() =>
-    this.state() === 'maximized'
-      ? this.viewport().height
-      : this.state() === 'minimized'
-        ? this.minimizedHeight()
-        : this.height_()
-  );
+  protected readonly titleExtraTemplate = computed(() => asTemplate(this.titleExtra()));
+  protected readonly titleExtraComponent = computed(() => asComponent(this.titleExtra()));
+  protected readonly statusBarTemplate = computed(() => asTemplate(this.statusBar()));
+  protected readonly statusBarComponent = computed(() => asComponent(this.statusBar()));
+  protected readonly slotContext = computed<WrWindowSlotContext | null>(() => {
+    const ref = this.windowRef();
+    return ref ? { $implicit: ref } : null;
+  });
 
-  protected readonly minimizedHeight = signal(40); // header-only height
-
-  /**
-   * Visible during drag when a snap target is engaged — drives the
-   * SCSS hint rendered by `WrWindowContainer` (NOT here — `.wr-window`
-   * has `overflow: hidden` which clips position-fixed descendants
-   * during the open animation while a transform is applied).
-   */
-  readonly snapTarget = signal<WrWindowSnapTarget | null>(null);
-
-  constructor() {
-    afterNextRender(() => {
-      const measure = (): void => this.viewport.set({ width: viewportWidth(), height: viewportHeight() });
-      measure();
-      window.addEventListener('resize', measure);
-      this.destroyRef.onDestroy(() => window.removeEventListener('resize', measure));
-      this.seedInitialGeometry();
-    });
-
-    // Re-clamp into viewport when window or viewport changes.
-    effect(() => {
-      if (this.state() !== 'normal') return;
-      this.clampToViewport();
-    });
+  ngOnInit(): void {
+    this.model().element = this.elRef.nativeElement;
   }
 
-  // Public API
+  // Chrome actions
 
-  close(): void {
-    // A REQUEST to close, not the close itself. `WrWindowContainer` binds
-    // `(closed)` to `WrWindowRef.close()`, which awaits the `beforeClose` hook
-    // and — only if the hook agrees — disposes the overlay, so the owner is what
-    // takes the window away and this component never has to hide itself. Hiding
-    // here first defeated the veto: `.wr-window--closed` is `display: none`, so
-    // a vetoed window vanished while its ref stayed in `manager.windows()` in
-    // state `normal` — off screen, absent from the taskbar, and unreachable by
-    // `restore()` / `focus()` / `moveTo()`, none of which write `open`. Escape
-    // goes straight to `ref.close()` and so never had the bug, which is the
-    // contrast that exposed it.
+  protected close(): void {
     this.closed.emit();
   }
 
-  minimize(): void {
-    const minimizing = this.state() !== 'minimized';
-    // Read before the state flips: once the class lands, nothing inside has
-    // a box and the browser has already dropped focus on `<body>`.
-    const hadFocus = minimizing && this.hasFocus();
-    this.state.set(minimizing ? 'minimized' : 'normal');
-    if (hadFocus) this.minimizedWithFocus.emit();
+  protected minimize(): void {
+    this.model().minimize();
   }
 
-  maximize(): void {
-    if (this.state() === 'maximized') {
-      this.restore();
-    } else {
-      this.restoreGeometry = { x: this.x_(), y: this.y_(), width: this.width_(), height: this.height_() };
-      this.state.set('maximized');
-    }
+  protected maximize(): void {
+    this.model().maximize();
   }
 
-  /** Force back to `normal` from minimized / maximized. */
-  restore(): void {
-    if (this.state() === 'maximized' && this.restoreGeometry) {
-      this.x_.set(this.restoreGeometry.x);
-      this.y_.set(this.restoreGeometry.y);
-      this.width_.set(this.restoreGeometry.width);
-      this.height_.set(this.restoreGeometry.height);
-      this.restoreGeometry = null;
-    }
-    this.state.set('normal');
-  }
-
-  /** Programmatic move — clamped to the viewport when `keepInViewport`. */
-  moveTo(x: number, y: number): void {
-    this.x_.set(x);
-    this.y_.set(y);
-    this.clampToViewport();
-  }
-
-  /** Programmatic resize — clamped to min/max bounds. */
-  resizeTo(width: number, height: number): void {
-    this.width_.set(clamp(width, this.minWidth(), this.maxWidth()));
-    this.height_.set(clamp(height, this.minHeight(), this.maxHeight()));
-    this.clampToViewport();
-  }
-
-  /** Re-position centered against the current viewport. */
-  center(): void {
-    const w = this.width_();
-    const h = this.height_();
-    const { width: vw, height: vh } = this.viewport();
-    this.x_.set(Math.max(0, (vw - w) / 2));
-    this.y_.set(Math.max(0, (vh - h) / 2));
-  }
-
-  /** Bring this window to the top of the stack. */
-  focus(): void {
-    this.z.set(this.manager.bringToFront());
-  }
+  // Focus
 
   /**
    * Move focus into the window: to `[cdkFocusInitial]` or the first control in
@@ -512,74 +316,224 @@ export class WrWindow {
     host.focus({ preventScroll: true });
   }
 
-  /** Whether focus is inside the window. @internal */
-  hasFocus(): boolean {
+  /**
+   * Move focus back to the control the window had last, the way a desktop
+   * returns to a window — its first control when it never had one, or when that
+   * one is gone or disabled.
+   *
+   * @internal
+   */
+  focusLast(): void {
     const host = this.elRef.nativeElement;
-    return host.contains(host.ownerDocument.activeElement);
+    if (!host.isConnected || this.state() === 'minimized') return;
+    const last = this.lastFocused;
+    if (last?.isConnected && host.contains(last)) {
+      last.focus({ preventScroll: true });
+      if (host.ownerDocument.activeElement === last) return;
+    }
+    this.focusInitial();
   }
 
-  // Host handlers
-
-  /** @internal — alias kept for the host `(pointerdown)` binding. */
-  protected focusWindow(): void {
-    this.focus();
+  protected onFocusIn(event: FocusEvent): void {
+    const target = event.target;
+    if (!(target instanceof HTMLElement) || target === this.elRef.nativeElement) return;
+    // Not the chrome buttons: a click on minimize focuses it, and coming back
+    // from the taskbar onto the minimize button is not coming back to the window.
+    if (target.closest('.wr-window__chrome-action')) return;
+    this.lastFocused = target;
   }
 
-  protected startMove(event: PointerEvent): void {
-    if (!this.movable() || this.state() !== 'normal') return;
-    const targetEl = event.target as HTMLElement;
-    if (targetEl.closest('.wr-window__chrome-action')) return;
-    const handle = this.dragHandle();
-    if (handle && !targetEl.closest(handle)) return;
+  protected onFocusOut(event: FocusEvent): void {
+    const next = event.relatedTarget;
+    // Focus leaving the window ends keyboard move or resize where it is, the
+    // same as Enter: a mode that outlived its focus would steal the arrow keys
+    // the next time the user came back.
+    if (this.model().keyboardMode() && !(next instanceof Node && this.elRef.nativeElement.contains(next))) {
+      this.commitKeyboard();
+    }
+  }
+
+  // Pointer
+
+  /**
+   * Every press inside the window activates it. A press on a grab area — the
+   * title bar, or a `dragHandle` — also starts a move, and moves focus into the
+   * window itself: the move's `preventDefault()` stops the browser doing it, and
+   * left alone the window the user just clicked to the front was not the one
+   * that had the keyboard, so Escape closed the window behind it.
+   */
+  protected onPointerDown(event: PointerEvent): void {
+    const model = this.model();
+    if (model.keyboardMode()) this.commitKeyboard();
+    const target = event.target instanceof Element ? event.target : null;
+    const primary = event.button === 0;
+    const grab = primary && !!target && this.isGrabArea(target);
+    // A minimized window is `display: none`, so a press cannot reach it in a
+    // browser; a synthetic one must not bring it back either.
+    if (model.state() === 'minimized') return;
+    const ref = this.windowRef();
+    if (ref) this.manager._activate(ref, { focus: grab });
+    if (grab) this.startMove(event);
+  }
+
+  /** Whether a press on `target` should start a move. */
+  private isGrabArea(target: Element): boolean {
+    const host = this.elRef.nativeElement;
+    if (target.closest('.wr-window__chrome-action, .wr-window__handle')) return false;
+    const control = target.closest(INTERACTIVE);
+    if (control && host.contains(control)) return false;
+    const handle = this.options().dragHandle;
+    if (handle) {
+      const match = target.closest(handle);
+      return !!match && host.contains(match);
+    }
+    return !!target.closest('.wr-window__chrome');
+  }
+
+  /**
+   * Where a double-click toggles maximize: the title bar, whatever `dragHandle`
+   * says — on every desktop the bar maximizes even where it does not drag — and
+   * any other grab area. Never a control or a caption button.
+   */
+  private isDblClickArea(target: Element): boolean {
+    const host = this.elRef.nativeElement;
+    if (target.closest('.wr-window__chrome-action, .wr-window__handle')) return false;
+    const control = target.closest(INTERACTIVE);
+    if (control && host.contains(control)) return false;
+    const chrome = target.closest('.wr-window__chrome');
+    return (!!chrome && host.contains(chrome)) || this.isGrabArea(target);
+  }
+
+  /**
+   * Move the window with the pointer. The listeners go on the DOCUMENT and
+   * pointer capture is taken only once the press has travelled past the drag
+   * threshold, and then on the element that was pressed, never on the window.
+   * Chromium sends `click` and `dblclick` to the capturing element, so a
+   * capture taken on the window at press time sent every click in the title
+   * bar to the window instead: the double-click that maximizes stopped
+   * working, and a clickable badge in `titleExtra` never heard its click. A
+   * press that stays put now keeps both, and a real drag swallows the click it
+   * would otherwise end in, so dragging by a badge does not also press it.
+   */
+  private startMove(event: PointerEvent): void {
+    const model = this.model();
+    const o = model.options();
+    const state = model.state();
+    if (!o.movable || state === 'minimized') return;
+    if (state === 'maximized' && !o.restoreOnDrag) return;
     event.preventDefault();
-    const target = event.currentTarget as HTMLElement;
-    target.setPointerCapture(event.pointerId);
+    this.endMove?.();
+    const host = this.elRef.nativeElement;
+    const doc = host.ownerDocument;
+    const pressed = event.target instanceof Element ? event.target : host;
+    const pointerId = event.pointerId;
 
-    const startX = this.x_();
-    const startY = this.y_();
     const originX = event.clientX;
     const originY = event.clientY;
+    const start = model.rect();
+    // A maximized or snapped window does not move until the drag has gone
+    // somewhere: a click or a double-click on its title bar must not restore it.
+    let detached = state === 'normal' && !model.snap();
+    if (!detached && !o.restoreOnDrag) {
+      model.unsnapInPlace();
+      detached = true;
+    }
+    let startX = model.x();
+    let startY = model.y();
+    /** Past the threshold: a drag rather than a click, from here on. */
+    let dragging = false;
 
     const move = (e: PointerEvent): void => {
-      this.x_.set(startX + (e.clientX - originX));
-      this.y_.set(startY + (e.clientY - originY));
-      this.clampToViewport();
-      this.snapTarget.set(this.detectSnapTarget(e.clientX, e.clientY));
-    };
-    const cleanup = (e: PointerEvent): void => {
-      target.releasePointerCapture(e.pointerId);
-      target.removeEventListener('pointermove', move);
-      target.removeEventListener('pointerup', cleanup);
-      target.removeEventListener('pointercancel', cleanup);
-      const snap = this.snapTarget();
-      this.snapTarget.set(null);
-      if (snap) {
-        this.applySnap(snap);
+      if (e.pointerId !== pointerId) return;
+      const dx = e.clientX - originX;
+      const dy = e.clientY - originY;
+      if (!dragging && Math.hypot(dx, dy) >= DRAG_THRESHOLD) {
+        dragging = true;
+        // Keeps the moves coming over an iframe in the body. Optional, since
+        // jsdom implements no pointer capture, and guarded, since a synthetic
+        // pointer the browser never saw is refused with a `NotFoundError`.
+        try {
+          pressed.setPointerCapture?.(pointerId);
+        } catch {
+          // The document listeners carry the drag without it.
+        }
       }
-      this.moved.emit({ x: this.x_(), y: this.y_() });
+      if (!detached) {
+        if (!dragging) return;
+        // Restore the window's own size under the pointer, keeping the grab
+        // point at the same fraction of the bar — what Windows, macOS and GNOME
+        // all do. The snapped or maximized size was never the window's own.
+        const fraction = start.width > 0 ? (originX - start.left) / start.width : 0.5;
+        model.restore();
+        startX = originX - fraction * model.width();
+        startY = start.top;
+        detached = true;
+      }
+      model.setRaw({ x: startX + dx, y: startY + dy });
+      model.clamp();
+      model.dragTarget.set(this.detectSnapTarget(e.clientX, e.clientY));
+    };
+    const stop = (): void => {
+      doc.removeEventListener('pointermove', move);
+      doc.removeEventListener('pointerup', end);
+      doc.removeEventListener('pointercancel', end);
+      if (dragging && pressed.hasPointerCapture?.(pointerId)) pressed.releasePointerCapture?.(pointerId);
+      model.dragTarget.set(null);
+      this.endMove = null;
+    };
+    const end = (e: PointerEvent): void => {
+      if (e.pointerId !== pointerId) return;
+      const snap = model.dragTarget();
+      stop();
+      if (dragging) this.swallowClick(doc, pressed);
+      if (!detached) return;
+      if (snap) {
+        model.snapTo(snap);
+        if (snap !== 'top') model.resized.next({ width: model.rect().width, height: model.rect().height });
+      }
+      // `moved` is where the USER put the window, so a press that never moved
+      // it — a click, either half of a double-click — says nothing.
+      const r = model.rect();
+      if (snap || r.left !== start.left || r.top !== start.top) model.moved.next({ x: r.left, y: r.top });
     };
 
-    target.addEventListener('pointermove', move);
-    target.addEventListener('pointerup', cleanup);
+    doc.addEventListener('pointermove', move);
+    doc.addEventListener('pointerup', end);
     // `pointercancel` is never followed by a `pointerup` (a pen leaving range, a
     // long-press menu, an OS gesture taking over), so without this the move
-    // listener outlived the drag on a chrome element that lives as long as the
-    // component: every later hover over the title bar dragged the window.
-    // The cancelled gesture's geometry is kept rather than rolled back, so
-    // `moved` still reports where the window ended up.
-    target.addEventListener('pointercancel', cleanup);
+    // listener outlived the drag: every later hover dragged the window. The
+    // cancelled gesture's geometry is kept rather than rolled back.
+    doc.addEventListener('pointercancel', end);
+    this.endMove = stop;
   }
 
-  /** Map a cursor position to a snap target, honouring `[snap]`. */
+  /**
+   * Eat the `click` a drag ends in. The browser dispatches it straight after the
+   * `pointerup`, in the same task, at the element holding capture — the one the
+   * drag started on — so the listener takes only a click there, and is taken
+   * away at the next task rather than left to eat a real one.
+   */
+  private swallowClick(doc: Document, pressed: Element): void {
+    const swallow = (e: Event): void => {
+      if (e.target !== pressed) return;
+      doc.removeEventListener('click', swallow, true);
+      e.stopPropagation();
+      e.preventDefault();
+    };
+    doc.addEventListener('click', swallow, true);
+    setTimeout(() => doc.removeEventListener('click', swallow, true));
+  }
+
+  /** Map a pointer position to a snap target, honouring the `snap` option and the work area. */
   private detectSnapTarget(clientX: number, clientY: number): WrWindowSnapTarget | null {
-    const mode = this.snap();
+    const model = this.model();
+    const mode = model.options().snap;
     if (mode === 'none') return null;
-    const HOT = 12;
-    const { width: vw, height: vh } = this.viewport();
-    const nearLeft = clientX <= HOT;
-    const nearRight = clientX >= vw - HOT;
-    const nearTop = clientY <= HOT;
-    const nearBottom = clientY >= vh - HOT;
+    const wa = model.workArea();
+    const nearLeft = clientX <= wa.left + SNAP_HOT_ZONE;
+    const nearRight = clientX >= wa.left + wa.width - SNAP_HOT_ZONE;
+    const nearTop = clientY <= wa.top + SNAP_HOT_ZONE;
+    const nearBottom = clientY >= wa.top + wa.height - SNAP_HOT_ZONE;
     if (mode === 'all') {
       if (nearTop && nearLeft) return 'top-left';
       if (nearTop && nearRight) return 'top-right';
@@ -592,72 +546,68 @@ export class WrWindow {
     return null;
   }
 
-  /** Move + resize the window into the requested snap region. */
-  private applySnap(target: WrWindowSnapTarget): void {
-    const { width: vw, height: vh } = this.viewport();
-    const halfW = Math.floor(vw / 2);
-    const halfH = Math.floor(vh / 2);
-    switch (target) {
-      case 'top':
-        // Maximise — share state so the chrome reflects it.
-        this.restoreGeometry = { x: this.x_(), y: this.y_(), width: this.width_(), height: this.height_() };
-        this.state.set('maximized');
-        return;
-      case 'left':
-        this.x_.set(0);
-        this.y_.set(0);
-        this.width_.set(halfW);
-        this.height_.set(vh);
-        break;
-      case 'right':
-        this.x_.set(halfW);
-        this.y_.set(0);
-        this.width_.set(vw - halfW);
-        this.height_.set(vh);
-        break;
-      case 'top-left':
-        this.x_.set(0);
-        this.y_.set(0);
-        this.width_.set(halfW);
-        this.height_.set(halfH);
-        break;
-      case 'top-right':
-        this.x_.set(halfW);
-        this.y_.set(0);
-        this.width_.set(vw - halfW);
-        this.height_.set(halfH);
-        break;
-      case 'bottom-left':
-        this.x_.set(0);
-        this.y_.set(halfH);
-        this.width_.set(halfW);
-        this.height_.set(vh - halfH);
-        break;
-      case 'bottom-right':
-        this.x_.set(halfW);
-        this.y_.set(halfH);
-        this.width_.set(vw - halfW);
-        this.height_.set(vh - halfH);
-        break;
+  /**
+   * A double-click on the title bar maximizes, or restores a maximized or
+   * snapped window. Bound on the bar itself rather than only on the host, so a
+   * `dblclick` that does not bubble — which is what a harness dispatches — still
+   * reaches it.
+   *
+   * The gate is `showMaximize !== false`, NOT `maximizeVisible()`, and the
+   * difference is a window nobody can get out of: the Linux preset hides the
+   * maximize BUTTON, but the gesture is how GNOME maximizes, and `maximized` is
+   * reachable there with no button at all (a snap to the top edge,
+   * `ref.maximize()`, a restored layout). An explicit `showMaximize: false`
+   * still turns the gesture off everywhere.
+   */
+  protected onChromeDblClick(event: MouseEvent): void {
+    this.toggleFromDblClick(event.target);
+  }
+
+  /**
+   * The same gesture on a body `dragHandle`, which answers it the way the title
+   * bar does. A double-click in the bar bubbles here too and is the bar's.
+   */
+  protected onBodyDblClick(event: MouseEvent): void {
+    const target = event.target;
+    if (target instanceof Element && target.closest('.wr-window__chrome')) return;
+    this.toggleFromDblClick(target);
+  }
+
+  private toggleFromDblClick(target: EventTarget | null): void {
+    // Double-clicking the maximize BUTTON is two clicks on it already; the
+    // chrome toggling a third time left the window maximized. A button in
+    // `titleExtra` is the same: two presses of it, not a gesture on the bar.
+    if (!(target instanceof Element) || !this.isDblClickArea(target)) return;
+    const model = this.model();
+    if (model.state() === 'minimized') return;
+    if (model.state() === 'normal' && model.snap()) {
+      model.restore();
+      return;
     }
-    this.resized.emit({ width: this.width_(), height: this.height_() });
+    if (model.options().showMaximize !== false) model.maximize();
   }
 
   protected startResize(event: PointerEvent, edges: Edges): void {
-    if (!this.resizable() || this.state() !== 'normal') return;
+    const model = this.model();
+    if (!model.options().resizable || model.state() !== 'normal') return;
     event.preventDefault();
     event.stopPropagation();
+    if (model.keyboardMode()) this.commitKeyboard();
+    const ref = this.windowRef();
+    if (ref) this.manager._activate(ref, { focus: true });
+    model.unsnapInPlace();
     const target = event.currentTarget as HTMLElement;
-    target.setPointerCapture(event.pointerId);
+    target.setPointerCapture?.(event.pointerId);
 
-    const startX = this.x_();
-    const startY = this.y_();
-    const startW = this.width_();
-    const startH = this.height_();
+    const startX = model.x();
+    const startY = model.y();
+    const startW = model.width();
+    const startH = model.height();
     const originX = event.clientX;
     const originY = event.clientY;
 
     const move = (e: PointerEvent): void => {
+      const o = model.options();
       const dx = e.clientX - originX;
       const dy = e.clientY - originY;
 
@@ -678,23 +628,20 @@ export class WrWindow {
       }
 
       // Enforce min/max — when shrinking from left/top we have to fix the position too.
-      const clampedW = clamp(nextW, this.minWidth(), this.maxWidth());
-      const clampedH = clamp(nextH, this.minHeight(), this.maxHeight());
+      const clampedW = Math.min(o.maxWidth, Math.max(o.minWidth, nextW));
+      const clampedH = Math.min(o.maxHeight, Math.max(o.minHeight, nextH));
       if (edges.l) nextX += nextW - clampedW;
       if (edges.t) nextY += nextH - clampedH;
 
-      this.x_.set(nextX);
-      this.y_.set(nextY);
-      this.width_.set(clampedW);
-      this.height_.set(clampedH);
-      this.clampToViewport();
+      model.setRaw({ x: nextX, y: nextY, width: clampedW, height: clampedH });
+      model.clamp();
     };
     const cleanup = (e: PointerEvent): void => {
-      target.releasePointerCapture(e.pointerId);
+      target.releasePointerCapture?.(e.pointerId);
       target.removeEventListener('pointermove', move);
       target.removeEventListener('pointerup', cleanup);
       target.removeEventListener('pointercancel', cleanup);
-      this.resized.emit({ width: this.width_(), height: this.height_() });
+      model.resized.next({ width: model.width(), height: model.height() });
     };
 
     target.addEventListener('pointermove', move);
@@ -715,55 +662,93 @@ export class WrWindow {
   protected resizeBL = (e: PointerEvent): void => this.startResize(e, { b: true, l: true });
   protected resizeL = (e: PointerEvent): void => this.startResize(e, { l: true });
 
-  // Internals
+  // Keyboard move and resize
 
-  private seedInitialGeometry(): void {
-    const sizePreset = this.size();
-    const preset = sizePreset ? SIZE_PRESETS[sizePreset] : SIZE_PRESETS.md;
-    const explicitW = this.initialWidth();
-    const explicitH = this.initialHeight();
-    const keep = this.keepInViewport();
-    const { width: vw, height: vh } = this.viewport();
-    // A window OPENS on screen when it can. The preset is a desktop size — `md`
-    // is 480px — and a phone is 390: the window opened at x=50 with its right
-    // edge at 530, and the Windows chrome's three buttons off the glass. So the
-    // size is capped at the viewport (the minimum still wins, since it is the
-    // consumer's floor), and a CASCADE position is moved in until the whole box
-    // fits. A coordinate the consumer passed is theirs, held only to the same
-    // reach a drag is.
-    const fit = (size: number, room: number): number => (keep ? Math.min(size, room) : size);
-    const w = clamp(fit(explicitW ?? preset.width, vw), this.minWidth(), this.maxWidth());
-    const h = clamp(fit(explicitH ?? preset.height, vh), this.minHeight(), this.maxHeight());
-    this.width_.set(w);
-    this.height_.set(h);
-
-    const xIn = this.initialX();
-    const yIn = this.initialY();
-    let x: number;
-    let y: number;
-    if (xIn != null && yIn != null) {
-      x = xIn;
-      y = yIn;
-    } else {
-      const cascade = this.manager.nextStartOffset();
-      x = xIn ?? cascade.x;
-      y = yIn ?? cascade.y;
+  /**
+   * Alt+F7 moves and Alt+F8 resizes — the keys Windows has used for both since
+   * Windows 3, and what GNOME and KDE bind too. Move and resize used to be
+   * drag-only, which is a WCAG 2.1.1 failure on its own.
+   */
+  protected onKeydown(event: KeyboardEvent): void {
+    if (this.model().keyboardMode()) {
+      this.onModeKey(event);
+      return;
     }
-    this.x_.set(keep && xIn == null ? clamp(x, 0, Math.max(0, vw - w)) : x);
-    this.y_.set(keep && yIn == null ? clamp(y, 0, Math.max(0, vh - h)) : y);
-
-    this.clampToViewport();
+    if (event.defaultPrevented || !event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (event.key !== 'F7' && event.key !== 'F8') return;
+    if (this.startKeyboard(event.key === 'F7' ? 'move' : 'resize')) event.preventDefault();
   }
 
   /**
-   * Keep enough of the window on screen to grab it again. Reads the viewport
-   * SIGNAL, so the constructor's effect re-runs it when the page is resized.
+   * Enter keyboard move or resize, with focus in the window so the keys arrive.
+   * Returns `false` when the window may not be moved or resized.
+   *
+   * @internal
    */
-  private clampToViewport(): void {
-    if (!this.keepInViewport()) return;
-    const { width: vw, height: vh } = this.viewport();
-    const w = this.width_();
-    this.x_.set(clamp(this.x_(), MIN_ON_VIEWPORT - w, vw - MIN_ON_VIEWPORT));
-    this.y_.set(clamp(this.y_(), 0, vh - MIN_ON_VIEWPORT));
+  startKeyboard(mode: WrWindowKeyboardMode): boolean {
+    const model = this.model();
+    const ref = this.windowRef();
+    if (ref) this.manager._activate(ref, { focus: false });
+    if (!model.startKeyboard(mode)) return false;
+    // Onto the window itself for the length of the mode, the way a desktop
+    // does it: left on a button in the body, the Enter that ends the mode
+    // pressed the button as well — and "Close" closed the window.
+    this.elRef.nativeElement.focus({ preventScroll: true });
+    this.announce(mode === 'move' ? this.moveModeText() : this.resizeModeText());
+    return true;
+  }
+
+  private onModeKey(event: KeyboardEvent): void {
+    const model = this.model();
+    const step = event.shiftKey ? 1 : model.options().keyboardStep;
+    const arrows: Record<string, readonly [number, number]> = {
+      ArrowLeft: [-step, 0],
+      ArrowRight: [step, 0],
+      ArrowUp: [0, -step],
+      ArrowDown: [0, step],
+    };
+    const delta = arrows[event.key];
+    if (delta) {
+      event.preventDefault();
+      if (model.keyboardMode() === 'move') {
+        model.nudge(delta[0], delta[1]);
+      } else {
+        // The inline end edge moves: in a right-to-left page that is the left
+        // one, so the arrow pointing away from the window still grows it.
+        const rtl = this.dir?.value === 'rtl';
+        model.grow(rtl ? -delta[0] : delta[0], delta[1], rtl);
+      }
+      return;
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.commitKeyboard();
+      this.focusLast();
+    } else if (event.key === 'Escape') {
+      // Claimed, so the manager's Escape does not close the window as well.
+      event.preventDefault();
+      const mode = model.cancelKeyboard();
+      if (mode) this.announceGeometry(mode);
+      this.focusLast();
+    } else if (event.key === 'Tab') {
+      this.commitKeyboard();
+    }
+  }
+
+  /** Keep what the keyboard mode did, and say so. Focus is the caller's business. */
+  private commitKeyboard(): void {
+    const mode = this.model().commitKeyboard();
+    if (mode) this.announceGeometry(mode);
+  }
+
+  private announceGeometry(mode: WrWindowKeyboardMode): void {
+    const r = this.model().rect();
+    this.announce(
+      mode === 'move' ? this.movedText({ x: r.left, y: r.top }) : this.resizedText({ width: r.width, height: r.height })
+    );
+  }
+
+  private announce(text: string): void {
+    this.announcement.set(text);
   }
 }

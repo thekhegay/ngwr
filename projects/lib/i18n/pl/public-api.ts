@@ -358,6 +358,11 @@ export const wrPl: WrI18nCatalog = {
     closeWindow: 'Zamknij okno',
     untitled: 'Bez nazwy',
     taskbar: 'Zminimalizowane okna',
+    taskbarAll: 'Otwarte okna',
+    moveMode: 'Przenoszenie okna. Użyj strzałek, Enter, aby zakończyć, albo Escape, aby anulować.',
+    resizeMode: 'Zmiana rozmiaru okna. Użyj strzałek, Enter, aby zakończyć, albo Escape, aby anulować.',
+    moved: 'Okno przeniesiono na pozycję {{x}}, {{y}}',
+    resized: 'Zmieniono rozmiar okna: {{width}} na {{height}}',
   },
   dialog: {
     close: 'Zamknij okno dialogowe',

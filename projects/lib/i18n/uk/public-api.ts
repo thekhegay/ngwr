@@ -356,6 +356,11 @@ export const wrUk: WrI18nCatalog = {
     closeWindow: 'Закрити вікно',
     untitled: 'Без назви',
     taskbar: 'Згорнуті вікна',
+    taskbarAll: 'Відкриті вікна',
+    moveMode: 'Переміщення вікна. Стрілки — перемістити, Enter — завершити, Escape — скасувати.',
+    resizeMode: 'Зміна розміру вікна. Стрілки — змінити розмір, Enter — завершити, Escape — скасувати.',
+    moved: 'Вікно переміщено в {{x}}, {{y}}',
+    resized: 'Розмір вікна змінено: {{width}} на {{height}}',
   },
   dialog: {
     close: 'Закрити діалогове вікно',

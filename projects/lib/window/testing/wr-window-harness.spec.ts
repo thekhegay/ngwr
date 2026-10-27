@@ -1,10 +1,12 @@
+import { TestKey } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
-import { Component, inject, signal } from '@angular/core';
+import { Component, type TemplateRef, inject, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { WrWindowManager, WrWindowTaskbar } from 'ngwr/window';
+import { WR_WINDOW_REF, WrWindowManager, WrWindowTaskbar } from 'ngwr/window';
+import type { WrWindowSlotContext, WrWindowTaskbarShow } from 'ngwr/window';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrWindowHarness } from './wr-window-harness';
@@ -13,13 +15,26 @@ import { WrWindowTaskbarHarness } from './wr-window-taskbar-harness';
 @Component({ template: '<p class="editor">Draft body</p>' })
 class Editor {}
 
+@Component({ template: '<span>Ln {{ line }}</span>' })
+class LineStatus {
+  readonly ref = inject(WR_WINDOW_REF);
+  readonly line = 3;
+}
+
 @Component({
   imports: [WrWindowTaskbar],
-  template: '<wr-window-taskbar [position]="position()" />',
+  template: `
+    <wr-window-taskbar [position]="position()" [show]="show()" />
+    <ng-template #badge let-ref
+      ><b>{{ ref.title() }} · draft</b></ng-template
+    >
+  `,
 })
 class Host {
   readonly position = signal<'top' | 'bottom'>('bottom');
+  readonly show = signal<WrWindowTaskbarShow>('minimized');
   readonly windows = inject(WrWindowManager);
+  readonly badge = viewChild.required<TemplateRef<WrWindowSlotContext>>('badge');
 }
 
 /**
@@ -42,10 +57,14 @@ describe('WrWindowHarness', () => {
     rootLoader = TestbedHarnessEnvironment.documentRootLoader(fixture);
   };
 
-  const open = async (config: Parameters<WrWindowManager['open']>[1] = {}): Promise<WrWindowHarness> => {
+  /** Open a window and find it by the title it SHOWS — an untitled one shows the catalog's word. */
+  const open = async (
+    config: Parameters<WrWindowManager['open']>[1] = {},
+    shown = (config.title ?? 'Untitled.md') || 'Untitled'
+  ): Promise<WrWindowHarness> => {
     fixture.componentInstance.windows.open(Editor, { title: 'Untitled.md', os: 'windows', ...config });
     await fixture.whenStable();
-    return rootLoader.getHarness(WrWindowHarness.with({ title: config.title! ?? 'Untitled.md' }));
+    return rootLoader.getHarness(WrWindowHarness.with({ title: shown }));
   };
 
   beforeEach(() => mount());
@@ -68,6 +87,47 @@ describe('WrWindowHarness', () => {
     expect(await win.getTitle()).toBe('Untitled.md');
     expect(await win.getBodyText()).toBe('Draft body');
     expect([await win.getState(), await win.isOpen()]).toEqual(['normal', true]);
+  });
+
+  it('names an untitled window, in its title bar and as a dialog', async () => {
+    const win = await open({ title: '' });
+
+    // `aria-labelledby` used to point at an empty element: a nameless dialog,
+    // and a blank title bar beside it.
+    expect(await win.getTitle()).toBe('Untitled');
+    expect(await win.isLabelledByTitle()).toBe(true);
+  });
+
+  it('reads the title-extra and status-bar content it was opened with', async () => {
+    const win = await open({ titleExtra: fixture.componentInstance.badge(), statusBar: LineStatus });
+
+    expect(await win.getTitleExtraText()).toBe('Untitled.md · draft');
+    expect(await win.getStatusBarText()).toBe('Ln 3');
+
+    const bare = await open({ title: 'Bare' });
+    expect([await bare.getTitleExtraText(), await bare.getStatusBarText()]).toEqual(['', '']);
+  });
+
+  it('says which window is active', async () => {
+    const one = await open({ title: 'One' });
+    const two = await open({ title: 'Two' });
+    expect([await one.isActive(), await two.isActive()]).toEqual([false, true]);
+
+    await one.focusWindow();
+
+    expect([await one.isActive(), await two.isActive()]).toEqual([true, false]);
+  });
+
+  it('moves from the keyboard and announces where it landed', async () => {
+    const win = await open({ x: 100, y: 100, width: 320, height: 240 });
+
+    await win.startKeyboardMove();
+    expect(await win.getKeyboardMode()).toBe('move');
+    await win.host().then(h => h.sendKeys(TestKey.RIGHT_ARROW, TestKey.ENTER));
+
+    expect(await win.getKeyboardMode()).toBeNull();
+    expect((await win.getBox()).x).toBe(110);
+    expect(await win.getAnnouncement()).toBe('Window moved to 110, 100');
   });
 
   it('presents itself as a dialog named by its own title', async () => {
@@ -362,7 +422,9 @@ describe('WrWindowHarness', () => {
       // Neither may carry a redundant role — a `<button role="button">` is the
       // same defect wearing a different hat.
       expect([restore.getAttribute('role'), close.getAttribute('role')]).toEqual([null, null]);
-      expect(close.getAttribute('tabindex')).toBeNull();
+      // One Tab stop for the whole rail, the toolbar pattern: the restore
+      // button holds it and the close button is reached with the arrows.
+      expect([restore.getAttribute('tabindex'), close.getAttribute('tabindex')]).toEqual(['0', '-1']);
     });
 
     it('names what the rail holds when a tab is not there', async () => {
@@ -378,12 +440,31 @@ describe('WrWindowHarness', () => {
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ]);
-      await (await open({ title: '' })).minimize();
+      await (await open({ title: '' }, 'Без названия')).minimize();
 
       const rail = await taskbar();
       expect(await rail.getRailLabel()).toBe('Свёрнутые окна');
       expect(await rail.getTabTitles()).toEqual(['Без названия']);
       expect(await rail.getRestoreLabel('Без названия')).toBe('Восстановить Без названия');
+    });
+
+    it('lists every open window with show="all", the active one marked', async () => {
+      fixture.componentInstance.show.set('all');
+      await open({ title: 'One' });
+      await open({ title: 'Two' });
+      const rail = await taskbar();
+
+      expect(await rail.getTabTitles()).toEqual(['One', 'Two']);
+      expect(await rail.getRailLabel()).toBe('Open windows');
+      expect([await rail.getActiveTabTitle(), await rail.isTabPressed('Two')]).toEqual(['Two', true]);
+
+      await rail.restore('One');
+      expect(await rail.getActiveTabTitle()).toBe('One');
+
+      // The active window's own tab minimizes it.
+      await rail.restore('One');
+      const one = await rootLoader.getHarness(WrWindowHarness.with({ title: 'One' }));
+      expect([await one.getState(), await rail.getActiveTabTitle()]).toEqual(['minimized', null]);
     });
 
     it('follows the edge it is pinned to', async () => {

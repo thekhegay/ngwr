@@ -71,12 +71,31 @@ export class WrWindowTaskbarHarness extends ComponentHarness {
     return Promise.all(titles.map(title => title.text()));
   }
 
+  /**
+   * The title of the tab marked active — `show="all"` marks the active window's
+   * tab, with `aria-pressed` and a modifier. `null` when no tab is marked, which
+   * is always the case in the default `show="minimized"`.
+   */
+  async getActiveTabTitle(): Promise<string | null> {
+    const active = await this.locatorForOptional('.wr-window-taskbar__tab--active .wr-window-taskbar__tab-title')();
+    return active ? active.text() : null;
+  }
+
+  /** Whether a tab's button says it is pressed — the active window's, in `show="all"`. */
+  async isTabPressed(title: string): Promise<boolean> {
+    return (await (await this.requireTab(title, 'isTabPressed')).getAttribute('aria-pressed')) === 'true';
+  }
+
   /** A tab's accessible name — the restore wording with the window's title in it. */
   async getRestoreLabel(title: string): Promise<string | null> {
     return (await this.requireTab(title, 'getRestoreLabel')).getAttribute('aria-label');
   }
 
-  /** Click a tab — restoring that window and focusing it. */
+  /**
+   * Click a tab — switching to that window, back from the taskbar if it was
+   * minimized, and focusing it. In `show="all"` the active window's own tab
+   * minimizes it instead.
+   */
   async restore(title: string): Promise<void> {
     await (await this.requireTab(title, 'restore')).click();
   }

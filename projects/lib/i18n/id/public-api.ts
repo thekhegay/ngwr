@@ -341,6 +341,11 @@ export const wrId: WrI18nCatalog = {
     closeWindow: 'Tutup jendela',
     untitled: 'Tanpa judul',
     taskbar: 'Jendela yang diminimalkan',
+    taskbarAll: 'Jendela yang terbuka',
+    moveMode: 'Memindahkan jendela. Gunakan tombol panah, Enter untuk selesai, dan Escape untuk membatalkan.',
+    resizeMode: 'Mengubah ukuran jendela. Gunakan tombol panah, Enter untuk selesai, dan Escape untuk membatalkan.',
+    moved: 'Jendela dipindahkan ke {{x}}, {{y}}',
+    resized: 'Ukuran jendela diubah menjadi {{width}} kali {{height}}',
   },
   dialog: {
     close: 'Tutup dialog',

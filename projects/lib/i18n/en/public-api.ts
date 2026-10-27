@@ -440,6 +440,11 @@ export const wrEn: WrI18nCatalog = {
     closeWindow: 'Close window',
     untitled: 'Untitled',
     taskbar: 'Minimized windows',
+    taskbarAll: 'Open windows',
+    moveMode: 'Moving the window. Use the arrow keys, Enter to finish, Escape to cancel.',
+    resizeMode: 'Resizing the window. Use the arrow keys, Enter to finish, Escape to cancel.',
+    moved: 'Window moved to {{x}}, {{y}}',
+    resized: 'Window resized to {{width}} by {{height}}',
   },
   dialog: {
     close: 'Close dialog',

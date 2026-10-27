@@ -353,6 +353,11 @@ export const wrVi: WrI18nCatalog = {
     closeWindow: 'Đóng cửa sổ',
     untitled: 'Không có tiêu đề',
     taskbar: 'Cửa sổ đã thu nhỏ',
+    taskbarAll: 'Cửa sổ đang mở',
+    moveMode: 'Đang di chuyển cửa sổ. Dùng các phím mũi tên, nhấn Enter để hoàn tất hoặc Escape để hủy.',
+    resizeMode: 'Đang đổi kích thước cửa sổ. Dùng các phím mũi tên, nhấn Enter để hoàn tất hoặc Escape để hủy.',
+    moved: 'Đã di chuyển cửa sổ đến {{x}}, {{y}}',
+    resized: 'Đã đổi kích thước cửa sổ thành rộng {{width}}, cao {{height}}',
   },
   dialog: {
     close: 'Đóng hộp thoại',

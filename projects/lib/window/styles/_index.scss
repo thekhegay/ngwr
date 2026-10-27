@@ -16,14 +16,37 @@
   }
 }
 
+/// One corner of the same arithmetic, for the Windows close button, which sits
+/// in the frame's top end corner and has to follow its curve.
+@mixin _corner($corner, $br) {
+  #{$corner}: $br;
+
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    #{$corner}: calc(#{$br} * 1.85);
+  }
+}
+
 .wr-window {
   --wr-window-bg: var(--wr-color-surface);
   --wr-window-border: var(--wr-border-base);
   --wr-window-chrome-bg: var(--wr-color-hover);
   --wr-window-chrome-color: var(--wr-color-on-surface);
+  // An inactive window's title bar, the way every desktop dims the windows that
+  // do not have the keyboard. Muted text on the faintest fill still reads at
+  // 7:1 in both schemes.
+  --wr-window-chrome-inactive-bg: var(--wr-color-fill-subtle);
+  --wr-window-chrome-inactive-color: var(--wr-color-on-surface-muted);
   --wr-window-radius: var(--wr-border-radius-base);
   --wr-window-handle-size: 8px;
   --wr-window-handle-corner: 14px;
+
+  // A finger needs more than a cursor: 16px edges and 24px corners, still all
+  // outside the frame, so they cover nothing of the window's own.
+  @media (pointer: coarse) {
+    --wr-window-handle-size: 16px;
+    --wr-window-handle-corner: 24px;
+  }
   --wr-window-chrome-height: 2.25rem;
   --wr-window-title-size: var(--wr-text-sm);
   --wr-window-action-size: 1.5rem;
@@ -74,6 +97,19 @@
       var(--wr-shadow-modal);
   }
 
+  // Keyboard move / resize: a dashed ring says the arrow keys now move or size
+  // the window rather than whatever was focused in it.
+  &--keyboard-moving,
+  &--keyboard-resizing,
+  &--keyboard-moving:focus-visible,
+  &--keyboard-resizing:focus-visible {
+    outline: var(--wr-focus-ring-width) dashed var(--wr-focus-ring-color);
+    outline-offset: var(--wr-focus-ring-offset);
+  }
+  &--keyboard-moving .wr-window__chrome {
+    cursor: move;
+  }
+
   // Squares the host AND the two bars that now round their own corners
   // (see `&__chrome` / `&__status-bar`) — one variable instead of three rules.
   &--maximized {
@@ -93,8 +129,14 @@
     --wr-window-action-size: 1.125rem;
   }
 
+  // The window's OWN motion only: the frame, the chrome and the grips. A
+  // universal selector here used to switch off every animation in the body as
+  // well — a spinner stopped, a switch stopped sliding — for an option that
+  // is about the window.
   &--no-anim,
-  &--no-anim * {
+  &--no-anim .wr-window__chrome,
+  &--no-anim .wr-window__chrome *,
+  &--no-anim .wr-window__handle {
     animation: none !important;
     transition: none !important;
   }
@@ -116,16 +158,44 @@
     padding-block: 0;
     // Roomy where the title starts, tight where the action cluster ends.
     padding-inline: var(--wr-window-chrome-padding-inline-start) var(--wr-window-chrome-padding-inline-end);
+    position: relative;
     background: var(--wr-window-chrome-bg);
     color: var(--wr-window-chrome-color);
     cursor: grab;
-    border-bottom: 1px solid var(--wr-window-border);
     @include _corner-pair(border-start-start-radius, border-start-end-radius, var(--wr-window-radius));
     touch-action: none;
 
     &:active {
       cursor: grabbing;
     }
+
+    // The line under the bar is drawn ON TOP of the bar's contents rather than
+    // as its border. The caption buttons fill the bar's whole height, so every
+    // box in a 36px bar lands on a whole pixel, and a hovered button's fill no
+    // longer cuts the line short beneath it. A border, not a background, so
+    // forced colours keep it.
+    &::after {
+      content: '';
+      position: absolute;
+      inset-inline: 0;
+      inset-block-end: 0;
+      block-size: 0;
+      border-block-end: 1px solid var(--wr-window-border);
+      pointer-events: none;
+    }
+  }
+
+  &--inactive &__chrome {
+    --wr-window-chrome-bg: var(--wr-window-chrome-inactive-bg);
+    --wr-window-chrome-color: var(--wr-window-chrome-inactive-color);
+  }
+
+  // The caption glyphs dim with the title; a hovered button wakes up, as on
+  // Windows and GNOME. Not on macOS, where each light keeps its own dark glyph:
+  // the lights go grey instead (see the preset), and a hover over the cluster
+  // brings back every light and every glyph at once.
+  &--inactive:not(.wr-window--os-macos) &__chrome-action:not(:hover) {
+    --wr-window-chrome-action-color: var(--wr-window-chrome-inactive-color);
   }
 
   &__title {
@@ -167,108 +237,366 @@
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
+    // The cluster spans the bar's whole height, which has no border of its own
+    // (the line under it is the bar's `::after`), so a 24px button centres on a
+    // whole pixel and the glyphs inside it stay sharp at 1x.
+    align-self: stretch;
     gap: var(--wr-window-chrome-actions-gap);
     padding-inline-start: var(--wr-window-chrome-actions-padding-inline-start);
   }
 
+  // The caption buttons. Every colour is a hook, and each OS preset below
+  // re-declares the ones its platform paints differently: Windows a flat
+  // full-height strip with a red close, GNOME tinted circles, macOS the
+  // traffic lights.
   &__chrome-action {
     --wr-window-chrome-action-radius: var(--wr-border-radius-sm);
+    --wr-window-chrome-action-width: var(--wr-window-action-size);
+    --wr-window-chrome-action-color: var(--wr-color-on-surface);
+    --wr-window-chrome-action-bg: transparent;
+    --wr-window-chrome-action-hover-bg: color-mix(in srgb, var(--wr-color-on-surface) 6%, transparent);
+    --wr-window-chrome-action-active-color: var(--wr-color-on-surface-muted);
+    --wr-window-chrome-action-active-bg: color-mix(in srgb, var(--wr-color-on-surface) 4%, transparent);
+    --wr-window-chrome-action-close-hover-color: var(--wr-color-danger-contrast);
+    --wr-window-chrome-action-close-hover-bg: var(--wr-color-danger);
+    --wr-window-chrome-action-close-active-bg: color-mix(in srgb, var(--wr-color-danger) 90%, transparent);
 
+    position: relative;
+    flex: 0 0 auto;
     appearance: none;
-    background: transparent;
     border: 0;
     padding: 0;
-    width: var(--wr-window-action-size);
+    width: var(--wr-window-chrome-action-width);
     height: var(--wr-window-action-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--wr-color-on-surface-muted);
+    color: var(--wr-window-chrome-action-color);
+    background: var(--wr-window-chrome-action-bg);
     cursor: pointer;
     border-radius: var(--wr-window-chrome-action-radius);
     transition:
       color var(--wr-transition-base),
-      background var(--wr-transition-base);
+      background-color var(--wr-transition-base);
 
     &:hover {
-      color: var(--wr-color-on-surface);
-      background: var(--wr-color-fill-strong);
+      background: var(--wr-window-chrome-action-hover-bg);
+    }
+
+    &:active {
+      color: var(--wr-window-chrome-action-active-color);
+      background: var(--wr-window-chrome-action-active-bg);
     }
 
     &--close:hover {
-      color: var(--wr-color-surface);
-      background: var(--wr-color-danger);
+      color: var(--wr-window-chrome-action-close-hover-color);
+      background: var(--wr-window-chrome-action-close-hover-bg);
+    }
+
+    &--close:active {
+      color: var(--wr-window-chrome-action-close-hover-color);
+      background: var(--wr-window-chrome-action-close-active-bg);
     }
   }
 
-  // OS preset: macOS — traffic-light dots, LEFT-aligned, colored
-  //                   (close = red, minimize = yellow, maximize = green).
+  // Each OS draws its glyph on its own grid (10px Windows, 16px GNOME, 8px
+  // macOS) and the button centres it; the size is set per preset below, in rem
+  // so it scales with the text, which at the default root size is the whole
+  // pixel the glyph was drawn for.
+  &__chrome-action-glyph {
+    position: relative;
+    flex: 0 0 auto;
+    display: block;
+    pointer-events: none;
+  }
+
+  // OS preset: Windows 11 — caption buttons 46px wide and as tall as the bar,
+  //                       flush with the frame, with 10px glyphs; a subtle tint
+  //                       on hover and the platform's red behind close.
   //
-  // Native macOS hides the glyphs (×, −, +) until the cursor enters the
-  // cluster. Mirror that.
+  // RTL: Windows mirrors the whole title bar in a right-to-left UI, close
+  // included, so the strip follows `dir` like every other flex row here.
+  &--os-windows {
+    .wr-window__chrome {
+      --wr-window-chrome-padding-inline-end: 0;
+    }
+    .wr-window__chrome-actions {
+      --wr-window-chrome-actions-gap: 0;
+    }
+    .wr-window__chrome-action {
+      --wr-window-chrome-action-radius: 0;
+      --wr-window-chrome-action-width: 2.875rem;
+      // Windows 11's own close colours: #c42b1c behind a white glyph, 90% of it
+      // when pressed. A platform colour, like the traffic lights, not an intent.
+      --wr-window-chrome-action-close-hover-color: #fff;
+      --wr-window-chrome-action-close-hover-bg: #c42b1c;
+      --wr-window-chrome-action-close-active-bg: color-mix(in srgb, #c42b1c 90%, transparent);
+
+      align-self: stretch;
+      height: auto;
+
+      // Inset: the strip runs flush to the frame, and to the viewport edge when
+      // the window is maximized, where an outset ring would be cut off. The
+      // halo moves inside with it, still under the outline.
+      // Lifted over the line under the bar, which would otherwise cover the
+      // ring's bottom edge.
+      &:focus-visible {
+        z-index: 1;
+        outline-offset: calc(var(--wr-focus-ring-width) * -1);
+        box-shadow: inset 0 0 0 calc(var(--wr-focus-ring-width) + var(--wr-focus-ring-offset)) var(--wr-focus-ring-halo);
+      }
+    }
+    // Close sits in the frame's corner, so its red follows the frame's curve.
+    .wr-window__chrome-action--close {
+      @include _corner(border-start-end-radius, var(--wr-window-radius));
+    }
+    .wr-window__chrome-action-glyph {
+      width: 0.625rem;
+      height: 0.625rem;
+    }
+
+    &.wr-window--chrome-sm .wr-window__chrome-action {
+      --wr-window-chrome-action-width: 2.25rem;
+    }
+  }
+
+  // OS preset: macOS — traffic lights (close red, minimize yellow, zoom green)
+  //                   at the start of the bar, glyphs on hover.
+  //
+  // The button is a 24px hit target and the dot is its `::before`: 14px dots
+  // 24px apart are macOS's own 12px-on-20px proportions scaled to this 36px bar,
+  // and they clear WCAG 2.5.8, which 14px buttons did not. The compact bar
+  // keeps the 24px targets and draws macOS's own 12px dot in them.
+  //
+  // RTL: macOS mirrors its window chrome in a right-to-left UI, so the lights
+  // move to the other edge with close still outermost. `row-reverse` resolves
+  // against `dir`, which is what does it.
   &--os-macos {
     .wr-window__chrome {
+      // The close dot's centre is as far from the side of the frame as from its
+      // top, which is where macOS puts it.
+      --wr-window-chrome-padding-inline-start: calc(
+        (var(--wr-window-chrome-height) - var(--wr-window-action-size)) / 2
+      );
+
       flex-direction: row-reverse;
     }
     .wr-window__title {
       text-align: center;
       // Counterbalance the cluster, which `row-reverse` parks on the opposite
-      // edge. `row-reverse` resolves against `dir`, so under RTL the dots move
-      // to the other edge and this gutter has to follow them.
-      padding-inline-end: 5rem;
+      // edge, so the title centres on the whole bar rather than on what is left.
+      // The template writes how many lights it drew: a window without minimize
+      // has a two-light cluster, and three lights' worth put its title 12px off.
+      padding-inline-end: calc(
+        var(--wr-window-chrome-padding-inline-start) + var(--wr-window-chrome-action-count, 3) *
+          var(--wr-window-action-size) - var(--wr-window-chrome-padding-inline-end)
+      );
+    }
+    // `row-reverse` puts the slot between the lights and the title, so its gap
+    // goes on the lights' side: on the inline end it sat between the badge and
+    // the title and left the badge touching the zoom light.
+    .wr-window__title-extra {
+      padding-inline-start: var(--wr-window-title-extra-padding-inline-end);
+      padding-inline-end: 0;
     }
     .wr-window__chrome-actions {
-      --wr-window-chrome-actions-gap: var(--wr-space-sm);
-      // gap from the edge the cluster is parked on
-      --wr-window-chrome-actions-padding-inline-start: var(--wr-space-sm);
+      --wr-window-chrome-actions-gap: 0;
+      --wr-window-chrome-actions-padding-inline-start: 0;
     }
     .wr-window__chrome-action {
-      width: 0.875rem; // 14px — bigger than the prior 12px to match native
-      height: 0.875rem;
-      border-radius: 50%;
-      color: color-mix(in srgb, var(--wr-color-black) 55%, transparent); // glyph color (revealed on hover)
+      --wr-window-traffic-light-size: 0.875rem;
+      // A tint of the text colour rather than a fill token: the fills sit a
+      // step from the bar in the dark scheme, which left the grey lights all
+      // but invisible there.
+      --wr-window-traffic-light-inactive-bg: color-mix(in srgb, var(--wr-color-on-surface) 22%, transparent);
+      --wr-window-chrome-action-radius: 50%;
+      --wr-window-chrome-action-color: var(--wr-window-traffic-light-color);
+      --wr-window-chrome-action-hover-bg: transparent;
+      --wr-window-chrome-action-active-color: var(--wr-window-traffic-light-color);
+      --wr-window-chrome-action-active-bg: transparent;
+      --wr-window-chrome-action-close-hover-color: var(--wr-window-traffic-light-color);
+      --wr-window-chrome-action-close-hover-bg: transparent;
+      --wr-window-chrome-action-close-active-bg: transparent;
 
-      &--close,
-      &--close:hover {
-        background: #ff5f57;
-      }
-      &--minimize,
-      &--minimize:hover {
-        background: #febc2e;
-      }
-      &--maximize,
-      &--maximize:hover {
-        background: #28c840;
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: var(--wr-window-traffic-light-size);
+        height: var(--wr-window-traffic-light-size);
+        border-radius: 50%;
+        background: var(--wr-window-traffic-light-bg);
+        // The darker rim every light has, which keeps the yellow readable on
+        // a light bar.
+        box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 15%);
       }
 
-      &:hover {
-        filter: brightness(0.92);
+      // Hovering only reveals the glyphs; pressing darkens the light.
+      &:active::before {
+        filter: brightness(0.82);
+      }
+
+      // Hug the dot rather than the 24px box around it.
+      &:focus-visible {
+        outline-offset: calc(
+          var(--wr-focus-ring-offset) - (var(--wr-window-action-size) - var(--wr-window-traffic-light-size)) / 2
+        );
+        box-shadow: none;
       }
     }
-    // Glyphs are invisible by default and fade in as soon as the cursor
-    // enters the cluster — native macOS behaviour.
+    .wr-window__chrome-action--close {
+      --wr-window-traffic-light-bg: #ff5f57;
+      --wr-window-traffic-light-color: #4d0000;
+    }
+    .wr-window__chrome-action--minimize {
+      --wr-window-traffic-light-bg: #febc2e;
+      --wr-window-traffic-light-color: #995700;
+    }
+    .wr-window__chrome-action--maximize {
+      --wr-window-traffic-light-bg: #28c840;
+      --wr-window-traffic-light-color: #006500;
+    }
+    // Hidden until the cursor enters the cluster, as on macOS, and shown while a
+    // light holds keyboard focus, so a keyboard user can see what it does.
     .wr-window__chrome-action-glyph {
-      width: 100%;
-      height: 100%;
+      width: 0.5rem;
+      height: 0.5rem;
       opacity: 0;
-      transition: opacity 0.12s ease;
+      transition: opacity var(--wr-transition-short);
     }
-    .wr-window__chrome-actions:hover .wr-window__chrome-action-glyph {
+    .wr-window__chrome-actions:hover .wr-window__chrome-action-glyph,
+    .wr-window__chrome-action:focus-visible .wr-window__chrome-action-glyph {
       opacity: 1;
+    }
+    // A rule of its own: Firefox 120, inside the browser floor, has no `:has()`,
+    // and one unknown selector would drop the hover reveal above with it. There
+    // the focused light alone shows its glyph.
+    .wr-window__chrome-actions:has(:focus-visible) .wr-window__chrome-action-glyph {
+      opacity: 1;
+    }
+
+    // An inactive window's lights go grey until the cursor enters the
+    // cluster or a light takes focus, as on macOS.
+    &.wr-window--inactive .wr-window__chrome-actions:not(:hover, :focus-within) .wr-window__chrome-action {
+      --wr-window-traffic-light-bg: var(--wr-window-traffic-light-inactive-bg);
+    }
+
+    &.wr-window--chrome-sm {
+      --wr-window-action-size: 1.5rem;
+
+      .wr-window__chrome-action {
+        --wr-window-traffic-light-size: 0.75rem;
+      }
     }
   }
 
-  // OS preset: Linux (GNOME-style) — chrome-action retains the windows
-  //                   look but the chrome bar is slightly taller and the
-  //                   title stays left-aligned. Close-only is the template's
-  //                   DEFAULT here, not a rule: `[showMinimize]="true"` puts
-  //                   the button back.
+  // OS preset: Linux (GNOME) — libadwaita's window controls: 24px circles
+  //                   tinted with the text colour (10% at rest, 15% on hover,
+  //                   30% pressed), close included, which GNOME does not paint
+  //                   red. Close-only is the template's DEFAULT here, not a
+  //                   rule: `[showMinimize]="true"` puts the button back.
+  //
+  // RTL: GTK mirrors the header bar in a right-to-left UI, so the controls move
+  // to the other edge with close outermost — the flex row follows `dir`.
   &--os-linux {
+    // A variable rather than a `height` on the bar, so `chromeSize: 'sm'` can
+    // still shrink it; a literal height here kept the compact bar 40px tall.
+    --wr-window-chrome-height: 2.5rem;
+
+    // The compact bar keeps the 16px glyphs, so its circles stop at 20px rather
+    // than the 18px the other chromes use: an 8px glyph in an 18px circle crowds
+    // it, and libadwaita's own small header keeps the same proportion.
+    &.wr-window--chrome-sm {
+      --wr-window-chrome-height: 1.625rem;
+      --wr-window-action-size: 1.25rem;
+    }
+
     .wr-window__chrome {
-      height: 2.5rem;
+      // The close circle as far from the side of the frame as from its top.
+      --wr-window-chrome-padding-inline-end: calc((var(--wr-window-chrome-height) - var(--wr-window-action-size)) / 2);
     }
     .wr-window__title {
       --wr-window-title-font-weight: var(--wr-font-weight-medium);
+    }
+    .wr-window__chrome-actions {
+      --wr-window-chrome-actions-gap: var(--wr-space-md);
+    }
+    .wr-window__chrome-action {
+      --wr-window-chrome-action-radius: 50%;
+      --wr-window-chrome-action-bg: color-mix(in srgb, currentColor 10%, transparent);
+      --wr-window-chrome-action-hover-bg: color-mix(in srgb, currentColor 15%, transparent);
+      --wr-window-chrome-action-active-color: var(--wr-window-chrome-action-color);
+      --wr-window-chrome-action-active-bg: color-mix(in srgb, currentColor 30%, transparent);
+      --wr-window-chrome-action-close-hover-color: var(--wr-window-chrome-action-color);
+      --wr-window-chrome-action-close-hover-bg: var(--wr-window-chrome-action-hover-bg);
+      --wr-window-chrome-action-close-active-bg: var(--wr-window-chrome-action-active-bg);
+
+      // libadwaita rims each circle when the reader asks for more contrast.
+      @media (prefers-contrast: more) {
+        box-shadow: inset 0 0 0 1px var(--wr-border-strong);
+      }
+    }
+    .wr-window__chrome-action-glyph {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  // Forced colours drop every fill above, the traffic lights with them. The
+  // buttons opt out and repaint in system colours: a rim where the shape is the
+  // only cue (the lights, GNOME's circles), Highlight on hover and press, and
+  // the macOS glyphs always on, since a bare rim says nothing about what it does.
+  @media (forced-colors: active) {
+    &__chrome-action {
+      forced-color-adjust: none;
+      color: ButtonText;
+      // Transparent at rest, as outside forced colours, so the strip reads as
+      // part of the bar rather than as a row of ButtonFace boxes.
+      background: transparent;
+
+      &:hover,
+      &:active,
+      &--close:hover,
+      &--close:active {
+        color: HighlightText;
+        background: Highlight;
+      }
+
+      &:focus-visible {
+        outline-color: CanvasText;
+      }
+    }
+
+    &--os-linux .wr-window__chrome-action {
+      box-shadow: inset 0 0 0 1px ButtonText;
+    }
+
+    &--os-macos {
+      .wr-window__chrome-action,
+      .wr-window__chrome-action:hover,
+      .wr-window__chrome-action:active {
+        color: ButtonText;
+        background: transparent;
+
+        &::before {
+          background: ButtonFace;
+          box-shadow: inset 0 0 0 1px ButtonText;
+          filter: none;
+        }
+      }
+      .wr-window__chrome-action:hover,
+      .wr-window__chrome-action:active {
+        color: HighlightText;
+
+        &::before {
+          background: Highlight;
+          box-shadow: none;
+        }
+      }
+      .wr-window__chrome-action-glyph {
+        opacity: 1;
+      }
     }
   }
 
@@ -313,6 +641,19 @@
     display: none;
   }
 
+  // The keyboard modes' live region: read, never drawn.
+  &__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   // Resize handles (only rendered in normal state).
   //
   // Every grip sits ENTIRELY OUTSIDE the padding box — the band the drop shadow
@@ -333,6 +674,9 @@
   &__handle {
     position: absolute;
     z-index: 1;
+    // A touch drag on a grip resizes; without this the browser took it as a
+    // page pan, fired `pointercancel` and stopped the resize after a few pixels.
+    touch-action: none;
 
     &--t {
       bottom: 100%;
@@ -407,8 +751,14 @@
   }
 }
 
-// Snap hint — translucent rectangle showing the target region the
-//                 window will jump into when the pointer is released.
+// Snap hint — translucent rectangle showing the region the window will jump
+//                 into when the pointer is released. Its box is written inline,
+//                 from the same arithmetic the drop uses, so the two agree with
+//                 a scrollbar showing and inside a custom work area. So is its
+//                 z-index, one above the window's own: the two share an overlay
+//                 host, and the window's z climbs with every raise, so this
+//                 fallback alone put the hint behind a window raised a hundred
+//                 times.
 .wr-window__snap-hint {
   --wr-window-snap-hint-radius: var(--wr-border-radius-base);
 
@@ -418,32 +768,14 @@
   background: color-mix(in srgb, var(--wr-color-primary) 18%, transparent);
   border: 2px solid var(--wr-color-primary);
   border-radius: var(--wr-window-snap-hint-radius);
-  transition: all 0.12s ease;
+  transition:
+    left 0.12s ease,
+    top 0.12s ease,
+    width 0.12s ease,
+    height 0.12s ease;
 
-  // rtl-ok: the `inset` shorthands below paint physical screen regions, not
-  // reading-order ones. `detectSnapTarget` picks `left` from `clientX <= 12`
-  // and `applySnap` answers with `x = 0`, so the hint has to cover the same
-  // half of the viewport the window is about to jump into.
-  &[data-target='top'] {
-    inset: 0;
-  }
-  &[data-target='left'] {
-    inset: 0 50% 0 0;
-  }
-  &[data-target='right'] {
-    inset: 0 0 0 50%;
-  }
-  &[data-target='top-left'] {
-    inset: 0 50% 50% 0;
-  }
-  &[data-target='top-right'] {
-    inset: 0 0 50% 50%;
-  }
-  &[data-target='bottom-left'] {
-    inset: 50% 50% 0 0;
-  }
-  &[data-target='bottom-right'] {
-    inset: 50% 0 0 50%;
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 }
 
@@ -452,11 +784,14 @@
   --wr-window-taskbar-font-family: var(--wr-font-family-base);
 
   position: fixed;
-  // rtl-ok: centred with a physical translateX, so the pair must stay physical
-  left: 50%;
-  transform: translateX(-50%);
+  // Both inline edges rather than `left: 50%` and a translate: a box pinned at
+  // the middle could only ever be half the viewport wide before it overflowed,
+  // and the rail ran off both sides of a phone with four windows listed. The
+  // host spans the page and lets presses through; the rail is centred in it.
+  inset-inline: 0.75rem;
   z-index: var(--wr-z-window, 1100);
-  display: block;
+  display: flex;
+  justify-content: center;
   pointer-events: none;
   font-family: var(--wr-window-taskbar-font-family);
 
@@ -473,8 +808,14 @@
     --wr-window-taskbar-rail-border: var(--wr-border-base);
     --wr-window-taskbar-rail-radius: var(--wr-border-radius-base);
 
-    display: inline-flex;
+    display: flex;
+    // More tabs than fit wrap onto another row of the same pill, so every tab
+    // and its close button stay on screen and in reach.
+    flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
+    min-inline-size: 0;
+    max-inline-size: 100%;
     gap: var(--wr-window-taskbar-rail-gap);
     padding: var(--wr-window-taskbar-rail-padding);
     background: var(--wr-color-surface);
@@ -494,6 +835,9 @@
     --wr-window-taskbar-tab-radius: var(--wr-border-radius-sm);
     --wr-window-taskbar-tab-font-size: var(--wr-text-sm);
     --wr-window-taskbar-tab-line-height: var(--wr-text-sm-leading);
+    --wr-window-taskbar-tab-active-bg: var(--wr-color-fill);
+    --wr-window-taskbar-tab-active-indicator: var(--wr-color-primary);
+    --wr-window-taskbar-tab-minimized-color: var(--wr-color-on-surface-muted);
 
     display: inline-flex;
     align-items: center;
@@ -510,6 +854,20 @@
 
     &:hover {
       background: var(--wr-color-fill-strong);
+    }
+
+    // `show="all"`: the active window's tab is filled, the way a desktop
+    // taskbar marks the window that has the keyboard; `aria-pressed` says the
+    // same to a screen reader.
+    &--active {
+      background: var(--wr-window-taskbar-tab-active-bg);
+      box-shadow: inset 0 -2px 0 var(--wr-window-taskbar-tab-active-indicator);
+    }
+
+    // A minimized window's tab in `show="all"` reads quieter than the windows
+    // on screen.
+    &--minimized {
+      color: var(--wr-window-taskbar-tab-minimized-color);
     }
   }
 

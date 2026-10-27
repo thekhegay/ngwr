@@ -7,9 +7,11 @@
 
 import type { WrClassInput } from 'ngwr/utils';
 
+import type { WrWindowBounds } from './window-bounds';
 import type { WrWindowChromeSize } from './window-chrome-size';
 import type { WrWindowOs } from './window-os';
 import type { WrWindowSize } from './window-size';
+import type { WrWindowSlotContent } from './window-slot';
 import type { WrWindowSnap } from './window-snap';
 
 /** What slice of geometry the storage layer should keep in sync. */
@@ -42,31 +44,65 @@ export interface WrWindowStorageConfig {
  * with the standard chrome at the cascaded position.
  */
 export interface WrWindowConfig<D = unknown> {
-  /** Stable identifier — used by the taskbar, workspace save, and DI. */
+  /**
+   * Stable identifier — used by the taskbar, workspace save, and DI. A second
+   * `open()` with an id that is already open brings that window back instead of
+   * opening another. Generated when omitted.
+   */
   readonly id?: string;
 
   // Chrome
+  /**
+   * Title-bar text, and the window's accessible name. A window without one is
+   * named by the catalog's "Untitled", in the title bar and in the taskbar.
+   * @default ''
+   */
   readonly title?: string;
+  /** Chrome style: `'auto'` follows the visitor's platform. @default 'auto' */
   readonly os?: WrWindowOs;
-  /** Initial size preset. Ignored when `width` / `height` are passed. */
+  /** Initial size preset. Ignored when `width` / `height` are passed. @default 'md' */
   readonly size?: WrWindowSize;
   /** Title-bar density. @default 'md' */
   readonly chromeSize?: WrWindowChromeSize;
 
   // Initial geometry (pixels)
+  /** Opening left edge, in viewport pixels. Omit to cascade from the work area's start edge. */
   readonly x?: number;
+  /** Opening top edge, in viewport pixels. Omit to cascade. */
   readonly y?: number;
+  /** Opening width in pixels, over the `size` preset. Capped at the work area while `keepInViewport`. */
   readonly width?: number;
+  /** Opening height in pixels, over the `size` preset. Capped at the work area while `keepInViewport`. */
   readonly height?: number;
+  /** Narrowest the window may be dragged, snapped or opened. @default 220 */
   readonly minWidth?: number;
+  /** Shortest the window may be dragged, snapped or opened. @default 140 */
   readonly minHeight?: number;
+  /** Widest the window may be dragged, snapped, maximized or opened. @default Infinity */
   readonly maxWidth?: number;
+  /** Tallest the window may be dragged, snapped, maximized or opened. @default Infinity */
   readonly maxHeight?: number;
 
   // Behaviour
+  /** Allow moving the window, by the title bar or from the keyboard. @default true */
   readonly movable?: boolean;
+  /** Allow resizing the window, by its edges or from the keyboard. @default true */
   readonly resizable?: boolean;
+  /**
+   * Keep enough of the window inside the work area to grab it again, and open
+   * it wholly inside when it fits. `false` lets it go anywhere. @default true
+   */
   readonly keepInViewport?: boolean;
+  /**
+   * The rectangle maximize, snapping, `keepInViewport` and the cascade keep the
+   * window inside. Falls back to `withWindows({ bounds })`, then the viewport.
+   * @default 'viewport'
+   */
+  readonly bounds?: WrWindowBounds;
+  /**
+   * Close on Escape — when focus is inside the window, or when focus is on
+   * nothing and this is the active window. @default true
+   */
   readonly closeOnEscape?: boolean;
   /**
    * Move focus into the window when it opens (since v15): to the element
@@ -84,32 +120,72 @@ export interface WrWindowConfig<D = unknown> {
   readonly autoFocus?: boolean;
   /** Snap-on-drag mode. @default 'none' */
   readonly snap?: WrWindowSnap;
+  /**
+   * Dragging the title bar of a maximized or snapped window restores its own
+   * size under the pointer, as desktop window managers do. `false` keeps a
+   * maximized window still and moves a snapped one at its snapped size.
+   * @default true
+   */
+  readonly restoreOnDrag?: boolean;
+  /**
+   * Keyboard move and resize: Alt+F7 moves the window and Alt+F8 resizes it
+   * with the arrow keys, Enter keeps the result and Escape puts it back. The
+   * same modes start from `WrWindowRef.startMove()` / `startResize()`.
+   * @default true
+   */
+  readonly keyboard?: boolean;
+  /** Pixels per arrow key in keyboard move and resize; Shift steps 1px. @default 10 */
+  readonly keyboardStep?: number;
 
   // Chrome actions
   /**
-   * Show the minimize control. Omit to follow the chrome — every OS but Linux
-   * shows it, and the Linux preset is close-only by convention. Pass `true` to
-   * override that, which is what a Linux user needs before a window can reach
-   * `<wr-window-taskbar>`.
+   * Show the minimize control. Omit to follow the chrome: every OS but Linux
+   * shows it, and the Linux chrome is close-only by convention. Pass `true` to
+   * show it there, which is what puts a Linux window within reach of
+   * `<wr-window-taskbar>`. A minimized window is hidden until something brings
+   * it back, so a page that offers minimize also needs the taskbar or a dock of
+   * its own over `WrWindowManager.minimized()`.
    */
   readonly showMinimize?: boolean;
-  /** Show the maximize control. Omit to follow the chrome, as with {@link showMinimize}. */
+  /** Show the maximize control. Omit to follow the chrome: every OS but Linux shows it. */
   readonly showMaximize?: boolean;
-  /** Show the close control. Every chrome closes, so this is not per-OS. */
+  /** Show the close control. Every chrome closes, so this is not per-OS. @default true */
   readonly showClose?: boolean;
 
+  // Slots
+  /**
+   * Content for the title bar, between the title and the buttons — a badge, a
+   * menu button. A template receives the ref as `$implicit`.
+   */
+  readonly titleExtra?: WrWindowSlotContent;
+  /** Content for a status bar under the body. A template receives the ref as `$implicit`. */
+  readonly statusBar?: WrWindowSlotContent;
+
   // Taskbar
-  /** Show in `<wr-window-taskbar>` when minimized. @default true */
+  /** List the window in `<wr-window-taskbar>`. @default true */
   readonly taskbar?: boolean;
 
   // Animations
+  /**
+   * The window's own open animation and transitions. Off under
+   * `prefers-reduced-motion`; the body's own animations are never touched.
+   * @default true
+   */
   readonly animations?: boolean;
 
   // Drag scope
-  /** CSS selector inside the projected content that restricts the move-grab area. */
+  /**
+   * CSS selector for the parts of the window that start a move. Matched in the
+   * body as well as the title bar, and replaces the title bar as the grab area —
+   * include `.wr-window__chrome` to keep it. A double-click on a match maximizes,
+   * as one on the title bar always does. Buttons, fields and links inside a match
+   * never start a drag. Give a body handle `touch-action: none` so a touch drag
+   * moves the window instead of scrolling the page.
+   */
   readonly dragHandle?: string;
 
   // Persistence
+  /** Save the geometry to `WrStorage` as it changes and open there next time. */
   readonly storage?: WrWindowStorageConfig;
 
   /**
@@ -119,6 +195,6 @@ export interface WrWindowConfig<D = unknown> {
    */
   readonly panelClass?: WrClassInput;
 
-  // Payload for the projected component (`WR_WINDOW_DATA` token)
+  /** Payload for the body component, read with `inject(WR_WINDOW_DATA)`. */
   readonly data?: D;
 }

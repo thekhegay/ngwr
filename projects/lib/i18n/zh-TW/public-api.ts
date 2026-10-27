@@ -346,6 +346,11 @@ export const wrZhTw: WrI18nCatalog = {
     closeWindow: '關閉視窗',
     untitled: '未命名',
     taskbar: '已最小化的視窗',
+    taskbarAll: '已開啟的視窗',
+    moveMode: '正在移動視窗。使用方向鍵移動，按 Enter 鍵完成，按 Escape 鍵取消。',
+    resizeMode: '正在調整視窗大小。使用方向鍵調整，按 Enter 鍵完成，按 Escape 鍵取消。',
+    moved: '視窗已移至 {{x}}，{{y}}',
+    resized: '視窗大小已調整為寬 {{width}}、高 {{height}}',
   },
   dialog: {
     close: '關閉對話方塊',

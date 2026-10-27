@@ -7,8 +7,8 @@
 
 /**
  * Visual state of a `<wr-window>`:
- * - `normal` — free-floating, drag / resize allowed
- * - `minimized` — collapsed to a small bar (only the header is shown)
- * - `maximized` — pinned to the full viewport, drag / resize disabled
+ * - `normal` — free-floating, drag / resize allowed (a snapped window is `normal` too; see `WrWindowRef.snap`)
+ * - `minimized` — hidden, and listed in `<wr-window-taskbar>` to come back from
+ * - `maximized` — fills the work area, up to `maxWidth` / `maxHeight`, with no resize handles
  */
 export type WrWindowState = 'normal' | 'minimized' | 'maximized';

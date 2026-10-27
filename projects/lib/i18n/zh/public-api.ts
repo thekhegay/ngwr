@@ -339,6 +339,11 @@ export const wrZh: WrI18nCatalog = {
     closeWindow: '关闭窗口',
     untitled: '无标题',
     taskbar: '已最小化的窗口',
+    taskbarAll: '已打开的窗口',
+    moveMode: '正在移动窗口。使用方向键移动，按 Enter 键完成，按 Esc 键取消。',
+    resizeMode: '正在调整窗口大小。使用方向键调整，按 Enter 键完成，按 Esc 键取消。',
+    moved: '窗口已移动到 {{x}}，{{y}}',
+    resized: '窗口大小已调整为宽 {{width}}、高 {{height}}',
   },
   dialog: {
     close: '关闭对话框',

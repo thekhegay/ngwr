@@ -352,6 +352,13 @@ export const wrDe: WrI18nCatalog = {
     closeWindow: 'Fenster schließen',
     untitled: 'Unbenannt',
     taskbar: 'Minimierte Fenster',
+    taskbarAll: 'Geöffnete Fenster',
+    moveMode:
+      'Fenster wird verschoben. Verwenden Sie die Pfeiltasten, die Eingabetaste zum Beenden und Escape zum Abbrechen.',
+    resizeMode:
+      'Fenstergröße wird geändert. Verwenden Sie die Pfeiltasten, die Eingabetaste zum Beenden und Escape zum Abbrechen.',
+    moved: 'Fenster verschoben nach {{x}}, {{y}}',
+    resized: 'Fenstergröße geändert auf {{width}} mal {{height}}',
   },
   dialog: {
     close: 'Dialog schließen',

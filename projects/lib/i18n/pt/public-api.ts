@@ -345,6 +345,11 @@ export const wrPt: WrI18nCatalog = {
     closeWindow: 'Fechar janela',
     untitled: 'Sem título',
     taskbar: 'Janelas minimizadas',
+    taskbarAll: 'Janelas abertas',
+    moveMode: 'A mover a janela. Use as teclas de setas, Enter para terminar e Escape para cancelar.',
+    resizeMode: 'A redimensionar a janela. Use as teclas de setas, Enter para terminar e Escape para cancelar.',
+    moved: 'Janela movida para {{x}}, {{y}}',
+    resized: 'Janela redimensionada para {{width}} por {{height}}',
   },
   dialog: {
     close: 'Fechar caixa de diálogo',

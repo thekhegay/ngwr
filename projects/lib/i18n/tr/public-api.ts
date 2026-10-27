@@ -356,6 +356,12 @@ export const wrTr: WrI18nCatalog = {
     closeWindow: 'Pencereyi kapat',
     untitled: 'Adsız',
     taskbar: 'Küçültülmüş pencereler',
+    taskbarAll: 'Açık pencereler',
+    moveMode: 'Pencere taşınıyor. Ok tuşlarını kullanın; bitirmek için Enter, iptal etmek için Escape tuşuna basın.',
+    resizeMode:
+      'Pencere yeniden boyutlandırılıyor. Ok tuşlarını kullanın; bitirmek için Enter, iptal etmek için Escape tuşuna basın.',
+    moved: 'Pencere {{x}}, {{y}} konumuna taşındı',
+    resized: 'Pencere boyutu değiştirildi: genişlik {{width}}, yükseklik {{height}}',
   },
   dialog: {
     close: 'İletişim kutusunu kapat',

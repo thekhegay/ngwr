@@ -341,6 +341,11 @@ export const wrEs: WrI18nCatalog = {
     closeWindow: 'Cerrar la ventana',
     untitled: 'Sin título',
     taskbar: 'Ventanas minimizadas',
+    taskbarAll: 'Ventanas abiertas',
+    moveMode: 'Moviendo la ventana. Usa las flechas, Intro para terminar y Escape para cancelar.',
+    resizeMode: 'Cambiando el tamaño de la ventana. Usa las flechas, Intro para terminar y Escape para cancelar.',
+    moved: 'Ventana movida a {{x}}, {{y}}',
+    resized: 'Ventana redimensionada a {{width}} por {{height}}',
   },
   dialog: {
     close: 'Cerrar el diálogo',

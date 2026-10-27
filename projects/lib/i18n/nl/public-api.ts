@@ -349,6 +349,11 @@ export const wrNl: WrI18nCatalog = {
     closeWindow: 'Venster sluiten',
     untitled: 'Naamloos',
     taskbar: 'Geminimaliseerde vensters',
+    taskbarAll: 'Geopende vensters',
+    moveMode: 'Venster verplaatsen. Gebruik de pijltoetsen, Enter om te voltooien en Escape om te annuleren.',
+    resizeMode: 'Venstergrootte wijzigen. Gebruik de pijltoetsen, Enter om te voltooien en Escape om te annuleren.',
+    moved: 'Venster verplaatst naar {{x}}, {{y}}',
+    resized: 'Venstergrootte gewijzigd naar {{width}} bij {{height}}',
   },
   dialog: {
     close: 'Dialoogvenster sluiten',

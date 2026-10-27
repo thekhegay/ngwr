@@ -10,12 +10,19 @@
         window is minimized, and the a11y sweep reads prerendered HTML, where the
         rail is not rendered at all.
       -->
-      <div #tab class="wr-window-taskbar__tab">
+      <div
+        #tab
+        class="wr-window-taskbar__tab"
+        [class.wr-window-taskbar__tab--active]="isCurrent(ref)"
+        [class.wr-window-taskbar__tab--minimized]="ref.state() === 'minimized'"
+      >
         <button
           type="button"
           class="wr-window-taskbar__tab-restore"
-          [attr.aria-label]="restoreLabel({ title: tabTitle(ref) })"
-          (click)="restore(ref)"
+          [attr.aria-label]="tabLabel(ref)"
+          [attr.aria-pressed]="show() === 'all' ? isCurrent(ref) : null"
+          [attr.tabindex]="tabIndex($index * 2)"
+          (click)="press(ref)"
         >
           <span class="wr-window-taskbar__tab-title">{{ tabTitle(ref) }}</span>
         </button>
@@ -23,6 +30,7 @@
           type="button"
           class="wr-window-taskbar__tab-close"
           [attr.aria-label]="closeLabel()"
+          [attr.tabindex]="tabIndex($index * 2 + 1)"
           (click)="close(ref, $event)"
         >
           <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true">

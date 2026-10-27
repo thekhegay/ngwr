@@ -341,6 +341,11 @@ export const wrCs: WrI18nCatalog = {
     closeWindow: 'Zavřít okno',
     untitled: 'Bez názvu',
     taskbar: 'Minimalizovaná okna',
+    taskbarAll: 'Otevřená okna',
+    moveMode: 'Přesouvání okna. Použijte šipky, Enter pro dokončení a Escape pro zrušení.',
+    resizeMode: 'Změna velikosti okna. Použijte šipky, Enter pro dokončení a Escape pro zrušení.',
+    moved: 'Okno přesunuto na {{x}}, {{y}}',
+    resized: 'Velikost okna změněna na {{width}} krát {{height}}',
   },
   dialog: {
     close: 'Zavřít dialog',

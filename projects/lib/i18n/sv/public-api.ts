@@ -341,6 +341,11 @@ export const wrSv: WrI18nCatalog = {
     closeWindow: 'Stäng fönstret',
     untitled: 'Namnlös',
     taskbar: 'Minimerade fönster',
+    taskbarAll: 'Öppna fönster',
+    moveMode: 'Fönstret flyttas. Använd piltangenterna, Enter för att avsluta och Escape för att avbryta.',
+    resizeMode: 'Fönstrets storlek ändras. Använd piltangenterna, Enter för att avsluta och Escape för att avbryta.',
+    moved: 'Fönstret flyttat till {{x}}, {{y}}',
+    resized: 'Fönstrets storlek ändrad till {{width}} gånger {{height}}',
   },
   dialog: {
     close: 'Stäng dialogrutan',

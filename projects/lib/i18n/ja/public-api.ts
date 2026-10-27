@@ -345,6 +345,11 @@ export const wrJa: WrI18nCatalog = {
     closeWindow: 'ウィンドウを閉じる',
     untitled: '無題',
     taskbar: '最小化されたウィンドウ',
+    taskbarAll: '開いているウィンドウ',
+    moveMode: 'ウィンドウを移動しています。矢印キーで移動し、Enter キーで確定、Escape キーで取り消します。',
+    resizeMode: 'ウィンドウのサイズを変更しています。矢印キーで変更し、Enter キーで確定、Escape キーで取り消します。',
+    moved: 'ウィンドウを {{x}}、{{y}} に移動しました',
+    resized: 'ウィンドウのサイズを幅 {{width}}、高さ {{height}} に変更しました',
   },
   dialog: {
     close: 'ダイアログを閉じる',

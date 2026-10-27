@@ -357,6 +357,11 @@ export const wrHe: WrI18nCatalog = {
     closeWindow: 'סגירת החלון',
     untitled: 'ללא שם',
     taskbar: 'חלונות ממוזערים',
+    taskbarAll: 'חלונות פתוחים',
+    moveMode: 'החלון בהזזה. מקשי החיצים מזיזים אותו, Enter מסיים ו-Escape מבטל.',
+    resizeMode: 'גודל החלון משתנה. מקשי החיצים משנים אותו, Enter מסיים ו-Escape מבטל.',
+    moved: 'החלון הוזז אל {{x}}, {{y}}',
+    resized: 'גודל החלון שונה ל-{{width}} על {{height}}',
   },
   dialog: {
     close: 'סגירת תיבת הדו-שיח',

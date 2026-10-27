@@ -17,6 +17,7 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  untracked,
   viewChild,
 } from '@angular/core';
 
@@ -28,21 +29,22 @@ import type { WrWindowConfig } from './types';
 import { WrWindow } from './window';
 import type { WrWindowRef } from './window-ref';
 
-interface PersistedGeometry {
+/** Coalesce live position/size writes — drag/resize fires every move. */
+const PERSIST_DEBOUNCE_MS = 200;
+
+/** What `storage` keeps — the geometry the user chose, never what a state imposes. @internal */
+export interface PersistedGeometry {
   readonly x?: number;
   readonly y?: number;
   readonly width?: number;
   readonly height?: number;
 }
 
-/** Coalesce live position/size writes — drag/resize fires every move. */
-const PERSIST_DEBOUNCE_MS = 200;
-
 /**
- * Internal host attached by `WrWindowManager.open()`. Reads the config,
- * configures a `<wr-window>`, projects the consumer's component into
- * its body, and wires the resulting instance back to the `WrWindowRef`
- * so consumers can drive everything imperatively.
+ * Internal host attached by `WrWindowManager.open()`. Draws a `<wr-window>` for
+ * the ref's model, creates the consumer's component inside its body, and wires
+ * the DOM-only parts of the ref — focus and keyboard mode — once it is on the
+ * page. State and geometry need no wiring: the ref reads the model directly.
  *
  * @internal
  */
@@ -76,6 +78,16 @@ export class WrWindowContainer<C> {
 
   constructor() {
     afterNextRender(() => this.attach());
+
+    // Re-clamp when the WORK AREA changes — a resized viewport, a taskbar
+    // appearing — and only then. It used to re-run on every geometry write,
+    // repeating the clamp the drag handler had just done on each pointer move.
+    effect(() => {
+      const model = this.ref._model;
+      model.workArea();
+      untracked(() => model.clamp());
+    });
+
     this.destroyRef.onDestroy(() => {
       if (this.persistTimer !== null) clearTimeout(this.persistTimer);
     });
@@ -88,133 +100,91 @@ export class WrWindowContainer<C> {
     });
     this.ref.componentRef = componentRef;
 
-    // 2. Bridge imperative actions to the underlying <wr-window>.
+    // 2. The DOM-only bridges. After a render, not now: the consumer's
+    //    component was created a line above and has not drawn its template yet,
+    //    and a window coming back from the taskbar is still `display: none`
+    //    until its class updates.
     const w = this.wrWindow();
-    this.ref._doMinimize = () => w.minimize();
-    this.ref._doMaximize = () => w.maximize();
-    this.ref._doRestore = () => w.restore();
-    this.ref._doFocus = () => w.focus();
-    this.ref._doMoveTo = (x, y) => w.moveTo(x, y);
-    this.ref._doResizeTo = (width, height) => w.resizeTo(width, height);
-    this.ref._doCenter = () => w.center();
-    this.ref._doSetTitle = title => this.ref._title.set(title);
-    // After a render, not now: the consumer's component was created a line
-    // above and has not drawn its template yet, and a window coming back from
-    // the taskbar is still `display: none` until its class updates.
-    this.ref._doFocusInitial = () => afterNextRender(() => w.focusInitial(), { injector: this.hostInjector });
+    const model = this.ref._model;
+    this.ref._focusWindow = mode =>
+      afterNextRender(
+        () => {
+          if (mode === 'initial') {
+            w.focusInitial();
+            return;
+          }
+          // Only for the window that is STILL the one switched to: two
+          // activations in one tick each queue a focus, and the earlier one,
+          // landing last, took the keyboard back from the window the user
+          // actually ended on.
+          if (this.manager.active() === (this.ref as WrWindowRef<unknown, unknown>)) w.focusLast();
+        },
+        { injector: this.hostInjector }
+      );
+    this.ref._startKeyboard = mode => {
+      if (model.state() !== 'minimized') {
+        w.startKeyboard(mode);
+        return;
+      }
+      model.unminimize();
+      afterNextRender(() => w.startKeyboard(mode), { injector: this.hostInjector });
+    };
+    model.onMinimizedWithFocus = () => this.onMinimizedWithFocus();
     // A ref outlives its window; a render hook must not be registered on an
     // injector that is gone.
-    this.destroyRef.onDestroy(() => (this.ref._doFocusInitial = null));
-
-    // 3. Sync the live geometry/state into the ref's signals so
-    //    consumers can read them reactively without poking at <wr-window>.
-    //    Angular 22 always allows signal writes inside effects — the
-    //    `allowSignalWrites` option was deprecated in this version.
-    runInInjectionContext(this.hostInjector, () => {
-      effect(() => this.ref._state.set(w.state()));
-      effect(() => this.ref._x.set(w.x()));
-      effect(() => this.ref._y.set(w.y()));
-      effect(() => this.ref._width.set(w.width()));
-      effect(() => this.ref._height.set(w.height()));
-      // Alongside the effective values, not instead of them: `saveLayout` needs
-      // the geometry a maximized or minimized window would go back to.
-      effect(() => this.ref._rawX.set(w.x_()));
-      effect(() => this.ref._rawY.set(w.y_()));
-      effect(() => this.ref._rawWidth.set(w.width_()));
-      effect(() => this.ref._rawHeight.set(w.height_()));
-      effect(() => this.ref._z.set(w.z()));
-
-      // The z-index has to land on the OVERLAY HOST, not only on `.wr-window`.
-      // Each window sits in its own CDK global wrapper, and that wrapper is
-      // `position: fixed` with a numeric `z-index` — which makes it a stacking
-      // context. A z-index written INSIDE it therefore only orders things
-      // against its own siblings, never against another window: the wrappers
-      // all carry the same z and stack by DOM order, so the most recently
-      // opened window painted on top for good. `bringToFront()` raised the
-      // number and nothing moved — measured in Chromium, `elementFromPoint` in
-      // the overlap kept returning the newer window after the older one's title
-      // bar was clicked.
-      effect(() => {
-        const host = this.ref._overlayRef?.hostElement;
-        if (host) host.style.zIndex = String(w.z());
-      });
+    this.destroyRef.onDestroy(() => {
+      this.ref._focusWindow = null;
+      this.ref._startKeyboard = null;
+      model.onMinimizedWithFocus = null;
     });
 
-    // 4. Seed the title signal from config.
-    this.ref._title.set(this.config.title ?? '');
+    // 3. Storage — hydration happened at open, as the initial geometry; from
+    //    here on, save as the geometry changes.
+    if (this.config.storage) this.installAutosave();
 
-    // 5. Storage — hydrate from disk + auto-save on geometry change.
-    if (this.config.storage) {
-      this.hydrateFromStorage(w);
-      this.installAutosave(w);
-    }
+    // 4. Focus — never into a window that opened straight into the taskbar.
+    if (this.autoFocus && model.state() !== 'minimized') this.ref._focusWindow('initial');
 
-    // 6. Apply any state the manager pinned for restore — bridges are
-    //    now wired so `ref.minimize()` / `maximize()` actually fire.
-    const pending = this.ref.pendingStateOnMount;
+    // 5. A keyboard mode asked for before the window was on the page.
+    const pending = this.ref._pendingKeyboard;
     if (pending) {
-      this.ref.pendingStateOnMount = null;
-      if (pending === 'minimized') this.ref.minimize();
-      else if (pending === 'maximized') this.ref.maximize();
+      this.ref._pendingKeyboard = null;
+      this.ref._startKeyboard(pending);
     }
-
-    // 7. Focus — never into a window that opened straight into the taskbar.
-    if (this.autoFocus && w.state() !== 'minimized') this.ref._doFocusInitial();
   }
 
   /** The window was minimized while it held focus: hand focus to its taskbar tab. */
-  protected onMinimizedWithFocus(): void {
+  private onMinimizedWithFocus(): void {
     // After the render that lists the window in the taskbar.
     afterNextRender(() => this.manager._focusAfterMinimize(this.ref as WrWindowRef<unknown, unknown>), {
       injector: this.hostInjector,
     });
   }
 
-  /** Apply persisted geometry on top of config defaults, before the user sees the window. */
-  private hydrateFromStorage(w: WrWindow): void {
-    const cfg = this.config.storage;
-    if (!cfg) return;
-    const saved = this.storage.get<PersistedGeometry>(storageKey(cfg));
-    if (!saved) return;
-    const persist = cfg.persist ?? 'all';
-    if (persist !== 'size') {
-      if (typeof saved.x === 'number') w.x_.set(saved.x);
-      if (typeof saved.y === 'number') w.y_.set(saved.y);
-    }
-    if (persist !== 'position') {
-      if (typeof saved.width === 'number') w.width_.set(saved.width);
-      if (typeof saved.height === 'number') w.height_.set(saved.height);
-    }
-  }
-
   /** Persist geometry whenever it changes, debounced. */
-  private installAutosave(w: WrWindow): void {
+  private installAutosave(): void {
     const cfg = this.config.storage;
     if (!cfg) return;
     const persist = cfg.persist ?? 'all';
     const key = storageKey(cfg);
+    const model = this.ref._model;
 
     runInInjectionContext(this.hostInjector, () => {
       effect(() => {
-        // Read every signal we want to watch; ignore minimized/maximized
-        // overlay values — we only persist the user's chosen geometry.
-        const x = w.x_();
-        const y = w.y_();
-        const width = w.width_();
-        const height = w.height_();
+        // The raw geometry: what a maximized or snapped window goes back to,
+        // and so what the user chose.
+        const x = model.x();
+        const y = model.y();
+        const width = model.width();
+        const height = model.height();
 
         if (this.persistTimer !== null) clearTimeout(this.persistTimer);
         this.persistTimer = setTimeout(() => {
           this.persistTimer = null;
-          const payload: PersistedGeometry = {};
-          if (persist !== 'size') {
-            (payload as { x?: number; y?: number }).x = x;
-            (payload as { x?: number; y?: number }).y = y;
-          }
-          if (persist !== 'position') {
-            (payload as { width?: number; height?: number }).width = width;
-            (payload as { width?: number; height?: number }).height = height;
-          }
+          const payload: PersistedGeometry = {
+            ...(persist !== 'size' ? { x, y } : {}),
+            ...(persist !== 'position' ? { width, height } : {}),
+          };
           this.storage.set(key, payload);
         }, PERSIST_DEBOUNCE_MS);
       });

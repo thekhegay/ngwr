@@ -350,6 +350,12 @@ export const wrFr: WrI18nCatalog = {
     closeWindow: 'Fermer la fenêtre',
     untitled: 'Sans titre',
     taskbar: 'Fenêtres réduites',
+    taskbarAll: 'Fenêtres ouvertes',
+    moveMode: 'Déplacement de la fenêtre. Utilisez les touches fléchées, Entrée pour terminer et Échap pour annuler.',
+    resizeMode:
+      'Redimensionnement de la fenêtre. Utilisez les touches fléchées, Entrée pour terminer et Échap pour annuler.',
+    moved: 'Fenêtre déplacée en {{x}}, {{y}}',
+    resized: 'Fenêtre redimensionnée en {{width}} par {{height}}',
   },
   dialog: {
     close: 'Fermer la boîte de dialogue',

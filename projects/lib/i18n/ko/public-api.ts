@@ -348,6 +348,11 @@ export const wrKo: WrI18nCatalog = {
     closeWindow: '창 닫기',
     untitled: '제목 없음',
     taskbar: '최소화된 창',
+    taskbarAll: '열린 창',
+    moveMode: '창을 이동하는 중입니다. 화살표 키로 옮기고, Enter 키로 마치고, Esc 키로 취소합니다.',
+    resizeMode: '창 크기를 바꾸는 중입니다. 화살표 키로 조절하고, Enter 키로 마치고, Esc 키로 취소합니다.',
+    moved: '창이 {{x}}, {{y}} 위치로 이동했습니다',
+    resized: '창 크기를 바꿨습니다. 너비 {{width}}, 높이 {{height}}',
   },
   dialog: {
     close: '대화 상자 닫기',

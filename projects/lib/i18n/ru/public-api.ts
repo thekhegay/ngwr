@@ -348,6 +348,11 @@ export const wrRu: WrI18nCatalog = {
     closeWindow: 'Закрыть окно',
     untitled: 'Без названия',
     taskbar: 'Свёрнутые окна',
+    taskbarAll: 'Открытые окна',
+    moveMode: 'Перемещение окна. Стрелки — переместить, Enter — завершить, Escape — отменить.',
+    resizeMode: 'Изменение размера окна. Стрелки — изменить размер, Enter — завершить, Escape — отменить.',
+    moved: 'Окно перемещено в {{x}}, {{y}}',
+    resized: 'Размер окна изменён: {{width}} на {{height}}',
   },
   dialog: {
     close: 'Закрыть диалог',
