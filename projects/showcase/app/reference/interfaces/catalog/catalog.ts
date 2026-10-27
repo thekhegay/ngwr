@@ -184,6 +184,16 @@ export default class TypesCatalogPage {
           url: ['/reference/components', 'dialog'],
         },
         { name: 'WrWindowConfig', description: 'Floating window config.', url: ['/reference/components', 'window'] },
+        {
+          name: 'WrWindowBounds',
+          description: 'Work area a window keeps inside.',
+          url: ['/reference/components', 'window'],
+        },
+        {
+          name: 'WrWindowUpdate',
+          description: 'What ref.update() can change after open.',
+          url: ['/reference/components', 'window'],
+        },
         { name: 'WrPopoverPosition', description: 'Anchor side union.', url: ['/reference/components', 'popover'] },
         { name: 'WrResultStatus', description: 'Result preset union.', url: ['/reference/components', 'result'] },
       ],

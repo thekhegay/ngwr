@@ -88,6 +88,9 @@ bootstrapApplication(AppComponent, {
   message: 'Profile updated.',
 });`,
 
+    parts: `this.toast.show({ title: 'Saved', message: '' });
+this.toast.show({ message: 'Link copied' });`,
+
     overrides: `this.toast.show({
   message: 'Permalink copied to clipboard',
   position: 'bottom',
@@ -139,7 +142,7 @@ ref.dismiss();`,
       default: "'info'",
     },
     { name: 'title', description: 'Optional heading.', type: 'string', default: '—' },
-    { name: 'message', description: 'Body text.', type: 'string', required: true },
+    { name: 'message', description: "Body text. `''` for a title-only toast.", type: 'string', required: true },
     {
       name: 'duration',
       description: 'Auto-dismiss after N ms. 0 disables. Falls back to global config.',
@@ -241,6 +244,24 @@ ref.dismiss();`,
       title: 'Read me',
       message: 'No timeout — dismiss me manually.',
       duration: 0,
+    });
+  }
+
+  protected fireTitleOnly(): void {
+    this.toast.show({
+      type: 'success',
+      title: 'Saved',
+      message: '',
+      showProgress: this.showProgress(),
+      showCopy: this.showCopy(),
+    });
+  }
+
+  protected fireMessageOnly(): void {
+    this.toast.show({
+      message: 'Link copied to clipboard',
+      showProgress: this.showProgress(),
+      showCopy: this.showCopy(),
     });
   }
 

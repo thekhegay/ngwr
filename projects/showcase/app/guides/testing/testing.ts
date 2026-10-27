@@ -851,7 +851,7 @@ export class MyWidgetHarness extends ComponentHarness {
   protected readonly toastApi: readonly DocApiRow[] = [
     {
       name: 'getMessage() / getTitle()',
-      description: 'The text; `getTitle()` is `null` without a title.',
+      description: "The text; `getTitle()` is `null` without a title, `getMessage()` is `''` without a message.",
       type: 'Promise<string> | Promise<string | null>',
     },
     { name: 'getType()', description: 'The intent.', type: 'Promise<WrToastType | null>' },
@@ -1350,14 +1350,24 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'getRole() / isLabelledByTitle() / isHiddenFromAssistiveTech()',
-      description: 'A non-modal dialog named by its title.',
+      name: 'getRole() / isLabelledByTitle() / isHiddenFromAssistiveTech() / isActive()',
+      description: 'A non-modal dialog named by its title. `isActive()` is the window the keyboard is in.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'startKeyboardMove() / startKeyboardResize() / getKeyboardMode() / getAnnouncement()',
+      description: 'Alt+F7 / Alt+F8. Then `sendKeys` arrows, Enter or Escape to the window.',
       type: 'Promise<…>',
     },
     {
       name: 'Taskbar: isEmpty() / getTabTitles() / restore(title) / closeTab(title) / getRestoreLabel(title) / getRailLabel() / getPosition()',
       description: '`WrWindowTaskbarHarness`. `closeTab()` closes without restoring.',
       type: 'Promise<…>',
+    },
+    {
+      name: 'Taskbar: getActiveTabTitle() / isTabPressed(title)',
+      description: 'With `show="all"`: the active window\'s tab, the one with `aria-pressed="true"`.',
+      type: 'Promise<string | null> | Promise<boolean>',
     },
   ];
 
