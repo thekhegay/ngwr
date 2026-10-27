@@ -13,6 +13,7 @@ import {
   ViewEncapsulation,
   afterNextRender,
   computed,
+  effect,
   inject,
   input,
   output,
@@ -74,6 +75,7 @@ type ActiveToast = WrToastOptions & {
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',
+    '[style.--wr-toast-front-height]': 'frontHeight()',
     role: 'region',
     '[attr.aria-label]': 'regionLabel()',
     '(mouseenter)': 'onMouseEnter()',
@@ -157,8 +159,42 @@ export class WrToastHost {
   /** True while this host moves focus itself, so the move is not read as an entry. */
   private movingFocus = false;
 
+  /**
+   * The front toast's height, which the cards behind it take while the stack
+   * is collapsed. Each card used to keep its own, so a short front toast — a
+   * title alone, a one-line message — left a taller card hanging below it, and
+   * that card's last line read through underneath. `null` until measured, and
+   * on the server, where the stylesheet falls back to each card's own height.
+   */
+  protected readonly frontHeight = signal<string | null>(null);
+
+  private readonly frontObserver =
+    typeof ResizeObserver === 'undefined'
+      ? null
+      : new ResizeObserver(entries => {
+          // `offsetHeight`, the layout box, which no transform reaches: the
+          // collapsed stack scales and offsets its cards with them.
+          const front = entries[entries.length - 1]?.target as HTMLElement | undefined;
+          this.frontHeight.set(front ? `${front.offsetHeight}px` : null);
+        });
+
   constructor() {
-    this.destroyRef.onDestroy(() => this.clearCollapseTimer());
+    this.destroyRef.onDestroy(() => {
+      this.clearCollapseTimer();
+      this.frontObserver?.disconnect();
+    });
+
+    // The front card is the LAST one rendered, whichever way the stack grows.
+    // Follow it as toasts come and go; the observer reports its height on the
+    // first observation and again whenever its text rewraps.
+    effect(() => {
+      const items = this.items();
+      const front = items[items.length - 1]?.nativeElement as HTMLElement | undefined;
+      if (!this.frontObserver) return;
+      this.frontObserver.disconnect();
+      if (front) this.frontObserver.observe(front);
+      else this.frontHeight.set(null);
+    });
   }
 
   /** @internal */

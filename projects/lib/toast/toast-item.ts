@@ -103,8 +103,19 @@ export class WrToastItem {
   protected readonly justCopied = signal(false);
   private copyResetTimer: ReturnType<typeof setTimeout> | null = null;
 
+  /**
+   * `--untitled` when the toast opens on its message. The glyph and the
+   * actions are centred on the FIRST line, and with no title that line is the
+   * message's, whose line height is its own hook — so the stylesheet needs to
+   * know which one it is reading.
+   */
   protected readonly classes = computed(() =>
-    toClassList('wr-toast', `wr-toast--${this.type()}`, this.extraClass()).join(' ')
+    toClassList(
+      'wr-toast',
+      `wr-toast--${this.type()}`,
+      this.title() ? null : 'wr-toast--untitled',
+      this.extraClass()
+    ).join(' ')
   );
 
   /** Escalate to `alert`/`assertive` for danger/warning toasts. */
@@ -118,9 +129,16 @@ export class WrToastItem {
 
   protected readonly progressVisible = computed(() => this.showProgress() && this.duration() > 0);
 
+  /**
+   * What the copy button puts on the clipboard: the message, or the title when
+   * the toast has nothing else. A title-only toast copied an empty string, and
+   * still flipped the glyph to the "Copied" check.
+   */
+  private readonly copyText = computed(() => (this.message() !== '' ? this.message() : (this.title() ?? '')));
+
   protected async onCopy(): Promise<void> {
     try {
-      await navigator.clipboard.writeText(this.message());
+      await navigator.clipboard.writeText(this.copyText());
       this.justCopied.set(true);
       if (this.copyResetTimer) clearTimeout(this.copyResetTimer);
       this.copyResetTimer = setTimeout(() => this.justCopied.set(false), 1500);

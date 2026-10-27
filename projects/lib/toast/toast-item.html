@@ -45,11 +45,17 @@
   }
 </svg>
 
+<!-- Each part renders only when it has text. A title-only toast is shown with
+     `message: ''`, and the empty `<p>` it used to leave behind kept the title's
+     bottom margin under it: 4px of dead space that made the card taller below
+     its one line than above it. -->
 <div class="wr-toast__body">
   @if (title(); as text) {
     <p class="wr-toast__title">{{ text }}</p>
   }
-  <p class="wr-toast__message">{{ message() }}</p>
+  @if (message(); as text) {
+    <p class="wr-toast__message">{{ text }}</p>
+  }
 </div>
 
 <div class="wr-toast__actions">
