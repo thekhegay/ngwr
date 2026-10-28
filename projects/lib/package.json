@@ -165,6 +165,13 @@
     "./bits/decrypt-text/testing": {
       "default": "./bits/decrypt-text/testing/public-api.ts"
     },
+    "./bits/dot-grid": {
+      "sass": "./bits/dot-grid/styles/_index.scss",
+      "default": "./bits/dot-grid/public-api.ts"
+    },
+    "./bits/dot-grid/testing": {
+      "default": "./bits/dot-grid/testing/public-api.ts"
+    },
     "./bits/falling-text": {
       "sass": "./bits/falling-text/styles/_index.scss",
       "default": "./bits/falling-text/public-api.ts"
@@ -240,6 +247,13 @@
     },
     "./bits/star-border/testing": {
       "default": "./bits/star-border/testing/public-api.ts"
+    },
+    "./bits/threads": {
+      "sass": "./bits/threads/styles/_index.scss",
+      "default": "./bits/threads/public-api.ts"
+    },
+    "./bits/threads/testing": {
+      "default": "./bits/threads/testing/public-api.ts"
     },
     "./bits/tilt-card": {
       "sass": "./bits/tilt-card/styles/_index.scss",
