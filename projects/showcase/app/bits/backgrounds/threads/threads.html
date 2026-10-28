@@ -1,0 +1,73 @@
+<ngwr-doc-page
+  title="Threads"
+  since="15.1.0"
+  description="Thin lines flowing behind your content like strands in a current."
+  [keywords]="['threads', 'wr-threads', 'background', 'animation', 'reactbits', 'canvas']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="threads" category="backgrounds" />
+
+  <ngwr-doc-section
+    title="Playground"
+    description="Put it first in a positioned box; it fills that box behind the content."
+  >
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <div style="position: relative; width: 100%; height: 18rem; border-radius: 0.75rem; overflow: hidden">
+        <wr-threads
+          [color]="color()"
+          [lineCount]="lineCount()"
+          [amplitude]="amplitude()"
+          [spread]="spread()"
+          [speed]="speed()"
+          [lineWidth]="lineWidth()"
+          [followPointer]="followPointer()"
+        />
+        <div
+          style="
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            pointer-events: none;
+          "
+        >
+          <p wrTypography variant="h3" style="margin: 0">Content above the threads</p>
+        </div>
+      </div>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Behind a hero"
+    description="The pointer still bends the threads under the copy, and the copy keeps every click."
+  >
+    <ngwr-doc-snippet [code]="heroSnippet">
+      <div style="position: relative; width: 100%; min-height: 20rem; border-radius: 0.75rem; overflow: hidden">
+        <wr-threads [lineCount]="24" [spread]="0.6" />
+        <div
+          style="
+            position: relative;
+            display: grid;
+            place-items: center;
+            align-content: center;
+            gap: 1rem;
+            min-height: 20rem;
+            padding: 2rem;
+            text-align: center;
+          "
+        >
+          <h2 wrTypography variant="h2" style="margin: 0">Ship the quiet parts</h2>
+          <p wrTypography tone="muted" style="margin: 0">
+            The threads stay behind the copy, and the buttons stay clickable.
+          </p>
+          <wr-btn color="primary">Get started</wr-btn>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

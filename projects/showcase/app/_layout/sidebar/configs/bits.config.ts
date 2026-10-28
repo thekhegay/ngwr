@@ -12,7 +12,13 @@ import type { SidebarGroup } from '#types';
 export const BITS_SIDEBAR: readonly SidebarGroup[] = [
   {
     title: 'Backgrounds',
-    children: [wrLink(ROUTES.bits, ROUTES.bits.aurora), wrLink(ROUTES.bits, ROUTES.bits.waves)],
+    children: [
+      wrLink(ROUTES.bits, ROUTES.bits.aurora),
+      wrLink(ROUTES.bits, ROUTES.bits.dotGrid),
+      wrLink(ROUTES.bits, ROUTES.bits.rippleGrid),
+      wrLink(ROUTES.bits, ROUTES.bits.threads),
+      wrLink(ROUTES.bits, ROUTES.bits.waves),
+    ],
   },
   {
     title: 'Blocks',

@@ -55,6 +55,14 @@ let frames: FrameRequestCallback[];
 let disconnects: number;
 /** Path calls, by name: `moveTo` opens a line, `lineTo` and `quadraticCurveTo` extend it. */
 let pathCalls: Record<'moveTo' | 'lineTo' | 'quadraticCurveTo', number>;
+/**
+ * Every pass of `drawLines()`, opened by its `clearRect`: one entry per line, holding
+ * the point `moveTo` started it at, each curve's control point, and the point
+ * `lineTo` closed it on. A grid at rest draws every line straight down.
+ */
+let passes: [number, number][][][];
+/** The callback the component gave its resize observer, for the spec to deliver entries through. */
+let observed: ResizeObserverCallback | null;
 
 /**
  * Enough of a 2D context for `boot()` to reach its last line, and nothing more.
@@ -62,26 +70,32 @@ let pathCalls: Record<'moveTo' | 'lineTo' | 'quadraticCurveTo', number>;
  * Every call is a no-op but two: `clearRect`, which opens each pass of
  * `drawLines()` and is therefore the count of what was painted, and `stroke()`,
  * which closes it and reads back the `strokeStyle` the component had just
- * assigned. jsdom also has no `ResizeObserver`, which `boot()` installs a few
- * lines after the context, so the spec supplies the smallest one it can
- * disconnect.
+ * assigned. The path calls are recorded into `passes` as well, so a spec can
+ * tell a drifted field from a grid at rest. jsdom also has no `ResizeObserver`,
+ * which `boot()` installs a few lines after the context, so the spec supplies
+ * the smallest one it can disconnect, and keeps its callback so `resized()` can
+ * deliver an entry.
  */
 const withContext = (): void => {
   const ctx: Record<string, unknown> = {
     clearRect: () => {
       painted++;
+      passes.push([]);
     },
     stroke: () => {
       strokes.push(String(ctx['strokeStyle']));
     },
-    moveTo: () => {
+    moveTo: (x: number, y: number) => {
       pathCalls.moveTo++;
+      passes.at(-1)?.push([[x, y]]);
     },
-    lineTo: () => {
+    lineTo: (x: number, y: number) => {
       pathCalls.lineTo++;
+      passes.at(-1)?.at(-1)?.push([x, y]);
     },
-    quadraticCurveTo: () => {
+    quadraticCurveTo: (cx: number, cy: number) => {
       pathCalls.quadraticCurveTo++;
+      passes.at(-1)?.at(-1)?.push([cx, cy]);
     },
   };
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
@@ -89,6 +103,9 @@ const withContext = (): void => {
   );
 
   class Observer {
+    constructor(callback: ResizeObserverCallback) {
+      observed = callback;
+    }
     observe(): void {
       /* nothing to measure: jsdom lays nothing out */
     }
@@ -108,6 +125,32 @@ const withContext = (): void => {
   // `setTimeout`, so holding the frame does not stall the fixture.
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(frame => frames.push(frame));
 };
+
+/**
+ * A laid-out box for every element, since jsdom lays nothing out. `width` × `height`
+ * is the layout box (`clientWidth` / `clientHeight`); `rect` is the box as painted,
+ * after transforms, which is the same box unless a spec scales it.
+ */
+const box = (width: number, height: number, rect = { left: 0, top: 0, width, height }): void => {
+  vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(width);
+  vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(height);
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+    ...rect,
+    x: rect.left,
+    y: rect.top,
+    right: rect.left + rect.width,
+    bottom: rect.top + rect.height,
+    toJSON: () => ({}),
+  });
+};
+
+/** Deliver a resize observer entry for a `width` × `height` content box. */
+const resized = (width: number, height: number): void => {
+  observed!([{ contentRect: { width, height } }] as never, {} as never);
+};
+
+/** Whether any line in a pass bends — a grid at rest draws every one straight down. */
+const bends = (pass: [number, number][][]): boolean => pass.some(line => line.some(([x]) => x !== line[0][0]));
 
 /** Run every frame the page is currently holding, once. */
 const runFrame = (): void => {
@@ -143,6 +186,8 @@ describe('WrWaves', () => {
     disconnects = 0;
     frames = [];
     pathCalls = { moveTo: 0, lineTo: 0, quadraticCurveTo: 0 };
+    passes = [];
+    observed = null;
     await mount();
   });
 
@@ -294,19 +339,6 @@ describe('WrWaves', () => {
   it('backs the canvas at 2x, and steps down on a box too large for the pixel budget', async () => {
     withContext();
     vi.stubGlobal('devicePixelRatio', 2);
-    const box = (width: number, height: number): void => {
-      vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
-        x: 0,
-        y: 0,
-        left: 0,
-        top: 0,
-        right: width,
-        bottom: height,
-        width,
-        height,
-        toJSON: () => ({}),
-      });
-    };
 
     box(1280, 450);
     await mount();
@@ -318,6 +350,119 @@ describe('WrWaves', () => {
     await mount();
     expect(canvas()!.width * canvas()!.height).toBeLessThanOrEqual(2_500_000 + 1728 + 560);
     expect(canvas()!.width).toBeGreaterThan(1728);
+  });
+
+  it('sizes the canvas from the box before transforms, not from the scaled rect', async () => {
+    withContext();
+    // A dialog scaling in from 0.96: the layout box is 1000 × 450, the rect as
+    // painted 960 × 432 and centred on it. No resize observer hears of a
+    // transform, so whatever boot() measures is what the field keeps.
+    box(1000, 450, { left: 20, top: 9, width: 960, height: 432 });
+    await mount();
+    runFrame();
+
+    expect([canvas()!.width, canvas()!.height]).toEqual([1000, 450]);
+    // Laid out across the 1000px box: a line every 10px from 100px past each edge.
+    expect(passes.at(-1)!.length).toBe(121);
+
+    // The observer's first entry lands mid-animation too, and carries the layout
+    // box. Read from the entry, it agrees with boot() and changes nothing.
+    resized(1000, 450);
+    expect([canvas()!.width, canvas()!.height]).toEqual([1000, 450]);
+    expect(painted).toBe(1);
+  });
+
+  it('maps the pointer back through a transform on the host or an ancestor', async () => {
+    withContext();
+    // Scaled to half and centred: the layout box is 1000 × 450, the rect 500 × 225.
+    box(1000, 450, { left: 250, top: 112.5, width: 500, height: 225 });
+    await mount();
+    runFrame();
+    // A line every 10px from -100, so line 90 stands at 800 and line 50 at 400.
+    const before = passes.at(-1)!;
+    expect(before.length).toBe(121);
+
+    // The grid's (800, 430) shows at 250 + 800 × 0.5, 112.5 + 430 × 0.5. The second
+    // move gives the pointer the speed that pushes the lines near it.
+    const move = (x: number, y: number): void => {
+      window.dispatchEvent(new MouseEvent('mousemove', { clientX: x, clientY: y }));
+    };
+    move(250 + 800 * 0.5, 112.5 + 430 * 0.5);
+    move(250 + 840 * 0.5, 112.5 + 430 * 0.5);
+    for (let i = 0; i < 6; i++) runFrame();
+    const after = passes.at(-1)!;
+
+    // Every frame is stamped alike, so the drift is the same and only the pointer
+    // differs. Read one to one, the pointer lands at 400 and pushes line 50 instead.
+    expect(after[90]).not.toEqual(before[90]);
+    expect(after[50]).toEqual(before[50]);
+    // And down the line: its points stand every 32px from -15, so the 175px push
+    // around 430 reaches from the tenth point to the fifteenth. Read one to one,
+    // the pointer lands at 215, leaves the point at 433 alone and pushes the top.
+    expect(after[90][14]).not.toEqual(before[90][14]);
+    expect(after[90].slice(0, 8)).toEqual(before[90].slice(0, 8));
+  });
+
+  it('repaints inside the observer callback for a new box, with no frame in between', async () => {
+    withContext();
+    box(240, 240);
+    await mount();
+    runFrame();
+    expect(painted).toBe(1);
+
+    // Entries arrive after the frame's own callbacks and before its paint, and
+    // writing the canvas size clears it, so a repaint left to the next frame
+    // would leave this one blank.
+    box(300, 240);
+    const asked = frames.length;
+    resized(300, 240);
+
+    expect([canvas()!.width, canvas()!.height]).toEqual([300, 240]);
+    expect(painted).toBe(2);
+    expect(frames.length, 'nothing left for a frame to do').toBe(asked);
+    // Laid out again across the new box, and drawn where the drift had the
+    // field, not as a grid at rest for a frame.
+    expect(passes.at(-1)!.length).toBe(Math.ceil(500 / 10) + 1);
+    expect(bends(passes.at(-1)!)).toBe(true);
+  });
+
+  it('leaves the canvas alone for an observer entry that repeats the box', async () => {
+    withContext();
+    box(240, 240);
+    await mount();
+    runFrame();
+    const widths = vi.spyOn(HTMLCanvasElement.prototype, 'width', 'set');
+    const heights = vi.spyOn(HTMLCanvasElement.prototype, 'height', 'set');
+
+    // The observer's first entry repeats the box boot() measured. Writing the
+    // canvas size clears the bitmap even to the value it already has.
+    resized(240, 240);
+    window.dispatchEvent(new Event('resize'));
+
+    expect(widths).not.toHaveBeenCalled();
+    expect(heights).not.toHaveBeenCalled();
+    expect(painted).toBe(1);
+  });
+
+  it('backs the canvas again when the pixel ratio changes, and repaints at once', async () => {
+    withContext();
+    box(240, 240);
+    await mount();
+    runFrame();
+    const before = passes.at(-1)!;
+
+    // Browser zoom or a move to another screen: a window resize and no new box.
+    vi.stubGlobal('devicePixelRatio', 2);
+    window.dispatchEvent(new Event('resize'));
+
+    expect([canvas()!.width, canvas()!.height]).toEqual([480, 480]);
+    expect(painted).toBe(2);
+    // Same box, same lines: only the backing store changed under them.
+    expect(passes.at(-1)).toEqual(before);
+
+    // Nothing changed this time, so nothing is cleared or drawn.
+    window.dispatchEvent(new Event('resize'));
+    expect(painted).toBe(2);
   });
 
   it('strokes with the line colour resolved, never with text a canvas cannot read', async () => {
@@ -339,17 +484,7 @@ describe('WrWaves', () => {
     // jsdom lays nothing out, and a 0×0 box leaves two points per line — no
     // interior to bend. A box tall enough for several points per line is what
     // makes the difference between a curve and a polyline visible.
-    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
-      x: 0,
-      y: 0,
-      left: 0,
-      top: 0,
-      right: 100,
-      bottom: 240,
-      width: 100,
-      height: 240,
-      toJSON: () => ({}),
-    });
+    box(100, 240);
     await mount();
 
     runFrame();
@@ -365,6 +500,7 @@ describe('WrWaves', () => {
   it('follows reduced motion switched on and off while the page is open', async () => {
     const reduce = signal(false);
     withContext();
+    box(240, 240);
     await mount([{ provide: WrPlatform, useValue: { ...reducedMotion, prefersReducedMotion: reduce } }]);
     const remove = vi.spyOn(window, 'removeEventListener');
     runFrame();
@@ -374,6 +510,16 @@ describe('WrWaves', () => {
     reduce.set(true);
     await fixture.whenStable();
     expect(remove).toHaveBeenCalledWith('mousemove', expect.any(Function));
+
+    // A new box lays the still grid out again at rest: the drift of the last
+    // frame the loop drew does not carry into a field that no longer moves.
+    box(300, 240);
+    const drawn = painted;
+    resized(300, 240);
+    expect(painted).toBe(drawn + 1);
+    expect(passes.at(-1)!.length).toBe(Math.ceil(500 / 10) + 1);
+    expect(bends(passes.at(-1)!)).toBe(false);
+
     const still = painted;
     frames = [];
     runFrame();

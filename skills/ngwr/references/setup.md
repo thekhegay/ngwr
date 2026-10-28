@@ -146,10 +146,11 @@ bootstrapApplication(App, {
 - `withTheme({ defaultMode: 'dark' })` from `ngwr/theme` — the default
   scheme and its storage key, and `WrTheme` created at boot.
 - `withToast({ … })` from `ngwr/toast`, `withStorage({ … })` from
-  `ngwr/storage` and `withMeta({ … })` from `ngwr/meta` — toast defaults,
-  the storage engine, prefix and TTL, and `<head>` defaults for every route.
-  Like density and theme they configure a root service, so they belong at
-  bootstrap.
+  `ngwr/storage`, `withMeta({ … })` from `ngwr/meta` and
+  `withWindows({ bounds })` from `ngwr/window` — toast defaults, the storage
+  engine, prefix and TTL, `<head>` defaults for every route, and the work area
+  floating windows keep inside. Like density and theme they configure a root
+  service, so they belong at bootstrap.
 - A `validation` namespace in your own i18n catalog — ngwr ships no validation
   copy. `<wr-form-field>` reads `validation.<key>` for an error whose validator
   carries no `{ message }`, with the error payload as params.

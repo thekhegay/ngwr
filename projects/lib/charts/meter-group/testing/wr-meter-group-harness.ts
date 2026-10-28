@@ -7,6 +7,8 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
+import { WrChartLegendHarness } from 'ngwr/charts/chart-legend/testing';
+
 import type { WrMeterGroupHarnessFilters, WrMeterGroupSlice } from './types';
 
 /** The `width: <n>%` the component writes onto a band, out of its inline `style`. */
@@ -63,15 +65,31 @@ export class WrMeterGroupHarness extends ComponentHarness {
 
   /** The total the bands add up to, from `aria-valuenow`. */
   async getValue(): Promise<number> {
-    return Number(await (await this.bar()).getAttribute('aria-valuenow'));
+    return this.numberAttribute('aria-valuenow', 'getValue');
   }
 
   /** The full capacity, from `aria-valuemax` — given, or the sum of the bands. */
   async getMax(): Promise<number> {
-    return Number(await (await this.bar()).getAttribute('aria-valuemax'));
+    return this.numberAttribute('aria-valuemax', 'getMax');
   }
 
-  /** The bands, in order, with the share of the bar each takes. */
+  /**
+   * A finite number off one of the bar's attributes, or a sentence saying which one it
+   * lacks. `Number(null)` is `0`, so a lost binding read as an empty bar.
+   */
+  private async numberAttribute(name: string, method: string): Promise<number> {
+    const raw = await (await this.bar()).getAttribute(name);
+    const value = raw === null ? Number.NaN : Number.parseFloat(raw);
+    if (!Number.isFinite(value)) {
+      throw new Error(
+        `WrMeterGroupHarness.${method}(): the bar carries ${name}="${raw ?? ''}", which the component writes as a ` +
+          'finite number on every meter group.'
+      );
+    }
+    return value;
+  }
+
+  /** The bands, in order, with the share of the bar each takes. A hidden segment draws no band. */
   async getSlices(): Promise<WrMeterGroupSlice[]> {
     const slices = await this.locatorForAll('.wr-meter-group__slice')();
 
@@ -104,7 +122,25 @@ export class WrMeterGroupHarness extends ComponentHarness {
     return (await this.locatorForOptional('.wr-meter-group__legend')()) !== null;
   }
 
-  /** The legend's labels, in order. */
+  /**
+   * The legend as a {@link WrChartLegendHarness}: each row's key and its hidden state
+   * and, with `toggleableLegend`, the toggles that show and hide a segment.
+   *
+   * Throws when the group draws no legend (`showLegend` off, or no segments) rather
+   * than answering with an empty one: {@link hasLegend} is the question for that.
+   */
+  async getLegendHarness(): Promise<WrChartLegendHarness> {
+    const legend = await this.locatorForOptional(WrChartLegendHarness)();
+    if (!legend) {
+      throw new Error(
+        'WrMeterGroupHarness.getLegendHarness(): the group draws no legend — `showLegend` is off or there are no ' +
+          'segments. Ask hasLegend() first.'
+      );
+    }
+    return legend;
+  }
+
+  /** The legend's labels, in order — hidden segments included, since their rows stay. */
   async getLegendLabels(): Promise<string[]> {
     const labels = await this.locatorForAll('.wr-meter-group__legend-label')();
     return Promise.all(labels.map(label => label.text()));

@@ -1,7 +1,8 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
+import { CHART_MARKERS, chartMarkerPath } from 'ngwr/charts/core';
 import { describe, expect, it } from 'vitest';
 
 /**
@@ -30,25 +31,42 @@ function rule(css: string, cls: string): string {
   return new RegExp(`(?:^|\\n)\\.${cls}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
 }
 
+/**
+ * Every folder under `charts/` with a template of its own. `charts/core` has none, and
+ * is the one folder allowed none: it holds the helpers the charts share and draws no
+ * chart. Its one template, `chart-table.html`, is the data table a chart renders for
+ * screen readers, clipped out of sight and painting no mark, so the scan below has
+ * nothing in it to find. A chart whose template stopped being found would drop out of
+ * every case below in silence, so the folders without one are named rather than
+ * skipped.
+ */
+const folders = readdirSync(CHARTS, { withFileTypes: true }).filter(entry => entry.isDirectory());
+const TEMPLATELESS = ['core'];
+const drawn = folders.filter(({ name }) => existsSync(join(CHARTS, name, `${name}.html`)));
+
 /** Each chart's elements painted by an inline `[style.background]`, by their first class. */
-const marks = readdirSync(CHARTS, { withFileTypes: true })
-  .filter(entry => entry.isDirectory())
-  .flatMap(({ name }) => {
-    const template = readFileSync(join(CHARTS, name, `${name}.html`), 'utf8');
-    return [...template.matchAll(/<[a-z][\w-]*\b((?:"[^"]*"|'[^']*'|[^>"'])*)>/g)]
-      .filter(tag => tag[1].includes('[style.background]'))
-      .map(tag => [name, /class="([\w-]+)/.exec(tag[1])?.[1] ?? ''] as const);
-  });
+const marks = drawn.flatMap(({ name }) => {
+  const template = readFileSync(join(CHARTS, name, `${name}.html`), 'utf8');
+  return [...template.matchAll(/<[a-z][\w-]*\b((?:"[^"]*"|'[^']*'|[^>"'])*)>/g)]
+    .filter(tag => tag[1].includes('[style.background]'))
+    .map(tag => [name, /class="([\w-]+)/.exec(tag[1])?.[1] ?? ''] as const);
+});
 
 /**
- * Every chart mark drawn as an HTML box keeps its colour under `forced-colors`. The SVG
- * charts keep their fills and strokes there, but a mark painted with an inline
- * `background` does not: forced colors resets `background-color` to `Canvas`, so the
- * bars, the meter's slices and the heatmap's squares vanished into the page and left
- * only their labels. Every element painted that way is read off the TEMPLATES, so a
- * new one is held to the rule too.
+ * Every chart mark painted by an inline `[style.background]` keeps its colour under
+ * `forced-colors`. The SVG charts keep their fills and strokes there, but a mark painted
+ * with an inline `background` does not: forced colors resets `background-color` to
+ * `Canvas`, so the bars, the meter's slices and the heatmap's squares vanished into the
+ * page and left only their labels. Every element painted that way is read off the
+ * TEMPLATES, so a new one is held to the rule too. A mark painted through one of its
+ * chart's own hooks instead is out of this scan's reach, and is pinned in that chart's
+ * own spec.
  */
 describe('chart marks under forced colors', () => {
+  it('reads the template of every folder that draws', () => {
+    expect(folders.filter(entry => !drawn.includes(entry)).map(({ name }) => name)).toEqual(TEMPLATELESS);
+  });
+
   it('finds the marks it checks', () => {
     // A template scan that matched nothing would make every case below vacuous.
     expect(marks.map(([, cls]) => cls)).toEqual(
@@ -74,7 +92,8 @@ describe('chart geometry', () => {
     // bar: a 50/100 meter of five slices filled 55% of it, and a zero slice still added
     // its margin. An outline takes no room.
     const css = compile('meter-group');
-    expect(rule(css, 'wr-meter-group__slice')).toMatch(/outline: calc\(var\(--wr-space-xs\) \/ 2\) solid/);
+    expect(rule(css, 'wr-meter-group__slice')).toMatch(/outline: var\(--wr-meter-group-slice-gap\) solid/);
+    expect(rule(css, 'wr-meter-group')).toMatch(/--wr-meter-group-slice-gap: calc\(var\(--wr-space-xs\) \/ 2\)/);
     expect(rule(css, 'wr-meter-group__slice')).not.toMatch(/margin/);
     expect(css).not.toMatch(/\.wr-meter-group__slice \+ \.wr-meter-group__slice/);
   });
@@ -89,11 +108,74 @@ describe('chart geometry', () => {
     expect(value).toMatch(/flex: none/);
   });
 
+  it("lets a legend's marker reach past its box, since every shape has the circle's area", () => {
+    // The swatch's viewBox is sized for the circle, and a triangle's point and a
+    // diamond's tips reach past it. An SVG clips at its own viewport by default, which
+    // cut the point off three of the six shapes. Read off the template, so a resized
+    // viewBox or radius moves the list of shapes that overhang.
+    const template = readFileSync(join(CHARTS, 'chart-legend/chart-legend.html'), 'utf8');
+    const svg = /<svg\b[^>]*wr-chart-legend__swatch--marker[\s\S]*?<\/svg>/.exec(template)?.[0] ?? '';
+    const half = Math.abs(Number(/viewBox="(-?[\d.]+)/.exec(svg)?.[1]));
+    const r = Number(/markerPath\(item\.marker, ([\d.]+)\)/.exec(svg)?.[1]);
+    const reach = (shape: (typeof CHART_MARKERS)[number]): number =>
+      Math.max(...(chartMarkerPath(shape, r).match(/-?[\d.]+/g) ?? []).map(value => Math.abs(Number(value))));
+
+    expect(CHART_MARKERS.filter(shape => reach(shape) > half)).toEqual(['triangle', 'diamond', 'triangle-down']);
+    expect(rule(compile('chart-legend'), 'wr-chart-legend__swatch--marker')).toMatch(/overflow: visible/);
+  });
+
   it('grows a bar from nothing by the share the component writes, not by a height', () => {
     // The share is the bar's `flex-grow`; a basis of 0 and no shrink are what make it
     // exactly that share of what the column has left under the value.
     const bar = rule(compile('bar-chart'), 'wr-bar-chart__bar');
     expect(bar).toMatch(/flex: 0 0 0/);
     expect(bar).not.toMatch(/(?:^|[\s;])height:/);
+  });
+});
+
+/**
+ * Every chart that renders the `dataTable` copy positions its host. The table is out of
+ * flow, so against a static host it resolves to an ancestor outside the chart, and in an
+ * unpositioned scroller its 1px box kept its place in the scrolled content: a line chart
+ * 2000px down a 300px scroller grew the page by 1600px of blank scroll before its host
+ * was positioned. Read off the templates, so a chart that gains the table is held to it.
+ */
+describe('charts with a data table', () => {
+  const tabled = drawn
+    .map(({ name }) => name)
+    .filter(name => readFileSync(join(CHARTS, name, `${name}.html`), 'utf8').includes('<wr-chart-table'));
+
+  it('finds the charts it checks', () => {
+    expect(tabled).toEqual(expect.arrayContaining(['line-chart', 'radar-chart', 'scatter-chart']));
+  });
+
+  it.each(tabled)('%s positions its host', chart => {
+    expect(rule(compile(chart), `wr-${chart}`)).toMatch(/position:\s*relative/);
+  });
+});
+
+/**
+ * Every chart that opens its tooltip through `useChartTooltip()` loads the sheet of the
+ * chip it renders into. That chip is `ngwr/popover`'s, and the dependency is a FUNCTION
+ * call rather than an entry in `imports: []`, so the rule in `theme/styles.spec.ts` that
+ * fails a component rendering an entry point it never loads cannot see it: deleting the
+ * popover `@use` from a chart's `_index.scss` shipped an unstyled chip under every gate,
+ * since jsdom renders the chip's markup whether its sheet loads or not. Read off the
+ * sources, so a chart that gains a tooltip is held to it.
+ */
+describe('charts with a tooltip', () => {
+  const tipped = drawn
+    .map(({ name }) => name)
+    .filter(name => readFileSync(join(CHARTS, name, `${name}.ts`), 'utf8').includes('useChartTooltip('));
+
+  it('finds the charts it checks', () => {
+    expect(tipped).toEqual(expect.arrayContaining(['bar-chart', 'funnel-chart', 'gauge', 'calendar-heatmap']));
+  });
+
+  it.each(tipped)('%s loads the chip its tooltip renders into', chart => {
+    const css = compile(chart);
+    // `.wr-chart-tooltip` rather than `.wr-tooltip\b`, which `.wr-tooltip-overlay` matches too.
+    expect(css).toMatch(/\.wr-chart-tooltip\s*\{/);
+    expect(css).toMatch(/\.wr-chart-tooltip__swatch\b/);
   });
 });

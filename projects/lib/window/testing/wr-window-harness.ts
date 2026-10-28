@@ -75,7 +75,7 @@ export class WrWindowHarness extends ContentContainerComponentHarness {
     return (await this.titleEl()).text();
   }
 
-  /** The projected `[wrWindowTitleExtra]` content, trimmed — empty when there is none. */
+  /** The `titleExtra` content's text, trimmed — empty when the window was opened without one. */
   async getTitleExtraText(): Promise<string> {
     return (await this.locatorFor('.wr-window__title-extra')()).text();
   }
@@ -176,7 +176,7 @@ export class WrWindowHarness extends ContentContainerComponentHarness {
     return (await this.locatorFor('.wr-window__body')()).text();
   }
 
-  /** The projected `[wrWindowStatusBar]` content, trimmed. */
+  /** The `statusBar` content's text, trimmed — empty when the window was opened without one. */
   async getStatusBarText(): Promise<string> {
     return (await this.locatorFor('.wr-window__status-bar')()).text();
   }
@@ -190,9 +190,11 @@ export class WrWindowHarness extends ContentContainerComponentHarness {
    * Whether the chrome offers a minimize button.
    *
    * `false` on Linux BY DEFAULT — that chrome is close-only by convention, which
-   * is a real behavioural difference and not a style. `showMinimize: true`
-   * overrides it, and a spec that asserts "no minimize on Linux" without saying
-   * which of the two it means will pass for the wrong reason.
+   * is a real behavioural difference and not a style — and `false` on every
+   * chrome while no `<wr-window-taskbar>` could list the window, since a
+   * minimized window nothing lists has no way back. `showMinimize: true`
+   * overrides both, and a spec that asserts "no minimize" without saying which
+   * of the reasons it means will pass for the wrong reason.
    */
   async hasMinimizeButton(): Promise<boolean> {
     return (await this.chromeAction('minimize')) !== null;
@@ -251,9 +253,44 @@ export class WrWindowHarness extends ContentContainerComponentHarness {
     await (await this.locatorFor('.wr-window__chrome')()).dispatchEvent('dblclick');
   }
 
-  /** Click the window body — which pulls it to the front of the stack. */
+  /** Click the window body — which makes it the active window and pulls it to the front of the stack. */
   async focusWindow(): Promise<void> {
     await (await this.host()).click();
+  }
+
+  /**
+   * Whether this is the active window — the one with the keyboard, which the
+   * chrome marks and the others dim. One window at a time, or none while focus
+   * is on the page outside them.
+   */
+  async isActive(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-window--active');
+  }
+
+  /** Press Alt+F7, which starts keyboard move — refused when the window is not `movable`. */
+  async startKeyboardMove(): Promise<void> {
+    await (await this.host()).sendKeys({ alt: true }, TestKey.F7);
+  }
+
+  /** Press Alt+F8, which starts keyboard resize — refused when the window is not `resizable`. */
+  async startKeyboardResize(): Promise<void> {
+    await (await this.host()).sendKeys({ alt: true }, TestKey.F8);
+  }
+
+  /** Which keyboard mode the window is in, from its host modifier — `null` outside both. */
+  async getKeyboardMode(): Promise<'move' | 'resize' | null> {
+    const host = await this.host();
+    if (await host.hasClass('wr-window--keyboard-moving')) return 'move';
+    if (await host.hasClass('wr-window--keyboard-resizing')) return 'resize';
+    return null;
+  }
+
+  /**
+   * The last thing the window's live region said: the keyboard mode on entry,
+   * where the window landed on Enter or Escape. Empty until a mode is used.
+   */
+  async getAnnouncement(): Promise<string> {
+    return (await this.locatorFor('.wr-window__sr-only')()).text();
   }
 
   /** Press Escape. A window opened `closeOnEscape: false` ignores it — assert, do not assume. */

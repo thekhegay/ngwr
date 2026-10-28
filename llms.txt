@@ -117,7 +117,8 @@ providers: [
 
 The features are `withDensity` (`ngwr/density`), `withTheme` (`ngwr/theme`),
 `withToast` (`ngwr/toast`), `withDates` (`ngwr/date`), `withStorage`
-(`ngwr/storage`) and `withMeta` (`ngwr/meta`). Every one is optional, the same
+(`ngwr/storage`), `withMeta` (`ngwr/meta`) and `withWindows` (`ngwr/window`).
+Every one is optional, the same
 feature twice throws in dev mode, and all but `withDates` configure a root
 service, so they belong at bootstrap rather than in a route. The theme needs no
 feature: the `--wr-*` tokens are plain CSS and dark mode follows
@@ -343,14 +344,32 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   default card or an `ng-template wrGraphNode`), `wr-virtual-scroll`,
   `wr-sortable-list` (drag-to-reorder, one `<wr-sortable-item>` per row from
   your own loop, with `[wrDragHandle]` — all in ngwr/sortable-list).
-- **Charts** — `wr-line-chart`, `wr-bar-chart`, `wr-donut-chart`,
-  `wr-sparkline`, `wr-gauge`, `wr-calendar-heatmap`, `wr-meter-group`, each its
+- **Charts** — `wr-line-chart` (`showArea` makes it an area chart and
+  `stacked` stacks the series, both for a stacked area), `wr-bar-chart`
+  (grouped or `stacked` `series`, `orientation` `'horizontal'`, and `lines`
+  drawn over the bars for a combo chart),
+  `wr-donut-chart` (`pie` fills it to the centre), `wr-scatter-chart` (numeric
+  x and y, a `size` per point for bubbles), `wr-radar-chart` (`variant`
+  `'polar-area'` draws wedges), `wr-heatmap-chart`, `wr-funnel-chart`,
+  `wr-waterfall-chart`, `wr-treemap-chart`, `wr-bullet-chart`,
+  `wr-boxplot-chart`, `wr-candlestick-chart`, `wr-sparkline`, `wr-gauge`,
+  `wr-calendar-heatmap`, `wr-meter-group`, each its
   own entry point at `ngwr/charts/<name>` (`ngwr/charts/bar-chart`), documented
   under https://ngwr.dev/charts/, themed through the `--wr-*` tokens and each
-  with a hover tooltip. Every chart writes its numbers with `Intl.NumberFormat`
+  with a hover tooltip. `ul[wr-chart-legend]` (ngwr/charts/chart-legend) is the
+  legend the bar, line, donut, meter-group, scatter and radar charts draw, and
+  a key of its own beside several charts; `toggleableLegend` on those charts
+  makes each row a `<button aria-pressed>` over a `hiddenSeries`
+  (`hiddenSegments` on donut and meter group, and `hiddenLines` for the bar
+  chart's lines) model. Bar, line, scatter, radar, heatmap-chart,
+  calendar-heatmap, funnel, waterfall, treemap, box plot and candlestick take
+  an opt-in `dataTable` that renders their figures as a visually hidden table
+  for screen readers. Every chart writes its numbers with `Intl.NumberFormat`
   in `LOCALE_ID` (line-chart ticks and bar-chart labels compact from a thousand
   up, `5K`, unless the full numbers are shorter; tooltips never), and takes
-  `valueFormat: (value: number) => string` for any other format.
+  `valueFormat: (value: number) => string` for any other format (the waterfall
+  passes a second argument saying where the figure goes, so a formatter can go
+  compact on the drawing alone).
 - **Feedback** — `wr-alert`, `wr-result`, `wr-empty`, `wr-skeleton`,
   `wr-spinner`, `wr-progress`, `wr-loading-bar`.
 - **Layout / Display** — `wr-layout` (with header / sider / content / footer),
@@ -373,7 +392,11 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `inject(WrDrawerRef)` to close itself. Windows are service-opened too: there
   is no `<wr-window>`, `WrWindowManager.open()` (ngwr/window) opens one and
   moves focus into it (`autoFocus: false` for a background window), and
-  `<wr-window-taskbar>` lists the minimized ones.)
+  `<wr-window-taskbar>` lists the minimized ones, or every window with
+  `show="all"`, in one row: tabs that do not fit, or past `maxTabs`, fold
+  under a "+N" menu. Alt+F7 / Alt+F8 move and resize the focused window from the
+  keyboard, and the manager can `cascade()`, `tile()` and cycle the active
+  window.)
 - **Bits** — the animation and visual-effect components: text effects, cursor
   effects, backgrounds and blocks, each its own entry point at
   `ngwr/bits/<name>` (`ngwr/bits/aurora`), documented under
@@ -556,7 +579,7 @@ and carry no stability statement; do not build on them.
   text — it never runs them, and it never reaches outside its own package: no
   network, no commands. It reads the resources listed here rather than
   embedding a copy of them. Client config for Claude Code / Claude Desktop /
-  Cursor, and a worked example of each tool:
+  Cursor / Gemini CLI / Codex, and a worked example of each tool:
   https://ngwr.dev/docs/mcp-server
 - **Agent skill — the rules, not the catalog.** `skills/ngwr/SKILL.md` in the
   installed package (also at https://ngwr.dev/skills/ngwr/SKILL.md) is about a

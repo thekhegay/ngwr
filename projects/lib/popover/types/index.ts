@@ -1,4 +1,4 @@
-export type { WrChartTooltip, WrChartTooltipDatum, WrChartTooltipTarget } from './chart-tooltip';
+export type { WrChartTooltip, WrChartTooltipDatum, WrChartTooltipRow, WrChartTooltipTarget } from './chart-tooltip';
 export {
   type WrPopoverPosition,
   WR_POPOVER_FALLBACKS,

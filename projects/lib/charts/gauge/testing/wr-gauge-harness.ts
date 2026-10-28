@@ -49,17 +49,33 @@ export class WrGaugeHarness extends ComponentHarness {
 
   /** The value it announces, from `aria-valuenow`. */
   async getValue(): Promise<number> {
-    return Number(await (await this.surface()).getAttribute('aria-valuenow'));
+    return this.numberAttribute('aria-valuenow', 'getValue');
   }
 
   /** The bottom of the range, from `aria-valuemin`. */
   async getMin(): Promise<number> {
-    return Number(await (await this.surface()).getAttribute('aria-valuemin'));
+    return this.numberAttribute('aria-valuemin', 'getMin');
   }
 
   /** The top of the range, from `aria-valuemax`. */
   async getMax(): Promise<number> {
-    return Number(await (await this.surface()).getAttribute('aria-valuemax'));
+    return this.numberAttribute('aria-valuemax', 'getMax');
+  }
+
+  /**
+   * A finite number off one of the meter's attributes, or a sentence saying which one
+   * it lacks. `Number(null)` is `0`, so a lost binding read as a range starting at zero.
+   */
+  private async numberAttribute(name: string, method: string): Promise<number> {
+    const raw = await (await this.surface()).getAttribute(name);
+    const value = raw === null ? Number.NaN : Number.parseFloat(raw);
+    if (!Number.isFinite(value)) {
+      throw new Error(
+        `WrGaugeHarness.${method}(): the meter carries ${name}="${raw ?? ''}", which the component writes as a ` +
+          'finite number on every gauge.'
+      );
+    }
+    return value;
   }
 
   /**

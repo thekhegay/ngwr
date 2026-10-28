@@ -1,0 +1,268 @@
+@use '../../../theme/styles' as theme;
+@use '../../../popover/styles' as popover-styles; // the `.wr-tooltip` chip the hover tooltip renders into
+
+.wr-bullet-chart {
+  --wr-bullet-chart-font-family: var(--wr-font-family-base);
+  --wr-bullet-chart-color: var(--wr-color-on-surface);
+  // The drawing's height, one line of the label's: the label is set at it, so its first
+  // line sits level with the drawing whatever the sub-label under it adds.
+  --wr-bullet-chart-track-height: 1.5rem;
+  // The least the drawing narrows to, so a chart in a shrink-to-fit parent (a flex row of
+  // tiles) still draws one rather than collapsing to its label.
+  --wr-bullet-chart-track-min-width: 6rem;
+  --wr-bullet-chart-track-radius: var(--wr-border-radius-sm);
+  // The track is what shows past the last band, and with no `ranges` the whole frame.
+  --wr-bullet-chart-track-color: var(--wr-color-fill);
+  // The bands step from the first colour, nearest zero, to the second, at the last range
+  // limit: steps in LIGHTNESS, which survive greyscale. Both are the theme's neutral fill
+  // roles, so each scheme and `prefers-contrast: more` (which deepens the muted ink) moves
+  // them on its own. The first is the strong fill pulled halfway to the muted ink, since
+  // the fills alone are too close to the surface to read as bands.
+  --wr-bullet-chart-range-start: color-mix(in srgb, var(--wr-color-on-surface-muted) 50%, var(--wr-color-fill-strong));
+  --wr-bullet-chart-range-end: var(--wr-color-fill-strong);
+  // The rule where the last band ends, drawn only where the scale runs on past it — a
+  // value or a target above the last limit, or a `max` beyond it. The faintest band and
+  // the track are a step of lightness apart that no reader can see, so the end of the
+  // last band is a line rather than a shade.
+  --wr-bullet-chart-range-edge-color: var(--wr-color-on-surface-muted);
+  // The value and the target are drawn in the text colour, as in Few's own design, and
+  // told apart by shape. Measured in Chromium against the strongest band, the text colour
+  // holds 6.6:1 in light and 5.0:1 in dark (6.4 and 4.7 under `prefers-contrast: more`),
+  // where the primary blue reads 1.8:1 and 1.3:1 — under the 3:1 WCAG 1.4.11 asks of a
+  // mark a reader needs.
+  --wr-bullet-chart-value-color: var(--wr-color-on-surface);
+  --wr-bullet-chart-bar-thickness: calc(100% / 3);
+  --wr-bullet-chart-target-color: var(--wr-color-on-surface);
+  --wr-bullet-chart-target-thickness: 3px;
+  --wr-bullet-chart-target-length: 75%;
+  // A ring in the surface colour round the marker, so it stays a line of its own where it
+  // crosses the bar, which is the same colour.
+  --wr-bullet-chart-target-ring: var(--wr-color-surface);
+  --wr-bullet-chart-target-ring-width: 1px;
+  // By default as wide as the longer of the two labels, up to the max width, which only
+  // this default reads. Give several bullets stacked in a column the same length here and
+  // their drawings line up: the labels fill the column and sit against the drawing at any
+  // width, a wider one than the max included.
+  --wr-bullet-chart-label-max-width: 12rem;
+  --wr-bullet-chart-label-width: fit-content(var(--wr-bullet-chart-label-max-width));
+  --wr-bullet-chart-label-gap: var(--wr-space-md);
+  --wr-bullet-chart-label-font-size: var(--wr-text-sm);
+  --wr-bullet-chart-label-font-weight: var(--wr-font-weight-semibold);
+  --wr-bullet-chart-label-color: var(--wr-color-on-surface);
+  --wr-bullet-chart-sub-label-font-size: var(--wr-text-xs);
+  --wr-bullet-chart-sub-label-line-height: var(--wr-text-xs-leading);
+  --wr-bullet-chart-sub-label-color: var(--wr-color-on-surface-muted);
+  --wr-bullet-chart-scale-gap: var(--wr-space-xs);
+  --wr-bullet-chart-tick-length: var(--wr-space-xs);
+  --wr-bullet-chart-tick-color: var(--wr-color-on-surface-muted);
+  --wr-bullet-chart-tick-font-size: var(--wr-text-xs);
+  --wr-bullet-chart-tick-line-height: var(--wr-text-xs-leading);
+
+  // The drawing above its scale, and with a label, the label column at inline start of
+  // both. A grid follows `direction`, so under RTL the labels are on the right.
+  display: grid;
+  grid-template-areas:
+    'track'
+    'scale';
+  grid-template-columns: minmax(var(--wr-bullet-chart-track-min-width), 1fr);
+  font-family: var(--wr-bullet-chart-font-family);
+  color: var(--wr-bullet-chart-color);
+
+  &--labelled {
+    grid-template-areas:
+      'labels track'
+      'labels scale';
+    grid-template-columns: var(--wr-bullet-chart-label-width) minmax(var(--wr-bullet-chart-track-min-width), 1fr);
+    column-gap: var(--wr-bullet-chart-label-gap);
+  }
+
+  // Beside the drawing and the scale both, from the top: the label's line is the drawing's
+  // height, so a single line sits level with it and the sub-label hangs beside the scale.
+  // End-aligned, against the drawing, as Few sets them.
+  &__labels {
+    grid-area: labels;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    text-align: end;
+  }
+
+  &__label,
+  &__sub-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__label {
+    font-size: var(--wr-bullet-chart-label-font-size);
+    font-weight: var(--wr-bullet-chart-label-font-weight);
+    line-height: var(--wr-bullet-chart-track-height);
+    color: var(--wr-bullet-chart-label-color);
+  }
+
+  &__sub-label {
+    font-size: var(--wr-bullet-chart-sub-label-font-size);
+    line-height: var(--wr-bullet-chart-sub-label-line-height);
+    color: var(--wr-bullet-chart-sub-label-color);
+  }
+
+  // The positioned box every mark is placed in by the shares the component writes, as
+  // percentages of its width; nothing in it is in flow.
+  &__track {
+    grid-area: track;
+    align-self: start;
+    position: relative;
+    block-size: var(--wr-bullet-chart-track-height);
+  }
+
+  &__ranges {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: var(--wr-bullet-chart-track-radius);
+    background: var(--wr-bullet-chart-track-color);
+  }
+
+  &__range {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: calc(var(--wr-bullet-chart-start, 0) * 100%);
+    inline-size: calc(var(--wr-bullet-chart-size, 0) * 100%);
+    background: color-mix(
+      in srgb,
+      var(--wr-bullet-chart-range-end) var(--wr-bullet-chart-range-mix, 0%),
+      var(--wr-bullet-chart-range-start)
+    );
+
+    // The end of the last band, as a rule just past it. A last band that reaches the end
+    // of the scale puts the rule outside the track, where the layer above clips it, so it
+    // shows only where the scale runs on past the last limit.
+    &:last-child::after {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 100%;
+      border-inline-start: 1px solid var(--wr-bullet-chart-range-edge-color);
+    }
+  }
+
+  // A third of the line high and centred on it, from zero to the value; a zero value is
+  // still a sliver, since it is a reading.
+  &__bar {
+    position: absolute;
+    inset-block: calc(50% - var(--wr-bullet-chart-bar-thickness) / 2);
+    inset-inline-start: calc(var(--wr-bullet-chart-start, 0) * 100%);
+    inline-size: calc(var(--wr-bullet-chart-size, 0) * 100%);
+    min-inline-size: 1px;
+    background: var(--wr-bullet-chart-value-color);
+    transition:
+      inset-inline-start var(--wr-duration-slow) var(--wr-ease-out),
+      inline-size var(--wr-duration-slow) var(--wr-ease-out);
+  }
+
+  // Across the line on its value, held inside the drawing at either end so no part of it
+  // is cut off or reaches past the chart's box.
+  &__target {
+    position: absolute;
+    inset-block: calc(50% - var(--wr-bullet-chart-target-length) / 2);
+    inset-inline-start: clamp(
+      0px,
+      calc(var(--wr-bullet-chart-at, 0) * 100% - var(--wr-bullet-chart-target-thickness) / 2),
+      calc(100% - var(--wr-bullet-chart-target-thickness))
+    );
+    inline-size: var(--wr-bullet-chart-target-thickness);
+    background: var(--wr-bullet-chart-target-color);
+    outline: var(--wr-bullet-chart-target-ring-width) solid var(--wr-bullet-chart-target-ring);
+    transition: inset-inline-start var(--wr-duration-slow) var(--wr-ease-out);
+  }
+
+  // As wide as the drawing, so a tick's share is of the drawing too. Every tick is out of
+  // flow, so the strip is given the height of a mark and a line of text.
+  &__scale {
+    grid-area: scale;
+    position: relative;
+    block-size: calc(var(--wr-bullet-chart-tick-length) + var(--wr-bullet-chart-tick-line-height));
+    margin-block-start: var(--wr-bullet-chart-scale-gap);
+    font-size: var(--wr-bullet-chart-tick-font-size);
+    line-height: var(--wr-bullet-chart-tick-line-height);
+    color: var(--wr-bullet-chart-tick-color);
+    font-variant-numeric: tabular-nums;
+  }
+
+  // A box of no width on the tick's value, its mark and label centred on it — so it is
+  // centred in either direction with no transform — and aligned inwards at either end of
+  // the scale, so the first and last labels stay over the drawing.
+  &__tick {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: calc(var(--wr-bullet-chart-at, 0) * 100%);
+    inline-size: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &::before {
+      content: '';
+      block-size: var(--wr-bullet-chart-tick-length);
+      border-inline-start: 1px solid var(--wr-bullet-chart-tick-color);
+    }
+
+    &--start {
+      align-items: flex-start;
+    }
+
+    &--end {
+      align-items: flex-end;
+    }
+  }
+
+  // Its direction follows its own text (`plaintext`), as the waterfall's and the box
+  // plot's ticks do: a negative tick is a `-` in front of digits, neither of which has a
+  // direction of its own, and under RTL the sign would land on the far side — `20-`. It is
+  // shrunk to its text in the zero-width column above, so it keeps its place either way.
+  &__tick-label {
+    white-space: nowrap;
+    unicode-bidi: plaintext;
+  }
+}
+
+// The bar and the marker are empty boxes painted by `background`, which forced colors
+// resets to `Canvas` — they would vanish into the page. They keep their paint and
+// take the system's text colour; the bands lose their greys to the page colour, so each
+// one's start is drawn as a rule in the system's muted colour, as is the last one's end,
+// and the track gets an edge.
+@media (forced-colors: active) {
+  .wr-bullet-chart {
+    --wr-bullet-chart-track-color: Canvas;
+    --wr-bullet-chart-range-edge-color: GrayText;
+    --wr-bullet-chart-value-color: CanvasText;
+    --wr-bullet-chart-target-color: CanvasText;
+    --wr-bullet-chart-target-ring: Canvas;
+  }
+
+  .wr-bullet-chart__ranges {
+    outline: 1px solid CanvasText;
+  }
+
+  .wr-bullet-chart__range {
+    forced-color-adjust: none;
+    background: Canvas;
+    border-inline-start: 1px solid GrayText;
+  }
+
+  .wr-bullet-chart__bar,
+  .wr-bullet-chart__target {
+    forced-color-adjust: none;
+  }
+}
+
+// The bar grows to its value and the marker slides to its target; with reduced motion
+// both land there at once.
+@media (prefers-reduced-motion: reduce) {
+  .wr-bullet-chart__bar,
+  .wr-bullet-chart__target {
+    transition: none;
+  }
+}

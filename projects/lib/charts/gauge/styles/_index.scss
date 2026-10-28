@@ -3,16 +3,18 @@
 
 .wr-gauge {
   --wr-gauge-font-family: var(--wr-font-family-base);
+  --wr-gauge-color: var(--wr-color-on-surface);
   --wr-gauge-text-padding-bottom: var(--wr-space-sm);
   --wr-gauge-text-font-size: var(--wr-text-xl);
   --wr-gauge-text-font-weight: var(--wr-font-weight-semibold);
   --wr-gauge-suffix-margin-inline-start: var(--wr-space-xs);
   --wr-gauge-suffix-font-size: var(--wr-text-sm);
   --wr-gauge-suffix-font-weight: var(--wr-font-weight-medium);
+  --wr-gauge-suffix-color: var(--wr-color-on-surface-muted);
 
   display: inline-block;
   font-family: var(--wr-gauge-font-family);
-  color: var(--wr-color-on-surface);
+  color: var(--wr-gauge-color);
 
   &__surface {
     position: relative;
@@ -40,7 +42,7 @@
   &__suffix {
     margin-inline-start: var(--wr-gauge-suffix-margin-inline-start);
     font-size: var(--wr-gauge-suffix-font-size);
-    color: var(--wr-color-on-surface-muted);
+    color: var(--wr-gauge-suffix-color);
     font-weight: var(--wr-gauge-suffix-font-weight);
   }
 }

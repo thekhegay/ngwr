@@ -47,9 +47,6 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.qrCode),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.statistic),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.timeline),
-      // Tombstones: `removed` on the page marks the row and sorts it last.
-      wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.markdown),
-      wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.squircle),
     ],
   },
   {
@@ -129,7 +126,6 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.popover),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.toast),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.window),
-      wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.actionSheet),
     ],
   },
 ];

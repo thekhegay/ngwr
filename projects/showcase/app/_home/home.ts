@@ -248,7 +248,8 @@ export class SignupCard {
       title: 'Themed by tokens, not overrides',
       // Not "every visual is a token": a handful of colours are deliberately
       // absolute and could not be anything else — the colour picker's own hue
-      // and alpha ramps, and `wr-window`'s macOS traffic lights.
+      // and alpha ramps, and `wr-window`'s macOS traffic lights and Windows
+      // close red.
       description:
         'Color, radius, spacing and duration are `--wr-*` custom properties, and an undeclared color token fails lint. Re-skin one component or all.',
       accent: 'neutral',

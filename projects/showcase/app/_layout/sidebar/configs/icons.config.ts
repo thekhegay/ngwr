@@ -16,7 +16,4 @@ export const ICONS_SIDEBAR: readonly SidebarGroup[] = [
   wrLink(ROUTES.icons, ROUTES.icons.phosphor),
   wrLink(ROUTES.icons, ROUTES.icons.radix),
   wrLink(ROUTES.icons, ROUTES.icons.tabler),
-  // Tombstones: `removed` on the page marks the row and sorts it last.
-  wrLink(ROUTES.icons, ROUTES.icons.lucideAdapter),
-  wrLink(ROUTES.icons, ROUTES.icons.featherAdapter),
 ];

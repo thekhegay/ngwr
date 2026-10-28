@@ -55,7 +55,7 @@ const CATALOG = [
   '## ngwr/badge',
   "- import: `import { WrBadge } from 'ngwr/badge'`",
   '- selector: `wr-badge`, `wr-tag`',
-  '- exports: WrBadge, WrTag, WrBadgeSize',
+  '- exports: WrBadge, WrTag, WrBadgeSize, WR_BADGE_SIZES',
   '- Small status indicator with color variants and an optional pill shape.',
   '',
   '## ngwr/date-picker',
@@ -126,8 +126,12 @@ const SELECT_TYPES = `
 import * as _angular_core from '@angular/core';
 
 interface WrSelectOption<T> {
+    /** What the option reads as. */
     label: string;
+    /** What choosing it writes to the model. */
     value: T;
+    /** Shown, and never chosen. @default false */
+    disabled?: boolean;
 }
 
 /**
@@ -166,7 +170,11 @@ export type { WrSelectOption };
 const BADGE_TYPES = `
 import * as _angular_core from '@angular/core';
 
+/** Badge size variant. */
 type WrBadgeSize = 'sm' | 'md' | 'lg';
+
+/** Every size, in order. */
+declare const WR_BADGE_SIZES: readonly WrBadgeSize[];
 
 /**
  * Small status indicator.
@@ -184,7 +192,7 @@ declare class WrTag {
     readonly label: _angular_core.InputSignal<string | null>;
 }
 
-export { WrBadge, WrTag };
+export { WR_BADGE_SIZES, WrBadge, WrTag };
 export type { WrBadgeSize };
 `;
 
@@ -249,15 +257,19 @@ describe('TOOLS', () => {
     }
   });
 
-  it('describes get_ngwr_api as answering functions as well as classes', () => {
+  it('describes get_ngwr_api as answering functions and types as well as classes', () => {
     // An agent picks a tool off this text alone. Described as class-only, it
     // never asks about `provideWr()` or a `with*()` feature, which are the
-    // configuration API since v15 and which the tool answers.
+    // configuration API since v15, nor about a chart's series type, which is
+    // what its main input takes — and the tool answers all three.
     const tool = TOOLS.find(candidate => candidate.name === 'get_ngwr_api')!;
     const symbol = (tool.inputSchema as { properties: Record<string, { description: string }> }).properties['symbol'];
 
     expect(tool.description).toContain('a function (provideWr, a with*() feature');
-    expect(symbol.description).toBe('Class or function name, e.g. WrSelect or provideWr.');
+    expect(tool.description).toContain('an interface or type alias');
+    expect(symbol.description).toBe(
+      'Class, function, interface or type name, e.g. WrSelect, provideWr or WrBarSeries.'
+    );
   });
 });
 
@@ -329,6 +341,139 @@ describe('callTool — search_ngwr', () => {
   });
 });
 
+/**
+ * A third fixture, for ranking: ten real sections of the 15.1 `llms-full.txt`,
+ * copied as the generator writes them, chosen for the collisions a substring
+ * search fell into. "area" is inside `textarea`, "pie" inside the split-text bit's
+ * "piece by piece", "tag" inside `WrFunnelStage`, every chart shares the word
+ * "chart", and a harness entry point shares every word of the chart it tests.
+ */
+const CHARTS_CATALOG = [
+  '## ngwr/textarea',
+  "- import: `import { WrTextarea } from 'ngwr/textarea'`",
+  '- selector: `wr-textarea`',
+  '- exports: WrTextarea, WrTextareaSize, WrTextareaResize',
+  '- A multi-line text field that can grow with its content.',
+  '',
+  '## ngwr/bits/split-text',
+  "- import: `import { WrSplitText } from 'ngwr/bits/split-text'`",
+  '- selector: `wr-split-text`',
+  '- exports: WrSplitText, WrSplitTextMotion, WrSplitTextUnit',
+  '- keywords: text animation, reactbits',
+  '- Reveals text piece by piece when it scrolls into view.',
+  '',
+  '## ngwr/charts/bar-chart',
+  "- import: `import { WrBarChart } from 'ngwr/charts/bar-chart'`",
+  '- selector: `wr-bar-chart`',
+  '- exports: WrBarChart, WrBarChartDatum, WrBarLine, WrBarOrientation, WrBarSeries',
+  '- keywords: grouped-bar, stacked-bar, horizontal-bar, combo-chart',
+  '- Bars for one or several series, grouped or stacked, standing up or lying along a row, with lines over them.',
+  '',
+  '## ngwr/charts/bar-chart/testing',
+  "- import: `import { WrBarChartHarness } from 'ngwr/charts/bar-chart/testing'`",
+  '- exports: WrBarChartHarness, WrBarChartBar, WrBarChartHarnessFilters, WrBarChartSeriesBar, WrBarChartTableRow',
+  '',
+  '## ngwr/charts/candlestick-chart',
+  "- import: `import { WrCandlestickChart } from 'ngwr/charts/candlestick-chart'`",
+  '- selector: `wr-candlestick-chart`',
+  '- exports: WrCandlestickChart, WrCandlestickDatum',
+  '- keywords: candlestick, ohlc, stock-chart',
+  '- Prices over time (OHLC): a candle per period, its wick from the low to the high and its body from the open to the close.',
+  '',
+  '## ngwr/charts/chart-legend',
+  "- import: `import { WrChartLegend } from 'ngwr/charts/chart-legend'`",
+  '- selector: `ul[wr-chart-legend]`',
+  '- exports: WrChartLegend, WrChartLegendItem, WrChartLegendToggle, WrChartMarker',
+  '- keywords: legend',
+  "- A chart's key: a swatch, a name and a value per series. Rows can toggle their series.",
+  '',
+  '## ngwr/charts/donut-chart',
+  "- import: `import { WrDonutChart } from 'ngwr/charts/donut-chart'`",
+  '- selector: `wr-donut-chart`',
+  '- exports: WrDonutChart, WrDonutSegment',
+  '- keywords: pie',
+  '- Parts of a whole as a ring or a pie.',
+  '',
+  '## ngwr/charts/funnel-chart',
+  "- import: `import { WrFunnelChart } from 'ngwr/charts/funnel-chart'`",
+  '- selector: `wr-funnel-chart`',
+  '- exports: WrFunnelChart, WrFunnelConversion, WrFunnelStage',
+  '- keywords: funnel, conversion',
+  '- How many reached each stage of a sequence, and how many of them went on to the next.',
+  '',
+  '## ngwr/charts/line-chart',
+  "- import: `import { WrLineChart } from 'ngwr/charts/line-chart'`",
+  '- selector: `wr-line-chart`',
+  '- exports: WrLineChart, WrLineSeries',
+  '- keywords: area-chart, stacked-area',
+  '- One or more series of values as lines or as an area chart, overlaid or stacked.',
+  '',
+  '## ngwr/charts/radar-chart',
+  "- import: `import { WrRadarChart } from 'ngwr/charts/radar-chart'`",
+  '- selector: `wr-radar-chart`',
+  '- exports: WrRadarChart, WrRadarSeries, WrRadarVariant',
+  '- keywords: spider-chart, web-chart, polar-area, rose-chart',
+  '- Several series compared across the same axes, as polygons on a polar grid or as polar-area wedges.',
+  '',
+].join('\n');
+
+describe('callTool — search_ngwr ranking', () => {
+  let chartsRoot: string;
+  let charts: Catalog;
+
+  /** The entry points an answer names, in order, without the `ngwr/` prefix. */
+  const ranked = (query: string): string[] =>
+    callTool(charts, 'search_ngwr', { query })
+      .split('\n')
+      .filter(line => line.startsWith('## ngwr/'))
+      .map(line => line.slice('## ngwr/'.length));
+
+  beforeAll(() => {
+    chartsRoot = mkdtempSync(join(tmpdir(), 'ngwr-mcp-ranking-'));
+    writeFileSync(join(chartsRoot, 'llms-full.txt'), CHARTS_CATALOG);
+    charts = new Catalog(chartsRoot);
+  });
+
+  afterAll(() => rmSync(chartsRoot, { recursive: true, force: true }));
+
+  it('finds a chart by the name its page gives a mode, not by a word inside another name', () => {
+    // "area" is a substring of `textarea`'s name, selector and exports, which
+    // used to put the textarea first for both of these.
+    expect(ranked('polar area')[0]).toBe('charts/radar-chart');
+    expect(ranked('stacked area')[0]).toBe('charts/line-chart');
+    // "pie" is inside "piece by piece".
+    expect(ranked('pie')[0]).toBe('charts/donut-chart');
+  });
+
+  it('lets the word that names a chart decide, not the word every chart shares', () => {
+    // "chart" tied every chart and the legend won the tie; "stock" scored nothing.
+    expect(ranked('stock chart')[0]).toBe('charts/candlestick-chart');
+    expect(ranked('combo chart')[0]).toBe('charts/bar-chart');
+    expect(ranked('spider chart')[0]).toBe('charts/radar-chart');
+  });
+
+  it('answers a word only the page keywords carry', () => {
+    // No name, selector, export or description says "ohlc".
+    expect(ranked('ohlc')).toEqual(['charts/candlestick-chart']);
+  });
+
+  it('puts the entry point a word names whole above every one it is only inside', () => {
+    // "legend" is the legend's keyword and part of its name and selector, and
+    // only a substring of `WrChartLegend…` exports elsewhere.
+    expect(ranked('legend')).toEqual(['charts/chart-legend']);
+  });
+
+  it('ranks a harness after the entry point it tests, unless the query asks for one', () => {
+    const plain = ranked('bar chart');
+    expect(plain.indexOf('charts/bar-chart')).toBeLessThan(plain.indexOf('charts/bar-chart/testing'));
+    // Every other chart outranks a harness for a query that is not about testing.
+    expect(ranked('charts').at(-1)).toBe('charts/bar-chart/testing');
+
+    expect(ranked('bar chart harness')[0]).toBe('charts/bar-chart/testing');
+    expect(ranked('WrBarChartHarness')[0]).toBe('charts/bar-chart/testing');
+  });
+});
+
 describe('callTool — get_ngwr_component', () => {
   it('answers with everything needed to use an entry point', () => {
     expect(callTool(catalog, 'get_ngwr_component', { name: 'badge' })).toBe(
@@ -340,10 +485,11 @@ describe('callTool — get_ngwr_component', () => {
         '- selector: wr-badge, wr-tag',
         "- import: import { WrBadge } from 'ngwr/badge'",
         "- styles: @use 'ngwr/badge';",
-        '- exports: WrBadge, WrTag, WrBadgeSize',
-        // Only the exports that are classes: `WrBadgeSize` is a type, and
-        // pointing get_ngwr_api at it wastes a round trip.
+        '- exports: WrBadge, WrTag, WrBadgeSize, WR_BADGE_SIZES',
+        // Classes and types apart, and never the constant: get_ngwr_api reads
+        // the first two and has nothing to say about the third.
         '- classes with an API: WrBadge, WrTag (use get_ngwr_api)',
+        '- types: WrBadgeSize (use get_ngwr_api)',
         '- docs: https://ngwr.dev/reference/components/badge',
         '- docs as markdown: https://ngwr.dev/reference/components/badge.md',
       ].join('\n')
@@ -474,12 +620,45 @@ describe('callTool — get_ngwr_api', () => {
     expect(callTool(catalog, 'get_ngwr_api', { symbol: 'WrBadge' })).toContain('- `size`: WrBadgeSize');
   });
 
-  it('explains a symbol that is exported but is neither a class nor a function', () => {
-    // Type aliases and tokens land here — a provider function answers with its
-    // signature since v15 — and naming the entry point's exports is what turns
-    // the dead end into a next step.
+  it('answers an interface with its fields, each optional or not', () => {
+    // A chart's series, a legend row, an option: the shapes an input takes. The
+    // tool refused every one of them, while a component's own summary sent the
+    // agent to one through `{@link}`.
+    expect(callTool(catalog, 'get_ngwr_api', { symbol: 'WrSelectOption' })).toBe(
+      [
+        '# WrSelectOption — ngwr/select',
+        '',
+        '`interface WrSelectOption<T>`',
+        '',
+        '## fields',
+        '- `label`: string — What the option reads as.',
+        '- `value`: T — What choosing it writes to the model.',
+        '- `disabled`: boolean (optional) default false — Shown, and never chosen.',
+      ].join('\n')
+    );
+  });
+
+  it('answers a type alias with what it stands for', () => {
     expect(callTool(catalog, 'get_ngwr_api', { symbol: 'WrBadgeSize' })).toBe(
-      'WrBadgeSize is not a class or a function in ngwr/badge. It exports: WrBadge, WrTag, WrBadgeSize.'
+      [
+        '# WrBadgeSize — ngwr/badge',
+        '',
+        'Badge size variant.',
+        '',
+        '`type WrBadgeSize`',
+        '',
+        '## type',
+        "'sm' | 'md' | 'lg'",
+      ].join('\n')
+    );
+  });
+
+  it('explains a symbol that is exported but is neither a class, a function nor a type', () => {
+    // Tokens and constants land here, and naming the entry point's exports is
+    // what turns the dead end into a next step.
+    expect(callTool(catalog, 'get_ngwr_api', { symbol: 'WR_BADGE_SIZES' })).toBe(
+      'WR_BADGE_SIZES is not a class, a function or a type in ngwr/badge. It exports: WrBadge, WrTag, WrBadgeSize, ' +
+        'WR_BADGE_SIZES.'
     );
   });
 

@@ -1,16 +1,24 @@
 @use '../../../theme/styles' as theme;
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
 
+// Styles for the entry points this component's own markup renders. The legend is a
+// `ul[wr-chart-legend]`, so `@use 'ngwr/charts/donut-chart'` alone draws it styled.
+@use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
+
 .wr-donut-chart {
   --wr-donut-chart-gap: var(--wr-space-lg);
   --wr-donut-chart-font-family: var(--wr-font-family-base);
+  --wr-donut-chart-color: var(--wr-color-on-surface);
+  // The gap between two slices: each is stroked in the surface the chart sits on, so the
+  // gap is a shape that tells two slices apart without hue.
+  --wr-donut-chart-slice-gap-color: var(--wr-color-surface);
 
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   gap: var(--wr-donut-chart-gap);
   font-family: var(--wr-donut-chart-font-family);
-  color: var(--wr-color-on-surface);
+  color: var(--wr-donut-chart-color);
 
   &__surface {
     position: relative;
@@ -21,6 +29,10 @@
     display: block;
     width: 100%;
     height: auto;
+  }
+
+  &__slice {
+    stroke: var(--wr-donut-chart-slice-gap-color);
   }
 
   &__center {
@@ -51,15 +63,19 @@
     font-weight: var(--wr-donut-chart-center-value-font-weight);
     line-height: var(--wr-donut-chart-center-value-line-height);
     font-variant-numeric: tabular-nums;
+    // A `-` in front of digits has no direction of its own, so under RTL it would land
+    // on the digits' far side. Centred, so taking the text's own direction moves nothing.
+    unicode-bidi: plaintext;
   }
 
   &__center-label {
     --wr-donut-chart-center-label-margin-top: var(--wr-space-xs);
     --wr-donut-chart-center-label-font-size: var(--wr-text-xs);
+    --wr-donut-chart-center-label-color: var(--wr-color-on-surface-muted);
 
     margin-top: var(--wr-donut-chart-center-label-margin-top);
     font-size: var(--wr-donut-chart-center-label-font-size);
-    color: var(--wr-color-on-surface-muted);
+    color: var(--wr-donut-chart-center-label-color);
   }
 
   &__legend {
@@ -78,11 +94,17 @@
   &__legend-item {
     --wr-donut-chart-legend-item-gap: var(--wr-space-sm);
     --wr-donut-chart-legend-item-font-size: var(--wr-text-xs);
+    // A toggleable row's button lays out the key, the name and the value itself, from the
+    // shared legend's own hook, so that hook follows this one.
+    --wr-chart-legend-item-gap: var(--wr-donut-chart-legend-item-gap);
 
     display: inline-flex;
     align-items: center;
     gap: var(--wr-donut-chart-legend-item-gap);
     font-size: var(--wr-donut-chart-legend-item-font-size);
+    // The chart's own colour, as before the shared legend, which paints its rows
+    // `--wr-chart-legend-color`.
+    color: inherit;
   }
 
   &__swatch {
@@ -101,7 +123,21 @@
   }
 
   &__legend-value {
-    color: var(--wr-color-on-surface-muted);
+    --wr-donut-chart-legend-value-color: var(--wr-color-on-surface-muted);
+
+    color: var(--wr-donut-chart-legend-value-color);
     font-variant-numeric: tabular-nums;
+    // A value has no strong character of its own: the sign of `-10` stays before its
+    // digits on an RTL page.
+    unicode-bidi: plaintext;
+  }
+}
+
+// The SVG keeps its fills under forced colors, so the slices keep their colours and the
+// legend still keys them; the gap between them is drawn in the surface, which means
+// nothing on a forced palette, so it takes the page's own colour and still parts them.
+@media (forced-colors: active) {
+  .wr-donut-chart__slice {
+    stroke: Canvas;
   }
 }

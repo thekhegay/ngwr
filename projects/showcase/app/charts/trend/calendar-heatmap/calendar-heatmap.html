@@ -1,0 +1,85 @@
+<ngwr-doc-page
+  title="Calendar Heatmap"
+  updated="15.1.0"
+  description="A year of daily values as a grid of days."
+  [keywords]="['calendar-heatmap', 'github', 'wr-calendar-heatmap']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="One entry per day. `endDate` is the last day drawn, today by default. In a narrow container the year scrolls, and it opens on the newest weeks."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.basicTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-calendar-heatmap [data]="data" [endDate]="endDate" ariaLabel="Commits in the year to 30 September" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Tooltip" description='`[tooltip]="false"` falls back to the browser `title`.'>
+    <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` adds a table only screen readers reach: a row per week, a column per weekday. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="snippets.dataTable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-calendar-heatmap
+        [data]="data"
+        [endDate]="endDate"
+        ariaLabel="Commits in the year to 30 September"
+        dataTable
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Grid</th>
+            <td>One <code>role="img"</code>, named by <code>ariaLabel</code>. The days announce nothing.</td>
+          </tr>
+          <tr>
+            <th scope="row">Values</th>
+            <td>
+              Not in text unless <code>dataTable</code> is on. Without it, say what the year shows in
+              <code>ariaLabel</code>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>
+              No tab stop while the year fits. While it scrolls, the grid is one tab stop and the arrow keys scroll it.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Tooltip</th>
+            <td>Pointer only. The table carries the same counts.</td>
+          </tr>
+          <tr>
+            <th scope="row">Weekday names</th>
+            <td>Three of seven, since seven do not fit. The table names every day.</td>
+          </tr>
+          <tr>
+            <th scope="row">Forced colours</th>
+            <td>The days keep their colours.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

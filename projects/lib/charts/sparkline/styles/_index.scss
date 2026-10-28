@@ -1,6 +1,11 @@
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
 
 .wr-sparkline {
+  // How much of the line's colour the `showArea` fill takes, and the ring round the hover
+  // marker: the surface the sparkline sits on, so the marker reads on the line under it.
+  --wr-sparkline-area-opacity: 0.15;
+  --wr-sparkline-marker-ring: var(--wr-color-surface);
+
   display: inline-block;
   // The hover marker is placed from this box's padding edge, measured off the drawing.
   position: relative;
@@ -11,6 +16,10 @@
     overflow: visible;
   }
 
+  &__area {
+    fill-opacity: var(--wr-sparkline-area-opacity);
+  }
+
   // The point the hover tooltip is reading. Placed by the component in SVG
   // coordinates, which do not flip with `direction`, and never hittable: it sits
   // under the pointer, and taking the `mousemove` would lose the line.
@@ -18,7 +27,7 @@
     position: absolute;
     width: 0.5rem;
     height: 0.5rem;
-    border: 2px solid var(--wr-color-surface);
+    border: 2px solid var(--wr-sparkline-marker-ring);
     border-radius: 50%;
     box-sizing: content-box;
     // rtl-ok: SVG coordinates, see above

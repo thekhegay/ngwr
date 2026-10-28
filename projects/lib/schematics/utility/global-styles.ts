@@ -11,6 +11,8 @@ import { join } from 'node:path';
 import type { Tree } from '@angular-devkit/schematics';
 import { getWorkspace } from '@schematics/angular/utility/workspace';
 
+import { V15_BITS, V15_CHARTS } from './v15-moves';
+
 /**
  * The global-stylesheet half of the schematics, in one place: `component-style`,
  * `page`, `use` and `ng-add` all need to know which entry points ship a
@@ -102,7 +104,24 @@ function shipsStyles(exports: Exports, subpath: string): boolean {
 
 /** The entry point a style name refers to, or why there is none. */
 type StyleTarget =
-  { readonly subpath: string; readonly movedFrom?: string; readonly error?: undefined } | { readonly error: string };
+  | {
+      readonly subpath: string;
+      /** The bare name it was found by, when `subpath` is nested. */
+      readonly resolvedFrom?: string;
+      /** Set only when that name was a flat entry point before v15 nested it. */
+      readonly movedFrom?: string;
+      readonly error?: undefined;
+    }
+  | { readonly error: string };
+
+/** The bare names v15 moved under `charts/` and `bits/`. */
+const MOVED_IN_V15: ReadonlySet<string> = new Set([...V15_CHARTS, ...V15_BITS]);
+
+/**
+ * Nested entry points a bare name never resolves to: `charts/core` holds the
+ * helpers every chart loads for itself, and nobody typing `core` means them.
+ */
+const NOT_BY_BARE_NAME: ReadonlySet<string> = new Set(['charts/core']);
 
 /**
  * The style entry point `name` refers to, checked against the `exports` map.
@@ -112,7 +131,9 @@ type StyleTarget =
  * stylesheet to import". v15 made that the likely case for a name typed from
  * memory: the charts and the bits moved under `charts/` and `bits/`. So a bare
  * name that exactly one nested entry point ends with resolves to it, and
- * anything else is refused with the reason.
+ * anything else is refused with the reason. Only a name v15 actually moved is
+ * reported as moved: a chart first shipped nested (`heatmap-chart`, 15.1) is
+ * resolved the same way, without a history it never had.
  *
  * With no map to check against, the name is trusted as given.
  */
@@ -120,8 +141,16 @@ function styleTarget(name: string, exports: Exports | null): StyleTarget {
   const subpath = name.replace(/^ngwr\//, '').replace(/^\/+|\/+$/g, '');
   if (!exports || shipsStyles(exports, subpath)) return { subpath };
 
-  const nested = Object.keys(exports).filter(key => key.endsWith(`/${subpath}`) && hasSass(exports[key]));
-  if (nested.length === 1 && !subpath.includes('/')) return { subpath: nested[0].slice(2), movedFrom: subpath };
+  const nested = Object.keys(exports).filter(
+    key => key.endsWith(`/${subpath}`) && hasSass(exports[key]) && !NOT_BY_BARE_NAME.has(key.slice(2))
+  );
+  if (nested.length === 1 && !subpath.includes('/')) {
+    return {
+      subpath: nested[0].slice(2),
+      resolvedFrom: subpath,
+      ...(MOVED_IN_V15.has(subpath) ? { movedFrom: subpath } : {}),
+    };
+  }
 
   if (exports[`./${subpath}`]) return { error: `ngwr/${subpath} ships no stylesheet, so there is nothing to add.` };
 

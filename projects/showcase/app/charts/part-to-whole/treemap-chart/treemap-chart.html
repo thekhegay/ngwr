@@ -1,0 +1,150 @@
+<ngwr-doc-page
+  title="Treemap Chart"
+  since="15.1.0"
+  description="A hierarchy as nested rectangles, each with an area in proportion to its value."
+  [keywords]="['treemap-chart', 'treemap', 'hierarchy', 'wr-treemap-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Each top-level node takes the next palette colour, and everything inside it shares it. A group without a value is the sum of its children."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.basicTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-treemap-chart style="width: 100%" ariaLabel="Budget by department" [data]="budget" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Groups"
+    description="Give a group a value above its children's sum and the rest of its rectangle stays empty: what the children do not account for."
+  >
+    <ngwr-doc-code [code]="snippets.groups" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.groupsTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-treemap-chart style="width: 100%" ariaLabel="Disk usage, GB" [data]="disk" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Labels"
+    description="Names go inside the tiles with room for them, a group's in a strip along its top. A long name is cut with an ellipsis, and a tile too small writes nothing. `showValues` and `showLabels` turn the text off."
+  >
+    <ngwr-doc-code [code]="snippets.labels" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: grid; gap: 2rem; width: 100%">
+        <wr-treemap-chart ariaLabel="Repository by lines of code" [data]="repo" [height]="320" />
+        <wr-treemap-chart ariaLabel="Repository by lines of code" [data]="repo" [showValues]="false" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Number format"
+    description="Values and shares follow `LOCALE_ID`. `valueFormat` writes every value: in the tiles, the tooltip and the data table. A value wider than its tile is left out of it, never cut. `percentFormat` writes the shares, and it takes a ratio, so 0.25 is a quarter."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-treemap-chart
+        style="width: 100%"
+        ariaLabel="Budget by department"
+        [data]="budget"
+        [valueFormat]="usd"
+        [percentFormat]="percent"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Right to left"
+    description="The layout starts at the inline-start edge, so on a right-to-left page the largest node sits at the top right."
+  >
+    <ngwr-doc-code [code]="snippets.rtl" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div dir="rtl" style="width: 100%">
+        <wr-treemap-chart ariaLabel="Budget by department" [data]="budget" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` adds a table only screen readers reach: a row per node, headed by its path, with its value and its share of the whole. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="snippets.dataTable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-treemap-chart
+        style="width: 100%"
+        ariaLabel="Budget by department"
+        valueLabel="Budget, $K"
+        [data]="budget"
+        dataTable
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Drawing</th>
+            <td>One <code>role="img"</code>, named by <code>ariaLabel</code>. The tiles announce nothing.</td>
+          </tr>
+          <tr>
+            <th scope="row">Numbers</th>
+            <td>In the tooltip, which is pointer only, and in the table <code>dataTable</code> adds.</td>
+          </tr>
+          <tr>
+            <th scope="row">Groups</th>
+            <td>Told apart by their name and by their tiles sitting inside their own rectangle, not only by colour.</td>
+          </tr>
+          <tr>
+            <th scope="row">Tile edges</th>
+            <td>
+              A faint gap in the surface colour. Under <code>prefers-contrast: more</code> it is a line at 3:1 or more.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Names</th>
+            <td>Cut with an ellipsis where a tile is narrow. The tooltip and the table carry the whole path.</td>
+          </tr>
+          <tr>
+            <th scope="row">Values</th>
+            <td>Never cut: a value wider than its tile is left out. The tooltip and the table carry it whole.</td>
+          </tr>
+          <tr>
+            <th scope="row">Forced colours</th>
+            <td>The tints give way to the system palette; every tile keeps an outline in the text colour.</td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>No tab stop.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Drill-down"
+    description="Not in this version. Every level is drawn at once and nothing zooms into a group: give a deep tree one level at a time, or split it into several charts."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

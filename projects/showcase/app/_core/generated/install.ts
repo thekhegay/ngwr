@@ -60,6 +60,9 @@ export const INSTALL = {
   "bits/decrypt-text": [
       { path: "ngwr/bits/decrypt-text", symbols: ["WrDecryptText"], declarables: ["WrDecryptText"], styled: true },
   ],
+  "bits/dot-grid": [
+      { path: "ngwr/bits/dot-grid", symbols: ["WrDotGrid"], declarables: ["WrDotGrid"], styled: true },
+  ],
   "bits/falling-text": [
       { path: "ngwr/bits/falling-text", symbols: ["WrFallingText"], declarables: ["WrFallingText"], styled: true },
   ],
@@ -74,6 +77,9 @@ export const INSTALL = {
   ],
   "bits/marquee": [
       { path: "ngwr/bits/marquee", symbols: ["WrMarquee"], declarables: ["WrMarquee"], styled: true },
+  ],
+  "bits/ripple-grid": [
+      { path: "ngwr/bits/ripple-grid", symbols: ["WrRippleGrid"], declarables: ["WrRippleGrid"], styled: true },
   ],
   "bits/rotating-text": [
       { path: "ngwr/bits/rotating-text", symbols: ["WrRotatingText"], declarables: ["WrRotatingText"], styled: true },
@@ -93,6 +99,9 @@ export const INSTALL = {
   "bits/star-border": [
       { path: "ngwr/bits/star-border", symbols: ["WrStarBorder"], declarables: ["WrStarBorder"], styled: true },
   ],
+  "bits/threads": [
+      { path: "ngwr/bits/threads", symbols: ["WrThreads"], declarables: ["WrThreads"], styled: true },
+  ],
   "bits/tilt-card": [
       { path: "ngwr/bits/tilt-card", symbols: ["WrTilt", "WrTiltCard"], declarables: ["WrTilt", "WrTiltCard"], styled: true },
   ],
@@ -105,14 +114,32 @@ export const INSTALL = {
   "charts/bar-chart": [
       { path: "ngwr/charts/bar-chart", symbols: ["WrBarChart"], declarables: ["WrBarChart"], styled: true },
   ],
+  "charts/boxplot-chart": [
+      { path: "ngwr/charts/boxplot-chart", symbols: ["WrBoxplotChart"], declarables: ["WrBoxplotChart"], styled: true },
+  ],
+  "charts/bullet-chart": [
+      { path: "ngwr/charts/bullet-chart", symbols: ["WrBulletChart"], declarables: ["WrBulletChart"], styled: true },
+  ],
   "charts/calendar-heatmap": [
       { path: "ngwr/charts/calendar-heatmap", symbols: ["WrCalendarHeatmap"], declarables: ["WrCalendarHeatmap"], styled: true },
+  ],
+  "charts/candlestick-chart": [
+      { path: "ngwr/charts/candlestick-chart", symbols: ["WrCandlestickChart"], declarables: ["WrCandlestickChart"], styled: true },
+  ],
+  "charts/chart-legend": [
+      { path: "ngwr/charts/chart-legend", symbols: ["WrChartLegend"], declarables: ["WrChartLegend"], styled: true },
   ],
   "charts/donut-chart": [
       { path: "ngwr/charts/donut-chart", symbols: ["WrDonutChart"], declarables: ["WrDonutChart"], styled: true },
   ],
+  "charts/funnel-chart": [
+      { path: "ngwr/charts/funnel-chart", symbols: ["WrFunnelChart"], declarables: ["WrFunnelChart"], styled: true },
+  ],
   "charts/gauge": [
       { path: "ngwr/charts/gauge", symbols: ["WrGauge"], declarables: ["WrGauge"], styled: true },
+  ],
+  "charts/heatmap-chart": [
+      { path: "ngwr/charts/heatmap-chart", symbols: ["WrHeatmapChart"], declarables: ["WrHeatmapChart"], styled: true },
   ],
   "charts/line-chart": [
       { path: "ngwr/charts/line-chart", symbols: ["WrLineChart"], declarables: ["WrLineChart"], styled: true },
@@ -120,8 +147,20 @@ export const INSTALL = {
   "charts/meter-group": [
       { path: "ngwr/charts/meter-group", symbols: ["WrMeterGroup"], declarables: ["WrMeterGroup"], styled: true },
   ],
+  "charts/radar-chart": [
+      { path: "ngwr/charts/radar-chart", symbols: ["WrRadarChart"], declarables: ["WrRadarChart"], styled: true },
+  ],
+  "charts/scatter-chart": [
+      { path: "ngwr/charts/scatter-chart", symbols: ["WrScatterChart"], declarables: ["WrScatterChart"], styled: true },
+  ],
   "charts/sparkline": [
       { path: "ngwr/charts/sparkline", symbols: ["WrSparkline"], declarables: ["WrSparkline"], styled: true },
+  ],
+  "charts/treemap-chart": [
+      { path: "ngwr/charts/treemap-chart", symbols: ["WrTreemapChart"], declarables: ["WrTreemapChart"], styled: true },
+  ],
+  "charts/waterfall-chart": [
+      { path: "ngwr/charts/waterfall-chart", symbols: ["WrWaterfallChart"], declarables: ["WrWaterfallChart"], styled: true },
   ],
   "icons/lucide": [
       { path: "ngwr/icon", symbols: ["lucide"], declarables: [], styled: true },

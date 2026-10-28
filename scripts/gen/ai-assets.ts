@@ -35,9 +35,9 @@ import { basename, dirname, join } from 'node:path';
 import { REQUIRED_PROVIDERS } from '../../projects/lib/mcp/providers';
 import { renderSkill } from '../lib/ai/skill';
 import { decoratedClasses } from '../lib/build-selector-map';
-import { publicExports, type PublicExport } from '../lib/build-symbol-map';
+import { assertInternalEntryPoints, publicExports, type PublicExport } from '../lib/build-symbol-map';
 import { docPageTags } from '../lib/doc-page';
-import { entryFiles, libEntryPoints, wrClassName } from '../lib/entry-points';
+import { entryFiles, INTERNAL_ENTRY_POINTS, libEntryPoints, wrClassName } from '../lib/entry-points';
 import { info } from '../lib/log/info';
 import { docPages, requireSingleRoutePages } from '../lib/page-routes';
 import { LIB_PATH } from '../lib/paths/lib';
@@ -61,10 +61,15 @@ const read = (path: string): string => (existsSync(path) ? readFileSync(path, 'u
 
 // --- entry points ----------------------------------------------------------
 
+// `ngwr/charts/core` and any other entry point publishing nothing an app imports:
+// one list in `scripts/lib/entry-points.ts`, shared with the `ng g ngwr:use` symbol
+// map, and held to `@internal` export by export before anything is written.
+assertInternalEntryPoints();
+
 /**
- * Every secondary entry point, `<name>/testing` included.
+ * Every secondary entry point, `<name>/testing` included, the internal ones left out.
  */
-const ENTRIES = libEntryPoints();
+const ENTRIES = libEntryPoints().filter(entry => !INTERNAL_ENTRY_POINTS.has(entry));
 
 /**
  * The PRIMARY entry point, `ngwr`, by the name `publicExports()` resolves it
@@ -160,12 +165,40 @@ const HEADLINES: Readonly<Record<string, string>> = {
 /** Every reference, chart and bits page, by the entry point it documents. */
 const PAGES = docPages(await requireSingleRoutePages(), { admit: page => page.cluster !== 'guides' });
 
+/** The attributes of the `<ngwr-doc-page>` an entry point's page opens with; empty when it has no page. */
+function pageTagOf(entry: string): ReadonlyMap<string, string> {
+  const page = PAGES.byEntry.get(entry);
+  if (!page) return new Map();
+  const html = read(join(SHOWCASE_APP_PATH, page.dir, `${basename(page.dir)}.html`));
+  return docPageTags(html)[0] ?? new Map();
+}
+
 /** The `description` on an entry point's `<ngwr-doc-page>`, whitespace collapsed; `''` when it has no page. */
 function descriptionOf(entry: string): string {
-  const page = PAGES.byEntry.get(entry);
-  if (!page) return '';
-  const html = read(join(SHOWCASE_APP_PATH, page.dir, `${basename(page.dir)}.html`));
-  return (docPageTags(html)[0]?.get('description') ?? '').replace(/\s+/g, ' ').trim();
+  return (pageTagOf(entry).get('description') ?? '').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * The words a page's `[keywords]` gives for what it documents, minus the ones the
+ * catalog already says: the entry point's own name and its selectors.
+ *
+ * They are the names a reader searches by and the page never uses as a title —
+ * `ohlc` and `stock-chart` for the candlestick, `pie` for the donut, `polar-area`
+ * for the radar — and they used to reach only the page's `<meta name="keywords">`,
+ * so `search_ngwr` answered "ohlc" with nothing and "stacked area" with the
+ * textarea. Read as the string literals of the bound array; a binding that is not
+ * an array literal gives none.
+ */
+function keywordsOf(entry: string, selectors: readonly string[]): string[] {
+  const bound = pageTagOf(entry).get('[keywords]') ?? '';
+  const said = new Set(
+    [
+      entry.slice(entry.lastIndexOf('/') + 1),
+      ...selectors.map(selector => selector.replace(/^[a-z-]*\[|\]$/g, '')),
+    ].map(word => word.toLowerCase())
+  );
+  const words = [...bound.matchAll(/'([^']+)'/g)].map(match => (match[1] ?? '').trim().toLowerCase());
+  return [...new Set(words)].filter(word => word && !said.has(word));
 }
 
 /**
@@ -210,6 +243,8 @@ interface Entry {
   readonly exports: readonly string[];
   readonly headline: string | undefined;
   readonly description: string;
+  /** Search words from the page's `[keywords]`, the ones the name and selectors already say left out. */
+  readonly keywords: readonly string[];
 }
 
 function collect(): Entry[] {
@@ -220,16 +255,18 @@ function collect(): Entry[] {
     if (description && UNPAGED[path]) {
       throw new Error(`${path} has a docs page description now. Drop it from UNPAGED in scripts/gen/ai-assets.ts.`);
     }
+    // Types cannot carry a decorator, and a selector is only real if the class
+    // behind it can be imported as a value. The root is not walked at all: its
+    // folder is the whole library, `schematics/` and `mcp/` included.
+    const selectors = name ? selectorsOf(name, new Set(exports.filter(e => !e.isType).map(e => e.name))) : [];
     return {
       name,
       path,
-      // Types cannot carry a decorator, and a selector is only real if the class
-      // behind it can be imported as a value. The root is not walked at all: its
-      // folder is the whole library, `schematics/` and `mcp/` included.
-      selectors: name ? selectorsOf(name, new Set(exports.filter(e => !e.isType).map(e => e.name))) : [],
+      selectors,
       exports: exports.map(e => e.name),
       headline: headlineExport(name, exports),
       description: description || UNPAGED[path] || '',
+      keywords: name ? keywordsOf(name, selectors) : [],
     };
   });
 
@@ -258,6 +295,7 @@ function render(entries: readonly Entry[]): string {
     full += `- import: \`import { ${entry.headline ?? '…'} } from '${entry.path}'\`\n`;
     if (entry.selectors.length) full += `- selector: ${entry.selectors.map(s => `\`${s}\``).join(', ')}\n`;
     if (entry.exports.length) full += `- exports: ${entry.exports.join(', ')}\n`;
+    if (entry.keywords.length) full += `- keywords: ${entry.keywords.join(', ')}\n`;
     if (entry.description) full += `- ${entry.description}\n`;
   }
 
@@ -292,7 +330,7 @@ function main(): void {
   // copying whatever is in this directory.
   const skillDir = join(ROOT_PATH, 'skills/ngwr');
   rmSync(skillDir, { recursive: true, force: true });
-  const skill = renderSkill(entries, REQUIRED_PROVIDERS, angularMajor());
+  const skill = renderSkill(entries, REQUIRED_PROVIDERS, angularMajor(), libEntryPoints().length);
   for (const file of skill) {
     const path = join(skillDir, file.path);
     mkdirSync(dirname(path), { recursive: true });

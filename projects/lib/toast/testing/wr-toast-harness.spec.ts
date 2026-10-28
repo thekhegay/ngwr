@@ -56,6 +56,28 @@ describe('WrToastHarness', () => {
     expect(await toast.getTitle()).toBeNull();
   });
 
+  it('reads an empty message off a toast shown with a title alone', async () => {
+    fixture.componentInstance.toast.show({ title: 'Saved', message: '', duration: 0 });
+    await fixture.whenStable();
+
+    const toast = await rootLoader.getHarness(WrToastHarness);
+
+    expect(await toast.getTitle()).toBe('Saved');
+    expect(await toast.getMessage()).toBe('');
+  });
+
+  it('still narrows by message when a title-only toast shares the stack', async () => {
+    // The filter asks EVERY toast for its message, so one that has none must
+    // answer rather than throw and take the whole query down with it.
+    fixture.componentInstance.toast.show({ title: 'Saved', message: '', duration: 0 });
+    fixture.componentInstance.toast.show({ message: 'Could not save', type: 'danger', duration: 0 });
+    await fixture.whenStable();
+
+    const bad = await rootLoader.getHarness(WrToastHarness.with({ message: 'Could not save' }));
+
+    expect(await bad.getType()).toBe('danger');
+  });
+
   it('narrows a stack by message, title and intent', async () => {
     fixture.componentInstance.toast.show({ message: 'Saved', type: 'success', duration: 0 });
     fixture.componentInstance.toast.show({ title: 'Oops', message: 'Could not save', type: 'danger', duration: 0 });

@@ -1,2 +1,9 @@
 export { WrBarChartHarness } from './wr-bar-chart-harness';
-export type { WrBarChartBar, WrBarChartHarnessFilters } from './types';
+export type {
+  WrBarChartBar,
+  WrBarChartHarnessFilters,
+  WrBarChartHarnessLine,
+  WrBarChartHarnessLinePoint,
+  WrBarChartSeriesBar,
+  WrBarChartTableRow,
+} from './types';

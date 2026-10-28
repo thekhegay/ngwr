@@ -119,6 +119,16 @@ A component with a `styleUrl` splits its styles: the rules go in
 `styles/_rules.scss`, and `_index.scss` only loads the theme and forwards
 them. AGENTS.md says why.
 
+Charts and bits nest one level deeper: the source goes in
+`projects/lib/charts/<name>/` or `projects/lib/bits/<name>/` (styled with
+`@use 'ngwr/charts/<name>'` or `@use 'ngwr/bits/<name>'`), the page in
+`projects/showcase/app/charts/<group>/<name>/` or
+`projects/showcase/app/bits/<group>/<name>/`, and steps 3 to 5 below use that
+cluster's `charts` or `bits` node in `routes.ts`, the `routing.ts` beside the
+page's folder and its
+sidebar config (`charts.config.ts` or `bits.config.ts`). AGENTS.md's "Showcase
+page = the docs" has the detail.
+
 Then:
 
 1. Run `pnpm gen:exports`. It adds the entry point to the `exports` map in
@@ -142,7 +152,8 @@ Then:
    yours has not shipped yet. The page prints "Added in v14.5" beside its title,
    and the sidebar's "new" mark is derived from that one attribute, so nothing
    is typed twice and nothing has to be removed later: the mark covers the
-   current minor line and leaves by itself when the next one ships. A page that
+   minor line the site is heading to and leaves by itself once the next
+   release declares its first page. A page that
    declares nothing shows nothing, which is right for everything that was
    already here.
 8. Run `pnpm gen:api-docs` and commit `projects/showcase/app/_core/generated/api.ts`

@@ -211,7 +211,12 @@ export class WrWaves {
   private ctx: CanvasRenderingContext2D | null = null;
   private readonly noise = new Noise(Math.random());
   private lines: WavePoint[][] = [];
-  private bounding = { width: 0, height: 0, left: 0, top: 0 };
+  /** The host's layout box, in CSS pixels before any transform: what the grid is laid out in. */
+  private box = { width: 0, height: 0 };
+  /** Bitmap pixels per CSS pixel the canvas is backed at; 0 until the first fit. */
+  private ratio = 0;
+  /** The time of the frame the loop last drew, or -1 while no loop has drawn. */
+  private lastTime = -1;
   private readonly mouse = { x: -10, y: 0, lx: 0, ly: 0, sx: 0, sy: 0, v: 0, vs: 0, a: 0, set: false };
   private rafId = 0;
 
@@ -234,20 +239,18 @@ export class WrWaves {
 
     afterNextRender(() => this.zone.runOutsideAngular(() => this.boot()));
 
-    // Re-seed the grid when geometry inputs change.
+    // Re-seed the grid when geometry inputs change. The bitmap is left alone,
+    // so the next frame draws over the old grid rather than over a blank canvas.
     effect(() => {
       this.xGap();
       this.yGap();
       if (!this.ctx) return;
-      this.setSize();
       this.setLines();
       // And paint it, when there is no frame loop to. Under
       // `prefers-reduced-motion` the grid is drawn once and no frame follows,
-      // so a later gap change cleared the canvas
-      // (`setSize` writes `canvas.width`), rebuilt the grid and left it
-      // undrawn — with `.wr-waves--painted` already on the host, so the
-      // element stayed visible and empty. `onResize` ends the same way, for
-      // the same reason.
+      // so a later gap change rebuilt the grid and left it undrawn — with
+      // `.wr-waves--painted` already on the host, so the element stayed
+      // visible and empty.
       if (this.platform.prefersReducedMotion()) this.drawLines();
     });
 
@@ -285,17 +288,25 @@ export class WrWaves {
     this.ctx = canvas.getContext('2d');
     if (!this.ctx) return;
 
-    this.setSize();
+    // `clientWidth` and not `getBoundingClientRect()`: the rect is the box after
+    // transforms, and no observer hears of a transform, so a field booted inside
+    // a dialog's scale-in kept a bitmap 96% of its box, stretched by CSS once
+    // the animation ended. The observer's first entry follows with the exact,
+    // sub-pixel size.
+    const hostEl = this.host.nativeElement;
+    this.fit(hostEl.clientWidth, hostEl.clientHeight);
     this.setLines();
 
-    const onResize = (): void => {
-      this.setSize();
-      this.setLines();
-      if (this.platform.prefersReducedMotion()) this.drawLines();
-    };
+    // The box is the observer's to follow, transforms excluded. A window resize
+    // is for the pixel ratio, which browser zoom and a move to another screen
+    // change with no box change at all.
+    const onResize = (): void => this.resize(this.box.width, this.box.height);
     window.addEventListener('resize', onResize);
-    const ro = new ResizeObserver(onResize);
-    ro.observe(this.host.nativeElement);
+    const ro = new ResizeObserver(entries => {
+      const rect = entries[entries.length - 1]?.contentRect;
+      if (rect) this.resize(rect.width, rect.height);
+    });
+    ro.observe(hostEl);
     this.destroyRef.onDestroy(() => {
       window.removeEventListener('resize', onResize);
       ro.disconnect();
@@ -335,30 +346,56 @@ export class WrWaves {
       window.removeEventListener('touchmove', onTouchMove);
       io?.disconnect();
       halt();
+      // The still grid that follows is undisturbed: no drift to carry over.
+      this.lastTime = -1;
     };
   }
 
-  private setSize(): void {
-    const rect = this.host.nativeElement.getBoundingClientRect();
-    this.bounding = { width: rect.width, height: rect.height, left: rect.left, top: rect.top };
-    const canvas = this.canvasRef().nativeElement;
+  /** Fit the canvas to a new box or pixel ratio and, when that cleared it, repaint at once. */
+  private resize(width: number, height: number): void {
+    const moved = width !== this.box.width || height !== this.box.height;
+    if (!this.fit(width, height)) return;
+    if (moved) {
+      this.setLines();
+      // Re-seeded points sit at rest. A drifting field puts them where the last
+      // frame had the drift, or the repaint below shows straight lines for a frame.
+      if (this.lastTime >= 0) this.drift(this.lastTime);
+    }
+    // Observer entries arrive after the frame's own callbacks and before its
+    // paint, and the fit cleared the bitmap, so a repaint left to the next frame
+    // would leave this one blank: a resize drag flickered every frame.
+    this.drawLines();
+  }
+
+  /**
+   * Back the canvas for a `width` × `height` box, in CSS pixels, at the screen's
+   * pixel ratio. Returns whether anything changed: writing `canvas.width` clears
+   * the bitmap even to the value it already has, so an unchanged box is left alone.
+   */
+  private fit(width: number, height: number): boolean {
     // Backed at the screen's pixel ratio. A bitmap the size of the CSS box is
     // upscaled on a 2x screen, which smears every 1px line across two device
     // pixels and steps its curves. Capped at 2: the field repaints every frame,
     // and a 3x phone would push half as many pixels again for no visible gain.
     // Capped again by `MAX_CANVAS_PIXELS`, never below 1.
-    const area = rect.width * rect.height;
+    const area = width * height;
     const budget = area > 0 ? Math.sqrt(MAX_CANVAS_PIXELS / area) : 2;
     const ratio = Math.max(1, Math.min(window.devicePixelRatio || 1, 2, budget));
-    canvas.width = Math.round(rect.width * ratio);
-    canvas.height = Math.round(rect.height * ratio);
+    if (width === this.box.width && height === this.box.height && ratio === this.ratio) return false;
+
+    this.box = { width, height };
+    this.ratio = ratio;
+    const canvas = this.canvasRef().nativeElement;
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
     // Resizing the bitmap resets the context, transform included, so the scale
     // goes on afterwards. Every coordinate below stays in CSS pixels.
     this.ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
+    return true;
   }
 
   private setLines(): void {
-    const { width, height } = this.bounding;
+    const { width, height } = this.box;
     this.lines = [];
     const oWidth = width + 200;
     const oHeight = height + 30;
@@ -398,27 +435,38 @@ export class WrWaves {
     mouse.ly = mouse.y;
     mouse.a = Math.atan2(dy, dx);
 
+    this.lastTime = time;
     this.movePoints(time);
     this.drawLines();
     this.rafId = requestAnimationFrame(t => this.tick(t));
   }
 
-  private movePoints(time: number): void {
-    const mouse = this.mouse;
+  /** Put every point where the noise drifts it at `time`. */
+  private drift(time: number): void {
     const waveSpeedX = this.waveSpeedX();
     const waveSpeedY = this.waveSpeedY();
     const waveAmpX = this.waveAmpX();
     const waveAmpY = this.waveAmpY();
-    const friction = this.friction();
-    const tension = this.tension();
-    const maxCursorMove = this.maxCursorMove();
 
     for (const pts of this.lines) {
       for (const p of pts) {
         const move = this.noise.perlin2((p.x + time * waveSpeedX) * 0.002, (p.y + time * waveSpeedY) * 0.0015) * 12;
         p.wave.x = Math.cos(move) * waveAmpX;
         p.wave.y = Math.sin(move) * waveAmpY;
+      }
+    }
+  }
 
+  private movePoints(time: number): void {
+    this.drift(time);
+
+    const mouse = this.mouse;
+    const friction = this.friction();
+    const tension = this.tension();
+    const maxCursorMove = this.maxCursorMove();
+
+    for (const pts of this.lines) {
+      for (const p of pts) {
         const dx = p.x - mouse.sx;
         const dy = p.y - mouse.sy;
         const dist = Math.hypot(dx, dy);
@@ -457,7 +505,7 @@ export class WrWaves {
     // Angular (the rAF loop does), so `signal.set` schedules the one host-binding
     // update it needs; every later call is a no-op on an unchanged value.
     if (!this.painted()) this.painted.set(true);
-    const { width, height } = this.bounding;
+    const { width, height } = this.box;
     ctx.clearRect(0, 0, width, height);
     ctx.beginPath();
     ctx.strokeStyle = this.resolveLineColor();
@@ -495,11 +543,13 @@ export class WrWaves {
 
   private updateMouse(x: number, y: number): void {
     // Re-read the box each move — cheaper than tracking scroll, and the
-    // host is usually a hero that rarely reflows mid-gesture.
+    // host is usually a hero that rarely reflows mid-gesture. The rect is the
+    // box as drawn, after any transform on the host or an ancestor, and the
+    // grid is laid out in the box before them, so the pointer is scaled back.
     const rect = this.host.nativeElement.getBoundingClientRect();
     const mouse = this.mouse;
-    mouse.x = x - rect.left;
-    mouse.y = y - rect.top;
+    mouse.x = (x - rect.left) * (rect.width > 0 ? this.box.width / rect.width : 1);
+    mouse.y = (y - rect.top) * (rect.height > 0 ? this.box.height / rect.height : 1);
     if (!mouse.set) {
       mouse.sx = mouse.x;
       mouse.sy = mouse.y;

@@ -1,20 +1,34 @@
 @use '../../../theme/styles' as theme;
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
 
+// Styles for the entry points this component's own markup renders. The legend is a
+// `ul[wr-chart-legend]`, so `@use 'ngwr/charts/meter-group'` alone draws it styled.
+@use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
+
 .wr-meter-group {
+  --wr-meter-group-gap: var(--wr-space-sm);
+  --wr-meter-group-font-family: var(--wr-font-family-base);
+  --wr-meter-group-color: var(--wr-color-on-surface);
+  --wr-meter-group-bar-height: 0.625rem;
+  --wr-meter-group-bar-radius: var(--wr-border-radius-pill);
+  // The part of the scale nothing fills, and the gap laid between two slices in it.
+  --wr-meter-group-track-bg: var(--wr-color-fill-strong);
+  --wr-meter-group-slice-gap: calc(var(--wr-space-xs) / 2);
+  --wr-meter-group-legend-value-color: var(--wr-color-on-surface-muted);
+
   display: flex;
   flex-direction: column;
-  gap: var(--wr-space-sm);
-  font-family: var(--wr-font-family-base);
-  color: var(--wr-color-on-surface);
+  gap: var(--wr-meter-group-gap);
+  font-family: var(--wr-meter-group-font-family);
+  color: var(--wr-meter-group-color);
 
   &__bar {
     display: flex;
     width: 100%;
-    height: 0.625rem;
-    border-radius: var(--wr-border-radius-pill);
+    height: var(--wr-meter-group-bar-height);
+    border-radius: var(--wr-meter-group-bar-radius);
     overflow: hidden;
-    background: var(--wr-color-fill-strong);
+    background: var(--wr-meter-group-track-bg);
 
     // Forced colors paints the track `Canvas`, the page itself, so the part of
     // the scale nothing fills needs an edge to be read against.
@@ -37,24 +51,39 @@
     // so every boundary sits at its exact share; it is painted after every slice, so it
     // covers the next one rather than hiding under it, as a spread shadow would; and a
     // zero slice's outline is the one gap where its two neighbours meet.
-    outline: calc(var(--wr-space-xs) / 2) solid var(--wr-color-fill-strong);
+    outline: var(--wr-meter-group-slice-gap) solid var(--wr-meter-group-track-bg);
+
+    // The width follows a toggled legend row as well as new data, so every press would
+    // tween the whole bar. Under reduced motion it lands at once.
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
   }
 
   &__legend {
+    --wr-meter-group-legend-gap-y: var(--wr-space-sm);
+    --wr-meter-group-legend-gap-x: var(--wr-space-lg);
+
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--wr-space-sm) var(--wr-space-lg);
+    gap: var(--wr-meter-group-legend-gap-y) var(--wr-meter-group-legend-gap-x);
   }
 
   &__legend-item {
+    --wr-meter-group-legend-item-gap: var(--wr-space-sm);
+    --wr-meter-group-legend-item-font-size: var(--wr-text-xs);
+    // A toggleable row's button lays out the key, the name and the value itself, from the
+    // shared legend's own hook, so that hook follows this one.
+    --wr-chart-legend-item-gap: var(--wr-meter-group-legend-item-gap);
+
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
-    font-size: var(--wr-text-xs);
-    color: var(--wr-color-on-surface);
+    gap: var(--wr-meter-group-legend-item-gap);
+    font-size: var(--wr-meter-group-legend-item-font-size);
+    color: var(--wr-meter-group-color);
   }
 
   &__swatch {
@@ -67,11 +96,13 @@
   }
 
   &__legend-label {
-    font-weight: var(--wr-font-weight-medium);
+    --wr-meter-group-legend-label-font-weight: var(--wr-font-weight-medium);
+
+    font-weight: var(--wr-meter-group-legend-label-font-weight);
   }
 
   &__legend-value {
-    color: var(--wr-color-on-surface-muted);
+    color: var(--wr-meter-group-legend-value-color);
     font-variant-numeric: tabular-nums;
   }
 }

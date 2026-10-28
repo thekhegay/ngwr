@@ -231,6 +231,9 @@ export const wrTr: WrI18nCatalog = {
   },
   barChart: {
     label: 'Çubuk grafiği',
+    total: 'Toplam',
+    value: 'Değer',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Takvim ısı haritası',
@@ -240,9 +243,80 @@ export const wrTr: WrI18nCatalog = {
     // Belirtisiz ad tamlaması: Türkçede tamlanan ad iyelik eki alır — “çizgi
     // grafiği”, “halka grafiği”, tıpkı yukarıdaki “takvim ısı haritası” gibi.
     label: 'Çizgi grafiği',
+    areaLabel: 'Alan grafiği',
   },
   donutChart: {
     label: 'Halka grafiği',
+    pieLabel: 'Pasta grafiği',
+  },
+  chartLegend: {
+    toggleLabel: 'Serilerin görünürlüğünü değiştir',
+    hidden: 'gizli',
+  },
+  scatterChart: {
+    label: 'Dağılım grafiği',
+    x: 'X',
+    y: 'Y',
+    size: 'Boyut',
+  },
+  radarChart: {
+    label: 'Radar grafiği',
+    polarAreaLabel: 'Kutupsal alan grafiği',
+  },
+  heatmapChart: {
+    label: 'Isı haritası',
+    noData: 'Veri yok',
+  },
+  funnelChart: {
+    label: 'Huni grafiği',
+    stage: 'Aşama',
+    value: 'Değer',
+    fromPrevious: 'Öncekine göre',
+    fromFirst: 'İlkine göre',
+    ofPrevious: 'Öncekinin {{percent}}',
+    ofFirst: 'İlkinin {{percent}}',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
+  },
+  waterfallChart: {
+    label: 'Şelale grafiği',
+    step: 'Adım',
+    change: 'Değişim',
+    runningTotal: 'Kümülatif toplam',
+    changeStep: '{{label}}: {{change}}, kümülatif toplam {{total}}',
+    totalStep: '{{label}}: toplam {{total}}',
+  },
+  treemapChart: {
+    label: 'Ağaç haritası',
+    value: 'Değer',
+    share: 'Pay',
+  },
+  bulletChart: {
+    label: 'Bullet grafiği',
+    target: 'Hedef',
+    summary: '{{label}}: {{value}}, hedef {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: değer yok, hedef {{target}}',
+    noValue: '{{label}}: değer yok',
+  },
+  boxplotChart: {
+    label: 'Kutu grafiği',
+    group: 'Grup',
+    upperWhisker: 'Üst bıyık',
+    q3: 'Q3',
+    median: 'Medyan',
+    q1: 'Q1',
+    lowerWhisker: 'Alt bıyık',
+    outliers: 'Aykırı değerler',
+    moreOutliers: '+{{count}} daha',
+  },
+  candlestickChart: {
+    label: 'Mum grafiği',
+    open: 'Açılış',
+    high: 'En yüksek',
+    low: 'En düşük',
+    close: 'Kapanış',
   },
   compare: {
     label: 'Karşılaştırma ayırıcısı',
@@ -282,6 +356,13 @@ export const wrTr: WrI18nCatalog = {
     closeWindow: 'Pencereyi kapat',
     untitled: 'Adsız',
     taskbar: 'Küçültülmüş pencereler',
+    taskbarAll: 'Açık pencereler',
+    taskbarMore: 'Diğer pencereler: {{count}}',
+    moveMode: 'Pencere taşınıyor. Ok tuşlarını kullanın; bitirmek için Enter, iptal etmek için Escape tuşuna basın.',
+    resizeMode:
+      'Pencere yeniden boyutlandırılıyor. Ok tuşlarını kullanın; bitirmek için Enter, iptal etmek için Escape tuşuna basın.',
+    moved: 'Pencere {{x}}, {{y}} konumuna taşındı',
+    resized: 'Pencere boyutu değiştirildi: genişlik {{width}}, yükseklik {{height}}',
   },
   dialog: {
     close: 'İletişim kutusunu kapat',

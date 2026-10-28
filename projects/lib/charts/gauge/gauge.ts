@@ -6,17 +6,9 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  Component,
-  type ElementRef,
-  LOCALE_ID,
-  ViewEncapsulation,
-  computed,
-  inject,
-  input,
-  viewChild,
-} from '@angular/core';
+import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChild } from '@angular/core';
 
+import { useChartNumbers } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { clamp } from 'ngwr/utils';
@@ -55,10 +47,12 @@ export class WrGauge {
   });
   /**
    * Low end of the scale — where the arc starts. Values below it clamp here.
+   * @default 0
    */
   readonly min = input(0, { transform: (v: unknown): number => coerceNumberProperty(v, 0) });
   /**
    * High end of the scale — where the arc completes. Values above it clamp here.
+   * @default 100
    */
   readonly max = input(100, { transform: (v: unknown): number => coerceNumberProperty(v, 100) });
 
@@ -72,12 +66,14 @@ export class WrGauge {
 
   /**
    * Colour of the unfilled arc behind the value. Any CSS colour; the default is
-   * the outline token at 60%, which reads as a hairline in both themes.
+   * `--wr-border-base` at 60%, which reads as a hairline in both themes.
+   * @default color-mix(in srgb, var(--wr-border-base) 60%, transparent)
    */
   readonly trackColor = input<string>('color-mix(in srgb, var(--wr-border-base) 60%, transparent)');
   /**
    * Colour of the filled arc. Any CSS colour — pass an intent token to tie it to
    * a threshold, e.g. `var(--wr-color-danger)` once the value crosses one.
+   * @default 'var(--wr-color-primary)'
    */
   readonly valueColor = input<string>('var(--wr-color-primary)');
 
@@ -103,10 +99,8 @@ export class WrGauge {
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  private readonly locale = inject(LOCALE_ID);
-  private readonly numbers = new Intl.NumberFormat(this.locale);
-  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
-  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
+  /** The reading as the centre, the tooltip and `aria-valuetext` write it: never compact. */
+  private readonly numbers = useChartNumbers(this.valueFormat);
 
   private readonly surface = viewChild<ElementRef<HTMLElement>>('surface');
 
@@ -126,12 +120,7 @@ export class WrGauge {
   protected readonly displayValue = computed(() => clamp(this.value(), this.min(), this.max()));
 
   /** The reading as the centre prints it, without the suffix. */
-  protected readonly displayText = computed(() => {
-    const value = this.displayValue();
-    const custom = this.valueFormat();
-    if (custom) return custom(value);
-    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
-  });
+  protected readonly displayText = computed(() => this.numbers.value(this.displayValue()));
 
   protected readonly ratio = computed(() => {
     const range = this.max() - this.min();

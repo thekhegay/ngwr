@@ -24,7 +24,9 @@ const ADD: Record<PackageManager, { add: string; dev: string }> = {
 @Component({
   selector: 'ngwr-doc-install',
   imports: [DocCodeComponent],
-  template: `<ngwr-doc-code [files]="files()" [tab]="pm.current()" (tabChange)="pm.set($event)" />`,
+  // Wrapped: eight ProseMirror packages are one long line, and a scrollbar
+  // hides half the command it is there to hand over.
+  template: `<ngwr-doc-code [files]="files()" [tab]="pm.current()" [wrap]="true" (tabChange)="pm.set($event)" />`,
   // A block, so a doc-section gives it the same 1.5rem margin as any other
   // block; an inline host took none.
   styles: ':host { display: block; }',

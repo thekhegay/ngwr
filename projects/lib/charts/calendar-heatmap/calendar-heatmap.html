@@ -1,4 +1,5 @@
 <div
+  #grid
   class="wr-calendar-heatmap__grid"
   role="img"
   [attr.aria-label]="resolvedAriaLabel()"
@@ -38,3 +39,10 @@
     </div>
   }
 </div>
+
+@if (dataTable()) {
+  <!-- The figures for a screen reader, beside the grid's `img` and never inside it: `img`
+       makes everything it holds presentational. Clipped to nothing by its own stylesheet,
+       so it takes no room, draws nothing and adds nothing to the scroll. -->
+  <wr-chart-table [data]="tableData()" />
+}

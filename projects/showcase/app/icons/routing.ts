@@ -15,7 +15,4 @@ export default [
   { path: i.iconoir.path, loadComponent: () => import('./svg-only/iconoir') },
   { path: i.radix.path, loadComponent: () => import('./svg-only/radix') },
   { path: i.bootstrap.path, loadComponent: () => import('./svg-only/bootstrap') },
-  // Tombstones for the two adapter entry points v15 removed.
-  { path: i.lucideAdapter.path, loadComponent: () => import('./adapters/lucide/lucide') },
-  { path: i.featherAdapter.path, loadComponent: () => import('./adapters/feather/feather') },
 ] satisfies Routes;

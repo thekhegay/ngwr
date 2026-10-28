@@ -1,1 +1,5 @@
-export type { WrCalendarHeatmapCell, WrCalendarHeatmapHarnessFilters } from './wr-calendar-heatmap-harness-filters';
+export type {
+  WrCalendarHeatmapCell,
+  WrCalendarHeatmapHarnessFilters,
+  WrCalendarHeatmapTableRow,
+} from './wr-calendar-heatmap-harness-filters';

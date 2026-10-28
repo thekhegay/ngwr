@@ -231,6 +231,9 @@ export const wrDe: WrI18nCatalog = {
   },
   barChart: {
     label: 'Balkendiagramm',
+    total: 'Gesamt',
+    value: 'Wert',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Kalender-Heatmap',
@@ -238,9 +241,80 @@ export const wrDe: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Liniendiagramm',
+    areaLabel: 'Flächendiagramm',
   },
   donutChart: {
     label: 'Ringdiagramm',
+    pieLabel: 'Kreisdiagramm',
+  },
+  chartLegend: {
+    toggleLabel: 'Sichtbarkeit der Datenreihen umschalten',
+    hidden: 'ausgeblendet',
+  },
+  scatterChart: {
+    label: 'Streudiagramm',
+    x: 'X',
+    y: 'Y',
+    size: 'Größe',
+  },
+  radarChart: {
+    label: 'Netzdiagramm',
+    polarAreaLabel: 'Polarflächendiagramm',
+  },
+  heatmapChart: {
+    label: 'Heatmap',
+    noData: 'Keine Daten',
+  },
+  funnelChart: {
+    label: 'Trichterdiagramm',
+    stage: 'Stufe',
+    value: 'Wert',
+    fromPrevious: 'Gegenüber vorheriger',
+    fromFirst: 'Gegenüber erster',
+    ofPrevious: '{{percent}} der vorherigen',
+    ofFirst: '{{percent}} der ersten',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
+  },
+  waterfallChart: {
+    label: 'Wasserfalldiagramm',
+    step: 'Schritt',
+    change: 'Änderung',
+    runningTotal: 'Laufende Summe',
+    changeStep: '{{label}}: {{change}}, laufende Summe {{total}}',
+    totalStep: '{{label}}: Summe {{total}}',
+  },
+  treemapChart: {
+    label: 'Treemap-Diagramm',
+    value: 'Wert',
+    share: 'Anteil',
+  },
+  bulletChart: {
+    label: 'Bullet-Diagramm',
+    target: 'Ziel',
+    summary: '{{label}}: {{value}} von Ziel {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: kein Wert, Ziel {{target}}',
+    noValue: '{{label}}: kein Wert',
+  },
+  boxplotChart: {
+    label: 'Boxplot',
+    group: 'Gruppe',
+    upperWhisker: 'Oberer Whisker',
+    q3: 'Q3',
+    median: 'Median',
+    q1: 'Q1',
+    lowerWhisker: 'Unterer Whisker',
+    outliers: 'Ausreißer',
+    moreOutliers: '+{{count}} weitere',
+  },
+  candlestickChart: {
+    label: 'Kerzendiagramm',
+    open: 'Eröffnung',
+    high: 'Hoch',
+    low: 'Tief',
+    close: 'Schluss',
   },
   compare: {
     label: 'Vergleichsregler',
@@ -278,6 +352,14 @@ export const wrDe: WrI18nCatalog = {
     closeWindow: 'Fenster schließen',
     untitled: 'Unbenannt',
     taskbar: 'Minimierte Fenster',
+    taskbarAll: 'Geöffnete Fenster',
+    taskbarMore: 'Weitere Fenster: {{count}}',
+    moveMode:
+      'Fenster wird verschoben. Verwenden Sie die Pfeiltasten, die Eingabetaste zum Beenden und Escape zum Abbrechen.',
+    resizeMode:
+      'Fenstergröße wird geändert. Verwenden Sie die Pfeiltasten, die Eingabetaste zum Beenden und Escape zum Abbrechen.',
+    moved: 'Fenster verschoben nach {{x}}, {{y}}',
+    resized: 'Fenstergröße geändert auf {{width}} mal {{height}}',
   },
   dialog: {
     close: 'Dialog schließen',

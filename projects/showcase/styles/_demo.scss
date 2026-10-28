@@ -1,0 +1,21 @@
+// Two variants of one demo side by side, each under a short caption naming what
+// differs ("On (default)" beside `[tooltip]="false"`). Global because the pages
+// that draw it are emulated, and four copies of one inline style is how a
+// caption drifts from its siblings.
+.ngwr-demo-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  width: 100%;
+
+  > * {
+    flex: 1 1 16rem;
+    min-width: 0;
+  }
+
+  &__caption {
+    margin: 0 0 var(--wr-space-sm);
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-text-sm);
+  }
+}

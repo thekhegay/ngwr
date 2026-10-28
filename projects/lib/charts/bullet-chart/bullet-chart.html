@@ -1,0 +1,69 @@
+@let valueBar = bar();
+@let target = targetAt();
+@if (labelled()) {
+  <!-- Hidden, as the scale is: the label opens the drawing's name and the sub-label is its
+       description, so read here as well they would be heard twice. -->
+  <div class="wr-bullet-chart__labels" aria-hidden="true">
+    @if (label()) {
+      <span class="wr-bullet-chart__label">{{ label() }}</span>
+    }
+    @if (subLabel()) {
+      <span class="wr-bullet-chart__sub-label" [id]="subLabelId">{{ subLabel() }}</span>
+    }
+  </div>
+}
+
+<!-- The drawing: one named image. Its parts are empty boxes placed by the shares the
+     component writes, every one a logical inset, so the drawing mirrors under RTL with no
+     rule of its own. -->
+<div
+  #track
+  class="wr-bullet-chart__track"
+  role="img"
+  [attr.aria-label]="resolvedAriaLabel()"
+  [attr.aria-describedby]="subLabel() ? subLabelId : null"
+  (mouseenter)="tip.enter(0)"
+  (mouseleave)="tip.leave($event)"
+>
+  <!-- The bands sit in a layer of their own, which clips them to the track's corners
+       without clipping the target marker at either end. -->
+  <div class="wr-bullet-chart__ranges">
+    @for (band of bands(); track band.index) {
+      <span
+        class="wr-bullet-chart__range"
+        [attr.data-index]="band.index"
+        [style.--wr-bullet-chart-start]="band.start"
+        [style.--wr-bullet-chart-size]="band.size"
+        [style.--wr-bullet-chart-range-mix]="band.mix"
+      ></span>
+    }
+  </div>
+
+  @if (valueBar) {
+    <span
+      class="wr-bullet-chart__bar"
+      [class.wr-bullet-chart__bar--negative]="valueBar.negative"
+      [style.--wr-bullet-chart-start]="valueBar.start"
+      [style.--wr-bullet-chart-size]="valueBar.size"
+    ></span>
+  }
+
+  @if (target !== null) {
+    <span class="wr-bullet-chart__target" [style.--wr-bullet-chart-at]="target"></span>
+  }
+</div>
+
+@if (showScale()) {
+  <div class="wr-bullet-chart__scale" aria-hidden="true">
+    @for (tick of ticks(); track $index) {
+      <span
+        class="wr-bullet-chart__tick"
+        [class.wr-bullet-chart__tick--start]="tick.edge === 'start'"
+        [class.wr-bullet-chart__tick--end]="tick.edge === 'end'"
+        [style.--wr-bullet-chart-at]="tick.at"
+      >
+        <span class="wr-bullet-chart__tick-label">{{ tick.label }}</span>
+      </span>
+    }
+  </div>
+}

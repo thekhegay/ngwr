@@ -1,0 +1,139 @@
+<ngwr-doc-page
+  title="Scatter Chart"
+  since="15.1.0"
+  description="Points on two numeric axes. An optional size per point makes it a bubble chart."
+  [keywords]="['scatter-chart', 'scatter', 'bubble-chart', 'wr-scatter-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Neither axis is forced to include zero. Each fits its data and snaps to round numbers."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-scatter-chart style="width: 100%" xLabel="Price" yLabel="Rating" [series]="products" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Several series"
+    description="Each series takes the next palette colour and the next marker shape, so the shape tells them apart too."
+  >
+    <ngwr-doc-code [code]="snippets.series" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-scatter-chart style="width: 100%" xLabel="Weight, kg" yLabel="Battery, h" [series]="devices" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Bubbles"
+    description="`size` is drawn as the marker's area: the largest at `maxRadius`, none under 4px. Bubbles are see-through, since they overlap. `label` names a point."
+  >
+    <ngwr-doc-code [code]="snippets.bubbles" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.bubblesTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-scatter-chart
+        style="width: 100%"
+        xLabel="Visitors a day"
+        yLabel="Revenue, k$"
+        sizeLabel="Floor area, m²"
+        [series]="stores"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Number format"
+    description="Numbers follow `LOCALE_ID`. `valueFormat` replaces it, and its second argument says which number it writes: `'x'`, `'y'` or `'size'`."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-scatter-chart style="width: 100%" xLabel="Price" yLabel="Rating" [series]="products" [valueFormat]="format" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Toggle series"
+    description="`toggleableLegend` makes each legend row a button. A hidden series leaves the points, both axes, the tooltip and the data table."
+  >
+    <ngwr-doc-code [code]="snippets.toggle" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.toggleTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-scatter-chart
+        style="width: 100%"
+        xLabel="Weight, kg"
+        yLabel="Battery, h"
+        [series]="devices"
+        toggleableLegend
+        [(hiddenSeries)]="hiddenSeries"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` renders every value as a table only screen readers reach: a group per series, a row per point. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="snippets.table" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-scatter-chart
+        style="width: 100%"
+        ariaLabel="Weight against battery life"
+        xLabel="Weight, kg"
+        yLabel="Battery, h"
+        dataTable
+        [series]="devices"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Plot</th>
+            <td>One <code>role="img"</code>, named by <code>ariaLabel</code>. No tab stop.</td>
+          </tr>
+          <tr>
+            <th scope="row">Values</th>
+            <td>Only in the tooltip, unless <code>dataTable</code> is on.</td>
+          </tr>
+          <tr>
+            <th scope="row">Series</th>
+            <td>Told apart by marker shape as well as colour.</td>
+          </tr>
+          <tr>
+            <th scope="row">Tooltip</th>
+            <td>Pointer only. <kbd>Escape</kbd> closes it.</td>
+          </tr>
+          <tr>
+            <th scope="row">Forced colours</th>
+            <td>Points keep their colours. Their ring takes the page colour.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Many points"
+    description="Hover measures every point. Keep a chart to a few thousand points, or bin them first."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

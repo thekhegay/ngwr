@@ -7,7 +7,7 @@
         @for (link of section.links; track link.title) {
           <li>
             @if (link.url && !link.disabled) {
-              <!-- The same mark the sidebar draws (new, updated or removed), off the same
+              <!-- The same mark the sidebar draws (new or updated), off the same
                    rule: this page lists the same links, so a reader who arrived at the
                    catalog instead of the nav sees the same thing. The comma is a real text
                    node, read and never seen — without it the link's accessible name computes
@@ -15,7 +15,7 @@
                    whitespace around it and the name reads "Graph, new" rather than
                    "Graph , new". -->
               @let linkMark = mark(link);
-              <a class="index__link" [class.index__link--removed]="linkMark === 'removed'" [routerLink]="link.url">
+              <a class="index__link" [routerLink]="link.url">
                 <span>{{ link.title }}</span>
                 @if (linkMark) {
                   <span class="index__sep">,&nbsp;</span>
@@ -23,7 +23,6 @@
                     class="index__badge"
                     [class.index__badge--new]="linkMark === 'new'"
                     [class.index__badge--updated]="linkMark === 'updated'"
-                    [class.index__badge--removed]="linkMark === 'removed'"
                     >{{ linkMark }}</small
                   >
                 }

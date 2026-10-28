@@ -1,13 +1,29 @@
 @use '../../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders. The legend is a
+// `ul[wr-chart-legend]`, so `@use 'ngwr/charts/line-chart'` alone draws it styled.
+@use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
+// With `dataTable`, the figures render as a `<wr-chart-table>` beside the plot, which
+// its own sheet clips out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable
+
 .wr-line-chart {
   --wr-line-chart-font-family: var(--wr-font-family-base);
+  --wr-line-chart-color: var(--wr-color-on-surface);
+  // The horizontal gridlines, as faint as every chart's; the hover crosshair, and the
+  // centre of the ring round each marker it reads.
+  --wr-line-chart-grid-color: color-mix(in srgb, var(--wr-border-base) 70%, transparent);
+  --wr-line-chart-crosshair-color: var(--wr-color-on-surface-muted);
+  --wr-line-chart-hover-center: var(--wr-color-surface);
   // The room round the drawing inside the plot, which the dots and the hover ring
   // overhang into: the drawing runs edge to edge, so a point at either end is drawn
   // half outside it. The y labels read the block one to meet the gridlines, the x labels
   // and the tooltip the inline one to meet the points.
   --wr-line-chart-plot-inset-x: var(--wr-space-md);
   --wr-line-chart-plot-inset-y: var(--wr-space-sm);
+  // How much of its series' colour a `showArea` fill takes: faint enough that the
+  // gridlines and every other series' line read through where fills overlap.
+  --wr-line-chart-area-opacity: 0.15;
 
   // Where a point is, for the x labels and the tooltip. Both sit in a box as wide as the
   // plot — the drawing plus its inline padding — and are handed the point's x as a
@@ -20,10 +36,27 @@
   $point: calc($inset + (100% - 2 * $inset) * $x / 100);
   $room-start: calc($inset + (100cqw - 2 * $inset) * $x / 100);
   $room-end: calc($inset + (100cqw - 2 * $inset) * (100 - $x) / 100);
+  // How far a readout beside the crosshair keeps from it: the hover marker's 6px radius
+  // and as much again. The component's `BESIDE`, which it places the readout by.
+  $beside: 12px;
 
   display: block;
+  // The containing block of the `dataTable` copy, which is out of flow and sits beside
+  // the plot rather than inside it. With a static host that box resolved against the
+  // nearest positioned ancestor outside the chart, often the page, and inside an
+  // unpositioned scroller the 1px box kept its place in the scrolled content: measured
+  // in Chromium, a chart 2000px down a 300px scroller grew the page from 600px to
+  // 2241px of blank scroll. No z-index, so no stacking context; the tooltip already
+  // resolves against the plot.
+  position: relative;
   font-family: var(--wr-line-chart-font-family);
-  color: var(--wr-color-on-surface);
+  color: var(--wr-line-chart-color);
+
+  // A stacked chart's bands meet without overlapping, so each fill can carry twice the
+  // colour and still hide nothing.
+  &--stacked {
+    --wr-line-chart-area-opacity: 0.3;
+  }
 
   &__legend {
     --wr-line-chart-legend-margin-bottom: var(--wr-space-md);
@@ -41,11 +74,17 @@
   &__legend-item {
     --wr-line-chart-legend-item-gap: var(--wr-space-sm);
     --wr-line-chart-legend-item-font-size: var(--wr-text-xs);
+    // A toggleable row's button lays out the key and the name itself, from the shared
+    // legend's own hook, so that hook follows this one.
+    --wr-chart-legend-item-gap: var(--wr-line-chart-legend-item-gap);
 
     display: inline-flex;
     align-items: center;
     gap: var(--wr-line-chart-legend-item-gap);
     font-size: var(--wr-line-chart-legend-item-font-size);
+    // The chart's own colour, as before the shared legend, which paints its rows
+    // `--wr-chart-legend-color`.
+    color: inherit;
   }
 
   // A short line rather than a dot, because it now carries the series' dash
@@ -62,7 +101,8 @@
 
   // The y labels at inline start, the plot beside them, and the x labels under the plot
   // alone. A grid follows `direction`, so the gutter is on the right under RTL with no
-  // rule of its own; the drawing itself does not mirror, as it never has.
+  // rule of its own; the drawing itself keeps time running left to right, as every SVG
+  // chart here does — the HTML layouts (bar, bullet, treemap) are the ones that mirror.
   &__body {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
@@ -98,12 +138,17 @@
 
   // `top` in percent is the grid area's height — the cell is the containing block — and
   // relative positioning leaves the label's place in flow, so the column keeps its width.
+  // Shrunk to its text against the plot's side of the column, so its own direction can
+  // follow its text (`plaintext`): a negative tick is a `-` in front of digits, neither of
+  // which has a direction, and under RTL the sign would land on the far side — `350-`.
   &__tick {
     $inset: var(--wr-line-chart-plot-inset-y);
 
     grid-area: 1 / 1;
     align-self: start;
+    justify-self: end;
     position: relative;
+    unicode-bidi: plaintext;
     top: calc($inset + (100% - 2 * $inset) * var(--wr-line-chart-y, 0) / 100);
     transform: translateY(-50%);
   }
@@ -113,6 +158,25 @@
     grid-row: 1;
     position: relative;
     padding: var(--wr-line-chart-plot-inset-y) var(--wr-line-chart-plot-inset-x);
+  }
+
+  // The colour is the series', an attribute of the path; only its share is the hook's.
+  // A fill keeps it under forced colors, as the lines keep their strokes, and it stays
+  // under every line, so a reader who cannot tell the fills apart still has the dashes.
+  &__area {
+    fill-opacity: var(--wr-line-chart-area-opacity);
+  }
+
+  &__grid-line {
+    stroke: var(--wr-line-chart-grid-color);
+  }
+
+  &__crosshair {
+    stroke: var(--wr-line-chart-crosshair-color);
+  }
+
+  &__hover-dot-center {
+    stroke: var(--wr-line-chart-hover-center);
   }
 
   // The plot's drawing by its class, never a bare `svg`: the legend swatch is an
@@ -148,6 +212,8 @@
     --wr-line-chart-tooltip-padding-y: var(--wr-space-sm);
     --wr-line-chart-tooltip-padding-x: var(--wr-space-md);
     --wr-line-chart-tooltip-font-size: var(--wr-text-xs);
+    --wr-line-chart-tooltip-bg: var(--wr-color-surface);
+    --wr-line-chart-tooltip-shadow: var(--wr-shadow-sm);
 
     position: absolute;
     // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
@@ -162,15 +228,38 @@
     // any that does not.
     // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
     transform: translate(clamp(calc(-1 * $room-start), -50%, calc($room-end - 100%)), 0.5rem);
-    background: var(--wr-color-surface);
+    background: var(--wr-line-chart-tooltip-bg);
     border: 1px solid var(--wr-line-chart-tooltip-border);
     border-radius: var(--wr-line-chart-tooltip-radius);
-    box-shadow: var(--wr-shadow-sm);
+    box-shadow: var(--wr-line-chart-tooltip-shadow);
     padding: var(--wr-line-chart-tooltip-padding-y) var(--wr-line-chart-tooltip-padding-x);
     font-size: var(--wr-line-chart-tooltip-font-size);
     pointer-events: none;
     z-index: 1;
     min-width: 6rem;
+  }
+
+  // Where the top would cover a marker the readout reads, which the component works out
+  // from its size: at the bottom of the plot, as far inside it as the top one sits, or —
+  // where the bottom would too — at the top beside the crosshair, every marker being on
+  // it, `$beside` off it on the side with more room and still never past either end. At
+  // the top always, it hid every reading in the plot's upper band under the chip that gave
+  // its value — a third of the rings on the docs' own demos.
+  &__tooltip--below {
+    top: auto;
+    bottom: var(--wr-line-chart-plot-inset-y);
+    // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
+    transform: translate(clamp(calc(-1 * $room-start), -50%, calc($room-end - 100%)), -0.5rem);
+  }
+
+  &__tooltip--left {
+    // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
+    transform: translate(clamp(calc(-1 * $room-start), calc(-100% - $beside), calc($room-end - 100%)), 0.5rem);
+  }
+
+  &__tooltip--right {
+    // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
+    transform: translate(clamp(calc(-1 * $room-start), $beside, calc($room-end - 100%)), 0.5rem);
   }
 
   &__tooltip-label {
@@ -191,29 +280,38 @@
   }
 
   &__tooltip-name {
+    --wr-line-chart-tooltip-name-color: var(--wr-color-on-surface-muted);
+
     flex: 1 1 auto;
-    color: var(--wr-color-on-surface-muted);
+    color: var(--wr-line-chart-tooltip-name-color);
   }
 
   &__tooltip-value {
     --wr-line-chart-tooltip-value-font-weight: var(--wr-font-weight-semibold);
 
     font-weight: var(--wr-line-chart-tooltip-value-font-weight);
+    // As a tick: the sign of `-350` stays before the digits on an RTL page.
+    unicode-bidi: plaintext;
   }
 
   &__x-labels {
     --wr-line-chart-x-labels-margin-top: var(--wr-space-xs);
     --wr-line-chart-x-labels-font-size: var(--wr-text-xs);
+    --wr-line-chart-x-labels-line-height: var(--wr-text-xs-leading);
+    --wr-line-chart-x-labels-color: var(--wr-color-on-surface-muted);
 
     grid-column: 2;
     grid-row: 2;
     position: relative;
     margin-top: var(--wr-line-chart-x-labels-margin-top);
     font-size: var(--wr-line-chart-x-labels-font-size);
+    line-height: var(--wr-line-chart-x-labels-line-height);
     // The labels are absolutely positioned onto their points, so the strip has no
     // content of its own to give it a height. Without this it collapses and the
-    // labels overlap whatever the page puts under the chart.
-    height: 1.25em;
+    // labels overlap whatever the page puts under the chart. One line of the labels' own
+    // leading: `1.25em` with the page's line-height left each label's box hanging 6px
+    // below the chart's, over whatever came next.
+    height: 1lh;
     // A `translateX` percentage means the LABEL's own width, so the room left beside it
     // has to arrive in another unit — `cqw` is this strip's. Every label is out of flow,
     // so the strip contributes no intrinsic width either way and the containment this
@@ -245,7 +343,42 @@
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: inherit;
-    color: var(--wr-color-on-surface-muted);
+    color: var(--wr-line-chart-x-labels-color);
     white-space: nowrap;
+    // A label is the host's own text, in whatever language: it takes its direction from
+    // that text. Its box is as wide as its text, so where it sits does not move.
+    unicode-bidi: plaintext;
+  }
+
+  // Every label once, a line each, laid out and never seen: the component measures the
+  // widest off it to decide how many labels print. Never wider than the strip, which is
+  // the most room a label could have, and clipped there, so a long one adds no overflow.
+  &__x-probe {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    width: max-content;
+    max-width: 100%;
+    overflow: hidden;
+    visibility: hidden;
+    white-space: pre;
+    pointer-events: none;
+  }
+}
+
+// Forced colors keeps the SVG strokes as written, so the strokes written in theme colours
+// would keep colours the forced palette no longer has: the gridlines would all but vanish
+// on a dark canvas, and the hovered marker's centre would be a disc of the old page.
+@media (forced-colors: active) {
+  .wr-line-chart__grid-line {
+    stroke: GrayText;
+  }
+
+  .wr-line-chart__crosshair {
+    stroke: CanvasText;
+  }
+
+  .wr-line-chart__hover-dot-center {
+    stroke: Canvas;
   }
 }

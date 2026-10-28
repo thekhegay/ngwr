@@ -47,9 +47,15 @@ export class WrToastHarness extends ComponentHarness {
       .addOption('type', options.type, async (harness, type) => (await harness.getType()) === type);
   }
 
-  /** The toast's message line. */
+  /**
+   * The toast's message line, or `''` for a toast shown with a title alone —
+   * that one renders no message element, and an empty string is what it was
+   * given. Never a throw: `with({ message })` asks every toast on screen, so a
+   * throw here would fail the filter for the toasts that do carry one.
+   */
   async getMessage(): Promise<string> {
-    return (await this.locatorFor('.wr-toast__message')()).text();
+    const message = await this.locatorForOptional('.wr-toast__message')();
+    return message ? message.text() : '';
   }
 
   /** The toast's title, or `null` when it was shown without one. */

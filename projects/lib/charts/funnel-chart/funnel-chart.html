@@ -1,0 +1,64 @@
+@let previous = showPrevious();
+@let first = showFirst();
+@let values = showValues();
+@let active = activeStage();
+<!-- A named `group` of one named `img` per stage, as the bar chart's columns are. Not one
+     `img` round the whole funnel: `img` makes everything inside it presentational, and
+     WebKit drops such a subtree, so every stage's own name would go with it. -->
+<div class="wr-funnel-chart__plot" role="group" [attr.aria-label]="resolvedAriaLabel()">
+  @for (row of rows(); track $index) {
+    @if (!$first) {
+      <!-- The band between two bars and the share of the stage above, both repeated in the
+           stage's own name, so hidden here. -->
+      <div class="wr-funnel-chart__gap" aria-hidden="true">
+        @if (row.band) {
+          <span
+            class="wr-funnel-chart__band"
+            [style.clip-path]="row.band"
+            [style.--wr-funnel-chart-band-from]="row.bandFrom"
+            [style.--wr-funnel-chart-band-to]="row.color"
+          ></span>
+        }
+        @if (previous && row.previousText) {
+          <span class="wr-funnel-chart__gap-label">{{ row.previousText }}</span>
+        }
+      </div>
+    }
+    <!-- Its label, its value and both conversions in its name: the text inside is drawn for
+         the eye, and the `img` role makes it presentational. -->
+    <div
+      #stageEl
+      class="wr-funnel-chart__stage"
+      [class.wr-funnel-chart__stage--active]="active === $index"
+      role="img"
+      [attr.aria-label]="row.name"
+      (mouseenter)="tip.enter($index)"
+      (mouseleave)="tip.leave($event)"
+    >
+      <!-- The host's own text, in whatever language it is, so it takes its direction from
+           that text and is ellipsised at its own end, not at the page's. -->
+      <span class="wr-funnel-chart__label" dir="auto">{{ row.label }}</span>
+      <span class="wr-funnel-chart__track">
+        <!-- A missing stage draws no bar at all; zero and below keep a hairline. -->
+        @if (row.value !== null) {
+          <span class="wr-funnel-chart__bar" [style.width]="row.width" [style.background]="row.color"></span>
+        }
+      </span>
+      <span class="wr-funnel-chart__figures">
+        @if (values && row.valueText) {
+          <span class="wr-funnel-chart__value">{{ row.valueText }}</span>
+        }
+        @if (first && row.ofFirstText) {
+          <span class="wr-funnel-chart__overall">{{ row.ofFirstText }}</span>
+        }
+      </span>
+    </div>
+  }
+</div>
+
+@if (dataTable()) {
+  <!-- The figures for a screen reader, beside the stages rather than inside an `img`, which
+       would make them presentational. Clipped to nothing by its own stylesheet, so it takes
+       no room and draws nothing. -->
+  <wr-chart-table [data]="tableData()" />
+}

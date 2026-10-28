@@ -8,15 +8,18 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
-  type ElementRef,
-  LOCALE_ID,
+  DestroyRef,
+  ElementRef,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   inject,
   input,
+  signal,
   viewChild,
 } from '@angular/core';
 
+import { WrChartTable, type WrChartTableData, useChartNumbers } from 'ngwr/charts/core';
 import { WR_DATE_LOCALE } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
@@ -64,6 +67,17 @@ function amount(raw: number): number {
  * GitHub-style year-grid heatmap. One column per ISO week, one row per
  * weekday — cells coloured by `value` relative to the data set's max.
  *
+ * **A year does not reflow.** Its 53 columns are a fixed cell size, so in a container
+ * narrower than the grid the host scrolls sideways. While it does, it is a tab stop with
+ * the shared focus ring, so the keyboard can scroll it too — WebKit makes no scroller
+ * focusable by itself — and it opens on the inline END, the newest weeks, rather than on
+ * the oldest. The stop carries no name of its own: focus lands on the grid's picture,
+ * named by `ariaLabel`.
+ *
+ * **What a screen reader gets.** The grid is one named `role="img"` and every square is
+ * hidden, so the days' values are not in text anywhere unless `dataTable` renders them;
+ * without it, say what the year shows in `ariaLabel`.
+ *
  * @example
  * ```html
  * <wr-calendar-heatmap [data]="contributions" />
@@ -76,7 +90,12 @@ function amount(raw: number): number {
   selector: 'wr-calendar-heatmap',
   templateUrl: './calendar-heatmap.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-calendar-heatmap' },
+  host: {
+    class: 'wr-calendar-heatmap',
+    // A tab stop only while the year is wider than its container: see `scrollable`.
+    '[attr.tabindex]': 'scrollable() ? 0 : null',
+  },
+  imports: [WrChartTable],
 })
 export class WrCalendarHeatmap {
   /**
@@ -113,7 +132,7 @@ export class WrCalendarHeatmap {
    * `{{date}}: {{count}}` everywhere, so nothing reorders today and every locale can.
    */
   protected cellTitle(cell: { readonly date: Date; readonly value: number }): string {
-    return this.cellText({ date: this.dateFormat().format(cell.date), count: this.formatValue(cell.value) });
+    return this.cellText({ date: this.dateFormat().format(cell.date), count: this.numbers.value(cell.value) });
   }
 
   /**
@@ -144,7 +163,7 @@ export class WrCalendarHeatmap {
   /** Pixel gap between cells. @default 2 */
   readonly cellGap = input(2, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 2)) });
 
-  /** Cell fill colour at full intensity. @default primary */
+  /** Cell fill colour at full intensity. @default 'var(--wr-color-primary)' */
   readonly color = input<string>('var(--wr-color-primary)');
 
   /** Background colour for zero-value days. @default color-mix(in srgb, var(--wr-border-base) 50%, transparent) */
@@ -161,23 +180,38 @@ export class WrCalendarHeatmap {
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
   /**
-   * Writes each day's count in the tooltip and the `title`. `null` uses
+   * Writes each day's count in the tooltip, the `title` and the data table. `null` uses
    * `Intl.NumberFormat` in `LOCALE_ID`.
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  private readonly numberLocale = inject(LOCALE_ID);
-  private readonly numbers = new Intl.NumberFormat(this.numberLocale);
-  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
-  private readonly smallNumbers = new Intl.NumberFormat(this.numberLocale, { maximumSignificantDigits: 3 });
+  /**
+   * Render the days' values as a table that only assistive technology reaches: a row per
+   * week, headed by its dates, and a column per weekday, each day's count written the way
+   * the tooltip writes it. A day after the last one drawn is an empty cell.
+   *
+   * The grid is one named `role="img"`, which hides everything inside it, so without the
+   * table the values are nowhere a screen reader can walk. It is rendered beside the grid,
+   * clipped to nothing: it takes no room, draws nothing and holds no tab stop.
+   * @default false
+   */
+  readonly dataTable = input(false, { transform: coerceBooleanProperty });
 
-  private formatValue(value: number): string {
-    const custom = this.valueFormat();
-    if (custom) return custom(value);
-    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
-  }
+  /** A day's count as the tooltip, the `title` and the data table write it, in `LOCALE_ID`: never compact. */
+  private readonly numbers = useChartNumbers(this.valueFormat);
 
   private readonly daysEl = viewChild<ElementRef<HTMLElement>>('days');
+
+  private readonly gridEl = viewChild<ElementRef<HTMLElement>>('grid');
+
+  /**
+   * Whether the year is wider than the host, which then scrolls it — and is a tab stop
+   * while it does. `axe`'s `scrollable-region-focusable` named the scroller with no stop
+   * at all, and in WebKit, which makes no scroller focusable by itself, a keyboard could
+   * not reach the newest weeks. Measured in the browser after render and on every resize;
+   * `false` on the server and in jsdom, which lay nothing out.
+   */
+  protected readonly scrollable = signal(false);
 
   private readonly locale = inject(WR_DATE_LOCALE);
 
@@ -255,6 +289,38 @@ export class WrCalendarHeatmap {
     return out;
   });
 
+  /** Every weekday's full name, Sunday first as the rows are: the data table's columns. */
+  private readonly weekdayNames = computed<readonly string[]>(() => {
+    const formatter = new Intl.DateTimeFormat(this.locale, { weekday: 'long' });
+    return Array.from({ length: 7 }, (_, row) => formatter.format(new Date(2024, 0, 7 + row)));
+  });
+
+  /**
+   * The figures for `dataTable`: the grid's name as the caption, a column per weekday and
+   * a row per week, headed by the week's first and last day drawn — `formatRange`, so the
+   * locale writes the span its own way — and every day's count as the tooltip writes it.
+   */
+  protected readonly tableData = computed<WrChartTableData>(() => {
+    const range = this.dateFormat();
+    const weeks: (Cell | undefined)[][] = [];
+    for (const cell of this.cells()) (weeks[cell.week] ??= [])[cell.day] = cell;
+    return {
+      caption: this.resolvedAriaLabel(),
+      columns: this.weekdayNames(),
+      groups: [
+        {
+          rows: weeks.map(days => {
+            const drawn = days.filter((day): day is Cell => day !== undefined);
+            return {
+              header: range.formatRange(drawn[0].date, drawn[drawn.length - 1].date),
+              cells: Array.from({ length: 7 }, (_, d) => (days[d] ? this.numbers.value(days[d].value) : '')),
+            };
+          }),
+        },
+      ],
+    };
+  });
+
   protected readonly monthLabels = computed(() => {
     // Pull the first cell of each visible month → render a label centered
     // over its column.
@@ -323,6 +389,40 @@ export class WrCalendarHeatmap {
     const index = iso === undefined ? undefined : this.indexByIso().get(iso);
     if (index === undefined) this.tip.leave(event);
     else this.tip.enter(index);
+  }
+
+  constructor() {
+    const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+    const destroyRef = inject(DestroyRef);
+    // Measured after render, in a browser, and again whenever the host or the grid changes
+    // size: the host when its container does, the grid when `weeks` or `cellSize` does.
+    // The observer's first report is the first measurement, so a year that boots narrower
+    // than its container opens on its newest weeks, and so does one that starts to
+    // overflow later — a chart that booted hidden, a window made narrow. A host that
+    // already scrolled is left where the reader put it.
+    afterNextRender(() => {
+      const grid = this.gridEl()?.nativeElement;
+      if (typeof ResizeObserver === 'undefined') return;
+      const measure = (): void => {
+        const overflows = host.scrollWidth > host.clientWidth;
+        if (overflows && !this.scrollable()) WrCalendarHeatmap.scrollToEnd(host);
+        this.scrollable.set(overflows);
+      };
+      const observer = new ResizeObserver(measure);
+      observer.observe(host);
+      if (grid) observer.observe(grid);
+      destroyRef.onDestroy(() => observer.disconnect());
+    });
+  }
+
+  /**
+   * Scrolls the host to its inline end, where the newest weeks are: the right in LTR and
+   * the left under RTL, where `scrollLeft` runs from 0 down to minus the overflow. The
+   * value is clamped by the browser, so either sign of the whole width lands on the end.
+   */
+  private static scrollToEnd(host: HTMLElement): void {
+    const rtl = getComputedStyle(host).direction === 'rtl';
+    host.scrollLeft = rtl ? -host.scrollWidth : host.scrollWidth;
   }
 
   protected colorFor(intensity: number): string {

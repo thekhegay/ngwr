@@ -85,6 +85,44 @@ describe('WrToast', () => {
       expect(items()[0].querySelector('.wr-toast__title')).toBeNull();
     });
 
+    it('omits the message element when the toast carries a title alone', () => {
+      // An empty `<p>` kept the title's bottom margin under it, so a title-only
+      // card was taller below its one line than above it.
+      toast.show({ title: 'Saved', message: '' });
+      tick();
+
+      const item = items()[0];
+      expect(item.querySelector('.wr-toast__title')?.textContent?.trim()).toBe('Saved');
+      expect(item.querySelector('.wr-toast__message')).toBeNull();
+      expect(item.querySelector('.wr-toast__body')?.children).toHaveLength(1);
+    });
+
+    it('renders exactly one part for a message-only toast', () => {
+      toast.show({ message: 'Permalink copied' });
+      tick();
+
+      const body = items()[0].querySelector('.wr-toast__body');
+      expect(body?.children).toHaveLength(1);
+      expect(body?.firstElementChild?.classList.contains('wr-toast__message')).toBe(true);
+    });
+
+    it('marks a toast with no title --untitled, so its glyph and buttons centre on the message line', () => {
+      toast.show({ message: 'Message only' });
+      toast.show({ title: 'Titled', message: 'And a message' });
+      toast.show({ title: 'Title only', message: '' });
+      tick();
+
+      expect(items().map(t => t.classList.contains('wr-toast--untitled'))).toEqual([true, false, false]);
+    });
+
+    it('keeps the consumer class beside the --untitled modifier', () => {
+      toast.show({ message: 'Message only', class: 'app-toast' });
+      tick();
+
+      expect(items()[0].classList.contains('app-toast')).toBe(true);
+      expect(items()[0].classList.contains('wr-toast--untitled')).toBe(true);
+    });
+
     it('announces the stack as a labelled region', () => {
       // The accessibility contract: the container is a landmark, each toast is
       // its own live region inside it.
@@ -363,6 +401,47 @@ describe('WrToast', () => {
       expect(actions(items()[1]).map(b => b.getAttribute('aria-label'))).toEqual(['Copy', 'Close']);
     });
 
+    describe('copying', () => {
+      let writeText: ReturnType<typeof vi.fn>;
+      let original: PropertyDescriptor | undefined;
+
+      beforeEach(() => {
+        writeText = vi.fn().mockResolvedValue(undefined);
+        original = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+        Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+      });
+
+      afterEach(() => {
+        if (original) Object.defineProperty(navigator, 'clipboard', original);
+        else delete (navigator as { clipboard?: unknown }).clipboard;
+      });
+
+      const copy = async (): Promise<void> => {
+        actions(items()[0])[0].click();
+        await Promise.resolve();
+        await Promise.resolve();
+        tick();
+      };
+
+      it('copies the message', async () => {
+        toast.show({ title: 'Saved', message: 'Profile updated.', showCopy: true });
+        tick();
+        await copy();
+
+        expect(writeText).toHaveBeenCalledWith('Profile updated.');
+      });
+
+      it('copies the title when the toast has nothing else', async () => {
+        // It used to copy the empty message and still flip to "Copied".
+        toast.show({ title: 'Saved', message: '', showCopy: true });
+        tick();
+        await copy();
+
+        expect(writeText).toHaveBeenCalledWith('Saved');
+        expect(actions(items()[0])[0].getAttribute('aria-label')).toBe('Copied');
+      });
+    });
+
     it('hides "Close all" until the collapsed stack is hovered open', () => {
       // In stack mode the toasts cascade on top of each other, so a button that
       // appeared immediately would sit under the cursor and flicker.
@@ -444,6 +523,67 @@ describe('WrToast', () => {
       tick();
 
       expect(host()).toBeNull();
+    });
+
+    describe("the front toast's height", () => {
+      // The cards behind the front one take its height while the stack is
+      // collapsed (the stylesheet reads `--wr-toast-front-height`), so a short
+      // front toast no longer leaves a taller card hanging below it. jsdom has
+      // neither layout nor a ResizeObserver, so both are stubbed: what is
+      // pinned is WHICH element is followed and what reaches the host.
+      let observed: Element[];
+      let report: (target: Element) => void;
+      let original: typeof ResizeObserver | undefined;
+
+      beforeEach(() => {
+        observed = [];
+        original = (globalThis as { ResizeObserver?: typeof ResizeObserver }).ResizeObserver;
+        class FakeResizeObserver {
+          constructor(callback: ResizeObserverCallback) {
+            report = target => callback([{ target } as unknown as ResizeObserverEntry], this);
+          }
+          observe(el: Element): void {
+            observed.push(el);
+          }
+          unobserve(): void {
+            // The host only ever disconnects.
+          }
+          disconnect(): void {
+            observed = [];
+          }
+        }
+        (globalThis as { ResizeObserver?: unknown }).ResizeObserver = FakeResizeObserver;
+      });
+
+      afterEach(() => {
+        (globalThis as { ResizeObserver?: unknown }).ResizeObserver = original;
+      });
+
+      const sized = (el: HTMLElement, height: number): HTMLElement => {
+        Object.defineProperty(el, 'offsetHeight', { value: height, configurable: true });
+        return el;
+      };
+
+      it('follows the newest toast, the one in front', () => {
+        toast.show({ title: 'One', message: 'Both parts', duration: 0 });
+        tick();
+        expect(observed).toEqual([items()[0]]);
+
+        toast.show({ message: 'Two', duration: 0 });
+        tick();
+        expect(observed).toEqual([items()[1]]);
+      });
+
+      it('writes its height onto the host for the cards behind it', () => {
+        toast.show({ title: 'One', message: 'Both parts', duration: 0 });
+        toast.show({ title: 'Two', message: '', duration: 0 });
+        tick();
+
+        report(sized(items()[1], 46));
+        tick();
+
+        expect(host()?.style.getPropertyValue('--wr-toast-front-height')).toBe('46px');
+      });
     });
 
     it('carries the public BEM classes', () => {

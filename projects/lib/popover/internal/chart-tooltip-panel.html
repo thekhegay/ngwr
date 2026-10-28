@@ -1,8 +1,32 @@
 @let d = datum();
-@if (d.color) {
-  <span class="wr-chart-tooltip__swatch" [style.background]="d.color"></span>
+<!-- The heading: the section's swatch, name and value. An empty value draws nothing,
+     since a heading over rows usually has none of its own. -->
+<ng-template #head>
+  @if (d.color) {
+    <span class="wr-chart-tooltip__swatch" [style.background]="d.color"></span>
+  }
+  @if (d.label) {
+    <span class="wr-chart-tooltip__label">{{ d.label }}</span>
+  }
+  @if (d.value) {
+    <span class="wr-chart-tooltip__value">{{ d.value }}</span>
+  }
+</ng-template>
+
+@if (rows().length > 0) {
+  <!-- Wrapped only here, so a chip with no rows keeps the DOM every chart drew before. -->
+  @if (d.color || d.label || d.value) {
+    <span class="wr-chart-tooltip__head"><ng-container [ngTemplateOutlet]="head" /></span>
+  }
+  @for (row of rows(); track $index) {
+    <span class="wr-chart-tooltip__row">
+      @if (row.color) {
+        <span class="wr-chart-tooltip__row-swatch" [style.background]="row.color"></span>
+      }
+      <span class="wr-chart-tooltip__row-label">{{ row.label }}</span>
+      <span class="wr-chart-tooltip__row-value">{{ row.value }}</span>
+    </span>
+  }
+} @else {
+  <ng-container [ngTemplateOutlet]="head" />
 }
-@if (d.label) {
-  <span class="wr-chart-tooltip__label">{{ d.label }}</span>
-}
-<span class="wr-chart-tooltip__value">{{ d.value }}</span>

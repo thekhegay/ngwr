@@ -6,8 +6,9 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, LOCALE_ID, ViewEncapsulation, computed, inject, input, viewChild } from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, inject, input, viewChild } from '@angular/core';
 
+import { useChartNumbers } from 'ngwr/charts/core';
 import { useChartTooltip } from 'ngwr/popover';
 
 /**
@@ -42,7 +43,7 @@ export class WrSparkline {
    */
   readonly ariaLabel = input<string | null>(null);
 
-  /** Stroke colour. @default `var(--wr-color-primary)` */
+  /** Stroke colour. @default 'var(--wr-color-primary)' */
   readonly color = input<string>('var(--wr-color-primary)');
 
   /**
@@ -54,7 +55,7 @@ export class WrSparkline {
     transform: (v: unknown): number => Math.max(0.1, coerceNumberProperty(v, 1.5)),
   });
 
-  /** Fill the area below the line. @default false */
+  /** Fill the area below the line, faintly (`--wr-sparkline-area-opacity`). @default false */
   readonly showArea = input(false, { transform: coerceBooleanProperty });
 
   /** Show a dot at the last data point. @default true */
@@ -77,16 +78,8 @@ export class WrSparkline {
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  private readonly locale = inject(LOCALE_ID);
-  private readonly numbers = new Intl.NumberFormat(this.locale);
-  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
-  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
-
-  private formatValue(value: number): string {
-    const custom = this.valueFormat();
-    if (custom) return custom(value);
-    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
-  }
+  /** The value as the tooltip writes it — in full, never compact, to `Intl`'s default precision. */
+  private readonly numbers = useChartNumbers(this.valueFormat);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly svg = viewChild<ElementRef<SVGSVGElement>>('svg');
@@ -134,11 +127,16 @@ export class WrSparkline {
     }));
   });
 
-  protected readonly linePath = computed(() =>
-    this.points()
-      .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`)
-      .join(' ')
-  );
+  /**
+   * The line through every point. A lone point repeats itself: a subpath of one `M` is
+   * never stroked, so a one-value sparkline with `showTip` off drew nothing at all, and
+   * the round cap paints the repeat as a dot of the line's width.
+   */
+  protected readonly linePath = computed(() => {
+    const points = this.points();
+    const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ');
+    return points.length === 1 ? `${path} L ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}` : path;
+  });
 
   protected readonly areaPath = computed(() => {
     const pts = this.points();
@@ -174,7 +172,7 @@ export class WrSparkline {
       const marker = this.marker()?.nativeElement;
       if (value === undefined || !marker) return null;
       return {
-        datum: { label: this.ariaLabel() ?? undefined, value: this.formatValue(value), color: this.color() },
+        datum: { label: this.ariaLabel() ?? undefined, value: this.numbers.value(value), color: this.color() },
         anchor: marker,
       };
     },

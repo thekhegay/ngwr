@@ -1,0 +1,91 @@
+<ngwr-doc-page
+  title="Chart Legend"
+  since="15.1.0"
+  description="A chart's key: a swatch, a name and a value per series. Rows can toggle their series."
+  [keywords]="['legend', 'chart-legend', 'wr-chart-legend']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="It sits on a `<ul>` and renders the rows. Use it for a key several charts share; the bar, line, donut, meter group, scatter and radar charts draw their own legends with it."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ul wr-chart-legend [items]="sources"></ul>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Lines and markers"
+    description="`dash` draws the key as a line, `marker` as a shape. Both put the shape on the line."
+  >
+    <ngwr-doc-code [code]="snippets.keys" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ul wr-chart-legend [items]="keys"></ul>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Toggle series"
+    description="`toggleable` makes each row a toggle button. `hiddenSeries` holds the positions of the hidden series."
+  >
+    <ngwr-doc-code [code]="snippets.toggle" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.toggleTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: grid; gap: var(--wr-space-md); width: 100%">
+        <ul wr-chart-legend toggleable [items]="metricItems()" [(hiddenSeries)]="hidden"></ul>
+        <div style="display: flex; flex-wrap: wrap; gap: var(--wr-space-lg); min-height: 2rem">
+          @for (metric of metrics; track $index) {
+            @if (!hidden().includes($index)) {
+              <wr-sparkline [data]="metric.data" [color]="metric.color" [ariaLabel]="metric.label" />
+            }
+          }
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Key</th>
+            <td>Hidden from screen readers. The row's text is its name.</td>
+          </tr>
+          <tr>
+            <th scope="row">Toggle row</th>
+            <td>A <code>&lt;button aria-pressed&gt;</code>. Pressed means shown.</td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td><kbd>Tab</kbd> moves between rows. <kbd>Space</kbd> or <kbd>Enter</kbd> toggles.</td>
+          </tr>
+          <tr>
+            <th scope="row">Hidden series</th>
+            <td>Struck through as well as muted, so the state does not rest on colour.</td>
+          </tr>
+          <tr>
+            <th scope="row">Name</th>
+            <td>A toggleable list is named "Toggle series visibility". <code>ariaLabel</code> replaces it.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

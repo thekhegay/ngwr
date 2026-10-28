@@ -1,0 +1,143 @@
+<ngwr-doc-page
+  title="Line Chart"
+  updated="15.1.0"
+  description="One or more series of values as lines or as an area chart, overlaid or stacked."
+  [keywords]="['line-chart', 'wr-line-chart', 'area-chart', 'stacked-area']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Multi-series">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-line-chart style="width: 100%" [series]="series" [xLabels]="xLabels" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Area"
+    description="`showArea` fills under each line down to zero. The lines stay on top, so the dashes still tell the series apart."
+  >
+    <ngwr-doc-code [code]="snippets.area" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-line-chart style="width: 100%" [series]="series" [xLabels]="xLabels" showArea />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Stacked"
+    description="`stacked` draws each series on top of the ones before it, so the top line is the total. Negative values stack down from zero. The tooltip still shows each series' own value."
+  >
+    <ngwr-doc-code [code]="snippets.stacked" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-line-chart style="width: 100%" [series]="channels" [xLabels]="xLabels" showArea stacked />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Tooltip" description='`[tooltip]="false"` also hides the crosshair and markers.'>
+    <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">On (default)</p>
+          <wr-line-chart [series]="series" [xLabels]="xLabels" style="width: 100%" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[tooltip]="false"</code>
+          </p>
+          <wr-line-chart [series]="series" [xLabels]="xLabels" [tooltip]="false" style="width: 100%" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Toggle series"
+    description="`toggleableLegend` makes each legend row a button. A hidden series leaves the lines, the y axis and the tooltip."
+  >
+    <ngwr-doc-code [code]="snippets.toggle" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.toggleTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-line-chart
+        style="width: 100%"
+        [series]="traffic"
+        [xLabels]="xLabels"
+        toggleableLegend
+        [(hiddenSeries)]="hiddenSeries"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Number format"
+    description="Numbers follow `LOCALE_ID`, with compact ticks. `valueFormat` replaces it on the axis and in the tooltip."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Default</p>
+          <wr-line-chart [series]="revenue" [xLabels]="xLabels" style="width: 100%" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[valueFormat]="usd"</code>
+          </p>
+          <wr-line-chart [series]="revenue" [xLabels]="xLabels" [valueFormat]="usd" style="width: 100%" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` adds a table only screen readers reach: a row per x label, a column per series shown. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="snippets.dataTable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-line-chart style="width: 100%" [series]="series" [xLabels]="xLabels" ariaLabel="Weekly traffic" dataTable />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Plot</th>
+            <td>One <code>role="img"</code>, named by <code>ariaLabel</code>. The lines announce nothing.</td>
+          </tr>
+          <tr>
+            <th scope="row">Numbers</th>
+            <td>In the tooltip, which is pointer only, and in the table <code>dataTable</code> adds.</td>
+          </tr>
+          <tr>
+            <th scope="row">Series</th>
+            <td>Each has its own dash as well as its colour, so lines differ without hue.</td>
+          </tr>
+          <tr>
+            <th scope="row">X labels</th>
+            <td>Real text. A long axis prints every n-th label; the tooltip and the table name every x.</td>
+          </tr>
+          <tr>
+            <th scope="row">Tooltip</th>
+            <td>
+              Pointer only. <kbd>Escape</kbd> closes it. It moves to the bottom of the plot when the top would cover the
+              points it reads.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>No tab stop, unless <code>toggleableLegend</code> makes the legend rows buttons.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

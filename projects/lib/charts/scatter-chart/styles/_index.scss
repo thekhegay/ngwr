@@ -1,0 +1,245 @@
+@use '../../../theme/styles' as theme;
+@use '../../../popover/styles' as popover-styles; // the `.wr-tooltip` chip the hover tooltip renders into
+
+// Styles for the entry points this component's own markup renders. The legend is a
+// `ul[wr-chart-legend]`, so `@use 'ngwr/charts/scatter-chart'` alone draws it styled.
+@use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
+// With `dataTable`, the figures render as a `<wr-chart-table>` beside the plot, which
+// its own sheet clips out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable
+
+.wr-scatter-chart {
+  --wr-scatter-chart-font-family: var(--wr-font-family-base);
+  --wr-scatter-chart-color: var(--wr-color-on-surface);
+  // The room round the drawing inside the plot, which markers near either end overhang
+  // into — at least: it grows to the largest marker drawn (see `$inset` below). The y
+  // labels read the block one to meet the gridlines, the x labels the inline one to meet
+  // theirs.
+  --wr-scatter-chart-plot-inset-x: var(--wr-space-md);
+  --wr-scatter-chart-plot-inset-y: var(--wr-space-sm);
+  --wr-scatter-chart-legend-margin-bottom: var(--wr-space-md);
+  --wr-scatter-chart-grid-color: color-mix(in srgb, var(--wr-border-base) 70%, transparent);
+  --wr-scatter-chart-tick-gap: var(--wr-space-xs);
+  --wr-scatter-chart-tick-font-size: var(--wr-text-xs);
+  --wr-scatter-chart-tick-line-height: var(--wr-text-xs-leading);
+  --wr-scatter-chart-tick-color: var(--wr-color-on-surface-muted);
+  --wr-scatter-chart-title-font-size: var(--wr-text-xs);
+  --wr-scatter-chart-title-font-weight: var(--wr-font-weight-medium);
+  --wr-scatter-chart-title-color: var(--wr-color-on-surface-muted);
+  --wr-scatter-chart-title-gap: var(--wr-space-xs);
+  // Every marker is ringed in the surface colour, so two that touch stay two shapes
+  // rather than one blot: the palette's colours sit within about 1.06:1 of each other,
+  // and a ring is a shape that survives greyscale.
+  //
+  // A plain point is drawn solid. Drawn at 0.7, the primary marker measured 2.9:1 against
+  // the light surface and 2.6:1 against the dark one, under the 3:1 WCAG 1.4.11 asks of a
+  // mark a reader needs, where solid it is 4.9:1 and 4.1:1. A bubble chart is drawn at
+  // 0.7 all the same (`--bubbles`): its markers overlap as a rule, and a solid bubble hides
+  // every smaller one behind it, which costs more than the contrast does.
+  --wr-scatter-chart-point-opacity: 1;
+  --wr-scatter-chart-bubble-opacity: 0.7;
+  --wr-scatter-chart-point-ring: var(--wr-color-surface);
+  --wr-scatter-chart-point-ring-width: 1px;
+  --wr-scatter-chart-halo-width: 2px;
+
+  // The plot's padding: the inset tokens, or as far as the largest marker drawn reaches
+  // past its centre with its hover ring, if farther. The component writes that reach in
+  // px, sideways and up or down. The axes keep a point off the frame only when it lands
+  // exactly on it, so one a fraction of a step inside sits a few px from it, and a 20px
+  // bubble there would paint over the tick labels and past the chart's own box, where an
+  // `overflow: hidden` ancestor cuts it off.
+  $reach-x: calc(var(--wr-scatter-chart-reach-x, 0) * 1px + var(--wr-scatter-chart-halo-width) / 2);
+  $reach-y: calc(var(--wr-scatter-chart-reach-y, 0) * 1px + var(--wr-scatter-chart-halo-width) / 2);
+  $inset: max(var(--wr-scatter-chart-plot-inset-x), $reach-x);
+  $inset-y: max(var(--wr-scatter-chart-plot-inset-y), $reach-y);
+
+  // Where a tick is, for the x labels. The strip is as wide as the plot — the drawing
+  // plus its inline padding — and each label is handed its gridline's x as a percentage
+  // of the DRAWING, so the length from either side of the strip to the gridline is the
+  // padding plus that share of what is left.
+  $x: var(--wr-scatter-chart-x, 50);
+  $slot: var(--wr-scatter-chart-x-slot, 100);
+  $point: calc($inset + (100% - 2 * $inset) * $x / 100);
+  $room-start: calc($inset + (100cqw - 2 * $inset) * $x / 100);
+  $room-end: calc($inset + (100cqw - 2 * $inset) * (100 - $x) / 100);
+
+  display: block;
+  // The containing block of the out-of-flow `dataTable` copy, as on the line chart: a
+  // static host lets that 1px box resolve against an ancestor outside the chart and keep
+  // its place in an unpositioned scroller's content. No z-index, so no stacking context.
+  position: relative;
+  font-family: var(--wr-scatter-chart-font-family);
+  color: var(--wr-scatter-chart-color);
+
+  &__legend {
+    margin-block-end: var(--wr-scatter-chart-legend-margin-bottom);
+  }
+
+  // The y labels at inline start, the plot beside them, and the x labels under the plot
+  // alone. A grid follows `direction`, so the gutter is on the right under RTL with no
+  // rule of its own; the drawing itself keeps its x axis running left to right, as every
+  // SVG chart here does — the HTML layouts (bar, bullet, treemap) are the ones that mirror.
+  &__body {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  // The axes' names, set horizontally: the y one above the plot at the gutter's side,
+  // where a reader looks first, and the x one centred under its ticks. A name turned on
+  // its side reads in neither direction comfortably. A name is the host's own text, in
+  // whatever language, so it takes its direction from that text (`plaintext`): on an RTL
+  // page "Revenue, k$" read "$Revenue, k", its trailing sign carried to the page's start.
+  &__y-title,
+  &__x-title {
+    font-size: var(--wr-scatter-chart-title-font-size);
+    font-weight: var(--wr-scatter-chart-title-font-weight);
+    color: var(--wr-scatter-chart-title-color);
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+
+  // Shrunk to its text at the gutter's side, so following its own direction does not move
+  // it across the chart.
+  &__y-title {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: start;
+    margin-block-end: var(--wr-scatter-chart-title-gap);
+    text-align: start;
+  }
+
+  &__x-title {
+    grid-column: 2;
+    grid-row: 4;
+    margin-block-start: var(--wr-scatter-chart-title-gap);
+    text-align: center;
+  }
+
+  // As wide as the longest label: every label is in flow, in the one cell of a one-cell
+  // grid, so the column sizes to the widest while its height stays one label. Stretched
+  // to the plot's row, each label moves down from the top by its own gridline's share of
+  // the drawing, inside the plot's block padding, then up by half itself — the line
+  // chart's y axis, for the same reasons.
+  &__y-axis {
+    grid-column: 1;
+    grid-row: 2;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    padding-inline-end: var(--wr-scatter-chart-tick-gap);
+    font-size: var(--wr-scatter-chart-tick-font-size);
+    line-height: var(--wr-scatter-chart-tick-line-height);
+    color: var(--wr-scatter-chart-tick-color);
+    text-align: end;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // Shrunk to its text against the plot's side of the column, so its own direction can
+  // follow its text (`plaintext`): a negative tick is a `-` in front of digits, neither of
+  // which has a direction, and under RTL the sign would land on the far side — `350-`.
+  &__y-tick {
+    grid-area: 1 / 1;
+    align-self: start;
+    justify-self: end;
+    position: relative;
+    unicode-bidi: plaintext;
+    top: calc($inset-y + (100% - 2 * $inset-y) * var(--wr-scatter-chart-y, 0) / 100);
+    transform: translateY(-50%);
+  }
+
+  &__plot {
+    grid-column: 2;
+    grid-row: 2;
+    position: relative;
+    padding: $inset-y $inset;
+  }
+
+  // The plot's drawing by its class, never a bare `svg`: every point is an `<svg>` of
+  // its own, and the legend's keys are too. Overflow is visible because a marker near an
+  // end reaches past the drawing, over the plot's padding.
+  &__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  &__grid-line {
+    stroke: var(--wr-scatter-chart-grid-color);
+    stroke-width: 1px;
+  }
+
+  &--bubbles {
+    --wr-scatter-chart-point-opacity: var(--wr-scatter-chart-bubble-opacity);
+  }
+
+  &__marker {
+    fill-opacity: var(--wr-scatter-chart-point-opacity);
+    stroke: var(--wr-scatter-chart-point-ring);
+    stroke-width: var(--wr-scatter-chart-point-ring-width);
+    stroke-linejoin: round;
+  }
+
+  // Never hittable: it is drawn under the pointer, and the points it rings are found
+  // by position rather than by what is under the pointer.
+  &__halo {
+    pointer-events: none;
+    stroke-width: var(--wr-scatter-chart-halo-width);
+    stroke-linejoin: round;
+  }
+
+  &__x-axis {
+    grid-column: 2;
+    grid-row: 3;
+    position: relative;
+    margin-block-start: var(--wr-scatter-chart-tick-gap);
+    font-size: var(--wr-scatter-chart-tick-font-size);
+    line-height: var(--wr-scatter-chart-tick-line-height);
+    color: var(--wr-scatter-chart-tick-color);
+    font-variant-numeric: tabular-nums;
+    // The labels are absolutely positioned onto their gridlines, so the strip has no
+    // content of its own to give it a height: one line of their own leading. `1.25em` is
+    // a pixel short of the 16px line, so each label hung that far over what came next.
+    height: 1lh;
+    // A `translateX` percentage means the LABEL's own width, so the room left beside it
+    // has to arrive in another unit — `cqw` is this strip's. Every label is out of flow,
+    // so the containment costs the layout nothing.
+    container-type: inline-size;
+  }
+
+  &__x-tick {
+    position: absolute;
+    // rtl-ok: the drawing's own x, which does not flip with `direction`
+    left: $point;
+    // Centred on its gridline, but never past either end of the strip: the shift is the
+    // smaller of half the label and the room left on that side, so the first and last
+    // ticks, which sit on the frame, move inwards and the rest stay centred.
+    // rtl-ok: the drawing's own x, which does not flip with `direction`
+    transform: translateX(clamp(calc(-1 * $room-start), -50%, calc($room-end - 100%)));
+    // Its own slot, half the way to a neighbour on each side, cut back to the room
+    // between its gridline and the end of the strip.
+    max-width: min(
+      calc((100% - 2 * $inset) * $slot / 100),
+      calc($inset + (100% - 2 * $inset) * ($x + $slot / 2) / 100),
+      calc($inset + (100% - 2 * $inset) * (100 - $x + $slot / 2) / 100)
+    );
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    // As a y tick: the sign stays before the digits. The box is as wide as its text, so
+    // where it sits does not move.
+    unicode-bidi: plaintext;
+  }
+}
+
+// The SVG keeps its fills and strokes under forced colors, so the points keep their
+// series' colours and the legend still keys them. The ring and the grid are drawn in
+// theme colours that mean nothing on a forced palette: the ring takes the page's own
+// colour, which keeps touching points apart on any background, and the grid the
+// system's muted one.
+@media (forced-colors: active) {
+  .wr-scatter-chart {
+    --wr-scatter-chart-point-ring: Canvas;
+    --wr-scatter-chart-grid-color: GrayText;
+  }
+}

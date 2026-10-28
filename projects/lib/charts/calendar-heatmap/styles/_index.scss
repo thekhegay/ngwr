@@ -1,14 +1,24 @@
 @use '../../../theme/styles' as theme;
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
 
+// Styles for the entry points this component's own markup renders. With `dataTable`, the
+// figures render as a `<wr-chart-table>` beside the grid, which its own sheet clips out of
+// sight.
+@use '../../core/styles' as core-styles; // WrChartTable
+
 .wr-calendar-heatmap {
   --wr-calendar-heatmap-font-family: var(--wr-font-family-base);
   --wr-calendar-heatmap-grid-gap: var(--wr-space-sm);
   --wr-calendar-heatmap-weekday-font-size: var(--wr-text-xs);
   --wr-calendar-heatmap-weekday-line-height: var(--wr-leading-none);
   --wr-calendar-heatmap-month-font-size: var(--wr-text-xs);
+  // The weekday and month names, muted as an axis' labels are on every chart.
+  --wr-calendar-heatmap-label-color: var(--wr-color-on-surface-muted);
 
   display: inline-block;
+  // The containing block of the out-of-flow `dataTable` copy, as on every chart that
+  // renders one: in a scroller it would otherwise keep its place in the scrolled content.
+  position: relative;
   // A year is 53 columns of a FIXED cell size, so the grid has no reflow in it:
   // its intrinsic width is ~731px whatever the container, and without a cap it
   // escaped the card it sits in and gave the whole document a 397px horizontal
@@ -25,7 +35,13 @@
   // legible.
   overflow-y: hidden;
   font-family: var(--wr-calendar-heatmap-font-family);
-  color: var(--wr-color-on-surface-muted);
+  color: var(--wr-calendar-heatmap-label-color);
+
+  // The host is a tab stop while it scrolls (see the component), so the keyboard can move
+  // it. Outset: an element's own `overflow` does not clip its outline.
+  &:focus-visible {
+    @include theme.focus-ring;
+  }
 
   &__grid {
     display: grid;
@@ -42,7 +58,7 @@
     grid-template-rows: repeat(7, var(--wr-calendar-heatmap-cell-size));
     gap: var(--wr-calendar-heatmap-cell-gap);
     font-size: var(--wr-calendar-heatmap-weekday-font-size);
-    color: var(--wr-color-on-surface-muted);
+    color: var(--wr-calendar-heatmap-label-color);
     align-items: center;
   }
 
@@ -65,7 +81,7 @@
   &__months {
     grid-area: months;
     font-size: var(--wr-calendar-heatmap-month-font-size);
-    color: var(--wr-color-on-surface-muted);
+    color: var(--wr-calendar-heatmap-label-color);
   }
 
   &__month {
@@ -97,6 +113,12 @@
 
     &:hover {
       transform: scale(1.4);
+    }
+
+    // The hovered square still grows, so the pointer's place stays marked; it just lands
+    // there at once rather than tweening on every square the pointer crosses.
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
     }
   }
 }

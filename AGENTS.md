@@ -18,7 +18,9 @@ A pnpm + Angular CLI monorepo with three projects:
   restate it and went stale with every new component. Count from that map, not
   from the directory tree: `styles/` and
   `schematics/` are not entry points, and the nested ones are the charts and
-  bits (`ngwr/charts/<name>`, `ngwr/bits/<name>`), the twenty-two
+  bits (`ngwr/charts/<name>`, `ngwr/bits/<name>`) — among the charts the public
+  legend `ngwr/charts/chart-legend` and `ngwr/charts/core`, whose exports are all
+  `@internal` (see Shared code below) — the twenty-two
   `ngwr/i18n/<locale>`, the two opt-in router adapters
   `ngwr/loading-bar/router` and `ngwr/tabs/router` that v14 added, and the CDK
   test harnesses (`testingEntryPoints` in the same file), which cover the form
@@ -30,7 +32,7 @@ A pnpm + Angular CLI monorepo with three projects:
   the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`,
-  **every chart** and **eighteen of the twenty-one bits** — each at
+  **every chart** and **twenty-one of the twenty-four bits** — each at
   `ngwr/<name>/testing`. Charts and bits are NESTED since v15:
   `ngwr/charts/bar-chart`, `ngwr/bits/aurora`, harnesses at
   `ngwr/charts/bar-chart/testing`. Twenty-eight folders that used to sit beside
@@ -62,7 +64,7 @@ A pnpm + Angular CLI monorepo with three projects:
   pages under `app/reference/<cluster>/<name>/` (directives, pipes, services,
   utils, validators, interfaces) and component pages one folder deeper, in
   the sidebar group they sit under (`app/reference/components/<group>/<name>/`),
-  the chart family under `app/charts/<name>/`, the icon-set browsers under
+  the chart family under `app/charts/<group>/<name>/`, the icon-set browsers under
   `app/icons/` and the bits under `app/bits/<group>/<name>/`; the pre-v15
   `/start/*` URLs redirect (`app/routing.ts`). Shared doc scaffolding (the
   `<ngwr-doc-*>` components, services, shiki highlighting) is in `app/_core/`
@@ -110,7 +112,7 @@ A pnpm + Angular CLI monorepo with three projects:
 `projects/lib/package.json`'s `exports` map.
 
 **A component with a `styleUrl` splits that one file in two, and the rule is
-mechanical: rules go in `styles/_rules.scss`, never in `_index.scss`.** Twenty-seven
+mechanical: rules go in `styles/_rules.scss`, never in `_index.scss`.** Thirty
 components have a `styleUrl`, and a component stylesheet is its OWN Sass
 compilation — `@use` deduplicates within one compilation, not across them — so a
 `_index.scss` that both `@use`s the theme and holds the rules inlines a second
@@ -154,7 +156,7 @@ one component folder. Reach for them instead of hand-rolling:
 
 - **App-wide configuration is ONE call since v15: `provideWr(...features)`**,
   in the shape Angular gives `provideRouter(routes, withX())` —
-  `provideWr(withDensity(), withToast({ duration: 6000 }), withTheme(), withDates(), withStorage(), withMeta())`.
+  `provideWr(withDensity(), withToast({ duration: 6000 }), withTheme(), withDates(), withStorage(), withMeta(), withWindows())`.
   `provideWr` is the only export of the ROOT entry point
   (`projects/lib/provide-wr.ts`, re-exported by `public-api.ts`): it flattens
   the features through `makeEnvironmentProviders`, works at bootstrap and in a
@@ -425,7 +427,20 @@ one component folder. Reach for them instead of hand-rolling:
   `numAttr` for input transforms; plus `dom`, `guards`, `id`, `keyboard`,
   `css-size`, `css-value`, `fn`, `math`, `log`), `ngwr/pipes` (`wrDate`, `wrBytes`,
   `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrRange`), and
-  `ngwr/validators` (`WrValidators`).
+  `ngwr/validators` (`WrValidators`). A chart builds on `ngwr/charts/core` —
+  the palette, dashes and markers, `useChartNumbers`, `chartAxis` and the
+  visually hidden `WrChartTable` behind the opt-in `dataTable` input on bar,
+  line, scatter, radar, heatmap chart, calendar heatmap, funnel, waterfall,
+  treemap, box plot and candlestick — every export `@internal`, so it stays out of
+  `llms-full.txt` and the skill catalog; a chart that renders the table
+  positions its host. Its legend is `ul[wr-chart-legend]`
+  (`ngwr/charts/chart-legend`), whose opt-in `toggleable` rows are
+  `<button aria-pressed>` over a `hiddenSeries` model the chart feeds to its
+  axis, tooltip and table. Only the three charts whose legends predate the
+  shared one — line, donut and meter group — provide `WR_CHART_LEGEND_BLOCK` in
+  `viewProviders` (the legend reads it with `host: true`), so their old public
+  `.wr-<block>__legend-item` classes stay on the same elements; a new chart
+  provides nothing, and gets no legacy classes it never had.
 - **Scheduling** (`ngwr/event-calendar`) — `wr-event-calendar` is month / week /
   day in one component. `events` is an input it never mutates: a drag emits
   `eventChange` and the host applies it, so an unhandled output is a cancelled
@@ -664,13 +679,13 @@ and sat at `275 spec files, at least 4467 specs` for long enough to be wrong by
 four files and a hundred cases. The case figure is a FLOOR either way, since one
 `it.each` site stands for an unknown number of cases.) What is still uncovered
 is no longer whole components but what a spec can reach: jsdom has no drawing context, so the canvas
-and WebGL components can never assert anything painted. All six now install a
+and WebGL components can never assert anything painted. All nine now install a
 recording context — a WebGL2 stub for `aurora` and `splash-cursor`, a 2D one for
-the rest — and five of them an `ErrorHandler` recorder besides, because what
+the rest — and eight of them an `ErrorHandler` recorder besides, because what
 `afterNextRender` throws reaches neither `detectChanges()` nor `whenStable()`, so
 a boot that died reads as a pass without one. (`wr-confetti` is the exception and
 correctly so: a service, with no deferred boot to lose an error inside.) That
-carries the specs in those six files past the early return, to frame
+carries the specs in those nine files past the early return, to frame
 counts, spark and particle counts, the fuzz ramp, a `var(--wr-…)` colour resolved
 against the host, gravity bringing a particle back down, and teardown — while
 each keeps the null-context path it started as, one "survives a browser that will
@@ -1346,7 +1361,7 @@ that sequence is a position rather than an oversight:
   under the one-consumer rule of 2026-10-02 (a removal is deleted outright,
   with no deprecation and no codemod). The request reversed that for the
   release: the migration guide, the codemod, the schematics and the showcase's
-  New / Updated / Removed marks ship together. It splits down the middle of the
+  New and Updated marks ship together. It splits down the middle of the
   rule like v14's. It REWRITES the twenty-eight chart and bit paths (from
   `ngwr/<name>` to `ngwr/charts/<name>` or `ngwr/bits/<name>`), from
   `ngwr/drag-drop` to `ngwr/sortable-list` and from
@@ -1828,10 +1843,12 @@ native control inside it.
 **Showcase page = the docs.** Every component ships a docs page, and a new
 one takes four steps, all under `projects/showcase/app/`:
 
-1. Create the page in `reference/components/<group>/<name>/`, `charts/<name>/`
-   or `bits/<group>/<name>/`. The group folder is the sidebar group (buttons,
-   data, display, feedback, form, layout, navigation and overlays for
-   components) and never part of the URL.
+1. Create the page in `reference/components/<group>/<name>/`,
+   `charts/<group>/<name>/` or `bits/<group>/<name>/`. The group folder is the
+   sidebar group (buttons, data, display, feedback, form, layout, navigation
+   and overlays for components; comparison, trend, part-to-whole,
+   distribution, single-value and building-blocks for charts) and never part
+   of the URL.
 2. Add its node to `ROUTES` in `_core/constants/routes.ts` (imported as
    `#routes`): its own URL segment and its title, the one tree every route and
    nav row reads.
@@ -1875,10 +1892,12 @@ run, so `check:api-docs` fails on a stale map rather than a tenth gate doing it)
 The version is the SUBJECT's, as the `since` input's JSDoc says, not the page's:
 a new page about something that already shipped declares nothing.
 `releaseLabel()` drops a zero patch, and a major's `.0.0` with it, so `15.0.0`
-prints as "v15". `isNewLink()` in `#core/utils` marks a nav row whose declared
-version is on the current minor line or ahead of it, so a page written before
-its release is marked from the commit that adds it and every mark expires on its
-own when `release:prepare` moves `NGWR_VERSION`. Never type a version beside a nav row —
+prints as "v15". `isNewLink()` and `linkMark()` in `#core/utils` judge a nav
+row against `markVersion()`: the later minor line of `NGWR_VERSION` and the
+newest version any page declares. So a page written before its release is
+marked from the commit that adds it, the previous release's marks step back
+once the next release declares its first page, and every mark expires when the
+line moves on. Never type a version beside a nav row —
 one per item is what this deliberately is not. A page that declares nothing
 shows nothing: no `@since` exists in `projects/lib` to backfill from, and git
 cannot supply one, because a renamed entry point looks new the day it moves.
@@ -1895,31 +1914,26 @@ data, so `tsx` can load it and the array is the one the router uses); a
 template that no single route renders is REFUSED a version rather than keyed by
 walk order. The sidebar's marks are `<wr-sidebar>` word badges,
 chosen in `_layout/sidebar/entries.ts` — `New` in the primary tone; `Updated`,
-`Removed`, `Optional` and `Soon` neutral, since the sidebar has no calmer intent
+`Optional` and `Soon` neutral, since the sidebar has no calmer intent
 than primary and the word carries the meaning. A row wears one badge, and a
 version mark wins over `Optional`. `showcase/styles/_badge.scss` draws the
 catalog index's marks only.
 
-**Two more marks ride the same scan: `updated` and `removed`.**
-`updated="15.0.0"` is the version the subject changed its PUBLIC API in — an
-input, an output, an export, a token, a hook, a harness method, or the entry
-point's own path, so the charts and bits nesting counts. The page prints
-"Updated in v15". A restyle or a fix is not an update. A change made to every
-component at once (the palette, the spacing scale, the new hooks) is marked on
-the token and theming pages, never on each component. `removed="15.0.0"` makes
-the page a tombstone: it prints "Removed in v15", strikes the title through, and
-its body is one `<ngwr-doc-removed was why instead>` plus a `RELATED` entry for
-the replacement. `pnpm gen:api-docs` writes all three maps into
-`#core/generated/since` (`SINCE`, `UPDATED`, `REMOVED`). `check:api-docs` fails
-on a stale map, a bound attribute, a version that is not `major.minor.patch`,
-`updated` beside `removed`, or either one no later than `since`. `linkMark()` in
-`#core/utils` gives a nav row ONE mark — `Removed`, then `New`, then `Updated` —
-on the sidebar and on the cluster index pages alike. `New` and `Updated` expire
-with the current minor line. `Removed` never expires: the row sorts after the
-live rows of its group, and stays out of the group's count and the label pages.
-A removed entry point gets a tombstone at its old URL, or in the group its kind
-lives in when it never had a page. A MOVED one keeps a redirect (`drag-drop`,
-`/animations/*`, the chart slugs), and its new page declares `updated`.
+**One more mark rides the same scan: `updated`.** `updated="15.0.0"` is the
+version the subject changed its PUBLIC API in — an input, an output, an export,
+a token, a hook, a harness method, or the entry point's own path, so the charts
+and bits nesting counts. The page prints "Updated in v15". A restyle or a fix
+is not an update. A change made to every component at once (the palette, the
+spacing scale, the new hooks) is marked on the token and theming pages, never on
+each component. `pnpm gen:api-docs` writes both maps into
+`#core/generated/since` (`SINCE`, `UPDATED`). `check:api-docs` fails on a stale
+map, a bound attribute, a version that is not `major.minor.patch`, or an
+`updated` no later than `since`. `linkMark()` gives a nav row ONE mark, `New`
+before `Updated`, on the sidebar and the cluster index pages alike. A removed
+entry point has no page: its page, route, nav row and `RELATED` entries are
+deleted with it, and `/docs/migration` says what replaced it. A MOVED one keeps
+a redirect (`drag-drop`, `/animations/*`, the chart slugs), and its new page
+declares `updated`.
 
 **Claims the site prints.** v15 deleted the comparison, quality and playground
 pages: `/start/comparison`, `/start/quality` and `/start/playground` redirect to
@@ -2119,13 +2133,15 @@ because it is guidance rather than a plan.
 - `wr-alert` does not use one live region: danger interrupts
   (`role="alert"` / assertive), warning is assertive without interrupting,
   the rest wait their turn — and all of it goes away on dismiss.
-- `<wr-window>`'s `moved` fires ONCE when a header drag ends, with the final
-  position, and stays silent for `moveTo()` / `center()` / the opening cascade:
+- `WrWindowRef.moved` fires ONCE when a drag or a keyboard move ends, with the
+  final position, and when a drag snaps the window; a press that moved nothing
+  emits nothing, and `moveTo()` / `center()` / the opening cascade stay silent:
   the caller already knows where it put the window. `resized` is the same shape.
-  This entry used to say "while the header is dragged, once per pointer move",
-  and so did the output's own JSDoc — both wrong since the emit has always sat
-  in the `pointerup` / `pointercancel` cleanup. A consumer persisting the
-  position wants the landing rather than the path, which is what it does.
+  The pair lived on the internal `<wr-window>` until 15.1.0 moved them to the
+  ref. This entry used to say "while the header is dragged, once per pointer
+  move", and so did the output's own JSDoc — both wrong since the emit has
+  always sat in the drag's cleanup. A consumer persisting the position wants
+  the landing rather than the path, which is what it does.
 - `wr-tour` skips a step whose target is missing (a tour has to survive a
   feature behind a flag) while the progress line still counts every step it
   was given.

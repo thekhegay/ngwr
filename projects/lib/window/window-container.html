@@ -1,33 +1,32 @@
 <wr-window
-  [open]="true"
-  [title]="ref.title()"
-  [os]="config.os ?? 'auto'"
-  [size]="config.size ?? 'md'"
-  [chromeSize]="config.chromeSize ?? 'md'"
-  [animations]="config.animations ?? true"
-  [initialX]="config.x ?? null"
-  [initialY]="config.y ?? null"
-  [initialWidth]="config.width ?? null"
-  [initialHeight]="config.height ?? null"
-  [minWidth]="config.minWidth ?? 220"
-  [minHeight]="config.minHeight ?? 140"
-  [maxWidth]="config.maxWidth ?? 1000000"
-  [maxHeight]="config.maxHeight ?? 1000000"
-  [movable]="config.movable ?? true"
-  [resizable]="config.resizable ?? true"
-  [keepInViewport]="config.keepInViewport ?? true"
-  [snap]="config.snap ?? 'none'"
-  [dragHandle]="config.dragHandle ?? null"
-  [showMinimize]="config.showMinimize ?? null"
-  [showMaximize]="config.showMaximize ?? null"
-  [showClose]="config.showClose ?? true"
+  [model]="ref._model"
+  [windowRef]="ref"
+  [injector]="childInjector"
+  [titleExtra]="config.titleExtra ?? null"
+  [statusBar]="config.statusBar ?? null"
   (closed)="ref.close()"
-  (minimizedWithFocus)="onMinimizedWithFocus()"
   #window
 >
   <ng-container #content />
 </wr-window>
 
-@if (window.snapTarget(); as target) {
-  <div class="wr-window__snap-hint" [attr.data-target]="target" aria-hidden="true"></div>
+<!--
+  The snap hint lives here, not inside `<wr-window>`: `.wr-window` clips, and a
+  fixed child is clipped with it while the open animation's transform is on.
+  It takes the exact box the drop will give the window, from the same model
+  arithmetic, so the hint and the landing cannot disagree — they did when the
+  hint was a CSS 50% of the layout viewport and the snap was half of
+  `innerWidth`, 7.5px apart with a classic scrollbar showing.
+-->
+@if (ref._model.previewRect(); as box) {
+  <div
+    class="wr-window__snap-hint"
+    [attr.data-target]="ref._model.dragTarget()"
+    [style.left.px]="box.left"
+    [style.top.px]="box.top"
+    [style.width.px]="box.width"
+    [style.height.px]="box.height"
+    [style.z-index]="ref._model.z() + 1"
+    aria-hidden="true"
+  ></div>
 }

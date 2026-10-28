@@ -7,6 +7,7 @@ import {
   DocPageComponent,
   DocSectionComponent,
   DocSeeAlsoComponent,
+  type DocCodeFile,
   type DocSeeAlsoLink,
 } from '#core/components';
 
@@ -16,10 +17,18 @@ import {
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocSeeAlsoComponent],
 })
 export default class McpPage {
-  protected readonly snippets = {
-    claudeCode: `claude mcp add ngwr -- npx -y -p ${NGWR_PACKAGE} ngwr-mcp`,
+  protected readonly add: readonly DocCodeFile[] = [
+    { label: 'Claude Code', language: 'bash', code: `claude mcp add ngwr -- npx -y -p ${NGWR_PACKAGE} ngwr-mcp` },
+    // The `--` keeps the server's own flags away from gemini's option parser.
+    { label: 'Gemini CLI', language: 'bash', code: `gemini mcp add ngwr npx -- -y -p ${NGWR_PACKAGE} ngwr-mcp` },
+    { label: 'Codex', language: 'bash', code: `codex mcp add ngwr -- npx -y -p ${NGWR_PACKAGE} ngwr-mcp` },
+  ];
 
-    config: `{
+  protected readonly config: readonly DocCodeFile[] = [
+    {
+      label: 'JSON',
+      language: 'typescript',
+      code: `{
   "mcpServers": {
     "ngwr": {
       "command": "npx",
@@ -27,8 +36,21 @@ export default class McpPage {
     }
   }
 }`,
+    },
+    {
+      label: 'Codex',
+      language: 'toml',
+      code: `[mcp_servers.ngwr]
+command = "npx"
+args = ["-y", "-p", "${NGWR_PACKAGE}", "ngwr-mcp"]`,
+    },
+  ];
 
-    pinned: `{
+  protected readonly pinned: readonly DocCodeFile[] = [
+    {
+      label: 'JSON',
+      language: 'typescript',
+      code: `{
   "mcpServers": {
     "ngwr": {
       "command": "node",
@@ -36,7 +58,15 @@ export default class McpPage {
     }
   }
 }`,
-  };
+    },
+    {
+      label: 'Codex',
+      language: 'toml',
+      code: `[mcp_servers.ngwr]
+command = "node"
+args = ["./node_modules/ngwr/mcp/server.js"]`,
+    },
+  ];
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
     { kind: 'Guide', title: 'Skills', url: ['/docs', 'skills'] },

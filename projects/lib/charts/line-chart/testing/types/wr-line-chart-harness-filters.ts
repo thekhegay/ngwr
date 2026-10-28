@@ -20,3 +20,14 @@ export interface WrLineChartTooltipRow {
   readonly label: string;
   readonly value: string;
 }
+
+/**
+ * One row of the chart's data table (`dataTable`): the x it reads, as its row header,
+ * and one cell per series shown, in the order of the table's columns.
+ */
+export interface WrLineChartTableRow {
+  /** The row header — the x label, as the tooltip heads that x. */
+  readonly header: string;
+  /** Each series' own value at that x, written as the tooltip writes it; `''` on a hole. */
+  readonly cells: readonly string[];
+}

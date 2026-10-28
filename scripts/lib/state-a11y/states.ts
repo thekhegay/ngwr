@@ -268,7 +268,47 @@ export const STATES: readonly State[] = [
     steps: [{ click: demo('.wr-btn:has-text("macOS")') }, { wait: 300 }],
     target: '.wr-window',
     scope: '.wr-window',
-    note: 'macOS chrome: three 14px traffic lights, all under the 24px target size.',
+    note: 'macOS chrome: 28px buttons painting 16px traffic lights, so target-size passes since 15.1.0.',
+  },
+  {
+    id: 'window/inactive',
+    route: `${REF}/window`,
+    // Two windows: the second takes the keyboard, and the first dims its title
+    // bar and greys its traffic lights. A colour pair no page at rest paints,
+    // and the one 15.1.0 added.
+    steps: [
+      { click: demo('.wr-btn:has-text("Open first")') },
+      { wait: 300 },
+      { click: demo('.wr-btn:has-text("Open second")') },
+      { wait: 300 },
+    ],
+    target: '.wr-window--inactive .wr-window__title',
+    scope: '.wr-window--inactive',
+  },
+  {
+    id: 'window/keyboard-move',
+    route: `${REF}/window`,
+    // Alt+F7's mode: the dashed ring and the live region that says how to use
+    // it. Reached through the demo's own button, since a forced key press would
+    // need focus inside a window that has just opened.
+    steps: [
+      { click: '#keyboard-move-and-resize ngwr-doc-snippet .wr-btn:has-text("Open window")' },
+      { wait: 300 },
+      { click: demo('.wr-btn:has-text("Move with the keyboard")') },
+      { wait: 200 },
+    ],
+    target: '.wr-window--keyboard-moving',
+    scope: '.wr-window--keyboard-moving',
+  },
+  {
+    id: 'window/slots',
+    route: `${REF}/window`,
+    // Consumer content in the title bar (a tag) and a status bar under the body,
+    // both new in 15.1.0 and both inside the dialog's own name and structure.
+    // The section's id, since its one button reads "Open window" like three others.
+    steps: [{ click: '#title-bar-and-status-bar ngwr-doc-snippet .wr-btn' }, { wait: 300 }],
+    target: '.wr-window__status-bar',
+    scope: '.wr-window:has(.wr-window__status-bar)',
   },
   {
     id: 'window/chrome-windows',
@@ -500,6 +540,40 @@ export const STATES: readonly State[] = [
     scope: '.wr-window-taskbar',
   },
   {
+    id: 'window/taskbar-all',
+    route: `${REF}/window`,
+    // `show="all"`: a tab per open window, the active one pressed. Its own
+    // modifier and `aria-pressed`, neither of which the minimized-only rail has.
+    steps: [
+      { click: demo('.wr-segmented__option:has-text("All")') },
+      { click: demo('.wr-btn:has-text("Open inbox")') },
+      { wait: 300 },
+      { click: demo('.wr-btn:has-text("Open editor")') },
+      { wait: 400 },
+    ],
+    target: '.wr-window-taskbar__tab--active',
+    scope: '.wr-window-taskbar',
+  },
+  {
+    id: 'window/taskbar-folded',
+    route: `${REF}/window`,
+    // Six windows on a rail capped at three, all minimized, and the "+3" menu
+    // open: the folded rows render in the overlay, which no sweep at rest
+    // reaches, and they carry the minimized modifier of their own.
+    steps: [
+      { click: demo('.wr-segmented__option:has-text("All")') },
+      { click: demo('.wr-segmented__option:has-text("At most 3")') },
+      { click: demo('.wr-btn:has-text("Open six")') },
+      { wait: 400 },
+      { click: demo('.wr-btn:has-text("Minimize all")') },
+      { wait: 300 },
+      { click: '.wr-window-taskbar__more' },
+      { wait: 300 },
+    ],
+    target: '.wr-window-taskbar__fold-item--minimized',
+    scope: '.wr-dropdown-overlay',
+  },
+  {
     id: 'date-picker/time',
     route: `${REF}/date-picker`,
     steps: [{ click: demo('.wr-date-picker--time .wr-date-picker__trigger') }, { wait: 200 }],
@@ -595,6 +669,14 @@ export const STATES: readonly State[] = [
     steps: [{ click: demo('.wr-btn:has-text("Open drawer")') }, { wait: 300 }],
     target: '.wr-drawer__panel',
     scope: '.wr-drawer__panel',
+  },
+  {
+    id: 'calendar-heatmap/mobile-scroller',
+    route: '/charts/calendar-heatmap',
+    viewport: 'mobile',
+    steps: [{ focus: demo('wr-calendar-heatmap[tabindex="0"]') }],
+    target: demo('wr-calendar-heatmap[tabindex="0"]'),
+    note: 'Narrower than its year, the host scrolls sideways; the tab stop is what `scrollable-region-focusable` asks of it.',
   },
 
   // ── At-rest variants the other gates DO see, but only through two rules.
@@ -758,11 +840,7 @@ export const STATES: readonly State[] = [
   {
     id: 'tree/overlay-clear',
     route: `${REF}/tree`,
-    steps: [
-      { click: demo('.wr-tree__trigger') },
-      { click: '.wr-tree-panel .wr-tree__row' },
-      { press: 'Escape' },
-    ],
+    steps: [{ click: demo('.wr-tree__trigger') }, { click: '.wr-tree-panel .wr-tree__row' }, { press: 'Escape' }],
     target: demo('.wr-tree__clear'),
   },
   {

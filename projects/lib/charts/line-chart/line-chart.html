@@ -1,28 +1,16 @@
 @let hovered = activeIndex();
 @if (showLegend() && resolvedSeries().length > 0) {
-  <ul class="wr-line-chart__legend">
-    @for (s of resolvedSeries(); track s.label) {
-      <li class="wr-line-chart__legend-item">
-        <!-- The swatch draws the series' own dash, not a solid block. A legend
-             that pairs a coloured square with a name leaves the reader to match
-             the square to the LINE, and matching by colour is the step the
-             patterns exist to remove. -->
-        <svg class="wr-line-chart__swatch" viewBox="0 0 16 2" aria-hidden="true">
-          <line
-            x1="0"
-            y1="1"
-            x2="16"
-            y2="1"
-            [attr.stroke]="s.color"
-            [attr.stroke-dasharray]="s.dash || null"
-            stroke-width="2"
-            stroke-linecap="round"
-          />
-        </svg>
-        <span>{{ s.label }}</span>
-      </li>
-    }
-  </ul>
+  <!-- Every row keys its series by the series' own dash rather than a solid block: a
+       coloured square leaves the reader to match it to the LINE, and matching by colour
+       is the step the patterns exist to remove. Rows are tracked by position, so two
+       series that share a label are two rows. -->
+  <ul
+    wr-chart-legend
+    class="wr-line-chart__legend"
+    [items]="legendItems()"
+    [toggleable]="toggleableLegend()"
+    [(hiddenSeries)]="hiddenSeries"
+  ></ul>
 }
 
 <!-- Two columns: the y-axis labels at inline start, the drawing beside them, and the
@@ -43,6 +31,7 @@
   }
 
   <div
+    #plot
     class="wr-line-chart__plot"
     role="img"
     [attr.aria-label]="resolvedAriaLabel()"
@@ -57,23 +46,35 @@
     <svg #svg class="wr-line-chart__svg" [attr.viewBox]="viewBox()" preserveAspectRatio="none">
       @if (showGrid()) {
         @for (tick of yTicks(); track tick.value) {
+          <!-- The colour is the stylesheet's, from `--wr-line-chart-grid-color`, so forced
+               colors can swap it for the system's own. -->
           <line
             class="wr-line-chart__grid-line"
             x1="0"
             [attr.x2]="vbW"
             [attr.y1]="tick.y"
             [attr.y2]="tick.y"
-            stroke="color-mix(in srgb, var(--wr-border-base) 70%, transparent)"
             stroke-width="1"
             vector-effect="non-scaling-stroke"
           />
         }
       }
 
-      @for (s of resolvedSeries(); track s.label) {
+      <!-- Every fill before every line, so the lines and their dashes stay on top where
+           the fills overlap and the series are still told apart by shape. The opacity is
+           the stylesheet's, from `--wr-line-chart-area-opacity`. -->
+      @for (area of areas(); track area.key) {
+        <path class="wr-line-chart__area" [attr.d]="area.d" [attr.fill]="area.color" stroke="none" />
+      }
+
+      <!-- By position, not by label: two series may share one, and a duplicate key
+           makes Angular re-create rows it cannot tell apart. Each is drawn at its
+           plotted values, which under `stacked` are the tops of its band. Every path is
+           built once per data change (`drawn`), so hovering rebuilds none of them. -->
+      @for (s of drawn(); track s.index) {
         <path
           class="wr-line-chart__line"
-          [attr.d]="pathFor(s)"
+          [attr.d]="s.d"
           fill="none"
           [attr.stroke]="s.color"
           [attr.stroke-dasharray]="s.dash || null"
@@ -82,24 +83,22 @@
           stroke-linejoin="round"
           vector-effect="non-scaling-stroke"
         />
-        @if (showDots()) {
-          @for (v of s.data; track $index; let i = $index) {
-            <!-- A hole in the data gets no dot: the index still belongs to it, so the
-                 points after it stay on their own x. A dot is a zero-length line with a
-                 round cap and a non-scaling stroke, which stays a 6px circle however the
-                 drawing stretches; a `<circle>` scaled with it, into a 3 × 5px oval on a
-                 phone and a 9 × 5px one at 1920px. -->
-            @if (v !== null) {
-              <path
-                class="wr-line-chart__dot"
-                [attr.d]="dotPath(pointX(i), pointY(v))"
-                fill="none"
-                [attr.stroke]="s.color"
-                stroke-width="6"
-                stroke-linecap="round"
-                vector-effect="non-scaling-stroke"
-              />
-            }
+        @for (dot of s.dots; track $index) {
+          <!-- A hole in the data gets no dot: the index still belongs to it, so the
+               points after it stay on their own x. A dot is a zero-length line with a
+               round cap and a non-scaling stroke, which stays a 6px circle however the
+               drawing stretches; a `<circle>` scaled with it, into a 3 × 5px oval on a
+               phone and a 9 × 5px one at 1920px. -->
+          @if (dot !== null) {
+            <path
+              class="wr-line-chart__dot"
+              [attr.d]="dot"
+              fill="none"
+              [attr.stroke]="s.color"
+              stroke-width="6"
+              stroke-linecap="round"
+              vector-effect="non-scaling-stroke"
+            />
           }
         }
       }
@@ -111,15 +110,16 @@
           [attr.x2]="pointX(hovered)"
           y1="0"
           [attr.y2]="vbH"
-          stroke="var(--wr-color-on-surface-muted)"
           stroke-width="1"
           stroke-dasharray="3 3"
           vector-effect="non-scaling-stroke"
         />
-        <!-- A ring of the series' colour round a white centre, drawn the way a dot is
-             and for the same reason. -->
-        @for (p of hoverPoints(); track p.label) {
+        <!-- A ring of the series' colour round a surface-coloured centre, drawn the way a
+             dot is and for the same reason. The centre's colour is the stylesheet's, from
+             `--wr-line-chart-hover-center`. -->
+        @for (p of hoverPoints(); track p.index) {
           <path
+            class="wr-line-chart__hover-dot"
             [attr.d]="dotPath(p.x, p.y)"
             fill="none"
             [attr.stroke]="p.color"
@@ -128,9 +128,9 @@
             vector-effect="non-scaling-stroke"
           />
           <path
+            class="wr-line-chart__hover-dot-center"
             [attr.d]="dotPath(p.x, p.y)"
             fill="none"
-            stroke="var(--wr-color-white)"
             stroke-width="8"
             stroke-linecap="round"
             vector-effect="non-scaling-stroke"
@@ -140,14 +140,23 @@
     </svg>
 
     @if (hovered !== null && hoverPoints().length > 0) {
-      <!-- The layer covers the plot and is what the tooltip's `cqw` measures. It is out of flow, so the containment it turns on
-           costs the plot's own sizing nothing. The tooltip takes the same
-           `--wr-line-chart-x` the x labels take, and the same clamp: centred on its
-           point, never past either end. -->
+      <!-- The layer covers the plot and is what the tooltip's `cqw` measures. It is out of
+           flow, so the containment it turns on costs the plot's own sizing nothing. The
+           tooltip takes the same `--wr-line-chart-x` the x labels take, and the same
+           clamp: centred on its point, never past either end. At the top of the plot, or
+           where that would cover a marker it reads, at the bottom (`--below`) or beside the
+           crosshair (`--left`, `--right`). -->
       <div class="wr-line-chart__tooltip-layer">
-        <div class="wr-line-chart__tooltip" [style.--wr-line-chart-x]="xPercent(hovered)">
+        <div
+          #tooltip
+          class="wr-line-chart__tooltip"
+          [class.wr-line-chart__tooltip--below]="tooltipPlacement() === 'below'"
+          [class.wr-line-chart__tooltip--left]="tooltipPlacement() === 'left'"
+          [class.wr-line-chart__tooltip--right]="tooltipPlacement() === 'right'"
+          [style.--wr-line-chart-x]="xPercent(hovered)"
+        >
           <div class="wr-line-chart__tooltip-label">{{ hoverLabel() }}</div>
-          @for (p of hoverPoints(); track p.label) {
+          @for (p of hoverPoints(); track p.index) {
             <div class="wr-line-chart__tooltip-row">
               <span class="wr-line-chart__swatch" [style.background]="p.color"></span>
               <span class="wr-line-chart__tooltip-name">{{ p.label }}</span>
@@ -161,15 +170,25 @@
 
   @if (xLabels().length > 0) {
     <!-- The strip is as wide as the plot, and hands the stylesheet the distance between
-         two points; each label hands it the x of the point it names. Both are percentages
-         of the drawing's width, so they track the drawing at any size: the stylesheet
-         centres a label on its point and ellipsises it past its slot. Laying the labels
-         out as equal centred flex slots instead is bar-chart geometry: only the middle
-         label landed on its dot, and the outer ones sat up to half a column away. -->
+         two printed labels; each label hands it the x of the point it names. Both are
+         percentages of the drawing's width, so they track the drawing at any size: the
+         stylesheet centres a label on its point and ellipsises it past its slot. Laying the
+         labels out as equal centred flex slots instead is bar-chart geometry: only the
+         middle label landed on its dot, and the outer ones sat up to half a column away.
+         The hidden copy of every label, a line each, is what the room they need is
+         measured against: it is as wide as the widest. -->
     <div class="wr-line-chart__x-labels" [style.--wr-line-chart-x-slot]="xSlot()">
-      @for (label of xLabels(); track $index) {
-        <span class="wr-line-chart__x-label" [style.--wr-line-chart-x]="xPercent($index)">{{ label }}</span>
+      <span #probe class="wr-line-chart__x-probe" aria-hidden="true">{{ probeText() }}</span>
+      @for (tick of xAxis().ticks; track tick.index) {
+        <span class="wr-line-chart__x-label" [style.--wr-line-chart-x]="tick.x">{{ tick.label }}</span>
       }
     </div>
   }
 </div>
+
+@if (dataTable()) {
+  <!-- The figures for a screen reader, beside the plot's `img` and never inside it:
+       `img` makes everything it holds presentational. Clipped to nothing by its own
+       stylesheet, so it takes no room and draws nothing. -->
+  <wr-chart-table [data]="tableData()" />
+}

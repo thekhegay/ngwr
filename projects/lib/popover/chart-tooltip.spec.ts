@@ -10,6 +10,7 @@ import { Subject } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useChartTooltip } from './chart-tooltip';
+import type { WrChartTooltipRow } from './types';
 
 interface Row {
   readonly label: string;
@@ -47,6 +48,12 @@ class Host {
    * plain viewport numbers, so they only move when something asks again.
    */
   readonly box = signal<{ x: number; y: number } | null>(null);
+  /** Lines under the first section's heading, the way a radar lists its series. */
+  readonly firstRows = signal<readonly WrChartTooltipRow[] | undefined>(undefined);
+  /** The first section's value instead of its number — `''` for a heading with none. */
+  readonly firstValue = signal<string | null>(null);
+  /** The first section's paint. */
+  readonly firstColor = signal<string | undefined>('rgb(1, 2, 3)');
   /**
    * How far the page has scrolled since the box was taken. A plain field, not a signal:
    * a scroll changes a box anchor's numbers without telling any signal, so only the
@@ -63,7 +70,12 @@ class Host {
     if (!row) return null;
     const box = this.box();
     return {
-      datum: { label: row.label, value: String(row.value), color: 'rgb(1, 2, 3)' },
+      datum: {
+        label: row.label,
+        value: index === 0 ? (this.firstValue() ?? String(row.value)) : String(row.value),
+        color: index === 0 ? this.firstColor() : 'rgb(1, 2, 3)',
+        rows: index === 0 ? this.firstRows() : undefined,
+      },
       anchor: box
         ? { x: box.x, y: box.y - this.scrolled, width: 0, height: 20 }
         : this.anchored()
@@ -180,6 +192,105 @@ describe('useChartTooltip', () => {
     expect(fixture.componentInstance.tip.active()).toBe(0);
   });
 
+  it('draws one line with no heading wrapper and no modifier for a section without rows', () => {
+    enter(sections()[0]);
+
+    // The DOM every chart drew before rows existed, child for child.
+    expect([...chip()!.children].map(child => child.className)).toEqual([
+      'wr-chart-tooltip__swatch',
+      'wr-chart-tooltip__label',
+      'wr-chart-tooltip__value',
+    ]);
+    expect(chip()!.classList).not.toContain('wr-chart-tooltip--rows');
+
+    fixture.componentInstance.firstRows.set([]);
+    settle();
+
+    expect(chip()!.querySelector('.wr-chart-tooltip__head, .wr-chart-tooltip__row')).toBeNull();
+    expect(chip()!.classList).not.toContain('wr-chart-tooltip--rows');
+  });
+
+  it('lists rows under a heading, each with its own swatch, label and value', () => {
+    fixture.componentInstance.firstValue.set('');
+    fixture.componentInstance.firstRows.set([
+      { label: 'Visits', value: '1,204', color: 'rgb(4, 5, 6)' },
+      { label: 'Signups', value: '86', color: 'rgb(7, 8, 9)' },
+      { label: 'Ratio', value: '7%' },
+    ]);
+    settle();
+    enter(sections()[0]);
+
+    expect(chip()!.classList).toContain('wr-chart-tooltip--rows');
+    // The heading is the section's swatch and name; its empty value draws nothing.
+    const head = chip()!.querySelector('.wr-chart-tooltip__head')!;
+    expect(chip()!.firstElementChild).toBe(head);
+    expect([...head.children].map(child => child.className)).toEqual([
+      'wr-chart-tooltip__swatch',
+      'wr-chart-tooltip__label',
+    ]);
+    expect(text('label')).toBe('Mon');
+    expect(chip()!.querySelector('.wr-chart-tooltip__value')).toBeNull();
+
+    const rows = [...chip()!.querySelectorAll<HTMLElement>('.wr-chart-tooltip__row')];
+    expect(rows.map(row => row.querySelector('.wr-chart-tooltip__row-label')!.textContent.trim())).toEqual([
+      'Visits',
+      'Signups',
+      'Ratio',
+    ]);
+    expect(rows.map(row => row.querySelector('.wr-chart-tooltip__row-value')!.textContent.trim())).toEqual([
+      '1,204',
+      '86',
+      '7%',
+    ]);
+    // A row with no colour draws no swatch rather than an empty one.
+    expect(
+      rows.map(row => row.querySelector<HTMLElement>('.wr-chart-tooltip__row-swatch')?.style.background ?? null)
+    ).toEqual(['rgb(4, 5, 6)', 'rgb(7, 8, 9)', null]);
+  });
+
+  it('keeps a heading value in the heading, and draws no heading that would say nothing', () => {
+    fixture.componentInstance.firstRows.set([{ label: 'Visits', value: '1,204' }]);
+    settle();
+    enter(sections()[0]);
+
+    const head = chip()!.querySelector('.wr-chart-tooltip__head')!;
+    expect(head.querySelector('.wr-chart-tooltip__value')!.textContent.trim()).toBe('12');
+    // The row's value is its own element, so a read of the heading's value cannot land on it.
+    expect(text('value')).toBe('12');
+
+    // With no swatch, no name and no value the heading would be an empty line.
+    fixture.componentInstance.rows.set([{ label: '', value: 0 }]);
+    fixture.componentInstance.firstValue.set('');
+    fixture.componentInstance.firstColor.set(undefined);
+    settle();
+
+    expect(chip()!.querySelector('.wr-chart-tooltip__head')).toBeNull();
+    expect(chip()!.firstElementChild!.className).toBe('wr-chart-tooltip__row');
+  });
+
+  it('goes back to one line when the next section has no rows', () => {
+    fixture.componentInstance.firstRows.set([{ label: 'Visits', value: '1,204' }]);
+    settle();
+    enter(sections()[0]);
+    expect(chip()!.classList).toContain('wr-chart-tooltip--rows');
+
+    leave(sections()[0]);
+    enter(sections()[1]);
+
+    expect(chip()!.classList).not.toContain('wr-chart-tooltip--rows');
+    expect(chip()!.querySelector('.wr-chart-tooltip__head, .wr-chart-tooltip__row')).toBeNull();
+    expect(text('label')).toBe('Tue');
+  });
+
+  it('draws no value for an empty one on a single line either', () => {
+    fixture.componentInstance.firstValue.set('');
+    settle();
+    enter(sections()[0]);
+
+    expect(text('label')).toBe('Mon');
+    expect(chip()!.querySelector('.wr-chart-tooltip__value')).toBeNull();
+  });
+
   it('wears the library tooltip chip, and keeps it out of the accessibility tree', () => {
     enter(sections()[0]);
 
@@ -204,11 +315,15 @@ describe('useChartTooltip', () => {
   });
 
   it('takes the side each section asks for, and changes it on the one open chip', () => {
+    // The pane is tagged with the placement it TOOK, which is what the arrow keys on; in
+    // the middle of a laid-out page every placement fits, so the one asked for is the one
+    // taken. Not at jsdom's 0×0 origin: with the 8px viewport margin, a section in the
+    // very corner of a page with no size has room on no side at all.
+    layout(new DOMRect(0, 0, 90, 26));
+    fixture.componentInstance.box.set({ x: 500, y: 300 });
     fixture.componentInstance.lowerSecond.set(true);
     settle();
 
-    // The pane is tagged with the placement it TOOK, which is what the arrow keys on;
-    // with nothing laid out every placement fits, so the one asked for is the one taken.
     enter(sections()[0]);
     expect(panes()[0].classList).toContain('wr-tooltip-overlay--top');
 
@@ -318,11 +433,13 @@ describe('useChartTooltip', () => {
   });
 
   it('sends a side placement above its anchor when there is no room beside it, running away from the chart', () => {
-    // 14px short of room to the right of x = 940. The LEFT would fit — and to the left of
+    // 14px short of room to the right of x = 924: the chip and its 8px gap end at 1022,
+    // and the CDK holds a pane 16px off the right edge of 1024 — the 8px viewport margin,
+    // which it takes off both sides of the width. The LEFT would fit — and to the left of
     // a point on a donut's arc is the donut. So the chip goes above the point with its left
     // end just past it: its box starts at the point, and it is drawn 14px back.
     layout(new DOMRect(0, 0, 90, 26));
-    fixture.componentInstance.box.set({ x: 940, y: 300 });
+    fixture.componentInstance.box.set({ x: 924, y: 300 });
     fixture.componentInstance.side.set('right');
     settle();
     enter(sections()[0]);
@@ -330,7 +447,7 @@ describe('useChartTooltip', () => {
     const pane = panes()[0];
     expect(pane.classList).toContain('wr-tooltip-overlay--top');
     expect(pane.classList).not.toContain('wr-tooltip-overlay--left');
-    expect(pane.parentElement!.style.left).toBe('940px');
+    expect(pane.parentElement!.style.left).toBe('924px');
     expect(pane.getAttribute('style')).toContain('translateX(-14px)');
   });
 
@@ -587,7 +704,13 @@ describe('useChartTooltip under dir="rtl"', () => {
 
   const pane = (): HTMLElement => document.querySelector<HTMLElement>('.wr-tooltip-overlay')!;
 
+  /**
+   * Opens the first section's chip on `side`, from a point in the middle of a 1024×768
+   * page, where every placement fits: at jsdom's 0×0 origin, the 8px viewport margin
+   * leaves no room on any side, and the placement taken would not be the one asked for.
+   */
   const openOn = (side: 'top' | 'left' | 'right'): void => {
+    fixture.componentInstance.box.set({ x: 500, y: 300 });
     fixture.componentInstance.side.set(side);
     fixture.detectChanges();
     (fixture.nativeElement as HTMLElement).querySelector('.section')!.dispatchEvent(new MouseEvent('mouseenter'));
@@ -599,11 +722,18 @@ describe('useChartTooltip under dir="rtl"', () => {
     TestBed.configureTestingModule({
       providers: [{ provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } }],
     });
+    const root = document.documentElement;
+    Object.defineProperty(root, 'clientWidth', { configurable: true, value: 1024 });
+    Object.defineProperty(root, 'clientHeight', { configurable: true, value: 768 });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
 
-  afterEach(() => fixture.destroy());
+  afterEach(() => {
+    fixture.destroy();
+    Reflect.deleteProperty(document.documentElement, 'clientWidth');
+    Reflect.deleteProperty(document.documentElement, 'clientHeight');
+  });
 
   it('keeps a chip that belongs on the right on the right', () => {
     openOn('right');
@@ -637,7 +767,7 @@ describe('useChartTooltip under dir="rtl"', () => {
  * `@angular/build`, as `charts/stylesheets.spec.ts` does.
  */
 describe('chart tooltip swatch under forced colors', () => {
-  it('keeps its colour', () => {
+  it('keeps its colour, on the heading and on every row', () => {
     const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
       compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
     };
@@ -645,9 +775,11 @@ describe('chart tooltip swatch under forced colors', () => {
       loadPaths: [join(process.cwd(), 'projects/lib')],
       style: 'expanded',
     }).css;
-    const swatch = /(?:^|\n)\.wr-chart-tooltip__swatch\s*\{([^}]*)\}/.exec(css)?.[1] ?? '';
+    for (const cls of ['wr-chart-tooltip__swatch', 'wr-chart-tooltip__row-swatch']) {
+      const swatch = new RegExp(`(?:^|\\n)\\.${cls}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
 
-    expect(swatch).toMatch(/border-radius: 50%/);
-    expect(swatch).toMatch(/forced-color-adjust:\s*none/);
+      expect(swatch, cls).toMatch(/border-radius: 50%/);
+      expect(swatch, cls).toMatch(/forced-color-adjust:\s*none/);
+    }
   });
 });

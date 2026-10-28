@@ -1,8 +1,8 @@
 <ngwr-doc-page
   title="Window"
-  updated="15.0.0"
+  updated="15.1.0"
   description="Draggable, resizable windows that you open from code with `WrWindowManager`."
-  [keywords]="['window', 'floating', 'panel', 'wr-window']"
+  [keywords]="['window', 'floating', 'panel', 'wr-window', 'taskbar', 'snap']"
   [labels]="['Service', 'a11y']"
 >
   <ngwr-doc-section
@@ -47,36 +47,154 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Persisted position"
-    description="`storage` saves the window's geometry, so it reopens where it was left."
+    title="Active window"
+    description="One window has the keyboard: the one last clicked, focused or switched to. The others dim their title bar."
   >
-    <ngwr-doc-code [code]="snippets.persist" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.active" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <wr-btn (click)="openPersisted()">Open persisted window</wr-btn>
-      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)"
-        >Move/resize, close it, click again — same spot.</small
-      >
+      <wr-btn (click)="openActive('First')">Open first</wr-btn>
+      <wr-btn (click)="openActive('Second')">Open second</wr-btn>
+      <wr-btn outlined (click)="manager.activatePrevious()">Previous window</wr-btn>
+      <wr-btn outlined (click)="manager.activateNext()">Next window</wr-btn>
     </ngwr-doc-snippet>
+    <p>
+      Pressing a window's title bar moves focus into it, to the control it had last. Escape goes to the window that has
+      focus, or to the active one when focus is on nothing — never to a window while you type somewhere else on the
+      page.
+    </p>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Snap regions" description="`snap: 'edges'` snaps to halves; `'all'` adds the corners.">
+  <ngwr-doc-section
+    title="Keyboard move and resize"
+    description="Alt+F7 moves the window and Alt+F8 resizes it: arrow keys step 10px, Shift 1px, Enter keeps it, Escape puts it back."
+  >
+    <ngwr-doc-code [code]="snippets.keyboard" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openKeyboard()">Open window</wr-btn>
+      <wr-btn outlined [disabled]="!keyboardRef()" (click)="keyboardRef()?.startMove()">Move with the keyboard</wr-btn>
+      <wr-btn outlined [disabled]="!keyboardRef()" (click)="keyboardRef()?.startResize()"
+        >Resize with the keyboard</wr-btn
+      >
+    </ngwr-doc-snippet>
+    <p>The window announces where it landed. In a right-to-left page, resizing moves the left edge.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Snap regions"
+    description="`snap: 'edges'` snaps to halves; `'all'` adds the corners. Drag a maximized or snapped window to get its own size back."
+  >
     <ngwr-doc-code [code]="snippets.snap" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <wr-btn (click)="openSnap()">Open snappable window</wr-btn>
+      <wr-btn outlined (click)="snapTo('left')">Left half</wr-btn>
+      <wr-btn outlined (click)="snapTo('top-right')">Top-right quarter</wr-btn>
+      <wr-btn outlined (click)="snapTo(null)">Unsnap</wr-btn>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Work area"
+    description="`bounds` is what maximize, snapping and the cascade keep inside: the viewport, insets from its edges, or an element."
+  >
+    <ngwr-doc-code [code]="snippets.bounds" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openBounded()">Open below the header</wr-btn>
+    </ngwr-doc-snippet>
+    <p>A taskbar that shows tabs reserves its strip as well, so a maximized window stops short of it.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Taskbar"
-    description="`<wr-window-taskbar />` lists minimized windows; `taskbar: false` leaves a window out. On Linux a window has no minimize button unless you pass `showMinimize: true`."
+    description='`<wr-window-taskbar />` lists minimized windows; `show="all"` lists every window. `taskbar: false` leaves a window out.'
   >
     <ngwr-doc-code [code]="snippets.taskbar" language="angular-html" />
     <ngwr-doc-snippet code="">
+      <wr-segmented [options]="taskbarShowOptions" [(value)]="taskbarShow" />
+      <wr-segmented [options]="taskbarMaxOptions" [(value)]="taskbarMax" />
+      <wr-btn (click)="openManyTaskbarDemos()">Open six</wr-btn>
       <wr-btn (click)="openTaskbarDemo('Inbox')">Open inbox</wr-btn>
       <wr-btn (click)="openTaskbarDemo('Editor')">Open editor</wr-btn>
       <wr-btn (click)="openTaskbarDemo('Logs')">Open logs</wr-btn>
       <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)"
-        >Minimize any of them: it lands in the strip at the bottom of the page.</small
+        >The strip is at the bottom of the page. With all windows listed, the active window's tab minimizes it.</small
+      >
+    </ngwr-doc-snippet>
+    <p>
+      The rail stays one row. A tab is as wide as its title, up to
+      <code>--wr-window-taskbar-tab-max-width</code>. Tabs that do not fit fold under a <code>+N</code> button that
+      opens them as a menu, and <code>maxTabs</code> caps how many tabs show. The active window's tab never folds.
+    </p>
+    <p>
+      The rail is one Tab stop: the arrow keys move between its buttons. A minimized window comes back only from a
+      taskbar or a dock of your own. On Linux the chrome has no minimize button unless you pass
+      <code>showMinimize: true</code>.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Arrange"
+    description="Cascade or tile the windows on screen, or minimize and restore them all."
+  >
+    <ngwr-doc-code [code]="snippets.arrange" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openMany()">Open four windows</wr-btn>
+      <wr-btn outlined (click)="manager.cascade()">Cascade</wr-btn>
+      <wr-btn outlined (click)="manager.tile()">Tile</wr-btn>
+      <wr-btn outlined (click)="manager.tile('columns')">Columns</wr-btn>
+      <wr-btn outlined (click)="manager.minimizeAll()">Minimize all</wr-btn>
+      <wr-btn outlined (click)="manager.restoreAll()">Restore all</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Title bar and status bar"
+    description="`titleExtra` and `statusBar` take a template or a component."
+  >
+    <ngwr-doc-code [code]="snippets.slots" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openSlots()">Open window</wr-btn>
+    </ngwr-doc-snippet>
+    <ng-template #titleBadge><wr-tag color="warning">Draft</wr-tag></ng-template>
+    <ng-template #statusLine let-ref>
+      <span dir="ltr">{{ ref.width() }} × {{ ref.height() }}</span>
+      <span>{{ ref.isActive() ? 'Active' : 'Inactive' }}</span>
+    </ng-template>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Update after open"
+    description="`ref.update()` changes the title, bounds and behaviour of an open window."
+  >
+    <ngwr-doc-code [code]="snippets.update" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openLockable()">Open window</wr-btn>
+      <wr-btn outlined [disabled]="!lockRef()" (click)="toggleLock()">{{ locked() ? 'Unlock' : 'Lock' }}</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Events" description="The ref streams what the user does to the window.">
+    <ngwr-doc-code [code]="snippets.events" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Persisted position"
+    description="`storage` saves the window's geometry, so it reopens where it was left — fitted to a smaller screen."
+  >
+    <ngwr-doc-code [code]="snippets.persist" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn
+        (click)="
+          openDemo({
+            title: 'Sticky position',
+            id: 'docs.persisted',
+            storage: { key: 'docs.persisted', prefix: 'ngwr-showcase', persist: 'all' },
+            message: 'Move/resize me, close, open again — same geometry.',
+          })
+        "
+        >Open persisted window</wr-btn
+      >
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)"
+        >Move/resize, close it, click again — same spot.</small
       >
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -99,8 +217,9 @@
   >
     <ngwr-doc-code [code]="snippets.focus" language="angular-ts" />
     <p>
-      Opening focuses <code>cdkFocusInitial</code>, else the first control in the body, else the window. Windows that
-      <code>restoreLayout()</code> reopens keep focus where it is unless the opener passes <code>autoFocus: true</code>.
+      Opening focuses <code>cdkFocusInitial</code>, else the first control in the body, else the window. Switching back
+      to a window lands on the control it had last. Windows that <code>restoreLayout()</code> reopens keep focus where
+      it is unless the opener passes <code>autoFocus: true</code>.
     </p>
   </ngwr-doc-section>
 
@@ -123,5 +242,13 @@
     <ngwr-doc-api [rows]="refApi" />
   </ngwr-doc-section>
 
-  <wr-window-taskbar />
+  <ngwr-doc-section title="WrWindowTaskbar">
+    <ngwr-doc-api [rows]="taskbarApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="withWindows">
+    <ngwr-doc-api [rows]="featureApi" />
+  </ngwr-doc-section>
+
+  <wr-window-taskbar [show]="taskbarShow()" [maxTabs]="taskbarMax() || null" />
 </ngwr-doc-page>

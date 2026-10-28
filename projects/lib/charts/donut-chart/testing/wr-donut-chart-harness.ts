@@ -7,6 +7,8 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
+import { WrChartLegendHarness } from 'ngwr/charts/chart-legend/testing';
+
 import type { WrDonutChartHarnessFilters, WrDonutChartLegendEntry } from './types';
 
 /**
@@ -25,7 +27,9 @@ import type { WrDonutChartHarnessFilters, WrDonutChartLegendEntry } from './type
  *
  * {@link getSliceCount} is therefore the one thing the ring answers: how many
  * wedges were drawn. Compare it with the legend's length to catch a slice that was
- * filtered out of one and not the other.
+ * filtered out of one and not the other — apart from a slice hidden through
+ * `hiddenSegments`, which keeps its legend row and draws no wedge by design;
+ * {@link getLegendHarness} says which rows those are.
  *
  * @example
  * ```ts
@@ -63,9 +67,23 @@ export class WrDonutChartHarness extends ComponentHarness {
     return (await this.locatorFor('.wr-donut-chart__surface svg')()).getAttribute('aria-label');
   }
 
-  /** How many wedges were drawn. */
+  /**
+   * How many wedges were drawn. A hidden slice draws none. The invisible hover target a
+   * sliver gets over the ring (`.wr-donut-chart__hit`) is not a wedge and is not counted.
+   */
   async getSliceCount(): Promise<number> {
-    return (await this.locatorForAll('.wr-donut-chart__surface path')()).length;
+    return (await this.locatorForAll('.wr-donut-chart__slice')()).length;
+  }
+
+  /**
+   * Whether the chart is a pie (`pie`), read off its `wr-donut-chart--pie` modifier.
+   * Not whether the slices reach the centre — a `thickness` of 0 does that too, and keeps
+   * the centre text — since a path's `d` is not read, for the reason given in the class
+   * note. A pie renders no centre text: {@link getCenterValue} and {@link getCenterLabel}
+   * answer `null` for it whatever was bound.
+   */
+  async isPie(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-donut-chart--pie');
   }
 
   /** Whether the legend is rendered (`showLegend`, and at least one slice). */
@@ -73,7 +91,26 @@ export class WrDonutChartHarness extends ComponentHarness {
     return (await this.locatorForOptional('.wr-donut-chart__legend')()) !== null;
   }
 
-  /** The legend rows in order — the only textual form the data has. */
+  /**
+   * The legend as a {@link WrChartLegendHarness}: each row's key and its hidden state
+   * and, with `toggleableLegend`, the toggles that show and hide a slice. Not the same
+   * thing as {@link getLegend}, which reads the rows' text and stays as it was.
+   *
+   * Throws when the chart draws no legend (`showLegend` off, or no segments) rather
+   * than answering with an empty one: {@link hasLegend} is the question for that.
+   */
+  async getLegendHarness(): Promise<WrChartLegendHarness> {
+    const legend = await this.locatorForOptional(WrChartLegendHarness)();
+    if (!legend) {
+      throw new Error(
+        'WrDonutChartHarness.getLegendHarness(): the chart draws no legend — `showLegend` is off or there are no ' +
+          'segments. Ask hasLegend() first.'
+      );
+    }
+    return legend;
+  }
+
+  /** The legend rows in order — the only textual form the data has. Hidden slices included. */
   async getLegend(): Promise<WrDonutChartLegendEntry[]> {
     const labels = await this.locatorForAll('.wr-donut-chart__legend-label')();
     const values = await this.locatorForAll('.wr-donut-chart__legend-value')();
@@ -86,13 +123,13 @@ export class WrDonutChartHarness extends ComponentHarness {
     );
   }
 
-  /** The big number in the middle, or `null` when the chart has none. */
+  /** The big number in the middle, or `null` when the chart has none — a pie never has. */
   async getCenterValue(): Promise<string | null> {
     const center = await this.locatorForOptional('.wr-donut-chart__center-value')();
     return center ? center.text() : null;
   }
 
-  /** The caption under the centre value, or `null`. */
+  /** The caption under the centre value, or `null` — a pie never has one. */
   async getCenterLabel(): Promise<string | null> {
     const center = await this.locatorForOptional('.wr-donut-chart__center-label')();
     return center ? center.text() : null;

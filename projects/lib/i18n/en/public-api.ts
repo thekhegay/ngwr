@@ -306,6 +306,9 @@ export const wrEn: WrI18nCatalog = {
   },
   barChart: {
     label: 'Bar chart',
+    total: 'Total',
+    value: 'Value',
+    datum: '{{label}}: {{value}}',
   },
   calendarHeatmap: {
     label: 'Calendar heatmap',
@@ -313,9 +316,93 @@ export const wrEn: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Line chart',
+    areaLabel: 'Area chart',
   },
   donutChart: {
     label: 'Donut chart',
+    pieLabel: 'Pie chart',
+  },
+  // The legend every chart draws, and the one apps place themselves. `toggleLabel`
+  // names the list when its rows are buttons; `hidden` is a lowercase status word,
+  // the way `stepper.completed` is one, read after a hidden row's name.
+  chartLegend: {
+    toggleLabel: 'Toggle series visibility',
+    hidden: 'hidden',
+  },
+  // `x` and `y` are the axes' names, the letters every locale writes them with.
+  scatterChart: {
+    label: 'Scatter chart',
+    x: 'X',
+    y: 'Y',
+    size: 'Size',
+  },
+  radarChart: {
+    label: 'Radar chart',
+    polarAreaLabel: 'Polar area chart',
+  },
+  heatmapChart: {
+    label: 'Heatmap chart',
+    noData: 'No data',
+  },
+  // `fromPrevious` and `fromFirst` head the data table's conversion columns;
+  // `ofPrevious` / `ofFirst` write the same ratio into a stage's accessible name.
+  funnelChart: {
+    label: 'Funnel chart',
+    stage: 'Stage',
+    value: 'Value',
+    fromPrevious: 'From previous',
+    fromFirst: 'From first',
+    ofPrevious: '{{percent}} of previous',
+    ofFirst: '{{percent}} of first',
+    stageName: '{{label}}: {{value}}',
+    stageNameOne: '{{label}}: {{value}}, {{conversion}}',
+    stageNameBoth: '{{label}}: {{value}}, {{previous}}, {{first}}',
+  },
+  // `changeStep` and `totalStep` are each step's accessible name; `{{change}}`
+  // arrives signed and formatted, so the sentence carries no sign of its own.
+  waterfallChart: {
+    label: 'Waterfall chart',
+    step: 'Step',
+    change: 'Change',
+    runningTotal: 'Running total',
+    changeStep: '{{label}}: {{change}}, running total {{total}}',
+    totalStep: '{{label}}: total {{total}}',
+  },
+  treemapChart: {
+    label: 'Treemap chart',
+    value: 'Value',
+    share: 'Share',
+  },
+  // The four `summary*` / `noValue` sentences are the drawing's accessible name,
+  // one per combination of a missing value and a missing target.
+  bulletChart: {
+    label: 'Bullet chart',
+    target: 'Target',
+    summary: '{{label}}: {{value}} of target {{target}}',
+    summaryNoTarget: '{{label}}: {{value}}',
+    summaryNoValue: '{{label}}: no value, target {{target}}',
+    noValue: '{{label}}: no value',
+  },
+  // `q1` and `q3` are the quartiles' notation, written the same in every locale,
+  // the way `scatterChart.x` is. `moreOutliers` keeps the count count-neutral.
+  boxplotChart: {
+    label: 'Box plot',
+    group: 'Group',
+    upperWhisker: 'Upper whisker',
+    q3: 'Q3',
+    median: 'Median',
+    q1: 'Q1',
+    lowerWhisker: 'Lower whisker',
+    outliers: 'Outliers',
+    moreOutliers: '+{{count}} more',
+  },
+  // A period's four prices, in the order a trader reads them.
+  candlestickChart: {
+    label: 'Candlestick chart',
+    open: 'Open',
+    high: 'High',
+    low: 'Low',
+    close: 'Close',
   },
   compare: {
     label: 'Comparison divider',
@@ -353,6 +440,12 @@ export const wrEn: WrI18nCatalog = {
     closeWindow: 'Close window',
     untitled: 'Untitled',
     taskbar: 'Minimized windows',
+    taskbarAll: 'Open windows',
+    taskbarMore: 'More windows: {{count}}',
+    moveMode: 'Moving the window. Use the arrow keys, Enter to finish, Escape to cancel.',
+    resizeMode: 'Resizing the window. Use the arrow keys, Enter to finish, Escape to cancel.',
+    moved: 'Window moved to {{x}}, {{y}}',
+    resized: 'Window resized to {{width}} by {{height}}',
   },
   dialog: {
     close: 'Close dialog',

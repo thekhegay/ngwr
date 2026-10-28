@@ -8,10 +8,13 @@
 import {
   declaredClasses,
   declaredFunctions,
+  declaredTypes,
   extractClass,
   extractFunction,
+  extractType,
   type ApiFunction,
   type ApiMember,
+  type ApiType,
 } from './api.js';
 import type { Catalog, CatalogEntry } from './catalog.js';
 import { REQUIRED_PROVIDERS } from './providers.js';
@@ -71,15 +74,20 @@ const TOOLS: readonly ToolSpec[] = [
       'The public API of one ngwr symbol, read out of the declarations shipped in this package — ' +
       'so it is the published signature, not a copy of it. A class answers with its inputs, models, ' +
       'outputs and methods; a function (provideWr, a with*() feature, a provideWr*() call) with its ' +
-      'doc and signature. Use instead of reading the .d.ts, which can be 60 KB for one component.',
+      'doc and signature; an interface or type alias (a chart series, a legend item, a size union) ' +
+      'with its fields or what it stands for. Use instead of reading the .d.ts, which can be 60 KB ' +
+      'for one component.',
     inputSchema: {
       type: 'object',
       properties: {
-        symbol: { type: 'string', description: 'Class or function name, e.g. WrSelect or provideWr.' },
+        symbol: {
+          type: 'string',
+          description: 'Class, function, interface or type name, e.g. WrSelect, provideWr or WrBarSeries.',
+        },
         kind: {
           type: 'string',
           enum: ['all', 'input', 'model', 'output', 'method', 'property'],
-          description: 'Narrow a class to one kind of member. Defaults to all. A function ignores it.',
+          description: 'Narrow a class to one kind of member. Defaults to all. A function or a type ignores it.',
         },
       },
       required: ['symbol'],
@@ -197,9 +205,18 @@ function search(catalog: Catalog, query: string, limit: number): string {
   const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
   if (terms.length === 0) return 'Give me something to search for.';
 
+  // A harness answers a question about testing, and only that. A `<name>/testing`
+  // entry point shares every term of the thing it tests, so it ranked beside it
+  // either way: "charts" opened with three harnesses, and "bar chart harness"
+  // with the chart.
+  const aboutTesting = terms.some(term => /^(?:tests?|testing|harness(?:es)?)$|harness$/.test(term));
+
   const scored = catalog
     .all()
-    .map(entry => ({ entry, score: score(entry, terms) }))
+    .map(entry => ({
+      entry,
+      score: score(entry, terms) * (entry.path.endsWith('/testing') === aboutTesting ? 1 : TESTING_WEIGHT),
+    }))
     .filter(hit => hit.score > 0)
     .sort((a, b) => b.score - a.score || a.entry.path.localeCompare(b.entry.path))
     .slice(0, Math.max(1, Math.min(limit || 10, 40)));
@@ -222,22 +239,75 @@ function search(catalog: Catalog, query: string, limit: number): string {
     .join('\n\n');
 }
 
+/**
+ * What a score is multiplied by when the entry point is on the wrong side of the
+ * query: a harness for a query that is not about testing, anything else for one
+ * that is. Low enough to sort a harness and the entry point it tests the way the
+ * query asks, and above zero, so neither drops out of the answer.
+ */
+const TESTING_WEIGHT = 0.25;
+
+/**
+ * Lower-case words, split on anything that is not a letter or a digit and on
+ * camelCase humps: `ul[wr-chart-legend]` is `ul wr chart legend`,
+ * `WrFunnelStage` is `wr funnel stage`.
+ */
+function wordsOf(text: string): string[] {
+  return text
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+}
+
+/**
+ * Substring hits first, weighted by where they land, then two kinds of evidence a
+ * substring cannot give.
+ *
+ * A substring alone ranked by accident: "area" is inside `textarea`, so "polar
+ * area" and "stacked area" opened with the textarea, three fields of it, while the
+ * radar and line charts that draw those modes scored on a description mention; and
+ * "pie" found the split-text bit's "piece by piece" before the donut. So a term
+ * that is a WHOLE word of the entry scores again, and a query whose every term is
+ * one scores again on top. The page's own search words (`- keywords:` in
+ * `llms-full.txt`, from its `[keywords]`) are the names a reader searches by and
+ * the page never uses as a title — `ohlc` for the candlestick, `pie` for the donut,
+ * `spider-chart` for the radar — and a hit on one sits below a name match and above
+ * a selector, since the page chose them as names for what it documents. Without
+ * them "ohlc" and "kpi" matched nothing, and every "<kind> chart" query opened
+ * with the chart legend: the shared word "chart" tied every chart, and the word
+ * that named one scored nothing.
+ */
 function score(entry: CatalogEntry, terms: readonly string[]): number {
   const name = entry.name.toLowerCase();
   const selectors = entry.selectors.join(' ').toLowerCase();
   const exports = entry.exports.join(' ').toLowerCase();
   const description = entry.description.toLowerCase();
+  const keywords = new Set(entry.keywords.flatMap(wordsOf));
+  const words = new Set([
+    ...wordsOf(entry.name),
+    ...entry.selectors.flatMap(wordsOf),
+    ...entry.exports.flatMap(wordsOf),
+    ...wordsOf(entry.description),
+    ...keywords,
+  ]);
 
   let total = 0;
+  let whole = 0;
   for (const term of terms) {
     if (name === term) total += 100;
     else if (name.includes(term)) total += 40;
+    if (keywords.has(term)) total += 35;
     if (selectors.includes(term)) total += 30;
     if (exports.includes(term)) total += 20;
     if (description.includes(term)) total += 5;
+    if (words.has(term)) {
+      total += 25;
+      whole++;
+    }
   }
 
-  return total;
+  return total > 0 && whole === terms.length ? total + 50 : total;
 }
 
 function component(catalog: Catalog, name: string): string {
@@ -249,6 +319,7 @@ function component(catalog: Catalog, name: string): string {
   const functions = declarations
     ? declaredFunctions(declarations).filter(symbol => entry.exports.includes(symbol))
     : [];
+  const types = declarations ? declaredTypes(declarations).filter(symbol => entry.exports.includes(symbol)) : [];
   const url = docsUrl(declarations, classes);
 
   return [
@@ -264,6 +335,8 @@ function component(catalog: Catalog, name: string): string {
     classes.length > 0 ? `- classes with an API: ${classes.join(', ')} (use get_ngwr_api)` : null,
     // `provideWr()` and the `with*()` features: the configuration API is functions.
     functions.length > 0 ? `- functions: ${functions.join(', ')} (use get_ngwr_api)` : null,
+    // A chart's data shape, a legend row, a size union: what an input takes.
+    types.length > 0 ? `- types: ${types.join(', ')} (use get_ngwr_api)` : null,
     // From the class's own `@see`, never guessed. Half the catalog — directives,
     // services, pipes, utils, every `*/testing` harness — has no page under
     // `/reference/components/`, and a link that 404s is worse than none.
@@ -298,7 +371,12 @@ function api(catalog: Catalog, symbol: string, kind: string): string {
     const fn = extractFunction(declarations, symbol);
     if (fn) return functionApi(fn, entry.path);
 
-    return `${symbol} is not a class or a function in ${entry.path}. It exports: ${entry.exports.join(', ')}.`;
+    // Only a type the entry point exports: the declarations also hold the
+    // component's private shapes, which are nobody's API.
+    const type = entry.exports.includes(symbol) ? extractType(declarations, symbol) : null;
+    if (type) return typeApi(type, entry.path);
+
+    return `${symbol} is not a class, a function or a type in ${entry.path}. It exports: ${entry.exports.join(', ')}.`;
   }
 
   const wanted = kind === 'all' ? null : kind;
@@ -341,23 +419,47 @@ function functionApi(fn: ApiFunction, path: string): string {
     .join('\n');
 }
 
+/**
+ * An interface or a type alias: its fields, each with whether it may be left out,
+ * or what the alias stands for.
+ *
+ * `kind` does not apply, as for a function: a type has no inputs to narrow to.
+ */
+function typeApi(type: ApiType, path: string): string {
+  return [
+    `# ${type.name} — ${path}`,
+    '',
+    ...(type.description ? [type.description, ''] : []),
+    `\`${type.heading}\``,
+    '',
+    ...(type.type === null
+      ? ['## fields', ...type.fields.map(field => line(field, field.optional ? '(optional)' : null)), '']
+      : ['## type', type.type, '']),
+    type.example ? `## Example\n${type.example}` : null,
+    type.docs ? `Docs: ${type.docs}` : null,
+  ]
+    .filter(entry => entry !== null)
+    .join('\n')
+    .trimEnd();
+}
+
 function group(members: readonly ApiMember[], kind: ApiMember['kind']): string[] {
   const matching = members.filter(member => member.kind === kind);
   if (matching.length === 0) return [];
 
-  return [
-    `## ${kind === 'property' ? 'properties' : `${kind}s`}`,
-    ...matching.map(member => {
-      const bits = [`- \`${member.name}\`: ${member.type}`];
-      if (member.alias) bits.push(`(bound as \`${member.alias}\`)`);
-      if (member.required) bits.push('(required)');
-      if (member.default) bits.push(`default ${member.default}`);
-      if (member.description) bits.push(`— ${member.description.replace(/\s+/g, ' ')}`);
+  return [`## ${kind === 'property' ? 'properties' : `${kind}s`}`, ...matching.map(member => line(member)), ''];
+}
 
-      return bits.join(' ');
-    }),
-    '',
-  ];
+/** One member as a list item: name, type, how it binds, its default and its summary. */
+function line(member: ApiMember, note: string | null = null): string {
+  const bits = [`- \`${member.name}\`: ${member.type}`];
+  if (note) bits.push(note);
+  if (member.alias) bits.push(`(bound as \`${member.alias}\`)`);
+  if (member.required) bits.push('(required)');
+  if (member.default) bits.push(`default ${member.default}`);
+  if (member.description) bits.push(`— ${member.description.replace(/\s+/g, ' ')}`);
+
+  return bits.join(' ');
 }
 
 /**

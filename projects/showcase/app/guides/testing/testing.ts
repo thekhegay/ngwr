@@ -851,7 +851,7 @@ export class MyWidgetHarness extends ComponentHarness {
   protected readonly toastApi: readonly DocApiRow[] = [
     {
       name: 'getMessage() / getTitle()',
-      description: 'The text; `getTitle()` is `null` without a title.',
+      description: "The text; `getTitle()` is `null` without a title, `getMessage()` is `''` without a message.",
       type: 'Promise<string> | Promise<string | null>',
     },
     { name: 'getType()', description: 'The intent.', type: 'Promise<WrToastType | null>' },
@@ -1125,22 +1125,44 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Canvas-backed: getText() / isDecorative() / hasCanvas() / isTextVisuallyHidden() / isPainted() / getLineGapPx() / isFullscreen()',
+      name: 'Canvas-backed: getText() / isDecorative() / hasCanvas() / isTextVisuallyHidden() / isPainted() / getLineGapPx() / getGapPx() / getDotSizePx() / getLineCount() / getLineWidthPx() / getCellSizePx() / isFullscreen()',
       description:
-        '`WrFuzzyTextHarness`, `WrWavesHarness`, `WrSplashCursorHarness`. DOM only; `isPainted()` is false in jsdom.',
+        '`WrFuzzyTextHarness`, `WrWavesHarness`, `WrDotGridHarness`, `WrThreadsHarness`, `WrRippleGridHarness`, `WrSplashCursorHarness`. DOM only; `isPainted()` is false in jsdom.',
       type: 'Promise<…>',
     },
   ];
 
   protected readonly chartApi: readonly DocApiRow[] = [
     {
-      name: 'Bar: getBars() / getLabels() / getAccessibleNames() / getBarCount() / hasValues() / getPlotHeight()',
-      description: "`WrBarChartHarness`. Heights are a percent of the chart's maximum.",
+      name: 'Every chart: getAccessibleName()',
+      description: 'The name the chart announces. On all sixteen chart harnesses and the legend harness.',
+      type: 'Promise<string | null>',
+    },
+    {
+      name: 'Data table: hasDataTable() / getTableColumns() / getTableRows()',
+      description:
+        'The hidden `dataTable` on the bar, line, scatter, radar, heatmap chart, calendar heatmap, funnel, waterfall, treemap, box plot and candlestick harnesses. The table reads throw while `dataTable` is off.',
       type: 'Promise<…>',
     },
     {
-      name: 'Line: getSeriesLabels() / getLineCount() / getDotCount() / getYTicks() / getXLabels() / hasGrid() / hasLegend()',
-      description: '`WrLineChartHarness`.',
+      name: 'Bar: getBars() / getLabels() / getAccessibleNames() / getBarCount() / hasValues() / getPlotHeight() / hasLegend()',
+      description:
+        "`WrBarChartHarness`. Heights are a percent of the chart's maximum. Filters: `ariaLabel`, `barLabel`.",
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Bar: getOrientation() / isStacked() / getSeriesBars() / getValues() / getZeroPercent() / getLines() / getLineCount()',
+      description: 'Series, stacked, horizontal and combo modes.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Line: getSeriesLabels() / getLineCount() / getDotCount() / getYTicks() / getXLabels() / getPlotHeight() / hasGrid()',
+      description: '`WrLineChartHarness`. Filters: `ariaLabel`, `seriesLabel`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Line: hasLegend() / hasArea() / getAreaCount() / isStacked()',
+      description: 'The legend, and the area and stacked modes.',
       type: 'Promise<…>',
     },
     {
@@ -1149,28 +1171,113 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Donut: getSliceCount() / getLegend() / getCenterValue() / getCenterLabel() / getAccessibleName() / getSize()',
-      description: '`WrDonutChartHarness`.',
+      name: 'Donut: getSliceCount() / getLegend() / getCenterValue() / getCenterLabel() / getSize() / isPie() / hasLegend()',
+      description: '`WrDonutChartHarness`. `isPie()` reads the `pie` mode. Filters: `ariaLabel`, `sliceLabel`.',
       type: 'Promise<…>',
     },
     {
-      name: 'Sparkline: isDecorative() / getRole() / getAccessibleName() / hasLine() / hasArea() / hasTip() / getColor()',
-      description: '`WrSparklineHarness`. Named is `role="img"`, unnamed is `aria-hidden`.',
+      name: 'Sparkline: isDecorative() / getRole() / hasLine() / hasArea() / hasTip() / getColor()',
+      description: '`WrSparklineHarness`. Named is `role="img"`, unnamed is `aria-hidden`. Filters: `ariaLabel`.',
       type: 'Promise<…>',
     },
     {
-      name: 'Gauge: getRole() / getValue() / getMin() / getMax() / getValueText() / getDisplayValue() / getSuffix()',
-      description: '`WrGaugeHarness`.',
+      name: 'Gauge: getRole() / getValue() / getMin() / getMax() / getValueText() / getDisplayValue() / getSuffix() / getSize()',
+      description: '`WrGaugeHarness`. Filters: `ariaLabel`, `value`.',
       type: 'Promise<…>',
     },
     {
-      name: 'Meter group: getValue() / getMax() / getSlices() / getLegendLabels() / getLegendValues() / hasLegend()',
-      description: '`WrMeterGroupHarness`.',
+      name: 'Meter group: getRole() / getValue() / getMax() / getSlices() / getLegendLabels() / getLegendValues() / hasLegend()',
+      description: '`WrMeterGroupHarness`. Filters: `ariaLabel`, `sliceLabel`.',
       type: 'Promise<…>',
     },
     {
-      name: 'Heatmap: getCellCount() / getCells() / getValueFor(iso) / getWeekdayLabels() / getMonthLabels() / hasLabels()',
-      description: '`WrCalendarHeatmapHarness`.',
+      name: 'Calendar heatmap: getRole() / getCellCount() / getCells() / getValueFor(iso) / getWeekdayLabels() / getMonthLabels() / hasLabels()',
+      description: '`WrCalendarHeatmapHarness`. Filters: `ariaLabel`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Scatter: getPoints() / getPointCount() / getSeriesLabels() / hasLegend()',
+      description:
+        '`WrScatterChartHarness`. Points are read from the markers; there is no hover method. Filters: `ariaLabel`, `seriesLabel`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Scatter: getXTicks() / getYTicks() / getAxisTitles() / getPlotHeight() / hasGrid()',
+      description: 'The axes.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Radar: getAxisLabels() / getRingLabels() / getPolygons() / getPolygonCount() / getAreaCount() / getDotCount() / getSize()',
+      description:
+        "`WrRadarChartHarness`. `getPolygons()` gives each outline's colour, dash and whether it closes. Filters: `ariaLabel`, `axisLabel`.",
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Radar: hasGrid() / hasLegend()',
+      description: 'The rings and spokes, and the legend.',
+      type: 'Promise<boolean>',
+    },
+    {
+      name: 'Radar: getVariant()',
+      description: "`'polygon'` or `'polar-area'`, read off the host's modifier class.",
+      type: 'Promise<WrRadarVariant>',
+    },
+    {
+      name: 'Heatmap chart: getRowLabels() / getColumnLabels() / getCells() / getCell(row, column) / getCellCount()',
+      description:
+        '`WrHeatmapChartHarness`. Cells are read from what the component wrote: value, level, empty. No hover method. Filters: `ariaLabel`, `rowLabel`, `columnLabel`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Heatmap chart: hasLegend() / getScaleRange() / getLevelCount() / getNoDataLabel()',
+      description: 'The colour scale. Its reads throw when the chart draws none.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Funnel: getStages() / getStageCount() / getLabels() / getGapLabels() / getBandCount() / hasValues()',
+      description:
+        '`WrFunnelChartHarness`. Each stage carries its value and both conversions; there is no hover method. Filters: `ariaLabel`, `stageLabel`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Waterfall: getSteps() / getStepCount() / getLabels() / getConnectorCount() / hasValues()',
+      description:
+        "`WrWaterfallChartHarness`. Each step's kind, running totals and bar ends in percent; there is no hover method. Filters: `ariaLabel`, `stepLabel`.",
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Waterfall: getYTicks() / getZeroPercent() / getPlotHeight() / hasGrid()',
+      description: 'The value axis.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Treemap: getTiles() / getTileCount() / getGroupCount() / getLeafCount() / getLabels() / getPlotHeight()',
+      description:
+        "`WrTreemapChartHarness`. `getTiles()` gives each tile's name, value, kind, colour and box; no hover method. Filters: `ariaLabel`, `tileLabel`.",
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Bullet: getLabel() / getSubLabel() / getValueExtent() / getTargetPosition() / getRanges() / getScaleLabels() / getDescription() / hasScale()',
+      description:
+        '`WrBulletChartHarness`. Extents and the target are shares of the scale, from 0 to 1. Filters: `ariaLabel`, `label`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Box plot: getGroups() / getGroupLabels() / getGroupCount() / getYTicks() / getAxisTitles() / getPlotHeight() / hasGrid()',
+      description:
+        "`WrBoxplotChartHarness`. Each group's five numbers, outliers and positions; there is no hover method. Filters: `ariaLabel`, `groupLabel`.",
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Candlestick: getCandles() / getCandleCount() / isDense() / getYTicks() / getXLabels() / getPlotHeight() / hasGrid()',
+      description:
+        "`WrCandlestickChartHarness`. Each candle's prices and direction; there is no hover method. Filters: `ariaLabel`.",
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Legend: getItems() / getLabels() / getItemCount() / getHidden() / isToggleable() / toggle(index)',
+      description:
+        '`WrChartLegendHarness`, standalone or from `getLegendHarness()` on the bar, line, donut, meter group, scatter and radar harnesses. Filters: `ariaLabel`, `itemLabel`.',
       type: 'Promise<…>',
     },
   ];
@@ -1243,14 +1350,24 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'getRole() / isLabelledByTitle() / isHiddenFromAssistiveTech()',
-      description: 'A non-modal dialog named by its title.',
+      name: 'getRole() / isLabelledByTitle() / isHiddenFromAssistiveTech() / isActive()',
+      description: 'A non-modal dialog named by its title. `isActive()` is the window the keyboard is in.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'startKeyboardMove() / startKeyboardResize() / getKeyboardMode() / getAnnouncement()',
+      description: 'Alt+F7 / Alt+F8. Then `sendKeys` arrows, Enter or Escape to the window.',
       type: 'Promise<…>',
     },
     {
       name: 'Taskbar: isEmpty() / getTabTitles() / restore(title) / closeTab(title) / getRestoreLabel(title) / getRailLabel() / getPosition()',
       description: '`WrWindowTaskbarHarness`. `closeTab()` closes without restoring.',
       type: 'Promise<…>',
+    },
+    {
+      name: 'Taskbar: getActiveTabTitle() / isTabPressed(title)',
+      description: 'With `show="all"`: the active window\'s tab, the one with `aria-pressed="true"`.',
+      type: 'Promise<string | null> | Promise<boolean>',
     },
   ];
 

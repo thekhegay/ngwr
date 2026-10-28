@@ -15,9 +15,37 @@ import type { Signal } from '@angular/core';
 export interface WrChartTooltipDatum {
   /** The series or category name. Omitted where `value` is already a whole sentence. */
   readonly label?: string;
-  /** The value, formatted the way the chart already prints it. */
+  /**
+   * The value, formatted the way the chart already prints it. An empty string draws
+   * no value: a heading over `rows` — a radar's axis name, a scatter point's series —
+   * usually has none of its own.
+   */
   readonly value: string;
   /** The section's own paint, drawn as a swatch. Omitted where colour says nothing. */
+  readonly color?: string;
+  /**
+   * Further values about the same section, one line each under the heading that
+   * `color`, `label` and `value` make: every series at a radar's axis, or a scatter
+   * point's x, y and size. Omitted or empty, the chip is the single line it has
+   * always been.
+   */
+  readonly rows?: readonly WrChartTooltipRow[];
+}
+
+/**
+ * One line of a chart tooltip's `rows`.
+ *
+ * @internal
+ */
+export interface WrChartTooltipRow {
+  /** What the value is: a series name, or a scale such as the x axis. */
+  readonly label: string;
+  /** The value, formatted the way the chart already prints it. */
+  readonly value: string;
+  /**
+   * The series' own paint, drawn as a swatch. Omitted where colour says nothing, as
+   * on the x, y and size of one scatter point, which share the heading's.
+   */
   readonly color?: string;
 }
 

@@ -5,12 +5,13 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { WrWindowSnapTarget } from './window-snap';
 import type { WrWindowState } from './window-state';
 
 /**
  * One window as `WrWindowManager.saveLayout()` recorded it — the geometry the
- * window really had, not the geometry it happens to be showing while maximized
- * or minimized.
+ * window really had, not the geometry it happens to be showing while maximized,
+ * snapped or minimized.
  *
  * Public because `readLayout()` returns an array of these; a consumer that
  * stores or forwards that result has to be able to name the element type.
@@ -23,4 +24,6 @@ export interface WrWindowLayoutSnapshot {
   readonly width: number;
   readonly height: number;
   readonly title: string;
+  /** The half or quarter the window was snapped to, if any (since v15.1). */
+  readonly snap?: WrWindowSnapTarget | null;
 }

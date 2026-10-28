@@ -1,6 +1,7 @@
 import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { chartColor } from 'ngwr/charts/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrSparkline } from './sparkline';
@@ -68,10 +69,14 @@ describe('WrSparkline', () => {
     expect(ys()).toEqual([20, 20, 20]);
   });
 
-  it('centres a lone datum', () => {
+  it('centres a lone datum, and draws it even with the tip off', () => {
+    // A subpath of one `M` is never stroked, so with `showTip` off a one-value sparkline
+    // drew nothing at all; the point repeated gives the round cap something to paint.
     fixture.componentInstance.data.set([7]);
+    fixture.componentInstance.showTip.set(false);
     fixture.detectChanges();
-    expect(line()!.getAttribute('d')).toBe('M 50.00 20.00');
+    expect(line()!.getAttribute('d')).toBe('M 50.00 20.00 L 50.00 20.00');
+    expect(line()!.getAttribute('stroke-linecap')).toBe('round');
   });
 
   it('draws nothing at all for an empty series', () => {
@@ -124,6 +129,14 @@ describe('WrSparkline', () => {
     fixture.componentInstance.showTip.set(false);
     fixture.detectChanges();
     expect(tip()).toBeNull();
+  });
+
+  it("draws in the shared palette's first colour unless told otherwise", () => {
+    // The colour a multi-series chart gives its first series, so a sparkline beside one
+    // matches it. The input keeps the literal default the docs print; this holds the two
+    // together.
+    expect(line()!.getAttribute('stroke')).toBe(chartColor(0));
+    expect(tip()!.getAttribute('stroke')).toBe(chartColor(0));
   });
 
   it('is decorative until the consumer gives it a name', () => {

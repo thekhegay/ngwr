@@ -1,0 +1,68 @@
+// Threads background. A 2D canvas fills the nearest positioned ancestor; the
+// colour is theme-aware via `--wr-threads-color` unless `[color]` overrides it.
+// A canvas cannot read a `light-dark()` or a `var()`, so `threads.ts` resolves
+// the colour through `resolveCssColor` before it strokes with it.
+
+.wr-threads {
+  // A soft wash of the primary intent. On the dark canvas the base reads too
+  // deep for a hairline to carry, so the dark side washes its `-lighter` shade.
+  --wr-threads-color: light-dark(
+    color-mix(in srgb, var(--wr-color-primary) 60%, transparent),
+    color-mix(in srgb, var(--wr-color-primary-lighter) 60%, transparent)
+  );
+  // Mirrors of the `lineCount`, `spread` and `lineWidth` inputs. The component
+  // publishes each on the host, so the stand-in below draws where the canvas will.
+  --wr-threads-count: 18;
+  --wr-threads-spread: 0.4;
+  --wr-threads-line-width: 1px;
+
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  pointer-events: none;
+
+  // Stand-in threads, shown until the canvas has painted.
+  //
+  // A canvas cannot be prerendered, so on an SSR'd or prerendered page the
+  // element is blank until the bundle has loaded and hydrated. These are the
+  // threads at rest — straight, evenly spaced across the band at its widest, in
+  // the same colour and width — so the handover reads as the threads starting to
+  // move rather than as content appearing. The image is the band's height plus
+  // one stroke, so the last line lands on its lower edge rather than outside it,
+  // and the mask over the same box fades the outer lines the way the canvas
+  // fades its outer threads, from the full colour in the middle to 40% at the
+  // edges. On a pseudo-element rather than the host, so the mask cannot reach a
+  // background an app gives the host.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--wr-threads-color) 0 var(--wr-threads-line-width),
+      transparent var(--wr-threads-line-width)
+        calc((100% - var(--wr-threads-line-width)) / max(1, var(--wr-threads-count) - 1))
+    );
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% calc(var(--wr-threads-spread) * 100% + var(--wr-threads-line-width));
+    mask-image: linear-gradient(to bottom, rgb(0 0 0 / 40%), #000, rgb(0 0 0 / 40%));
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: 100% calc(var(--wr-threads-spread) * 100% + var(--wr-threads-line-width));
+  }
+
+  &--painted::before {
+    content: none;
+  }
+
+  &__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}

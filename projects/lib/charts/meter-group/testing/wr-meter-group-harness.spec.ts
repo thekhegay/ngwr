@@ -16,7 +16,14 @@ const SEGMENTS: readonly WrMeterSegment[] = [
 @Component({
   imports: [WrMeterGroup],
   template: `
-    <wr-meter-group [segments]="segments()" [max]="max()" [showLegend]="showLegend()" [showValues]="showValues()" />
+    <wr-meter-group
+      [segments]="segments()"
+      [max]="max()"
+      [showLegend]="showLegend()"
+      [showValues]="showValues()"
+      [toggleableLegend]="toggleable()"
+      [(hiddenSegments)]="hidden"
+    />
   `,
 })
 class Host {
@@ -24,6 +31,8 @@ class Host {
   readonly max = signal(0);
   readonly showLegend = signal(true);
   readonly showValues = signal(true);
+  readonly toggleable = signal(false);
+  readonly hidden = signal<readonly number[]>([]);
 }
 
 /**
@@ -87,6 +96,7 @@ describe('WrMeterGroupHarness', () => {
   it('lists the bands in the legend, with their values', async () => {
     const harness = await meter();
 
+    expect(await harness.hasLegend()).toBe(true);
     expect(await harness.getLegendLabels()).toEqual(['Apps', 'Photos', 'Free']);
     expect(await harness.getLegendValues()).toEqual(['30', '50', '20']);
   });
@@ -107,7 +117,37 @@ describe('WrMeterGroupHarness', () => {
     expect(await harness.getValue()).toBe(100);
   });
 
+  it('hands back its legend, and hides a segment through it', async () => {
+    fixture.componentInstance.toggleable.set(true);
+    await fixture.whenStable();
+
+    const harness = await meter();
+    const legend = await harness.getLegendHarness();
+    expect(await legend.getLabels()).toEqual(['Apps', 'Photos', 'Free']);
+
+    await legend.toggle(2);
+
+    expect(await legend.getHidden()).toEqual([2]);
+    expect(fixture.componentInstance.hidden()).toEqual([2]);
+    expect(await harness.getSlices()).toEqual([
+      { label: 'Apps', percent: 37.5 },
+      { label: 'Photos', percent: 62.5 },
+    ]);
+    expect([await harness.getValue(), await harness.getMax()]).toEqual([80, 80]);
+    expect(await harness.getLegendLabels()).toEqual(['Apps', 'Photos', 'Free']);
+  });
+
+  it('refuses to hand back a legend the group does not draw', async () => {
+    fixture.componentInstance.showLegend.set(false);
+    await fixture.whenStable();
+
+    await expect((await meter()).getLegendHarness()).rejects.toThrow(/draws no legend/);
+  });
+
   it('matches on the name and on a band label', async () => {
+    // The catalog's fallback name, since the host binds none.
+    expect(await loader.getHarnessOrNull(WrMeterGroupHarness.with({ ariaLabel: 'Meter' }))).not.toBeNull();
+    expect(await loader.getHarnessOrNull(WrMeterGroupHarness.with({ ariaLabel: /storage/i }))).toBeNull();
     expect(await loader.getHarnessOrNull(WrMeterGroupHarness.with({ sliceLabel: 'Photos' }))).not.toBeNull();
     expect(await loader.getHarnessOrNull(WrMeterGroupHarness.with({ sliceLabel: 'Music' }))).toBeNull();
   });

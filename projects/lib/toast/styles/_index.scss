@@ -82,7 +82,31 @@ $toast-colors: (
         opacity: 0;
         pointer-events: none;
       }
+
+      // Only the front card shows its content while the stack is collapsed,
+      // and the cards behind take its height, so what peeks out under it is an
+      // even edge per level. Not an 8px one: each card behind is moved 8px per
+      // level and scaled by 5% per level about its anchored edge, so the edge
+      // is 8px less 5% of the front card's height — about 6px under a one-line
+      // toast, and nothing once the front card is 160px tall. Each card used to
+      // keep its own height, so a
+      // short front toast — a title alone, a one-line message — left the taller
+      // card behind it hanging past its bottom edge, with that card's last line
+      // reading through underneath at 70% opacity. The front toast is the last
+      // one in the DOM, whichever way the stack grows, and the host measures it
+      // into `--wr-toast-front-height`; until it has, each card keeps its own.
+      &:not(:last-of-type) {
+        block-size: var(--wr-toast-front-height, auto);
+
+        > * {
+          opacity: 0;
+        }
+      }
     }
+  }
+
+  &--stack .wr-toast > * {
+    transition: opacity 240ms ease;
   }
 
   // Bottom-anchored hosts: stack grows UPWARD (newest at the bottom).
@@ -148,6 +172,10 @@ $toast-colors: (
   --wr-toast-title-margin-bottom: var(--wr-space-xs);
   --wr-toast-title-font-size: var(--wr-text-sm);
   --wr-toast-title-font-weight: var(--wr-font-weight-semibold);
+  // The two line heights take a LENGTH. The glyph's offset and the actions
+  // row's height are `calc()`s over them, and a unitless value — valid for
+  // `line-height` itself — makes both invalid when the browser computes them:
+  // the glyph drops to the top of the line and the row to its buttons' height.
   --wr-toast-title-line-height: var(--wr-text-sm-leading);
   --wr-toast-message-font-size: var(--wr-text-sm);
   --wr-toast-message-line-height: var(--wr-text-sm-leading);
@@ -171,14 +199,18 @@ $toast-colors: (
   animation: wr-toast-in 0.18s ease-out;
   overflow: hidden;
 
-  // The status glyph. Sized off the title's line box so it reads as part of the
-  // first line rather than floating above it, and inked with the accent the
+  // The status glyph. Centred on the first line's box so it reads as part of
+  // that line rather than floating above it, and inked with the accent the
   // type already carries — the SHAPE is the channel, the colour reinforces it.
+  // The offset is derived from the line height rather than written as the 1px
+  // it comes to by default, so a toast whose first line is the message (see
+  // `--untitled` below) or whose line height was re-hooked to another length
+  // still lines up. A unitless one does not; see the hooks above.
   &__icon {
     flex: 0 0 auto;
     width: 1.125rem;
     height: 1.125rem;
-    margin-block-start: 0.0625rem;
+    margin-block-start: calc((var(--wr-toast-title-line-height) - 1.125rem) / 2);
     color: var(--wr-toast-accent);
   }
 
@@ -193,6 +225,17 @@ $toast-colors: (
     font-size: var(--wr-toast-title-font-size);
     font-weight: var(--wr-toast-title-font-weight);
     line-height: var(--wr-toast-title-line-height);
+    // A filename or a URL as a title wraps, the way it does as a message.
+    // Without it the word ran on under the copy and close buttons and was cut
+    // off at the card's edge by its `overflow: hidden`.
+    overflow-wrap: break-word;
+
+    // The margin separates the title FROM the message, so a title with nothing
+    // under it carries none — left in, the card was 4px deeper below its one
+    // line than above it.
+    &:last-child {
+      margin-block-end: 0;
+    }
   }
 
   &__message {
@@ -203,21 +246,50 @@ $toast-colors: (
     overflow-wrap: break-word;
   }
 
+  // The buttons sit on the FIRST line: the row is exactly one line box tall and
+  // the buttons are centred in it, overflowing into the padding when they are
+  // taller than the line. Before, the row took the buttons' own height, so a
+  // one-line toast grew from 46px to 56.5px, its text sat 13px from the top and
+  // 23.5px from the bottom, and the × hung 5px below the line it closes.
   &__actions {
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
     gap: var(--wr-toast-actions-gap);
+    block-size: var(--wr-toast-title-line-height);
   }
 
+  // A toast with no title opens on its message, so that is the line the glyph
+  // and the buttons centre on.
+  &--untitled &__icon {
+    margin-block-start: calc((var(--wr-toast-message-line-height) - 1.125rem) / 2);
+  }
+
+  &--untitled &__actions {
+    block-size: var(--wr-toast-message-line-height);
+  }
+
+  // A square, the way the alert's, dialog's and drawer's × are: the glyph plus
+  // the padding on every side, centred by flex. As an inline box the button
+  // took its height from the line box around an inline `<svg>` — glyph, strut
+  // and descender — and measured 23x30.5, so its hover tint was a tall pill.
+  // The 1.5rem floor is WCAG 2.5.8's 24px target, which the glyph alone missed
+  // by a pixel on a 15px page.
   &__action {
     appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    min-inline-size: 1.5rem;
+    min-block-size: 1.5rem;
     background: transparent;
     border: 0;
     padding: var(--wr-toast-action-padding);
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
     border-radius: var(--wr-toast-action-radius);
+    line-height: 0;
     transition:
       color var(--wr-transition-base),
       background var(--wr-transition-base);
@@ -231,9 +303,24 @@ $toast-colors: (
     // pill from 12px to 20px when it was tried there.
     font-size: inherit;
 
+    // A 44px hit area on a coarse pointer, from the shared mixin the alert's,
+    // dialog's and drawer's × use. The pair stays clear of each other through
+    // the touch gap at the end of this file.
+    @include theme.touch-target;
+
     &:hover {
       color: var(--wr-color-on-surface);
       background: var(--wr-color-hover);
+    }
+
+    // The shared ring, as on the alert's, dialog's and drawer's ×. These two
+    // had no focus style at all, so a keyboard user landing on Close — which
+    // the host does on purpose after a dismissal — saw whatever the UA drew.
+    // OUTSET is safe: the button sits inside the toast's padding, which is
+    // wider than the ring's reach, so the toast's `overflow: hidden` does not
+    // cut it.
+    &:focus-visible {
+      @include theme.focus-ring;
     }
   }
 
@@ -359,19 +446,23 @@ $toast-colors: (
   align-self: stretch;
 }
 
-// Touch pointers: grow the per-toast action buttons (copy / dismiss) to ~32px
-// with a wider gap so the pair no longer sits 2px apart, and give the
-// dismiss-all bar a taller hit area. Fine pointers keep the compact desktop
-// sizing above.
+// Touch pointers: grow the per-toast action buttons (copy / dismiss) to 32px,
+// each with the shared 44px hit area, and give the dismiss-all bar a taller
+// one. Fine pointers keep the compact desktop sizing above.
+//
+// The gap defaults to 0.75rem because that is what keeps two 44px halos on
+// 32px buttons from overlapping: centres 44px apart, so at rest they abut
+// exactly. It is the HOOK's default that moves, not the row's `gap`, so an
+// app's own `--wr-toast-actions-gap` still applies on a touch screen. Before,
+// this block re-declared the hook as the 4px it already was, under a comment
+// promising a wider gap, and there was no halo at all: the hit area was the
+// 32px button.
 @media (pointer: coarse) {
-  .wr-toast__actions {
-    gap: var(--wr-toast-actions-gap);
+  .wr-toast {
+    --wr-toast-actions-gap: 0.75rem;
   }
 
   .wr-toast__action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     width: 2rem;
     height: 2rem;
     padding: 0;

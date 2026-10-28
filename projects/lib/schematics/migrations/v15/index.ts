@@ -7,6 +7,8 @@
 
 import type { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 
+import { V15_BITS as BITS, V15_CHARTS as CHARTS } from '../../utility/v15-moves';
+
 /**
  * v14 to v15 migration. Two halves, split by the rule `migration-v14` follows:
  * a rewrite runs when the new form means what the old one meant in the same
@@ -153,32 +155,6 @@ const FAMILY = {
     '[wrTypography] tone from dark to base and from medium to muted, <wr-timeline-item> color from medium to neutral',
   classes: 'the BEM classes those two values emit',
 } as const;
-
-const CHARTS = ['bar-chart', 'calendar-heatmap', 'donut-chart', 'gauge', 'line-chart', 'meter-group', 'sparkline'];
-
-const BITS = [
-  'aurora',
-  'blur-text',
-  'border-glow',
-  'circular-text',
-  'click-spark',
-  'confetti',
-  'decrypt-text',
-  'falling-text',
-  'fuzzy-text',
-  'glitch-text',
-  'gradient-text',
-  'marquee',
-  'rotating-text',
-  'shiny-text',
-  'splash-cursor',
-  'split-text',
-  'spotlight-card',
-  'star-border',
-  'tilt-card',
-  'typewriter',
-  'waves',
-];
 
 /**
  * A specifier `ngwr/<path>`, as a whole package segment. The lookbehind keeps

@@ -1,0 +1,57 @@
+@let d = data();
+@let grouped = hasGroupHeaders();
+<!-- Every section is written out, `<thead>` and each `<tbody>` included: the HTML
+     parser inserts a `<tbody>` the template left out, and hydration would then meet
+     a tree it did not render. -->
+<table class="wr-chart-table__table">
+  <caption>
+    {{
+      d.caption
+    }}
+  </caption>
+  <thead>
+    <tr>
+      <!-- Over the group headers' column, then the row headers' one. -->
+      @if (grouped && !d.corner) {
+        <td colspan="2"></td>
+      } @else {
+        @if (grouped) {
+          <td></td>
+        }
+        @if (d.corner) {
+          <th scope="col">{{ d.corner }}</th>
+        } @else {
+          <td></td>
+        }
+      }
+      @for (column of d.columns; track $index) {
+        <th scope="col">{{ column }}</th>
+      }
+    </tr>
+  </thead>
+  @for (group of d.groups; track $index) {
+    @if (group.rows.length > 0) {
+      <tbody>
+        @for (row of group.rows; track $index; let first = $first, count = $count) {
+          <tr>
+            <!-- The group's header in a column of its own, down every row of the group:
+                 the shape the HTML table algorithm and every checker read as heading the
+                 cells beside it. A full-width row above the group heads nothing by axe's
+                 reading. -->
+            @if (grouped && first) {
+              @if (group.header) {
+                <th scope="rowgroup" [attr.rowspan]="count">{{ group.header }}</th>
+              } @else {
+                <td [attr.rowspan]="count"></td>
+              }
+            }
+            <th scope="row">{{ row.header }}</th>
+            @for (cell of row.cells; track $index) {
+              <td>{{ cell }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    }
+  }
+</table>

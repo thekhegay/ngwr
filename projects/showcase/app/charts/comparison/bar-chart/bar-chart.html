@@ -1,0 +1,159 @@
+<ngwr-doc-page
+  title="Bar Chart"
+  updated="15.1.0"
+  description="Bars for one or several series, grouped or stacked, standing up or lying along a row, with lines over them."
+  [keywords]="['bar-chart', 'wr-bar-chart', 'grouped-bar', 'stacked-bar', 'horizontal-bar', 'combo-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-bar-chart [data]="bars" style="width: 100%" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Grouped"
+    description="`series` with `categories` draws a bar per series in every category. Each series has its own dash on the outline as well as its colour."
+  >
+    <ngwr-doc-code [code]="snippets.grouped" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-bar-chart style="width: 100%" [categories]="quarters" [series]="regions" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Stacked"
+    description="`stacked` piles the series, so the end of each pile is the total. Negative values stack down from zero. Names, the tooltip and the table keep each series' own value. Each printed total is announced too."
+  >
+    <ngwr-doc-code [code]="snippets.stacked" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.stackedTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-bar-chart style="width: 100%" [categories]="quarters" [series]="balance" stacked />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Horizontal"
+    description='`orientation="horizontal"` lays the bars along a row, with the names in a gutter at the start. Under RTL the gutter is on the right. `height` is the least the plot takes: each row keeps room for a line of text, so a long list grows the chart instead of thinning the bars.'
+  >
+    <ngwr-doc-code [code]="snippets.horizontal" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <wr-bar-chart [data]="browsers" orientation="horizontal" [height]="180" />
+        <wr-bar-chart [categories]="quarters" [series]="regions" orientation="horizontal" [height]="240" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Combo"
+    description="`lines` draws lines over the bars, on the same axes. Each line has its own dash and marker, and joins the legend, the tooltip and the table. Beside `data`, a negative bar draws down from zero."
+  >
+    <ngwr-doc-code [code]="snippets.combo" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.comboTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <wr-bar-chart [categories]="quarters" [series]="regions" [lines]="target" stacked />
+        <wr-bar-chart [data]="week" [lines]="lastWeek" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Toggle series"
+    description="`toggleableLegend` makes each legend row a button. A hidden series leaves the bars, the scale, the tooltip and the table."
+  >
+    <ngwr-doc-code [code]="snippets.toggle" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.toggleTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-bar-chart
+        style="width: 100%"
+        [categories]="quarters"
+        [series]="regions"
+        toggleableLegend
+        [(hiddenSeries)]="hiddenSeries"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` adds a table only screen readers reach: a row per category, a column per series shown (or one for the bars, with `data`), then one per line shown. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="snippets.dataTable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-bar-chart
+        style="width: 100%"
+        [categories]="quarters"
+        [series]="regions"
+        ariaLabel="Sales by region"
+        dataTable
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Tooltip" description='Set `[tooltip]="false"` to turn it off.'>
+    <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">On (default)</p>
+          <wr-bar-chart [data]="bars" style="width: 100%" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[tooltip]="false"</code>
+          </p>
+          <wr-bar-chart [data]="bars" [tooltip]="false" style="width: 100%" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Plot</th>
+            <td>A <code>role="group"</code>, named by <code>ariaLabel</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">Bars</th>
+            <td>
+              Each bar is a <code>role="img"</code> named by its label and value. With <code>series</code>, each
+              category is a named group and each bar is named by its series. With <code>stacked</code>, each printed
+              total is a <code>role="img"</code> named &ldquo;Total: 20&rdquo;.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Lines</th>
+            <td>
+              Each line is a <code>role="group"</code> named by the line, after the bars. Each point is a
+              <code>role="img"</code> named by its category and value.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Series</th>
+            <td>
+              Each has its own dash on the bar outline as well as its colour, so bars differ without hue. Each line has
+              its own dash and marker.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>No tab stop, unless <code>toggleableLegend</code> makes the legend rows buttons.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

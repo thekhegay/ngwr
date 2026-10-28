@@ -165,6 +165,13 @@
     "./bits/decrypt-text/testing": {
       "default": "./bits/decrypt-text/testing/public-api.ts"
     },
+    "./bits/dot-grid": {
+      "sass": "./bits/dot-grid/styles/_index.scss",
+      "default": "./bits/dot-grid/public-api.ts"
+    },
+    "./bits/dot-grid/testing": {
+      "default": "./bits/dot-grid/testing/public-api.ts"
+    },
     "./bits/falling-text": {
       "sass": "./bits/falling-text/styles/_index.scss",
       "default": "./bits/falling-text/public-api.ts"
@@ -198,6 +205,13 @@
     },
     "./bits/marquee/testing": {
       "default": "./bits/marquee/testing/public-api.ts"
+    },
+    "./bits/ripple-grid": {
+      "sass": "./bits/ripple-grid/styles/_index.scss",
+      "default": "./bits/ripple-grid/public-api.ts"
+    },
+    "./bits/ripple-grid/testing": {
+      "default": "./bits/ripple-grid/testing/public-api.ts"
     },
     "./bits/rotating-text": {
       "sass": "./bits/rotating-text/styles/_index.scss",
@@ -240,6 +254,13 @@
     },
     "./bits/star-border/testing": {
       "default": "./bits/star-border/testing/public-api.ts"
+    },
+    "./bits/threads": {
+      "sass": "./bits/threads/styles/_index.scss",
+      "default": "./bits/threads/public-api.ts"
+    },
+    "./bits/threads/testing": {
+      "default": "./bits/threads/testing/public-api.ts"
     },
     "./bits/tilt-card": {
       "sass": "./bits/tilt-card/styles/_index.scss",
@@ -309,12 +330,44 @@
     "./charts/bar-chart/testing": {
       "default": "./charts/bar-chart/testing/public-api.ts"
     },
+    "./charts/boxplot-chart": {
+      "sass": "./charts/boxplot-chart/styles/_index.scss",
+      "default": "./charts/boxplot-chart/public-api.ts"
+    },
+    "./charts/boxplot-chart/testing": {
+      "default": "./charts/boxplot-chart/testing/public-api.ts"
+    },
+    "./charts/bullet-chart": {
+      "sass": "./charts/bullet-chart/styles/_index.scss",
+      "default": "./charts/bullet-chart/public-api.ts"
+    },
+    "./charts/bullet-chart/testing": {
+      "default": "./charts/bullet-chart/testing/public-api.ts"
+    },
     "./charts/calendar-heatmap": {
       "sass": "./charts/calendar-heatmap/styles/_index.scss",
       "default": "./charts/calendar-heatmap/public-api.ts"
     },
     "./charts/calendar-heatmap/testing": {
       "default": "./charts/calendar-heatmap/testing/public-api.ts"
+    },
+    "./charts/candlestick-chart": {
+      "sass": "./charts/candlestick-chart/styles/_index.scss",
+      "default": "./charts/candlestick-chart/public-api.ts"
+    },
+    "./charts/candlestick-chart/testing": {
+      "default": "./charts/candlestick-chart/testing/public-api.ts"
+    },
+    "./charts/chart-legend": {
+      "sass": "./charts/chart-legend/styles/_index.scss",
+      "default": "./charts/chart-legend/public-api.ts"
+    },
+    "./charts/chart-legend/testing": {
+      "default": "./charts/chart-legend/testing/public-api.ts"
+    },
+    "./charts/core": {
+      "sass": "./charts/core/styles/_index.scss",
+      "default": "./charts/core/public-api.ts"
     },
     "./charts/donut-chart": {
       "sass": "./charts/donut-chart/styles/_index.scss",
@@ -323,12 +376,26 @@
     "./charts/donut-chart/testing": {
       "default": "./charts/donut-chart/testing/public-api.ts"
     },
+    "./charts/funnel-chart": {
+      "sass": "./charts/funnel-chart/styles/_index.scss",
+      "default": "./charts/funnel-chart/public-api.ts"
+    },
+    "./charts/funnel-chart/testing": {
+      "default": "./charts/funnel-chart/testing/public-api.ts"
+    },
     "./charts/gauge": {
       "sass": "./charts/gauge/styles/_index.scss",
       "default": "./charts/gauge/public-api.ts"
     },
     "./charts/gauge/testing": {
       "default": "./charts/gauge/testing/public-api.ts"
+    },
+    "./charts/heatmap-chart": {
+      "sass": "./charts/heatmap-chart/styles/_index.scss",
+      "default": "./charts/heatmap-chart/public-api.ts"
+    },
+    "./charts/heatmap-chart/testing": {
+      "default": "./charts/heatmap-chart/testing/public-api.ts"
     },
     "./charts/line-chart": {
       "sass": "./charts/line-chart/styles/_index.scss",
@@ -344,12 +411,40 @@
     "./charts/meter-group/testing": {
       "default": "./charts/meter-group/testing/public-api.ts"
     },
+    "./charts/radar-chart": {
+      "sass": "./charts/radar-chart/styles/_index.scss",
+      "default": "./charts/radar-chart/public-api.ts"
+    },
+    "./charts/radar-chart/testing": {
+      "default": "./charts/radar-chart/testing/public-api.ts"
+    },
+    "./charts/scatter-chart": {
+      "sass": "./charts/scatter-chart/styles/_index.scss",
+      "default": "./charts/scatter-chart/public-api.ts"
+    },
+    "./charts/scatter-chart/testing": {
+      "default": "./charts/scatter-chart/testing/public-api.ts"
+    },
     "./charts/sparkline": {
       "sass": "./charts/sparkline/styles/_index.scss",
       "default": "./charts/sparkline/public-api.ts"
     },
     "./charts/sparkline/testing": {
       "default": "./charts/sparkline/testing/public-api.ts"
+    },
+    "./charts/treemap-chart": {
+      "sass": "./charts/treemap-chart/styles/_index.scss",
+      "default": "./charts/treemap-chart/public-api.ts"
+    },
+    "./charts/treemap-chart/testing": {
+      "default": "./charts/treemap-chart/testing/public-api.ts"
+    },
+    "./charts/waterfall-chart": {
+      "sass": "./charts/waterfall-chart/styles/_index.scss",
+      "default": "./charts/waterfall-chart/public-api.ts"
+    },
+    "./charts/waterfall-chart/testing": {
+      "default": "./charts/waterfall-chart/testing/public-api.ts"
     },
     "./checkbox": {
       "sass": "./checkbox/styles/_index.scss",

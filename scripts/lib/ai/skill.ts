@@ -51,11 +51,18 @@ const DOCS = 'https://ngwr.dev';
  * deciding whether to load the skill, so it names the library, the framework
  * and the trigger rather than describing itself.
  */
-function skillMd(entries: readonly SkillEntry[], providers: readonly RequiredProvider[], angular: string): string {
-  // The secondary entry points only, the figure the docs site prints: the root
-  // `ngwr` is in the catalog for `provideWr()`, and is not one of them.
-  const secondary = entries.filter(e => e.path !== 'ngwr');
-  const components = secondary.filter(e => e.selectors.length > 0).length;
+function skillMd(
+  entries: readonly SkillEntry[],
+  providers: readonly RequiredProvider[],
+  angular: string,
+  entryPoints: number
+): string {
+  // The headline total is passed in rather than counted off `entries`: it is every
+  // secondary entry point in the `exports` map, the figure the docs site prints
+  // (`gen:quality` counts the same map), while the catalog leaves the root in for
+  // `provideWr()` and the internal `ngwr/charts/core` out. Counting the catalog
+  // printed 238 beside the site's 239.
+  const components = entries.filter(e => e.path !== 'ngwr' && e.selectors.length > 0).length;
 
   return `---
 name: ngwr
@@ -64,7 +71,7 @@ description: Build Angular UIs with the ngwr component library (standalone, sign
 
 # ngwr
 
-An Angular ${angular} UI library: ${secondary.length} tree-shakable entry points, ${components} of them shipping a selector.
+An Angular ${angular} UI library: ${entryPoints} tree-shakable entry points, ${components} of them shipping a selector.
 Standalone, signals-first, zoneless, \`ViewEncapsulation.None\`. No runtime
 dependencies.
 
@@ -114,7 +121,13 @@ guess gets backwards.
   \`wr-date-picker\` covers date / time / datetime, \`wr-popover\` has a tooltip
   mode, \`wr-drawer\` doubles as a bottom sheet (and, with \`hasBackdrop\` off,
   a non-modal side panel), \`wr-table\` owns pinning,
-  resizing, grouping, tree rows, CSV export and virtual scroll.
+  resizing, grouping, tree rows, CSV export and virtual scroll. The charts too:
+  a pie is \`wr-donut-chart\` with \`pie\`, an area chart \`wr-line-chart\` with
+  \`showArea\` (and \`stacked\` for a stacked area), a polar area chart
+  \`wr-radar-chart\` with \`variant="polar-area"\`, a stacked, horizontal or
+  combo bar chart \`wr-bar-chart\` with \`series\` + \`stacked\`,
+  \`orientation="horizontal"\` or \`lines\`, and a bubble chart
+  \`wr-scatter-chart\` with a \`size\` per point.
 - **There is no \`ControlValueAccessor\`.** Value components implement Signal
   Forms' \`FormValueControl\` / \`FormCheckboxControl\`. Bind
   \`[formField]="form.x"\`, or use the two-way model standalone —
@@ -224,7 +237,11 @@ outside the fixture: load those from
 function describeTest(test: RegExp): string {
   const source = test.source;
   const grouped = /^\^Wr\(([A-Za-z|]+)\)$/.exec(source);
-  if (grouped) return grouped[1].split('|').map(name => `\`Wr${name}\``).join(', ');
+  if (grouped)
+    return grouped[1]
+      .split('|')
+      .map(name => `\`Wr${name}\``)
+      .join(', ');
 
   const alternatives = source.split('|').map(part => part.replace(/[$^]/g, ''));
   if (alternatives.every(part => /^Wr[A-Za-z0-9]*$/.test(part))) {
@@ -250,7 +267,12 @@ function catalogMd(entries: readonly SkillEntry[]): string {
     lines.push(`| \`${entry.path}\` | \`import { ${symbol} } from '${entry.path}'\` | ${selectors} |`);
   }
 
-  lines.push('', 'Descriptions and every public export per entry point:', '`llms-full.txt`, shipped in the same package.', '');
+  lines.push(
+    '',
+    'Descriptions and every public export per entry point:',
+    '`llms-full.txt`, shipped in the same package.',
+    ''
+  );
   return lines.join('\n');
 }
 
@@ -401,10 +423,11 @@ bootstrapApplication(App, {
 - \`withTheme({ defaultMode: 'dark' })\` from \`ngwr/theme\` — the default
   scheme and its storage key, and \`WrTheme\` created at boot.
 - \`withToast({ … })\` from \`ngwr/toast\`, \`withStorage({ … })\` from
-  \`ngwr/storage\` and \`withMeta({ … })\` from \`ngwr/meta\` — toast defaults,
-  the storage engine, prefix and TTL, and \`<head>\` defaults for every route.
-  Like density and theme they configure a root service, so they belong at
-  bootstrap.
+  \`ngwr/storage\`, \`withMeta({ … })\` from \`ngwr/meta\` and
+  \`withWindows({ bounds })\` from \`ngwr/window\` — toast defaults, the storage
+  engine, prefix and TTL, \`<head>\` defaults for every route, and the work area
+  floating windows keep inside. Like density and theme they configure a root
+  service, so they belong at bootstrap.
 - A \`validation\` namespace in your own i18n catalog — ngwr ships no validation
   copy. \`<wr-form-field>\` reads \`validation.<key>\` for an error whose validator
   carries no \`{ message }\`, with the error payload as params.
@@ -414,10 +437,11 @@ bootstrapApplication(App, {
 function renderSkill(
   entries: readonly SkillEntry[],
   providers: readonly RequiredProvider[],
-  angular: string
+  angular: string,
+  entryPoints: number
 ): readonly SkillFile[] {
   return [
-    { path: 'SKILL.md', content: skillMd(entries, providers, angular) },
+    { path: 'SKILL.md', content: skillMd(entries, providers, angular, entryPoints) },
     { path: 'references/catalog.md', content: catalogMd(entries) },
     { path: 'references/setup.md', content: setupMd(providers) },
   ];

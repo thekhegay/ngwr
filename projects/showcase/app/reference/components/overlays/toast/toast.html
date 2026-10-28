@@ -30,6 +30,17 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Title or message alone"
+    description="Either part can stand on its own. A title-only toast passes an empty `message`."
+  >
+    <ngwr-doc-code [code]="snippets.parts" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="fireTitleOnly()">Title only</wr-btn>
+      <wr-btn outlined (click)="fireMessageOnly()">Message only</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Per-toast overrides" description="`show()` takes every field of the global config.">
     <ngwr-doc-code [code]="snippets.overrides" language="angular-ts" />
     <ngwr-doc-snippet code="">

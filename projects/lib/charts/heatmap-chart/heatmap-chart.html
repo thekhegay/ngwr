@@ -1,0 +1,95 @@
+@let active = tip.active();
+@let key = legend();
+@let thin = thinning();
+<!-- One grid: the row names in a column at inline start, the column names in a row above,
+     and the cells beside and below them. The names and the cells share its tracks through
+     `subgrid`, so a name lines up with its cells at any width. -->
+<div
+  class="wr-heatmap-chart__matrix"
+  [style.--wr-heatmap-chart-rows]="shape().rowCount || 1"
+  [style.--wr-heatmap-chart-columns]="shape().columnCount || 1"
+>
+  <!-- Real text beside the cells, as the line chart's x labels are: the cells are an `img`,
+       which hides everything inside it, so the names are kept out of it. Where they do not
+       fit, every n-th is drawn across the columns up to the next, and the rest are left in
+       the markup, out of sight, so a screen reader still reads every name. -->
+  <div
+    #columnStrip
+    class="wr-heatmap-chart__column-labels"
+    [class.wr-heatmap-chart__column-labels--thinned]="thin.every > 1"
+    [style.--wr-heatmap-chart-label-every]="thin.every > 1 ? thin.every : null"
+  >
+    @for (label of columnLabels(); track $index) {
+      <span
+        class="wr-heatmap-chart__column-label"
+        [class.wr-heatmap-chart__column-label--hidden]="$index % thin.every !== 0 || $index > thin.last"
+      >
+        {{ label }}
+      </span>
+    }
+  </div>
+  <div class="wr-heatmap-chart__row-labels">
+    @for (label of rowLabels(); track $index) {
+      <span class="wr-heatmap-chart__row-label">{{ label }}</span>
+    }
+  </div>
+
+  <div
+    #grid
+    class="wr-heatmap-chart__cells"
+    role="img"
+    [attr.aria-label]="resolvedAriaLabel()"
+    (mousemove)="onPointerMove($event)"
+    (mouseleave)="tip.leave($event)"
+  >
+    @for (cell of cells(); track $index) {
+      <!-- A level's paint is the stylesheet's, from the level written here; an empty cell has
+           no level and is hatched instead. -->
+      <span
+        class="wr-heatmap-chart__cell"
+        [class.wr-heatmap-chart__cell--empty]="cell.value === null"
+        [class.wr-heatmap-chart__cell--active]="active === $index"
+        [style.--wr-heatmap-chart-level]="cell.level"
+        [attr.data-row]="cell.row"
+        [attr.data-column]="cell.column"
+        [attr.data-value]="cell.value"
+      >
+        @if (cell.text) {
+          <span class="wr-heatmap-chart__value">{{ cell.text }}</span>
+        }
+      </span>
+    }
+  </div>
+</div>
+
+@if (showLegend() && (key || hasEmpty())) {
+  <!-- Hidden, as an axis' ticks are on every chart: the matrix's name is what is announced,
+       and the figures are in the data table. -->
+  <div class="wr-heatmap-chart__legend" aria-hidden="true">
+    @if (key) {
+      <span class="wr-heatmap-chart__legend-label">{{ key.min }}</span>
+      <span class="wr-heatmap-chart__scale">
+        @for (level of key.levels; track $index) {
+          <span class="wr-heatmap-chart__swatch" [style.--wr-heatmap-chart-level]="level"></span>
+        }
+      </span>
+      <!-- A scale with no span is one level, keyed by one figure. -->
+      @if (key.max !== null) {
+        <span class="wr-heatmap-chart__legend-label">{{ key.max }}</span>
+      }
+    }
+    @if (hasEmpty()) {
+      <span class="wr-heatmap-chart__legend-empty">
+        <span class="wr-heatmap-chart__swatch wr-heatmap-chart__swatch--empty"></span>
+        <span class="wr-heatmap-chart__legend-label">{{ resolvedNoDataLabel() }}</span>
+      </span>
+    }
+  </div>
+}
+
+@if (dataTable()) {
+  <!-- The figures for a screen reader, beside the cells' `img` and never inside it: `img`
+       makes everything it holds presentational. Clipped to nothing by its own stylesheet,
+       so it takes no room and draws nothing. -->
+  <wr-chart-table [data]="tableData()" />
+}

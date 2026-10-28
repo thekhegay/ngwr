@@ -1,0 +1,131 @@
+<ngwr-doc-page
+  title="Funnel Chart"
+  since="15.1.0"
+  description="How many reached each stage of a sequence, and how many of them went on to the next."
+  [keywords]="['funnel-chart', 'funnel', 'conversion', 'wr-funnel-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="One centred bar per stage, as wide as its share of the largest. Between two bars, the share of the stage above; under each value, the share of the first."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-funnel-chart style="width: 100%" ariaLabel="Sign-up funnel" [stages]="signups" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Conversions"
+    description="`conversion` picks what the drawing prints. The tooltip, each stage's accessible name and the data table keep both."
+  >
+    <ngwr-doc-code [code]="snippets.conversion" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.conversionTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%">
+        <wr-segmented
+          aria-label="Conversions shown"
+          [options]="conversionOptions"
+          [value]="conversion()"
+          (valueChange)="conversion.set($event ?? 'both')"
+        />
+        <wr-funnel-chart ariaLabel="Sign-up funnel" [stages]="signups" [conversion]="conversion()" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Growth, gaps and zeros"
+    description="Nothing is sorted or clamped. A stage larger than the one before is drawn wider, above 100%. A missing value draws no bar and no band. Zero is a hairline."
+  >
+    <ngwr-doc-code [code]="snippets.honest" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.honestTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-funnel-chart style="width: 100%" ariaLabel="Email campaign" [stages]="campaign" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Shared scale"
+    description="With no `max` the largest stage is the full width. Give two funnels the same `max` to compare them."
+  >
+    <ngwr-doc-code [code]="snippets.scale" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 2rem; width: 100%">
+        <wr-funnel-chart ariaLabel="Web" [stages]="web" [max]="9000" />
+        <wr-funnel-chart ariaLabel="Mobile" [stages]="mobile" [max]="9000" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Number format"
+    description="Values and conversions follow `LOCALE_ID`. `valueFormat` replaces the values; `percentFormat` the conversions, and it takes a ratio, so 0.25 is a quarter."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-funnel-chart
+        style="width: 100%"
+        ariaLabel="Orders by value"
+        [stages]="orders"
+        [valueFormat]="money"
+        [percentFormat]="percent"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` adds a table only screen readers reach: a row per stage, with its value and both conversions. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="snippets.dataTable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-funnel-chart style="width: 100%" [stages]="signups" ariaLabel="Sign-up funnel" dataTable />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Chart</th>
+            <td>A <code>role="group"</code>, named by <code>ariaLabel</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">Stage</th>
+            <td>A <code>role="img"</code> named with its label, value and both conversions.</td>
+          </tr>
+          <tr>
+            <th scope="row">Bands</th>
+            <td>Hidden. The share between two bars is already in the lower stage's name.</td>
+          </tr>
+          <tr>
+            <th scope="row">Colour</th>
+            <td>Carries nothing. Every stage is named in text, so one colour is the default.</td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>No tab stop. The tooltip is pointer only and repeats the names.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

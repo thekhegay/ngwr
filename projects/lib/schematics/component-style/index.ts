@@ -60,6 +60,8 @@ function componentStyle(options: Schema, exports: Exports | null = shippedExport
 
     if (target.movedFrom) {
       context.logger.info(`ngwr: ${target.movedFrom} is ngwr/${target.subpath} since v15.`);
+    } else if (target.resolvedFrom) {
+      context.logger.info(`ngwr: ${target.resolvedFrom} is ngwr/${target.subpath}.`);
     }
 
     const edit = addStyleUse(tree.readText(stylesPath), target.subpath, stylesPath.endsWith('.sass'));

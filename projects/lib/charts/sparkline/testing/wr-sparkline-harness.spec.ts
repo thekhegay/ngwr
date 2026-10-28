@@ -81,6 +81,15 @@ describe('WrSparklineHarness', () => {
     expect(await (await sparkline()).getColor()).toBe('var(--wr-color-primary)');
   });
 
+  it('draws a single point as a line the round cap paints, tip or no tip', async () => {
+    fixture.componentInstance.data.set([5]);
+    fixture.componentInstance.showTip.set(false);
+    await fixture.whenStable();
+
+    const harness = await sparkline();
+    expect([await harness.hasLine(), await harness.hasTip()]).toEqual([true, false]);
+  });
+
   it('draws no line at all for an empty dataset', async () => {
     fixture.componentInstance.data.set([]);
     await fixture.whenStable();

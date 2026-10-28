@@ -21,6 +21,7 @@ const DATA: readonly WrHeatmapDatum[] = [
       [weeks]="weeks()"
       [showLabels]="showLabels()"
       [ariaLabel]="ariaLabel()"
+      [dataTable]="dataTable()"
     />
   `,
 })
@@ -30,6 +31,7 @@ class Host {
   readonly weeks = signal(6);
   readonly showLabels = signal(true);
   readonly ariaLabel = signal<string | null>(null);
+  readonly dataTable = signal(false);
 }
 
 /**
@@ -82,6 +84,15 @@ describe('WrCalendarHeatmapHarness', () => {
     expect(marked!.day).toBeGreaterThan(0);
   });
 
+  it('draws the weekday and month labels by default', async () => {
+    const harness = await heatmap();
+
+    expect(await harness.hasLabels()).toBe(true);
+    // Six weeks to 31 Jan 2026 start on 21 Dec 2025, so January's 1st is the one month
+    // that starts inside them — named in `LOCALE_ID`, en-US by default.
+    expect(await harness.getMonthLabels()).toEqual(['Jan']);
+  });
+
   it('leaves four weekday labels blank, which is the layout and not a bug', async () => {
     const labels = await (await heatmap()).getWeekdayLabels();
 
@@ -99,6 +110,24 @@ describe('WrCalendarHeatmapHarness', () => {
       [],
       [],
     ]);
+  });
+
+  it('reads the data table, and refuses one that is not rendered', async () => {
+    const harness = await heatmap();
+    expect(await harness.hasDataTable()).toBe(false);
+    await expect(harness.getTableRows()).rejects.toThrow(/renders no data table/);
+
+    fixture.componentInstance.dataTable.set(true);
+    await fixture.whenStable();
+
+    expect(await harness.hasDataTable()).toBe(true);
+    expect(await harness.getTableColumns()).toHaveLength(7);
+    const rows = await harness.getTableRows();
+    expect(rows).toHaveLength(6);
+    // The week of 4 Jan 2026: Monday the 5th and Tuesday the 6th carry the data.
+    expect(rows[2].cells).toEqual(['0', '3', '7', '0', '0', '0', '0']);
+    // The last week ends on Saturday the 31st, so every cell is drawn.
+    expect(rows[5].cells.every(cell => cell !== '')).toBe(true);
   });
 
   it('matches on the accessible name', async () => {

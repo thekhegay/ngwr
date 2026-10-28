@@ -45,6 +45,8 @@ export function getHighlighter(): Promise<HighlighterCore> {
       // languages are declared lazily by the grammar, so this is one 65 KB
       // chunk rather than the whole bundle.
       import('shiki/langs/markdown.mjs'),
+      // Codex keeps its MCP servers in TOML, which the MCP page shows. 7 KB.
+      import('shiki/langs/toml.mjs'),
     ],
     engine: createOnigurumaEngine(import('shiki/wasm')),
   });

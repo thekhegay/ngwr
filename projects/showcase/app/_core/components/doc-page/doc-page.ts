@@ -103,7 +103,7 @@ interface DepsRow {
   // `title` is an input, and a static attribute that feeds an input is still written
   // onto the host, where the browser shows it as a native tooltip over the whole
   // page or section.
-  host: { '[attr.title]': 'null', '[class.removed]': '!!removed()' },
+  host: { '[attr.title]': 'null' },
 })
 export class DocPageComponent {
   /**
@@ -173,8 +173,8 @@ export class DocPageComponent {
    * change a consumer has to act on is.
    *
    * A plain attribute, read by `pnpm gen:api-docs` into `#core/generated/since`
-   * for the same reason as `since`. Never beside `removed`, and never a version
-   * no later than `since`: the generator refuses both.
+   * for the same reason as `since`. Never a version no later than `since`: the
+   * generator refuses it.
    *
    * @example
    * ```html
@@ -182,22 +182,6 @@ export class DocPageComponent {
    * ```
    */
   readonly updated = input<string | null>(null);
-
-  /**
-   * The library version that DELETED this page's subject — `'15.0.0'`. The page
-   * is a tombstone: it says what the thing was, why it went and what to use
-   * instead, so a published link and an old import still land somewhere that
-   * answers. Prints "Removed in v15", styles the header as a tombstone, and the
-   * nav marks the row `Removed` for as long as the page exists, sorted after the
-   * live rows of its group — the mark does not expire, since the page has no
-   * other reason to be in the nav.
-   *
-   * @example
-   * ```html
-   * <ngwr-doc-page title="Markdown" removed="15.0.0"> … </ngwr-doc-page>
-   * ```
-   */
-  readonly removed = input<string | null>(null);
 
   /**
    * Override the auto-derived category. Pass `null` to use the URL-derived
@@ -229,12 +213,6 @@ export class DocPageComponent {
   protected readonly updatedIn = computed(() => {
     const version = this.updated();
     return version ? `Updated in ${releaseLabel(version)}` : null;
-  });
-
-  /** "Removed in v15", or `null`. Its own chip tone, since it is the fact the whole page is about. */
-  protected readonly removedIn = computed(() => {
-    const version = this.removed();
-    return version ? `Removed in ${releaseLabel(version)}` : null;
   });
 
   /**
