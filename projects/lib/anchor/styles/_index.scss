@@ -1,5 +1,10 @@
 @use '../../theme/styles' as theme;
 
+// One level of indent: the host's own, and again for a nested list. The active
+// bar reaches back across every indent its link sits behind, so the two are one
+// number.
+$indent: 0.875rem;
+
 .wr-anchor {
   --wr-anchor-font-family: var(--wr-font-family-base);
   --wr-anchor-border: var(--wr-border-base);
@@ -20,7 +25,7 @@
   // the 1.5px bar lands at -0.5px and overlaps the rail it replaces. The
   // scale's nearest step is 16px, which paints the bar at 1.5px and opens a
   // gap between the marker and the rail at every nesting level.
-  padding-inline-start: 0.875rem;
+  padding-inline-start: $indent;
 
   &__list {
     list-style: none;
@@ -32,7 +37,13 @@
 
     &--nested {
       margin-top: var(--wr-anchor-list-nested-margin-top);
-      padding-inline-start: 0.875rem;
+      padding-inline-start: $indent;
+
+      // A nested link sits one indent further from the rail, so its bar reaches
+      // back that much further to land on the rail rather than float beside it.
+      .wr-anchor__link::before {
+        inset-inline-start: calc(-1rem - #{$indent});
+      }
     }
   }
 
