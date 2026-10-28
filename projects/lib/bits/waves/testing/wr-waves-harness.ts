@@ -31,7 +31,7 @@ const X_GAP = /(?:^|;)\s*--wr-waves-x-gap\s*:\s*([^;]+)/;
  * precisely the break the method exists to catch.
  *
  * There is no `getLineCount()`, `getPoints()` or `getCanvasSize()`: the grid is seeded
- * from `getBoundingClientRect()`, which is 0×0 here, and the numbers that fall out of
+ * from the host's layout box, which is 0×0 here, and the numbers that fall out of
  * that describe nothing. No `getLineColor()` either — it is a canvas `strokeStyle`
  * resolved from a themed custom property that only a stylesheet can supply. No
  * `moveMouse()`: the pointer listeners are on `window` and are only installed once a
