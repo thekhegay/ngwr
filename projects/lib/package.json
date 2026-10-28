@@ -206,6 +206,13 @@
     "./bits/marquee/testing": {
       "default": "./bits/marquee/testing/public-api.ts"
     },
+    "./bits/ripple-grid": {
+      "sass": "./bits/ripple-grid/styles/_index.scss",
+      "default": "./bits/ripple-grid/public-api.ts"
+    },
+    "./bits/ripple-grid/testing": {
+      "default": "./bits/ripple-grid/testing/public-api.ts"
+    },
     "./bits/rotating-text": {
       "sass": "./bits/rotating-text/styles/_index.scss",
       "default": "./bits/rotating-text/public-api.ts"

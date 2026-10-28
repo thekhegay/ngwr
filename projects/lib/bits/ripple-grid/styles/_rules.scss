@@ -1,0 +1,55 @@
+// Ripple-grid background. The host fills its nearest positioned ancestor and
+// the lines are drawn on a 2D canvas. A canvas reads neither a `var()` nor a
+// `light-dark()`, so `ripple-grid.ts` resolves both colour hooks through
+// `resolveCssColor` before it strokes with them.
+
+.wr-ripple-grid {
+  --wr-ripple-grid-line-color: var(--wr-border-base);
+  --wr-ripple-grid-ripple-color: var(--wr-color-primary);
+  // Mirror the `cellSize` and `lineWidth` inputs; the component publishes both
+  // so the stand-in below lands on the canvas's own lines.
+  --wr-ripple-grid-cell-size: 40px;
+  --wr-ripple-grid-line-width: 1px;
+
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  overflow: hidden;
+  // The pointer is followed on the parent, so the layer itself never takes a
+  // click or a hover from what sits behind or around it.
+  pointer-events: none;
+
+  // Stand-in grid, shown until the canvas has painted.
+  //
+  // A canvas cannot be prerendered, so on an SSR'd page the host is blank until
+  // the bundle has loaded and hydrated. These are the resting lines at the same
+  // colour, width and cell. The tiles are centred, which puts a cell on the
+  // centre of the box the way `draw()` lays the canvas grid out, and moved back
+  // by half a line so each line sits centred on its position the way a stroke
+  // does. The canvas then moves each line by up to half a device pixel so its
+  // edges land on whole pixels, which is all the handover moves.
+  background-image:
+    linear-gradient(
+      to right,
+      var(--wr-ripple-grid-line-color) var(--wr-ripple-grid-line-width),
+      transparent var(--wr-ripple-grid-line-width)
+    ),
+    linear-gradient(
+      to bottom,
+      var(--wr-ripple-grid-line-color) var(--wr-ripple-grid-line-width),
+      transparent var(--wr-ripple-grid-line-width)
+    );
+  background-position: calc(50% - var(--wr-ripple-grid-line-width) / 2) calc(50% - var(--wr-ripple-grid-line-width) / 2);
+  background-size: var(--wr-ripple-grid-cell-size) var(--wr-ripple-grid-cell-size);
+
+  &--painted {
+    background-image: none;
+  }
+
+  &__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
