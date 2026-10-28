@@ -32,7 +32,7 @@ A pnpm + Angular CLI monorepo with three projects:
   the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`,
-  **every chart** and **twenty of the twenty-three bits** — each at
+  **every chart** and **twenty-one of the twenty-four bits** — each at
   `ngwr/<name>/testing`. Charts and bits are NESTED since v15:
   `ngwr/charts/bar-chart`, `ngwr/bits/aurora`, harnesses at
   `ngwr/charts/bar-chart/testing`. Twenty-eight folders that used to sit beside
@@ -112,7 +112,7 @@ A pnpm + Angular CLI monorepo with three projects:
 `projects/lib/package.json`'s `exports` map.
 
 **A component with a `styleUrl` splits that one file in two, and the rule is
-mechanical: rules go in `styles/_rules.scss`, never in `_index.scss`.** Twenty-nine
+mechanical: rules go in `styles/_rules.scss`, never in `_index.scss`.** Thirty
 components have a `styleUrl`, and a component stylesheet is its OWN Sass
 compilation — `@use` deduplicates within one compilation, not across them — so a
 `_index.scss` that both `@use`s the theme and holds the rules inlines a second
@@ -679,13 +679,13 @@ and sat at `275 spec files, at least 4467 specs` for long enough to be wrong by
 four files and a hundred cases. The case figure is a FLOOR either way, since one
 `it.each` site stands for an unknown number of cases.) What is still uncovered
 is no longer whole components but what a spec can reach: jsdom has no drawing context, so the canvas
-and WebGL components can never assert anything painted. All eight now install a
+and WebGL components can never assert anything painted. All nine now install a
 recording context — a WebGL2 stub for `aurora` and `splash-cursor`, a 2D one for
-the rest — and seven of them an `ErrorHandler` recorder besides, because what
+the rest — and eight of them an `ErrorHandler` recorder besides, because what
 `afterNextRender` throws reaches neither `detectChanges()` nor `whenStable()`, so
 a boot that died reads as a pass without one. (`wr-confetti` is the exception and
 correctly so: a service, with no deferred boot to lose an error inside.) That
-carries the specs in those eight files past the early return, to frame
+carries the specs in those nine files past the early return, to frame
 counts, spark and particle counts, the fuzz ramp, a `var(--wr-…)` colour resolved
 against the host, gravity bringing a particle back down, and teardown — while
 each keeps the null-context path it started as, one "survives a browser that will
