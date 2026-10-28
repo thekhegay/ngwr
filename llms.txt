@@ -579,7 +579,7 @@ and carry no stability statement; do not build on them.
   text — it never runs them, and it never reaches outside its own package: no
   network, no commands. It reads the resources listed here rather than
   embedding a copy of them. Client config for Claude Code / Claude Desktop /
-  Cursor, and a worked example of each tool:
+  Cursor / Gemini CLI / Codex, and a worked example of each tool:
   https://ngwr.dev/docs/mcp-server
 - **Agent skill — the rules, not the catalog.** `skills/ngwr/SKILL.md` in the
   installed package (also at https://ngwr.dev/skills/ngwr/SKILL.md) is about a
