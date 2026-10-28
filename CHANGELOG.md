@@ -1,5 +1,68 @@
 # Changelog
 
+## [15.1.0](https://github.com/thekhegay/ngwr/compare/v15.0.1...v15.1.0) (2026-10-28)
+
+### Features
+
+* **bits:** dot grid and threads backgrounds that answer the pointer ([7b62001](https://github.com/thekhegay/ngwr/commit/7b62001d9b19e037318c36957bf47bf8f97ff50c))
+* **bits:** ripple grid background, rings from the pointer bend and light the lines ([23bb979](https://github.com/thekhegay/ngwr/commit/23bb9790bcef05c071a57dfc2ca9ab4388b60fb7))
+* **charts:** a box plot chart from raw values or precomputed stats ([6a01da5](https://github.com/thekhegay/ngwr/commit/6a01da503bf02bbee6851416f723aa339b1290f7))
+* **charts:** a bullet chart, one value against a target and its bands ([fc4c26b](https://github.com/thekhegay/ngwr/commit/fc4c26b3dbc570d6e569f16353ea746f97041eab))
+* **charts:** a candlestick chart, hollow up and filled down ([a320c8d](https://github.com/thekhegay/ngwr/commit/a320c8daab7f39d7a47dc389382e1df0c69bece9))
+* **charts:** a chart legend entry point, with an opt-in toggle for each series ([db9c6dc](https://github.com/thekhegay/ngwr/commit/db9c6dc5614e6de1e42bc5580b4cd9658f3e0702))
+* **charts:** a core entry point with the shared palette, formatter, axis and data table ([f0df417](https://github.com/thekhegay/ngwr/commit/f0df41795fc450f83b90ca967dbf14467818375f))
+* **charts:** a funnel chart with the conversion between stages ([c9d5f6c](https://github.com/thekhegay/ngwr/commit/c9d5f6c9668ea89cbb6fa394f26f918640323aeb))
+* **charts:** a heatmap chart, a matrix of values with a colour scale ([b1b1b67](https://github.com/thekhegay/ngwr/commit/b1b1b6720a0f5203a9f985cc1c40ce6d26964f75))
+* **charts:** a pie mode on the donut chart ([928e755](https://github.com/thekhegay/ngwr/commit/928e755c5fd255ab4cd3b0eb7a3c34129d93dcdf))
+* **charts:** a polar area variant on the radar chart ([13bf16e](https://github.com/thekhegay/ngwr/commit/13bf16eb79ac6124beb34272b7a1c25e66f1b371))
+* **charts:** a radar chart, several series over shared axes ([2e3d786](https://github.com/thekhegay/ngwr/commit/2e3d7861fa8577b438eb3c8d0c494411a55c67ba))
+* **charts:** a scatter chart, with sized points and a marker per series ([9cf40d7](https://github.com/thekhegay/ngwr/commit/9cf40d7f26984316bdab3989d5d0404f1268ed5b))
+* **charts:** a treemap chart, squarified ([ef6fb86](https://github.com/thekhegay/ngwr/commit/ef6fb86dfde2689cf4b23a59ac71bf3b7d1d1435))
+* **charts:** a waterfall chart, deltas floating from a running total ([62507fd](https://github.com/thekhegay/ngwr/commit/62507fdabf529d56b2d587f53149d151de6a9fa2))
+* **charts:** bar chart series, stacked and horizontal modes, and lines over the bars ([ce9141a](https://github.com/thekhegay/ngwr/commit/ce9141a2a5bc0a1caf7cf272d48b4a6ea4d8bff2))
+* **charts:** calendar heatmap data table, and a narrow one opens on its newest weeks ([fa669ae](https://github.com/thekhegay/ngwr/commit/fa669aee3b92b2b0fb37291cfbf740db6d873d95))
+* **charts:** donut and meter group on the shared legend, with an opt-in toggle ([66509e5](https://github.com/thekhegay/ngwr/commit/66509e554af6c3259c2ac184b45eb370d3d7bbfd))
+* **i18n:** labels for the new charts and modes in every catalog ([9873669](https://github.com/thekhegay/ngwr/commit/9873669446f20604a0eba17dd12204f76262fa18))
+* **i18n:** legend, area, scatter and radar labels in every catalog ([0a5a4ce](https://github.com/thekhegay/ngwr/commit/0a5a4ce29b3784dc456e6e951d5f28827c0a986c))
+* **line-chart:** area and stacked modes, the shared legend with a toggle, a data table ([99c17a1](https://github.com/thekhegay/ngwr/commit/99c17a15d56fc0d546a714ec8d75d8b7ee704c81))
+* **mcp:** get_ngwr_api reads interfaces and aliases, and search ranks by page keywords ([514de73](https://github.com/thekhegay/ngwr/commit/514de73a281fe387af8a8943cfd3b9ae95f71fbb))
+* **popover:** the chart tooltip shows a row per series ([1263c4f](https://github.com/thekhegay/ngwr/commit/1263c4f66fcbe2d927172fbc4641d978bd0437a7))
+* **window:** keyboard move and resize, active window, work area, arrange and redrawn chrome icons ([110b25c](https://github.com/thekhegay/ngwr/commit/110b25ce9818fa47c200ded29ab1ad5da1aee7ac))
+* **window:** taskbar folds tabs past its width or maxtabs under a +n menu ([c9a3f51](https://github.com/thekhegay/ngwr/commit/c9a3f51c34d25ed084963ae941961c5213671041))
+
+### Bug Fixes
+
+* **anchor:** a nested link's active bar lands on the rail ([83bc169](https://github.com/thekhegay/ngwr/commit/83bc16929cd32e3685f7c91ebaaae10d13ddc783))
+* **bits:** waves sizes from its untransformed box and redraws on resize without a blank frame ([70532ee](https://github.com/thekhegay/ngwr/commit/70532eea3004b52d6b7d7938d49485658eb864aa))
+* **charts:** a gauge reading keeps its order on an rtl page, with hooks for its colours ([4d8b8b4](https://github.com/thekhegay/ngwr/commit/4d8b8b4a13f70b36def473c5cc6c8500e273011d))
+* **charts:** a nan bar prints, names and tables nothing, dense bars keep a width, values read in rtl ([9cb73ae](https://github.com/thekhegay/ngwr/commit/9cb73ae1aab77127d566cf3642053aa991528fbb))
+* **charts:** a one-point sparkline draws a dot, with hooks for its area and marker ([da9e2e2](https://github.com/thekhegay/ngwr/commit/da9e2e235032da4271e3b0bd37fffcb486b273e0))
+* **charts:** axis ticks finer than six digits print exactly, and every chart loads the tooltip sheet ([3d53ee0](https://github.com/thekhegay/ngwr/commit/3d53ee027eed771bceef08702a873da902711eb3))
+* **charts:** line axes thin dense labels, unnamed points count from 1, a lone point draws a dot ([40638ed](https://github.com/thekhegay/ngwr/commit/40638ed1f7b1252cfedb46a5798a7c9dd364f78f))
+* **charts:** meter group slices honour reduced motion, with hooks for the whole group ([cb6a0c5](https://github.com/thekhegay/ngwr/commit/cb6a0c5759c09b9c48568e8dbc03f752245a1278))
+* **charts:** the donut legend prints a negative segment's own value ([fa1e054](https://github.com/thekhegay/ngwr/commit/fa1e05418bcdd2b98c25f8bf0cec25e4337afb27))
+* **collapse:** a closed panel keeps no border row under its header ([83acecb](https://github.com/thekhegay/ngwr/commit/83acecb81565fc0cd9e742f28d9e774b2de64cbc))
+* **i18n:** bar and funnel names read their separators from every catalog ([b19bf15](https://github.com/thekhegay/ngwr/commit/b19bf15f5bed45b635cf52f413edee1eb061cf7f))
+* **popover:** a chart tooltip keeps a value's sign first on an rtl page ([a56e0f6](https://github.com/thekhegay/ngwr/commit/a56e0f6dca7a7b116e1779f880155552119b78a5))
+* **popover:** chart tooltips stop short of the viewport edge ([b9ad991](https://github.com/thekhegay/ngwr/commit/b9ad991642db1bcec4b27a0bde11f54eaa241d8a))
+* **schematics:** component-style says since v15 only for entries v15 moved, and refuses core ([0b18d6d](https://github.com/thekhegay/ngwr/commit/0b18d6dbd88a64d01bc5675d236b7dc534d7161a))
+* **scripts:** internal entry points stay out of the symbol map; the skill counts as the site does ([72a27b7](https://github.com/thekhegay/ngwr/commit/72a27b7b031e6132a366ece9bbf1bc5bbcd226d8))
+* **toast:** square close and copy buttons, and title-only or message-only toasts lay out cleanly ([d929c5d](https://github.com/thekhegay/ngwr/commit/d929c5db0121471f6ce4618922c0a8bd7274bf45))
+
+### Showcase
+
+* charts grouped in the sidebar by what they show, pages in group folders ([3678f97](https://github.com/thekhegay/ngwr/commit/3678f9711fb734ac5b14d4e46b300cea78035395))
+* dot grid and threads pages under bits backgrounds ([90f05aa](https://github.com/thekhegay/ngwr/commit/90f05aa30d4092f5582e5b2423e98bffb583a584))
+* marks follow the newest declared line, and the removed tombstones are gone ([26852c2](https://github.com/thekhegay/ngwr/commit/26852c2120c7992c7b7ea20a35a38a3d106a8b7b))
+* mcp page covers gemini cli and codex ([052cdce](https://github.com/thekhegay/ngwr/commit/052cdce24fcc91cd8415a329b1934f9399ca19be))
+* pages for the new charts and modes, wired with see also and testing rows ([ad22702](https://github.com/thekhegay/ngwr/commit/ad227020088238f31c7086b1f5ad635a4f8d27bc))
+* ripple grid page under bits backgrounds ([14d3dbf](https://github.com/thekhegay/ngwr/commit/14d3dbf2c13615ce8dc5c366d75fac0b617257ba))
+* the new chart pages wired, with see also, interfaces and testing rows ([553b92c](https://github.com/thekhegay/ngwr/commit/553b92cd96a27084eb85cffe4b6a5f60f7924a1c))
+* toast layouts and the window's keyboard, arrange, slot and taskbar demos ([171211b](https://github.com/thekhegay/ngwr/commit/171211b47ea88ed7662a11166daaca2dddfefc02))
+* window page demos the folding taskbar ([8d9d9cd](https://github.com/thekhegay/ngwr/commit/8d9d9cde0d5ad02a96840a2b128e1369f0f4184d))
+* chart pages match their charts, with accessibility tables and paired demo captions ([d04e346](https://github.com/thekhegay/ngwr/commit/d04e3465c26f748d80ee36a831b2e4826ab2dd88))
+* install commands wrap instead of scrolling ([11010c5](https://github.com/thekhegay/ngwr/commit/11010c50b73ba326908e4cfdd794697cd28a9f99))
+
 ## [15.0.1](https://github.com/thekhegay/ngwr/compare/v15.0.0...v15.0.1) (2026-10-24)
 
 ### Bug Fixes
