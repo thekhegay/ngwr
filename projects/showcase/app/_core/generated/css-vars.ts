@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1546 hook(s) across 105 page(s). A property is here only when the
+ * 1550 hook(s) across 106 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 27 declaration(s) are one component setting
@@ -124,6 +124,15 @@ export const CSS_VARS = {
       { name: "--wr-marquee-fade-color-auto", default: "var(--wr-color-surface, #ffffff)", scope: ".wr-marquee" },
       { name: "--wr-marquee-gap", default: "32px", scope: ".wr-marquee" },
       { name: "--wr-marquee-height", default: "28px", scope: ".wr-marquee" },
+    ],
+  },
+  "bits/ripple-grid": {
+    subpath: "ngwr/bits/ripple-grid",
+    vars: [
+      { name: "--wr-ripple-grid-cell-size", default: "40px", scope: ".wr-ripple-grid" },
+      { name: "--wr-ripple-grid-line-color", default: "var(--wr-border-base)", scope: ".wr-ripple-grid" },
+      { name: "--wr-ripple-grid-line-width", default: "1px", scope: ".wr-ripple-grid" },
+      { name: "--wr-ripple-grid-ripple-color", default: "var(--wr-color-primary)", scope: ".wr-ripple-grid" },
     ],
   },
   "bits/shiny-text": {

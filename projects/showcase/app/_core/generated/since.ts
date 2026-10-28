@@ -28,6 +28,7 @@
  */
 export const SINCE = {
   "bits/dot-grid": "15.1.0",
+  "bits/ripple-grid": "15.1.0",
   "bits/threads": "15.1.0",
   "charts/boxplot-chart": "15.1.0",
   "charts/bullet-chart": "15.1.0",

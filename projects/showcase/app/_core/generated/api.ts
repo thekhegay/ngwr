@@ -1075,6 +1075,18 @@ export const API = {
     { name: "title", description: "The big figure. Defaults to `500`; override it for a localised or differently-worded page.", type: "string", default: "'500'" },
     { name: "description", description: "Body text. Falls back to `result.serverError` from WrI18n.", type: "string | null", default: "null" },
   ],
+  // <wr-ripple-grid>
+  WrRippleGrid: [
+    { name: "cellSize", description: "Distance between grid lines in px, never under 12.", type: "number", default: "40" },
+    { name: "lineColor", description: "Line colour, any CSS colour. When unset, `--wr-ripple-grid-line-color` decides.", type: "string | null", default: "null" },
+    { name: "rippleColor", description: "Colour a line takes where a ripple passes, any CSS colour. When unset, `--wr-ripple-grid-ripple-color` decides.", type: "string | null", default: "null" },
+    { name: "lineWidth", description: "Line width in px, never under 0.25.", type: "number", default: "1" },
+    { name: "strength", description: "How far a fresh ripple from a press bends the lines at its crest, in px; a ripple the moving pointer leaves bends them 40% as far. `0` keeps the lines straight and only lights them, and a negative value bends them inward. A bend steep enough to fold a line back over itself is never drawn: one ring, or several where they overlap, bends a line at most about 0.3 of a cell for cells from 22 to 80px — 11.7px at the default 40 — and rings that overlap share that bound rather than adding past it.", type: "number", default: "10" },
+    { name: "speed", description: "How fast a ripple travels outward, in px per second; `0` keeps it where it started.", type: "number", default: "320" },
+    { name: "decay", description: "How fast a ripple fades, per second: its strength is multiplied by `e^-decay` every second, so `1.4` halves it in half a second. `0` keeps it at full strength until it leaves the box.", type: "number", default: "1.4" },
+    { name: "rippleOnMove", description: "Whether a moving pointer leaves ripples behind it, and not only a press.", type: "boolean", default: "true" },
+    { name: "idleInterval", description: "Milliseconds between the softer ripples sent out from the centre on their own, never under 500; `0` sends none, and the grid then stays still until the pointer moves it.", type: "number", default: "0" },
+  ],
   // <wr-rotating-text>
   WrRotatingText: [
     { name: "texts", description: "Strings to cycle. Required.", type: "readonly string[]", required: true },

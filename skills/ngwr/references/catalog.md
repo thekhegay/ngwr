@@ -35,6 +35,8 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/bits/gradient-text/testing` | `import { WrGradientTextHarness } from 'ngwr/bits/gradient-text/testing'` | — |
 | `ngwr/bits/marquee` | `import { WrMarquee } from 'ngwr/bits/marquee'` | `wr-marquee` |
 | `ngwr/bits/marquee/testing` | `import { WrMarqueeHarness } from 'ngwr/bits/marquee/testing'` | — |
+| `ngwr/bits/ripple-grid` | `import { WrRippleGrid } from 'ngwr/bits/ripple-grid'` | `wr-ripple-grid` |
+| `ngwr/bits/ripple-grid/testing` | `import { WrRippleGridHarness } from 'ngwr/bits/ripple-grid/testing'` | — |
 | `ngwr/bits/rotating-text` | `import { WrRotatingText } from 'ngwr/bits/rotating-text'` | `wr-rotating-text` |
 | `ngwr/bits/rotating-text/testing` | `import { WrRotatingTextHarness } from 'ngwr/bits/rotating-text/testing'` | — |
 | `ngwr/bits/shiny-text` | `import { WrShinyText } from 'ngwr/bits/shiny-text'` | `[wrShimmer]` `wr-shiny-text` |

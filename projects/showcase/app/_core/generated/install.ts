@@ -78,6 +78,9 @@ export const INSTALL = {
   "bits/marquee": [
       { path: "ngwr/bits/marquee", symbols: ["WrMarquee"], declarables: ["WrMarquee"], styled: true },
   ],
+  "bits/ripple-grid": [
+      { path: "ngwr/bits/ripple-grid", symbols: ["WrRippleGrid"], declarables: ["WrRippleGrid"], styled: true },
+  ],
   "bits/rotating-text": [
       { path: "ngwr/bits/rotating-text", symbols: ["WrRotatingText"], declarables: ["WrRotatingText"], styled: true },
   ],
