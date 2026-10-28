@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1550 hook(s) across 106 page(s). A property is here only when the
+ * 1558 hook(s) across 106 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 27 declaration(s) are one component setting
@@ -1992,7 +1992,7 @@ export const CSS_VARS = {
   "reference/components/window": {
     subpath: "ngwr/window",
     vars: [
-      { name: "--wr-window-action-size", default: "1.5rem", scope: ".wr-window", overrides: 3 },
+      { name: "--wr-window-action-size", default: "1.5rem", scope: ".wr-window", overrides: 4 },
       { name: "--wr-window-anim-duration", default: "0.18s", scope: ".wr-window" },
       { name: "--wr-window-bg", default: "var(--wr-color-surface)", scope: ".wr-window" },
       { name: "--wr-window-body-padding", default: "var(--wr-space-lg)", scope: ".wr-window__body" },
@@ -2025,7 +2025,14 @@ export const CSS_VARS = {
       { name: "--wr-window-status-bar-gap", default: "var(--wr-space-sm)", scope: ".wr-window__status-bar" },
       { name: "--wr-window-status-bar-padding-x", default: "var(--wr-space-md)", scope: ".wr-window__status-bar" },
       { name: "--wr-window-status-bar-padding-y", default: "var(--wr-space-xs)", scope: ".wr-window__status-bar" },
+      { name: "--wr-window-taskbar-fold-item-minimized-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-window-taskbar__fold-item--minimized", base: false },
       { name: "--wr-window-taskbar-font-family", default: "var(--wr-font-family-base)", scope: ".wr-window-taskbar" },
+      { name: "--wr-window-taskbar-more-color", default: "var(--wr-color-on-surface)", scope: ".wr-window-taskbar__more" },
+      { name: "--wr-window-taskbar-more-hover-bg", default: "var(--wr-color-fill-strong)", scope: ".wr-window-taskbar__more" },
+      { name: "--wr-window-taskbar-more-min-width", default: "2.5rem", scope: ".wr-window-taskbar__more" },
+      { name: "--wr-window-taskbar-more-open-bg", default: "var(--wr-color-fill)", scope: ".wr-window-taskbar__more" },
+      { name: "--wr-window-taskbar-more-padding-inline", default: "var(--wr-space-sm)", scope: ".wr-window-taskbar__more" },
+      { name: "--wr-window-taskbar-more-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-window-taskbar__more" },
       { name: "--wr-window-taskbar-rail-border", default: "var(--wr-border-base)", scope: ".wr-window-taskbar__rail" },
       { name: "--wr-window-taskbar-rail-gap", default: "var(--wr-space-xs)", scope: ".wr-window-taskbar__rail" },
       { name: "--wr-window-taskbar-rail-padding", default: "var(--wr-space-xs)", scope: ".wr-window-taskbar__rail" },
@@ -2036,6 +2043,7 @@ export const CSS_VARS = {
       { name: "--wr-window-taskbar-tab-font-size", default: "var(--wr-text-sm)", scope: ".wr-window-taskbar__tab" },
       { name: "--wr-window-taskbar-tab-gap", default: "var(--wr-space-xs)", scope: ".wr-window-taskbar__tab" },
       { name: "--wr-window-taskbar-tab-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-window-taskbar__tab" },
+      { name: "--wr-window-taskbar-tab-min-width", default: "7rem", scope: ".wr-window-taskbar__tab" },
       { name: "--wr-window-taskbar-tab-minimized-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-window-taskbar__tab" },
       { name: "--wr-window-taskbar-tab-padding-inline-end", default: "var(--wr-space-xs)", scope: ".wr-window-taskbar__tab" },
       { name: "--wr-window-taskbar-tab-padding-inline-start", default: "var(--wr-space-md)", scope: ".wr-window-taskbar__tab" },
@@ -2051,7 +2059,7 @@ export const CSS_VARS = {
       { name: "--wr-window-traffic-light-bg", default: "#ff5f57", scope: ".wr-window--os-macos .wr-window__chrome-action--close", base: false, overrides: 3 },
       { name: "--wr-window-traffic-light-color", default: "#4d0000", scope: ".wr-window--os-macos .wr-window__chrome-action--close", base: false, overrides: 2 },
       { name: "--wr-window-traffic-light-inactive-bg", default: "color-mix(in srgb, var(--wr-color-on-surface) 22%, transparent)", scope: ".wr-window--os-macos .wr-window__chrome-action", base: false },
-      { name: "--wr-window-traffic-light-size", default: "0.875rem", scope: ".wr-window--os-macos .wr-window__chrome-action", base: false, overrides: 1 },
+      { name: "--wr-window-traffic-light-size", default: "1rem", scope: ".wr-window--os-macos .wr-window__chrome-action", base: false, overrides: 1 },
     ],
   },
   "reference/directives/typography": {

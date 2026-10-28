@@ -63,7 +63,7 @@ export const DEPS: Readonly<Record<string, DocDeps>> = {
   "density": {"uses":["storage"],"usedBy":[],"peers":[],"addons":[]},
   "dialog": {"uses":["overlay"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["a11y","overlay","portal","scrolling"],"optional":false}],"addons":[]},
   "drawer": {"uses":["overlay"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["a11y","overlay","portal"],"optional":false}],"addons":[]},
-  "dropdown": {"uses":["icon","overlay"],"usedBy":["table"],"peers":[{"pkg":"@angular/cdk","parts":["overlay","portal"],"optional":false}],"addons":[]},
+  "dropdown": {"uses":["icon","overlay"],"usedBy":["table","window"],"peers":[{"pkg":"@angular/cdk","parts":["overlay","portal"],"optional":false}],"addons":[]},
   "editor": {"uses":["button","form","input","popover"],"usedBy":[],"peers":[{"pkg":"prosemirror","parts":["prosemirror-commands","prosemirror-history","prosemirror-inputrules","prosemirror-keymap","prosemirror-model","prosemirror-schema-list","prosemirror-state","prosemirror-view"],"optional":true}],"addons":[]},
   "empty": {"uses":["icon"],"usedBy":[],"peers":[],"addons":[]},
   "event-calendar": {"uses":["button","date"],"usedBy":[],"peers":[],"addons":[]},
@@ -111,7 +111,7 @@ export const DEPS: Readonly<Record<string, DocDeps>> = {
   "tree": {"uses":["form","overlay"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["overlay","portal"],"optional":false}],"addons":[]},
   "validators": {"uses":["date"],"usedBy":[],"peers":[],"addons":[]},
   "virtual-scroll": {"uses":[],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["scrolling"],"optional":false}],"addons":[]},
-  "window": {"uses":["overlay","storage"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["a11y","portal"],"optional":false}],"addons":[]},
+  "window": {"uses":["dropdown","overlay","storage"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["a11y","portal"],"optional":false}],"addons":[]},
 };
 
 /** Entry point → the page documenting it. */
