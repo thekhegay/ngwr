@@ -1616,6 +1616,6 @@ export const API = {
   WrWindowTaskbar: [
     { name: "position", description: "Edge the taskbar pins itself to.", type: "'top' | 'bottom'", default: "'bottom'" },
     { name: "show", description: "Which windows the rail lists: the minimized ones, or every open one with the active window marked (since v15.1).", type: "WrWindowTaskbarShow", default: "'minimized'" },
-    { name: "maxTabs", description: "The most tabs the rail shows; the rest fold under a \"+N\" button that opens them as a menu (since v15.1). The width folds tabs too, whatever this says: once every tab is down to `--wr-window-taskbar-tab-min-width`, the ones that still do not fit go under the button. `null` leaves it to the width alone.", type: "number | null", default: "null" },
+    { name: "maxTabs", description: "The most tabs the rail shows; the rest fold under a \"+N\" button that opens them as a menu (since v15.1). The width folds tabs too, whatever this says: the tabs that do not fit beside the button at their own width go under it. `null` leaves it to the width alone.", type: "number | null", default: "null" },
   ],
 } satisfies Record<string, readonly DocApiRow[]>;

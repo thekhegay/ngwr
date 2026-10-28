@@ -2043,7 +2043,7 @@ export const CSS_VARS = {
       { name: "--wr-window-taskbar-tab-font-size", default: "var(--wr-text-sm)", scope: ".wr-window-taskbar__tab" },
       { name: "--wr-window-taskbar-tab-gap", default: "var(--wr-space-xs)", scope: ".wr-window-taskbar__tab" },
       { name: "--wr-window-taskbar-tab-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-window-taskbar__tab" },
-      { name: "--wr-window-taskbar-tab-min-width", default: "7rem", scope: ".wr-window-taskbar__tab" },
+      { name: "--wr-window-taskbar-tab-max-width", default: "12rem", scope: ".wr-window-taskbar__tab" },
       { name: "--wr-window-taskbar-tab-minimized-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-window-taskbar__tab" },
       { name: "--wr-window-taskbar-tab-padding-inline-end", default: "var(--wr-space-xs)", scope: ".wr-window-taskbar__tab" },
       { name: "--wr-window-taskbar-tab-padding-inline-start", default: "var(--wr-space-md)", scope: ".wr-window-taskbar__tab" },
