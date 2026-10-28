@@ -363,15 +363,18 @@
   // OS preset: macOS — traffic lights (close red, minimize yellow, zoom green)
   //                   at the start of the bar, glyphs on hover.
   //
-  // The button is a 24px hit target and the dot is its `::before`: 14px dots
-  // 24px apart are macOS's own 12px-on-20px proportions scaled to this 36px bar,
-  // and they clear WCAG 2.5.8, which 14px buttons did not. The compact bar
-  // keeps the 24px targets and draws macOS's own 12px dot in them.
+  // The button is a 28px hit target and the dot is its `::before`: 16px dots
+  // 28px apart hold macOS's own 12px dot to its 28px title bar, scaled to this
+  // 36px one, and the light a pointer has to land on is a third larger than
+  // macOS draws it. The compact bar keeps 24px targets with 14px dots in them.
+  // Both clear WCAG 2.5.8, which the original 14px buttons did not.
   //
   // RTL: macOS mirrors its window chrome in a right-to-left UI, so the lights
   // move to the other edge with close still outermost. `row-reverse` resolves
   // against `dir`, which is what does it.
   &--os-macos {
+    --wr-window-action-size: 1.75rem;
+
     .wr-window__chrome {
       // The close dot's centre is as far from the side of the frame as from its
       // top, which is where macOS puts it.
@@ -404,7 +407,7 @@
       --wr-window-chrome-actions-padding-inline-start: 0;
     }
     .wr-window__chrome-action {
-      --wr-window-traffic-light-size: 0.875rem;
+      --wr-window-traffic-light-size: 1rem;
       // A tint of the text colour rather than a fill token: the fills sit a
       // step from the bar in the dark scheme, which left the grey lights all
       // but invisible there.
@@ -486,7 +489,7 @@
       --wr-window-action-size: 1.5rem;
 
       .wr-window__chrome-action {
-        --wr-window-traffic-light-size: 0.75rem;
+        --wr-window-traffic-light-size: 0.875rem;
       }
     }
   }

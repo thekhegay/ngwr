@@ -268,7 +268,7 @@ export const STATES: readonly State[] = [
     steps: [{ click: demo('.wr-btn:has-text("macOS")') }, { wait: 300 }],
     target: '.wr-window',
     scope: '.wr-window',
-    note: 'macOS chrome: 24px buttons painting 14px traffic lights, so target-size passes since 15.1.0.',
+    note: 'macOS chrome: 28px buttons painting 16px traffic lights, so target-size passes since 15.1.0.',
   },
   {
     id: 'window/inactive',
