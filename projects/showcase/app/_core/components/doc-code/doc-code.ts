@@ -73,6 +73,7 @@ let docCodeUid = 0;
     // pattern should hide an inactive panel. `JSON.stringify` keeps newlines
     // and quotes intact through attribute serialisation.
     '[attr.data-inactive-files]': 'inactiveFilesJson()',
+    '[class.wrap]': 'wrap()',
   },
   providers: [provideWrIcons(lucideIcons({ copy: Copy, check: Check }))],
 })
@@ -83,6 +84,13 @@ export class DocCodeComponent {
 
   // Multi-file API (tabs)
   readonly files = input<readonly DocCodeFile[] | null>(null);
+
+  /**
+   * Wrap long lines at spaces instead of scrolling. For a one-line shell
+   * command: it wraps on screen and still copies as one line, which a `\`
+   * continuation would not do in every shell.
+   */
+  readonly wrap = input(false);
 
   protected readonly tabs = computed<readonly DocCodeFile[]>(() => {
     const fs = this.files();

@@ -143,6 +143,16 @@
   }
 }
 
+// `[wrap]`: a long line folds at its spaces rather than scrolling, and keeps
+// clear of the copy button in the corner, which a wrapped first line would
+// otherwise run under.
+:host(.wrap) ::ng-deep pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  // rtl-ok: the code is always LTR and the copy button keeps to its right edge
+  padding-right: calc(var(--ngwr-doc-code-padding) + 2rem);
+}
+
 // Shiki ships both `github-light-high-contrast` and `github-dark-high-contrast`
 // palettes as CSS vars
 // (`--shiki-light` / `--shiki-dark`) per token. `light-dark()` picks the one
