@@ -49,6 +49,12 @@ export default class WindowPageComponent {
     { value: 'minimized', label: 'Minimized' },
     { value: 'all', label: 'All' },
   ];
+  /** How many tabs the page's taskbar shows before it folds the rest; 0 leaves it to the width. */
+  protected readonly taskbarMax = signal(0);
+  protected readonly taskbarMaxOptions: readonly WrSegmentedOption<number>[] = [
+    { value: 0, label: 'Fit the width' },
+    { value: 3, label: 'At most 3' },
+  ];
 
   /** The window each interactive section drives, while it is open. */
   protected readonly keyboardRef = signal<DemoRef | null>(null);
@@ -169,6 +175,11 @@ export default class WindowPageComponent {
     });
   }
 
+  /** Enough windows to fold the rail on a phone, and past three anywhere. */
+  protected openManyTaskbarDemos(): void {
+    for (const title of ['Notes', 'Calendar', 'Mail', 'Music', 'Photos', 'Terminal']) this.openTaskbarDemo(title);
+  }
+
   protected openSlots(): void {
     this.openDemo({
       title: 'Report.md',
@@ -277,7 +288,8 @@ provideWr(withWindows({ bounds: { top: 64 } }));`,
 
     taskbar: `<wr-window-taskbar />
 <wr-window-taskbar show="all" />
-<wr-window-taskbar position="top" />`,
+<wr-window-taskbar position="top" />
+<wr-window-taskbar show="all" [maxTabs]="5" />`,
 
     arrange: `manager.cascade();
 manager.tile(); // 'grid' | 'columns' | 'rows'
@@ -808,6 +820,13 @@ ref.close(savedDocId);`,
       description: 'List the minimized windows, or every open one with the active one marked.',
       type: "'minimized' | 'all'",
       default: "'minimized'",
+    },
+    {
+      name: 'maxTabs',
+      description:
+        'The most tabs the rail shows; the rest fold under a `+N` button. Tabs that do not fit the width fold too.',
+      type: 'number | null',
+      default: 'null',
     },
   ];
 
