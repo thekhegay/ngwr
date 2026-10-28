@@ -1125,9 +1125,9 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Canvas-backed: getText() / isDecorative() / hasCanvas() / isTextVisuallyHidden() / isPainted() / getLineGapPx() / isFullscreen()',
+      name: 'Canvas-backed: getText() / isDecorative() / hasCanvas() / isTextVisuallyHidden() / isPainted() / getLineGapPx() / getGapPx() / getDotSizePx() / getLineCount() / getLineWidthPx() / isFullscreen()',
       description:
-        '`WrFuzzyTextHarness`, `WrWavesHarness`, `WrSplashCursorHarness`. DOM only; `isPainted()` is false in jsdom.',
+        '`WrFuzzyTextHarness`, `WrWavesHarness`, `WrDotGridHarness`, `WrThreadsHarness`, `WrSplashCursorHarness`. DOM only; `isPainted()` is false in jsdom.',
       type: 'Promise<…>',
     },
   ];

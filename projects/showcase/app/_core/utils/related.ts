@@ -3,7 +3,14 @@
  * companion, the guide behind it. Six at most, best first; what an entry point is built on is added automatically.
  */
 export const RELATED: Readonly<Record<string, readonly string[]>> = {
-  'bits/aurora': ['bits/waves', 'bits/splash-cursor', 'bits/split-text', 'reference/utils/resolve-css-color'],
+  'bits/aurora': [
+    'bits/waves',
+    'bits/threads',
+    'bits/dot-grid',
+    'bits/splash-cursor',
+    'bits/split-text',
+    'reference/utils/resolve-css-color',
+  ],
   'bits/blur-text': ['bits/split-text', 'bits/decrypt-text', 'bits/falling-text', 'guides/ssr'],
   'bits/border-glow': ['bits/spotlight-card', 'bits/star-border', 'reference/components/card', 'bits/tilt-card'],
   'bits/circular-text': ['bits/rotating-text'],
@@ -15,6 +22,13 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'bits/fuzzy-text',
     'bits/split-text',
     'bits/rotating-text',
+  ],
+  'bits/dot-grid': [
+    'bits/waves',
+    'bits/threads',
+    'bits/aurora',
+    'bits/spotlight-card',
+    'reference/utils/resolve-css-color',
   ],
   'bits/falling-text': ['bits/split-text', 'bits/blur-text'],
   'bits/fuzzy-text': ['bits/glitch-text', 'bits/decrypt-text'],
@@ -32,9 +46,17 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/button',
     'reference/components/card',
   ],
+  'bits/threads': ['bits/waves', 'bits/aurora', 'bits/dot-grid', 'reference/utils/resolve-css-color'],
   'bits/tilt-card': ['bits/spotlight-card', 'reference/components/card', 'bits/border-glow'],
   'bits/typewriter': ['bits/rotating-text', 'bits/decrypt-text', 'bits/split-text'],
-  'bits/waves': ['bits/aurora', 'bits/split-text', 'bits/splash-cursor', 'reference/utils/resolve-css-color'],
+  'bits/waves': [
+    'bits/aurora',
+    'bits/threads',
+    'bits/dot-grid',
+    'bits/split-text',
+    'bits/splash-cursor',
+    'reference/utils/resolve-css-color',
+  ],
 
   'charts/bar-chart': [
     'charts/line-chart',

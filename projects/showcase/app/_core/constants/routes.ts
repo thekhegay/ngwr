@@ -339,6 +339,8 @@ export const ROUTES = {
     tiltCard: { path: 'tilt-card', title: 'Tilt Card' },
     clickSpark: { path: 'click-spark', title: 'Click Spark' },
     waves: { path: 'waves', title: 'Waves' },
+    dotGrid: { path: 'dot-grid', title: 'Dot Grid' },
+    threads: { path: 'threads', title: 'Threads' },
     starBorder: { path: 'star-border', title: 'Star Border' },
     splashCursor: { path: 'splash-cursor', title: 'Splash Cursor' },
     splitText: { path: 'split-text', title: 'Split Text' },
