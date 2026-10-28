@@ -393,7 +393,8 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   is no `<wr-window>`, `WrWindowManager.open()` (ngwr/window) opens one and
   moves focus into it (`autoFocus: false` for a background window), and
   `<wr-window-taskbar>` lists the minimized ones, or every window with
-  `show="all"`. Alt+F7 / Alt+F8 move and resize the focused window from the
+  `show="all"`, in one row: tabs that do not fit, or past `maxTabs`, fold
+  under a "+N" menu. Alt+F7 / Alt+F8 move and resize the focused window from the
   keyboard, and the manager can `cascade()`, `tile()` and cycle the active
   window.)
 - **Bits** — the animation and visual-effect components: text effects, cursor
