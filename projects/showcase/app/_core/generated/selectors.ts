@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 186 of 198 declarations are mapped: 0 carry no selector and
+ * 188 of 200 declarations are mapped: 0 carry no selector and
  * 12 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -83,6 +83,7 @@ export const SELECTORS = {
     "wr-descriptions": { symbol: "WrDescriptions", path: "ngwr/descriptions" },
     "wr-divider": { symbol: "WrDivider", path: "ngwr/divider" },
     "wr-donut-chart": { symbol: "WrDonutChart", path: "ngwr/charts/donut-chart" },
+    "wr-dot-grid": { symbol: "WrDotGrid", path: "ngwr/bits/dot-grid" },
     "wr-drawer": { symbol: "WrDrawer", path: "ngwr/drawer" },
     "wr-dropdown-item": { symbol: "WrDropdownItem", path: "ngwr/dropdown" },
     "wr-dropdown-menu": { symbol: "WrDropdownMenu", path: "ngwr/dropdown" },
@@ -170,6 +171,7 @@ export const SELECTORS = {
     "wr-tabs": { symbol: "WrTabs", path: "ngwr/tabs" },
     "wr-tag": { symbol: "WrTag", path: "ngwr/badge" },
     "wr-textarea": { symbol: "WrTextarea", path: "ngwr/textarea" },
+    "wr-threads": { symbol: "WrThreads", path: "ngwr/bits/threads" },
     "wr-tilt-card": { symbol: "WrTiltCard", path: "ngwr/bits/tilt-card" },
     "wr-timeline": { symbol: "WrTimeline", path: "ngwr/timeline" },
     "wr-timeline-item": { symbol: "WrTimelineItem", path: "ngwr/timeline" },
@@ -251,6 +253,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/bits/circular-text",
   "ngwr/bits/click-spark",
   "ngwr/bits/decrypt-text",
+  "ngwr/bits/dot-grid",
   "ngwr/bits/falling-text",
   "ngwr/bits/glitch-text",
   "ngwr/bits/gradient-text",
@@ -261,6 +264,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/bits/split-text",
   "ngwr/bits/spotlight-card",
   "ngwr/bits/star-border",
+  "ngwr/bits/threads",
   "ngwr/bits/tilt-card",
   "ngwr/bits/typewriter",
   "ngwr/bits/waves",

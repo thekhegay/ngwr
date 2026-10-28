@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1538 hook(s) across 103 page(s). A property is here only when the
+ * 1546 hook(s) across 105 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 27 declaration(s) are one component setting
@@ -86,6 +86,15 @@ export const CSS_VARS = {
       { name: "--wr-circular-text-size", default: "12rem", scope: ".wr-circular-text" },
     ],
   },
+  "bits/dot-grid": {
+    subpath: "ngwr/bits/dot-grid",
+    vars: [
+      { name: "--wr-dot-grid-active-color", default: "var(--wr-color-primary)", scope: ".wr-dot-grid" },
+      { name: "--wr-dot-grid-dot-color", default: "var(--wr-border-strong)", scope: ".wr-dot-grid" },
+      { name: "--wr-dot-grid-dot-size", default: "3px", scope: ".wr-dot-grid" },
+      { name: "--wr-dot-grid-gap", default: "24px", scope: ".wr-dot-grid" },
+    ],
+  },
   "bits/glitch-text": {
     subpath: "ngwr/bits/glitch-text",
     vars: [
@@ -144,6 +153,15 @@ export const CSS_VARS = {
       { name: "--wr-star-border-opacity", default: "1", scope: ".wr-star-border" },
       { name: "--wr-star-border-radius", default: "20px", scope: ".wr-star-border" },
       { name: "--wr-star-border-speed", default: "6s", scope: ".wr-star-border" },
+    ],
+  },
+  "bits/threads": {
+    subpath: "ngwr/bits/threads",
+    vars: [
+      { name: "--wr-threads-color", default: "light-dark(color-mix(in srgb, var(--wr-color-primary) 60%, transparent), color-mix(in srgb, var(--wr-color-primary-lighter) 60%, transparent))", scope: ".wr-threads" },
+      { name: "--wr-threads-count", default: "18", scope: ".wr-threads" },
+      { name: "--wr-threads-line-width", default: "1px", scope: ".wr-threads" },
+      { name: "--wr-threads-spread", default: "0.4", scope: ".wr-threads" },
     ],
   },
   "bits/tilt-card": {

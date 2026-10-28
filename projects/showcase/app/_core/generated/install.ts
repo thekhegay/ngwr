@@ -60,6 +60,9 @@ export const INSTALL = {
   "bits/decrypt-text": [
       { path: "ngwr/bits/decrypt-text", symbols: ["WrDecryptText"], declarables: ["WrDecryptText"], styled: true },
   ],
+  "bits/dot-grid": [
+      { path: "ngwr/bits/dot-grid", symbols: ["WrDotGrid"], declarables: ["WrDotGrid"], styled: true },
+  ],
   "bits/falling-text": [
       { path: "ngwr/bits/falling-text", symbols: ["WrFallingText"], declarables: ["WrFallingText"], styled: true },
   ],
@@ -92,6 +95,9 @@ export const INSTALL = {
   ],
   "bits/star-border": [
       { path: "ngwr/bits/star-border", symbols: ["WrStarBorder"], declarables: ["WrStarBorder"], styled: true },
+  ],
+  "bits/threads": [
+      { path: "ngwr/bits/threads", symbols: ["WrThreads"], declarables: ["WrThreads"], styled: true },
   ],
   "bits/tilt-card": [
       { path: "ngwr/bits/tilt-card", symbols: ["WrTilt", "WrTiltCard"], declarables: ["WrTilt", "WrTiltCard"], styled: true },

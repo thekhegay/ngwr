@@ -27,6 +27,8 @@
  * wants it. The runtime lookups widen it back — see `_core/utils/since.ts`.
  */
 export const SINCE = {
+  "bits/dot-grid": "15.1.0",
+  "bits/threads": "15.1.0",
   "charts/boxplot-chart": "15.1.0",
   "charts/bullet-chart": "15.1.0",
   "charts/candlestick-chart": "15.1.0",

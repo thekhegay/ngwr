@@ -518,6 +518,15 @@ export const API = {
     { name: "tooltip", description: "Show a tooltip with the slice's label and value on hover. Pointer only — the legend prints the same numbers, and with `showLegend` off `ariaLabel` is where to say them. With `pie`, a slice too thin to land a pointer on, a sliver of a few degrees, is hovered over a wider strip than it draws, through an invisible `.wr-donut-chart__hit` over the pie: widened toward 12px of outer arc (15° on a chart under about 92px) out of what the wider slices beside it can spare, each of which keeps that much of its own. A sliver whose neighbours are slivers too, or have little to spare, gets a narrower target or none, and is read in the legend. The ring draws no such target.", type: "boolean", default: "true" },
     { name: "valueFormat", description: "Writes every value in the legend and the tooltip. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. The centre text is printed as given.", type: "((value: number) => string) | null", default: "null" },
   ],
+  // <wr-dot-grid>
+  WrDotGrid: [
+    { name: "dotSize", description: "Dot diameter in px.", type: "number", default: "3" },
+    { name: "gap", description: "Distance between dot centres in px, never under 4.", type: "number", default: "24" },
+    { name: "dotColor", description: "Resting dot colour, any CSS colour. When unset, `--wr-dot-grid-dot-color` decides.", type: "string | null", default: "null" },
+    { name: "activeColor", description: "Colour a dot takes near the pointer, any CSS colour. When unset, `--wr-dot-grid-active-color` decides.", type: "string | null", default: "null" },
+    { name: "radius", description: "How far from the pointer a dot still reacts, in px.", type: "number", default: "120" },
+    { name: "strength", description: "How far a dot right by the pointer is pushed, in px; the push fades out toward `radius`. `0` keeps the dots in place and only lights them, and a negative value pulls them in.", type: "number", default: "12" },
+  ],
   // <wr-drawer>
   WrDrawer: [
     { name: "open", description: "Two-way bindable open state.", type: "boolean", default: "false" },
@@ -1434,6 +1443,16 @@ export const API = {
     { name: "disabled", description: "Disable the textarea. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "value", description: "The edited text. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+  ],
+  // <wr-threads>
+  WrThreads: [
+    { name: "lineCount", description: "How many threads, rounded and kept between 1 and 100.", type: "number", default: "18" },
+    { name: "color", description: "Thread colour, any CSS colour — a `var()` token or a `light-dark()` pair included. Emptied, it follows the theme.", type: "string", default: "'var(--wr-threads-color)'" },
+    { name: "amplitude", description: "How far the bundle meanders up and down, in px.", type: "number", default: "40" },
+    { name: "speed", description: "Speed of the current; 0 holds it, a negative value reverses it.", type: "number", default: "1" },
+    { name: "lineWidth", description: "Stroke width of each thread, in px.", type: "number", default: "1" },
+    { name: "spread", description: "Share of the box height the threads fan across at their widest, 0..1.", type: "number", default: "0.4" },
+    { name: "followPointer", description: "Whether the threads near the pointer bend toward it.", type: "boolean", default: "true" },
   ],
   // <[wrTilt]>
   WrTilt: [

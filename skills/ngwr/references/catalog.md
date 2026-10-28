@@ -23,6 +23,8 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/bits/confetti` | `import { WrConfetti } from 'ngwr/bits/confetti'` | — |
 | `ngwr/bits/decrypt-text` | `import { WrDecryptText } from 'ngwr/bits/decrypt-text'` | `wr-decrypt-text` |
 | `ngwr/bits/decrypt-text/testing` | `import { WrDecryptTextHarness } from 'ngwr/bits/decrypt-text/testing'` | — |
+| `ngwr/bits/dot-grid` | `import { WrDotGrid } from 'ngwr/bits/dot-grid'` | `wr-dot-grid` |
+| `ngwr/bits/dot-grid/testing` | `import { WrDotGridHarness } from 'ngwr/bits/dot-grid/testing'` | — |
 | `ngwr/bits/falling-text` | `import { WrFallingText } from 'ngwr/bits/falling-text'` | `wr-falling-text` |
 | `ngwr/bits/falling-text/testing` | `import { WrFallingTextHarness } from 'ngwr/bits/falling-text/testing'` | — |
 | `ngwr/bits/fuzzy-text` | `import { WrFuzzyText } from 'ngwr/bits/fuzzy-text'` | `wr-fuzzy-text` |
@@ -45,6 +47,8 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/bits/spotlight-card/testing` | `import { WrSpotlightCardHarness } from 'ngwr/bits/spotlight-card/testing'` | — |
 | `ngwr/bits/star-border` | `import { WrStarBorder } from 'ngwr/bits/star-border'` | `wr-star-border` `[wr-star-border]` |
 | `ngwr/bits/star-border/testing` | `import { WrStarBorderHarness } from 'ngwr/bits/star-border/testing'` | — |
+| `ngwr/bits/threads` | `import { WrThreads } from 'ngwr/bits/threads'` | `wr-threads` |
+| `ngwr/bits/threads/testing` | `import { WrThreadsHarness } from 'ngwr/bits/threads/testing'` | — |
 | `ngwr/bits/tilt-card` | `import { WrTiltCard } from 'ngwr/bits/tilt-card'` | `wr-tilt-card` `[wrTilt]` |
 | `ngwr/bits/tilt-card/testing` | `import { WrTiltHarness } from 'ngwr/bits/tilt-card/testing'` | — |
 | `ngwr/bits/typewriter` | `import { WrTypewriter } from 'ngwr/bits/typewriter'` | `wr-typewriter` |
