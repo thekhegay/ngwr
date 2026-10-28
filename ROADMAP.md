@@ -22,10 +22,10 @@ unscheduled; everything under [Deferred](#deferred) is explicitly not now.
 
 ## F — Catalog
 
-- [ ] **F1. Parity with React Bits** (XL) — `ngwr/bits` has 21 entries;
+- [ ] **F1. Parity with React Bits** (XL) — `ngwr/bits` has 23 entries;
       [React Bits](https://www.reactbits.dev) lists over 200 across text
       animations, animations, components and backgrounds. Backgrounds first
-      (threads, dot grid, ripple grid, iridescence, …), then the text and
+      (ripple grid, iridescence, …), then the text and
       cursor effects. Each one a
       Signal-input component on theme tokens, honouring
       `prefers-reduced-motion`, with a docs page under `/bits`.
