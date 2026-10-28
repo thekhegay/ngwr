@@ -17,6 +17,7 @@ import {
   PLATFORM_ID,
   Service,
   type Signal,
+  afterNextRender,
   computed,
   inject,
   signal,
@@ -69,6 +70,12 @@ export interface WrWindowTaskbarTabs {
    * folded under one, or `null` when this taskbar does not list it.
    */
   tabFor(ref: AnyRef): HTMLElement | null;
+  /**
+   * Whether `ref`'s place in the rail is still moving: its tab has not been
+   * measured yet, or the render that folds or unfolds it has not happened. Focus
+   * waits for it rather than landing on a tab about to hide or a "+N" not drawn.
+   */
+  settling(ref: AnyRef): boolean;
   /** Whether `node` is inside this taskbar. */
   contains(node: Node): boolean;
   /** The strip of the viewport this taskbar covers while it shows tabs, in px from each edge. */
@@ -597,7 +604,16 @@ export class WrWindowManager implements WrWindowRefHost {
    *
    * @internal
    */
-  _focusAfterMinimize(ref: AnyRef): void {
+  _focusAfterMinimize(ref: AnyRef, attempt = 0): void {
+    // A tab the rail has not measured yet can fold on the next pass, and its
+    // "+N" is not drawn until the pass after. Wait for those, a few at most,
+    // rather than focus what is about to hide or fall back to the opener.
+    if (attempt < 3 && this.taskbars().some(taskbar => taskbar.settling(ref))) {
+      const active = this.focusedElement();
+      if (active && ref._overlayRef.overlayElement?.contains(active)) active.blur();
+      afterNextRender(() => this._focusAfterMinimize(ref, attempt + 1), { injector: this.parentInjector });
+      return;
+    }
     // The restore button is the row's first: the close button sits after it. A
     // folded window's place is the "+N" button, which is a button itself.
     const tab = this.taskbarTab(ref);

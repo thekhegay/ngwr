@@ -826,9 +826,9 @@
     --wr-window-taskbar-rail-radius: var(--wr-border-radius-base);
 
     display: flex;
-    // One row, always. Tabs shrink to their minimum first, and the ones that
-    // still do not fit fold under the "+N" button at the end — the component
-    // counts them from the same minimum, the gap and the rail's own width.
+    // One row, always. Each tab is as wide as its title, up to its max-width,
+    // and the ones that do not fit fold under the "+N" button at the end — the
+    // component counts them from those widths, the gap and the rail's own width.
     flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
@@ -856,14 +856,18 @@
     --wr-window-taskbar-tab-active-bg: var(--wr-color-fill);
     --wr-window-taskbar-tab-active-indicator: var(--wr-color-primary);
     --wr-window-taskbar-tab-minimized-color: var(--wr-color-on-surface-muted);
-    // The narrowest a tab shrinks to before the rail starts folding tabs under
-    // "+N". The component reads it back as the computed `min-width`, so
-    // changing it moves where the folding starts.
-    --wr-window-taskbar-tab-min-width: 7rem;
+    // The widest a tab grows for a long title, which then ends in an ellipsis.
+    // The component reads it back as the computed `max-width`, so it counts
+    // what fits from the same number. Give it a length: a percentage resolves
+    // against the rail for a drawn tab and the host for a folded one.
+    --wr-window-taskbar-tab-max-width: 12rem;
 
     display: inline-flex;
+    // As wide as the title, never wider than the cap. It shrinks only when one
+    // tab is all the rail has left and even that does not fit.
     flex: 0 1 auto;
-    min-width: var(--wr-window-taskbar-tab-min-width);
+    min-width: 0;
+    max-width: var(--wr-window-taskbar-tab-max-width);
     align-items: center;
     gap: var(--wr-window-taskbar-tab-gap);
     // Roomy where the title starts, tight against the trailing close button,
@@ -873,7 +877,6 @@
     color: var(--wr-color-on-surface);
     font-size: var(--wr-window-taskbar-tab-font-size);
     line-height: var(--wr-window-taskbar-tab-line-height);
-    max-width: 12rem;
     transition: background var(--wr-transition-base);
 
     &:hover {
@@ -892,6 +895,17 @@
     // on screen.
     &--minimized {
       color: var(--wr-window-taskbar-tab-minimized-color);
+    }
+
+    // Folded under "+N": out of the row and out of sight, but still laid out at
+    // the width its title asks for, so the rail can tell when it fits again.
+    &--folded {
+      position: absolute;
+      inset-block-start: 0;
+      inset-inline-start: 0;
+      width: max-content;
+      visibility: hidden;
+      pointer-events: none;
     }
   }
 

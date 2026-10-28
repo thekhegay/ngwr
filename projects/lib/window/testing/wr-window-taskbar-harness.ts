@@ -9,6 +9,9 @@ import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/c
 
 import type { WrWindowTaskbarHarnessFilters } from './types';
 
+/** A drawn tab: a folded window keeps its tab in the rail, hidden, so the rail can measure it. */
+const TAB = '.wr-window-taskbar__tab:not(.wr-window-taskbar__tab--folded)';
+
 /**
  * Test harness for `<wr-window-taskbar>` — the rail of minimized windows.
  *
@@ -71,7 +74,7 @@ export class WrWindowTaskbarHarness extends ComponentHarness {
    * indistinguishable from its neighbours.
    */
   async getTabTitles(): Promise<string[]> {
-    const titles = await this.locatorForAll('.wr-window-taskbar__tab-title')();
+    const titles = await this.locatorForAll(`${TAB} .wr-window-taskbar__tab-title`)();
     return Promise.all(titles.map(title => title.text()));
   }
 
@@ -113,7 +116,7 @@ export class WrWindowTaskbarHarness extends ComponentHarness {
    */
   async closeTab(title: string): Promise<void> {
     const index = await this.indexOf(title, 'closeTab');
-    const closers = await this.locatorForAll('.wr-window-taskbar__tab-close')();
+    const closers = await this.locatorForAll(`${TAB} .wr-window-taskbar__tab-close`)();
     await closers[index].click();
   }
 
@@ -188,13 +191,13 @@ export class WrWindowTaskbarHarness extends ComponentHarness {
    * a control. The name and the click both belong to `__tab-restore`.
    */
   private async requireTab(title: string, method: string): Promise<TestElement> {
-    const tabs = await this.locatorForAll('.wr-window-taskbar__tab-restore')();
+    const tabs = await this.locatorForAll(`${TAB} .wr-window-taskbar__tab-restore`)();
     return tabs[await this.indexOf(title, method)];
   }
 
   /** Which tab carries this title — one lookup for both the tab and its close button. */
   private async indexOf(title: string, method: string): Promise<number> {
-    const tabs = await this.locatorForAll('.wr-window-taskbar__tab-restore')();
+    const tabs = await this.locatorForAll(`${TAB} .wr-window-taskbar__tab-restore`)();
     for (const [index, tab] of tabs.entries()) {
       if ((await tab.text()) === title) return index;
     }

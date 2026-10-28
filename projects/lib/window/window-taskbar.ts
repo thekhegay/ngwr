@@ -44,19 +44,23 @@ const NO_RESERVE = { top: 0, bottom: 0 } as const;
 
 /**
  * What the rail has to fit its tabs into, in px: the width inside its padding and
- * border, the narrowest a tab may shrink to, the gap between two buttons and the
- * width of the "+N" button. `null` where nothing is laid out — on the server, in
- * a hidden taskbar, under jsdom — and then only `maxTabs` folds.
+ * border, the gap between two buttons, the width of the "+N" button and the width
+ * each window's tab takes at its own title, by window id. `null` where nothing is
+ * laid out — on the server, in a hidden taskbar, under jsdom — and then only
+ * `maxTabs` folds.
  */
 interface Room {
   readonly width: number;
-  readonly tab: number;
   readonly gap: number;
   readonly more: number;
+  readonly tabs: ReadonlyMap<string, number>;
 }
 
+const sameTabs = (a: ReadonlyMap<string, number>, b: ReadonlyMap<string, number>): boolean =>
+  a.size === b.size && [...a].every(([id, width]) => b.get(id) === width);
+
 const sameRoom = (a: Room | null, b: Room | null): boolean =>
-  a === b || (!!a && !!b && a.width === b.width && a.tab === b.tab && a.gap === b.gap && a.more === b.more);
+  a === b || (!!a && !!b && a.width === b.width && a.gap === b.gap && a.more === b.more && sameTabs(a.tabs, b.tabs));
 
 /** `null` and an empty attribute leave the width to decide; any number keeps at least one tab. */
 const maxTabsAttr = (value: unknown): number | null =>
@@ -82,10 +86,10 @@ const maxTabsAttr = (value: unknown): number | null =>
  * While it shows tabs, the rail reserves its strip of the viewport, so a
  * maximized or snapped window stops short of it.
  *
- * The rail stays one row. Tabs shrink to `--wr-window-taskbar-tab-min-width`
- * when they run out of room, and the ones that still do not fit — or every one
- * past `maxTabs` — fold under a "+N" button at the end, which opens them as a
- * menu. In `show="all"` the active window's tab is never folded.
+ * The rail stays one row. A tab is as wide as its title, up to
+ * `--wr-window-taskbar-tab-max-width`, and the tabs that do not fit — or every
+ * one past `maxTabs` — fold under a "+N" button at the end, which opens them as
+ * a menu. In `show="all"` the active window's tab is never folded.
  *
  * Windows opted out via `config.taskbar = false` never show up here.
  *
@@ -136,8 +140,8 @@ export class WrWindowTaskbar {
   /**
    * The most tabs the rail shows; the rest fold under a "+N" button that opens
    * them as a menu (since v15.1). The width folds tabs too, whatever this says:
-   * once every tab is down to `--wr-window-taskbar-tab-min-width`, the ones that
-   * still do not fit go under the button. `null` leaves it to the width alone.
+   * the tabs that do not fit beside the button at their own width go under it.
+   * `null` leaves it to the width alone.
    * @default null
    */
   readonly maxTabs = input<number | null, unknown>(null, { transform: maxTabsAttr });
@@ -159,37 +163,41 @@ export class WrWindowTaskbar {
   private readonly room = signal<Room | null>(null, { equal: sameRoom });
 
   /**
-   * How many tabs the rail draws. All of them while they fit at their narrowest
-   * and `maxTabs` allows it; otherwise as many as fit beside the "+N" button,
-   * never more than `maxTabs` and never fewer than one.
-   */
-  private readonly capacity = computed(() => {
-    const total = this.items().length;
-    const max = this.maxTabs() ?? Infinity;
-    const room = this.room();
-    // Half a pixel of slack: the widths come back fractional, and a rail that
-    // fits to the last subpixel must not fold for a rounding error.
-    const fitsAll = room === null || total * room.tab + (total - 1) * room.gap <= room.width + 0.5;
-    if (total <= max && fitsAll) return total;
-    const step = room === null ? 0 : room.tab + room.gap;
-    const byWidth = room === null || step <= 0 ? Infinity : Math.floor((room.width - room.more + 0.5) / step);
-    return Math.max(1, Math.min(max, byWidth, total - 1));
-  });
-
-  /**
-   * The tabs the rail draws, in opening order — with the active window's taken
-   * into the last place when it would otherwise fold, so the one tab
-   * `show="all"` marks is always in reach.
+   * The tabs the rail draws, in opening order: all of them while they fit and
+   * `maxTabs` allows it, otherwise the most that fit beside the "+N" button,
+   * never more than `maxTabs` and never fewer than one. The active window's tab
+   * takes the last place when it would otherwise fold, so the one tab
+   * `show="all"` marks is always in reach. A tab not measured yet counts as
+   * nothing, and the pass after its first render corrects that.
    */
   protected readonly visible = computed(() => {
     const items = this.items();
-    const shown = items.slice(0, this.capacity());
-    if (shown.length < items.length) {
-      const current = items.find(ref => this.isCurrent(ref));
-      if (current && !shown.includes(current)) shown[shown.length - 1] = current;
+    const max = this.maxTabs() ?? Infinity;
+    const room = this.room();
+    const fits = (shown: readonly AnyRef[], more: boolean): boolean => {
+      if (room === null) return true;
+      let need = Math.max(0, shown.length - 1) * room.gap + (more ? room.gap + room.more : 0);
+      for (const ref of shown) need += room.tabs.get(ref.id) ?? 0;
+      // No slack beyond float noise: a row the rail accepts must not overflow,
+      // or its tabs squeeze and read differently the next pass.
+      return need <= room.width + 0.01;
+    };
+    if (items.length <= max && fits(items, false)) return items;
+    const current = items.find(ref => this.isCurrent(ref));
+    const first = (count: number): AnyRef[] => {
+      const shown = items.slice(0, count);
+      if (current && !shown.includes(current)) shown[count - 1] = current;
+      return shown;
+    };
+    for (let count = Math.min(max, items.length - 1); count > 1; count--) {
+      const shown = first(count);
+      if (fits(shown, true)) return shown;
     }
-    return shown;
+    return first(1);
   });
+
+  /** @internal — each listed window's place among the drawn tabs, absent while it is folded. */
+  protected readonly slots = computed(() => new Map(this.visible().map((ref, index) => [ref, index])));
 
   /** @internal — the windows under the "+N" button, in opening order. */
   protected readonly folded = computed(() => {
@@ -202,7 +210,10 @@ export class WrWindowTaskbar {
 
   protected readonly classes = computed(() => `wr-window-taskbar wr-window-taskbar--${this.position()}`);
 
-  /** One row per entry of `visible()`, in the same order. */
+  /**
+   * One row per entry of `items()`, in the same order. A folded window keeps its
+   * tab, laid out but hidden, which is how the rail knows its width.
+   */
   private readonly tabs = viewChildren<ElementRef<HTMLElement>>('tab');
   private readonly more = viewChild<ElementRef<HTMLButtonElement>>('more');
 
@@ -228,9 +239,17 @@ export class WrWindowTaskbar {
     const unregister = this.manager._registerTaskbar({
       // A folded window's place in the rail is the "+N" button it sits under.
       tabFor: ref => {
-        const index = this.visible().indexOf(ref);
-        if (index >= 0) return this.tabs()[index]?.nativeElement ?? null;
-        return this.folded().includes(ref) ? (this.more()?.nativeElement ?? null) : null;
+        if (this.folded().includes(ref)) return this.more()?.nativeElement ?? null;
+        const index = this.items().indexOf(ref);
+        return index >= 0 ? (this.tabs()[index]?.nativeElement ?? null) : null;
+      },
+      settling: ref => {
+        const room = this.room();
+        const index = this.items().indexOf(ref);
+        if (room === null || index < 0) return false;
+        if (!room.tabs.has(ref.id)) return true;
+        if (this.folded().includes(ref)) return !this.more();
+        return !!this.tabs()[index]?.nativeElement.classList.contains('wr-window-taskbar__tab--folded');
       },
       contains: node => this.host.contains(node),
       reserve: this.reserve.asReadonly(),
@@ -238,18 +257,29 @@ export class WrWindowTaskbar {
     const destroyRef = inject(DestroyRef);
     destroyRef.onDestroy(unregister);
 
-    // After the render that adds or removes the rail, or moves it to the
-    // other edge — and again whenever its box or the viewport changes size.
+    // After the render that adds or removes the rail or a tab, retitles a tab
+    // or moves the rail to the other edge — and again whenever the host, the
+    // rail or the viewport changes size, which is also how a late web font
+    // reaches the widths.
+    let observer: ResizeObserver | null = null;
+    let observedRail: HTMLElement | null = null;
     afterRenderEffect(() => {
-      void this.items().length;
+      for (const ref of this.items()) this.tabTitle(ref);
       void this.folded().length;
       this.position();
+      const rail = this.host.querySelector<HTMLElement>('.wr-window-taskbar__rail');
+      if (observer && rail !== observedRail) {
+        if (observedRail) observer.unobserve(observedRail);
+        if (rail) observer.observe(rail);
+      }
+      observedRail = rail;
       this.measure();
     });
     afterNextRender(() => {
       const measure = (): void => this.measure();
-      const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+      observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
       observer?.observe(this.host);
+      if (observedRail) observer?.observe(observedRail);
       window.addEventListener('resize', measure, { passive: true });
       destroyRef.onDestroy(() => {
         observer?.disconnect();
@@ -275,7 +305,7 @@ export class WrWindowTaskbar {
   }
 
   protected tabIndex(button: number): number {
-    return button === this.stop() ? 0 : -1;
+    return button >= 0 && button === this.stop() ? 0 : -1;
   }
 
   protected press(ref: AnyRef): void {
@@ -338,8 +368,13 @@ export class WrWindowTaskbar {
     if (index >= 0) this.rovingIndex.set(index);
   }
 
+  /** The drawn buttons in order — a folded tab's are hidden and out of the toolbar. */
   private buttons(): HTMLButtonElement[] {
-    return [...this.host.querySelectorAll<HTMLButtonElement>('.wr-window-taskbar__rail button')];
+    return [
+      ...this.host.querySelectorAll<HTMLButtonElement>(
+        '.wr-window-taskbar__tab:not(.wr-window-taskbar__tab--folded) button, .wr-window-taskbar__more'
+      ),
+    ];
   }
 
   private measure(): void {
@@ -360,21 +395,30 @@ export class WrWindowTaskbar {
 
   /**
    * Read what the rail has to fit into. The host spans the viewport between its
-   * insets, so its width is the most the rail can take; a tab's computed
-   * `min-width` and the rail's gap come from the stylesheet, so a consumer's
-   * hook is what the arithmetic uses. The "+N" button is measured once it is
-   * drawn — until then a tab's height stands in for its width, and the next pass
-   * corrects it. That converges: a wider button folds more, which can only keep
-   * its count's digits or add one.
+   * insets, so its width is the most the rail can take, and the gap comes from
+   * the stylesheet, so a consumer's hook is what the arithmetic uses.
+   *
+   * A tab's width is the one its title asks for, capped by its `max-width`. Every
+   * tab is laid out, a folded one too, so each can be read — and a tab drawn
+   * narrower than its title, squeezed as the only one left, is as wide as it is
+   * plus the part of the title it clips. That keeps the reading the same however
+   * the row is drawn, so a pass never feeds the next one a different answer.
+   *
+   * The "+N" button is measured once it is drawn — until then a tab's height
+   * stands in for its width, and the next pass corrects it. That converges: a
+   * wider button folds more, which can only keep its count's digits or add one.
    */
   private measureRoom(): void {
     const rail = this.host.querySelector<HTMLElement>('.wr-window-taskbar__rail');
-    const tab = rail?.querySelector<HTMLElement>('.wr-window-taskbar__tab');
+    const items = this.items();
+    const tabs = this.tabs().map(tab => tab.nativeElement);
     const width = this.host.clientWidth;
-    if (!rail || !tab || width <= 0) {
+    if (!rail || tabs.length === 0 || width <= 0) {
       this.room.set(null);
       return;
     }
+    // A render is on its way that will draw the tabs `items()` lists; measure that one.
+    if (tabs.length !== items.length) return;
     const railStyle = getComputedStyle(rail);
     const px = (value: string): number => parseFloat(value) || 0;
     const inner =
@@ -383,12 +427,26 @@ export class WrWindowTaskbar {
       px(railStyle.paddingInlineEnd) -
       px(railStyle.borderInlineStartWidth) -
       px(railStyle.borderInlineEndWidth);
-    const more = this.more()?.nativeElement.getBoundingClientRect().width ?? tab.getBoundingClientRect().height;
-    this.room.set({
-      width: inner,
-      tab: px(getComputedStyle(tab).minWidth),
-      gap: px(railStyle.columnGap),
-      more,
+    const widths = new Map<string, number>();
+    tabs.forEach((tab, index) => {
+      const width = tab.getBoundingClientRect().width;
+      const cap = getComputedStyle(tab).maxWidth;
+      // A cap that depends on the box it sits in — a percentage, a calc() with
+      // one — resolves against the rail for a drawn tab and the host for a folded
+      // one, so there is no width of the tab's own to recover: take it as drawn.
+      const fixed = cap.endsWith('px');
+      if (!fixed && cap !== 'none' && cap !== '') {
+        widths.set(items[index].id, width);
+        return;
+      }
+      // Scroll and client widths are whole pixels, so a clip of one is rounding,
+      // not a title the tab is too narrow for.
+      const title = tab.querySelector<HTMLElement>('.wr-window-taskbar__tab-title');
+      const clipped = title ? title.scrollWidth - title.clientWidth : 0;
+      const natural = width + (clipped > 1 ? clipped : 0);
+      widths.set(items[index].id, fixed ? Math.min(natural, parseFloat(cap)) : natural);
     });
+    const more = this.more()?.nativeElement.getBoundingClientRect().width ?? tabs[0].getBoundingClientRect().height;
+    this.room.set({ width: inner, gap: px(railStyle.columnGap), more, tabs: widths });
   }
 }

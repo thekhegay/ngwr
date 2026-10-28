@@ -640,8 +640,10 @@ describe('WrWindow features', () => {
   });
 
   describe('the taskbar folding what does not fit', () => {
+    // A folded window keeps its tab, hidden, so these read the drawn ones.
+    const drawn = '.wr-window-taskbar__tab:not(.wr-window-taskbar__tab--folded)';
     const titles = (): string[] =>
-      [...document.querySelectorAll('.wr-window-taskbar__tab-title')].map(t => t.textContent.trim());
+      [...document.querySelectorAll(`${drawn} .wr-window-taskbar__tab-title`)].map(t => t.textContent.trim());
     const more = (): HTMLButtonElement | null => document.querySelector('.wr-window-taskbar__more');
     const items = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-window-taskbar__fold-item')];
     const open = (...ids: string[]): WrWindowRef<unknown, unknown>[] =>
@@ -703,7 +705,7 @@ describe('WrWindow features', () => {
       open('A', 'B');
       await fixture.whenStable();
       const buttons = (): HTMLElement[] => [
-        ...document.querySelectorAll<HTMLElement>('.wr-window-taskbar__rail button'),
+        ...document.querySelectorAll<HTMLElement>(`${drawn} button, .wr-window-taskbar__more`),
       ];
       expect(buttons()).toHaveLength(3);
 
@@ -733,15 +735,31 @@ describe('WrWindow features', () => {
       expect(document.activeElement).toBe(more());
     });
 
-    it('folds what the width cannot hold, from the minimum the stylesheet gives a tab', async () => {
-      // jsdom lays nothing out, so the rail's width, a tab's minimum, the gap and
-      // the button are given here, and the arithmetic is what is under test:
-      // 400px holds three 100px tabs with two 4px gaps; four need 412px, so the
-      // fourth folds, and beside a 40px "+N" only three fit.
+    it('keeps a folded tab laid out but hidden, inert and out of the Tab order', async () => {
+      const fixture = TestBed.createComponent(FoldTaskbarHost);
+      fixture.componentInstance.max.set(1);
+      open('A', 'B');
+      manager.windows()[0].activate();
+      await fixture.whenStable();
+
+      const folded = document.querySelector<HTMLElement>('.wr-window-taskbar__tab--folded')!;
+      expect(folded.textContent.trim()).toBe('B');
+      expect(folded.hasAttribute('inert')).toBe(true);
+      expect([...folded.querySelectorAll('button')].map(b => b.tabIndex)).toEqual([-1, -1]);
+    });
+
+    it('folds what the width cannot hold, at the width each title asks for', async () => {
+      // jsdom lays nothing out, so the rail's width, each tab's width, the gap
+      // and the button are given here, and the arithmetic is what is under test:
+      // a tab is 40px plus 10px a letter, the rail 400px, the gap 4px, "+N" 40px.
       const style = document.head.appendChild(document.createElement('style'));
-      style.textContent = '.wr-window-taskbar__tab { min-width: 100px; } .wr-window-taskbar__rail { column-gap: 4px; }';
+      style.textContent = '.wr-window-taskbar__rail { column-gap: 4px; }';
       vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
-        return this.classList.contains('wr-window-taskbar__more') ? new DOMRect(0, 0, 40, 28) : new DOMRect();
+        if (this.classList.contains('wr-window-taskbar__more')) return new DOMRect(0, 0, 40, 28);
+        if (this.classList.contains('wr-window-taskbar__tab')) {
+          return new DOMRect(0, 0, 40 + 10 * this.textContent.trim().length, 28);
+        }
+        return new DOMRect();
       });
       const fixture = TestBed.createComponent(FoldTaskbarHost);
       fixture.componentInstance.max.set(null);
@@ -750,27 +768,107 @@ describe('WrWindow features', () => {
         configurable: true,
         get: () => 400,
       });
+      const titled = (...names: string[]): WrWindowRef<unknown, unknown>[] =>
+        names.map(title => manager.open(Body, { title, os: 'windows', autoFocus: false }));
 
       try {
-        open('A', 'B', 'C');
+        // 90 + 80 + 120 + 90 and three gaps is 392px: four tabs of their own
+        // width fit where four of one shared minimum would not.
+        const [, , calendar] = titled('Notes', 'Mail', 'Calendar', 'Music');
         manager.windows()[0].activate();
         await fixture.whenStable();
-        expect(titles()).toEqual(['A', 'B', 'C']);
+        expect(titles()).toEqual(['Notes', 'Mail', 'Calendar', 'Music']);
         expect(more()).toBeNull();
 
-        open('D');
+        // A fifth needs 496px. Beside "+N" four need 436px, three 342px.
+        titled('Photos');
         manager.windows()[0].activate();
         await fixture.whenStable();
-        expect(titles()).toEqual(['A', 'B', 'C']);
-        expect(more()!.textContent.trim()).toBe('+1');
+        expect(titles()).toEqual(['Notes', 'Mail', 'Calendar']);
+        expect(more()!.textContent.trim()).toBe('+2');
 
-        open('E', 'F');
-        manager.windows()[0].activate();
+        // A shorter title makes room: four beside "+N" now need 386px.
+        calendar.setTitle('Cal');
         await fixture.whenStable();
-        expect(titles()).toEqual(['A', 'B', 'C']);
-        expect(more()!.textContent.trim()).toBe('+3');
+        expect(titles()).toEqual(['Notes', 'Mail', 'Cal', 'Music']);
+        expect(more()!.textContent.trim()).toBe('+1');
       } finally {
         style.remove();
+      }
+    });
+
+    /**
+     * The layout jsdom does not have: a tab is 40px plus 10px a letter, the rail
+     * `width` inside with a 4px gap, "+N" 40px. Returns the undo.
+     */
+    const layOut = (fixture: { nativeElement: unknown }, width = 400): (() => void) => {
+      const style = document.head.appendChild(document.createElement('style'));
+      style.textContent = '.wr-window-taskbar__rail { column-gap: 4px; }';
+      vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+        if (this.classList.contains('wr-window-taskbar__more')) return new DOMRect(0, 0, 40, 28);
+        if (this.classList.contains('wr-window-taskbar__tab')) {
+          return new DOMRect(0, 0, 40 + 10 * this.textContent.trim().length, 28);
+        }
+        return new DOMRect();
+      });
+      const taskbar = (fixture.nativeElement as HTMLElement).querySelector('wr-window-taskbar')!;
+      Object.defineProperty(taskbar, 'clientWidth', { configurable: true, get: () => width });
+      return () => style.remove();
+    };
+
+    it('hands focus to "+N" when the width folds the window just minimized', async () => {
+      // The new tab has no width yet on the render that lists it, so it is drawn
+      // there and folds the pass after — focus has to wait for the "+N" that
+      // pass draws, not fall back to the opener or <body>.
+      const fixture = TestBed.createComponent(FoldTaskbarHost);
+      fixture.componentInstance.show.set('minimized');
+      fixture.componentInstance.max.set(null);
+      const undo = layOut(fixture);
+      try {
+        // 90 + 80 + 120 and two gaps is 298px, so no "+N" yet.
+        for (const title of ['Notes', 'Mail', 'Calendar']) {
+          manager.open(Body, { title, os: 'windows', autoFocus: false }).minimize();
+        }
+        await fixture.whenStable();
+        expect(more()).toBeNull();
+
+        // A 100px fourth needs 402px; three beside "+N" need 342px.
+        const photos = manager.open(ButtonBody, { title: 'Photos', os: 'windows' });
+        await fixture.whenStable();
+        document.querySelector<HTMLElement>('wr-window:not(.wr-window--minimized) .inner')!.focus();
+        photos.minimize();
+        await fixture.whenStable();
+
+        expect(titles()).toEqual(['Notes', 'Mail', 'Calendar']);
+        expect(more()!.textContent.trim()).toBe('+1');
+        expect(document.activeElement).toBe(more());
+      } finally {
+        undo();
+      }
+    });
+
+    it('reads a one-pixel clip as rounding, so a row that fits stays drawn', async () => {
+      // 90 + 80 + 120 + 90 and three gaps is 392px, the rail's width exactly. A
+      // title whose whole-pixel scroll and client widths differ by one is not
+      // too narrow for its text; counted, four such pixels would fold a row that
+      // fits, and the row unfolded again would read them away — a loop.
+      const fixture = TestBed.createComponent(FoldTaskbarHost);
+      fixture.componentInstance.max.set(null);
+      const undo = layOut(fixture, 392);
+      vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockImplementation(function (this: HTMLElement) {
+        return this.classList.contains('wr-window-taskbar__tab-title') ? 1 : 0;
+      });
+      try {
+        for (const title of ['Notes', 'Mail', 'Calendar', 'Music']) {
+          manager.open(Body, { title, os: 'windows', autoFocus: false });
+        }
+        manager.windows()[0].activate();
+        await fixture.whenStable();
+
+        expect(titles()).toEqual(['Notes', 'Mail', 'Calendar', 'Music']);
+        expect(more()).toBeNull();
+      } finally {
+        undo();
       }
     });
 

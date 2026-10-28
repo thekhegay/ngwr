@@ -1,6 +1,7 @@
 @if (items().length > 0) {
   <div class="wr-window-taskbar__rail">
-    @for (ref of visible(); track ref.id) {
+    @for (ref of items(); track ref.id) {
+      @let slot = slots().get(ref) ?? -1;
       <!--
         Two SIBLING buttons in a plain container, not a close button nested
         inside the tab. The close used to be a `role="button"` span with
@@ -10,18 +11,24 @@
         window is minimized, and the a11y sweep reads prerendered HTML, where the
         rail is not rendered at all.
       -->
+      <!--
+        A folded window keeps its tab, hidden and out of the row but laid out,
+        so the rail can read the width it would take to draw it again.
+      -->
       <div
         #tab
         class="wr-window-taskbar__tab"
         [class.wr-window-taskbar__tab--active]="isCurrent(ref)"
         [class.wr-window-taskbar__tab--minimized]="ref.state() === 'minimized'"
+        [class.wr-window-taskbar__tab--folded]="slot < 0"
+        [attr.inert]="slot < 0 ? '' : null"
       >
         <button
           type="button"
           class="wr-window-taskbar__tab-restore"
           [attr.aria-label]="tabLabel(ref)"
           [attr.aria-pressed]="show() === 'all' ? isCurrent(ref) : null"
-          [attr.tabindex]="tabIndex($index * 2)"
+          [attr.tabindex]="tabIndex(slot < 0 ? -1 : slot * 2)"
           (click)="press(ref)"
         >
           <span class="wr-window-taskbar__tab-title">{{ tabTitle(ref) }}</span>
@@ -30,7 +37,7 @@
           type="button"
           class="wr-window-taskbar__tab-close"
           [attr.aria-label]="closeLabel()"
-          [attr.tabindex]="tabIndex($index * 2 + 1)"
+          [attr.tabindex]="tabIndex(slot < 0 ? -1 : slot * 2 + 1)"
           (click)="close(ref, $event)"
         >
           <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true">
