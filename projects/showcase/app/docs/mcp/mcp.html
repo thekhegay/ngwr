@@ -2,15 +2,15 @@
   title="MCP server"
   updated="15.1.0"
   description="Let your AI agent search ngwr and read its API."
-  [keywords]="['mcp', 'model context protocol', 'agent', 'ai', 'claude', 'cursor', 'ngwr-mcp']"
+  [keywords]="['mcp', 'model context protocol', 'agent', 'ai', 'claude', 'cursor', 'gemini', 'codex', 'ngwr-mcp']"
 >
   <ngwr-doc-section
     title="Add it to your agent"
     description="`ngwr-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that ships in the `ngwr` package."
   >
-    <ngwr-doc-code [code]="snippets.claudeCode" language="bash" />
+    <ngwr-doc-code [files]="add" />
     <p>Or add this to the client's config file:</p>
-    <ngwr-doc-code [code]="snippets.config" language="typescript" />
+    <ngwr-doc-code [files]="config" />
     <div class="ngwr-table">
       <table>
         <thead>
@@ -36,17 +36,28 @@
             <th scope="row">Cursor</th>
             <td><code>.cursor/mcp.json</code> in the project, or <code>~/.cursor/mcp.json</code></td>
           </tr>
+          <tr>
+            <th scope="row">Gemini CLI</th>
+            <td><code>.gemini/settings.json</code> in the project, or <code>~/.gemini/settings.json</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Codex</th>
+            <td><code>.codex/config.toml</code> in a trusted project, or <code>~/.codex/config.toml</code></td>
+          </tr>
         </tbody>
       </table>
     </div>
-    <p>Restart Claude Desktop after you edit its config.</p>
+    <p>
+      Restart Claude Desktop after you edit its config. Gemini CLI starts MCP servers only in a trusted folder: run
+      <code>gemini trust</code> in the project first.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Pin your installed version"
     description="`npx` runs the latest release when the project has no ngwr; `node` runs your installed copy."
   >
-    <ngwr-doc-code [code]="snippets.pinned" language="typescript" />
+    <ngwr-doc-code [files]="pinned" />
     <p>The path is relative to where the client starts the server: the project root for Claude Code.</p>
   </ngwr-doc-section>
 

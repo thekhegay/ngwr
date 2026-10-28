@@ -21,4 +21,5 @@ export type ShikiLang =
   | 'scss'
   | 'bash'
   | 'diff'
-  | 'markdown';
+  | 'markdown'
+  | 'toml';
