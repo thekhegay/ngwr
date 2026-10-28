@@ -349,6 +349,7 @@ export const wrKo: WrI18nCatalog = {
     untitled: '제목 없음',
     taskbar: '최소화된 창',
     taskbarAll: '열린 창',
+    taskbarMore: '다른 창: {{count}}',
     moveMode: '창을 이동하는 중입니다. 화살표 키로 옮기고, Enter 키로 마치고, Esc 키로 취소합니다.',
     resizeMode: '창 크기를 바꾸는 중입니다. 화살표 키로 조절하고, Enter 키로 마치고, Esc 키로 취소합니다.',
     moved: '창이 {{x}}, {{y}} 위치로 이동했습니다',

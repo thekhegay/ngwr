@@ -24,7 +24,7 @@ class LineStatus {
 @Component({
   imports: [WrWindowTaskbar],
   template: `
-    <wr-window-taskbar [position]="position()" [show]="show()" />
+    <wr-window-taskbar [position]="position()" [show]="show()" [maxTabs]="maxTabs()" />
     <ng-template #badge let-ref
       ><b>{{ ref.title() }} · draft</b></ng-template
     >
@@ -33,6 +33,7 @@ class LineStatus {
 class Host {
   readonly position = signal<'top' | 'bottom'>('bottom');
   readonly show = signal<WrWindowTaskbarShow>('minimized');
+  readonly maxTabs = signal<number | null>(null);
   readonly windows = inject(WrWindowManager);
   readonly badge = viewChild.required<TemplateRef<WrWindowSlotContext>>('badge');
 }
@@ -465,6 +466,34 @@ describe('WrWindowHarness', () => {
       await rail.restore('One');
       const one = await rootLoader.getHarness(WrWindowHarness.with({ title: 'One' }));
       expect([await one.getState(), await rail.getActiveTabTitle()]).toEqual(['minimized', null]);
+    });
+
+    it('reads what is folded under "+N" without leaving the menu open', async () => {
+      fixture.componentInstance.maxTabs.set(1);
+      for (const title of ['One', 'Two', 'Three']) await (await open({ title })).minimize();
+      const rail = await taskbar();
+
+      expect(await rail.getTabTitles()).toEqual(['One']);
+      expect(await rail.getFoldedCount()).toBe(2);
+      expect(await rail.getFoldedTitles()).toEqual(['Two', 'Three']);
+      const more = (fixture.nativeElement as HTMLElement).querySelector('.wr-window-taskbar__more')!;
+      expect(more.getAttribute('aria-expanded')).toBe('false');
+
+      await rail.restoreFolded('Three');
+      const three = await rootLoader.getHarness(WrWindowHarness.with({ title: 'Three' }));
+      expect([await three.getState(), await rail.getFoldedTitles()]).toEqual(['normal', ['Two']]);
+    });
+
+    it('says a tab is folded rather than missing, and that nothing is folded when it is not', async () => {
+      const rail = await taskbar();
+      expect([await rail.getFoldedCount(), await rail.getFoldedTitles()]).toEqual([0, []]);
+      await expect(rail.restoreFolded('One')).rejects.toThrow(/nothing is folded/);
+
+      fixture.componentInstance.maxTabs.set(1);
+      for (const title of ['One', 'Two']) await (await open({ title })).minimize();
+
+      await expect(rail.restore('Two')).rejects.toThrow(/folded under "\+1"/);
+      await expect(rail.restoreFolded('Nope')).rejects.toThrow(/It holds: Two/);
     });
 
     it('follows the edge it is pinned to', async () => {

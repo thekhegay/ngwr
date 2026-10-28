@@ -441,6 +441,7 @@ export const wrEn: WrI18nCatalog = {
     untitled: 'Untitled',
     taskbar: 'Minimized windows',
     taskbarAll: 'Open windows',
+    taskbarMore: 'More windows: {{count}}',
     moveMode: 'Moving the window. Use the arrow keys, Enter to finish, Escape to cancel.',
     resizeMode: 'Resizing the window. Use the arrow keys, Enter to finish, Escape to cancel.',
     moved: 'Window moved to {{x}}, {{y}}',

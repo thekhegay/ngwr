@@ -342,6 +342,7 @@ export const wrCs: WrI18nCatalog = {
     untitled: 'Bez názvu',
     taskbar: 'Minimalizovaná okna',
     taskbarAll: 'Otevřená okna',
+    taskbarMore: 'Další okna: {{count}}',
     moveMode: 'Přesouvání okna. Použijte šipky, Enter pro dokončení a Escape pro zrušení.',
     resizeMode: 'Změna velikosti okna. Použijte šipky, Enter pro dokončení a Escape pro zrušení.',
     moved: 'Okno přesunuto na {{x}}, {{y}}',

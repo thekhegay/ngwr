@@ -555,6 +555,25 @@ export const STATES: readonly State[] = [
     scope: '.wr-window-taskbar',
   },
   {
+    id: 'window/taskbar-folded',
+    route: `${REF}/window`,
+    // Six windows on a rail capped at three, all minimized, and the "+3" menu
+    // open: the folded rows render in the overlay, which no sweep at rest
+    // reaches, and they carry the minimized modifier of their own.
+    steps: [
+      { click: demo('.wr-segmented__option:has-text("All")') },
+      { click: demo('.wr-segmented__option:has-text("At most 3")') },
+      { click: demo('.wr-btn:has-text("Open six")') },
+      { wait: 400 },
+      { click: demo('.wr-btn:has-text("Minimize all")') },
+      { wait: 300 },
+      { click: '.wr-window-taskbar__more' },
+      { wait: 300 },
+    ],
+    target: '.wr-window-taskbar__fold-item--minimized',
+    scope: '.wr-dropdown-overlay',
+  },
+  {
     id: 'date-picker/time',
     route: `${REF}/date-picker`,
     steps: [{ click: demo('.wr-date-picker--time .wr-date-picker__trigger') }, { wait: 200 }],

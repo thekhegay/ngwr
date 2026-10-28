@@ -342,6 +342,7 @@ export const wrSv: WrI18nCatalog = {
     untitled: 'Namnlös',
     taskbar: 'Minimerade fönster',
     taskbarAll: 'Öppna fönster',
+    taskbarMore: 'Fler fönster: {{count}}',
     moveMode: 'Fönstret flyttas. Använd piltangenterna, Enter för att avsluta och Escape för att avbryta.',
     resizeMode: 'Fönstrets storlek ändras. Använd piltangenterna, Enter för att avsluta och Escape för att avbryta.',
     moved: 'Fönstret flyttat till {{x}}, {{y}}',

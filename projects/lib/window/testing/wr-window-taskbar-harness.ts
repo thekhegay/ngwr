@@ -12,6 +12,10 @@ import type { WrWindowTaskbarHarnessFilters } from './types';
 /**
  * Test harness for `<wr-window-taskbar>` — the rail of minimized windows.
  *
+ * Tabs past `maxTabs`, or past what the rail's width holds, fold under a "+N"
+ * button: {@link getTabTitles} reads the rail, {@link getFoldedTitles} the menu.
+ * Under jsdom nothing has a width, so only `maxTabs` folds there.
+ *
  * The taskbar IS an element in your template, so it comes from the normal fixture
  * loader, unlike the windows it lists. It renders nothing but its own host until a
  * window is minimized; {@link isEmpty} is the question, and {@link getTabTitles}
@@ -114,6 +118,69 @@ export class WrWindowTaskbarHarness extends ComponentHarness {
   }
 
   /**
+   * How many windows are folded under the "+N" button — `0` when every tab fits.
+   * Read off the button's own count, which is what a sighted user sees; the
+   * titles behind it are {@link getFoldedTitles}.
+   */
+  async getFoldedCount(): Promise<number> {
+    const more = await this.locatorForOptional('.wr-window-taskbar__more')();
+    return more ? Number((await more.text()).trim().replace(/^\+/, '')) : 0;
+  }
+
+  /**
+   * The titles folded under the "+N" button, in order, read from the menu it
+   * opens. A menu this call opened is closed again, so asking does not change
+   * what the page shows; `[]` when nothing is folded.
+   */
+  async getFoldedTitles(): Promise<string[]> {
+    const more = await this.locatorForOptional('.wr-window-taskbar__more')();
+    if (!more) return [];
+    const wasOpen = (await more.getAttribute('aria-expanded')) === 'true';
+    const titles = await Promise.all((await this.foldedItems(more)).map(item => item.text()));
+    if (!wasOpen) await more.click();
+    return titles.map(title => title.trim());
+  }
+
+  /**
+   * Pick a folded window from the "+N" menu — the menu closes and the window
+   * comes forward, as from its tab.
+   */
+  async restoreFolded(title: string): Promise<void> {
+    const more = await this.locatorForOptional('.wr-window-taskbar__more')();
+    if (!more) {
+      throw new Error(
+        `WrWindowTaskbarHarness.restoreFolded("${title}"): nothing is folded — every tab fits, so restore() reaches it.`
+      );
+    }
+    const items = await this.foldedItems(more);
+    for (const item of items) {
+      if ((await item.text()).trim() === title) {
+        await item.click();
+        return;
+      }
+    }
+    const offered = await Promise.all(items.map(item => item.text()));
+    throw new Error(
+      `WrWindowTaskbarHarness.restoreFolded("${title}"): no such window under "+N". It holds: ` +
+        `${offered.map(t => t.trim()).join(', ')}.`
+    );
+  }
+
+  /**
+   * The rows of the "+N" menu, opening it first if it is closed. Scoped by the id
+   * the button publishes in `aria-controls`, never by the menu's class: the menu
+   * renders in the overlay container, beside every other dropdown on the page.
+   */
+  private async foldedItems(more: TestElement): Promise<TestElement[]> {
+    if ((await more.getAttribute('aria-expanded')) !== 'true') await more.click();
+    const id = await more.getAttribute('aria-controls');
+    if (!id) {
+      throw new Error('WrWindowTaskbarHarness: the "+N" button opened no menu — it names none in aria-controls.');
+    }
+    return this.documentRootLocatorFactory().locatorForAll(`#${id} .wr-window-taskbar__fold-item`)();
+  }
+
+  /**
    * The tab's BUTTON, not the pill around it.
    *
    * `.wr-window-taskbar__tab` is a plain container — it carries the pill's look
@@ -133,9 +200,12 @@ export class WrWindowTaskbarHarness extends ComponentHarness {
     }
 
     const offered = await this.getTabTitles();
+    const folded = await this.getFoldedCount();
     throw new Error(
       `WrWindowTaskbarHarness.${method}("${title}"): no such tab. The rail holds: ` +
-        `${offered.length ? offered.join(', ') : '(nothing — no window is minimized)'}.`
+        `${offered.length ? offered.join(', ') : '(nothing — no window is minimized)'}.${
+          folded ? ` The rest are folded under "+${folded}", where restoreFolded() reaches them.` : ''
+        }`
     );
   }
 }

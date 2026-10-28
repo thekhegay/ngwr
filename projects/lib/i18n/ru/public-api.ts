@@ -349,6 +349,7 @@ export const wrRu: WrI18nCatalog = {
     untitled: 'Без названия',
     taskbar: 'Свёрнутые окна',
     taskbarAll: 'Открытые окна',
+    taskbarMore: 'Другие окна: {{count}}',
     moveMode: 'Перемещение окна. Стрелки — переместить, Enter — завершить, Escape — отменить.',
     resizeMode: 'Изменение размера окна. Стрелки — изменить размер, Enter — завершить, Escape — отменить.',
     moved: 'Окно перемещено в {{x}}, {{y}}',

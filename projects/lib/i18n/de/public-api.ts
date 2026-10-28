@@ -353,6 +353,7 @@ export const wrDe: WrI18nCatalog = {
     untitled: 'Unbenannt',
     taskbar: 'Minimierte Fenster',
     taskbarAll: 'Geöffnete Fenster',
+    taskbarMore: 'Weitere Fenster: {{count}}',
     moveMode:
       'Fenster wird verschoben. Verwenden Sie die Pfeiltasten, die Eingabetaste zum Beenden und Escape zum Abbrechen.',
     resizeMode:

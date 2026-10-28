@@ -1,5 +1,5 @@
 import { Directionality } from '@angular/cdk/bidi';
-import { Component, type TemplateRef, inject, viewChild } from '@angular/core';
+import { Component, type TemplateRef, inject, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import {
@@ -7,6 +7,7 @@ import {
   type WrWindowRef,
   type WrWindowSlotContext,
   type WrWindowState,
+  type WrWindowTaskbarShow,
   WrWindowManager,
   WrWindowTaskbar,
 } from 'ngwr/window';
@@ -20,6 +21,15 @@ class ButtonBody {}
 
 @Component({ imports: [WrWindowTaskbar], template: '<wr-window-taskbar show="all" />' })
 class AllTaskbarHost {}
+
+@Component({
+  imports: [WrWindowTaskbar],
+  template: '<wr-window-taskbar [show]="show()" [maxTabs]="max()" />',
+})
+class FoldTaskbarHost {
+  readonly show = signal<WrWindowTaskbarShow>('all');
+  readonly max = signal<number | null>(2);
+}
 
 /** A status bar component: it resolves the window's own ref, like the body does. */
 @Component({ template: '<span class="status">{{ ref.title() }} · ready</span>' })
@@ -626,6 +636,153 @@ describe('WrWindow features', () => {
 
       key(buttons()[3], { key: 'Home' });
       expect(document.activeElement).toBe(buttons()[0]);
+    });
+  });
+
+  describe('the taskbar folding what does not fit', () => {
+    const titles = (): string[] =>
+      [...document.querySelectorAll('.wr-window-taskbar__tab-title')].map(t => t.textContent.trim());
+    const more = (): HTMLButtonElement | null => document.querySelector('.wr-window-taskbar__more');
+    const items = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-window-taskbar__fold-item')];
+    const open = (...ids: string[]): WrWindowRef<unknown, unknown>[] =>
+      ids.map(id => manager.open(Body, { id, title: id, os: 'windows', autoFocus: false }));
+
+    it('folds every tab past maxTabs under a "+N" button that names the count', async () => {
+      const fixture = TestBed.createComponent(FoldTaskbarHost);
+      open('A', 'B', 'C', 'D');
+      // The active window is D, the last opened, so it takes the last place.
+      manager.windows()[0].activate();
+      await fixture.whenStable();
+
+      expect(titles()).toEqual(['A', 'B']);
+      expect(more()!.textContent.trim()).toBe('+2');
+      expect(more()!.getAttribute('aria-label')).toBe('More windows: 2');
+      expect(more()!.getAttribute('aria-haspopup')).toBe('menu');
+
+      fixture.componentInstance.max.set(null);
+      await fixture.whenStable();
+      expect(titles()).toEqual(['A', 'B', 'C', 'D']);
+      expect(more()).toBeNull();
+    });
+
+    it('keeps the active window in the rail, in the last place', async () => {
+      const fixture = TestBed.createComponent(FoldTaskbarHost);
+      const [, , c] = open('A', 'B', 'C', 'D');
+      c.activate();
+      await fixture.whenStable();
+
+      expect(titles()).toEqual(['A', 'C']);
+      expect(document.querySelector('.wr-window-taskbar__tab--active')!.textContent.trim()).toBe('C');
+    });
+
+    it('opens the folded windows as a menu and brings the picked one forward', async () => {
+      const fixture = TestBed.createComponent(FoldTaskbarHost);
+      fixture.componentInstance.show.set('minimized');
+      fixture.componentInstance.max.set(1);
+      const refs = open('A', 'B', 'C');
+      for (const ref of refs) ref.minimize();
+      await fixture.whenStable();
+
+      more()!.click();
+      await fixture.whenStable();
+      expect(more()!.getAttribute('aria-expanded')).toBe('true');
+      expect(items().map(i => i.textContent.trim())).toEqual(['B', 'C']);
+      expect(items().map(i => i.getAttribute('aria-label'))).toEqual(['Restore B', 'Restore C']);
+
+      items()[1].click();
+      await fixture.whenStable();
+      expect(refs[2].state()).not.toBe('minimized');
+      expect(manager.active()).toBe(refs[2]);
+      expect(items()).toEqual([]);
+      expect(more()!.textContent.trim()).toBe('+1');
+    });
+
+    it('puts the "+N" button last in the rail\'s one Tab stop', async () => {
+      const fixture = TestBed.createComponent(FoldTaskbarHost);
+      fixture.componentInstance.max.set(1);
+      open('A', 'B');
+      await fixture.whenStable();
+      const buttons = (): HTMLElement[] => [
+        ...document.querySelectorAll<HTMLElement>('.wr-window-taskbar__rail button'),
+      ];
+      expect(buttons()).toHaveLength(3);
+
+      buttons()[0].focus();
+      key(buttons()[0], { key: 'End' });
+      expect(document.activeElement).toBe(more());
+      expect(buttons().map(b => b.tabIndex)).toEqual([-1, -1, 0]);
+    });
+
+    it('hands focus to the "+N" button when the window minimized is folded', async () => {
+      const fixture = TestBed.createComponent(FoldTaskbarHost);
+      fixture.componentInstance.show.set('minimized');
+      fixture.componentInstance.max.set(1);
+      const a = manager.open(ButtonBody, { id: 'a', title: 'A', os: 'windows' });
+      const b = manager.open(ButtonBody, { id: 'b', title: 'B', os: 'windows' });
+      await fixture.whenStable();
+      a.minimize();
+      await fixture.whenStable();
+
+      b.activate();
+      await fixture.whenStable();
+      document.querySelector<HTMLElement>('wr-window:not(.wr-window--minimized) .inner')!.focus();
+      b.minimize();
+      await fixture.whenStable();
+
+      expect(titles()).toEqual(['A']);
+      expect(document.activeElement).toBe(more());
+    });
+
+    it('folds what the width cannot hold, from the minimum the stylesheet gives a tab', async () => {
+      // jsdom lays nothing out, so the rail's width, a tab's minimum, the gap and
+      // the button are given here, and the arithmetic is what is under test:
+      // 400px holds three 100px tabs with two 4px gaps; four need 412px, so the
+      // fourth folds, and beside a 40px "+N" only three fit.
+      const style = document.head.appendChild(document.createElement('style'));
+      style.textContent = '.wr-window-taskbar__tab { min-width: 100px; } .wr-window-taskbar__rail { column-gap: 4px; }';
+      vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+        return this.classList.contains('wr-window-taskbar__more') ? new DOMRect(0, 0, 40, 28) : new DOMRect();
+      });
+      const fixture = TestBed.createComponent(FoldTaskbarHost);
+      fixture.componentInstance.max.set(null);
+      const taskbar = (fixture.nativeElement as HTMLElement).querySelector('wr-window-taskbar')!;
+      Object.defineProperty(taskbar, 'clientWidth', {
+        configurable: true,
+        get: () => 400,
+      });
+
+      try {
+        open('A', 'B', 'C');
+        manager.windows()[0].activate();
+        await fixture.whenStable();
+        expect(titles()).toEqual(['A', 'B', 'C']);
+        expect(more()).toBeNull();
+
+        open('D');
+        manager.windows()[0].activate();
+        await fixture.whenStable();
+        expect(titles()).toEqual(['A', 'B', 'C']);
+        expect(more()!.textContent.trim()).toBe('+1');
+
+        open('E', 'F');
+        manager.windows()[0].activate();
+        await fixture.whenStable();
+        expect(titles()).toEqual(['A', 'B', 'C']);
+        expect(more()!.textContent.trim()).toBe('+3');
+      } finally {
+        style.remove();
+      }
+    });
+
+    it('reads maxTabs from an attribute and never shows fewer than one tab', async () => {
+      const fixture = TestBed.createComponent(FoldTaskbarHost);
+      fixture.componentInstance.max.set(0);
+      open('A', 'B');
+      manager.windows()[0].activate();
+      await fixture.whenStable();
+
+      expect(titles()).toEqual(['A']);
+      expect(more()!.textContent.trim()).toBe('+1');
     });
   });
 

@@ -350,6 +350,7 @@ export const wrIt: WrI18nCatalog = {
     untitled: 'Senza titolo',
     taskbar: 'Finestre ridotte a icona',
     taskbarAll: 'Finestre aperte',
+    taskbarMore: 'Altre finestre: {{count}}',
     moveMode: 'Spostamento della finestra. Usa i tasti freccia, Invio per terminare ed Esc per annullare.',
     resizeMode: 'Ridimensionamento della finestra. Usa i tasti freccia, Invio per terminare ed Esc per annullare.',
     moved: 'Finestra spostata in {{x}}, {{y}}',

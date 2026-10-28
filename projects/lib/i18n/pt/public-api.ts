@@ -346,6 +346,7 @@ export const wrPt: WrI18nCatalog = {
     untitled: 'Sem título',
     taskbar: 'Janelas minimizadas',
     taskbarAll: 'Janelas abertas',
+    taskbarMore: 'Mais janelas: {{count}}',
     moveMode: 'A mover a janela. Use as teclas de setas, Enter para terminar e Escape para cancelar.',
     resizeMode: 'A redimensionar a janela. Use as teclas de setas, Enter para terminar e Escape para cancelar.',
     moved: 'Janela movida para {{x}}, {{y}}',

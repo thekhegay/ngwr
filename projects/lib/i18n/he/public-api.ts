@@ -358,6 +358,7 @@ export const wrHe: WrI18nCatalog = {
     untitled: 'ללא שם',
     taskbar: 'חלונות ממוזערים',
     taskbarAll: 'חלונות פתוחים',
+    taskbarMore: 'חלונות נוספים: {{count}}',
     moveMode: 'החלון בהזזה. מקשי החיצים מזיזים אותו, Enter מסיים ו-Escape מבטל.',
     resizeMode: 'גודל החלון משתנה. מקשי החיצים משנים אותו, Enter מסיים ו-Escape מבטל.',
     moved: 'החלון הוזז אל {{x}}, {{y}}',

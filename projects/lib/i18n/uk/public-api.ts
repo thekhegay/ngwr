@@ -357,6 +357,7 @@ export const wrUk: WrI18nCatalog = {
     untitled: 'Без назви',
     taskbar: 'Згорнуті вікна',
     taskbarAll: 'Відкриті вікна',
+    taskbarMore: 'Інші вікна: {{count}}',
     moveMode: 'Переміщення вікна. Стрілки — перемістити, Enter — завершити, Escape — скасувати.',
     resizeMode: 'Зміна розміру вікна. Стрілки — змінити розмір, Enter — завершити, Escape — скасувати.',
     moved: 'Вікно переміщено в {{x}}, {{y}}',

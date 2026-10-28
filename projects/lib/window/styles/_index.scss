@@ -1,5 +1,19 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../dropdown/styles' as dropdown-styles; // WrDropdown
+
 /// Two-corner variant of `theme.smooth-br`. The host no longer clips at its own
 /// rounded edge (it has to let the resize grips out), so the chrome and the
 /// status bar each have to round the pair of corners they sit in or their square
@@ -812,9 +826,10 @@
     --wr-window-taskbar-rail-radius: var(--wr-border-radius-base);
 
     display: flex;
-    // More tabs than fit wrap onto another row of the same pill, so every tab
-    // and its close button stay on screen and in reach.
-    flex-wrap: wrap;
+    // One row, always. Tabs shrink to their minimum first, and the ones that
+    // still do not fit fold under the "+N" button at the end — the component
+    // counts them from the same minimum, the gap and the rail's own width.
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
     min-inline-size: 0;
@@ -841,8 +856,14 @@
     --wr-window-taskbar-tab-active-bg: var(--wr-color-fill);
     --wr-window-taskbar-tab-active-indicator: var(--wr-color-primary);
     --wr-window-taskbar-tab-minimized-color: var(--wr-color-on-surface-muted);
+    // The narrowest a tab shrinks to before the rail starts folding tabs under
+    // "+N". The component reads it back as the computed `min-width`, so
+    // changing it moves where the folding starts.
+    --wr-window-taskbar-tab-min-width: 7rem;
 
     display: inline-flex;
+    flex: 0 1 auto;
+    min-width: var(--wr-window-taskbar-tab-min-width);
     align-items: center;
     gap: var(--wr-window-taskbar-tab-gap);
     // Roomy where the title starts, tight against the trailing close button,
@@ -907,6 +928,56 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  // "+N": the tabs that did not fit, as a menu. As tall as a tab and wide
+  // enough for a two-digit count, so its width rarely moves the fold.
+  &__more {
+    --wr-window-taskbar-more-min-width: 2.5rem;
+    --wr-window-taskbar-more-padding-inline: var(--wr-space-sm);
+    --wr-window-taskbar-more-radius: var(--wr-border-radius-sm);
+    --wr-window-taskbar-more-color: var(--wr-color-on-surface);
+    --wr-window-taskbar-more-hover-bg: var(--wr-color-fill-strong);
+    --wr-window-taskbar-more-open-bg: var(--wr-color-fill);
+
+    appearance: none;
+    flex: 0 0 auto;
+    align-self: stretch;
+    min-inline-size: var(--wr-window-taskbar-more-min-width);
+    padding-block: 0;
+    padding-inline: var(--wr-window-taskbar-more-padding-inline);
+    border: 0;
+    border-radius: var(--wr-window-taskbar-more-radius);
+    background: transparent;
+    color: var(--wr-window-taskbar-more-color);
+    font-family: inherit;
+    font-size: var(--wr-text-sm);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--wr-text-sm-leading);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color var(--wr-transition-base);
+
+    &:hover {
+      background: var(--wr-window-taskbar-more-hover-bg);
+    }
+
+    &[aria-expanded='true'] {
+      background: var(--wr-window-taskbar-more-open-bg);
+    }
+
+    &:focus-visible {
+      @include theme.focus-ring;
+      outline-offset: -2px;
+    }
+  }
+
+  // A row of the "+N" menu. It renders in the overlay, outside the rail, so it
+  // carries its own copy of the muted tone a minimized window's tab has.
+  &__fold-item--minimized {
+    --wr-window-taskbar-fold-item-minimized-color: var(--wr-color-on-surface-muted);
+
+    color: var(--wr-window-taskbar-fold-item-minimized-color);
   }
 
   &__tab-close {

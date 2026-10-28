@@ -354,6 +354,7 @@ export const wrAr: WrI18nCatalog = {
     untitled: 'بلا عنوان',
     taskbar: 'النوافذ المصغّرة',
     taskbarAll: 'النوافذ المفتوحة',
+    taskbarMore: 'نوافذ أخرى: {{count}}',
     moveMode: 'جارٍ نقل النافذة. استخدم مفاتيح الأسهم، وEnter للإنهاء، وEscape للإلغاء.',
     resizeMode: 'جارٍ تغيير حجم النافذة. استخدم مفاتيح الأسهم، وEnter للإنهاء، وEscape للإلغاء.',
     moved: 'نُقلت النافذة إلى {{x}}، {{y}}',

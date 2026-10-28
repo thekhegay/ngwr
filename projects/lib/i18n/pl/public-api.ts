@@ -359,6 +359,7 @@ export const wrPl: WrI18nCatalog = {
     untitled: 'Bez nazwy',
     taskbar: 'Zminimalizowane okna',
     taskbarAll: 'Otwarte okna',
+    taskbarMore: 'Pozostałe okna: {{count}}',
     moveMode: 'Przenoszenie okna. Użyj strzałek, Enter, aby zakończyć, albo Escape, aby anulować.',
     resizeMode: 'Zmiana rozmiaru okna. Użyj strzałek, Enter, aby zakończyć, albo Escape, aby anulować.',
     moved: 'Okno przeniesiono na pozycję {{x}}, {{y}}',

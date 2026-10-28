@@ -64,7 +64,10 @@ function sameRect(a: WrWindowRect, b: WrWindowRect): boolean {
  * @internal
  */
 export interface WrWindowTaskbarTabs {
-  /** The `.wr-window-taskbar__tab` row for `ref`, or `null` when this taskbar does not list it. */
+  /**
+   * The `.wr-window-taskbar__tab` row for `ref`, the "+N" button when its tab is
+   * folded under one, or `null` when this taskbar does not list it.
+   */
   tabFor(ref: AnyRef): HTMLElement | null;
   /** Whether `node` is inside this taskbar. */
   contains(node: Node): boolean;
@@ -595,8 +598,10 @@ export class WrWindowManager implements WrWindowRefHost {
    * @internal
    */
   _focusAfterMinimize(ref: AnyRef): void {
-    // The restore button is the row's first: the close button sits after it.
-    const restore = this.taskbarTab(ref)?.querySelector<HTMLElement>('button');
+    // The restore button is the row's first: the close button sits after it. A
+    // folded window's place is the "+N" button, which is a button itself.
+    const tab = this.taskbarTab(ref);
+    const restore = tab?.matches('button') ? tab : tab?.querySelector<HTMLElement>('button');
     if (restore) restore.focus();
     else if (ref._returnFocus?.isConnected) ref._returnFocus.focus();
     // Nowhere to go: at least never leave focus parked inside a window that is

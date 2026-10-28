@@ -350,6 +350,7 @@ export const wrNl: WrI18nCatalog = {
     untitled: 'Naamloos',
     taskbar: 'Geminimaliseerde vensters',
     taskbarAll: 'Geopende vensters',
+    taskbarMore: 'Meer vensters: {{count}}',
     moveMode: 'Venster verplaatsen. Gebruik de pijltoetsen, Enter om te voltooien en Escape om te annuleren.',
     resizeMode: 'Venstergrootte wijzigen. Gebruik de pijltoetsen, Enter om te voltooien en Escape om te annuleren.',
     moved: 'Venster verplaatst naar {{x}}, {{y}}',

@@ -354,6 +354,7 @@ export const wrVi: WrI18nCatalog = {
     untitled: 'Không có tiêu đề',
     taskbar: 'Cửa sổ đã thu nhỏ',
     taskbarAll: 'Cửa sổ đang mở',
+    taskbarMore: 'Cửa sổ khác: {{count}}',
     moveMode: 'Đang di chuyển cửa sổ. Dùng các phím mũi tên, nhấn Enter để hoàn tất hoặc Escape để hủy.',
     resizeMode: 'Đang đổi kích thước cửa sổ. Dùng các phím mũi tên, nhấn Enter để hoàn tất hoặc Escape để hủy.',
     moved: 'Đã di chuyển cửa sổ đến {{x}}, {{y}}',

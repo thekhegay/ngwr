@@ -351,6 +351,7 @@ export const wrFr: WrI18nCatalog = {
     untitled: 'Sans titre',
     taskbar: 'Fenêtres réduites',
     taskbarAll: 'Fenêtres ouvertes',
+    taskbarMore: 'Autres fenêtres : {{count}}',
     moveMode: 'Déplacement de la fenêtre. Utilisez les touches fléchées, Entrée pour terminer et Échap pour annuler.',
     resizeMode:
       'Redimensionnement de la fenêtre. Utilisez les touches fléchées, Entrée pour terminer et Échap pour annuler.',

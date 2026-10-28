@@ -357,6 +357,7 @@ export const wrTr: WrI18nCatalog = {
     untitled: 'Adsız',
     taskbar: 'Küçültülmüş pencereler',
     taskbarAll: 'Açık pencereler',
+    taskbarMore: 'Diğer pencereler: {{count}}',
     moveMode: 'Pencere taşınıyor. Ok tuşlarını kullanın; bitirmek için Enter, iptal etmek için Escape tuşuna basın.',
     resizeMode:
       'Pencere yeniden boyutlandırılıyor. Ok tuşlarını kullanın; bitirmek için Enter, iptal etmek için Escape tuşuna basın.',

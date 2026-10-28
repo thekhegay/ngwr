@@ -342,6 +342,7 @@ export const wrHi: WrI18nCatalog = {
     untitled: 'बिना शीर्षक',
     taskbar: 'छोटी की गई विंडो',
     taskbarAll: 'खुली विंडो',
+    taskbarMore: 'अन्य विंडो: {{count}}',
     moveMode:
       'विंडो खिसकाई जा रही है। तीर कुंजियों का उपयोग करें, पूरा करने के लिए Enter और रद्द करने के लिए Escape दबाएं।',
     resizeMode:

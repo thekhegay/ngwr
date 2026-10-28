@@ -346,6 +346,7 @@ export const wrJa: WrI18nCatalog = {
     untitled: '無題',
     taskbar: '最小化されたウィンドウ',
     taskbarAll: '開いているウィンドウ',
+    taskbarMore: 'その他のウィンドウ: {{count}}',
     moveMode: 'ウィンドウを移動しています。矢印キーで移動し、Enter キーで確定、Escape キーで取り消します。',
     resizeMode: 'ウィンドウのサイズを変更しています。矢印キーで変更し、Enter キーで確定、Escape キーで取り消します。',
     moved: 'ウィンドウを {{x}}、{{y}} に移動しました',

@@ -347,6 +347,7 @@ export const wrZhTw: WrI18nCatalog = {
     untitled: '未命名',
     taskbar: '已最小化的視窗',
     taskbarAll: '已開啟的視窗',
+    taskbarMore: '其他視窗: {{count}}',
     moveMode: '正在移動視窗。使用方向鍵移動，按 Enter 鍵完成，按 Escape 鍵取消。',
     resizeMode: '正在調整視窗大小。使用方向鍵調整，按 Enter 鍵完成，按 Escape 鍵取消。',
     moved: '視窗已移至 {{x}}，{{y}}',

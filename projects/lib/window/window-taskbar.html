@@ -1,6 +1,6 @@
 @if (items().length > 0) {
   <div class="wr-window-taskbar__rail">
-    @for (ref of items(); track ref.id) {
+    @for (ref of visible(); track ref.id) {
       <!--
         Two SIBLING buttons in a plain container, not a close button nested
         inside the tab. The close used to be a `role="button"` span with
@@ -38,6 +38,32 @@
           </svg>
         </button>
       </div>
+    }
+    @if (folded().length > 0) {
+      <button
+        #more
+        #fold="wrDropdown"
+        type="button"
+        class="wr-window-taskbar__more"
+        [wrDropdown]="foldMenu"
+        [position]="menuPosition()"
+        [attr.aria-label]="moreLabel({ count: folded().length })"
+        [attr.tabindex]="tabIndex(visible().length * 2)"
+      >
+        +{{ folded().length }}
+      </button>
+      <wr-dropdown-menu #foldMenu>
+        @for (ref of folded(); track ref.id) {
+          <wr-dropdown-item
+            class="wr-window-taskbar__fold-item"
+            [class.wr-window-taskbar__fold-item--minimized]="ref.state() === 'minimized'"
+            [attr.aria-label]="tabLabel(ref)"
+            (click)="pick(ref, fold)"
+          >
+            {{ tabTitle(ref) }}
+          </wr-dropdown-item>
+        }
+      </wr-dropdown-menu>
     }
   </div>
 }
