@@ -69,11 +69,16 @@
     grid-template-rows: 0fr;
     transition:
       grid-template-rows var(--wr-transition-base),
+      border-top-width var(--wr-transition-base),
       border-top-color var(--wr-transition-base);
-    border-top: 1px solid transparent;
+    // No width while closed: a transparent 1px border still took a row under
+    // the header, where a hovered header's fill stopped short of the panel's
+    // edge and left a stripe of the panel's own background.
+    border-top: 0 solid transparent;
 
     &--open {
       grid-template-rows: 1fr;
+      border-top-width: 1px;
       border-top-color: var(--wr-collapse-border);
     }
   }
