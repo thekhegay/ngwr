@@ -341,6 +341,7 @@ export const ROUTES = {
     waves: { path: 'waves', title: 'Waves' },
     dotGrid: { path: 'dot-grid', title: 'Dot Grid' },
     threads: { path: 'threads', title: 'Threads' },
+    rippleGrid: { path: 'ripple-grid', title: 'Ripple Grid' },
     starBorder: { path: 'star-border', title: 'Star Border' },
     splashCursor: { path: 'splash-cursor', title: 'Splash Cursor' },
     splitText: { path: 'split-text', title: 'Split Text' },

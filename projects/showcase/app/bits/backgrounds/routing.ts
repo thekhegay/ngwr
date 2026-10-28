@@ -8,6 +8,7 @@ const a = ROUTES.bits;
 export const BACKGROUND_ROUTES = [
   { path: a.aurora.path, loadComponent: () => import('./aurora/aurora') },
   { path: a.dotGrid.path, loadComponent: () => import('./dot-grid/dot-grid') },
+  { path: a.rippleGrid.path, loadComponent: () => import('./ripple-grid/ripple-grid') },
   { path: a.threads.path, loadComponent: () => import('./threads/threads') },
   { path: a.waves.path, loadComponent: () => import('./waves/waves') },
 ] satisfies Routes;

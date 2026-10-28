@@ -1,0 +1,77 @@
+<ngwr-doc-page
+  title="Ripple Grid"
+  since="15.1.0"
+  description="Grid lines behind your content that the pointer sends ripples through."
+  [keywords]="['ripple grid', 'wr-ripple-grid', 'background', 'grid', 'ripple', 'animation', 'reactbits', 'canvas']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="ripple-grid" category="backgrounds" />
+
+  <ngwr-doc-section
+    title="Playground"
+    description="Put it in a positioned box; it fills that box. Press anywhere in it, or move the pointer over the content in front of it."
+  >
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <div style="position: relative; width: 100%; height: 18rem; border-radius: 0.75rem; overflow: hidden">
+        <wr-ripple-grid
+          [cellSize]="cellSize()"
+          [lineWidth]="lineWidth()"
+          [strength]="strength()"
+          [speed]="speed()"
+          [decay]="decay()"
+          [idleInterval]="idleInterval()"
+          [rippleOnMove]="rippleOnMove()"
+          [lineColor]="lineColor()"
+          [rippleColor]="rippleColor()"
+        />
+        <div style="position: relative; display: flex; align-items: center; justify-content: center; height: 100%">
+          <p wrTypography variant="h3" style="margin: 0">Content above the grid</p>
+        </div>
+      </div>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="On its own"
+    description="An idle interval sends a ring out from the centre every so often, so the grid moves before anyone touches it. Here moves are ignored, a press still ripples, and the button keeps every click."
+  >
+    <ngwr-doc-snippet [code]="snippets.idle">
+      <div style="position: relative; width: 100%; min-height: 20rem; border-radius: 0.75rem; overflow: hidden">
+        <wr-ripple-grid [idleInterval]="2400" [rippleOnMove]="false" />
+        <div
+          style="
+            position: relative;
+            display: grid;
+            place-items: center;
+            align-content: center;
+            gap: 1rem;
+            min-height: 20rem;
+            padding: 2rem;
+            text-align: center;
+          "
+        >
+          <h2 wrTypography variant="h2" style="margin: 0">Make some waves</h2>
+          <p wrTypography tone="muted" style="margin: 0">
+            A ring leaves the centre on its own; a press anywhere sends another.
+          </p>
+          <wr-btn color="primary">Get started</wr-btn>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Light only"
+    description="A strength of 0 keeps every line straight and only lights it. Colours take any CSS colour, a theme token included, and follow the colour scheme."
+  >
+    <ngwr-doc-snippet [code]="snippets.light">
+      <div style="position: relative; width: 100%; height: 12rem; border-radius: 0.75rem; overflow: hidden">
+        <wr-ripple-grid rippleColor="var(--wr-color-success)" [strength]="0" [cellSize]="24" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

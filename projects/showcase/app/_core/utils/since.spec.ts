@@ -245,6 +245,7 @@ describe('the surfaces that draw it', () => {
     // alphabetical inside one.
     expect(marked).toEqual([
       'Dot Grid',
+      'Ripple Grid',
       'Threads',
       'Funnel Chart',
       'Radar Chart',
