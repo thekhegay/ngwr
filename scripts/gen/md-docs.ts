@@ -292,12 +292,13 @@ function render(document: Document, route: string): string | null {
   // The version chip shares the header's chip row and is NOT a kind — it says
   // when the thing arrived, not what it is. Left in the same sweep it read as
   // `Kind: Component, Standalone, Added in v14.5`, which is a false claim in the
-  // one line an agent reads to classify a page.
-  const labels = Array.from(header?.querySelectorAll('.labels wr-badge:not(.since)') ?? []).map(b => text(b));
-  const since = text(header?.querySelector('.labels wr-badge.since') ?? null);
+  // one line an agent reads to classify a page. A page can carry more than one:
+  // "Added in", "Updated in" and "Optional" all sit on that row.
+  const labels = Array.from(header?.querySelectorAll('.labels .doc-label') ?? []).map(b => (b.textContent ?? '').trim());
+  const marks = Array.from(header?.querySelectorAll('.labels wr-badge.since') ?? []).map(b => text(b));
   const meta = [`Source: ${SITE}${route}`];
   if (labels.length > 0) meta.push(`Kind: ${labels.join(', ')}`);
-  if (since) meta.push(since);
+  meta.push(...marks);
   out.push(meta.join('  \n'));
 
   for (const section of Array.from(page.querySelectorAll(':scope > .content > ngwr-doc-section'))) {

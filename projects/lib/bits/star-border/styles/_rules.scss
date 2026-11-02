@@ -6,6 +6,9 @@
   // Light surfaces get a primary comet; dark flips to the classic white.
   // `[color]` overrides both inline.
   --wr-star-border-color: light-dark(var(--wr-color-primary), #ffffff);
+  // What `[color]` writes on the host, which the inline value beats. Unset here so an
+  // instance projected inside another one does not inherit its colour.
+  --wr-star-border-input-color: initial;
   --wr-star-border-speed: 6s;
   --wr-star-border-radius: 20px;
   --wr-star-border-opacity: 1;
@@ -33,8 +36,8 @@
     // there, so each scheme draws the gradient it drew as its own stop.
     background: radial-gradient(
       circle,
-      var(--wr-star-border-color),
-      light-dark(color-mix(in srgb, var(--wr-star-border-color) 37.5%, transparent), transparent) 10%,
+      var(--wr-star-border-input-color, var(--wr-star-border-color)),
+      light-dark(color-mix(in srgb, var(--wr-star-border-input-color, var(--wr-star-border-color)) 37.5%, transparent), transparent) 10%,
       transparent 16%
     );
     animation: wr-star-border-bottom var(--wr-star-border-speed) linear infinite alternate;

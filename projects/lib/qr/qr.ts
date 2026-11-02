@@ -109,6 +109,12 @@ export class WrQr {
       if (!this.isBrowser) return;
       const el = this.canvas()?.nativeElement;
       if (!el) return;
+      // The colour probes sit inside the canvas and inherit this. Under forced colours they
+      // would read one forced colour for both the modules and the ground, and draw a
+      // solid square nobody can scan. Written here rather than in a stylesheet, because an
+      // app may use the class with no `@use`, and rather than bound, because a binding
+      // lands after this effect's first draw.
+      el.style.setProperty('forced-color-adjust', 'none');
       // A 2D context reads no CSS: it refuses a `var()` or a `light-dark()` and keeps
       // its previous fill, so a token colour drew every module in the background's
       // colour, or the whole code as one black square. Resolved through the cascade

@@ -63,11 +63,10 @@ function parseInlineDeclarations(style: string): Map<string, string> {
  * {@link parseInlineDeclarations} for why a computed read would be a different, and
  * wrong, question.
  *
- * **A colour getter answering `null` means the component has never written that
- * variable**, which is the contract when the input is unset: the stylesheet's per-theme
- * default takes over. Note that it does not un-write them either — setting `[glowColor]`
- * and then putting it back to `null` leaves the last value on the host — so `null` is
- * "never set", not "not set now".
+ * **A colour getter answering `null` means that variable is not on the host now**, which
+ * is the contract when the input is unset or its value was refused: the stylesheet's
+ * per-theme default takes over. An input set and then put back to `null` comes off the
+ * host, so `null` says nothing about whether it was ever set.
  *
  * There is deliberately no `getGlowOpacity()`, `isGlowVisible()` or `isHovered()`: the
  * visible strength is a `calc()` in the stylesheet gated behind `:not(:hover)`, and
@@ -165,7 +164,7 @@ export class WrBorderGlowHarness extends ComponentHarness {
 
   /**
    * The seven halo alphas in percent, brightest first, or `null` when no glow colour
-   * was ever set.
+   * is set.
    *
    * This is the whole of `[glowIntensity]`: the steps are `[100, 60, 50, 40, 30, 20,
    * 10]` multiplied by the intensity and clamped at 100, so `0.5` gives

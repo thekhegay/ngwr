@@ -196,17 +196,30 @@ describe('WrCandlestickChart', () => {
 
   describe('colours', () => {
     it('leaves the colours to the stylesheet unless asked', () => {
-      expect(chart().style.getPropertyValue('--wr-candlestick-chart-increase-color')).toBe('');
-      expect(chart().style.getPropertyValue('--wr-candlestick-chart-decrease-color')).toBe('');
+      expect(chart().style.getPropertyValue('--wr-candlestick-chart-input-increase-color')).toBe('');
+      expect(chart().style.getPropertyValue('--wr-candlestick-chart-input-decrease-color')).toBe('');
     });
 
-    it('writes the colours it is given onto its own hooks, and keeps the fill', () => {
+    it('keeps a hook set in the style attribute, which a null binding of its name would wipe', () => {
+      const hooked = TestBed.createComponent(Hooked);
+      hooked.detectChanges();
+      const el = (hooked.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-candlestick-chart')!;
+      expect(el.style.getPropertyValue('--wr-candlestick-chart-increase-color')).toBe('red');
+      expect(el.style.getPropertyValue('--wr-candlestick-chart-decrease-color')).toBe('blue');
+      hooked.destroy();
+    });
+
+    it('publishes the colours it is given, and keeps the fill', () => {
       host().increaseColor.set('var(--wr-color-danger)');
       host().decreaseColor.set('var(--wr-color-success)');
       render();
 
-      expect(chart().style.getPropertyValue('--wr-candlestick-chart-increase-color')).toBe('var(--wr-color-danger)');
-      expect(chart().style.getPropertyValue('--wr-candlestick-chart-decrease-color')).toBe('var(--wr-color-success)');
+      expect(chart().style.getPropertyValue('--wr-candlestick-chart-input-increase-color')).toBe(
+        'var(--wr-color-danger)'
+      );
+      expect(chart().style.getPropertyValue('--wr-candlestick-chart-input-decrease-color')).toBe(
+        'var(--wr-color-success)'
+      );
       expect(candles().map(c => c.direction)).toEqual(['increase', 'decrease', 'increase', 'increase']);
     });
   });
@@ -614,6 +627,15 @@ describe('WrCandlestickChart on the server', () => {
     measure.mockRestore();
   });
 });
+
+@Component({
+  imports: [WrCandlestickChart],
+  template: `<wr-candlestick-chart
+    [data]="[]"
+    style="--wr-candlestick-chart-increase-color: red; --wr-candlestick-chart-decrease-color: blue"
+  />`,
+})
+class Hooked {}
 
 @Component({
   imports: [WrCandlestickChart],

@@ -115,7 +115,7 @@ export const API = {
   ],
   // <wr-border-glow>
   WrBorderGlow: [
-    { name: "backgroundColor", description: "Card background fill. When unset, uses the theme surface token.", type: "string | null", default: "null" },
+    { name: "backgroundColor", description: "Card background fill. When unset, uses the theme surface token. A hook set inline on the same element is replaced by this input and does not come back when it is unset, so set it from a stylesheet rule. The same goes for `glowColor` and `colors`.", type: "string | null", default: "null" },
     { name: "borderRadius", description: "Corner radius in pixels.", type: "number", default: "28" },
     { name: "glowRadius", description: "Halo extent in pixels — how far the outer glow reaches past the card edge.", type: "number", default: "40" },
     { name: "glowIntensity", description: "Halo opacity multiplier (1 = full strength). Applies only alongside an explicit `glowColor`: the halo variables are built from the two together, so on the default palette this input is read and never reaches a declaration.", type: "number", default: "1" },
@@ -522,8 +522,8 @@ export const API = {
   WrDotGrid: [
     { name: "dotSize", description: "Dot diameter in px.", type: "number", default: "3" },
     { name: "gap", description: "Distance between dot centres in px, never under 4.", type: "number", default: "24" },
-    { name: "dotColor", description: "Resting dot colour, any CSS colour. When unset, `--wr-dot-grid-dot-color` decides.", type: "string | null", default: "null" },
-    { name: "activeColor", description: "Colour a dot takes near the pointer, any CSS colour. When unset, `--wr-dot-grid-active-color` decides.", type: "string | null", default: "null" },
+    { name: "dotColor", description: "Resting dot colour, any CSS colour. When unset, empty or blank, `--wr-dot-grid-dot-color` decides.", type: "string | null", default: "null" },
+    { name: "activeColor", description: "Colour a dot takes near the pointer, any CSS colour. When unset, empty or blank, `--wr-dot-grid-active-color` decides.", type: "string | null", default: "null" },
     { name: "radius", description: "How far from the pointer a dot still reacts, in px.", type: "number", default: "120" },
     { name: "strength", description: "How far a dot right by the pointer is pushed, in px; the push fades out toward `radius`. `0` keeps the dots in place and only lights them, and a negative value pulls them in.", type: "number", default: "12" },
   ],
@@ -801,6 +801,13 @@ export const API = {
     { name: "value", description: "The entered code. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
     { name: "(completed)", description: "Fires on every change made while every cell holds a character — so correcting a digit of an already-complete code emits again. Not latched on the incomplete-to-complete transition: a host auto-submitting on it has to guard its own re-entry, and gets the corrected code for free.", type: "string" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+  ],
+  // <wr-iridescence>
+  WrIridescence: [
+    { name: "color", description: "Tint multiplied over the picture, any CSS colour — a `var()` token or a `light-dark()` pair included. Pass an opaque colour: the canvas drops alpha and the stand-in keeps it. When unset, empty or blank, `--wr-iridescence-color` decides.", type: "string | null", default: "null" },
+    { name: "speed", description: "Speed of the folds; `0` holds them and a negative value reverses them. Changing it never jumps the picture.", type: "number", default: "1" },
+    { name: "amplitude", description: "How hard the pointer stirs the folds; `0` leaves the pointer out and a negative value stirs them the other way.", type: "number", default: "1" },
+    { name: "followPointer", description: "Whether the pointer stirs the folds at all.", type: "boolean", default: "true" },
   ],
   // <wr-kbd>
   WrKbd: [
@@ -1591,7 +1598,7 @@ export const API = {
   ],
   // <wr-waves>
   WrWaves: [
-    { name: "lineColor", description: "Line stroke colour, any CSS colour. When unset, the theme decides.", type: "string | null", default: "null" },
+    { name: "lineColor", description: "Line stroke colour, any CSS colour. When unset, empty or blank, `--wr-waves-line-color` decides.", type: "string | null", default: "null" },
     { name: "backgroundColor", description: "Background fill behind the lines.", type: "string", default: "'transparent'" },
     { name: "waveSpeedX", description: "Horizontal noise drift per ms.", type: "number", default: "0.0125" },
     { name: "waveSpeedY", description: "Vertical noise drift per ms.", type: "number", default: "0.005" },

@@ -163,9 +163,10 @@ interface DrawnCandle {
     class: 'wr-candlestick-chart',
     // A body too narrow to leave hollow is dotted instead; see `dense`.
     '[class.wr-candlestick-chart--dense]': 'dense()',
-    // Written only when given, so the stylesheet's hooks stay the default.
-    '[style.--wr-candlestick-chart-increase-color]': 'increaseColor()',
-    '[style.--wr-candlestick-chart-decrease-color]': 'decreaseColor()',
+    // Variables of their own rather than the hooks, which an author sets from outside: a
+    // `null` binding wipes a value of its own name from the host's `style` attribute.
+    '[style.--wr-candlestick-chart-input-increase-color]': 'increaseColor()',
+    '[style.--wr-candlestick-chart-input-decrease-color]': 'decreaseColor()',
   },
   imports: [WrChartTable],
 })

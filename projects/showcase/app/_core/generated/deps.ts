@@ -134,6 +134,7 @@ export const DOC_PAGES: Readonly<Record<string, { readonly route: string; readon
   "bits/fuzzy-text": {"route":"bits/fuzzy-text","title":"Fuzzy Text","kind":"Animation"},
   "bits/glitch-text": {"route":"bits/glitch-text","title":"Glitch Text","kind":"Animation"},
   "bits/gradient-text": {"route":"bits/gradient-text","title":"Gradient Text","kind":"Animation"},
+  "bits/iridescence": {"route":"bits/iridescence","title":"Iridescence","kind":"Animation"},
   "bits/marquee": {"route":"bits/marquee","title":"Marquee","kind":"Animation"},
   "bits/ripple-grid": {"route":"bits/ripple-grid","title":"Ripple Grid","kind":"Animation"},
   "bits/rotating-text": {"route":"bits/rotating-text","title":"Rotating Text","kind":"Animation"},
@@ -251,6 +252,7 @@ export const DOC_PAGES: Readonly<Record<string, { readonly route: string; readon
 
 /** Route → entry points its demos use alongside the one it documents. */
 export const DEMO_RELATED: Readonly<Record<string, readonly string[]>> = {
+  "bits/iridescence": ["card"],
   "bits/marquee": ["icon"],
   "charts/chart-legend": ["charts/sparkline"],
   "reference/components/alert": ["icon"],
@@ -311,6 +313,7 @@ export const DOC_ROUTES: Readonly<
   "bits/fuzzy-text": {"title":"Fuzzy Text","kind":"Animation","labels":["Animation"],"description":"Text drawn on a canvas with a TV-static jitter."},
   "bits/glitch-text": {"title":"Glitch Text","kind":"Animation","labels":["Animation"],"description":"Text with a colour-split glitch, on hover or all the time."},
   "bits/gradient-text": {"title":"Gradient Text","kind":"Animation","labels":["Animation"],"description":"Text filled with a moving gradient."},
+  "bits/iridescence": {"title":"Iridescence","kind":"Animation","labels":["Animation"],"description":"Folded silk behind your content, its hue turning with each fold, stirred by the pointer."},
   "bits/marquee": {"title":"Marquee","kind":"Animation","labels":["Animation"],"description":"An endless scrolling row of logos, images or templates."},
   "bits/ripple-grid": {"title":"Ripple Grid","kind":"Animation","labels":["Animation"],"description":"Grid lines behind your content that the pointer sends ripples through."},
   "bits/rotating-text": {"title":"Rotating Text","kind":"Animation","labels":["Animation"],"description":"Cycles through a list of words in one place."},

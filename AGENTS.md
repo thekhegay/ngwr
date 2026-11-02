@@ -32,7 +32,7 @@ A pnpm + Angular CLI monorepo with three projects:
   the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`,
-  **every chart** and **twenty-one of the twenty-four bits** — each at
+  **every chart** and **twenty-two of the twenty-five bits** — each at
   `ngwr/<name>/testing`. Charts and bits are NESTED since v15:
   `ngwr/charts/bar-chart`, `ngwr/bits/aurora`, harnesses at
   `ngwr/charts/bar-chart/testing`. Twenty-eight folders that used to sit beside
@@ -112,7 +112,7 @@ A pnpm + Angular CLI monorepo with three projects:
 `projects/lib/package.json`'s `exports` map.
 
 **A component with a `styleUrl` splits that one file in two, and the rule is
-mechanical: rules go in `styles/_rules.scss`, never in `_index.scss`.** Thirty
+mechanical: rules go in `styles/_rules.scss`, never in `_index.scss`.** Thirty-one
 components have a `styleUrl`, and a component stylesheet is its OWN Sass
 compilation — `@use` deduplicates within one compilation, not across them — so a
 `_index.scss` that both `@use`s the theme and holds the rules inlines a second
@@ -319,10 +319,13 @@ one component folder. Reach for them instead of hand-rolling:
   on a dark page — so canvas and WebGL code resolves the colour first, through
   a probe element's computed `color`, which comes back as `rgb(…)` or
   `color(srgb r g b / a)` with 0–1 channels and never as hex. That probe is
-  `resolveCssColor(context, expression, fallback)` in `ngwr/utils`, which
-  `wr-aurora`, `wr-waves` and `wr-click-spark` share — use it rather than a
-  second copy. It is not `getPropertyValue('--wr-…')`, which returns the raw
-  declared text, `light-dark(#fff, #000)` included, in either scheme. Never register a theme
+  `resolveCssColor(context, expression, fallback)` in `ngwr/utils`, which the
+  bits drawing on a 2D canvas share — use it rather than a second copy. It is
+  not `getPropertyValue('--wr-…')`, which returns the raw declared text,
+  `light-dark(#fff, #000)` included, in either scheme. For a WebGL uniform,
+  `resolveCssColorChannels(context, expression, fallback)` beside it reads the
+  same result as 0–1 sRGB channels, which `wr-aurora` and `wr-iridescence`
+  share. Never register a theme
   token with `@property … { syntax: '<color>' }` on `:root`: a registered
   colour resolves where it is declared, and every subtree with its own
   `color-scheme` silently keeps the root's value. It holds colours only —
@@ -679,13 +682,13 @@ and sat at `275 spec files, at least 4467 specs` for long enough to be wrong by
 four files and a hundred cases. The case figure is a FLOOR either way, since one
 `it.each` site stands for an unknown number of cases.) What is still uncovered
 is no longer whole components but what a spec can reach: jsdom has no drawing context, so the canvas
-and WebGL components can never assert anything painted. All nine now install a
-recording context — a WebGL2 stub for `aurora` and `splash-cursor`, a 2D one for
-the rest — and eight of them an `ErrorHandler` recorder besides, because what
+and WebGL components can never assert anything painted. All ten now install a
+recording context — a WebGL2 stub for `aurora`, `iridescence` and `splash-cursor`,
+a 2D one for the rest — and nine of them an `ErrorHandler` recorder besides, because what
 `afterNextRender` throws reaches neither `detectChanges()` nor `whenStable()`, so
 a boot that died reads as a pass without one. (`wr-confetti` is the exception and
 correctly so: a service, with no deferred boot to lose an error inside.) That
-carries the specs in those nine files past the early return, to frame
+carries the specs in those ten files past the early return, to frame
 counts, spark and particle counts, the fuzz ramp, a `var(--wr-…)` colour resolved
 against the host, gravity bringing a particle back down, and teardown — while
 each keeps the null-context path it started as, one "survives a browser that will
@@ -1016,6 +1019,23 @@ space or other theme token, and its rules read only those variables:
 A rule that reads `--wr-color-surface` or `--wr-space-lg` directly leaves the
 consumer no hook of the component's own to restyle it with, and the hooks are
 public API (see `gen:css-vars` below).
+
+**An input that can be unset never binds to a hook's own name.** Angular compiles
+`[style.--wr-x]` under a namespaced key that misses a value of the same name in the
+host's `style` attribute and in `[style]`, so a `null` binding wipes the author's
+value where `[style.color]` would restore it. `[ngStyle]` writes through the renderer,
+outside that chain, so a `null` host binding wipes its value for any property. A host
+map binding is no way out: it keeps a static value on the first pass, loses it once
+the input has been set and unset, and overrides a consumer's own `[style.--wr-x]`. So
+the input writes `--wr-<block>-input-<name>`, which the table does not list, and the
+rule reads `var(--wr-<block>-input-<name>, var(--wr-<block>-<name>))`. That also means
+an expression built on the hook, `color-mix(in srgb, var(--wr-x) 50%, black)`, is no
+cycle. A component that can hold another of its kind (a projected slot, a consumer
+template) also declares that variable `initial` on the block, or the inner one inherits
+it. A hook that mirrors an input whose value is never `null` (`--wr-threads-count`,
+`--wr-waves-x-gap`) has no such problem and no way in from a stylesheet rule either,
+since the input's value is on the host. An author's own `[style.--wr-x]` still wins
+over it, as a template binding does over a host binding.
 
 **The COMPONENT-scoped hooks are catalogued by `gen:css-vars`.** How many there
 are is printed by the run — do not re-type it here, which is how this line came

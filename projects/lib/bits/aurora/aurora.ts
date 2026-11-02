@@ -28,7 +28,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, resolveCssColor, watchColorScheme } from 'ngwr/utils';
+import { numAttr, resolveCssColorChannels, watchColorScheme } from 'ngwr/utils';
 
 const VERT = `#version 300 es
 in vec2 position;
@@ -150,41 +150,16 @@ const DEFAULT_STOPS = ['#5227ff', '#7cff67', '#5227ff'] as const;
 const STOP_HOOKS = ['var(--wr-aurora-stop-1)', 'var(--wr-aurora-stop-2)', 'var(--wr-aurora-stop-3)'] as const;
 
 /**
- * A resolved colour as the shader's 0–1 channels, or `null` for a form it does
- * not read. Alpha is dropped: the uniform is a `vec3`, and the shader fades the
- * ribbon through its own alpha.
- *
- * A computed colour comes back in one of two shapes — `rgb()` / `rgba()` with
- * 0–255 channels for a legacy colour, `color(srgb r g b / a)` with 0–1 channels
- * for a `color-mix()` — and neither is the hex this used to parse, which turned
- * a `light-dark()` hook into `NaN` uniforms. Hex stays for the literal
- * fallbacks in `DEFAULT_STOPS`.
- */
-function toRgb01(color: string): [number, number, number] | null {
-  const value = color.trim().toLowerCase();
-  const fn = /^(rgba?|color)\(\s*(srgb\s+)?([^)]*)\)$/.exec(value);
-  if (fn && (fn[1] !== 'color' || fn[2] !== undefined)) {
-    const scale = fn[1] === 'color' ? 1 : 255;
-    const channels = fn[3]
-      .split(/[\s,/]+/)
-      .slice(0, 3)
-      .map(part => (part === 'none' ? 0 : Number.parseFloat(part) / scale));
-    if (channels.length !== 3 || !channels.every(Number.isFinite)) return null;
-    return channels.map(channel => Math.min(1, Math.max(0, channel))) as [number, number, number];
-  }
-  const hex = /^#([\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/.exec(value)?.[1];
-  if (hex === undefined) return null;
-  const full = hex.length <= 4 ? [...hex].map(digit => digit + digit).join('') : hex;
-  return [0, 2, 4].map(at => Number.parseInt(full.slice(at, at + 2), 16) / 255) as [number, number, number];
-}
-
-/**
  * Aurora background — flowing northern-lights ribbons rendered with a
  * WebGL2 simplex-noise shader, ramped across three colour stops. Fills
  * its nearest positioned ancestor; renders nothing without WebGL2.
  *
  * Under `prefers-reduced-motion` a single static frame is drawn, and drawn
  * again in the new colours when the page's colour scheme switches.
+ *
+ * Under forced colours the canvas is hidden and its loop stops with it, leaving the
+ * box on the palette's own ground, which is what forced text and marks are chosen
+ * against. The loop also stops off screen and with no box to draw on.
  *
  * @example
  * ```html
@@ -232,11 +207,18 @@ export class WrAurora {
   private gl: WebGL2RenderingContext | null = null;
   private uniforms: Record<string, WebGLUniformLocation | null> = {};
   private rafId = 0;
+  /** The shader time last drawn, so a resize can repaint the frame it just cleared. */
+  private time = 0;
 
   /** Flips once `boot()` has a context and a program — the loop waits for it. */
   private readonly booted = signal(false);
   /** Whether the host is in the viewport; stays `true` without an observer. */
   private readonly onScreen = signal(true);
+  /**
+   * Whether the box has an area. The intersection observer calls a zero-area canvas
+   * intersecting and sends no entry when it gains a size, so this reads the box instead.
+   */
+  private readonly hasBox = signal(false);
 
   constructor() {
     if (!this.isBrowser) return;
@@ -265,10 +247,10 @@ export class WrAurora {
 
     // The frame loop runs only while there is something to see: never under
     // `prefers-reduced-motion`, read live (the effect above paints the static
-    // frame when it switches on), and not while the host is off screen — a
-    // background redrawn out of sight still costs a frame every frame.
+    // frame when it switches on), and not while the host is off screen or has no
+    // box — a background redrawn out of sight still costs a frame every frame.
     effect(onCleanup => {
-      if (!this.booted() || !this.onScreen() || this.platform.prefersReducedMotion()) return;
+      if (!this.booted() || !this.onScreen() || !this.hasBox() || this.platform.prefersReducedMotion()) return;
       const loop = (t: number): void => {
         this.rafId = requestAnimationFrame(loop);
         this.pushUniforms();
@@ -318,32 +300,55 @@ export class WrAurora {
     gl.enableVertexAttribArray(position);
     gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
 
-    const resize = (): void => {
-      const rect = this.host.nativeElement.getBoundingClientRect();
-      canvas.width = Math.max(1, Math.round(rect.width));
-      canvas.height = Math.max(1, Math.round(rect.height));
+    const hostEl = this.host.nativeElement;
+    const fit = (): void => {
+      // The layout box and not `getBoundingClientRect()`, which is the box after
+      // transforms: no observer hears of a transform, so a host booted under a
+      // `scale(0)` would count as having no box for good.
+      const width = hostEl.clientWidth;
+      const height = hostEl.clientHeight;
+      this.hasBox.set(width > 0 && height > 0);
+      canvas.width = Math.max(1, width);
+      canvas.height = Math.max(1, height);
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(this.uniforms['uResolution'], canvas.width, canvas.height);
-      if (this.platform.prefersReducedMotion()) this.draw(0);
+    };
+    // Sizing the bitmap clears it, and observer entries arrive after the frame's own
+    // callbacks and before its paint, so a repaint left to the loop would leave this
+    // frame empty.
+    const resize = (): void => {
+      fit();
+      this.draw(this.platform.prefersReducedMotion() ? 0 : this.time);
     };
 
     window.addEventListener('resize', resize);
     const ro = new ResizeObserver(resize);
-    ro.observe(this.host.nativeElement);
+    ro.observe(hostEl);
 
-    resize();
+    fit();
     this.pushUniforms();
 
     // Static frame — the ribbons hold their t=0 shape. Painted under reduced
     // motion, and as the first frame either way; the loop takes over from here.
     this.draw(0);
 
-    // Without an observer (jsdom) the host simply counts as visible.
+    // Without an observer (jsdom) the host simply counts as visible. The canvas
+    // rather than the host, which fills the same box, so a canvas hidden under forced
+    // colours stops the loop too. A box flush against a zero-height clip intersects with
+    // nothing showing, and only a second threshold reports the clip moving. It sits below
+    // any real ratio, or a clip closing on a transition steps from under it to 0 without
+    // crossing anything.
     const io =
       typeof IntersectionObserver === 'undefined'
         ? null
-        : new IntersectionObserver(entries => this.onScreen.set(entries[entries.length - 1].isIntersecting));
-    io?.observe(this.host.nativeElement);
+        : new IntersectionObserver(
+            entries => {
+              const { isIntersecting, intersectionRatio } = entries[entries.length - 1];
+              this.onScreen.set(isIntersecting && intersectionRatio > 0);
+            },
+            { threshold: [0, 1e-9] }
+          );
+    io?.observe(canvas);
 
     this.destroyRef.onDestroy(() => {
       window.removeEventListener('resize', resize);
@@ -374,21 +379,13 @@ export class WrAurora {
     const fallback = DEFAULT_STOPS[index];
     const expression =
       explicit === null ? STOP_HOOKS[index] : (explicit[Math.min(index, explicit.length - 1)] ?? fallback);
-    const canvas = this.canvasRef().nativeElement;
-    const resolved = resolveCssColor(canvas, expression, fallback);
-    // A colour authored in another space — `oklch()`, `lab()`, `display-p3` —
-    // computes to itself; mixing it into sRGB is what brings it to a form the
-    // parser reads.
-    return (
-      toRgb01(resolved) ??
-      toRgb01(resolveCssColor(canvas, `color-mix(in srgb, ${resolved} 100%, transparent)`, fallback)) ??
-      toRgb01(fallback)!
-    );
+    return resolveCssColorChannels(this.canvasRef().nativeElement, expression, fallback);
   }
 
   private draw(time: number): void {
     const gl = this.gl;
-    if (!gl) return;
+    if (!gl || !this.hasBox()) return;
+    this.time = time;
     gl.uniform1f(this.uniforms['uTime'], time);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);

@@ -35,7 +35,7 @@ import { Component, ViewEncapsulation, ElementRef, inject, input } from '@angula
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-spotlight-card',
-    '[style.--wr-spotlight-color]': 'spotlightColor()',
+    '[style.--wr-spotlight-input-color]': 'spotlightColor()',
     '[style.--wr-spotlight-radius]': 'radius() + "%"',
     '(mousemove)': 'onMouseMove($event)',
   },

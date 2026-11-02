@@ -38,6 +38,12 @@ class Host {
   readonly itemHeight = signal(28);
 }
 
+@Component({
+  imports: [WrMarquee],
+  template: `<wr-marquee [items]="[]" style="--wr-marquee-fade-color: red" />`,
+})
+class Hooked {}
+
 /**
  * The scroll itself is `requestAnimationFrame` over measured widths, and jsdom
  * measures everything as zero — so what is pinned here is the markup the loop
@@ -120,6 +126,14 @@ describe('WrMarquee', () => {
     fixture.detectChanges();
     expect(host().style.getPropertyValue('--wr-marquee-gap')).toBe('8px');
     expect(host().style.getPropertyValue('--wr-marquee-height')).toBe('64px');
+  });
+
+  it('keeps a hook set in the style attribute, which a null binding of its name would wipe', () => {
+    const hooked = TestBed.createComponent(Hooked);
+    hooked.detectChanges();
+    const el = (hooked.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-marquee')!;
+    expect(el.style.getPropertyValue('--wr-marquee-fade-color')).toBe('red');
+    hooked.destroy();
   });
 
   it('takes the fade modifier only when asked', () => {

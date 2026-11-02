@@ -22,6 +22,12 @@ class Host {
   readonly rays = signal<WrStarBorderRays>('mirror');
 }
 
+@Component({
+  imports: [WrStarBorder],
+  template: `<wr-star-border style="--wr-star-border-color: red" />`,
+})
+class Hooked {}
+
 describe('WrStarBorder', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -43,11 +49,20 @@ describe('WrStarBorder', () => {
   });
 
   it('leaves the colour to the theme until one is given', () => {
-    expect(host().style.getPropertyValue('--wr-star-border-color')).toBe('');
+    expect(host().style.getPropertyValue('--wr-star-border-input-color')).toBe('');
 
     fixture.componentInstance.color.set('var(--wr-color-success)');
     fixture.detectChanges();
-    expect(host().style.getPropertyValue('--wr-star-border-color')).toBe('var(--wr-color-success)');
+    expect(host().style.getPropertyValue('--wr-star-border-input-color')).toBe('var(--wr-color-success)');
+    expect(host().style.getPropertyValue('--wr-star-border-color'), "the hook is the author's").toBe('');
+  });
+
+  it('keeps a hook set in the style attribute, which a null binding of its name would wipe', () => {
+    const hooked = TestBed.createComponent(Hooked);
+    hooked.detectChanges();
+    const el = (hooked.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-star-border')!;
+    expect(el.style.getPropertyValue('--wr-star-border-color')).toBe('red');
+    hooked.destroy();
   });
 
   it('names the hover mode and the single-ray variant', () => {

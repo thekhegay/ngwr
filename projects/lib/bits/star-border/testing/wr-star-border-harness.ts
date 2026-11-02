@@ -38,10 +38,10 @@ function inlineStyle(style: string | null, property: string): string | null {
  *
  * **The inline values are read off the `style` attribute rather than through
  * `getCssValue()`, and that is not a jsdom concession.** The stylesheet declares its own
- * `--wr-star-border-color` and `--wr-star-border-speed` on `.wr-star-border`, so in a
- * real browser a computed read answers with the stylesheet's default at exactly the
- * moment the host binding is the thing that broke. What the component wrote is the only
- * value nothing else can forge.
+ * `--wr-star-border-speed` on `.wr-star-border`, so in a real browser a computed read
+ * answers with the stylesheet's default at exactly the moment the host binding is the
+ * thing that broke. The colour goes on `--wr-star-border-input-color`, a variable of the
+ * component's own. What the component wrote is the only value nothing else can forge.
  *
  * On the attribute form the host's `[class]` binding MERGES with the classes the consumer
  * already put there, so read the variants through {@link isHoverOnly} and
@@ -100,12 +100,12 @@ export class WrStarBorderHarness extends ComponentHarness {
    * `null` when none was given.
    *
    * `null` is the common case and a real answer rather than a missing one: with no
-   * `[color]` the theme decides, primary on a light surface and white on a dark one, and
-   * a component that started writing a colour of its own there would silently take that
-   * choice away.
+   * `[color]` the `--wr-star-border-color` hook decides, by default primary on a light
+   * surface and white on a dark one, and a component that started writing a colour of its
+   * own there would silently take that choice away.
    */
   async getRayColor(): Promise<string | null> {
-    return this.hostStyle('--wr-star-border-color');
+    return this.hostStyle('--wr-star-border-input-color');
   }
 
   /**

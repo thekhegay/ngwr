@@ -91,7 +91,7 @@ const FOCUSABLE =
     '[class.wr-marquee--scale-hover]': 'scaleOnHover()',
     '[style.--wr-marquee-gap.px]': 'gap()',
     '[style.--wr-marquee-height.px]': 'itemHeight()',
-    '[style.--wr-marquee-fade-color]': 'fadeOutColor() || null',
+    '[style.--wr-marquee-input-fade-color]': 'fadeOutColor() || null',
     '[class.wr-marquee--static]': 'isStatic()',
     '[attr.role]': '"region"',
     '[attr.aria-label]': 'resolvedAriaLabel()',

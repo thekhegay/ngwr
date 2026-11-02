@@ -56,6 +56,8 @@ let frames: FrameRequestCallback[];
 let disconnects: number;
 /** The last colour-stop uniform, flattened to nine 0–1 channels. */
 let stops: number[];
+/** The resize observer's callback, to deliver a resize by hand. */
+let resized: ResizeObserverCallback | null;
 
 /**
  * Enough of WebGL2 for `boot()` to reach its last line, and nothing more.
@@ -68,6 +70,7 @@ let stops: number[];
  * context, so the spec supplies the smallest one it can disconnect.
  */
 const withContext = (): void => {
+  layout(320, 180);
   const gl: Record<string, unknown> = {
     getShaderParameter: () => true,
     drawArrays: () => {
@@ -85,6 +88,9 @@ const withContext = (): void => {
   );
 
   class Observer {
+    constructor(callback: ResizeObserverCallback) {
+      resized = callback;
+    }
     observe(): void {
       /* nothing to measure: jsdom lays nothing out */
     }
@@ -103,6 +109,12 @@ const withContext = (): void => {
   // waits on one flakes. Angular's own scheduler races rAF against a
   // `setTimeout`, so holding the frame does not stall the fixture.
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(frame => frames.push(frame));
+};
+
+/** A layout box for every element, since jsdom lays nothing out. */
+const layout = (width: number, height: number): void => {
+  vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(width);
+  vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(height);
 };
 
 /** Run every frame the page is currently holding, once. */
@@ -267,12 +279,12 @@ describe('WrAurora', () => {
   });
 
   it('parks the loop off screen and resumes it in view', async () => {
-    let report: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
+    let report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null = null;
     withContext();
     vi.stubGlobal(
       'IntersectionObserver',
       class {
-        constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+        constructor(callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) {
           report = callback;
         }
         observe(): void {
@@ -286,7 +298,7 @@ describe('WrAurora', () => {
     await mount();
     const cancel = vi.spyOn(window, 'cancelAnimationFrame');
 
-    report!([{ isIntersecting: false }]);
+    report!([{ isIntersecting: false, intersectionRatio: 0 }]);
     await fixture.whenStable();
     expect(cancel).toHaveBeenCalled();
     frames = [];
@@ -294,13 +306,114 @@ describe('WrAurora', () => {
     runFrame();
     expect(painted).toBe(parked);
 
-    report!([{ isIntersecting: true }]);
+    report!([{ isIntersecting: true, intersectionRatio: 1 }]);
     await fixture.whenStable();
     runFrame();
     expect(painted).toBeGreaterThan(parked);
 
     fixture.destroy();
     expect(report).toBeNull();
+  });
+
+  it('watches the canvas, so a canvas hidden under forced colours stops the loop too', async () => {
+    const observe = vi.fn();
+    withContext();
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        observe = observe;
+        disconnect(): void {
+          // Nothing to tear down.
+        }
+      }
+    );
+    await mount();
+
+    expect(observe).toHaveBeenCalledWith(canvas());
+  });
+
+  it('counts a box flush against a zero-height clip as off screen, and hears the clip open', async () => {
+    let report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null = null;
+    let options: IntersectionObserverInit | undefined;
+    withContext();
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(
+          callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void,
+          init?: IntersectionObserverInit
+        ) {
+          report = callback;
+          options = init;
+        }
+        observe(): void {
+          // Driven by hand below.
+        }
+        disconnect(): void {
+          report = null;
+        }
+      }
+    );
+    await mount();
+
+    report!([{ isIntersecting: true, intersectionRatio: 0 }]);
+    await fixture.whenStable();
+    frames = [];
+    const parked = painted;
+    runFrame();
+    expect(painted).toBe(parked);
+
+    // 0 alone would send nothing here in a real browser, and a larger second threshold
+    // shares an index with 0 for the last step of a clip closing on a transition.
+    expect(options?.threshold).toEqual([0, 1e-9]);
+    report!([{ isIntersecting: true, intersectionRatio: 0.5 }]);
+    await fixture.whenStable();
+    runFrame();
+    expect(painted).toBeGreaterThan(parked);
+  });
+
+  it('draws nothing and asks for no frames with no box, and starts when it has one', async () => {
+    withContext();
+    layout(0, 0);
+    await mount();
+    runFrame();
+    expect(painted).toBe(0);
+
+    layout(320, 180);
+    resized!([], {} as ResizeObserver);
+    await fixture.whenStable();
+    runFrame();
+    expect(painted).toBeGreaterThan(0);
+
+    layout(320, 0);
+    resized!([], {} as ResizeObserver);
+    await fixture.whenStable();
+    frames = [];
+    const parked = painted;
+    runFrame();
+    expect(painted).toBe(parked);
+  });
+
+  it('repaints at once on a resize while the loop runs, at the time it had reached', async () => {
+    withContext();
+    await mount();
+    runFrame();
+    const before = painted;
+
+    // Sizing the bitmap clears it, so the frame cannot wait for the loop.
+    resized!([], {} as ResizeObserver);
+
+    expect(painted).toBe(before + 1);
+  });
+
+  it('sizes from the layout box, whatever a transform does to the rect', async () => {
+    withContext();
+    layout(320, 180);
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 0, height: 0 } as DOMRect);
+    await mount();
+
+    expect([canvas()!.width, canvas()!.height]).toEqual([320, 180]);
+    expect(painted, 'a host under scale(0) still has a box').toBeGreaterThan(0);
   });
 
   it('tears down the listener, the observer and the frame it installed', async () => {

@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1558 hook(s) across 106 page(s). A property is here only when the
+ * 1558 hook(s) across 107 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 27 declaration(s) are one component setting
@@ -118,6 +118,12 @@ export const CSS_VARS = {
       { name: "--wr-gradient-text-size", default: "300% 100%", scope: ".wr-gradient-text" },
     ],
   },
+  "bits/iridescence": {
+    subpath: "ngwr/bits/iridescence",
+    vars: [
+      { name: "--wr-iridescence-color", default: "light-dark(#ffffff, #5c669e)", scope: ".wr-iridescence" },
+    ],
+  },
   "bits/marquee": {
     subpath: "ngwr/bits/marquee",
     vars: [
@@ -140,7 +146,6 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-shiny-text-base", default: "light-dark(var(--wr-color-on-surface-muted, #8594a4), #b5b5b5)", scope: ".wr-shiny-text" },
       { name: "--wr-shiny-text-motion", default: "1", scope: ".wr-shiny-text" },
-      { name: "--wr-shiny-text-progress", default: "0", scope: "from", base: false, overrides: 1 },
       { name: "--wr-shiny-text-shine", default: "light-dark(var(--wr-color-on-surface, #0f172a), #ffffff)", scope: ".wr-shiny-text" },
     ],
   },

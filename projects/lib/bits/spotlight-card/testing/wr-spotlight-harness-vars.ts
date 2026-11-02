@@ -10,9 +10,8 @@
  *
  * Read from the attribute rather than through `getCssValue()`, and the difference is not
  * cosmetic. `getCssValue()` is `getComputedStyle()`, which in a browser resolves the
- * stylesheet's own `--wr-spotlight-x: 50%` / `--wr-spotlight-color: light-dark(…)` defaults —
- * so "the component has written nothing here yet, and the theme decides" would come back
- * as a concrete value and the assertion would invert. jsdom loads no stylesheet, so the
+ * stylesheet's own `--wr-spotlight-x: 50%` default — so "the component has written nothing
+ * here yet" would come back as a concrete value and the assertion would invert. jsdom loads no stylesheet, so the
  * computed read happens to agree today and would start lying the moment these harnesses
  * ran anywhere else. The attribute holds what the component or the directive itself
  * wrote, and nothing else.

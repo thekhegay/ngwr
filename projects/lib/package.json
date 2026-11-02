@@ -199,6 +199,13 @@
     "./bits/gradient-text/testing": {
       "default": "./bits/gradient-text/testing/public-api.ts"
     },
+    "./bits/iridescence": {
+      "sass": "./bits/iridescence/styles/_index.scss",
+      "default": "./bits/iridescence/public-api.ts"
+    },
+    "./bits/iridescence/testing": {
+      "default": "./bits/iridescence/testing/public-api.ts"
+    },
     "./bits/marquee": {
       "sass": "./bits/marquee/styles/_index.scss",
       "default": "./bits/marquee/public-api.ts"

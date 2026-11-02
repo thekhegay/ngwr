@@ -4,11 +4,11 @@
  */
 export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'bits/aurora': [
+    'bits/iridescence',
     'bits/waves',
     'bits/threads',
     'bits/dot-grid',
     'bits/ripple-grid',
-    'bits/splash-cursor',
     'reference/utils/resolve-css-color',
   ],
   'bits/blur-text': ['bits/split-text', 'bits/decrypt-text', 'bits/falling-text', 'guides/ssr'],
@@ -35,12 +35,21 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'bits/fuzzy-text': ['bits/glitch-text', 'bits/decrypt-text'],
   'bits/glitch-text': ['bits/fuzzy-text', 'bits/decrypt-text'],
   'bits/gradient-text': ['bits/shiny-text', 'bits/star-border'],
+  'bits/iridescence': [
+    'bits/aurora',
+    'bits/threads',
+    'bits/waves',
+    'bits/ripple-grid',
+    'reference/components/card',
+    'reference/utils/resolve-css-color',
+  ],
   'bits/marquee': ['reference/components/carousel'],
   'bits/ripple-grid': [
     'bits/dot-grid',
     'bits/waves',
     'bits/threads',
     'bits/aurora',
+    'bits/iridescence',
     'reference/utils/resolve-css-color',
   ],
   'bits/rotating-text': ['bits/typewriter', 'bits/split-text', 'bits/decrypt-text', 'bits/circular-text'],
@@ -57,6 +66,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'bits/threads': [
     'bits/waves',
     'bits/aurora',
+    'bits/iridescence',
     'bits/dot-grid',
     'bits/ripple-grid',
     'reference/utils/resolve-css-color',
@@ -66,9 +76,9 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'bits/waves': [
     'bits/aurora',
     'bits/threads',
+    'bits/iridescence',
     'bits/dot-grid',
     'bits/ripple-grid',
-    'bits/splash-cursor',
     'reference/utils/resolve-css-color',
   ],
 
@@ -924,8 +934,8 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/tokens/colors',
     'reference/services/theme',
     'bits/aurora',
+    'bits/iridescence',
     'bits/waves',
-    'bits/click-spark',
   ],
   'reference/utils/resolve-css-size': [
     'reference/utils/get-root-font-size',

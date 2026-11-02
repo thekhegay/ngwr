@@ -52,7 +52,7 @@
     point, which is most of `/guides` and `/docs`.
   -->
   @if (cssVars(); as vars) {
-    <ngwr-doc-section title="CSS variables" [description]="cssVarsDescription(vars.subpath)">
+    <ngwr-doc-section title="CSS variables" [description]="cssVarsDescription(vars)">
       <ngwr-doc-css-vars [rows]="vars.vars" />
     </ngwr-doc-section>
   }

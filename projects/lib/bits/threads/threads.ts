@@ -24,6 +24,7 @@ import {
   PLATFORM_ID,
   ViewEncapsulation,
   afterNextRender,
+  afterRenderEffect,
   computed,
   effect,
   inject,
@@ -103,7 +104,8 @@ const GOLDEN_ANGLE = 2.399963;
  * `speed` 0 with the pointer followed, the loop runs and draws only while the
  * pointer is bending something.
  *
- * Off screen the loop stops asking for frames and resumes where it left off.
+ * Off screen, or with no box to draw on, the loop stops asking for frames and resumes
+ * where it left off.
  *
  * The colour is theme-aware by default — `--wr-threads-color`, a soft wash of
  * the primary intent — and `[color]` takes any CSS colour instead, a `var()`
@@ -134,7 +136,7 @@ const GOLDEN_ANGLE = 2.399963;
     '[class.wr-threads--painted]': 'painted()',
     // Feed the CSS stand-in (see styles/_rules.scss) so the straight lines it
     // draws before hydration sit where the canvas will put the threads.
-    '[style.--wr-threads-color]': 'customColor()',
+    '[style.--wr-threads-input-color]': 'customColor()',
     '[style.--wr-threads-count]': 'count()',
     '[style.--wr-threads-spread]': 'bandShare()',
     '[style.--wr-threads-line-width.px]': 'strokeWidth()',
@@ -175,17 +177,14 @@ export class WrThreads {
   protected readonly bandShare = computed(() => (this.count() > 1 ? clamp(this.spread(), 0, 1) : 0));
 
   /**
-   * A colour the author chose, written onto the host's own hook so the stand-in
-   * draws in it too; `null` while the input is the theme's, which removes the
-   * declaration and leaves the stylesheet's value in charge. Also `null` for an
-   * expression built ON the hook — `color-mix(in srgb, var(--wr-threads-color)
-   * 50%, transparent)` — which, written onto the hook itself, would be a cycle
-   * and invalidate it: the canvas resolves such an expression against the theme's
-   * value, and the stand-in keeps that value.
+   * A colour the author chose, published so the stand-in draws in it too; `null`
+   * while the input is the theme's. On a variable of its own rather than on the
+   * hook, which an author sets from outside: a `null` binding wipes a value of its
+   * own name from the host's `style` attribute.
    */
   protected readonly customColor = computed(() => {
     const color = this.color().trim();
-    return color === '' || color.includes('--wr-threads-color') ? null : color;
+    return color === '' || color === THEME_COLOR ? null : color;
   });
 
   /**
@@ -247,6 +246,12 @@ export class WrThreads {
   /** Whether the host is in the viewport; stays `true` without an observer. */
   private readonly onScreen = signal(true);
 
+  /**
+   * Whether the box has an area. The intersection observer calls a zero-area host
+   * intersecting and sends no entry when it gains a size, so this reads the box instead.
+   */
+  private readonly hasBox = signal(false);
+
   constructor() {
     if (!this.isBrowser) return;
 
@@ -255,8 +260,10 @@ export class WrThreads {
     // A still frame stays as it was drawn, so with nothing moving every input
     // that changes the picture paints it again — and so does the moment motion
     // stops. A running loop is only told the picture changed: it skips the
-    // frames that would repeat the last one, and draws the next one again.
-    effect(() => {
+    // frames that would repeat the last one, and draws the next one again. After
+    // render rather than an `effect`, which runs before a directive's host binding:
+    // a still frame drawn then would miss a hook it changes in the same pass.
+    afterRenderEffect(() => {
       if (!this.booted()) return;
       const moving = this.moving();
       this.count();
@@ -274,10 +281,11 @@ export class WrThreads {
     });
 
     // The current runs only while there is something to see: never while
-    // nothing can move (see `moving`), and not while the host is off screen.
-    // Toggling `followPointer` restarts it with or without the pointer listeners.
+    // nothing can move (see `moving`), and not while the host is off screen or has
+    // no box. Toggling `followPointer` restarts it with or without the pointer
+    // listeners.
     effect(onCleanup => {
-      if (!this.booted() || !this.onScreen() || !this.moving()) return;
+      if (!this.booted() || !this.onScreen() || !this.hasBox() || !this.moving()) return;
       const follow = this.followPointer();
       onCleanup(untracked(() => this.zone.runOutsideAngular(() => this.animate(follow))));
     });
@@ -306,11 +314,20 @@ export class WrThreads {
 
     // Off screen the loop stops asking for frames: a background redrawn out of
     // sight still costs the browser a frame every frame. Without an observer
-    // (jsdom) the host simply counts as visible.
+    // (jsdom) the host simply counts as visible. A box flush against a zero-height
+    // clip intersects with nothing showing, and only a second threshold reports the
+    // clip moving. It sits below any real ratio, or a clip closing on a transition
+    // steps from under it to 0 without crossing anything.
     const io =
       typeof IntersectionObserver === 'undefined'
         ? null
-        : new IntersectionObserver(entries => this.onScreen.set(entries[entries.length - 1].isIntersecting));
+        : new IntersectionObserver(
+            entries => {
+              const { isIntersecting, intersectionRatio } = entries[entries.length - 1];
+              this.onScreen.set(isIntersecting && intersectionRatio > 0);
+            },
+            { threshold: [0, 1e-9] }
+          );
     io?.observe(host);
 
     this.destroyRef.onDestroy(() => {
@@ -423,6 +440,7 @@ export class WrThreads {
     const width = host.clientWidth;
     const height = host.clientHeight;
     this.bounds = { width, height };
+    this.hasBox.set(width > 0 && height > 0);
     const canvas = this.canvasRef().nativeElement;
     // Backed at the screen's pixel ratio, capped at 2 and by the pixel budget,
     // never below 1 — a bitmap the size of the CSS box smears a 1px thread

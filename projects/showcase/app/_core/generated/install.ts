@@ -75,6 +75,9 @@ export const INSTALL = {
   "bits/gradient-text": [
       { path: "ngwr/bits/gradient-text", symbols: ["WrGradientText"], declarables: ["WrGradientText"], styled: true },
   ],
+  "bits/iridescence": [
+      { path: "ngwr/bits/iridescence", symbols: ["WrIridescence"], declarables: ["WrIridescence"], styled: true },
+  ],
   "bits/marquee": [
       { path: "ngwr/bits/marquee", symbols: ["WrMarquee"], declarables: ["WrMarquee"], styled: true },
   ],

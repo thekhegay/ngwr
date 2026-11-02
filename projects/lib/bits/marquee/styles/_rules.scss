@@ -2,7 +2,8 @@
 // Vars driven from component inputs:
 //   --wr-marquee-gap         gap between items (px)
 //   --wr-marquee-height      item height (px)
-//   --wr-marquee-fade-color  edge fade colour (falls back to page bg)
+//   --wr-marquee-input-fade-color  edge fade colour (falls back to
+//                                  --wr-marquee-fade-color, then the page bg)
 
 .wr-marquee {
   --wr-marquee-gap: 32px;
@@ -10,6 +11,9 @@
   // Default to the lib's surface colour; consumers can override via
   // `[fadeOutColor]` or by setting `--wr-marquee-fade-color` directly.
   --wr-marquee-fade-color-auto: var(--wr-color-surface, #ffffff);
+  // What `[fadeOutColor]` writes on the host, which the inline value beats. Unset here so
+  // a marquee rendered inside another one does not inherit its colour.
+  --wr-marquee-input-fade-color: initial;
 
   position: relative;
   display: block;
@@ -138,7 +142,7 @@
     left: 0;
     background: linear-gradient(
       to right,
-      var(--wr-marquee-fade-color, var(--wr-marquee-fade-color-auto)) 0%,
+      var(--wr-marquee-input-fade-color, var(--wr-marquee-fade-color, var(--wr-marquee-fade-color-auto))) 0%,
       rgba(0, 0, 0, 0) 100%
     );
   }
@@ -148,7 +152,7 @@
     right: 0;
     background: linear-gradient(
       to left,
-      var(--wr-marquee-fade-color, var(--wr-marquee-fade-color-auto)) 0%,
+      var(--wr-marquee-input-fade-color, var(--wr-marquee-fade-color, var(--wr-marquee-fade-color-auto))) 0%,
       rgba(0, 0, 0, 0) 100%
     );
   }

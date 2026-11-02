@@ -1,0 +1,122 @@
+<ngwr-doc-page
+  title="Iridescence"
+  since="15.2.0"
+  description="Folded silk behind your content, its hue turning with each fold, stirred by the pointer."
+  [keywords]="['iridescence', 'wr-iridescence', 'background', 'silk', 'animation', 'reactbits', 'webgl']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="iridescence" category="backgrounds" />
+
+  <ngwr-doc-section
+    title="Playground"
+    description="Put it first in a positioned box; it fills that box. Give the content after it a position of its own, or the silk paints over it. Move the pointer across it to stir the folds."
+  >
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <div style="position: relative; width: 100%; height: 18rem; border-radius: 0.75rem; overflow: hidden">
+        <wr-iridescence
+          [color]="color()"
+          [speed]="speed()"
+          [amplitude]="amplitude()"
+          [followPointer]="followPointer()"
+        />
+      </div>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Behind a hero"
+    description="Copy goes on a card, because text on the light default needs a card or a scrim (see Text contrast). The pointer still stirs the folds around it, and the card keeps every click."
+  >
+    <ngwr-doc-snippet [code]="snippets.hero">
+      <div
+        style="
+          position: relative;
+          display: grid;
+          place-items: center;
+          width: 100%;
+          min-height: 22rem;
+          padding: 2rem;
+          border-radius: 0.75rem;
+          overflow: hidden;
+        "
+      >
+        <wr-iridescence />
+        <wr-card style="max-width: 26rem; text-align: center">
+          <div style="display: grid; justify-items: center; gap: 1rem">
+            <h3 wrTypography variant="h3" style="margin: 0">Drape it behind the launch</h3>
+            <p wrTypography tone="muted" style="margin: 0">
+              The folds stay behind the card, and the button stays clickable.
+            </p>
+            <wr-btn color="primary">Get started</wr-btn>
+          </div>
+        </wr-card>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tint"
+    description="`color` is multiplied over the picture, so white leaves it as it is. It takes any CSS colour, and a theme token follows the colour scheme. Pass an opaque colour: the canvas drops alpha and the stand-in keeps it."
+  >
+    <ngwr-doc-snippet [code]="snippets.tint">
+      <div style="position: relative; width: 100%; height: 12rem; border-radius: 0.75rem; overflow: hidden">
+        <wr-iridescence color="var(--wr-color-primary)" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Text contrast"
+    description="On the default tints, `--wr-color-on-surface` holds 4.5:1 in the dark scheme and not in the light one, so text on the light default needs a scrim or a card."
+  >
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Scheme</th>
+            <th scope="col">Tint</th>
+            <th scope="col">Text</th>
+            <th scope="col">Median pixel</th>
+            <th scope="col">Worst 1% of pixels</th>
+            <th scope="col">Same, worst frame</th>
+            <th scope="col">Worst pixel</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Light</th>
+            <td><code>#ffffff</code></td>
+            <td><code>#111827</code></td>
+            <td>8.57:1</td>
+            <td>3.93:1</td>
+            <td>2.80:1</td>
+            <td>2.64:1</td>
+          </tr>
+          <tr>
+            <th scope="row">Dark</th>
+            <td><code>#5c669e</code></td>
+            <td><code>#e9ebef</code></td>
+            <td>7.18:1</td>
+            <td>5.01:1</td>
+            <td>4.89:1</td>
+            <td>4.80:1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Measured in Chromium with a software renderer (SwiftShader) at 320×180: 240 phase combinations with the pointer at
+      rest and 960 frames with it at the four corners, each figure the lower of the two. Worst 1% is the 1st-percentile
+      pixel in light and the 99th in dark. Not measured: a real GPU, <code>prefers-contrast: more</code>, an
+      <code>amplitude</code> other than 1, any other tint or text colour.
+    </p>
+    <p>
+      The CSS stand-in under the canvas, shown before the first frame and without WebGL2, reads 4.55:1 in light and
+      5.28:1 in dark at those percentiles, in a 960×540 screenshot sampled every 37th pixel.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

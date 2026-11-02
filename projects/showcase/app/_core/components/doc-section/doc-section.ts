@@ -24,6 +24,13 @@ function slugify(title: string): string {
 export const DOC_SECTION_TITLE = new InjectionToken<Signal<string>>('DOC_SECTION_TITLE');
 
 /**
+ * The enclosing page's title, for the same snippet. Not the document's: that is set by
+ * an effect, so a snippet that read it first took the app's default title for its name,
+ * and printed `selector: 'ngwr-the-angular-ui-library-for-signal-forms-example'`.
+ */
+export const DOC_PAGE_TITLE = new InjectionToken<Signal<string>>('DOC_PAGE_TITLE');
+
+/**
  * A titled documentation section.
  *
  * Renders an `<h2>` with optional description, then projects content.

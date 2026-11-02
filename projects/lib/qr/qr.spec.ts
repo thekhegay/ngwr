@@ -65,6 +65,11 @@ describe('WrQr', () => {
     expect(canvas().getAttribute('aria-label')).toBe('QR code for the ngwr docs');
   });
 
+  it('keeps its own colours under forced colours, so the code stays scannable', () => {
+    const canvas = (fixture.nativeElement as HTMLElement).querySelector('canvas')!;
+    expect(canvas.getAttribute('style')).toContain('forced-color-adjust: none');
+  });
+
   it('survives a platform with no 2d context', () => {
     // The real jsdom path, and the one a `canvas`-less environment takes.
     expect(() => {

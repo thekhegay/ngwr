@@ -159,7 +159,11 @@ function animateValue(opts: AnimateOptions): () => void {
   },
 })
 export class WrBorderGlow {
-  /** Card background fill. When unset, uses the theme surface token. */
+  /**
+   * Card background fill. When unset, uses the theme surface token. A hook set inline on
+   * the same element is replaced by this input and does not come back when it is unset,
+   * so set it from a stylesheet rule. The same goes for `glowColor` and `colors`.
+   */
   readonly backgroundColor = input<string | null>(null);
 
   /** Corner radius in pixels. @default 28 */
@@ -255,11 +259,22 @@ export class WrBorderGlow {
   constructor() {
     // Apply the variable bag to the host on every input change. Bind in an
     // effect rather than `host: { '[style.--foo]': '...' }` so a single
-    // `setProperty` loop handles the lot.
+    // `setProperty` loop handles the lot. What left the bag comes off the host, or an
+    // input set and then unset stays over the stylesheet's default for good, but only
+    // while the host still holds what this wrote: anything else there is someone else's.
+    // Read back rather than kept as written, because the browser trims a custom property.
+    let written: Record<string, string> = {};
     effect(() => {
-      const host = this.el.nativeElement;
+      const { style } = this.el.nativeElement;
       const vars = this.cssVars();
-      for (const [k, v] of Object.entries(vars)) host.style.setProperty(k, v);
+      for (const [k, held] of Object.entries(written)) {
+        if (!Object.hasOwn(vars, k) && style.getPropertyValue(k) === held) style.removeProperty(k);
+      }
+      written = {};
+      for (const [k, v] of Object.entries(vars)) {
+        style.setProperty(k, v);
+        written[k] = style.getPropertyValue(k);
+      }
     });
 
     if (!this.isBrowser) return;
