@@ -28,7 +28,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, resolveCssColor, watchColorScheme } from 'ngwr/utils';
+import { numAttr, resolveCssColorChannels, watchColorScheme } from 'ngwr/utils';
 
 const VERT = `#version 300 es
 in vec2 position;
@@ -148,35 +148,6 @@ const DEFAULT_STOPS = ['#5227ff', '#7cff67', '#5227ff'] as const;
  * its literal name, and a name built from a template string is invisible to it.
  */
 const STOP_HOOKS = ['var(--wr-aurora-stop-1)', 'var(--wr-aurora-stop-2)', 'var(--wr-aurora-stop-3)'] as const;
-
-/**
- * A resolved colour as the shader's 0–1 channels, or `null` for a form it does
- * not read. Alpha is dropped: the uniform is a `vec3`, and the shader fades the
- * ribbon through its own alpha.
- *
- * A computed colour comes back in one of two shapes — `rgb()` / `rgba()` with
- * 0–255 channels for a legacy colour, `color(srgb r g b / a)` with 0–1 channels
- * for a `color-mix()` — and neither is the hex this used to parse, which turned
- * a `light-dark()` hook into `NaN` uniforms. Hex stays for the literal
- * fallbacks in `DEFAULT_STOPS`.
- */
-function toRgb01(color: string): [number, number, number] | null {
-  const value = color.trim().toLowerCase();
-  const fn = /^(rgba?|color)\(\s*(srgb\s+)?([^)]*)\)$/.exec(value);
-  if (fn && (fn[1] !== 'color' || fn[2] !== undefined)) {
-    const scale = fn[1] === 'color' ? 1 : 255;
-    const channels = fn[3]
-      .split(/[\s,/]+/)
-      .slice(0, 3)
-      .map(part => (part === 'none' ? 0 : Number.parseFloat(part) / scale));
-    if (channels.length !== 3 || !channels.every(Number.isFinite)) return null;
-    return channels.map(channel => Math.min(1, Math.max(0, channel))) as [number, number, number];
-  }
-  const hex = /^#([\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/.exec(value)?.[1];
-  if (hex === undefined) return null;
-  const full = hex.length <= 4 ? [...hex].map(digit => digit + digit).join('') : hex;
-  return [0, 2, 4].map(at => Number.parseInt(full.slice(at, at + 2), 16) / 255) as [number, number, number];
-}
 
 /**
  * Aurora background — flowing northern-lights ribbons rendered with a
@@ -374,16 +345,7 @@ export class WrAurora {
     const fallback = DEFAULT_STOPS[index];
     const expression =
       explicit === null ? STOP_HOOKS[index] : (explicit[Math.min(index, explicit.length - 1)] ?? fallback);
-    const canvas = this.canvasRef().nativeElement;
-    const resolved = resolveCssColor(canvas, expression, fallback);
-    // A colour authored in another space — `oklch()`, `lab()`, `display-p3` —
-    // computes to itself; mixing it into sRGB is what brings it to a form the
-    // parser reads.
-    return (
-      toRgb01(resolved) ??
-      toRgb01(resolveCssColor(canvas, `color-mix(in srgb, ${resolved} 100%, transparent)`, fallback)) ??
-      toRgb01(fallback)!
-    );
+    return resolveCssColorChannels(this.canvasRef().nativeElement, expression, fallback);
   }
 
   private draw(time: number): void {

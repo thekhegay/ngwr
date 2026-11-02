@@ -65,11 +65,44 @@ function computedColor(view: Window, probe: HTMLElement): string | null {
 }
 
 /**
+ * A colour string as 0–1 sRGB channels with its alpha dropped, or `null` for a
+ * form this does not read.
+ *
+ * A computed colour comes back in one of two shapes — `rgb()` / `rgba()` with
+ * 0–255 channels for a legacy colour, `color(srgb r g b / a)` with 0–1 channels
+ * for a `color-mix()` — and neither is hex, the one form `wr-aurora` first
+ * parsed, which turned a `light-dark()` hook into `NaN` uniforms. Hex and
+ * percentages stay for the literal fallback a caller names: no computed value
+ * carries either, and a fallback reaches this unresolved.
+ */
+function parseChannels(color: string): [number, number, number] | null {
+  const value = color.trim().toLowerCase();
+  const fn = /^(rgba?|color)\(\s*(srgb\s+)?([^)]*)\)$/.exec(value);
+  if (fn && (fn[1] !== 'color' || fn[2] !== undefined)) {
+    const scale = fn[1] === 'color' ? 1 : 255;
+    const channels = fn[3]
+      .split(/[\s,/]+/)
+      .slice(0, 3)
+      .map(part => {
+        if (part === 'none') return 0;
+        return Number.parseFloat(part) / (part.endsWith('%') ? 100 : scale);
+      });
+    if (channels.length !== 3 || !channels.every(Number.isFinite)) return null;
+    return channels.map(channel => Math.min(1, Math.max(0, channel))) as [number, number, number];
+  }
+  const hex = /^#([\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/.exec(value)?.[1];
+  if (hex === undefined) return null;
+  const full = hex.length <= 4 ? [...hex].map(digit => digit + digit).join('') : hex;
+  return [0, 2, 4].map(at => Number.parseInt(full.slice(at, at + 2), 16) / 255) as [number, number, number];
+}
+
+/**
  * Resolves a CSS colour expression against an element to the colour the cascade
  * computes for it, which a canvas can paint with: `rgb(…)` / `rgba(…)` for a
  * legacy colour, `color(srgb r g b / a)` (channels 0–1) for a `color-mix()`
  * result. A colour authored in another space — `oklch()`, `lab()` — computes
- * to itself, so a caller that parses channels has to expect that form too.
+ * to itself; a caller that needs numbers wants {@link resolveCssColorChannels},
+ * which reads all of these.
  *
  * A 2D context and a WebGL uniform cannot read CSS: a `var()` is refused
  * outright, and so is `light-dark()` — except in Firefox, which accepts it and
@@ -89,12 +122,16 @@ function computedColor(view: Window, probe: HTMLElement): string | null {
  * write.
  *
  * Returns `fallback` when nothing can be resolved: the expression does not
- * parse as a colour, it is a lone `var()` naming a property set nowhere (CSS
- * itself would hand the probe its inherited colour, which reads as a choice the
- * author never made), or the element has no style engine behind it. Where the
- * computed read hands a `var()` back unresolved — jsdom does, a browser never
- * does — a lone `var()` is looked up with `getPropertyValue()` and the result
- * resolved in its turn, so a unit test still sees the colour a token holds.
+ * parse as a colour, it is a lone `var()` holding something that is not a colour or
+ * naming a property set nowhere with no fallback of its own (CSS itself would hand
+ * the probe its inherited colour, which reads as a choice the author never made), or
+ * the element has no style engine behind it. A `var()` inside another function —
+ * `light-dark()`, `color-mix()`, the fallback of another `var()` — is CSS's to
+ * substitute, and with its name unset or holding no colour still reads the inherited
+ * colour; so does `var(--x, 12px)`, whose own fallback is no colour. Where the
+ * computed read hands a `var()` back unresolved — jsdom does, a browser never does —
+ * a lone `var()` is looked up with `getPropertyValue()` and the result resolved in
+ * its turn, so a unit test still sees the colour a token holds.
  *
  * Browser only: call it from `afterNextRender` or a frame callback, never
  * during a server render.
@@ -120,6 +157,10 @@ export function resolveCssColor(context: Element, expression: string, fallback: 
       const ref = LONE_VAR.exec(value);
       const declared = ref ? view.getComputedStyle(context).getPropertyValue(ref[1]).trim() : '';
       if (ref && declared === '' && ref[2] === undefined) return fallback;
+      // A browser's computed custom property has its own `var()` substituted already,
+      // so this is the text the probe would be handed. Its own parser rather than
+      // `CSS.supports`, which no jsdom before 30 has and no quirks document agrees with.
+      if (ref && declared !== '' && probeFor(context, declared).style.color === '') return fallback;
 
       const color = computedColor(view, probeFor(context, value));
       if (color !== null) return color;
@@ -130,4 +171,52 @@ export function resolveCssColor(context: Element, expression: string, fallback: 
     // A detached view or a DOM with no style engine behind it.
   }
   return fallback;
+}
+
+/**
+ * Resolves a CSS colour expression against an element to 0–1 sRGB channels, with
+ * the alpha dropped, for what takes numbers rather than a string: a WebGL `vec3`
+ * uniform, above all.
+ *
+ * {@link resolveCssColor} does the cascade, so a `var()`, a `light-dark()` and a
+ * `color-mix()` all resolve as they would for the element itself, and this reads
+ * the result: `rgb()`, `rgba()` and `color(srgb …)`, with `none` as 0 and every
+ * channel clamped to 0–1, so a `color-mix()` from a wider gamut stays in range. A
+ * colour authored in another space — `oklch()`, `lab()`, `display-p3` — computes
+ * to itself, and mixing it into sRGB is what brings it to a form this reads.
+ *
+ * Total: it always returns three finite channels. When {@link resolveCssColor}
+ * cannot resolve the expression it reads `fallback`, a literal colour in any form
+ * CSS parses, hex included; when that cannot be read either, it returns
+ * `[0, 0, 0]`, so a uniform never receives a `NaN`.
+ *
+ * It costs what {@link resolveCssColor} costs plus a parse, so a caller drawing
+ * every frame can hold on to the string that function returns and call this only
+ * when it changes.
+ *
+ * Browser only: call it from `afterNextRender` or a frame callback, never during
+ * a server render.
+ *
+ * @example
+ * ```ts
+ * const canvas = this.canvasRef().nativeElement;
+ * const [r, g, b] = resolveCssColorChannels(canvas, 'var(--wr-color-primary)', '#3969e2');
+ * gl.uniform3f(this.tint, r, g, b);
+ * ```
+ *
+ * @param context - Element to resolve against; a hidden probe is appended inside it.
+ * @param expression - Any CSS colour: a literal, `var()`, `light-dark()`, `color-mix()`.
+ * @param fallback - The literal colour to read when the expression cannot be resolved.
+ * @returns The red, green and blue channels, each 0–1.
+ */
+export function resolveCssColorChannels(
+  context: Element,
+  expression: string,
+  fallback: string
+): [number, number, number] {
+  const read = (color: string): [number, number, number] | null =>
+    parseChannels(color) ??
+    parseChannels(resolveCssColor(context, `color-mix(in srgb, ${color} 100%, transparent)`, ''));
+
+  return read(resolveCssColor(context, expression, fallback)) ?? read(fallback) ?? [0, 0, 0];
 }
