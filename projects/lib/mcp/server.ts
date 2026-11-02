@@ -287,10 +287,18 @@ function dispatch(line: string): void {
  * large `tools/call` in the field.
  */
 let buffer = '';
+/** Inside an oversize line already refused: the rest of it, up to its newline, goes with it. */
+let discarding = false;
 
 process.stdin.setEncoding('utf8');
 
 process.stdin.on('data', (chunk: string) => {
+  if (discarding) {
+    const end = chunk.indexOf('\n');
+    if (end === -1) return;
+    chunk = chunk.slice(end + 1);
+    discarding = false;
+  }
   buffer += chunk;
 
   // `Buffer.byteLength`, not `.length`: the latter counts UTF-16 units, so
@@ -300,8 +308,13 @@ process.stdin.on('data', (chunk: string) => {
     // the whole buffer threw away a complete, valid request that had already
     // arrived behind it — answered with nothing, which is the one outcome this
     // file is written to avoid.
+    //
+    // A read can end anywhere, so the newline may not have arrived yet. The tail
+    // that follows it is still that line, not a message of its own: read as one,
+    // it answered with a parse error, and a longer line with a refusal per cap.
     const newline = buffer.indexOf('\n');
-    buffer = newline === -1 ? '' : buffer.slice(newline + 1);
+    discarding = newline === -1;
+    buffer = discarding ? '' : buffer.slice(newline + 1);
     write(err(null, INVALID_REQUEST, 'Message exceeded the maximum size and was discarded.'));
   }
 

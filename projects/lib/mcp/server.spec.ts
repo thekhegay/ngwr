@@ -254,6 +254,8 @@ interface Run {
 interface Session {
   /** Write raw bytes to the server's stdin — not necessarily a whole message. */
   readonly write: (text: string) => void;
+  /** Resolves once stdout holds a line `match` accepts, to order a write after a reply. */
+  readonly output: (match: (line: string) => boolean) => Promise<void>;
   /** Close stdin and resolve once the process has exited. */
   readonly done: () => Promise<Run>;
 }
@@ -266,8 +268,10 @@ const start = (env: NodeJS.ProcessEnv = process.env): Session => {
 
   child.stdout.setEncoding('utf8');
   child.stderr.setEncoding('utf8');
+  const waiting = new Set<() => void>();
   child.stdout.on('data', (chunk: string) => {
     stdout += chunk;
+    for (const check of waiting) check();
   });
   child.stderr.on('data', (chunk: string) => {
     stderr += chunk;
@@ -277,6 +281,17 @@ const start = (env: NodeJS.ProcessEnv = process.env): Session => {
     write: text => {
       child.stdin.write(text);
     },
+    output: match =>
+      new Promise<void>(resolve => {
+        const check = (): void => {
+          if (stdout.split('\n').some(match)) {
+            waiting.delete(check);
+            resolve();
+          }
+        };
+        waiting.add(check);
+        check();
+      }),
     done: () =>
       new Promise<Run>(resolve => {
         child.stdin.end();
@@ -674,6 +689,27 @@ describe('ngwr-mcp over stdio', () => {
     // Exactly those two: one refusal for the line, not one per chunk, and no
     // parse error for a fragment of it left in the buffer.
     expect(result.messages).toHaveLength(2);
+  }, 30_000);
+
+  it('refuses an oversize line once, however many reads its tail takes to arrive', async () => {
+    const session = start();
+    const refused = session.output(line => line.includes('-32600'));
+    // Past the cap with no newline yet, so the server has refused the line and
+    // cannot know where it ends. A timer could not promise that, so this waits
+    // for the refusal itself, which is what fixes the read boundary here.
+    session.write('a'.repeat(32 * 1024 * 1024 + 1));
+    await refused;
+
+    // Still that line: no second refusal, and no parse error for a fragment.
+    session.write('a'.repeat(33 * 1024 * 1024));
+    await new Promise(resolve => setTimeout(resolve, 200));
+    session.write(`tail\n${request(1, 'ping')}\n`);
+
+    const result = await session.done();
+
+    expect(result.messages).toHaveLength(2);
+    expect(result.messages[0]?.error?.code).toBe(-32600);
+    expect(replyTo(result, 1).result).toEqual({});
   }, 30_000);
 
   it('writes nothing to stdout but protocol JSON, one message per line', async () => {
