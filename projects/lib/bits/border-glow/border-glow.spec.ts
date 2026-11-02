@@ -141,13 +141,46 @@ describe('WrBorderGlow', () => {
     fixture.componentInstance.backgroundColor.set('url("https://beacon.example/borderglow-bg")');
     fixture.detectChanges();
 
-    expect(prop('--wr-border-glow-gradient-1')).not.toContain('beacon.example');
+    expect(prop('--wr-border-glow-gradient-one')).not.toContain('beacon.example');
     expect(prop('--wr-border-glow-bg')).toBe('');
 
     // A real colour still lands, so the guard costs nothing legitimate.
     fixture.componentInstance.backgroundColor.set('oklch(0.7 0.1 200)');
     fixture.detectChanges();
     expect(prop('--wr-border-glow-bg')).toBe('oklch(0.7 0.1 200)');
+  });
+
+  it('takes a colour off the host when its input is unset, and leaves the rest', () => {
+    const inputs = fixture.componentInstance;
+    inputs.colors.set(['#ff0000', '#00ff00', '#0000ff']);
+    inputs.backgroundColor.set('rgb(1, 2, 3)');
+    inputs.glowColor.set('210 90 60');
+    fixture.detectChanges();
+    expect(prop('--wr-border-glow-bg')).toBe('rgb(1, 2, 3)');
+    expect(prop('--wr-border-glow-color')).not.toBe('');
+    expect(prop('--wr-border-glow-gradient-one')).not.toBe('');
+
+    inputs.colors.set(null);
+    inputs.backgroundColor.set(null);
+    inputs.glowColor.set(null);
+    fixture.detectChanges();
+
+    expect(prop('--wr-border-glow-bg')).toBe('');
+    expect(prop('--wr-border-glow-color')).toBe('');
+    expect(prop('--wr-border-glow-gradient-one')).toBe('');
+    expect(prop('--wr-border-glow-radius'), 'an input that is never unset stays').not.toBe('');
+  });
+
+  it('leaves a value someone else wrote there when its input is unset', () => {
+    const inputs = fixture.componentInstance;
+    inputs.backgroundColor.set('rgb(1, 2, 3)');
+    fixture.detectChanges();
+
+    host().style.setProperty('--wr-border-glow-bg', 'rgb(4, 5, 6)');
+    inputs.backgroundColor.set(null);
+    fixture.detectChanges();
+
+    expect(prop('--wr-border-glow-bg')).toBe('rgb(4, 5, 6)');
   });
 
   it('still assembles the halo from bare HSL parts', () => {
