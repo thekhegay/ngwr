@@ -77,6 +77,7 @@ let observed: ResizeObserverCallback | null;
  * deliver an entry.
  */
 const withContext = (): void => {
+  box(320, 180);
   const ctx: Record<string, unknown> = {
     clearRect: () => {
       painted++;
@@ -285,11 +286,11 @@ describe('WrWaves', () => {
 
   it('stops asking for frames while it is off screen, and picks up when it is back', async () => {
     withContext();
-    let report: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
+    let report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null = null;
     vi.stubGlobal(
       'IntersectionObserver',
       class {
-        constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+        constructor(callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) {
           report = callback;
         }
         observe(): void {
@@ -321,19 +322,106 @@ describe('WrWaves', () => {
     flush();
     expect(painted, 'nothing is drawn before the observer says the field is in view').toBe(0);
 
-    report!([{ isIntersecting: true }]);
+    report!([{ isIntersecting: true, intersectionRatio: 1 }]);
     flush();
     expect(painted).toBe(1);
 
-    report!([{ isIntersecting: false }]);
+    report!([{ isIntersecting: false, intersectionRatio: 0 }]);
     flush();
     expect(painted, 'off screen, the frame it had asked for is withdrawn').toBe(1);
 
     // Back in view twice over: one loop, not a second beside the first.
-    report!([{ isIntersecting: true }]);
-    report!([{ isIntersecting: true }]);
+    report!([{ isIntersecting: true, intersectionRatio: 1 }]);
+    report!([{ isIntersecting: true, intersectionRatio: 1 }]);
     flush();
     expect(painted).toBe(2);
+  });
+
+  it('asks for no frames with no box to draw on, and starts when it has one', async () => {
+    withContext();
+    box(0, 0);
+    await mount();
+    runFrame();
+    expect(painted).toBe(0);
+
+    resized(320, 180);
+    await fixture.whenStable();
+    const resumed = painted;
+    runFrame();
+    expect(painted).toBeGreaterThan(resumed);
+
+    // The frame it had asked for is withdrawn, which a held frame cannot show by itself.
+    resized(320, 0);
+    await fixture.whenStable();
+    frames = [];
+    const parked = painted;
+    runFrame();
+    expect(painted).toBe(parked);
+  });
+
+  for (const blank of ['', '   ']) {
+    it(`leaves the hook in charge with a line colour of ${JSON.stringify(blank)}`, async () => {
+      withContext();
+      await mount();
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLElement>('wr-waves')!
+        .style.setProperty('--wr-waves-line-color', 'rgb(1, 2, 3)');
+      fixture.componentInstance.lineColor.set(blank);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      runFrame();
+
+      expect(strokes.at(-1)).toBe('rgb(1, 2, 3)');
+    });
+  }
+
+  it('comes back from no box with the drift on, not as straight lines', async () => {
+    withContext();
+    box(320, 180);
+    await mount();
+    runFrame();
+
+    resized(320, 0);
+    await fixture.whenStable();
+    resized(320, 180);
+
+    expect(bends(passes.at(-1)!)).toBe(true);
+  });
+
+  it('counts a box flush against a zero-height clip as off screen, and hears the clip open', async () => {
+    let report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null = null;
+    let options: IntersectionObserverInit | undefined;
+    withContext();
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(
+          callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void,
+          init?: IntersectionObserverInit
+        ) {
+          report = callback;
+          options = init;
+        }
+        observe(): void {
+          /* the spec reports by hand */
+        }
+        disconnect(): void {
+          /* as above */
+        }
+      }
+    );
+    await mount();
+
+    report!([{ isIntersecting: true, intersectionRatio: 0 }]);
+    runFrame();
+    expect(painted).toBe(0);
+
+    // 0 alone would send nothing here in a real browser, and a larger second threshold
+    // shares an index with 0 for the last step of a clip closing on a transition.
+    expect(options?.threshold).toEqual([0, 1e-9]);
+    report!([{ isIntersecting: true, intersectionRatio: 0.5 }]);
+    runFrame();
+    expect(painted).toBeGreaterThan(0);
   });
 
   it('backs the canvas at 2x, and steps down on a box too large for the pixel budget', async () => {

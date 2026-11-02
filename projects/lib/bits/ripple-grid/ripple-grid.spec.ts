@@ -326,6 +326,12 @@ const folds = (stroke: Stroke): string | null => {
   return null;
 };
 
+@Component({
+  imports: [WrRippleGrid],
+  template: `<wr-ripple-grid style="--wr-ripple-grid-line-color: red" />`,
+})
+class Hooked {}
+
 describe('WrRippleGrid', () => {
   let fixture: ComponentFixture<Host>;
 
@@ -432,14 +438,24 @@ describe('WrRippleGrid', () => {
     // Floored where the canvas floors them, so the two agree.
     expect(grid().style.getPropertyValue('--wr-ripple-grid-cell-size')).toBe('12px');
     expect(grid().style.getPropertyValue('--wr-ripple-grid-line-width')).toBe('0.25px');
-    expect(grid().style.getPropertyValue('--wr-ripple-grid-line-color')).toBe('rgb(1, 2, 3)');
+    expect(grid().style.getPropertyValue('--wr-ripple-grid-input-line-color')).toBe('rgb(1, 2, 3)');
+    expect(grid().style.getPropertyValue('--wr-ripple-grid-line-color'), "the hook is the author's").toBe('');
 
-    // An expression built on the hook would be a cycle written onto the hook itself,
-    // and unset, the hook is the stylesheet's again.
-    await set(host => host.lineColor.set('color-mix(in srgb, var(--wr-ripple-grid-line-color) 50%, transparent)'));
-    expect(grid().style.getPropertyValue('--wr-ripple-grid-line-color')).toBe('');
+    // On a variable of its own, so an expression built on the hook is no cycle, and
+    // unset, the hook decides.
+    const expression = 'color-mix(in srgb, var(--wr-ripple-grid-line-color) 50%, transparent)';
+    await set(host => host.lineColor.set(expression));
+    expect(grid().style.getPropertyValue('--wr-ripple-grid-input-line-color')).toBe(expression);
     await set(host => host.lineColor.set(null));
-    expect(grid().style.getPropertyValue('--wr-ripple-grid-line-color')).toBe('');
+    expect(grid().style.getPropertyValue('--wr-ripple-grid-input-line-color')).toBe('');
+  });
+
+  it('keeps a hook set in the style attribute, which a null binding of its name would wipe', () => {
+    const hooked = TestBed.createComponent(Hooked);
+    hooked.detectChanges();
+    const el = (hooked.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-ripple-grid')!;
+    expect(el.style.getPropertyValue('--wr-ripple-grid-line-color')).toBe('red');
+    hooked.destroy();
   });
 
   it('draws the resting grid, a cell centred on the box, then asks for no more frames', async () => {

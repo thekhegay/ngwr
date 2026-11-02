@@ -145,7 +145,7 @@ const TAU = Math.PI * 2;
     // real pitch, size and colour, and switch it off once the canvas has painted.
     '[style.--wr-dot-grid-gap.px]': 'pitch()',
     '[style.--wr-dot-grid-dot-size.px]': 'size()',
-    '[style.--wr-dot-grid-dot-color]': 'dotColor()',
+    '[style.--wr-dot-grid-input-dot-color]': 'standInColor()',
     '[class.wr-dot-grid--painted]': 'painted()',
   },
 })
@@ -156,10 +156,10 @@ export class WrDotGrid {
   /** Distance between dot centres in px, never under 4. @default 24 */
   readonly gap = input(24, { transform: numAttr(24) });
 
-  /** Resting dot colour, any CSS colour. When unset, `--wr-dot-grid-dot-color` decides. */
+  /** Resting dot colour, any CSS colour. When unset, empty or blank, `--wr-dot-grid-dot-color` decides. */
   readonly dotColor = input<string | null>(null);
 
-  /** Colour a dot takes near the pointer, any CSS colour. When unset, `--wr-dot-grid-active-color` decides. */
+  /** Colour a dot takes near the pointer, any CSS colour. When unset, empty or blank, `--wr-dot-grid-active-color` decides. */
   readonly activeColor = input<string | null>(null);
 
   /** How far from the pointer a dot still reacts, in px. @default 120 */
@@ -177,6 +177,15 @@ export class WrDotGrid {
 
   /** The dot diameter drawn: `dotSize`, never negative. */
   protected readonly size = computed(() => Math.max(0, this.dotSize()));
+
+  /** A colour the author chose, published so the stand-in draws in it too; `null` while the hook decides. */
+  protected readonly standInColor = computed(() => (this.dotColor() ?? '').trim() || null);
+
+  /** The colours the canvas resolves: an input that is unset, empty or blank leaves the hook in charge. */
+  private readonly dotExpression = computed(() => (this.dotColor() ?? '').trim() || 'var(--wr-dot-grid-dot-color)');
+  private readonly activeExpression = computed(
+    () => (this.activeColor() ?? '').trim() || 'var(--wr-dot-grid-active-color)'
+  );
 
   /**
    * Flips once the canvas has drawn, which retires the CSS stand-in grid.
@@ -528,7 +537,7 @@ export class WrDotGrid {
     const r = this.size() / 2;
     ctx.clearRect(0, 0, this.box.width, this.box.height);
     ctx.globalAlpha = 1;
-    ctx.fillStyle = resolveCssColor(canvas, this.dotColor() ?? 'var(--wr-dot-grid-dot-color)', DOT_FALLBACK);
+    ctx.fillStyle = resolveCssColor(canvas, this.dotExpression(), DOT_FALLBACK);
     this.fillDots(ctx, this.dots, r);
 
     // Lit dots go over their resting selves in the active colour, at their
@@ -545,7 +554,7 @@ export class WrDotGrid {
     }
     if (!anyLit) return;
 
-    ctx.fillStyle = resolveCssColor(canvas, this.activeColor() ?? 'var(--wr-dot-grid-active-color)', ACTIVE_FALLBACK);
+    ctx.fillStyle = resolveCssColor(canvas, this.activeExpression(), ACTIVE_FALLBACK);
     this.lit.forEach((dots, i) => {
       if (dots.length === 0) return;
       ctx.globalAlpha = (i + 1) / GLOW_LEVELS;

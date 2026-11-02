@@ -24,6 +24,12 @@ class Host {
  * exactly what makes the coordinate maths checkable: the offset IS the client
  * position when the box starts at the origin.
  */
+@Component({
+  imports: [WrSpotlightCard],
+  template: `<wr-spotlight-card style="--wr-spotlight-color: red" />`,
+})
+class Hooked {}
+
 describe('WrSpotlightCard', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -56,11 +62,20 @@ describe('WrSpotlightCard', () => {
   });
 
   it('leaves the colour to the theme until one is given', () => {
-    expect(prop('--wr-spotlight-color')).toBe('');
+    expect(prop('--wr-spotlight-input-color')).toBe('');
 
     fixture.componentInstance.spotlightColor.set('rgba(255, 0, 0, 0.2)');
     fixture.detectChanges();
-    expect(prop('--wr-spotlight-color')).toBe('rgba(255, 0, 0, 0.2)');
+    expect(prop('--wr-spotlight-input-color')).toBe('rgba(255, 0, 0, 0.2)');
+    expect(prop('--wr-spotlight-color'), "the hook is the author's").toBe('');
+  });
+
+  it('keeps a hook set in the style attribute, which a null binding of its name would wipe', () => {
+    const hooked = TestBed.createComponent(Hooked);
+    hooked.detectChanges();
+    const el = (hooked.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-spotlight-card')!;
+    expect(el.style.getPropertyValue('--wr-spotlight-color')).toBe('red');
+    hooked.destroy();
   });
 
   it('follows the pointer, in coordinates relative to its own box', () => {

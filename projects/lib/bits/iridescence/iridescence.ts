@@ -271,13 +271,11 @@ function wrap(angle: number): number {
  * so text there needs a scrim or a card.
  *
  * The host's own background is a stand-in: soft diagonal bands in the same palette,
- * which an opaque colour tints the same way. An expression that names
- * `--wr-iridescence-color` tints the canvas only: written onto that hook it would be
- * a cycle, so the stand-in keeps the theme's value. The stand-in shows before
- * hydration on a prerendered page, on a machine with no WebGL2 and after a lost
- * context, so the box is never empty and text placed on it keeps its ground. The
- * canvas fades in over it, because the stand-in is an approximation and not the same
- * picture, so `.wr-iridescence--painted` hands over rather than swaps.
+ * which an opaque colour tints the same way. The stand-in shows before hydration on a
+ * prerendered page, on a machine with no WebGL2 and after a lost context, so the box
+ * is never empty and text placed on it keeps its ground. The canvas fades in over it,
+ * because the stand-in is an approximation and not the same picture, so
+ * `.wr-iridescence--painted` hands over rather than swaps.
  *
  * Under forced colours the canvas is hidden and its loop stops with it, leaving the
  * box on the palette's own ground, which is what forced text and marks are chosen
@@ -311,7 +309,7 @@ function wrap(angle: number): number {
     class: 'wr-iridescence',
     // Feed the CSS stand-in (see `styles/_rules.scss`) so it takes the same tint,
     // and fade the canvas in over it once it has painted.
-    '[style.--wr-iridescence-color]': 'standInColor()',
+    '[style.--wr-iridescence-input-color]': 'standInColor()',
     '[class.wr-iridescence--painted]': 'painted()',
   },
 })
@@ -340,17 +338,12 @@ export class WrIridescence {
   readonly followPointer = input(true, { transform: coerceBooleanProperty });
 
   /**
-   * A colour the author chose, written onto the host's own hook so the stand-in
-   * takes it too; `null` while the input is unset, which leaves the stylesheet's
-   * value in charge. Also `null` for an expression built ON the hook —
-   * `color-mix(in srgb, var(--wr-iridescence-color) 50%, black)` — which, written
-   * onto the hook itself, would be a cycle and invalidate it: the canvas resolves
-   * such an expression against the theme's value, and the stand-in keeps that value.
+   * A colour the author chose, published so the stand-in takes it too; `null` while
+   * the input is unset. On a variable of its own rather than on the hook, which an
+   * author sets from outside: a `null` binding wipes a value of its own name from the
+   * host's `style` attribute.
    */
-  protected readonly standInColor = computed(() => {
-    const color = this.color()?.trim() ?? '';
-    return color === '' || color.includes('--wr-iridescence-color') ? null : color;
-  });
+  protected readonly standInColor = computed(() => (this.color() ?? '').trim() || null);
 
   /** The colour the canvas resolves: an input that is unset, empty or blank leaves the hook in charge. */
   private readonly expression = computed(() => (this.color() ?? '').trim() || THEME_COLOR);
@@ -435,8 +428,8 @@ export class WrIridescence {
     // paints it again — and so does the moment motion stops. A running loop is
     // only told the picture changed. `speed`, `amplitude` and `followPointer` are
     // left out: none of them changes a picture at rest. After render rather than an
-    // `effect`, which runs before the host binding: a still frame drawn then would
-    // resolve the hook the binding is about to remove, and nothing draws it again.
+    // `effect`, which runs before a directive's host binding: a still frame drawn then
+    // would miss a hook it changes in the same pass, and nothing draws it again.
     afterRenderEffect(() => {
       if (!this.booted()) return;
       const moving = this.moving();
@@ -514,11 +507,20 @@ export class WrIridescence {
     // Off screen the loop stops asking for frames: a background redrawn out of
     // sight still costs the browser a frame every frame. The canvas rather than the
     // host, which fills the same box, so a canvas hidden under forced colours stops
-    // it too. Without an observer (jsdom) the host simply counts as visible.
+    // it too. Without an observer (jsdom) the host simply counts as visible. A box flush
+    // against a zero-height clip intersects with nothing showing, and only a second
+    // threshold reports the clip moving. It sits below any real ratio, or a clip closing
+    // on a transition steps from under it to 0 without crossing anything.
     const io =
       typeof IntersectionObserver === 'undefined'
         ? null
-        : new IntersectionObserver(entries => this.onScreen.set(entries[entries.length - 1].isIntersecting));
+        : new IntersectionObserver(
+            entries => {
+              const { isIntersecting, intersectionRatio } = entries[entries.length - 1];
+              this.onScreen.set(isIntersecting && intersectionRatio > 0);
+            },
+            { threshold: [0, 1e-9] }
+          );
     io?.observe(canvas);
 
     this.destroyRef.onDestroy(() => {

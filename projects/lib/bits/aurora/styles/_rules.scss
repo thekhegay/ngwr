@@ -22,4 +22,15 @@
     width: 100%;
     height: 100%;
   }
+
+  // Under forced colours the ribbon would cover the palette's own ground, which forced
+  // text and marks are chosen against. The adjust inherits to the colour probe inside
+  // the canvas, which would otherwise read the forced colour, so a frame drawn in this
+  // mode is still right when it ends.
+  @media (forced-colors: active) {
+    &__canvas {
+      display: none;
+      forced-color-adjust: none;
+    }
+  }
 }

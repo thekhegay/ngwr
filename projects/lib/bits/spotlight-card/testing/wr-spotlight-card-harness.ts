@@ -112,7 +112,9 @@ export class WrSpotlightCardHarness extends ComponentHarness {
   }
 
   /**
-   * The highlight colour the author asked for, or `null` when they left it to the theme.
+   * The colour `[spotlightColor]` published on the host, or `null` when the input is unset.
+   * The `--wr-spotlight-color` hook then decides, which is the theme's value unless the
+   * author set it; this method does not read the hook.
    *
    * `null` IS the contract for an unset `[spotlightColor]`, not a gap in it. The
    * stylesheet's own default is a `light-dark()` over `--wr-color-on-surface`, and that
@@ -122,7 +124,7 @@ export class WrSpotlightCardHarness extends ComponentHarness {
    * wrong in the other, and this is the only method that can tell.
    */
   async getSpotlightColor(): Promise<string | null> {
-    return (await this.vars()).get('--wr-spotlight-color') ?? null;
+    return (await this.vars()).get('--wr-spotlight-input-color') ?? null;
   }
 
   /**

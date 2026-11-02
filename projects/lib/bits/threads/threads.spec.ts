@@ -1,4 +1,4 @@
-import { Component, ErrorHandler, PLATFORM_ID, signal } from '@angular/core';
+import { Component, Directive, ErrorHandler, PLATFORM_ID, input, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrPlatform } from 'ngwr/platform';
@@ -83,6 +83,7 @@ let resizers: (() => void)[];
  * supplies the smallest one it can fire by hand and disconnect.
  */
 const withContext = (): void => {
+  box(320, 180);
   const point = (x: number, y: number): void => {
     drawn.at(-1)?.at(-1)?.push(x, y);
   };
@@ -183,6 +184,26 @@ const pointer = (type: string, clientX: number, clientY: number): MouseEvent =>
   // jsdom has no `PointerEvent`; the listener reads only the coordinates.
   new MouseEvent(type, { clientX, clientY, bubbles: true });
 
+@Component({
+  imports: [WrThreads],
+  template: `<wr-threads style="--wr-threads-color: rgb(1, 2, 3)" />`,
+})
+class Hooked {}
+
+@Directive({ selector: '[wrHookTint]', host: { '[style.--wr-threads-color]': 'wrHookTint()' } })
+class HookTint {
+  readonly wrHookTint = input<string | null>(null);
+}
+
+@Component({
+  imports: [WrThreads, HookTint],
+  template: `<wr-threads [color]="color()" [wrHookTint]="tint()" />`,
+})
+class HookTintHost {
+  readonly color = signal('rgb(0, 255, 0)');
+  readonly tint = signal<string | null>(null);
+}
+
 describe('WrThreads', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -279,19 +300,72 @@ describe('WrThreads', () => {
     expect([published('--wr-threads-count'), published('--wr-threads-spread')]).toEqual(['1', '0']);
   });
 
-  it('writes a chosen colour onto the hook the stand-in reads, and only a chosen one', () => {
+  it('publishes a chosen colour for the stand-in, and only a chosen one', () => {
     const host = fixture.componentInstance;
-    const hook = (): string => threads().style.getPropertyValue('--wr-threads-color');
-    expect(hook(), "the theme's colour is the stylesheet's to declare").toBe('');
+    const published = (): string => threads().style.getPropertyValue('--wr-threads-input-color');
+    expect(published(), "the theme's colour is the stylesheet's to declare").toBe('');
 
     host.color.set('#ff0000');
     fixture.detectChanges();
-    expect(hook()).toBe('#ff0000');
+    expect(published()).toBe('#ff0000');
+    expect(threads().style.getPropertyValue('--wr-threads-color'), "the hook is the author's").toBe('');
 
-    // Built on the hook itself, the expression would be a cycle written onto it.
+    // On a variable of its own, so an expression built on the hook is no cycle.
     host.color.set('color-mix(in srgb, var(--wr-threads-color) 50%, transparent)');
     fixture.detectChanges();
-    expect(hook()).toBe('');
+    expect(published()).toBe('color-mix(in srgb, var(--wr-threads-color) 50%, transparent)');
+
+    host.color.set('');
+    fixture.detectChanges();
+    expect(published()).toBe('');
+  });
+
+  it('keeps a hook set in the style attribute, and strokes with it', async () => {
+    withContext();
+    const hooked = TestBed.createComponent(Hooked);
+    hooked.detectChanges();
+    await hooked.whenStable();
+
+    const el = (hooked.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-threads')!;
+    expect(el.style.getPropertyValue('--wr-threads-color')).toBe('rgb(1, 2, 3)');
+    runFrame();
+    expect(strokes.at(-1)!.color).toBe('rgb(1, 2, 3)');
+    hooked.destroy();
+  });
+
+  it('reads a hook a directive on the host changes in the same pass, on a still frame', async () => {
+    withContext();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: WrPlatform, useValue: reducedMotion }] });
+    const hosted = TestBed.createComponent(HookTintHost);
+    hosted.detectChanges();
+    await hosted.whenStable();
+    expect(strokes.at(-1)!.color).toBe('rgb(0, 255, 0)');
+
+    hosted.componentInstance.color.set('');
+    hosted.componentInstance.tint.set('rgb(1, 2, 3)');
+    hosted.detectChanges();
+    await hosted.whenStable();
+
+    expect(strokes.at(-1)!.color).toBe('rgb(1, 2, 3)');
+    hosted.destroy();
+  });
+
+  it('goes back to the hook when the colour is emptied, on a still frame too', async () => {
+    withContext();
+    await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
+    threads().style.setProperty('--wr-threads-color', 'rgb(1, 2, 3)');
+    const host = fixture.componentInstance;
+
+    host.color.set('rgb(0, 255, 0)');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(strokes.at(-1)!.color).toBe('rgb(0, 255, 0)');
+
+    host.color.set('');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(strokes.at(-1)!.color).toBe('rgb(1, 2, 3)');
   });
 
   it('keeps painting frame after frame when motion is allowed', async () => {
@@ -649,12 +723,12 @@ describe('WrThreads', () => {
   });
 
   it('parks the loop off screen and resumes it in view', async () => {
-    let report: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
+    let report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null = null;
     withContext();
     vi.stubGlobal(
       'IntersectionObserver',
       class {
-        constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+        constructor(callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) {
           report = callback;
         }
         observe(): void {
@@ -668,7 +742,7 @@ describe('WrThreads', () => {
     await mount();
     const cancel = vi.spyOn(window, 'cancelAnimationFrame');
 
-    report!([{ isIntersecting: false }]);
+    report!([{ isIntersecting: false, intersectionRatio: 0 }]);
     await fixture.whenStable();
     expect(cancel).toHaveBeenCalled();
     frames = [];
@@ -676,13 +750,82 @@ describe('WrThreads', () => {
     runFrame();
     expect(painted).toBe(parked);
 
-    report!([{ isIntersecting: true }]);
+    report!([{ isIntersecting: true, intersectionRatio: 1 }]);
     await fixture.whenStable();
     runFrame();
     expect(painted).toBeGreaterThan(parked);
 
     fixture.destroy();
     expect(report, 'the observer is disconnected with the component').toBeNull();
+  });
+
+  it('asks for no frames with no box to draw on, and resumes when it has one', async () => {
+    withContext();
+    box(400, 200);
+    await mount();
+    runFrames(5);
+
+    box(400, 0);
+    resize();
+    await fixture.whenStable();
+    const parked = painted;
+    runFrames(5, 2000);
+    expect(painted).toBe(parked);
+
+    box(400, 200);
+    resize();
+    await fixture.whenStable();
+    const resumed = painted;
+    runFrames(5, 3000);
+    expect(painted).toBeGreaterThan(resumed);
+  });
+
+  it('starts no loop in a box that is empty from the first', async () => {
+    withContext();
+    box(0, 0);
+    await mount();
+    const parked = painted;
+    runFrames(5);
+    expect(painted).toBe(parked);
+  });
+
+  it('counts a box flush against a zero-height clip as off screen, and hears the clip open', async () => {
+    let report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null = null;
+    let options: IntersectionObserverInit | undefined;
+    withContext();
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(
+          callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void,
+          init?: IntersectionObserverInit
+        ) {
+          report = callback;
+          options = init;
+        }
+        observe(): void {
+          // Driven by hand below.
+        }
+        disconnect(): void {
+          report = null;
+        }
+      }
+    );
+    await mount();
+
+    report!([{ isIntersecting: true, intersectionRatio: 0 }]);
+    await fixture.whenStable();
+    const parked = painted;
+    runFrames(5, 2000);
+    expect(painted).toBe(parked);
+
+    // 0 alone would send nothing here in a real browser, and a larger second threshold
+    // shares an index with 0 for the last step of a clip closing on a transition.
+    expect(options?.threshold).toEqual([0, 1e-9]);
+    report!([{ isIntersecting: true, intersectionRatio: 0.5 }]);
+    await fixture.whenStable();
+    runFrames(5, 3000);
+    expect(painted).toBeGreaterThan(parked);
   });
 
   it('backs the canvas at 2x, and steps down on a box too large for the pixel budget', async () => {

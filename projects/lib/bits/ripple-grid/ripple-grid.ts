@@ -303,7 +303,7 @@ function snap(position: number, ratio: number, stroke: number): number {
     // real cell, width and colour, and switch it off once the canvas has painted.
     '[style.--wr-ripple-grid-cell-size.px]': 'cell()',
     '[style.--wr-ripple-grid-line-width.px]': 'stroke()',
-    '[style.--wr-ripple-grid-line-color]': 'standInColor()',
+    '[style.--wr-ripple-grid-input-line-color]': 'standInColor()',
     '[class.wr-ripple-grid--painted]': 'painted()',
   },
 })
@@ -358,18 +358,12 @@ export class WrRippleGrid {
   protected readonly stroke = computed(() => Math.max(MIN_LINE_WIDTH, this.lineWidth()));
 
   /**
-   * A line colour the author chose, written onto the host's own hook so the
-   * stand-in draws in it too; `null` while the input is unset, which leaves the
-   * stylesheet's value in charge. Also `null` for an expression built ON the
-   * hook — `color-mix(in srgb, var(--wr-ripple-grid-line-color) 50%,
-   * transparent)` — which, written onto the hook itself, would be a cycle and
-   * invalidate it: the canvas resolves such an expression against the theme's
-   * value, and the stand-in keeps that value.
+   * A line colour the author chose, published so the stand-in draws in it too;
+   * `null` while the input is unset. On a variable of its own rather than on the
+   * hook, which an author sets from outside: a `null` binding wipes a value of its
+   * own name from the host's `style` attribute.
    */
-  protected readonly standInColor = computed(() => {
-    const color = this.lineColor()?.trim() ?? '';
-    return color === '' || color.includes('--wr-ripple-grid-line-color') ? null : color;
-  });
+  protected readonly standInColor = computed(() => (this.lineColor() ?? '').trim() || null);
 
   /** The colours the canvas resolves: an input that is unset, empty or blank leaves the hook in charge. */
   private readonly lineExpression = computed(() => (this.lineColor() ?? '').trim() || LINE_TOKEN);

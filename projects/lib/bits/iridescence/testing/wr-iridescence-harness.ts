@@ -9,8 +9,8 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import type { WrIridescenceHarnessFilters } from './types';
 
-/** `--wr-iridescence-color: …` on the host's own `style` attribute, a value as published. */
-const PUBLISHED_COLOR = /(?:^|;)\s*--wr-iridescence-color\s*:\s*([^;]+)/;
+/** `--wr-iridescence-input-color: …` on the host's own `style` attribute, a value as published. */
+const PUBLISHED_COLOR = /(?:^|;)\s*--wr-iridescence-input-color\s*:\s*([^;]+)/;
 
 /**
  * Test harness for `<wr-iridescence>` — folded silk on a WebGL2 canvas.
@@ -20,10 +20,9 @@ const PUBLISHED_COLOR = /(?:^|;)\s*--wr-iridescence-color\s*:\s*([^;]+)/;
  * and deliberate: the handover flag {@link isPainted}, the colour {@link getColor} it
  * hands the CSS stand-in, and the surface itself.
  *
- * The colour is read from the host's inline declaration, never computed: the stylesheet
- * declares `--wr-iridescence-color` too, as the theme's own default, so a computed read
- * would answer on a component that had stopped publishing anything, the break the method
- * exists to catch.
+ * The colour is read from the host's inline declaration, a variable of the component's
+ * own. The `--wr-iridescence-color` hook belongs to the author and the stylesheet, so it
+ * says nothing about what the component published.
  *
  * There is no `getPhase()`: the phases live in a frame loop, step by the real frame
  * delta and leave the component only as a uniform, so any number would be a stale copy
@@ -73,9 +72,9 @@ export class WrIridescenceHarness extends ComponentHarness {
   }
 
   /**
-   * The colour written onto the host's own hook for the stand-in, or `null` when none is:
-   * `[color]` unset, empty or blank, which leaves the stylesheet's value in charge, or an
-   * expression built on the hook itself, which written there would be a cycle.
+   * The colour published on the host's own `--wr-iridescence-input-color` for the stand-in,
+   * or `null` when none is: `[color]` unset, empty or blank, which leaves the stylesheet's
+   * value in charge.
    *
    * It is the input as authored, a `var()` or a `light-dark()` included, not what it
    * resolves to: what reaches the shader is a uniform, which the DOM does not carry. A

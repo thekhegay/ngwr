@@ -39,7 +39,7 @@ import type { WrStarBorderMode, WrStarBorderRays } from './types';
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',
-    '[style.--wr-star-border-color]': 'color()',
+    '[style.--wr-star-border-input-color]': 'color()',
     '[style.--wr-star-border-speed]': 'speed() + "s"',
     '[style.padding]': 'thickness() + "px 0"',
   },

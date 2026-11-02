@@ -23,7 +23,7 @@
   // folds, `(-0.51, 0.86)` in GL. `multiply` is what `uColor` does to the shader,
   // so an opaque tint lands on both the same way, and the second layer shades the
   // far corners so the first does not read as plain stripes.
-  background-color: var(--wr-iridescence-color);
+  background-color: var(--wr-iridescence-input-color, var(--wr-iridescence-color));
   background-image:
     linear-gradient(59deg, #e6dcf0 0%, transparent 35%, transparent 65%, #d6d0ea 100%),
     linear-gradient(

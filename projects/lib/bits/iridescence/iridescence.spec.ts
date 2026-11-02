@@ -1,4 +1,13 @@
-import { Component, ErrorHandler, PLATFORM_ID, type Type, ViewEncapsulation, signal } from '@angular/core';
+import {
+  Component,
+  Directive,
+  ErrorHandler,
+  PLATFORM_ID,
+  type Type,
+  ViewEncapsulation,
+  input,
+  signal,
+} from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WrPlatform } from 'ngwr/platform';
@@ -247,13 +256,23 @@ const runFrame = (time: number): void => {
 const last = (): Draw => drawn[drawn.length - 1];
 
 /** The stubbed intersection observer: `report` is what the component gave it, `null` once disconnected. */
-const withIntersection = (): { report: ((entries: { isIntersecting: boolean }[]) => void) | null } => {
-  const io: { report: ((entries: { isIntersecting: boolean }[]) => void) | null } = { report: null };
+const withIntersection = (): {
+  report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null;
+  options?: IntersectionObserverInit;
+} => {
+  const io: {
+    report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null;
+    options?: IntersectionObserverInit;
+  } = { report: null };
   vi.stubGlobal(
     'IntersectionObserver',
     class {
-      constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+      constructor(
+        callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void,
+        options?: IntersectionObserverInit
+      ) {
         io.report = callback;
+        io.options = options;
       }
       observe(): void {
         /* the spec reports by hand */
@@ -266,6 +285,26 @@ const withIntersection = (): { report: ((entries: { isIntersecting: boolean }[])
   return io;
 };
 
+@Component({
+  imports: [WrIridescence],
+  template: `<wr-iridescence style="--wr-iridescence-color: rgb(255, 0, 0)" />`,
+})
+class Hooked {}
+
+@Directive({ selector: '[wrHookTint]', host: { '[style.--wr-iridescence-color]': 'wrHookTint()' } })
+class HookTint {
+  readonly wrHookTint = input<string | null>(null);
+}
+
+@Component({
+  imports: [WrIridescence, HookTint],
+  template: `<wr-iridescence [color]="color()" [wrHookTint]="tint()" />`,
+})
+class HookTintHost {
+  readonly color = signal<string | null>('rgb(0, 255, 0)');
+  readonly tint = signal<string | null>(null);
+}
+
 describe('WrIridescence', () => {
   let fixture: ComponentFixture<Host>;
 
@@ -275,7 +314,7 @@ describe('WrIridescence', () => {
   const stage = (): HTMLElement => root().querySelector<HTMLElement>('.stage')!;
   const copy = (): HTMLElement => root().querySelector<HTMLElement>('.copy')!;
   const isPainted = (): boolean => silk().classList.contains('wr-iridescence--painted');
-  const hook = (): string => silk().style.getPropertyValue('--wr-iridescence-color');
+  const published = (): string => silk().style.getPropertyValue('--wr-iridescence-input-color');
   const pointer = (type: string, target: Element, x = 0, y = 0): void => {
     target.dispatchEvent(new PointerEvent(type, { clientX: x, clientY: y, bubbles: true }));
   };
@@ -428,7 +467,7 @@ describe('WrIridescence', () => {
       expect(observed).toBeNull();
       expect(isPainted()).toBe(false);
       // The prerendered stand-in takes the tint: it is all a visitor sees before hydration.
-      expect(hook()).toBe('#00ff00');
+      expect(published()).toBe('#00ff00');
     });
   });
 
@@ -739,7 +778,7 @@ describe('WrIridescence', () => {
 
       await set(host => host.color.set(''));
 
-      expect(hook()).toBe('');
+      expect(published()).toBe('');
       expect(last().uColor).toEqual([1, 1, 1]);
     });
 
@@ -1151,7 +1190,7 @@ describe('WrIridescence', () => {
       expect(frames.size).toBe(0);
     });
 
-    it('goes back to the theme when the colour is unset, reading the hook after the binding took it off', async () => {
+    it('goes back to the theme when the colour is unset', async () => {
       withContext();
       box(320, 180);
       await mount([reduced()]);
@@ -1159,7 +1198,7 @@ describe('WrIridescence', () => {
 
       await set(host => host.color.set(null));
 
-      expect(hook()).toBe('');
+      expect(published()).toBe('');
       expect(drawn).toHaveLength(3);
       expect(last().uColor).toEqual([1, 1, 1]);
     });
@@ -1223,14 +1262,14 @@ describe('WrIridescence', () => {
       const before = last().uPhase;
       const count = drawn.length;
 
-      io.report!([{ isIntersecting: false }]);
+      io.report!([{ isIntersecting: false, intersectionRatio: 0 }]);
       await flush();
 
       expect(frames.size).toBe(0);
       expect(drawn).toHaveLength(count);
 
       // A long time away, which the first frame back knows nothing about.
-      io.report!([{ isIntersecting: true }]);
+      io.report!([{ isIntersecting: true, intersectionRatio: 1 }]);
       await flush();
       expect(frames.size).toBe(1);
       runFrame(1000 + 3_600_000);
@@ -1268,6 +1307,24 @@ describe('WrIridescence', () => {
       expect(frames.size).toBe(1);
     });
 
+    it('counts a box flush against a zero-height clip as off screen, and hears the clip open', async () => {
+      const io = withIntersection();
+      withContext();
+      box(320, 180);
+      await mount();
+
+      io.report!([{ isIntersecting: true, intersectionRatio: 0 }]);
+      await flush();
+      expect(frames.size).toBe(0);
+
+      // 0 alone would send nothing here in a real browser, and a larger second threshold
+      // shares an index with 0 for the last step of a clip closing on a transition.
+      expect(io.options?.threshold).toEqual([0, 1e-9]);
+      io.report!([{ isIntersecting: true, intersectionRatio: 0.5 }]);
+      await flush();
+      expect(frames.size).toBe(1);
+    });
+
     it('watches the canvas, so a canvas hidden under forced colours stops the loop too', async () => {
       withIntersection();
       const observe = vi.spyOn(IntersectionObserver.prototype, 'observe');
@@ -1286,12 +1343,12 @@ describe('WrIridescence', () => {
       runFrame(1000);
       const remove = vi.spyOn(stage(), 'removeEventListener');
 
-      io.report!([{ isIntersecting: false }]);
+      io.report!([{ isIntersecting: false, intersectionRatio: 0 }]);
       await flush();
       expect(remove).toHaveBeenCalledWith('pointermove', expect.any(Function));
 
-      io.report!([{ isIntersecting: true }]);
-      io.report!([{ isIntersecting: true }]);
+      io.report!([{ isIntersecting: true, intersectionRatio: 1 }]);
+      io.report!([{ isIntersecting: true, intersectionRatio: 1 }]);
       await flush();
       expect(frames.size).toBe(1);
     });
@@ -1412,13 +1469,13 @@ describe('WrIridescence', () => {
       expect(last().uColor).toEqual([1, 0, 0]);
     });
 
-    it('writes a chosen colour on the hook for the stand-in, and hands the shader its channels', async () => {
+    it('publishes a chosen colour for the stand-in, and hands the shader its channels', async () => {
       withContext();
       box(320, 180);
       await mount([], host => host.color.set('#00ff00'));
       runFrame(1000);
 
-      expect(hook()).toBe('#00ff00');
+      expect(published()).toBe('#00ff00');
       expect(last().uColor).toEqual([0, 1, 0]);
     });
 
@@ -1444,12 +1501,12 @@ describe('WrIridescence', () => {
       ['blank', '   '],
       ['unset', null],
     ] as const) {
-      it(`removes the hook and follows the theme when ${name}`, async () => {
+      it(`publishes nothing and follows the theme when ${name}`, async () => {
         withContext();
         box(320, 180);
         await mount([], host => host.color.set('#00ff00'));
         runFrame(1000);
-        expect(hook()).toBe('#00ff00');
+        expect(published()).toBe('#00ff00');
 
         await set(host => host.color.set(value));
         silk().style.setProperty('--wr-iridescence-color', '#ff0000');
@@ -1458,37 +1515,69 @@ describe('WrIridescence', () => {
         expect(last().uColor).toEqual([1, 0, 0]);
 
         await set(host => host.color.set('#00ff00'));
-        expect(hook()).toBe('#00ff00');
+        expect(published()).toBe('#00ff00');
         await set(host => host.color.set(value));
-        expect(hook()).toBe('');
+        expect(published()).toBe('');
       });
     }
 
-    it('never writes a blank onto the hook, which is an empty value and not a missing one', async () => {
+    it('never publishes a blank, which is an empty value and not a missing one', async () => {
       withContext();
       box(320, 180);
       await mount([], host => host.color.set('#00ff00'));
       const write = vi.spyOn(silk().style, 'setProperty');
 
       // jsdom drops the blank by itself, so this asks what was written, not what stuck. In
-      // a browser `--wr-iridescence-color:   ` is valid, and leaves every read of it empty.
+      // a browser `--wr-iridescence-input-color:   ` is valid, and leaves every read of it empty.
       await set(host => host.color.set('   '));
 
       expect(write).not.toHaveBeenCalled();
-      expect(hook()).toBe('');
+      expect(published()).toBe('');
     });
 
-    it('never writes an expression built on the hook onto the hook, which would be a cycle', async () => {
+    it('publishes an expression built on the hook too, on a variable that makes it no cycle', async () => {
       withContext();
       box(320, 180);
-      await mount([], host => host.color.set('color-mix(in srgb, var(--wr-iridescence-color) 50%, black)'));
+      const expression = 'color-mix(in srgb, var(--wr-iridescence-color) 50%, black)';
+      await mount([], host => host.color.set(expression));
       runFrame(1000);
 
-      expect(hook()).toBe('');
+      expect(published()).toBe(expression);
+      expect(silk().style.getPropertyValue('--wr-iridescence-color'), "the hook is the author's").toBe('');
       last().uColor.forEach(channel => expect(Number.isFinite(channel)).toBe(true));
+    });
 
-      await set(host => host.color.set('var(--wr-iridescence-color)'));
-      expect(hook()).toBe('');
+    it('reads a hook a directive on the host changes in the same pass, on a still frame', async () => {
+      withContext();
+      box(320, 180);
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [{ provide: WrPlatform, useValue: reducedMotion }] });
+      const hosted = TestBed.createComponent(HookTintHost);
+      hosted.detectChanges();
+      await hosted.whenStable();
+      expect(last().uColor).toEqual([0, 1, 0]);
+
+      hosted.componentInstance.color.set(null);
+      hosted.componentInstance.tint.set('rgb(0, 0, 255)');
+      hosted.detectChanges();
+      await hosted.whenStable();
+
+      expect(last().uColor).toEqual([0, 0, 1]);
+      hosted.destroy();
+    });
+
+    it('keeps a hook set in the style attribute, and draws with it', async () => {
+      withContext();
+      box(320, 180);
+      const hooked = TestBed.createComponent(Hooked);
+      hooked.detectChanges();
+      await hooked.whenStable();
+
+      const el = (hooked.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-iridescence')!;
+      expect(el.style.getPropertyValue('--wr-iridescence-color')).toBe('rgb(255, 0, 0)');
+      runFrame(1000);
+      expect(last().uColor).toEqual([1, 0, 0]);
+      hooked.destroy();
     });
 
     it('lets a changed hook reach the next frame, with nothing telling the loop', async () => {

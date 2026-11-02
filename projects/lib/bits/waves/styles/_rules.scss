@@ -43,5 +43,12 @@
     width: 100%;
     height: 100%;
   }
-}
 
+  // The adjust inherits to the colour probe inside the canvas, which would otherwise
+  // read the forced colour. A still frame drawn then keeps it after the mode ends.
+  @media (forced-colors: active) {
+    &__canvas {
+      forced-color-adjust: none;
+    }
+  }
+}

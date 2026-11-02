@@ -118,16 +118,20 @@ describe('WrIridescenceHarness', () => {
     expect(await harness.getColor()).toBeNull();
   });
 
-  it('reports nothing for a colour built on the hook, which would be a cycle', async () => {
-    fixture.componentInstance.color.set('color-mix(in srgb, var(--wr-iridescence-color) 50%, black)');
+  it('reports a colour built on the hook as it was written', async () => {
+    const expression = 'color-mix(in srgb, var(--wr-iridescence-color) 50%, black)';
+    fixture.componentInstance.color.set(expression);
     await fixture.whenStable();
 
-    expect(await (await silk()).getColor()).toBeNull();
+    expect(await (await silk()).getColor()).toBe(expression);
   });
 
   it('reads the host, not the cascade, so a stylesheet default cannot answer for it', async () => {
-    // A hook inherited from an ancestor is not the host publishing it.
+    // A hook is the author's, on an ancestor or on the host, and not the host publishing a colour.
     (fixture.nativeElement as HTMLElement).style.setProperty('--wr-iridescence-color', 'red');
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLElement>('wr-iridescence')!
+      .style.setProperty('--wr-iridescence-color', 'red');
 
     expect(await (await silk()).getColor()).toBeNull();
   });

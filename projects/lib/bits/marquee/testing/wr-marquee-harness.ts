@@ -200,7 +200,7 @@ export class WrMarqueeHarness extends ComponentHarness {
    * nothing at all, which is a consumer mistake this pairing makes visible.
    */
   async getFadeColor(): Promise<string | null> {
-    return this.hostStyle('--wr-marquee-fade-color');
+    return this.hostStyle('--wr-marquee-input-fade-color');
   }
 
   /**

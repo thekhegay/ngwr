@@ -188,6 +188,12 @@ const nearest = (fill: Fill, x: number, y: number): readonly [number, number] =>
     Math.hypot(dot[0] - x, dot[1] - y) < Math.hypot(best[0] - x, best[1] - y) ? dot : best
   );
 
+@Component({
+  imports: [WrDotGrid],
+  template: `<wr-dot-grid style="--wr-dot-grid-dot-color: red" />`,
+})
+class Hooked {}
+
 describe('WrDotGrid', () => {
   let fixture: ComponentFixture<Host>;
 
@@ -281,12 +287,36 @@ describe('WrDotGrid', () => {
     // Floored at 4px, the pitch the canvas is laid out at, so the two agree.
     expect(grid().style.getPropertyValue('--wr-dot-grid-gap')).toBe('4px');
     expect(grid().style.getPropertyValue('--wr-dot-grid-dot-size')).toBe('5px');
-    expect(grid().style.getPropertyValue('--wr-dot-grid-dot-color')).toBe('rgb(1, 2, 3)');
+    expect(grid().style.getPropertyValue('--wr-dot-grid-input-dot-color')).toBe('rgb(1, 2, 3)');
+    expect(grid().style.getPropertyValue('--wr-dot-grid-dot-color'), "the hook is the author's").toBe('');
 
-    // Unset, the hook is the stylesheet's again.
+    // Unset, the hook decides.
     fixture.componentInstance.dotColor.set(null);
     fixture.detectChanges();
-    expect(grid().style.getPropertyValue('--wr-dot-grid-dot-color')).toBe('');
+    expect(grid().style.getPropertyValue('--wr-dot-grid-input-dot-color')).toBe('');
+  });
+
+  for (const blank of ['', '   ']) {
+    it(`leaves the hooks in charge on the canvas with a colour of ${JSON.stringify(blank)}`, async () => {
+      withContext();
+      await mount();
+      grid().style.setProperty('--wr-dot-grid-dot-color', 'rgb(1, 2, 3)');
+      fixture.componentInstance.dotColor.set(blank);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      runFrame();
+
+      expect(grid().style.getPropertyValue('--wr-dot-grid-input-dot-color')).toBe('');
+      expect(drawn.at(-1)!.at(0)!.color).toBe('rgb(1, 2, 3)');
+    });
+  }
+
+  it('keeps a hook set in the style attribute, which a null binding of its name would wipe', () => {
+    const hooked = TestBed.createComponent(Hooked);
+    hooked.detectChanges();
+    const el = (hooked.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-dot-grid')!;
+    expect(el.style.getPropertyValue('--wr-dot-grid-dot-color')).toBe('red');
+    hooked.destroy();
   });
 
   it('draws the resting grid, centred, then asks for no more frames', async () => {

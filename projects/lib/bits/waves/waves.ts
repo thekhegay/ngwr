@@ -167,7 +167,7 @@ const MAX_CANVAS_PIXELS = 2_500_000;
   },
 })
 export class WrWaves {
-  /** Line stroke colour, any CSS colour. When unset, the theme decides. */
+  /** Line stroke colour, any CSS colour. When unset, empty or blank, `--wr-waves-line-color` decides. */
   readonly lineColor = input<string | null>(null);
 
   /** Background fill behind the lines. @default 'transparent' */
@@ -215,8 +215,6 @@ export class WrWaves {
   private box = { width: 0, height: 0 };
   /** Bitmap pixels per CSS pixel the canvas is backed at; 0 until the first fit. */
   private ratio = 0;
-  /** The time of the frame the loop last drew, or -1 while no loop has drawn. */
-  private lastTime = -1;
   private readonly mouse = { x: -10, y: 0, lx: 0, ly: 0, sx: 0, sy: 0, v: 0, vs: 0, a: 0, set: false };
   private rafId = 0;
 
@@ -233,6 +231,12 @@ export class WrWaves {
 
   /** Flips once `boot()` has a context and a grid — the motion half waits for it. */
   private readonly booted = signal(false);
+
+  /**
+   * Whether the box has an area. The intersection observer calls a zero-area host
+   * intersecting and sends no entry when it gains a size, so this reads the box instead.
+   */
+  private readonly hasBox = signal(false);
 
   constructor() {
     if (!this.isBrowser) return;
@@ -277,6 +281,7 @@ export class WrWaves {
         });
         return;
       }
+      if (!this.hasBox()) return;
       onCleanup(this.zone.runOutsideAngular(() => this.animate()));
     });
   }
@@ -333,11 +338,21 @@ export class WrWaves {
     // canvas redrawn out of sight still costs the browser a frame every frame.
     // Firefox on a wide retina window showed it: scrolled back up, the page
     // above the fold stayed blank for seconds until this loop and the pixel
-    // budget below went in. Without an observer (jsdom) it simply runs.
+    // budget below went in. Without an observer (jsdom) it simply runs. A box
+    // flush against a zero-height clip intersects with nothing showing, and only a
+    // second threshold reports the clip moving. It sits below any real ratio, or a
+    // clip closing on a transition steps from under it to 0 without crossing anything.
     const io =
       typeof IntersectionObserver === 'undefined'
         ? null
-        : new IntersectionObserver(entries => (entries[entries.length - 1].isIntersecting ? run() : halt()));
+        : new IntersectionObserver(
+            entries => {
+              const { isIntersecting, intersectionRatio } = entries[entries.length - 1];
+              if (isIntersecting && intersectionRatio > 0) run();
+              else halt();
+            },
+            { threshold: [0, 1e-9] }
+          );
     if (io) io.observe(this.host.nativeElement);
     else run();
 
@@ -346,8 +361,6 @@ export class WrWaves {
       window.removeEventListener('touchmove', onTouchMove);
       io?.disconnect();
       halt();
-      // The still grid that follows is undisturbed: no drift to carry over.
-      this.lastTime = -1;
     };
   }
 
@@ -357,9 +370,9 @@ export class WrWaves {
     if (!this.fit(width, height)) return;
     if (moved) {
       this.setLines();
-      // Re-seeded points sit at rest. A drifting field puts them where the last
-      // frame had the drift, or the repaint below shows straight lines for a frame.
-      if (this.lastTime >= 0) this.drift(this.lastTime);
+      // Re-seeded points sit at rest. A drifting field puts them where the next
+      // frame will, or the repaint below shows straight lines until it comes.
+      if (!this.platform.prefersReducedMotion()) this.drift(performance.now());
     }
     // Observer entries arrive after the frame's own callbacks and before its
     // paint, and the fit cleared the bitmap, so a repaint left to the next frame
@@ -385,6 +398,7 @@ export class WrWaves {
 
     this.box = { width, height };
     this.ratio = ratio;
+    this.hasBox.set(width > 0 && height > 0);
     const canvas = this.canvasRef().nativeElement;
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);
@@ -435,7 +449,6 @@ export class WrWaves {
     mouse.ly = mouse.y;
     mouse.a = Math.atan2(dy, dx);
 
-    this.lastTime = time;
     this.movePoints(time);
     this.drawLines();
     this.rafId = requestAnimationFrame(t => this.tick(t));
@@ -537,7 +550,7 @@ export class WrWaves {
    * Called on every draw, so a colour-scheme change lands on the next frame.
    */
   private resolveLineColor(): string {
-    const expression = this.lineColor() ?? 'var(--wr-waves-line-color)';
+    const expression = (this.lineColor() ?? '').trim() || 'var(--wr-waves-line-color)';
     return resolveCssColor(this.canvasRef().nativeElement, expression, 'rgba(15, 23, 42, 0.12)');
   }
 
