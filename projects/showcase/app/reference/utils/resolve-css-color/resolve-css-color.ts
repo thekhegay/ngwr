@@ -48,6 +48,17 @@ resolveCssColor(canvas, 'color-mix(in srgb, var(--wr-color-primary) 20%, transpa
 resolveCssColor(canvas, 'var(--not-set-anywhere)', '#0f172a');
 // '#0f172a' — the fallback`;
 
+  protected readonly channelsSnippet = `import { resolveCssColorChannels } from 'ngwr/utils';
+
+const [r, g, b] = resolveCssColorChannels(canvas, 'var(--wr-color-primary)', '#3969e2');
+gl.uniform3f(tint, r, g, b);
+
+resolveCssColorChannels(canvas, 'oklch(0.7 0.15 250)', '#000');
+// another colour space is mixed into sRGB first
+
+resolveCssColorChannels(canvas, 'not-a-colour', 'neither-is-this');
+// [0, 0, 0]`;
+
   protected readonly schemeSnippet = `import { afterNextRender } from '@angular/core';
 import { resolveCssColor, watchColorScheme } from 'ngwr/utils';
 
@@ -61,8 +72,15 @@ constructor() {
     {
       name: 'resolveCssColor(context, expression, fallback)',
       description:
-        'Resolves `expression` against `context` to `rgb()`, `rgba()` or, for a mix, `color(srgb …)`. Returns `fallback` when it does not parse or names a custom property that is not set.',
+        'Resolves `expression` against `context` to `rgb()`, `rgba()` or, for a mix, `color(srgb …)`. Returns `fallback` when it does not parse, or is a lone `var()` whose property holds no colour or, with no fallback of its own, is not set.',
       type: '(context: Element, expression: string, fallback: string) => string',
+      default: '—',
+    },
+    {
+      name: 'resolveCssColorChannels(context, expression, fallback)',
+      description:
+        'Resolves `expression` against `context` to 0–1 sRGB channels with the alpha dropped. Reads `fallback`, a literal colour, when it cannot, and returns `[0, 0, 0]` when that cannot be read either.',
+      type: '(context: Element, expression: string, fallback: string) => [number, number, number]',
       default: '—',
     },
     {

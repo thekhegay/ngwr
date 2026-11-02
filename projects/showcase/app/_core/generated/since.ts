@@ -28,6 +28,7 @@
  */
 export const SINCE = {
   "bits/dot-grid": "15.1.0",
+  "bits/iridescence": "15.2.0",
   "bits/ripple-grid": "15.1.0",
   "bits/threads": "15.1.0",
   "charts/boxplot-chart": "15.1.0",
@@ -133,4 +134,5 @@ export const UPDATED = {
   "reference/services/platform": "15.0.0",
   "reference/services/storage": "15.0.0",
   "reference/services/theme": "15.0.0",
+  "reference/utils/resolve-css-color": "15.2.0",
 } satisfies Record<string, string>;

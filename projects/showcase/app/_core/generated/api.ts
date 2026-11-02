@@ -802,6 +802,13 @@ export const API = {
     { name: "(completed)", description: "Fires on every change made while every cell holds a character — so correcting a digit of an already-complete code emits again. Not latched on the incomplete-to-complete transition: a host auto-submitting on it has to guard its own re-entry, and gets the corrected code for free.", type: "string" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
+  // <wr-iridescence>
+  WrIridescence: [
+    { name: "color", description: "Tint multiplied over the picture, any CSS colour — a `var()` token or a `light-dark()` pair included. Pass an opaque colour: the canvas drops alpha and the stand-in keeps it. When unset, empty or blank, `--wr-iridescence-color` decides.", type: "string | null", default: "null" },
+    { name: "speed", description: "Speed of the folds; `0` holds them and a negative value reverses them. Changing it never jumps the picture.", type: "number", default: "1" },
+    { name: "amplitude", description: "How hard the pointer stirs the folds; `0` leaves the pointer out and a negative value stirs them the other way.", type: "number", default: "1" },
+    { name: "followPointer", description: "Whether the pointer stirs the folds at all.", type: "boolean", default: "true" },
+  ],
   // <wr-kbd>
   WrKbd: [
     { name: "size", description: "Visual size variant.", type: "WrKbdSize", default: "'md'" },

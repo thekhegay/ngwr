@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 189 of 201 declarations are mapped: 0 carry no selector and
+ * 190 of 202 declarations are mapped: 0 carry no selector and
  * 12 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -107,6 +107,7 @@ export const SELECTORS = {
     "wr-input-group": { symbol: "WrInputGroup", path: "ngwr/input" },
     "wr-input-number": { symbol: "WrInputNumber", path: "ngwr/input-number" },
     "wr-input-otp": { symbol: "WrInputOtp", path: "ngwr/input-otp" },
+    "wr-iridescence": { symbol: "WrIridescence", path: "ngwr/bits/iridescence" },
     "wr-kbd": { symbol: "WrKbd", path: "ngwr/keyboard" },
     "wr-knob": { symbol: "WrKnob", path: "ngwr/knob" },
     "wr-layout": { symbol: "WrLayout", path: "ngwr/layout" },
@@ -258,6 +259,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/bits/falling-text",
   "ngwr/bits/glitch-text",
   "ngwr/bits/gradient-text",
+  "ngwr/bits/iridescence",
   "ngwr/bits/marquee",
   "ngwr/bits/ripple-grid",
   "ngwr/bits/rotating-text",

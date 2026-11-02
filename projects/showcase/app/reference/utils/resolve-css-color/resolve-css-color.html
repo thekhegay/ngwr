@@ -1,11 +1,15 @@
 <ngwr-doc-page
   title="resolveCssColor"
   since="15.0.0"
+  updated="15.2.0"
   description="Resolves a CSS colour, such as a `var()` or `light-dark()`, to a value a canvas can paint with."
   [keywords]="[
     'resolveCssColor',
+    'resolveCssColorChannels',
     'watchColorScheme',
     'canvas',
+    'webgl',
+    'uniform',
     'color',
     'light-dark',
     'color-mix',
@@ -21,6 +25,13 @@
   >
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
     <ngwr-doc-code [code]="formsSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="As channels"
+    description="A WebGL uniform takes numbers. `resolveCssColorChannels()` resolves the same way and returns 0–1 sRGB channels with the alpha dropped, and `[0, 0, 0]` when even the fallback cannot be read, so a uniform never receives `NaN`."
+  >
+    <ngwr-doc-code [code]="channelsSnippet" language="typescript" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
