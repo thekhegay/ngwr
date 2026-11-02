@@ -1020,6 +1020,23 @@ A rule that reads `--wr-color-surface` or `--wr-space-lg` directly leaves the
 consumer no hook of the component's own to restyle it with, and the hooks are
 public API (see `gen:css-vars` below).
 
+**An input that can be unset never binds to a hook's own name.** Angular compiles
+`[style.--wr-x]` under a namespaced key that misses a value of the same name in the
+host's `style` attribute and in `[style]`, so a `null` binding wipes the author's
+value where `[style.color]` would restore it. `[ngStyle]` writes through the renderer,
+outside that chain, so a `null` host binding wipes its value for any property. A host
+map binding is no way out: it keeps a static value on the first pass, loses it once
+the input has been set and unset, and overrides a consumer's own `[style.--wr-x]`. So
+the input writes `--wr-<block>-input-<name>`, which the table does not list, and the
+rule reads `var(--wr-<block>-input-<name>, var(--wr-<block>-<name>))`. That also means
+an expression built on the hook, `color-mix(in srgb, var(--wr-x) 50%, black)`, is no
+cycle. A component that can hold another of its kind (a projected slot, a consumer
+template) also declares that variable `initial` on the block, or the inner one inherits
+it. A hook that mirrors an input whose value is never `null` (`--wr-threads-count`,
+`--wr-waves-x-gap`) has no such problem and no way in from a stylesheet rule either,
+since the input's value is on the host. An author's own `[style.--wr-x]` still wins
+over it, as a template binding does over a host binding.
+
 **The COMPONENT-scoped hooks are catalogued by `gen:css-vars`.** How many there
 are is printed by the run — do not re-type it here, which is how this line came
 to say 379 while `gen:css-vars` said 380. A consumer restyles a component
