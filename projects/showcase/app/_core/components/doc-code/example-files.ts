@@ -1,7 +1,6 @@
 import { computed, inject, type Signal } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 
-import { DOC_SECTION_TITLE } from '../doc-section/doc-section';
+import { DOC_PAGE_TITLE, DOC_SECTION_TITLE } from '../doc-section/doc-section';
 
 import type { DocCodeFile } from './types';
 
@@ -38,13 +37,12 @@ function toClassName(slug: string): string {
  * Call it from a field initializer; it injects.
  */
 function useExampleFiles(inputs: ExampleInputs): Signal<readonly DocCodeFile[] | null> {
-  const pageTitle = inject(Title);
+  const pageTitle = inject(DOC_PAGE_TITLE, { optional: true });
   const sectionTitle = inject(DOC_SECTION_TITLE, { optional: true });
 
   /** `example-name`, the slug the class, selector and `templateUrl` derive from. */
   const exampleName = computed(() => {
-    const page = (pageTitle.getTitle() || 'ngwr').split('·')[0];
-    const slug = `${page} ${sectionTitle?.() ?? ''} example`
+    const slug = `${pageTitle?.() ?? 'ngwr'} ${sectionTitle?.() ?? ''} example`
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
@@ -59,10 +57,9 @@ function useExampleFiles(inputs: ExampleInputs): Signal<readonly DocCodeFile[] |
     if (code.length === 0 || !isTemplateLanguage(inputs.language())) return null;
 
     const name = exampleName();
-    // An EMPTY section title is as absent as a missing one, and the page title
-    // is empty until the route's resolver has run — so neither `??` nor a
-    // falsy chain says it; the first non-blank of the two does.
-    const heading = [sectionTitle?.(), pageTitle.getTitle()].find(t => t?.trim()) ?? 'Example';
+    // An EMPTY section title is as absent as a missing one, so `??` does not say
+    // it; the first non-blank of the two does.
+    const heading = [sectionTitle?.(), pageTitle?.()].find(t => t?.trim()) ?? 'Example';
 
     return [
       { label: 'HTML', language: 'angular-html', code },

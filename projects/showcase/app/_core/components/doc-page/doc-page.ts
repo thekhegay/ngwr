@@ -10,7 +10,7 @@ import type { DocCodeFile } from '../doc-code/types';
 import { DocCssVarsComponent } from '../doc-css-vars/doc-css-vars';
 import { DocLabelComponent } from '../doc-label/doc-label';
 import { DocRichPipe, docRichToText } from '../doc-rich/doc-rich';
-import { DocSectionComponent } from '../doc-section/doc-section';
+import { DOC_PAGE_TITLE, DocSectionComponent } from '../doc-section/doc-section';
 import { DocSeeAlsoComponent } from '../doc-see-also/doc-see-also';
 
 import { CSS_VARS, type DocCssVarRoute, type DocCssVars } from '#core/generated/css-vars';
@@ -104,6 +104,7 @@ interface DepsRow {
   // onto the host, where the browser shows it as a native tooltip over the whole
   // page or section.
   host: { '[attr.title]': 'null' },
+  providers: [{ provide: DOC_PAGE_TITLE, useFactory: () => inject(DocPageComponent).title }],
 })
 export class DocPageComponent {
   /**
@@ -336,7 +337,7 @@ export class DocPageComponent {
    */
   protected readonly installDescription = computed(() =>
     this.install()?.some(f => f.language === 'scss')
-      ? 'Import the class, and `@use` the entry point in your global styles: without it the component renders unstyled.'
+      ? 'Import the class, and `@use` the entry point in your global styles. Nothing warns you when the `@use` is missing.'
       : 'Import the class. This entry point has no stylesheet.'
   );
 
