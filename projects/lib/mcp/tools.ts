@@ -529,9 +529,9 @@ function setup(catalog: Catalog, symbols: readonly string[]): string {
   sections.push([
     'Styles',
     [
-      // Required since v15, which has no umbrella sheet: a component whose line is
-      // missing renders unstyled, and nothing in the build or the console says so.
-      'In the global stylesheet, the theme first, then one line per entry point (without its line a component renders unstyled):',
+      // Required since v15, which has no umbrella sheet, and nothing in the build or the
+      // console says so when a component's line is missing.
+      'In the global stylesheet, the theme first, then one line per entry point (nothing warns you when a line is missing):',
       "@use 'ngwr/theme';   // once, first: ng add already wrote it, and Sass refuses a second",
       ...styled.map(path => `@use '${path}';`),
     ],

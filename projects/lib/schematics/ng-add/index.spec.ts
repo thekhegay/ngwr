@@ -194,7 +194,7 @@ describe('ng-add', () => {
     const { logs } = await run({ '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' }, BASE);
 
     // The half of a v15 install that fails silently: no umbrella sheet, so a
-    // component without its line renders unstyled and nothing says so.
+    // component needs its line and nothing says so when it is missing.
     const message = logs.find(line => line.includes('ngwr installed.'))!;
     expect(message).toContain('Every component you render needs its own stylesheet line, after the theme.');
     expect(message).toContain("  @use 'ngwr/theme';\n  @use 'ngwr/button';");

@@ -694,7 +694,7 @@ describe('callTool — get_ngwr_setup', () => {
         '`--path` is a NAMED option, not positional — passing it bare fails with `Unknown argument`.',
         '',
         '## 3. Styles',
-        'In the global stylesheet, the theme first, then one line per entry point (without its line a component renders unstyled):',
+        'In the global stylesheet, the theme first, then one line per entry point (nothing warns you when a line is missing):',
         "@use 'ngwr/theme';   // once, first: ng add already wrote it, and Sass refuses a second",
         "@use 'ngwr/badge';",
         '',

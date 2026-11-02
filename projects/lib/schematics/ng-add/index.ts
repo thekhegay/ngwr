@@ -200,7 +200,7 @@ function registerStyles(options: Schema): Rule {
  * The snippet is the `appConfig` that `ng new` writes, in
  * `src/app/app.config.ts`, which is where `ng g ngwr:provider` splices too.
  * It also says what the install did not do: each component needs its own
- * `@use` after the theme, and one without it renders unstyled with no error.
+ * `@use` after the theme, and nothing warns when one is missing.
  */
 function printNextSteps(options: Schema, context: SchematicContext): Rule {
   return (tree: Tree) => {
@@ -250,7 +250,7 @@ ${providerBlock}
   };
 
 Every component you render needs its own stylesheet line, after the theme.
-Without it the component renders unstyled, and nothing says so:
+Nothing warns you when the line is missing:
 
   @use 'ngwr/theme';
 ${densityLine}  @use 'ngwr/button';
