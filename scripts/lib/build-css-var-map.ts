@@ -82,6 +82,13 @@ interface RawDeclaration {
  */
 const TEMPLATE_AT_RULES = /^@(?:mixin|function|keyframes|-\w+-keyframes)\b/;
 
+/**
+ * A frame sets a value for the length of an animation and publishes nothing: a consumer
+ * who set that name would only be overwritten by it. Left in, `--wr-shiny-text-progress`
+ * read as a hook declared on `from`.
+ */
+const KEYFRAMES = /^@(?:-\w+-)?keyframes\b/;
+
 /** At-rules that make everything inside them conditional: a value, not the default. */
 const CONDITIONAL_AT_RULES = /^@(?:media|supports|each|for|while|if|else|container)\b/;
 
@@ -90,6 +97,7 @@ interface Frame {
   readonly selector: string;
   readonly template: boolean;
   readonly conditional: boolean;
+  readonly keyframes: boolean;
 }
 
 /** `&--open` under `.wr-select` → `.wr-select--open`; `.a` under `.b` → `.b .a`. */
@@ -141,11 +149,14 @@ function declarationsIn(file: string): { declarations: RawDeclaration[]; blocks:
     const text = buffer.trim();
     buffer = '';
     bufferLine = line;
-    if (!text.startsWith('--wr-')) return;
+    if (!text.startsWith('--wr-') || stack.some(f => f.keyframes)) return;
     const colon = text.indexOf(':');
     if (colon < 0) return;
     const name = text.slice(0, colon).trim();
     if (!/^--wr-[a-z0-9-]+$/.test(name)) return;
+    // Unsetting a variable publishes nothing: it is what stops a nested instance
+    // inheriting what an input wrote on its parent, and a consumer has no use for it.
+    if (text.slice(colon + 1).trim() === 'initial') return;
     const scope = stack.length > 0 ? stack[stack.length - 1].selector : '';
     out.push({
       name,
@@ -270,6 +281,7 @@ function declarationsIn(file: string): { declarations: RawDeclaration[]; blocks:
         selector: atRule ? (parent?.selector ?? '') : resolveSelector(parent?.selector ?? '', head),
         template: (parent?.template ?? false) || (atRule && TEMPLATE_AT_RULES.test(head)),
         conditional: (parent?.conditional ?? false) || (atRule && CONDITIONAL_AT_RULES.test(head)),
+        keyframes: (parent?.keyframes ?? false) || (atRule && KEYFRAMES.test(head)),
       });
       index++;
       continue;
