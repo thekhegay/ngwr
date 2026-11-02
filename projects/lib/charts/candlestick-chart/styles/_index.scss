@@ -160,11 +160,11 @@ $-body: calc(100% - $-upper - $-lower);
     pointer-events: none;
 
     &--increase {
-      color: var(--wr-candlestick-chart-increase-color);
+      color: var(--wr-candlestick-chart-input-increase-color, var(--wr-candlestick-chart-increase-color));
     }
 
     &--decrease {
-      color: var(--wr-candlestick-chart-decrease-color);
+      color: var(--wr-candlestick-chart-input-decrease-color, var(--wr-candlestick-chart-decrease-color));
     }
 
     // The wicks: above the body and below it, never through it, so a hollow body is
