@@ -346,15 +346,22 @@ export class DocPageComponent {
   });
 
   /**
-   * Why the section says "declare them on the component's own selector".
+   * Why the section says "on the element itself, more specific than its selector".
    *
    * The library declares each default ON the block — `.wr-alert { --wr-alert-bg:
-   * … }` — so a custom property inherited from `:root` is shadowed by it and an
-   * app-wide override silently does nothing. The instruction is the one thing a
-   * reader has to know before the table is usable.
+   * … }` — so a custom property inherited from `:root` or a wrapper is shadowed by
+   * it, and an override there silently does nothing. A rule on the bare block loses
+   * too from a global stylesheet where the component has a `styleUrl`, since Angular
+   * appends that `<style>` after the linked sheet. The instruction is the one thing a
+   * reader has to know before the table is usable. An entry point that declares its
+   * defaults on `:root`, such as `ngwr/icon`, is the other way round, and there a
+   * wrapper is exactly what works.
    */
-  protected cssVarsDescription(subpath: string): string {
-    return `Set these on the component's selector or a wrapper, not on \`:root\`: the defaults are declared on \`${subpath}\`'s own element.`;
+  protected cssVarsDescription({ subpath, vars }: DocCssVars): string {
+    if (vars.every(row => row.scope === ':root')) {
+      return `Set these on \`:root\` in a global stylesheet, after \`${subpath}\`, or on a wrapper to reach only what is inside it: each default is declared on \`:root\` and inherits. In a component stylesheet use a wrapper, because \`:root\` matches nothing there.`;
+    }
+    return `Set these on the element itself, with a rule more specific than its Declared on selector. In a global stylesheet, put a class of yours on an ancestor it really has: \`<body>\` for an overlay panel, which renders outside your markup. In a component stylesheet the selector alone works, but only for an element in that component's own template. A value on a wrapper or \`:root\` is shadowed, because \`${subpath}\` declares each default on its own element.`;
   }
 
   constructor() {
