@@ -1,5 +1,26 @@
 # Changelog
 
+## [15.2.0](https://github.com/thekhegay/ngwr/compare/v15.1.0...v15.2.0) (2026-11-02)
+
+### Features
+
+* **bits:** iridescence, folded silk on a webgl2 canvas that the pointer stirs ([93beb09](https://github.com/thekhegay/ngwr/commit/93beb09a42f78efb61eab13d3f0c21ac0bb727ce))
+* **utils:** css colour as webgl channels, and a token holding no colour reads the fallback ([1af8883](https://github.com/thekhegay/ngwr/commit/1af8883755d513cf18fb4f1c21d92144c03c94e6))
+
+### Bug Fixes
+
+* **bits:** frame loops stop behind a closed clip, and a hook set on the host survives its input ([8d1ee4e](https://github.com/thekhegay/ngwr/commit/8d1ee4ef26468dd453e244a31bd5cc7af3014e9b))
+* **border-glow:** a colour input set and then unset comes off the host ([e8165b1](https://github.com/thekhegay/ngwr/commit/e8165b1893651af29214d4a6d126e5d27896861c))
+* **charts:** a candlestick colour hook set on the host survives an unset input ([58e3af4](https://github.com/thekhegay/ngwr/commit/58e3af465e58f19c0497fa7a230715dd835ba08b))
+* **mcp:** the tail of a refused oversize line is not read as a message ([6b0ffc8](https://github.com/thekhegay/ngwr/commit/6b0ffc880571c73ea018974928bb000b31a6e0f4))
+* **qr:** two colours under forced colours, so the code stays scannable ([0225070](https://github.com/thekhegay/ngwr/commit/0225070619cb769041abb47b8080a4844680921e))
+* **schematics:** one claim about a missing stylesheet line, in ng add and the mcp setup too ([f385038](https://github.com/thekhegay/ngwr/commit/f385038d3d49b930f02e0d348ff49dd8e298ab20))
+* **scripts:** css var map skips keyframes, and the markdown twins print every mark and the kind ([ad81843](https://github.com/thekhegay/ngwr/commit/ad81843818391fa8612652708d7bd4c096fe973f))
+
+### Showcase
+
+* iridescence page under bits backgrounds ([bd8210c](https://github.com/thekhegay/ngwr/commit/bd8210cea175275efb1e4848337e98982a081e0e))
+
 ## [15.1.0](https://github.com/thekhegay/ngwr/compare/v15.0.1...v15.1.0) (2026-10-28)
 
 ### Features
