@@ -1,5 +1,20 @@
 # Changelog
 
+## [15.3.0](https://github.com/thekhegay/ngwr/compare/v15.2.0...v15.3.0) (2026-11-03)
+
+### Features
+
+* **breadcrumbs:** query parameters on a router crumb ([5785706](https://github.com/thekhegay/ngwr/commit/57857068b7bb69ec467e56acdaabb9340acdef32))
+* **select:** a template for the failed-load row, and a loader while it retries ([175dcf3](https://github.com/thekhegay/ngwr/commit/175dcf31737c1c488d6d27d240a6c070c5316895))
+
+### Bug Fixes
+
+* **alert:** projected content renders below the message ([866120e](https://github.com/thekhegay/ngwr/commit/866120e137df3beb97ff9b160fcdf113937ced96))
+* **hotkey:** a letter shortcut fires on a non-latin layout ([987acef](https://github.com/thekhegay/ngwr/commit/987acef75a3cfc5e307f75531fd5f693bb499518))
+* **pipes:** number pipe and statistic keep every digit of a decimal string ([b5e06bf](https://github.com/thekhegay/ngwr/commit/b5e06bf53dde070b12da6a0d9aeb121d3fa22ac9))
+* **select:** a failed loader says so, and retryable runs it again ([239f91a](https://github.com/thekhegay/ngwr/commit/239f91a1b709ab23a61654d1bb63df430592bee2))
+* **select:** the retry on a failed load is a small button ([b790c39](https://github.com/thekhegay/ngwr/commit/b790c39f504d071bc56783225ac0b030f74f2090))
+
 ## [15.2.0](https://github.com/thekhegay/ngwr/compare/v15.1.0...v15.2.0) (2026-11-02)
 
 ### Features
