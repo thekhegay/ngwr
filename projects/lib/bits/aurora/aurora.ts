@@ -20,10 +20,12 @@ import {
   PLATFORM_ID,
   ViewEncapsulation,
   afterNextRender,
+  afterRenderEffect,
   effect,
   inject,
   input,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 
@@ -210,7 +212,7 @@ export class WrAurora {
   /** The shader time last drawn, so a resize can repaint the frame it just cleared. */
   private time = 0;
 
-  /** Flips once `boot()` has a context and a program — the loop waits for it. */
+  /** Flips once `boot()` has a context and a program — everything that draws waits for it. */
   private readonly booted = signal(false);
   /** Whether the host is in the viewport; stays `true` without an observer. */
   private readonly onScreen = signal(true);
@@ -226,14 +228,20 @@ export class WrAurora {
     afterNextRender(() => this.zone.runOutsideAngular(() => this.boot()));
 
     // Push input changes into uniforms without restarting the loop. Under
-    // reduced motion this also repaints the static frame.
-    effect(() => {
+    // reduced motion this also repaints the static frame — and so does the
+    // moment motion stops. After render rather than an `effect`, which runs
+    // before a directive's host binding: a still frame drawn then would miss a
+    // hook it changes in the same pass.
+    afterRenderEffect(() => {
+      if (!this.booted()) return;
+      const still = this.platform.prefersReducedMotion();
       this.colorStops();
       this.amplitude();
       this.blend();
-      if (!this.gl) return;
-      this.pushUniforms();
-      if (this.platform.prefersReducedMotion()) this.draw(0);
+      untracked(() => {
+        this.pushUniforms();
+        if (still) this.draw(0);
+      });
     });
 
     // A still frame keeps the colours it was drawn with, so a scheme switch

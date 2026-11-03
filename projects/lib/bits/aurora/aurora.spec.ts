@@ -1,4 +1,4 @@
-import { Component, ErrorHandler, PLATFORM_ID, signal } from '@angular/core';
+import { Component, Directive, ErrorHandler, PLATFORM_ID, input, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrPlatform } from 'ngwr/platform';
@@ -13,6 +13,20 @@ import { WrAurora } from './aurora';
 class Host {
   readonly amplitude = signal(1);
   readonly speed = signal(1);
+}
+
+@Directive({ selector: '[wrHookTint]', host: { '[style.--wr-aurora-stop-1]': 'wrHookTint()' } })
+class HookTint {
+  readonly wrHookTint = input<string | null>(null);
+}
+
+@Component({
+  imports: [WrAurora, HookTint],
+  template: `<wr-aurora [colorStops]="colorStops()" [wrHookTint]="tint()" />`,
+})
+class HookTintHost {
+  readonly colorStops = signal<readonly string[] | null>(['rgb(0, 255, 0)', 'rgb(0, 255, 0)', 'rgb(0, 255, 0)']);
+  readonly tint = signal<string | null>(null);
 }
 
 const reducedMotion = {
@@ -230,6 +244,26 @@ describe('WrAurora', () => {
     runFrame();
 
     expect(stops).toEqual([1, 0, 0, 0, 0, 1, 0, 1, 0]);
+  });
+
+  it('reads a hook a directive on the host changes in the same pass, on a still frame', async () => {
+    withContext();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: WrPlatform, useValue: reducedMotion }] });
+    const hosted = TestBed.createComponent(HookTintHost);
+    hosted.detectChanges();
+    await hosted.whenStable();
+    expect(stops.slice(0, 3)).toEqual([0, 1, 0]);
+
+    // The stops go back to the theme's hook in the pass that sets it: an `effect`
+    // runs before the directive's host binding and resolved the old value.
+    hosted.componentInstance.colorStops.set(null);
+    hosted.componentInstance.tint.set('rgb(0, 0, 255)');
+    hosted.detectChanges();
+    await hosted.whenStable();
+
+    expect(stops.slice(0, 3)).toEqual([0, 0, 1]);
+    hosted.destroy();
   });
 
   it('repaints the still frame in the new colours when the scheme switches', async () => {
