@@ -92,6 +92,10 @@ let nextFrameId: number;
 let fills: unknown[];
 /** Every colour handed to a gradient's `addColorStop`, in order. */
 let stops: string[];
+/** `disconnect()` calls on the resize observer. */
+let disconnects: number;
+/** The resize observer's callbacks, newest last — `resize()` fires the one installed last. */
+let resizers: (() => void)[];
 
 /**
  * Frames are held, not fired, and run by hand at a timestamp the test chooses: the
@@ -150,11 +154,30 @@ const withFonts = (load: () => Promise<unknown> = () => Promise.resolve([])): vo
 
 /**
  * Enough of a 2D context and a random source for `init()` to reach its last line, and
- * nothing more.
+ * nothing more — plus a drawn size for the canvas, since jsdom lays nothing out and a
+ * canvas drawn at no size is a state the loop stops in, and a resize observer, which
+ * jsdom has none of, the smallest one the spec can fire and disconnect.
  */
 const withContext = (load?: () => Promise<unknown>): void => {
   holdFrames();
   withFonts(load);
+  box(210, 50);
+
+  class Observer {
+    constructor(callback: () => void) {
+      resizers.push(callback);
+    }
+    observe(): void {
+      /* nothing to measure: jsdom lays nothing out */
+    }
+    unobserve(): void {
+      /* as above */
+    }
+    disconnect(): void {
+      disconnects++;
+    }
+  }
+  vi.stubGlobal('ResizeObserver', Observer);
 
   const ctx: Record<string, unknown> = {
     clearRect: () => {
@@ -195,6 +218,15 @@ const withContext = (load?: () => Promise<unknown>): void => {
   // fuzzRange / 2)` — a direct read of the intensity the loop is running at.
   vi.spyOn(Math, 'random').mockReturnValue(1);
 };
+
+/** The size every element is drawn at (`clientWidth` / `clientHeight`), since jsdom lays nothing out. */
+const box = (width: number, height: number): void => {
+  vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(width);
+  vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(height);
+};
+
+/** Fire the resize observer the last boot installed, the way a browser does on a new box. */
+const resize = (): void => resizers.at(-1)!();
 
 describe('WrFuzzyText', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -239,6 +271,8 @@ describe('WrFuzzyText', () => {
     nextFrameId = 0;
     fills = [];
     stops = [];
+    disconnects = 0;
+    resizers = [];
     withFonts();
     await mount();
   });
@@ -247,6 +281,7 @@ describe('WrFuzzyText', () => {
     fixture.destroy();
     Reflect.deleteProperty(document, 'fonts');
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('carries its text as text, not only as pixels', () => {
@@ -507,6 +542,7 @@ describe('WrFuzzyText', () => {
     fixture.destroy();
 
     expect(cancelled.length).toBeGreaterThan(0);
+    expect(disconnects).toBe(1);
     expect(drop).toHaveBeenCalledWith('mousemove', expect.any(Function));
     expect(drop).toHaveBeenCalledWith('mouseleave', expect.any(Function));
     expect(drop).toHaveBeenCalledWith('touchmove', expect.any(Function));
@@ -614,11 +650,11 @@ describe('WrFuzzyText', () => {
   });
 
   it('parks the loop off screen and resumes it in view', async () => {
-    let report: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
+    let report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null = null;
     vi.stubGlobal(
       'IntersectionObserver',
       class {
-        constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+        constructor(callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) {
           report = callback;
         }
         observe(): void {
@@ -631,22 +667,82 @@ describe('WrFuzzyText', () => {
     );
     withContext();
     await mount();
-    report!([{ isIntersecting: true }]);
+    report!([{ isIntersecting: true, intersectionRatio: 1 }]);
     runFrame(1000);
     expect(slices.length).toBe(50);
 
-    report!([{ isIntersecting: false }]);
+    report!([{ isIntersecting: false, intersectionRatio: 0 }]);
     slices = [];
     runFrame(2000);
     expect(slices).toEqual([]);
 
-    report!([{ isIntersecting: true }]);
+    report!([{ isIntersecting: true, intersectionRatio: 1 }]);
     runFrame(3000);
     expect(slices.length).toBe(50);
 
     fixture.destroy();
     expect(report).toBeNull();
-    vi.unstubAllGlobals();
+  });
+
+  it('counts a box flush against a zero-height clip as off screen, and hears the clip open', async () => {
+    let report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null = null;
+    let options: IntersectionObserverInit | undefined;
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(
+          callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void,
+          init?: IntersectionObserverInit
+        ) {
+          report = callback;
+          options = init;
+        }
+        observe(): void {
+          // Driven by hand below.
+        }
+        disconnect(): void {
+          report = null;
+        }
+      }
+    );
+    withContext();
+    await mount();
+
+    report!([{ isIntersecting: true, intersectionRatio: 0 }]);
+    runFrame(1000);
+    expect(slices).toEqual([]);
+
+    // 0 alone would send nothing here in a real browser, and a larger second threshold
+    // shares an index with 0 for the last step of a clip closing on a transition.
+    expect(options?.threshold).toEqual([0, 1e-9]);
+    report!([{ isIntersecting: true, intersectionRatio: 0.5 }]);
+    runFrame(2000);
+    expect(slices.length).toBe(50);
+  });
+
+  it('asks for no frames while it is drawn at no size, and starts when it has one', async () => {
+    withContext();
+    box(0, 0);
+    await mount();
+
+    // Booted, baked and sized — the bitmap is the text's size whatever the box — but
+    // drawn at nothing, so no slice is slid.
+    expect(canvas().width).toBeGreaterThan(0);
+    runFrame(1000);
+    expect(slices).toEqual([]);
+
+    box(210, 50);
+    resize();
+    runFrame(2000);
+    expect(slices.length).toBe(50);
+
+    // A parent narrowed to nothing: the frame it had asked for is withdrawn, which
+    // this holder honours.
+    box(0, 50);
+    resize();
+    slices = [];
+    runFrame(3000);
+    expect(slices).toEqual([]);
   });
 
   it('rebuilds when a viewport-relative size resolves to a new pixel size', async () => {
