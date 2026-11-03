@@ -78,4 +78,40 @@ describe('matchesHotkey', () => {
     expect(matchesHotkey(press(' '), parseHotkeySpec('space'))).toBe(true);
     expect(matchesHotkey(press('ArrowUp'), parseHotkeySpec('up'))).toBe(true);
   });
+
+  // On a Russian layout the key labelled K types `л`, so a letter shortcut was
+  // dead until the user switched to English.
+  it('falls back to the physical key when the layout types a non-Latin character', () => {
+    expect(matchesHotkey(press('л', { code: 'KeyK', ctrlKey: true }), parseHotkeySpec('mod+k'))).toBe(true);
+    expect(matchesHotkey(press('Л', { code: 'KeyK', shiftKey: true }), parseHotkeySpec('shift+k'))).toBe(true);
+    expect(matchesHotkey(press('х', { code: 'BracketLeft', ctrlKey: true }), parseHotkeySpec('ctrl+['))).toBe(true);
+    expect(matchesHotkey(press('л', { code: 'KeyK', ctrlKey: true }), parseHotkeySpec('mod+j'))).toBe(false);
+    expect(matchesHotkey(press('λ', { code: 'KeyL', metaKey: true }), parseHotkeySpec('cmd+l'))).toBe(true);
+  });
+
+  it('follows the letter, not the position, on a Latin layout', () => {
+    // Dvorak: the key labelled K types `t`, and the key labelled V types `k`.
+    expect(matchesHotkey(press('t', { code: 'KeyK', ctrlKey: true }), parseHotkeySpec('mod+k'))).toBe(false);
+    expect(matchesHotkey(press('k', { code: 'KeyV', ctrlKey: true }), parseHotkeySpec('mod+k'))).toBe(true);
+    // Latin letters outside ASCII are keys of their own: Turkish ı sits where
+    // the US layout has I, and German ß where it has -.
+    expect(matchesHotkey(press('ı', { code: 'KeyI', ctrlKey: true }), parseHotkeySpec('ctrl+i'))).toBe(false);
+    expect(matchesHotkey(press('ß', { code: 'Minus', ctrlKey: true }), parseHotkeySpec('ctrl+-'))).toBe(false);
+  });
+
+  it('never falls back on a chord holding Alt, which types a symbol on purpose', () => {
+    // Windows AltGr reports Ctrl and Alt together; macOS Option is Alt.
+    expect(
+      matchesHotkey(press('€', { code: 'KeyE', ctrlKey: true, altKey: true }), parseHotkeySpec('ctrl+alt+e'))
+    ).toBe(false);
+    expect(matchesHotkey(press('Ω', { code: 'KeyY', altKey: true }), parseHotkeySpec('alt+y'))).toBe(false);
+    expect(
+      matchesHotkey(press('ś', { code: 'KeyS', ctrlKey: true, altKey: true }), parseHotkeySpec('ctrl+alt+s'))
+    ).toBe(false);
+  });
+
+  it('does not guess when the event names no physical key', () => {
+    expect(matchesHotkey(press('л', { ctrlKey: true }), parseHotkeySpec('mod+k'))).toBe(false);
+    expect(matchesHotkey(press('Dead', { code: 'KeyE', altKey: true }), parseHotkeySpec('alt+e'))).toBe(false);
+  });
 });
