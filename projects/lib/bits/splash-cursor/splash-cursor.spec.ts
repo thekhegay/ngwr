@@ -64,6 +64,10 @@ let asked: MockInstance<HTMLCanvasElement['getContext']>;
  * teardown is GPU memory nothing can reach again.
  */
 let alive: Set<object>;
+/** `disconnect()` calls on the resize observer. */
+let disconnects: number;
+/** The resize observer's callbacks, newest last — `resize()` fires the one installed last. */
+let resizers: (() => void)[];
 
 const ACTIVE_UNIFORMS = 0x8b86;
 const FRAMEBUFFER_COMPLETE = 0x8cd5;
@@ -79,9 +83,12 @@ const FRAMEBUFFER_COMPLETE = 0x8cd5;
  * compared against `gl.FRAMEBUFFER_COMPLETE`, so the constant and the answer have to
  * be the same number or the format negotiation recurses into `null` and the sim never
  * starts. `drawingBufferWidth` / `Height` are numbers for the same reason: the
- * resolution maths divides them.
+ * resolution maths divides them. The canvas gets a layout box too, since jsdom lays
+ * nothing out and a box with no area is a state the sim stops in; and a resize
+ * observer, which jsdom has none of, the smallest one the spec can fire and disconnect.
  */
 const withContext = (): void => {
+  box(320, 180);
   const gl: Record<string, unknown> = {
     ACTIVE_UNIFORMS,
     FRAMEBUFFER_COMPLETE,
@@ -120,11 +127,36 @@ const withContext = (): void => {
   });
   asked.mockImplementation(((type: string) => (type === 'webgl2' ? context : null)) as never);
 
+  class Observer {
+    constructor(callback: () => void) {
+      resizers.push(callback);
+    }
+    observe(): void {
+      /* nothing to measure: jsdom lays nothing out */
+    }
+    unobserve(): void {
+      /* as above */
+    }
+    disconnect(): void {
+      disconnects++;
+    }
+  }
+  vi.stubGlobal('ResizeObserver', Observer);
+
   // Frames are held, not fired: a backgrounded jsdom throttles timers, and a spec
   // that waits on one flakes. Angular's own scheduler races rAF against a
   // `setTimeout`, so holding the frame does not stall the fixture.
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(frame => frames.push(frame));
 };
+
+/** A layout box for every element, since jsdom lays nothing out. */
+const box = (width: number, height: number): void => {
+  vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(width);
+  vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(height);
+};
+
+/** Fire the resize observer the last boot installed, the way a browser does on a new box. */
+const resize = (): void => resizers.at(-1)!();
 
 /** Run every frame the page is currently holding, once. */
 const runFrame = (): void => {
@@ -156,6 +188,8 @@ describe('WrSplashCursor', () => {
     drawn = 0;
     frames = [];
     alive = new Set();
+    disconnects = 0;
+    resizers = [];
     asked.mockClear();
     listen = vi.spyOn(window, 'addEventListener');
     drop = vi.spyOn(window, 'removeEventListener');
@@ -174,6 +208,7 @@ describe('WrSplashCursor', () => {
   afterEach(() => {
     fixture.destroy();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('renders a canvas that is decoration, not content', () => {
@@ -254,11 +289,11 @@ describe('WrSplashCursor', () => {
   });
 
   it('parks a contained sim scrolled out of view, and resumes it in view', async () => {
-    let report: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
+    let report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null = null;
     vi.stubGlobal(
       'IntersectionObserver',
       class {
-        constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+        constructor(callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) {
           report = callback;
         }
         observe(): void {
@@ -273,29 +308,96 @@ describe('WrSplashCursor', () => {
     await mount();
     runFrame();
 
-    report!([{ isIntersecting: false }]);
+    report!([{ isIntersecting: false, intersectionRatio: 0 }]);
     runFrame();
     const parked = drawn;
     runFrame();
     expect(drawn).toBe(parked);
     expect(frames).toEqual([]);
 
-    report!([{ isIntersecting: true }]);
+    report!([{ isIntersecting: true, intersectionRatio: 1 }]);
     runFrame();
     expect(drawn).toBeGreaterThan(parked);
 
     fixture.destroy();
     expect(report).toBeNull();
-    vi.unstubAllGlobals();
   });
 
-  it('takes its listeners and its loop with it when destroyed', async () => {
+  it('counts a box flush against a zero-height clip as off screen, and hears the clip open', async () => {
+    let report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null = null;
+    let options: IntersectionObserverInit | undefined;
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(
+          callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void,
+          init?: IntersectionObserverInit
+        ) {
+          report = callback;
+          options = init;
+        }
+        observe(): void {
+          // Driven by hand below.
+        }
+        disconnect(): void {
+          report = null;
+        }
+      }
+    );
+    withContext();
+    await mount();
+    runFrame();
+
+    report!([{ isIntersecting: true, intersectionRatio: 0 }]);
+    runFrame();
+    const parked = drawn;
+    runFrame();
+    expect(drawn).toBe(parked);
+    expect(frames).toEqual([]);
+
+    // 0 alone would send nothing here in a real browser, and a larger second threshold
+    // shares an index with 0 for the last step of a clip closing on a transition.
+    expect(options?.threshold).toEqual([0, 1e-9]);
+    report!([{ isIntersecting: true, intersectionRatio: 0.5 }]);
+    runFrame();
+    expect(drawn).toBeGreaterThan(parked);
+  });
+
+  it('runs no pass of the solver with no box to draw on, and starts when it has one', async () => {
+    withContext();
+    box(0, 0);
+    await mount();
+
+    // Booted — the shaders are compiled and the window is listened to — but the
+    // first frame measured no box, ran nothing and asked for no second frame.
+    expect(booted()).toBe(1);
+    expect(drawn).toBe(0);
+    runFrame();
+    expect(drawn).toBe(0);
+    expect(frames).toEqual([]);
+
+    box(320, 180);
+    resize();
+    runFrame();
+    expect(drawn).toBeGreaterThan(0);
+
+    // Gone again: the frame it had asked for measures the box and asks for no more.
+    box(320, 0);
+    resize();
+    const parked = drawn;
+    runFrame();
+    expect(drawn).toBe(parked);
+    expect(frames).toEqual([]);
+  });
+
+  it('takes its listeners, its observer and its loop with it when destroyed', async () => {
     withContext();
     await mount();
 
     fixture.destroy();
 
     expect(stopped()).toBe(1);
+    expect(disconnects).toBe(1);
 
     // And it really stopped: a held frame that still ran would keep a whole fluid
     // simulation alive on a page that no longer shows it.
