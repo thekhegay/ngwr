@@ -474,9 +474,10 @@
     <!-- A failed load, in place of "no results". An option for the same reason as
          that row. While it offers a retry it is the option that runs the loader
          again: the field's aria-activedescendant names it, Enter there reaches it,
-         and mousedown keeps focus in the field. -->
+         and mousedown keeps focus in the field. The retry is DRAWN as a button but
+         cannot be one, since a button inside an option is nested interactive
+         content; it wears `.wr-btn` and takes the click. -->
     @if (showLoadError()) {
-      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
       <div
         class="wr-select-panel__error"
         [class.wr-select-panel__error--retryable]="retryOffered()"
@@ -486,11 +487,13 @@
         [attr.id]="retryOffered() ? retryRowId : null"
         [attr.aria-disabled]="retryOffered() ? null : true"
         (mousedown)="$event.preventDefault()"
-        (click)="onLoadErrorClick()"
       >
         {{ resolvedLoadError() }}
         @if (retryOffered()) {
-          <span class="wr-select-panel__retry">{{ resolvedRetry() }}</span>
+          <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+          <span class="wr-btn wr-btn--sm wr-select-panel__retry" (click)="onLoadErrorClick()">{{
+            resolvedRetry()
+          }}</span>
         }
       </div>
     }

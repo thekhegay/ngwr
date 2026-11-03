@@ -1024,6 +1024,7 @@ describe('WrSelect with an async loader that fails', () => {
 
     const row = errorRow()!;
     expect(row.textContent.replace(/\s+/g, ' ').trim()).toBe('Could not load results Try again');
+    expect(row.querySelector('.wr-select-panel__retry')!.classList).toContain('wr-btn');
     expect(row.getAttribute('aria-disabled')).toBeNull();
     expect(field().getAttribute('aria-activedescendant')).toBe(row.id);
 
@@ -1035,7 +1036,7 @@ describe('WrSelect with an async loader that fails', () => {
     expect(errorRow()).not.toBeNull();
 
     fixture.componentInstance.failFor.set(null);
-    errorRow()!.click();
+    errorRow()!.querySelector<HTMLElement>('.wr-select-panel__retry')!.click();
     await new Promise<void>(resolve => setTimeout(resolve, 0));
     fixture.detectChanges();
 
