@@ -1701,7 +1701,7 @@ const MARK_VERSION = /^\d+\.\d+\.\d+$/;
  * a plain attribute holding one version:
  *
  *   - `since` — the version the page's subject FIRST SHIPPED IN. The nav marks it
- *     `New` while that version is on the current release line.
+ *     `New` while that version is on the current major.
  *   - `updated` — the version the subject's PUBLIC API changed in, a move of its
  *     entry point included. Marked `Updated` on the same expiring rule.
  *
@@ -1765,8 +1765,8 @@ function compareVersions(a: string, b: string): number {
  *     resolve an expression, and a page whose version lives in TypeScript would
  *     print its line and be absent from every nav.
  *   - **A version that is not `major.minor.patch`.** `'14.5'` and `'v14.5.0'`
- *     read as versions and match no release line, so the mark never lights up
- *     and nothing says why.
+ *     read as versions and `#core/utils` cannot parse them, so the mark never
+ *     lights up and nothing says why.
  *   - **`updated` no later than `since`.** A subject cannot change in the
  *     release that added it; the mark would claim a history the page's own
  *     other line contradicts.
@@ -1889,10 +1889,10 @@ function serializeMarks(marks: MarkScan['marks']): string {
  * for it and shows nothing, which is most of them.
  *
  * Read by \`#core/utils\`'s \`linkMark()\`, which gives a nav entry \`New\` or
- * \`Updated\` while the declared version is on the CURRENT release line — the
- * later of \`NGWR_VERSION\`'s and the newest one declared here (\`markVersion()\`)
- * — so a mark is derived from one string rather than typed a second time beside
- * the link, and it expires by itself when the next feature release moves on.
+ * \`Updated\` while the declared version is on the CURRENT major — the later of
+ * \`NGWR_VERSION\`'s and the newest one declared here (\`markVersion()\`) — so a
+ * mark is derived from one string rather than typed a second time beside the
+ * link, and it expires by itself when the next major moves on.
  */`)}
 
 /**

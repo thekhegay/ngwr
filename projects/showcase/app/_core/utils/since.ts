@@ -15,7 +15,7 @@ const DECLARED: Readonly<Record<string, string>> = SINCE;
 const DECLARED_UPDATED: Readonly<Record<string, string>> = UPDATED;
 
 /**
- * `'14.5.0'` → `[14, 5]`, `'14.5.0-rc.1'` → `[14, 5]`; `null` for anything else.
+ * `'14.5.0'` → `14`, `'14.5.0-rc.1'` → `14`; `null` for anything else.
  *
  * **A prerelease suffix is accepted and then ignored, and that is not laxity —
  * it is the one shape `NGWR_VERSION` takes that is not a plain triple.**
@@ -26,35 +26,15 @@ const DECLARED_UPDATED: Readonly<Record<string, string>> = UPDATED;
  * candidate line — the one window in which the marks matter most — with no gate
  * anywhere saying so, because the failure is total rather than per-page.
  *
- * Ignoring the suffix is also the right reading: a candidate belongs to the line
- * it is a candidate FOR, so `14.5.0-rc.1` is 14.5 and a page declaring `14.5.0`
- * is marked throughout it. A page's own `since` never carries one —
+ * Ignoring the suffix is also the right reading: a candidate belongs to the major
+ * it is a candidate FOR, so `15.0.0-rc.1` is 15 and a page declaring `15.0.0` is
+ * marked throughout it. A page's own `since` never carries one —
  * `pnpm gen:api-docs` refuses anything but `major.minor.patch` at the page,
  * where an author can see it — so this branch only ever reads `current`.
  */
-function line(version: string): readonly [number, number] | null {
-  const match = /^(\d+)\.(\d+)\.\d+(?:-[0-9A-Za-z.-]+)?$/.exec(version.trim());
-  if (!match) return null;
-  return [Number(match[1]), Number(match[2])];
-}
-
-/** Whether line `a` is later than line `b`. */
-function laterLine(a: readonly [number, number], b: readonly [number, number]): boolean {
-  return a[0] > b[0] || (a[0] === b[0] && a[1] > b[1]);
-}
-
-/** The declared version on the latest line, or `null` when none is readable. */
-function newest(versions: Iterable<string>): string | null {
-  let best: string | null = null;
-  let bestLine: readonly [number, number] | null = null;
-  for (const version of versions) {
-    const candidate = line(version);
-    if (candidate && (!bestLine || laterLine(candidate, bestLine))) {
-      best = version;
-      bestLine = candidate;
-    }
-  }
-  return best;
+function majorOf(version: string): number | null {
+  const match = /^(\d+)\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.exec(version.trim());
+  return match ? Number(match[1]) : null;
 }
 
 /** Every version a page declares, `since` and `updated` alike. */
@@ -62,70 +42,75 @@ const DECLARED_VERSIONS: readonly string[] = [...Object.values(DECLARED), ...Obj
 
 /** {@link markVersion}'s rule, kept private so the module can work out its own default before any export. */
 function judgedAgainst(shipped: string, declared: Iterable<string>): string {
-  const own = line(shipped);
-  if (!own) return shipped;
-  const ahead = newest(declared);
-  const aheadLine = ahead === null ? null : line(ahead);
-  return ahead !== null && aheadLine !== null && laterLine(aheadLine, own) ? ahead : shipped;
+  let latest = majorOf(shipped);
+  if (latest === null) return shipped;
+  let version = shipped;
+  for (const candidate of declared) {
+    const major = majorOf(candidate);
+    if (major !== null && major > latest) {
+      latest = major;
+      version = candidate;
+    }
+  }
+  return version;
 }
 
 /** {@link markVersion} for the version this app was built with, worked out once. */
 const MARK_VERSION = judgedAgainst(NGWR_VERSION, DECLARED_VERSIONS);
 
 /**
- * Whether a declared version belongs to the CURRENT release line — the
- * comparison behind every mark in the nav, and the reason nothing has to be
- * cleaned up by hand. Which line counts as current is {@link markVersion}'s
- * answer; this function only compares.
+ * Whether a declared version belongs to the CURRENT major — the comparison behind
+ * every mark in the nav, and the reason nothing has to be cleaned up by hand.
+ * Which major counts as current is {@link markVersion}'s answer; this function
+ * only compares.
  *
- * The comparison is on the MINOR line, `major.minor`, and it is `>=` rather than
- * `===` so a version declared AHEAD of `current` is marked too: that is the same
- * statement as "not yet released", and a page is written before the release
- * that carries it.
+ * The comparison reads the MAJOR alone, and it is `>=` rather than `===` so a
+ * version declared AHEAD of `current` is marked too: that is the same statement
+ * as "not yet released", and a page is written before the release that carries
+ * it.
  *
- * A patch does not move the line — 14.5.1 leaves the 14.5 marks standing, which
- * is right: a patch adds no pages, and the reader's question is "what arrived in
- * this feature release", not "what arrived in this build".
+ * Neither a minor nor a patch moves it — 15.2.0 leaves the 15.0 and 15.1 marks
+ * standing, which is right: a reader's question is "what is new in the v15 I am
+ * on", not "what arrived in this release", and the page beside the mark prints
+ * the exact version.
  *
  * `current` is a parameter rather than a read of the constant so the rule can be
  * exercised against a version other than the one the app was built with.
  */
 export function isNewIn(since: string, current: string): boolean {
-  const declared = line(since);
-  const shipped = line(current);
+  const declared = majorOf(since);
+  const shipped = majorOf(current);
   // Unreadable on either side means no mark, and the two sides are watched by
   // different things. A malformed `since` is caught by `pnpm check:api-docs` at
   // the page it was declared on, where the author can see it; guessing at one
   // here would paint a mark off a string nobody parsed. A malformed `current`
   // would take every mark off the site at once and name no page at all — so
   // `since.spec.ts` runs the live `NGWR_VERSION` through this rule, and a
-  // release that writes a shape `line()` cannot read is a red suite rather than
+  // release that writes a shape `majorOf()` cannot read is a red suite rather than
   // a silent site.
-  if (!declared || !shipped) return false;
-  return declared[0] > shipped[0] || (declared[0] === shipped[0] && declared[1] >= shipped[1]);
+  if (declared === null || shipped === null) return false;
+  return declared >= shipped;
 }
 
 /**
  * The version the nav's `New` and `Updated` marks are judged against: whichever
  * of `shipped` (`NGWR_VERSION`) and the newest version any page declares sits on
- * the LATER minor line.
+ * the LATER major.
  *
- * **The site marks what is new in the release it is heading to.** A page is
- * written before its release exists, so the release a site is heading to shows
- * up in the pages before it shows up in `NGWR_VERSION`: on `next`, 15.1 pages
- * declare `15.1.0` while the constant still says `15.0.1`, the patch `main` last
- * shipped. Judged against the constant alone, every 15.0 mark stood beside the
- * 15.1 ones, and the nav could not say which release a mark was about. Judged
- * against the newest declared line, the 15.0 marks step back the moment the
- * first 15.1 page lands, and only what 15.1 adds or changes is marked.
+ * **The site marks what is new in the major it is heading to.** A page is written
+ * before its release exists, so a new major shows up in the pages before it shows
+ * up in `NGWR_VERSION`: on `next`, a page can declare `16.0.0` while the constant
+ * still says `15.2.0`, the release `main` last shipped. Judged against the
+ * constant alone, every 15 mark would stand beside the 16 ones, and the nav could
+ * not say which major a mark was about. Judged against the newest declared major,
+ * the 15 marks step back the moment the first 16 page lands, and only what 16 adds
+ * or changes is marked.
  *
- * The other two states come out unchanged. With nothing declared ahead of the
- * constant (`main` between feature releases), the constant's own line is the
- * answer, so the marks of the release it just shipped stay up across its
- * patches. And once a release ships, `release:prepare` moves `NGWR_VERSION` onto
- * that line, which the declarations already sit on — nothing moves until the
- * next feature release declares its first page, or the line after it ships and
- * every mark of this one expires with no edit anywhere.
+ * With nothing declared on a later major, the constant is the answer, and a minor
+ * or a patch moves no mark: the first release of a major counts like any other, so
+ * `updated="15.0.0"` stands until v16. If no page has declared the next major by
+ * the time `release:prepare` writes it into `NGWR_VERSION`, the marks go then, at
+ * its first candidate.
  *
  * A declaration far ahead by mistake (`51.0.0` for `15.1.0`) would make every
  * other mark step back, so `since.spec.ts` holds every declared version to the
@@ -180,7 +165,7 @@ export function updatedOf(route: string): string | null {
 }
 
 /**
- * Whether a nav link points at a page declared for the current release line.
+ * Whether a nav link points at a page declared for the current major.
  *
  * Used by both surfaces that list the same links — the sidebar and the cluster
  * index pages — so the two cannot disagree about what is new. `current` is the
@@ -196,15 +181,15 @@ export function isNewLink(url: string | undefined, current: string = MARK_VERSIO
  * The one mark a nav row wears, decided from what its page declares — the rule
  * both nav surfaces (the sidebar and the cluster index pages) draw from.
  *
- * - `new` while `since` is on the current release line ({@link isNewIn}).
- * - `updated` while `updated` is on the current release line, by the same rule
- *   and so expiring the same way.
+ * - `new` while `since` is on the current major ({@link isNewIn}).
+ * - `updated` while `updated` is on the current major, by the same rule and so
+ *   expiring the same way.
  *
- * The current line is {@link markVersion}'s unless `current` pins another. One
+ * The current major is {@link markVersion}'s unless `current` pins another. One
  * mark per row, `new` first. A page cannot declare `updated` no later than
  * `since` — `pnpm gen:api-docs` refuses it — so the order only settles a page
- * whose `since` and `updated` both sit on a line still current, where "new" is
- * the stronger news.
+ * whose `since` and `updated` both sit on the current major, where "new" is the
+ * stronger news.
  */
 export function linkMark(url: string | undefined, current: string = MARK_VERSION): DocLinkMark | null {
   if (!url) return null;

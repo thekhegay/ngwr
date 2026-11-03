@@ -154,7 +154,7 @@ export class DocPageComponent {
    * It is also the one string behind the nav's "new" mark:
    * `pnpm gen:api-docs` reads this attribute out of the template into
    * `#core/generated/since`, and the sidebar and the cluster index pages mark a
-   * link whose version is on the current release line. Write it as a plain
+   * link whose version is on the current major. Write it as a plain
    * attribute — a bound `[since]` cannot be read by that scan, and
    * `pnpm check:api-docs` fails on one rather than letting the mark go missing.
    *
@@ -169,9 +169,9 @@ export class DocPageComponent {
    * The library version this page's subject last changed its PUBLIC API in —
    * an input, an output, an export, a token, or the entry point's own path —
    * `'15.0.0'`. Prints "Updated in v15" beside the title, and the nav marks the
-   * row `Updated` while that version is on the current release line, the same
-   * expiring rule as {@link since}. A restyle or a bug fix is not an update; a
-   * change a consumer has to act on is.
+   * row `Updated` while that version is on the current major, the same expiring
+   * rule as {@link since}. A restyle or a bug fix is not an update; a change a
+   * consumer has to act on is.
    *
    * A plain attribute, read by `pnpm gen:api-docs` into `#core/generated/since`
    * for the same reason as `since`. Never a version no later than `since`: the
