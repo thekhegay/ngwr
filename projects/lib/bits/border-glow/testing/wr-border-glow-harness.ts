@@ -63,10 +63,13 @@ function parseInlineDeclarations(style: string): Map<string, string> {
  * {@link parseInlineDeclarations} for why a computed read would be a different, and
  * wrong, question.
  *
- * **A colour getter answering `null` means that variable is not on the host now**, which
- * is the contract when the input is unset or its value was refused: the stylesheet's
- * per-theme default takes over. An input set and then put back to `null` comes off the
- * host, so `null` says nothing about whether it was ever set.
+ * **A colour getter answering `null` means the input is not on the host now**, which is
+ * the contract when it is unset or its value was refused: the stylesheet's per-theme
+ * default takes over. An input set and then put back to `null` comes off the host, so
+ * `null` says nothing about whether it was ever set. Each colour input writes its own
+ * `--wr-border-glow-input-*` twin, and that twin is what these read — never the hook it
+ * stands in for (`--wr-border-glow-bg`, `-color`, `-gradient-*`), which stays the
+ * author's, so a value an author put there is not what a getter reports.
  *
  * There is deliberately no `getGlowOpacity()`, `isGlowVisible()` or `isHovered()`: the
  * visible strength is a `calc()` in the stylesheet gated behind `:not(:hover)`, and
@@ -137,14 +140,15 @@ export class WrBorderGlowHarness extends ComponentHarness {
   }
 
   /**
-   * The card fill the author asked for, or `null` when they left it to the theme.
+   * The card fill `[backgroundColor]` asked for, or `null` when it left the fill to the
+   * `--wr-border-glow-bg` hook, and so to the theme.
    *
    * The distinction is the whole point: an unset `[backgroundColor]` means the surface
    * token decides, light or dark, and a card that starts declaring its own fill has
    * stopped following the theme.
    */
   async getBackgroundColor(): Promise<string | null> {
-    return this.readVar('--wr-border-glow-bg');
+    return this.readVar('--wr-border-glow-input-bg');
   }
 
   /**
@@ -159,7 +163,7 @@ export class WrBorderGlowHarness extends ComponentHarness {
    * that could escape the `color-mix()` is never written, and reads `null`.
    */
   async getGlowColor(): Promise<string | null> {
-    return this.readVar('--wr-border-glow-color');
+    return this.readVar('--wr-border-glow-input-color');
   }
 
   /**
@@ -180,12 +184,12 @@ export class WrBorderGlowHarness extends ComponentHarness {
    */
   async getGlowAlphaRamp(): Promise<number[] | null> {
     const declarations = await this.declarations();
-    const first = declarations.get('--wr-border-glow-color');
+    const first = declarations.get('--wr-border-glow-input-color');
     if (first === undefined) return null;
     const form = first.startsWith('color-mix(') ? GLOW_MIX_ALPHA : GLOW_ALPHA;
 
     return GLOW_VAR_SUFFIXES.map(suffix => {
-      const name = `--wr-border-glow-color${suffix}`;
+      const name = `--wr-border-glow-input-color${suffix}`;
       const raw = declarations.get(name);
       const alpha = raw === undefined ? null : form.exec(raw);
       if (!alpha) {
@@ -211,10 +215,10 @@ export class WrBorderGlowHarness extends ComponentHarness {
    */
   async getGradientColors(): Promise<string[] | null> {
     const declarations = await this.declarations();
-    if (!declarations.has('--wr-border-glow-gradient-one')) return null;
+    if (!declarations.has('--wr-border-glow-input-gradient-one')) return null;
 
     return GRADIENT_VAR_SLOTS.map(slot => {
-      const name = `--wr-border-glow-gradient-${slot}`;
+      const name = `--wr-border-glow-input-gradient-${slot}`;
       const raw = declarations.get(name);
       const colour = raw === undefined ? null : RADIAL_GRADIENT_COLOR.exec(raw);
       if (!colour) {
@@ -236,13 +240,13 @@ export class WrBorderGlowHarness extends ComponentHarness {
    * colour changes the card's whole cast without touching a gradient.
    */
   async getBaseGradientColor(): Promise<string | null> {
-    const raw = await this.readVar('--wr-border-glow-gradient-base');
+    const raw = await this.readVar('--wr-border-glow-input-gradient-base');
     if (raw === null) return null;
 
     const colour = LINEAR_GRADIENT_COLOR.exec(raw);
     if (!colour) {
       throw new Error(
-        `WrBorderGlowHarness.getBaseGradientColor(): \`--wr-border-glow-gradient-base\` reads "${raw}", which is ` +
+        `WrBorderGlowHarness.getBaseGradientColor(): \`--wr-border-glow-input-gradient-base\` reads "${raw}", which is ` +
           'not the `linear-gradient(<colour> 0 100%)` the component builds from the palette.'
       );
     }

@@ -34,6 +34,14 @@ class Host {
   readonly speed = signal(6);
 }
 
+@Component({
+  imports: [WrBorderGlow],
+  template: `<wr-border-glow style="--wr-border-glow-bg: rgb(4, 5, 6)" [backgroundColor]="backgroundColor()" />`,
+})
+class Hooked {
+  readonly backgroundColor = signal<string | null>(null);
+}
+
 const reducedMotion = {
   isBrowser: true,
   isServer: false,
@@ -141,13 +149,13 @@ describe('WrBorderGlow', () => {
     fixture.componentInstance.backgroundColor.set('url("https://beacon.example/borderglow-bg")');
     fixture.detectChanges();
 
-    expect(prop('--wr-border-glow-gradient-one')).not.toContain('beacon.example');
-    expect(prop('--wr-border-glow-bg')).toBe('');
+    expect(prop('--wr-border-glow-input-gradient-one')).not.toContain('beacon.example');
+    expect(prop('--wr-border-glow-input-bg')).toBe('');
 
     // A real colour still lands, so the guard costs nothing legitimate.
     fixture.componentInstance.backgroundColor.set('oklch(0.7 0.1 200)');
     fixture.detectChanges();
-    expect(prop('--wr-border-glow-bg')).toBe('oklch(0.7 0.1 200)');
+    expect(prop('--wr-border-glow-input-bg')).toBe('oklch(0.7 0.1 200)');
   });
 
   it('takes a colour off the host when its input is unset, and leaves the rest', () => {
@@ -156,55 +164,71 @@ describe('WrBorderGlow', () => {
     inputs.backgroundColor.set('rgb(1, 2, 3)');
     inputs.glowColor.set('210 90 60');
     fixture.detectChanges();
-    expect(prop('--wr-border-glow-bg')).toBe('rgb(1, 2, 3)');
-    expect(prop('--wr-border-glow-color')).not.toBe('');
-    expect(prop('--wr-border-glow-gradient-one')).not.toBe('');
+    expect(prop('--wr-border-glow-input-bg')).toBe('rgb(1, 2, 3)');
+    expect(prop('--wr-border-glow-input-color')).not.toBe('');
+    expect(prop('--wr-border-glow-input-gradient-one')).not.toBe('');
 
     inputs.colors.set(null);
     inputs.backgroundColor.set(null);
     inputs.glowColor.set(null);
     fixture.detectChanges();
 
-    expect(prop('--wr-border-glow-bg')).toBe('');
-    expect(prop('--wr-border-glow-color')).toBe('');
-    expect(prop('--wr-border-glow-gradient-one')).toBe('');
+    expect(prop('--wr-border-glow-input-bg')).toBe('');
+    expect(prop('--wr-border-glow-input-color')).toBe('');
+    expect(prop('--wr-border-glow-input-gradient-one')).toBe('');
     expect(prop('--wr-border-glow-radius'), 'an input that is never unset stays').not.toBe('');
   });
 
-  it('leaves a value someone else wrote there when its input is unset', () => {
-    const inputs = fixture.componentInstance;
-    inputs.backgroundColor.set('rgb(1, 2, 3)');
-    fixture.detectChanges();
+  it('writes beside a hook set in the style attribute, so it survives the input and comes back', () => {
+    // The input writes `--wr-border-glow-input-bg`, which the stylesheet prefers,
+    // and never the hook — so an author's `--wr-border-glow-bg` is still on the
+    // host while the input is set, and is what paints again once it is unset.
+    // It used to be written over and then removed, and a card that had been
+    // given a fill once lost the one its author gave it.
+    const hooked = TestBed.createComponent(Hooked);
+    hooked.detectChanges();
+    const el = (hooked.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-border-glow')!;
+    const read = (name: string): string => el.style.getPropertyValue(name);
+    expect(read('--wr-border-glow-bg')).toBe('rgb(4, 5, 6)');
 
-    host().style.setProperty('--wr-border-glow-bg', 'rgb(4, 5, 6)');
-    inputs.backgroundColor.set(null);
-    fixture.detectChanges();
+    hooked.componentInstance.backgroundColor.set('rgb(1, 2, 3)');
+    hooked.detectChanges();
+    expect(read('--wr-border-glow-input-bg')).toBe('rgb(1, 2, 3)');
+    expect(read('--wr-border-glow-bg'), "the hook is the author's").toBe('rgb(4, 5, 6)');
 
-    expect(prop('--wr-border-glow-bg')).toBe('rgb(4, 5, 6)');
+    hooked.componentInstance.backgroundColor.set(null);
+    hooked.detectChanges();
+    expect(read('--wr-border-glow-input-bg')).toBe('');
+    expect(read('--wr-border-glow-bg')).toBe('rgb(4, 5, 6)');
+    hooked.destroy();
   });
 
   it('still assembles the halo from bare HSL parts', () => {
     fixture.componentInstance.glowColor.set('210 90 60');
     fixture.detectChanges();
 
-    expect(prop('--wr-border-glow-color')).toBe('hsl(210deg 90% 60% / 100%)');
-    expect(prop('--wr-border-glow-color-10')).toBe('hsl(210deg 90% 60% / 10%)');
+    expect(prop('--wr-border-glow-input-color')).toBe('hsl(210deg 90% 60% / 100%)');
+    expect(prop('--wr-border-glow-input-color-10')).toBe('hsl(210deg 90% 60% / 10%)');
   });
 
   it('takes any CSS colour for the halo, mixed toward transparent step by step', () => {
     fixture.componentInstance.glowColor.set('var(--wr-color-primary)');
     fixture.detectChanges();
 
-    expect(prop('--wr-border-glow-color')).toBe('color-mix(in srgb, var(--wr-color-primary) 100%, transparent)');
-    expect(prop('--wr-border-glow-color-60')).toBe('color-mix(in srgb, var(--wr-color-primary) 60%, transparent)');
-    expect(prop('--wr-border-glow-color-10')).toBe('color-mix(in srgb, var(--wr-color-primary) 10%, transparent)');
+    expect(prop('--wr-border-glow-input-color')).toBe('color-mix(in srgb, var(--wr-color-primary) 100%, transparent)');
+    expect(prop('--wr-border-glow-input-color-60')).toBe(
+      'color-mix(in srgb, var(--wr-color-primary) 60%, transparent)'
+    );
+    expect(prop('--wr-border-glow-input-color-10')).toBe(
+      'color-mix(in srgb, var(--wr-color-primary) 10%, transparent)'
+    );
   });
 
   it('leaves the halo to the theme for a colour that would escape its color-mix()', () => {
     fixture.componentInstance.glowColor.set('red 1%, transparent), url("https://beacon.example/borderglow-glow"');
     fixture.detectChanges();
 
-    expect(prop('--wr-border-glow-color')).toBe('');
+    expect(prop('--wr-border-glow-input-color')).toBe('');
   });
 
   /**

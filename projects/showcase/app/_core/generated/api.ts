@@ -115,7 +115,7 @@ export const API = {
   ],
   // <wr-border-glow>
   WrBorderGlow: [
-    { name: "backgroundColor", description: "Card background fill. When unset, uses the theme surface token. A hook set inline on the same element is replaced by this input and does not come back when it is unset, so set it from a stylesheet rule. The same goes for `glowColor` and `colors`.", type: "string | null", default: "null" },
+    { name: "backgroundColor", description: "Card background fill. When unset, `--wr-border-glow-bg` decides, which defaults to the theme surface. Written to `--wr-border-glow-input-bg` rather than to the hook, so a `--wr-border-glow-bg` an author set on the element — inline or from a rule — stays there under this input and is read again when it is unset. The same goes for `glowColor` and `colors`.", type: "string | null", default: "null" },
     { name: "borderRadius", description: "Corner radius in pixels.", type: "number", default: "28" },
     { name: "glowRadius", description: "Halo extent in pixels — how far the outer glow reaches past the card edge.", type: "number", default: "40" },
     { name: "glowIntensity", description: "Halo opacity multiplier (1 = full strength). Applies only alongside an explicit `glowColor`: the halo variables are built from the two together, so on the default palette this input is read and never reaches a declaration.", type: "number", default: "1" },
