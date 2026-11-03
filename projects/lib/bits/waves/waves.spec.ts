@@ -1,4 +1,4 @@
-import { Component, ErrorHandler, PLATFORM_ID, signal } from '@angular/core';
+import { Component, Directive, ErrorHandler, PLATFORM_ID, input, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrPlatform } from 'ngwr/platform';
@@ -14,6 +14,20 @@ class Host {
   readonly lineColor = signal<string | null>(null);
   readonly friction = signal(0.925);
   readonly tension = signal(0.005);
+}
+
+@Directive({ selector: '[wrHookTint]', host: { '[style.--wr-waves-line-color]': 'wrHookTint()' } })
+class HookTint {
+  readonly wrHookTint = input<string | null>(null);
+}
+
+@Component({
+  imports: [WrWaves, HookTint],
+  template: `<wr-waves [lineColor]="color()" [wrHookTint]="tint()" />`,
+})
+class HookTintHost {
+  readonly color = signal<string | null>('rgb(0, 255, 0)');
+  readonly tint = signal<string | null>(null);
 }
 
 const reducedMotion = {
@@ -246,6 +260,26 @@ describe('WrWaves', () => {
     runFrame();
 
     expect(painted).toBe(1);
+  });
+
+  it('reads a hook a directive on the host changes in the same pass, on a still grid', async () => {
+    withContext();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: WrPlatform, useValue: reducedMotion }] });
+    const hosted = TestBed.createComponent(HookTintHost);
+    hosted.detectChanges();
+    await hosted.whenStable();
+    expect(strokes.at(-1)).toBe('rgb(0, 255, 0)');
+
+    // The colour goes back to the hook in the pass that sets it: an `effect` runs
+    // before the directive's host binding and resolved the old value.
+    hosted.componentInstance.color.set(null);
+    hosted.componentInstance.tint.set('rgb(1, 2, 3)');
+    hosted.detectChanges();
+    await hosted.whenStable();
+
+    expect(strokes.at(-1)).toBe('rgb(1, 2, 3)');
+    hosted.destroy();
   });
 
   it('redraws the still grid in the new colour when the scheme switches', async () => {
