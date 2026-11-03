@@ -36,7 +36,8 @@ import type { WrFuzzyTextDirection } from './types';
  * Canvas-rendered "fuzzy" text — each row/column of glyphs is offset by
  * a random amount per frame, giving the text a TV-static or motion-blur
  * appearance. Intensity ramps up on hover, click, and during periodic
- * glitch bursts (configurable).
+ * glitch bursts (configurable). Off screen, or drawn at no size, the loop
+ * stops asking for frames and resumes where it left off.
  *
  * @example
  * ```html
@@ -514,11 +515,18 @@ export class WrFuzzyText {
       rafId = requestAnimationFrame(run);
     };
 
-    // Off screen the loop stops asking for frames, the way `wr-waves` does: it is
-    // decoration, and every frame out of sight still redrew one slice per row.
-    // Without an observer (jsdom) it simply runs.
+    // Off screen, or drawn at no size, the loop stops asking for frames, the way
+    // `wr-waves` does: it is decoration, and every frame out of sight still redrew
+    // one slice per row. The box is the canvas as DRAWN — `max-width: 100%` shrinks
+    // it to nothing in a parent with no width — not its bitmap, which is the text's
+    // size. Without the observers (jsdom) it simply runs. A box flush against a
+    // zero-height clip intersects with nothing showing, and only a second threshold
+    // reports the clip moving. It sits below any real ratio, or a clip closing on a
+    // transition steps from under it to 0 without crossing anything.
+    let visible = typeof IntersectionObserver === 'undefined';
+    let hasBox = canvas.clientWidth > 0 && canvas.clientHeight > 0;
     const resume = (): void => {
-      if (rafId === 0) rafId = requestAnimationFrame(run);
+      if (visible && hasBox && rafId === 0) rafId = requestAnimationFrame(run);
     };
     const park = (): void => {
       cancelAnimationFrame(rafId);
@@ -527,9 +535,26 @@ export class WrFuzzyText {
     const io =
       typeof IntersectionObserver === 'undefined'
         ? null
-        : new IntersectionObserver(entries => (entries[entries.length - 1].isIntersecting ? resume() : park()));
-    if (io) io.observe(canvas);
-    else resume();
+        : new IntersectionObserver(
+            entries => {
+              const { isIntersecting, intersectionRatio } = entries[entries.length - 1];
+              visible = isIntersecting && intersectionRatio > 0;
+              if (visible) resume();
+              else park();
+            },
+            { threshold: [0, 1e-9] }
+          );
+    io?.observe(canvas);
+    const ro =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => {
+            hasBox = canvas.clientWidth > 0 && canvas.clientHeight > 0;
+            if (hasBox) resume();
+            else park();
+          });
+    ro?.observe(canvas);
+    resume();
 
     const isInsideText = (x: number, y: number): boolean =>
       x >= interactiveLeft && x <= interactiveRight && y >= interactiveTop && y <= interactiveBottom;
@@ -593,6 +618,7 @@ export class WrFuzzyText {
     this.teardown = (): void => {
       park();
       io?.disconnect();
+      ro?.disconnect();
       window.removeEventListener('resize', onResize);
       clearTimeout(glitchOnTimer);
       clearTimeout(glitchOffTimer);
