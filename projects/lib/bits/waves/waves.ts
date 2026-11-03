@@ -22,6 +22,7 @@ import {
   PLATFORM_ID,
   ViewEncapsulation,
   afterNextRender,
+  afterRenderEffect,
   effect,
   inject,
   input,
@@ -245,17 +246,25 @@ export class WrWaves {
 
     // Re-seed the grid when geometry inputs change. The bitmap is left alone,
     // so the next frame draws over the old grid rather than over a blank canvas.
-    effect(() => {
+    // And paint it, when there is no frame loop to: under
+    // `prefers-reduced-motion` one static, undisturbed grid is drawn and no
+    // frame follows, so a later gap change rebuilt the grid and left it undrawn
+    // — with `.wr-waves--painted` already on the host, so the element stayed
+    // visible and empty. The same still grid is drawn when the line colour
+    // changes, and the moment motion stops. After render rather than an
+    // `effect`, which runs before a directive's host binding: a still grid
+    // drawn then would miss a hook it changes in the same pass.
+    afterRenderEffect(() => {
+      if (!this.booted()) return;
+      const still = this.platform.prefersReducedMotion();
       this.xGap();
       this.yGap();
-      if (!this.ctx) return;
-      this.setLines();
-      // And paint it, when there is no frame loop to. Under
-      // `prefers-reduced-motion` the grid is drawn once and no frame follows,
-      // so a later gap change rebuilt the grid and left it undrawn — with
-      // `.wr-waves--painted` already on the host, so the element stayed
-      // visible and empty.
-      if (this.platform.prefersReducedMotion()) this.drawLines();
+      // Only a still grid has to hear of a new colour: the loop resolves it every frame.
+      if (still) this.lineColor();
+      untracked(() => {
+        this.setLines();
+        if (still) this.drawLines();
+      });
     });
 
     // The still grid keeps the line colour it was drawn with, so a scheme switch
@@ -265,23 +274,13 @@ export class WrWaves {
       if (this.booted() && this.platform.prefersReducedMotion()) this.drawLines();
     });
 
-    // Motion or a still grid, decided live: a preference switched while the page
-    // is open used to keep the field drifting until a reload, because `boot()`
-    // read it once.
+    // Motion, decided live: a preference switched while the page is open used to
+    // keep the field drifting until a reload, because `boot()` read it once.
+    // Never under `prefers-reduced-motion` — no drift, no loop, no pointer
+    // reactivity; the still grid above is what that shows — and not with no box
+    // to draw on.
     effect(onCleanup => {
-      if (!this.booted()) return;
-      if (this.platform.prefersReducedMotion()) {
-        // One static, undisturbed grid — no drift, no loop, no pointer
-        // reactivity. Repainted when the line colour changes, since there is
-        // no next frame to pick it up.
-        this.lineColor();
-        untracked(() => {
-          this.setLines();
-          this.drawLines();
-        });
-        return;
-      }
-      if (!this.hasBox()) return;
+      if (!this.booted() || !this.hasBox() || this.platform.prefersReducedMotion()) return;
       onCleanup(this.zone.runOutsideAngular(() => this.animate()));
     });
   }
