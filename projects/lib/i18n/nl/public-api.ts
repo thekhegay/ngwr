@@ -103,6 +103,8 @@ export const wrNl: WrI18nCatalog = {
     removeItem: '{{label}} verwijderen',
     noResults: 'Geen resultaten',
     loading: 'Laden…',
+    loadError: 'Resultaten konden niet worden geladen',
+    retry: 'Opnieuw proberen',
     more: '+{{count}} meer',
   },
   // `tree` covers both inline display and combobox-mode pickers

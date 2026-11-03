@@ -109,6 +109,8 @@ export const wrPl: WrI18nCatalog = {
     removeItem: 'Usuń {{label}}',
     noResults: 'Brak wyników',
     loading: 'Ładowanie…',
+    loadError: 'Nie udało się wczytać wyników',
+    retry: 'Spróbuj ponownie',
     more: '+{{count}} więcej',
   },
   // `tree` covers both inline display and combobox-mode pickers

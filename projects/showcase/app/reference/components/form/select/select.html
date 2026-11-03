@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Select"
-  updated="15.0.0"
+  updated="15.3.0"
   description="Pick one or several values from a list, with search and free-text tags."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'CDK Overlay']"
@@ -224,6 +224,24 @@
         <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
           Picked: <code>{{ serverPicked() ?? '—' }}</code>
         </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Loader errors"
+    description="A failed `[loader]` says so in the panel. `retryable` adds Try again, which Enter in the field reaches too. Here every other search fails."
+  >
+    <ngwr-doc-snippet [code]="snippets.loaderError">
+      <div style="width: 100%; max-width: 28rem">
+        <wr-select
+          mode="search"
+          retryable
+          placeholder="Search a country"
+          ariaLabel="Country"
+          [loader]="flakyLoader"
+          [(value)]="flakyPick"
+        />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

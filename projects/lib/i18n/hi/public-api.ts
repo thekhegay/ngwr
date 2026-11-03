@@ -103,6 +103,8 @@ export const wrHi: WrI18nCatalog = {
     removeItem: '{{label}} हटाएं',
     noResults: 'कोई नतीजा नहीं',
     loading: 'लोड हो रहा है…',
+    loadError: 'नतीजे लोड नहीं हो सके',
+    retry: 'फिर से कोशिश करें',
     more: '+{{count}} और',
   },
   tree: {

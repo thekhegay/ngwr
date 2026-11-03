@@ -103,6 +103,8 @@ export const wrZhTw: WrI18nCatalog = {
     removeItem: '移除 {{label}}',
     noResults: '找不到結果',
     loading: '載入中…',
+    loadError: '無法載入結果',
+    retry: '重試',
     more: '+{{count}} 項',
   },
   // `tree` covers both inline display and combobox-mode pickers

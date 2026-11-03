@@ -441,6 +441,10 @@
   // Shared by the loading and the empty row — one padding for the panel's
   // status text, whichever of the two is rendered.
   --wr-select-panel-message-padding: var(--wr-space-md);
+  --wr-select-panel-retry-color: var(--wr-color-primary-ink);
+  --wr-select-panel-retry-gap: var(--wr-space-xs);
+  --wr-select-panel-retry-font-weight: var(--wr-font-weight-medium);
+  --wr-select-panel-retry-hover-bg: var(--wr-color-hover);
   // Option sizing — default md. --sm/--lg are set from the trigger size because
   // the panel is portaled into an overlay and can't inherit the host size class.
   --wr-option-font-size: var(--wr-control-font-size-md);
@@ -494,11 +498,30 @@
   }
 
   &__loading,
-  &__empty {
+  &__empty,
+  &__error {
     padding: var(--wr-select-panel-message-padding);
     color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-option-font-size);
     text-align: center;
+  }
+
+  &__error--retryable {
+    cursor: pointer;
+  }
+
+  &__error--active,
+  &__error--retryable:hover {
+    background: var(--wr-select-panel-retry-hover-bg);
+    border-radius: var(--wr-option-radius);
+  }
+
+  &__retry {
+    display: block;
+    margin-block-start: var(--wr-select-panel-retry-gap);
+    color: var(--wr-select-panel-retry-color);
+    font-weight: var(--wr-select-panel-retry-font-weight);
+    text-decoration: underline;
   }
 }
 

@@ -150,6 +150,8 @@ export const wrEn: WrI18nCatalog = {
     removeItem: 'Remove {{label}}',
     noResults: 'No results',
     loading: 'Loading…',
+    loadError: 'Could not load results',
+    retry: 'Try again',
     more: '+{{count}} more',
   },
   // `tree` covers both inline display and combobox-mode pickers

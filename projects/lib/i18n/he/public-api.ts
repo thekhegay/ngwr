@@ -106,6 +106,8 @@ export const wrHe: WrI18nCatalog = {
     removeItem: 'הסרת {{label}}',
     noResults: 'אין תוצאות',
     loading: 'טוען…',
+    loadError: 'לא ניתן לטעון את התוצאות',
+    retry: 'ניסיון חוזר',
     more: 'עוד {{count}}',
   },
   // `tree` covers both inline display and combobox-mode pickers

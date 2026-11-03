@@ -111,6 +111,8 @@ export const wrUk: WrI18nCatalog = {
     removeItem: 'Вилучити {{label}}',
     noResults: 'Нічого не знайдено',
     loading: 'Завантаження…',
+    loadError: 'Не вдалося завантажити результати',
+    retry: 'Повторити',
     more: 'ще {{count}}',
   },
   // `tree` covers both inline display and combobox-mode pickers

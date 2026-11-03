@@ -103,6 +103,8 @@ export const wrId: WrI18nCatalog = {
     removeItem: 'Hapus {{label}}',
     noResults: 'Tidak ada hasil',
     loading: 'Memuat…',
+    loadError: 'Gagal memuat hasil',
+    retry: 'Coba lagi',
     more: '+{{count}} lainnya',
   },
   tree: {

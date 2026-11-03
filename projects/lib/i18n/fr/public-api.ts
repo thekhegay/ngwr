@@ -103,6 +103,8 @@ export const wrFr: WrI18nCatalog = {
     removeItem: 'Retirer {{label}}',
     noResults: 'Aucun résultat',
     loading: 'Chargement…',
+    loadError: 'Impossible de charger les résultats',
+    retry: 'Réessayer',
     more: '+{{count}} de plus',
   },
   // `tree` covers both inline display and combobox-mode pickers

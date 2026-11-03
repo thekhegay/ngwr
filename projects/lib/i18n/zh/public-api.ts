@@ -103,6 +103,8 @@ export const wrZh: WrI18nCatalog = {
     removeItem: '移除 {{label}}',
     noResults: '无搜索结果',
     loading: '加载中…',
+    loadError: '无法加载结果',
+    retry: '重试',
     more: '+{{count}} 项',
   },
   tree: {

@@ -103,6 +103,8 @@ export const wrSv: WrI18nCatalog = {
     removeItem: 'Ta bort {{label}}',
     noResults: 'Inga resultat',
     loading: 'Läser in…',
+    loadError: 'Det gick inte att läsa in resultaten',
+    retry: 'Försök igen',
     more: '+{{count}} till',
   },
   tree: {

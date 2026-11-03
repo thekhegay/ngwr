@@ -107,6 +107,8 @@ export const wrAr: WrI18nCatalog = {
     removeItem: 'إزالة {{label}}',
     noResults: 'لا توجد نتائج',
     loading: 'جارٍ التحميل…',
+    loadError: 'تعذّر تحميل النتائج',
+    retry: 'إعادة المحاولة',
     more: '+{{count}} أخرى',
   },
   // `tree` covers both inline display and combobox-mode pickers
