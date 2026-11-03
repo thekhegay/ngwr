@@ -25,7 +25,8 @@ import { createFluidSimulation } from './fluid';
  * everywhere) and it tears down with the component.
  *
  * Renders nothing under `prefers-reduced-motion` or when WebGL is
- * unavailable.
+ * unavailable. Off screen, or with no box to draw on, the solver stops asking
+ * for frames and resumes where it left off.
  *
  * @example
  * ```html
