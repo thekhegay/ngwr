@@ -303,6 +303,26 @@ describe('the surfaces that draw it', () => {
     ]);
   });
 
+  // `Optional` wins a row, since a version mark would hide it for a whole major.
+  // WrMeta sits in a mixed group and declares 15.0.0; every pipe is optional, so
+  // the group says it once and wrDate keeps its mark.
+  it('gives an optional row its badge over a version mark, unless its group said it', () => {
+    const meta = { title: 'WrMeta', url: '/reference/services/meta' };
+    const button = { title: 'Button', url: '/reference/components/button' };
+    const [mixed, pipes] = sidebarEntries(
+      [
+        { title: 'Mixed', children: [meta, button] },
+        { title: 'Pipes', children: [{ title: 'wrDate', url: '/reference/pipes/wr-date' }] },
+      ],
+      '15.0.0'
+    );
+
+    expect(linkMark(meta.url, '15.0.0')).toBe('updated');
+    expect('children' in mixed && mixed.children[0]).toMatchObject({ badge: { text: 'Optional' } });
+    expect(pipes).toMatchObject({ badge: { text: 'Optional' } });
+    expect('children' in pipes && pipes.children[0]).toMatchObject({ badge: { text: 'Updated' } });
+  });
+
   it('gives the sidebar every "updated" mark the rule gives a row', () => {
     const badges = new Map<string, string>();
     const visit = (entries: readonly WrSidebarEntry[]): void => {
@@ -317,6 +337,7 @@ describe('the surfaces that draw it', () => {
     const expected = navRows()
       .filter(row => linkMark(row.url, '15.0.0') === 'updated')
       .map(row => routeKey(row.url ?? ''))
+      .filter(route => badges.get(route) !== 'Optional')
       .sort();
     const drawn = [...badges]
       .filter(([, badge]) => badge === 'Updated')
@@ -344,16 +365,20 @@ describe('the surfaces that draw it', () => {
     }
 
     const badges: string[] = [];
+    const optional: string[] = [];
     const visit = (entries: readonly WrSidebarEntry[]): void => {
       for (const entry of entries) {
         if ('children' in entry) visit(entry.children);
         else if (entry.badge?.text === 'New' || entry.badge?.text === 'Updated') badges.push(String(entry.url[0]));
+        else if (entry.badge?.text === 'Optional') optional.push(String(entry.url[0]));
       }
     };
     for (const config of Object.values(SIDEBARS as Record<string, readonly SidebarGroup[]>))
       visit(sidebarEntries(config));
 
-    expect([...new Set(badges)].sort()).toEqual(marked.map(row => row.url ?? '').sort());
+    const expected = marked.map(row => row.url ?? '').filter(url => !optional.includes(url));
+
+    expect([...new Set(badges)].sort()).toEqual(expected.sort());
   });
 
   it('draws the same marks on the cluster index pages', () => {

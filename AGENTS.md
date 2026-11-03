@@ -1937,8 +1937,10 @@ template that no single route renders is REFUSED a version rather than keyed by
 walk order. The sidebar's marks are `<wr-sidebar>` word badges,
 chosen in `_layout/sidebar/entries.ts` — `New` in the primary tone; `Updated`,
 `Optional` and `Soon` neutral, since the sidebar has no calmer intent
-than primary and the word carries the meaning. A row wears one badge, and a
-version mark wins over `Optional`. `showcase/styles/_badge.scss` draws the
+than primary and the word carries the meaning. A row wears one badge, and
+`Optional` wins over a version mark, which would otherwise hide it for a whole
+major; a group whose every page is optional says so once, so its rows keep their
+marks. `showcase/styles/_badge.scss` draws the
 catalog index's marks only.
 
 **One more mark rides the same scan: `updated`.** `updated="15.0.0"` is the
