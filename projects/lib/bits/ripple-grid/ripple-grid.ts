@@ -265,8 +265,8 @@ function snap(position: number, ratio: number, stroke: number): number {
  *
  * Decorative: the canvas is `aria-hidden`, the host has no role and nothing in
  * it takes focus. The frame loop runs only while a ring is alive, and never
- * while the host is off screen; an idle ring comes due only while frames run,
- * so a hidden tab does not queue them up.
+ * while the host is off screen or has no box to draw on; an idle ring comes due
+ * only while frames run, so a hidden tab does not queue them up.
  *
  * Under `prefers-reduced-motion` one still grid is drawn, in the line colour,
  * with no ripples, no idle rings and no pointer listeners; it is drawn again
@@ -433,6 +433,12 @@ export class WrRippleGrid {
   /** Flips once `boot()` has a context and a box — everything after waits for it. */
   private readonly booted = signal(false);
 
+  /**
+   * Whether the box has an area. The intersection observer calls a zero-area host
+   * intersecting and sends no entry when it gains a size, so this reads the box instead.
+   */
+  private readonly hasBox = signal(false);
+
   constructor() {
     if (!this.isBrowser) return;
 
@@ -457,7 +463,8 @@ export class WrRippleGrid {
 
     // Motion or a still grid, decided live. Toggling `rippleOnMove` or the idle
     // interval restarts the listeners and the timer; rings already travelling
-    // carry on.
+    // carry on. With no box there is nothing to ripple, so neither runs: an idle
+    // ring kept the loop and the timer going in a box with no area.
     effect(onCleanup => {
       if (!this.booted()) return;
       if (this.platform.prefersReducedMotion()) {
@@ -467,6 +474,7 @@ export class WrRippleGrid {
         });
         return;
       }
+      if (!this.hasBox()) return;
       const trail = this.rippleOnMove();
       const idle = this.idle();
       onCleanup(untracked(() => this.zone.runOutsideAngular(() => this.interact(trail, idle))));
@@ -517,7 +525,10 @@ export class WrRippleGrid {
       hostEl.parentElement ?? (root instanceof ShadowRoot && root.host instanceof HTMLElement ? root.host : null);
 
     // Off screen the grid asks for no frames, keeps no timer and takes no
-    // pointer. Without an observer (jsdom) it counts as visible.
+    // pointer. Without an observer (jsdom) it counts as visible. A box flush
+    // against a zero-height clip intersects with nothing showing, and only a second
+    // threshold reports the clip moving. It sits below any real ratio, or a clip
+    // closing on a transition steps from under it to 0 without crossing anything.
     let visible = typeof IntersectionObserver === 'undefined';
     let idleTimer = 0;
     const wake = (): void => {
@@ -576,15 +587,19 @@ export class WrRippleGrid {
     const io =
       typeof IntersectionObserver === 'undefined'
         ? null
-        : new IntersectionObserver(entries => {
-            visible = entries[entries.length - 1].isIntersecting;
-            if (visible) {
-              wake();
-              armIdle();
-            } else {
-              halt();
-            }
-          });
+        : new IntersectionObserver(
+            entries => {
+              const { isIntersecting, intersectionRatio } = entries[entries.length - 1];
+              visible = isIntersecting && intersectionRatio > 0;
+              if (visible) {
+                wake();
+                armIdle();
+              } else {
+                halt();
+              }
+            },
+            { threshold: [0, 1e-9] }
+          );
     io?.observe(hostEl);
 
     this.wake = wake;
@@ -644,6 +659,7 @@ export class WrRippleGrid {
 
     this.box = { width, height };
     this.ratio = ratio;
+    this.hasBox.set(width > 0 && height > 0);
     const canvas = this.canvasRef().nativeElement;
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);
