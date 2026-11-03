@@ -52,7 +52,7 @@ export default class DocIndexComponent {
   /**
    * The sidebar's mark — `new` or `updated` — on the page that lists
    * the same links: one rule (`linkMark()`) rather than a second copy of it, so
-   * the catalog and the nav can never disagree about what this release changed.
+   * the catalog and the nav can never disagree about what this major changed.
    */
   protected mark(link: SidebarLink): DocLinkMark | null {
     return link.disabled ? null : linkMark(link.url);

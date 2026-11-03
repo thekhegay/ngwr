@@ -34,8 +34,8 @@ function page(link: SidebarLink, inOptionalGroup: boolean, current: string | und
  *
  * Nothing about a mark is stored in a config. `New` and `Updated` are read from
  * the versions the page declares (`#core/generated/since`, judged against
- * `markVersion()`), so they leave on their own when the next feature release
- * declares its first page; `Optional` from `OPTIONAL_ROUTES`, which the page
+ * `markVersion()`), so they leave on their own when the next major arrives;
+ * `Optional` from `OPTIONAL_ROUTES`, which the page
  * header reads too. A group whose every page is optional carries the badge
  * once, and its pages do not repeat it. A row is given one badge: a version
  * mark wins over `Optional`, since it is the mark a reader scans for.

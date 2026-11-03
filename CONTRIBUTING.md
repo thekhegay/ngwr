@@ -151,9 +151,8 @@ Then:
    `<ngwr-doc-page since="14.5.0">` — the next release, not the current one, if
    yours has not shipped yet. The page prints "Added in v14.5" beside its title,
    and the sidebar's "new" mark is derived from that one attribute, so nothing
-   is typed twice and nothing has to be removed later: the mark covers the
-   minor line the site is heading to and leaves by itself once the next
-   release declares its first page. A page that
+   is typed twice and nothing has to be removed later: the mark stays for the
+   whole major and leaves by itself when the next one arrives. A page that
    declares nothing shows nothing, which is right for everything that was
    already here.
 8. Run `pnpm gen:api-docs` and commit `projects/showcase/app/_core/generated/api.ts`
