@@ -200,6 +200,37 @@ describe('WrBreadcrumbs with router links', () => {
   });
 });
 
+// A `?` inside `routerLink` is part of the path, and the router escapes it:
+// `/debts?date=1` came out as `/debts%3Fdate%3D1`.
+describe('WrBreadcrumbs with query parameters', () => {
+  @Component({
+    imports: [WrBreadcrumbs, WrBreadcrumbsItem],
+    template: `
+      <wr-breadcrumbs>
+        <wr-breadcrumbs-item routerLink="/debts" [queryParams]="{ date: '2026-11-01', page: 2 }"
+          >Debts</wr-breadcrumbs-item
+        >
+        <wr-breadcrumbs-item href="/plain" [queryParams]="{ ignored: 1 }">Plain</wr-breadcrumbs-item>
+        <wr-breadcrumbs-item>Current</wr-breadcrumbs-item>
+      </wr-breadcrumbs>
+    `,
+  })
+  class QueryHost {}
+
+  it('puts them on a router crumb, and leaves an href crumb alone', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    const fixture = TestBed.createComponent(QueryHost);
+    fixture.detectChanges();
+    const hrefs = [...(fixture.nativeElement as HTMLElement).querySelectorAll('wr-breadcrumbs-item a')].map(a =>
+      a.getAttribute('href')
+    );
+
+    expect(hrefs).toEqual(['/debts?date=2026-11-01&page=2', '/plain', null]);
+    fixture.destroy();
+  });
+});
+
 /**
  * The landmark name with nothing bound. `RouterHost` above passes no
  * `[ariaLabel]`, which is the case the `Host` suite could never reach — it binds

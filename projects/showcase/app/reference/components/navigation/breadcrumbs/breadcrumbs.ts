@@ -8,6 +8,7 @@ import {
   type DocApiRow,
   type DocControl,
   DocApiComponent,
+  DocCodeComponent,
   DocPageComponent,
   DocPlaygroundComponent,
   DocSectionComponent,
@@ -22,6 +23,7 @@ import {
     DocPageComponent,
     DocSectionComponent,
     DocPlaygroundComponent,
+    DocCodeComponent,
     DocApiComponent,
   ],
   providers: [provideWrIcons(lucideIcons({ home: HomeIcon, folder: Folder }))],
@@ -39,6 +41,11 @@ export default class BreadcrumbsPage {
   <wr-breadcrumbs-item>Breadcrumbs</wr-breadcrumbs-item>
 </wr-breadcrumbs>`
   );
+
+  protected readonly querySnippet = `<wr-breadcrumbs>
+  <wr-breadcrumbs-item routerLink="/debts" [queryParams]="{ date: '2026-11-01' }">Debts</wr-breadcrumbs-item>
+  <wr-breadcrumbs-item>November 1</wr-breadcrumbs-item>
+</wr-breadcrumbs>`;
 
   protected readonly controls: readonly DocControl[] = [
     { kind: 'select', label: 'Separator', signal: this.separator, options: ['/', '›', '→', '·', '|'] as const },
@@ -85,6 +92,14 @@ export default class BreadcrumbsPage {
       sub: true,
       description: 'Angular router target. Wins over `href`.',
       type: 'string | readonly unknown[] | null',
+      default: 'null',
+    },
+    {
+      name: 'queryParams',
+      sub: true,
+      description:
+        'Query parameters for a `routerLink` crumb. A `?` inside `routerLink` is escaped as part of the path.',
+      type: 'Params | null',
       default: 'null',
     },
     { name: 'href', sub: true, description: 'Plain anchor href.', type: 'string | null', default: 'null' },

@@ -20,7 +20,7 @@
     which silently turned every `href`-based crumb, a documented input, into
     text that navigates nowhere.
   -->
-  <a [class]="rootClass()" [routerLink]="routerLink()">
+  <a [class]="rootClass()" [routerLink]="routerLink()" [queryParams]="queryParams()">
     <ng-container [ngTemplateOutlet]="label" />
   </a>
 } @else {

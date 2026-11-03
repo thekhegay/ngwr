@@ -7,7 +7,7 @@
 
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { type Params, RouterLink } from '@angular/router';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 
@@ -23,6 +23,7 @@ import { WrIcon, type WrIconName } from 'ngwr/icon';
  * @example
  * ```html
  * <wr-breadcrumbs-item icon="home" routerLink="/">Home</wr-breadcrumbs-item>
+ * <wr-breadcrumbs-item routerLink="/debts" [queryParams]="{ date: day }">Debts</wr-breadcrumbs-item>
  * <wr-breadcrumbs-item href="https://ngwr.dev">External</wr-breadcrumbs-item>
  * <wr-breadcrumbs-item>Current page</wr-breadcrumbs-item>
  * ```
@@ -40,6 +41,15 @@ export class WrBreadcrumbsItem {
 
   /** Angular router target. Anything `RouterLink` accepts (string or `any[]`). */
   readonly routerLink = input<string | readonly unknown[] | null>(null);
+
+  /**
+   * Query parameters for a `routerLink` crumb, the way `RouterLink` takes them.
+   * A `?` written into `routerLink` is part of the path, and the router escapes
+   * it: `/debts?date=1` became `/debts%3Fdate%3D1`. Ignored without `routerLink`.
+   *
+   * @default null
+   */
+  readonly queryParams = input<Params | null>(null);
 
   /** Open external `href` in a new tab. Ignored when `routerLink` is set. @default false */
   readonly external = input(false);
