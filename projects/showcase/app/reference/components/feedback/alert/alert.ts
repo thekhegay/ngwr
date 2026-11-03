@@ -27,6 +27,9 @@ export default class AlertComponent {
     withTitle: `<wr-alert title="Update available" message="Version 2.0 is ready to install." type="info" />`,
     noTitle: `<wr-alert message="Your changes are live." type="success" />
 <wr-alert message="Connection lost." type="offline" />`,
+    content: `<wr-alert title="Sync failed" type="danger">
+  Request <code>8f2c41</code> timed out. Try again in a minute.
+</wr-alert>`,
     customIcon: `<wr-alert iconName="sparkles" title="What's new" message="Smarter search just landed." />`,
     closable: `<wr-alert title="Saved" type="success" closable (closed)="onClose()" />`,
     noIcon: `<wr-alert title="Plain" message="No leading icon." [icon]="false" />`,

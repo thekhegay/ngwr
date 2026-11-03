@@ -108,12 +108,19 @@ $alert-colors: (
     line-height: var(--wr-alert-title-line-height);
   }
 
-  &__message {
+  // Projected content reads as the message does. Hidden while empty, so an alert
+  // with nothing inside keeps the body's gap to what it had.
+  &__message,
+  &__content {
     margin: 0;
     color: var(--wr-alert-message);
     font-family: var(--wr-alert-font-family);
     font-size: var(--wr-alert-message-font-size);
     line-height: var(--wr-alert-message-line-height);
+  }
+
+  &__content:empty {
+    display: none;
   }
 
   &__close {
@@ -136,11 +143,12 @@ $alert-colors: (
     // `font: inherit`. Inheriting the size makes `1em` the alert's own text in
     // every app. `--wr-icon-size` cannot do this job — only a `<wr-icon>` host
     // reads it, and the rule here used to set it for nothing. The SIZE only,
-    // never the `font` shorthand, which would bring the line-height with it; and
-    // no `line-height` of its own either, the way `wr-dialog` needs one — the
-    // alert stretches its row, so this box is the alert's height whatever the
-    // strut says.
+    // never the `font` shorthand, which would bring the line-height with it.
     font-size: inherit;
+    // Top of the row, by the title, rather than stretched to the alert's height:
+    // with projected content under the message, a stretched button put the ✕
+    // halfway down the alert and painted its hover tint as a full-height strip.
+    align-self: flex-start;
 
     @include theme.touch-target; // glyph -> 44px tap area on touch
 
