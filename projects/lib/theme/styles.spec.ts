@@ -455,6 +455,73 @@ describe('a bare .wr-icon__svg is sized by the entry point that draws it', () =>
   });
 });
 
+describe('an input variable stays on the instance that wrote it', () => {
+  /**
+   * The hook rule in AGENTS.md, held at the source. A nullable input writes
+   * `--wr-<block>-input-<name>`, never the hook's own name, and the rule reads the
+   * twin with the hook as its fallback — so an author's value on the hook survives
+   * the input. A custom property inherits, though, and the twin sits inline on the
+   * host: a component that can hold another of its kind — anything with an
+   * `<ng-content>` or a template outlet — hands the inner one its own inputs
+   * unless its block declares the twin `initial`. `wr-border-glow` inside
+   * `wr-border-glow` took the outer card's fill that way. jsdom applies no cascade,
+   * so no rendered spec can see the inheritance; the declaration can be read.
+   */
+  const WRITES = /--wr-[a-z0-9]+(?:-[a-z0-9]+)*-input-[a-z0-9]+(?:-[a-z0-9]+)*/g;
+
+  /** The entry sheet of every projecting component, to the input variables its code writes. */
+  function writers(): Map<string, Set<string>> {
+    const out = new Map<string, Set<string>>();
+    const walk = (dir: string): void => {
+      for (const name of readdirSync(dir)) {
+        if (name === 'node_modules' || name === 'testing') continue;
+        const full = join(dir, name);
+        if (statSync(full).isDirectory()) {
+          walk(full);
+          continue;
+        }
+        if (!name.endsWith('.ts') || name.endsWith('.spec.ts')) continue;
+        const src = readFileSync(full, 'utf8');
+        // Comments stripped: a JSDoc naming the pattern is not a write.
+        const names = [...code(full).matchAll(WRITES)].map(m => m[0]);
+        if (names.length === 0) continue;
+        // The template, inline or in the file `templateUrl` names.
+        const url = /templateUrl:\s*'\.\/([\w.-]+\.html)'/.exec(src)?.[1];
+        const template = src + (url === undefined ? '' : readFileSync(join(dirname(full), url), 'utf8'));
+        if (!/<ng-content|ngTemplateOutlet/.test(template)) continue;
+        // Walk up to the directory holding `styles/_index.scss` — the entry point.
+        let at = dirname(full);
+        while (at.startsWith(LIB) && !existsSync(join(at, 'styles/_index.scss'))) at = dirname(at);
+        if (!at.startsWith(LIB)) continue;
+        const entry = join(at, 'styles/_index.scss');
+        if (!out.has(entry)) out.set(entry, new Set());
+        for (const written of names) out.get(entry)!.add(written);
+      }
+    };
+    walk(LIB);
+    return out;
+  }
+
+  it('is declared `initial` on the block of every component that projects content', () => {
+    const offenders: string[] = [];
+    for (const [entry, names] of writers()) {
+      const sheet = loaded(entry).map(code).join('\n');
+      for (const name of [...names].sort()) {
+        if (!new RegExp(`${name}\\s*:\\s*initial\\s*;`).test(sheet)) {
+          offenders.push(`${relative(LIB, entry)} never declares ${name}: initial`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('finds the components that write one', () => {
+    // A scanner that matched nothing would report the invariant as held. Four when
+    // this was written: marquee, spotlight-card, star-border and border-glow.
+    expect(writers().size).toBeGreaterThanOrEqual(4);
+  });
+});
+
 describe('the colour scheme is one switch', () => {
   /**
    * v15 moved dark mode from a `[data-theme='dark']` selector to the CSS

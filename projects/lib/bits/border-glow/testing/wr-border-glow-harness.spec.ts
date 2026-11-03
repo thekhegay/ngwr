@@ -186,9 +186,9 @@ describe('WrBorderGlowHarness', () => {
     fixture.componentInstance.glowColor.set('var(--wr-color-primary)');
     await fixture.whenStable();
     const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-border-glow')!;
-    host.style.setProperty('--wr-border-glow-color-40', 'hsl(40deg 80% 80% / 40%)');
+    host.style.setProperty('--wr-border-glow-input-color-40', 'hsl(40deg 80% 80% / 40%)');
 
-    await expect((await glow()).getGlowAlphaRamp()).rejects.toThrow(/--wr-border-glow-color-40/);
+    await expect((await glow()).getGlowAlphaRamp()).rejects.toThrow(/--wr-border-glow-input-color-40/);
   });
 
   it('maps the palette across the seven slots', async () => {

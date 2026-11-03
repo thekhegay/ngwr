@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1560 hook(s) across 107 page(s). A property is here only when the
+ * 1561 hook(s) across 107 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 28 declaration(s) are one component setting
@@ -49,6 +49,7 @@ export const CSS_VARS = {
     subpath: "ngwr/bits/border-glow",
     vars: [
       { name: "--wr-border-glow-angle", default: "45deg", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-bg", default: "var(--wr-color-surface)", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-color", default: "light-dark(hsl(40deg 90% 45% / 100%), hsl(40deg 80% 80% / 100%))", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-color-10", default: "light-dark(hsl(40deg 90% 45% / 10%), hsl(40deg 80% 80% / 10%))", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-color-20", default: "light-dark(hsl(40deg 90% 45% / 20%), hsl(40deg 80% 80% / 20%))", scope: ".wr-border-glow" },
@@ -60,7 +61,7 @@ export const CSS_VARS = {
       { name: "--wr-border-glow-cone-spread", default: "25", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-edge-proximity", default: "0", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-edge-sensitivity", default: "30", scope: ".wr-border-glow" },
-      { name: "--wr-border-glow-edge-shadow", default: "inset 0 0 0 1px var(--wr-border-glow-color), inset 0 0 1px 0 light-dark(transparent, var(--wr-border-glow-color-60)), inset 0 0 3px 0 light-dark(transparent, var(--wr-border-glow-color-50)), inset 0 0 6px 0 light-dark(transparent, var(--wr-border-glow-color-40)), inset 0 0 15px 0 light-dark(transparent, var(--wr-border-glow-color-30)), inset 0 0 25px 2px light-dark(transparent, var(--wr-border-glow-color-20)), inset 0 0 50px 2px light-dark(transparent, var(--wr-border-glow-color-10)), 0 0 1px 0 var(--wr-border-glow-color-60), 0 0 3px 0 var(--wr-border-glow-color-50), 0 0 6px 0 var(--wr-border-glow-color-40), 0 0 15px 0 var(--wr-border-glow-color-30), 0 0 25px 2px var(--wr-border-glow-color-20), 0 0 50px 2px var(--wr-border-glow-color-10)", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-edge-shadow", default: "inset 0 0 0 1px var(--wr-border-glow-input-color, var(--wr-border-glow-color)), inset 0 0 1px 0 light-dark(transparent, var(--wr-border-glow-input-color-60, var(--wr-border-glow-color-60))), inset 0 0 3px 0 light-dark(transparent, var(--wr-border-glow-input-color-50, var(--wr-border-glow-color-50))), inset 0 0 6px 0 light-dark(transparent, var(--wr-border-glow-input-color-40, var(--wr-border-glow-color-40))), inset 0 0 15px 0 light-dark(transparent, var(--wr-border-glow-input-color-30, var(--wr-border-glow-color-30))), inset 0 0 25px 2px light-dark(transparent, var(--wr-border-glow-input-color-20, var(--wr-border-glow-color-20))), inset 0 0 50px 2px light-dark(transparent, var(--wr-border-glow-input-color-10, var(--wr-border-glow-color-10))), 0 0 1px 0 var(--wr-border-glow-input-color-60, var(--wr-border-glow-color-60)), 0 0 3px 0 var(--wr-border-glow-input-color-50, var(--wr-border-glow-color-50)), 0 0 6px 0 var(--wr-border-glow-input-color-40, var(--wr-border-glow-color-40)), 0 0 15px 0 var(--wr-border-glow-input-color-30, var(--wr-border-glow-color-30)), 0 0 25px 2px var(--wr-border-glow-input-color-20, var(--wr-border-glow-color-20)), 0 0 50px 2px var(--wr-border-glow-input-color-10, var(--wr-border-glow-color-10))", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-fill-blend", default: "normal", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-fill-scale", default: "0.25", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-gradient-base", default: "linear-gradient(light-dark(hsl(262deg 70% 50%), #c299ff) 0 100%)", scope: ".wr-border-glow" },
