@@ -230,7 +230,7 @@
 
   <ngwr-doc-section
     title="Loader errors"
-    description="A failed `[loader]` says so in the panel. `retryable` adds Try again, which Enter in the field reaches too. Here every other search fails."
+    description="A failed `[loader]` says so in the panel. `retryable` adds Try again, which Enter in the field reaches too, and which shows a loader while it runs. Here every other search fails."
   >
     <ngwr-doc-snippet [code]="snippets.loaderError">
       <div style="width: 100%; max-width: 28rem">
@@ -242,6 +242,40 @@
           [loader]="flakyLoader"
           [(value)]="flakyPick"
         />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom error row"
+    description="An `<ng-template wrSelectLoadError>` replaces the message and the button. It gets the error, the query, `canRetry`, `retry()` and `retrying`. It draws inside an option, so give the retry the `.wr-btn` classes on a `<span>`, not a `<button>`."
+  >
+    <ngwr-doc-snippet [code]="snippets.loaderErrorTemplate">
+      <div style="width: 100%; max-width: 28rem">
+        <wr-select
+          mode="search"
+          retryable
+          placeholder="Search a country"
+          ariaLabel="Country, custom error"
+          [loader]="flakyLoaderTwo"
+          [(value)]="flakyPickTwo"
+        >
+          <ng-template
+            wrSelectLoadError
+            let-query="query"
+            let-canRetry="canRetry"
+            let-retry="retry"
+            let-retrying="retrying"
+          >
+            <p style="margin: 0 0 0.5rem">Search for “{{ query }}” is offline.</p>
+            @if (canRetry) {
+              <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+              <span class="wr-btn wr-btn--sm wr-btn--primary" (click)="retry()">
+                {{ retrying ? 'Retrying…' : 'Retry now' }}
+              </span>
+            }
+          </ng-template>
+        </wr-select>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -347,6 +381,10 @@
 
   <ngwr-doc-section title="Option leading template">
     <ngwr-doc-api [rows]="leadingApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Load error template">
+    <ngwr-doc-api [rows]="loadErrorApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Option Group API">
