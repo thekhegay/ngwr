@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { WrBytes } from './bytes';
 import { WrDate } from './date';
 import { WrMark } from './mark';
+import { WrNumber } from './number';
 import { WrPlural } from './plural';
 import { WrRange } from './range';
 import { WrTruncate } from './truncate';
@@ -85,6 +86,42 @@ describe('wrBytes', () => {
     // straighten every such locale into English order without anyone noticing,
     // which is why the parts are rejoined rather than the string rebuilt.
     expect(bytes('he-IL').transform(512)).toBe('B 512');
+  });
+});
+
+describe('wrNumber', () => {
+  let pipe: WrNumber;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: 'en-US' }] });
+    pipe = TestBed.runInInjectionContext(() => new WrNumber());
+  });
+
+  it('formats a number with the locale grouping', () => {
+    expect(pipe.transform(1234.5)).toBe('1,234.5');
+    expect(pipe.transform(0.875, 'percent')).toBe('87.5%');
+  });
+
+  // Through `Number()`, this amount printed as 12,345,678,901,234,568.
+  it('keeps every digit of a decimal string', () => {
+    expect(pipe.transform('12345678901234567.89')).toBe('12,345,678,901,234,567.89');
+    expect(pipe.transform(' 1.005 ', { maximumFractionDigits: 2 })).toBe('1.01');
+    expect(pipe.transform('12345678901234567.89', 'currency', 'USD')).toBe('$12,345,678,901,234,567.89');
+  });
+
+  // ICU throws on an exponent of a billion or more, which `Number()` reads as 0.
+  it('keeps the number for a string that is not a plain decimal', () => {
+    expect(pipe.transform('1e-1000000000')).toBe('0');
+    expect(pipe.transform('0x10')).toBe('16');
+    expect(pipe.transform('1e-400', { notation: 'compact' })).toBe('0');
+  });
+
+  it('renders nothing for a value that is not a number', () => {
+    expect(pipe.transform(null)).toBe('');
+    expect(pipe.transform('')).toBe('');
+    expect(pipe.transform('abc')).toBe('');
+    expect(pipe.transform('1e400')).toBe('');
+    expect(pipe.transform(Number.NaN)).toBe('');
   });
 });
 
