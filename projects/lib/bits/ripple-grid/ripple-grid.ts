@@ -27,6 +27,7 @@ import {
   PLATFORM_ID,
   ViewEncapsulation,
   afterNextRender,
+  afterRenderEffect,
   computed,
   effect,
   inject,
@@ -445,36 +446,38 @@ export class WrRippleGrid {
     afterNextRender(() => this.zone.runOutsideAngular(() => this.boot()));
 
     // Everything that changes the picture only changes what the next frame
-    // draws. A sleeping loop or a still grid has no next frame, so ask for one.
-    // `speed` and `decay` are left out: with no ring alive they change nothing
-    // on screen, and with one alive the loop is already running.
-    effect(() => {
+    // draws. A sleeping loop has no next frame, so ask for one; a still grid has
+    // none either, so it is drawn at once, with no ring alive — and so it is the
+    // moment motion stops. `speed` and `decay` are left out: with no ring alive
+    // they change nothing on screen, and with one alive the loop is already
+    // running. After render rather than an `effect`, which runs before a
+    // directive's host binding: a still grid drawn then would miss a hook it
+    // changes in the same pass.
+    afterRenderEffect(() => {
+      if (!this.booted()) return;
+      const still = this.platform.prefersReducedMotion();
       this.cell();
       this.stroke();
       this.lineColor();
       this.rippleColor();
       this.strength();
-      untracked(() => this.requestDraw());
+      untracked(() => {
+        if (still) this.rest();
+        this.requestDraw();
+      });
     });
 
     // A drawn grid keeps the colours it was drawn in, and the loop sleeps when
     // nothing moves, so a scheme switch asks for a frame to re-resolve them.
     watchColorScheme(() => this.requestDraw());
 
-    // Motion or a still grid, decided live. Toggling `rippleOnMove` or the idle
-    // interval restarts the listeners and the timer; rings already travelling
-    // carry on. With no box there is nothing to ripple, so neither runs: an idle
-    // ring kept the loop and the timer going in a box with no area.
+    // Motion, decided live: never under `prefers-reduced-motion`, which the
+    // still grid above answers. Toggling `rippleOnMove` or the idle interval
+    // restarts the listeners and the timer; rings already travelling carry on.
+    // With no box there is nothing to ripple, so neither runs: an idle ring kept
+    // the loop and the timer going in a box with no area.
     effect(onCleanup => {
-      if (!this.booted()) return;
-      if (this.platform.prefersReducedMotion()) {
-        untracked(() => {
-          this.rest();
-          this.draw();
-        });
-        return;
-      }
-      if (!this.hasBox()) return;
+      if (!this.booted() || !this.hasBox() || this.platform.prefersReducedMotion()) return;
       const trail = this.rippleOnMove();
       const idle = this.idle();
       onCleanup(untracked(() => this.zone.runOutsideAngular(() => this.interact(trail, idle))));
