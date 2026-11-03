@@ -195,9 +195,9 @@ export class WrSelectHarness extends ComponentHarness {
     return row ? row.text() : null;
   }
 
-  /** Runs a failed load again through the error row. Throws when the row offers no retry. */
+  /** Runs a failed load again through the error row's button. Throws when it offers no retry. */
   async retryLoad(): Promise<void> {
-    const row = await this.inPanel('.wr-select-panel__error--retryable');
+    const row = await this.inPanel('.wr-select-panel__retry');
     if (!row) {
       throw new Error('WrSelectHarness: no retry on offer. The loader has not failed, or `retryable` is off.');
     }

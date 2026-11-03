@@ -13,10 +13,10 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1562 hook(s) across 107 page(s). A property is here only when the
+ * 1560 hook(s) across 107 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
- * declares it also owns it: 27 declaration(s) are one component setting
+ * declares it also owns it: 28 declaration(s) are one component setting
  * another's hook (`--wr-icon-size` inside its own `<wr-icon>`) and belong on
  * the owner's page, not on the setter's.
  */
@@ -1598,10 +1598,8 @@ export const CSS_VARS = {
       { name: "--wr-select-panel-message-padding", default: "var(--wr-space-md)", scope: ".wr-select-panel" },
       { name: "--wr-select-panel-padding", default: "var(--wr-space-xs)", scope: ".wr-select-panel" },
       { name: "--wr-select-panel-radius", default: "var(--wr-border-radius-base)", scope: ".wr-select-panel" },
-      { name: "--wr-select-panel-retry-color", default: "var(--wr-color-primary-ink)", scope: ".wr-select-panel" },
-      { name: "--wr-select-panel-retry-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-select-panel" },
-      { name: "--wr-select-panel-retry-gap", default: "var(--wr-space-xs)", scope: ".wr-select-panel" },
-      { name: "--wr-select-panel-retry-hover-bg", default: "var(--wr-color-hover)", scope: ".wr-select-panel" },
+      { name: "--wr-select-panel-retry-active-bg", default: "var(--wr-color-hover)", scope: ".wr-select-panel" },
+      { name: "--wr-select-panel-retry-gap", default: "var(--wr-space-sm)", scope: ".wr-select-panel" },
       { name: "--wr-select-panel-shadow", default: "var(--wr-shadow-overlay)", scope: ".wr-select-panel" },
       { name: "--wr-select-radius", default: "var(--wr-control-radius-md)", scope: ".wr-select", overrides: 3 },
       { name: "--wr-select-tag-input-padding", default: "var(--wr-space-xs)", scope: ".wr-select" },

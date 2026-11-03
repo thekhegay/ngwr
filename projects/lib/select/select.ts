@@ -434,9 +434,9 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   /**
    * Search mode: let a failed load be tried again, for the same query, while the
-   * panel has nothing else to offer. The error row takes the click, and Enter in
-   * the field reaches it, except under `freeText`, where Enter still commits the
-   * typed text. Without it the row only reports the failure; the next keystroke
+   * panel has nothing else to offer. The error row draws a Try again button, and
+   * Enter in the field reaches it, except under `freeText`, where Enter still
+   * commits the typed text. Without it the row only reports the failure; the next keystroke
    * tries again either way.
    *
    * @default false
@@ -1498,7 +1498,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     this.retryRequests.next();
   }
 
-  /** The error row takes a click only while it offers a retry. @internal */
+  /** The retry button runs the load only while it is on offer. @internal */
   protected onLoadErrorClick(): void {
     if (this.retryOffered()) this.retryLoad();
   }
