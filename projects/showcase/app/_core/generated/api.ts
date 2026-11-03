@@ -150,6 +150,7 @@ export const API = {
   WrBreadcrumbsItem: [
     { name: "href", description: "Plain anchor href. Overridden by `routerLink` when both are set.", type: "string | null", default: "null" },
     { name: "routerLink", description: "Angular router target. Anything `RouterLink` accepts (string or `any[]`).", type: "string | readonly unknown[] | null", default: "null" },
+    { name: "queryParams", description: "Query parameters for a `routerLink` crumb, the way `RouterLink` takes them. A `?` written into `routerLink` is part of the path, and the router escapes it: `/debts?date=1` became `/debts%3Fdate%3D1`. Ignored without `routerLink`.", type: "Params | null", default: "null" },
     { name: "external", description: "Open external `href` in a new tab. Ignored when `routerLink` is set.", type: "boolean", default: "false" },
     { name: "icon", description: "Optional leading icon rendered inline before the label.", type: "WrIconName | null", default: "null" },
   ],
@@ -1163,6 +1164,9 @@ export const API = {
     { name: "overscan", description: "Search mode: extra rows kept above/below the virtual viewport.", type: "number", default: "6" },
     { name: "noResultsText", description: "Search mode: text shown when the filter / loader returns nothing. Falls back to `select.noResults`.", type: "string | null", default: "null" },
     { name: "loadingText", description: "Search mode: text shown while the async loader is in flight. Falls back to `select.loading`.", type: "string | null", default: "null" },
+    { name: "loadErrorText", description: "Search mode: text shown in place of the \"no results\" row when the async loader fails. Falls back to `select.loadError`.", type: "string | null", default: "null" },
+    { name: "retryable", description: "Search mode: let a failed load be tried again, for the same query, while the panel has nothing else to offer. The error row takes the click, and Enter in the field reaches it, except under `freeText`, where Enter still commits the typed text. Without it the row only reports the failure; the next keystroke tries again either way.", type: "boolean", default: "false" },
+    { name: "retryText", description: "Search mode: label of the retry action on the error row. Falls back to `select.retry`.", type: "string | null", default: "null" },
     { name: "(searchChange)", description: "Debounced search query, gated to searchable selects. Emits on every settled change — including the empty string when the field is cleared — so a store-backed option list can stay in sync and reset itself. `[debounceMs]` controls the delay; `[minChars]` does NOT gate it, for the same reason the `[loader]` path clears its results below that threshold. This is the hook for server-side search: dispatch on `(searchChange)`, feed the results back through `[options]` (plus `[serverSearch]`), and drive the panel's progress row with `[loading]`. Prefer it over the model's raw `(searchQueryChange)`, which fires on every keystroke.", type: "string" },
     { name: "loading", description: "Show the panel's progress row. Independent of `[loader]`, which raises and lowers its own flag — use this when the options come from a store fed by the {@link searchChange} output.", type: "boolean", default: "false" },
     { name: "separators", description: "Tag mode: keys / characters that commit the current draft into a chip. `'Enter'` is the key name; everything else is a literal character watched in keypresses and pastes.", type: "readonly string[]", default: "['Enter', ',']" },

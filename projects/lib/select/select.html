@@ -470,5 +470,29 @@
         {{ resolvedNoResults() }}
       </div>
     }
+
+    <!-- A failed load, in place of "no results". An option for the same reason as
+         that row. While it offers a retry it is the option that runs the loader
+         again: the field's aria-activedescendant names it, Enter there reaches it,
+         and mousedown keeps focus in the field. -->
+    @if (showLoadError()) {
+      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+      <div
+        class="wr-select-panel__error"
+        [class.wr-select-panel__error--retryable]="retryOffered()"
+        [class.wr-select-panel__error--active]="retryOffered() && !freeText()"
+        role="option"
+        aria-selected="false"
+        [attr.id]="retryOffered() ? retryRowId : null"
+        [attr.aria-disabled]="retryOffered() ? null : true"
+        (mousedown)="$event.preventDefault()"
+        (click)="onLoadErrorClick()"
+      >
+        {{ resolvedLoadError() }}
+        @if (retryOffered()) {
+          <span class="wr-select-panel__retry">{{ resolvedRetry() }}</span>
+        }
+      </div>
+    }
   </div>
 </ng-template>

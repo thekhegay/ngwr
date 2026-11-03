@@ -265,6 +265,61 @@ describe('WrSelectHarness — search', () => {
   });
 });
 
+/** A loader that fails until told otherwise. */
+@Component({
+  imports: [WrSelect],
+  template: `<wr-select mode="search" ariaLabel="City" retryable [debounceMs]="0" [loader]="load" />`,
+})
+class FailingLoaderHost {
+  readonly failing = signal(true);
+  readonly load = (query: string): Promise<readonly string[]> =>
+    this.failing() ? Promise.reject(new Error('offline')) : Promise.resolve([`${query} city`]);
+}
+
+describe('WrSelectHarness — a failed loader', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FailingLoaderHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(FailingLoaderHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  // The debounce is a timer, so the harness waits for it the way a user would.
+  const settle = async (): Promise<void> => {
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+    await fixture.whenStable();
+  };
+
+  it('reads the error row, and runs the load again through it', async () => {
+    const select = await loader.getHarness(WrSelectHarness);
+    await select.open();
+    await select.typeSearch('ber');
+    await settle();
+
+    expect(await select.getLoadErrorText()).toBe('Could not load results Try again');
+    expect(await select.getNoResultsText()).toBeNull();
+
+    fixture.componentInstance.failing.set(false);
+    await select.retryLoad();
+    await settle();
+
+    expect(await select.getLoadErrorText()).toBeNull();
+    expect(await select.getOptionLabels()).toEqual(['ber city']);
+  });
+
+  it('says why there is nothing to retry', async () => {
+    const select = await loader.getHarness(WrSelectHarness);
+    await select.open();
+
+    await expect(select.retryLoad()).rejects.toThrow(/no retry on offer/);
+  });
+});
+
 describe('WrSelectHarness — two on one page', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<TwoHost>>;
   let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;

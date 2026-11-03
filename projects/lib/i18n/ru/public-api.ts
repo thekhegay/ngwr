@@ -103,6 +103,8 @@ export const wrRu: WrI18nCatalog = {
     removeItem: 'Удалить {{label}}',
     noResults: 'Ничего не найдено',
     loading: 'Загрузка…',
+    loadError: 'Не удалось загрузить результаты',
+    retry: 'Повторить',
     more: 'ещё {{count}}',
   },
   // `tree` covers both inline display and combobox-mode pickers

@@ -105,6 +105,8 @@ export const wrJa: WrI18nCatalog = {
     removeItem: '{{label}}を削除',
     noResults: '該当なし',
     loading: '読み込み中…',
+    loadError: '結果を読み込めませんでした',
+    retry: '再試行',
     more: '他{{count}}件',
   },
   tree: {

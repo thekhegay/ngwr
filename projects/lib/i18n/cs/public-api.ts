@@ -103,6 +103,8 @@ export const wrCs: WrI18nCatalog = {
     removeItem: 'Odebrat {{label}}',
     noResults: 'Žádné výsledky',
     loading: 'Načítání…',
+    loadError: 'Výsledky se nepodařilo načíst',
+    retry: 'Zkusit znovu',
     more: 'Další: {{count}}',
   },
   tree: {

@@ -189,6 +189,7 @@ export class AssigneePicker {
     <wr-option [value]="c">{{ c }}</wr-option>
   }
 </wr-select>`,
+    loaderError: `<wr-select mode="search" retryable [loader]="search" [(value)]="country" />`,
     serverSearch: `<wr-select
   mode="search"
   serverSearch
@@ -283,8 +284,17 @@ categoryId.setValue(2);`,
   /** One template, three surfaces: a panel row, a trigger's selected value, a chip. */
   protected readonly avatarPx: Record<WrOptionLeadingPlacement, number> = { option: 24, value: 20, chip: 16 };
 
+  /** Every other call fails, so the demo shows the error row and the retry. */
+  private flakyCalls = 0;
+  protected readonly flakyPick = signal<string | null>(null);
+  protected readonly flakyLoader = (query: string): Promise<readonly string[]> =>
+    this.flakyCalls++ % 2 === 0
+      ? Promise.reject(new Error('offline'))
+      : Promise.resolve(this.countries.filter(c => c.toLowerCase().includes(query.toLowerCase())));
+
   // Server-side search demo. Stands in for "dispatch an action, read the
   // results back out of a store" — the (searchChange) output is the only wiring.
+
   protected readonly serverResults = signal<readonly string[]>([]);
   protected readonly serverPending = signal(false);
   protected readonly serverPicked = signal<string | null>(null);
