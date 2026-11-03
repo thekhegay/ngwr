@@ -112,9 +112,12 @@ let timers: Map<number, { handler: () => void; delay: number }>;
  * `strokeStyle`, `globalAlpha` and `lineWidth` the component had just assigned.
  * Anything else travels into a no-op. jsdom also has no `ResizeObserver`, which
  * `boot()` installs right after the context, so the spec supplies the smallest one it
- * can disconnect, and keeps its callback so `resized()` can deliver an entry.
+ * can disconnect, and keeps its callback so `resized()` can deliver an entry. And
+ * every element gets a box, since jsdom lays nothing out and a box with no area is a
+ * state the grid stops in.
  */
 const withContext = (): void => {
+  box(240, 240);
   let paths: number[][] = [];
   const ctx: Record<string, unknown> = {
     strokeStyle: '#000',
@@ -821,12 +824,11 @@ describe('WrRippleGrid', () => {
   it('asks for no frames and keeps no timer off screen, and picks up where it left off in view', async () => {
     withContext();
     holdTimers();
-    box(240, 240);
-    let report: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
+    let report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null = null;
     vi.stubGlobal(
       'IntersectionObserver',
       class {
-        constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+        constructor(callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) {
           report = callback;
         }
         observe(): void {
@@ -859,21 +861,21 @@ describe('WrRippleGrid', () => {
     expect(drawn.length, 'nothing is drawn before the observer says the grid is in view').toBe(0);
     expect(timers.size, 'and no idle ring is armed').toBe(0);
 
-    report!([{ isIntersecting: true }]);
+    report!([{ isIntersecting: true, intersectionRatio: 1 }]);
     flush();
     expect(drawn.length).toBe(1);
     expect(timers.size).toBe(1);
 
     pointer('pointerdown', stage(), 120, 120);
-    report!([{ isIntersecting: false }]);
+    report!([{ isIntersecting: false, intersectionRatio: 0 }]);
     flush();
     expect(drawn.length, 'off screen, the frame the press asked for is withdrawn').toBe(1);
     expect(timers.size, 'and the idle timer cleared').toBe(0);
     pointer('pointerdown', stage(), 60, 60);
     expect(held.size, 'a press off screen asks for nothing').toBe(0);
 
-    report!([{ isIntersecting: true }]);
-    report!([{ isIntersecting: true }]);
+    report!([{ isIntersecting: true, intersectionRatio: 1 }]);
+    report!([{ isIntersecting: true, intersectionRatio: 1 }]);
     flush();
     expect(drawn.length, 'one loop, not a second beside the first').toBe(2);
     // The ring is the press made in view, just placed around (120, 120); the one made
@@ -885,13 +887,84 @@ describe('WrRippleGrid', () => {
     // The timer fires and the grid leaves the screen before a frame places the ring:
     // back in view, the ring is still owed, and the next timer waits for it.
     fireTimers();
-    report!([{ isIntersecting: false }]);
-    report!([{ isIntersecting: true }]);
+    report!([{ isIntersecting: false, intersectionRatio: 0 }]);
+    report!([{ isIntersecting: true, intersectionRatio: 1 }]);
     expect(timers.size).toBe(0);
     flush();
     expect(timers.size).toBe(1);
     fixture.destroy();
     expect(report).toBeNull();
+  });
+
+  it('counts a box flush against a zero-height clip as off screen, and hears the clip open', async () => {
+    withContext();
+    holdTimers();
+    let report: ((entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void) | null = null;
+    let options: IntersectionObserverInit | undefined;
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(
+          callback: (entries: { isIntersecting: boolean; intersectionRatio: number }[]) => void,
+          init?: IntersectionObserverInit
+        ) {
+          report = callback;
+          options = init;
+        }
+        observe(): void {
+          /* the spec reports by hand */
+        }
+        disconnect(): void {
+          report = null;
+        }
+      }
+    );
+    await mount();
+    await set(host => host.idleInterval.set(1000));
+
+    report!([{ isIntersecting: true, intersectionRatio: 0 }]);
+    runFrame();
+    expect(drawn.length).toBe(0);
+    expect(timers.size, 'no idle ring is armed behind a closed clip').toBe(0);
+
+    // 0 alone would send nothing here in a real browser, and a larger second threshold
+    // shares an index with 0 for the last step of a clip closing on a transition.
+    expect(options?.threshold).toEqual([0, 1e-9]);
+    report!([{ isIntersecting: true, intersectionRatio: 0.5 }]);
+    runFrame();
+    expect(drawn.length).toBe(1);
+    expect(timers.size).toBe(1);
+  });
+
+  it('asks for no frames and arms no idle ring with no box, and starts when it has one', async () => {
+    withContext();
+    holdTimers();
+    box(0, 0);
+    await mount();
+    await set(host => host.idleInterval.set(1000));
+
+    runFrame();
+    expect(drawn.length, 'nothing to ripple, so no frame').toBe(0);
+    expect(timers.size, 'and no idle ring is armed').toBe(0);
+
+    // The observer entry repaints the new box at once; the loop and the timer
+    // start behind it.
+    resized(240, 240);
+    await fixture.whenStable();
+    const fitted = drawn.length;
+    runFrame();
+    expect(drawn.length).toBeGreaterThan(fitted);
+    expect(timers.size).toBe(1);
+
+    // Gone again: the timer is cleared, and the frame it had asked for is withdrawn,
+    // which a held frame cannot show by itself.
+    resized(240, 0);
+    await fixture.whenStable();
+    expect(timers.size).toBe(0);
+    frames = [];
+    const parked = drawn.length;
+    runFrame();
+    expect(drawn.length).toBe(parked);
   });
 
   it('backs the canvas at 2x, and steps down to 1x outright on a box too large for the pixel budget', async () => {
