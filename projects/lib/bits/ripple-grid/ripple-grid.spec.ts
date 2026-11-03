@@ -1,4 +1,13 @@
-import { Component, ErrorHandler, PLATFORM_ID, type Type, ViewEncapsulation, signal } from '@angular/core';
+import {
+  Component,
+  Directive,
+  ErrorHandler,
+  PLATFORM_ID,
+  type Type,
+  ViewEncapsulation,
+  input,
+  signal,
+} from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WrPlatform } from 'ngwr/platform';
@@ -334,6 +343,20 @@ const folds = (stroke: Stroke): string | null => {
   template: `<wr-ripple-grid style="--wr-ripple-grid-line-color: red" />`,
 })
 class Hooked {}
+
+@Directive({ selector: '[wrHookTint]', host: { '[style.--wr-ripple-grid-line-color]': 'wrHookTint()' } })
+class HookTint {
+  readonly wrHookTint = input<string | null>(null);
+}
+
+@Component({
+  imports: [WrRippleGrid, HookTint],
+  template: `<wr-ripple-grid [lineColor]="color()" [wrHookTint]="tint()" />`,
+})
+class HookTintHost {
+  readonly color = signal<string | null>('rgb(0, 255, 0)');
+  readonly tint = signal<string | null>(null);
+}
 
 describe('WrRippleGrid', () => {
   let fixture: ComponentFixture<Host>;
@@ -724,6 +747,26 @@ describe('WrRippleGrid', () => {
     expect(drawn.length).toBe(still);
     expect(drawn.at(-1)!.length, 'nothing is lit').toBe(1);
     expect(allStraight(drawn.at(-1)![0])).toBe(true);
+  });
+
+  it('reads a hook a directive on the host changes in the same pass, on a still grid', async () => {
+    withContext();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: WrPlatform, useValue: reducedMotion }] });
+    const hosted = TestBed.createComponent(HookTintHost);
+    hosted.detectChanges();
+    await hosted.whenStable();
+    expect(drawn.at(-1)![0].color).toBe('rgb(0, 255, 0)');
+
+    // The colour goes back to the hook in the pass that sets it: an `effect` runs
+    // before the directive's host binding and resolved the old value.
+    hosted.componentInstance.color.set(null);
+    hosted.componentInstance.tint.set('rgb(1, 2, 3)');
+    hosted.detectChanges();
+    await hosted.whenStable();
+
+    expect(drawn.at(-1)![0].color).toBe('rgb(1, 2, 3)');
+    hosted.destroy();
   });
 
   it('redraws the still grid in the new colour when the scheme switches', async () => {
