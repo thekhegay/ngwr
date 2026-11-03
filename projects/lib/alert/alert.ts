@@ -27,11 +27,13 @@ import type { WrAlertType } from './types';
 
 /**
  * Inline status banner. Use for feedback messages — saved/failed/notice etc.
+ * Content placed inside renders below the message, in `.wr-alert__content`.
  *
  * @example
  * ```html
  * <wr-alert title="Saved" message="Your changes are live." type="success" />
  * <wr-alert title="Failed" type="danger" closable (closed)="onClose()" />
+ * <wr-alert title="Sync failed" type="danger">Request <code>8f2c41</code> timed out.</wr-alert>
  * ```
  *
  * @see https://ngwr.dev/reference/components/alert
