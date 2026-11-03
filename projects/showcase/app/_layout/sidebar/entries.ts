@@ -25,7 +25,7 @@ function page(link: SidebarLink, inOptionalGroup: boolean, current: string | und
   if (link.disabled || !link.url) return { title: link.title, url: [], disabled: true, badge: SOON };
 
   const mark = linkMark(link.url, current);
-  const badge = mark ? MARK_BADGES[mark] : !inOptionalGroup && isOptionalLink(link.url) ? OPTIONAL : null;
+  const badge = !inOptionalGroup && isOptionalLink(link.url) ? OPTIONAL : mark ? MARK_BADGES[mark] : null;
   return { title: link.title, url: [link.url], ...(badge ? { badge } : {}) };
 }
 
@@ -34,11 +34,13 @@ function page(link: SidebarLink, inOptionalGroup: boolean, current: string | und
  *
  * Nothing about a mark is stored in a config. `New` and `Updated` are read from
  * the versions the page declares (`#core/generated/since`, judged against
- * `markVersion()`), so they leave on their own when the next feature release
- * declares its first page; `Optional` from `OPTIONAL_ROUTES`, which the page
+ * `markVersion()`), so they leave on their own when the next major arrives;
+ * `Optional` from `OPTIONAL_ROUTES`, which the page
  * header reads too. A group whose every page is optional carries the badge
- * once, and its pages do not repeat it. A row is given one badge: a version
- * mark wins over `Optional`, since it is the mark a reader scans for.
+ * once, and its pages do not repeat it, so they keep their version marks. A row
+ * is given one badge, and `Optional` wins: whether a reader needs the page at all
+ * matters more than which release touched it, and a version mark stands for a
+ * whole major, so it would hide that for just as long.
  *
  * Plain data in and out, with no component around it, so `since.spec.ts` can
  * run the shipped configs through it. `current` is the version `New` and

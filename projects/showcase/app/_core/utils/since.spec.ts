@@ -14,23 +14,26 @@ import { isNewIn, isNewLink, linkMark, markVersion, releaseLabel, routeKey, sinc
 import type { SidebarGroup } from '#types';
 
 describe('the docs "new" rule', () => {
-  it('marks a version on the current minor line', () => {
+  it('marks a version on the current major', () => {
     expect(isNewIn('14.4.0', '14.4.0')).toBe(true);
+    expect(isNewIn('14.0.0', '14.4.0')).toBe(true);
   });
 
   it('marks a version declared ahead of the release that carries it', () => {
     expect(isNewIn('14.5.0', '14.4.0')).toBe(true);
+    expect(isNewIn('15.0.0', '14.4.0')).toBe(true);
   });
 
-  it('drops the mark once the next minor ships', () => {
-    expect(isNewIn('14.5.0', '14.6.0')).toBe(false);
-  });
-
-  it('keeps the mark across a patch release', () => {
+  it('keeps the mark across every minor and patch of the major', () => {
     expect(isNewIn('14.5.0', '14.5.3')).toBe(true);
+    expect(isNewIn('14.5.0', '14.6.0')).toBe(true);
   });
 
-  it('does not mark an older line', () => {
+  it('drops the mark once the next major ships', () => {
+    expect(isNewIn('14.5.0', '15.0.0')).toBe(false);
+  });
+
+  it('does not mark an older major', () => {
     expect(isNewIn('13.2.0', '14.4.0')).toBe(false);
   });
 
@@ -45,8 +48,9 @@ describe('the docs "new" rule', () => {
   it('keeps marking through a release-candidate line', () => {
     expect(isNewIn('14.5.0', '14.5.0-rc.1')).toBe(true);
     expect(isNewIn('14.5.0', '14.4.1-rc.0')).toBe(true);
-    expect(isNewIn('14.5.0', '14.6.0-rc.0')).toBe(false);
+    expect(isNewIn('14.5.0', '14.6.0-rc.0')).toBe(true);
     expect(isNewIn('15.0.0', '15.0.0-rc.0')).toBe(true);
+    expect(isNewIn('14.5.0', '15.0.0-rc.0')).toBe(false);
   });
 
   // The live constant, not a literal: this is the only assertion that fails if
@@ -79,6 +83,11 @@ describe('the docs "new" rule', () => {
     expect(isNewLink('/reference/components/button', '14.4.0')).toBe(false);
     expect(isNewLink(undefined, '14.4.0')).toBe(false);
   });
+
+  it('keeps a page new for the rest of its major', () => {
+    expect(isNewLink('/reference/components/graph', '14.12.1')).toBe(true);
+    expect(isNewLink('/reference/components/graph', '15.0.0')).toBe(false);
+  });
 });
 
 describe('the docs "updated" mark', () => {
@@ -87,12 +96,13 @@ describe('the docs "updated" mark', () => {
     expect(updatedOf('reference/components/alert')).toBeNull();
   });
 
-  // `updated` rides the same expiring rule as `since`: a reader's question is
-  // what changed in THIS feature release, so the mark leaves with the next one.
-  it('marks an update on its own line and drops it when the next minor ships', () => {
+  // `updated` rides the same expiring rule as `since`, and the first release of a
+  // major counts like any other: `updated="15.0.0"` stands until v16.
+  it('marks an update for its whole major and drops it when the next one ships', () => {
     expect(linkMark('/docs/configuration', '15.0.0')).toBe('updated');
     expect(linkMark('/docs/configuration', '15.0.0-rc.1')).toBe('updated');
-    expect(linkMark('/docs/configuration', '15.1.0')).toBeNull();
+    expect(linkMark('/docs/configuration', '15.2.0')).toBe('updated');
+    expect(linkMark('/docs/configuration', '16.0.0')).toBeNull();
   });
 
   it('gives a page one mark, and "new" wins over "updated"', () => {
@@ -105,40 +115,41 @@ describe('the docs "updated" mark', () => {
 });
 
 /**
- * Which line counts as current: the later of `NGWR_VERSION`'s and the newest
- * one any page declares. On `next` the pages declare the release ahead while
- * the constant still names the patch `main` last shipped, and the nav is meant
- * to say what THAT release adds, not what the last two did.
+ * Which major counts as current: the later of `NGWR_VERSION`'s and the newest
+ * one any page declares. On `next` the pages can declare the major ahead while
+ * the constant still names the release `main` last shipped, and the nav is meant
+ * to say what THAT major adds, not what the last one did.
  */
-describe('the line the marks are judged against', () => {
-  it('stays on the shipped line while nothing is declared ahead of it', () => {
-    const current = markVersion('15.0.1', ['14.5.0', '15.0.0']);
+describe('the major the marks are judged against', () => {
+  it('stays on the shipped major while nothing is declared on a later one', () => {
+    const current = markVersion('15.0.1', ['14.5.0', '15.0.0', '15.1.0']);
 
     expect(current).toBe('15.0.1');
+    expect(isNewIn('15.1.0', current)).toBe(true);
     expect(isNewIn('15.0.0', current)).toBe(true);
     expect(isNewIn('14.5.0', current)).toBe(false);
     expect(markVersion('15.0.1', [])).toBe('15.0.1');
   });
 
-  it('hides the older line once a page declares the next one', () => {
-    const current = markVersion('15.0.1', ['15.0.0', '15.1.0']);
+  it('hides the older major once a page declares the next one', () => {
+    const current = markVersion('15.3.2', ['15.3.0', '16.0.0']);
 
-    expect(current).toBe('15.1.0');
-    expect(isNewIn('15.1.0', current)).toBe(true);
-    expect(isNewIn('15.0.0', current)).toBe(false);
-    expect(markVersion('15.3.2', ['15.3.0', '16.0.0'])).toBe('16.0.0');
+    expect(current).toBe('16.0.0');
+    expect(isNewIn('16.0.0', current)).toBe(true);
+    expect(isNewIn('15.3.0', current)).toBe(false);
   });
 
-  it('changes nothing once that release ships, and lets it expire after', () => {
+  it('changes nothing across a minor, and lets the marks expire with the major', () => {
     expect(markVersion('15.1.0', ['15.0.0', '15.1.0'])).toBe('15.1.0');
     expect(markVersion('15.1.2', ['15.0.0', '15.1.0'])).toBe('15.1.2');
     expect(markVersion('15.1.0-rc.0', ['15.1.0'])).toBe('15.1.0-rc.0');
     expect(isNewIn('15.1.0', markVersion('15.1.0-rc.0', ['15.1.0']))).toBe(true);
-    expect(isNewIn('15.1.0', markVersion('15.2.0', ['15.1.0']))).toBe(false);
+    expect(isNewIn('15.1.0', markVersion('15.2.0', ['15.1.0']))).toBe(true);
+    expect(isNewIn('15.1.0', markVersion('16.0.0', ['15.1.0']))).toBe(false);
   });
 
   // Fails closed on the constant, the way `isNewIn` always has: an unreadable
-  // `NGWR_VERSION` takes every mark off rather than guessing at a line.
+  // `NGWR_VERSION` takes every mark off rather than guessing at a major.
   it('passes an unreadable shipped version through and skips an unreadable declaration', () => {
     expect(markVersion('next', ['15.1.0'])).toBe('next');
     expect(markVersion('15.0.1', ['v99', '15.1'])).toBe('15.0.1');
@@ -149,11 +160,11 @@ describe('the line the marks are judged against', () => {
 
     expect(current).toBe(markVersion(NGWR_VERSION, [...Object.values(SINCE), ...Object.values(UPDATED)]));
     expect(isNewIn(current, current)).toBe(true);
-    // Never behind the constant: the declarations can only move the line on.
+    // Never behind the constant: the declarations can only move the major on.
     expect(isNewIn(current, NGWR_VERSION)).toBe(true);
   });
 
-  // One declaration far ahead by mistake would move the line past every other
+  // One declaration far ahead by mistake would move the major past every other
   // mark on the site, so a page may declare the next major at the latest.
   it('holds every declared version to the next major at the latest', () => {
     const major = Number(NGWR_VERSION.split('.')[0]);
@@ -162,13 +173,14 @@ describe('the line the marks are judged against', () => {
     expect(declared.filter(version => Number(version.split('.')[0]) > major + 1)).toEqual([]);
   });
 
-  it('marks the release ahead on the live map and steps the one behind back', () => {
-    const ahead = markVersion('15.0.1', ['15.0.0', '15.1.0']);
+  it('steps every mark of the live map back once the next major is declared', () => {
+    const ahead = markVersion('15.2.0', ['15.0.0', '16.0.0']);
 
     // `docs/configuration` was updated in 15.0, the popover in 15.1.
-    expect(linkMark('/docs/configuration', '15.0.1')).toBe('updated');
+    expect(linkMark('/docs/configuration', '15.2.0')).toBe('updated');
+    expect(linkMark('/reference/components/popover', '15.2.0')).toBe('updated');
     expect(linkMark('/docs/configuration', ahead)).toBeNull();
-    expect(linkMark('/reference/components/popover', ahead)).toBe('updated');
+    expect(linkMark('/reference/components/popover', ahead)).toBeNull();
   });
 });
 
@@ -235,7 +247,7 @@ describe('the surfaces that draw it', () => {
     }
   });
 
-  it('marks the rows the map declares for the current line, and no others', () => {
+  it('marks the rows the map declares for the current major, and no others', () => {
     const marked = navRows()
       .filter(row => isNewLink(row.url, '14.4.0'))
       .map(row => row.title);
@@ -291,6 +303,26 @@ describe('the surfaces that draw it', () => {
     ]);
   });
 
+  // `Optional` wins a row, since a version mark would hide it for a whole major.
+  // WrMeta sits in a mixed group and declares 15.0.0; every pipe is optional, so
+  // the group says it once and wrDate keeps its mark.
+  it('gives an optional row its badge over a version mark, unless its group said it', () => {
+    const meta = { title: 'WrMeta', url: '/reference/services/meta' };
+    const button = { title: 'Button', url: '/reference/components/button' };
+    const [mixed, pipes] = sidebarEntries(
+      [
+        { title: 'Mixed', children: [meta, button] },
+        { title: 'Pipes', children: [{ title: 'wrDate', url: '/reference/pipes/wr-date' }] },
+      ],
+      '15.0.0'
+    );
+
+    expect(linkMark(meta.url, '15.0.0')).toBe('updated');
+    expect('children' in mixed && mixed.children[0]).toMatchObject({ badge: { text: 'Optional' } });
+    expect(pipes).toMatchObject({ badge: { text: 'Optional' } });
+    expect('children' in pipes && pipes.children[0]).toMatchObject({ badge: { text: 'Updated' } });
+  });
+
   it('gives the sidebar every "updated" mark the rule gives a row', () => {
     const badges = new Map<string, string>();
     const visit = (entries: readonly WrSidebarEntry[]): void => {
@@ -305,6 +337,7 @@ describe('the surfaces that draw it', () => {
     const expected = navRows()
       .filter(row => linkMark(row.url, '15.0.0') === 'updated')
       .map(row => routeKey(row.url ?? ''))
+      .filter(route => badges.get(route) !== 'Optional')
       .sort();
     const drawn = [...badges]
       .filter(([, badge]) => badge === 'Updated')
@@ -315,11 +348,11 @@ describe('the surfaces that draw it', () => {
     expect(drawn.length).toBeGreaterThan(0);
   });
 
-  // With no line pinned, every surface judges against `markVersion()`: the
-  // newest declared line or the shipped one, whichever is later. So no row of
-  // an older line is marked while a page declares a newer one — the state `next`
-  // is in for as long as its release has not shipped.
-  it('marks only the newest declared line when nothing pins one', () => {
+  // With no major pinned, every surface judges against `markVersion()`: the
+  // newest declared major or the shipped one, whichever is later. So no row of
+  // an older major is marked while a page declares a newer one, which is where
+  // `next` sits once it holds a major.
+  it('marks only the newest declared major when nothing pins one', () => {
     const declared = [...Object.values(SINCE), ...Object.values(UPDATED)] as string[];
     const newestDeclared = markVersion('0.0.0', declared);
     const marked = navRows().filter(row => linkMark(row.url) !== null);
@@ -332,16 +365,20 @@ describe('the surfaces that draw it', () => {
     }
 
     const badges: string[] = [];
+    const optional: string[] = [];
     const visit = (entries: readonly WrSidebarEntry[]): void => {
       for (const entry of entries) {
         if ('children' in entry) visit(entry.children);
         else if (entry.badge?.text === 'New' || entry.badge?.text === 'Updated') badges.push(String(entry.url[0]));
+        else if (entry.badge?.text === 'Optional') optional.push(String(entry.url[0]));
       }
     };
     for (const config of Object.values(SIDEBARS as Record<string, readonly SidebarGroup[]>))
       visit(sidebarEntries(config));
 
-    expect([...new Set(badges)].sort()).toEqual(marked.map(row => row.url ?? '').sort());
+    const expected = marked.map(row => row.url ?? '').filter(url => !optional.includes(url));
+
+    expect([...new Set(badges)].sort()).toEqual(expected.sort());
   });
 
   it('draws the same marks on the cluster index pages', () => {
@@ -356,7 +393,7 @@ describe('the surfaces that draw it', () => {
   });
 
   // The two marks share a box and must not share a tone. `new` is the one thing
-  // on the page a reader scanning for this release should catch, so it is a
+  // on the page a reader scanning for this major should catch, so it is a
   // filled intent; `soon` is an aside about a page that is not there yet, and
   // giving it the same chip puts every planned row in front of the live ones.
   // The tone is a modifier precisely so the difference cannot be lost to a later

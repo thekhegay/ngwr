@@ -5,7 +5,14 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { WrAvatar } from 'ngwr/avatar';
 import { WrButton } from 'ngwr/button';
 import { WrFormError, WrFormField } from 'ngwr/form';
-import { WrOption, WrOptionGroup, WrOptionLeading, type WrOptionLeadingPlacement, WrSelect } from 'ngwr/select';
+import {
+  WrOption,
+  WrOptionGroup,
+  WrOptionLeading,
+  type WrOptionLeadingPlacement,
+  WrSelect,
+  WrSelectLoadError,
+} from 'ngwr/select';
 
 import {
   DocApiComponent,
@@ -28,6 +35,7 @@ import { API } from '#core/generated/api';
     WrOption,
     WrOptionGroup,
     WrOptionLeading,
+    WrSelectLoadError,
     WrAvatar,
     WrFormField,
     WrFormError,
@@ -189,6 +197,17 @@ export class AssigneePicker {
     <wr-option [value]="c">{{ c }}</wr-option>
   }
 </wr-select>`,
+    loaderError: `<wr-select mode="search" retryable [loader]="search" [(value)]="country" />`,
+    loaderErrorTemplate: `<wr-select mode="search" retryable [loader]="search" [(value)]="country">
+  <ng-template wrSelectLoadError let-query="query" let-canRetry="canRetry" let-retry="retry" let-retrying="retrying">
+    <p>Search for “{{ query }}” is offline.</p>
+    @if (canRetry) {
+      <span class="wr-btn wr-btn--sm wr-btn--primary" (click)="retry()">
+        {{ retrying ? 'Retrying…' : 'Retry now' }}
+      </span>
+    }
+  </ng-template>
+</wr-select>`,
     serverSearch: `<wr-select
   mode="search"
   serverSearch
@@ -283,8 +302,28 @@ categoryId.setValue(2);`,
   /** One template, three surfaces: a panel row, a trigger's selected value, a chip. */
   protected readonly avatarPx: Record<WrOptionLeadingPlacement, number> = { option: 24, value: 20, chip: 16 };
 
+  /** Every other call fails, so the demo shows the error row and the retry. */
+  private flakyCalls = 0;
+  protected readonly flakyPick = signal<string | null>(null);
+  protected readonly flakyLoader = (query: string): Promise<readonly string[]> =>
+    this.flakyCalls++ % 2 === 0
+      ? new Promise((_, reject) => setTimeout(() => reject(new Error('offline')), 400))
+      : new Promise(resolve =>
+          setTimeout(() => resolve(this.countries.filter(c => c.toLowerCase().includes(query.toLowerCase()))), 800)
+        );
+
+  private flakyCallsTwo = 0;
+  protected readonly flakyPickTwo = signal<string | null>(null);
+  protected readonly flakyLoaderTwo = (query: string): Promise<readonly string[]> =>
+    this.flakyCallsTwo++ % 2 === 0
+      ? new Promise((_, reject) => setTimeout(() => reject(new Error('offline')), 400))
+      : new Promise(resolve =>
+          setTimeout(() => resolve(this.countries.filter(c => c.toLowerCase().includes(query.toLowerCase()))), 800)
+        );
+
   // Server-side search demo. Stands in for "dispatch an action, read the
   // results back out of a store" — the (searchChange) output is the only wiring.
+
   protected readonly serverResults = signal<readonly string[]>([]);
   protected readonly serverPending = signal(false);
   protected readonly serverPicked = signal<string | null>(null);
@@ -370,6 +409,29 @@ categoryId.setValue(2);`,
       description: "Where it is drawn: `'option'` (a panel row), `'chip'` (a multi chip) or `'value'` (the trigger).",
       type: "'option' | 'chip' | 'value'",
     },
+  ];
+
+  protected readonly loadErrorApi: readonly DocApiRow[] = [
+    {
+      name: '[wrSelectLoadError]',
+      description:
+        'On an `<ng-template>` directly in `<wr-select>`: replaces the row a failed `[loader]` shows. Draws inside an option, so nothing in it may be focusable.',
+      type: 'TemplateRef<WrSelectLoadErrorContext>',
+    },
+    { name: '$implicit', description: 'What the loader threw or rejected with — `let-error`.', type: 'E' },
+    { name: 'query', description: 'The query whose load failed.', type: 'string' },
+    {
+      name: 'canRetry',
+      description:
+        'A retry is on offer: `retryable` is set and nothing else is in the panel. Draw the control only then.',
+      type: 'boolean',
+    },
+    {
+      name: 'retry',
+      description: 'Runs the load again, while `canRetry` and no retry is in flight.',
+      type: '() => void',
+    },
+    { name: 'retrying', description: 'A retry is in flight, for a loader of your own.', type: 'boolean' },
   ];
 
   protected readonly groupApi: readonly DocApiRow[] = [

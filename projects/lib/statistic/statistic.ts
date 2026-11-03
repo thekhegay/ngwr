@@ -23,6 +23,9 @@ import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
+/** Digits with one optional point and a sign: the form `Intl` reads exactly. */
+const PLAIN_DECIMAL = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
+
 /**
  * KPI card — label + big number + optional prefix/suffix + delta. Pair
  * with `<wr-statistic-group>` for a responsive dashboard grid.
@@ -92,7 +95,11 @@ export class WrStatistic {
   /** Whether the value should count up (browser, numeric, opted-in, motion allowed). */
   protected readonly animated = computed<boolean>(
     () =>
-      this.platform.isBrowser && this.animate() && !this.platform.prefersReducedMotion() && this.numericValue() !== null
+      this.platform.isBrowser &&
+      this.animate() &&
+      !this.platform.prefersReducedMotion() &&
+      typeof this.value() === 'number' &&
+      this.numericValue() !== null
   );
 
   /** Animation start — the previously-rendered numeric value (0 on first paint). */
@@ -122,10 +129,14 @@ export class WrStatistic {
   protected readonly displayValue = computed<string>(() => {
     const n = this.numericValue();
     if (n !== null) {
+      // A plain decimal string is formatted as it is, the way `wrNumber` does it,
+      // so a long amount keeps every digit. `format()` has taken a string since
+      // ES2023, though the ES2022 lib types it as a number only.
+      const raw = typeof this.value() === 'string' ? String(this.value()).trim() : '';
       return new Intl.NumberFormat(this.locale, {
         minimumFractionDigits: this.precision(),
         maximumFractionDigits: this.precision(),
-      }).format(n);
+      }).format(PLAIN_DECIMAL.test(raw) ? (raw as unknown as number) : n);
     }
     // `numericValue` above already reads `''` as "no value"; rendering it
     // verbatim put an empty card on screen instead of the placeholder.

@@ -103,6 +103,8 @@ export const wrIt: WrI18nCatalog = {
     removeItem: 'Rimuovi {{label}}',
     noResults: 'Nessun risultato',
     loading: 'Caricamento…',
+    loadError: 'Impossibile caricare i risultati',
+    retry: 'Riprova',
     more: '+{{count}} in più',
   },
   // `tree` covers both inline display and combobox-mode pickers

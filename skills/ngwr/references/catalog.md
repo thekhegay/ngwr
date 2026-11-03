@@ -209,7 +209,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/scroll` | `import { WrScroll } from 'ngwr/scroll'` | — |
 | `ngwr/segmented` | `import { WrSegmented } from 'ngwr/segmented'` | `wr-segmented` |
 | `ngwr/segmented/testing` | `import { WrSegmentedHarness } from 'ngwr/segmented/testing'` | — |
-| `ngwr/select` | `import { WrSelect } from 'ngwr/select'` | `wr-option-group` `ng-template[wrOptionLeading]` `wr-option` `wr-select` |
+| `ngwr/select` | `import { WrSelect } from 'ngwr/select'` | `ng-template[wrSelectLoadError]` `wr-option-group` `ng-template[wrOptionLeading]` `wr-option` `wr-select` |
 | `ngwr/select/testing` | `import { WrOptionHarness } from 'ngwr/select/testing'` | — |
 | `ngwr/sidebar` | `import { WrSidebar } from 'ngwr/sidebar'` | `wr-sidebar` |
 | `ngwr/skeleton` | `import { WrSkeleton } from 'ngwr/skeleton'` | `wr-skeleton` |

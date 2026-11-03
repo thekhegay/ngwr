@@ -1913,11 +1913,13 @@ The version is the SUBJECT's, as the `since` input's JSDoc says, not the page's:
 a new page about something that already shipped declares nothing.
 `releaseLabel()` drops a zero patch, and a major's `.0.0` with it, so `15.0.0`
 prints as "v15". `isNewLink()` and `linkMark()` in `#core/utils` judge a nav
-row against `markVersion()`: the later minor line of `NGWR_VERSION` and the
-newest version any page declares. So a page written before its release is
-marked from the commit that adds it, the previous release's marks step back
-once the next release declares its first page, and every mark expires when the
-line moves on. Never type a version beside a nav row —
+row against `markVersion()`: the later MAJOR of `NGWR_VERSION` and the newest
+version any page declares. So a page written before its release is marked from
+the commit that adds it, a mark stands through every minor and patch of its
+major, and all of them step back once a page declares the next major, or at the
+latest when `NGWR_VERSION` reaches it. The first release of a major counts like any other, so `updated="15.0.0"` stands until v16
+and a major that moved a lot wears a lot of `Updated`: that was the maintainer's
+call, against a mark judged per minor. Never type a version beside a nav row —
 one per item is what this deliberately is not. A page that declares nothing
 shows nothing: no `@since` exists in `projects/lib` to backfill from, and git
 cannot supply one, because a renamed entry point looks new the day it moves.
@@ -1935,8 +1937,10 @@ template that no single route renders is REFUSED a version rather than keyed by
 walk order. The sidebar's marks are `<wr-sidebar>` word badges,
 chosen in `_layout/sidebar/entries.ts` — `New` in the primary tone; `Updated`,
 `Optional` and `Soon` neutral, since the sidebar has no calmer intent
-than primary and the word carries the meaning. A row wears one badge, and a
-version mark wins over `Optional`. `showcase/styles/_badge.scss` draws the
+than primary and the word carries the meaning. A row wears one badge, and
+`Optional` wins over a version mark, which would otherwise hide it for a whole
+major; a group whose every page is optional says so once, so its rows keep their
+marks. `showcase/styles/_badge.scss` draws the
 catalog index's marks only.
 
 **One more mark rides the same scan: `updated`.** `updated="15.0.0"` is the

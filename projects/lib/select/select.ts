@@ -37,12 +37,15 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import {
   type Observable,
+  Subject,
   catchError,
   debounce,
   defer,
   finalize,
   from,
   isObservable,
+  map,
+  merge,
   of,
   skip,
   switchMap,
@@ -53,8 +56,10 @@ import {
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
+import { WrSpinner } from 'ngwr/spinner';
 import { isComposing, toClassList, type WrClassInput } from 'ngwr/utils';
 
+import { WrSelectLoadError } from './load-error';
 import { WrOption } from './option';
 import { WrOptionLeading } from './option-leading';
 import { WR_SELECT } from './tokens';
@@ -135,7 +140,7 @@ interface SelectedChip {
   templateUrl: './select.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrOption, NgTemplateOutlet],
+  imports: [WrOption, NgTemplateOutlet, WrSpinner],
   providers: [
     {
       provide: WR_SELECT,
@@ -423,8 +428,30 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   /** Search mode: text shown while the async loader is in flight. Falls back to `select.loading`. */
   readonly loadingText = input<string | null>(null);
 
+  /**
+   * Search mode: text shown in place of the "no results" row when the async
+   * loader fails. Falls back to `select.loadError`.
+   */
+  readonly loadErrorText = input<string | null>(null);
+
+  /**
+   * Search mode: let a failed load be tried again, for the same query, while the
+   * panel has nothing else to offer. The error row draws a Try again button, and
+   * Enter in the field reaches it, except under `freeText`, where Enter still
+   * commits the typed text. Without it the row only reports the failure; the next keystroke
+   * tries again either way.
+   *
+   * @default false
+   */
+  readonly retryable = input(false, { transform: coerceBooleanProperty });
+
+  /** Search mode: label of the retry action on the error row. Falls back to `select.retry`. */
+  readonly retryText = input<string | null>(null);
+
   protected readonly resolvedNoResults = useI18nText(this.noResultsText, 'select.noResults', 'No results');
   protected readonly resolvedLoading = useI18nText(this.loadingText, 'select.loading', 'Loading…');
+  protected readonly resolvedLoadError = useI18nText(this.loadErrorText, 'select.loadError', 'Could not load results');
+  protected readonly resolvedRetry = useI18nText(this.retryText, 'select.retry', 'Try again');
 
   /**
    * Debounced search query, gated to searchable selects. Emits on every settled
@@ -466,6 +493,24 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   /** Either flag shows the panel's progress row. @internal */
   protected readonly isLoading = computed(() => this.loading() || this.loaderLoading());
+
+  /** The query whose load failed, until a load for another query starts or one succeeds. */
+  private readonly failedQuery = signal<string | null>(null);
+
+  /** What the failed load threw or rejected with. */
+  private readonly loadErrorValue = signal<unknown>(null);
+
+  /** A retry is in flight. The error row stays up for it, with a loader. */
+  protected readonly retrying = signal(false);
+
+  /**
+   * The load for the query on screen failed. Keyed by the query, so a keystroke
+   * takes the error down at once, rather than when its debounced load starts.
+   */
+  protected readonly loadFailed = computed(() => this.failedQuery() === this.searchQuery());
+
+  /** Asks the loader pipeline to run the current query again. */
+  private readonly retryRequests = new Subject<void>();
 
   // Tag-mode-only inputs (ignored in other modes)
 
@@ -597,6 +642,9 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   /** Id of the active option (for `aria-activedescendant`). */
   readonly activeOptionId = computed<string | null>(() => {
+    // The error row is the one thing on offer after a failed load, so the field
+    // names it as active: a screen reader reads it, and Enter runs the retry.
+    if (this.retryOffered() && !this.freeText()) return this.retryRowId;
     const idx = this.activeIndex();
     if (this.virtualActive()) {
       // Virtual rows aren't registered; the active id is derived from the index,
@@ -991,10 +1039,42 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   /** Search mode: show "no results" when the panel has nothing to offer. */
   protected readonly hasNoResults = computed(() => {
-    if (!this.isSearchable() || !this.open() || this.isLoading()) return false;
+    if (!this.isSearchable() || !this.open() || this.isLoading() || this.loadFailed()) return false;
     if (this.searchQuery().trim().length < this.minChars()) return false;
     return this.visibleCount() === 0;
   });
+
+  /** Search mode: the error row, in place of "no results", after a failed load and through its retry. */
+  protected readonly showLoadError = computed(
+    () => this.isSearchable() && this.open() && this.loadFailed() && (!this.isLoading() || this.retrying())
+  );
+
+  /** A `<ng-template wrSelectLoadError>` declared as a direct child, or `undefined`. */
+  protected readonly loadErrorTpl = contentChild(WrSelectLoadError, { descendants: false });
+
+  /** What `wrSelectLoadError` is handed. */
+  protected readonly loadErrorContext = computed(() => ({
+    $implicit: this.loadErrorValue(),
+    query: this.failedQuery() ?? '',
+    canRetry: this.retryOffered(),
+    retry: this.retryFn,
+    retrying: this.retrying(),
+  }));
+
+  /** One function for the context, gated the way the default button is. */
+  private readonly retryFn = (): void => this.onLoadErrorClick();
+
+  /**
+   * Search mode: the error row offers a retry. Only while nothing else is on
+   * offer, since the arrows walk the options and never reach this row; with
+   * options beside it, a retry by pointer alone would have no keyboard twin.
+   */
+  protected readonly retryOffered = computed(
+    () => this.retryable() && this.showLoadError() && this.visibleCount() === 0
+  );
+
+  /** Id of the error row, which `aria-activedescendant` names while it offers a retry. */
+  protected readonly retryRowId = `${this.listboxId}-retry`;
 
   /** Search mode: is this option hidden by the current query? @internal */
   private isOptionHidden(label: string): boolean {
@@ -1155,6 +1235,12 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     // Enter accepts an IME candidate, Escape cancels the reading, the arrows walk
     // the candidate list — none of it is the listbox's while a conversion is open.
     if (this.imeOwnsKey(event)) return;
+
+    if (event.key === 'Enter' && this.retryOffered() && !this.freeText()) {
+      event.preventDefault();
+      this.retryLoad();
+      return;
+    }
 
     // freeText: Enter on an unmatched query commits the typed string
     // as the value. Skips when an active option is highlighted (the
@@ -1329,15 +1415,28 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     });
 
     // Async loader pipeline (searchable selects only). `switchMap` cancels
-    // in-flight requests when a new keystroke arrives.
-    debouncedQuery
+    // in-flight requests when a new keystroke arrives. A retry joins after the
+    // debounce, with the query that failed.
+    merge(
+      debouncedQuery.pipe(map(query => ({ query, retry: false }))),
+      this.retryRequests.pipe(map(() => ({ query: this.failedQuery() ?? this.searchQuery(), retry: true })))
+    )
       .pipe(
-        switchMap(query => {
+        switchMap(({ query, retry }) => {
           const loader = this.loader();
+          // No load to run: with no loader, or under `minChars`, a failure is moot.
           if (!loader || !this.isSearchable() || query.length < this.minChars()) {
             this.loaderLoading.set(false);
+            this.retrying.set(false);
+            this.failedQuery.set(null);
             return of<readonly unknown[]>([]);
           }
+          // A retry keeps the failure on screen, with a loader, until it settles;
+          // a new query takes it down at once.
+          this.retrying.set(retry);
+          if (!retry) this.failedQuery.set(null);
+          // Whether this load answered at all, with a value or an error.
+          let settled = false;
           this.loaderLoading.set(true);
           // `defer` so the loader CALL is part of the inner observable too. Called
           // out here, a loader that throws SYNCHRONOUSLY throws from switchMap's
@@ -1353,17 +1452,33 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
             // say) that emits and never completes — so the first value lowers the
             // flag. `finalize` still covers completion, errors and cancellation,
             // including a loader that completes without emitting.
-            tap(() => this.loaderLoading.set(false)),
+            tap(() => {
+              settled = true;
+              this.loaderLoading.set(false);
+              this.failedQuery.set(null);
+              this.retrying.set(false);
+            }),
             // INSIDE the projection, which is the whole point: an error allowed to
             // reach the outer subscriber closes the subscription for good, and the
             // select then never calls the loader again for the life of the
             // component — silently, since nothing here has an error callback. Kept
-            // inside, one failed request costs that query and nothing else.
-            // Reported as "no results" rather than as an error row: the panel has
-            // no error state, and stale results for a query two keystrokes old
-            // would read as an answer to the current one.
-            catchError(() => of<readonly unknown[]>([])),
-            finalize(() => this.loaderLoading.set(false))
+            // inside, one failed request costs that query and nothing else. The
+            // results go empty rather than stale, since rows for a query two
+            // keystrokes old would read as an answer to the current one, and the
+            // panel says the load failed instead of "no results".
+            catchError((error: unknown) => {
+              settled = true;
+              this.failedQuery.set(query);
+              this.loadErrorValue.set(error);
+              this.retrying.set(false);
+              return of<readonly unknown[]>([]);
+            }),
+            finalize(() => {
+              this.loaderLoading.set(false);
+              this.retrying.set(false);
+              // A retry that completed with nothing did not fail: "no results".
+              if (retry && !settled) this.failedQuery.set(null);
+            })
           );
         }),
         takeUntilDestroyed(this.destroyRef)
@@ -1423,6 +1538,17 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   isSelected(value: unknown): boolean {
     if (this.isMulti()) return this.asArray(this.value()).includes(value);
     return this.value() === value;
+  }
+
+  /** Runs the loader again for the query that failed, unless a retry is already in flight. @internal */
+  private retryLoad(): void {
+    if (this.retrying()) return;
+    this.retryRequests.next();
+  }
+
+  /** The retry button runs the load only while it is on offer. @internal */
+  protected onLoadErrorClick(): void {
+    if (this.retryOffered()) this.retryLoad();
   }
 
   selectOption(value: unknown): void {

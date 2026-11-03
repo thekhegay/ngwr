@@ -806,6 +806,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<string | null> | Promise<boolean>',
     },
     {
+      name: 'getLoadErrorText() / retryLoad()',
+      description:
+        'The row a failed `[loader]` shows, and its retry under `retryable`, which throws when none is on offer.',
+      type: 'Promise<string | null> | Promise<void>',
+    },
+    {
       name: 'isMultiple() / isDisabled() / focus()',
       description: 'Mode and state.',
       type: 'Promise<boolean> | Promise<void>',

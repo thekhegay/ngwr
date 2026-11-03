@@ -15,10 +15,10 @@
  * for it and shows nothing, which is most of them.
  *
  * Read by `#core/utils`'s `linkMark()`, which gives a nav entry `New` or
- * `Updated` while the declared version is on the CURRENT release line — the
- * later of `NGWR_VERSION`'s and the newest one declared here (`markVersion()`)
- * — so a mark is derived from one string rather than typed a second time beside
- * the link, and it expires by itself when the next feature release moves on.
+ * `Updated` while the declared version is on the CURRENT major — the later of
+ * `NGWR_VERSION`'s and the newest one declared here (`markVersion()`) — so a
+ * mark is derived from one string rather than typed a second time beside the
+ * link, and it expires by itself when the next major moves on.
  */
 
 /**
@@ -84,7 +84,7 @@ export const UPDATED = {
   "guides/mobile": "15.0.0",
   "guides/overlay": "15.0.0",
   "guides/ssr": "15.0.0",
-  "guides/testing": "15.1.0",
+  "guides/testing": "15.3.0",
   "guides/theming": "15.0.0",
   "guides/tokens/colors": "15.0.0",
   "guides/tokens/density": "15.0.0",
@@ -95,6 +95,7 @@ export const UPDATED = {
   "icons/lucide": "15.0.0",
   "icons/overview": "15.0.0",
   "reference/components/badge": "15.0.0",
+  "reference/components/breadcrumbs": "15.3.0",
   "reference/components/button": "15.0.0",
   "reference/components/calendar": "15.0.0",
   "reference/components/cascader": "15.0.0",
@@ -115,7 +116,7 @@ export const UPDATED = {
   "reference/components/input-otp": "15.0.0",
   "reference/components/popover": "15.1.0",
   "reference/components/radio": "15.0.0",
-  "reference/components/select": "15.0.0",
+  "reference/components/select": "15.3.0",
   "reference/components/sidebar": "15.0.0",
   "reference/components/skeleton": "15.0.0",
   "reference/components/sortable-list": "15.0.0",

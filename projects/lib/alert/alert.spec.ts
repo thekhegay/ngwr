@@ -91,12 +91,12 @@ describe('WrAlert', () => {
     expect(root().querySelector('.wr-alert__message')).toBeNull();
   });
 
-  it('is driven by inputs — it projects no content', () => {
-    // Worth stating: `<wr-alert>text</wr-alert>` renders an EMPTY alert, with
-    // no template error and nothing in the console. Every documented example
-    // is self-closing with `title` / `message`.
-    expect(host().querySelector('ng-content')).toBeNull();
-    expect(host().textContent.trim()).toBe('');
+  it('leaves the content box empty when nothing is projected', () => {
+    // The stylesheet hides `.wr-alert__content:empty`, so this is what keeps a
+    // self-closing alert from gaining a gap under its message. A whitespace-only
+    // text node, such as an empty `{{ detail }}` on its own line, is not
+    // `:empty` and still adds that gap.
+    expect(root().querySelector('.wr-alert__content')!.childNodes).toHaveLength(0);
   });
 
   it('offers no dismiss button unless asked', () => {
@@ -145,6 +145,33 @@ describe('WrAlert', () => {
 
     expect(host().className).toContain('wr-alert');
     expect(host().className).toContain('wr-alert--success');
+  });
+});
+
+// `<wr-alert>text</wr-alert>` used to render an EMPTY alert: the template had
+// no `<ng-content>`, and nothing in the console said the text was dropped.
+describe('WrAlert with projected content', () => {
+  @Component({
+    imports: [WrAlert],
+    template: `<wr-alert title="Sync failed" message="Nothing was saved."
+      >Request <code>8f2c41</code> timed out.</wr-alert
+    >`,
+  })
+  class ContentHost {}
+
+  it('renders it below the message', () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(ContentHost);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const content = root.querySelector('.wr-alert__content')!;
+    const message = root.querySelector('.wr-alert__message')!;
+
+    expect(content.textContent.trim()).toBe('Request 8f2c41 timed out.');
+    expect(content.querySelector('code')).not.toBeNull();
+    // eslint-disable-next-line no-bitwise -- compareDocumentPosition answers with a bitmask
+    expect(message.compareDocumentPosition(content) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    fixture.destroy();
   });
 });
 

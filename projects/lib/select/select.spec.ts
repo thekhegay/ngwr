@@ -3,11 +3,14 @@ import { Component, type Type, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, disabled, form, readonly, required } from '@angular/forms/signals';
 
+import { EMPTY, type Observable } from 'rxjs';
+
 import { WrFormField } from 'ngwr/form';
 import { WrTPipe, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { WrSelectLoadError } from './load-error';
 import { WrOption } from './option';
 import { WrOptionGroup } from './option-group';
 import { WrSelect } from './select';
@@ -194,10 +197,20 @@ class VirtualHost {
 
 @Component({
   imports: [WrSelect],
-  template: `<wr-select mode="search" ariaLabel="Size" [debounceMs]="0" [loader]="load" [(value)]="size" />`,
+  template: `
+    <wr-select
+      mode="search"
+      ariaLabel="Size"
+      [debounceMs]="0"
+      [loader]="load"
+      [retryable]="retryable()"
+      [(value)]="size"
+    />
+  `,
 })
 class LoaderHost {
   readonly size = signal<unknown>(null);
+  readonly retryable = signal(false);
   /** Every query the loader was actually asked for, in order. */
   readonly calls: string[] = [];
   /** The one query that fails, and whether it fails before or after returning. */
@@ -985,6 +998,308 @@ describe('WrSelect with an async loader that fails', () => {
     await type('abc');
 
     expect(options()).toEqual([]);
+  });
+
+  const errorRow = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-select-panel__error');
+  const emptyRow = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-select-panel__empty');
+
+  // It used to say "No results", which reads as an answer to the query.
+  it('says the load failed, in place of "no results"', async () => {
+    fixture.componentInstance.failFor.set('abc');
+
+    await type('abc');
+
+    expect(errorRow()!.textContent.trim()).toBe('Could not load results');
+    expect(emptyRow()).toBeNull();
+    expect(errorRow()!.getAttribute('aria-disabled')).toBe('true');
+    expect(field().getAttribute('aria-activedescendant')).toBeNull();
+
+    await type('abcd');
+
+    expect(errorRow()).toBeNull();
+    expect(options()).toEqual(['item for abcd']);
+  });
+
+  it('offers a retry under retryable, by Enter in the field and by a click', async () => {
+    fixture.componentInstance.retryable.set(true);
+    fixture.componentInstance.failFor.set('abc');
+    await type('abc');
+
+    const row = errorRow()!;
+    expect(row.textContent.replace(/\s+/g, ' ').trim()).toBe('Could not load results Try again');
+    expect(row.querySelector('.wr-select-panel__retry')!.classList).toContain('wr-btn');
+    expect(row.getAttribute('aria-disabled')).toBeNull();
+    expect(field().getAttribute('aria-activedescendant')).toBe(row.id);
+
+    // Still failing: Enter calls the loader again for the same query.
+    field().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.calls).toEqual(['abc', 'abc']);
+    expect(errorRow()).not.toBeNull();
+
+    fixture.componentInstance.failFor.set(null);
+    errorRow()!.querySelector<HTMLElement>('.wr-select-panel__retry')!.click();
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.calls).toEqual(['abc', 'abc', 'abc']);
+    expect(errorRow()).toBeNull();
+    expect(options()).toEqual(['item for abc']);
+  });
+
+  it('takes the error down at the next keystroke, before its debounced load starts', async () => {
+    fixture.componentInstance.failFor.set('abc');
+    await type('abc');
+    expect(errorRow()).not.toBeNull();
+
+    field().value = 'abcd';
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(errorRow()).toBeNull();
+  });
+
+  it('runs no retry from a click without retryable', async () => {
+    fixture.componentInstance.failFor.set('abc');
+    await type('abc');
+
+    errorRow()!.click();
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+
+    expect(fixture.componentInstance.calls).toEqual(['abc']);
+  });
+});
+
+/** A failed loader beside a pinned option, and beside `freeText`. */
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select
+      mode="search"
+      ariaLabel="City"
+      retryable
+      [freeText]="freeText()"
+      [debounceMs]="0"
+      [loader]="load"
+      [(value)]="city"
+    >
+      @if (pinned()) {
+        <wr-option value="new">Create new</wr-option>
+      }
+    </wr-select>
+  `,
+})
+class RetryCornerHost {
+  readonly city = signal<unknown>(null);
+  readonly freeText = signal(false);
+  readonly pinned = signal(false);
+  readonly calls: string[] = [];
+  readonly load = (query: string): Promise<readonly string[]> => {
+    this.calls.push(query);
+    return Promise.reject(new Error('offline'));
+  };
+}
+
+describe('WrSelect retrying a failed loader, at the edges', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<RetryCornerHost>>;
+
+  const field = (): HTMLInputElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  const errorRow = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-select-panel__error');
+
+  const mount = (setup: (host: RetryCornerHost) => void): void => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(RetryCornerHost);
+    setup(fixture.componentInstance);
+    fixture.detectChanges();
+    field().click();
+    fixture.detectChanges();
+  };
+
+  const type = async (text: string): Promise<void> => {
+    field().value = text;
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+    fixture.detectChanges();
+  };
+
+  const enter = async (): Promise<void> => {
+    field().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  // Free text is what a user falls back on when the suggestions are failing.
+  it('lets Enter commit free text while the loader fails', async () => {
+    mount(host => host.freeText.set(true));
+    await type('Springfield');
+
+    expect(errorRow()).not.toBeNull();
+    expect(field().getAttribute('aria-activedescendant')).toBeNull();
+
+    await enter();
+
+    expect(fixture.componentInstance.city()).toBe('Springfield');
+    expect(fixture.componentInstance.calls).toEqual(['Springfield']);
+  });
+
+  // The arrows walk the options and never reach the error row, so beside one it
+  // offers no retry at all rather than one only a pointer can reach.
+  it('offers no retry while another option is on offer', async () => {
+    mount(host => host.pinned.set(true));
+    await type('ber');
+
+    const row = errorRow()!;
+    expect(row.getAttribute('aria-disabled')).toBe('true');
+    expect(row.classList).not.toContain('wr-select-panel__error--retryable');
+    expect(row.querySelector('.wr-select-panel__retry')).toBeNull();
+
+    row.click();
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+
+    expect(fixture.componentInstance.calls).toEqual(['ber']);
+  });
+});
+
+/** A loader the test settles by hand, and a custom error row. */
+@Component({
+  imports: [WrSelect, WrSelectLoadError],
+  template: `
+    <wr-select mode="search" ariaLabel="City" [retryable]="retryable()" [debounceMs]="0" [loader]="load">
+      @if (custom()) {
+        <ng-template
+          wrSelectLoadError
+          let-error
+          let-query="query"
+          let-canRetry="canRetry"
+          let-retry="retry"
+          let-retrying="retrying"
+        >
+          <span class="custom-message">{{ query }}: {{ error.message }}</span>
+          @if (canRetry) {
+            <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+            <span class="custom-retry" (click)="retry()">{{ retrying ? 'Retrying' : 'Retry' }}</span>
+          }
+        </ng-template>
+      }
+    </wr-select>
+  `,
+})
+class DeferredLoaderHost {
+  readonly custom = signal(false);
+  readonly retryable = signal(true);
+  /** The next load completes without a value, the way a filtered request can. */
+  completeEmpty = false;
+  readonly calls: string[] = [];
+  settle: { resolve: (items: readonly string[]) => void; reject: (error: Error) => void } | null = null;
+  readonly load = (query: string): Promise<readonly string[]> | Observable<readonly string[]> => {
+    this.calls.push(query);
+    if (this.completeEmpty) return EMPTY;
+    return new Promise((resolve, reject) => (this.settle = { resolve, reject }));
+  };
+}
+
+describe('WrSelect while a failed load is retried', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DeferredLoaderHost>>;
+
+  const field = (): HTMLInputElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  const panel = (selector: string): HTMLElement | null => document.querySelector<HTMLElement>(selector);
+  const turn = async (): Promise<void> => {
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+    fixture.detectChanges();
+  };
+
+  const failFirstLoad = async (custom: boolean, retryable = true): Promise<void> => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(DeferredLoaderHost);
+    fixture.componentInstance.custom.set(custom);
+    fixture.componentInstance.retryable.set(retryable);
+    fixture.detectChanges();
+    field().click();
+    fixture.detectChanges();
+    field().value = 'ber';
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    await turn();
+    fixture.componentInstance.settle!.reject(new Error('offline'));
+    await turn();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps the error row up with a loader on the button, in place of the loading row', async () => {
+    await failFirstLoad(false);
+    panel('.wr-select-panel__retry')!.click();
+    await turn();
+
+    const button = panel('.wr-select-panel__retry')!;
+    expect(button.classList).toContain('wr-btn--loading');
+    expect(button.querySelector('wr-spinner')).not.toBeNull();
+    expect(panel('.wr-select-panel__loading')).toBeNull();
+
+    // One retry at a time.
+    button.click();
+    await turn();
+    expect(fixture.componentInstance.calls).toEqual(['ber', 'ber']);
+
+    fixture.componentInstance.settle!.resolve(['Berlin']);
+    await turn();
+    expect(panel('.wr-select-panel__error')).toBeNull();
+  });
+
+  it('draws a wrSelectLoadError template with the error, the query, retry and retrying', async () => {
+    await failFirstLoad(true);
+
+    expect(panel('.custom-message')!.textContent.trim()).toBe('ber: offline');
+    expect(panel('.wr-select-panel__retry')).toBeNull();
+    // Enter still reaches the row, whatever it draws.
+    expect(field().getAttribute('aria-activedescendant')).toBe(panel('.wr-select-panel__error')!.id);
+
+    panel('.custom-retry')!.click();
+    await turn();
+    expect(panel('.custom-retry')!.textContent.trim()).toBe('Retrying');
+    expect(fixture.componentInstance.calls).toEqual(['ber', 'ber']);
+
+    fixture.componentInstance.settle!.reject(new Error('still offline'));
+    await turn();
+    expect(panel('.custom-message')!.textContent.trim()).toBe('ber: still offline');
+    expect(panel('.custom-retry')!.textContent.trim()).toBe('Retry');
+  });
+
+  it('tells a custom template that no retry is on offer without retryable', async () => {
+    await failFirstLoad(true, false);
+
+    expect(panel('.custom-message')!.textContent.trim()).toBe('ber: offline');
+    expect(panel('.custom-retry')).toBeNull();
+  });
+
+  // Typing during a retry takes the error row down, so the loading row carries on.
+  it('shows the loading row when the query moves on during a retry', async () => {
+    await failFirstLoad(false);
+    panel('.wr-select-panel__retry')!.click();
+    await turn();
+
+    field().value = 'berl';
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(panel('.wr-select-panel__error')).toBeNull();
+    expect(panel('.wr-select-panel__loading')).not.toBeNull();
+  });
+
+  it('shows "no results" when a retry completes with nothing', async () => {
+    await failFirstLoad(false);
+    fixture.componentInstance.completeEmpty = true;
+    panel('.wr-select-panel__retry')!.click();
+    await turn();
+
+    expect(panel('.wr-select-panel__error')).toBeNull();
+    expect(panel('.wr-select-panel__empty')).not.toBeNull();
   });
 });
 

@@ -105,6 +105,8 @@ export const wrVi: WrI18nCatalog = {
     removeItem: 'Xóa {{label}}',
     noResults: 'Không có kết quả',
     loading: 'Đang tải…',
+    loadError: 'Không thể tải kết quả',
+    retry: 'Thử lại',
     more: '+{{count}} nữa',
   },
   // `tree` covers both inline display and combobox-mode pickers

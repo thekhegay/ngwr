@@ -103,6 +103,8 @@ export const wrEs: WrI18nCatalog = {
     removeItem: 'Quitar {{label}}',
     noResults: 'Sin resultados',
     loading: 'Cargando…',
+    loadError: 'No se pudieron cargar los resultados',
+    retry: 'Reintentar',
     more: '+{{count}} más',
   },
   tree: {

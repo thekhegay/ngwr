@@ -106,6 +106,8 @@ export const wrTr: WrI18nCatalog = {
     removeItem: '{{label}} öğesini kaldır',
     noResults: 'Sonuç yok',
     loading: 'Yükleniyor…',
+    loadError: 'Sonuçlar yüklenemedi',
+    retry: 'Tekrar dene',
     more: '+{{count}} daha',
   },
   // `tree` covers both inline display and combobox-mode pickers

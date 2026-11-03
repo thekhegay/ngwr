@@ -36,7 +36,8 @@ function isEditableTarget(target: EventTarget | null): boolean {
 /**
  * Global keybinding registry.
  *
- * Bindings are keyed off `KeyboardEvent.key` + modifier state. Multiple
+ * Bindings are keyed off `KeyboardEvent.key` + modifier state, and a letter
+ * shortcut also fires on a non-Latin layout, by the physical key. Multiple
  * handlers per chord fire in priority order; a handler that calls
  * `event.preventDefault()` stops lower-priority bindings on that key.
  *

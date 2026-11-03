@@ -1,5 +1,10 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders: the retry on
+// a failed load wears `.wr-btn`, and its loader is a `wr-spinner`.
+@use '../../button/styles' as button-styles;
+@use '../../spinner/styles' as spinner-styles; // WrSpinner
+
 .wr-select {
   --wr-select-color: var(--wr-color-on-surface);
   --wr-select-bg: var(--wr-color-surface);
@@ -441,6 +446,8 @@
   // Shared by the loading and the empty row — one padding for the panel's
   // status text, whichever of the two is rendered.
   --wr-select-panel-message-padding: var(--wr-space-md);
+  --wr-select-panel-retry-gap: var(--wr-space-sm);
+  --wr-select-panel-retry-active-bg: var(--wr-color-hover);
   // Option sizing — default md. --sm/--lg are set from the trigger size because
   // the panel is portaled into an overlay and can't inherit the host size class.
   --wr-option-font-size: var(--wr-control-font-size-md);
@@ -494,11 +501,26 @@
   }
 
   &__loading,
-  &__empty {
+  &__empty,
+  &__error {
     padding: var(--wr-select-panel-message-padding);
     color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-option-font-size);
     text-align: center;
+  }
+
+  // A button on a line of its own, under the message.
+  &__retry {
+    display: flex;
+    width: fit-content;
+    margin-block-start: var(--wr-select-panel-retry-gap);
+    margin-inline: auto;
+  }
+
+  // Focus stays in the field, so the button the field names as active takes the
+  // tint an active option takes, rather than a ring that would never go away.
+  &__error--active &__retry {
+    --wr-btn-bg: var(--wr-select-panel-retry-active-bg);
   }
 }
 
