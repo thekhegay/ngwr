@@ -10,6 +10,9 @@ import type { PipeTransform } from '@angular/core';
 
 import type { WrNumberStyle } from './types';
 
+/** Digits with one optional point and a sign: the form `Intl` reads exactly. */
+const PLAIN_DECIMAL = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
+
 /**
  * Locale-aware number formatting via `Intl.NumberFormat`. Uses Angular's
  * `LOCALE_ID` as the default locale.
@@ -35,13 +38,20 @@ export class WrNumber implements PipeTransform {
     currency = 'USD'
   ): string {
     if (value === null || value === undefined || value === '') return '';
-    const n = Number(value);
+    const text = typeof value === 'string' ? value.trim() : null;
+    const n = Number(text ?? value);
     if (!Number.isFinite(n)) return '';
 
     const options: Intl.NumberFormatOptions =
       typeof styleOrOptions === 'string' ? this.toOptions(styleOrOptions, currency) : styleOrOptions;
 
-    return new Intl.NumberFormat(this.locale, options).format(n);
+    // A plain decimal string goes to `Intl` as it is: through `Number()`,
+    // `'12345678901234567.89'` printed as `12,345,678,901,234,568`. Any other
+    // form keeps the number, since ICU throws on an exponent of a billion or more.
+    // `format()` has read a string since ES2023 (Chrome 106, Firefox 116, Safari
+    // 15.4); the ES2022 lib this builds against types it as a number only.
+    const exact = text !== null && PLAIN_DECIMAL.test(text) ? (text as unknown as number) : n;
+    return new Intl.NumberFormat(this.locale, options).format(exact);
   }
 
   private toOptions(style: WrNumberStyle, currency: string): Intl.NumberFormatOptions {

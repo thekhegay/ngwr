@@ -127,6 +127,31 @@ describe('WrStatistic', () => {
     expect(number()).toBe('12,345');
   });
 
+  // Through `Number()`, this amount printed as 12,345,678,901,234,568.00.
+  it('keeps every digit of a decimal string', () => {
+    fixture.componentInstance.value.set('12345678901234567.89');
+    fixture.componentInstance.precision.set(2);
+    fixture.detectChanges();
+
+    expect(number()).toBe('12,345,678,901,234,567.89');
+  });
+
+  it('keeps the number for a string that is not a plain decimal', () => {
+    fixture.componentInstance.value.set('1e-1000000000');
+    fixture.detectChanges();
+
+    expect(number()).toBe('0');
+  });
+
+  it('does not count up a string value, as the animate input says', () => {
+    fixture.componentInstance.animate.set(true);
+    fixture.componentInstance.value.set('12345678901234567.89');
+    fixture.detectChanges();
+
+    expect(root().querySelector('wr-count-up')).toBeNull();
+    expect(number()).toBe('12,345,678,901,234,568');
+  });
+
   it('shows a signed delta with a direction class', () => {
     fixture.componentInstance.delta.set(12.4);
     fixture.detectChanges();
