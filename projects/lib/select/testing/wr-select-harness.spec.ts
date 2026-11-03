@@ -316,7 +316,7 @@ describe('WrSelectHarness — a failed loader', () => {
     const select = await loader.getHarness(WrSelectHarness);
     await select.open();
 
-    await expect(select.retryLoad()).rejects.toThrow(/no retry on offer/);
+    await expect(select.retryLoad()).rejects.toThrow(/no retry to run/);
   });
 });
 

@@ -43,3 +43,4 @@ export type WrSelectSize = 'sm' | 'md' | 'lg';
 export type { WrOptionLeadingPlacement, WrOptionLeadingContext } from './option-leading-context';
 export type { WrSelectOptionRegistration } from './select-option-registration';
 export type { WrSelectContext } from './select-context';
+export type { WrSelectLoadErrorContext } from './load-error-context';

@@ -1,8 +1,9 @@
 @use '../../theme/styles' as theme;
 
 // Styles for the entry points this component's own markup renders: the retry on
-// a failed load wears `.wr-btn`.
+// a failed load wears `.wr-btn`, and its loader is a `wr-spinner`.
 @use '../../button/styles' as button-styles;
+@use '../../spinner/styles' as spinner-styles; // WrSpinner
 
 .wr-select {
   --wr-select-color: var(--wr-color-on-surface);

@@ -398,7 +398,8 @@
          ARIA attribute on a role-less child makes that child an owned element the
          listbox may not own (axe `aria-required-children`, critical). Plain text
          inside the listbox is fine — only ELEMENTS are checked. -->
-    @if (isLoading()) {
+    <!-- While the error row is up, through a retry, it carries the loader. -->
+    @if (isLoading() && !showLoadError()) {
       <div class="wr-select-panel__loading">{{ resolvedLoading() }}</div>
     }
 
@@ -488,12 +489,25 @@
         [attr.aria-disabled]="retryOffered() ? null : true"
         (mousedown)="$event.preventDefault()"
       >
-        {{ resolvedLoadError() }}
-        @if (retryOffered()) {
-          <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
-          <span class="wr-btn wr-btn--sm wr-select-panel__retry" (click)="onLoadErrorClick()">{{
-            resolvedRetry()
-          }}</span>
+        @if (loadErrorTpl(); as custom) {
+          <ng-container [ngTemplateOutlet]="custom.template" [ngTemplateOutletContext]="loadErrorContext()" />
+        } @else {
+          {{ resolvedLoadError() }}
+          @if (retryOffered()) {
+            <!-- The spinner as `wr-btn` draws it while loading: hidden from the
+                 accessibility tree, since the row already reads the retry label. -->
+            <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+            <span
+              class="wr-btn wr-btn--sm wr-select-panel__retry"
+              [class.wr-btn--loading]="retrying()"
+              (click)="onLoadErrorClick()"
+            >
+              @if (retrying()) {
+                <wr-spinner class="wr-btn__spin" size="sm" aria-hidden="true" />
+              }
+              <span class="wr-btn__label">{{ resolvedRetry() }}</span>
+            </span>
+          }
         }
       </div>
     }

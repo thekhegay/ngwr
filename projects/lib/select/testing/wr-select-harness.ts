@@ -195,13 +195,28 @@ export class WrSelectHarness extends ComponentHarness {
     return row ? row.text() : null;
   }
 
-  /** Runs a failed load again through the error row's button. Throws when it offers no retry. */
+  /**
+   * Runs a failed load again: Enter in the field where the field names the error
+   * row as active, which works for a `wrSelectLoadError` template too, else a
+   * click on the default Try again button (under `freeText`, where Enter commits
+   * the text). Throws when no retry is on offer.
+   */
   async retryLoad(): Promise<void> {
-    const row = await this.inPanel('.wr-select-panel__retry');
-    if (!row) {
-      throw new Error('WrSelectHarness: no retry on offer. The loader has not failed, or `retryable` is off.');
+    const row = await this.inPanel('.wr-select-panel__error');
+    const input = await this.searchInput();
+    const rowId = row ? await row.getAttribute('id') : null;
+    if (rowId && input && (await input.getAttribute('aria-activedescendant')) === rowId) {
+      await input.sendKeys(TestKey.ENTER);
+      return;
     }
-    await row.click();
+    const button = await this.inPanel('.wr-select-panel__retry');
+    if (!button) {
+      throw new Error(
+        'WrSelectHarness: no retry to run. The loader has not failed, `retryable` is off, other options are on offer, ' +
+          'or a wrSelectLoadError template draws its own control under `freeText`, where only a click reaches it.'
+      );
+    }
+    await button.click();
   }
 
   /** Whether the panel is showing its async loading row. */
