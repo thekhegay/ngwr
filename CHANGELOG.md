@@ -1,5 +1,30 @@
 # Changelog
 
+## [15.4.0](https://github.com/thekhegay/ngwr/compare/v15.3.0...v15.4.0) (2026-11-04)
+
+### Features
+
+* **pipes:** format functions beside the pipes, and a duration pipe ([dad8ec0](https://github.com/thekhegay/ngwr/commit/dad8ec0971b835d145761bdf129acd2e8bb34676))
+
+### Bug Fixes
+
+* **aurora:** the gpu is given back on destroy, and a lost context is rebuilt ([b7297ec](https://github.com/thekhegay/ngwr/commit/b7297ecbb83ab07df8be5af57af78bd8742526f4))
+* **aurora:** the still frame reads a hook a directive sets in the same pass ([d2ae809](https://github.com/thekhegay/ngwr/commit/d2ae80974030830e98c66cef39096614430a174b))
+* **border-glow:** a colour input writes its own variable, never the hook ([2e2b941](https://github.com/thekhegay/ngwr/commit/2e2b9414b655b371f3433bb2e1ad8e6cb5725923))
+* **border-glow:** the geometry hooks are bound on the host, where gen:css-vars reads them ([cb763e7](https://github.com/thekhegay/ngwr/commit/cb763e7fc3529ddab260ba9e8d119f9046cb93e4))
+* **click-spark:** the entry point loads the theme its spark colour reads ([510d887](https://github.com/thekhegay/ngwr/commit/510d887025140b0a99978fa5ba8eed20181e76eb))
+* **dot-grid:** the still grid reads a hook a directive sets in the same pass ([e003fa9](https://github.com/thekhegay/ngwr/commit/e003fa952d329b7717fd4e3cce829c0833bec57f))
+* **fuzzy-text:** no row loop on a canvas drawn at no size or behind a closed clip ([3a0cdba](https://github.com/thekhegay/ngwr/commit/3a0cdbafc887892b367685d1d565f97fa0c28678))
+* **ripple-grid:** no frames and no idle ring at zero area or behind a closed clip ([0e5cdf0](https://github.com/thekhegay/ngwr/commit/0e5cdf0116b231873c168bfc8bfd6c1e8cb64f4c))
+* **ripple-grid:** the still grid reads a hook a directive sets in the same pass ([2f9bfbc](https://github.com/thekhegay/ngwr/commit/2f9bfbc4f98c2cc1e06610a92fc791a5fe8b1c64))
+* **scripts:** css-vars marks the hooks a component writes on its host ([afce83e](https://github.com/thekhegay/ngwr/commit/afce83e8a70f0dcc478a25211fbdaf42c1c817a3))
+* **splash-cursor:** no solver frames at zero area or behind a closed clip ([6ef2622](https://github.com/thekhegay/ngwr/commit/6ef262246e3461dfa1a24d4072019ef19319eafa))
+* **waves:** the still grid reads a hook a directive sets in the same pass ([377e87c](https://github.com/thekhegay/ngwr/commit/377e87c15f4879add98bcb3be828c74aef81deca))
+
+### Showcase
+
+* the host note on a css variable covers hooks written from state ([00a0c75](https://github.com/thekhegay/ngwr/commit/00a0c753e9137e2943a6a1a7feaa787a32eb1480))
+
 ## [15.3.0](https://github.com/thekhegay/ngwr/compare/v15.2.0...v15.3.0) (2026-11-03)
 
 ### Features
