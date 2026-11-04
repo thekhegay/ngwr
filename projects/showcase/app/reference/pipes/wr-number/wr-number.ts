@@ -50,6 +50,11 @@ export default class WrNumberPipePage {
     currency: `{{ 19.99 | wrNumber: 'currency' : 'USD' }}  <!-- "$19.99" -->`,
     options: `{{ 19.9 | wrNumber: { minimumFractionDigits: 2 } }}      <!-- "19.90" -->
 {{ 1234567 | wrNumber: { notation: 'compact' } }}        <!-- "1.2M"  -->`,
+    fn: `import { wrFormatNumber } from 'ngwr/pipes';
+
+wrFormatNumber(1234.5, 'en-US');                   // "1,234.5"
+wrFormatNumber(0.875, 'en-US', 'percent');         // "87.5%"
+wrFormatNumber(19.99, 'de-DE', 'currency', 'EUR'); // "19,99 €"`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -57,6 +62,12 @@ export default class WrNumberPipePage {
       name: 'wrNumber',
       description: '`Intl.NumberFormat` in `LOCALE_ID`. Takes a style or an options object.',
       type: "(value: number | string | null | undefined, styleOrOptions: WrNumberStyle | Intl.NumberFormatOptions = 'decimal', currency = 'USD') => string",
+      default: '—',
+    },
+    {
+      name: 'wrFormatNumber',
+      description: 'The pipe as a function, in the locale given.',
+      type: "(value: number | string | null | undefined, locale: string, styleOrOptions: WrNumberStyle | Intl.NumberFormatOptions = 'decimal', currency = 'USD') => string",
       default: '—',
     },
   ];

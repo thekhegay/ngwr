@@ -1,0 +1,71 @@
+<ngwr-doc-page
+  title="wrDuration"
+  since="15.4.0"
+  description="Show a span of milliseconds as clock digits or as units."
+  [keywords]="['pipe', 'wrDuration', 'duration', 'elapsed', 'time', 'format']"
+  [labels]="['Pipe']"
+>
+  <ngwr-doc-section
+    title="Clock"
+    description="The default: hours, minutes and seconds. Under an hour, minutes and seconds."
+  >
+    <ngwr-doc-code [code]="snippets.clock" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <!-- Keep the <tbody>: without it hydration fails (NG0501). -->
+      <div class="ngwr-table">
+        <table>
+          <tbody>
+            @for (span of spans; track span) {
+              <tr>
+                <th scope="row">
+                  <code>{{ span }}</code>
+                </th>
+                <td>{{ span | wrDuration }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Units"
+    description="`'units'` writes every non-zero unit, days included, with the words and the digits of the app locale."
+  >
+    <ngwr-doc-code [code]="snippets.units" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <!-- Keep the <tbody>: without it hydration fails (NG0501). -->
+      <div class="ngwr-table">
+        <table>
+          <tbody>
+            @for (span of spans; track span) {
+              <tr>
+                <th scope="row">
+                  <code>{{ span }}</code>
+                </th>
+                <td>{{ span | wrDuration: 'units' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="In TypeScript" description="`wrFormatDuration` gives the same text for a row built in code.">
+    <ngwr-doc-code [code]="snippets.fn" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="playgroundSnippet()" [controls]="controls">
+      <p class="ngwr-pipe-output">{{ ms() | wrDuration: style() }}</p>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

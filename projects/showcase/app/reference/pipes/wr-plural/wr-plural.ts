@@ -45,6 +45,10 @@ export default class WrPluralPipePage {
 
 {{ count() | wrPlural: forms : { includeValue: false } }}
 <!-- word only -->`,
+    fn: `import { wrFormatPlural } from 'ngwr/pipes';
+
+wrFormatPlural(1, 'en', { one: 'comment', other: 'comments' });          // "1 comment"
+wrFormatPlural(5, 'ru', { one: 'файл', few: 'файла', other: 'файлов' }); // "5 файлов"`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -52,6 +56,12 @@ export default class WrPluralPipePage {
       name: 'wrPlural',
       description: 'Picks the word form through `Intl.PluralRules`. A missing form falls back to `other`.',
       type: '(value: number | null | undefined, forms: WrPluralForms, options: WrPluralOptions = {}) => string',
+      default: '—',
+    },
+    {
+      name: 'wrFormatPlural',
+      description: 'The pipe as a function, in the locale given. `options.locale` still wins.',
+      type: '(value: number | null | undefined, locale: string, forms: WrPluralForms, options: WrPluralOptions = {}) => string',
       default: '—',
     },
     {

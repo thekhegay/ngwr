@@ -17,6 +17,41 @@ import type { PipeTransform } from '@angular/core';
 const UNITS = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte', 'petabyte'] as const;
 
 /**
+ * `Intl`'s NARROW unit, with one space put back between it and the number.
+ *
+ * Neither display mode is right on its own. `short` spells the smallest unit
+ * as a word — "512 byte", "0 byte" in English, "0 Byte" in German — which is
+ * both worse copy than the `B` this pipe has always rendered and a bigger
+ * change than the fix is worth. `narrow` gives `B` / `Б` / `o` correctly and
+ * then closes the gap: "1.2kB".
+ *
+ * So the parts are reassembled rather than the string. Going through
+ * `formatToParts` is what keeps the ORDER the locale's own — Hebrew puts the
+ * unit first, and hand-joining `${n} ${unit}` would silently straighten every
+ * such locale into English order.
+ */
+function format(locale: string, value: number, unit: number, fractionDigits: number): string {
+  const parts = new Intl.NumberFormat(locale, {
+    style: 'unit',
+    unit: UNITS[unit],
+    unitDisplay: 'narrow',
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  }).formatToParts(value);
+
+  const at = parts.findIndex(part => part.type === 'unit');
+  if (at === -1) return parts.map(part => part.value).join('');
+
+  const out = parts.map(part => part.value);
+  // The slot on the number's side of the unit: already a separator in some
+  // locales, absent in others.
+  const gap = at === 0 ? 1 : at - 1;
+  if (parts[gap]?.type === 'literal') out[gap] = ' ';
+  else out.splice(at === 0 ? 1 : at, 0, ' ');
+  return out.join('');
+}
+
+/**
  * Humanise a byte count using binary (1024-based) units, in the reader's locale.
  *
  * @example
@@ -50,56 +85,39 @@ const UNITS = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte', 'petabyte
  * which are public catalog keys a consumer may have overridden, so it renders
  * `KB` where this pipe renders `kB`. Retiring those keys would silently break
  * every override that had been translating them, which is a major-version move.
+ *
+ * {@link wrFormatBytes} is the same output as a function.
  */
 @Pipe({ name: 'wrBytes' })
 export class WrBytes implements PipeTransform {
   private readonly locale = inject(LOCALE_ID);
 
   transform(value: number | string | null | undefined, decimals = 1): string {
-    if (value === null || value === undefined || value === '') return '';
-    const n = Number(value);
-    if (!Number.isFinite(n) || n <= 0) return this.format(0, 0, 0);
-
-    // Floored as well as capped: for `0 < n < 1` the log is negative, so an
-    // unclamped index reads `UNITS[-1]` (`undefined`) and divides by `1024 ** -1`,
-    // which rendered `0.5` as "512.0 undefined".
-    const i = Math.min(Math.max(0, Math.floor(Math.log(n) / Math.log(1024))), UNITS.length - 1);
-    // Whole bytes never show a fractional part.
-    return this.format(n / 1024 ** i, i, i === 0 ? 0 : Math.max(0, decimals));
+    return wrFormatBytes(value, this.locale, decimals);
   }
+}
 
-  /**
-   * `Intl`'s NARROW unit, with one space put back between it and the number.
-   *
-   * Neither display mode is right on its own. `short` spells the smallest unit
-   * as a word — "512 byte", "0 byte" in English, "0 Byte" in German — which is
-   * both worse copy than the `B` this pipe has always rendered and a bigger
-   * change than the fix is worth. `narrow` gives `B` / `Б` / `o` correctly and
-   * then closes the gap: "1.2kB".
-   *
-   * So the parts are reassembled rather than the string. Going through
-   * `formatToParts` is what keeps the ORDER the locale's own — Hebrew puts the
-   * unit first, and hand-joining `${n} ${unit}` would silently straighten every
-   * such locale into English order.
-   */
-  private format(value: number, unit: number, fractionDigits: number): string {
-    const parts = new Intl.NumberFormat(this.locale, {
-      style: 'unit',
-      unit: UNITS[unit],
-      unitDisplay: 'narrow',
-      minimumFractionDigits: fractionDigits,
-      maximumFractionDigits: fractionDigits,
-    }).formatToParts(value);
+/**
+ * A byte count in binary (1024-based) units, in the given locale: the same
+ * output as the `wrBytes` pipe, for a string built in TypeScript. `null`,
+ * `undefined` and an empty string give an empty string; zero, a negative
+ * number and a value that is not a number give `0 B`.
+ *
+ * @example
+ * ```ts
+ * wrFormatBytes(1234, 'en-US');       // "1.2 kB"
+ * wrFormatBytes(1234567, 'fr-FR', 0); // "1 Mo"
+ * ```
+ */
+export function wrFormatBytes(value: number | string | null | undefined, locale: string, decimals = 1): string {
+  if (value === null || value === undefined || value === '') return '';
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return format(locale, 0, 0, 0);
 
-    const at = parts.findIndex(part => part.type === 'unit');
-    if (at === -1) return parts.map(part => part.value).join('');
-
-    const out = parts.map(part => part.value);
-    // The slot on the number's side of the unit: already a separator in some
-    // locales, absent in others.
-    const gap = at === 0 ? 1 : at - 1;
-    if (parts[gap]?.type === 'literal') out[gap] = ' ';
-    else out.splice(at === 0 ? 1 : at, 0, ' ');
-    return out.join('');
-  }
+  // Floored as well as capped: for `0 < n < 1` the log is negative, so an
+  // unclamped index reads `UNITS[-1]` (`undefined`) and divides by `1024 ** -1`,
+  // which rendered `0.5` as "512.0 undefined".
+  const i = Math.min(Math.max(0, Math.floor(Math.log(n) / Math.log(1024))), UNITS.length - 1);
+  // Whole bytes never show a fractional part.
+  return format(locale, n / 1024 ** i, i, i === 0 ? 0 : Math.max(0, decimals));
 }

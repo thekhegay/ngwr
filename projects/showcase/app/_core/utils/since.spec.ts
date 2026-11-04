@@ -272,6 +272,7 @@ describe('the surfaces that draw it', () => {
       'Chart Legend',
       'Graph',
       'Editor',
+      'wrDuration',
       'resolveCssColor',
       'toClassList',
     ]);

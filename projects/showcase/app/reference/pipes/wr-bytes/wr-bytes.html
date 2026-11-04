@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="wrBytes"
+  updated="15.4.0"
   description="Show a byte count as kB, MB or GB."
   [keywords]="['pipe', 'wrBytes', 'bytes', 'size', 'humanise']"
   [labels]="['Pipe']"
@@ -22,6 +23,10 @@
     <ngwr-doc-playground [code]="playgroundSnippet()" [controls]="controls">
       <p class="ngwr-pipe-output">{{ bytes() | wrBytes: decimals() }}</p>
     </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="In TypeScript" description="`wrFormatBytes` gives the same text for a row built in code.">
+    <ngwr-doc-code [code]="snippets.fn" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

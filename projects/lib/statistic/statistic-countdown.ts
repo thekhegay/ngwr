@@ -18,6 +18,7 @@ import {
   signal,
 } from '@angular/core';
 
+import { type WrDurationUnit, wrSplitDuration } from 'ngwr/pipes';
 import { numAttr } from 'ngwr/utils';
 
 // Helpers
@@ -41,32 +42,27 @@ function pad(n: number, width: number): string {
  */
 const TOKEN = /(?<![A-Za-z])(?:SSS|DD|HH|mm|ss|D|H|m|s)(?![A-Za-z])/g;
 
-/** Each unit's length, largest first, keyed by its token's letter. */
-const UNITS = [
-  ['D', 86_400_000],
-  ['H', 3_600_000],
-  ['m', 60_000],
-  ['s', 1000],
-  ['S', 1],
-] as const;
+/** The unit each token's letter stands for. */
+const UNIT_OF: Readonly<Record<string, WrDurationUnit>> = {
+  D: 'day',
+  H: 'hour',
+  m: 'minute',
+  s: 'second',
+  S: 'millisecond',
+};
 
 /**
  * A unit the format does not show is carried into the next larger one it does:
  * `HH:mm:ss` with three days left reads `73:00:00`. Every unit was taken modulo
  * the next one whatever the format held, so the default format dropped whole days
- * and showed `00:59:59` for three days and an hour.
+ * and showed `00:59:59` for three days and an hour. The split itself is
+ * `wrSplitDuration`, shared with `wrDuration`.
  */
 function formatRemaining(ms: number, fmt: string): string {
-  const shown = new Set((fmt.match(TOKEN) ?? []).map(token => token[0]));
-  const value: Record<string, number> = {};
-  let rest = ms;
-  for (const [unit, size] of UNITS) {
-    if (!shown.has(unit)) continue;
-    value[unit] = Math.floor(rest / size);
-    rest -= value[unit] * size;
-  }
+  const shown = new Set((fmt.match(TOKEN) ?? []).map(token => UNIT_OF[token[0]]));
+  const value = wrSplitDuration(ms, shown);
   return fmt.replace(TOKEN, token => {
-    const n = value[token[0]];
+    const n = value[UNIT_OF[token[0]]] ?? 0;
     return token === 'SSS' ? pad(n, 3) : token.length === 2 ? pad(n, 2) : String(n);
   });
 }

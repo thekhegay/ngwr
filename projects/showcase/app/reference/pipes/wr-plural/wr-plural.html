@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="wrPlural"
+  updated="15.4.0"
   description="Pick the right word form for a count, in any language."
   [keywords]="['wrPlural', 'plural', 'pluralization', 'i18n', 'pipe']"
   [labels]="['Pipe']"
@@ -19,6 +20,10 @@
     description="Key the forms by CLDR category: `zero`, `one`, `two`, `few`, `many`, `other`. A missing form falls back to `other`."
   >
     <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="In TypeScript" description="`wrFormatPlural` gives the same text for a row built in code.">
+    <ngwr-doc-code [code]="snippets.fn" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
