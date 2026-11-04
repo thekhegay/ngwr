@@ -1034,8 +1034,11 @@ cycle. A component that can hold another of its kind (a projected slot, a consum
 template) also declares that variable `initial` on the block, or the inner one inherits
 it. A hook that mirrors an input whose value is never `null` (`--wr-threads-count`,
 `--wr-waves-x-gap`) has no such problem and no way in from a stylesheet rule either,
-since the input's value is on the host. An author's own `[style.--wr-x]` still wins
-over it, as a template binding does over a host binding.
+since the input's value is on the host. `gen:css-vars` reads that off the owner's
+`host:` metadata and its `setProperty` calls — a write with no `null` branch and no
+`removeProperty` — and marks the row `host`, so the docs table says the input sets
+it instead of telling the reader to set it on the element. An author's own
+`[style.--wr-x]` still wins over it, as a template binding does over a host binding.
 
 **The COMPONENT-scoped hooks are catalogued by `gen:css-vars`.** How many there
 are is printed by the run — do not re-type it here, which is how this line came

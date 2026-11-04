@@ -21,4 +21,11 @@ export interface DocCssVarRow {
   readonly base?: false;
   /** How many further declarations (variants, states, media) override it. Absent means none. */
   readonly overrides?: number;
+  /**
+   * The component writes this hook on its own host, from an input, and never
+   * releases it — `--wr-threads-count` mirrors `[lineCount]`. An inline value
+   * beats every stylesheet rule, so the section's "set these on the element" does
+   * not hold for the row: the input sets it. Absent means a rule reaches it.
+   */
+  readonly host?: true;
 }
