@@ -4,11 +4,6 @@
 
 ## High
 
-- **`WrPlatform` page state, and `wrPoll`**: `pageVisible` and `online` signals
-  (true on the server), a callback for coming back after a real absence, and
-  polling resources on one shared ticker that pauses while the tab is hidden and
-  skips a resource still loading.
-
 ## Medium
 
 - **`WrStorage.signal`**: a writable signal that saves on write and follows other

@@ -856,6 +856,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   ],
   'reference/services/meta': ['guides/ssr', 'docs/configuration', 'reference/services/i18n'],
   'reference/services/platform': [
+    'reference/utils/wr-poll',
     'guides/ssr',
     'guides/mobile',
     'reference/components/pull-to-refresh',

@@ -1,4 +1,4 @@
-import { PLATFORM_ID } from '@angular/core';
+import { EnvironmentInjector, PLATFORM_ID, createEnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -98,6 +98,145 @@ describe('platform services', () => {
         false,
         null,
       ]);
+    });
+
+    describe('page state', () => {
+      const setVisibility = (state: 'visible' | 'hidden'): void => {
+        Object.defineProperty(document, 'visibilityState', { value: state, configurable: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+      };
+      const setOnline = (online: boolean): void => {
+        window.dispatchEvent(new Event(online ? 'online' : 'offline'));
+      };
+      /** Hide the page, let `ms` pass, come back. */
+      const leaveFor = (ms: number): void => {
+        setVisibility('hidden');
+        vi.advanceTimersByTime(ms);
+        setVisibility('visible');
+      };
+
+      beforeEach(() => {
+        vi.useFakeTimers();
+        Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+        Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
+      });
+
+      afterEach(() => {
+        vi.useRealTimers();
+        Reflect.deleteProperty(document, 'visibilityState');
+        Reflect.deleteProperty(navigator, 'onLine');
+      });
+
+      it('follows the page visibility', () => {
+        const platform = setup();
+        expect(platform.pageVisible()).toBe(true);
+
+        setVisibility('hidden');
+        expect(platform.pageVisible()).toBe(false);
+
+        setVisibility('visible');
+        expect(platform.pageVisible()).toBe(true);
+      });
+
+      it('starts hidden when the page boots in a background tab', () => {
+        Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+        expect(setup().pageVisible()).toBe(false);
+      });
+
+      it('counts the time a background tab was hidden since it booted as an absence', () => {
+        Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+        const platform = setup();
+        const callback = vi.fn();
+        TestBed.runInInjectionContext(() => platform.onReturn(callback));
+
+        vi.advanceTimersByTime(60_000);
+        setVisibility('visible');
+
+        expect(callback).toHaveBeenCalledOnce();
+      });
+
+      it('follows the network', () => {
+        const platform = setup();
+        expect(platform.online()).toBe(true);
+
+        setOnline(false);
+        expect(platform.online()).toBe(false);
+
+        setOnline(true);
+        expect(platform.online()).toBe(true);
+      });
+
+      it('reports visible and online on the server without listening', () => {
+        const onDocument = vi.spyOn(document, 'addEventListener');
+        const platform = setup('server');
+
+        expect([platform.pageVisible(), platform.online()]).toEqual([true, true]);
+        expect(onDocument).not.toHaveBeenCalledWith('visibilitychange', expect.anything());
+      });
+
+      it('calls back after a real absence, not after a flick', () => {
+        const platform = setup();
+        const back = vi.fn();
+        TestBed.runInInjectionContext(() => platform.onReturn(back, { after: 1000 }));
+
+        leaveFor(999);
+        expect(back).not.toHaveBeenCalled();
+
+        leaveFor(1000);
+        expect(back).toHaveBeenCalledTimes(1);
+
+        // Still visible: a network coming back is not a return.
+        setOnline(false);
+        vi.advanceTimersByTime(5000);
+        setOnline(true);
+        expect(back).toHaveBeenCalledTimes(1);
+      });
+
+      it('counts one minute as an absence by default', () => {
+        const platform = setup();
+        const back = vi.fn();
+        TestBed.runInInjectionContext(() => platform.onReturn(back));
+
+        leaveFor(59_999);
+        expect(back).not.toHaveBeenCalled();
+
+        leaveFor(60_000);
+        expect(back).toHaveBeenCalledTimes(1);
+      });
+
+      it('stops early, and with the injector that registered it', () => {
+        const platform = setup();
+        const stopped = vi.fn();
+        const destroyed = vi.fn();
+        const child = createEnvironmentInjector([], TestBed.inject(EnvironmentInjector));
+
+        const stop = runInInjectionContext(child, () => platform.onReturn(stopped, { after: 10 }));
+        runInInjectionContext(child, () => platform.onReturn(destroyed, { after: 10 }));
+        stop();
+        leaveFor(10);
+        expect(stopped).not.toHaveBeenCalled();
+        expect(destroyed).toHaveBeenCalledTimes(1);
+
+        child.destroy();
+        leaveFor(10);
+        expect(destroyed).toHaveBeenCalledTimes(1);
+      });
+
+      it('needs an injection context', () => {
+        const platform = setup();
+        expect(() => platform.onReturn(() => undefined)).toThrow(/injection context/);
+      });
+
+      it('drops the document and window listeners with the injector', () => {
+        const offDocument = vi.spyOn(document, 'removeEventListener');
+        const offWindow = vi.spyOn(window, 'removeEventListener');
+        setup();
+        TestBed.resetTestingModule();
+
+        expect(offDocument).toHaveBeenCalledWith('visibilitychange', expect.any(Function));
+        expect(offWindow).toHaveBeenCalledWith('online', expect.any(Function));
+        expect(offWindow).toHaveBeenCalledWith('offline', expect.any(Function));
+      });
     });
   });
 

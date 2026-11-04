@@ -304,6 +304,7 @@ export const ROUTES = {
       trapFocus: { path: 'trap-focus', title: 'trapFocus' },
       wrAction: { path: 'wr-action', title: 'wrAction' },
       wrDownloadBlob: { path: 'wr-download-blob', title: 'wrDownloadBlob' },
+      wrPoll: { path: 'wr-poll', title: 'wrPoll' },
     },
     validators: {
       path: 'validators',

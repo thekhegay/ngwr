@@ -277,6 +277,7 @@ describe('the surfaces that draw it', () => {
       'toClassList',
       'wrAction',
       'wrDownloadBlob',
+      'wrPoll',
     ]);
   });
 
