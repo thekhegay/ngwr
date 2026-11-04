@@ -30,6 +30,12 @@
           @if (row.overrides; as n) {
             <span class="ngwr-table__note"> +{{ n }} variant {{ n === 1 ? 'override' : 'overrides' }}</span>
           }
+          @if (row.host) {
+            <span class="ngwr-table__note">
+              and inline on the element, written by the component from its inputs or its state — a rule holds only until
+              the component writes</span
+            >
+          }
         </td>
       </tr>
     }

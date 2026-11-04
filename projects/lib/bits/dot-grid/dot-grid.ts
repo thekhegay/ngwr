@@ -19,6 +19,7 @@ import {
   PLATFORM_ID,
   ViewEncapsulation,
   afterNextRender,
+  afterRenderEffect,
   computed,
   effect,
   inject,
@@ -227,42 +228,44 @@ export class WrDotGrid {
 
     afterNextRender(() => this.zone.runOutsideAngular(() => this.boot()));
 
-    // A new pitch is a new grid. It leaves the bitmap alone, so the frame it
-    // asks for repaints over the old grid rather than over a blank canvas.
+    // A new pitch is a new grid. It leaves the bitmap alone, so the frame asked
+    // for below repaints over the old grid rather than over a blank canvas.
     effect(() => {
       this.pitch();
       untracked(() => {
-        if (!this.ctx) return;
-        this.placeDots();
-        this.requestDraw();
+        if (this.ctx) this.placeDots();
       });
     });
 
-    // Everything else only changes what the next frame draws. A sleeping loop
-    // or a still grid has no next frame, so ask for one.
-    effect(() => {
+    // Everything that changes the picture only changes what the next frame
+    // draws. A sleeping loop has no next frame, so ask for one; a still grid has
+    // none either, so it is drawn at once, every dot at rest and unlit — and so
+    // it is the moment motion stops. After render rather than an `effect`, which
+    // runs before a directive's host binding: a still grid drawn then would miss
+    // a hook it changes in the same pass.
+    afterRenderEffect(() => {
+      if (!this.booted()) return;
+      const still = this.platform.prefersReducedMotion();
+      this.pitch();
       this.size();
       this.dotColor();
       this.activeColor();
       this.radius();
       this.strength();
-      untracked(() => this.requestDraw());
+      untracked(() => {
+        if (still) this.rest();
+        this.requestDraw();
+      });
     });
 
     // A drawn grid keeps the colours it was drawn in, and the loop sleeps when
     // nothing moves, so a scheme switch asks for a frame to re-resolve them.
     watchColorScheme(() => this.requestDraw());
 
-    // Motion or a still grid, decided live.
+    // Motion, decided live: never under `prefers-reduced-motion`, which the
+    // still grid above answers.
     effect(onCleanup => {
-      if (!this.booted()) return;
-      if (this.platform.prefersReducedMotion()) {
-        untracked(() => {
-          this.rest();
-          this.draw();
-        });
-        return;
-      }
+      if (!this.booted() || this.platform.prefersReducedMotion()) return;
       onCleanup(untracked(() => this.zone.runOutsideAngular(() => this.interact())));
     });
   }

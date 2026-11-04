@@ -246,6 +246,7 @@ export const ROUTES = {
       wrNumber: { path: 'wr-number', title: 'wrNumber' },
       wrBytes: { path: 'wr-bytes', title: 'wrBytes' },
       wrDate: { path: 'wr-date', title: 'wrDate' },
+      wrDuration: { path: 'wr-duration', title: 'wrDuration' },
       wrTruncate: { path: 'wr-truncate', title: 'wrTruncate' },
       wrMark: { path: 'wr-mark', title: 'wrMark' },
       wrPlural: { path: 'wr-plural', title: 'wrPlural' },

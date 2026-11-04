@@ -1,4 +1,4 @@
-import { Component, ErrorHandler, PLATFORM_ID, signal } from '@angular/core';
+import { Component, Directive, ErrorHandler, PLATFORM_ID, input, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrPlatform } from 'ngwr/platform';
@@ -13,6 +13,20 @@ import { WrAurora } from './aurora';
 class Host {
   readonly amplitude = signal(1);
   readonly speed = signal(1);
+}
+
+@Directive({ selector: '[wrHookTint]', host: { '[style.--wr-aurora-stop-1]': 'wrHookTint()' } })
+class HookTint {
+  readonly wrHookTint = input<string | null>(null);
+}
+
+@Component({
+  imports: [WrAurora, HookTint],
+  template: `<wr-aurora [colorStops]="colorStops()" [wrHookTint]="tint()" />`,
+})
+class HookTintHost {
+  readonly colorStops = signal<readonly string[] | null>(['rgb(0, 255, 0)', 'rgb(0, 255, 0)', 'rgb(0, 255, 0)']);
+  readonly tint = signal<string | null>(null);
 }
 
 const reducedMotion = {
@@ -46,6 +60,20 @@ const reducedMotion = {
  * lets `boot()` run to its last line, with what it paints counted.
  */
 
+/** What the stub answers, and what it was asked. */
+interface Recorded {
+  compiles: boolean;
+  lost: boolean;
+  programs: object[];
+  buffers: object[];
+  deleted: object[];
+  released: number;
+  /** Whether the lost event the release fires found a listener still on the canvas. */
+  heardOwnRelease: boolean;
+  /** `uniform2f` calls, which is where the resolution reaches the shader. */
+  resolutions: number;
+}
+
 /** Everything `boot()` threw — where an `afterNextRender` failure is reported, and the only place. */
 let thrown: unknown[];
 /** `drawArrays` calls, which is the whole of what a spec can see this component paint. */
@@ -58,29 +86,81 @@ let disconnects: number;
 let stops: number[];
 /** The resize observer's callback, to deliver a resize by hand. */
 let resized: ResizeObserverCallback | null;
+/** The stub's state. */
+let gpu: Recorded;
 
 /**
  * Enough of WebGL2 for `boot()` to reach its last line, and nothing more.
  *
- * Every call is a no-op, except three: `getShaderParameter` answers that the shader
- * compiled, because a stub that says otherwise makes the component log a shader
- * error that is the stub's fault and not the code's; `drawArrays` is counted; and
- * `uniform3fv` keeps the colour stops, the one uniform whose value comes from CSS.
- * jsdom also has no `ResizeObserver`, which `boot()` installs one line after the
- * context, so the spec supplies the smallest one it can disconnect.
+ * Every call is a no-op, except the few that have to answer: `createShader`,
+ * `createProgram` and `createBuffer` hand back handles, since `build()` reads an
+ * empty answer as a driver that refused; `getShaderParameter` and
+ * `getProgramParameter` say the shader compiled and the program linked, because a
+ * stub that says otherwise makes the component log an error that is the stub's
+ * fault and not the code's; `drawArrays` is counted; `uniform3fv` keeps the colour
+ * stops, the one uniform whose value comes from CSS; and the deletes and
+ * `WEBGL_lose_context` record what was handed back. jsdom also has no
+ * `ResizeObserver`, which `boot()` installs after the context, so the spec supplies
+ * the smallest one it can disconnect.
  */
-const withContext = (): void => {
+const withContext = (answers: Partial<Pick<Recorded, 'compiles' | 'lost'>> = {}): void => {
   layout(320, 180);
+  gpu = {
+    compiles: true,
+    lost: false,
+    programs: [],
+    buffers: [],
+    deleted: [],
+    released: 0,
+    heardOwnRelease: false,
+    resolutions: 0,
+    ...answers,
+  };
   const gl: Record<string, unknown> = {
-    getShaderParameter: () => true,
+    createShader: () => ({}),
+    getShaderParameter: () => gpu.compiles,
+    getShaderInfoLog: () => 'stub: refused',
+    createProgram: () => {
+      const program = {};
+      gpu.programs.push(program);
+      return program;
+    },
+    getProgramParameter: () => true,
+    createBuffer: () => {
+      const buffer = {};
+      gpu.buffers.push(buffer);
+      return buffer;
+    },
+    isContextLost: () => gpu.lost,
     drawArrays: () => {
       painted++;
+    },
+    uniform2f: () => {
+      gpu.resolutions++;
     },
     uniform3fv: (_location: unknown, data: Float32Array) => {
       stops = Array.from(data);
     },
+    deleteProgram: (program: object) => {
+      gpu.deleted.push(program);
+    },
+    deleteBuffer: (buffer: object) => {
+      gpu.deleted.push(buffer);
+    },
+    getExtension: (name: string) =>
+      name === 'WEBGL_lose_context'
+        ? {
+            // What a real release does, synchronously here: the canvas hears it.
+            loseContext: () => {
+              gpu.released++;
+              const event = new Event('webglcontextlost', { cancelable: true });
+              (getContext.mock.contexts.at(-1) as HTMLCanvasElement).dispatchEvent(event);
+              gpu.heardOwnRelease = event.defaultPrevented;
+            },
+          }
+        : null,
   };
-  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
+  const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
     // A constant like `gl.BLEND` comes back as a no-op function too. It only ever
     // travels straight into another no-op, and inventing plausible numbers for
     // forty of them would say nothing this stub does not already say.
@@ -230,6 +310,26 @@ describe('WrAurora', () => {
     runFrame();
 
     expect(stops).toEqual([1, 0, 0, 0, 0, 1, 0, 1, 0]);
+  });
+
+  it('reads a hook a directive on the host changes in the same pass, on a still frame', async () => {
+    withContext();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: WrPlatform, useValue: reducedMotion }] });
+    const hosted = TestBed.createComponent(HookTintHost);
+    hosted.detectChanges();
+    await hosted.whenStable();
+    expect(stops.slice(0, 3)).toEqual([0, 1, 0]);
+
+    // The stops go back to the theme's hook in the pass that sets it: an `effect`
+    // runs before the directive's host binding and resolved the old value.
+    hosted.componentInstance.colorStops.set(null);
+    hosted.componentInstance.tint.set('rgb(0, 0, 255)');
+    hosted.detectChanges();
+    await hosted.whenStable();
+
+    expect(stops.slice(0, 3)).toEqual([0, 0, 1]);
+    hosted.destroy();
   });
 
   it('repaints the still frame in the new colours when the scheme switches', async () => {
@@ -416,10 +516,11 @@ describe('WrAurora', () => {
     expect(painted, 'a host under scale(0) still has a box').toBeGreaterThan(0);
   });
 
-  it('tears down the listener, the observer and the frame it installed', async () => {
+  it('tears down the listener, the observer and the frame it installed, and gives the GPU back', async () => {
     withContext();
     await mount();
     const remove = vi.spyOn(window, 'removeEventListener');
+    const removeFromCanvas = vi.spyOn(canvas()!, 'removeEventListener');
     const cancel = vi.spyOn(window, 'cancelAnimationFrame');
 
     fixture.destroy();
@@ -430,5 +531,139 @@ describe('WrAurora', () => {
     expect(remove).toHaveBeenCalledWith('resize', expect.any(Function));
     expect(cancel).toHaveBeenCalled();
     expect(disconnects).toBe(1);
+    // And the context with its program and buffer: browsers keep a small number of
+    // live contexts and kill the oldest, so a page left to the collector costs the
+    // next route its own.
+    for (const type of ['webglcontextlost', 'webglcontextrestored']) {
+      expect(removeFromCanvas).toHaveBeenCalledWith(type, expect.any(Function));
+    }
+    expect(gpu.deleted).toHaveLength(2);
+    expect(gpu.deleted[0]).toBe(gpu.programs[0]);
+    expect(gpu.deleted[1]).toBe(gpu.buffers[0]);
+    expect(gpu.released).toBe(1);
+  });
+
+  it('takes the context listeners off first: its own release must not read as a lost context', async () => {
+    withContext();
+    await mount();
+
+    fixture.destroy();
+
+    expect(gpu.released).toBe(1);
+    expect(gpu.heardOwnRelease).toBe(false);
+  });
+
+  it('logs a shader the driver refuses, paints nothing, starts no loop and keeps no context', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    withContext({ compiles: false });
+    await mount();
+
+    expect(error).toHaveBeenCalled();
+    runFrame();
+    expect(painted).toBe(0);
+    expect(gpu.programs).toEqual([]);
+    expect(gpu.released, 'nor keeps a context it will never draw on').toBe(1);
+    expect(thrown).toEqual([]);
+  });
+
+  it('does not call a context that arrived lost a broken shader, and builds when it comes back', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    withContext({ lost: true, compiles: false });
+    await mount();
+
+    expect(error).not.toHaveBeenCalled();
+    runFrame();
+    expect(painted).toBe(0);
+
+    gpu.lost = false;
+    gpu.compiles = true;
+    canvas()!.dispatchEvent(new Event('webglcontextrestored'));
+    await fixture.whenStable();
+    runFrame();
+
+    expect(painted).toBeGreaterThan(0);
+  });
+
+  it('asks a lost context back and stops the loop until it comes', async () => {
+    withContext();
+    await mount();
+    runFrame();
+    const cancel = vi.spyOn(window, 'cancelAnimationFrame');
+
+    const event = new Event('webglcontextlost', { cancelable: true });
+    canvas()!.dispatchEvent(event);
+    await fixture.whenStable();
+
+    expect(event.defaultPrevented, 'without this no restore ever comes').toBe(true);
+    expect(cancel).toHaveBeenCalled();
+    frames = [];
+    const parked = painted;
+    runFrame();
+    expect(painted).toBe(parked);
+
+    // A frame that lands before the loop has stopped, an input change and a resize
+    // have nothing to draw on: the dead handles are the browser's now.
+    fixture.componentInstance.amplitude.set(2);
+    await fixture.whenStable();
+    resized!([], {} as ResizeObserver);
+    expect(painted).toBe(parked);
+    expect(gpu.deleted, 'the dead handles are not deleted: the browser has already dropped them').toEqual([]);
+  });
+
+  it('rebuilds everything when the context comes back, resolution included, and paints again', async () => {
+    withContext();
+    await mount();
+    runFrame();
+    canvas()!.dispatchEvent(new Event('webglcontextlost', { cancelable: true }));
+    await fixture.whenStable();
+    frames = [];
+    const parked = painted;
+    const uploaded = gpu.resolutions;
+
+    canvas()!.dispatchEvent(new Event('webglcontextrestored'));
+    await fixture.whenStable();
+    runFrame();
+
+    expect(gpu.programs).toHaveLength(2);
+    expect(gpu.buffers).toHaveLength(2);
+    // The old program took `uResolution` with it; a new one drawing at the default
+    // 300 × 150 would stretch the ribbons across the box.
+    expect(gpu.resolutions).toBeGreaterThan(uploaded);
+    expect(painted).toBeGreaterThan(parked);
+  });
+
+  it('draws the still frame at once when the context comes back under reduced motion', async () => {
+    withContext();
+    await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
+    canvas()!.dispatchEvent(new Event('webglcontextlost', { cancelable: true }));
+    await fixture.whenStable();
+    const parked = painted;
+
+    canvas()!.dispatchEvent(new Event('webglcontextrestored'));
+    await fixture.whenStable();
+
+    expect(painted).toBe(parked + 1);
+    runFrame();
+    runFrame();
+    expect(painted, 'and no loop took over').toBe(parked + 1);
+  });
+
+  it('stops again when a restored context will not build, and logs it', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    withContext();
+    await mount();
+    runFrame();
+    canvas()!.dispatchEvent(new Event('webglcontextlost', { cancelable: true }));
+    await fixture.whenStable();
+    frames = [];
+    const parked = painted;
+
+    gpu.compiles = false;
+    canvas()!.dispatchEvent(new Event('webglcontextrestored'));
+    await fixture.whenStable();
+    runFrame();
+
+    expect(error).toHaveBeenCalled();
+    expect(painted).toBe(parked);
   });
 });

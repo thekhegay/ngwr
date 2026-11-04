@@ -653,6 +653,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/descriptions',
     'charts/gauge',
     'reference/pipes/wr-number',
+    'reference/pipes/wr-duration',
   ],
   'reference/components/stepper': [
     'reference/components/tabs',
@@ -788,7 +789,13 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/date-picker',
     'docs/configuration',
     'reference/pipes/wr-number',
+    'reference/pipes/wr-duration',
     'reference/components/calendar',
+  ],
+  'reference/pipes/wr-duration': [
+    'reference/components/statistic',
+    'reference/pipes/wr-date',
+    'reference/pipes/wr-number',
   ],
   'reference/pipes/wr-mark': [
     'reference/components/select',

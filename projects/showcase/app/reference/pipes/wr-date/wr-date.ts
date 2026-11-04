@@ -89,6 +89,15 @@ export default class WrDatePipePage {
 {{ now | wrDate: 'shortDateTimeSeconds' }}  <!-- 6/12/2026, 10:51:07 AM -->`,
     tokens: `{{ now | wrDate: 'dd.MM.yyyy' }}  <!-- 12.06.2026   -->
 {{ now | wrDate: 'd MMMM yyyy' }} <!-- 12 June 2026 -->`,
+    fn: `import { inject } from '@angular/core';
+import { WrDateAdapter } from 'ngwr/date';
+import { wrFormatDate } from 'ngwr/pipes';
+
+const dates = inject(WrDateAdapter); // once, in a field or a constructor
+
+wrFormatDate(row.createdAt, dates);                   // shortDate
+wrFormatDate(row.createdAt, dates, 'mediumDateTime'); // Jun 12, 2026, 10:51 AM
+wrFormatDate(row.createdAt, dates, 'dd.MM.yyyy');     // 12.06.2026`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -96,6 +105,12 @@ export default class WrDatePipePage {
       name: 'wrDate',
       description: 'Formats through `WrDateAdapter`: the native one, or your own.',
       type: "(value: Date | string | number | null | undefined, format: WrDateFormat | string = 'shortDate') => string",
+      default: '—',
+    },
+    {
+      name: 'wrFormatDate',
+      description: 'The pipe as a function, over the adapter given.',
+      type: "(value: Date | string | number | null | undefined, adapter: WrDateAdapter<Date>, format: WrDateFormat | string = 'shortDate') => string",
       default: '—',
     },
   ];

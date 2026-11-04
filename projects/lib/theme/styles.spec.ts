@@ -112,6 +112,27 @@ function componentStyleEntries(): string[] {
   return styleEntries().filter(entry => dirname(dirname(entry)) !== LIB);
 }
 
+/**
+ * A component entry's own `.ts` and `.html`, specs and harnesses left out — the
+ * code that can read a token the sheet never names. None for a utility sheet,
+ * for the reason {@link componentStyleEntries} gives.
+ */
+function componentSources(entry: string): string[] {
+  const dir = dirname(dirname(entry));
+  if (dir === LIB) return [];
+  const out: string[] = [];
+  const walk = (at: string): void => {
+    for (const name of readdirSync(at)) {
+      if (name === 'node_modules' || name === 'testing' || name === 'styles') continue;
+      const full = join(at, name);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (name.endsWith('.html') || (name.endsWith('.ts') && !name.endsWith('.spec.ts'))) out.push(full);
+    }
+  };
+  walk(dir);
+  return out;
+}
+
 /** The `exports` keys that carry a `sass` condition, to the file each resolves to. */
 function styleExports(): Record<string, string> {
   const manifest = JSON.parse(readFileSync(join(LIB, 'package.json'), 'utf8')) as {
@@ -156,8 +177,32 @@ describe('a style entry point loads the token layer it paints with', () => {
    *
    * So the invariant is not "every entry loads the theme". It is "an entry that
    * cannot resolve a name by itself must load the layer that declares it".
+   *
+   * A read is a read from the component's own code too. `wr-click-spark` strokes
+   * its sparks in `sparkColor`, whose default is `var(--wr-color-on-surface)`
+   * resolved against the canvas, and its sheet named no token — so this check read
+   * the entry as self-sufficient while the one `@use` it documents left that
+   * default unresolved, and the sparks fell back to the dark literal on a dark page.
    */
   const isTheme = themeTokens();
+
+  /**
+   * The one entry whose TypeScript reads are answered by the entries built on it,
+   * by name and with the reason: `ngwr/charts/core` is `@internal`, so no consumer
+   * writes its `@use` alone — its palette is drawn by the charts, each of which
+   * loads the layer from its own entry, and its own sheet reads no token and says
+   * so. The guard below holds every half of that, so the name cannot outlive it.
+   */
+  const RESOLVED_BY_ITS_CONSUMERS = [join(LIB, 'charts/core/styles/_index.scss')];
+
+  /** Every theme token `entry`'s own code reads, as {@link componentSources} finds it. */
+  const readFromCode = (entry: string): Set<string> => {
+    const out = new Set<string>();
+    for (const file of componentSources(entry)) {
+      for (const m of code(file).matchAll(REFERENCED)) out.add(m[1]);
+    }
+    return out;
+  };
 
   it('leaves no theme token unresolved in any entry point', () => {
     const offenders: string[] = [];
@@ -173,6 +218,9 @@ describe('a style entry point loads the token layer it paints with', () => {
         for (const m of src.matchAll(DECLARED)) own.add(m[1]);
         for (const m of src.matchAll(REFERENCED)) referenced.add(m[1]);
       }
+      if (!RESOLVED_BY_ITS_CONSUMERS.includes(entry)) {
+        for (const name of readFromCode(entry)) referenced.add(name);
+      }
 
       const unresolved = [...referenced].filter(name => !own.has(name) && isTheme(name));
       if (unresolved.length > 0) {
@@ -183,6 +231,26 @@ describe('a style entry point loads the token layer it paints with', () => {
     }
 
     expect(offenders).toEqual([]);
+  });
+
+  it('exempts only an entry still answered by every entry that loads it', () => {
+    for (const exempt of RESOLVED_BY_ITS_CONSUMERS) {
+      const name = relative(LIB, exempt);
+      expect(
+        loaded(exempt).some(f => f.startsWith(THEME_STYLES)),
+        `${name} loads the theme now`
+      ).toBe(false);
+      expect([...readFromCode(exempt)].some(isTheme), `${name} reads no theme token from its code now`).toBe(true);
+
+      const dependants = styleEntries().filter(entry => entry !== exempt && loaded(entry).includes(exempt));
+      expect(dependants.length, `nothing loads ${name}`).toBeGreaterThan(0);
+      for (const entry of dependants) {
+        expect(
+          loaded(entry).some(f => f.startsWith(THEME_STYLES)),
+          `${relative(LIB, entry)} loads ${name} and not the theme`
+        ).toBe(true);
+      }
+    }
   });
 
   /**
@@ -452,6 +520,73 @@ describe('a bare .wr-icon__svg is sized by the entry point that draws it', () =>
   it('finds the entry points that draw one', () => {
     // A template scanner that matched nothing would report the invariant as held.
     expect(drawers().length).toBeGreaterThanOrEqual(12);
+  });
+});
+
+describe('an input variable stays on the instance that wrote it', () => {
+  /**
+   * The hook rule in AGENTS.md, held at the source. A nullable input writes
+   * `--wr-<block>-input-<name>`, never the hook's own name, and the rule reads the
+   * twin with the hook as its fallback — so an author's value on the hook survives
+   * the input. A custom property inherits, though, and the twin sits inline on the
+   * host: a component that can hold another of its kind — anything with an
+   * `<ng-content>` or a template outlet — hands the inner one its own inputs
+   * unless its block declares the twin `initial`. `wr-border-glow` inside
+   * `wr-border-glow` took the outer card's fill that way. jsdom applies no cascade,
+   * so no rendered spec can see the inheritance; the declaration can be read.
+   */
+  const WRITES = /--wr-[a-z0-9]+(?:-[a-z0-9]+)*-input-[a-z0-9]+(?:-[a-z0-9]+)*/g;
+
+  /** The entry sheet of every projecting component, to the input variables its code writes. */
+  function writers(): Map<string, Set<string>> {
+    const out = new Map<string, Set<string>>();
+    const walk = (dir: string): void => {
+      for (const name of readdirSync(dir)) {
+        if (name === 'node_modules' || name === 'testing') continue;
+        const full = join(dir, name);
+        if (statSync(full).isDirectory()) {
+          walk(full);
+          continue;
+        }
+        if (!name.endsWith('.ts') || name.endsWith('.spec.ts')) continue;
+        const src = readFileSync(full, 'utf8');
+        // Comments stripped: a JSDoc naming the pattern is not a write.
+        const names = [...code(full).matchAll(WRITES)].map(m => m[0]);
+        if (names.length === 0) continue;
+        // The template, inline or in the file `templateUrl` names.
+        const url = /templateUrl:\s*'\.\/([\w.-]+\.html)'/.exec(src)?.[1];
+        const template = src + (url === undefined ? '' : readFileSync(join(dirname(full), url), 'utf8'));
+        if (!/<ng-content|ngTemplateOutlet/.test(template)) continue;
+        // Walk up to the directory holding `styles/_index.scss` — the entry point.
+        let at = dirname(full);
+        while (at.startsWith(LIB) && !existsSync(join(at, 'styles/_index.scss'))) at = dirname(at);
+        if (!at.startsWith(LIB)) continue;
+        const entry = join(at, 'styles/_index.scss');
+        if (!out.has(entry)) out.set(entry, new Set());
+        for (const written of names) out.get(entry)!.add(written);
+      }
+    };
+    walk(LIB);
+    return out;
+  }
+
+  it('is declared `initial` on the block of every component that projects content', () => {
+    const offenders: string[] = [];
+    for (const [entry, names] of writers()) {
+      const sheet = loaded(entry).map(code).join('\n');
+      for (const name of [...names].sort()) {
+        if (!new RegExp(`${name}\\s*:\\s*initial\\s*;`).test(sheet)) {
+          offenders.push(`${relative(LIB, entry)} never declares ${name}: initial`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('finds the components that write one', () => {
+    // A scanner that matched nothing would report the invariant as held. Four when
+    // this was written: marquee, spotlight-card, star-border and border-glow.
+    expect(writers().size).toBeGreaterThanOrEqual(4);
   });
 });
 

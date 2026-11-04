@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="wrNumber"
+  updated="15.4.0"
   description="Format a number, percent or price in the app locale."
   [keywords]="['pipe', 'wrNumber', 'number', 'format', 'intl']"
   [labels]="['Pipe']"
@@ -39,6 +40,10 @@
     <ngwr-doc-playground [code]="playgroundSnippet()" [controls]="controls">
       <p class="ngwr-pipe-output">{{ amount() | wrNumber: style() : currency() }}</p>
     </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="In TypeScript" description="`wrFormatNumber` gives the same text for a row built in code.">
+    <ngwr-doc-code [code]="snippets.fn" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

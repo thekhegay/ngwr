@@ -20,10 +20,12 @@ import {
   PLATFORM_ID,
   ViewEncapsulation,
   afterNextRender,
+  afterRenderEffect,
   effect,
   inject,
   input,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 
@@ -140,6 +142,13 @@ void main() {
 }
 `;
 
+/** What the GPU holds for one context. A lost context takes all of it, so a restored one builds it again. */
+interface Gpu {
+  readonly program: WebGLProgram;
+  readonly buffer: WebGLBuffer | null;
+  readonly uniforms: Readonly<Record<string, WebGLUniformLocation | null>>;
+}
+
 /** What a stop falls back to when it cannot be read: the reactbits palette. */
 const DEFAULT_STOPS = ['#5227ff', '#7cff67', '#5227ff'] as const;
 
@@ -160,6 +169,13 @@ const STOP_HOOKS = ['var(--wr-aurora-stop-1)', 'var(--wr-aurora-stop-2)', 'var(-
  * Under forced colours the canvas is hidden and its loop stops with it, leaving the
  * box on the palette's own ground, which is what forced text and marks are chosen
  * against. The loop also stops off screen and with no box to draw on.
+ *
+ * With no WebGL2 context, or a shader the driver refuses, nothing is thrown and
+ * the canvas stays empty. A context the browser takes away is rebuilt if it offers
+ * one back. A destroyed host hands its GPU resources back at once. Browsers keep a
+ * small number of live contexts and kill the oldest: Chromium frees the slot at that
+ * point, while WebKit frees it only when the context is collected and offers an
+ * evicted one no restore, so there a host that is not drawing can stay empty for good.
  *
  * @example
  * ```html
@@ -205,12 +221,12 @@ export class WrAurora {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private gl: WebGL2RenderingContext | null = null;
-  private uniforms: Record<string, WebGLUniformLocation | null> = {};
+  private gpu: Gpu | null = null;
   private rafId = 0;
   /** The shader time last drawn, so a resize can repaint the frame it just cleared. */
   private time = 0;
 
-  /** Flips once `boot()` has a context and a program — the loop waits for it. */
+  /** Flips once a program is built, and back when the context goes — everything that draws waits for it. */
   private readonly booted = signal(false);
   /** Whether the host is in the viewport; stays `true` without an observer. */
   private readonly onScreen = signal(true);
@@ -226,21 +242,27 @@ export class WrAurora {
     afterNextRender(() => this.zone.runOutsideAngular(() => this.boot()));
 
     // Push input changes into uniforms without restarting the loop. Under
-    // reduced motion this also repaints the static frame.
-    effect(() => {
+    // reduced motion this also repaints the static frame — and so does the
+    // moment motion stops. After render rather than an `effect`, which runs
+    // before a directive's host binding: a still frame drawn then would miss a
+    // hook it changes in the same pass.
+    afterRenderEffect(() => {
+      if (!this.booted()) return;
+      const still = this.platform.prefersReducedMotion();
       this.colorStops();
       this.amplitude();
       this.blend();
-      if (!this.gl) return;
-      this.pushUniforms();
-      if (this.platform.prefersReducedMotion()) this.draw(0);
+      untracked(() => {
+        this.pushUniforms();
+        if (still) this.draw(0);
+      });
     });
 
     // A still frame keeps the colours it was drawn with, so a scheme switch
     // under reduced motion re-resolves the stops and paints it again. The loop
     // needs no help: it re-resolves on every frame it draws.
     watchColorScheme(() => {
-      if (!this.gl || !this.platform.prefersReducedMotion()) return;
+      if (!this.gpu || !this.platform.prefersReducedMotion()) return;
       this.pushUniforms();
       this.draw(0);
     });
@@ -267,38 +289,14 @@ export class WrAurora {
     if (!gl) return;
     this.gl = gl;
 
-    gl.clearColor(0, 0, 0, 0);
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-
-    const compile = (type: number, source: string): WebGLShader => {
-      const shader = gl.createShader(type)!;
-      gl.shaderSource(shader, source);
-      gl.compileShader(shader);
-      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        // eslint-disable-next-line no-console -- GPU shader failures are otherwise invisible
-        console.error('wr-aurora shader error:', gl.getShaderInfoLog(shader));
-      }
-      return shader;
-    };
-
-    const program = gl.createProgram();
-    gl.attachShader(program, compile(gl.VERTEX_SHADER, VERT));
-    gl.attachShader(program, compile(gl.FRAGMENT_SHADER, FRAG));
-    gl.linkProgram(program);
-    gl.useProgram(program);
-
-    for (const name of ['uTime', 'uAmplitude', 'uColorStops', 'uResolution', 'uBlend']) {
-      this.uniforms[name] = gl.getUniformLocation(program, name);
+    // A context can arrive already lost, past the browser's limit on live ones.
+    // That is not a broken shader: the restore below builds it. A shader the
+    // driver really refused has logged, and nothing will ever draw on this one.
+    this.gpu = this.build(gl);
+    if (!this.gpu && !gl.isContextLost()) {
+      this.release(gl);
+      return;
     }
-
-    // One oversized triangle covers the viewport — no index buffer needed.
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    const position = gl.getAttribLocation(program, 'position');
-    gl.enableVertexAttribArray(position);
-    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
 
     const hostEl = this.host.nativeElement;
     const fit = (): void => {
@@ -311,8 +309,25 @@ export class WrAurora {
       canvas.width = Math.max(1, width);
       canvas.height = Math.max(1, height);
       gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.uniform2f(this.uniforms['uResolution'], canvas.width, canvas.height);
+      if (this.gpu) gl.uniform2f(this.gpu.uniforms['uResolution'], canvas.width, canvas.height);
     };
+
+    const onLost = (event: Event): void => {
+      // Without this the browser never offers the context back.
+      event.preventDefault();
+      this.gpu = null;
+      this.booted.set(false);
+    };
+    const onRestored = (): void => {
+      this.gpu = this.build(gl);
+      if (!this.gpu) return;
+      // The resolution went with the old program; the effects redraw the rest.
+      fit();
+      this.booted.set(true);
+    };
+    canvas.addEventListener('webglcontextlost', onLost);
+    canvas.addEventListener('webglcontextrestored', onRestored);
+
     // Sizing the bitmap clears it, and observer entries arrive after the frame's own
     // callbacks and before its paint, so a repaint left to the loop would leave this
     // frame empty.
@@ -354,18 +369,101 @@ export class WrAurora {
       window.removeEventListener('resize', resize);
       ro.disconnect();
       io?.disconnect();
+      // These first: losing the context below fires the event they listen for.
+      canvas.removeEventListener('webglcontextlost', onLost);
+      canvas.removeEventListener('webglcontextrestored', onRestored);
+      this.release(gl);
     });
-    this.booted.set(true);
+    if (this.gpu) this.booted.set(true);
+  }
+
+  /**
+   * Compile, link and upload what one context needs, and make it current. Returns
+   * `null` when it cannot: on a lost context, where every call answers no and
+   * nothing is wrong with the shader, it says nothing.
+   */
+  private build(gl: WebGL2RenderingContext): Gpu | null {
+    const vert = this.compile(gl, gl.VERTEX_SHADER, VERT);
+    const frag = this.compile(gl, gl.FRAGMENT_SHADER, FRAG);
+    const program = vert && frag ? gl.createProgram() : null;
+    if (vert && frag && program) {
+      gl.attachShader(program, vert);
+      gl.attachShader(program, frag);
+      gl.linkProgram(program);
+    }
+    // Only flagged: a shader stays alive as long as a program it is attached to.
+    gl.deleteShader(vert);
+    gl.deleteShader(frag);
+    if (!program) return null;
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      if (!gl.isContextLost()) {
+        // eslint-disable-next-line no-console -- GPU shader failures are otherwise invisible
+        console.error('wr-aurora program error:', gl.getProgramInfoLog(program));
+      }
+      gl.deleteProgram(program);
+      return null;
+    }
+    gl.useProgram(program);
+
+    gl.clearColor(0, 0, 0, 0);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+    const uniforms: Record<string, WebGLUniformLocation | null> = {};
+    for (const name of ['uTime', 'uAmplitude', 'uColorStops', 'uResolution', 'uBlend']) {
+      uniforms[name] = gl.getUniformLocation(program, name);
+    }
+
+    // One oversized triangle covers the viewport — no index buffer needed.
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const position = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(position);
+    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+    return { program, buffer, uniforms };
+  }
+
+  private compile(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader | null {
+    const shader = gl.createShader(type);
+    if (!shader) return null;
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) return shader;
+    if (!gl.isContextLost()) {
+      // eslint-disable-next-line no-console -- GPU shader failures are otherwise invisible
+      console.error('wr-aurora shader error:', gl.getShaderInfoLog(shader));
+    }
+    gl.deleteShader(shader);
+    return null;
+  }
+
+  /**
+   * Give the GPU resources back at once rather than to the garbage collector:
+   * browsers keep a small number of live contexts and kill the oldest, so a
+   * navigating single-page app would lose the context of a page still on screen.
+   * Chromium frees the slot here too. WebKit holds it until the context is collected,
+   * and no API frees it sooner, so a still or parked host can still be evicted there.
+   */
+  private release(gl: WebGL2RenderingContext): void {
+    if (this.gpu) {
+      gl.deleteProgram(this.gpu.program);
+      gl.deleteBuffer(this.gpu.buffer);
+    }
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    this.gpu = null;
+    this.gl = null;
   }
 
   private pushUniforms(): void {
-    const gl = this.gl;
-    if (!gl) return;
+    const { gl, gpu } = this;
+    if (!gl || !gpu) return;
     const flat = new Float32Array(9);
     for (let i = 0; i < 3; i++) flat.set(this.resolveStop(i), i * 3);
-    gl.uniform3fv(this.uniforms['uColorStops'], flat);
-    gl.uniform1f(this.uniforms['uAmplitude'], this.amplitude());
-    gl.uniform1f(this.uniforms['uBlend'], this.blend());
+    gl.uniform3fv(gpu.uniforms['uColorStops'], flat);
+    gl.uniform1f(gpu.uniforms['uAmplitude'], this.amplitude());
+    gl.uniform1f(gpu.uniforms['uBlend'], this.blend());
   }
 
   /**
@@ -383,10 +481,10 @@ export class WrAurora {
   }
 
   private draw(time: number): void {
-    const gl = this.gl;
-    if (!gl || !this.hasBox()) return;
+    const { gl, gpu } = this;
+    if (!gl || !gpu || !this.hasBox()) return;
     this.time = time;
-    gl.uniform1f(this.uniforms['uTime'], time);
+    gl.uniform1f(gpu.uniforms['uTime'], time);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }

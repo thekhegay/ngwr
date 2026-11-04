@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="wrDate"
-  updated="15.0.0"
+  updated="15.4.0"
   description="Format a date with a named preset or a token string."
   [keywords]="['pipe', 'wrDate', 'date', 'format', 'intl']"
   [labels]="['Pipe']"
@@ -69,6 +69,13 @@
     <ngwr-doc-playground [code]="playgroundSnippet()" [controls]="controls">
       <p class="ngwr-pipe-output">{{ now() | wrDate: format() }}</p>
     </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="In TypeScript"
+    description="`wrFormatDate` gives the same text for a row built in code. It takes the adapter, not a locale: the output is the adapter's."
+  >
+    <ngwr-doc-code [code]="snippets.fn" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

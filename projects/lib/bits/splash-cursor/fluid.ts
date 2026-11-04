@@ -99,6 +99,8 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
 
   let active = true;
   let rafId = 0;
+  /** Whether the canvas has a layout box with an area; measured by the frame, and by the resize observer. */
+  let hasBox = false;
 
   // Every GL object this boot creates, so the teardown can free them. The
   // context outlives the sim (an input change reboots on the same canvas),
@@ -689,6 +691,10 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     if (!active || !visible) return;
     const dt = calcDeltaTime();
     if (resizeCanvas()) initFramebuffers();
+    // No box, nothing to see: every pass of the solver would run for an empty
+    // canvas, and the resolution maths would divide by a zero-sized drawing
+    // buffer. The resize observer wakes the loop once the box is back.
+    if (!hasBox) return;
     updateColors(dt);
     applyInputs();
     step(dt);
@@ -706,12 +712,13 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
   function resizeCanvas(): boolean {
     const width = scaleByPixelRatio(canvas.clientWidth);
     const height = scaleByPixelRatio(canvas.clientHeight);
-    if (canvas.width !== width || canvas.height !== height) {
-      canvas.width = width;
-      canvas.height = height;
-      return true;
-    }
-    return false;
+    // The layout box, read by the frame itself so the first one knows it too. A
+    // box with no area leaves the bitmap as it was: nothing can be seen on it.
+    hasBox = width > 0 && height > 0;
+    if (!hasBox || (canvas.width === width && canvas.height === height)) return false;
+    canvas.width = width;
+    canvas.height = height;
+    return true;
   }
 
   function updateColors(dt: number): void {
@@ -993,23 +1000,44 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
   window.addEventListener('touchstart', onTouchStart, { passive: true });
   window.addEventListener('touchmove', onTouchMove, { passive: true });
 
-  // A contained canvas scrolled out of view stops asking for frames, the way
-  // `wr-waves` does: the solver runs every pass of the pipeline each frame, for
-  // nothing anyone can see. The fullscreen overlay is always in view. Without an
-  // observer (jsdom) it simply runs.
+  // A contained canvas scrolled out of view, or one with no box, stops asking for
+  // frames, the way `wr-waves` does: the solver runs every pass of the pipeline
+  // each frame, for nothing anyone can see. The fullscreen overlay is always in
+  // view. Without the observers (jsdom) nothing reports a change, so what the
+  // first frame measures stands: a box runs the loop, no box parks it. A box flush
+  // against a zero-height clip intersects with nothing showing, and only a second
+  // threshold reports the clip moving. It sits below any real ratio, or a clip
+  // closing on a transition steps from under it to 0 without crossing anything.
   let visible = true;
+  const wake = (): void => {
+    if (visible && hasBox && active && rafId === 0) {
+      // The time away is not simulated: the first frame back steps from now.
+      lastUpdateTime = Date.now();
+      rafId = requestAnimationFrame(updateFrame);
+    }
+  };
   const io =
     typeof IntersectionObserver === 'undefined'
       ? null
-      : new IntersectionObserver(entries => {
-          visible = entries[entries.length - 1].isIntersecting;
-          if (visible && active && rafId === 0) {
-            // The time away is not simulated: the first frame back steps from now.
-            lastUpdateTime = Date.now();
-            rafId = requestAnimationFrame(updateFrame);
-          }
-        });
+      : new IntersectionObserver(
+          entries => {
+            const { isIntersecting, intersectionRatio } = entries[entries.length - 1];
+            visible = isIntersecting && intersectionRatio > 0;
+            wake();
+          },
+          { threshold: [0, 1e-9] }
+        );
   io?.observe(canvas);
+  // The frame measures the box itself, and a parked loop has no frame: the
+  // observer is what hears the box come back.
+  const ro =
+    typeof ResizeObserver === 'undefined'
+      ? null
+      : new ResizeObserver(() => {
+          hasBox = canvas.clientWidth > 0 && canvas.clientHeight > 0;
+          wake();
+        });
+  ro?.observe(canvas);
 
   updateFrame();
 
@@ -1017,6 +1045,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     active = false;
     cancelAnimationFrame(rafId);
     io?.disconnect();
+    ro?.disconnect();
     window.removeEventListener('mousedown', onMouseDown);
     window.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('touchstart', onTouchStart);
