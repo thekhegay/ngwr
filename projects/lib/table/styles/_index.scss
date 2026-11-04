@@ -257,6 +257,23 @@
     --wr-table-tree-lead-margin-end: var(--wr-space-sm);
   }
 
+  // --- Column alignment -----------------------------------------------------
+  // `column.align`, on the header, body and summary cells alike. Logical, so
+  // `end` is the right edge in LTR and the left one under `dir="rtl"`. `end`
+  // is the numeric column's alignment and brings tabular digits with it, so
+  // the figures line up down the column. `start` is the cells' own default and
+  // its modifier carries no rule; it is emitted so a consumer can target it.
+  &__th--align-center,
+  &__td--align-center {
+    text-align: center;
+  }
+
+  &__th--align-end,
+  &__td--align-end {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+  }
+
   // --- Row selection --------------------------------------------------------
   &__th--select,
   &__td--select {

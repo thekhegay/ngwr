@@ -76,6 +76,16 @@ export default class SelectComponent {
   }
 
   protected readonly snippets = {
+    typed: `interface Country {
+  code: string;
+  name: string;
+}
+
+protected readonly countries: readonly Country[] = [...];
+protected readonly country = signal<Country | null>(null);
+protected readonly countryName = (country: Country): string => country.name;
+
+<wr-select mode="search" [options]="countries" [displayWith]="countryName" [(value)]="country" />`,
     basic: `<wr-select placeholder="Pick a size" [(value)]="size">
   <wr-option value="sm">Small</wr-option>
   <wr-option value="md">Medium</wr-option>
@@ -374,7 +384,7 @@ categoryId.setValue(2);`,
     {
       name: '(valueChange)',
       description: 'The `[(value)]` half. Bound automatically by `[formField]` / `[(ngModel)]`.',
-      type: 'unknown',
+      type: 'T | readonly T[] | null',
       default: '—',
     },
     {

@@ -219,7 +219,7 @@
               }
               @for (col of displayColumns(); track col.key) {
                 <td
-                  class="wr-table__foot-cell"
+                  [class]="footClasses(col.column)"
                   [class.wr-table__td--pin-left]="col.column.pin === 'left'"
                   [class.wr-table__td--pin-right]="col.column.pin === 'right'"
                   [class.wr-table__td--pin-edge-left]="isPinEdge(col.key, 'left')"
@@ -330,7 +330,7 @@
                       [ngTemplateOutletContext]="cellContext(entry.row, col.key, col.column)"
                     />
                   } @else {
-                    {{ getValue(entry.row, col.key) }}
+                    {{ cellText(entry.row, col.key, col.column) }}
                   }
                 </td>
               }
@@ -378,7 +378,7 @@
           }
           @for (col of displayColumns(); track col.key) {
             <td
-              class="wr-table__foot-cell"
+              [class]="footClasses(col.column)"
               [class.wr-table__td--pin-left]="col.column.pin === 'left'"
               [class.wr-table__td--pin-right]="col.column.pin === 'right'"
               [class.wr-table__td--pin-edge-left]="isPinEdge(col.key, 'left')"

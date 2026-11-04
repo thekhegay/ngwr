@@ -14,8 +14,9 @@ export interface WrTableCsvOptions {
   /** Field delimiter — use `';'` for locales where Excel expects it. @default ',' */
   readonly delimiter?: string;
   /**
-   * Prefix string values starting with `= + - @` with a quote so spreadsheets
-   * treat them as text instead of formulas. @default true
+   * Prefix string values and `format` output starting with `= + - @` with a
+   * quote so spreadsheets treat them as text instead of formulas. A plain figure
+   * from `format`, such as `-1,234.50`, is left alone. @default true
    */
   readonly escapeFormulas?: boolean;
 }

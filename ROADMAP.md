@@ -4,11 +4,6 @@
 
 ## High
 
-- **`wr-table` columns and types**: one scope. Column keys: `align` (right-aligned
-  numbers with tabular digits), `format` (a plain cell without a template) and
-  `empty` (a placeholder for no value), with the CSV export writing what the cell
-  shows. Generics on `wr-table` and `wr-select`, with a template guard on
-  `[wrTableCell]`, so a row and a value arrive typed.
 - **`WrPlatform` page state, and `wrPoll`**: `pageVisible` and `online` signals
   (true on the server), a callback for coming back after a real absence, and
   polling resources on one shared ticker that pauses while the tab is hidden and

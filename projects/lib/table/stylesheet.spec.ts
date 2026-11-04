@@ -56,3 +56,18 @@ describe('the focused tree row over pinned cells', () => {
     );
   });
 });
+
+describe('column alignment', () => {
+  // `align: 'end'` is the numeric column's alignment, so the modifier carries the
+  // tabular digits with it: figures line up down the column without a class of
+  // the consumer's own. Logical `end`, so the same rule serves RTL.
+  it.each(['wr-table__th--align-end', 'wr-table__td--align-end'])('aligns .%s to the end with tabular digits', cls => {
+    const body = declarations(`.${cls}`);
+    expect(body).toMatch(/text-align: end/);
+    expect(body).toMatch(/font-variant-numeric: tabular-nums/);
+  });
+
+  it.each(['wr-table__th--align-center', 'wr-table__td--align-center'])('centres .%s', cls => {
+    expect(declarations(`.${cls}`)).toMatch(/text-align: center/);
+  });
+});

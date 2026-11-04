@@ -1151,9 +1151,9 @@ export const API = {
     { name: "mode", description: "Behavior mode. `<wr-select>` is the unified combobox primitive — pick the shape via `[mode]`: - `'single'` (default) — one value, no input. Classic dropdown. - `'multi'` — array value, chips on the trigger. - `'search'` — type-ahead with sync filter or async loader. - `'tag'` — free-text + chips.", type: "WrSelectMode | null", default: "null" },
     { name: "searchable", description: "Add a type-ahead filter without changing the value shape — the missing multi-with-search combination, since `[mode]` picks exactly one shape: ```html <wr-select mode=\"multi\" searchable [(value)]=\"categories\">…</wr-select> ``` On `multi` the trigger keeps its chips and grows an inline text field (the shape `tag` mode already uses); on `single` it is equivalent to `mode=\"search\"`. Every search input (`[options]`, `[loader]`, `[debounceMs]`, `[minChars]`, `[virtualScroll]`, the `(searchChange)` output, …) applies either way. Ignored in `tag` mode, which owns its own input.", type: "boolean", default: "false" },
     { name: "searchQuery", description: "The live search query. Empty string = no filter. Exposed via context so each `<wr-option>` can self-hide non-matching rows. Two-way bindable, so the query can be owned or reset from outside: `[(searchQuery)]=\"query\"`. For server-side search prefer the debounced {@link searchChange} output — `searchQueryChange` fires on every keystroke.", type: "string", default: "''" },
-    { name: "options", description: "Search mode: dynamic option array. Each item is rendered as a `<wr-option>` whose label comes from `[displayWith]`. Works alongside projected `<wr-option>` children — both lists are filtered by the search query.", type: "readonly unknown[]", default: "[]" },
-    { name: "displayWith", description: "Search mode: map a dynamic option item to its display label.", type: "(item: unknown) => string", default: "String" },
-    { name: "loader", description: "Search mode: async loader. When set, the loader is called on every (debounced) keystroke and its result replaces `[options]`. Supports Observables, Promises, and plain arrays.", type: "WrSelectSearchLoader<unknown> | null", default: "null" },
+    { name: "options", description: "Search mode: dynamic option array. Each item is rendered as a `<wr-option>` whose label comes from `[displayWith]`. Works alongside projected `<wr-option>` children — both lists are filtered by the search query.", type: "readonly T[]", default: "[]" },
+    { name: "displayWith", description: "Search mode: map a dynamic option item to its display label.", type: "(item: T) => string", default: "String" },
+    { name: "loader", description: "Search mode: async loader. When set, the loader is called on every (debounced) keystroke and its result replaces `[options]`. Supports Observables, Promises, and plain arrays.", type: "WrSelectSearchLoader<T> | null", default: "null" },
     { name: "serverSearch", description: "The option list is already scoped to the query upstream — skip the built-in client-side label filter. Set it when `[options]` is fed from a server via the {@link searchChange} output; the async `[loader]` path implies it. Without this, a server that ranks or fuzzy-matches (returning rows whose labels don't literally contain the query) would have those rows hidden again on the client.", type: "boolean", default: "false" },
     { name: "debounceMs", description: "Search mode: debounce (ms) applied to the loader.", type: "number", default: "250" },
     { name: "minChars", description: "Search mode: minimum query length before the panel opens / loader fires.", type: "number", default: "0" },
@@ -1176,7 +1176,7 @@ export const API = {
     { name: "panelClass", description: "Extra CSS classes for the dropdown panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array. The pane is a positioning wrapper carrying the gap above the list; the box that paints is `.wr-select-panel` inside it, so a rule meant for the surface reads `.my-class .wr-select-panel`.", type: "WrClassInput", default: "null" },
     { name: "maxItems", description: "Cap on selected items (multi mode). `0` = unlimited. Once reached, the unselected options are marked unavailable — `aria-disabled` and the disabled look — and refuse a pick until one is removed.", type: "number", default: "0" },
     { name: "maxTagCount", description: "Maximum number of chips rendered before collapsing the rest into a `+N more` indicator. `0` = render every chip.", type: "number", default: "0" },
-    { name: "value", description: "Unified value. Single mode holds a scalar (or `null`); multi / tag mode holds `readonly unknown[]`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown", default: "null" },
+    { name: "value", description: "Unified value. Single mode holds a scalar (or `null`); multi / tag mode holds `readonly T[]`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "T | readonly T[] | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur / commit so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-shiny-text>
@@ -1376,8 +1376,8 @@ export const API = {
   ],
   // <wr-table>
   WrTable: [
-    { name: "columns", description: "Column definitions, keyed by row property name.", type: "WrTableColumns", required: true },
-    { name: "items", description: "Row items. `null`/`undefined` renders the empty state; use `[loading]` for the spinner. Typed `WrTableRow` (= `object`) rather than `Record<string, unknown>`, so an array of an `interface` binds as readily as an array of a `type` — see {@link WrTableRow} for why those two are not the same to TypeScript.", type: "readonly WrTableRow[] | null | undefined", default: "null" },
+    { name: "columns", description: "Column definitions, keyed by row property name. Typed against the row `[items]` carries, so a column's `format` sees it: `WrTableColumns<User>` binds to `[items]=\"users\"` and to nothing else, while a bare `WrTableColumns` still binds anywhere.", type: "WrTableColumns<T>", required: true },
+    { name: "items", description: "Row items. `null`/`undefined` renders the empty state; use `[loading]` for the spinner. `T` is inferred from here, and it is constrained to `WrTableRow` (= `object`) rather than `Record<string, unknown>`, so an array of an `interface` binds as readily as an array of a `type` — see {@link WrTableRow} for why those two are not the same to TypeScript.", type: "readonly T[] | null | undefined", default: "null" },
     { name: "loading", description: "Show the loading spinner overlay.", type: "boolean", default: "false" },
     { name: "responsive", description: "Collapse each row to a labelled card when the table's own box is too narrow for columns (a container query on its own width, not the viewport). Every cell shows its column title as a label.", type: "boolean", default: "false" },
     { name: "reorderable", description: "Enable drag-to-reorder on the column headers.", type: "boolean", default: "false" },
@@ -1414,7 +1414,8 @@ export const API = {
   ],
   // <[wrTableCell]>
   WrTableCell: [
-    { name: "wrTableCell", description: "Column key the template applies to.", type: "string", required: true },
+    { name: "wrTableCell", description: "Column key the template applies to.", type: "K", required: true },
+    { name: "wrTableCellOf", description: "The rows the template draws, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.", type: "readonly T[] | null | undefined", default: "undefined" },
   ],
   // <wr-table-filter>
   WrTableFilter: [
