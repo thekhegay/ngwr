@@ -157,6 +157,18 @@ function animateValue(opts: AnimateOptions): () => void {
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-border-glow',
+    // The geometry is written whatever the inputs say — none of these can be
+    // unset — so each goes on the host as a binding to the hook's own name, the
+    // way `wr-threads` binds `--wr-threads-count`. Bound here rather than through
+    // the colour bag below, because `gen:css-vars` reads host bindings and literal
+    // `setProperty` names and nothing else: written through the bag, the four
+    // hooks the stylesheet declares were documented as a rule's to set while every
+    // instance overwrote them inline.
+    '[style.--wr-border-glow-radius.px]': 'borderRadius()',
+    '[style.--wr-border-glow-padding.px]': 'glowRadius()',
+    '[style.--wr-border-glow-cone-spread]': 'coneSpread()',
+    '[style.--wr-border-glow-edge-sensitivity]': 'edgeSensitivity()',
+    '[style.--wr-border-glow-fill-opacity]': 'fillOpacity()',
     '(pointerenter)': 'onPointerEnter()',
     '(pointermove)': 'onPointerMove($event)',
     '(pointerleave)': 'onPointerLeave()',
@@ -236,15 +248,13 @@ export class WrBorderGlow {
   /** Whether a pointer is over the card — the loop holds still while it drives. */
   private pointerInside = false;
 
-  /** Inline CSS variable bag — recomputed when colour / radius / sensitivity inputs change. */
+  /**
+   * Inline CSS variable bag — the colour inputs, recomputed when one changes. Every
+   * name in it is an `--wr-border-glow-input-*` twin that is there only while its
+   * input is set; the geometry, which is always set, is bound in `host`.
+   */
   protected readonly cssVars = computed<Record<string, string>>(() => {
-    const vars: Record<string, string> = {
-      '--wr-border-glow-radius': `${this.borderRadius()}px`,
-      '--wr-border-glow-padding': `${this.glowRadius()}px`,
-      '--wr-border-glow-cone-spread': String(this.coneSpread()),
-      '--wr-border-glow-edge-sensitivity': String(this.edgeSensitivity()),
-      '--wr-border-glow-fill-opacity': String(this.fillOpacity()),
-    };
+    const vars: Record<string, string> = {};
     const colors = this.colors();
     if (colors !== null) Object.assign(vars, buildGradientVars(colors));
     // Colour vars are written only when set — otherwise the stylesheet's
@@ -263,13 +273,13 @@ export class WrBorderGlow {
   });
 
   constructor() {
-    // Apply the variable bag to the host on every input change. Bind in an
-    // effect rather than `host: { '[style.--foo]': '...' }` so a single
+    // Apply the variable bag to the host on every colour input change. An effect
+    // rather than one `host: { '[style.--foo]': '...' }` per name, because a
+    // palette is seven names and a glow colour another seven, and a single
     // `setProperty` loop handles the lot. What left the bag comes off the host, or
     // an input set and then unset stays over the stylesheet's default for good.
-    // Every name here is this component's own — a geometry hook it writes whatever
-    // the inputs say, or an `--wr-border-glow-input-*` twin nothing else declares
-    // inline — so removing one takes nothing of the author's: their value sits on
+    // Every name here is an `--wr-border-glow-input-*` twin nothing else declares
+    // inline, so removing one takes nothing of the author's: their value sits on
     // the hook itself, which this never writes.
     let written: string[] = [];
     effect(() => {
