@@ -1,0 +1,66 @@
+<ngwr-doc-page
+  title="wrPoll"
+  since="15.5.0"
+  description="Reloads a resource on an interval: one timer shared across the app, paused while the page is hidden, a loading resource skipped on its turn."
+  [keywords]="['wrPoll', 'poll', 'polling', 'interval', 'resource', 'httpResource', 'reload', 'visibility', 'platform']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="Takes `resource()`, `rxResource()` and `httpResource()` alike. Needs an injection context and stops with it. Lives in `ngwr/platform`, since it reads `WrPlatform.pageVisible`."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="font-family: var(--wr-font-family-base); font-size: 0.875rem; line-height: 1.5">
+        <div>
+          loads: <strong>{{ loads() }}</strong>
+        </div>
+        <small style="color: var(--wr-color-on-surface-muted)">
+          Every two seconds while this tab is visible. Switch away for a while: the count stops, then moves once on
+          return.
+        </small>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rules">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>What happens</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Two resources, two intervals</th>
+            <td>One timer, aimed at the earliest due resource.</td>
+          </tr>
+          <tr>
+            <th scope="row">The tab is hidden</th>
+            <td>Polling pauses. On return, a resource overdue by its interval reloads once.</td>
+          </tr>
+          <tr>
+            <th scope="row">Still loading on its turn</th>
+            <td>Skipped, not queued: it waits a full interval again.</td>
+          </tr>
+          <tr>
+            <th scope="row">In the <code>error</code> state</th>
+            <td>Keeps polling. That is how it recovers.</td>
+          </tr>
+          <tr>
+            <th scope="row">On the server</th>
+            <td>Nothing is scheduled, so prerender never waits.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

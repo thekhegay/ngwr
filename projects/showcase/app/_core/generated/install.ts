@@ -488,6 +488,9 @@ export const INSTALL = {
   "reference/services/tour": [
       { path: "ngwr/tour", symbols: ["WrTour"], declarables: [], styled: true },
   ],
+  "reference/utils/wr-poll": [
+      { path: "ngwr/platform", symbols: ["wrPoll"], declarables: [], styled: false },
+  ],
   "reference/validators/card-number": [
       { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
       { path: "ngwr/validators", symbols: ["WrValidators"], declarables: [], styled: false },
