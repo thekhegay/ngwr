@@ -44,6 +44,10 @@ export default class WrBytesPipePage {
     basic: `{{ 1234 | wrBytes }}  <!-- "1.2 kB" -->`,
     decimals: `{{ 1234567 | wrBytes: 0 }}  <!-- "1 MB" -->
 {{ 1234567 | wrBytes: 2 }}  <!-- "1.18 MB" -->`,
+    fn: `import { wrFormatBytes } from 'ngwr/pipes';
+
+wrFormatBytes(1234, 'en-US');       // "1.2 kB"
+wrFormatBytes(1234567, 'fr-FR', 0); // "1 Mo"`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -51,6 +55,12 @@ export default class WrBytesPipePage {
       name: 'wrBytes',
       description: 'Formats bytes in 1024-based units. `null`, `undefined` and empty render as an empty string.',
       type: '(value: number | string | null | undefined, decimals = 1) => string',
+      default: '—',
+    },
+    {
+      name: 'wrFormatBytes',
+      description: 'The pipe as a function, in the locale given.',
+      type: '(value: number | string | null | undefined, locale: string, decimals = 1) => string',
       default: '—',
     },
   ];

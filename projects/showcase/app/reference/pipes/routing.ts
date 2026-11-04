@@ -21,6 +21,10 @@ export default [
     loadComponent: () => import('./wr-date/wr-date'),
   },
   {
+    path: pipes.wrDuration.path,
+    loadComponent: () => import('./wr-duration/wr-duration'),
+  },
+  {
     path: pipes.wrTruncate.path,
     loadComponent: () => import('./wr-truncate/wr-truncate'),
   },

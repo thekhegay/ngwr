@@ -429,7 +429,12 @@ one component folder. Reach for them instead of hand-rolling:
 - **Shared code — don't reinvent these.** `ngwr/utils` (`coercion` incl.
   `numAttr` for input transforms; plus `dom`, `guards`, `id`, `keyboard`,
   `css-size`, `css-value`, `fn`, `math`, `log`), `ngwr/pipes` (`wrDate`, `wrBytes`,
-  `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrRange`), and
+  `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrRange`, `wrDuration`, and
+  beside the formatting pipes the functions `wrFormatDate`, `wrFormatBytes`,
+  `wrFormatNumber`, `wrFormatPlural` and `wrFormatDuration`, each the pipe's
+  own implementation for a string built in TypeScript — the locale is their
+  second argument, except `wrFormatDate`, which takes the adapter the pipe
+  injects), and
   `ngwr/validators` (`WrValidators`). A chart builds on `ngwr/charts/core` —
   the palette, dashes and markers, `useChartNumbers`, `chartAxis` and the
   visually hidden `WrChartTable` behind the opt-in `dataTable` input on bar,

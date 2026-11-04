@@ -30,13 +30,6 @@ everything under [Deferred](#deferred) is explicitly not now.
       cursor effects. Each one a
       Signal-input component on theme tokens, honouring
       `prefers-reduced-motion`, with a docs page under `/bits`.
-- [ ] **F2. Format functions beside the pipes, and `wrDuration`** (M) —
-      `wrFormatNumber`, `wrFormatDate`, `wrFormatBytes` and `wrFormatPlural`
-      give a row built in TypeScript the same `Intl` output as the pipe in a
-      template. `wrDuration`, a pipe and a function, prints clock time
-      (`1:30:00`) and units (`1 h 30 min`) on `Intl.NumberFormat` units, since
-      `Intl.DurationFormat` is above the browser floor;
-      `wr-statistic-countdown` shares its formatter.
 - [ ] **F3. `wrDownloadBlob`** (S) — saves a `Blob` under a file name in one
       call, from `ngwr/utils`: a no-op on the server, with the deferred revoke
       Safari needs. Beside it, a `wr`-prefixed reader for the file name in a

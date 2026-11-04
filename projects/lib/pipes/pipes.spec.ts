@@ -2,13 +2,15 @@ import { LOCALE_ID, SecurityContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 
+import { WrDateAdapter } from 'ngwr/date';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { WrBytes } from './bytes';
-import { WrDate } from './date';
+import { WrBytes, wrFormatBytes } from './bytes';
+import { WrDate, wrFormatDate } from './date';
+import { WrDuration, wrFormatDuration, wrSplitDuration } from './duration';
 import { WrMark } from './mark';
-import { WrNumber } from './number';
-import { WrPlural } from './plural';
+import { WrNumber, wrFormatNumber } from './number';
+import { WrPlural, wrFormatPlural } from './plural';
 import { WrRange } from './range';
 import { WrTruncate } from './truncate';
 
@@ -87,6 +89,18 @@ describe('wrBytes', () => {
     // which is why the parts are rejoined rather than the string rebuilt.
     expect(bytes('he-IL').transform(512)).toBe('B 512');
   });
+
+  it('is the same output as wrFormatBytes, in every locale', () => {
+    for (const locale of ['en-US', 'de-DE', 'fr-FR', 'he-IL']) {
+      const pipe = bytes(locale);
+      for (const value of [0, 0.5, 512, 1536, 1234567, 1024 ** 7, -5, 'nonsense', null, '']) {
+        expect(wrFormatBytes(value, locale)).toBe(pipe.transform(value));
+        expect(wrFormatBytes(value, locale, 2)).toBe(pipe.transform(value, 2));
+      }
+    }
+    expect(wrFormatBytes(1536, 'fr-FR', 2)).toBe('1,50 ko');
+    expect(wrFormatBytes(null, 'en-US')).toBe('');
+  });
 });
 
 describe('wrNumber', () => {
@@ -122,6 +136,23 @@ describe('wrNumber', () => {
     expect(pipe.transform('abc')).toBe('');
     expect(pipe.transform('1e400')).toBe('');
     expect(pipe.transform(Number.NaN)).toBe('');
+  });
+
+  it('is the same output as wrFormatNumber', () => {
+    for (const value of [1234.5, 0.875, '12345678901234567.89', '1e-1000000000', '0x10', null, '', 'abc']) {
+      expect(wrFormatNumber(value, 'en-US')).toBe(pipe.transform(value));
+      expect(wrFormatNumber(value, 'en-US', 'percent')).toBe(pipe.transform(value, 'percent'));
+      expect(wrFormatNumber(value, 'en-US', 'currency', 'EUR')).toBe(pipe.transform(value, 'currency', 'EUR'));
+      expect(wrFormatNumber(value, 'en-US', { notation: 'compact' })).toBe(
+        pipe.transform(value, { notation: 'compact' })
+      );
+    }
+  });
+
+  it('writes the function output in the locale it is given', () => {
+    expect(wrFormatNumber(1234.5, 'de-DE')).toBe('1.234,5');
+    expect(wrFormatNumber(19.99, 'de-DE', 'currency', 'EUR')).toBe('19,99\u00a0€');
+    expect(wrFormatNumber(0.875, 'ru-RU', 'percent')).toBe('87,5\u00a0%');
   });
 });
 
@@ -183,6 +214,27 @@ describe('wrDate', () => {
     expect(pipe().transform('2026-13-01')).toBe('');
     expect(pipe().transform('')).toBe('');
   });
+
+  it('is the same output as wrFormatDate over the same adapter', () => {
+    // The adapter stands where the other functions take a locale: the output is
+    // its own, and an app's adapter cannot be rebuilt from a locale string.
+    const p = pipe();
+    const adapter = TestBed.inject<WrDateAdapter<Date>>(WrDateAdapter);
+    for (const value of ['2026-01-01', '2026-01-01T09:30', new Date(2026, 5, 12, 10, 51), 0, '2026-13-01', null, '']) {
+      expect(wrFormatDate(value, adapter)).toBe(p.transform(value));
+      expect(wrFormatDate(value, adapter, 'mediumDateTime')).toBe(p.transform(value, 'mediumDateTime'));
+      expect(wrFormatDate(value, adapter, 'dd.MM.yyyy HH:mm')).toBe(p.transform(value, 'dd.MM.yyyy HH:mm'));
+    }
+    expect(wrFormatDate('2026-06-12', adapter, 'd MMMM yyyy')).toBe('12 June 2026');
+  });
+
+  it('formats through the adapter of another locale', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: 'de-DE' }] });
+    const adapter = TestBed.inject<WrDateAdapter<Date>>(WrDateAdapter);
+    expect(wrFormatDate('2026-06-12', adapter)).toBe('12.6.2026');
+    expect(wrFormatDate('2026-06-12', adapter, 'd MMMM yyyy')).toBe('12 Juni 2026');
+  });
 });
 
 describe('wrRange', () => {
@@ -223,6 +275,124 @@ describe('wrPlural', () => {
     expect(pipe().transform(null, forms)).toBe('');
     expect(pipe().transform(undefined, forms)).toBe('');
     expect(pipe().transform(Number.NaN, forms)).toBe('');
+  });
+
+  it('is the same output as wrFormatPlural', () => {
+    const forms = { one: 'файл', few: 'файла', many: 'файлов', other: 'файла' };
+    for (const value of [0, 1, 3, 5, 21, 1000, null, Number.NaN]) {
+      for (const locale of ['en', 'ru']) {
+        expect(wrFormatPlural(value, locale, forms)).toBe(pipe().transform(value, forms, { locale }));
+        expect(wrFormatPlural(value, 'en', forms, { locale })).toBe(pipe().transform(value, forms, { locale }));
+        expect(wrFormatPlural(value, locale, forms, { includeValue: false })).toBe(
+          pipe().transform(value, forms, { locale, includeValue: false })
+        );
+      }
+    }
+    expect(wrFormatPlural(1000, 'ru', forms)).toBe('1\u00a0000 файлов');
+    expect(wrFormatPlural(1000, 'en', { one: 'file', other: 'files' })).toBe('1,000 files');
+  });
+});
+
+/**
+ * `wrDuration` is built on `Intl.NumberFormat` and `Intl.ListFormat` rather than
+ * `Intl.DurationFormat`, which the browser floor does not have, so what the
+ * specs pin is the assembly: which units show, how they carry, where the sign
+ * goes, and that the words and digits are the locale's.
+ */
+describe('wrDuration', () => {
+  const SECOND = 1000;
+  const MINUTE = 60 * SECOND;
+  const HOUR = 60 * MINUTE;
+  const DAY = 24 * HOUR;
+
+  const pipe = (locale = 'en-US'): WrDuration => {
+    TestBed.resetTestingModule();
+    return TestBed.configureTestingModule({
+      providers: [{ provide: LOCALE_ID, useValue: locale }],
+    }).runInInjectionContext(() => new WrDuration());
+  };
+
+  it('writes clock digits, with the hours only once there is one', () => {
+    const p = pipe();
+    expect(p.transform(HOUR + 30 * MINUTE)).toBe('1:30:00');
+    expect(p.transform(5 * MINUTE + 7 * SECOND)).toBe('5:07');
+    expect(p.transform(7 * SECOND)).toBe('0:07');
+    expect(p.transform(HOUR + 5 * SECOND)).toBe('1:00:05');
+  });
+
+  it('carries the days into the hours in clock style, since a clock has no day digit', () => {
+    expect(pipe().transform(2 * DAY + HOUR)).toBe('49:00:00');
+  });
+
+  it('writes every non-zero unit as a word in units style, days included', () => {
+    const p = pipe();
+    expect(p.transform(HOUR + 30 * MINUTE, 'units')).toBe('1 hr 30 min');
+    expect(p.transform(HOUR + 30 * MINUTE + 7 * SECOND, 'units')).toBe('1 hr 30 min 7 sec');
+    expect(p.transform(5 * MINUTE + 7 * SECOND, 'units')).toBe('5 min 7 sec');
+    expect(p.transform(2 * DAY + HOUR, 'units')).toBe('2 days 1 hr');
+    expect(p.transform(2 * HOUR, 'units')).toBe('2 hr');
+  });
+
+  it('floors to whole seconds in both styles', () => {
+    const p = pipe();
+    expect(p.transform(5 * MINUTE + 7 * SECOND + 999)).toBe('5:07');
+    expect(p.transform(5 * MINUTE + 7 * SECOND + 999, 'units')).toBe('5 min 7 sec');
+  });
+
+  it('reads zero as 0:00 and 0 sec', () => {
+    const p = pipe();
+    expect(p.transform(0)).toBe('0:00');
+    expect(p.transform(0, 'units')).toBe('0 sec');
+    expect(p.transform(500, 'units')).toBe('0 sec');
+  });
+
+  it('puts the minus sign in front of a negative span, and none on one that floors to zero', () => {
+    const p = pipe();
+    expect(p.transform(-(5 * MINUTE + 7 * SECOND))).toBe('-5:07');
+    expect(p.transform(-(HOUR + 30 * MINUTE), 'units')).toBe('-1 hr 30 min');
+    expect(p.transform(-500)).toBe('0:00');
+    expect(p.transform(-500, 'units')).toBe('0 sec');
+  });
+
+  it('renders nothing for nothing and for a value that is not a finite number', () => {
+    const p = pipe();
+    expect(p.transform(null)).toBe('');
+    expect(p.transform(undefined)).toBe('');
+    expect(p.transform('')).toBe('');
+    expect(p.transform('abc')).toBe('');
+    expect(p.transform(Number.NaN)).toBe('');
+    expect(p.transform(Number.POSITIVE_INFINITY)).toBe('');
+    expect(p.transform(' 307000 ')).toBe('5:07');
+  });
+
+  it('takes the words, the list joiner and the digits from the locale', () => {
+    expect(pipe('fr-FR').transform(HOUR + 30 * MINUTE, 'units')).toBe('1\u202fh 30\u00a0min');
+    expect(pipe('ru-RU').transform(HOUR + 30 * MINUTE + 7 * SECOND, 'units')).toBe('1 ч 30 мин 7 с');
+    expect(pipe('de-DE').transform(HOUR + 30 * MINUTE, 'units')).toBe('1 Std., 30 Min.');
+    // The locale's own numbering system, in the clock as well.
+    expect(pipe('ar-EG').transform(5 * MINUTE + 7 * SECOND)).toBe('٥:٠٧');
+  });
+
+  it('is the same output as wrFormatDuration', () => {
+    for (const locale of ['en-US', 'fr-FR', 'ar-EG']) {
+      const p = pipe(locale);
+      for (const value of [0, 7 * SECOND, 5 * MINUTE + 7 * SECOND, HOUR + 30 * MINUTE, 2 * DAY + HOUR, -HOUR, null]) {
+        expect(wrFormatDuration(value, locale)).toBe(p.transform(value));
+        expect(wrFormatDuration(value, locale, 'units')).toBe(p.transform(value, 'units'));
+      }
+    }
+  });
+
+  it('splits a span into the units asked for, carrying the rest into the largest', () => {
+    // The half `wr-statistic-countdown` shares: its tokens pick the units.
+    expect(wrSplitDuration(3 * DAY + HOUR, new Set(['hour', 'minute', 'second']))).toEqual({
+      hour: 73,
+      minute: 0,
+      second: 0,
+    });
+    expect(wrSplitDuration(36 * HOUR + 3 * SECOND, new Set(['minute', 'second']))).toEqual({ minute: 2160, second: 3 });
+    expect(wrSplitDuration(1500, new Set(['second', 'millisecond']))).toEqual({ second: 1, millisecond: 500 });
+    expect(wrSplitDuration(1500, new Set(['second']))).toEqual({ second: 1 });
   });
 });
 
