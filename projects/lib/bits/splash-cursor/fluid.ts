@@ -1003,10 +1003,11 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
   // A contained canvas scrolled out of view, or one with no box, stops asking for
   // frames, the way `wr-waves` does: the solver runs every pass of the pipeline
   // each frame, for nothing anyone can see. The fullscreen overlay is always in
-  // view. Without the observers (jsdom) it simply runs. A box flush against a
-  // zero-height clip intersects with nothing showing, and only a second threshold
-  // reports the clip moving. It sits below any real ratio, or a clip closing on a
-  // transition steps from under it to 0 without crossing anything.
+  // view. Without the observers (jsdom) nothing reports a change, so what the
+  // first frame measures stands: a box runs the loop, no box parks it. A box flush
+  // against a zero-height clip intersects with nothing showing, and only a second
+  // threshold reports the clip moving. It sits below any real ratio, or a clip
+  // closing on a transition steps from under it to 0 without crossing anything.
   let visible = true;
   const wake = (): void => {
     if (visible && hasBox && active && rafId === 0) {
