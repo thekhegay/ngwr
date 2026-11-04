@@ -1,7 +1,8 @@
 <ngwr-doc-page
   title="WrHotkey"
-  description="Register keyboard shortcuts like `mod+k`, where `mod` is ⌘ on macOS and Ctrl elsewhere. A letter shortcut also fires on a non-Latin layout."
-  [keywords]="['service', 'hotkey', 'keyboard', 'WrHotkey']"
+  updated="15.5.0"
+  description="Register keyboard shortcuts like `mod+k`, where `mod` is ⌘ on macOS and Ctrl elsewhere. A letter shortcut also fires on a non-Latin layout. `bindings()` lists what is registered, for a cheat sheet."
+  [keywords]="['service', 'hotkey', 'keyboard', 'WrHotkey', 'cheat sheet', 'wrFormatChord']"
   [labels]="['Service']"
 >
   <ngwr-doc-section
@@ -13,7 +14,7 @@
     <ngwr-doc-snippet code="">
       <div style="font-family: var(--wr-font-family-base); font-size: 0.875rem; line-height: 1.5">
         <div style="display: flex; align-items: center; gap: 0.375rem; flex-wrap: wrap">
-          Press <wr-kbd>⌘</wr-kbd><wr-kbd>/</wr-kbd> (or <wr-kbd>Ctrl</wr-kbd><wr-kbd>/</wr-kbd>) anywhere on this page.
+          Press <wr-kbd chord="mod+/" /> anywhere on this page.
         </div>
         @if (lastHotkey()) {
           <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">{{
@@ -22,6 +23,62 @@
         }
       </div>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Cheat sheet"
+    description="`bindings()` is a signal of every active binding: the chord as registered and the `label` the registration gave. A binding leaves when it unbinds or its directive host is destroyed. One without a label still lists: the site's command palette is the `mod+k` row."
+  >
+    <ngwr-doc-code [code]="snippets.cheatSheet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Keys</th>
+              <th>Does</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (binding of hotkeys.bindings(); track $index) {
+              <tr>
+                <td><wr-kbd size="sm" [chord]="binding.chord" /></td>
+                <td>{{ binding.label ?? '-' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Print a chord"
+    description="`wrFormatChord()` writes a chord the way the platform does: `⌘K` on macOS, `Ctrl+K` elsewhere. Modifiers follow Apple's order (`⌃⌥⇧⌘`) on a Mac. Named keys come from `KEY_LABELS` in `ngwr/utils`, as Apple's glyphs on a Mac (`↩`, `⎋`, `⌫`); arrows are glyphs everywhere. The server has no user agent and gets the Ctrl form, so `<wr-kbd [chord]>` reads the platform after its first render and hydration sees matching text."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Chord</th>
+            <th>macOS</th>
+            <th>Elsewhere</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of chords; track row) {
+            <tr>
+              <th scope="row">
+                <code>{{ row }}</code>
+              </th>
+              <td>{{ mac(row) }}</td>
+              <td>{{ other(row) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

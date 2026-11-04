@@ -41,6 +41,9 @@ export class WrHotkeyBinding {
   /** Suppress the default action when the binding fires. @default true */
   readonly preventDefault = input(true, { transform: coerceBooleanProperty });
 
+  /** What the shortcut does, listed by `WrHotkey.bindings` for a cheat sheet. @default null */
+  readonly hotkeyLabel = input<string | null>(null);
+
   /** Emits the original KeyboardEvent on match. */
   readonly wrHotkeyMatch = output<KeyboardEvent>();
 
@@ -55,6 +58,7 @@ export class WrHotkeyBinding {
         element: this.scoped() ? this.host.nativeElement : undefined,
         allowInInput: this.allowInInput(),
         preventDefault: this.preventDefault(),
+        label: this.hotkeyLabel() ?? undefined,
       });
     });
     inject(DestroyRef).onDestroy(() => this.handle?.unbind());

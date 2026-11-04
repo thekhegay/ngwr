@@ -6,20 +6,22 @@
  */
 
 import { DOCUMENT } from '@angular/common';
-import { DestroyRef, Service, NgZone, inject } from '@angular/core';
+import { DestroyRef, Service, NgZone, type Signal, computed, inject, signal } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 
+import { wrHotkeyPlatform } from './format-chord';
 import { matchesHotkey, parseHotkeySpec, type WrParsedHotkey } from './parse-spec';
-import type { WrHotkeyHandle, WrHotkeyOptions, WrHotkeySpec } from './types';
+import type { WrHotkeyEntry, WrHotkeyHandle, WrHotkeyOptions, WrHotkeySpec } from './types';
 
 interface Binding {
   readonly parsed: WrParsedHotkey;
   readonly handler: (event: KeyboardEvent) => void;
-  readonly options: Required<WrHotkeyOptions>;
+  readonly options: Required<Omit<WrHotkeyOptions, 'label'>>;
+  readonly entry: WrHotkeyEntry;
 }
 
-const FALLBACK_OPTIONS: Required<WrHotkeyOptions> = {
+const FALLBACK_OPTIONS: Required<Omit<WrHotkeyOptions, 'label'>> = {
   element: undefined as unknown as HTMLElement,
   preventDefault: true,
   allowInInput: false,
@@ -44,12 +46,14 @@ function isEditableTarget(target: EventTarget | null): boolean {
  * The listener runs outside Angular — only matched bindings re-enter
  * the zone, so an idle page doesn't trigger CD on every keystroke.
  *
- * Use `[wrHotkey]` for declarative element-scoped bindings.
+ * Use `[wrHotkey]` for declarative element-scoped bindings. `bindings` lists
+ * what is registered, with the `label` each registration gave, for a cheat
+ * sheet; `wrFormatChord` writes a chord the way the platform does.
  *
  * @example
  * ```ts
  * const hotkeys = inject(WrHotkey);
- * const handle = hotkeys.bind('mod+k', () => openCommandPalette());
+ * const handle = hotkeys.bind('mod+k', () => openCommandPalette(), { label: 'Open the palette' });
  * // ...later
  * handle.unbind();
  * ```
@@ -63,10 +67,20 @@ export class WrHotkey {
   private readonly platform = inject(WrPlatform);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly isMac = (this.platform.userAgent ?? '').toLowerCase().includes('mac');
+  private readonly isMac = wrHotkeyPlatform(this.platform.userAgent) === 'mac';
 
   /** Bindings grouped by listener target. */
   private readonly registries = new Map<EventTarget, Set<Binding>>();
+
+  /** Every registered binding, in registration order. Above `bindings`, which reads it. */
+  private readonly registered = signal<readonly Binding[]>([]);
+
+  /**
+   * The active bindings, in registration order, each with its chord as
+   * registered and the `label` its registration gave. A binding leaves when its
+   * handle unbinds, which `[wrHotkey]` does on destroy.
+   */
+  readonly bindings: Signal<readonly WrHotkeyEntry[]> = computed(() => this.registered().map(b => b.entry));
 
   constructor() {
     // Every listener belongs to this injector. Provided at the root that is the
@@ -76,15 +90,17 @@ export class WrHotkey {
     this.destroyRef.onDestroy(() => {
       for (const target of [...this.listeners.keys()]) this.detach(target);
       this.registries.clear();
+      this.registered.set([]);
     });
   }
 
   /** Register a binding. */
   bind(spec: WrHotkeySpec, handler: (event: KeyboardEvent) => void, options: WrHotkeyOptions = {}): WrHotkeyHandle {
     const parsed = parseHotkeySpec(spec, this.isMac);
-    const resolved: Required<WrHotkeyOptions> = { ...FALLBACK_OPTIONS, ...options };
+    const { label = null, ...rest } = options;
+    const resolved: Required<Omit<WrHotkeyOptions, 'label'>> = { ...FALLBACK_OPTIONS, ...rest };
     const target: EventTarget = resolved.element ?? this.doc;
-    const binding: Binding = { parsed, handler, options: resolved };
+    const binding: Binding = { parsed, handler, options: resolved, entry: { chord: spec, label } };
 
     let bucket = this.registries.get(target);
     if (!bucket) {
@@ -93,6 +109,7 @@ export class WrHotkey {
       this.attach(target);
     }
     bucket.add(binding);
+    this.registered.update(list => [...list, binding]);
 
     return {
       unbind: () => {
@@ -105,6 +122,7 @@ export class WrHotkey {
         // the live binding's listener down with it.
         const current = this.registries.get(target);
         if (!current?.delete(binding)) return;
+        this.registered.update(list => list.filter(b => b !== binding));
         if (current.size === 0) {
           this.registries.delete(target);
           this.detach(target);

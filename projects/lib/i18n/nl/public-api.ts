@@ -396,6 +396,21 @@ export const wrNl: WrI18nCatalog = {
     taskDone: 'Klaar:',
     taskTodo: 'Te doen:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Spatie',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   // Bewust zonder meervoudsvorm: de interpolator vult alleen waarden in en kent
   // geen meervoud, dus het telwoord staat achteraan — Beschikbare resultaten: 1
   // moet net zo goed lopen als bij 5.

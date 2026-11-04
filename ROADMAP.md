@@ -6,10 +6,6 @@
 
 ## Medium
 
-- **`WrHotkey` bindings and labels**: the active bindings with their labels as a
-  signal, for a cheat sheet in `wr-kbd`, and a chord written the way the platform
-  writes it (`⌘K` on macOS, `Ctrl+K` elsewhere). `KEYS` in `ngwr/utils` names keys
-  for `keydown` handlers and is where the labels start.
 - **`wrQueryParam`**: a writable signal linked to one query parameter, with parse
   and serialize, `replaceUrl`, one navigation per task, and a default left out of
   the address. In a router entry point of its own, the way `ngwr/tabs/router` is,

@@ -403,6 +403,21 @@ export const wrUk: WrI18nCatalog = {
     taskDone: 'Виконано:',
     taskTodo: 'Не виконано:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Пробіл',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   // Іменник попереду — «Вставлено: Ада», а не «Ада вставлена»: рід імені
   // наперед невідомий, а інтерполятор узгоджувати його не вміє. З тієї ж
   // причини лічильник без відмінювання — форм множини в ньому немає.

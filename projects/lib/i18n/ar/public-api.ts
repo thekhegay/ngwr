@@ -400,6 +400,21 @@ export const wrAr: WrI18nCatalog = {
     taskDone: 'تم:',
     taskTodo: 'لم يتم:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'مسافة',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   // Arabic inflects a counted noun differently at one, at two, at three-to-ten
   // and at eleven-and-up, and the interpolator has no plural machinery — so a
   // string that counts ITEMS here does one of two things rather than write

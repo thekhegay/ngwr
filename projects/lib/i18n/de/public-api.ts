@@ -401,6 +401,21 @@ export const wrDe: WrI18nCatalog = {
     taskDone: 'Erledigt:',
     taskTodo: 'Offen:',
   },
+  kbd: {
+    ctrl: 'Strg',
+    shift: 'Umschalt',
+    alt: 'Alt',
+    enter: 'Eingabe',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Leertaste',
+    backspace: 'Rücktaste',
+    delete: 'Entf',
+    home: 'Pos1',
+    end: 'Ende',
+    pageUp: 'Bild auf',
+    pageDown: 'Bild ab',
+  },
   // Zahl am Ende und ein Substantiv ohne Pluralform: „Treffer“ lautet im
   // Singular wie im Plural, und der Interpolator beugt nichts.
   marquee: {

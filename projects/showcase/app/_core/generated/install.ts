@@ -462,7 +462,7 @@ export const INSTALL = {
       { path: "ngwr/density", symbols: ["WrDensity", "WrDensityDirective", "wrDensityPrePaintScript"], declarables: ["WrDensityDirective"], styled: true },
   ],
   "reference/services/hotkey": [
-      { path: "ngwr/hotkey", symbols: ["WrHotkey"], declarables: [], styled: false },
+      { path: "ngwr/hotkey", symbols: ["WrHotkey", "wrFormatChord"], declarables: [], styled: false },
   ],
   "reference/services/i18n": [
       { path: "ngwr/i18n", symbols: ["WrI18n", "WrTDirective", "WrTPipe"], declarables: ["WrTDirective", "WrTPipe"], styled: false },
