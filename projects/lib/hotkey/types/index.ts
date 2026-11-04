@@ -44,4 +44,18 @@ export interface WrHotkeyOptions {
    * handler calls `event.preventDefault()`. @default 0
    */
   readonly priority?: number;
+
+  /** What the shortcut does, for a cheat sheet built from {@link WrHotkey.bindings}. */
+  readonly label?: string;
 }
+
+/** One registered binding, as {@link WrHotkey.bindings} lists it. */
+export interface WrHotkeyEntry {
+  /** The chord as it was registered: `'mod+k'`. Print it with `wrFormatChord`. */
+  readonly chord: WrHotkeySpec;
+  /** The `label` the registration gave, or `null`. */
+  readonly label: string | null;
+}
+
+/** What a chord is written for: `⌘K` on `'mac'`, `Ctrl+K` on `'other'`. */
+export type WrHotkeyPlatform = 'mac' | 'other';

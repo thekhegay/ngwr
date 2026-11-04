@@ -742,6 +742,7 @@ export const API = {
     { name: "scoped", description: "Scope the binding to the host element instead of `document`.", type: "boolean", default: "false" },
     { name: "allowInInput", description: "Fire even when an input / textarea has focus.", type: "boolean", default: "false" },
     { name: "preventDefault", description: "Suppress the default action when the binding fires.", type: "boolean", default: "true" },
+    { name: "hotkeyLabel", description: "What the shortcut does, listed by `WrHotkey.bindings` for a cheat sheet.", type: "string | null", default: "null" },
     { name: "(wrHotkeyMatch)", description: "Emits the original KeyboardEvent on match.", type: "KeyboardEvent" },
   ],
   // <wr-icon>
@@ -813,6 +814,7 @@ export const API = {
   // <wr-kbd>
   WrKbd: [
     { name: "size", description: "Visual size variant.", type: "WrKbdSize", default: "'md'" },
+    { name: "chord", description: "A chord to print in place of the content: `'mod+k'`.", type: "WrHotkeySpec | null", default: "null" },
   ],
   // <wr-knob>
   WrKnob: [

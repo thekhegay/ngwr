@@ -31,6 +31,8 @@ import {
 export default class KeyboardPageComponent {
   protected readonly snippets = {
     basic: `<wr-kbd>⌘</wr-kbd> + <wr-kbd>K</wr-kbd>`,
+    chord: `<wr-kbd chord="mod+k" />
+<wr-kbd chord="mod+shift+enter" />`,
     prose: `<!-- wrTypography comes from ngwr/typography. -->
 <p wrTypography>
   Press <wr-kbd>⌘</wr-kbd> + <wr-kbd>P</wr-kbd> to open the command palette.
@@ -129,6 +131,12 @@ export default class KeyboardPageComponent {
       default: `'md'`,
       description: 'Visual size variant.',
     },
+    {
+      name: 'chord',
+      type: 'WrHotkeySpec | null',
+      default: 'null',
+      description: 'A chord to print in place of the content: `mod+k`.',
+    },
   ];
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
@@ -142,7 +150,7 @@ export default class KeyboardPageComponent {
       kind: 'Service',
       title: 'WrHotkey',
       url: ['/reference/services', 'hotkey'],
-      description: 'Bind the shortcut.',
+      description: 'Bind the shortcut, and `wrFormatChord`.',
     },
   ];
 }
