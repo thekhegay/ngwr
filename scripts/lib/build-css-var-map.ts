@@ -47,6 +47,24 @@
  * no state. Where a component publishes a hook only from inside variants there
  * is no honest single default, and the row says which selector its value came
  * from rather than picking one and calling it the default.
+ *
+ * A fourth question qualifies a row rather than deciding it. **Whether a rule
+ * can reach it.** `wr-threads` declares `--wr-threads-count: 18` on its block
+ * so the stand-in it paints before hydration draws where the canvas will, and
+ * then writes the SAME name on its host from `[lineCount]` through
+ * `[style.--wr-threads-count]`. An inline style beats every stylesheet rule, and
+ * that binding is never `null`, so the section's "set these on the element" is
+ * false for exactly that row: the input sets it, and a rule cannot. The map says
+ * so ({@link WrCssVar.host}) when the owner's own code writes the hook on the
+ * host — a `[style.--wr-x]` host binding or a `setProperty('--wr-x', …)` — and
+ * never lets go of it: no `null` or `undefined` branch in the binding and no
+ * `removeProperty` of the name. A hook that CAN be released is left alone, since
+ * a consumer's rule holds whenever the component steps back, which is what the
+ * `--wr-<block>-input-<name>` convention exists for. Template bindings are not
+ * read: one lands on an inner element, and the block's default on the host is
+ * still the consumer's for everything else that reads it — `wr-event-calendar`
+ * binds `--wr-event-calendar-cols` on its time grid while the month grid keeps
+ * the declared seven.
  */
 
 import { readFileSync } from 'node:fs';
@@ -316,6 +334,44 @@ function readsIn(source: string): Set<string> {
   return out;
 }
 
+/** The hooks one file writes on the component's host, and the ones it also lets go of. */
+interface HostWrites {
+  readonly written: Set<string>;
+  readonly released: Set<string>;
+}
+
+/**
+ * A `[style.--wr-x]` or `[style.--wr-x.px]` host binding with its expression, as the
+ * `host: {}` metadata spells it: a quoted key, a colon, a quoted expression. A
+ * template binding is an attribute (`[style.--wr-x]="…"`) and does not match.
+ */
+const HOST_STYLE_BINDING = /\[style\.(--wr-[a-z0-9-]+)(?:\.[a-z%]+)?\]['"]\s*:\s*(["'`])((?:(?!\2).)*)\2/g;
+
+/**
+ * `[style.--wr-x]: 'expr'` host bindings and `setProperty('--wr-x', …)` calls,
+ * comments stripped.
+ *
+ * Which of the two sets a name lands in is read off the text, not the types: a
+ * binding whose expression names `null` or `undefined` has a branch that gives
+ * the host's value back (`categoryTotal() || null`, `hasLines() ? reach() : null`),
+ * and a `removeProperty` of the name is the same release for `setProperty`. The
+ * hook rule in AGENTS.md is what makes the textual read sound: a binding to a
+ * hook's own name is non-nullable by convention, and the nullable one writes
+ * `--wr-<block>-input-<name>`, which no stylesheet declares and so never
+ * reaches this map at all.
+ */
+function hostWritesIn(source: string): HostWrites {
+  const src = blankComments(source);
+  const written = new Set<string>();
+  const released = new Set<string>();
+  for (const [, name, , expression] of src.matchAll(HOST_STYLE_BINDING)) {
+    (/\b(?:null|undefined)\b/.test(expression) ? released : written).add(name);
+  }
+  for (const [, name] of src.matchAll(/\.setProperty\(\s*['"`](--wr-[a-z0-9-]+)['"`]/g)) written.add(name);
+  for (const [, name] of src.matchAll(/\.removeProperty\(\s*['"`](--wr-[a-z0-9-]+)['"`]/g)) released.add(name);
+  return { written, released };
+}
+
 /**
  * Reads that do not count.
  *
@@ -337,6 +393,10 @@ export function buildCssVarMap(): WrCssVarMap {
   const declarers = new Map<string, Set<string>>();
   const blocks = new Map<string, Set<string>>();
   const reads = new Set<string>();
+  // Per entry point, not pooled: only the OWNER's own write makes a hook the
+  // input's. Another component writing a hook on its own inner `<wr-icon>` says
+  // nothing about what a rule can reach on a bare one.
+  const hostWrites = new Map<string, HostWrites>();
 
   for (const entry of eps) {
     const styles = entryFiles(entry, { extensions: ['.scss'], skipInternal: false });
@@ -344,16 +404,25 @@ export function buildCssVarMap(): WrCssVarMap {
 
     const own: RawDeclaration[] = [];
     const owned = new Set<string>();
+    const writes: HostWrites = { written: new Set(), released: new Set() };
     for (const file of styles) {
       const parsed = declarationsIn(file);
       own.push(...parsed.declarations);
       for (const block of parsed.blocks) owned.add(block);
       for (const name of readsIn(readFileSync(file, 'utf8'))) reads.add(name);
     }
-    for (const file of code) for (const name of readsIn(readFileSync(file, 'utf8'))) reads.add(name);
+    for (const file of code) {
+      const source = readFileSync(file, 'utf8');
+      for (const name of readsIn(source)) reads.add(name);
+      if (!file.endsWith('.ts')) continue;
+      const found = hostWritesIn(source);
+      for (const name of found.written) writes.written.add(name);
+      for (const name of found.released) writes.released.add(name);
+    }
 
     declared.set(entry, own);
     blocks.set(entry, owned);
+    hostWrites.set(entry, writes);
     for (const d of own) {
       if (!declarers.has(d.name)) declarers.set(d.name, new Set());
       declarers.get(d.name)!.add(entry);
@@ -423,6 +492,7 @@ export function buildCssVarMap(): WrCssVarMap {
     }
 
     const chosen = all.find(d => d.base) ?? all[0];
+    const writes = hostWrites.get(entry)!;
     if (!byEntry.has(entry)) byEntry.set(entry, []);
     byEntry.get(entry)!.push({
       name,
@@ -430,6 +500,7 @@ export function buildCssVarMap(): WrCssVarMap {
       scope: chosen.scope,
       base: chosen.base,
       overrides: all.length - 1,
+      host: writes.written.has(name) && !writes.released.has(name),
     });
   }
 
@@ -471,6 +542,14 @@ export interface WrCssVar {
   readonly base: boolean;
   /** How many further declarations override it (variants, states, media). */
   readonly overrides: number;
+  /**
+   * Whether the component writes this hook on its own host — a `[style.--wr-x]`
+   * host binding or `setProperty` — and never releases it. An inline value beats
+   * every stylesheet rule, so the input or state behind the binding sets it and
+   * {@link value} is only what the stylesheet shows before the component writes;
+   * `--wr-threads-count` mirrors `[lineCount]` this way.
+   */
+  readonly host: boolean;
 }
 
 /** Every hook one entry point owns, in name order. */
