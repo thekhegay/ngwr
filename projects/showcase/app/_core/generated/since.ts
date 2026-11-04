@@ -51,7 +51,7 @@ export const SINCE = {
 export const UPDATED = {
   "bits/aurora": "15.0.0",
   "bits/blur-text": "15.0.0",
-  "bits/border-glow": "15.0.0",
+  "bits/border-glow": "15.4.0",
   "bits/circular-text": "15.0.0",
   "bits/click-spark": "15.0.0",
   "bits/confetti": "15.0.0",
