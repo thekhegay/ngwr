@@ -34,26 +34,24 @@ hook, which is how it was found, on the commit that added it. The pnpm version
 is pinned by `packageManager` and enforced by corepack, which is the mechanism
 that actually does the work.
 
-**pnpm is held at 11, and the move to 12 waits on GitHub rather than on pnpm.**
-The repository ran pnpm 12 from 2026-09-07 to 2026-09-13, and it broke both halves
-of Dependabot without a single red run. A pnpm 12 lockfile is a stream of two YAML
-documents — the package manager's own pin first, the dependency graph second — and
-GitHub's dependency graph reads only the first
+**A pnpm major is verified against Dependabot, because nothing else notices it
+breaking.** The repository ran pnpm 12 from 2026-09-07 to 2026-09-13 and went back
+to 11 without a single red run. A pnpm 12 lockfile is a stream of two YAML
+documents, the package manager's own pin first and the dependency graph second, and
+GitHub read only the first
 ([dependabot-core#15904](https://github.com/dependabot/dependabot-core/issues/15904)):
 it saw no npm dependency at all, and closed eleven open alerts as fixed while
 `pnpm audit` still reported every one of them. Version updates failed another way:
-the updater ships pnpm 11, which tries to download the 12 the manifest names and
-cannot reach the registry from inside its sandbox
-([#16095](https://github.com/dependabot/dependabot-core/issues/16095)). That stayed
-invisible for six days, because every run until then had nothing past the cooldown,
-never invoked pnpm, and reported success. `pmOnFail: ignore` plus a one-document
-lockfile gets past both and was not taken: the updater's pnpm 11 still refuses a
-manifest whose `engines.pnpm` asks for 12, so the workaround means advertising a
-range the repository does not run. Revisit when both issues close, and verify
-rather than trust a changelog: after the bump
-`gh api repos/thekhegay/ngwr/dependency-graph/sbom` must list more than `tslib` and
-pnpm's own binaries, and a manual "Check for updates" must finish without
-`Could not download the pnpm`.
+the updater could not download the pnpm the manifest names
+([#16095](https://github.com/dependabot/dependabot-core/issues/16095)), and that
+stayed invisible for six days, because a run with nothing past the cooldown never
+invokes pnpm and reports success. Both were fixed upstream, and the repository
+moved to 12 for good on 2026-11-04. Measured on that commit:
+`gh api repos/thekhegay/ngwr/dependency-graph/compare/<before>...<after>` returned an
+empty diff with no snapshot warning, the SBOM kept all its packages, the one open
+alert stayed open, and a manual "Check for updates" finished with no
+`Could not download the pnpm`. Repeat those on the next major. Angular running a
+version says nothing about this: `angular/angular` updates through Renovate.
 
 **`minimumReleaseAge` was considered for the supply chain and rejected on
 evidence.** A cooling-off window on newly published versions is the right idea

@@ -35,8 +35,7 @@ fails `pnpm install` with a clear message. The pnpm version is not checked there
 at all — `packageManager` pins it and corepack fetches that exact build.
 **Neither is enforced by `.npmrc`**, which is deliberately empty of settings: it
 used to carry `engine-strict=true`, and pnpm reads none of its own behaviour from
-that file. The pnpm major is held back on purpose — read AGENTS.md before bumping
-it.
+that file.
 
 ## Filing issues
 
