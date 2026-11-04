@@ -68,7 +68,7 @@
     "@angular/ssr": "^22.2.5",
     "ngx-mask": "^22.2.5",
     "rxjs": "~7.8.2",
-    "shiki": "^4.5.0",
+    "shiki": "^4.6.0",
     "tslib": "^2.9.1"
   },
   "devDependencies": {
