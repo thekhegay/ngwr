@@ -1,0 +1,43 @@
+<ngwr-doc-page
+  title="wrAction"
+  since="15.5.0"
+  description="One async write as signals: status, loading, value, error, a single-flight `run()`. Beside it, `wrKeyedAction()` for which row is pending and `wrResourceValue()` for a resource's value that never throws."
+  [keywords]="[
+    'wrAction',
+    'wrKeyedAction',
+    'wrResourceValue',
+    'action',
+    'mutation',
+    'resource',
+    'pending',
+    'loading',
+    'single-flight',
+    'utils',
+  ]"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="`run()` during a pending run starts nothing and returns the run in flight. It never rejects: a throw lands in `error()` and resolves `undefined`. `reset()` goes back to `idle` and drops a result still in flight."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Which row is pending"
+    description="`wrKeyedAction()` runs the same write per key, single-flight per key, so two rows run at once while one row cannot run twice. A key is kept only while it is pending."
+  >
+    <ngwr-doc-code [code]="keyedSnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A resource's value that never throws"
+    description="`resource.value()` throws in the `error` state and is `undefined` while new params load. `wrResourceValue()` reads the value when there is one, keeps the last settled value through a load, a reload and an error, and answers the fallback before anything settled. Takes `resource()`, `rxResource()` and `httpResource()`."
+  >
+    <ngwr-doc-code [code]="resourceSnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

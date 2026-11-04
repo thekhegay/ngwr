@@ -50,3 +50,7 @@ export { badgeLog } from './log';
 // Feature
 export { wrFeature } from './feature';
 export type { WrFeature } from './feature';
+
+// Async
+export { wrAction, wrKeyedAction, wrResourceValue } from './async';
+export type { WrAction, WrActionStatus, WrKeyedAction } from './async';
