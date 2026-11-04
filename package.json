@@ -112,7 +112,7 @@
     "prosemirror-schema-list": "^1.6.0",
     "prosemirror-state": "^1.4.4",
     "prosemirror-view": "^1.42.9",
-    "semver": "^7.8.5",
+    "semver": "^7.8.6",
     "simple-git-hooks": "^2.14.0",
     "stylelint": "^17.16.0",
     "stylelint-config-standard-scss": "^17.0.0",
