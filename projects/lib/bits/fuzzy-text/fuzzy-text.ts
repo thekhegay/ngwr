@@ -519,10 +519,11 @@ export class WrFuzzyText {
     // `wr-waves` does: it is decoration, and every frame out of sight still redrew
     // one slice per row. The box is the canvas as DRAWN — `max-width: 100%` shrinks
     // it to nothing in a parent with no width — not its bitmap, which is the text's
-    // size. Without the observers (jsdom) it simply runs. A box flush against a
-    // zero-height clip intersects with nothing showing, and only a second threshold
-    // reports the clip moving. It sits below any real ratio, or a clip closing on a
-    // transition steps from under it to 0 without crossing anything.
+    // size. Without the observers (jsdom) nothing reports a change, so what is
+    // measured here stands: a box runs the loop, no box parks it. A box flush
+    // against a zero-height clip intersects with nothing showing, and only a second
+    // threshold reports the clip moving. It sits below any real ratio, or a clip
+    // closing on a transition steps from under it to 0 without crossing anything.
     let visible = typeof IntersectionObserver === 'undefined';
     let hasBox = canvas.clientWidth > 0 && canvas.clientHeight > 0;
     const resume = (): void => {
