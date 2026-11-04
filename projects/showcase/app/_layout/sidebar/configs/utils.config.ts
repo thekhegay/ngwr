@@ -37,6 +37,7 @@ export const UTILS_GROUP: SidebarGroup = {
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.throttle),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.toClassList),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.trapFocus),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrAction),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrDownloadBlob),
   ],
 };

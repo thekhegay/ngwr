@@ -2,11 +2,6 @@
 
 ## Very high
 
-- **`wrAction` and `wrResourceValue`**: `wrAction` holds one async write: status,
-  loading, reset, a single-flight run, and a keyed form for which row is pending.
-  `wrResourceValue` reads a resource's value or a fallback without throwing in the
-  error state, and keeps the last settled value across reloads.
-
 ## High
 
 - **`wr-table` columns and types**: one scope. Column keys: `align` (right-aligned

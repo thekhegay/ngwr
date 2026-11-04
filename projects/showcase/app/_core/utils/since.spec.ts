@@ -275,6 +275,7 @@ describe('the surfaces that draw it', () => {
       'wrDuration',
       'resolveCssColor',
       'toClassList',
+      'wrAction',
       'wrDownloadBlob',
     ]);
   });

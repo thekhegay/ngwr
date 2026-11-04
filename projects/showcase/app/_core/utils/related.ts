@@ -367,6 +367,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/speed-dial',
     'reference/components/toolbar',
     'reference/components/segmented',
+    'reference/utils/wr-action',
   ],
   'reference/components/button-group': [
     'reference/components/button',
