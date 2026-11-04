@@ -2,11 +2,6 @@
 
 ## Very high
 
-- **`wrDownloadBlob`**: saves a `Blob` under a file name in one call, from
-  `ngwr/utils`: a no-op on the server, with the deferred revoke Safari needs.
-  Beside it, a `wr`-prefixed reader for the file name in a `Content-Disposition`
-  header, `filename*` included. `wr-table`'s CSV export calls it instead of its
-  own copy.
 - **`wrAction` and `wrResourceValue`**: `wrAction` holds one async write: status,
   loading, reset, a single-flight run, and a keyed form for which row is pending.
   `wrResourceValue` reads a resource's value or a fallback without throwing in the

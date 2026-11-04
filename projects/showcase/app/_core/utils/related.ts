@@ -673,6 +673,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/list',
     'reference/components/descriptions',
     'reference/components/empty',
+    'reference/utils/wr-download-blob',
     'guides/mobile',
   ],
   'reference/components/tabs': [

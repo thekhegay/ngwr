@@ -1,0 +1,36 @@
+<ngwr-doc-page
+  title="wrDownloadBlob"
+  since="15.5.0"
+  description="Saves a `Blob` under a file name in one call. Beside it, `wrContentDispositionFileName()` reads the name a server sent."
+  [keywords]="[
+    'wrDownloadBlob',
+    'wrContentDispositionFileName',
+    'download',
+    'blob',
+    'content-disposition',
+    'filename',
+    'csv',
+    'export',
+    'utils',
+  ]"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="A no-op on the server. The object URL is revoked on a timer, which Safari needs; `wr-table` exports its CSV through this."
+  >
+    <ngwr-doc-code [code]="snippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="With the server's file name"
+    description="`wrContentDispositionFileName()` reads `filename*` first, then `filename`, and returns `null` when the header carries neither."
+  >
+    <ngwr-doc-code [code]="headerSnippet" language="angular-ts" />
+    <ngwr-doc-code [code]="formsSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

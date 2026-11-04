@@ -28,6 +28,8 @@ export {
   resolveCssColorChannels,
   trapFocus,
   watchColorScheme,
+  wrContentDispositionFileName,
+  wrDownloadBlob,
 } from './dom';
 export type { WatchColorSchemeOptions, WrColorScheme } from './dom';
 

@@ -46,6 +46,7 @@ export const SINCE = {
   "reference/pipes/wr-duration": "15.4.0",
   "reference/utils/resolve-css-color": "15.0.0",
   "reference/utils/to-class-list": "14.11.0",
+  "reference/utils/wr-download-blob": "15.5.0",
 } satisfies Record<string, string>;
 
 /** The version each page's subject last changed its public API in, a moved entry point included. */

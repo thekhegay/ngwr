@@ -37,4 +37,5 @@ export default [
     loadComponent: () => import('./get-focusable-elements/get-focusable-elements'),
   },
   { path: utils.trapFocus.path, loadComponent: () => import('./trap-focus/trap-focus') },
+  { path: utils.wrDownloadBlob.path, loadComponent: () => import('./wr-download-blob/wr-download-blob') },
 ] satisfies Routes;
