@@ -101,10 +101,16 @@ interface SelectedChip {
  * searchable multi-select. Server-side search hangs off the `(searchChange)` output
  * plus `[options]` / `[loading]`.
  *
- * A signal-forms native control: it implements `FormValueControl<unknown>`, so
+ * A signal-forms native control: it implements `FormValueControl`, so
  * `[formField]` binds straight to its `value` model — no
  * `ControlValueAccessor` in between. `[(value)]` works standalone, and classic
  * `[(ngModel)]` / reactive forms keep working through Angular's bridge.
+ *
+ * `T` is an option's value. It is inferred from `[options]`, `[loader]` or the
+ * value binding, and `value` is `T | readonly T[] | null`: one `T` in single and
+ * search mode, an array of them in multi and tag mode. The mode is a runtime
+ * input, so the type cannot pick one shape; narrow in the handler, or leave `T`
+ * at its default `unknown`, which is what every select was before.
  *
  * @example
  * ```html
@@ -149,7 +155,7 @@ interface SelectedChip {
     },
   ],
 })
-export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
+export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] | null>, WrSelectContext {
   /** Placeholder shown when no option is selected. Falls back to `select.placeholder`. */
   readonly placeholder = input<string | null>(null);
 
@@ -355,17 +361,17 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    * alongside projected `<wr-option>` children — both lists are
    * filtered by the search query.
    */
-  readonly options = input<readonly unknown[]>([]);
+  readonly options = input<readonly T[]>([]);
 
   /** Search mode: map a dynamic option item to its display label. @default String */
-  readonly displayWith = input<(item: unknown) => string>((item: unknown) => String(item));
+  readonly displayWith = input<(item: T) => string>((item: T) => String(item));
 
   /**
    * Search mode: async loader. When set, the loader is called on every
    * (debounced) keystroke and its result replaces `[options]`. Supports
    * Observables, Promises, and plain arrays.
    */
-  readonly loader = input<WrSelectSearchLoader<unknown> | null>(null);
+  readonly loader = input<WrSelectSearchLoader<T> | null>(null);
 
   /**
    * The option list is already scoped to the query upstream — skip the built-in
@@ -486,7 +492,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   readonly loading = input(false, { transform: coerceBooleanProperty });
 
   /** Search mode: results returned by the async loader. @internal */
-  protected readonly loadedOptions = signal<readonly unknown[]>([]);
+  protected readonly loadedOptions = signal<readonly T[]>([]);
 
   /** True while the async `[loader]` is in flight. @internal */
   private readonly loaderLoading = signal(false);
@@ -582,10 +588,10 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   /**
    * Unified value. Single mode holds a scalar (or `null`); multi / tag
-   * mode holds `readonly unknown[]`. Bound by `[formField]`, or two-way
+   * mode holds `readonly T[]`. Bound by `[formField]`, or two-way
    * via `[(value)]`.
    */
-  readonly value = model<unknown>(null);
+  readonly value = model<T | readonly T[] | null>(null);
 
   /** Emitted on blur / commit so a bound field can mark itself touched. */
   readonly touch = output<void>();
@@ -753,7 +759,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     // Search mode: a value picked from a virtualized (or since-unmounted) row
     // has no registered `<wr-option>`, so derive its label from `displayWith`
     // — the same function that rendered the row.
-    return v != null && this.isSearchable() ? this.displayWith()(v) : null;
+    return v != null && this.isSearchable() ? this.displayWith()(v as T) : null;
   });
 
   /**
@@ -777,7 +783,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       // would otherwise render as "[object Object]".
       return {
         value: v,
-        label: found?.label() ?? this.displayWith()(v),
+        label: found?.label() ?? this.displayWith()(v as T),
         leading: found?.leading ? found.leading() : this.optionLeading(),
       };
     });
@@ -826,7 +832,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    * set; otherwise the static `[options]` array. Each item is rendered
    * as an internal `<wr-option>` in the panel.
    */
-  protected readonly dynamicOptions = computed<readonly unknown[]>(() =>
+  protected readonly dynamicOptions = computed<readonly T[]>(() =>
     this.loader() ? this.loadedOptions() : this.options()
   );
 
@@ -854,7 +860,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    * the virtual path — which renders plain rows that can't self-hide — filters
    * here. Loader / `serverSearch` results are already query-scoped upstream.
    */
-  protected readonly filteredDynamicOptions = computed<readonly unknown[]>(() => {
+  protected readonly filteredDynamicOptions = computed<readonly T[]>(() => {
     const items = this.dynamicOptions();
     if (!this.clientFilter()) return items;
     const q = this.searchQuery().trim().toLowerCase();
@@ -917,7 +923,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   });
 
   /** The windowed slice of options, each carrying its absolute index. */
-  protected readonly windowOptions = computed<readonly { item: unknown; index: number }[]>(() => {
+  protected readonly windowOptions = computed<readonly { item: T; index: number }[]>(() => {
     const { start, end } = this.virtualWindow();
     return this.filteredDynamicOptions()
       .slice(start, end)
@@ -1254,7 +1260,8 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
         : idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].label());
       if (!hasActive && q) {
         event.preventDefault();
-        this.value.set(q);
+        // The query is the value here, so `T` is a string in a tag select.
+        this.value.set(q as T);
         this.touch.emit();
         this.open.set(false);
         return;
@@ -1429,7 +1436,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
             this.loaderLoading.set(false);
             this.retrying.set(false);
             this.failedQuery.set(null);
-            return of<readonly unknown[]>([]);
+            return of<readonly T[]>([]);
           }
           // A retry keeps the failure on screen, with a loader, until it settles;
           // a new query takes it down at once.
@@ -1443,7 +1450,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
           // project function, which rxjs routes straight to the destination — past
           // the `catchError` below and past `finalize`, so the flag raised on the
           // line above would stay up for good.
-          const source = defer((): Observable<readonly unknown[]> => {
+          const source = defer((): Observable<readonly T[]> => {
             const result = loader(query);
             return isObservable(result) ? result : from(Promise.resolve(result));
           });
@@ -1471,7 +1478,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
               this.failedQuery.set(query);
               this.loadErrorValue.set(error);
               this.retrying.set(false);
-              return of<readonly unknown[]>([]);
+              return of<readonly T[]>([]);
             }),
             finalize(() => {
               this.loaderLoading.set(false);
@@ -1567,12 +1574,12 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
         if (cap > 0 && current.length >= cap) return;
         next = [...current, value];
       }
-      this.value.set(next);
+      this.value.set(next as readonly T[]);
       this.touch.emit();
       // Keep the panel open in multi mode so the user can keep picking.
       return;
     }
-    this.value.set(value);
+    this.value.set(value as T);
     this.touch.emit();
     // A committed choice replaces the query, focus or no focus: the field goes
     // back to showing the selected label. The close-effect below deliberately
@@ -1611,7 +1618,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     if (this.isDisabled() || this.isReadonly() || !this.hasChips()) return;
     const current = this.asArray(this.value());
     if (index < 0 || index >= current.length) return;
-    this.value.set([...current.slice(0, index), ...current.slice(index + 1)]);
+    this.value.set([...current.slice(0, index), ...current.slice(index + 1)] as readonly T[]);
     this.touch.emit();
   }
 
@@ -1715,8 +1722,8 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     const validator = this.validate();
     if (validator && !validator(value, existing)) return;
 
-    const next = [...existing, value];
-    this.value.set(next);
+    const next: readonly unknown[] = [...existing, value];
+    this.value.set(next as readonly T[]);
     this.touch.emit();
   }
 

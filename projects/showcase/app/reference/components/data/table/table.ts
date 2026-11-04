@@ -29,6 +29,22 @@ interface Row extends Record<string, unknown> {
   role: 'admin' | 'editor' | 'viewer';
 }
 
+interface Invoice {
+  id: number;
+  customer: string;
+  amount: number | null;
+  currency: string;
+  due: string | null;
+  paid: boolean;
+}
+
+const INVOICES: readonly Invoice[] = [
+  { id: 1, customer: 'Roman', amount: 1200, currency: 'EUR', due: '2026-11-30', paid: true },
+  { id: 2, customer: 'Alice', amount: null, currency: 'USD', due: null, paid: false },
+  { id: 3, customer: 'Bob', amount: 0, currency: 'EUR', due: '', paid: false },
+  { id: 4, customer: 'Cara', amount: 86.5, currency: 'GBP', due: '2026-12-15', paid: false },
+];
+
 const RAW_ROWS: readonly Row[] = [
   { name: 'Roman', email: 'rk@garuna.dev', role: 'admin' },
   { name: 'Alice', email: 'alice@example.com', role: 'editor' },
@@ -160,6 +176,19 @@ export default class TablePageComponent {
 
   protected readonly sort = signal<readonly WrTableSortState[]>([]);
   protected readonly roleFilter = signal<readonly string[]>([]);
+
+  protected readonly invoices = INVOICES;
+  protected readonly invoiceColumns: WrTableColumns<Invoice> = {
+    customer: { title: 'Customer' },
+    amount: {
+      title: 'Amount',
+      align: 'end',
+      empty: '-',
+      format: (value, row) => `${row.currency} ${Number(value).toFixed(2)}`,
+    },
+    due: { title: 'Due', align: 'center', empty: 'open' },
+    paid: { title: 'Paid', format: value => (value ? 'yes' : 'no') },
+  };
 
   protected readonly visibleRows = computed<readonly Record<string, unknown>[]>(() => {
     const roles = this.roleFilter();
@@ -299,6 +328,35 @@ export default class TablePageComponent {
     cellContext: `<ng-template wrTableCell="role" let-value let-row="item" let-col="column">
   {{ col.title }}: {{ value }} — {{ row.email }}
 </ng-template>`,
+    columnKeys: `const columns: WrTableColumns<Invoice> = {
+  customer: { title: 'Customer' },
+  amount: {
+    title: 'Amount',
+    align: 'end',
+    empty: '-',
+    format: (value, row) => \`\${row.currency} \${Number(value).toFixed(2)}\`,
+  },
+  due: { title: 'Due', align: 'center', empty: 'open' },
+  paid: { title: 'Paid', format: value => (value ? 'yes' : 'no') },
+};
+
+<wr-table [columns]="columns" [items]="invoices" />`,
+    typedRows: `interface Invoice {
+  customer: string;
+  amount: number | null;
+  currency: string;
+}
+
+const columns: WrTableColumns<Invoice> = {
+  customer: { title: 'Customer' },
+  amount: { title: 'Amount', align: 'end', format: (value, row) => \`\${row.currency} \${value}\` },
+};
+
+<wr-table [columns]="columns" [items]="invoices">
+  <ng-template wrTableCell="amount" [wrTableCellOf]="invoices" let-value let-row="item">
+    {{ row.customer }} owes {{ value ?? 'nothing' }}
+  </ng-template>
+</wr-table>`,
     rowActions: `const columns: WrTableColumns = {
   name: { title: 'Name' },
   email: { title: 'Email' },
@@ -447,16 +505,23 @@ effect(() => {
       default: '—',
     },
     {
+      name: '[wrTableCellOf]',
+      description:
+        'The rows, for the type checker only: types `let-row` and `let-value`. Bind the same array as `[items]`.',
+      type: 'readonly T[] | null | undefined',
+      sub: true,
+    },
+    {
       name: 'let-value',
-      description: 'The cell value, `item[columnKey]`.',
-      type: 'unknown',
+      description: 'The cell value, `item[columnKey]`. `T[K]` with `[wrTableCellOf]`, else `any`.',
+      type: 'T[K]',
       default: '—',
       sub: true,
     },
     {
       name: 'let-row="item"',
       description: 'The whole row. A bare `let-row` binds the cell value instead.',
-      type: 'Record<string, unknown>',
+      type: 'T',
       default: '—',
       sub: true,
     },
@@ -512,9 +577,9 @@ effect(() => {
     }
   }
 
-  protected readonly typeSnippet = `type WrTableColumns = Record<string, WrTableColumn>;
+  protected readonly typeSnippet = `type WrTableColumns<T = object> = Record<string, WrTableColumn<T>>;
 
-interface WrTableColumn {
+interface WrTableColumn<T = object> {
   title: string;
   sortable?: boolean;
   filterItems?: readonly WrTableFilterItem[];
@@ -522,6 +587,9 @@ interface WrTableColumn {
   resizable?: boolean;
   width?: number;
   summary?: WrTableSummary;
+  align?: 'start' | 'center' | 'end';
+  format?: (value: unknown, row: T) => string;
+  empty?: string;
   class?: WrClassInput;
 }
 
@@ -564,8 +632,8 @@ type WrTableSummaryContext =
   protected readonly typeRows: readonly DocApiRow[] = [
     {
       name: 'WrTableColumns',
-      description: 'Column map — keys are row property names.',
-      type: 'Record<string, WrTableColumn>',
+      description: 'Column map keyed by row property name. `T` is the row; name it to type `format`.',
+      type: 'Record<string, WrTableColumn<T>>',
     },
     { name: 'WrTableColumn', description: 'A single column definition.', type: 'interface' },
     { name: 'title', description: 'Heading shown in the header.', type: 'string', required: true, sub: true },
@@ -594,6 +662,24 @@ type WrTableSummaryContext =
       name: 'summary',
       description: "Footer aggregate — 'sum' / 'avg' / 'count' / 'min' / 'max', or (rows, context) => value.",
       type: 'WrTableSummary',
+      sub: true,
+    },
+    {
+      name: 'align',
+      description: "Alignment of the header, body and summary cells. 'end' adds tabular digits.",
+      type: "'start' | 'center' | 'end'",
+      sub: true,
+    },
+    {
+      name: 'format',
+      description: 'Text of a plain cell. Not called for a missing value; a cell template wins. The CSV uses it.',
+      type: '(value: unknown, row: T) => string',
+      sub: true,
+    },
+    {
+      name: 'empty',
+      description: "Placeholder for null, undefined and ''. 0 and false are values. The CSV uses it.",
+      type: 'string',
       sub: true,
     },
     {
