@@ -220,7 +220,7 @@ const UNPAGED: Readonly<Record<string, string>> = {
   'ngwr/overlay':
     "`WrOverlayContainer`, the container every ngwr panel renders into, kept apart from the one Angular Material, NG-ZORRO and plain CDK overlays share, with no provider. Style ngwr's overlays through its `.wr-overlay-container` class; no `z-index` reaches them, since CDK renders overlays in the top layer.",
   'ngwr/pipes':
-    'Template formatting: `wrDate`, `wrNumber`, `wrBytes`, `wrPlural`, `wrRange`, `wrTruncate` and `wrMark` for search highlighting.',
+    'Template formatting: `wrDate`, `wrNumber`, `wrBytes`, `wrDuration`, `wrPlural`, `wrRange`, `wrTruncate` and `wrMark` for search highlighting. The same formatting as functions, for a string built in TypeScript: `wrFormatDate`, `wrFormatNumber`, `wrFormatBytes`, `wrFormatDuration` and `wrFormatPlural`, each taking the locale as its second argument, except `wrFormatDate`, which takes a `WrDateAdapter`.',
   'ngwr/utils':
     'Small helpers: coercion (`numAttr`), DOM and keyboard guards, maths, ids, `debounce` / `throttle`, `resolveCssColor`, and the shared types `Maybe` and `SafeAny`.',
   'ngwr/validators':
