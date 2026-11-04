@@ -115,8 +115,9 @@ ${rows(entry)}
  * declares it also owns it: ${map.delegated} declaration(s) are one component setting
  * another's hook (\`--wr-icon-size\` inside its own \`<wr-icon>\`) and belong on
  * the owner's page, not on the setter's. A row marked \`host\` is one the
- * component writes on its own host from an input and never releases, so a
- * stylesheet rule cannot override it; the page says so beside the row.
+ * component writes on its own host, from an input or from its state, and never
+ * releases, so a stylesheet rule holds only until it does; the page says so
+ * beside the row.
  */`)}
 
 import type { DocCssVarRow } from '#core/components';
@@ -224,7 +225,7 @@ async function main(): Promise<void> {
   const hostBound = map.entries.reduce((sum, e) => sum + e.vars.filter(v => v.host).length, 0);
   console.log(
     `  ${map.entries.length} entry point(s) publish one; ${map.delegated} declaration(s) filed under the hook's owner; ` +
-      `${hostBound} written on the host by the component, marked as the input's rather than a rule's.`
+      `${hostBound} written on the host by the component and never released, marked as its own rather than a rule's.`
   );
 
   if (homeless.length > 0) {

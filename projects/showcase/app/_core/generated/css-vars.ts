@@ -19,8 +19,9 @@
  * declares it also owns it: 28 declaration(s) are one component setting
  * another's hook (`--wr-icon-size` inside its own `<wr-icon>`) and belong on
  * the owner's page, not on the setter's. A row marked `host` is one the
- * component writes on its own host from an input and never releases, so a
- * stylesheet rule cannot override it; the page says so beside the row.
+ * component writes on its own host, from an input or from its state, and never
+ * releases, so a stylesheet rule holds only until it does; the page says so
+ * beside the row.
  */
 
 import type { DocCssVarRow } from '#core/components';
