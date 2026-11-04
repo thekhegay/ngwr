@@ -1,4 +1,4 @@
-import { EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
+import { EnvironmentInjector, PLATFORM_ID, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
@@ -230,6 +230,134 @@ describe('WrStorage', () => {
       engine.setItem('theme', JSON.stringify({ v: 'sepia' }));
       window.dispatchEvent(new StorageEvent('storage', { key: 'theme' }));
       expect(theme()).toBe('dark');
+    });
+  });
+
+  describe('signal', () => {
+    it('starts from storage, or the default when the key is absent', () => {
+      engine.setItem('theme', JSON.stringify({ v: 'dark' }));
+      const store = setup();
+
+      expect(store.signal('theme', 'light')()).toBe('dark');
+      expect(store.signal('density', 'comfortable')()).toBe('comfortable');
+    });
+
+    it('writes through on set, so a new instance reads it back', () => {
+      const store = setup();
+      const theme = store.signal<string>('theme', 'light');
+
+      theme.set('dark');
+
+      expect(theme()).toBe('dark');
+      expect(engine.getItem('theme')).toBe(JSON.stringify({ v: 'dark' }));
+      TestBed.resetTestingModule();
+      expect(setup().get('theme')).toBe('dark');
+    });
+
+    it('update() derives from the current value and persists', () => {
+      const store = setup();
+      const visits = store.signal<number>('visits', 0);
+
+      visits.update(n => n + 1);
+      visits.update(n => n + 1);
+
+      expect(visits()).toBe(2);
+      expect(store.get('visits')).toBe(2);
+    });
+
+    it('shares one signal per key, across signal() and watch()', () => {
+      const store = setup();
+      const a = store.signal<string>('theme', 'light');
+      const b = store.signal<string>('theme', 'light');
+      const seen = store.watch<string>('theme');
+
+      a.set('dark');
+
+      expect(b).toBe(a);
+      expect([b(), seen()]).toEqual(['dark', 'dark']);
+    });
+
+    it('follows set(), remove() and clear() made through the service', () => {
+      const store = setup({ prefix: 'app:' });
+      const theme = store.signal<string>('theme', 'light');
+
+      store.set('theme', 'dark');
+      expect(theme()).toBe('dark');
+
+      store.remove('theme');
+      expect(theme()).toBe('light');
+
+      store.set('theme', 'sepia');
+      store.clear();
+      expect(theme()).toBe('light');
+    });
+
+    it('follows a storage event for its key and ignores one for another', () => {
+      const store = setup();
+      const theme = store.signal<string>('theme', 'light');
+
+      engine.setItem('theme', JSON.stringify({ v: 'dark' }));
+      engine.setItem('other', JSON.stringify({ v: 'noise' }));
+      window.dispatchEvent(new StorageEvent('storage', { key: 'other' }));
+      expect(theme()).toBe('light');
+
+      window.dispatchEvent(new StorageEvent('storage', { key: 'theme' }));
+      expect(theme()).toBe('dark');
+    });
+
+    it('returns to the default when another tab removes the key or clears storage', () => {
+      const store = setup();
+      const theme = store.signal<string>('theme', 'light');
+      theme.set('dark');
+
+      engine.removeItem('theme');
+      window.dispatchEvent(new StorageEvent('storage', { key: 'theme', newValue: null }));
+      expect(theme()).toBe('light');
+
+      theme.set('dark');
+      engine.clear();
+      window.dispatchEvent(new StorageEvent('storage', { key: null }));
+      expect(theme()).toBe('light');
+    });
+
+    it('does not write on a set to the value it already holds', () => {
+      const store = setup();
+      const theme = store.signal<string>('theme', 'light');
+      theme.set('dark');
+      const setItem = vi.spyOn(engine, 'setItem');
+
+      theme.set('dark');
+
+      expect(setItem).not.toHaveBeenCalled();
+    });
+
+    it('keeps the value in memory when the engine refuses the write', () => {
+      const store = setup();
+      const theme = store.signal<string>('theme', 'light');
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      vi.spyOn(engine, 'setItem').mockImplementation(() => {
+        throw new DOMException('quota', 'QuotaExceededError');
+      });
+
+      // Same contract as `set()`: a full disk is logged, never thrown. The
+      // signal still moves, so the tab keeps working on what it cannot save.
+      expect(() => theme.set('dark')).not.toThrow();
+      expect(theme()).toBe('dark');
+      expect(engine.getItem('theme')).toBeNull();
+      expect(warn).toHaveBeenCalled();
+      warn.mockRestore();
+    });
+
+    it('holds the default on the server and listens to no storage event', () => {
+      const add = vi.spyOn(window, 'addEventListener');
+      TestBed.configureTestingModule({
+        providers: [provideWr(withStorage({ engine: () => engine })), { provide: PLATFORM_ID, useValue: 'server' }],
+      });
+      const theme = TestBed.inject(WrStorage).signal<string>('theme', 'light');
+
+      expect(theme()).toBe('light');
+      expect(add).not.toHaveBeenCalledWith('storage', expect.any(Function));
+      add.mockRestore();
     });
   });
 });
