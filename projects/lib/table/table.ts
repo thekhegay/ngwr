@@ -8,7 +8,7 @@
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { DOCUMENT, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
+import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import type { ElementRef, TemplateRef } from '@angular/core';
 import {
   Component,
@@ -33,7 +33,7 @@ import { WrCheckbox } from 'ngwr/checkbox';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPagination } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
-import { KEYS, toClassList } from 'ngwr/utils';
+import { KEYS, toClassList, wrDownloadBlob } from 'ngwr/utils';
 
 import { WrTableCell } from './table-cell';
 import { WrTableExpand } from './table-expand';
@@ -1507,8 +1507,6 @@ export class WrTable {
 
   // --- CSV export -----------------------------------------------------------
 
-  private readonly doc = inject(DOCUMENT);
-
   /**
    * Build the table as an RFC-4180 CSV string — a header row from the column
    * titles, then one row per item in the current column order. Values are taken
@@ -1557,12 +1555,7 @@ export class WrTable {
     if (!isPlatformBrowser(this.platformId)) return;
     // Lead with a BOM so Excel reads the file as UTF-8.
     const blob = new Blob([`\uFEFF${this.toCsv(options)}`], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = this.doc.createElement('a');
-    link.href = url;
-    link.download = options.filename ?? 'table.csv';
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url));
+    wrDownloadBlob(blob, options.filename ?? 'table.csv');
   }
 
   /**

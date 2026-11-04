@@ -302,6 +302,7 @@ export const ROUTES = {
         title: 'getFocusableElements',
       },
       trapFocus: { path: 'trap-focus', title: 'trapFocus' },
+      wrDownloadBlob: { path: 'wr-download-blob', title: 'wrDownloadBlob' },
     },
     validators: {
       path: 'validators',
