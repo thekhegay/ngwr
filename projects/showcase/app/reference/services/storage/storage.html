@@ -1,8 +1,8 @@
 <ngwr-doc-page
   title="WrStorage"
-  updated="15.0.0"
-  description="Typed, reactive key-value storage over localStorage or any engine, safe under SSR."
-  [keywords]="['storage', 'localStorage', 'sessionStorage', 'persistence', 'wr-storage', 'service']"
+  updated="15.5.0"
+  description="Typed key-value storage over localStorage or any engine, read as a signal or written through one, safe under SSR."
+  [keywords]="['storage', 'localStorage', 'sessionStorage', 'persistence', 'signal', 'wr-storage', 'service']"
   [labels]="['Service']"
 >
   <ngwr-doc-section title="Usage">
@@ -13,7 +13,7 @@
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
         <p style="margin: 0">
-          <strong>Reactive read</strong> via <code>store.watch('demo:visits')</code>:
+          <strong>Writable signal</strong> via <code>store.signal('demo:visits', 0)</code>:
           <strong style="font-variant-numeric: tabular-nums">{{ visits() }}</strong>
         </p>
         <p style="margin: 0">
@@ -32,6 +32,45 @@
         </p>
       </div>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Read or write as a signal"
+    description="`watch()` reads a key as a signal. `signal()` is its writable twin: `set` and `update` store the value first. Both follow this tab and every other one."
+  >
+    <ngwr-doc-code [code]="snippets.signal" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Signal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>set</code>, <code>update</code></th>
+            <td>Stores, then takes the value. An equal value is a no-op.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>store.set()</code>, <code>remove()</code>, <code>clear()</code></th>
+            <td>Follows, back to the default on removal.</td>
+          </tr>
+          <tr>
+            <th scope="row">Another tab writes or removes</th>
+            <td>Follows through the <code>storage</code> event.</td>
+          </tr>
+          <tr>
+            <th scope="row">Quota exceeded</th>
+            <td>Logged, never thrown. The signal keeps the value for this tab.</td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>Holds the default, no listener.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section

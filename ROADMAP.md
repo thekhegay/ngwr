@@ -6,8 +6,6 @@
 
 ## Medium
 
-- **`WrStorage.signal`**: a writable signal that saves on write and follows other
-  tabs, beside the read-only `watch()`.
 - **`WrHotkey` bindings and labels**: the active bindings with their labels as a
   signal, for a cheat sheet in `wr-kbd`, and a chord written the way the platform
   writes it (`⌘K` on macOS, `Ctrl+K` elsewhere). `KEYS` in `ngwr/utils` names keys
