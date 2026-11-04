@@ -1036,8 +1036,14 @@ it. A hook that mirrors an input whose value is never `null` (`--wr-threads-coun
 `--wr-waves-x-gap`) has no such problem and no way in from a stylesheet rule either,
 since the input's value is on the host. `gen:css-vars` reads that off the owner's
 `host:` metadata and its `setProperty` calls — a write with no `null` branch and no
-`removeProperty` — and marks the row `host`, so the docs table says the input sets
-it instead of telling the reader to set it on the element. An author's own
+`removeProperty` — and marks the row `host`, so the docs table says the component
+sets it instead of telling the reader to set it on the element. The same mark lands
+on a hook written from STATE and never released (`--wr-border-glow-angle` follows the
+pointer), where a rule holds until the first write, so the note says "until the
+component writes" rather than "cannot". An always-set input has to reach the host
+through one of those two shapes: `wr-border-glow` wrote its geometry through a
+`setProperty(k, vars[k])` bag, and the scan, which cannot read a bag, left four
+hooks documented as a rule's while every instance overwrote them. An author's own
 `[style.--wr-x]` still wins over it, as a template binding does over a host binding.
 
 **The COMPONENT-scoped hooks are catalogued by `gen:css-vars`.** How many there

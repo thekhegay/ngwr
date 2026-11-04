@@ -86,11 +86,20 @@ describe('WrBorderGlow', () => {
   afterEach(() => fixture.destroy());
 
   it('publishes the geometry the stylesheet reads', () => {
+    // Inline on the host from the first render, lengths with their unit and the
+    // shares bare: the stylesheet multiplies `cone-spread` and `fill-opacity`, so
+    // a `px` on either leaves the mask with a length where it wants a number.
     expect(prop('--wr-border-glow-radius')).toBe('28px');
+    expect(prop('--wr-border-glow-padding')).toBe('40px');
+    expect(prop('--wr-border-glow-cone-spread')).toBe('25');
+    expect(prop('--wr-border-glow-edge-sensitivity')).toBe('30');
+    expect(prop('--wr-border-glow-fill-opacity')).toBe('0.5');
 
     fixture.componentInstance.borderRadius.set(4);
+    fixture.componentInstance.coneSpread.set(40);
     fixture.detectChanges();
     expect(prop('--wr-border-glow-radius')).toBe('4px');
+    expect(prop('--wr-border-glow-cone-spread')).toBe('40');
   });
 
   it('measures the angle from the top, clockwise', () => {
