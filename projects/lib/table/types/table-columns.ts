@@ -16,6 +16,17 @@ import type { WrTableSummaryContext } from './table-summary-context';
  * function given the rows that returns the value to display. The function's
  * second argument says whether it is computing the grand total or a group's
  * subtotal; see {@link WrTableSummaryContext}.
+ *
+ * A built-in reads the column's cells, `null`, `undefined` and `''` left out.
+ * Over `number` cells the arithmetic is the engine's and the result a number,
+ * `avg` rounded to two places. A column holding decimal strings (`'19.99'`)
+ * is aggregated exactly through `wrDecimal` from `ngwr/utils` and the result
+ * is a string: `'0.1'` and `'0.2'` sum to `'0.3'`, and a value with more
+ * digits than a double holds survives. One string in the column is enough; a
+ * number beside it is read exactly too. `avg` then divides at the widest
+ * scale among the cells, never fewer than two places, half away from zero. A
+ * cell that is not a number (`'abc'`, `NaN`) is left out of either path, as
+ * it always was, so a `count` beside a `sum` is the way to see it.
  */
 export type WrTableSummary =
   | 'sum'

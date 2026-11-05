@@ -304,6 +304,7 @@ export const ROUTES = {
       },
       trapFocus: { path: 'trap-focus', title: 'trapFocus' },
       wrAction: { path: 'wr-action', title: 'wrAction' },
+      wrDecimal: { path: 'wr-decimal', title: 'wrDecimal' },
       wrDownloadBlob: { path: 'wr-download-blob', title: 'wrDownloadBlob' },
       wrPoll: { path: 'wr-poll', title: 'wrPoll' },
       wrQueryParam: { path: 'wr-query-param', title: 'wrQueryParam' },

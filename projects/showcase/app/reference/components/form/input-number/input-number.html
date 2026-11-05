@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Number Input"
-  updated="15.0.0"
+  updated="15.5.0"
   description="A number field with stepper buttons and locale formatting."
   [keywords]="['number', 'input', 'stepper', 'numeric', 'wr-input-number']"
   [labels]="['Signal Forms']"
@@ -39,6 +39,65 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Decimal mode"
+    description="`mode=&quot;decimal&quot;` holds `value` as a string, exact to every digit: `0.2` stepped by `0.1` is `'0.3'`. It reads a decimal comma and pasted spaces, and `min`, `max`, `step` and `decimals` go through the same core."
+  >
+    <ngwr-doc-code [code]="snippets.decimal" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            value <code>{{ amount() ?? 'null' }}</code>
+          </p>
+          <wr-input-number mode="decimal" ariaLabel="Amount" [(value)]="amount" [step]="0.1" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[decimals]="2"</code>, value <code>{{ cents() ?? 'null' }}</code>
+          </p>
+          <wr-input-number mode="decimal" ariaLabel="Price" prefix="$" [(value)]="cents" [decimals]="2" [step]="0.01" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Typed</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>1,5</code></th>
+            <td><code>'1.5'</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>1 234,56</code>, <code>1,234.56</code>, <code>1.234,56</code></th>
+            <td><code>'1234.56'</code>. Spaces group; with two separators the last is the point.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>1,234</code></th>
+            <td>
+              The locale decides a lone separator with three digits after it: <code>'1234'</code> in en-US,
+              <code>'1.234'</code> in de-DE. After a lone zero it is always the point: <code>0,125</code> is
+              <code>'0.125'</code>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>1,</code>, <code>abc</code>, <code>1.2.3</code></th>
+            <td>Not read yet or not readable: the value stays, the text is left as typed.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>9007199254740993.01</code></th>
+            <td><code>'9007199254740993.01'</code>, every digit.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Without steppers" description='`[showSteppers]="false"` hides the buttons.'>
     <ngwr-doc-code [code]="snippets.noSteppers" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -54,6 +113,11 @@
         <code>Validators.max</code>.
       </li>
       <li>With <code>[formField]</code>, set the bounds with the schema's <code>min()</code> / <code>max()</code>.</li>
+      <li>
+        The <code>value</code> type follows the <code>mode</code> written in the template: <code>number | null</code> by
+        default, <code>string | null</code> under <code>mode="decimal"</code>. A bound <code>[mode]</code> of both
+        widens it to <code>string | number | null</code>.
+      </li>
     </ul>
   </ngwr-doc-section>
 

@@ -250,6 +250,18 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Decimal summaries"
+    description="A column of decimal strings is summed as digits through `wrDecimal`, with no float error, and the footer is a string: `'0.1'` and `'0.2'` give `'0.3'`. A number column keeps the engine's arithmetic. `avg` divides at the widest scale among the cells, never fewer than two places, half away from zero."
+  >
+    <ngwr-doc-code [code]="snippets.decimalSummary" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table [columns]="decimalColumns" [items]="decimalRows" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Row grouping"
     description="Set `groupBy` to a property or function; `[(collapsedGroups)]` holds the collapsed groups. Grouping runs after paging, so sort by the same key or set `pageSize` to 0."
   >

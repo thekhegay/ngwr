@@ -24,9 +24,9 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix, type WrInputSize } from 'ngwr/input';
-import { clamp, round } from 'ngwr/utils';
+import { clamp, round, wrDecimal, wrDecimalAdd, wrDecimalCompare, wrDecimalMultiply, wrDecimalRound } from 'ngwr/utils';
 
-/** Round to `decimals` places, avoiding common float artefacts (`1.005 → 1.01`). */
+import type { WrInputNumberMode, WrInputNumberValue } from './types';
 
 /** Resolve the locale's decimal + grouping separators from `Intl.NumberFormat`. */
 function resolveSeparators(locale: string): { decimal: string; group: string } {
@@ -69,15 +69,33 @@ function groupPattern(group: string): RegExp | null {
   return new RegExp(group.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
 }
 
+/** A finite `min` / `max` as a decimal; an infinite one is no bound. */
+function decimalBound(bound: number): string | null {
+  return Number.isFinite(bound) ? wrDecimal(bound) : null;
+}
+
+/**
+ * `min` / `max` are numbers at runtime in either mode. The declared type is
+ * `FormValueControl`'s, which names the bound after the value, so the number
+ * is cast into it here and read back out in `minValue` / `maxValue`.
+ */
+function asBound<M extends WrInputNumberMode>(bound: number): NonNullable<WrInputNumberValue<M>> {
+  return bound as unknown as NonNullable<WrInputNumberValue<M>>;
+}
+
 /**
  * Numeric input with locale-aware formatting + ▲▼ stepper buttons.
  *
- * A signal-forms native control: it implements `FormValueControl<number | null>`,
- * so `[formField]` binds straight to its `value` model — no
+ * A signal-forms native control: it implements `FormValueControl`, so
+ * `[formField]` binds straight to its `value` model — no
  * `ControlValueAccessor` in between. `[(value)]` works standalone.
  *
  * Parses leniently while typing (allows partial input like `"1."` or `"-"`),
  * re-formats with grouping + fixed decimals on blur.
+ *
+ * `M` is the `mode`, and it decides what `value` holds: `number | null` by
+ * default, `string | null` under `mode="decimal"`, where the digits are kept
+ * exact (see `WrInputNumberValue`).
  *
  * Locale comes from Angular's `LOCALE_ID` — input-number intentionally does
  * NOT depend on `ngwr/date` so it can be used in date-free apps.
@@ -89,6 +107,9 @@ function groupPattern(group: string): RegExp | null {
  *
  * <!-- standalone two-way binding -->
  * <wr-input-number [(value)]="price" [decimals]="2" suffix="USD" />
+ *
+ * <!-- exact decimals: `amount` is a `string | null` such as '1234.56' -->
+ * <wr-input-number mode="decimal" [(value)]="amount" [decimals]="2" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/input-number
@@ -100,19 +121,38 @@ function groupPattern(group: string): RegExp | null {
   host: { '[class]': 'classes()' },
   imports: [WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix],
 })
-export class WrInputNumber implements FormValueControl<number | null> {
-  /** Minimum allowed value. @default -Infinity */
-  readonly min = input<number | undefined>(Number.NEGATIVE_INFINITY, {
-    transform: (v: unknown): number => coerceNumberProperty(v, Number.NEGATIVE_INFINITY),
+export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements FormValueControl<WrInputNumberValue<M>> {
+  /**
+   * What `value` holds. `'number'` is the engine's double. `'decimal'` keeps
+   * the typed digits exact as a canonical string (`'1234.56'`: a `.` for the
+   * point, no grouping), reads a decimal comma and pasted spaces, and steps,
+   * clamps and rounds through `wrDecimal` from `ngwr/utils`, so `0.2` stepped
+   * by `0.1` is `'0.3'`. A lone `.` or `,` is read in the locale's role: its
+   * decimal separator is a point, its grouping character is grouping when
+   * exactly three digits follow it (`1,234` in en-US is `'1234'`, but `0,125`
+   * is `'0.125'`) and a point otherwise. With both present,
+   * the last one is the point: `1,234.56` and `1.234,56` are `'1234.56'`.
+   * Grouping comes in threes, so `1.2.3` is unreadable and the committed
+   * value stays, as it does for any text the field cannot read.
+   *
+   * @default 'number'
+   */
+  readonly mode = input<M>('number' as M);
+
+  private readonly decimal = computed(() => this.mode() === 'decimal');
+
+  /** Minimum allowed value, a number in either mode. @default -Infinity */
+  readonly min = input<NonNullable<WrInputNumberValue<M>> | undefined, unknown>(asBound<M>(Number.NEGATIVE_INFINITY), {
+    transform: (v: unknown) => asBound<M>(coerceNumberProperty(v, Number.NEGATIVE_INFINITY)),
   });
 
-  /** Maximum allowed value. @default Infinity */
-  readonly max = input<number | undefined>(Number.POSITIVE_INFINITY, {
-    transform: (v: unknown): number => coerceNumberProperty(v, Number.POSITIVE_INFINITY),
+  /** Maximum allowed value, a number in either mode. @default Infinity */
+  readonly max = input<NonNullable<WrInputNumberValue<M>> | undefined, unknown>(asBound<M>(Number.POSITIVE_INFINITY), {
+    transform: (v: unknown) => asBound<M>(coerceNumberProperty(v, Number.POSITIVE_INFINITY)),
   });
 
-  private readonly minValue = computed(() => this.min() ?? Number.NEGATIVE_INFINITY);
-  private readonly maxValue = computed(() => this.max() ?? Number.POSITIVE_INFINITY);
+  private readonly minValue = computed(() => (this.min() as number | undefined) ?? Number.NEGATIVE_INFINITY);
+  private readonly maxValue = computed(() => (this.max() as number | undefined) ?? Number.POSITIVE_INFINITY);
 
   /** Step used by stepper buttons + arrow keys. @default 1 */
   readonly step = input(1, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 1)) });
@@ -199,8 +239,12 @@ export class WrInputNumber implements FormValueControl<number | null> {
   /** Read-only — values cannot be changed (steppers + typing disabled). @default false */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
 
-  /** Numeric value (`null` when empty). Bound by `[formField]`, or two-way via `[(value)]`. */
-  readonly value = model<number | null>(null);
+  /**
+   * The value, `null` when empty: a `number` in `'number'` mode, a canonical
+   * decimal string in `'decimal'` mode. Bound by `[formField]`, or two-way via
+   * `[(value)]`.
+   */
+  readonly value = model<WrInputNumberValue<M>>(null);
 
   /** Emitted on blur so a bound field can mark itself touched. */
   readonly touch = output<void>();
@@ -220,15 +264,31 @@ export class WrInputNumber implements FormValueControl<number | null> {
 
   protected readonly interactive = computed(() => !this.disabled() && !this.readonly());
 
-  protected readonly atMin = computed(() => {
+  /** The value as the decimal core reads it; `null` when empty or unreadable. */
+  private readonly decimalValue = computed(() => {
     const v = this.value();
+    return v === null ? null : wrDecimal(v);
+  });
+
+  protected readonly atMin = computed(() => {
+    if (this.decimal()) return this.atDecimalBound(this.minValue(), -1);
+    const v = this.value() as number | null;
     return v !== null && v <= this.minValue();
   });
 
   protected readonly atMax = computed(() => {
-    const v = this.value();
+    if (this.decimal()) return this.atDecimalBound(this.maxValue(), 1);
+    const v = this.value() as number | null;
     return v !== null && v >= this.maxValue();
   });
+
+  private atDecimalBound(bound: number, side: -1 | 1): boolean {
+    const v = this.decimalValue();
+    const limit = decimalBound(bound);
+    if (v === null || limit === null) return false;
+    const order = wrDecimalCompare(v, limit);
+    return order !== null && order * side >= 0;
+  }
 
   /**
    * The size and pill modifiers mirror what is bound down to the chrome, because
@@ -316,13 +376,19 @@ export class WrInputNumber implements FormValueControl<number | null> {
     const raw = (event.target as HTMLInputElement).value;
     this.text.set(raw);
     if (!raw.trim()) {
-      this.value.set(null);
+      this.commit(null);
+      return;
+    }
+    if (this.decimal()) {
+      const parsed = this.parseDecimal(raw);
+      if (parsed === null) return; // partial or unreadable - the committed value stays
+      this.commit(this.constrainDecimal(parsed));
       return;
     }
     const parsed = this.parse(raw);
     if (parsed === null) return; // partial input — wait for more
     const next = this.constrain(parsed);
-    this.value.set(next);
+    this.commit(next);
   }
 
   protected onFocus(): void {
@@ -352,9 +418,21 @@ export class WrInputNumber implements FormValueControl<number | null> {
 
   // Internals
 
+  /** The one write to `value`: what a mode holds is decided above, not here. */
+  private commit(next: number | string | null): void {
+    this.value.set(next as WrInputNumberValue<M>);
+  }
+
   private bump(units: number): void {
     const stepSize = this.step() || 1;
-    const base = this.value() ?? this.fallbackBase();
+    if (this.decimal()) {
+      const base = this.decimalValue() ?? wrDecimal(this.fallbackBase()) ?? '0';
+      const next = this.constrainDecimal(wrDecimalAdd(base, wrDecimalMultiply(stepSize, units)) ?? base);
+      this.commit(next);
+      this.text.set(this.format(next));
+      return;
+    }
+    const base = (this.value() as number | null) ?? this.fallbackBase();
     // `round` before `constrain`, and only on the stepped ARITHMETIC. Binary
     // floats do not add: three presses of a `step="0.1"` stepper produced
     // 0.30000000000000004, `constrain` only rounds when `decimals` is set, and
@@ -370,7 +448,7 @@ export class WrInputNumber implements FormValueControl<number | null> {
     const correctable =
       Math.abs(raw) < WrInputNumber.SAFE_ROUND_MAGNITUDE && Math.abs(stepSize) >= WrInputNumber.SAFE_ROUND_STEP;
     const next = this.constrain(correctable ? round(raw, WrInputNumber.STEP_PRECISION) : raw);
-    this.value.set(next);
+    this.commit(next);
     this.text.set(this.format(next));
   }
 
@@ -388,14 +466,26 @@ export class WrInputNumber implements FormValueControl<number | null> {
     return next;
   }
 
-  /** Parse a locale-formatted string. Returns `null` for partial / not-yet-numeric input. */
-  private parse(raw: string): number | null {
-    const trimmed = raw.trim();
-    if (!trimmed) return null;
-    // The locale's own digits to ASCII, its minus sign (U+2212 in sv, fi, …) to a
-    // hyphen, and the bidi marks it puts around a negative number dropped — every one
-    // of them is in the text this field formats, and `Number()` reads none of them.
-    let normalised = [...trimmed]
+  /** `constrain` for a decimal string: the bounds and `decimals` through the decimal core. */
+  private constrainDecimal(v: string): string {
+    let next = v;
+    const min = decimalBound(this.minValue());
+    const max = decimalBound(this.maxValue());
+    if (min !== null && wrDecimalCompare(next, min) === -1) next = min;
+    if (max !== null && wrDecimalCompare(next, max) === 1) next = max;
+    const d = this.decimals();
+    if (d !== null) next = wrDecimalRound(next, d) ?? next;
+    return next;
+  }
+
+  /**
+   * The locale's digits to ASCII, its minus sign (U+2212 in sv, fi, …) to a
+   * hyphen, and the bidi marks it puts around a negative number dropped — every
+   * one of them is in the text this field formats, and neither `Number()` nor
+   * `wrDecimal` reads them.
+   */
+  private toAscii(text: string): string {
+    return [...text]
       .map(ch => {
         const digit = this.numerals.indexOf(ch);
         return digit < 0 ? ch : String(digit);
@@ -403,6 +493,46 @@ export class WrInputNumber implements FormValueControl<number | null> {
       .join('')
       .replace(/[\u200e\u200f\u061c]/g, '')
       .replace(/\u2212/g, '-');
+  }
+
+  /**
+   * Decimal-mode parse: a canonical decimal string, or `null` for partial or
+   * unreadable text. Spaces of every width and the Swiss apostrophe are
+   * grouping; `.` and `,` are read by the rule on `mode`, and a separator read
+   * as grouping has to come in threes, so `1.2.3` is unreadable rather than 123.
+   */
+  private parseDecimal(raw: string): string | null {
+    // fa and ar-EG write U+066B and U+066C, which the `.` and `,` rule never sees.
+    const { decimal, group } = this.separators;
+    const ownMarks = decimal !== '.' && decimal !== ',';
+    let text = this.toAscii(raw.trim()).replace(/[\s'\u2019]/g, '');
+    if (ownMarks) text = text.replaceAll(group, '').replaceAll(decimal, '.');
+    const separators = [...text.matchAll(/[.,]/g)];
+    if (separators.length) {
+      const last = separators[separators.length - 1];
+      let point: number | null = last.index;
+      if (separators.length === 1) {
+        // Three digits after the locale's grouping character is grouping,
+        // unless nothing or a lone zero precedes it: `0,125` is a fraction.
+        const after = text.length - last.index - 1;
+        const lead = text.slice(0, last.index);
+        if (last[0] !== (ownMarks ? '.' : decimal) && after === 3 && !/^-?0?$/.test(lead)) point = null;
+      } else if (separators.every(s => s[0] === last[0])) {
+        point = null;
+      }
+      const groups = (point === null ? text : text.slice(0, point)).split(/[.,]/);
+      if (groups.slice(1).some(group => group.length !== 3)) return null;
+      text = point === null ? groups.join('') : `${groups.join('')}.${text.slice(point + 1)}`;
+    }
+    if (/^-?\.?$/.test(text) || text.endsWith('.')) return null;
+    return wrDecimal(text);
+  }
+
+  /** Parse a locale-formatted string. Returns `null` for partial / not-yet-numeric input. */
+  private parse(raw: string): number | null {
+    const trimmed = raw.trim();
+    if (!trimmed) return null;
+    let normalised = this.toAscii(trimmed);
     // Strip group separators, normalise the decimal separator to `.`.
     if (this.group) {
       normalised = normalised.replace(this.group, '');
@@ -418,13 +548,27 @@ export class WrInputNumber implements FormValueControl<number | null> {
   }
 
   /** Format a value using `Intl.NumberFormat` for the active locale. */
-  private format(v: number): string {
+  private format(v: number | string): string {
     const d = this.decimals();
+    if (this.decimal()) {
+      const canonical = wrDecimal(v);
+      if (canonical === null) return String(v);
+      // The string's own places, so `'1.50'` shows as typed; `decimals` fixes them.
+      const point = canonical.indexOf('.');
+      const places = d ?? Math.min(100, point < 0 ? 0 : canonical.length - point - 1);
+      const formatter = new Intl.NumberFormat(this.locale, {
+        minimumFractionDigits: places,
+        maximumFractionDigits: places,
+        useGrouping: true,
+      });
+      // ES2023 formats a decimal string exactly; the lib typings here stop at ES2022.
+      return formatter.format(canonical as unknown as number);
+    }
     const formatter = new Intl.NumberFormat(this.locale, {
       minimumFractionDigits: d ?? 0,
       maximumFractionDigits: d ?? 20,
       useGrouping: true,
     });
-    return formatter.format(v);
+    return formatter.format(v as number);
   }
 }

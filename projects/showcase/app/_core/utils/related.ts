@@ -959,7 +959,18 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/avatar',
     'reference/utils/num-attr',
   ],
-  'reference/utils/round': ['reference/utils/clamp', 'reference/pipes/wr-number', 'reference/components/input-number'],
+  'reference/utils/round': [
+    'reference/utils/clamp',
+    'reference/utils/wr-decimal',
+    'reference/pipes/wr-number',
+    'reference/components/input-number',
+  ],
+  'reference/utils/wr-decimal': [
+    'reference/utils/round',
+    'reference/components/input-number',
+    'reference/components/table',
+    'reference/pipes/wr-number',
+  ],
   'reference/utils/throttle': ['reference/utils/debounce'],
   'reference/utils/to-class-list': [
     'guides/theming',

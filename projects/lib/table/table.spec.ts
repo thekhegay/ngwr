@@ -1884,3 +1884,101 @@ describe('WrTable summary scope', () => {
     expect(texts('tfoot .wr-table__foot-cell')[0]).toBe('Total 2');
   });
 });
+
+/**
+ * A column of decimal strings is summed as digits. The number path adds
+ * doubles, and `'0.1' + '0.2'` through `Number` is `0.30000000000000004`,
+ * which the footer printed as it was. A number column keeps that path and its
+ * output, so nothing a working table shows today moves.
+ */
+describe('WrTable summary over decimal strings', () => {
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table [columns]="columns()" [items]="items()" />`,
+  })
+  class DecimalHost {
+    readonly items = signal<readonly Record<string, unknown>[]>([
+      { sku: 'A', price: '0.1', qty: 1, big: '9007199254740993.01' },
+      { sku: 'B', price: '0.2', qty: 2, big: '0.01' },
+      { sku: 'C', price: '19.99', qty: 3, big: null },
+    ]);
+    readonly columns = signal<WrTableColumns>({
+      sku: { title: 'SKU', summary: 'count' },
+      price: { title: 'Price', summary: 'sum', format: value => `$${String(value)}` },
+      qty: { title: 'Qty', summary: 'sum' },
+      big: { title: 'Big', summary: 'sum' },
+    });
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<DecimalHost>>;
+  const foot = (): string[] =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('tfoot .wr-table__foot-cell')].map(td =>
+      td.textContent.trim()
+    );
+  const table = (): WrTable => fixture.debugElement.query(By.directive(WrTable)).componentInstance as WrTable;
+  const withSummary = (summary: 'sum' | 'avg' | 'min' | 'max', values: readonly unknown[]): string => {
+    fixture.componentInstance.items.set(values.map(price => ({ price })));
+    fixture.componentInstance.columns.set({ price: { title: 'Price', summary } });
+    fixture.detectChanges();
+    return foot()[0];
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(DecimalHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('sums decimal strings exactly, and a number column as before', () => {
+    expect(foot()).toEqual(['3', '20.29', '6', '9007199254740993.02']);
+  });
+
+  it('keeps the number column on the engine path, output included', () => {
+    expect(withSummary('sum', [0.1, 0.2])).toBe('0.30000000000000004');
+    expect(withSummary('avg', [1, 2])).toBe('1.5');
+  });
+
+  it('reads a number beside a string exactly', () => {
+    expect(withSummary('sum', ['0.1', 0.2])).toBe('0.3');
+  });
+
+  it('carries the widest scale', () => {
+    expect(withSummary('sum', ['10.00', '0.5'])).toBe('10.50');
+  });
+
+  it('averages at the widest scale and never fewer than two places, half away from zero', () => {
+    expect(withSummary('avg', ['1', '2'])).toBe('1.50');
+    expect(withSummary('avg', ['10', '10', '10'])).toBe('10.00');
+    expect(withSummary('avg', ['1', '0'])).toBe('0.50');
+    // Two places would print `0.00` here; the cells' own scale keeps the figure.
+    expect(withSummary('avg', ['0.0001', '0.0003'])).toBe('0.0002');
+    expect(withSummary('avg', ['0.0001', '0.0002'])).toBe('0.0002');
+    expect(withSummary('avg', ['0.005', '0'])).toBe('0.003');
+  });
+
+  it('orders min and max by value, not by text', () => {
+    expect(withSummary('min', ['10', '9.5', '-1'])).toBe('-1');
+    expect(withSummary('max', ['10', '9.5', '-1'])).toBe('10');
+    expect(withSummary('max', ['9007199254740993', '9007199254740992'])).toBe('9007199254740993');
+  });
+
+  it('leaves a cell it cannot read out, the way the number path leaves out NaN', () => {
+    expect(withSummary('sum', ['1', 'abc', '2'])).toBe('3');
+    expect(withSummary('sum', ['abc'])).toBe('');
+    expect(withSummary('sum', [1, Number.NaN, 2])).toBe('3');
+  });
+
+  it('does not throw on malformed data in a render', () => {
+    expect(() => withSummary('avg', ['1e999999', '1.2.3', 'Infinity', '', null])).not.toThrow();
+    expect(foot()[0]).toBe('');
+  });
+
+  it('exports and formats the decimal cells as before', () => {
+    const csv = table().toCsv().split('\r\n');
+    expect(csv[1]).toBe('A,$0.1,1,9007199254740993.01');
+    const cells = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('tbody tr')][2];
+    expect([...cells.querySelectorAll('td')].map(td => td.textContent.trim())).toEqual(['C', '$19.99', '3', '']);
+  });
+});

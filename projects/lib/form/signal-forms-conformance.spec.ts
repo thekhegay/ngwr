@@ -256,6 +256,19 @@ class NoReadonlyHost {
   readonly f = form(signal({ text: '' }));
 }
 
+/**
+ * The one control with a second value type: `mode="decimal"` makes `value` a
+ * `string | null`, and the generic is inferred from the attribute, so this
+ * host compiling is the type claim and the case below is the behaviour.
+ */
+@Component({
+  imports: [FormField, WrInputNumber],
+  template: `<wr-input-number mode="decimal" [formField]="f.amount" />`,
+})
+class DecimalHost {
+  readonly f = form(signal<{ amount: string | null }>({ amount: null }));
+}
+
 const doc = (text: string): WrEditorJson => ({
   type: 'doc',
   content: [{ type: 'paragraph', content: [{ type: 'text', text }] }],
@@ -381,4 +394,8 @@ describe('every public Signal Forms control, against ngtrue', () => {
       );
     });
   }
+
+  it('WrInputNumber conforms in decimal mode', async () => {
+    await assertSignalFormsControl(() => TestBed.createComponent(DecimalHost), { values: ['3.10', '7.25'] });
+  });
 });

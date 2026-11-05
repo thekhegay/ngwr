@@ -5,7 +5,18 @@ export type { Maybe, SafeAny, WrClassInput } from './types';
 export { isDefined, isNonEmptyArray, isObservable } from './guards';
 
 // Math
-export { clamp, round } from './math';
+export {
+  clamp,
+  round,
+  wrDecimal,
+  wrDecimalAdd,
+  wrDecimalCompare,
+  wrDecimalDivide,
+  wrDecimalMultiply,
+  wrDecimalRound,
+  wrDecimalSubtract,
+} from './math';
+export type { WrDecimalLike } from './math';
 
 // Coercion
 export { numAttr } from './coercion';

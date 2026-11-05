@@ -202,6 +202,15 @@ describe('WrTable column keys: align, format and empty', () => {
     expect(fixture.componentInstance.table().toCsv().split('\r\n')[1]).toMatch(/^-,/);
   });
 
+  it('leaves a negative decimal string a figure, and neutralises a string that is not one', () => {
+    const plain = TestBed.createComponent(WrTable);
+    plain.componentRef.setInput('columns', { total: { title: 'Total' }, note: { title: 'Note' } });
+    plain.componentRef.setInput('items', [{ total: '-12.50', note: '-1+cmd()' }]);
+    plain.detectChanges();
+    expect(plain.componentInstance.toCsv().split('\r\n')[1]).toBe("-12.50,'-1+cmd()");
+    plain.destroy();
+  });
+
   it('neutralises what format returns whatever the value was, unless it is a plain figure', () => {
     const plain = TestBed.createComponent(WrTable);
     plain.componentRef.setInput('columns', {

@@ -277,6 +277,7 @@ describe('the surfaces that draw it', () => {
       'resolveCssColor',
       'toClassList',
       'wrAction',
+      'wrDecimal',
       'wrDownloadBlob',
       'wrPoll',
       'wrQueryParam',

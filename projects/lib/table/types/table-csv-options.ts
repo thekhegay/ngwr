@@ -16,7 +16,7 @@ export interface WrTableCsvOptions {
   /**
    * Prefix string values and `format` output starting with `= + - @` with a
    * quote so spreadsheets treat them as text instead of formulas. A plain figure
-   * from `format`, such as `-1,234.50`, is left alone. @default true
+   * such as `-1,234.50`, from a string cell or `format`, is left alone. @default true
    */
   readonly escapeFormulas?: boolean;
 }
