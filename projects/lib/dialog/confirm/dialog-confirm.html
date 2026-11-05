@@ -1,0 +1,29 @@
+<h2 wrDialogTitle>{{ data.title }}</h2>
+@if (data.message) {
+  <div wrDialogContent>{{ data.message }}</div>
+}
+<!--
+  Initial focus sits on the safe answer of a danger question and on the confirm
+  button otherwise, through the `cdkFocusInitial` the focus trap already reads.
+-->
+<div wrDialogFooter>
+  <button
+    wr-btn
+    type="button"
+    class="wr-dialog-confirm__action wr-dialog-confirm__action--cancel"
+    [attr.cdkFocusInitial]="danger ? '' : null"
+    (click)="ref.close(false)"
+  >
+    {{ cancelLabel() }}
+  </button>
+  <button
+    wr-btn
+    type="button"
+    class="wr-dialog-confirm__action wr-dialog-confirm__action--confirm"
+    [color]="color"
+    [attr.cdkFocusInitial]="danger ? null : ''"
+    (click)="ref.close(true)"
+  >
+    {{ confirmLabel() }}
+  </button>
+</div>

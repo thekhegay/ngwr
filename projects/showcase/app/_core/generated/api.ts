@@ -518,6 +518,10 @@ export const API = {
   WrDialogClose: [
     { name: "wrDialogClose", description: "Value to pass to `close()`. When unset — or used as a bare attribute — the dialog closes with `undefined`.", type: "R | undefined", default: "undefined" },
   ],
+  // <[wrDialogContent]>
+  WrDialogContent: [
+    { name: "id", description: "The element's id, generated unless given. An `alertdialog` names it in `aria-describedby`.", type: "string", default: "`wr-dialog-content-${++uid}`" },
+  ],
   // <[wrDialogFooter]>
   WrDialogFooter: [
     { name: "align", description: "Horizontal alignment of the children.", type: "'start' | 'center' | 'end'", default: "'end'" },

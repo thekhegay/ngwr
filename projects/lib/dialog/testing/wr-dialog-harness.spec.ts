@@ -154,6 +154,36 @@ describe('WrDialogHarness', () => {
 
     expect(await dialog.isFocusTrapped()).toBe(true);
   });
+
+  it('answers a WrDialog.confirm() dialog', async () => {
+    const yes = fixture.componentInstance.dialog.confirm({ title: 'Delete item?', message: 'Gone for good.' });
+    await fixture.whenStable();
+
+    const dialog = await rootLoader.getHarness(WrDialogHarness.with({ title: 'Delete item?' }));
+    expect(await dialog.isConfirm()).toBe(true);
+    expect(await dialog.getRole()).toBe('alertdialog');
+    expect(await dialog.getContentText()).toBe('Gone for good.');
+    await dialog.confirm();
+    await fixture.whenStable();
+    await expect(yes).resolves.toBe(true);
+
+    const no = fixture.componentInstance.dialog.confirm({ title: 'Delete item?' });
+    await fixture.whenStable();
+    await (await rootLoader.getHarness(WrDialogHarness)).cancel();
+    await fixture.whenStable();
+    await expect(no).resolves.toBe(false);
+  });
+
+  it('refuses to answer a dialog opened with open()', async () => {
+    fixture.componentInstance.dialog.open(Confirm);
+    await fixture.whenStable();
+
+    const dialog = await rootLoader.getHarness(WrDialogHarness);
+
+    expect(await dialog.isConfirm()).toBe(false);
+    await expect(dialog.confirm()).rejects.toThrow(/opened with open\(\)/);
+    await expect(dialog.cancel()).rejects.toThrow(/opened with open\(\)/);
+  });
 });
 
 @Component({

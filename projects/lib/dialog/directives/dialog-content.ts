@@ -6,10 +6,13 @@
  */
 
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Directive } from '@angular/core';
+import { Directive, input } from '@angular/core';
+
+let uid = 0;
 
 /**
- * Styles the scrollable body section of a dialog.
+ * Styles the scrollable body section of a dialog. Auto-assigns an `id` so an
+ * `alertdialog` panel can reference it via `aria-describedby`.
  *
  * `CdkScrollable` is a host directive because this element is a real scroll
  * container (`overflow: auto`) and an anchored overlay opened from inside it has
@@ -28,7 +31,10 @@ import { Directive } from '@angular/core';
  */
 @Directive({
   selector: '[wrDialogContent]',
-  host: { class: 'wr-dialog__content' },
+  host: { class: 'wr-dialog__content', '[attr.id]': 'id()' },
   hostDirectives: [CdkScrollable],
 })
-export class WrDialogContent {}
+export class WrDialogContent {
+  /** The element's id, generated unless given. An `alertdialog` names it in `aria-describedby`. */
+  readonly id = input(`wr-dialog-content-${++uid}`);
+}

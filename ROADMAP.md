@@ -8,10 +8,6 @@
 
 ## Low
 
-- **`WrDialog.confirm` and `WrDialogRef.closeWhen`**: a one-call confirmation that
-  resolves `Promise<boolean>`, with `role="alertdialog"`, a danger tone and catalog
-  labels; and `closeWhen`, which closes a dialog when a signal turns true and is
-  owned by the dialog, so it cannot outlive it.
 - **`name` on `wr-avatar`, and `wrInitials`**: one input that gives the alt text,
   two grapheme-safe initials and an optional stable tint hashed from the name. The
   initials are also a pipe and a function.

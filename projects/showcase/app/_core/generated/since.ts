@@ -110,7 +110,7 @@ export const UPDATED = {
   "reference/components/color-picker": "15.0.0",
   "reference/components/command-palette": "15.0.0",
   "reference/components/date-picker": "15.0.0",
-  "reference/components/dialog": "15.0.0",
+  "reference/components/dialog": "15.5.0",
   "reference/components/drawer": "15.0.0",
   "reference/components/dropdown": "15.0.0",
   "reference/components/editor": "15.0.0",
