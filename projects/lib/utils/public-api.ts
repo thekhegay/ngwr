@@ -5,7 +5,18 @@ export type { Maybe, SafeAny, WrClassInput } from './types';
 export { isDefined, isNonEmptyArray, isObservable } from './guards';
 
 // Math
-export { clamp, round } from './math';
+export {
+  clamp,
+  round,
+  wrDecimal,
+  wrDecimalAdd,
+  wrDecimalCompare,
+  wrDecimalDivide,
+  wrDecimalMultiply,
+  wrDecimalRound,
+  wrDecimalSubtract,
+} from './math';
+export type { WrDecimalLike } from './math';
 
 // Coercion
 export { numAttr } from './coercion';
@@ -28,6 +39,8 @@ export {
   resolveCssColorChannels,
   trapFocus,
   watchColorScheme,
+  wrContentDispositionFileName,
+  wrDownloadBlob,
 } from './dom';
 export type { WatchColorSchemeOptions, WrColorScheme } from './dom';
 
@@ -39,7 +52,7 @@ export { noop, debounce, throttle } from './fn';
 export type { WrDebouncedFn, WrThrottledFn } from './fn';
 
 // Keyboard
-export { KEYS, hasModifier, isComposing, isPrintableKey } from './keyboard';
+export { KEYS, KEY_LABELS, hasModifier, isComposing, isPrintableKey } from './keyboard';
 export type { WrKey } from './keyboard';
 
 // Log
@@ -48,3 +61,7 @@ export { badgeLog } from './log';
 // Feature
 export { wrFeature } from './feature';
 export type { WrFeature } from './feature';
+
+// Async
+export { wrAction, wrKeyedAction, wrResourceValue } from './async';
+export type { WrAction, WrActionStatus, WrKeyedAction } from './async';

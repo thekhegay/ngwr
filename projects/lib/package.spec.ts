@@ -134,8 +134,9 @@ describe('the published manifest', () => {
   });
 
   it('marks a peer optional only when whole entry points, not the core, need it', () => {
-    // `@angular/router` is optional because only tabs, sidebar, breadcrumbs and
-    // loading-bar import it — an app with no routing installs nothing extra. The
+    // `@angular/router` is optional because only tabs, sidebar, breadcrumbs,
+    // loading-bar and `utils/router` import it, so an app with no routing
+    // installs nothing extra. The
     // eight ProseMirror packages are imported by `ngwr/editor` and nothing else,
     // so an app without a rich-text field installs none of them — which is also
     // why no other entry point may import `ngwr/editor`. Only the packages the editor

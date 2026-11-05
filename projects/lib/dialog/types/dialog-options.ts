@@ -7,12 +7,23 @@
 
 import type { WrClassInput } from 'ngwr/utils';
 
+/** The ARIA role a dialog panel announces. */
+export type WrDialogRole = 'dialog' | 'alertdialog';
+
 /**
  * Options accepted by `WrDialog.open()`.
  */
 export interface WrDialogOptions<D = unknown> {
   /** Data payload exposed to the dialog content via `WR_DIALOG_DATA`. */
   readonly data?: D;
+  /**
+   * `alertdialog` for a dialog that interrupts with a question and expects an
+   * answer. It is also described by its `[wrDialogContent]`, which `dialog` is
+   * not: a form body read out as a description is noise, a one-line message is
+   * the point.
+   * @default 'dialog'
+   */
+  readonly role?: WrDialogRole;
   /** When `true`, clicks on the backdrop close the dialog. @default true */
   readonly closeOnBackdropClick?: boolean;
   /** When `true`, the Escape key closes the dialog. @default true */

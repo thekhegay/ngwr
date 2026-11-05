@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { Location } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, PLATFORM_ID, inject, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
@@ -14,7 +14,7 @@ import { WrDialog } from './dialog';
 import { WrDialogRef } from './dialog-ref';
 import { WrDialogClose, WrDialogContent, WrDialogFooter, WrDialogTitle } from './directives';
 import { WR_DIALOG_DATA } from './tokens';
-import type { WrDialogOptions } from './types';
+import type { WrDialogConfirmOptions, WrDialogOptions } from './types';
 
 /**
  * `WrDialog` is a service, so there is no element to render in a host template:
@@ -630,5 +630,397 @@ describe('WrDialog panel gutter', () => {
     expect(rules('.wr-dialog-panel.cdk-overlay-pane')).toMatch(/max-width:\s*calc\(100vw - 2rem\)/);
     expect(rules('.wr-dialog-panel.cdk-overlay-pane')).toMatch(/max-height:\s*calc\(100dvh - 2rem\)/);
     expect(rules('.wr-dialog-panel')).not.toMatch(/max-(width|height)/);
+  });
+});
+
+/**
+ * Without `exportAs` a template cannot reach the directive at all -
+ * `#t="wrDialogTitle"` fails to compile rather than resolving to nothing - so
+ * mounting the host is half the assertion. The other half is that the reference
+ * is the directive and not the heading it sits on: `id` is what a consumer
+ * reads to point an `aria-labelledby` of their own at the title.
+ */
+describe('WrDialogTitle template reference', () => {
+  @Component({
+    imports: [WrDialogTitle],
+    template: `<h2 wrDialogTitle #ref="wrDialogTitle">Delete item</h2>`,
+  })
+  class ExportHost {
+    readonly title = viewChild.required<WrDialogTitle>('ref');
+  }
+
+  it('publishes the instance as `wrDialogTitle`', () => {
+    TestBed.resetTestingModule();
+
+    const fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+
+    const title = fixture.componentInstance.title();
+    expect(title).toBeInstanceOf(WrDialogTitle);
+    expect((fixture.nativeElement as HTMLElement).querySelector('h2')?.id).toBe(title.id);
+
+    fixture.destroy();
+  });
+});
+
+/**
+ * `confirm()` is `open()` around one internal component, so the suite reads
+ * the same overlay DOM the one above does and asks only what is new: the
+ * answer, the role, the focus, the labels, and every way out resolving `false`.
+ */
+describe('WrDialog.confirm', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const opener = (): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.opener')!;
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-dialog-panel');
+  const backdrop = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-dialog-backdrop');
+  const confirmButton = (): HTMLElement | null =>
+    document.querySelector<HTMLElement>('.wr-dialog-confirm__action--confirm');
+  const cancelButton = (): HTMLElement | null =>
+    document.querySelector<HTMLElement>('.wr-dialog-confirm__action--cancel');
+
+  const settle = async (): Promise<void> => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  /** The answer, which every test settles before reading the DOM. */
+  const confirm = (options: Partial<WrDialogConfirmOptions> = {}): Promise<boolean> =>
+    fixture.componentInstance.dialog.confirm({ title: 'Delete item?', ...options });
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      new DOMRect(0, 0, 120, 32),
+    ] as unknown as DOMRectList);
+
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    fixture.destroy();
+  });
+
+  it('resolves true only when the confirm button is pressed', async () => {
+    const answer = confirm();
+    await settle();
+    expect(panel()).toBeTruthy();
+
+    confirmButton()!.click();
+    await settle();
+
+    await expect(answer).resolves.toBe(true);
+    expect(panel()).toBeNull();
+  });
+
+  it('resolves false from the cancel button', async () => {
+    const answer = confirm();
+    await settle();
+
+    cancelButton()!.click();
+    await settle();
+
+    await expect(answer).resolves.toBe(false);
+  });
+
+  it('resolves false from Escape', async () => {
+    const answer = confirm();
+    await settle();
+
+    panel()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    await settle();
+
+    await expect(answer).resolves.toBe(false);
+  });
+
+  it('resolves false from the backdrop, and keeps the backdrop closed when told to', async () => {
+    const answer = confirm();
+    await settle();
+    backdrop()!.click();
+    await settle();
+    await expect(answer).resolves.toBe(false);
+
+    const stubborn = confirm({ closeOnBackdropClick: false });
+
+    await settle();
+    backdrop()!.click();
+    await settle();
+    expect(panel()).toBeTruthy();
+    cancelButton()!.click();
+    await settle();
+    await expect(stubborn).resolves.toBe(false);
+  });
+
+  it('resolves false when the app navigates away from under it', async () => {
+    const answer = confirm();
+    await settle();
+
+    TestBed.inject(Location).go('/elsewhere');
+    await settle();
+
+    await expect(answer).resolves.toBe(false);
+    expect(panel()).toBeNull();
+  });
+
+  it('settles once on a double click', async () => {
+    const answer = confirm();
+    await settle();
+
+    // One element, two clicks: the first closes the dialog, the second lands
+    // on the same button after the overlay is gone.
+    const button = confirmButton()!;
+    button.click();
+    button.click();
+    await settle();
+
+    await expect(answer).resolves.toBe(true);
+    expect(panel()).toBeNull();
+  });
+
+  it('announces an alertdialog named by the title and described by the message', async () => {
+    void confirm({ message: 'This cannot be undone.' });
+    await settle();
+
+    expect(panel()!.getAttribute('role')).toBe('alertdialog');
+    expect(panel()!.getAttribute('aria-modal')).toBe('true');
+    const name = document.getElementById(panel()!.getAttribute('aria-labelledby')!);
+    const description = document.getElementById(panel()!.getAttribute('aria-describedby')!);
+    expect(name?.textContent?.trim()).toBe('Delete item?');
+    expect(description?.textContent?.trim()).toBe('This cannot be undone.');
+    // The two buttons are the answers: no corner dismiss on top of them.
+    expect(document.querySelector('.wr-dialog__close')).toBeNull();
+  });
+
+  it('describes nothing when there is no message', async () => {
+    void confirm();
+    await settle();
+
+    expect(panel()!.hasAttribute('aria-describedby')).toBe(false);
+    expect(document.querySelector('.wr-dialog__content')).toBeNull();
+  });
+
+  it('renders the message as text, never as HTML', async () => {
+    void confirm({ message: '<b>bold</b>' });
+    await settle();
+
+    const content = document.querySelector<HTMLElement>('.wr-dialog__content')!;
+    expect(content.textContent).toContain('<b>bold</b>');
+    expect(content.querySelector('b')).toBeNull();
+  });
+
+  it('paints the confirm button in the requested color and marks the panel content for danger', async () => {
+    void confirm({ confirmColor: 'danger' });
+    await settle();
+
+    expect(confirmButton()!.classList.contains('wr-btn--danger')).toBe(true);
+    expect(document.querySelector('.wr-dialog-confirm--danger')).toBeTruthy();
+    cancelButton()!.click();
+    await settle();
+
+    void confirm();
+
+    await settle();
+    expect(confirmButton()!.classList.contains('wr-btn--primary')).toBe(true);
+    expect(document.querySelector('.wr-dialog-confirm--danger')).toBeNull();
+  });
+
+  it('focuses the safe answer on a danger question, the confirm button otherwise', async () => {
+    opener().focus();
+    const danger = confirm({ confirmColor: 'danger' });
+    await settle();
+    expect(document.activeElement).toBe(cancelButton());
+    cancelButton()!.click();
+    await settle();
+    await danger;
+    expect(document.activeElement).toBe(opener());
+
+    void confirm();
+
+    await settle();
+    expect(document.activeElement).toBe(confirmButton());
+  });
+
+  it('labels the answers OK and Cancel, and takes a label per call', async () => {
+    void confirm();
+    await settle();
+    expect(confirmButton()!.textContent?.trim()).toBe('OK');
+    expect(cancelButton()!.textContent?.trim()).toBe('Cancel');
+    cancelButton()!.click();
+    await settle();
+
+    void confirm({ confirmLabel: 'Delete', cancelLabel: 'Keep' });
+
+    await settle();
+    expect(confirmButton()!.textContent?.trim()).toBe('Delete');
+    expect(cancelButton()!.textContent?.trim()).toBe('Keep');
+  });
+
+  it('reads the labels from a registered catalog', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
+        provideWrI18nStaticLoader({ en: { common: { ok: 'Ano', cancel: 'Zrusit' } } }),
+      ],
+    });
+    const dialogs = TestBed.inject(WrDialog);
+    TestBed.tick();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+
+    void dialogs.confirm({ title: 'Smazat?' });
+    TestBed.tick();
+    await Promise.resolve();
+
+    expect(confirmButton()!.textContent?.trim()).toBe('Ano');
+    expect(cancelButton()!.textContent?.trim()).toBe('Zrusit');
+  });
+
+  it('resolves false on the server without opening anything', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
+
+    const answer = TestBed.inject(WrDialog).confirm({ title: 'Delete item?' });
+
+    await expect(answer).resolves.toBe(false);
+    expect(panel()).toBeNull();
+  });
+});
+
+describe('WrDialog.confirm while the app is torn down', () => {
+  it('settles false instead of hanging', async () => {
+    TestBed.resetTestingModule();
+    const answer = TestBed.inject(WrDialog).confirm({ title: 'Delete item?' });
+    TestBed.tick();
+    expect(document.querySelector('.wr-dialog-panel')).toBeTruthy();
+
+    // The root injector is destroyed with the testing module, as it is when an
+    // app is torn down: the overlay container goes, and nothing else would
+    // ever complete the ref.
+    TestBed.resetTestingModule();
+
+    await expect(answer).resolves.toBe(false);
+    expect(document.querySelector('.wr-dialog-panel')).toBeNull();
+  });
+});
+
+describe('WrDialogRef.closeWhen', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const panels = (): NodeListOf<HTMLElement> => document.querySelectorAll<HTMLElement>('.wr-dialog-panel');
+
+  const settle = async (): Promise<void> => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  const open = async (): Promise<WrDialogRef<Confirm, string>> => {
+    const ref = fixture.componentInstance.dialog.open<Confirm, string>(Confirm);
+    await settle();
+    return ref;
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+  });
+
+  it('closes with the result once the signal turns true', async () => {
+    const done = signal(false);
+    const ref = await open();
+    ref.closeWhen(done, 'saved');
+    await settle();
+    expect(panels()).toHaveLength(1);
+
+    done.set(true);
+    await settle();
+
+    expect(panels()).toHaveLength(0);
+    await expect(ref.awaitClose()).resolves.toBe('saved');
+  });
+
+  it('closes with undefined when no result is given, like any dismissal', async () => {
+    const done = signal(true);
+    const ref = await open();
+    ref.closeWhen(done);
+    await settle();
+
+    expect(panels()).toHaveLength(0);
+    await expect(ref.awaitClose()).resolves.toBeUndefined();
+  });
+
+  it('closes a dialog whose signal is already true, after the open has finished', async () => {
+    const done = signal(true);
+    const ref = fixture.componentInstance.dialog.open<Confirm, string>(Confirm);
+    ref.closeWhen(done, 'already');
+    // Nothing has run yet: the close waits for change detection rather than
+    // tearing the overlay down while `attach()` may still be on the stack.
+    expect(panels()).toHaveLength(1);
+
+    await settle();
+
+    expect(panels()).toHaveLength(0);
+    await expect(ref.awaitClose()).resolves.toBe('already');
+  });
+
+  it('lets any of several signals close it', async () => {
+    const a = signal(false);
+    const b = signal(false);
+    const ref = await open();
+    ref.closeWhen(a, 'a');
+    ref.closeWhen(b, 'b');
+    await settle();
+
+    b.set(true);
+    await settle();
+
+    await expect(ref.awaitClose()).resolves.toBe('b');
+  });
+
+  it('drops the watcher when the dialog closes another way, so the signal cannot reach a later dialog', async () => {
+    const done = signal(false);
+    const first = await open();
+    first.closeWhen(done, 'late');
+    await settle();
+
+    first.close('escaped');
+    await settle();
+    expect(panels()).toHaveLength(0);
+
+    const second = await open();
+    done.set(true);
+    await settle();
+
+    expect(panels()).toHaveLength(1);
+    await expect(first.awaitClose()).resolves.toBe('escaped');
+    second.close();
+    await settle();
+  });
+
+  it('is a no-op on a closed dialog', async () => {
+    const done = signal(true);
+    const ref = await open();
+    ref.close('first');
+    await settle();
+
+    expect(() => ref.closeWhen(done, 'second')).not.toThrow();
+    await settle();
+
+    await expect(ref.awaitClose()).resolves.toBe('first');
+  });
+
+  it('refuses on a ref that was not opened by WrDialog, which is the only one without an injector', () => {
+    const ref = new WrDialogRef<unknown, unknown>({} as never);
+
+    expect(() => ref.closeWhen(signal(true))).toThrow(/opened by WrDialog/);
   });
 });

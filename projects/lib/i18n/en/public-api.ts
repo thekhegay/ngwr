@@ -494,6 +494,24 @@ export const wrEn: WrI18nCatalog = {
     taskDone: 'Done:',
     taskTodo: 'To do:',
   },
+  // `<wr-kbd chord>`: what the keys are called on this locale's keycaps, so a
+  // German sheet says Strg where an English one says Ctrl. macOS gets the ⌘ ⌥
+  // ⇧ glyphs instead, which are not words.
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Space',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   // Count-neutral on purpose: `wrInterpolate` does `{{name}}` substitution only,
   // with no plural support, so "Matches available: 1" has to read correctly too.
   marquee: {
@@ -504,6 +522,10 @@ export const wrEn: WrI18nCatalog = {
     listbox: 'Mentions',
     available: 'Matches available: {{count}}',
     inserted: 'Inserted: {{label}}',
+  },
+  comment: {
+    send: 'Send',
+    replies: 'Replies',
   },
   drawer: {
     close: 'Close drawer',

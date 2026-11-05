@@ -404,6 +404,21 @@ export const wrTr: WrI18nCatalog = {
     taskDone: 'Tamamlandı:',
     taskTodo: 'Yapılacak:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Boşluk',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   // Sayaç çekimsiz: kütüphanede çokluk eki mekanizması yok, bu yüzden sayının
   // ardından gelen sözcük her değer için doğru olmalı — “+1 daha” da “+9 daha”
   // kadar doğru okunur. Aynı nedenle ad öne alınır: “Eklendi: Ada”.
@@ -415,6 +430,10 @@ export const wrTr: WrI18nCatalog = {
     listbox: 'Bahsetmeler',
     available: 'Bulunan eşleşme: {{count}}',
     inserted: 'Eklendi: {{label}}',
+  },
+  comment: {
+    send: 'Gönder',
+    replies: 'Yanıtlar',
   },
   drawer: {
     close: 'Paneli kapat',

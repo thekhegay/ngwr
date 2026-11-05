@@ -394,6 +394,21 @@ export const wrKo: WrI18nCatalog = {
     taskDone: '완료:',
     taskTodo: '할 일:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: '스페이스',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   // 이름을 앞에 두고 조사를 쓰지 않는다 — ‘에이다 삽입됨’. 한국어의 을/를은 앞
   // 단어의 받침에 따라 달라지는데 이름은 미리 알 수 없고, 인터폴레이터는 조사를
   // 맞춰 주지 못한다. 개수도 같은 이유로 세는 말(개)을 붙여 수와 무관하게 읽힌다.
@@ -405,6 +420,10 @@ export const wrKo: WrI18nCatalog = {
     listbox: '멘션',
     available: '일치하는 항목 {{count}}개',
     inserted: '{{label}} 삽입됨',
+  },
+  comment: {
+    send: '보내기',
+    replies: '답글',
   },
   drawer: {
     close: '패널 닫기',

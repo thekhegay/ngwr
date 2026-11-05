@@ -484,6 +484,13 @@
     "./command-palette/testing": {
       "default": "./command-palette/testing/public-api.ts"
     },
+    "./comment": {
+      "sass": "./comment/styles/_index.scss",
+      "default": "./comment/public-api.ts"
+    },
+    "./comment/testing": {
+      "default": "./comment/testing/public-api.ts"
+    },
     "./compare": {
       "sass": "./compare/styles/_index.scss",
       "default": "./compare/public-api.ts"
@@ -947,6 +954,9 @@
     },
     "./utils": {
       "default": "./utils/public-api.ts"
+    },
+    "./utils/router": {
+      "default": "./utils/router/public-api.ts"
     },
     "./validators": {
       "default": "./validators/public-api.ts"

@@ -1,0 +1,82 @@
+<ngwr-doc-page
+  title="wrDecimal"
+  since="15.5.0"
+  description="Exact decimal arithmetic on strings, with no float on the way. Built on `BigInt`, no dependency."
+  [keywords]="['wrDecimal', 'decimal', 'bigint', 'money', 'exact', 'float', 'precision', 'math', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="A decimal is a string: `'0.1'`, `'-1234.56'`. Every helper reads a string, a number or a bigint, and returns the canonical string, or `null` when a side is not a number. Nothing throws. `wr-table` summaries and `wr-input-number` in `mode=&quot;decimal&quot;` run on the same core."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>wrDecimalAdd</code> of the two: <code>{{ exact() }}</code>
+          </p>
+          <wr-input-number mode="decimal" ariaLabel="First" [(value)]="a" [step]="0.1" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>+</code> on doubles: <code>{{ float() }}</code>
+          </p>
+          <wr-input-number mode="decimal" ariaLabel="Second" [(value)]="b" [step]="0.1" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rules">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Input</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>'00.10'</code>, <code>' -5. '</code>, <code>'.5'</code></th>
+            <td>
+              Canonical: <code>'0.10'</code>, <code>'-5'</code>, <code>'0.5'</code>. Trailing fraction zeros stay.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>'9007199254740993.01'</code></th>
+            <td>Every digit kept. A number is read from its shortest form: <code>0.1</code> is <code>'0.1'</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>'1e5'</code>, <code>'1.5E-3'</code></th>
+            <td>Read exactly: <code>'100000'</code>, <code>'0.0015'</code>. An exponent past 1000 is malformed.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <code>''</code>, <code>'abc'</code>, <code>'1.2.3'</code>, <code>'1,5'</code>, <code>'Infinity'</code>,
+              <code>NaN</code>, <code>null</code>
+            </th>
+            <td>Malformed: <code>null</code>. Never zero, never a throw.</td>
+          </tr>
+          <tr>
+            <th scope="row">Scale of a sum</th>
+            <td>The wider of the two: <code>'10.00' + '0.5'</code> is <code>'10.50'</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">Rounding</th>
+            <td>
+              Half away from zero: <code>'2.5'</code> to <code>'3'</code>, <code>'-2.5'</code> to <code>'-3'</code>.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

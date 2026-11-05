@@ -6,7 +6,16 @@
  */
 
 import { isPlatformBrowser } from '@angular/common';
-import { DestroyRef, Service, PLATFORM_ID, type Signal, type WritableSignal, inject, signal } from '@angular/core';
+import {
+  DestroyRef,
+  Service,
+  PLATFORM_ID,
+  type Signal,
+  type WritableSignal,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 
 import { WR_STORAGE_CONFIG } from './storage-config';
 import { WR_STORAGE_ENGINE } from './storage-engine';
@@ -14,6 +23,16 @@ import type { WrStorageEnvelope } from './types';
 
 function isEnvelope(x: unknown): x is WrStorageEnvelope {
   return x !== null && typeof x === 'object' && 'v' in x;
+}
+
+/**
+ * One key's signal. `sig.set` persists, so a refresh from storage goes through
+ * `write`, the setter the signal was born with.
+ */
+interface Watcher {
+  readonly sig: WritableSignal<unknown>;
+  readonly fallback: unknown;
+  readonly write: (value: unknown) => void;
 }
 
 /**
@@ -27,7 +46,8 @@ function isEnvelope(x: unknown): x is WrStorageEnvelope {
  * - **TTL** per-call or default — values past their expiry are removed
  *   lazily on the next `get` / `watch` read.
  * - **Reactive watch** — `watch(key)` returns a `Signal` that updates on
- *   local writes and cross-tab `storage` events.
+ *   local writes and cross-tab `storage` events. `signal(key, default)` is the
+ *   writable twin: `set` and `update` persist as they go.
  * - **On-disk format** — values are wrapped in a {@link WrStorageEnvelope}
  *   (`{"v":…,"e":…}`) while `json` is on. Anything reading the same key from
  *   outside Angular has to unwrap it.
@@ -46,6 +66,9 @@ function isEnvelope(x: unknown): x is WrStorageEnvelope {
  *
  * const theme = store.watch<'light' | 'dark'>('theme', 'light');
  * effect(() => console.log('theme is', theme()));
+ *
+ * const density = store.signal<'compact' | 'comfortable'>('density', 'comfortable');
+ * density.set('compact');                        // stored, and every tab follows
  * ```
  *
  * @see https://ngwr.dev/reference/services/storage
@@ -58,7 +81,8 @@ export class WrStorage {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   /**
-   * Per-key watchers. Shared so multiple `watch(k)` calls reuse one signal.
+   * Per-key watchers. Shared so multiple `watch(k)` and `signal(k)` calls reuse
+   * one signal.
    *
    * The fallback is kept alongside the signal because every refresh has to read
    * the key the same way `watch` first did. Refreshing without it made `get` and
@@ -67,7 +91,7 @@ export class WrStorage {
    * default, so a consumer watching `'theme'` with a `'light'` fallback got no
    * theme at all rather than the light one.
    */
-  private readonly watchers = new Map<string, { readonly sig: WritableSignal<unknown>; readonly fallback: unknown }>();
+  private readonly watchers = new Map<string, Watcher>();
   private listenerInstalled = false;
 
   // Public API
@@ -121,32 +145,7 @@ export class WrStorage {
    * own docs for the exact format.
    */
   set<T = unknown>(key: string, value: T, opts?: { ttl?: number }): void {
-    const fk = this.fullKey(key);
-    let serialized: string;
-
-    if (this.config.json) {
-      const ttl = opts?.ttl ?? this.config.ttl;
-      const env: WrStorageEnvelope<T> = ttl ? { v: value, e: Date.now() + ttl } : { v: value };
-      try {
-        serialized = JSON.stringify(env);
-      } catch (err) {
-        // eslint-disable-next-line no-console -- intentional diagnostic for unserialisable values
-        console.warn('[ngwr/storage] value not JSON-serializable', err);
-        return;
-      }
-    } else {
-      serialized = String(value);
-    }
-
-    try {
-      this.engine.setItem(fk, serialized);
-    } catch (err) {
-      // Quota exceeded / disabled / cleared mid-write — log + carry on.
-      // eslint-disable-next-line no-console -- intentional diagnostic on storage write failure
-      console.warn('[ngwr/storage] setItem failed', err);
-      return;
-    }
-    this.notify(key);
+    if (this.persist(key, value, opts)) this.notify(key);
   }
 
   /** Remove `key`. No-op when absent. */
@@ -168,7 +167,7 @@ export class WrStorage {
       this.engine.clear();
     }
     // Refresh every active watcher — they may have just been cleared.
-    for (const [k, entry] of this.watchers) entry.sig.set(this.get(k, entry.fallback));
+    this.refreshAll();
   }
 
   /** All known keys under our prefix, with the prefix stripped. */
@@ -184,13 +183,31 @@ export class WrStorage {
    * `watch(k)` twice returns the same signal.
    */
   watch<T = unknown>(key: string, fallback: T | null = null): Signal<T | null> {
-    const existing = this.watchers.get(key);
-    if (existing) return (existing.sig as WritableSignal<T | null>).asReadonly();
+    return (this.watcher(key, fallback).sig as WritableSignal<T | null>).asReadonly();
+  }
 
-    const sig = signal<T | null>(this.get<T>(key, fallback));
-    this.watchers.set(key, { sig: sig, fallback });
-    this.installCrossTabListener();
-    return sig.asReadonly();
+  /**
+   * Writable twin of {@link watch}: `set` and `update` store the value, then
+   * the signal takes it. The signal is the one `watch(key)` reads, so a
+   * `set()`, `remove()` or `clear()` on this instance moves it too, and so does
+   * a write from another tab; a key another tab removes goes back to
+   * `defaultValue`. Shared per key, so a second `signal(key)` is the same
+   * signal and the first call's default stands.
+   *
+   * A `set` to the value it already holds (`Object.is`) writes nothing, like a
+   * plain signal. A write the engine refuses (quota, storage disabled) is
+   * logged and dropped exactly as `set()` does, and nothing throws: the signal
+   * keeps the new value for this tab, and the next load reads what was stored
+   * before.
+   *
+   * On the server it reads the engine as `watch()` does, so with the default
+   * in-memory engine it holds `defaultValue`, and no `storage` listener is
+   * installed. Hydration: the server renders that default and the browser
+   * instance reads `localStorage` when it is created, so the first client
+   * render can differ from the server markup, as with `watch()`.
+   */
+  signal<T>(key: string, defaultValue: T): WritableSignal<T> {
+    return this.watcher(key, defaultValue).sig as WritableSignal<T>;
   }
 
   // Internals
@@ -199,9 +216,62 @@ export class WrStorage {
     return this.config.prefix + key;
   }
 
+  private watcher(key: string, fallback: unknown): Watcher {
+    const existing = this.watchers.get(key);
+    if (existing) return existing;
+
+    const sig = signal<unknown>(this.get(key, fallback));
+    const write = sig.set.bind(sig);
+    sig.set = value => {
+      if (Object.is(value, untracked(sig))) return;
+      this.persist(key, value);
+      write(value);
+    };
+    sig.update = fn => sig.set(fn(untracked(sig)));
+
+    const entry: Watcher = { sig, fallback, write };
+    this.watchers.set(key, entry);
+    this.installCrossTabListener();
+    return entry;
+  }
+
+  /** Serialize and store. `false` when nothing landed in the engine. */
+  private persist<T>(key: string, value: T, opts?: { ttl?: number }): boolean {
+    const fk = this.fullKey(key);
+    let serialized: string;
+
+    if (this.config.json) {
+      const ttl = opts?.ttl ?? this.config.ttl;
+      const env: WrStorageEnvelope<T> = ttl ? { v: value, e: Date.now() + ttl } : { v: value };
+      try {
+        serialized = JSON.stringify(env);
+      } catch (err) {
+        // eslint-disable-next-line no-console -- intentional diagnostic for unserialisable values
+        console.warn('[ngwr/storage] value not JSON-serializable', err);
+        return false;
+      }
+    } else {
+      serialized = String(value);
+    }
+
+    try {
+      this.engine.setItem(fk, serialized);
+    } catch (err) {
+      // Quota exceeded / disabled / cleared mid-write — log + carry on.
+      // eslint-disable-next-line no-console -- intentional diagnostic on storage write failure
+      console.warn('[ngwr/storage] setItem failed', err);
+      return false;
+    }
+    return true;
+  }
+
   private notify(key: string): void {
     const entry = this.watchers.get(key);
-    if (entry) entry.sig.set(this.get(key, entry.fallback));
+    if (entry) entry.write(this.get(key, entry.fallback));
+  }
+
+  private refreshAll(): void {
+    for (const [k, entry] of this.watchers) entry.write(this.get(k, entry.fallback));
   }
 
   private rawKeys(): string[] {
@@ -225,7 +295,7 @@ export class WrStorage {
       // `notify()` in `set`/`remove`/`clear`.
       if (event.key === null) {
         // Storage cleared from another tab.
-        for (const [k, entry] of this.watchers) entry.sig.set(this.get(k, entry.fallback));
+        this.refreshAll();
         return;
       }
       const p = this.config.prefix;

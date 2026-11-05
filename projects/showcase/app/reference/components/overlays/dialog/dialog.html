@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Dialog"
-  updated="15.0.0"
+  updated="15.5.0"
   description="Open any component as a modal dialog and await its result."
   [keywords]="['dialog', 'modal', 'wr-dialog', 'overlay', 'portal']"
   [labels]="['Service', 'Directives', 'CDK Dialog']"
@@ -16,6 +16,72 @@
       <wr-btn color="danger" (click)="openConfirm()">Open confirm dialog</wr-btn>
       <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; align-self: center">
         Last result: {{ lastResult() }}
+      </span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Confirm"
+    description="One call for a yes-or-no question. Only the confirm button resolves `true`; every other way out is `false`."
+  >
+    <ngwr-doc-code [code]="snippets.confirm" language="typescript" />
+
+    <ngwr-doc-snippet code="dialog.confirm({ title, message, confirmLabel, confirmColor })">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Default: focus starts on the confirm button</p>
+          <wr-btn color="primary" (click)="ask()">Save changes</wr-btn>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>confirmColor="danger"</code>: focus starts on cancel</p>
+          <wr-btn color="danger" (click)="askDanger()">Delete item</wr-btn>
+        </div>
+      </div>
+      <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; align-self: center">
+        Last answer: {{ lastAnswer() }}
+      </span>
+    </ngwr-doc-snippet>
+
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Way out</th>
+            <th scope="col">Resolves</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Confirm button</th>
+            <td><code>true</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Cancel, Escape, backdrop</th>
+            <td><code>false</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Navigation, app teardown</th>
+            <td><code>false</code></td>
+          </tr>
+          <tr>
+            <th scope="row">On the server</th>
+            <td><code>false</code> at once, nothing opens</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Close on a signal"
+    description="`closeWhen(source, result?)` closes the dialog once `source` is `true`. The watcher belongs to the dialog and dies with it."
+  >
+    <ngwr-doc-code [code]="snippets.closeWhen" language="typescript" />
+
+    <ngwr-doc-snippet code="ref.closeWhen(done, 'uploaded')">
+      <wr-btn (click)="openUntilDone()">Open and wait</wr-btn>
+      <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; align-self: center">
+        Last result: {{ lastSignalResult() }}
       </span>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -104,6 +170,10 @@
 
   <ngwr-doc-section title="WrDialogOptions">
     <ngwr-doc-api [rows]="optionsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrDialogConfirmOptions">
+    <ngwr-doc-api [rows]="confirmApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Layout directives">

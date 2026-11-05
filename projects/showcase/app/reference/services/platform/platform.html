@@ -1,8 +1,8 @@
 <ngwr-doc-page
   title="WrPlatform"
-  updated="15.0.0"
-  description="SSR-safe browser checks, user-preference signals and haptics."
-  [keywords]="['service', 'platform', 'SSR', 'WrPlatform']"
+  updated="15.5.0"
+  description="SSR-safe browser checks, user-preference and page-state signals, a return callback and haptics."
+  [keywords]="['service', 'platform', 'SSR', 'WrPlatform', 'visibility', 'online', 'onReturn']"
   [labels]="['Service']"
 >
   <ngwr-doc-section title="Usage">
@@ -19,6 +19,24 @@
           prefersReducedMotion: <strong>{{ prefersReducedMotion() }}</strong>
         </div>
         <small style="color: var(--wr-color-on-surface-muted)">Reflects your OS / browser preferences.</small>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Page state"
+    description="`pageVisible` follows `visibilitychange`, `online` follows `online` and `offline`. Both are `true` on the server. `onReturn()` fires when the page is visible again after a real absence: one minute hidden by default, so a tab flick fires nothing. It needs an injection context and stops with it. A network that comes back while the page stays visible is not a return: read `online` for that."
+  >
+    <ngwr-doc-code [code]="snippets.pageState" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="font-family: var(--wr-font-family-base); font-size: 0.875rem; line-height: 1.5">
+        <div>
+          pageVisible: <strong>{{ pageVisible() }}</strong>
+        </div>
+        <div>
+          online: <strong>{{ online() }}</strong>
+        </div>
+        <small style="color: var(--wr-color-on-surface-muted)">Switch tabs or go offline and come back.</small>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

@@ -36,6 +36,7 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
     children: [
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.avatar),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.badge),
+      wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.comment),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.compare),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.counter),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.descriptions),

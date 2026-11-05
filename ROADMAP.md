@@ -2,60 +2,17 @@
 
 ## Very high
 
-- **`wrDownloadBlob`**: saves a `Blob` under a file name in one call, from
-  `ngwr/utils`: a no-op on the server, with the deferred revoke Safari needs.
-  Beside it, a `wr`-prefixed reader for the file name in a `Content-Disposition`
-  header, `filename*` included. `wr-table`'s CSV export calls it instead of its
-  own copy.
-- **`wrAction` and `wrResourceValue`**: `wrAction` holds one async write: status,
-  loading, reset, a single-flight run, and a keyed form for which row is pending.
-  `wrResourceValue` reads a resource's value or a fallback without throwing in the
-  error state, and keeps the last settled value across reloads.
-
 ## High
 
-- **`wr-table` columns and types**: one scope. Column keys: `align` (right-aligned
-  numbers with tabular digits), `format` (a plain cell without a template) and
-  `empty` (a placeholder for no value), with the CSV export writing what the cell
-  shows. Generics on `wr-table` and `wr-select`, with a template guard on
-  `[wrTableCell]`, so a row and a value arrive typed.
-- **`WrPlatform` page state, and `wrPoll`**: `pageVisible` and `online` signals
-  (true on the server), a callback for coming back after a real absence, and
-  polling resources on one shared ticker that pauses while the tab is hidden and
-  skips a resource still loading.
+- **Template methods on `WrMention` and `WrCopyToClipboard`**: `open()` and `close()`
+  on `WrMention` are private, and `WrCopyToClipboard` has only a protected `onClick()`,
+  so a template cannot call them. Make the two public, add a public `copy()`, and give
+  both directives an `exportAs`.
 
 ## Medium
 
-- **`WrStorage.signal`**: a writable signal that saves on write and follows other
-  tabs, beside the read-only `watch()`.
-- **`WrHotkey` bindings and labels**: the active bindings with their labels as a
-  signal, for a cheat sheet in `wr-kbd`, and a chord written the way the platform
-  writes it (`⌘K` on macOS, `Ctrl+K` elsewhere). `KEYS` in `ngwr/utils` names keys
-  for `keydown` handlers and is where the labels start.
-- **`wrQueryParam`**: a writable signal linked to one query parameter, with parse
-  and serialize, `replaceUrl`, one navigation per task, and a default left out of
-  the address. In a router entry point of its own, the way `ngwr/tabs/router` is,
-  since `@angular/router` stays an optional peer.
-- **`wr-comment` and a chat composer**: a discussion row (avatar, author, time,
-  body, actions, nested replies) with a bubble variant for chat, and a composer:
-  Enter sends, Shift+Enter adds a line, IME-safe. The data stays with the app.
-- **`--wr-border-base` as a fill**: `prefers-contrast: more` darkens this token so
-  borders stay visible, which also darkens any fill mixed from it, and the text on
-  that fill loses contrast. Check what the chart stylesheets mix from it, move each
-  fill to a `--wr-color-fill*` role, and measure.
-- **`exportAs` on directives**: most public directives have none, so a template
-  cannot write `#x="wrFoo"`. Add one to each public directive with state or methods
-  a template would call, named after the selector.
-
 ## Low
 
-- **Exact decimals in `wr-table` summaries and `wr-input-number`**: summary
-  aggregates over decimal strings with no float error, and a `wr-input-number` mode
-  that holds the typed value as a string and accepts a comma and pasted spaces.
-- **`WrDialog.confirm` and `WrDialogRef.closeWhen`**: a one-call confirmation that
-  resolves `Promise<boolean>`, with `role="alertdialog"`, a danger tone and catalog
-  labels; and `closeWhen`, which closes a dialog when a signal turns true and is
-  owned by the dialog, so it cannot outlive it.
 - **`name` on `wr-avatar`, and `wrInitials`**: one input that gives the alt text,
   two grapheme-safe initials and an optional stable tint hashed from the name. The
   initials are also a pipe and a function.

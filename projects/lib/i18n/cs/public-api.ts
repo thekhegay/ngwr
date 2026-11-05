@@ -385,6 +385,21 @@ export const wrCs: WrI18nCatalog = {
     taskDone: 'Splněno:',
     taskTodo: 'Nesplněno:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Mezerník',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   marquee: {
     label: 'Běžící text',
     link: 'odkaz',
@@ -393,6 +408,10 @@ export const wrCs: WrI18nCatalog = {
     listbox: 'Zmínky',
     available: 'Počet shod: {{count}}',
     inserted: 'Vloženo: {{label}}',
+  },
+  comment: {
+    send: 'Odeslat',
+    replies: 'Odpovědi',
   },
   drawer: {
     close: 'Zavřít vysouvací panel',

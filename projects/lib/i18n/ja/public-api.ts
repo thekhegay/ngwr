@@ -389,6 +389,21 @@ export const wrJa: WrI18nCatalog = {
     taskDone: '完了：',
     taskTodo: '未完了：',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'スペース',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   marquee: {
     label: 'マーキー',
     link: 'リンク',
@@ -397,6 +412,10 @@ export const wrJa: WrI18nCatalog = {
     listbox: 'メンション',
     available: '候補{{count}}件',
     inserted: '{{label}}を挿入しました',
+  },
+  comment: {
+    send: '送信',
+    replies: '返信',
   },
   drawer: {
     close: 'ドロワーを閉じる',

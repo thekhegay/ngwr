@@ -8,7 +8,7 @@
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { DOCUMENT, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
+import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import type { ElementRef, TemplateRef } from '@angular/core';
 import {
   Component,
@@ -33,7 +33,15 @@ import { WrCheckbox } from 'ngwr/checkbox';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPagination } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
-import { KEYS, toClassList } from 'ngwr/utils';
+import {
+  KEYS,
+  toClassList,
+  wrDecimal,
+  wrDecimalAdd,
+  wrDecimalCompare,
+  wrDecimalDivide,
+  wrDownloadBlob,
+} from 'ngwr/utils';
 
 import { WrTableCell } from './table-cell';
 import { WrTableExpand } from './table-expand';
@@ -90,6 +98,49 @@ let tableUid = 0;
 /** The grand-total context every `<tfoot>` summary is computed with. */
 const WR_TABLE_TOTAL_SCOPE: WrTableSummaryContext = { scope: 'total', group: null };
 
+/** A formatted figure such as `-1,234.50`, which no spreadsheet evaluates as a formula. */
+const CSV_FIGURE = /^[+-]?[\d\s.,]+%?$/;
+
+/** A missing cell value: `null`, `undefined` or `''`. `0` and `false` are values. */
+function noValue(value: unknown): value is null | undefined | '' {
+  return value == null || value === '';
+}
+
+/**
+ * A built-in summary over a column that holds decimal STRINGS, exact through
+ * `wrDecimal`. A cell it cannot read is left out, the way the number path
+ * leaves out a non-finite one; the average divides at the widest scale among
+ * the values and never fewer than two places, half away from zero.
+ */
+function decimalSummary(kind: 'sum' | 'avg' | 'min' | 'max', values: readonly unknown[]): string {
+  const decimals: string[] = [];
+  let scale = 2;
+  for (const value of values) {
+    const decimal = wrDecimal(value);
+    if (decimal === null) continue;
+    decimals.push(decimal);
+    const point = decimal.indexOf('.');
+    if (point >= 0) scale = Math.max(scale, decimal.length - point - 1);
+  }
+  if (decimals.length === 0) return '';
+  if (kind === 'min' || kind === 'max') {
+    const keep = kind === 'min' ? -1 : 1;
+    return decimals.reduce((a, b) => (wrDecimalCompare(b, a) === keep ? b : a));
+  }
+  let sum = '0';
+  for (const decimal of decimals) sum = wrDecimalAdd(sum, decimal) ?? sum;
+  return kind === 'sum' ? sum : (wrDecimalDivide(sum, decimals.length, scale) ?? '');
+}
+
+/**
+ * A header or body cell's classes: the base, the `align` modifier and the
+ * column's own `class`, in that order.
+ */
+function cellClasses(base: 'wr-table__th' | 'wr-table__td', column: Pick<WrTableColumn, 'align' | 'class'>): string {
+  const own = column.align ? `${base} ${base}--align-${column.align}` : base;
+  return column.class ? toClassList(own, column.class).join(' ') : own;
+}
+
 /** A flat row descriptor with the tree fields at their flat-table defaults. */
 function flatRow(row: Record<string, unknown>, id: string, posinset: number, setsize: number): RenderRow {
   return { kind: 'row', id, row, depth: 0, parent: false, open: null, posinset, setsize };
@@ -137,19 +188,25 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
   },
   imports: [NgTemplateOutlet, CdkDropList, CdkDrag, WrCheckbox, WrPagination, WrSpinner, WrTableSort, WrTableFilter],
 })
-export class WrTable {
-  /** Column definitions, keyed by row property name. */
-  readonly columns = input.required<WrTableColumns>();
+export class WrTable<T extends WrTableRow = WrTableRow> {
+  /**
+   * Column definitions, keyed by row property name. Typed against the row
+   * `[items]` carries, so a column's `format` sees it: `WrTableColumns<User>`
+   * binds to `[items]="users"` and to nothing else, while a bare
+   * `WrTableColumns` still binds anywhere.
+   */
+  readonly columns = input.required<WrTableColumns<T>>();
 
   /**
    * Row items. `null`/`undefined` renders the empty state; use `[loading]` for
    * the spinner.
    *
-   * Typed `WrTableRow` (= `object`) rather than `Record<string, unknown>`, so an
-   * array of an `interface` binds as readily as an array of a `type` — see
+   * `T` is inferred from here, and it is constrained to `WrTableRow`
+   * (= `object`) rather than `Record<string, unknown>`, so an array of an
+   * `interface` binds as readily as an array of a `type` — see
    * {@link WrTableRow} for why those two are not the same to TypeScript.
    */
-  readonly items = input<readonly WrTableRow[] | null | undefined>(null);
+  readonly items = input<readonly T[] | null | undefined>(null);
 
   /**
    * The rows as records, for everything downstream that reads a cell by key.
@@ -158,7 +215,7 @@ export class WrTable {
    * the body keeps indexing rows the way it always has.
    */
   private readonly rows = computed<readonly Record<string, unknown>[] | null | undefined>(
-    () => this.items() as readonly Record<string, unknown>[] | null | undefined
+    () => this.items() as unknown as readonly Record<string, unknown>[] | null | undefined
   );
 
   /** Show the loading spinner overlay. @default false */
@@ -545,7 +602,11 @@ export class WrTable {
     return size > 0 && this.resolvedTotal() > size;
   });
 
-  private readonly cellTemplates = contentChildren(WrTableCell);
+  /**
+   * Typed at the context's own default: the directive's `T` is whatever each
+   * template declared, and the table hands every one the same record.
+   */
+  private readonly cellTemplates = contentChildren<WrTableCell<Record<string, unknown>>>(WrTableCell);
 
   /** Map of column key → custom template (if provided via `[wrTableCell]`). */
   protected readonly cellMap = computed(() => {
@@ -579,10 +640,10 @@ export class WrTable {
    * once reordered; new keys append, removed keys drop out. Pin and resize
    * measurement key off this, so it must equal the rendered order.
    */
-  protected readonly displayColumns = computed<readonly { key: string; column: WrTableColumn }[]>(() => {
+  protected readonly displayColumns = computed<readonly { key: string; column: WrTableColumn<T> }[]>(() => {
     const cols = this.columns();
     const seen = new Set<string>();
-    const result: { key: string; column: WrTableColumn }[] = [];
+    const result: { key: string; column: WrTableColumn<T> }[] = [];
     for (const key of this.columnOrder()) {
       if (Object.hasOwn(cols, key) && !seen.has(key)) {
         result.push({ key, column: cols[key] });
@@ -725,7 +786,7 @@ export class WrTable {
   }
 
   private measurePins(
-    cols: readonly { key: string; column: WrTableColumn }[],
+    cols: readonly { key: string; column: WrTableColumn<T> }[],
     cells: readonly ElementRef<HTMLElement>[]
   ): void {
     const left = new Map<string, number>();
@@ -781,16 +842,26 @@ export class WrTable {
    * One binding rather than a static `class` beside a `[class]` — Angular does
    * merge the two, but `no-duplicate-attributes` refuses the shape, and a reader
    * should not have to know the merge rules to know what a cell ends up with.
-   * Each returns the shared constant untouched when nothing was passed, so a
-   * table without these hooks allocates nothing per cell.
+   * Each returns the shared constant untouched when the column sets neither
+   * `align` nor `class`, so a table without these hooks allocates nothing per
+   * cell.
    */
-  protected thClasses(column: WrTableColumn): string {
-    return column.class ? toClassList('wr-table__th', column.class).join(' ') : 'wr-table__th';
+  protected thClasses(column: WrTableColumn<T>): string {
+    return cellClasses('wr-table__th', column);
   }
 
   /** Body-cell half of {@link thClasses}. */
-  protected tdClasses(column: WrTableColumn): string {
-    return column.class ? toClassList('wr-table__td', column.class).join(' ') : 'wr-table__td';
+  protected tdClasses(column: WrTableColumn<T>): string {
+    return cellClasses('wr-table__td', column);
+  }
+
+  /**
+   * Summary and group-footer half of {@link thClasses}: `align` only, on the
+   * body cell's modifier, the way those cells already wear `__td--pin-*`.
+   * `column.class` stays off them, as its docs say.
+   */
+  protected footClasses(column: WrTableColumn<T>): string {
+    return column.align ? `wr-table__foot-cell wr-table__td--align-${column.align}` : 'wr-table__foot-cell';
   }
 
   /** Row half of {@link thClasses}, resolved through the `rowClass` predicate. */
@@ -1507,12 +1578,12 @@ export class WrTable {
 
   // --- CSV export -----------------------------------------------------------
 
-  private readonly doc = inject(DOCUMENT);
-
   /**
    * Build the table as an RFC-4180 CSV string — a header row from the column
-   * titles, then one row per item in the current column order. Values are taken
-   * from the row data, not from custom `[wrTableCell]` templates.
+   * titles, then one row per item in the current column order. A cell is what
+   * the plain cell shows: the column's `empty` for a missing value, its
+   * `format` over the value, else the raw value. A `[wrTableCell]` template is
+   * not run, so a column drawn by one exports its `format` or its data.
    *
    * Covers the current `items`, so in server-side mode (`total` set) it
    * exports the current page, while client-side pagination exports every page.
@@ -1541,14 +1612,29 @@ export class WrTable {
         return '';
       }
     };
-    const cell = (value: unknown): string => {
-      let s = text(value);
-      // Spreadsheets evaluate cells starting with these, so neutralize them into text.
-      if (escapeFormulas && typeof value === 'string' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+    // Spreadsheets evaluate a cell starting with these, so a string that can
+    // hold row data is neutralized into text. A number or an `empty` placeholder
+    // of `-` is left alone.
+    const field = (s: string, data: boolean): string => {
+      if (data && escapeFormulas && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
       return s.includes(delimiter) || /["\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
-    const lines = [cols.map(col => cell(col.column.title)).join(delimiter)];
-    for (const row of rows) lines.push(cols.map(col => cell(row[col.key])).join(delimiter));
+    const lines = [cols.map(col => field(col.column.title, true)).join(delimiter)];
+    for (const row of rows) {
+      lines.push(
+        cols
+          .map(col => {
+            const value = row[col.key];
+            if (noValue(value)) return field(col.column.empty ?? '', false);
+            const { format } = col.column;
+            if (!format) return field(text(value), typeof value === 'string' && !CSV_FIGURE.test(value));
+            // `format` can read anything on the row, whatever type the value is.
+            const shown = format(value, row as T);
+            return field(shown, !CSV_FIGURE.test(shown));
+          })
+          .join(delimiter)
+      );
+    }
     return lines.join('\r\n');
   }
 
@@ -1557,12 +1643,7 @@ export class WrTable {
     if (!isPlatformBrowser(this.platformId)) return;
     // Lead with a BOM so Excel reads the file as UTF-8.
     const blob = new Blob([`\uFEFF${this.toCsv(options)}`], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = this.doc.createElement('a');
-    link.href = url;
-    link.download = options.filename ?? 'table.csv';
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url));
+    wrDownloadBlob(blob, options.filename ?? 'table.csv');
   }
 
   /**
@@ -1592,6 +1673,11 @@ export class WrTable {
     // would otherwise skew the aggregate.
     const values = rows.map(row => row[key]).filter(v => v != null && v !== '');
     if (kind === 'count') return values.length;
+    // A column of decimal strings is summed as digits, never as doubles:
+    // `'0.1' + '0.2'` is `'0.3'`. One string in the column is enough, so a
+    // number mixed in is read exactly too; an all-number column keeps the
+    // engine's arithmetic and its output.
+    if (values.some(v => typeof v === 'string')) return decimalSummary(kind, values);
     const nums = values.map(Number).filter(Number.isFinite);
     if (nums.length === 0) return '';
     const sum = nums.reduce((a, b) => a + b, 0);
@@ -1681,8 +1767,15 @@ export class WrTable {
     return { $implicit: item[key], item, column: column as WrTableCellContext['column'] };
   }
 
-  protected getValue(item: Record<string, unknown>, key: unknown): unknown {
-    return item[String(key)];
+  /**
+   * What a plain cell shows: the column's `empty` for a missing value, its
+   * `format` over the value, else the value itself. A cell template takes
+   * this path's place entirely (see table.html).
+   */
+  protected cellText(item: Record<string, unknown>, key: string, column: WrTableColumn<T>): unknown {
+    const value = item[key];
+    if (noValue(value)) return column.empty ?? '';
+    return column.format ? column.format(value, item as T) : value;
   }
 
   protected templateFor(key: unknown): TemplateRef<WrTableCellContext> | undefined {

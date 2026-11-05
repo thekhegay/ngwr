@@ -405,6 +405,21 @@ export const wrPl: WrI18nCatalog = {
     taskDone: 'Zrobione:',
     taskTodo: 'Do zrobienia:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Spacja',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   // Rzeczownik na początku — „Wstawiono: Ada”, a nie „Ada wstawiona”: rodzaj
   // nazwy nie jest znany z góry, a interpolator go nie uzgodni. Z tego samego
   // powodu licznik jest bez odmiany — nie ma w nim form liczby mnogiej.
@@ -416,6 +431,10 @@ export const wrPl: WrI18nCatalog = {
     listbox: 'Wzmianki',
     available: 'Liczba dopasowań: {{count}}',
     inserted: 'Wstawiono: {{label}}',
+  },
+  comment: {
+    send: 'Wyślij',
+    replies: 'Odpowiedzi',
   },
   drawer: {
     close: 'Zamknij panel',

@@ -403,6 +403,21 @@ export const wrHe: WrI18nCatalog = {
     taskDone: 'בוצע:',
     taskTodo: 'לביצוע:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'רווח',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   marquee: {
     label: 'כתובית נעה',
     link: 'קישור',
@@ -414,6 +429,10 @@ export const wrHe: WrI18nCatalog = {
     listbox: 'אזכורים',
     available: 'התאמות שנמצאו: {{count}}',
     inserted: 'נוסף: {{label}}',
+  },
+  comment: {
+    send: 'שליחה',
+    replies: 'תגובות',
   },
   drawer: {
     close: 'סגירת המגירה',

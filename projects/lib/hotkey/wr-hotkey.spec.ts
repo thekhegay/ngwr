@@ -1,8 +1,23 @@
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrHotkey } from './wr-hotkey';
+import { WrHotkeyBinding } from './wr-hotkey-binding';
+
+@Component({
+  imports: [WrHotkeyBinding],
+  template: `
+    @if (shown()) {
+      <button type="button" wrHotkey="mod+p" hotkeyLabel="Print">Print</button>
+      <button type="button" wrHotkey="escape">Close</button>
+    }
+  `,
+})
+class Host {
+  readonly shown = signal(true);
+}
 
 /**
  * `parse-spec.spec.ts` covers the parser — which chord a string means. This
@@ -246,6 +261,70 @@ describe('WrHotkey', () => {
       press({ key: 'j', ctrlKey: true });
 
       expect([kept.mock.calls.length, dropped.mock.calls.length]).toEqual([1, 0]);
+    });
+  });
+
+  describe('bindings', () => {
+    it('lists what is registered, in order, with the label or null', () => {
+      hotkey.bind('mod+k', vi.fn(), { label: 'Open the palette' });
+      hotkey.bind('escape', vi.fn());
+
+      expect(hotkey.bindings()).toEqual([
+        { chord: 'mod+k', label: 'Open the palette' },
+        { chord: 'escape', label: null },
+      ]);
+    });
+
+    it('keeps the chord as registered, not as parsed', () => {
+      // A cheat sheet prints the chord, and `mod` is the token the formatter
+      // turns into ⌘ or Ctrl per platform. The parsed form has lost it.
+      hotkey.bind('Mod+Shift+K', vi.fn());
+      expect(hotkey.bindings()[0].chord).toBe('Mod+Shift+K');
+    });
+
+    it('drops a binding when its handle unbinds, and only that one', () => {
+      const a = hotkey.bind('ctrl+a', vi.fn(), { label: 'A' });
+      hotkey.bind('ctrl+b', vi.fn(), { label: 'B' });
+
+      a.unbind();
+      expect(hotkey.bindings().map(b => b.label)).toEqual(['B']);
+
+      // A stale second unbind changes nothing.
+      a.unbind();
+      expect(hotkey.bindings().map(b => b.label)).toEqual(['B']);
+    });
+
+    it('lists an element-scoped binding too', () => {
+      const scoped = document.createElement('div');
+      hotkey.bind('ctrl+k', vi.fn(), { element: scoped, label: 'Scoped' });
+      expect(hotkey.bindings()).toEqual([{ chord: 'ctrl+k', label: 'Scoped' }]);
+    });
+
+    it('follows [wrHotkey]: listed while its owner lives, gone when it is destroyed', () => {
+      const fixture = TestBed.createComponent(Host);
+      fixture.detectChanges();
+
+      expect(hotkey.bindings()).toEqual([
+        { chord: 'mod+p', label: 'Print' },
+        { chord: 'escape', label: null },
+      ]);
+
+      fixture.componentInstance.shown.set(false);
+      fixture.detectChanges();
+      expect(hotkey.bindings()).toEqual([]);
+
+      fixture.componentInstance.shown.set(true);
+      fixture.detectChanges();
+      expect(hotkey.bindings().map(b => b.chord)).toEqual(['mod+p', 'escape']);
+
+      fixture.destroy();
+      expect(hotkey.bindings()).toEqual([]);
+    });
+
+    it('is empty once the injector goes', () => {
+      hotkey.bind('ctrl+k', vi.fn());
+      TestBed.resetTestingModule();
+      expect(hotkey.bindings()).toEqual([]);
     });
   });
 

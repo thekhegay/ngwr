@@ -1,13 +1,29 @@
 <ngwr-doc-page
   title="Keyboard"
-  description="A keycap for showing a keyboard shortcut."
-  [keywords]="['kbd', 'keyboard', 'keycap', 'shortcut', 'wr-kbd']"
+  updated="15.5.0"
+  description="A keycap for showing a keyboard shortcut. Give it a `chord` and it prints the whole thing the way the platform writes it."
+  [keywords]="['kbd', 'keyboard', 'keycap', 'shortcut', 'chord', 'wr-kbd']"
   [labels]="['Display']"
 >
   <ngwr-doc-section title="Basic" description="Put a plain `+` between caps for a chord.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <p>Open the command palette: <wr-kbd>⌘</wr-kbd> + <wr-kbd>K</wr-kbd></p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="From a chord"
+    description="One cap prints a `WrHotkey` chord: `⌘K` on macOS, `Ctrl+K` elsewhere, the key words from the i18n catalog. The server prints the Ctrl form and the cap switches after its first render, so hydration sees matching text."
+  >
+    <ngwr-doc-code [code]="snippets.chord" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap">
+        <wr-kbd chord="mod+k" />
+        <wr-kbd chord="mod+shift+enter" />
+        <wr-kbd chord="alt+up" />
+        <wr-kbd chord="escape" />
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

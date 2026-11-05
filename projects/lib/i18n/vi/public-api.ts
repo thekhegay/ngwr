@@ -400,6 +400,21 @@ export const wrVi: WrI18nCatalog = {
     taskDone: 'Đã xong:',
     taskTodo: 'Chưa xong:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Dấu cách',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   // Danh từ đứng trước con số — “Số kết quả phù hợp: 1” vẫn đọc đúng, vì tiếng Việt
   // không đổi dạng từ theo số lượng và bộ nội suy cũng không có luật số nhiều.
   marquee: {
@@ -410,6 +425,10 @@ export const wrVi: WrI18nCatalog = {
     listbox: 'Danh sách nhắc đến',
     available: 'Số kết quả phù hợp: {{count}}',
     inserted: 'Đã chèn: {{label}}',
+  },
+  comment: {
+    send: 'Gửi',
+    replies: 'Trả lời',
   },
   drawer: {
     close: 'Đóng bảng trượt',

@@ -10,6 +10,7 @@ import { provideWr } from 'ngwr';
 import { WrCascader, type WrCascaderOption } from 'ngwr/cascader';
 import { WrCheckbox, WrCheckboxGroup } from 'ngwr/checkbox';
 import { WrColorPicker } from 'ngwr/color-picker';
+import { WrCommentComposer } from 'ngwr/comment';
 import { withDates } from 'ngwr/date';
 import { WrDatePicker, WrDateRangePicker, type WrDateRange } from 'ngwr/date-picker';
 import { WrEditor, type WrEditorJson } from 'ngwr/editor';
@@ -48,6 +49,7 @@ type Kind =
   | 'checkbox'
   | 'checkbox-group'
   | 'color-picker'
+  | 'comment-composer'
   | 'date-picker'
   | 'date-range-picker'
   | 'editor'
@@ -95,6 +97,7 @@ interface Model {
     WrCheckbox,
     WrCheckboxGroup,
     WrColorPicker,
+    WrCommentComposer,
     WrDatePicker,
     WrDateRangePicker,
     WrEditor,
@@ -130,6 +133,9 @@ interface Model {
       }
       @case ('color-picker') {
         <wr-color-picker [formField]="f.colorPicker" />
+      }
+      @case ('comment-composer') {
+        <wr-comment-composer [formField]="f.textarea" />
       }
       @case ('date-picker') {
         <wr-date-picker [formField]="f.datePicker" />
@@ -250,6 +256,19 @@ class NoReadonlyHost {
   readonly f = form(signal({ text: '' }));
 }
 
+/**
+ * The one control with a second value type: `mode="decimal"` makes `value` a
+ * `string | null`, and the generic is inferred from the attribute, so this
+ * host compiling is the type claim and the case below is the behaviour.
+ */
+@Component({
+  imports: [FormField, WrInputNumber],
+  template: `<wr-input-number mode="decimal" [formField]="f.amount" />`,
+})
+class DecimalHost {
+  readonly f = form(signal<{ amount: string | null }>({ amount: null }));
+}
+
 const doc = (text: string): WrEditorJson => ({
   type: 'doc',
   content: [{ type: 'paragraph', content: [{ type: 'text', text }] }],
@@ -275,6 +294,7 @@ const CASES: readonly Case[] = [
   { kind: 'checkbox', control: 'WrCheckbox' },
   { kind: 'checkbox-group', control: 'WrCheckboxGroup', values: [['a'], ['b']] },
   { kind: 'color-picker', control: 'WrColorPicker', values: ['#336699', '#993366'] },
+  { kind: 'comment-composer', control: 'WrCommentComposer', values: ['One', 'Two'] },
   { kind: 'date-picker', control: 'WrDatePicker', values: [new Date(2026, 2, 15), new Date(2026, 3, 20)] },
   {
     kind: 'date-range-picker',
@@ -374,4 +394,8 @@ describe('every public Signal Forms control, against ngtrue', () => {
       );
     });
   }
+
+  it('WrInputNumber conforms in decimal mode', async () => {
+    await assertSignalFormsControl(() => TestBed.createComponent(DecimalHost), { values: ['3.10', '7.25'] });
+  });
 });

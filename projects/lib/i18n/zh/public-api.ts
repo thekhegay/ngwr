@@ -383,6 +383,21 @@ export const wrZh: WrI18nCatalog = {
     taskDone: '已完成：',
     taskTodo: '待办：',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: '空格',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   marquee: {
     label: '跑马灯',
     link: '链接',
@@ -391,6 +406,10 @@ export const wrZh: WrI18nCatalog = {
     listbox: '提及',
     available: '匹配项：{{count}}',
     inserted: '已插入：{{label}}',
+  },
+  comment: {
+    send: '发送',
+    replies: '回复',
   },
   drawer: {
     close: '关闭抽屉',

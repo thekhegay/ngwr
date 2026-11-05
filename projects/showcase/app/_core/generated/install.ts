@@ -219,6 +219,9 @@ export const INSTALL = {
   "reference/components/command-palette": [
       { path: "ngwr/command-palette", symbols: ["WrCommandPalette"], declarables: ["WrCommandPalette"], styled: true },
   ],
+  "reference/components/comment": [
+      { path: "ngwr/comment", symbols: ["WrComment", "WrCommentComposer"], declarables: ["WrComment", "WrCommentComposer"], styled: true },
+  ],
   "reference/components/compare": [
       { path: "ngwr/compare", symbols: ["WrCompare"], declarables: ["WrCompare"], styled: true },
   ],
@@ -462,7 +465,7 @@ export const INSTALL = {
       { path: "ngwr/density", symbols: ["WrDensity", "WrDensityDirective", "wrDensityPrePaintScript"], declarables: ["WrDensityDirective"], styled: true },
   ],
   "reference/services/hotkey": [
-      { path: "ngwr/hotkey", symbols: ["WrHotkey"], declarables: [], styled: false },
+      { path: "ngwr/hotkey", symbols: ["WrHotkey", "wrFormatChord"], declarables: [], styled: false },
   ],
   "reference/services/i18n": [
       { path: "ngwr/i18n", symbols: ["WrI18n", "WrTDirective", "WrTPipe"], declarables: ["WrTDirective", "WrTPipe"], styled: false },
@@ -487,6 +490,19 @@ export const INSTALL = {
   ],
   "reference/services/tour": [
       { path: "ngwr/tour", symbols: ["WrTour"], declarables: [], styled: true },
+  ],
+  "reference/utils/wr-decimal": [
+      { path: "ngwr/input-number", symbols: ["WrInputNumber"], declarables: ["WrInputNumber"], styled: true },
+      { path: "ngwr/utils", symbols: ["wrDecimalAdd"], declarables: [], styled: false },
+  ],
+  "reference/utils/wr-poll": [
+      { path: "ngwr/platform", symbols: ["wrPoll"], declarables: [], styled: false },
+  ],
+  "reference/utils/wr-query-param": [
+      { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
+      { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
+      { path: "ngwr/pagination", symbols: ["WrPagination"], declarables: ["WrPagination"], styled: true },
+      { path: "ngwr/utils/router", symbols: ["wrQueryParam"], declarables: [], styled: false },
   ],
   "reference/validators/card-number": [
       { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },

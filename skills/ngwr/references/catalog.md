@@ -113,6 +113,8 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/color-picker/testing` | `import { WrColorPickerHarness } from 'ngwr/color-picker/testing'` | — |
 | `ngwr/command-palette` | `import { WrCommandPalette } from 'ngwr/command-palette'` | `wr-command-palette` |
 | `ngwr/command-palette/testing` | `import { WrCommandPaletteGroupHarness } from 'ngwr/command-palette/testing'` | — |
+| `ngwr/comment` | `import { WrComment } from 'ngwr/comment'` | `wr-comment-composer` `wr-comment` |
+| `ngwr/comment/testing` | `import { WrCommentComposerHarness } from 'ngwr/comment/testing'` | — |
 | `ngwr/compare` | `import { WrCompare } from 'ngwr/compare'` | `wr-compare` |
 | `ngwr/context-menu` | `import { WrContextMenu } from 'ngwr/context-menu'` | `wr-context-menu-divider` `wr-context-menu-item` `wr-context-menu` `[wrContextMenu]` |
 | `ngwr/context-menu/testing` | `import { WrContextMenuHarness } from 'ngwr/context-menu/testing'` | — |
@@ -247,6 +249,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/tree/testing` | `import { WrTreeHarness } from 'ngwr/tree/testing'` | — |
 | `ngwr/typography` | `import { WrTypography } from 'ngwr/typography'` | `[wrTypography]` |
 | `ngwr/utils` | `import { isDefined } from 'ngwr/utils'` | — |
+| `ngwr/utils/router` | `import { wrQueryParam } from 'ngwr/utils/router'` | — |
 | `ngwr/validators` | `import { WrValidators } from 'ngwr/validators'` | — |
 | `ngwr/version` | `import { NGWR_VERSION } from 'ngwr/version'` | — |
 | `ngwr/virtual-scroll` | `import { WrVirtualScroll } from 'ngwr/virtual-scroll'` | `wr-virtual-scroll` |

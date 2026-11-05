@@ -17,8 +17,8 @@ import { expectCatalogContract } from '../catalog-contract';
  * letters (`X` `Y`, as in «ось X»), the box plot's quartiles (`Q1` `Q3`), and a bare
  * numeric ratio with no words in it.
  *
- * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Russian
- * keyboard prints.
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) and the `kbd` key names
+ * are what a Russian keyboard prints; only the space bar has a word.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -38,6 +38,18 @@ const SHARED_WITH_ENGLISH = new Set([
   'editor.keyCtrl',
   'editor.keyShift',
   'editor.keyAlt',
+  'kbd.ctrl',
+  'kbd.shift',
+  'kbd.alt',
+  'kbd.enter',
+  'kbd.esc',
+  'kbd.tab',
+  'kbd.backspace',
+  'kbd.delete',
+  'kbd.home',
+  'kbd.end',
+  'kbd.pageUp',
+  'kbd.pageDown',
   'scatterChart.x',
   'scatterChart.y',
   'boxplotChart.q1',

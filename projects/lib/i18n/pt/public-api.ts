@@ -389,6 +389,21 @@ export const wrPt: WrI18nCatalog = {
     taskDone: 'Concluído:',
     taskTodo: 'Por fazer:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Espaço',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   marquee: {
     // Not "texto deslizante": the strip carries logos and images as often as
     // words, and this is the region's accessible name.
@@ -399,6 +414,10 @@ export const wrPt: WrI18nCatalog = {
     listbox: 'Menções',
     available: 'Correspondências disponíveis: {{count}}',
     inserted: 'Inserido: {{label}}',
+  },
+  comment: {
+    send: 'Enviar',
+    replies: 'Respostas',
   },
   drawer: {
     close: 'Fechar painel lateral',

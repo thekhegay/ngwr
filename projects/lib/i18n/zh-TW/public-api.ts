@@ -392,6 +392,21 @@ export const wrZhTw: WrI18nCatalog = {
     taskDone: '已完成：',
     taskTodo: '待完成：',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: '空白鍵',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   marquee: {
     label: '跑馬燈',
     link: '連結',
@@ -400,6 +415,10 @@ export const wrZhTw: WrI18nCatalog = {
     listbox: '提及',
     available: '相符項目：{{count}}',
     inserted: '已插入：{{label}}',
+  },
+  comment: {
+    send: '傳送',
+    replies: '回覆',
   },
   drawer: {
     close: '關閉面板',

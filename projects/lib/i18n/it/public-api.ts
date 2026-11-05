@@ -396,6 +396,21 @@ export const wrIt: WrI18nCatalog = {
     taskDone: 'Fatto:',
     taskTodo: 'Da fare:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Maiusc',
+    alt: 'Alt',
+    enter: 'Invio',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Spazio',
+    backspace: 'Backspace',
+    delete: 'Canc',
+    home: 'Home',
+    end: 'Fine',
+    pageUp: 'Pag su',
+    pageDown: 'Pag giù',
+  },
   // Sostantivo davanti — «Inserito: Ada» — e conteggio in coda: l'interpolatore
   // non concorda genere né numero, quindi «Risultati disponibili: 1» deve restare
   // corretto quanto «Risultati disponibili: 12».
@@ -407,6 +422,10 @@ export const wrIt: WrI18nCatalog = {
     listbox: 'Menzioni',
     available: 'Risultati disponibili: {{count}}',
     inserted: 'Inserito: {{label}}',
+  },
+  comment: {
+    send: 'Invia',
+    replies: 'Risposte',
   },
   drawer: {
     close: 'Chiudi il pannello',

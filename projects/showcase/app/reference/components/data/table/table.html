@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="15.0.0"
+  updated="15.5.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table']"
   [labels]="['Component', 'Directive']"
@@ -74,6 +74,46 @@
     description='`let-value` is the cell value and `let-row="item"` the row. A bare `let-row` binds the value again.'
   >
     <ngwr-doc-code [code]="snippets.cellContext" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Align, format and empty"
+    description="Three column keys shape a plain cell: `align` places it, `format` writes it from the value and the row, `empty` stands in for a missing value."
+  >
+    <ngwr-doc-snippet [code]="snippets.columnKeys">
+      <div style="width: 100%">
+        <wr-table [columns]="invoiceColumns" [items]="invoices" />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        <code>align: 'end'</code> is for numbers: it also sets tabular digits. The header, the body and the summary row
+        follow it, and <code>end</code> flips under RTL.
+      </li>
+      <li>
+        <code>empty</code> shows for <code>null</code>, <code>undefined</code> and <code>''</code>, and
+        <code>format</code> is not called then. <code>0</code> and <code>false</code> are values.
+      </li>
+      <li>
+        A <code>[wrTableCell]</code> template owns its cell, so neither applies on screen. <code>toCsv()</code> writes
+        <code>format</code> and <code>empty</code> either way.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Typed rows" description="Name the row type once and it reaches every column and template.">
+    <ngwr-doc-code [code]="snippets.typedRows" language="angular-ts" />
+    <ul>
+      <li>
+        <code>WrTableColumns&lt;Invoice&gt;</code> types the row <code>format</code> receives, and binds only to
+        <code>Invoice</code> items. A bare <code>WrTableColumns</code> binds anywhere, as before.
+      </li>
+      <li>
+        <code>[wrTableCellOf]</code> names the rows for a template: <code>let-row="item"</code> is an
+        <code>Invoice</code> and <code>let-value</code> the field under the column key. The type checker reads it; the
+        table does not. Without it both stay <code>any</code>.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -205,6 +245,18 @@
     <ngwr-doc-snippet code="">
       <div style="width: 100%">
         <wr-table [columns]="summaryColumns" [items]="summaryRows" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Decimal summaries"
+    description="A column of decimal strings is summed as digits through `wrDecimal`, with no float error, and the footer is a string: `'0.1'` and `'0.2'` give `'0.3'`. A number column keeps the engine's arithmetic. `avg` divides at the widest scale among the cells, never fewer than two places, half away from zero."
+  >
+    <ngwr-doc-code [code]="snippets.decimalSummary" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table [columns]="decimalColumns" [items]="decimalRows" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

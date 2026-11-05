@@ -14,8 +14,8 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 191 of 203 declarations are mapped: 0 carry no selector and
- * 12 are internal classes no entry point publishes. A deliberate subset,
+ * 193 of 206 declarations are mapped: 0 carry no selector and
+ * 13 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
 
@@ -70,6 +70,8 @@ export const SELECTORS = {
     "wr-collapse-group": { symbol: "WrCollapseGroup", path: "ngwr/collapse" },
     "wr-color-picker": { symbol: "WrColorPicker", path: "ngwr/color-picker" },
     "wr-command-palette": { symbol: "WrCommandPalette", path: "ngwr/command-palette" },
+    "wr-comment": { symbol: "WrComment", path: "ngwr/comment" },
+    "wr-comment-composer": { symbol: "WrCommentComposer", path: "ngwr/comment" },
     "wr-compare": { symbol: "WrCompare", path: "ngwr/compare" },
     "wr-context-menu": { symbol: "WrContextMenuPanel", path: "ngwr/context-menu" },
     "wr-context-menu-divider": { symbol: "WrContextMenuDivider", path: "ngwr/context-menu" },
@@ -302,6 +304,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/collapse",
   "ngwr/color-picker",
   "ngwr/command-palette",
+  "ngwr/comment",
   "ngwr/compare",
   "ngwr/context-menu",
   "ngwr/counter",

@@ -385,6 +385,21 @@ export const wrId: WrI18nCatalog = {
     taskDone: 'Selesai:',
     taskTodo: 'Belum selesai:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Spasi',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   marquee: {
     label: 'Teks berjalan',
     link: 'tautan',
@@ -393,6 +408,10 @@ export const wrId: WrI18nCatalog = {
     listbox: 'Sebutan',
     available: 'Jumlah kecocokan: {{count}}',
     inserted: 'Disisipkan: {{label}}',
+  },
+  comment: {
+    send: 'Kirim',
+    replies: 'Balasan',
   },
   drawer: {
     close: 'Tutup panel',

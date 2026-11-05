@@ -385,6 +385,21 @@ export const wrEs: WrI18nCatalog = {
     taskDone: 'Hecho:',
     taskTodo: 'Pendiente:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Mayús',
+    alt: 'Alt',
+    enter: 'Intro',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Espacio',
+    backspace: 'Retroceso',
+    delete: 'Supr',
+    home: 'Inicio',
+    end: 'Fin',
+    pageUp: 'Re Pág',
+    pageDown: 'Av Pág',
+  },
   marquee: {
     label: 'Contenido en movimiento',
     link: 'enlace',
@@ -393,6 +408,10 @@ export const wrEs: WrI18nCatalog = {
     listbox: 'Menciones',
     available: 'Coincidencias disponibles: {{count}}',
     inserted: 'Insertado: {{label}}',
+  },
+  comment: {
+    send: 'Enviar',
+    replies: 'Respuestas',
   },
   drawer: {
     close: 'Cerrar el panel lateral',

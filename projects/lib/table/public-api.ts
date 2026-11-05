@@ -7,6 +7,7 @@ export { WrTableFilter } from './table-filter';
 export type {
   WrTableCellContext,
   WrTableColumn,
+  WrTableColumnAlign,
   WrTableColumns,
   WrTableCsvOptions,
   WrTableExpandContext,

@@ -30,14 +30,14 @@ import {
 export default class StorageServicePage {
   private readonly store = inject(WrStorage);
 
-  /** Reactive read — auto-updates on writes from this tab or cross-tab. */
-  protected readonly visits = this.store.watch<number>('demo:visits', 0);
+  /** Writable signal: `update` stores, and writes from this tab or others follow. */
+  protected readonly visits = this.store.signal<number>('demo:visits', 0);
 
   /** TTL demo — short-lived value. */
   protected readonly note = signal<string | null>(this.store.get('demo:note'));
 
   protected bump(): void {
-    this.store.set('demo:visits', (this.visits() ?? 0) + 1);
+    this.visits.update(n => n + 1);
   }
 
   protected stash(): void {
@@ -72,7 +72,22 @@ this.store.set('cart', items, { ttl: 60_000 }); // gone after 60 s
 this.store.has('cart'); // ignores expiry
 
 const theme = this.store.watch<'light' | 'dark'>('theme', 'light');
-effect(() => console.log('theme is', theme()));`,
+effect(() => console.log('theme is', theme()));
+
+const density = this.store.signal<'compact' | 'comfortable'>('density', 'comfortable');
+density.set('compact'); // stored, and every tab follows`,
+    signal: `// Read-only: follows writes, yours and other tabs'
+protected readonly theme = this.store.watch<'light' | 'dark'>('theme', 'light');
+
+// Writable: set() and update() store first, then the signal moves
+protected readonly density = this.store.signal<'compact' | 'comfortable'>('density', 'comfortable');
+
+protected toggle(): void {
+  this.density.update(d => (d === 'compact' ? 'comfortable' : 'compact'));
+}
+
+// Any writable signal works in a two-way binding:
+// <wr-switch [(checked)]="dense" /> with dense = this.store.signal('dense', false)`,
     format: `import type { WrStorageEnvelope } from 'ngwr/storage';
 
 // provideWr(withStorage({ prefix: 'myapp:' }))
@@ -125,6 +140,13 @@ const value = env && (env.e === undefined || env.e >= Date.now()) ? env.v : null
       description: 'Read as a signal. Follows writes from this tab and others.',
       type: '<T>(k: string, f?: T) => Signal<T | null>',
       default: '—',
+    },
+    {
+      name: 'signal(key, defaultValue)',
+      description:
+        'Read and write as a signal. `set` and `update` store the value; a failed write is logged, as in `set()`. Follows this tab and others; the default on the server.',
+      type: '<T>(k: string, d: T) => WritableSignal<T>',
+      default: '-',
     },
     {
       name: 'withStorage(options?)',

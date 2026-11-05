@@ -1,11 +1,19 @@
 <ngwr-doc-page
   title="KEYS"
-  description="`KeyboardEvent.key` constants, plus the `WrKey` union of their values."
-  [keywords]="['KEYS', 'WrKey', 'keyboard', 'utils']"
+  updated="15.5.0"
+  description="`KeyboardEvent.key` constants, the `WrKey` union of their values, and `KEY_LABELS`, what each key is called on a keycap."
+  [keywords]="['KEYS', 'KEY_LABELS', 'WrKey', 'keyboard', 'utils']"
   [labels]="['Util']"
 >
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Labels"
+    description="`KEY_LABELS` is keyed by `KEYS`: `Esc`, `Enter`, `Ctrl`, an arrow as its glyph. English, as printed on a PC keycap. `wrFormatChord` in `ngwr/hotkey` prints a whole chord from it and swaps in Apple's glyphs on macOS; `<wr-kbd>` takes the words from the i18n catalog."
+  >
+    <ngwr-doc-code [code]="labelsSnippet" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

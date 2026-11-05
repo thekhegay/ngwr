@@ -8,6 +8,7 @@ const components = ROUTES.reference.components;
 export const DISPLAY_ROUTES = [
   { path: components.avatar.path, loadComponent: () => import('./avatar/avatar') },
   { path: components.badge.path, loadComponent: () => import('./badge/badge') },
+  { path: components.comment.path, loadComponent: () => import('./comment/comment') },
   { path: components.compare.path, loadComponent: () => import('./compare/compare') },
   { path: components.counter.path, loadComponent: () => import('./counter/counter') },
   { path: components.keyboard.path, loadComponent: () => import('./keyboard/keyboard') },

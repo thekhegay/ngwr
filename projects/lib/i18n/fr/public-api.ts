@@ -398,6 +398,21 @@ export const wrFr: WrI18nCatalog = {
     taskDone: 'Fait :',
     taskTodo: 'À faire :',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Maj',
+    alt: 'Alt',
+    enter: 'Entrée',
+    esc: 'Échap',
+    tab: 'Tab',
+    space: 'Espace',
+    backspace: 'Retour arrière',
+    delete: 'Suppr',
+    home: 'Début',
+    end: 'Fin',
+    pageUp: 'Page précédente',
+    pageDown: 'Page suivante',
+  },
   // Le nom d'abord — « Inséré : Ada », et non « Ada insérée » : le genre du nom
   // est inconnu à l'avance et l'interpolateur ne sait pas l'accorder. Même raison
   // pour le compteur, qui reste juste au singulier comme au pluriel.
@@ -412,6 +427,10 @@ export const wrFr: WrI18nCatalog = {
     // à ne pas remplacer par une espace ordinaire.
     available: 'Correspondances disponibles : {{count}}',
     inserted: 'Inséré : {{label}}',
+  },
+  comment: {
+    send: 'Envoyer',
+    replies: 'Réponses',
   },
   drawer: {
     close: 'Fermer le panneau',

@@ -367,6 +367,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/speed-dial',
     'reference/components/toolbar',
     'reference/components/segmented',
+    'reference/utils/wr-action',
   ],
   'reference/components/button-group': [
     'reference/components/button',
@@ -549,6 +550,13 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/descriptions',
     'reference/components/pagination',
   ],
+  'reference/components/comment': [
+    'reference/components/avatar',
+    'reference/components/textarea',
+    'reference/components/timeline',
+    'reference/components/mention',
+    'reference/pipes/wr-date',
+  ],
   'reference/components/mention': [
     'reference/components/textarea',
     'reference/components/select',
@@ -673,6 +681,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/list',
     'reference/components/descriptions',
     'reference/components/empty',
+    'reference/utils/wr-download-blob',
     'guides/mobile',
   ],
   'reference/components/tabs': [
@@ -854,6 +863,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   ],
   'reference/services/meta': ['guides/ssr', 'docs/configuration', 'reference/services/i18n'],
   'reference/services/platform': [
+    'reference/utils/wr-poll',
     'guides/ssr',
     'guides/mobile',
     'reference/components/pull-to-refresh',
@@ -949,7 +959,18 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/avatar',
     'reference/utils/num-attr',
   ],
-  'reference/utils/round': ['reference/utils/clamp', 'reference/pipes/wr-number', 'reference/components/input-number'],
+  'reference/utils/round': [
+    'reference/utils/clamp',
+    'reference/utils/wr-decimal',
+    'reference/pipes/wr-number',
+    'reference/components/input-number',
+  ],
+  'reference/utils/wr-decimal': [
+    'reference/utils/round',
+    'reference/components/input-number',
+    'reference/components/table',
+    'reference/pipes/wr-number',
+  ],
   'reference/utils/throttle': ['reference/utils/debounce'],
   'reference/utils/to-class-list': [
     'guides/theming',

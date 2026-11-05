@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Select"
-  updated="15.3.0"
+  updated="15.5.0"
   description="Pick one or several values from a list, with search and free-text tags."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'CDK Overlay']"
@@ -365,6 +365,23 @@
   >
     <ngwr-doc-code [code]="snippets.identity" language="angular-html" />
     <ngwr-doc-code [code]="snippets.identityTs" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Typed values"
+    description="`T` is an option's value, inferred from `[options]`, `[loader]` or the value you bind."
+  >
+    <ngwr-doc-code [code]="snippets.typed" language="angular-ts" />
+    <ul>
+      <li>
+        <code>value</code> is <code>T | readonly T[] | null</code>: one <code>T</code> in single and search mode, an
+        array in multi and tag mode. The mode is a runtime input, so narrow <code>(valueChange)</code> yourself.
+      </li>
+      <li>
+        A projected <code>&lt;wr-option&gt;</code> keeps <code>value: unknown</code>: it cannot see the select's
+        <code>T</code>.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Select API">

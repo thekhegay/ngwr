@@ -395,6 +395,21 @@ export const wrRu: WrI18nCatalog = {
     taskDone: 'Сделано:',
     taskTodo: 'Не сделано:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'Пробел',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   // Существительное впереди — «Вставлено: Ада», а не «Ада вставлена»: род имени
   // заранее неизвестен, а интерполятор согласовывать его не умеет. По той же
   // причине счётчик без склонения — форм множественного числа в нём нет.
@@ -406,6 +421,10 @@ export const wrRu: WrI18nCatalog = {
     listbox: 'Упоминания',
     available: 'Найдено совпадений: {{count}}',
     inserted: 'Вставлено: {{label}}',
+  },
+  comment: {
+    send: 'Отправить',
+    replies: 'Ответы',
   },
   drawer: {
     close: 'Закрыть панель',

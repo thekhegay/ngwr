@@ -29,6 +29,8 @@ export default class InputNumberPageComponent {
   protected readonly price = signal<number | null>(199.99);
   protected readonly weight = signal<number | null>(2.5);
   protected readonly noSteppers = signal<number | null>(42);
+  protected readonly amount = signal<string | null>('0.2');
+  protected readonly cents = signal<string | null>('19.99');
 
   protected readonly snippets = {
     basic: `<wr-input-number [(value)]="value" />`,
@@ -38,6 +40,11 @@ export default class InputNumberPageComponent {
     price: `<wr-input-number [(value)]="price" prefix="$" [decimals]="2" />`,
 
     weight: `<wr-input-number [(value)]="weight" suffix="kg" [decimals]="1" [step]="0.1" />`,
+
+    decimal: `readonly amount = signal<string | null>('0.2');
+
+<wr-input-number mode="decimal" [(value)]="amount" [step]="0.1" />
+<wr-input-number mode="decimal" [(value)]="price" prefix="$" [decimals]="2" />`,
 
     noSteppers: `<wr-input-number [(value)]="value" [showSteppers]="false" />`,
   };

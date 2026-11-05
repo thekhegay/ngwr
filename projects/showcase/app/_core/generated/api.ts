@@ -366,6 +366,31 @@ export const API = {
     { name: "debounceMs", description: "How long the query must settle before {@link searchChange} fires, in ms. A search request per keystroke is what exhausts a metered search backend: typing `select` is six requests at 0 and roughly one at 250.", type: "number", default: "250" },
     { name: "(searchChange)", description: "The settled query. This is the hook for a server-backed palette: dispatch on it, then feed the result into `[items]` with `[serverSearch]` set. Fires on the {@link debounceMs} cadence, NOT per keystroke — `queryChange` is the per-keystroke signal if that is what you want.", type: "string" },
   ],
+  // <wr-comment>
+  WrComment: [
+    { name: "author", description: "Who wrote it. Also the article's accessible name. Leave it empty when a `[wrCommentAuthor]` element draws the name instead.", type: "string", default: "''" },
+    { name: "time", description: "When it was written, already formatted: the component does no date formatting. Run a `Date` through the `wrDate` pipe on the way in.", type: "string", default: "''" },
+    { name: "datetime", description: "The same moment, machine-readable. With it the time renders as a `<time datetime>`: a `Date` is written as ISO 8601, a string as given.", type: "Date | string | null", default: "null" },
+    { name: "variant", description: "`row` is a discussion entry; `bubble` is a chat message, which takes no replies.", type: "WrCommentVariant", default: "'row'" },
+    { name: "side", description: "Which inline side a bubble sits on. `end` is the reader's own message. Ignored by the `row` variant.", type: "WrCommentSide", default: "'start'" },
+    { name: "repliesLabel", description: "Accessible name of the replies group. Falls back to `comment.replies`, then `'Replies'`.", type: "string | null", default: "null" },
+  ],
+  // <wr-comment-composer>
+  WrCommentComposer: [
+    { name: "placeholder", description: "Native placeholder text.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name for the field. Falls back to the placeholder: the native `<textarea>` lives inside the component, so a `<label for>` outside cannot reach it.", type: "string | null", default: "null" },
+    { name: "sendLabel", description: "Accessible name of the send button. Falls back to `comment.send`, then `'Send'`.", type: "string | null", default: "null" },
+    { name: "rows", description: "Visible row count while the field is empty.", type: "number", default: "1" },
+    { name: "maxRows", description: "Rows the field grows to before it scrolls on its own.", type: "number", default: "6" },
+    { name: "disabled", description: "Disable the field and the button. Bound automatically from the field's disabled state when used with `[formField]`. The text is kept.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Read-only state: the text is shown and announced, keeps its tab stop and cannot be edited or sent.", type: "boolean", default: "false" },
+    { name: "sending", description: "A send is in flight: the button is disabled, the host is `aria-busy` and Enter does nothing. The field stays editable and the text is kept.", type: "boolean", default: "false" },
+    { name: "enterSends", description: "`true`: Enter sends and Shift+Enter adds a line. `false`: Enter adds a line and only Ctrl+Enter or Cmd+Enter sends.", type: "boolean", default: "true" },
+    { name: "clearOnSend", description: "Clear the field before `send` emits. With `false` the text stays until the app clears the model itself.", type: "boolean", default: "true" },
+    { name: "value", description: "The draft. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "(send)", description: "The trimmed text, once per send. Where it goes is the app's business.", type: "string" },
+  ],
   // <wr-compare>
   WrCompare: [
     { name: "position", description: "Divider position as a percentage (0–100). Two-way bindable.", type: "number", default: "50" },
@@ -492,6 +517,10 @@ export const API = {
   // <[wrDialogClose]>
   WrDialogClose: [
     { name: "wrDialogClose", description: "Value to pass to `close()`. When unset — or used as a bare attribute — the dialog closes with `undefined`.", type: "R | undefined", default: "undefined" },
+  ],
+  // <[wrDialogContent]>
+  WrDialogContent: [
+    { name: "id", description: "The element's id, generated unless given. An `alertdialog` names it in `aria-describedby`.", type: "string", default: "`wr-dialog-content-${++uid}`" },
   ],
   // <[wrDialogFooter]>
   WrDialogFooter: [
@@ -742,6 +771,7 @@ export const API = {
     { name: "scoped", description: "Scope the binding to the host element instead of `document`.", type: "boolean", default: "false" },
     { name: "allowInInput", description: "Fire even when an input / textarea has focus.", type: "boolean", default: "false" },
     { name: "preventDefault", description: "Suppress the default action when the binding fires.", type: "boolean", default: "true" },
+    { name: "hotkeyLabel", description: "What the shortcut does, listed by `WrHotkey.bindings` for a cheat sheet.", type: "string | null", default: "null" },
     { name: "(wrHotkeyMatch)", description: "Emits the original KeyboardEvent on match.", type: "KeyboardEvent" },
   ],
   // <wr-icon>
@@ -771,8 +801,9 @@ export const API = {
   ],
   // <wr-input-number>
   WrInputNumber: [
-    { name: "min", description: "Minimum allowed value.", type: "number | undefined", default: "-Infinity" },
-    { name: "max", description: "Maximum allowed value.", type: "number | undefined", default: "Infinity" },
+    { name: "mode", description: "What `value` holds. `'number'` is the engine's double. `'decimal'` keeps the typed digits exact as a canonical string (`'1234.56'`: a `.` for the point, no grouping), reads a decimal comma and pasted spaces, and steps, clamps and rounds through `wrDecimal` from `ngwr/utils`, so `0.2` stepped by `0.1` is `'0.3'`. A lone `.` or `,` is read in the locale's role: its decimal separator is a point, its grouping character is grouping when exactly three digits follow it (`1,234` in en-US is `'1234'`, but `0,125` is `'0.125'`) and a point otherwise. With both present, the last one is the point: `1,234.56` and `1.234,56` are `'1234.56'`. Grouping comes in threes, so `1.2.3` is unreadable and the committed value stays, as it does for any text the field cannot read.", type: "M", default: "'number'" },
+    { name: "min", description: "Minimum allowed value, a number in either mode.", type: "NonNullable<WrInputNumberValue<M>> | undefined", default: "-Infinity" },
+    { name: "max", description: "Maximum allowed value, a number in either mode.", type: "NonNullable<WrInputNumberValue<M>> | undefined", default: "Infinity" },
     { name: "step", description: "Step used by stepper buttons + arrow keys.", type: "number", default: "1" },
     { name: "decimals", description: "Fixed number of decimals. Rounds the value as it is COMMITTED, and fixes the digits shown once the field reformats on blur. `null` keeps the entered precision and formats with up to 20. Clamped to 0–100, the range `Intl.NumberFormat`'s `minimumFractionDigits` / `maximumFractionDigits` accept — because it is the one numeric input on this component that had no transform, and the value goes straight into the formatter, which THROWS a `RangeError` outside that range rather than degrading. A `[decimals]=\"-1\"` bound from a config object took the whole component down on blur.", type: "number | null", default: "null" },
     { name: "showSteppers", description: "Render the ▲▼ stepper column.", type: "boolean", default: "true" },
@@ -786,7 +817,7 @@ export const API = {
     { name: "decrementLabel", description: "Decrement button aria-label. Falls back to `inputNumber.decrement`.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "readonly", description: "Read-only — values cannot be changed (steppers + typing disabled).", type: "boolean", default: "false" },
-    { name: "value", description: "Numeric value (`null` when empty). Bound by `[formField]`, or two-way via `[(value)]`.", type: "number | null", default: "null" },
+    { name: "value", description: "The value, `null` when empty: a `number` in `'number'` mode, a canonical decimal string in `'decimal'` mode. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrInputNumberValue<M>", default: "null" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-input-otp>
@@ -813,6 +844,7 @@ export const API = {
   // <wr-kbd>
   WrKbd: [
     { name: "size", description: "Visual size variant.", type: "WrKbdSize", default: "'md'" },
+    { name: "chord", description: "A chord to print in place of the content: `'mod+k'`.", type: "WrHotkeySpec | null", default: "null" },
   ],
   // <wr-knob>
   WrKnob: [
@@ -1151,9 +1183,9 @@ export const API = {
     { name: "mode", description: "Behavior mode. `<wr-select>` is the unified combobox primitive — pick the shape via `[mode]`: - `'single'` (default) — one value, no input. Classic dropdown. - `'multi'` — array value, chips on the trigger. - `'search'` — type-ahead with sync filter or async loader. - `'tag'` — free-text + chips.", type: "WrSelectMode | null", default: "null" },
     { name: "searchable", description: "Add a type-ahead filter without changing the value shape — the missing multi-with-search combination, since `[mode]` picks exactly one shape: ```html <wr-select mode=\"multi\" searchable [(value)]=\"categories\">…</wr-select> ``` On `multi` the trigger keeps its chips and grows an inline text field (the shape `tag` mode already uses); on `single` it is equivalent to `mode=\"search\"`. Every search input (`[options]`, `[loader]`, `[debounceMs]`, `[minChars]`, `[virtualScroll]`, the `(searchChange)` output, …) applies either way. Ignored in `tag` mode, which owns its own input.", type: "boolean", default: "false" },
     { name: "searchQuery", description: "The live search query. Empty string = no filter. Exposed via context so each `<wr-option>` can self-hide non-matching rows. Two-way bindable, so the query can be owned or reset from outside: `[(searchQuery)]=\"query\"`. For server-side search prefer the debounced {@link searchChange} output — `searchQueryChange` fires on every keystroke.", type: "string", default: "''" },
-    { name: "options", description: "Search mode: dynamic option array. Each item is rendered as a `<wr-option>` whose label comes from `[displayWith]`. Works alongside projected `<wr-option>` children — both lists are filtered by the search query.", type: "readonly unknown[]", default: "[]" },
-    { name: "displayWith", description: "Search mode: map a dynamic option item to its display label.", type: "(item: unknown) => string", default: "String" },
-    { name: "loader", description: "Search mode: async loader. When set, the loader is called on every (debounced) keystroke and its result replaces `[options]`. Supports Observables, Promises, and plain arrays.", type: "WrSelectSearchLoader<unknown> | null", default: "null" },
+    { name: "options", description: "Search mode: dynamic option array. Each item is rendered as a `<wr-option>` whose label comes from `[displayWith]`. Works alongside projected `<wr-option>` children — both lists are filtered by the search query.", type: "readonly T[]", default: "[]" },
+    { name: "displayWith", description: "Search mode: map a dynamic option item to its display label.", type: "(item: T) => string", default: "String" },
+    { name: "loader", description: "Search mode: async loader. When set, the loader is called on every (debounced) keystroke and its result replaces `[options]`. Supports Observables, Promises, and plain arrays.", type: "WrSelectSearchLoader<T> | null", default: "null" },
     { name: "serverSearch", description: "The option list is already scoped to the query upstream — skip the built-in client-side label filter. Set it when `[options]` is fed from a server via the {@link searchChange} output; the async `[loader]` path implies it. Without this, a server that ranks or fuzzy-matches (returning rows whose labels don't literally contain the query) would have those rows hidden again on the client.", type: "boolean", default: "false" },
     { name: "debounceMs", description: "Search mode: debounce (ms) applied to the loader.", type: "number", default: "250" },
     { name: "minChars", description: "Search mode: minimum query length before the panel opens / loader fires.", type: "number", default: "0" },
@@ -1176,7 +1208,7 @@ export const API = {
     { name: "panelClass", description: "Extra CSS classes for the dropdown panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array. The pane is a positioning wrapper carrying the gap above the list; the box that paints is `.wr-select-panel` inside it, so a rule meant for the surface reads `.my-class .wr-select-panel`.", type: "WrClassInput", default: "null" },
     { name: "maxItems", description: "Cap on selected items (multi mode). `0` = unlimited. Once reached, the unselected options are marked unavailable — `aria-disabled` and the disabled look — and refuse a pick until one is removed.", type: "number", default: "0" },
     { name: "maxTagCount", description: "Maximum number of chips rendered before collapsing the rest into a `+N more` indicator. `0` = render every chip.", type: "number", default: "0" },
-    { name: "value", description: "Unified value. Single mode holds a scalar (or `null`); multi / tag mode holds `readonly unknown[]`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown", default: "null" },
+    { name: "value", description: "Unified value. Single mode holds a scalar (or `null`); multi / tag mode holds `readonly T[]`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "T | readonly T[] | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur / commit so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-shiny-text>
@@ -1376,8 +1408,8 @@ export const API = {
   ],
   // <wr-table>
   WrTable: [
-    { name: "columns", description: "Column definitions, keyed by row property name.", type: "WrTableColumns", required: true },
-    { name: "items", description: "Row items. `null`/`undefined` renders the empty state; use `[loading]` for the spinner. Typed `WrTableRow` (= `object`) rather than `Record<string, unknown>`, so an array of an `interface` binds as readily as an array of a `type` — see {@link WrTableRow} for why those two are not the same to TypeScript.", type: "readonly WrTableRow[] | null | undefined", default: "null" },
+    { name: "columns", description: "Column definitions, keyed by row property name. Typed against the row `[items]` carries, so a column's `format` sees it: `WrTableColumns<User>` binds to `[items]=\"users\"` and to nothing else, while a bare `WrTableColumns` still binds anywhere.", type: "WrTableColumns<T>", required: true },
+    { name: "items", description: "Row items. `null`/`undefined` renders the empty state; use `[loading]` for the spinner. `T` is inferred from here, and it is constrained to `WrTableRow` (= `object`) rather than `Record<string, unknown>`, so an array of an `interface` binds as readily as an array of a `type` — see {@link WrTableRow} for why those two are not the same to TypeScript.", type: "readonly T[] | null | undefined", default: "null" },
     { name: "loading", description: "Show the loading spinner overlay.", type: "boolean", default: "false" },
     { name: "responsive", description: "Collapse each row to a labelled card when the table's own box is too narrow for columns (a container query on its own width, not the viewport). Every cell shows its column title as a label.", type: "boolean", default: "false" },
     { name: "reorderable", description: "Enable drag-to-reorder on the column headers.", type: "boolean", default: "false" },
@@ -1414,7 +1446,8 @@ export const API = {
   ],
   // <[wrTableCell]>
   WrTableCell: [
-    { name: "wrTableCell", description: "Column key the template applies to.", type: "string", required: true },
+    { name: "wrTableCell", description: "Column key the template applies to.", type: "K", required: true },
+    { name: "wrTableCellOf", description: "The rows the template draws, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.", type: "readonly T[] | null | undefined", default: "undefined" },
   ],
   // <wr-table-filter>
   WrTableFilter: [

@@ -387,6 +387,21 @@ export const wrHi: WrI18nCatalog = {
     taskDone: 'पूरा हुआ:',
     taskTodo: 'करना बाकी:',
   },
+  kbd: {
+    ctrl: 'Ctrl',
+    shift: 'Shift',
+    alt: 'Alt',
+    enter: 'Enter',
+    esc: 'Esc',
+    tab: 'Tab',
+    space: 'स्पेस',
+    backspace: 'Backspace',
+    delete: 'Delete',
+    home: 'Home',
+    end: 'End',
+    pageUp: 'Page Up',
+    pageDown: 'Page Down',
+  },
   marquee: {
     label: 'चलती पट्टी',
     link: 'लिंक',
@@ -395,6 +410,10 @@ export const wrHi: WrI18nCatalog = {
     listbox: 'मेंशन',
     available: 'उपलब्ध मिलान: {{count}}',
     inserted: 'जोड़ा गया: {{label}}',
+  },
+  comment: {
+    send: 'भेजें',
+    replies: 'उत्तर',
   },
   drawer: {
     close: 'ड्रॉअर बंद करें',
