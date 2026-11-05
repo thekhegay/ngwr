@@ -491,6 +491,12 @@ export const INSTALL = {
   "reference/utils/wr-poll": [
       { path: "ngwr/platform", symbols: ["wrPoll"], declarables: [], styled: false },
   ],
+  "reference/utils/wr-query-param": [
+      { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
+      { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
+      { path: "ngwr/pagination", symbols: ["WrPagination"], declarables: ["WrPagination"], styled: true },
+      { path: "ngwr/utils/router", symbols: ["wrQueryParam"], declarables: [], styled: false },
+  ],
   "reference/validators/card-number": [
       { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
       { path: "ngwr/validators", symbols: ["WrValidators"], declarables: [], styled: false },

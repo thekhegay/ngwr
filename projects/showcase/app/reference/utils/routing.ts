@@ -40,4 +40,5 @@ export default [
   { path: utils.wrAction.path, loadComponent: () => import('./wr-action/wr-action') },
   { path: utils.wrDownloadBlob.path, loadComponent: () => import('./wr-download-blob/wr-download-blob') },
   { path: utils.wrPoll.path, loadComponent: () => import('./wr-poll/wr-poll') },
+  { path: utils.wrQueryParam.path, loadComponent: () => import('./wr-query-param/wr-query-param') },
 ] satisfies Routes;

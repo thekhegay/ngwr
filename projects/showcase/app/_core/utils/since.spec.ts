@@ -278,6 +278,7 @@ describe('the surfaces that draw it', () => {
       'wrAction',
       'wrDownloadBlob',
       'wrPoll',
+      'wrQueryParam',
     ]);
   });
 

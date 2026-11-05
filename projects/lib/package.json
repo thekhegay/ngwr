@@ -948,6 +948,9 @@
     "./utils": {
       "default": "./utils/public-api.ts"
     },
+    "./utils/router": {
+      "default": "./utils/router/public-api.ts"
+    },
     "./validators": {
       "default": "./validators/public-api.ts"
     },

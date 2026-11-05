@@ -305,6 +305,7 @@ export const ROUTES = {
       wrAction: { path: 'wr-action', title: 'wrAction' },
       wrDownloadBlob: { path: 'wr-download-blob', title: 'wrDownloadBlob' },
       wrPoll: { path: 'wr-poll', title: 'wrPoll' },
+      wrQueryParam: { path: 'wr-query-param', title: 'wrQueryParam' },
     },
     validators: {
       path: 'validators',
