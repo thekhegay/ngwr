@@ -6,10 +6,6 @@
 
 ## Medium
 
-- **`--wr-border-base` as a fill**: `prefers-contrast: more` darkens this token so
-  borders stay visible, which also darkens any fill mixed from it, and the text on
-  that fill loses contrast. Check what the chart stylesheets mix from it, move each
-  fill to a `--wr-color-fill*` role, and measure.
 - **`exportAs` on directives**: most public directives have none, so a template
   cannot write `#x="wrFoo"`. Add one to each public directive with state or methods
   a template would call, named after the selector.
