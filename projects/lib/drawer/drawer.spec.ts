@@ -1,5 +1,5 @@
 import { Dir, type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -634,5 +634,35 @@ describe('WrDrawer follows the application, not a scoped [dir] island', () => {
     await fixture.whenStable();
 
     expect(wrapper().getAttribute('dir')).toBe('rtl');
+  });
+});
+
+/**
+ * Without `exportAs` a template cannot reach the directive at all -
+ * `#t="wrDrawerTitle"` fails to compile rather than resolving to nothing - so
+ * mounting the host is half the assertion. The other half is that the reference
+ * is the directive and not the heading it sits on: `id` is what a consumer
+ * reads to point an `aria-labelledby` of their own at the title.
+ */
+describe('WrDrawerTitle template reference', () => {
+  @Component({
+    imports: [WrDrawerTitle],
+    template: `<h2 wrDrawerTitle #ref="wrDrawerTitle">Filters</h2>`,
+  })
+  class ExportHost {
+    readonly title = viewChild.required<WrDrawerTitle>('ref');
+  }
+
+  it('publishes the instance as `wrDrawerTitle`', () => {
+    TestBed.resetTestingModule();
+
+    const fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+
+    const title = fixture.componentInstance.title();
+    expect(title).toBeInstanceOf(WrDrawerTitle);
+    expect((fixture.nativeElement as HTMLElement).querySelector('h2')?.id).toBe(title.id);
+
+    fixture.destroy();
   });
 });

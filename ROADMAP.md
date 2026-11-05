@@ -6,10 +6,6 @@
 
 ## Medium
 
-- **`exportAs` on directives**: most public directives have none, so a template
-  cannot write `#x="wrFoo"`. Add one to each public directive with state or methods
-  a template would call, named after the selector.
-
 ## Low
 
 - **Exact decimals in `wr-table` summaries and `wr-input-number`**: summary
