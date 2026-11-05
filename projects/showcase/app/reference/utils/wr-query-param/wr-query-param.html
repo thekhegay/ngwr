@@ -1,0 +1,100 @@
+<ngwr-doc-page
+  title="wrQueryParam"
+  since="15.5.0"
+  description="A writable signal linked to one query parameter: follows the address, writes it on set, one navigation per task, the default left out."
+  [keywords]="[
+    'wrQueryParam',
+    'query param',
+    'query string',
+    'url state',
+    'router',
+    'signal',
+    'replaceUrl',
+    'search',
+    'filter',
+    'pagination',
+    'utils',
+  ]"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="`set` and `update` work as on any signal. The signal takes the value at once, and one navigation per task carries every write made in it. Needs an injection context. Lives in `ngwr/utils/router`, since `@angular/router` is an optional peer."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
+        <input wrInput type="search" placeholder="Search" [value]="q()" (input)="search($event)" />
+        <wr-pagination [total]="120" [(page)]="page" />
+        <p style="margin: 0; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+          Type and page, then watch the address bar. Back and Forward move both signals.
+          <code>q</code> replaces the history entry, <code>page</code> pushes one.
+        </p>
+        <button wr-btn type="button" (click)="reset()">Reset to defaults</button>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A typed parameter"
+    description="A string needs no options. Any other type needs `default`, `parse` and `serialize`, and the compiler refuses one without them. The address is user input: a `parse` that throws reads as `default`."
+  >
+    <ngwr-doc-code [code]="typedSnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rules">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>What happens</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">The parameter is absent</th>
+            <td>Reads as <code>default</code>. A repeated one reads its first value.</td>
+          </tr>
+          <tr>
+            <th scope="row">A write of <code>default</code></th>
+            <td>Removes the parameter. Already absent: no navigation.</td>
+          </tr>
+          <tr>
+            <th scope="row">Several writes in one task</th>
+            <td>One navigation, across every signal. Other parameters and the fragment survive.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>replaceUrl</code> differs within one task</th>
+            <td>The navigation pushes. A replaced entry is lost; a pushed one is one more Back.</td>
+          </tr>
+          <tr>
+            <th scope="row">A navigation is in flight</th>
+            <td>The write waits, then lands on the address it produced.</td>
+          </tr>
+          <tr>
+            <th scope="row">Its navigation is cancelled or fails</th>
+            <td>The signal reads the address again. A lost write is never kept.</td>
+          </tr>
+          <tr>
+            <th scope="row">The injection context is destroyed</th>
+            <td>
+              Following stops. A write already made is navigated, unless it was waiting for the navigation that
+              destroyed it.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">On the server</th>
+            <td>Reads from the router. A write moves the signal only; prerender and hydration navigate nothing.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

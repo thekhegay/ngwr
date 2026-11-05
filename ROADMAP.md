@@ -6,10 +6,6 @@
 
 ## Medium
 
-- **`wrQueryParam`**: a writable signal linked to one query parameter, with parse
-  and serialize, `replaceUrl`, one navigation per task, and a default left out of
-  the address. In a router entry point of its own, the way `ngwr/tabs/router` is,
-  since `@angular/router` stays an optional peer.
 - **`wr-comment` and a chat composer**: a discussion row (avatar, author, time,
   body, actions, nested replies) with a bubble variant for chat, and a composer:
   Enter sends, Shift+Enter adds a line, IME-safe. The data stays with the app.

@@ -247,6 +247,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/tree/testing` | `import { WrTreeHarness } from 'ngwr/tree/testing'` | — |
 | `ngwr/typography` | `import { WrTypography } from 'ngwr/typography'` | `[wrTypography]` |
 | `ngwr/utils` | `import { isDefined } from 'ngwr/utils'` | — |
+| `ngwr/utils/router` | `import { wrQueryParam } from 'ngwr/utils/router'` | — |
 | `ngwr/validators` | `import { WrValidators } from 'ngwr/validators'` | — |
 | `ngwr/version` | `import { NGWR_VERSION } from 'ngwr/version'` | — |
 | `ngwr/virtual-scroll` | `import { WrVirtualScroll } from 'ngwr/virtual-scroll'` | `wr-virtual-scroll` |

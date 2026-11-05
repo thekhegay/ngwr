@@ -147,10 +147,13 @@ one component folder. Reach for them instead of hand-rolling:
   simply never moves for navigation — nothing throws, and this project's own
   site shipped a permanently-empty bar for the length of a release by missing
   exactly that. When you add a component that would inject `Router`, split it
-  the same way rather than paying the dependency for everyone. Two entry points
+  the same way rather than paying the dependency for everyone. A third nested
+  entry point, `ngwr/utils/router`, holds `wrQueryParam`: a writable signal
+  linked to one query parameter, batching every write of a task into one
+  navigation through a root `@Service()`. Two entry points
   still import `@angular/router` directly: `ngwr/sidebar` injects `Router` and
-  `ngwr/breadcrumbs` uses `RouterLink`. With the two adapters they are the only
-  importers, which is why `@angular/router` is an OPTIONAL peer.
+  `ngwr/breadcrumbs` uses `RouterLink`. With the three nested ones they are the
+  only importers, which is why `@angular/router` is an OPTIONAL peer.
 - **Shared code — don't reinvent these.** `ngwr/utils` (`coercion` incl.
   `numAttr` for input transforms; plus `dom`, `guards`, `id`, `keyboard`,
   `css-size`, `css-value`, `fn`, `math`, `log`), `ngwr/pipes` (`wrDate`, `wrBytes`,

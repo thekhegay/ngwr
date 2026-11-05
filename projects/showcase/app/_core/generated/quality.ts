@@ -28,7 +28,7 @@ export const QUALITY = {
   version: "15.4.0",
 
   /** Secondary entry points — `ngwr/button`, `ngwr/select`, … Read from the `exports` map, which is what the library builder compiles, so `styles/` and `schematics/` are correctly absent. Excludes the primary `ngwr`. */
-  entryPoints: 247,
+  entryPoints: 248,
 
   /** Entry points that are CDK test harnesses, published at `ngwr/<name>/testing`. Included in `entryPoints`. */
   testingEntryPoints: 84,
@@ -43,19 +43,19 @@ export const QUALITY = {
   directives: 39,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 332,
+  specFiles: 333,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 6752,
+  testCases: 6773,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page prints the count as "N+" (`formatCount(n, { floor: true })`) rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
 
   /** Entry points owning a spec file or more. Compare against `entryPoints`: the claim is coverage of the catalog, not of every branch in it. */
-  entryPointsWithSpecs: 227,
+  entryPointsWithSpecs: 228,
 
   /** Documentation pages the showcase's route tables declare — routes with a `loadComponent`, minus the layout shell (it has `children`) and the `**` 404, neither of which is a page. NOT the prerendered-route count either: `app.routes.server.ts` sends the raw-SVG icon galleries and the legacy redirects to the client. */
-  docRoutes: 234,
+  docRoutes: 235,
 
   /** Locale catalogs the package ships, as the subpath each is imported from — `ngwr/i18n/de`. Counted from the folders under `projects/lib/i18n` that hold a catalog, so a locale added or removed moves this on its own. Region codes appear only where the script genuinely differs; every other code is a language, which a region `LOCALE_ID` falls back to. */
   locales: ["ar", "cs", "de", "en", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "sv", "tr", "uk", "vi", "zh", "zh-TW"],
