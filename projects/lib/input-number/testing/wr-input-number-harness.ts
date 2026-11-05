@@ -118,6 +118,11 @@ export class WrInputNumberHarness extends ComponentHarness {
    * `LOCALE_ID` and a harness cannot reach that injector, so an app that provides
    * its own must pass it: `getValue('de-DE')`. Reading `'1.234,5'` as en-US
    * silently answers `1.2345`.
+   *
+   * Under `mode="decimal"` the field draws the same text over a string model,
+   * and this still answers the number it spells: past sixteen digits that is a
+   * rounding of the model. Read {@link getValueText} for the digits, and the
+   * host's own signal for the string.
    */
   async getValue(locale?: string): Promise<number | null> {
     const text = await this.getValueText();

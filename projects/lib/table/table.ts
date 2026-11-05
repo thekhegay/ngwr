@@ -33,7 +33,15 @@ import { WrCheckbox } from 'ngwr/checkbox';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPagination } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
-import { KEYS, toClassList, wrDownloadBlob } from 'ngwr/utils';
+import {
+  KEYS,
+  toClassList,
+  wrDecimal,
+  wrDecimalAdd,
+  wrDecimalCompare,
+  wrDecimalDivide,
+  wrDownloadBlob,
+} from 'ngwr/utils';
 
 import { WrTableCell } from './table-cell';
 import { WrTableExpand } from './table-expand';
@@ -96,6 +104,32 @@ const CSV_FIGURE = /^[+-]?[\d\s.,]+%?$/;
 /** A missing cell value: `null`, `undefined` or `''`. `0` and `false` are values. */
 function noValue(value: unknown): value is null | undefined | '' {
   return value == null || value === '';
+}
+
+/**
+ * A built-in summary over a column that holds decimal STRINGS, exact through
+ * `wrDecimal`. A cell it cannot read is left out, the way the number path
+ * leaves out a non-finite one; the average divides at the widest scale among
+ * the values and never fewer than two places, half away from zero.
+ */
+function decimalSummary(kind: 'sum' | 'avg' | 'min' | 'max', values: readonly unknown[]): string {
+  const decimals: string[] = [];
+  let scale = 2;
+  for (const value of values) {
+    const decimal = wrDecimal(value);
+    if (decimal === null) continue;
+    decimals.push(decimal);
+    const point = decimal.indexOf('.');
+    if (point >= 0) scale = Math.max(scale, decimal.length - point - 1);
+  }
+  if (decimals.length === 0) return '';
+  if (kind === 'min' || kind === 'max') {
+    const keep = kind === 'min' ? -1 : 1;
+    return decimals.reduce((a, b) => (wrDecimalCompare(b, a) === keep ? b : a));
+  }
+  let sum = '0';
+  for (const decimal of decimals) sum = wrDecimalAdd(sum, decimal) ?? sum;
+  return kind === 'sum' ? sum : (wrDecimalDivide(sum, decimals.length, scale) ?? '');
 }
 
 /**
@@ -1593,7 +1627,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
             const value = row[col.key];
             if (noValue(value)) return field(col.column.empty ?? '', false);
             const { format } = col.column;
-            if (!format) return field(text(value), typeof value === 'string');
+            if (!format) return field(text(value), typeof value === 'string' && !CSV_FIGURE.test(value));
             // `format` can read anything on the row, whatever type the value is.
             const shown = format(value, row as T);
             return field(shown, !CSV_FIGURE.test(shown));
@@ -1639,6 +1673,11 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     // would otherwise skew the aggregate.
     const values = rows.map(row => row[key]).filter(v => v != null && v !== '');
     if (kind === 'count') return values.length;
+    // A column of decimal strings is summed as digits, never as doubles:
+    // `'0.1' + '0.2'` is `'0.3'`. One string in the column is enough, so a
+    // number mixed in is read exactly too; an all-number column keeps the
+    // engine's arithmetic and its output.
+    if (values.some(v => typeof v === 'string')) return decimalSummary(kind, values);
     const nums = values.map(Number).filter(Number.isFinite);
     if (nums.length === 0) return '';
     const sum = nums.reduce((a, b) => a + b, 0);

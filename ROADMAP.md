@@ -8,9 +8,6 @@
 
 ## Low
 
-- **Exact decimals in `wr-table` summaries and `wr-input-number`**: summary
-  aggregates over decimal strings with no float error, and a `wr-input-number` mode
-  that holds the typed value as a string and accepts a comma and pasted spaces.
 - **`WrDialog.confirm` and `WrDialogRef.closeWhen`**: a one-call confirmation that
   resolves `Promise<boolean>`, with `role="alertdialog"`, a danger tone and catalog
   labels; and `closeWhen`, which closes a dialog when a signal turns true and is

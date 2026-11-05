@@ -156,7 +156,10 @@ one component folder. Reach for them instead of hand-rolling:
   only importers, which is why `@angular/router` is an OPTIONAL peer.
 - **Shared code — don't reinvent these.** `ngwr/utils` (`coercion` incl.
   `numAttr` for input transforms; plus `dom`, `guards`, `id`, `keyboard`,
-  `css-size`, `css-value`, `fn`, `math`, `log`), `ngwr/pipes` (`wrDate`, `wrBytes`,
+  `css-size`, `css-value`, `fn`, `math` incl. `wrDecimal` and its `Add` /
+  `Subtract` / `Multiply` / `Divide` / `Compare` / `Round` siblings, the one
+  `BigInt` decimal core `wr-table` summaries and `wr-input-number`'s
+  `mode="decimal"` both run on, `log`), `ngwr/pipes` (`wrDate`, `wrBytes`,
   `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrRange`, `wrDuration`, and
   beside the formatting pipes the functions `wrFormatDate`, `wrFormatBytes`,
   `wrFormatNumber`, `wrFormatPlural` and `wrFormatDuration`, each the pipe's

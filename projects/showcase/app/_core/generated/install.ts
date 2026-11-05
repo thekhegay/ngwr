@@ -491,6 +491,10 @@ export const INSTALL = {
   "reference/services/tour": [
       { path: "ngwr/tour", symbols: ["WrTour"], declarables: [], styled: true },
   ],
+  "reference/utils/wr-decimal": [
+      { path: "ngwr/input-number", symbols: ["WrInputNumber"], declarables: ["WrInputNumber"], styled: true },
+      { path: "ngwr/utils", symbols: ["wrDecimalAdd"], declarables: [], styled: false },
+  ],
   "reference/utils/wr-poll": [
       { path: "ngwr/platform", symbols: ["wrPoll"], declarables: [], styled: false },
   ],

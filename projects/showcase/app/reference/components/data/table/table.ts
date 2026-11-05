@@ -278,6 +278,17 @@ export default class TablePageComponent {
     qty: { title: 'Qty', summary: 'sum' },
   };
 
+  protected readonly decimalRows: readonly Record<string, unknown>[] = [
+    { item: 'Widget', asNumber: 0.1, asString: '0.1' },
+    { item: 'Gadget', asNumber: 0.2, asString: '0.2' },
+    { item: 'Gizmo', asNumber: 0.3, asString: '0.3' },
+  ];
+  protected readonly decimalColumns: WrTableColumns = {
+    item: { title: 'Item', summary: () => 'Sum' },
+    asNumber: { title: 'As a number', align: 'end', summary: 'sum' },
+    asString: { title: 'As a string', align: 'end', summary: 'sum' },
+  };
+
   protected readonly groupCollapsed = signal<readonly unknown[]>([]);
 
   protected readonly salesRows: readonly Record<string, unknown>[] = [
@@ -449,6 +460,17 @@ effect(() => {
   [columns]="columns"
   [items]="rows"
 />`,
+    decimalSummary: `const rows = [
+  { item: 'Widget', asNumber: 0.1, asString: '0.1' },
+  { item: 'Gadget', asNumber: 0.2, asString: '0.2' },
+  { item: 'Gizmo', asNumber: 0.3, asString: '0.3' },
+];
+
+const columns: WrTableColumns = {
+  item:     { title: 'Item', summary: () => 'Sum' },
+  asNumber: { title: 'As a number', align: 'end', summary: 'sum' },
+  asString: { title: 'As a string', align: 'end', summary: 'sum' },
+};`,
     groupSummary: `const columns: WrTableColumns = {
   // One function feeds the group rows and the grand total; the context says which.
   region:  { title: 'Region', summary: (rows, { scope }) => (scope === 'group' ? 'Subtotal' : 'Total') },
@@ -660,7 +682,8 @@ type WrTableSummaryContext =
     { name: 'width', description: 'Initial column width in px (overridden by a drag).', type: 'number', sub: true },
     {
       name: 'summary',
-      description: "Footer aggregate — 'sum' / 'avg' / 'count' / 'min' / 'max', or (rows, context) => value.",
+      description:
+        "Footer aggregate — 'sum' / 'avg' / 'count' / 'min' / 'max', or (rows, context) => value. Decimal strings are aggregated exactly.",
       type: 'WrTableSummary',
       sub: true,
     },

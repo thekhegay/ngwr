@@ -38,6 +38,7 @@ export default [
   },
   { path: utils.trapFocus.path, loadComponent: () => import('./trap-focus/trap-focus') },
   { path: utils.wrAction.path, loadComponent: () => import('./wr-action/wr-action') },
+  { path: utils.wrDecimal.path, loadComponent: () => import('./wr-decimal/wr-decimal') },
   { path: utils.wrDownloadBlob.path, loadComponent: () => import('./wr-download-blob/wr-download-blob') },
   { path: utils.wrPoll.path, loadComponent: () => import('./wr-poll/wr-poll') },
   { path: utils.wrQueryParam.path, loadComponent: () => import('./wr-query-param/wr-query-param') },

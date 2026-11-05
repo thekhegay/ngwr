@@ -643,3 +643,236 @@ describe('WrInputNumber reads the locale it formats in', () => {
     expect(fixture.componentInstance.amount()).toBe(-1234.5);
   });
 });
+
+/**
+ * `mode="decimal"` holds the digits as typed. The number mode rounds its
+ * stepping to ten places to hide float drift, and that is a patch on an
+ * arithmetic that cannot add `0.1` and `0.2`; here the arithmetic is exact and
+ * a value with more digits than a double holds comes back untouched.
+ */
+describe('WrInputNumber in decimal mode', () => {
+  @Component({
+    imports: [WrInputNumber],
+    template: `
+      <wr-input-number
+        mode="decimal"
+        [(value)]="amount"
+        [min]="min()"
+        [max]="max()"
+        [step]="step()"
+        [decimals]="decimals()"
+      />
+    `,
+  })
+  class DecimalHost {
+    readonly amount = signal<string | null>('0.2');
+    readonly min = signal<number | undefined>(undefined);
+    readonly max = signal<number | undefined>(undefined);
+    readonly step = signal(0.1);
+    readonly decimals = signal<number | null>(null);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<DecimalHost>>;
+
+  const mount = (locale = 'en-US'): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: locale }] });
+    fixture = TestBed.createComponent(DecimalHost);
+    fixture.detectChanges();
+  };
+  const field = (): HTMLInputElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input')!;
+  const stepper = (label: string): HTMLButtonElement =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('button')].find(
+      b => b.getAttribute('aria-label') === label
+    )!;
+  const amount = (): string | null => fixture.componentInstance.amount();
+  const focus = (): void => {
+    field().dispatchEvent(new FocusEvent('focus'));
+    fixture.detectChanges();
+  };
+  const type = (text: string): void => {
+    focus();
+    field().value = text;
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+  const blur = (): void => {
+    field().dispatchEvent(new FocusEvent('blur', { bubbles: true }));
+    fixture.detectChanges();
+  };
+  const press = (key: string, shiftKey = false): void => {
+    field().dispatchEvent(new KeyboardEvent('keydown', { key, shiftKey, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => mount());
+  afterEach(() => fixture.destroy());
+
+  it('steps exactly, by the buttons and by the keys', () => {
+    stepper('Increment').click();
+    fixture.detectChanges();
+    expect(amount()).toBe('0.3');
+    expect(field().value).toBe('0.3');
+
+    press('ArrowDown');
+    press('ArrowDown');
+    expect(amount()).toBe('0.1');
+
+    press('ArrowUp', true);
+    expect(amount()).toBe('1.1');
+  });
+
+  it('keeps every digit a double would lose', () => {
+    type('9007199254740993.01');
+    expect(amount()).toBe('9007199254740993.01');
+
+    stepper('Increment').click();
+    fixture.detectChanges();
+    expect(amount()).toBe('9007199254740993.11');
+
+    blur();
+    expect(field().value).toBe('9,007,199,254,740,993.11');
+  });
+
+  it('reads a decimal comma', () => {
+    type('1,5');
+    expect(amount()).toBe('1.5');
+  });
+
+  it.each(['1 234,56', '1 234,56', '1 234,56', "1'234.56", '1 234 567.89'])(
+    'reads pasted spaces as grouping: %j',
+    text => {
+      type(text);
+      expect(amount()).toBe(text.endsWith('567.89') ? '1234567.89' : '1234.56');
+    }
+  );
+
+  it('takes the last of two separators as the point', () => {
+    type('1,234.56');
+    expect(amount()).toBe('1234.56');
+    type('1.234,56');
+    expect(amount()).toBe('1234.56');
+    type('1,234,567.5');
+    expect(amount()).toBe('1234567.5');
+  });
+
+  it("reads a lone separator in the locale's role: grouping only with exactly three digits after it", () => {
+    type('1,234');
+    expect(amount()).toBe('1234');
+    type('1.234');
+    expect(amount()).toBe('1.234');
+    type('1,23');
+    expect(amount()).toBe('1.23');
+    type('1,2345');
+    expect(amount()).toBe('1.2345');
+    type('1.234.567');
+    expect(amount()).toBe('1234567');
+    // Nobody groups a lone zero: this is a fraction.
+    type('0,125');
+    expect(amount()).toBe('0.125');
+    type(',5');
+    expect(amount()).toBe('0.5');
+  });
+
+  it('swaps the roles with the locale', () => {
+    mount('de-DE');
+    type('1.234');
+    expect(amount()).toBe('1234');
+    type('1,234');
+    expect(amount()).toBe('1.234');
+    type('1,5');
+    expect(amount()).toBe('1.5');
+  });
+
+  it('reads its own display back in every locale it formats', () => {
+    for (const locale of ['en-US', 'de-DE', 'de-CH', 'ru', 'fr', 'sv', 'ar-EG', 'fa']) {
+      mount(locale);
+      for (const value of ['1234.5', '1234', '1.234', '-1234567.89']) {
+        fixture.componentInstance.amount.set(value);
+        fixture.detectChanges();
+        const shown = field().value;
+        fixture.componentInstance.amount.set(null);
+        fixture.detectChanges();
+        type(shown);
+        expect(amount(), `${locale} ${shown}`).toBe(value);
+        blur();
+      }
+      fixture.destroy();
+    }
+  });
+
+  it('does not move while a comma is the last thing typed', () => {
+    type('1,');
+    expect(amount()).toBe('0.2');
+    expect(field().value).toBe('1,');
+
+    type('1,2');
+    expect(amount()).toBe('1.2');
+    expect(field().value).toBe('1,2');
+  });
+
+  it('leaves the committed value alone under garbage, and empties to null', () => {
+    type('abc');
+    expect(amount()).toBe('0.2');
+    type('1.2.3');
+    expect(amount()).toBe('0.2');
+    type('12,34.5');
+    expect(amount()).toBe('0.2');
+    type('');
+    expect(amount()).toBeNull();
+  });
+
+  it('shows the string as typed after blur, grouped', () => {
+    type('1234.50');
+    blur();
+    expect(field().value).toBe('1,234.50');
+    expect(amount()).toBe('1234.50');
+  });
+
+  it('holds the stepped value inside the bounds and disables the button there', () => {
+    fixture.componentInstance.max.set(0.3);
+    fixture.componentInstance.min.set(0);
+    fixture.detectChanges();
+
+    press('ArrowUp');
+    expect(amount()).toBe('0.3');
+    expect(stepper('Increment').disabled).toBe(true);
+    press('ArrowUp');
+    expect(amount()).toBe('0.3');
+
+    type('-5');
+    expect(amount()).toBe('0');
+    expect(stepper('Decrement').disabled).toBe(true);
+  });
+
+  it('steps off the lower bound when empty, as the number mode does', () => {
+    fixture.componentInstance.min.set(1);
+    fixture.componentInstance.amount.set(null);
+    fixture.detectChanges();
+
+    press('ArrowUp');
+    expect(amount()).toBe('1.1');
+  });
+
+  it('fixes the places with decimals, rounding half away from zero', () => {
+    fixture.componentInstance.decimals.set(2);
+    fixture.detectChanges();
+
+    type('1.5');
+    expect(amount()).toBe('1.50');
+    type('1.005');
+    expect(amount()).toBe('1.01');
+    type('-2.345');
+    expect(amount()).toBe('-2.35');
+
+    blur();
+    expect(field().value).toBe('-2.35');
+  });
+
+  it('follows a value written from outside', () => {
+    fixture.componentInstance.amount.set('1000000.1');
+    fixture.detectChanges();
+    expect(field().value).toBe('1,000,000.1');
+  });
+});

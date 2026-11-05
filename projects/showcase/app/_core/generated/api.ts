@@ -797,8 +797,9 @@ export const API = {
   ],
   // <wr-input-number>
   WrInputNumber: [
-    { name: "min", description: "Minimum allowed value.", type: "number | undefined", default: "-Infinity" },
-    { name: "max", description: "Maximum allowed value.", type: "number | undefined", default: "Infinity" },
+    { name: "mode", description: "What `value` holds. `'number'` is the engine's double. `'decimal'` keeps the typed digits exact as a canonical string (`'1234.56'`: a `.` for the point, no grouping), reads a decimal comma and pasted spaces, and steps, clamps and rounds through `wrDecimal` from `ngwr/utils`, so `0.2` stepped by `0.1` is `'0.3'`. A lone `.` or `,` is read in the locale's role: its decimal separator is a point, its grouping character is grouping when exactly three digits follow it (`1,234` in en-US is `'1234'`, but `0,125` is `'0.125'`) and a point otherwise. With both present, the last one is the point: `1,234.56` and `1.234,56` are `'1234.56'`. Grouping comes in threes, so `1.2.3` is unreadable and the committed value stays, as it does for any text the field cannot read.", type: "M", default: "'number'" },
+    { name: "min", description: "Minimum allowed value, a number in either mode.", type: "NonNullable<WrInputNumberValue<M>> | undefined", default: "-Infinity" },
+    { name: "max", description: "Maximum allowed value, a number in either mode.", type: "NonNullable<WrInputNumberValue<M>> | undefined", default: "Infinity" },
     { name: "step", description: "Step used by stepper buttons + arrow keys.", type: "number", default: "1" },
     { name: "decimals", description: "Fixed number of decimals. Rounds the value as it is COMMITTED, and fixes the digits shown once the field reformats on blur. `null` keeps the entered precision and formats with up to 20. Clamped to 0–100, the range `Intl.NumberFormat`'s `minimumFractionDigits` / `maximumFractionDigits` accept — because it is the one numeric input on this component that had no transform, and the value goes straight into the formatter, which THROWS a `RangeError` outside that range rather than degrading. A `[decimals]=\"-1\"` bound from a config object took the whole component down on blur.", type: "number | null", default: "null" },
     { name: "showSteppers", description: "Render the ▲▼ stepper column.", type: "boolean", default: "true" },
@@ -812,7 +813,7 @@ export const API = {
     { name: "decrementLabel", description: "Decrement button aria-label. Falls back to `inputNumber.decrement`.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "readonly", description: "Read-only — values cannot be changed (steppers + typing disabled).", type: "boolean", default: "false" },
-    { name: "value", description: "Numeric value (`null` when empty). Bound by `[formField]`, or two-way via `[(value)]`.", type: "number | null", default: "null" },
+    { name: "value", description: "The value, `null` when empty: a `number` in `'number'` mode, a canonical decimal string in `'decimal'` mode. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrInputNumberValue<M>", default: "null" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-input-otp>
