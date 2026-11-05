@@ -523,6 +523,10 @@ export const wrEn: WrI18nCatalog = {
     available: 'Matches available: {{count}}',
     inserted: 'Inserted: {{label}}',
   },
+  comment: {
+    send: 'Send',
+    replies: 'Replies',
+  },
   drawer: {
     close: 'Close drawer',
   },

@@ -162,6 +162,7 @@ export const ROUTES = {
         path: 'command-palette',
         title: 'Command Palette',
       },
+      comment: { path: 'comment', title: 'Comment' },
       compare: { path: 'compare', title: 'Compare' },
       contextMenu: { path: 'context-menu', title: 'Context Menu' },
       counter: { path: 'counter', title: 'Counter' },

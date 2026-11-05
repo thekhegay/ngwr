@@ -430,6 +430,10 @@ export const wrHe: WrI18nCatalog = {
     available: 'התאמות שנמצאו: {{count}}',
     inserted: 'נוסף: {{label}}',
   },
+  comment: {
+    send: 'שליחה',
+    replies: 'תגובות',
+  },
   drawer: {
     close: 'סגירת המגירה',
   },

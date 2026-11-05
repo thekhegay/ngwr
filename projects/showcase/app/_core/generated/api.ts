@@ -366,6 +366,31 @@ export const API = {
     { name: "debounceMs", description: "How long the query must settle before {@link searchChange} fires, in ms. A search request per keystroke is what exhausts a metered search backend: typing `select` is six requests at 0 and roughly one at 250.", type: "number", default: "250" },
     { name: "(searchChange)", description: "The settled query. This is the hook for a server-backed palette: dispatch on it, then feed the result into `[items]` with `[serverSearch]` set. Fires on the {@link debounceMs} cadence, NOT per keystroke — `queryChange` is the per-keystroke signal if that is what you want.", type: "string" },
   ],
+  // <wr-comment>
+  WrComment: [
+    { name: "author", description: "Who wrote it. Also the article's accessible name. Leave it empty when a `[wrCommentAuthor]` element draws the name instead.", type: "string", default: "''" },
+    { name: "time", description: "When it was written, already formatted: the component does no date formatting. Run a `Date` through the `wrDate` pipe on the way in.", type: "string", default: "''" },
+    { name: "datetime", description: "The same moment, machine-readable. With it the time renders as a `<time datetime>`: a `Date` is written as ISO 8601, a string as given.", type: "Date | string | null", default: "null" },
+    { name: "variant", description: "`row` is a discussion entry; `bubble` is a chat message, which takes no replies.", type: "WrCommentVariant", default: "'row'" },
+    { name: "side", description: "Which inline side a bubble sits on. `end` is the reader's own message. Ignored by the `row` variant.", type: "WrCommentSide", default: "'start'" },
+    { name: "repliesLabel", description: "Accessible name of the replies group. Falls back to `comment.replies`, then `'Replies'`.", type: "string | null", default: "null" },
+  ],
+  // <wr-comment-composer>
+  WrCommentComposer: [
+    { name: "placeholder", description: "Native placeholder text.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name for the field. Falls back to the placeholder: the native `<textarea>` lives inside the component, so a `<label for>` outside cannot reach it.", type: "string | null", default: "null" },
+    { name: "sendLabel", description: "Accessible name of the send button. Falls back to `comment.send`, then `'Send'`.", type: "string | null", default: "null" },
+    { name: "rows", description: "Visible row count while the field is empty.", type: "number", default: "1" },
+    { name: "maxRows", description: "Rows the field grows to before it scrolls on its own.", type: "number", default: "6" },
+    { name: "disabled", description: "Disable the field and the button. Bound automatically from the field's disabled state when used with `[formField]`. The text is kept.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Read-only state: the text is shown and announced, keeps its tab stop and cannot be edited or sent.", type: "boolean", default: "false" },
+    { name: "sending", description: "A send is in flight: the button is disabled, the host is `aria-busy` and Enter does nothing. The field stays editable and the text is kept.", type: "boolean", default: "false" },
+    { name: "enterSends", description: "`true`: Enter sends and Shift+Enter adds a line. `false`: Enter adds a line and only Ctrl+Enter or Cmd+Enter sends.", type: "boolean", default: "true" },
+    { name: "clearOnSend", description: "Clear the field before `send` emits. With `false` the text stays until the app clears the model itself.", type: "boolean", default: "true" },
+    { name: "value", description: "The draft. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "(send)", description: "The trimmed text, once per send. Where it goes is the app's business.", type: "string" },
+  ],
   // <wr-compare>
   WrCompare: [
     { name: "position", description: "Divider position as a percentage (0–100). Two-way bindable.", type: "number", default: "50" },

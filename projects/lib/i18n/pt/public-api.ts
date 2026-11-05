@@ -415,6 +415,10 @@ export const wrPt: WrI18nCatalog = {
     available: 'Correspondências disponíveis: {{count}}',
     inserted: 'Inserido: {{label}}',
   },
+  comment: {
+    send: 'Enviar',
+    replies: 'Respostas',
+  },
   drawer: {
     close: 'Fechar painel lateral',
   },

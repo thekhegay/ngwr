@@ -409,6 +409,10 @@ export const wrEs: WrI18nCatalog = {
     available: 'Coincidencias disponibles: {{count}}',
     inserted: 'Insertado: {{label}}',
   },
+  comment: {
+    send: 'Enviar',
+    replies: 'Respuestas',
+  },
   drawer: {
     close: 'Cerrar el panel lateral',
   },

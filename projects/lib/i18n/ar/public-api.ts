@@ -432,6 +432,10 @@ export const wrAr: WrI18nCatalog = {
     available: 'المطابقات المتاحة: {{count}}',
     inserted: 'تم الإدراج: {{label}}',
   },
+  comment: {
+    send: 'إرسال',
+    replies: 'الردود',
+  },
   drawer: {
     close: 'إغلاق اللوحة',
   },

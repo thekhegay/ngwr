@@ -1,0 +1,47 @@
+<wr-textarea
+  class="wr-comment-composer__field"
+  autosize
+  [rows]="rows()"
+  [maxRows]="maxRows()"
+  [resizable]="false"
+  [placeholder]="placeholder()"
+  [ariaLabel]="ariaLabel()"
+  [disabled]="disabled()"
+  [readonly]="readonly()"
+  [(value)]="value"
+  (touch)="touch.emit()"
+  (keydown)="onKeydown($event)"
+/>
+
+<div class="wr-comment-composer__actions">
+  <ng-content select="[wrComposerActions]" />
+</div>
+
+<button
+  wr-btn
+  type="button"
+  color="primary"
+  shape="pill"
+  class="wr-comment-composer__send"
+  [attr.aria-label]="resolvedSendLabel()"
+  [disabled]="!canSend()"
+  (mousedown)="$event.preventDefault()"
+  (click)="submit()"
+>
+  <svg
+    class="wr-icon__svg"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path
+      d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"
+    />
+    <path d="M6 12h16" />
+  </svg>
+</button>

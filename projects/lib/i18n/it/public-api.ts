@@ -423,6 +423,10 @@ export const wrIt: WrI18nCatalog = {
     available: 'Risultati disponibili: {{count}}',
     inserted: 'Inserito: {{label}}',
   },
+  comment: {
+    send: 'Invia',
+    replies: 'Risposte',
+  },
   drawer: {
     close: 'Chiudi il pannello',
   },

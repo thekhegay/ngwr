@@ -409,6 +409,10 @@ export const wrId: WrI18nCatalog = {
     available: 'Jumlah kecocokan: {{count}}',
     inserted: 'Disisipkan: {{label}}',
   },
+  comment: {
+    send: 'Kirim',
+    replies: 'Balasan',
+  },
   drawer: {
     close: 'Tutup panel',
   },

@@ -219,6 +219,9 @@ export const INSTALL = {
   "reference/components/command-palette": [
       { path: "ngwr/command-palette", symbols: ["WrCommandPalette"], declarables: ["WrCommandPalette"], styled: true },
   ],
+  "reference/components/comment": [
+      { path: "ngwr/comment", symbols: ["WrComment", "WrCommentComposer"], declarables: ["WrComment", "WrCommentComposer"], styled: true },
+  ],
   "reference/components/compare": [
       { path: "ngwr/compare", symbols: ["WrCompare"], declarables: ["WrCompare"], styled: true },
   ],

@@ -13,10 +13,10 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1561 hook(s) across 107 page(s). A property is here only when the
+ * 1590 hook(s) across 108 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
- * declares it also owns it: 28 declaration(s) are one component setting
+ * declares it also owns it: 31 declaration(s) are one component setting
  * another's hook (`--wr-icon-size` inside its own `<wr-icon>`) and belong on
  * the owner's page, not on the setter's. A row marked `host` is one the
  * component writes on its own host, from an input or from its state, and never
@@ -932,6 +932,40 @@ export const CSS_VARS = {
       { name: "--wr-command-palette-search-font-size", default: "var(--wr-text-base)", scope: ".wr-command-palette__search" },
       { name: "--wr-command-palette-search-gap", default: "var(--wr-space-md)", scope: ".wr-command-palette__search" },
       { name: "--wr-command-palette-search-padding", default: "var(--wr-space-lg)", scope: ".wr-command-palette__search" },
+    ],
+  },
+  "reference/components/comment": {
+    subpath: "ngwr/comment",
+    vars: [
+      { name: "--wr-comment-actions-gap", default: "var(--wr-space-sm)", scope: ".wr-comment" },
+      { name: "--wr-comment-author-color", default: "var(--wr-color-on-surface)", scope: ".wr-comment" },
+      { name: "--wr-comment-author-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-comment" },
+      { name: "--wr-comment-body-color", default: "var(--wr-color-on-surface)", scope: ".wr-comment" },
+      { name: "--wr-comment-body-gap", default: "var(--wr-space-xs)", scope: ".wr-comment" },
+      { name: "--wr-comment-bubble-bg", default: "var(--wr-color-fill)", scope: ".wr-comment", overrides: 1 },
+      { name: "--wr-comment-bubble-color", default: "var(--wr-color-on-surface)", scope: ".wr-comment", overrides: 1 },
+      { name: "--wr-comment-bubble-max-width", default: "80%", scope: ".wr-comment" },
+      { name: "--wr-comment-bubble-padding-x", default: "var(--wr-space-md)", scope: ".wr-comment" },
+      { name: "--wr-comment-bubble-padding-y", default: "var(--wr-space-sm)", scope: ".wr-comment" },
+      { name: "--wr-comment-bubble-radius", default: "var(--wr-border-radius-lg)", scope: ".wr-comment" },
+      { name: "--wr-comment-bubble-time-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-comment", overrides: 1 },
+      { name: "--wr-comment-composer-bg", default: "var(--wr-color-surface)", scope: ".wr-comment-composer", overrides: 2 },
+      { name: "--wr-comment-composer-border", default: "var(--wr-border-base)", scope: ".wr-comment-composer", overrides: 1 },
+      { name: "--wr-comment-composer-gap", default: "var(--wr-space-xs)", scope: ".wr-comment-composer" },
+      { name: "--wr-comment-composer-padding", default: "var(--wr-space-xs)", scope: ".wr-comment-composer" },
+      { name: "--wr-comment-composer-radius", default: "var(--wr-control-radius-md)", scope: ".wr-comment-composer" },
+      { name: "--wr-comment-composer-ring", default: "transparent", scope: ".wr-comment-composer", overrides: 1 },
+      { name: "--wr-comment-composer-send-size", default: "2.25rem", scope: ".wr-comment-composer" },
+      { name: "--wr-comment-font-family", default: "var(--wr-font-family-base)", scope: ".wr-comment" },
+      { name: "--wr-comment-font-size", default: "var(--wr-text-sm)", scope: ".wr-comment" },
+      { name: "--wr-comment-gap", default: "var(--wr-space-md)", scope: ".wr-comment" },
+      { name: "--wr-comment-head-gap", default: "var(--wr-space-sm)", scope: ".wr-comment" },
+      { name: "--wr-comment-indent", default: "var(--wr-space-xl)", scope: ".wr-comment" },
+      { name: "--wr-comment-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-comment" },
+      { name: "--wr-comment-replies-gap", default: "var(--wr-space-lg)", scope: ".wr-comment" },
+      { name: "--wr-comment-replies-margin-top", default: "var(--wr-space-lg)", scope: ".wr-comment" },
+      { name: "--wr-comment-time-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-comment" },
+      { name: "--wr-comment-time-font-size", default: "var(--wr-text-xs)", scope: ".wr-comment" },
     ],
   },
   "reference/components/context-menu": {
