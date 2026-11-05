@@ -1,5 +1,21 @@
 # Changelog
 
+## [15.5.0](https://github.com/thekhegay/ngwr/compare/v15.4.0...v15.5.0) (2026-11-05)
+
+### Features
+
+* **comment:** discussion row, chat bubble and an ime-safe composer ([18db1c1](https://github.com/thekhegay/ngwr/commit/18db1c13774f363ae7a7e84cd46fc5761ce1cf21))
+* **dialog:** a one-call confirm and a dialog that closes on a signal ([5d25223](https://github.com/thekhegay/ngwr/commit/5d252237a6c29390587067c3611d8213ee879de0))
+* **dialog:** template references for the dialog and drawer titles ([d3aeea9](https://github.com/thekhegay/ngwr/commit/d3aeea919f451e831c70ab9b358bb452ae9541a7))
+* **hotkey:** active bindings with labels, platform chords and a chord input on wr-kbd ([a3dc726](https://github.com/thekhegay/ngwr/commit/a3dc726f28b3a8b32ffb5e1ab724c28f6400eac1))
+* **input-number:** decimal mode and exact table summaries over decimal strings ([8cdc34e](https://github.com/thekhegay/ngwr/commit/8cdc34e4784d8b5fcc91037f1a83dfd72faadb37))
+* **platform:** page visibility and network signals, return callback and shared polling ([f483cd4](https://github.com/thekhegay/ngwr/commit/f483cd495aa8215540ae861abcdeb3ef4aaf768a))
+* **storage:** writable signal that saves on write and follows other tabs ([aa6f1aa](https://github.com/thekhegay/ngwr/commit/aa6f1aa04c0fab0ee4a5c3dd8529aca114ba274d))
+* **table:** align, format and empty columns, typed rows and select values ([e60aa6d](https://github.com/thekhegay/ngwr/commit/e60aa6de489358e9fe68bb2239345154c674c021))
+* **utils:** async action state and a resource value that never throws ([9312c19](https://github.com/thekhegay/ngwr/commit/9312c1965af75fd219d46e7c02e71c4d89dd7e5a))
+* **utils:** blob download helper and content-disposition reader ([7972d22](https://github.com/thekhegay/ngwr/commit/7972d220bd95fed02e02309bc6027cf6143e3c32))
+* **utils:** writable signal linked to one query parameter ([e1a442a](https://github.com/thekhegay/ngwr/commit/e1a442ac4da73a3fe9efc4af178daf68a54e398e))
+
 ## [15.4.0](https://github.com/thekhegay/ngwr/compare/v15.3.0...v15.4.0) (2026-11-04)
 
 ### Features
