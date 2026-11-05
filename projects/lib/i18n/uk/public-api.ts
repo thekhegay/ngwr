@@ -430,6 +430,10 @@ export const wrUk: WrI18nCatalog = {
     available: 'Знайдено збігів: {{count}}',
     inserted: 'Вставлено: {{label}}',
   },
+  comment: {
+    send: 'Надіслати',
+    replies: 'Відповіді',
+  },
   drawer: {
     close: 'Закрити панель',
   },

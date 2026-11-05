@@ -431,6 +431,10 @@ export const wrTr: WrI18nCatalog = {
     available: 'Bulunan eşleşme: {{count}}',
     inserted: 'Eklendi: {{label}}',
   },
+  comment: {
+    send: 'Gönder',
+    replies: 'Yanıtlar',
+  },
   drawer: {
     close: 'Paneli kapat',
   },

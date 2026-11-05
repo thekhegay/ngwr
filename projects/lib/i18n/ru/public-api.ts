@@ -422,6 +422,10 @@ export const wrRu: WrI18nCatalog = {
     available: 'Найдено совпадений: {{count}}',
     inserted: 'Вставлено: {{label}}',
   },
+  comment: {
+    send: 'Отправить',
+    replies: 'Ответы',
+  },
   drawer: {
     close: 'Закрыть панель',
   },

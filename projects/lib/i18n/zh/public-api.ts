@@ -407,6 +407,10 @@ export const wrZh: WrI18nCatalog = {
     available: '匹配项：{{count}}',
     inserted: '已插入：{{label}}',
   },
+  comment: {
+    send: '发送',
+    replies: '回复',
+  },
   drawer: {
     close: '关闭抽屉',
   },

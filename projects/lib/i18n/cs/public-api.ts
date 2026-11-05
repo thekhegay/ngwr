@@ -409,6 +409,10 @@ export const wrCs: WrI18nCatalog = {
     available: 'Počet shod: {{count}}',
     inserted: 'Vloženo: {{label}}',
   },
+  comment: {
+    send: 'Odeslat',
+    replies: 'Odpovědi',
+  },
   drawer: {
     close: 'Zavřít vysouvací panel',
   },

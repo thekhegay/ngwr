@@ -550,6 +550,13 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/descriptions',
     'reference/components/pagination',
   ],
+  'reference/components/comment': [
+    'reference/components/avatar',
+    'reference/components/textarea',
+    'reference/components/timeline',
+    'reference/components/mention',
+    'reference/pipes/wr-date',
+  ],
   'reference/components/mention': [
     'reference/components/textarea',
     'reference/components/select',

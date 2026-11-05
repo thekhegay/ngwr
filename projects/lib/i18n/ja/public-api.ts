@@ -413,6 +413,10 @@ export const wrJa: WrI18nCatalog = {
     available: '候補{{count}}件',
     inserted: '{{label}}を挿入しました',
   },
+  comment: {
+    send: '送信',
+    replies: '返信',
+  },
   drawer: {
     close: 'ドロワーを閉じる',
   },

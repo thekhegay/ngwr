@@ -423,6 +423,10 @@ export const wrNl: WrI18nCatalog = {
     available: 'Beschikbare resultaten: {{count}}',
     inserted: 'Ingevoegd: {{label}}',
   },
+  comment: {
+    send: 'Verzenden',
+    replies: 'Reacties',
+  },
   drawer: {
     close: 'Paneel sluiten',
   },

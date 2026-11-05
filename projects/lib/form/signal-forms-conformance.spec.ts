@@ -10,6 +10,7 @@ import { provideWr } from 'ngwr';
 import { WrCascader, type WrCascaderOption } from 'ngwr/cascader';
 import { WrCheckbox, WrCheckboxGroup } from 'ngwr/checkbox';
 import { WrColorPicker } from 'ngwr/color-picker';
+import { WrCommentComposer } from 'ngwr/comment';
 import { withDates } from 'ngwr/date';
 import { WrDatePicker, WrDateRangePicker, type WrDateRange } from 'ngwr/date-picker';
 import { WrEditor, type WrEditorJson } from 'ngwr/editor';
@@ -48,6 +49,7 @@ type Kind =
   | 'checkbox'
   | 'checkbox-group'
   | 'color-picker'
+  | 'comment-composer'
   | 'date-picker'
   | 'date-range-picker'
   | 'editor'
@@ -95,6 +97,7 @@ interface Model {
     WrCheckbox,
     WrCheckboxGroup,
     WrColorPicker,
+    WrCommentComposer,
     WrDatePicker,
     WrDateRangePicker,
     WrEditor,
@@ -130,6 +133,9 @@ interface Model {
       }
       @case ('color-picker') {
         <wr-color-picker [formField]="f.colorPicker" />
+      }
+      @case ('comment-composer') {
+        <wr-comment-composer [formField]="f.textarea" />
       }
       @case ('date-picker') {
         <wr-date-picker [formField]="f.datePicker" />
@@ -275,6 +281,7 @@ const CASES: readonly Case[] = [
   { kind: 'checkbox', control: 'WrCheckbox' },
   { kind: 'checkbox-group', control: 'WrCheckboxGroup', values: [['a'], ['b']] },
   { kind: 'color-picker', control: 'WrColorPicker', values: ['#336699', '#993366'] },
+  { kind: 'comment-composer', control: 'WrCommentComposer', values: ['One', 'Two'] },
   { kind: 'date-picker', control: 'WrDatePicker', values: [new Date(2026, 2, 15), new Date(2026, 3, 20)] },
   {
     kind: 'date-range-picker',

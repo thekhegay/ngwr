@@ -409,6 +409,10 @@ export const wrSv: WrI18nCatalog = {
     available: 'Antal träffar: {{count}}',
     inserted: 'Infogat: {{label}}',
   },
+  comment: {
+    send: 'Skicka',
+    replies: 'Svar',
+  },
   drawer: {
     close: 'Stäng panelen',
   },

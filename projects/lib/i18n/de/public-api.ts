@@ -427,6 +427,10 @@ export const wrDe: WrI18nCatalog = {
     available: 'Treffer: {{count}}',
     inserted: 'Eingefügt: {{label}}',
   },
+  comment: {
+    send: 'Senden',
+    replies: 'Antworten',
+  },
   drawer: {
     close: 'Bereich schließen',
   },

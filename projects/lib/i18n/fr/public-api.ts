@@ -428,6 +428,10 @@ export const wrFr: WrI18nCatalog = {
     available: 'Correspondances disponibles : {{count}}',
     inserted: 'Inséré : {{label}}',
   },
+  comment: {
+    send: 'Envoyer',
+    replies: 'Réponses',
+  },
   drawer: {
     close: 'Fermer le panneau',
   },

@@ -416,6 +416,10 @@ export const wrZhTw: WrI18nCatalog = {
     available: '相符項目：{{count}}',
     inserted: '已插入：{{label}}',
   },
+  comment: {
+    send: '傳送',
+    replies: '回覆',
+  },
   drawer: {
     close: '關閉面板',
   },

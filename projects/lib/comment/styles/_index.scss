@@ -1,0 +1,270 @@
+@use '../../theme/styles' as theme;
+
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella: a consumer writes one `@use` per
+// component they place, and never learns about the ones a component places
+// INSIDE itself. Sass deduplicates `@use` within a compilation, so an app that
+// also loads one of these by hand still emits it once.
+@use '../../button/styles' as button-styles; // WrButton
+@use '../../textarea/styles' as textarea-styles; // WrTextarea
+
+.wr-comment {
+  --wr-comment-gap: var(--wr-space-md);
+  --wr-comment-head-gap: var(--wr-space-sm);
+  --wr-comment-body-gap: var(--wr-space-xs);
+  --wr-comment-actions-gap: var(--wr-space-sm);
+  --wr-comment-font-family: var(--wr-font-family-base);
+  --wr-comment-font-size: var(--wr-text-sm);
+  --wr-comment-line-height: var(--wr-text-sm-leading);
+  --wr-comment-author-color: var(--wr-color-on-surface);
+  --wr-comment-author-font-weight: var(--wr-font-weight-semibold);
+  --wr-comment-time-color: var(--wr-color-on-surface-muted);
+  --wr-comment-time-font-size: var(--wr-text-xs);
+  --wr-comment-body-color: var(--wr-color-on-surface);
+  // Replies: how far one level steps in, and the room between them.
+  --wr-comment-indent: var(--wr-space-xl);
+  --wr-comment-replies-gap: var(--wr-space-lg);
+  --wr-comment-replies-margin-top: var(--wr-space-lg);
+  // Bubble variant. The reader's own side is a filled intent with its
+  // `-contrast` label; the other side is a neutral fill with surface text.
+  --wr-comment-bubble-bg: var(--wr-color-fill);
+  --wr-comment-bubble-color: var(--wr-color-on-surface);
+  --wr-comment-bubble-time-color: var(--wr-color-on-surface-muted);
+  --wr-comment-bubble-radius: var(--wr-border-radius-lg);
+  --wr-comment-bubble-padding-y: var(--wr-space-sm);
+  --wr-comment-bubble-padding-x: var(--wr-space-md);
+  --wr-comment-bubble-max-width: 80%;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--wr-comment-gap);
+  // Claim the full row even when nested in a flex-row demo wrapper.
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+  font-family: var(--wr-comment-font-family);
+  font-size: var(--wr-comment-font-size);
+  line-height: var(--wr-comment-line-height);
+  color: var(--wr-comment-body-color);
+
+  &__avatar {
+    flex: 0 0 auto;
+    display: flex;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__main {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--wr-comment-body-gap);
+    min-width: 0;
+  }
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--wr-comment-head-gap);
+    min-width: 0;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__author {
+    color: var(--wr-comment-author-color);
+    font-weight: var(--wr-comment-author-font-weight);
+    overflow-wrap: anywhere;
+  }
+
+  &__time {
+    color: var(--wr-comment-time-color);
+    font-size: var(--wr-comment-time-font-size);
+  }
+
+  &__body {
+    min-width: 0;
+    // A pasted URL or a token with no break opportunity would otherwise push
+    // the row past its column.
+    overflow-wrap: anywhere;
+    // Text from the composer holds the lines Shift+Enter made.
+    white-space: pre-line;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--wr-comment-actions-gap);
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__replies {
+    flex: 1 1 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--wr-comment-replies-gap);
+    margin-top: var(--wr-comment-replies-margin-top);
+    padding-inline-start: var(--wr-comment-indent);
+    min-width: 0;
+
+    &:empty {
+      display: none;
+    }
+
+    // The third level and deeper sit flush with their parent: each step takes
+    // the indent plus an avatar column, and a phone has no body width left to
+    // give after two.
+    .wr-comment__replies .wr-comment__replies {
+      padding-inline-start: 0;
+    }
+  }
+
+  // One step on a phone: the second level is flush too.
+  @media (max-width: 480px) {
+    &__replies .wr-comment__replies {
+      padding-inline-start: 0;
+    }
+  }
+
+  // Bubble variant: the body is a chat bubble, the head sits inside it, and the
+  // whole row leans to one inline side. Logical properties and `row-reverse`
+  // only, so `dir="rtl"` mirrors the log on its own.
+  &--bubble {
+    flex-wrap: nowrap;
+
+    .wr-comment__main {
+      flex: 0 1 auto;
+      max-width: var(--wr-comment-bubble-max-width);
+      gap: 0;
+      padding: var(--wr-comment-bubble-padding-y) var(--wr-comment-bubble-padding-x);
+      background: var(--wr-comment-bubble-bg);
+      color: var(--wr-comment-bubble-color);
+      @include theme.smooth-br(var(--wr-comment-bubble-radius));
+    }
+
+    .wr-comment__head {
+      gap: var(--wr-comment-head-gap);
+    }
+
+    .wr-comment__author {
+      color: inherit;
+    }
+
+    .wr-comment__time {
+      color: var(--wr-comment-bubble-time-color);
+    }
+
+    .wr-comment__actions {
+      margin-top: var(--wr-comment-body-gap);
+    }
+  }
+
+  &--end {
+    --wr-comment-bubble-bg: var(--wr-color-primary);
+    --wr-comment-bubble-color: var(--wr-color-primary-contrast);
+    --wr-comment-bubble-time-color: var(--wr-color-primary-contrast);
+
+    flex-direction: row-reverse;
+  }
+}
+
+.wr-comment-composer {
+  --wr-comment-composer-bg: var(--wr-color-surface);
+  --wr-comment-composer-border: var(--wr-border-base);
+  --wr-comment-composer-ring: transparent;
+  --wr-comment-composer-radius: var(--wr-control-radius-md);
+  --wr-comment-composer-gap: var(--wr-space-xs);
+  --wr-comment-composer-padding: var(--wr-space-xs);
+  // 36px: one row of the md field (20px line, 8px padding a side) less its
+  // border, so the button sits inside the row it sends.
+  --wr-comment-composer-send-size: 2.25rem;
+
+  display: flex;
+  align-items: flex-end;
+  gap: var(--wr-comment-composer-gap);
+  // Claim the full row even when nested in a flex-row demo wrapper.
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+  padding: var(--wr-comment-composer-padding);
+  background: var(--wr-comment-composer-bg);
+  border: 1px solid var(--wr-comment-composer-border);
+  @include theme.smooth-br(var(--wr-comment-composer-radius));
+  box-shadow: 0 0 0 3px var(--wr-comment-composer-ring);
+  transition:
+    border-color var(--wr-transition-base),
+    box-shadow var(--wr-transition-base);
+
+  // The frame carries the focus state, so the field inside draws none of its
+  // own: no border, no ring, no fill, in every state.
+  &:focus-within {
+    --wr-comment-composer-border: var(--wr-color-primary);
+    --wr-comment-composer-ring: color-mix(in srgb, var(--wr-color-primary) 15%, transparent);
+  }
+
+  &--disabled {
+    --wr-comment-composer-bg: var(--wr-color-fill);
+
+    cursor: not-allowed;
+  }
+
+  &--readonly {
+    --wr-comment-composer-bg: var(--wr-color-fill);
+  }
+
+  &__field {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    &.wr-textarea,
+    &.wr-textarea--focused,
+    &.wr-textarea--disabled,
+    &.wr-textarea--readonly {
+      --wr-textarea-bg: transparent;
+      --wr-textarea-border: transparent;
+      --wr-textarea-ring: transparent;
+    }
+  }
+
+  &__actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--wr-comment-composer-gap);
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__send {
+    flex: 0 0 auto;
+    width: var(--wr-comment-composer-send-size);
+    height: var(--wr-comment-composer-send-size);
+    padding: 0;
+
+    @include theme.touch-target;
+
+    .wr-icon__svg {
+      display: block;
+      width: 1.125rem;
+      height: 1.125rem;
+    }
+
+    // The glyph points toward the inline end, so it turns with the direction.
+    [dir='rtl'] & .wr-icon__svg {
+      transform: scaleX(-1);
+    }
+  }
+}

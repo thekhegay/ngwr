@@ -271,6 +271,7 @@ describe('the surfaces that draw it', () => {
       'Bullet Chart',
       'Chart Legend',
       'Graph',
+      'Comment',
       'Editor',
       'wrDuration',
       'resolveCssColor',

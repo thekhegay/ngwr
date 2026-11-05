@@ -1,0 +1,29 @@
+<div class="wr-comment__avatar">
+  <ng-content select="wr-avatar, [wrCommentAvatar]" />
+</div>
+
+<div class="wr-comment__main">
+  <div class="wr-comment__head">
+    @if (author(); as name) {
+      <span class="wr-comment__author">{{ name }}</span>
+    }
+    <ng-content select="[wrCommentAuthor]" />
+    @if (time(); as printed) {
+      @if (isoDatetime(); as iso) {
+        <time class="wr-comment__time" [attr.datetime]="iso">{{ printed }}</time>
+      } @else {
+        <span class="wr-comment__time">{{ printed }}</span>
+      }
+    }
+  </div>
+
+  <div class="wr-comment__body"><ng-content /></div>
+
+  <div class="wr-comment__actions">
+    <ng-content select="[wrCommentActions]" />
+  </div>
+</div>
+
+<div class="wr-comment__replies" role="group" [attr.aria-label]="resolvedRepliesLabel()">
+  <ng-content select="wr-comment, [wrCommentReplies]" />
+</div>

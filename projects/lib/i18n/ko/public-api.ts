@@ -421,6 +421,10 @@ export const wrKo: WrI18nCatalog = {
     available: '일치하는 항목 {{count}}개',
     inserted: '{{label}} 삽입됨',
   },
+  comment: {
+    send: '보내기',
+    replies: '답글',
+  },
   drawer: {
     close: '패널 닫기',
   },

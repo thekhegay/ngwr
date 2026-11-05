@@ -411,6 +411,10 @@ export const wrHi: WrI18nCatalog = {
     available: 'उपलब्ध मिलान: {{count}}',
     inserted: 'जोड़ा गया: {{label}}',
   },
+  comment: {
+    send: 'भेजें',
+    replies: 'उत्तर',
+  },
   drawer: {
     close: 'ड्रॉअर बंद करें',
   },

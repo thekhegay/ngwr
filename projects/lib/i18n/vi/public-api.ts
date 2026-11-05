@@ -426,6 +426,10 @@ export const wrVi: WrI18nCatalog = {
     available: 'Số kết quả phù hợp: {{count}}',
     inserted: 'Đã chèn: {{label}}',
   },
+  comment: {
+    send: 'Gửi',
+    replies: 'Trả lời',
+  },
   drawer: {
     close: 'Đóng bảng trượt',
   },

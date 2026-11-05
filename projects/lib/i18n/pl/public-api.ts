@@ -432,6 +432,10 @@ export const wrPl: WrI18nCatalog = {
     available: 'Liczba dopasowań: {{count}}',
     inserted: 'Wstawiono: {{label}}',
   },
+  comment: {
+    send: 'Wyślij',
+    replies: 'Odpowiedzi',
+  },
   drawer: {
     close: 'Zamknij panel',
   },

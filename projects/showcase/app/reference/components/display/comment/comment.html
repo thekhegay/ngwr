@@ -1,0 +1,144 @@
+<ngwr-doc-page
+  title="Comment"
+  since="15.5.0"
+  description="A discussion row with replies, a chat bubble, and a composer that sends on Enter."
+  [keywords]="['comment', 'chat', 'composer', 'wr-comment', 'wr-comment-composer', 'bubble', 'thread']"
+>
+  <ngwr-doc-section
+    title="Thread"
+    description="Project the avatar, the body, the actions and the replies. The app owns the data and formats the time; `datetime` makes it a real `<time>`."
+  >
+    <ngwr-doc-code [code]="snippets.thread" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%; display: grid; gap: var(--wr-space-lg)">
+        <wr-comment author="Ann Lee" time="2 hours ago" datetime="2026-11-05T07:40:00Z">
+          <wr-avatar size="2.5rem" alt="">AL</wr-avatar>
+          Looks good. One question on the empty state below: does it fall back to the placeholder, or stay blank?
+          <div wrCommentActions>
+            <button wr-btn type="button" size="sm" outlined>Reply</button>
+            <button wr-btn type="button" size="sm" outlined>Like</button>
+          </div>
+          <wr-comment author="Bob Ray" time="an hour ago" datetime="2026-11-05T08:40:00Z">
+            <wr-avatar size="2rem" alt="">BR</wr-avatar>
+            It falls back to the placeholder, same as the input.
+            <div wrCommentActions>
+              <button wr-btn type="button" size="sm" outlined>Reply</button>
+            </div>
+            <wr-comment author="Ann Lee" time="40 minutes ago" datetime="2026-11-05T09:00:00Z">
+              <wr-avatar size="2rem" alt="">AL</wr-avatar>
+              Then this is fine, thanks.
+            </wr-comment>
+          </wr-comment>
+        </wr-comment>
+        <wr-comment author="Cy Park" time="yesterday" datetime="2026-11-04">
+          <wr-avatar size="2.5rem" alt="">CP</wr-avatar>
+          Approving.
+          https://github.com/thekhegay/ngwr/pull/1234/files#diff-a-very-long-anchor-that-wraps-rather-than-overflowing
+        </wr-comment>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Chat"
+    description='`variant="bubble"` draws a message; `side="end"` is the reader&apos;s own. Both sides follow the writing direction. The composer below sends on Enter.'
+  >
+    <ngwr-doc-code [code]="snippets.chat" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%; display: grid; gap: var(--wr-space-md)">
+        <div role="log" aria-label="Chat" style="display: grid; gap: var(--wr-space-sm)">
+          @for (m of messages(); track m.id) {
+            <wr-comment
+              variant="bubble"
+              [side]="m.own ? 'end' : 'start'"
+              [time]="m.at | wrDate: 'time'"
+              [datetime]="m.at"
+            >
+              {{ m.text }}
+            </wr-comment>
+          }
+        </div>
+        <wr-comment-composer placeholder="Message" [(value)]="draft" (send)="post($event)" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Composer"
+    description="`sending` holds the button while a request is out. With `clearOnSend` off the text stays until the app clears it, so a failed request loses nothing."
+  >
+    <ngwr-doc-code [code]="snippets.composer" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%; display: grid; gap: var(--wr-space-md)">
+        <wr-comment-composer
+          placeholder="Reply"
+          [sending]="posting()"
+          [clearOnSend]="false"
+          [(value)]="slowDraft"
+          (send)="postSlowly($event)"
+        />
+        @for (text of slowSent(); track $index) {
+          <wr-comment variant="bubble" side="end">{{ text }}</wr-comment>
+        }
+      </div>
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Keys</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>Enter</code></th>
+            <td>Sends. With <code>[enterSends]="false"</code> it adds a line instead.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>Shift+Enter</code></th>
+            <td>Adds a line.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>Ctrl+Enter</code>, <code>Cmd+Enter</code></th>
+            <td>Sends, whatever Enter does.</td>
+          </tr>
+          <tr>
+            <th scope="row">Enter during IME composition</th>
+            <td>Confirms the composition and never sends.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Forms"
+    description="The composer is a value control: bind it with `[formField]`, `[(value)]` or [any Angular form](/guides/forms)."
+  >
+    <ngwr-doc-code [code]="snippets.form" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <ul>
+      <li>Each comment is an <code>article</code> named after its <code>author</code>.</li>
+      <li>
+        Replies sit in a <code>group</code> named <code>repliesLabel</code>, from the
+        <code>comment.replies</code> catalog key.
+      </li>
+      <li>No heading level is assumed. Put a chat in <code>role="log"</code> so new messages are announced.</li>
+      <li>
+        The send button is named <code>sendLabel</code>, from <code>comment.send</code>. Focus stays in the field after
+        a send.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API" description="`<wr-comment>` inputs.">
+    <ngwr-doc-api [rows]="commentApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Composer API" description="`<wr-comment-composer>` inputs and outputs.">
+    <ngwr-doc-api [rows]="composerApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -6,9 +6,6 @@
 
 ## Medium
 
-- **`wr-comment` and a chat composer**: a discussion row (avatar, author, time,
-  body, actions, nested replies) with a bubble variant for chat, and a composer:
-  Enter sends, Shift+Enter adds a line, IME-safe. The data stays with the app.
 - **`--wr-border-base` as a fill**: `prefers-contrast: more` darkens this token so
   borders stay visible, which also darkens any fill mixed from it, and the text on
   that fill loses contrast. Check what the chart stylesheets mix from it, move each
