@@ -25,6 +25,7 @@ let uid = 0;
  */
 @Directive({
   selector: '[wrDrawerTitle]',
+  exportAs: 'wrDrawerTitle',
   host: { class: 'wr-drawer__title', '[attr.id]': 'id' },
 })
 export class WrDrawerTitle {

@@ -21,6 +21,7 @@ let uid = 0;
  */
 @Directive({
   selector: '[wrDialogTitle]',
+  exportAs: 'wrDialogTitle',
   host: { class: 'wr-dialog__title', '[attr.id]': 'id' },
 })
 export class WrDialogTitle {

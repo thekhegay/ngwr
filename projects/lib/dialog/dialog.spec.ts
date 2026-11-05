@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { Location } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
@@ -630,5 +630,35 @@ describe('WrDialog panel gutter', () => {
     expect(rules('.wr-dialog-panel.cdk-overlay-pane')).toMatch(/max-width:\s*calc\(100vw - 2rem\)/);
     expect(rules('.wr-dialog-panel.cdk-overlay-pane')).toMatch(/max-height:\s*calc\(100dvh - 2rem\)/);
     expect(rules('.wr-dialog-panel')).not.toMatch(/max-(width|height)/);
+  });
+});
+
+/**
+ * Without `exportAs` a template cannot reach the directive at all -
+ * `#t="wrDialogTitle"` fails to compile rather than resolving to nothing - so
+ * mounting the host is half the assertion. The other half is that the reference
+ * is the directive and not the heading it sits on: `id` is what a consumer
+ * reads to point an `aria-labelledby` of their own at the title.
+ */
+describe('WrDialogTitle template reference', () => {
+  @Component({
+    imports: [WrDialogTitle],
+    template: `<h2 wrDialogTitle #ref="wrDialogTitle">Delete item</h2>`,
+  })
+  class ExportHost {
+    readonly title = viewChild.required<WrDialogTitle>('ref');
+  }
+
+  it('publishes the instance as `wrDialogTitle`', () => {
+    TestBed.resetTestingModule();
+
+    const fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+
+    const title = fixture.componentInstance.title();
+    expect(title).toBeInstanceOf(WrDialogTitle);
+    expect((fixture.nativeElement as HTMLElement).querySelector('h2')?.id).toBe(title.id);
+
+    fixture.destroy();
   });
 });
