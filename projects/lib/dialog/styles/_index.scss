@@ -1,5 +1,11 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry point this component's own markup renders: `confirm()`
+// mounts two `wr-btn`, and a consumer who writes `@use 'ngwr/dialog'` never
+// learns about them. Sass deduplicates `@use`, so an app that also loads the
+// button by hand still emits it once.
+@use '../../button/styles' as button-styles; // WrButton
+
 // CDK Overlay base styles are usually loaded once by the consumer.
 // We re-emit the minimal `cdk-overlay-*` rules so a standalone `@use
 // 'ngwr/dialog'` works without manually pulling CDK's prebuilt CSS.

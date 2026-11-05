@@ -7,7 +7,7 @@
 
 import type { ConfigurableFocusTrap } from '@angular/cdk/a11y';
 import type { OverlayRef } from '@angular/cdk/overlay';
-import type { ComponentRef } from '@angular/core';
+import { type ComponentRef, type EffectRef, type Injector, type Signal, effect, untracked } from '@angular/core';
 
 import { ReplaySubject } from 'rxjs';
 
@@ -60,7 +60,17 @@ export class WrDialogRef<C, R = unknown> {
   /** @internal */
   previouslyFocused: HTMLElement | null = null;
 
-  constructor(private readonly _overlayRef: OverlayRef) {}
+  private readonly watchers: EffectRef[] = [];
+
+  /**
+   * @param _overlayRef the overlay the dialog is mounted in.
+   * @param injector what `closeWhen()` runs its watcher in. `WrDialog.open()`
+   *   passes the root injector; a ref built without one cannot watch.
+   */
+  constructor(
+    private readonly _overlayRef: OverlayRef,
+    private readonly injector?: Injector
+  ) {}
 
   /** The instantiated dialog component. */
   get componentInstance(): C {
@@ -76,6 +86,7 @@ export class WrDialogRef<C, R = unknown> {
   close(result?: R): void {
     if (this.isClosed) return;
     this.isClosed = true;
+    for (const watcher of this.watchers.splice(0)) watcher.destroy();
     this.closed.next(result);
     this.closed.complete();
     // Content that closes itself while constructing gets here with
@@ -102,6 +113,39 @@ export class WrDialogRef<C, R = unknown> {
     if (restore && typeof restore.focus === 'function') {
       restore.focus();
     }
+  }
+
+  /**
+   * Close the dialog once `source` reads `true`, with `result` - `undefined`
+   * when omitted, which is what every dismissal closes with. A source that is
+   * already `true` closes it on the next change detection, after the attach
+   * has finished.
+   *
+   * The watcher belongs to the dialog: it runs in the root injector, so the
+   * caller needs no injection context, and it is destroyed when the dialog
+   * closes by any path, so a source that turns `true` later does nothing. Each
+   * call adds a watcher; the first to fire closes. A closed dialog ignores the
+   * call.
+   *
+   * @example
+   * ```ts
+   * const saved = computed(() => this.save.status() === 'resolved');
+   * this.dialog.open(SavingComponent).closeWhen(saved, 'saved');
+   * ```
+   */
+  closeWhen(source: Signal<boolean>, result?: R): void {
+    if (this.isClosed) return;
+    if (!this.injector) {
+      throw new Error('WrDialogRef: closeWhen() needs a ref opened by WrDialog, which carries the injector');
+    }
+    this.watchers.push(
+      effect(
+        () => {
+          if (source()) untracked(() => this.close(result));
+        },
+        { injector: this.injector }
+      )
+    );
   }
 
   /** Resolves with the close result when the dialog is dismissed. */

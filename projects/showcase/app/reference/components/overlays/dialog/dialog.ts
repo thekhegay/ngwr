@@ -4,6 +4,7 @@ import { WrButton } from 'ngwr/button';
 import { WrDialog } from 'ngwr/dialog';
 
 import { ConfirmDialogComponent, type ConfirmData } from './confirm-dialog';
+import { WaitingDialogComponent } from './waiting-dialog';
 
 import {
   DocApiComponent,
@@ -22,6 +23,8 @@ import {
 export default class DialogPageComponent {
   private readonly dialog = inject(WrDialog);
   protected readonly lastResult = signal<string>('—');
+  protected readonly lastAnswer = signal<string>('-');
+  protected readonly lastSignalResult = signal<string>('-');
 
   protected readonly snippets = {
     open: `const ref = dialog.open(ConfirmComponent, {
@@ -84,6 +87,17 @@ ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(ok => { … });`,
 
 const result = await ref.awaitClose(); // 'saved' | 'discarded' | undefined
 if (result === undefined) return;      // dismissed`,
+    confirm: `const ok = await this.dialog.confirm({
+  title: 'Delete this item?',
+  message: 'This cannot be undone.',
+  confirmLabel: 'Delete',
+  confirmColor: 'danger',
+});
+if (ok) this.store.remove(item);`,
+    closeWhen: `const ref = this.dialog.open(UploadingComponent);
+ref.closeWhen(this.upload.isDone, 'uploaded');
+
+const result = await ref.awaitClose(); // 'uploaded', or undefined when dismissed first`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -92,6 +106,52 @@ if (result === undefined) return;      // dismissed`,
       description: 'Opens a dialog. Returns a WrDialogRef.',
       type: '(component, WrDialogOptions) => WrDialogRef',
       default: '—',
+    },
+    {
+      name: 'confirm(options)',
+      description:
+        'Asks a question. `true` only for the confirm button; Escape, the backdrop, cancel, a navigation and app teardown resolve `false`. On the server it resolves `false` at once.',
+      type: '(WrDialogConfirmOptions) => Promise<boolean>',
+      default: '-',
+    },
+  ];
+
+  protected readonly confirmApi: readonly DocApiRow[] = [
+    {
+      name: 'WrDialogConfirmOptions',
+      description:
+        'Argument of `confirm()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape` and `closeOnNavigation` from `WrDialogOptions`.',
+      type: 'interface',
+      default: '-',
+    },
+    { name: 'title', description: 'The question. Names the dialog.', type: 'string', default: '-', sub: true },
+    {
+      name: 'message',
+      description: 'Plain text under the title, never HTML. Describes the dialog.',
+      type: 'string',
+      default: '-',
+      sub: true,
+    },
+    {
+      name: 'confirmLabel',
+      description: 'Confirm button text. Falls back to the common.ok catalog key.',
+      type: 'string',
+      default: '-',
+      sub: true,
+    },
+    {
+      name: 'cancelLabel',
+      description: 'Cancel button text. Falls back to the common.cancel catalog key.',
+      type: 'string',
+      default: '-',
+      sub: true,
+    },
+    {
+      name: 'confirmColor',
+      description: 'Color of the confirm button. `danger` also puts initial focus on cancel.',
+      type: 'WrColor',
+      default: "'primary'",
+      sub: true,
     },
   ];
 
@@ -111,6 +171,13 @@ if (result === undefined) return;      // dismissed`,
       name: 'awaitClose()',
       description: 'Resolves with the close result.',
       type: '() => Promise<R | undefined>',
+      sub: true,
+    },
+    {
+      name: 'closeWhen(source, result?)',
+      description:
+        'Closes with `result` once `source` reads `true`. The watcher dies with the dialog, so nothing leaks and no injection context is needed.',
+      type: '(Signal<boolean>, R?) => void',
       sub: true,
     },
     {
@@ -145,6 +212,13 @@ if (result === undefined) return;      // dismissed`,
       description: 'Payload exposed to the content via WR_DIALOG_DATA.',
       type: 'D',
       default: '—',
+      sub: true,
+    },
+    {
+      name: 'role',
+      description: 'An `alertdialog` is also described by its `[wrDialogContent]`.',
+      type: "'dialog' | 'alertdialog'",
+      default: "'dialog'",
       sub: true,
     },
     { name: 'width', description: 'Panel width — any CSS length.', type: 'string', default: '—', sub: true },
@@ -222,6 +296,14 @@ if (result === undefined) return;      // dismissed`,
       default: '—',
     },
     {
+      name: 'id',
+      description: 'The element id, which an `alertdialog` names in `aria-describedby`.',
+      type: 'string',
+      // eslint-disable-next-line no-template-curly-in-string -- `check:api-docs` compares this with the source
+      default: '`wr-dialog-content-${++uid}`',
+      sub: true,
+    },
+    {
       name: '[wrDialogFooter]',
       description: 'Styles the footer. Import `WrDialogFooter`.',
       type: 'directive',
@@ -256,5 +338,33 @@ if (result === undefined) return;      // dismissed`,
     });
     const result = await ref.awaitClose();
     this.lastResult.set(result === true ? 'Confirmed' : 'Cancelled');
+  }
+
+  protected async ask(): Promise<void> {
+    const ok = await this.dialog.confirm({
+      title: 'Save changes?',
+      message: 'The draft is kept either way.',
+      confirmLabel: 'Save',
+    });
+    this.lastAnswer.set(String(ok));
+  }
+
+  protected async askDanger(): Promise<void> {
+    const ok = await this.dialog.confirm({
+      title: 'Delete this item?',
+      message: 'This cannot be undone.',
+      confirmLabel: 'Delete',
+      confirmColor: 'danger',
+    });
+    this.lastAnswer.set(String(ok));
+  }
+
+  protected async openUntilDone(): Promise<void> {
+    const done = signal(false);
+    const ref = this.dialog.open<WaitingDialogComponent, string>(WaitingDialogComponent, { width: '24rem' });
+    ref.closeWhen(done, 'uploaded');
+    setTimeout(() => done.set(true), 3000);
+    const result = await ref.awaitClose();
+    this.lastSignalResult.set(result ?? 'dismissed');
   }
 }

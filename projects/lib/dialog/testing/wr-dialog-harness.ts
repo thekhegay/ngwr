@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ContentContainerComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
+import { ContentContainerComponentHarness, HarnessPredicate, type TestElement, TestKey } from '@angular/cdk/testing';
 
 import type { WrDialogHarnessFilters } from './types';
 
@@ -88,6 +88,31 @@ export class WrDialogHarness extends ContentContainerComponentHarness {
   /** Press Escape. A dialog opened `closeOnEscape: false` ignores it — assert, do not assume. */
   async sendEscape(): Promise<void> {
     await (await this.host()).sendKeys(TestKey.ESCAPE);
+  }
+
+  /** Whether this is a `WrDialog.confirm()` dialog, the one `confirm()` and `cancel()` answer. */
+  async isConfirm(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-dialog-confirm')()) !== null;
+  }
+
+  /** Press the confirm button of a `WrDialog.confirm()` dialog. Throws on any other dialog. */
+  async confirm(): Promise<void> {
+    await (await this.answer('confirm')).click();
+  }
+
+  /** Press the cancel button of a `WrDialog.confirm()` dialog. Throws on any other dialog. */
+  async cancel(): Promise<void> {
+    await (await this.answer('cancel')).click();
+  }
+
+  private async answer(which: 'confirm' | 'cancel'): Promise<TestElement> {
+    const button = await this.locatorForOptional(`.wr-dialog-confirm__action--${which}`)();
+    if (!button) {
+      throw new Error(
+        `WrDialogHarness: ${which}() answers a WrDialog.confirm() dialog; this one was opened with open()`
+      );
+    }
+    return button;
   }
 
   /** Whether focus is currently somewhere inside the dialog, where the trap should keep it. */

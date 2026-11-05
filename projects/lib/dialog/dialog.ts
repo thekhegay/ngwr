@@ -10,15 +10,24 @@ import { Directionality } from '@angular/cdk/bidi';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { Location, isPlatformBrowser } from '@angular/common';
-import { EnvironmentInjector, Service, Injector, PLATFORM_ID, afterEveryRender, inject } from '@angular/core';
+import {
+  DestroyRef,
+  EnvironmentInjector,
+  Service,
+  Injector,
+  PLATFORM_ID,
+  afterEveryRender,
+  inject,
+} from '@angular/core';
 
 import { WrI18n } from 'ngwr/i18n';
 import { WR_OVERLAY, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList } from 'ngwr/utils';
 
+import { WrDialogConfirm } from './confirm/dialog-confirm';
 import { WrDialogRef } from './dialog-ref';
 import { WR_DIALOG_DATA, WR_DIALOG_REF } from './tokens';
-import type { WrDialogOptions } from './types';
+import type { WrDialogConfirmOptions, WrDialogOptions } from './types';
 
 const DEFAULT_PANEL_CLASS = 'wr-dialog-panel';
 const DEFAULT_BACKDROP_CLASS = 'wr-dialog-backdrop';
@@ -56,6 +65,7 @@ export class WrDialog {
   // Resolvable wherever the CDK's own `Overlay` is — it injects the same thing
   // to implement `disposeOnNavigation`.
   private readonly location = inject(Location);
+  private readonly destroyRef = inject(DestroyRef);
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDialogOptions<D> = {}): WrDialogRef<C, R> {
     const overlayRef: OverlayRef = this.overlay.create({
@@ -78,7 +88,7 @@ export class WrDialog {
     // path goes through, and each `open()` creates a fresh ref of its own.
     wrFollowDirection(overlayRef, this.dir, this.parentInjector);
 
-    const dialogRef = new WrDialogRef<C, R>(overlayRef);
+    const dialogRef = new WrDialogRef<C, R>(overlayRef, this.parentInjector);
 
     if (this.isBrowser) {
       const active = document.activeElement;
@@ -124,7 +134,8 @@ export class WrDialog {
 
     if (this.isBrowser) {
       const host = overlayRef.overlayElement;
-      host.setAttribute('role', 'dialog');
+      const role = options.role ?? 'dialog';
+      host.setAttribute('role', role);
       host.setAttribute('aria-modal', 'true');
       // Built-in dismiss. Appended after the content portal so it paints above
       // it, and marked on the panel so the title reserves the corner gutter.
@@ -143,11 +154,18 @@ export class WrDialog {
       // or remove the element the attribute names. A reference to a node that is
       // no longer there is not a name — the dialog announces as unnamed — so a
       // missing title clears the attribute rather than leaving it dangling.
+      //
+      // An `alertdialog` is described by its content the same way: the message
+      // is the dialog, and it can be conditional too.
       const labelSync = afterEveryRender(
         () => {
           const titleEl = host.querySelector<HTMLElement>('[wrDialogTitle], [wr-dialog-title]');
           if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
           else host.removeAttribute('aria-labelledby');
+          if (role !== 'alertdialog') return;
+          const contentEl = host.querySelector<HTMLElement>('[wrDialogContent], [wr-dialog-content]');
+          if (contentEl?.id) host.setAttribute('aria-describedby', contentEl.id);
+          else host.removeAttribute('aria-describedby');
         },
         { injector: this.parentInjector }
       );
@@ -162,6 +180,50 @@ export class WrDialog {
     }
 
     return dialogRef;
+  }
+
+  /**
+   * Ask a yes-or-no question and get the answer: `true` only when the user
+   * pressed the confirm button. Escape, the backdrop, the cancel button, a
+   * navigation and the application being torn down all resolve `false`. The
+   * promise settles exactly once and never rejects, so the caller needs no
+   * `catch` and no cleanup.
+   *
+   * The dialog is `role="alertdialog"`, named by `title` and described by
+   * `message`, with no corner dismiss: the two buttons are the answers. Labels
+   * fall back to the `common.ok` and `common.cancel` catalog keys. With
+   * `confirmColor: 'danger'` initial focus is on the cancel button; otherwise it
+   * is on the confirm button. Focus returns to the opener on close, as it does
+   * for `open()`.
+   *
+   * On the server nothing can answer, so it resolves `false` at once and opens
+   * nothing.
+   *
+   * @example
+   * ```ts
+   * const ok = await dialog.confirm({
+   *   title: 'Delete this item?',
+   *   message: 'This cannot be undone.',
+   *   confirmLabel: 'Delete',
+   *   confirmColor: 'danger',
+   * });
+   * if (ok) remove();
+   * ```
+   */
+  async confirm(options: WrDialogConfirmOptions): Promise<boolean> {
+    if (!this.isBrowser) return false;
+    const { title, message, confirmLabel, cancelLabel, confirmColor, ...rest } = options;
+    const ref = this.open<WrDialogConfirm, boolean, WrDialogConfirmOptions>(WrDialogConfirm, {
+      ...rest,
+      role: 'alertdialog',
+      closable: false,
+      data: { title, message, confirmLabel, cancelLabel, confirmColor },
+    });
+    // The root injector going away takes the overlay container with it and
+    // completes nothing, which would leave this promise pending for good.
+    const unhook = this.destroyRef.onDestroy(() => ref.close());
+    ref.closed.subscribe({ complete: unhook });
+    return (await ref.awaitClose()) === true;
   }
 
   /**

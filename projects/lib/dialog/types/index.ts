@@ -1,1 +1,2 @@
-export type { WrDialogOptions } from './dialog-options';
+export type { WrDialogOptions, WrDialogRole } from './dialog-options';
+export type { WrDialogConfirmOptions } from './dialog-confirm-options';
