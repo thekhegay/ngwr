@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Mention"
+  updated="15.6.0"
   description="Suggest names or tags while typing `@` in a text field."
   [keywords]="['mention', 'autocomplete', 'wr-mention', 'tagging']"
   [labels]="['Directive']"
@@ -38,6 +39,14 @@
         rows="3"
       ></textarea>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Template reference"
+    description="Export as `wrMention` to open or close the list from another control. `open()` filters by the mention at the caret, or shows the whole list; a pick then inserts the trigger too."
+  >
+    <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
+    <ngwr-doc-api [rows]="methodsApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Types">

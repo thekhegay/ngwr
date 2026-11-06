@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="wrCopyToClipboard"
+  updated="15.6.0"
   description="Copy a string to the clipboard when the element is clicked."
   [keywords]="['wrCopyToClipboard', 'copy', 'clipboard', 'directive']"
   [labels]="['Directive']"
@@ -19,6 +20,13 @@
         </small>
       }
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Template reference"
+    description="Export as `wrCopyToClipboard` to copy from another control. `copy()` does what a click does and resolves with whether the text reached the clipboard."
+  >
+    <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

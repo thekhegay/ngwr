@@ -38,6 +38,10 @@ export default class CopyToClipboardPage {
 
   protected readonly snippets = {
     usage: `<button [wrCopyToClipboard]="value" (copied)="toast('Copied!')">Copy</button>`,
+    exportAs: `<code [wrCopyToClipboard]="value" #snippet="wrCopyToClipboard">{{ value }}</code>
+
+<!-- Anywhere else in the same template -->
+<wr-btn (click)="snippet.copy()">Copy</wr-btn>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -60,6 +64,11 @@ export default class CopyToClipboardPage {
       type: 'unknown',
       default: '—',
       sub: true,
+    },
+    {
+      name: 'copy()',
+      description: 'What a click does: the outputs fire, and it resolves with whether the text reached the clipboard.',
+      type: '() => Promise<boolean>',
     },
   ];
 
