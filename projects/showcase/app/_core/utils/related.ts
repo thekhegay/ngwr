@@ -28,7 +28,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'bits/waves',
     'bits/threads',
     'bits/aurora',
-    'bits/spotlight-card',
+    'bits/iridescence',
     'reference/utils/resolve-css-color',
   ],
   'bits/falling-text': ['bits/split-text', 'bits/blur-text'],
@@ -55,7 +55,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'bits/rotating-text': ['bits/typewriter', 'bits/split-text', 'bits/decrypt-text', 'bits/circular-text'],
   'bits/shiny-text': ['bits/gradient-text', 'bits/star-border'],
   'bits/splash-cursor': ['bits/click-spark', 'bits/aurora', 'bits/waves'],
-  'bits/split-text': ['bits/blur-text', 'bits/typewriter', 'bits/waves', 'bits/falling-text', 'bits/decrypt-text'],
+  'bits/split-text': ['bits/blur-text', 'bits/typewriter', 'bits/falling-text', 'bits/decrypt-text'],
   'bits/spotlight-card': ['reference/components/card', 'bits/border-glow', 'bits/tilt-card', 'bits/star-border'],
   'bits/star-border': [
     'bits/border-glow',

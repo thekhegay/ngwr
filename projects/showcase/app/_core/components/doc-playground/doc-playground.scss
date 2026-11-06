@@ -171,6 +171,10 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    // A picked `rgba(…)` is the widest value a chip shows: let the button shrink
+    // to the room the label leaves and the value truncate, never wrap or spill.
+    min-width: 0;
+    max-width: 100%;
     padding: 0.25rem 0.5rem;
     border: 1px solid var(--wr-border-base);
     border-radius: 0.375rem;
@@ -215,7 +219,27 @@
   }
 
   &__color-value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     text-transform: uppercase;
     font-size: 0.75rem;
+  }
+}
+
+// Under `sm` a chip is the one column of the grid, about 20rem inside its
+// padding at 390px. The label never wraps, so a long one beside a select's
+// 10rem floor, a slider plus its value, or a picked `rgba(…)` colour leaves the
+// control a stub or pushes it out of the chip. Give the label its own row
+// there and the control the next; a toggle is narrow enough to keep its row.
+@include bp.media-down(sm) {
+  .chip:not([data-kind='toggle']) {
+    flex-wrap: wrap;
+    row-gap: 0.375rem;
+
+    > .chip__label {
+      flex-basis: 100%;
+    }
   }
 }

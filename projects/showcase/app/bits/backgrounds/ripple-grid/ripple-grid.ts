@@ -78,7 +78,7 @@ export default class RippleGridPage {
       precision: 2,
       unit: 'px',
     },
-    { kind: 'slider', label: 'Strength', signal: this.strength, min: -20, max: 30, step: 1, unit: 'px' },
+    { kind: 'slider', label: 'Strength', signal: this.strength, min: -12, max: 12, step: 1, unit: 'px' },
     { kind: 'slider', label: 'Speed', signal: this.speed, min: 0, max: 800, step: 20, unit: 'px/s' },
     { kind: 'slider', label: 'Decay', signal: this.decay, min: 0, max: 4, step: 0.1, precision: 1 },
     { kind: 'slider', label: 'Idle interval', signal: this.idleInterval, min: 0, max: 5000, step: 100, unit: 'ms' },
