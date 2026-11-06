@@ -510,6 +510,10 @@ export const wrHe: WrI18nCatalog = {
     forbidden: 'מצטערים, אין לכם הרשאה לגשת לעמוד הזה.',
     serverError: 'מצטערים, משהו השתבש.',
   },
+  loadState: {
+    failed: 'הטעינה נכשלה',
+    retry: 'ניסיון חוזר',
+  },
   date: {
     months: {
       jan: 'ינואר',

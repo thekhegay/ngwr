@@ -503,6 +503,10 @@ export const wrIt: WrI18nCatalog = {
     forbidden: 'Spiacenti, non hai le autorizzazioni per accedere a questa pagina.',
     serverError: 'Spiacenti, si è verificato un errore.',
   },
+  loadState: {
+    failed: 'Impossibile caricare',
+    retry: 'Riprova',
+  },
   // Italian writes month names in lowercase, and `Intl` does the same for `it`
   // — so a consumer rendering its own calendar beside a library one that takes
   // its header from the date adapter gets one casing, not two.

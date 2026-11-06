@@ -60,6 +60,7 @@
   // position is off-screen or at its gradient origin, so stopping them leaves a
   // plain tinted placeholder rather than a half-drawn band.
   .wr-skeleton--animated::after,
+  .wr-skeleton--animated .wr-skeleton__line::after,
   .wr-lightbox--loading::after {
     animation: none !important;
   }

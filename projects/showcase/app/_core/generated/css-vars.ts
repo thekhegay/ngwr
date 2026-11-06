@@ -13,10 +13,10 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1593 hook(s) across 108 page(s). A property is here only when the
+ * 1603 hook(s) across 109 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
- * declares it also owns it: 31 declaration(s) are one component setting
+ * declares it also owns it: 34 declaration(s) are one component setting
  * another's hook (`--wr-icon-size` inside its own `<wr-icon>`) and belong on
  * the owner's page, not on the setter's. A row marked `host` is one the
  * component writes on its own host, from an input or from its state, and never
@@ -608,6 +608,8 @@ export const CSS_VARS = {
   "reference/components/alert": {
     subpath: "ngwr/alert",
     vars: [
+      { name: "--wr-alert-actions-gap", default: "var(--wr-space-sm)", scope: ".wr-alert" },
+      { name: "--wr-alert-actions-margin-top", default: "var(--wr-space-xs)", scope: ".wr-alert" },
       { name: "--wr-alert-bg", default: "var(--wr-color-info-soft)", scope: ".wr-alert", overrides: 3 },
       { name: "--wr-alert-body-gap", default: "var(--wr-space-xs)", scope: ".wr-alert" },
       { name: "--wr-alert-border", default: "transparent", scope: ".wr-alert" },
@@ -1420,6 +1422,14 @@ export const CSS_VARS = {
       { name: "--wr-list-radius", default: "var(--wr-border-radius-base)", scope: ".wr-list" },
     ],
   },
+  "reference/components/load-state": {
+    subpath: "ngwr/load-state",
+    vars: [
+      { name: "--wr-load-state-error-padding-x", default: "var(--wr-space-lg)", scope: ".wr-load-state" },
+      { name: "--wr-load-state-error-padding-y", default: "var(--wr-space-xl)", scope: ".wr-load-state" },
+      { name: "--wr-load-state-error-title-font-size", default: "var(--wr-text-base)", scope: ".wr-load-state" },
+    ],
+  },
   "reference/components/mention": {
     subpath: "ngwr/mention",
     vars: [
@@ -1680,8 +1690,13 @@ export const CSS_VARS = {
   "reference/components/skeleton": {
     subpath: "ngwr/skeleton",
     vars: [
+      { name: "--wr-skeleton-bg", default: "var(--wr-color-fill)", scope: ".wr-skeleton", overrides: 1 },
       { name: "--wr-skeleton-height", default: "1lh", scope: ".wr-skeleton" },
+      { name: "--wr-skeleton-last-line-width", default: "60%", scope: ".wr-skeleton" },
+      { name: "--wr-skeleton-line-gap", default: "var(--wr-space-sm)", scope: ".wr-skeleton" },
       { name: "--wr-skeleton-radius", default: "var(--wr-border-radius-base)", scope: ".wr-skeleton" },
+      { name: "--wr-skeleton-shimmer", default: "var(--wr-color-fill-strong)", scope: ".wr-skeleton", overrides: 1 },
+      { name: "--wr-skeleton-shimmer-peak", default: "var(--wr-color-fill-strong)", scope: ".wr-skeleton", overrides: 1 },
     ],
   },
   "reference/components/slider": {

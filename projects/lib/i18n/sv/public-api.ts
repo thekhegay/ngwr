@@ -489,6 +489,10 @@ export const wrSv: WrI18nCatalog = {
     forbidden: 'Tyvärr har du inte behörighet till den här sidan.',
     serverError: 'Tyvärr gick något fel.',
   },
+  loadState: {
+    failed: 'Det gick inte att läsa in',
+    retry: 'Försök igen',
+  },
   date: {
     months: {
       jan: 'januari',

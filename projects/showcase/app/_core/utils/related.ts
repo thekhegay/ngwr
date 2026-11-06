@@ -473,6 +473,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'reference/components/empty': [
     'reference/components/result',
     'reference/components/skeleton',
+    'reference/components/load-state',
     'reference/components/table',
   ],
   'reference/components/event-calendar': [
@@ -543,6 +544,13 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/carousel',
     'reference/components/dialog',
     'reference/components/compare',
+  ],
+  'reference/components/load-state': [
+    'reference/components/skeleton',
+    'reference/components/result',
+    'reference/components/empty',
+    'reference/components/alert',
+    'reference/utils/wr-action',
   ],
   'reference/components/list': [
     'reference/components/sortable-list',
@@ -631,6 +639,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/breadcrumbs',
   ],
   'reference/components/skeleton': [
+    'reference/components/load-state',
     'reference/components/spinner',
     'reference/components/progress',
     'reference/components/empty',

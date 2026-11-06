@@ -508,6 +508,10 @@ export const wrFr: WrI18nCatalog = {
     forbidden: "Désolé, vous n'avez pas l'autorisation d'accéder à cette page.",
     serverError: "Désolé, une erreur s'est produite.",
   },
+  loadState: {
+    failed: 'Chargement impossible',
+    retry: 'Réessayer',
+  },
   date: {
     // En français les noms de mois s'écrivent en minuscules, y compris en tête
     // d'un libellé — « janvier 2026 », pas « Janvier 2026 ». Ce n'est pas une

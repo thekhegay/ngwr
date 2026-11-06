@@ -512,6 +512,10 @@ export const wrPl: WrI18nCatalog = {
     forbidden: 'Przepraszamy, nie masz uprawnień do wyświetlenia tej strony.',
     serverError: 'Przepraszamy, coś poszło nie tak.',
   },
+  loadState: {
+    failed: 'Nie udało się wczytać',
+    retry: 'Spróbuj ponownie',
+  },
   date: {
     months: {
       jan: 'styczeń',

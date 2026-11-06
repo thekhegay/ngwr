@@ -510,6 +510,10 @@ export const wrUk: WrI18nCatalog = {
     forbidden: 'Вибачте, у вас немає доступу до цієї сторінки.',
     serverError: 'Вибачте, щось пішло не так.',
   },
+  loadState: {
+    failed: 'Не вдалося завантажити',
+    retry: 'Повторити',
+  },
   date: {
     months: {
       jan: 'Січень',

@@ -8,9 +8,6 @@
 
 ## Low
 
-- **Screen states**: a `[wrAlertActions]` slot on `wr-alert`, a `lines` input on
-  `wr-skeleton`, and `wr-load-state`: one wrapper that takes a status or a resource
-  and draws the skeleton, the failure with a retry, the empty slot or the content.
 - **`compact` and `sticky` on `wr-page-header`**: a one-line head with the crumbs
   beside the title, a second row for filters, and a way to stay in view.
 - **`wr-graph` zoom and pan**: zoom in and out and drag the field, like NG-ZORRO's

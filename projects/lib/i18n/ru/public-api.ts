@@ -502,6 +502,10 @@ export const wrRu: WrI18nCatalog = {
     forbidden: 'Извините, доступ к этой странице ограничен.',
     serverError: 'Извините, что-то пошло не так.',
   },
+  loadState: {
+    failed: 'Не удалось загрузить',
+    retry: 'Повторить',
+  },
   date: {
     months: {
       jan: 'Январь',

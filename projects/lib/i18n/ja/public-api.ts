@@ -493,6 +493,10 @@ export const wrJa: WrI18nCatalog = {
     forbidden: '申し訳ありません。このページへのアクセス権限がありません。',
     serverError: '申し訳ありません。問題が発生しました。',
   },
+  loadState: {
+    failed: '読み込めませんでした',
+    retry: '再試行',
+  },
   date: {
     months: {
       jan: '1月',

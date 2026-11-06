@@ -1,0 +1,41 @@
+@switch (state()) {
+  @case ('loading') {
+    @if (loadingTpl(); as custom) {
+      <ng-container [ngTemplateOutlet]="custom.template" />
+    } @else {
+      <wr-skeleton class="wr-load-state__skeleton" [lines]="lines()" />
+    }
+  }
+  @case ('error') {
+    @if (errorTpl(); as custom) {
+      <ng-container [ngTemplateOutlet]="custom.template" [ngTemplateOutletContext]="errorContext()" />
+    } @else {
+      <wr-result class="wr-load-state__error" status="error" [title]="resolvedErrorLabel()">
+        <wr-btn wrResultExtra class="wr-load-state__retry" size="sm" [loading]="retrying()" (click)="onRetry()">
+          {{ resolvedRetryLabel() }}
+        </wr-btn>
+      </wr-result>
+    }
+  }
+  @case ('empty') {
+    @if (emptyTpl(); as custom) {
+      <ng-container [ngTemplateOutlet]="custom.template" />
+    } @else {
+      <wr-empty class="wr-load-state__empty" [title]="emptyLabel()" />
+    }
+  }
+  @case ('ready') {
+    @if (contentTpl(); as custom) {
+      <ng-container [ngTemplateOutlet]="custom.template" [ngTemplateOutletContext]="contentContext()" />
+    }
+  }
+}
+<!-- Always in the DOM, so a screen reader is watching it before the failure
+     lands. The text leaves while a retry runs and comes back if that fails, so
+     a second failure is announced too; a reload behind the content never
+     touches it. -->
+<span class="wr-load-state__announce" role="status" aria-live="polite">
+  @if (state() === 'error' && !retrying()) {
+    {{ resolvedErrorLabel() }}
+  }
+</span>

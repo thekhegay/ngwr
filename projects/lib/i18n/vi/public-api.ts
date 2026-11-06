@@ -506,6 +506,10 @@ export const wrVi: WrI18nCatalog = {
     forbidden: 'Rất tiếc, bạn không có quyền truy cập trang này.',
     serverError: 'Rất tiếc, đã xảy ra lỗi.',
   },
+  loadState: {
+    failed: 'Không thể tải',
+    retry: 'Thử lại',
+  },
   date: {
     months: {
       jan: 'Tháng 1',

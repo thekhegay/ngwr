@@ -93,7 +93,7 @@ describe('the docs "new" rule', () => {
 describe('the docs "updated" mark', () => {
   it('reads it out of the generated map', () => {
     expect(updatedOf('docs/configuration')).toBe('15.0.0');
-    expect(updatedOf('reference/components/alert')).toBeNull();
+    expect(updatedOf('reference/components/divider')).toBeNull();
   });
 
   // `updated` rides the same expiring rule as `since`, and the first release of a
@@ -109,7 +109,7 @@ describe('the docs "updated" mark', () => {
     // The editor declares since 14.9.0 and updated 15.0.0.
     expect(linkMark('/reference/components/editor', '14.9.0')).toBe('new');
     expect(linkMark('/reference/components/editor', '15.0.0')).toBe('updated');
-    expect(linkMark('/reference/components/alert', '15.0.0')).toBeNull();
+    expect(linkMark('/reference/components/divider', '15.0.0')).toBeNull();
     expect(linkMark(undefined, '15.0.0')).toBeNull();
   });
 });
@@ -272,6 +272,7 @@ describe('the surfaces that draw it', () => {
       'Chart Legend',
       'Graph',
       'Comment',
+      'Load State',
       'Editor',
       'wrDuration',
       'wrInitials',

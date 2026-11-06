@@ -487,6 +487,10 @@ export const wrZh: WrI18nCatalog = {
     forbidden: '抱歉，您无权访问此页面。',
     serverError: '抱歉，出错了。',
   },
+  loadState: {
+    failed: '无法加载',
+    retry: '重试',
+  },
   date: {
     months: {
       jan: '一月',

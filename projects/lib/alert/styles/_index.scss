@@ -65,6 +65,8 @@ $alert-colors: (
   --wr-alert-message-line-height: var(--wr-text-sm-leading);
   --wr-alert-close-padding: var(--wr-space-xs);
   --wr-alert-close-radius: var(--wr-border-radius-sm);
+  --wr-alert-actions-gap: var(--wr-space-sm);
+  --wr-alert-actions-margin-top: var(--wr-space-xs);
 
   background: var(--wr-alert-bg);
   border: 1px solid var(--wr-alert-border);
@@ -121,6 +123,21 @@ $alert-colors: (
 
   &__content:empty {
     display: none;
+  }
+
+  // `[wrAlertActions]`: buttons under the message, inside the body column, so
+  // the close button beside the body never sits over them. Wraps on a narrow
+  // screen. Hidden while empty, so an alert without the slot keeps its gap.
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--wr-alert-actions-gap);
+    margin-top: var(--wr-alert-actions-margin-top);
+
+    &:empty {
+      display: none;
+    }
   }
 
   &__close {

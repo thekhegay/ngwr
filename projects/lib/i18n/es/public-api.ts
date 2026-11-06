@@ -489,6 +489,10 @@ export const wrEs: WrI18nCatalog = {
     forbidden: 'Lo sentimos, no tienes permiso para acceder a esta página.',
     serverError: 'Lo sentimos, algo ha salido mal.',
   },
+  loadState: {
+    failed: 'No se pudo cargar',
+    retry: 'Reintentar',
+  },
   date: {
     months: {
       jan: 'enero',

@@ -302,6 +302,9 @@ export const INSTALL = {
   "reference/components/list": [
       { path: "ngwr/list", symbols: ["WrList", "WrListItem"], declarables: ["WrList", "WrListItem"], styled: true },
   ],
+  "reference/components/load-state": [
+      { path: "ngwr/load-state", symbols: ["WrLoadState", "WrLoadStateContent", "WrLoadStateEmpty", "WrLoadStateError", "WrLoadStateLoading"], declarables: ["WrLoadState", "WrLoadStateContent", "WrLoadStateEmpty", "WrLoadStateError", "WrLoadStateLoading"], styled: true },
+  ],
   "reference/components/mention": [
       { path: "ngwr/mention", symbols: ["WrMention"], declarables: ["WrMention"], styled: true },
   ],

@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 193 of 206 declarations are mapped: 0 carry no selector and
+ * 198 of 211 declarations are mapped: 0 carry no selector and
  * 13 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -121,6 +121,7 @@ export const SELECTORS = {
     "wr-line-chart": { symbol: "WrLineChart", path: "ngwr/charts/line-chart" },
     "wr-list": { symbol: "WrList", path: "ngwr/list" },
     "wr-list-item": { symbol: "WrListItem", path: "ngwr/list" },
+    "wr-load-state": { symbol: "WrLoadState", path: "ngwr/load-state" },
     "wr-loading-bar": { symbol: "WrLoadingBarComponent", path: "ngwr/loading-bar" },
     "wr-marquee": { symbol: "WrMarquee", path: "ngwr/bits/marquee" },
     "wr-mention-panel": { symbol: "WrMentionPanel", path: "ngwr/mention" },
@@ -219,6 +220,10 @@ export const SELECTORS = {
     "wrInput": { symbol: "WrInput", path: "ngwr/input" },
     "wrInputPrefix": { symbol: "WrInputPrefix", path: "ngwr/input" },
     "wrInputSuffix": { symbol: "WrInputSuffix", path: "ngwr/input" },
+    "wrLoadStateContent": { symbol: "WrLoadStateContent", path: "ngwr/load-state" },
+    "wrLoadStateEmpty": { symbol: "WrLoadStateEmpty", path: "ngwr/load-state" },
+    "wrLoadStateError": { symbol: "WrLoadStateError", path: "ngwr/load-state" },
+    "wrLoadStateLoading": { symbol: "WrLoadStateLoading", path: "ngwr/load-state" },
     "wrMention": { symbol: "WrMention", path: "ngwr/mention" },
     "wrMeta": { symbol: "WrMetaBinding", path: "ngwr/meta" },
     "wrOptionLeading": { symbol: "WrOptionLeading", path: "ngwr/select" },
@@ -331,6 +336,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/layout",
   "ngwr/lightbox",
   "ngwr/list",
+  "ngwr/load-state",
   "ngwr/loading-bar",
   "ngwr/mention",
   "ngwr/page-header",

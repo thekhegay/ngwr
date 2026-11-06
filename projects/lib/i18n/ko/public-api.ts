@@ -501,6 +501,10 @@ export const wrKo: WrI18nCatalog = {
     forbidden: '죄송합니다. 이 페이지에 접근할 권한이 없습니다.',
     serverError: '죄송합니다. 문제가 발생했습니다.',
   },
+  loadState: {
+    failed: '불러오지 못했습니다',
+    retry: '다시 시도',
+  },
   date: {
     months: {
       jan: '1월',

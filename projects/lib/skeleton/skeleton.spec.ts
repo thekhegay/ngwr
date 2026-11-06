@@ -11,11 +11,12 @@ import { WrSkeleton } from './skeleton';
 
 @Component({
   imports: [WrSkeleton],
-  template: `<wr-skeleton [color]="color()" [animated]="animated()" />`,
+  template: `<wr-skeleton [color]="color()" [animated]="animated()" [lines]="lines()" />`,
 })
 class Host {
   readonly color = signal<WrColor | null>(null);
   readonly animated = signal(true);
+  readonly lines = signal(0);
 }
 
 /**
@@ -66,8 +67,36 @@ describe('WrSkeleton', () => {
 
   it('renders nothing inside itself', () => {
     // The box is the placeholder; anything in it would be read out as content
-    // that is not there yet.
-    expect(host().childNodes.length).toBe(0);
+    // that is not there yet. The one node allowed is the `@for` anchor comment,
+    // which `lines` leaves behind and nothing reads.
+    expect(host().children.length).toBe(0);
+    expect(host().textContent).toBe('');
+  });
+
+  it('draws one empty line per `lines`, and says nothing more for it', () => {
+    fixture.componentInstance.lines.set(3);
+    fixture.detectChanges();
+
+    const lines = host().querySelectorAll('.wr-skeleton__line');
+    expect(lines.length).toBe(3);
+    expect(classes()).toEqual(['wr-skeleton', 'wr-skeleton--animated', 'wr-skeleton--lines']);
+    // The host is the one thing a screen reader hears: every line is an empty
+    // box with no role, no live attribute and no text.
+    for (const line of lines) {
+      expect(line.childNodes.length).toBe(0);
+      expect(line.attributes.length).toBe(1);
+    }
+    expect(host().getAttribute('aria-busy')).toBe('true');
+  });
+
+  it('goes back to the one block when `lines` is cleared', () => {
+    fixture.componentInstance.lines.set(2);
+    fixture.detectChanges();
+    fixture.componentInstance.lines.set(0);
+    fixture.detectChanges();
+
+    expect(host().children.length).toBe(0);
+    expect(classes()).toEqual(['wr-skeleton', 'wr-skeleton--animated']);
   });
 });
 
@@ -95,5 +124,10 @@ describe('WrSkeleton under forced colors', () => {
     expect(rule(forced, '.wr-skeleton')).toMatch(/background:\s*GrayText/);
     // After every intent modifier, which it ties on specificity.
     expect(css.lastIndexOf('@media (forced-colors: active)')).toBeGreaterThan(css.lastIndexOf('.wr-skeleton--info {'));
+  });
+
+  it('keeps every line visible, and paints nothing behind them', () => {
+    expect(rule(forced, '.wr-skeleton__line')).toMatch(/background:\s*GrayText/);
+    expect(rule(forced, '.wr-skeleton--lines')).toMatch(/background:\s*none/);
   });
 });

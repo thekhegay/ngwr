@@ -919,6 +919,21 @@ export const API = {
     { name: "color", description: "Bar colour. Defaults to the primary brand colour.", type: "string", default: "'var(--wr-color-primary)'" },
     { name: "height", description: "Bar height.", type: "string", default: "'2px'" },
   ],
+  // <wr-load-state>
+  WrLoadState: [
+    { name: "status", description: "The state, when the app decides it. Ignored while `resource` is set.", type: "WrLoadStateStatus | null", default: "null" },
+    { name: "resource", description: "The resource to read the state from: `resource()`, `rxResource()` and `httpResource()` alike. The retry button calls its `reload()`.", type: "Resource<T | undefined> | null", default: "null" },
+    { name: "isEmpty", description: "Decides whether a settled value shows the empty slot instead of the content. The default is empty for `null`, `undefined` and an empty array.", type: "(value: T | undefined) => boolean", default: "isEmptyValue" },
+    { name: "lines", description: "How many lines the default skeleton draws.", type: "number", default: "3" },
+    { name: "errorLabel", description: "The failure's title. Falls back to `loadState.failed`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "retryLabel", description: "The retry button's label. Falls back to `loadState.retry`, then `'Try again'`.", type: "string | null", default: "null" },
+    { name: "emptyLabel", description: "The default empty slot's title. Falls back to `empty.noData` through `<wr-empty>`.", type: "string | null", default: "null" },
+    { name: "(retry)", description: "Emitted when the retry button is pressed, once per press that starts a retry. With a `resource`, `reload()` has been called as well.", type: "void" },
+  ],
+  // <ng-template[wrLoadStateContent]>
+  WrLoadStateContent: [
+    { name: "wrLoadStateContentOf", description: "The resource the template draws, for the type checker: nothing reads it at runtime. Bind the same resource as the wrapper's `[resource]`.", type: "Resource<T | undefined> | null | undefined", default: "undefined" },
+  ],
   // <wr-marquee>
   WrMarquee: [
     { name: "items", description: "Items to display. Each entry is either an image source or a TemplateRef node.", type: "readonly WrMarqueeItem[]", required: true },
@@ -1239,6 +1254,7 @@ export const API = {
   WrSkeleton: [
     { name: "color", description: "Intent tint for the placeholder. `null`, the default, paints the neutral gray a placeholder almost always wants. It used to default to the `light` intent, chosen because that one token was theme-stable — slate-300 on white, slate-800 on near-black. The neutral ramp does that job now and does it by construction, so the default is the absence of an intent rather than a particular one. An intent here tints a thing that is not yet content, so reach for it only when the placeholder stands in for something the colour already identifies.", type: "WrColor | null", default: "null" },
     { name: "animated", description: "Whether the shimmer animation runs.", type: "boolean", default: "true" },
+    { name: "lines", description: "Draw a paragraph: this many text lines, each `--wr-skeleton-height` tall and `--wr-skeleton-line-gap` apart, the last one `--wr-skeleton-last-line-width` wide. `0`, the default, keeps the one block. The host stays the only thing a screen reader hears: the lines are empty boxes, so `aria-busy` is read once however many there are.", type: "number", default: "0" },
   ],
   // <wr-slider>
   WrSlider: [
