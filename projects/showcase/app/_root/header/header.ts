@@ -248,7 +248,6 @@ export class Header {
     { url: wrPath(ROUTES.reference), label: ROUTES.reference.title },
     { url: wrPath(ROUTES.icons), label: ROUTES.icons.title },
     { url: wrPath(ROUTES.charts), label: ROUTES.charts.title },
-    { url: wrPath(ROUTES.bits), label: ROUTES.bits.title },
   ];
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'github', modifier: 'github', label: 'GitHub' },

@@ -1,1 +1,0 @@
-export { WrAurora } from './aurora';

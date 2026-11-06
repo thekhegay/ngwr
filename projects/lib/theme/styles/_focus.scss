@@ -264,9 +264,3 @@
   position: relative;
   z-index: 1;
 }
-
-// Star border used as a button or a link (`<button wr-star-border>`). The host
-// is `overflow: hidden` to clip the comets, which does not clip its own outline.
-.wr-star-border:focus-visible {
-  @include focus-ring;
-}

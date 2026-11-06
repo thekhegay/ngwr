@@ -32,7 +32,6 @@ const CLUSTER_CATEGORY: Readonly<Record<string, string>> = {
 
 const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   components: 'Components',
-  bits: 'Bits',
   charts: 'Charts',
   docs: 'Docs',
   directives: 'Directives',
@@ -56,7 +55,7 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
  *
  * **Category** — the document-title category (e.g. "Components", "Utils") is
  * derived from the URL by default, so per-page boilerplate stays minimal. It is
- * the CLUSTER segment that decides: `bits` / `icons` / `start` sit at the
+ * the CLUSTER segment that decides: `icons` / `start` sit at the
  * top level and name themselves, while `reference` and `guides` are containers
  * and the label comes from the segment under them. Override `[category]` only
  * for the rare page that needs a forced label.
@@ -391,7 +390,7 @@ export class DocPageComponent {
 
     // Read the cluster before the first segment: the IA moved every page under
     // `/reference/*`, `/guides/*` and `/start/*`, and a first-segment-only
-    // lookup then missed for all but `bits` and `icons` — 174 prerendered
+    // lookup then missed for all but `icons` — 174 prerendered
     // pages shipped `<title>… · Docs · ngwr</title>` off the fallback below,
     // which is exactly what a fallback looks like when it is doing the work.
     // A cluster page with nothing mapped under it keeps the cluster's own name.

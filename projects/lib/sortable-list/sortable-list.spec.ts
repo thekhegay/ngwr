@@ -411,8 +411,7 @@ describe('WrSortableList under a reading direction', () => {
  */
 
 /**
- * `[lockAxis]` is deliberately not driven here, for the same reason the marquee
- * spec records about its direction.
+ * `[lockAxis]` is deliberately not driven here.
  *
  * It only changes what happens DURING a drag, against real pointer coordinates
  * and a real box — and jsdom has neither layout nor `PointerEvent`. A spec could

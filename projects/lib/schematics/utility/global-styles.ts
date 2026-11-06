@@ -114,7 +114,7 @@ type StyleTarget =
     }
   | { readonly error: string };
 
-/** The bare names v15 moved under `charts/` and `bits/`. */
+/** The bare names v15 moved under `charts/` (and under `bits/`, which 15.6 removed). */
 const MOVED_IN_V15: ReadonlySet<string> = new Set([...V15_CHARTS, ...V15_BITS]);
 
 /**
@@ -129,7 +129,7 @@ const NOT_BY_BARE_NAME: ReadonlySet<string> = new Set(['charts/core']);
  * A name with no `sass` condition behind it used to get its `@use` written and
  * a success line, and the user found out at the next build with "Can't find
  * stylesheet to import". v15 made that the likely case for a name typed from
- * memory: the charts and the bits moved under `charts/` and `bits/`. So a bare
+ * memory: the charts moved under `charts/`. So a bare
  * name that exactly one nested entry point ends with resolves to it, and
  * anything else is refused with the reason. Only a name v15 actually moved is
  * reported as moved: a chart first shipped nested (`heatmap-chart`, 15.1) is
@@ -157,7 +157,7 @@ function styleTarget(name: string, exports: Exports | null): StyleTarget {
   return {
     error:
       `ngwr/${subpath} is not an entry point with a stylesheet. Give its path under ngwr/, nested ones ` +
-      'included: button, charts/bar-chart, bits/aurora.',
+      'included: button, charts/bar-chart.',
   };
 }
 

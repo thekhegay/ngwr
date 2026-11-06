@@ -400,10 +400,6 @@ export const wrSv: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: 'Rullande text',
-    link: 'länk',
-  },
   mention: {
     listbox: 'Omnämnanden',
     available: 'Antal träffar: {{count}}',

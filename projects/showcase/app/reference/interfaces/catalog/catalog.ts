@@ -86,7 +86,6 @@ export default class TypesCatalogPage {
           url: ['/reference/components', 'table'],
         },
         { name: 'WrTreeNode', description: 'Immutable tree node.', url: ['/reference/components', 'tree'] },
-        { name: 'WrMarqueeItem', description: 'Image or template marquee entry.', url: ['/bits', 'marquee'] },
         { name: 'WrTimelineColor', description: 'Dot color union.', url: ['/reference/components', 'timeline'] },
       ],
     },

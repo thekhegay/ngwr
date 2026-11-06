@@ -38,7 +38,7 @@ bootstrapApplication(AppComponent, {
     incremental: `<!-- Server-rendered as usual; only the JavaScript waits. -->
 @defer (hydrate on viewport) {
   <section class="marketing">
-    <wr-blur-text text="Everything below the fold" />
+    <wr-count-up [to]="12000" trigger="visible" />
   </section>
 }`,
 

@@ -400,10 +400,6 @@ export const wrEs: WrI18nCatalog = {
     pageUp: 'Re Pág',
     pageDown: 'Av Pág',
   },
-  marquee: {
-    label: 'Contenido en movimiento',
-    link: 'enlace',
-  },
   mention: {
     listbox: 'Menciones',
     available: 'Coincidencias disponibles: {{count}}',

@@ -146,7 +146,7 @@ async function main(): Promise<void> {
     // requirement from a demo's scaffolding.
     //
     // The folder name decides, so `qr/` serving `/qrcode` finds `ngwr/qr` and
-    // `/bits/waves` finds `ngwr/bits/waves`. Only the pipes, utils and validator
+    // `/charts/gauge` finds `ngwr/charts/gauge`. Only the pipes, utils and validator
     // pages named after a function match nothing, and keep the full list.
     const last = route.split('/').pop() ?? '';
     const own = `ngwr/${doc.byRoute.get(route)?.entry ?? last}`;

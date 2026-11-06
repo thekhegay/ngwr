@@ -208,15 +208,6 @@ it('sets a time and steps it', async () => {
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
-    animations: `it('animates text without losing it', async () => {
-  const headline = await loader.getHarness(WrBlurTextHarness);
-
-  expect(await headline.getAccessibleText()).toBe('Welcome to ngwr');
-  expect(await headline.getPieces()).toEqual(['Welcome', 'to', 'ngwr']);
-  expect(await headline.isTextHidden()).toBe(true);
-  expect(await headline.getRenderedText()).toBe(await headline.getAccessibleText());
-});`,
-
     charts: `it('reads the data, not the drawing', async () => {
   const bars = await loader.getHarness(WrBarChartHarness);
 
@@ -1094,46 +1085,6 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'Trigger: isOpen() / open() / close() / toggle() / sendEscape() / getPicker() / isDisabled()',
       description: '`WrColorPickerTriggerHarness`. `open()` returns the picker.',
-      type: 'Promise<…>',
-    },
-  ];
-
-  protected readonly animationApi: readonly DocApiRow[] = [
-    {
-      name: 'Text splitters: getAccessibleText() / getPieces() / getRenderedText() / isTextHidden() / hasStagedMotion()',
-      description: '`WrBlurTextHarness`, `WrSplitTextHarness`.',
-      type: 'Promise<…>',
-    },
-    {
-      name: 'Circular / rotating: getAccessibleText() / getCharacters() / getCharacterAngles() / getOrbitOffsets() / isBonkers() / getWordCount() / isSettled()',
-      description: '`WrCircularTextHarness`, `WrRotatingTextHarness`.',
-      type: 'Promise<…>',
-    },
-    {
-      name: 'Typewriter / decrypt: getText() / getAccessibleText() / hasCursor() / getCursorBlinkDuration() / getRevealedIndices() / getEncryptedCount() / isFullyRevealed() / hover() / click()',
-      description: '`WrTypewriterHarness`, `WrDecryptTextHarness`.',
-      type: 'Promise<…>',
-    },
-    {
-      name: 'CSS-driven text: getText() / getCloneText() / isCloneTextInSync() / getDurations() / getColors() / getGradient() / isPaused() / isYoyo() / pausesOnHover()',
-      description: '`WrGlitchTextHarness`, `WrGradientTextHarness`, `WrShinyTextHarness`.',
-      type: 'Promise<…>',
-    },
-    {
-      name: 'Surfaces: getWords() / getHighlightedWords() / release() / getCopyCount() / getAnnouncedCopyCount() / getItems() / isScrollable() / isSingleRay() / getSpeedSeconds()',
-      description: '`WrFallingTextHarness`, `WrMarqueeHarness`, `WrStarBorderHarness`.',
-      type: 'Promise<…>',
-    },
-    {
-      name: 'Pointer effects: movePointerTo(x, y) / leave() / isFlat() / getTilt() / getSpotlightPosition() / hasGlare() / getGlarePosition()',
-      description:
-        '`WrTiltHarness`, `WrSpotlightHarness`, `WrSpotlightCardHarness`, `WrBorderGlowHarness`. Stub `getBoundingClientRect` first.',
-      type: 'Promise<…>',
-    },
-    {
-      name: 'Canvas-backed: getText() / isDecorative() / hasCanvas() / isTextVisuallyHidden() / isPainted() / getLineGapPx() / getGapPx() / getDotSizePx() / getLineCount() / getLineWidthPx() / getCellSizePx() / getColor() / isFullscreen()',
-      description:
-        '`WrFuzzyTextHarness`, `WrWavesHarness`, `WrDotGridHarness`, `WrThreadsHarness`, `WrRippleGridHarness`, `WrIridescenceHarness`, `WrSplashCursorHarness`. DOM only; `isPainted()` is false in jsdom.',
       type: 'Promise<…>',
     },
   ];

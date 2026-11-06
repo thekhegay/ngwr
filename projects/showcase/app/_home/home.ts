@@ -1,21 +1,10 @@
-import { isPlatformBrowser } from '@angular/common';
-import { Component, DestroyRef, PLATFORM_ID, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { BadgeCheck, Folder, ListChecks, Moon, ShieldCheck, Terminal, TextCursorInput } from 'lucide';
 import { WrTag } from 'ngwr/badge';
-import { WrBlurText } from 'ngwr/bits/blur-text';
-import { WrBorderGlow } from 'ngwr/bits/border-glow';
-import { WrDecryptText } from 'ngwr/bits/decrypt-text';
-import { WrGlitchText } from 'ngwr/bits/glitch-text';
-import { WrGradientText } from 'ngwr/bits/gradient-text';
-import { WrRotatingText } from 'ngwr/bits/rotating-text';
-import { WrShinyText } from 'ngwr/bits/shiny-text';
-import { WrSplitText } from 'ngwr/bits/split-text';
-import { WrSpotlightCard } from 'ngwr/bits/spotlight-card';
-import { WrTypewriter } from 'ngwr/bits/typewriter';
-import { WrWaves } from 'ngwr/bits/waves';
 import { WrButton } from 'ngwr/button';
+import { WrCard } from 'ngwr/card';
 import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
@@ -46,8 +35,6 @@ interface WhyTile {
    * written against.
    */
   readonly accent: WrColor | 'neutral';
-  /** Hover-spotlight tint — tracks the icon accent. */
-  readonly spotlight: string;
 }
 
 /** One quiet link card under the DX copy. */
@@ -68,20 +55,9 @@ interface DxLink {
     WrIcon,
     WrButton,
     WrTag,
+    WrCard,
     WrTypography,
-    // Motion kit
-    WrRotatingText,
-    WrBlurText,
-    WrSplitText,
-    WrShinyText,
-    WrGlitchText,
-    WrDecryptText,
-    WrTypewriter,
-    WrGradientText,
-    WrWaves,
-    WrBorderGlow,
     // Sections
-    WrSpotlightCard,
     ComponentsBento,
     HomeOptInComponent,
     DocCodeComponent,
@@ -105,16 +81,7 @@ interface DxLink {
   ],
 })
 export default class HomeComponent {
-  protected readonly replayTick = signal(0);
-
   protected readonly routes = ROUTES;
-
-  /** The CTA glow's border mesh: the brand family, from theme tokens. */
-  protected readonly ctaGlowColors = [
-    'var(--wr-color-primary)',
-    'var(--wr-color-primary-light)',
-    'var(--wr-color-info)',
-  ];
 
   /** Absolute link from a node chain — the template cannot call a module function. */
   protected readonly path = wrPath;
@@ -208,9 +175,7 @@ export class SignupCard {
    * "Why ngwr" tiles. The forms tile leads because it is the sharpest wedge
    * the library has — what the other Angular UI libraries do about Signal
    * Forms today is laid out, with counts, on `start/comparison`, and the tile
-   * deliberately claims only what is true of this package. The motion tile
-   * that used to sit here was cut rather than demoted: the animation gallery
-   * immediately below makes the same point with the components themselves.
+   * deliberately claims only what is true of this package.
    *
    * A backtick run in a description renders as inline code — keep the
    * marked-up terms to the ones the prose actually names.
@@ -225,7 +190,6 @@ export class SignupCard {
       description:
         'Twenty value controls implement a Signal Forms interface, so `[formField]` binds to their own model. No `ControlValueAccessor` anywhere.',
       accent: 'primary',
-      spotlight: 'color-mix(in srgb, var(--wr-color-primary) 14%, transparent)',
     },
     {
       icon: 'terminal',
@@ -233,7 +197,6 @@ export class SignupCard {
       description:
         'Zoneless in the source, not just compatible: signal inputs and state, `afterNextRender()` for DOM work, and no `@NgModule` or `@Input()` at all.',
       accent: 'info',
-      spotlight: 'color-mix(in srgb, var(--wr-color-primary) 14%, transparent)',
     },
     {
       icon: 'shield-checkmark',
@@ -241,7 +204,6 @@ export class SignupCard {
       description:
         'Three axe gates check structure, painted contrast and open overlays nightly and before every release. A serious violation is a red build.',
       accent: 'danger',
-      spotlight: 'color-mix(in srgb, var(--wr-color-danger) 14%, transparent)',
     },
     {
       icon: 'eye',
@@ -253,14 +215,12 @@ export class SignupCard {
       description:
         'Color, radius, spacing and duration are `--wr-*` custom properties, and an undeclared color token fails lint. Re-skin one component or all.',
       accent: 'neutral',
-      spotlight: 'color-mix(in srgb, var(--wr-color-on-surface-muted) 14%, transparent)',
     },
     {
       icon: 'folder',
       title: 'Pay for what you import',
       description: `${this.entryPoints} entry points, each one tree-shakable on its own. What you don't import never lands in your bundle — the SCSS opts in per component too.`,
       accent: 'success',
-      spotlight: 'color-mix(in srgb, var(--wr-color-success) 14%, transparent)',
     },
     {
       icon: 'moon',
@@ -268,21 +228,10 @@ export class SignupCard {
       description:
         'Plain CSS `color-scheme`: follows the OS without JavaScript and flips on any subtree, since every token that differs is a `light-dark()` pair.',
       accent: 'warning',
-      spotlight: 'color-mix(in srgb, var(--wr-color-warning) 16%, transparent)',
     },
   ];
 
   constructor() {
-    // Re-mount the one-shot motion tiles every few seconds so the gallery
-    // keeps moving — split/blur/decrypt animate on mount only. Deliberately not
-    // extended to the hero: re-running the fold's entrance on a timer is the
-    // twitch the rotating "Not in the library" line was removed for. The hero
-    // plays once on view, over a `<wr-waves>` field that never stops.
-    if (isPlatformBrowser(inject(PLATFORM_ID))) {
-      const id = setInterval(() => this.replayTick.update(v => v + 1), 7000);
-      inject(DestroyRef).onDestroy(() => clearInterval(id));
-    }
-
     const meta = inject(MetaService);
     meta.setCanonicalURL();
     // The title is the one string a search result shows, so it names the wedge

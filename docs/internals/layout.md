@@ -13,8 +13,8 @@ A pnpm + Angular CLI monorepo with three projects:
   `exports` map in `projects/lib/package.json`. Read it there: this line used to
   restate it and went stale with every new component. Count from that map, not
   from the directory tree: `styles/` and
-  `schematics/` are not entry points, and the nested ones are the charts and
-  bits (`ngwr/charts/<name>`, `ngwr/bits/<name>`) — among the charts the public
+  `schematics/` are not entry points, and the nested ones are the charts
+  (`ngwr/charts/<name>`) — among them the public
   legend `ngwr/charts/chart-legend` and `ngwr/charts/core`, whose exports are all
   `@internal` (see Shared code below) — the twenty-two
   `ngwr/i18n/<locale>`, the two opt-in router adapters
@@ -27,42 +27,36 @@ A pnpm + Angular CLI monorepo with three projects:
   `context-menu`, `popconfirm`, `command-palette`, `cascader`, `mention`),
   the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`, `load-state`,
-  `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`,
-  **every chart** and **twenty-two of the twenty-five bits** — each at
-  `ngwr/<name>/testing`. Charts and bits are NESTED since v15:
-  `ngwr/charts/bar-chart`, `ngwr/bits/aurora`, harnesses at
-  `ngwr/charts/bar-chart/testing`. Twenty-eight folders that used to sit beside
-  `button` and `select` in `projects/lib` now live under two, which is the only
+  `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`
+  and **every chart** — each at
+  `ngwr/<name>/testing`. Charts are NESTED since v15:
+  `ngwr/charts/bar-chart`, harnesses at
+  `ngwr/charts/bar-chart/testing`. Seven folders that used to sit beside
+  `button` and `select` in `projects/lib` now live under one, which is the only
   thing that changed — they are ordinary entry points, in the same package, and
-  `pnpm gen:exports` writes their keys like any other. The animation components
-  are **`bits`**, and the rename is what makes the vocabulary readable:
-  `@use 'ngwr/animations'` is the keyframe UTILITY sheet
-  (`styles/_animations.scss`), while `ngwr/bits/aurora` is a component. The two
-  used to be one word, and the docs cluster moved with them — `/animations/*`
-  is `/bits/*`. They export one more harness name than there are classes
+  `pnpm gen:exports` writes their keys like any other. `@use 'ngwr/animations'`
+  is the keyframe UTILITY sheet (`styles/_animations.scss`), not a component:
+  the animation components the package carried through 15.5 were removed
+  in 15.6. They export one more harness name than there are classes
   (`harnessClasses` in the same file): `WrCalendarDayHarness` is the
   one exported twice, since a date-picker's popup IS a calendar and
   `ngwr/date-picker/testing` keeps the name it shipped as.
-  **Four entry points are deliberately without one, and the reason is the same each
-  time**: `bits/aurora`, `bits/click-spark` and `bits/confetti`
-  draw into a canvas whose context is
-  `null` under jsdom, and `virtual-scroll` is a thin wrapper over
-  `cdk-virtual-scroll-viewport` whose whole observable behaviour is the window it
-  measures — so every honest method would answer identically for a working component
-  and a broken one. Do not "finish the set" by adding them.
+  **One entry point is deliberately without one**: `virtual-scroll` is a thin
+  wrapper over `cdk-virtual-scroll-viewport` whose whole observable behaviour is
+  the window it measures — so every honest method would answer identically for a
+  working component and a broken one. Do not "finish the set" by adding it.
   Built with **`@angular/build:library`**, not ng-packagr. TS path mapping:
   `ngwr/*` → `./projects/lib/*`, plus the bare `ngwr` → `./projects/lib/public-api.ts`
   (`provideWr`).
 - **`projects/showcase/`** — the docs site (**ngwr.dev**): live demos + API
-  docs, and where components are dogfooded. Docs are organised into six
-  top-level clusters — **docs / guides / reference / charts / icons / bits**:
+  docs, and where components are dogfooded. Docs are organised into five
+  top-level clusters — **docs / guides / reference / charts / icons**:
   getting-started under `app/docs/`, task guides under `app/guides/`, API
   pages under `app/reference/<cluster>/<name>/` (directives, pipes, services,
   utils, validators, interfaces) and component pages one folder deeper, in
   the sidebar group they sit under (`app/reference/components/<group>/<name>/`),
-  the chart family under `app/charts/<group>/<name>/`, the icon-set browsers under
-  `app/icons/` and the bits under `app/bits/<group>/<name>/`; the pre-v15
-  `/start/*` URLs redirect (`app/routing.ts`). Shared doc scaffolding (the
+  the chart family under `app/charts/<group>/<name>/` and the icon-set browsers
+  under `app/icons/`; the pre-v15 `/start/*` URLs redirect (`app/routing.ts`). Shared doc scaffolding (the
   `<ngwr-doc-*>` components, services, shiki highlighting) is in `app/_core/`
   (alias `#core/*`).
 - **`projects/starter/`** — the StackBlitz starter the docs header and home page

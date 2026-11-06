@@ -897,6 +897,25 @@ describe('extractFunction', () => {
   });
 });
 
+/** A JSDoc example with a decorator line inside its fence, the shape that once cut an example short. */
+const VIEW_CHILD_EXAMPLE = `
+/**
+ * Cycles through a list of strings. Auto-advances on a timer by default; can
+ * also be controlled imperatively via \`next()\`.
+ *
+ * @example
+ * \`\`\`html
+ * <wr-rotator [texts]="['design', 'ship', 'iterate']" />
+ *
+ * // Manual control:
+ * @ViewChild(WrRotator) rotator!: WrRotator;
+ * onClick(): void { this.rotator.next(); }
+ * \`\`\`
+ */
+declare class WrRotator {
+}
+`;
+
 describe("the library's own examples", () => {
   it('keeps the example a fenced @for used to cut in half', () => {
     const example = extractClass(documented('pipes/range.ts', 'WrRange'), 'WrRange')?.example ?? '';
@@ -911,16 +930,14 @@ describe("the library's own examples", () => {
   });
 
   it('keeps the lines an @ViewChild used to cut off an example', () => {
-    const example =
-      extractClass(documented('bits/rotating-text/rotating-text.ts', 'WrRotatingText'), 'WrRotatingText')?.example ??
-      '';
+    const example = extractClass(VIEW_CHILD_EXAMPLE, 'WrRotator')?.example ?? '';
 
-    // `WrRotatingText`'s example demonstrates the imperative half of its API,
-    // and the demonstration is exactly the part that was lost: everything from
-    // the `@ViewChild` line on, which is the only place the docs show how to
-    // reach `next()`. What came back stopped at the comment introducing it — an
+    // The example demonstrates the imperative half of an API, and the
+    // demonstration is exactly the part that was lost: everything from the
+    // `@ViewChild` line on, which is the only place the docs show how to reach
+    // `next()`. What came back stopped at the comment introducing it — an
     // unterminated fence whose last line reads `// Manual control:`.
-    expect(example).toContain('@ViewChild(WrRotatingText)');
+    expect(example).toContain('@ViewChild(WrRotator)');
     expect(example).toContain('this.rotator.next()');
     expect(example.endsWith('```')).toBe(true);
   });

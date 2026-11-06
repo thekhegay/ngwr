@@ -1,7 +1,6 @@
-// Reactbits-style interactive demo card. The card itself reuses the
-// `<ngwr-doc-snippet>` look (light border, code block underneath). The
-// novel bits are the floating Replay button and the "Customize" panel
-// of dark chip controls beneath.
+// Interactive demo card. The card itself reuses the `<ngwr-doc-snippet>`
+// look (light border, code block underneath). What it adds is the floating
+// Replay button and the "Customize" panel of dark chip controls beneath.
 
 @use 'lib/styles/breakpoints' as bp;
 @use 'showcase/styles/mixins' as site;

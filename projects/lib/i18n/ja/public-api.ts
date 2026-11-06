@@ -404,10 +404,6 @@ export const wrJa: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: 'マーキー',
-    link: 'リンク',
-  },
   mention: {
     listbox: 'メンション',
     available: '候補{{count}}件',

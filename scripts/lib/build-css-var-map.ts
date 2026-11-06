@@ -34,10 +34,9 @@
  * layer has no such gate — `check:tokens` says so in as many words, calling a
  * component's knobs "a component's private surface". So a hook has to be read
  * before it is listed, and a read is `var()` in SCSS **or in the component's own
- * TypeScript or template**: `wr-circular-text` writes
- * `translateY(calc(-1 * var(--wr-circular-text-radius)))` from `.ts`, and
- * `wr-aurora` reads three of its hooks through `getPropertyValue`. A
- * stylesheet-only scan reported all four as dead. Specs and harnesses are NOT
+ * TypeScript or template**: a `var()` interpolated into a transform from `.ts`,
+ * or a hook read through `getPropertyValue`, which a stylesheet-only scan
+ * reports as dead. Specs and harnesses are NOT
  * reads — a test naming a property is documenting it, the same distinction
  * `check:tokens` draws about the showcase's swatch tables.
  *

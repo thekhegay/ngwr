@@ -402,10 +402,6 @@ export const wrHi: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: 'चलती पट्टी',
-    link: 'लिंक',
-  },
   mention: {
     listbox: 'मेंशन',
     available: 'उपलब्ध मिलान: {{count}}',

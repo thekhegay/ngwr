@@ -423,10 +423,6 @@ export const wrAr: WrI18nCatalog = {
   // the noun is dropped: the overflow chips in `select`, `tree` and
   // `eventCalendar` read «+{{count}} أخرى», the invariable feminine-singular
   // form a non-human plural takes, leaving nothing for the count to inflect.
-  marquee: {
-    label: 'شريط متحرك',
-    link: 'رابط',
-  },
   mention: {
     listbox: 'الإشارات',
     available: 'المطابقات المتاحة: {{count}}',

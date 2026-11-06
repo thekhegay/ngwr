@@ -68,7 +68,6 @@ export class Footer {
       links: [
         { label: 'Components', url: ['/reference/components'] },
         { label: 'Directives', url: ['/reference/directives'] },
-        { label: 'Animations', url: ['/bits'] },
         { label: 'Icons', url: ['/icons'] },
         { label: 'Pipes', url: ['/reference/pipes'] },
         { label: 'Services', url: ['/reference/services'] },

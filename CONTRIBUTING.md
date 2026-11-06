@@ -118,15 +118,12 @@ A component with a `styleUrl` splits its styles: the rules go in
 `styles/_rules.scss`, and `_index.scss` only loads the theme and forwards
 them. AGENTS.md says why.
 
-Charts and bits nest one level deeper: the source goes in
-`projects/lib/charts/<name>/` or `projects/lib/bits/<name>/` (styled with
-`@use 'ngwr/charts/<name>'` or `@use 'ngwr/bits/<name>'`), the page in
-`projects/showcase/app/charts/<group>/<name>/` or
-`projects/showcase/app/bits/<group>/<name>/`, and steps 3 to 5 below use that
-cluster's `charts` or `bits` node in `routes.ts`, the `routing.ts` beside the
-page's folder and its
-sidebar config (`charts.config.ts` or `bits.config.ts`). AGENTS.md's "Showcase
-page = the docs" has the detail.
+Charts nest one level deeper: the source goes in
+`projects/lib/charts/<name>/` (styled with `@use 'ngwr/charts/<name>'`), the
+page in `projects/showcase/app/charts/<group>/<name>/`, and steps 3 to 5 below
+use the `charts` node in `routes.ts`, the `routing.ts` beside the page's folder
+and its sidebar config (`charts.config.ts`). AGENTS.md's "Showcase page = the
+docs" has the detail.
 
 Then:
 

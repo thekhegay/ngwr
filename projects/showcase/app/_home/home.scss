@@ -10,32 +10,11 @@
   display: block;
 }
 
-/* Hero wrapper (plain — backgrounds removed) */
+/* Hero wrapper */
 .ngwr-home-hero-wrap {
   position: relative;
   padding: 4rem 0 2rem;
   overflow: hidden;
-
-  // Wave field sits behind the hero copy. The mask fades the lines out
-  // toward the bottom so they hand off cleanly to the bento below.
-  //
-  // Paler than the component's default (12% in light, 14% white in dark): a
-  // 10px pitch draws 40% more lines than the old 14px, and the field is
-  // texture behind the headline, not something to read. One share
-  // serves both schemes because `on-surface` is itself a `light-dark()` pair.
-  // Set through the hook rather than `[lineColor]`, so the CSS stand-in grid
-  // the component paints before hydration takes the same colour.
-  &__waves {
-    --wr-waves-line-color: color-mix(in srgb, var(--wr-color-on-surface) 8%, transparent);
-
-    z-index: 0;
-    mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
-  }
-
-  > .container {
-    position: relative;
-    z-index: 1;
-  }
 }
 
 /* Left pitch column */
@@ -95,24 +74,14 @@
     }
   }
 
-  // Split-text word slot inside the title
-  // Each character rises into place from a 36px Y offset on viewport
-  // entry, stagger 55ms — inline with the heading copy + primary color
-  // so the animated word reads as the deliberate accent. It now holds the
-  // fixed phrase "Signal Forms" rather than a cycling adjective: the accent
-  // should land on the claim, not on a synonym for "nice".
-  &__title-split {
+  // The accented phrase inside the title: primary ink on the heading copy, so
+  // the claim reads as the deliberate accent. It holds the fixed phrase
+  // "Signal Forms" rather than a cycling adjective: the accent should land on
+  // the claim, not on a synonym for "nice".
+  &__title-accent {
     color: var(--wr-color-primary-ink);
-    font-weight: inherit;
     // Two words, one term — a break between them reads as two ideas.
     white-space: nowrap;
-    // Override the lib's `overflow: hidden` on the host. With it, the
-    // inline-block's baseline shifts to its bottom edge and the word
-    // visually floats above the surrounding text. `visible` plus a
-    // matching line-height restores the baseline.
-    overflow: visible;
-    line-height: inherit;
-    vertical-align: baseline;
   }
 
   // Keep the Angular logo glued to the word "Angular" — without nowrap
@@ -132,19 +101,7 @@
     font-size: 1.0625rem;
     line-height: 1.6;
     margin: 0;
-  }
-
-  // The line is rendered through `<wr-blur-text>`, whose host is an
-  // `inline-flex` wrapping row of per-word spans. Two consequences, and both
-  // are why this rule exists rather than the `text-wrap: balance` that used to
-  // sit on the paragraph: balancing has no effect on flex lines, and a flex
-  // container defaults to `flex-start`, so the second line would flush left
-  // inside a fold that is otherwise centred.
-  &__description-text {
-    justify-content: center;
-    // Shrink-to-fit against the paragraph rather than the container, so the
-    // wrap point is the one the 36rem measure asks for.
-    max-width: 100%;
+    text-wrap: balance;
   }
 
   &__cta {
@@ -155,25 +112,12 @@
     margin-top: 0.25rem;
   }
 
-  // `wr-border-glow` lights the outer 1px of its own box, under the button, so
-  // a 1px inset uncovers exactly that ring and nothing else. Its resting
-  // outline takes the brand tint the cone travels along.
-  &__glow {
-    --wr-border-glow-outline: var(--wr-color-primary-soft-border);
-
-    padding: 1px;
-  }
-
-  // Borderless on the page surface: the glow's edge is the frame. The fill
-  // goes through `wr-btn`'s own `--wr-btn-bg`, so its `background` rule stays
-  // in charge and the focus ring is the library's. The hover and active
-  // values are the ones `.wr-btn--outlined` uses, restated because this rule
-  // ties that one on specificity and wins on order. Both are opaque ramp
-  // steps, so the glow's inner bloom never shows through the label.
+  // The fill goes through `wr-btn`'s own `--wr-btn-bg`, so its `background`
+  // rule stays in charge and the focus ring is the library's. The hover and
+  // active values are the ones `.wr-btn--outlined` uses, restated because this
+  // rule ties that one on specificity and wins on order.
   &__btn {
     --wr-btn-bg: var(--wr-color-surface);
-
-    border: 0;
 
     &:hover {
       --wr-btn-bg: var(--wr-color-hover);
@@ -326,72 +270,20 @@
   }
 }
 
-// A spotlight card at its own padding and radius — the per-accent glow comes
-// from `[spotlightColor]` on each card, and the icon is the site's
+// A `wr-card` at its own padding and radius; the icon is the site's
 // `.ngwr-icon-chip`, toned by the tile's accent. The tile is not interactive,
-// so it has no hover border; it rests on the same shadow as every home tile.
+// so it has no hover state; it rests on the card's own shadow, and the grid
+// stretches every tile in a row to the tallest. The chip, the title and the
+// text are projected into the card's body, which is where the column flows.
 .ngwr-why {
-  display: flex;
-  flex-direction: column;
-  gap: var(--wr-space-sm);
-  box-shadow: var(--wr-shadow-xs);
+  .wr-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wr-card-gap);
+  }
 
   &__text {
     margin: 0;
     color: var(--wr-color-on-surface-muted);
-  }
-}
-
-/* Motion gallery */
-// Eight tiles: two columns, then four, so no row is left short. At 1200, the
-// narrowest four-column width, the longest stage line ("Split by character")
-// is 211px of a 221px stage. The section head above owns the spacing.
-.ngwr-motion-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
-
-  @media (min-width: 48rem) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @include bp.media-up(xl) {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-  }
-}
-
-.ngwr-motion-tile {
-  display: flex;
-  flex-direction: column;
-  background: var(--wr-color-surface);
-  border: 1px solid var(--wr-border-base);
-  border-radius: var(--wr-border-radius-lg);
-  box-shadow: var(--wr-shadow-xs);
-  overflow: hidden;
-
-  &__stage {
-    flex: 1 1 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 9rem;
-    padding: 2rem 1.25rem;
-    font-size: 1.625rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    background:
-      radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--wr-color-primary) 8%, transparent), transparent 70%),
-      var(--wr-color-fill-subtle);
-    color: var(--wr-color-on-surface);
-    text-align: center;
-  }
-
-  &__label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-    padding: 0.875rem 1.125rem;
-    border-top: 1px solid var(--wr-border-base);
   }
 }

@@ -55,9 +55,8 @@ Part of [AGENTS.md](../../AGENTS.md). Read this before changing tokens, colours,
   any subtree flips every token read under it with no re-declaration. Do not
   bring an ancestor selector back. `theme.dark`, `dark-selector()` and
   `$theme-attribute` are gone with no replacement helper — a consumer writes
-  `light-dark()` in its own declarations. Four switches were not colours and so
-  could not move (`wr-border-glow`'s two blend modes and fill scale,
-  `wr-tilt-card`'s glare blend); each carries one value chosen to read on both
+  `light-dark()` in its own declarations. A switch that is not a colour (a blend
+  mode, a scale) cannot move into it; it carries one value chosen to read on both
   canvases, with the reason at the line.
   **What `light-dark()` will not do, measured in Chromium, Chrome, WebKit and
   Firefox.** A canvas never takes it: Chromium and WebKit ignore the string and
@@ -65,13 +64,12 @@ Part of [AGENTS.md](../../AGENTS.md). Read this before changing tokens, colours,
   on a dark page — so canvas and WebGL code resolves the colour first, through
   a probe element's computed `color`, which comes back as `rgb(…)` or
   `color(srgb r g b / a)` with 0–1 channels and never as hex. That probe is
-  `resolveCssColor(context, expression, fallback)` in `ngwr/utils`, which the
-  bits drawing on a 2D canvas share — use it rather than a second copy. It is
+  `resolveCssColor(context, expression, fallback)` in `ngwr/utils`, which every
+  component drawing on a 2D canvas shares — use it rather than a second copy. It is
   not `getPropertyValue('--wr-…')`, which returns the raw declared text,
   `light-dark(#fff, #000)` included, in either scheme. For a WebGL uniform,
   `resolveCssColorChannels(context, expression, fallback)` beside it reads the
-  same result as 0–1 sRGB channels, which `wr-aurora` and `wr-iridescence`
-  share. Never register a theme
+  same result as 0–1 sRGB channels. Never register a theme
   token with `@property … { syntax: '<color>' }` on `:root`: a registered
   colour resolves where it is declared, and every subtree with its own
   `color-scheme` silently keeps the root's value. It holds colours only —
@@ -193,18 +191,18 @@ rule reads `var(--wr-<block>-input-<name>, var(--wr-<block>-<name>))`. That also
 an expression built on the hook, `color-mix(in srgb, var(--wr-x) 50%, black)`, is no
 cycle. A component that can hold another of its kind (a projected slot, a consumer
 template) also declares that variable `initial` on the block, or the inner one inherits
-it. A hook that mirrors an input whose value is never `null` (`--wr-threads-count`,
-`--wr-waves-x-gap`) has no such problem and no way in from a stylesheet rule either,
+it. A hook that mirrors an input whose value is never `null`
+(`--wr-breadcrumbs-separator`) has no such problem and no way in from a stylesheet rule either,
 since the input's value is on the host. `gen:css-vars` reads that off the owner's
 `host:` metadata and its `setProperty` calls — a write with no `null` branch and no
 `removeProperty` — and marks the row `host`, so the docs table says the component
 sets it instead of telling the reader to set it on the element. The same mark lands
-on a hook written from STATE and never released (`--wr-border-glow-angle` follows the
-pointer), where a rule holds until the first write, so the note says "until the
+on a hook written from STATE and never released (`--wr-color-picker-color` follows
+the picked colour), where a rule holds until the first write, so the note says "until the
 component writes" rather than "cannot". An always-set input has to reach the host
-through one of those two shapes: `wr-border-glow` wrote its geometry through a
-`setProperty(k, vars[k])` bag, and the scan, which cannot read a bag, left four
-hooks documented as a rule's while every instance overwrote them. An author's own
+through one of those two shapes: a component that wrote its geometry through a
+`setProperty(k, vars[k])` bag left four hooks documented as a rule's while every
+instance overwrote them, because the scan cannot read a bag. An author's own
 `[style.--wr-x]` still wins over it, as a template binding does over a host binding.
 
 **The COMPONENT-scoped hooks are catalogued by `gen:css-vars`.** How many there
@@ -220,9 +218,9 @@ so a component that grows a hook cannot ship without the row. Three rules earned
 while writing it: **declaring a hook is not owning one** (some declarations are
 one component setting another's — `--wr-icon-size` inside its own `<wr-icon>` —
 and belong on the owner's page; the run counts those too); **a read may live in
-TypeScript** (`wr-circular-text` writes `var(--wr-circular-text-radius)` into a
-transform and `wr-aurora` reads three hooks through `getPropertyValue`, so a
-stylesheet-only scan called all four dead) but never in a spec or a harness; and
+TypeScript** (a `var()` interpolated into a transform from `.ts`, or a hook read
+through `getPropertyValue`, which a stylesheet-only scan calls dead) but never
+in a spec or a harness; and
 **the default is the BASE declaration**, outside any at-rule and on a selector
 with no modifier, because a hook is typically re-declared by every variant.
 Exactly one hook is declared and never read — `--wr-density-text`, published

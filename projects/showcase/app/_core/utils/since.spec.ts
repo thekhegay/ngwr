@@ -252,14 +252,10 @@ describe('the surfaces that draw it', () => {
       .filter(row => isNewLink(row.url, '14.4.0'))
       .map(row => row.title);
 
-    // Sidebar order: the bits first, then the charts group by group (comparison,
-    // trend, part to whole, distribution, single value, building blocks),
-    // alphabetical inside one.
+    // Sidebar order: the charts group by group (comparison, trend, part to
+    // whole, distribution, single value, building blocks), alphabetical inside
+    // one.
     expect(marked).toEqual([
-      'Dot Grid',
-      'Iridescence',
-      'Ripple Grid',
-      'Threads',
       'Funnel Chart',
       'Radar Chart',
       'Waterfall Chart',

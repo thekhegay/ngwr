@@ -404,12 +404,6 @@ export const wrPt: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    // Not "texto deslizante": the strip carries logos and images as often as
-    // words, and this is the region's accessible name.
-    label: 'Conteúdo em movimento',
-    link: 'ligação',
-  },
   mention: {
     listbox: 'Menções',
     available: 'Correspondências disponíveis: {{count}}',

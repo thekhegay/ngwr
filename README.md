@@ -62,10 +62,9 @@ reactive forms bind too, with limits the
 - Angular CDK [test harnesses](https://ngwr.dev/guides/testing) for the form
   controls and overlays.
 
-Browse the [components](https://ngwr.dev/reference/components),
-[charts](https://ngwr.dev/charts) and [bits](https://ngwr.dev/bits) (animations
-and visual effects) with live demos. Directives, pipes, services and validators
-are in the [reference](https://ngwr.dev/reference).
+Browse the [components](https://ngwr.dev/reference/components) and
+[charts](https://ngwr.dev/charts) with live demos. Directives, pipes, services
+and validators are in the [reference](https://ngwr.dev/reference).
 
 ## Installation
 
