@@ -8,9 +8,6 @@
 
 ## Low
 
-- **`name` on `wr-avatar`, and `wrInitials`**: one input that gives the alt text,
-  two grapheme-safe initials and an optional stable tint hashed from the name. The
-  initials are also a pipe and a function.
 - **Screen states**: a `[wrAlertActions]` slot on `wr-alert`, a `lines` input on
   `wr-skeleton`, and `wr-load-state`: one wrapper that takes a status or a resource
   and draws the skeleton, the failure with a retry, the empty slot or the content.

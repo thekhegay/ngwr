@@ -1,0 +1,46 @@
+<ngwr-doc-page
+  title="wrInitials"
+  since="15.6.0"
+  description="Up to two initials of a name, one grapheme each."
+  [keywords]="['pipe', 'wrInitials', 'initials', 'name', 'avatar', 'string']"
+  [labels]="['Pipe']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="The first two words give one initial each, upper-cased in `LOCALE_ID`. The rules are `wrInitials()` in `ngwr/utils`."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Initials</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (name of names; track name) {
+              <tr>
+                <th scope="row">{{ name }}</th>
+                <td>{{ name | wrInitials }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippets.playground" [controls]="controls">
+      <p class="ngwr-pipe-output">{{ name() | wrInitials }}</p>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

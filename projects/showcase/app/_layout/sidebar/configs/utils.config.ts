@@ -40,6 +40,7 @@ export const UTILS_GROUP: SidebarGroup = {
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrAction),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrDecimal),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrDownloadBlob),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrInitials),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrPoll),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrQueryParam),
   ],

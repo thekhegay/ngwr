@@ -1,0 +1,80 @@
+<ngwr-doc-page
+  title="wrInitials"
+  since="15.6.0"
+  description="Up to two initials of a name, one grapheme each. What `wr-avatar` draws for its `name`."
+  [keywords]="['wrInitials', 'initials', 'name', 'avatar', 'grapheme', 'string', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="The first two words give one initial each. A one-word name gives one. Punctuation, extra whitespace, `null` and `undefined` never throw."
+  >
+    <ngwr-doc-code [code]="snippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Scripts"
+    description="A grapheme is what a reader sees as one character, so an emoji, a letter with marks or a surrogate pair is one initial, never half of one."
+  >
+    <ngwr-doc-code [code]="scriptsSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rules">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Input</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Three or more words</th>
+            <td>The first two: <code>Ada King Lovelace</code> gives <code>AK</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">One word</th>
+            <td>One initial: <code>Madonna</code> gives <code>M</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">A hyphen</th>
+            <td>Inside a word: <code>Jean-Luc Picard</code> gives <code>JP</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">Punctuation first</th>
+            <td>Skipped: <code>(Ada)</code> gives <code>A</code>. A word of punctuation alone yields nothing.</td>
+          </tr>
+          <tr>
+            <th scope="row">Digits</th>
+            <td>Count: <code>Agent 007</code> gives <code>A0</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">Han, Hangul, kana</th>
+            <td>
+              One character, the first: <code>王小明</code> gives <code>王</code>, <code>김 철수</code> gives
+              <code>김</code>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Upper case</th>
+            <td>
+              The default mapping, or the <code>locale</code> given. A letter whose upper case is two (<code>ß</code>)
+              is kept as written.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Empty, blank, <code>null</code></th>
+            <td><code>''</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

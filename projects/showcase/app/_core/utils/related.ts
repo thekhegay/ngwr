@@ -342,6 +342,8 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/tabs',
   ],
   'reference/components/avatar': [
+    'reference/utils/wr-initials',
+    'reference/pipes/wr-initials',
     'reference/components/list',
     'reference/components/image-cropper',
     'reference/components/file-upload',
@@ -823,6 +825,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/translations/interpolation',
     'reference/services/i18n',
   ],
+  'reference/pipes/wr-initials': [
+    'reference/utils/wr-initials',
+    'reference/components/avatar',
+    'reference/pipes/wr-truncate',
+  ],
   'reference/pipes/wr-range': ['reference/components/skeleton'],
   'reference/pipes/wr-truncate': [
     'reference/directives/typography',
@@ -972,6 +979,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/pipes/wr-number',
   ],
   'reference/utils/throttle': ['reference/utils/debounce'],
+  'reference/utils/wr-initials': [
+    'reference/pipes/wr-initials',
+    'reference/components/avatar',
+    'reference/pipes/wr-truncate',
+  ],
   'reference/utils/to-class-list': [
     'guides/theming',
     'guides/overlay',

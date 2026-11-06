@@ -5,13 +5,16 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   Component,
   type ElementRef,
+  LOCALE_ID,
   ViewEncapsulation,
   afterNextRender,
   computed,
   effect,
+  inject,
   input,
   signal,
   untracked,
@@ -20,11 +23,30 @@ import {
 
 import { useI18nText } from 'ngwr/i18n';
 import { WrSpinner } from 'ngwr/spinner';
-import { resolveCssSize, type ResolvedCssSize } from 'ngwr/utils';
+import { resolveCssSize, type ResolvedCssSize, wrInitials } from 'ngwr/utils';
 
 import type { WrAvatarShape, WrAvatarSize } from './types';
 
 const DEFAULT_SIZE: WrAvatarSize = '6rem';
+
+/**
+ * The tints `tint` picks from, each a `-soft` fill under its `-ink` text. Index
+ * order is part of the contract: the same name lands on the same tint on every
+ * render, server or client, and a reorder would re-colour every avatar.
+ */
+const TINTS = ['primary', 'success', 'warning', 'danger', 'info'] as const;
+
+/** FNV-1a over the UTF-16 units: small, dependency-free and the same everywhere. */
+function hash(text: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    // eslint-disable-next-line no-bitwise -- the hash is defined on bits
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  // eslint-disable-next-line no-bitwise -- to an unsigned 32-bit integer
+  return h >>> 0;
+}
 
 /**
  * Image avatar with configurable corner treatment.
@@ -35,6 +57,12 @@ const DEFAULT_SIZE: WrAvatarSize = '6rem';
  * `wr-avatar > …` child selector no longer reaches it. While it is there, no
  * spinner is drawn over it; with nothing projected, the spinner marks the
  * loading state instead. See `alt` for what a screen reader hears.
+ *
+ * `name` is the shorter route to the same avatar: it names the image, draws the
+ * person's initials (`wrInitials` from `ngwr/utils`) as the fallback, and with
+ * `tint` colours the box from a hash of the name. The fallback order is
+ * projected content, then the `name` initials, then the spinner: the initials
+ * are drawn only when nothing is projected.
  *
  * Projected initials take the text size around the avatar, capped at
  * `--wr-avatar-initials-scale` (`0.375`) of the box, so they shrink only where
@@ -53,6 +81,7 @@ const DEFAULT_SIZE: WrAvatarSize = '6rem';
  * ```html
  * <wr-avatar url="/me.png" alt="Roman" size="3rem" shape="circle" />
  * <wr-avatar [url]="photo" alt="Roman Khegay" [size]="48">RK</wr-avatar>
+ * <wr-avatar [url]="photo" name="Roman Khegay" [size]="48" tint />
  * ```
  *
  * @see https://ngwr.dev/reference/components/avatar
@@ -98,10 +127,53 @@ export class WrAvatar {
    */
   readonly alt = input<string | null>(null);
 
+  /**
+   * The person's name. It is the image's alt text when `alt` is not given
+   * (`alt` wins when both are, `alt=""` included), and its initials are the
+   * fallback when nothing is projected: shown with no `url`, while the image
+   * loads and after it fails, hidden once the image has loaded. Announced as the
+   * name rather than as two letters, and once only beside an image. A name with
+   * no initial (`'...'`) draws nothing and leaves the spinner to the image.
+   *
+   * @default null
+   */
+  readonly name = input<string | null>(null);
+
+  /**
+   * Colour the initials avatar from a stable hash of `name`: the same name is
+   * the same tint on every render, server and client alike, and a new name is a
+   * new tint. Five tints, each an intent's `-soft` fill under its `-ink` text,
+   * so the initials reach 4.5:1 in both schemes. Nothing without `name`, and
+   * nothing while projected content stands in for the initials.
+   *
+   * @default false
+   */
+  readonly tint = input(false, { transform: coerceBooleanProperty });
+
   /** `alt=""`, given on purpose — see `alt`. */
   private readonly decorative = computed(() => this.alt() === '');
 
-  private readonly namedAlt = useI18nText(this.alt, 'avatar.alt', 'Avatar');
+  private readonly locale = inject(LOCALE_ID);
+
+  private readonly namedAlt = useI18nText(
+    computed(() => {
+      const name = this.name()?.trim();
+      // A blank name is no name: the catalog fallback, as with no name at all.
+      if (this.alt() === null && !name) return null;
+      return this.alt() ?? name;
+    }),
+    'avatar.alt',
+    'Avatar'
+  );
+
+  /** The initials `name` yields, `''` when it yields none. */
+  protected readonly initials = computed(() => wrInitials(this.name(), this.locale));
+
+  /** The tint modifier's intent, or `null` with `tint` off or no initials to colour. */
+  private readonly tintName = computed(() => {
+    if (!this.tint() || !this.initials()) return null;
+    return TINTS[hash(this.name()!.trim()) % TINTS.length];
+  });
 
   /** The image's text alternative: empty when decorative, else the catalog's fallback for an unset one. */
   protected readonly resolvedAlt = computed(() => (this.decorative() ? '' : this.namedAlt()));
@@ -193,8 +265,15 @@ export class WrAvatar {
    * stays in the accessibility tree. While loading it is painted either way.
    */
   protected readonly fallbackHidden = computed(
-    () => !!this.url() && !this.failed() && (this.decorative() || !!this.alt()?.trim())
+    () => !!this.url() && !this.failed() && (this.decorative() || !!this.alt()?.trim() || !!this.name()?.trim())
   );
+
+  /**
+   * The `name` initials follow the projected fallback, and go silent for a
+   * decorative avatar too: with `alt=""` there is a name printed beside it, and
+   * two letters read on top of it would say it twice.
+   */
+  protected readonly initialsHidden = computed(() => this.fallbackHidden() || this.decorative());
 
   protected readonly cssSize = computed(() => this.resolved().cssValue);
   protected readonly pxSize = computed(() => this.resolved().pxValue);
@@ -204,6 +283,8 @@ export class WrAvatar {
     const shape = this.shape();
     if (shape !== 'rounded') parts.push(`wr-avatar--${shape}`);
     if (this.loaded()) parts.push('wr-avatar--loaded');
+    const tint = this.tintName();
+    if (tint) parts.push(`wr-avatar--tint-${tint}`);
     return parts.join(' ');
   });
 

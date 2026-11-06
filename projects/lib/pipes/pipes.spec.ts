@@ -3,11 +3,13 @@ import { TestBed } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { WrDateAdapter } from 'ngwr/date';
+import { wrInitials } from 'ngwr/utils';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { WrBytes, wrFormatBytes } from './bytes';
 import { WrDate, wrFormatDate } from './date';
 import { WrDuration, wrFormatDuration, wrSplitDuration } from './duration';
+import { WrInitials } from './initials';
 import { WrMark } from './mark';
 import { WrNumber, wrFormatNumber } from './number';
 import { WrPlural, wrFormatPlural } from './plural';
@@ -182,6 +184,28 @@ describe('wrTruncate', () => {
     expect(pipe.transform('e\u0301e\u0301e\u0301', 2)).toBe('e\u0301e\u0301…');
     // Longer than `length` in units, not in characters: nothing to cut.
     expect(pipe.transform('😀😀😀', 4)).toBe('😀😀😀');
+  });
+});
+
+describe('wrInitials', () => {
+  const pipe = (locale: string): WrInitials => {
+    TestBed.resetTestingModule();
+    return TestBed.configureTestingModule({
+      providers: [{ provide: LOCALE_ID, useValue: locale }],
+    }).runInInjectionContext(() => new WrInitials());
+  };
+
+  it('is the same output as wrInitials in LOCALE_ID', () => {
+    const p = pipe('en-US');
+    for (const value of ['Roman Khegay', 'madonna', '王小明', '👩🏽‍🚀 Valentina', '...', '', null, undefined]) {
+      expect(p.transform(value)).toBe(wrInitials(value, 'en-US'));
+    }
+    expect(p.transform('ada lovelace')).toBe('AL');
+  });
+
+  it('upper-cases in the app locale', () => {
+    expect(pipe('tr').transform('ismail')).toBe('İ');
+    expect(pipe('en-US').transform('ismail')).toBe('I');
   });
 });
 
