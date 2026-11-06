@@ -1,5 +1,19 @@
 <span class="wr-avatar__content" [attr.aria-hidden]="fallbackHidden() ? 'true' : null"><ng-content /></span>
 
+@if (initials(); as letters) {
+  <!--
+    The `name` initials. After the projected content, which the stylesheet lets
+    win when there is any; named by the person rather than by the letters.
+  -->
+  <span
+    class="wr-avatar__initials"
+    role="img"
+    [attr.aria-label]="resolvedAlt()"
+    [attr.aria-hidden]="initialsHidden() ? 'true' : null"
+    >{{ letters }}</span
+  >
+}
+
 @if (url(); as src) {
   @if (!failed()) {
     <img

@@ -501,7 +501,7 @@ describe('WrAvatar projected fallback', () => {
 describe('the avatar initials scale', () => {
   // `:where()` around the whole selector, so it carries no specificity and any
   // unlayered `font-size` rule a consumer writes for the avatar still wins.
-  const GUARD = ':where(.wr-avatar:has(> .wr-avatar__content:not(:empty)))';
+  const GUARD = ':where(.wr-avatar:has(> .wr-avatar__content:not(:empty), > .wr-avatar__initials))';
 
   describe('the selector the scale applies under', () => {
     @Component({
@@ -514,11 +514,13 @@ describe('the avatar initials scale', () => {
           }
         </wr-avatar>
         <wr-avatar class="bare" url="/me.png" [size]="16" shape="circle" />
+        <wr-avatar class="named" [name]="name()" [size]="16" shape="circle" />
       `,
     })
     class GuardHost {
       readonly initials = signal('ХР');
       readonly show = signal(false);
+      readonly name = signal<string | null>('Хегай Роман');
     }
 
     let fixture: ReturnType<typeof TestBed.createComponent<GuardHost>>;
@@ -538,6 +540,14 @@ describe('the avatar initials scale', () => {
       expect(avatar('with').matches(GUARD)).toBe(true);
     });
 
+    it('matches an avatar drawing the initials of its name, and not one whose name yields none', async () => {
+      expect(avatar('named').matches(GUARD)).toBe(true);
+
+      fixture.componentInstance.name.set('...');
+      await fixture.whenStable();
+      expect(avatar('named').matches(GUARD)).toBe(false);
+    });
+
     it('does not match one drawing its spinner, even through an empty @if', async () => {
       expect(avatar('bare').matches(GUARD)).toBe(false);
       expect(avatar('bare').querySelector('.wr-avatar__spin')).not.toBeNull();
@@ -547,6 +557,247 @@ describe('the avatar initials scale', () => {
       await fixture.whenStable();
       expect(avatar('guarded').matches(GUARD)).toBe(true);
     });
+  });
+});
+
+/**
+ * `name` is one input for the three things a consumer used to write by hand:
+ * the alt, the initials and a colour. The initials sit AFTER the projected
+ * fallback and before the spinner; jsdom applies no stylesheet, so where they
+ * stand in the paint is read through the selectors the stylesheet keys on, and
+ * the rules themselves are compiled and pinned at the end.
+ */
+describe('WrAvatar name', () => {
+  @Component({
+    imports: [WrAvatar],
+    template: `
+      <wr-avatar [url]="url()" [alt]="alt()" [name]="name()" [tint]="tint()" [size]="32" shape="circle">
+        @if (projected()) {
+          ХР
+        }
+      </wr-avatar>
+    `,
+  })
+  class NameHost {
+    readonly url = signal<string | null>(null);
+    readonly alt = signal<string | null>(null);
+    readonly name = signal<string | null>('Ada Lovelace');
+    readonly tint = signal(false);
+    readonly projected = signal(false);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<NameHost>>;
+
+  const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-avatar')!;
+  const initials = (): HTMLElement | null => host().querySelector<HTMLElement>('.wr-avatar__initials');
+  const img = (): HTMLImageElement | null => host().querySelector<HTMLImageElement>('.wr-avatar__img');
+  const spinner = (): HTMLElement | null => host().querySelector<HTMLElement>('.wr-avatar__spin');
+  const alt = (): HTMLElement | null => host().querySelector<HTMLElement>('.wr-avatar__alt');
+  const tintClass = (): string | undefined => [...host().classList].find(c => c.startsWith('wr-avatar--tint-'));
+
+  /** The stylesheet's rules that drop a later sibling once the initials stand. */
+  const HIDDEN_BY_PROJECTED = '.wr-avatar__content:not(:empty) ~ .wr-avatar__initials';
+  const HIDDEN_BY_INITIALS = '.wr-avatar__initials ~ *';
+
+  /** Every text, `alt` and `aria-label` an assistive technology reaches, in document order. */
+  const announced = (): string[] => {
+    const out: string[] = [];
+    const walk = (node: Node): void => {
+      if (node instanceof Element && node.getAttribute('aria-hidden') === 'true') return;
+      if (node instanceof HTMLImageElement) out.push(node.alt);
+      else if (node instanceof Element && node.getAttribute('role') === 'img')
+        out.push(node.getAttribute('aria-label')!);
+      else if (node.nodeType === Node.TEXT_NODE && node.textContent!.trim()) out.push(node.textContent!.trim());
+      if (!(node instanceof Element && node.getAttribute('role') === 'img')) node.childNodes.forEach(walk);
+    };
+    walk(host());
+    return out;
+  };
+
+  const setUrl = async (url: string | null): Promise<void> => {
+    fixture.componentInstance.url.set(url);
+    await fixture.whenStable();
+  };
+  const fire = async (type: 'load' | 'error'): Promise<void> => {
+    img()!.dispatchEvent(new Event(type));
+    await fixture.whenStable();
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(NameHost);
+    await fixture.whenStable();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('draws the initials, named by the person rather than by the letters', () => {
+    expect(initials()!.textContent).toBe('AL');
+    expect(initials()!.getAttribute('role')).toBe('img');
+    expect(initials()!.getAttribute('aria-label')).toBe('Ada Lovelace');
+    expect(initials()!.hasAttribute('aria-hidden')).toBe(false);
+    expect(spinner()).toBeNull();
+    expect(announced()).toEqual(['Ada Lovelace']);
+  });
+
+  it('names the image, and alt wins when both are given', async () => {
+    await setUrl('/me.png');
+    expect(img()!.getAttribute('alt')).toBe('Ada Lovelace');
+
+    fixture.componentInstance.alt.set('Countess of Lovelace');
+    await fixture.whenStable();
+    expect(img()!.getAttribute('alt')).toBe('Countess of Lovelace');
+    expect(initials()!.getAttribute('aria-label')).toBe('Countess of Lovelace');
+  });
+
+  it('lets alt="" mark the avatar decorative over the name', async () => {
+    fixture.componentInstance.alt.set('');
+    await fixture.whenStable();
+    expect(initials()!.getAttribute('aria-hidden')).toBe('true');
+    expect(announced()).toEqual([]);
+
+    await setUrl('/me.png');
+    expect(img()!.getAttribute('alt')).toBe('');
+    expect(announced().filter(Boolean)).toEqual([]);
+  });
+
+  it('lets the image own the name while it is in play, and shows the initials again after a failure', async () => {
+    await setUrl('/me.png');
+    expect(initials()!.getAttribute('aria-hidden')).toBe('true');
+    // Drawn, and dropped by the stylesheet the way it is behind projected content.
+    expect(spinner()!.matches(HIDDEN_BY_INITIALS)).toBe(true);
+    expect(announced()).toEqual(['Ada Lovelace']);
+
+    await fire('load');
+    expect(host().classList).toContain('wr-avatar--loaded');
+    expect(initials()!.getAttribute('aria-hidden')).toBe('true');
+    expect(announced()).toEqual(['Ada Lovelace']);
+
+    await setUrl('/broken.png');
+    await fire('error');
+    expect(img()).toBeNull();
+    expect(initials()!.hasAttribute('aria-hidden')).toBe(false);
+    // The failed image's own name is drawn too, and the stylesheet drops it.
+    expect(alt()!.matches(HIDDEN_BY_INITIALS)).toBe(true);
+    expect(announced()).toEqual(['Ada Lovelace', 'Ada Lovelace']);
+  });
+
+  it('stands after the projected content and before the spinner', async () => {
+    // Projected: the initials are in the DOM and the stylesheet drops them.
+    fixture.componentInstance.projected.set(true);
+    await fixture.whenStable();
+    expect(initials()!.matches(HIDDEN_BY_PROJECTED)).toBe(true);
+
+    // Nothing projected, an image loading: the initials stand, the spinner is dropped.
+    fixture.componentInstance.projected.set(false);
+    await setUrl('/me.png');
+    expect(initials()!.matches(HIDDEN_BY_PROJECTED)).toBe(false);
+    expect(spinner()!.matches(HIDDEN_BY_INITIALS)).toBe(true);
+  });
+
+  it('draws nothing for a name with no initial, and leaves the spinner to the image', async () => {
+    fixture.componentInstance.name.set('...');
+    await setUrl('/me.png');
+    expect(initials()).toBeNull();
+    expect(spinner()).not.toBeNull();
+    expect(img()!.getAttribute('alt')).toBe('...');
+
+    fixture.componentInstance.name.set('   ');
+    await fixture.whenStable();
+    expect(initials()).toBeNull();
+    // A blank name is no name: the catalog fallback, and the initials stay announced.
+    expect(img()!.getAttribute('alt')).toBe('Avatar');
+  });
+
+  it('changes nothing for an avatar that sets neither alt nor name', async () => {
+    fixture.componentInstance.name.set(null);
+    await setUrl('/me.png');
+    expect(initials()).toBeNull();
+    expect(spinner()).not.toBeNull();
+    expect(img()!.getAttribute('alt')).toBe('Avatar');
+    expect(tintClass()).toBeUndefined();
+  });
+
+  describe('tint', () => {
+    it('is off by default', () => {
+      expect(tintClass()).toBeUndefined();
+    });
+
+    it('lands the same name on the same tint, and a new name on its own', async () => {
+      fixture.componentInstance.tint.set(true);
+      await fixture.whenStable();
+      const first = tintClass();
+      expect(first).toMatch(/^wr-avatar--tint-(primary|success|warning|danger|info)$/);
+
+      fixture.componentInstance.name.set('Grace Hopper');
+      await fixture.whenStable();
+      const second = tintClass();
+      expect(second).toMatch(/^wr-avatar--tint-/);
+
+      fixture.componentInstance.name.set('Ada Lovelace');
+      await fixture.whenStable();
+      expect(tintClass()).toBe(first);
+      fixture.componentInstance.name.set('  Ada Lovelace ');
+      await fixture.whenStable();
+      expect(tintClass()).toBe(first);
+      fixture.componentInstance.name.set('Grace Hopper');
+      await fixture.whenStable();
+      expect(tintClass()).toBe(second);
+    });
+
+    // The hash and the palette order are the contract: a change to either
+    // re-colours every avatar on every site. Pinned by value.
+    it('keeps the mapping it shipped with', async () => {
+      fixture.componentInstance.tint.set(true);
+      const cases: readonly (readonly [string, string])[] = [
+        ['Ada Lovelace', 'success'],
+        ['Grace Hopper', 'danger'],
+        ['Хегай Роман', 'primary'],
+        ['王小明', 'success'],
+        ['Linus Torvalds', 'warning'],
+        ['Anita Borg', 'info'],
+      ];
+      for (const [name, tint] of cases) {
+        fixture.componentInstance.name.set(name);
+        await fixture.whenStable();
+        expect(tintClass(), name).toBe(`wr-avatar--tint-${tint}`);
+      }
+    });
+
+    it('colours nothing without initials to colour', async () => {
+      fixture.componentInstance.tint.set(true);
+      fixture.componentInstance.name.set('...');
+      await fixture.whenStable();
+      expect(tintClass()).toBeUndefined();
+
+      fixture.componentInstance.name.set(null);
+      await fixture.whenStable();
+      expect(tintClass()).toBeUndefined();
+    });
+  });
+
+  it('paints the tint through the hooks, and drops the initials behind projected content', () => {
+    interface Sass {
+      compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+    }
+    const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
+    const css = sass.compileString("@use 'avatar/styles';", {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    }).css;
+
+    for (const tint of ['primary', 'success', 'warning', 'danger', 'info']) {
+      expect(css).toMatch(
+        new RegExp(
+          `\\.wr-avatar--tint-${tint} \\{\\s*--wr-avatar-bg: var\\(--wr-color-${tint}-soft\\);\\s*--wr-avatar-initials-color: var\\(--wr-color-${tint}-ink\\);`
+        )
+      );
+    }
+    expect(css).toMatch(/\.wr-avatar__content:not\(:empty\) ~ \.wr-avatar__initials \{\s*display: none;/);
+    expect(css).toMatch(/\.wr-avatar__initials ~ \.wr-avatar__alt \{\s*display: none;/);
+    expect(css).toMatch(/\.wr-avatar__initials ~ \.wr-avatar__spin \{\s*display: none;/);
+    expect(css).toMatch(/\.wr-avatar--loaded \.wr-avatar__initials\[aria-hidden=true\] \{\s*visibility: hidden;/);
   });
 });
 

@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1590 hook(s) across 108 page(s). A property is here only when the
+ * 1593 hook(s) across 108 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 31 declaration(s) are one component setting
@@ -647,8 +647,11 @@ export const CSS_VARS = {
   "reference/components/avatar": {
     subpath: "ngwr/avatar",
     vars: [
+      { name: "--wr-avatar-bg", default: "transparent", scope: ".wr-avatar", overrides: 1 },
       { name: "--wr-avatar-img-opacity", default: "0", scope: ".wr-avatar", overrides: 1 },
+      { name: "--wr-avatar-initials-color", default: "var(--wr-color-on-surface)", scope: ".wr-avatar", overrides: 1 },
       { name: "--wr-avatar-initials-scale", default: "0.375", scope: ".wr-avatar" },
+      { name: "--wr-avatar-initials-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-avatar" },
       { name: "--wr-avatar-radius", default: "10%", scope: ".wr-avatar", overrides: 2 },
       { name: "--wr-avatar-ring", default: "var(--wr-border-strong)", scope: ".wr-avatar", overrides: 1 },
     ],

@@ -274,11 +274,13 @@ describe('the surfaces that draw it', () => {
       'Comment',
       'Editor',
       'wrDuration',
+      'wrInitials',
       'resolveCssColor',
       'toClassList',
       'wrAction',
       'wrDecimal',
       'wrDownloadBlob',
+      'wrInitials',
       'wrPoll',
       'wrQueryParam',
     ]);

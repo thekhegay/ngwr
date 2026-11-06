@@ -28,6 +28,11 @@
   // a circle from 16px to 40px; at 0.4 the semibold `WW` in a 16px circle was
   // down to 0.6px.
   --wr-avatar-initials-scale: 0.375;
+  // The box behind the fallback. Transparent at rest, so an avatar that sets no
+  // `tint` paints as it always has; a `--tint-*` modifier below sets it.
+  --wr-avatar-bg: transparent;
+  --wr-avatar-initials-color: var(--wr-color-on-surface);
+  --wr-avatar-initials-weight: var(--wr-font-weight-semibold);
 
   display: inline-flex;
   align-items: center;
@@ -35,6 +40,7 @@
   position: relative;
   overflow: hidden;
   border-radius: var(--wr-avatar-radius);
+  background-color: var(--wr-avatar-bg);
   box-shadow: inset 0 0 0 1px var(--wr-avatar-ring);
 
   &--square {
@@ -55,6 +61,17 @@
   &--loaded {
     --wr-avatar-img-opacity: 1;
     --wr-avatar-ring: transparent;
+  }
+
+  // `tint`: an intent's `-soft` fill under its `-ink`, the pair the theme
+  // calibrates to 5:1 in both schemes and lifts to 7:1 under
+  // `prefers-contrast: more`. Set through the hooks, so a consumer's own
+  // `--wr-avatar-bg` on the element still wins.
+  @each $name in theme.$colors {
+    &--tint-#{$name} {
+      --wr-avatar-bg: var(--wr-color-#{$name}-soft);
+      --wr-avatar-initials-color: var(--wr-color-#{$name}-ink);
+    }
   }
 
   // The projected fallback. `display: contents` keeps whatever is projected a
@@ -99,15 +116,31 @@
   // or attribute selector, loaded before this stylesheet or after it — still
   // wins. A rule inside a cascade layer does not (Tailwind v4 ships its
   // utilities in one): unlayered CSS beats layered CSS whatever the selector.
-  :where(&:has(> .wr-avatar__content:not(:empty))) {
+  :where(&:has(> .wr-avatar__content:not(:empty), > .wr-avatar__initials)) {
     font-size: min(1em, var(--wr-avatar-size) * var(--wr-avatar-initials-scale));
+  }
+
+  // The initials `name` yields. Projected content wins over them, through the
+  // same `:empty` test that drops the spinner; otherwise they are the fallback,
+  // hidden and clipped once the image has loaded exactly as the projected one
+  // is below. Inert for the reason `__content` is.
+  &__initials {
+    color: var(--wr-avatar-initials-color);
+    font-weight: var(--wr-avatar-initials-weight);
+    user-select: none;
+    pointer-events: none;
+  }
+
+  &__content:not(:empty) ~ &__initials {
+    display: none;
   }
 
   // Once loaded, how the fallback leaves the paint follows whether the image is
   // NAMED, which the template states as `aria-hidden` on the wrapper. Named, the
   // initials are already out of the accessibility tree, so `visibility` (which
   // bare text nodes inherit) takes them out of the paint as well.
-  &--loaded &__content[aria-hidden='true'] {
+  &--loaded &__content[aria-hidden='true'],
+  &--loaded &__initials[aria-hidden='true'] {
     visibility: hidden;
     // Held until the image's own fade has finished, so the photo crossfades in
     // over the initials instead of over an empty box.
@@ -118,7 +151,8 @@
   // person, so they are clipped rather than hidden and stay announced. A clip
   // needs a box, hence the switch from `contents`; the host has a fixed size,
   // so taking them out of flow moves nothing around it.
-  &--loaded &__content:not([aria-hidden='true']) {
+  &--loaded &__content:not([aria-hidden='true']),
+  &--loaded &__initials:not([aria-hidden='true']) {
     display: block;
     position: absolute;
     width: 1px;
@@ -163,6 +197,10 @@
     display: none;
   }
 
+  &__initials ~ &__alt {
+    display: none;
+  }
+
   &__spin.wr-spinner {
     position: absolute;
     // A loading indicator is a status GRAPHIC, which 1.4.11 holds to 3:1: the
@@ -177,7 +215,8 @@
   // neither reads. The initials are placeholder enough while the photo loads.
   // `:empty` ignores comment nodes, so a projected `@if` that renders nothing
   // still gets the spinner.
-  &__content:not(:empty) ~ &__spin {
+  &__content:not(:empty) ~ &__spin,
+  &__initials ~ &__spin {
     display: none;
   }
 }
