@@ -1,7 +1,8 @@
 <ngwr-doc-page
   title="Page Header"
-  description="A page title with slots for breadcrumbs, actions and tags."
-  [keywords]="['page-header', 'wr-page-header']"
+  updated="15.6.0"
+  description="A page title with slots for breadcrumbs, actions, tags and filters."
+  [keywords]="['page-header', 'wr-page-header', 'sticky', 'compact']"
   [labels]="['Composite']"
 >
   <ngwr-doc-section title="Basic">
@@ -33,7 +34,7 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="All three slots"
+    title="Breadcrumbs, actions and tags"
     description="Put `wrPageHeaderBreadcrumbs`, `wrPageHeaderActions` or `wrPageHeaderExtra` on any element; nothing to import. Project tags through an `<ng-container>`."
   >
     <ngwr-doc-code [code]="allSlots" language="angular-html" />
@@ -59,7 +60,118 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Compact"
+    description="`compact` puts the crumbs beside the title and the subtitle after it, on one line. The line wraps when there is no room: long crumbs wrap in their own box, the title drops below them. Works with `responsive`."
+  >
+    <ngwr-doc-code [code]="compact" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-page-header compact title="Billing" subtitle="Plan, invoices and payment method">
+        <wr-breadcrumbs wrPageHeaderBreadcrumbs>
+          <wr-breadcrumbs-item>Workspace</wr-breadcrumbs-item>
+          <wr-breadcrumbs-item>Settings</wr-breadcrumbs-item>
+          <wr-breadcrumbs-item>Billing</wr-breadcrumbs-item>
+        </wr-breadcrumbs>
+
+        <div wrPageHeaderActions>
+          <wr-btn outlined>Download invoices</wr-btn>
+          <wr-btn color="primary">Change plan</wr-btn>
+        </div>
+
+        <ng-container wrPageHeaderExtra>
+          <wr-tag color="success">Active</wr-tag>
+          <wr-tag>Pro</wr-tag>
+        </ng-container>
+      </wr-page-header>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Filter row"
+    description="`wrPageHeaderFilters` is a last row under the head, full width, wrapping its controls. It renders only when projected. A bare `<div>` wrapper is spaced like the actions wrapper, following density."
+  >
+    <ngwr-doc-code [code]="filters" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-page-header compact title="Invoices">
+        <div wrPageHeaderActions>
+          <wr-btn color="primary">New invoice</wr-btn>
+        </div>
+        <div wrPageHeaderFilters>
+          <wr-select placeholder="Status">
+            <wr-option value="paid">Paid</wr-option>
+            <wr-option value="due">Due</wr-option>
+          </wr-select>
+          <input wrInput placeholder="Search invoices" />
+        </div>
+      </wr-page-header>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sticky"
+    description="`sticky` keeps the header in view while the page scrolls: CSS `position: sticky`, nothing listens to scroll. Scroll inside the box, or tab through its rows."
+  >
+    <ngwr-doc-code [code]="sticky" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-scroll" tabindex="0" style="--ngwr-demo-scroll-padding: 4.5rem">
+        <wr-page-header sticky compact title="Invoices" subtitle="24 this month">
+          <wr-breadcrumbs wrPageHeaderBreadcrumbs>
+            <wr-breadcrumbs-item>Billing</wr-breadcrumbs-item>
+            <wr-breadcrumbs-item>Invoices</wr-breadcrumbs-item>
+          </wr-breadcrumbs>
+          <div wrPageHeaderActions>
+            <wr-btn color="primary">New invoice</wr-btn>
+          </div>
+        </wr-page-header>
+        @for (row of rows; track row) {
+          <div class="ngwr-demo-scroll__row">
+            <span>Invoice #{{ row }}</span>
+            <wr-btn size="sm" outlined>Open</wr-btn>
+          </div>
+        }
+      </div>
+    </ngwr-doc-snippet>
+
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Need</th>
+            <th>Do</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Sit under an app bar</th>
+            <td>Set <code>--wr-page-header-sticky-top</code> to the bar's height.</td>
+          </tr>
+          <tr>
+            <th scope="row">Keep focus out from under it</th>
+            <td>
+              Set <code>scroll-padding-block-start</code> on the scroller (<code>html</code> for the page). The header
+              cannot set it on a scroller it does not own.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">It does not stick</th>
+            <td>
+              An ancestor with <code>overflow: hidden</code>, <code>auto</code> or <code>scroll</code> is the box it
+              pins inside. Keep every ancestor up to the scroller at <code>overflow: visible</code>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Stack it differently</th>
+            <td>Set <code>--wr-page-header-sticky-z</code>. The default sits under every overlay.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ngwr-doc-code [code]="stickyScss" language="scss" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>

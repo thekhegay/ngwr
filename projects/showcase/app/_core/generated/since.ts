@@ -128,6 +128,7 @@ export const UPDATED = {
   "reference/components/input-otp": "15.0.0",
   "reference/components/keyboard": "15.5.0",
   "reference/components/mention": "15.6.0",
+  "reference/components/page-header": "15.6.0",
   "reference/components/popover": "15.1.0",
   "reference/components/radio": "15.0.0",
   "reference/components/select": "15.5.0",

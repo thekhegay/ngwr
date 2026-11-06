@@ -990,6 +990,8 @@ export const API = {
     { name: "title", description: "Primary title shown as an h1.", type: "string", default: "''" },
     { name: "subtitle", description: "Secondary line below the title.", type: "string", default: "''" },
     { name: "responsive", description: "Stack the title and actions vertically when the header's own box is too narrow to sit them side by side (a container query on its own width, not the viewport — so it adapts inside a narrow column or split pane).", type: "boolean", default: "false" },
+    { name: "compact", description: "One-line head: the breadcrumbs beside the title instead of above it, the subtitle after the title, a smaller title. Wraps when there is no room.", type: "boolean", default: "false" },
+    { name: "sticky", description: "Keep the header in view while the page scrolls (`position: sticky` at `--wr-page-header-sticky-top`, under `--wr-page-header-sticky-z`).", type: "boolean", default: "false" },
   ],
   // <wr-pagination>
   WrPagination: [
