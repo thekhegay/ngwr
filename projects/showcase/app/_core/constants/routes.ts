@@ -182,6 +182,7 @@ export const ROUTES = {
       inputNumber: { path: 'input-number', title: 'Input Number' },
       layout: { path: 'layout', title: 'Layout' },
       list: { path: 'list', title: 'List' },
+      loadState: { path: 'load-state', title: 'Load State' },
       inputOtp: { path: 'input-otp', title: 'Input OTP' },
       keyboard: { path: 'keyboard', title: 'Keyboard' },
       knob: { path: 'knob', title: 'Knob' },

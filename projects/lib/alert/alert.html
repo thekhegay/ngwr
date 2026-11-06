@@ -69,6 +69,7 @@
       <p class="wr-alert__title">{{ m }}</p>
     }
     <div class="wr-alert__content"><ng-content /></div>
+    <div class="wr-alert__actions"><ng-content select="[wrAlertActions]" /></div>
   </div>
 
   @if (closable()) {

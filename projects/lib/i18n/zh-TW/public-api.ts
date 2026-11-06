@@ -496,6 +496,10 @@ export const wrZhTw: WrI18nCatalog = {
     forbidden: '很抱歉，您沒有存取此頁面的權限。',
     serverError: '很抱歉，發生了一些問題。',
   },
+  loadState: {
+    failed: '無法載入',
+    retry: '重試',
+  },
   date: {
     months: {
       jan: '一月',

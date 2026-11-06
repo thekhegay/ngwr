@@ -19,6 +19,8 @@ export default class SkeletonComponent {
     colors: `<wr-skeleton color="primary" />
 <wr-skeleton color="success" />`,
     custom: `<wr-skeleton style="--wr-skeleton-height: 4rem; --wr-skeleton-radius: 1rem" />`,
+    lines: `<wr-skeleton [lines]="3" />
+<wr-skeleton [lines]="2" color="primary" style="--wr-skeleton-last-line-width: 40%" />`,
     static: `<wr-skeleton [animated]="false" />`,
   };
 

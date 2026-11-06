@@ -26,7 +26,7 @@ A pnpm + Angular CLI monorepo with three projects:
   (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `toast`,
   `context-menu`, `popconfirm`, `command-palette`, `cascader`, `mention`),
   the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
-  `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
+  `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`, `load-state`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`,
   **every chart** and **twenty-two of the twenty-five bits** — each at
   `ngwr/<name>/testing`. Charts and bits are NESTED since v15:

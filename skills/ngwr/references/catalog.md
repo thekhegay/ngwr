@@ -184,6 +184,8 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/lightbox` | `import { WrLightbox } from 'ngwr/lightbox'` | `wr-lightbox` |
 | `ngwr/lightbox/testing` | `import { WrLightboxHarness } from 'ngwr/lightbox/testing'` | — |
 | `ngwr/list` | `import { WrList } from 'ngwr/list'` | `wr-list-item` `wr-list` |
+| `ngwr/load-state` | `import { WrLoadState } from 'ngwr/load-state'` | `ng-template[wrLoadStateContent]` `ng-template[wrLoadStateLoading]` `ng-template[wrLoadStateError]` `ng-template[wrLoadStateEmpty]` `wr-load-state` |
+| `ngwr/load-state/testing` | `import { WrLoadStateHarness } from 'ngwr/load-state/testing'` | — |
 | `ngwr/loading-bar` | `import { WrLoadingBar } from 'ngwr/loading-bar'` | `wr-loading-bar` |
 | `ngwr/loading-bar/router` | `import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router'` | — |
 | `ngwr/mention` | `import { WrMention } from 'ngwr/mention'` | `wr-mention-panel` `[wrMention]` |

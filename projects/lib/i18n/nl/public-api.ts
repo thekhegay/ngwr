@@ -503,6 +503,10 @@ export const wrNl: WrI18nCatalog = {
     forbidden: 'Sorry, u hebt geen toegang tot deze pagina.',
     serverError: 'Sorry, er is iets misgegaan.',
   },
+  loadState: {
+    failed: 'Laden mislukt',
+    retry: 'Opnieuw proberen',
+  },
   date: {
     months: {
       jan: 'januari',

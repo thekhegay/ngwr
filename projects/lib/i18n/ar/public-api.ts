@@ -512,6 +512,10 @@ export const wrAr: WrI18nCatalog = {
     forbidden: 'عذرًا، ليس لديك إذن بالوصول إلى هذه الصفحة.',
     serverError: 'عذرًا، حدث خطأ ما.',
   },
+  loadState: {
+    failed: 'تعذّر التحميل',
+    retry: 'إعادة المحاولة',
+  },
   date: {
     months: {
       jan: 'يناير',

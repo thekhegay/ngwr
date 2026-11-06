@@ -724,6 +724,13 @@
       "sass": "./list/styles/_index.scss",
       "default": "./list/public-api.ts"
     },
+    "./load-state": {
+      "sass": "./load-state/styles/_index.scss",
+      "default": "./load-state/public-api.ts"
+    },
+    "./load-state/testing": {
+      "default": "./load-state/testing/public-api.ts"
+    },
     "./loading-bar": {
       "sass": "./loading-bar/styles/_index.scss",
       "default": "./loading-bar/public-api.ts"

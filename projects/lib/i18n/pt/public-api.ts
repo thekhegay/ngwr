@@ -495,6 +495,10 @@ export const wrPt: WrI18nCatalog = {
     forbidden: 'Lamentamos, não tem autorização para aceder a esta página.',
     serverError: 'Lamentamos, ocorreu um erro.',
   },
+  loadState: {
+    failed: 'Não foi possível carregar',
+    retry: 'Tentar novamente',
+  },
   date: {
     months: {
       jan: 'janeiro',

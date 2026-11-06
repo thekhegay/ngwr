@@ -491,6 +491,10 @@ export const wrHi: WrI18nCatalog = {
     forbidden: 'माफ़ करें, आपके पास इस पेज का एक्सेस नहीं है।',
     serverError: 'माफ़ करें, कुछ गलत हो गया।',
   },
+  loadState: {
+    failed: 'लोड नहीं हो सका',
+    retry: 'फिर से कोशिश करें',
+  },
   date: {
     months: {
       jan: 'जनवरी',

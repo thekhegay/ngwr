@@ -510,6 +510,10 @@ export const wrDe: WrI18nCatalog = {
     forbidden: 'Sie sind leider nicht berechtigt, auf diese Seite zuzugreifen.',
     serverError: 'Leider ist ein Fehler aufgetreten.',
   },
+  loadState: {
+    failed: 'Laden fehlgeschlagen',
+    retry: 'Erneut versuchen',
+  },
   date: {
     months: {
       jan: 'Januar',

@@ -514,6 +514,10 @@ export const wrTr: WrI18nCatalog = {
     forbidden: 'Üzgünüz, bu sayfaya erişim yetkiniz yok.',
     serverError: 'Üzgünüz, bir şeyler ters gitti.',
   },
+  loadState: {
+    failed: 'Yüklenemedi',
+    retry: 'Tekrar dene',
+  },
   date: {
     months: {
       jan: 'Ocak',

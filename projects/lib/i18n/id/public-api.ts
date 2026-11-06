@@ -489,6 +489,10 @@ export const wrId: WrI18nCatalog = {
     forbidden: 'Maaf, Anda tidak berwenang mengakses halaman ini.',
     serverError: 'Maaf, terjadi kesalahan.',
   },
+  loadState: {
+    failed: 'Gagal memuat',
+    retry: 'Coba lagi',
+  },
   date: {
     months: {
       jan: 'Januari',

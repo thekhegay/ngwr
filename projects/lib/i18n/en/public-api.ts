@@ -619,6 +619,12 @@ export const wrEn: WrI18nCatalog = {
     forbidden: 'Sorry, you are not authorized to access this page.',
     serverError: 'Sorry, something went wrong.',
   },
+  loadState: {
+    // `wr-load-state`: the failure's title and its retry. The library ships no
+    // error copy beyond this generic title; the message is the app's to show.
+    failed: 'Could not load',
+    retry: 'Try again',
+  },
   date: {
     months: {
       jan: 'January',
