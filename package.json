@@ -13,6 +13,7 @@
     "check:release": "pnpm lint && pnpm test && pnpm check:api-docs && pnpm check:css-vars && pnpm build:lib && pnpm check:package && pnpm check:nightly",
     "check:package": "tsx scripts/check/package.ts",
     "check:layout": "tsx scripts/check/layout.ts",
+    "check:nav": "tsx scripts/check/nav.ts",
     "check:a11y": "tsx scripts/check/a11y.ts",
     "check:contrast": "tsx scripts/check/contrast.ts",
     "gen:api-docs": "tsx scripts/gen/api-docs.ts",
