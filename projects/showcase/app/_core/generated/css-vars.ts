@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1603 hook(s) across 109 page(s). A property is here only when the
+ * 1610 hook(s) across 109 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -1452,14 +1452,21 @@ export const CSS_VARS = {
       { name: "--wr-page-header-actions-gap", default: "var(--wr-space-sm)", scope: ".wr-page-header" },
       { name: "--wr-page-header-border", default: "var(--wr-border-base)", scope: ".wr-page-header" },
       { name: "--wr-page-header-breadcrumbs-font-size", default: "var(--wr-text-sm)", scope: ".wr-page-header" },
+      { name: "--wr-page-header-compact-gap", default: "var(--wr-space-md)", scope: ".wr-page-header" },
+      { name: "--wr-page-header-compact-padding-y", default: "var(--wr-space-md)", scope: ".wr-page-header" },
+      { name: "--wr-page-header-compact-title-font-size", default: "var(--wr-text-xl)", scope: ".wr-page-header" },
       { name: "--wr-page-header-extra-gap", default: "var(--wr-space-md)", scope: ".wr-page-header" },
       { name: "--wr-page-header-extra-padding-top", default: "var(--wr-space-xs)", scope: ".wr-page-header" },
+      { name: "--wr-page-header-filters-gap", default: "var(--wr-space-sm)", scope: ".wr-page-header" },
       { name: "--wr-page-header-font-family", default: "var(--wr-font-family-base)", scope: ".wr-page-header" },
       { name: "--wr-page-header-gap", default: "var(--wr-space-lg)", scope: ".wr-page-header" },
       { name: "--wr-page-header-heading-gap", default: "var(--wr-space-sm)", scope: ".wr-page-header" },
       { name: "--wr-page-header-main-gap-x", default: "var(--wr-space-xl)", scope: ".wr-page-header" },
       { name: "--wr-page-header-main-gap-y", default: "var(--wr-space-lg)", scope: ".wr-page-header" },
       { name: "--wr-page-header-padding-y", default: "var(--wr-space-xl)", scope: ".wr-page-header" },
+      { name: "--wr-page-header-sticky-bg", default: "var(--wr-color-surface)", scope: ".wr-page-header" },
+      { name: "--wr-page-header-sticky-top", default: "0", scope: ".wr-page-header" },
+      { name: "--wr-page-header-sticky-z", default: "10", scope: ".wr-page-header" },
       { name: "--wr-page-header-subtitle-font-size", default: "var(--wr-text-base)", scope: ".wr-page-header" },
       { name: "--wr-page-header-subtitle-line-height", default: "var(--wr-leading-normal)", scope: ".wr-page-header" },
       { name: "--wr-page-header-title-font-size", default: "var(--wr-text-3xl)", scope: ".wr-page-header" },

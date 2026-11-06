@@ -17,6 +17,15 @@
   --wr-page-header-actions-gap: var(--wr-space-sm);
   --wr-page-header-extra-gap: var(--wr-space-md);
   --wr-page-header-extra-padding-top: var(--wr-space-xs);
+  --wr-page-header-filters-gap: var(--wr-space-sm);
+  --wr-page-header-compact-gap: var(--wr-space-md);
+  --wr-page-header-compact-padding-y: var(--wr-space-md);
+  --wr-page-header-compact-title-font-size: var(--wr-text-xl);
+  --wr-page-header-sticky-top: 0;
+  // Under `--wr-z-overlay`, so a dropdown opened from the header paints over
+  // it, and level with `wr-affix`. Raise or lower it to sit under an app bar.
+  --wr-page-header-sticky-z: 10;
+  --wr-page-header-sticky-bg: var(--wr-color-surface);
 
   display: flex;
   flex-direction: column;
@@ -34,6 +43,56 @@
   // already full-width, so containment is safe here.
   &--responsive {
     container: wr-page-header / inline-size;
+  }
+
+  // Opt-in (`compact`): one wrapping line, the crumbs beside the title. The
+  // extra and filter rows keep a line of their own.
+  &--compact {
+    flex-direction: row;
+    flex-wrap: wrap;
+    // The crumbs sit on the title's line, not centred against title and subtitle.
+    align-items: baseline;
+    gap: var(--wr-page-header-compact-gap);
+    padding-block: var(--wr-page-header-compact-padding-y);
+
+    .wr-page-header__breadcrumbs {
+      flex: 0 1 auto;
+      min-width: 0;
+    }
+
+    // Shares the line while at least 16rem is left beside the crumbs, else
+    // drops below them at full width. Long crumbs wrap inside their own box.
+    .wr-page-header__main {
+      flex: 1 1 0;
+      min-width: min(100%, 16rem);
+      align-items: center;
+    }
+
+    .wr-page-header__heading {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: var(--wr-page-header-heading-gap);
+      row-gap: 0;
+    }
+
+    .wr-page-header__title {
+      font-size: var(--wr-page-header-compact-title-font-size);
+    }
+
+    .wr-page-header__extra,
+    .wr-page-header__filters {
+      flex: 1 1 100%;
+    }
+  }
+
+  // Opt-in (`sticky`): pins against the nearest scrolling ancestor. Opaque, or
+  // the content scrolling under it shows through.
+  &--sticky {
+    position: sticky;
+    inset-block-start: var(--wr-page-header-sticky-top);
+    z-index: var(--wr-page-header-sticky-z);
+    background: var(--wr-page-header-sticky-bg);
   }
 
   &__breadcrumbs {
@@ -101,6 +160,19 @@
       display: none;
     }
   }
+
+  // The filter row: controls, so the gap follows density like the actions'.
+  &__filters {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--wr-page-header-filters-gap) * var(--wr-density-gap, 1));
+    flex-wrap: wrap;
+    width: 100%;
+
+    &:empty {
+      display: none;
+    }
+  }
 }
 
 // The documented actions shape is ONE wrapper around the buttons —
@@ -131,6 +203,15 @@
 // into separate items. Tags go in as its children instead, through an
 // `<ng-container wrPageHeaderExtra>`, which the class JSDoc shows.
 :where(.wr-page-header__actions > div:not([hidden], [class]:not([class='']), [style]:not([style='']))) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: inherit;
+}
+
+// The filters slot takes the same documented shape, one bare wrapper around the
+// controls, and the same rule.
+:where(.wr-page-header__filters > div:not([hidden], [class]:not([class='']), [style]:not([style='']))) {
   display: flex;
   align-items: center;
   flex-wrap: wrap;

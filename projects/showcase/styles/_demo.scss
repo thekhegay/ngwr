@@ -1,3 +1,5 @@
+@use 'mixins' as site;
+
 // Two variants of one demo side by side, each under a short caption naming what
 // differs ("On (default)" beside `[tooltip]="false"`). Global because the pages
 // that draw it are emulated, and four copies of one inline style is how a
@@ -17,5 +19,32 @@
     margin: 0 0 var(--wr-space-sm);
     color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-sm);
+  }
+}
+
+// A box a demo scrolls inside, so a sticky element can be seen pinning on the
+// page. Focusable, since a scrolling region must be reachable by keyboard, so
+// it takes the site's ring. `scroll-padding` keeps a focused row out from under
+// a sticky header, which is the consumer's half of `wr-page-header` `sticky`.
+.ngwr-demo-scroll {
+  width: 100%;
+  height: 20rem;
+  overflow: auto;
+  scroll-padding-block-start: var(--ngwr-demo-scroll-padding, 0);
+  border: 1px solid var(--wr-border-base);
+  border-radius: var(--wr-border-radius-base);
+  background: var(--wr-color-surface);
+
+  &:focus-visible {
+    @include site.focus-ring;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--wr-space-md);
+    padding: var(--wr-space-sm) var(--wr-space-lg);
+    border-bottom: 1px dashed var(--wr-border-base);
   }
 }

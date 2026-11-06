@@ -8,8 +8,6 @@
 
 ## Low
 
-- **`compact` and `sticky` on `wr-page-header`**: a one-line head with the crumbs
-  beside the title, a second row for filters, and a way to stay in view.
 - **`wr-graph` zoom and pan**: zoom in and out and drag the field, like NG-ZORRO's
   graph. Selection and highlight come after that.
 - **Bits docs notes**: see-also lists, the ripple-grid strength slider range, the

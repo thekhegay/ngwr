@@ -11,10 +11,17 @@ import { WrPageHeader } from './page-header';
 @Component({
   imports: [WrPageHeader],
   template: `
-    <wr-page-header [title]="title()" [subtitle]="subtitle()" [responsive]="responsive()">
+    <wr-page-header
+      [title]="title()"
+      [subtitle]="subtitle()"
+      [responsive]="responsive()"
+      [compact]="compact()"
+      [sticky]="sticky()"
+    >
       <span wrPageHeaderBreadcrumbs class="crumbs">Home / Docs</span>
       <button type="button" wrPageHeaderActions class="action">Edit</button>
       <span wrPageHeaderExtra class="extra">v2</span>
+      <div wrPageHeaderFilters class="filters"><input /></div>
     </wr-page-header>
   `,
 })
@@ -22,7 +29,15 @@ class Host {
   readonly title = signal('Settings');
   readonly subtitle = signal('Everything about this project');
   readonly responsive = signal(false);
+  readonly compact = signal(false);
+  readonly sticky = signal(false);
 }
+
+@Component({
+  imports: [WrPageHeader],
+  template: `<wr-page-header title="Settings" />`,
+})
+class Plain {}
 
 describe('WrPageHeader', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -70,6 +85,31 @@ describe('WrPageHeader', () => {
     fixture.detectChanges();
     expect(host().className).toContain('wr-page-header--responsive');
   });
+
+  it('takes the compact and sticky modifiers only when asked, and keeps the DOM the same', () => {
+    const before = host().innerHTML;
+
+    fixture.componentInstance.compact.set(true);
+    fixture.componentInstance.sticky.set(true);
+    fixture.detectChanges();
+    expect(host().className).toContain('wr-page-header--compact');
+    expect(host().className).toContain('wr-page-header--sticky');
+    // Compact is a stylesheet modifier: the crumbs move beside the title in CSS,
+    // so a header without it renders the markup it always has.
+    expect(host().innerHTML).toBe(before);
+  });
+
+  it('renders the filter row last, and empty when nothing is projected', () => {
+    const filters = root().querySelector<HTMLElement>('.wr-page-header__filters')!;
+    expect(filters).toBe(host().lastElementChild);
+    expect(filters.querySelector('.filters')).not.toBeNull();
+
+    // `:empty` is what hides the region, so no text node may be left behind.
+    const plain = TestBed.createComponent(Plain);
+    plain.detectChanges();
+    expect((plain.nativeElement as HTMLElement).querySelector('.wr-page-header__filters')!.childNodes.length).toBe(0);
+    plain.destroy();
+  });
 });
 
 /**
@@ -93,6 +133,7 @@ describe('WrPageHeader', () => {
 describe('which actions wrappers the stylesheet lays out', () => {
   const scss = readFileSync(join(process.cwd(), 'projects/lib/page-header/styles/_index.scss'), 'utf8');
   const rule = /^(:where\(\.wr-page-header__actions > div[^{]*\)) \{([^}]*)\}/m.exec(scss);
+  const filtersRule = /^(:where\(\.wr-page-header__filters > div[^{]*\)) \{([^}]*)\}/m.exec(scss);
 
   @Component({
     imports: [WrPageHeader],
@@ -112,6 +153,8 @@ describe('which actions wrappers the stylesheet lays out', () => {
         <div wrPageHeaderActions data-probe="hidden" hidden><button type="button">D</button></div>
         <span wrPageHeaderActions data-probe="span"><button type="button">E</button></span>
         <div wrPageHeaderExtra data-probe="extra">Last edited by <a href="#">rk</a></div>
+        <div wrPageHeaderFilters data-probe="filters"><input /><input /></div>
+        <div wrPageHeaderFilters data-probe="filters-classed" class="my-filters"><input /></div>
       </wr-page-header>
     `,
   })
@@ -171,6 +214,15 @@ describe('which actions wrappers the stylesheet lays out', () => {
   it('never reaches the extra row, where a wrapper is usually metadata prose', () => {
     expect(probe('extra').parentElement!.classList).toContain('wr-page-header__extra');
     expect(laidOut('extra')).toBe(false);
+    expect(probe('extra').matches(filtersRule![1])).toBe(false);
+  });
+
+  it('lays out a bare wrapper in the filters row the same way, and only a bare one', () => {
+    expect(filtersRule![2]).toBe(rule![2]);
+    expect(probe('filters').parentElement!.classList).toContain('wr-page-header__filters');
+    expect(probe('filters').matches(filtersRule![1])).toBe(true);
+    expect(probe('filters-classed').matches(filtersRule![1])).toBe(false);
+    expect(laidOut('filters')).toBe(false);
   });
 });
 
