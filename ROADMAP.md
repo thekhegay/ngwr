@@ -10,8 +10,6 @@
 
 - **`wr-graph` zoom and pan**: zoom in and out and drag the field, like NG-ZORRO's
   graph. Selection and highlight come after that.
-- **Bits docs notes**: see-also lists, the ripple-grid strength slider range, the
-  credit wording, and the playground headings at 390px.
 - **`check:nav`**: compares `dist/showcase/prerendered-routes.json` with the sidebar
   configs, so a page with no route or a route with no nav row fails the run.
 

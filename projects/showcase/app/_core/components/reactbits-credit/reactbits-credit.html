@@ -1,9 +1,18 @@
 <div class="reactbits-credit">
   <span class="reactbits-credit__icon" aria-hidden="true">↗</span>
   <span class="reactbits-credit__text">
-    Angular adaptation of an effect by
-    <a class="ngwr-doc-link" href="https://github.com/DavidHDev" target="_blank" rel="noreferrer noopener">David Haz</a>
-    /
-    <a class="ngwr-doc-link" [href]="url()" target="_blank" rel="noreferrer noopener">reactbits.dev</a>.
+    @if (kind() === 'port') {
+      Angular port of
+      <a class="ngwr-doc-link" [href]="url()" target="_blank" rel="noreferrer noopener">{{ name() }}</a>
+      from
+      <a class="ngwr-doc-link" href="https://www.reactbits.dev" target="_blank" rel="noreferrer noopener">React Bits</a>
+      by David Haz.
+    } @else {
+      After
+      <a class="ngwr-doc-link" [href]="url()" target="_blank" rel="noreferrer noopener">{{ name() }}</a>
+      on
+      <a class="ngwr-doc-link" href="https://www.reactbits.dev" target="_blank" rel="noreferrer noopener">React Bits</a>
+      by David Haz; the code is ngwr's own.
+    }
   </span>
 </div>
