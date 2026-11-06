@@ -22,6 +22,7 @@ import {
   ElementRef,
   Injector,
   PLATFORM_ID,
+  type Signal,
   computed,
   inject,
   input,
@@ -41,6 +42,8 @@ interface ActiveState {
   trigger: string;
   query: string;
   startIndex: number;
+  /** Raised by `open()`: the trigger is not in the text, so a commit adds it. */
+  implicit: boolean;
 }
 
 /**
@@ -87,6 +90,7 @@ const CARET_POSITIONS: ConnectedPosition[] = [
  */
 @Directive({
   selector: '[wrMention]',
+  exportAs: 'wrMention',
   host: {
     '(input)': 'onInput()',
     '(click)': 'onClick()',
@@ -190,13 +194,17 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
   /**
    * Where the caret sits INSIDE the field — its offset from the field's
    * top-left corner, plus the height of the line it is on. Mutated in place by
-   * `open()`, never replaced: `caretAnchor()` closes over this object.
+   * `show()`, never replaced: `caretAnchor()` closes over this object.
    */
   private readonly caretOffset = { dx: 0, dy: 0, lineHeight: 0 };
   private state: ActiveState | null = null;
   private readonly activeIndex = signal(0);
   private readonly filteredItems = signal<readonly T[]>([]);
-  private readonly isOpen = signal(false);
+  private readonly panelOpen = signal(false);
+  private blurClose: ReturnType<typeof setTimeout> | undefined;
+
+  /** Whether the suggestion panel is open. */
+  readonly isOpen: Signal<boolean> = this.panelOpen.asReadonly();
 
   /** @internal — read by the `aria-controls` host binding. */
   protected readonly listboxId = `wr-mention-listbox-${++mentionUid}`;
@@ -366,12 +374,12 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
   /** @internal */
   protected onBlur(): void {
     // Defer so option mousedown lands first.
-    setTimeout(() => this.close(), 120);
+    this.blurClose = setTimeout(() => this.close(), 120);
   }
 
   // Detection
 
-  private detect(): void {
+  private detect(): boolean {
     const el = this.host.nativeElement;
     const caret = el.selectionStart ?? 0;
     const text = el.value.substring(0, caret);
@@ -387,18 +395,30 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
         if (i - 2 < 0 || /\s/.test(before)) {
           const query = text.substring(i);
           this.activate(ch, query, i - 1);
-          return;
+          return true;
         }
         break;
       }
       if (/\s/.test(ch)) break;
       i--;
     }
+    // A panel `open()` raised has no trigger in the text to find. It lasts while
+    // the caret stays at or past the spot it opened at with no whitespace
+    // between, and the text typed there is the query, as after a typed trigger.
+    const implicit = this.state?.implicit ? this.state : null;
+    if (implicit && caret >= implicit.startIndex) {
+      const query = text.substring(implicit.startIndex);
+      if (!/\s/.test(query)) {
+        this.activate(implicit.trigger, query, implicit.startIndex, true);
+        return true;
+      }
+    }
     this.close();
+    return false;
   }
 
-  private activate(trigger: string, query: string, startIndex: number): void {
-    this.state = { trigger, query, startIndex };
+  private activate(trigger: string, query: string, startIndex: number, implicit = false): void {
+    this.state = { trigger, query, startIndex, implicit };
     const previousCount = this.filteredItems().length;
     const filtered = this.filter(query).slice(0, this.maxResults());
     this.filteredItems.set(filtered);
@@ -410,7 +430,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
       return;
     }
     this.setActive(Math.min(this.activeIndex(), filtered.length - 1));
-    this.open();
+    this.show();
     // Only when the size actually changes. Re-announcing the same count on every
     // keystroke would talk over the per-option speech from activedescendant.
     if (filtered.length !== previousCount) this.announce(this.availableText({ count: filtered.length }));
@@ -451,7 +471,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
    * Only the caret's offset inside the field is captured up front. Measuring it
    * runs the mirror-div pass in `caret.ts` — a full layout read, far too
    * expensive to repeat per scroll event — and it cannot change without a
-   * keystroke, which re-enters `open()` anyway.
+   * keystroke, which re-enters `show()` anyway.
    */
   private caretAnchor(): FlexibleConnectedPositionStrategyOrigin {
     const field = this.host.nativeElement;
@@ -470,7 +490,46 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     };
   }
 
-  private open(): void {
+  /**
+   * Opens the panel at the caret, as typing a trigger does, and focuses the
+   * field: the panel never takes focus, it reads the arrows and Enter from the
+   * field.
+   *
+   * With the caret inside a mention (`@al|`) the list is filtered by that text,
+   * as the next keystroke would filter it. Anywhere else it opens with the whole
+   * list on the first of `triggers`, text typed from there on filters it, and a
+   * pick inserts the trigger and the label at the caret. No match closes it and
+   * announces so, as typing does. Nothing happens while it is already open,
+   * while the field is disabled or read-only, or during an IME composition,
+   * where typing opens nothing either.
+   */
+  open(): void {
+    if (!this.isBrowser || this.composing || this.isOpen()) return;
+    const el = this.host.nativeElement;
+    if (el.disabled || el.readOnly) return;
+    // A click on the control that calls this blurred the field a moment ago,
+    // and the close that blur scheduled would take the panel away again.
+    clearTimeout(this.blurClose);
+    el.focus();
+    if (this.detect()) return;
+    this.activate(this.triggers()[0] ?? '', '', el.selectionStart ?? el.value.length, true);
+  }
+
+  /** Closes the panel. Nothing happens while it is closed. */
+  close(): void {
+    if (this.overlayRef) {
+      this.overlayRef.dispose();
+      this.overlayRef = null;
+      this.panelRef = null;
+    }
+    this.panelOpen.set(false);
+    this.state = null;
+    this.activeIndex.set(0);
+    this.filteredItems.set([]);
+    this.announce('');
+  }
+
+  private show(): void {
     const el = this.host.nativeElement;
     const caret = el.selectionStart ?? 0;
     const { top, left, lineHeight } = getCaretCoordinates(el, caret);
@@ -537,20 +596,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     // be painted, full size and fully opaque, at the overlay container's
     // top-left corner.
     this.overlayRef.updatePosition();
-    this.isOpen.set(true);
-  }
-
-  private close(): void {
-    if (this.overlayRef) {
-      this.overlayRef.dispose();
-      this.overlayRef = null;
-      this.panelRef = null;
-    }
-    this.isOpen.set(false);
-    this.state = null;
-    this.activeIndex.set(0);
-    this.filteredItems.set([]);
-    this.announce('');
+    this.panelOpen.set(true);
   }
 
   private commit(item: T): void {

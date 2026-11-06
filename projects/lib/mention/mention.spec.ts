@@ -1,9 +1,9 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrDialog } from 'ngwr/dialog';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrMention } from './mention';
 import type { WrMentionCommit, WrMentionItem } from './types';
@@ -449,6 +449,162 @@ describe('WrMention', () => {
       press('Enter');
       expect(fixture.componentInstance.committed()?.item['id']).toBe('ada');
     });
+  });
+});
+
+describe('WrMention template reference', () => {
+  @Component({
+    imports: [WrMention],
+    template: `
+      <textarea
+        wrMention
+        [wrMentionItems]="items"
+        #ref="wrMention"
+        (wrMentionSelected)="committed.set($event)"
+      ></textarea>
+      <button type="button" (click)="ref.open()">Mention</button>
+    `,
+  })
+  class ExportHost {
+    readonly items = PEOPLE;
+    readonly committed = signal<WrMentionCommit | null>(null);
+    readonly mention = viewChild.required<WrMention>('ref');
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<ExportHost>>;
+
+  const field = (): HTMLTextAreaElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLTextAreaElement>('textarea')!;
+  const listbox = (): HTMLElement | null => document.querySelector<HTMLElement>('[role="listbox"]');
+  const optionLabels = (): string[] =>
+    [...document.querySelectorAll<HTMLElement>('[role="option"]')].map(o => o.textContent.trim());
+  const mention = (): WrMention => fixture.componentInstance.mention();
+
+  const type = (text: string): void => {
+    const el = field();
+    el.value = text;
+    el.selectionStart = el.selectionEnd = text.length;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  const press = (key: string): void => {
+    field().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('publishes the instance as `wrMention`', () => {
+    expect(mention()).toBeInstanceOf(WrMention);
+    expect(mention().isOpen()).toBe(false);
+  });
+
+  it('opens the whole list from another control and focuses the field', () => {
+    (fixture.nativeElement as HTMLElement).querySelector('button')!.click();
+    fixture.detectChanges();
+
+    expect(mention().isOpen()).toBe(true);
+    expect(optionLabels()).toEqual(PEOPLE.map(p => p.label));
+    // The panel never takes focus: the arrows and Enter are read from the field.
+    expect(document.activeElement).toBe(field());
+  });
+
+  it('opens filtered by the mention at the caret', () => {
+    type('hey @al');
+    press('Escape');
+    expect(listbox()).toBeNull();
+
+    mention().open();
+    fixture.detectChanges();
+
+    expect(optionLabels()).toEqual(['Alan Turing', 'Linus Torvalds']);
+  });
+
+  it('filters on what is typed after a programmatic open, and inserts the trigger on a pick', () => {
+    type('hey ');
+    mention().open();
+    fixture.detectChanges();
+
+    // The keyup of whatever key called `open()` lands on the now-focused field,
+    // and must not take the panel away again.
+    field().dispatchEvent(new KeyboardEvent('keyup', { key: 'm', bubbles: true }));
+    fixture.detectChanges();
+    expect(mention().isOpen()).toBe(true);
+
+    type('hey gr');
+    expect(optionLabels()).toEqual(['Grace Hopper']);
+
+    press('Enter');
+    expect(field().value).toBe('hey @Grace Hopper ');
+    expect(fixture.componentInstance.committed()).toMatchObject({ trigger: '@', query: 'gr' });
+    expect(mention().isOpen()).toBe(false);
+  });
+
+  it('survives the deferred close a click elsewhere scheduled', () => {
+    vi.useFakeTimers();
+    try {
+      field().focus();
+      field().blur();
+      fixture.detectChanges();
+      mention().open();
+      fixture.detectChanges();
+      vi.advanceTimersByTime(200);
+      fixture.detectChanges();
+
+      expect(mention().isOpen()).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('stays shut when nothing matches, when the field cannot take input, and while open', () => {
+    type('hey @zzzz');
+    mention().open();
+    fixture.detectChanges();
+    expect(listbox()).toBeNull();
+
+    field().value = '';
+    field().disabled = true;
+    mention().open();
+    fixture.detectChanges();
+    expect(mention().isOpen()).toBe(false);
+
+    field().disabled = false;
+    field().readOnly = true;
+    mention().open();
+    fixture.detectChanges();
+    expect(mention().isOpen()).toBe(false);
+
+    field().readOnly = false;
+    mention().open();
+    fixture.detectChanges();
+    const panel = listbox();
+    mention().open();
+    fixture.detectChanges();
+    expect(listbox()).toBe(panel);
+  });
+
+  it('closes from the reference, and closing again changes nothing', () => {
+    mention().open();
+    fixture.detectChanges();
+    expect(listbox()).not.toBeNull();
+
+    mention().close();
+    fixture.detectChanges();
+    expect(listbox()).toBeNull();
+    expect(mention().isOpen()).toBe(false);
+    expect(field().getAttribute('aria-activedescendant')).toBeNull();
+
+    mention().close();
+    fixture.detectChanges();
+    expect(mention().isOpen()).toBe(false);
   });
 });
 

@@ -4,11 +4,6 @@
 
 ## High
 
-- **Template methods on `WrMention` and `WrCopyToClipboard`**: `open()` and `close()`
-  on `WrMention` are private, and `WrCopyToClipboard` has only a protected `onClick()`,
-  so a template cannot call them. Make the two public, add a public `copy()`, and give
-  both directives an `exportAs`.
-
 ## Medium
 
 ## Low
