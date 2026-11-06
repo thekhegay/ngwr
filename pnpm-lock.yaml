@@ -285,8 +285,8 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0
       iconoir:
-        specifier: ^7.12.1
-        version: 7.12.1
+        specifier: ^7.12.2
+        version: 7.12.2
       jsdom:
         specifier: ^30.1.3
         version: 30.1.3
@@ -3220,8 +3220,8 @@ packages:
     resolution: {integrity: sha512-ag87y7cJJ9/3+GxFr8Oy4O5faDsGRGnBGsJj/YjOSsSx/5eadKLYTMPlzuR6obgoCDDm0abAAZitXXQkMOPSpA==}
     engines: {node: '>= 20'}
 
-  iconoir@7.12.1:
-    resolution: {integrity: sha512-7ei4jd1bss0Ukyz/bbM9Zc96aLfZuwTEkSW8u5fx5h3X9912MsnmWwPw9LyTUtcf0ShfTzQeQ9oG7IslW3hrLg==}
+  iconoir@7.12.2:
+    resolution: {integrity: sha512-epJjWmNUn0zddyShKgYPlE8m8cqwNLR5Zr2UmIHV1iZJr7uYGHDi/7dM4brOjLBXRP8lx0Q8N1gcWadizQgEMQ==}
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -7177,7 +7177,7 @@ snapshots:
       - kerberos
       - supports-color
 
-  iconoir@7.12.1: {}
+  iconoir@7.12.2: {}
 
   iconv-lite@0.4.24:
     dependencies:
