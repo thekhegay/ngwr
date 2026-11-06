@@ -62,7 +62,6 @@ const KIND: readonly (readonly [string, string])[] = [
   ['reference/validators/', 'Validator'],
   ['reference/interfaces/', 'Type'],
   ['charts/', 'Component'],
-  ['bits/', 'Animation'],
   ['guides/', 'Guide'],
 ];
 

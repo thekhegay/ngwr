@@ -230,9 +230,9 @@ async function main(): Promise<void> {
     for (const theme of themes) for (const mode of modes) {
       // Reduced motion, which every pinned context gets, is what makes the pass
       // deterministic. Every animation component short-circuits to its final
-      // state under it, so nothing is ever measured mid-flight — a
-      // `wr-blur-text` piece caught at `opacity: 0; filter: blur(10px)` reports
-      // a contrast failure that describes a frame, not a design.
+      // state under it, so nothing is ever measured mid-flight — a word caught
+      // half-way through a fade-in reports a contrast failure that describes a
+      // frame, not a design.
       //
       // The clock is pinned for the reason `check:state-a11y` pins it: the
       // event-calendar demo builds its events relative to `new Date()`, so how

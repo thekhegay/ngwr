@@ -23,8 +23,8 @@ export interface DocCssVarRow {
   readonly overrides?: number;
   /**
    * The component writes this hook on its own host, from an input or from its
-   * state, and never releases it — `--wr-threads-count` mirrors `[lineCount]`,
-   * `--wr-border-glow-angle` follows the pointer. An inline value beats every
+   * state, and never releases it — `--wr-breadcrumbs-separator` mirrors
+   * `[separator]`, `--wr-color-picker-color` follows the picked colour. An inline value beats every
    * stylesheet rule, so the section's "set these on the element" does not hold
    * for the row: a rule holds only until the component writes, which for an
    * input is the first render. Absent means a rule reaches it.

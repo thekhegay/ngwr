@@ -38,7 +38,7 @@ export function wrPath(...nodes: readonly WrRoute[]): string {
     .join('/')}`;
 }
 
-/** `wrLink(ROUTES.bits, ROUTES.bits.aurora)` → `{ title: 'Aurora', url: '/bits/aurora' }`. */
+/** `wrLink(ROUTES.charts, ROUTES.charts.barChart)` → `{ title: 'Bar Chart', url: '/charts/bar-chart' }`. */
 export function wrLink(...nodes: readonly WrRoute[]): { readonly title: string; readonly url: string } {
   return { title: nodes[nodes.length - 1].title, url: wrPath(...nodes) };
 }
@@ -337,34 +337,5 @@ export const ROUTES = {
       theme: { path: 'theme', title: 'Theme' },
       catalog: { path: 'catalog', title: 'Catalog' },
     },
-  },
-  bits: {
-    path: 'bits',
-    title: 'Bits',
-    borderGlow: { path: 'border-glow', title: 'Border Glow' },
-    aurora: { path: 'aurora', title: 'Aurora' },
-    marquee: { path: 'marquee', title: 'Marquee' },
-    confetti: { path: 'confetti', title: 'Confetti' },
-    spotlightCard: { path: 'spotlight-card', title: 'Spotlight Card' },
-    tiltCard: { path: 'tilt-card', title: 'Tilt Card' },
-    clickSpark: { path: 'click-spark', title: 'Click Spark' },
-    waves: { path: 'waves', title: 'Waves' },
-    dotGrid: { path: 'dot-grid', title: 'Dot Grid' },
-    threads: { path: 'threads', title: 'Threads' },
-    rippleGrid: { path: 'ripple-grid', title: 'Ripple Grid' },
-    iridescence: { path: 'iridescence', title: 'Iridescence' },
-    starBorder: { path: 'star-border', title: 'Star Border' },
-    splashCursor: { path: 'splash-cursor', title: 'Splash Cursor' },
-    splitText: { path: 'split-text', title: 'Split Text' },
-    blurText: { path: 'blur-text', title: 'Blur Text' },
-    shinyText: { path: 'shiny-text', title: 'Shiny Text' },
-    gradientText: { path: 'gradient-text', title: 'Gradient Text' },
-    rotatingText: { path: 'rotating-text', title: 'Rotating Text' },
-    typewriter: { path: 'typewriter', title: 'Typewriter' },
-    decryptText: { path: 'decrypt-text', title: 'Decrypt Text' },
-    glitchText: { path: 'glitch-text', title: 'Glitch Text' },
-    fuzzyText: { path: 'fuzzy-text', title: 'Fuzzy Text' },
-    fallingText: { path: 'falling-text', title: 'Falling Text' },
-    circularText: { path: 'circular-text', title: 'Circular Text' },
   },
 } as const;

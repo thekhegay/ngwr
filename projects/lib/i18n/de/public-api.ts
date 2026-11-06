@@ -418,10 +418,6 @@ export const wrDe: WrI18nCatalog = {
   },
   // Zahl am Ende und ein Substantiv ohne Pluralform: „Treffer“ lautet im
   // Singular wie im Plural, und der Interpolator beugt nichts.
-  marquee: {
-    label: 'Laufschrift',
-    link: 'Link',
-  },
   mention: {
     listbox: 'Erwähnungen',
     available: 'Treffer: {{count}}',

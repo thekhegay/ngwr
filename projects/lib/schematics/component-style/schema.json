@@ -6,7 +6,7 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "The entry point's path under `ngwr/`, nested ones included — e.g. `button`, `select`, `charts/bar-chart`, `bits/aurora`. Must be an `exports` key with a stylesheet.",
+      "description": "The entry point's path under `ngwr/`, nested ones included — e.g. `button`, `select`, `charts/bar-chart`. Must be an `exports` key with a stylesheet.",
       "$default": { "$source": "argv", "index": 0 },
       "x-prompt": "Which entry point? (e.g. button, select, charts/bar-chart)"
     },

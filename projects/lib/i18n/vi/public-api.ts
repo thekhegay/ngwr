@@ -417,10 +417,6 @@ export const wrVi: WrI18nCatalog = {
   },
   // Danh từ đứng trước con số — “Số kết quả phù hợp: 1” vẫn đọc đúng, vì tiếng Việt
   // không đổi dạng từ theo số lượng và bộ nội suy cũng không có luật số nhiều.
-  marquee: {
-    label: 'Dòng chữ chạy',
-    link: 'liên kết',
-  },
   mention: {
     listbox: 'Danh sách nhắc đến',
     available: 'Số kết quả phù hợp: {{count}}',

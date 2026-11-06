@@ -83,14 +83,11 @@ because it is guidance rather than a plan.
   rather than guessing at it").
 - `wr-calendar-heatmap` leaves four of its seven weekday rows blank on
   purpose — seven labels do not fit.
-- Every bit honours `prefers-reduced-motion`; the one with no
-  handling is `wr-spotlight-card`, where a gradient tracks the cursor and no
-  content moves. (A first sweep reported eight, on a glob that dropped every
-  component without an HTML file. The number was wrong before it was checked.)
-  **That sentence is scoped to the bits catalog and does not generalise** —
-  it was true and still left ten always-on chrome components unguarded, four of
-  them animating infinitely, including the spinner and the skeleton that paint on
-  every page. Those are covered by `theme/styles/_motion.scss`, one shared
+- A component that animates on its own honours `prefers-reduced-motion`
+  itself when its motion is the feature (`wr-count-up`, the carousel's
+  autoplay), and **that does not generalise to chrome**: ten always-on chrome
+  components, four of them animating infinitely, including the spinner and the
+  skeleton that paint on every page, are covered by `theme/styles/_motion.scss`, one shared
   `@media (prefers-reduced-motion: reduce)` block, and NOT by per-component
   rules: the theme layer is loaded before every component stylesheet, so each
   declaration there is `!important` out of necessity rather than habit. What

@@ -70,6 +70,5 @@ export default class TokensMotionPage {
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
     { kind: 'Guide', title: 'Theming', url: ['/guides', 'theming'] },
-    { kind: 'Animation', title: 'Animations', url: ['/bits'] },
   ];
 }

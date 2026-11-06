@@ -400,10 +400,6 @@ export const wrId: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: 'Teks berjalan',
-    link: 'tautan',
-  },
   mention: {
     listbox: 'Sebutan',
     available: 'Jumlah kecocokan: {{count}}',

@@ -182,7 +182,3 @@
     animation: none !important;
   }
 }
-
-// `wr-border-glow` lives in its own component now (see `ngwr/border-glow`).
-// The directive-based rotating-ring effect was replaced by a cursor-tracked
-// cone effect; the old `--wr-border-glow-*` custom properties are gone.

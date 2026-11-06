@@ -31,7 +31,7 @@ import type { Schema } from './schema';
  *
  * The name is checked against the package's `exports` map, so a name with no
  * stylesheet is refused rather than written, and a bare name from before v15
- * (`bar-chart`, `aurora`) lands on its nested entry point. A CSS or Less
+ * (`bar-chart`) lands on its nested entry point. A CSS or Less
  * stylesheet gets the rename advice and no `@import` line. Idempotent: skips an
  * entry point the stylesheet already loads.
  *

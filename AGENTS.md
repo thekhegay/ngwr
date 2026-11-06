@@ -32,7 +32,7 @@ A pnpm + Angular CLI monorepo:
 
 - **`projects/lib/`** is the published package. Almost every subfolder is a
   tree-shakable entry point (`ngwr/button`, `ngwr/charts/bar-chart`,
-  `ngwr/bits/aurora`, `ngwr/i18n/de`, harnesses at `ngwr/<name>/testing`). The
+  `ngwr/i18n/de`, harnesses at `ngwr/<name>/testing`). The
   `exports` map in `projects/lib/package.json` is the list, and `pnpm gen:exports`
   writes it. Counts live in `#core/generated/quality`, never in prose. Built with
   `@angular/build:library`, not ng-packagr.
@@ -237,9 +237,9 @@ single / multi / search / tag; `wr-date-picker` covers date / time / datetime;
 mode or input instead.** Orient with the grouped catalog at
 https://ngwr.dev/reference/components. Its groups are `COMPONENT_GROUPS` in
 `projects/showcase/app/_layout/sidebar/configs/components.config.ts`, and
-charts and bits have their own in `charts.config.ts` and `bits.config.ts`. For
-a flat list, read `skills/ngwr/references/catalog.md` (generated) or run
-`ls projects/lib projects/lib/{charts,bits}`.
+charts have their own in `charts.config.ts`. For a flat list, read
+`skills/ngwr/references/catalog.md` (generated) or run
+`ls projects/lib projects/lib/charts`.
 
 **Skeleton.** Mirror the nearest existing entry point (`projects/lib/alert/` is
 the cleanest match) — copy its `@Component` shape (`ViewEncapsulation.None`,

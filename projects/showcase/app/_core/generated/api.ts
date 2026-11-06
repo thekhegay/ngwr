@@ -44,13 +44,6 @@ export const API = {
     { name: "offset", description: "Pixel offset subtracted on scroll — for sticky headers.", type: "number", default: "0" },
     { name: "hitArea", description: "Highlight an item when its target's top is within this many px of the offset line.", type: "number", default: "80" },
   ],
-  // <wr-aurora>
-  WrAurora: [
-    { name: "colorStops", description: "Exactly three colour stops, ramped left → right — any CSS colour each, a `var()` token or a `light-dark()` pair included. Alpha is ignored; the ribbon fades through its own. When unset, the theme decides: deep violet/emerald on light, the neon reactbits palette on dark.", type: "readonly string[] | null", default: "null" },
-    { name: "amplitude", description: "Wave height multiplier.", type: "number", default: "1" },
-    { name: "blend", description: "Softness of the aurora's lower edge, 0..1.", type: "number", default: "0.5" },
-    { name: "speed", description: "Time multiplier.", type: "number", default: "1" },
-  ],
   // <[wrAutofocus]>
   WrAutofocus: [
     { name: "wrAutofocus", description: "Truthy = focus. Defaults to `true` so bare `wrAutofocus` works.", type: "boolean", default: "true" },
@@ -102,33 +95,6 @@ export const API = {
     { name: "hiddenLines", description: "The positions in `lines` of the lines that are hidden, as `hiddenSeries` holds the series': a toggleable legend writes it, and a host may bind it with or without one, `[(hiddenLines)]`. A hidden line draws nothing and leaves the tooltip and the data table, and a fitted axis is fitted to what is still shown. The legend keeps its row, struck through. A position past the end of `lines` is kept and ignored.", type: "readonly number[]", default: "[]" },
     { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per category, headed by its name, and a column per series shown — or, with `data`, one column for the bars, headed \"Value\" (`barChart.value`) — then one per line shown, every value written the way the tooltip writes it. A missing value is an empty cell, and a stacked chart's table keeps each series' own values. Each bar's accessible name already carries its value; the table is for a reader who wants to move cell by cell. It is rendered beside the plot, clipped to nothing: it takes no room, draws nothing and holds no tab stop. A hidden series or line leaves it.", type: "boolean", default: "false" },
     { name: "valueFormat", description: "Writes every number the chart shows: the labels at the bars, the tooltip and each bar's accessible name. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact labels from a thousand up (`1.2K`, `3.4M`).", type: "((value: number) => string) | null", default: "null" },
-  ],
-  // <wr-blur-text>
-  WrBlurText: [
-    { name: "text", description: "Text to animate. Required.", type: "string", required: true },
-    { name: "animateBy", description: "Split granularity.", type: "WrBlurTextUnit", default: "'words'" },
-    { name: "direction", description: "Entry direction. `'top'` slides down into place; `'bottom'` slides up.", type: "WrBlurTextDirection", default: "'top'" },
-    { name: "delay", description: "Per-piece stagger in ms.", type: "number", default: "200" },
-    { name: "stepDuration", description: "Duration of each keyframe step in seconds (total = 2 × stepDuration).", type: "number", default: "0.35" },
-    { name: "easing", description: "CSS easing function.", type: "string", default: "'linear' (matches reactbits' identity easing)" },
-    { name: "threshold", description: "`IntersectionObserver.threshold` (0..1).", type: "number", default: "0.1" },
-    { name: "rootMargin", description: "`IntersectionObserver.rootMargin`.", type: "string", default: "'0px'" },
-    { name: "(animationComplete)", description: "Emitted once all pieces finish animating.", type: "void" },
-  ],
-  // <wr-border-glow>
-  WrBorderGlow: [
-    { name: "backgroundColor", description: "Card background fill. When unset, `--wr-border-glow-bg` decides, which defaults to the theme surface. Written to `--wr-border-glow-input-bg` rather than to the hook, so a `--wr-border-glow-bg` an author set on the element — inline or from a rule — stays there under this input and is read again when it is unset. The same goes for `glowColor` and `colors`.", type: "string | null", default: "null" },
-    { name: "borderRadius", description: "Corner radius in pixels.", type: "number", default: "28" },
-    { name: "glowRadius", description: "Halo extent in pixels — how far the outer glow reaches past the card edge.", type: "number", default: "40" },
-    { name: "glowIntensity", description: "Halo opacity multiplier (1 = full strength). Applies only alongside an explicit `glowColor`: the halo variables are built from the two together, so on the default palette this input is read and never reaches a declaration.", type: "number", default: "1" },
-    { name: "coneSpread", description: "Width of the lit cone as a percentage of the perimeter.", type: "number", default: "25" },
-    { name: "edgeSensitivity", description: "How sharply the halo fades as the cursor leaves the edge. Lower = wider falloff.", type: "number", default: "30" },
-    { name: "fillOpacity", description: "Strength of the interior bloom near edges (blend: `--wr-border-glow-fill-blend`).", type: "number", default: "0.5" },
-    { name: "glowColor", description: "Halo colour: any CSS colour (`'#3567ff'`, `'var(--wr-color-primary)'`), or the bare `'H S L'` parts (no commas) it has always taken. A value that could escape the `color-mix()` it is composed into is ignored. When unset, the theme decides: a deep amber on light surfaces, pale amber on dark. Note `glowIntensity` only applies alongside an explicit `glowColor`.", type: "string | null", default: "null" },
-    { name: "colors", description: "Mesh-gradient palette for the colored border slice. When unset, the theme decides: deep tones on light, pastels on dark.", type: "readonly string[] | null", default: "null" },
-    { name: "animated", description: "Play a one-shot perimeter sweep on mount, then fade out.", type: "boolean", default: "false" },
-    { name: "loop", description: "Circle the perimeter for ever at a constant pace, edge fully lit. The pointer still drives while it is over the card, and the loop picks up from where it left. Replaces the `animated` sweep; under reduced motion the edge stays lit and still.", type: "boolean", default: "false" },
-    { name: "speed", description: "Seconds per lap while `loop` is on.", type: "number", default: "6" },
   ],
   // <wr-boxplot-chart>
   WrBoxplotChart: [
@@ -300,25 +266,9 @@ export const API = {
     { name: "value", description: "The checked items' values. Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown[]", default: "[]" },
     { name: "(touch)", description: "Emitted when a child toggles so a bound field can mark itself touched.", type: "void" },
   ],
-  // <wr-circular-text>
-  WrCircularText: [
-    { name: "text", description: "Text to lay out around the circle.", type: "string", required: true },
-    { name: "spinDuration", description: "Seconds per full revolution at rest.", type: "number", default: "20" },
-    { name: "onHover", description: "Hover behaviour. `null` disables hover reactivity.", type: "WrCircularTextHover", default: "'speedUp'" },
-  ],
   // <[wrClickOutside]>
   WrClickOutside: [
     { name: "(wrClickOutside)", description: "Fires on a pointer press that landed outside the host element. Close a menu or commit an inline edit with it; the event is the original click.", type: "MouseEvent" },
-  ],
-  // <wr-click-spark>
-  WrClickSpark: [
-    { name: "sparkColor", description: "Spark line colour. Accepts any CSS colour — a literal, a `var(--wr-…)` token, `light-dark()` — resolved against the host on every frame, so it tracks the colour scheme. The default flips with it: dark sparks in light mode, light sparks in dark.", type: "string", default: "'var(--wr-color-on-surface)'" },
-    { name: "sparkSize", description: "Length of each spark line in pixels (at t=0; tapers to 0 at t=1).", type: "number", default: "10" },
-    { name: "sparkRadius", description: "Distance each spark travels from origin in pixels.", type: "number", default: "15" },
-    { name: "sparkCount", description: "Number of sparks per click (evenly distributed around the circle).", type: "number", default: "8" },
-    { name: "duration", description: "Animation duration in ms.", type: "number", default: "400" },
-    { name: "easing", description: "Easing function applied to the travel distance.", type: "WrClickSparkEasing", default: "'ease-out'" },
-    { name: "extraScale", description: "Multiplier on the travel distance — bumps the radius without changing `sparkRadius`.", type: "number", default: "1" },
   ],
   // <wr-collapse>
   WrCollapse: [
@@ -438,7 +388,7 @@ export const API = {
   WrCountUp: [
     { name: "from", description: "Starting value.", type: "number", default: "0" },
     { name: "to", description: "Target value.", type: "number", required: true },
-    { name: "duration", description: "Animation duration, in the units its easing reads, or `null` for that easing's own default: - `ease-out` — milliseconds (default 1200, min 100) - `spring` — seconds, tuning the stiffness (default 2, min 0.05)", type: "number | null", default: "null" },
+    { name: "duration", description: "Animation duration, in the units its easing reads, or `null` for that easing's own default: - `ease-out` — milliseconds (default 1200, min 100) - `spring` — seconds, roughly how long the spring takes to settle (default 2, min 0.05)", type: "number | null", default: "null" },
     { name: "delay", description: "Optional delay (ms) before the animation starts.", type: "number", default: "0" },
     { name: "easing", description: "Animation curve.", type: "WrCountUpEasing", default: "'ease-out'" },
     { name: "trigger", description: "When to start the animation. - `'mount'` (default) — start as soon as the component is rendered. - `'visible'` — wait for the host to enter the viewport (IntersectionObserver). Useful for long pages or hero numbers below the fold.", type: "WrCountUpTrigger", default: "'mount'" },
@@ -489,18 +439,6 @@ export const API = {
     { name: "panelAriaLabel", description: "Accessible name of the popup. The trigger advertises `aria-haspopup=\"dialog\"`, so the pane is a `role=\"dialog\"` — and an unnamed dialog announces as a bare \"dialog\". Defaults to the catalog's `datePicker.panelRange*` string for the current `mode`.", type: "string | null", default: "null" },
     { name: "panelClass", description: "Extra CSS classes for the calendar panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
   ],
-  // <wr-decrypt-text>
-  WrDecryptText: [
-    { name: "text", description: "Text to reveal. Required.", type: "string", required: true },
-    { name: "speed", description: "Tick interval in ms.", type: "number", default: "50" },
-    { name: "maxIterations", description: "Non-sequential mode only — total scramble ticks before snapping to plain.", type: "number", default: "10" },
-    { name: "sequential", description: "Reveal one char per tick instead of scrambling all of them.", type: "boolean", default: "false" },
-    { name: "revealDirection", description: "Order in which chars are revealed in sequential mode.", type: "WrDecryptTextRevealDirection", default: "'start'" },
-    { name: "useOriginalCharsOnly", description: "Scramble using only the glyphs present in `text` (minus spaces).", type: "boolean", default: "false" },
-    { name: "characters", description: "Pool of glyphs to scramble through (used when `useOriginalCharsOnly` is false).", type: "string", default: "DEFAULT_CHARS" },
-    { name: "animateOn", description: "When to start the animation. `'click'` rests scrambled, so it makes the host a button — a tab stop that Enter or Space presses — except under reduced motion, where it rests plain.", type: "WrDecryptTextAnimateOn", default: "'hover'" },
-    { name: "clickMode", description: "Click behaviour. `'once'` decrypts then stops; `'toggle'` flips state on each click.", type: "WrDecryptTextClickMode", default: "'once'" },
-  ],
   // <[wrDensity]>
   WrDensityDirective: [
     { name: "wrDensity", description: "Density to apply to this subtree.", type: "WrDensityValue", required: true },
@@ -549,15 +487,6 @@ export const API = {
     { name: "centerLabel", description: "Smaller label under the value. Not rendered with `pie`, which has no hole to hold it.", type: "string", default: "''" },
     { name: "tooltip", description: "Show a tooltip with the slice's label and value on hover. Pointer only — the legend prints the same numbers, and with `showLegend` off `ariaLabel` is where to say them. With `pie`, a slice too thin to land a pointer on, a sliver of a few degrees, is hovered over a wider strip than it draws, through an invisible `.wr-donut-chart__hit` over the pie: widened toward 12px of outer arc (15° on a chart under about 92px) out of what the wider slices beside it can spare, each of which keeps that much of its own. A sliver whose neighbours are slivers too, or have little to spare, gets a narrower target or none, and is read in the legend. The ring draws no such target.", type: "boolean", default: "true" },
     { name: "valueFormat", description: "Writes every value in the legend and the tooltip. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. The centre text is printed as given.", type: "((value: number) => string) | null", default: "null" },
-  ],
-  // <wr-dot-grid>
-  WrDotGrid: [
-    { name: "dotSize", description: "Dot diameter in px.", type: "number", default: "3" },
-    { name: "gap", description: "Distance between dot centres in px, never under 4.", type: "number", default: "24" },
-    { name: "dotColor", description: "Resting dot colour, any CSS colour. When unset, empty or blank, `--wr-dot-grid-dot-color` decides.", type: "string | null", default: "null" },
-    { name: "activeColor", description: "Colour a dot takes near the pointer, any CSS colour. When unset, empty or blank, `--wr-dot-grid-active-color` decides.", type: "string | null", default: "null" },
-    { name: "radius", description: "How far from the pointer a dot still reacts, in px.", type: "number", default: "120" },
-    { name: "strength", description: "How far a dot right by the pointer is pushed, in px; the push fades out toward `radius`. `0` keeps the dots in place and only lights them, and a negative value pulls them in.", type: "number", default: "12" },
   ],
   // <wr-drawer>
   WrDrawer: [
@@ -631,14 +560,6 @@ export const API = {
     { name: "(eventChange)", description: "A drag or an `Alt` + arrow finished. Apply it yourself; nothing moves until you do.", type: "WrCalendarEventChange" },
     { name: "ariaLabel", description: "Accessible name of the grid; overridable for a page with several.", type: "string | null", default: "null" },
   ],
-  // <wr-falling-text>
-  WrFallingText: [
-    { name: "text", description: "Text to render. Words are separated by spaces.", type: "string", required: true },
-    { name: "highlightWords", description: "Prefix-match keywords; any word starting with one of these gets the highlight class.", type: "readonly string[]", default: "[]" },
-    { name: "trigger", description: "When to release the words into the simulator.", type: "WrFallingTextTrigger", default: "'auto'" },
-    { name: "gravity", description: "Gravity in pixels/sec².", type: "number", default: "980" },
-    { name: "fontSize", description: "Font size as a CSS length.", type: "string", default: "'1rem'" },
-  ],
   // <wr-file-upload>
   WrFileUpload: [
     { name: "multiple", description: "Allow multiple files. Single mode replaces on each add.", type: "boolean", default: "false" },
@@ -689,27 +610,6 @@ export const API = {
     { name: "percentFormat", description: "Writes every conversion the chart shows, given as a RATIO — `0.25` for a quarter, `1.2` for a stage that grew by a fifth — the number `Intl.NumberFormat`'s `percent` style takes, so one of those can be passed as it is. `null` uses that style in `LOCALE_ID`, with up to one fraction digit, and two significant digits below 1% so a small real conversion is not printed as `0%`.", type: "((ratio: number) => string) | null", default: "null" },
     { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per stage, headed by its label, with its value and both conversions, each written as the tooltip writes it. A figure the stage does not have is an empty cell. Each stage's accessible name already carries its figures; the table is for a reader who wants to move through them cell by cell, with the column headings read out. It is rendered beside the stages, clipped to nothing: it takes no room, draws nothing and holds no tab stop.", type: "boolean", default: "false" },
   ],
-  // <wr-fuzzy-text>
-  WrFuzzyText: [
-    { name: "text", description: "Text to render.", type: "string", required: true },
-    { name: "fontSize", description: "Font size as CSS length (`'4rem'`, `'72px'`, …) or px number.", type: "string | number", default: "'clamp(2rem, 10vw, 10rem)'" },
-    { name: "fontWeight", description: "Font weight.", type: "number | string", default: "900" },
-    { name: "fontFamily", description: "Font family. `'inherit'` reads the canvas's computed style.", type: "string", default: "'inherit'" },
-    { name: "color", description: "Text colour, any CSS colour — `var()` and `light-dark()` included, resolved against the canvas. `'inherit'` follows the canvas's computed colour. Both are re-read while the text animates, so a colour-scheme change lands on the next frame, and the still copy drawn under reduced motion is redrawn when the page's scheme switches. Ignored if `[gradient]` is set.", type: "string", default: "'inherit'" },
-    { name: "gradient", description: "Optional horizontal gradient stops, each resolved the way `color` is.", type: "readonly string[] | null", default: "null" },
-    { name: "enableHover", description: "Enable hover / touch reactivity.", type: "boolean", default: "true" },
-    { name: "baseIntensity", description: "Base intensity (0..1) when idle.", type: "number", default: "0.18" },
-    { name: "hoverIntensity", description: "Intensity (0..1) while the pointer hovers the text.", type: "number", default: "0.5" },
-    { name: "fuzzRange", description: "Max pixel displacement per row/column at intensity 1.", type: "number", default: "30" },
-    { name: "fps", description: "Frame rate cap.", type: "number", default: "60" },
-    { name: "direction", description: "Fuzz direction.", type: "WrFuzzyTextDirection", default: "'horizontal'" },
-    { name: "transitionDuration", description: "Ms to ease intensity toward target. `0` snaps.", type: "number", default: "0" },
-    { name: "clickEffect", description: "Spike to full intensity briefly on click.", type: "boolean", default: "false" },
-    { name: "glitchMode", description: "Periodic \"glitch\" bursts at full intensity.", type: "boolean", default: "false" },
-    { name: "glitchInterval", description: "Ms between glitch bursts.", type: "number", default: "2000" },
-    { name: "glitchDuration", description: "Ms a glitch burst lasts.", type: "number", default: "200" },
-    { name: "letterSpacing", description: "Extra pixels between glyphs.", type: "number", default: "0" },
-  ],
   // <wr-gauge>
   WrGauge: [
     { name: "ariaLabel", description: "Accessible name — the role needs one. Falls back to `gauge.label`.", type: "string | null", default: "null" },
@@ -724,23 +624,6 @@ export const API = {
     { name: "suffix", description: "Unit printed immediately after the number — `%`, `/10`, ` GB`. It goes into the accessible text too, so the gauge is announced the way it reads.", type: "string", default: "''" },
     { name: "tooltip", description: "Show a tooltip with the reading on hover, named by `ariaLabel` when one is given. Pointer only — the meter announces the same reading.", type: "boolean", default: "true" },
     { name: "valueFormat", description: "Writes the reading in the centre, the tooltip and `aria-valuetext`, before `suffix`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. `aria-valuenow` stays a number.", type: "((value: number) => string) | null", default: "null" },
-  ],
-  // <wr-glitch-text>
-  WrGlitchText: [
-    { name: "text", description: "Text to glitch. Required — the value populates `data-text` for the pseudo clones.", type: "string", required: true },
-    { name: "speed", description: "Time multiplier — higher = slower glitching.", type: "number", default: "1" },
-    { name: "enableShadows", description: "Show the red / cyan colour-split shadows.", type: "boolean", default: "true" },
-    { name: "enableOnHover", description: "Only glitch on hover (idle until then).", type: "boolean", default: "true" },
-    { name: "background", description: "Surface colour for the clone slices. Pass the colour of the surface the component sits on so the slicing illusion masks cleanly; leave unset (transparent) on the page canvas.", type: "string", default: "'' (transparent)" },
-  ],
-  // <wr-gradient-text>
-  WrGradientText: [
-    { name: "colors", description: "Gradient stops.", type: "readonly string[]", default: "['#5227FF', '#FF9FFC', '#B497CF']" },
-    { name: "animationSpeed", description: "Seconds per full sweep (or per half if `[yoyo]` is on).", type: "number", default: "8" },
-    { name: "showBorder", description: "Wrap the text in a surface-coloured pill with the gradient as a border.", type: "boolean", default: "false" },
-    { name: "direction", description: "Gradient slide direction.", type: "WrGradientTextDirection", default: "'horizontal'" },
-    { name: "pauseOnHover", description: "Pause the animation while hovered.", type: "boolean", default: "false" },
-    { name: "yoyo", description: "Bounce back-and-forth instead of restarting.", type: "boolean", default: "true" },
   ],
   // <wr-graph>
   WrGraph: [
@@ -836,13 +719,6 @@ export const API = {
     { name: "(completed)", description: "Fires on every change made while every cell holds a character — so correcting a digit of an already-complete code emits again. Not latched on the incomplete-to-complete transition: a host auto-submitting on it has to guard its own re-entry, and gets the corrected code for free.", type: "string" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
-  // <wr-iridescence>
-  WrIridescence: [
-    { name: "color", description: "Tint multiplied over the picture, any CSS colour — a `var()` token or a `light-dark()` pair included. Pass an opaque colour: the canvas drops alpha and the stand-in keeps it. When unset, empty or blank, `--wr-iridescence-color` decides.", type: "string | null", default: "null" },
-    { name: "speed", description: "Speed of the folds; `0` holds them and a negative value reverses them. Changing it never jumps the picture.", type: "number", default: "1" },
-    { name: "amplitude", description: "How hard the pointer stirs the folds; `0` leaves the pointer out and a negative value stirs them the other way.", type: "number", default: "1" },
-    { name: "followPointer", description: "Whether the pointer stirs the folds at all.", type: "boolean", default: "true" },
-  ],
   // <wr-kbd>
   WrKbd: [
     { name: "size", description: "Visual size variant.", type: "WrKbdSize", default: "'md'" },
@@ -933,20 +809,6 @@ export const API = {
   // <ng-template[wrLoadStateContent]>
   WrLoadStateContent: [
     { name: "wrLoadStateContentOf", description: "The resource the template draws, for the type checker: nothing reads it at runtime. Bind the same resource as the wrapper's `[resource]`.", type: "Resource<T | undefined> | null | undefined", default: "undefined" },
-  ],
-  // <wr-marquee>
-  WrMarquee: [
-    { name: "items", description: "Items to display. Each entry is either an image source or a TemplateRef node.", type: "readonly WrMarqueeItem[]", required: true },
-    { name: "speed", description: "Scroll speed in pixels per second. Negative reverses direction.", type: "number", default: "120" },
-    { name: "direction", description: "Track direction.", type: "'left' | 'right'", default: "'left'" },
-    { name: "itemHeight", description: "Item height in pixels.", type: "number", default: "28" },
-    { name: "gap", description: "Gap between items in pixels.", type: "number", default: "32" },
-    { name: "pauseOnHover", description: "Pause the loop on hover.", type: "boolean", default: "false" },
-    { name: "hoverSpeed", description: "Custom speed (px/s) when hovered. Overrides `pauseOnHover`.", type: "number | undefined", default: "undefined" },
-    { name: "fadeOut", description: "Apply edge fade-out gradients.", type: "boolean", default: "false" },
-    { name: "fadeOutColor", description: "CSS colour for the fade-out gradient. Defaults to the page background.", type: "string", default: "''" },
-    { name: "scaleOnHover", description: "Scale individual items up on hover.", type: "boolean", default: "false" },
-    { name: "ariaLabel", description: "Accessible name for the region. Falls back to `marquee.label`, then `'Marquee'`.", type: "string | null", default: "null" },
   ],
   // <[wrMention]>
   WrMention: [
@@ -1134,31 +996,6 @@ export const API = {
     { name: "title", description: "The big figure. Defaults to `500`; override it for a localised or differently-worded page.", type: "string", default: "'500'" },
     { name: "description", description: "Body text. Falls back to `result.serverError` from WrI18n.", type: "string | null", default: "null" },
   ],
-  // <wr-ripple-grid>
-  WrRippleGrid: [
-    { name: "cellSize", description: "Distance between grid lines in px, never under 12.", type: "number", default: "40" },
-    { name: "lineColor", description: "Line colour, any CSS colour. When unset, `--wr-ripple-grid-line-color` decides.", type: "string | null", default: "null" },
-    { name: "rippleColor", description: "Colour a line takes where a ripple passes, any CSS colour. When unset, `--wr-ripple-grid-ripple-color` decides.", type: "string | null", default: "null" },
-    { name: "lineWidth", description: "Line width in px, never under 0.25.", type: "number", default: "1" },
-    { name: "strength", description: "How far a fresh ripple from a press bends the lines at its crest, in px; a ripple the moving pointer leaves bends them 40% as far. `0` keeps the lines straight and only lights them, and a negative value bends them inward. A bend steep enough to fold a line back over itself is never drawn: one ring, or several where they overlap, bends a line at most about 0.3 of a cell for cells from 22 to 80px — 11.7px at the default 40 — and rings that overlap share that bound rather than adding past it.", type: "number", default: "10" },
-    { name: "speed", description: "How fast a ripple travels outward, in px per second; `0` keeps it where it started.", type: "number", default: "320" },
-    { name: "decay", description: "How fast a ripple fades, per second: its strength is multiplied by `e^-decay` every second, so `1.4` halves it in half a second. `0` keeps it at full strength until it leaves the box.", type: "number", default: "1.4" },
-    { name: "rippleOnMove", description: "Whether a moving pointer leaves ripples behind it, and not only a press.", type: "boolean", default: "true" },
-    { name: "idleInterval", description: "Milliseconds between the softer ripples sent out from the centre on their own, never under 500; `0` sends none, and the grid then stays still until the pointer moves it.", type: "number", default: "0" },
-  ],
-  // <wr-rotating-text>
-  WrRotatingText: [
-    { name: "texts", description: "Strings to cycle. Required.", type: "readonly string[]", required: true },
-    { name: "rotationInterval", description: "Auto-advance interval in ms.", type: "number", default: "2000" },
-    { name: "splitBy", description: "Granularity of the split.", type: "WrRotatingTextSplit", default: "'characters'" },
-    { name: "auto", description: "Auto-advance on a timer.", type: "boolean", default: "true" },
-    { name: "loop", description: "Loop back to the first string after the last.", type: "boolean", default: "true" },
-    { name: "duration", description: "Per-swap tween duration in seconds.", type: "number", default: "0.6" },
-    { name: "easing", description: "CSS easing of the per-piece tween.", type: "string", default: "'cubic-bezier(0.16, 1, 0.3, 1)' (~power3.out)" },
-    { name: "staggerDuration", description: "Per-piece stagger in seconds.", type: "number", default: "0" },
-    { name: "staggerFrom", description: "Stagger origin.", type: "WrRotatingTextStaggerFrom", default: "'first'" },
-    { name: "(nextChange)", description: "Emitted with the new index on every rotation.", type: "number" },
-  ],
   // <wr-scatter-chart>
   WrScatterChart: [
     { name: "series", description: "One entry per series. A series with no `color` takes the next entry from the chart's palette, and every series takes the next marker shape, so several series are told apart unconfigured.", type: "readonly WrScatterSeries[]", default: "[]" },
@@ -1230,19 +1067,6 @@ export const API = {
     { name: "value", description: "Unified value. Single mode holds a scalar (or `null`); multi / tag mode holds `readonly T[]`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "T | readonly T[] | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur / commit so a bound field can mark itself touched.", type: "void" },
   ],
-  // <wr-shiny-text>
-  WrShinyText: [
-    { name: "text", description: "Text to render.", type: "string", required: true },
-    { name: "disabled", description: "Pause the animation.", type: "boolean", default: "false" },
-    { name: "speed", description: "Time for the bright stripe to traverse the text, in seconds.", type: "number", default: "2" },
-    { name: "color", description: "Base text colour outside the bright stripe. Unset falls back to `--wr-shiny-text-base`.", type: "string | null", default: "null" },
-    { name: "shineColor", description: "Sweep highlight colour. Unset falls back to the theme token.", type: "string | null", default: "null" },
-    { name: "spread", description: "Gradient angle in degrees.", type: "number", default: "120" },
-    { name: "yoyo", description: "Bounce the stripe back-and-forth instead of restarting.", type: "boolean", default: "false" },
-    { name: "pauseOnHover", description: "Pause the animation while hovered.", type: "boolean", default: "false" },
-    { name: "direction", description: "Sweep direction.", type: "'left' | 'right'", default: "'left'" },
-    { name: "delay", description: "Pause between sweeps in seconds.", type: "number", default: "0" },
-  ],
   // <wr-sidebar>
   WrSidebar: [
     { name: "entries", description: "The navigation tree. An entry with `children` is a group, which opens on click and on its own when the current route is below it.", type: "readonly WrSidebarEntry[]", default: "[]" },
@@ -1310,23 +1134,6 @@ export const API = {
     { name: "size", description: "Size variant. Em-based — scales with surrounding font-size.", type: "WrSpinnerSize", default: "'md'" },
     { name: "ariaLabel", description: "Accessible name for the live region. Falls back to `spinner.label`, then `'Loading'` — which the host used to carry as a hard-coded attribute, while the catalog had the translated key for it all along.", type: "string | null", default: "null" },
   ],
-  // <wr-splash-cursor>
-  WrSplashCursor: [
-    { name: "fullscreen", description: "`true` overlays the whole viewport (reactbits behaviour); `false` fills the nearest positioned ancestor instead — handy for demo boxes, and the dye collides with the box walls.", type: "boolean", default: "true" },
-    { name: "simResolution", description: "Velocity / pressure grid resolution.", type: "number", default: "128" },
-    { name: "dyeResolution", description: "Dye texture resolution — the visible detail.", type: "number", default: "1440" },
-    { name: "densityDissipation", description: "How fast the dye fades, higher = shorter trails.", type: "number", default: "3.5" },
-    { name: "velocityDissipation", description: "How fast motion settles.", type: "number", default: "2" },
-    { name: "pressure", description: "Pressure retained between frames, 0..1.", type: "number", default: "0.1" },
-    { name: "pressureIterations", description: "Jacobi iterations for the pressure solve.", type: "number", default: "20" },
-    { name: "curl", description: "Vorticity confinement — swirliness.", type: "number", default: "3" },
-    { name: "splatRadius", description: "Splat size.", type: "number", default: "0.2" },
-    { name: "splatForce", description: "Velocity a pointer move injects.", type: "number", default: "6000" },
-    { name: "shading", description: "Pseudo-3D shading on the dye.", type: "boolean", default: "true" },
-    { name: "colorUpdateSpeed", description: "How fast the splat colour cycles.", type: "number", default: "10" },
-    { name: "rainbow", description: "Cycle splat colours through the rainbow.", type: "boolean", default: "true" },
-    { name: "color", description: "Fixed splat colour when `rainbow` is off.", type: "string", default: "'#ff0000'" },
-  ],
   // <wr-splitter>
   WrSplitter: [
     { name: "position", description: "Position of the divider as a percentage (0–100). Two-way bindable.", type: "number", default: "50" },
@@ -1335,38 +1142,6 @@ export const API = {
     { name: "maxPosition", description: "Maximum allowed position.", type: "number", default: "100" },
     { name: "disabled", description: "Disable dragging.", type: "boolean", default: "false" },
     { name: "dividerLabel", description: "Accessible name of the divider. A focusable `role=\"separator\"` is an interactive widget, so it needs one — without it a screen reader reaching the divider announces nothing but \"separator\" and its number. Falls back to `splitter.divider`.", type: "string | null", default: "null" },
-  ],
-  // <wr-split-text>
-  WrSplitText: [
-    { name: "text", description: "Text to animate. Required.", type: "string", required: true },
-    { name: "splitType", description: "Split granularity.", type: "WrSplitTextUnit", default: "'chars'" },
-    { name: "delay", description: "Stagger delay between pieces in ms.", type: "number", default: "50" },
-    { name: "duration", description: "Animation duration in seconds (matches reactbits' API).", type: "number", default: "1.25" },
-    { name: "easing", description: "CSS easing function.", type: "string", default: "'cubic-bezier(0.16, 1, 0.3, 1)' (~power3.out)" },
-    { name: "from", description: "Start state for each piece.", type: "WrSplitTextMotion", default: "{ opacity: 0, y: 40 }" },
-    { name: "to", description: "End state for each piece.", type: "WrSplitTextMotion", default: "{ opacity: 1, y: 0 }" },
-    { name: "threshold", description: "`IntersectionObserver.threshold` — 0..1.", type: "number", default: "0.1" },
-    { name: "rootMargin", description: "`IntersectionObserver.rootMargin`.", type: "string", default: "'-100px'" },
-    { name: "textAlign", description: "Text alignment of the host.", type: "'left' | 'center' | 'right' | 'justify'", default: "'center'" },
-    { name: "(animationComplete)", description: "Emitted once all pieces finish animating.", type: "void" },
-  ],
-  // <[wrSpotlight]>
-  WrSpotlight: [
-    { name: "resetX", description: "Optional default coordinates when no pointer is over the host.", type: "string", default: "'50%'" },
-    { name: "resetY", description: "Vertical half of that resting position. Same units as `resetX`.", type: "string", default: "'50%'" },
-  ],
-  // <wr-spotlight-card>
-  WrSpotlightCard: [
-    { name: "spotlightColor", description: "Highlight colour (any CSS colour). When unset, the theme decides: a dark-ish glow on light surfaces, a light glow on dark.", type: "string | null", default: "null" },
-    { name: "radius", description: "Where the spotlight fades out, as a percentage of the gradient.", type: "number", default: "80" },
-  ],
-  // <wr-star-border, [wr-star-border]>
-  WrStarBorder: [
-    { name: "color", description: "Ray colour. When unset, the theme decides: primary on light, white on dark.", type: "string | null", default: "null" },
-    { name: "speed", description: "Seconds per ray sweep.", type: "number", default: "6" },
-    { name: "thickness", description: "Vertical bleed of the rays past the inner panel, in px.", type: "number", default: "1" },
-    { name: "mode", description: "`'infinite'` animates always; `'hover'` only while hovered.", type: "WrStarBorderMode", default: "'infinite'" },
-    { name: "rays", description: "`'mirror'` runs rays along both edges; `'single'` only the bottom.", type: "WrStarBorderRays", default: "'mirror'" },
   ],
   // <wr-statistic>
   WrStatistic: [
@@ -1520,23 +1295,6 @@ export const API = {
     { name: "value", description: "The edited text. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
-  // <wr-threads>
-  WrThreads: [
-    { name: "lineCount", description: "How many threads, rounded and kept between 1 and 100.", type: "number", default: "18" },
-    { name: "color", description: "Thread colour, any CSS colour — a `var()` token or a `light-dark()` pair included. Emptied, it follows the theme.", type: "string", default: "'var(--wr-threads-color)'" },
-    { name: "amplitude", description: "How far the bundle meanders up and down, in px.", type: "number", default: "40" },
-    { name: "speed", description: "Speed of the current; 0 holds it, a negative value reverses it.", type: "number", default: "1" },
-    { name: "lineWidth", description: "Stroke width of each thread, in px.", type: "number", default: "1" },
-    { name: "spread", description: "Share of the box height the threads fan across at their widest, 0..1.", type: "number", default: "0.4" },
-    { name: "followPointer", description: "Whether the threads near the pointer bend toward it.", type: "boolean", default: "true" },
-  ],
-  // <[wrTilt]>
-  WrTilt: [
-    { name: "maxTilt", description: "Maximum tilt in degrees.", type: "number", default: "12" },
-    { name: "perspective", description: "CSS perspective in pixels.", type: "number", default: "800" },
-    { name: "scale", description: "Scale applied while hovered.", type: "number", default: "1.03" },
-    { name: "glare", description: "Add a moving glare highlight overlay.", type: "boolean", default: "false" },
-  ],
   // <wr-timeline>
   WrTimeline: [
     { name: "orientation", description: "Which way the line runs. `horizontal` lays the items out in a row and suits a short, fixed set of steps; a feed of unknown length wants the default.", type: "'vertical' | 'horizontal'", default: "'vertical'" },
@@ -1602,25 +1360,6 @@ export const API = {
     { name: "percentFormat", description: "Writes every share the chart shows, given as a RATIO — `0.25` for a quarter — the number `Intl.NumberFormat`'s `percent` style takes, so one of those can be passed as it is: in the tooltip and in the data table. `null` uses that style in `LOCALE_ID`, with up to one fraction digit, and two significant digits below 1% so a sliver is not printed as `0%`.", type: "((ratio: number) => string) | null", default: "null" },
     { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per node, parents before their children in the data's order, headed by its path — `Engineering / Web` — with its value and its share of the whole. A node with no area is listed with an empty share, and a leaf with no value with an empty value too. The drawing is one named `role=\"img\"`, which hides everything inside it, so without the table the numbers are nowhere a screen reader can walk. It is rendered beside the drawing, clipped to nothing: it takes no room, draws nothing and holds no tab stop.", type: "boolean", default: "false" },
   ],
-  // <wr-typewriter>
-  WrTypewriter: [
-    { name: "text", description: "Single string. Use either `text` or `texts`.", type: "string | undefined", default: "undefined" },
-    { name: "texts", description: "Strings to cycle. Use either `text` or `texts`.", type: "readonly string[] | undefined", default: "undefined" },
-    { name: "typingSpeed", description: "Per-char typing speed in ms.", type: "number", default: "50" },
-    { name: "initialDelay", description: "Initial delay before typing starts, in ms.", type: "number", default: "0" },
-    { name: "pauseDuration", description: "Pause between sentences (after typing complete, before deleting), in ms.", type: "number", default: "2000" },
-    { name: "deletingSpeed", description: "Per-char deletion speed in ms.", type: "number", default: "30" },
-    { name: "loop", description: "Loop back to the first string after the last.", type: "boolean", default: "true" },
-    { name: "showCursor", description: "Show the cursor.", type: "boolean", default: "true" },
-    { name: "hideCursorWhileTyping", description: "Hide the cursor while typing / deleting.", type: "boolean", default: "false" },
-    { name: "cursorCharacter", description: "Cursor glyph.", type: "string", default: "'|'" },
-    { name: "cursorBlinkDuration", description: "Cursor blink half-cycle in seconds.", type: "number", default: "0.5" },
-    { name: "textColors", description: "Cycle through these colours per string.", type: "readonly string[]", default: "[]" },
-    { name: "variableSpeed", description: "Randomise typing speed per char between `min` and `max`.", type: "WrTypewriterVariableSpeed | undefined", default: "undefined" },
-    { name: "reverseMode", description: "Reverse the string (type it backwards).", type: "boolean", default: "false" },
-    { name: "startOnVisible", description: "Start typing only after the host enters the viewport.", type: "boolean", default: "false" },
-    { name: "(sentenceComplete)", description: "Emits with `(text, index)` when a string finishes typing.", type: "{ text: string; index: number }" },
-  ],
   // <[wrTypography]>
   WrTypography: [
     { name: "variant", description: "Visual variant.", type: "WrTypographyVariant", default: "'body'" },
@@ -1652,20 +1391,6 @@ export const API = {
     { name: "tooltip", description: "Show a tooltip with the step's change and the running total after it on hover. Pointer only — each step's accessible name already carries both.", type: "boolean", default: "true" },
     { name: "dataTable", description: "Render the chart's figures as a table only assistive technology reaches, beside the drawing: a row per step, headed by its label, with its change (empty on a total) and the running total after it, each written as the tooltip writes it. Each step's accessible name already carries both figures; the table is for a reader who wants to move through them cell by cell, with the column headings read out. It is clipped to nothing: it takes no room, draws nothing and holds no tab stop.", type: "boolean", default: "false" },
     { name: "valueFormat", description: "Writes every number the chart shows: the figures on the drawing, the axis ticks, the tooltip, the accessible names and the data table. Every figure is handed over as its MAGNITUDE, never below zero, and the chart writes the sign in front: `+` or `−` (U+2212 MINUS SIGN) on a change, `−` on a running total, a total or a tick below zero. So one formatter writes every figure, and one minus sign appears throughout. It is told where the figure goes (see {@link WrWaterfallValueContext}): `'label'` past a bar, where a compact form fits a narrow column; `'tick'` on the value axis; `'value'` in the tooltip, the names and the data table, which a reader goes to for the exact figure. A `(value) => string` written for another chart fits too, and writes all three alike. `null` uses `Intl.NumberFormat` in `LOCALE_ID`: compact past the bars from a thousand up, compact ticks (`1.2K`, `3.4M`) unless the full numbers are shorter, and the exact figure everywhere else.", type: "((value: number, context: WrWaterfallValueContext) => string) | null", default: "null" },
-  ],
-  // <wr-waves>
-  WrWaves: [
-    { name: "lineColor", description: "Line stroke colour, any CSS colour. When unset, empty or blank, `--wr-waves-line-color` decides.", type: "string | null", default: "null" },
-    { name: "backgroundColor", description: "Background fill behind the lines.", type: "string", default: "'transparent'" },
-    { name: "waveSpeedX", description: "Horizontal noise drift per ms.", type: "number", default: "0.0125" },
-    { name: "waveSpeedY", description: "Vertical noise drift per ms.", type: "number", default: "0.005" },
-    { name: "waveAmpX", description: "Horizontal wave amplitude in px.", type: "number", default: "32" },
-    { name: "waveAmpY", description: "Vertical wave amplitude in px.", type: "number", default: "16" },
-    { name: "xGap", description: "Horizontal gap between lines in px.", type: "number", default: "10" },
-    { name: "yGap", description: "Vertical gap between points on a line in px.", type: "number", default: "32" },
-    { name: "friction", description: "Velocity damping of the cursor spring, 0..1.", type: "number", default: "0.925" },
-    { name: "tension", description: "Pull-back strength of the cursor spring.", type: "number", default: "0.005" },
-    { name: "maxCursorMove", description: "Max px a point can be dragged from rest.", type: "number", default: "100" },
   ],
   // <wr-window>
   WrWindow: [

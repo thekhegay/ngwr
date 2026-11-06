@@ -5,7 +5,7 @@ description: Build Angular UIs with the ngwr component library (standalone, sign
 
 # ngwr
 
-An Angular 22 UI library: 252 tree-shakable entry points, 127 of them shipping a selector.
+An Angular 22 UI library: 205 tree-shakable entry points, 103 of them shipping a selector.
 Standalone, signals-first, zoneless, `ViewEncapsulation.None`. No runtime
 dependencies.
 
@@ -34,8 +34,7 @@ guess gets backwards.
 - **Import from the entry point, never a barrel.**
   `import { WrSelect } from 'ngwr/select'` — the root `ngwr` exports only
   `provideWr()`, and the subpath is what makes the library tree-shakable.
-  Charts and bits are nested: `ngwr/charts/<name>` (`ngwr/charts/bar-chart`)
-  and `ngwr/bits/<name>` (`ngwr/bits/aurora`).
+  Charts are nested: `ngwr/charts/<name>` (`ngwr/charts/bar-chart`).
 - **App-wide configuration is ONE call.**
   `provideWr(withDensity(), withToast({ … }), withTheme(), withDates(), withStorage(), withMeta())`,
   with `provideWr` from `ngwr` and each feature from the entry point it
@@ -146,7 +145,7 @@ cause.
 
 ## Testing
 
-Every control, overlay, chart and most bits ship a CDK harness at
+Every control, overlay and chart ships a CDK harness at
 `ngwr/<entry>/testing` — `ngwr/select/testing`,
 `ngwr/charts/bar-chart/testing`. Use it instead of querying the DOM:
 

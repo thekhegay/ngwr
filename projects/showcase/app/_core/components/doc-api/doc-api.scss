@@ -5,8 +5,8 @@
 
 // The four columns are DECLARED, and `fixed` is what makes the declaration
 // stick. Under `auto` the browser sizes by content volume, and the two failure
-// modes are opposite ends of the same fault: on `/bits/circular-text` —
-// three short descriptions and one long union — it handed Type 413px and
+// modes are opposite ends of the same fault: on a page with three short
+// descriptions and one long union it handed Type 413px and
 // Description 319px, so the widest column was the one nobody reads; on the
 // markdown page v15 removed, whose descriptions came from the library's own
 // JSDoc, it handed Description 727px and left Name 75px and Type 83px, which

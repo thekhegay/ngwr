@@ -13,9 +13,6 @@
 
 ## Very low
 
-- **Parity with React Bits**: backgrounds first, then the text and cursor effects.
-  Each one a Signal-input component on theme tokens, honouring
-  `prefers-reduced-motion`, with a docs page under `/bits`.
 - **`ngwr/kit` standalone utilities**: publish the internal signal utils,
   positioning, density, hotkey and storage helpers as a zero-dep package usable
   without the components.

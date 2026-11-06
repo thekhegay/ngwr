@@ -147,9 +147,9 @@ describe('ng g ngwr:component-style', () => {
   });
 
   it('lands a bare name from before v15 on its nested entry point', async () => {
-    const { read, logs } = await run('src/styles.scss', THEMED, 'bar-chart', 'aurora');
+    const { read, logs } = await run('src/styles.scss', THEMED, 'bar-chart', 'gauge');
 
-    expect(read()).toContain("@use 'ngwr/charts/bar-chart';\n@use 'ngwr/bits/aurora';\n");
+    expect(read()).toContain("@use 'ngwr/charts/bar-chart';\n@use 'ngwr/charts/gauge';\n");
     expect(logs).toContain('ngwr: bar-chart is ngwr/charts/bar-chart since v15.');
   });
 

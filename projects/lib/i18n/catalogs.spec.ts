@@ -447,7 +447,6 @@ const LOCALES: Record<string, Row> = {
       'calendar.header',
       'calendar.yearRange',
       'calendar.dayLabel',
-      'marquee.link',
       'datePicker.am',
       'datePicker.pm',
       'statistic.delta',

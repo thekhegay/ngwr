@@ -3,11 +3,6 @@
  *
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
- *
- * The spring-physics path is an adaptation of the CountUp effect by
- * David Haz / reactbits.dev (https://www.reactbits.dev/text-animations/count-up).
- * Same critically-damped formula, implemented inline with rAF — no
- * external dependency.
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
@@ -35,6 +30,16 @@ import { easeOutCubic } from './easing';
 import type { WrCountUpDirection, WrCountUpEasing, WrCountUpTrigger } from './types';
 
 /**
+ * The `w*t` at which a critically damped spring has closed all but about 0.05%
+ * of its gap: `(1 + x) * e^(-x)` crosses that share near 9.6. Dividing it by
+ * the duration gives the natural frequency that settles in that many seconds.
+ */
+const SPRING_SETTLE_UNITS = 9.6;
+
+/** The share of the gap left when the spring is called settled and snaps to its target. */
+const SPRING_SETTLE_SHARE = 0.001;
+
+/**
  * Animated number tick. Animates from `from` to the current `to`, formatting
  * via `Intl.NumberFormat`. Re-runs whenever `to` changes.
  *
@@ -44,7 +49,7 @@ import type { WrCountUpDirection, WrCountUpEasing, WrCountUpTrigger } from './ty
  * <wr-count-up [to]="9.99" [decimals]="2" prefix="$" />
  * ```
  *
- * @example Reactbits-style — spring curve + viewport trigger
+ * @example Spring curve + viewport trigger
  * ```html
  * <wr-count-up [to]="100" easing="spring" trigger="visible" [delay]="200" />
  * ```
@@ -80,7 +85,8 @@ export class WrCountUp {
    * easing's own default:
    *
    * - `ease-out` — milliseconds (default 1200, min 100)
-   * - `spring` — seconds, tuning the stiffness (default 2, min 0.05)
+   * - `spring` — seconds, roughly how long the spring takes to settle
+   *   (default 2, min 0.05)
    */
   readonly duration = input<number | null>(null, {
     // Not `numAttr`, which takes a numeric fallback and so cannot express
@@ -268,42 +274,40 @@ export class WrCountUp {
   }
 
   /**
-   * Critically-damped spring tween. Same formula as `motion/react`'s
-   * `useSpring` with mass = 1:
+   * Critically damped spring, evaluated in closed form. A mass released at rest
+   * a distance `gap` from its target, with damping exactly at the critical
+   * value, moves as
    *
-   *   damping   = 20 + 40 / duration
-   *   stiffness = 100 / duration
+   *   x(t) = target - gap * (1 + w*t) * e^(-w*t)
    *
-   * We integrate `(spring force − damping force)` each frame until both
-   * displacement and velocity fall below epsilon.
+   * with `w` the natural frequency: no overshoot, and the fastest return to
+   * rest that has none. The curve is sampled by wall-clock time rather than
+   * integrated frame by frame, so a dropped frame or a 120 Hz screen changes
+   * nothing about where the number is at a given moment. The tween ends when
+   * the remaining gap is under the settle threshold, and snaps to the target.
    */
   private tweenSpring(start: number, target: number): void {
     const duration = Math.max(0.05, this.resolvedDuration());
-    const damping = 20 + 40 / duration;
-    const stiffness = 100 / duration;
-    let current = start;
-    let velocity = 0;
-    let lastTs = 0;
-    const epsilon = 0.001 * Math.max(1, Math.abs(target - start));
+    const gap = target - start;
+    // `(1 + w*t) * e^(-w*t)` is below 0.05% once `w*t` is about 9.6, so this
+    // `w` puts the settle within `duration` seconds of the start.
+    const w = SPRING_SETTLE_UNITS / duration;
+    const settle = SPRING_SETTLE_SHARE * Math.max(1, Math.abs(gap));
+    const startTs = performance.now();
 
-    const step = (ts: number): void => {
-      const dt = lastTs === 0 ? 1 / 60 : Math.min(0.05, (ts - lastTs) / 1000);
-      lastTs = ts;
-
-      const displacement = current - target;
-      const accel = -stiffness * displacement - damping * velocity;
-      velocity += accel * dt;
-      current += velocity * dt;
-      this.value.set(current);
-
-      if (Math.abs(current - target) < epsilon && Math.abs(velocity) < epsilon * 10) {
+    const frame = (now: number): void => {
+      const t = Math.max(0, (now - startTs) / 1000);
+      const wt = w * t;
+      const remaining = gap * (1 + wt) * Math.exp(-wt);
+      if (Math.abs(remaining) < settle) {
         this.value.set(target);
         this.completed.emit();
         return;
       }
-      this.rafId = requestAnimationFrame(step);
+      this.value.set(target - remaining);
+      this.rafId = requestAnimationFrame(frame);
     };
-    this.rafId = requestAnimationFrame(step);
+    this.rafId = requestAnimationFrame(frame);
   }
 
   // Cleanup

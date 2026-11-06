@@ -400,10 +400,6 @@ export const wrCs: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: 'Běžící text',
-    link: 'odkaz',
-  },
   mention: {
     listbox: 'Zmínky',
     available: 'Počet shod: {{count}}',

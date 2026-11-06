@@ -414,10 +414,6 @@ export const wrIt: WrI18nCatalog = {
   // Sostantivo davanti — «Inserito: Ada» — e conteggio in coda: l'interpolatore
   // non concorda genere né numero, quindi «Risultati disponibili: 1» deve restare
   // corretto quanto «Risultati disponibili: 12».
-  marquee: {
-    label: 'Testo scorrevole',
-    link: 'collegamento',
-  },
   mention: {
     listbox: 'Menzioni',
     available: 'Risultati disponibili: {{count}}',

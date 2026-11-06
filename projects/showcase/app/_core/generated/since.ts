@@ -27,10 +27,6 @@
  * wants it. The runtime lookups widen it back — see `_core/utils/since.ts`.
  */
 export const SINCE = {
-  "bits/dot-grid": "15.1.0",
-  "bits/iridescence": "15.2.0",
-  "bits/ripple-grid": "15.1.0",
-  "bits/threads": "15.1.0",
   "charts/boxplot-chart": "15.1.0",
   "charts/bullet-chart": "15.1.0",
   "charts/candlestick-chart": "15.1.0",
@@ -59,27 +55,6 @@ export const SINCE = {
 
 /** The version each page's subject last changed its public API in, a moved entry point included. */
 export const UPDATED = {
-  "bits/aurora": "15.0.0",
-  "bits/blur-text": "15.0.0",
-  "bits/border-glow": "15.4.0",
-  "bits/circular-text": "15.0.0",
-  "bits/click-spark": "15.0.0",
-  "bits/confetti": "15.0.0",
-  "bits/decrypt-text": "15.0.0",
-  "bits/falling-text": "15.0.0",
-  "bits/fuzzy-text": "15.0.0",
-  "bits/glitch-text": "15.0.0",
-  "bits/gradient-text": "15.0.0",
-  "bits/marquee": "15.0.0",
-  "bits/rotating-text": "15.0.0",
-  "bits/shiny-text": "15.0.0",
-  "bits/splash-cursor": "15.0.0",
-  "bits/split-text": "15.0.0",
-  "bits/spotlight-card": "15.0.0",
-  "bits/star-border": "15.0.0",
-  "bits/tilt-card": "15.0.0",
-  "bits/typewriter": "15.0.0",
-  "bits/waves": "15.0.0",
   "charts/bar-chart": "15.1.0",
   "charts/calendar-heatmap": "15.1.0",
   "charts/donut-chart": "15.1.0",

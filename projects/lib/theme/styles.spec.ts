@@ -531,8 +531,8 @@ describe('an input variable stays on the instance that wrote it', () => {
    * the input. A custom property inherits, though, and the twin sits inline on the
    * host: a component that can hold another of its kind — anything with an
    * `<ng-content>` or a template outlet — hands the inner one its own inputs
-   * unless its block declares the twin `initial`. `wr-border-glow` inside
-   * `wr-border-glow` took the outer card's fill that way. jsdom applies no cascade,
+   * unless its block declares the twin `initial`: a card inside a card took the
+   * outer card's fill that way. jsdom applies no cascade,
    * so no rendered spec can see the inheritance; the declaration can be read.
    */
   const WRITES = /--wr-[a-z0-9]+(?:-[a-z0-9]+)*-input-[a-z0-9]+(?:-[a-z0-9]+)*/g;
@@ -583,11 +583,8 @@ describe('an input variable stays on the instance that wrote it', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('finds the components that write one', () => {
-    // A scanner that matched nothing would report the invariant as held. Four when
-    // this was written: marquee, spotlight-card, star-border and border-glow.
-    expect(writers().size).toBeGreaterThanOrEqual(4);
-  });
+  // No component writes an input twin today, so the invariant holds vacuously
+  // until a nullable colour input that projects content brings one back.
 });
 
 describe('the colour scheme is one switch', () => {

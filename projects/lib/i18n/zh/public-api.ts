@@ -398,10 +398,6 @@ export const wrZh: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: '跑马灯',
-    link: '链接',
-  },
   mention: {
     listbox: '提及',
     available: '匹配项：{{count}}',

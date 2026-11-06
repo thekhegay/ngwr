@@ -1,5 +1,0 @@
-// Component-scoped, but the lib uses `ViewEncapsulation.None` everywhere so
-// the selector starts with `.wr-click-spark` — the same as the public Sass
-// entry. Forwards the rules alone: `styles/_index.scss` is the entry that
-// loads the theme, and a `styleUrl` is its own compilation.
-@forward './styles/rules';

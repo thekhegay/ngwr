@@ -1,1 +1,0 @@
-export { WrWaves } from './waves';

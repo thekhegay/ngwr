@@ -76,6 +76,17 @@ repository.
 
 ---
 
+## 15.5 to 15.6
+
+**The `ngwr/bits/*` entry points are gone, with no replacement.** Every one of the twenty-five
+animation and visual-effect components left the package, their `ngwr/bits/<name>/testing` harnesses
+and `@use 'ngwr/bits/<name>'` stylesheets with them, and the `/bits/*` docs pages. Nothing moved: an
+import from `ngwr/bits/<name>` fails the build, and the template that used `<wr-<name>>` needs a
+component of your own. `@use 'ngwr/animations'`, the keyframe sheet, is unchanged. No codemod ships
+for a removal.
+
+---
+
 ## v14 to v15
 
 **`ng update ngwr` runs `migration-v15`.** It rewrites what means the same thing in its new place,

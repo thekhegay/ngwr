@@ -24,4 +24,3 @@ export type { DocNgtrueVariant } from './doc-ngtrue/types';
 export type { DocIndexData, DocIndexSection } from './doc-index/types';
 export type { DocSeeAlsoKind, DocSeeAlsoLink } from './doc-see-also/types';
 export { DocRichPipe } from './doc-rich/doc-rich';
-export { ReactbitsCredit } from './reactbits-credit/reactbits-credit';

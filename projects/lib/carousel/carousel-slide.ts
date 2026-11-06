@@ -21,10 +21,9 @@ import { WR_CAROUSEL } from './tokens';
  * cannot see and a screen reader announces every slide as if they were all on
  * screen. `inert` takes the whole subtree out of both at once, which is why it
  * is preferred here over `tabindex="-1"` (which reaches only the host) — the
- * same answer `wr-collapse` and `wr-marquee` use.
+ * same answer `wr-collapse` uses.
  *
- * `aria-hidden` rides along for the same reason it does on the marquee's
- * duplicate copies: it states the intent for anything reading the attribute
+ * `aria-hidden` rides along: it states the intent for anything reading the attribute
  * rather than honouring `inert`.
  */
 @Component({

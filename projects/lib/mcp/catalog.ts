@@ -110,9 +110,9 @@ class Catalog {
    * name had moved in an earlier major.
    *
    * Last, by the last segment of a nested path when exactly one entry point ends
-   * with it: `aurora` and `bar-chart` were whole paths until v15 nested them under
-   * `bits/` and `charts/`, and an agent that learned the old name should land on
-   * the new one rather than pay a round trip for it.
+   * with it: `bar-chart` was a whole path until v15 nested it under `charts/`,
+   * and an agent that learned the old name should land on the new one rather
+   * than pay a round trip for it.
    */
   find(query: string): CatalogEntry | null {
     const wanted = query.trim();
