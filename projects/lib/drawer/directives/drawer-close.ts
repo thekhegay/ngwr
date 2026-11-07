@@ -7,6 +7,8 @@
 
 import { Directive, inject, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import { WrDrawer } from '../drawer';
 import type { WrDrawerRef } from '../drawer-ref';
 import { WR_DRAWER_REF } from '../tokens';
@@ -31,6 +33,10 @@ import { WR_DRAWER_REF } from '../tokens';
   host: { '(click)': 'close()' },
 })
 export class WrDrawerClose<R = unknown> {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('drawer');
+  }
+
   /**
    * Value to pass to `close()` for service-opened drawers. When unset — or
    * used as a bare attribute — the drawer closes with `undefined`.

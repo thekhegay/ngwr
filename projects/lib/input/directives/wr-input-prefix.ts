@@ -7,6 +7,8 @@
 
 import { Directive } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Marks an element as the **left** decoration inside `<wr-input-group>`.
  * Adds the `.wr-input-group__affix` class so the group's layout flexes it
@@ -24,4 +26,8 @@ import { Directive } from '@angular/core';
   selector: '[wrInputPrefix]',
   host: { class: 'wr-input-group__affix wr-input-group__affix--prefix' },
 })
-export class WrInputPrefix {}
+export class WrInputPrefix {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('input');
+  }
+}

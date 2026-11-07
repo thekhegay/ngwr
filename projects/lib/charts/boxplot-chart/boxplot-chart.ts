@@ -22,6 +22,7 @@ import {
 import { WrChartTable, type WrChartTableData, chartAxis, useChartNumbers } from 'ngwr/charts/core';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { boxplotStats } from './internal/stats';
 import type { WrBoxplotGroup, WrBoxplotStats } from './types';
@@ -367,6 +368,7 @@ export class WrBoxplotChart {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/boxplot-chart');
     // A summary is drawn as given, so one whose numbers are out of order draws a whisker
     // inside its box, and one with a number that is not finite draws nothing at all —
     // both of which read on screen as data, not as a mistake.

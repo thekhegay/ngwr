@@ -7,6 +7,8 @@
 
 import { Component, TemplateRef, ViewEncapsulation, signal, viewChild } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 let uid = 0;
 
 /**
@@ -39,6 +41,10 @@ let uid = 0;
   host: { '[style.display]': "'none'" },
 })
 export class WrDropdownMenu {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('dropdown');
+  }
+
   /** The internal template the directive portals into the overlay. @internal */
   readonly contentTpl = viewChild.required(TemplateRef);
 

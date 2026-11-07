@@ -7,6 +7,8 @@
 
 import { Directive, ElementRef, inject } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 let uid = 0;
 
 /**
@@ -25,6 +27,10 @@ let uid = 0;
   host: { class: 'wr-dialog__title', '[attr.id]': 'id' },
 })
 export class WrDialogTitle {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('dialog');
+  }
+
   /** Generated id used for `aria-labelledby` wiring. */
   readonly id = `wr-dialog-title-${++uid}`;
 

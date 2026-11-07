@@ -13,6 +13,7 @@
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
 @use '../../icon/styles' as icon-styles; // WrIcon
+@include theme.loaded('command-palette');
 
 .wr-command-palette {
   // The top inset is the modal's own drop from the viewport edge, not a step on

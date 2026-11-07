@@ -11,7 +11,7 @@ import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChi
 import { useChartNumbers } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
-import { clamp } from 'ngwr/utils';
+import { clamp, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Semicircle progress gauge. Display-only — for interactive use see the
@@ -32,6 +32,10 @@ import { clamp } from 'ngwr/utils';
   host: { class: 'wr-gauge' },
 })
 export class WrGauge {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/gauge');
+  }
+
   /** Accessible name — the role needs one. Falls back to `gauge.label`. */
   readonly ariaLabel = input<string | null>(null);
 

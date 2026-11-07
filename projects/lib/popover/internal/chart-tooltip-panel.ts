@@ -8,6 +8,8 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import type { WrChartTooltipDatum } from '../types';
 
 /**
@@ -39,6 +41,10 @@ import type { WrChartTooltipDatum } from '../types';
   imports: [NgTemplateOutlet],
 })
 export class WrChartTooltipPanel {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('popover');
+  }
+
   readonly datum = input.required<WrChartTooltipDatum>();
 
   protected readonly rows = computed(() => this.datum().rows ?? []);

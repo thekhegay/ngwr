@@ -7,6 +7,8 @@
 
 import { Directive, computed, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Footer row, typically holding action buttons.
  *
@@ -23,6 +25,10 @@ import { Directive, computed, input } from '@angular/core';
   host: { '[class]': 'classes()' },
 })
 export class WrDialogFooter {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('dialog');
+  }
+
   /**
    * Horizontal alignment of the children.
    *

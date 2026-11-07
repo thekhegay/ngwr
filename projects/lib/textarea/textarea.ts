@@ -25,6 +25,7 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
+import { wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Multi-line text input.
@@ -206,6 +207,7 @@ export class WrTextarea implements FormValueControl<string> {
   private resizeMaxWidth = Number.POSITIVE_INFINITY;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('textarea');
     // Autosize: re-fit whenever value or autosize toggles.
     effect(() => {
       if (!this.isBrowser) return;

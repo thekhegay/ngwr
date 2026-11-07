@@ -13,6 +13,7 @@
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
 @use '../../icon/styles' as icon-styles; // WrIcon
+@include theme.loaded('checkbox');
 
 .wr-checkbox {
   --wr-checkbox-size: 1.125rem; // md box (18px)

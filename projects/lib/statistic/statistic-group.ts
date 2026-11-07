@@ -8,6 +8,8 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Dashboard grid for `<wr-statistic>` cards. The column count follows the
  * group's OWN width — an intrinsic container-query grid sized by its box, not
@@ -38,6 +40,10 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
   },
 })
 export class WrStatisticGroup {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('statistic');
+  }
+
   /**
    * Minimum width of each column before the grid reflows to fewer columns.
    * Any CSS length — smaller packs more cards per row. @default '12rem'

@@ -7,6 +7,7 @@
 // With `dataTable`, the figures render as a `<wr-chart-table>` beside the plot, which
 // its own sheet clips out of sight.
 @use '../../core/styles' as core-styles; // WrChartTable
+@include theme.loaded('charts/bar-chart');
 
 // The gap between two categories standing up: the plot's gap, but never more than a
 // quarter of the track shared out among the gaps. A fixed gap took the whole track once

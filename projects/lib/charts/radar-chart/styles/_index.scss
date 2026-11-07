@@ -7,6 +7,7 @@
 // With `dataTable`, the figures render as a `<wr-chart-table>` beside the drawing, which
 // its own sheet clips out of sight.
 @use '../../core/styles' as core-styles; // WrChartTable
+@include theme.loaded('charts/radar-chart');
 
 .wr-radar-chart {
   --wr-radar-chart-font-family: var(--wr-font-family-base);

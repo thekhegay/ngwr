@@ -27,3 +27,4 @@
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
 @use '../../icon/styles' as icon-styles; // WrIcon
+@include styles.loaded('breadcrumbs');

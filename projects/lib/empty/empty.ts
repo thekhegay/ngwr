@@ -10,6 +10,7 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
+import { wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Empty-state placeholder. Drop into any container where the underlying
@@ -46,6 +47,10 @@ import { WrIcon, type WrIconName } from 'ngwr/icon';
   imports: [WrIcon],
 })
 export class WrEmpty {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('empty');
+  }
+
   /**
    * Render the built-in folder glyph. Pass `false` to show no icon at all.
    * Ignored when `iconName` is set — the same contract as `<wr-alert>`.

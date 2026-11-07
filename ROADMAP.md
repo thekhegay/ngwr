@@ -2,9 +2,6 @@
 
 ## Very high
 
-- **Missing stylesheet warning**: a component whose `@use 'ngwr/<name>'` is
-  missing renders unstyled and silent. Each entry point's sheet declares a
-  marker; in dev mode the component checks it once and logs which `@use` to add.
 - **`wr-table` cell templates ignored without `WrTableCell`**: if Angular does
   not reject an unknown `[wrTableCell]` on `ng-template`, `wr-table` warns in dev
   mode when templates are projected and no cell template registered.

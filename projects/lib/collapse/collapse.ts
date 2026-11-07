@@ -8,7 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, DestroyRef, ViewEncapsulation, computed, effect, inject, input, model } from '@angular/core';
 
-import { randomId } from 'ngwr/utils';
+import { randomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_COLLAPSE_GROUP } from './tokens';
 
@@ -66,6 +66,7 @@ export class WrCollapse {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('collapse');
     if (this.group) {
       this.group.register({ id: this.id, close: () => this.open.set(false) });
       this.destroyRef.onDestroy(() => this.group?.unregister(this.id));

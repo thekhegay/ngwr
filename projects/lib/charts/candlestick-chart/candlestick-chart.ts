@@ -27,7 +27,7 @@ import {
 import { WrChartTable, type WrChartTableData, chartAxis, useChartNumbers } from 'ngwr/charts/core';
 import { readI18nText, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
-import { clamp } from 'ngwr/utils';
+import { clamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrCandlestickDatum } from './types';
 
@@ -256,6 +256,7 @@ export class WrCandlestickChart {
   private readonly measured = signal<Measured | null>(null);
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/candlestick-chart');
     // Measured after render, in a browser: again when the candles or the labels change,
     // and when the drawing changes width. Never on the server — said here as well as by
     // the render hooks, which a server-platform test still runs.

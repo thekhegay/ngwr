@@ -12,6 +12,7 @@ import { WR_CHART_LEGEND_BLOCK, WrChartLegend, type WrChartLegendItem } from 'ng
 import { chartColor, useChartNumbers } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrDonutSegment } from './types';
 
@@ -69,6 +70,10 @@ const MAX_HIT_ANGLE = Math.PI / 12;
   viewProviders: [{ provide: WR_CHART_LEGEND_BLOCK, useValue: 'wr-donut-chart' }],
 })
 export class WrDonutChart {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/donut-chart');
+  }
+
   /**
    * The slices, drawn clockwise from twelve o'clock. A segment with no `color`
    * takes the next entry from the chart's fallback palette.

@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Internal floating label rendered when `<… [wrPopover]="'…'" mode="tooltip">`
  * receives a string instead of a template. Not part of the public template
@@ -24,5 +26,9 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
   host: { class: 'wr-tooltip' },
 })
 export class WrPopoverTextPanel {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('popover');
+  }
+
   readonly text = input.required<string>();
 }

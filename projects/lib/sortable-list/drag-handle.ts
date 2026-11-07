@@ -8,6 +8,8 @@
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { Directive } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Drag handle for {@link WrSortableList} (and any nested `cdkDrag`).
  * Composes CDK's `cdkDragHandle` via `hostDirectives` so consumers don't
@@ -30,4 +32,8 @@ import { Directive } from '@angular/core';
   hostDirectives: [CdkDragHandle],
   host: { class: 'wr-drag-handle' },
 })
-export class WrDragHandle {}
+export class WrDragHandle {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('sortable-list');
+  }
+}

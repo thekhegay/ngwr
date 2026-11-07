@@ -21,7 +21,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
-import { clamp, round } from 'ngwr/utils';
+import { clamp, round, wrCheckStyles } from 'ngwr/utils';
 
 const ARC_START = -135; // 7 o'clock
 const ARC_END = 135; // 5 o'clock — 270° sweep total
@@ -54,6 +54,10 @@ const ARC_SWEEP = ARC_END - ARC_START;
   host: { '[class]': 'classes()' },
 })
 export class WrKnob implements FormValueControl<number> {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('knob');
+  }
+
   /** Accessible name — the role needs one. Falls back to `knob.label`. */
   readonly ariaLabel = input<string | null>(null);
 

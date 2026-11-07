@@ -19,7 +19,7 @@ import {
 import type { FormCheckboxControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
-import { randomId } from 'ngwr/utils';
+import { randomId, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Boolean toggle with an iOS-style slider.
@@ -54,6 +54,10 @@ export type WrSwitchSize = 'sm' | 'md' | 'lg';
   },
 })
 export class WrSwitch implements FormCheckboxControl {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('switch');
+  }
+
   /**
    * Accessible name for a switch used WITHOUT projected text. The wrapping
    * `<label>` names the control whenever content is projected; with none, the

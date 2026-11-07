@@ -8,6 +8,7 @@
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrSpinnerSize } from './types';
 
@@ -35,6 +36,10 @@ import type { WrSpinnerSize } from './types';
   },
 })
 export class WrSpinner {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('spinner');
+  }
+
   /**
    * Size variant. Em-based — scales with surrounding font-size.
    *

@@ -5,6 +5,7 @@
 // the figures render as a `<wr-chart-table>` beside the plot, which its own sheet clips
 // out of sight.
 @use '../../core/styles' as core-styles; // WrChartTable
+@include theme.loaded('charts/candlestick-chart');
 
 // The lengths inside a candle, each against the candle's own height as every percentage
 // inside it is: the upper wick's share and the lower wick's, as the component writes

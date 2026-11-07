@@ -18,7 +18,7 @@ import { WrOption, WrSelect } from 'ngwr/select';
 import { WrSlider } from 'ngwr/slider';
 import { WrSwitch } from 'ngwr/switch';
 import { WrTextarea } from 'ngwr/textarea';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, wrCheckStyles } from 'ngwr/utils';
 
 /** One field the template draws, resolved once per schema change. */
 interface WrRenderedField {
@@ -179,6 +179,10 @@ function warnOnKindMismatch(f: WrRenderedField): void {
   },
 })
 export class WrSchemaForm<T extends object> {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('schema-form');
+  }
+
   // Generic, rather than `FieldTree<Record<string, unknown>>`, because a model
   // declared as an `interface` has no index signature and is not assignable to
   // that: every consumer would have had to declare their model as a type alias

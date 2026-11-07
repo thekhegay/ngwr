@@ -1,3 +1,5 @@
+@use '../../theme/styles/loaded' as theme;
+@include theme.loaded('affix');
 // Almost nothing — the directive does the work inline. This layer owns the
 // stacking order below and the containing block of a flex or grid parent, and
 // otherwise only exposes the class hook a consumer styles the "stuck" state with.

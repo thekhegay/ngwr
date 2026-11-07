@@ -9,6 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input, model } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Animated menu toggle — three SVG strokes morph between a hamburger and a
@@ -34,6 +35,10 @@ import { useI18nText } from 'ngwr/i18n';
   host: { '[class]': 'classes()' },
 })
 export class WrBurger {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('burger');
+  }
+
   /** Two-way bindable open state. Drives the hamburger ↔ close morph. @default false */
   readonly open = model(false);
 

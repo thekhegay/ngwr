@@ -21,7 +21,7 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
-import { randomId } from 'ngwr/utils';
+import { randomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_RADIO_GROUP } from './tokens';
 import type { WrRadioGroupContext } from './types';
@@ -78,6 +78,10 @@ import type { WrRadioGroupContext } from './types';
   ],
 })
 export class WrRadioGroup implements FormValueControl<unknown>, WrRadioGroupContext {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('radio');
+  }
+
   /**
    * Shared `name` attribute. Defaults to a random id so multiple groups
    * on the same page don't collide. (Also the `FormUiControl.name` slot.)

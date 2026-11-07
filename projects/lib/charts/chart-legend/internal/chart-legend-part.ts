@@ -7,6 +7,8 @@
 
 import { Directive, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Adds the host chart's own class to one part of a legend row, beside the part's
  * static `wr-chart-legend__*` classes.
@@ -23,6 +25,10 @@ import { Directive, input } from '@angular/core';
   host: { '[class]': 'wrChartLegendPart()' },
 })
 export class WrChartLegendPart {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/chart-legend');
+  }
+
   /** The class to add; `''` adds none. */
   readonly wrChartLegendPart = input('');
 }

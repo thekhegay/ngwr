@@ -11,6 +11,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
 import type { WrColor } from 'ngwr/theme';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrTagIconPosition } from './types';
 
@@ -37,6 +38,10 @@ import type { WrTagIconPosition } from './types';
   imports: [WrIcon, WrSpinner],
 })
 export class WrTag {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('badge');
+  }
+
   /**
    * Color variant — decoration or category, never the state on its own. The
    * label carries the state (`Failed`, not a red `Build`): four of the five

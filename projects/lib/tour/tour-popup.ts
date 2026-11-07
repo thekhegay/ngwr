@@ -9,6 +9,7 @@ import { Component, InjectionToken, ViewEncapsulation, computed, inject } from '
 
 import { WrButton } from 'ngwr/button';
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrTourStep } from './types';
 
@@ -52,6 +53,10 @@ export const WR_TOUR_STEP = new InjectionToken<WrTourController>('WR_TOUR_STEP')
   imports: [WrButton],
 })
 export class WrTourPopup {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('tour');
+  }
+
   protected readonly tour = inject(WR_TOUR_STEP);
 
   // `readI18nText`, not `useI18nText`: these have no consumer-facing input to

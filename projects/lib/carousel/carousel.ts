@@ -25,6 +25,7 @@ import {
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrCarouselSlide } from './carousel-slide';
 import { WR_CAROUSEL } from './tokens';
@@ -221,6 +222,7 @@ export class WrCarousel implements WrCarouselContext {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('carousel');
     effect(() => {
       if (this.timer) clearInterval(this.timer);
       this.timer = null;

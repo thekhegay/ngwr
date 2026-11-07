@@ -36,7 +36,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { useFormFieldAria } from 'ngwr/form';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, type WrClassInput } from 'ngwr/utils';
+import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import type { WrTreeNode, WrTreeSelectionMode } from './types';
 
@@ -516,6 +516,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   private didExpandAll = false;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('tree');
     // Drive the overlay open/close in response to the `open` signal.
     effect(() => {
       if (!this.isOverlay()) return;

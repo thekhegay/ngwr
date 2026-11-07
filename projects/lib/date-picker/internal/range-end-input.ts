@@ -8,6 +8,7 @@
 import { Directive } from '@angular/core';
 
 import { WR_FORM_FIELD } from 'ngwr/form';
+import { wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Hides the surrounding `<wr-form-field>` from the range's END input. Not part
@@ -33,4 +34,8 @@ import { WR_FORM_FIELD } from 'ngwr/form';
   selector: 'input[wrDateRangeEnd]',
   providers: [{ provide: WR_FORM_FIELD, useValue: null }],
 })
-export class WrDateRangeEndInput {}
+export class WrDateRangeEndInput {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('date-picker');
+  }
+}

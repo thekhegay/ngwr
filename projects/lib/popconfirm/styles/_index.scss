@@ -14,6 +14,7 @@
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
 @use '../../button/styles' as button-styles; // WrButton
+@include theme.loaded('popconfirm');
 
 .wr-popconfirm-overlay {
   > .wr-popconfirm {

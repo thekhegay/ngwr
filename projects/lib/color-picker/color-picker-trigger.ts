@@ -24,7 +24,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { getFocusableElements, toClassList, type WrClassInput } from 'ngwr/utils';
+import { getFocusableElements, toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { WrColorPicker } from './color-picker';
 import type { WrColorFormat } from './types';
@@ -146,6 +146,7 @@ export class WrColorPickerTrigger {
   protected readonly panelId = `wr-color-picker-panel-${++triggerUid}`;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('color-picker');
     this.destroyRef.onDestroy(() => this.dispose());
   }
 

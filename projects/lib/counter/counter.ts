@@ -22,6 +22,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { easeOutCubic } from './easing';
 import type { WrCounterMode } from './types';
@@ -156,6 +157,7 @@ export class WrCounter {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('counter');
     inject(DestroyRef).onDestroy(() => this.cancel());
 
     effect(() => {

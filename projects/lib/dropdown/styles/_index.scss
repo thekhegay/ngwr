@@ -14,6 +14,7 @@
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
 @use '../../icon/styles' as icon-styles; // WrIcon
+@include theme.loaded('dropdown');
 
 /// Gap between the trigger and the menu, as pane padding on the edge facing the
 /// trigger. Padding rather than a CDK offset so a pointer crossing it is still

@@ -24,7 +24,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
-import { toClassList, type WrClassInput } from 'ngwr/utils';
+import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { WrPopconfirmPanel } from './popconfirm-panel';
 import { type WrPopconfirmPosition, wrPopconfirmPositions } from './types';
@@ -141,6 +141,7 @@ export class WrPopconfirm {
   private readonly messageId = `wr-popconfirm-message-${this.uid}`;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('popconfirm');
     this.destroyRef.onDestroy(() => this.dispose());
   }
 

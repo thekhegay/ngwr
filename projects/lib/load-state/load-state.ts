@@ -23,7 +23,7 @@ import { WrEmpty } from 'ngwr/empty';
 import { useI18nText } from 'ngwr/i18n';
 import { WrResult } from 'ngwr/result';
 import { WrSkeleton } from 'ngwr/skeleton';
-import { type SafeAny, numAttr } from 'ngwr/utils';
+import { numAttr, type SafeAny, wrCheckStyles } from 'ngwr/utils';
 
 import { WrLoadStateContent, WrLoadStateEmpty, WrLoadStateError, WrLoadStateLoading } from './load-state-templates';
 import type { WrLoadStateContentContext, WrLoadStateErrorContext, WrLoadStateStatus } from './types';
@@ -82,6 +82,10 @@ const isEmptyValue = (value: unknown): boolean => value == null || (Array.isArra
   },
 })
 export class WrLoadState<T = SafeAny> {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('load-state');
+  }
+
   /**
    * The state, when the app decides it. Ignored while `resource` is set.
    *

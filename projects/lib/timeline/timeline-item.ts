@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import type { WrTimelineColor } from './types';
 
 /**
@@ -22,6 +24,10 @@ import type { WrTimelineColor } from './types';
   host: { '[class]': 'classes()', '[attr.title]': 'null' },
 })
 export class WrTimelineItem {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('timeline');
+  }
+
   /**
    * The headline for this point on the line. Projected content goes below it as
    * the body, so keep this to what happened.

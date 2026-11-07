@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Container for `<input wrInput>` + `[wrInputPrefix]` / `[wrInputSuffix]` /
  * `<wr-password-toggle>` siblings. Renders the border and focus ring; the
@@ -35,6 +37,10 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
   host: { '[class]': 'classes()' },
 })
 export class WrInputGroup {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('input');
+  }
+
   /** Pill-shaped corners. @default false */
   readonly rounded = input(false, { transform: coerceBooleanProperty });
 

@@ -22,6 +22,7 @@
 @use '../../slider/styles' as slider-styles; // WrSlider
 @use '../../switch/styles' as switch-styles; // WrSwitch
 @use '../../textarea/styles' as textarea-styles; // WrTextarea
+@include theme.loaded('schema-form');
 
 .wr-schema-form {
   --wr-schema-form-gap: var(--wr-space-lg);

@@ -11,7 +11,7 @@ import { Component, LOCALE_ID, ViewEncapsulation, computed, effect, inject, inpu
 import { WrButton } from 'ngwr/button';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrOption, WrSelect } from 'ngwr/select';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrPaginationAlign, WrPaginationShape, WrPaginationSize } from './types';
 
@@ -273,6 +273,7 @@ export class WrPagination {
    * `[ngModel]`, which hid the coercion rather than removing the need for it.
    */
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('pagination');
     // `page` is a plain `model` — a `model()` takes no transform — so a
     // shrinking `total` and a host `[(page)]` write both land in it
     // unchecked. The guard used to read and write the page inside `untracked()`

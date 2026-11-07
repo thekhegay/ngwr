@@ -32,7 +32,7 @@ import {
 
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
-import { isComposing, toClassList, type WrClassInput } from 'ngwr/utils';
+import { isComposing, toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { getCaretCoordinates } from './caret';
 import { WrMentionPanel, wrMentionOptionId } from './mention-panel';
@@ -243,6 +243,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
   private liveRegion: HTMLElement | null = null;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('mention');
     if (this.isBrowser) {
       const doc = this.host.nativeElement.ownerDocument;
       const region = doc.createElement('div');

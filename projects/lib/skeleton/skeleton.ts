@@ -9,7 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Placeholder block shown while content is loading.
@@ -39,6 +39,10 @@ import { numAttr } from 'ngwr/utils';
   },
 })
 export class WrSkeleton {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('skeleton');
+  }
+
   /**
    * Intent tint for the placeholder. `null`, the default, paints the neutral
    * gray a placeholder almost always wants.

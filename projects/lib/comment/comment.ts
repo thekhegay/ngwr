@@ -8,6 +8,7 @@
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrCommentSide, WrCommentVariant } from './types';
 
@@ -60,6 +61,10 @@ import type { WrCommentSide, WrCommentVariant } from './types';
   },
 })
 export class WrComment {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('comment');
+  }
+
   /**
    * Who wrote it. Also the article's accessible name. Leave it empty when a
    * `[wrCommentAuthor]` element draws the name instead.

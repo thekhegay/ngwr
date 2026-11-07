@@ -24,6 +24,8 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import { WrOptionLeading } from './option-leading';
 import { WR_SELECT } from './tokens';
 import type { WrOptionLeadingContext } from './types';
@@ -200,6 +202,7 @@ export class WrOption {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('select');
     if (this.parent) {
       const parent = this.parent;
       // Re-register when disabled or value changes so the parent has fresh metadata.

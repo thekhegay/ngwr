@@ -28,6 +28,7 @@ import { WrCheckbox } from 'ngwr/checkbox';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrInput } from 'ngwr/input';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrTransferItem } from './types';
 
@@ -100,6 +101,10 @@ interface PaneState {
   imports: [WrButton, WrCheckbox, WrInput],
 })
 export class WrTransfer implements FormValueControl<readonly unknown[]> {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('transfer');
+  }
+
   /** Every row, in either pane. Membership of the right pane is `value`. */
   readonly items = input<readonly WrTransferItem[]>([]);
 

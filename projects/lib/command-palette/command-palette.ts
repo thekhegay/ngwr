@@ -33,7 +33,7 @@ import { WrHotkey, type WrHotkeyHandle, type WrHotkeySpec } from 'ngwr/hotkey';
 import { readI18nText, useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
 import { WR_OVERLAY_CONTAINER } from 'ngwr/overlay';
-import { isComposing } from 'ngwr/utils';
+import { isComposing, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrCommandItem } from './types';
 
@@ -268,6 +268,7 @@ export class WrCommandPalette {
   );
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('command-palette');
     // The settled query, for a host-driven search. `debounce(() => timer(...))`
     // rather than `debounceTime(this.debounceMs())`: this runs in the
     // constructor, where inputs are not bound yet, so reading the input eagerly

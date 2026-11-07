@@ -8,6 +8,7 @@
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrResult } from './result';
 import type { WrResultStatus } from './types';
@@ -33,6 +34,10 @@ import type { WrResultStatus } from './types';
   imports: [WrResult],
 })
 export class WrResult404 {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('result');
+  }
+
   /** Bound by the shared template; not an input — a preset IS its status. */
   protected readonly status: WrResultStatus = 'warning';
 
@@ -60,6 +65,10 @@ export class WrResult404 {
   imports: [WrResult],
 })
 export class WrResult403 {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('result');
+  }
+
   /** Bound by the shared template; not an input — a preset IS its status. */
   protected readonly status: WrResultStatus = 'error';
 
@@ -87,6 +96,10 @@ export class WrResult403 {
   imports: [WrResult],
 })
 export class WrResult500 {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('result');
+  }
+
   /** Bound by the shared template; not an input — a preset IS its status. */
   protected readonly status: WrResultStatus = 'error';
 

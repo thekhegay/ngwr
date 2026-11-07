@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Bottom bar of a {@link WrLayout}. Doesn't grow — sized by its
  * children.
@@ -17,4 +19,8 @@ import { Component, ViewEncapsulation } from '@angular/core';
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-layout-footer', role: 'contentinfo' },
 })
-export class WrLayoutFooter {}
+export class WrLayoutFooter {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('layout');
+  }
+}

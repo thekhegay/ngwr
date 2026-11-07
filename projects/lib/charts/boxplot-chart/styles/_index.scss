@@ -5,6 +5,7 @@
 // the figures render as a `<wr-chart-table>` beside the plot, which its own sheet clips
 // out of sight.
 @use '../../core/styles' as core-styles; // WrChartTable
+@include theme.loaded('charts/boxplot-chart');
 
 .wr-boxplot-chart {
   --wr-boxplot-chart-font-family: var(--wr-font-family-base);

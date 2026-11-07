@@ -28,7 +28,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
-import { KEYS, getFocusableElements, numAttr, toClassList, type WrClassInput } from 'ngwr/utils';
+import { getFocusableElements, KEYS, numAttr, toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { WrCurrentKeystroke } from './internal/keystroke';
 import { WrPopoverTextPanel } from './internal/text-panel';
@@ -219,6 +219,7 @@ export class WrPopover {
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('popover');
     effect(() => {
       if (this.isOpen()) {
         this.openOverlay();

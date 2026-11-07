@@ -1,3 +1,5 @@
+@use '../../theme/styles/loaded' as theme;
+@include theme.loaded('density');
 // Density multipliers. Components multiply their paddings (and the
 // occasional height / line-height) by these scalars via `calc()`.
 //

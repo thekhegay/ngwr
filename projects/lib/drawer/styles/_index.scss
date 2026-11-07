@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@include theme.loaded('drawer');
 
 .wr-drawer-backdrop {
   background: var(--wr-color-overlay);

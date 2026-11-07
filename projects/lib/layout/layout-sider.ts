@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, effect, input, model, output, untracked } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Collapsible side panel. Lives inside a row `<wr-layout>` next to a
  * `<wr-layout-content>`. Two-way `[(collapsed)]` controls width.
@@ -49,6 +51,7 @@ export class WrLayoutSider {
   readonly collapsedChanged = output<boolean>();
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('layout');
     // The output is documented as firing whenever `collapsed` CHANGES, and it
     // only ever fired from `toggle()` — so a `[(collapsed)]` write, which is the
     // documented way to drive this, was silent. Emitting from an effect covers

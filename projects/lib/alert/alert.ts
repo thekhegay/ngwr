@@ -21,7 +21,7 @@ import {
 
 import { useI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
-import { getFocusableElements } from 'ngwr/utils';
+import { getFocusableElements, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrAlertType } from './types';
 
@@ -66,6 +66,10 @@ import type { WrAlertType } from './types';
   },
 })
 export class WrAlert {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('alert');
+  }
+
   /** Accessible name. Falls back to `alert.close`, then `'Close alert'`. */
   readonly closeLabel = input<string | null>(null);
 

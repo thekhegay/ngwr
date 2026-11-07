@@ -15,6 +15,7 @@
 @use '../../button/styles' as button-styles; // WrButton
 @use '../../checkbox/styles' as checkbox-styles; // WrCheckbox
 @use '../../input/styles' as input-styles; // WrInput
+@include theme.loaded('transfer');
 
 .wr-transfer {
   --wr-transfer-pane-width: 14rem;

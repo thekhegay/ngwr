@@ -23,7 +23,7 @@ import {
 
 import { useI18nText } from 'ngwr/i18n';
 import { WrSpinner } from 'ngwr/spinner';
-import { resolveCssSize, type ResolvedCssSize, wrInitials } from 'ngwr/utils';
+import { resolveCssSize, type ResolvedCssSize, wrCheckStyles, wrInitials } from 'ngwr/utils';
 
 import type { WrAvatarShape, WrAvatarSize } from './types';
 
@@ -206,6 +206,7 @@ export class WrAvatar {
   private readonly img = viewChild<ElementRef<HTMLImageElement>>('img');
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('avatar');
     // A new URL is a new attempt: after a failure the fallback would otherwise
     // stay put for an image that loads perfectly well.
     effect(() => {

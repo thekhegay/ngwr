@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Directive, computed, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from './types';
 
 /**
@@ -36,6 +38,10 @@ import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from '.
   host: { '[class]': 'classes()' },
 })
 export class WrTypography {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('typography');
+  }
+
   /** Visual variant. @default 'body' */
   readonly variant = input<WrTypographyVariant>('body');
 

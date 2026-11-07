@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@include theme.loaded('image-cropper');
 
 .wr-image-cropper {
   --wr-image-cropper-font-family: var(--wr-font-family-base);

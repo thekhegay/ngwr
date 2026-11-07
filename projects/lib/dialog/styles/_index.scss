@@ -5,6 +5,7 @@
 // learns about them. Sass deduplicates `@use`, so an app that also loads the
 // button by hand still emits it once.
 @use '../../button/styles' as button-styles; // WrButton
+@include theme.loaded('dialog');
 
 // CDK Overlay base styles are usually loaded once by the consumer.
 // We re-emit the minimal `cdk-overlay-*` rules so a standalone `@use

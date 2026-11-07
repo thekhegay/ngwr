@@ -9,7 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
-import { randomId } from 'ngwr/utils';
+import { randomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_RADIO_GROUP } from './tokens';
 
@@ -78,6 +78,7 @@ export class WrRadio {
   private readonly group = inject(WR_RADIO_GROUP, { optional: true });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('radio');
     if (!this.group) {
       throw new Error('[NGWR] <wr-radio> must be used inside <wr-radio-group>.');
     }

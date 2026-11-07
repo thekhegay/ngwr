@@ -5,3 +5,9 @@
 @forward 'focus';
 @forward 'mixins';
 @forward 'motion';
+@forward 'loaded';
+@use 'loaded';
+
+// Emitted with the token layer itself, so `wrCheckStyles()` can tell a missing
+// theme from a missing component sheet.
+@include loaded.loaded('theme');

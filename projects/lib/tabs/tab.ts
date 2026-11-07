@@ -17,7 +17,7 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { randomId } from 'ngwr/utils';
+import { randomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_TABS, WR_TABS_ROUTING } from './tokens';
 
@@ -108,6 +108,7 @@ export class WrTab {
   }
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('tabs');
     if (this.parent) {
       // Both calls run with the input signals still on their defaults — a
       // constructor is too early for `key()` to be the consumer's value. The

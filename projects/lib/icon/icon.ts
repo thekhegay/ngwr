@@ -8,6 +8,8 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, isDevMode } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import { WrIconRegistry } from './icon-registry';
 import type { WrIconDef, WrIconName } from './types';
 import { type WrIconStripReport, sanitizeIcon } from './utils';
@@ -67,6 +69,7 @@ export class WrIcon {
   private readonly icon = computed(() => this.registry().get(this.name()));
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('icon');
     effect(() => {
       const icon = this.icon();
       const name = this.name();

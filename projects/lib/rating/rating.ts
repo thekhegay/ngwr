@@ -23,7 +23,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
-import { clamp } from 'ngwr/utils';
+import { clamp, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Star rating input. Click or hover to set a value; supports half-star
@@ -67,6 +67,10 @@ export type WrRatingSize = 'sm' | 'md' | 'lg';
   host: { '[class]': 'classes()' },
 })
 export class WrRating implements FormValueControl<number | null> {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('rating');
+  }
+
   /** Total number of slots. @default 5 */
   readonly count = input(5, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 5)) });
 

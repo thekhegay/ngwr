@@ -19,6 +19,7 @@
 // these by hand still emits it once.
 @use '../../icon/styles' as icon-styles; // WrIcon
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
+@include theme.loaded('badge');
 
 .wr-badge {
   display: inline-flex;

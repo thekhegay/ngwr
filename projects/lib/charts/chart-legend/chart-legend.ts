@@ -11,6 +11,7 @@ import { Component, ViewEncapsulation, computed, inject, input, model, output, s
 
 import { chartMarkerPath } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrChartLegendPart } from './internal/chart-legend-part';
 import { WR_CHART_LEGEND_BLOCK } from './tokens';
@@ -77,6 +78,10 @@ const NO_OVERRIDE = signal<string | null>(null).asReadonly();
   imports: [NgTemplateOutlet, WrChartLegendPart],
 })
 export class WrChartLegend {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/chart-legend');
+  }
+
   /** One row per series, in the chart's order. */
   readonly items = input<readonly WrChartLegendItem[]>([]);
 

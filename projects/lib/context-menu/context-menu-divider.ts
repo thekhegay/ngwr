@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Thin horizontal separator inside a `<wr-context-menu>`. Use it to
  * group related items (e.g., a destructive action below a divider, or
@@ -32,4 +34,8 @@ import { Component, ViewEncapsulation } from '@angular/core';
     'aria-orientation': 'horizontal',
   },
 })
-export class WrContextMenuDivider {}
+export class WrContextMenuDivider {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('context-menu');
+  }
+}

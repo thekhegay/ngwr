@@ -22,7 +22,7 @@ import {
 } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { clamp, randomId } from 'ngwr/utils';
+import { clamp, randomId, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrCropHandle, WrCropRect, WrImageCropperStatus, WrImageLoadError, WrImageOutputType } from './types';
 
@@ -305,6 +305,7 @@ export class WrImageCropper {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('image-cropper');
     // Resolve the source into a usable URL the <img> can render.
     // We only read `src()` here — `previousObjectUrl` is a plain field, so
     // writing to `objectUrl` doesn't re-trigger this effect (and hang the

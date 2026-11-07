@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Action bar with three named zones — `[wrToolbarStart]`,
  * `[wrToolbarCenter]`, `[wrToolbarEnd]`. Use any one or all three.
@@ -44,6 +46,10 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
   host: { class: 'wr-toolbar', role: 'toolbar', '[class.wr-toolbar--responsive]': 'responsive()' },
 })
 export class WrToolbar {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('toolbar');
+  }
+
   /**
    * Stack the zones vertically when the toolbar's own box is too narrow to fit
    * them in a row (a container query on its own width, not the viewport — so it

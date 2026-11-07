@@ -26,7 +26,7 @@ import type { Subscription } from 'rxjs';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WR_OVERLAY, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
-import { randomId } from 'ngwr/utils';
+import { randomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WrContextMenu } from './context-menu';
 import type { WrContextMenuPanel } from './context-menu-panel';
@@ -158,6 +158,7 @@ export class WrContextMenuItem {
   }
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('context-menu');
     this.destroyRef.onDestroy(() => this.disposeSubmenu(true));
   }
 

@@ -8,6 +8,7 @@
 import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { WR_CAROUSEL } from './tokens';
 
@@ -39,6 +40,10 @@ import { WR_CAROUSEL } from './tokens';
   },
 })
 export class WrCarouselSlide {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('carousel');
+  }
+
   private readonly carousel = inject(WR_CAROUSEL, { optional: true });
 
   /**

@@ -1,0 +1,29 @@
+@use 'sass:string';
+
+// The one trace a loaded stylesheet leaves that a script can read.
+//
+// A component whose `@use 'ngwr/<name>'` is missing renders bare and says
+// nothing: the markup is right, every gate is green, and the only symptom is on
+// screen. So every public entry sheet includes `loaded()` once with its own
+// `exports` key, and `wrCheckStyles()` in `ngwr/utils` reads the property back
+// in dev mode and names the missing line. `theme/loaded.spec.ts` holds each
+// sheet's argument to its key, and the TypeScript side spells the same name.
+
+/// The entry key as a property suffix: `charts/bar-chart` becomes `charts-bar-chart`.
+@function -dashed($entry) {
+  $index: string.index($entry, '/');
+
+  @if not $index {
+    @return $entry;
+  }
+
+  @return string.slice($entry, 1, $index - 1) + '-' + -dashed(string.slice($entry, $index + 1));
+}
+
+/// Declares `--wr-loaded-<entry>` on `:root`: the sign that `@use 'ngwr/<entry>'` ran.
+/// For the library's own entry sheets, one include each.
+@mixin loaded($entry) {
+  :root {
+    --wr-loaded-#{-dashed($entry)}: 1;
+  }
+}

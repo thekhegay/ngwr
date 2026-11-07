@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation, computed, contentChildren } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import { WrLayoutSider } from './layout-sider';
 
 /**
@@ -36,6 +38,10 @@ import { WrLayoutSider } from './layout-sider';
   host: { '[class]': 'classes()' },
 })
 export class WrLayout {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('layout');
+  }
+
   protected readonly siders = contentChildren(WrLayoutSider);
 
   protected readonly classes = computed(() => {

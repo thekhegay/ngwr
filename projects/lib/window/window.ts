@@ -25,7 +25,7 @@ import {
 } from '@angular/core';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { randomId } from 'ngwr/utils';
+import { randomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WrWindowManager } from './services/window-manager';
 import type { WrWindowResolvedOs, WrWindowSlotContent, WrWindowSlotContext, WrWindowSnapTarget } from './types';
@@ -193,6 +193,7 @@ export class WrWindow implements OnInit {
   private endMove: (() => void) | null = null;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('window');
     // A window closed in the middle of a drag (a shortcut, the app) must not
     // leave its listeners on the document, writing to a model nobody draws.
     inject(DestroyRef).onDestroy(() => this.endMove?.());
