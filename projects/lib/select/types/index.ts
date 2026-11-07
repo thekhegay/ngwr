@@ -40,6 +40,12 @@ export type WrSelectSearchLoader<T> = (
 /** Control size for `<wr-select>` — shares the `--wr-control-*` contract. */
 export type WrSelectSize = 'sm' | 'md' | 'lg';
 
+/**
+ * Side of the trigger the panel opens on. `'bottom'` drops below and flips
+ * above when there is no room; `'top'` is the same the other way up.
+ */
+export type WrSelectPosition = 'bottom' | 'top';
+
 export type { WrOptionLeadingPlacement, WrOptionLeadingContext } from './option-leading-context';
 export type { WrSelectOptionRegistration } from './select-option-registration';
 export type { WrSelectContext } from './select-context';

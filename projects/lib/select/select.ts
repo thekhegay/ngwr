@@ -7,7 +7,7 @@
 
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { type ConnectedPosition, type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import {
@@ -66,6 +66,7 @@ import { WR_SELECT } from './tokens';
 import type {
   WrOptionLeadingContext,
   WrSelectMode,
+  WrSelectPosition,
   WrSelectSearchLoader,
   WrSelectTagValidator,
   WrSelectSize,
@@ -315,9 +316,9 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    *
    * On `multi` the trigger keeps its chips and grows an inline text field (the
    * shape `tag` mode already uses); on `single` it is equivalent to
-   * `mode="search"`. Every search input (`[options]`, `[loader]`,
-   * `[debounceMs]`, `[minChars]`, `[virtualScroll]`, the `(searchChange)` output, …)
-   * applies either way. Ignored in `tag` mode, which owns its own input.
+   * `mode="search"`. Every search input (`[loader]`, `[debounceMs]`,
+   * `[minChars]`, `[virtualScroll]`, the `(searchChange)` output, …) applies
+   * either way. Ignored in `tag` mode, which owns its own input.
    * @default false
    */
   readonly searchable = input(false, { transform: coerceBooleanProperty });
@@ -353,18 +354,27 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    */
   readonly searchQuery = model('');
 
-  // Search-mode-only inputs (ignored in other modes)
-
   /**
-   * Search mode: dynamic option array. Each item is rendered as a
-   * `<wr-option>` whose label comes from `[displayWith]`. Works
-   * alongside projected `<wr-option>` children — both lists are
-   * filtered by the search query.
+   * Option array, in every mode with a panel. Each item is rendered as a
+   * `<wr-option>` whose value is the item and whose label comes from
+   * `[displayWith]`, before any projected `<wr-option>` children; a search
+   * query filters both lists alike. Ignored in `tag` mode, which has no panel.
+   *
+   * @example
+   * ```html
+   * <wr-select [options]="countries" [displayWith]="countryName" [(value)]="country" />
+   * <wr-select mode="multi" [options]="tags" [(value)]="picked" />
+   * ```
    */
   readonly options = input<readonly T[]>([]);
 
-  /** Search mode: map a dynamic option item to its display label. @default String */
+  /**
+   * Maps an `[options]` item to its label: on its row, on the trigger when it is
+   * selected, on its chip in multi mode. @default String
+   */
   readonly displayWith = input<(item: T) => string>((item: T) => String(item));
+
+  // Search-mode-only inputs (ignored in other modes)
 
   /**
    * Search mode: async loader. When set, the loader is called on every
@@ -397,8 +407,11 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   readonly minChars = input(0, { transform: (v: unknown): number => Math.max(0, Number(v) || 0) });
 
   /**
-   * Search mode: allow values not in the options list. Enter on an
-   * unmatched query commits the raw text as the form value. @default false
+   * Search mode: allow values not in the options list. The trimmed query
+   * becomes the form value on Enter, when the panel is open and no option is
+   * highlighted (Enter on a highlighted option picks it), and on blur, Tab
+   * included, unless focus left for a click in the panel. An empty query
+   * commits nothing and keeps the value. @default false
    */
   readonly freeText = input(false, { transform: coerceBooleanProperty });
 
@@ -568,6 +581,13 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    * surface reads `.my-class .wr-select-panel`.
    */
   readonly panelClass = input<WrClassInput>(null);
+
+  /**
+   * Side of the trigger the panel opens on. A side with no room gives way to
+   * the other, so `'top'` still drops below at the top of the viewport.
+   * @default 'bottom'
+   */
+  readonly position = input<WrSelectPosition>('bottom');
 
   /**
    * Cap on selected items (multi mode). `0` = unlimited. Once reached, the
@@ -756,10 +776,14 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     if (this.isMulti()) return null;
     const match = this.registry().find(o => o.value === v);
     if (match) return match.label();
-    // Search mode: a value picked from a virtualized (or since-unmounted) row
-    // has no registered `<wr-option>`, so derive its label from `displayWith`
-    // — the same function that rendered the row.
-    return v != null && this.isSearchable() ? this.displayWith()(v as T) : null;
+    if (v == null) return null;
+    // A value picked from a virtualized (or since-unmounted) row has no
+    // registered `<wr-option>`, so derive its label from `displayWith` — the
+    // same function that rendered the row. Outside search mode only an item of
+    // `[options]` qualifies: the rows live in the panel and register when it
+    // opens, while a value no option carries keeps showing the placeholder.
+    if (this.isSearchable() || this.dynamicOptions().includes(v as T)) return this.displayWith()(v as T);
+    return null;
   });
 
   /**
@@ -828,9 +852,9 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   });
 
   /**
-   * Search-mode dynamic options. Loader results win when the loader is
-   * set; otherwise the static `[options]` array. Each item is rendered
-   * as an internal `<wr-option>` in the panel.
+   * The rows the panel draws itself. Loader results win when the loader is
+   * set; otherwise the `[options]` array. Each item is rendered as an internal
+   * `<wr-option>` in the panel, in every mode that has one.
    */
   protected readonly dynamicOptions = computed<readonly T[]>(() =>
     this.loader() ? this.loadedOptions() : this.options()
@@ -1231,10 +1255,32 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
 
   protected onSearchBlur(): void {
     this.searchHasFocus.set(false);
+    // A press on a row also takes focus from the field; the click that follows picks.
+    if (this.freeText() && !this.pressInPanel) this.commitQuery();
     // Leaving the field is what makes a below-threshold query stale, so this is
     // where the panel-close reset would have run if it could have waited.
     if (!this.open() && this.isSearchable()) this.searchQuery.set('');
     this.touch.emit();
+  }
+
+  /** A pointer is down inside the panel: until it lifts, a blur of the field is not a leave. */
+  private pressInPanel = false;
+
+  protected onPanelPointerDown(event: PointerEvent): void {
+    this.pressInPanel = true;
+    (event.view ?? window).addEventListener('pointerup', () => (this.pressInPanel = false), {
+      once: true,
+      capture: true,
+    });
+  }
+
+  /** `freeText`: a non-empty trimmed query becomes the value. */
+  private commitQuery(): void {
+    const q = this.searchQuery().trim();
+    if (!q) return;
+    // The query is the value here, so `T` is a string in a tag select.
+    this.value.set(q as T);
+    this.open.set(false);
   }
 
   protected onSearchKey(event: KeyboardEvent): void {
@@ -1260,10 +1306,8 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
         : idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].label());
       if (!hasActive && q) {
         event.preventDefault();
-        // The query is the value here, so `T` is a string in a tag select.
-        this.value.set(q as T);
+        this.commitQuery();
         this.touch.emit();
-        this.open.set(false);
         return;
       }
     }
@@ -1824,7 +1868,15 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     }
   }
 
+  /**
+   * A seed was taken before the panel attached. The panel's own `[options]` rows
+   * register as the portal attaches, so a seed over a registry without them is
+   * redone then; a click-open seeds nothing and stays cursor-less.
+   */
+  private reseedOnAttach = false;
+
   private seedActiveIndex(): void {
+    this.reseedOnAttach = true;
     if (this.virtualActive()) {
       const list = this.filteredDynamicOptions();
       const idx = list.findIndex(it => this.isSelected(it));
@@ -1912,10 +1964,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     const positionStrategy = this.overlay
       .position()
       .flexibleConnectedTo(this.host)
-      .withPositions([
-        { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
-        { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
-      ])
+      .withPositions(this.panelPositions())
       .withPush(true);
 
     this.overlayRef = this.overlay.create({
@@ -1937,7 +1986,12 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
+    const registered = this.registry().length;
     this.overlayRef.attach(portal);
+    if (this.reseedOnAttach && !this.virtualActive() && this.registry().length !== registered) {
+      this.seedActiveIndex();
+    }
+    this.reseedOnAttach = false;
 
     // Seed the projected panel's scroll onto the cursor the same way the virtual
     // one is seeded from its own effect: opening a select whose selected option
@@ -1979,6 +2033,13 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
           this.open.set(false);
         }
       });
+  }
+
+  /** The preferred side first, the other as the fallback. Start-aligned either way. */
+  private panelPositions(): ConnectedPosition[] {
+    const below: ConnectedPosition = { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' };
+    const above: ConnectedPosition = { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' };
+    return this.position() === 'top' ? [above, below] : [below, above];
   }
 
   private closeOverlay(): void {

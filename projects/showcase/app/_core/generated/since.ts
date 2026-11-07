@@ -106,7 +106,7 @@ export const UPDATED = {
   "reference/components/page-header": "15.6.0",
   "reference/components/popover": "15.1.0",
   "reference/components/radio": "15.0.0",
-  "reference/components/select": "15.5.0",
+  "reference/components/select": "15.6.0",
   "reference/components/sidebar": "15.0.0",
   "reference/components/skeleton": "15.6.0",
   "reference/components/sortable-list": "15.0.0",
