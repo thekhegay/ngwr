@@ -17,6 +17,7 @@ import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
 import { NGWR_PACKAGE } from '../../docs/package-spec';
 
+import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { DocsSearch, SiteDirection } from '#core/services';
 import { ROUTES, wrPath } from '#routes';
@@ -55,12 +56,17 @@ const SUGGESTION_ROUTES: Readonly<Record<string, string>> = {
   's:migration': wrPath(ROUTES.docs, ROUTES.docs.migration),
 };
 
-/** First major with an archived docs snapshot — nothing older was ever frozen. */
-const OLDEST_ARCHIVED_MAJOR = 7;
+/** First major whose docs snapshot is served: older ones ship code the library has since removed. */
+const OLDEST_ARCHIVED_MAJOR = 15;
 
-/** Archived majors, newest first: v7 … v(current − 1). */
+/** Archived majors, newest first: v15 … v(current − 1). */
 function archivedMajors(current: number): readonly number[] {
   return Array.from({ length: Math.max(0, current - OLDEST_ARCHIVED_MAJOR) }, (_, i) => current - 1 - i);
+}
+
+/** The newest stable release of a major, e.g. `15.6.0`. */
+function releaseOf(major: number): string {
+  return (QUALITY.lastReleaseByMajor as Readonly<Record<number, string | undefined>>)[major] ?? String(major);
 }
 
 interface DocVersion {
@@ -69,18 +75,19 @@ interface DocVersion {
   readonly active: boolean;
 }
 
-function docVersionList(major: number, next: boolean): readonly DocVersion[] {
+function docVersionList(version: string, next: boolean): readonly DocVersion[] {
+  const major = Number(version.split('.')[0]);
   // The next major is served from its own host, so its links back are absolute.
   const stable = next ? 'https://ngwr.dev' : '';
   const archived = (current: number): DocVersion[] =>
-    archivedMajors(current).map(v => ({ label: `v${v}`, url: `${stable}/v${v}/`, active: false }));
+    archivedMajors(current).map(v => ({ label: releaseOf(v), url: `${stable}/v${v}/`, active: false }));
   return next
     ? [
         { label: 'next', url: '/', active: true },
-        { label: `v${major - 1} · latest`, url: `${stable}/`, active: false },
+        { label: `${releaseOf(major - 1)} · latest`, url: `${stable}/`, active: false },
         ...archived(major - 1),
       ]
-    : [{ label: `v${major} · latest`, url: '/', active: true }, ...archived(major)];
+    : [{ label: `${version} · latest`, url: '/', active: true }, ...archived(major)];
 }
 
 @Component({
@@ -177,10 +184,8 @@ export class Header {
   protected readonly density = inject(WrDensity);
   protected readonly direction = inject(SiteDirection);
 
-  private readonly version = String(inject(NGWR_VERSION_TOKEN));
-
-  /** Current major (e.g. `v8`) shown on the version-switcher trigger. */
-  protected readonly major = `v${this.version.split('.')[0]}`;
+  /** The full version (e.g. `15.6.0`), shown on the version-switcher trigger. */
+  protected readonly version = String(inject(NGWR_VERSION_TOKEN));
 
   /** A prerelease is the next major, deployed at next.ngwr.dev beside the previous major's stable site. */
   protected readonly next = this.version.includes('-');
@@ -191,13 +196,13 @@ export class Header {
    * (so these are full-page `href` links, not in-app routes).
    *
    * Derived, not listed by hand. `publish.yml` freezes the superseded major on
-   * every major release, so the archives are exactly v7 … v(current − 1) — and a
+   * every major release, so the archives are exactly v15 … v(current − 1) — and a
    * hand-written list is precisely what went wrong before: v8 and v9 were
    * archived and deployed, but nobody added them here, so for two majors the
    * snapshots existed on the server with nothing linking to them. On the next
    * major, `latest` is the major below it.
    */
-  protected readonly docVersions = docVersionList(Number(this.major.slice(1)), this.next);
+  protected readonly docVersions = docVersionList(this.version, this.next);
 
   private readonly document = inject(DOCUMENT);
 
