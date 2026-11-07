@@ -16,6 +16,11 @@
   `color-scheme: light dark` and `withTheme({ defaultMode: 'light', storageKey: null })`.
 - **`wr-select` `freeText` commit points**: document that the raw text commits on
   Enter and on blur, and hold it with a spec.
+- **`wr-select` `position`**: the panel only flips between below and above on
+  its own; add an input to ask for a side, falling back to the other one when
+  there is no room, like `wr-dropdown`.
+- **`wr-select` `[options]` in every mode**: today the array works only in
+  `mode="search"`; single and multi select take it too, labelled by `displayWith`.
 
 ## High
 
