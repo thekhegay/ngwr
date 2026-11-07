@@ -23,6 +23,7 @@ import {
   inject,
   input,
   isDevMode,
+  linkedSignal,
   model,
   output,
   signal,
@@ -514,6 +515,25 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    */
   readonly pageSize = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
 
+  /**
+   * Sizes the pager offers in a size menu. Empty (default) shows no menu. A size
+   * the reader picks pages the rows at once and fires `pageSizeChange`, so
+   * `[(pageSize)]` keeps it on the host; the page moves to keep the first visible
+   * row on screen.
+   *
+   * @example
+   * ```html
+   * <wr-table [columns]="columns" [items]="rows" [(pageSize)]="size" [pageSizeOptions]="[10, 25, 50]" />
+   * ```
+   */
+  readonly pageSizeOptions = input<readonly number[]>([]);
+
+  /** Fires with the size the reader picks in the pager's size menu. */
+  readonly pageSizeChange = output<number>();
+
+  /** The size in force: the bound `pageSize`, until the reader picks another. */
+  protected readonly currentPageSize = linkedSignal(() => this.pageSize());
+
   /** Two-way bindable 1-based current page. */
   readonly page = model<number>(1);
 
@@ -583,7 +603,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   protected readonly visibleItems = computed<readonly Record<string, unknown>[] | null | undefined>(() => {
     const items = this.rows();
     if (!items) return items;
-    const size = this.pageSize();
+    const size = this.currentPageSize();
     if (size <= 0 || this.total() !== null) return items;
     // Clamped at BOTH ends, because `page` is a model the host owns (a `model()`
     // takes no transform) and the data can shrink under it — a filter or a delete
@@ -601,9 +621,22 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
 
   /** Show the pager footer only when paging is enabled and rows overflow. */
   protected readonly showPager = computed<boolean>(() => {
-    const size = this.pageSize();
-    return size > 0 && this.resolvedTotal() > size;
+    const size = this.currentPageSize();
+    if (size <= 0) return false;
+    // With a size menu the pager stays while any size on offer would page the
+    // rows, so a reader who picked the largest one can still pick a smaller one.
+    const options = this.pageSizeOptions();
+    return this.resolvedTotal() > (options.length > 0 ? Math.min(size, ...options) : size);
   });
+
+  protected onPageSizeChange(size: number): void {
+    const previous = this.currentPageSize();
+    if (size === previous) return;
+    const firstRow = (Math.max(1, this.page() || 1) - 1) * previous;
+    this.currentPageSize.set(size);
+    this.page.set(Math.floor(firstRow / size) + 1);
+    this.pageSizeChange.emit(size);
+  }
 
   /**
    * Typed at the context's own default: the directive's `T` is whatever each
@@ -997,7 +1030,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       !this.treeMode() && // expanding re-anchors the window; needs scroll anchoring first
       !this.expandable() && // an injected detail <tr> desyncs uniform offsets
       !this.responsive() && // card mode has no uniform row height
-      this.pageSize() === 0 && // a visible pager owns chunking — the pager wins
+      this.currentPageSize() === 0 && // a visible pager owns chunking — the pager wins
       this.total() === null &&
       !!this.visibleItems()
   );
