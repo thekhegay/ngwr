@@ -12,6 +12,9 @@ import { WrTypography } from 'ngwr/typography';
 import { Footer } from '../_layout/footer/footer';
 
 import { ComponentsBento } from './components-bento/components-bento';
+import { FlowLines } from './hero/flow-lines/flow-lines';
+import { GlowBorder } from './hero/glow-border/glow-border';
+import { SignalSweep } from './hero/signal-sweep/signal-sweep';
 import { HomeOptInComponent } from './opt-in/opt-in';
 
 import { DocCodeComponent, DocNgtrueComponent, DocRichPipe } from '#core/components';
@@ -57,6 +60,10 @@ interface DxLink {
     WrTag,
     WrCard,
     WrTypography,
+    // Hero effects
+    FlowLines,
+    SignalSweep,
+    GlowBorder,
     // Sections
     ComponentsBento,
     HomeOptInComponent,

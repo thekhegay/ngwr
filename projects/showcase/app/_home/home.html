@@ -1,12 +1,13 @@
 <main class="ngwr-home">
   <!-- Hero -->
   <section class="ngwr-home-hero-wrap">
+    <ngwr-flow-lines />
     <div class="container">
       <div class="ngwr-home-hero ngwr-home-hero--center">
         <h1 class="ngwr-home-hero__title">
           <span class="ngwr-home-hero__title-angular"><wr-icon name="logo-angular" />&nbsp;Angular</span>
           components that bind straight to
-          <span class="ngwr-home-hero__title-accent">Signal Forms</span>.
+          <span class="ngwr-home-hero__title-accent" ngwrSignalSweep>Signal Forms</span>.
         </h1>
 
         <!-- One line, no code spans. The specification that used to sit here moved
@@ -20,6 +21,7 @@
           <a
             class="ngwr-home-hero__btn"
             wr-btn
+            ngwrGlowBorder
             outlined
             size="lg"
             [routerLink]="path(routes.docs)"
