@@ -9,10 +9,12 @@ import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
-import type { ElementRef, TemplateRef } from '@angular/core';
+import type { ElementRef } from '@angular/core';
 import {
   Component,
+  afterNextRender,
   PLATFORM_ID,
+  TemplateRef,
   ViewEncapsulation,
   computed,
   contentChild,
@@ -673,8 +675,31 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     rightEdge: string | null;
   }>({ left: new Map(), right: new Map(), leftEdge: null, rightEdge: null });
 
+  /**
+   * Every `<ng-template>` projected into the table, registered or not. An
+   * unknown `[wrTableCell]` on an `<ng-template>` compiles under
+   * `strictTemplates`: a binding on a template is an input for whichever
+   * directive claims it, and the compiler reports nothing when none does.
+   * The column then shows the raw value and nothing says why, so the
+   * dev-mode check below counts the templates against the ones a directive
+   * picked up.
+   */
+  private readonly projectedTemplates = contentChildren(TemplateRef);
+
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('table');
+    if (typeof ngDevMode === 'undefined' || ngDevMode) {
+      afterNextRender(() => {
+        const projected = this.projectedTemplates().length;
+        const registered = this.cellTemplates().length + (this.expandTpl() ? 1 : 0) + (this.groupTpl() ? 1 : 0);
+        if (projected <= registered) return;
+        // eslint-disable-next-line no-console -- dev-mode validation
+        console.warn(
+          `[NGWR] <wr-table>: ${projected - registered} of ${projected} projected <ng-template>(s) registered with no table directive and will be ignored. ` +
+            'Import `WrTableCell` (or `WrTableExpand` / `WrTableGroupHeader`) beside `WrTable` in the component that declares the template.'
+        );
+      });
+    }
     // A refused pair says so. Tree rows lose to `groupBy` and win over detail
     // rows and windowing, each a documented exclusion — and on screen each one
     // is only a mode that silently is not there.

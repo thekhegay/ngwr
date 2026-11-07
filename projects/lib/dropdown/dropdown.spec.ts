@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -482,6 +483,51 @@ describe('WrDropdown', () => {
     fixture.detectChanges();
 
     expect(document.activeElement).toBe(items()[0]);
+  });
+
+  /**
+   * `trigger="manual"` is for one menu shared by every row of a table: the row's
+   * own click handler records the row, then calls `open()`. The host gets no
+   * open listener, so a click or Enter on it does nothing; once open, the menu
+   * closes the way the others do.
+   */
+  it('opens only through open() on a manual trigger, and still closes like the others', () => {
+    fixture.componentInstance.how.set('manual');
+    fixture.detectChanges();
+
+    click(trigger());
+    expect(menu()).toBeNull();
+    const enter = key(trigger(), 'Enter');
+    expect(enter.defaultPrevented).toBe(false);
+    expect(menu()).toBeNull();
+    trigger().dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    fixture.detectChanges();
+    expect(menu()).toBeNull();
+
+    const directive = fixture.debugElement.query(By.directive(WrDropdown)).injector.get(WrDropdown);
+    directive.open();
+    fixture.detectChanges();
+    expect(menu()).not.toBeNull();
+    expect(trigger().getAttribute('aria-expanded')).toBe('true');
+
+    key(menu()!, 'Escape');
+    expect(menu()).toBeNull();
+
+    directive.toggle();
+    fixture.detectChanges();
+    expect(menu()).not.toBeNull();
+    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    fixture.detectChanges();
+    expect(menu()).toBeNull();
+
+    // An item closes nothing on any trigger: the consumer's handler calls `close()`.
+    directive.open();
+    fixture.detectChanges();
+    click(items()[0]);
+    expect(fixture.componentInstance.picked).toEqual(['copy']);
+    directive.close();
+    fixture.detectChanges();
+    expect(menu()).toBeNull();
   });
 
   it('takes the menu with it when the trigger is destroyed', () => {

@@ -113,6 +113,11 @@
         <code>Invoice</code> and <code>let-value</code> the field under the column key. The type checker reads it; the
         table does not. Without it both stay <code>any</code>.
       </li>
+      <li>
+        A template in a component that forgot to import <code>WrTableCell</code> compiles and shows the raw value:
+        <code>[wrTableCell]</code> on an <code>&lt;ng-template&gt;</code> is not an error for the compiler. The table
+        warns once in dev mode and names the directive.
+      </li>
     </ul>
   </ngwr-doc-section>
 

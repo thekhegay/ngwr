@@ -76,7 +76,16 @@ export class WrDropdown {
   /** Menu to open. Pass a `<wr-dropdown-menu>` template reference. */
   readonly menu = input.required<WrDropdownMenu>({ alias: 'wrDropdown' });
 
-  /** How the menu opens. @default 'click' */
+  /**
+   * How the menu opens. `manual` leaves the host alone, for one menu shared by
+   * many anchors: a click handler records the row, then calls `open()`.
+   *
+   * @default 'click'
+   * @example
+   * ```html
+   * <button #trigger="wrDropdown" [wrDropdown]="menu" trigger="manual" (click)="pick(row); trigger.open()">
+   * ```
+   */
   readonly trigger = input<WrDropdownTrigger>('click');
 
   /**
@@ -404,7 +413,7 @@ export class WrDropdown {
 
   /** @internal Trigger keydown — ArrowDown/Up/Enter/Space open the menu. */
   protected onKeydown(event: KeyboardEvent): void {
-    if (this.isOpen()) return;
+    if (this.isOpen() || this.trigger() === 'manual') return;
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       // Opened from the keyboard — including on a `hover` trigger, which stays

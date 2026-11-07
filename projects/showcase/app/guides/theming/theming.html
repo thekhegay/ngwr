@@ -31,6 +31,12 @@
     </ngwr-doc-snippet>
     <ngwr-doc-code [code]="snippets.darkMode" language="angular-ts" />
     <p>
+      The stylesheet declares <code>color-scheme: light dark</code>, so on a dark OS the browser paints native controls,
+      scrollbars and form fields dark until the app picks a mode. An app that is light only says so at boot, and the
+      page stays light whatever the OS prefers:
+    </p>
+    <ngwr-doc-code [code]="snippets.lightOnly" language="angular-ts" />
+    <p>
       On a prerendered site, add the <a routerLink="/reference/services/theme">pre-paint script</a> so a stored choice
       applies before first paint.
     </p>

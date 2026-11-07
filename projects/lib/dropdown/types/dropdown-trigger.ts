@@ -6,6 +6,8 @@
  */
 
 /**
- * How the dropdown menu is opened.
+ * How the dropdown menu is opened. `manual` attaches no open listener to the
+ * host: the menu opens only through `open()`, `close()` and `toggle()`, and
+ * closes on Escape, an outside click and an item like the others.
  */
-export type WrDropdownTrigger = 'click' | 'hover';
+export type WrDropdownTrigger = 'click' | 'hover' | 'manual';

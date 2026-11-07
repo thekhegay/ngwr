@@ -60,6 +60,9 @@ theme.set('dark');  // 'light' | 'dark' | 'auto'
 theme.toggle();
 theme.resolved();   // 'light' | 'dark', the scheme on screen`,
 
+    lightOnly: `// app.config.ts: a light-only app
+provideWr(withTheme({ defaultMode: 'light', storageKey: null }));`,
+
     subtree: `<section style="color-scheme: dark">
   <button wr-btn color="primary">Primary</button>
 </section>
