@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="15.5.0"
+  updated="15.6.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table']"
   [labels]="['Component', 'Directive']"
@@ -146,11 +146,17 @@
 
   <ngwr-doc-section
     title="Pagination"
-    description="`[pageSize]` pages the rows and adds a pager. Add `[total]` to page on the server."
+    description="`[pageSize]` pages the rows and adds a pager. `[pageSizeOptions]` adds a size menu, and `[(pageSize)]` keeps the picked size. Add `[total]` to page on the server."
   >
     <ngwr-doc-snippet [code]="snippets.paginated">
       <div style="width: 100%">
-        <wr-table [columns]="columns" [items]="paginatedRows" [pageSize]="5" [(page)]="page" />
+        <wr-table
+          [columns]="columns"
+          [items]="paginatedRows"
+          [(pageSize)]="pageSize"
+          [pageSizeOptions]="[5, 10, 20]"
+          [(page)]="page"
+        />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -164,7 +170,8 @@
     <ul>
       <li><code>[pageSize]</code> is still required: without it no pager renders.</li>
       <li>
-        The pager has no range label or size changer. For those, leave <code>pageSize</code> at 0 and add your own
+        A size picked in the menu fires <code>(pageSizeChange)</code>: fetch that page size. The pager has no range
+        label; for one, leave <code>pageSize</code> at 0 and add your own
         <a routerLink="/reference/components/pagination"><code>&lt;wr-pagination&gt;</code></a
         >.
       </li>

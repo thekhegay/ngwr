@@ -228,6 +228,7 @@ export default class TablePageComponent {
 
   protected readonly paginatedRows = PAGINATED_ROWS;
   protected readonly page = signal(1);
+  protected readonly pageSize = signal(5);
 
   // Row-actions demo. A column key with no data behind it (`actions`) plus a
   // cell template that reads `let-row="item"` — the pair a "Delete" button needs.
@@ -386,7 +387,13 @@ const columns: WrTableColumns<Invoice> = {
   <wr-alert type="danger" title="Could not load users" [message]="message" />
 }
 <wr-table [columns]="columns" [items]="rows()" [loading]="loading()" />`,
-    paginated: `<wr-table [columns]="columns" [items]="rows" [pageSize]="5" [(page)]="page" />`,
+    paginated: `<wr-table
+  [columns]="columns"
+  [items]="rows"
+  [(pageSize)]="pageSize"
+  [pageSizeOptions]="[5, 10, 20]"
+  [(page)]="page"
+/>`,
     sortState: `protected readonly sort = signal<readonly WrTableSortState[]>([]);
 
 protected readonly rows = computed(() => {
