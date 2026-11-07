@@ -1,4 +1,6 @@
 @use 'lib/styles/breakpoints' as bp;
+@use './hero/glow-border/glow-border';
+@use './hero/signal-sweep/signal-sweep';
 
 /*
    Landing page. Original two-column hero with the live showcase
@@ -15,6 +17,15 @@
   position: relative;
   padding: 4rem 0 2rem;
   overflow: hidden;
+  // The glow border's blurred copy sits at a negative z-index; this is the
+  // stacking context it lands in, above the page background.
+  isolation: isolate;
+
+  // The flow lines are an absolute child; the copy has to be positioned too,
+  // or the lines paint over it.
+  > .container {
+    position: relative;
+  }
 }
 
 /* Left pitch column */
