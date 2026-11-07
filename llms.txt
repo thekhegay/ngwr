@@ -446,7 +446,11 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   a stored choice or a non-`auto` `defaultMode` when it is first injected;
   `provideWr(withTheme({ defaultMode, storageKey }))` configures it and creates
   it at boot, and `wrThemePrePaintScript()` with the same options covers the
-  first paint of a prerendered page. There is no
+  first paint of a prerendered page. A light-only app calls
+  `provideWr(withTheme({ defaultMode: 'light', storageKey: null }))`: without
+  it the `color-scheme: light dark` on `:root` lets a dark OS paint native
+  controls, scrollbars and form fields dark over the light surfaces until the
+  app picks a mode. There is no
   `[data-theme]`, no `theme.dark` mixin and no `-rgb` token: write your own dark
   values as `color: light-dark(#0f172a, #e6ebf3)`, and a translucent tint as
   `color-mix(in srgb, var(--wr-color-primary) 12%, transparent)`, never

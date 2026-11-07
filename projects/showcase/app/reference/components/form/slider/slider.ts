@@ -15,6 +15,8 @@ export default class SliderPageComponent {
   protected volume = 35;
   protected priceRange: [number, number] = [200, 800];
   protected stepped = 50;
+  protected hours: [number, number] = [9, 17];
+  protected readonly hour = (value: number): string => `${String(value).padStart(2, '0')}:00`;
 
   protected readonly snippets = {
     single: `<wr-slider [(value)]="volume" min="0" max="100" />`,
@@ -24,6 +26,10 @@ export default class SliderPageComponent {
     stepped: `<wr-slider [(value)]="stepped" min="0" max="100" step="25" />`,
 
     disabled: `<wr-slider [(value)]="volume" disabled />`,
+
+    labelWith: `<wr-slider [(value)]="hours" range min="0" max="24" [labelWith]="hour" />
+
+// hour = (value: number) => \`\${String(value).padStart(2, '0')}:00\`;`,
   };
 
   protected readonly api = API.WrSlider;

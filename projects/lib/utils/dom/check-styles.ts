@@ -90,7 +90,7 @@ export function wrCheckStyles(entry: string): void {
       if (!loaded('theme')) {
         // eslint-disable-next-line no-console -- a dev-mode diagnostic, reported and never thrown
         console.warn(
-          `ngwr: ${tag} renders without the theme tokens. Add @use 'ngwr/theme'; first in your global stylesheet, ` +
+          `[NGWR] ${tag} renders without the theme tokens. Add @use 'ngwr/theme'; first in your global stylesheet, ` +
             'or run ng g ngwr:component-style theme.'
         );
       }
@@ -99,7 +99,7 @@ export function wrCheckStyles(entry: string): void {
     if (!loaded(entry)) {
       // eslint-disable-next-line no-console -- a dev-mode diagnostic, reported and never thrown
       console.warn(
-        `ngwr: ${tag} renders without its styles. Add @use 'ngwr/${entry}'; to your global stylesheet, ` +
+        `[NGWR] ${tag} renders without its styles. Add @use 'ngwr/${entry}'; to your global stylesheet, ` +
           `or run ng g ngwr:component-style ${entry}.`
       );
     }

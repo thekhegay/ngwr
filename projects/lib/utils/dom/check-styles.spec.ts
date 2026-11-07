@@ -78,9 +78,9 @@ describe('wrCheckStyles', () => {
     await render(Three);
 
     expect(warn.mock.calls.map(([first]) => String(first))).toEqual([
-      "ngwr: <wr-probe> renders without the theme tokens. Add @use 'ngwr/theme'; first in your global stylesheet, " +
+      "[NGWR] <wr-probe> renders without the theme tokens. Add @use 'ngwr/theme'; first in your global stylesheet, " +
         'or run ng g ngwr:component-style theme.',
-      "ngwr: <wr-probe> renders without its styles. Add @use 'ngwr/alert'; to your global stylesheet, " +
+      "[NGWR] <wr-probe> renders without its styles. Add @use 'ngwr/alert'; to your global stylesheet, " +
         'or run ng g ngwr:component-style alert.',
     ]);
   });
@@ -92,7 +92,7 @@ describe('wrCheckStyles', () => {
 
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn).toHaveBeenCalledWith(
-      "ngwr: <wr-probe> renders without its styles. Add @use 'ngwr/select'; to your global stylesheet, " +
+      "[NGWR] <wr-probe> renders without its styles. Add @use 'ngwr/select'; to your global stylesheet, " +
         'or run ng g ngwr:component-style select.'
     );
   });

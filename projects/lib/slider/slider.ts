@@ -117,6 +117,19 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   readonly showLabel = input(true, { transform: coerceBooleanProperty });
 
   /**
+   * Maps a value to the text of the value label, and to `aria-valuetext` on
+   * the thumb, so a screen reader hears what the label shows. In range mode
+   * each end is mapped on its own. Unset, the label prints the number and the
+   * thumb announces `aria-valuenow`.
+   *
+   * @example
+   * ```html
+   * <wr-slider [max]="24" [labelWith]="hour" [(value)]="start" />
+   * ```
+   */
+  readonly labelWith = input<(value: number) => string>();
+
+  /**
    * Accessible name of the thumb — the single one, or the LOWER one in range
    * mode. Falls back to `slider.label` / `slider.lower`.
    */
@@ -268,7 +281,15 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
     this.range() ? this.highPercent() - this.lowPercent() : this.lowPercent()
   );
 
-  protected readonly label = computed(() => (this.range() ? `${this.low()} – ${this.high()}` : `${this.low()}`));
+  /** `aria-valuetext` of the lower thumb: `null` without `labelWith`, so the number announces as is. */
+  protected readonly lowText = computed<string | null>(() => this.labelWith()?.(this.low()) ?? null);
+  /** `aria-valuetext` of the upper thumb, see {@link lowText}. */
+  protected readonly highText = computed<string | null>(() => this.labelWith()?.(this.high()) ?? null);
+
+  protected readonly label = computed(() => {
+    const low = this.lowText() ?? `${this.low()}`;
+    return this.range() ? `${low} – ${this.highText() ?? this.high()}` : low;
+  });
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('slider');
