@@ -3526,7 +3526,10 @@ describe('WrSelect panel position', () => {
 
   afterEach(() => {
     fixture.destroy();
+    // jsdom defines it on `Element.prototype`, so there is usually nothing to put back:
+    // dropping the stub is what restores it.
     if (saved) Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', saved);
+    else delete (HTMLElement.prototype as Partial<HTMLElement>).getBoundingClientRect;
     for (const axis of ['clientWidth', 'clientHeight'] as const) {
       // Own properties shadowing the prototype getters; dropping them restores jsdom's.
       delete (document.documentElement as unknown as Record<string, unknown>)[axis];
