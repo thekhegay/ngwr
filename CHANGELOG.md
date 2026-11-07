@@ -1,5 +1,26 @@
 # Changelog
 
+## [15.6.0](https://github.com/thekhegay/ngwr/compare/v15.5.0...v15.6.0) (2026-11-07)
+
+### Features
+
+* **avatar:** name input with grapheme-safe initials and a stable tint ([39e5814](https://github.com/thekhegay/ngwr/commit/39e5814efebfb3f26dd61a152f366d4cc59dbab8))
+* **load-state:** one wrapper for loading, failure, empty and content ([49fed25](https://github.com/thekhegay/ngwr/commit/49fed259bf932748f5eec1b1b4cb9365714f6be2))
+* **mention:** template methods on the mention and copy directives ([691d809](https://github.com/thekhegay/ngwr/commit/691d80955235bcef57fa3c0319171576ad2c0771))
+* **page-header:** compact head, filter row and sticky mode ([7f5e14b](https://github.com/thekhegay/ngwr/commit/7f5e14b520fdd8a8c6efe88920c455c0490c31e0))
+* **select:** position, options in every mode and free text that commits on blur ([5f368a9](https://github.com/thekhegay/ngwr/commit/5f368a977c3a6ca0433c7812b2a1da8cac8cfc97))
+* table template warning, slider label format, manual dropdown trigger, light-only docs ([bc30c04](https://github.com/thekhegay/ngwr/commit/bc30c040c608411bc5058603bdd627bee1fc7904))
+* **table:** page size menu in the built-in pager ([3d34daa](https://github.com/thekhegay/ngwr/commit/3d34daab79d3ca85aa79ea42c8e7d33edb6de2b7))
+
+### Bug Fixes
+
+* **lib:** warn in dev mode when a component renders without its stylesheet ([f5a13da](https://github.com/thekhegay/ngwr/commit/f5a13dadff0512a1ac50e1215c4c7a38598e933f))
+
+### Showcase
+
+* full versions in the version switcher, archives from v15 ([621bbbb](https://github.com/thekhegay/ngwr/commit/621bbbb7cc42602612aa8330a4f496fe384d8b34))
+* hero waves, glowing call to action and a light sweep, written from scratch ([b67a88f](https://github.com/thekhegay/ngwr/commit/b67a88fb201d362ea0710bff5e18e39cb261f6c0))
+
 ## [15.5.0](https://github.com/thekhegay/ngwr/compare/v15.4.0...v15.5.0) (2026-11-05)
 
 ### Features
