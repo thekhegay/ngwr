@@ -13,6 +13,7 @@ import type { SelectorRef } from '#core/generated/selectors';
 const NGWR_PIPES: Readonly<Record<string, SelectorRef>> = {
   wrBytes: { symbol: 'WrBytes', path: 'ngwr/pipes' },
   wrDate: { symbol: 'WrDate', path: 'ngwr/pipes' },
+  wrInitials: { symbol: 'WrInitials', path: 'ngwr/pipes' },
   wrMark: { symbol: 'WrMark', path: 'ngwr/pipes' },
   wrNumber: { symbol: 'WrNumber', path: 'ngwr/pipes' },
   wrPlural: { symbol: 'WrPlural', path: 'ngwr/pipes' },

@@ -26,6 +26,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { WrIcon } from 'ngwr/icon';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrSegmentedOption } from './types';
 
@@ -233,6 +234,7 @@ export class WrSegmented<T = unknown> implements FormValueControl<T | null> {
   private readonly flipping = signal(false);
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('segmented');
     afterNextRender(() => this.mounted.set(true));
 
     // `null` until the first run: an effect always runs once, and that run is not

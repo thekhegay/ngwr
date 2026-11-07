@@ -41,6 +41,9 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class DropdownComponent {
+  protected readonly rows = ['Ada', 'Grace', 'Linus'];
+  protected picked = '';
+
   protected readonly snippets = {
     basic: `<!-- Items do not close the menu: d.close() does. -->
 <button wr-btn type="button" [wrDropdown]="menu" #d="wrDropdown">Actions</button>
@@ -57,6 +60,16 @@ export default class DropdownComponent {
 <button wr-btn type="button" [wrDropdown]="menu" [arrow]="false">Without arrow</button>`,
     hover: `<button wr-btn type="button" [wrDropdown]="menu" trigger="hover">Hover me</button>`,
     disabled: `<wr-dropdown-item icon="cog" disabled>Disabled item</wr-dropdown-item>`,
+    manual: `<!-- One menu for every row: the click records the row, then opens -->
+@for (row of rows; track row.id) {
+  <button wr-btn type="button" [wrDropdown]="menu" trigger="manual" #d="wrDropdown" (click)="picked = row; d.open()">
+    {{ row.name }}
+  </button>
+}
+
+<wr-dropdown-menu #menu>
+  <wr-dropdown-item icon="trash" (click)="remove(picked)">Delete</wr-dropdown-item>
+</wr-dropdown-menu>`,
     triggerId: `<!-- The menu gets aria-labelledby="row-actions" -->
 <button wr-btn type="button" id="row-actions" [wrDropdown]="menu">Actions</button>
 

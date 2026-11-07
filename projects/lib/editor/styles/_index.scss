@@ -15,6 +15,7 @@
 @use '../../button/styles' as button-styles; // WrButton
 @use '../../input/styles' as input-styles; // WrInput
 @use '../../popover/styles' as popover-styles; // WrPopover
+@include theme.loaded('editor');
 
 .wr-editor {
   display: flex;

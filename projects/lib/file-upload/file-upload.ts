@@ -27,7 +27,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { randomId } from 'ngwr/utils';
+import { randomId, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './types';
 
@@ -259,6 +259,7 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   }
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('file-upload');
     // Rebuild the internal file list from an external `value` write (mirrors the
     // old `writeValue`). Skipped when the value is merely the echo of an
     // in-component edit, so re-syncing can never clobber a live selection.

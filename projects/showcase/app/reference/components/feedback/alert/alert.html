@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Alert"
+  updated="15.6.0"
   description="An inline status message."
   [keywords]="['alert', 'banner', 'wr-alert']"
   [labels]="['Component']"
@@ -45,6 +46,20 @@
         <wr-alert title="Sync failed" type="danger"
           >Request <code>8f2c41</code> timed out. Try again in a minute.</wr-alert
         >
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Actions"
+    description="Put buttons in `[wrAlertActions]`. They sit under the message and wrap on a narrow screen."
+  >
+    <ngwr-doc-snippet [code]="snippets.actions">
+      <div style="width: 100%">
+        <wr-alert title="Update available" message="Version 2.0 is ready to install." type="info" closable>
+          <wr-btn wrAlertActions size="sm" color="primary">Install</wr-btn>
+          <wr-btn wrAlertActions size="sm" outlined>Later</wr-btn>
+        </wr-alert>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

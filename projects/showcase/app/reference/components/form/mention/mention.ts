@@ -70,9 +70,25 @@ export default class MentionPageComponent {
   [triggers]="['#']"
   [(ngModel)]="text"
 ></textarea>`,
+
+    exportAs: `<textarea wrMention [wrMentionItems]="users" #mention="wrMention"></textarea>
+
+<!-- Anywhere else in the same template -->
+<wr-btn [disabled]="mention.isOpen()" (click)="mention.open()">Mention someone</wr-btn>`,
   };
 
   protected readonly api = API.WrMention;
+
+  protected readonly methodsApi: readonly DocApiRow[] = [
+    {
+      name: 'open()',
+      description:
+        'Open the list at the caret and focus the field. Filtered by the mention the caret is in, else the whole list. Nothing happens while open, disabled or read-only.',
+      type: '() => void',
+    },
+    { name: 'close()', description: 'Close the list. Nothing happens while closed.', type: '() => void' },
+    { name: 'isOpen', description: 'Whether the list is open.', type: 'Signal<boolean>' },
+  ];
 
   protected readonly typeSnippet = `interface WrMentionItem {
   label: string;

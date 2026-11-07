@@ -11,6 +11,7 @@ import { Component, DestroyRef, NgZone, ViewEncapsulation, computed, inject, inp
 import { useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
 import { WrScroll } from 'ngwr/scroll';
+import { wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Pinned floating button that scrolls the page back to the top. Appears
@@ -68,6 +69,7 @@ export class WrBackTop {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('back-top');
     if (!this.platform.isBrowser) return;
     const handler = (): void => {
       const should = window.scrollY > this.visibilityThreshold();

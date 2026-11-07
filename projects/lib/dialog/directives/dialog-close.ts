@@ -7,6 +7,8 @@
 
 import { Directive, inject, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import type { WrDialogRef } from '../dialog-ref';
 import { WR_DIALOG_REF } from '../tokens';
 
@@ -26,6 +28,10 @@ import { WR_DIALOG_REF } from '../tokens';
   host: { '(click)': 'onClick()' },
 })
 export class WrDialogClose<R = unknown> {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('dialog');
+  }
+
   /**
    * Value to pass to `close()`. When unset — or used as a bare attribute — the
    * dialog closes with `undefined`.

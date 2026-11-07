@@ -108,7 +108,7 @@ const stripComments = (source: string): string => source.replace(/\/\*[\s\S]*?\*
  * Reproduced rather than imported because the generator writes its output
  * straight into `dist`, and a spec that read the built file would only be true
  * of the last build. The walk has to reach nested entry points: a shallow one
- * would quietly drop `WrConfetti` (`ngwr/bits/confetti`) from this comparison
+ * would quietly drop `WrBarChart` (`ngwr/charts/bar-chart`) from this comparison
  * while the shipped map still carried it.
  */
 function entryPointsUnder(dir: string, prefix = ''): string[] {

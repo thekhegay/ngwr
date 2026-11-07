@@ -5,6 +5,7 @@
 // figures render as a `<wr-chart-table>` beside the grid, which its own sheet clips out of
 // sight.
 @use '../../core/styles' as core-styles; // WrChartTable
+@include theme.loaded('charts/calendar-heatmap');
 
 .wr-calendar-heatmap {
   --wr-calendar-heatmap-font-family: var(--wr-font-family-base);

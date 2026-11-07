@@ -39,6 +39,7 @@ export {
   resolveCssColorChannels,
   trapFocus,
   watchColorScheme,
+  wrCheckStyles,
   wrContentDispositionFileName,
   wrDownloadBlob,
 } from './dom';
@@ -57,6 +58,9 @@ export type { WrKey } from './keyboard';
 
 // Log
 export { badgeLog } from './log';
+
+// Text
+export { wrInitials } from './text';
 
 // Feature
 export { wrFeature } from './feature';

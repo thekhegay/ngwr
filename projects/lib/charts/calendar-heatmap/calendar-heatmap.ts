@@ -23,6 +23,7 @@ import { WrChartTable, type WrChartTableData, useChartNumbers } from 'ngwr/chart
 import { WR_DATE_LOCALE } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrHeatmapDatum } from './types';
 
@@ -392,6 +393,7 @@ export class WrCalendarHeatmap {
   }
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/calendar-heatmap');
     const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
     const destroyRef = inject(DestroyRef);
     // Measured after render, in a browser, and again whenever the host or the grid changes

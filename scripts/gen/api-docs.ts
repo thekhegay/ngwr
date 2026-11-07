@@ -41,12 +41,11 @@
  * template no consumer can type. All three now live in `extract-api.ts`.
  *
  * For a long time the comparison read NAMES only, and a name is the half a
- * reader does not copy. `bits/circular-text` could document
- * `spinDuration` as `999` — the source says `20` — and the gate exited 0, on a
- * page in the compared clusters that it had opened and read. Twenty-one of the
- * twenty-four animation pages hand-write their rows, so that hole covered nearly
- * the whole cluster. `wrongDefaults()` closes it, and it flagged 19 rows across
- * 17 pages the first time it ran — not one of them a false positive.
+ * reader does not copy. A page could document a `duration` as `999` — the
+ * source says `20` — and the gate exited 0, on a page in the compared clusters
+ * that it had opened and read. Most pages hand-write their rows, so that hole
+ * covered nearly every cluster. `wrongDefaults()` closes it, and it flagged 19
+ * rows across 17 pages the first time it ran — not one of them a false positive.
  *
  * Three normalisations stand between the source and the page, and every one of
  * them is a hole, so each is drawn as narrowly as it can be:
@@ -59,8 +58,8 @@
  *     that list — an empty string is a default, and `marquee`'s `fadeOutColor`
  *     was documented as `—` when the component ships `''`.
  *   - **A `@default` tag's trailing parenthetical is an aside**, not part of the
- *     value: `@default 'linear' (matches reactbits' identity easing)` is
- *     satisfied by a page printing `'linear'`. The aside is written for a reader
+ *     value: `@default 'linear' (the identity easing)` is satisfied by a page
+ *     printing `'linear'`. The aside is written for a reader
  *     of the source; a Default column is one chip wide.
  *   - **A default the extractor could only read as an EXPRESSION is not
  *     compared** — `randomId('wr-tab')`, `DEFAULT_CHARS`, `(_, item) => item`.
@@ -709,7 +708,7 @@ const NOTHING: ReadonlySet<string> = new Set(['', '—', 'null', 'undefined']);
 const LITERAL = /^(?:'[^']*'|"[^"]*"|`[^`]*`|-?\d[\d_]*(?:\.\d+)?|true|false|null|undefined|\[[\s\S]*\]|\{[\s\S]*\})$/;
 
 /**
- * `'linear' (matches reactbits' identity easing)` → `'linear'`.
+ * `'linear' (the identity easing)` → `'linear'`.
  *
  * A `@default` tag often carries an aside for the reader of the source. The
  * value is the part before it, and a page printing either the whole tag or just
@@ -1309,7 +1308,6 @@ const UNDOCUMENTED_ENTRIES: ReadonlyMap<string, string> = new Map([
  */
 const EXPRESSION_DEFAULTS: ReadonlySet<string> = new Set([
   'tabs.key',
-  'bits/decrypt-text.characters',
   'virtual-scroll.maxBufferPx',
   'virtual-scroll.minBufferPx',
   'virtual-scroll.trackBy',

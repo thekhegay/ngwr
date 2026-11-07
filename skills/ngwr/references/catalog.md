@@ -12,53 +12,6 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/avatar` | `import { WrAvatar } from 'ngwr/avatar'` | `wr-avatar` |
 | `ngwr/back-top` | `import { WrBackTop } from 'ngwr/back-top'` | `wr-back-top` |
 | `ngwr/badge` | `import { WrBadge } from 'ngwr/badge'` | `wr-badge` `wr-tag` |
-| `ngwr/bits/aurora` | `import { WrAurora } from 'ngwr/bits/aurora'` | `wr-aurora` |
-| `ngwr/bits/blur-text` | `import { WrBlurText } from 'ngwr/bits/blur-text'` | `wr-blur-text` |
-| `ngwr/bits/blur-text/testing` | `import { WrBlurTextHarness } from 'ngwr/bits/blur-text/testing'` | — |
-| `ngwr/bits/border-glow` | `import { WrBorderGlow } from 'ngwr/bits/border-glow'` | `wr-border-glow` |
-| `ngwr/bits/border-glow/testing` | `import { WrBorderGlowHarness } from 'ngwr/bits/border-glow/testing'` | — |
-| `ngwr/bits/circular-text` | `import { WrCircularText } from 'ngwr/bits/circular-text'` | `wr-circular-text` |
-| `ngwr/bits/circular-text/testing` | `import { WrCircularTextHarness } from 'ngwr/bits/circular-text/testing'` | — |
-| `ngwr/bits/click-spark` | `import { WrClickSpark } from 'ngwr/bits/click-spark'` | `wr-click-spark` |
-| `ngwr/bits/confetti` | `import { WrConfetti } from 'ngwr/bits/confetti'` | — |
-| `ngwr/bits/decrypt-text` | `import { WrDecryptText } from 'ngwr/bits/decrypt-text'` | `wr-decrypt-text` |
-| `ngwr/bits/decrypt-text/testing` | `import { WrDecryptTextHarness } from 'ngwr/bits/decrypt-text/testing'` | — |
-| `ngwr/bits/dot-grid` | `import { WrDotGrid } from 'ngwr/bits/dot-grid'` | `wr-dot-grid` |
-| `ngwr/bits/dot-grid/testing` | `import { WrDotGridHarness } from 'ngwr/bits/dot-grid/testing'` | — |
-| `ngwr/bits/falling-text` | `import { WrFallingText } from 'ngwr/bits/falling-text'` | `wr-falling-text` |
-| `ngwr/bits/falling-text/testing` | `import { WrFallingTextHarness } from 'ngwr/bits/falling-text/testing'` | — |
-| `ngwr/bits/fuzzy-text` | `import { WrFuzzyText } from 'ngwr/bits/fuzzy-text'` | `wr-fuzzy-text` |
-| `ngwr/bits/fuzzy-text/testing` | `import { WrFuzzyTextHarness } from 'ngwr/bits/fuzzy-text/testing'` | — |
-| `ngwr/bits/glitch-text` | `import { WrGlitchText } from 'ngwr/bits/glitch-text'` | `wr-glitch-text` |
-| `ngwr/bits/glitch-text/testing` | `import { WrGlitchTextHarness } from 'ngwr/bits/glitch-text/testing'` | — |
-| `ngwr/bits/gradient-text` | `import { WrGradientText } from 'ngwr/bits/gradient-text'` | `wr-gradient-text` |
-| `ngwr/bits/gradient-text/testing` | `import { WrGradientTextHarness } from 'ngwr/bits/gradient-text/testing'` | — |
-| `ngwr/bits/iridescence` | `import { WrIridescence } from 'ngwr/bits/iridescence'` | `wr-iridescence` |
-| `ngwr/bits/iridescence/testing` | `import { WrIridescenceHarness } from 'ngwr/bits/iridescence/testing'` | — |
-| `ngwr/bits/marquee` | `import { WrMarquee } from 'ngwr/bits/marquee'` | `wr-marquee` |
-| `ngwr/bits/marquee/testing` | `import { WrMarqueeHarness } from 'ngwr/bits/marquee/testing'` | — |
-| `ngwr/bits/ripple-grid` | `import { WrRippleGrid } from 'ngwr/bits/ripple-grid'` | `wr-ripple-grid` |
-| `ngwr/bits/ripple-grid/testing` | `import { WrRippleGridHarness } from 'ngwr/bits/ripple-grid/testing'` | — |
-| `ngwr/bits/rotating-text` | `import { WrRotatingText } from 'ngwr/bits/rotating-text'` | `wr-rotating-text` |
-| `ngwr/bits/rotating-text/testing` | `import { WrRotatingTextHarness } from 'ngwr/bits/rotating-text/testing'` | — |
-| `ngwr/bits/shiny-text` | `import { WrShinyText } from 'ngwr/bits/shiny-text'` | `[wrShimmer]` `wr-shiny-text` |
-| `ngwr/bits/shiny-text/testing` | `import { WrShinyTextHarness } from 'ngwr/bits/shiny-text/testing'` | — |
-| `ngwr/bits/splash-cursor` | `import { WrSplashCursor } from 'ngwr/bits/splash-cursor'` | `wr-splash-cursor` |
-| `ngwr/bits/splash-cursor/testing` | `import { WrSplashCursorHarness } from 'ngwr/bits/splash-cursor/testing'` | — |
-| `ngwr/bits/split-text` | `import { WrSplitText } from 'ngwr/bits/split-text'` | `wr-split-text` |
-| `ngwr/bits/split-text/testing` | `import { WrSplitTextHarness } from 'ngwr/bits/split-text/testing'` | — |
-| `ngwr/bits/spotlight-card` | `import { WrSpotlightCard } from 'ngwr/bits/spotlight-card'` | `wr-spotlight-card` `[wrSpotlight]` |
-| `ngwr/bits/spotlight-card/testing` | `import { WrSpotlightCardHarness } from 'ngwr/bits/spotlight-card/testing'` | — |
-| `ngwr/bits/star-border` | `import { WrStarBorder } from 'ngwr/bits/star-border'` | `wr-star-border` `[wr-star-border]` |
-| `ngwr/bits/star-border/testing` | `import { WrStarBorderHarness } from 'ngwr/bits/star-border/testing'` | — |
-| `ngwr/bits/threads` | `import { WrThreads } from 'ngwr/bits/threads'` | `wr-threads` |
-| `ngwr/bits/threads/testing` | `import { WrThreadsHarness } from 'ngwr/bits/threads/testing'` | — |
-| `ngwr/bits/tilt-card` | `import { WrTiltCard } from 'ngwr/bits/tilt-card'` | `wr-tilt-card` `[wrTilt]` |
-| `ngwr/bits/tilt-card/testing` | `import { WrTiltHarness } from 'ngwr/bits/tilt-card/testing'` | — |
-| `ngwr/bits/typewriter` | `import { WrTypewriter } from 'ngwr/bits/typewriter'` | `wr-typewriter` |
-| `ngwr/bits/typewriter/testing` | `import { WrTypewriterHarness } from 'ngwr/bits/typewriter/testing'` | — |
-| `ngwr/bits/waves` | `import { WrWaves } from 'ngwr/bits/waves'` | `wr-waves` |
-| `ngwr/bits/waves/testing` | `import { WrWavesHarness } from 'ngwr/bits/waves/testing'` | — |
 | `ngwr/breadcrumbs` | `import { WrBreadcrumbs } from 'ngwr/breadcrumbs'` | `wr-breadcrumbs-item` `wr-breadcrumbs` |
 | `ngwr/burger` | `import { WrBurger } from 'ngwr/burger'` | `wr-burger` |
 | `ngwr/button` | `import { WrButton } from 'ngwr/button'` | `wr-btn-group` `wr-btn` `button[wr-btn]` `a[wr-btn]` |
@@ -184,6 +137,8 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/lightbox` | `import { WrLightbox } from 'ngwr/lightbox'` | `wr-lightbox` |
 | `ngwr/lightbox/testing` | `import { WrLightboxHarness } from 'ngwr/lightbox/testing'` | — |
 | `ngwr/list` | `import { WrList } from 'ngwr/list'` | `wr-list-item` `wr-list` |
+| `ngwr/load-state` | `import { WrLoadState } from 'ngwr/load-state'` | `ng-template[wrLoadStateContent]` `ng-template[wrLoadStateLoading]` `ng-template[wrLoadStateError]` `ng-template[wrLoadStateEmpty]` `wr-load-state` |
+| `ngwr/load-state/testing` | `import { WrLoadStateHarness } from 'ngwr/load-state/testing'` | — |
 | `ngwr/loading-bar` | `import { WrLoadingBar } from 'ngwr/loading-bar'` | `wr-loading-bar` |
 | `ngwr/loading-bar/router` | `import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router'` | — |
 | `ngwr/mention` | `import { WrMention } from 'ngwr/mention'` | `wr-mention-panel` `[wrMention]` |

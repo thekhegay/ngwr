@@ -21,7 +21,7 @@ import {
 
 import { WrHaptics } from 'ngwr/platform';
 import { WrSpinner } from 'ngwr/spinner';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Pull-to-refresh wrapper. Make its own content scrollable (give it a height /
@@ -106,6 +106,7 @@ export class WrPullToRefresh {
   private canPull = false;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('pull-to-refresh');
     // Resting height is DERIVED from `refreshing`, not latched on an edge: held
     // open at the threshold while a refresh is in flight (including a purely
     // programmatic `refreshing = true`), closed otherwise. An active drag owns

@@ -146,6 +146,17 @@ function styleExports(): Record<string, string> {
   return out;
 }
 
+/**
+ * Whether `files` (a load closure) brings the token layer in. The theme's own
+ * index is what forwards the declaring files, and it is the test rather than
+ * the `theme/styles` prefix because `theme/styles/_loaded.scss` lives there
+ * too: the sheet-marker mixin, which a sheet that paints with no token loads
+ * on its own, and which declares no token.
+ */
+function loadsTokenLayer(files: readonly string[]): boolean {
+  return files.includes(join(THEME_STYLES, '_index.scss'));
+}
+
 const DECLARED = /(--wr-[a-z0-9-]+)\s*:/g;
 const REFERENCED = /var\(\s*(--wr-[a-z0-9-]+)\s*[,)]/g;
 
@@ -209,7 +220,7 @@ describe('a style entry point loads the token layer it paints with', () => {
 
     for (const entry of styleEntries()) {
       const files = loaded(entry);
-      if (files.some(f => f.startsWith(THEME_STYLES))) continue;
+      if (loadsTokenLayer(files)) continue;
 
       const own = new Set<string>();
       const referenced = new Set<string>();
@@ -236,19 +247,13 @@ describe('a style entry point loads the token layer it paints with', () => {
   it('exempts only an entry still answered by every entry that loads it', () => {
     for (const exempt of RESOLVED_BY_ITS_CONSUMERS) {
       const name = relative(LIB, exempt);
-      expect(
-        loaded(exempt).some(f => f.startsWith(THEME_STYLES)),
-        `${name} loads the theme now`
-      ).toBe(false);
+      expect(loadsTokenLayer(loaded(exempt)), `${name} loads the theme now`).toBe(false);
       expect([...readFromCode(exempt)].some(isTheme), `${name} reads no theme token from its code now`).toBe(true);
 
       const dependants = styleEntries().filter(entry => entry !== exempt && loaded(entry).includes(exempt));
       expect(dependants.length, `nothing loads ${name}`).toBeGreaterThan(0);
       for (const entry of dependants) {
-        expect(
-          loaded(entry).some(f => f.startsWith(THEME_STYLES)),
-          `${relative(LIB, entry)} loads ${name} and not the theme`
-        ).toBe(true);
+        expect(loadsTokenLayer(loaded(entry)), `${relative(LIB, entry)} loads ${name} and not the theme`).toBe(true);
       }
     }
   });
@@ -298,10 +303,7 @@ describe('a style entry point loads the token layer it paints with', () => {
   it('reports a sheet that reads a theme token without loading the layer', () => {
     const canary = join(LIB, 'styles/_breakpoints.scss');
     const files = loaded(canary);
-    expect(
-      files.some(f => f.startsWith(THEME_STYLES)),
-      'the canary must not load the theme'
-    ).toBe(false);
+    expect(loadsTokenLayer(files), 'the canary must not load the theme').toBe(false);
 
     const own = new Set<string>();
     for (const file of files) for (const m of code(file).matchAll(DECLARED)) own.add(m[1]);
@@ -531,8 +533,8 @@ describe('an input variable stays on the instance that wrote it', () => {
    * the input. A custom property inherits, though, and the twin sits inline on the
    * host: a component that can hold another of its kind — anything with an
    * `<ng-content>` or a template outlet — hands the inner one its own inputs
-   * unless its block declares the twin `initial`. `wr-border-glow` inside
-   * `wr-border-glow` took the outer card's fill that way. jsdom applies no cascade,
+   * unless its block declares the twin `initial`: a card inside a card took the
+   * outer card's fill that way. jsdom applies no cascade,
    * so no rendered spec can see the inheritance; the declaration can be read.
    */
   const WRITES = /--wr-[a-z0-9]+(?:-[a-z0-9]+)*-input-[a-z0-9]+(?:-[a-z0-9]+)*/g;
@@ -583,11 +585,8 @@ describe('an input variable stays on the instance that wrote it', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('finds the components that write one', () => {
-    // A scanner that matched nothing would report the invariant as held. Four when
-    // this was written: marquee, spotlight-card, star-border and border-glow.
-    expect(writers().size).toBeGreaterThanOrEqual(4);
-  });
+  // No component writes an input twin today, so the invariant holds vacuously
+  // until a nullable colour input that projects content brings one back.
 });
 
 describe('the colour scheme is one switch', () => {

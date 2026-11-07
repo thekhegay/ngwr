@@ -8,6 +8,7 @@ const components = ROUTES.reference.components;
 export const FEEDBACK_ROUTES = [
   { path: components.alert.path, loadComponent: () => import('./alert/alert') },
   { path: components.empty.path, loadComponent: () => import('./empty/empty') },
+  { path: components.loadState.path, loadComponent: () => import('./load-state/load-state') },
   { path: components.pullToRefresh.path, loadComponent: () => import('./pull-to-refresh/pull-to-refresh') },
   { path: components.progress.path, loadComponent: () => import('./progress/progress') },
   { path: components.result.path, loadComponent: () => import('./result/result') },

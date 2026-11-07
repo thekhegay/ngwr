@@ -44,6 +44,10 @@
         Without <code>withTheme()</code>, a stored choice applies only once something injects <code>WrTheme</code>.
       </li>
       <li><code>withTheme()</code> in a route's providers is ignored.</li>
+      <li>
+        A light-only app sets <code>withTheme({{ '{' }} defaultMode: 'light', storageKey: null {{ '}' }})</code>:
+        without it the stylesheet's <code>color-scheme: light dark</code> lets a dark OS paint native controls dark.
+      </li>
       <li>With two Angular apps on one page, only one should inject <code>WrTheme</code>.</li>
     </ul>
   </ngwr-doc-section>

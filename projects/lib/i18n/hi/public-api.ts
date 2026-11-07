@@ -402,10 +402,6 @@ export const wrHi: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: 'चलती पट्टी',
-    link: 'लिंक',
-  },
   mention: {
     listbox: 'मेंशन',
     available: 'उपलब्ध मिलान: {{count}}',
@@ -490,6 +486,10 @@ export const wrHi: WrI18nCatalog = {
     notFound: 'माफ़ करें, यह पेज मौजूद नहीं है।',
     forbidden: 'माफ़ करें, आपके पास इस पेज का एक्सेस नहीं है।',
     serverError: 'माफ़ करें, कुछ गलत हो गया।',
+  },
+  loadState: {
+    failed: 'लोड नहीं हो सका',
+    retry: 'फिर से कोशिश करें',
   },
   date: {
     months: {

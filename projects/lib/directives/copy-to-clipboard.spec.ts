@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -65,7 +65,7 @@ describe('WrCopyToClipboard', () => {
   };
 
   /**
-   * `onClick` is `async`: the click handler returns at its first `await`, so the
+   * `copy()` is `async`: the click handler returns at its first `await`, so the
    * emissions land one or more microtasks later. A macrotask hop drains all of
    * them, whichever path the copy took.
    */
@@ -251,5 +251,64 @@ describe('WrCopyToClipboard', () => {
       expect(failed()).toHaveLength(1);
       expect(strayTextareas()).toBe(0);
     });
+  });
+});
+
+describe('WrCopyToClipboard template reference', () => {
+  @Component({
+    imports: [WrCopyToClipboard],
+    template: `
+      <span [wrCopyToClipboard]="text()" #ref="wrCopyToClipboard" (copied)="copied.push($event)">ngwr</span>
+      <button type="button" (click)="ref.copy()">Copy</button>
+    `,
+  })
+  class ExportHost {
+    readonly text = signal('ngwr');
+    readonly copied: string[] = [];
+    readonly clipboard = viewChild.required<WrCopyToClipboard>('ref');
+  }
+
+  const pristineClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+  const pristineExecCommand = Object.getOwnPropertyDescriptor(document, 'execCommand');
+
+  afterEach(() => {
+    if (pristineClipboard) Object.defineProperty(navigator, 'clipboard', pristineClipboard);
+    else Reflect.deleteProperty(navigator, 'clipboard');
+
+    if (pristineExecCommand) Object.defineProperty(document, 'execCommand', pristineExecCommand);
+    else Reflect.deleteProperty(document, 'execCommand');
+  });
+
+  it('publishes the instance as `wrCopyToClipboard`', () => {
+    TestBed.resetTestingModule();
+
+    const fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.clipboard()).toBeInstanceOf(WrCopyToClipboard);
+
+    fixture.destroy();
+  });
+
+  it('copies from another control through `copy()`, and says whether it worked', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    TestBed.resetTestingModule();
+
+    const fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+
+    (fixture.nativeElement as HTMLElement).querySelector('button')!.click();
+    await new Promise(resolve => setTimeout(resolve));
+
+    expect(writeText).toHaveBeenCalledWith('ngwr');
+    expect(fixture.componentInstance.copied).toEqual(['ngwr']);
+    await expect(fixture.componentInstance.clipboard().copy()).resolves.toBe(true);
+
+    Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+    Object.defineProperty(document, 'execCommand', { value: undefined, configurable: true });
+    await expect(fixture.componentInstance.clipboard().copy()).resolves.toBe(false);
+
+    fixture.destroy();
   });
 });

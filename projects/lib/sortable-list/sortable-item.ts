@@ -8,6 +8,8 @@
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { Component, ElementRef, ViewEncapsulation, computed, effect, inject } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import { WR_SORTABLE_LIST } from './tokens';
 
 /**
@@ -85,6 +87,7 @@ export class WrSortableItem {
   protected readonly grabbed = computed(() => this.list.grabbedIndex() === this.index());
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('sortable-list');
     this.list.register(this);
 
     // Assigned rather than bound, because these belong to the LIST and a host

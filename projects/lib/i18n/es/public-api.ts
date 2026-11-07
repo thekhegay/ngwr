@@ -400,10 +400,6 @@ export const wrEs: WrI18nCatalog = {
     pageUp: 'Re Pág',
     pageDown: 'Av Pág',
   },
-  marquee: {
-    label: 'Contenido en movimiento',
-    link: 'enlace',
-  },
   mention: {
     listbox: 'Menciones',
     available: 'Coincidencias disponibles: {{count}}',
@@ -488,6 +484,10 @@ export const wrEs: WrI18nCatalog = {
     notFound: 'Lo sentimos, esta página no existe.',
     forbidden: 'Lo sentimos, no tienes permiso para acceder a esta página.',
     serverError: 'Lo sentimos, algo ha salido mal.',
+  },
+  loadState: {
+    failed: 'No se pudo cargar',
+    retry: 'Reintentar',
   },
   date: {
     months: {

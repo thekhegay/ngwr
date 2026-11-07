@@ -514,10 +514,6 @@ export const wrEn: WrI18nCatalog = {
   },
   // Count-neutral on purpose: `wrInterpolate` does `{{name}}` substitution only,
   // with no plural support, so "Matches available: 1" has to read correctly too.
-  marquee: {
-    label: 'Marquee',
-    link: 'link',
-  },
   mention: {
     listbox: 'Mentions',
     available: 'Matches available: {{count}}',
@@ -618,6 +614,12 @@ export const wrEn: WrI18nCatalog = {
     notFound: 'Sorry, the page you visited does not exist.',
     forbidden: 'Sorry, you are not authorized to access this page.',
     serverError: 'Sorry, something went wrong.',
+  },
+  loadState: {
+    // `wr-load-state`: the failure's title and its retry. The library ships no
+    // error copy beyond this generic title; the message is the app's to show.
+    failed: 'Could not load',
+    retry: 'Try again',
   },
   date: {
     months: {

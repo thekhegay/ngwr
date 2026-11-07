@@ -259,7 +259,6 @@ export function docRouteCount(routes: WrPageRoutes): number {
  */
 export const DOC_CLUSTERS: readonly string[] = [
   'charts',
-  'bits',
   'reference/components',
   'reference/services',
   'reference/directives',
@@ -275,7 +274,7 @@ export interface WrDocPage {
   /** Relative to `projects/showcase/app`, `/`-separated. */
   readonly dir: string;
   readonly route: string;
-  /** `alert`, or `bits/aurora` for `bits/backgrounds/aurora`. */
+  /** `alert`, or `charts/bar-chart` for `charts/comparison/bar-chart`. */
   readonly entry: string;
   /** One of {@link DOC_CLUSTERS}: the route's first segment, or its first two under `reference/`. */
   readonly cluster: string;
@@ -297,7 +296,7 @@ export interface WrDocPagesOptions {
 
 /**
  * Which entry point each page documents, by the DIRECTORY's name, not the
- * route's (`qr/` serves `/qrcode`), also tried under each group (`bits/<name>`).
+ * route's (`qr/` serves `/qrcode`), also tried under each group (`charts/<name>`).
  * A page matching none, or outside {@link DOC_CLUSTERS}, is dropped.
  */
 export function docPages(

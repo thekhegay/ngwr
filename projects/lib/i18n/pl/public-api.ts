@@ -423,10 +423,6 @@ export const wrPl: WrI18nCatalog = {
   // Rzeczownik na początku — „Wstawiono: Ada”, a nie „Ada wstawiona”: rodzaj
   // nazwy nie jest znany z góry, a interpolator go nie uzgodni. Z tego samego
   // powodu licznik jest bez odmiany — nie ma w nim form liczby mnogiej.
-  marquee: {
-    label: 'Przewijany tekst',
-    link: 'link',
-  },
   mention: {
     listbox: 'Wzmianki',
     available: 'Liczba dopasowań: {{count}}',
@@ -511,6 +507,10 @@ export const wrPl: WrI18nCatalog = {
     notFound: 'Przepraszamy, ta strona nie istnieje.',
     forbidden: 'Przepraszamy, nie masz uprawnień do wyświetlenia tej strony.',
     serverError: 'Przepraszamy, coś poszło nie tak.',
+  },
+  loadState: {
+    failed: 'Nie udało się wczytać',
+    retry: 'Spróbuj ponownie',
   },
   date: {
     months: {

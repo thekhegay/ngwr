@@ -21,6 +21,7 @@ import {
 import { useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
 import { WrScroll } from 'ngwr/scroll';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrAnchorLink } from './types';
 
@@ -111,6 +112,7 @@ export class WrAnchor {
   private lastY = 0;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('anchor');
     if (!this.platform.isBrowser) return;
     const handler = (): void => {
       const y = window.scrollY;

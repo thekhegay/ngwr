@@ -38,7 +38,7 @@ import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrInput } from 'ngwr/input';
 import { WrPlatform } from 'ngwr/platform';
 import { WrPopover } from 'ngwr/popover';
-import { isComposing } from 'ngwr/utils';
+import { isComposing, wrCheckStyles } from 'ngwr/utils';
 import type { Node } from 'prosemirror-model';
 import { EditorState, type Transaction } from 'prosemirror-state';
 import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
@@ -457,6 +457,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('editor');
     // Outside writes: a form reset, a server load, a patch. Skipped when the
     // value is the document already on screen — see `lastSerialized`.
     effect(() => {

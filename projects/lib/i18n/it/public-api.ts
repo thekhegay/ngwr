@@ -414,10 +414,6 @@ export const wrIt: WrI18nCatalog = {
   // Sostantivo davanti — «Inserito: Ada» — e conteggio in coda: l'interpolatore
   // non concorda genere né numero, quindi «Risultati disponibili: 1» deve restare
   // corretto quanto «Risultati disponibili: 12».
-  marquee: {
-    label: 'Testo scorrevole',
-    link: 'collegamento',
-  },
   mention: {
     listbox: 'Menzioni',
     available: 'Risultati disponibili: {{count}}',
@@ -502,6 +498,10 @@ export const wrIt: WrI18nCatalog = {
     notFound: 'Spiacenti, la pagina che cercavi non esiste.',
     forbidden: 'Spiacenti, non hai le autorizzazioni per accedere a questa pagina.',
     serverError: 'Spiacenti, si è verificato un errore.',
+  },
+  loadState: {
+    failed: 'Impossibile caricare',
+    retry: 'Riprova',
   },
   // Italian writes month names in lowercase, and `Intl` does the same for `it`
   // — so a consumer rendering its own calendar beside a library one that takes

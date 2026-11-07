@@ -398,10 +398,6 @@ export const wrZh: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: '跑马灯',
-    link: '链接',
-  },
   mention: {
     listbox: '提及',
     available: '匹配项：{{count}}',
@@ -486,6 +482,10 @@ export const wrZh: WrI18nCatalog = {
     notFound: '抱歉，您访问的页面不存在。',
     forbidden: '抱歉，您无权访问此页面。',
     serverError: '抱歉，出错了。',
+  },
+  loadState: {
+    failed: '无法加载',
+    retry: '重试',
   },
   date: {
     months: {

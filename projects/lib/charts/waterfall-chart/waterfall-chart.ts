@@ -20,6 +20,7 @@ import {
 import { WrChartTable, type WrChartTableData, chartAxis, useChartNumbers } from 'ngwr/charts/core';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrWaterfallStep, WrWaterfallValueContext } from './types';
 
@@ -281,6 +282,7 @@ export class WrWaterfallChart {
   private readonly barEls = viewChildren<ElementRef<HTMLElement>>('barEl');
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/waterfall-chart');
     // A total whose figure the steps above do not add up to is drawn at what they DO add
     // up to, which on screen is a chart that looks right about data that is not.
     if (isDevMode()) {

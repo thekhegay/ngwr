@@ -21,7 +21,7 @@ import {
 
 import { useI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
-import { getFocusableElements } from 'ngwr/utils';
+import { getFocusableElements, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrAlertType } from './types';
 
@@ -29,11 +29,19 @@ import type { WrAlertType } from './types';
  * Inline status banner. Use for feedback messages — saved/failed/notice etc.
  * Content placed inside renders below the message, in `.wr-alert__content`.
  *
+ * Slots:
+ *
+ * - **Default** — text under the message.
+ * - **`[wrAlertActions]`** — buttons under the message, in a row that wraps.
+ *
  * @example
  * ```html
  * <wr-alert title="Saved" message="Your changes are live." type="success" />
  * <wr-alert title="Failed" type="danger" closable (closed)="onClose()" />
  * <wr-alert title="Sync failed" type="danger">Request <code>8f2c41</code> timed out.</wr-alert>
+ * <wr-alert title="Update available" type="info">
+ *   <wr-btn wrAlertActions size="sm" (click)="update()">Install</wr-btn>
+ * </wr-alert>
  * ```
  *
  * @see https://ngwr.dev/reference/components/alert
@@ -58,6 +66,10 @@ import type { WrAlertType } from './types';
   },
 })
 export class WrAlert {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('alert');
+  }
+
   /** Accessible name. Falls back to `alert.close`, then `'Close alert'`. */
   readonly closeLabel = input<string | null>(null);
 

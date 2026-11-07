@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation, input, output } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import type { WrMentionItem } from './types';
 
 /**
@@ -41,6 +43,10 @@ export function wrMentionOptionId(listboxId: string, index: number): string {
   host: { class: 'wr-mention-panel' },
 })
 export class WrMentionPanel {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('mention');
+  }
+
   readonly items = input<readonly WrMentionItem[]>([]);
   readonly activeIndex = input(0);
   readonly displayWith = input<(item: WrMentionItem) => string>(item => item.label);

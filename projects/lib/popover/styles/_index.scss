@@ -1,5 +1,6 @@
 @use '../../theme/styles' as theme;
 @use '../../overlay/styles/arrow';
+@include theme.loaded('popover');
 
 // The arrow — a rotated square tucked half under the panel — used to be written
 // out here: geometry, a twelve-placement map and two mixins. `wr-popconfirm` is

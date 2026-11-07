@@ -1,3 +1,4 @@
+export { wrCheckStyles } from './check-styles';
 export { wrContentDispositionFileName } from './content-disposition-file-name';
 export { wrDownloadBlob } from './download-blob';
 export { getRootFontSize } from './get-root-font-size';

@@ -9,6 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ElementRef, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
+import { wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Single row inside a `<wr-dropdown-menu>`.
@@ -34,6 +35,10 @@ import { WrIcon, type WrIconName } from 'ngwr/icon';
   imports: [WrIcon],
 })
 export class WrDropdownItem {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('dropdown');
+  }
+
   /** Optional leading icon name. @default null */
   readonly icon = input<WrIconName | null>(null);
 

@@ -418,10 +418,6 @@ export const wrDe: WrI18nCatalog = {
   },
   // Zahl am Ende und ein Substantiv ohne Pluralform: „Treffer“ lautet im
   // Singular wie im Plural, und der Interpolator beugt nichts.
-  marquee: {
-    label: 'Laufschrift',
-    link: 'Link',
-  },
   mention: {
     listbox: 'Erwähnungen',
     available: 'Treffer: {{count}}',
@@ -509,6 +505,10 @@ export const wrDe: WrI18nCatalog = {
     notFound: 'Diese Seite existiert leider nicht.',
     forbidden: 'Sie sind leider nicht berechtigt, auf diese Seite zuzugreifen.',
     serverError: 'Leider ist ein Fehler aufgetreten.',
+  },
+  loadState: {
+    failed: 'Laden fehlgeschlagen',
+    retry: 'Erneut versuchen',
   },
   date: {
     months: {

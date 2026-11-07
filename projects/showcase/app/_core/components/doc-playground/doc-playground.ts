@@ -47,7 +47,7 @@ import type { ShikiLang } from '#core/shiki';
  *   (replay)="replayKey.update(n => n + 1)"
  * >
  *   @for (k of [replayKey()]; track k) {
- *     <wr-split-text [text]="text()" [splitType]="splitType()" [duration]="duration()" />
+ *     <wr-count-up [to]="to()" [duration]="duration()" />
  *   }
  * </ngwr-doc-playground>
  * ```

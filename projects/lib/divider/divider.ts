@@ -18,6 +18,7 @@ import {
 } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrDividerAlign, WrDividerType } from './types';
 
@@ -95,6 +96,7 @@ export class WrDivider {
   private authored: string | null | undefined;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('divider');
     // `afterEveryRender` is a hard NO-OP under SSR, so while it was the only
     // writer every prerendered page shipped `role="separator"` with no name —
     // exactly the defect `syncLabel()` exists to fix, in the one window (before

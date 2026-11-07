@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@include theme.loaded('skeleton');
 
 .wr-skeleton {
   display: block;
@@ -10,23 +11,6 @@
   // Defaults — override on the host element for custom shapes.
   --wr-skeleton-height: 1lh;
   --wr-skeleton-radius: var(--wr-border-radius-base);
-
-  width: 100%;
-  height: var(--wr-skeleton-height);
-  border-radius: var(--wr-skeleton-radius);
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    animation: none;
-  }
-
-  &--animated::after {
-    animation: wr-skeleton-shimmer 2s infinite;
-  }
-
   // Tint strength: 12.5% reads as "nothing" on a white card — the
   // placeholder has to be obviously present, so the base sits at 50%
   // with the shimmer band sweeping visibly above it.
@@ -34,31 +18,75 @@
   // to paint it. `--wr-color-fill` is the tint step; the band lifts to
   // `-fill-strong` so the sweep reads without the placeholder ever looking
   // like content.
-  background: var(--wr-color-fill);
+  --wr-skeleton-bg: var(--wr-color-fill);
+  --wr-skeleton-shimmer: var(--wr-color-fill-strong);
+  --wr-skeleton-shimmer-peak: var(--wr-color-fill-strong);
+  // `lines` only: the gap between lines and how wide the last one is.
+  --wr-skeleton-line-gap: var(--wr-space-sm);
+  --wr-skeleton-last-line-width: 60%;
 
-  &::after {
+  width: 100%;
+  height: var(--wr-skeleton-height);
+  border-radius: var(--wr-skeleton-radius);
+  background: var(--wr-skeleton-bg);
+
+  &::after,
+  &__line::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    animation: none;
     background-image: linear-gradient(
       90deg,
       transparent 0,
-      var(--wr-color-fill-strong) 20%,
-      var(--wr-color-fill-strong) 60%,
+      var(--wr-skeleton-shimmer) 20%,
+      var(--wr-skeleton-shimmer-peak) 60%,
       transparent
     );
   }
 
+  &--animated::after,
+  &--animated &__line::after {
+    animation: wr-skeleton-shimmer 2s infinite;
+  }
+
   @each $name in theme.$colors {
     &--#{$name} {
-      background: color-mix(in srgb, var(--wr-color-#{$name}) 50%, transparent);
+      --wr-skeleton-bg: color-mix(in srgb, var(--wr-color-#{$name}) 50%, transparent);
+      --wr-skeleton-shimmer: color-mix(in srgb, var(--wr-color-#{$name}) 40%, transparent);
+      --wr-skeleton-shimmer-peak: color-mix(in srgb, var(--wr-color-#{$name}) 80%, transparent);
+    }
+  }
 
-      &::after {
-        background-image: linear-gradient(
-          90deg,
-          transparent 0,
-          color-mix(in srgb, var(--wr-color-#{$name}) 40%, transparent) 20%,
-          color-mix(in srgb, var(--wr-color-#{$name}) 80%, transparent) 60%,
-          transparent
-        );
-      }
+  // A paragraph: the host becomes a column of lines and paints nothing itself,
+  // each line taking the block's own shape and shimmer. After the intents, which
+  // it ties on specificity, so the host's background stays off under a colour.
+  &--lines {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wr-skeleton-line-gap);
+    height: auto;
+    overflow: visible;
+    border-radius: 0;
+    background: none;
+
+    &::after {
+      content: none;
+    }
+  }
+
+  &__line {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: var(--wr-skeleton-height);
+    border-radius: var(--wr-skeleton-radius);
+    background: var(--wr-skeleton-bg);
+
+    &:last-child:not(:first-child) {
+      width: var(--wr-skeleton-last-line-width);
     }
   }
 
@@ -68,6 +96,14 @@
   // specificity.
   @media (forced-colors: active) {
     background: GrayText;
+
+    &--lines {
+      background: none;
+    }
+
+    &__line {
+      background: GrayText;
+    }
   }
 }
 

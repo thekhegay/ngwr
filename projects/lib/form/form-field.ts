@@ -29,6 +29,7 @@ import { AbstractControl, NgControl, type ValidationErrors } from '@angular/form
 import { EMPTY, type Subscription } from 'rxjs';
 
 import { WrI18n, useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { WR_FORM_FIELD, type WrFormFieldContext } from './tokens';
 
@@ -122,6 +123,10 @@ function normalizeError(key: string, error: unknown): { readonly key: string; re
   },
 })
 export class WrFormError {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('form');
+  }
+
   /**
    * Validator key this message corresponds to (e.g. `'required'`).
    * Optional — without a key the message always renders, which is the
@@ -317,6 +322,7 @@ export class WrFormField implements WrFormFieldContext, AfterContentChecked {
   }
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('form');
     let sub: Subscription | null = null;
     effect(() => {
       const control = this.ngControl()?.control;

@@ -7,6 +7,8 @@
 
 import { Directive } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 let uid = 0;
 
 /**
@@ -29,6 +31,10 @@ let uid = 0;
   host: { class: 'wr-drawer__title', '[attr.id]': 'id' },
 })
 export class WrDrawerTitle {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('drawer');
+  }
+
   /** Generated id used by the drawer panel for `aria-labelledby`. */
   readonly id = `wr-drawer-title-${++uid}`;
 }

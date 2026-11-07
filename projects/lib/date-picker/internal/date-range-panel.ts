@@ -10,6 +10,7 @@ import { Component, ViewEncapsulation, computed, inject, input, output, signal }
 import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
 import { WrDateAdapter } from 'ngwr/date';
 import { readI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrDateRange } from '../types';
 
@@ -40,6 +41,10 @@ import { WrTimePanel } from './time-panel';
   imports: [WrCalendar, WrTimePanel],
 })
 export class WrDateRangePanel {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('date-picker');
+  }
+
   readonly value = input<WrDateRange>([null, null]);
   readonly min = input<Date | null>(null);
   readonly max = input<Date | null>(null);

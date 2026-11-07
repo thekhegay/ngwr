@@ -25,8 +25,6 @@ ngwr.dev has six sections:
   e.g. https://ngwr.dev/reference/components/select
 - `/charts/<name>` — the charts. e.g. https://ngwr.dev/charts/bar-chart
 - `/icons/<set>` — the icon-set browsers. e.g. https://ngwr.dev/icons/lucide
-- `/bits/<name>` — animation and visual-effect components.
-  e.g. https://ngwr.dev/bits/aurora
 
 ## Install
 
@@ -62,8 +60,8 @@ component.** The root entry point exports only `provideWr()`, so an IDE
 auto-import of a component from it gives `TS2305` and no hint. Every symbol
 comes from its entry point — `import { WrButton } from 'ngwr/button'` — and for
 most components the entry point is the last segment of the docs URL. Not for
-all of them: charts and bits are nested, so `/charts/bar-chart` is
-`ngwr/charts/bar-chart` and `/bits/aurora` is `ngwr/bits/aurora`;
+all of them: charts are nested, so `/charts/bar-chart` is
+`ngwr/charts/bar-chart`;
 `/reference/components/qrcode` is `ngwr/qr`, `form-field` is
 `ngwr/form` and `button-group` is `ngwr/button`, while the
 directive, pipe, util and validator pages share `ngwr/directives`, `ngwr/pipes`,
@@ -80,8 +78,11 @@ Styles: in your global SCSS, `@use 'ngwr/theme'` first, then one
 `@use 'ngwr'` umbrella. Only a module's first load can be configured, so
 `@use 'ngwr/theme' with (…)` below a component line fails the build. A
 component's sheet brings the sheets of what it renders inside (`ngwr/table`
-styles its checkboxes and pager). **Two kinds of sheet need a line although no
-template names them**, and nothing warns without them: `ngwr/density` with
+styles its checkboxes and pager). A dev build warns once in the console when a
+component renders without its sheet, naming the `@use` line to add and the
+`ng g ngwr:component-style <name>` command that adds it. **Two kinds of sheet
+need a line although no template names them**, and only a rendered component
+warns without its sheet (`withDensity()` alone does not): `ngwr/density` with
 `withDensity()` or `[wrDensity]` (nothing else declares the `--wr-density-*`
 multipliers, so density silently does nothing), and the sheet of a component a
 service opens — `WrDialog.open()` needs `ngwr/dialog`, `WrToast.show()`
@@ -89,7 +90,7 @@ service opens — `WrDialog.open()` needs `ngwr/dialog`, `WrToast.show()`
 `ngwr/window` and `WrTour.start()` `ngwr/tour`. Optional sheets no component
 needs: `ngwr/reset`, `ngwr/grid`, `ngwr/typography-utilities`,
 `ngwr/breakpoints` (mixins for your own SCSS) and `ngwr/animations` (keyframes
-and animation classes; the animation components are `ngwr/bits/*`).
+and animation classes).
 `ngwr/reset`, `ngwr/typography-utilities` and `ngwr/animations` load the theme,
 so they go below a configured `@use 'ngwr/theme' with (…)` like any component
 line. Details: https://ngwr.dev/docs/installation
@@ -208,9 +209,9 @@ https://ngwr.dev/docs/migration is the complete list.
   `provideWrFormErrors()` are gone, with `WR_CONFIG`, `useConfigValue()`,
   `WR_RESPONSIVE_OVERLAYS`, `wrPresentAsSheet`, `WR_FORM_ERRORS` and
   `WR_FORM_ERROR_FALLBACKS`.
-- v15, paths: every chart and animation entry point is nested, so
-  `ngwr/bar-chart` is `ngwr/charts/bar-chart` and `ngwr/aurora` is
-  `ngwr/bits/aurora`; `ngwr/drag-drop` is `ngwr/sortable-list`, and the list no
+- 15.6: the `bits` family of animation components is gone, with no replacement.
+- v15, paths: every chart entry point is nested, so
+  `ngwr/bar-chart` is `ngwr/charts/bar-chart`; `ngwr/drag-drop` is `ngwr/sortable-list`, and the list no
   longer owns its loop — write your own, one `<wr-sortable-item>` per row, with
   no `trackBy`; `ngwr/icon/adapters/lucide` is `ngwr/icon` (`lucideIcons`,
   `lucide` and `LucideIconNode` keep their names). Gone outright:
@@ -397,11 +398,6 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   under a "+N" menu. Alt+F7 / Alt+F8 move and resize the focused window from the
   keyboard, and the manager can `cascade()`, `tile()` and cycle the active
   window.)
-- **Bits** — the animation and visual-effect components: text effects, cursor
-  effects, backgrounds and blocks, each its own entry point at
-  `ngwr/bits/<name>` (`ngwr/bits/aurora`), documented under
-  https://ngwr.dev/bits/ and listed in `llms-full.txt`. Not to be confused with
-  `@use 'ngwr/animations'`, the keyframe sheet.
 
 ## Patterns
 
@@ -450,7 +446,11 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   a stored choice or a non-`auto` `defaultMode` when it is first injected;
   `provideWr(withTheme({ defaultMode, storageKey }))` configures it and creates
   it at boot, and `wrThemePrePaintScript()` with the same options covers the
-  first paint of a prerendered page. There is no
+  first paint of a prerendered page. A light-only app calls
+  `provideWr(withTheme({ defaultMode: 'light', storageKey: null }))`: without
+  it the `color-scheme: light dark` on `:root` lets a dark OS paint native
+  controls, scrollbars and form fields dark over the light surfaces until the
+  app picks a mode. There is no
   `[data-theme]`, no `theme.dark` mixin and no `-rgb` token: write your own dark
   values as `color: light-dark(#0f172a, #e6ebf3)`, and a translucent tint as
   `color-mix(in srgb, var(--wr-color-primary) 12%, transparent)`, never

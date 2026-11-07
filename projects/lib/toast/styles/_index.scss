@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@include theme.loaded('toast');
 
 // `info` mapped to `primary` before the `info` intent existed; alert has used
 // the real intent since it landed, so the same toast and alert read as two

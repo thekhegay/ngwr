@@ -1,0 +1,141 @@
+<ngwr-doc-page
+  title="Load State"
+  since="15.6.0"
+  description="One wrapper for a screen that loads: the skeleton, the failure with a retry, the empty slot or the content."
+  [keywords]="['load state', 'loading', 'skeleton', 'error', 'retry', 'empty', 'resource', 'wr-load-state']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Give it a `resource` and a content template. The content is created once the value is ready; a reload keeps it on screen and marks the wrapper busy."
+  >
+    <ngwr-doc-snippet [code]="snippets.resource">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 1rem">
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+          <wr-btn size="sm" [loading]="orders.isLoading()" (click)="reload('rows')">Reload</wr-btn>
+          <wr-btn size="sm" outlined [disabled]="orders.isLoading()" (click)="reload('empty')">Reload empty</wr-btn>
+          <wr-btn size="sm" outlined color="danger" [disabled]="orders.isLoading()" (click)="reload('fail')">
+            Reload and fail
+          </wr-btn>
+        </div>
+        <wr-load-state [resource]="orders">
+          <ng-template wrLoadStateContent [wrLoadStateContentOf]="orders" let-rows>
+            <wr-list bordered dividers>
+              @for (order of rows; track order.id) {
+                <wr-list-item>
+                  {{ order.id }}
+                  <span ngProjectAs="[wrListItemTrailing]" style="font-variant-numeric: tabular-nums">{{
+                    order.total
+                  }}</span>
+                </wr-list-item>
+              }
+            </wr-list>
+          </ng-template>
+        </wr-load-state>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Status"
+    description="Without a resource the app sets `status`. The retry button emits `(retry)`; answer it by loading again."
+  >
+    <ngwr-doc-snippet [code]="snippets.status">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 1rem">
+        <wr-segmented [options]="statusOptions" [(value)]="status" />
+        <wr-load-state [status]="status()" (retry)="retry('status')">
+          <ng-template wrLoadStateContent>
+            <wr-list bordered dividers>
+              <wr-list-item>Loaded.</wr-list-item>
+            </wr-list>
+          </ng-template>
+        </wr-load-state>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Templates"
+    description="Each part is a template: `wrLoadStateLoading`, `wrLoadStateError` and `wrLoadStateEmpty` replace the defaults. The error template gets the error, `retry()` and `retrying`."
+  >
+    <ngwr-doc-snippet [code]="snippets.templates">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 1rem">
+        <wr-segmented [options]="statusOptions" [(value)]="templatesStatus" />
+        <wr-load-state [status]="templatesStatus()" (retry)="retry('templatesStatus')">
+          <ng-template wrLoadStateLoading>
+            <div style="display: flex; justify-content: center; padding: 1.5rem"><wr-spinner size="lg" /></div>
+          </ng-template>
+          <ng-template wrLoadStateError let-retry="retry" let-retrying="retrying">
+            <wr-alert type="danger" title="Could not load orders" message="Gateway timeout">
+              <wr-btn wrAlertActions size="sm" [loading]="retrying" (click)="retry()">Try again</wr-btn>
+            </wr-alert>
+          </ng-template>
+          <ng-template wrLoadStateEmpty>
+            <wr-empty title="No orders yet">
+              Orders show up here once a customer checks out.
+              <wr-btn wrEmptyActions size="sm">Create one</wr-btn>
+            </wr-empty>
+          </ng-template>
+          <ng-template wrLoadStateContent>
+            <wr-list bordered dividers>
+              <wr-list-item>Loaded.</wr-list-item>
+            </wr-list>
+          </ng-template>
+        </wr-load-state>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What is empty"
+    description="`isEmpty` decides between the empty slot and the content. The default is `null`, `undefined` and an empty array."
+  >
+    <ngwr-doc-code [code]="snippets.isEmpty" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="States" description="What each resource status draws.">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th><code>resource.status()</code></th>
+            <th>Drawn</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>loading</code></th>
+            <td>The skeleton.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>reloading</code></th>
+            <td>
+              What was on screen, marked busy. After a failed load, the failure with its button busy. The skeleton when
+              there is no value yet.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>error</code></th>
+            <td>The failure. Its title is announced once, politely.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>resolved</code>, <code>local</code></th>
+            <td>The empty slot when <code>isEmpty(value)</code>, else the content.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>idle</code></th>
+            <td>The content or the empty slot, by <code>isEmpty</code>: nothing was asked for, so nothing loads.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Templates API">
+    <ngwr-doc-api [rows]="templatesApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

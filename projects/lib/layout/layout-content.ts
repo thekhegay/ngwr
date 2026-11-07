@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Main content area of a {@link WrLayout}. Flex-grows to fill
  * remaining space.
@@ -17,4 +19,8 @@ import { Component, ViewEncapsulation } from '@angular/core';
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-layout-content', role: 'main' },
 })
-export class WrLayoutContent {}
+export class WrLayoutContent {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('layout');
+  }
+}

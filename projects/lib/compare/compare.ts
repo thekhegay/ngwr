@@ -21,7 +21,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { clamp } from 'ngwr/utils';
+import { clamp, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Before/after comparison slider. Works with any content — project two
@@ -122,6 +122,7 @@ export class WrCompare {
   );
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('compare');
     this.dir?.change.pipe(takeUntilDestroyed()).subscribe(value => this.rtl.set(value === 'rtl'));
 
     // `position` is a `model`, so `[(position)]` and a restored layout write into it

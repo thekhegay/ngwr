@@ -10,7 +10,7 @@ import type { ElementRef } from '@angular/core';
 import { Component, PLATFORM_ID, ViewEncapsulation, effect, inject, input, viewChild } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { numAttr, resolveCssColor } from 'ngwr/utils';
+import { numAttr, resolveCssColor, wrCheckStyles } from 'ngwr/utils';
 
 import { drawQrCode } from './generator';
 import type { WrQrErrorLevel } from './types';
@@ -94,6 +94,7 @@ export class WrQr {
   protected readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('qr');
     effect(() => {
       // Read every input to register reactive deps
       const opts = {

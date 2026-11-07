@@ -25,6 +25,7 @@ import {
 
 import { WrDropdown, WrDropdownItem, WrDropdownMenu } from 'ngwr/dropdown';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrWindowManager } from './services/window-manager';
 import type { WrWindowTaskbarShow } from './types';
@@ -233,6 +234,7 @@ export class WrWindowTaskbar {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('window');
     // So a window minimized with focus inside can hand it to its tab here, a
     // window closed from its tab knows the focus there was its own, and a
     // maximized window stops short of the rail.

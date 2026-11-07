@@ -7,7 +7,7 @@
 
 import { Component, TemplateRef, ViewEncapsulation, computed, input, viewChild } from '@angular/core';
 
-import { toClassList, type WrClassInput } from 'ngwr/utils';
+import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 /**
  * Container for the rows shown when a {@link WrContextMenu} opens.
@@ -35,6 +35,10 @@ import { toClassList, type WrClassInput } from 'ngwr/utils';
   host: { '[style.display]': "'none'" },
 })
 export class WrContextMenuPanel {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('context-menu');
+  }
+
   /**
    * Extra CSS classes for the menu box.
    *

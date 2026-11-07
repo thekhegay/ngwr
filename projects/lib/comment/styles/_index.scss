@@ -8,6 +8,7 @@
 // also loads one of these by hand still emits it once.
 @use '../../button/styles' as button-styles; // WrButton
 @use '../../textarea/styles' as textarea-styles; // WrTextarea
+@include theme.loaded('comment');
 
 .wr-comment {
   --wr-comment-gap: var(--wr-space-md);

@@ -13,7 +13,6 @@ import {
   Palette,
   Server,
   Sparkles,
-  WandSparkles,
   Zap,
 } from 'lucide';
 import { WrButton } from 'ngwr/button';
@@ -83,7 +82,6 @@ interface Tier {
         palette: Palette,
         server: Server,
         sparkles: Sparkles,
-        'wand-sparkles': WandSparkles,
         zap: Zap,
       }),
     ]),
@@ -106,7 +104,6 @@ export default class IntroductionPage {
     keyboard: wrPath(ROUTES.guides, ROUTES.guides.keyboard),
     theme: wrPath(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.theme),
     charts: wrPath(ROUTES.charts),
-    bits: wrPath(ROUTES.bits),
   };
 
   protected readonly features: readonly Feature[] = [
@@ -166,13 +163,6 @@ export default class IntroductionPage {
       url: this.paths.charts,
     },
     {
-      icon: 'wand-sparkles',
-      tone: 'danger',
-      title: 'Bits',
-      text: 'Animated backgrounds, cards and text effects.',
-      url: this.paths.bits,
-    },
-    {
       icon: 'flask-conical',
       tone: 'success',
       title: 'Test harnesses',
@@ -224,8 +214,8 @@ export default class IntroductionPage {
   ];
 
   /**
-   * The page's See also, first in the shell's grid. Eight at most, which is the grid's own cap: Charts and Bits are
-   * left to the "What you get" cards above, which link them with the same words.
+   * The page's See also, first in the shell's grid. Eight at most, which is the grid's own cap: Charts is left to the
+   * "What you get" cards above, which link it with the same words.
    *
    * Every card is a page, never a section root: `/guides` or `/reference/components` has no page of its own, only a
    * redirect to its first child, so it has no kind label to give — and one card without one drops the labels from

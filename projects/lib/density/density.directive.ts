@@ -7,6 +7,8 @@
 
 import { Directive, ElementRef, effect, inject, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import { WR_DENSITY_CONFIG, type WrDensityValue } from './density-config';
 
 /**
@@ -33,6 +35,7 @@ export class WrDensityDirective {
   private readonly config = inject(WR_DENSITY_CONFIG);
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('density');
     effect(() => {
       this.host.nativeElement.setAttribute(this.config.attribute, this.wrDensity());
     });

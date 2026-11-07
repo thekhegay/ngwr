@@ -330,7 +330,7 @@ describe('component stylesheets', () => {
     // A resolver that quietly matched nothing would report the invariant as held.
     // `schematics/page` writes a `styleUrl` into a TEMPLATE STRING, so it is counted
     // by neither this nor the test above — there is no stylesheet on disk to follow.
-    expect(styleUrls().size).toBeGreaterThanOrEqual(27);
+    expect(styleUrls().size).toBeGreaterThanOrEqual(8);
   });
 });
 

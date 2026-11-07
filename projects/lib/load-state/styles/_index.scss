@@ -1,0 +1,49 @@
+@use '../../theme/styles' as theme;
+
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. Nothing says so: the
+// component renders, the markup is right, and no build, console or gate has an
+// opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../skeleton/styles' as skeleton-styles; // WrSkeleton
+@use '../../result/styles' as result-styles; // WrResult
+@use '../../empty/styles' as empty-styles; // WrEmpty
+@use '../../button/styles' as button-styles; // WrButton
+@include theme.loaded('load-state');
+
+.wr-load-state {
+  display: block;
+  position: relative;
+  min-width: 0;
+
+  // The failure sits where the content will, so it takes the empty slot's
+  // scale rather than a page's: a heading-sized title would announce a section
+  // that failed to load louder than the page it sits on.
+  --wr-load-state-error-title-font-size: var(--wr-text-base);
+  --wr-load-state-error-padding-y: var(--wr-space-xl);
+  --wr-load-state-error-padding-x: var(--wr-space-lg);
+
+  &__error {
+    --wr-result-title-font-size: var(--wr-load-state-error-title-font-size);
+    --wr-result-padding-y: var(--wr-load-state-error-padding-y);
+    --wr-result-padding-x: var(--wr-load-state-error-padding-x);
+  }
+
+  // The live region: read out, never drawn.
+  &__announce {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}

@@ -80,6 +80,18 @@ are value-set identities, and no binding changes.
 | Nightly | `nightly.yml`, 20:00 UTC                     | `build:showcase` once, then `check:a11y`, `check:contrast`, `check:state-a11y`, `check:layout` and `check:rtl-layout` on its `dist/showcase`; `test` + `build:lib` on Node 22 and 24 |
 | Release | `release.yml`, before it cuts the release PR | `pnpm check:release`: the PR set plus the five site checks                                        |
 
+**`check:nav` is the last step of `build:showcase`** (`scripts/check/nav.ts`),
+so it runs in every tier that builds the site, `check:release` included, with no
+workflow edit: it reads `dist/showcase/prerendered-routes.json` and the sidebar
+configs (imported through tsx like the route tree), and fails on a nav row with
+no prerendered page or a prerendered page with no nav row. Nothing is listed by
+hand: a redirect stub is read off its meta-refresh HTML, a page served by an
+underscore directory (`_home`, `_labels`, `_core/components/doc-index`) is site
+scaffolding, and a row the router serves but the build did not prerender is a
+client-rendered page (the six raw-SVG icon galleries). A prerendered route the
+route walk serves nowhere fails as a stale build. `pnpm check:nav` runs it alone
+on an existing `dist/showcase`.
+
 The nightly skips every job when `main` is still at the commit the last
 finished nightly checked; a manual dispatch always runs. A failed job opens one
 `Nightly failed` issue (or comments on the open one) with the date, the SHA,

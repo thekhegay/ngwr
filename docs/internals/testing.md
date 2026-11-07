@@ -27,18 +27,14 @@ many spec files and how many cases is re-counted by `pnpm gen:quality` into
 and sat at `275 spec files, at least 4467 specs` for long enough to be wrong by
 four files and a hundred cases. The case figure is a FLOOR either way, since one
 `it.each` site stands for an unknown number of cases.) What is still uncovered
-is no longer whole components but what a spec can reach: jsdom has no drawing context, so the canvas
-and WebGL components can never assert anything painted. All ten now install a
-recording context — a WebGL2 stub for `aurora`, `iridescence` and `splash-cursor`,
-a 2D one for the rest — and nine of them an `ErrorHandler` recorder besides, because what
+is no longer whole components but what a spec can reach: jsdom has no drawing context, so a
+component that paints a canvas (`wr-qr`, `wr-image-cropper`) can never assert anything painted. Its
+spec installs a recording 2D context and an `ErrorHandler` recorder besides, because what
 `afterNextRender` throws reaches neither `detectChanges()` nor `whenStable()`, so
-a boot that died reads as a pass without one. (`wr-confetti` is the exception and
-correctly so: a service, with no deferred boot to lose an error inside.) That
-carries the specs in those ten files past the early return, to frame
-counts, spark and particle counts, the fuzz ramp, a `var(--wr-…)` colour resolved
-against the host, gravity bringing a particle back down, and teardown — while
-each keeps the null-context path it started as, one "survives a browser that will
-not give it a context" spec apiece. What no stub reaches is painted output
+a boot that died reads as a pass without one. That carries the spec past the early return, to
+what was drawn where, a `var(--wr-…)` colour resolved against the host, and teardown — while
+it keeps the null-context path it started as, one "survives a browser that will
+not give it a context" spec. What no stub reaches is painted output
 itself. The other hole is mode coverage inside components that are covered — a
 spec on `wr-table` says nothing about tree rows unless it exercises them.
 

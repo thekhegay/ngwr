@@ -60,6 +60,7 @@ const OUT_FILE = join(GENERATED_DIR, 'quality.ts');
 
 const CI_WORKFLOW = resolve(ROOT_PATH, '.github/workflows/ci.yml');
 const NIGHTLY_WORKFLOW = resolve(ROOT_PATH, '.github/workflows/nightly.yml');
+const CHANGELOG = resolve(ROOT_PATH, 'CHANGELOG.md');
 
 interface Gate {
   readonly name: string;
@@ -371,8 +372,25 @@ function gates(list: readonly Gate[]): string {
   return list.map(g => `    { name: ${quote(g.name)}, command: ${quote(g.command)} },`).join('\n');
 }
 
+/** A stable release heading: `## [15.5.0](…)`. A prerelease (`15.0.0-rc.3`) does not match. */
+const RELEASE_HEADING = /^#{1,3} \[?(\d+)\.(\d+)\.(\d+)\]?[\s(]/gm;
+
+/** The newest stable release of each major, read from the `CHANGELOG.md` headings. */
+function lastReleaseByMajor(): Readonly<Record<number, string>> {
+  const newest = new Map<number, readonly [number, number]>();
+  for (const [, major, minor, patch] of readFileSync(CHANGELOG, 'utf8').matchAll(RELEASE_HEADING)) {
+    const key = Number(major);
+    const seen = newest.get(key);
+    const next = [Number(minor), Number(patch)] as const;
+    if (!seen || next[0] > seen[0] || (next[0] === seen[0] && next[1] > seen[1])) newest.set(key, next);
+  }
+  atLeast(newest.size, 2, 'majors in CHANGELOG.md');
+  return Object.fromEntries([...newest].sort(([a], [b]) => a - b).map(([m, [mi, p]]) => [m, `${m}.${mi}.${p}`]));
+}
+
 interface Facts {
   readonly version: string;
+  readonly lastReleaseByMajor: Readonly<Record<number, string>>;
   readonly entryPoints: number;
   readonly testingEntryPoints: number;
   readonly harnessClasses: number;
@@ -411,6 +429,11 @@ function serialize(f: Facts): string {
 export const QUALITY = {
   /** The published version, read from \`projects/lib/package.json\` — cross-checked against the \`NGWR_VERSION\` constant, which is a separate copy. */
   version: ${quote(f.version)},
+
+  /** The newest stable release of each major, from the \`CHANGELOG.md\` headings. The docs version switcher labels an archived major with it. */
+  lastReleaseByMajor: {${Object.entries(f.lastReleaseByMajor)
+    .map(([major, v]) => ` ${major}: ${quote(v)}`)
+    .join(',')} },
 
   /** Secondary entry points — \`ngwr/button\`, \`ngwr/select\`, … Read from the \`exports\` map, which is what the library builder compiles, so \`styles/\` and \`schematics/\` are correctly absent. Excludes the primary \`ngwr\`. */
   entryPoints: ${f.entryPoints},
@@ -506,6 +529,7 @@ async function main(): Promise<void> {
   const routes = await requirePageRoutes();
   const facts: Facts = {
     version,
+    lastReleaseByMajor: lastReleaseByMajor(),
     entryPoints: entries.length,
     testingEntryPoints: atLeast(testing.length, 10, 'testing entry points'),
     harnessClasses: harness.classes,

@@ -21,6 +21,7 @@ import {
 
 import { useI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrSpeedDialAction, WrSpeedDialDirection } from './types';
 
@@ -96,6 +97,7 @@ export class WrSpeedDial {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('speed-dial');
     // A disabled trigger cannot be pressed, and the trigger is the only way to close
     // the dial — so being disabled while open left it fanned out with no way back.
     effect(() => {

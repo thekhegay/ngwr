@@ -437,18 +437,18 @@ describe('Catalog — v15 names', () => {
         "- import: `import { provideWr } from 'ngwr'`",
         '- exports: provideWr',
         '',
-        '## ngwr/bits/aurora',
-        "- import: `import { WrAurora } from 'ngwr/bits/aurora'`",
-        '- exports: WrAurora',
+        '## ngwr/charts/bar-chart',
+        "- import: `import { WrBarChart } from 'ngwr/charts/bar-chart'`",
+        '- exports: WrBarChart',
         '',
         '## ngwr/charts/chart-legend',
         "- import: `import { WrChartLegend } from 'ngwr/charts/chart-legend'`",
         '- selector: `ul[wr-chart-legend]`',
         '- exports: WrChartLegend',
         '',
-        '## ngwr/bits/aurora/testing',
-        "- import: `import { WrAuroraHarness } from 'ngwr/bits/aurora/testing'`",
-        '- exports: WrAuroraHarness',
+        '## ngwr/charts/bar-chart/testing',
+        "- import: `import { WrBarChartHarness } from 'ngwr/charts/bar-chart/testing'`",
+        '- exports: WrBarChartHarness',
         '',
         '## ngwr/loading-bar/router',
         "- import: `import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router'`",
@@ -482,12 +482,12 @@ describe('Catalog — v15 names', () => {
   it('lands a bare name from before v15 on the one nested entry point ending with it', () => {
     const catalog = new Catalog(root);
 
-    // `aurora` was a whole path until v15; its harness is not what anyone means.
-    expect(catalog.find('aurora')).toMatchObject({ path: 'ngwr/bits/aurora' });
+    // `bar-chart` was a whole path until v15; its harness is not what anyone means.
+    expect(catalog.find('bar-chart')).toMatchObject({ path: 'ngwr/charts/bar-chart' });
     // Two entry points end in `/router`, so guessing either would be wrong half the time.
     expect(catalog.find('router')).toBeNull();
     // A partial path is not a bare name.
-    expect(catalog.find('x/aurora')).toBeNull();
+    expect(catalog.find('x/bar-chart')).toBeNull();
   });
 
   it('finds an attribute selector by the name inside its brackets', () => {

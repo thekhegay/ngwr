@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, forwardRef, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import { WR_COLLAPSE_GROUP } from './tokens';
 import type { WrCollapseGroupContext, WrCollapseGroupMember } from './types';
 
@@ -31,6 +33,10 @@ import type { WrCollapseGroupContext, WrCollapseGroupMember } from './types';
   ],
 })
 export class WrCollapseGroup implements WrCollapseGroupContext {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('collapse');
+  }
+
   /** When true, only one child may be open at a time. @default false */
   readonly accordion = input(false, { transform: coerceBooleanProperty });
 

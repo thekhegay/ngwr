@@ -400,10 +400,6 @@ export const wrCs: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: 'Běžící text',
-    link: 'odkaz',
-  },
   mention: {
     listbox: 'Zmínky',
     available: 'Počet shod: {{count}}',
@@ -488,6 +484,10 @@ export const wrCs: WrI18nCatalog = {
     notFound: 'Omlouváme se, požadovaná stránka neexistuje.',
     forbidden: 'Omlouváme se, k této stránce nemáte přístup.',
     serverError: 'Omlouváme se, něco se pokazilo.',
+  },
+  loadState: {
+    failed: 'Nepodařilo se načíst',
+    retry: 'Zkusit znovu',
   },
   date: {
     months: {

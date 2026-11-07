@@ -34,7 +34,7 @@ import {
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
-import { round } from 'ngwr/utils';
+import { round, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrScatterAxis, WrScatterSeries } from './types';
 
@@ -130,6 +130,10 @@ interface DrawnPoint {
   imports: [WrChartLegend, WrChartTable],
 })
 export class WrScatterChart {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/scatter-chart');
+  }
+
   /**
    * One entry per series. A series with no `color` takes the next entry from the chart's
    * palette, and every series takes the next marker shape, so several series are told

@@ -5,6 +5,7 @@
 // figures render as a `<wr-chart-table>` beside the matrix, which its own sheet clips out
 // of sight.
 @use '../../core/styles' as core-styles; // WrChartTable
+@include theme.loaded('charts/heatmap-chart');
 
 // A level's paint: the scale's colour (`--wr-heatmap-chart-scale-color`, which the component
 // writes from its `color` input) mixed toward the surface, by the level's place on the scale

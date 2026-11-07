@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Avatar"
+  updated="15.6.0"
   description="A user's picture, with initials as the fallback."
   [keywords]="['avatar', 'profile', 'image', 'wr-avatar']"
   [labels]="['Component']"
@@ -35,6 +36,28 @@
       <wr-avatar [size]="64" style="background: var(--wr-color-primary-soft)">
         <span style="font-size: 1.125rem; font-weight: 600; color: var(--wr-color-primary-ink)">AB</span>
       </wr-avatar>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="By name"
+    description="`name` is the alt text and, with nothing projected, the initials: `wrInitials()` from `ngwr/utils`. `tint` colours the box from a hash of the name, the same on every render."
+  >
+    <ngwr-doc-snippet [code]="snippets.name">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; width: 100%">
+        @for (name of names; track name) {
+          <wr-avatar [name]="name" [size]="48" shape="circle" />
+        }
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; width: 100%">
+        @for (name of names; track name) {
+          <wr-avatar [name]="name" [size]="48" shape="circle" tint />
+        }
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; width: 100%">
+        <wr-avatar [url]="localUrl" name="Roman Khegay" [size]="48" shape="circle" tint />
+        <wr-avatar [url]="brokenUrl" name="Roman Khegay" [size]="48" shape="circle" tint />
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -155,7 +178,11 @@
         Projected content sized in <code>em</code>, a <code>&lt;wr-icon&gt;</code> too, shrinks with the initials. Give
         it a <code>px</code> or <code>rem</code> size.
       </li>
-      <li>Without <code>alt</code>, the image is announced as "Avatar". Set <code>alt</code> to the person's name.</li>
+      <li>
+        Without <code>alt</code> or <code>name</code>, the image is announced as "Avatar". Set one to the person's name;
+        <code>alt</code> wins when both are given.
+      </li>
+      <li>Projected content wins over the <code>name</code> initials, and <code>tint</code> colours nothing then.</li>
     </ul>
   </ngwr-doc-section>
 

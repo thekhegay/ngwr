@@ -64,8 +64,7 @@ No component needs these:
 - `@use 'ngwr/typography-utilities';` — text utility classes.
 - `@use 'ngwr/breakpoints' as bp;` — `media-up` / `media-down` mixins for
   your own SCSS.
-- `@use 'ngwr/animations';` — keyframes and animation classes. The animation
-  COMPONENTS are the `ngwr/bits/*` entry points.
+- `@use 'ngwr/animations';` — keyframes and animation classes.
 
 `ngwr/reset`, `ngwr/typography-utilities` and `ngwr/animations` load the
 theme, so like a component line they go below a configured

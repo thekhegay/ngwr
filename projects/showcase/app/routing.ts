@@ -1,7 +1,6 @@
 import type { Routes } from '@angular/router';
 
 import {
-  BITS_SIDEBAR,
   CHARTS_SIDEBAR,
   DOCS_SIDEBAR,
   GUIDES_SIDEBAR,
@@ -22,8 +21,8 @@ export const routing: Routes = [
     children: [
       // Doors by what the reader is doing, not by how the code is organised.
       // `docs` = get it installed. `guides` = do a job that spans several APIs.
-      // `reference` = look one API up. Icons, charts and bits stay separate:
-      // browsable catalogs, the chart family, and the reactbits ports.
+      // `reference` = look one API up. Icons and charts stay separate:
+      // browsable catalogs and the chart family.
       {
         path: ROUTES.docs.path,
         data: { sidebar: DOCS_SIDEBAR },
@@ -53,11 +52,6 @@ export const routing: Routes = [
         data: { sidebar: ICONS_SIDEBAR },
         loadChildren: () => import('./icons/routing'),
       },
-      {
-        path: ROUTES.bits.path,
-        data: { sidebar: BITS_SIDEBAR },
-        loadChildren: () => import('./bits/routing'),
-      },
       // A page label's own page: every page that carries it.
       {
         path: 'labels/:label',
@@ -86,9 +80,6 @@ export const routing: Routes = [
       { path: 'reference/components/line-chart', redirectTo: '/charts/line-chart' },
       { path: 'reference/components/meter-group', redirectTo: '/charts/meter-group' },
       { path: 'reference/components/sparkline', redirectTo: '/charts/sparkline' },
-      // v15 renamed the animations cluster to bits, every slug kept.
-      { path: 'animations/:page', redirectTo: ({ params }) => `/bits/${params['page']}` },
-      { path: 'animations', redirectTo: '/bits' },
 
       // Legacy URLs. The docs were reorganised into start / guides / reference;
       // these keep every previously-published path resolving. Cheap to carry —

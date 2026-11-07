@@ -10,6 +10,7 @@ import { Component, ElementRef, ViewEncapsulation, computed, inject, input, view
 
 import { useChartNumbers } from 'ngwr/charts/core';
 import { useChartTooltip } from 'ngwr/popover';
+import { wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Tiny inline trend line. SVG path drawn from `[data]: number[]` — no
@@ -30,6 +31,10 @@ import { useChartTooltip } from 'ngwr/popover';
   host: { class: 'wr-sparkline' },
 })
 export class WrSparkline {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/sparkline');
+  }
+
   /**
    * The values, left to right. Evenly spaced — a sparkline carries no x axis, so
    * pass an already-ordered series rather than points with their own timestamps.

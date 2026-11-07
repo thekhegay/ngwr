@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Slider"
+  updated="15.6.0"
   description="Pick a number, or a range of two, by dragging a thumb."
   [keywords]="['slider', 'range', 'wr-slider']"
   [labels]="['Signal Forms', 'a11y']"
@@ -25,6 +26,15 @@
   >
     <ngwr-doc-snippet [code]="snippets.stepped" language="angular-html">
       <wr-slider [(value)]="stepped" min="0" max="100" step="25" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Label format"
+    description="`[labelWith]` maps the value for the label under the track and for the thumb's `aria-valuetext`. In `range` mode each end is mapped on its own."
+  >
+    <ngwr-doc-snippet [code]="snippets.labelWith" language="angular-html">
+      <wr-slider [(value)]="hours" range min="0" max="24" [labelWith]="hour" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

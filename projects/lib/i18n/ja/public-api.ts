@@ -404,10 +404,6 @@ export const wrJa: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: 'マーキー',
-    link: 'リンク',
-  },
   mention: {
     listbox: 'メンション',
     available: '候補{{count}}件',
@@ -492,6 +488,10 @@ export const wrJa: WrI18nCatalog = {
     notFound: '申し訳ありません。お探しのページは存在しません。',
     forbidden: '申し訳ありません。このページへのアクセス権限がありません。',
     serverError: '申し訳ありません。問題が発生しました。',
+  },
+  loadState: {
+    failed: '読み込めませんでした',
+    retry: '再試行',
   },
   date: {
     months: {

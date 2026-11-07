@@ -161,9 +161,9 @@ function danglingReads(): { file: string; line: number; name: string }[] {
   // check's cover in exchange for a better name, which is not a trade.
   //
   // The border half is an ENUMERATION and not a prefix, because the prefix is
-  // not the theme's to own: `wr-border-glow` is a component, and
-  // `--wr-border-glow-bg` is its hook. A greedy `--wr-border-[\w-]+` reported
-  // three of those as dangling theme reads the moment it was tried.
+  // not the theme's to own: a component named `wr-border-<x>` publishes
+  // `--wr-border-<x>-*` hooks of its own, and a greedy `--wr-border-[\w-]+`
+  // reported three of those as dangling theme reads the moment it was tried.
   //
   // The `-rgb` arm outlived the tokens it was written for, deliberately: v15
   // removed every channel list, and the arm is what keeps a leftover

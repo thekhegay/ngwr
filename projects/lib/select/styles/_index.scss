@@ -4,6 +4,7 @@
 // a failed load wears `.wr-btn`, and its loader is a `wr-spinner`.
 @use '../../button/styles' as button-styles;
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
+@include theme.loaded('select');
 
 .wr-select {
   --wr-select-color: var(--wr-color-on-surface);

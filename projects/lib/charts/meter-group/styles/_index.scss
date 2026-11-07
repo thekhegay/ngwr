@@ -4,6 +4,7 @@
 // Styles for the entry points this component's own markup renders. The legend is a
 // `ul[wr-chart-legend]`, so `@use 'ngwr/charts/meter-group'` alone draws it styled.
 @use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
+@include theme.loaded('charts/meter-group');
 
 .wr-meter-group {
   --wr-meter-group-gap: var(--wr-space-sm);

@@ -4,6 +4,7 @@
 // Styles for the entry points this component's own markup renders. The legend is a
 // `ul[wr-chart-legend]`, so `@use 'ngwr/charts/donut-chart'` alone draws it styled.
 @use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
+@include theme.loaded('charts/donut-chart');
 
 .wr-donut-chart {
   --wr-donut-chart-gap: var(--wr-space-lg);

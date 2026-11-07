@@ -20,6 +20,8 @@ import {
   output,
 } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * The element a `position: sticky` host actually pins against.
  *
@@ -234,6 +236,7 @@ export class WrAffix {
   private readonly injector = inject(Injector);
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('affix');
     if (!this.isBrowser) return;
 
     afterNextRender(() => {

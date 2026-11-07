@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Read-only labeled key / value list. Project `<wr-description-item>`
  * children. `title` is optional. Default layout stacks vertically; set
@@ -33,6 +35,10 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
   host: { '[class]': 'classes()', '[attr.title]': 'null' },
 })
 export class WrDescriptions {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('descriptions');
+  }
+
   /** Optional title shown above the list. */
   readonly title = input<string>('');
 

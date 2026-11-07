@@ -27,7 +27,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { isComposing } from 'ngwr/utils';
+import { isComposing, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrInputOtpMode, WrInputOtpSize } from './types';
 
@@ -173,6 +173,7 @@ export class WrInputOtp implements FormValueControl<string> {
   protected readonly cellRefs = viewChildren<ElementRef<HTMLInputElement>>('cell');
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('input-otp');
     // Resize the cell array whenever `length` changes — preserves existing
     // values, and tells the model about the ones it dropped.
     //

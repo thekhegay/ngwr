@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@include theme.loaded('rating');
 
 .wr-rating {
   --wr-rating-size: 1.25rem;

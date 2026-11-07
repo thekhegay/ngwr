@@ -22,6 +22,7 @@ import {
 } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrToastItem } from './toast-item';
 import type { WrToastConfig, WrToastMode, WrToastOptions, WrToastPosition } from './types';
@@ -179,6 +180,7 @@ export class WrToastHost {
         });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('toast');
     this.destroyRef.onDestroy(() => {
       this.clearCollapseTimer();
       this.frontObserver?.disconnect();

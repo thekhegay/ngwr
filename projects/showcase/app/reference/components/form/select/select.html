@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Select"
-  updated="15.5.0"
+  updated="15.6.0"
   description="Pick one or several values from a list, with search and free-text tags."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'CDK Overlay']"
@@ -37,6 +37,31 @@
           >Value: {{ framework() ?? 'none' }}</span
         >
       </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Options from an array"
+    description="`[options]` renders a row per item in every mode. `[displayWith]` labels the row, the trigger and the chips; the value is the item itself."
+  >
+    <ngwr-doc-snippet [code]="snippets.optionsArray">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-select placeholder="Pick a plan" [options]="plans" [displayWith]="planName" [(value)]="plan" />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ plan() | json }}</span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Position"
+    description='`position="top"` opens the panel above the trigger. Either side gives way to the other when there is no room.'
+  >
+    <ngwr-doc-snippet [code]="snippets.position">
+      <wr-select placeholder="Opens above" position="top" [(value)]="size">
+        <wr-option value="sm">Small</wr-option>
+        <wr-option value="md">Medium</wr-option>
+        <wr-option value="lg">Large</wr-option>
+      </wr-select>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

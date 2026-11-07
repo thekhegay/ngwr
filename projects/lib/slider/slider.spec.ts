@@ -569,6 +569,67 @@ describe('WrSlider', () => {
  * `check:a11y` cannot see: the name is present, so the structural rules pass
  * while every slider on the page announces the same English word.
  */
+/**
+ * `showLabel` printed the raw number, so a slider over hours read "14" where the
+ * field beside it read "14:00". `labelWith` maps the value for the label and
+ * for `aria-valuetext`, so the thumb announces what the label shows.
+ */
+describe('WrSlider labelWith', () => {
+  @Component({
+    imports: [WrSlider],
+    template: `<wr-slider [(value)]="amount" [range]="range()" [labelWith]="hour()" [max]="24" />`,
+  })
+  class LabelHost {
+    readonly amount = signal<number | [number, number]>(14);
+    readonly range = signal(false);
+    readonly hour = signal<((value: number) => string) | undefined>(undefined);
+  }
+
+  const pad = (value: number): string => `${String(value).padStart(2, '0')}:00`;
+
+  let fixture: ReturnType<typeof TestBed.createComponent<LabelHost>>;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const label = (): string => root().querySelector('.wr-slider__label')!.textContent.trim();
+  const thumbs = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="slider"]')];
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(LabelHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('prints the number and announces no valuetext by default', () => {
+    expect(label()).toBe('14');
+    expect(thumbs()[0].hasAttribute('aria-valuetext')).toBe(false);
+  });
+
+  it('shows the mapped text on the label and on the thumb', () => {
+    fixture.componentInstance.hour.set(pad);
+    fixture.detectChanges();
+
+    expect(label()).toBe('14:00');
+    expect(thumbs()[0].getAttribute('aria-valuetext')).toBe('14:00');
+    expect(thumbs()[0].getAttribute('aria-valuenow')).toBe('14');
+
+    fixture.componentInstance.amount.set(9);
+    fixture.detectChanges();
+    expect(label()).toBe('09:00');
+    expect(thumbs()[0].getAttribute('aria-valuetext')).toBe('09:00');
+  });
+
+  it('maps each end of a range on its own', () => {
+    fixture.componentInstance.range.set(true);
+    fixture.componentInstance.amount.set([9, 17]);
+    fixture.componentInstance.hour.set(pad);
+    fixture.detectChanges();
+
+    expect(label()).toBe('09:00 – 17:00');
+    expect(thumbs().map(t => t.getAttribute('aria-valuetext'))).toEqual(['09:00', '17:00']);
+  });
+});
+
 describe('WrSlider thumb names', () => {
   afterEach(() => TestBed.resetTestingModule());
 

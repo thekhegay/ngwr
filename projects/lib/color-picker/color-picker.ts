@@ -27,7 +27,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
-import { clamp } from 'ngwr/utils';
+import { clamp, wrCheckStyles } from 'ngwr/utils';
 
 import {
   formatColor,
@@ -308,6 +308,7 @@ export class WrColorPicker implements FormValueControl<string> {
   private readonly area = viewChild.required<ElementRef<HTMLElement>>('area');
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('color-picker');
     // External writes (via `[formField]` / `[(value)]`) flow the incoming hex
     // string back into the HSV source of truth. Our own emits are skipped via
     // `lastEmitted` so dragging keeps its continuous (unquantised) values.

@@ -24,7 +24,7 @@ import {
 import { chartAxis, useChartNumbers } from 'ngwr/charts/core';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
-import { clamp, round } from 'ngwr/utils';
+import { clamp, round, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Instance counter for the sub-label's id, which the drawing's `aria-describedby` names.
@@ -215,6 +215,7 @@ export class WrBulletChart {
   private trackWidth = 0;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/bullet-chart');
     const destroyRef = inject(DestroyRef);
     // Measured after render, so nothing here touches the DOM before a browser has one.
     afterNextRender(() => {

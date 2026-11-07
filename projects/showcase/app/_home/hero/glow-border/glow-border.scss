@@ -1,0 +1,83 @@
+// `[ngwrGlowBorder]`: a short arc of brand light running round the host's edge,
+// with a soft glow spilling outward. Two pseudo-elements carry one conic
+// gradient turned by a registered angle: `::before` is the arc itself, masked
+// down to the ring; `::after` is a wider, blurred copy sitting UNDER the host
+// (negative z-index), so only what spills past the edge shows. The host's
+// stacking parent isolates itself (`.ngwr-home-hero-wrap`), which keeps that
+// copy above the page background; the host itself must not form a stacking
+// context, or the copy would paint over its own fill.
+
+// Registered so the angle interpolates. Only the angle: a colour hook is never
+// registered.
+@property --ngwr-glow-border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.ngwr-glow-border {
+  --ngwr-glow-border-color: var(--wr-color-primary);
+  --ngwr-glow-border-warm: color-mix(in oklch, var(--wr-color-primary) 70%, var(--wr-color-danger));
+  --ngwr-glow-border-cool: color-mix(in oklch, var(--wr-color-primary) 70%, var(--wr-color-success));
+  --ngwr-glow-border-width: 1.5px;
+  --ngwr-glow-border-blur: 14px;
+  --ngwr-glow-border-strength: 0.6;
+  --ngwr-glow-border-period: 4.5s;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  &::before {
+    padding: var(--ngwr-glow-border-width);
+    background: conic-gradient(
+      from var(--ngwr-glow-border-angle),
+      transparent 0deg,
+      var(--ngwr-glow-border-cool) 5deg,
+      var(--ngwr-glow-border-color) 7.5deg,
+      var(--ngwr-glow-border-warm) 10deg,
+      transparent 15deg
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+
+  &::after {
+    z-index: -1;
+    background: conic-gradient(
+      from var(--ngwr-glow-border-angle),
+      transparent 0deg,
+      var(--ngwr-glow-border-cool) 8deg,
+      var(--ngwr-glow-border-color) 12deg,
+      var(--ngwr-glow-border-warm) 16deg,
+      transparent 24deg
+    );
+    filter: blur(var(--ngwr-glow-border-blur));
+    opacity: var(--ngwr-glow-border-strength);
+  }
+
+  &--live::before,
+  &--live::after {
+    animation: ngwr-glow-border var(--ngwr-glow-border-period) linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &--live::before,
+    &--live::after {
+      animation: none;
+    }
+  }
+}
+
+@keyframes ngwr-glow-border {
+  to {
+    --ngwr-glow-border-angle: 360deg;
+  }
+}

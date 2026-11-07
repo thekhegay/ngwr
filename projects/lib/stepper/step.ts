@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import { WR_STEPPER } from './tokens';
 
 /**
@@ -35,6 +37,10 @@ import { WR_STEPPER } from './tokens';
   },
 })
 export class WrStep {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('stepper');
+  }
+
   /** Header label. */
   readonly label = input<string>('');
 

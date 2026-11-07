@@ -422,10 +422,6 @@ export const wrTr: WrI18nCatalog = {
   // Sayaç çekimsiz: kütüphanede çokluk eki mekanizması yok, bu yüzden sayının
   // ardından gelen sözcük her değer için doğru olmalı — “+1 daha” da “+9 daha”
   // kadar doğru okunur. Aynı nedenle ad öne alınır: “Eklendi: Ada”.
-  marquee: {
-    label: 'Kayan yazı',
-    link: 'bağlantı',
-  },
   mention: {
     listbox: 'Bahsetmeler',
     available: 'Bulunan eşleşme: {{count}}',
@@ -513,6 +509,10 @@ export const wrTr: WrI18nCatalog = {
     notFound: 'Üzgünüz, aradığınız sayfa mevcut değil.',
     forbidden: 'Üzgünüz, bu sayfaya erişim yetkiniz yok.',
     serverError: 'Üzgünüz, bir şeyler ters gitti.',
+  },
+  loadState: {
+    failed: 'Yüklenemedi',
+    retry: 'Tekrar dene',
   },
   date: {
     months: {

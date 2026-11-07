@@ -9,7 +9,7 @@ import { Component, ViewEncapsulation, afterNextRender, computed, input, signal 
 
 import { type WrHotkeyPlatform, type WrHotkeySpec, wrFormatChord, wrHotkeyPlatform } from 'ngwr/hotkey';
 import { readI18nText } from 'ngwr/i18n';
-import { KEYS, type WrKey } from 'ngwr/utils';
+import { KEYS, wrCheckStyles, type WrKey } from 'ngwr/utils';
 
 import type { WrKbdSize } from './types';
 
@@ -84,6 +84,7 @@ export class WrKbd {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('keyboard');
     afterNextRender(() => this.platform.set(wrHotkeyPlatform()));
   }
 }

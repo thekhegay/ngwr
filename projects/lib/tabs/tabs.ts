@@ -24,6 +24,8 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import { WrTab } from './tab';
 import { WR_TABS, WR_TABS_ROUTING } from './tokens';
 import type { WrTabsContext } from './types';
@@ -201,6 +203,7 @@ export class WrTabs implements WrTabsContext {
   protected readonly canScrollEnd = signal(false);
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('tabs');
     // Seed `active` with the first tab's key, once the content children exist.
     // Without this the model writes back a generated id like
     // `wr-tab-b1crta5aix0v`: the strip still highlighted the right tab, because

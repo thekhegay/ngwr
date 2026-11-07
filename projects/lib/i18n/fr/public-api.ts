@@ -416,10 +416,6 @@ export const wrFr: WrI18nCatalog = {
   // Le nom d'abord — « Inséré : Ada », et non « Ada insérée » : le genre du nom
   // est inconnu à l'avance et l'interpolateur ne sait pas l'accorder. Même raison
   // pour le compteur, qui reste juste au singulier comme au pluriel.
-  marquee: {
-    label: 'Bandeau défilant',
-    link: 'lien',
-  },
   mention: {
     listbox: 'Mentions',
     // En français un deux-points est précédé d'une espace insécable, et c'est
@@ -507,6 +503,10 @@ export const wrFr: WrI18nCatalog = {
     notFound: "Désolé, la page que vous avez visitée n'existe pas.",
     forbidden: "Désolé, vous n'avez pas l'autorisation d'accéder à cette page.",
     serverError: "Désolé, une erreur s'est produite.",
+  },
+  loadState: {
+    failed: 'Chargement impossible',
+    retry: 'Réessayer',
   },
   date: {
     // En français les noms de mois s'écrivent en minuscules, y compris en tête

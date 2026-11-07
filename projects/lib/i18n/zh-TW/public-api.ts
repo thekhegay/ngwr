@@ -407,10 +407,6 @@ export const wrZhTw: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: '跑馬燈',
-    link: '連結',
-  },
   mention: {
     listbox: '提及',
     available: '相符項目：{{count}}',
@@ -495,6 +491,10 @@ export const wrZhTw: WrI18nCatalog = {
     notFound: '很抱歉，您造訪的頁面不存在。',
     forbidden: '很抱歉，您沒有存取此頁面的權限。',
     serverError: '很抱歉，發生了一些問題。',
+  },
+  loadState: {
+    failed: '無法載入',
+    retry: '重試',
   },
   date: {
     months: {

@@ -28,7 +28,7 @@ import {
 import { WrButton, WrButtonGroup } from 'ngwr/button';
 import { WrDateAdapter } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, wrCheckStyles } from 'ngwr/utils';
 
 import { WrCalendarEventTemplate } from './event-calendar-event-template';
 import type {
@@ -198,6 +198,10 @@ interface DragState {
   imports: [NgTemplateOutlet, WrButton, WrButtonGroup],
 })
 export class WrEventCalendar {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('event-calendar');
+  }
+
   /** Everything to render. Never mutated — see `eventChange`. */
   readonly events = input<readonly WrCalendarEvent[]>([]);
 

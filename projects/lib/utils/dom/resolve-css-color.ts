@@ -70,7 +70,7 @@ function computedColor(view: Window, probe: HTMLElement): string | null {
  *
  * A computed colour comes back in one of two shapes — `rgb()` / `rgba()` with
  * 0–255 channels for a legacy colour, `color(srgb r g b / a)` with 0–1 channels
- * for a `color-mix()` — and neither is hex, the one form `wr-aurora` first
+ * for a `color-mix()` — and neither is hex, the one form the first WebGL caller
  * parsed, which turned a `light-dark()` hook into `NaN` uniforms. Hex and
  * percentages stay for the literal fallback a caller names: no computed value
  * carries either, and a fallback reaches this unresolved.

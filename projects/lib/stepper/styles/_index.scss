@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@include theme.loaded('stepper');
 
 // The label's own line box, and the header button's block padding. Both are
 // declared once below and read back by the alignment arithmetic — the indicator

@@ -93,7 +93,7 @@ export default class MigrationPageComponent {
     {
       before:
         '`ngwr/aurora`, `blur-text`, `border-glow`, `circular-text`, `click-spark`, `confetti`, `decrypt-text`, `falling-text`, `fuzzy-text`, `glitch-text`, `gradient-text`, `marquee`, `rotating-text`, `shiny-text`, `splash-cursor`, `split-text`, `spotlight-card`, `star-border`, `tilt-card`, `typewriter`, `waves`',
-      after: '`ngwr/bits/<name>`',
+      after: '`ngwr/bits/<name>` (removed in 15.6.0)',
       update: 'Rewrites',
     },
     { before: '`ngwr/drag-drop`', after: '`ngwr/sortable-list`', update: 'Rewrites' },

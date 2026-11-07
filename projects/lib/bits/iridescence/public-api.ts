@@ -1,1 +1,0 @@
-export { WrIridescence } from './iridescence';

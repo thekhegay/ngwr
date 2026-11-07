@@ -3,7 +3,6 @@ import { RouterLink } from '@angular/router';
 
 import { Languages, Palette, PenLine, Route, Shapes, SlidersHorizontal } from 'lucide';
 import { WrTag } from 'ngwr/badge';
-import { WrBlurText } from 'ngwr/bits/blur-text';
 import { WrButton } from 'ngwr/button';
 import { WrCard, WrCardFooter } from 'ngwr/card';
 import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
@@ -55,7 +54,6 @@ interface OptInExample {
   styleUrl: './opt-in.scss',
   imports: [
     RouterLink,
-    WrBlurText,
     WrButton,
     WrCard,
     WrCardFooter,

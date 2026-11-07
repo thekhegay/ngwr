@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
-import { randomId } from 'ngwr/utils';
+import { randomId, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Visually groups options under a label inside a `<wr-select>`.
@@ -27,6 +27,10 @@ import { randomId } from 'ngwr/utils';
   host: { class: 'wr-option-group', role: 'group', '[attr.aria-labelledby]': 'labelId' },
 })
 export class WrOptionGroup {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('select');
+  }
+
   /** Section heading shown above the options. */
   readonly label = input.required<string>();
 

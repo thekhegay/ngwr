@@ -400,10 +400,6 @@ export const wrSv: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: 'Rullande text',
-    link: 'länk',
-  },
   mention: {
     listbox: 'Omnämnanden',
     available: 'Antal träffar: {{count}}',
@@ -488,6 +484,10 @@ export const wrSv: WrI18nCatalog = {
     notFound: 'Tyvärr finns inte sidan du besökte.',
     forbidden: 'Tyvärr har du inte behörighet till den här sidan.',
     serverError: 'Tyvärr gick något fel.',
+  },
+  loadState: {
+    failed: 'Det gick inte att läsa in',
+    retry: 'Försök igen',
   },
   date: {
     months: {

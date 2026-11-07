@@ -23,6 +23,7 @@ import {
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
 import type { WrColor } from 'ngwr/theme';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { WR_BUTTON_GROUP } from './tokens';
 import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types';
@@ -267,6 +268,7 @@ export class WrButton {
   }
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('button');
     if (this.isAnchorHost) {
       const stop = inject(Renderer2).listen(this.hostEl.nativeElement, 'click', this.onAnchorClick, { capture: true });
       inject(DestroyRef).onDestroy(stop);

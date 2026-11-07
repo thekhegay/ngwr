@@ -344,7 +344,7 @@ describe('callTool — search_ngwr', () => {
 /**
  * A third fixture, for ranking: ten real sections of the 15.1 `llms-full.txt`,
  * copied as the generator writes them, chosen for the collisions a substring
- * search fell into. "area" is inside `textarea`, "pie" inside the split-text bit's
+ * search fell into. "area" is inside `textarea`, "pie" inside the carousel's
  * "piece by piece", "tag" inside `WrFunnelStage`, every chart shares the word
  * "chart", and a harness entry point shares every word of the chart it tests.
  */
@@ -355,12 +355,12 @@ const CHARTS_CATALOG = [
   '- exports: WrTextarea, WrTextareaSize, WrTextareaResize',
   '- A multi-line text field that can grow with its content.',
   '',
-  '## ngwr/bits/split-text',
-  "- import: `import { WrSplitText } from 'ngwr/bits/split-text'`",
-  '- selector: `wr-split-text`',
-  '- exports: WrSplitText, WrSplitTextMotion, WrSplitTextUnit',
-  '- keywords: text animation, reactbits',
-  '- Reveals text piece by piece when it scrolls into view.',
+  '## ngwr/carousel',
+  "- import: `import { WrCarousel } from 'ngwr/carousel'`",
+  '- selector: `wr-carousel`',
+  '- exports: WrCarousel, WrCarouselSlide',
+  '- keywords: slider, slideshow',
+  '- Shows its slides piece by piece, one at a time.',
   '',
   '## ngwr/charts/bar-chart',
   "- import: `import { WrBarChart } from 'ngwr/charts/bar-chart'`",
@@ -545,8 +545,8 @@ describe('callTool — get_ngwr_component', () => {
     // This case used to pin a guess: the URL was built as
     // `reference/components/<name>` for everything, and half the catalog is
     // documented somewhere else — directives, services, pipes, utils and
-    // validators have their own clusters, the animation components live under
-    // `/bits/`, and the harness entry points have no page at all. 84 of
+    // validators have their own clusters, the charts live under `/charts/`,
+    // and the harness entry points have no page at all. 84 of
     // the 166 got a link that 404s, the markdown twin beside it doubly so: an
     // agent that fetched the twin parsed the 404 page as documentation. The URL
     // now comes from the `@see` in the class's own JSDoc — the same string the
@@ -778,7 +778,7 @@ describe('callTool — get_ngwr_setup', () => {
 
 /**
  * A second fixture, for what v15 changed: configuration through `provideWr()`
- * from the ROOT entry point, charts and bits nested under `charts/` and `bits/`,
+ * from the ROOT entry point, charts nested under `charts/`,
  * two symbols from one entry point, and the `export declare class` shape that
  * `@angular/build:library` writes. Separate from the first so the search counts
  * and rankings pinned above keep meaning what they say.
@@ -792,10 +792,10 @@ describe('callTool — v15 configuration and names', () => {
     '- exports: provideWr',
     '- App-wide configuration in one call.',
     '',
-    '## ngwr/bits/aurora',
-    "- import: `import { WrAurora } from 'ngwr/bits/aurora'`",
-    '- selector: `wr-aurora`',
-    '- exports: WrAurora',
+    '## ngwr/charts/bar-chart',
+    "- import: `import { WrBarChart } from 'ngwr/charts/bar-chart'`",
+    '- selector: `wr-bar-chart`',
+    '- exports: WrBarChart',
     '',
     '## ngwr/date',
     "- import: `import { WrDateAdapter } from 'ngwr/date'`",
@@ -873,7 +873,7 @@ describe('callTool — v15 configuration and names', () => {
     // The root key carries no `sass` condition since v15, and `ngwr/date` ships no sheet.
     const exports = {
       '.': { types: './types/ngwr.d.ts' },
-      './bits/aurora': { sass: './bits/aurora/styles/_index.scss' },
+      './charts/bar-chart': { sass: './charts/bar-chart/styles/_index.scss' },
       './date': { default: './fesm2022/ngwr-date.mjs' },
       './density': { sass: './density/styles/_index.scss' },
       './tabs': { sass: './tabs/styles/_index.scss' },
@@ -883,7 +883,12 @@ describe('callTool — v15 configuration and names', () => {
     mkdirSync(join(v15Root, 'schematics', 'use'), { recursive: true });
     writeFileSync(
       join(v15Root, 'schematics', 'use', 'symbol-map.json'),
-      JSON.stringify({ WrAurora: 'ngwr/bits/aurora', WrTabs: 'ngwr/tabs', WrTab: 'ngwr/tabs', WrTheme: 'ngwr/theme' })
+      JSON.stringify({
+        WrBarChart: 'ngwr/charts/bar-chart',
+        WrTabs: 'ngwr/tabs',
+        WrTab: 'ngwr/tabs',
+        WrTheme: 'ngwr/theme',
+      })
     );
     // The provider schematic's own schema, which says which names it takes.
     mkdirSync(join(v15Root, 'schematics', 'provider'), { recursive: true });
@@ -973,7 +978,7 @@ describe('callTool — v15 configuration and names', () => {
   });
 
   it('resolves the bare name a nested entry point had before v15, and only when one matches', () => {
-    expect(callTool(v15, 'get_ngwr_component', { name: 'aurora' }).split('\n')[0]).toBe('# ngwr/bits/aurora');
+    expect(callTool(v15, 'get_ngwr_component', { name: 'bar-chart' }).split('\n')[0]).toBe('# ngwr/charts/bar-chart');
     // Two entry points end in `/router`, so neither is a guess worth making.
     expect(callTool(v15, 'get_ngwr_component', { name: 'router' })).toBe(
       'No ngwr entry point matches "router". Close: ngwr/loading-bar/router, ngwr/tabs/router.'

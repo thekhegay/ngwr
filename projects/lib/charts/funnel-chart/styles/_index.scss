@@ -5,6 +5,7 @@
 // figures render as a `<wr-chart-table>` beside the stages, which its own sheet clips out
 // of sight.
 @use '../../core/styles' as core-styles; // WrChartTable
+@include theme.loaded('charts/funnel-chart');
 
 .wr-funnel-chart {
   --wr-funnel-chart-font-family: var(--wr-font-family-base);

@@ -9,25 +9,28 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
+import { numAttr, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Placeholder block shown while content is loading.
  *
  * Default sizing fills the parent width and matches the surrounding
  * text height (`1lh`). Override `--wr-skeleton-height` / `width` on the
- * host for custom shapes.
+ * host for custom shapes. `lines` draws a paragraph instead: that many
+ * lines, the last one shorter.
  *
  * @example
  * ```html
  * <wr-skeleton />
  * <wr-skeleton color="primary" [animated]="false" />
+ * <wr-skeleton [lines]="3" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/skeleton
  */
 @Component({
   selector: 'wr-skeleton',
-  template: '',
+  templateUrl: './skeleton.html',
   encapsulation: ViewEncapsulation.None,
   host: {
     'aria-busy': 'true',
@@ -36,6 +39,10 @@ import type { WrColor } from 'ngwr/theme';
   },
 })
 export class WrSkeleton {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('skeleton');
+  }
+
   /**
    * Intent tint for the placeholder. `null`, the default, paints the neutral
    * gray a placeholder almost always wants.
@@ -58,6 +65,22 @@ export class WrSkeleton {
    */
   readonly animated = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Draw a paragraph: this many text lines, each `--wr-skeleton-height` tall
+   * and `--wr-skeleton-line-gap` apart, the last one `--wr-skeleton-last-line-width`
+   * wide. `0`, the default, keeps the one block. The host stays the only thing
+   * a screen reader hears: the lines are empty boxes, so `aria-busy` is read
+   * once however many there are.
+   *
+   * @default 0
+   */
+  readonly lines = input(0, { transform: numAttr(0) });
+
+  /** One entry per line, for the template's `@for`. */
+  protected readonly lineIndexes = computed(() =>
+    Array.from({ length: Math.max(0, Math.floor(this.lines())) }, (_, i) => i)
+  );
+
   protected readonly classes = computed(() => {
     const parts = ['wr-skeleton'];
 
@@ -65,6 +88,7 @@ export class WrSkeleton {
     if (color) parts.push(`wr-skeleton--${color}`);
 
     if (this.animated()) parts.push('wr-skeleton--animated');
+    if (this.lineIndexes().length > 0) parts.push('wr-skeleton--lines');
     return parts.join(' ');
   });
 }

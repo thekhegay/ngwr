@@ -327,8 +327,7 @@ describe('WrCountUp', () => {
     // `duration` is nullable so the two easings can want two different
     // numbers, and this is the half that was wrong: the input defaulted to
     // `1200` for both while the spring path reads SECONDS, so an unset spring
-    // got 1200 seconds — stiffness 0.083, damping 20.03, and a counter that
-    // never visibly moved. Two seconds of frames is enough to finish at the
+    // got 1200 seconds to settle in, and a counter that never visibly moved. Two seconds of frames is enough to finish at the
     // real default and nowhere near enough at the old one.
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({});
@@ -339,9 +338,9 @@ describe('WrCountUp', () => {
       Number(((spring.nativeElement as HTMLElement).textContent ?? '').replace(/[^\d.-]/g, '') || '0');
 
     expect(read()).toBe(0);
-    // One second in it is most of the way there, and it settles a few seconds
-    // later — the spring is heavily overdamped at this stiffness, which is the
-    // look the default is tuned for. At the old default — 1200 of the seconds this path reads — it
+    // One second in it is most of the way there, and it settles a second or so
+    // later: a critically damped spring closes most of its gap early and eases
+    // the rest in. At the old default — 1200 of the seconds this path reads — it
     // had not left `from` after any amount of time this suite can advance.
     vi.advanceTimersByTime(1000);
     spring.detectChanges();

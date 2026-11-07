@@ -73,7 +73,11 @@ function rules(): Rule[] {
   const code = SOURCE.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/[^\n]*/g, '$1');
   const open = code.search(/^\.wr-line-chart\s*\{/m);
   if (open < 0) throw new Error('line-chart/styles/_index.scss has no top-level `.wr-line-chart {` block to read');
-  const before = code.slice(0, open).replace(/^@use [^;]+;/gm, '');
+  // The `loaded()` marker writes `:root` only, which sizes nothing in the chart.
+  const before = code
+    .slice(0, open)
+    .replace(/^@use [^;]+;/gm, '')
+    .replace(/^@include \w+\.loaded\([^)]*\);/gm, '');
   if (before.trim()) throw new Error(`a rule outside the \`.wr-line-chart\` block goes unread: ${before.trim()}`);
 
   const found: Rule[] = [];

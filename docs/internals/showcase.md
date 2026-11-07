@@ -5,8 +5,8 @@ Part of [AGENTS.md](../../AGENTS.md). Read this before changing a docs page, a m
 **Showcase page = the docs.** Every component ships a docs page, and a new
 one takes four steps, all under `projects/showcase/app/`:
 
-1. Create the page in `reference/components/<group>/<name>/`,
-   `charts/<group>/<name>/` or `bits/<group>/<name>/`. The group folder is the
+1. Create the page in `reference/components/<group>/<name>/` or
+   `charts/<group>/<name>/`. The group folder is the
    sidebar group (buttons, data, display, feedback, form, layout, navigation
    and overlays for components; comparison, trend, part-to-whole,
    distribution, single-value and building-blocks for charts) and never part
@@ -17,8 +17,8 @@ one takes four steps, all under `projects/showcase/app/`:
 3. Add a `loadComponent` row to the `routing.ts` beside the page's folder,
    e.g. `{ path: components.qrCode.path, loadComponent: () => import('./qr/qr') }`.
 4. Add a `wrLink(...)` row to the sidebar config in
-   `_layout/sidebar/configs/`: `COMPONENT_GROUPS` in `components.config.ts`,
-   `charts.config.ts` or `bits.config.ts`.
+   `_layout/sidebar/configs/`: `COMPONENT_GROUPS` in `components.config.ts`
+   or `charts.config.ts`.
 
 Author it with the doc-page components from
 `#core/components`: `<ngwr-doc-page>`,
@@ -88,7 +88,7 @@ catalog index's marks only.
 **One more mark rides the same scan: `updated`.** `updated="15.0.0"` is the
 version the subject changed its PUBLIC API in — an input, an output, an export,
 a token, a hook, a harness method, or the entry point's own path, so the charts
-and bits nesting counts. The page prints "Updated in v15". A restyle or a fix
+nesting counts. The page prints "Updated in v15". A restyle or a fix
 is not an update. A change made to every component at once (the palette, the
 spacing scale, the new hooks) is marked on the token and theming pages, never on
 each component. `pnpm gen:api-docs` writes both maps into

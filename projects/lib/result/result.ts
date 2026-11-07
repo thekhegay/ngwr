@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import type { WrResultStatus } from './types';
 
 /**
@@ -35,6 +37,10 @@ import type { WrResultStatus } from './types';
   host: { '[class]': 'classes()', '[attr.title]': 'null' },
 })
 export class WrResult {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('result');
+  }
+
   /**
    * The headline — the outcome in a few words. Pair it with `description` for the
    * detail; a result with neither renders the illustration alone.

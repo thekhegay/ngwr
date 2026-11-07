@@ -423,10 +423,6 @@ export const wrAr: WrI18nCatalog = {
   // the noun is dropped: the overflow chips in `select`, `tree` and
   // `eventCalendar` read «+{{count}} أخرى», the invariable feminine-singular
   // form a non-human plural takes, leaving nothing for the count to inflect.
-  marquee: {
-    label: 'شريط متحرك',
-    link: 'رابط',
-  },
   mention: {
     listbox: 'الإشارات',
     available: 'المطابقات المتاحة: {{count}}',
@@ -511,6 +507,10 @@ export const wrAr: WrI18nCatalog = {
     notFound: 'عذرًا، الصفحة التي زرتها غير موجودة.',
     forbidden: 'عذرًا، ليس لديك إذن بالوصول إلى هذه الصفحة.',
     serverError: 'عذرًا، حدث خطأ ما.',
+  },
+  loadState: {
+    failed: 'تعذّر التحميل',
+    retry: 'إعادة المحاولة',
   },
   date: {
     months: {

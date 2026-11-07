@@ -9,6 +9,7 @@ import { Component, ViewEncapsulation, input, output } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import type { WrColor } from 'ngwr/theme';
+import { wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Confirmation panel rendered inside the popconfirm overlay. Not part
@@ -24,6 +25,10 @@ import type { WrColor } from 'ngwr/theme';
   imports: [WrButton],
 })
 export class WrPopconfirmPanel {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('popconfirm');
+  }
+
   readonly message = input.required<string>();
 
   /** Id the anchoring directive points `aria-describedby` at. */

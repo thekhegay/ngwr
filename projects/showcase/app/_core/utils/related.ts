@@ -3,85 +3,6 @@
  * companion, the guide behind it. Six at most, best first; what an entry point is built on is added automatically.
  */
 export const RELATED: Readonly<Record<string, readonly string[]>> = {
-  'bits/aurora': [
-    'bits/iridescence',
-    'bits/waves',
-    'bits/threads',
-    'bits/dot-grid',
-    'bits/ripple-grid',
-    'reference/utils/resolve-css-color',
-  ],
-  'bits/blur-text': ['bits/split-text', 'bits/decrypt-text', 'bits/falling-text', 'guides/ssr'],
-  'bits/border-glow': ['bits/spotlight-card', 'bits/star-border', 'reference/components/card', 'bits/tilt-card'],
-  'bits/circular-text': ['bits/rotating-text'],
-  'bits/click-spark': ['bits/confetti', 'bits/splash-cursor', 'reference/utils/resolve-css-color'],
-  'bits/confetti': ['bits/click-spark', 'reference/components/result'],
-  'bits/decrypt-text': [
-    'bits/glitch-text',
-    'bits/typewriter',
-    'bits/fuzzy-text',
-    'bits/split-text',
-    'bits/rotating-text',
-  ],
-  'bits/dot-grid': [
-    'bits/ripple-grid',
-    'bits/waves',
-    'bits/threads',
-    'bits/aurora',
-    'bits/spotlight-card',
-    'reference/utils/resolve-css-color',
-  ],
-  'bits/falling-text': ['bits/split-text', 'bits/blur-text'],
-  'bits/fuzzy-text': ['bits/glitch-text', 'bits/decrypt-text'],
-  'bits/glitch-text': ['bits/fuzzy-text', 'bits/decrypt-text'],
-  'bits/gradient-text': ['bits/shiny-text', 'bits/star-border'],
-  'bits/iridescence': [
-    'bits/aurora',
-    'bits/threads',
-    'bits/waves',
-    'bits/ripple-grid',
-    'reference/components/card',
-    'reference/utils/resolve-css-color',
-  ],
-  'bits/marquee': ['reference/components/carousel'],
-  'bits/ripple-grid': [
-    'bits/dot-grid',
-    'bits/waves',
-    'bits/threads',
-    'bits/aurora',
-    'bits/iridescence',
-    'reference/utils/resolve-css-color',
-  ],
-  'bits/rotating-text': ['bits/typewriter', 'bits/split-text', 'bits/decrypt-text', 'bits/circular-text'],
-  'bits/shiny-text': ['bits/gradient-text', 'bits/star-border'],
-  'bits/splash-cursor': ['bits/click-spark', 'bits/aurora', 'bits/waves'],
-  'bits/split-text': ['bits/blur-text', 'bits/typewriter', 'bits/waves', 'bits/falling-text', 'bits/decrypt-text'],
-  'bits/spotlight-card': ['reference/components/card', 'bits/border-glow', 'bits/tilt-card', 'bits/star-border'],
-  'bits/star-border': [
-    'bits/border-glow',
-    'bits/shiny-text',
-    'reference/components/button',
-    'reference/components/card',
-  ],
-  'bits/threads': [
-    'bits/waves',
-    'bits/aurora',
-    'bits/iridescence',
-    'bits/dot-grid',
-    'bits/ripple-grid',
-    'reference/utils/resolve-css-color',
-  ],
-  'bits/tilt-card': ['bits/spotlight-card', 'reference/components/card', 'bits/border-glow'],
-  'bits/typewriter': ['bits/rotating-text', 'bits/decrypt-text', 'bits/split-text'],
-  'bits/waves': [
-    'bits/aurora',
-    'bits/threads',
-    'bits/iridescence',
-    'bits/dot-grid',
-    'bits/ripple-grid',
-    'reference/utils/resolve-css-color',
-  ],
-
   'charts/bar-chart': [
     'charts/line-chart',
     'charts/waterfall-chart',
@@ -342,6 +263,8 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/tabs',
   ],
   'reference/components/avatar': [
+    'reference/utils/wr-initials',
+    'reference/pipes/wr-initials',
     'reference/components/list',
     'reference/components/image-cropper',
     'reference/components/file-upload',
@@ -387,9 +310,8 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/list',
     'reference/components/collapse',
     'reference/components/skeleton',
-    'bits/spotlight-card',
   ],
-  'reference/components/carousel': ['reference/components/lightbox', 'reference/components/compare', 'bits/marquee'],
+  'reference/components/carousel': ['reference/components/lightbox', 'reference/components/compare'],
   'reference/components/cascader': [
     'reference/components/select',
     'reference/components/tree',
@@ -471,6 +393,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'reference/components/empty': [
     'reference/components/result',
     'reference/components/skeleton',
+    'reference/components/load-state',
     'reference/components/table',
   ],
   'reference/components/event-calendar': [
@@ -542,6 +465,13 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/dialog',
     'reference/components/compare',
   ],
+  'reference/components/load-state': [
+    'reference/components/skeleton',
+    'reference/components/result',
+    'reference/components/empty',
+    'reference/components/alert',
+    'reference/utils/wr-action',
+  ],
   'reference/components/list': [
     'reference/components/sortable-list',
     'reference/components/virtual-scroll',
@@ -604,7 +534,6 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/empty',
     'reference/components/alert',
     'reference/components/stepper',
-    'bits/confetti',
   ],
   'reference/components/schema-form': ['guides/forms', 'reference/components/form-field', 'reference/components/form'],
   'reference/components/segmented': [
@@ -629,6 +558,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/breadcrumbs',
   ],
   'reference/components/skeleton': [
+    'reference/components/load-state',
     'reference/components/spinner',
     'reference/components/progress',
     'reference/components/empty',
@@ -823,6 +753,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/translations/interpolation',
     'reference/services/i18n',
   ],
+  'reference/pipes/wr-initials': [
+    'reference/utils/wr-initials',
+    'reference/components/avatar',
+    'reference/pipes/wr-truncate',
+  ],
   'reference/pipes/wr-range': ['reference/components/skeleton'],
   'reference/pipes/wr-truncate': [
     'reference/directives/typography',
@@ -946,14 +881,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'reference/utils/noop': ['reference/utils/debounce', 'reference/utils/throttle'],
   'reference/utils/num-attr': ['reference/utils/resolve-css-size', 'reference/utils/clamp'],
   'reference/utils/random-id': ['reference/components/form-field', 'reference/components/form'],
-  'reference/utils/resolve-css-color': [
-    'guides/theming',
-    'guides/tokens/colors',
-    'reference/services/theme',
-    'bits/aurora',
-    'bits/iridescence',
-    'bits/waves',
-  ],
+  'reference/utils/resolve-css-color': ['guides/theming', 'guides/tokens/colors', 'reference/services/theme'],
   'reference/utils/resolve-css-size': [
     'reference/utils/get-root-font-size',
     'reference/components/avatar',
@@ -972,6 +900,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/pipes/wr-number',
   ],
   'reference/utils/throttle': ['reference/utils/debounce'],
+  'reference/utils/wr-initials': [
+    'reference/pipes/wr-initials',
+    'reference/components/avatar',
+    'reference/pipes/wr-truncate',
+  ],
   'reference/utils/to-class-list': [
     'guides/theming',
     'guides/overlay',

@@ -34,7 +34,7 @@ export default class CspGuidePageComponent {
     styles: `// styles.scss: one @use per component you render
 @use 'ngwr/theme';
 @use 'ngwr/button';
-@use 'ngwr/bits/split-text';`,
+@use 'ngwr/select';`,
 
     nonce: `// main.ts
 import { CSP_NONCE } from '@angular/core';

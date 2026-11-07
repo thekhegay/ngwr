@@ -36,6 +36,7 @@
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
 @use '../../button/styles' as button-styles; // WrButton
+@include styles.loaded('event-calendar');
 
 .wr-event-calendar {
   --wr-event-calendar-slot-height: 1.5rem;

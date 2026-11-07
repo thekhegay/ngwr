@@ -400,10 +400,6 @@ export const wrId: WrI18nCatalog = {
     pageUp: 'Page Up',
     pageDown: 'Page Down',
   },
-  marquee: {
-    label: 'Teks berjalan',
-    link: 'tautan',
-  },
   mention: {
     listbox: 'Sebutan',
     available: 'Jumlah kecocokan: {{count}}',
@@ -488,6 +484,10 @@ export const wrId: WrI18nCatalog = {
     notFound: 'Maaf, halaman yang Anda kunjungi tidak ada.',
     forbidden: 'Maaf, Anda tidak berwenang mengakses halaman ini.',
     serverError: 'Maaf, terjadi kesalahan.',
+  },
+  loadState: {
+    failed: 'Gagal memuat',
+    retry: 'Coba lagi',
   },
   date: {
     months: {

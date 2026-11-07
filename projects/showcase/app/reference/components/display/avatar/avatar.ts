@@ -64,6 +64,18 @@ export default class AvatarComponent {
   protected readonly brokenUrl = BROKEN_URL;
 
   protected readonly scaleSizes = [16, 20, 24, 32, 40, 48, 64] as const;
+  /** Names in several scripts, for what `name` draws and how `tint` colours it. */
+  protected readonly names = [
+    'Roman Khegay',
+    'ada lovelace',
+    'Madonna',
+    'Хегай Роман',
+    '王小明',
+    '김철수',
+    'محمد علي',
+    'דוד בן-גוריון',
+    '👩🏽‍🚀 Valentina',
+  ] as const;
   protected readonly people = PEOPLE;
   protected readonly peopleIds = PEOPLE.map(p => p.id);
   protected readonly assignees = signal<string[]>(['hr', 'zh', 'ww']);
@@ -86,6 +98,9 @@ export default class AvatarComponent {
 <wr-avatar url="/me.png" alt="Roman" shape="circle" />
 <wr-avatar url="/me.png" alt="Roman" shape="squircle" />`,
     initials: `<wr-avatar [size]="48" shape="circle">RK</wr-avatar>`,
+    name: `<wr-avatar name="Roman Khegay" [size]="48" shape="circle" />
+<wr-avatar name="Roman Khegay" [size]="48" shape="circle" tint />
+<wr-avatar [url]="user.photo" [name]="user.name" [size]="48" shape="circle" tint />`,
     initialsScale: `<wr-avatar shape="circle" [size]="16">ХР</wr-avatar>
 <wr-avatar shape="circle" [size]="24">ХР</wr-avatar>
 <wr-avatar shape="circle" [size]="40">ХР</wr-avatar>

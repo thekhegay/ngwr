@@ -8,6 +8,7 @@
 import { Component, ViewEncapsulation, computed, input, signal } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Self-contained eye-toggle button. Flips the linked `<input>`'s `type`
@@ -28,6 +29,10 @@ import { useI18nText } from 'ngwr/i18n';
   encapsulation: ViewEncapsulation.None,
 })
 export class WrPasswordToggle {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('input');
+  }
+
   /** Reference to the linked password input. */
   readonly for = input.required<HTMLInputElement>();
 

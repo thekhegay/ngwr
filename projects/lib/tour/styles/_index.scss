@@ -13,6 +13,7 @@
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
 @use '../../button/styles' as button-styles; // WrButton
+@include theme.loaded('tour');
 
 // The cut-out. A bare box sized to the spotlit element, dimming everything
 // around it with one enormous spread shadow — the target itself is never

@@ -32,7 +32,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, type WrClassInput } from 'ngwr/utils';
+import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { WrDrawerTitle } from './directives/drawer-title';
 import { drawerHasFocus, focusIsLost } from './drawer-focus';
@@ -200,6 +200,7 @@ export class WrDrawer {
   private modal = true;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('drawer');
     effect(() => {
       if (this.open()) {
         this.openOverlay();

@@ -21,11 +21,13 @@
  * repository keeps finding. The other files in `_core/generated` are committed
  * and are not rewritten here.
  *
- * **After.** Two generators read what the build PRODUCED. The sitemap and the
- * per-page markdown twins are both derived from the prerendered route list, so
- * they cannot run before it exists — the sitemap's own history is the argument:
- * an earlier version read `app/` instead, and a folder rename emptied it in
- * silence.
+ * **After.** Two generators and one check read what the build PRODUCED. The
+ * sitemap and the per-page markdown twins are both derived from the prerendered
+ * route list, so they cannot run before it exists — the sitemap's own history
+ * is the argument: an earlier version read `app/` instead, and a folder rename
+ * emptied it in silence. `check:nav` holds that same list to the sidebar
+ * configs, so a page with no nav row, or a row with no page, fails the build
+ * in every tier that builds the site.
  *
  * `build/showcase-app.ts` is the middle step and stays its own file: it is the
  * guarded `ng build showcase` — the one that fails the build on a prerender
@@ -54,3 +56,4 @@ tsx('build:showcase (ng build + prerender gate)', 'scripts/build/showcase-app.ts
 // Derived from the prerendered route list, so: only once it exists.
 tsx('gen:sitemap', 'scripts/gen/sitemap.ts');
 tsx('gen:md-docs', 'scripts/gen/md-docs.ts');
+tsx('check:nav', 'scripts/check/nav.ts');

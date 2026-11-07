@@ -414,10 +414,6 @@ export const wrNl: WrI18nCatalog = {
   // Bewust zonder meervoudsvorm: de interpolator vult alleen waarden in en kent
   // geen meervoud, dus het telwoord staat achteraan — Beschikbare resultaten: 1
   // moet net zo goed lopen als bij 5.
-  marquee: {
-    label: 'Lopende tekst',
-    link: 'koppeling',
-  },
   mention: {
     listbox: 'Vermeldingen',
     available: 'Beschikbare resultaten: {{count}}',
@@ -502,6 +498,10 @@ export const wrNl: WrI18nCatalog = {
     notFound: 'Sorry, deze pagina bestaat niet.',
     forbidden: 'Sorry, u hebt geen toegang tot deze pagina.',
     serverError: 'Sorry, er is iets misgegaan.',
+  },
+  loadState: {
+    failed: 'Laden mislukt',
+    retry: 'Opnieuw proberen',
   },
   date: {
     months: {

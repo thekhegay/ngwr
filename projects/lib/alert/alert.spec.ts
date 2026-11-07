@@ -175,6 +175,54 @@ describe('WrAlert with projected content', () => {
   });
 });
 
+describe('WrAlert with actions', () => {
+  @Component({
+    imports: [WrAlert],
+    template: `<wr-alert title="Update available" message="Version 2.0 is ready." closable>
+      <button type="button" wrAlertActions (click)="installs.set(installs() + 1)">Install</button>
+      <button type="button" wrAlertActions>Later</button>
+    </wr-alert>`,
+  })
+  class ActionsHost {
+    readonly installs = signal(0);
+  }
+
+  /**
+   * The slot lives inside the body column, under the message, so the close button
+   * that sits BESIDE the body can never overlap a projected button; an alert with
+   * no actions keeps the slot empty, which the stylesheet hides.
+   */
+  it('projects [wrAlertActions] into the body, under the message', () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(ActionsHost);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const actions = root.querySelector<HTMLElement>('.wr-alert__actions')!;
+    const message = root.querySelector('.wr-alert__message')!;
+
+    expect(actions.closest('.wr-alert__body')).not.toBeNull();
+    expect([...actions.querySelectorAll('button')].map(b => b.textContent.trim())).toEqual(['Install', 'Later']);
+    // eslint-disable-next-line no-bitwise -- compareDocumentPosition answers with a bitmask
+    expect(message.compareDocumentPosition(actions) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(actions.querySelector('.wr-alert__close')).toBeNull();
+    expect(root.querySelector('.wr-alert__close')).not.toBeNull();
+
+    actions.querySelector('button')!.click();
+    expect(fixture.componentInstance.installs()).toBe(1);
+    fixture.destroy();
+  });
+
+  it('leaves the slot empty when nothing is projected', () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    const actions = (fixture.nativeElement as HTMLElement).querySelector('.wr-alert__actions')!;
+
+    expect(actions.childNodes.length).toBe(0);
+    fixture.destroy();
+  });
+});
+
 describe('WrAlert with a catalog', () => {
   @Component({
     imports: [WrAlert],

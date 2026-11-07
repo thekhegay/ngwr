@@ -29,6 +29,10 @@ export default [
     loadComponent: () => import('./wr-truncate/wr-truncate'),
   },
   {
+    path: pipes.wrInitials.path,
+    loadComponent: () => import('./wr-initials/wr-initials'),
+  },
+  {
     path: pipes.wrMark.path,
     loadComponent: () => import('./wr-mark/wr-mark'),
   },

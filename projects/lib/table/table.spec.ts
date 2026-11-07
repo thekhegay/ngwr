@@ -12,6 +12,7 @@ import { noop } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTable } from './table';
+import { WrTableCell } from './table-cell';
 import { WrTableExpand } from './table-expand';
 import { WrTableGroupHeader } from './table-group-header';
 import { WrTableSort } from './table-sort';
@@ -1183,6 +1184,87 @@ describe('WrTable tree rows with a refused mode', () => {
     expect(messages).toHaveLength(2);
     expect(messages.some(m => m.includes('`groupBy`'))).toBe(true);
     expect(messages.some(m => m.includes('`virtualScroll`'))).toBe(true);
+    fixture.destroy();
+  });
+});
+
+/**
+ * An `<ng-template [wrTableCell]="'date'">` compiles with `strictTemplates` in a
+ * component that forgot to import `WrTableCell`, and the column shows the raw
+ * value. The table counts the projected templates against the registered ones
+ * once rendered and names the directive to import.
+ */
+describe('WrTable warns on a projected template no directive registered', () => {
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table [columns]="columns" [items]="items">
+      <ng-template let-value>{{ value }}</ng-template>
+    </wr-table>`,
+  })
+  class ForgottenHost {
+    protected readonly columns = COLUMNS;
+    protected readonly items = ROWS;
+  }
+
+  @Component({
+    imports: [WrTable, WrTableCell, WrTableExpand],
+    template: `<wr-table [columns]="columns" [items]="items">
+      <ng-template wrTableCell="name" let-value>{{ value }}!</ng-template>
+      <ng-template wrTableExpand let-row>{{ row.role }}</ng-template>
+    </wr-table>`,
+  })
+  class RegisteredHost {
+    protected readonly columns = COLUMNS;
+    protected readonly items = ROWS;
+  }
+
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table [columns]="columns" [items]="items" />`,
+  })
+  class BareHost {
+    protected readonly columns = COLUMNS;
+    protected readonly items = ROWS;
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    TestBed.resetTestingModule();
+  });
+
+  it('warns once, naming WrTableCell, when a template registered with nothing', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const fixture = TestBed.createComponent(ForgottenHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const messages = warn.mock.calls.map(call => String(call[0]));
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toContain('<wr-table>');
+    expect(messages[0]).toContain('`WrTableCell`');
+    fixture.destroy();
+  });
+
+  it('stays silent when every template is registered', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const fixture = TestBed.createComponent(RegisteredHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(warn).not.toHaveBeenCalled();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Ada!');
+    fixture.destroy();
+  });
+
+  it('stays silent with no template at all', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const fixture = TestBed.createComponent(BareHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(warn).not.toHaveBeenCalled();
     fixture.destroy();
   });
 });

@@ -20,7 +20,7 @@ import { Directive, inject, input, output } from '@angular/core';
  * <button [wrCopyToClipboard]="value" (copied)="toast('Copied!')">Copy</button>
  * ```
  */
-@Directive({ selector: '[wrCopyToClipboard]', host: { '(click)': 'onClick()' } })
+@Directive({ selector: '[wrCopyToClipboard]', exportAs: 'wrCopyToClipboard', host: { '(click)': 'copy()' } })
 export class WrCopyToClipboard {
   /** The text to copy. */
   readonly wrCopyToClipboard = input.required<string>();
@@ -33,8 +33,12 @@ export class WrCopyToClipboard {
 
   private readonly doc = inject(DOCUMENT);
 
-  /** @internal */
-  protected async onClick(): Promise<void> {
+  /**
+   * Copies the bound text, as a click does: `(copied)` or `(copyFailed)` fires
+   * either way. Resolves `true` once the text is on the clipboard and `false`
+   * when neither path could write it. It never rejects.
+   */
+  async copy(): Promise<boolean> {
     const text = this.wrCopyToClipboard();
     const async = this.doc.defaultView?.navigator?.clipboard;
 
@@ -54,7 +58,7 @@ export class WrCopyToClipboard {
       }
     } catch (error) {
       this.copyFailed.emit(error);
-      return;
+      return false;
     }
 
     // Outside the try because the try's job is the WRITE. The shape this
@@ -64,6 +68,7 @@ export class WrCopyToClipboard {
     // either way: `OutputEmitterRef.emit` catches what a listener throws and
     // hands it to the `ErrorHandler`.)
     this.copied.emit(text);
+    return true;
   }
 
   /**

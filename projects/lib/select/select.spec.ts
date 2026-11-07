@@ -14,7 +14,7 @@ import { WrSelectLoadError } from './load-error';
 import { WrOption } from './option';
 import { WrOptionGroup } from './option-group';
 import { WrSelect } from './select';
-import type { WrSelectMode, WrSelectSize } from './types';
+import type { WrSelectMode, WrSelectPosition, WrSelectSize } from './types';
 
 /**
  * The panel is a CDK overlay, so its options land in the overlay container
@@ -239,6 +239,69 @@ class LoaderHost {
 })
 class FreeTextHost {
   readonly city = signal<unknown>(null);
+}
+
+interface Size {
+  readonly id: string;
+  readonly name: string;
+}
+
+const SIZES: readonly Size[] = [
+  { id: 'sm', name: 'Small' },
+  { id: 'md', name: 'Medium' },
+  { id: 'lg', name: 'Large' },
+];
+
+/**
+ * `[options]` outside search mode: object items, no projected children, the
+ * label from `[displayWith]`, and the value bound by Signal Forms — the shape a
+ * plain dropdown fed from a store takes.
+ */
+@Component({
+  imports: [FormField, WrSelect],
+  template: `
+    <wr-select placeholder="Pick a size" ariaLabel="Size" [options]="sizes" [displayWith]="name" [formField]="f.size" />
+  `,
+})
+class ArrayHost {
+  readonly sizes = SIZES;
+  readonly name = (size: Size): string => size.name;
+  readonly model = signal<{ size: Size | null }>({ size: null });
+  readonly f = form(this.model);
+}
+
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select
+      mode="multi"
+      placeholder="Pick sizes"
+      ariaLabel="Sizes"
+      [options]="sizes"
+      [displayWith]="name"
+      [(value)]="picked"
+    >
+      <wr-option [value]="xl">Huge</wr-option>
+    </wr-select>
+  `,
+})
+class ArrayMultiHost {
+  readonly sizes = SIZES;
+  readonly xl: Size = { id: 'xl', name: 'Huge' };
+  readonly name = (size: Size): string => size.name;
+  readonly picked = signal<readonly Size[]>([]);
+}
+
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select ariaLabel="Size" [position]="position()">
+      <wr-option value="sm">Small</wr-option>
+    </wr-select>
+  `,
+})
+class PositionHost {
+  readonly position = signal<WrSelectPosition>('bottom');
 }
 
 @Component({
@@ -2787,6 +2850,56 @@ describe('WrSelect with freeText', () => {
     press('Escape');
     expect(fixture.componentInstance.city()).toBeNull();
   });
+
+  it('commits nothing on Enter while the panel is shut', () => {
+    // Enter writes only over an open panel: the closed field is the plain
+    // combobox, where Enter opens rather than writes.
+    type('Reykjavik');
+    press('Escape');
+    expect(document.querySelector('.wr-select-panel')).toBeNull();
+
+    press('Enter');
+
+    expect(fixture.componentInstance.city()).toBeNull();
+  });
+
+  const blur = (): void => {
+    field().dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+  };
+
+  it('commits the query on blur', () => {
+    // The field people leave without Enter: what they typed is the answer.
+    type('Reykjavik');
+
+    blur();
+
+    expect(fixture.componentInstance.city()).toBe('Reykjavik');
+    expect(document.querySelector('.wr-select-panel')).toBeNull();
+  });
+
+  it('commits nothing on blur with an empty query', () => {
+    type('');
+
+    blur();
+
+    expect(fixture.componentInstance.city()).toBeNull();
+  });
+
+  it('lets a click on a row pick it, though the press took focus from the field', () => {
+    type('par');
+    const paris = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(
+      o => o.textContent.trim() === 'Paris'
+    )!;
+
+    paris.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    blur();
+    window.dispatchEvent(new Event('pointerup'));
+    paris.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.city()).toBe('paris');
+  });
 });
 
 /**
@@ -3178,5 +3291,277 @@ describe('WrSelect focused by its bound field', () => {
 
     expect(root().querySelector<HTMLButtonElement>('button.wr-select__trigger')!.disabled).toBe(true);
     expect(host().contains(document.activeElement)).toBe(false);
+  });
+});
+
+/**
+ * `[options]` used to be a search-mode input: the rows rendered in every mode,
+ * but the trigger could not label a value no projected option carried, so a
+ * plain select fed from an array showed the placeholder over a real value.
+ */
+describe('WrSelect with an options array in single mode', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ArrayHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const trigger = (): HTMLButtonElement => root().querySelector<HTMLButtonElement>('.wr-select__trigger')!;
+  const options = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+  const label = (): string | undefined => root().querySelector('.wr-select__value')?.textContent?.trim();
+  const placeholder = (): string | undefined => root().querySelector('.wr-select__placeholder')?.textContent?.trim();
+  const activeLabel = (): string | null => {
+    const id = trigger().getAttribute('aria-activedescendant');
+    return id ? (document.getElementById(id)?.textContent?.trim() ?? null) : null;
+  };
+  const press = (key: string): void => {
+    trigger().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(ArrayHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('renders one option per item, labelled by displayWith', () => {
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(options().map(o => o.textContent.trim())).toEqual(['Small', 'Medium', 'Large']);
+    expect(options().every(o => o.classList.contains('wr-option'))).toBe(true);
+  });
+
+  it('selects the item itself on click and labels the trigger with it', () => {
+    trigger().click();
+    fixture.detectChanges();
+    options()[1].click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.model().size).toBe(SIZES[1]);
+    expect(label()).toBe('Medium');
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('labels a value set from the form while the panel has never opened', () => {
+    // The rows live in the panel and register only once it opens, so the trigger
+    // has no registered option to read — `displayWith` labels the item instead.
+    fixture.componentInstance.model.set({ size: SIZES[2] });
+    fixture.detectChanges();
+
+    expect(label()).toBe('Large');
+    expect(placeholder()).toBeUndefined();
+  });
+
+  it('keeps the placeholder for a value that is not one of the items', () => {
+    // The `===` contract stands: a re-fetched copy matches nothing and says so.
+    fixture.componentInstance.model.set({ size: { id: 'md', name: 'Medium' } });
+    fixture.detectChanges();
+
+    expect(label()).toBeUndefined();
+    expect(placeholder()).toBe('Pick a size');
+  });
+
+  it('opens from the keyboard with the cursor on the selected item', () => {
+    fixture.componentInstance.model.set({ size: SIZES[1] });
+    fixture.detectChanges();
+
+    press('ArrowDown');
+
+    // Seeded BEFORE the panel attached, over a registry with none of these rows
+    // in it: the seed is taken again once they register, as a projected list
+    // never had to.
+    expect(activeLabel()).toBe('Medium');
+  });
+
+  it('walks the rows and picks one with Enter', () => {
+    press('Enter');
+    expect(activeLabel()).toBe('Small');
+
+    press('ArrowDown');
+    press('ArrowDown');
+    expect(activeLabel()).toBe('Large');
+
+    press('Enter');
+
+    expect(fixture.componentInstance.model().size).toBe(SIZES[2]);
+    expect(label()).toBe('Large');
+  });
+});
+
+describe('WrSelect with an options array in multi mode', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ArrayMultiHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const trigger = (): HTMLElement => root().querySelector<HTMLElement>('.wr-select__trigger')!;
+  const options = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+  const chips = (): string[] =>
+    [...root().querySelectorAll<HTMLElement>('.wr-select__chip-label')].map(c => c.textContent.trim());
+  const press = (key: string): void => {
+    trigger().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(ArrayMultiHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('renders the items before the projected option', () => {
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(options().map(o => o.textContent.trim())).toEqual(['Small', 'Medium', 'Large', 'Huge']);
+  });
+
+  it('toggles items into the array and draws their chips through displayWith', () => {
+    trigger().click();
+    fixture.detectChanges();
+    options()[0].click();
+    options()[2].click();
+    options()[3].click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.picked()).toEqual([SIZES[0], SIZES[2], fixture.componentInstance.xl]);
+    expect(chips()).toEqual(['Small', 'Large', 'Huge']);
+    expect(options()[0].getAttribute('aria-selected')).toBe('true');
+
+    options()[0].click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.picked()).toEqual([SIZES[2], fixture.componentInstance.xl]);
+    expect(chips()).toEqual(['Large', 'Huge']);
+  });
+
+  it('labels chips for a value set from outside, before the panel ever opened', () => {
+    fixture.componentInstance.picked.set([SIZES[1]]);
+    fixture.detectChanges();
+
+    expect(chips()).toEqual(['Medium']);
+  });
+
+  it('picks an item from the keyboard', () => {
+    press('Enter');
+    press('ArrowDown');
+    press('Enter');
+
+    expect(fixture.componentInstance.picked()).toEqual([SIZES[1]]);
+    expect(chips()).toEqual(['Medium']);
+  });
+});
+
+/**
+ * jsdom has no layout, so the side the panel took is read off the CDK's own
+ * bounding box: an overlay anchored by its top edge (`overlayY: 'top'`, below the
+ * trigger) is laid out from `top`, one anchored by its bottom edge (above the
+ * trigger) from `bottom`. Every rect is 0×0, so the first position always fits
+ * and the fallback has to be forced with a trigger rect against the viewport
+ * edge and a pane with a height.
+ */
+describe('WrSelect panel position', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<PositionHost>>;
+
+  const PANE = 200;
+  const VIEWPORT = 600;
+
+  /** A 0-wide rect is "completely within" any viewport, so the width is real too. */
+  const rect = (top: number, height: number, width = 0): DOMRect => ({
+    top,
+    height,
+    bottom: top + height,
+    left: 0,
+    right: width,
+    width,
+    x: 0,
+    y: top,
+    toJSON: () => ({}),
+  });
+
+  const saved = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'getBoundingClientRect');
+
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-select__trigger')!;
+  const pane = (): HTMLElement => document.querySelector<HTMLElement>('.wr-select-overlay')!;
+  /** `'below'` or `'above'`: which edge the CDK laid the panel out from. */
+  const side = (): string => {
+    const box = pane().parentElement!;
+    const vertical = box.style.justifyContent;
+    expect(['flex-start', 'flex-end']).toContain(vertical);
+    return vertical === 'flex-start' ? 'below' : 'above';
+  };
+
+  const open = (): void => {
+    trigger().click();
+    fixture.detectChanges();
+  };
+
+  /**
+   * Pin the trigger `triggerTop` px down a viewport `VIEWPORT` px tall and give
+   * the pane a height. The CDK reads the viewport off `documentElement`'s client
+   * size, which jsdom reports as 0×0 — so that is stubbed with it.
+   */
+  const layOut = (triggerTop: number): void => {
+    for (const axis of ['clientWidth', 'clientHeight'] as const) {
+      Object.defineProperty(document.documentElement, axis, { configurable: true, get: () => VIEWPORT });
+    }
+    Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
+      configurable: true,
+      writable: true,
+      value(this: HTMLElement): DOMRect {
+        if (this.classList.contains('wr-select-overlay')) return rect(0, PANE, PANE);
+        if (this.tagName === 'WR-SELECT') return rect(triggerTop, 32, PANE);
+        return rect(0, 0);
+      },
+    });
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(PositionHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    // jsdom defines it on `Element.prototype`, so there is usually nothing to put back:
+    // dropping the stub is what restores it.
+    if (saved) Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', saved);
+    else delete (HTMLElement.prototype as Partial<HTMLElement>).getBoundingClientRect;
+    for (const axis of ['clientWidth', 'clientHeight'] as const) {
+      // Own properties shadowing the prototype getters; dropping them restores jsdom's.
+      delete (document.documentElement as unknown as Record<string, unknown>)[axis];
+    }
+  });
+
+  it('opens below by default', () => {
+    open();
+    expect(side()).toBe('below');
+  });
+
+  it('opens above on position="top"', () => {
+    fixture.componentInstance.position.set('top');
+    fixture.detectChanges();
+    open();
+
+    expect(side()).toBe('above');
+  });
+
+  it('falls back above when there is no room below', () => {
+    layOut(VIEWPORT - 40);
+    open();
+
+    expect(side()).toBe('above');
+  });
+
+  it('falls back below when position="top" has no room above', () => {
+    fixture.componentInstance.position.set('top');
+    fixture.detectChanges();
+    layOut(8);
+    open();
+
+    expect(side()).toBe('below');
   });
 });
