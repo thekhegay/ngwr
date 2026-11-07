@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
+import { WrPagination } from 'ngwr/pagination';
 import { noop } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -2062,5 +2063,72 @@ describe('WrTable summary over decimal strings', () => {
     expect(csv[1]).toBe('A,$0.1,1,9007199254740993.01');
     const cells = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('tbody tr')][2];
     expect([...cells.querySelectorAll('td')].map(td => td.textContent.trim())).toEqual(['C', '$19.99', '3', '']);
+  });
+});
+
+@Component({
+  imports: [WrTable],
+  template: `
+    <wr-table [columns]="columns" [items]="items" [(pageSize)]="size" [(page)]="page" [pageSizeOptions]="options()" />
+  `,
+})
+class PageSizeHost {
+  readonly items = Array.from({ length: 60 }, (_, i) => ({ id: i + 1 }));
+  readonly columns: WrTableColumns = { id: { title: 'Id' } };
+  readonly size = signal(10);
+  readonly page = signal(1);
+  readonly options = signal<readonly number[]>([10, 25, 100]);
+}
+
+describe('WrTable page size menu', () => {
+  const mount = (): ReturnType<typeof TestBed.createComponent<PageSizeHost>> => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(PageSizeHost);
+    fixture.detectChanges();
+    return fixture;
+  };
+  const pager = (fixture: ReturnType<typeof TestBed.createComponent<PageSizeHost>>): WrPagination =>
+    fixture.debugElement.query(By.directive(WrPagination)).componentInstance as WrPagination;
+  const ids = (fixture: ReturnType<typeof TestBed.createComponent<PageSizeHost>>): string[] =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll('tbody tr td:first-child')].map(td =>
+      td.textContent.trim()
+    );
+
+  it('offers the sizes in the pager', () => {
+    const fixture = mount();
+    expect(pager(fixture).showSizeChanger()).toBe(true);
+    expect(pager(fixture).pageSizeOptions()).toEqual([10, 25, 100]);
+  });
+
+  it('shows no size menu without options', () => {
+    const fixture = mount();
+    fixture.componentInstance.options.set([]);
+    fixture.detectChanges();
+    expect(pager(fixture).showSizeChanger()).toBe(false);
+  });
+
+  it('pages by the picked size, keeps the first visible row and hands the size back', () => {
+    const fixture = mount();
+    fixture.componentInstance.page.set(4);
+    fixture.detectChanges();
+    expect(ids(fixture)[0]).toBe('31');
+
+    pager(fixture).pageSize.set(25);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.size()).toBe(25);
+    expect(fixture.componentInstance.page()).toBe(2);
+    expect(ids(fixture)).toHaveLength(25);
+    expect(ids(fixture)[0]).toBe('26');
+  });
+
+  it('keeps the pager when the largest size shows every row, so a smaller one can be picked again', () => {
+    const fixture = mount();
+
+    pager(fixture).pageSize.set(100);
+    fixture.detectChanges();
+
+    expect(ids(fixture)).toHaveLength(60);
+    expect(fixture.debugElement.query(By.directive(WrPagination))).not.toBeNull();
   });
 });
