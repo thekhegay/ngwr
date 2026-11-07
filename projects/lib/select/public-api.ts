@@ -8,6 +8,7 @@ export type {
   WrOptionLeadingContext,
   WrOptionLeadingPlacement,
   WrSelectMode,
+  WrSelectPosition,
   WrSelectSearchLoader,
   WrSelectTagValidator,
   WrSelectSize,

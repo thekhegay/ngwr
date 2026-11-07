@@ -14,13 +14,6 @@
   through `open()`, `close()` and `toggle()`.
 - **Light-only apps**: a paragraph in `llms.txt` and on the theme page on
   `color-scheme: light dark` and `withTheme({ defaultMode: 'light', storageKey: null })`.
-- **`wr-select` `freeText` commit points**: document that the raw text commits on
-  Enter and on blur, and hold it with a spec.
-- **`wr-select` `position`**: the panel only flips between below and above on
-  its own; add a `position` input, as `wr-dropdown` has, to ask for a side. It
-  still falls back to the other side when there is no room.
-- **`wr-select` `[options]` in every mode**: today the array works only in
-  `mode="search"`; single and multi select take it too, labelled by `displayWith`.
 
 ## High
 

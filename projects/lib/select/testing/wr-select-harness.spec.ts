@@ -58,6 +58,26 @@ class SearchHost {
 })
 class TwoHost {}
 
+/** A plain select whose rows come from `[options]`: objects, labelled by `displayWith`. */
+@Component({
+  imports: [WrSelect],
+  template: `<wr-select
+    placeholder="Pick a size"
+    ariaLabel="Size"
+    [options]="sizes"
+    [displayWith]="name"
+    [(value)]="size"
+  />`,
+})
+class ArrayHost {
+  readonly sizes: readonly { id: string; name: string }[] = [
+    { id: 'sm', name: 'Small' },
+    { id: 'md', name: 'Medium' },
+  ];
+  readonly name = (size: { name: string }): string => size.name;
+  readonly size = signal<{ id: string; name: string } | null>(null);
+}
+
 /** Initials drawn inside each row by a leading template — text the label must not pick up. */
 @Component({
   imports: [WrSelect, WrOption, WrOptionLeading],
@@ -157,6 +177,31 @@ describe('WrSelectHarness', () => {
 
     expect(await select.isMultiple()).toBe(false);
     expect(await select.isDisabled()).toBe(false);
+  });
+});
+
+describe('WrSelectHarness — an options array in single mode', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ArrayHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(ArrayHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('reads the rows the panel draws itself and selects one by its label', async () => {
+    const select = await loader.getHarness(WrSelectHarness);
+    await select.open();
+    expect(await select.getOptionLabels()).toEqual(['Small', 'Medium']);
+
+    await select.selectOption({ text: 'Medium' });
+
+    expect(fixture.componentInstance.size()).toBe(fixture.componentInstance.sizes[1]);
+    expect(await select.getValueText()).toBe('Medium');
   });
 });
 

@@ -24,6 +24,11 @@ import {
 } from '#core/components';
 import { API } from '#core/generated/api';
 
+interface Plan {
+  id: string;
+  name: string;
+}
+
 @Component({
   selector: 'ngwr-select-page',
   templateUrl: './select.html',
@@ -102,6 +107,25 @@ protected readonly countryName = (country: Country): string => country.name;
     <wr-option value="nest">NestJS</wr-option>
     <wr-option value="fastify">Fastify</wr-option>
   </wr-option-group>
+</wr-select>`,
+    optionsArray: `interface Plan {
+  id: string;
+  name: string;
+}
+
+protected readonly plans: readonly Plan[] = [
+  { id: 'free', name: 'Free' },
+  { id: 'team', name: 'Team' },
+  { id: 'business', name: 'Business' },
+];
+protected readonly plan = signal<Plan | null>(null);
+protected readonly planName = (plan: Plan): string => plan.name;
+
+<wr-select placeholder="Pick a plan" [options]="plans" [displayWith]="planName" [(value)]="plan" />`,
+    position: `<wr-select placeholder="Opens above" position="top" [(value)]="size">
+  <wr-option value="sm">Small</wr-option>
+  <wr-option value="md">Medium</wr-option>
+  <wr-option value="lg">Large</wr-option>
 </wr-select>`,
     disabled: `<wr-select placeholder="Disabled" disabled />`,
     multi: `<wr-select mode="multi" clearable placeholder="Pick tags" [(value)]="tags">
@@ -252,6 +276,14 @@ category.setValue({ id: 2, name: 'Laptops' });
 const categoryId = new FormControl<number | null>(null);
 categoryId.setValue(2);`,
   };
+
+  protected readonly plans: readonly Plan[] = [
+    { id: 'free', name: 'Free' },
+    { id: 'team', name: 'Team' },
+    { id: 'business', name: 'Business' },
+  ];
+  protected readonly plan = signal<Plan | null>(null);
+  protected readonly planName = (plan: Plan): string => plan.name;
 
   protected readonly countries = [
     'Australia',
