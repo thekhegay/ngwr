@@ -77,9 +77,8 @@ export function wrCheckStyles(entry: string): void {
   afterNextRender(() => {
     // Every instance of the first render registers a hook; the first to run
     // answers for all of them.
-    if (done.has(entry)) return;
+    if (!appliesStylesheets(doc) || done.has(entry)) return;
     done.add(entry);
-    if (!appliesStylesheets(doc)) return;
 
     const style = doc.defaultView!.getComputedStyle(doc.documentElement);
     const loaded = (name: string): boolean => style.getPropertyValue(marker(name)).trim() !== '';
