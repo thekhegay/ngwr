@@ -22,6 +22,7 @@ import {
 } from '@angular/core';
 
 import { WrStorage } from 'ngwr/storage';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrWindowManager } from './services/window-manager';
 import { storageKey } from './storage-key';
@@ -77,6 +78,7 @@ export class WrWindowContainer<C> {
   private readonly wrWindow = viewChild.required(WrWindow);
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('window');
     afterNextRender(() => this.attach());
 
     // Re-clamp when the WORK AREA changes — a resized viewport, a taskbar

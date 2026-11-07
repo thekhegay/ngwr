@@ -1,4 +1,5 @@
 @use '../../../theme/styles' as theme;
+@include theme.loaded('charts/chart-legend');
 
 // The hooks, and the placement a chart decides for itself, at zero specificity: a chart
 // that draws its legend with this list puts it on its own `__legend` element and sets

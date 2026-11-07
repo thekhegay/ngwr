@@ -24,7 +24,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, type WrClassInput } from 'ngwr/utils';
+import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import type { WrDropdownMenu } from './dropdown-menu';
 import {
@@ -168,6 +168,7 @@ export class WrDropdown {
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('dropdown');
     // The host view carrying `[wrDropdown]` can be destroyed while the menu is
     // open — a route change, or an `@if` around the trigger. The overlay lives
     // in the CDK container, not in that view, so nothing removes it unless we do.

@@ -9,7 +9,7 @@ import { Component, ViewEncapsulation, computed, input, output, signal } from '@
 
 import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { isComposing } from 'ngwr/utils';
+import { isComposing, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrTableFilterItem } from './types';
 
@@ -39,6 +39,10 @@ const selectionVersion = signal(0);
   imports: [WrDropdown, WrDropdownMenu],
 })
 export class WrTableFilter {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('table');
+  }
+
   /** Available filter options. */
   /** Accessible name of the filter trigger. Falls back to `table.filter`. */
   readonly filterLabel = input<string | null>(null);

@@ -24,6 +24,7 @@ import {
 
 import { WrDateAdapter } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrCalendarMode, WrCalendarRange } from './types';
 
@@ -297,6 +298,7 @@ export class WrCalendar {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('calendar');
     // Initial focus: selected date if any, else today. Also snap viewDate to
     // that month.
     //

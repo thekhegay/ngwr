@@ -1,4 +1,6 @@
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
+@use '../../../theme/styles/loaded' as theme;
+@include theme.loaded('charts/sparkline');
 
 .wr-sparkline {
   // How much of the line's colour the `showArea` fill takes, and the ring round the hover

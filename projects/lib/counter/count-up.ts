@@ -24,7 +24,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, wrCheckStyles } from 'ngwr/utils';
 
 import { easeOutCubic } from './easing';
 import type { WrCountUpDirection, WrCountUpEasing, WrCountUpTrigger } from './types';
@@ -157,6 +157,7 @@ export class WrCountUp {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('counter');
     if (!this.isBrowser) {
       // SSR: settle on the value the animation ENDS on. Seeding the start
       // instead would bake the placeholder (usually 0) into prerendered HTML,

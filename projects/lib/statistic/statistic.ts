@@ -21,7 +21,7 @@ import {
 import { WrCountUp } from 'ngwr/counter';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, wrCheckStyles } from 'ngwr/utils';
 
 /** Digits with one optional point and a sign: the form `Intl` reads exactly. */
 const PLAIN_DECIMAL = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
@@ -109,6 +109,7 @@ export class WrStatistic {
   private readonly lastNumeric = signal(0);
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('statistic');
     // Whenever the numeric value changes, snapshot the prior value as the
     // count-up start, then remember the new one for the next transition.
     effect(() => {

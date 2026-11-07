@@ -10,6 +10,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
 import type { WrColor } from 'ngwr/theme';
+import { wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Horizontal progress bar.
@@ -36,6 +37,10 @@ import type { WrColor } from 'ngwr/theme';
   },
 })
 export class WrProgress {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('progress');
+  }
+
   /** Accessible name — `role="progressbar"` needs one. Falls back to `progress.label`. */
   readonly ariaLabel = input<string | null>(null);
 

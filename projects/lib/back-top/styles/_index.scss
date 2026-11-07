@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@include theme.loaded('back-top');
 
 .wr-back-top {
   position: fixed;

@@ -10,6 +10,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 import { type Params, RouterLink } from '@angular/router';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
+import { wrCheckStyles } from 'ngwr/utils';
 
 /**
  * One row inside `<wr-breadcrumbs>`. The host itself is the row — a
@@ -36,6 +37,10 @@ import { WrIcon, type WrIconName } from 'ngwr/icon';
   host: { class: 'wr-breadcrumbs__item', role: 'listitem' },
 })
 export class WrBreadcrumbsItem {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('breadcrumbs');
+  }
+
   /** Plain anchor href. Overridden by `routerLink` when both are set. */
   readonly href = input<string | null>(null);
 

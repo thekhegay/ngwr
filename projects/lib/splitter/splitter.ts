@@ -10,7 +10,7 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, model } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { clamp, round } from 'ngwr/utils';
+import { clamp, round, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Resizable two-pane splitter. Project two pieces of content via
@@ -76,6 +76,7 @@ export class WrSplitter {
   private dragging = false;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('splitter');
     // `position` is a `model`, so `[(position)]` and a restored layout write into it
     // directly; only the drag and the arrows clamped. Left alone, an out-of-range
     // write reached the DOM as `aria-valuenow="150"` against a `valuemax` of 100 and

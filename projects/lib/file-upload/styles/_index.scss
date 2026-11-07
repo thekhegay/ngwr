@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@include theme.loaded('file-upload');
 
 .wr-file-upload {
   --wr-file-upload-font-family: var(--wr-font-family-base);

@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Top bar of a {@link WrLayout}. Stretches across the parent;
  * size and stickiness are app-controlled via CSS.
@@ -17,4 +19,8 @@ import { Component, ViewEncapsulation } from '@angular/core';
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-layout-header', role: 'banner' },
 })
-export class WrLayoutHeader {}
+export class WrLayoutHeader {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('layout');
+  }
+}

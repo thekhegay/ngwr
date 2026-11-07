@@ -20,7 +20,7 @@ import {
 } from '@angular/core';
 
 import { WrI18n, useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, wrCheckStyles } from 'ngwr/utils';
 
 import { WrGraphNodeTemplate } from './graph-node-template';
 import { WrLayeredGraphLayout } from './internal/layout/layered-layout';
@@ -458,6 +458,7 @@ export class WrGraph<TData = unknown> {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('graph');
     if (isDevMode()) {
       effect(() => {
         const graph = this.prepared();

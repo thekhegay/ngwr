@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Row inside `<wr-list>`. Three projection slots:
  *
@@ -48,6 +50,10 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
   },
 })
 export class WrListItem {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('list');
+  }
+
   /** Adds hover / cursor styles + keyboard activation. @default false */
   readonly interactive = input(false, { transform: coerceBooleanProperty });
 

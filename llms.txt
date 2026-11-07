@@ -78,8 +78,11 @@ Styles: in your global SCSS, `@use 'ngwr/theme'` first, then one
 `@use 'ngwr'` umbrella. Only a module's first load can be configured, so
 `@use 'ngwr/theme' with (…)` below a component line fails the build. A
 component's sheet brings the sheets of what it renders inside (`ngwr/table`
-styles its checkboxes and pager). **Two kinds of sheet need a line although no
-template names them**, and nothing warns without them: `ngwr/density` with
+styles its checkboxes and pager). A dev build warns once in the console when a
+component renders without its sheet, naming the `@use` line to add and the
+`ng g ngwr:component-style <name>` command that adds it. **Two kinds of sheet
+need a line although no template names them**, and only a rendered component
+warns without its sheet (`withDensity()` alone does not): `ngwr/density` with
 `withDensity()` or `[wrDensity]` (nothing else declares the `--wr-density-*`
 multipliers, so density silently does nothing), and the sheet of a component a
 service opens — `WrDialog.open()` needs `ngwr/dialog`, `WrToast.show()`

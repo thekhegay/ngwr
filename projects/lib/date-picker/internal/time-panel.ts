@@ -24,7 +24,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrDateAdapter, WR_DATE_LOCALE } from 'ngwr/date';
 import { readI18nText } from 'ngwr/i18n';
-import { clamp } from 'ngwr/utils';
+import { clamp, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Two digits, in the locale's own numbering system.
@@ -180,6 +180,7 @@ export class WrTimePanel implements FormValueControl<Date | null> {
   protected readonly effectiveDisabled = computed(() => this.disabled());
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('date-picker');
     // The hours field, not the increment button: a stepper is a shortcut, the
     // number is the control. Deferred because the inputs are not in the DOM
     // until the panel's first change-detection pass.

@@ -13,3 +13,4 @@
 // instead, so it carries this component's own CSS and nothing else.
 @use '../../theme/styles';
 @forward 'rules';
+@include styles.loaded('lightbox');

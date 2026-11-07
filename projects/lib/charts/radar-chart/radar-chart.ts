@@ -34,7 +34,7 @@ import {
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
-import { clamp, round } from 'ngwr/utils';
+import { clamp, round, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrRadarSeries, WrRadarVariant } from './types';
 
@@ -427,6 +427,7 @@ export class WrRadarChart {
   private readonly measured = signal<{ readonly width: number; readonly line: number } | null>(null);
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/radar-chart');
     const destroyRef = inject(DestroyRef);
     // Measured after render, so the server and the first paint assume `size` and a 16px
     // line, and nothing here touches the DOM before a browser has one.

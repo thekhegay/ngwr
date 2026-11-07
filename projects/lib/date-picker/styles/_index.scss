@@ -14,6 +14,7 @@
 // these by hand still emits it once.
 @use '../../calendar/styles' as calendar-styles; // WrCalendar
 @use '../../input/styles' as input-styles; // WrInput
+@include theme.loaded('date-picker');
 
 // The refusal's live region — a screen reader's copy of what the border says. One
 // element per block, since a BEM class is public API: the range picker's is its own.

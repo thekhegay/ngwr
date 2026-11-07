@@ -7,6 +7,8 @@
 
 import { Directive } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Marks the scrollable body of the drawer. Applies the `wr-drawer__content`
  * class so the panel's flex layout can stretch it between the title and the
@@ -16,4 +18,8 @@ import { Directive } from '@angular/core';
   selector: '[wrDrawerContent]',
   host: { class: 'wr-drawer__content' },
 })
-export class WrDrawerContent {}
+export class WrDrawerContent {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('drawer');
+  }
+}

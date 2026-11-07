@@ -7,6 +7,8 @@
 
 import { Directive, computed, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Marks the action row pinned to the bottom of the drawer. Adds the
  * `wr-drawer__footer` class plus an alignment modifier so action buttons
@@ -25,6 +27,10 @@ import { Directive, computed, input } from '@angular/core';
   host: { '[class]': 'classes()' },
 })
 export class WrDrawerFooter {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('drawer');
+  }
+
   /** Horizontal alignment of footer content. @default 'end' */
   readonly align = input<'start' | 'center' | 'end'>('end');
 

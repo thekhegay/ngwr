@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@include theme.loaded('form');
 
 .wr-form-item {
   --wr-form-item-gap: var(--wr-space-sm);

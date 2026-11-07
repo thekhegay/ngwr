@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@include theme.loaded('input-otp');
 
 .wr-input-otp {
   --wr-input-otp-bg: var(--wr-color-surface);

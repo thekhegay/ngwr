@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@include theme.loaded('anchor');
 
 // One level of indent: the host's own, and again for a nested list. The active
 // bar reaches back across every indent its link sits behind, so the two are one

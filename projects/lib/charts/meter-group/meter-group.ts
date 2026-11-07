@@ -12,6 +12,7 @@ import { WR_CHART_LEGEND_BLOCK, WrChartLegend, type WrChartLegendItem } from 'ng
 import { chartColor, useChartNumbers } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrMeterSegment } from './types';
 
@@ -49,6 +50,10 @@ import type { WrMeterSegment } from './types';
   viewProviders: [{ provide: WR_CHART_LEGEND_BLOCK, useValue: 'wr-meter-group' }],
 })
 export class WrMeterGroup {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/meter-group');
+  }
+
   /** Accessible name — the role needs one. Falls back to `meterGroup.label`. */
   readonly ariaLabel = input<string | null>(null);
 

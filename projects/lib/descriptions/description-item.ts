@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * One row in a {@link WrDescriptions}. The label comes from the
  * `label` input; the value is the projected content.
@@ -20,6 +22,10 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
   host: { class: 'wr-descriptions__row' },
 })
 export class WrDescriptionItem {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('descriptions');
+  }
+
   /**
    * The term shown beside the projected value — "Email", "Created". Keep it a
    * noun: it is read as the name of the value, not as a sentence.

@@ -9,6 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Directive, ElementRef, computed, inject, input } from '@angular/core';
 
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrInputSize } from '../types';
 
@@ -61,6 +62,7 @@ export class WrInput {
   protected readonly resolvedId = computed(() => this.ownId ?? this.field?.controlId() ?? null);
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('input');
     // Tell the field which id actually stuck. Without this its `<label for>` keeps
     // pointing at the generated id while this element answers to the author's own —
     // a label referencing nothing, which is the same as having none.

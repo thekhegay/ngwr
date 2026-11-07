@@ -36,6 +36,7 @@ import { filter, map, startWith } from 'rxjs';
 
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrSidebarActiveOptions, WrSidebarBadgeTone, WrSidebarEntry, WrSidebarGroup } from './types';
 
@@ -356,6 +357,7 @@ export class WrSidebar {
   private warnedDepth = false;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('sidebar');
     // Seed `defaultOpen` groups, once per group and not once per `entries`
     // emission. Re-seeding meant any later change to the array (a count, a
     // filtered list) re-opened a group the user had deliberately collapsed.

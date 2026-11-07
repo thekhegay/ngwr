@@ -1,5 +1,6 @@
 @use '../../../theme/styles' as theme;
 @use '../../../popover/styles' as popover-styles; // the `.wr-tooltip` chip the hover tooltip renders into
+@include theme.loaded('charts/bullet-chart');
 
 .wr-bullet-chart {
   --wr-bullet-chart-font-family: var(--wr-font-family-base);

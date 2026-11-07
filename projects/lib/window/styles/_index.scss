@@ -13,6 +13,7 @@
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
 @use '../../dropdown/styles' as dropdown-styles; // WrDropdown
+@include theme.loaded('window');
 
 /// Two-corner variant of `theme.smooth-br`. The host no longer clips at its own
 /// rounded edge (it has to let the resize grips out), so the chrome and the

@@ -36,7 +36,7 @@ import {
   useChartNumbers,
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
-import { clamp } from 'ngwr/utils';
+import { clamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrLineSeries } from './types';
 
@@ -305,6 +305,7 @@ export class WrLineChart {
   private dismissed: number | null = null;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/line-chart');
     // Escape closes the readout wherever focus is, the way it closes every other
     // chart's: nothing in the readout can take focus, so a key handler on the chart
     // would never hear it. Listened for only while the readout is up, which is never

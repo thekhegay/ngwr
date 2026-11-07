@@ -14,6 +14,7 @@
 @use '../../result/styles' as result-styles; // WrResult
 @use '../../empty/styles' as empty-styles; // WrEmpty
 @use '../../button/styles' as button-styles; // WrButton
+@include theme.loaded('load-state');
 
 .wr-load-state {
   display: block;

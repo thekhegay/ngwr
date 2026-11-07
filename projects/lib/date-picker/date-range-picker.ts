@@ -34,7 +34,7 @@ import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
 import { readI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, type WrClassInput } from 'ngwr/utils';
+import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { clockFormat } from './internal/clock-format';
 import { WrDateRangePanel } from './internal/date-range-panel';
@@ -395,6 +395,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   private lastFormat: string | null = null;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('date-picker');
     this.destroyRef.onDestroy(() => {
       this.dispose();
       clearTimeout(this.silenceTimer);

@@ -13,6 +13,7 @@
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
 @use '../../input/styles' as input-styles; // WrInput
+@include theme.loaded('input-number');
 
 .wr-input-number {
   // Box the ▲ / ▼ chevron draws in — square, because the glyph is the same

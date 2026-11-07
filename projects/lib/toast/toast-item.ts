@@ -7,7 +7,7 @@
 
 import { Component, ElementRef, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
 
-import { toClassList, type WrClassInput } from 'ngwr/utils';
+import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import type { WrToastConfig, WrToastType } from './types';
 
@@ -42,6 +42,10 @@ import type { WrToastConfig, WrToastType } from './types';
   },
 })
 export class WrToastItem {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('toast');
+  }
+
   readonly type = input<WrToastType>('info');
   readonly title = input<string | null>(null);
   readonly message = input.required<string>();

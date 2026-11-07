@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Event-list ladder. Project `<wr-timeline-item>` children.
  *
@@ -27,6 +29,10 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
   host: { '[class]': 'classes()' },
 })
 export class WrTimeline {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('timeline');
+  }
+
   /**
    * Which way the line runs. `horizontal` lays the items out in a row and suits a
    * short, fixed set of steps; a feed of unknown length wants the default.

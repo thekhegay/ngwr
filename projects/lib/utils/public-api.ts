@@ -39,6 +39,7 @@ export {
   resolveCssColorChannels,
   trapFocus,
   watchColorScheme,
+  wrCheckStyles,
   wrContentDispositionFileName,
   wrDownloadBlob,
 } from './dom';

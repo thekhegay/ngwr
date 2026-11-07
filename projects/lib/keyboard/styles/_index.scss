@@ -2,6 +2,7 @@
 // design token this stylesheet references. Sass deduplicates `@use` per
 // compilation, so the umbrella sheet still emits the theme only once.
 @use '../../theme/styles' as theme;
+@include theme.loaded('keyboard');
 
 .wr-kbd {
   // Override these on `:root` / a scope to retheme every keycap at once.

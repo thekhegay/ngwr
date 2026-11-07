@@ -20,7 +20,7 @@ import {
 import { WrChartTable, type WrChartTableData, useChartNumbers } from 'ngwr/charts/core';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
-import { clamp } from 'ngwr/utils';
+import { clamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrFunnelConversion, WrFunnelStage } from './types';
 
@@ -114,6 +114,10 @@ interface Stage {
   imports: [WrChartTable],
 })
 export class WrFunnelChart {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/funnel-chart');
+  }
+
   /**
    * The stages, from the top of the funnel down. Nothing is sorted: a stage is drawn where
    * it is given, so a stage larger than the one before it shows as one.

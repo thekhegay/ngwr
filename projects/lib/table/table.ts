@@ -36,6 +36,7 @@ import { WrSpinner } from 'ngwr/spinner';
 import {
   KEYS,
   toClassList,
+  wrCheckStyles,
   wrDecimal,
   wrDecimalAdd,
   wrDecimalCompare,
@@ -673,6 +674,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }>({ left: new Map(), right: new Map(), leftEdge: null, rightEdge: null });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('table');
     // A refused pair says so. Tree rows lose to `groupBy` and win over detail
     // rows and windowing, each a documented exclusion — and on screen each one
     // is only a mode that silently is not there.

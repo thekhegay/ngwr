@@ -8,6 +8,7 @@
 // within a compilation, so an app that also loads one of these by hand still
 // emits it once.
 @use '../../icon/styles' as icon-styles; // WrIcon
+@include theme.loaded('sidebar');
 
 .wr-sidebar {
   // The outer inset, what `--wr-dropdown-padding` is to a menu. Every row paints

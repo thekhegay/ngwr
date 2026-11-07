@@ -13,6 +13,7 @@
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
+@include theme.loaded('avatar');
 
 .wr-avatar {
   // Defaults — `shape="rounded"` (the default) gets the soft rounded

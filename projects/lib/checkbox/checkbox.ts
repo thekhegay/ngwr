@@ -21,7 +21,7 @@ import type { FormCheckboxControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
-import { randomId } from 'ngwr/utils';
+import { randomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_CHECKBOX_GROUP } from './tokens';
 
@@ -88,6 +88,10 @@ export type WrCheckboxSize = 'sm' | 'md' | 'lg';
   imports: [WrIcon],
 })
 export class WrCheckbox implements FormCheckboxControl {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('checkbox');
+  }
+
   /**
    * Stable id used to associate the native input with its label. Lands on the
    * inner `<input>`; the host never keeps it.

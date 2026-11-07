@@ -9,6 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrBadgeShape, WrBadgeSize } from './types';
 
@@ -36,6 +37,10 @@ import type { WrBadgeShape, WrBadgeSize } from './types';
   },
 })
 export class WrBadge {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('badge');
+  }
+
   /**
    * Color variant. Maps to `--wr-color-*` CSS variables from the theme. It is
    * decoration or category, never the state on its own: four of the five intents

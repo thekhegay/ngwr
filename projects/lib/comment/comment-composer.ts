@@ -22,7 +22,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { WrButton } from 'ngwr/button';
 import { useI18nText } from 'ngwr/i18n';
 import { WrTextarea } from 'ngwr/textarea';
-import { KEYS, isComposing } from 'ngwr/utils';
+import { isComposing, KEYS, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * A chat composer: an autosizing field with a send button. Enter sends,
@@ -78,6 +78,10 @@ import { KEYS, isComposing } from 'ngwr/utils';
   },
 })
 export class WrCommentComposer implements FormValueControl<string> {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('comment');
+  }
+
   /** Native placeholder text. @default '' */
   readonly placeholder = input<string>('');
 

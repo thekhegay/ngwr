@@ -16,6 +16,7 @@
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
+@include theme.loaded('pull-to-refresh');
 
 .wr-pull-to-refresh {
   --wr-pull-to-refresh-font-family: var(--wr-font-family-base);

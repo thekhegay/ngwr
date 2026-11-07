@@ -9,6 +9,7 @@ import { Component, ViewEncapsulation, inject, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrDialogRef } from '../dialog-ref';
 import { WrDialogContent, WrDialogFooter, WrDialogTitle } from '../directives';
@@ -30,6 +31,10 @@ import type { WrDialogConfirmOptions } from '../types';
   },
 })
 export class WrDialogConfirm {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('dialog');
+  }
+
   protected readonly data = inject<WrDialogConfirmOptions>(WR_DIALOG_DATA);
   protected readonly ref = inject<WrDialogRef<WrDialogConfirm, boolean>>(WrDialogRef);
 

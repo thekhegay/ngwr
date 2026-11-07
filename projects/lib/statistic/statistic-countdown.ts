@@ -19,7 +19,7 @@ import {
 } from '@angular/core';
 
 import { type WrDurationUnit, wrSplitDuration } from 'ngwr/pipes';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, wrCheckStyles } from 'ngwr/utils';
 
 // Helpers
 
@@ -147,6 +147,7 @@ export class WrStatisticCountdown {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('statistic');
     // Seed once synchronously so SSR / first paint shows a sane value.
     effect(() => {
       const ms = this.remainingMs();

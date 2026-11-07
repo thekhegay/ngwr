@@ -26,7 +26,7 @@ import {
 import { WrChartTable, type WrChartTableData, useChartNumbers } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
-import { clamp } from 'ngwr/utils';
+import { clamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrHeatmapMatrix } from './types';
 
@@ -439,6 +439,7 @@ export class WrHeatmapChart {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/heatmap-chart');
     const destroyRef = inject(DestroyRef);
     // The names are measured after render, in a browser: again when they change, and when
     // the observer below reports a new width. Never on the server, which keeps every name

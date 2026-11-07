@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Wraps a label + control + error message into a single field row.
  *
@@ -32,6 +34,10 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
   host: { '[class]': 'classes()' },
 })
 export class WrFormItem {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('form');
+  }
+
   /**
    * When `true`, applies error coloring to the projected label and inputs.
    *

@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation, computed, forwardRef, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import { WR_BUTTON_GROUP } from './tokens';
 import type { WrButtonShape, WrButtonGroupContext } from './types';
 
@@ -45,6 +47,10 @@ import type { WrButtonShape, WrButtonGroupContext } from './types';
   providers: [{ provide: WR_BUTTON_GROUP, useExisting: forwardRef(() => WrButtonGroup) }],
 })
 export class WrButtonGroup implements WrButtonGroupContext {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('button');
+  }
+
   /**
    * Corner treatment enforced on every child `<wr-btn>`. Child `[shape]`
    * inputs are ignored when this is set — the group exists to make a

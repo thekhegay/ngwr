@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Surface container with optional header, body, and footer slots.
  *
@@ -71,7 +73,11 @@ export class WrCard {
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-card__header' },
 })
-export class WrCardHeader {}
+export class WrCardHeader {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('card');
+  }
+}
 
 /** Footer slot — projects content under `.wr-card__footer`. */
 @Component({
@@ -80,4 +86,8 @@ export class WrCardHeader {}
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-card__footer' },
 })
-export class WrCardFooter {}
+export class WrCardFooter {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('card');
+  }
+}

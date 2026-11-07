@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@include theme.loaded('collapse');
 
 .wr-collapse {
   --wr-collapse-bg: var(--wr-color-surface);

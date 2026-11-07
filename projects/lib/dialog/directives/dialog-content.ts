@@ -8,6 +8,8 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Directive, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 let uid = 0;
 
 /**
@@ -35,6 +37,10 @@ let uid = 0;
   hostDirectives: [CdkScrollable],
 })
 export class WrDialogContent {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('dialog');
+  }
+
   /** The element's id, generated unless given. An `alertdialog` names it in `aria-describedby`. */
   readonly id = input(`wr-dialog-content-${++uid}`);
 }

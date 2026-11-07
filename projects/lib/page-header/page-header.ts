@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 /**
  * Top-of-page heading block. Four named slots via attribute selectors:
  * `[wrPageHeaderBreadcrumbs]` (top row), `[wrPageHeaderActions]` (right
@@ -83,6 +85,10 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
   },
 })
 export class WrPageHeader {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('page-header');
+  }
+
   /** Primary title shown as an h1. */
   readonly title = input<string>('');
 

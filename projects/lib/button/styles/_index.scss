@@ -14,6 +14,7 @@
 // these by hand still emits it once.
 @use '../../icon/styles' as icon-styles; // WrIcon
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
+@include theme.loaded('button');
 
 .wr-btn {
   display: inline-flex;

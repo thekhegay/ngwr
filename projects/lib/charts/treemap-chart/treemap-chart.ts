@@ -26,6 +26,7 @@ import {
 import { WrChartTable, type WrChartTableData, chartColor, useChartNumbers } from 'ngwr/charts/core';
 import { readI18nText, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { type WrTreemapRect, squarify } from './internal/squarify';
 import type { WrTreemapNode } from './types';
@@ -370,6 +371,7 @@ export class WrTreemapChart {
   private readonly box = signal<{ readonly width: number; readonly height: number } | null>(null);
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/treemap-chart');
     const destroyRef = inject(DestroyRef);
     // The layout is cut for the plot's real proportions: squares at 640 × 280 are slabs
     // at 320 × 280. Measured after render, so the server and the first paint draw the

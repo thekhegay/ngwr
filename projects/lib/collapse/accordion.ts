@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation, forwardRef, signal } from '@angular/core';
 
+import { wrCheckStyles } from 'ngwr/utils';
+
 import { WR_COLLAPSE_GROUP } from './tokens';
 import type { WrCollapseGroupContext, WrCollapseGroupMember } from './types';
 
@@ -42,6 +44,10 @@ import type { WrCollapseGroupContext, WrCollapseGroupMember } from './types';
   ],
 })
 export class WrAccordion implements WrCollapseGroupContext {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('collapse');
+  }
+
   /** Always behaves as an accordion. Provided for context-interface symmetry. */
   readonly accordion = signal(true).asReadonly();
 

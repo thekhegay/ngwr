@@ -16,6 +16,7 @@
 @use '../../dropdown/styles' as dropdown-styles; // WrDropdown
 @use '../../pagination/styles' as pagination-styles; // WrPagination
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
+@include theme.loaded('table');
 
 .wr-table {
   --wr-table-bg: var(--wr-color-surface);

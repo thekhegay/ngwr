@@ -21,6 +21,7 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { WR_CHECKBOX_GROUP } from './tokens';
 import type { WrCheckboxGroupContext } from './types';
@@ -73,6 +74,10 @@ import type { WrCheckboxGroupContext } from './types';
   ],
 })
 export class WrCheckboxGroup implements FormValueControl<unknown[]>, WrCheckboxGroupContext {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('checkbox');
+  }
+
   /**
    * Disable every child checkbox. Bound automatically from the field's
    * disabled state when used with `[formField]`.

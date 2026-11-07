@@ -19,6 +19,7 @@ import {
 } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrStep } from './step';
 import { WR_STEPPER, type WrStepperContext } from './tokens';
@@ -103,6 +104,7 @@ export class WrStepper implements WrStepperContext {
   });
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('stepper');
     // Push each step's index down so it can compute its own active state.
     effect(() => {
       this.steps().forEach((step, i) => step._index.set(i));

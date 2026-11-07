@@ -34,7 +34,7 @@ import {
 } from 'ngwr/charts/core';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, type WrChartTooltipTarget, useChartTooltip } from 'ngwr/popover';
-import { clamp } from 'ngwr/utils';
+import { clamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrBarChartDatum, WrBarLine, WrBarOrientation, WrBarSeries } from './types';
 
@@ -427,6 +427,7 @@ export class WrBarChart {
   private readonly pointEls = viewChildren<ElementRef<SVGSVGElement>>('pointEl');
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/bar-chart');
     // Two inputs that each describe the whole chart: drawing one and silently dropping
     // the other looks like data that failed to load.
     if (isDevMode()) {

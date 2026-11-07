@@ -25,7 +25,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
-import { clamp, round } from 'ngwr/utils';
+import { clamp, round, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrSliderValue } from './types';
 
@@ -271,6 +271,7 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   protected readonly label = computed(() => (this.range() ? `${this.low()} – ${this.high()}` : `${this.low()}`));
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('slider');
     // Keep the internal thumbs in sync with external writes to `value`
     // (the old `writeValue`): split the tuple / clamp into the low & high cells.
     // The cells are clamped and the MODEL IS NOT TOUCHED, and the asymmetry is

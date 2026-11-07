@@ -57,7 +57,7 @@ import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { WrSpinner } from 'ngwr/spinner';
-import { isComposing, toClassList, type WrClassInput } from 'ngwr/utils';
+import { isComposing, toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { WrSelectLoadError } from './load-error';
 import { WrOption } from './option';
@@ -1418,6 +1418,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('select');
     // A component destroyed while the panel is open takes its overlay with it.
     // Without this the pane stays in the CDK container forever.
     this.destroyRef.onDestroy(() => this.closeOverlay());

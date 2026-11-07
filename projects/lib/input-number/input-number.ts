@@ -24,7 +24,16 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix, type WrInputSize } from 'ngwr/input';
-import { clamp, round, wrDecimal, wrDecimalAdd, wrDecimalCompare, wrDecimalMultiply, wrDecimalRound } from 'ngwr/utils';
+import {
+  clamp,
+  round,
+  wrCheckStyles,
+  wrDecimal,
+  wrDecimalAdd,
+  wrDecimalCompare,
+  wrDecimalMultiply,
+  wrDecimalRound,
+} from 'ngwr/utils';
 
 import type { WrInputNumberMode, WrInputNumberValue } from './types';
 
@@ -331,6 +340,7 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
   private static readonly SAFE_ROUND_STEP = 1e-9;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('input-number');
     // Keep the display `text` in sync with external writes to `value` (via
     // `[formField]` / `[(value)]`). While the user is editing, the input
     // handlers own `text`, so skip re-formatting to avoid clobbering partial

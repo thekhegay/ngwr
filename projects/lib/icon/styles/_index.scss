@@ -2,6 +2,7 @@
 // design token this stylesheet references. Sass deduplicates `@use` per
 // compilation, so the umbrella sheet still emits the theme only once.
 @use '../../theme/styles' as theme;
+@include theme.loaded('icon');
 
 :root {
   // Relative to the surrounding text, not the root, so an icon dropped beside
