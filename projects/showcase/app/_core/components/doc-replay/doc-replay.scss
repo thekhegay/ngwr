@@ -1,0 +1,12 @@
+// The button on its own row above the stage, at the end, so the text below
+// starts where the eye lands.
+:host {
+  display: grid;
+  gap: var(--wr-space-md);
+  width: 100%;
+}
+
+.bar {
+  display: flex;
+  justify-content: flex-end;
+}

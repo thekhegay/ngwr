@@ -90,6 +90,14 @@ export const ROUTES = {
     treemapChart: { path: 'treemap-chart', title: 'Treemap Chart' },
     waterfallChart: { path: 'waterfall-chart', title: 'Waterfall Chart' },
   },
+  animations: {
+    path: 'animations',
+    title: 'Animations',
+    blurReveal: { path: 'blur-reveal', title: 'Blur Reveal' },
+    decode: { path: 'decode', title: 'Decode' },
+    letterStagger: { path: 'letter-stagger', title: 'Letter Stagger' },
+    shine: { path: 'shine', title: 'Shine' },
+  },
   guides: {
     path: 'guides',
     title: 'Guides',

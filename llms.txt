@@ -24,6 +24,7 @@ ngwr.dev has six sections:
   components, directives, pipes, services, utils, validators or interfaces.
   e.g. https://ngwr.dev/reference/components/select
 - `/charts/<name>` — the charts. e.g. https://ngwr.dev/charts/bar-chart
+- `/animations/<name>` — the animation effects. e.g. https://ngwr.dev/animations/blur-reveal
 - `/icons/<set>` — the icon-set browsers. e.g. https://ngwr.dev/icons/lucide
 
 ## Install

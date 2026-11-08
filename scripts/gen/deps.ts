@@ -30,8 +30,9 @@ const OUT_FILE = join(GENERATED_DIR, 'deps.ts');
  * Plumbing every component touches; listing it would say nothing. `charts/core` is the
  * charts' shared palette, number writers and axis: every export is `@internal`, so a
  * "Built on" row naming it would point readers at an entry point they must not import.
+ * `animations/core` is the same for the animations.
  */
-const INFRA = new Set(['utils', 'utils/types', 'i18n', 'platform', 'theme', 'charts/core']);
+const INFRA = new Set(['utils', 'utils/types', 'i18n', 'platform', 'theme', 'charts/core', 'animations/core']);
 
 /** Imported by demos to draw the page itself, not related to what it documents. */
 const SCAFFOLDING = new Set([
@@ -62,6 +63,7 @@ const KIND: readonly (readonly [string, string])[] = [
   ['reference/validators/', 'Validator'],
   ['reference/interfaces/', 'Type'],
   ['charts/', 'Component'],
+  ['animations/', 'Animation'],
   ['guides/', 'Guide'],
 ];
 

@@ -2,6 +2,7 @@ import { Component, computed, contentChild, contentChildren, effect, inject, inp
 import { Router, RouterLink } from '@angular/router';
 
 import { WrAnchor, type WrAnchorLink } from 'ngwr/anchor';
+import { WrShine } from 'ngwr/animations/shine';
 import { WrBadge } from 'ngwr/badge';
 import { WrTypography } from 'ngwr/typography';
 
@@ -13,7 +14,6 @@ import { DocRichPipe, docRichToText } from '../doc-rich/doc-rich';
 import { DOC_PAGE_TITLE, DocSectionComponent } from '../doc-section/doc-section';
 import { DocSeeAlsoComponent } from '../doc-see-also/doc-see-also';
 
-import { Shine } from '#core/effects';
 import { CSS_VARS, type DocCssVarRoute, type DocCssVars } from '#core/generated/css-vars';
 import { INSTALL, type DocInstallEntry, type DocInstallRoute } from '#core/generated/install';
 import { MetaService } from '#core/services';
@@ -93,7 +93,7 @@ interface DepsRow {
     DocSectionComponent,
     DocSeeAlsoComponent,
     RouterLink,
-    Shine,
+    WrShine,
     WrAnchor,
     WrBadge,
     WrTypography,

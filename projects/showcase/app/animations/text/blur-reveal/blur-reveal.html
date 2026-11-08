@@ -1,0 +1,114 @@
+<ngwr-doc-page
+  title="Blur Reveal"
+  since="15.7.0"
+  description="A text comes in piece by piece the first time it scrolls into view: each word, or each letter, from blurred and a little below its place to sharp and in place."
+  [keywords]="['blur-reveal', 'text reveal', 'entrance', 'scroll', 'wrBlurReveal']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `wrBlurReveal` on the element that holds the text. It plays once, when most of the element is in view, and leaves the element exactly as it was: the same nodes, bindings included, go back when the last piece lands."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="h2" wrBlurReveal>Signal Forms, with nothing in between.</p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Letters"
+    description='`by="letters"` enters one grapheme at a time. The letters of a word sit in a no-wrap wrapper, so a word never breaks across lines mid-word, and an emoji or an accented letter is one piece.'
+  >
+    <ngwr-doc-code [code]="snippets.letters" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="h2" wrBlurReveal by="letters">Built on the new Angular.</p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="From above"
+    description='`from="above"` settles each piece down into its place instead of up.'
+  >
+    <ngwr-doc-code [code]="snippets.above" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="h2" wrBlurReveal from="above">The checks behind ngwr.</p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Timing"
+    description="`delay` is the pause between the element entering the viewport and the first piece. `stagger` is the gap from one piece to the next; unset, it is 70 ms for words and 28 ms for letters. Whatever the gap, the whole reveal spreads over 1.2 s at most, so a long paragraph does not keep the reader waiting. The blur, the offset, the duration and the easing are CSS variables."
+  >
+    <ngwr-doc-code [code]="snippets.timing" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.styled" language="scss" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="lead" wrBlurReveal delay="300" stagger="120">
+            Each word waits for the one before it.
+          </p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              While the pieces play they are <code>aria-hidden</code>, and a visually hidden copy of the text stands
+              beside them, so the sentence is announced once and never letter by letter. At rest the element holds its
+              original text nodes.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> nothing is split and nothing moves: the text is shown as
+              authored. The demos on this page follow the same setting.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>
+              The server renders the plain text. The split happens in the browser, after the first render, and only
+              where <code>IntersectionObserver</code> exists.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Selection and search</th>
+            <td>
+              Spaces between pieces stay real text, so the words wrap where they did, and find-in-page and copy work
+              once the reveal has ended.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

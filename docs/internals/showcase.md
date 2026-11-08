@@ -5,11 +5,12 @@ Part of [AGENTS.md](../../AGENTS.md). Read this before changing a docs page, a m
 **Showcase page = the docs.** Every component ships a docs page, and a new
 one takes four steps, all under `projects/showcase/app/`:
 
-1. Create the page in `reference/components/<group>/<name>/` or
-   `charts/<group>/<name>/`. The group folder is the
+1. Create the page in `reference/components/<group>/<name>/`,
+   `charts/<group>/<name>/` or `animations/<group>/<name>/`. The group folder is the
    sidebar group (buttons, data, display, feedback, form, layout, navigation
    and overlays for components; comparison, trend, part-to-whole,
-   distribution, single-value and building-blocks for charts) and never part
+   distribution, single-value and building-blocks for charts; text,
+   backgrounds and interaction for animations) and never part
    of the URL.
 2. Add its node to `ROUTES` in `_core/constants/routes.ts` (imported as
    `#routes`): its own URL segment and its title, the one tree every route and
@@ -17,8 +18,8 @@ one takes four steps, all under `projects/showcase/app/`:
 3. Add a `loadComponent` row to the `routing.ts` beside the page's folder,
    e.g. `{ path: components.qrCode.path, loadComponent: () => import('./qr/qr') }`.
 4. Add a `wrLink(...)` row to the sidebar config in
-   `_layout/sidebar/configs/`: `COMPONENT_GROUPS` in `components.config.ts`
-   or `charts.config.ts`.
+   `_layout/sidebar/configs/`: `COMPONENT_GROUPS` in `components.config.ts`,
+   `charts.config.ts` or `animations.config.ts`.
 
 Author it with the doc-page components from
 `#core/components`: `<ngwr-doc-page>`,

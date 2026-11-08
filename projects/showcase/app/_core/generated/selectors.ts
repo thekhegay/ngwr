@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 171 of 184 declarations are mapped: 0 carry no selector and
+ * 175 of 188 declarations are mapped: 0 carry no selector and
  * 13 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -105,6 +105,7 @@ export const SELECTORS = {
     "wr-layout-footer": { symbol: "WrLayoutFooter", path: "ngwr/layout" },
     "wr-layout-header": { symbol: "WrLayoutHeader", path: "ngwr/layout" },
     "wr-layout-sider": { symbol: "WrLayoutSider", path: "ngwr/layout" },
+    "wr-letter-stagger": { symbol: "WrLetterStagger", path: "ngwr/animations/letter-stagger" },
     "wr-lightbox": { symbol: "WrLightbox", path: "ngwr/lightbox" },
     "wr-line-chart": { symbol: "WrLineChart", path: "ngwr/charts/line-chart" },
     "wr-list": { symbol: "WrList", path: "ngwr/list" },
@@ -174,11 +175,13 @@ export const SELECTORS = {
     "wrAffix": { symbol: "WrAffix", path: "ngwr/affix" },
     "wrAutofocus": { symbol: "WrAutofocus", path: "ngwr/directives" },
     "wrAutosize": { symbol: "WrAutosize", path: "ngwr/directives" },
+    "wrBlurReveal": { symbol: "WrBlurReveal", path: "ngwr/animations/blur-reveal" },
     "wrCalendarEvent": { symbol: "WrCalendarEventTemplate", path: "ngwr/event-calendar" },
     "wrClickOutside": { symbol: "WrClickOutside", path: "ngwr/directives" },
     "wrColorPickerTrigger": { symbol: "WrColorPickerTrigger", path: "ngwr/color-picker" },
     "wrContextMenu": { symbol: "WrContextMenu", path: "ngwr/context-menu" },
     "wrCopyToClipboard": { symbol: "WrCopyToClipboard", path: "ngwr/directives" },
+    "wrDecode": { symbol: "WrDecode", path: "ngwr/animations/decode" },
     "wrDensity": { symbol: "WrDensityDirective", path: "ngwr/density" },
     "wrDialogClose": { symbol: "WrDialogClose", path: "ngwr/dialog" },
     "wrDialogContent": { symbol: "WrDialogContent", path: "ngwr/dialog" },
@@ -205,6 +208,7 @@ export const SELECTORS = {
     "wrPopconfirm": { symbol: "WrPopconfirm", path: "ngwr/popconfirm" },
     "wrPopover": { symbol: "WrPopover", path: "ngwr/popover" },
     "wrSelectLoadError": { symbol: "WrSelectLoadError", path: "ngwr/select" },
+    "wrShine": { symbol: "WrShine", path: "ngwr/animations/shine" },
     "wrT": { symbol: "WrTDirective", path: "ngwr/i18n" },
     "wrTableCell": { symbol: "WrTableCell", path: "ngwr/table" },
     "wrTableExpand": { symbol: "WrTableExpand", path: "ngwr/table" },
@@ -226,6 +230,10 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/affix",
   "ngwr/alert",
   "ngwr/anchor",
+  "ngwr/animations/blur-reveal",
+  "ngwr/animations/decode",
+  "ngwr/animations/letter-stagger",
+  "ngwr/animations/shine",
   "ngwr/avatar",
   "ngwr/back-top",
   "ngwr/badge",

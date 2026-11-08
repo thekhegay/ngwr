@@ -2,6 +2,9 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { BadgeCheck, Folder, ListChecks, Moon, ShieldCheck, Terminal, TextCursorInput } from 'lucide';
+import { WrBlurReveal } from 'ngwr/animations/blur-reveal';
+import { WrDecode } from 'ngwr/animations/decode';
+import { WrLetterStagger } from 'ngwr/animations/letter-stagger';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrCard } from 'ngwr/card';
@@ -19,18 +22,7 @@ import { SignalSweep } from './hero/signal-sweep/signal-sweep';
 import { HomeOptInComponent } from './opt-in/opt-in';
 
 import { DocCodeComponent, DocNgtrueComponent, DocRichPipe } from '#core/components';
-import {
-  Aurora,
-  BlurReveal,
-  ClickSparks,
-  Decode,
-  LetterStagger,
-  Spotlight,
-  Ticker,
-  type TickerItem,
-  Tilt,
-  WordRotator,
-} from '#core/effects';
+import { Aurora, ClickSparks, Spotlight, Ticker, type TickerItem, Tilt, WordRotator } from '#core/effects';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
@@ -78,10 +70,10 @@ interface DxLink {
     SignalSweep,
     GlowBorder,
     Aurora,
-    BlurReveal,
+    WrBlurReveal,
     ClickSparks,
-    Decode,
-    LetterStagger,
+    WrDecode,
+    WrLetterStagger,
     Spotlight,
     Ticker,
     Tilt,

@@ -9,6 +9,10 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/affix` | `import { WrAffix } from 'ngwr/affix'` | `[wrAffix]` |
 | `ngwr/alert` | `import { WrAlert } from 'ngwr/alert'` | `wr-alert` |
 | `ngwr/anchor` | `import { WrAnchor } from 'ngwr/anchor'` | `wr-anchor` |
+| `ngwr/animations/blur-reveal` | `import { WrBlurReveal } from 'ngwr/animations/blur-reveal'` | `[wrBlurReveal]` |
+| `ngwr/animations/decode` | `import { WrDecode } from 'ngwr/animations/decode'` | `[wrDecode]` |
+| `ngwr/animations/letter-stagger` | `import { WrLetterStagger } from 'ngwr/animations/letter-stagger'` | `wr-letter-stagger` |
+| `ngwr/animations/shine` | `import { WrShine } from 'ngwr/animations/shine'` | `[wrShine]` |
 | `ngwr/avatar` | `import { WrAvatar } from 'ngwr/avatar'` | `wr-avatar` |
 | `ngwr/back-top` | `import { WrBackTop } from 'ngwr/back-top'` | `wr-back-top` |
 | `ngwr/badge` | `import { WrBadge } from 'ngwr/badge'` | `wr-badge` `wr-tag` |
