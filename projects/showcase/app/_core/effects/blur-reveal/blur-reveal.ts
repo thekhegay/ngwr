@@ -4,45 +4,13 @@ import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, inject
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
+import { SPACES, type StaggerBy, VISIBLE, graphemes, optionalMs, staggerGap } from '../stagger';
+
 /** What one animated piece of the text is. */
-type BlurRevealBy = 'words' | 'letters';
+type BlurRevealBy = StaggerBy;
 
 /** The side a piece settles in from. */
 type BlurRevealFrom = 'below' | 'above';
-
-/** How far the start of the last piece may sit from the start of the first, in ms. */
-const SPREAD_MAX = 1200;
-
-/** The gap between two pieces when `stagger` is not set, in ms. */
-const STAGGER: Readonly<Record<BlurRevealBy, number>> = { words: 70, letters: 28 };
-
-/**
- * How much of the host has to be in the viewport before the reveal plays: most
- * of it, not the first pixel of a heading peeking in at the bottom edge.
- */
-const VISIBLE = 0.6;
-
-/**
- * A run of breaking spaces, captured so `split` keeps it. U+00A0 and the other
- * no-break spaces are not in it: a word pair the author glued together stays one
- * piece, so the lines break exactly where they did before the split.
- */
-const SPACES = /([ \t\n\r\f]+)/;
-
-let segmenter: Intl.Segmenter | undefined;
-
-/** What a reader sees as one character, so an emoji or an accented letter is never cut in two. */
-function graphemes(text: string): string[] {
-  if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
-    segmenter ??= new Intl.Segmenter(undefined, { granularity: 'grapheme' });
-    return [...segmenter.segment(text)].map(s => s.segment);
-  }
-  // Code points: a surrogate pair stays whole, a combining mark becomes its own piece.
-  return [...text];
-}
-
-/** An optional count in ms: `null`, `undefined` or an empty attribute means "the mode's default". */
-const optionalMs = (value: unknown): number | null => (value == null || value === '' ? null : numAttr(0)(value));
 
 /**
  * One-shot entrance for a text element: the first time the host scrolls into
@@ -192,7 +160,7 @@ export class BlurReveal {
       return;
     }
 
-    const stagger = Math.min(Math.max(0, this.stagger() ?? STAGGER[this.by()]), SPREAD_MAX / Math.max(1, count - 1));
+    const stagger = staggerGap(this.by(), count, this.stagger());
     pieces.style.setProperty('--ngwr-blur-reveal-delay', `${Math.max(0, this.delay())}ms`);
     pieces.style.setProperty('--ngwr-blur-reveal-stagger', `${stagger}ms`);
 

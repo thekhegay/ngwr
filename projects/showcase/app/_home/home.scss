@@ -102,6 +102,13 @@
     white-space: nowrap;
   }
 
+  // The accent and its period. Each letter is an inline-block while it plays,
+  // and a line may break between two inline-blocks unless their common
+  // ancestor says not to: without this the period could start a line alone.
+  &__title-end {
+    white-space: nowrap;
+  }
+
   // The one line under the headline. It is a subheading, not a specification:
   // the paragraph that used to sit here — eighteen controls, four inline code
   // spans, five rendered lines — moved to the DX section below the fold, which
