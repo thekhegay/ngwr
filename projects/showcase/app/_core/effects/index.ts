@@ -6,6 +6,7 @@ export { Confetti, type ConfettiOptions, type ConfettiRect } from './confetti/co
 export { Decode, type DecodeShape, type DecodeTrigger } from './decode/decode';
 export { DotGrid } from './dot-grid/dot-grid';
 export { FallingLetters, type FallingLettersState } from './falling-letters/falling-letters';
+export { FluidCursor } from './fluid-cursor/fluid-cursor';
 export { Glitch, type GlitchState } from './glitch/glitch';
 export { GradientFlow } from './gradient-flow/gradient-flow';
 export { LetterStagger, type LetterStaggerTrigger } from './letter-stagger/letter-stagger';
