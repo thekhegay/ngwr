@@ -1,31 +1,9 @@
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import {
-  Component,
-  DestroyRef,
-  ElementRef,
-  Injector,
-  PLATFORM_ID,
-  ViewEncapsulation,
-  afterNextRender,
-  effect,
-  inject,
-  input,
-  viewChild,
-} from '@angular/core';
+import { Component, DestroyRef, ElementRef, ViewEncapsulation, inject, input, viewChild } from '@angular/core';
 
-import { WrPlatform } from 'ngwr/platform';
-import { clamp, numAttr, resolveCssColorChannels, watchColorScheme } from 'ngwr/utils';
+import { clamp, numAttr, resolveCssColorChannels } from 'ngwr/utils';
 
-const MAX_DPR = 2;
+import { MAX_DPR, MAX_PIXELS, createCanvasBackdrop } from '../canvas-backdrop';
 
-/**
- * The backing store's pixel budget. A section stacked on a phone runs to
- * thousands of CSS pixels tall; past this the ratio drops (never below 1), so
- * the canvas stays a few megabytes instead of tens.
- */
-const MAX_PIXELS = 4_000_000;
-/** A tab that was throttled comes back with one huge frame; the field moves at most this far at once. */
-const MAX_FRAME_MS = 50;
 /** How far a dot is pushed at the pointer itself, in px. */
 const PUSH = 14;
 /** Spring that returns a pushed dot, tuned per 60Hz frame: it overshoots about 15% and settles in half a second. */
@@ -101,7 +79,7 @@ export function dotGridLayout(
  * Fills its positioned parent, which isolates itself (`.ngwr-section--backdrop`)
  * so the host's negative z-index lands under the content and over the page
  * background. The parent takes the pointer: the host and its canvas never do.
- * One canvas, at the device ratio capped at two, redrawn only while something
+ * One canvas through `createCanvasBackdrop`, redrawn only while something
  * moves: the frame loop runs while the pointer is over the parent or a dot is
  * still settling, and only while the host is on screen and the document is
  * visible; at rest the still field is drawn once. Touch never pushes, so a
@@ -130,14 +108,7 @@ export class DotGrid {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
-  private readonly injector = inject(Injector);
-  private readonly platform = inject(WrPlatform);
-  private readonly doc = inject(DOCUMENT);
-  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  private ctx: CanvasRenderingContext2D | null = null;
-  private width = 0;
-  private height = 0;
   /** One fill per light level, rest first, and the radius that goes with it. */
   private fills: string[] = [];
   private radii: number[] = [];
@@ -162,123 +133,67 @@ export class DotGrid {
   /** True while every dot sits at its place, unlit and still. */
   private settled = true;
 
-  private inView = false;
-  private running = false;
-  private rafId: number | null = null;
-  private resizeRafId: number | null = null;
-  private pendingWidth = 0;
-  private pendingHeight = 0;
-  private lastFrame = 0;
-
-  private resizeObserver: ResizeObserver | null = null;
-  private viewObserver: IntersectionObserver | null = null;
   private pointerTarget: HTMLElement | null = null;
 
+  private readonly backdrop = createCanvasBackdrop(() => this.canvasRef().nativeElement, {
+    colors: canvas => this.resolveColors(canvas),
+    layout: (width, height) => this.layout(width, height),
+    active: () => this.pointerInside || !this.settled,
+    advance: dt => this.advance(dt),
+    draw: (ctx, width, height) => this.draw(ctx, width, height),
+    rest: () => this.rest(),
+    mounted: () => this.listen(),
+  });
+
   constructor() {
-    if (!this.isBrowser) return;
-
-    effect(() => {
-      this.platform.pageVisible();
-      this.platform.prefersReducedMotion();
-      this.sync();
+    inject(DestroyRef).onDestroy(() => {
+      this.pointerTarget?.removeEventListener('pointermove', this.onPointerMove);
+      this.pointerTarget?.removeEventListener('pointerleave', this.onPointerLeave);
+      this.pointerTarget?.removeEventListener('pointerdown', this.onPointerDown);
+      this.pointerTarget = null;
     });
-
-    afterNextRender(() => this.mount());
-
-    inject(DestroyRef).onDestroy(() => this.unmount());
   }
 
-  private mount(): void {
-    // Nothing drawn under forced colours: the stylesheet hides the host too.
-    if (this.doc.defaultView?.matchMedia?.('(forced-colors: active)').matches) return;
-    const element = this.host.nativeElement;
-    const canvas = this.canvasRef().nativeElement;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    this.ctx = ctx;
-    this.resolveColors();
-
-    if (typeof ResizeObserver !== 'undefined') {
-      this.resizeObserver = new ResizeObserver(entries => {
-        const rect = entries[entries.length - 1]?.contentRect;
-        this.scheduleResize(rect?.width ?? element.clientWidth, rect?.height ?? element.clientHeight);
-      });
-      this.resizeObserver.observe(element);
-    } else {
-      this.resize(element.clientWidth, element.clientHeight);
-    }
-
-    if (typeof IntersectionObserver !== 'undefined') {
-      this.viewObserver = new IntersectionObserver(entries => {
-        this.inView = entries[entries.length - 1]?.isIntersecting ?? false;
-        this.sync();
-      });
-      this.viewObserver.observe(element);
-    }
-
-    const target = element.parentElement;
+  /** The parent takes the pointer: the host and its canvas never do. */
+  private listen(): void {
+    const target = this.host.nativeElement.parentElement;
     this.pointerTarget = target;
     target?.addEventListener('pointermove', this.onPointerMove, { passive: true });
     target?.addEventListener('pointerleave', this.onPointerLeave, { passive: true });
     target?.addEventListener('pointerdown', this.onPointerDown, { passive: true });
-
-    watchColorScheme(
-      () => {
-        this.resolveColors();
-        if (!this.running) this.draw();
-      },
-      { injector: this.injector }
-    );
-  }
-
-  private unmount(): void {
-    this.running = false;
-    this.stopLoop();
-    if (this.resizeRafId !== null) cancelAnimationFrame(this.resizeRafId);
-    this.resizeRafId = null;
-    this.resizeObserver?.disconnect();
-    this.resizeObserver = null;
-    this.viewObserver?.disconnect();
-    this.viewObserver = null;
-    this.pointerTarget?.removeEventListener('pointermove', this.onPointerMove);
-    this.pointerTarget?.removeEventListener('pointerleave', this.onPointerLeave);
-    this.pointerTarget?.removeEventListener('pointerdown', this.onPointerDown);
-    this.pointerTarget = null;
-    this.ctx = null;
   }
 
   // Pointer
 
   private readonly onPointerMove = (event: PointerEvent): void => {
     // A finger that moves is scrolling: the field must never fight it.
-    if (event.pointerType === 'touch' || !this.ctx) return;
+    if (event.pointerType === 'touch' || !this.backdrop.ctx) return;
     const rect = this.canvasRef().nativeElement.getBoundingClientRect();
     this.pointerX = event.clientX - rect.left;
     this.pointerY = event.clientY - rect.top;
     this.settled = false;
-    this.sync();
+    this.backdrop.sync();
   };
 
   private readonly onPointerLeave = (): void => {
     this.pointerX = NaN;
     this.pointerY = NaN;
-    this.sync();
+    this.backdrop.sync();
   };
 
   private readonly onPointerDown = (event: PointerEvent): void => {
-    if (event.pointerType !== 'touch' || !this.ctx) return;
+    if (event.pointerType !== 'touch' || !this.backdrop.ctx) return;
     const rect = this.canvasRef().nativeElement.getBoundingClientRect();
     this.pulseX = event.clientX - rect.left;
     this.pulseY = event.clientY - rect.top;
     this.pulseAge = 0;
     this.settled = false;
-    this.sync();
+    this.backdrop.sync();
   };
 
   // Layout
 
-  private resolveColors(): void {
-    const canvas = this.canvasRef().nativeElement;
+  private resolveColors(canvas: HTMLCanvasElement): void {
     const ink = resolveCssColorChannels(canvas, 'var(--ngwr-dot-grid-ink)', '#6b7280');
     const glow = resolveCssColorChannels(canvas, 'var(--ngwr-dot-grid-glow)', '#3969e2');
     this.fills = [];
@@ -292,28 +207,7 @@ export class DotGrid {
     }
   }
 
-  /** Folds a burst of resize notifications into one layout, on the next frame. */
-  private scheduleResize(width: number, height: number): void {
-    this.pendingWidth = width;
-    this.pendingHeight = height;
-    if (this.resizeRafId !== null) return;
-    this.resizeRafId = requestAnimationFrame(() => {
-      this.resizeRafId = null;
-      this.resize(this.pendingWidth, this.pendingHeight);
-    });
-  }
-
-  private resize(width: number, height: number): void {
-    if (!this.ctx || width <= 0 || height <= 0) return;
-    const canvas = this.canvasRef().nativeElement;
-    const budget = Math.sqrt(MAX_PIXELS / (width * height));
-    const dpr = Math.max(1, Math.min(MAX_DPR, this.doc.defaultView?.devicePixelRatio ?? 1, budget));
-    this.width = width;
-    this.height = height;
-    canvas.width = Math.round(width * dpr);
-    canvas.height = Math.round(height * dpr);
-    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
+  private layout(width: number, height: number): void {
     const { x, y } = dotGridLayout(width, height, this.spacing());
     this.count = x.length;
     this.baseX = x;
@@ -325,9 +219,6 @@ export class DotGrid {
     this.light = new Float32Array(this.count);
     this.level = new Uint8Array(this.count);
     this.settled = true;
-
-    this.draw();
-    this.sync();
   }
 
   // Motion
@@ -337,32 +228,7 @@ export class DotGrid {
     return !Number.isNaN(this.pointerX);
   }
 
-  /** Starts or stops the loop: the gates, then whether anything is left to move. */
-  private sync(): void {
-    const allowed =
-      this.ctx !== null &&
-      this.width > 0 &&
-      this.inView &&
-      this.platform.pageVisible() &&
-      !this.platform.prefersReducedMotion();
-    const run = allowed && (this.pointerInside || !this.settled);
-    if (!allowed && this.platform.prefersReducedMotion() && !this.settled) this.rest();
-    if (run === this.running) return;
-    this.running = run;
-    if (run) {
-      this.lastFrame = performance.now();
-      this.rafId = requestAnimationFrame(this.frame);
-      return;
-    }
-    this.stopLoop();
-  }
-
-  private stopLoop(): void {
-    if (this.rafId !== null) cancelAnimationFrame(this.rafId);
-    this.rafId = null;
-  }
-
-  /** Every dot back at its place, unlit, and the still field drawn. */
+  /** Every dot back at its place, unlit and still. */
   private rest(): void {
     this.offX.fill(0);
     this.offY.fill(0);
@@ -372,22 +238,7 @@ export class DotGrid {
     this.level.fill(0);
     this.pulseAge = Infinity;
     this.settled = true;
-    this.draw();
   }
-
-  private readonly frame = (now: number): void => {
-    this.rafId = null;
-    if (!this.running) return;
-    const dt = clamp(now - this.lastFrame, 0, MAX_FRAME_MS);
-    this.lastFrame = now;
-    this.advance(dt);
-    this.draw();
-    if (this.settled && !this.pointerInside) {
-      this.running = false;
-      return;
-    }
-    this.rafId = requestAnimationFrame(this.frame);
-  };
 
   /** Moves every dot one frame: the pointer's push and light, the tap's ring, then the springs. */
   private advance(dt: number): void {
@@ -459,10 +310,9 @@ export class DotGrid {
   }
 
   /** One frame: one path per light level, every dot at that level in it. */
-  private draw(): void {
-    const ctx = this.ctx;
-    if (!ctx || this.width === 0 || this.fills.length === 0) return;
-    ctx.clearRect(0, 0, this.width, this.height);
+  private draw(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+    if (this.fills.length === 0) return;
+    ctx.clearRect(0, 0, width, height);
     for (let l = 0; l < LEVELS; l++) {
       const r = this.radii[l];
       let any = false;
