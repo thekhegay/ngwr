@@ -26,6 +26,7 @@
 // writes into the DOM carry no emulated-encapsulation attribute, and its hosts
 // sit in several components' templates.
 @use 'app/_core/effects/blur-reveal/blur-reveal';
+@use 'app/_core/effects/circle-text/circle-text';
 @use 'app/_core/effects/decode/decode';
 @use 'app/_core/effects/glitch/glitch';
 @use 'app/_core/effects/gradient-flow/gradient-flow';
