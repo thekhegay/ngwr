@@ -17,6 +17,13 @@ const MAX_PIXELS = 4_000_000;
 /** A tab that was throttled comes back with one huge frame; a scene moves at most this far at once. */
 const MAX_FRAME_MS = 50;
 
+/**
+ * How much short of its `frameMs` a frame may fall and still be drawn: a 60Hz
+ * screen's second frame lands at 33.3ms, not at the 33 a scene asks for, and
+ * without the slack it would wait for the third and run at 20fps.
+ */
+const FRAME_FLOOR_SLACK = 2;
+
 class Backdrop implements CanvasBackdrop {
   ctx: CanvasRenderingContext2D | null = null;
   width = 0;
@@ -150,6 +157,13 @@ class Backdrop implements CanvasBackdrop {
   private readonly frame = (now: number): void => {
     this.rafId = null;
     if (!this.running) return;
+    // A scene with a frame floor waits for it: the early frame is skipped
+    // whole, and the one that is drawn gets the time of both.
+    const floor = this.scene.frameMs ?? 0;
+    if (floor > 0 && now - this.lastFrame + FRAME_FLOOR_SLACK < floor) {
+      this.rafId = requestAnimationFrame(this.frame);
+      return;
+    }
     const dt = clamp(now - this.lastFrame, 0, MAX_FRAME_MS);
     this.lastFrame = now;
     this.scene.advance(dt);
@@ -187,6 +201,12 @@ export interface CanvasBackdropScene {
   rest(): void;
   /** Runs once the canvas has a context and is watched, after the first `colors`; for the scene's own listeners. */
   mounted?(): void;
+  /**
+   * The shortest frame the scene wants, in ms: a frame that comes sooner is
+   * skipped and its time rolls into the next. For a scene that never rests,
+   * where slow motion needs no more than 30fps; unset, every frame is drawn.
+   */
+  readonly frameMs?: number;
 }
 
 /** The plumbing side of a canvas backdrop, as the component sees it. */
@@ -209,7 +229,8 @@ export interface CanvasBackdrop {
  * capped at two and by a pixel budget, a `ResizeObserver` folded into one
  * frame, colours re-read when the scheme changes, and a frame loop that runs
  * only while the scene is `active()`, the host is on screen and the document is
- * visible, and that stops on its own at rest. Under `prefers-reduced-motion:
+ * visible, and that stops on its own at rest; a scene that sets `frameMs` is
+ * drawn no more often than that. Under `prefers-reduced-motion:
  * reduce` the loop never runs and a scene caught moving is put to `rest()`;
  * under `forced-colors: active` nothing mounts; on the server nothing happens.
  *
@@ -239,4 +260,4 @@ export function createCanvasBackdrop(canvas: () => HTMLCanvasElement, scene: Can
   return backdrop;
 }
 
-export { MAX_DPR, MAX_FRAME_MS, MAX_PIXELS };
+export { FRAME_FLOOR_SLACK, MAX_DPR, MAX_FRAME_MS, MAX_PIXELS };
