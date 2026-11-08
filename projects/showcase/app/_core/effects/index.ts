@@ -4,6 +4,7 @@ export { Decode, type DecodeShape, type DecodeTrigger } from './decode/decode';
 export { Glitch, type GlitchState } from './glitch/glitch';
 export { GradientFlow } from './gradient-flow/gradient-flow';
 export { LetterStagger, type LetterStaggerTrigger } from './letter-stagger/letter-stagger';
+export { NoiseText } from './noise-text/noise-text';
 export { Shine, type ShineState } from './shine/shine';
 export { type StaggerBy } from './stagger';
 export { Typewriter, type TypewriterTrigger } from './typewriter/typewriter';

@@ -1,0 +1,28 @@
+// `[ngwrNoiseText]`: while a pointer is over the host, or focus is in it, its
+// text wobbles with a fine, living noise, and settles back to crisp text when
+// the pointer leaves. The text stays real text: the directive mounts one 0 by 0
+// `<svg>` with a fractal-noise displacement filter beside the host, drives the
+// displacement every frame, and puts `--on` with the filter's url on the host
+// only while the noise is above zero. At rest the block declares nothing, so
+// the host renders exactly as its own rules say.
+.ngwr-noise-text {
+  @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+    &--on {
+      // Written by the directive: `url(#id)` of this instance's filter.
+      filter: var(--ngwr-noise-text-filter);
+      // Only while the directive drives it: a promoted layer costs memory, and
+      // still text has no reason to hold one.
+      will-change: filter;
+    }
+  }
+
+  // The filter's home: no box, no hit area, nothing a reader can land on. Not
+  // `display: none`, which would take the filter out of rendering with it.
+  &__filter {
+    position: absolute;
+    inline-size: 0;
+    block-size: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+}
