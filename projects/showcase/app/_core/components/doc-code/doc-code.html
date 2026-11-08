@@ -59,8 +59,14 @@
       instead — a control sitting on top of the two controls that decide what
       it would copy.
     -->
-    <button type="button" class="copy" (click)="copy()" [attr.aria-label]="copied() ? 'Copied' : 'Copy'">
-      <wr-icon [name]="copied() ? 'check' : 'copy'" />
+    <button
+      #copyButton
+      type="button"
+      class="copy"
+      (click)="copy()"
+      [attr.aria-label]="justCopied() ? 'Copied' : 'Copy'"
+    >
+      <wr-icon [name]="justCopied() ? 'check' : 'copy'" />
     </button>
   </div>
 }

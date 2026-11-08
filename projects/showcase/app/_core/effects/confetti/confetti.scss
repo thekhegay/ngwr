@@ -1,0 +1,32 @@
+// `Confetti.burst()`: one fixed, full-viewport canvas in `document.body` for as
+// long as pieces are in the air, then gone. The service paints every piece
+// itself; this sheet places the canvas and names the colours it resolves at
+// each burst. The canvas takes no pointer and has no content, so nothing on the
+// page moves or misses a click while it is there.
+.ngwr-confetti {
+  // Read by the service through the cascade when a burst starts, so a
+  // `light-dark()` token paints the scheme the reader is in. Bare intents, not
+  // `-ink`: confetti is a graphic, and the text role is for text.
+  --ngwr-confetti-color-1: var(--wr-color-primary);
+  --ngwr-confetti-color-2: var(--wr-color-success);
+  --ngwr-confetti-color-3: var(--wr-color-warning);
+  --ngwr-confetti-color-4: var(--wr-color-danger);
+  --ngwr-confetti-color-5: var(--wr-color-info);
+
+  // Physical on purpose: the pieces fly in client coordinates, the same in
+  // either direction, and the canvas covers the whole viewport.
+  // rtl-ok: client coordinates are physical by nature
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: var(--wr-z-top);
+  pointer-events: none;
+  user-select: none;
+
+  // The service mounts nothing under forced colours; this covers a preference
+  // that flips while a burst is in the air.
+  @media (forced-colors: active) {
+    display: none;
+  }
+}
