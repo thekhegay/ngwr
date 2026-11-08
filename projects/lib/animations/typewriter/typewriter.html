@@ -1,0 +1,12 @@
+<span class="wr-typewriter__sr">{{ speech() }}</span>
+<span class="wr-typewriter__box" aria-hidden="true">
+  @for (other of lines(); track $index) {
+    @if ($index !== index()) {
+      <span class="wr-typewriter__ghost">{{ other }}</span>
+    }
+  }
+  <span class="wr-typewriter__line"
+    ><span class="wr-typewriter__typed">{{ typed() }}</span
+    ><span class="wr-typewriter__rest">{{ rest() }}</span></span
+  >
+</span>

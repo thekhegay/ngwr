@@ -1,17 +1,10 @@
 export { Aurora } from './aurora/aurora';
-export { CircleText } from './circle-text/circle-text';
 export { ClickSparks } from './click-sparks/click-sparks';
 export { Confetti, type ConfettiOptions, type ConfettiRect } from './confetti/confetti';
 export { DotGrid } from './dot-grid/dot-grid';
-export { FallingLetters, type FallingLettersState } from './falling-letters/falling-letters';
 export { FluidCursor } from './fluid-cursor/fluid-cursor';
-export { Glitch, type GlitchState } from './glitch/glitch';
-export { GradientFlow } from './gradient-flow/gradient-flow';
-export { NoiseText } from './noise-text/noise-text';
 export { RippleGrid } from './ripple-grid/ripple-grid';
 export { Spotlight } from './spotlight/spotlight';
 export { ThreadLines } from './thread-lines/thread-lines';
 export { Ticker, type TickerItem } from './ticker/ticker';
 export { Tilt } from './tilt/tilt';
-export { Typewriter, type TypewriterTrigger } from './typewriter/typewriter';
-export { WordRotator } from './word-rotator/word-rotator';

@@ -48,3 +48,18 @@
     border-bottom: 1px dashed var(--wr-border-base);
   }
 }
+
+// A box with room under a line of text, for a demo whose pieces leave the line
+// and land on the floor of their container (the falling letters). The floor is
+// the box's content edge, so the heap forms where the reader can see it.
+.ngwr-demo-arena {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 16rem;
+  padding: var(--wr-space-lg);
+  border: 1px solid var(--wr-border-base);
+  border-radius: var(--wr-border-radius-base);
+  background: var(--wr-color-surface);
+}

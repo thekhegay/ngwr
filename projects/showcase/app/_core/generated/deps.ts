@@ -127,9 +127,16 @@ export const DOC_PAGES: Readonly<Record<string, { readonly route: string; readon
   "alert": {"route":"reference/components/alert","title":"Alert","kind":"Component"},
   "anchor": {"route":"reference/components/anchor","title":"Anchor","kind":"Component"},
   "animations/blur-reveal": {"route":"animations/blur-reveal","title":"Blur Reveal","kind":"Animation"},
+  "animations/circle-text": {"route":"animations/circle-text","title":"Circle Text","kind":"Animation"},
   "animations/decode": {"route":"animations/decode","title":"Decode","kind":"Animation"},
+  "animations/falling-letters": {"route":"animations/falling-letters","title":"Falling Letters","kind":"Animation"},
+  "animations/glitch": {"route":"animations/glitch","title":"Glitch","kind":"Animation"},
+  "animations/gradient-flow": {"route":"animations/gradient-flow","title":"Gradient Flow","kind":"Animation"},
   "animations/letter-stagger": {"route":"animations/letter-stagger","title":"Letter Stagger","kind":"Animation"},
+  "animations/noise-text": {"route":"animations/noise-text","title":"Noise Text","kind":"Animation"},
   "animations/shine": {"route":"animations/shine","title":"Shine","kind":"Animation"},
+  "animations/typewriter": {"route":"animations/typewriter","title":"Typewriter","kind":"Animation"},
+  "animations/word-rotator": {"route":"animations/word-rotator","title":"Word Rotator","kind":"Animation"},
   "avatar": {"route":"reference/components/avatar","title":"Avatar","kind":"Component"},
   "back-top": {"route":"reference/components/back-top","title":"Back to Top","kind":"Component"},
   "badge": {"route":"reference/components/badge","title":"Badge","kind":"Component"},
@@ -240,6 +247,7 @@ export const DOC_PAGES: Readonly<Record<string, { readonly route: string; readon
 
 /** Route → entry points its demos use alongside the one it documents. */
 export const DEMO_RELATED: Readonly<Record<string, readonly string[]>> = {
+  "animations/circle-text": ["icon"],
   "animations/decode": ["badge"],
   "animations/letter-stagger": ["badge"],
   "animations/shine": ["badge"],
@@ -293,9 +301,16 @@ export const DOC_ROUTES: Readonly<
   >
 > = {
   "animations/blur-reveal": {"title":"Blur Reveal","kind":"Animation","labels":["Animation"],"description":"A text comes in piece by piece the first time it scrolls into view: each word, or each letter, from blurred and a little below its place to sharp and in place."},
+  "animations/circle-text": {"title":"Circle Text","kind":"Animation","labels":["Animation"],"description":"A short label set around a circle, like a seal, turning slowly, with a slot in the middle for a mark that does not turn. The ring is static SVG, so the server draws it finished and even."},
   "animations/decode": {"title":"Decode","kind":"Animation","labels":["Animation"],"description":"A readout locking on: every character shows random glyphs that change quickly, then settles on the real one, left to right. The line never moves while it plays."},
+  "animations/falling-letters": {"title":"Falling Letters","kind":"Animation","labels":["Animation"],"description":"Click a line of text and its letters let go: each one drops with gravity, drifts and tumbles a little, and lands on whatever already lies under it, so the letters pile into a heap on the floor of a container. Click again, or wait, and every letter springs back to its place."},
+  "animations/glitch": {"title":"Glitch","kind":"Animation","labels":["Animation"],"description":"A short piece of text that, now and then, looks like a broken signal for a fraction of a second: two tinted copies cut into thin slices jump sideways while the text leans a little, then everything snaps back clean."},
+  "animations/gradient-flow": {"title":"Gradient Flow","kind":"Animation","labels":["Animation"],"description":"A short piece of text, a brand name or one word, filled with a gradient of theme inks that drifts slowly along it, forever, as a seamless loop. It has no inputs: the colours and the cadence are CSS variables."},
   "animations/letter-stagger": {"title":"Letter Stagger","kind":"Animation","labels":["Animation"],"description":"A headline whose letters rise into place one after another from first paint, with no script: built for above the fold, where the server HTML already holds the pieces and the motion starts before the bundle arrives."},
+  "animations/noise-text": {"title":"Noise Text","kind":"Animation","labels":["Animation"],"description":"Text that wobbles with a fine, living noise, as if seen through heat haze or over a weak signal, while a pointer is over it or focus is in it, and settles back to crisp, still text when the pointer leaves."},
   "animations/shine": {"title":"Shine","kind":"Animation","labels":["Animation"],"description":"A soft band of light crosses the glyphs of a short label, waits, and crosses again for as long as the label is on screen. It has no inputs: the cadence and the paint are CSS variables."},
+  "animations/typewriter": {"title":"Typewriter","kind":"Animation","labels":["Animation"],"description":"A line typed character by character behind a caret, then held, deleted and followed by the next, or typed once and left standing. Nothing around it moves while it types."},
+  "animations/word-rotator": {"title":"Word Rotator","kind":"Animation","labels":["Animation"],"description":"One word of a sentence gives way to the next from a list, in place: the letters leaving rise out of the line while the letters arriving climb in under them, and the slot eases to the new width so the rest of the sentence glides."},
   "charts/bar-chart": {"title":"Bar Chart","kind":"Component","labels":["Component"],"description":"Bars for one or several series, grouped or stacked, standing up or lying along a row, with lines over them."},
   "charts/boxplot-chart": {"title":"Box Plot","kind":"Component","labels":["Component"],"description":"How the values of several groups are spread: the median, the middle half, the range and the outliers of each, side by side."},
   "charts/bullet-chart": {"title":"Bullet Chart","kind":"Component","labels":["Component"],"description":"One measure against its target, over qualitative bands: Stephen Few's bullet graph, a compact replacement for a gauge."},

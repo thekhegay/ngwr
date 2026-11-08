@@ -1,0 +1,81 @@
+<ngwr-doc-page
+  title="Noise Text"
+  since="15.7.0"
+  description="Text that wobbles with a fine, living noise, as if seen through heat haze or over a weak signal, while a pointer is over it or focus is in it, and settles back to crisp, still text when the pointer leaves."
+  [keywords]="['noise-text', 'displacement', 'heat haze', 'hover text', 'wrNoiseText']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `wrNoiseText` on the element that holds the text. The text stays real text: one hidden `<svg>` beside the host holds a fractal-noise displacement filter, and the host wears it only while the noise is above zero. The intensity eases in fast and out slower, and the noise field steps about fifteen times a second, often enough to live and seldom enough to read as haze."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography variant="h1"><span wrNoiseText>Hover me</span></p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Focus"
+    description="The pointer and focus are read on the closest focusable ancestor, so a label inside a button or a link wobbles when the control is reached by keyboard too."
+  >
+    <ngwr-doc-code [code]="snippets.focus" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <button wr-btn outlined type="button"><span wrNoiseText>Hover or focus me</span></button>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Shift"
+    description="`shift` is how far a pixel of the text may move at full noise, each way, in em of the host's font size: 0.15 unset, small enough that the word reads at full noise. The frequency of the noise is set from the font size too, so the waves are the same share of a glyph at any size."
+  >
+    <ngwr-doc-code [code]="snippets.shift" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography variant="h1"><span wrNoiseText shift="0.4">Heat haze</span></p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              Nothing changes: no copy, no canvas, no split. The filter is paint over the host, so selection, copy,
+              find-in-page and the accessible tree see the element as it was.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> nothing mounts, and a preference that flips mid-run
+              clears the filter at once. The demos on this page follow the same setting.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Forced colours</th>
+            <td>Under <code>forced-colors: active</code> no filter is mounted and the text stays as it is.</td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>
+              The server renders the text as it is. The filter is mounted in the browser, after the first render, and
+              the text renders exactly as without the effect until a pointer or focus arrives.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -28,9 +28,16 @@
  */
 export const SINCE = {
   "animations/blur-reveal": "15.7.0",
+  "animations/circle-text": "15.7.0",
   "animations/decode": "15.7.0",
+  "animations/falling-letters": "15.7.0",
+  "animations/glitch": "15.7.0",
+  "animations/gradient-flow": "15.7.0",
   "animations/letter-stagger": "15.7.0",
+  "animations/noise-text": "15.7.0",
   "animations/shine": "15.7.0",
+  "animations/typewriter": "15.7.0",
+  "animations/word-rotator": "15.7.0",
   "charts/boxplot-chart": "15.1.0",
   "charts/bullet-chart": "15.1.0",
   "charts/candlestick-chart": "15.1.0",

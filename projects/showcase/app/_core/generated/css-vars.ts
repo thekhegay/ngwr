@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1551 hook(s) across 97 page(s). A property is here only when the
+ * 1575 hook(s) across 102 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -52,12 +52,42 @@ export const CSS_VARS = {
       { name: "--wr-blur-reveal-stagger", default: "70ms", scope: ".wr-blur-reveal", host: true },
     ],
   },
+  "animations/circle-text": {
+    subpath: "ngwr/animations/circle-text",
+    vars: [
+      { name: "--wr-circle-text-color", default: "currentColor", scope: ".wr-circle-text" },
+      { name: "--wr-circle-text-font-size", default: "9px", scope: ".wr-circle-text" },
+      { name: "--wr-circle-text-size", default: "6rem", scope: ".wr-circle-text" },
+      { name: "--wr-circle-text-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-circle-text" },
+    ],
+  },
   "animations/decode": {
     subpath: "ngwr/animations/decode",
     vars: [
       { name: "--wr-decode-ease", default: "var(--wr-ease-out)", scope: ".wr-decode" },
       { name: "--wr-decode-settle", default: "240ms", scope: ".wr-decode", host: true },
       { name: "--wr-decode-tint", default: "color-mix(in srgb, currentColor 45%, transparent)", scope: ".wr-decode" },
+    ],
+  },
+  "animations/glitch": {
+    subpath: "ngwr/animations/glitch",
+    vars: [
+      { name: "--wr-glitch-burst", default: "400ms", scope: ".wr-glitch" },
+      { name: "--wr-glitch-shift", default: "0.1em", scope: ".wr-glitch" },
+      { name: "--wr-glitch-skew", default: "2deg", scope: ".wr-glitch" },
+      { name: "--wr-glitch-strength", default: "55%", scope: ".wr-glitch" },
+      { name: "--wr-glitch-tint-a", default: "color-mix(in srgb, var(--wr-color-primary-ink) var(--wr-glitch-strength), transparent)", scope: ".wr-glitch" },
+      { name: "--wr-glitch-tint-b", default: "color-mix(in srgb, var(--wr-color-danger-ink) var(--wr-glitch-strength), transparent)", scope: ".wr-glitch" },
+    ],
+  },
+  "animations/gradient-flow": {
+    subpath: "ngwr/animations/gradient-flow",
+    vars: [
+      { name: "--wr-gradient-flow-cycle", default: "8s", scope: ".wr-gradient-flow" },
+      { name: "--wr-gradient-flow-from", default: "var(--wr-color-primary-ink)", scope: ".wr-gradient-flow" },
+      { name: "--wr-gradient-flow-selected", default: "var(--wr-color-on-surface)", scope: ".wr-gradient-flow" },
+      { name: "--wr-gradient-flow-steps", default: "120", scope: ".wr-gradient-flow" },
+      { name: "--wr-gradient-flow-via", default: "var(--wr-color-info-ink), var(--wr-color-success-ink)", scope: ".wr-gradient-flow" },
     ],
   },
   "animations/letter-stagger": {
@@ -81,6 +111,25 @@ export const CSS_VARS = {
       { name: "--wr-shine-pause", default: "5s", scope: ".wr-shine" },
       { name: "--wr-shine-peak", default: "var(--wr-color-on-surface)", scope: ".wr-shine" },
       { name: "--wr-shine-strength", default: "60%", scope: ".wr-shine" },
+    ],
+  },
+  "animations/typewriter": {
+    subpath: "ngwr/animations/typewriter",
+    vars: [
+      { name: "--wr-typewriter-blink", default: "1s", scope: ".wr-typewriter" },
+      { name: "--wr-typewriter-caret", default: "2px", scope: ".wr-typewriter" },
+      { name: "--wr-typewriter-fade", default: "0.4s", scope: ".wr-typewriter" },
+    ],
+  },
+  "animations/word-rotator": {
+    subpath: "ngwr/animations/word-rotator",
+    vars: [
+      { name: "--wr-word-rotator-gap", default: "24ms", scope: ".wr-word-rotator" },
+      { name: "--wr-word-rotator-in", default: "0.38s", scope: ".wr-word-rotator" },
+      { name: "--wr-word-rotator-lead", default: "50ms", scope: ".wr-word-rotator" },
+      { name: "--wr-word-rotator-offset", default: "1.1em", scope: ".wr-word-rotator" },
+      { name: "--wr-word-rotator-out", default: "0.32s", scope: ".wr-word-rotator" },
+      { name: "--wr-word-rotator-swap", default: "calc(var(--wr-word-rotator-lead) + (var(--wr-word-rotator-count, 1) - 1) * var(--wr-word-rotator-gap) + var(--wr-word-rotator-in))", scope: ".wr-word-rotator__slot" },
     ],
   },
   "charts/bar-chart": {

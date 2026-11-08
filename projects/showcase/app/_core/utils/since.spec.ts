@@ -258,9 +258,16 @@ describe('the surfaces that draw it', () => {
     // blocks), alphabetical inside one.
     expect(marked).toEqual([
       'Blur Reveal',
+      'Circle Text',
       'Decode',
+      'Falling Letters',
+      'Glitch',
+      'Gradient Flow',
       'Letter Stagger',
+      'Noise Text',
       'Shine',
+      'Typewriter',
+      'Word Rotator',
       'Funnel Chart',
       'Radar Chart',
       'Waterfall Chart',

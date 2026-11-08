@@ -36,20 +36,43 @@ export const INSTALL = {
       { path: "ngwr/icon", symbols: ["WrIcon", "lucideIcons", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
   ],
   "**": [
+      { path: "ngwr/animations/falling-letters", symbols: ["WrFallingLetters"], declarables: ["WrFallingLetters"], styled: true },
+      { path: "ngwr/animations/glitch", symbols: ["WrGlitch"], declarables: ["WrGlitch"], styled: true },
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
       { path: "ngwr/result", symbols: ["WrResult404"], declarables: ["WrResult404"], styled: true },
   ],
   "animations/blur-reveal": [
       { path: "ngwr/animations/blur-reveal", symbols: ["WrBlurReveal"], declarables: ["WrBlurReveal"], styled: true },
   ],
+  "animations/circle-text": [
+      { path: "ngwr/animations/circle-text", symbols: ["WrCircleText"], declarables: ["WrCircleText"], styled: true },
+  ],
   "animations/decode": [
       { path: "ngwr/animations/decode", symbols: ["WrDecode"], declarables: ["WrDecode"], styled: true },
+  ],
+  "animations/falling-letters": [
+      { path: "ngwr/animations/falling-letters", symbols: ["WrFallingLetters"], declarables: ["WrFallingLetters"], styled: true },
+  ],
+  "animations/glitch": [
+      { path: "ngwr/animations/glitch", symbols: ["WrGlitch"], declarables: ["WrGlitch"], styled: true },
+  ],
+  "animations/gradient-flow": [
+      { path: "ngwr/animations/gradient-flow", symbols: ["WrGradientFlow"], declarables: ["WrGradientFlow"], styled: true },
   ],
   "animations/letter-stagger": [
       { path: "ngwr/animations/letter-stagger", symbols: ["WrLetterStagger"], declarables: ["WrLetterStagger"], styled: true },
   ],
+  "animations/noise-text": [
+      { path: "ngwr/animations/noise-text", symbols: ["WrNoiseText"], declarables: ["WrNoiseText"], styled: true },
+  ],
   "animations/shine": [
       { path: "ngwr/animations/shine", symbols: ["WrShine"], declarables: ["WrShine"], styled: true },
+  ],
+  "animations/typewriter": [
+      { path: "ngwr/animations/typewriter", symbols: ["WrTypewriter"], declarables: ["WrTypewriter"], styled: true },
+  ],
+  "animations/word-rotator": [
+      { path: "ngwr/animations/word-rotator", symbols: ["WrWordRotator"], declarables: ["WrWordRotator"], styled: true },
   ],
   "charts/bar-chart": [
       { path: "ngwr/charts/bar-chart", symbols: ["WrBarChart"], declarables: ["WrBarChart"], styled: true },

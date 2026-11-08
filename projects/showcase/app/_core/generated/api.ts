@@ -273,6 +273,14 @@ export const API = {
     { name: "value", description: "The checked items' values. Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown[]", default: "[]" },
     { name: "(touch)", description: "Emitted when a child toggles so a bound field can mark itself touched.", type: "void" },
   ],
+  // <wr-circle-text>
+  WrCircleText: [
+    { name: "text", description: "The text around the ring, separators included, ending on the separator that joins its end to its start.", type: "string", required: true },
+    { name: "label", description: "What a screen reader hears. Defaults to the text with its trailing separator cut.", type: "string | null", default: "null" },
+    { name: "size", description: "The box, in px. Unset, the stylesheet's `--wr-circle-text-size` decides.", type: "unknown", default: "null" },
+    { name: "speed", description: "Turn at rest, in degrees per second; negative turns the other way, zero sits still.", type: "number", default: "10" },
+    { name: "hoverSpeed", description: "Turn under a pointer or with focus in the host, in degrees per second.", type: "number", default: "40" },
+  ],
   // <[wrClickOutside]>
   WrClickOutside: [
     { name: "(wrClickOutside)", description: "Fires on a pointer press that landed outside the host element. Close a menu or commit an inline edit with it; the event is the original click.", type: "MouseEvent" },
@@ -574,6 +582,12 @@ export const API = {
     { name: "(eventChange)", description: "A drag or an `Alt` + arrow finished. Apply it yourself; nothing moves until you do.", type: "WrCalendarEventChange" },
     { name: "ariaLabel", description: "Accessible name of the grid; overridable for a page with several.", type: "string | null", default: "null" },
   ],
+  // <[wrFallingLetters]>
+  WrFallingLetters: [
+    { name: "wrFallingLetters", description: "A selector for one descendant of the host whose letters fall instead of the host's own, written as the directive's value: `wrFallingLetters=\".wr-result__description\"`. Resolved once after the first render with `querySelector`; a selector that matches nothing turns the effect off. Unset or empty, the host.", type: "string | null", default: "null" },
+    { name: "floor", description: "A selector for the element whose content box is the floor and the walls, found with `closest` from the host. Unset, the host's parent element: on a `display: contents` host that is the box around it. On a `wr-*` host write it as a binding (`[floor]=\"'main'\"`), since a static attribute that is not one of the component's inputs fails `check:attrs`.", type: "string | null", default: "null" },
+    { name: "rest", description: "How long the heap lies still before the letters spring back on their own, in ms.", type: "number", default: "4000" },
+  ],
   // <wr-file-upload>
   WrFileUpload: [
     { name: "multiple", description: "Allow multiple files. Single mode replaces on each add.", type: "boolean", default: "false" },
@@ -638,6 +652,10 @@ export const API = {
     { name: "suffix", description: "Unit printed immediately after the number — `%`, `/10`, ` GB`. It goes into the accessible text too, so the gauge is announced the way it reads.", type: "string", default: "''" },
     { name: "tooltip", description: "Show a tooltip with the reading on hover, named by `ariaLabel` when one is given. Pointer only — the meter announces the same reading.", type: "boolean", default: "true" },
     { name: "valueFormat", description: "Writes the reading in the centre, the tooltip and `aria-valuetext`, before `suffix`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. `aria-valuenow` stays a number.", type: "((value: number) => string) | null", default: "null" },
+  ],
+  // <[wrGlitch]>
+  WrGlitch: [
+    { name: "wrGlitch", description: "A selector for one descendant of the host to glitch instead of the host itself, written as the directive's own value: `wrGlitch=\".wr-result__title\"`. Resolved once after the first render with `querySelector`; a selector that matches nothing turns the effect off. Unset or empty, the host.", type: "string | null", default: "null" },
   ],
   // <wr-graph>
   WrGraph: [
@@ -860,6 +878,10 @@ export const API = {
     { name: "hiddenSegments", description: "The positions in `segments` of the segments that are hidden. Positions rather than labels, since two segments may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSegments)]`. A hidden segment is left out of the bar and out of the sum. With no `max`, the segments still shown share the whole bar between them, each at its share of their own total, as `wr-donut-chart`'s slices do: the bar is the whole of what it draws. An explicit `max` is a capacity rather than a sum, so it stays, and the hidden segment's share becomes empty track. Either way the bar announces the total of the segments shown (`aria-valuenow`, `aria-valuetext`), since that is what it draws, and the tooltip cannot open on a segment that is not drawn. The legend keeps the hidden segment's row, struck through and with its own value, so it can be shown again; the row says \"hidden\" to a screen reader as well, through `aria-pressed` on a toggle and a visually hidden word otherwise. A position past the end of `segments` is kept and ignored.", type: "readonly number[]", default: "[]" },
     { name: "tooltip", description: "Show a tooltip with the segment's label and value on hover. It replaces the band's `title`, which is written only while this is off — or the browser would open a second copy a moment later.", type: "boolean", default: "true" },
     { name: "valueFormat", description: "Writes every value in the legend and the tooltip, and the total the bar announces as `aria-valuetext`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. `aria-valuenow` stays a number.", type: "((value: number) => string) | null", default: "null" },
+  ],
+  // <[wrNoiseText]>
+  WrNoiseText: [
+    { name: "shift", description: "How far a pixel of the text may move at full noise, each way, in em of the host's font size.", type: "number", default: "0.15" },
   ],
   // <wr-option>
   WrOption: [
@@ -1388,6 +1410,14 @@ export const API = {
     { name: "percentFormat", description: "Writes every share the chart shows, given as a RATIO — `0.25` for a quarter — the number `Intl.NumberFormat`'s `percent` style takes, so one of those can be passed as it is: in the tooltip and in the data table. `null` uses that style in `LOCALE_ID`, with up to one fraction digit, and two significant digits below 1% so a sliver is not printed as `0%`.", type: "((ratio: number) => string) | null", default: "null" },
     { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per node, parents before their children in the data's order, headed by its path — `Engineering / Web` — with its value and its share of the whole. A node with no area is listed with an empty share, and a leaf with no value with an empty value too. The drawing is one named `role=\"img\"`, which hides everything inside it, so without the table the numbers are nowhere a screen reader can walk. It is rendered beside the drawing, clipped to nothing: it takes no room, draws nothing and holds no tab stop.", type: "boolean", default: "false" },
   ],
+  // <wr-typewriter>
+  WrTypewriter: [
+    { name: "lines", description: "The lines, in the order they type. The first is what the server and a still page show.", type: "readonly string[]", required: true },
+    { name: "loop", description: "Cycle through the lines instead of stopping on the last.", type: "boolean", default: "false" },
+    { name: "hold", description: "How long a finished line stands before it is deleted for the next, in ms.", type: "number", default: "1800" },
+    { name: "delay", description: "Pause before the first character, in ms, from the moment the host is in view: room for the eye to land above it.", type: "number", default: "0" },
+    { name: "trigger", description: "`view` types once most of the host is in view and leaves a host that was already in view at boot whole. `load` types at once, wherever the host is.", type: "WrTypewriterTrigger", default: "'view'" },
+  ],
   // <[wrTypography]>
   WrTypography: [
     { name: "variant", description: "Visual variant.", type: "WrTypographyVariant", default: "'body'" },
@@ -1434,5 +1464,13 @@ export const API = {
     { name: "position", description: "Edge the taskbar pins itself to.", type: "'top' | 'bottom'", default: "'bottom'" },
     { name: "show", description: "Which windows the rail lists: the minimized ones, or every open one with the active window marked (since v15.1).", type: "WrWindowTaskbarShow", default: "'minimized'" },
     { name: "maxTabs", description: "The most tabs the rail shows; the rest fold under a \"+N\" button that opens them as a menu (since v15.1). The width folds tabs too, whatever this says: the tabs that do not fit beside the button at their own width go under it. `null` leaves it to the width alone.", type: "number | null", default: "null" },
+  ],
+  // <wr-word-rotator>
+  WrWordRotator: [
+    { name: "words", description: "The words, in the order they show. The first is what the server and a still page show.", type: "readonly string[]", required: true },
+    { name: "hold", description: "How long a word stands before the next replaces it, in ms.", type: "number", default: "2400" },
+    { name: "delay", description: "Pause before the first word's hold starts counting, in ms, from the moment the host is in view: room for an entrance above it to finish.", type: "number", default: "0" },
+    { name: "loop", description: "Keep cycling instead of stopping on the first word after one pass through the list.", type: "boolean", default: "false" },
+    { name: "conjunctionLabel", description: "The word between the last two words of the phrase a screen reader hears: \"A, B and C\". Unset, the `wordRotator.conjunction` string of the i18n catalog, \"and\" in English.", type: "string | null", default: "null" },
   ],
 } satisfies Record<string, readonly DocApiRow[]>;

@@ -2,10 +2,12 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { WrCircleText } from 'ngwr/animations/circle-text';
+import { WrNoiseText } from 'ngwr/animations/noise-text';
 import { WrIcon, provideWrIcons } from 'ngwr/icon';
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
-import { CircleText, FluidCursor, NoiseText } from '#core/effects';
+import { FluidCursor } from '#core/effects';
 import { BRAND_ICONS } from '#core/icons';
 
 interface FooterLink {
@@ -23,7 +25,7 @@ interface FooterColumn {
   selector: 'ngwr-footer',
   templateUrl: './footer.html',
   styleUrl: './footer.scss',
-  imports: [RouterLink, WrIcon, CircleText, FluidCursor, NoiseText],
+  imports: [RouterLink, WrIcon, WrCircleText, FluidCursor, WrNoiseText],
   // The seal's mark: the footer is also on the 404 page, which registers no
   // icons of its own, so the footer brings the brand marks itself.
   providers: [provideWrIcons([...BRAND_ICONS])],

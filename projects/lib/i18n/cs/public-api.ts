@@ -505,4 +505,7 @@ export const wrCs: WrI18nCatalog = {
       dec: 'prosinec',
     },
   },
+  wordRotator: {
+    conjunction: 'a',
+  },
 };

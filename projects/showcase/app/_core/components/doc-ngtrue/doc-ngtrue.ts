@@ -1,6 +1,8 @@
 import { Component, computed, input } from '@angular/core';
 
 import { CircleCheckBig, ListChecks, PackageCheck } from 'lucide';
+import { WrGradientFlow } from 'ngwr/animations/gradient-flow';
+import { WrTypewriter } from 'ngwr/animations/typewriter';
 import { WrButton } from 'ngwr/button';
 import { WrCard } from 'ngwr/card';
 import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
@@ -11,7 +13,6 @@ import { DocRichPipe } from '../doc-rich/doc-rich';
 
 import type { DocNgtrueVariant } from './types';
 
-import { GradientFlow, Typewriter } from '#core/effects';
 import { BRAND_ICONS } from '#core/icons';
 
 /** ngtrue's docs. Every link this block draws starts here or on GitHub. */
@@ -61,7 +62,7 @@ interface NgtrueItem {
   styleUrl: './doc-ngtrue.scss',
   // Inside a docs page the typeset would restyle the card's text as prose.
   host: { class: 'wr-not-typeset' },
-  imports: [WrButton, WrCard, WrIcon, DocCodeComponent, DocInstallComponent, DocRichPipe, GradientFlow, Typewriter],
+  imports: [WrButton, WrCard, WrIcon, DocCodeComponent, DocInstallComponent, DocRichPipe, WrGradientFlow, WrTypewriter],
   providers: [
     provideWrIcons([
       ...BRAND_ICONS,

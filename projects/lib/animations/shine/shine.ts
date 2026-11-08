@@ -8,15 +8,13 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, effect, inject, signal } from '@angular/core';
 
-import { VIEW_THRESHOLD } from 'ngwr/animations/core';
+import { FOCUSABLE, VIEW_THRESHOLD } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrShineState } from './types';
 
 const STATES: readonly WrShineState[] = ['first', 'pass', 'rest'];
-
-const FOCUSABLE = 'a[href], button, input, select, textarea, summary, [tabindex]';
 
 /** The `animation-name` of the band and of the silent wait, as the stylesheet declares them. */
 const PASS = 'wr-shine-pass';

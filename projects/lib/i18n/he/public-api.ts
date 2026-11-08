@@ -526,4 +526,7 @@ export const wrHe: WrI18nCatalog = {
       dec: 'דצמבר',
     },
   },
+  wordRotator: {
+    conjunction: 'ו',
+  },
 };

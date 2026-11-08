@@ -518,4 +518,7 @@ export const wrRu: WrI18nCatalog = {
       dec: 'Декабрь',
     },
   },
+  wordRotator: {
+    conjunction: 'и',
+  },
 };

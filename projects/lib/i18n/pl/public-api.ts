@@ -528,4 +528,7 @@ export const wrPl: WrI18nCatalog = {
       dec: 'grudzień',
     },
   },
+  wordRotator: {
+    conjunction: 'i',
+  },
 };

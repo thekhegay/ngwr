@@ -530,4 +530,7 @@ export const wrTr: WrI18nCatalog = {
       dec: 'Aralık',
     },
   },
+  wordRotator: {
+    conjunction: 've',
+  },
 };

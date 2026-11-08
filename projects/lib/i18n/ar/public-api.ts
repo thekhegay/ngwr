@@ -528,4 +528,7 @@ export const wrAr: WrI18nCatalog = {
       dec: 'ديسمبر',
     },
   },
+  wordRotator: {
+    conjunction: 'و',
+  },
 };

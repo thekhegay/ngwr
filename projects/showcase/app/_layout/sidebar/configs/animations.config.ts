@@ -17,9 +17,16 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
     title: 'Text',
     children: [
       wrLink(ROUTES.animations, ROUTES.animations.blurReveal),
+      wrLink(ROUTES.animations, ROUTES.animations.circleText),
       wrLink(ROUTES.animations, ROUTES.animations.decode),
+      wrLink(ROUTES.animations, ROUTES.animations.fallingLetters),
+      wrLink(ROUTES.animations, ROUTES.animations.glitch),
+      wrLink(ROUTES.animations, ROUTES.animations.gradientFlow),
       wrLink(ROUTES.animations, ROUTES.animations.letterStagger),
+      wrLink(ROUTES.animations, ROUTES.animations.noiseText),
       wrLink(ROUTES.animations, ROUTES.animations.shine),
+      wrLink(ROUTES.animations, ROUTES.animations.typewriter),
+      wrLink(ROUTES.animations, ROUTES.animations.wordRotator),
     ],
   },
 ];

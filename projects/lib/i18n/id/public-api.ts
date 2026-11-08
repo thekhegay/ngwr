@@ -505,4 +505,7 @@ export const wrId: WrI18nCatalog = {
       dec: 'Desember',
     },
   },
+  wordRotator: {
+    conjunction: 'dan',
+  },
 };

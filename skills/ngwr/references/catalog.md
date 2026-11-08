@@ -10,9 +10,16 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/alert` | `import { WrAlert } from 'ngwr/alert'` | `wr-alert` |
 | `ngwr/anchor` | `import { WrAnchor } from 'ngwr/anchor'` | `wr-anchor` |
 | `ngwr/animations/blur-reveal` | `import { WrBlurReveal } from 'ngwr/animations/blur-reveal'` | `[wrBlurReveal]` |
+| `ngwr/animations/circle-text` | `import { WrCircleText } from 'ngwr/animations/circle-text'` | `wr-circle-text` |
 | `ngwr/animations/decode` | `import { WrDecode } from 'ngwr/animations/decode'` | `[wrDecode]` |
+| `ngwr/animations/falling-letters` | `import { WrFallingLetters } from 'ngwr/animations/falling-letters'` | `[wrFallingLetters]` |
+| `ngwr/animations/glitch` | `import { WrGlitch } from 'ngwr/animations/glitch'` | `[wrGlitch]` |
+| `ngwr/animations/gradient-flow` | `import { WrGradientFlow } from 'ngwr/animations/gradient-flow'` | `[wrGradientFlow]` |
 | `ngwr/animations/letter-stagger` | `import { WrLetterStagger } from 'ngwr/animations/letter-stagger'` | `wr-letter-stagger` |
+| `ngwr/animations/noise-text` | `import { WrNoiseText } from 'ngwr/animations/noise-text'` | `[wrNoiseText]` |
 | `ngwr/animations/shine` | `import { WrShine } from 'ngwr/animations/shine'` | `[wrShine]` |
+| `ngwr/animations/typewriter` | `import { WrTypewriter } from 'ngwr/animations/typewriter'` | `wr-typewriter` |
+| `ngwr/animations/word-rotator` | `import { WrWordRotator } from 'ngwr/animations/word-rotator'` | `wr-word-rotator` |
 | `ngwr/avatar` | `import { WrAvatar } from 'ngwr/avatar'` | `wr-avatar` |
 | `ngwr/back-top` | `import { WrBackTop } from 'ngwr/back-top'` | `wr-back-top` |
 | `ngwr/badge` | `import { WrBadge } from 'ngwr/badge'` | `wr-badge` `wr-tag` |

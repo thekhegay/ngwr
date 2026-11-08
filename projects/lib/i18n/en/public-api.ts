@@ -637,4 +637,10 @@ export const wrEn: WrI18nCatalog = {
       dec: 'December',
     },
   },
+  wordRotator: {
+    // The word before the last item of the phrase a screen reader hears while
+    // the words swap: "A, B and C". The separator stays a comma in every
+    // locale; only the word is localised.
+    conjunction: 'and',
+  },
 };

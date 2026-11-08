@@ -522,4 +522,7 @@ export const wrVi: WrI18nCatalog = {
       dec: 'Tháng 12',
     },
   },
+  wordRotator: {
+    conjunction: 'và',
+  },
 };

@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 175 of 188 declarations are mapped: 0 carry no selector and
+ * 182 of 195 declarations are mapped: 0 carry no selector and
  * 13 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -61,6 +61,7 @@ export const SELECTORS = {
     "wr-cascader": { symbol: "WrCascader", path: "ngwr/cascader" },
     "wr-checkbox": { symbol: "WrCheckbox", path: "ngwr/checkbox" },
     "wr-checkbox-group": { symbol: "WrCheckboxGroup", path: "ngwr/checkbox" },
+    "wr-circle-text": { symbol: "WrCircleText", path: "ngwr/animations/circle-text" },
     "wr-collapse": { symbol: "WrCollapse", path: "ngwr/collapse" },
     "wr-collapse-group": { symbol: "WrCollapseGroup", path: "ngwr/collapse" },
     "wr-color-picker": { symbol: "WrColorPicker", path: "ngwr/color-picker" },
@@ -164,9 +165,11 @@ export const SELECTORS = {
     "wr-transfer": { symbol: "WrTransfer", path: "ngwr/transfer" },
     "wr-tree": { symbol: "WrTree", path: "ngwr/tree" },
     "wr-treemap-chart": { symbol: "WrTreemapChart", path: "ngwr/charts/treemap-chart" },
+    "wr-typewriter": { symbol: "WrTypewriter", path: "ngwr/animations/typewriter" },
     "wr-virtual-scroll": { symbol: "WrVirtualScroll", path: "ngwr/virtual-scroll" },
     "wr-waterfall-chart": { symbol: "WrWaterfallChart", path: "ngwr/charts/waterfall-chart" },
     "wr-window-taskbar": { symbol: "WrWindowTaskbar", path: "ngwr/window" },
+    "wr-word-rotator": { symbol: "WrWordRotator", path: "ngwr/animations/word-rotator" },
   },
   /** Attribute selectors, without the square brackets: `wrInput`. */
   attributes: {
@@ -193,6 +196,9 @@ export const SELECTORS = {
     "wrDrawerFooter": { symbol: "WrDrawerFooter", path: "ngwr/drawer" },
     "wrDrawerTitle": { symbol: "WrDrawerTitle", path: "ngwr/drawer" },
     "wrDropdown": { symbol: "WrDropdown", path: "ngwr/dropdown" },
+    "wrFallingLetters": { symbol: "WrFallingLetters", path: "ngwr/animations/falling-letters" },
+    "wrGlitch": { symbol: "WrGlitch", path: "ngwr/animations/glitch" },
+    "wrGradientFlow": { symbol: "WrGradientFlow", path: "ngwr/animations/gradient-flow" },
     "wrGraphNode": { symbol: "WrGraphNodeTemplate", path: "ngwr/graph" },
     "wrHotkey": { symbol: "WrHotkeyBinding", path: "ngwr/hotkey" },
     "wrInput": { symbol: "WrInput", path: "ngwr/input" },
@@ -204,6 +210,7 @@ export const SELECTORS = {
     "wrLoadStateLoading": { symbol: "WrLoadStateLoading", path: "ngwr/load-state" },
     "wrMention": { symbol: "WrMention", path: "ngwr/mention" },
     "wrMeta": { symbol: "WrMetaBinding", path: "ngwr/meta" },
+    "wrNoiseText": { symbol: "WrNoiseText", path: "ngwr/animations/noise-text" },
     "wrOptionLeading": { symbol: "WrOptionLeading", path: "ngwr/select" },
     "wrPopconfirm": { symbol: "WrPopconfirm", path: "ngwr/popconfirm" },
     "wrPopover": { symbol: "WrPopover", path: "ngwr/popover" },
@@ -231,9 +238,16 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/alert",
   "ngwr/anchor",
   "ngwr/animations/blur-reveal",
+  "ngwr/animations/circle-text",
   "ngwr/animations/decode",
+  "ngwr/animations/falling-letters",
+  "ngwr/animations/glitch",
+  "ngwr/animations/gradient-flow",
   "ngwr/animations/letter-stagger",
+  "ngwr/animations/noise-text",
   "ngwr/animations/shine",
+  "ngwr/animations/typewriter",
+  "ngwr/animations/word-rotator",
   "ngwr/avatar",
   "ngwr/back-top",
   "ngwr/badge",

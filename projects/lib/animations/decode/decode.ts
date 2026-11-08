@@ -8,7 +8,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, inject, input } from '@angular/core';
 
-import { BREAKING_SPACES, VIEW_THRESHOLD, graphemes, optionalMs, staggerGap } from 'ngwr/animations/core';
+import { BREAKING_SPACES, FOCUSABLE, VIEW_THRESHOLD, graphemes, optionalMs, staggerGap } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr, wrCheckStyles } from 'ngwr/utils';
 
@@ -32,8 +32,6 @@ const GLYPHS: Readonly<Record<WrDecodeShape, string>> = {
   digit: '0123456789',
   symbol: '#%&*+-=<>?!/\\~',
 };
-
-const FOCUSABLE = 'a[href], button, input, select, textarea, summary, [tabindex]';
 
 /** The shape of one grapheme: what its random stand-ins are drawn from. */
 function decodeShape(grapheme: string): WrDecodeShape {

@@ -1,0 +1,90 @@
+<ngwr-doc-page
+  title="Gradient Flow"
+  since="15.7.0"
+  description="A short piece of text, a brand name or one word, filled with a gradient of theme inks that drifts slowly along it, forever, as a seamless loop. It has no inputs: the colours and the cadence are CSS variables."
+  [keywords]="['gradient-flow', 'gradient text', 'brand', 'animated gradient', 'wrGradientFlow']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `wrGradientFlow` on an element that shrinks to its text: an inline, an inline-block, a flex item. The gradient spans the host's box, so a block stretched wider than its word shows the word only a slice of it. The static gradient is CSS alone; the directive only sets the drift running while the text is on screen and the page is visible, and pausing keeps the phase."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography variant="h1"><span wrGradientFlow>ngtrue</span></p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colours"
+    description="`--wr-gradient-flow-from` is the colour the loop starts and ends on and `--wr-gradient-flow-via` the stops in between, a comma-separated list. The defaults are inks: each intent as text on the surface, so every blend along the word stays readable in both schemes."
+  >
+    <ngwr-doc-code [code]="snippets.colours" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography variant="h1">
+        <span
+          wrGradientFlow
+          style="
+            --wr-gradient-flow-from: var(--wr-color-danger-ink);
+            --wr-gradient-flow-via: var(--wr-color-warning-ink);
+          "
+          >Sunset</span
+        >
+      </p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Cadence"
+    description="`--wr-gradient-flow-cycle` is one full loop, 8 s unset; a wave crosses the word in half of it. The slide is stepped, not continuous, so a frame that would move the image by less than a pixel is not repainted: `--wr-gradient-flow-steps` is how many steps a cycle has, 120 unset. `--wr-gradient-flow-selected` is the solid fill the glyphs take while selected."
+  >
+    <ngwr-doc-code [code]="snippets.cadence" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              Nothing changes: no split, no copy, no pseudo-element. The gradient is a background clipped to the glyphs,
+              so what is announced, selected and copied is the text as authored.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> the gradient stays and nothing moves: it is colour, not
+              motion. The demos on this page follow the same setting.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Forced colours</th>
+            <td>
+              Under <code>forced-colors: active</code> the text is plain, in the system colour, and the directive does
+              not run.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>
+              The server paints the final colours before any script arrives. The drift starts in the browser, after the
+              first render, and only where <code>IntersectionObserver</code> exists.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Direction</th>
+            <td>The wave travels the reading direction: under <code>dir="rtl"</code> it drifts right to left.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+</ngwr-doc-page>

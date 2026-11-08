@@ -1,0 +1,77 @@
+@use '../../../theme/styles' as theme;
+@include theme.loaded('animations/circle-text');
+
+// `<wr-circle-text>`: a short label set around a circle, like a seal,
+// turning slowly, with a mark in the middle that does not turn. The ring is
+// static SVG: a `<textPath>` on a circle, stretched to the circumference by
+// `textLength`, so the server and a still page draw the finished, even ring
+// from the markup alone. The component writes one transform on the `<svg>`
+// per frame while `--run` is on the host; nothing here moves on its own.
+.wr-circle-text {
+  // The `size` input's channel. Reset on every block, so a ring projected into
+  // another ring's slot never inherits the outer one's size.
+  --wr-circle-text-input-size: initial;
+  // The box. A square: the ring fills it and the slot sits in its middle.
+  --wr-circle-text-size: 6rem;
+  // The glyphs' fill. `currentColor`, so the ring reads in the colour of the
+  // text around it: muted in a footer, ink in a heading, `-contrast` on a fill.
+  --wr-circle-text-color: currentColor;
+  // In user units of the 100-unit drawing, so it scales with the box: 9 of
+  // 100 is 8.6px on a 6rem ring, the size of a seal's legend. The baseline
+  // circle leaves 9 units outside it; a larger font clips at the box edge.
+  --wr-circle-text-font-size: 9px;
+  --wr-circle-text-weight: var(--wr-font-weight-semibold);
+
+  display: inline-grid;
+  place-items: center;
+  // The `size` input first, written under its own name so an unset input
+  // never wipes a value the author set on the element, then the hook.
+  inline-size: var(--wr-circle-text-input-size, var(--wr-circle-text-size));
+  block-size: var(--wr-circle-text-input-size, var(--wr-circle-text-size));
+  // A decorative ring: a drag across the page should not pick up the legend,
+  // and a double-click on the seal should not highlight a word of it.
+  user-select: none;
+  -webkit-user-select: none;
+
+  // The ring and the slot share the one cell, the slot on top.
+  &__ring,
+  &__centre {
+    grid-area: 1 / 1;
+  }
+
+  &__ring {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    // An outer `<svg>` is a CSS box and turns about its centre by default;
+    // said anyway, because the whole effect rests on it.
+    transform-origin: 50% 50%;
+    // A glyph that overhangs the drawing's edge is drawn, not cut.
+    overflow: visible;
+  }
+
+  // Only while the component turns it: a promoted layer costs memory, and a
+  // still ring has no reason to hold one.
+  &--run &__ring {
+    will-change: transform;
+  }
+
+  // The legend. The glyphs' advance is the browser's business: `textLength`
+  // spreads them over the circumference, so no tracking is set here, and a
+  // tracking set from outside would be absorbed into the same total.
+  // `white-space: pre`, with `xml:space` in the markup, keeps the trailing
+  // blank the author ends the text with: it is the gap at the seam.
+  &__text {
+    fill: var(--wr-circle-text-color);
+    font-family: var(--wr-font-family-base);
+    font-size: var(--wr-circle-text-font-size);
+    font-weight: var(--wr-circle-text-weight);
+    text-transform: uppercase;
+    white-space: pre;
+  }
+
+  &__centre {
+    display: grid;
+    place-items: center;
+  }
+}
