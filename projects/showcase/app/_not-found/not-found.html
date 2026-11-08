@@ -6,9 +6,11 @@
   library draws, by its public BEM class, so nothing under `projects/lib` changes;
   the falling letters target the description the same way, and their floor is
   the directive's default, the host's parent: this `<main>`, since the preset's
-  host is `display: contents`.
+  host is `display: contents`. The ripple grid fills `<main>` behind it all and
+  rings out from a click anywhere on it, the description's included.
 -->
 <main class="ngwr-not-found">
+  <ngwr-ripple-grid />
   <wr-result-404
     ngwrGlitch=".wr-result__title"
     ngwrFallingLetters=".wr-result__description"
