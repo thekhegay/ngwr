@@ -2,6 +2,7 @@ export { Aurora } from './aurora/aurora';
 export { BlurReveal, type BlurRevealBy, type BlurRevealFrom } from './blur-reveal/blur-reveal';
 export { CircleText } from './circle-text/circle-text';
 export { Decode, type DecodeShape, type DecodeTrigger } from './decode/decode';
+export { DotGrid } from './dot-grid/dot-grid';
 export { FallingLetters, type FallingLettersState } from './falling-letters/falling-letters';
 export { Glitch, type GlitchState } from './glitch/glitch';
 export { GradientFlow } from './gradient-flow/gradient-flow';
