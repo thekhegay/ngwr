@@ -18,7 +18,7 @@ import { SignalSweep } from './hero/signal-sweep/signal-sweep';
 import { HomeOptInComponent } from './opt-in/opt-in';
 
 import { DocCodeComponent, DocNgtrueComponent, DocRichPipe } from '#core/components';
-import { BlurReveal, Decode, LetterStagger } from '#core/effects';
+import { BlurReveal, Decode, LetterStagger, WordRotator } from '#core/effects';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
@@ -68,6 +68,7 @@ interface DxLink {
     BlurReveal,
     Decode,
     LetterStagger,
+    WordRotator,
     // Sections
     ComponentsBento,
     HomeOptInComponent,
@@ -96,6 +97,12 @@ export default class HomeComponent {
 
   /** Absolute link from a node chain — the template cannot call a module function. */
   protected readonly path = wrPath;
+
+  /**
+   * The third item of the line under the headline, one at a time. The first
+   * is the one the server renders and a still page keeps.
+   */
+  protected readonly qualities: readonly string[] = ['tree-shakable', 'accessible', 'RTL-ready', 'themeable'];
 
   /**
    * Counted by `pnpm gen:quality`, not typed here. The hero and the "Pay for

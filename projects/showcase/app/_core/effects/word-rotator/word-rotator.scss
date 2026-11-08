@@ -1,0 +1,130 @@
+@use 'showcase/styles/a11y';
+
+// `<ngwr-word-rotator>`: one word of a sentence that gives way to the next in
+// place. At rest the slot is an inline-block holding the plain word, so the
+// line reads, breaks, selects and copies as if the word were typed there.
+// While `--swap` is on the host, the slot holds two words split into letters:
+// the one leaving, out of flow over the slot, and the one arriving, in flow,
+// and its explicit width eases from the one word's to the other's.
+.ngwr-word-rotator {
+  // In `em`, so a letter leaves a 17px line and a 48px heading by the same
+  // share of its size: a whole line, so it is out of the clip when it fades.
+  --ngwr-word-rotator-offset: 1.1em;
+  // One letter leaving, one arriving, and how long after the first letter
+  // leaves the first one arrives.
+  --ngwr-word-rotator-out: 0.32s;
+  --ngwr-word-rotator-in: 0.38s;
+  --ngwr-word-rotator-lead: 50ms;
+  // The gap from one letter to the next, in both words.
+  --ngwr-word-rotator-gap: 24ms;
+  // The slot. `inline-block`, so a width can be set on it and its baseline is
+  // the word's; `relative`, so the word leaving can sit over it. The width is
+  // the component's measured one once it has measured, and the word's own
+  // until then, which is the same number.
+  &__slot {
+    // How long the whole swap takes: the last letter of the longer word
+    // arrives this long after the first one leaves. Declared here, on the
+    // slot, because the component writes `--ngwr-word-rotator-count` on the
+    // slot and a `calc()` reads the custom properties of the element it is
+    // declared on, not of the one that inherits it.
+    --ngwr-word-rotator-swap: calc(
+      var(--ngwr-word-rotator-lead) + (var(--ngwr-word-rotator-count, 1) - 1) * var(--ngwr-word-rotator-gap) +
+        var(--ngwr-word-rotator-in)
+    );
+
+    display: inline-block;
+    position: relative;
+    vertical-align: baseline;
+    white-space: nowrap;
+  }
+
+  // While swapping, the slot clips to its line box in the block direction
+  // and leaves half an em of air at either end, so a letter rising at the far
+  // end of a word wider than the slot is at that moment is not cut off while
+  // the width catches up. The width eases out: fast at first, so the letters
+  // that rise late find the slot already near its new size. `clip-path`, not
+  // `overflow`: a clipped `overflow` moves an inline-block's baseline to its
+  // bottom edge.
+  &--swap &__slot {
+    clip-path: inset(0 -0.5em);
+    transition: width var(--ngwr-word-rotator-swap) var(--wr-ease-out);
+  }
+
+  &__word {
+    white-space: nowrap;
+  }
+
+  // The word leaving: over the slot, anchored where the word arriving starts,
+  // so each letter rises from where its counterpart will land.
+  &__word--out {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+  }
+
+  // `inline-block`, because a translate does nothing on an inline box; `pre`,
+  // so a space inside a word keeps its width.
+  &__letter {
+    display: inline-block;
+    white-space: pre;
+  }
+
+  // Leaving: `forwards`, so a letter that is gone stays gone until the swap
+  // ends and the word leaves the DOM. Eases in: a departure accelerates.
+  &__letter--out {
+    animation: ngwr-word-rotator-out var(--ngwr-word-rotator-out) var(--wr-ease-in) forwards;
+    animation-delay: calc(var(--ngwr-word-rotator-i, 0) * var(--ngwr-word-rotator-gap));
+  }
+
+  // Arriving: `backwards`, so a letter is under the line until its turn, and
+  // the end state is the letter's own, the same as the plain word that
+  // replaces it when the swap ends.
+  &__letter--in {
+    animation: ngwr-word-rotator-in var(--ngwr-word-rotator-in) var(--wr-ease-out) backwards;
+    animation-delay: calc(var(--ngwr-word-rotator-lead) + var(--ngwr-word-rotator-i, 0) * var(--ngwr-word-rotator-gap));
+  }
+
+  // The component's measuring span: in the slot, in its font, out of flow and
+  // out of sight, there for one layout read per word and then gone.
+  &__probe {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    visibility: hidden;
+    white-space: pre;
+    pointer-events: none;
+  }
+
+  // Every word once, for a screen reader, while the slot is `aria-hidden`.
+  // Out of the selection, so a copy of the sentence gives the word on show.
+  &__sr {
+    @include a11y.sr-only;
+
+    user-select: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &--swap &__slot {
+      transition: none;
+    }
+
+    &__letter--out,
+    &__letter--in {
+      animation: none;
+    }
+  }
+}
+
+@keyframes ngwr-word-rotator-out {
+  to {
+    opacity: 0;
+    translate: 0 calc(-1 * var(--ngwr-word-rotator-offset));
+  }
+}
+
+@keyframes ngwr-word-rotator-in {
+  from {
+    opacity: 0;
+    translate: 0 var(--ngwr-word-rotator-offset);
+  }
+}
