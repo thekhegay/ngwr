@@ -4,10 +4,17 @@
     <ngwr-flow-lines />
     <div class="container">
       <div class="ngwr-home-hero ngwr-home-hero--center">
+        <!-- One letter-stagger sequence: the chip is piece 0, each run starts where the
+             one before it stopped, and the sweep waits for the accent's letters to land. -->
         <h1 class="ngwr-home-hero__title">
-          <span class="ngwr-home-hero__title-angular"><wr-icon name="logo-angular" />&nbsp;Angular</span>
-          components that bind straight to
-          <span class="ngwr-home-hero__title-accent" ngwrSignalSweep>Signal Forms</span>.
+          <span class="ngwr-home-hero__title-angular ngwr-letter-stagger__item" style="--ngwr-letter-stagger-i: 0"
+            ><wr-icon name="logo-angular" />&nbsp;Angular</span
+          >&ngsp;<ngwr-letter-stagger text="components that bind straight to" start="1" />&ngsp;<span
+            class="ngwr-home-hero__title-end"
+            ><span class="ngwr-home-hero__title-accent" ngwrSignalSweep delay="1700"
+              ><ngwr-letter-stagger text="Signal Forms" start="29" /></span
+            ><ngwr-letter-stagger text="." start="40"
+          /></span>
         </h1>
 
         <!-- One line, no code spans. The specification that used to sit here moved
