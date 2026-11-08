@@ -6,15 +6,6 @@ Effects are written from scratch for the docs site first, in library idiom, so t
 
 ## High
 
-- **Blur reveal**: words or letters come in from a blur as the text scrolls into view.
-- **Letter stagger**: letters or words rise in one after another, on view or on demand.
-- **Decode**: characters cycle through random glyphs and settle on the text, on view or on hover.
-- **Shine**: a soft highlight sweeps across the text on a loop.
-- **Word rotator**: one word in a sentence swaps in place from a list, and the line keeps its width steady.
-- **Gradient flow**: the text fill is a slowly moving gradient from theme colours.
-- **Typewriter**: types, waits, deletes and moves to the next line, with a blinking caret.
-- **Glitch**: sliced, offset copies of the text flicker on a loop or on hover.
-
 ## Medium
 
 - **Text on a circle**: a label set around a circle that turns slowly and speeds up on hover.
