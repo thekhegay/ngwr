@@ -1,0 +1,30 @@
+<span class="ngwr-word-rotator__sr">{{ phrase() }}</span>
+<span
+  class="ngwr-word-rotator__slot"
+  aria-hidden="true"
+  [style.width.px]="width()"
+  [style.--ngwr-word-rotator-count]="count()"
+>
+  @if (outgoing() === null) {
+    <span class="ngwr-word-rotator__word">{{ word() }}</span>
+  } @else {
+    <span class="ngwr-word-rotator__word ngwr-word-rotator__word--out">
+      @for (letter of outLetters(); track letter.index) {
+        <span
+          class="ngwr-word-rotator__letter ngwr-word-rotator__letter--out"
+          [style.--ngwr-word-rotator-i]="letter.index"
+          >{{ letter.text }}</span
+        >
+      }
+    </span>
+    <span class="ngwr-word-rotator__word ngwr-word-rotator__word--in">
+      @for (letter of inLetters(); track letter.index) {
+        <span
+          class="ngwr-word-rotator__letter ngwr-word-rotator__letter--in"
+          [style.--ngwr-word-rotator-i]="letter.index"
+          >{{ letter.text }}</span
+        >
+      }
+    </span>
+  }
+</span>
