@@ -1,0 +1,70 @@
+@use 'showcase/styles/a11y';
+
+// `[ngwrBlurReveal]`: the host's text comes in piece by piece the first time it
+// scrolls into view. At rest the block declares only its hooks, so the host
+// looks the way its own rules say; the pieces, the screen-reader copy and
+// `--run` exist only while the reveal plays, and the host holds its authored
+// children again when it ends.
+.ngwr-blur-reveal {
+  // In `em`, so a 40px heading and a 16px line soften by the same share of
+  // their size. 0.2em is where a 40px heading reads as soft rather than a
+  // smear in the first frames it can be seen in.
+  --ngwr-blur-reveal-blur: 0.2em;
+  --ngwr-blur-reveal-offset: 0.35em;
+  --ngwr-blur-reveal-duration: 0.6s;
+  // Eases out with no overshoot, so a piece settles rather than bounces.
+  --ngwr-blur-reveal-ease: var(--wr-ease-out);
+  --ngwr-blur-reveal-direction: 1;
+  // Written by the directive on the pieces wrapper: the pause before the first
+  // piece and the gap from one piece to the next.
+  --ngwr-blur-reveal-delay: 0ms;
+  --ngwr-blur-reveal-stagger: 70ms;
+
+  &--above {
+    --ngwr-blur-reveal-direction: -1;
+  }
+
+  // The graphemes of one word, in letter mode: a word never parts across lines.
+  &__word {
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  // `inline-block`, because a filter and a translate do nothing on an inline
+  // box. A word still wraps at the spaces between pieces, which stay real text.
+  &__piece {
+    display: inline-block;
+  }
+
+  &--run &__piece {
+    animation: ngwr-blur-reveal-in var(--ngwr-blur-reveal-duration) var(--ngwr-blur-reveal-ease) both;
+    animation-delay: calc(
+      var(--ngwr-blur-reveal-delay) + var(--ngwr-blur-reveal-i, 0) * var(--ngwr-blur-reveal-stagger)
+    );
+  }
+
+  // The sentence for a screen reader, once, while the pieces are `aria-hidden`.
+  &__sr {
+    @include a11y.sr-only;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &--run &__piece {
+      animation: none;
+    }
+  }
+}
+
+@keyframes ngwr-blur-reveal-in {
+  from {
+    opacity: 0;
+    filter: blur(var(--ngwr-blur-reveal-blur));
+    translate: 0 calc(var(--ngwr-blur-reveal-offset) * var(--ngwr-blur-reveal-direction));
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    translate: 0 0;
+  }
+}
