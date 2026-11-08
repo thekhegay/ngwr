@@ -2,6 +2,7 @@ export { Aurora } from './aurora/aurora';
 export { BlurReveal, type BlurRevealBy, type BlurRevealFrom } from './blur-reveal/blur-reveal';
 export { CircleText } from './circle-text/circle-text';
 export { ClickSparks } from './click-sparks/click-sparks';
+export { Confetti, type ConfettiOptions, type ConfettiRect } from './confetti/confetti';
 export { Decode, type DecodeShape, type DecodeTrigger } from './decode/decode';
 export { DotGrid } from './dot-grid/dot-grid';
 export { FallingLetters, type FallingLettersState } from './falling-letters/falling-letters';
