@@ -1,0 +1,36 @@
+<div class="ngwr-ticker__viewport" (focusin)="onTrackFocusIn($event)" (focusout)="onTrackFocusOut($event)">
+  <div class="ngwr-ticker__belt" [style.--ngwr-ticker-shift]="shift()" [style.--ngwr-ticker-duration]="duration()">
+    <ul class="ngwr-ticker__track" [attr.aria-label]="label()">
+      @for (item of items(); track item.url) {
+        <li class="ngwr-ticker__item">
+          <a class="ngwr-ticker__link" [routerLink]="item.url">{{ item.title }}</a>
+        </li>
+      }
+    </ul>
+    <!--
+      The second copy is the picture only: hidden from readers, inert, and its
+      links out of the tab order, so the list is read once and tabbed once.
+    -->
+    @if (looping()) {
+      <ul class="ngwr-ticker__track ngwr-ticker__track--copy" aria-hidden="true" inert>
+        @for (item of items(); track item.url) {
+          <li class="ngwr-ticker__item">
+            <a class="ngwr-ticker__link" [routerLink]="item.url" tabindex="-1">{{ item.title }}</a>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>
+<!-- Only a row that moves needs a pause: a still row (reduced motion, the server) has none. -->
+@if (looping()) {
+  <button
+    wr-btn
+    type="button"
+    class="ngwr-ticker__toggle"
+    size="sm"
+    [icon]="paused() ? 'play' : 'pause'"
+    [attr.aria-label]="paused() ? playLabel() : pauseLabel()"
+    (click)="toggle()"
+  ></button>
+}

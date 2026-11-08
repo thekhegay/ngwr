@@ -10,6 +10,7 @@ import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
 
 import { Footer } from '../_layout/footer/footer';
+import { COMPONENT_GROUPS } from '../_layout/sidebar/configs/components.config';
 
 import { ComponentsBento } from './components-bento/components-bento';
 import { FlowLines } from './hero/flow-lines/flow-lines';
@@ -18,7 +19,18 @@ import { SignalSweep } from './hero/signal-sweep/signal-sweep';
 import { HomeOptInComponent } from './opt-in/opt-in';
 
 import { DocCodeComponent, DocNgtrueComponent, DocRichPipe } from '#core/components';
-import { Aurora, BlurReveal, ClickSparks, Decode, LetterStagger, Spotlight, Tilt, WordRotator } from '#core/effects';
+import {
+  Aurora,
+  BlurReveal,
+  ClickSparks,
+  Decode,
+  LetterStagger,
+  Spotlight,
+  Ticker,
+  type TickerItem,
+  Tilt,
+  WordRotator,
+} from '#core/effects';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
@@ -71,6 +83,7 @@ interface DxLink {
     Decode,
     LetterStagger,
     Spotlight,
+    Ticker,
     Tilt,
     WordRotator,
     // Sections
@@ -107,6 +120,15 @@ export default class HomeComponent {
    * is the one the server renders and a still page keeps.
    */
   protected readonly qualities: readonly string[] = ['tree-shakable', 'accessible', 'RTL-ready', 'themeable'];
+
+  /**
+   * Every component the Reference sidebar lists, flat, in the sidebar's own
+   * order: one source for the nav and the row under the hero, so a component
+   * added to the catalog shows up in both.
+   */
+  protected readonly components: readonly TickerItem[] = COMPONENT_GROUPS.flatMap(
+    group => group.children ?? []
+  ).flatMap(link => (link.url && !link.disabled ? [{ title: link.title, url: link.url }] : []));
 
   /**
    * Counted by `pnpm gen:quality`, not typed here. The hero and the "Pay for

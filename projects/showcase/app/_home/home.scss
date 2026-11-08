@@ -147,6 +147,22 @@
   }
 }
 
+// The row of component names under the hero. No padding of its own: the hero
+// ends on 7rem of air and the bento opens on 5rem, and the row's own block
+// padding (`ticker.scss`) is the air a one-line strip needs. Pulled up into
+// the hero's tail, so it reads as the hero's last line rather than as a
+// section of its own, and stays clear of the call to action above it.
+.ngwr-home-ticker {
+  // Positioned, so it paints after the positioned hero it overlaps, not under
+  // the hero's flow lines.
+  position: relative;
+  margin-block-start: -3rem;
+
+  @include bp.media-down(md) {
+    margin-block-start: -1rem;
+  }
+}
+
 // The section frame, head, aside and footer are the global `.ngwr-section`
 // rules in `showcase/styles/_section.scss`: the opt-in section and the bento
 // render the same head from their own components, which this emulated sheet
