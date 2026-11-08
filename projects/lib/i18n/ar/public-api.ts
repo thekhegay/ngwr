@@ -531,4 +531,8 @@ export const wrAr: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'و',
   },
+  ticker: {
+    pause: 'إيقاف مؤقت',
+    play: 'تشغيل',
+  },
 };

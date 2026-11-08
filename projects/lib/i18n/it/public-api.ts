@@ -525,4 +525,8 @@ export const wrIt: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'e',
   },
+  ticker: {
+    pause: 'Pausa',
+    play: 'Riproduci',
+  },
 };

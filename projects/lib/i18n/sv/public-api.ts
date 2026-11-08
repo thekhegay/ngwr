@@ -508,4 +508,8 @@ export const wrSv: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'och',
   },
+  ticker: {
+    pause: 'Pausa',
+    play: 'Spela upp',
+  },
 };

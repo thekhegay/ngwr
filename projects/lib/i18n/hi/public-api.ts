@@ -510,4 +510,8 @@ export const wrHi: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'और',
   },
+  ticker: {
+    pause: 'रोकें',
+    play: 'चलाएँ',
+  },
 };

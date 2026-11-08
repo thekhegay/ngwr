@@ -508,4 +508,8 @@ export const wrEs: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'y',
   },
+  ticker: {
+    pause: 'Pausar',
+    play: 'Reproducir',
+  },
 };

@@ -285,6 +285,10 @@ export const API = {
   WrClickOutside: [
     { name: "(wrClickOutside)", description: "Fires on a pointer press that landed outside the host element. Close a menu or commit an inline edit with it; the event is the original click.", type: "MouseEvent" },
   ],
+  // <[wrClickSparks]>
+  WrClickSparks: [
+    { name: "wrClickSparks", description: "How many strokes one burst has. Written as the directive's own value: `wrClickSparks=\"10\"`. Unset or empty, {@link CLICK_SPARKS_COUNT}.", type: "number", default: "CLICK_SPARKS_COUNT" },
+  ],
   // <wr-collapse>
   WrCollapse: [
     { name: "title", description: "Header text.", type: "string", required: true },
@@ -669,6 +673,10 @@ export const API = {
   // <[wrGlitch]>
   WrGlitch: [
     { name: "wrGlitch", description: "A selector for one descendant of the host to glitch instead of the host itself, written as the directive's own value: `wrGlitch=\".wr-result__title\"`. Resolved once after the first render with `querySelector`; a selector that matches nothing turns the effect off. Unset or empty, the host.", type: "string | null", default: "null" },
+  ],
+  // <[wrGlowBorder]>
+  WrGlowBorder: [
+    { name: "active", description: "Stops the arc without removing the directive.", type: "boolean", default: "true" },
   ],
   // <wr-graph>
   WrGraph: [
@@ -1140,6 +1148,10 @@ export const API = {
     { name: "autoExpand", description: "Open every group above the current route, once per navigation: a group the user closes stays closed until the route changes.", type: "boolean", default: "true" },
     { name: "autoCollapse", description: "Close the groups the previous navigation opened when the next one leaves them, so a long nav does not keep every visited section expanded. A group the user opened or closed by hand is never closed for them. Needs `autoExpand`.", type: "boolean", default: "false" },
   ],
+  // <[wrSignalSweep]>
+  WrSignalSweep: [
+    { name: "delay", description: "Pause between the host entering the viewport and the sweep, in ms.", type: "number", default: "250" },
+  ],
   // <wr-skeleton>
   WrSkeleton: [
     { name: "color", description: "Intent tint for the placeholder. `null`, the default, paints the neutral gray a placeholder almost always wants. It used to default to the `light` intent, chosen because that one token was theme-stable — slate-300 on white, slate-800 on near-black. The neutral ramp does that job now and does it by construction, so the default is the absence of an intent rather than a particular one. An intent here tints a thing that is not yet content, so reach for it only when the placeholder stands in for something the colour already identifies.", type: "WrColor | null", default: "null" },
@@ -1366,6 +1378,14 @@ export const API = {
   WrThreadLines: [
     { name: "count", description: "How many threads the ribbon has.", type: "number", default: "24" },
     { name: "reach", description: "How far from the pointer a thread is still pulled, in px.", type: "number", default: "180" },
+  ],
+  // <wr-ticker>
+  WrTicker: [
+    { name: "items", description: "The links, in the order they pass.", type: "readonly WrTickerItem[]", required: true },
+    { name: "speed", description: "How fast the row travels, in px per second.", type: "number", default: "40" },
+    { name: "label", description: "The accessible name of the list.", type: "string | null", default: "null" },
+    { name: "pauseLabel", description: "The pause button's name while the row moves. Unset, the `ticker.pause` string of the i18n catalog, \"Pause\" in English.", type: "string | null", default: "null" },
+    { name: "playLabel", description: "The pause button's name while the row stands. Unset, the `ticker.play` string of the i18n catalog, \"Play\" in English.", type: "string | null", default: "null" },
   ],
   // <wr-timeline>
   WrTimeline: [

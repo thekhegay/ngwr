@@ -124,9 +124,18 @@ function entryPointsUnder(dir: string, prefix = ''): string[] {
   return out;
 }
 
+/**
+ * The entry points the catalogs leave out, as `INTERNAL_ENTRY_POINTS` in
+ * `scripts/lib/entry-points.ts` lists them: every export is `@internal`, so the
+ * shipped symbol map never carries one and the table has nothing to say.
+ */
+const INTERNAL = new Set(['charts/core', 'animations/core']);
+
 function symbolMap(): Record<string, string> {
   const map: Record<string, string> = {};
-  const entries = entryPointsUnder(LIB).sort();
+  const entries = entryPointsUnder(LIB)
+    .filter(entry => !INTERNAL.has(entry))
+    .sort();
 
   for (const entry of entries) {
     const source = readFileSync(join(LIB, entry, 'public-api.ts'), 'utf8');

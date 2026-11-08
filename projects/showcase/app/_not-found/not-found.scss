@@ -22,6 +22,6 @@
   // `-contrast` of the primary fill: unreadable off the button. The fill's role
   // instead, so they read on the page.
   &__home {
-    --ngwr-click-sparks-color: var(--wr-color-primary);
+    --wr-click-sparks-color: var(--wr-color-primary);
   }
 }

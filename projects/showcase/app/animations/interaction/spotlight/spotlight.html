@@ -1,0 +1,79 @@
+<ngwr-doc-page
+  title="Spotlight"
+  since="15.7.0"
+  description="A soft circle of light sits under the pointer on a card's surface and follows it, and the card's border brightens a little near it. When the pointer leaves, the light fades out where it was. It has no inputs: the colour, the reach and the strength are CSS variables."
+  [keywords]="['spotlight', 'hover effect', 'card', 'pointer', 'wrSpotlight']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `wrSpotlight` on a positioned card; `wr-card` is one. The directive feeds two numbers and one state, and the stylesheet paints: two pseudo-elements, the light and the ring, cover the border box at `z-index: -1` inside the host's own stacking context, so they paint over the card's background and border and under everything the card holds, and take no pointer. The point is read once per animation frame however many moves came in, and the host is measured at enter and on scroll or resize, never per move."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-link-grid" style="width: 100%">
+        @for (tile of tiles; track tile.title) {
+          <wr-card wrSpotlight>
+            <h3 wrTypography variant="h5">{{ tile.title }}</h3>
+            <p wrTypography variant="body">{{ tile.text }}</p>
+          </wr-card>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colour and reach"
+    description="`--wr-spotlight-color` is the light's colour, primary by default: a role, never a step. `--wr-spotlight-radius` and `-ring-radius` are how far the light and the brighter border reach, `-strength` and `-ring-strength` how much of the colour each carries, and `--wr-spotlight-edge` the host's border width, so the ring is exactly as thick as the line it brightens."
+  >
+    <ngwr-doc-code [code]="snippets.colour" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-card wrSpotlight style="--wr-spotlight-color: var(--wr-color-success); --wr-spotlight-radius: 160px">
+        <h3 wrTypography variant="h5">A smaller, greener light</h3>
+        <p wrTypography variant="body">Move the pointer over the card.</p>
+      </wr-card>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>
+              Focus inside the card, with no pointer over it, is the stylesheet's own <code>:focus-within</code> rule:
+              the same light at the centre, at half strength, so a keyboard user gets the same hint. A pointer inside
+              wins.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>Nothing is added to the card: the light is two pseudo-elements, and the host keeps its own name.</td>
+          </tr>
+          <tr>
+            <th scope="row">Touch</th>
+            <td>A touch pointer is ignored: it has no hover, and a tap would leave the light on.</td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              The light following the pointer is a pointer response, not motion, so it stays; only the fade in and out
+              goes. Under <code>forced-colors: active</code> nothing listens, since the stylesheet paints nothing.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>Nothing runs: the listeners are added after the first render, in the browser only.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -531,4 +531,8 @@ export const wrPl: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'i',
   },
+  ticker: {
+    pause: 'Wstrzymaj',
+    play: 'Odtwórz',
+  },
 };

@@ -15,6 +15,7 @@ export const TEXT_ROUTES = [
   { path: animations.letterStagger.path, loadComponent: () => import('./letter-stagger/letter-stagger') },
   { path: animations.noiseText.path, loadComponent: () => import('./noise-text/noise-text') },
   { path: animations.shine.path, loadComponent: () => import('./shine/shine') },
+  { path: animations.signalSweep.path, loadComponent: () => import('./signal-sweep/signal-sweep') },
   { path: animations.typewriter.path, loadComponent: () => import('./typewriter/typewriter') },
   { path: animations.wordRotator.path, loadComponent: () => import('./word-rotator/word-rotator') },
 ] satisfies Routes;

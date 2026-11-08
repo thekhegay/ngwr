@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { WrClickSparks } from 'ngwr/animations/click-sparks';
 import { WrFallingLetters } from 'ngwr/animations/falling-letters';
 import { WrGlitch } from 'ngwr/animations/glitch';
 import { WrRippleGrid } from 'ngwr/animations/ripple-grid';
@@ -9,7 +10,6 @@ import { WrResult404 } from 'ngwr/result';
 
 import { Footer } from '../_layout/footer/footer';
 
-import { ClickSparks } from '#core/effects';
 import { MetaService } from '#core/services';
 import { ROUTES, wrPath } from '#routes';
 
@@ -29,7 +29,7 @@ import { ROUTES, wrPath } from '#routes';
   selector: 'ngwr-not-found',
   templateUrl: './not-found.html',
   styleUrl: './not-found.scss',
-  imports: [RouterLink, WrButton, WrResult404, Footer, WrGlitch, WrFallingLetters, WrRippleGrid, ClickSparks],
+  imports: [RouterLink, WrButton, WrResult404, Footer, WrGlitch, WrFallingLetters, WrRippleGrid, WrClickSparks],
 })
 export default class NotFound {
   protected readonly routes = ROUTES;

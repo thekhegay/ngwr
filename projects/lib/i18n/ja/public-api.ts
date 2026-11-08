@@ -512,4 +512,8 @@ export const wrJa: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'と',
   },
+  ticker: {
+    pause: '一時停止',
+    play: '再生',
+  },
 };

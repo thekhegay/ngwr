@@ -520,4 +520,8 @@ export const wrKo: WrI18nCatalog = {
   wordRotator: {
     conjunction: '그리고',
   },
+  ticker: {
+    pause: '일시정지',
+    play: '재생',
+  },
 };

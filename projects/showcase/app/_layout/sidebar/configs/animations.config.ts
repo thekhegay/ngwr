@@ -6,9 +6,9 @@ import type { SidebarGroup } from '#types';
  * of text, the background of a region, or the pointer and the elements it
  * reaches. Text comes first, since a heading is where most pages start.
  *
- * The effects move into the package in batches, and a group appears here with
- * its first page: `Interaction` follows Backgrounds. Rows are alphabetical
- * inside a group.
+ * Rows are alphabetical inside a group. The signal sweep is an accent on a
+ * run of text, so it sits under Text; the glow border runs round an element's
+ * edge, so it sits with the pointer effects under Interaction.
  *
  * Each group is a folder under `app/animations/`; the URL never contains it.
  */
@@ -25,6 +25,7 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       wrLink(ROUTES.animations, ROUTES.animations.letterStagger),
       wrLink(ROUTES.animations, ROUTES.animations.noiseText),
       wrLink(ROUTES.animations, ROUTES.animations.shine),
+      wrLink(ROUTES.animations, ROUTES.animations.signalSweep),
       wrLink(ROUTES.animations, ROUTES.animations.typewriter),
       wrLink(ROUTES.animations, ROUTES.animations.wordRotator),
     ],
@@ -37,6 +38,18 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       wrLink(ROUTES.animations, ROUTES.animations.flowLines),
       wrLink(ROUTES.animations, ROUTES.animations.rippleGrid),
       wrLink(ROUTES.animations, ROUTES.animations.threadLines),
+    ],
+  },
+  {
+    title: 'Interaction',
+    children: [
+      wrLink(ROUTES.animations, ROUTES.animations.clickSparks),
+      wrLink(ROUTES.animations, ROUTES.animations.confetti),
+      wrLink(ROUTES.animations, ROUTES.animations.fluidCursor),
+      wrLink(ROUTES.animations, ROUTES.animations.glowBorder),
+      wrLink(ROUTES.animations, ROUTES.animations.spotlight),
+      wrLink(ROUTES.animations, ROUTES.animations.ticker),
+      wrLink(ROUTES.animations, ROUTES.animations.tilt),
     ],
   },
 ];

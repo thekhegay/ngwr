@@ -525,4 +525,8 @@ export const wrVi: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'và',
   },
+  ticker: {
+    pause: 'Tạm dừng',
+    play: 'Phát',
+  },
 };

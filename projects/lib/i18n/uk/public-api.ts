@@ -529,4 +529,8 @@ export const wrUk: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'і',
   },
+  ticker: {
+    pause: 'Пауза',
+    play: 'Відтворити',
+  },
 };

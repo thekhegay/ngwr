@@ -126,6 +126,14 @@
       "sass": "./animations/circle-text/styles/_index.scss",
       "default": "./animations/circle-text/public-api.ts"
     },
+    "./animations/click-sparks": {
+      "sass": "./animations/click-sparks/styles/_index.scss",
+      "default": "./animations/click-sparks/public-api.ts"
+    },
+    "./animations/confetti": {
+      "sass": "./animations/confetti/styles/_index.scss",
+      "default": "./animations/confetti/public-api.ts"
+    },
     "./animations/core": {
       "default": "./animations/core/public-api.ts"
     },
@@ -145,9 +153,17 @@
       "sass": "./animations/flow-lines/styles/_index.scss",
       "default": "./animations/flow-lines/public-api.ts"
     },
+    "./animations/fluid-cursor": {
+      "sass": "./animations/fluid-cursor/styles/_index.scss",
+      "default": "./animations/fluid-cursor/public-api.ts"
+    },
     "./animations/glitch": {
       "sass": "./animations/glitch/styles/_index.scss",
       "default": "./animations/glitch/public-api.ts"
+    },
+    "./animations/glow-border": {
+      "sass": "./animations/glow-border/styles/_index.scss",
+      "default": "./animations/glow-border/public-api.ts"
     },
     "./animations/gradient-flow": {
       "sass": "./animations/gradient-flow/styles/_index.scss",
@@ -169,9 +185,24 @@
       "sass": "./animations/shine/styles/_index.scss",
       "default": "./animations/shine/public-api.ts"
     },
+    "./animations/signal-sweep": {
+      "sass": "./animations/signal-sweep/styles/_index.scss",
+      "default": "./animations/signal-sweep/public-api.ts"
+    },
+    "./animations/spotlight": {
+      "sass": "./animations/spotlight/styles/_index.scss",
+      "default": "./animations/spotlight/public-api.ts"
+    },
     "./animations/thread-lines": {
       "sass": "./animations/thread-lines/styles/_index.scss",
       "default": "./animations/thread-lines/public-api.ts"
+    },
+    "./animations/ticker": {
+      "sass": "./animations/ticker/styles/_index.scss",
+      "default": "./animations/ticker/public-api.ts"
+    },
+    "./animations/tilt": {
+      "default": "./animations/tilt/public-api.ts"
     },
     "./animations/typewriter": {
       "sass": "./animations/typewriter/styles/_index.scss",

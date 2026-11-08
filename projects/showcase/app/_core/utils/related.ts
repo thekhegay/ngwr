@@ -995,4 +995,12 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'animations/flow-lines': ['animations/thread-lines', 'animations/dot-grid', 'guides/tokens/motion'],
   'animations/ripple-grid': ['animations/dot-grid', 'reference/components/result', 'guides/tokens/motion'],
   'animations/thread-lines': ['animations/flow-lines', 'animations/aurora', 'guides/tokens/motion'],
+  'animations/click-sparks': ['animations/confetti', 'reference/components/button', 'guides/tokens/motion'],
+  'animations/confetti': ['animations/click-sparks', 'reference/components/button', 'guides/tokens/colors'],
+  'animations/fluid-cursor': ['animations/flow-lines', 'animations/spotlight', 'guides/tokens/colors'],
+  'animations/glow-border': ['animations/shine', 'reference/components/button', 'guides/tokens/motion'],
+  'animations/signal-sweep': ['animations/shine', 'animations/letter-stagger', 'guides/tokens/motion'],
+  'animations/spotlight': ['animations/tilt', 'reference/components/card', 'guides/tokens/colors'],
+  'animations/ticker': ['animations/word-rotator', 'reference/components/carousel', 'guides/translations/overview'],
+  'animations/tilt': ['animations/spotlight', 'reference/components/card', 'guides/tokens/motion'],
 };
