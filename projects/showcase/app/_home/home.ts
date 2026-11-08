@@ -18,7 +18,7 @@ import { SignalSweep } from './hero/signal-sweep/signal-sweep';
 import { HomeOptInComponent } from './opt-in/opt-in';
 
 import { DocCodeComponent, DocNgtrueComponent, DocRichPipe } from '#core/components';
-import { Aurora, BlurReveal, ClickSparks, Decode, LetterStagger, WordRotator } from '#core/effects';
+import { Aurora, BlurReveal, ClickSparks, Decode, LetterStagger, Spotlight, WordRotator } from '#core/effects';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
@@ -70,6 +70,7 @@ interface DxLink {
     ClickSparks,
     Decode,
     LetterStagger,
+    Spotlight,
     WordRotator,
     // Sections
     ComponentsBento,

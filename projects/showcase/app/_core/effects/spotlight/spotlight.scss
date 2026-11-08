@@ -1,0 +1,116 @@
+// `[ngwrSpotlight]`: a soft circle of light under the pointer on a card's
+// surface, and a brighter stretch of border near it. The directive writes the
+// pointer as `--ngwr-spotlight-x` / `-y` (px from the host's border box) and
+// puts `--on` on the host while a pointer is inside; this sheet owns the paint.
+// Two pseudo-elements, both free on `wr-card`: `::before` is the light,
+// `::after` the ring. Both cover the border box, sit at `z-index: -1` inside
+// the host's own stacking context (`isolation: isolate`), so they paint over
+// the card's background and border and under everything the card holds, and
+// take no pointer, so links and text selection in the card are untouched. The
+// gradients sit directly at the point: only opacity ever transitions, so the
+// light follows the pointer with no lag and fades out where it was.
+.ngwr-spotlight {
+  // Written by the directive on the host. The rest values put a light that
+  // has no pointer yet (the `:focus-within` hint below) at the centre.
+  --ngwr-spotlight-x: 50%;
+  --ngwr-spotlight-y: 50%;
+  // The light's colour: a role, never a step. A card that is not primary sets
+  // another role here.
+  --ngwr-spotlight-color: var(--wr-color-primary);
+  // How wide the light and the ring reach, from the point to full transparency.
+  --ngwr-spotlight-radius: 240px;
+  --ngwr-spotlight-ring-radius: 180px;
+  // How much of the colour the centre of the light carries over the surface:
+  // enough to read as light, not enough to move the text's contrast. The ring
+  // is a 1px line and takes more before it shows.
+  --ngwr-spotlight-strength: 12%;
+  --ngwr-spotlight-ring-strength: 60%;
+  // The host's border width: the ring is exactly as thick as the line it
+  // brightens, and both layers reach out this far to cover it.
+  --ngwr-spotlight-edge: 1px;
+  // The fade in and out, opacity only.
+  --ngwr-spotlight-fade: var(--wr-transition-long);
+  // The point in each layer's own box, which starts one edge outside the host.
+  --_x: calc(var(--ngwr-spotlight-x) + var(--ngwr-spotlight-edge));
+  --_y: calc(var(--ngwr-spotlight-y) + var(--ngwr-spotlight-edge));
+  --_opacity: 0;
+
+  // A stacking context of its own, so the layers at `z-index: -1` paint above
+  // the host's background rather than behind the whole card.
+  isolation: isolate;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: calc(-1 * var(--ngwr-spotlight-edge));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: var(--_opacity);
+    pointer-events: none;
+  }
+
+  // The light: the colour at the point, mixed down to the strength, gone at the radius.
+  &::before {
+    background: radial-gradient(
+      circle var(--ngwr-spotlight-radius) at var(--_x) var(--_y),
+      color-mix(in srgb, var(--ngwr-spotlight-color) var(--ngwr-spotlight-strength), transparent),
+      transparent
+    );
+  }
+
+  // The ring: the same gradient, stronger, masked down to a line one edge wide
+  // round the box, so it reads as the card's own border brightening.
+  &::after {
+    padding: var(--ngwr-spotlight-edge);
+    background: radial-gradient(
+      circle var(--ngwr-spotlight-ring-radius) at var(--_x) var(--_y),
+      color-mix(in srgb, var(--ngwr-spotlight-color) var(--ngwr-spotlight-ring-strength), transparent),
+      transparent
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+
+  &--on {
+    --_opacity: 1;
+  }
+
+  // Keyboard focus inside the card, with no pointer over it: the same light
+  // at the centre, at half strength, so a keyboard user gets the same hint
+  // without a point to follow. A pointer inside wins: it has a real point.
+  &:focus-within:not(&--on) {
+    --_x: calc(50% + var(--ngwr-spotlight-edge));
+    --_y: calc(50% + var(--ngwr-spotlight-edge));
+    --_opacity: 0.5;
+  }
+
+  // The fade is the only motion here. The light following the pointer is a
+  // pointer response, not an animation, so it stays under reduced motion and
+  // only the fade goes: the light appears and leaves at once.
+  @media (prefers-reduced-motion: no-preference) {
+    &::before,
+    &::after {
+      transition: opacity var(--ngwr-spotlight-fade);
+    }
+  }
+
+  // A forced palette has no soft tint: the card is its own two colours.
+  @media (forced-colors: active) {
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+
+  // `wr-card` rounds its corners as a squircle where the browser can; the
+  // layers follow the same curve, since `corner-shape` is not inherited.
+  @supports (corner-shape: squircle) {
+    &::before,
+    &::after {
+      corner-shape: inherit;
+    }
+  }
+}

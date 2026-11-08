@@ -160,7 +160,7 @@
 
       <div class="ngwr-why-grid">
         @for (tile of whyTiles; track tile.title) {
-          <wr-card class="ngwr-why">
+          <wr-card class="ngwr-why" ngwrSpotlight>
             <span class="ngwr-icon-chip" [attr.data-tone]="tile.accent" aria-hidden="true">
               <wr-icon [name]="tile.icon" />
             </span>
