@@ -9,10 +9,14 @@
         Beside the title, never inside it: a badge in the `<h1>` makes the
         heading's accessible name "Graph Added in v14.5", and a heading is how a
         screen-reader user finds the page. As its own chip it is announced on its
-        own, and it says the whole phrase rather than a bare version.
+        own, and it says the whole phrase rather than a bare version. The shine
+        sits on a span inside the badge: the badge paints the frame, the span
+        holds only the text the band crosses.
       -->
       @if (addedIn(); as added) {
-        <wr-badge class="since" size="sm" shape="pill">{{ added }}</wr-badge>
+        <wr-badge class="since" size="sm" shape="pill"
+          ><span ngwrShine>{{ added }}</span></wr-badge
+        >
       }
       @if (updatedIn(); as updated) {
         <wr-badge class="since" size="sm" shape="pill">{{ updated }}</wr-badge>

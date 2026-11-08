@@ -28,6 +28,7 @@
 @use 'app/_core/effects/blur-reveal/blur-reveal';
 @use 'app/_core/effects/decode/decode';
 @use 'app/_core/effects/letter-stagger/letter-stagger';
+@use 'app/_core/effects/shine/shine';
 
 // The showcase's focus ring, for the prose links below. Declares no rules.
 @use 'styles/mixins' as site;
