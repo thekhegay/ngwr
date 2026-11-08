@@ -119,7 +119,7 @@
         <ul class="ngwr-link-grid ngwr-dx-links">
           @for (link of dxLinks; track link.label) {
             <li>
-              <a class="ngwr-link-card ngwr-dx-links__link" [routerLink]="link.url">
+              <a class="ngwr-link-card ngwr-dx-links__link" [routerLink]="link.url" ngwrTilt>
                 <span class="ngwr-dx-links__row">
                   <span class="ngwr-icon-chip ngwr-icon-chip--sm" data-tone="primary" aria-hidden="true">
                     <wr-icon [name]="link.icon" />

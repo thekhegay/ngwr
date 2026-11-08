@@ -15,5 +15,6 @@ export { Shine, type ShineState } from './shine/shine';
 export { Spotlight } from './spotlight/spotlight';
 export { type StaggerBy } from './stagger';
 export { ThreadLines } from './thread-lines/thread-lines';
+export { Tilt } from './tilt/tilt';
 export { Typewriter, type TypewriterTrigger } from './typewriter/typewriter';
 export { WordRotator } from './word-rotator/word-rotator';
