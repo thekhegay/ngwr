@@ -26,6 +26,7 @@
 // writes into the DOM carry no emulated-encapsulation attribute, and its hosts
 // sit in several components' templates.
 @use 'app/_core/effects/blur-reveal/blur-reveal';
+@use 'app/_core/effects/decode/decode';
 @use 'app/_core/effects/letter-stagger/letter-stagger';
 
 // The showcase's focus ring, for the prose links below. Declares no rules.

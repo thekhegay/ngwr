@@ -18,7 +18,7 @@ import { SignalSweep } from './hero/signal-sweep/signal-sweep';
 import { HomeOptInComponent } from './opt-in/opt-in';
 
 import { DocCodeComponent, DocNgtrueComponent, DocRichPipe } from '#core/components';
-import { BlurReveal, LetterStagger } from '#core/effects';
+import { BlurReveal, Decode, LetterStagger } from '#core/effects';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
@@ -66,6 +66,7 @@ interface DxLink {
     SignalSweep,
     GlowBorder,
     BlurReveal,
+    Decode,
     LetterStagger,
     // Sections
     ComponentsBento,
