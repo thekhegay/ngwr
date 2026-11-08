@@ -62,4 +62,14 @@
   border: 1px solid var(--wr-border-base);
   border-radius: var(--wr-border-radius-base);
   background: var(--wr-color-surface);
+
+  // The arena as a backdrop's parent (`<wr-aurora />`, `<wr-dot-grid />` as
+  // its first child): positioned and isolated, so the backdrop's negative
+  // z-index is the floor of the arena's own stacking context, under the sample
+  // content and over the arena's surface. The same contract `.ngwr-section--backdrop`
+  // gives a home section.
+  &--backdrop {
+    position: relative;
+    isolation: isolate;
+  }
 }

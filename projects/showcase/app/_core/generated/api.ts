@@ -510,6 +510,11 @@ export const API = {
     { name: "tooltip", description: "Show a tooltip with the slice's label and value on hover. Pointer only — the legend prints the same numbers, and with `showLegend` off `ariaLabel` is where to say them. With `pie`, a slice too thin to land a pointer on, a sliver of a few degrees, is hovered over a wider strip than it draws, through an invisible `.wr-donut-chart__hit` over the pie: widened toward 12px of outer arc (15° on a chart under about 92px) out of what the wider slices beside it can spare, each of which keeps that much of its own. A sliver whose neighbours are slivers too, or have little to spare, gets a narrower target or none, and is read in the legend. The ring draws no such target.", type: "boolean", default: "true" },
     { name: "valueFormat", description: "Writes every value in the legend and the tooltip. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. The centre text is printed as given.", type: "((value: number) => string) | null", default: "null" },
   ],
+  // <wr-dot-grid>
+  WrDotGrid: [
+    { name: "spacing", description: "Distance between two dots, in px.", type: "number", default: "26" },
+    { name: "reach", description: "How far from the pointer a dot still lights and moves, in px.", type: "number", default: "140" },
+  ],
   // <wr-drawer>
   WrDrawer: [
     { name: "open", description: "Two-way bindable open state.", type: "boolean", default: "false" },
@@ -605,6 +610,14 @@ export const API = {
     { name: "value", description: "Selected file(s). Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `multiple`: a single `File` (or `null`), or a `File[]` array.", type: "File | readonly File[] | null", default: "null" },
     { name: "(rejected)", description: "Emitted when files are rejected for type / size / count reasons.", type: "readonly WrFileUploadRejection[]" },
     { name: "(touch)", description: "Emitted on commit so a bound field can mark itself touched.", type: "void" },
+  ],
+  // <wr-flow-lines>
+  WrFlowLines: [
+    { name: "gap", description: "Distance between two lines, in px.", type: "number", default: "10" },
+    { name: "step", description: "Distance between two control points down a line, in px.", type: "number", default: "24" },
+    { name: "sway", description: "How far a point drifts sideways at most, in px.", type: "number", default: "24" },
+    { name: "lift", description: "How far a point drifts up or down at most, in px.", type: "number", default: "12" },
+    { name: "reach", description: "How far from the pointer a point is still pushed, in px.", type: "number", default: "150" },
   ],
   // <wr-form-error>
   WrFormError: [
@@ -1042,6 +1055,10 @@ export const API = {
     { name: "title", description: "The big figure. Defaults to `500`; override it for a localised or differently-worded page.", type: "string", default: "'500'" },
     { name: "description", description: "Body text. Falls back to `result.serverError` from WrI18n.", type: "string | null", default: "null" },
   ],
+  // <wr-ripple-grid>
+  WrRippleGrid: [
+    { name: "spacing", description: "Distance between two grid lines, in px.", type: "number", default: "32" },
+  ],
   // <wr-scatter-chart>
   WrScatterChart: [
     { name: "series", description: "One entry per series. A series with no `color` takes the next entry from the chart's palette, and every series takes the next marker shape, so several series are told apart unconfigured.", type: "readonly WrScatterSeries[]", default: "[]" },
@@ -1344,6 +1361,11 @@ export const API = {
     { name: "disabled", description: "Disable the textarea. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "value", description: "The edited text. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+  ],
+  // <wr-thread-lines>
+  WrThreadLines: [
+    { name: "count", description: "How many threads the ribbon has.", type: "number", default: "24" },
+    { name: "reach", description: "How far from the pointer a thread is still pulled, in px.", type: "number", default: "180" },
   ],
   // <wr-timeline>
   WrTimeline: [

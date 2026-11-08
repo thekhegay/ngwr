@@ -1,0 +1,89 @@
+<ngwr-doc-page
+  title="Aurora"
+  since="15.7.0"
+  description="A few soft, wide bands of colour drifting slowly behind a section's content, like northern lights, faint enough that the text over them reads as it does on the plain surface. It has no inputs: the colours, the strength and the cadence are CSS variables."
+  [keywords]="['aurora', 'background', 'backdrop', 'gradient', 'northern lights', 'wr-aurora']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `<wr-aurora />` first inside the region it should fill. The stylesheet owns the paint and the motion: each band is one blurred radial gradient on its own composited layer, moved by `transform` keyframes alone, so nothing is re-rasterised while it drifts, and the three durations are mutually prime, so the picture never visibly repeats. The component's whole job is the one modifier that sets the drift running, and only while the host is on screen and the document is visible."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-aurora />
+        <h3 wrTypography variant="h3">Built on the new Angular.</h3>
+        <p wrTypography variant="lead">
+          The bands drift under this text; the text reads as it does on the plain surface.
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The parent"
+    description="The host is absolute, `inset: 0`, at `z-index: -1`, under no pointer and masked out at the edges. The parent provides two things: it is positioned, so the host fills it, and isolated, so the host's negative z-index lands at the floor of the parent's own stacking context, under the content and over the page background, and the parent's other children need no positioning of their own."
+  >
+    <ngwr-doc-code [code]="snippets.parent" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colours and strength"
+    description="`--wr-aurora-color-1`, `-2` and `-3` are the three bands, in painting order, defaulting to the success, primary and a primary-danger mix: bare intents, since the bands are graphics and not text. `--wr-aurora-strength` is how much of a band's colour sits over the surface at its peak, set so the muted ink over it keeps its contrast; `--wr-aurora-blur` and `--wr-aurora-cycle` are the softness and the period of the middle band. Set them on the parent."
+  >
+    <ngwr-doc-code [code]="snippets.colours" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        class="ngwr-demo-arena ngwr-demo-arena--backdrop"
+        style="--wr-aurora-color-1: var(--wr-color-warning); --wr-aurora-strength: 20%"
+      >
+        <wr-aurora />
+        <h3 wrTypography variant="h3">A warmer, stronger aurora.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              Decorative: the host is <code>aria-hidden</code>, holds no text, takes no pointer and is never focusable.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> the bands stay in their rest pose and nothing moves.
+              Pausing keeps the phase, so a drift resumes where it stopped instead of jumping back to its start.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Contrast</th>
+            <td>
+              At the default strength a single peak leaves the muted ink over it at 6.4:1 in light and 6.9:1 in dark,
+              and even three peaks stacked on one point hold 4.8:1 and 5.6:1. Under <code>forced-colors: active</code>
+              nothing is drawn.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>
+              The still picture is the block itself, so a server render paints the final bands from CSS alone before any
+              script arrives.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,0 +1,84 @@
+<ngwr-doc-page
+  title="Flow Lines"
+  since="15.7.0"
+  description="A full-bleed field of thin vertical lines that ripple slowly, like wind through grass: every control point drifts with smooth noise, so neighbouring lines move together, and the pointer over the parent pushes nearby points aside, which spring back when it leaves. The hero of this site runs it."
+  [keywords]="['flow-lines', 'background', 'backdrop', 'canvas', 'hero', 'noise', 'wr-flow-lines']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `<wr-flow-lines />` first inside the region it should fill. The field never rests, so the frame loop runs whenever the host is on screen and the document is visible, and stops otherwise. The lattice the noise is drawn from is shuffled once per page, so two fields on one page sway alike and the next load sways another way. The parent takes the pointer, the host and its canvas never do."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-flow-lines />
+        <h3 wrTypography variant="h3">Move the pointer through the field.</h3>
+        <p wrTypography variant="lead">The lines part around it and sway back.</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The parent"
+    description="The host is absolute, `inset: 0`, at `z-index: -1`, under no pointer, thinned by a mask behind the middle, where a headline sits, and faded out at the block end so the next section starts on a clean surface. The parent provides two things: it is positioned, so the host fills it, and isolated, so the host's negative z-index lands at the floor of the parent's own stacking context, under the content and over the page background."
+  >
+    <ngwr-doc-code [code]="snippets.parent" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Density and motion"
+    description="`gap` is the distance between two lines and `step` the distance between two control points down a line; `sway` and `lift` are how far a point drifts sideways and up or down at most; `reach` is how far from the pointer a point is still pushed. All in px. The ink is the `--wr-flow-lines-ink` hook, read through `resolveCssColor` and re-read when the scheme changes."
+  >
+    <ngwr-doc-code [code]="snippets.tuning" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-flow-lines gap="16" sway="40" lift="20" reach="200" />
+        <h3 wrTypography variant="h3">Sparser lines, a wider sway.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              Decorative: the host is <code>aria-hidden</code>, holds no text, takes no pointer and is never focusable.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> one frame is drawn and the field stays still; the
+              pointer moves nothing.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Contrast</th>
+            <td>
+              A line is the surface's ink at 14%, thinned further behind the middle, so a headline over the field reads
+              as it does on the plain surface.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>The server renders the host and nothing else; the canvas is created after the first render.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -2,6 +2,7 @@ import type { Routes } from '@angular/router';
 
 import { ANIMATIONS_SIDEBAR } from '../_layout/sidebar/configs';
 
+import { BACKGROUNDS_ROUTES } from './backgrounds/routing';
 import { TEXT_ROUTES } from './text/routing';
 
 import type { DocIndexData } from '#core/components';
@@ -32,4 +33,5 @@ export default [
     data: { index },
   },
   ...TEXT_ROUTES,
+  ...BACKGROUNDS_ROUTES,
 ] satisfies Routes;

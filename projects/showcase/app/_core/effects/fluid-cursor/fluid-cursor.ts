@@ -1,9 +1,7 @@
 import { Component, DestroyRef, ElementRef, ViewEncapsulation, inject, viewChild } from '@angular/core';
 
+import { createCanvasBackdrop, type WrNoise } from 'ngwr/animations/core';
 import { resolveCssColorChannels } from 'ngwr/utils';
-
-import { createCanvasBackdrop } from '../canvas-backdrop';
-import { type ThreadNoise } from '../thread-lines/thread-model';
 
 import {
   CAP,
@@ -71,7 +69,7 @@ export class FluidCursor {
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 
   private readonly pool: FluidPool = fluidPool(CAP);
-  private readonly noise: ThreadNoise = createFluidNoise();
+  private readonly noise: WrNoise = createFluidNoise();
   private readonly flow = new Float32Array(2);
   private readonly velocity = new Float32Array(2);
 

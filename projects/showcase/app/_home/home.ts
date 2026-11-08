@@ -2,8 +2,10 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { BadgeCheck, Folder, ListChecks, Moon, ShieldCheck, Terminal, TextCursorInput } from 'lucide';
+import { WrAurora } from 'ngwr/animations/aurora';
 import { WrBlurReveal } from 'ngwr/animations/blur-reveal';
 import { WrDecode } from 'ngwr/animations/decode';
+import { WrFlowLines } from 'ngwr/animations/flow-lines';
 import { WrLetterStagger } from 'ngwr/animations/letter-stagger';
 import { WrWordRotator } from 'ngwr/animations/word-rotator';
 import { WrTag } from 'ngwr/badge';
@@ -17,13 +19,12 @@ import { Footer } from '../_layout/footer/footer';
 import { COMPONENT_GROUPS } from '../_layout/sidebar/configs/components.config';
 
 import { ComponentsBento } from './components-bento/components-bento';
-import { FlowLines } from './hero/flow-lines/flow-lines';
 import { GlowBorder } from './hero/glow-border/glow-border';
 import { SignalSweep } from './hero/signal-sweep/signal-sweep';
 import { HomeOptInComponent } from './opt-in/opt-in';
 
 import { DocCodeComponent, DocNgtrueComponent, DocRichPipe } from '#core/components';
-import { Aurora, ClickSparks, Spotlight, Ticker, type TickerItem, Tilt } from '#core/effects';
+import { ClickSparks, Spotlight, Ticker, type TickerItem, Tilt } from '#core/effects';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
@@ -67,10 +68,10 @@ interface DxLink {
     WrCard,
     WrTypography,
     // Effects
-    FlowLines,
+    WrFlowLines,
     SignalSweep,
     GlowBorder,
-    Aurora,
+    WrAurora,
     WrBlurReveal,
     ClickSparks,
     WrDecode,

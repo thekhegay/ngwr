@@ -1,10 +1,6 @@
-export { Aurora } from './aurora/aurora';
 export { ClickSparks } from './click-sparks/click-sparks';
 export { Confetti, type ConfettiOptions, type ConfettiRect } from './confetti/confetti';
-export { DotGrid } from './dot-grid/dot-grid';
 export { FluidCursor } from './fluid-cursor/fluid-cursor';
-export { RippleGrid } from './ripple-grid/ripple-grid';
 export { Spotlight } from './spotlight/spotlight';
-export { ThreadLines } from './thread-lines/thread-lines';
 export { Ticker, type TickerItem } from './ticker/ticker';
 export { Tilt } from './tilt/tilt';

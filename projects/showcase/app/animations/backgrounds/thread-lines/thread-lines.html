@@ -1,0 +1,99 @@
+<ngwr-doc-page
+  title="Thread Lines"
+  since="15.7.0"
+  description="A loose ribbon of hairline threads behind a section's content, running from the start edge to the far one: gathered close together where they begin and fanning apart as they go, like the strands of a cable fraying out. Every thread sways slowly on its own, a few are tinted toward the primary colour, and the pointer gently draws the nearby part of the threads toward itself."
+  [keywords]="['thread-lines', 'background', 'backdrop', 'canvas', 'noise', 'ribbon', 'wr-thread-lines']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `<wr-thread-lines />` first inside the region it should fill. The ribbon never rests, so the frame loop runs whenever the host is on screen and the document is visible, at most thirty times a second, which is more than its sway needs. The sway is noise smooth along a thread, across the ribbon and in time, so neighbours move together but never in step, and the noise is seeded, so two mounts show one ribbon. The parent takes the pointer, passively; a finger is ignored, so a scroll over the section is never fought. Under RTL the ribbon is mirrored and gathers at the inline start."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-thread-lines />
+        <h3 wrTypography variant="h3">Move the pointer over the ribbon.</h3>
+        <p wrTypography variant="lead">The threads near it lean in, and let go after it leaves.</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The parent"
+    description="The host is absolute, `inset: 0`, at `z-index: -1`, under no pointer and faded at both inline edges, so the gathered end seems to come in from off the page. The parent provides two things: it is positioned, so the host fills it, and isolated, so the host's negative z-index lands at the floor of the parent's own stacking context, under the content and over the page background."
+  >
+    <ngwr-doc-code [code]="snippets.parent" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Count and reach"
+    description="`count` is how many threads the ribbon has and `reach` how far from the pointer a thread is still pulled, in px. The two colours are the `--wr-thread-lines-ink` and `--wr-thread-lines-tint` hooks, read through `resolveCssColorChannels` and re-read when the scheme changes."
+  >
+    <ngwr-doc-code [code]="snippets.count" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-thread-lines count="40" reach="260" />
+        <h3 wrTypography variant="h3">A denser ribbon, a longer reach.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The lower part"
+    description="The stylesheet's mask shows the ribbon whole behind the top quarter of the region, where a section's head sits, and at `--wr-thread-lines-low` of its strength from where the cards begin, 0.3 unset. Set it to 1 on the parent for a region with nothing laid over the ribbon."
+  >
+    <ngwr-doc-code [code]="snippets.low" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop" style="--wr-thread-lines-low: 1">
+        <wr-thread-lines />
+        <h3 wrTypography variant="h3">The whole ribbon.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              Decorative: the host is <code>aria-hidden</code>, holds no text, takes no pointer and is never focusable.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> the still ribbon is drawn once and nothing moves; a
+              preference that flips mid-flight puts the ribbon to rest at once.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Contrast</th>
+            <td>
+              A thread shows its ink at about a fifth, so the text over the ribbon reads as it does on the plain
+              surface. Under <code>forced-colors: active</code> nothing is drawn.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>
+              The server renders the empty canvas, absolutely positioned, so the browser's first draw shifts no layout.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

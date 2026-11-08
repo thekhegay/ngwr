@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1575 hook(s) across 102 page(s). A property is here only when the
+ * 1589 hook(s) across 107 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -40,6 +40,17 @@ export interface DocCssVars {
  * cast it needs can only name a route this file still carries.
  */
 export const CSS_VARS = {
+  "animations/aurora": {
+    subpath: "ngwr/animations/aurora",
+    vars: [
+      { name: "--wr-aurora-blur", default: "18px", scope: ".wr-aurora" },
+      { name: "--wr-aurora-color-1", default: "var(--wr-color-success)", scope: ".wr-aurora" },
+      { name: "--wr-aurora-color-2", default: "var(--wr-color-primary)", scope: ".wr-aurora" },
+      { name: "--wr-aurora-color-3", default: "color-mix(in oklch, var(--wr-color-primary) 60%, var(--wr-color-danger))", scope: ".wr-aurora" },
+      { name: "--wr-aurora-cycle", default: "29s", scope: ".wr-aurora" },
+      { name: "--wr-aurora-strength", default: "12%", scope: ".wr-aurora" },
+    ],
+  },
   "animations/blur-reveal": {
     subpath: "ngwr/animations/blur-reveal",
     vars: [
@@ -67,6 +78,19 @@ export const CSS_VARS = {
       { name: "--wr-decode-ease", default: "var(--wr-ease-out)", scope: ".wr-decode" },
       { name: "--wr-decode-settle", default: "240ms", scope: ".wr-decode", host: true },
       { name: "--wr-decode-tint", default: "color-mix(in srgb, currentColor 45%, transparent)", scope: ".wr-decode" },
+    ],
+  },
+  "animations/dot-grid": {
+    subpath: "ngwr/animations/dot-grid",
+    vars: [
+      { name: "--wr-dot-grid-glow", default: "var(--wr-color-primary)", scope: ".wr-dot-grid" },
+      { name: "--wr-dot-grid-ink", default: "var(--wr-color-on-surface-muted)", scope: ".wr-dot-grid" },
+    ],
+  },
+  "animations/flow-lines": {
+    subpath: "ngwr/animations/flow-lines",
+    vars: [
+      { name: "--wr-flow-lines-ink", default: "color-mix(in srgb, var(--wr-color-on-surface) 14%, transparent)", scope: ".wr-flow-lines" },
     ],
   },
   "animations/glitch": {
@@ -100,6 +124,13 @@ export const CSS_VARS = {
       { name: "--wr-letter-stagger-offset", default: "0.35em", scope: ".wr-letter-stagger", overrides: 1 },
     ],
   },
+  "animations/ripple-grid": {
+    subpath: "ngwr/animations/ripple-grid",
+    vars: [
+      { name: "--wr-ripple-grid-glow", default: "var(--wr-color-primary)", scope: ".wr-ripple-grid" },
+      { name: "--wr-ripple-grid-ink", default: "var(--wr-color-on-surface-muted)", scope: ".wr-ripple-grid" },
+    ],
+  },
   "animations/shine": {
     subpath: "ngwr/animations/shine",
     vars: [
@@ -111,6 +142,14 @@ export const CSS_VARS = {
       { name: "--wr-shine-pause", default: "5s", scope: ".wr-shine" },
       { name: "--wr-shine-peak", default: "var(--wr-color-on-surface)", scope: ".wr-shine" },
       { name: "--wr-shine-strength", default: "60%", scope: ".wr-shine" },
+    ],
+  },
+  "animations/thread-lines": {
+    subpath: "ngwr/animations/thread-lines",
+    vars: [
+      { name: "--wr-thread-lines-ink", default: "var(--wr-color-on-surface-muted)", scope: ".wr-thread-lines" },
+      { name: "--wr-thread-lines-low", default: "0.3", scope: ".wr-thread-lines" },
+      { name: "--wr-thread-lines-tint", default: "var(--wr-color-primary)", scope: ".wr-thread-lines" },
     ],
   },
   "animations/typewriter": {

@@ -8,13 +8,25 @@
 /**
  * The helpers ngwr's animations share: the grapheme splitter, the stagger gap
  * and its cap, the viewport threshold an effect plays at, the focusable
- * selector hover and focus are read on, the optional-selector transform and
- * the per-frame rounding. Every export is `@internal` — an entry point of its
+ * selector hover and focus are read on, the optional-selector transform, the
+ * per-frame rounding, the canvas plumbing a backdrop draws through and the
+ * seeded noise a field sways with. Every export is `@internal` — an entry point of its
  * own so that the effects can all import it without one effect importing
  * another, and not a public API: nothing here carries a stability promise, and
  * an app imports an effect instead.
  */
+export {
+  FRAME_FLOOR_SLACK,
+  MAX_DPR,
+  MAX_FRAME_MS,
+  MAX_PIXELS,
+  type WrCanvasBackdrop,
+  type WrCanvasBackdropScene,
+  canvasBackdropRatio,
+  createCanvasBackdrop,
+} from './canvas-backdrop';
 export { FOCUSABLE, optionalSelector, roundTo } from './dom';
+export { type WrNoise, createNoise, seededRandom } from './noise';
 export {
   BREAKING_SPACES,
   STAGGER_GAP,
