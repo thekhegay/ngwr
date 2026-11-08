@@ -1,4 +1,4 @@
-import { type ThreadNoise, createThreadNoise } from '../thread-lines/thread-model';
+import { type WrNoise, createNoise } from 'ngwr/animations/core';
 
 /** How many particles live at once: past this a new one takes the slot of the oldest. */
 const CAP = 256;
@@ -108,8 +108,8 @@ function fluidLive(pool: FluidPool, i: number): boolean {
 }
 
 /** The smooth flow field the particles ride, in -1..1, continuous in place and time. */
-function createFluidNoise(seed = SEED): ThreadNoise {
-  return createThreadNoise(seed);
+function createFluidNoise(seed = SEED): WrNoise {
+  return createNoise(seed);
 }
 
 /**
@@ -190,7 +190,7 @@ function spawn(pool: FluidPool, x: number, y: number, vx: number, vy: number): v
  * the noise, read as a central difference, so the field turns in eddies and
  * never gathers the particles into a heap or thins them out.
  */
-function fluidCurl(noise: ThreadNoise, x: number, y: number, time: number, out: Float32Array): void {
+function fluidCurl(noise: WrNoise, x: number, y: number, time: number, out: Float32Array): void {
   const s = NOISE_SCALE;
   const t = time * NOISE_DRIFT;
   const e = CURL_EPS;
@@ -219,14 +219,7 @@ function fluidAlpha(age: number, life: number): number {
  * decays by `DRAG`, and it moves by that velocity plus the flow at its place.
  * Returns whether it is still alive.
  */
-function fluidStep(
-  pool: FluidPool,
-  i: number,
-  dt: number,
-  noise: ThreadNoise,
-  time: number,
-  flow: Float32Array
-): boolean {
+function fluidStep(pool: FluidPool, i: number, dt: number, noise: WrNoise, time: number, flow: Float32Array): boolean {
   const age = pool.age[i] + dt;
   if (age >= pool.life[i]) {
     pool.age[i] = pool.life[i];
@@ -243,7 +236,7 @@ function fluidStep(
 }
 
 /** Every live particle moved `dt` ms on; sets and returns how many are left. */
-function fluidAdvance(pool: FluidPool, dt: number, noise: ThreadNoise, time: number, flow: Float32Array): number {
+function fluidAdvance(pool: FluidPool, dt: number, noise: WrNoise, time: number, flow: Float32Array): number {
   let alive = 0;
   for (let i = 0; i < pool.cap; i++) {
     if (!fluidLive(pool, i)) continue;

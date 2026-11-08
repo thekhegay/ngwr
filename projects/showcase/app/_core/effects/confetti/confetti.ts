@@ -1,10 +1,9 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, PLATFORM_ID, Service, effect, inject } from '@angular/core';
 
+import { MAX_FRAME_MS, canvasBackdropRatio } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { clamp, resolveCssColor } from 'ngwr/utils';
-
-import { MAX_FRAME_MS, canvasBackdropRatio } from '../canvas-backdrop';
 
 /** Pieces in one burst. */
 const CONFETTI_COUNT = 84;

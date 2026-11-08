@@ -990,4 +990,9 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'animations/shine': ['animations/decode', 'reference/components/badge', 'guides/tokens/motion'],
   'animations/typewriter': ['animations/word-rotator', 'animations/decode', 'guides/ssr'],
   'animations/word-rotator': ['animations/typewriter', 'animations/letter-stagger', 'guides/translations/overview'],
+  'animations/aurora': ['animations/thread-lines', 'animations/dot-grid', 'guides/tokens/colors'],
+  'animations/dot-grid': ['animations/ripple-grid', 'animations/aurora', 'guides/tokens/motion'],
+  'animations/flow-lines': ['animations/thread-lines', 'animations/dot-grid', 'guides/tokens/motion'],
+  'animations/ripple-grid': ['animations/dot-grid', 'reference/components/result', 'guides/tokens/motion'],
+  'animations/thread-lines': ['animations/flow-lines', 'animations/aurora', 'guides/tokens/motion'],
 };

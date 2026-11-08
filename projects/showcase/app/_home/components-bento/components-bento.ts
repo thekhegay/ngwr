@@ -12,6 +12,7 @@ import { Check, CreditCard, Folder, House, Settings } from 'lucide';
 import { WrAlert } from 'ngwr/alert';
 import { WrBlurReveal } from 'ngwr/animations/blur-reveal';
 import { WrDecode } from 'ngwr/animations/decode';
+import { WrDotGrid } from 'ngwr/animations/dot-grid';
 import { WrAvatar } from 'ngwr/avatar';
 import { WrBadge, WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
@@ -31,7 +32,6 @@ import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent } from '#core/components';
-import { DotGrid } from '#core/effects';
 
 @Component({
   selector: 'ngwr-components-bento',
@@ -62,7 +62,7 @@ import { DotGrid } from '#core/effects';
     DocCodeComponent,
     WrBlurReveal,
     WrDecode,
-    DotGrid,
+    WrDotGrid,
   ],
   providers: [
     provideWrIcons(

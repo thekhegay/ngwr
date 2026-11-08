@@ -1,0 +1,41 @@
+@use '../../../theme/styles' as theme;
+@include theme.loaded('animations/dot-grid');
+
+// `<wr-dot-grid />`: an even field of small, faint dots behind a section's
+// content. The component paints one canvas and reads its two colours back
+// from the hooks below through `resolveCssColorChannels`, so a retheme and a
+// scheme switch both reach the pixels. The strengths (how much of each colour
+// a dot shows at rest and lit) and the dot sizes live in `dot-grid.ts`: they
+// are the canvas's numbers, not the sheet's.
+.wr-dot-grid {
+  // A dot at rest: the muted role, the bare intent, since a dot is a graphic
+  // and not text. The canvas shows it at about a third, so the text and the
+  // cards over the field read as they do on the plain surface.
+  --wr-dot-grid-ink: var(--wr-color-on-surface-muted);
+  // A dot under the pointer: the primary intent, never at full strength, so
+  // the lit patch stays under the content's own accents.
+  --wr-dot-grid-glow: var(--wr-color-primary);
+
+  position: absolute;
+  inset: 0;
+  // Under the content, over the page: the parent is positioned and isolated,
+  // so this is the floor of its stacking context.
+  z-index: -1;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  // Gone at the edges, so there is no rectangle where the section ends.
+  mask-image: radial-gradient(ellipse 70% 72% at 50% 50%, #000 35%, transparent 100%);
+
+  &__canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  // Nothing drawn: a field of dots under system colours is noise, not decoration.
+  @media (forced-colors: active) {
+    display: none;
+  }
+}

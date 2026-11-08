@@ -1,0 +1,35 @@
+@use '../../../theme/styles' as theme;
+@include theme.loaded('animations/flow-lines');
+
+// `<wr-flow-lines />`: a full-bleed field of thin vertical lines rippling
+// slowly behind a hero's content. The component paints one canvas and reads
+// its one colour back from the hook below through `resolveCssColor`, so a
+// retheme and a scheme switch both reach the pixels.
+.wr-flow-lines {
+  // A line: the surface's ink at a fraction, the bare intent, since a line is
+  // a graphic and not text. Faint enough that a headline over the field reads
+  // as it does on the plain surface.
+  --wr-flow-lines-ink: color-mix(in srgb, var(--wr-color-on-surface) 14%, transparent);
+
+  position: absolute;
+  inset: 0;
+  // Under the content, over the page: the parent is positioned and isolated,
+  // so this is the floor of its stacking context.
+  z-index: -1;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  // Lighter behind the headline, full strength toward the edges, and gone at
+  // the block end so the next section starts on a clean surface.
+  mask-image:
+    radial-gradient(ellipse 46% 52% at 50% 44%, rgb(0 0 0 / 0.22), rgb(0 0 0 / 0.72) 62%, #000),
+    linear-gradient(#000 72%, transparent);
+  mask-composite: intersect;
+
+  &__canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+}

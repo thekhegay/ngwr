@@ -253,9 +253,9 @@ describe('the surfaces that draw it', () => {
       .map(row => row.title);
 
     // Sidebar order: the configs as `configs/index.ts` exports them, so the
-    // animations (one group, alphabetical) before the charts group by group
-    // (comparison, trend, part to whole, distribution, single value, building
-    // blocks), alphabetical inside one.
+    // animations group by group (text, backgrounds) before the charts group by
+    // group (comparison, trend, part to whole, distribution, single value,
+    // building blocks), alphabetical inside one.
     expect(marked).toEqual([
       'Blur Reveal',
       'Circle Text',
@@ -268,6 +268,11 @@ describe('the surfaces that draw it', () => {
       'Shine',
       'Typewriter',
       'Word Rotator',
+      'Aurora',
+      'Dot Grid',
+      'Flow Lines',
+      'Ripple Grid',
+      'Thread Lines',
       'Funnel Chart',
       'Radar Chart',
       'Waterfall Chart',

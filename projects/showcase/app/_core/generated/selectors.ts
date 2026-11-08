@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 182 of 195 declarations are mapped: 0 carry no selector and
+ * 187 of 200 declarations are mapped: 0 carry no selector and
  * 13 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -39,6 +39,7 @@ export const SELECTORS = {
     "wr-accordion": { symbol: "WrAccordion", path: "ngwr/collapse" },
     "wr-alert": { symbol: "WrAlert", path: "ngwr/alert" },
     "wr-anchor": { symbol: "WrAnchor", path: "ngwr/anchor" },
+    "wr-aurora": { symbol: "WrAurora", path: "ngwr/animations/aurora" },
     "wr-avatar": { symbol: "WrAvatar", path: "ngwr/avatar" },
     "wr-back-top": { symbol: "WrBackTop", path: "ngwr/back-top" },
     "wr-badge": { symbol: "WrBadge", path: "ngwr/badge" },
@@ -80,6 +81,7 @@ export const SELECTORS = {
     "wr-descriptions": { symbol: "WrDescriptions", path: "ngwr/descriptions" },
     "wr-divider": { symbol: "WrDivider", path: "ngwr/divider" },
     "wr-donut-chart": { symbol: "WrDonutChart", path: "ngwr/charts/donut-chart" },
+    "wr-dot-grid": { symbol: "WrDotGrid", path: "ngwr/animations/dot-grid" },
     "wr-drawer": { symbol: "WrDrawer", path: "ngwr/drawer" },
     "wr-dropdown-item": { symbol: "WrDropdownItem", path: "ngwr/dropdown" },
     "wr-dropdown-menu": { symbol: "WrDropdownMenu", path: "ngwr/dropdown" },
@@ -87,6 +89,7 @@ export const SELECTORS = {
     "wr-empty": { symbol: "WrEmpty", path: "ngwr/empty" },
     "wr-event-calendar": { symbol: "WrEventCalendar", path: "ngwr/event-calendar" },
     "wr-file-upload": { symbol: "WrFileUpload", path: "ngwr/file-upload" },
+    "wr-flow-lines": { symbol: "WrFlowLines", path: "ngwr/animations/flow-lines" },
     "wr-form-error": { symbol: "WrFormError", path: "ngwr/form" },
     "wr-form-field": { symbol: "WrFormField", path: "ngwr/form" },
     "wr-form-item": { symbol: "WrFormItem", path: "ngwr/form" },
@@ -132,6 +135,7 @@ export const SELECTORS = {
     "wr-result-403": { symbol: "WrResult403", path: "ngwr/result" },
     "wr-result-404": { symbol: "WrResult404", path: "ngwr/result" },
     "wr-result-500": { symbol: "WrResult500", path: "ngwr/result" },
+    "wr-ripple-grid": { symbol: "WrRippleGrid", path: "ngwr/animations/ripple-grid" },
     "wr-scatter-chart": { symbol: "WrScatterChart", path: "ngwr/charts/scatter-chart" },
     "wr-schema-form": { symbol: "WrSchemaForm", path: "ngwr/schema-form" },
     "wr-segmented": { symbol: "WrSegmented", path: "ngwr/segmented" },
@@ -158,6 +162,7 @@ export const SELECTORS = {
     "wr-tabs": { symbol: "WrTabs", path: "ngwr/tabs" },
     "wr-tag": { symbol: "WrTag", path: "ngwr/badge" },
     "wr-textarea": { symbol: "WrTextarea", path: "ngwr/textarea" },
+    "wr-thread-lines": { symbol: "WrThreadLines", path: "ngwr/animations/thread-lines" },
     "wr-timeline": { symbol: "WrTimeline", path: "ngwr/timeline" },
     "wr-timeline-item": { symbol: "WrTimelineItem", path: "ngwr/timeline" },
     "wr-toolbar": { symbol: "WrToolbar", path: "ngwr/toolbar" },
@@ -237,15 +242,20 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/affix",
   "ngwr/alert",
   "ngwr/anchor",
+  "ngwr/animations/aurora",
   "ngwr/animations/blur-reveal",
   "ngwr/animations/circle-text",
   "ngwr/animations/decode",
+  "ngwr/animations/dot-grid",
   "ngwr/animations/falling-letters",
+  "ngwr/animations/flow-lines",
   "ngwr/animations/glitch",
   "ngwr/animations/gradient-flow",
   "ngwr/animations/letter-stagger",
   "ngwr/animations/noise-text",
+  "ngwr/animations/ripple-grid",
   "ngwr/animations/shine",
+  "ngwr/animations/thread-lines",
   "ngwr/animations/typewriter",
   "ngwr/animations/word-rotator",
   "ngwr/avatar",

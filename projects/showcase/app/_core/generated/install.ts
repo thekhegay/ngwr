@@ -38,8 +38,12 @@ export const INSTALL = {
   "**": [
       { path: "ngwr/animations/falling-letters", symbols: ["WrFallingLetters"], declarables: ["WrFallingLetters"], styled: true },
       { path: "ngwr/animations/glitch", symbols: ["WrGlitch"], declarables: ["WrGlitch"], styled: true },
+      { path: "ngwr/animations/ripple-grid", symbols: ["WrRippleGrid"], declarables: ["WrRippleGrid"], styled: true },
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
       { path: "ngwr/result", symbols: ["WrResult404"], declarables: ["WrResult404"], styled: true },
+  ],
+  "animations/aurora": [
+      { path: "ngwr/animations/aurora", symbols: ["WrAurora"], declarables: ["WrAurora"], styled: true },
   ],
   "animations/blur-reveal": [
       { path: "ngwr/animations/blur-reveal", symbols: ["WrBlurReveal"], declarables: ["WrBlurReveal"], styled: true },
@@ -50,8 +54,14 @@ export const INSTALL = {
   "animations/decode": [
       { path: "ngwr/animations/decode", symbols: ["WrDecode"], declarables: ["WrDecode"], styled: true },
   ],
+  "animations/dot-grid": [
+      { path: "ngwr/animations/dot-grid", symbols: ["WrDotGrid"], declarables: ["WrDotGrid"], styled: true },
+  ],
   "animations/falling-letters": [
       { path: "ngwr/animations/falling-letters", symbols: ["WrFallingLetters"], declarables: ["WrFallingLetters"], styled: true },
+  ],
+  "animations/flow-lines": [
+      { path: "ngwr/animations/flow-lines", symbols: ["WrFlowLines"], declarables: ["WrFlowLines"], styled: true },
   ],
   "animations/glitch": [
       { path: "ngwr/animations/glitch", symbols: ["WrGlitch"], declarables: ["WrGlitch"], styled: true },
@@ -65,8 +75,14 @@ export const INSTALL = {
   "animations/noise-text": [
       { path: "ngwr/animations/noise-text", symbols: ["WrNoiseText"], declarables: ["WrNoiseText"], styled: true },
   ],
+  "animations/ripple-grid": [
+      { path: "ngwr/animations/ripple-grid", symbols: ["WrRippleGrid"], declarables: ["WrRippleGrid"], styled: true },
+  ],
   "animations/shine": [
       { path: "ngwr/animations/shine", symbols: ["WrShine"], declarables: ["WrShine"], styled: true },
+  ],
+  "animations/thread-lines": [
+      { path: "ngwr/animations/thread-lines", symbols: ["WrThreadLines"], declarables: ["WrThreadLines"], styled: true },
   ],
   "animations/typewriter": [
       { path: "ngwr/animations/typewriter", symbols: ["WrTypewriter"], declarables: ["WrTypewriter"], styled: true },

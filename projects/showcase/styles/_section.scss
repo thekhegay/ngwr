@@ -10,7 +10,7 @@
     padding: 3rem 0;
   }
 
-  // A section with a decorative backdrop (`<ngwr-aurora />`, `<ngwr-dot-grid />`)
+  // A section with a decorative backdrop (`<wr-aurora />`, `<wr-dot-grid />`)
   // as its first child. Positioned and isolated, so the backdrop's negative
   // z-index is the floor of this section's own stacking context: under the
   // content, over the page background, and the cards keep their own surfaces
