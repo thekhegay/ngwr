@@ -25,6 +25,7 @@ import {
 /** A scene that records every call and is `active` while `moving` is set. */
 class Scene implements CanvasBackdropScene {
   moving = false;
+  frameMs?: number;
   readonly colors = vi.fn();
   readonly layout = vi.fn();
   readonly advance = vi.fn();
@@ -284,6 +285,39 @@ describe('createCanvasBackdrop', () => {
     expect(raf).toHaveBeenCalledTimes(4);
     expect(backdrop(fixture).running).toBe(false);
     expect(caf).not.toHaveBeenCalled();
+  });
+
+  it('skips the frames that come sooner than the scene wants and hands the next one the time of both', async () => {
+    scene.frameMs = 33;
+    const fixture = await render();
+    layout(400, 300);
+    inView();
+    scene.draw.mockClear();
+    scene.moving = true;
+    // The loop stamps its start with the clock and measures the frames it is handed against it.
+    vi.spyOn(performance, 'now').mockReturnValue(0);
+    backdrop(fixture).sync();
+
+    // 60Hz: the first frame is early, the second (33.3ms) is drawn with the whole gap.
+    tick(16.7);
+    expect(scene.advance).not.toHaveBeenCalled();
+    expect(scene.draw).not.toHaveBeenCalled();
+    expect(raf).toHaveBeenCalledTimes(2);
+
+    tick(33.4);
+    expect(scene.advance).toHaveBeenCalledTimes(1);
+    expect(scene.advance.mock.calls[0][0]).toBeCloseTo(33.4, 5);
+    expect(scene.draw).toHaveBeenCalledTimes(1);
+
+    // 120Hz: three early frames, the fourth is drawn.
+    tick(41.7);
+    tick(50);
+    tick(58.3);
+    expect(scene.advance).toHaveBeenCalledTimes(1);
+    tick(66.7);
+    expect(scene.advance).toHaveBeenCalledTimes(2);
+    expect(scene.advance.mock.calls[1][0]).toBeCloseTo(33.3, 5);
+    expect(backdrop(fixture).running).toBe(true);
   });
 
   it('does not run off screen, starts when scrolled into view, and pauses while the document is hidden', async () => {

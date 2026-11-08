@@ -11,5 +11,6 @@ export { NoiseText } from './noise-text/noise-text';
 export { RippleGrid } from './ripple-grid/ripple-grid';
 export { Shine, type ShineState } from './shine/shine';
 export { type StaggerBy } from './stagger';
+export { ThreadLines } from './thread-lines/thread-lines';
 export { Typewriter, type TypewriterTrigger } from './typewriter/typewriter';
 export { WordRotator } from './word-rotator/word-rotator';
