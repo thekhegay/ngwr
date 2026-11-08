@@ -1,6 +1,7 @@
 export { BlurReveal, type BlurRevealBy, type BlurRevealFrom } from './blur-reveal/blur-reveal';
 export { CircleText } from './circle-text/circle-text';
 export { Decode, type DecodeShape, type DecodeTrigger } from './decode/decode';
+export { FallingLetters, type FallingLettersState } from './falling-letters/falling-letters';
 export { Glitch, type GlitchState } from './glitch/glitch';
 export { GradientFlow } from './gradient-flow/gradient-flow';
 export { LetterStagger, type LetterStaggerTrigger } from './letter-stagger/letter-stagger';

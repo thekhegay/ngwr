@@ -6,7 +6,7 @@ import { WrResult404 } from 'ngwr/result';
 
 import { Footer } from '../_layout/footer/footer';
 
-import { Glitch } from '#core/effects';
+import { FallingLetters, Glitch } from '#core/effects';
 import { MetaService } from '#core/services';
 import { ROUTES, wrPath } from '#routes';
 
@@ -26,7 +26,7 @@ import { ROUTES, wrPath } from '#routes';
   selector: 'ngwr-not-found',
   templateUrl: './not-found.html',
   styleUrl: './not-found.scss',
-  imports: [RouterLink, WrButton, WrResult404, Footer, Glitch],
+  imports: [RouterLink, WrButton, WrResult404, Footer, Glitch, FallingLetters],
 })
 export default class NotFound {
   protected readonly routes = ROUTES;
