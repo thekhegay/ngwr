@@ -3,11 +3,15 @@
   the `result.notFound` copy are exactly what the preset declares, and the docs
   site should be its own first consumer. Only the description is overridden,
   because this one names the two links below it. The glitch targets the title the
-  library draws, by its public BEM class, so nothing under `projects/lib` changes.
+  library draws, by its public BEM class, so nothing under `projects/lib` changes;
+  the falling letters target the description the same way, and their floor is
+  the directive's default, the host's parent: this `<main>`, since the preset's
+  host is `display: contents`.
 -->
 <main class="ngwr-not-found">
   <wr-result-404
     ngwrGlitch=".wr-result__title"
+    ngwrFallingLetters=".wr-result__description"
     description="That page has moved or never existed. The links below are the fastest way back."
   >
     <a wr-btn color="primary" wrResultExtra [routerLink]="path(routes.home)">Go home</a>
