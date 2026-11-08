@@ -11,6 +11,7 @@ import { DocRichPipe } from '../doc-rich/doc-rich';
 
 import type { DocNgtrueVariant } from './types';
 
+import { GradientFlow } from '#core/effects';
 import { BRAND_ICONS } from '#core/icons';
 
 /** ngtrue's docs. Every link this block draws starts here or on GitHub. */
@@ -57,7 +58,7 @@ interface NgtrueItem {
   styleUrl: './doc-ngtrue.scss',
   // Inside a docs page the typeset would restyle the card's text as prose.
   host: { class: 'wr-not-typeset' },
-  imports: [WrButton, WrCard, WrIcon, DocCodeComponent, DocInstallComponent, DocRichPipe],
+  imports: [WrButton, WrCard, WrIcon, DocCodeComponent, DocInstallComponent, DocRichPipe, GradientFlow],
   providers: [
     provideWrIcons([
       ...BRAND_ICONS,
