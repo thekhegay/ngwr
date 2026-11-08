@@ -533,4 +533,8 @@ export const wrTr: WrI18nCatalog = {
   wordRotator: {
     conjunction: 've',
   },
+  ticker: {
+    pause: 'Duraklat',
+    play: 'Oynat',
+  },
 };

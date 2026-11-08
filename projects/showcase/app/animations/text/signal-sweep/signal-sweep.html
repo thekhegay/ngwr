@@ -1,0 +1,95 @@
+<ngwr-doc-page
+  title="Signal Sweep"
+  since="15.7.0"
+  description="A one-shot accent for a phrase: the first time the host scrolls into view a band of light passes once across its text and a wire draws itself beneath it, then both leave and the phrase is exactly the static text it was."
+  [keywords]="['signal-sweep', 'text accent', 'highlight', 'entrance', 'wrSignalSweep']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `wrSignalSweep` on the span that holds the phrase. The text node is untouched, so layout and what a screen reader reads do not change: while the sweep runs the text is clipped to a gradient that travels the reading direction, and the wire is one pseudo-element growing along the inline axis. When the animation ends the modifier comes off and the host is its own rules again."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="h2">
+            Components that bind straight to <span wrSignalSweep delay="0">Signal Forms</span>.
+          </p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Delay"
+    description="`delay` is the pause between the host entering the viewport and the sweep, in ms, 250 by default: room for an entrance above it to finish, the way the home page waits for the letters of the phrase to land."
+  >
+    <ngwr-doc-code [code]="snippets.delay" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="h2"><span wrSignalSweep delay="1200">Signal Forms</span></p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colours and timing"
+    description="`--wr-signal-sweep-ink` is the text while the band crosses it, the primary ink by default, `-light` the band itself and `-wire` the line beneath; `--wr-signal-sweep-duration` and `-ease` are the sweep's length and curve. Set them on the host or above it."
+  >
+    <ngwr-doc-code [code]="snippets.styled" language="scss" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p
+            wrTypography
+            variant="h2"
+            style="--wr-signal-sweep-wire: var(--wr-color-success); --wr-signal-sweep-duration: 2.4s"
+          >
+            <span wrSignalSweep delay="0">A slower, greener wire</span>
+          </p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>The text node is never split or replaced: the phrase is read as authored, before, during and after.</td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> nothing runs: no observer is attached and the host keeps
+              its own colour. The demos on this page follow the same setting.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>The plain text is rendered; the sweep waits for the browser and the first view.</td>
+          </tr>
+          <tr>
+            <th scope="row">RTL</th>
+            <td>The band travels the reading direction: under RTL the keyframes play in reverse.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

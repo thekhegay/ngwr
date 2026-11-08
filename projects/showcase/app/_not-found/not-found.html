@@ -16,13 +16,7 @@
     wrFallingLetters=".wr-result__description"
     description="That page has moved or never existed. The links below are the fastest way back."
   >
-    <a
-      class="ngwr-not-found__home"
-      wr-btn
-      color="primary"
-      wrResultExtra
-      ngwrClickSparks
-      [routerLink]="path(routes.home)"
+    <a class="ngwr-not-found__home" wr-btn color="primary" wrResultExtra wrClickSparks [routerLink]="path(routes.home)"
       >Go home</a
     >
     <a wr-btn outlined wrResultExtra [routerLink]="path(routes.reference)">Browse the reference</a>

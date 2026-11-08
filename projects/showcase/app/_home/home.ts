@@ -4,9 +4,15 @@ import { RouterLink } from '@angular/router';
 import { BadgeCheck, Folder, ListChecks, Moon, ShieldCheck, Terminal, TextCursorInput } from 'lucide';
 import { WrAurora } from 'ngwr/animations/aurora';
 import { WrBlurReveal } from 'ngwr/animations/blur-reveal';
+import { WrClickSparks } from 'ngwr/animations/click-sparks';
 import { WrDecode } from 'ngwr/animations/decode';
 import { WrFlowLines } from 'ngwr/animations/flow-lines';
+import { WrGlowBorder } from 'ngwr/animations/glow-border';
 import { WrLetterStagger } from 'ngwr/animations/letter-stagger';
+import { WrSignalSweep } from 'ngwr/animations/signal-sweep';
+import { WrSpotlight } from 'ngwr/animations/spotlight';
+import { WrTicker, type WrTickerItem } from 'ngwr/animations/ticker';
+import { WrTilt } from 'ngwr/animations/tilt';
 import { WrWordRotator } from 'ngwr/animations/word-rotator';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
@@ -19,12 +25,9 @@ import { Footer } from '../_layout/footer/footer';
 import { COMPONENT_GROUPS } from '../_layout/sidebar/configs/components.config';
 
 import { ComponentsBento } from './components-bento/components-bento';
-import { GlowBorder } from './hero/glow-border/glow-border';
-import { SignalSweep } from './hero/signal-sweep/signal-sweep';
 import { HomeOptInComponent } from './opt-in/opt-in';
 
 import { DocCodeComponent, DocNgtrueComponent, DocRichPipe } from '#core/components';
-import { ClickSparks, Spotlight, Ticker, type TickerItem, Tilt } from '#core/effects';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
@@ -69,16 +72,16 @@ interface DxLink {
     WrTypography,
     // Effects
     WrFlowLines,
-    SignalSweep,
-    GlowBorder,
+    WrSignalSweep,
+    WrGlowBorder,
     WrAurora,
     WrBlurReveal,
-    ClickSparks,
+    WrClickSparks,
     WrDecode,
     WrLetterStagger,
-    Spotlight,
-    Ticker,
-    Tilt,
+    WrSpotlight,
+    WrTicker,
+    WrTilt,
     WrWordRotator,
     // Sections
     ComponentsBento,
@@ -120,7 +123,7 @@ export default class HomeComponent {
    * order: one source for the nav and the row under the hero, so a component
    * added to the catalog shows up in both.
    */
-  protected readonly components: readonly TickerItem[] = COMPONENT_GROUPS.flatMap(
+  protected readonly components: readonly WrTickerItem[] = COMPONENT_GROUPS.flatMap(
     group => group.children ?? []
   ).flatMap(link => (link.url && !link.disabled ? [{ title: link.title, url: link.url }] : []));
 

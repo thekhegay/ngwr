@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1589 hook(s) across 107 page(s). A property is here only when the
+ * 1631 hook(s) across 114 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -72,6 +72,29 @@ export const CSS_VARS = {
       { name: "--wr-circle-text-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-circle-text" },
     ],
   },
+  "animations/click-sparks": {
+    subpath: "ngwr/animations/click-sparks",
+    vars: [
+      { name: "--wr-click-sparks-duration", default: "480ms", scope: ".wr-click-sparks", host: true },
+      { name: "--wr-click-sparks-ease", default: "var(--wr-ease-out)", scope: ".wr-click-sparks" },
+      { name: "--wr-click-sparks-from", default: "0.3em", scope: ".wr-click-sparks" },
+      { name: "--wr-click-sparks-length", default: "0.55em", scope: ".wr-click-sparks" },
+      { name: "--wr-click-sparks-to", default: "1.7em", scope: ".wr-click-sparks" },
+      { name: "--wr-click-sparks-width", default: "max(2px, 0.12em)", scope: ".wr-click-sparks" },
+      { name: "--wr-click-sparks-x", default: "0px", scope: ".wr-click-sparks", host: true },
+      { name: "--wr-click-sparks-y", default: "0px", scope: ".wr-click-sparks", host: true },
+    ],
+  },
+  "animations/confetti": {
+    subpath: "ngwr/animations/confetti",
+    vars: [
+      { name: "--wr-confetti-color-1", default: "var(--wr-color-primary)", scope: ".wr-confetti" },
+      { name: "--wr-confetti-color-2", default: "var(--wr-color-success)", scope: ".wr-confetti" },
+      { name: "--wr-confetti-color-3", default: "var(--wr-color-warning)", scope: ".wr-confetti" },
+      { name: "--wr-confetti-color-4", default: "var(--wr-color-danger)", scope: ".wr-confetti" },
+      { name: "--wr-confetti-color-5", default: "var(--wr-color-info)", scope: ".wr-confetti" },
+    ],
+  },
   "animations/decode": {
     subpath: "ngwr/animations/decode",
     vars: [
@@ -93,6 +116,13 @@ export const CSS_VARS = {
       { name: "--wr-flow-lines-ink", default: "color-mix(in srgb, var(--wr-color-on-surface) 14%, transparent)", scope: ".wr-flow-lines" },
     ],
   },
+  "animations/fluid-cursor": {
+    subpath: "ngwr/animations/fluid-cursor",
+    vars: [
+      { name: "--wr-fluid-cursor-tint-a", default: "var(--wr-color-primary)", scope: ".wr-fluid-cursor" },
+      { name: "--wr-fluid-cursor-tint-b", default: "var(--wr-color-info)", scope: ".wr-fluid-cursor" },
+    ],
+  },
   "animations/glitch": {
     subpath: "ngwr/animations/glitch",
     vars: [
@@ -102,6 +132,18 @@ export const CSS_VARS = {
       { name: "--wr-glitch-strength", default: "55%", scope: ".wr-glitch" },
       { name: "--wr-glitch-tint-a", default: "color-mix(in srgb, var(--wr-color-primary-ink) var(--wr-glitch-strength), transparent)", scope: ".wr-glitch" },
       { name: "--wr-glitch-tint-b", default: "color-mix(in srgb, var(--wr-color-danger-ink) var(--wr-glitch-strength), transparent)", scope: ".wr-glitch" },
+    ],
+  },
+  "animations/glow-border": {
+    subpath: "ngwr/animations/glow-border",
+    vars: [
+      { name: "--wr-glow-border-blur", default: "14px", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-color", default: "var(--wr-color-primary)", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-cool", default: "color-mix(in oklch, var(--wr-color-primary) 70%, var(--wr-color-success))", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-period", default: "4.5s", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-strength", default: "0.6", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-warm", default: "color-mix(in oklch, var(--wr-color-primary) 70%, var(--wr-color-danger))", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-width", default: "1.5px", scope: ".wr-glow-border" },
     ],
   },
   "animations/gradient-flow": {
@@ -144,12 +186,47 @@ export const CSS_VARS = {
       { name: "--wr-shine-strength", default: "60%", scope: ".wr-shine" },
     ],
   },
+  "animations/signal-sweep": {
+    subpath: "ngwr/animations/signal-sweep",
+    vars: [
+      { name: "--wr-signal-sweep-duration", default: "1.6s", scope: ".wr-signal-sweep" },
+      { name: "--wr-signal-sweep-ease", default: "var(--wr-ease-in-out)", scope: ".wr-signal-sweep" },
+      { name: "--wr-signal-sweep-ink", default: "var(--wr-color-primary-ink)", scope: ".wr-signal-sweep" },
+      { name: "--wr-signal-sweep-light", default: "color-mix(in srgb, var(--wr-color-primary-contrast) 78%, var(--wr-color-primary-ink))", scope: ".wr-signal-sweep" },
+      { name: "--wr-signal-sweep-wire", default: "var(--wr-color-primary)", scope: ".wr-signal-sweep" },
+    ],
+  },
+  "animations/spotlight": {
+    subpath: "ngwr/animations/spotlight",
+    vars: [
+      { name: "--wr-spotlight-color", default: "var(--wr-color-primary)", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-edge", default: "1px", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-fade", default: "var(--wr-transition-long)", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-radius", default: "240px", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-ring-radius", default: "180px", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-ring-strength", default: "60%", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-strength", default: "12%", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-x", default: "50%", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-y", default: "50%", scope: ".wr-spotlight" },
+    ],
+  },
   "animations/thread-lines": {
     subpath: "ngwr/animations/thread-lines",
     vars: [
       { name: "--wr-thread-lines-ink", default: "var(--wr-color-on-surface-muted)", scope: ".wr-thread-lines" },
       { name: "--wr-thread-lines-low", default: "0.3", scope: ".wr-thread-lines" },
       { name: "--wr-thread-lines-tint", default: "var(--wr-color-primary)", scope: ".wr-thread-lines" },
+    ],
+  },
+  "animations/ticker": {
+    subpath: "ngwr/animations/ticker",
+    vars: [
+      { name: "--wr-ticker-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-ticker" },
+      { name: "--wr-ticker-color-active", default: "var(--wr-color-primary-ink)", scope: ".wr-ticker" },
+      { name: "--wr-ticker-dir", default: "-1", scope: ".wr-ticker", overrides: 1 },
+      { name: "--wr-ticker-dot", default: "var(--wr-border-strong)", scope: ".wr-ticker" },
+      { name: "--wr-ticker-fade", default: "3rem", scope: ".wr-ticker" },
+      { name: "--wr-ticker-gap", default: "1.25rem", scope: ".wr-ticker" },
     ],
   },
   "animations/typewriter": {

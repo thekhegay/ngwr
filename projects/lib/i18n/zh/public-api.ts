@@ -506,4 +506,8 @@ export const wrZh: WrI18nCatalog = {
   wordRotator: {
     conjunction: '和',
   },
+  ticker: {
+    pause: '暂停',
+    play: '播放',
+  },
 };

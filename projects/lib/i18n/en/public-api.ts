@@ -643,4 +643,10 @@ export const wrEn: WrI18nCatalog = {
     // locale; only the word is localised.
     conjunction: 'and',
   },
+  ticker: {
+    // The pause button at the end of the row, named for what pressing it does
+    // next: the row moves, so "Pause"; the row stands, so "Play".
+    pause: 'Pause',
+    play: 'Play',
+  },
 };

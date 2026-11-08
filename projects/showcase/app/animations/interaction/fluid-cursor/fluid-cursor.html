@@ -1,0 +1,83 @@
+<ngwr-doc-page
+  title="Fluid Cursor"
+  since="15.7.0"
+  description="A soft trail of colour behind a region's content, left by the pointer: as the mouse moves, particles are emitted along its path, drift on with some of its speed, are carried round by a slow swirling field, grow and fade, like ink dropped in water, gone about a second after the mouse stops. It has no inputs: the two tints are CSS variables."
+  [keywords]="['fluid-cursor', 'pointer trail', 'cursor effect', 'canvas', 'wr-fluid-cursor']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `<wr-fluid-cursor />` first inside the region it should fill. The parent takes the pointer, passively: the host and its canvas never do, and a finger is ignored, so a scroll over the region is never fought. One canvas, and a frame loop that runs only while a particle is alive, on screen and with the document visible: a still trail costs no frames. Move the pointer over the box."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-fluid-cursor />
+        <h3 wrTypography variant="h3">Move the pointer here.</h3>
+        <p wrTypography variant="lead">The trail dissolves about a second after the pointer stops.</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The parent"
+    description="The host is absolute, `inset: 0`, at `z-index: -1`, under no pointer and masked out at the edges, so a trail drawn to the border dissolves rather than ending in a straight cut. The parent provides two things: it is positioned, so the host fills it, and isolated, so the host's negative z-index lands at the floor of the parent's own stacking context, under the content and over the page background."
+  >
+    <ngwr-doc-code [code]="snippets.parent" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colours"
+    description="`--wr-fluid-cursor-tint-a` and `-b` are the two ends of the trail's colour, primary and info by default; the stroke cycles between them as it goes. Bare intents, since the trail is a graphic and not text; the canvas shows them at a fraction, added on a dark surface so the trail glows where it is thick, laid over on a light one, so the text over the trail reads as it does on the plain surface. Set them on the parent."
+  >
+    <ngwr-doc-code [code]="snippets.colours" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        class="ngwr-demo-arena ngwr-demo-arena--backdrop"
+        style="--wr-fluid-cursor-tint-a: var(--wr-color-warning); --wr-fluid-cursor-tint-b: var(--wr-color-danger)"
+      >
+        <wr-fluid-cursor />
+        <h3 wrTypography variant="h3">A warmer trail.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              Decorative: the host is <code>aria-hidden</code>, holds no text, takes no pointer and is never focusable.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Touch</th>
+            <td>
+              A finger that moves is scrolling: a touch pointer emits nothing, so the trail never fights a scroll.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> nothing is drawn; under
+              <code>forced-colors: active</code>
+              nothing is either.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>The empty canvas is rendered, absolutely positioned, so the browser's first draw shifts no layout.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+</ngwr-doc-page>

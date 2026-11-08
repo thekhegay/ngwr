@@ -529,4 +529,8 @@ export const wrHe: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'ו',
   },
+  ticker: {
+    pause: 'השהיה',
+    play: 'הפעלה',
+  },
 };

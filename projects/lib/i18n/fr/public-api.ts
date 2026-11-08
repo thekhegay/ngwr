@@ -530,4 +530,8 @@ export const wrFr: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'et',
   },
+  ticker: {
+    pause: 'Mettre en pause',
+    play: 'Lire',
+  },
 };

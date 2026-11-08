@@ -1,10 +1,11 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, PLATFORM_ID, computed, inject, input } from '@angular/core';
 
+import { WrConfetti } from 'ngwr/animations/confetti';
+
 import { DocCodeComponent } from '../doc-code/doc-code';
 import type { DocCodeFile } from '../doc-code/types';
 
-import { Confetti } from '#core/effects';
 import { PACKAGE_MANAGERS, type PackageManager, SitePackageManager } from '#core/services';
 
 const ADD: Record<PackageManager, { add: string; dev: string }> = {
@@ -61,7 +62,7 @@ export class DocInstallComponent {
 
   protected readonly pm = inject(SitePackageManager);
 
-  private readonly confetti = inject(Confetti);
+  private readonly confetti = inject(WrConfetti);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
 
   protected readonly files = computed<readonly DocCodeFile[]>(() =>

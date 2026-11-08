@@ -1,0 +1,86 @@
+@use '../../../theme/styles' as theme;
+@include theme.loaded('animations/glow-border');
+
+// `[wrGlowBorder]`: a short arc of brand light running round the host's edge,
+// with a soft glow spilling outward. Two pseudo-elements carry one conic
+// gradient turned by a registered angle: `::before` is the arc itself, masked
+// down to the ring; `::after` is a wider, blurred copy sitting UNDER the host
+// (negative z-index), so only what spills past the edge shows. The host's
+// stacking parent isolates itself (`isolation: isolate`), which keeps that
+// copy above the page background; the host itself must not form a stacking
+// context, or the copy would paint over its own fill.
+
+// Registered so the angle interpolates. Only the angle: a colour hook is never
+// registered.
+@property --wr-glow-border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.wr-glow-border {
+  --wr-glow-border-color: var(--wr-color-primary);
+  --wr-glow-border-warm: color-mix(in oklch, var(--wr-color-primary) 70%, var(--wr-color-danger));
+  --wr-glow-border-cool: color-mix(in oklch, var(--wr-color-primary) 70%, var(--wr-color-success));
+  --wr-glow-border-width: 1.5px;
+  --wr-glow-border-blur: 14px;
+  --wr-glow-border-strength: 0.6;
+  --wr-glow-border-period: 4.5s;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  &::before {
+    padding: var(--wr-glow-border-width);
+    background: conic-gradient(
+      from var(--wr-glow-border-angle),
+      transparent 0deg,
+      var(--wr-glow-border-cool) 5deg,
+      var(--wr-glow-border-color) 7.5deg,
+      var(--wr-glow-border-warm) 10deg,
+      transparent 15deg
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+
+  &::after {
+    z-index: -1;
+    background: conic-gradient(
+      from var(--wr-glow-border-angle),
+      transparent 0deg,
+      var(--wr-glow-border-cool) 8deg,
+      var(--wr-glow-border-color) 12deg,
+      var(--wr-glow-border-warm) 16deg,
+      transparent 24deg
+    );
+    filter: blur(var(--wr-glow-border-blur));
+    opacity: var(--wr-glow-border-strength);
+  }
+
+  &--live::before,
+  &--live::after {
+    animation: wr-glow-border var(--wr-glow-border-period) linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &--live::before,
+    &--live::after {
+      animation: none;
+    }
+  }
+}
+
+@keyframes wr-glow-border {
+  to {
+    --wr-glow-border-angle: 360deg;
+  }
+}

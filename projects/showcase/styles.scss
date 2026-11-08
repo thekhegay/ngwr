@@ -22,15 +22,6 @@
 @use 'styles/section';
 @use 'styles/demo';
 
-// The site's own effects. Global, not in a host's sheet: the pieces an effect
-// writes into the DOM carry no emulated-encapsulation attribute, and its hosts
-// sit in several components' templates.
-@use 'app/_core/effects/click-sparks/click-sparks';
-@use 'app/_core/effects/confetti/confetti';
-@use 'app/_core/effects/fluid-cursor/fluid-cursor';
-@use 'app/_core/effects/spotlight/spotlight';
-@use 'app/_core/effects/ticker/ticker';
-
 // The showcase's focus ring, for the prose links below. Declares no rules.
 @use 'styles/mixins' as site;
 

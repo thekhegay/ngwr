@@ -36,6 +36,7 @@ export const INSTALL = {
       { path: "ngwr/icon", symbols: ["WrIcon", "lucideIcons", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
   ],
   "**": [
+      { path: "ngwr/animations/click-sparks", symbols: ["WrClickSparks"], declarables: ["WrClickSparks"], styled: true },
       { path: "ngwr/animations/falling-letters", symbols: ["WrFallingLetters"], declarables: ["WrFallingLetters"], styled: true },
       { path: "ngwr/animations/glitch", symbols: ["WrGlitch"], declarables: ["WrGlitch"], styled: true },
       { path: "ngwr/animations/ripple-grid", symbols: ["WrRippleGrid"], declarables: ["WrRippleGrid"], styled: true },
@@ -51,6 +52,12 @@ export const INSTALL = {
   "animations/circle-text": [
       { path: "ngwr/animations/circle-text", symbols: ["WrCircleText"], declarables: ["WrCircleText"], styled: true },
   ],
+  "animations/click-sparks": [
+      { path: "ngwr/animations/click-sparks", symbols: ["WrClickSparks"], declarables: ["WrClickSparks"], styled: true },
+  ],
+  "animations/confetti": [
+      { path: "ngwr/animations/confetti", symbols: ["WrConfetti"], declarables: [], styled: true },
+  ],
   "animations/decode": [
       { path: "ngwr/animations/decode", symbols: ["WrDecode"], declarables: ["WrDecode"], styled: true },
   ],
@@ -63,8 +70,14 @@ export const INSTALL = {
   "animations/flow-lines": [
       { path: "ngwr/animations/flow-lines", symbols: ["WrFlowLines"], declarables: ["WrFlowLines"], styled: true },
   ],
+  "animations/fluid-cursor": [
+      { path: "ngwr/animations/fluid-cursor", symbols: ["WrFluidCursor"], declarables: ["WrFluidCursor"], styled: true },
+  ],
   "animations/glitch": [
       { path: "ngwr/animations/glitch", symbols: ["WrGlitch"], declarables: ["WrGlitch"], styled: true },
+  ],
+  "animations/glow-border": [
+      { path: "ngwr/animations/glow-border", symbols: ["WrGlowBorder"], declarables: ["WrGlowBorder"], styled: true },
   ],
   "animations/gradient-flow": [
       { path: "ngwr/animations/gradient-flow", symbols: ["WrGradientFlow"], declarables: ["WrGradientFlow"], styled: true },
@@ -81,8 +94,20 @@ export const INSTALL = {
   "animations/shine": [
       { path: "ngwr/animations/shine", symbols: ["WrShine"], declarables: ["WrShine"], styled: true },
   ],
+  "animations/signal-sweep": [
+      { path: "ngwr/animations/signal-sweep", symbols: ["WrSignalSweep"], declarables: ["WrSignalSweep"], styled: true },
+  ],
+  "animations/spotlight": [
+      { path: "ngwr/animations/spotlight", symbols: ["WrSpotlight"], declarables: ["WrSpotlight"], styled: true },
+  ],
   "animations/thread-lines": [
       { path: "ngwr/animations/thread-lines", symbols: ["WrThreadLines"], declarables: ["WrThreadLines"], styled: true },
+  ],
+  "animations/ticker": [
+      { path: "ngwr/animations/ticker", symbols: ["WrTicker"], declarables: ["WrTicker"], styled: true },
+  ],
+  "animations/tilt": [
+      { path: "ngwr/animations/tilt", symbols: ["WrTilt"], declarables: ["WrTilt"], styled: false },
   ],
   "animations/typewriter": [
       { path: "ngwr/animations/typewriter", symbols: ["WrTypewriter"], declarables: ["WrTypewriter"], styled: true },

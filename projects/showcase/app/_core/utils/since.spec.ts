@@ -253,7 +253,7 @@ describe('the surfaces that draw it', () => {
       .map(row => row.title);
 
     // Sidebar order: the configs as `configs/index.ts` exports them, so the
-    // animations group by group (text, backgrounds) before the charts group by
+    // animations group by group (text, backgrounds, interaction) before the charts group by
     // group (comparison, trend, part to whole, distribution, single value,
     // building blocks), alphabetical inside one.
     expect(marked).toEqual([
@@ -266,6 +266,7 @@ describe('the surfaces that draw it', () => {
       'Letter Stagger',
       'Noise Text',
       'Shine',
+      'Signal Sweep',
       'Typewriter',
       'Word Rotator',
       'Aurora',
@@ -273,6 +274,13 @@ describe('the surfaces that draw it', () => {
       'Flow Lines',
       'Ripple Grid',
       'Thread Lines',
+      'Click Sparks',
+      'Confetti',
+      'Fluid Cursor',
+      'Glow Border',
+      'Spotlight',
+      'Ticker',
+      'Tilt',
       'Funnel Chart',
       'Radar Chart',
       'Waterfall Chart',

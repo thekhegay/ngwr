@@ -6,7 +6,7 @@
 // this emulated sheet is scoped with `_ngcontent`, which the host never
 // carries.
 //
-// Positioned and isolated for the pointer's trail (`<ngwr-fluid-cursor />`,
+// Positioned and isolated for the pointer's trail (`<wr-fluid-cursor />`,
 // the first child): its negative z-index is the floor of the footer's own
 // stacking context, under the content and over the page background.
 :host {

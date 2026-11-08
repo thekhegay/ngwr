@@ -508,4 +508,8 @@ export const wrCs: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'a',
   },
+  ticker: {
+    pause: 'Pozastavit',
+    play: 'Přehrát',
+  },
 };

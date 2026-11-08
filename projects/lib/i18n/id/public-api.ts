@@ -508,4 +508,8 @@ export const wrId: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'dan',
   },
+  ticker: {
+    pause: 'Jeda',
+    play: 'Putar',
+  },
 };

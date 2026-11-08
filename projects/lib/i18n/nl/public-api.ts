@@ -522,4 +522,8 @@ export const wrNl: WrI18nCatalog = {
   wordRotator: {
     conjunction: 'en',
   },
+  ticker: {
+    pause: 'Pauzeren',
+    play: 'Afspelen',
+  },
 };

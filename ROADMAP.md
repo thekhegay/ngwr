@@ -1,6 +1,6 @@
 # Roadmap
 
-Effects are written from scratch for the docs site first, in library idiom, so they can move into their own package later. Each one keeps its text readable to screen readers, renders under SSR and holds still under `prefers-reduced-motion`.
+Effects ship as `ngwr/animations/*` entry points, written from scratch in library idiom. Each one keeps its text readable to screen readers, renders under SSR and holds still under `prefers-reduced-motion`.
 
 ## Very high
 
@@ -20,4 +20,3 @@ Effects are written from scratch for the docs site first, in library idiom, so t
   without the components.
 - **Ejectable components**: keep npm and `ng update`, and add a schematic that
   copies a component's source into the user's repo.
-- **Effects package**: move the docs site effects into their own package once the set settles.
