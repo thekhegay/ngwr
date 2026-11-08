@@ -526,4 +526,7 @@ export const wrDe: WrI18nCatalog = {
       dec: 'Dezember',
     },
   },
+  wordRotator: {
+    conjunction: 'und',
+  },
 };

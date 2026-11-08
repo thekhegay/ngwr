@@ -124,7 +124,7 @@
   }
 
   &__seal-mark {
-    --wr-icon-size: calc(var(--ngwr-circle-text-size) * 0.38);
+    --wr-icon-size: calc(var(--wr-circle-text-size) * 0.38);
 
     color: var(--wr-color-primary-ink);
   }

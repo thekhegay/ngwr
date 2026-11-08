@@ -526,4 +526,7 @@ export const wrUk: WrI18nCatalog = {
       dec: 'Грудень',
     },
   },
+  wordRotator: {
+    conjunction: 'і',
+  },
 };

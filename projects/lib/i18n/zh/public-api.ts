@@ -503,4 +503,7 @@ export const wrZh: WrI18nCatalog = {
       dec: '十二月',
     },
   },
+  wordRotator: {
+    conjunction: '和',
+  },
 };

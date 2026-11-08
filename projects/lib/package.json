@@ -118,6 +118,10 @@
       "sass": "./animations/blur-reveal/styles/_index.scss",
       "default": "./animations/blur-reveal/public-api.ts"
     },
+    "./animations/circle-text": {
+      "sass": "./animations/circle-text/styles/_index.scss",
+      "default": "./animations/circle-text/public-api.ts"
+    },
     "./animations/core": {
       "default": "./animations/core/public-api.ts"
     },
@@ -125,13 +129,37 @@
       "sass": "./animations/decode/styles/_index.scss",
       "default": "./animations/decode/public-api.ts"
     },
+    "./animations/falling-letters": {
+      "sass": "./animations/falling-letters/styles/_index.scss",
+      "default": "./animations/falling-letters/public-api.ts"
+    },
+    "./animations/glitch": {
+      "sass": "./animations/glitch/styles/_index.scss",
+      "default": "./animations/glitch/public-api.ts"
+    },
+    "./animations/gradient-flow": {
+      "sass": "./animations/gradient-flow/styles/_index.scss",
+      "default": "./animations/gradient-flow/public-api.ts"
+    },
     "./animations/letter-stagger": {
       "sass": "./animations/letter-stagger/styles/_index.scss",
       "default": "./animations/letter-stagger/public-api.ts"
     },
+    "./animations/noise-text": {
+      "sass": "./animations/noise-text/styles/_index.scss",
+      "default": "./animations/noise-text/public-api.ts"
+    },
     "./animations/shine": {
       "sass": "./animations/shine/styles/_index.scss",
       "default": "./animations/shine/public-api.ts"
+    },
+    "./animations/typewriter": {
+      "sass": "./animations/typewriter/styles/_index.scss",
+      "default": "./animations/typewriter/public-api.ts"
+    },
+    "./animations/word-rotator": {
+      "sass": "./animations/word-rotator/styles/_index.scss",
+      "default": "./animations/word-rotator/public-api.ts"
     },
     "./avatar": {
       "sass": "./avatar/styles/_index.scss",

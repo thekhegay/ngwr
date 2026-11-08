@@ -517,4 +517,7 @@ export const wrKo: WrI18nCatalog = {
       dec: '12월',
     },
   },
+  wordRotator: {
+    conjunction: '그리고',
+  },
 };

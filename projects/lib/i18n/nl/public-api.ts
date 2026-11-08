@@ -519,4 +519,7 @@ export const wrNl: WrI18nCatalog = {
       dec: 'december',
     },
   },
+  wordRotator: {
+    conjunction: 'en',
+  },
 };

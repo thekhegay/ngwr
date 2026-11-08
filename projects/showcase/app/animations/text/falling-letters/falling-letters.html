@@ -1,0 +1,91 @@
+<ngwr-doc-page
+  title="Falling Letters"
+  since="15.7.0"
+  description="Click a line of text and its letters let go: each one drops with gravity, drifts and tumbles a little, and lands on whatever already lies under it, so the letters pile into a heap on the floor of a container. Click again, or wait, and every letter springs back to its place."
+  [keywords]="['falling-letters', 'gravity', 'click', 'playful', '404', 'wrFallingLetters']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `wrFallingLetters` on the element that holds the text. The floor and the walls are the content box of the host's parent, measured when the fall starts, so give the line a container with room under it. No physics engine: a letter's path is gravity plus a drift and a spin drawn from a fixed sequence by its index, so the same text falls the same way every time. Letters meet on the floor, a letter that lands fast hops once or twice, and the heap lies still for `rest` ms, 4000 unset, before springing back."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena">
+        <p wrTypography variant="h3" wrFallingLetters>Click this line and watch it fall.</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A descendant as the target"
+    description="A selector as the directive's value points it at one descendant of the host instead, for a paragraph a library component draws. The target is looked up once after the first render by its public BEM class; a selector that matches nothing turns the effect off."
+  >
+    <ngwr-doc-code [code]="snippets.target" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Floor"
+    description="`floor` is a selector for the element whose content box is the floor and the walls, found with `closest` from the host; unset, the host's parent. On a `display: contents` host that is the box around it. On a `wr-*` host write it as a binding, since a static attribute that is not one of the component's inputs fails `check:attrs`."
+  >
+    <ngwr-doc-code [code]="snippets.floor" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena">
+        <div>
+          <p wrTypography variant="h3" wrFallingLetters floor=".ngwr-demo-arena" rest="2000">
+            Lands on the floor of the <code>arena</code>, not of its own parent.
+          </p>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              The authored nodes are moved into an invisible wrapper that holds exactly their space, still the real text
+              for a screen reader and the clipboard. The pieces are <code>aria-hidden</code>, out of the selection and
+              under no pointer, so a button a letter falls across stays clickable.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> a click does nothing, and a preference that flips
+              mid-fall puts the text back at once. The demos on this page follow the same setting.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Layout</th>
+            <td>
+              The line never moves: the pieces are positioned from the target's own box and move by transform alone, so
+              nothing under them reflows. When the last letter is back, the same node objects go back where they were,
+              so a binding inside the text keeps working.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>
+              Nothing happens on the server or when the target has no box. The click listener is added in the browser,
+              after the first render.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

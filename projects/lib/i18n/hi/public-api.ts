@@ -507,4 +507,7 @@ export const wrHi: WrI18nCatalog = {
       dec: 'दिसंबर',
     },
   },
+  wordRotator: {
+    conjunction: 'और',
+  },
 };

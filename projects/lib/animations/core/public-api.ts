@@ -7,11 +7,14 @@
 
 /**
  * The helpers ngwr's animations share: the grapheme splitter, the stagger gap
- * and its cap, the viewport threshold an effect plays at. Every export is
- * `@internal` — an entry point of its own so that the effects can all import it
- * without one effect importing another, and not a public API: nothing here
- * carries a stability promise, and an app imports an effect instead.
+ * and its cap, the viewport threshold an effect plays at, the focusable
+ * selector hover and focus are read on, the optional-selector transform and
+ * the per-frame rounding. Every export is `@internal` — an entry point of its
+ * own so that the effects can all import it without one effect importing
+ * another, and not a public API: nothing here carries a stability promise, and
+ * an app imports an effect instead.
  */
+export { FOCUSABLE, optionalSelector, roundTo } from './dom';
 export {
   BREAKING_SPACES,
   STAGGER_GAP,

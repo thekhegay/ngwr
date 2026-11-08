@@ -509,4 +509,7 @@ export const wrJa: WrI18nCatalog = {
       dec: '12月',
     },
   },
+  wordRotator: {
+    conjunction: 'と',
+  },
 };
