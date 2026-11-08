@@ -13,6 +13,7 @@ import { DocRichPipe, docRichToText } from '../doc-rich/doc-rich';
 import { DOC_PAGE_TITLE, DocSectionComponent } from '../doc-section/doc-section';
 import { DocSeeAlsoComponent } from '../doc-see-also/doc-see-also';
 
+import { Shine } from '#core/effects';
 import { CSS_VARS, type DocCssVarRoute, type DocCssVars } from '#core/generated/css-vars';
 import { INSTALL, type DocInstallEntry, type DocInstallRoute } from '#core/generated/install';
 import { MetaService } from '#core/services';
@@ -92,6 +93,7 @@ interface DepsRow {
     DocSectionComponent,
     DocSeeAlsoComponent,
     RouterLink,
+    Shine,
     WrAnchor,
     WrBadge,
     WrTypography,
