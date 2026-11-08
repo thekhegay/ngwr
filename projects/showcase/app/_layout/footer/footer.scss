@@ -1,6 +1,17 @@
 @use 'lib/styles/breakpoints' as bp;
 @use 'showcase/styles/mixins' as site;
 
+// The pointer's trail (`<ngwr-fluid-cursor />`, the first child) fills the
+// footer behind the brand block and the link columns. Positioned and
+// isolated, so the trail's negative z-index is the floor of the footer's own
+// stacking context: under the content, over the page background. `:host`,
+// since a class selector in this emulated sheet never reaches the host.
+:host {
+  display: block;
+  position: relative;
+  isolation: isolate;
+}
+
 .ngwr-footer {
   display: block;
   // Match the sidebar's right border so the two divider lines
