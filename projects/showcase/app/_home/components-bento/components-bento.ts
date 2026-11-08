@@ -29,6 +29,7 @@ import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent } from '#core/components';
+import { BlurReveal } from '#core/effects';
 
 @Component({
   selector: 'ngwr-components-bento',
@@ -57,6 +58,7 @@ import { DocCodeComponent } from '#core/components';
     WrTag,
     WrTypography,
     DocCodeComponent,
+    BlurReveal,
   ],
   providers: [
     provideWrIcons(

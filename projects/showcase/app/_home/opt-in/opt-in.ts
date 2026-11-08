@@ -9,6 +9,7 @@ import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent, DocInstallComponent, DocRichPipe } from '#core/components';
+import { BlurReveal } from '#core/effects';
 import { QUALITY } from '#core/generated/quality';
 import type { ShikiLang } from '#core/shiki';
 import { formatCount } from '#core/utils';
@@ -63,6 +64,7 @@ interface OptInExample {
     DocCodeComponent,
     DocInstallComponent,
     DocRichPipe,
+    BlurReveal,
   ],
   providers: [
     provideWrIcons(

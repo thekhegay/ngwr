@@ -22,6 +22,11 @@
 @use 'styles/section';
 @use 'styles/demo';
 
+// The site's text effects. Global, not in a host's sheet: the pieces an effect
+// writes into the DOM carry no emulated-encapsulation attribute, and its hosts
+// sit in several components' templates.
+@use 'app/_core/effects/blur-reveal/blur-reveal';
+
 // The showcase's focus ring, for the prose links below. Declares no rules.
 @use 'styles/mixins' as site;
 

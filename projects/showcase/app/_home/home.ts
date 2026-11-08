@@ -18,6 +18,7 @@ import { SignalSweep } from './hero/signal-sweep/signal-sweep';
 import { HomeOptInComponent } from './opt-in/opt-in';
 
 import { DocCodeComponent, DocNgtrueComponent, DocRichPipe } from '#core/components';
+import { BlurReveal } from '#core/effects';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
@@ -60,10 +61,11 @@ interface DxLink {
     WrTag,
     WrCard,
     WrTypography,
-    // Hero effects
+    // Effects
     FlowLines,
     SignalSweep,
     GlowBorder,
+    BlurReveal,
     // Sections
     ComponentsBento,
     HomeOptInComponent,
