@@ -4,4 +4,5 @@ export { GradientFlow } from './gradient-flow/gradient-flow';
 export { LetterStagger, type LetterStaggerTrigger } from './letter-stagger/letter-stagger';
 export { Shine, type ShineState } from './shine/shine';
 export { type StaggerBy } from './stagger';
+export { Typewriter, type TypewriterTrigger } from './typewriter/typewriter';
 export { WordRotator } from './word-rotator/word-rotator';

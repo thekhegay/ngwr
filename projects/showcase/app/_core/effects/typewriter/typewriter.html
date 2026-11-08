@@ -1,0 +1,12 @@
+<span class="ngwr-typewriter__sr">{{ speech() }}</span>
+<span class="ngwr-typewriter__box" aria-hidden="true">
+  @for (other of lines(); track $index) {
+    @if ($index !== index()) {
+      <span class="ngwr-typewriter__ghost">{{ other }}</span>
+    }
+  }
+  <span class="ngwr-typewriter__line"
+    ><span class="ngwr-typewriter__typed">{{ typed() }}</span
+    ><span class="ngwr-typewriter__rest">{{ rest() }}</span></span
+  >
+</span>

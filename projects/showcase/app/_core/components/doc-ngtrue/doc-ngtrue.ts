@@ -11,12 +11,15 @@ import { DocRichPipe } from '../doc-rich/doc-rich';
 
 import type { DocNgtrueVariant } from './types';
 
-import { GradientFlow } from '#core/effects';
+import { GradientFlow, Typewriter } from '#core/effects';
 import { BRAND_ICONS } from '#core/icons';
 
 /** ngtrue's docs. Every link this block draws starts here or on GitHub. */
 const NGTRUE_URL = 'https://ngtrue.khegay.dev';
 const NGTRUE_REPO = 'https://github.com/thekhegay/ngtrue';
+
+/** The one line under the mark, and the compact card's pitch when a page writes none. */
+const NGTRUE_TAGLINE = 'Checks that keep an Angular library true.';
 
 interface NgtrueItem {
   readonly icon: string;
@@ -58,7 +61,7 @@ interface NgtrueItem {
   styleUrl: './doc-ngtrue.scss',
   // Inside a docs page the typeset would restyle the card's text as prose.
   host: { class: 'wr-not-typeset' },
-  imports: [WrButton, WrCard, WrIcon, DocCodeComponent, DocInstallComponent, DocRichPipe, GradientFlow],
+  imports: [WrButton, WrCard, WrIcon, DocCodeComponent, DocInstallComponent, DocRichPipe, GradientFlow, Typewriter],
   providers: [
     provideWrIcons([
       ...BRAND_ICONS,
@@ -79,10 +82,13 @@ export class DocNgtrueComponent {
    * Inline `code` only — the whole card is the link, so a link inside it would
    * nest one anchor in another.
    */
-  readonly pitch = input('Checks that keep an Angular library true.');
+  readonly pitch = input(NGTRUE_TAGLINE);
 
   /** `compact` only: the ngtrue page to open, relative to its docs root (`guide/assert-signal-forms-control`). */
   readonly page = input('');
+
+  /** Typed once on view, after a beat that lets the eye land on the name above it first. */
+  protected readonly tagline: readonly string[] = [NGTRUE_TAGLINE];
 
   protected readonly docsUrl = NGTRUE_URL;
   protected readonly repoUrl = NGTRUE_REPO;
