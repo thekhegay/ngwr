@@ -17,4 +17,11 @@
   wr-result-404 {
     display: contents;
   }
+
+  // The sparks paint in the host's colour, which on this filled button is the
+  // `-contrast` of the primary fill: unreadable off the button. The fill's role
+  // instead, so they read on the page.
+  &__home {
+    --ngwr-click-sparks-color: var(--wr-color-primary);
+  }
 }
