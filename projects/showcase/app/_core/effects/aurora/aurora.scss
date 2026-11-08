@@ -1,0 +1,182 @@
+// `<ngwr-aurora />`: a few soft, wide bands of colour drifting behind a
+// section's content, like northern lights. The still picture is the block
+// itself, so a server render and a reader with reduced motion get the final
+// bands from CSS alone; the drift is one paused animation per band that the
+// component's `--run` sets running while the host is on screen.
+.ngwr-aurora {
+  // The three bands, in painting order: green, blue, violet, the hues an
+  // aurora actually shows. Bare intents, not inks: these are graphics, not
+  // text, and the roles are `light-dark()` pairs already, so the dark scheme
+  // gets the intents re-tuned for its canvas with nothing re-declared. The
+  // violet is mixed from two roles rather than a step, so a rebrand moves it.
+  --ngwr-aurora-color-1: var(--wr-color-success);
+  --ngwr-aurora-color-2: var(--wr-color-primary);
+  --ngwr-aurora-color-3: color-mix(in oklch, var(--wr-color-primary) 60%, var(--wr-color-danger));
+  // The peak of a band: how much of its colour sits over the surface at the
+  // centre of its gradient, mixed toward transparent. Set for the text over
+  // it: at 12% a single peak leaves `on-surface-muted` at 6.4:1 in light and
+  // 6.9:1 in dark against the 7.6:1 it has on the plain surface, and even the
+  // theoretical worst case of all three peaks stacked on one point holds 4.8:1
+  // light and 5.6:1 dark. `on-surface` never drops below 11:1. Those are the
+  // peaks before the blur and the edge mask, which only lower them.
+  --ngwr-aurora-strength: 12%;
+  // The blur of one band, in the band's own pixels. Each band is rendered at
+  // half the host's size and scaled up by two or more in its pose, so this
+  // reads as about twice the radius on screen, and the blur runs over a
+  // quarter of the pixels it otherwise would. The gradient does most of the
+  // softening; the blur only takes the last edge off it.
+  --ngwr-aurora-blur: 18px;
+  // One back-and-forth of the middle band. The other two take 0.7 and 1.3 of
+  // it: 7, 10 and 13 are pairwise coprime, so the three return to one picture
+  // only every 910 of the base tenth, about 44 minutes at the default.
+  --ngwr-aurora-cycle: 29s;
+
+  position: absolute;
+  inset: 0;
+  // Under the content, over the page: the parent (`.ngwr-section--backdrop`)
+  // is positioned and isolated, so this is the floor of its stacking context.
+  z-index: -1;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  // Gone at the edges, so there is no rectangle where the section ends.
+  mask-image: radial-gradient(ellipse 72% 68% at 50% 50%, #000 30%, transparent 100%);
+
+  // One band: a single elliptical gradient from the band's peak to nothing,
+  // on its own composited layer. The box is half the host each way, and the
+  // pose scales it back up: the texture is a quarter the memory and the blur a
+  // quarter the work, and the upscale softens it further for free. Only
+  // `transform` ever changes, so the blurred texture is rasterised once and the
+  // compositor moves it.
+  &__band {
+    position: absolute;
+    inset: 25%;
+    background-image: radial-gradient(
+      var(--ngwr-aurora-shape) at 50% 50%,
+      color-mix(in srgb, var(--ngwr-aurora-color) var(--ngwr-aurora-strength), transparent),
+      transparent
+    );
+    filter: blur(var(--ngwr-aurora-blur));
+    will-change: transform;
+    transform: var(--ngwr-aurora-pose);
+
+    // A wide, flat ellipse leaning one way, high and toward the start.
+    &--1 {
+      --ngwr-aurora-color: var(--ngwr-aurora-color-1);
+      --ngwr-aurora-shape: ellipse 58% 24%;
+      --ngwr-aurora-pose: translate(-12%, -14%) rotate(-14deg) scale(2.2);
+    }
+
+    // The widest, leaning the other way, low and toward the end.
+    &--2 {
+      --ngwr-aurora-color: var(--ngwr-aurora-color-2);
+      --ngwr-aurora-shape: ellipse 54% 30%;
+      --ngwr-aurora-pose: translate(10%, 8%) rotate(9deg) scale(2.4);
+    }
+
+    // The smallest and the brightest hue, near the middle, almost level.
+    &--3 {
+      --ngwr-aurora-color: var(--ngwr-aurora-color-3);
+      --ngwr-aurora-shape: ellipse 44% 22%;
+      --ngwr-aurora-pose: translate(-2%, 16%) rotate(-4deg) scale(2.1);
+    }
+  }
+
+  // The drift: declared on each band, paused, so `--run` only flips the play
+  // state and the phase survives a pause. Not under reduced motion, where the
+  // bands stay as the still picture and nothing moves. Every set of keyframes
+  // starts on the band's rest pose, so the paused first frame IS the still
+  // picture and nothing jumps when the animation first applies.
+  @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+    &__band {
+      animation-duration: var(--ngwr-aurora-cycle);
+      animation-timing-function: var(--wr-ease-in-out);
+      animation-iteration-count: infinite;
+      animation-direction: alternate;
+      animation-play-state: paused;
+
+      &--1 {
+        animation-name: ngwr-aurora-drift-1;
+        animation-duration: calc(var(--ngwr-aurora-cycle) * 0.7);
+      }
+
+      &--2 {
+        animation-name: ngwr-aurora-drift-2;
+      }
+
+      &--3 {
+        animation-name: ngwr-aurora-drift-3;
+        animation-duration: calc(var(--ngwr-aurora-cycle) * 1.3);
+      }
+    }
+
+    &--run &__band {
+      animation-play-state: running;
+    }
+  }
+
+  // Nothing drawn: a tinted wash under system colours is noise, not decoration.
+  @media (forced-colors: active) {
+    display: none;
+  }
+}
+
+// Each band wanders a few percent of the host, turns a few degrees and
+// breathes in size, and comes back the way it went (`alternate`), so no
+// keyframe needs to meet the first. Every list keeps the same three functions
+// in the same order, so the browser interpolates them component by component.
+
+@keyframes ngwr-aurora-drift-1 {
+  0% {
+    transform: translate(-12%, -14%) rotate(-14deg) scale(2.2);
+  }
+
+  35% {
+    transform: translate(-4%, -6%) rotate(-7deg) scale(2.45);
+  }
+
+  70% {
+    transform: translate(6%, -16%) rotate(-19deg) scale(2.05);
+  }
+
+  100% {
+    transform: translate(12%, -4%) rotate(-10deg) scale(2.3);
+  }
+}
+
+@keyframes ngwr-aurora-drift-2 {
+  0% {
+    transform: translate(10%, 8%) rotate(9deg) scale(2.4);
+  }
+
+  40% {
+    transform: translate(-6%, 14%) rotate(16deg) scale(2.15);
+  }
+
+  75% {
+    transform: translate(-12%, 2%) rotate(4deg) scale(2.6);
+  }
+
+  100% {
+    transform: translate(4%, -8%) rotate(12deg) scale(2.3);
+  }
+}
+
+@keyframes ngwr-aurora-drift-3 {
+  0% {
+    transform: translate(-2%, 16%) rotate(-4deg) scale(2.1);
+  }
+
+  30% {
+    transform: translate(10%, 6%) rotate(5deg) scale(2.35);
+  }
+
+  65% {
+    transform: translate(2%, -10%) rotate(-11deg) scale(1.95);
+  }
+
+  100% {
+    transform: translate(-14%, 4%) rotate(2deg) scale(2.25);
+  }
+}
