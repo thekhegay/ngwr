@@ -1,3 +1,4 @@
+export { Aurora } from './aurora/aurora';
 export { BlurReveal, type BlurRevealBy, type BlurRevealFrom } from './blur-reveal/blur-reveal';
 export { CircleText } from './circle-text/circle-text';
 export { Decode, type DecodeShape, type DecodeTrigger } from './decode/decode';
