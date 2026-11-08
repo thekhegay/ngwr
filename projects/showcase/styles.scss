@@ -26,20 +26,16 @@
 // writes into the DOM carry no emulated-encapsulation attribute, and its hosts
 // sit in several components' templates.
 @use 'app/_core/effects/aurora/aurora';
-@use 'app/_core/effects/blur-reveal/blur-reveal';
 @use 'app/_core/effects/circle-text/circle-text';
 @use 'app/_core/effects/click-sparks/click-sparks';
 @use 'app/_core/effects/confetti/confetti';
-@use 'app/_core/effects/decode/decode';
 @use 'app/_core/effects/dot-grid/dot-grid';
 @use 'app/_core/effects/falling-letters/falling-letters';
 @use 'app/_core/effects/fluid-cursor/fluid-cursor';
 @use 'app/_core/effects/glitch/glitch';
 @use 'app/_core/effects/gradient-flow/gradient-flow';
-@use 'app/_core/effects/letter-stagger/letter-stagger';
 @use 'app/_core/effects/noise-text/noise-text';
 @use 'app/_core/effects/ripple-grid/ripple-grid';
-@use 'app/_core/effects/shine/shine';
 @use 'app/_core/effects/spotlight/spotlight';
 @use 'app/_core/effects/thread-lines/thread-lines';
 @use 'app/_core/effects/ticker/ticker';

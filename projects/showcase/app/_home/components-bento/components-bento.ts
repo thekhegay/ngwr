@@ -10,6 +10,8 @@ import { FormsModule } from '@angular/forms';
 
 import { Check, CreditCard, Folder, House, Settings } from 'lucide';
 import { WrAlert } from 'ngwr/alert';
+import { WrBlurReveal } from 'ngwr/animations/blur-reveal';
+import { WrDecode } from 'ngwr/animations/decode';
 import { WrAvatar } from 'ngwr/avatar';
 import { WrBadge, WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
@@ -29,7 +31,7 @@ import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent } from '#core/components';
-import { BlurReveal, Decode, DotGrid } from '#core/effects';
+import { DotGrid } from '#core/effects';
 
 @Component({
   selector: 'ngwr-components-bento',
@@ -58,8 +60,8 @@ import { BlurReveal, Decode, DotGrid } from '#core/effects';
     WrTag,
     WrTypography,
     DocCodeComponent,
-    BlurReveal,
-    Decode,
+    WrBlurReveal,
+    WrDecode,
     DotGrid,
   ],
   providers: [

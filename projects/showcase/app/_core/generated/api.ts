@@ -96,6 +96,13 @@ export const API = {
     { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per category, headed by its name, and a column per series shown — or, with `data`, one column for the bars, headed \"Value\" (`barChart.value`) — then one per line shown, every value written the way the tooltip writes it. A missing value is an empty cell, and a stacked chart's table keeps each series' own values. Each bar's accessible name already carries its value; the table is for a reader who wants to move cell by cell. It is rendered beside the plot, clipped to nothing: it takes no room, draws nothing and holds no tab stop. A hidden series or line leaves it.", type: "boolean", default: "false" },
     { name: "valueFormat", description: "Writes every number the chart shows: the labels at the bars, the tooltip and each bar's accessible name. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact labels from a thousand up (`1.2K`, `3.4M`).", type: "((value: number) => string) | null", default: "null" },
   ],
+  // <[wrBlurReveal]>
+  WrBlurReveal: [
+    { name: "by", description: "What enters one at a time: a word, or a grapheme. In letter mode the letters of one word sit in a no-wrap wrapper, so a word never breaks across lines mid-word.", type: "WrBlurRevealBy", default: "'words'" },
+    { name: "from", description: "The side a piece settles in from.", type: "WrBlurRevealFrom", default: "'below'" },
+    { name: "stagger", description: "Gap between the start of one piece and the next, in ms. Unset, the mode decides: 70 for words, 28 for letters. Either way the whole reveal spreads over 1.2 s at most, so for a long text the gap shrinks until the last piece starts by then.", type: "number | null", default: "null" },
+    { name: "delay", description: "Pause between the host entering the viewport and the first piece, in ms.", type: "number", default: "0" },
+  ],
   // <wr-boxplot-chart>
   WrBoxplotChart: [
     { name: "groups", description: "One entry per box, in reading order: each with its raw `values` or a `stats` summary worked out elsewhere. A group with neither, or with nothing finite to summarise, keeps its slot and its name and draws no box.", type: "readonly WrBoxplotGroup[]", default: "[]" },
@@ -439,6 +446,13 @@ export const API = {
     { name: "panelAriaLabel", description: "Accessible name of the popup. The trigger advertises `aria-haspopup=\"dialog\"`, so the pane is a `role=\"dialog\"` — and an unnamed dialog announces as a bare \"dialog\". Defaults to the catalog's `datePicker.panelRange*` string for the current `mode`.", type: "string | null", default: "null" },
     { name: "panelClass", description: "Extra CSS classes for the calendar panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
   ],
+  // <[wrDecode]>
+  WrDecode: [
+    { name: "trigger", description: "`view` plays once, the first time most of the host is in the viewport. `hover` plays on every pointer enter and focus of the host or its closest focusable ancestor, but never restarts while already playing.", type: "WrDecodeTrigger", default: "'view'" },
+    { name: "glyphs", description: "The characters random glyphs are drawn from, for every slot. Unset, each slot draws from the shape of its own character: uppercase letters and digits for an uppercase letter, lowercase for lowercase, digits for a digit, a few symbols for anything else.", type: "string | null", default: "null" },
+    { name: "stagger", description: "Gap between one slot locking and the next, in ms. Unset, 36. Either way the locks spread over 1.2 s at most, so for a long text the gap shrinks until the last slot locks by then.", type: "number | null", default: "null" },
+    { name: "delay", description: "Pause between the trigger and the first glyph, in ms. The text stands as authored meanwhile.", type: "number", default: "0" },
+  ],
   // <[wrDensity]>
   WrDensityDirective: [
     { name: "wrDensity", description: "Density to apply to this subtree.", type: "WrDensityValue", required: true },
@@ -748,6 +762,16 @@ export const API = {
     { name: "collapsedWidth", description: "Width when collapsed. Any CSS length. `0` to fully hide.", type: "string", default: "'4rem'" },
     { name: "reverse", description: "Place the sider on the right edge instead of the left.", type: "boolean", default: "false" },
     { name: "(collapsedChanged)", description: "Emits whenever `collapsed` changes (in addition to the two-way `[(collapsed)]`).", type: "boolean" },
+  ],
+  // <wr-letter-stagger>
+  WrLetterStagger: [
+    { name: "text", description: "The text of this run. Breaking spaces stay real spaces, so it wraps as plain text would.", type: "string", required: true },
+    { name: "by", description: "What enters one at a time: a grapheme, or a word. In letter mode the letters of one word sit in a no-wrap wrapper, so a word never breaks across lines mid-word.", type: "WrStaggerBy", default: "'letters'" },
+    { name: "masked", description: "Each word clips its pieces at a padded line box, so a letter comes up from under the line instead of fading in where it stands. Descenders and accents at rest sit inside the padding.", type: "boolean", default: "false" },
+    { name: "start", description: "The index of this run's first piece. A headline made of several runs passes each one the count the runs before it used, so they play as one sequence.", type: "number", default: "0" },
+    { name: "stagger", description: "Gap between the start of one piece and the next, in ms. Unset, the mode decides: 28 for letters, 70 for words. Either way the sequence up to this run's last piece spreads over 1.2 s at most; a long sequence of several runs sets the same `stagger` on each, so the gap is one gap.", type: "number | null", default: "null" },
+    { name: "delay", description: "Pause before the first piece of the sequence, in ms.", type: "number", default: "0" },
+    { name: "trigger", description: "`load` plays from first paint, with no script. `view` keeps the pieces visible and arms them the first time most of the host is in the viewport; an `__item` outside the host does not follow it.", type: "WrLetterStaggerTrigger", default: "'load'" },
   ],
   // <wr-lightbox>
   WrLightbox: [

@@ -100,7 +100,8 @@ guess gets backwards.
 - **Import from the entry point, never a barrel.**
   \`import { WrSelect } from 'ngwr/select'\` — the root \`ngwr\` exports only
   \`provideWr()\`, and the subpath is what makes the library tree-shakable.
-  Charts are nested: \`ngwr/charts/<name>\` (\`ngwr/charts/bar-chart\`).
+  Charts and animations are nested: \`ngwr/charts/<name>\` (\`ngwr/charts/bar-chart\`),
+  \`ngwr/animations/<name>\` (\`ngwr/animations/blur-reveal\`).
 - **App-wide configuration is ONE call.**
   \`provideWr(withDensity(), withToast({ … }), withTheme(), withDates(), withStorage(), withMeta())\`,
   with \`provideWr\` from \`ngwr\` and each feature from the entry point it

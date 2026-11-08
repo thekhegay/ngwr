@@ -979,4 +979,8 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/forms',
   ],
   'reference/validators/url': ['reference/components/input', 'reference/components/form-field', 'guides/forms'],
+  'animations/blur-reveal': ['animations/letter-stagger', 'animations/decode', 'guides/tokens/motion'],
+  'animations/decode': ['animations/blur-reveal', 'animations/shine', 'guides/tokens/motion'],
+  'animations/letter-stagger': ['animations/blur-reveal', 'guides/ssr', 'guides/tokens/motion'],
+  'animations/shine': ['animations/decode', 'reference/components/badge', 'guides/tokens/motion'],
 };

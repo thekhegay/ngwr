@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Languages, Palette, PenLine, Route, Shapes, SlidersHorizontal } from 'lucide';
+import { WrBlurReveal } from 'ngwr/animations/blur-reveal';
+import { WrDecode } from 'ngwr/animations/decode';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrCard, WrCardFooter } from 'ngwr/card';
@@ -9,7 +11,7 @@ import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent, DocInstallComponent, DocRichPipe } from '#core/components';
-import { BlurReveal, Decode, ThreadLines } from '#core/effects';
+import { ThreadLines } from '#core/effects';
 import { QUALITY } from '#core/generated/quality';
 import type { ShikiLang } from '#core/shiki';
 import { formatCount } from '#core/utils';
@@ -64,8 +66,8 @@ interface OptInExample {
     DocCodeComponent,
     DocInstallComponent,
     DocRichPipe,
-    BlurReveal,
-    Decode,
+    WrBlurReveal,
+    WrDecode,
     ThreadLines,
   ],
   providers: [

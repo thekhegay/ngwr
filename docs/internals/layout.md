@@ -35,9 +35,12 @@ A pnpm + Angular CLI monorepo with three projects:
   `button` and `select` in `projects/lib` now live under one, which is the only
   thing that changed — they are ordinary entry points, in the same package, and
   `pnpm gen:exports` writes their keys like any other. `@use 'ngwr/animations'`
-  is the keyframe UTILITY sheet (`styles/_animations.scss`), not a component:
-  the animation components the package carried through 15.5 were removed
-  in 15.6. They export one more harness name than there are classes
+  is the keyframe UTILITY sheet (`styles/_animations.scss`), not a component;
+  the animation EFFECTS are nested under the same name since 15.7
+  (`ngwr/animations/blur-reveal`, `ngwr/animations/shine`, …), with
+  `ngwr/animations/core` holding what they share, every export `@internal`
+  like `ngwr/charts/core`. The `ngwr/bits/*` components the package carried
+  through 15.5 were removed in 15.6; the effects are not those. They export one more harness name than there are classes
   (`harnessClasses` in the same file): `WrCalendarDayHarness` is the
   one exported twice, since a date-picker's popup IS a calendar and
   `ngwr/date-picker/testing` keeps the name it shipped as.
@@ -49,13 +52,14 @@ A pnpm + Angular CLI monorepo with three projects:
   `ngwr/*` → `./projects/lib/*`, plus the bare `ngwr` → `./projects/lib/public-api.ts`
   (`provideWr`).
 - **`projects/showcase/`** — the docs site (**ngwr.dev**): live demos + API
-  docs, and where components are dogfooded. Docs are organised into five
-  top-level clusters — **docs / guides / reference / charts / icons**:
+  docs, and where components are dogfooded. Docs are organised into six
+  top-level clusters — **docs / guides / reference / charts / animations / icons**:
   getting-started under `app/docs/`, task guides under `app/guides/`, API
   pages under `app/reference/<cluster>/<name>/` (directives, pipes, services,
   utils, validators, interfaces) and component pages one folder deeper, in
   the sidebar group they sit under (`app/reference/components/<group>/<name>/`),
-  the chart family under `app/charts/<group>/<name>/` and the icon-set browsers
+  the chart family under `app/charts/<group>/<name>/`, the effects under
+  `app/animations/<group>/<name>/` and the icon-set browsers
   under `app/icons/`; the pre-v15 `/start/*` URLs redirect (`app/routing.ts`). Shared doc scaffolding (the
   `<ngwr-doc-*>` components, services, shiki highlighting) is in `app/_core/`
   (alias `#core/*`).

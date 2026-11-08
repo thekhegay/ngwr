@@ -114,6 +114,25 @@
       "sass": "./anchor/styles/_index.scss",
       "default": "./anchor/public-api.ts"
     },
+    "./animations/blur-reveal": {
+      "sass": "./animations/blur-reveal/styles/_index.scss",
+      "default": "./animations/blur-reveal/public-api.ts"
+    },
+    "./animations/core": {
+      "default": "./animations/core/public-api.ts"
+    },
+    "./animations/decode": {
+      "sass": "./animations/decode/styles/_index.scss",
+      "default": "./animations/decode/public-api.ts"
+    },
+    "./animations/letter-stagger": {
+      "sass": "./animations/letter-stagger/styles/_index.scss",
+      "default": "./animations/letter-stagger/public-api.ts"
+    },
+    "./animations/shine": {
+      "sass": "./animations/shine/styles/_index.scss",
+      "default": "./animations/shine/public-api.ts"
+    },
     "./avatar": {
       "sass": "./avatar/styles/_index.scss",
       "default": "./avatar/public-api.ts"

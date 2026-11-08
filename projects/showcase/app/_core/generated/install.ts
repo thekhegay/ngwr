@@ -39,6 +39,18 @@ export const INSTALL = {
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
       { path: "ngwr/result", symbols: ["WrResult404"], declarables: ["WrResult404"], styled: true },
   ],
+  "animations/blur-reveal": [
+      { path: "ngwr/animations/blur-reveal", symbols: ["WrBlurReveal"], declarables: ["WrBlurReveal"], styled: true },
+  ],
+  "animations/decode": [
+      { path: "ngwr/animations/decode", symbols: ["WrDecode"], declarables: ["WrDecode"], styled: true },
+  ],
+  "animations/letter-stagger": [
+      { path: "ngwr/animations/letter-stagger", symbols: ["WrLetterStagger"], declarables: ["WrLetterStagger"], styled: true },
+  ],
+  "animations/shine": [
+      { path: "ngwr/animations/shine", symbols: ["WrShine"], declarables: ["WrShine"], styled: true },
+  ],
   "charts/bar-chart": [
       { path: "ngwr/charts/bar-chart", symbols: ["WrBarChart"], declarables: ["WrBarChart"], styled: true },
   ],

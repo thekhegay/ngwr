@@ -1,6 +1,7 @@
 import type { Routes } from '@angular/router';
 
 import {
+  ANIMATIONS_SIDEBAR,
   CHARTS_SIDEBAR,
   DOCS_SIDEBAR,
   GUIDES_SIDEBAR,
@@ -21,8 +22,8 @@ export const routing: Routes = [
     children: [
       // Doors by what the reader is doing, not by how the code is organised.
       // `docs` = get it installed. `guides` = do a job that spans several APIs.
-      // `reference` = look one API up. Icons and charts stay separate:
-      // browsable catalogs and the chart family.
+      // `reference` = look one API up. Icons, charts and animations stay
+      // separate: browsable catalogs, the chart family and the effects.
       {
         path: ROUTES.docs.path,
         data: { sidebar: DOCS_SIDEBAR },
@@ -46,6 +47,11 @@ export const routing: Routes = [
         path: ROUTES.charts.path,
         data: { sidebar: CHARTS_SIDEBAR },
         loadChildren: () => import('./charts/routing'),
+      },
+      {
+        path: ROUTES.animations.path,
+        data: { sidebar: ANIMATIONS_SIDEBAR },
+        loadChildren: () => import('./animations/routing'),
       },
       {
         path: ROUTES.icons.path,

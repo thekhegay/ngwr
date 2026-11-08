@@ -27,6 +27,10 @@
  * wants it. The runtime lookups widen it back — see `_core/utils/since.ts`.
  */
 export const SINCE = {
+  "animations/blur-reveal": "15.7.0",
+  "animations/decode": "15.7.0",
+  "animations/letter-stagger": "15.7.0",
+  "animations/shine": "15.7.0",
   "charts/boxplot-chart": "15.1.0",
   "charts/bullet-chart": "15.1.0",
   "charts/candlestick-chart": "15.1.0",

@@ -126,6 +126,10 @@ export const DOC_PAGES: Readonly<Record<string, { readonly route: string; readon
   "affix": {"route":"reference/directives/affix","title":"wrAffix","kind":"Directive"},
   "alert": {"route":"reference/components/alert","title":"Alert","kind":"Component"},
   "anchor": {"route":"reference/components/anchor","title":"Anchor","kind":"Component"},
+  "animations/blur-reveal": {"route":"animations/blur-reveal","title":"Blur Reveal","kind":"Animation"},
+  "animations/decode": {"route":"animations/decode","title":"Decode","kind":"Animation"},
+  "animations/letter-stagger": {"route":"animations/letter-stagger","title":"Letter Stagger","kind":"Animation"},
+  "animations/shine": {"route":"animations/shine","title":"Shine","kind":"Animation"},
   "avatar": {"route":"reference/components/avatar","title":"Avatar","kind":"Component"},
   "back-top": {"route":"reference/components/back-top","title":"Back to Top","kind":"Component"},
   "badge": {"route":"reference/components/badge","title":"Badge","kind":"Component"},
@@ -236,6 +240,9 @@ export const DOC_PAGES: Readonly<Record<string, { readonly route: string; readon
 
 /** Route → entry points its demos use alongside the one it documents. */
 export const DEMO_RELATED: Readonly<Record<string, readonly string[]>> = {
+  "animations/decode": ["badge"],
+  "animations/letter-stagger": ["badge"],
+  "animations/shine": ["badge"],
   "charts/chart-legend": ["charts/sparkline"],
   "reference/components/alert": ["icon"],
   "reference/components/avatar": ["badge","select"],
@@ -285,6 +292,10 @@ export const DOC_ROUTES: Readonly<
     }
   >
 > = {
+  "animations/blur-reveal": {"title":"Blur Reveal","kind":"Animation","labels":["Animation"],"description":"A text comes in piece by piece the first time it scrolls into view: each word, or each letter, from blurred and a little below its place to sharp and in place."},
+  "animations/decode": {"title":"Decode","kind":"Animation","labels":["Animation"],"description":"A readout locking on: every character shows random glyphs that change quickly, then settles on the real one, left to right. The line never moves while it plays."},
+  "animations/letter-stagger": {"title":"Letter Stagger","kind":"Animation","labels":["Animation"],"description":"A headline whose letters rise into place one after another from first paint, with no script: built for above the fold, where the server HTML already holds the pieces and the motion starts before the bundle arrives."},
+  "animations/shine": {"title":"Shine","kind":"Animation","labels":["Animation"],"description":"A soft band of light crosses the glyphs of a short label, waits, and crosses again for as long as the label is on screen. It has no inputs: the cadence and the paint are CSS variables."},
   "charts/bar-chart": {"title":"Bar Chart","kind":"Component","labels":["Component"],"description":"Bars for one or several series, grouped or stacked, standing up or lying along a row, with lines over them."},
   "charts/boxplot-chart": {"title":"Box Plot","kind":"Component","labels":["Component"],"description":"How the values of several groups are spread: the median, the middle half, the range and the outliers of each, side by side."},
   "charts/bullet-chart": {"title":"Bullet Chart","kind":"Component","labels":["Component"],"description":"One measure against its target, over qualitative bands: Stephen Few's bullet graph, a compact replacement for a gauge."},

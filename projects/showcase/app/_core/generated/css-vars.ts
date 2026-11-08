@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1528 hook(s) across 93 page(s). A property is here only when the
+ * 1551 hook(s) across 97 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -40,6 +40,49 @@ export interface DocCssVars {
  * cast it needs can only name a route this file still carries.
  */
 export const CSS_VARS = {
+  "animations/blur-reveal": {
+    subpath: "ngwr/animations/blur-reveal",
+    vars: [
+      { name: "--wr-blur-reveal-blur", default: "0.2em", scope: ".wr-blur-reveal" },
+      { name: "--wr-blur-reveal-delay", default: "0ms", scope: ".wr-blur-reveal", host: true },
+      { name: "--wr-blur-reveal-direction", default: "1", scope: ".wr-blur-reveal", overrides: 1 },
+      { name: "--wr-blur-reveal-duration", default: "0.6s", scope: ".wr-blur-reveal" },
+      { name: "--wr-blur-reveal-ease", default: "var(--wr-ease-out)", scope: ".wr-blur-reveal" },
+      { name: "--wr-blur-reveal-offset", default: "0.35em", scope: ".wr-blur-reveal" },
+      { name: "--wr-blur-reveal-stagger", default: "70ms", scope: ".wr-blur-reveal", host: true },
+    ],
+  },
+  "animations/decode": {
+    subpath: "ngwr/animations/decode",
+    vars: [
+      { name: "--wr-decode-ease", default: "var(--wr-ease-out)", scope: ".wr-decode" },
+      { name: "--wr-decode-settle", default: "240ms", scope: ".wr-decode", host: true },
+      { name: "--wr-decode-tint", default: "color-mix(in srgb, currentColor 45%, transparent)", scope: ".wr-decode" },
+    ],
+  },
+  "animations/letter-stagger": {
+    subpath: "ngwr/animations/letter-stagger",
+    vars: [
+      { name: "--wr-letter-stagger-delay", default: "0ms", scope: ".wr-letter-stagger", host: true },
+      { name: "--wr-letter-stagger-duration", default: "0.6s", scope: ".wr-letter-stagger" },
+      { name: "--wr-letter-stagger-ease", default: "var(--wr-ease-out)", scope: ".wr-letter-stagger" },
+      { name: "--wr-letter-stagger-gap", default: "28ms", scope: ".wr-letter-stagger", host: true },
+      { name: "--wr-letter-stagger-offset", default: "0.35em", scope: ".wr-letter-stagger", overrides: 1 },
+    ],
+  },
+  "animations/shine": {
+    subpath: "ngwr/animations/shine",
+    vars: [
+      { name: "--wr-shine-band", default: "1.5em", scope: ".wr-shine" },
+      { name: "--wr-shine-delay", default: "0.4s", scope: ".wr-shine" },
+      { name: "--wr-shine-ease", default: "var(--wr-ease-in-out)", scope: ".wr-shine" },
+      { name: "--wr-shine-light", default: "color-mix(in srgb, var(--wr-shine-peak) var(--wr-shine-strength), currentColor)", scope: ".wr-shine" },
+      { name: "--wr-shine-pass", default: "1.2s", scope: ".wr-shine" },
+      { name: "--wr-shine-pause", default: "5s", scope: ".wr-shine" },
+      { name: "--wr-shine-peak", default: "var(--wr-color-on-surface)", scope: ".wr-shine" },
+      { name: "--wr-shine-strength", default: "60%", scope: ".wr-shine" },
+    ],
+  },
   "charts/bar-chart": {
     subpath: "ngwr/charts/bar-chart",
     vars: [
