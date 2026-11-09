@@ -1,4 +1,5 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
+import { OverlayRef } from '@angular/cdk/overlay';
 import { Component, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -294,6 +295,108 @@ describe('WrDateRangePicker', () => {
     fixture.detectChanges();
 
     expect(calendar()).not.toBeNull();
+  });
+
+  describe('panel in datetime mode', () => {
+    class StubObserver {
+      static instances: StubObserver[] = [];
+      constructor(public readonly callback: () => void) {
+        StubObserver.instances.push(this);
+      }
+      observe = vi.fn();
+      disconnect = vi.fn();
+    }
+
+    const openDateTime = (showSeconds = true): void => {
+      fixture.componentInstance.mode.set('datetime');
+      fixture.componentInstance.format.set(null);
+      fixture.componentInstance.showSeconds.set(showSeconds);
+      fixture.detectChanges();
+      open();
+    };
+
+    afterEach(() => {
+      StubObserver.instances = [];
+      vi.unstubAllGlobals();
+    });
+
+    it('is one surface: the calendar and the time row share a single timed panel', () => {
+      openDateTime();
+      const panel = document.querySelector<HTMLElement>('.wr-date-range-panel')!;
+
+      expect(panel.classList.contains('wr-date-range-panel--timed')).toBe(true);
+      expect(panel.querySelectorAll(':scope > .wr-calendar')).toHaveLength(1);
+      expect(panel.querySelectorAll(':scope > .wr-date-range-panel__times')).toHaveLength(1);
+      expect(panel.querySelectorAll('.wr-time-picker')).toHaveLength(2);
+    });
+
+    it('leaves the date-only panel unmarked, so it keeps the calendar chrome', () => {
+      open();
+      const panel = document.querySelector<HTMLElement>('.wr-date-range-panel')!;
+
+      expect(panel.classList.contains('wr-date-range-panel--timed')).toBe(false);
+      expect(panel.querySelector('.wr-date-range-panel__times')).toBeNull();
+    });
+
+    it('repositions when the pane changes size, so a time row rendered late cannot grow over the field', () => {
+      vi.stubGlobal('ResizeObserver', StubObserver);
+      const reposition = vi.spyOn(OverlayRef.prototype, 'updatePosition');
+      openDateTime();
+      reposition.mockClear();
+
+      for (const observer of StubObserver.instances) observer.callback();
+
+      expect(reposition).toHaveBeenCalled();
+      reposition.mockRestore();
+    });
+
+    it('flips above the field, without covering it, when the room below is short', () => {
+      const FIELD = { top: 500, bottom: 530 };
+      const PANEL_HEIGHT = 300;
+      const rect = (top: number, height: number, width: number): DOMRect => ({
+        top,
+        bottom: top + height,
+        left: 100,
+        right: 100 + width,
+        width,
+        height,
+        x: 100,
+        y: top,
+        toJSON: () => ({}),
+      });
+      const saved = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'getBoundingClientRect');
+      const { innerHeight, innerWidth } = window;
+      // The CDK's viewport rect reads the document element's client size.
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: 600 });
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1000 });
+      const root = document.documentElement;
+      Object.defineProperty(root, 'clientHeight', { configurable: true, value: 600 });
+      Object.defineProperty(root, 'clientWidth', { configurable: true, value: 1000 });
+      Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
+        configurable: true,
+        writable: true,
+        value(this: HTMLElement): DOMRect {
+          if (this.tagName === 'WR-DATE-RANGE-PICKER') return rect(FIELD.top, FIELD.bottom - FIELD.top, 400);
+          if (this.classList.contains('cdk-overlay-pane')) return rect(0, PANEL_HEIGHT, 392);
+          return rect(0, 0, 0);
+        },
+      });
+      try {
+        openDateTime();
+        const box = document.querySelector<HTMLElement>('.cdk-overlay-connected-position-bounding-box')!;
+        // Anchored by its bottom edge: the pane ends above the field's top.
+        const bottom = parseFloat(box.style.bottom);
+        expect(box.style.top).toBe('auto');
+        expect(600 - bottom).toBeLessThanOrEqual(FIELD.top);
+      } finally {
+        Object.defineProperty(window, 'innerHeight', { configurable: true, value: innerHeight });
+        Object.defineProperty(window, 'innerWidth', { configurable: true, value: innerWidth });
+        delete (root as unknown as Record<string, unknown>)['clientHeight'];
+        delete (root as unknown as Record<string, unknown>)['clientWidth'];
+        if (saved) Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', saved);
+        else delete (HTMLElement.prototype as Partial<HTMLElement>).getBoundingClientRect;
+      }
+    });
   });
 
   describe('per-end time editing in datetime mode', () => {

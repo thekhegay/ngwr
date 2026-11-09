@@ -33,7 +33,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
 import { readI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
-import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrFollowSize } from 'ngwr/overlay';
 import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { clockFormat } from './internal/clock-format';
@@ -734,7 +734,8 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
         { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 4 },
         { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -4 },
       ])
-      .withPush(true);
+      .withViewportMargin(8)
+      .withPush(false);
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
@@ -765,6 +766,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     ref.setInput('value', this.value() ?? [null, null]);
     ref.setInput('autoFocus', this.autoFocusPanel);
     this.panelRef.set(ref);
+    wrFollowSize(this.overlayRef);
 
     // A stepper edit belongs to the end it was made on. Sorting it here is what
     // made the start stepper stop responding once it passed the end.

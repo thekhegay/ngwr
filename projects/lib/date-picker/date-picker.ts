@@ -34,7 +34,7 @@ import { WrCalendar } from 'ngwr/calendar';
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
 import { readI18nText, useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
-import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrFollowSize } from 'ngwr/overlay';
 import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { clockFormat } from './internal/clock-format';
@@ -779,7 +779,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
         { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 4 },
         { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -4 },
       ])
-      .withPush(true);
+      .withViewportMargin(8)
+      .withPush(false);
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
@@ -812,6 +813,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     if (m === 'time') this.attachTime();
     else if (m === 'datetime') this.attachDateTime();
     else this.attachDate();
+    wrFollowSize(this.overlayRef);
 
     this.outsideClick
       .outsidePointerEvents(this.overlayRef)
