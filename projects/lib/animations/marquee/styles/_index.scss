@@ -59,6 +59,8 @@
       #000 calc(100% - var(--wr-marquee-fade)),
       transparent
     );
+
+    @include theme.scrollbar;
   }
 
   &--loop:not(&--static) &__viewport {

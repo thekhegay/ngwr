@@ -49,18 +49,7 @@ export default class TokensSizingPage {
     { name: '--wr-border-radius-pill', value: '50rem', use: 'Pill ends: tags, pill buttons' },
   ];
 
-  protected readonly scrollbarTokens: readonly { readonly name: string; readonly value: string }[] = [
-    { name: '--wr-scrollbar-size', value: '0.625rem' },
-    { name: '--wr-scrollbar-thumb', value: 'color-mix(in srgb, var(--wr-color-on-surface) 20%, transparent)' },
-    { name: '--wr-scrollbar-thumb-hover', value: 'color-mix(in srgb, var(--wr-color-on-surface) 35%, transparent)' },
-  ];
-
   protected readonly snippets = {
-    scrollbar: `:root {
-  --wr-scrollbar-thumb: light-dark(rgb(0 0 0 / 25%), rgb(255 255 255 / 30%));
-  --wr-scrollbar-thumb-hover: light-dark(rgb(0 0 0 / 45%), rgb(255 255 255 / 50%));
-}`,
-
     size: `<button wr-btn type="button" size="sm">Small</button>
 <input wrInput size="md" />
 <wr-select size="lg">…</wr-select>`,
@@ -76,6 +65,7 @@ export default class TokensSizingPage {
   };
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
+    { kind: 'Guide', title: 'Scrollbar', url: ['/guides', 'scrollbar'] },
     { kind: 'Guide', title: 'Density', url: ['/guides/tokens', 'density'] },
     { kind: 'Guide', title: 'Theming', url: ['/guides', 'theming'] },
   ];

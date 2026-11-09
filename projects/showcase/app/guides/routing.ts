@@ -19,6 +19,7 @@ export default [
   // for 8 of the 9 intents, and its two rebrand snippets had drifted onto a
   // SCSS path that no longer resolves. The catalog page is the single copy.
   { path: guides.color.path, redirectTo: '/guides/tokens/colors' },
+  { path: guides.scrollbar.path, loadComponent: () => import('./scrollbar/scrollbar') },
   { path: guides.grid.path, loadComponent: () => import('./grid/grid') },
   { path: guides.forms.path, loadComponent: () => import('./forms/forms') },
   { path: guides.overlay.path, loadComponent: () => import('./overlay/overlay') },

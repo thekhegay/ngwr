@@ -1,7 +1,14 @@
 // A thumb and nothing else: no track, no arrows, no corner box.
 //
-// Zero specificity (`:where()`), so any rule of a consumer wins. Scrolling,
-// keyboard and touch stay native: only the paint changes.
+// Opt-in. Loading the theme emits no scrollbar rule; `@include theme.scrollbar`
+// does, in one of two places:
+//
+//   @include theme.scrollbar;              // at the root: the whole page
+//   .panel { @include theme.scrollbar; }   // in a rule: that element only
+//
+// At the root the selector is `:where(html, html *)`, zero specificity, so any
+// rule of a consumer wins. Scrolling, keyboard and touch stay native: only the
+// paint changes.
 //
 // Firefox has no `::-webkit-scrollbar`, so it gets the two standard
 // properties, behind a guard. From Chromium 121 `scrollbar-width` and
@@ -10,40 +17,53 @@
 //
 // `forced-colors` keeps the system scrollbar.
 
-@media not (forced-colors: active) {
-  :where(html, html *)::-webkit-scrollbar {
+// The rules, written against `&`: the element in a rule, the page at the root.
+@mixin -rules {
+  &::-webkit-scrollbar {
     width: var(--wr-scrollbar-size);
     height: var(--wr-scrollbar-size);
     background: transparent;
   }
 
-  :where(html, html *)::-webkit-scrollbar-track,
-  :where(html, html *)::-webkit-scrollbar-corner {
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-corner {
     background: transparent;
   }
 
-  :where(html, html *)::-webkit-scrollbar-button {
+  &::-webkit-scrollbar-button {
     display: none;
     width: 0;
     height: 0;
   }
 
   // The border is a transparent inset around the thumb, not a visible line.
-  :where(html, html *)::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     border: 2px solid transparent;
     border-radius: var(--wr-border-radius-pill);
     background-color: var(--wr-scrollbar-thumb);
     background-clip: content-box;
   }
 
-  :where(html, html *)::-webkit-scrollbar-thumb:hover {
+  &::-webkit-scrollbar-thumb:hover {
     background-color: var(--wr-scrollbar-thumb-hover);
   }
 
   @supports not selector(::-webkit-scrollbar) {
-    :where(html, html *) {
-      scrollbar-width: thin;
-      scrollbar-color: var(--wr-scrollbar-thumb) transparent;
+    scrollbar-width: thin;
+    scrollbar-color: var(--wr-scrollbar-thumb) transparent;
+  }
+}
+
+/// The thumb-only scrollbar, for the whole page when included at the stylesheet
+/// root and for one element when included inside a rule.
+@mixin scrollbar {
+  @media not (forced-colors: active) {
+    @if & {
+      @include -rules;
+    } @else {
+      :where(html, html *) {
+        @include -rules;
+      }
     }
   }
 }

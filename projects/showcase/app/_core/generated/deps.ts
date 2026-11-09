@@ -373,6 +373,7 @@ export const DOC_ROUTES: Readonly<
   "guides/keyboard": {"title":"Keyboard","kind":"Guide","labels":["Core"],"description":"Bind shortcuts, show them as keycaps, and see which keys each component handles."},
   "guides/mobile": {"title":"Mobile & responsive","kind":"Guide","labels":["Guide"],"description":"Make ngwr layouts work on touch screens and narrow containers."},
   "guides/overlay": {"title":"Overlay","kind":"Guide","labels":["Core"],"description":"Style ngwr's floating panels and control where focus goes."},
+  "guides/scrollbar": {"title":"Scrollbar","kind":"Guide","labels":["Core"],"description":"A thumb and nothing else, in the theme's colours. Opt in for the page or for one block."},
   "guides/ssr": {"title":"Server-side rendering","kind":"Guide","labels":["Core"],"description":"Prerender and hydrate an ngwr app without mismatches."},
   "guides/testing": {"title":"Testing","kind":"Guide","labels":[],"description":"Drive ngwr components from your specs with Angular CDK test harnesses."},
   "guides/theming": {"title":"Theming","kind":"Guide","labels":["Core"],"description":"Load the theme, switch light and dark, and rebrand the palette."},

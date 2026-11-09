@@ -143,15 +143,19 @@ fills wearing the names of surfaces. What replaced them is a six-step gray ramp
 rather than mirrors, plus the semantic role aliases that resolve through it
 (`--wr-color-{surface,on-surface,on-surface-muted,placeholder,hover,fill,fill-subtle,fill-strong}`
 and the border family `--wr-border-{subtle,base,strong}`).
-**Scrollbars are a bare thumb, in `theme/styles/_scrollbar.scss`.** Tokens
+**Scrollbars are a bare thumb, opt-in, a mixin in `theme/styles/_scrollbar.scss`.**
+Loading the theme emits no scrollbar rule, only the tokens
 `--wr-scrollbar-{size,thumb,thumb-hover}` (a `color-mix` of `on-surface`, so no
-per-scheme copy). Rules are `:where(html, html *)`, zero specificity.
-`::-webkit-scrollbar*` serves Chromium and Safari; Firefox gets
-`scrollbar-width` / `scrollbar-color` only inside
-`@supports not selector(::-webkit-scrollbar)`, because from Chromium 121 those
-two properties switch the webkit pseudo off on the element. No component sets
-either property; `styles.spec.ts` holds that. `forced-colors` keeps the system
-scrollbar.
+per-scheme copy). `@include theme.scrollbar` at a stylesheet root covers the
+page with `:where(html, html *)` rules, zero specificity; inside a rule it
+styles that element only (`@if &` picks the selector). `::-webkit-scrollbar*`
+serves Chromium and Safari; Firefox gets `scrollbar-width` / `scrollbar-color`
+only inside `@supports not selector(::-webkit-scrollbar)`, because from Chromium
+121 those two properties switch the webkit pseudo off on the element. No other
+stylesheet sets either property; `theme/scrollbar.spec.ts` holds that. The
+showcase includes it at its root; `wr-virtual-scroll` and `wr-marquee` include
+it on their own viewport, so they look the same without the page-wide opt-in.
+`forced-colors` keeps the system scrollbar. The docs page is `/guides/scrollbar`.
 
 A component paints with the ROLE, never with a ramp step: the step is the
 substrate, and reaching past the role is how a component ends up right in one

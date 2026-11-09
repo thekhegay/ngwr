@@ -25,6 +25,9 @@
 // The showcase's focus ring, for the prose links below. Declares no rules.
 @use 'styles/mixins' as site;
 
+// The site opts in to the thumb-only scrollbar for the whole page.
+@include components.scrollbar;
+
 :root {
   // Hairline around colour swatches on the token / colour pages. Drawn INSIDE
   // the swatch as ink at low alpha, not as a border in `--wr-border-strong`:

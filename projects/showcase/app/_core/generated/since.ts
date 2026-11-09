@@ -60,6 +60,7 @@ export const SINCE = {
   "charts/scatter-chart": "15.1.0",
   "charts/treemap-chart": "15.1.0",
   "charts/waterfall-chart": "15.1.0",
+  "guides/scrollbar": "15.7.0",
   "reference/components/comment": "15.5.0",
   "reference/components/editor": "14.9.0",
   "reference/components/graph": "14.5.0",
