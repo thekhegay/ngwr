@@ -143,6 +143,14 @@
   --wr-focus-ring-color: var(--wr-color-primary);
   --wr-focus-ring-halo: color-mix(in srgb, var(--wr-color-primary) 25%, transparent);
 
+  // Scrollbar: the thumb alone, no track. `-size` is the box the browser
+  // reserves (thumb plus its 2px inset each side). The colours are a mix of the
+  // text role, so both schemes work with one declaration; a consumer retunes
+  // them with `light-dark()`.
+  --wr-scrollbar-size: 0.625rem;
+  --wr-scrollbar-thumb: color-mix(in srgb, var(--wr-color-on-surface) 20%, transparent);
+  --wr-scrollbar-thumb-hover: color-mix(in srgb, var(--wr-color-on-surface) 35%, transparent);
+
   // Z-index scale
   //
   // Overlay panels inside the CDK container inherit its stacking; these

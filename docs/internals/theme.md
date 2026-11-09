@@ -143,6 +143,16 @@ fills wearing the names of surfaces. What replaced them is a six-step gray ramp
 rather than mirrors, plus the semantic role aliases that resolve through it
 (`--wr-color-{surface,on-surface,on-surface-muted,placeholder,hover,fill,fill-subtle,fill-strong}`
 and the border family `--wr-border-{subtle,base,strong}`).
+**Scrollbars are a bare thumb, in `theme/styles/_scrollbar.scss`.** Tokens
+`--wr-scrollbar-{size,thumb,thumb-hover}` (a `color-mix` of `on-surface`, so no
+per-scheme copy). Rules are `:where(html, html *)`, zero specificity.
+`::-webkit-scrollbar*` serves Chromium and Safari; Firefox gets
+`scrollbar-width` / `scrollbar-color` only inside
+`@supports not selector(::-webkit-scrollbar)`, because from Chromium 121 those
+two properties switch the webkit pseudo off on the element. No component sets
+either property; `styles.spec.ts` holds that. `forced-colors` keeps the system
+scrollbar.
+
 A component paints with the ROLE, never with a ramp step: the step is the
 substrate, and reaching past the role is how a component ends up right in one
 theme only. **A token that differs between the schemes is declared once, as
