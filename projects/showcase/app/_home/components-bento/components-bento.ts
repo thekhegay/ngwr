@@ -12,7 +12,6 @@ import { Check, CreditCard, Folder, House, Settings } from 'lucide';
 import { WrAlert } from 'ngwr/alert';
 import { WrBlurReveal } from 'ngwr/animations/blur-reveal';
 import { WrDecode } from 'ngwr/animations/decode';
-import { WrDotGrid } from 'ngwr/animations/dot-grid';
 import { WrAvatar } from 'ngwr/avatar';
 import { WrBadge, WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
@@ -62,7 +61,6 @@ import { DocCodeComponent } from '#core/components';
     DocCodeComponent,
     WrBlurReveal,
     WrDecode,
-    WrDotGrid,
   ],
   providers: [
     provideWrIcons(

@@ -33,18 +33,9 @@ export class Footer {
    */
   readonly compact = input(false, { transform: coerceBooleanProperty });
 
-  /**
-   * Constrain the footer's inner rows to the same max-width as the host
-   * page's `.container`. Use on the homepage so the brand + columns line
-   * up with the hero / bento above. Docs pages leave it off — their
-   * sidebar provides the rhythm.
-   */
-  readonly contained = input(false, { transform: coerceBooleanProperty });
-
   protected readonly hostClass = (): string => {
     const parts = ['ngwr-footer'];
     if (this.compact()) parts.push('ngwr-footer--compact');
-    if (this.contained()) parts.push('ngwr-footer--contained');
     return parts.join(' ');
   };
 
