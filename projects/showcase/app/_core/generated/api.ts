@@ -619,6 +619,19 @@ export const API = {
     { name: "lift", description: "How far a point drifts up or down at most, in px.", type: "number", default: "12" },
     { name: "reach", description: "How far from the pointer a point is still pushed, in px.", type: "number", default: "150" },
   ],
+  // <wr-fluid-cursor>
+  WrFluidCursor: [
+    { name: "intensity", description: "How much dye a move lays, a multiplier.", type: "number", default: "1" },
+    { name: "size", description: "The radius of a splat, in CSS px: how wide the ink the pointer lays is.", type: "number", default: "24" },
+    { name: "force", description: "How much of the pointer's speed the fluid takes, a multiplier.", type: "number", default: "1" },
+    { name: "swirl", description: "How strongly the eddies are fed back, a multiplier: more curls the trail tighter, none lets it smooth out.", type: "number", default: "1" },
+    { name: "trail", description: "How long the dye lasts, in seconds, from a fresh splat to gone.", type: "number", default: "3" },
+    { name: "momentum", description: "How long the motion the pointer gave lasts, in seconds.", type: "number", default: "6" },
+    { name: "shading", description: "Whether the dye is shaded by its own relief, a slight lighting from the top left.", type: "boolean", default: "true" },
+    { name: "rainbow", description: "Whether a stroke cycles the hue circle instead of the theme's palette.", type: "boolean", default: "false" },
+    { name: "clickSplash", description: "Whether a click or a tap splashes the ink outward from the point.", type: "boolean", default: "true" },
+    { name: "quality", description: "How finely the fluid is simulated: the grids and the pressure solve.", type: "WrFluidCursorQuality", default: "'medium'" },
+  ],
   // <wr-form-error>
   WrFormError: [
     { name: "key", description: "Validator key this message corresponds to (e.g. `'required'`). Optional — without a key the message always renders, which is the plain inline-error usage inside `<wr-form-item>`.", type: "string" },

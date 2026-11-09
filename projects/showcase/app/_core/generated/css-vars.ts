@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1626 hook(s) across 113 page(s). A property is here only when the
+ * 1629 hook(s) across 113 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -110,8 +110,11 @@ export const CSS_VARS = {
   "animations/fluid-cursor": {
     subpath: "ngwr/animations/fluid-cursor",
     vars: [
-      { name: "--wr-fluid-cursor-tint-a", default: "var(--wr-color-primary)", scope: ".wr-fluid-cursor" },
-      { name: "--wr-fluid-cursor-tint-b", default: "var(--wr-color-info)", scope: ".wr-fluid-cursor" },
+      { name: "--wr-fluid-cursor-color-1", default: "var(--wr-color-primary)", scope: ".wr-fluid-cursor" },
+      { name: "--wr-fluid-cursor-color-2", default: "var(--wr-color-danger)", scope: ".wr-fluid-cursor" },
+      { name: "--wr-fluid-cursor-color-3", default: "var(--wr-color-warning)", scope: ".wr-fluid-cursor" },
+      { name: "--wr-fluid-cursor-color-4", default: "var(--wr-color-success)", scope: ".wr-fluid-cursor" },
+      { name: "--wr-fluid-cursor-color-5", default: "var(--wr-color-info)", scope: ".wr-fluid-cursor" },
     ],
   },
   "animations/glitch": {

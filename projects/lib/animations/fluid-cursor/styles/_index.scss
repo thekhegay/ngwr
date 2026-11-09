@@ -1,19 +1,22 @@
 @use '../../../theme/styles' as theme;
 @include theme.loaded('animations/fluid-cursor');
 
-// `<wr-fluid-cursor />`: a soft trail of colour behind a region's content,
-// left by the pointer and gone a second later. The component paints one canvas
-// and reads its two colours back from the hooks below through
+// `<wr-fluid-cursor />`: coloured ink behind a region's content, stirred by
+// the pointer and gone a few seconds later. The component paints one WebGL
+// canvas and reads its palette back from the hooks below through
 // `resolveCssColorChannels`, so a retheme and a scheme switch both reach the
-// pixels. The strengths (how much of its colour a particle shows, per scheme)
-// and the particle sizes live in the component and its model: they
+// pixels. How the ink covers the surface (as ink on a light one, lifted on a
+// dark one) and the splat sizes live in the component and its model: they
 // are the canvas's numbers, not the sheet's.
 .wr-fluid-cursor {
-  // The two ends of the trail's colour, the bare intents, since the trail is
-  // a graphic and not text; the canvas shows them at a fraction, so the text
-  // over the trail reads as it does on the plain surface.
-  --wr-fluid-cursor-tint-a: var(--wr-color-primary);
-  --wr-fluid-cursor-tint-b: var(--wr-color-info);
+  // The palette a stroke cycles through, in order: the bare intents, since
+  // the ink is a graphic and not text. Warm and cool alternate, so neighbours
+  // in the cycle stay apart.
+  --wr-fluid-cursor-color-1: var(--wr-color-primary);
+  --wr-fluid-cursor-color-2: var(--wr-color-danger);
+  --wr-fluid-cursor-color-3: var(--wr-color-warning);
+  --wr-fluid-cursor-color-4: var(--wr-color-success);
+  --wr-fluid-cursor-color-5: var(--wr-color-info);
 
   position: absolute;
   inset: 0;
@@ -24,9 +27,9 @@
   overflow: hidden;
   pointer-events: none;
   user-select: none;
-  // Gone at the edges, so a trail drawn to the border dissolves rather than
+  // Gone at the edges, so ink carried to the border dissolves rather than
   // ending in a straight cut. Symmetric, so it needs no mirroring.
-  mask-image: radial-gradient(ellipse 80% 85% at 50% 50%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 85% 90% at 50% 50%, #000 45%, transparent 100%);
 
   &__canvas {
     display: block;
@@ -34,7 +37,7 @@
     block-size: 100%;
   }
 
-  // Nothing drawn: a glow under system colours is noise, not decoration.
+  // Nothing drawn: ink under system colours is noise, not decoration.
   @media (forced-colors: active) {
     display: none;
   }
