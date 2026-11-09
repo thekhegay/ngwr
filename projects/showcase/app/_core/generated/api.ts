@@ -613,11 +613,17 @@ export const API = {
   ],
   // <wr-flow-lines>
   WrFlowLines: [
-    { name: "gap", description: "Distance between two lines, in px.", type: "number", default: "10" },
-    { name: "step", description: "Distance between two control points down a line, in px.", type: "number", default: "24" },
-    { name: "sway", description: "How far a point drifts sideways at most, in px.", type: "number", default: "24" },
-    { name: "lift", description: "How far a point drifts up or down at most, in px.", type: "number", default: "12" },
-    { name: "reach", description: "How far from the pointer a point is still pushed, in px.", type: "number", default: "150" },
+    { name: "spacing", description: "Between two lines, in CSS px, four at least.", type: "number", default: "10" },
+    { name: "lineWidth", description: "How thick a line is, in CSS px.", type: "number", default: "1" },
+    { name: "amplitude", description: "How far the drift bends a line at most, in CSS px.", type: "number", default: "28" },
+    { name: "twist", description: "The lines' tilt, in degrees: none is horizontal, positive falls toward the inline end.", type: "number", default: "0" },
+    { name: "speed", description: "How fast the drift and the dashes move, a multiplier: none holds the field still between pushes.", type: "number", default: "1" },
+    { name: "reach", description: "How far from the pointer a line is still pushed, in CSS px.", type: "number", default: "160" },
+    { name: "push", description: "How hard the pointer pushes, a multiplier: one moves a line a seventh of `reach` at most; none turns the push off.", type: "number", default: "1" },
+    { name: "bounce", description: "How much a released line swings past its place, a multiplier: none settles without a swing.", type: "number", default: "1" },
+    { name: "ripple", description: "Whether a click, or a tap, sends a ring out across the field.", type: "boolean", default: "true" },
+    { name: "intro", description: "Whether the lines draw in from the inline start when first on screen.", type: "boolean", default: "false" },
+    { name: "dashed", description: "Whether the lines are dashed, with the dashes streaming along them.", type: "boolean", default: "false" },
   ],
   // <wr-fluid-cursor>
   WrFluidCursor: [

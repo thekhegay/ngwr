@@ -24,6 +24,16 @@
   > .container {
     position: relative;
   }
+
+  // The field is thinned behind the headline, where the copy sits, full
+  // strength toward the sides, and gone before the block end, so the marquee
+  // below the hero sits on a clean surface.
+  > wr-flow-lines {
+    mask-image:
+      radial-gradient(ellipse 44% 56% at 50% 46%, rgb(0 0 0 / 0.18), rgb(0 0 0 / 0.7) 64%, #000),
+      linear-gradient(#000 70%, transparent 92%);
+    mask-composite: intersect;
+  }
 }
 
 /* Left pitch column */
