@@ -1,5 +1,60 @@
 # Changelog
 
+## [15.7.0](https://github.com/thekhegay/ngwr/compare/v15.6.0...v15.7.0) (2026-11-09)
+
+### Features
+
+* **animations:** aurora as a pale pastel wash on light surfaces ([4cd65da](https://github.com/thekhegay/ngwr/commit/4cd65da113f6520914dc114fb23548658c6f7520))
+* **animations:** aurora as a webgl curtain with clean colour ([1c20818](https://github.com/thekhegay/ngwr/commit/1c2081845df34bc17f5e9b7efb9ece5f781f5a4e))
+* **animations:** blur reveal, letter stagger, decode and shine in ngwr/animations ([05ec566](https://github.com/thekhegay/ngwr/commit/05ec5667445cbe91f95d92e800501e95fb4a64d3))
+* **animations:** flow lines as a webgl field with a springy wake and click ripples ([d604936](https://github.com/thekhegay/ngwr/commit/d6049367f8d012dfff841a5c90c22e69df01099a))
+* **animations:** flow lines run to the sides, fainter and vertical; calmer home and footer ([5cbacd9](https://github.com/thekhegay/ngwr/commit/5cbacd93991852240378a90f6e59b371d3e35c24))
+* **animations:** fluid cursor as a real gpu fluid ([c68e61d](https://github.com/thekhegay/ngwr/commit/c68e61d0667f5f057e7e3fc2a9deaeea00b9fc3f))
+* **animations:** glitch active input; home tiles on their own rhythms ([a380499](https://github.com/thekhegay/ngwr/commit/a3804992772c7b38d1524f4bfaf3b500878d49d3))
+* **animations:** optional marquee pause button and catalog sidebars in alphabetical order ([815f22a](https://github.com/thekhegay/ngwr/commit/815f22add17fb5024e4e8cdc1448dc53915ae160))
+* **animations:** rename shine to shimmer ([309a15d](https://github.com/thekhegay/ngwr/commit/309a15d6fccee7bfaa28bd37ed46f05c19302db5))
+* **animations:** review pass with renames, kind badges, hover glitch and richer demos ([084bc3a](https://github.com/thekhegay/ngwr/commit/084bc3ac22b0766a3e8799f2bc95349446b57a04))
+* **animations:** the background effects in ngwr/animations ([19d54a9](https://github.com/thekhegay/ngwr/commit/19d54a9e2e99c754302a1b71ea37d41356a8bead))
+* **animations:** the interaction effects in ngwr/animations ([a9aaee2](https://github.com/thekhegay/ngwr/commit/a9aaee2a1970e14e913305b6d1832dea54e212f7))
+* **animations:** the remaining text effects in ngwr/animations ([4ac7fa3](https://github.com/thekhegay/ngwr/commit/4ac7fa35ae70c3786bbfa5f528c66cc200225200))
+* **animations:** thread lines as a webgl silk ribbon ([63a6388](https://github.com/thekhegay/ngwr/commit/63a6388333774bf6465ad8e45abd63ac141ee57d))
+* **theme:** scrollbar as an opt-in mixin with its own guide ([5fb33ed](https://github.com/thekhegay/ngwr/commit/5fb33ed363a9153737823c65eb8d1310436dd082))
+* **theme:** thumb-only scrollbar through --wr-scrollbar tokens ([4890941](https://github.com/thekhegay/ngwr/commit/4890941c148838be7265f50f28bdc6f00bcb995c))
+
+### Bug Fixes
+
+* **animations:** falling letters land on their ink, aurora reads, tilt leans visibly ([781bffb](https://github.com/thekhegay/ngwr/commit/781bffb6c846007b87228be2808e5d08a622c7cd))
+* **date-picker:** one range panel surface, keep overlay off the field ([bf213d2](https://github.com/thekhegay/ngwr/commit/bf213d2ee32f23a50f213d5fc84704d7e4e4f043))
+* **popover:** restore focus as program origin after overlays close ([67e3d8b](https://github.com/thekhegay/ngwr/commit/67e3d8bce3266801aedce8b18cd8a8abc20a5629))
+
+### Showcase
+
+* aurora behind the why ngwr section ([604dd0f](https://github.com/thekhegay/ngwr/commit/604dd0ff3cce8d0e813535323c2fe9564b9483b1))
+* blur reveal on home section headings ([670b8e9](https://github.com/thekhegay/ngwr/commit/670b8e987b4feeba9399d77cd70d769cc23debea))
+* click sparks on the hero and 404 buttons ([1aa704e](https://github.com/thekhegay/ngwr/commit/1aa704e8615ba3a70af93701e7ff2861a0a592fd))
+* component ticker under the home hero ([48824e7](https://github.com/thekhegay/ngwr/commit/48824e7edcdf90076062da43d073172e880b554c))
+* confetti on the first install command copy ([0b0c599](https://github.com/thekhegay/ngwr/commit/0b0c599d16ce461f533cbb9cb1520bef75cfad65))
+* decode on home section labels ([388bdb2](https://github.com/thekhegay/ngwr/commit/388bdb2daeccb76cd66673eac83c5dd9e4da1fa1))
+* dot grid behind the components section ([37f7aa1](https://github.com/thekhegay/ngwr/commit/37f7aa19742cf302168ccc45b2474f7503aec495))
+* falling letters on the 404 description ([c97c611](https://github.com/thekhegay/ngwr/commit/c97c611371341ee5aef808d2d579785554774a03))
+* fluid cursor trail behind the footer ([99af965](https://github.com/thekhegay/ngwr/commit/99af9650efa7f625b25478ebff5ba20f5eb619e0))
+* glitch bursts on the 404 title ([8a1c11a](https://github.com/thekhegay/ngwr/commit/8a1c11a0e728983ed316856863cb8f0f960ed867))
+* gradient flow on the ngtrue name ([ac2bf0e](https://github.com/thekhegay/ngwr/commit/ac2bf0e8591a6ea93b2149fa4d99d34fcdd79d50))
+* letter stagger on the home headline ([c059d38](https://github.com/thekhegay/ngwr/commit/c059d38fd8e1f0e71beb81218ee219b96ce38cb5))
+* noise text on the footer wordmark ([cd50ef7](https://github.com/thekhegay/ngwr/commit/cd50ef7a27f93d2dd6c80543265d6eb36e722f3f))
+* ripple grid behind the 404 page ([f0ae049](https://github.com/thekhegay/ngwr/commit/f0ae049a193eba797ac3a50f22feac9f197bf567))
+* shine on the added-in chip of docs pages ([df40e7d](https://github.com/thekhegay/ngwr/commit/df40e7da7b475b17dd3ffbc6d7620172cfdc0ec8))
+* spotlight on the why ngwr cards ([0daacd1](https://github.com/thekhegay/ngwr/commit/0daacd10a0a47aec2f810e2e9f4755ec96fef07b))
+* text animations block at the bottom of the home page ([3734c08](https://github.com/thekhegay/ngwr/commit/3734c08329a6774ce572735116985a5ded4c06f8))
+* text on a circle seal in the footer ([def6476](https://github.com/thekhegay/ngwr/commit/def64761dca4bd98423b9d30673b64b2c8c0647c))
+* thread lines behind the opt-in section ([4ac0ca1](https://github.com/thekhegay/ngwr/commit/4ac0ca1822c1cd52f2e7d5c5aa2a317b8ea56fb5))
+* tilt on the home dx link cards ([42add77](https://github.com/thekhegay/ngwr/commit/42add77ccb81a092ba3a30ef7806c56ad8fb1e1a))
+* typewriter on the ngtrue tagline ([906fb4e](https://github.com/thekhegay/ngwr/commit/906fb4e383a6ed153d41b29a4d4b11dc0a42ef2d))
+* word rotator in the home hero line ([0719954](https://github.com/thekhegay/ngwr/commit/071995428d928ae85fa458b05cc307a222131ab8))
+* darker technology badge tones for contrast ([78cabc8](https://github.com/thekhegay/ngwr/commit/78cabc83ca017207a1f2246335286d226931a407))
+* footer host styles apply through :host ([858b457](https://github.com/thekhegay/ngwr/commit/858b457d2ba9d10f15b2422b7294af4412ee8688))
+* full-width footer and no backdrop behind the components section ([095f03a](https://github.com/thekhegay/ngwr/commit/095f03a70119f829cb253778cdb5bed45f93b67d))
+
 ## [15.6.0](https://github.com/thekhegay/ngwr/compare/v15.5.0...v15.6.0) (2026-11-07)
 
 ### Features
