@@ -44,6 +44,19 @@ export const API = {
     { name: "offset", description: "Pixel offset subtracted on scroll — for sticky headers.", type: "number", default: "0" },
     { name: "hitArea", description: "Highlight an item when its target's top is within this many px of the offset line.", type: "number", default: "80" },
   ],
+  // <wr-aurora>
+  WrAurora: [
+    { name: "edge", description: "The edge the curtain hangs from.", type: "WrAuroraEdge", default: "'top'" },
+    { name: "height", description: "How far into the region the curtain reaches, as a share of its height, from 0.1 to 1.", type: "number", default: "0.5" },
+    { name: "amplitude", description: "How far the free edge's wave moves it, a multiplier: one is about a quarter of the curtain's height; none is a straight edge.", type: "number", default: "1" },
+    { name: "scale", description: "The size of the shapes, a multiplier: one puts about a wave and a half across the width; more is broader.", type: "number", default: "1" },
+    { name: "speed", description: "How fast the wave, the rays and the hue move, a multiplier: none holds the curtain still.", type: "number", default: "1" },
+    { name: "glow", description: "How strong the light is, a multiplier on the wash's alpha and the glow.", type: "number", default: "1" },
+    { name: "rays", description: "How strongly the rays show, from none to one.", type: "number", default: "0.6" },
+    { name: "layers", description: "How many curtains hang at different depths, from one to three.", type: "number", default: "2" },
+    { name: "intro", description: "Whether the curtain fades and lengthens in when first on screen.", type: "boolean", default: "false" },
+    { name: "follow", description: "Whether the curtain drifts gently toward the pointer over the parent.", type: "boolean", default: "true" },
+  ],
   // <[wrAutofocus]>
   WrAutofocus: [
     { name: "wrAutofocus", description: "Truthy = focus. Defaults to `true` so bare `wrAutofocus` works.", type: "boolean", default: "true" },

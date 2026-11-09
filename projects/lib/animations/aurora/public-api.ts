@@ -6,3 +6,4 @@
  */
 
 export { WrAurora } from './aurora';
+export type { WrAuroraEdge } from './types';

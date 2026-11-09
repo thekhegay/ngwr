@@ -260,6 +260,7 @@ export const DOC_PAGES: Readonly<Record<string, { readonly route: string; readon
 
 /** Route → entry points its demos use alongside the one it documents. */
 export const DEMO_RELATED: Readonly<Record<string, readonly string[]>> = {
+  "animations/aurora": ["alert"],
   "animations/decode": ["badge"],
   "animations/flow-lines": ["alert"],
   "animations/fluid-cursor": ["alert"],
@@ -320,7 +321,7 @@ export const DOC_ROUTES: Readonly<
     }
   >
 > = {
-  "animations/aurora": {"title":"Aurora","kind":"Animation","labels":["Animation","Component","CSS"],"description":"A few soft, wide bands of colour drifting slowly behind a section's content, like northern lights, faint enough that the text over them reads as it does on the plain surface. It has no inputs: the colours, the strength and the cadence are CSS variables."},
+  "animations/aurora": {"title":"Aurora","kind":"Animation","labels":["Animation","Component","WebGL"],"description":"A curtain of light hanging from one edge of a section and reaching part of the way in, like an aurora: its free edge a slow broad wave, fine rays shimmering inside it, brightest just short of the free edge and fading toward the one it hangs from, its colour flowing across the width through three stops from the theme. Two curtains hang at different depths by default and move in parallax, and the whole drifts gently toward the pointer."},
   "animations/blur-reveal": {"title":"Blur Reveal","kind":"Animation","labels":["Animation","Directive","CSS"],"description":"A text comes in piece by piece the first time it scrolls into view: each word, or each letter, from blurred and a little below its place to sharp and in place."},
   "animations/click-sparks": {"title":"Click Sparks","kind":"Animation","labels":["Animation","Directive","CSS"],"description":"A ring of short spark strokes bursts out from the point a button or link is clicked, flies a short way, shrinks and fades, all within half a second. The click itself is never touched: a `routerLink` or a plain `href` navigates as it did."},
   "animations/confetti": {"title":"Confetti","kind":"Animation","labels":["Animation","Service","Canvas"],"description":"A one-shot celebration: small paper pieces burst up and out from an element, flutter, tumble and fall under gravity, and are gone inside two and a half seconds. A service, not a component: call `burst()` from wherever the moment is."},

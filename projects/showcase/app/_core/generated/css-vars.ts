@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1629 hook(s) across 113 page(s). A property is here only when the
+ * 1623 hook(s) across 112 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -40,17 +40,6 @@ export interface DocCssVars {
  * cast it needs can only name a route this file still carries.
  */
 export const CSS_VARS = {
-  "animations/aurora": {
-    subpath: "ngwr/animations/aurora",
-    vars: [
-      { name: "--wr-aurora-blur", default: "18px", scope: ".wr-aurora" },
-      { name: "--wr-aurora-color-1", default: "var(--wr-color-success)", scope: ".wr-aurora" },
-      { name: "--wr-aurora-color-2", default: "var(--wr-color-primary)", scope: ".wr-aurora" },
-      { name: "--wr-aurora-color-3", default: "color-mix(in oklch, var(--wr-color-primary) 60%, var(--wr-color-danger))", scope: ".wr-aurora" },
-      { name: "--wr-aurora-cycle", default: "29s", scope: ".wr-aurora" },
-      { name: "--wr-aurora-strength", default: "12%", scope: ".wr-aurora" },
-    ],
-  },
   "animations/blur-reveal": {
     subpath: "ngwr/animations/blur-reveal",
     vars: [
