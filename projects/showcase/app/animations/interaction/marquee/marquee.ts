@@ -78,7 +78,8 @@ export default class MarqueePageComponent {
   </ng-template>
 </wr-marquee>`,
     speed: `<wr-marquee [items]="items" label="Components" speed="90" />`,
-    labels: `<wr-marquee [items]="items" label="Components" pauseLabel="Hold the row" playLabel="Let it run" />`,
+    pausable: `<wr-marquee [items]="items" label="Components" pausable />`,
+    labels: `<wr-marquee [items]="items" label="Components" pausable pauseLabel="Hold the row" playLabel="Let it run" />`,
   };
 
   protected readonly api = API.WrMarquee;

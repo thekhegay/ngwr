@@ -15,6 +15,7 @@ import {
   TemplateRef,
   ViewEncapsulation,
   afterNextRender,
+  booleanAttribute,
   computed,
   contentChild,
   inject,
@@ -58,7 +59,7 @@ const MARQUEE_SPEED = 40;
  * resumes the loop. Under `prefers-reduced-motion: reduce` the row never
  * moves: one copy, scrollable, with the fade. The second copy is
  * presentational, `aria-hidden` and `inert`, so a screen reader hears the list
- * once, as a list of links named by `label`. The pause button's name comes
+ * once, as a list of links named by `label`. With `pausable`, the pause button's name comes
  * from the i18n catalog (`marquee.pause`, `marquee.play`) unless `pauseLabel`
  * and `playLabel` say otherwise. The server renders the one copy as a still
  * row; the loop starts from the same picture, so nothing shifts. Styles:
@@ -89,6 +90,9 @@ export class WrMarquee {
 
   /** The accessible name of the list. */
   readonly label = input<string | null>(null);
+
+  /** Renders the pause button at the row's end, the way to stop a row that runs on (WCAG 2.2.2). Hover and focus pause the row with or without it. @default false */
+  readonly pausable = input(false, { transform: booleanAttribute });
 
   /** The pause button's name while the row moves. Unset, the `marquee.pause` string of the i18n catalog, "Pause" in English. */
   readonly pauseLabel = input<string | null>(null);

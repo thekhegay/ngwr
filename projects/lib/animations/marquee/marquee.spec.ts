@@ -20,12 +20,19 @@ const ITEMS: readonly WrMarqueeItem[] = [
 
 @Component({
   imports: [WrMarquee],
-  template: `<wr-marquee [items]="items()" [speed]="speed()" label="Components" [pauseLabel]="pauseLabel()" />`,
+  template: `<wr-marquee
+    [items]="items()"
+    [speed]="speed()"
+    label="Components"
+    [pauseLabel]="pauseLabel()"
+    [pausable]="pausable()"
+  />`,
 })
 class Host {
   readonly items = signal(ITEMS);
   readonly speed = signal(MARQUEE_SPEED);
   readonly pauseLabel = signal<string | null>(null);
+  readonly pausable = signal(true);
 }
 
 /** The item template a routed app projects: its own anchor, a `routerLink` on it. */
@@ -250,6 +257,19 @@ describe('WrMarquee', () => {
 
     page.pageVisible.set(true);
     fixture.detectChanges();
+    expect(running(el)).toBe(true);
+  });
+
+  it('renders no pause button unless pausable, and adds it when set', async () => {
+    const fixture = await render();
+    const el = target(fixture);
+    view(fixture, true);
+    expect(el.querySelector(TOGGLE)).not.toBeNull();
+
+    fixture.componentInstance.pausable.set(false);
+    fixture.detectChanges();
+    expect(el.querySelector(TOGGLE)).toBeNull();
+    expect(looping(el)).toBe(true);
     expect(running(el)).toBe(true);
   });
 
