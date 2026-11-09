@@ -111,7 +111,7 @@ export const ROUTES = {
     reveal: { path: 'reveal', title: 'Reveal' },
     rippleGrid: { path: 'ripple-grid', title: 'Ripple Grid' },
     rotateReveal: { path: 'rotate-reveal', title: 'Rotate Reveal' },
-    shine: { path: 'shine', title: 'Shine' },
+    shimmer: { path: 'shimmer', title: 'Shimmer' },
     spotlight: { path: 'spotlight', title: 'Spotlight' },
     threadLines: { path: 'thread-lines', title: 'Thread Lines' },
     tilt: { path: 'tilt', title: 'Tilt' },

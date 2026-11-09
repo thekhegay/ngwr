@@ -1,51 +1,51 @@
 @use '../../../theme/styles' as theme;
-@include theme.loaded('animations/shine');
+@include theme.loaded('animations/shimmer');
 
-// `[wrShine]`: a soft band of light crosses the glyphs of a short label,
+// `[wrShimmer]`: a soft band of light crosses the glyphs of a short label,
 // waits, and crosses again while the label is on screen. At rest the block
 // declares only its hooks, so the host looks the way its own rules say. The
 // directive puts one of three modifiers on the host and each is one animation:
 // `--first` and `--rest` run the silent wait for the delay and the pause,
 // `--pass` runs the band. The directive flips to the next on `animationend`,
 // so every duration here is a real one.
-.wr-shine {
+.wr-shimmer {
   // The lit core of the band, in `em`: a chip at 10px gets a 15px band, a
   // heading a proportionally wider one. The gradient fades over the same width
   // again on both sides, so the band has no edge.
-  --wr-shine-band: 1.5em;
+  --wr-shimmer-band: 1.5em;
   // A pass crosses the text plus one band width on either side: long enough
   // to read as a glide and not a flash, short enough that a label is never
   // half lit when a reader looks at it.
-  --wr-shine-pass: 1.2s;
+  --wr-shimmer-pass: 1.2s;
   // Between two passes. With the pass, one glint every 6.2 s: seen on a page
   // read for a minute, not a metronome at the edge of the eye.
-  --wr-shine-pause: 5s;
+  --wr-shimmer-pause: 5s;
   // Before the first pass after the host comes into view: a route change or a
   // scroll settles first, and the glint is not the thing that lands with it.
-  --wr-shine-delay: 0.4s;
+  --wr-shimmer-delay: 0.4s;
   // Where the band pulls the text's colour toward: the ink of the surface, the
   // readable side in either scheme (darker in light, lighter in dark), and a
   // `light-dark()` pair already, so one declaration serves both. A label on a
   // coloured fill sets this to its own `-contrast`.
-  --wr-shine-peak: var(--wr-color-on-surface);
+  --wr-shimmer-peak: var(--wr-color-on-surface);
   // How far the centre of the band gets toward the peak. The rest is the
   // text's own colour, so a muted chip never lights to full ink and the text
   // reads as itself throughout. Mixed from `currentColor`, never from a step.
-  --wr-shine-strength: 60%;
-  --wr-shine-light: color-mix(in srgb, var(--wr-shine-peak) var(--wr-shine-strength), currentColor);
+  --wr-shimmer-strength: 60%;
+  --wr-shimmer-light: color-mix(in srgb, var(--wr-shimmer-peak) var(--wr-shimmer-strength), currentColor);
   // Slow at both ends, where the band is still outside the text, fastest in
   // the middle, so the visible part is a glide with no lingering.
-  --wr-shine-ease: var(--wr-ease-in-out);
+  --wr-shimmer-ease: var(--wr-ease-in-out);
 
   @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
     // The wait: keyframes that paint nothing, run for the delay or the pause,
     // so the directive gets an `animationend` without a timer of its own.
     &--first {
-      animation: wr-shine-rest var(--wr-shine-delay) linear;
+      animation: wr-shimmer-rest var(--wr-shimmer-delay) linear;
     }
 
     &--rest {
-      animation: wr-shine-rest var(--wr-shine-pause) linear;
+      animation: wr-shimmer-rest var(--wr-shimmer-pause) linear;
     }
 
     // The band is a background clipped to the glyphs. The glyph paint goes
@@ -57,13 +57,13 @@
       // The band sits in the middle half of an image two bands wide, with
       // length stops, so its edges are fades and the image's corners stay
       // transparent under the slant.
-      background-image: linear-gradient(100deg, transparent 25%, var(--wr-shine-light) 50%, transparent 75%);
-      background-size: calc(var(--wr-shine-band) * 2) 100%;
+      background-image: linear-gradient(100deg, transparent 25%, var(--wr-shimmer-light) 50%, transparent 75%);
+      background-size: calc(var(--wr-shimmer-band) * 2) 100%;
       background-repeat: no-repeat;
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: wr-shine-pass var(--wr-shine-pass) var(--wr-shine-ease);
+      animation: wr-shimmer-pass var(--wr-shimmer-pass) var(--wr-shimmer-ease);
 
       // The band travels the reading direction; the keyframes are physical, so
       // RTL plays them backwards.
@@ -79,24 +79,24 @@
 // band is its middle half, so one and a half bands of offset puts the band
 // edge exactly at the text edge.
 // rtl-ok: background-position-x is physical by nature; `:dir(rtl)` above reverses the run
-@keyframes wr-shine-pass {
+@keyframes wr-shimmer-pass {
   from {
-    background-position-x: calc(0% - var(--wr-shine-band) * 1.5);
+    background-position-x: calc(0% - var(--wr-shimmer-band) * 1.5);
   }
 
   to {
-    background-position-x: calc(100% + var(--wr-shine-band) * 1.5);
+    background-position-x: calc(100% + var(--wr-shimmer-band) * 1.5);
   }
 }
 
 // Changes nothing visible: an unregistered custom property, stepped once, is
 // enough for the browser to run the animation and fire `animationend`.
-@keyframes wr-shine-rest {
+@keyframes wr-shimmer-rest {
   from {
-    --wr-shine-wait: 0;
+    --wr-shimmer-wait: 0;
   }
 
   to {
-    --wr-shine-wait: 1;
+    --wr-shimmer-wait: 1;
   }
 }

@@ -27,7 +27,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/animations/reveal` | `import { WrReveal } from 'ngwr/animations/reveal'` | `wr-reveal` |
 | `ngwr/animations/ripple-grid` | `import { WrRippleGrid } from 'ngwr/animations/ripple-grid'` | `wr-ripple-grid` |
 | `ngwr/animations/rotate-reveal` | `import { WrRotateReveal } from 'ngwr/animations/rotate-reveal'` | `wr-rotate-reveal` |
-| `ngwr/animations/shine` | `import { WrShine } from 'ngwr/animations/shine'` | `[wrShine]` |
+| `ngwr/animations/shimmer` | `import { WrShimmer } from 'ngwr/animations/shimmer'` | `[wrShimmer]` |
 | `ngwr/animations/spotlight` | `import { WrSpotlight } from 'ngwr/animations/spotlight'` | `[wrSpotlight]` |
 | `ngwr/animations/thread-lines` | `import { WrThreadLines } from 'ngwr/animations/thread-lines'` | `wr-thread-lines` |
 | `ngwr/animations/tilt` | `import { WrTilt } from 'ngwr/animations/tilt'` | `[wrTilt]` |

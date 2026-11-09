@@ -195,17 +195,17 @@ export const CSS_VARS = {
       { name: "--wr-rotate-reveal-swap", default: "calc(var(--wr-rotate-reveal-lead) + (var(--wr-rotate-reveal-count, 1) - 1) * var(--wr-rotate-reveal-gap) + var(--wr-rotate-reveal-in))", scope: ".wr-rotate-reveal__slot" },
     ],
   },
-  "animations/shine": {
-    subpath: "ngwr/animations/shine",
+  "animations/shimmer": {
+    subpath: "ngwr/animations/shimmer",
     vars: [
-      { name: "--wr-shine-band", default: "1.5em", scope: ".wr-shine" },
-      { name: "--wr-shine-delay", default: "0.4s", scope: ".wr-shine" },
-      { name: "--wr-shine-ease", default: "var(--wr-ease-in-out)", scope: ".wr-shine" },
-      { name: "--wr-shine-light", default: "color-mix(in srgb, var(--wr-shine-peak) var(--wr-shine-strength), currentColor)", scope: ".wr-shine" },
-      { name: "--wr-shine-pass", default: "1.2s", scope: ".wr-shine" },
-      { name: "--wr-shine-pause", default: "5s", scope: ".wr-shine" },
-      { name: "--wr-shine-peak", default: "var(--wr-color-on-surface)", scope: ".wr-shine" },
-      { name: "--wr-shine-strength", default: "60%", scope: ".wr-shine" },
+      { name: "--wr-shimmer-band", default: "1.5em", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-delay", default: "0.4s", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-ease", default: "var(--wr-ease-in-out)", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-light", default: "color-mix(in srgb, var(--wr-shimmer-peak) var(--wr-shimmer-strength), currentColor)", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-pass", default: "1.2s", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-pause", default: "5s", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-peak", default: "var(--wr-color-on-surface)", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-strength", default: "60%", scope: ".wr-shimmer" },
     ],
   },
   "animations/spotlight": {

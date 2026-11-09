@@ -266,7 +266,7 @@ describe('the surfaces that draw it', () => {
       'Orbit',
       'Reveal',
       'Rotate Reveal',
-      'Shine',
+      'Shimmer',
       'Typewriter',
       'Aurora',
       'Dot Grid',
@@ -450,10 +450,10 @@ describe('the surfaces that draw it', () => {
   it('prints the version on the page, beside the title rather than inside it', () => {
     const html = squashed('projects/showcase/app/_core/components/doc-page/doc-page.html');
 
-    // The shine sits on a span inside the badge: the badge paints the frame, the
+    // The shimmer sits on a span inside the badge: the badge paints the frame, the
     // span holds only the text the band crosses.
     expect(html).toMatch(
-      /@if \(addedIn\(\); as added\) \{ <wr-badge class="since"[^>]*><span wrShine>\{\{ added \}\}<\/span><\/wr-badge ?>/
+      /@if \(addedIn\(\); as added\) \{ <wr-badge class="since"[^>]*><span wrShimmer>\{\{ added \}\}<\/span><\/wr-badge ?>/
     );
     expect(html).toMatch(
       /@if \(updatedIn\(\); as updated\) \{ <wr-badge class="since"[^>]*>\{\{ updated \}\}<\/wr-badge>/

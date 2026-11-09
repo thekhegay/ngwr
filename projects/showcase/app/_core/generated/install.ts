@@ -97,8 +97,8 @@ export const INSTALL = {
   "animations/rotate-reveal": [
       { path: "ngwr/animations/rotate-reveal", symbols: ["WrRotateReveal"], declarables: ["WrRotateReveal"], styled: true },
   ],
-  "animations/shine": [
-      { path: "ngwr/animations/shine", symbols: ["WrShine"], declarables: ["WrShine"], styled: true },
+  "animations/shimmer": [
+      { path: "ngwr/animations/shimmer", symbols: ["WrShimmer"], declarables: ["WrShimmer"], styled: true },
   ],
   "animations/spotlight": [
       { path: "ngwr/animations/spotlight", symbols: ["WrSpotlight"], declarables: ["WrSpotlight"], styled: true },

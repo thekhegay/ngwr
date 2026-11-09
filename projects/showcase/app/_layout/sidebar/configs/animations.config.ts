@@ -25,7 +25,7 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       wrLink(ROUTES.animations, ROUTES.animations.orbit),
       wrLink(ROUTES.animations, ROUTES.animations.reveal),
       wrLink(ROUTES.animations, ROUTES.animations.rotateReveal),
-      wrLink(ROUTES.animations, ROUTES.animations.shine),
+      wrLink(ROUTES.animations, ROUTES.animations.shimmer),
       wrLink(ROUTES.animations, ROUTES.animations.typewriter),
     ],
   },

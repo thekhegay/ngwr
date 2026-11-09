@@ -4,12 +4,12 @@ import { TestBed } from '@angular/core/testing';
 import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { SHINE_PASS, SHINE_REST, WrShine } from './shine';
+import { SHIMMER_PASS, SHIMMER_REST, WrShimmer } from './shimmer';
 
 @Component({
-  imports: [WrShine],
+  imports: [WrShimmer],
   template: `<span class="chip"
-    ><span wrShine>Added in {{ version() }}</span></span
+    ><span wrShimmer>Added in {{ version() }}</span></span
   >`,
 })
 class Host {
@@ -17,8 +17,8 @@ class Host {
 }
 
 @Component({
-  imports: [WrShine],
-  template: `<button type="button"><span wrShine>Go</span></button>`,
+  imports: [WrShimmer],
+  template: `<button type="button"><span wrShimmer>Go</span></button>`,
 })
 class FocusableHost {}
 
@@ -50,8 +50,8 @@ const platform = (value: PlatformStub): unknown => ({ provide: WrPlatform, useVa
 /** The modifiers on the host, in order: which state the directive is in. */
 const states = (el: HTMLElement): string[] =>
   Array.from(el.classList)
-    .filter(name => name.startsWith('wr-shine--'))
-    .map(name => name.slice('wr-shine--'.length));
+    .filter(name => name.startsWith('wr-shimmer--'))
+    .map(name => name.slice('wr-shimmer--'.length));
 
 /** `animationend` as the browser fires it for `name`, on `el`. jsdom has no `AnimationEvent`. */
 const end = (el: HTMLElement, name: string): void => {
@@ -60,7 +60,7 @@ const end = (el: HTMLElement, name: string): void => {
   el.dispatchEvent(event);
 };
 
-describe('WrShine', () => {
+describe('WrShimmer', () => {
   const render = async <T>(
     host: new () => T,
     providers: unknown[] = [platform(stub())]
@@ -73,7 +73,7 @@ describe('WrShine', () => {
   };
 
   const target = (fixture: { nativeElement: HTMLElement }): HTMLElement =>
-    fixture.nativeElement.querySelector<HTMLElement>('.wr-shine')!;
+    fixture.nativeElement.querySelector<HTMLElement>('.wr-shimmer')!;
 
   const view = (fixture: { detectChanges(): void }, intersecting: boolean): void => {
     StubIntersectionObserver.instances[0].fire(intersecting);
@@ -83,7 +83,7 @@ describe('WrShine', () => {
   /** Into view and through the first delay: a pass is in flight. */
   const pass = (fixture: { detectChanges(): void }, el: HTMLElement): void => {
     view(fixture, true);
-    end(el, SHINE_REST);
+    end(el, SHIMMER_REST);
   };
 
   beforeEach(() => {
@@ -103,7 +103,7 @@ describe('WrShine', () => {
 
     expect(StubIntersectionObserver.instances[0].options?.threshold).toBeGreaterThanOrEqual(0.5);
     expect(StubIntersectionObserver.instances[0].observe).toHaveBeenCalledWith(el);
-    expect(el.className).toBe('wr-shine');
+    expect(el.className).toBe('wr-shimmer');
   });
 
   it('cycles delay, pass, pause, pass on the host animations ending, and never touches the text', async () => {
@@ -114,13 +114,13 @@ describe('WrShine', () => {
     view(fixture, true);
     expect(states(el)).toEqual(['first']);
 
-    end(el, SHINE_REST);
+    end(el, SHIMMER_REST);
     expect(states(el)).toEqual(['pass']);
 
-    end(el, SHINE_PASS);
+    end(el, SHIMMER_PASS);
     expect(states(el)).toEqual(['rest']);
 
-    end(el, SHINE_REST);
+    end(el, SHIMMER_REST);
     expect(states(el)).toEqual(['pass']);
 
     expect(Array.from(el.childNodes)).toEqual(nodes);
@@ -149,15 +149,15 @@ describe('WrShine', () => {
     end(el, 'something-else');
     expect(states(el)).toEqual(['first']);
 
-    end(el, SHINE_PASS);
+    end(el, SHIMMER_PASS);
     expect(states(el)).toEqual(['first']);
 
     const child = el.appendChild(document.createElement('i'));
-    end(child, SHINE_REST);
+    end(child, SHIMMER_REST);
     expect(states(el)).toEqual(['first']);
     child.remove();
 
-    end(el, SHINE_REST);
+    end(el, SHIMMER_REST);
     expect(states(el)).toEqual(['pass']);
   });
 
@@ -167,10 +167,10 @@ describe('WrShine', () => {
     pass(fixture, el);
 
     view(fixture, false);
-    expect(el.className).toBe('wr-shine');
+    expect(el.className).toBe('wr-shimmer');
 
-    end(el, SHINE_PASS);
-    expect(el.className).toBe('wr-shine');
+    end(el, SHIMMER_PASS);
+    expect(el.className).toBe('wr-shimmer');
 
     view(fixture, true);
     expect(states(el)).toEqual(['first']);
@@ -185,7 +185,7 @@ describe('WrShine', () => {
 
     page.pageVisible.set(false);
     fixture.detectChanges();
-    expect(el.className).toBe('wr-shine');
+    expect(el.className).toBe('wr-shimmer');
 
     page.pageVisible.set(true);
     fixture.detectChanges();
@@ -201,7 +201,7 @@ describe('WrShine', () => {
     page.prefersReducedMotion.set(true);
     fixture.detectChanges();
 
-    expect(el.className).toBe('wr-shine');
+    expect(el.className).toBe('wr-shimmer');
   });
 
   it('plays a pass at once on hover or focus of the focusable ancestor while waiting, never mid-pass or when off', async () => {
@@ -211,7 +211,7 @@ describe('WrShine', () => {
 
     // Off: not in view yet.
     button.dispatchEvent(new Event('pointerenter'));
-    expect(el.className).toBe('wr-shine');
+    expect(el.className).toBe('wr-shimmer');
 
     // During the first delay.
     view(fixture, true);
@@ -224,12 +224,12 @@ describe('WrShine', () => {
     expect(states(el)).toEqual(['pass']);
 
     // Between passes.
-    end(el, SHINE_PASS);
+    end(el, SHIMMER_PASS);
     expect(states(el)).toEqual(['rest']);
     button.dispatchEvent(new Event('focusin', { bubbles: true }));
     expect(states(el)).toEqual(['pass']);
 
-    end(el, SHINE_PASS);
+    end(el, SHIMMER_PASS);
     button.dispatchEvent(new Event('pointerenter'));
     expect(states(el)).toEqual(['pass']);
   });
@@ -238,8 +238,8 @@ describe('WrShine', () => {
     const fixture = await render(Host);
     const el = target(fixture);
     view(fixture, true);
-    end(el, SHINE_REST);
-    end(el, SHINE_PASS);
+    end(el, SHIMMER_REST);
+    end(el, SHIMMER_PASS);
     expect(states(el)).toEqual(['rest']);
 
     el.dispatchEvent(new Event('pointerenter'));
@@ -252,7 +252,7 @@ describe('WrShine', () => {
     const el = target(fixture);
 
     expect(StubIntersectionObserver.instances).toHaveLength(0);
-    expect(el.className).toBe('wr-shine');
+    expect(el.className).toBe('wr-shimmer');
   });
 
   it('does nothing on the server', async () => {
@@ -260,7 +260,7 @@ describe('WrShine', () => {
     const el = target(fixture);
 
     expect(StubIntersectionObserver.instances).toHaveLength(0);
-    expect(el.className).toBe('wr-shine');
+    expect(el.className).toBe('wr-shimmer');
   });
 
   it('does nothing without IntersectionObserver', async () => {
@@ -270,7 +270,7 @@ describe('WrShine', () => {
 
     el.dispatchEvent(new Event('pointerenter'));
 
-    expect(el.className).toBe('wr-shine');
+    expect(el.className).toBe('wr-shimmer');
   });
 
   it('does nothing under forced colours', async () => {
@@ -282,7 +282,7 @@ describe('WrShine', () => {
     const el = target(fixture);
 
     expect(StubIntersectionObserver.instances).toHaveLength(0);
-    expect(el.className).toBe('wr-shine');
+    expect(el.className).toBe('wr-shimmer');
   });
 
   it('stops observing, drops its listeners and clears the host on destroy', async () => {
@@ -295,10 +295,10 @@ describe('WrShine', () => {
     fixture.destroy();
 
     expect(observer.disconnect).toHaveBeenCalled();
-    expect(el.className).toBe('wr-shine');
+    expect(el.className).toBe('wr-shimmer');
 
     button.dispatchEvent(new Event('pointerenter'));
-    end(el, SHINE_REST);
-    expect(el.className).toBe('wr-shine');
+    end(el, SHIMMER_REST);
+    expect(el.className).toBe('wr-shimmer');
   });
 });

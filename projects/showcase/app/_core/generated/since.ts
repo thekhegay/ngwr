@@ -45,7 +45,7 @@ export const SINCE = {
   "animations/reveal": "15.7.0",
   "animations/ripple-grid": "15.7.0",
   "animations/rotate-reveal": "15.7.0",
-  "animations/shine": "15.7.0",
+  "animations/shimmer": "15.7.0",
   "animations/spotlight": "15.7.0",
   "animations/thread-lines": "15.7.0",
   "animations/tilt": "15.7.0",
