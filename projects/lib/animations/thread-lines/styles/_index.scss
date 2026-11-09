@@ -1,24 +1,22 @@
 @use '../../../theme/styles' as theme;
 @include theme.loaded('animations/thread-lines');
 
-// `<wr-thread-lines />`: a loose ribbon of hairline threads behind a
-// section's content, gathered at the start edge and frayed toward the far one.
-// The component paints one canvas and reads its two colours back from the
-// hooks below through `resolveCssColorChannels`, so a retheme and a scheme
-// switch both reach the pixels. The strengths (how much of each colour a
-// thread shows) and the line width live in `thread-lines.ts`: they are the
-// canvas's numbers, not the sheet's.
+// `<wr-thread-lines />`: a ribbon of fine threads behind a section's content,
+// a cord at one end and frayed apart at the other, riding slow waves and
+// parting round the pointer. The component paints one WebGL canvas and reads
+// its two colours and the surface back from the hooks below through
+// `resolveCssColorChannels`, so a retheme and a scheme switch both reach the
+// pixels. How much of a colour a strand lays, its glow and its thickness live
+// in the component and its shader: they are the canvas's numbers, not the
+// sheet's.
 .wr-thread-lines {
-  // A thread: the muted role, the bare intent, since a thread is a graphic
-  // and not text. The canvas shows it at about a fifth, so the text over the
-  // ribbon reads as it does on the plain surface.
-  --wr-thread-lines-ink: var(--wr-color-on-surface-muted);
-  // The few tinted threads: the primary intent, never at full strength, so
-  // they stay under the content's own accents.
-  --wr-thread-lines-tint: var(--wr-color-primary);
-  // How much of the ribbon shows over the lower part of the section, where
-  // the cards and their code sit: the head above gets it whole.
-  --wr-thread-lines-low: 0.3;
+  // A strand: the ink the body reads in, since a hairline needs the whole
+  // contrast of text to show at all, and a graphic, so the bare role. The
+  // canvas lays it as ink on a light surface and lights it on a dark one.
+  --wr-thread-lines-color: var(--wr-color-on-surface);
+  // The outer strands: the primary intent, never at full strength, so they
+  // stay under the content's own accents.
+  --wr-thread-lines-accent: var(--wr-color-primary);
 
   position: absolute;
   inset: 0;
@@ -29,20 +27,6 @@
   overflow: hidden;
   pointer-events: none;
   user-select: none;
-  // Whole behind the section head, faint from where the cards begin, gone at
-  // the block end; and gone at both inline edges, so the gathered end seems
-  // to come in from off the page and nothing ends in a straight cut. The
-  // inline fade is symmetric, so it needs no mirroring.
-  mask-image:
-    linear-gradient(
-      to bottom,
-      #000 26%,
-      rgb(0 0 0 / var(--wr-thread-lines-low)) 44%,
-      rgb(0 0 0 / var(--wr-thread-lines-low)) 90%,
-      transparent
-    ),
-    linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
-  mask-composite: intersect;
 
   &__canvas {
     display: block;

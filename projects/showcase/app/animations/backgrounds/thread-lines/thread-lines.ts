@@ -35,11 +35,13 @@ export default class ThreadLinesPageComponent {
   position: relative;
   isolation: isolate;
 }`,
-    count: `<wr-thread-lines count="40" reach="260" />`,
-    low: `<section class="opt-in" style="--wr-thread-lines-low: 1">
+    calm: `<wr-thread-lines count="48" amplitude="8" speed="0.6" fray="0.6" />`,
+    dense: `<wr-thread-lines count="110" fray="1.6" angle="-10" thickness="0.8" />`,
+    colours: `<section style="--wr-thread-lines-color: var(--wr-color-info); --wr-thread-lines-accent: var(--wr-color-warning)">
   <wr-thread-lines />
   …
 </section>`,
+    parting: `<wr-thread-lines parting="0" />`,
   };
 
   protected readonly api = API.WrThreadLines;

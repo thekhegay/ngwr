@@ -6,77 +6,103 @@
  */
 
 import { Directionality } from '@angular/cdk/bidi';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   Component,
   DestroyRef,
   ElementRef,
+  PLATFORM_ID,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   effect,
   inject,
   input,
+  untracked,
   viewChild,
 } from '@angular/core';
 
-import { createCanvasBackdrop } from 'ngwr/animations/core';
-import { numAttr, resolveCssColorChannels, wrCheckStyles } from 'ngwr/utils';
+import { FRAME_FLOOR_SLACK, MAX_FRAME_MS } from 'ngwr/animations/core';
+import { WrPlatform } from 'ngwr/platform';
+import { numAttr, resolveCssColorChannels, watchColorScheme, wrCheckStyles } from 'ngwr/utils';
 
 import {
-  type ThreadLayout,
-  createThreadNoise,
-  threadApproach,
-  threadLayout,
-  threadPull,
-  threadSway,
+  THREAD_CONTEXT_ATTRIBUTES,
+  type ThreadFrame,
+  type ThreadGLContext,
+  type ThreadRenderer,
+  createThreadRenderer,
+} from './thread-gl';
+import {
+  FOLLOW_RATE,
+  FRAY_POWER,
+  SPRING_DAMPING,
+  SPRING_RATE,
+  type ThreadSpring,
+  threadCount,
+  threadFrameMs,
+  threadInk,
+  threadLength,
+  threadRatio,
+  threadSpringStep,
+  threadSpringStill,
+  threadStrandTexture,
+  threadStrands,
+  threadWidths,
 } from './thread-model';
 
-/** The slowest the ribbon is redrawn, in ms: 30fps is more than its sway needs. */
-const FRAME_MS = 33;
-/** How much of the gap to its target the pull's strength closes per 60Hz frame, waxing and waning. */
-const PULL_IN = 0.08;
-const PULL_OUT = 0.04;
-/** How much of the gap to the pointer the pull's centre closes per 60Hz frame. */
-const FOLLOW = 0.18;
-/** Below this the pull counts as gone and is not computed. */
-const PULL_EPS = 0.005;
-/** How much of its colour a thread shows: the muted ink, and the few tinted toward the primary. */
-const ALPHA = 0.22;
-const ALPHA_TINT = 0.34;
-/** How far a tinted thread goes from the ink toward the tint colour. */
-const TINT_MIX = 0.85;
-const LINE_WIDTH = 1;
+/** Where the bundle's centre line sits at the gathered end and at the far one, as a share of the height from the middle. */
+const CENTRE_START = -0.1;
+const CENTRE_END = 0.02;
+/** How far a strand's own path bends at the far end under a unit `fray`, as a share of the height. */
+const PATH = 0.075;
+/** The travelling wave: the main harmonic's wavelengths per ribbon length and its period in seconds under a unit `speed`; the second is shorter and faster. */
+const WAVE_CYCLES = 1.4;
+const WAVE_PERIOD = 9;
+const WAVE_CYCLES_2 = 3.1;
+const WAVE_PERIOD_2 = 5.6;
+/** The parting's reach, in CSS px, and how far it pushes at its heart under a unit `parting`, as a share of the reach. */
+const PART_RADIUS = 110;
+const PART_PUSH = 0.45;
+/** How much of its colour a strand's core lays and how much glow rings it, on a light surface and on a dark one. */
+const INK_LIGHT: readonly [number, number] = [0.6, 0.03];
+const INK_DARK: readonly [number, number] = [0.75, 0.07];
 
 /**
- * A loose ribbon of hairline threads behind a section's content, running from
- * the start edge to the far one: gathered close together where they begin and
- * fanning apart as they go, like the strands of a cable fraying out. Every
- * thread sways slowly on its own, from noise smooth along its length, across
- * the ribbon and in time, so neighbours move together but never in step; a few
- * threads are tinted toward the primary colour. The pointer over the parent
- * gently draws the nearby part of the threads toward itself, the pull waxing
- * as it arrives and waning after it leaves. The hero's field pushes lines away
- * and runs an even grid of them; this is one ribbon, and it pulls.
+ * A wide ribbon of fine threads behind a section's content, like silk: dozens
+ * of hair-thin strands flowing across the region at a slight angle, close
+ * together near one end, almost a single cord, and parting as they go toward
+ * the other, each taking a path of its own. The whole bundle rides slow waves
+ * that travel along it, neighbours moving almost together but not quite, so
+ * the ribbon shimmers; the strands are brightest in the middle of the bundle
+ * and fade toward its edges and at both ends, and the outer ones blend toward
+ * an accent. The pointer parts the threads around itself, like fingers drawn
+ * through silk, and they close again behind it with a slightly elastic
+ * return. The drawing is one WebGL pass in `thread-gl.ts`; the pure pieces
+ * (the strands, the fray, the parting and its spring, the canvas size and the
+ * frame cap) are `thread-model.ts`.
  *
- * Fills its parent, which must be positioned (`position: relative`) and
- * isolated (`isolation: isolate`): the host is absolute, `inset: 0`, at
- * `z-index: -1`, so it lands at the floor of the parent's own stacking
- * context, under the content and over the page background. The parent takes
- * the pointer, passively: the host and its canvas never do, and a finger is
- * ignored, so a scroll over the section is never fought. One canvas through
- * `createCanvasBackdrop`: the ribbon never rests, so the loop runs whenever
- * the host is on screen and the document is visible, at most every
- * `FRAME_MS`; each thread is a smooth curve through about one point per 72px.
- * Under `prefers-reduced-motion: reduce` the still ribbon is drawn once; under
- * `forced-colors: active` nothing is. The server renders the empty canvas,
- * absolutely positioned, so the browser's first draw shifts no layout. The
- * noise is seeded, so two mounts show one ribbon. Under RTL the ribbon is
- * mirrored: it gathers at the inline start.
+ * Fills its positioned parent, which isolates itself, so the host's negative
+ * z-index lands under the content and over the page background. The parent
+ * takes the pointer, passively: the host and its canvas never do, and a
+ * finger is ignored, so a scroll over the section is never fought. The
+ * context is made when the host is first on screen and sized, not at mount,
+ * so a region nobody scrolls to costs nothing; the loop runs while the host
+ * is on screen and the document is visible, at thirty frames a second while
+ * only the waves move and at the screen's rate while the parting is live.
+ * The canvas renders at the device ratio under the model's pixel budget.
  *
- * Colours come from the `--wr-thread-lines-*` hooks through
- * `resolveCssColorChannels`, re-read when the scheme changes; the edges and
- * the lower part, where a section's cards sit, are faded by the stylesheet's
- * mask. Decorative: `aria-hidden`, no pointer events. Styles:
- * `@use 'ngwr/animations/thread-lines'`.
+ * Colours come from the `--wr-thread-lines-color` and `-accent` hooks through
+ * `resolveCssColorChannels`, re-read when the scheme changes; the surface is
+ * read too, so on a light one the strands are laid as ink with next to no
+ * glow and on a dark one they are lit, with a soft glow. Under
+ * `prefers-reduced-motion: reduce` one still frame is drawn; under
+ * `forced-colors: active` nothing is; without WebGL nothing is; on the
+ * server the empty canvas is rendered, absolutely positioned, so the
+ * browser's first draw shifts no layout. A lost context is let go and
+ * rebuilt when it comes back. Under RTL the ribbon is mirrored, so it
+ * gathers at the inline start. Decorative: `aria-hidden`, no pointer events.
+ * Styles: `@use 'ngwr/animations/thread-lines'`.
  */
 @Component({
   selector: 'wr-thread-lines',
@@ -85,80 +111,270 @@ const LINE_WIDTH = 1;
   host: { class: 'wr-thread-lines', 'aria-hidden': 'true' },
 })
 export class WrThreadLines {
-  /** How many threads the ribbon has. @default 24 */
-  readonly count = input(24, { transform: numAttr(24) });
-
-  /** How far from the pointer a thread is still pulled, in px. @default 180 */
-  readonly reach = input(180, { transform: numAttr(180) });
+  /** How many strands the bundle has, 128 at most. @default 72 */
+  readonly count = input(72, { transform: numAttr(72) });
+  /** How thick a strand is, in device px. @default 1 */
+  readonly thickness = input(1, { transform: numAttr(1) });
+  /** How high the travelling wave lifts the bundle, in CSS px. @default 16 */
+  readonly amplitude = input(16, { transform: numAttr(16) });
+  /** How fast the wave travels, a multiplier: one is a wave every nine seconds. @default 1 */
+  readonly speed = input(1, { transform: numAttr(1) });
+  /** How far the strands part by the far end, a multiplier: none keeps them a cord the whole way. @default 1 */
+  readonly fray = input(1, { transform: numAttr(1) });
+  /** The ribbon's tilt, in degrees: positive falls toward the far end, negative rises. @default -6 */
+  readonly angle = input(-6, { transform: numAttr(-6) });
+  /** How strongly the pointer parts the strands, a multiplier: none turns the parting off. @default 1 */
+  readonly parting = input(1, { transform: numAttr(1) });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
+  private readonly platform = inject(WrPlatform);
+  private readonly doc = inject(DOCUMENT);
   private readonly dir = inject(Directionality, { optional: true });
-  /** The ribbon gathers at the inline start: under RTL every x is mirrored at the draw. */
+  private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
+  /** The ribbon gathers at the inline start: under RTL its axis is mirrored. */
   private readonly mirrored = computed(() => this.dir?.valueSignal() === 'rtl');
 
-  private readonly noise = createThreadNoise();
-  private strokeInk = '';
-  private strokeTint = '';
+  private gl: ThreadGLContext | null = null;
+  private renderer: ThreadRenderer | null = null;
+  /** Set once the browser was asked for a context, so a refusal is not asked again. */
+  private contextTried = false;
+  /** How many strands the renderer holds; -1 before the first upload. */
+  private uploaded = -1;
 
-  private ribbon: ThreadLayout = threadLayout(0, 0, 0, 2);
+  /** The host's CSS size, zero until the first layout. */
   private width = 0;
-  private posX = new Float32Array(0);
-  private posY = new Float32Array(0);
-  private readonly pullOut = new Float32Array(2);
+  private height = 0;
+  private readonly frame: ThreadFrame = {
+    width: 0,
+    height: 0,
+    scale: 1,
+    regionWidth: 0,
+    regionHeight: 0,
+    cos: 1,
+    sin: 0,
+    length: 1,
+    mirror: 1,
+    gather: 0,
+    spread: 0,
+    power: FRAY_POWER,
+    centreStart: 0,
+    centreEnd: 0,
+    path: 0,
+    amplitude: 0,
+    wave1: 0,
+    wave2: 0,
+    phase1: 0,
+    phase2: 0,
+    thickness: 0.5,
+    count: 1,
+    color: new Float32Array([0.42, 0.45, 0.5]),
+    accent: new Float32Array([0.22, 0.41, 0.89]),
+    core: INK_LIGHT[0],
+    glow: INK_LIGHT[1],
+    pointerAlong: 0,
+    pointerAcross: 0,
+    push: 0,
+    radius: PART_RADIUS,
+  };
 
-  /** The scene's clock, in ms: moves only while a frame runs, so a hidden tab holds the pose. */
+  /** The scene's clock, in seconds: moves only while a frame runs, so a hidden tab holds the pose. */
   private time = 0;
-  /** Where the mouse is over the parent, in canvas px; NaN when it is not. */
+  /** Where the pointer is over the parent, in CSS px from the host's top left; NaN when it is not. */
   private pointerX = NaN;
   private pointerY = NaN;
-  /** Where the pull is centred and how strong it is, eased after the pointer. */
-  private pullX = NaN;
-  private pullY = NaN;
-  private pull = 0;
+  /** The parting: how open it is, and where its centre is, each eased after the pointer. */
+  private readonly open: ThreadSpring = { value: 0, speed: 0 };
+  private readonly centreX: ThreadSpring = { value: 0, speed: 0 };
+  private readonly centreY: ThreadSpring = { value: 0, speed: 0 };
 
+  private running = false;
+  private rafId: number | null = null;
+  private lastFrame = 0;
+  private resizeRafId: number | null = null;
+  private pendingWidth = 0;
+  private pendingHeight = 0;
+  private inView = false;
+  private mounted = false;
+
+  private resizeObserver: ResizeObserver | null = null;
+  private viewObserver: IntersectionObserver | null = null;
   private pointerTarget: HTMLElement | null = null;
-
-  private readonly backdrop = createCanvasBackdrop(() => this.canvasRef().nativeElement, {
-    frameMs: FRAME_MS,
-    colors: canvas => this.resolveColors(canvas),
-    layout: (width, height) => this.layout(width, height),
-    // A living backdrop: it never rests, so the gates alone decide.
-    active: () => true,
-    advance: dt => this.advance(dt),
-    draw: (ctx, width, height) => this.draw(ctx, width, height),
-    rest: () => this.rest(),
-    mounted: () => this.listen(),
-  });
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('animations/thread-lines');
-    // A still ribbon (reduced motion) follows a direction switch; a moving one redraws anyway.
+    if (!isPlatformBrowser(inject(PLATFORM_ID))) return;
+
     effect(() => {
+      this.platform.pageVisible();
+      this.platform.prefersReducedMotion();
       this.mirrored();
-      if (!this.backdrop.running) this.backdrop.draw();
+      untracked(() => this.sync());
+    });
+    effect(() => {
+      this.count();
+      this.fray();
+      this.angle();
+      untracked(() => this.still());
+    });
+    watchColorScheme(() => {
+      this.resolveColors();
+      this.still();
     });
 
-    inject(DestroyRef).onDestroy(() => {
-      this.pointerTarget?.removeEventListener('pointermove', this.onPointerMove);
-      this.pointerTarget?.removeEventListener('pointerleave', this.onPointerLeave);
-      this.pointerTarget = null;
-    });
+    afterNextRender(() => this.mount());
+    inject(DestroyRef).onDestroy(() => this.unmount());
   }
 
-  /** The parent takes the pointer: the host and its canvas never do. */
-  private listen(): void {
-    const target = this.host.nativeElement.parentElement;
+  // Lifecycle
+
+  private mount(): void {
+    // Nothing drawn under forced colours: the stylesheet hides the host too.
+    if (this.doc.defaultView?.matchMedia?.('(forced-colors: active)').matches) return;
+    const host = this.host.nativeElement;
+    this.mounted = true;
+
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(entries => {
+        const rect = entries[entries.length - 1]?.contentRect;
+        this.scheduleResize(rect?.width ?? host.clientWidth, rect?.height ?? host.clientHeight);
+      });
+      this.resizeObserver.observe(host);
+    } else {
+      this.layout(host.clientWidth, host.clientHeight);
+    }
+
+    if (typeof IntersectionObserver !== 'undefined') {
+      this.viewObserver = new IntersectionObserver(entries => {
+        this.inView = entries[entries.length - 1]?.isIntersecting ?? false;
+        this.sync();
+      });
+      this.viewObserver.observe(host);
+    } else {
+      this.inView = true;
+      this.sync();
+    }
+
+    const canvas = this.canvasRef().nativeElement;
+    canvas.addEventListener('webglcontextlost', this.onContextLost);
+    canvas.addEventListener('webglcontextrestored', this.onContextRestored);
+
+    const target = host.parentElement;
     this.pointerTarget = target;
     target?.addEventListener('pointermove', this.onPointerMove, { passive: true });
     target?.addEventListener('pointerleave', this.onPointerLeave, { passive: true });
+  }
+
+  private unmount(): void {
+    this.running = false;
+    this.stopLoop();
+    if (this.resizeRafId !== null) cancelAnimationFrame(this.resizeRafId);
+    this.resizeRafId = null;
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
+    this.viewObserver?.disconnect();
+    this.viewObserver = null;
+    this.pointerTarget?.removeEventListener('pointermove', this.onPointerMove);
+    this.pointerTarget?.removeEventListener('pointerleave', this.onPointerLeave);
+    this.pointerTarget = null;
+    if (this.mounted) {
+      const canvas = this.canvasRef().nativeElement;
+      canvas.removeEventListener('webglcontextlost', this.onContextLost);
+      canvas.removeEventListener('webglcontextrestored', this.onContextRestored);
+    }
+    this.renderer?.destroy();
+    this.renderer = null;
+    // The context itself is let go now rather than when the canvas is collected.
+    this.gl?.getExtension('WEBGL_lose_context')?.loseContext();
+    this.gl = null;
+    this.mounted = false;
+  }
+
+  // Context
+
+  /** The context and the renderer, made at the first chance to draw; `null` where the browser has no WebGL. */
+  private ensure(): ThreadRenderer | null {
+    if (this.renderer) return this.renderer;
+    if (this.contextTried || !this.mounted) return null;
+    this.contextTried = true;
+    const canvas = this.canvasRef().nativeElement;
+    const gl =
+      canvas.getContext('webgl2', THREAD_CONTEXT_ATTRIBUTES) ?? canvas.getContext('webgl', THREAD_CONTEXT_ATTRIBUTES);
+    if (!gl) return null;
+    this.gl = gl;
+    this.renderer = createThreadRenderer(gl);
+    if (!this.renderer) return null;
+    this.uploaded = -1;
+    this.resolveColors();
+    return this.renderer;
+  }
+
+  private readonly onContextLost = (event: Event): void => {
+    // Not prevented, the browser never restores it.
+    event.preventDefault();
+    this.renderer = null;
+    this.running = false;
+    this.stopLoop();
+  };
+
+  private readonly onContextRestored = (): void => {
+    if (!this.gl) return;
+    this.renderer = createThreadRenderer(this.gl);
+    this.uploaded = -1;
+    this.still();
+    this.sync();
+  };
+
+  // Layout
+
+  private scheduleResize(width: number, height: number): void {
+    this.pendingWidth = width;
+    this.pendingHeight = height;
+    if (this.resizeRafId !== null) return;
+    this.resizeRafId = requestAnimationFrame(() => {
+      this.resizeRafId = null;
+      this.layout(this.pendingWidth, this.pendingHeight);
+    });
+  }
+
+  private layout(width: number, height: number): void {
+    if (width <= 0 || height <= 0) return;
+    this.width = width;
+    this.height = height;
+    this.still();
+    this.sync();
+  }
+
+  /** Sizes the canvas to the host under the pixel budget. */
+  private size(): void {
+    const canvas = this.canvasRef().nativeElement;
+    const ratio = threadRatio(this.width, this.height, this.doc.defaultView?.devicePixelRatio ?? 1);
+    const width = Math.round(this.width * ratio);
+    const height = Math.round(this.height * ratio);
+    if (canvas.width !== width) canvas.width = width;
+    if (canvas.height !== height) canvas.height = height;
+    this.frame.width = width;
+    this.frame.height = height;
+    this.frame.scale = 1 / ratio;
+  }
+
+  // Colours
+
+  private resolveColors(): void {
+    if (!this.renderer) return;
+    const canvas = this.canvasRef().nativeElement;
+    this.frame.color.set(resolveCssColorChannels(canvas, 'var(--wr-thread-lines-color)', '#6b7280'));
+    this.frame.accent.set(resolveCssColorChannels(canvas, 'var(--wr-thread-lines-accent)', '#3969e2'));
+    const light = threadInk(resolveCssColorChannels(canvas, 'var(--wr-color-surface)', '#ffffff'));
+    const ink = light ? INK_LIGHT : INK_DARK;
+    this.frame.core = ink[0];
+    this.frame.glow = ink[1];
   }
 
   // Pointer
 
   private readonly onPointerMove = (event: PointerEvent): void => {
     // A finger that moves is scrolling: the ribbon must never fight it.
-    if (event.pointerType === 'touch' || !this.backdrop.ctx) return;
+    if (event.pointerType === 'touch' || this.width === 0) return;
     const rect = this.canvasRef().nativeElement.getBoundingClientRect();
     this.pointerX = event.clientX - rect.left;
     this.pointerY = event.clientY - rect.top;
@@ -169,122 +385,132 @@ export class WrThreadLines {
     this.pointerY = NaN;
   };
 
-  // Layout
+  // Loop
 
-  private resolveColors(canvas: HTMLCanvasElement): void {
-    const ink = resolveCssColorChannels(canvas, 'var(--wr-thread-lines-ink)', '#6b7280');
-    const tint = resolveCssColorChannels(canvas, 'var(--wr-thread-lines-tint)', '#3969e2');
-    const channel = (c: number): number => Math.round((ink[c] + (tint[c] - ink[c]) * TINT_MIX) * 255);
-    this.strokeInk = `rgba(${Math.round(ink[0] * 255)}, ${Math.round(ink[1] * 255)}, ${Math.round(ink[2] * 255)}, ${ALPHA})`;
-    this.strokeTint = `rgba(${channel(0)}, ${channel(1)}, ${channel(2)}, ${ALPHA_TINT})`;
+  /** Whether the strands are parted, still closing or about to part: the frame cap is lifted while they are. */
+  private parted(): boolean {
+    if (!threadSpringStill(this.open)) return true;
+    return !Number.isNaN(this.pointerX) && untracked(this.parting) > 0;
   }
 
-  private layout(width: number, height: number): void {
-    this.ribbon = threadLayout(width, height, this.count());
-    this.width = width;
-    this.posX = new Float32Array(this.ribbon.y.length);
-    this.posY = new Float32Array(this.ribbon.y.length);
-    this.pose();
+  private sync(): void {
+    const reduced = this.platform.prefersReducedMotion();
+    const allowed = this.mounted && this.width > 0 && this.inView && this.platform.pageVisible();
+    const run = allowed && !reduced;
+    if (run !== this.running) {
+      this.running = run;
+      if (run) {
+        this.lastFrame = performance.now();
+        this.rafId = requestAnimationFrame(this.frameLoop);
+        return;
+      }
+      this.stopLoop();
+    }
+    // Reduced motion: one still frame, with the strands closed, however the pointer sits.
+    if (allowed && reduced) {
+      this.rest();
+      this.still();
+    }
   }
 
-  // Motion
-
-  /** The ribbon with no pull, at the clock's pose. */
+  /** The parting closed at once: the still frame has no gap in it. */
   private rest(): void {
-    this.pull = 0;
-    this.pullX = NaN;
-    this.pullY = NaN;
-    this.pose();
+    this.open.value = 0;
+    this.open.speed = 0;
   }
 
-  /** The clock moves on, the pull eases after the pointer, and every point is posed. */
+  private stopLoop(): void {
+    if (this.rafId !== null) cancelAnimationFrame(this.rafId);
+    this.rafId = null;
+  }
+
+  /** One frame drawn outside the loop: the reduced-motion still, and a resize or a retheme while the loop is off. */
+  private still(): void {
+    if (this.running || !this.mounted || this.width === 0 || !this.inView) return;
+    this.draw();
+  }
+
+  private readonly frameLoop = (now: number): void => {
+    this.rafId = null;
+    if (!this.running) return;
+    const floor = threadFrameMs(this.parted());
+    if (floor > 0 && now - this.lastFrame + FRAME_FLOOR_SLACK < floor) {
+      this.rafId = requestAnimationFrame(this.frameLoop);
+      return;
+    }
+    const dt = Math.min(Math.max(now - this.lastFrame, 0), MAX_FRAME_MS) / 1000;
+    this.lastFrame = now;
+    this.advance(dt);
+    this.draw();
+    if (this.running) this.rafId = requestAnimationFrame(this.frameLoop);
+  };
+
+  /** The clock moves on and the parting eases after the pointer. */
   private advance(dt: number): void {
-    this.time += dt;
-    const scale = dt / 16.7;
-    const pointing = !Number.isNaN(this.pointerX);
+    this.time += dt * untracked(this.speed);
+    const pointing = !Number.isNaN(this.pointerX) && untracked(this.parting) > 0;
     if (pointing) {
-      // The first touch of the pointer sets the centre; after that it is eased.
-      if (Number.isNaN(this.pullX)) {
-        this.pullX = this.pointerX;
-        this.pullY = this.pointerY;
+      if (threadSpringStill(this.open)) {
+        // The first touch sets the centre; after that it follows.
+        this.centreX.value = this.pointerX;
+        this.centreY.value = this.pointerY;
+        this.centreX.speed = this.centreY.speed = 0;
       } else {
-        this.pullX = threadApproach(this.pullX, this.pointerX, FOLLOW, scale);
-        this.pullY = threadApproach(this.pullY, this.pointerY, FOLLOW, scale);
+        threadSpringStep(this.centreX, this.pointerX, dt, FOLLOW_RATE, 1);
+        threadSpringStep(this.centreY, this.pointerY, dt, FOLLOW_RATE, 1);
       }
     }
-    this.pull = threadApproach(this.pull, pointing ? 1 : 0, pointing ? PULL_IN : PULL_OUT, scale);
-    if (this.pull < PULL_EPS) {
-      this.pull = 0;
-      if (!pointing) {
-        this.pullX = NaN;
-        this.pullY = NaN;
-      }
-    }
-    this.pose();
+    threadSpringStep(this.open, pointing ? 1 : 0, dt, SPRING_RATE, SPRING_DAMPING);
   }
 
-  /** Every point: its place at rest, its sway now, and the pull if there is one. */
-  private pose(): void {
-    const { count, points, x, y } = this.ribbon;
-    const pulling = this.pull > 0;
-    // The pointer is physical; the ribbon is laid out from the inline start.
-    const px = this.mirrored() ? this.width - this.pullX : this.pullX;
-    const py = this.pullY;
-    const reach = this.reach();
-    const out = this.pullOut;
-    const last = points - 1;
-    for (let i = 0; i < count; i++) {
-      for (let k = 0; k < points; k++) {
-        const idx = i * points + k;
-        const sx = x[k];
-        let sy = y[idx] + threadSway(this.noise, sx, k / last, i, this.time);
-        let dx = 0;
-        if (pulling) {
-          threadPull(sx - px, sy - py, reach, this.pull, out);
-          dx = out[0];
-          sy += out[1];
-        }
-        this.posX[idx] = sx + dx;
-        this.posY[idx] = sy;
-      }
-    }
-  }
+  /** The frame's numbers from the inputs and the state, and the pass. */
+  private draw(): void {
+    const renderer = this.ensure();
+    if (!renderer || this.width === 0) return;
+    const frame = this.frame;
+    this.size();
 
-  /** One frame: every thread as a smooth curve through its points, one stroke for the ink and one for the tint. */
-  private draw(ctx: CanvasRenderingContext2D, width: number, height: number): void {
-    if (this.strokeInk === '') return;
-    ctx.clearRect(0, 0, width, height);
-    ctx.lineWidth = LINE_WIDTH;
-    this.strokeThreads(ctx, width, 0, this.strokeInk);
-    this.strokeThreads(ctx, width, 1, this.strokeTint);
-  }
-
-  private strokeThreads(ctx: CanvasRenderingContext2D, width: number, tinted: number, stroke: string): void {
-    const { count, points, tinted: tints } = this.ribbon;
-    const flip = this.mirrored();
-    const px = (value: number): number => (flip ? width - value : value);
-    let any = false;
-    ctx.beginPath();
-    for (let i = 0; i < count; i++) {
-      if (tints[i] !== tinted) continue;
-      const base = i * points;
-      ctx.moveTo(px(this.posX[base]), this.posY[base]);
-      for (let k = 1; k < points - 1; k++) {
-        const idx = base + k;
-        ctx.quadraticCurveTo(
-          px(this.posX[idx]),
-          this.posY[idx],
-          px((this.posX[idx] + this.posX[idx + 1]) / 2),
-          (this.posY[idx] + this.posY[idx + 1]) / 2
-        );
-      }
-      ctx.lineTo(px(this.posX[base + points - 1]), this.posY[base + points - 1]);
-      any = true;
+    const count = threadCount(untracked(this.count));
+    if (count !== this.uploaded) {
+      renderer.strands(threadStrandTexture(threadStrands(count)), count);
+      this.uploaded = count;
     }
-    if (!any) return;
-    ctx.strokeStyle = stroke;
-    ctx.stroke();
+    const width = this.width;
+    const height = this.height;
+    const angle = (untracked(this.angle) * Math.PI) / 180;
+    const fray = Math.max(0, untracked(this.fray));
+    const widths = threadWidths(height, fray);
+    const mirror = this.mirrored() ? -1 : 1;
+
+    frame.regionWidth = width;
+    frame.regionHeight = height;
+    frame.cos = Math.cos(angle);
+    frame.sin = Math.sin(angle);
+    frame.length = threadLength(width, height, angle);
+    frame.mirror = mirror;
+    frame.gather = widths.gather;
+    frame.spread = widths.spread;
+    frame.centreStart = CENTRE_START * height;
+    frame.centreEnd = CENTRE_END * height;
+    frame.path = PATH * fray * height;
+    frame.amplitude = untracked(this.amplitude);
+    frame.wave1 = WAVE_CYCLES * Math.PI * 2;
+    frame.wave2 = WAVE_CYCLES_2 * Math.PI * 2;
+    frame.phase1 = ((this.time / WAVE_PERIOD) % 1) * Math.PI * 2;
+    frame.phase2 = ((this.time / WAVE_PERIOD_2) % 1) * Math.PI * 2;
+    frame.thickness = Math.max(0.1, untracked(this.thickness)) / 2;
+    frame.count = count;
+
+    // The parting's centre, from the host's top left into the ribbon's frame.
+    const dx = this.centreX.value - width / 2;
+    const dy = this.centreY.value - height / 2;
+    frame.pointerAlong = (dx * frame.cos + dy * frame.sin) * mirror;
+    frame.pointerAcross = -dx * frame.sin + dy * frame.cos;
+    frame.push = this.open.value * untracked(this.parting) * PART_PUSH * PART_RADIUS;
+    frame.radius = PART_RADIUS;
+
+    renderer.render(frame);
   }
 }
 
-export { FRAME_MS as THREAD_LINES_FRAME_MS, PULL_IN as THREAD_LINES_PULL_IN, PULL_OUT as THREAD_LINES_PULL_OUT };
+export { CENTRE_END, CENTRE_START, INK_DARK, INK_LIGHT, PART_PUSH, PART_RADIUS, PATH, WAVE_PERIOD };
