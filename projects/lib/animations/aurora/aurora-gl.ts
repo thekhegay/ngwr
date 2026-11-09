@@ -19,6 +19,12 @@ import {
   RAY_SHORT,
   VEIL,
   VEIL_POWER,
+  WASH_CHROMA_MAX,
+  WASH_DETAIL,
+  WASH_FOLD_FLOOR,
+  WASH_RAY,
+  WASH_RISE,
+  WASH_SOFT,
 } from './aurora-model';
 
 /**
@@ -35,13 +41,15 @@ import {
  * the pointer. They are composited back to front inside the shader.
  *
  * Two ways to lay the result, mixed by `uLook.z`. On a light surface the
- * curtain is a wash: the stop's colour, lifted and a touch more saturated,
- * at an alpha that follows the brightness, so where it thins it goes to
- * transparent and never to grey. On a dark one it is light: the colour
- * scaled by the brightness in the colour channels with half that in alpha,
- * so it adds to the surface rather than covering it, the brightest spots
- * lifted toward white. The output is premultiplied either way. GLSL ES
- * 1.00, which WebGL1 and WebGL2 both accept.
+ * curtain is a wash, a pale pastel: the stop's hue at one high lightness and
+ * a fraction of its chroma, laid at an alpha that follows a softer shape
+ * than the curtain's (no bright border, a wave with less fine detail, a long
+ * dissolve past the free edge, the rays a whisper), so it dissolves into the
+ * surface with no edge and never falls to grey. On a dark one it is light:
+ * the colour scaled by the brightness in the colour channels with half that
+ * in alpha, so it adds to the surface rather than covering it, the brightest
+ * spots lifted toward white. The output is premultiplied either way. GLSL
+ * ES 1.00, which WebGL1 and WebGL2 both accept.
  */
 
 type AuroraGLContext = WebGLRenderingContext | WebGL2RenderingContext;
@@ -82,9 +90,9 @@ interface AuroraFrame {
   driftStretch: number;
   /** The three stops in OKLCh: lightness, chroma, hue in radians. */
   stops: readonly Float32Array[];
-  /** The wash: its peak alpha, its lift of the stops' lightness and its chroma gain; the light: its peak strength. */
+  /** The wash: its peak alpha, the lightness it lays every stop at and the share of a stop's chroma it keeps; the light: its peak strength. */
   washAlpha: number;
-  washLift: number;
+  washLightness: number;
   washChroma: number;
   glowPeak: number;
 }
@@ -121,6 +129,12 @@ const float RAY_GAIN = ${RAY_GAIN.toFixed(4)};
 const float RAY_FALL = ${RAY_FALL.toFixed(4)};
 const float RAY_SHORT = ${RAY_SHORT.toFixed(4)};
 const float GLOW_LIFT = ${GLOW_LIFT.toFixed(4)};
+const float WASH_RISE = ${WASH_RISE.toFixed(4)};
+const float WASH_SOFT = ${WASH_SOFT.toFixed(4)};
+const float WASH_FOLD_FLOOR = ${WASH_FOLD_FLOOR.toFixed(4)};
+const float WASH_RAY = ${WASH_RAY.toFixed(4)};
+const float WASH_DETAIL = ${WASH_DETAIL.toFixed(4)};
+const float WASH_CHROMA_MAX = ${WASH_CHROMA_MAX.toFixed(4)};
 const float PI = 3.14159265;
 const float TAU = 6.28318531;
 uniform vec2 uSize;
@@ -207,13 +221,19 @@ void main () {
     // The free edge: three octaves across the width, on the wave's clock.
     float wt = uMotion.x / broad + seed;
     float nx = ux * uShape.z / broad;
-    float w = noise(vec2(nx, wt)) + 0.6 * noise(vec2(nx * 2.3 + 5.1, wt * 1.4 + 2.0))
-      + 0.3 * noise(vec2(nx * 4.7 + 11.0, wt * 1.9 + 7.0));
-    w = clamp(w / 1.4, -1.0, 1.0);
+    float n1 = noise(vec2(nx, wt));
+    float n2 = noise(vec2(nx * 2.3 + 5.1, wt * 1.4 + 2.0));
+    float n3 = noise(vec2(nx * 4.7 + 11.0, wt * 1.9 + 7.0));
+    float w = clamp((n1 + 0.6 * n2 + 0.3 * n3) / 1.4, -1.0, 1.0);
+    float stretch = uSize.y * uShape.x * (1.0 + 0.12 * depth) * uState.y * (1.0 + uState.w);
     float reach = uSize.y * uShape.x * (1.0 + uShape.y * w) * (1.0 + 0.12 * depth) * uState.y * (1.0 + uState.w);
     reach = min(max(reach, 1.0), uSize.y);
     float v = p.y / reach;
-    if (v > 1.0 + EDGE_SOFT) continue;
+    // The wash has a wave of its own, with less of the finer octaves: a broad, slow edge. Kept apart from the
+    // curtain's, so the light's arithmetic is what it was.
+    float wl = clamp((n1 + WASH_DETAIL * (0.6 * n2 + 0.3 * n3)) / (1.0 + 0.9 * WASH_DETAIL), -1.0, 1.0);
+    float vl = p.y / min(max(stretch * (1.0 + uShape.y * wl), 1.0), uSize.y);
+    if (v > 1.0 + EDGE_SOFT && (uLook.z <= 0.0 || vl > 1.0 + WASH_SOFT)) continue;
     float vc = clamp(v, 0.0, 1.0);
 
     // The vertical profile: a veil, faint at the root and growing toward the free edge, a bright border
@@ -224,7 +244,8 @@ void main () {
     float fade = 1.0 - smoothstep(1.0 - EDGE_SOFT, 1.0 + EDGE_SOFT * 0.6, v);
 
     // The folds: the curtain is bright in knots along its length and dimmer between them, on the wave's clock.
-    float fold = mix(FOLD_FLOOR, 1.0, smoothstep(-0.9, 0.9, noise(vec2(nx * 1.3 + 7.7, wt * 0.9 + 3.3))));
+    float knot = smoothstep(-0.9, 0.9, noise(vec2(nx * 1.3 + 7.7, wt * 0.9 + 3.3)));
+    float fold = mix(FOLD_FLOOR, 1.0, knot);
 
     // The rays: columns across the width, each with a brightness and a length of its own, leaning with the
     // wave toward the root, shimmering on their own clock; a ray is whole at the free edge and fades toward
@@ -238,14 +259,21 @@ void main () {
     float bead = mix(1.0, 0.6 + 0.4 * c, uLook.x);
     float shape = min(1.0, veil * (1.0 - 0.5 * uLook.x) + border * bead + uLook.x * RAY_GAIN * ray);
     float I = shape * fade * fold * dim * side * uState.x * uLook.y;
-    if (I <= 0.0) continue;
+
+    // The wash's shape: one broad bump, whole from WASH_RISE, dissolving long past the free edge, the folds
+    // shallow and the rays a whisper over it.
+    float washShape = smoothstep(0.0, WASH_RISE, vl) * (1.0 - smoothstep(WASH_RISE - 0.1, 1.0 + WASH_SOFT, vl));
+    washShape *= mix(WASH_FOLD_FLOOR, 1.0, knot) * (1.0 + uLook.x * WASH_RAY * (ray - 0.5));
+    float W = washShape * dim * side * uState.x * uLook.y;
+    if (mix(I, W, uLook.z) <= 0.0) continue;
 
     // The colour: the stops across the width, the hue carried a little by the wave and the clock.
-    vec3 lch = stopAt(ux + 0.1 * w + 0.15 * depth + 0.04 * sin(uMotion.z + seed));
+    vec3 lch = stopAt(ux + 0.1 * mix(w, wl, uLook.z) + 0.15 * depth + 0.04 * sin(uMotion.z + seed));
 
-    // A wash on a light surface: the colour, lifted and gained, at an alpha that thins with the glow.
-    float a = min(1.0, I * uTone.x);
-    vec3 washRgb = oklchToSrgb(vec3(lch.x + uTone.y, lch.y * uTone.z, lch.z));
+    // A wash on a light surface: the stop's hue at one high lightness and a share of its chroma, at an alpha
+    // that follows the wash's shape.
+    float a = min(1.0, W * uTone.x);
+    vec3 washRgb = oklchToSrgb(vec3(uTone.y, min(lch.y * uTone.z, WASH_CHROMA_MAX), lch.z));
     vec4 wash = vec4(washRgb * a, a);
 
     // Light on a dark surface: the colour by the glow, half as much alpha, the brightest spots lifted toward white.
@@ -311,7 +339,7 @@ class Renderer implements AuroraRenderer {
     gl.uniform4f(uniforms.uState, frame.introFade, frame.introReach, frame.driftAcross, frame.driftStretch);
     for (let i = 0; i < 3; i++) stops.set(frame.stops[i], i * 3);
     gl.uniform3fv(uniforms.uStops, stops);
-    gl.uniform4f(uniforms.uTone, frame.washAlpha, frame.washLift, frame.washChroma, frame.glowPeak);
+    gl.uniform4f(uniforms.uTone, frame.washAlpha, frame.washLightness, frame.washChroma, frame.glowPeak);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, frame.width, frame.height);

@@ -28,6 +28,10 @@ import {
   SIDE_MAX,
   SIDE_MIN,
   SIDE_SHARE,
+  WASH_CHROMA_MAX,
+  WASH_L,
+  WASH_RISE,
+  WASH_SOFT,
   WAVE,
   auroraApproach,
   auroraColorAt,
@@ -50,6 +54,8 @@ import {
   auroraSrgbToOklab,
   auroraStop,
   auroraStopToSrgb,
+  auroraWashColor,
+  auroraWashShape,
   auroraWave,
 } from './aurora-model';
 
@@ -292,6 +298,50 @@ describe('auroraRay and auroraIntensity', () => {
   });
 });
 
+describe('auroraWashShape and auroraWashColor', () => {
+  it('is one broad bump with no bright border: nothing at the root, whole over the free edge, dissolving long past it', () => {
+    expect(auroraWashShape(0)).toBe(0);
+    const samples = Array.from({ length: 161 }, (_, i) => i / 100);
+    const values = samples.map(auroraWashShape);
+    const peak = Math.max(...values);
+    expect(peak).toBeLessThanOrEqual(1);
+    expect(peak).toBeGreaterThan(0.9);
+    // Broad: at WASH_RISE and at the free edge alike it is near whole, where the curtain's profile has a narrow border.
+    expect(auroraWashShape(WASH_RISE)).toBeGreaterThan(0.85);
+    expect(auroraWashShape(1)).toBeGreaterThan(0.7);
+    expect(auroraProfile(0.7) / auroraProfile(BORDER_AT)).toBeLessThan(0.6);
+    expect(auroraWashShape(0.7) / peak).toBeGreaterThan(0.75);
+    // Rises once and falls once: no edge, no second bump.
+    const peakAt = values.indexOf(peak);
+    for (let i = 1; i <= peakAt; i++) expect(values[i]).toBeGreaterThanOrEqual(values[i - 1]);
+    for (let i = peakAt + 1; i < values.length; i++) expect(values[i]).toBeLessThanOrEqual(values[i - 1]);
+    expect(auroraWashShape(1 + WASH_SOFT)).toBe(0);
+    expect(WASH_SOFT).toBeGreaterThan(EDGE_SOFT * 2);
+  });
+
+  it('lays every stop pale: one high lightness, a bounded chroma, the hue kept', () => {
+    expect(WASH_L).toBeGreaterThanOrEqual(0.86);
+    expect(WASH_L).toBeLessThanOrEqual(0.95);
+    for (const rgb of [
+      [0, 0.533, 0],
+      [0.224, 0.412, 0.886],
+      [0.541, 0.31, 0.812],
+      [0.863, 0.192, 0.216],
+      [0.1, 0.1, 0.1],
+    ]) {
+      const stop = auroraStop(rgb);
+      const [L, C, h] = auroraWashColor(stop);
+      expect(L).toBe(WASH_L);
+      expect(C).toBeLessThanOrEqual(WASH_CHROMA_MAX);
+      expect(C).toBeLessThanOrEqual(stop[1]);
+      expect(h).toBe(stop[2]);
+      // Pale in sRGB too: no channel below 0.7, so black text keeps its contrast over the densest pixel.
+      const srgb = auroraStopToSrgb([L, C, h]);
+      expect(Math.min(...srgb)).toBeGreaterThan(0.7);
+    }
+  });
+});
+
 describe('auroraIntro and auroraApproach', () => {
   it('eases the fade and the reach in from the start share and is whole once over', () => {
     expect(auroraIntro(0)).toEqual([0, INTRO_REACH_START]);
@@ -438,9 +488,9 @@ const frameOf = (over: Partial<AuroraFrame> = {}): AuroraFrame => ({
   driftAcross: 0,
   driftStretch: 0,
   stops: [new Float32Array([0.5, 0.2, 2.5]), new Float32Array([0.55, 0.2, 4.6]), new Float32Array([0.5, 0.2, 5.4])],
-  washAlpha: 0.7,
-  washLift: 0.06,
-  washChroma: 1.12,
+  washAlpha: 0.85,
+  washLightness: 0.9,
+  washChroma: 0.5,
   glowPeak: 1,
   ...over,
 });
@@ -475,7 +525,7 @@ describe('createAuroraRenderer', () => {
     expect(gl.uniforms['uState']).toEqual([1, 1, 0, 0]);
     expect(gl.uniforms['uStops']).toHaveLength(9);
     expect(gl.uniforms['uStops'][5]).toBeCloseTo(4.6, 5);
-    expect(gl.uniforms['uTone'].map(v => Math.round(v * 100) / 100)).toEqual([0.7, 0.06, 1.12, 1]);
+    expect(gl.uniforms['uTone'].map(v => Math.round(v * 100) / 100)).toEqual([0.85, 0.9, 0.5, 1]);
   });
 
   it('is null where a shader does not compile', () => {

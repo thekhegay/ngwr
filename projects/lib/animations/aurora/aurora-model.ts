@@ -74,10 +74,24 @@ const PIXELS = 400_000;
 /** Frames a second, and the gap between them in ms: slow light needs no more. */
 const FPS = 30;
 const FRAME_MS = 1000 / FPS;
-/** On a light surface the curtain is a wash: its peak alpha, how much it lifts the stops' lightness and how much it gains their chroma. */
-const WASH_ALPHA = 0.7;
-const WASH_LIFT = 0.06;
-const WASH_CHROMA = 1.12;
+/**
+ * On a light surface the curtain is a wash, a pale pastel: its peak alpha,
+ * the lightness every stop is laid at, the share of a stop's chroma it keeps
+ * and the most chroma it may hold (a pastel this light holds no more in
+ * sRGB). The shape is the curtain's but softer: where it is whole, how far
+ * past the free edge it dissolves, how dim it is between the folds, how far
+ * the rays modulate it at a unit `rays` and how much of the wave's finer
+ * octaves it keeps.
+ */
+const WASH_ALPHA = 0.85;
+const WASH_L = 0.9;
+const WASH_CHROMA = 0.5;
+const WASH_CHROMA_MAX = 0.08;
+const WASH_RISE = 0.85;
+const WASH_SOFT = 0.5;
+const WASH_FOLD_FLOOR = 0.8;
+const WASH_RAY = 0.2;
+const WASH_DETAIL = 0.4;
 /** On a dark surface it is light: its peak strength, and how far the brightest spots are lifted toward white. */
 const GLOW_PEAK = 1;
 const GLOW_LIFT = 0.1;
@@ -205,6 +219,27 @@ function auroraRatio(width: number, height: number): number {
   return clamp(Math.sqrt(PIXELS / area), RATIO_MIN, RATIO_MAX);
 }
 
+/**
+ * How dense the wash is `v` of the way from the anchored edge to the free
+ * edge: nothing at the root, whole from {@link WASH_RISE} and dissolving
+ * past the free edge over {@link WASH_SOFT} of the curtain's height. One
+ * broad bump, no bright border and no edge. The shader's own formula.
+ */
+function auroraWashShape(v: number): number {
+  const rise = smoothstep(0, WASH_RISE, v);
+  const dissolve = 1 - smoothstep(WASH_RISE - 0.1, 1 + WASH_SOFT, v);
+  return rise * dissolve;
+}
+
+/**
+ * A stop as the wash lays it, in OKLCh: the hue kept, the lightness set to
+ * {@link WASH_L} whatever the stop's, the chroma a share of the stop's within
+ * {@link WASH_CHROMA_MAX}. The shader's own formula.
+ */
+function auroraWashColor(stop: ArrayLike<number>): [L: number, C: number, h: number] {
+  return [WASH_L, Math.min(stop[1] * WASH_CHROMA, WASH_CHROMA_MAX), stop[2]];
+}
+
 /** Whether `surface` is light, so the curtain is laid as a wash rather than as light. */
 function auroraLight(surface: ArrayLike<number>): boolean {
   return 0.2126 * surface[0] + 0.7152 * surface[1] + 0.0722 * surface[2] > 0.5;
@@ -312,7 +347,13 @@ export {
   VEIL_POWER,
   WASH_ALPHA,
   WASH_CHROMA,
-  WASH_LIFT,
+  WASH_CHROMA_MAX,
+  WASH_DETAIL,
+  WASH_FOLD_FLOOR,
+  WASH_L,
+  WASH_RAY,
+  WASH_RISE,
+  WASH_SOFT,
   WAVE,
   WAVE_DRIFT,
   WAVE_FREQ,
@@ -337,5 +378,7 @@ export {
   auroraSrgbToOklab,
   auroraStop,
   auroraStopToSrgb,
+  auroraWashColor,
+  auroraWashShape,
   auroraWave,
 };

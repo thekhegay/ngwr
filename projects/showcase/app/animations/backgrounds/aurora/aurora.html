@@ -60,7 +60,7 @@
 
   <ngwr-doc-section
     title="Colours"
-    description="The colour flows across the width from `--wr-aurora-color-1` at the inline start through `-2` to `-3` at the inline end: the success, the primary and a primary-danger violet by default, bare intents, since the curtain is a graphic and not text. The three are mixed in OKLCh, lightness and chroma moving linearly and the hue walking the shorter arc, so the colour between two stops is as saturated as either and never the grey an sRGB mix falls into; keep the three hues turning one way, as the defaults do, and no mix is far from its neighbours. Set the hooks on the host, where the defaults are declared; they are read through `resolveCssColorChannels` and re-read when the scheme changes. The surface is read too: on a light one the curtain is a wash of saturated colour whose alpha thins to transparent, on a dark one it is light added to the surface."
+    description="The colour flows across the width from `--wr-aurora-color-1` at the inline start through `-2` to `-3` at the inline end: the success, the primary and a primary-danger violet by default, bare intents, since the curtain is a graphic and not text. The three are mixed in OKLCh, lightness and chroma moving linearly and the hue walking the shorter arc, so the colour between two stops is as saturated as either and never the grey an sRGB mix falls into; keep the three hues turning one way, as the defaults do, and no mix is far from its neighbours. Set the hooks on the host, where the defaults are declared; they are read through `resolveCssColorChannels` and re-read when the scheme changes. The surface is read too, and it decides the look. On a dark one the curtain is light added to the surface, saturated and brightest at its lower border, with the rays inside it. On a light one nothing can glow, so it is a pale wash instead: each stop's hue at one high lightness and a fraction of its chroma, one broad soft shape with no bright border, a slower edge and a long dissolve into the surface, the rays a whisper of texture. The same stops drive both."
   >
     <ngwr-doc-code [code]="snippets.colours" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -104,7 +104,7 @@
 
   <ngwr-doc-section
     title="Rays"
-    description="`rays` is how strongly the fine vertical rays show inside the curtain, from none to one, 0.6 unset: they are brightest near the free edge and fade toward the root, lean a little with the wave and shimmer on a clock of their own. None is a smooth curtain; one is all rays. `glow` scales the whole light, the wash's alpha on a light surface and the glow on a dark one."
+    description="`rays` is how strongly the fine vertical rays show inside the curtain, from none to one, 0.6 unset: they are brightest near the free edge and fade toward the root, lean a little with the wave and shimmer on a clock of their own. None is a smooth curtain; one is all rays. `glow` scales the whole light, the wash's alpha on a light surface and the glow on a dark one. On a light surface the rays stay a whisper even at one: a hint of texture in the wash, never stripes."
   >
     <ngwr-doc-code [code]="snippets.rays" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -180,12 +180,13 @@
           <tr>
             <th scope="row">Contrast</th>
             <td>
-              The brightest part of the curtain sits just short of its free edge, and the root it hangs from is dim, so
-              text near the anchored edge reads over a faint tint. Measured under the first demo above, the heading
-              never falls under 11:1 in either scheme and the lead keeps 6.5:1 over most of its pixels; where a bright
-              ray crosses the lead's lowest line the worst pixel is about 4.4:1 in light and 2.2:1 in dark. Muted text
-              that must sit under the glow wants the other <code>edge</code>, a shorter <code>height</code> or a lower
-              <code>glow</code>.
+              The root the curtain hangs from is dim, so text near the anchored edge reads over a faint tint. On a light
+              surface the wash is pale throughout, so text keeps its contrast wherever it sits: measured under the first
+              demo above, over several frames and at the worst pixel, the heading keeps 15:1 and the lead 5.7:1. On a
+              dark surface the brightest part sits just short of the free edge: the heading never falls under 11:1 and
+              the lead keeps 6.5:1 over most of its pixels, but where a bright ray crosses the lead's lowest line the
+              worst pixel is about 2.2:1. Muted text that must sit under the glow in dark wants the other
+              <code>edge</code>, a shorter <code>height</code> or a lower <code>glow</code>.
             </td>
           </tr>
           <tr>
