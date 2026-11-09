@@ -6,3 +6,4 @@
  */
 
 export { WrFluidCursor } from './fluid-cursor';
+export type { WrFluidCursorQuality } from './types';

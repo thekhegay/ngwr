@@ -5,129 +5,106 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { type WrNoise, createNoise } from 'ngwr/animations/core';
-
-/** How many particles live at once: past this a new one takes the slot of the oldest. */
-const CAP = 256;
-/** A particle about this often along the pointer's path, in px. */
-const EMIT_GAP = 5;
-/** The most particles one move may emit: a long jump spreads them out rather than bunching them at its start. */
-const EMIT_MAX = 40;
-/** How long a particle lives, in ms, drawn between the two. */
-const LIFE_MIN = 700;
-const LIFE_MAX = 1000;
-/** A particle's radius at birth and at death, in px, before its own size jitter. */
-const RADIUS = 16;
-const RADIUS_END = 40;
-/** How much of its size a particle is born larger or smaller, either way. */
-const SIZE_JITTER = 0.2;
-/** How far from the path a particle is born, in px, either way. */
-const JITTER = 2;
-/** How much of the pointer's velocity a particle is born with. */
-const INHERIT = 0.35;
-/** The pointer's velocity is clamped to this, in px per ms: a jump across the box is not a gust. */
-const SPEED_MAX = 2.5;
-/** How much velocity a particle is born with on its own, in px per ms, either way per axis. */
-const SCATTER = 0.06;
-/** How much of its own velocity a particle keeps per 60Hz frame. */
-const DRAG = 0.92;
-/** How long a particle takes to reach full strength after its birth, in ms, so it never pops. */
-const FADE_IN = 60;
-/** Noise cells per px of the flow field: one swirl every so many px. */
-const NOISE_SCALE = 1 / 140;
-/** Noise cells per ms: the field itself drifts, so a still trail does not sit in one eddy. */
-const NOISE_DRIFT = 0.0004;
-/** How fast the flow runs per unit of noise gradient, in px per ms. */
-const CURL = 5;
-/** Half the step the field's gradient is read over, in px. */
-const CURL_EPS = 1;
-/** How many colours the trail cycles through, from tint A to tint B. */
-const TINTS = 5;
-/** Over how many px of stroke the colour goes from A to B and back. */
-const TINT_CYCLE = 1400;
-/** The flow field is seeded, so a spec can pin a frame. */
-const SEED = 0x51f1d;
+import type { WrFluidCursorQuality } from './types';
 
 /**
- * The particles, one slot each, in parallel arrays: a slot is live while its
- * `age` is under its `life`. Slots are taken in a ring, so the one a new
- * particle displaces when the pool is full is the oldest.
+ * The density under which a dye is not seen: the display pass maps it to an
+ * alpha of about two percent. `trail` is the time a fresh splat takes to get
+ * here, and the loop stops once the last splat is this far behind.
  */
-interface FluidPool {
-  readonly cap: number;
-  readonly x: Float32Array<ArrayBuffer>;
-  readonly y: Float32Array<ArrayBuffer>;
-  readonly vx: Float32Array<ArrayBuffer>;
-  readonly vy: Float32Array<ArrayBuffer>;
-  readonly age: Float32Array<ArrayBuffer>;
-  readonly life: Float32Array<ArrayBuffer>;
-  /** A particle's own size, as a share of the common radius. */
-  readonly size: Float32Array<ArrayBuffer>;
-  /** Which of the `TINTS` colours a particle wears. */
-  readonly tint: Uint8Array<ArrayBuffer>;
-  /** The slot the next particle takes. */
-  next: number;
-  /** How many slots are live, as of the last advance or emission. */
-  alive: number;
-  /** How far past the last move's end the next particle is due, in px. */
-  carry: number;
-  /** How far the pointer has drawn in all, in px: the colour follows it. */
-  phase: number;
-  /** In 0..1, for the jitter; a spec passes its own. */
-  readonly random: () => number;
+const FLOOR = 0.012;
+
+/** A splat lands denser than one where strokes overlap; the rest time allows for this much. */
+const PEAK = 2.5;
+
+/** The pointer is never read faster than this, in CSS px per second: a jump across the region is not a stroke. */
+const SPEED_MAX = 4000;
+
+/** How far the pointer travels for the palette to run one full cycle, in CSS px. */
+const CYCLE_PX = 900;
+
+/**
+ * A fresh splat is laid every this many radii along a stroke, so a fast move
+ * leaves a continuous line, and no more than this many per event.
+ */
+const SPLAT_GAP = 0.6;
+const SPLATS_MAX = 12;
+
+/** A click's splash: this many rays around the point, each this many splats long, at this speed in CSS px per second, leaning this far sideways. */
+const SPLASH_RAYS = 7;
+const SPLASH_STEPS = 3;
+const SPLASH_SPEED = 900;
+const SPLASH_SPIN = 0.6;
+
+/** A grid never shrinks under this on a side. */
+const SIDE_MIN = 2;
+
+/** One quality step: the short side of the velocity grid and of the dye grid, in texels, and the pressure solve's Jacobi iterations. */
+interface FluidQuality {
+  readonly sim: number;
+  readonly dye: number;
+  readonly iterations: number;
 }
 
-/** An empty pool of `cap` slots. */
-function fluidPool(cap = CAP, random: () => number = Math.random): FluidPool {
-  const pool: FluidPool = {
-    cap,
-    x: new Float32Array(cap),
-    y: new Float32Array(cap),
-    vx: new Float32Array(cap),
-    vy: new Float32Array(cap),
-    age: new Float32Array(cap),
-    life: new Float32Array(cap),
-    size: new Float32Array(cap),
-    tint: new Uint8Array(cap),
-    next: 0,
-    alive: 0,
-    carry: 0,
-    phase: 0,
-    random,
-  };
-  fluidClear(pool);
-  return pool;
-}
+/** The grids and the pressure solve per quality. */
+const QUALITY: Readonly<Record<WrFluidCursorQuality, FluidQuality>> = {
+  low: { sim: 96, dye: 384, iterations: 12 },
+  medium: { sim: 128, dye: 640, iterations: 20 },
+  high: { sim: 192, dye: 1024, iterations: 28 },
+};
 
-/** Every slot dead, the ring and the path forgotten. */
-function fluidClear(pool: FluidPool): void {
-  pool.age.fill(1);
-  pool.life.fill(0);
-  pool.next = 0;
-  pool.alive = 0;
-  pool.carry = 0;
-  pool.phase = 0;
-}
-
-/** Whether slot `i` holds a live particle. */
-function fluidLive(pool: FluidPool, i: number): boolean {
-  return pool.age[i] < pool.life[i];
-}
-
-/** The smooth flow field the particles ride, in -1..1, continuous in place and time. */
-function createFluidNoise(seed = SEED): WrNoise {
-  return createNoise(seed);
+/** A grid's size in texels. */
+interface FluidGrid {
+  readonly width: number;
+  readonly height: number;
 }
 
 /**
- * The pointer's velocity over a move of `dx`, `dy` px in `dt` ms, into `out`,
- * in px per ms and never faster than `SPEED_MAX`; a move with no time to it
- * counts as a slow one.
+ * A grid over a `width` by `height` region with `short` texels on its short
+ * side and the region's aspect ratio, held under `maxPixels` texels in all,
+ * never under two a side.
  */
-function fluidVelocity(dx: number, dy: number, dt: number, out: Float32Array): void {
-  const ms = Math.max(dt, 8);
-  let vx = dx / ms;
-  let vy = dy / ms;
+function fluidGrid(width: number, height: number, short: number, maxPixels: number): FluidGrid {
+  if (!(width > 0) || !(height > 0)) return { width: SIDE_MIN, height: SIDE_MIN };
+  const aspect = width / height;
+  let w = aspect >= 1 ? short * aspect : short;
+  let h = aspect >= 1 ? short : short / aspect;
+  const over = (w * h) / maxPixels;
+  if (over > 1) {
+    const scale = 1 / Math.sqrt(over);
+    w *= scale;
+    h *= scale;
+  }
+  return { width: Math.max(SIDE_MIN, Math.round(w)), height: Math.max(SIDE_MIN, Math.round(h)) };
+}
+
+/**
+ * The rate, per second, at which a field decays so that a unit of it reaches
+ * {@link FLOOR} in `seconds`; a non-positive time means no decay at all.
+ */
+function fluidDecay(seconds: number): number {
+  return seconds > 0 ? Math.log(1 / FLOOR) / seconds : 0;
+}
+
+/**
+ * How long after the last input the dye is sure to be under {@link FLOOR}, in
+ * ms: `trail` seconds for a unit splat, longer for the {@link PEAK} that
+ * overlapping strokes reach.
+ */
+function fluidRestMs(trail: number): number {
+  if (!(trail > 0)) return 0;
+  return Math.round(trail * 1000 * (1 + Math.log(PEAK) / Math.log(1 / FLOOR)));
+}
+
+/**
+ * The pointer's velocity in CSS px per second, from a move of `dx`, `dy` in
+ * `dtMs`, the speed clamped at {@link SPEED_MAX}; a move with no time in it is
+ * read as one ms. Written into `out`.
+ */
+function fluidVelocity(dx: number, dy: number, dtMs: number, out: Float32Array): void {
+  const dt = Math.max(dtMs, 1) / 1000;
+  let vx = dx / dt;
+  let vy = dy / dt;
   const speed = Math.hypot(vx, vy);
   if (speed > SPEED_MAX) {
     vx *= SPEED_MAX / speed;
@@ -137,174 +114,124 @@ function fluidVelocity(dx: number, dy: number, dt: number, out: Float32Array): v
   out[1] = vy;
 }
 
-/** Which colour a particle born `phase` px into the stroke wears: A to B and back over one cycle. */
-function fluidTint(phase: number): number {
-  const u = (phase / TINT_CYCLE) % 1;
-  const tri = u < 0.5 ? u * 2 : 2 - u * 2;
-  return Math.round(tri * (TINTS - 1));
+/** How many splats a move of `distance` CSS px takes, at `radius`: one when still, one per {@link SPLAT_GAP} radii, at most {@link SPLATS_MAX}. */
+function fluidSplats(distance: number, radius: number): number {
+  if (!(distance > 0) || !(radius > 0)) return 1;
+  return Math.min(SPLATS_MAX, Math.max(1, Math.ceil(distance / (radius * SPLAT_GAP))));
 }
 
 /**
- * Emits particles along the pointer's move from (`x0`, `y0`) to (`x1`, `y1`),
- * one every `EMIT_GAP` px, carrying the remainder from the last move so a
- * stroke is one even run across events; never more than `EMIT_MAX`, spread
- * over the whole move when it would be. A move of no length is the start of
- * a stroke and emits one. Each particle is born with `INHERIT` of the
- * pointer's velocity (`vx`, `vy`, px per ms) plus a little scatter, a jittered
- * place and size, a life of its own and the colour the stroke is at. Returns
- * how many were emitted.
+ * How much of its dye each of the `splats` a move of `distance` is laid as
+ * carries: the share of a full gap it covers, so a stroke lays the same ink
+ * per px travelled whether the pointer crawls or sweeps, and a still pointer
+ * lays none.
  */
-function fluidEmit(pool: FluidPool, x0: number, y0: number, x1: number, y1: number, vx: number, vy: number): number {
-  const dx = x1 - x0;
-  const dy = y1 - y0;
-  const dist = Math.hypot(dx, dy);
-  if (dist === 0) {
-    spawn(pool, x1, y1, vx, vy);
-    pool.carry = EMIT_GAP;
-    return 1;
-  }
-  const step = Math.max(EMIT_GAP, dist / EMIT_MAX);
-  let s = pool.carry;
-  let n = 0;
-  while (s <= dist && n < EMIT_MAX) {
-    const t = s / dist;
-    spawn(pool, x0 + dx * t, y0 + dy * t, vx, vy);
-    s += step;
-    n++;
-  }
-  pool.carry = Math.min(EMIT_GAP, s - dist);
-  pool.phase += dist;
-  return n;
+function fluidDyeScale(distance: number, splats: number, radius: number): number {
+  if (!(radius > 0) || !(splats > 0)) return 1;
+  return Math.min(1, Math.max(0, distance / splats / (radius * SPLAT_GAP)));
 }
 
-function spawn(pool: FluidPool, x: number, y: number, vx: number, vy: number): void {
-  const i = pool.next;
-  const random = pool.random;
-  if (!fluidLive(pool, i)) pool.alive++;
-  pool.x[i] = x + (random() * 2 - 1) * JITTER;
-  pool.y[i] = y + (random() * 2 - 1) * JITTER;
-  pool.vx[i] = vx * INHERIT + (random() * 2 - 1) * SCATTER;
-  pool.vy[i] = vy * INHERIT + (random() * 2 - 1) * SCATTER;
-  pool.age[i] = 0;
-  pool.life[i] = LIFE_MIN + random() * (LIFE_MAX - LIFE_MIN);
-  pool.size[i] = 1 + (random() * 2 - 1) * SIZE_JITTER;
-  pool.tint[i] = fluidTint(pool.phase);
-  pool.next = (i + 1) % pool.cap;
+/** A colour as three channels in 0..1. */
+type FluidColor = readonly [number, number, number];
+
+/**
+ * The palette's colour at `phase`, the cycle position with a period of one:
+ * a blend of two neighbours, with the brightness of a blend held between
+ * theirs, so a cool and a warm ink do not meet in grey. Written into `out`.
+ */
+function fluidPaletteColor(phase: number, palette: readonly FluidColor[], out: Float32Array): void {
+  const n = palette.length;
+  if (n === 0) {
+    out[0] = out[1] = out[2] = 0;
+    return;
+  }
+  const t = ((phase % 1) + 1) % 1;
+  const slot = t * n;
+  const i = Math.floor(slot) % n;
+  const j = (i + 1) % n;
+  const f = slot - Math.floor(slot);
+  const a = palette[i];
+  const b = palette[j];
+  const peak = Math.max(a[0], a[1], a[2]) * (1 - f) + Math.max(b[0], b[1], b[2]) * f;
+  let r = a[0] * (1 - f) + b[0] * f;
+  let g = a[1] * (1 - f) + b[1] * f;
+  let bl = a[2] * (1 - f) + b[2] * f;
+  const max = Math.max(r, g, bl);
+  if (max > 0) {
+    const k = peak / max;
+    r *= k;
+    g *= k;
+    bl *= k;
+  }
+  out[0] = r;
+  out[1] = g;
+  out[2] = bl;
+}
+
+/** A saturated hue at `phase`, the hue circle with a period of one, written into `out`. */
+function fluidRainbowColor(phase: number, out: Float32Array): void {
+  const h = (((phase % 1) + 1) % 1) * 6;
+  const x = 1 - Math.abs((h % 2) - 1);
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  if (h < 1) [r, g] = [1, x];
+  else if (h < 2) [r, g] = [x, 1];
+  else if (h < 3) [g, b] = [1, x];
+  else if (h < 4) [g, b] = [x, 1];
+  else if (h < 5) [r, b] = [x, 1];
+  else [r, b] = [1, x];
+  // Pulled a little toward white, so the pure corners of the hue circle sit with the theme inks.
+  const s = 0.9;
+  out[0] = r * s + (1 - s);
+  out[1] = g * s + (1 - s);
+  out[2] = b * s + (1 - s);
+}
+
+/** Whether a surface is light, so the dye is laid as ink over it rather than lit on it. */
+function fluidInk(surface: FluidColor): boolean {
+  return 0.2126 * surface[0] + 0.7152 * surface[1] + 0.0722 * surface[2] > 0.5;
 }
 
 /**
- * The flow at (`x`, `y`) `time` ms in, into `out`, in px per ms: the curl of
- * the noise, read as a central difference, so the field turns in eddies and
- * never gathers the particles into a heap or thins them out.
+ * The rays of a click's splash: {@link SPLASH_RAYS} directions around the
+ * point, each as a velocity of {@link SPLASH_SPEED} CSS px per second scaled
+ * by `force`, leaning {@link SPLASH_SPIN} of that sideways, so the splash
+ * turns as it spreads and the vorticity curls each ray; written into `out`
+ * two numbers a ray. `seed` turns the fan so two splashes do not match.
  */
-function fluidCurl(noise: WrNoise, x: number, y: number, time: number, out: Float32Array): void {
-  const s = NOISE_SCALE;
-  const t = time * NOISE_DRIFT;
-  const e = CURL_EPS;
-  const dndx = (noise((x + e) * s, y * s, t) - noise((x - e) * s, y * s, t)) / (2 * e);
-  const dndy = (noise(x * s, (y + e) * s, t) - noise(x * s, (y - e) * s, t)) / (2 * e);
-  out[0] = CURL * dndy;
-  out[1] = -CURL * dndx;
-}
-
-/** A particle's radius `age` ms into a life of `life` ms, in px: it grows as it dissolves. */
-function fluidRadius(age: number, life: number): number {
-  const t = Math.min(1, Math.max(0, age / life));
-  return RADIUS + (RADIUS_END - RADIUS) * t;
-}
-
-/** How much of its colour a particle shows `age` ms into a life of `life` ms, 0 to 1: in fast, out slow. */
-function fluidAlpha(age: number, life: number): number {
-  if (age < 0 || age >= life) return 0;
-  const t = age / life;
-  const fadeIn = Math.min(1, age / FADE_IN);
-  return (1 - t) ** 1.6 * fadeIn;
-}
-
-/**
- * One step of `dt` ms on slot `i`: the particle ages, its own velocity
- * decays by `DRAG`, and it moves by that velocity plus the flow at its place.
- * Returns whether it is still alive.
- */
-function fluidStep(pool: FluidPool, i: number, dt: number, noise: WrNoise, time: number, flow: Float32Array): boolean {
-  const age = pool.age[i] + dt;
-  if (age >= pool.life[i]) {
-    pool.age[i] = pool.life[i];
-    return false;
+function fluidSplash(force: number, seed: number, out: Float32Array): number {
+  for (let i = 0; i < SPLASH_RAYS; i++) {
+    const angle = ((i + seed) / SPLASH_RAYS) * Math.PI * 2;
+    const c = Math.cos(angle);
+    const sn = Math.sin(angle);
+    out[i * 2] = (c - sn * SPLASH_SPIN) * SPLASH_SPEED * force;
+    out[i * 2 + 1] = (sn + c * SPLASH_SPIN) * SPLASH_SPEED * force;
   }
-  pool.age[i] = age;
-  const drag = DRAG ** (dt / 16.7);
-  pool.vx[i] *= drag;
-  pool.vy[i] *= drag;
-  fluidCurl(noise, pool.x[i], pool.y[i], time, flow);
-  pool.x[i] += (pool.vx[i] + flow[0]) * dt;
-  pool.y[i] += (pool.vy[i] + flow[1]) * dt;
-  return true;
-}
-
-/** Every live particle moved `dt` ms on; sets and returns how many are left. */
-function fluidAdvance(pool: FluidPool, dt: number, noise: WrNoise, time: number, flow: Float32Array): number {
-  let alive = 0;
-  for (let i = 0; i < pool.cap; i++) {
-    if (!fluidLive(pool, i)) continue;
-    if (fluidStep(pool, i, dt, noise, time, flow)) alive++;
-  }
-  pool.alive = alive;
-  return alive;
-}
-
-/** How the trail is laid over the page, per scheme. */
-interface FluidBlend {
-  /** The canvas composite the particles are drawn with. */
-  readonly composite: GlobalCompositeOperation;
-  /** How much of its colour a particle shows at most. */
-  readonly strength: number;
-}
-
-/**
- * The blend for a surface of the given 0..1 sRGB channels. On a dark surface
- * the particles add up (`lighter`), so a trail glows where it is thick; added
- * colour on a light surface only saturates to white, so there they are laid
- * over one another at a lower strength instead, and pool like ink.
- */
-function fluidBlend(surface: ArrayLike<number>): FluidBlend {
-  const luminance = 0.2126 * surface[0] + 0.7152 * surface[1] + 0.0722 * surface[2];
-  return luminance < 0.5 ? { composite: 'lighter', strength: 0.18 } : { composite: 'source-over', strength: 0.14 };
+  return SPLASH_RAYS;
 }
 
 export {
-  CAP,
-  CURL,
-  DRAG,
-  EMIT_GAP,
-  EMIT_MAX,
-  FADE_IN,
-  INHERIT,
-  JITTER,
-  LIFE_MAX,
-  LIFE_MIN,
-  NOISE_DRIFT,
-  NOISE_SCALE,
-  RADIUS,
-  RADIUS_END,
-  SCATTER,
-  SEED,
-  SIZE_JITTER,
+  FLOOR,
+  PEAK,
   SPEED_MAX,
-  TINTS,
-  TINT_CYCLE,
-  createFluidNoise,
-  fluidAdvance,
-  fluidAlpha,
-  fluidBlend,
-  fluidClear,
-  fluidCurl,
-  fluidEmit,
-  fluidLive,
-  fluidPool,
-  fluidRadius,
-  fluidStep,
-  fluidTint,
+  CYCLE_PX,
+  SPLAT_GAP,
+  SPLATS_MAX,
+  SPLASH_RAYS,
+  SPLASH_STEPS,
+  SPLASH_SPEED,
+  SPLASH_SPIN,
+  QUALITY,
+  fluidGrid,
+  fluidDecay,
+  fluidRestMs,
   fluidVelocity,
+  fluidSplats,
+  fluidDyeScale,
+  fluidPaletteColor,
+  fluidRainbowColor,
+  fluidInk,
+  fluidSplash,
 };
-export type { FluidBlend, FluidPool };
+export type { FluidQuality, FluidGrid, FluidColor };

@@ -1,45 +1,127 @@
 <ngwr-doc-page
   title="Fluid Cursor"
   since="15.7.0"
-  description="A soft trail of colour behind a region's content, left by the pointer: as the mouse moves, particles are emitted along its path, drift on with some of its speed, are carried round by a slow swirling field, grow and fade, like ink dropped in water, gone about a second after the mouse stops. It has no inputs: the two tints are CSS variables."
-  [keywords]="['fluid-cursor', 'pointer trail', 'cursor effect', 'canvas', 'wr-fluid-cursor']"
+  description="Coloured ink behind a region's content, stirred by the pointer: a move lays dye and momentum into a fluid, and the dye swirls into curling eddies, folds over itself, drifts on with the motion the pointer gave it and fades out over a few seconds. A fast stroke leaves a long sweeping trail with vortices peeling off; a slow one soft billows; a click a radial splash."
+  [keywords]="['fluid-cursor', 'fluid simulation', 'pointer trail', 'cursor effect', 'ink', 'webgl', 'wr-fluid-cursor']"
   [labels]="['Animation', 'Component']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="Put `<wr-fluid-cursor />` first inside the region it should fill. The parent takes the pointer, passively: the host and its canvas never do, and a finger is ignored, so a scroll over the region is never fought. One canvas, and a frame loop that runs only while a particle is alive, on screen and with the document visible: a still trail costs no frames. Move the pointer over the box."
+    description="Put `<wr-fluid-cursor />` first inside the region it should fill. The parent takes the pointer, passively: the host and its canvas never do, and a finger that draws is never stopped from scrolling. The fluid is a stable-fluids solver in WebGL, one canvas; the context is made at the first move, not at mount, and the frame loop runs only while the host is on screen, the document is visible and the last move is nearer than `trail`, then stops on its own. Move the pointer over the box; click in it."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
         <wr-fluid-cursor />
         <h3 wrTypography variant="h3">Move the pointer here.</h3>
-        <p wrTypography variant="lead">The trail dissolves about a second after the pointer stops.</p>
+        <p wrTypography variant="lead">The ink swirls on after the pointer stops and is gone in a few seconds.</p>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="The parent"
-    description="The host is absolute, `inset: 0`, at `z-index: -1`, under no pointer and masked out at the edges, so a trail drawn to the border dissolves rather than ending in a straight cut. The parent provides two things: it is positioned, so the host fills it, and isolated, so the host's negative z-index lands at the floor of the parent's own stacking context, under the content and over the page background."
+    description="The host is absolute, `inset: 0`, at `z-index: -1`, under no pointer and masked out at the edges, so ink carried to the border dissolves rather than ending in a straight cut. The parent provides two things: it is positioned, so the host fills it, and isolated, so the host's negative z-index lands at the floor of the parent's own stacking context, under the content and over the page background."
   >
     <ngwr-doc-code [code]="snippets.parent" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Colours"
-    description="`--wr-fluid-cursor-tint-a` and `-b` are the two ends of the trail's colour, primary and info by default; the stroke cycles between them as it goes. Bare intents, since the trail is a graphic and not text; the canvas shows them at a fraction, added on a dark surface so the trail glows where it is thick, laid over on a light one, so the text over the trail reads as it does on the plain surface. Set them on the parent."
+    description="A stroke cycles through `--wr-fluid-cursor-color-1` to `-5`, primary, danger, warning, success and info by default, one full cycle every 900px of travel; set them on the parent. `rainbow` cycles the hue circle instead. The surface decides how the ink is laid: on a light one it covers as ink, its colour at full saturation under a coverage that rises with its density, so it reads as ink on white and not as a glow; on a dark one the thin end is pulled down, so a trail goes out crisply instead of hanging as haze."
   >
-    <ngwr-doc-code [code]="snippets.colours" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.rainbow" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div
-        class="ngwr-demo-arena ngwr-demo-arena--backdrop"
-        style="--wr-fluid-cursor-tint-a: var(--wr-color-warning); --wr-fluid-cursor-tint-b: var(--wr-color-danger)"
-      >
-        <wr-fluid-cursor />
-        <h3 wrTypography variant="h3">A warmer trail.</h3>
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>rainbow</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-fluid-cursor rainbow />
+            <h3 wrTypography variant="h3">The hue circle.</h3>
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>--wr-fluid-cursor-color-1: var(--wr-color-warning)</code></p>
+          <div
+            class="ngwr-demo-arena ngwr-demo-arena--backdrop"
+            style="
+              --wr-fluid-cursor-color-1: var(--wr-color-warning);
+              --wr-fluid-cursor-color-2: var(--wr-color-danger);
+              --wr-fluid-cursor-color-3: var(--wr-color-warning);
+              --wr-fluid-cursor-color-4: var(--wr-color-danger);
+              --wr-fluid-cursor-color-5: var(--wr-color-warning);
+            "
+          >
+            <wr-fluid-cursor />
+            <h3 wrTypography variant="h3">A warm palette.</h3>
+          </div>
+        </div>
       </div>
     </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.colours" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Calmer"
+    description="`swirl` is how strongly the eddies are fed back, `force` how much of the pointer's speed the fluid takes, `size` the radius of what a move lays, in px, `intensity` how much dye it lays, `trail` how long the dye lasts, in seconds, and `momentum` how long the motion does. Less swirl and force with a wider, longer trail is slow ink in still water."
+  >
+    <ngwr-doc-code [code]="snippets.calm" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Default</p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-fluid-cursor />
+            <h3 wrTypography variant="h3">Lively.</h3>
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>swirl="0.3" force="0.5" size="40" intensity="0.6" trail="5"</code>
+          </p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-fluid-cursor swirl="0.3" force="0.5" size="40" intensity="0.6" trail="5" />
+            <h3 wrTypography variant="h3">Calm.</h3>
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Click splash"
+    description="A primary click or a tap on the parent splashes the ink outward from the point, a ring of eight rays in the next colour of the cycle; `clickSplash` false turns it off. The listener is passive and stops nothing, so a link or a button over the ink works as before."
+  >
+    <ngwr-doc-code [code]="snippets.splash" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Default</p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-fluid-cursor />
+            <h3 wrTypography variant="h3">Click here.</h3>
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>[clickSplash]="false"</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-fluid-cursor [clickSplash]="false" />
+            <h3 wrTypography variant="h3">A click does nothing here.</h3>
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Quality"
+    description="`quality` sizes the grids and the pressure solve: the velocity grid is 96, 128 or 192 texels on its short side, the dye grid 384, 640 or 1024 and no finer than the canvas, and the solve 12, 20 or 28 iterations. Both grids keep the region's aspect ratio and sit under the same pixel budget as the other canvas backdrops, so a wide footer is never a wide texture; `shading` false drops the relief lighting, the cheapest pass to lose."
+  >
+    <ngwr-doc-code [code]="snippets.quality" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Accessibility">
@@ -56,20 +138,28 @@
             <th scope="row">Screen readers</th>
             <td>
               Decorative: the host is <code>aria-hidden</code>, holds no text, takes no pointer and is never focusable.
+              The listeners on the parent are passive and stop nothing, so every control over the ink behaves as before.
             </td>
           </tr>
           <tr>
             <th scope="row">Touch</th>
             <td>
-              A finger that moves is scrolling: a touch pointer emits nothing, so the trail never fights a scroll.
+              A finger draws like a mouse, and is never stopped from scrolling: nothing is prevented and
+              <code>touch-action</code> is left alone, so a scroll that starts over the region scrolls.
             </td>
           </tr>
           <tr>
             <th scope="row">Reduced motion</th>
             <td>
-              Under <code>prefers-reduced-motion: reduce</code> nothing is drawn; under
-              <code>forced-colors: active</code>
-              nothing is either.
+              Under <code>prefers-reduced-motion: reduce</code> nothing is drawn and no context is made; a trail caught
+              moving when it is turned on is cleared. Under <code>forced-colors: active</code> nothing is drawn either.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">No WebGL</th>
+            <td>
+              Without WebGL2, or WebGL1 with half-float render targets, nothing is drawn; a lost context is let go and
+              rebuilt when the browser restores it.
             </td>
           </tr>
           <tr>
