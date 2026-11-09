@@ -3,8 +3,15 @@
   since="15.7.0"
   description="A wide ribbon of fine threads behind a section's content, like silk: dozens of hair-thin strands flowing across the region at a slight angle, close together near one end, almost a single cord, and parting as they go toward the other, each taking a path of its own. The bundle rides slow waves that travel along it, so it shimmers, and the pointer parts the threads around itself, like fingers drawn through silk."
   [keywords]="['thread-lines', 'background', 'backdrop', 'webgl', 'silk', 'ribbon', 'strands', 'wr-thread-lines']"
-  [labels]="['Animation', 'Component']"
+  [labels]="['Animation', 'Component', 'WebGL']"
 >
+  <wr-alert
+    class="wr-not-typeset"
+    type="info"
+    title="Runs on the GPU"
+    message="It draws on the GPU through WebGL, at a capped resolution, only while on screen and the tab is visible, and at 30 frames a second until the pointer parts the threads. Without WebGL it draws nothing. Use one WebGL effect per view, and keep it off low-end and battery-sensitive pages if in doubt."
+  />
+
   <ngwr-doc-section
     title="Basic"
     description="Put `<wr-thread-lines />` first inside the region it should fill. The drawing is one WebGL pass: every pixel measures its distance to every strand, so a strand is a crisp anti-aliased hairline with a faint glow, never a stroke. The context is made when the host is first on screen and sized, and the loop runs while it stays on screen and the document is visible: thirty frames a second while only the waves move, the screen's rate while the parting is live. The parent takes the pointer, passively; a finger is ignored, so a scroll over the section is never fought. Under RTL the ribbon is mirrored and gathers at the inline start."
@@ -66,15 +73,14 @@
 
   <ngwr-doc-section
     title="Colours"
-    description="The middle of the bundle is `--wr-thread-lines-color`, the body's ink by default, and the outer strands blend toward `--wr-thread-lines-accent`, the primary by default; set either on the parent. Both are read through `resolveCssColorChannels` and re-read when the scheme changes. The surface is read too: on a light one the strands are laid as ink, darker than the surface, with next to no glow; on a dark one they are lit, with a soft glow round each."
+    description="The middle of the bundle is `--wr-thread-lines-color`, the body's ink by default, and the outer strands blend toward `--wr-thread-lines-accent`, the primary by default; set either on the host, where the defaults are declared. Both are read through `resolveCssColorChannels` and re-read when the scheme changes. The surface is read too: on a light one the strands are laid as ink, darker than the surface, with next to no glow; on a dark one they are lit, with a soft glow round each."
   >
     <ngwr-doc-code [code]="snippets.colours" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div
-        class="ngwr-demo-arena ngwr-demo-arena--backdrop"
-        style="--wr-thread-lines-color: var(--wr-color-info); --wr-thread-lines-accent: var(--wr-color-warning)"
-      >
-        <wr-thread-lines />
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-thread-lines
+          style="--wr-thread-lines-color: var(--wr-color-info); --wr-thread-lines-accent: var(--wr-color-warning)"
+        />
         <h3 wrTypography variant="h3">Info, fraying into warning.</h3>
       </div>
     </ngwr-doc-snippet>

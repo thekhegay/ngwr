@@ -3,11 +3,11 @@
   since="15.7.0"
   description="A faint square grid of thin lines behind a page's content. A click or a tap on the parent sends a ring out from that point: as the wave passes, the lines bend outward and brighten a little toward the primary colour; the ring widens, fades, and the grid lies flat again. Several rings add up where they cross."
   [keywords]="['ripple-grid', 'background', 'backdrop', 'canvas', 'click', '404', 'wr-ripple-grid']"
-  [labels]="['Animation', 'Component']"
+  [labels]="['Animation', 'Component', 'Canvas']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="Put `<wr-ripple-grid />` first inside the region it should fill. The parent takes the click, passively and never stopped, so a link or a button over the grid works as before and still starts a ring under the pointer; a keyboard activation is a click with no point and rings nothing. One canvas: the frame loop runs only while a ring is alive, on screen and with the document visible; at rest the flat grid is drawn once, as straight lines."
+    description="Put `<wr-ripple-grid />` first inside the region it should fill. The parent takes the click, passively and never stopped, so a link or a button over the grid works as before and still starts a ring under the pointer; a keyboard activation is a click with no point and rings nothing. One 2D canvas, drawn on the CPU every frame while something moves and idle otherwise: the frame loop runs only while a ring is alive, on screen and with the document visible; at rest the flat grid is drawn once, as straight lines."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -28,7 +28,7 @@
 
   <ngwr-doc-section
     title="Spacing"
-    description="`spacing` is the distance between two grid lines, in px, 32 unset; the grid is centred, so the margins at the edges are equal. A finer grid bends in more places as the wave passes, a coarser one reads as a few lines moving. The two colours are the `--wr-ripple-grid-ink` and `--wr-ripple-grid-glow` hooks, read through `resolveCssColorChannels` and re-read when the scheme changes. The wave's speed, band, height and life are the model's numbers, not inputs."
+    description="`spacing` is the distance between two grid lines, in px, 32 unset; the grid is centred, so the margins at the edges are equal. A finer grid bends in more places as the wave passes, a coarser one reads as a few lines moving. The two colours are the `--wr-ripple-grid-ink` and `--wr-ripple-grid-glow` hooks, set on the host, where the defaults are declared, and read through `resolveCssColorChannels` and re-read when the scheme changes. The wave's speed, band, height and life are the model's numbers, not inputs."
   >
     <ngwr-doc-code [code]="snippets.spacing" language="angular-html" />
     <ngwr-doc-snippet code="">

@@ -3,8 +3,15 @@
   since="15.7.0"
   description="A dense field of thin parallel lines behind a section's content that flows like silk: a slow, smooth noise field bends every line in long gentle waves, neighbours moving together, so the field reads like a surface or a contour map in a breeze. The pointer is a soft weight on it: nearby lines are pushed away, take on the accent where they bend the most and spring back with a small bounce when it moves on, so a moving pointer leaves a short living wake. A click sends a ring out across the field. The hero of this site runs it."
   [keywords]="['flow-lines', 'background', 'backdrop', 'webgl', 'hero', 'noise', 'silk', 'wr-flow-lines']"
-  [labels]="['Animation', 'Component']"
+  [labels]="['Animation', 'Component', 'WebGL']"
 >
+  <wr-alert
+    class="wr-not-typeset"
+    type="info"
+    title="Runs on the GPU"
+    message="It draws on the GPU through WebGL, at a capped resolution, only while on screen and the tab is visible, and at 30 frames a second until a wake, a ripple or the intro is live. Without WebGL it draws nothing. Use one WebGL effect per view, and keep it off low-end and battery-sensitive pages if in doubt."
+  />
+
   <ngwr-doc-section
     title="Basic"
     description="Put `<wr-flow-lines />` first inside the region it should fill. The drawing is one WebGL pass: every pixel measures its distance to the nearest line of the bent field, so a line is a crisp anti-aliased hairline and a curve is smooth whatever bends it, never a chain of segments. The context is made when the host is first on screen and sized, and the loop runs while it stays on screen and the document is visible: thirty frames a second while only the drift moves, the screen's rate while a wake, a ripple or the intro is live. The parent takes the pointer, passively; a moving finger is ignored, so a scroll over the section is never fought, and a tap may ripple."
