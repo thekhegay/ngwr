@@ -12,17 +12,9 @@
   &__viewport {
     width: 100%;
     height: 100%;
-    // CDK already sets `overflow: auto`; just add a discreet scrollbar
-    // skin via the platform defaults — a discreet custom thumb that still matches the
-    // host application's chrome.
-    scrollbar-width: thin;
 
-    &::-webkit-scrollbar {
-      width: 0.5rem;
-      height: 0.5rem;
-    }
+    // The thumb itself comes from the theme; the hook only rounds it.
     &::-webkit-scrollbar-thumb {
-      background: color-mix(in srgb, var(--wr-color-on-surface) 20%, transparent);
       border-radius: var(--wr-virtual-scroll-thumb-radius);
     }
   }
