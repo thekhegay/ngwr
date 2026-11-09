@@ -80,8 +80,7 @@
   // The arena as a backdrop's parent (`<wr-aurora />`, `<wr-dot-grid />` as
   // its first child): positioned and isolated, so the backdrop's negative
   // z-index is the floor of the arena's own stacking context, under the sample
-  // content and over the arena's surface. The same contract `.ngwr-section--backdrop`
-  // gives a home section.
+  // content and over the arena's surface.
   &--backdrop {
     position: relative;
     isolation: isolate;

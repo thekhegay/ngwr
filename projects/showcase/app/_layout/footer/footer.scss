@@ -2,7 +2,7 @@
 @use 'showcase/styles/mixins' as site;
 
 // Host rules go through `:host`: the host's own classes (`ngwr-footer`,
-// `--compact`, `--contained`) are set by a binding, and a class selector in
+// `--compact`) are set by a binding, and a class selector in
 // this emulated sheet is scoped with `_ngcontent`, which the host never
 // carries.
 :host {
@@ -20,19 +20,6 @@
 :host(.ngwr-footer--compact) .ngwr-footer__bottom {
   padding: 0.875rem var(--wr-grid-gutter);
   border-top: 0;
-}
-
-// Contained variant — rows align with the page container
-// Mirrors the homepage's `.container` rhythm so the brand block + link
-// columns + bottom row line up with the hero, bento, and sections
-// above. Docs pages don't need this (the sidebar provides the rhythm).
-:host(.ngwr-footer--contained) {
-  .ngwr-footer__top,
-  .ngwr-footer__bottom {
-    max-width: 80rem;
-    margin-left: auto;
-    margin-right: auto;
-  }
 }
 
 .ngwr-footer {
