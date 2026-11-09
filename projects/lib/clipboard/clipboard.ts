@@ -5,8 +5,11 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { DOCUMENT } from '@angular/common';
 import { Service, inject } from '@angular/core';
+
+import { wrRestoreFocus } from 'ngwr/utils';
 
 import type { WrClipboardPermission } from './types';
 
@@ -36,6 +39,7 @@ import type { WrClipboardPermission } from './types';
  */
 @Service()
 export class WrClipboard {
+  private readonly focusMonitor = inject(FocusMonitor);
   private readonly doc = inject(DOCUMENT);
 
   /** Is any clipboard write path available (async API or `execCommand`)? */
@@ -147,7 +151,7 @@ export class WrClipboard {
       // whatever was focused, and focusing a detached node throws focus away
       // just as thoroughly as not restoring it.
       if (previouslyFocused instanceof HTMLElement && previouslyFocused.isConnected) {
-        previouslyFocused.focus();
+        wrRestoreFocus(previouslyFocused, this.focusMonitor);
       }
     }
   }

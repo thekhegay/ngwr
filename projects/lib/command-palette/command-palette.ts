@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory, FocusMonitor } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type BlockScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { isPlatformBrowser } from '@angular/common';
@@ -33,7 +33,7 @@ import { WrHotkey, type WrHotkeyHandle, type WrHotkeySpec } from 'ngwr/hotkey';
 import { readI18nText, useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
 import { WR_OVERLAY_CONTAINER } from 'ngwr/overlay';
-import { isComposing, wrCheckStyles } from 'ngwr/utils';
+import { isComposing, wrCheckStyles, wrRestoreFocus } from 'ngwr/utils';
 
 import type { WrCommandItem } from './types';
 
@@ -210,6 +210,7 @@ export class WrCommandPalette {
     return i >= 0 && i < this.filtered().length ? this.optionId(i) : null;
   });
 
+  private readonly focusMonitor = inject(FocusMonitor);
   private readonly hotkeys = inject(WrHotkey);
   private readonly destroyRef = inject(DestroyRef);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
@@ -343,7 +344,7 @@ export class WrCommandPalette {
         this.focusTrap = null;
         const restore = this.previouslyFocused;
         this.previouslyFocused = null;
-        if (restore && typeof restore.focus === 'function') restore.focus();
+        if (restore && typeof restore.focus === 'function') wrRestoreFocus(restore, this.focusMonitor);
       }
     });
 

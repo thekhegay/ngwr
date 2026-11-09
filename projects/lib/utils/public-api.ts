@@ -42,6 +42,7 @@ export {
   wrCheckStyles,
   wrContentDispositionFileName,
   wrDownloadBlob,
+  wrRestoreFocus,
 } from './dom';
 export type { WatchColorSchemeOptions, WrColorScheme } from './dom';
 

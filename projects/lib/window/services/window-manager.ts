@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
@@ -26,7 +27,7 @@ import {
 
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';
-import { clamp, randomId, toClassList } from 'ngwr/utils';
+import { clamp, randomId, toClassList, wrRestoreFocus } from 'ngwr/utils';
 
 import { storageKey } from '../storage-key';
 import { WR_WINDOW_DATA, WR_WINDOW_DEFAULTS, WR_WINDOW_REF } from '../tokens';
@@ -107,6 +108,7 @@ export interface WrWindowTaskbarTabs {
  */
 @Service()
 export class WrWindowManager implements WrWindowRefHost {
+  private readonly focusMonitor = inject(FocusMonitor);
   private readonly overlay = inject(WR_OVERLAY);
   private readonly parentInjector = inject(EnvironmentInjector);
   private readonly storage = inject(WrStorage);
@@ -393,7 +395,7 @@ export class WrWindowManager implements WrWindowRefHost {
       model.complete();
       this._windows.update(list => list.filter(r => r !== any));
       if (this._active() === any) this.setActive(null);
-      if (back?.isConnected) back.focus();
+      if (back?.isConnected) wrRestoreFocus(back, this.focusMonitor);
     };
 
     this._windows.update(list => [...list, any]);
@@ -619,7 +621,7 @@ export class WrWindowManager implements WrWindowRefHost {
     const tab = this.taskbarTab(ref);
     const restore = tab?.matches('button') ? tab : tab?.querySelector<HTMLElement>('button');
     if (restore) restore.focus();
-    else if (ref._returnFocus?.isConnected) ref._returnFocus.focus();
+    else if (ref._returnFocus?.isConnected) wrRestoreFocus(ref._returnFocus, this.focusMonitor);
     // Nowhere to go: at least never leave focus parked inside a window that is
     // `display: none`, where it would keep claiming every Escape. Browsers
     // that run the focus fixup rule have already done this.

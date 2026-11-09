@@ -5,11 +5,13 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { ConfigurableFocusTrap } from '@angular/cdk/a11y';
+import { type ConfigurableFocusTrap, FocusMonitor } from '@angular/cdk/a11y';
 import type { OverlayRef } from '@angular/cdk/overlay';
 import { type ComponentRef, type EffectRef, type Injector, type Signal, effect, untracked } from '@angular/core';
 
 import { ReplaySubject } from 'rxjs';
+
+import { wrRestoreFocus } from 'ngwr/utils';
 
 /**
  * Handle returned by `WrDialog.open()`.
@@ -62,6 +64,8 @@ export class WrDialogRef<C, R = unknown> {
 
   private readonly watchers: EffectRef[] = [];
 
+  private readonly focusMonitor: FocusMonitor | null;
+
   /**
    * @param _overlayRef the overlay the dialog is mounted in.
    * @param injector what `closeWhen()` runs its watcher in. `WrDialog.open()`
@@ -70,7 +74,10 @@ export class WrDialogRef<C, R = unknown> {
   constructor(
     private readonly _overlayRef: OverlayRef,
     private readonly injector?: Injector
-  ) {}
+  ) {
+    // Resolved now: the injector may be gone by the time the dialog closes.
+    this.focusMonitor = injector?.get(FocusMonitor, null) ?? null;
+  }
 
   /** The instantiated dialog component. */
   get componentInstance(): C {
@@ -111,7 +118,7 @@ export class WrDialogRef<C, R = unknown> {
     this.componentRef = null;
     // Restore focus after disposal so the trigger is reachable again.
     if (restore && typeof restore.focus === 'function') {
-      restore.focus();
+      wrRestoreFocus(restore, this.focusMonitor);
     }
   }
 
