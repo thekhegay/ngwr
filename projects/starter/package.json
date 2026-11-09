@@ -8,11 +8,11 @@
   },
   "dependencies": {
     "@angular/cdk": "^22.2.5",
-    "@angular/common": "^22.2.4",
-    "@angular/compiler": "^22.2.4",
-    "@angular/core": "^22.2.4",
-    "@angular/forms": "^22.2.4",
-    "@angular/platform-browser": "^22.2.4",
+    "@angular/common": "^22.2.5",
+    "@angular/compiler": "^22.2.5",
+    "@angular/core": "^22.2.5",
+    "@angular/forms": "^22.2.5",
+    "@angular/platform-browser": "^22.2.5",
     "ngwr": "^15.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.9.1"
@@ -20,7 +20,7 @@
   "devDependencies": {
     "@angular/build": "^22.3.0-next.4",
     "@angular/cli": "^22.2.5",
-    "@angular/compiler-cli": "^22.2.4",
+    "@angular/compiler-cli": "^22.2.5",
     "typescript": "~6.0.0"
   }
 }
