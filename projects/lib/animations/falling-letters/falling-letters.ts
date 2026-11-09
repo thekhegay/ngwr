@@ -66,6 +66,18 @@ const SPRING_FREQ = 2.4 * Math.PI;
 const MAX_STEP = 0.04;
 
 /**
+ * How far under a letter's last bottom edge a surface may be, in px, and still
+ * count as under it: the rounding of a frame, not a neighbour's top.
+ */
+const SLACK = 0.5;
+
+/** How fast a letter that lands against a neighbour slides clear of it, or climbs out from between two, in px/s. */
+const SLIDE = 240;
+
+/** How far a letter slides and climbs at most, in px, before it gives up and lies where it is. */
+const SLIDE_MAX = 48;
+
+/**
  * Multipliers of the low-discrepancy sequences, one per channel: `(n * m) mod 1`
  * spreads over (0, 1) with no two neighbours close, and three irrationals far
  * apart keep the release order, the drift and the spin from following one another.
@@ -90,8 +102,10 @@ function spring(t: number): number {
 
 /**
  * The floor, as a row of narrow columns, each remembering the top of what has
- * landed in it. A letter lands on the highest top among the columns it covers,
- * so later letters sit on earlier ones and the floor fills into a heap.
+ * landed in it. A letter lands on the highest top among the columns it covers
+ * that lies under it, so later letters sit on earlier ones and the floor fills
+ * into a heap, and a letter already level with a neighbour's top is beside
+ * that neighbour, not on it.
  */
 class Heap {
   private readonly tops: Float64Array;
@@ -100,16 +114,46 @@ class Heap {
   constructor(
     private readonly from: number,
     to: number,
-    floor: number
+    private readonly floor: number
   ) {
     this.tops = new Float64Array(Math.max(1, Math.ceil((to - from) / COLUMN))).fill(floor);
   }
 
-  /** The y a body spanning `a` to `b` lands on: the smallest y (highest top) among its columns. */
-  top(a: number, b: number): number {
+  /**
+   * The y a body spanning `a` to `b` lands on: the smallest y (highest top)
+   * among its columns at or under `below`, the body's own bottom edge a frame
+   * ago. A column whose top is above that is a neighbour the body is passing
+   * beside, so it does not count: a letter that lands next to one already on
+   * the floor keeps falling to the floor instead of jumping up onto it. With
+   * every column of the span above the body, it falls on to the floor itself.
+   */
+  top(a: number, b: number, below = -Infinity): number {
     let top = Infinity;
-    for (let c = this.column(a); c <= this.column(b); c++) top = Math.min(top, this.tops[c]);
-    return top;
+    for (let c = this.column(a); c <= this.column(b); c++) {
+      const candidate = this.tops[c];
+      if (candidate >= below) top = Math.min(top, candidate);
+    }
+    return top === Infinity ? this.floor : top;
+  }
+
+  /**
+   * What stands beside a body spanning `a` to `b` that lies with its bottom
+   * at `bottom`: how many of its columns, left and right of its middle, end
+   * above that bottom, in a neighbour it landed against. `null` when none
+   * does and it may lie where it is.
+   */
+  beside(a: number, b: number, bottom: number): { left: number; right: number } | null {
+    const from = this.column(a);
+    const to = this.column(b);
+    const mid = (from + to) / 2;
+    let left = 0;
+    let right = 0;
+    for (let c = from; c <= to; c++) {
+      if (this.tops[c] >= bottom - SLACK) continue;
+      if (c <= mid) left++;
+      else right++;
+    }
+    return left === 0 && right === 0 ? null : { left, right };
   }
 
   /** A body spanning `a` to `b` has settled with its top at `y`: its columns now end there. */
@@ -122,12 +166,27 @@ class Heap {
   }
 }
 
+/**
+ * The part of a piece that falls and lands: the ink of the glyph, inside the
+ * piece's box. `left` and `top` are from the box's top-left corner.
+ */
+interface Body {
+  readonly left: number;
+  readonly top: number;
+  readonly width: number;
+  readonly height: number;
+}
+
 /** One letter on its way: a piece over the page, its place in the line, and its motion. */
 interface Piece {
   readonly el: HTMLElement;
-  readonly w: number;
-  readonly h: number;
-  /** The centre of the letter in the line, from the target's padding box. */
+  /** The body's size, for the walls and the heap. */
+  readonly bw: number;
+  readonly bh: number;
+  /** The body's centre from the piece's top-left corner: where the piece turns, and what `cx`, `cy` are the position of. */
+  readonly ox: number;
+  readonly oy: number;
+  /** The centre of the body in the line, from the target's padding box. */
   readonly x0: number;
   readonly y0: number;
   /** How long after the click this letter lets go, in seconds. */
@@ -138,6 +197,10 @@ interface Piece {
   vx: number;
   vy: number;
   spin: number;
+  /** How far the letter may still slide and climb to get clear of a neighbour, in px. */
+  slide: number;
+  /** The top the letter is climbing to, squeezed up from between two neighbours; `null` otherwise. */
+  climb: number | null;
   settled: boolean;
   /** Where the flight back started from. */
   fromX: number;
@@ -152,6 +215,48 @@ interface Bounds {
   readonly floor: number;
 }
 
+/** Half the width and half the height of a body's axis-aligned box at `angle` degrees. */
+function extent(piece: Pick<Piece, 'bw' | 'bh'>, angle: number): { hw: number; hh: number } {
+  const rad = (angle * Math.PI) / 180;
+  const cos = Math.abs(Math.cos(rad));
+  const sin = Math.abs(Math.sin(rad));
+  return { hw: (piece.bw * cos + piece.bh * sin) / 2, hh: (piece.bh * cos + piece.bw * sin) / 2 };
+}
+
+/**
+ * The ink of one grapheme inside its line box, from the canvas text metrics
+ * of the same font: the line box is mostly air (the leading, the ascender
+ * space over an `a`, the descender space under it), and a heap of air boxes
+ * is a heap of letters hanging apart in mid-air. The baseline sits at the
+ * box's half-leading plus the font's ascent, as in the line it came from; the
+ * ink is the glyph's own bounds about that baseline and the start of its
+ * advance. `null` when the browser gives no context or no metrics (jsdom, an
+ * invisible glyph), and the piece's box is the body.
+ */
+function ink(ctx: CanvasRenderingContext2D | null, text: string, box: Pick<DOMRect, 'height'>): Body | null {
+  if (!ctx) return null;
+  const m = ctx.measureText(text);
+  const ascent = m.fontBoundingBoxAscent;
+  const descent = m.fontBoundingBoxDescent;
+  if (!(ascent >= 0 && descent >= 0)) return null;
+  const baseline = (box.height - ascent - descent) / 2 + ascent;
+  const left = -m.actualBoundingBoxLeft || 0;
+  const top = baseline - m.actualBoundingBoxAscent;
+  const width = m.actualBoundingBoxRight - left;
+  const height = baseline + m.actualBoundingBoxDescent - top;
+  return width > 0.5 && height > 0.5 ? { left, top, width, height } : null;
+}
+
+/** A canvas context set to the element's font, for `ink`; `null` where there is no canvas. */
+function measurer(el: HTMLElement): CanvasRenderingContext2D | null {
+  const doc = el.ownerDocument;
+  const style = doc.defaultView?.getComputedStyle(el);
+  const ctx = doc.createElement('canvas').getContext('2d');
+  if (!style || !ctx) return null;
+  ctx.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+  return ctx;
+}
+
 /**
  * Click a line of text and its letters let go: each one drops with gravity,
  * drifts and tumbles a little on its own path, and lands on whatever already
@@ -161,12 +266,21 @@ interface Bounds {
  *
  * No physics engine. A letter's path is gravity plus a sideways drift and a
  * spin drawn from a fixed low-discrepancy sequence by its index, so the same
- * text falls the same way every time and a spec can follow it. Letters do not
- * collide in the air; they meet on the floor, which is a {@link Heap}: a row
- * of narrow columns, each remembering the top of what has landed in it, and a
- * letter lands on the highest top among the columns it covers. A letter that
- * lands fast hops once or twice ({@link RESTITUTION}); a slow one settles. A
- * wall of the container turns the drift around. The floor and the walls are
+ * text falls the same way every time and a spec can follow it. What falls is
+ * the glyph's ink, measured from the canvas text metrics of the line's font
+ * ({@link ink}), not its line box: the box is mostly air, and air boxes would
+ * stack into a heap of letters hanging apart. Letters do not collide in the
+ * air; they meet on the floor, which is a {@link Heap}: a row of narrow
+ * columns, each remembering the top of what has landed in it, and a letter
+ * lands on the highest top among the columns it covers that is under it. A
+ * top above the letter's last bottom edge is a neighbour it is passing beside,
+ * and is ignored: otherwise every letter landing beside one already down
+ * would snap up on to it, and the heap would stack into towers in a frame. A
+ * letter that lands fast hops once or twice ({@link RESTITUTION}); a slow one
+ * that came down against such a neighbour slides along its surface until it
+ * is clear ({@link SLIDE}), one down between two climbs out on to the taller,
+ * and after {@link SLIDE_MAX} px of that a letter lies where it is. A wall of
+ * the container turns the drift around. The floor and the walls are
  * the content box of `floor`'s element, measured when the fall starts.
  *
  * The line never moves. The authored nodes are moved into an invisible
@@ -325,6 +439,10 @@ export class WrFallingLetters {
     const rects = glyphs.map(glyph => glyph.el.getBoundingClientRect());
     const container = this.container();
     const bounds = this.measure(container ?? el, origin, box);
+    // The text's font, read once: every grapheme of the line shares it. An
+    // inline element is one piece with its own font and its own box, and its
+    // box (a chip, a link) is its ink.
+    const ctx = measurer(el);
 
     // The authored nodes back, the same objects, in their order: the wrapper now holds the line's space.
     wrapper.replaceChildren(...original);
@@ -341,12 +459,23 @@ export class WrFallingLetters {
       if (glyph.node) piece.append(glyph.node.cloneNode(true));
       else piece.textContent = glyph.text;
       const n = pieces.length;
-      const x0 = rect.left - origin.x + rect.width / 2;
-      const y0 = rect.top - origin.y + rect.height / 2;
+      const body: Body = (glyph.node ? null : ink(ctx, glyph.text, rect)) ?? {
+        left: 0,
+        top: 0,
+        width: rect.width,
+        height: rect.height,
+      };
+      const ox = body.left + body.width / 2;
+      const oy = body.top + body.height / 2;
+      piece.style.transformOrigin = `${roundTo(ox, 2)}px ${roundTo(oy, 2)}px`;
+      const x0 = rect.left - origin.x + ox;
+      const y0 = rect.top - origin.y + oy;
       pieces.push({
         el: piece,
-        w: rect.width,
-        h: rect.height,
+        bw: body.width,
+        bh: body.height,
+        ox,
+        oy,
         x0,
         y0,
         release: (scatter(n, 0) * RELEASE) / 1000,
@@ -356,6 +485,8 @@ export class WrFallingLetters {
         vx: (scatter(n, 1) - 0.5) * 2 * DRIFT,
         vy: 0,
         spin: (scatter(n, 2) - 0.5) * 2 * SPIN,
+        slide: SLIDE_MAX,
+        climb: null,
         settled: false,
         fromX: x0,
         fromY: y0,
@@ -493,16 +624,22 @@ export class WrFallingLetters {
       if (piece.settled) continue;
       settled = false;
       if (this.clock < piece.release) continue;
+      if (piece.climb !== null) {
+        // Squeezed up from between two neighbours at the slide's pace, until
+        // the body is level with the top of the taller one; then it drops on.
+        const rest = piece.climb - extent(piece, piece.angle).hh;
+        piece.cy = Math.max(rest, piece.cy - SLIDE * dt);
+        piece.slide -= SLIDE * dt;
+        if (piece.cy <= rest) piece.climb = null;
+        this.paint(piece);
+        continue;
+      }
+      const below = piece.cy + extent(piece, piece.angle).hh;
       piece.vy += GRAVITY * dt;
       piece.cx += piece.vx * dt;
       piece.cy += piece.vy * dt;
       piece.angle += piece.spin * dt;
-
-      const rad = (piece.angle * Math.PI) / 180;
-      const cos = Math.abs(Math.cos(rad));
-      const sin = Math.abs(Math.sin(rad));
-      const hw = (piece.w * cos + piece.h * sin) / 2;
-      const hh = (piece.h * cos + piece.w * sin) / 2;
+      const { hw, hh } = extent(piece, piece.angle);
 
       if (piece.cx - hw < bounds.minX) {
         piece.cx = bounds.minX + hw;
@@ -512,7 +649,7 @@ export class WrFallingLetters {
         piece.vx = -Math.abs(piece.vx) * FRICTION;
       }
 
-      const top = heap.top(piece.cx - hw, piece.cx + hw);
+      const top = heap.top(piece.cx - hw, piece.cx + hw, below - SLACK);
       if (piece.cy + hh >= top) {
         piece.cy = top - hh;
         if (piece.vy > BOUNCE_MIN) {
@@ -521,8 +658,26 @@ export class WrFallingLetters {
           piece.spin *= FRICTION;
         } else {
           piece.vy = 0;
-          piece.settled = true;
-          heap.settle(piece.cx - hw, piece.cx + hw, piece.cy - hh);
+          piece.spin = 0;
+          const beside = piece.slide > 0 ? heap.beside(piece.cx - hw, piece.cx + hw, piece.cy + hh) : null;
+          if (beside && beside.left > 0 && beside.right > 0) {
+            // Down between two neighbours: climb out, to the top of the taller.
+            piece.vx = 0;
+            piece.climb = heap.top(piece.cx - hw, piece.cx + hw);
+          } else if (beside) {
+            // Down against a neighbour that is already there: slide along the
+            // surface until clear of it, as letters landing on one another do,
+            // instead of lying inside it or jumping up on to it.
+            piece.vx = (beside.left > 0 ? 1 : -1) * SLIDE;
+            piece.slide -= SLIDE * dt;
+          } else {
+            piece.vx = 0;
+            piece.settled = true;
+            // The heap learns of the letter once it lies still, not at first
+            // touch: a letter that touched down, hopped and came to rest a step
+            // away would leave a top in the air for the next one to hang on.
+            heap.settle(piece.cx - hw, piece.cx + hw, piece.cy - hh);
+          }
         }
       }
       this.paint(piece);
@@ -553,8 +708,8 @@ export class WrFallingLetters {
 
   /** Written to the DOM by hand: a binding would wait for change detection, and this is every frame. */
   private paint(piece: Piece): void {
-    const x = roundTo(piece.cx - piece.w / 2, 2);
-    const y = roundTo(piece.cy - piece.h / 2, 2);
+    const x = roundTo(piece.cx - piece.ox, 2);
+    const y = roundTo(piece.cy - piece.oy, 2);
     const angle = roundTo(piece.angle, 2);
     piece.el.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
   }
@@ -577,7 +732,11 @@ export {
   RETURN,
   RETURN_GAP,
   RETURN_SPREAD,
+  SLACK,
+  SLIDE,
+  SLIDE_MAX,
   SPIN,
+  ink,
   scatter,
   spring,
 };

@@ -13,16 +13,20 @@ import { type WrPointerFollower, WrPointerTracker } from 'ngwr/animations/core';
 /**
  * The most the card leans, in degrees, reached with the pointer at an edge.
  * Small on purpose: a lean is a hint that the card is a thing with depth, and
- * at this angle the text's lines stay level enough to read through it.
+ * at this angle the text's lines stay level enough to read through it. Not
+ * smaller: at four degrees over a thousand pixels the near edge of a card grew
+ * by a percent, a pixel on a card of a hundred, and nobody saw the card move.
  */
-const MAX_ANGLE = 4;
+const MAX_ANGLE = 10;
 
 /**
- * The viewing distance, in px, for the lean's foreshortening. Far enough that
- * the near edge grows by about a percent at the full angle: the card reads as
- * tilted, not as coming out of the page.
+ * The viewing distance, in px, for the lean's foreshortening. Close enough
+ * that the near edge of a card grows by about four percent at the full angle
+ * and the far edge shrinks by as much, eight or nine pixels across a card of
+ * a hundred, so the lean reads as a lean; far enough that the card reads as
+ * tilted, not as coming out of the page. `tiltDepth` is the number.
  */
-const PERSPECTIVE = 1000;
+const PERSPECTIVE = 800;
 
 /**
  * The ease's time constant, in ms: each frame the rendered angle closes the
@@ -62,6 +66,18 @@ export function tiltAngles(
   const ny = Math.min(Math.max(((clientY - rect.top) / rect.height) * 2 - 1, -1), 1);
   // `|| 0` turns the `-0` of a centred pointer into `0`.
   return { x: -max * ny || 0, y: max * nx || 0 };
+}
+
+/**
+ * How far the lean shows, as the difference between the scale of the near
+ * edge and of the far edge of a card `size` px across, turned by `angle`
+ * degrees at the viewing distance: the foreshortening the eye reads as depth.
+ * `0.08` is an edge grown by four percent against one shrunk by four; under
+ * about `0.05` the card looks still.
+ */
+export function tiltDepth(size: number, angle = MAX_ANGLE, perspective = PERSPECTIVE): number {
+  const z = (size / 2) * Math.sin((angle * Math.PI) / 180);
+  return perspective / (perspective - z) - perspective / (perspective + z);
 }
 
 /** The inline `transform` for a pair of angles. */

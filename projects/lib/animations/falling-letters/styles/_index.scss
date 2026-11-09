@@ -41,7 +41,11 @@
 
   // One letter: a block at the origin of the layer, moved by transform alone,
   // so every frame is composited and nothing under it reflows. It inherits the
-  // font and the colour from the target, as the line it left did.
+  // font and the colour from the target, as the line it left did. The
+  // directive sets each piece's `transform-origin` inline, at the centre of
+  // the glyph's ink, so a letter turns about the letter and not about the air
+  // of its line box; the centre here is the fallback for a piece it could not
+  // measure.
   &__piece {
     position: absolute;
     // rtl-ok: the directive places each piece from measured geometry on the

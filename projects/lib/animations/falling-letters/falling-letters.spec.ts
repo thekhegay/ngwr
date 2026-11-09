@@ -17,7 +17,11 @@ import {
   RESTITUTION,
   RETURN,
   RETURN_SPREAD,
+  SLACK,
+  SLIDE,
+  SLIDE_MAX,
   SPIN,
+  ink,
   scatter,
   spring,
 } from './falling-letters';
@@ -162,15 +166,45 @@ const pose = (piece: HTMLElement): Pose => {
   return { x: Number(m![1]), y: Number(m![2]), angle: Number(m![3]) };
 };
 
-/** The axis-aligned box of a glyph's piece at its pose, for the heap and the walls. */
+/**
+ * The metrics the canvas stub answers `measureText` with. The default makes
+ * the ink the whole line box: an ascent and a descent that add up to the
+ * glyph's height, and ink that fills them, so a piece's body is its box and a
+ * spec can reason in boxes. One spec narrows the ink to see the body follow it.
+ */
+const metrics = {
+  fontBoundingBoxAscent: 15,
+  fontBoundingBoxDescent: 5,
+  actualBoundingBoxAscent: 15,
+  actualBoundingBoxDescent: 5,
+  actualBoundingBoxLeft: 0,
+  actualBoundingBoxRight: GLYPH.width,
+};
+
+/** The body of a glyph's piece: its ink inside the line box, from the metrics above. */
+const body = (): { left: number; top: number; width: number; height: number } => {
+  const baseline =
+    (GLYPH.height - metrics.fontBoundingBoxAscent - metrics.fontBoundingBoxDescent) / 2 + metrics.fontBoundingBoxAscent;
+  const left = -metrics.actualBoundingBoxLeft || 0;
+  const top = baseline - metrics.actualBoundingBoxAscent;
+  return {
+    left,
+    top,
+    width: metrics.actualBoundingBoxRight - left,
+    height: baseline + metrics.actualBoundingBoxDescent - top,
+  };
+};
+
+/** The axis-aligned box of a glyph's body at its pose, for the heap and the walls. */
 const aabb = (p: Pose): { left: number; right: number; top: number; bottom: number } => {
+  const b = body();
   const rad = (p.angle * Math.PI) / 180;
   const cos = Math.abs(Math.cos(rad));
   const sin = Math.abs(Math.sin(rad));
-  const hw = (GLYPH.width * cos + GLYPH.height * sin) / 2;
-  const hh = (GLYPH.height * cos + GLYPH.width * sin) / 2;
-  const cx = p.x + GLYPH.width / 2;
-  const cy = p.y + GLYPH.height / 2;
+  const hw = (b.width * cos + b.height * sin) / 2;
+  const hh = (b.height * cos + b.width * sin) / 2;
+  const cx = p.x + b.left + b.width / 2;
+  const cy = p.y + b.top + b.height / 2;
   return { left: cx - hw, right: cx + hw, top: cy - hh, bottom: cy + hh };
 };
 
@@ -233,6 +267,73 @@ describe('falling letters model', () => {
     expect(heap.top(-50, -40)).toBe(480);
     expect(heap.top(200, 300)).toBe(500);
     expect(COLUMN).toBeLessThan(GLYPH.width);
+  });
+
+  it('offers a body only the tops under it: a neighbour it is level with is beside it, not a floor', () => {
+    const heap = new Heap(0, 80, 500);
+    heap.settle(0, 10, 480);
+    // Coming down from above the neighbour, the body lands on it.
+    expect(heap.top(5, 30, 470)).toBe(480);
+    // Already lower than its top, the body is beside it and falls on past to the floor.
+    expect(heap.top(5, 30, 490)).toBe(500);
+    // With every column of the span above the body, the floor itself.
+    expect(heap.top(0, 10, 490)).toBe(500);
+    // At the top exactly, within the slack: on it.
+    expect(heap.top(5, 30, 480 - SLACK)).toBe(480);
+    expect(SLACK).toBeLessThan(1);
+  });
+
+  it('tells a body lying against a neighbour which side it stands on', () => {
+    const heap = new Heap(0, 80, 500);
+    heap.settle(0, 16, 480);
+    // Lying on the floor with the neighbour under its left part, or its right part.
+    expect(heap.beside(8, 30, 500)).toEqual({ left: 2, right: 0 });
+    heap.settle(64, 80, 480);
+    expect(heap.beside(50, 72, 500)).toEqual({ left: 0, right: 2 });
+    // Clear of both, and on top of one: nothing beside it.
+    expect(heap.beside(24, 44, 500)).toBeNull();
+    expect(heap.beside(0, 16, 480)).toBeNull();
+    // Between the two: both sides.
+    heap.settle(24, 40, 470);
+    expect(heap.beside(16, 48, 500)).toEqual({ left: 3, right: 1 });
+    expect(heap.beside(12, 28, 500)).toEqual({ left: 2, right: 1 });
+    expect(SLIDE_MAX).toBeGreaterThan(4 * GLYPH.width);
+    expect(SLIDE).toBeGreaterThan(DRIFT);
+  });
+
+  it('measures a glyph by its ink about the baseline of its line box, and gives up without metrics', () => {
+    const ctx = (m: Partial<TextMetrics>): CanvasRenderingContext2D =>
+      ({ measureText: () => m }) as unknown as CanvasRenderingContext2D;
+    // A 36px line box over a font of 18 up and 6 down: 6px of leading each side, the baseline at 24.
+    const font = { fontBoundingBoxAscent: 18, fontBoundingBoxDescent: 6 };
+    expect(
+      ink(
+        ctx({
+          ...font,
+          actualBoundingBoxAscent: 10,
+          actualBoundingBoxDescent: 2,
+          actualBoundingBoxLeft: -1,
+          actualBoundingBoxRight: 9,
+        }),
+        'a',
+        { height: 36 }
+      )
+    ).toEqual({ left: 1, top: 14, width: 8, height: 12 });
+    expect(ink(null, 'a', { height: 36 })).toBeNull();
+    expect(ink(ctx({ actualBoundingBoxAscent: 10, actualBoundingBoxRight: 9 }), 'a', { height: 36 })).toBeNull();
+    expect(
+      ink(
+        ctx({
+          ...font,
+          actualBoundingBoxAscent: 0,
+          actualBoundingBoxDescent: 0,
+          actualBoundingBoxLeft: 0,
+          actualBoundingBoxRight: 9,
+        }),
+        ' ',
+        { height: 36 }
+      )
+    ).toBeNull();
   });
 
   it('keeps the numbers a fall is made of', () => {
@@ -301,12 +402,24 @@ describe('WrFallingLetters', () => {
 
   beforeEach(() => {
     layout.lines = false;
+    Object.assign(metrics, {
+      fontBoundingBoxAscent: 15,
+      fontBoundingBoxDescent: 5,
+      actualBoundingBoxAscent: 15,
+      actualBoundingBoxDescent: 5,
+      actualBoundingBoxLeft: 0,
+      actualBoundingBoxRight: GLYPH.width,
+    });
     frames = new Frames();
     vi.stubGlobal('requestAnimationFrame', frames.request);
     vi.stubGlobal('cancelAnimationFrame', frames.cancel);
     vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
       return rectOf(this);
     });
+    // jsdom has no canvas: the text metrics come from the stub, the same for every glyph.
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(
+      () => ({ font: '', measureText: () => ({ ...metrics }) }) as unknown as CanvasRenderingContext2D
+    );
   });
 
   afterEach(() => {
@@ -417,9 +530,11 @@ describe('WrFallingLetters', () => {
       }
     }
     expect(frames.pending).toBe(0);
-    // Somebody reached the floor, and the fall took well under two seconds.
+    // Somebody reached the floor, and the fall and the settling on it, with
+    // thirteen letters sliding and climbing clear of one another on a floor
+    // the width of the line, took under two and a half seconds.
     expect(lowest).toBeGreaterThan(FLOOR - 0.01);
-    expect(now).toBeLessThan(2000);
+    expect(now).toBeLessThan(2500);
     // Letters tumbled: not every one lies flat.
     expect(pieces(el).some(p => Math.abs(pose(p).angle) > 10)).toBe(true);
     // Settled: the next frame of the clock changes nothing and asks for nothing.
@@ -429,15 +544,112 @@ describe('WrFallingLetters', () => {
     expect(frames.pending).toBe(0);
   });
 
-  it('piles letters on one another: a later letter in a column sits on the earlier one, never inside it', async () => {
+  it('never jumps a letter up on to a neighbour: a letter rises a hop or a climb at a time', async () => {
+    // Two letters reach the floor side by side, their boxes overlapping once
+    // turned. The first to settle used to raise the columns under both, and
+    // the second, already as low, was snapped up on to it in one frame, and
+    // the next on to that: a tower of letters hanging over the line, built in
+    // a frame and jerking as it went. A letter may rise only by a hop, which
+    // gives back a quarter of the fastest it came down, or by a climb, which
+    // is slower than that.
+    const fixture = await render(Host);
+    const el = target(fixture);
+    click(el);
+    frames.at(0);
+    let now = 0;
+    const last = pieces(el).map(p => pose(p).y);
+    const fastest = pieces(el).map(() => 0);
+    let rises = 0;
+    while (frames.pending > 0 && now < 20_000) {
+      now += FRAME;
+      frames.at(now);
+      pieces(el).forEach((piece, i) => {
+        const y = pose(piece).y;
+        const dy = y - last[i];
+        last[i] = y;
+        fastest[i] = Math.max(fastest[i], dy);
+        if (dy < -0.01) {
+          rises++;
+          expect(-dy, `piece ${i} rose ${-dy}px at ${now}ms`).toBeLessThanOrEqual(RESTITUTION * fastest[i] + 1);
+        }
+      });
+    }
+    expect(frames.pending).toBe(0);
+    expect(rises).toBeGreaterThan(0);
+  });
+
+  it('falls and lands on the ink of the glyph, not on the air of its line box', async () => {
+    // A lowercase letter in a line box: 8px of ink standing on the baseline,
+    // 7px of air over it and 5px under. Its piece turns about the ink, and the
+    // ink is what meets the floor: the box pokes under the floor by the
+    // descender space, as the letter sits on the floor and not above it.
+    metrics.actualBoundingBoxAscent = 8;
+    metrics.actualBoundingBoxDescent = 0;
+    const fixture = await render(Host);
+    const el = target(fixture);
+    click(el);
+    const b = body();
+    expect(b).toEqual({ left: 0, top: 7, width: GLYPH.width, height: 8 });
+    for (const piece of pieces(el)) expect(piece.style.transformOrigin).toBe('5px 11px');
+    // Over its letter at the start all the same: the box's top-left is unchanged.
+    pieces(el).forEach((piece, i) => {
+      const box = glyphBox(i);
+      expect(pose(piece)).toEqual({ x: box.left - EL.left, y: box.top - EL.top, angle: 0 });
+    });
+
+    frames.at(0);
+    run(600);
+    expect(frames.pending).toBe(0);
+    const bottoms = pieces(el).map(p => aabb(pose(p)).bottom);
+    expect(Math.max(...bottoms)).toBeGreaterThan(FLOOR - 0.01);
+    expect(Math.max(...bottoms)).toBeLessThanOrEqual(FLOOR + 0.01);
+    // The line box of a letter on the floor reaches under the floor: by the 5px
+    // of descender space when it lies flat, by less as it turns.
+    const boxBottom = (p: Pose): number => {
+      const rad = (p.angle * Math.PI) / 180;
+      const corners = [
+        [-b.width / 2, -b.top - b.height / 2],
+        [GLYPH.width - b.width / 2, -b.top - b.height / 2],
+        [-b.width / 2, GLYPH.height - b.top - b.height / 2],
+        [GLYPH.width - b.width / 2, GLYPH.height - b.top - b.height / 2],
+      ];
+      const cy = p.y + b.top + b.height / 2;
+      return cy + Math.max(...corners.map(([x, y]) => x * Math.sin(rad) + y * Math.cos(rad)));
+    };
+    expect(Math.max(...pieces(el).map(p => boxBottom(pose(p))))).toBeGreaterThan(FLOOR + 2);
+  });
+
+  it('takes the whole box as the body of an inline element, and of a glyph without metrics', async () => {
+    metrics.actualBoundingBoxAscent = 8;
+    metrics.actualBoundingBoxDescent = 0;
+    const fixture = await render(InlineHost);
+    const el = target(fixture);
+    click(el);
+    const origins = pieces(el).map(p => p.style.transformOrigin);
+    // 'G', 'o', 'home', 'n', 'o', 'w': the chip is the third piece.
+    expect(origins[2]).toBe('5px 10px');
+    expect(origins[0]).toBe('5px 11px');
+    fixture.destroy();
+    TestBed.resetTestingModule();
+
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+    const plain = await render(Host);
+    const text = target(plain);
+    click(text);
+    for (const piece of pieces(text)) expect(piece.style.transformOrigin).toBe('5px 10px');
+  });
+
+  it('piles letters on one another: a later letter in a column sits on the earlier one or slides clear, never inside it', async () => {
     layout.lines = true;
     const fixture = await render(Host);
     const el = target(fixture);
     settle(el);
 
     const boxes = pieces(el).map(p => aabb(pose(p)));
-    // Twelve letters start in three columns: not all can lie on the floor.
-    expect(boxes.some(b => b.bottom < FLOOR - GLYPH.height / 2)).toBe(true);
+    // Twelve letters start in three columns, four to a column, and every one
+    // comes to rest: on the floor, on another, or slid clear along one.
+    expect(boxes.every(b => b.bottom <= FLOOR + 0.01)).toBe(true);
+    expect(boxes.some(b => b.bottom > FLOOR - 0.01)).toBe(true);
     for (let i = 0; i < boxes.length; i++) {
       for (let j = 0; j < boxes.length; j++) {
         if (i === j) continue;

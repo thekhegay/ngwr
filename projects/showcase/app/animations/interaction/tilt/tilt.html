@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Tilt"
   since="15.7.0"
-  description="A card leans toward the pointer in 3D while the pointer is over it, and settles back flat when it leaves. The lean is small, four degrees at most, and the card's box never changes: `transform` only, so nothing around it moves. It has no inputs and no stylesheet."
+  description="A card leans toward the pointer in 3D while the pointer is over it, and settles back flat when it leaves. The lean is small, ten degrees at most, and the card's box never changes: `transform` only, so nothing around it moves. It has no inputs and no stylesheet."
   [keywords]="['tilt', 'hover effect', 'card', '3D', 'wrTilt']"
   [labels]="['Animation', 'Directive']"
 >
@@ -24,7 +24,7 @@
 
   <ngwr-doc-section
     title="Styling"
-    description="There is no stylesheet and nothing to `@use`: the directive paints inline and the host carries the class `wr-tilt` as a hook for a consumer's own rules, a shadow that deepens on hover, say. The edge under the pointer dips away, as if pressed, at a viewing distance far enough that the near edge grows by about a percent at the full angle: the card reads as tilted, not as coming out of the page."
+    description="There is no stylesheet and nothing to `@use`: the directive paints inline and the host carries the class `wr-tilt` as a hook for a consumer's own rules, a shadow that deepens on hover, say. The edge under the pointer dips away, as if pressed, at a viewing distance where the near edge grows by about four percent at the full angle and the far edge shrinks by as much: the card reads as tilted, not as coming out of the page."
   />
 
   <ngwr-doc-section title="Accessibility">
