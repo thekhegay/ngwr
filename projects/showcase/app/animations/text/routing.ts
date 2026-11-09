@@ -15,6 +15,6 @@ export const TEXT_ROUTES = [
   { path: animations.orbit.path, loadComponent: () => import('./orbit/orbit') },
   { path: animations.reveal.path, loadComponent: () => import('./reveal/reveal') },
   { path: animations.rotateReveal.path, loadComponent: () => import('./rotate-reveal/rotate-reveal') },
-  { path: animations.shine.path, loadComponent: () => import('./shine/shine') },
+  { path: animations.shimmer.path, loadComponent: () => import('./shimmer/shimmer') },
   { path: animations.typewriter.path, loadComponent: () => import('./typewriter/typewriter') },
 ] satisfies Routes;

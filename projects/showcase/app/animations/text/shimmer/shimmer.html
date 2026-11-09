@@ -1,25 +1,27 @@
 <ngwr-doc-page
-  title="Shine"
+  title="Shimmer"
   since="15.7.0"
   description="A soft band of light crosses the glyphs of a short label, waits, and crosses again for as long as the label is on screen. It has no inputs: the cadence and the paint are CSS variables."
-  [keywords]="['shine', 'shimmer', 'glint', 'badge', 'label', 'wrShine']"
+  [keywords]="['shimmer', 'shine', 'glint', 'badge', 'label', 'wrShimmer']"
   [labels]="['Animation', 'Directive']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="Put `wrShine` on an element that holds only text and paints no background of its own, such as a `<span>` in a paragraph: the band is a background clipped to the glyphs, and a background on the host would be covered while it passes. The band pulls the text's colour toward `--wr-shine-peak`, the ink of the surface by default, so it shows on text that is not that ink already: a muted label lights toward the ink, and a heading, which is the ink, takes a peak of its own, such as the primary ink. The text itself is never touched. The cycle runs only while most of the element is in view and the page is visible."
+    description="Put `wrShimmer` on an element that holds only text and paints no background of its own, such as a `<span>` in a paragraph: the band is a background clipped to the glyphs, and a background on the host would be covered while it passes. The band pulls the text's colour toward `--wr-shimmer-peak`, the ink of the surface by default, so it shows on text that is not that ink already: a muted label lights toward the ink, and a heading, which is the ink, takes a peak of its own, such as the primary ink. The text itself is never touched. The cycle runs only while most of the element is in view and the page is visible."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div class="ngwr-demo-pair">
         <div>
           <p class="ngwr-demo-pair__caption">A muted label, toward the ink</p>
-          <p wrTypography variant="lead" tone="muted"><span wrShine>New in 15.7: the animations family.</span></p>
+          <p wrTypography variant="lead" tone="muted"><span wrShimmer>New in 15.7: the animations family.</span></p>
         </div>
         <div>
           <p class="ngwr-demo-pair__caption">A heading, toward the primary ink</p>
           <p wrTypography variant="h2">
-            <span wrShine style="--wr-shine-peak: var(--wr-color-primary-ink)">A band of light across the glyphs.</span>
+            <span wrShimmer style="--wr-shimmer-peak: var(--wr-color-primary-ink)"
+              >A band of light across the glyphs.</span
+            >
           </p>
         </div>
       </div>
@@ -35,14 +37,14 @@
       <div class="ngwr-demo-pair">
         <div>
           <p class="ngwr-demo-pair__caption">On a tint, toward <code>-contrast</code></p>
-          <wr-tag color="primary" outlined style="--wr-shine-peak: var(--wr-color-primary-contrast)"
-            ><span wrShine>Signals-first</span></wr-tag
+          <wr-tag color="primary" outlined style="--wr-shimmer-peak: var(--wr-color-primary-contrast)"
+            ><span wrShimmer>Signals-first</span></wr-tag
           >
         </div>
         <div>
           <p class="ngwr-demo-pair__caption">On a fill, toward <code>-soft</code></p>
-          <wr-tag color="primary" style="--wr-shine-peak: var(--wr-color-primary-soft); --wr-shine-strength: 100%"
-            ><span wrShine>Signals-first</span></wr-tag
+          <wr-tag color="primary" style="--wr-shimmer-peak: var(--wr-color-primary-soft); --wr-shimmer-strength: 100%"
+            ><span wrShimmer>Signals-first</span></wr-tag
           >
         </div>
       </div>
@@ -56,28 +58,28 @@
     <ngwr-doc-code [code]="snippets.hover" language="angular-html" />
     <ngwr-doc-snippet code="">
       <button wr-btn outlined type="button">
-        <span wrShine style="--wr-shine-peak: var(--wr-color-primary)">Hover or focus me</span>
+        <span wrShimmer style="--wr-shimmer-peak: var(--wr-color-primary)">Hover or focus me</span>
       </button>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Band, strength and cadence"
-    description="`--wr-shine-band` is the lit core of the band, in em, with a fade of the same width on either side. `--wr-shine-strength` is how far the band's centre gets toward the peak; the rest is the text's own colour, so at 60%, the default, a muted label never lights to full ink. `--wr-shine-pass` is how long the band takes to cross, `--wr-shine-pause` the wait between two passes and `--wr-shine-delay` the wait before the first one after the element comes into view. Every label below is the same muted text with one pair of hooks changed."
+    description="`--wr-shimmer-band` is the lit core of the band, in em, with a fade of the same width on either side. `--wr-shimmer-strength` is how far the band's centre gets toward the peak; the rest is the text's own colour, so at 60%, the default, a muted label never lights to full ink. `--wr-shimmer-pass` is how long the band takes to cross, `--wr-shimmer-pause` the wait between two passes and `--wr-shimmer-delay` the wait before the first one after the element comes into view. Every label below is the same muted text with one pair of hooks changed."
   >
     <ngwr-doc-code [code]="snippets.styled" language="scss" />
     <ngwr-doc-snippet code="">
       <div class="ngwr-demo-pair">
         <div>
           <p class="ngwr-demo-pair__caption">Default: band 1.5em, strength 60%</p>
-          <p wrTypography variant="lead" tone="muted"><span wrShine>A narrow band, part way to the ink.</span></p>
+          <p wrTypography variant="lead" tone="muted"><span wrShimmer>A narrow band, part way to the ink.</span></p>
         </div>
         <div>
           <p class="ngwr-demo-pair__caption">
-            <code>--wr-shine-band: 5em</code>, <code>--wr-shine-strength: 100%</code>
+            <code>--wr-shimmer-band: 5em</code>, <code>--wr-shimmer-strength: 100%</code>
           </p>
           <p wrTypography variant="lead" tone="muted">
-            <span wrShine style="--wr-shine-band: 5em; --wr-shine-strength: 100%"
+            <span wrShimmer style="--wr-shimmer-band: 5em; --wr-shimmer-strength: 100%"
               >A wide band, all the way to the ink.</span
             >
           </p>
@@ -88,12 +90,14 @@
       <div class="ngwr-demo-pair">
         <div>
           <p class="ngwr-demo-pair__caption">Default: pass 1.2s, pause 5s</p>
-          <p wrTypography variant="lead" tone="muted"><span wrShine>One glide every six seconds.</span></p>
+          <p wrTypography variant="lead" tone="muted"><span wrShimmer>One glide every six seconds.</span></p>
         </div>
         <div>
-          <p class="ngwr-demo-pair__caption"><code>--wr-shine-pass: 2.4s</code>, <code>--wr-shine-pause: 1s</code></p>
+          <p class="ngwr-demo-pair__caption">
+            <code>--wr-shimmer-pass: 2.4s</code>, <code>--wr-shimmer-pause: 1s</code>
+          </p>
           <p wrTypography variant="lead" tone="muted">
-            <span wrShine style="--wr-shine-pass: 2.4s; --wr-shine-pause: 1s">A slow glide, over and over.</span>
+            <span wrShimmer style="--wr-shimmer-pass: 2.4s; --wr-shimmer-pause: 1s">A slow glide, over and over.</span>
           </p>
         </div>
       </div>

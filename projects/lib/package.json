@@ -189,9 +189,9 @@
       "sass": "./animations/rotate-reveal/styles/_index.scss",
       "default": "./animations/rotate-reveal/public-api.ts"
     },
-    "./animations/shine": {
-      "sass": "./animations/shine/styles/_index.scss",
-      "default": "./animations/shine/public-api.ts"
+    "./animations/shimmer": {
+      "sass": "./animations/shimmer/styles/_index.scss",
+      "default": "./animations/shimmer/public-api.ts"
     },
     "./animations/spotlight": {
       "sass": "./animations/spotlight/styles/_index.scss",

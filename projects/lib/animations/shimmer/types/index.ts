@@ -10,6 +10,6 @@
  * `rest` run the silent wait for the delay and the pause, `pass` runs the
  * band. No modifier is off: nothing animates.
  */
-type WrShineState = 'first' | 'pass' | 'rest';
+type WrShimmerState = 'first' | 'pass' | 'rest';
 
-export type { WrShineState };
+export type { WrShimmerState };

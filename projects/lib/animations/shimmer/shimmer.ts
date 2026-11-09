@@ -12,13 +12,13 @@ import { FOCUSABLE, VIEW_THRESHOLD } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrCheckStyles } from 'ngwr/utils';
 
-import type { WrShineState } from './types';
+import type { WrShimmerState } from './types';
 
-const STATES: readonly WrShineState[] = ['first', 'pass', 'rest'];
+const STATES: readonly WrShimmerState[] = ['first', 'pass', 'rest'];
 
 /** The `animation-name` of the band and of the silent wait, as the stylesheet declares them. */
-const PASS = 'wr-shine-pass';
-const REST = 'wr-shine-rest';
+const PASS = 'wr-shimmer-pass';
+const REST = 'wr-shimmer-rest';
 
 /**
  * A soft band of light that crosses the glyphs of a short label, waits, and
@@ -26,8 +26,8 @@ const REST = 'wr-shine-rest';
  * cadence and the stylesheet owns the paint: the host cycles through three
  * modifiers, each of which is one CSS animation, and the directive flips to
  * the next on `animationend`. So the pass, the pause and the first delay are
- * all stylesheet durations (`--wr-shine-pass`, `--wr-shine-pause`,
- * `--wr-shine-delay`) and no script runs between two flips.
+ * all stylesheet durations (`--wr-shimmer-pass`, `--wr-shimmer-pause`,
+ * `--wr-shimmer-delay`) and no script runs between two flips.
  *
  * It costs nothing off screen: the cycle runs only while most of the host is
  * in the viewport and the document is visible, and stops (no modifier, no
@@ -45,20 +45,20 @@ const REST = 'wr-shine-rest';
  * badge: a background on the host would be covered while the band passes.
  */
 @Directive({
-  selector: '[wrShine]',
-  host: { class: 'wr-shine' },
+  selector: '[wrShimmer]',
+  host: { class: 'wr-shimmer' },
 })
-export class WrShine {
+export class WrShimmer {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly platform = inject(WrPlatform);
   private readonly doc = inject(DOCUMENT);
   private readonly intersecting = signal(false);
   private observer: IntersectionObserver | null = null;
   private listeners: AbortController | null = null;
-  private state: WrShineState | null = null;
+  private state: WrShimmerState | null = null;
 
   constructor() {
-    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('animations/shine');
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('animations/shimmer');
     if (!isPlatformBrowser(inject(PLATFORM_ID))) return;
 
     afterNextRender(() => {
@@ -133,12 +133,12 @@ export class WrShine {
    * must be on the host in the same task as the `animationend` that asked for
    * it, and change detection may run after the next paint.
    */
-  private set(state: WrShineState | null): void {
+  private set(state: WrShimmerState | null): void {
     this.state = state;
     const classes = this.host.nativeElement.classList;
-    for (const each of STATES) classes.toggle(`wr-shine--${each}`, each === state);
+    for (const each of STATES) classes.toggle(`wr-shimmer--${each}`, each === state);
   }
 }
 
 // The two animation names, for the spec; the entry point does not export them.
-export { PASS as SHINE_PASS, REST as SHINE_REST };
+export { PASS as SHIMMER_PASS, REST as SHIMMER_REST };

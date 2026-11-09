@@ -5,5 +5,5 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-export { WrShine } from './shine';
-export type { WrShineState } from './types';
+export { WrShimmer } from './shimmer';
+export type { WrShimmerState } from './types';

@@ -46,7 +46,7 @@ export default class MarqueePageComponent {
     ROUTES.animations.gradientFlow,
     ROUTES.animations.reveal,
     ROUTES.animations.destruct,
-    ROUTES.animations.shine,
+    ROUTES.animations.shimmer,
     ROUTES.animations.typewriter,
     ROUTES.animations.rotateReveal,
   ].map(node => ({ title: node.title, url: wrPath(ROUTES.animations, node) }));
