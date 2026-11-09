@@ -1,62 +1,23 @@
-@use 'sass:map';
 @use '../../../theme/styles' as theme;
 @include theme.loaded('animations/aurora');
 
-// The three bands: the colour hook each reads, the shape of its gradient and
-// its rest pose, which every set of keyframes below starts on. 1 is a wide,
-// flat ellipse leaning one way, high and toward the start; 2 the widest,
-// leaning the other way, low and toward the end; 3 the smallest and the
-// brightest hue, near the middle, almost level.
-$-bands: (
-  1: (
-    color: var(--wr-aurora-color-1),
-    shape: ellipse 58% 24%,
-    pose: translate(-12%, -14%) rotate(-14deg) scale(2.2),
-  ),
-  2: (
-    color: var(--wr-aurora-color-2),
-    shape: ellipse 54% 30%,
-    pose: translate(10%, 8%) rotate(9deg) scale(2.4),
-  ),
-  3: (
-    color: var(--wr-aurora-color-3),
-    shape: ellipse 44% 22%,
-    pose: translate(-2%, 16%) rotate(-4deg) scale(2.1),
-  ),
-);
-
-// `<wr-aurora />`: a few soft, wide bands of colour drifting behind a
-// section's content, like northern lights. The still picture is the block
-// itself, so a server render and a reader with reduced motion get the final
-// bands from CSS alone; the drift is one paused animation per band that the
-// component's `--run` sets running while the host is on screen.
+// `<wr-aurora />`: a curtain of light hanging from one edge of a section,
+// like an aurora, behind the section's content. The component paints one
+// WebGL canvas and reads its three stops and the surface back from the hooks
+// below through `resolveCssColorChannels`, so a retheme and a scheme switch
+// both reach the pixels. How bright it is, how far it reaches and how it
+// moves are inputs and the shader's numbers, not the sheet's.
 .wr-aurora {
-  // The three bands, in painting order: green, blue, violet, the hues an
-  // aurora actually shows. Bare intents, not inks: these are graphics, not
-  // text, and the roles are `light-dark()` pairs already, so the dark scheme
-  // gets the intents re-tuned for its canvas with nothing re-declared. The
-  // violet is mixed from two roles rather than a step, so a rebrand moves it.
+  // The three stops the colour flows through across the width, from the
+  // inline start: green, blue, violet, the hues an aurora shows, in that
+  // order so the hue only ever turns one way between them. Bare intents, not
+  // inks: these are graphics, not text, and the roles are `light-dark()`
+  // pairs already, so the dark scheme gets the intents re-tuned for its
+  // canvas with nothing re-declared. The violet is mixed from two roles
+  // rather than a step, so a rebrand moves it.
   --wr-aurora-color-1: var(--wr-color-success);
   --wr-aurora-color-2: var(--wr-color-primary);
   --wr-aurora-color-3: color-mix(in oklch, var(--wr-color-primary) 60%, var(--wr-color-danger));
-  // The peak of a band: how much of its colour sits over the surface at the
-  // centre of its gradient, mixed toward transparent. Set for the text over
-  // it: at 12% a single peak leaves `on-surface-muted` at 6.4:1 in light and
-  // 6.9:1 in dark against the 7.6:1 it has on the plain surface, and even the
-  // theoretical worst case of all three peaks stacked on one point holds 4.8:1
-  // light and 5.6:1 dark. `on-surface` never drops below 11:1. Those are the
-  // peaks before the blur and the edge mask, which only lower them.
-  --wr-aurora-strength: 12%;
-  // The blur of one band, in the band's own pixels. Each band is rendered at
-  // half the host's size and scaled up by two or more in its pose, so this
-  // reads as about twice the radius on screen, and the blur runs over a
-  // quarter of the pixels it otherwise would. The gradient does most of the
-  // softening; the blur only takes the last edge off it.
-  --wr-aurora-blur: 18px;
-  // One back-and-forth of the middle band. The other two take 0.7 and 1.3 of
-  // it: 7, 10 and 13 are pairwise coprime, so the three return to one picture
-  // only every 910 of the base tenth, about 44 minutes at the default.
-  --wr-aurora-cycle: 29s;
 
   position: absolute;
   inset: 0;
@@ -67,135 +28,17 @@ $-bands: (
   overflow: hidden;
   pointer-events: none;
   user-select: none;
-  // Gone at the edges, so there is no rectangle where the section ends.
-  mask-image: radial-gradient(ellipse 72% 68% at 50% 50%, #000 30%, transparent 100%);
 
-  // One band: a single elliptical gradient that holds the band's peak over the
-  // inner half of the ellipse and falls to nothing over the outer half, on its
-  // own composited layer. The plateau is what makes the band visible: a
-  // gradient that starts falling at the very centre puts most of its area at a
-  // third of the strength or less, and at the default strength that is a tint
-  // of a few percent that nobody can see. The peak itself is unchanged, so the
-  // contrast figures above still hold everywhere. The box is half the host each
-  // way, and the pose scales it back up: the texture is a quarter the memory
-  // and the blur a quarter the work, and the upscale softens it further for
-  // free. Only `transform` ever changes, so the blurred texture is rasterised
-  // once and the compositor moves it.
-  &__band {
-    position: absolute;
-    inset: 25%;
-    filter: blur(var(--wr-aurora-blur));
-    will-change: transform;
-
-    // Each band's gradient and rest pose, written out rather than through a
-    // per-band custom property: the hooks above are the whole public surface,
-    // and a property declared on a band would read as one more of them.
-    @each $i, $band in $-bands {
-      &--#{$i} {
-        background-image: radial-gradient(
-          map.get($band, shape) at 50% 50%,
-          color-mix(in srgb, map.get($band, color) var(--wr-aurora-strength), transparent) 0% 50%,
-          transparent 100%
-        );
-        transform: map.get($band, pose);
-      }
-    }
-  }
-
-  // The drift: declared on each band, paused, so `--run` only flips the play
-  // state and the phase survives a pause. Not under reduced motion, where the
-  // bands stay as the still picture and nothing moves. Every set of keyframes
-  // starts on the band's rest pose, so the paused first frame IS the still
-  // picture and nothing jumps when the animation first applies.
-  @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
-    &__band {
-      animation-duration: var(--wr-aurora-cycle);
-      animation-timing-function: var(--wr-ease-in-out);
-      animation-iteration-count: infinite;
-      animation-direction: alternate;
-      animation-play-state: paused;
-
-      &--1 {
-        animation-name: wr-aurora-drift-1;
-        animation-duration: calc(var(--wr-aurora-cycle) * 0.7);
-      }
-
-      &--2 {
-        animation-name: wr-aurora-drift-2;
-      }
-
-      &--3 {
-        animation-name: wr-aurora-drift-3;
-        animation-duration: calc(var(--wr-aurora-cycle) * 1.3);
-      }
-    }
-
-    &--run &__band {
-      animation-play-state: running;
-    }
+  // The canvas is drawn at half resolution at most and stretched to the host:
+  // the browser's upscale is the last blur the soft picture needs.
+  &__canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
   }
 
   // Nothing drawn: a tinted wash under system colours is noise, not decoration.
   @media (forced-colors: active) {
     display: none;
-  }
-}
-
-// Each band wanders a few percent of the host, turns a few degrees and
-// breathes in size, and comes back the way it went (`alternate`), so no
-// keyframe needs to meet the first. Every list keeps the same three functions
-// in the same order, so the browser interpolates them component by component.
-
-@keyframes wr-aurora-drift-1 {
-  0% {
-    transform: translate(-12%, -14%) rotate(-14deg) scale(2.2);
-  }
-
-  35% {
-    transform: translate(-4%, -6%) rotate(-7deg) scale(2.45);
-  }
-
-  70% {
-    transform: translate(6%, -16%) rotate(-19deg) scale(2.05);
-  }
-
-  100% {
-    transform: translate(12%, -4%) rotate(-10deg) scale(2.3);
-  }
-}
-
-@keyframes wr-aurora-drift-2 {
-  0% {
-    transform: translate(10%, 8%) rotate(9deg) scale(2.4);
-  }
-
-  40% {
-    transform: translate(-6%, 14%) rotate(16deg) scale(2.15);
-  }
-
-  75% {
-    transform: translate(-12%, 2%) rotate(4deg) scale(2.6);
-  }
-
-  100% {
-    transform: translate(4%, -8%) rotate(12deg) scale(2.3);
-  }
-}
-
-@keyframes wr-aurora-drift-3 {
-  0% {
-    transform: translate(-2%, 16%) rotate(-4deg) scale(2.1);
-  }
-
-  30% {
-    transform: translate(10%, 6%) rotate(5deg) scale(2.35);
-  }
-
-  65% {
-    transform: translate(2%, -10%) rotate(-11deg) scale(1.95);
-  }
-
-  100% {
-    transform: translate(-14%, 4%) rotate(2deg) scale(2.25);
   }
 }

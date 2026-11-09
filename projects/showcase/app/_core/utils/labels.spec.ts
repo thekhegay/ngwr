@@ -22,6 +22,6 @@ describe('animation pages', () => {
     const titles = labelIndex()
       .get('webgl')
       ?.pages.map(p => p.title);
-    expect(titles).toEqual(['Fluid Cursor', 'Flow Lines', 'Thread Lines'].sort());
+    expect(titles).toEqual(['Aurora', 'Fluid Cursor', 'Flow Lines', 'Thread Lines'].sort());
   });
 });
