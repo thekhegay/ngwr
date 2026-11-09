@@ -42,7 +42,7 @@ import {
   RAY_FREQ,
   WASH_ALPHA,
   WASH_CHROMA,
-  WASH_LIFT,
+  WASH_L,
   WAVE_DRIFT,
   WAVE_FREQ,
   auroraApproach,
@@ -73,7 +73,7 @@ const FALLBACK_STOPS = ['#008800', '#3969e2', '#8a4fcf'] as const;
  * three stops from the theme. Up to three curtains hang at different depths,
  * the farther one broader, slower and dimmer, so they move in parallax, and
  * the whole drifts gently toward the pointer. On a light surface it is a
- * wash of saturated colour that thins to transparent; on a dark one it is
+ * pale pastel wash that dissolves into the surface; on a dark one it is
  * light added to the surface. The drawing is one WebGL pass in
  * `aurora-gl.ts`, drawn at half resolution at most and scaled up by the
  * browser, since nothing in it is sharp; the pure pieces (the profile, the
@@ -169,7 +169,7 @@ export class WrAurora {
     driftStretch: 0,
     stops: [new Float32Array(3), new Float32Array(3), new Float32Array(3)],
     washAlpha: WASH_ALPHA,
-    washLift: WASH_LIFT,
+    washLightness: WASH_L,
     washChroma: WASH_CHROMA,
     glowPeak: GLOW_PEAK,
   };
