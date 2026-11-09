@@ -1,0 +1,30 @@
+<span class="wr-rotate-reveal__sr">{{ phrase() }}</span>
+<span
+  class="wr-rotate-reveal__slot"
+  aria-hidden="true"
+  [style.width.px]="width()"
+  [style.--wr-rotate-reveal-count]="count()"
+>
+  @if (outgoing() === null) {
+    <span class="wr-rotate-reveal__word">{{ word() }}</span>
+  } @else {
+    <span class="wr-rotate-reveal__word wr-rotate-reveal__word--out">
+      @for (letter of outLetters(); track letter.index) {
+        <span
+          class="wr-rotate-reveal__letter wr-rotate-reveal__letter--out"
+          [style.--wr-rotate-reveal-i]="letter.index"
+          >{{ letter.text }}</span
+        >
+      }
+    </span>
+    <span class="wr-rotate-reveal__word wr-rotate-reveal__word--in">
+      @for (letter of inLetters(); track letter.index) {
+        <span
+          class="wr-rotate-reveal__letter wr-rotate-reveal__letter--in"
+          [style.--wr-rotate-reveal-i]="letter.index"
+          >{{ letter.text }}</span
+        >
+      }
+    </span>
+  }
+</span>

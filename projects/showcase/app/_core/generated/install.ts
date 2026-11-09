@@ -49,9 +49,6 @@ export const INSTALL = {
   "animations/blur-reveal": [
       { path: "ngwr/animations/blur-reveal", symbols: ["WrBlurReveal"], declarables: ["WrBlurReveal"], styled: true },
   ],
-  "animations/circle-text": [
-      { path: "ngwr/animations/circle-text", symbols: ["WrCircleText"], declarables: ["WrCircleText"], styled: true },
-  ],
   "animations/click-sparks": [
       { path: "ngwr/animations/click-sparks", symbols: ["WrClickSparks"], declarables: ["WrClickSparks"], styled: true },
   ],
@@ -60,6 +57,9 @@ export const INSTALL = {
   ],
   "animations/decode": [
       { path: "ngwr/animations/decode", symbols: ["WrDecode"], declarables: ["WrDecode"], styled: true },
+  ],
+  "animations/destruct": [
+      { path: "ngwr/animations/destruct", symbols: ["WrDestruct"], declarables: ["WrDestruct"], styled: true },
   ],
   "animations/dot-grid": [
       { path: "ngwr/animations/dot-grid", symbols: ["WrDotGrid"], declarables: ["WrDotGrid"], styled: true },
@@ -82,20 +82,23 @@ export const INSTALL = {
   "animations/gradient-flow": [
       { path: "ngwr/animations/gradient-flow", symbols: ["WrGradientFlow"], declarables: ["WrGradientFlow"], styled: true },
   ],
-  "animations/letter-stagger": [
-      { path: "ngwr/animations/letter-stagger", symbols: ["WrLetterStagger"], declarables: ["WrLetterStagger"], styled: true },
+  "animations/marquee": [
+      { path: "ngwr/animations/marquee", symbols: ["WrMarquee"], declarables: ["WrMarquee"], styled: true },
   ],
-  "animations/noise-text": [
-      { path: "ngwr/animations/noise-text", symbols: ["WrNoiseText"], declarables: ["WrNoiseText"], styled: true },
+  "animations/orbit": [
+      { path: "ngwr/animations/orbit", symbols: ["WrOrbit"], declarables: ["WrOrbit"], styled: true },
+  ],
+  "animations/reveal": [
+      { path: "ngwr/animations/reveal", symbols: ["WrReveal"], declarables: ["WrReveal"], styled: true },
   ],
   "animations/ripple-grid": [
       { path: "ngwr/animations/ripple-grid", symbols: ["WrRippleGrid"], declarables: ["WrRippleGrid"], styled: true },
   ],
+  "animations/rotate-reveal": [
+      { path: "ngwr/animations/rotate-reveal", symbols: ["WrRotateReveal"], declarables: ["WrRotateReveal"], styled: true },
+  ],
   "animations/shine": [
       { path: "ngwr/animations/shine", symbols: ["WrShine"], declarables: ["WrShine"], styled: true },
-  ],
-  "animations/signal-sweep": [
-      { path: "ngwr/animations/signal-sweep", symbols: ["WrSignalSweep"], declarables: ["WrSignalSweep"], styled: true },
   ],
   "animations/spotlight": [
       { path: "ngwr/animations/spotlight", symbols: ["WrSpotlight"], declarables: ["WrSpotlight"], styled: true },
@@ -103,17 +106,11 @@ export const INSTALL = {
   "animations/thread-lines": [
       { path: "ngwr/animations/thread-lines", symbols: ["WrThreadLines"], declarables: ["WrThreadLines"], styled: true },
   ],
-  "animations/ticker": [
-      { path: "ngwr/animations/ticker", symbols: ["WrTicker"], declarables: ["WrTicker"], styled: true },
-  ],
   "animations/tilt": [
       { path: "ngwr/animations/tilt", symbols: ["WrTilt"], declarables: ["WrTilt"], styled: false },
   ],
   "animations/typewriter": [
       { path: "ngwr/animations/typewriter", symbols: ["WrTypewriter"], declarables: ["WrTypewriter"], styled: true },
-  ],
-  "animations/word-rotator": [
-      { path: "ngwr/animations/word-rotator", symbols: ["WrWordRotator"], declarables: ["WrWordRotator"], styled: true },
   ],
   "charts/bar-chart": [
       { path: "ngwr/charts/bar-chart", symbols: ["WrBarChart"], declarables: ["WrBarChart"], styled: true },

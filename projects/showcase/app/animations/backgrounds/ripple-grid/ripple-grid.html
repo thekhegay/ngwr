@@ -3,7 +3,7 @@
   since="15.7.0"
   description="A faint square grid of thin lines behind a page's content. A click or a tap on the parent sends a ring out from that point: as the wave passes, the lines bend outward and brighten a little toward the primary colour; the ring widens, fades, and the grid lies flat again. Several rings add up where they cross."
   [keywords]="['ripple-grid', 'background', 'backdrop', 'canvas', 'click', '404', 'wr-ripple-grid']"
-  [labels]="['Animation']"
+  [labels]="['Animation', 'Component']"
 >
   <ngwr-doc-section
     title="Basic"
@@ -28,13 +28,25 @@
 
   <ngwr-doc-section
     title="Spacing"
-    description="`spacing` is the distance between two grid lines, in px; the grid is centred, so the margins at the edges are equal. The two colours are the `--wr-ripple-grid-ink` and `--wr-ripple-grid-glow` hooks, read through `resolveCssColorChannels` and re-read when the scheme changes. The wave's speed, band, height and life are the model's numbers, not inputs."
+    description="`spacing` is the distance between two grid lines, in px, 32 unset; the grid is centred, so the margins at the edges are equal. A finer grid bends in more places as the wave passes, a coarser one reads as a few lines moving. The two colours are the `--wr-ripple-grid-ink` and `--wr-ripple-grid-glow` hooks, read through `resolveCssColorChannels` and re-read when the scheme changes. The wave's speed, band, height and life are the model's numbers, not inputs."
   >
     <ngwr-doc-code [code]="snippets.spacing" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
-        <wr-ripple-grid spacing="48" />
-        <h3 wrTypography variant="h3">A coarser grid.</h3>
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>spacing="20"</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-ripple-grid spacing="20" />
+            <h3 wrTypography variant="h3">A finer grid.</h3>
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>spacing="48"</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-ripple-grid spacing="48" />
+            <h3 wrTypography variant="h3">A coarser grid.</h3>
+          </div>
+        </div>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

@@ -37,8 +37,12 @@ export default class GlowBorderPageComponent {
   isolation: isolate;
 }`,
     active: `<button wr-btn outlined type="button" wrGlowBorder [active]="live()">Stop and start</button>`,
-    colours: `<button wr-btn outlined type="button" wrGlowBorder style="--wr-glow-border-color: var(--wr-color-success); --wr-glow-border-period: 2s">
-  Faster, greener
+    colours: `<button wr-btn outlined type="button" wrGlowBorder>Primary</button>
+<button wr-btn outlined type="button" wrGlowBorder style="--wr-glow-border-color: var(--wr-color-success)">Success</button>
+<button wr-btn outlined type="button" wrGlowBorder style="--wr-glow-border-color: var(--wr-color-danger)">Danger</button>
+<button wr-btn outlined type="button" wrGlowBorder style="--wr-glow-border-color: var(--wr-color-on-surface-muted)">Neutral</button>`,
+    period: `<button wr-btn outlined type="button" wrGlowBorder style="--wr-glow-border-width: 2px; --wr-glow-border-strength: 0.9; --wr-glow-border-period: 2s">
+  Thicker, brighter, faster
 </button>`,
   };
 

@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1631 hook(s) across 114 page(s). A property is here only when the
+ * 1626 hook(s) across 113 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -61,15 +61,6 @@ export const CSS_VARS = {
       { name: "--wr-blur-reveal-ease", default: "var(--wr-ease-out)", scope: ".wr-blur-reveal" },
       { name: "--wr-blur-reveal-offset", default: "0.35em", scope: ".wr-blur-reveal" },
       { name: "--wr-blur-reveal-stagger", default: "70ms", scope: ".wr-blur-reveal", host: true },
-    ],
-  },
-  "animations/circle-text": {
-    subpath: "ngwr/animations/circle-text",
-    vars: [
-      { name: "--wr-circle-text-color", default: "currentColor", scope: ".wr-circle-text" },
-      { name: "--wr-circle-text-font-size", default: "9px", scope: ".wr-circle-text" },
-      { name: "--wr-circle-text-size", default: "6rem", scope: ".wr-circle-text" },
-      { name: "--wr-circle-text-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-circle-text" },
     ],
   },
   "animations/click-sparks": {
@@ -126,7 +117,7 @@ export const CSS_VARS = {
   "animations/glitch": {
     subpath: "ngwr/animations/glitch",
     vars: [
-      { name: "--wr-glitch-burst", default: "400ms", scope: ".wr-glitch" },
+      { name: "--wr-glitch-cycle", default: "1.2s", scope: ".wr-glitch" },
       { name: "--wr-glitch-shift", default: "0.1em", scope: ".wr-glitch" },
       { name: "--wr-glitch-skew", default: "2deg", scope: ".wr-glitch" },
       { name: "--wr-glitch-strength", default: "55%", scope: ".wr-glitch" },
@@ -139,10 +130,10 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-glow-border-blur", default: "14px", scope: ".wr-glow-border" },
       { name: "--wr-glow-border-color", default: "var(--wr-color-primary)", scope: ".wr-glow-border" },
-      { name: "--wr-glow-border-cool", default: "color-mix(in oklch, var(--wr-color-primary) 70%, var(--wr-color-success))", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-cool", default: "color-mix(in oklch, var(--wr-glow-border-color) 70%, var(--wr-color-success))", scope: ".wr-glow-border" },
       { name: "--wr-glow-border-period", default: "4.5s", scope: ".wr-glow-border" },
       { name: "--wr-glow-border-strength", default: "0.6", scope: ".wr-glow-border" },
-      { name: "--wr-glow-border-warm", default: "color-mix(in oklch, var(--wr-color-primary) 70%, var(--wr-color-danger))", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-warm", default: "color-mix(in oklch, var(--wr-glow-border-color) 70%, var(--wr-color-danger))", scope: ".wr-glow-border" },
       { name: "--wr-glow-border-width", default: "1.5px", scope: ".wr-glow-border" },
     ],
   },
@@ -156,14 +147,34 @@ export const CSS_VARS = {
       { name: "--wr-gradient-flow-via", default: "var(--wr-color-info-ink), var(--wr-color-success-ink)", scope: ".wr-gradient-flow" },
     ],
   },
-  "animations/letter-stagger": {
-    subpath: "ngwr/animations/letter-stagger",
+  "animations/marquee": {
+    subpath: "ngwr/animations/marquee",
     vars: [
-      { name: "--wr-letter-stagger-delay", default: "0ms", scope: ".wr-letter-stagger", host: true },
-      { name: "--wr-letter-stagger-duration", default: "0.6s", scope: ".wr-letter-stagger" },
-      { name: "--wr-letter-stagger-ease", default: "var(--wr-ease-out)", scope: ".wr-letter-stagger" },
-      { name: "--wr-letter-stagger-gap", default: "28ms", scope: ".wr-letter-stagger", host: true },
-      { name: "--wr-letter-stagger-offset", default: "0.35em", scope: ".wr-letter-stagger", overrides: 1 },
+      { name: "--wr-marquee-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-marquee" },
+      { name: "--wr-marquee-color-active", default: "var(--wr-color-primary-ink)", scope: ".wr-marquee" },
+      { name: "--wr-marquee-dir", default: "-1", scope: ".wr-marquee", overrides: 1 },
+      { name: "--wr-marquee-dot", default: "var(--wr-border-strong)", scope: ".wr-marquee" },
+      { name: "--wr-marquee-fade", default: "3rem", scope: ".wr-marquee" },
+      { name: "--wr-marquee-gap", default: "1.25rem", scope: ".wr-marquee" },
+    ],
+  },
+  "animations/orbit": {
+    subpath: "ngwr/animations/orbit",
+    vars: [
+      { name: "--wr-orbit-color", default: "currentColor", scope: ".wr-orbit" },
+      { name: "--wr-orbit-font-size", default: "9px", scope: ".wr-orbit" },
+      { name: "--wr-orbit-size", default: "6rem", scope: ".wr-orbit" },
+      { name: "--wr-orbit-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-orbit" },
+    ],
+  },
+  "animations/reveal": {
+    subpath: "ngwr/animations/reveal",
+    vars: [
+      { name: "--wr-reveal-delay", default: "0ms", scope: ".wr-reveal", host: true },
+      { name: "--wr-reveal-duration", default: "0.6s", scope: ".wr-reveal" },
+      { name: "--wr-reveal-ease", default: "var(--wr-ease-out)", scope: ".wr-reveal" },
+      { name: "--wr-reveal-gap", default: "28ms", scope: ".wr-reveal", host: true },
+      { name: "--wr-reveal-offset", default: "0.35em", scope: ".wr-reveal", overrides: 1 },
     ],
   },
   "animations/ripple-grid": {
@@ -171,6 +182,17 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-ripple-grid-glow", default: "var(--wr-color-primary)", scope: ".wr-ripple-grid" },
       { name: "--wr-ripple-grid-ink", default: "var(--wr-color-on-surface-muted)", scope: ".wr-ripple-grid" },
+    ],
+  },
+  "animations/rotate-reveal": {
+    subpath: "ngwr/animations/rotate-reveal",
+    vars: [
+      { name: "--wr-rotate-reveal-gap", default: "24ms", scope: ".wr-rotate-reveal" },
+      { name: "--wr-rotate-reveal-in", default: "0.38s", scope: ".wr-rotate-reveal" },
+      { name: "--wr-rotate-reveal-lead", default: "50ms", scope: ".wr-rotate-reveal" },
+      { name: "--wr-rotate-reveal-offset", default: "1.1em", scope: ".wr-rotate-reveal" },
+      { name: "--wr-rotate-reveal-out", default: "0.32s", scope: ".wr-rotate-reveal" },
+      { name: "--wr-rotate-reveal-swap", default: "calc(var(--wr-rotate-reveal-lead) + (var(--wr-rotate-reveal-count, 1) - 1) * var(--wr-rotate-reveal-gap) + var(--wr-rotate-reveal-in))", scope: ".wr-rotate-reveal__slot" },
     ],
   },
   "animations/shine": {
@@ -184,16 +206,6 @@ export const CSS_VARS = {
       { name: "--wr-shine-pause", default: "5s", scope: ".wr-shine" },
       { name: "--wr-shine-peak", default: "var(--wr-color-on-surface)", scope: ".wr-shine" },
       { name: "--wr-shine-strength", default: "60%", scope: ".wr-shine" },
-    ],
-  },
-  "animations/signal-sweep": {
-    subpath: "ngwr/animations/signal-sweep",
-    vars: [
-      { name: "--wr-signal-sweep-duration", default: "1.6s", scope: ".wr-signal-sweep" },
-      { name: "--wr-signal-sweep-ease", default: "var(--wr-ease-in-out)", scope: ".wr-signal-sweep" },
-      { name: "--wr-signal-sweep-ink", default: "var(--wr-color-primary-ink)", scope: ".wr-signal-sweep" },
-      { name: "--wr-signal-sweep-light", default: "color-mix(in srgb, var(--wr-color-primary-contrast) 78%, var(--wr-color-primary-ink))", scope: ".wr-signal-sweep" },
-      { name: "--wr-signal-sweep-wire", default: "var(--wr-color-primary)", scope: ".wr-signal-sweep" },
     ],
   },
   "animations/spotlight": {
@@ -218,34 +230,12 @@ export const CSS_VARS = {
       { name: "--wr-thread-lines-tint", default: "var(--wr-color-primary)", scope: ".wr-thread-lines" },
     ],
   },
-  "animations/ticker": {
-    subpath: "ngwr/animations/ticker",
-    vars: [
-      { name: "--wr-ticker-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-ticker" },
-      { name: "--wr-ticker-color-active", default: "var(--wr-color-primary-ink)", scope: ".wr-ticker" },
-      { name: "--wr-ticker-dir", default: "-1", scope: ".wr-ticker", overrides: 1 },
-      { name: "--wr-ticker-dot", default: "var(--wr-border-strong)", scope: ".wr-ticker" },
-      { name: "--wr-ticker-fade", default: "3rem", scope: ".wr-ticker" },
-      { name: "--wr-ticker-gap", default: "1.25rem", scope: ".wr-ticker" },
-    ],
-  },
   "animations/typewriter": {
     subpath: "ngwr/animations/typewriter",
     vars: [
       { name: "--wr-typewriter-blink", default: "1s", scope: ".wr-typewriter" },
       { name: "--wr-typewriter-caret", default: "2px", scope: ".wr-typewriter" },
       { name: "--wr-typewriter-fade", default: "0.4s", scope: ".wr-typewriter" },
-    ],
-  },
-  "animations/word-rotator": {
-    subpath: "ngwr/animations/word-rotator",
-    vars: [
-      { name: "--wr-word-rotator-gap", default: "24ms", scope: ".wr-word-rotator" },
-      { name: "--wr-word-rotator-in", default: "0.38s", scope: ".wr-word-rotator" },
-      { name: "--wr-word-rotator-lead", default: "50ms", scope: ".wr-word-rotator" },
-      { name: "--wr-word-rotator-offset", default: "1.1em", scope: ".wr-word-rotator" },
-      { name: "--wr-word-rotator-out", default: "0.32s", scope: ".wr-word-rotator" },
-      { name: "--wr-word-rotator-swap", default: "calc(var(--wr-word-rotator-lead) + (var(--wr-word-rotator-count, 1) - 1) * var(--wr-word-rotator-gap) + var(--wr-word-rotator-in))", scope: ".wr-word-rotator__slot" },
     ],
   },
   "charts/bar-chart": {

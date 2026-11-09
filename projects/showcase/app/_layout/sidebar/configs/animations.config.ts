@@ -6,9 +6,9 @@ import type { SidebarGroup } from '#types';
  * of text, the background of a region, or the pointer and the elements it
  * reaches. Text comes first, since a heading is where most pages start.
  *
- * Rows are alphabetical inside a group. The signal sweep is an accent on a
- * run of text, so it sits under Text; the glow border runs round an element's
- * edge, so it sits with the pointer effects under Interaction.
+ * Rows are alphabetical inside a group. The glow border runs round an
+ * element's edge, so it sits with the pointer effects under Interaction, and
+ * the marquee, a row of links under the pointer, sits there too.
  *
  * Each group is a folder under `app/animations/`; the URL never contains it.
  */
@@ -17,17 +17,16 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
     title: 'Text',
     children: [
       wrLink(ROUTES.animations, ROUTES.animations.blurReveal),
-      wrLink(ROUTES.animations, ROUTES.animations.circleText),
       wrLink(ROUTES.animations, ROUTES.animations.decode),
+      wrLink(ROUTES.animations, ROUTES.animations.destruct),
       wrLink(ROUTES.animations, ROUTES.animations.fallingLetters),
       wrLink(ROUTES.animations, ROUTES.animations.glitch),
       wrLink(ROUTES.animations, ROUTES.animations.gradientFlow),
-      wrLink(ROUTES.animations, ROUTES.animations.letterStagger),
-      wrLink(ROUTES.animations, ROUTES.animations.noiseText),
+      wrLink(ROUTES.animations, ROUTES.animations.orbit),
+      wrLink(ROUTES.animations, ROUTES.animations.reveal),
+      wrLink(ROUTES.animations, ROUTES.animations.rotateReveal),
       wrLink(ROUTES.animations, ROUTES.animations.shine),
-      wrLink(ROUTES.animations, ROUTES.animations.signalSweep),
       wrLink(ROUTES.animations, ROUTES.animations.typewriter),
-      wrLink(ROUTES.animations, ROUTES.animations.wordRotator),
     ],
   },
   {
@@ -47,8 +46,8 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       wrLink(ROUTES.animations, ROUTES.animations.confetti),
       wrLink(ROUTES.animations, ROUTES.animations.fluidCursor),
       wrLink(ROUTES.animations, ROUTES.animations.glowBorder),
+      wrLink(ROUTES.animations, ROUTES.animations.marquee),
       wrLink(ROUTES.animations, ROUTES.animations.spotlight),
-      wrLink(ROUTES.animations, ROUTES.animations.ticker),
       wrLink(ROUTES.animations, ROUTES.animations.tilt),
     ],
   },

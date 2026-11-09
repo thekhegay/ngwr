@@ -505,10 +505,10 @@ export const wrId: WrI18nCatalog = {
       dec: 'Desember',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: 'dan',
   },
-  ticker: {
+  marquee: {
     pause: 'Jeda',
     play: 'Putar',
   },

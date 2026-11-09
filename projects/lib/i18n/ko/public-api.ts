@@ -517,10 +517,10 @@ export const wrKo: WrI18nCatalog = {
       dec: '12월',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: '그리고',
   },
-  ticker: {
+  marquee: {
     pause: '일시정지',
     play: '재생',
   },

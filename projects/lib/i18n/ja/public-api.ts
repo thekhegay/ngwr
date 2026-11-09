@@ -509,10 +509,10 @@ export const wrJa: WrI18nCatalog = {
       dec: '12月',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: 'と',
   },
-  ticker: {
+  marquee: {
     pause: '一時停止',
     play: '再生',
   },

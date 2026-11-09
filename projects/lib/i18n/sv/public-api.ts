@@ -505,10 +505,10 @@ export const wrSv: WrI18nCatalog = {
       dec: 'december',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: 'och',
   },
-  ticker: {
+  marquee: {
     pause: 'Pausa',
     play: 'Spela upp',
   },

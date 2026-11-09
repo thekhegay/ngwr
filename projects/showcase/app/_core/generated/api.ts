@@ -273,14 +273,6 @@ export const API = {
     { name: "value", description: "The checked items' values. Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown[]", default: "[]" },
     { name: "(touch)", description: "Emitted when a child toggles so a bound field can mark itself touched.", type: "void" },
   ],
-  // <wr-circle-text>
-  WrCircleText: [
-    { name: "text", description: "The text around the ring, separators included, ending on the separator that joins its end to its start.", type: "string", required: true },
-    { name: "label", description: "What a screen reader hears. Defaults to the text with its trailing separator cut.", type: "string | null", default: "null" },
-    { name: "size", description: "The box, in px. Unset, the stylesheet's `--wr-circle-text-size` decides.", type: "unknown", default: "null" },
-    { name: "speed", description: "Turn at rest, in degrees per second; negative turns the other way, zero sits still.", type: "number", default: "10" },
-    { name: "hoverSpeed", description: "Turn under a pointer or with focus in the host, in degrees per second.", type: "number", default: "40" },
-  ],
   // <[wrClickOutside]>
   WrClickOutside: [
     { name: "(wrClickOutside)", description: "Fires on a pointer press that landed outside the host element. Close a menu or commit an inline edit with it; the event is the original click.", type: "MouseEvent" },
@@ -479,6 +471,10 @@ export const API = {
     { name: "inline", description: "Two-column rows (label left, value right) instead of stacked.", type: "boolean", default: "false" },
     { name: "bordered", description: "Add visible borders around each row.", type: "boolean", default: "false" },
     { name: "responsive", description: "Reflow `inline` rows back to a stacked layout when the box itself is narrow (a container query on its own width, not the viewport — so it adapts inside a narrow card or side panel). Makes the box fill its container's width.", type: "boolean", default: "false" },
+  ],
+  // <[wrDestruct]>
+  WrDestruct: [
+    { name: "shift", description: "How far a pixel of the text may move at full noise, each way, in em of the host's font size.", type: "number", default: "0.15" },
   ],
   // <[wrDialogClose]>
   WrDialogClose: [
@@ -802,16 +798,6 @@ export const API = {
     { name: "reverse", description: "Place the sider on the right edge instead of the left.", type: "boolean", default: "false" },
     { name: "(collapsedChanged)", description: "Emits whenever `collapsed` changes (in addition to the two-way `[(collapsed)]`).", type: "boolean" },
   ],
-  // <wr-letter-stagger>
-  WrLetterStagger: [
-    { name: "text", description: "The text of this run. Breaking spaces stay real spaces, so it wraps as plain text would.", type: "string", required: true },
-    { name: "by", description: "What enters one at a time: a grapheme, or a word. In letter mode the letters of one word sit in a no-wrap wrapper, so a word never breaks across lines mid-word.", type: "WrStaggerBy", default: "'letters'" },
-    { name: "masked", description: "Each word clips its pieces at a padded line box, so a letter comes up from under the line instead of fading in where it stands. Descenders and accents at rest sit inside the padding.", type: "boolean", default: "false" },
-    { name: "start", description: "The index of this run's first piece. A headline made of several runs passes each one the count the runs before it used, so they play as one sequence.", type: "number", default: "0" },
-    { name: "stagger", description: "Gap between the start of one piece and the next, in ms. Unset, the mode decides: 28 for letters, 70 for words. Either way the sequence up to this run's last piece spreads over 1.2 s at most; a long sequence of several runs sets the same `stagger` on each, so the gap is one gap.", type: "number | null", default: "null" },
-    { name: "delay", description: "Pause before the first piece of the sequence, in ms.", type: "number", default: "0" },
-    { name: "trigger", description: "`load` plays from first paint, with no script. `view` keeps the pieces visible and arms them the first time most of the host is in the viewport; an `__item` outside the host does not follow it.", type: "WrLetterStaggerTrigger", default: "'load'" },
-  ],
   // <wr-lightbox>
   WrLightbox: [
     { name: "openLabel", description: "Accessible name of the thumbnail button. Falls back to `alt`, then `image.open`.", type: "string | null", default: "null" },
@@ -873,6 +859,14 @@ export const API = {
   WrLoadStateContent: [
     { name: "wrLoadStateContentOf", description: "The resource the template draws, for the type checker: nothing reads it at runtime. Bind the same resource as the wrapper's `[resource]`.", type: "Resource<T | undefined> | null | undefined", default: "undefined" },
   ],
+  // <wr-marquee>
+  WrMarquee: [
+    { name: "items", description: "The links, in the order they pass.", type: "readonly WrMarqueeItem[]", required: true },
+    { name: "speed", description: "How fast the row travels, in px per second.", type: "number", default: "40" },
+    { name: "label", description: "The accessible name of the list.", type: "string | null", default: "null" },
+    { name: "pauseLabel", description: "The pause button's name while the row moves. Unset, the `marquee.pause` string of the i18n catalog, \"Pause\" in English.", type: "string | null", default: "null" },
+    { name: "playLabel", description: "The pause button's name while the row stands. Unset, the `marquee.play` string of the i18n catalog, \"Play\" in English.", type: "string | null", default: "null" },
+  ],
   // <[wrMention]>
   WrMention: [
     { name: "wrMentionItems", description: "Items to filter against the typed query.", type: "readonly T[]", default: "[]" },
@@ -900,10 +894,6 @@ export const API = {
     { name: "tooltip", description: "Show a tooltip with the segment's label and value on hover. It replaces the band's `title`, which is written only while this is off — or the browser would open a second copy a moment later.", type: "boolean", default: "true" },
     { name: "valueFormat", description: "Writes every value in the legend and the tooltip, and the total the bar announces as `aria-valuetext`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. `aria-valuenow` stays a number.", type: "((value: number) => string) | null", default: "null" },
   ],
-  // <[wrNoiseText]>
-  WrNoiseText: [
-    { name: "shift", description: "How far a pixel of the text may move at full noise, each way, in em of the host's font size.", type: "number", default: "0.15" },
-  ],
   // <wr-option>
   WrOption: [
     { name: "value", description: "The value contributed when this option is chosen. Required.", type: "unknown", required: true },
@@ -913,6 +903,14 @@ export const API = {
   // <wr-option-group>
   WrOptionGroup: [
     { name: "label", description: "Section heading shown above the options.", type: "string", required: true },
+  ],
+  // <wr-orbit>
+  WrOrbit: [
+    { name: "text", description: "The text around the ring, separators included, ending on the separator that joins its end to its start.", type: "string", required: true },
+    { name: "label", description: "What a screen reader hears. Defaults to the text with its trailing separator cut.", type: "string | null", default: "null" },
+    { name: "size", description: "The box, in px. Unset, the stylesheet's `--wr-orbit-size` decides.", type: "unknown", default: "null" },
+    { name: "speed", description: "Turn at rest, in degrees per second; negative turns the other way, zero sits still.", type: "number", default: "10" },
+    { name: "hoverSpeed", description: "Turn under a pointer or with focus in the host, in degrees per second.", type: "number", default: "40" },
   ],
   // <wr-page-header>
   WrPageHeader: [
@@ -1063,9 +1061,27 @@ export const API = {
     { name: "title", description: "The big figure. Defaults to `500`; override it for a localised or differently-worded page.", type: "string", default: "'500'" },
     { name: "description", description: "Body text. Falls back to `result.serverError` from WrI18n.", type: "string | null", default: "null" },
   ],
+  // <wr-reveal>
+  WrReveal: [
+    { name: "text", description: "The text of this run. Breaking spaces stay real spaces, so it wraps as plain text would.", type: "string", required: true },
+    { name: "by", description: "What enters one at a time: a grapheme, or a word. In letter mode the letters of one word sit in a no-wrap wrapper, so a word never breaks across lines mid-word.", type: "WrStaggerBy", default: "'letters'" },
+    { name: "masked", description: "Each word clips its pieces at a padded line box, so a letter comes up from under the line instead of fading in where it stands. Descenders and accents at rest sit inside the padding.", type: "boolean", default: "false" },
+    { name: "start", description: "The index of this run's first piece. A headline made of several runs passes each one the count the runs before it used, so they play as one sequence.", type: "number", default: "0" },
+    { name: "stagger", description: "Gap between the start of one piece and the next, in ms. Unset, the mode decides: 28 for letters, 70 for words. Either way the sequence up to this run's last piece spreads over 1.2 s at most; a long sequence of several runs sets the same `stagger` on each, so the gap is one gap.", type: "number | null", default: "null" },
+    { name: "delay", description: "Pause before the first piece of the sequence, in ms.", type: "number", default: "0" },
+    { name: "trigger", description: "`load` plays from first paint, with no script. `view` keeps the pieces visible and arms them the first time most of the host is in the viewport; an `__item` outside the host does not follow it.", type: "WrRevealTrigger", default: "'load'" },
+  ],
   // <wr-ripple-grid>
   WrRippleGrid: [
     { name: "spacing", description: "Distance between two grid lines, in px.", type: "number", default: "32" },
+  ],
+  // <wr-rotate-reveal>
+  WrRotateReveal: [
+    { name: "words", description: "The words, in the order they show. The first is what the server and a still page show.", type: "readonly string[]", required: true },
+    { name: "hold", description: "How long a word stands before the next replaces it, in ms.", type: "number", default: "2400" },
+    { name: "delay", description: "Pause before the first word's hold starts counting, in ms, from the moment the host is in view: room for an entrance above it to finish.", type: "number", default: "0" },
+    { name: "loop", description: "Keep cycling instead of stopping on the first word after one pass through the list.", type: "boolean", default: "false" },
+    { name: "conjunctionLabel", description: "The word between the last two words of the phrase a screen reader hears: \"A, B and C\". Unset, the `rotateReveal.conjunction` string of the i18n catalog, \"and\" in English.", type: "string | null", default: "null" },
   ],
   // <wr-scatter-chart>
   WrScatterChart: [
@@ -1147,10 +1163,6 @@ export const API = {
     { name: "defaultItemIcon", description: "Icon for a page that names none. `null` draws no icon.", type: "string | null", default: "null" },
     { name: "autoExpand", description: "Open every group above the current route, once per navigation: a group the user closes stays closed until the route changes.", type: "boolean", default: "true" },
     { name: "autoCollapse", description: "Close the groups the previous navigation opened when the next one leaves them, so a long nav does not keep every visited section expanded. A group the user opened or closed by hand is never closed for them. Needs `autoExpand`.", type: "boolean", default: "false" },
-  ],
-  // <[wrSignalSweep]>
-  WrSignalSweep: [
-    { name: "delay", description: "Pause between the host entering the viewport and the sweep, in ms.", type: "number", default: "250" },
   ],
   // <wr-skeleton>
   WrSkeleton: [
@@ -1379,14 +1391,6 @@ export const API = {
     { name: "count", description: "How many threads the ribbon has.", type: "number", default: "24" },
     { name: "reach", description: "How far from the pointer a thread is still pulled, in px.", type: "number", default: "180" },
   ],
-  // <wr-ticker>
-  WrTicker: [
-    { name: "items", description: "The links, in the order they pass.", type: "readonly WrTickerItem[]", required: true },
-    { name: "speed", description: "How fast the row travels, in px per second.", type: "number", default: "40" },
-    { name: "label", description: "The accessible name of the list.", type: "string | null", default: "null" },
-    { name: "pauseLabel", description: "The pause button's name while the row moves. Unset, the `ticker.pause` string of the i18n catalog, \"Pause\" in English.", type: "string | null", default: "null" },
-    { name: "playLabel", description: "The pause button's name while the row stands. Unset, the `ticker.play` string of the i18n catalog, \"Play\" in English.", type: "string | null", default: "null" },
-  ],
   // <wr-timeline>
   WrTimeline: [
     { name: "orientation", description: "Which way the line runs. `horizontal` lays the items out in a row and suits a short, fixed set of steps; a feed of unknown length wants the default.", type: "'vertical' | 'horizontal'", default: "'vertical'" },
@@ -1506,13 +1510,5 @@ export const API = {
     { name: "position", description: "Edge the taskbar pins itself to.", type: "'top' | 'bottom'", default: "'bottom'" },
     { name: "show", description: "Which windows the rail lists: the minimized ones, or every open one with the active window marked (since v15.1).", type: "WrWindowTaskbarShow", default: "'minimized'" },
     { name: "maxTabs", description: "The most tabs the rail shows; the rest fold under a \"+N\" button that opens them as a menu (since v15.1). The width folds tabs too, whatever this says: the tabs that do not fit beside the button at their own width go under it. `null` leaves it to the width alone.", type: "number | null", default: "null" },
-  ],
-  // <wr-word-rotator>
-  WrWordRotator: [
-    { name: "words", description: "The words, in the order they show. The first is what the server and a still page show.", type: "readonly string[]", required: true },
-    { name: "hold", description: "How long a word stands before the next replaces it, in ms.", type: "number", default: "2400" },
-    { name: "delay", description: "Pause before the first word's hold starts counting, in ms, from the moment the host is in view: room for an entrance above it to finish.", type: "number", default: "0" },
-    { name: "loop", description: "Keep cycling instead of stopping on the first word after one pass through the list.", type: "boolean", default: "false" },
-    { name: "conjunctionLabel", description: "The word between the last two words of the phrase a screen reader hears: \"A, B and C\". Unset, the `wordRotator.conjunction` string of the i18n catalog, \"and\" in English.", type: "string | null", default: "null" },
   ],
 } satisfies Record<string, readonly DocApiRow[]>;

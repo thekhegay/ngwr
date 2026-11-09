@@ -11,10 +11,10 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/anchor` | `import { WrAnchor } from 'ngwr/anchor'` | `wr-anchor` |
 | `ngwr/animations/aurora` | `import { WrAurora } from 'ngwr/animations/aurora'` | `wr-aurora` |
 | `ngwr/animations/blur-reveal` | `import { WrBlurReveal } from 'ngwr/animations/blur-reveal'` | `[wrBlurReveal]` |
-| `ngwr/animations/circle-text` | `import { WrCircleText } from 'ngwr/animations/circle-text'` | `wr-circle-text` |
 | `ngwr/animations/click-sparks` | `import { WrClickSparks } from 'ngwr/animations/click-sparks'` | `[wrClickSparks]` |
 | `ngwr/animations/confetti` | `import { WrConfetti } from 'ngwr/animations/confetti'` | — |
 | `ngwr/animations/decode` | `import { WrDecode } from 'ngwr/animations/decode'` | `[wrDecode]` |
+| `ngwr/animations/destruct` | `import { WrDestruct } from 'ngwr/animations/destruct'` | `[wrDestruct]` |
 | `ngwr/animations/dot-grid` | `import { WrDotGrid } from 'ngwr/animations/dot-grid'` | `wr-dot-grid` |
 | `ngwr/animations/falling-letters` | `import { WrFallingLetters } from 'ngwr/animations/falling-letters'` | `[wrFallingLetters]` |
 | `ngwr/animations/flow-lines` | `import { WrFlowLines } from 'ngwr/animations/flow-lines'` | `wr-flow-lines` |
@@ -22,17 +22,16 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/animations/glitch` | `import { WrGlitch } from 'ngwr/animations/glitch'` | `[wrGlitch]` |
 | `ngwr/animations/glow-border` | `import { WrGlowBorder } from 'ngwr/animations/glow-border'` | `[wrGlowBorder]` |
 | `ngwr/animations/gradient-flow` | `import { WrGradientFlow } from 'ngwr/animations/gradient-flow'` | `[wrGradientFlow]` |
-| `ngwr/animations/letter-stagger` | `import { WrLetterStagger } from 'ngwr/animations/letter-stagger'` | `wr-letter-stagger` |
-| `ngwr/animations/noise-text` | `import { WrNoiseText } from 'ngwr/animations/noise-text'` | `[wrNoiseText]` |
+| `ngwr/animations/marquee` | `import { WrMarquee } from 'ngwr/animations/marquee'` | `wr-marquee` |
+| `ngwr/animations/orbit` | `import { WrOrbit } from 'ngwr/animations/orbit'` | `wr-orbit` |
+| `ngwr/animations/reveal` | `import { WrReveal } from 'ngwr/animations/reveal'` | `wr-reveal` |
 | `ngwr/animations/ripple-grid` | `import { WrRippleGrid } from 'ngwr/animations/ripple-grid'` | `wr-ripple-grid` |
+| `ngwr/animations/rotate-reveal` | `import { WrRotateReveal } from 'ngwr/animations/rotate-reveal'` | `wr-rotate-reveal` |
 | `ngwr/animations/shine` | `import { WrShine } from 'ngwr/animations/shine'` | `[wrShine]` |
-| `ngwr/animations/signal-sweep` | `import { WrSignalSweep } from 'ngwr/animations/signal-sweep'` | `[wrSignalSweep]` |
 | `ngwr/animations/spotlight` | `import { WrSpotlight } from 'ngwr/animations/spotlight'` | `[wrSpotlight]` |
 | `ngwr/animations/thread-lines` | `import { WrThreadLines } from 'ngwr/animations/thread-lines'` | `wr-thread-lines` |
-| `ngwr/animations/ticker` | `import { WrTicker } from 'ngwr/animations/ticker'` | `wr-ticker` |
 | `ngwr/animations/tilt` | `import { WrTilt } from 'ngwr/animations/tilt'` | `[wrTilt]` |
 | `ngwr/animations/typewriter` | `import { WrTypewriter } from 'ngwr/animations/typewriter'` | `wr-typewriter` |
-| `ngwr/animations/word-rotator` | `import { WrWordRotator } from 'ngwr/animations/word-rotator'` | `wr-word-rotator` |
 | `ngwr/avatar` | `import { WrAvatar } from 'ngwr/avatar'` | `wr-avatar` |
 | `ngwr/back-top` | `import { WrBackTop } from 'ngwr/back-top'` | `wr-back-top` |
 | `ngwr/badge` | `import { WrBadge } from 'ngwr/badge'` | `wr-badge` `wr-tag` |

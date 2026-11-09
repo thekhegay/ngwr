@@ -31,8 +31,9 @@ export default class SpotlightPageComponent {
   <h3>Signals first</h3>
   <p>Every input, output and state is a signal.</p>
 </wr-card>`,
-    colour: `<wr-card wrSpotlight style="--wr-spotlight-color: var(--wr-color-success); --wr-spotlight-radius: 160px">
-  …
-</wr-card>`,
+    colour: `<wr-card wrSpotlight style="--wr-spotlight-color: var(--wr-color-success)">…</wr-card>
+<wr-card wrSpotlight style="--wr-spotlight-radius: 120px; --wr-spotlight-ring-radius: 90px">…</wr-card>
+<wr-card wrSpotlight style="--wr-spotlight-strength: 30%">…</wr-card>
+<wr-card wrSpotlight style="--wr-spotlight-strength: 0%; --wr-spotlight-ring-strength: 100%; --wr-spotlight-ring-radius: 260px">…</wr-card>`,
   };
 }

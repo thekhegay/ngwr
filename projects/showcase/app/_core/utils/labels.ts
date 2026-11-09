@@ -38,11 +38,21 @@ export function labelSlug(label: string): string {
     .replace(/^-|-$/g, '');
 }
 
-/** The labels a page shows: its kind first, then the traits it declares. */
+/**
+ * The labels a page shows: its kind first, then the traits it declares. A
+ * second kind is dropped, so `['Service', 'Directives']` on a service page
+ * reads as a service, except on an animation page, where the effect's own
+ * declarable (`Directive`, `Component`, `Service`) is what an author imports
+ * and stands beside `Animation`.
+ */
 export function pageLabels(url: string): readonly string[] {
   const page = DOC_ROUTES[routeKey(url.split(/[?#]/)[0])];
   if (!page) return [];
-  const traits = page.labels.filter(l => (KIND_ALIASES[l] ?? l) !== page.kind && !KIND_TONES[KIND_ALIASES[l] ?? l]);
+  const keepKinds = page.kind === 'Animation';
+  const traits = page.labels.filter(l => {
+    const kind = KIND_ALIASES[l] ?? l;
+    return kind !== page.kind && (keepKinds || !KIND_TONES[kind]);
+  });
   return page.kind ? [page.kind, ...traits] : traits;
 }
 

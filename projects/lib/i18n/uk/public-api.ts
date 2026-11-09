@@ -526,10 +526,10 @@ export const wrUk: WrI18nCatalog = {
       dec: 'Грудень',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: 'і',
   },
-  ticker: {
+  marquee: {
     pause: 'Пауза',
     play: 'Відтворити',
   },

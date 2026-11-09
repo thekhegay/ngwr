@@ -522,10 +522,10 @@ export const wrVi: WrI18nCatalog = {
       dec: 'Tháng 12',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: 'và',
   },
-  ticker: {
+  marquee: {
     pause: 'Tạm dừng',
     play: 'Phát',
   },

@@ -4,16 +4,15 @@
     <wr-flow-lines />
     <div class="container">
       <div class="ngwr-home-hero ngwr-home-hero--center">
-        <!-- One letter-stagger sequence: the chip is piece 0, each run starts where the
-             one before it stopped, and the sweep waits for the accent's letters to land. -->
+        <!-- One reveal sequence: the chip is piece 0, each run starts where the
+             one before it stopped. -->
         <h1 class="ngwr-home-hero__title">
-          <span class="ngwr-home-hero__title-angular wr-letter-stagger__item" style="--wr-letter-stagger-i: 0"
+          <span class="ngwr-home-hero__title-angular wr-reveal__item" style="--wr-reveal-i: 0"
             ><wr-icon name="logo-angular" />&nbsp;Angular</span
-          >&ngsp;<wr-letter-stagger text="components that bind straight to" start="1" />&ngsp;<span
+          >&ngsp;<wr-reveal text="components that bind straight to" start="1" />&ngsp;<span
             class="ngwr-home-hero__title-end"
-            ><span class="ngwr-home-hero__title-accent" wrSignalSweep delay="1700"
-              ><wr-letter-stagger text="Signal Forms" start="29" /></span
-            ><wr-letter-stagger text="." start="40"
+            ><span class="ngwr-home-hero__title-accent"><wr-reveal text="Signal Forms" start="29" /></span
+            ><wr-reveal text="." start="40"
           /></span>
         </h1>
 
@@ -21,7 +20,7 @@
              down to the "Developer experience" section, which has the room to set
              it properly; the fold is headline, glance line, call to action. -->
         <p class="ngwr-home-hero__description">
-          Zoneless, SSR-safe, <wr-word-rotator [words]="qualities" delay="1700" /> — with no accessor layer in between.
+          Zoneless, SSR-safe, <wr-rotate-reveal [words]="qualities" delay="1700" /> — with no accessor layer in between.
         </p>
 
         <div class="ngwr-home-hero__cta">
@@ -44,13 +43,13 @@
   </section>
 
   <!-- Every component by name, one quiet row gliding under the hero. -->
-  <section class="ngwr-home-ticker">
+  <section class="ngwr-home-marquee">
     <div class="container">
-      <wr-ticker [items]="components" label="Components">
+      <wr-marquee [items]="components" label="Components">
         <ng-template let-item>
-          <a class="wr-ticker__link" [routerLink]="item.url">{{ item.title }}</a>
+          <a class="wr-marquee__link" [routerLink]="item.url">{{ item.title }}</a>
         </ng-template>
-      </wr-ticker>
+      </wr-marquee>
     </div>
   </section>
 
