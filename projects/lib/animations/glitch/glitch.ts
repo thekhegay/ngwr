@@ -12,6 +12,8 @@ import {
   ElementRef,
   PLATFORM_ID,
   afterNextRender,
+  booleanAttribute,
+  computed,
   effect,
   inject,
   input,
@@ -69,11 +71,20 @@ export class WrGlitch {
    */
   readonly target = input<string | null, unknown>(null, { alias: 'wrGlitch', transform: optionalSelector });
 
+  /**
+   * Plays the effect while true, exactly as under a pointer; hover and focus
+   * still start it when this is false. Drive it with short bursts to make a
+   * tile glitch on its own: keep each burst to one cycle or more and the gaps
+   * longer than the burst, so the flash budget above holds.
+   */
+  readonly active = input(false, { transform: booleanAttribute });
+
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly platform = inject(WrPlatform);
   private readonly doc = inject(DOCUMENT);
   /** A pointer is over the source, or focus is in it. */
   private readonly engaged = signal(false);
+  private readonly playing = computed(() => this.engaged() || this.active());
   private listeners: AbortController | null = null;
   /** The element that glitches, once resolved and armed; `null` before and after. */
   private el: HTMLElement | null = null;
@@ -100,7 +111,7 @@ export class WrGlitch {
 
     // One place decides whether it plays: engaged, page visible, motion allowed.
     effect(() => {
-      const on = this.engaged() && this.platform.pageVisible() && !this.platform.prefersReducedMotion();
+      const on = this.playing() && this.platform.pageVisible() && !this.platform.prefersReducedMotion();
       untracked(() => (on ? this.start() : this.stop()));
     });
 

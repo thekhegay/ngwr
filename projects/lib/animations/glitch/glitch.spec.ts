@@ -17,6 +17,14 @@ class Host {
   readonly title = signal('404');
 }
 
+@Component({
+  imports: [WrGlitch],
+  template: `<h2 [wrGlitch] [active]="on()">Live</h2>`,
+})
+class ActiveHost {
+  readonly on = signal(false);
+}
+
 /** The host is a box-less wrapper and the text sits in a child the host does not own, as on the 404 page. */
 @Component({
   imports: [WrGlitch],
@@ -129,6 +137,37 @@ describe('WrGlitch', () => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
     TestBed.resetTestingModule();
+  });
+
+  it('plays while active is true, stops when it turns false, and still reacts to hover', async () => {
+    const fixture = await render(ActiveHost);
+    const el = target(fixture);
+    expect(live(el)).toBe(false);
+
+    fixture.componentInstance.on.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(live(el)).toBe(true);
+    expect(copies(el)).toHaveLength(2);
+
+    fixture.componentInstance.on.set(false);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(live(el)).toBe(false);
+    expect(copies(el)).toHaveLength(0);
+
+    enter(el);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(live(el)).toBe(true);
+  });
+
+  it('does not play under reduced motion even when active', async () => {
+    const fixture = await render(ActiveHost, [platform(stub(true))]);
+    fixture.componentInstance.on.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(live(target(fixture))).toBe(false);
   });
 
   it('marks the target and sits still on its own, however long', async () => {

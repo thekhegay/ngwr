@@ -39,6 +39,19 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Without a pointer"
+    description="`active` plays the effect exactly as a pointer does, hover and focus still work on top. Turn it on in short bursts to make text glitch by itself, and keep each burst at one cycle or more with longer gaps, which keeps the flash budget below."
+  >
+    <ngwr-doc-code [code]="snippets.active" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography variant="h2" wrGlitch [active]="active()">Signal lost</p>
+      <button wr-btn outlined type="button" (click)="active.set(!active())">
+        {{ active() ? 'Stop' : 'Start' }}
+      </button>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Paint"
     description="`--wr-glitch-cycle` is one pass of the six steps, 1.2 s unset; keep it at a second or more, which is what holds the flash budget below. `--wr-glitch-shift` is how far a slice and the text jump, in em, and `--wr-glitch-skew` how far the text leans. The two copies are theme inks at `--wr-glitch-strength` over transparent, primary and danger by default; `--wr-glitch-tint-a` and `--wr-glitch-tint-b` set them outright."
   >

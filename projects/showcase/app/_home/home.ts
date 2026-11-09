@@ -7,6 +7,7 @@ import {
   signal,
   viewChild,
   type ElementRef,
+  type WritableSignal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -123,11 +124,16 @@ export default class HomeComponent {
   protected readonly routes = ROUTES;
 
   /**
-   * Off for a frame to re-create the one-shot tiles of the motion block: an
-   * entrance effect has no restart, a fresh host is the replay. An `@if` is
-   * used, not a counter-keyed `@for`, which warns NG0956 on every re-creation.
+   * Each one-shot tile of the motion block is off for a frame to be re-created
+   * on its own cadence: an entrance effect has no restart, a fresh host is the
+   * replay. An `@if` is used, not a counter-keyed `@for`, which warns NG0956
+   * on every re-creation.
    */
-  protected readonly playing = signal(true);
+  protected readonly decodePlaying = signal(true);
+  protected readonly blurPlaying = signal(true);
+  protected readonly revealPlaying = signal(true);
+  /** A burst of the glitch tile; off between bursts. */
+  protected readonly glitching = signal(false);
 
   private readonly motionGrid = viewChild<ElementRef<HTMLElement>>('motionGrid');
 
@@ -309,13 +315,34 @@ export class SignupCard {
       let onScreen = false;
       const observer = new IntersectionObserver(([entry]) => (onScreen = entry.isIntersecting));
       observer.observe(grid);
-      const id = setInterval(() => {
-        if (!onScreen || document.hidden) return;
-        this.playing.set(false);
-        afterNextRender(() => this.playing.set(true), { injector });
-      }, 7000);
+      const timers: ReturnType<typeof setTimeout>[] = [];
+      const every = (period: number, phase: number, tick: () => void): void => {
+        timers.push(
+          setTimeout(() => {
+            const run = (): void => {
+              if (onScreen && !document.hidden) tick();
+            };
+            run();
+            timers.push(setInterval(run, period));
+          }, phase)
+        );
+      };
+      const replay = (tile: WritableSignal<boolean>): void => {
+        tile.set(false);
+        afterNextRender(() => tile.set(true), { injector });
+      };
+      every(3200, 0, () => replay(this.decodePlaying));
+      every(4100, 1300, () => replay(this.blurPlaying));
+      every(3700, 2400, () => replay(this.revealPlaying));
+      every(4600, 800, () => {
+        this.glitching.set(true);
+        timers.push(setTimeout(() => this.glitching.set(false), 1200));
+      });
       destroyRef.onDestroy(() => {
-        clearInterval(id);
+        for (const id of timers) {
+          clearTimeout(id);
+          clearInterval(id);
+        }
         observer.disconnect();
       });
     });
