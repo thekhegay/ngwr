@@ -512,10 +512,10 @@ export const wrZhTw: WrI18nCatalog = {
       dec: '十二月',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: '和',
   },
-  ticker: {
+  marquee: {
     pause: '暫停',
     play: '播放',
   },

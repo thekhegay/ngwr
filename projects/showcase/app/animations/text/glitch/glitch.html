@@ -1,36 +1,36 @@
 <ngwr-doc-page
   title="Glitch"
   since="15.7.0"
-  description="A short piece of text that, now and then, looks like a broken signal for a fraction of a second: two tinted copies cut into thin slices jump sideways while the text leans a little, then everything snaps back clean."
+  description="A short piece of text that looks like a broken signal while the pointer is over it: two tinted copies cut into thin slices jump sideways while the text leans a little, and the moment the pointer leaves everything snaps back clean."
   [keywords]="['glitch', 'broken signal', '404', 'heading', 'wrGlitch']"
-  [labels]="['Animation']"
+  [labels]="['Animation', 'Directive']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="Put `wrGlitch` on the element that holds the text. It plays in bursts, never as a constant flicker: one shortly after the text comes into view, then one every five to eight seconds, each 300 to 500 ms long, and only while most of the text is in view and the page is visible. The length of a burst and the quiet after it walk a fixed sequence, so the cadence never reads as a metronome."
+    description="Put `wrGlitch` on the element that holds the text and move the pointer over it. It plays only under the pointer, never on its own, and stops the moment the pointer leaves. While it plays, the stylesheet loops six held steps per `--wr-glitch-cycle`, 1.2 s unset: each step a different thin slice of each copy, pushed a few pixels to one side."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <p wrTypography variant="h1" wrGlitch>404</p>
+      <p wrTypography variant="h1" wrGlitch>Hover me</p>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="A descendant as the target"
-    description="A selector as the directive's value points it at one descendant of the host instead, for a heading a library component draws. The target is looked up once after the first render by its public BEM class; a selector that matches nothing turns the effect off."
+    description="A selector as the directive's value points it at one descendant of the host instead, for a heading a library component draws: the 404 page of this site glitches the title of `<wr-result-404>` this way. The pointer is read on the target, not the host. The target is looked up once after the first render by its public BEM class; a selector that matches nothing turns the effect off."
   >
     <ngwr-doc-code [code]="snippets.target" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div wrGlitch=".ngwr-glitch-demo__title">
         <p wrTypography variant="h2" class="ngwr-glitch-demo__title">Page not found</p>
-        <p wrTypography variant="caption" tone="muted">Only the heading above glitches; this line does not.</p>
+        <p wrTypography variant="caption" tone="muted">Only the heading above glitches, and only under the pointer.</p>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Hover and focus"
-    description="A pointer entering, or focus landing on, the target or its closest focusable ancestor brings the next burst forward at once while the text is waiting. A burst in flight is never restarted, and for a second after one ends nothing can start another."
+    title="Keyboard focus"
+    description="The pointer and focus are read on the target's closest focusable ancestor, which is what a keyboard reaches: in a button or a link, the text glitches while the control has focus as well as under the pointer, and stops when focus moves on."
   >
     <ngwr-doc-code [code]="snippets.hover" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -40,9 +40,19 @@
 
   <ngwr-doc-section
     title="Paint"
-    description="`--wr-glitch-shift` is how far a slice and the text jump, in em, and `--wr-glitch-skew` how far the text leans. The two copies are theme inks at `--wr-glitch-strength` over transparent, primary and danger by default; `--wr-glitch-tint-a` and `--wr-glitch-tint-b` set them outright."
+    description="`--wr-glitch-cycle` is one pass of the six steps, 1.2 s unset; keep it at a second or more, which is what holds the flash budget below. `--wr-glitch-shift` is how far a slice and the text jump, in em, and `--wr-glitch-skew` how far the text leans. The two copies are theme inks at `--wr-glitch-strength` over transparent, primary and danger by default; `--wr-glitch-tint-a` and `--wr-glitch-tint-b` set them outright."
   >
     <ngwr-doc-code [code]="snippets.styled" language="scss" />
+    <ngwr-doc-snippet code="">
+      <p
+        wrTypography
+        variant="h2"
+        wrGlitch
+        style="--wr-glitch-cycle: 2s; --wr-glitch-shift: 0.2em; --wr-glitch-skew: 4deg; --wr-glitch-strength: 40%"
+      >
+        A wider, slower tear
+      </p>
+    </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Accessibility">
@@ -59,16 +69,18 @@
             <th scope="row">Screen readers</th>
             <td>
               The text is never touched: its node stays where it is, with its bindings. The copies are
-              <code>aria-hidden</code> spans appended for the length of a burst and removed after it, and they sit
-              outside the selection, so a copy of the page gives the text once.
+              <code>aria-hidden</code> spans appended while the pointer is over the text and removed when it leaves, and
+              they sit outside the selection, so a copy of the page gives the text once.
             </td>
           </tr>
           <tr>
             <th scope="row">Flashing</th>
             <td>
-              Two bursts start at least 1.3 s apart, so the text shows at most one opposing pair of luminance changes in
-              any one second, where WCAG 2.3.1 allows three. The copies are faint tints over the glyphs, never a strobe,
-              and the text reads in its own colour at every frame.
+              The line is cut into twelve thin bands and each copy lights each of its six bands once per cycle, so no
+              point of the text is lit more than once a cycle by either copy. With the cycle at a second or more, any
+              one second shows a point at most two opposing pairs of luminance changes, where WCAG 2.3.1 allows three.
+              The copies are faint tints over thin strips of glyphs, never a strobe, and the text reads in its own
+              colour at every frame.
             </td>
           </tr>
           <tr>
@@ -85,8 +97,8 @@
           <tr>
             <th scope="row">Server</th>
             <td>
-              The server renders the text as it is. The cycle starts in the browser, after the first render, and only
-              where <code>IntersectionObserver</code> exists.
+              The server renders the text as it is. The listeners are added in the browser, after the first render.
+              Nothing plays while the document is hidden.
             </td>
           </tr>
         </tbody>

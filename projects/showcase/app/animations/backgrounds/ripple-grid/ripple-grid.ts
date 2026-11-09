@@ -35,7 +35,8 @@ export default class RippleGridPageComponent {
   position: relative;
   isolation: isolate;
 }`,
-    spacing: `<wr-ripple-grid spacing="48" />`,
+    spacing: `<wr-ripple-grid spacing="20" />
+<wr-ripple-grid spacing="48" />`,
   };
 
   protected readonly api = API.WrRippleGrid;

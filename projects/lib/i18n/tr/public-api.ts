@@ -530,10 +530,10 @@ export const wrTr: WrI18nCatalog = {
       dec: 'Aralık',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: 've',
   },
-  ticker: {
+  marquee: {
     pause: 'Duraklat',
     play: 'Oynat',
   },

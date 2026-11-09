@@ -503,10 +503,10 @@ export const wrZh: WrI18nCatalog = {
       dec: '十二月',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: '和',
   },
-  ticker: {
+  marquee: {
     pause: '暂停',
     play: '播放',
   },

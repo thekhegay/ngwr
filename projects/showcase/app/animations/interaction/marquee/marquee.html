@@ -1,0 +1,127 @@
+<ngwr-doc-page
+  title="Marquee"
+  since="15.7.0"
+  description="A row of links that glides sideways in an endless loop, each item entering under a soft fade at one end and leaving under the other. It stops off screen, while the document is hidden, under the pointer, while focus is in it, and on the pause button at its end."
+  [keywords]="['marquee', 'ticker', 'scrolling row', 'links', 'wr-marquee']"
+  [labels]="['Animation', 'Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="`items` are the links, each a title and a URL, rendered as plain anchors. The belt holds the list twice and one CSS animation slides it by exactly the measured width of one copy, so the frame the cycle ends on is the frame it began on and the seam never shows. The width is read once the row is laid out and again when its size changes, and the duration is that width over `speed`, so the row moves at the same px per second whatever is in it. `label` names the list."
+  >
+    <ngwr-doc-code [code]="snippets.items" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-marquee [items]="items" label="Text effects" style="width: 100%" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Router links"
+    description="The library never imports the router, so a routed app projects an `<ng-template let-item>` with its own anchor and a `routerLink` on it; the marquee renders it for each item in both copies. The anchor carries `wr-marquee__link`, the class the stylesheet dresses a link with."
+  >
+    <ngwr-doc-code [code]="snippets.router" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-marquee [items]="items" label="Text effects" style="width: 100%">
+        <ng-template let-item>
+          <a class="wr-marquee__link" [routerLink]="item.url">{{ item.title }}</a>
+        </ng-template>
+      </wr-marquee>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Icons in the items"
+    description="An item is whatever the template draws: a `wr-icon` before the name makes a row of logos. The link lays its icon and its name out on one line, and the icon takes the link's colour, muted at rest and primary under the pointer. Here the icons are the brand marks this site registers with `provideWrIcons`."
+  >
+    <ngwr-doc-code [code]="snippets.icons" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-marquee [items]="logos" label="Built with" style="width: 100%">
+        <ng-template let-item>
+          <a class="wr-marquee__link" [href]="item.url"><wr-icon [name]="item.icon" />{{ item.title }}</a>
+        </ng-template>
+      </wr-marquee>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Speed"
+    description="`speed` is in px per second, 40 by default. Nothing but `translate` animates, declared paused and set running by one modifier, so a pause keeps the phase: the row picks up where it stopped."
+  >
+    <ngwr-doc-code [code]="snippets.speed" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-marquee [items]="items" label="Text effects" speed="90" style="width: 100%" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The pause button"
+    description='A row that moves has a pause button at its end (WCAG 2.2.2); a still row has none. Its name comes from the i18n catalog (`marquee.pause`, `marquee.play`), so an app with `ngwr/i18n/de` hears "Pausieren"; `pauseLabel` and `playLabel` override it for one instance.'
+  >
+    <ngwr-doc-code [code]="snippets.labels" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-marquee
+        [items]="items"
+        label="Text effects"
+        pauseLabel="Hold the row"
+        playLabel="Let it run"
+        style="width: 100%"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              The second copy is <code>aria-hidden</code> and <code>inert</code>, so the list is heard once, as a list
+              of links named by <code>label</code>, and tabbed once.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>
+              A link that takes focus stops the row: the viewport scrolls natively and the link is brought into view, so
+              what has focus is what can be seen. Leaving the belt resumes the loop from the start of the row.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Pausing</th>
+            <td>
+              The row stops under the pointer, while focus is in it, off screen, while the document is hidden and on the
+              pause button. A pause from the button stays until the button is pressed again.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> the row never moves: one copy, scrollable, under the
+              same fade, with no pause button.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>The one copy is rendered as a still row; the loop starts from the same picture, so nothing shifts.</td>
+          </tr>
+          <tr>
+            <th scope="row">RTL</th>
+            <td>The belt travels toward the inline start, so under RTL the row runs the other way.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

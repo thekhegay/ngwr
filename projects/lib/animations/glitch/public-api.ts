@@ -6,4 +6,3 @@
  */
 
 export { WrGlitch } from './glitch';
-export type { WrGlitchState } from './types';

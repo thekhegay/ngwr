@@ -8,12 +8,11 @@ import { WrClickSparks } from 'ngwr/animations/click-sparks';
 import { WrDecode } from 'ngwr/animations/decode';
 import { WrFlowLines } from 'ngwr/animations/flow-lines';
 import { WrGlowBorder } from 'ngwr/animations/glow-border';
-import { WrLetterStagger } from 'ngwr/animations/letter-stagger';
-import { WrSignalSweep } from 'ngwr/animations/signal-sweep';
+import { WrMarquee, type WrMarqueeItem } from 'ngwr/animations/marquee';
+import { WrReveal } from 'ngwr/animations/reveal';
+import { WrRotateReveal } from 'ngwr/animations/rotate-reveal';
 import { WrSpotlight } from 'ngwr/animations/spotlight';
-import { WrTicker, type WrTickerItem } from 'ngwr/animations/ticker';
 import { WrTilt } from 'ngwr/animations/tilt';
-import { WrWordRotator } from 'ngwr/animations/word-rotator';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrCard } from 'ngwr/card';
@@ -72,17 +71,16 @@ interface DxLink {
     WrTypography,
     // Effects
     WrFlowLines,
-    WrSignalSweep,
     WrGlowBorder,
     WrAurora,
     WrBlurReveal,
     WrClickSparks,
     WrDecode,
-    WrLetterStagger,
+    WrReveal,
     WrSpotlight,
-    WrTicker,
+    WrMarquee,
     WrTilt,
-    WrWordRotator,
+    WrRotateReveal,
     // Sections
     ComponentsBento,
     HomeOptInComponent,
@@ -123,7 +121,7 @@ export default class HomeComponent {
    * order: one source for the nav and the row under the hero, so a component
    * added to the catalog shows up in both.
    */
-  protected readonly components: readonly WrTickerItem[] = COMPONENT_GROUPS.flatMap(
+  protected readonly components: readonly WrMarqueeItem[] = COMPONENT_GROUPS.flatMap(
     group => group.children ?? []
   ).flatMap(link => (link.url && !link.disabled ? [{ title: link.title, url: link.url }] : []));
 

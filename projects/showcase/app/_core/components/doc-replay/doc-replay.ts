@@ -21,7 +21,7 @@ import { WrButton } from 'ngwr/button';
  * a counter re-creates it too, and warns `NG0956` on every click for doing so.
  *
  * The view is created from an effect, so the server renders the demo as well:
- * `<wr-letter-stagger>` starts from the prerendered pieces, which is the whole
+ * `<wr-reveal>` starts from the prerendered pieces, which is the whole
  * point of that effect.
  *
  * @example

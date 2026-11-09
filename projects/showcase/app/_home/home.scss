@@ -147,10 +147,10 @@
 
 // The row of component names under the hero. No padding of its own: the hero
 // ends on 7rem of air and the bento opens on 5rem, and the row's own block
-// padding (`ticker.scss`) is the air a one-line strip needs. Pulled up into
+// padding (`marquee.scss`) is the air a one-line strip needs. Pulled up into
 // the hero's tail, so it reads as the hero's last line rather than as a
 // section of its own, and stays clear of the call to action above it.
-.ngwr-home-ticker {
+.ngwr-home-marquee {
   // Positioned, so it paints after the positioned hero it overlaps, not under
   // the hero's flow lines.
   position: relative;

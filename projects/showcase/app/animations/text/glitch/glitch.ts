@@ -29,10 +29,11 @@ import { API } from '#core/generated/api';
 })
 export default class GlitchPageComponent {
   protected readonly snippets = {
-    basic: `<h2 wrGlitch>404</h2>`,
+    basic: `<h2 wrGlitch>Hover me</h2>`,
     target: `<wr-result-404 wrGlitch=".wr-result__title" />`,
     hover: `<button wr-btn outlined type="button"><span wrGlitch>Hover or focus me</span></button>`,
     styled: `.signal {
+  --wr-glitch-cycle: 2s;
   --wr-glitch-shift: 0.2em;
   --wr-glitch-skew: 4deg;
   --wr-glitch-strength: 40%;

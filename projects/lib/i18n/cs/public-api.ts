@@ -505,10 +505,10 @@ export const wrCs: WrI18nCatalog = {
       dec: 'prosinec',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: 'a',
   },
-  ticker: {
+  marquee: {
     pause: 'Pozastavit',
     play: 'Přehrát',
   },

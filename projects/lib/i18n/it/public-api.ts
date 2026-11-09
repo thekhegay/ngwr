@@ -522,10 +522,10 @@ export const wrIt: WrI18nCatalog = {
       dec: 'dicembre',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: 'e',
   },
-  ticker: {
+  marquee: {
     pause: 'Pausa',
     play: 'Riproduci',
   },

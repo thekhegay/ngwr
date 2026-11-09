@@ -1,0 +1,122 @@
+<ngwr-doc-page
+  title="Reveal"
+  since="15.7.0"
+  description="A headline whose letters rise into place one after another from first paint, with no script: built for above the fold, where the server HTML already holds the pieces and the motion starts before the bundle arrives."
+  [keywords]="['reveal', 'headline', 'hero', 'text', 'entrance', 'wr-reveal']"
+  [labels]="['Animation', 'Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="`<wr-reveal>` is inline, so it sits inside your heading and takes its font. Pass the text as `text`: it is split into graphemes in the template, each piece carries its index, and the stylesheet turns that into a delay. When the last piece lands the pieces are swapped for the plain text, so the headline at rest is exactly the text it would have been."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="h2"><wr-reveal text="Components that bind straight to Signal Forms." /></p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Words" description='`by="words"` rises one word at a time, 70 ms apart instead of 28.'>
+    <ngwr-doc-code [code]="snippets.words" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="h2"><wr-reveal text="One word at a time." by="words" /></p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Masked"
+    description="`masked` clips each word at a padded line box, so a letter comes up from under the line instead of fading in where it stands. Descenders and accents at rest sit inside the padding."
+  >
+    <ngwr-doc-code [code]="snippets.masked" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="h2"><wr-reveal text="Up from under the line." masked /></p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="One sequence from several runs"
+    description="A headline with markup inside it is several runs. Give each run the count of pieces before it as `start`, and they play as one sequence. An inline element that is not text, a logo chip, joins the sequence as class `wr-reveal__item` with `--wr-reveal-i` set inline. A sequence longer than 1.2 s shrinks its gap; set the same `stagger` on every run so the gap is one gap."
+  >
+    <ngwr-doc-code [code]="snippets.sequence" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="h2">
+            <span class="wr-reveal__item" style="--wr-reveal-i: 0"><wr-tag>Angular</wr-tag></span>
+            <wr-reveal text="components for" start="1" />
+            <em><wr-reveal text="Signal Forms" start="15" /></em>
+          </p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="On scroll"
+    description='`trigger="view"` keeps the pieces visible and plays them the first time most of the host is in the viewport, for a heading further down the page. `load`, the default, plays from first paint. The offset, the duration and the easing are CSS variables.'
+  >
+    <ngwr-doc-code [code]="snippets.view" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.styled" language="scss" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography variant="h3"><wr-reveal text="Plays when it scrolls into view." trigger="view" /></p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              While the pieces play they are <code>aria-hidden</code>, and a visually hidden copy of the text stands
+              beside them, so the headline is announced once. At rest the host holds the plain text.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> the stylesheet plays nothing and the host swaps to the
+              plain text at once. The demos on this page follow the same setting.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server and no script</th>
+            <td>
+              The pieces are in the server HTML and the animation is CSS, so it starts at first paint and runs on
+              through hydration. Without script the pieces simply end fully visible.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Wrapping</th>
+            <td>
+              The letters of one word sit in a no-wrap wrapper and the spaces between words stay real text, so the lines
+              break where plain text would.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

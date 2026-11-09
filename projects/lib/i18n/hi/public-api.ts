@@ -507,10 +507,10 @@ export const wrHi: WrI18nCatalog = {
       dec: 'दिसंबर',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: 'और',
   },
-  ticker: {
+  marquee: {
     pause: 'रोकें',
     play: 'चलाएँ',
   },

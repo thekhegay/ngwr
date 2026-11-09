@@ -526,10 +526,10 @@ export const wrHe: WrI18nCatalog = {
       dec: 'דצמבר',
     },
   },
-  wordRotator: {
+  rotateReveal: {
     conjunction: 'ו',
   },
-  ticker: {
+  marquee: {
     pause: 'השהיה',
     play: 'הפעלה',
   },
