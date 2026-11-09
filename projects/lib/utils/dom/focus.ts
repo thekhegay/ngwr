@@ -5,6 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { FocusMonitor } from '@angular/cdk/a11y';
+
 const FOCUSABLE_SELECTOR = [
   'a[href]',
   'area[href]',
@@ -81,4 +83,18 @@ export function trapFocus(root: HTMLElement, event: KeyboardEvent): boolean {
     return true;
   }
   return false;
+}
+
+/**
+ * Hand focus back to `el` after something closed, as a PROGRAMMATIC focus.
+ *
+ * A plain `el.focus()` after Escape reads to the CDK `FocusMonitor` as keyboard
+ * focus, because the last input was a key, and anything that reacts to keyboard
+ * origin (a tooltip on the trigger) then treats the restore as the user tabbing
+ * there. `focusVia(el, 'program')` reports the truth. Without a monitor it is a
+ * plain `focus()`.
+ */
+export function wrRestoreFocus(el: HTMLElement, monitor?: FocusMonitor | null): void {
+  if (monitor) monitor.focusVia(el, 'program');
+  else el.focus();
 }

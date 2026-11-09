@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { FocusMonitor } from '@angular/cdk/a11y';
 import {
   Component,
   DestroyRef,
@@ -22,7 +23,7 @@ import {
 } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { wrCheckStyles } from 'ngwr/utils';
+import { wrCheckStyles, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrToastItem } from './toast-item';
 import type { WrToastConfig, WrToastMode, WrToastOptions, WrToastPosition } from './types';
@@ -33,8 +34,8 @@ import type { WrToastConfig, WrToastMode, WrToastOptions, WrToastPosition } from
 const COLLAPSE_DELAY_MS = 120;
 
 /** Send focus back to `origin` when it is still in the page. */
-function returnFocus(origin: HTMLElement | null): void {
-  if (origin?.isConnected) origin.focus();
+function returnFocus(origin: HTMLElement | null, monitor: FocusMonitor): void {
+  if (origin?.isConnected) wrRestoreFocus(origin, monitor);
 }
 
 /**
@@ -141,6 +142,7 @@ export class WrToastHost {
    * the only way a keyboard user can reach the "Close all" button. */
   private readonly focusWithin = signal(false);
 
+  private readonly focusMonitor = inject(FocusMonitor);
   private readonly destroyRef = inject(DestroyRef);
   private readonly elRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
@@ -243,7 +245,7 @@ export class WrToastHost {
     this.dismissed.emit(id);
     if (!hadFocus) return;
     if (this.toasts().length === 0) {
-      returnFocus(origin);
+      returnFocus(origin, this.focusMonitor);
       return;
     }
     afterNextRender(() => this.focusNeighbour(index), { injector: this.injector });
@@ -256,7 +258,7 @@ export class WrToastHost {
     const hadFocus = host.contains(active) && hasKeyboardFocus(active);
     const origin = this.focusOrigin;
     this.dismissAllRequested.emit();
-    if (hadFocus) returnFocus(origin);
+    if (hadFocus) returnFocus(origin, this.focusMonitor);
   }
 
   /**
@@ -273,7 +275,7 @@ export class WrToastHost {
       .find((el): el is HTMLElement => !!el);
     const target = close ?? this.elRef.nativeElement.querySelector<HTMLElement>('.wr-toast-host__close-all');
     if (!target) {
-      returnFocus(this.focusOrigin);
+      returnFocus(this.focusOrigin, this.focusMonitor);
       return;
     }
     this.movingFocus = true;

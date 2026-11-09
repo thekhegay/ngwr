@@ -1,3 +1,4 @@
+import { FocusMonitor, type FocusOrigin } from '@angular/cdk/a11y';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Location } from '@angular/common';
 import { Component } from '@angular/core';
@@ -40,6 +41,24 @@ describe('WrDrawerManager', () => {
   const backdrop = (): HTMLElement | null => document.querySelector('.wr-drawer-backdrop');
 
   afterEach(() => TestBed.resetTestingModule());
+
+  it('hands focus back as a programmatic focus', () => {
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    opener.focus();
+    const manager = setup(false);
+    const origins: FocusOrigin[] = [];
+    TestBed.inject(FocusMonitor)
+      .monitor(opener)
+      .subscribe(origin => origin && origins.push(origin));
+    const ref = manager.open(Panel);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    ref.close();
+
+    expect(document.activeElement).toBe(opener);
+    expect(origins.at(-1)).toBe('program');
+    opener.remove();
+  });
 
   it('presents the panel as a modal dialog', () => {
     setup(false).open(Panel);

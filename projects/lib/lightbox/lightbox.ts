@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory, FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef } from '@angular/cdk/overlay';
@@ -29,7 +29,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, type WrClassInput } from 'ngwr/utils';
+import { toClassList, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 let viewerUid = 0;
 
@@ -147,6 +147,7 @@ export class WrLightbox {
   // unqualified TemplateRef query would grab the thumbnail branch instead.
   protected readonly panelTpl = viewChild.required<TemplateRef<unknown>>('viewerTpl');
 
+  private readonly focusMonitor = inject(FocusMonitor);
   private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -300,6 +301,6 @@ export class WrLightbox {
     this.overlayRef = null;
     // Send focus back where it came from, or it lands on <body> and the user
     // has to tab from the top of the page again.
-    if (restore && typeof restore.focus === 'function') restore.focus();
+    if (restore && typeof restore.focus === 'function') wrRestoreFocus(restore, this.focusMonitor);
   }
 }

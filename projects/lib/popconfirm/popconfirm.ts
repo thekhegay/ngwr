@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
@@ -24,7 +25,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
-import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { toClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrPopconfirmPanel } from './popconfirm-panel';
 import { type WrPopconfirmPosition, wrPopconfirmPositions } from './types';
@@ -120,6 +121,7 @@ export class WrPopconfirm {
   readonly cancelled = output<void>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly focusMonitor = inject(FocusMonitor);
   private readonly overlay = inject(WR_OVERLAY);
   private readonly dir = inject(Directionality, { optional: true });
   private readonly outsideClick = inject(WrOutsideClick);
@@ -276,7 +278,7 @@ export class WrPopconfirm {
     this.overlayRef.dispose();
     this.overlayRef = null;
     this.isOpen.set(false);
-    if (returnFocus) this.host.nativeElement.focus();
+    if (returnFocus) wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
   }
 
   /**
@@ -302,7 +304,7 @@ export class WrPopconfirm {
     } else if (active !== stops.at(-1)) {
       return;
     }
-    this.host.nativeElement.focus();
+    wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
     this.dismiss();
   };
 

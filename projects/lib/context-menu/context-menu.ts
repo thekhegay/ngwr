@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import {
   type ConnectedPosition,
@@ -19,7 +20,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { Subscription } from 'rxjs';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { randomId, wrCheckStyles } from 'ngwr/utils';
+import { randomId, wrCheckStyles, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrContextMenuItem } from './context-menu-item';
 import type { WrContextMenuPanel } from './context-menu-panel';
@@ -106,6 +107,7 @@ export class WrContextMenu {
   readonly menu = input.required<WrContextMenuPanel>({ alias: 'wrContextMenu' });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly focusMonitor = inject(FocusMonitor);
   private readonly overlay = inject(WR_OVERLAY);
   /**
    * The reading direction the open menu has to keep up with.
@@ -578,14 +580,14 @@ export class WrContextMenu {
   private handBackFocus(previous: HTMLElement | null): void {
     const target =
       previous?.isConnected && !previous.closest('.wr-context-menu-overlay') ? previous : this.host.nativeElement;
-    target.focus();
+    wrRestoreFocus(target, this.focusMonitor);
     // Asking whether it took, rather than deciding up front whether it can: the
     // focusability rules are wide (an `<a>` needs an href, a `<div>` needs a
     // tabindex, `inert`/`disabled` opt out) and `document.activeElement` answers
     // all of them at once.
     if (document.activeElement === target) return;
     target.setAttribute('tabindex', '-1');
-    target.focus();
+    wrRestoreFocus(target, this.focusMonitor);
     target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
   }
 

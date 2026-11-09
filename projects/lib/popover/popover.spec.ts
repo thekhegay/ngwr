@@ -5,6 +5,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
+import { WrDialog, type WrDialogRef } from 'ngwr/dialog';
 import { WrDrawerManager } from 'ngwr/drawer';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -66,6 +67,10 @@ class Host {
 /** Something for `WrDrawerManager` to mount in the round-trip case below. */
 @Component({ template: '<p>Filters</p>' })
 class DrawerPanel {}
+
+/** Something for `WrDialog` to mount, with a button of its own to close it. */
+@Component({ template: '<p>Confirm</p><button type="button" class="dialog-done">Done</button>' })
+class DialogPanel {}
 
 /**
  * A real window for the CDK to place panels in, for every case in the file.
@@ -741,6 +746,88 @@ describe('WrPopover', () => {
       expect(document.querySelector('.wr-drawer__panel'), 'the drawer never closed').toBeNull();
       expect(document.activeElement, 'the drawer never handed focus back').toBe(trigger('tip'));
       expect(tooltipPane(), 'the reported strand: a pane under the trigger the drawer came back to').toBeNull();
+    });
+
+    /**
+     * The hand-back that lands AFTER the keystroke is over. The popover's own
+     * key memory has expired by then, so a plain `.focus()` reads as Tab. What
+     * keeps the tooltip shut is the restore itself being programmatic.
+     */
+    describe('when a dialog closes', () => {
+      let dialogRef: WrDialogRef<DialogPanel>;
+      const origins: FocusOrigin[] = [];
+
+      const openDialogFromTrigger = (): void => {
+        // The reporter's gesture: a mouse click on the button opens the dialog.
+        trigger('tip').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+        trigger('tip').focus();
+        dialogRef = TestBed.inject(WrDialog).open(DialogPanel);
+        fixture.detectChanges();
+        origins.length = 0;
+        TestBed.inject(FocusMonitor)
+          .monitor(trigger('tip'))
+          .subscribe(origin => origin && origins.push(origin));
+        tick(600);
+        trigger('tip').blur();
+        tick(600);
+      };
+
+      it('stays shut after Escape, even once the keystroke has expired', () => {
+        openDialogFromTrigger();
+
+        press('Escape');
+        tick(20);
+        dialogRef.close();
+        tick(600);
+
+        expect(document.querySelector('.wr-dialog-panel'), 'the dialog never closed').toBeNull();
+        expect(document.activeElement, 'the dialog never handed focus back').toBe(trigger('tip'));
+        expect(origins.at(-1), 'the restore was reported as the user arriving').toBe('program');
+        expect(tooltipPane(), 'the tooltip opened for a focus the dialog restored').toBeNull();
+      });
+
+      it('stays shut when a button inside the dialog closes it', () => {
+        openDialogFromTrigger();
+
+        press('Enter', document.querySelector<HTMLElement>('.dialog-done')!);
+        tick(20);
+        dialogRef.close();
+        tick(600);
+
+        expect(document.activeElement).toBe(trigger('tip'));
+        expect(tooltipPane()).toBeNull();
+      });
+
+      it('still opens for a Tab onto the same trigger afterwards', () => {
+        openDialogFromTrigger();
+        dialogRef.close();
+        tick(600);
+        trigger('tip').blur();
+        tick(600);
+
+        press('Tab');
+        trigger('tip').focus();
+        fixture.detectChanges();
+        tick(120);
+
+        expect(tooltipPane(), 'the dialog fix took the hint away from Tab').toBeTruthy();
+      });
+    });
+
+    it('stays shut when a drawer closed after the keystroke is over hands focus back', () => {
+      trigger('tip').focus();
+      const ref = TestBed.inject(WrDrawerManager).open(DrawerPanel);
+      fixture.detectChanges();
+      trigger('tip').blur();
+      tick(600);
+
+      press('Escape');
+      tick(20);
+      ref.close();
+      tick(600);
+
+      expect(document.activeElement).toBe(trigger('tip'));
+      expect(tooltipPane()).toBeNull();
     });
 
     it('stays shut when a ✕ activated with Enter hands focus back', () => {

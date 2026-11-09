@@ -126,7 +126,7 @@ export class WrDrawerManager {
     // `open()` creates a fresh ref of its own.
     wrFollowDirection(overlayRef, this.dir, this.parentInjector);
 
-    const drawerRef = new WrDrawerRef<C, R>(overlayRef);
+    const drawerRef = new WrDrawerRef<C, R>(overlayRef, this.parentInjector);
     drawerRef.modal = modal;
 
     if (this.isBrowser) {

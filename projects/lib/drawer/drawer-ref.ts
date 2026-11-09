@@ -5,11 +5,13 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { FocusTrap } from '@angular/cdk/a11y';
+import { type FocusTrap, FocusMonitor } from '@angular/cdk/a11y';
 import type { OverlayRef } from '@angular/cdk/overlay';
-import type { ComponentRef } from '@angular/core';
+import type { ComponentRef, Injector } from '@angular/core';
 
 import { ReplaySubject } from 'rxjs';
+
+import { wrRestoreFocus } from 'ngwr/utils';
 
 import { drawerHasFocus, focusIsLost } from './drawer-focus';
 
@@ -65,7 +67,20 @@ export class WrDrawerRef<C, R = unknown> {
   /** @internal — `false` for a drawer opened with `hasBackdrop: false`. */
   modal = true;
 
-  constructor(private readonly _overlayRef: OverlayRef) {}
+  /**
+   * @param _overlayRef the overlay the drawer is mounted in.
+   * @param injector where the focus hand-back finds the CDK `FocusMonitor`; without
+   *   one it is a plain `focus()`.
+   */
+  private readonly focusMonitor: FocusMonitor | null;
+
+  constructor(
+    private readonly _overlayRef: OverlayRef,
+    injector?: Injector
+  ) {
+    // Resolved now: the injector may be gone by the time the drawer closes.
+    this.focusMonitor = injector?.get(FocusMonitor, null) ?? null;
+  }
 
   /** The instantiated drawer component. */
   get componentInstance(): C {
@@ -109,7 +124,7 @@ export class WrDrawerRef<C, R = unknown> {
     this.componentRef = null;
     // Restore focus after disposal so the trigger is reachable again.
     if (returnFocus && restore && typeof restore.focus === 'function') {
-      restore.focus();
+      wrRestoreFocus(restore, this.focusMonitor);
     }
   }
 
