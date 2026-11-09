@@ -68,19 +68,19 @@
 
   // What an animation runs on: from the browser's own CSS to a GPU shader.
   &[data-tone='css'] {
-    --tone: light-dark(#0369a1, #7dd3fc);
+    --tone: light-dark(#075985, #7dd3fc);
   }
 
   &[data-tone='dom'] {
-    --tone: light-dark(#a16207, #fde047);
+    --tone: light-dark(#854d0e, #fde047);
   }
 
   &[data-tone='svg'] {
-    --tone: light-dark(#4d7c0f, #bef264);
+    --tone: light-dark(#3f6212, #bef264);
   }
 
   &[data-tone='canvas'] {
-    --tone: light-dark(#c2410c, #fdba74);
+    --tone: light-dark(#9a3412, #fdba74);
   }
 
   &[data-tone='webgl'] {
