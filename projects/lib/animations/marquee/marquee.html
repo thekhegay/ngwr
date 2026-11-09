@@ -28,11 +28,11 @@
   </div>
 </div>
 <!--
-  Only a row that moves needs a pause: a still row (reduced motion, the server)
-  has none. The glyph is a bare SVG, as the other entry points draw their own
+  The button is opt-in (`pausable`), and only a row that moves needs it: a still
+  row (reduced motion, the server) has none. The glyph is a bare SVG, as the other entry points draw their own
   chrome, so the button needs no icon registered by the app.
 -->
-@if (looping()) {
+@if (pausable() && looping()) {
   <button
     wr-btn
     type="button"

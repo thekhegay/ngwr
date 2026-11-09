@@ -877,6 +877,7 @@ export const API = {
     { name: "items", description: "The links, in the order they pass.", type: "readonly WrMarqueeItem[]", required: true },
     { name: "speed", description: "How fast the row travels, in px per second.", type: "number", default: "40" },
     { name: "label", description: "The accessible name of the list.", type: "string | null", default: "null" },
+    { name: "pausable", description: "Renders the pause button at the row's end, the way to stop a row that runs on (WCAG 2.2.2). Hover and focus pause the row with or without it.", type: "boolean", default: "false" },
     { name: "pauseLabel", description: "The pause button's name while the row moves. Unset, the `marquee.pause` string of the i18n catalog, \"Pause\" in English.", type: "string | null", default: "null" },
     { name: "playLabel", description: "The pause button's name while the row stands. Unset, the `marquee.play` string of the i18n catalog, \"Play\" in English.", type: "string | null", default: "null" },
   ],
