@@ -702,6 +702,7 @@ export const API = {
   // <[wrGlitch]>
   WrGlitch: [
     { name: "wrGlitch", description: "A selector for one descendant of the host to glitch instead of the host itself, written as the directive's own value: `wrGlitch=\".wr-result__title\"`. Resolved once after the first render with `querySelector`; a selector that matches nothing turns the effect off. Unset or empty, the host.", type: "string | null", default: "null" },
+    { name: "active", description: "Plays the effect while true, exactly as under a pointer; hover and focus still start it when this is false. Drive it with short bursts to make a tile glitch on its own: keep each burst to one cycle or more and the gaps longer than the burst, so the flash budget above holds.", type: "boolean", default: "false" },
   ],
   // <[wrGlowBorder]>
   WrGlowBorder: [
