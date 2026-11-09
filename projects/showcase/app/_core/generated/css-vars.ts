@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1623 hook(s) across 112 page(s). A property is here only when the
+ * 1624 hook(s) across 112 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -1019,14 +1019,15 @@ export const CSS_VARS = {
   "reference/components/date-picker": {
     subpath: "ngwr/date-picker",
     vars: [
+      { name: "--wr-date-range-panel-bg", default: "var(--wr-color-surface)", scope: ".wr-date-range-panel--timed", base: false },
+      { name: "--wr-date-range-panel-border", default: "var(--wr-border-base)", scope: ".wr-date-range-panel--timed", base: false },
+      { name: "--wr-date-range-panel-radius", default: "var(--wr-border-radius-base)", scope: ".wr-date-range-panel--timed", base: false },
       { name: "--wr-date-range-panel-time-gap", default: "var(--wr-space-xs)", scope: ".wr-date-range-panel__time" },
       { name: "--wr-date-range-panel-time-label-font-size", default: "var(--wr-text-xs)", scope: ".wr-date-range-panel__time-label" },
       { name: "--wr-date-range-panel-time-label-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-date-range-panel__time-label" },
-      { name: "--wr-date-range-panel-times-border", default: "var(--wr-border-base)", scope: ".wr-date-range-panel__times" },
       { name: "--wr-date-range-panel-times-gap-x", default: "var(--wr-space-xl)", scope: ".wr-date-range-panel__times" },
       { name: "--wr-date-range-panel-times-gap-y", default: "var(--wr-space-md)", scope: ".wr-date-range-panel__times" },
       { name: "--wr-date-range-panel-times-padding", default: "var(--wr-space-md)", scope: ".wr-date-range-panel__times" },
-      { name: "--wr-date-range-panel-times-radius", default: "var(--wr-border-radius-base)", scope: ".wr-date-range-panel__times" },
       { name: "--wr-date-range-picker-separator-padding-x", default: "var(--wr-space-xs)", scope: ".wr-date-range-picker__separator" },
       { name: "--wr-date-time-panel-time-border", default: "var(--wr-border-base)", scope: ".wr-date-time-panel__time" },
       { name: "--wr-date-time-panel-time-padding", default: "var(--wr-space-md)", scope: ".wr-date-time-panel__time" },

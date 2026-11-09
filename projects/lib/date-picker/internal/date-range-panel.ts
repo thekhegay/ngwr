@@ -37,7 +37,7 @@ import { WrTimePanel } from './time-panel';
   selector: 'wr-date-range-panel',
   templateUrl: './date-range-panel.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-date-range-panel' },
+  host: { class: 'wr-date-range-panel', '[class.wr-date-range-panel--timed]': 'withTime()' },
   imports: [WrCalendar, WrTimePanel],
 })
 export class WrDateRangePanel {

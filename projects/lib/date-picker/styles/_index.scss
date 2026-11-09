@@ -108,7 +108,12 @@
 // calendar is unreachable either way, and nothing on screen moves.
 //
 // <wr-calendar> and the time panel bring their own chrome, so the pane needs
-// no rule at all.
+// no paint rule. It does need to scroll: with room for the panel on neither side
+// of the field, the position strategy shrinks the pane to the larger side
+// instead of pushing it over the field, and what no longer fits scrolls.
+.wr-date-picker-overlay {
+  overflow: auto;
+}
 
 // Time-only mode attaches the bare stepper as the overlay content — it
 // has to bring the panel chrome the calendar otherwise provides.
@@ -308,35 +313,45 @@
   }
 }
 
-// Range calendar + one time stepper per end, joined to the calendar the same
-// way the single datetime panel is.
+// Range calendar + one time stepper per end. With times the panel is ONE
+// surface: it owns the background, border and radius, the calendar and the time
+// row sit flat inside it, and the calendar stretches to the time row (a range
+// row with seconds is wider than the calendar's own width). A date-only panel is
+// the bare calendar and keeps the calendar's own chrome.
 .wr-date-range-panel {
   display: inline-flex;
   flex-direction: column;
   gap: 0;
 
-  > .wr-calendar {
-    border-bottom: 0;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+  &--timed {
+    --wr-date-range-panel-bg: var(--wr-color-surface);
+    --wr-date-range-panel-border: var(--wr-border-base);
+    --wr-date-range-panel-radius: var(--wr-border-radius-base);
+
+    background: var(--wr-date-range-panel-bg);
+    border: 1px solid var(--wr-date-range-panel-border);
+    @include theme.smooth-br(var(--wr-date-range-panel-radius));
+    max-width: 100%;
+
+    > .wr-calendar {
+      width: auto;
+      min-width: var(--wr-calendar-width);
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+    }
   }
 
   &__times {
     --wr-date-range-panel-times-gap-y: var(--wr-space-md);
     --wr-date-range-panel-times-gap-x: var(--wr-space-xl);
     --wr-date-range-panel-times-padding: var(--wr-space-md);
-    --wr-date-range-panel-times-border: var(--wr-border-base);
-    --wr-date-range-panel-times-radius: var(--wr-border-radius-base);
 
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: var(--wr-date-range-panel-times-gap-y) var(--wr-date-range-panel-times-gap-x);
     padding: var(--wr-date-range-panel-times-padding);
-    background: var(--wr-color-surface);
-    border: 1px solid var(--wr-date-range-panel-times-border);
-    border-top: 0;
-    border-radius: 0 0 var(--wr-date-range-panel-times-radius) var(--wr-date-range-panel-times-radius);
   }
 
   &__time {
