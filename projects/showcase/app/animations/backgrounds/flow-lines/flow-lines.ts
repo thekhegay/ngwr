@@ -38,6 +38,7 @@ export default class FlowLinesPageComponent {
   isolation: isolate;
 }`,
     calm: `<wr-flow-lines spacing="14" amplitude="16" speed="0.5" push="0.6" />`,
+    vertical: `<wr-flow-lines orientation="vertical" />`,
     dense: `<wr-flow-lines spacing="7" lineWidth="0.75" twist="-8" amplitude="36" />`,
     dashed: `<wr-flow-lines dashed speed="1.4" />`,
     ripple: `<wr-flow-lines ripple="false" />`,

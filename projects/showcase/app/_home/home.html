@@ -153,8 +153,7 @@
   <ngwr-home-opt-in />
 
   <!-- Why ngwr -->
-  <section class="ngwr-section ngwr-section--backdrop">
-    <wr-aurora height="0.26" amplitude="0.7" glow="0.8" />
+  <section class="ngwr-section">
     <div class="container">
       <div class="ngwr-section__head">
         <div class="ngwr-section__lede">
@@ -169,7 +168,7 @@
 
       <div class="ngwr-why-grid">
         @for (tile of whyTiles; track tile.title) {
-          <wr-card class="ngwr-why" wrSpotlight>
+          <wr-card class="ngwr-why" wrSpotlight [style.--wr-spotlight-color]="spotlightColor(tile.accent)">
             <span class="ngwr-icon-chip" [attr.data-tone]="tile.accent" aria-hidden="true">
               <wr-icon [name]="tile.icon" />
             </span>

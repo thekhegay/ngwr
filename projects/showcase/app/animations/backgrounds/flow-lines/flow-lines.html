@@ -28,7 +28,7 @@
 
   <ngwr-doc-section
     title="The parent"
-    description="The host is absolute, `inset: 0`, at `z-index: -1`, under no pointer, and the field fades out softly at every edge. The parent provides two things: it is positioned, so the host fills it, and isolated, so the host's negative z-index lands at the floor of the parent's own stacking context, under the content and over the page background."
+    description="The host is absolute, `inset: 0`, at `z-index: -1`, under no pointer, and the field fades out softly at the top and the bottom; the sides run on to the edge. The parent provides two things: it is positioned, so the host fills it, and isolated, so the host's negative z-index lands at the floor of the parent's own stacking context, under the content and over the page background."
   >
     <ngwr-doc-code [code]="snippets.parent" language="scss" />
   </ngwr-doc-section>
@@ -54,6 +54,19 @@
             <h3 wrTypography variant="h3">Calm.</h3>
           </div>
         </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Vertical"
+    description="`orientation` set to `vertical` runs the lines from top to bottom. Everything else, the drift, the pointer's push and the ripple, works the same way; `twist` tilts from whichever way they run."
+  >
+    <ngwr-doc-code [code]="snippets.vertical" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-flow-lines orientation="vertical" />
+        <h3 wrTypography variant="h3">Lines from top to bottom.</h3>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -177,8 +190,8 @@
           <tr>
             <th scope="row">Contrast</th>
             <td>
-              A line is a hairline laid in the muted ink at well under full coverage and faded at the edges, so the text
-              over it reads as it does on the plain surface; the accent shows only where a line is pushed.
+              A line is a hairline laid in the muted ink at well under full coverage, so the text over it reads as it
+              does on the plain surface; the accent shows only where a line is pushed.
             </td>
           </tr>
           <tr>

@@ -80,7 +80,7 @@ interface FlowFrame {
   introHead: number;
   introStagger: number;
   introSoft: number;
-  /** How far in from every edge the field fades. */
+  /** How far in from the top and the bottom the field fades; the sides run on to the edge. */
   fade: number;
 }
 
@@ -163,8 +163,7 @@ vec4 noised (vec3 x) {
 void main () {
   // The pixel in CSS px from the region's top left, y down.
   vec2 p = vec2(gl_FragCoord.x * uScale, uSize.y - gl_FragCoord.y * uScale);
-  vec2 edge = min(p, uSize - p);
-  float fade = smoothstep(0.0, uFade, edge.x) * smoothstep(0.0, uFade, edge.y);
+  float fade = smoothstep(0.0, uFade, min(p.y, uSize.y - p.y));
   if (fade <= 0.0) {
     gl_FragColor = vec4(0.0);
     return;

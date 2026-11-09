@@ -5,14 +5,8 @@
 // `--compact`, `--contained`) are set by a binding, and a class selector in
 // this emulated sheet is scoped with `_ngcontent`, which the host never
 // carries.
-//
-// Positioned and isolated for the pointer's trail (`<wr-fluid-cursor />`,
-// the first child): its negative z-index is the floor of the footer's own
-// stacking context, under the content and over the page background.
 :host {
   display: block;
-  position: relative;
-  isolation: isolate;
   // Match the sidebar's right border so the two divider lines
   // visually connect when the docs layout shows both at once.
   border-top: 1px solid var(--wr-border-subtle);
@@ -111,22 +105,6 @@
     margin: 0;
     color: var(--wr-color-on-surface-muted);
     font-size: 0.875rem;
-  }
-
-  // The seal under the tagline, at every width: the brand block is a column
-  // capped at 22rem, too narrow to seat a 6rem ring beside the text, and the
-  // link columns beside it are taller than logo plus tagline anyway, so the
-  // ring fills height the row already has. The ring reads in the block's
-  // muted ink; the mark in the middle wears the logo's colour, at a bit over
-  // a third of the ring, so it sits inside the legend with air around it.
-  &__seal {
-    margin-block-start: 0.5rem;
-  }
-
-  &__seal-mark {
-    --wr-icon-size: calc(var(--wr-orbit-size) * 0.38);
-
-    color: var(--wr-color-primary-ink);
   }
 
   &__columns {

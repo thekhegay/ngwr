@@ -52,6 +52,7 @@ import {
   flowRatio,
   flowSpacing,
 } from './flow-model';
+import type { WrFlowLinesOrientation } from './types';
 
 /** The drift's frequency along a line, in noise cells per CSS px: a wave is about two cells long. */
 const NOISE_FREQ = 1 / 220;
@@ -64,8 +65,8 @@ const DASH_PERIOD = 56;
 const DASH_DUTY = 0.55;
 const DASH_SPEED = 40;
 /** How much of its colour a line lays, on a light surface and on a dark one. */
-const INK_LIGHT = 0.34;
-const INK_DARK = 0.42;
+const INK_LIGHT = 0.2;
+const INK_DARK = 0.26;
 
 /**
  * A dense field of thin parallel lines behind a section's content that flows
@@ -118,7 +119,9 @@ export class WrFlowLines {
   readonly lineWidth = input(1, { transform: numAttr(1) });
   /** How far the drift bends a line at most, in CSS px. @default 28 */
   readonly amplitude = input(28, { transform: numAttr(28) });
-  /** The lines' tilt, in degrees: none is horizontal, positive falls toward the inline end. @default 0 */
+  /** Which way the lines run across the region. @default 'horizontal' */
+  readonly orientation = input<WrFlowLinesOrientation>('horizontal');
+  /** The lines' tilt from their orientation, in degrees: positive falls toward the inline end. @default 0 */
   readonly twist = input(0, { transform: numAttr(0) });
   /** How fast the drift and the dashes move, a multiplier: none holds the field still between pushes. @default 1 */
   readonly speed = input(1, { transform: numAttr(1) });
@@ -227,6 +230,7 @@ export class WrFlowLines {
       this.spacing();
       this.lineWidth();
       this.amplitude();
+      this.orientation();
       this.twist();
       this.dashed();
       this.mirrored();
@@ -511,7 +515,8 @@ export class WrFlowLines {
     const width = this.width;
     const height = this.height;
     const mirror = this.mirrored() ? -1 : 1;
-    const angle = (untracked(this.twist) * Math.PI) / 180;
+    const turn = untracked(this.orientation) === 'vertical' ? 90 : 0;
+    const angle = ((untracked(this.twist) + turn) * Math.PI) / 180;
     frame.regionWidth = width;
     frame.regionHeight = height;
     frame.cos = Math.cos(angle);
