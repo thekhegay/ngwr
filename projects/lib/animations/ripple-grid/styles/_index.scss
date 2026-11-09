@@ -1,0 +1,42 @@
+@use '../../../theme/styles' as theme;
+@include theme.loaded('animations/ripple-grid');
+
+// `<wr-ripple-grid />`: a faint square grid of thin lines behind a page's
+// content, that ripples out from a click. The component paints one canvas and
+// reads its two colours back from the hooks below through
+// `resolveCssColorChannels`, so a retheme and a scheme switch both reach the
+// pixels. The strengths (how much of each colour a line shows at rest and lit)
+// and the line width live in `ripple-grid.ts`: they are the canvas's numbers,
+// not the sheet's.
+.wr-ripple-grid {
+  // A line at rest: the muted role, the bare intent, since a line is a graphic
+  // and not text. The canvas shows it at a fifth, so the text over the grid
+  // reads as it does on the plain surface.
+  --wr-ripple-grid-ink: var(--wr-color-on-surface-muted);
+  // A line under the wave: the primary intent, never at full strength, so the
+  // lit ring stays under the content's own accents.
+  --wr-ripple-grid-glow: var(--wr-color-primary);
+
+  position: absolute;
+  inset: 0;
+  // Under the content, over the page: the parent is positioned and isolated,
+  // so this is the floor of its stacking context.
+  z-index: -1;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  // Gone at the edges, so there is no rectangle where the parent ends.
+  mask-image: radial-gradient(ellipse 70% 72% at 50% 50%, #000 35%, transparent 100%);
+
+  &__canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  // Nothing drawn: a grid under system colours is noise, not decoration.
+  @media (forced-colors: active) {
+    display: none;
+  }
+}

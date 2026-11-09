@@ -1,0 +1,41 @@
+@use '../../../theme/styles' as theme;
+@include theme.loaded('animations/thread-lines');
+
+// `<wr-thread-lines />`: a ribbon of fine threads behind a section's content,
+// a cord at one end and frayed apart at the other, riding slow waves and
+// parting round the pointer. The component paints one WebGL canvas and reads
+// its two colours and the surface back from the hooks below through
+// `resolveCssColorChannels`, so a retheme and a scheme switch both reach the
+// pixels. How much of a colour a strand lays, its glow and its thickness live
+// in the component and its shader: they are the canvas's numbers, not the
+// sheet's.
+.wr-thread-lines {
+  // A strand: the ink the body reads in, since a hairline needs the whole
+  // contrast of text to show at all, and a graphic, so the bare role. The
+  // canvas lays it as ink on a light surface and lights it on a dark one.
+  --wr-thread-lines-color: var(--wr-color-on-surface);
+  // The outer strands: the primary intent, never at full strength, so they
+  // stay under the content's own accents.
+  --wr-thread-lines-accent: var(--wr-color-primary);
+
+  position: absolute;
+  inset: 0;
+  // Under the content, over the page: the parent is positioned and isolated,
+  // so this is the floor of its stacking context.
+  z-index: -1;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+
+  &__canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  // Nothing drawn: hairlines under system colours are noise, not decoration.
+  @media (forced-colors: active) {
+    display: none;
+  }
+}

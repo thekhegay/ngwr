@@ -1,0 +1,118 @@
+<ngwr-doc-page
+  title="Decode"
+  since="15.7.0"
+  description="A readout locking on: every character shows random glyphs that change quickly, then settles on the real one, left to right. The line never moves while it plays."
+  [keywords]="['decode', 'scramble', 'text', 'glyphs', 'hover', 'wrDecode']"
+  [labels]="['Animation', 'Directive', 'DOM']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `wrDecode` on the element that holds the text. By default it plays once, when most of the element is in view. A glyph keeps the shape of the character it stands in for, so the word shape stays readable, and spaces never scramble."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <div>
+            <wr-tag color="primary" outlined><span wrDecode>Developer experience</span></wr-tag>
+            <p wrTypography variant="h2" wrDecode>Release 15.7 is out.</p>
+          </div>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Hover"
+    description='`trigger="hover"` plays on every pointer enter and on focus, of the element or of its closest focusable ancestor, so a label inside a button decodes when the button is reached by keyboard too. A play in progress is never restarted.'
+  >
+    <ngwr-doc-code [code]="snippets.hover" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <button wr-btn outlined type="button"><span wrDecode trigger="hover">Hover or focus me</span></button>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Glyphs"
+    description="`glyphs` is the set every slot draws from, instead of the shape of its own character: binary for a readout, a few symbols for a glitch."
+  >
+    <ngwr-doc-code [code]="snippets.glyphs" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="h3" wrDecode glyphs="01">Resolved in 2.4 ms</p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Timing"
+    description="`delay` is the pause between the trigger and the first glyph; the text stands as authored meanwhile. `stagger` is the gap between one slot locking and the next, 36 ms unset, and the locks spread over 1.2 s at most. The colour a glyph paints in before it locks is `--wr-decode-tint`, mixed from the text's own colour."
+  >
+    <ngwr-doc-code [code]="snippets.timing" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.styled" language="scss" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="lead" wrDecode delay="400" stagger="80">Slow enough to watch each slot lock.</p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              While the slots play they are <code>aria-hidden</code>, and a visually hidden copy of the text stands
+              beside them, so the text is announced once and the noise never. At rest the element holds its original
+              text nodes.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> nothing plays, in either trigger mode: the text is shown
+              as authored. The demos on this page follow the same setting.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>
+              In <code>hover</code> mode focus plays it too, read on the closest focusable ancestor, so a label inside a
+              button or a link behaves the same for a pointer and for Tab.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Layout</th>
+            <td>
+              The real character stays in its slot, hidden, and the glyph is painted over it out of flow, so the line
+              keeps its width and nothing around it moves.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>
+              The server renders the plain text. The slots are created in the browser, after the first render, and in
+              <code>view</code> mode only where <code>IntersectionObserver</code> exists.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

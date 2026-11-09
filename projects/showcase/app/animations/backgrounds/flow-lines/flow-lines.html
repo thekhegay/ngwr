@@ -1,0 +1,209 @@
+<ngwr-doc-page
+  title="Flow Lines"
+  since="15.7.0"
+  description="A dense field of thin parallel lines behind a section's content that flows like silk: a slow, smooth noise field bends every line in long gentle waves, neighbours moving together, so the field reads like a surface or a contour map in a breeze. The pointer is a soft weight on it: nearby lines are pushed away, take on the accent where they bend the most and spring back with a small bounce when it moves on, so a moving pointer leaves a short living wake. A click sends a ring out across the field. The hero of this site runs it."
+  [keywords]="['flow-lines', 'background', 'backdrop', 'webgl', 'hero', 'noise', 'silk', 'wr-flow-lines']"
+  [labels]="['Animation', 'Component', 'WebGL']"
+>
+  <wr-alert
+    class="wr-not-typeset"
+    type="info"
+    title="Runs on the GPU"
+    message="It draws on the GPU through WebGL, at a capped resolution, only while on screen and the tab is visible, and at 30 frames a second until a wake, a ripple or the intro is live. Without WebGL it draws nothing. Use one WebGL effect per view, and keep it off low-end and battery-sensitive pages if in doubt."
+  />
+
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `<wr-flow-lines />` first inside the region it should fill. The drawing is one WebGL pass: every pixel measures its distance to the nearest line of the bent field, so a line is a crisp anti-aliased hairline and a curve is smooth whatever bends it, never a chain of segments. The context is made when the host is first on screen and sized, and the loop runs while it stays on screen and the document is visible: thirty frames a second while only the drift moves, the screen's rate while a wake, a ripple or the intro is live. The parent takes the pointer, passively; a moving finger is ignored, so a scroll over the section is never fought, and a tap may ripple."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-flow-lines />
+        <h3 wrTypography variant="h3">Move the pointer through the field.</h3>
+        <p wrTypography variant="lead">The lines give way, colour where they bend, and spring back behind it.</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The parent"
+    description="The host is absolute, `inset: 0`, at `z-index: -1`, under no pointer, and the field fades out softly at the top and the bottom; the sides run on to the edge. The parent provides two things: it is positioned, so the host fills it, and isolated, so the host's negative z-index lands at the floor of the parent's own stacking context, under the content and over the page background."
+  >
+    <ngwr-doc-code [code]="snippets.parent" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Calmer"
+    description="`spacing` is the distance between two lines, `amplitude` how far the drift bends a line at most, both in px, `speed` how fast the drift moves and `push` how hard the pointer pushes; none turns the push off. Wider lines, a lower and slower wave and a lighter touch is a field that barely stirs."
+  >
+    <ngwr-doc-code [code]="snippets.calm" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Default</p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-flow-lines />
+            <h3 wrTypography variant="h3">As it comes.</h3>
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>spacing="14" amplitude="16" speed="0.5" push="0.6"</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-flow-lines spacing="14" amplitude="16" speed="0.5" push="0.6" />
+            <h3 wrTypography variant="h3">Calm.</h3>
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Vertical"
+    description="`orientation` set to `vertical` runs the lines from top to bottom. Everything else, the drift, the pointer's push and the ripple, works the same way; `twist` tilts from whichever way they run."
+  >
+    <ngwr-doc-code [code]="snippets.vertical" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-flow-lines orientation="vertical" />
+        <h3 wrTypography variant="h3">Lines from top to bottom.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Dense, with a twist"
+    description="Closer lines, a finer `lineWidth` (px) and a `twist` (degrees; positive falls toward the inline end, mirrored under RTL) is a sheet of silk rather than a ruled page; a higher `amplitude` bends it further. The canvas renders under a pixel budget of its own, so a wide section is never a wide texture, and the cost is per pixel, not per line."
+  >
+    <ngwr-doc-code [code]="snippets.dense" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-flow-lines spacing="7" lineWidth="0.75" twist="-8" amplitude="36" />
+        <h3 wrTypography variant="h3">A tilted sheet.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Dashed"
+    description="`dashed` cuts every line into dashes that stream along it, each line starting its dashes at a place of its own, so the field reads as a current rather than a grid. `speed` moves the dashes as it moves the drift."
+  >
+    <ngwr-doc-code [code]="snippets.dashed" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-flow-lines dashed speed="1.4" />
+        <h3 wrTypography variant="h3">A current.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The push and the ripple"
+    description="`reach` is how far from the pointer a line is still pushed, in px, with a smooth falloff to nothing at the edge; `push` is how far it moves them, a seventh of `reach` at one, nothing right at the pointer and the most about halfway out, so the lines part round it like water round a stone; `bounce` is how far a released line swings past its place before it settles, none settling without a swing. A click sends a ring out across the field, lifting the lines as it passes and tinting its crest; `ripple` turns it off."
+  >
+    <ngwr-doc-code [code]="snippets.ripple" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Default</p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-flow-lines />
+            <h3 wrTypography variant="h3">Click anywhere.</h3>
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>ripple="false" bounce="0"</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-flow-lines ripple="false" bounce="0" />
+            <h3 wrTypography variant="h3">No ring, no swing.</h3>
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Intro"
+    description="`intro` draws the lines in from the inline start the first time the host is on screen, each line a little behind the one before, over about a second and a half. Under reduced motion the field is whole from the first frame."
+  >
+    <ngwr-doc-code [code]="snippets.intro" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-flow-lines intro />
+        <h3 wrTypography variant="h3">Drawn in on arrival.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colours"
+    description="A line is `--wr-flow-lines-color`, the muted ink by default, and a pushed line and a ripple's crest blend toward `--wr-flow-lines-accent`, the primary by default; set either on the host, where the defaults are declared. Both are read through `resolveCssColorChannels` and re-read when the scheme changes. The surface is read too: on a dark one the lines lay a little more light than they lay ink on a light one, so the field weighs the same under both schemes."
+  >
+    <ngwr-doc-code [code]="snippets.colours" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-flow-lines
+          style="--wr-flow-lines-color: var(--wr-color-info); --wr-flow-lines-accent: var(--wr-color-warning)"
+        />
+        <h3 wrTypography variant="h3">Info, bending into warning.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              Decorative: the host is <code>aria-hidden</code>, holds no text, takes no pointer and is never focusable.
+              The listeners on the parent are passive and stop nothing, so every control over the field behaves as
+              before.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Touch</th>
+            <td>
+              A moving finger pushes nothing, nothing is prevented and <code>touch-action</code> is left alone, so a
+              scroll that starts over the region scrolls. A tap sends a ripple, as a click does.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> one still frame of the whole field is drawn, with no
+              push, no ripple and no intro, and nothing moves; a preference that flips mid-flight stops the loop at
+              once. Under <code>forced-colors: active</code> nothing is drawn.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Contrast</th>
+            <td>
+              A line is a hairline laid in the muted ink at well under full coverage, so the text over it reads as it
+              does on the plain surface; the accent shows only where a line is pushed.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">No WebGL</th>
+            <td>Without WebGL nothing is drawn; a lost context is let go and rebuilt when the browser restores it.</td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>The empty canvas is rendered, absolutely positioned, so the browser's first draw shifts no layout.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+</ngwr-doc-page>

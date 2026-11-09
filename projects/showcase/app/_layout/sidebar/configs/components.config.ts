@@ -22,10 +22,10 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
   {
     title: 'Data',
     children: [
-      wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.sortableList),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.eventCalendar),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.graph),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.pagination),
+      wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.sortableList),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.table),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.tree),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.virtualScroll),

@@ -1,0 +1,129 @@
+<ngwr-doc-page
+  title="Glow Border"
+  since="15.7.0"
+  description="A short arc of brand light runs round the host's edge for ever, with a soft glow spilling outward. CSS does all of it; the directive only decides whether the arc turns."
+  [keywords]="['glow-border', 'border glow', 'call to action', 'button', 'wrGlowBorder']"
+  [labels]="['Animation', 'Directive', 'CSS']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `wrGlowBorder` on a positioned element; `wr-btn` is one. Two pseudo-elements carry one conic gradient turned by a registered angle: the arc itself, masked down to the ring, and a wider, blurred copy under the host, so only what spills past the edge shows. The host's own hover and focus states are untouched, and its focus ring paints above the arc."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop" style="align-items: center; justify-content: center">
+        <button wr-btn outlined size="lg" type="button" wrGlowBorder>Get started</button>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The parent"
+    description="The blurred copy sits at a negative z-index, so the host's stacking parent isolates itself to keep that copy above the page background. The host itself must not form a stacking context, or the copy would paint over its own fill."
+  >
+    <ngwr-doc-code [code]="snippets.parent" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Stopping the arc"
+    description="`active` stops the arc without removing the directive: the ring stays lit and still. The same still ring is what a reader with reduced motion sees, and what a hidden tab holds."
+  >
+    <ngwr-doc-code [code]="snippets.active" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        class="ngwr-demo-arena ngwr-demo-arena--backdrop"
+        style="align-items: center; justify-content: center; gap: 1.5rem"
+      >
+        <button wr-btn outlined type="button" wrGlowBorder [active]="active()">Stop and start</button>
+        <wr-switch [(checked)]="active">Arc turns</wr-switch>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colours"
+    description="`--wr-glow-border-color` is the arc's centre, primary by default; `-warm` and `-cool`, the two edges, are mixed from it toward danger and success, so one hook recolours the whole arc. Set it to a theme role on the host or above it: an intent for a call to action, the muted ink for a quiet ring."
+  >
+    <ngwr-doc-code [code]="snippets.colours" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        class="ngwr-demo-arena ngwr-demo-arena--backdrop"
+        style="flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1.5rem"
+      >
+        <button wr-btn outlined type="button" wrGlowBorder>Primary</button>
+        <button wr-btn outlined type="button" wrGlowBorder style="--wr-glow-border-color: var(--wr-color-success)">
+          Success
+        </button>
+        <button wr-btn outlined type="button" wrGlowBorder style="--wr-glow-border-color: var(--wr-color-danger)">
+          Danger
+        </button>
+        <button
+          wr-btn
+          outlined
+          type="button"
+          wrGlowBorder
+          style="--wr-glow-border-color: var(--wr-color-on-surface-muted)"
+        >
+          Neutral
+        </button>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Ring, glow and period"
+    description="`--wr-glow-border-width` is the ring, `--wr-glow-border-blur` and `-strength` the glow that spills past the edge, and `--wr-glow-border-period` one turn, 4.5 s unset."
+  >
+    <ngwr-doc-code [code]="snippets.period" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop" style="align-items: center; justify-content: center">
+        <button
+          wr-btn
+          outlined
+          type="button"
+          wrGlowBorder
+          style="--wr-glow-border-width: 2px; --wr-glow-border-strength: 0.9; --wr-glow-border-period: 2s"
+        >
+          Thicker, brighter, faster
+        </button>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              Nothing is added to the host: no children, no attributes a reader hears. The arc is two pseudo-elements.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>Under <code>prefers-reduced-motion: reduce</code> the ring stays lit and still.</td>
+          </tr>
+          <tr>
+            <th scope="row">Hidden document</th>
+            <td>The arc stops while the tab is hidden and turns again when it is visible.</td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>The still ring is rendered; the turn starts in the browser.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

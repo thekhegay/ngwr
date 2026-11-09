@@ -1,6 +1,4 @@
 @use 'lib/styles/breakpoints' as bp;
-@use './hero/glow-border/glow-border';
-@use './hero/signal-sweep/signal-sweep';
 
 /*
    Landing page. Original two-column hero with the live showcase
@@ -25,6 +23,16 @@
   // or the lines paint over it.
   > .container {
     position: relative;
+  }
+
+  // The field is thinned behind the headline, where the copy sits, full
+  // strength toward the sides, and gone before the block end, so the marquee
+  // below the hero sits on a clean surface.
+  > wr-flow-lines {
+    mask-image:
+      radial-gradient(ellipse 44% 56% at 50% 46%, rgb(0 0 0 / 0.18), rgb(0 0 0 / 0.7) 64%, #000),
+      linear-gradient(#000 70%, transparent 92%);
+    mask-composite: intersect;
   }
 }
 
@@ -102,6 +110,13 @@
     white-space: nowrap;
   }
 
+  // The accent and its period. Each letter is an inline-block while it plays,
+  // and a line may break between two inline-blocks unless their common
+  // ancestor says not to: without this the period could start a line alone.
+  &__title-end {
+    white-space: nowrap;
+  }
+
   // The one line under the headline. It is a subheading, not a specification:
   // the paragraph that used to sit here — eighteen controls, four inline code
   // spans, five rendered lines — moved to the DX section below the fold, which
@@ -137,6 +152,22 @@
     &:active {
       --wr-btn-bg: var(--wr-color-fill-strong);
     }
+  }
+}
+
+// The row of component names under the hero. No padding of its own: the hero
+// ends on 7rem of air and the bento opens on 5rem, and the row's own block
+// padding (`marquee.scss`) is the air a one-line strip needs. Pulled up into
+// the hero's tail, so it reads as the hero's last line rather than as a
+// section of its own, and stays clear of the call to action above it.
+.ngwr-home-marquee {
+  // Positioned, so it paints after the positioned hero it overlaps, not under
+  // the hero's flow lines.
+  position: relative;
+  margin-block-start: -3rem;
+
+  @include bp.media-down(md) {
+    margin-block-start: -1rem;
   }
 }
 
@@ -296,5 +327,68 @@
   &__text {
     margin: 0;
     color: var(--wr-color-on-surface-muted);
+  }
+}
+
+// The motion block: eight live text effects, one tile each. One column, two,
+// then four from `xl`, so no row is left short.
+.ngwr-motion-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+
+  @media (min-width: 48rem) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include bp.media-up(xl) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.ngwr-motion-tile {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--wr-color-surface);
+  border: 1px solid var(--wr-border-base);
+  border-radius: var(--wr-border-radius-lg);
+  box-shadow: var(--wr-shadow-xs);
+  overflow: hidden;
+
+  &__stage {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 9rem;
+    padding: 2rem 1.25rem;
+    font-size: 1.625rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    background:
+      radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--wr-color-primary) 8%, transparent), transparent 70%),
+      var(--wr-color-fill-subtle);
+    color: var(--wr-color-on-surface);
+    text-align: center;
+  }
+
+  // The glitch plays under the pointer, so the line carries the hover area.
+  &__glitch {
+    display: inline-block;
+    padding: 0.75rem 1rem;
+  }
+
+  &__label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.875rem 1.125rem;
+    border-top: 1px solid var(--wr-border-base);
+
+    p {
+      margin: 0;
+    }
   }
 }

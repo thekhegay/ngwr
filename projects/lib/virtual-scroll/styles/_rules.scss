@@ -1,6 +1,7 @@
 // Fixed-size virtual scroll wrapper. Most of the layout work is done by
 // CDK's `<cdk-virtual-scroll-viewport>`; this stylesheet just makes the
 // host a block-level container and tames default overflow behaviour.
+@use '../../theme/styles/scrollbar' as scrollbar;
 
 .wr-virtual-scroll {
   --wr-virtual-scroll-thumb-radius: var(--wr-border-radius-pill);
@@ -12,17 +13,12 @@
   &__viewport {
     width: 100%;
     height: 100%;
-    // CDK already sets `overflow: auto`; just add a discreet scrollbar
-    // skin via the platform defaults — a discreet custom thumb that still matches the
-    // host application's chrome.
-    scrollbar-width: thin;
 
-    &::-webkit-scrollbar {
-      width: 0.5rem;
-      height: 0.5rem;
-    }
+    // The thumb is the theme's, included on the viewport itself so it needs no
+    // page-wide opt-in; the hook only rounds it.
+    @include scrollbar.scrollbar;
+
     &::-webkit-scrollbar-thumb {
-      background: color-mix(in srgb, var(--wr-color-on-surface) 20%, transparent);
       border-radius: var(--wr-virtual-scroll-thumb-radius);
     }
   }

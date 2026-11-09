@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1528 hook(s) across 93 page(s). A property is here only when the
+ * 1623 hook(s) across 112 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -40,6 +40,196 @@ export interface DocCssVars {
  * cast it needs can only name a route this file still carries.
  */
 export const CSS_VARS = {
+  "animations/blur-reveal": {
+    subpath: "ngwr/animations/blur-reveal",
+    vars: [
+      { name: "--wr-blur-reveal-blur", default: "0.2em", scope: ".wr-blur-reveal" },
+      { name: "--wr-blur-reveal-delay", default: "0ms", scope: ".wr-blur-reveal", host: true },
+      { name: "--wr-blur-reveal-direction", default: "1", scope: ".wr-blur-reveal", overrides: 1 },
+      { name: "--wr-blur-reveal-duration", default: "0.6s", scope: ".wr-blur-reveal" },
+      { name: "--wr-blur-reveal-ease", default: "var(--wr-ease-out)", scope: ".wr-blur-reveal" },
+      { name: "--wr-blur-reveal-offset", default: "0.35em", scope: ".wr-blur-reveal" },
+      { name: "--wr-blur-reveal-stagger", default: "70ms", scope: ".wr-blur-reveal", host: true },
+    ],
+  },
+  "animations/click-sparks": {
+    subpath: "ngwr/animations/click-sparks",
+    vars: [
+      { name: "--wr-click-sparks-duration", default: "480ms", scope: ".wr-click-sparks", host: true },
+      { name: "--wr-click-sparks-ease", default: "var(--wr-ease-out)", scope: ".wr-click-sparks" },
+      { name: "--wr-click-sparks-from", default: "0.3em", scope: ".wr-click-sparks" },
+      { name: "--wr-click-sparks-length", default: "0.55em", scope: ".wr-click-sparks" },
+      { name: "--wr-click-sparks-to", default: "1.7em", scope: ".wr-click-sparks" },
+      { name: "--wr-click-sparks-width", default: "max(2px, 0.12em)", scope: ".wr-click-sparks" },
+      { name: "--wr-click-sparks-x", default: "0px", scope: ".wr-click-sparks", host: true },
+      { name: "--wr-click-sparks-y", default: "0px", scope: ".wr-click-sparks", host: true },
+    ],
+  },
+  "animations/confetti": {
+    subpath: "ngwr/animations/confetti",
+    vars: [
+      { name: "--wr-confetti-color-1", default: "var(--wr-color-primary)", scope: ".wr-confetti" },
+      { name: "--wr-confetti-color-2", default: "var(--wr-color-success)", scope: ".wr-confetti" },
+      { name: "--wr-confetti-color-3", default: "var(--wr-color-warning)", scope: ".wr-confetti" },
+      { name: "--wr-confetti-color-4", default: "var(--wr-color-danger)", scope: ".wr-confetti" },
+      { name: "--wr-confetti-color-5", default: "var(--wr-color-info)", scope: ".wr-confetti" },
+    ],
+  },
+  "animations/decode": {
+    subpath: "ngwr/animations/decode",
+    vars: [
+      { name: "--wr-decode-ease", default: "var(--wr-ease-out)", scope: ".wr-decode" },
+      { name: "--wr-decode-settle", default: "240ms", scope: ".wr-decode", host: true },
+      { name: "--wr-decode-tint", default: "color-mix(in srgb, currentColor 45%, transparent)", scope: ".wr-decode" },
+    ],
+  },
+  "animations/dot-grid": {
+    subpath: "ngwr/animations/dot-grid",
+    vars: [
+      { name: "--wr-dot-grid-glow", default: "var(--wr-color-primary)", scope: ".wr-dot-grid" },
+      { name: "--wr-dot-grid-ink", default: "var(--wr-color-on-surface-muted)", scope: ".wr-dot-grid" },
+    ],
+  },
+  "animations/flow-lines": {
+    subpath: "ngwr/animations/flow-lines",
+    vars: [
+      { name: "--wr-flow-lines-accent", default: "var(--wr-color-primary)", scope: ".wr-flow-lines" },
+      { name: "--wr-flow-lines-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-flow-lines" },
+    ],
+  },
+  "animations/fluid-cursor": {
+    subpath: "ngwr/animations/fluid-cursor",
+    vars: [
+      { name: "--wr-fluid-cursor-color-1", default: "var(--wr-color-primary)", scope: ".wr-fluid-cursor" },
+      { name: "--wr-fluid-cursor-color-2", default: "var(--wr-color-danger)", scope: ".wr-fluid-cursor" },
+      { name: "--wr-fluid-cursor-color-3", default: "var(--wr-color-warning)", scope: ".wr-fluid-cursor" },
+      { name: "--wr-fluid-cursor-color-4", default: "var(--wr-color-success)", scope: ".wr-fluid-cursor" },
+      { name: "--wr-fluid-cursor-color-5", default: "var(--wr-color-info)", scope: ".wr-fluid-cursor" },
+    ],
+  },
+  "animations/glitch": {
+    subpath: "ngwr/animations/glitch",
+    vars: [
+      { name: "--wr-glitch-cycle", default: "1.2s", scope: ".wr-glitch" },
+      { name: "--wr-glitch-shift", default: "0.1em", scope: ".wr-glitch" },
+      { name: "--wr-glitch-skew", default: "2deg", scope: ".wr-glitch" },
+      { name: "--wr-glitch-strength", default: "55%", scope: ".wr-glitch" },
+      { name: "--wr-glitch-tint-a", default: "color-mix(in srgb, var(--wr-color-primary-ink) var(--wr-glitch-strength), transparent)", scope: ".wr-glitch" },
+      { name: "--wr-glitch-tint-b", default: "color-mix(in srgb, var(--wr-color-danger-ink) var(--wr-glitch-strength), transparent)", scope: ".wr-glitch" },
+    ],
+  },
+  "animations/glow-border": {
+    subpath: "ngwr/animations/glow-border",
+    vars: [
+      { name: "--wr-glow-border-blur", default: "14px", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-color", default: "var(--wr-color-primary)", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-cool", default: "color-mix(in oklch, var(--wr-glow-border-color) 70%, var(--wr-color-success))", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-period", default: "4.5s", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-strength", default: "0.6", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-warm", default: "color-mix(in oklch, var(--wr-glow-border-color) 70%, var(--wr-color-danger))", scope: ".wr-glow-border" },
+      { name: "--wr-glow-border-width", default: "1.5px", scope: ".wr-glow-border" },
+    ],
+  },
+  "animations/gradient-flow": {
+    subpath: "ngwr/animations/gradient-flow",
+    vars: [
+      { name: "--wr-gradient-flow-cycle", default: "8s", scope: ".wr-gradient-flow" },
+      { name: "--wr-gradient-flow-from", default: "var(--wr-color-primary-ink)", scope: ".wr-gradient-flow" },
+      { name: "--wr-gradient-flow-selected", default: "var(--wr-color-on-surface)", scope: ".wr-gradient-flow" },
+      { name: "--wr-gradient-flow-steps", default: "120", scope: ".wr-gradient-flow" },
+      { name: "--wr-gradient-flow-via", default: "var(--wr-color-info-ink), var(--wr-color-success-ink)", scope: ".wr-gradient-flow" },
+    ],
+  },
+  "animations/marquee": {
+    subpath: "ngwr/animations/marquee",
+    vars: [
+      { name: "--wr-marquee-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-marquee" },
+      { name: "--wr-marquee-color-active", default: "var(--wr-color-primary-ink)", scope: ".wr-marquee" },
+      { name: "--wr-marquee-dir", default: "-1", scope: ".wr-marquee", overrides: 1 },
+      { name: "--wr-marquee-dot", default: "var(--wr-border-strong)", scope: ".wr-marquee" },
+      { name: "--wr-marquee-fade", default: "3rem", scope: ".wr-marquee" },
+      { name: "--wr-marquee-gap", default: "1.25rem", scope: ".wr-marquee" },
+    ],
+  },
+  "animations/orbit": {
+    subpath: "ngwr/animations/orbit",
+    vars: [
+      { name: "--wr-orbit-color", default: "currentColor", scope: ".wr-orbit" },
+      { name: "--wr-orbit-font-size", default: "9px", scope: ".wr-orbit" },
+      { name: "--wr-orbit-size", default: "6rem", scope: ".wr-orbit" },
+      { name: "--wr-orbit-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-orbit" },
+    ],
+  },
+  "animations/reveal": {
+    subpath: "ngwr/animations/reveal",
+    vars: [
+      { name: "--wr-reveal-delay", default: "0ms", scope: ".wr-reveal", host: true },
+      { name: "--wr-reveal-duration", default: "0.6s", scope: ".wr-reveal" },
+      { name: "--wr-reveal-ease", default: "var(--wr-ease-out)", scope: ".wr-reveal" },
+      { name: "--wr-reveal-gap", default: "28ms", scope: ".wr-reveal", host: true },
+      { name: "--wr-reveal-offset", default: "0.35em", scope: ".wr-reveal", overrides: 1 },
+    ],
+  },
+  "animations/ripple-grid": {
+    subpath: "ngwr/animations/ripple-grid",
+    vars: [
+      { name: "--wr-ripple-grid-glow", default: "var(--wr-color-primary)", scope: ".wr-ripple-grid" },
+      { name: "--wr-ripple-grid-ink", default: "var(--wr-color-on-surface-muted)", scope: ".wr-ripple-grid" },
+    ],
+  },
+  "animations/rotate-reveal": {
+    subpath: "ngwr/animations/rotate-reveal",
+    vars: [
+      { name: "--wr-rotate-reveal-gap", default: "24ms", scope: ".wr-rotate-reveal" },
+      { name: "--wr-rotate-reveal-in", default: "0.38s", scope: ".wr-rotate-reveal" },
+      { name: "--wr-rotate-reveal-lead", default: "50ms", scope: ".wr-rotate-reveal" },
+      { name: "--wr-rotate-reveal-offset", default: "1.1em", scope: ".wr-rotate-reveal" },
+      { name: "--wr-rotate-reveal-out", default: "0.32s", scope: ".wr-rotate-reveal" },
+      { name: "--wr-rotate-reveal-swap", default: "calc(var(--wr-rotate-reveal-lead) + (var(--wr-rotate-reveal-count, 1) - 1) * var(--wr-rotate-reveal-gap) + var(--wr-rotate-reveal-in))", scope: ".wr-rotate-reveal__slot" },
+    ],
+  },
+  "animations/shimmer": {
+    subpath: "ngwr/animations/shimmer",
+    vars: [
+      { name: "--wr-shimmer-band", default: "1.5em", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-delay", default: "0.4s", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-ease", default: "var(--wr-ease-in-out)", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-light", default: "color-mix(in srgb, var(--wr-shimmer-peak) var(--wr-shimmer-strength), currentColor)", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-pass", default: "1.2s", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-pause", default: "5s", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-peak", default: "var(--wr-color-on-surface)", scope: ".wr-shimmer" },
+      { name: "--wr-shimmer-strength", default: "60%", scope: ".wr-shimmer" },
+    ],
+  },
+  "animations/spotlight": {
+    subpath: "ngwr/animations/spotlight",
+    vars: [
+      { name: "--wr-spotlight-color", default: "var(--wr-color-primary)", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-edge", default: "1px", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-fade", default: "var(--wr-transition-long)", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-radius", default: "240px", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-ring-radius", default: "180px", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-ring-strength", default: "60%", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-strength", default: "12%", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-x", default: "50%", scope: ".wr-spotlight" },
+      { name: "--wr-spotlight-y", default: "50%", scope: ".wr-spotlight" },
+    ],
+  },
+  "animations/thread-lines": {
+    subpath: "ngwr/animations/thread-lines",
+    vars: [
+      { name: "--wr-thread-lines-accent", default: "var(--wr-color-primary)", scope: ".wr-thread-lines" },
+      { name: "--wr-thread-lines-color", default: "var(--wr-color-on-surface)", scope: ".wr-thread-lines" },
+    ],
+  },
+  "animations/typewriter": {
+    subpath: "ngwr/animations/typewriter",
+    vars: [
+      { name: "--wr-typewriter-blink", default: "1s", scope: ".wr-typewriter" },
+      { name: "--wr-typewriter-caret", default: "2px", scope: ".wr-typewriter" },
+      { name: "--wr-typewriter-fade", default: "0.4s", scope: ".wr-typewriter" },
+    ],
+  },
   "charts/bar-chart": {
     subpath: "ngwr/charts/bar-chart",
     vars: [

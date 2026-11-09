@@ -505,4 +505,11 @@ export const wrId: WrI18nCatalog = {
       dec: 'Desember',
     },
   },
+  rotateReveal: {
+    conjunction: 'dan',
+  },
+  marquee: {
+    pause: 'Jeda',
+    play: 'Putar',
+  },
 };

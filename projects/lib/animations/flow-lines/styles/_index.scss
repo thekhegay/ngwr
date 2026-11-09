@@ -1,0 +1,39 @@
+@use '../../../theme/styles' as theme;
+@include theme.loaded('animations/flow-lines');
+
+// `<wr-flow-lines />`: a dense field of thin parallel lines behind a section's
+// content, bent in slow waves and pushed aside round the pointer. The component
+// paints one WebGL canvas and reads its two colours and the surface back from
+// the hooks below through `resolveCssColorChannels`, so a retheme and a scheme
+// switch both reach the pixels. How much of a colour a line lays and its
+// thickness live in the component and its shader: they are the canvas's
+// numbers, not the sheet's.
+.wr-flow-lines {
+  // A line: the muted ink, a graphic and so the bare role; the canvas lays it
+  // at a fraction, as ink on a light surface and as light on a dark one.
+  --wr-flow-lines-color: var(--wr-color-on-surface-muted);
+  // A pushed line and a ripple's crest: the primary intent, never at full
+  // strength, so they stay under the content's own accents.
+  --wr-flow-lines-accent: var(--wr-color-primary);
+
+  position: absolute;
+  inset: 0;
+  // Under the content, over the page: the parent is positioned and isolated,
+  // so this is the floor of its stacking context.
+  z-index: -1;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+
+  &__canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  // Nothing drawn: hairlines under system colours are noise, not decoration.
+  @media (forced-colors: active) {
+    display: none;
+  }
+}

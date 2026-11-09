@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Languages, Palette, PenLine, Route, Shapes, SlidersHorizontal } from 'lucide';
+import { WrBlurReveal } from 'ngwr/animations/blur-reveal';
+import { WrDecode } from 'ngwr/animations/decode';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrCard, WrCardFooter } from 'ngwr/card';
@@ -63,6 +65,8 @@ interface OptInExample {
     DocCodeComponent,
     DocInstallComponent,
     DocRichPipe,
+    WrBlurReveal,
+    WrDecode,
   ],
   providers: [
     provideWrIcons(

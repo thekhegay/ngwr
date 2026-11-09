@@ -519,4 +519,11 @@ export const wrNl: WrI18nCatalog = {
       dec: 'december',
     },
   },
+  rotateReveal: {
+    conjunction: 'en',
+  },
+  marquee: {
+    pause: 'Pauzeren',
+    play: 'Afspelen',
+  },
 };

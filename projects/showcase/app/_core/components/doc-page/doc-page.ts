@@ -2,6 +2,7 @@ import { Component, computed, contentChild, contentChildren, effect, inject, inp
 import { Router, RouterLink } from '@angular/router';
 
 import { WrAnchor, type WrAnchorLink } from 'ngwr/anchor';
+import { WrShimmer } from 'ngwr/animations/shimmer';
 import { WrBadge } from 'ngwr/badge';
 import { WrTypography } from 'ngwr/typography';
 
@@ -92,6 +93,7 @@ interface DepsRow {
     DocSectionComponent,
     DocSeeAlsoComponent,
     RouterLink,
+    WrShimmer,
     WrAnchor,
     WrBadge,
     WrTypography,

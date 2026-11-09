@@ -43,6 +43,7 @@ export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
       wrLink(ROUTES.reference, ROUTES.reference.directives, ROUTES.reference.directives.typography),
     ],
   },
+  wrLink(ROUTES.guides, ROUTES.guides.scrollbar),
   wrLink(ROUTES.guides, ROUTES.guides.grid),
   // Cross-cutting subsystems users typically meet later.
   wrLink(ROUTES.guides, ROUTES.guides.forms),

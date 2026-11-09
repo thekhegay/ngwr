@@ -5,8 +5,11 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { DOCUMENT } from '@angular/common';
 import { Directive, inject, input, output } from '@angular/core';
+
+import { wrRestoreFocus } from 'ngwr/utils';
 
 /**
  * Copy `wrCopyToClipboard` to the system clipboard on host click.
@@ -31,6 +34,7 @@ export class WrCopyToClipboard {
   /** Emitted if the copy fails (denied permission, no clipboard, …). */
   readonly copyFailed = output<unknown>();
 
+  private readonly focusMonitor = inject(FocusMonitor);
   private readonly doc = inject(DOCUMENT);
 
   /**
@@ -99,7 +103,7 @@ export class WrCopyToClipboard {
       if (!this.doc.execCommand('copy')) throw new Error('The copy command was refused.');
     } finally {
       this.doc.body.removeChild(node);
-      if (previous instanceof HTMLElement) previous.focus();
+      if (previous instanceof HTMLElement) wrRestoreFocus(previous, this.focusMonitor);
     }
   }
 }

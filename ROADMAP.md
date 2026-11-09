@@ -1,5 +1,7 @@
 # Roadmap
 
+Effects ship as `ngwr/animations/*` entry points, written from scratch in library idiom. Each one keeps its text readable to screen readers, renders under SSR and holds still under `prefers-reduced-motion`.
+
 ## Very high
 
 ## High

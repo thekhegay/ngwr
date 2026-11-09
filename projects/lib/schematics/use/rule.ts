@@ -31,6 +31,7 @@ import type { Schema } from './schema';
  */
 const NON_DECLARABLE: Readonly<Record<string, string>> = {
   WrClipboard: 'a service',
+  WrConfetti: 'a service',
   WrCookie: 'a service',
   WrDateAdapter: 'a service',
   WrDensity: 'a service',

@@ -507,4 +507,11 @@ export const wrHi: WrI18nCatalog = {
       dec: 'दिसंबर',
     },
   },
+  rotateReveal: {
+    conjunction: 'और',
+  },
+  marquee: {
+    pause: 'रोकें',
+    play: 'चलाएँ',
+  },
 };

@@ -97,7 +97,7 @@ describe("the public entry `@use 'ngwr/theme'`", () => {
    * `rebrand` and `contrast` joined in the same release, because a compile-time
    * rebrand is now how a brand colour reaches the dark scheme at all.
    */
-  const WRAPPED = ['smooth-br', 'touch-target', 'focus-ring', 'rebrand', 'contrast'] as const;
+  const WRAPPED = ['smooth-br', 'touch-target', 'focus-ring', 'scrollbar', 'rebrand', 'contrast'] as const;
 
   it('is the file the `exports` map names', () => {
     const pkg = JSON.parse(readFileSync(join(LIB, 'package.json'), 'utf8')) as {
@@ -141,6 +141,7 @@ describe("the public entry `@use 'ngwr/theme'`", () => {
     const inner = {
       ...signatures(join(THEME, 'styles/_mixins.scss')),
       ...signatures(join(THEME, 'styles/_focus.scss')),
+      ...signatures(join(THEME, 'styles/_scrollbar.scss')),
       ...signatures(join(THEME, 'styles/_colors.scss')),
     };
 
@@ -157,7 +158,9 @@ describe("the public entry `@use 'ngwr/theme'`", () => {
       '.y { @include t.smooth-br(4px); } ' +
       '.z { @include t.rebrand((primary: #be123c), (primary: #fb7185)); } ' +
       '.v { color: t.contrast(#3969e2); } ' +
-      '.w:focus-visible { @include t.focus-ring; }';
+      '.w:focus-visible { @include t.focus-ring; } ' +
+      '.s { @include t.scrollbar; } ' +
+      '@include t.scrollbar;';
     const css = (spec: string): string => compile(`@use '${spec}' as t; ${body}`);
 
     expect(css('theme')).toBe(css('theme/styles'));

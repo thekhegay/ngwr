@@ -259,6 +259,7 @@ export function docRouteCount(routes: WrPageRoutes): number {
  */
 export const DOC_CLUSTERS: readonly string[] = [
   'charts',
+  'animations',
   'reference/components',
   'reference/services',
   'reference/directives',

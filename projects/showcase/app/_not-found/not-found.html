@@ -2,13 +2,26 @@
   The `<wr-result-404>` preset, not `<wr-result>` spelled out: status, title and
   the `result.notFound` copy are exactly what the preset declares, and the docs
   site should be its own first consumer. Only the description is overridden,
-  because this one names the two links below it.
+  because this one names the two links below it. The glitch targets the title the
+  library draws, by its public BEM class, so nothing under `projects/lib` changes,
+  and plays while the pointer is over the title;
+  the falling letters target the description the same way, and their floor is
+  the directive's default, the host's parent: this `<main>`, since the preset's
+  host is `display: contents`. The ripple grid fills `<main>` behind it all and
+  rings out from a click anywhere on it, the description's included.
 -->
 <main class="ngwr-not-found">
-  <wr-result-404 description="That page has moved or never existed. The links below are the fastest way back.">
-    <a wr-btn color="primary" wrResultExtra [routerLink]="path(routes.home)">Go home</a>
+  <wr-ripple-grid />
+  <wr-result-404
+    wrGlitch=".wr-result__title"
+    wrFallingLetters=".wr-result__description"
+    description="That page has moved or never existed. The links below are the fastest way back."
+  >
+    <a class="ngwr-not-found__home" wr-btn color="primary" wrResultExtra wrClickSparks [routerLink]="path(routes.home)"
+      >Go home</a
+    >
     <a wr-btn outlined wrResultExtra [routerLink]="path(routes.reference)">Browse the reference</a>
   </wr-result-404>
 </main>
 
-<ngwr-footer contained />
+<ngwr-footer />

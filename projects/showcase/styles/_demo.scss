@@ -39,6 +39,20 @@
     @include site.focus-ring;
   }
 
+  // A classic scrollbar with a track, for a demo that shows what the page-wide
+  // `scrollbar` mixin replaces. Drawn here because an overlay scrollbar (the
+  // macOS default) is invisible until it scrolls.
+  &--classic {
+    &::-webkit-scrollbar {
+      width: 15px;
+      background: light-dark(#f1f1f1, #2b2b2b);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: light-dark(#c1c1c1, #6b6b6b);
+    }
+  }
+
   &__row {
     display: flex;
     align-items: center;
@@ -46,5 +60,29 @@
     gap: var(--wr-space-md);
     padding: var(--wr-space-sm) var(--wr-space-lg);
     border-bottom: 1px dashed var(--wr-border-base);
+  }
+}
+
+// A box with room under a line of text, for a demo whose pieces leave the line
+// and land on the floor of their container (the falling letters). The floor is
+// the box's content edge, so the heap forms where the reader can see it.
+.ngwr-demo-arena {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 16rem;
+  padding: var(--wr-space-lg);
+  border: 1px solid var(--wr-border-base);
+  border-radius: var(--wr-border-radius-base);
+  background: var(--wr-color-surface);
+
+  // The arena as a backdrop's parent (`<wr-aurora />`, `<wr-dot-grid />` as
+  // its first child): positioned and isolated, so the backdrop's negative
+  // z-index is the floor of the arena's own stacking context, under the sample
+  // content and over the arena's surface.
+  &--backdrop {
+    position: relative;
+    isolation: isolate;
   }
 }

@@ -1,0 +1,110 @@
+<ngwr-doc-page
+  title="Typewriter"
+  since="15.7.0"
+  description="A line typed character by character behind a caret, then held, deleted and followed by the next, or typed once and left standing. Nothing around it moves while it types."
+  [keywords]="['typewriter', 'typing text', 'caret', 'tagline', 'wr-typewriter']"
+  [labels]="['Animation', 'Component', 'DOM']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="`<wr-typewriter>` is inline, so it sits in a paragraph like text. Pass the lines as `lines`; the first is what the server and a still page show. It types once most of the host is in view, to a rhythm of 35 to 55 ms per character varied from a hash of the text, so the same line always types the same way; a space and a punctuation mark add a beat. After the last line the caret blinks three times and fades. The demos on this page set `trigger` to `load`, so they type the moment they are made and Replay types them again; see From first paint for why."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="lead"><wr-typewriter [lines]="one" trigger="load" /></p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Several lines"
+    description="With more than one line each finished line stands for `hold` ms, 1800 unset, is deleted at about twice the typing pace, and the next one follows. The box is as wide and as tall as the longest line wraps to at the current width from the first paint, so what is below never moves."
+  >
+    <ngwr-doc-code [code]="snippets.lines" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="lead"><wr-typewriter [lines]="lines" hold="1200" trigger="load" /></p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Loop"
+    description="`loop` cycles through the lines instead of stopping on the last. The typing pauses when the host leaves the viewport or the document is hidden, and resumes where it was."
+  >
+    <ngwr-doc-code [code]="snippets.loop" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography variant="lead">ngwr is <wr-typewriter [lines]="loop" loop trigger="load" /></p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="From first paint"
+    description='`trigger="view"`, the default, types once most of the host is in view and leaves a host that was already in view when it booted whole, so a reload mid-page never erases a line the reader is looking at: a `view` demo on a docs page would stand finished, which is why the demos here use `load`. `trigger="load"` types regardless, for a hero. `delay` is the pause before the first character. The caret width, its blink and its fade are CSS variables.'
+  >
+    <ngwr-doc-code [code]="snippets.load" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.styled" language="scss" />
+    <ngwr-doc-snippet code="">
+      <ngwr-doc-replay>
+        <ng-template>
+          <p wrTypography variant="h2">
+            <wr-typewriter [lines]="['Typed from first paint.']" trigger="load" delay="300" />
+          </p>
+        </ng-template>
+      </ngwr-doc-replay>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              The box is <code>aria-hidden</code> and a visually hidden copy beside it carries every line once, so a
+              reader hears the text, never a letter at a time. The copy is out of the selection, so a copy of the line
+              gives the typed text.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> the first line stands whole with no caret. The demos on
+              this page follow the same setting.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>
+              The server renders the first line whole, readable without script, and that is what a still page shows, so
+              nothing swaps at hydration. Write the first line as the one that stands alone.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Layout</th>
+            <td>
+              Every line is laid out in the same cell, the ones not on show invisible, so the box takes the longest
+              line's size from the first paint and a centred or wrapped line never jitters.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

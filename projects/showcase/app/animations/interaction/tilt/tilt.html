@@ -1,0 +1,67 @@
+<ngwr-doc-page
+  title="Tilt"
+  since="15.7.0"
+  description="A card leans toward the pointer in 3D while the pointer is over it, and settles back flat when it leaves. The lean is small, ten degrees at most, and the card's box never changes: `transform` only, so nothing around it moves. It has no inputs and no stylesheet."
+  [keywords]="['tilt', 'hover effect', 'card', '3D', 'wrTilt']"
+  [labels]="['Animation', 'Directive', 'DOM']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `wrTilt` on the card. Each animation frame takes the target angles from the latest pointer position and eases the rendered angles toward them, an exponential step sized by the frame's real duration, then writes one inline `transform`; the loop runs only while the rendered angles are short of the target, so a still pointer costs no frames. On leave the target is flat and the same ease brings the card back; when it lands, the inline `transform` and `will-change` come off, so at rest the card is exactly as its stylesheet says. The ease is in the frame loop and not a CSS transition, so it never replaces the card's own transition and a fast pointer never lags."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-link-grid" style="width: 100%">
+        @for (tile of tiles; track tile.title) {
+          <wr-card wrTilt>
+            <h3 wrTypography variant="h5">{{ tile.title }}</h3>
+            <p wrTypography variant="body">{{ tile.text }}</p>
+          </wr-card>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Styling"
+    description="There is no stylesheet and nothing to `@use`: the directive paints inline and the host carries the class `wr-tilt` as a hook for a consumer's own rules, a shadow that deepens on hover, say. The edge under the pointer dips away, as if pressed, at a viewing distance where the near edge grows by about four percent at the full angle and the far edge shrinks by as much: the card reads as tilted, not as coming out of the page."
+  />
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>Focus tilts nothing: the focus ring is the hint, and it is the card's own.</td>
+          </tr>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>Nothing is added to the card: no children, no attributes a reader hears.</td>
+          </tr>
+          <tr>
+            <th scope="row">Touch</th>
+            <td>A touch pointer is ignored: it has no hover, and a tap would leave the card leaning.</td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> and under <code>forced-colors: active</code> nothing
+              listens and the card never leans.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>Nothing runs: the listeners are added after the first render, in the browser only.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+</ngwr-doc-page>

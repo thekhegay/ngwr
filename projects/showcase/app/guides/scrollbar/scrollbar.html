@@ -1,0 +1,108 @@
+<ngwr-doc-page
+  title="Scrollbar"
+  since="15.7.0"
+  description="A thumb and nothing else, in the theme's colours. Opt in for the page or for one block."
+  [keywords]="['scrollbar', 'scroll', 'thumb', 'overlay', 'webkit-scrollbar', 'scrollbar-color']"
+  [labels]="['Core']"
+>
+  <ngwr-doc-section
+    title="What it is"
+    description="No track, no arrows, no corner box. Scrolling, keyboard and touch stay native: only the paint changes."
+  >
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">With <code>scrollbar</code></p>
+          <div class="ngwr-demo-scroll" tabindex="0" aria-label="Scrollbar demo, ngwr">
+            @for (row of rows; track row) {
+              <div class="ngwr-demo-scroll__row">{{ row }}</div>
+            }
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">Classic scrollbar with a track</p>
+          <div class="ngwr-demo-scroll ngwr-demo-scroll--classic" tabindex="0" aria-label="Scrollbar demo, classic">
+            @for (row of rows; track row) {
+              <div class="ngwr-demo-scroll__row">{{ row }}</div>
+            }
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Opt in"
+    description="Loading the theme emits no scrollbar rule. Include the mixin where you want one."
+  >
+    <p>
+      At the stylesheet root it covers the whole page. The rules sit at zero specificity, so any rule of yours wins.
+    </p>
+    <ngwr-doc-code [code]="snippets.page" language="scss" />
+    <p>Inside a rule it styles that element's own scrollbars only.</p>
+    <ngwr-doc-code [code]="snippets.block" language="scss" />
+    <p>
+      <code>wr-virtual-scroll</code>
+      and
+      <code>wr-marquee</code>
+      include it on their own viewport, so they look the same without the page-wide opt-in.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tokens" description="Declared on `:root` by the theme.">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Token</th>
+            <th scope="col">Default</th>
+            <th scope="col">Use</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of tokens; track t.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ t.name }}</code>
+              </th>
+              <td>
+                <code>{{ t.value }}</code>
+              </td>
+              <td>{{ t.use }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Per scheme"
+    description="A colour that differs between light and dark is one `light-dark()` value."
+  >
+    <ngwr-doc-code [code]="snippets.scheme" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Limits">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Where</th>
+            <th scope="col">What happens</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (l of limits; track l.where) {
+            <tr>
+              <th scope="row">{{ l.where }}</th>
+              <td>{{ l.what }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

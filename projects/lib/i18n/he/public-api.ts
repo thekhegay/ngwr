@@ -526,4 +526,11 @@ export const wrHe: WrI18nCatalog = {
       dec: 'דצמבר',
     },
   },
+  rotateReveal: {
+    conjunction: 'ו',
+  },
+  marquee: {
+    pause: 'השהיה',
+    play: 'הפעלה',
+  },
 };

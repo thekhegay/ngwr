@@ -637,4 +637,16 @@ export const wrEn: WrI18nCatalog = {
       dec: 'December',
     },
   },
+  rotateReveal: {
+    // The word before the last item of the phrase a screen reader hears while
+    // the words swap: "A, B and C". The separator stays a comma in every
+    // locale; only the word is localised.
+    conjunction: 'and',
+  },
+  marquee: {
+    // The pause button at the end of the row, named for what pressing it does
+    // next: the row moves, so "Pause"; the row stands, so "Play".
+    pause: 'Pause',
+    play: 'Play',
+  },
 };

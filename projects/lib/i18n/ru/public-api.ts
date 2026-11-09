@@ -518,4 +518,11 @@ export const wrRu: WrI18nCatalog = {
       dec: 'Декабрь',
     },
   },
+  rotateReveal: {
+    conjunction: 'и',
+  },
+  marquee: {
+    pause: 'Пауза',
+    play: 'Воспроизвести',
+  },
 };

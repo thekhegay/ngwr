@@ -1,0 +1,204 @@
+<ngwr-doc-page
+  title="Aurora"
+  since="15.7.0"
+  description="A curtain of light hanging from one edge of a section and reaching part of the way in, like an aurora: its free edge a slow broad wave, fine rays shimmering inside it, brightest just short of the free edge and fading toward the one it hangs from, its colour flowing across the width through three stops from the theme. Two curtains hang at different depths by default and move in parallax, and the whole drifts gently toward the pointer."
+  [keywords]="['aurora', 'background', 'backdrop', 'webgl', 'northern lights', 'curtain', 'wr-aurora']"
+  [labels]="['Animation', 'Component', 'WebGL']"
+>
+  <wr-alert
+    class="wr-not-typeset"
+    type="info"
+    title="Runs on the GPU"
+    message="It draws on the GPU through WebGL, at half resolution at most under a pixel budget, only while on screen and the tab is visible, and at 30 frames a second. Without WebGL it draws nothing. Use one WebGL effect per view, and keep it off low-end and battery-sensitive pages if in doubt."
+  />
+
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `<wr-aurora />` first inside the region it should fill. The drawing is one WebGL pass: every pixel finds its place between the edge the curtain hangs from and the curtain's waving free edge, takes the brightness that place has (dim at the root, brightest just short of the free edge, soft past it), the shimmer of the rays, and the colour the three stops give at its place across the width. Nothing in the picture is sharp, so the canvas is drawn at half resolution at most and the browser's upscale softens it further for free. The context is made when the host is first on screen and sized, and the loop runs at thirty frames a second while it stays on screen and the document is visible. The parent takes the pointer, passively; a finger is ignored, so a scroll over the section is never fought."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-aurora />
+        <h3 wrTypography variant="h3">Built on the new Angular.</h3>
+        <p wrTypography variant="lead">The curtain hangs from the top edge and drifts toward the pointer.</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The parent"
+    description="The host is absolute, `inset: 0`, at `z-index: -1`, under no pointer, and the curtain fades out softly at the sides. The parent provides two things: it is positioned, so the host fills it, and isolated, so the host's negative z-index lands at the floor of the parent's own stacking context, under the content and over the page background, and the parent's other children need no positioning of their own."
+  >
+    <ngwr-doc-code [code]="snippets.parent" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Edge and height"
+    description="`edge` is the edge the curtain hangs from, the top unset or the bottom; `height` is how far into the region it reaches, as a share of the region's height, 0.45 unset. The brightest part sits just short of the free edge, so the text near the anchored edge reads over the dim root and the text near the free edge over the glow: a heading that sits where the glow lands wants the other edge, or a shorter curtain."
+  >
+    <ngwr-doc-code [code]="snippets.edge" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Default</p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-aurora />
+            <h3 wrTypography variant="h3">From the top.</h3>
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>edge="bottom" height="0.6"</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-aurora edge="bottom" height="0.6" />
+            <h3 wrTypography variant="h3">From the bottom, taller.</h3>
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colours"
+    description="The colour flows across the width from `--wr-aurora-color-1` at the inline start through `-2` to `-3` at the inline end: the success, the primary and a primary-danger violet by default, bare intents, since the curtain is a graphic and not text. The three are mixed in OKLCh, lightness and chroma moving linearly and the hue walking the shorter arc, so the colour between two stops is as saturated as either and never the grey an sRGB mix falls into; keep the three hues turning one way, as the defaults do, and no mix is far from its neighbours. Set the hooks on the host, where the defaults are declared; they are read through `resolveCssColorChannels` and re-read when the scheme changes. The surface is read too, and it decides the look. On a dark one the curtain is light added to the surface, saturated and brightest at its lower border, with the rays inside it. On a light one nothing can glow, so it is a pale wash instead: each stop's hue at one high lightness and a fraction of its chroma, one broad soft shape with no bright border, a slower edge and a long dissolve into the surface, the rays a whisper of texture. The same stops drive both."
+  >
+    <ngwr-doc-code [code]="snippets.colours" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-aurora
+          style="
+            --wr-aurora-color-1: var(--wr-color-warning);
+            --wr-aurora-color-2: var(--wr-color-danger);
+            --wr-aurora-color-3: var(--wr-color-primary);
+          "
+        />
+        <h3 wrTypography variant="h3">Warning, through danger, into the primary.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Calm vs lively"
+    description="`amplitude` is how far the free edge's wave moves it, one being about a quarter of the curtain's height; `scale` is the size of the shapes, one putting about a wave and a half across the width; `speed` is how fast the wave, the rays and the hue move; `layers` is how many curtains hang at different depths, from one to three, the farther one broader, slower and dimmer. A single tall, slow wave is a calm sky; three short, quick ones are a storm of light."
+  >
+    <ngwr-doc-code [code]="snippets.lively" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>amplitude="0.5" scale="1.6" speed="0.5" layers="1"</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-aurora amplitude="0.5" scale="1.6" speed="0.5" layers="1" />
+            <h3 wrTypography variant="h3">Calm.</h3>
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>amplitude="1.5" scale="0.7" speed="1.8" layers="3"</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-aurora amplitude="1.5" scale="0.7" speed="1.8" layers="3" />
+            <h3 wrTypography variant="h3">Lively.</h3>
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Rays"
+    description="`rays` is how strongly the fine vertical rays show inside the curtain, from none to one, 0.6 unset: they are brightest near the free edge and fade toward the root, lean a little with the wave and shimmer on a clock of their own. None is a smooth curtain; one is all rays. `glow` scales the whole light, the wash's alpha on a light surface and the glow on a dark one. On a light surface the rays stay a whisper even at one: a hint of texture in the wash, never stripes."
+  >
+    <ngwr-doc-code [code]="snippets.rays" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>rays="0"</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-aurora rays="0" />
+            <h3 wrTypography variant="h3">Smooth.</h3>
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>rays="1"</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-aurora rays="1" />
+            <h3 wrTypography variant="h3">All rays.</h3>
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Intro and the pointer"
+    description="`intro` fades the curtain in and lengthens it from a third of its height the first time the host is on screen, over about two and a half seconds; under reduced motion it is whole from the first frame. `follow` is the drift toward the pointer over the parent: the shapes move a little toward it across and the curtain reaches a little further where it is lower, the far layer less than the near one, and it eases back when the pointer leaves. Off, the curtain only waves."
+  >
+    <ngwr-doc-code [code]="snippets.intro" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-aurora intro follow="false" />
+        <h3 wrTypography variant="h3">Faded in on arrival.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              Decorative: the host is <code>aria-hidden</code>, holds no text, takes no pointer and is never focusable.
+              The listeners on the parent are passive and stop nothing, so every control over the curtain behaves as
+              before.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Touch</th>
+            <td>
+              A finger is ignored, nothing is prevented and <code>touch-action</code> is left alone, so a scroll that
+              starts over the region scrolls.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> one still frame of the whole curtain is drawn, at rest,
+              with no drift and no intro, and nothing moves; a preference that flips mid-flight stops the loop at once.
+              Under <code>forced-colors: active</code> nothing is drawn.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Contrast</th>
+            <td>
+              The root the curtain hangs from is dim, so text near the anchored edge reads over a faint tint. On a light
+              surface the wash is pale throughout, so text keeps its contrast wherever it sits: measured under the first
+              demo above, over several frames and at the worst pixel, the heading keeps 15:1 and the lead 5.7:1. On a
+              dark surface the brightest part sits just short of the free edge: the heading never falls under 11:1 and
+              the lead keeps 6.5:1 over most of its pixels, but where a bright ray crosses the lead's lowest line the
+              worst pixel is about 2.2:1. Muted text that must sit under the glow in dark wants the other
+              <code>edge</code>, a shorter <code>height</code> or a lower <code>glow</code>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">No WebGL</th>
+            <td>Without WebGL nothing is drawn; a lost context is let go and rebuilt when the browser restores it.</td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>The empty canvas is rendered, absolutely positioned, so the browser's first draw shifts no layout.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+</ngwr-doc-page>

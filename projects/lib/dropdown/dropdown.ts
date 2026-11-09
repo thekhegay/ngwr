@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
@@ -24,7 +25,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { toClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import type { WrDropdownMenu } from './dropdown-menu';
 import {
@@ -128,6 +129,7 @@ export class WrDropdown {
   readonly closed = output<void>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly focusMonitor = inject(FocusMonitor);
   private readonly overlay = inject(WR_OVERLAY);
   /**
    * The reading direction the open menu has to keep up with.
@@ -404,7 +406,7 @@ export class WrDropdown {
     this.overlayRef.dispose();
     this.overlayRef = null;
     if (notify) {
-      if (focusWasInside) this.host.nativeElement.focus();
+      if (focusWasInside) wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
       this.closed.emit();
     }
   }
@@ -449,7 +451,7 @@ export class WrDropdown {
       case 'Escape':
         event.preventDefault();
         this.isOpen.set(false);
-        if (ours) this.host.nativeElement.focus();
+        if (ours) wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
         break;
       case 'Tab':
         // Tab closes the menu and moves on, in either direction, from the
@@ -462,7 +464,7 @@ export class WrDropdown {
         // its real neighbour — by the time the close runs, focus is already
         // past the pane and `closeOverlay` leaves it there. Not from a field
         // outside the menu, for the reason Escape gives above.
-        if (ours) this.host.nativeElement.focus();
+        if (ours) wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
         this.isOpen.set(false);
         break;
       case 'ArrowDown':

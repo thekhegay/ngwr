@@ -528,4 +528,11 @@ export const wrAr: WrI18nCatalog = {
       dec: 'ديسمبر',
     },
   },
+  rotateReveal: {
+    conjunction: 'و',
+  },
+  marquee: {
+    pause: 'إيقاف مؤقت',
+    play: 'تشغيل',
+  },
 };

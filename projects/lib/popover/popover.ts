@@ -28,7 +28,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
-import { getFocusableElements, KEYS, numAttr, toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import {
+  getFocusableElements,
+  KEYS,
+  numAttr,
+  toClassList,
+  wrCheckStyles,
+  wrRestoreFocus,
+  type WrClassInput,
+} from 'ngwr/utils';
 
 import { WrCurrentKeystroke } from './internal/keystroke';
 import { WrPopoverTextPanel } from './internal/text-panel';
@@ -602,7 +610,7 @@ export class WrPopover {
     // Disposing destroys the panel component; a retained ref would pin its view.
     this.textPanelRef = null;
     if (notify) {
-      if (focusWasInside) this.host.nativeElement.focus();
+      if (focusWasInside) wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
       this.closed.emit();
     }
   }
@@ -642,7 +650,7 @@ export class WrPopover {
     } else if (active !== (stops.at(-1) ?? pane)) {
       return;
     }
-    this.host.nativeElement.focus();
+    wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
     this.closeOverlay();
     this.isOpen.set(false);
   };

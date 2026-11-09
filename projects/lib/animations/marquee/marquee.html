@@ -1,0 +1,57 @@
+<!-- One item when no template is projected: a plain link. -->
+<ng-template #plainItem let-item>
+  <a class="wr-marquee__link" [href]="item.url">{{ item.title }}</a>
+</ng-template>
+
+<div class="wr-marquee__viewport" (focusin)="onTrackFocusIn($event)" (focusout)="onTrackFocusOut($event)">
+  <div class="wr-marquee__belt" [style.--wr-marquee-shift]="shift()" [style.--wr-marquee-duration]="duration()">
+    <ul class="wr-marquee__track" [attr.aria-label]="label()">
+      @for (item of items(); track item.url) {
+        <li class="wr-marquee__item">
+          <ng-container *ngTemplateOutlet="itemTemplate() ?? plainItem; context: { $implicit: item }" />
+        </li>
+      }
+    </ul>
+    <!--
+      The second copy is the picture only: hidden from readers and inert, so its
+      links are out of the tab order, and the list is read once and tabbed once.
+    -->
+    @if (looping()) {
+      <ul class="wr-marquee__track wr-marquee__track--copy" aria-hidden="true" inert>
+        @for (item of items(); track item.url) {
+          <li class="wr-marquee__item">
+            <ng-container *ngTemplateOutlet="itemTemplate() ?? plainItem; context: { $implicit: item }" />
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>
+<!--
+  The button is opt-in (`pausable`), and only a row that moves needs it: a still
+  row (reduced motion, the server) has none. The glyph is a bare SVG, as the other entry points draw their own
+  chrome, so the button needs no icon registered by the app.
+-->
+@if (pausable() && looping()) {
+  <button
+    wr-btn
+    type="button"
+    class="wr-marquee__toggle"
+    size="sm"
+    [attr.aria-label]="paused() ? playText() : pauseText()"
+    (click)="toggle()"
+  >
+    <span class="wr-marquee__glyph" aria-hidden="true">
+      @if (paused()) {
+        <svg class="wr-icon__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 4.5a1 1 0 0 1 1.52-.86l12 7.5a1 1 0 0 1 0 1.72l-12 7.5A1 1 0 0 1 6 19.5z" />
+        </svg>
+      } @else {
+        <svg class="wr-icon__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="5" y="4" width="5" height="16" rx="1" />
+          <rect x="14" y="4" width="5" height="16" rx="1" />
+        </svg>
+      }
+    </span>
+  </button>
+}

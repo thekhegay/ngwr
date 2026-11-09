@@ -6,11 +6,22 @@
   // height here the 404 renders as a small tile tucked under the header.
   min-height: 60vh;
   padding: 3rem 1.5rem;
+  // The ripple grid's positioned, isolated parent: its negative z-index is the
+  // floor of this stacking context, under the result and over the page.
+  position: relative;
+  isolation: isolate;
 
   // The preset's own host is an unstyled wrapper around `<wr-result>`. Taking it
   // out of the box tree leaves the result itself as this flex item, which is the
   // parent its `width` / `min-height` percentages are written against.
   wr-result-404 {
     display: contents;
+  }
+
+  // The sparks paint in the host's colour, which on this filled button is the
+  // `-contrast` of the primary fill: unreadable off the button. The fill's role
+  // instead, so they read on the page.
+  &__home {
+    --wr-click-sparks-color: var(--wr-color-primary);
   }
 }

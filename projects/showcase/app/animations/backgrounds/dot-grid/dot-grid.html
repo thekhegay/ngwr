@@ -1,0 +1,86 @@
+<ngwr-doc-page
+  title="Dot Grid"
+  since="15.7.0"
+  description="An even field of small, faint dots behind a section's content. Near the pointer the dots light up toward the primary colour and are pushed gently away; each one follows a damped spring back to its place when the pointer moves on, so a fast sweep leaves a short, soft wake that settles."
+  [keywords]="['dot-grid', 'background', 'backdrop', 'canvas', 'pointer', 'wr-dot-grid']"
+  [labels]="['Animation', 'Component', 'Canvas']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `<wr-dot-grid />` first inside the region it should fill. One 2D canvas, drawn on the CPU every frame while something moves and idle otherwise: the frame loop runs while the pointer is over the parent or a dot is still settling, and only while the host is on screen and the document is visible; at rest the still field is drawn once. The parent takes the pointer, the host and its canvas never do. Touch never pushes, so a scroll over the region is never fought; a tap sends one ring of light out from the finger instead."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-dot-grid />
+        <h3 wrTypography variant="h3">Move the pointer over this box.</h3>
+        <p wrTypography variant="lead">The dots near it light up and lean away, then spring back.</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The parent"
+    description="The host is absolute, `inset: 0`, at `z-index: -1`, under no pointer and masked out at the edges. The parent provides two things: it is positioned, so the host fills it, and isolated, so the host's negative z-index lands at the floor of the parent's own stacking context, under the content and over the page background."
+  >
+    <ngwr-doc-code [code]="snippets.parent" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Spacing and reach"
+    description="`spacing` is the distance between two dots and `reach` how far from the pointer a dot still lights and moves, both in px. The field is laid out centred, so the margins at the edges are equal. The two colours are the `--wr-dot-grid-ink` and `--wr-dot-grid-glow` hooks, set on the host, where the defaults are declared, and read through `resolveCssColorChannels` and re-read when the scheme changes."
+  >
+    <ngwr-doc-code [code]="snippets.spacing" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-dot-grid spacing="40" reach="220" />
+        <h3 wrTypography variant="h3">A wider grid, a longer reach.</h3>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              Decorative: the host is <code>aria-hidden</code>, holds no text, takes no pointer and is never focusable.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> only the still field is drawn; a preference that flips
+              mid-flight puts every dot back at once.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Contrast</th>
+            <td>
+              A dot shows its ink at about a third, so the text and the cards over the field read as they do on the
+              plain surface. Under <code>forced-colors: active</code> nothing is drawn.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>
+              The server renders the empty canvas, absolutely positioned, so the browser's first draw shifts no layout.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

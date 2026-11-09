@@ -114,6 +114,100 @@
       "sass": "./anchor/styles/_index.scss",
       "default": "./anchor/public-api.ts"
     },
+    "./animations/aurora": {
+      "sass": "./animations/aurora/styles/_index.scss",
+      "default": "./animations/aurora/public-api.ts"
+    },
+    "./animations/blur-reveal": {
+      "sass": "./animations/blur-reveal/styles/_index.scss",
+      "default": "./animations/blur-reveal/public-api.ts"
+    },
+    "./animations/click-sparks": {
+      "sass": "./animations/click-sparks/styles/_index.scss",
+      "default": "./animations/click-sparks/public-api.ts"
+    },
+    "./animations/confetti": {
+      "sass": "./animations/confetti/styles/_index.scss",
+      "default": "./animations/confetti/public-api.ts"
+    },
+    "./animations/core": {
+      "default": "./animations/core/public-api.ts"
+    },
+    "./animations/decode": {
+      "sass": "./animations/decode/styles/_index.scss",
+      "default": "./animations/decode/public-api.ts"
+    },
+    "./animations/destruct": {
+      "sass": "./animations/destruct/styles/_index.scss",
+      "default": "./animations/destruct/public-api.ts"
+    },
+    "./animations/dot-grid": {
+      "sass": "./animations/dot-grid/styles/_index.scss",
+      "default": "./animations/dot-grid/public-api.ts"
+    },
+    "./animations/falling-letters": {
+      "sass": "./animations/falling-letters/styles/_index.scss",
+      "default": "./animations/falling-letters/public-api.ts"
+    },
+    "./animations/flow-lines": {
+      "sass": "./animations/flow-lines/styles/_index.scss",
+      "default": "./animations/flow-lines/public-api.ts"
+    },
+    "./animations/fluid-cursor": {
+      "sass": "./animations/fluid-cursor/styles/_index.scss",
+      "default": "./animations/fluid-cursor/public-api.ts"
+    },
+    "./animations/glitch": {
+      "sass": "./animations/glitch/styles/_index.scss",
+      "default": "./animations/glitch/public-api.ts"
+    },
+    "./animations/glow-border": {
+      "sass": "./animations/glow-border/styles/_index.scss",
+      "default": "./animations/glow-border/public-api.ts"
+    },
+    "./animations/gradient-flow": {
+      "sass": "./animations/gradient-flow/styles/_index.scss",
+      "default": "./animations/gradient-flow/public-api.ts"
+    },
+    "./animations/marquee": {
+      "sass": "./animations/marquee/styles/_index.scss",
+      "default": "./animations/marquee/public-api.ts"
+    },
+    "./animations/orbit": {
+      "sass": "./animations/orbit/styles/_index.scss",
+      "default": "./animations/orbit/public-api.ts"
+    },
+    "./animations/reveal": {
+      "sass": "./animations/reveal/styles/_index.scss",
+      "default": "./animations/reveal/public-api.ts"
+    },
+    "./animations/ripple-grid": {
+      "sass": "./animations/ripple-grid/styles/_index.scss",
+      "default": "./animations/ripple-grid/public-api.ts"
+    },
+    "./animations/rotate-reveal": {
+      "sass": "./animations/rotate-reveal/styles/_index.scss",
+      "default": "./animations/rotate-reveal/public-api.ts"
+    },
+    "./animations/shimmer": {
+      "sass": "./animations/shimmer/styles/_index.scss",
+      "default": "./animations/shimmer/public-api.ts"
+    },
+    "./animations/spotlight": {
+      "sass": "./animations/spotlight/styles/_index.scss",
+      "default": "./animations/spotlight/public-api.ts"
+    },
+    "./animations/thread-lines": {
+      "sass": "./animations/thread-lines/styles/_index.scss",
+      "default": "./animations/thread-lines/public-api.ts"
+    },
+    "./animations/tilt": {
+      "default": "./animations/tilt/public-api.ts"
+    },
+    "./animations/typewriter": {
+      "sass": "./animations/typewriter/styles/_index.scss",
+      "default": "./animations/typewriter/public-api.ts"
+    },
     "./avatar": {
       "sass": "./avatar/styles/_index.scss",
       "default": "./avatar/public-api.ts"

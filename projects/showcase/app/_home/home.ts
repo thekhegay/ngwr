@@ -1,7 +1,31 @@
-import { Component, inject } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  DestroyRef,
+  inject,
+  Injector,
+  signal,
+  viewChild,
+  type ElementRef,
+  type WritableSignal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { BadgeCheck, Folder, ListChecks, Moon, ShieldCheck, Terminal, TextCursorInput } from 'lucide';
+import { WrBlurReveal } from 'ngwr/animations/blur-reveal';
+import { WrClickSparks } from 'ngwr/animations/click-sparks';
+import { WrDecode } from 'ngwr/animations/decode';
+import { WrFlowLines } from 'ngwr/animations/flow-lines';
+import { WrGlitch } from 'ngwr/animations/glitch';
+import { WrGlowBorder } from 'ngwr/animations/glow-border';
+import { WrGradientFlow } from 'ngwr/animations/gradient-flow';
+import { WrMarquee, type WrMarqueeItem } from 'ngwr/animations/marquee';
+import { WrReveal } from 'ngwr/animations/reveal';
+import { WrRotateReveal } from 'ngwr/animations/rotate-reveal';
+import { WrShimmer } from 'ngwr/animations/shimmer';
+import { WrSpotlight } from 'ngwr/animations/spotlight';
+import { WrTilt } from 'ngwr/animations/tilt';
+import { WrTypewriter } from 'ngwr/animations/typewriter';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrCard } from 'ngwr/card';
@@ -10,11 +34,9 @@ import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
 
 import { Footer } from '../_layout/footer/footer';
+import { COMPONENT_GROUPS } from '../_layout/sidebar/configs/components.config';
 
 import { ComponentsBento } from './components-bento/components-bento';
-import { FlowLines } from './hero/flow-lines/flow-lines';
-import { GlowBorder } from './hero/glow-border/glow-border';
-import { SignalSweep } from './hero/signal-sweep/signal-sweep';
 import { HomeOptInComponent } from './opt-in/opt-in';
 
 import { DocCodeComponent, DocNgtrueComponent, DocRichPipe } from '#core/components';
@@ -60,10 +82,21 @@ interface DxLink {
     WrTag,
     WrCard,
     WrTypography,
-    // Hero effects
-    FlowLines,
-    SignalSweep,
-    GlowBorder,
+    // Effects
+    WrFlowLines,
+    WrGlowBorder,
+    WrBlurReveal,
+    WrClickSparks,
+    WrDecode,
+    WrReveal,
+    WrSpotlight,
+    WrMarquee,
+    WrTilt,
+    WrRotateReveal,
+    WrShimmer,
+    WrGlitch,
+    WrTypewriter,
+    WrGradientFlow,
     // Sections
     ComponentsBento,
     HomeOptInComponent,
@@ -90,8 +123,42 @@ interface DxLink {
 export default class HomeComponent {
   protected readonly routes = ROUTES;
 
+  /**
+   * Each one-shot tile of the motion block is off for a frame to be re-created
+   * on its own cadence: an entrance effect has no restart, a fresh host is the
+   * replay. An `@if` is used, not a counter-keyed `@for`, which warns NG0956
+   * on every re-creation.
+   */
+  protected readonly decodePlaying = signal(true);
+  protected readonly blurPlaying = signal(true);
+  protected readonly revealPlaying = signal(true);
+  /** A burst of the glitch tile; off between bursts. */
+  protected readonly glitching = signal(false);
+
+  private readonly motionGrid = viewChild<ElementRef<HTMLElement>>('motionGrid');
+
   /** Absolute link from a node chain — the template cannot call a module function. */
   protected readonly path = wrPath;
+
+  /** A Why card's light in the colour of its icon chip; `neutral` is the chip's muted glyph. */
+  protected spotlightColor(accent: WhyTile['accent']): string {
+    return accent === 'neutral' ? 'var(--wr-color-on-surface-muted)' : `var(--wr-color-${accent})`;
+  }
+
+  /**
+   * The third item of the line under the headline, one at a time. The first
+   * is the one the server renders and a still page keeps.
+   */
+  protected readonly qualities: readonly string[] = ['tree-shakable', 'accessible', 'RTL-ready', 'themeable'];
+
+  /**
+   * Every component the Reference sidebar lists, flat, in the sidebar's own
+   * order: one source for the nav and the row under the hero, so a component
+   * added to the catalog shows up in both.
+   */
+  protected readonly components: readonly WrMarqueeItem[] = COMPONENT_GROUPS.flatMap(
+    group => group.children ?? []
+  ).flatMap(link => (link.url && !link.disabled ? [{ title: link.title, url: link.url }] : []));
 
   /**
    * Counted by `pnpm gen:quality`, not typed here. The hero and the "Pay for
@@ -239,6 +306,47 @@ export class SignupCard {
   ];
 
   constructor() {
+    const injector = inject(Injector);
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      const grid = this.motionGrid()?.nativeElement;
+      if (!grid || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      let onScreen = false;
+      const observer = new IntersectionObserver(([entry]) => (onScreen = entry.isIntersecting));
+      observer.observe(grid);
+      const timers: ReturnType<typeof setTimeout>[] = [];
+      const every = (period: number, phase: number, tick: () => void): void => {
+        timers.push(
+          setTimeout(() => {
+            const run = (): void => {
+              if (onScreen && !document.hidden) tick();
+            };
+            run();
+            timers.push(setInterval(run, period));
+          }, phase)
+        );
+      };
+      const replay = (tile: WritableSignal<boolean>): void => {
+        tile.set(false);
+        afterNextRender(() => tile.set(true), { injector });
+      };
+      every(3200, 0, () => replay(this.decodePlaying));
+      every(4100, 1300, () => replay(this.blurPlaying));
+      every(3700, 2400, () => replay(this.revealPlaying));
+      every(4600, 800, () => {
+        this.glitching.set(true);
+        timers.push(setTimeout(() => this.glitching.set(false), 1200));
+      });
+      destroyRef.onDestroy(() => {
+        for (const id of timers) {
+          clearTimeout(id);
+          clearInterval(id);
+        }
+        observer.disconnect();
+      });
+    });
+
     const meta = inject(MetaService);
     meta.setCanonicalURL();
     // The title is the one string a search result shows, so it names the wedge

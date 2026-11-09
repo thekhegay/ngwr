@@ -1,0 +1,189 @@
+@use '../../../theme/styles' as theme;
+@include theme.loaded('animations/glitch');
+
+// `[wrGlitch]`: while a pointer is over a short text, or focus is in it, the
+// text looks like a broken signal: two tinted copies of it, cut into thin
+// horizontal slices, jump sideways a few pixels while the text leans and
+// shifts a little; the moment the pointer leaves, everything snaps back. At
+// rest the block declares only its hooks and `position: relative`, the anchor
+// for the copies, so the target looks the way its own rules say; the copies
+// and `--live` exist only while it plays. The directive owns the state (under
+// a pointer or not); the sheet owns the paint and the cadence.
+.wr-glitch {
+  // One pass of the loop: six held steps, each a different slice of each
+  // copy. At 1.2 s a step is 200 ms, which reads as a signal breaking up, not
+  // a flicker, and keeps the flash budget below: see the keyframes.
+  --wr-glitch-cycle: 1.2s;
+  // How far a slice and the text jump, in `em`: 2.4px on the 24px result
+  // title, a smear rather than a tear, and the same share of any heading.
+  --wr-glitch-shift: 0.1em;
+  // How far the text leans at its worst frame.
+  --wr-glitch-skew: 2deg;
+  // The two copies' colours: theme inks, each the intent as text on the
+  // surface, at reduced strength over `transparent`. Primary and danger sit
+  // far apart in hue, so the two fringes read as a split signal, and at this
+  // strength a copy over the text darkens or lightens a glyph pixel by well
+  // under the full ink: a faint fringe, never a strobe, and the text under it
+  // keeps its own colour in every frame. Inks, never ramp steps.
+  --wr-glitch-strength: 55%;
+  --wr-glitch-tint-a: color-mix(in srgb, var(--wr-color-primary-ink) var(--wr-glitch-strength), transparent);
+  --wr-glitch-tint-b: color-mix(in srgb, var(--wr-color-danger-ink) var(--wr-glitch-strength), transparent);
+
+  // The anchor for the copies. A transform never moves the box, so a centred
+  // title stays centred while it leans.
+  position: relative;
+
+  // One copy: the same text over the same box, so it inherits the font, the
+  // alignment and the line height and its glyphs land exactly over the real
+  // ones. Out of flow, out of the selection, under no pointer. Clipped to
+  // nothing until its animation says otherwise, so a copy that is somehow
+  // present at rest paints nothing.
+  &__copy {
+    position: absolute;
+    inset: 0;
+    color: var(--wr-glitch-tint-a);
+    clip-path: inset(100% 0 0 0);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  &__copy--b {
+    color: var(--wr-glitch-tint-b);
+  }
+
+  @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+    // `steps(1, end)` holds each keyframe's value until the next keyframe, so
+    // a slice jumps from one place to the next instead of sliding: six holds
+    // per cycle, each a different slice at a different offset, round and
+    // round while `--live` is on. The directive takes the copies out when the
+    // pointer leaves, so no late frame is left on screen.
+    &--live {
+      animation: wr-glitch-lean var(--wr-glitch-cycle) steps(1, end) infinite;
+    }
+
+    &--live &__copy--a {
+      animation: wr-glitch-slice-a var(--wr-glitch-cycle) steps(1, end) infinite;
+    }
+
+    &--live &__copy--b {
+      animation: wr-glitch-slice-b var(--wr-glitch-cycle) steps(1, end) infinite;
+    }
+  }
+
+  // Belt and braces: the directive adds no copy under either, but a preference
+  // flipped mid-play must not leave a fringe behind.
+  @media (prefers-reduced-motion: reduce), (forced-colors: active) {
+    &__copy {
+      display: none;
+    }
+  }
+}
+
+// The text itself: a lean and a shift of a fraction of the slice jump, so the
+// real glyphs stay where the eye expects them while the fringes jump around.
+// Physical on purpose: a broken signal has no reading direction.
+@keyframes wr-glitch-lean {
+  0% {
+    transform: skewX(calc(var(--wr-glitch-skew) * -1)) translateX(calc(var(--wr-glitch-shift) * 0.3));
+  }
+
+  17% {
+    transform: none;
+  }
+
+  33% {
+    transform: skewX(var(--wr-glitch-skew)) translateX(calc(var(--wr-glitch-shift) * -0.3));
+  }
+
+  50% {
+    transform: translateX(calc(var(--wr-glitch-shift) * 0.5));
+  }
+
+  67% {
+    transform: skewX(calc(var(--wr-glitch-skew) * -0.5));
+  }
+
+  83% {
+    transform: none;
+  }
+}
+
+// The flash budget (WCAG 2.3.1: no more than three flashes in any second,
+// a flash being a pair of opposing luminance changes). The line is cut into
+// twelve bands of 8%, with 2% left at the top and bottom: copy A owns the
+// odd bands and copy B the even ones, and each copy visits each of its six
+// bands once per cycle, in a scrambled order. So no point of the text is
+// lit by a copy more than once per cycle, and with the cycle at a second or
+// more, any one-second window lights a point at most twice: once at the end
+// of a cycle and once at the start of the next. `inset(top 0 bottom 0)`
+// keeps one horizontal band of the copy; the rest is clipped, so what shows
+// is a strip of tinted glyphs beside the real ones. `glitch.spec.ts` reads
+// these keyframes and holds the bands disjoint.
+
+// Copy A: bands 34-42, 2-10, 66-74, 18-26, 82-90, 50-58, pushed toward the start first.
+@keyframes wr-glitch-slice-a {
+  0% {
+    clip-path: inset(34% 0 58% 0);
+    transform: translateX(calc(var(--wr-glitch-shift) * -1));
+  }
+
+  17% {
+    clip-path: inset(2% 0 90% 0);
+    transform: translateX(calc(var(--wr-glitch-shift) * 0.6));
+  }
+
+  33% {
+    clip-path: inset(66% 0 26% 0);
+    transform: translateX(calc(var(--wr-glitch-shift) * -0.8));
+  }
+
+  50% {
+    clip-path: inset(18% 0 74% 0);
+    transform: translateX(calc(var(--wr-glitch-shift) * 1.2));
+  }
+
+  67% {
+    clip-path: inset(82% 0 10% 0);
+    transform: translateX(calc(var(--wr-glitch-shift) * -0.5));
+  }
+
+  83% {
+    clip-path: inset(50% 0 42% 0);
+    transform: translateX(calc(var(--wr-glitch-shift) * 0.9));
+  }
+}
+
+// Copy B: bands 74-82, 26-34, 90-98, 10-18, 58-66, 42-50, pushed the other
+// way, so the two fringes never cover the same band and the text between
+// them stays clean.
+@keyframes wr-glitch-slice-b {
+  0% {
+    clip-path: inset(74% 0 18% 0);
+    transform: translateX(var(--wr-glitch-shift));
+  }
+
+  17% {
+    clip-path: inset(26% 0 66% 0);
+    transform: translateX(calc(var(--wr-glitch-shift) * -0.7));
+  }
+
+  33% {
+    clip-path: inset(90% 0 2% 0);
+    transform: translateX(calc(var(--wr-glitch-shift) * 0.9));
+  }
+
+  50% {
+    clip-path: inset(10% 0 82% 0);
+    transform: translateX(calc(var(--wr-glitch-shift) * -1.1));
+  }
+
+  67% {
+    clip-path: inset(58% 0 34% 0);
+    transform: translateX(calc(var(--wr-glitch-shift) * 0.4));
+  }
+
+  83% {
+    clip-path: inset(42% 0 50% 0);
+    transform: translateX(calc(var(--wr-glitch-shift) * -0.6));
+  }
+}

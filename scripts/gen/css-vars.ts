@@ -66,6 +66,7 @@ const OUT_FILE = join(GENERATED_DIR, 'css-vars.ts');
  */
 const CLUSTERS: readonly string[] = [
   'charts',
+  'animations',
   'reference/components',
   'reference/services',
   'reference/directives',
@@ -163,12 +164,12 @@ export type DocCssVarRoute = keyof typeof CSS_VARS;
  */
 function duplicatedTables(): string[] {
   const out: string[] = [];
-  // Only `reference/components` and `charts`. The `/guides/tokens/*` pages
+  // Only `reference/components`, `charts` and `animations`. The `/guides/tokens/*` pages
   // document the THEME layer — `--wr-text-*`, `--wr-duration-*`, the colour
   // ramp — which the generator does not catalogue, because it reads each
   // component's own `--wr-<name>-*` hooks. Those tables are the only record
   // of the token layer and must stay hand-written.
-  for (const root of ['reference/components', 'charts']) {
+  for (const root of ['reference/components', 'charts', 'animations']) {
     const files = walkFiles(join(SHOWCASE_APP_PATH, root), {
       skipDirs: ['node_modules', 'generated'],
       include: path => path.endsWith('.ts'),

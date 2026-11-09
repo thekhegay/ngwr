@@ -65,6 +65,7 @@ export default class TokensSizingPage {
   };
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
+    { kind: 'Guide', title: 'Scrollbar', url: ['/guides', 'scrollbar'] },
     { kind: 'Guide', title: 'Density', url: ['/guides/tokens', 'density'] },
     { kind: 'Guide', title: 'Theming', url: ['/guides', 'theming'] },
   ];

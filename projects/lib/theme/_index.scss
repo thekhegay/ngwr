@@ -43,7 +43,7 @@
 // gap: a dark value is the second argument of a `light-dark()` in any
 // declaration, in a global stylesheet and a component stylesheet alike, with
 // no selector for encapsulation to rewrite.
-@forward 'styles' hide smooth-br, touch-target, focus-ring, rebrand, contrast;
+@forward 'styles' hide smooth-br, touch-target, focus-ring, scrollbar, rebrand, contrast;
 @use 'styles' as base;
 
 /// iOS-style smooth corners, degrading to a plain radius where `corner-shape`
@@ -61,6 +61,12 @@
 /// `--wr-focus-ring-*`.
 @mixin focus-ring {
   @include base.focus-ring;
+}
+
+/// The thumb-only scrollbar: the whole page at the stylesheet root, one
+/// element inside a rule. Loading the theme emits none of it.
+@mixin scrollbar {
+  @include base.scrollbar;
 }
 
 /// Re-emit an intent's whole token set on the current selector, from one seed —

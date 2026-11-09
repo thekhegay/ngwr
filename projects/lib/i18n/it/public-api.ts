@@ -522,4 +522,11 @@ export const wrIt: WrI18nCatalog = {
       dec: 'dicembre',
     },
   },
+  rotateReveal: {
+    conjunction: 'e',
+  },
+  marquee: {
+    pause: 'Pausa',
+    play: 'Riproduci',
+  },
 };

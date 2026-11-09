@@ -1,0 +1,44 @@
+@use '../../../theme/styles' as theme;
+@include theme.loaded('animations/fluid-cursor');
+
+// `<wr-fluid-cursor />`: coloured ink behind a region's content, stirred by
+// the pointer and gone a few seconds later. The component paints one WebGL
+// canvas and reads its palette back from the hooks below through
+// `resolveCssColorChannels`, so a retheme and a scheme switch both reach the
+// pixels. How the ink covers the surface (as ink on a light one, lifted on a
+// dark one) and the splat sizes live in the component and its model: they
+// are the canvas's numbers, not the sheet's.
+.wr-fluid-cursor {
+  // The palette a stroke cycles through, in order: the bare intents, since
+  // the ink is a graphic and not text. Warm and cool alternate, so neighbours
+  // in the cycle stay apart.
+  --wr-fluid-cursor-color-1: var(--wr-color-primary);
+  --wr-fluid-cursor-color-2: var(--wr-color-danger);
+  --wr-fluid-cursor-color-3: var(--wr-color-warning);
+  --wr-fluid-cursor-color-4: var(--wr-color-success);
+  --wr-fluid-cursor-color-5: var(--wr-color-info);
+
+  position: absolute;
+  inset: 0;
+  // Under the content, over the page: the parent is positioned and isolated,
+  // so this is the floor of its stacking context.
+  z-index: -1;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  // Gone at the edges, so ink carried to the border dissolves rather than
+  // ending in a straight cut. Symmetric, so it needs no mirroring.
+  mask-image: radial-gradient(ellipse 85% 90% at 50% 50%, #000 45%, transparent 100%);
+
+  &__canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  // Nothing drawn: ink under system colours is noise, not decoration.
+  @media (forced-colors: active) {
+    display: none;
+  }
+}

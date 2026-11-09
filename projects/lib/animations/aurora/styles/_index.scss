@@ -1,0 +1,44 @@
+@use '../../../theme/styles' as theme;
+@include theme.loaded('animations/aurora');
+
+// `<wr-aurora />`: a curtain of light hanging from one edge of a section,
+// like an aurora, behind the section's content. The component paints one
+// WebGL canvas and reads its three stops and the surface back from the hooks
+// below through `resolveCssColorChannels`, so a retheme and a scheme switch
+// both reach the pixels. How bright it is, how far it reaches and how it
+// moves are inputs and the shader's numbers, not the sheet's.
+.wr-aurora {
+  // The three stops the colour flows through across the width, from the
+  // inline start: green, blue, violet, the hues an aurora shows, in that
+  // order so the hue only ever turns one way between them. Bare intents, not
+  // inks: these are graphics, not text, and the roles are `light-dark()`
+  // pairs already, so the dark scheme gets the intents re-tuned for its
+  // canvas with nothing re-declared. The violet is mixed from two roles
+  // rather than a step, so a rebrand moves it.
+  --wr-aurora-color-1: var(--wr-color-success);
+  --wr-aurora-color-2: var(--wr-color-primary);
+  --wr-aurora-color-3: color-mix(in oklch, var(--wr-color-primary) 60%, var(--wr-color-danger));
+
+  position: absolute;
+  inset: 0;
+  // Under the content, over the page: the parent is positioned and isolated,
+  // so this is the floor of its stacking context.
+  z-index: -1;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+
+  // The canvas is drawn at half resolution at most and stretched to the host:
+  // the browser's upscale is the last blur the soft picture needs.
+  &__canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  // Nothing drawn: a tinted wash under system colours is noise, not decoration.
+  @media (forced-colors: active) {
+    display: none;
+  }
+}

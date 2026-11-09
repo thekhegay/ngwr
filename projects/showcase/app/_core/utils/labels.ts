@@ -14,6 +14,18 @@ const KIND_TONES: Readonly<Record<string, DocLabelTone>> = {
   Animation: 'animation',
 };
 
+/**
+ * What an animation runs on, as a trait with a hue of its own: the cost a
+ * reader weighs when choosing one. A plain trait is neutral; these are not.
+ */
+const TECH_TONES: Readonly<Record<string, DocLabelTone>> = {
+  CSS: 'css',
+  DOM: 'dom',
+  SVG: 'svg',
+  Canvas: 'canvas',
+  WebGL: 'webgl',
+};
+
 /** What a page is, written as a label: the kinds plus their plurals and the old "Interface". */
 const KIND_ALIASES: Readonly<Record<string, string>> = {
   Components: 'Component',
@@ -23,11 +35,25 @@ const KIND_ALIASES: Readonly<Record<string, string>> = {
 
 /** The colour a label wears: its kind's own, or neutral for a trait. */
 export type DocLabelTone =
-  'component' | 'directive' | 'service' | 'pipe' | 'util' | 'validator' | 'type' | 'guide' | 'animation' | 'neutral';
+  | 'component'
+  | 'directive'
+  | 'service'
+  | 'pipe'
+  | 'util'
+  | 'validator'
+  | 'type'
+  | 'guide'
+  | 'animation'
+  | 'css'
+  | 'dom'
+  | 'svg'
+  | 'canvas'
+  | 'webgl'
+  | 'neutral';
 
-/** A label's colour: a kind gets its own, every trait is neutral. */
+/** A label's colour: a kind and an animation's technology get their own, every other trait is neutral. */
 export function labelTone(label: string): DocLabelTone {
-  return KIND_TONES[KIND_ALIASES[label] ?? label] ?? 'neutral';
+  return KIND_TONES[KIND_ALIASES[label] ?? label] ?? TECH_TONES[label] ?? 'neutral';
 }
 
 /** A label as a URL segment: `Signal Forms` → `signal-forms`. */
@@ -38,11 +64,21 @@ export function labelSlug(label: string): string {
     .replace(/^-|-$/g, '');
 }
 
-/** The labels a page shows: its kind first, then the traits it declares. */
+/**
+ * The labels a page shows: its kind first, then the traits it declares. A
+ * second kind is dropped, so `['Service', 'Directives']` on a service page
+ * reads as a service, except on an animation page, where the effect's own
+ * declarable (`Directive`, `Component`, `Service`) is what an author imports
+ * and stands beside `Animation`.
+ */
 export function pageLabels(url: string): readonly string[] {
   const page = DOC_ROUTES[routeKey(url.split(/[?#]/)[0])];
   if (!page) return [];
-  const traits = page.labels.filter(l => (KIND_ALIASES[l] ?? l) !== page.kind && !KIND_TONES[KIND_ALIASES[l] ?? l]);
+  const keepKinds = page.kind === 'Animation';
+  const traits = page.labels.filter(l => {
+    const kind = KIND_ALIASES[l] ?? l;
+    return kind !== page.kind && (keepKinds || !KIND_TONES[kind]);
+  });
   return page.kind ? [page.kind, ...traits] : traits;
 }
 

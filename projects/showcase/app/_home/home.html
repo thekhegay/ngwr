@@ -1,27 +1,34 @@
 <main class="ngwr-home">
   <!-- Hero -->
   <section class="ngwr-home-hero-wrap">
-    <ngwr-flow-lines />
+    <wr-flow-lines intro />
     <div class="container">
       <div class="ngwr-home-hero ngwr-home-hero--center">
+        <!-- One reveal sequence: the chip is piece 0, each run starts where the
+             one before it stopped. -->
         <h1 class="ngwr-home-hero__title">
-          <span class="ngwr-home-hero__title-angular"><wr-icon name="logo-angular" />&nbsp;Angular</span>
-          components that bind straight to
-          <span class="ngwr-home-hero__title-accent" ngwrSignalSweep>Signal Forms</span>.
+          <span class="ngwr-home-hero__title-angular wr-reveal__item" style="--wr-reveal-i: 0"
+            ><wr-icon name="logo-angular" />&nbsp;Angular</span
+          >&ngsp;<wr-reveal text="components that bind straight to" start="1" />&ngsp;<span
+            class="ngwr-home-hero__title-end"
+            ><span class="ngwr-home-hero__title-accent"><wr-reveal text="Signal Forms" start="29" /></span
+            ><wr-reveal text="." start="40"
+          /></span>
         </h1>
 
         <!-- One line, no code spans. The specification that used to sit here moved
              down to the "Developer experience" section, which has the room to set
              it properly; the fold is headline, glance line, call to action. -->
         <p class="ngwr-home-hero__description">
-          Zoneless, SSR-safe, tree-shakable — with no accessor layer in between.
+          Zoneless, SSR-safe, <wr-rotate-reveal [words]="qualities" delay="1700" /> — with no accessor layer in between.
         </p>
 
         <div class="ngwr-home-hero__cta">
           <a
             class="ngwr-home-hero__btn"
             wr-btn
-            ngwrGlowBorder
+            wrGlowBorder
+            wrClickSparks
             outlined
             size="lg"
             [routerLink]="path(routes.docs)"
@@ -35,6 +42,17 @@
     </div>
   </section>
 
+  <!-- Every component by name, one quiet row gliding under the hero. -->
+  <section class="ngwr-home-marquee">
+    <div class="container">
+      <wr-marquee [items]="components" label="Components">
+        <ng-template let-item>
+          <a class="wr-marquee__link" [routerLink]="item.url">{{ item.title }}</a>
+        </ng-template>
+      </wr-marquee>
+    </div>
+  </section>
+
   <!-- Components bento -->
   <ngwr-components-bento />
 
@@ -43,8 +61,8 @@
     <div class="container ngwr-dx">
       <div class="ngwr-dx__copy">
         <div class="ngwr-section__lede">
-          <wr-tag color="primary" outlined>Developer experience</wr-tag>
-          <h2 wrTypography variant="h1">Signal Forms, with nothing in between.</h2>
+          <wr-tag color="primary" outlined><span wrDecode>Developer experience</span></wr-tag>
+          <h2 wrTypography variant="h1" wrBlurReveal>Signal Forms, with nothing in between.</h2>
         </div>
         <p wrTypography variant="lead">
           A value control here is not a wrapper around a native element that reports back through an accessor. It
@@ -110,7 +128,7 @@
         <ul class="ngwr-link-grid ngwr-dx-links">
           @for (link of dxLinks; track link.label) {
             <li>
-              <a class="ngwr-link-card ngwr-dx-links__link" [routerLink]="link.url">
+              <a class="ngwr-link-card ngwr-dx-links__link" [routerLink]="link.url" wrTilt>
                 <span class="ngwr-dx-links__row">
                   <span class="ngwr-icon-chip ngwr-icon-chip--sm" data-tone="primary" aria-hidden="true">
                     <wr-icon [name]="link.icon" />
@@ -139,8 +157,8 @@
     <div class="container">
       <div class="ngwr-section__head">
         <div class="ngwr-section__lede">
-          <wr-tag color="primary" outlined>Why ngwr</wr-tag>
-          <h2 wrTypography variant="h1">Built on the new Angular. Not ported to it.</h2>
+          <wr-tag color="primary" outlined><span wrDecode>Why ngwr</span></wr-tag>
+          <h2 wrTypography variant="h1" wrBlurReveal>Built on the new Angular. Not ported to it.</h2>
         </div>
         <p class="ngwr-section__aside">
           Nothing here carries a compatibility layer from the NgModule era. The bookkeeping that is left — focus traps,
@@ -150,7 +168,7 @@
 
       <div class="ngwr-why-grid">
         @for (tile of whyTiles; track tile.title) {
-          <wr-card class="ngwr-why">
+          <wr-card class="ngwr-why" wrSpotlight [style.--wr-spotlight-color]="spotlightColor(tile.accent)">
             <span class="ngwr-icon-chip" [attr.data-tone]="tile.accent" aria-hidden="true">
               <wr-icon [name]="tile.icon" />
             </span>
@@ -190,8 +208,8 @@
     <div class="container">
       <div class="ngwr-section__head">
         <div class="ngwr-section__lede">
-          <wr-tag color="primary" outlined>Companion</wr-tag>
-          <h2 wrTypography variant="h1">The checks behind ngwr.</h2>
+          <wr-tag color="primary" outlined><span wrDecode>Companion</span></wr-tag>
+          <h2 wrTypography variant="h1" wrBlurReveal>The checks behind ngwr.</h2>
         </div>
         <p class="ngwr-section__aside">ngwr's controls and package pass them. Yours can too.</p>
       </div>
@@ -200,5 +218,127 @@
     </div>
   </section>
 
-  <ngwr-footer contained />
+  <!-- Motion: the text effects, live. The one-shot tiles are re-created by
+       `replay` while the grid is on screen. -->
+  <section class="ngwr-section">
+    <div class="container">
+      <div class="ngwr-section__head">
+        <div class="ngwr-section__lede">
+          <wr-tag color="primary" outlined><span wrDecode>Animations</span></wr-tag>
+          <h2 wrTypography variant="h1" wrBlurReveal>Motion you can ship.</h2>
+        </div>
+        <p class="ngwr-section__aside">
+          Each one ships as <code>ngwr/animations/*</code>, its own entry point: pay only for the effect you import.
+        </p>
+      </div>
+
+      <div #motionGrid class="ngwr-motion-grid">
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <span
+              wrShimmer
+              style="
+                color: var(--wr-color-text-muted);
+                --wr-shimmer-peak: var(--wr-color-primary-ink);
+                --wr-shimmer-strength: 100%;
+                --wr-shimmer-pass: 1.4s;
+                --wr-shimmer-pause: 1.2s;
+                --wr-shimmer-delay: 0.3s;
+                --wr-shimmer-band: 3em;
+              "
+              >Premium</span
+            >
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Shimmer</p>
+            <p wrTypography variant="caption" tone="muted"><code>wrShimmer</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <span class="ngwr-motion-tile__glitch" wrGlitch [active]="glitching()">System online</span>
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Glitch</p>
+            <p wrTypography variant="caption" tone="muted"><code>wrGlitch</code> - bursts, and on hover</p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-rotate-reveal [words]="['Fast', 'Themeable', 'Live']" [hold]="1600" loop />
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Rotate Reveal</p>
+            <p wrTypography variant="caption" tone="muted"><code>wr-rotate-reveal</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            @if (decodePlaying()) {
+              <span wrDecode>Decrypting…</span>
+            }
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Decode</p>
+            <p wrTypography variant="caption" tone="muted"><code>wrDecode</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            @if (blurPlaying()) {
+              <span wrBlurReveal>Reveal on view</span>
+            }
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Blur Reveal</p>
+            <p wrTypography variant="caption" tone="muted"><code>wrBlurReveal</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            @if (revealPlaying()) {
+              <wr-reveal text="Split by character" trigger="view" />
+            }
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Reveal</p>
+            <p wrTypography variant="caption" tone="muted"><code>wr-reveal</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-typewriter [lines]="['Typing words…', 'Deleting words…']" loop trigger="load" />
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Typewriter</p>
+            <p wrTypography variant="caption" tone="muted"><code>wr-typewriter</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <span wrGradientFlow style="--wr-gradient-flow-cycle: 3.5s">Gradient flow</span>
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Gradient Flow</p>
+            <p wrTypography variant="caption" tone="muted"><code>wrGradientFlow</code></p>
+          </div>
+        </article>
+      </div>
+
+      <div class="ngwr-section__footer">
+        <a wr-btn outlined [routerLink]="path(routes.animations)" icon="arrow-forward" iconPosition="end">
+          Browse animations
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <ngwr-footer />
 </main>

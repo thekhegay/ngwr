@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
@@ -24,7 +25,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { getFocusableElements, toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { getFocusableElements, toClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrColorPicker } from './color-picker';
 import type { WrColorFormat } from './types';
@@ -125,6 +126,7 @@ export class WrColorPickerTrigger {
   readonly closed = output<void>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly focusMonitor = inject(FocusMonitor);
   private readonly overlay = inject(WR_OVERLAY);
   private readonly outsideClick = inject(WrOutsideClick);
   private readonly vcr = inject(ViewContainerRef);
@@ -240,7 +242,7 @@ export class WrColorPickerTrigger {
           return;
         }
         if (this.overlayRef && tabLeavesPane(this.overlayRef.overlayElement, event)) {
-          this.host.nativeElement.focus();
+          wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
           this.close();
         }
       });
@@ -260,7 +262,7 @@ export class WrColorPickerTrigger {
     this.dispose();
     this.isOpen.set(false);
     this.closed.emit();
-    if (returnFocus) this.host.nativeElement.focus();
+    if (returnFocus) wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
   }
 
   private dispose(): void {

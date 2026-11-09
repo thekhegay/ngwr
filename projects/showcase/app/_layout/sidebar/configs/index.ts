@@ -1,3 +1,4 @@
+export { ANIMATIONS_SIDEBAR } from './animations.config';
 export { CHARTS_SIDEBAR } from './charts.config';
 export { DOCS_SIDEBAR } from './docs.config';
 export { GUIDES_SIDEBAR } from './guides.config';

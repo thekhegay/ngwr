@@ -1,3 +1,4 @@
+import { FocusMonitor, type FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -142,6 +143,19 @@ describe('WrPopconfirm', () => {
     click(cancel());
     expect(panel()).toBeNull();
     expect(document.activeElement).toBe(trigger());
+  });
+
+  it('hands focus back as a programmatic focus, so a tooltip on the trigger stays shut', () => {
+    const origins: FocusOrigin[] = [];
+    TestBed.inject(FocusMonitor)
+      .monitor(trigger())
+      .subscribe(origin => origin && origins.push(origin));
+    open();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    click(cancel());
+
+    expect(document.activeElement).toBe(trigger());
+    expect(origins.at(-1)).toBe('program');
   });
 
   it('confirms, and closes', () => {

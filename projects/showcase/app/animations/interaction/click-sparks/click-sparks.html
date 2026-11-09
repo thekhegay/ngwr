@@ -1,0 +1,91 @@
+<ngwr-doc-page
+  title="Click Sparks"
+  since="15.7.0"
+  description="A ring of short spark strokes bursts out from the point a button or link is clicked, flies a short way, shrinks and fades, all within half a second. The click itself is never touched: a `routerLink` or a plain `href` navigates as it did."
+  [keywords]="['click-sparks', 'click effect', 'sparks', 'button', 'wrClickSparks']"
+  [labels]="['Animation', 'Directive', 'CSS']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `wrClickSparks` on the element that takes the click. A burst is one `aria-hidden` layer of zero size in `document.body`, fixed at the click's client coordinates, so no ancestor clips it and a button inside a transformed hero measures from the viewport all the same. Several quick clicks make several bursts; at most four are alive at once, and the ring turns a golden angle from one burst to the next, so no two consecutive bursts put a stroke in the same place."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <button wr-btn outlined size="lg" type="button" wrClickSparks>Click me</button>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Strokes"
+    description="The directive's own value is how many strokes a burst has, spread evenly round the ring. Unset, eight. The strokes scale with the host's font size: a large hero button throws longer, farther sparks than a small one."
+  >
+    <ngwr-doc-code [code]="snippets.count" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <button wr-btn outlined type="button" wrClickSparks="12">Twelve strokes</button>
+      <button wr-btn outlined size="sm" type="button" wrClickSparks="5">Five, small</button>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colour"
+    description="The strokes paint in the host's own text colour, read at the click. On a filled button that colour is the fill's `-contrast`, unreadable off the button: set `--wr-click-sparks-color` on the host to a role instead, and the layer takes it. The length, distance and width of a stroke are the layer's own hooks, in `em` of the host."
+  >
+    <ngwr-doc-code [code]="snippets.color" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <button wr-btn type="button" wrClickSparks style="--wr-click-sparks-color: var(--wr-color-primary)">
+        Filled
+      </button>
+      <button
+        wr-btn
+        color="success"
+        type="button"
+        wrClickSparks
+        style="--wr-click-sparks-color: var(--wr-color-success)"
+      >
+        Success
+      </button>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>
+              An activation from Enter or Space is a <code>click</code> with <code>detail === 0</code>: the burst comes
+              from the host's centre. The listener is passive and prevents nothing.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>Each burst's layer is <code>aria-hidden</code>, holds no text and takes no pointer.</td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> nothing plays; under <code>forced-colors: active</code>
+              nothing listens, since the stylesheet paints no stroke. A preference that flips mid-burst leaves an
+              invisible layer, which a timer takes out.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>Nothing runs: the listener is added after the first render, in the browser only.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

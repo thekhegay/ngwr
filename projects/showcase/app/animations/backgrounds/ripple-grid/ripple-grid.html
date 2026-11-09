@@ -1,0 +1,100 @@
+<ngwr-doc-page
+  title="Ripple Grid"
+  since="15.7.0"
+  description="A faint square grid of thin lines behind a page's content. A click or a tap on the parent sends a ring out from that point: as the wave passes, the lines bend outward and brighten a little toward the primary colour; the ring widens, fades, and the grid lies flat again. Several rings add up where they cross."
+  [keywords]="['ripple-grid', 'background', 'backdrop', 'canvas', 'click', '404', 'wr-ripple-grid']"
+  [labels]="['Animation', 'Component', 'Canvas']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `<wr-ripple-grid />` first inside the region it should fill. The parent takes the click, passively and never stopped, so a link or a button over the grid works as before and still starts a ring under the pointer; a keyboard activation is a click with no point and rings nothing. One 2D canvas, drawn on the CPU every frame while something moves and idle otherwise: the frame loop runs only while a ring is alive, on screen and with the document visible; at rest the flat grid is drawn once, as straight lines."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-ripple-grid />
+        <h3 wrTypography variant="h3">Click anywhere in this box.</h3>
+        <p wrTypography variant="lead">A ring runs out from the click and the grid bends as it passes.</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The parent"
+    description="The host is absolute, `inset: 0`, at `z-index: -1`, under no pointer and masked out at the edges. The parent provides two things: it is positioned, so the host fills it, and isolated, so the host's negative z-index lands at the floor of the parent's own stacking context, under the content and over the page background."
+  >
+    <ngwr-doc-code [code]="snippets.parent" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Spacing"
+    description="`spacing` is the distance between two grid lines, in px, 32 unset; the grid is centred, so the margins at the edges are equal. A finer grid bends in more places as the wave passes, a coarser one reads as a few lines moving. The two colours are the `--wr-ripple-grid-ink` and `--wr-ripple-grid-glow` hooks, set on the host, where the defaults are declared, and read through `resolveCssColorChannels` and re-read when the scheme changes. The wave's speed, band, height and life are the model's numbers, not inputs."
+  >
+    <ngwr-doc-code [code]="snippets.spacing" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>spacing="20"</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-ripple-grid spacing="20" />
+            <h3 wrTypography variant="h3">A finer grid.</h3>
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>spacing="48"</code></p>
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-ripple-grid spacing="48" />
+            <h3 wrTypography variant="h3">A coarser grid.</h3>
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>
+              Decorative: the host is <code>aria-hidden</code>, holds no text, takes no pointer and is never focusable.
+              The click listener on the parent is passive and stops nothing, so every control over the grid behaves as
+              before.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> only the flat grid is drawn and a click rings nothing; a
+              preference that flips mid-flight drops the live rings at once.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Contrast</th>
+            <td>
+              A line shows its ink at a fifth, so the text over the grid reads as it does on the plain surface. Under
+              <code>forced-colors: active</code> nothing is drawn.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>
+              The server renders the empty canvas, absolutely positioned, so the browser's first draw shifts no layout.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -44,6 +44,19 @@ export const API = {
     { name: "offset", description: "Pixel offset subtracted on scroll — for sticky headers.", type: "number", default: "0" },
     { name: "hitArea", description: "Highlight an item when its target's top is within this many px of the offset line.", type: "number", default: "80" },
   ],
+  // <wr-aurora>
+  WrAurora: [
+    { name: "edge", description: "The edge the curtain hangs from.", type: "WrAuroraEdge", default: "'top'" },
+    { name: "height", description: "How far into the region the curtain reaches, as a share of its height, from 0.1 to 1.", type: "number", default: "0.5" },
+    { name: "amplitude", description: "How far the free edge's wave moves it, a multiplier: one is about a quarter of the curtain's height; none is a straight edge.", type: "number", default: "1" },
+    { name: "scale", description: "The size of the shapes, a multiplier: one puts about a wave and a half across the width; more is broader.", type: "number", default: "1" },
+    { name: "speed", description: "How fast the wave, the rays and the hue move, a multiplier: none holds the curtain still.", type: "number", default: "1" },
+    { name: "glow", description: "How strong the light is, a multiplier on the wash's alpha and the glow.", type: "number", default: "1" },
+    { name: "rays", description: "How strongly the rays show, from none to one.", type: "number", default: "0.6" },
+    { name: "layers", description: "How many curtains hang at different depths, from one to three.", type: "number", default: "2" },
+    { name: "intro", description: "Whether the curtain fades and lengthens in when first on screen.", type: "boolean", default: "false" },
+    { name: "follow", description: "Whether the curtain drifts gently toward the pointer over the parent.", type: "boolean", default: "true" },
+  ],
   // <[wrAutofocus]>
   WrAutofocus: [
     { name: "wrAutofocus", description: "Truthy = focus. Defaults to `true` so bare `wrAutofocus` works.", type: "boolean", default: "true" },
@@ -95,6 +108,13 @@ export const API = {
     { name: "hiddenLines", description: "The positions in `lines` of the lines that are hidden, as `hiddenSeries` holds the series': a toggleable legend writes it, and a host may bind it with or without one, `[(hiddenLines)]`. A hidden line draws nothing and leaves the tooltip and the data table, and a fitted axis is fitted to what is still shown. The legend keeps its row, struck through. A position past the end of `lines` is kept and ignored.", type: "readonly number[]", default: "[]" },
     { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per category, headed by its name, and a column per series shown — or, with `data`, one column for the bars, headed \"Value\" (`barChart.value`) — then one per line shown, every value written the way the tooltip writes it. A missing value is an empty cell, and a stacked chart's table keeps each series' own values. Each bar's accessible name already carries its value; the table is for a reader who wants to move cell by cell. It is rendered beside the plot, clipped to nothing: it takes no room, draws nothing and holds no tab stop. A hidden series or line leaves it.", type: "boolean", default: "false" },
     { name: "valueFormat", description: "Writes every number the chart shows: the labels at the bars, the tooltip and each bar's accessible name. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact labels from a thousand up (`1.2K`, `3.4M`).", type: "((value: number) => string) | null", default: "null" },
+  ],
+  // <[wrBlurReveal]>
+  WrBlurReveal: [
+    { name: "by", description: "What enters one at a time: a word, or a grapheme. In letter mode the letters of one word sit in a no-wrap wrapper, so a word never breaks across lines mid-word.", type: "WrBlurRevealBy", default: "'words'" },
+    { name: "from", description: "The side a piece settles in from.", type: "WrBlurRevealFrom", default: "'below'" },
+    { name: "stagger", description: "Gap between the start of one piece and the next, in ms. Unset, the mode decides: 70 for words, 28 for letters. Either way the whole reveal spreads over 1.2 s at most, so for a long text the gap shrinks until the last piece starts by then.", type: "number | null", default: "null" },
+    { name: "delay", description: "Pause between the host entering the viewport and the first piece, in ms.", type: "number", default: "0" },
   ],
   // <wr-boxplot-chart>
   WrBoxplotChart: [
@@ -270,6 +290,10 @@ export const API = {
   WrClickOutside: [
     { name: "(wrClickOutside)", description: "Fires on a pointer press that landed outside the host element. Close a menu or commit an inline edit with it; the event is the original click.", type: "MouseEvent" },
   ],
+  // <[wrClickSparks]>
+  WrClickSparks: [
+    { name: "wrClickSparks", description: "How many strokes one burst has. Written as the directive's own value: `wrClickSparks=\"10\"`. Unset or empty, {@link CLICK_SPARKS_COUNT}.", type: "number", default: "CLICK_SPARKS_COUNT" },
+  ],
   // <wr-collapse>
   WrCollapse: [
     { name: "title", description: "Header text.", type: "string", required: true },
@@ -439,6 +463,13 @@ export const API = {
     { name: "panelAriaLabel", description: "Accessible name of the popup. The trigger advertises `aria-haspopup=\"dialog\"`, so the pane is a `role=\"dialog\"` — and an unnamed dialog announces as a bare \"dialog\". Defaults to the catalog's `datePicker.panelRange*` string for the current `mode`.", type: "string | null", default: "null" },
     { name: "panelClass", description: "Extra CSS classes for the calendar panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
   ],
+  // <[wrDecode]>
+  WrDecode: [
+    { name: "trigger", description: "`view` plays once, the first time most of the host is in the viewport. `hover` plays on every pointer enter and focus of the host or its closest focusable ancestor, but never restarts while already playing.", type: "WrDecodeTrigger", default: "'view'" },
+    { name: "glyphs", description: "The characters random glyphs are drawn from, for every slot. Unset, each slot draws from the shape of its own character: uppercase letters and digits for an uppercase letter, lowercase for lowercase, digits for a digit, a few symbols for anything else.", type: "string | null", default: "null" },
+    { name: "stagger", description: "Gap between one slot locking and the next, in ms. Unset, 36. Either way the locks spread over 1.2 s at most, so for a long text the gap shrinks until the last slot locks by then.", type: "number | null", default: "null" },
+    { name: "delay", description: "Pause between the trigger and the first glyph, in ms. The text stands as authored meanwhile.", type: "number", default: "0" },
+  ],
   // <[wrDensity]>
   WrDensityDirective: [
     { name: "wrDensity", description: "Density to apply to this subtree.", type: "WrDensityValue", required: true },
@@ -453,6 +484,10 @@ export const API = {
     { name: "inline", description: "Two-column rows (label left, value right) instead of stacked.", type: "boolean", default: "false" },
     { name: "bordered", description: "Add visible borders around each row.", type: "boolean", default: "false" },
     { name: "responsive", description: "Reflow `inline` rows back to a stacked layout when the box itself is narrow (a container query on its own width, not the viewport — so it adapts inside a narrow card or side panel). Makes the box fill its container's width.", type: "boolean", default: "false" },
+  ],
+  // <[wrDestruct]>
+  WrDestruct: [
+    { name: "shift", description: "How far a pixel of the text may move at full noise, each way, in em of the host's font size.", type: "number", default: "0.15" },
   ],
   // <[wrDialogClose]>
   WrDialogClose: [
@@ -487,6 +522,11 @@ export const API = {
     { name: "centerLabel", description: "Smaller label under the value. Not rendered with `pie`, which has no hole to hold it.", type: "string", default: "''" },
     { name: "tooltip", description: "Show a tooltip with the slice's label and value on hover. Pointer only — the legend prints the same numbers, and with `showLegend` off `ariaLabel` is where to say them. With `pie`, a slice too thin to land a pointer on, a sliver of a few degrees, is hovered over a wider strip than it draws, through an invisible `.wr-donut-chart__hit` over the pie: widened toward 12px of outer arc (15° on a chart under about 92px) out of what the wider slices beside it can spare, each of which keeps that much of its own. A sliver whose neighbours are slivers too, or have little to spare, gets a narrower target or none, and is read in the legend. The ring draws no such target.", type: "boolean", default: "true" },
     { name: "valueFormat", description: "Writes every value in the legend and the tooltip. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. The centre text is printed as given.", type: "((value: number) => string) | null", default: "null" },
+  ],
+  // <wr-dot-grid>
+  WrDotGrid: [
+    { name: "spacing", description: "Distance between two dots, in px.", type: "number", default: "26" },
+    { name: "reach", description: "How far from the pointer a dot still lights and moves, in px.", type: "number", default: "140" },
   ],
   // <wr-drawer>
   WrDrawer: [
@@ -560,6 +600,12 @@ export const API = {
     { name: "(eventChange)", description: "A drag or an `Alt` + arrow finished. Apply it yourself; nothing moves until you do.", type: "WrCalendarEventChange" },
     { name: "ariaLabel", description: "Accessible name of the grid; overridable for a page with several.", type: "string | null", default: "null" },
   ],
+  // <[wrFallingLetters]>
+  WrFallingLetters: [
+    { name: "wrFallingLetters", description: "A selector for one descendant of the host whose letters fall instead of the host's own, written as the directive's value: `wrFallingLetters=\".wr-result__description\"`. Resolved once after the first render with `querySelector`; a selector that matches nothing turns the effect off. Unset or empty, the host.", type: "string | null", default: "null" },
+    { name: "floor", description: "A selector for the element whose content box is the floor and the walls, found with `closest` from the host. Unset, the host's parent element: on a `display: contents` host that is the box around it. On a `wr-*` host write it as a binding (`[floor]=\"'main'\"`), since a static attribute that is not one of the component's inputs fails `check:attrs`.", type: "string | null", default: "null" },
+    { name: "rest", description: "How long the heap lies still before the letters spring back on their own, in ms.", type: "number", default: "4000" },
+  ],
   // <wr-file-upload>
   WrFileUpload: [
     { name: "multiple", description: "Allow multiple files. Single mode replaces on each add.", type: "boolean", default: "false" },
@@ -577,6 +623,34 @@ export const API = {
     { name: "value", description: "Selected file(s). Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `multiple`: a single `File` (or `null`), or a `File[]` array.", type: "File | readonly File[] | null", default: "null" },
     { name: "(rejected)", description: "Emitted when files are rejected for type / size / count reasons.", type: "readonly WrFileUploadRejection[]" },
     { name: "(touch)", description: "Emitted on commit so a bound field can mark itself touched.", type: "void" },
+  ],
+  // <wr-flow-lines>
+  WrFlowLines: [
+    { name: "spacing", description: "Between two lines, in CSS px, four at least.", type: "number", default: "10" },
+    { name: "lineWidth", description: "How thick a line is, in CSS px.", type: "number", default: "1" },
+    { name: "amplitude", description: "How far the drift bends a line at most, in CSS px.", type: "number", default: "28" },
+    { name: "orientation", description: "Which way the lines run across the region.", type: "WrFlowLinesOrientation", default: "'horizontal'" },
+    { name: "twist", description: "The lines' tilt from their orientation, in degrees: positive falls toward the inline end.", type: "number", default: "0" },
+    { name: "speed", description: "How fast the drift and the dashes move, a multiplier: none holds the field still between pushes.", type: "number", default: "1" },
+    { name: "reach", description: "How far from the pointer a line is still pushed, in CSS px.", type: "number", default: "160" },
+    { name: "push", description: "How hard the pointer pushes, a multiplier: one moves a line a seventh of `reach` at most; none turns the push off.", type: "number", default: "1" },
+    { name: "bounce", description: "How much a released line swings past its place, a multiplier: none settles without a swing.", type: "number", default: "1" },
+    { name: "ripple", description: "Whether a click, or a tap, sends a ring out across the field.", type: "boolean", default: "true" },
+    { name: "intro", description: "Whether the lines draw in from the inline start when first on screen.", type: "boolean", default: "false" },
+    { name: "dashed", description: "Whether the lines are dashed, with the dashes streaming along them.", type: "boolean", default: "false" },
+  ],
+  // <wr-fluid-cursor>
+  WrFluidCursor: [
+    { name: "intensity", description: "How much dye a move lays, a multiplier.", type: "number", default: "1" },
+    { name: "size", description: "The radius of a splat, in CSS px: how wide the ink the pointer lays is.", type: "number", default: "24" },
+    { name: "force", description: "How much of the pointer's speed the fluid takes, a multiplier.", type: "number", default: "1" },
+    { name: "swirl", description: "How strongly the eddies are fed back, a multiplier: more curls the trail tighter, none lets it smooth out.", type: "number", default: "1" },
+    { name: "trail", description: "How long the dye lasts, in seconds, from a fresh splat to gone.", type: "number", default: "3" },
+    { name: "momentum", description: "How long the motion the pointer gave lasts, in seconds.", type: "number", default: "6" },
+    { name: "shading", description: "Whether the dye is shaded by its own relief, a slight lighting from the top left.", type: "boolean", default: "true" },
+    { name: "rainbow", description: "Whether a stroke cycles the hue circle instead of the theme's palette.", type: "boolean", default: "false" },
+    { name: "clickSplash", description: "Whether a click or a tap splashes the ink outward from the point.", type: "boolean", default: "true" },
+    { name: "quality", description: "How finely the fluid is simulated: the grids and the pressure solve.", type: "WrFluidCursorQuality", default: "'medium'" },
   ],
   // <wr-form-error>
   WrFormError: [
@@ -624,6 +698,15 @@ export const API = {
     { name: "suffix", description: "Unit printed immediately after the number — `%`, `/10`, ` GB`. It goes into the accessible text too, so the gauge is announced the way it reads.", type: "string", default: "''" },
     { name: "tooltip", description: "Show a tooltip with the reading on hover, named by `ariaLabel` when one is given. Pointer only — the meter announces the same reading.", type: "boolean", default: "true" },
     { name: "valueFormat", description: "Writes the reading in the centre, the tooltip and `aria-valuetext`, before `suffix`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. `aria-valuenow` stays a number.", type: "((value: number) => string) | null", default: "null" },
+  ],
+  // <[wrGlitch]>
+  WrGlitch: [
+    { name: "wrGlitch", description: "A selector for one descendant of the host to glitch instead of the host itself, written as the directive's own value: `wrGlitch=\".wr-result__title\"`. Resolved once after the first render with `querySelector`; a selector that matches nothing turns the effect off. Unset or empty, the host.", type: "string | null", default: "null" },
+    { name: "active", description: "Plays the effect while true, exactly as under a pointer; hover and focus still start it when this is false. Drive it with short bursts to make a tile glitch on its own: keep each burst to one cycle or more and the gaps longer than the burst, so the flash budget above holds.", type: "boolean", default: "false" },
+  ],
+  // <[wrGlowBorder]>
+  WrGlowBorder: [
+    { name: "active", description: "Stops the arc without removing the directive.", type: "boolean", default: "true" },
   ],
   // <wr-graph>
   WrGraph: [
@@ -810,6 +893,15 @@ export const API = {
   WrLoadStateContent: [
     { name: "wrLoadStateContentOf", description: "The resource the template draws, for the type checker: nothing reads it at runtime. Bind the same resource as the wrapper's `[resource]`.", type: "Resource<T | undefined> | null | undefined", default: "undefined" },
   ],
+  // <wr-marquee>
+  WrMarquee: [
+    { name: "items", description: "The links, in the order they pass.", type: "readonly WrMarqueeItem[]", required: true },
+    { name: "speed", description: "How fast the row travels, in px per second.", type: "number", default: "40" },
+    { name: "label", description: "The accessible name of the list.", type: "string | null", default: "null" },
+    { name: "pausable", description: "Renders the pause button at the row's end, the way to stop a row that runs on (WCAG 2.2.2). Hover and focus pause the row with or without it.", type: "boolean", default: "false" },
+    { name: "pauseLabel", description: "The pause button's name while the row moves. Unset, the `marquee.pause` string of the i18n catalog, \"Pause\" in English.", type: "string | null", default: "null" },
+    { name: "playLabel", description: "The pause button's name while the row stands. Unset, the `marquee.play` string of the i18n catalog, \"Play\" in English.", type: "string | null", default: "null" },
+  ],
   // <[wrMention]>
   WrMention: [
     { name: "wrMentionItems", description: "Items to filter against the typed query.", type: "readonly T[]", default: "[]" },
@@ -846,6 +938,14 @@ export const API = {
   // <wr-option-group>
   WrOptionGroup: [
     { name: "label", description: "Section heading shown above the options.", type: "string", required: true },
+  ],
+  // <wr-orbit>
+  WrOrbit: [
+    { name: "text", description: "The text around the ring, separators included, ending on the separator that joins its end to its start.", type: "string", required: true },
+    { name: "label", description: "What a screen reader hears. Defaults to the text with its trailing separator cut.", type: "string | null", default: "null" },
+    { name: "size", description: "The box, in px. Unset, the stylesheet's `--wr-orbit-size` decides.", type: "unknown", default: "null" },
+    { name: "speed", description: "Turn at rest, in degrees per second; negative turns the other way, zero sits still.", type: "number", default: "10" },
+    { name: "hoverSpeed", description: "Turn under a pointer or with focus in the host, in degrees per second.", type: "number", default: "40" },
   ],
   // <wr-page-header>
   WrPageHeader: [
@@ -995,6 +1095,28 @@ export const API = {
   WrResult500: [
     { name: "title", description: "The big figure. Defaults to `500`; override it for a localised or differently-worded page.", type: "string", default: "'500'" },
     { name: "description", description: "Body text. Falls back to `result.serverError` from WrI18n.", type: "string | null", default: "null" },
+  ],
+  // <wr-reveal>
+  WrReveal: [
+    { name: "text", description: "The text of this run. Breaking spaces stay real spaces, so it wraps as plain text would.", type: "string", required: true },
+    { name: "by", description: "What enters one at a time: a grapheme, or a word. In letter mode the letters of one word sit in a no-wrap wrapper, so a word never breaks across lines mid-word.", type: "WrStaggerBy", default: "'letters'" },
+    { name: "masked", description: "Each word clips its pieces at a padded line box, so a letter comes up from under the line instead of fading in where it stands. Descenders and accents at rest sit inside the padding.", type: "boolean", default: "false" },
+    { name: "start", description: "The index of this run's first piece. A headline made of several runs passes each one the count the runs before it used, so they play as one sequence.", type: "number", default: "0" },
+    { name: "stagger", description: "Gap between the start of one piece and the next, in ms. Unset, the mode decides: 28 for letters, 70 for words. Either way the sequence up to this run's last piece spreads over 1.2 s at most; a long sequence of several runs sets the same `stagger` on each, so the gap is one gap.", type: "number | null", default: "null" },
+    { name: "delay", description: "Pause before the first piece of the sequence, in ms.", type: "number", default: "0" },
+    { name: "trigger", description: "`load` plays from first paint, with no script. `view` keeps the pieces visible and arms them the first time most of the host is in the viewport; an `__item` outside the host does not follow it.", type: "WrRevealTrigger", default: "'load'" },
+  ],
+  // <wr-ripple-grid>
+  WrRippleGrid: [
+    { name: "spacing", description: "Distance between two grid lines, in px.", type: "number", default: "32" },
+  ],
+  // <wr-rotate-reveal>
+  WrRotateReveal: [
+    { name: "words", description: "The words, in the order they show. The first is what the server and a still page show.", type: "readonly string[]", required: true },
+    { name: "hold", description: "How long a word stands before the next replaces it, in ms.", type: "number", default: "2400" },
+    { name: "delay", description: "Pause before the first word's hold starts counting, in ms, from the moment the host is in view: room for an entrance above it to finish.", type: "number", default: "0" },
+    { name: "loop", description: "Keep cycling instead of stopping on the first word after one pass through the list.", type: "boolean", default: "false" },
+    { name: "conjunctionLabel", description: "The word between the last two words of the phrase a screen reader hears: \"A, B and C\". Unset, the `rotateReveal.conjunction` string of the i18n catalog, \"and\" in English.", type: "string | null", default: "null" },
   ],
   // <wr-scatter-chart>
   WrScatterChart: [
@@ -1299,6 +1421,16 @@ export const API = {
     { name: "value", description: "The edited text. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
+  // <wr-thread-lines>
+  WrThreadLines: [
+    { name: "count", description: "How many strands the bundle has, 128 at most.", type: "number", default: "72" },
+    { name: "thickness", description: "How thick a strand is, in device px.", type: "number", default: "1" },
+    { name: "amplitude", description: "How high the travelling wave lifts the bundle, in CSS px.", type: "number", default: "16" },
+    { name: "speed", description: "How fast the wave travels, a multiplier: one is a wave every nine seconds.", type: "number", default: "1" },
+    { name: "fray", description: "How far the strands part by the far end, a multiplier: none keeps them a cord the whole way.", type: "number", default: "1" },
+    { name: "angle", description: "The ribbon's tilt, in degrees: positive falls toward the far end, negative rises.", type: "number", default: "-6" },
+    { name: "parting", description: "How strongly the pointer parts the strands, a multiplier: none turns the parting off.", type: "number", default: "1" },
+  ],
   // <wr-timeline>
   WrTimeline: [
     { name: "orientation", description: "Which way the line runs. `horizontal` lays the items out in a row and suits a short, fixed set of steps; a feed of unknown length wants the default.", type: "'vertical' | 'horizontal'", default: "'vertical'" },
@@ -1363,6 +1495,14 @@ export const API = {
     { name: "valueFormat", description: "Writes every value the chart shows: inside the tiles, in the tooltip and in the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, compact inside the tiles (`1.2K`). A value wider than its tile is left out of it rather than cut. Shares are `percentFormat`'s.", type: "((value: number) => string) | null", default: "null" },
     { name: "percentFormat", description: "Writes every share the chart shows, given as a RATIO — `0.25` for a quarter — the number `Intl.NumberFormat`'s `percent` style takes, so one of those can be passed as it is: in the tooltip and in the data table. `null` uses that style in `LOCALE_ID`, with up to one fraction digit, and two significant digits below 1% so a sliver is not printed as `0%`.", type: "((ratio: number) => string) | null", default: "null" },
     { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per node, parents before their children in the data's order, headed by its path — `Engineering / Web` — with its value and its share of the whole. A node with no area is listed with an empty share, and a leaf with no value with an empty value too. The drawing is one named `role=\"img\"`, which hides everything inside it, so without the table the numbers are nowhere a screen reader can walk. It is rendered beside the drawing, clipped to nothing: it takes no room, draws nothing and holds no tab stop.", type: "boolean", default: "false" },
+  ],
+  // <wr-typewriter>
+  WrTypewriter: [
+    { name: "lines", description: "The lines, in the order they type. The first is what the server and a still page show.", type: "readonly string[]", required: true },
+    { name: "loop", description: "Cycle through the lines instead of stopping on the last.", type: "boolean", default: "false" },
+    { name: "hold", description: "How long a finished line stands before it is deleted for the next, in ms.", type: "number", default: "1800" },
+    { name: "delay", description: "Pause before the first character, in ms, from the moment the host is in view: room for the eye to land above it.", type: "number", default: "0" },
+    { name: "trigger", description: "`view` types once most of the host is in view and leaves a host that was already in view at boot whole. `load` types at once, wherever the host is.", type: "WrTypewriterTrigger", default: "'view'" },
   ],
   // <[wrTypography]>
   WrTypography: [

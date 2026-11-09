@@ -7,6 +7,7 @@ import {
   inject,
   input,
   model,
+  output,
   resource,
   signal,
   untracked,
@@ -132,7 +133,11 @@ export class DocCodeComponent {
     return rest.length > 0 ? JSON.stringify(rest) : null;
   });
 
-  protected readonly copied = signal(false);
+  /** Whether the copy button shows its check: on for a moment after a successful copy. */
+  protected readonly justCopied = signal(false);
+
+  /** Emits the copy button after a successful copy, the moment the check appears; a failed copy emits nothing. */
+  readonly copied = output<HTMLElement>();
 
   private readonly sanitizer = inject(DomSanitizer);
 
@@ -140,6 +145,7 @@ export class DocCodeComponent {
   private readonly uid = ++docCodeUid;
 
   private readonly strip = viewChild<ElementRef<HTMLElement>>('strip');
+  private readonly copyButton = viewChild<ElementRef<HTMLElement>>('copyButton');
 
   /**
    * `Directionality` is root-provided, so this resolves everywhere; the docs'
@@ -276,7 +282,9 @@ export class DocCodeComponent {
     const ok = await copyToClipboard(this.normalized());
     if (!ok) return;
 
-    this.copied.set(true);
-    setTimeout(() => this.copied.set(false), 1500);
+    this.justCopied.set(true);
+    setTimeout(() => this.justCopied.set(false), 1500);
+    const button = this.copyButton()?.nativeElement;
+    if (button) this.copied.emit(button);
   }
 }

@@ -1,0 +1,88 @@
+@use '../../../theme/styles' as theme;
+@include theme.loaded('animations/click-sparks');
+
+// `[wrClickSparks]`: on a click, a ring of short strokes bursts out from the
+// click point, flies a short way, shrinks and fades. The directive makes one
+// layer per burst in `document.body`, fixed at the click's client coordinates,
+// with one span per stroke, and writes the point, the burst length and each
+// stroke's angle into custom properties; this sheet owns the paint. The layer
+// has no size and takes no pointer, so nothing on the page moves or misses a
+// click because of it. At rest a stroke is invisible, so a layer that outlives
+// its animation (a preference flipped mid-burst) paints nothing until the
+// directive's fallback timer takes it out.
+.wr-click-sparks {
+  // Written by the directive on the layer: where the burst is, in the viewport.
+  --wr-click-sparks-x: 0px;
+  --wr-click-sparks-y: 0px;
+  // Written by the directive on the layer: how long this burst lasts, so the
+  // strokes end exactly when the layer goes.
+  --wr-click-sparks-duration: 480ms;
+  // All in `em` of the host's font size, which the directive copies onto the
+  // layer: a large hero button throws longer, farther sparks than a small one.
+  // A stroke's length at the start; it shrinks to a tenth of this as it flies.
+  --wr-click-sparks-length: 0.55em;
+  // A stroke's thickness: never under two pixels, so a thin one still reads.
+  --wr-click-sparks-width: max(2px, 0.12em);
+  // Where a stroke's tail starts and ends, from the click point: it leaves a
+  // small clear ring round the point and stops well inside a button's reach.
+  --wr-click-sparks-from: 0.3em;
+  --wr-click-sparks-to: 1.7em;
+  // Fast out of the gate, settling as it fades: a spark, not a slide.
+  --wr-click-sparks-ease: var(--wr-ease-out);
+
+  // Physical on purpose: the point is a client coordinate, the same in either
+  // direction, and the layer measures from the viewport's top left corner.
+  // rtl-ok: client coordinates are physical by nature
+  position: fixed;
+  top: 0;
+  left: 0;
+  translate: var(--wr-click-sparks-x) var(--wr-click-sparks-y);
+  width: 0;
+  height: 0;
+  z-index: var(--wr-z-top);
+  pointer-events: none;
+  user-select: none;
+
+  // One stroke: a rounded bar in the layer's colour (the host's own colour, or
+  // the hook, both set inline by the directive), its inner end on the click
+  // point, centred on it across. The rotation turns it to its angle, the
+  // translation pushes it along that angle, and a scale from the inner end
+  // shortens it, so the tail catches up with the head as it flies.
+  &__spark {
+    position: absolute;
+    // rtl-ok: the stroke starts on the click point and `rotate()` turns it to its angle; the pair is physical
+    top: calc(var(--wr-click-sparks-width) / -2);
+    left: 0;
+    width: var(--wr-click-sparks-length);
+    height: var(--wr-click-sparks-width);
+    border-radius: var(--wr-click-sparks-width);
+    background: currentColor;
+    transform-origin: 0 50%;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+    &__spark {
+      animation: wr-click-sparks-fly var(--wr-click-sparks-duration) var(--wr-click-sparks-ease) both;
+    }
+  }
+}
+
+// The flight of one stroke, from its own angle: out to the far distance, down
+// to a tenth of its length, solid for the first part and gone by the end.
+@keyframes wr-click-sparks-fly {
+  0% {
+    transform: rotate(var(--wr-click-sparks-angle, 0deg)) translateX(var(--wr-click-sparks-from)) scaleX(1);
+    opacity: 1;
+  }
+
+  55% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(var(--wr-click-sparks-angle, 0deg)) translateX(var(--wr-click-sparks-to)) scaleX(0.1);
+    opacity: 0;
+  }
+}

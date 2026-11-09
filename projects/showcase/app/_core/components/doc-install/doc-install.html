@@ -1,0 +1,11 @@
+<!--
+  Wrapped: eight ProseMirror packages are one long line, and a scrollbar hides
+  half the command it is there to hand over.
+-->
+<ngwr-doc-code
+  [files]="files()"
+  [tab]="pm.current()"
+  [wrap]="true"
+  (tabChange)="pm.set($event)"
+  (copied)="celebrate($event)"
+/>

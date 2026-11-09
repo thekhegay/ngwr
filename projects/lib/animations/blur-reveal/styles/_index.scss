@@ -1,0 +1,70 @@
+@use '../../../theme/styles' as theme;
+@use '../../core/styles/mixins' as core;
+@include theme.loaded('animations/blur-reveal');
+
+// `[wrBlurReveal]`: the host's text comes in piece by piece the first time it
+// scrolls into view. At rest the block declares only its hooks, so the host
+// looks the way its own rules say; the pieces, the screen-reader copy and
+// `--run` exist only while the reveal plays, and the host holds its authored
+// children again when it ends.
+.wr-blur-reveal {
+  // In `em`, so a 40px heading and a 16px line soften by the same share of
+  // their size. 0.2em is where a 40px heading reads as soft rather than a
+  // smear in the first frames it can be seen in.
+  --wr-blur-reveal-blur: 0.2em;
+  --wr-blur-reveal-offset: 0.35em;
+  --wr-blur-reveal-duration: 0.6s;
+  // Eases out with no overshoot, so a piece settles rather than bounces.
+  --wr-blur-reveal-ease: var(--wr-ease-out);
+  --wr-blur-reveal-direction: 1;
+  // Written by the directive on the pieces wrapper: the pause before the first
+  // piece and the gap from one piece to the next.
+  --wr-blur-reveal-delay: 0ms;
+  --wr-blur-reveal-stagger: 70ms;
+
+  &--above {
+    --wr-blur-reveal-direction: -1;
+  }
+
+  // The graphemes of one word, in letter mode: a word never parts across lines.
+  &__word {
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  // `inline-block`, because a filter and a translate do nothing on an inline
+  // box. A word still wraps at the spaces between pieces, which stay real text.
+  &__piece {
+    display: inline-block;
+  }
+
+  &--run &__piece {
+    animation: wr-blur-reveal-in var(--wr-blur-reveal-duration) var(--wr-blur-reveal-ease) both;
+    animation-delay: calc(var(--wr-blur-reveal-delay) + var(--wr-blur-reveal-i, 0) * var(--wr-blur-reveal-stagger));
+  }
+
+  // The sentence for a screen reader, once, while the pieces are `aria-hidden`.
+  &__sr {
+    @include core.sr-only;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &--run &__piece {
+      animation: none;
+    }
+  }
+}
+
+@keyframes wr-blur-reveal-in {
+  from {
+    opacity: 0;
+    filter: blur(var(--wr-blur-reveal-blur));
+    translate: 0 calc(var(--wr-blur-reveal-offset) * var(--wr-blur-reveal-direction));
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    translate: 0 0;
+  }
+}

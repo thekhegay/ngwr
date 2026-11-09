@@ -1,6 +1,7 @@
 export { DocPageComponent } from './doc-page/doc-page';
 export { DocSectionComponent } from './doc-section/doc-section';
 export { DocSnippetComponent } from './doc-snippet/doc-snippet';
+export { DocReplayComponent } from './doc-replay/doc-replay';
 export { DocCodeComponent } from './doc-code/doc-code';
 export { DocInstallComponent } from './doc-install/doc-install';
 export { DocLabelComponent } from './doc-label/doc-label';

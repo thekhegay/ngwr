@@ -1,0 +1,73 @@
+<ngwr-doc-page
+  title="Confetti"
+  since="15.7.0"
+  description="A one-shot celebration: small paper pieces burst up and out from an element, flutter, tumble and fall under gravity, and are gone inside two and a half seconds. A service, not a component: call `burst()` from wherever the moment is."
+  [keywords]="['confetti', 'celebration', 'service', 'canvas', 'WrConfetti']"
+  [labels]="['Animation', 'Service', 'Canvas']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="Inject `WrConfetti` and call `burst()` with the element the pieces should come from. The first burst makes one fixed, full-viewport canvas in `document.body`, `aria-hidden` and under no pointer, and starts one frame loop that draws on the CPU every frame while pieces move, and stops when none are left; a burst that comes while pieces are in the air joins the same canvas, and the canvas goes when the last piece has faded or dropped off the bottom. Each piece is a rectangle, every fifth a thin strip, turning on the screen plane while its drawn height follows a cosine, so it flips like paper."
+  >
+    <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <button wr-btn size="lg" type="button" (click)="burst($event)">Celebrate</button>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Options"
+    description="`count` is how many pieces a burst has; `seed` fixes the layout, so the same seed gives the same burst. `from` may be a plain rect in client coordinates instead of an element: a rect as wide as the viewport and no height showers the whole page from its top edge."
+  >
+    <ngwr-doc-code [code]="snippets.options" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <button wr-btn outlined type="button" (click)="burst($event, 24)">A few</button>
+      <button wr-btn outlined type="button" (click)="burst($event, 160)">A lot</button>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Colours"
+    description="The pieces take the five `--wr-confetti-color-*` hooks on the canvas, the primary, success, warning, danger and info intents by default, resolved through the cascade when a burst starts, so the scheme the reader is in is the one that paints. Bare intents, not inks: confetti is a graphic, not text."
+  >
+    <ngwr-doc-code [code]="snippets.colours" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Screen readers</th>
+            <td>The canvas is <code>aria-hidden</code>, holds no content and takes no pointer.</td>
+          </tr>
+          <tr>
+            <th scope="row">Reduced motion</th>
+            <td>
+              Under <code>prefers-reduced-motion: reduce</code> a burst does nothing, and a preference that flips
+              mid-burst clears the canvas at once. Under <code>forced-colors: active</code> nothing is drawn.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Hidden document</th>
+            <td>A hidden tab pauses the loop; a visible one resumes it where it stopped.</td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>A burst on the server does nothing: the canvas exists only in the browser.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
