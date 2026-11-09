@@ -70,12 +70,17 @@ $-bands: (
   // Gone at the edges, so there is no rectangle where the section ends.
   mask-image: radial-gradient(ellipse 72% 68% at 50% 50%, #000 30%, transparent 100%);
 
-  // One band: a single elliptical gradient from the band's peak to nothing,
-  // on its own composited layer. The box is half the host each way, and the
-  // pose scales it back up: the texture is a quarter the memory and the blur a
-  // quarter the work, and the upscale softens it further for free. Only
-  // `transform` ever changes, so the blurred texture is rasterised once and the
-  // compositor moves it.
+  // One band: a single elliptical gradient that holds the band's peak over the
+  // inner half of the ellipse and falls to nothing over the outer half, on its
+  // own composited layer. The plateau is what makes the band visible: a
+  // gradient that starts falling at the very centre puts most of its area at a
+  // third of the strength or less, and at the default strength that is a tint
+  // of a few percent that nobody can see. The peak itself is unchanged, so the
+  // contrast figures above still hold everywhere. The box is half the host each
+  // way, and the pose scales it back up: the texture is a quarter the memory
+  // and the blur a quarter the work, and the upscale softens it further for
+  // free. Only `transform` ever changes, so the blurred texture is rasterised
+  // once and the compositor moves it.
   &__band {
     position: absolute;
     inset: 25%;
@@ -89,8 +94,8 @@ $-bands: (
       &--#{$i} {
         background-image: radial-gradient(
           map.get($band, shape) at 50% 50%,
-          color-mix(in srgb, map.get($band, color) var(--wr-aurora-strength), transparent),
-          transparent
+          color-mix(in srgb, map.get($band, color) var(--wr-aurora-strength), transparent) 0% 50%,
+          transparent 100%
         );
         transform: map.get($band, pose);
       }

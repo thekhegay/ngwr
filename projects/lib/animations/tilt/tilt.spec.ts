@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { TILT_MAX_ANGLE, TILT_PERSPECTIVE, WrTilt, tiltAngles, tiltRate, tiltTransform } from './tilt';
+import { TILT_MAX_ANGLE, TILT_PERSPECTIVE, WrTilt, tiltAngles, tiltDepth, tiltRate, tiltTransform } from './tilt';
 
 @Component({
   imports: [WrTilt],
@@ -116,6 +116,22 @@ describe('tiltRate', () => {
 });
 
 describe('tiltTransform', () => {
+  it('leans far enough to see on a card, and not so far that it comes out of the page', () => {
+    // A link card is some three hundred pixels wide and a hundred tall. At the
+    // full angle its near edge must grow and its far edge shrink by enough
+    // between them that the eye reads depth: four degrees over a thousand
+    // pixels gave under three percent on the wide axis and a single pixel on
+    // the short one, and the card looked still under the pointer.
+    expect(tiltDepth(300)).toBeGreaterThan(0.05);
+    expect(tiltDepth(100)).toBeGreaterThan(0.02);
+    expect(tiltDepth(300)).toBeLessThan(0.15);
+    expect(tiltDepth(300, 4, 1000)).toBeLessThan(0.03);
+    // Flat is flat, and the lean grows with the angle and shrinks with the distance.
+    expect(tiltDepth(300, 0)).toBe(0);
+    expect(tiltDepth(300, TILT_MAX_ANGLE / 2)).toBeLessThan(tiltDepth(300));
+    expect(tiltDepth(300, TILT_MAX_ANGLE, TILT_PERSPECTIVE * 2)).toBeLessThan(tiltDepth(300));
+  });
+
   it('writes the perspective and both angles to two decimals', () => {
     expect(tiltTransform(1.23456, -0.5)).toBe(`perspective(${TILT_PERSPECTIVE}px) rotateX(1.23deg) rotateY(-0.50deg)`);
     expect(tiltTransform(0, 0)).toBe(`perspective(${TILT_PERSPECTIVE}px) rotateX(0.00deg) rotateY(0.00deg)`);

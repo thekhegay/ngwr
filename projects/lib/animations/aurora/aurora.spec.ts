@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { Component, PLATFORM_ID, type WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -206,5 +209,25 @@ describe('WrAurora', () => {
 
     expect(observer.disconnect).toHaveBeenCalled();
     expect(el.className).toBe('wr-aurora');
+  });
+});
+
+describe('the aurora stylesheet', () => {
+  const sheet = readFileSync(join(process.cwd(), 'projects/lib/animations/aurora/styles/_index.scss'), 'utf8');
+
+  it('holds each band at its peak over the inner half of the ellipse, so the band can be seen', () => {
+    // The strength is set by the text's contrast over a peak, and it is low.
+    // A gradient that starts falling at the very centre puts most of a band at
+    // a third of that or less, and the aurora was a tint nobody could see;
+    // the peak must hold over a wide core before it falls off.
+    const stops =
+      /color-mix\(in srgb, map\.get\(\$band, color\) var\(--wr-aurora-strength\), transparent\) 0% (\d+)%,\s*transparent 100%/.exec(
+        sheet
+      );
+    expect(stops, 'the band gradient holds its peak from 0% to a plateau, then falls to transparent').not.toBeNull();
+    expect(Number(stops![1])).toBeGreaterThanOrEqual(40);
+    expect(Number(stops![1])).toBeLessThanOrEqual(70);
+    // And the peak itself, which the contrast figures are for, is unchanged.
+    expect(sheet).toMatch(/--wr-aurora-strength: 12%;/);
   });
 });
