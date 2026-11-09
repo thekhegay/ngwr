@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 
+import { WrAlert } from 'ngwr/alert';
 import { WrFluidCursor } from 'ngwr/animations/fluid-cursor';
 import { WrTypography } from 'ngwr/typography';
 
@@ -16,6 +17,7 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-fluid-cursor-page',
   templateUrl: './fluid-cursor.html',
   imports: [
+    WrAlert,
     WrFluidCursor,
     WrTypography,
     DocPageComponent,
@@ -36,10 +38,7 @@ export default class FluidCursorPageComponent {
   isolation: isolate;
 }`,
     rainbow: `<wr-fluid-cursor rainbow />`,
-    colours: `<section style="--wr-fluid-cursor-color-1: var(--wr-color-warning); --wr-fluid-cursor-color-2: var(--wr-color-danger)">
-  <wr-fluid-cursor />
-  …
-</section>`,
+    colours: `<wr-fluid-cursor style="--wr-fluid-cursor-color-1: var(--wr-color-warning); --wr-fluid-cursor-color-2: var(--wr-color-danger)" />`,
     calm: `<wr-fluid-cursor swirl="0.3" force="0.5" size="40" intensity="0.6" trail="5" />`,
     splash: `<wr-fluid-cursor [clickSplash]="false" />`,
     quality: `<wr-fluid-cursor quality="high" />`,

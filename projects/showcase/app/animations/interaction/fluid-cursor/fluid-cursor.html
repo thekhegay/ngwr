@@ -3,8 +3,15 @@
   since="15.7.0"
   description="Coloured ink behind a region's content, stirred by the pointer: a move lays dye and momentum into a fluid, and the dye swirls into curling eddies, folds over itself, drifts on with the motion the pointer gave it and fades out over a few seconds. A fast stroke leaves a long sweeping trail with vortices peeling off; a slow one soft billows; a click a radial splash."
   [keywords]="['fluid-cursor', 'fluid simulation', 'pointer trail', 'cursor effect', 'ink', 'webgl', 'wr-fluid-cursor']"
-  [labels]="['Animation', 'Component']"
+  [labels]="['Animation', 'Component', 'WebGL']"
 >
+  <wr-alert
+    class="wr-not-typeset"
+    type="info"
+    title="Runs on the GPU"
+    message="It simulates and draws on the GPU through WebGL, at a capped resolution. Nothing is created before the first move, and the loop stops once the ink has faded, and while the box is off screen or the tab is hidden. Without WebGL it draws nothing. Use one WebGL effect per view, and keep it off low-end and battery-sensitive pages if in doubt."
+  />
+
   <ngwr-doc-section
     title="Basic"
     description="Put `<wr-fluid-cursor />` first inside the region it should fill. The parent takes the pointer, passively: the host and its canvas never do, and a finger that draws is never stopped from scrolling. The fluid is a stable-fluids solver in WebGL, one canvas; the context is made at the first move, not at mount, and the frame loop runs only while the host is on screen, the document is visible and the last move is nearer than `trail`, then stops on its own. Move the pointer over the box; click in it."
@@ -28,7 +35,7 @@
 
   <ngwr-doc-section
     title="Colours"
-    description="A stroke cycles through `--wr-fluid-cursor-color-1` to `-5`, primary, danger, warning, success and info by default, one full cycle every 900px of travel; set them on the parent. `rainbow` cycles the hue circle instead. The surface decides how the ink is laid: on a light one it covers as ink, its colour at full saturation under a coverage that rises with its density, so it reads as ink on white and not as a glow; on a dark one the thin end is pulled down, so a trail goes out crisply instead of hanging as haze."
+    description="A stroke cycles through `--wr-fluid-cursor-color-1` to `-5`, primary, danger, warning, success and info by default, one full cycle every 900px of travel; set them on the host, where the defaults are declared. `rainbow` cycles the hue circle instead. The surface decides how the ink is laid: on a light one it covers as ink, its colour at full saturation under a coverage that rises with its density, so it reads as ink on white and not as a glow; on a dark one the thin end is pulled down, so a trail goes out crisply instead of hanging as haze."
   >
     <ngwr-doc-code [code]="snippets.rainbow" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -42,17 +49,16 @@
         </div>
         <div>
           <p class="ngwr-demo-pair__caption"><code>--wr-fluid-cursor-color-1: var(--wr-color-warning)</code></p>
-          <div
-            class="ngwr-demo-arena ngwr-demo-arena--backdrop"
-            style="
-              --wr-fluid-cursor-color-1: var(--wr-color-warning);
-              --wr-fluid-cursor-color-2: var(--wr-color-danger);
-              --wr-fluid-cursor-color-3: var(--wr-color-warning);
-              --wr-fluid-cursor-color-4: var(--wr-color-danger);
-              --wr-fluid-cursor-color-5: var(--wr-color-warning);
-            "
-          >
-            <wr-fluid-cursor />
+          <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+            <wr-fluid-cursor
+              style="
+                --wr-fluid-cursor-color-1: var(--wr-color-warning);
+                --wr-fluid-cursor-color-2: var(--wr-color-danger);
+                --wr-fluid-cursor-color-3: var(--wr-color-warning);
+                --wr-fluid-cursor-color-4: var(--wr-color-danger);
+                --wr-fluid-cursor-color-5: var(--wr-color-warning);
+              "
+            />
             <h3 wrTypography variant="h3">A warm palette.</h3>
           </div>
         </div>

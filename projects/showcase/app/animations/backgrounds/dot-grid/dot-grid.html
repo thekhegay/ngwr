@@ -3,11 +3,11 @@
   since="15.7.0"
   description="An even field of small, faint dots behind a section's content. Near the pointer the dots light up toward the primary colour and are pushed gently away; each one follows a damped spring back to its place when the pointer moves on, so a fast sweep leaves a short, soft wake that settles."
   [keywords]="['dot-grid', 'background', 'backdrop', 'canvas', 'pointer', 'wr-dot-grid']"
-  [labels]="['Animation', 'Component']"
+  [labels]="['Animation', 'Component', 'Canvas']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="Put `<wr-dot-grid />` first inside the region it should fill. One canvas, redrawn only while something moves: the frame loop runs while the pointer is over the parent or a dot is still settling, and only while the host is on screen and the document is visible; at rest the still field is drawn once. The parent takes the pointer, the host and its canvas never do. Touch never pushes, so a scroll over the region is never fought; a tap sends one ring of light out from the finger instead."
+    description="Put `<wr-dot-grid />` first inside the region it should fill. One 2D canvas, drawn on the CPU every frame while something moves and idle otherwise: the frame loop runs while the pointer is over the parent or a dot is still settling, and only while the host is on screen and the document is visible; at rest the still field is drawn once. The parent takes the pointer, the host and its canvas never do. Touch never pushes, so a scroll over the region is never fought; a tap sends one ring of light out from the finger instead."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -28,7 +28,7 @@
 
   <ngwr-doc-section
     title="Spacing and reach"
-    description="`spacing` is the distance between two dots and `reach` how far from the pointer a dot still lights and moves, both in px. The field is laid out centred, so the margins at the edges are equal. The two colours are the `--wr-dot-grid-ink` and `--wr-dot-grid-glow` hooks, read through `resolveCssColorChannels` and re-read when the scheme changes."
+    description="`spacing` is the distance between two dots and `reach` how far from the pointer a dot still lights and moves, both in px. The field is laid out centred, so the margins at the edges are equal. The two colours are the `--wr-dot-grid-ink` and `--wr-dot-grid-glow` hooks, set on the host, where the defaults are declared, and read through `resolveCssColorChannels` and re-read when the scheme changes."
   >
     <ngwr-doc-code [code]="snippets.spacing" language="angular-html" />
     <ngwr-doc-snippet code="">

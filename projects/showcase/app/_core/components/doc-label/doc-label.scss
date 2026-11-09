@@ -66,6 +66,27 @@
     --tone: light-dark(#be185d, #f9a8d4);
   }
 
+  // What an animation runs on: from the browser's own CSS to a GPU shader.
+  &[data-tone='css'] {
+    --tone: light-dark(#0369a1, #7dd3fc);
+  }
+
+  &[data-tone='dom'] {
+    --tone: light-dark(#a16207, #fde047);
+  }
+
+  &[data-tone='svg'] {
+    --tone: light-dark(#4d7c0f, #bef264);
+  }
+
+  &[data-tone='canvas'] {
+    --tone: light-dark(#c2410c, #fdba74);
+  }
+
+  &[data-tone='webgl'] {
+    --tone: light-dark(#4338ca, #a5b4fc);
+  }
+
   &[data-tone='guide'] {
     --tone: light-dark(#475569, #cbd5e1);
   }

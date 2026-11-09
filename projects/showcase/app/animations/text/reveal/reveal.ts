@@ -40,7 +40,7 @@ export default class RevealPageComponent {
   <em><wr-reveal text="Signal Forms" start="15" /></em>
 </h1>`,
     view: `<h2><wr-reveal text="Plays when it scrolls into view." trigger="view" /></h2>`,
-    styled: `h1 {
+    styled: `h1 .wr-reveal {
   --wr-reveal-offset: 0.5em;
   --wr-reveal-duration: 0.8s;
 }`,

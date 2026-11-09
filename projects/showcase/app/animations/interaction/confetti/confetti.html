@@ -3,11 +3,11 @@
   since="15.7.0"
   description="A one-shot celebration: small paper pieces burst up and out from an element, flutter, tumble and fall under gravity, and are gone inside two and a half seconds. A service, not a component: call `burst()` from wherever the moment is."
   [keywords]="['confetti', 'celebration', 'service', 'canvas', 'WrConfetti']"
-  [labels]="['Animation', 'Service']"
+  [labels]="['Animation', 'Service', 'Canvas']"
 >
   <ngwr-doc-section
     title="Usage"
-    description="Inject `WrConfetti` and call `burst()` with the element the pieces should come from. The first burst makes one fixed, full-viewport canvas in `document.body`, `aria-hidden` and under no pointer, and starts one frame loop; a burst that comes while pieces are in the air joins the same canvas, and the canvas goes when the last piece has faded or dropped off the bottom. Each piece is a rectangle, every fifth a thin strip, turning on the screen plane while its drawn height follows a cosine, so it flips like paper."
+    description="Inject `WrConfetti` and call `burst()` with the element the pieces should come from. The first burst makes one fixed, full-viewport canvas in `document.body`, `aria-hidden` and under no pointer, and starts one frame loop that draws on the CPU every frame while pieces move, and stops when none are left; a burst that comes while pieces are in the air joins the same canvas, and the canvas goes when the last piece has faded or dropped off the bottom. Each piece is a rectangle, every fifth a thin strip, turning on the screen plane while its drawn height follows a cosine, so it flips like paper."
   >
     <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
     <ngwr-doc-snippet code="">

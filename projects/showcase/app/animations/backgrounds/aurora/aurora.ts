@@ -20,9 +20,6 @@ export default class AuroraPageComponent {
   position: relative;
   isolation: isolate;
 }`,
-    colours: `<section class="hero" style="--wr-aurora-color-1: var(--wr-color-warning); --wr-aurora-strength: 20%">
-  <wr-aurora />
-  …
-</section>`,
+    colours: `<wr-aurora style="--wr-aurora-color-1: var(--wr-color-warning); --wr-aurora-strength: 20%" />`,
   };
 }

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 
+import { WrAlert } from 'ngwr/alert';
 import { WrThreadLines } from 'ngwr/animations/thread-lines';
 import { WrTypography } from 'ngwr/typography';
 
@@ -16,6 +17,7 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-thread-lines-page',
   templateUrl: './thread-lines.html',
   imports: [
+    WrAlert,
     WrThreadLines,
     WrTypography,
     DocPageComponent,
@@ -37,10 +39,7 @@ export default class ThreadLinesPageComponent {
 }`,
     calm: `<wr-thread-lines count="48" amplitude="8" speed="0.6" fray="0.6" />`,
     dense: `<wr-thread-lines count="110" fray="1.6" angle="-10" thickness="0.8" />`,
-    colours: `<section style="--wr-thread-lines-color: var(--wr-color-info); --wr-thread-lines-accent: var(--wr-color-warning)">
-  <wr-thread-lines />
-  …
-</section>`,
+    colours: `<wr-thread-lines style="--wr-thread-lines-color: var(--wr-color-info); --wr-thread-lines-accent: var(--wr-color-warning)" />`,
     parting: `<wr-thread-lines parting="0" />`,
   };
 

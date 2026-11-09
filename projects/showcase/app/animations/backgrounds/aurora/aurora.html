@@ -3,7 +3,7 @@
   since="15.7.0"
   description="A few soft, wide bands of colour drifting slowly behind a section's content, like northern lights, faint enough that the text over them reads as it does on the plain surface. It has no inputs: the colours, the strength and the cadence are CSS variables."
   [keywords]="['aurora', 'background', 'backdrop', 'gradient', 'northern lights', 'wr-aurora']"
-  [labels]="['Animation', 'Component']"
+  [labels]="['Animation', 'Component', 'CSS']"
 >
   <ngwr-doc-section
     title="Basic"
@@ -30,15 +30,12 @@
 
   <ngwr-doc-section
     title="Colours and strength"
-    description="`--wr-aurora-color-1`, `-2` and `-3` are the three bands, in painting order, defaulting to the success, primary and a primary-danger mix: bare intents, since the bands are graphics and not text. `--wr-aurora-strength` is how much of a band's colour sits over the surface at its peak, set so the muted ink over it keeps its contrast; `--wr-aurora-blur` and `--wr-aurora-cycle` are the softness and the period of the middle band. Set them on the parent."
+    description="`--wr-aurora-color-1`, `-2` and `-3` are the three bands, in painting order, defaulting to the success, primary and a primary-danger mix: bare intents, since the bands are graphics and not text. `--wr-aurora-strength` is how much of a band's colour sits over the surface at its peak, set so the muted ink over it keeps its contrast; `--wr-aurora-blur` and `--wr-aurora-cycle` are the softness and the period of the middle band. Set them on the host, where the defaults are declared."
   >
     <ngwr-doc-code [code]="snippets.colours" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div
-        class="ngwr-demo-arena ngwr-demo-arena--backdrop"
-        style="--wr-aurora-color-1: var(--wr-color-warning); --wr-aurora-strength: 20%"
-      >
-        <wr-aurora />
+      <div class="ngwr-demo-arena ngwr-demo-arena--backdrop">
+        <wr-aurora style="--wr-aurora-color-1: var(--wr-color-warning); --wr-aurora-strength: 20%" />
         <h3 wrTypography variant="h3">A warmer, stronger aurora.</h3>
       </div>
     </ngwr-doc-snippet>

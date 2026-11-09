@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 
+import { WrAlert } from 'ngwr/alert';
 import { WrFlowLines } from 'ngwr/animations/flow-lines';
 import { WrTypography } from 'ngwr/typography';
 
@@ -16,6 +17,7 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-flow-lines-page',
   templateUrl: './flow-lines.html',
   imports: [
+    WrAlert,
     WrFlowLines,
     WrTypography,
     DocPageComponent,
