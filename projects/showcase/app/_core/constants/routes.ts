@@ -121,6 +121,7 @@ export const ROUTES = {
     path: 'guides',
     title: 'Guides',
     theming: { path: 'theming', title: 'Theming' },
+    scrollbar: { path: 'scrollbar', title: 'Scrollbar' },
     grid: { path: 'grid', title: 'Grid' },
     forms: { path: 'forms', title: 'Forms' },
     overlay: { path: 'overlay', title: 'Overlay' },

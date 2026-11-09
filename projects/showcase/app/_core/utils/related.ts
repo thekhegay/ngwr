@@ -129,6 +129,12 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/theming',
     'guides/tokens/motion',
   ],
+  'guides/scrollbar': [
+    'guides/theming',
+    'guides/tokens/sizing',
+    'guides/tokens/colors',
+    'reference/components/virtual-scroll',
+  ],
   'guides/ssr': [
     'reference/services/theme',
     'reference/services/platform',

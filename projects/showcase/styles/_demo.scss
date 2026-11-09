@@ -39,6 +39,20 @@
     @include site.focus-ring;
   }
 
+  // A classic scrollbar with a track, for a demo that shows what the page-wide
+  // `scrollbar` mixin replaces. Drawn here because an overlay scrollbar (the
+  // macOS default) is invisible until it scrolls.
+  &--classic {
+    &::-webkit-scrollbar {
+      width: 15px;
+      background: light-dark(#f1f1f1, #2b2b2b);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: light-dark(#c1c1c1, #6b6b6b);
+    }
+  }
+
   &__row {
     display: flex;
     align-items: center;

@@ -120,32 +120,8 @@
 
   <ngwr-doc-section
     title="Scrollbar"
-    description="Every scrollbar is a bare thumb: no track, no arrows. Retune it per scheme with `light-dark()`. Forced colors keep the system scrollbar."
-  >
-    <div class="ngwr-table">
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Token</th>
-            <th scope="col">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (t of scrollbarTokens; track t.name) {
-            <tr>
-              <th scope="row">
-                <code>{{ t.name }}</code>
-              </th>
-              <td>
-                <code>{{ t.value }}</code>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-    <ngwr-doc-code [code]="snippets.scrollbar" language="scss" />
-  </ngwr-doc-section>
+    description="The thumb-only scrollbar is opt-in and has its own tokens: see the [Scrollbar guide](/guides/scrollbar)."
+  />
 
   <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>
