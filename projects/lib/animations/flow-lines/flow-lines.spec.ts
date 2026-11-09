@@ -54,11 +54,18 @@ import {
 @Component({
   imports: [WrFlowLines],
   template: `<section class="wrap">
-    <wr-flow-lines [push]="push()" [speed]="speed()" [ripple]="ripple()" [intro]="intro()" />
+    <wr-flow-lines
+      [orientation]="orientation()"
+      [push]="push()"
+      [speed]="speed()"
+      [ripple]="ripple()"
+      [intro]="intro()"
+    />
     <p>Hero</p>
   </section>`,
 })
 class Host {
+  readonly orientation = signal<'horizontal' | 'vertical'>('horizontal');
   readonly push = signal(1);
   readonly speed = signal(1);
   readonly ripple = signal(true);
@@ -939,6 +946,22 @@ describe('WrFlowLines', () => {
     tick(72);
     expect(pending()).toBe(0);
     expect(wakeCount()).toBe(0);
+  });
+
+  it('runs the lines from top to bottom under the vertical orientation', async () => {
+    const fixture = await render();
+    layout(800, 300);
+    inView();
+    tick(40);
+    expect(gl.uniforms['uAxis'][0]).toBeCloseTo(1, 6);
+    expect(gl.uniforms['uAxis'][1]).toBeCloseTo(0, 6);
+
+    fixture.componentInstance.orientation.set('vertical');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    tick(90);
+    expect(gl.uniforms['uAxis'][0]).toBeCloseTo(0, 6);
+    expect(gl.uniforms['uAxis'][1]).toBeCloseTo(1, 6);
   });
 
   it('mirrors the field under RTL', async () => {

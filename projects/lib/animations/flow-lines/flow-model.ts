@@ -64,7 +64,7 @@ const REST_FPS = 30;
 const REST_FRAME_MS = 1000 / REST_FPS;
 /** The most device pixels the canvas may hold: a wide hero at a high device ratio renders at a lower one. */
 const PIXELS = 2_500_000;
-/** The field fades out over this share of the shorter side at every edge, within these bounds, in CSS px. */
+/** The field fades out over this share of the shorter side at the top and the bottom, within these bounds, in CSS px. */
 const FADE_SHARE = 0.12;
 const FADE_MIN = 24;
 const FADE_MAX = 96;
@@ -314,7 +314,7 @@ function flowFrameMs(live: boolean): number {
   return live ? 0 : REST_FRAME_MS;
 }
 
-/** How far in from every edge the field is faded, in CSS px, for a region of this size. */
+/** How far in from the top and the bottom the field is faded, in CSS px, for a region of this size. */
 function flowFade(width: number, height: number): number {
   return Math.min(FADE_MAX, Math.max(FADE_MIN, FADE_SHARE * Math.min(width, height)));
 }

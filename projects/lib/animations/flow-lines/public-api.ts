@@ -6,3 +6,4 @@
  */
 
 export { WrFlowLines } from './flow-lines';
+export type { WrFlowLinesOrientation } from './types';

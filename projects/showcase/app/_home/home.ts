@@ -2,7 +2,6 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { BadgeCheck, Folder, ListChecks, Moon, ShieldCheck, Terminal, TextCursorInput } from 'lucide';
-import { WrAurora } from 'ngwr/animations/aurora';
 import { WrBlurReveal } from 'ngwr/animations/blur-reveal';
 import { WrClickSparks } from 'ngwr/animations/click-sparks';
 import { WrDecode } from 'ngwr/animations/decode';
@@ -72,7 +71,6 @@ interface DxLink {
     // Effects
     WrFlowLines,
     WrGlowBorder,
-    WrAurora,
     WrBlurReveal,
     WrClickSparks,
     WrDecode,
@@ -109,6 +107,11 @@ export default class HomeComponent {
 
   /** Absolute link from a node chain — the template cannot call a module function. */
   protected readonly path = wrPath;
+
+  /** A Why card's light in the colour of its icon chip; `neutral` is the chip's muted glyph. */
+  protected spotlightColor(accent: WhyTile['accent']): string {
+    return accent === 'neutral' ? 'var(--wr-color-on-surface-muted)' : `var(--wr-color-${accent})`;
+  }
 
   /**
    * The third item of the line under the headline, one at a time. The first
