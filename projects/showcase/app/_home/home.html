@@ -218,5 +218,121 @@
     </div>
   </section>
 
+  <!-- Motion: the text effects, live. The one-shot tiles are re-created by
+       `replay` while the grid is on screen. -->
+  <section class="ngwr-section">
+    <div class="container">
+      <div class="ngwr-section__head">
+        <div class="ngwr-section__lede">
+          <wr-tag color="primary" outlined><span wrDecode>Animations</span></wr-tag>
+          <h2 wrTypography variant="h1" wrBlurReveal>Motion you can ship.</h2>
+        </div>
+        <p class="ngwr-section__aside">
+          Each one ships as <code>ngwr/animations/*</code>, its own entry point: pay only for the effect you import.
+        </p>
+      </div>
+
+      <div #motionGrid class="ngwr-motion-grid">
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <span
+              wrShimmer
+              style="
+                --wr-shimmer-peak: var(--wr-color-primary-ink);
+                --wr-shimmer-strength: 100%;
+                --wr-shimmer-pause: 2s;
+              "
+              >Premium</span
+            >
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Shimmer</p>
+            <p wrTypography variant="caption" tone="muted"><code>wrShimmer</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <span class="ngwr-motion-tile__glitch" wrGlitch>System online</span>
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Glitch</p>
+            <p wrTypography variant="caption" tone="muted"><code>wrGlitch</code> - plays on hover</p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-rotate-reveal [words]="['Fast', 'Themeable', 'Live']" loop />
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Rotate Reveal</p>
+            <p wrTypography variant="caption" tone="muted"><code>wr-rotate-reveal</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            @if (playing()) {
+              <span wrDecode>Decrypting…</span>
+            }
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Decode</p>
+            <p wrTypography variant="caption" tone="muted"><code>wrDecode</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            @if (playing()) {
+              <span wrBlurReveal>Reveal on view</span>
+            }
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Blur Reveal</p>
+            <p wrTypography variant="caption" tone="muted"><code>wrBlurReveal</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            @if (playing()) {
+              <wr-reveal text="Split by character" trigger="view" />
+            }
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Reveal</p>
+            <p wrTypography variant="caption" tone="muted"><code>wr-reveal</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-typewriter [lines]="['Typing words…', 'Deleting words…']" loop trigger="load" />
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p>Typewriter</p>
+            <p wrTypography variant="caption" tone="muted"><code>wr-typewriter</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage"><span wrGradientFlow>Gradient flow</span></div>
+          <div class="ngwr-motion-tile__label">
+            <p>Gradient Flow</p>
+            <p wrTypography variant="caption" tone="muted"><code>wrGradientFlow</code></p>
+          </div>
+        </article>
+      </div>
+
+      <div class="ngwr-section__footer">
+        <a wr-btn outlined [routerLink]="path(routes.animations)" icon="arrow-forward" iconPosition="end">
+          Browse animations
+        </a>
+      </div>
+    </div>
+  </section>
+
   <ngwr-footer contained />
 </main>

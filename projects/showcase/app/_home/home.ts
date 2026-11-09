@@ -1,4 +1,13 @@
-import { Component, inject } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  DestroyRef,
+  inject,
+  Injector,
+  signal,
+  viewChild,
+  type ElementRef,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { BadgeCheck, Folder, ListChecks, Moon, ShieldCheck, Terminal, TextCursorInput } from 'lucide';
@@ -6,12 +15,16 @@ import { WrBlurReveal } from 'ngwr/animations/blur-reveal';
 import { WrClickSparks } from 'ngwr/animations/click-sparks';
 import { WrDecode } from 'ngwr/animations/decode';
 import { WrFlowLines } from 'ngwr/animations/flow-lines';
+import { WrGlitch } from 'ngwr/animations/glitch';
 import { WrGlowBorder } from 'ngwr/animations/glow-border';
+import { WrGradientFlow } from 'ngwr/animations/gradient-flow';
 import { WrMarquee, type WrMarqueeItem } from 'ngwr/animations/marquee';
 import { WrReveal } from 'ngwr/animations/reveal';
 import { WrRotateReveal } from 'ngwr/animations/rotate-reveal';
+import { WrShimmer } from 'ngwr/animations/shimmer';
 import { WrSpotlight } from 'ngwr/animations/spotlight';
 import { WrTilt } from 'ngwr/animations/tilt';
+import { WrTypewriter } from 'ngwr/animations/typewriter';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrCard } from 'ngwr/card';
@@ -79,6 +92,10 @@ interface DxLink {
     WrMarquee,
     WrTilt,
     WrRotateReveal,
+    WrShimmer,
+    WrGlitch,
+    WrTypewriter,
+    WrGradientFlow,
     // Sections
     ComponentsBento,
     HomeOptInComponent,
@@ -104,6 +121,15 @@ interface DxLink {
 })
 export default class HomeComponent {
   protected readonly routes = ROUTES;
+
+  /**
+   * Off for a frame to re-create the one-shot tiles of the motion block: an
+   * entrance effect has no restart, a fresh host is the replay. An `@if` is
+   * used, not a counter-keyed `@for`, which warns NG0956 on every re-creation.
+   */
+  protected readonly playing = signal(true);
+
+  private readonly motionGrid = viewChild<ElementRef<HTMLElement>>('motionGrid');
 
   /** Absolute link from a node chain — the template cannot call a module function. */
   protected readonly path = wrPath;
@@ -274,6 +300,26 @@ export class SignupCard {
   ];
 
   constructor() {
+    const injector = inject(Injector);
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      const grid = this.motionGrid()?.nativeElement;
+      if (!grid || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      let onScreen = false;
+      const observer = new IntersectionObserver(([entry]) => (onScreen = entry.isIntersecting));
+      observer.observe(grid);
+      const id = setInterval(() => {
+        if (!onScreen || document.hidden) return;
+        this.playing.set(false);
+        afterNextRender(() => this.playing.set(true), { injector });
+      }, 7000);
+      destroyRef.onDestroy(() => {
+        clearInterval(id);
+        observer.disconnect();
+      });
+    });
+
     const meta = inject(MetaService);
     meta.setCanonicalURL();
     // The title is the one string a search result shows, so it names the wedge

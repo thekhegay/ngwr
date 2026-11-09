@@ -329,3 +329,66 @@
     color: var(--wr-color-on-surface-muted);
   }
 }
+
+// The motion block: eight live text effects, one tile each. One column, two,
+// then four from `xl`, so no row is left short.
+.ngwr-motion-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+
+  @media (min-width: 48rem) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include bp.media-up(xl) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.ngwr-motion-tile {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--wr-color-surface);
+  border: 1px solid var(--wr-border-base);
+  border-radius: var(--wr-border-radius-lg);
+  box-shadow: var(--wr-shadow-xs);
+  overflow: hidden;
+
+  &__stage {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 9rem;
+    padding: 2rem 1.25rem;
+    font-size: 1.625rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    background:
+      radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--wr-color-primary) 8%, transparent), transparent 70%),
+      var(--wr-color-fill-subtle);
+    color: var(--wr-color-on-surface);
+    text-align: center;
+  }
+
+  // The glitch plays under the pointer, so the line carries the hover area.
+  &__glitch {
+    display: inline-block;
+    padding: 0.75rem 1rem;
+  }
+
+  &__label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.875rem 1.125rem;
+    border-top: 1px solid var(--wr-border-base);
+
+    p {
+      margin: 0;
+    }
+  }
+}
