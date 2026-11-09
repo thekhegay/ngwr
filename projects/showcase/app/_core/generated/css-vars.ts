@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1629 hook(s) across 113 page(s). A property is here only when the
+ * 1628 hook(s) across 113 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -228,9 +228,8 @@ export const CSS_VARS = {
   "animations/thread-lines": {
     subpath: "ngwr/animations/thread-lines",
     vars: [
-      { name: "--wr-thread-lines-ink", default: "var(--wr-color-on-surface-muted)", scope: ".wr-thread-lines" },
-      { name: "--wr-thread-lines-low", default: "0.3", scope: ".wr-thread-lines" },
-      { name: "--wr-thread-lines-tint", default: "var(--wr-color-primary)", scope: ".wr-thread-lines" },
+      { name: "--wr-thread-lines-accent", default: "var(--wr-color-primary)", scope: ".wr-thread-lines" },
+      { name: "--wr-thread-lines-color", default: "var(--wr-color-on-surface)", scope: ".wr-thread-lines" },
     ],
   },
   "animations/typewriter": {

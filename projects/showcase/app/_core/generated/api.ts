@@ -1401,8 +1401,13 @@ export const API = {
   ],
   // <wr-thread-lines>
   WrThreadLines: [
-    { name: "count", description: "How many threads the ribbon has.", type: "number", default: "24" },
-    { name: "reach", description: "How far from the pointer a thread is still pulled, in px.", type: "number", default: "180" },
+    { name: "count", description: "How many strands the bundle has, 128 at most.", type: "number", default: "72" },
+    { name: "thickness", description: "How thick a strand is, in device px.", type: "number", default: "1" },
+    { name: "amplitude", description: "How high the travelling wave lifts the bundle, in CSS px.", type: "number", default: "16" },
+    { name: "speed", description: "How fast the wave travels, a multiplier: one is a wave every nine seconds.", type: "number", default: "1" },
+    { name: "fray", description: "How far the strands part by the far end, a multiplier: none keeps them a cord the whole way.", type: "number", default: "1" },
+    { name: "angle", description: "The ribbon's tilt, in degrees: positive falls toward the far end, negative rises.", type: "number", default: "-6" },
+    { name: "parting", description: "How strongly the pointer parts the strands, a multiplier: none turns the parting off.", type: "number", default: "1" },
   ],
   // <wr-timeline>
   WrTimeline: [

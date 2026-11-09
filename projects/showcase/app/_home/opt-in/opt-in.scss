@@ -20,6 +20,14 @@
   display: block;
 }
 
+// The ribbon runs behind the section head, not down the whole column of
+// cards: the host is absolute and takes the box its parent gives it, so the
+// section sizes it to the head and the row of cards the cord passes under.
+::ng-deep .ngwr-section--backdrop > .wr-thread-lines {
+  inset-block-end: auto;
+  block-size: 30rem;
+}
+
 .ngwr-optin {
   // One column, then two from `xl`: below 1200px half a row is narrower than
   // the samples' longest lines, and a code block that scrolls sideways is the
