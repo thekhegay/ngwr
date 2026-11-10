@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 import { QUALITY } from '#core/generated/quality';
@@ -25,7 +26,7 @@ function symbolFor(code: string): string {
 @Component({
   selector: 'ngwr-translate-setup-page',
   templateUrl: './setup.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent],
+  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, RouterLink],
 })
 export default class TranslateSetupPage {
   /**

@@ -12,6 +12,16 @@
     <ngwr-doc-code [code]="snippets.http" language="angular-ts" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Root providers only" description="`WrI18n` is a root service.">
+    <p>
+      Put <code>provideWrI18n</code>, the base catalogs and the loader in the application's root providers. A route's
+      providers do not reach the root service, so there they do nothing and dev mode warns. A lazy area switches the
+      language with <code>inject(WrI18n).use('de')</code>: the switch is app-wide, and the locale must be in the root
+      <code>availableLocales</code>. The area's own keys load as a
+      <a routerLink="/guides/translations/scopes">scope</a>.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Missing-key handler" description="By default a missing key renders as the key itself.">
     <ngwr-doc-code [code]="snippets.missing" language="angular-ts" />
   </ngwr-doc-section>
@@ -63,6 +73,10 @@
           <tr>
             <th scope="row">Keys go missing after <code>&#123; ...wrRu, ...yours &#125;</code></th>
             <td>Use base catalogs, not a spread</td>
+          </tr>
+          <tr>
+            <th scope="row">Labels stay English in a lazy route that provides its own catalog</th>
+            <td>Move the providers to the app root; switch the language with <code>use()</code></td>
           </tr>
           <tr>
             <th scope="row"><code>zh-HK</code> and <code>zh-Hant</code> show Simplified Chinese</th>
