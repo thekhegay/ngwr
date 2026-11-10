@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Collapse"
+  updated="15.8.0"
   description="A panel that opens and closes from its header."
   [keywords]="['collapse', 'accordion', 'wr-collapse', 'wr-accordion', 'wr-collapse-group']"
   [labels]="['Component']"
@@ -34,6 +35,35 @@
           <wr-collapse title="Two">Second panel body.</wr-collapse>
           <wr-collapse title="Three">Third panel body.</wr-collapse>
         </wr-collapse-group>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Flat"
+    description='`[bordered]="false"` drops the frame and the panel; neighbours are split by a divider line.'
+  >
+    <ngwr-doc-snippet [code]="snippets.flat">
+      <div style="width: 100%">
+        <wr-collapse title="Can I cancel?" [bordered]="false">Yes, any time from the account page.</wr-collapse>
+        <wr-collapse title="Is there a trial?" [bordered]="false" [open]="true">
+          Fourteen days, no card needed.
+        </wr-collapse>
+        <wr-collapse title="Do you offer refunds?" [bordered]="false">Within thirty days of purchase.</wr-collapse>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Plus indicator"
+    description='`indicator="plus"` swaps the chevron for a plus that becomes a minus while open. It works framed or flat.'
+  >
+    <ngwr-doc-snippet [code]="snippets.plus">
+      <div style="width: 100%">
+        <wr-collapse title="Can I cancel?" indicator="plus">Yes, any time from the account page.</wr-collapse>
+        <wr-collapse title="Is there a trial?" indicator="plus" [open]="true">
+          Fourteen days, no card needed.
+        </wr-collapse>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

@@ -108,6 +108,12 @@
   outline-offset: -2px;
 }
 
+// A flat panel clips nothing and its header has no side padding, so the inset
+// ring would sit on the title's first glyph: it goes back outside.
+.wr-collapse--flat .wr-collapse__header:focus-visible {
+  outline-offset: var(--wr-focus-ring-offset);
+}
+
 // Command palette options
 .wr-command-palette__option:focus-visible {
   @include focus-ring;

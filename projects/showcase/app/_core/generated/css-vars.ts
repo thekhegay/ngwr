@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1624 hook(s) across 112 page(s). A property is here only when the
+ * 1627 hook(s) across 112 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -874,17 +874,20 @@ export const CSS_VARS = {
   "reference/components/collapse": {
     subpath: "ngwr/collapse",
     vars: [
-      { name: "--wr-collapse-bg", default: "var(--wr-color-surface)", scope: ".wr-collapse" },
+      { name: "--wr-collapse-bg", default: "var(--wr-color-surface)", scope: ".wr-collapse", overrides: 1 },
       { name: "--wr-collapse-border", default: "var(--wr-border-base)", scope: ".wr-collapse" },
       { name: "--wr-collapse-color", default: "var(--wr-color-on-surface)", scope: ".wr-collapse", overrides: 1 },
       { name: "--wr-collapse-font-family", default: "var(--wr-font-family-base)", scope: ".wr-collapse" },
       { name: "--wr-collapse-header-font-size", default: "var(--wr-text-base)", scope: ".wr-collapse" },
       { name: "--wr-collapse-header-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-collapse" },
-      { name: "--wr-collapse-header-padding-x", default: "var(--wr-space-lg)", scope: ".wr-collapse" },
+      { name: "--wr-collapse-header-hover-bg", default: "var(--wr-color-fill)", scope: ".wr-collapse", overrides: 1 },
+      { name: "--wr-collapse-header-padding-x", default: "var(--wr-space-lg)", scope: ".wr-collapse", overrides: 1 },
       { name: "--wr-collapse-header-padding-y", default: "var(--wr-space-md)", scope: ".wr-collapse" },
-      { name: "--wr-collapse-inner-padding", default: "var(--wr-space-lg)", scope: ".wr-collapse" },
-      { name: "--wr-collapse-margin-top", default: "var(--wr-space-sm)", scope: ".wr-collapse" },
-      { name: "--wr-collapse-radius", default: "var(--wr-border-radius-base)", scope: ".wr-collapse" },
+      { name: "--wr-collapse-indicator", default: "var(--wr-color-on-surface-muted)", scope: ".wr-collapse" },
+      { name: "--wr-collapse-indicator-size", default: "1em", scope: ".wr-collapse" },
+      { name: "--wr-collapse-inner-padding", default: "var(--wr-space-lg)", scope: ".wr-collapse", overrides: 1 },
+      { name: "--wr-collapse-margin-top", default: "var(--wr-space-sm)", scope: ".wr-collapse", overrides: 1 },
+      { name: "--wr-collapse-radius", default: "var(--wr-border-radius-base)", scope: ".wr-collapse", overrides: 1 },
     ],
   },
   "reference/components/color-picker": {

@@ -20,6 +20,12 @@ class Host {
   readonly disabled = signal(false);
 }
 
+@Component({
+  imports: [WrCollapse],
+  template: `<wr-collapse title="FAQ" indicator="plus" [bordered]="false">Answer</wr-collapse>`,
+})
+class FlatPlusHost {}
+
 /** The always-accordion shape, with one panel nobody is allowed to open. */
 @Component({
   imports: [WrAccordion, WrCollapse],
@@ -487,5 +493,23 @@ describe('WrCollapseGroupHarness with two containers on one page', () => {
     const showing = await loader.getHarness(WrCollapseGroupHarness.with({ openPanelTitle: 'Returns' }));
     expect(await showing.getPanelTitles()).toEqual(['Shipping', 'Returns']);
     expect(await loader.getAllHarnesses(WrCollapseGroupHarness.with({ openPanelTitle: 'Warranty' }))).toEqual([]);
+  });
+});
+
+describe('WrCollapseHarness look', () => {
+  beforeEach(() => TestBed.resetTestingModule());
+
+  it('reports the default look', async () => {
+    const fixture = TestBed.createComponent(Host);
+    const panel = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrCollapseHarness);
+
+    expect([await panel.getIndicator(), await panel.isFlat()]).toEqual(['chevron', false]);
+  });
+
+  it('reports a flat panel with a plus', async () => {
+    const fixture = TestBed.createComponent(FlatPlusHost);
+    const panel = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrCollapseHarness);
+
+    expect([await panel.getIndicator(), await panel.isFlat()]).toEqual(['plus', true]);
   });
 });
