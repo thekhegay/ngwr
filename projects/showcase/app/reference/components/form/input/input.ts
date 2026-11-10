@@ -57,6 +57,18 @@ export default class InputComponent {
   <span wrInputSuffix>USD</span>
 </wr-input-group>`,
 
+    borderWidth: `<input wrInput value="1px border" aria-label="1px border" />
+<input
+  wrInput
+  value="2px border"
+  aria-label="2px border"
+  style="--wr-input-border: var(--wr-color-danger); --wr-input-border-width: 2px"
+/>`,
+
+    borderWidthInvalid: `.wr-form-field--invalid .wr-input {
+  --wr-input-border-width: 2px;
+}`,
+
     rounded: `<input wrInput rounded placeholder="Rounded" />`,
 
     password: `<wr-input-group>

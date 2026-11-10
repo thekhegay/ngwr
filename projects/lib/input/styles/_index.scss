@@ -15,6 +15,8 @@
   --wr-input-placeholder: var(--wr-color-placeholder);
   --wr-input-bg: var(--wr-color-surface);
   --wr-input-border: var(--wr-border-base);
+  // The theme has no border-width token.
+  --wr-input-border-width: 1px;
   --wr-input-radius: var(--wr-control-radius-md);
   --wr-input-ring: transparent;
   --wr-input-padding-y: var(--wr-control-padding-y-md);
@@ -22,6 +24,10 @@
   --wr-input-font-family: var(--wr-font-family-base);
   --wr-input-font-size: var(--wr-control-font-size-md);
   --wr-input-line-height: var(--wr-control-line-height-md);
+  // What the border takes over 1px, given back by the padding so a thicker border
+  // grows inward and the content box stays put. Private, so a group can zero it
+  // whatever a consumer sets the hook to.
+  --_border-extra: calc(var(--wr-input-border-width) - 1px);
 
   display: inline-block;
   width: 100%;
@@ -29,13 +35,13 @@
   appearance: none;
   background: var(--wr-input-bg);
   color: var(--wr-input-color);
-  border: 1px solid var(--wr-input-border);
+  border: var(--wr-input-border-width) solid var(--wr-input-border);
   @include theme.smooth-br(var(--wr-input-radius));
   box-shadow: 0 0 0 3px var(--wr-input-ring);
   outline: 0;
   margin: 0;
-  padding: calc(var(--wr-input-padding-y) * var(--wr-density-y, 1))
-    calc(var(--wr-input-padding-x) * var(--wr-density-x, 1));
+  padding: max(0px, calc(var(--wr-input-padding-y) * var(--wr-density-y, 1) - var(--_border-extra)))
+    max(0px, calc(var(--wr-input-padding-x) * var(--wr-density-x, 1) - var(--_border-extra)));
   font-family: var(--wr-input-font-family);
   font-size: var(--wr-input-font-size);
   line-height: var(--wr-input-line-height);
@@ -131,6 +137,9 @@
 
   // Native input inside a group loses its own chrome.
   .wr-input {
+    // The group draws the border, so the padding gives nothing back.
+    --_border-extra: 0px;
+
     border: 0;
     background: transparent;
     box-shadow: none;
