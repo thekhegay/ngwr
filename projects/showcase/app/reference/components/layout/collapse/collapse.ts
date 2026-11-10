@@ -29,6 +29,10 @@ export default class CollapsePageComponent {
     basic: `<wr-collapse title="Section title">
   Section body…
 </wr-collapse>`,
+    flat: `<wr-collapse title="Can I cancel?" [bordered]="false">…</wr-collapse>
+<wr-collapse title="Is there a trial?" [bordered]="false">…</wr-collapse>`,
+    plus: `<wr-collapse title="Can I cancel?" indicator="plus">…</wr-collapse>
+<wr-collapse title="Is there a trial?" indicator="plus">…</wr-collapse>`,
     accordion: `<wr-accordion>
   <wr-collapse title="A">…</wr-collapse>
   <wr-collapse title="B">…</wr-collapse>

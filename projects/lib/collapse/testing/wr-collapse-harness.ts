@@ -7,6 +7,8 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
+import type { WrCollapseIndicator } from 'ngwr/collapse';
+
 import type { WrCollapseHarnessFilters } from './types';
 
 /**
@@ -92,6 +94,32 @@ export class WrCollapseHarness extends ComponentHarness {
    */
   async isDisabled(): Promise<boolean> {
     return (await this.header()).getProperty<boolean>('disabled');
+  }
+
+  /**
+   * The header glyph (`indicator`): `'chevron'` or `'plus'`, from which element the
+   * header renders, since the two are different elements.
+   *
+   * Throws when the header holds neither rather than answering `'chevron'` by default:
+   * a header that lost its glyph would otherwise read as the default exactly when the
+   * glyph is what broke.
+   */
+  async getIndicator(): Promise<WrCollapseIndicator> {
+    if (await this.locatorForOptional('.wr-collapse__plus')()) return 'plus';
+    if (await this.locatorForOptional('.wr-collapse__chevron')()) return 'chevron';
+    throw new Error(
+      `WrCollapseHarness.getIndicator(): "${await this.getTitle()}" renders neither .wr-collapse__chevron nor ` +
+        '.wr-collapse__plus. The component draws one of them unconditionally, so its absence is the bug.'
+    );
+  }
+
+  /**
+   * Whether the panel is drawn flat (`[bordered]="false"`): no frame or background, rows
+   * split by a divider. Read from the public `wr-collapse--flat` modifier, which is
+   * styling and not state.
+   */
+  async isFlat(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-collapse--flat');
   }
 
   /**

@@ -111,6 +111,7 @@ export const UPDATED = {
   "reference/components/calendar": "15.0.0",
   "reference/components/cascader": "15.0.0",
   "reference/components/checkbox": "15.0.0",
+  "reference/components/collapse": "15.8.0",
   "reference/components/color-picker": "15.0.0",
   "reference/components/command-palette": "15.0.0",
   "reference/components/date-picker": "15.0.0",

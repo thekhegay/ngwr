@@ -11,6 +11,7 @@ import { Component, DestroyRef, ViewEncapsulation, computed, effect, inject, inp
 import { randomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_COLLAPSE_GROUP } from './tokens';
+import type { WrCollapseIndicator } from './types';
 
 /**
  * Expandable panel with a clickable header. Two-way binds the `open`
@@ -49,6 +50,19 @@ export class WrCollapse {
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Draws the frame, the panel background and the rounded corners. Turn it off for a
+   * flat list: no frame, rows split by a divider line between neighbours.
+   * @default true
+   */
+  readonly bordered = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * The header glyph: `chevron` turns over, `plus` becomes a minus while open.
+   * @default 'chevron'
+   */
+  readonly indicator = input<WrCollapseIndicator>('chevron');
+
   /** Identity used by the parent group when tracking children. @internal */
   readonly id = { name: randomId('wr-collapse') };
 
@@ -61,6 +75,7 @@ export class WrCollapse {
   protected readonly classes = computed(() => {
     const parts = ['wr-collapse'];
     if (this.open()) parts.push('wr-collapse--open');
+    if (!this.bordered()) parts.push('wr-collapse--flat');
     if (this.disabled()) parts.push('wr-collapse--disabled');
     return parts.join(' ');
   });
