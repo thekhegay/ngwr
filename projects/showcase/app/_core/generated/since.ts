@@ -123,7 +123,7 @@ export const UPDATED = {
   "reference/components/form": "15.0.0",
   "reference/components/form-field": "15.0.0",
   "reference/components/icon": "15.0.0",
-  "reference/components/input": "15.0.0",
+  "reference/components/input": "15.8.0",
   "reference/components/input-number": "15.5.0",
   "reference/components/input-otp": "15.0.0",
   "reference/components/keyboard": "15.5.0",

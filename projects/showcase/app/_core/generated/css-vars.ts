@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1627 hook(s) across 112 page(s). A property is here only when the
+ * 1628 hook(s) across 112 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 34 declaration(s) are one component setting
@@ -1354,6 +1354,7 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-input-bg", default: "var(--wr-color-surface)", scope: ".wr-input", overrides: 1 },
       { name: "--wr-input-border", default: "var(--wr-border-base)", scope: ".wr-input", overrides: 2 },
+      { name: "--wr-input-border-width", default: "1px", scope: ".wr-input" },
       { name: "--wr-input-color", default: "var(--wr-color-on-surface)", scope: ".wr-input", overrides: 1 },
       { name: "--wr-input-font-family", default: "var(--wr-font-family-base)", scope: ".wr-input" },
       { name: "--wr-input-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-input", overrides: 2 },
