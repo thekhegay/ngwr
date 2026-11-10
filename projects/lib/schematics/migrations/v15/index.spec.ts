@@ -533,7 +533,7 @@ export const config = {
       [
         'a sheet above the configured theme',
         '/src/styles.scss',
-        "@use 'ngwr/reset';\n@use 'ngwr/theme' with ($base-colors: (primary: #06c));",
+        "@use 'ngwr/animations';\n@use 'ngwr/theme' with ($base-colors: (primary: #06c));",
         'above a configured',
       ],
       ['a removed intent as a colour', '/a.html', '<button wr-btn color="secondary">Go</button>', 'removed intent'],
@@ -681,6 +681,12 @@ export const config = {
         'a configured theme first',
         '/s.scss',
         "@use 'ngwr/theme' with ($base-colors: (primary: #06c));\n@use 'ngwr/reset';",
+        'above a configured',
+      ],
+      [
+        'the reset above a configured theme, which it does not load',
+        '/s.scss',
+        "@use 'ngwr/reset';\n@use 'ngwr/theme' with ($base-colors: (primary: #06c));",
         'above a configured',
       ],
     ])('does not name %s', (_what, path, source, fragment) => {

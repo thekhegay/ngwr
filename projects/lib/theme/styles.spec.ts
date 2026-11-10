@@ -206,6 +206,17 @@ describe('a style entry point loads the token layer it paints with', () => {
    */
   const RESOLVED_BY_ITS_CONSUMERS = [join(LIB, 'charts/core/styles/_index.scss')];
 
+  /**
+   * The one entry that reads theme tokens and loads no theme on purpose:
+   * `ngwr/reset` is the sheet an app puts in a cascade layer, and
+   * `meta.load-css()` re-emits a module's dependencies inside the layer it is
+   * called in, so a theme loaded from the reset landed in that layer a second
+   * time. Its reads are answered by the theme every install path writes first
+   * (`ng add`, `ngwr:component-style`, the Installation page), and
+   * `styles/reset.spec.ts` compiles it to hold that each read is a theme token.
+   */
+  const READ_BELOW_THE_THEME = [join(LIB, 'styles/_reset.scss')];
+
   /** Every theme token `entry`'s own code reads, as {@link componentSources} finds it. */
   const readFromCode = (entry: string): Set<string> => {
     const out = new Set<string>();
@@ -220,7 +231,7 @@ describe('a style entry point loads the token layer it paints with', () => {
 
     for (const entry of styleEntries()) {
       const files = loaded(entry);
-      if (loadsTokenLayer(files)) continue;
+      if (loadsTokenLayer(files) || READ_BELOW_THE_THEME.includes(entry)) continue;
 
       const own = new Set<string>();
       const referenced = new Set<string>();
@@ -255,6 +266,21 @@ describe('a style entry point loads the token layer it paints with', () => {
       for (const entry of dependants) {
         expect(loadsTokenLayer(loaded(entry)), `${relative(LIB, entry)} loads ${name} and not the theme`).toBe(true);
       }
+    }
+  });
+
+  it('exempts only an entry that still loads no theme and reads one', () => {
+    for (const exempt of READ_BELOW_THE_THEME) {
+      const name = relative(LIB, exempt);
+      const files = loaded(exempt);
+      expect(loadsTokenLayer(files), `${name} loads the theme now`).toBe(false);
+
+      const referenced = files.flatMap(file => [...code(file).matchAll(REFERENCED)].map(m => m[1]));
+      expect(referenced.length, `${name} reads no token now`).toBeGreaterThan(0);
+      expect(
+        referenced.filter(token => !isTheme(token)),
+        `${name} reads a token the theme does not declare`
+      ).toEqual([]);
     }
   });
 

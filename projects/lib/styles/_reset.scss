@@ -1,137 +1,149 @@
-// Opt-in CSS reset.
+// Opt-in CSS reset: boxes, margins, form-element inheritance, a few link and
+// list cleanups, and a heading scale read from the `--wr-text-*` tokens.
 //
-// Apps that don't already have a reset (Tailwind preflight, normalize.css,
-// etc.) can opt in via:
-//
+//   @use 'ngwr/theme';
 //   @use 'ngwr/reset';
 //
-// Scope — boxes, margins, form-element inheritance, a few link/list cleanups,
-// and a heading scale read from the `--wr-text-*` tokens.
-//
-// **It loads the token layer, and standalone it was worse than loading no CSS
-// at all.** Twelve reads here name tokens only the theme declares, and an
-// invalid `var()` does not drop its declaration — it computes to `unset`, which
-// for an inherited property means INHERIT. So each rule won the cascade over
-// the UA stylesheet and then resolved to its parent: measured in Chromium, the
-// bare sheet flattened `h1`–`h6` to 16px apiece where the browser alone gives
-// 32 / 24 / 18.72 / 16 / 13.28 / 10.72, and turned `code` and `pre` from
-// monospace into the body serif. Someone adding this for `box-sizing` lost
-// their whole type scale and said nothing, because nothing in a build, a
-// console or a test has an opinion about a `var()` that resolves to nothing.
-// Sass deduplicates within one compilation, so an app that also loads the theme
-// or any component pays nothing for this line — verified byte-identical.
-@use '../theme/styles';
+// It reads theme tokens without loading the theme, so the app loads it too:
+// alone, each `var()` here computes to `unset`, headings flatten to 16px and
+// `code` loses its monospace. `meta.load-css()` emits a module's dependencies
+// where it is called, so a theme loaded here would land a second time in every
+// layer the reset is loaded into.
+@use 'sass:meta';
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/// The cascade layer the rules go in, such as `'reset'` or `'base.reset'`:
+/// `@use 'ngwr/reset' with ($layer: 'reset')`. `null` leaves them unlayered,
+/// where an element rule like `button { background: none }` beats every
+/// layered sheet whatever its specificity. The layer opens where the reset is
+/// emitted, so it ranks below unlayered styles and every layer declared after it.
+$layer: null !default;
+
+@if $layer != null and (meta.type-of($layer) != 'string' or $layer == '') {
+  @error 'ngwr/reset: `$layer` takes a cascade layer name, such as reset, not #{meta.inspect($layer)}.';
 }
 
-html {
-  -webkit-text-size-adjust: 100%;
-  -moz-tab-size: 4;
-  tab-size: 4;
-  line-height: 1.5;
+@mixin _rules {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -moz-tab-size: 4;
+    tab-size: 4;
+    line-height: 1.5;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--wr-font-family-base);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  figure,
+  blockquote,
+  dl,
+  dd {
+    margin: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: var(--wr-font-weight-semibold);
+    line-height: var(--wr-leading-tight);
+    letter-spacing: var(--wr-tracking-tight);
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: var(--wr-text-4xl);
+  }
+  h2 {
+    font-size: var(--wr-text-3xl);
+  }
+  h3 {
+    font-size: var(--wr-text-2xl);
+  }
+  h4 {
+    font-size: var(--wr-text-xl);
+  }
+  h5 {
+    font-size: var(--wr-text-lg);
+  }
+  h6 {
+    font-size: var(--wr-text-base);
+  }
+
+  p {
+    line-height: var(--wr-leading-normal);
+    text-wrap: pretty;
+  }
+
+  ul[role='list'],
+  ol[role='list'] {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img,
+  picture,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--wr-font-family-mono);
+  }
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  font-family: var(--wr-font-family-base);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-figure,
-blockquote,
-dl,
-dd {
-  margin: 0;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: var(--wr-font-weight-semibold);
-  line-height: var(--wr-leading-tight);
-  letter-spacing: var(--wr-tracking-tight);
-  text-wrap: balance;
-}
-
-h1 {
-  font-size: var(--wr-text-4xl);
-}
-h2 {
-  font-size: var(--wr-text-3xl);
-}
-h3 {
-  font-size: var(--wr-text-2xl);
-}
-h4 {
-  font-size: var(--wr-text-xl);
-}
-h5 {
-  font-size: var(--wr-text-lg);
-}
-h6 {
-  font-size: var(--wr-text-base);
-}
-
-p {
-  line-height: var(--wr-leading-normal);
-  text-wrap: pretty;
-}
-
-ul[role='list'],
-ol[role='list'] {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-img,
-picture,
-svg,
-video {
-  display: block;
-  max-width: 100%;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-  color: inherit;
-}
-
-button {
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-}
-
-code,
-kbd,
-samp,
-pre {
-  font-family: var(--wr-font-family-mono);
+@if $layer == null {
+  @include _rules;
+} @else {
+  // The name is the consumer's, interpolated.
+  // stylelint-disable-next-line layer-name-pattern
+  @layer #{$layer} {
+    @include _rules;
+  }
 }
