@@ -83,7 +83,7 @@
     "@eslint/js": "^10.0.1",
     "@phosphor-icons/core": "^2.1.1",
     "@schematics/angular": "^22.2.6",
-    "@tabler/icons": "^3.50.0",
+    "@tabler/icons": "^3.51.0",
     "@types/jsdom": "^30.0.0",
     "@types/node": "^26.6.6",
     "@types/semver": "^7.8.0",
