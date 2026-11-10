@@ -239,9 +239,9 @@ Two values named after a removed intent moved to the name of what they paint, BE
 - **The umbrella also carried the density scale.** If you use `withDensity()` or `[wrDensity]`,
   add `@use 'ngwr/density'`. No component loads it, so without that line the setting does nothing.
   The codemod lists the files that use density when no stylesheet loads the sheet.
-- **`ngwr/reset`, `ngwr/animations` and `ngwr/typography-utilities` load the theme now.** Write them
-  below a configured `@use 'ngwr/theme' with (…)`. Above it, the build fails with "This module was
-  already loaded". The codemod lists a sheet that sits above one.
+- **`ngwr/animations` and `ngwr/typography-utilities` load the theme now.** Write them below a
+  configured `@use 'ngwr/theme' with (…)`. Above it, the build fails with "This module was already
+  loaded". The codemod lists a sheet that sits above one.
 
 ### The sortable list
 

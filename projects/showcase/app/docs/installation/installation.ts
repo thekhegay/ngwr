@@ -48,7 +48,7 @@ export default class InstallationPageComponent {
       what: 'The density scale. Needed for withDensity() and [wrDensity]',
       link: '/guides/tokens/density',
     },
-    { use: "@use 'ngwr/reset';", what: 'A modern CSS reset' },
+    { use: "@use 'ngwr/reset';", what: 'A modern CSS reset, optionally in a cascade layer' },
     { use: "@use 'ngwr/grid';", what: 'A 12-column grid and container', link: '/guides/grid' },
     {
       use: "@use 'ngwr/typography-utilities';",
@@ -83,6 +83,9 @@ export default class InstallationPageComponent {
     ngAdd: `ng add ${NGWR_PACKAGE}`,
     styles: `@use 'ngwr/theme';
 @use 'ngwr/button';
+@use 'ngwr/select';`,
+    resetLayer: `@use 'ngwr/theme';
+@use 'ngwr/reset' with ($layer: 'reset');
 @use 'ngwr/select';`,
     usage: `import { Component } from '@angular/core';
 import { WrButton } from 'ngwr/button';

@@ -87,6 +87,7 @@ export const UPDATED = {
   "charts/meter-group": "15.1.0",
   "charts/sparkline": "15.1.0",
   "docs/configuration": "15.0.0",
+  "docs/installation": "15.8.0",
   "docs/mcp-server": "15.1.0",
   "guides/csp": "15.0.0",
   "guides/forms": "15.0.0",

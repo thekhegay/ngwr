@@ -66,10 +66,14 @@ No component needs these:
   your own SCSS.
 - `@use 'ngwr/animations';` — keyframes and animation classes.
 
-`ngwr/reset`, `ngwr/typography-utilities` and `ngwr/animations` load the
-theme, so like a component line they go below a configured
-`@use 'ngwr/theme' with (…)`. Above it the build fails with "This module was
-already loaded".
+`ngwr/typography-utilities` and `ngwr/animations` load the theme, so like a
+component line they go below a configured `@use 'ngwr/theme' with (…)`. Above
+it the build fails with "This module was already loaded".
+
+`ngwr/reset` reads the theme's tokens without loading the theme, so the app
+loads `ngwr/theme` too. `@use 'ngwr/reset' with ($layer: 'reset')` puts its
+rules in `@layer reset`, below unlayered styles and every layer declared
+after it.
 
 ## Light and dark
 

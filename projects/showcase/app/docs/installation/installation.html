@@ -1,6 +1,7 @@
 <ngwr-doc-page
   title="Installation"
   description="Add ngwr to an Angular app."
+  updated="15.8.0"
   [keywords]="['install', 'setup', 'getting started', 'schematics', 'ng-add', 'ng-generate', 'ng-update', 'cli']"
   [labels]="['Getting started']"
 >
@@ -42,12 +43,31 @@
       </table>
     </div>
     <p>
-      Write them below the theme line: <code>reset</code>, <code>animations</code> and
-      <code>typography-utilities</code> load the token layer too.
+      Write them below the theme line: <code>animations</code> and <code>typography-utilities</code> load the token
+      layer too.
     </p>
     <p>
       A dev build warns once in the console when a component renders without its sheet, naming the
       <code>&#64;use</code> line to add and the <code>ng g ngwr:component-style</code> command that adds it.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Reset in a cascade layer"
+    description="`ngwr/reset` styles bare elements. Unlayered, its `button { background: none }` beats every rule in a layer, whatever the specificity."
+  >
+    <ngwr-doc-code [code]="snippets.resetLayer" language="scss" />
+    <p>
+      <code>$layer</code> puts every reset rule in that layer. The layer starts where the reset is emitted, so it ranks
+      below unlayered styles and every layer declared after it.
+    </p>
+    <p>
+      An app that loads a sheet lazily inside a layer, so its copy of the theme loses to the brand, needs this.
+      Unlayered, the reset beat that layer and took the fills off calendar events and the borders off selects.
+    </p>
+    <p>
+      The reset no longer brings the theme with it: it only reads the tokens. Keep
+      <code>&#64;use 'ngwr/theme'</code> in your styles, or headings fall to the body size.
     </p>
   </ngwr-doc-section>
 

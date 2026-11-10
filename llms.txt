@@ -92,9 +92,11 @@ service opens — `WrDialog.open()` needs `ngwr/dialog`, `WrToast.show()`
 needs: `ngwr/reset`, `ngwr/grid`, `ngwr/typography-utilities`,
 `ngwr/breakpoints` (mixins for your own SCSS) and `ngwr/animations` (keyframes
 and animation classes).
-`ngwr/reset`, `ngwr/typography-utilities` and `ngwr/animations` load the theme,
-so they go below a configured `@use 'ngwr/theme' with (…)` like any component
-line. Details: https://ngwr.dev/docs/installation
+`ngwr/typography-utilities` and `ngwr/animations` load the theme, so they go
+below a configured `@use 'ngwr/theme' with (…)` like any component line.
+`ngwr/reset` reads theme tokens without loading the theme, so the app loads
+`ngwr/theme` too; `@use 'ngwr/reset' with ($layer: 'reset')` puts its rules in
+a cascade layer. Details: https://ngwr.dev/docs/installation
 
 ## Providers (main.ts)
 
