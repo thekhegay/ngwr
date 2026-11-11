@@ -103,11 +103,15 @@ const itemNamed = (root: ParentNode, label: string): HTMLElement => {
   return found;
 };
 
-/** The translate the component wrote, read off the `style` ATTRIBUTE. */
+/**
+ * The translate the component wrote, read off the `style` ATTRIBUTE. A
+ * serialiser may drop a zero y (`translate(400px)`) or its unit, so neither is
+ * required.
+ */
 const position = (item: HTMLElement): { x: number; y: number } => {
-  const match = /translate\((-?[\d.]+)px,\s*(-?[\d.]+)px\)/.exec(item.getAttribute('style') ?? '');
+  const match = /translate\((-?[\d.]+)(?:px)?(?:,\s*(-?[\d.]+)(?:px)?)?\)/.exec(item.getAttribute('style') ?? '');
   if (!match) throw new Error(`no translate on ${item.outerHTML}`);
-  return { x: Number(match[1]), y: Number(match[2]) };
+  return { x: Number(match[1]), y: Number(match[2] ?? 0) };
 };
 
 /** A path's commands, each with its numbers. */
@@ -596,7 +600,7 @@ describe('WrGraph layout engine', () => {
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
 
-    expect(itemNamed(root, 'Cedar').getAttribute('style')).toContain('translate(400px, 0px)');
+    expect(position(itemNamed(root, 'Cedar'))).toEqual({ x: 400, y: 0 });
     expect(root.querySelector<HTMLElement>('.wr-graph__stage')!.style.width).toBe('1000px');
   });
 
