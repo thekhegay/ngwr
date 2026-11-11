@@ -167,7 +167,7 @@ ref.dismiss();`,
       description: 'A text button such as "Undo". Pressing it closes the toast and calls `run` once.',
       type: '{ label: string; run: () => void }',
     },
-    { name: 'dismissible', description: 'Show close (×) button.', type: 'boolean', default: 'true' },
+    { name: 'closable', description: 'Show close (×) button.', type: 'boolean', default: 'true' },
     {
       name: 'position',
       description: 'Corner of the stack. Moves the toasts already on screen too.',

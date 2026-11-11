@@ -170,7 +170,7 @@ describe('WrToastHarness', () => {
   });
 
   it('reports a toast that cannot be dismissed by hand', async () => {
-    fixture.componentInstance.toast.show({ message: 'Working…', dismissible: false, duration: 0 });
+    fixture.componentInstance.toast.show({ message: 'Working…', closable: false, duration: 0 });
     await fixture.whenStable();
 
     const toast = await rootLoader.getHarness(WrToastHarness);
