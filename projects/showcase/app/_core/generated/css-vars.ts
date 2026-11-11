@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1642 hook(s) across 112 page(s). A property is here only when the
+ * 1650 hook(s) across 113 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -1017,6 +1017,19 @@ export const CSS_VARS = {
       { name: "--wr-context-menu-item-padding-y", default: "var(--wr-space-sm)", scope: ".wr-context-menu-item" },
       { name: "--wr-context-menu-item-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-context-menu-item" },
       { name: "--wr-context-menu-radius", default: "var(--wr-border-radius-base)", scope: ".wr-context-menu" },
+    ],
+  },
+  "reference/components/copy-value": {
+    subpath: "ngwr/copy-value",
+    vars: [
+      { name: "--wr-copy-value-button-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-button-copied-color", default: "var(--wr-color-success)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-button-hover-bg", default: "var(--wr-color-hover)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-button-hover-color", default: "var(--wr-color-on-surface)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-button-padding", default: "var(--wr-space-xs)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-button-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-empty-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-gap", default: "var(--wr-space-xs)", scope: ".wr-copy-value" },
     ],
   },
   "reference/components/date-picker": {

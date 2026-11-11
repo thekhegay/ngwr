@@ -401,6 +401,16 @@ export const API = {
     { name: "(copied)", description: "Emitted with the copied text once the write succeeds.", type: "string" },
     { name: "(copyFailed)", description: "Emitted if the copy fails (denied permission, no clipboard, …).", type: "unknown" },
   ],
+  // <wr-copy-value>
+  WrCopyValue: [
+    { name: "value", description: "The value shown and copied. `null`, `undefined` and `''` are empty.", type: "string | number | null | undefined", default: "null" },
+    { name: "wrap", description: "Let a long value wrap over several lines instead of truncating it.", type: "boolean", default: "false" },
+    { name: "copyLabel", description: "Accessible name and tooltip of the button. Falls back to `copyValue.copy`, then `'Copy'`.", type: "string | null", default: "null" },
+    { name: "copiedLabel", description: "Tooltip and announcement after a copy. Falls back to `copyValue.copied`, then `'Copied'`.", type: "string | null", default: "null" },
+    { name: "emptyLabel", description: "What stands in for an empty value. Falls back to `copyValue.empty`, then `'-'`.", type: "string | null", default: "null" },
+    { name: "(copied)", description: "Emitted with the text that reached the clipboard.", type: "string" },
+    { name: "(copyFailed)", description: "Emitted when the browser refused the write.", type: "void" },
+  ],
   // <wr-counter>
   WrCounter: [
     { name: "value", description: "The number to show. Coerced like every other numeric input here — it was the only one without it, and `Intl.NumberFormat().format(NaN)` renders the literal text `NaN`.", type: "number", required: true },
@@ -637,6 +647,10 @@ export const API = {
     { name: "value", description: "Selected file(s). Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `multiple`: a single `File` (or `null`), or a `File[]` array.", type: "File | readonly File[] | null", default: "null" },
     { name: "(rejected)", description: "Emitted when files are rejected for type / size / count reasons.", type: "readonly WrFileUploadRejection[]" },
     { name: "(touch)", description: "Emitted on commit so a bound field can mark itself touched.", type: "void" },
+  ],
+  // <[wrFitText]>
+  WrFitText: [
+    { name: "wrFitText", description: "`false` switches the fitting off and removes the width it wrote. Bare `wrFitText` is on.", type: "boolean", default: "true" },
   ],
   // <wr-flow-lines>
   WrFlowLines: [

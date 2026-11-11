@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 193 of 206 declarations are mapped: 0 carry no selector and
+ * 195 of 208 declarations are mapped: 0 carry no selector and
  * 13 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -72,6 +72,7 @@ export const SELECTORS = {
     "wr-context-menu": { symbol: "WrContextMenuPanel", path: "ngwr/context-menu" },
     "wr-context-menu-divider": { symbol: "WrContextMenuDivider", path: "ngwr/context-menu" },
     "wr-context-menu-item": { symbol: "WrContextMenuItem", path: "ngwr/context-menu" },
+    "wr-copy-value": { symbol: "WrCopyValue", path: "ngwr/copy-value" },
     "wr-count-up": { symbol: "WrCountUp", path: "ngwr/counter" },
     "wr-counter": { symbol: "WrCounter", path: "ngwr/counter" },
     "wr-date-picker": { symbol: "WrDatePicker", path: "ngwr/date-picker" },
@@ -206,6 +207,7 @@ export const SELECTORS = {
     "wrDrawerTitle": { symbol: "WrDrawerTitle", path: "ngwr/drawer" },
     "wrDropdown": { symbol: "WrDropdown", path: "ngwr/dropdown" },
     "wrFallingLetters": { symbol: "WrFallingLetters", path: "ngwr/animations/falling-letters" },
+    "wrFitText": { symbol: "WrFitText", path: "ngwr/directives" },
     "wrGlitch": { symbol: "WrGlitch", path: "ngwr/animations/glitch" },
     "wrGlowBorder": { symbol: "WrGlowBorder", path: "ngwr/animations/glow-border" },
     "wrGradientFlow": { symbol: "WrGradientFlow", path: "ngwr/animations/gradient-flow" },
@@ -305,6 +307,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/comment",
   "ngwr/compare",
   "ngwr/context-menu",
+  "ngwr/copy-value",
   "ngwr/counter",
   "ngwr/date-picker",
   "ngwr/density",
