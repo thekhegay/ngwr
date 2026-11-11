@@ -4,9 +4,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very high
 
-- **Date picker size**: `wr-date-picker` and `wr-date-range-picker` have no `size`, unlike every other field.
-- **Open pickers from code**: select, cascader, tree overlay and date picker have no `open()` / `close()` and no `opened` / `closed`, unlike `wrDropdown` and `wrPopover`.
-- **Date picker clear**: no `clearable`, unlike select, cascader and tree.
 - **Naming and types**: small mismatches across tabs, slider, input, alert, drawer, toast, popover and dropdown.
 
 ## High
