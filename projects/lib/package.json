@@ -130,9 +130,6 @@
       "sass": "./animations/confetti/styles/_index.scss",
       "default": "./animations/confetti/public-api.ts"
     },
-    "./animations/core": {
-      "default": "./animations/core/public-api.ts"
-    },
     "./animations/decode": {
       "sass": "./animations/decode/styles/_index.scss",
       "default": "./animations/decode/public-api.ts"

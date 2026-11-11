@@ -1,9 +1,10 @@
 import { Component, PLATFORM_ID, type WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { graphemes } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { graphemes } from '../internal';
 
 import {
   BOUNCE_MIN,

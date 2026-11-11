@@ -2,9 +2,10 @@ import { Directionality } from '@angular/cdk/bidi';
 import { Component, ErrorHandler, PLATFORM_ID, type WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { MAX_DPR, MAX_FRAME_MS } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { MAX_DPR, MAX_FRAME_MS } from '../internal';
 
 import { THREAD_CONTEXT_ATTRIBUTES, THREAD_UNIFORMS, createThreadRenderer } from './thread-gl';
 import { PART_RADIUS, WrThreadLines } from './thread-lines';

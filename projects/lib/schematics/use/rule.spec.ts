@@ -129,7 +129,7 @@ function entryPointsUnder(dir: string, prefix = ''): string[] {
  * `scripts/lib/entry-points.ts` lists them: every export is `@internal`, so the
  * shipped symbol map never carries one and the table has nothing to say.
  */
-const INTERNAL = new Set(['charts/core', 'animations/core']);
+const INTERNAL = new Set(['charts/core']);
 
 function symbolMap(): Record<string, string> {
   const map: Record<string, string> = {};

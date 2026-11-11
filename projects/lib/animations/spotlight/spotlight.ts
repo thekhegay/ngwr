@@ -8,8 +8,9 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, inject } from '@angular/core';
 
-import { type WrPointerFollower, WrPointerTracker } from 'ngwr/animations/core';
 import { wrCheckStyles } from 'ngwr/utils';
+
+import { type WrPointerFollower, WrPointerTracker } from '../internal';
 
 /** The modifier the directive puts on the host while a pointer is over it. */
 const ON = 'wr-spotlight--on';

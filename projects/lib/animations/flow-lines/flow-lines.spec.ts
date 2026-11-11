@@ -2,9 +2,10 @@ import { Directionality } from '@angular/cdk/bidi';
 import { Component, ErrorHandler, PLATFORM_ID, type WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { MAX_DPR } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { MAX_DPR } from '../internal';
 
 import { FLOW_CONTEXT_ATTRIBUTES, FLOW_UNIFORMS, NO_INTRO, createFlowRenderer } from './flow-gl';
 import { INK_DARK, INK_LIGHT, WrFlowLines } from './flow-lines';

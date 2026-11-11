@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { MAX_DPR, seededRandom } from 'ngwr/animations/core';
+import { MAX_DPR, seededRandom } from '../internal';
 
 /**
  * The pure side of `<wr-thread-lines>`: how the strands are laid across the

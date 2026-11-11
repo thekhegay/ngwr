@@ -22,9 +22,10 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { FOCUSABLE } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrNumAttr, wrRandomId, wrCheckStyles } from 'ngwr/utils';
+
+import { FOCUSABLE } from '../internal';
 
 /** The ring at rest, in degrees per second: one turn in 36 s. */
 const ORBIT_SPEED = 10;

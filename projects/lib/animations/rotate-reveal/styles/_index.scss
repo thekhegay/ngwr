@@ -1,5 +1,5 @@
 @use '../../../theme/styles' as theme;
-@use '../../core/styles/mixins' as core;
+@use '../../internal/styles/mixins' as core;
 @include theme.loaded('animations/rotate-reveal');
 
 // `<wr-rotate-reveal>`: one word of a sentence that gives way to the next in

@@ -20,18 +20,12 @@ import {
   signal,
 } from '@angular/core';
 
-import {
-  BREAKING_SPACES,
-  VIEW_THRESHOLD,
-  type WrStaggerBy,
-  graphemes,
-  optionalMs,
-  staggerGap,
-} from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
-import type { WrRevealTrigger } from './types';
+import { BREAKING_SPACES, VIEW_THRESHOLD, graphemes, optionalMs, staggerGap } from '../internal';
+
+import type { WrRevealBy, WrRevealTrigger } from './types';
 
 /** One piece and its place in the sequence. */
 interface RevealPiece {
@@ -85,7 +79,7 @@ export class WrReveal {
    * letters of one word sit in a no-wrap wrapper, so a word never breaks across
    * lines mid-word. @default 'letters'
    */
-  readonly by = input<WrStaggerBy>('letters');
+  readonly by = input<WrRevealBy>('letters');
 
   /**
    * Each word clips its pieces at a padded line box, so a letter comes up from

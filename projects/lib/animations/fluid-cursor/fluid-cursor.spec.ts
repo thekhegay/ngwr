@@ -1,9 +1,10 @@
 import { Component, ErrorHandler, PLATFORM_ID, type WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { MAX_PIXELS } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { MAX_PIXELS } from '../internal';
 
 import { WrFluidCursor } from './fluid-cursor';
 import { FLUID_PASSES, type FluidPass, createFluidSim } from './fluid-gl';

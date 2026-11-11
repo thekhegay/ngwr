@@ -1,5 +1,5 @@
 @use '../../../theme/styles' as theme;
-@use '../../core/styles/mixins' as core;
+@use '../../internal/styles/mixins' as core;
 @include theme.loaded('animations/blur-reveal');
 
 // `[wrBlurReveal]`: the host's text comes in piece by piece the first time it
