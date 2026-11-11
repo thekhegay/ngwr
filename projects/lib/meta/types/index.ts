@@ -33,6 +33,17 @@ export interface WrMetaConfig {
   readonly title?: string;
   /** Template applied to `title` when set — `{{ title }}` (or `%s`) is replaced with the page title. */
   readonly titleTemplate?: string;
+  /**
+   * A part put in front of the title, joined to it by `titleSeparator`, inside
+   * `titleTemplate`. It is a layer's own key, so the title under it stays live:
+   * `{ titlePrefix: 'Edit lamp' }` over `{ title: 'Lamps' }` reads
+   * `Edit lamp - Lamps`, and popping it gives `Lamps` back. A page whose title
+   * this service does not manage gets it in front of the document's own title.
+   * Open Graph and Twitter titles never carry it.
+   */
+  readonly titlePrefix?: string;
+  /** What joins `titlePrefix` to the title. @default ' - ' */
+  readonly titleSeparator?: string;
   readonly description?: string;
   readonly keywords?: readonly string[];
   readonly canonical?: string;

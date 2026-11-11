@@ -38,6 +38,11 @@ export default class ConfigurationPage {
     { feature: 'withStorage()', entry: 'ngwr/storage', sets: 'Storage engine, key prefix and default TTL' },
     { feature: 'withMeta()', entry: 'ngwr/meta', sets: 'Title template and default Open Graph and Twitter tags' },
     { feature: 'withWindows()', entry: 'ngwr/window', sets: 'The work area windows keep inside: insets or an element' },
+    {
+      feature: 'withDialog()',
+      entry: 'ngwr/dialog',
+      sets: 'Dialog defaults: tabTitle names the browser tab after the open dialog',
+    },
   ];
 
   protected readonly snippets = {

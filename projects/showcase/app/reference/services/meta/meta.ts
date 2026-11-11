@@ -83,6 +83,10 @@ providers: [
     }),
   ),
 ],`,
+    prefix: `meta.set({ title: 'Lamps' });
+
+const handle = meta.push({ titlePrefix: 'Edit lamp' }); // Edit lamp - Lamps
+handle.pop();                                           // Lamps`,
     push: `private readonly meta = inject(WrMeta);
 
 ngOnInit() {

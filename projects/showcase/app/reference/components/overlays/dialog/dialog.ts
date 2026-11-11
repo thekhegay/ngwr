@@ -94,6 +94,14 @@ if (result === undefined) return;      // dismissed`,
   confirmColor: 'danger',
 });
 if (ok) this.store.remove(item);`,
+    tabTitle: `// One dialog.
+this.dialog.open(EditLampComponent, { tabTitle: true });
+
+// Every dialog. The option on open() or confirm() still wins.
+provideWr(withDialog({ tabTitle: true }));
+
+// The joiner comes from ngwr/meta. The default is ' - '.
+provideWr(withDialog({ tabTitle: true }), withMeta({ titleSeparator: ' · ' }));`,
     closeWhen: `const ref = this.dialog.open(UploadingComponent);
 ref.closeWhen(this.upload.isDone, 'uploaded');
 
@@ -114,13 +122,19 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
       type: '(WrDialogConfirmOptions) => Promise<boolean>',
       default: '-',
     },
+    {
+      name: 'withDialog(defaults)',
+      description: 'App-wide defaults, as a feature of `provideWr()`. Takes `tabTitle`.',
+      type: '(WrDialogDefaults) => WrFeature',
+      default: '-',
+    },
   ];
 
   protected readonly confirmApi: readonly DocApiRow[] = [
     {
       name: 'WrDialogConfirmOptions',
       description:
-        'Argument of `confirm()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape` and `closeOnNavigation` from `WrDialogOptions`.',
+        'Argument of `confirm()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation` and `tabTitle` from `WrDialogOptions`.',
       type: 'interface',
       default: '-',
     },
@@ -259,6 +273,14 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
       default: '—',
       sub: true,
     },
+    {
+      name: 'tabTitle',
+      description:
+        'The browser tab reads the dialog title in front of the page title while the dialog is open. The default comes from `withDialog()`.',
+      type: 'boolean',
+      default: 'false',
+      sub: true,
+    },
   ];
 
   protected readonly injectablesApi: readonly DocApiRow[] = [
@@ -338,6 +360,14 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
     });
     const result = await ref.awaitClose();
     this.lastResult.set(result === true ? 'Confirmed' : 'Cancelled');
+  }
+
+  protected openNamed(): void {
+    this.dialog.open<ConfirmDialogComponent, boolean, ConfirmData>(ConfirmDialogComponent, {
+      data: { title: 'Delete item?', message: 'The tab is named after this dialog until it closes.' },
+      width: '24rem',
+      tabTitle: true,
+    });
   }
 
   protected async ask(): Promise<void> {
