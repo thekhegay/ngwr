@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1633 hook(s) across 112 page(s). A property is here only when the
+ * 1638 hook(s) across 112 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -1982,7 +1982,12 @@ export const CSS_VARS = {
     subpath: "ngwr/toast",
     vars: [
       { name: "--wr-toast-accent", default: "var(--wr-color-primary)", scope: ".wr-toast", overrides: 1 },
+      { name: "--wr-toast-action-color", default: "var(--wr-color-primary-ink)", scope: ".wr-toast", overrides: 1 },
+      { name: "--wr-toast-action-font-size", default: "var(--wr-text-sm)", scope: ".wr-toast" },
+      { name: "--wr-toast-action-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-toast" },
+      { name: "--wr-toast-action-hover-bg", default: "var(--wr-color-hover)", scope: ".wr-toast" },
       { name: "--wr-toast-action-padding", default: "var(--wr-space-xs)", scope: ".wr-toast" },
+      { name: "--wr-toast-action-padding-x", default: "var(--wr-space-sm)", scope: ".wr-toast" },
       { name: "--wr-toast-action-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-toast" },
       { name: "--wr-toast-actions-gap", default: "var(--wr-space-xs)", scope: ".wr-toast", overrides: 1 },
       { name: "--wr-toast-bg", default: "var(--wr-color-surface)", scope: ".wr-toast" },
