@@ -4,12 +4,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very high
 
-- **Storage blocked by the browser**: the default storage engine reads `localStorage` outside its `try`, so with cookies or storage blocked (sandboxed iframe, block-all-cookies) the first component that resolves `WrI18n` throws. Fall back to memory.
-- **Pagination focus**: the page cells are tracked by `$index`, so after a click focus lands on another page number, or on the body when the slot turns into an ellipsis. Track by page.
-- **`wrPoll` interval**: a 0 or `NaN` interval is refused only in dev mode; in production the timer re-arms at 0 ms for ever. Guard it in every build.
-- **`wr-transfer` right pane**: the target list rescans every item on each keystroke and checkbox toggle, and the orphan warning repeats with it.
-- **`wr-countdown` end**: a finished countdown keeps its timer running, and a target already in the past never emits `countdownEnd`.
-- **`wr-input-number` and `wr-date-picker` width**: in a form field the host stretches but its `wr-input-group` stays at content width, so the box is shorter than a `wrInput` beside it.
 - **`wr-select` and `wr-table` lookups**: multi-select membership and table expand state compare arrays item by item; use sets.
 - **`virtualScroll` on a plain select**: the flag only works with search, and does nothing without a word otherwise.
 - **Date picker size**: `wr-date-picker` and `wr-date-range-picker` have no `size`, unlike every other field.
