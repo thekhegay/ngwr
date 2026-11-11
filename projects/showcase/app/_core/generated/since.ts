@@ -150,7 +150,7 @@ export const UPDATED = {
   "reference/interfaces/catalog": "15.1.0",
   "reference/interfaces/theme": "15.0.0",
   "reference/pipes/wr-bytes": "15.4.0",
-  "reference/pipes/wr-date": "15.4.0",
+  "reference/pipes/wr-date": "15.10.0",
   "reference/pipes/wr-number": "15.4.0",
   "reference/pipes/wr-plural": "15.4.0",
   "reference/services/density": "15.0.0",
@@ -162,4 +162,5 @@ export const UPDATED = {
   "reference/utils/badge-log": "15.10.0",
   "reference/utils/keys": "15.5.0",
   "reference/utils/resolve-css-color": "15.2.0",
+  "reference/utils/wr-initials": "15.10.0",
 } satisfies Record<string, string>;
