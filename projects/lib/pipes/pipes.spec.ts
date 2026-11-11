@@ -4,7 +4,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { WrDateAdapter } from 'ngwr/date';
 import { wrInitials } from 'ngwr/utils';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrBytes, wrFormatBytes } from './bytes';
 import { WrDate, wrFormatDate } from './date';
@@ -215,7 +215,27 @@ describe('wrInitials', () => {
  * it is the evening before anywhere west of Greenwich, so the time it carries is
  * the assertion that holds in every zone but UTC itself.
  */
+/**
+ * Safari's `Date` for the one string it refuses and Chrome reads: a space
+ * where ISO 8601 has a `T`. Without it these cases pass on V8 whatever parses.
+ */
+function refuseSpaceForm(): void {
+  const Native = Date;
+  vi.stubGlobal(
+    'Date',
+    class extends Native {
+      constructor(...args: ConstructorParameters<DateConstructor>) {
+        const [first] = args as unknown[];
+        if (typeof first === 'string' && /^\d{4}-\d{2}-\d{2} /.test(first)) super(Number.NaN);
+        else super(...args);
+      }
+    }
+  );
+}
+
 describe('wrDate', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
   const pipe = (): WrDate => {
     TestBed.resetTestingModule();
     return TestBed.configureTestingModule({
@@ -237,6 +257,27 @@ describe('wrDate', () => {
   it('prints nothing for a date the engine refuses', () => {
     expect(pipe().transform('2026-13-01')).toBe('');
     expect(pipe().transform('')).toBe('');
+    expect(pipe().transform('   ')).toBe('');
+    expect(pipe().transform(Number.NaN)).toBe('');
+    expect(pipe().transform(new Date(Number.NaN))).toBe('');
+  });
+
+  it('reads a backend date-time with a space as its T form, where the engine refuses the space', () => {
+    refuseSpaceForm();
+    expect(Number.isNaN(new Date('2026-03-01 14:30:00').getTime())).toBe(true);
+
+    const p = pipe();
+    const adapter = TestBed.inject<WrDateAdapter<Date>>(WrDateAdapter);
+    for (const [space, iso] of [
+      ['2026-03-01 14:30:00', '2026-03-01T14:30:00'],
+      ['2026-03-01 14:30', '2026-03-01T14:30'],
+      ['2026-03-01 14:30:00.123456+05', '2026-03-01T14:30:00.123+05:00'],
+    ]) {
+      expect(p.transform(space, 'yyyy-MM-dd HH:mm:ss')).toBe(p.transform(iso, 'yyyy-MM-dd HH:mm:ss'));
+      expect(wrFormatDate(space, adapter, 'mediumDateTime')).toBe(wrFormatDate(iso, adapter, 'mediumDateTime'));
+    }
+    expect(p.transform('2026-03-01 14:30:00', 'yyyy-MM-dd HH:mm')).toBe('2026-03-01 14:30');
+    expect(wrFormatDate('2026-03-01 14:30:00', adapter, 'dd.MM.yyyy HH:mm')).toBe('01.03.2026 14:30');
   });
 
   it('is the same output as wrFormatDate over the same adapter', () => {
