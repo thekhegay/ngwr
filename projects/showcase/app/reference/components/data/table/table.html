@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="15.10.0"
+  updated="16.0.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
@@ -184,8 +184,39 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Sticky header"
+    description="`stickyHeader` scrolls the rows inside the table, under a header that stays put. `viewportHeight` caps the scroll area; the pager sits below it."
+  >
+    <ngwr-doc-code [code]="snippets.sticky" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table
+          stickyHeader
+          [viewportHeight]="320"
+          [columns]="columns"
+          [items]="paginatedRows"
+          [pageSize]="10"
+          [(page)]="stickyPage"
+        />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        It works in every mode: paged, grouped, tree rows, pinned columns, selection. The summary footer sticks too.
+      </li>
+      <li>
+        <code>viewportHeight="fill"</code> takes the height the parent has left. The parent is a flex column with a
+        height of its own, and every flex ancestor above it has <code>min-height: 0</code>; or it is a block with a set
+        height.
+      </li>
+      <li>A filling table never shrinks below <code>--wr-table-scroll-min-height</code>.</li>
+    </ul>
+    <ngwr-doc-code [code]="snippets.stickyFill" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Virtual scroll"
-    description="Set `virtualScroll` and `viewportHeight`; all rows share one height."
+    description="Set `virtualScroll` and `viewportHeight`; all rows share one height. The header sticks without `stickyHeader`."
   >
     <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
     <ngwr-doc-snippet code="">

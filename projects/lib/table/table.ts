@@ -194,6 +194,8 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
     class: 'wr-table',
     '[class.wr-table--responsive]': 'responsive()',
     '[class.wr-table--virtual]': 'virtualized()',
+    '[class.wr-table--sticky-head]': 'scrollable()',
+    '[class.wr-table--fill]': 'fillsParent()',
     // The rows under the veil are stale while a load is in flight, and nothing
     // said so: the veil marked itself, not the table it covers. Same pairing as
     // `wr-card` — mark busy, don't block (the veil is `pointer-events: none`).
@@ -598,10 +600,26 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   readonly rowHeight = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
 
   /**
-   * Height of the scroll viewport when `virtualScroll` is on — a number (px) or
-   * any CSS length (`'70vh'`). Applied as `max-height` on `.wr-table__scroll`
-   * (a short table shrinks to fit; a long one caps and scrolls). A numeric px
-   * value lets the server prerender the exact first window. @default 480
+   * Gives the table its own vertical scroll area, with the header row stuck to
+   * its top and the summary footer to its bottom, in every mode: plain, paged,
+   * grouped, tree, with pinned columns or selection. The pager stays below the
+   * scroll area. `viewportHeight` sizes it. A virtualized table already
+   * scrolls this way, so the input adds nothing there.
+   * @default false
+   */
+  readonly stickyHeader = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Height of the scroll area when `virtualScroll` or `stickyHeader` is on — a
+   * number (px), any CSS length (`'70vh'`) or `'fill'`. A length is applied as
+   * `max-height` on `.wr-table__scroll` through `--wr-table-scroll-height` (a
+   * short table shrinks to fit; a long one caps and scrolls). `'fill'` takes
+   * the height the parent has left instead: the parent must be a flex column
+   * with a definite height (every flex ancestor up the chain needs
+   * `min-height: 0`), or a block with a definite height. The table then never
+   * shrinks below `--wr-table-scroll-min-height`. A numeric px value lets the
+   * server prerender the exact first window of a virtualized table.
+   * @default 480
    */
   readonly viewportHeight = input<number | string>(480);
 
@@ -874,6 +892,29 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         ro?.disconnect();
       });
     });
+
+    // (C) The sticky header and footer cover the edges of the scroll area, so
+    // their heights become its scroll padding.
+    effect(onCleanup => {
+      const head = this.headEl()?.nativeElement;
+      const foot = this.footEl()?.nativeElement;
+      const setEdges = (next: { head: number | null; foot: number | null }): void => {
+        const prev = untracked(this.stickyEdges);
+        if (prev.head !== next.head || prev.foot !== next.foot) this.stickyEdges.set(next);
+      };
+      if (!head || !this.scrollable() || !isPlatformBrowser(this.platformId) || typeof ResizeObserver === 'undefined') {
+        setEdges({ head: null, foot: null });
+        return;
+      }
+      // A header hidden by card mode measures 0, which is no height to pad by.
+      const px = (el: HTMLElement | undefined): number | null => (el && el.offsetHeight > 0 ? el.offsetHeight : null);
+      const measure = (): void => setEdges({ head: px(head), foot: px(foot) });
+      const observer = new ResizeObserver(measure);
+      observer.observe(head);
+      if (foot) observer.observe(foot);
+      measure();
+      onCleanup(() => observer.disconnect());
+    });
   }
 
   private measurePins(
@@ -1044,6 +1085,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
 
   /** The `.wr-table__scroll` div (always in the template; only read when virtual). */
   private readonly scrollEl = viewChild<ElementRef<HTMLElement>>('scroll');
+  private readonly headEl = viewChild<ElementRef<HTMLElement>>('head');
+  private readonly footEl = viewChild<ElementRef<HTMLElement>>('foot');
   /** Live vertical scroll offset (px); 0 on the server / before first scroll. */
   private readonly scrollTop = signal(0);
   /** Measured viewport clientHeight (px); 0 until the browser observer fires. */
@@ -1077,11 +1120,20 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     return typeof h === 'number' ? h : WrTable.FALLBACK_VIEWPORT_PX;
   });
 
-  /** `viewportHeight` as a CSS length for the inline max-height. */
-  protected readonly resolvedViewportHeight = computed<string>(() => {
+  /** The table scrolls vertically inside `.wr-table__scroll`, under a sticky header. */
+  protected readonly scrollable = computed<boolean>(() => this.virtualized() || this.stickyHeader());
+
+  protected readonly fillsParent = computed<boolean>(() => this.scrollable() && this.viewportHeight() === 'fill');
+
+  /** `viewportHeight` as the value of `--wr-table-scroll-height`; `null` leaves the hook to the stylesheet. */
+  protected readonly scrollHeight = computed<string | null>(() => {
+    if (!this.scrollable() || this.fillsParent()) return null;
     const h = this.viewportHeight();
     return typeof h === 'number' ? `${h}px` : h;
   });
+
+  /** Measured heights (px) of the sticky header and footer, which `scroll-padding` keeps clear; `null` until measured. */
+  protected readonly stickyEdges = signal<{ head: number | null; foot: number | null }>({ head: null, foot: null });
 
   /** Rendered window [start,end) + spacer pads (px). Pure math, O(1) per scroll frame. */
   protected readonly virtualWindow = computed<{ start: number; end: number; padTop: number; padBottom: number }>(() => {
