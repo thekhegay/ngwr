@@ -206,6 +206,12 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Emitted on blur so a bound field can mark itself touched. */
   readonly touch = output<void>();
 
+  /** Fires after the popup opens. */
+  readonly opened = output<void>();
+
+  /** Fires after the popup closes. */
+  readonly closed = output<void>();
+
   /** Text currently in the input (may be partial / invalid mid-type). */
   protected readonly text = signal<string>('');
 
@@ -795,6 +801,20 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     target?.focus();
   }
 
+  /**
+   * Open the popup, as a click on the field does: focus stays where it is.
+   * Refused while disabled; a read-only picker still opens, as its field and trigger do.
+   */
+  open(): void {
+    if (this.disabled() || this.overlayRef) return;
+    this.openOverlay(this.inputEl().nativeElement, false);
+  }
+
+  /** Close the popup. */
+  close(): void {
+    if (this.overlayRef) this.closeOverlay();
+  }
+
   // Overlay
 
   private openOverlay(openedFrom: HTMLElement | null = null, autoFocus = false): void {
@@ -878,6 +898,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
           this.closeOverlay();
         }
       });
+
+    this.opened.emit();
   }
 
   private attachDate(): void {
@@ -973,6 +995,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
    * stealing it back would fight the user for the caret.
    */
   private closeOverlay(): void {
+    const wasOpen = !!this.overlayRef;
     const pane = this.overlayRef?.overlayElement;
     const inside = !!pane && pane.contains(document.activeElement);
 
@@ -988,6 +1011,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     // user is somewhere else now, and a refusal that waited for the panel shows. A pick
     // has already cleared its refusal, so this only ever reaches text still refused.
     if (document.activeElement !== this.inputEl().nativeElement) this.reveal();
+
+    if (wasOpen) this.closed.emit();
   }
 
   private dispose(): void {

@@ -211,13 +211,19 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   /** Emitted on blur / commit so a bound field can mark itself touched. */
   readonly touch = output<void>();
 
+  /** Fires after the panel opens. */
+  readonly opened = output<void>();
+
+  /** Fires after the panel closes. */
+  readonly closed = output<void>();
+
   /** Committed selection path (full T[] from root to leaf). @internal */
   protected readonly path = signal<readonly T[]>([]);
 
   /** Currently-expanded column path — drives which columns the panel shows. @internal */
   protected readonly activePath = signal<readonly T[]>([]);
 
-  protected readonly open = signal(false);
+  protected readonly isOpen = signal(false);
 
   /**
    * The option the user last moved to inside the open panel — `null` until they
@@ -308,7 +314,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     const parts = ['wr-cascader'];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-cascader--${size}`);
-    if (this.open()) parts.push('wr-cascader--open');
+    if (this.isOpen()) parts.push('wr-cascader--open');
     if (this.disabled()) parts.push('wr-cascader--disabled');
     else if (this.readonly()) parts.push('wr-cascader--readonly');
     return parts.join(' ');
@@ -337,10 +343,10 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     // the CDK container, not in this component's view, so destroying the
     // component while the panel is open would strand the pane and its scroll
     // strategy.
-    this.destroyRef.onDestroy(() => this.closeOverlay());
+    this.destroyRef.onDestroy(() => this.closeOverlay(false));
 
     effect(() => {
-      if (this.open()) {
+      if (this.isOpen()) {
         this.openOverlay();
       } else {
         this.closeOverlay();
@@ -349,7 +355,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
 
     // Close the panel if the control becomes disabled or read-only while open.
     effect(() => {
-      if (this.disabled() || this.readonly()) this.open.set(false);
+      if (this.disabled() || this.readonly()) this.isOpen.set(false);
     });
 
     // Mirror an external `value` write into the internal path/activePath
@@ -377,12 +383,24 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     this.host.nativeElement.querySelector<HTMLElement>('.wr-cascader__trigger')?.focus(options);
   }
 
+  /** Open the panel on the selected path, as the trigger does. Refused while disabled or read-only. */
+  open(): void {
+    if (this.disabled() || this.readonly() || this.isOpen()) return;
+    this.activePath.set(this.path());
+    this.isOpen.set(true);
+  }
+
+  /** Close the panel. */
+  close(): void {
+    this.isOpen.set(false);
+  }
+
   // Template handlers
 
   protected onTriggerClick(): void {
     if (this.disabled() || this.readonly()) return;
-    if (!this.open()) this.activePath.set(this.path());
-    this.open.update(v => !v);
+    if (!this.isOpen()) this.activePath.set(this.path());
+    this.isOpen.update(v => !v);
   }
 
   /**
@@ -394,7 +412,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
    * own their own keys.
    */
   protected onTriggerKeydown(event: KeyboardEvent): void {
-    if (this.disabled() || this.readonly() || this.open()) return;
+    if (this.disabled() || this.readonly() || this.isOpen()) return;
 
     // Backspace is the × from the keyboard, and it has to be: the × is a
     // `tabindex="-1"` span INSIDE this button, and a keydown goes to the focused
@@ -414,7 +432,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
     event.preventDefault();
     this.activePath.set(this.path());
-    this.open.set(true);
+    this.isOpen.set(true);
   }
 
   protected onOptionClick(colIndex: number, opt: WrCascaderOption<T>, event: Event): void {
@@ -438,7 +456,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
       this.value.set(newPath);
       this.touch.emit();
       // Close once we hit a true leaf — parent commits keep the panel open.
-      if (!hasChildren) this.open.set(false);
+      if (!hasChildren) this.isOpen.set(false);
     }
   }
 
@@ -674,7 +692,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;
-        this.open.set(false);
+        this.isOpen.set(false);
       });
 
     this.overlayRef
@@ -683,14 +701,16 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
-          this.open.set(false);
+          this.isOpen.set(false);
           return;
         }
         if (this.overlayRef && tabLeavesPane(this.overlayRef.overlayElement, event)) {
           this.host.nativeElement.querySelector<HTMLElement>('.wr-cascader__trigger')?.focus();
-          this.open.set(false);
+          this.isOpen.set(false);
         }
       });
+
+    this.opened.emit();
   }
 
   /**
@@ -702,7 +722,8 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     this.overlayRef?.overlayElement.querySelector<HTMLElement>('[role="treeitem"][tabindex="0"]')?.focus();
   }
 
-  private closeOverlay(): void {
+  /** `notify: false` is the destroy path: an output cannot emit from a destroyed view. */
+  private closeOverlay(notify = true): void {
     if (!this.overlayRef) return;
     // Opening moves the caret onto the panel's tab stop and every option commits
     // on Enter, so on the keyboard the caret is INSIDE the pane by design — and
@@ -716,7 +737,9 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     const focusWasInside = pane.contains(this.host.nativeElement.ownerDocument.activeElement);
     this.overlayRef.dispose();
     this.overlayRef = null;
+    if (!notify) return;
     if (focusWasInside) this.host.nativeElement.querySelector<HTMLElement>('.wr-cascader__trigger')?.focus();
+    this.closed.emit();
   }
 }
 

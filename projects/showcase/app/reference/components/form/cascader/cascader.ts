@@ -97,6 +97,9 @@ export default class CascaderPage {
   protected readonly pickedAny = signal<readonly string[]>([]);
 
   protected readonly snippets = {
+    openFromCode: `<wr-cascader #place [options]="locations" [(value)]="picked" (opened)="onOpened()" (closed)="onClosed()" />
+<button wr-btn (click)="place.open()">Open</button>`,
+
     basic: `<wr-cascader [options]="locations" [(value)]="picked" placeholder="Pick a location" />
 
 locations: WrCascaderOption[] = [

@@ -33,7 +33,7 @@
     <!-- `aria-autocomplete` is static, and `list` rather than `both`: the panel
          is the only place a suggestion appears, nothing is written back into
          the field for the user. It describes a permanent CAPABILITY, which is
-         why it does not track `open()` — the same reasoning `wr-mention`
+         why it does not track `isOpen()` — the same reasoning `wr-mention`
          records at its own host binding. -->
     <input
       #searchInput
@@ -50,9 +50,9 @@
       [disabled]="isDisabled()"
       [attr.aria-haspopup]="'listbox'"
       aria-autocomplete="list"
-      [attr.aria-expanded]="open()"
+      [attr.aria-expanded]="isOpen()"
       [attr.aria-controls]="listboxId"
-      [attr.aria-activedescendant]="open() ? activeOptionId() || null : null"
+      [attr.aria-activedescendant]="isOpen() ? activeOptionId() || null : null"
       [attr.aria-readonly]="isReadonly() || null"
       [readonly]="isReadonly()"
       [placeholder]="resolvedPlaceholder()"
@@ -193,9 +193,9 @@
         [attr.role]="hasChipSearch() ? 'combobox' : null"
         [attr.aria-haspopup]="hasChipSearch() ? 'listbox' : null"
         [attr.aria-autocomplete]="hasChipSearch() ? 'list' : null"
-        [attr.aria-expanded]="hasChipSearch() ? open() : null"
+        [attr.aria-expanded]="hasChipSearch() ? isOpen() : null"
         [attr.aria-controls]="hasChipSearch() ? listboxId : null"
-        [attr.aria-activedescendant]="hasChipSearch() && open() ? activeOptionId() || null : null"
+        [attr.aria-activedescendant]="hasChipSearch() && isOpen() ? activeOptionId() || null : null"
         (input)="onChipsInput($event)"
         (keydown)="onChipsKeydown($event)"
         (paste)="onChipsPaste($event)"
@@ -266,9 +266,9 @@
     [attr.aria-invalid]="ariaInvalid()"
     [disabled]="isDisabled()"
     [attr.aria-haspopup]="'listbox'"
-    [attr.aria-expanded]="open()"
+    [attr.aria-expanded]="isOpen()"
     [attr.aria-controls]="listboxId"
-    [attr.aria-activedescendant]="open() ? activeOptionId() || null : null"
+    [attr.aria-activedescendant]="isOpen() ? activeOptionId() || null : null"
     [attr.aria-readonly]="isReadonly() || null"
     (click)="onTriggerClick()"
     (keydown)="onTriggerKey($event)"

@@ -221,6 +221,12 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   /** Emitted on blur so a bound field can mark itself touched. */
   readonly touch = output<void>();
 
+  /** Fires after the popup opens. */
+  readonly opened = output<void>();
+
+  /** Fires after the popup closes. */
+  readonly closed = output<void>();
+
   /** Text currently in each input (may be partial / invalid mid-type). */
   protected readonly startText = signal<string>('');
   protected readonly endText = signal<string>('');
@@ -755,6 +761,20 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.touch.emit();
   }
 
+  /**
+   * Open the popup, as a click on the start field does: focus stays where it is.
+   * Refused while disabled or read-only.
+   */
+  open(): void {
+    if (this.disabled() || this.readonly() || this.overlayRef) return;
+    this.openOverlay(this.startEl().nativeElement, false);
+  }
+
+  /** Close the popup. */
+  close(): void {
+    if (this.overlayRef) this.closeOverlay();
+  }
+
   // Overlay
 
   private openOverlay(openedFrom: HTMLElement | null = null, autoFocus = false): void {
@@ -840,6 +860,8 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
           this.closeOverlay();
         }
       });
+
+    this.opened.emit();
   }
 
   /**
@@ -855,6 +877,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    * popup, possibly several Tab stops away.
    */
   private closeOverlay(): void {
+    const wasOpen = !!this.overlayRef;
     const pane = this.overlayRef?.overlayElement;
     const doc = this.host.nativeElement.ownerDocument;
     const inside = !!pane && pane.contains(doc.activeElement);
@@ -874,6 +897,8 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     // A panel that closes ends the visit to it: wherever focus is now, the ends it is
     // not in have been left. A pick has already cleared the refusals it replaced.
     this.revealFor(doc.activeElement);
+
+    if (wasOpen) this.closed.emit();
   }
 
   private dispose(): void {
