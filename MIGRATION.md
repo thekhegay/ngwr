@@ -112,6 +112,25 @@ The codemod also lists a `vi.mock()` / `jest.mock()` factory or a dynamic `impor
 these entry points, where the names are object keys it cannot follow. Running it twice changes
 nothing.
 
+**Three inputs and one option changed name**, so one idea has one name across the library.
+
+| Where                               | Before                   | After                                    | Codemod                              |
+| ----------------------------------- | ------------------------ | ---------------------------------------- | ------------------------------------ |
+| `WrToastOptions` (`WrToast.show()`) | `dismissible`            | `closable`                               | Rewrites, lists what it cannot place |
+| `<wr-slider>`                       | `showLabel`              | `showValue`                              | Rewrites                             |
+| `<wr-password-toggle>`              | `showLabel`, `hideLabel` | `showPasswordLabel`, `hidePasswordLabel` | Rewrites                             |
+| `WrPopover`, `WrDropdown`           | `isOpen.set(…)`          | `open()`, `close()`, `toggle()`          | Lists files                          |
+
+The codemod rewrites the attribute and the `[binding]` on that element alone, in `.html` files and
+inline templates. It rewrites `dismissible` in the argument of `show()` on a `WrToast` and in an
+object typed as `WrToastOptions`; one that reaches the toast through a variable or a spread it
+lists by file and line.
+
+**`isOpen` on a popover and a dropdown is read-only.** Writing it moved the signal without the
+panel. It is a `Signal<boolean>` now, so `isOpen.set()` and `isOpen.update()` fail the build. The
+codemod lists each call, in TypeScript and on a `#ref="wrPopover"` in a template: call `open()`,
+`close()` or `toggle()`.
+
 ---
 
 ## 15.5 to 15.6

@@ -15,8 +15,9 @@ import { describe, expect, it } from 'vitest';
 import ngUpdateV16 from './index';
 
 /**
- * `ng update ngwr` to v16, which renames the unprefixed exports and reports an
- * import of the entry point that went internal.
+ * `ng update ngwr` to v16, which renames the unprefixed exports, the inputs
+ * and the toast option that changed name, and reports an import of the entry
+ * point that went internal and a write to a popover's or a dropdown's `isOpen`.
  *
  * The rename fails in two directions and each needs its own case. Missing a
  * use leaves a name that no longer exists, which the build reports. Touching a
@@ -438,6 +439,254 @@ export const load = (): Promise<unknown> => import('ngwr/utils').then(m => m);
     });
   });
 
+  describe('the inputs v16 renamed', () => {
+    it.each([
+      ['<wr-slider showLabel />', '<wr-slider showValue />'],
+      ['<wr-slider showLabel="false" />', '<wr-slider showValue="false" />'],
+      ['<wr-slider [showLabel]="labelled()" />', '<wr-slider [showValue]="labelled()" />'],
+      [
+        '<wr-slider [disabled]="n > 0" [title]="\'a "b"\'"\n  [showLabel]="false"></wr-slider>',
+        '<wr-slider [disabled]="n > 0" [title]="\'a "b"\'"\n  [showValue]="false"></wr-slider>',
+      ],
+      [
+        '<wr-password-toggle [for]="pw" showLabel="Reveal" hideLabel="Mask" />',
+        '<wr-password-toggle [for]="pw" showPasswordLabel="Reveal" hidePasswordLabel="Mask" />',
+      ],
+      [
+        '<wr-password-toggle [hideLabel]="mask" [showLabel]="reveal" [for]="pw" />',
+        '<wr-password-toggle [hidePasswordLabel]="mask" [showPasswordLabel]="reveal" [for]="pw" />',
+      ],
+    ])('in a template: %s', (before, after) => {
+      expect(rewrite(`${before}\n`, '/src/app/page.html')).toBe(`${after}\n`);
+    });
+
+    it('leaves the same attribute on any other element, and a value that only reads the name', () => {
+      const before = `<wr-calendar-heatmap [showLabels]="true" />
+<app-field showLabel [hideLabel]="false" />
+<wr-slider-group showLabel />
+<wr-slider [value]="showLabel ? 1 : 2" [showValue]="showLabel" />
+<wr-knob showValue /> <wr-slider /> <app-chip showLabel />
+`;
+
+      expect(rewrite(before, '/src/app/page.html')).toBe(before);
+    });
+
+    it('rewrites an inline template', () => {
+      const after = rewrite(`import { Component } from '@angular/core';
+import { WrSlider } from 'ngwr/slider';
+
+@Component({
+  selector: 'app-volume',
+  imports: [WrSlider],
+  template: \`
+    <wr-slider [(value)]="volume" [showLabel]="false" />
+    <wr-password-toggle [for]="pw" showLabel="Reveal" />
+  \`,
+})
+export class Volume {
+  protected showLabel = false;
+}
+`);
+
+      expect(after).toContain('<wr-slider [(value)]="volume" [showValue]="false" />');
+      expect(after).toContain('<wr-password-toggle [for]="pw" showPasswordLabel="Reveal" />');
+      expect(after).toContain('protected showLabel = false;');
+    });
+
+    it('stays quick on a tag crowded with quotes', () => {
+      const crowded = `<wr-slider ${'[a]="\'x\'" '.repeat(400)}>\n`.repeat(20);
+      const started = performance.now();
+
+      expect(rewrite(crowded, '/src/app/page.html')).toBe(crowded);
+      expect(performance.now() - started).toBeLessThan(2000);
+    });
+  });
+
+  describe('the toast option dismissible', () => {
+    it('becomes closable in the argument of show() on an injected WrToast', () => {
+      const after = rewrite(`import { inject } from '@angular/core';
+import { WrToast } from 'ngwr/toast';
+
+export class Page {
+  private readonly toast = inject(WrToast);
+
+  save(dismissible: boolean): void {
+    this.toast.show({ message: 'Saved', dismissible: false });
+    this.toast.show({ message: 'Saved', 'dismissible': true });
+    this.toast.show({ message: 'Saved', dismissible });
+    inject(WrToast).show({ message: 'Saved', dismissible: false });
+  }
+}
+`);
+
+      expect(after).toContain("this.toast.show({ message: 'Saved', closable: false });");
+      expect(after).toContain("this.toast.show({ message: 'Saved', 'closable': true });");
+      expect(after).toContain("this.toast.show({ message: 'Saved', closable: dismissible });");
+      expect(after).toContain("inject(WrToast).show({ message: 'Saved', closable: false });");
+      expect(after).toContain('save(dismissible: boolean): void {');
+    });
+
+    it('follows a constructor parameter, a typed field and an aliased import', () => {
+      const after = rewrite(`import { WrToast as Toasts } from 'ngwr/toast';
+
+export class Page {
+  private readonly other: Toasts;
+  constructor(private readonly toast: Toasts) {
+    this.other = toast;
+    toast.show({ message: 'a', dismissible: false });
+    this.toast.show({ message: 'b', dismissible: false });
+    this.other.show({ message: 'c', dismissible: false });
+  }
+}
+`);
+
+      expect(after).not.toContain('dismissible');
+      expect(after.match(/closable: false/g)).toHaveLength(3);
+    });
+
+    it('becomes closable in an object typed, asserted or checked as WrToastOptions, and where one is read', () => {
+      const after = rewrite(`import type { WrToastOptions } from 'ngwr/toast';
+
+export const sticky: WrToastOptions = { message: 'Working', dismissible: false, duration: 0 };
+export const partial: Partial<WrToastOptions> = { dismissible: false };
+export const list: readonly WrToastOptions[] = [{ message: 'a', dismissible: false }];
+export const checked = { message: 'b', dismissible: true } satisfies WrToastOptions;
+export const cast = { message: 'c', dismissible: true } as WrToastOptions;
+
+export function hasClose(options: WrToastOptions): boolean {
+  return options.dismissible ?? true;
+}
+`);
+
+      expect(after).not.toContain('dismissible');
+      expect(after).toContain("sticky: WrToastOptions = { message: 'Working', closable: false, duration: 0 }");
+      expect(after).toContain('partial: Partial<WrToastOptions> = { closable: false }');
+      expect(after).toContain("[{ message: 'a', closable: false }]");
+      expect(after).toContain("{ message: 'b', closable: true } satisfies WrToastOptions");
+      expect(after).toContain("{ message: 'c', closable: true } as WrToastOptions");
+      expect(after).toContain('return options.closable ?? true;');
+    });
+
+    it('leaves a dismissible that is not a toast’s, and says nothing in a file with no toast', () => {
+      const before = `import { WrAlert } from 'ngwr/alert';
+
+export const banner = { text: 'Hi', dismissible: true };
+export const imports = [WrAlert];
+export const show = (panel: { show(o: object): void }): void => panel.show({ dismissible: true });
+`;
+      const { read, logs } = run({ '/src/app/banner.ts': before });
+
+      expect(read('/src/app/banner.ts')).toBe(before);
+      expect(said(logs, 'nothing to do')).toBe(true);
+    });
+
+    it('leaves and lists the ones it cannot place in a file that uses the toast', () => {
+      const before = `import { inject } from '@angular/core';
+import { WrToast, type WrToastOptions } from 'ngwr/toast';
+
+const base = { message: 'Saved', dismissible: false };
+const banner = { text: 'Hi', nested: { dismissible: true } };
+const panel = { show: (o: object): object => o };
+
+export function notify(extra: object): void {
+  inject(WrToast).show(base);
+  panel.show({ dismissible: true });
+  const typed: WrToastOptions = { message: 'x', action: { label: 'Undo', run: () => undefined, dismissible: 1 } as never };
+  const { dismissible } = base;
+  console.log(banner, typed, dismissible, extra);
+}
+`;
+      const { read, logs } = run({ '/src/app/notify.ts': before });
+
+      expect(read('/src/app/notify.ts')).toBe(before);
+      expect(said(logs, 'ngwr v16: `dismissible` that may be a toast option in 1 file(s)')).toBe(true);
+      expect(logs).toContain('  /src/app/notify.ts:4, 5, 10, 11, 12');
+    });
+  });
+
+  describe('the read-only isOpen', () => {
+    it('lists a write on a popover or a dropdown, by file and line, and rewrites none', () => {
+      const before = `import { Component, inject, viewChild, ViewChild } from '@angular/core';
+import { WrDropdown } from 'ngwr/dropdown';
+import { WrPopover } from 'ngwr/popover';
+
+@Component({ selector: 'app-page', template: '' })
+export class Page {
+  private readonly details = viewChild.required(WrPopover);
+  private readonly menu = viewChild<WrDropdown>('menu');
+  @ViewChild(WrPopover) legacy!: WrPopover;
+  private readonly host = inject(WrDropdown);
+
+  toggle(): void {
+    this.details().isOpen.set(true);
+    this.menu()?.isOpen.update(open => !open);
+    this.legacy.isOpen.set(false);
+    this.host.isOpen.set(false);
+    if (this.details().isOpen()) this.details().close();
+  }
+}
+`;
+      const { read, logs } = run({ '/src/app/page.ts': before });
+
+      expect(read('/src/app/page.ts')).toBe(before);
+      expect(said(logs, 'ngwr v16: `isOpen.set()` / `isOpen.update()` on a popover or a dropdown in 1 file(s)')).toBe(
+        true
+      );
+      expect(said(logs, 'Call `open()` or `close()` instead')).toBe(true);
+      expect(logs).toContain('  /src/app/page.ts:13, 14, 15, 16');
+    });
+
+    it('lists a write through a template reference, in a template and inline', () => {
+      const html = `<button wrPopover [content]="tip" #details="wrPopover">Details</button>
+<button (click)="details.isOpen.set(true)">Open</button>
+<button (click)="details.isOpen() ? details.close() : details.open()">Toggle</button>
+<button [wrDropdown]="items" #menu="wrDropdown" (blur)="menu.isOpen.update(flip)">Menu</button>
+<button (click)="mine.isOpen.set(true)">Mine</button>
+`;
+      const inline = `import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-inline',
+  template: \`
+    <button wrPopover #tip="wrPopover" (click)="tip.isOpen.set(false)">Tip</button>
+  \`,
+})
+export class Inline {}
+`;
+      const { read, logs } = run({ '/src/app/page.html': html, '/src/app/inline.ts': inline });
+
+      expect(read('/src/app/page.html')).toBe(html);
+      expect(read('/src/app/inline.ts')).toBe(inline);
+      expect(said(logs, 'on a popover or a dropdown in 2 file(s)')).toBe(true);
+      expect(logs).toContain('  /src/app/page.html:2, 4');
+      expect(logs).toContain('  /src/app/inline.ts:6');
+    });
+
+    it('leaves an isOpen of the app’s own, and one on another ngwr component', () => {
+      const before = `import { signal, viewChild } from '@angular/core';
+import { WrPopover } from 'ngwr/popover';
+import { WrSelect } from 'ngwr/select';
+
+export class Page {
+  readonly isOpen = signal(false);
+  private readonly panel = { isOpen: signal(false) };
+  private readonly select = viewChild(WrSelect);
+  private readonly details = viewChild(WrPopover);
+
+  open(): void {
+    this.isOpen.set(true);
+    this.panel.isOpen.set(true);
+    this.details()?.open();
+  }
+}
+`;
+      const { read, logs } = run({ '/src/app/page.ts': before });
+
+      expect(read('/src/app/page.ts')).toBe(before);
+      expect(said(logs, 'nothing to do')).toBe(true);
+    });
+  });
+
   describe('running it twice', () => {
     const files = {
       '/src/app/a.ts': `import { type Maybe, KEYS, clamp as c, debounce } from 'ngwr/utils';
@@ -463,6 +712,34 @@ export const math = { debounce };
       for (const path of Object.keys(files)) expect(second.read(path)).toBe(once[path]);
       expect(said(second.logs, 'rewrote')).toBe(false);
       expect(said(second.logs, 'ngwr/animations/core in 1 file(s)')).toBe(true);
+    });
+
+    it('changes nothing the second time for the renamed inputs and options, and repeats the reports', () => {
+      const sources = {
+        '/src/app/page.html':
+          '<wr-slider showLabel />\n<wr-password-toggle [for]="pw" showLabel="Reveal" hideLabel="Mask" />\n' +
+          '<button wrPopover #tip="wrPopover" (click)="tip.isOpen.set(true)">Tip</button>\n',
+        '/src/app/page.ts': `import { inject } from '@angular/core';
+import { WrToast } from 'ngwr/toast';
+
+const base = { message: 'Saved', dismissible: false };
+export const notify = (): unknown => inject(WrToast).show({ message: 'Saved', dismissible: false });
+export const again = (): unknown => inject(WrToast).show(base);
+`,
+      };
+      const first = run(sources);
+      const once = Object.fromEntries(Object.keys(sources).map(path => [path, first.read(path)]));
+      const second = run(once);
+
+      for (const path of Object.keys(sources)) {
+        expect(once[path]).not.toBe(sources[path as keyof typeof sources]);
+        expect(second.read(path)).toBe(once[path]);
+      }
+      expect(once['/src/app/page.html']).toContain('<wr-slider showValue />');
+      expect(once['/src/app/page.html']).toContain('showPasswordLabel="Reveal" hidePasswordLabel="Mask"');
+      expect(said(second.logs, 'rewrote')).toBe(false);
+      expect(second.logs).toContain('  /src/app/page.ts:4');
+      expect(second.logs).toContain('  /src/app/page.html:3');
     });
 
     it('leaves a tree already on v16 byte for byte', () => {
@@ -520,6 +797,12 @@ export const icons = wrLucideIcons({});
         'WR_KEYS',
         'WrMaybe',
         'ngwr/animations/core',
+        'closable',
+        'showValue',
+        'showPasswordLabel',
+        'hidePasswordLabel',
+        'isOpen.set()',
+        '.html',
       ]) {
         expect(entry.description, named).toContain(named);
       }
