@@ -84,7 +84,7 @@ export class WrToastHarness extends ComponentHarness {
   }
 
   /** Whether the toast offers a dismiss button. */
-  async isDismissible(): Promise<boolean> {
+  async isClosable(): Promise<boolean> {
     return (await this.locatorForOptional('.wr-toast__action--close')()) !== null;
   }
 
