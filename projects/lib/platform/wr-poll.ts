@@ -105,12 +105,15 @@ class WrPollTicker {
  * ```
  *
  * @param resource - The resource to reload.
- * @param intervalMs - How often, in ms. Must be positive.
+ * @param intervalMs - How often, in ms. Must be positive and finite: anything
+ * else throws in dev mode and polls nothing in production.
  */
 export function wrPoll<T>(resource: WritableResource<T>, intervalMs: number): void {
   assertInInjectionContext(wrPoll);
-  if (isDevMode() && !(intervalMs > 0)) {
-    throw new Error(`wrPoll: intervalMs must be a positive number, got ${String(intervalMs)}`);
+  if (!(intervalMs > 0) || !Number.isFinite(intervalMs)) {
+    if (isDevMode()) throw new Error(`wrPoll: intervalMs must be a positive number, got ${String(intervalMs)}`);
+    // Never reaches the ticker: its timer would re-arm at 0 ms for ever.
+    return;
   }
   const stop = inject(WrPollTicker).add({ resource, intervalMs, last: Date.now() });
   inject(DestroyRef).onDestroy(stop);
