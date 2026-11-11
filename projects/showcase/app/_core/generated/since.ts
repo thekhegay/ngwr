@@ -138,7 +138,7 @@ export const UPDATED = {
   "reference/components/slider": "15.6.0",
   "reference/components/sortable-list": "15.0.0",
   "reference/components/switch": "15.0.0",
-  "reference/components/table": "15.9.0",
+  "reference/components/table": "15.10.0",
   "reference/components/textarea": "15.0.0",
   "reference/components/timeline": "15.0.0",
   "reference/components/toast": "15.0.0",
@@ -157,6 +157,7 @@ export const UPDATED = {
   "reference/services/platform": "15.5.0",
   "reference/services/storage": "15.5.0",
   "reference/services/theme": "15.0.0",
+  "reference/utils/badge-log": "15.10.0",
   "reference/utils/keys": "15.5.0",
   "reference/utils/resolve-css-color": "15.2.0",
 } satisfies Record<string, string>;
