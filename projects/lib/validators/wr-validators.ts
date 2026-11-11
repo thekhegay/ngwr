@@ -8,7 +8,7 @@
 import { isDevMode } from '@angular/core';
 import { type AbstractControl, type ValidationErrors, type ValidatorFn } from '@angular/forms';
 
-import { wrToLocalDate } from 'ngwr/date';
+import { wrParseDate } from 'ngwr/date';
 
 function stringValue(control: AbstractControl): string {
   const v: unknown = control.value;
@@ -70,14 +70,15 @@ function mod97(iban: string): number {
 }
 
 /**
- * A bound or a value as milliseconds. A date-only string (`'2026-01-01'`) is that
- * day's LOCAL midnight — see `wrToLocalDate` — so `minDate('2026-01-01')` accepts the
- * 1 January a date picker emits, in every zone.
+ * A bound or a value as milliseconds, read as `wrParseDate` reads it. A date-only
+ * string (`'2026-01-01'`) is that day's LOCAL midnight, so `minDate('2026-01-01')`
+ * accepts the 1 January a date picker emits, in every zone, and a backend's
+ * `'2026-01-01 14:30:00'` is the instant its `T` form names.
  */
 function toMs(value: unknown): number {
   if (value instanceof Date) return value.getTime();
   if (typeof value !== 'string' && typeof value !== 'number') return Number.NaN;
-  return wrToLocalDate(value).getTime();
+  return wrParseDate(value)?.getTime() ?? Number.NaN;
 }
 
 /**
@@ -366,7 +367,8 @@ export const WrValidators = {
 
   /**
    * Value (Date | parseable) must be ≥ `min`. A date-only string (`'2026-01-01'`),
-   * as the bound or the value, is that day's LOCAL midnight.
+   * as the bound or the value, is that day's LOCAL midnight, and a backend's
+   * `'2026-01-01 14:30:00'` is read as its `T` form.
    */
   minDate: (min: Date | string | number): ValidatorFn => {
     const minMs = toMs(min);
@@ -381,7 +383,8 @@ export const WrValidators = {
 
   /**
    * Value (Date | parseable) must be ≤ `max`. A date-only string (`'2026-12-31'`),
-   * as the bound or the value, is that day's LOCAL midnight.
+   * as the bound or the value, is that day's LOCAL midnight, and a backend's
+   * `'2026-12-31 14:30:00'` is read as its `T` form.
    */
   maxDate: (max: Date | string | number): ValidatorFn => {
     const maxMs = toMs(max);

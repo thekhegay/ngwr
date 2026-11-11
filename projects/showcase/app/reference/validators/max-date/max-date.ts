@@ -49,7 +49,8 @@ const end = new FormControl('', [
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'signature',
-      description: 'Call it with a `Date`, an ISO string or epoch ms. A date-only string is local midnight.',
+      description:
+        'Call it with a `Date`, an ISO string or epoch ms. A date-only string is local midnight, and `2026-03-01 14:30:00` is read as its `T` form.',
       type: '(max: Date | string | number) => ValidatorFn',
       default: '—',
     },

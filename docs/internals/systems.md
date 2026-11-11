@@ -139,8 +139,9 @@ one component folder. Reach for them instead of hand-rolling:
   `wrParseDate` is the entry point's one plain function: a backend
   value (a `Date`, epoch milliseconds, an ISO string, the SQL space form Safari
   refuses) as a `Date` or `null`, never an Invalid Date. It reads a date-only
-  string through the internal `wrToLocalDate`, so it agrees with `wrDate` and the
-  date validators on the day, and it must stay free of the adapter and of DI.
+  string through the internal `wrToLocalDate`, and `wrDate`, `wrFormatDate` and
+  the date validators parse through it in turn, so all four read one string as
+  one instant. It must stay free of the adapter and of DI.
 - **Router integration is OPT-IN since v14, and lives in two nested entry
   points** — `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`, and
   `WrTabsRouting` (the `[wrTabsRouting]` attribute on the strip) from
