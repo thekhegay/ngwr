@@ -50,10 +50,10 @@ one component folder. Reach for them instead of hand-rolling:
   the callback when its own position list is direction-dependent
   (`wrMirrorOffsets`).
 - **Icons** (`ngwr/icon`) — `WrIcon` (`<wr-icon name="…">`) +
-  `provideWrIcons(lucideIcons({…}))`. Both ways in live in `ngwr/icon` itself:
-  `lucideIcons()` / `lucide()` for **lucide only**, the one set whose package
+  `provideWrIcons(wrLucideIcons({…}))`. Both ways in live in `ngwr/icon` itself:
+  `wrLucideIcons()` / `wrLucide()` for **lucide only**, the one set whose package
   ships no SVG files (its exports are `[tag, attrs]` node arrays), and
-  `svgIcon()` from the raw SVG for every other set — feather, tabler, phosphor,
+  `wrSvgIcon()` from the raw SVG for every other set — feather, tabler, phosphor,
   heroicons, iconoir, radix, bootstrap. **v15 deleted both
   `ngwr/icon/adapters/*` entry points**: lucide's moved into `ngwr/icon` under
   the same names, and feather's went without a replacement, because feather
@@ -139,7 +139,7 @@ one component folder. Reach for them instead of hand-rolling:
   `wrParseDate` (15.10.0) is the entry point's one plain function: a backend
   value (a `Date`, epoch milliseconds, an ISO string, the SQL space form Safari
   refuses) as a `Date` or `null`, never an Invalid Date. It reads a date-only
-  string through the internal `toLocalDate`, so it agrees with `wrDate` and the
+  string through the internal `wrToLocalDate`, so it agrees with `wrDate` and the
   date validators on the day, and it must stay free of the adapter and of DI.
 - **Router integration is OPT-IN since v14, and lives in two nested entry
   points** — `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`, and
@@ -160,7 +160,7 @@ one component folder. Reach for them instead of hand-rolling:
   `ngwr/breadcrumbs` uses `RouterLink`. With the three nested ones they are the
   only importers, which is why `@angular/router` is an OPTIONAL peer.
 - **Shared code — don't reinvent these.** `ngwr/utils` (`coercion` incl.
-  `numAttr` for input transforms; plus `dom`, `guards`, `id`, `keyboard`,
+  `wrNumAttr` for input transforms; plus `dom`, `guards`, `id`, `keyboard`,
   `css-size`, `css-value`, `fn`, `math` incl. `wrDecimal` and its `Add` /
   `Subtract` / `Multiply` / `Divide` / `Compare` / `Round` siblings, the one
   `BigInt` decimal core `wr-table` summaries and `wr-input-number`'s
@@ -172,7 +172,7 @@ one component folder. Reach for them instead of hand-rolling:
   second argument, except `wrFormatDate`, which takes the adapter the pipe
   injects), and
   `ngwr/validators` (`WrValidators`). A chart builds on `ngwr/charts/core` —
-  the palette, dashes and markers, `useChartNumbers`, `chartAxis` and the
+  the palette, dashes and markers, `useChartNumbers`, `wrChartAxis` and the
   visually hidden `WrChartTable` behind the opt-in `dataTable` input on bar,
   line, scatter, radar, heatmap chart, calendar heatmap, funnel, waterfall,
   treemap, box plot and candlestick — every export `@internal`, so it stays out of

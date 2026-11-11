@@ -97,10 +97,10 @@ import { WrButton } from 'ngwr/button';
 })
 export class App {}`,
     icons: `import { Check } from 'lucide';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 
 @Component({
-  providers: [provideWrIcons(lucideIcons({ check: Check }))],
+  providers: [provideWrIcons(wrLucideIcons({ check: Check }))],
   template: \`<wr-btn icon="check">Save</wr-btn>\`,
 })
 export class App {}`,

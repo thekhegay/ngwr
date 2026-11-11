@@ -19,15 +19,15 @@ import {
   viewChildren,
 } from '@angular/core';
 
-import { WrChartTable, type WrChartTableData, chartAxis, useChartNumbers } from 'ngwr/charts/core';
-import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { WrChartTable, type WrChartTableData, wrChartAxis, useChartNumbers } from 'ngwr/charts/core';
+import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import { boxplotStats } from './internal/stats';
 import type { WrBoxplotGroup, WrBoxplotStats } from './types';
 
-/** How many gaps the value axis aims for: `chartAxis`'s own default, on a plot tall enough for them. */
+/** How many gaps the value axis aims for: `wrChartAxis`'s own default, on a plot tall enough for them. */
 const TICK_COUNT = 4;
 
 /** How much plot height, in px, each gap of the value axis asks for: two and a half lines of tick label. */
@@ -172,12 +172,12 @@ export class WrBoxplotChart {
 
   protected readonly xName = useI18nText(this.xLabel, 'boxplotChart.group', 'Group');
 
-  private readonly upperName = readI18nText('boxplotChart.upperWhisker', 'Upper whisker');
-  private readonly q3Name = readI18nText('boxplotChart.q3', 'Q3');
-  private readonly medianName = readI18nText('boxplotChart.median', 'Median');
-  private readonly q1Name = readI18nText('boxplotChart.q1', 'Q1');
-  private readonly lowerName = readI18nText('boxplotChart.lowerWhisker', 'Lower whisker');
-  private readonly outliersName = readI18nText('boxplotChart.outliers', 'Outliers');
+  private readonly upperName = wrReadI18nText('boxplotChart.upperWhisker', 'Upper whisker');
+  private readonly q3Name = wrReadI18nText('boxplotChart.q3', 'Q3');
+  private readonly medianName = wrReadI18nText('boxplotChart.median', 'Median');
+  private readonly q1Name = wrReadI18nText('boxplotChart.q1', 'Q1');
+  private readonly lowerName = wrReadI18nText('boxplotChart.lowerWhisker', 'Lower whisker');
+  private readonly outliersName = wrReadI18nText('boxplotChart.outliers', 'Outliers');
 
   /**
    * Writes every number the chart shows: the axis ticks, the tooltip and the data table.
@@ -245,7 +245,7 @@ export class WrBoxplotChart {
   );
 
   /**
-   * The value axis, from `chartAxis` over every number drawn — whisker ends, quartiles,
+   * The value axis, from `wrChartAxis` over every number drawn — whisker ends, quartiles,
    * medians and outliers alike, so a summary given out of order still lands inside it —
    * with no zero forced in and both ends kept off the data (`symmetric`). A single value
    * is centred with a step either side; with nothing to draw, the 0 to 1 frame.
@@ -265,7 +265,7 @@ export class WrBoxplotChart {
       }
     }
     const tickCount = Math.min(TICK_COUNT, Math.max(2, Math.floor(this.height() / TICK_ROOM)));
-    return chartAxis(min, max, { symmetric: true, tickCount });
+    return wrChartAxis(min, max, { symmetric: true, tickCount });
   });
 
   /** The groups as drawn: an equal slot each across the drawing, and their marks placed on the axis. */

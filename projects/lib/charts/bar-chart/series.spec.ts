@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { CHART_DASHES, chartColor } from 'ngwr/charts/core';
+import { WR_CHART_DASHES, wrChartColor } from 'ngwr/charts/core';
 import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -122,13 +122,13 @@ describe('WrBarChart series', () => {
 
   it('gives each series its colour and its own dash, the first one solid', () => {
     const [north, south] = bars(categories()[0]);
-    expect(prop(north, 'color')).toBe(chartColor(0));
+    expect(prop(north, 'color')).toBe(wrChartColor(0));
     expect(prop(south, 'color')).toBe('#123456');
     const edge = (bar: HTMLElement, attr: string): string | null =>
       bar.querySelector('.wr-bar-chart__edge rect')!.getAttribute(attr);
-    expect([edge(north, 'stroke-dasharray'), edge(south, 'stroke-dasharray')]).toEqual([null, CHART_DASHES[1]]);
+    expect([edge(north, 'stroke-dasharray'), edge(south, 'stroke-dasharray')]).toEqual([null, WR_CHART_DASHES[1]]);
     // The outline is the series' colour itself; the body is a tint of it.
-    expect([edge(north, 'stroke'), edge(south, 'stroke')]).toEqual([chartColor(0), '#123456']);
+    expect([edge(north, 'stroke'), edge(south, 'stroke')]).toEqual([wrChartColor(0), '#123456']);
   });
 
   it('prints each bar its own value past its end', () => {
@@ -304,7 +304,7 @@ describe('WrBarChart series', () => {
       expect(legend()!.matches('ul[wr-chart-legend]')).toBe(true);
       expect(rows()).toEqual(['North', 'South']);
       const lines = all<SVGLineElement>('.wr-chart-legend__swatch--line line');
-      expect(lines.map(l => l.getAttribute('stroke-dasharray'))).toEqual([null, CHART_DASHES[1]]);
+      expect(lines.map(l => l.getAttribute('stroke-dasharray'))).toEqual([null, WR_CHART_DASHES[1]]);
       expect(legend()!.compareDocumentPosition(root().querySelector('.wr-bar-chart__plot')!)).toBe(
         Node.DOCUMENT_POSITION_FOLLOWING
       );
@@ -450,8 +450,8 @@ describe('WrBarChart series tooltip', () => {
       row.querySelector<HTMLElement>('.wr-chart-tooltip__row-swatch')!.style.background,
     ]);
     expect(rows).toEqual([
-      ['North', '1,234.5', chartColor(0)],
-      ['South', '3', chartColor(1)],
+      ['North', '1,234.5', wrChartColor(0)],
+      ['South', '3', wrChartColor(1)],
     ]);
   });
 

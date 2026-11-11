@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
-import { CHART_MARKERS, chartMarkerPath } from 'ngwr/charts/core';
+import { WR_CHART_MARKERS, wrChartMarkerPath } from 'ngwr/charts/core';
 import { describe, expect, it } from 'vitest';
 
 /**
@@ -117,10 +117,10 @@ describe('chart geometry', () => {
     const svg = /<svg\b[^>]*wr-chart-legend__swatch--marker[\s\S]*?<\/svg>/.exec(template)?.[0] ?? '';
     const half = Math.abs(Number(/viewBox="(-?[\d.]+)/.exec(svg)?.[1]));
     const r = Number(/markerPath\(item\.marker, ([\d.]+)\)/.exec(svg)?.[1]);
-    const reach = (shape: (typeof CHART_MARKERS)[number]): number =>
-      Math.max(...(chartMarkerPath(shape, r).match(/-?[\d.]+/g) ?? []).map(value => Math.abs(Number(value))));
+    const reach = (shape: (typeof WR_CHART_MARKERS)[number]): number =>
+      Math.max(...(wrChartMarkerPath(shape, r).match(/-?[\d.]+/g) ?? []).map(value => Math.abs(Number(value))));
 
-    expect(CHART_MARKERS.filter(shape => reach(shape) > half)).toEqual(['triangle', 'diamond', 'triangle-down']);
+    expect(WR_CHART_MARKERS.filter(shape => reach(shape) > half)).toEqual(['triangle', 'diamond', 'triangle-down']);
     expect(rule(compile('chart-legend'), 'wr-chart-legend__swatch--marker')).toMatch(/overflow: visible/);
   });
 

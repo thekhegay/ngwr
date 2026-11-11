@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { numAttr } from './num-attr';
+import { wrNumAttr } from './num-attr';
 
-describe('numAttr', () => {
+describe('wrNumAttr', () => {
   it('parses a numeric string', () => {
-    expect(numAttr(0)('42')).toBe(42);
+    expect(wrNumAttr(0)('42')).toBe(42);
   });
 
   it('falls back on anything unparsable', () => {
-    expect(numAttr(7)('nope')).toBe(7);
-    expect(numAttr(7)(null)).toBe(7);
-    expect(numAttr(7)(undefined)).toBe(7);
+    expect(wrNumAttr(7)('nope')).toBe(7);
+    expect(wrNumAttr(7)(null)).toBe(7);
+    expect(wrNumAttr(7)(undefined)).toBe(7);
   });
 });

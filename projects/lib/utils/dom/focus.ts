@@ -52,7 +52,7 @@ function isRendered(el: HTMLElement): boolean {
  * currently has focus: a trap must still be able to find where it is standing,
  * and an element can be focused and then hidden by the same interaction.
  */
-export function getFocusableElements(root: HTMLElement): readonly HTMLElement[] {
+export function wrGetFocusableElements(root: HTMLElement): readonly HTMLElement[] {
   return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
     el => isRendered(el) || el === document.activeElement
   );
@@ -63,9 +63,9 @@ export function getFocusableElements(root: HTMLElement): readonly HTMLElement[] 
  * `keydown` handler. Cycles focus from first ↔ last focusable element.
  * Returns `true` when focus was redirected (event was handled).
  */
-export function trapFocus(root: HTMLElement, event: KeyboardEvent): boolean {
+export function wrTrapFocus(root: HTMLElement, event: KeyboardEvent): boolean {
   if (event.key !== 'Tab') return false;
-  const focusable = getFocusableElements(root);
+  const focusable = wrGetFocusableElements(root);
   if (focusable.length === 0) return false;
 
   const first = focusable[0];

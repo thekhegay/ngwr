@@ -30,9 +30,9 @@ import {
   signal,
 } from '@angular/core';
 
-import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nFormatter } from 'ngwr/i18n';
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
-import { isComposing, toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { wrIsComposing, wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { getCaretCoordinates } from './caret';
 import { WrMentionPanel, wrMentionOptionId } from './mention-panel';
@@ -47,7 +47,7 @@ interface ActiveState {
 }
 
 /**
- * Deterministic under prerender, unlike `randomId()` — `aria-controls` is a
+ * Deterministic under prerender, unlike `wrRandomId()` — `aria-controls` is a
  * static host binding, so it renders on the server too, and a random value would
  * differ between that render and the hydrated client.
  */
@@ -209,7 +209,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
   /** @internal — read by the `aria-controls` host binding. */
   protected readonly listboxId = `wr-mention-listbox-${++mentionUid}`;
 
-  private readonly listLabel = readI18nText('mention.listbox', 'Mentions');
+  private readonly listLabel = wrReadI18nText('mention.listbox', 'Mentions');
   private readonly availableText = useI18nFormatter('mention.available', 'Matches available: {{count}}');
   private readonly insertedText = useI18nFormatter('mention.inserted', 'Inserted: {{label}}');
 
@@ -305,7 +305,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
 
   /** @internal */
   protected onCaretMove(event: KeyboardEvent): void {
-    if (this.composing || isComposing(event)) return;
+    if (this.composing || wrIsComposing(event)) return;
     // Every key `onKeydown` already consumed, Escape included: its keyup would
     // re-detect at a caret that is still sitting inside the mention and reopen the
     // panel Escape had just dismissed. A synthetic keydown-only Escape hides that
@@ -329,7 +329,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     // `this.composing` is deliberately not consulted: on Safari's committing
     // keystroke it has already gone false, and `isComposing` covers that case
     // through the 229 sentinel.
-    if (isComposing(event)) return;
+    if (wrIsComposing(event)) return;
     if (!this.state) return;
     const list = this.filteredItems();
     switch (event.key) {
@@ -555,7 +555,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
           .withPush(true)
           .withPositions(CARET_POSITIONS),
         scrollStrategy: this.scrollStrategies.reposition(),
-        panelClass: toClassList('wr-mention-overlay', this.panelClass()),
+        panelClass: wrToClassList('wr-mention-overlay', this.panelClass()),
       });
 
       // Once per mention SESSION, which is the same thing as once per ref here:

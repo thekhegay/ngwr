@@ -57,7 +57,7 @@ export const appConfig: ApplicationConfig = {
 };`,
 
     other: `import { Check, Plus } from 'lucide';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 import {
   provideWrI18n,
   provideWrI18nBaseCatalogs,
@@ -67,7 +67,7 @@ import { wrEn } from 'ngwr/i18n/en';
 import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router';
 
 providers: [
-  provideWrIcons(lucideIcons({ check: Check, plus: Plus })),
+  provideWrIcons(wrLucideIcons({ check: Check, plus: Plus })),
   provideWrI18n(),
   provideWrI18nBaseCatalogs({ en: wrEn }),
   provideWrI18nStaticLoader({ en: { app: { title: 'My app' } } }),

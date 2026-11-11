@@ -5,10 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { clamp } from 'ngwr/utils';
+import { wrClamp } from 'ngwr/utils';
 
-import { hslToRgb } from './hsl-to-rgb';
-import { parseHex } from './parse-hex';
+import { wrHslToRgb } from './hsl-to-rgb';
+import { wrParseHex } from './parse-hex';
 import type { WrRgb } from './wr-rgb';
 
 /**
@@ -26,11 +26,11 @@ const HSL_RE =
 function alphaOf(raw: string | undefined): number {
   if (raw === undefined) return 1;
   const value = raw.endsWith('%') ? Number(raw.slice(0, -1)) / 100 : Number(raw);
-  return Number.isFinite(value) ? clamp(value, 0, 1) : 1;
+  return Number.isFinite(value) ? wrClamp(value, 0, 1) : 1;
 }
 
 function channel(raw: string): number {
-  return clamp(Math.round(Number(raw)), 0, 255);
+  return wrClamp(Math.round(Number(raw)), 0, 255);
 }
 
 /**
@@ -48,7 +48,7 @@ export function parseColor(input: string): WrRgb | null {
   const value = input.trim();
   if (value === '') return null;
 
-  const hex = parseHex(value);
+  const hex = wrParseHex(value);
   if (hex) return hex;
 
   const rgb = RGB_RE.exec(value);
@@ -58,13 +58,13 @@ export function parseColor(input: string): WrRgb | null {
 
   const hsl = HSL_RE.exec(value);
   if (hsl) {
-    return hslToRgb({
-      // Normalised here rather than trusted downstream: `hslToRgb` happens to
+    return wrHslToRgb({
+      // Normalised here rather than trusted downstream: `wrHslToRgb` happens to
       // absorb one negative turn inside `hueToChannel`, which is an internal
       // detail this function should not be leaning on.
       h: ((Number(hsl[1]) % 360) + 360) % 360,
-      s: clamp(Number(hsl[2]) / 100, 0, 1),
-      l: clamp(Number(hsl[3]) / 100, 0, 1),
+      s: wrClamp(Number(hsl[2]) / 100, 0, 1),
+      l: wrClamp(Number(hsl[3]) / 100, 0, 1),
       a: alphaOf(hsl[4]),
     });
   }

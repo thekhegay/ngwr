@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="WrHotkey"
-  updated="15.5.0"
+  updated="16.0.0"
   description="Register keyboard shortcuts like `mod+k`, where `mod` is ⌘ on macOS and Ctrl elsewhere. A letter shortcut also fires on a non-Latin layout. `bindings()` lists what is registered, for a cheat sheet."
   [keywords]="['service', 'hotkey', 'keyboard', 'WrHotkey', 'cheat sheet', 'wrFormatChord']"
   [labels]="['Service']"
@@ -54,7 +54,7 @@
 
   <ngwr-doc-section
     title="Print a chord"
-    description="`wrFormatChord()` writes a chord the way the platform does: `⌘K` on macOS, `Ctrl+K` elsewhere. Modifiers follow Apple's order (`⌃⌥⇧⌘`) on a Mac. Named keys come from `KEY_LABELS` in `ngwr/utils`, as Apple's glyphs on a Mac (`↩`, `⎋`, `⌫`); arrows are glyphs everywhere. The server has no user agent and gets the Ctrl form, so `<wr-kbd [chord]>` reads the platform after its first render and hydration sees matching text."
+    description="`wrFormatChord()` writes a chord the way the platform does: `⌘K` on macOS, `Ctrl+K` elsewhere. Modifiers follow Apple's order (`⌃⌥⇧⌘`) on a Mac. Named keys come from `WR_KEY_LABELS` in `ngwr/utils`, as Apple's glyphs on a Mac (`↩`, `⎋`, `⌫`); arrows are glyphs everywhere. The server has no user agent and gets the Ctrl form, so `<wr-kbd [chord]>` reads the platform after its first render and hydration sees matching text."
   >
     <ngwr-doc-code [code]="snippets.format" language="angular-ts" />
     <div class="ngwr-table">

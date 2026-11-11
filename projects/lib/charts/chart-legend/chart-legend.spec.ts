@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { CHART_MARKERS, type WrChartMarkerShape } from 'ngwr/charts/core';
+import { WR_CHART_MARKERS, type WrChartMarkerShape } from 'ngwr/charts/core';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -120,11 +120,11 @@ describe('WrChartLegend', () => {
 
   it('accepts every shape the charts hand out', () => {
     // Held both ways: a shape the core adds must be one a legend row can draw.
-    const shapes: readonly WrChartMarker[] = CHART_MARKERS;
+    const shapes: readonly WrChartMarker[] = WR_CHART_MARKERS;
     const back: readonly WrChartMarkerShape[] = shapes;
     host().items.set(back.map(marker => ({ label: marker, color: 'red', marker })));
     render();
-    expect(rows().map(row => row.querySelector('svg')!.getAttribute('data-marker'))).toEqual([...CHART_MARKERS]);
+    expect(rows().map(row => row.querySelector('svg')!.getAttribute('data-marker'))).toEqual([...WR_CHART_MARKERS]);
     expect(rows().every(row => row.querySelector('path')!.getAttribute('d') !== '')).toBe(true);
   });
 

@@ -946,7 +946,7 @@ describe('WrPopover keyboard round trip', () => {
   };
 
   beforeEach(() => {
-    // jsdom lays nothing out, so `getFocusableElements` would drop every control
+    // jsdom lays nothing out, so `wrGetFocusableElements` would drop every control
     // in the panel but the focused one as unrendered.
     vi.spyOn(Element.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
     TestBed.resetTestingModule();

@@ -21,7 +21,7 @@ import {
   signal,
 } from '@angular/core';
 
-import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nFormatter } from 'ngwr/i18n';
 
 import { WR_SORTABLE_LIST } from './tokens';
 import type { WrSortableListContext, WrSortableReorderEvent } from './types';
@@ -151,7 +151,7 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
   /** Links every row to the key model via `aria-describedby`. */
   readonly keyHelpId = `wr-sortable-list-help-${++sortableListUid}`;
 
-  protected readonly resolvedKeyHelp = readI18nText(
+  protected readonly resolvedKeyHelp = wrReadI18nText(
     'sortableList.keyHelp',
     'Press Space to pick this item up, then use the arrow keys to move it. ' +
       'Press Space again to drop it, or Escape to put it back.'
@@ -160,7 +160,7 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
   private readonly grabbedText = useI18nFormatter('sortableList.grabbed', 'Grabbed. {{index}} of {{total}}.');
   private readonly movedText = useI18nFormatter('sortableList.moved', '{{index}} of {{total}}.');
   private readonly droppedText = useI18nFormatter('sortableList.dropped', 'Dropped. {{index}} of {{total}}.');
-  private readonly cancelledText = readI18nText('sortableList.cancelled', 'Move cancelled.');
+  private readonly cancelledText = wrReadI18nText('sortableList.cancelled', 'Move cancelled.');
 
   /** Where the held row started. Escape puts it back there. */
   private grabOrigin = -1;

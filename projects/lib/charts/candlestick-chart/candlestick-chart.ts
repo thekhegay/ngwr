@@ -24,10 +24,10 @@ import {
   viewChildren,
 } from '@angular/core';
 
-import { WrChartTable, type WrChartTableData, chartAxis, useChartNumbers } from 'ngwr/charts/core';
-import { readI18nText, useI18nText } from 'ngwr/i18n';
+import { WrChartTable, type WrChartTableData, wrChartAxis, useChartNumbers } from 'ngwr/charts/core';
+import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
-import { clamp, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrCandlestickDatum } from './types';
 
@@ -236,10 +236,10 @@ export class WrCandlestickChart {
   readonly dataTable = input(false, { transform: coerceBooleanProperty });
 
   /** The words for the four prices, from the catalog: in the tooltip and as the data table's columns. */
-  private readonly openText = readI18nText('candlestickChart.open', 'Open');
-  private readonly highText = readI18nText('candlestickChart.high', 'High');
-  private readonly lowText = readI18nText('candlestickChart.low', 'Low');
-  private readonly closeText = readI18nText('candlestickChart.close', 'Close');
+  private readonly openText = wrReadI18nText('candlestickChart.open', 'Open');
+  private readonly highText = wrReadI18nText('candlestickChart.high', 'High');
+  private readonly lowText = wrReadI18nText('candlestickChart.low', 'Low');
+  private readonly closeText = wrReadI18nText('candlestickChart.close', 'Close');
 
   private readonly plot = viewChild<ElementRef<HTMLElement>>('plot');
 
@@ -285,7 +285,7 @@ export class WrCandlestickChart {
   protected readonly slot = computed(() => (this.slots() === 0 ? 100 : percent(100 / this.slots())));
 
   /**
-   * The y axis, from `chartAxis` over every candle drawn: fitted from the lowest of the
+   * The y axis, from `wrChartAxis` over every candle drawn: fitted from the lowest of the
    * lows to the highest of the highs with no zero forced in, since a price has no
    * baseline, snapped outward at both ends and lifted a step at either end a wick would
    * end on (`symmetric`). A single price is centred with a step either side. With
@@ -302,7 +302,7 @@ export class WrCandlestickChart {
       lo = Math.min(lo, d.low, d.open, d.close);
       hi = Math.max(hi, d.high, d.open, d.close);
     }
-    return chartAxis(lo, hi, { symmetric: true });
+    return wrChartAxis(lo, hi, { symmetric: true });
   });
 
   /**
@@ -356,7 +356,7 @@ export class WrCandlestickChart {
   protected readonly dense = computed(() => {
     if (this.candles().length === 0) return false;
     const measured = this.measured()?.body ?? 0;
-    const body = measured > 0 ? measured : clamp(this.slotPx() * BODY_SHARE, 1, BODY_MAX);
+    const body = measured > 0 ? measured : wrClamp(this.slotPx() * BODY_SHARE, 1, BODY_MAX);
     return body < DENSE_BELOW;
   });
 
@@ -412,7 +412,7 @@ export class WrCandlestickChart {
     const label = Math.min(this.labelPx(), width);
     const data = this.data();
     /** Where a label's laid-out box starts, in px from the drawing's left. */
-    const at = (index: number): number => clamp((index + 0.5) * slotPx - label / 2, 0, width - label);
+    const at = (index: number): number => wrClamp((index + 0.5) * slotPx - label / 2, 0, width - label);
     // A hair of slack on every comparison, so the regular spacing never fails on a rounding.
     const crowds = (start: number, previousEnd: number): boolean => start + 1e-6 < previousEnd + LABEL_GAP;
     const start =
@@ -551,7 +551,7 @@ export class WrCandlestickChart {
     const frame = plot.getBoundingClientRect();
     if (box.width <= 0 || box.height <= 0) return null;
     if (clientX < box.left || clientX > box.right || clientY < frame.top || clientY > frame.bottom) return null;
-    const index = clamp(Math.floor(((clientX - box.left) / box.width) * slots), 0, slots - 1);
+    const index = wrClamp(Math.floor(((clientX - box.left) / box.width) * slots), 0, slots - 1);
     return this.positions().has(index) ? index : null;
   }
 

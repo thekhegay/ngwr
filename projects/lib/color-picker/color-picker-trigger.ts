@@ -25,7 +25,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { getFocusableElements, toClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+import { wrGetFocusableElements, wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrColorPicker } from './color-picker';
 import type { WrColorFormat } from './types';
@@ -45,7 +45,7 @@ function tabLeavesPane(pane: HTMLElement, event: KeyboardEvent): boolean {
   if (event.key !== 'Tab' || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return false;
   const active = pane.ownerDocument.activeElement;
   if (!active || !pane.contains(active)) return false;
-  const all = getFocusableElements(pane);
+  const all = wrGetFocusableElements(pane);
   const at = all.indexOf(active as HTMLElement);
   if (at < 0) return false;
   const beyond = event.shiftKey ? all.slice(0, at) : all.slice(at + 1);
@@ -180,7 +180,7 @@ export class WrColorPickerTrigger {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: toClassList('wr-color-picker-overlay', this.panelClass()),
+      panelClass: wrToClassList('wr-color-picker-overlay', this.panelClass()),
     });
     this.overlayRef.overlayElement.id = this.panelId;
 

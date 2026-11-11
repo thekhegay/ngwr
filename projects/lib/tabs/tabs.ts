@@ -32,7 +32,7 @@ import type { WrTabsContext, WrTabsSize } from './types';
 
 /**
  * Instance counter for the header / panel ids. Deterministic under prerender,
- * unlike `randomId()` — the same reason `wr-sidebar` and `wr-mention` count.
+ * unlike `wrRandomId()` — the same reason `wr-sidebar` and `wr-mention` count.
  *
  * The ids used to be built from the tab key alone, so two `<wr-tabs>` on one
  * page that both name a tab `key="overview"` emitted the same

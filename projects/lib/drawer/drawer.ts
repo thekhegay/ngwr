@@ -32,7 +32,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrDrawerTitle } from './directives/drawer-title';
 import { drawerHasFocus, focusIsLost } from './drawer-focus';
@@ -163,7 +163,7 @@ export class WrDrawer {
     // Only when there is something to collide with: a closable drawer with a
     // title already clears the button, and an unclosable one has no button.
     if (this.closable() && !this.projectedTitle()) parts.push('wr-drawer__panel--untitled');
-    return toClassList(parts, this.panelClass()).join(' ');
+    return wrToClassList(parts, this.panelClass()).join(' ');
   }
 
   private readonly focusMonitor = inject(FocusMonitor);

@@ -19,6 +19,6 @@
  * CDK for an overlay pane rather than bound to an element, and a conditional
  * belongs in the `computed()` that produces the value.
  *
- * @see {@link toClassList} — normalises one into the token array both paths need.
+ * @see {@link wrToClassList} — normalises one into the token array both paths need.
  */
 export type WrClassInput = string | readonly string[] | null | undefined;

@@ -3,11 +3,11 @@
  *
  * @example
  * ```ts
- * clamp(140, 0, 100); // 100
- * clamp(-3, 0, 100);  // 0
- * clamp(42, 0, 100);  // 42
+ * wrClamp(140, 0, 100); // 100
+ * wrClamp(-3, 0, 100);  // 0
+ * wrClamp(42, 0, 100);  // 42
  * ```
  */
-export function clamp(value: number, min: number, max: number): number {
+export function wrClamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }

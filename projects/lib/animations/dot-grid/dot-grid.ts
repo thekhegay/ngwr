@@ -8,7 +8,7 @@
 import { Component, DestroyRef, ElementRef, ViewEncapsulation, inject, input, viewChild } from '@angular/core';
 
 import { MAX_DPR, MAX_PIXELS, createCanvasBackdrop } from 'ngwr/animations/core';
-import { clamp, numAttr, resolveCssColorChannels, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrNumAttr, wrResolveCssColorChannels, wrCheckStyles } from 'ngwr/utils';
 
 /** How far a dot is pushed at the pointer itself, in px. */
 const PUSH = 14;
@@ -94,7 +94,7 @@ export function dotGridLayout(
  * scroll over the section is never fought; a tap sends one ring of light out
  * from the finger instead.
  *
- * Colours come from the `--wr-dot-grid-*` hooks through `resolveCssColorChannels`,
+ * Colours come from the `--wr-dot-grid-*` hooks through `wrResolveCssColorChannels`,
  * re-read when the scheme changes. Under `prefers-reduced-motion: reduce` only
  * the still field is drawn; under `forced-colors: active` nothing is. The server
  * renders the empty canvas, absolutely positioned, so the browser's first draw
@@ -109,10 +109,10 @@ export function dotGridLayout(
 })
 export class WrDotGrid {
   /** Distance between two dots, in px. @default 26 */
-  readonly spacing = input(26, { transform: numAttr(26) });
+  readonly spacing = input(26, { transform: wrNumAttr(26) });
 
   /** How far from the pointer a dot still lights and moves, in px. @default 140 */
-  readonly reach = input(140, { transform: numAttr(140) });
+  readonly reach = input(140, { transform: wrNumAttr(140) });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
@@ -203,8 +203,8 @@ export class WrDotGrid {
   // Layout
 
   private resolveColors(canvas: HTMLCanvasElement): void {
-    const ink = resolveCssColorChannels(canvas, 'var(--wr-dot-grid-ink)', '#6b7280');
-    const glow = resolveCssColorChannels(canvas, 'var(--wr-dot-grid-glow)', '#3969e2');
+    const ink = wrResolveCssColorChannels(canvas, 'var(--wr-dot-grid-ink)', '#6b7280');
+    const glow = wrResolveCssColorChannels(canvas, 'var(--wr-dot-grid-glow)', '#3969e2');
     this.fills = [];
     this.radii = [];
     for (let l = 0; l < LEVELS; l++) {
@@ -313,7 +313,7 @@ export class WrDotGrid {
       } else {
         settled = false;
       }
-      this.level[i] = Math.round(clamp(this.light[i], 0, 1) * (LEVELS - 1));
+      this.level[i] = Math.round(wrClamp(this.light[i], 0, 1) * (LEVELS - 1));
     }
     this.settled = settled && !pulsing;
   }

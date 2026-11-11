@@ -99,7 +99,7 @@ from `ngwr/utils`, never from `ngwr/utils/types`, which is not an entry point.
 - A colour that differs between schemes is declared once, as
   `light-dark(<light>, <dark>)`. No ancestor selector for dark mode and no `-rgb`
   lists: `color-mix(in srgb, var(--wr-color-primary) 12%, transparent)`. A canvas
-  resolves colours through `resolveCssColor` from `ngwr/utils`.
+  resolves colours through `wrResolveCssColor` from `ngwr/utils`.
 - Text on a surface or a `-soft` tint reads `-ink`, a label on a fill reads
   `-contrast`, a graphic keeps the bare intent, a placeholder reads
   `--wr-color-placeholder`.

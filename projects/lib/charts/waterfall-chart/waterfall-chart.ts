@@ -17,8 +17,8 @@ import {
   viewChildren,
 } from '@angular/core';
 
-import { WrChartTable, type WrChartTableData, chartAxis, useChartNumbers } from 'ngwr/charts/core';
-import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { WrChartTable, type WrChartTableData, wrChartAxis, useChartNumbers } from 'ngwr/charts/core';
+import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
@@ -270,9 +270,9 @@ export class WrWaterfallChart {
   /** The figures, the compact labels and the ticks, in `LOCALE_ID` unless `valueFormat` is given. */
   private readonly numbers = useChartNumbers<[WrWaterfallValueContext]>(this.valueFormat);
 
-  private readonly stepName = readI18nText('waterfallChart.step', 'Step');
-  private readonly changeName = readI18nText('waterfallChart.change', 'Change');
-  private readonly runningTotalName = readI18nText('waterfallChart.runningTotal', 'Running total');
+  private readonly stepName = wrReadI18nText('waterfallChart.step', 'Step');
+  private readonly changeName = wrReadI18nText('waterfallChart.change', 'Change');
+  private readonly runningTotalName = wrReadI18nText('waterfallChart.runningTotal', 'Running total');
   private readonly changeStepName = useI18nFormatter(
     'waterfallChart.changeStep',
     '{{label}}: {{change}}, running total {{total}}'
@@ -339,13 +339,13 @@ export class WrWaterfallChart {
   });
 
   /**
-   * The value axis, from `chartAxis` over every bar's two ends with zero always inside —
+   * The value axis, from `wrChartAxis` over every bar's two ends with zero always inside —
    * a total stands on it — snapped outward to a readable step and lifted a step where the
    * highest bar would end on the frame. With no step, the empty 0 to 1 frame.
    */
   protected readonly axis = computed(() => {
     const steps = this.resolved();
-    if (steps.length === 0) return chartAxis(Number.NaN, Number.NaN);
+    if (steps.length === 0) return wrChartAxis(Number.NaN, Number.NaN);
     let min = 0;
     let max = 0;
     for (const { start, end, kind } of steps) {
@@ -353,7 +353,7 @@ export class WrWaterfallChart {
       min = Math.min(min, from, end);
       max = Math.max(max, from, end);
     }
-    return chartAxis(min, max, { includeZero: true });
+    return wrChartAxis(min, max, { includeZero: true });
   });
 
   /** Where zero is, as a percentage of the drawing's height from its bottom: the line every total stands on. */

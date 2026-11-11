@@ -8,7 +8,7 @@
 import { Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
-import { type WrDateFormat, WrDateAdapter, toLocalDate } from 'ngwr/date';
+import { type WrDateFormat, WrDateAdapter, wrToLocalDate } from 'ngwr/date';
 
 /**
  * A date through a `WrDateAdapter`: the same output as the `wrDate` pipe, for a
@@ -36,7 +36,7 @@ export function wrFormatDate(
   format: WrDateFormat | (string & {}) = 'shortDate'
 ): string {
   if (value === null || value === undefined || value === '') return '';
-  const date = value instanceof Date ? value : toLocalDate(value);
+  const date = value instanceof Date ? value : wrToLocalDate(value);
   if (Number.isNaN(date.getTime())) return '';
 
   return adapter.format(date, format);

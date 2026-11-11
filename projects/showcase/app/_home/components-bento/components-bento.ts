@@ -19,7 +19,7 @@ import { WrCheckbox } from 'ngwr/checkbox';
 import { WrCounter } from 'ngwr/counter';
 import { WrEmpty } from 'ngwr/empty';
 import { WrFormField } from 'ngwr/form';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WrInput, WrInputGroup, WrInputPrefix } from 'ngwr/input';
 import { WrPagination } from 'ngwr/pagination';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
@@ -64,7 +64,7 @@ import { DocCodeComponent } from '#core/components';
   ],
   providers: [
     provideWrIcons(
-      lucideIcons({
+      wrLucideIcons({
         checkmark: Check,
         'credit-card': CreditCard,
         folder: Folder,

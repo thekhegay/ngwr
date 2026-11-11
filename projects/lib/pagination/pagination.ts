@@ -11,7 +11,7 @@ import { Component, LOCALE_ID, ViewEncapsulation, computed, effect, inject, inpu
 import { WrButton } from 'ngwr/button';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrOption, WrSelect } from 'ngwr/select';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrPaginationAlign, WrPaginationShape, WrPaginationSize } from './types';
 
@@ -59,7 +59,7 @@ export class WrPagination {
   readonly pageSize = model<number>(10);
 
   /** Total item count across all pages. */
-  readonly total = input(0, { transform: numAttr(0) });
+  readonly total = input(0, { transform: wrNumAttr(0) });
 
   /** Options shown in the page-size dropdown. */
   readonly pageSizeOptions = input<readonly number[]>([10, 20, 50, 100]);

@@ -1,4 +1,4 @@
-import { KEYS } from 'ngwr/utils';
+import { WR_KEYS } from 'ngwr/utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { wrFormatChord, wrHotkeyPlatform } from './format-chord';
@@ -53,7 +53,7 @@ describe('wrFormatChord', () => {
   });
 
   it('takes a translated word for a key, and never for a glyph', () => {
-    const de = { [KEYS.CONTROL]: 'Strg', [KEYS.SHIFT]: 'Umschalt', [KEYS.ENTER]: 'Eingabe' };
+    const de = { [WR_KEYS.CONTROL]: 'Strg', [WR_KEYS.SHIFT]: 'Umschalt', [WR_KEYS.ENTER]: 'Eingabe' };
     expect(wrFormatChord('mod+shift+enter', 'other', de)).toBe('Strg+Umschalt+Eingabe');
     expect(wrFormatChord('mod+shift+enter', 'mac', de)).toBe('⇧⌘↩');
     expect(wrFormatChord('mod+shift+k', 'mac', de)).toBe('⇧⌘K');

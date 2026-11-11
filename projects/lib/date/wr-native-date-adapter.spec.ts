@@ -4,7 +4,7 @@ import { provideWr } from 'ngwr';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { withDates } from './with-dates';
-import { WrDateAdapter, type WrNativeDateAdapter, isNamedFormat } from './wr-date-adapter';
+import { WrDateAdapter, type WrNativeDateAdapter, wrIsNamedFormat } from './wr-date-adapter';
 
 /**
  * This adapter is what every date component computes with — the calendar grid, both
@@ -402,8 +402,8 @@ describe('WrNativeDateAdapter', () => {
     it('knows every variant as a named key, so none is read as a token pattern', () => {
       // A key the adapter did not know fell through to the token formatter, which
       // prints the letters it cannot read: `time24h` came out as `time24h`.
-      for (const key of variants) expect(isNamedFormat(key), key).toBe(true);
-      expect(isNamedFormat('time24hours')).toBe(false);
+      for (const key of variants) expect(wrIsNamedFormat(key), key).toBe(true);
+      expect(wrIsNamedFormat('time24hours')).toBe(false);
     });
 
     it('does not commit a partial value on the way to a whole one', () => {

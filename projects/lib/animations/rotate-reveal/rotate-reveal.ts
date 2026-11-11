@@ -25,7 +25,7 @@ import {
 import { VIEW_THRESHOLD, graphemes } from 'ngwr/animations/core';
 import { useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 /** How long a word stands before the next one takes its place when `hold` is not set, in ms. */
 const ROTATE_REVEAL_HOLD = 2400;
@@ -80,13 +80,13 @@ export class WrRotateReveal {
   readonly words = input.required<readonly string[]>();
 
   /** How long a word stands before the next replaces it, in ms. @default 2400 */
-  readonly hold = input(ROTATE_REVEAL_HOLD, { transform: numAttr(ROTATE_REVEAL_HOLD) });
+  readonly hold = input(ROTATE_REVEAL_HOLD, { transform: wrNumAttr(ROTATE_REVEAL_HOLD) });
 
   /**
    * Pause before the first word's hold starts counting, in ms, from the moment
    * the host is in view: room for an entrance above it to finish. @default 0
    */
-  readonly delay = input(0, { transform: numAttr(0) });
+  readonly delay = input(0, { transform: wrNumAttr(0) });
 
   /** Keep cycling instead of stopping on the first word after one pass through the list. @default false */
   readonly loop = input(false, { transform: booleanAttribute });

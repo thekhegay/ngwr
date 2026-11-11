@@ -5,7 +5,7 @@
 // a cord at one end and frayed apart at the other, riding slow waves and
 // parting round the pointer. The component paints one WebGL canvas and reads
 // its two colours and the surface back from the hooks below through
-// `resolveCssColorChannels`, so a retheme and a scheme switch both reach the
+// `wrResolveCssColorChannels`, so a retheme and a scheme switch both reach the
 // pixels. How much of a colour a strand lays, its glow and its thickness live
 // in the component and its shader: they are the canvas's numbers, not the
 // sheet's.

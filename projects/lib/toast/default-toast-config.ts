@@ -12,7 +12,7 @@ import type { WrToastConfig } from './types';
  * Merged shallowly with the consumer's overrides (the `labels` sub-object is
  * merged separately so callers can override one string at a time).
  */
-export const DEFAULT_TOAST_CONFIG: WrToastConfig = {
+export const DEFAULT_WR_TOAST_CONFIG: WrToastConfig = {
   position: 'top-end',
   mode: 'stack',
   duration: 4000,

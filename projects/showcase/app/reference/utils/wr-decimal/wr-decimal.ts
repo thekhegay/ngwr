@@ -95,7 +95,7 @@ wrDecimal('abc');                      // null`;
   ];
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
-    { kind: 'Util', title: 'round', url: ['/reference/utils', 'round'] },
+    { kind: 'Util', title: 'wrRound', url: ['/reference/utils', 'wr-round'] },
     { kind: 'Component', title: 'Number Input', url: ['/reference/components', 'input-number'] },
     { kind: 'Component', title: 'Table', url: ['/reference/components', 'table'] },
   ];

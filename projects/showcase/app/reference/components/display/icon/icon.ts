@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 import { Plus, Trash } from 'lucide';
-import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 
 import {
   DocApiComponent,
@@ -28,15 +28,15 @@ import { API } from '#core/generated/api';
     DocApiComponent,
     DocSeeAlsoComponent,
   ],
-  providers: [provideWrIcons(lucideIcons({ plus: Plus, trash: Trash }))],
+  providers: [provideWrIcons(wrLucideIcons({ plus: Plus, trash: Trash }))],
 })
 export default class IconComponent {
   protected readonly snippets = {
     register: `import { Plus, Trash } from 'lucide';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideWrIcons(lucideIcons({ plus: Plus, trash: Trash }))],
+  providers: [provideWrIcons(wrLucideIcons({ plus: Plus, trash: Trash }))],
 });`,
 
     use: `import { WrIcon } from 'ngwr/icon';
@@ -47,10 +47,10 @@ export class MyComponent {}
 <wr-icon name="plus" />
 <wr-icon name="trash" />`,
 
-    custom: `import { svgIcon, provideWrIcons } from 'ngwr/icon';
+    custom: `import { wrSvgIcon, provideWrIcons } from 'ngwr/icon';
 
 provideWrIcons([
-  svgIcon('brand', '<svg viewBox="0 0 24 24"><path d="…"/></svg>'),
+  wrSvgIcon('brand', '<svg viewBox="0 0 24 24"><path d="…"/></svg>'),
 ]);`,
   };
 

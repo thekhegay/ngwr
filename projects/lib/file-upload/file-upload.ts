@@ -26,8 +26,8 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
-import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { randomId, wrCheckStyles } from 'ngwr/utils';
+import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './types';
 
@@ -119,7 +119,7 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   protected readonly fieldAria = useFormFieldAria();
 
   /** id of the zone's visible copy, which names it. @internal */
-  protected readonly hintId = randomId('wr-file-upload-hint');
+  protected readonly hintId = wrRandomId('wr-file-upload-hint');
 
   /**
    * The zone's name, as `aria-labelledby`: the field's label when a
@@ -242,11 +242,11 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
    * would stop being checked.
    */
   private readonly unitTexts = [
-    readI18nText('fileUpload.unitByte', 'B'),
-    readI18nText('fileUpload.unitKb', 'KB'),
-    readI18nText('fileUpload.unitMb', 'MB'),
-    readI18nText('fileUpload.unitGb', 'GB'),
-    readI18nText('fileUpload.unitTb', 'TB'),
+    wrReadI18nText('fileUpload.unitByte', 'B'),
+    wrReadI18nText('fileUpload.unitKb', 'KB'),
+    wrReadI18nText('fileUpload.unitMb', 'MB'),
+    wrReadI18nText('fileUpload.unitGb', 'GB'),
+    wrReadI18nText('fileUpload.unitTb', 'TB'),
   ] as const;
 
   private readonly locale = inject(LOCALE_ID);

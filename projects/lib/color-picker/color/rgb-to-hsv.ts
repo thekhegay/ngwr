@@ -11,7 +11,7 @@ import type { WrRgb } from './wr-rgb';
 /**
  * Convert sRGB to HSV. Preserves alpha.
  */
-export function rgbToHsv(rgb: WrRgb): WrHsv {
+export function wrRgbToHsv(rgb: WrRgb): WrHsv {
   const r = rgb.r / 255;
   const g = rgb.g / 255;
   const b = rgb.b / 255;

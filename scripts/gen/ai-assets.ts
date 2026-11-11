@@ -116,14 +116,14 @@ const selectorsOf = (entry: string, exported: ReadonlySet<string>): string[] => 
  *
  * `exports[0]` is whatever the barrel happens to list first, which is often a
  * token or a type: `import { WR_COLORS } from 'ngwr/theme'`,
- * `import { Maybe } from 'ngwr/utils'` — the latter is a type, so the line does
+ * `import { WrMaybe } from 'ngwr/utils'` — the latter is a type, so the line does
  * not even compile under `verbatimModuleSyntax`. Prefer the class named after
  * the entry point, then the first `Wr`-prefixed value.
  */
 function headlineExport(entry: string, exports: readonly PublicExport[]): string | undefined {
   const pascal = wrClassName(entry);
 
-  // Types are excluded outright: `import { Maybe } from 'ngwr/utils'` does not
+  // Types are excluded outright: `import { WrMaybe } from 'ngwr/utils'` does not
   // compile under `verbatimModuleSyntax`, and an import line that does not
   // compile is worse than no import line.
   const values = exports.filter(e => !e.isType).map(e => e.name);
@@ -222,7 +222,7 @@ const UNPAGED: Readonly<Record<string, string>> = {
   'ngwr/pipes':
     'Template formatting: `wrDate`, `wrNumber`, `wrBytes`, `wrDuration`, `wrPlural`, `wrRange`, `wrTruncate` and `wrMark` for search highlighting. The same formatting as functions, for a string built in TypeScript: `wrFormatDate`, `wrFormatNumber`, `wrFormatBytes`, `wrFormatDuration` and `wrFormatPlural`, each taking the locale as its second argument, except `wrFormatDate`, which takes a `WrDateAdapter`.',
   'ngwr/utils':
-    'Small helpers: coercion (`numAttr`), DOM and keyboard guards, maths, ids, `debounce` / `throttle`, `resolveCssColor`, and the shared types `Maybe` and `SafeAny`.',
+    'Small helpers: coercion (`wrNumAttr`), DOM and keyboard guards, maths, ids, `wrDebounce` / `wrThrottle`, `wrResolveCssColor`, and the shared types `WrMaybe` and `WrSafeAny`.',
   'ngwr/validators':
     "`WrValidators`, form validators in the shape of Angular's `Validators`: card number, CVC, IBAN, hex colour, URL, matching fields, min / max date, one-of and no whitespace.",
   'ngwr/version':

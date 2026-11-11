@@ -250,7 +250,7 @@ describe('WrRatingHarness', () => {
   });
 
   it('refuses to report a value the slider does not announce as a number', async () => {
-    // Reachable: `clamp(NaN, …)` is NaN and the component's re-clamp effect sees no
+    // Reachable: `wrClamp(NaN, …)` is NaN and the component's re-clamp effect sees no
     // change, so a NaN written to the model renders as aria-valuenow="NaN". Reporting
     // that as 0 would turn a broken rating into a passing assertion.
     const overall = await ratingFor('Overall');

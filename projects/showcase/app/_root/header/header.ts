@@ -9,7 +9,7 @@ import { WrCommandPalette, type WrCommandItem } from 'ngwr/command-palette';
 import { WrDensity, type WrDensityValue } from 'ngwr/density';
 import { WrDrawer } from 'ngwr/drawer';
 import { WrDropdown, WrDropdownItem, WrDropdownMenu } from 'ngwr/dropdown';
-import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrPopover } from 'ngwr/popover';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { WrTheme, type WrThemeMode } from 'ngwr/theme';
@@ -110,7 +110,7 @@ function docVersionList(version: string, next: boolean): readonly DocVersion[] {
   providers: [
     provideWrIcons([
       ...BRAND_ICONS,
-      ...lucideIcons({ settings: Settings, 'chevron-down': ChevronDown, search: Search }),
+      ...wrLucideIcons({ settings: Settings, 'chevron-down': ChevronDown, search: Search }),
     ]),
   ],
 })

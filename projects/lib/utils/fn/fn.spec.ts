@@ -1,15 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { debounce } from './debounce';
-import { throttle } from './throttle';
+import { wrDebounce } from './debounce';
+import { wrThrottle } from './throttle';
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
 
-describe('debounce', () => {
+describe('wrDebounce', () => {
   it('runs once, after the quiet period, with the last arguments', () => {
     const spy = vi.fn();
-    const fn = debounce(spy, 100);
+    const fn = wrDebounce(spy, 100);
 
     fn('a');
     fn('b');
@@ -22,7 +22,7 @@ describe('debounce', () => {
 
   it('restarts the wait on every call', () => {
     const spy = vi.fn();
-    const fn = debounce(spy, 100);
+    const fn = wrDebounce(spy, 100);
 
     fn();
     vi.advanceTimersByTime(90);
@@ -36,7 +36,7 @@ describe('debounce', () => {
 
   it('cancel drops the pending call', () => {
     const spy = vi.fn();
-    const fn = debounce(spy, 100);
+    const fn = wrDebounce(spy, 100);
 
     fn();
     fn.cancel();
@@ -45,16 +45,16 @@ describe('debounce', () => {
   });
 });
 
-describe('throttle', () => {
+describe('wrThrottle', () => {
   it('runs the first call immediately', () => {
     const spy = vi.fn();
-    throttle(spy, 100)('a');
+    wrThrottle(spy, 100)('a');
     expect(spy).toHaveBeenCalledExactlyOnceWith('a');
   });
 
   it('collapses calls inside the window into one trailing call', () => {
     const spy = vi.fn();
-    const fn = throttle(spy, 100);
+    const fn = wrThrottle(spy, 100);
 
     fn('a');
     fn('b');
@@ -70,7 +70,7 @@ describe('throttle', () => {
 
   it('runs immediately again once the window has passed', () => {
     const spy = vi.fn();
-    const fn = throttle(spy, 100);
+    const fn = wrThrottle(spy, 100);
 
     fn('a');
     vi.advanceTimersByTime(200);
@@ -81,7 +81,7 @@ describe('throttle', () => {
 
   it('cancel drops the trailing call', () => {
     const spy = vi.fn();
-    const fn = throttle(spy, 100);
+    const fn = wrThrottle(spy, 100);
 
     fn('a');
     fn('b');
@@ -101,7 +101,7 @@ describe('throttle', () => {
     // The clock moves without the timer queue moving, which is exactly what
     // `setSystemTime` does and `advanceTimersByTime` does not.
     const spy = vi.fn();
-    const fn = throttle(spy, 100);
+    const fn = wrThrottle(spy, 100);
 
     fn('a');
     fn('b');

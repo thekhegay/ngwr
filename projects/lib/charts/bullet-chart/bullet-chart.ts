@@ -21,14 +21,14 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { chartAxis, useChartNumbers } from 'ngwr/charts/core';
-import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { wrChartAxis, useChartNumbers } from 'ngwr/charts/core';
+import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
-import { clamp, round, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrRound, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Instance counter for the sub-label's id, which the drawing's `aria-describedby` names.
- * Counted rather than `randomId()`, so the prerendered id is the one the browser renders
+ * Counted rather than `wrRandomId()`, so the prerendered id is the one the browser renders
  * again — the reason `wr-tabs` and `wr-graph` count.
  */
 let bulletUid = 0;
@@ -45,11 +45,11 @@ const TRANSPARENT = /^(?:transparent|rgba\(0, 0, 0, 0\))$/;
 /** The least room kept between two tick labels, in px. */
 const TICK_GAP = 8;
 
-/** The tick counts the scale tries, most first, while its labels overlap: what `chartAxis` aims for. */
+/** The tick counts the scale tries, most first, while its labels overlap: what `wrChartAxis` aims for. */
 const TICK_COUNTS = [4, 3, 2, 1] as const;
 
 /** A share of the scale for an inline style, to four decimals with `-0` folded to `0`, so the style stays short. */
-const short = (value: number): number => round(value, 4) || 0;
+const short = (value: number): number => wrRound(value, 4) || 0;
 
 /** One qualitative band as drawn: where it starts and how much of the scale it covers, both as shares from 0 to 1. */
 interface Band {
@@ -302,7 +302,7 @@ export class WrBulletChart {
   /** A number's share of the scale from its start, held to the scale. */
   private share(value: number): number {
     const { min, max } = this.scale();
-    return clamp((value - min) / (max - min), 0, 1);
+    return wrClamp((value - min) / (max - min), 0, 1);
   }
 
   /**
@@ -323,7 +323,7 @@ export class WrBulletChart {
       const end = short(this.share(limit));
       if (end <= start) return [];
       const mix = last === 0 ? 0 : (index / last) * 100;
-      return [{ index, start, size: short(end - start), mix: `${round(mix, 2)}%` }];
+      return [{ index, start, size: short(end - start), mix: `${wrRound(mix, 2)}%` }];
     });
   });
 
@@ -346,7 +346,7 @@ export class WrBulletChart {
   });
 
   /**
-   * The scale's ticks, from its start: `chartAxis` over the scale with the ticks it would
+   * The scale's ticks, from its start: `wrChartAxis` over the scale with the ticks it would
    * draw past either end left out, so the scale ends where `max` says rather than on the
    * next round number. Decided for the whole scale, as an axis' ticks are
    * (`useChartNumbers().ticks`). A tick on either end is aligned inwards, so its label
@@ -369,12 +369,12 @@ export class WrBulletChart {
   });
 
   /**
-   * The scale's ticks for `chartAxis` aiming at `count` gaps. A tick on an end is aligned
+   * The scale's ticks for `wrChartAxis` aiming at `count` gaps. A tick on an end is aligned
    * inwards; with a measurement, so is one whose label, centred on it, would cross an end.
    */
   private ticksFor(count: number, measured: Measured | null): readonly Tick[] {
     const { min, max } = this.scale();
-    const axis = chartAxis(min, max, { includeZero: true, tickCount: count });
+    const axis = wrChartAxis(min, max, { includeZero: true, tickCount: count });
     const values = axis.ticks.filter(tick => tick >= min - 1e-9 && tick <= max + 1e-9).reverse();
     const labels = this.numbers.ticks(values, axis.step);
     return values.map((value, i) => {
@@ -419,7 +419,7 @@ export class WrBulletChart {
   private readonly noValueText = useI18nFormatter('bulletChart.noValue', '{{label}}: no value');
 
   /** The tooltip's name for the target's row. */
-  private readonly targetWord = readI18nText('bulletChart.target', 'Target');
+  private readonly targetWord = wrReadI18nText('bulletChart.target', 'Target');
 
   /**
    * The drawing's accessible name: `ariaLabel`, or a sentence with the value and the

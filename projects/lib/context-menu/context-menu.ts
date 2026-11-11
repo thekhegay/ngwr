@@ -20,7 +20,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { Subscription } from 'rxjs';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { randomId, wrCheckStyles, wrRestoreFocus } from 'ngwr/utils';
+import { wrRandomId, wrCheckStyles, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrContextMenuItem } from './context-menu-item';
 import type { WrContextMenuPanel } from './context-menu-panel';
@@ -383,7 +383,7 @@ export class WrContextMenu {
     // one first in document order.
     const menuEl = pane.querySelector<HTMLElement>('.wr-context-menu');
     if (menuEl) {
-      menuEl.id = randomId('wr-context-menu');
+      menuEl.id = wrRandomId('wr-context-menu');
       this.openMenuId.set(menuEl.id);
     }
 

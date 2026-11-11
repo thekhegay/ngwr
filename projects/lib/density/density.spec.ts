@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
-import { createMemoryStorage, withStorage } from 'ngwr/storage';
+import { wrCreateMemoryStorage, withStorage } from 'ngwr/storage';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { WrDensity } from './density';
@@ -14,7 +14,7 @@ import { withDensity } from './with-density';
  * that says `touch` while the page is still rendering at `md` is the failure.
  */
 describe('WrDensity', () => {
-  let engine: ReturnType<typeof createMemoryStorage>;
+  let engine: ReturnType<typeof wrCreateMemoryStorage>;
 
   const setup = (config: Partial<WrDensityConfig> = {}): WrDensity => {
     TestBed.configureTestingModule({
@@ -32,7 +32,7 @@ describe('WrDensity', () => {
   const attr = (name = 'data-wr-density'): string | null => document.documentElement.getAttribute(name);
 
   beforeEach(() => {
-    engine = createMemoryStorage();
+    engine = wrCreateMemoryStorage();
     TestBed.resetTestingModule();
     document.documentElement.removeAttribute('data-wr-density');
   });

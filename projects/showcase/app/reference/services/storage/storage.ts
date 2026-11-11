@@ -162,7 +162,7 @@ const value = env && (env.e === undefined || env.e >= Date.now()) ? env.v : null
       default: 'localStorage / memory fallback',
     },
     {
-      name: 'createMemoryStorage()',
+      name: 'wrCreateMemoryStorage()',
       description: 'An in-memory `Storage`, for tests.',
       type: '() => Storage',
       default: '—',

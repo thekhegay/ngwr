@@ -4,7 +4,7 @@
 // `<wr-ripple-grid />`: a faint square grid of thin lines behind a page's
 // content, that ripples out from a click. The component paints one canvas and
 // reads its two colours back from the hooks below through
-// `resolveCssColorChannels`, so a retheme and a scheme switch both reach the
+// `wrResolveCssColorChannels`, so a retheme and a scheme switch both reach the
 // pixels. The strengths (how much of each colour a line shows at rest and lit)
 // and the line width live in `ripple-grid.ts`: they are the canvas's numbers,
 // not the sheet's.

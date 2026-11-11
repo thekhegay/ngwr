@@ -22,7 +22,7 @@ import {
 
 import { WrI18n } from 'ngwr/i18n';
 import { WR_OVERLAY, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList } from 'ngwr/utils';
+import { wrToClassList } from 'ngwr/utils';
 
 import { WrDialogConfirm } from './confirm/dialog-confirm';
 import { WrDialogRef } from './dialog-ref';
@@ -73,7 +73,7 @@ export class WrDialog {
       scrollStrategy: this.scrollStrategies.block(),
       hasBackdrop: true,
       backdropClass: DEFAULT_BACKDROP_CLASS,
-      panelClass: toClassList(DEFAULT_PANEL_CLASS, options.panelClass),
+      panelClass: wrToClassList(DEFAULT_PANEL_CLASS, options.panelClass),
       width: options.width,
       maxWidth: options.maxWidth,
     });

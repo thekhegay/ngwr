@@ -7,8 +7,8 @@
 
 import type { WrColorFormat } from '../types';
 
-import { rgbToHsl } from './rgb-to-hsl';
-import { toHex } from './to-hex';
+import { wrRgbToHsl } from './rgb-to-hsl';
+import { wrToHex } from './to-hex';
 import type { WrRgb } from './wr-rgb';
 
 /** Alpha with at most two decimals, and no trailing zeroes: `0.5`, not `0.50`. */
@@ -25,14 +25,14 @@ function alphaText(a: number): string {
  * slider turned off never emits a channel the caller cannot see or edit.
  */
 export function formatColor(rgb: WrRgb, format: WrColorFormat, withAlpha: boolean): string {
-  if (format === 'hex') return toHex(rgb, withAlpha);
+  if (format === 'hex') return wrToHex(rgb, withAlpha);
 
   if (format === 'rgba') {
     const { r, g, b } = rgb;
     return withAlpha ? `rgba(${r}, ${g}, ${b}, ${alphaText(rgb.a)})` : `rgb(${r}, ${g}, ${b})`;
   }
 
-  const { h, s, l } = rgbToHsl(rgb);
+  const { h, s, l } = wrRgbToHsl(rgb);
   const parts = `${Math.round(h)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%`;
   return withAlpha ? `hsla(${parts}, ${alphaText(rgb.a)})` : `hsl(${parts})`;
 }

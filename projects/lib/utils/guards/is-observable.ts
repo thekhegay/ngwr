@@ -15,11 +15,11 @@ import type { Observable } from 'rxjs';
  *
  * @example
  * ```ts
- * if (isObservable(stream)) {
+ * if (wrIsObservable(stream)) {
  *   stream.subscribe(value => console.log(value));
  * }
  * ```
  */
-export function isObservable<T = unknown>(value: unknown): value is Observable<T> {
+export function wrIsObservable<T = unknown>(value: unknown): value is Observable<T> {
   return !!value && typeof (value as { subscribe?: unknown }).subscribe === 'function';
 }

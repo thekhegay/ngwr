@@ -48,7 +48,7 @@ Requires Angular 22.2 or a later 22.x: the `@angular/*` peers are `^22.2.0` (`@a
 range in a release once CI has run the suite on it. Optional: `@angular/router`,
 which `wr-sidebar`, a breadcrumb `routerLink` and the two router adapters need,
 and the eight `prosemirror-*` packages that only `ngwr/editor` imports. Icon
-sets such as `lucide` are not peers, since `lucideIcons()` and `svgIcon()` take
+sets such as `lucide` are not peers, since `wrLucideIcons()` and `wrSvgIcon()` take
 the icon data. Outside that range npm refuses the install with `ERESOLVE`, while
 pnpm and yarn only warn; on Angular 21 or older the `ng build` then fails in the
 linker with `Unsupported enum value for [object Object]`. There is no `engines`
@@ -141,9 +141,9 @@ The rest are calls of their own, added from their entry points as needed:
   and `--wr-keyboard-inset` went with it; read `window.visualViewport` for the
   keyboard inset. Overlays always float; a sheet on a phone is a
   `<wr-drawer position="bottom">` you open yourself.
-- `provideWrIcons(lucideIcons({ check: Check }))` — icon registry (`ngwr/icon`,
-  which holds `lucideIcons()` too; every other set, feather included, registers
-  its raw SVG with `svgIcon()`).
+- `provideWrIcons(wrLucideIcons({ check: Check }))` — icon registry (`ngwr/icon`,
+  which holds `wrLucideIcons()` too; every other set, feather included, registers
+  its raw SVG with `wrSvgIcon()`).
 - `ngwr/config` and `provideWrConfig()` are gone (v15): `size` and `rounded`
   default to the value written on the input. Bind them where you want another
   value, or wrap the component in your own.
@@ -216,10 +216,10 @@ https://ngwr.dev/docs/migration is the complete list.
 - v15, paths: every chart entry point is nested, so
   `ngwr/bar-chart` is `ngwr/charts/bar-chart`; `ngwr/drag-drop` is `ngwr/sortable-list`, and the list no
   longer owns its loop — write your own, one `<wr-sortable-item>` per row, with
-  no `trackBy`; `ngwr/icon/adapters/lucide` is `ngwr/icon` (`lucideIcons`,
-  `lucide` and `LucideIconNode` keep their names). Gone outright:
+  no `trackBy`; `ngwr/icon/adapters/lucide` is `ngwr/icon` (v16 names them
+  `wrLucideIcons`, `wrLucide` and `WrLucideIconNode`). Gone outright:
   `ngwr/icon/adapters/feather` (register feather's own SVG files with
-  `svgIcon()`); `ngwr/date/adapters/fns` and `ngwr/date/adapters/luxon` (use the
+  `wrSvgIcon()`); `ngwr/date/adapters/fns` and `ngwr/date/adapters/luxon` (use the
   native adapter or your own `WrDateAdapter` subclass, and note that a date-fns
   token `[format]` such as `EEEE` or `PPP` prints verbatim on the native one);
   `ngwr/config`; `ngwr/media` (use the CDK's `BreakpointObserver`);
@@ -304,9 +304,9 @@ Changes no migration rewrites. All but the last fail silently:
 - `[id]` on `<wr-checkbox>`, `<wr-radio>` and `<wr-switch>` goes to the inner
   `<input>` rather than the host (v13), so a `wr-checkbox#agree` selector stops
   matching. `#agree` alone still works.
-- `lucideIcons()` registers its keys verbatim (v9): `{ chevronDown: ChevronDown }`
+- `wrLucideIcons()` registers its keys verbatim (v9): `{ chevronDown: ChevronDown }`
   is no longer found as `chevron-down`, so quote multi-word keys.
-- `readI18nText()` returns a `Signal<string>` (v12). This one is loud: the
+- `wrReadI18nText()` returns a `Signal<string>` (v12). This one is loud: the
   compiler names every call site that needs a `()`.
 
 The router adapters, the `LOCALE_ID` default and the stricter date parsing, all
@@ -460,8 +460,8 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `rgba(var(--wr-color-primary-rgb), 0.12)`. A canvas cannot draw a
   `light-dark()` value, and `getPropertyValue()` returns it unresolved, so read
   a colour for canvas from an element's computed `color` —
-  `resolveCssColor()` (`ngwr/utils`) does exactly that — and redraw a still
-  frame from `watchColorScheme(scheme => …)` (`ngwr/utils`, in an injection
+  `wrResolveCssColor()` (`ngwr/utils`) does exactly that — and redraw a still
+  frame from `wrWatchColorScheme(scheme => …)` (`ngwr/utils`, in an injection
   context or with `{ injector }`), which calls back with `'light'` or `'dark'`
   when the page's scheme changes. Two contrast tokens
   per intent, easy to confuse:
@@ -558,7 +558,7 @@ TypeScript, the `.wr-*` BEM class names (every component ships
 TSDoc means not API and survives into the published types, so
 `grep -rn "@internal" node_modules/ngwr/types` answers it. A few helpers are
 exported, unmarked and undocumented — `wrAppendOverlayClose`, `wrMirrorOffsets`,
-`wrFollowDirection`, `WrOutsideClick`, `useFormFieldAria`, `isSafeCssValue`, and
+`wrFollowDirection`, `WrOutsideClick`, `useFormFieldAria`, `wrIsSafeCssValue`, and
 a handful of `WR_*` context tokens such as `WR_STEPPER` —
 and carry no stability statement; do not build on them.
 

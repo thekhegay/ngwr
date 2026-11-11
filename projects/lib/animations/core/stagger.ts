@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { numAttr } from 'ngwr/utils';
+import { wrNumAttr } from 'ngwr/utils';
 
 import type { WrStaggerBy } from './types';
 
@@ -72,4 +72,5 @@ export function staggerGap(by: WrStaggerBy, count: number, stagger: number | nul
  *
  * @internal
  */
-export const optionalMs = (value: unknown): number | null => (value == null || value === '' ? null : numAttr(0)(value));
+export const optionalMs = (value: unknown): number | null =>
+  value == null || value === '' ? null : wrNumAttr(0)(value);

@@ -7,7 +7,7 @@
 
 import { Directive, TemplateRef, inject } from '@angular/core';
 
-import type { SafeAny } from 'ngwr/utils';
+import type { WrSafeAny } from 'ngwr/utils';
 
 import type { WrOptionLeadingContext } from './types';
 
@@ -60,7 +60,7 @@ import type { WrOptionLeadingContext } from './types';
 @Directive({
   selector: 'ng-template[wrOptionLeading]',
 })
-export class WrOptionLeading<T = SafeAny> {
+export class WrOptionLeading<T = WrSafeAny> {
   readonly template = inject<TemplateRef<WrOptionLeadingContext<T>>>(TemplateRef);
 
   /**
@@ -68,7 +68,7 @@ export class WrOptionLeading<T = SafeAny> {
    * `let-placement` is `any`, and indexing a `Record<WrOptionLeadingPlacement, …>`
    * with it — the obvious way to size one visual per surface — does not compile.
    *
-   * **`T` defaults to `SafeAny`, and that is the whole reason this is generic.**
+   * **`T` defaults to `WrSafeAny`, and that is the whole reason this is generic.**
    * The guard used to narrow to a bare `WrOptionLeadingContext`, which is
    * `WrOptionLeadingContext<unknown>` — so `let-value` came out `unknown` and
    * every use of it was a compile error under `strictTemplates`, which made the

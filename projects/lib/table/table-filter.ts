@@ -9,7 +9,7 @@ import { Component, ViewEncapsulation, computed, input, output, signal } from '@
 
 import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { isComposing, wrCheckStyles } from 'ngwr/utils';
+import { wrIsComposing, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrTableFilterItem } from './types';
 
@@ -141,7 +141,7 @@ export class WrTableFilter {
    * stopping all of them during a conversion costs nothing.
    */
   protected onSearchKeydown(event: KeyboardEvent): void {
-    if (isComposing(event)) event.stopPropagation();
+    if (wrIsComposing(event)) event.stopPropagation();
   }
 
   protected onToggle(item: WrTableFilterItem): void {

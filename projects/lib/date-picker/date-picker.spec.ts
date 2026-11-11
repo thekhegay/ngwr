@@ -759,7 +759,7 @@ describe('WrDatePicker', () => {
     });
 
     /**
-     * jsdom lays nothing out, so `getFocusableElements` would drop every stop but the
+     * jsdom lays nothing out, so `wrGetFocusableElements` would drop every stop but the
      * focused one; and it has no Tab of its own, so what is asserted is the half the
      * picker owns — where focus is handed before the browser's Tab runs from it.
      */
@@ -1062,7 +1062,7 @@ describe('WrDatePicker', () => {
 /**
  * One picker, one catalog key, one language.
  *
- * The field's name (`useI18nText`) and the calendar button's (`readI18nText`)
+ * The field's name (`useI18nText`) and the calendar button's (`wrReadI18nText`)
  * both resolve `datePicker.open`, and they used to disagree: the button's was a
  * plain string captured in a field initializer, which runs before any
  * loader-backed catalog exists. The field read "Открыть календарь" and the

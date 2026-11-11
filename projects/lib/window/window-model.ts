@@ -9,7 +9,7 @@ import { type Signal, type WritableSignal, computed, signal } from '@angular/cor
 
 import { Subject } from 'rxjs';
 
-import { clamp } from 'ngwr/utils';
+import { wrClamp } from 'ngwr/utils';
 
 import type {
   WrWindowChromeSize,
@@ -172,8 +172,8 @@ export function seedGeometry(seed: WrWindowSeed): WrWindowGeometry {
   const preset = SIZE_PRESETS[seed.size ?? 'md'];
   const keep = o.keepInViewport;
   const fit = (size: number, room: number): number => (keep ? Math.min(size, room) : size);
-  const width = Math.round(clamp(fit(seed.width ?? preset.width, wa.width), o.minWidth, o.maxWidth));
-  const height = Math.round(clamp(fit(seed.height ?? preset.height, wa.height), o.minHeight, o.maxHeight));
+  const width = Math.round(wrClamp(fit(seed.width ?? preset.width, wa.width), o.minWidth, o.maxWidth));
+  const height = Math.round(wrClamp(fit(seed.height ?? preset.height, wa.height), o.minHeight, o.maxHeight));
 
   let x = seed.x;
   let y = seed.y;
@@ -187,8 +187,8 @@ export function seedGeometry(seed: WrWindowSeed): WrWindowGeometry {
     y ??= wa.top + offset.y;
   }
   const into = cascaded || !!seed.restored;
-  if (keep && (into || seed.x == null)) x = clamp(x, wa.left, Math.max(wa.left, wa.left + wa.width - width));
-  if (keep && (into || seed.y == null)) y = clamp(y, wa.top, Math.max(wa.top, wa.top + wa.height - height));
+  if (keep && (into || seed.x == null)) x = wrClamp(x, wa.left, Math.max(wa.left, wa.left + wa.width - width));
+  if (keep && (into || seed.y == null)) y = wrClamp(y, wa.top, Math.max(wa.top, wa.top + wa.height - height));
   return { x: Math.round(x), y: Math.round(y), width, height };
 }
 
@@ -377,7 +377,7 @@ export class WrWindowModel {
   resizeTo(width: number, height: number): void {
     this.unsnapInPlace();
     const o = this.options();
-    this.setRaw({ width: clamp(width, o.minWidth, o.maxWidth), height: clamp(height, o.minHeight, o.maxHeight) });
+    this.setRaw({ width: wrClamp(width, o.minWidth, o.maxWidth), height: wrClamp(height, o.minHeight, o.maxHeight) });
     this.clamp();
   }
 
@@ -398,8 +398,8 @@ export class WrWindowModel {
     if (!this.options().keepInViewport) return;
     const wa = this.workArea();
     const w = this.width();
-    this.x.set(Math.round(clamp(this.x(), wa.left + MIN_ON_SCREEN - w, wa.left + wa.width - MIN_ON_SCREEN)));
-    this.y.set(Math.round(clamp(this.y(), wa.top, wa.top + wa.height - MIN_ON_SCREEN)));
+    this.x.set(Math.round(wrClamp(this.x(), wa.left + MIN_ON_SCREEN - w, wa.left + wa.width - MIN_ON_SCREEN)));
+    this.y.set(Math.round(wrClamp(this.y(), wa.top, wa.top + wa.height - MIN_ON_SCREEN)));
   }
 
   /** Change options on an open window. New bounds re-clamp the size the window has now. */
@@ -413,8 +413,8 @@ export class WrWindowModel {
     if (['minWidth', 'minHeight', 'maxWidth', 'maxHeight'].some(key => key in defined)) {
       const o = this.options();
       this.setRaw({
-        width: clamp(this.width(), o.minWidth, o.maxWidth),
-        height: clamp(this.height(), o.minHeight, o.maxHeight),
+        width: wrClamp(this.width(), o.minWidth, o.maxWidth),
+        height: wrClamp(this.height(), o.minHeight, o.maxHeight),
       });
       this.clamp();
     }
@@ -452,13 +452,13 @@ export class WrWindowModel {
     const regionH = quarter ? (bottom ? wa.height - halfH : halfH) : wa.height;
     const regionL = wa.left + (right ? halfW : 0);
     const regionT = wa.top + (bottom ? halfH : 0);
-    const width = clamp(regionW, o.minWidth, o.maxWidth);
-    const height = clamp(regionH, o.minHeight, o.maxHeight);
+    const width = wrClamp(regionW, o.minWidth, o.maxWidth);
+    const height = wrClamp(regionH, o.minHeight, o.maxHeight);
     const left = right ? regionL + regionW - width : regionL;
     const top = bottom ? regionT + regionH - height : regionT;
     return {
-      left: clamp(left, wa.left, Math.max(wa.left, wa.left + wa.width - width)),
-      top: clamp(top, wa.top, Math.max(wa.top, wa.top + wa.height - height)),
+      left: wrClamp(left, wa.left, Math.max(wa.left, wa.left + wa.width - width)),
+      top: wrClamp(top, wa.top, Math.max(wa.top, wa.top + wa.height - height)),
       width,
       height,
     };
@@ -505,8 +505,8 @@ export class WrWindowModel {
    */
   grow(dw: number, dh: number, rtl: boolean): void {
     const o = this.options();
-    const width = clamp(this.width() + dw, o.minWidth, o.maxWidth);
-    const height = clamp(this.height() + dh, o.minHeight, o.maxHeight);
+    const width = wrClamp(this.width() + dw, o.minWidth, o.maxWidth);
+    const height = wrClamp(this.height() + dh, o.minHeight, o.maxHeight);
     const x = rtl ? this.x() - (width - this.width()) : this.x();
     this.setRaw({ x, width, height });
     this.clamp();

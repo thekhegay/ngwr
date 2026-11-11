@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { toLocalDate } from './local-date';
+import { wrToLocalDate } from './local-date';
 
 /**
  * `2026-03-01 14:30`, with optional seconds, a fraction and a zone (`Z`, `+05`,
@@ -18,7 +18,7 @@ function fromString(value: string): Date | null {
   const text = String(value).trim();
   if (text === '') return null;
   const match = SPACE_SEPARATED.exec(text);
-  if (match === null) return toLocalDate(text);
+  if (match === null) return wrToLocalDate(text);
   const [, day, time, seconds = '00', fraction, utc, hours, minutes = '00'] = match;
   const millis = fraction === undefined ? '' : `.${fraction.slice(0, 3).padEnd(3, '0')}`;
   const zone = utc !== undefined ? 'Z' : hours === undefined ? '' : `${hours}:${minutes}`;

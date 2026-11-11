@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 import { Archive, BookOpen, Layers } from 'lucide';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WrSidebar, type WrSidebarEntry } from 'ngwr/sidebar';
 
 import {
@@ -18,7 +18,7 @@ import {
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
   imports: [WrSidebar, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
-  providers: [provideWrIcons(lucideIcons({ book: BookOpen, layers: Layers, archive: Archive }))],
+  providers: [provideWrIcons(wrLucideIcons({ book: BookOpen, layers: Layers, archive: Archive }))],
 })
 export default class SidebarPage {
   /**

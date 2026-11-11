@@ -80,7 +80,7 @@ export class WrIcon {
           // `runEffectsInView`, which abandons the remaining effects of the
           // whole view — one unknown name would blank every `<wr-icon>` after
           // it while the console blamed only the first. Error level (not
-          // `badgeLog`) so it survives a console filtered to errors.
+          // `wrBadgeLog`) so it survives a console filtered to errors.
           // eslint-disable-next-line no-console -- misconfiguration must be visible, but must not throw
           console.error(
             `[NGWR] No icon named "${name}" is registered. Did you forget to call provideWrIcons()? ` +

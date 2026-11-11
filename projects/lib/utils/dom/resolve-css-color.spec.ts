@@ -7,7 +7,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { resolveCssColor, resolveCssColorChannels } from './resolve-css-color';
+import { wrResolveCssColor, wrResolveCssColorChannels } from './resolve-css-color';
 
 /**
  * The canvas and WebGL bits draw with whatever this returns, and a canvas fails
@@ -24,7 +24,7 @@ import { resolveCssColor, resolveCssColorChannels } from './resolve-css-color';
  * lookup chain a browser never needs, which is the point: it is how a component
  * spec sees the colour a token holds at all.
  */
-describe('resolveCssColor', () => {
+describe('wrResolveCssColor', () => {
   let host: HTMLElement;
   let canvas: HTMLCanvasElement;
 
@@ -41,14 +41,14 @@ describe('resolveCssColor', () => {
   });
 
   it('resolves a literal to the computed form a canvas accepts', () => {
-    expect(resolveCssColor(canvas, '#ff0000', 'fallback')).toBe('rgb(255, 0, 0)');
-    expect(resolveCssColor(canvas, 'color-mix(in srgb, red 50%, transparent)', 'fallback')).toBe(
+    expect(wrResolveCssColor(canvas, '#ff0000', 'fallback')).toBe('rgb(255, 0, 0)');
+    expect(wrResolveCssColor(canvas, 'color-mix(in srgb, red 50%, transparent)', 'fallback')).toBe(
       'color(srgb 1 0 0 / 0.5)'
     );
   });
 
   it('resolves a `light-dark()`, which no canvas reads correctly on its own', () => {
-    expect(resolveCssColor(canvas, 'light-dark(#ffffff, #000000)', 'fallback')).toBe('rgb(255, 255, 255)');
+    expect(wrResolveCssColor(canvas, 'light-dark(#ffffff, #000000)', 'fallback')).toBe('rgb(255, 255, 255)');
   });
 
   it('resolves a token set on an ancestor, through every hop of a chain', () => {
@@ -56,12 +56,12 @@ describe('resolveCssColor', () => {
     host.style.setProperty('--outer', 'var(--inner)');
     host.style.setProperty('--inner', 'light-dark(rgb(4, 5, 6), rgb(7, 8, 9))');
 
-    expect(resolveCssColor(canvas, 'var(--direct)', 'fallback')).toBe('rgb(1, 2, 3)');
-    expect(resolveCssColor(canvas, 'var(--outer)', 'fallback')).toBe('rgb(4, 5, 6)');
+    expect(wrResolveCssColor(canvas, 'var(--direct)', 'fallback')).toBe('rgb(1, 2, 3)');
+    expect(wrResolveCssColor(canvas, 'var(--outer)', 'fallback')).toBe('rgb(4, 5, 6)');
   });
 
   it("takes a `var()`'s own fallback when the property is not set", () => {
-    expect(resolveCssColor(canvas, 'var(--wr-nothing-here, red)', 'fallback')).toBe('rgb(255, 0, 0)');
+    expect(wrResolveCssColor(canvas, 'var(--wr-nothing-here, red)', 'fallback')).toBe('rgb(255, 0, 0)');
   });
 
   it('returns the fallback for a token set nowhere, rather than the inherited colour', () => {
@@ -69,7 +69,7 @@ describe('resolveCssColor', () => {
     // which reads as a decision nobody made. The caller named a fallback for
     // exactly this.
     host.style.color = 'rgb(9, 9, 9)';
-    expect(resolveCssColor(canvas, 'var(--wr-nothing-here)', 'fallback')).toBe('fallback');
+    expect(wrResolveCssColor(canvas, 'var(--wr-nothing-here)', 'fallback')).toBe('fallback');
   });
 
   it('returns the fallback for a token that holds something other than a colour', () => {
@@ -81,7 +81,7 @@ describe('resolveCssColor', () => {
       element === canvas ? real(element, pseudo) : ({ color: 'rgb(9, 9, 9)' } as CSSStyleDeclaration)
     );
 
-    expect(resolveCssColor(canvas, 'var(--channels)', 'fallback')).toBe('fallback');
+    expect(wrResolveCssColor(canvas, 'var(--channels)', 'fallback')).toBe('fallback');
   });
 
   it('needs no `CSS` global, which no jsdom before 30 has', () => {
@@ -89,7 +89,7 @@ describe('resolveCssColor', () => {
     vi.stubGlobal('CSS', undefined);
 
     try {
-      expect(resolveCssColor(canvas, 'var(--direct)', 'fallback')).toBe('rgb(1, 2, 3)');
+      expect(wrResolveCssColor(canvas, 'var(--direct)', 'fallback')).toBe('rgb(1, 2, 3)');
     } finally {
       vi.unstubAllGlobals();
     }
@@ -98,19 +98,19 @@ describe('resolveCssColor', () => {
   it('returns the fallback for a string that is not a colour', () => {
     // The parser refuses it, so the probe would report its inherited colour.
     host.style.color = 'rgb(9, 9, 9)';
-    expect(resolveCssColor(canvas, 'not-a-colour', 'fallback')).toBe('fallback');
-    expect(resolveCssColor(canvas, '   ', 'fallback')).toBe('fallback');
+    expect(wrResolveCssColor(canvas, 'not-a-colour', 'fallback')).toBe('fallback');
+    expect(wrResolveCssColor(canvas, '   ', 'fallback')).toBe('fallback');
   });
 
   it('gives up on a reference cycle instead of looping', () => {
     host.style.setProperty('--ping', 'var(--pong)');
     host.style.setProperty('--pong', 'var(--ping)');
-    expect(resolveCssColor(canvas, 'var(--ping)', 'fallback')).toBe('fallback');
+    expect(wrResolveCssColor(canvas, 'var(--ping)', 'fallback')).toBe('fallback');
   });
 
   it('keeps one hidden probe per expression and reuses it', () => {
-    resolveCssColor(canvas, '#ff0000', 'fallback');
-    resolveCssColor(canvas, '#ff0000', 'fallback');
+    wrResolveCssColor(canvas, '#ff0000', 'fallback');
+    wrResolveCssColor(canvas, '#ff0000', 'fallback');
 
     // A per-frame caller must not grow the DOM, and the probe must never paint.
     expect(canvas.children.length).toBe(1);
@@ -118,17 +118,17 @@ describe('resolveCssColor', () => {
   });
 
   it('retires the oldest probe rather than keeping one for every string it was ever given', () => {
-    for (let i = 0; i < 20; i++) resolveCssColor(canvas, `rgb(${i}, 0, 0)`, 'fallback');
+    for (let i = 0; i < 20; i++) wrResolveCssColor(canvas, `rgb(${i}, 0, 0)`, 'fallback');
 
     expect(canvas.children.length).toBe(8);
-    expect(resolveCssColor(canvas, 'rgb(19, 0, 0)', 'fallback')).toBe('rgb(19, 0, 0)');
+    expect(wrResolveCssColor(canvas, 'rgb(19, 0, 0)', 'fallback')).toBe('rgb(19, 0, 0)');
   });
 
   it('puts a probe back when something cleared the element', () => {
-    resolveCssColor(canvas, '#ff0000', 'fallback');
+    wrResolveCssColor(canvas, '#ff0000', 'fallback');
     canvas.replaceChildren();
 
-    expect(resolveCssColor(canvas, '#ff0000', 'fallback')).toBe('rgb(255, 0, 0)');
+    expect(wrResolveCssColor(canvas, '#ff0000', 'fallback')).toBe('rgb(255, 0, 0)');
     expect(canvas.children.length).toBe(1);
   });
 
@@ -138,14 +138,14 @@ describe('resolveCssColor', () => {
       throw new Error('no view');
     });
 
-    expect(resolveCssColor(canvas, 'var(--direct)', 'fallback')).toBe('fallback');
+    expect(wrResolveCssColor(canvas, 'var(--direct)', 'fallback')).toBe('fallback');
   });
 
   it('returns the fallback for an element with no window behind it', () => {
     // A document made by `createHTMLDocument` has no view, the same shape as a
     // DOM shim with no style engine.
     const orphan = document.implementation.createHTMLDocument('').createElement('div');
-    expect(resolveCssColor(orphan, '#ff0000', 'fallback')).toBe('fallback');
+    expect(wrResolveCssColor(orphan, '#ff0000', 'fallback')).toBe('fallback');
   });
 });
 
@@ -162,13 +162,13 @@ describe('resolveCssColor', () => {
  * parser reads the string as written, and the `color-mix()` route cannot rescue a form
  * the parser got wrong.
  */
-describe('resolveCssColorChannels', () => {
+describe('wrResolveCssColorChannels', () => {
   let host: HTMLElement;
   let canvas: HTMLCanvasElement;
 
   /** Read `color` through the parser alone, as the fallback of an element with no style engine. */
   const parsed = (color: string): [number, number, number] =>
-    resolveCssColorChannels(document.implementation.createHTMLDocument('').createElement('div'), 'red', color);
+    wrResolveCssColorChannels(document.implementation.createHTMLDocument('').createElement('div'), 'red', color);
 
   beforeEach(() => {
     host = document.createElement('div');
@@ -183,20 +183,20 @@ describe('resolveCssColorChannels', () => {
   });
 
   it('reads a legacy colour on the 0–255 scale, and drops its alpha', () => {
-    expect(resolveCssColorChannels(canvas, 'rgb(255, 0, 51)', '#000')).toEqual([1, 0, 0.2]);
-    expect(resolveCssColorChannels(canvas, 'rgba(255, 0, 51, 0.25)', '#000')).toEqual([1, 0, 0.2]);
+    expect(wrResolveCssColorChannels(canvas, 'rgb(255, 0, 51)', '#000')).toEqual([1, 0, 0.2]);
+    expect(wrResolveCssColorChannels(canvas, 'rgba(255, 0, 51, 0.25)', '#000')).toEqual([1, 0, 0.2]);
   });
 
   it('reads `color(srgb …)` on the 0–1 scale, and drops its alpha', () => {
     // What a `color-mix()` computes to. Read as 0–255 these would all be near zero.
-    expect(resolveCssColorChannels(canvas, 'color-mix(in srgb, red 50%, transparent)', '#000')).toEqual([1, 0, 0]);
+    expect(wrResolveCssColorChannels(canvas, 'color-mix(in srgb, red 50%, transparent)', '#000')).toEqual([1, 0, 0]);
     expect(parsed('color(srgb 0.25 0.5 0.75 / 0.5)')).toEqual([0.25, 0.5, 0.75]);
   });
 
   it('resolves a token and a `light-dark()` through the cascade first', () => {
     host.style.setProperty('--tint', 'light-dark(rgb(255, 0, 0), rgb(0, 0, 255))');
 
-    expect(resolveCssColorChannels(canvas, 'var(--tint)', '#000')).toEqual([1, 0, 0]);
+    expect(wrResolveCssColorChannels(canvas, 'var(--tint)', '#000')).toEqual([1, 0, 0]);
   });
 
   it('reads `none` as 0', () => {
@@ -234,7 +234,7 @@ describe('resolveCssColorChannels', () => {
       return real(element);
     });
 
-    expect(resolveCssColorChannels(canvas, 'oklch(0.5 0.1 200)', '#000')).toEqual([0.25, 0.5, 0.75]);
+    expect(wrResolveCssColorChannels(canvas, 'oklch(0.5 0.1 200)', '#000')).toEqual([0.25, 0.5, 0.75]);
   });
 
   it('does not read the numbers of another colour space as sRGB', () => {
@@ -248,18 +248,18 @@ describe('resolveCssColorChannels', () => {
       getPropertyValue: () => '',
     })) as never);
 
-    expect(resolveCssColorChannels(canvas, 'oklch(0.5 0.1 200)', '#ff0000')).toEqual([1, 0, 0]);
+    expect(wrResolveCssColorChannels(canvas, 'oklch(0.5 0.1 200)', '#ff0000')).toEqual([1, 0, 0]);
   });
 
   it('falls back when the expression cannot be resolved, in any form CSS parses', () => {
-    expect(resolveCssColorChannels(canvas, 'var(--wr-nothing-here)', '#ff0000')).toEqual([1, 0, 0]);
-    expect(resolveCssColorChannels(canvas, 'not-a-colour', 'blue')).toEqual([0, 0, 1]);
-    expect(resolveCssColorChannels(canvas, '   ', 'rgb(0, 255, 0)')).toEqual([0, 1, 0]);
+    expect(wrResolveCssColorChannels(canvas, 'var(--wr-nothing-here)', '#ff0000')).toEqual([1, 0, 0]);
+    expect(wrResolveCssColorChannels(canvas, 'not-a-colour', 'blue')).toEqual([0, 0, 1]);
+    expect(wrResolveCssColorChannels(canvas, '   ', 'rgb(0, 255, 0)')).toEqual([0, 1, 0]);
   });
 
   it('is total: black rather than a `NaN` when even the fallback cannot be read', () => {
-    expect(resolveCssColorChannels(canvas, 'not-a-colour', 'neither-is-this')).toEqual([0, 0, 0]);
-    expect(resolveCssColorChannels(canvas, 'var(--wr-nothing-here)', '')).toEqual([0, 0, 0]);
+    expect(wrResolveCssColorChannels(canvas, 'not-a-colour', 'neither-is-this')).toEqual([0, 0, 0]);
+    expect(wrResolveCssColorChannels(canvas, 'var(--wr-nothing-here)', '')).toEqual([0, 0, 0]);
     // A shape that looks like a colour and has no numbers in it is what produced
     // `NaN` uniforms in the first place.
     expect(parsed('rgb(a b c)')).toEqual([0, 0, 0]);
@@ -269,8 +269,8 @@ describe('resolveCssColorChannels', () => {
   it('reads the fallback for an element with no window behind it, and is total there too', () => {
     const orphan = document.implementation.createHTMLDocument('').createElement('div');
 
-    expect(resolveCssColorChannels(orphan, '#00ff00', '#ff0000')).toEqual([1, 0, 0]);
-    expect(resolveCssColorChannels(orphan, '#00ff00', 'red')).toEqual([0, 0, 0]);
+    expect(wrResolveCssColorChannels(orphan, '#00ff00', '#ff0000')).toEqual([1, 0, 0]);
+    expect(wrResolveCssColorChannels(orphan, '#00ff00', 'red')).toEqual([0, 0, 0]);
   });
 
   it('survives a style engine that throws', () => {
@@ -278,6 +278,6 @@ describe('resolveCssColorChannels', () => {
       throw new Error('no view');
     });
 
-    expect(resolveCssColorChannels(canvas, '#00ff00', '#ff0000')).toEqual([1, 0, 0]);
+    expect(wrResolveCssColorChannels(canvas, '#00ff00', '#ff0000')).toEqual([1, 0, 0]);
   });
 });

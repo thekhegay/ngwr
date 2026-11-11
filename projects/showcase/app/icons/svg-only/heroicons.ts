@@ -19,20 +19,20 @@ const SPEC: SvgSetSpec = {
   usage: `// Variants: 24/outline, 24/solid, 20/solid, 16/solid.
 import plusSvg from 'heroicons/24/outline/plus.svg?raw';
 import trashSvg from 'heroicons/24/solid/trash.svg?raw';
-import { provideWrIcons, svgIcon } from 'ngwr/icon';
+import { provideWrIcons, wrSvgIcon } from 'ngwr/icon';
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideWrIcons([
-      svgIcon('add', plusSvg),
-      svgIcon('trash', trashSvg),
+      wrSvgIcon('add', plusSvg),
+      wrSvgIcon('trash', trashSvg),
     ]),
   ],
 });
 
 // Then in any template: <wr-icon name="add" />`,
   snippetFor: (entry: IconEntry): string =>
-    `import ${kebabToCamel(entry.name)}Svg from 'heroicons/24/outline/${entry.name}.svg?raw';\nimport { svgIcon, provideWrIcons } from 'ngwr/icon';\n\nprovideWrIcons([svgIcon('${entry.name}', ${kebabToCamel(entry.name)}Svg)]);`,
+    `import ${kebabToCamel(entry.name)}Svg from 'heroicons/24/outline/${entry.name}.svg?raw';\nimport { wrSvgIcon, provideWrIcons } from 'ngwr/icon';\n\nprovideWrIcons([wrSvgIcon('${entry.name}', ${kebabToCamel(entry.name)}Svg)]);`,
 };
 
 @Component({

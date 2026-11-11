@@ -5,23 +5,23 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { Maybe } from '../types';
+import type { WrMaybe } from '../types';
 
 /**
  * Type guard that checks if a value is neither `null` nor `undefined`.
  *
  * @example
  * ```ts
- * const maybeValue: Maybe<number> = getValue();
+ * const maybeValue: WrMaybe<number> = getValue();
  *
- * if (isDefined(maybeValue)) {
+ * if (wrIsDefined(maybeValue)) {
  *   // here maybeValue is number
  *   console.log(maybeValue.toFixed(2));
  * }
  * ```
  *
- * @see {@link Maybe}
+ * @see {@link WrMaybe}
  */
-export function isDefined<T>(value: Maybe<T>): value is T {
+export function wrIsDefined<T>(value: WrMaybe<T>): value is T {
   return value !== null && value !== undefined;
 }

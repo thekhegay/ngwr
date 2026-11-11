@@ -62,7 +62,7 @@
  *     printing `'linear'`. The aside is written for a reader
  *     of the source; a Default column is one chip wide.
  *   - **A default the extractor could only read as an EXPRESSION is not
- *     compared** — `randomId('wr-tab')`, `DEFAULT_CHARS`, `(_, item) => item`.
+ *     compared** — `wrRandomId('wr-tab')`, `DEFAULT_CHARS`, `(_, item) => item`.
  *     There is no value there to compare against, and what the docs should print
  *     instead is a judgement (`'auto'`, `'identity'`). Those rows are counted in
  *     the run's summary so the hole is visible rather than silent; six today.
@@ -699,7 +699,7 @@ const NOTHING: ReadonlySet<string> = new Set(['', '—', 'null', 'undefined']);
 /**
  * A default whose printed form IS its value.
  *
- * Anything else — `DEFAULT_CHARS`, `randomId('wr-tab')`, `(_, item) => item` —
+ * Anything else — `DEFAULT_CHARS`, `wrRandomId('wr-tab')`, `(_, item) => item` —
  * is an expression the extractor read out of the call site, not a value: what
  * the docs should print for it is a judgement (`'auto'`, `'identity'`) that no
  * comparison can make. Those rows are skipped and COUNTED, so the hole shows up
@@ -1295,7 +1295,7 @@ const UNDOCUMENTED_ENTRIES: ReadonlyMap<string, string> = new Map([
 ]);
 
 /**
- * Members whose default the source states as an EXPRESSION — `randomId('wr-tab')`,
+ * Members whose default the source states as an EXPRESSION — `wrRandomId('wr-tab')`,
  * `DEFAULT_CHARS`, `(_, item) => item`. There is no value in them to compare a
  * page against, and what the docs should print instead (`'auto'`, `'identity'`)
  * is a judgement no comparison can make.

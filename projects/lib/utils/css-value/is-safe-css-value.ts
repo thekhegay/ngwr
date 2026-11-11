@@ -72,15 +72,15 @@ const ALLOWED_FUNCTIONS = new Set([
  *
  * @example
  * ```ts
- * isSafeCssValue('var(--wr-color-primary)');                        // true
- * isSafeCssValue('color-mix(in srgb, red 50%, blue)');              // true
- * isSafeCssValue('red), url("https://x.test/beacon"), linear-gradient(red'); // false
+ * wrIsSafeCssValue('var(--wr-color-primary)');                        // true
+ * wrIsSafeCssValue('color-mix(in srgb, red 50%, blue)');              // true
+ * wrIsSafeCssValue('red), url("https://x.test/beacon"), linear-gradient(red'); // false
  * ```
  *
  * @param value Raw value handed to the component.
  * @returns `true` when the value stays inside its slot.
  */
-export function isSafeCssValue(value: string): boolean {
+export function wrIsSafeCssValue(value: string): boolean {
   if (typeof value !== 'string') return false;
 
   const trimmed = value.trim();

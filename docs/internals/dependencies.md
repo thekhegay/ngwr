@@ -105,7 +105,7 @@ is passed. The key existing is enough: vitest skips window keys that are already
 on the global, so jsdom's own `localStorage` never lands and forty-six specs
 across six unrelated files fail on one root cause. `projects/lib/vitest-setup.ts`
 (wired through `setupFiles` in `angular.json`) installs the library's own
-`createMemoryStorage()` when the name is taken and empty, and does nothing on a
+`wrCreateMemoryStorage()` when the name is taken and empty, and does nothing on a
 Node that supplies a working one. **Not `--no-webstorage`**, which fixes it at
 the source and does not exist on Node 24 — it is refused inside `NODE_OPTIONS`
 there — so a repo whose `engines` accepts both cannot set it statically. Upstream

@@ -23,8 +23,8 @@ import {
   viewChildren,
 } from '@angular/core';
 
-import { WrChartTable, type WrChartTableData, chartColor, useChartNumbers } from 'ngwr/charts/core';
-import { readI18nText, useI18nText } from 'ngwr/i18n';
+import { WrChartTable, type WrChartTableData, wrChartColor, useChartNumbers } from 'ngwr/charts/core';
+import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
@@ -127,7 +127,7 @@ function resolveNodes(
   key: string
 ): ResolvedNode[] {
   return nodes.map((node, i) => {
-    const color = node.color ?? inherited ?? chartColor(i);
+    const color = node.color ?? inherited ?? wrChartColor(i);
     const own = typeof node.value === 'number' && Number.isFinite(node.value) ? node.value : null;
     const ownSize = own !== null && own > 0 ? own : 0;
     const nodePath = [...path, node.label];
@@ -296,7 +296,7 @@ export class WrTreemapChart {
   protected readonly valueName = useI18nText(this.valueLabel, 'treemapChart.value', 'Value');
 
   /** The heading of the share column and the name of the tooltip's share row. */
-  protected readonly shareName = readI18nText('treemapChart.share', 'Share');
+  protected readonly shareName = wrReadI18nText('treemapChart.share', 'Share');
 
   /** The plot's height in px, at least 80. Its width is the container's. @default 280 */
   readonly height = input(280, {

@@ -5,10 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { getRootFontSize } from '../dom';
+import { wrGetRootFontSize } from '../dom';
 
-import type { ResolveCssSizeOptions } from './resolve-css-size-options';
-import type { ResolvedCssSize } from './resolved-css-size';
+import type { WrResolveCssSizeOptions } from './resolve-css-size-options';
+import type { WrResolvedCssSize } from './resolved-css-size';
 
 /**
  * Resolves a raw size value into a CSS string and an optional pixel equivalent.
@@ -23,20 +23,20 @@ import type { ResolvedCssSize } from './resolved-css-size';
  *
  * @example
  * ```ts
- * const size = resolveCssSize('3rem', { defaultValue: '6rem' });
+ * const size = wrResolveCssSize('3rem', { defaultValue: '6rem' });
  * // size.cssValue === '3rem'
- * // size.pxValue  === 3 * getRootFontSize()
+ * // size.pxValue  === 3 * wrGetRootFontSize()
  * ```
  *
  * @param raw - Value to resolve. Accepts numbers, pixel/rem/percent strings, or `null`/`undefined`.
  * @param options - Optional configuration.
  * @returns Resolved CSS value and its pixel equivalent when computable.
  *
- * @see {@link ResolvedCssSize}
- * @see {@link ResolveCssSizeOptions}
+ * @see {@link WrResolvedCssSize}
+ * @see {@link WrResolveCssSizeOptions}
  */
-export function resolveCssSize(raw: unknown, options: ResolveCssSizeOptions = {}): ResolvedCssSize {
-  const rootFontSize = getRootFontSize();
+export function wrResolveCssSize(raw: unknown, options: WrResolveCssSizeOptions = {}): WrResolvedCssSize {
+  const rootFontSize = wrGetRootFontSize();
   const value: unknown = raw ?? options.defaultValue;
 
   if (value == null) {

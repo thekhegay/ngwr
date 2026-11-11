@@ -29,9 +29,9 @@ import {
   Smartphone,
   X,
 } from 'lucide';
-import { lucideIcons, type WrIconDef } from 'ngwr/icon';
+import { wrLucideIcons, type WrIconDef } from 'ngwr/icon';
 
-export const COMMON_ICONS: readonly WrIconDef[] = lucideIcons({
+export const COMMON_ICONS: readonly WrIconDef[] = wrLucideIcons({
   'arrow-back': ArrowLeft,
   'arrow-down': ArrowDown,
   'arrow-forward': ArrowRight,

@@ -7,7 +7,7 @@
 
 import { Component, ElementRef, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
 
-import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import type { WrToastConfig, WrToastType } from './types';
 
@@ -117,7 +117,7 @@ export class WrToastItem {
    * know which one it is reading.
    */
   protected readonly classes = computed(() =>
-    toClassList(
+    wrToClassList(
       'wr-toast',
       `wr-toast--${this.type()}`,
       this.title() ? null : 'wr-toast--untitled',

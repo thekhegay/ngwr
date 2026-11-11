@@ -29,7 +29,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+import { wrToClassList, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 let viewerUid = 0;
 
@@ -255,7 +255,7 @@ export class WrLightbox {
       backdropClass: 'wr-lightbox-backdrop',
       positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
       scrollStrategy: this.overlay.scrollStrategies.block(),
-      panelClass: toClassList('wr-lightbox-overlay', this.panelClass()),
+      panelClass: wrToClassList('wr-lightbox-overlay', this.panelClass()),
     });
 
     // Centred on both axes, so no geometry rides on the direction — but the

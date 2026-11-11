@@ -22,7 +22,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { WrButton } from 'ngwr/button';
 import { useI18nText } from 'ngwr/i18n';
 import { WrTextarea } from 'ngwr/textarea';
-import { isComposing, KEYS, wrCheckStyles } from 'ngwr/utils';
+import { wrIsComposing, WR_KEYS, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * A chat composer: an autosizing field with a send button. Enter sends,
@@ -191,7 +191,7 @@ export class WrCommentComposer implements FormValueControl<string> {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.key !== KEYS.ENTER || isComposing(event)) return;
+    if (event.key !== WR_KEYS.ENTER || wrIsComposing(event)) return;
     const modifier = event.ctrlKey || event.metaKey;
     if (!modifier && (event.shiftKey || event.altKey || !this.enterSends())) return;
     // A sending Enter never reaches the field: on empty text it would only add

@@ -164,8 +164,8 @@ describe('the published manifest', () => {
 
   it('declares a peer only for a package the shipped source imports', () => {
     // The other direction of the check above, and the one `lucide` failed for as
-    // long as it was listed. An ICON set is not a peer dependency: `lucideIcons()`
-    // takes the icon data as an ARGUMENT — `lucideIcons({ Plus })` — so
+    // long as it was listed. An ICON set is not a peer dependency: `wrLucideIcons()`
+    // takes the icon data as an ARGUMENT — `wrLucideIcons({ Plus })` — so
     // `icon/lucide.ts` imports nothing but its own types, and the only
     // `from 'lucide'` in the tree is inside a template literal that
     // `ng g ngwr:icon-set` writes into the CONSUMER's project. Compare
@@ -177,7 +177,7 @@ describe('the published manifest', () => {
     // errors on a conflict, so `>=1.0.0` could fail an install over a package
     // ngwr does not touch. Every icon set is optional in the same way — the ones
     // that ship plain SVG (tabler, phosphor, heroicons, …) go through
-    // `svgIcon()` and were never declared either, which is the consistent
+    // `wrSvgIcon()` and were never declared either, which is the consistent
     // treatment this restores.
     const imported = importedPackages();
     const undeclared = Object.keys(manifest.peerDependencies).filter(name => !imported.has(name));

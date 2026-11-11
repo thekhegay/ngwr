@@ -11,7 +11,7 @@ import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChi
 import { useChartNumbers } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
-import { clamp, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Semicircle progress gauge. Display-only — for interactive use see the
@@ -121,7 +121,7 @@ export class WrGauge {
    * against `aria-valuemax` — an invalid state for `role="meter"` — and the printed
    * text disagreed with the bar as well.
    */
-  protected readonly displayValue = computed(() => clamp(this.value(), this.min(), this.max()));
+  protected readonly displayValue = computed(() => wrClamp(this.value(), this.min(), this.max()));
 
   /** The reading as the centre prints it, without the suffix. */
   protected readonly displayText = computed(() => this.numbers.value(this.displayValue()));
@@ -129,7 +129,7 @@ export class WrGauge {
   protected readonly ratio = computed(() => {
     const range = this.max() - this.min();
     if (range <= 0) return 0;
-    return clamp((this.value() - this.min()) / range, 0, 1);
+    return wrClamp((this.value() - this.min()) / range, 0, 1);
   });
 
   protected readonly trackPath = computed(() => {

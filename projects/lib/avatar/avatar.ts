@@ -23,7 +23,7 @@ import {
 
 import { useI18nText } from 'ngwr/i18n';
 import { WrSpinner } from 'ngwr/spinner';
-import { resolveCssSize, type ResolvedCssSize, wrCheckStyles, wrInitials } from 'ngwr/utils';
+import { wrResolveCssSize, type WrResolvedCssSize, wrCheckStyles, wrInitials } from 'ngwr/utils';
 
 import type { WrAvatarShape, WrAvatarSize } from './types';
 
@@ -95,7 +95,7 @@ function hash(text: string): number {
     '[style.width]': 'cssSize()',
     '[style.height]': 'cssSize()',
     // What the stylesheet sizes projected initials against. Always px or rem: a
-    // value `resolveCssSize` has no pixels for falls back to the default box.
+    // value `wrResolveCssSize` has no pixels for falls back to the default box.
     '[style.--wr-avatar-size]': 'cssSize()',
   },
   imports: [WrSpinner],
@@ -245,10 +245,10 @@ export class WrAvatar {
     if (src !== null) img.setAttribute('src', src);
   }
 
-  protected readonly resolved = computed<ResolvedCssSize>(() => {
-    const result = resolveCssSize(this.size(), { defaultValue: DEFAULT_SIZE });
+  protected readonly resolved = computed<WrResolvedCssSize>(() => {
+    const result = wrResolveCssSize(this.size(), { defaultValue: DEFAULT_SIZE });
     if (result.pxValue == null || result.pxValue <= 0) {
-      return resolveCssSize(DEFAULT_SIZE, { defaultValue: DEFAULT_SIZE });
+      return wrResolveCssSize(DEFAULT_SIZE, { defaultValue: DEFAULT_SIZE });
     }
     return result;
   });

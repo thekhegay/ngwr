@@ -18,14 +18,14 @@
  *
  * The four that sit within 1.061:1 of each other are told apart by hue alone,
  * which is why a chart that draws lines pairs each with a dash
- * (`CHART_DASHES`) and one that draws points with a shape (`CHART_MARKERS`).
+ * (`WR_CHART_DASHES`) and one that draws points with a shape (`WR_CHART_MARKERS`).
  *
  * The line chart, the donut chart and the meter group each kept an identical
  * copy of this list until 15.1.
  *
  * @internal
  */
-export const CHART_PALETTE: readonly string[] = [
+export const WR_CHART_PALETTE: readonly string[] = [
   'var(--wr-color-primary)',
   'var(--wr-color-success)',
   'var(--wr-color-warning)',
@@ -38,8 +38,8 @@ export const CHART_PALETTE: readonly string[] = [
  *
  * @internal
  */
-export function chartColor(index: number): string {
-  return CHART_PALETTE[wrap(index, CHART_PALETTE.length)];
+export function wrChartColor(index: number): string {
+  return WR_CHART_PALETTE[wrap(index, WR_CHART_PALETTE.length)];
 }
 
 /**
@@ -58,15 +58,15 @@ export function chartColor(index: number): string {
  *
  * @internal
  */
-export const CHART_DASHES: readonly string[] = ['', '7 4', '2 3', '10 4 2 4', '1 4', '6 3 2 3'];
+export const WR_CHART_DASHES: readonly string[] = ['', '7 4', '2 3', '10 4 2 4', '1 4', '6 3 2 3'];
 
 /**
  * The dash pattern for the series at `index`, wrapping past the end.
  *
  * @internal
  */
-export function chartDash(index: number): string {
-  return CHART_DASHES[wrap(index, CHART_DASHES.length)];
+export function wrChartDash(index: number): string {
+  return WR_CHART_DASHES[wrap(index, WR_CHART_DASHES.length)];
 }
 
 /** `index` folded into `[0, length)`, negatives included, so a bad index still picks an entry. */

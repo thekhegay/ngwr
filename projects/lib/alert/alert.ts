@@ -21,7 +21,7 @@ import {
 
 import { useI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
-import { getFocusableElements, wrCheckStyles } from 'ngwr/utils';
+import { wrGetFocusableElements, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrAlertType } from './types';
 
@@ -167,7 +167,7 @@ export class WrAlert {
     if (active && active !== doc.body) return;
     // Tab stops only: a roving composite parks its other items at -1. The host has
     // nothing focusable left inside it, so every stop is either before or after it.
-    const stops = getFocusableElements(doc.body).filter(el => el.tabIndex >= 0);
+    const stops = wrGetFocusableElements(doc.body).filter(el => el.tabIndex >= 0);
     // eslint-disable-next-line no-bitwise -- compareDocumentPosition answers with a bitmask
     const after = stops.findIndex(el => (host.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0);
     (after >= 0 ? stops[after] : stops.at(-1))?.focus();

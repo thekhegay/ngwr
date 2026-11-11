@@ -4,7 +4,7 @@
 // `<wr-fluid-cursor />`: coloured ink behind a region's content, stirred by
 // the pointer and gone a few seconds later. The component paints one WebGL
 // canvas and reads its palette back from the hooks below through
-// `resolveCssColorChannels`, so a retheme and a scheme switch both reach the
+// `wrResolveCssColorChannels`, so a retheme and a scheme switch both reach the
 // pixels. How the ink covers the surface (as ink on a light one, lifted on a
 // dark one) and the splat sizes live in the component and its model: they
 // are the canvas's numbers, not the sheet's.

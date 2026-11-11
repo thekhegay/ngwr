@@ -9,7 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
-import { randomId, wrCheckStyles } from 'ngwr/utils';
+import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_RADIO_GROUP } from './tokens';
 
@@ -50,7 +50,7 @@ export class WrRadio {
    * Stable id used to associate the native input with its label. Lands on the
    * inner `<input>`; the host never keeps it.
    */
-  readonly id = input<string>(randomId('wr-radio'));
+  readonly id = input<string>(wrRandomId('wr-radio'));
 
   /** Value selected when this radio is checked. */
   readonly value = input.required<unknown>();

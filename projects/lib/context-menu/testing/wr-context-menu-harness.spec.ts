@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrContextMenu, WrContextMenuDivider, WrContextMenuItem, WrContextMenuPanel } from 'ngwr/context-menu';
-import { provideWrIcons, svgIcon } from 'ngwr/icon';
+import { provideWrIcons, wrSvgIcon } from 'ngwr/icon';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrContextMenuHarness } from './wr-context-menu-harness';
@@ -110,7 +110,7 @@ describe('WrContextMenuHarness', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrIcons([svgIcon('copy', COPY_SVG)])],
+      providers: [provideWrIcons([wrSvgIcon('copy', COPY_SVG)])],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -321,7 +321,7 @@ describe('WrContextMenuHarness — submenus', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrIcons([svgIcon('copy', COPY_SVG)])],
+      providers: [provideWrIcons([wrSvgIcon('copy', COPY_SVG)])],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();

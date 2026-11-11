@@ -8,7 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, DestroyRef, ViewEncapsulation, computed, effect, inject, input, model } from '@angular/core';
 
-import { randomId, wrCheckStyles } from 'ngwr/utils';
+import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_COLLAPSE_GROUP } from './tokens';
 import type { WrCollapseIndicator } from './types';
@@ -64,7 +64,7 @@ export class WrCollapse {
   readonly indicator = input<WrCollapseIndicator>('chevron');
 
   /** Identity used by the parent group when tracking children. @internal */
-  readonly id = { name: randomId('wr-collapse') };
+  readonly id = { name: wrRandomId('wr-collapse') };
 
   /** DOM id for the body element, referenced by header's `aria-controls`. */
   protected readonly bodyId = `wr-collapse-body-${this.id.name}`;

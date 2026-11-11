@@ -25,7 +25,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
-import { toClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrPopconfirmPanel } from './popconfirm-panel';
 import { type WrPopconfirmPosition, wrPopconfirmPositions } from './types';
@@ -182,7 +182,7 @@ export class WrPopconfirm {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: toClassList('wr-popconfirm-overlay', this.panelClass()),
+      panelClass: wrToClassList('wr-popconfirm-overlay', this.panelClass()),
     });
 
     // `isRtl()` above answered once, at `create()`, and so did the CDK's own

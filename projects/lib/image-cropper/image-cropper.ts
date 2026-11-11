@@ -22,7 +22,7 @@ import {
 } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { clamp, randomId, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrCropHandle, WrCropRect, WrImageCropperStatus, WrImageLoadError, WrImageOutputType } from './types';
 
@@ -110,14 +110,14 @@ function resizeFrom(
 
   if (!ratio || ratio <= 0) {
     let { x, y, w, h } = r;
-    if (east) w = clamp(r.w + dx, min.w, bounds.w - r.x);
+    if (east) w = wrClamp(r.w + dx, min.w, bounds.w - r.x);
     if (west) {
-      w = clamp(r.w - dx, min.w, right);
+      w = wrClamp(r.w - dx, min.w, right);
       x = right - w;
     }
-    if (south) h = clamp(r.h + dy, min.h, bounds.h - r.y);
+    if (south) h = wrClamp(r.h + dy, min.h, bounds.h - r.y);
     if (north) {
-      h = clamp(r.h - dy, min.h, bottom);
+      h = wrClamp(r.h - dy, min.h, bottom);
       y = bottom - h;
     }
     return { x, y, w, h };
@@ -129,12 +129,12 @@ function resizeFrom(
   const roomH = south ? bounds.h - r.y : north ? bottom : bounds.h;
   // Corners follow the horizontal delta, as they always have; `n` / `s` the vertical one.
   const wanted = east ? r.w + dx : west ? r.w - dx : (south ? r.h + dy : r.h - dy) * ratio;
-  const w = clamp(wanted, Math.max(min.w, min.h * ratio), Math.min(roomW, roomH * ratio));
+  const w = wrClamp(wanted, Math.max(min.w, min.h * ratio), Math.min(roomW, roomH * ratio));
   const h = w / ratio;
 
   return {
-    x: east ? r.x : west ? right - w : clamp(r.x + r.w / 2 - w / 2, 0, bounds.w - w),
-    y: south ? r.y : north ? bottom - h : clamp(r.y + r.h / 2 - h / 2, 0, bounds.h - h),
+    x: east ? r.x : west ? right - w : wrClamp(r.x + r.w / 2 - w / 2, 0, bounds.w - w),
+    y: south ? r.y : north ? bottom - h : wrClamp(r.y + r.h / 2 - h / 2, 0, bounds.h - h),
     w,
     h,
   };
@@ -240,7 +240,7 @@ export class WrImageCropper {
 
   /** Id linking the crop window to the help text. Random rather than counted:
    *  the crop UI only exists after a real image load, so it never prerenders. */
-  protected readonly helpId = randomId('wr-image-cropper-help');
+  protected readonly helpId = wrRandomId('wr-image-cropper-help');
 
   /** Live-region text — written by the keyboard path only (see `onWindowKeydown`). */
   protected readonly announcement = signal<string>('');
@@ -651,8 +651,8 @@ export class WrImageCropper {
     const display = this.display();
     const r = this.startRect;
     const next = {
-      x: clamp(r.x + dx, 0, display.w - r.w),
-      y: clamp(r.y + dy, 0, display.h - r.h),
+      x: wrClamp(r.x + dx, 0, display.w - r.w),
+      y: wrClamp(r.y + dy, 0, display.h - r.h),
       w: r.w,
       h: r.h,
     };

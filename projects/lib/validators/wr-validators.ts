@@ -8,7 +8,7 @@
 import { isDevMode } from '@angular/core';
 import { type AbstractControl, type ValidationErrors, type ValidatorFn } from '@angular/forms';
 
-import { toLocalDate } from 'ngwr/date';
+import { wrToLocalDate } from 'ngwr/date';
 
 function stringValue(control: AbstractControl): string {
   const v: unknown = control.value;
@@ -71,13 +71,13 @@ function mod97(iban: string): number {
 
 /**
  * A bound or a value as milliseconds. A date-only string (`'2026-01-01'`) is that
- * day's LOCAL midnight — see `toLocalDate` — so `minDate('2026-01-01')` accepts the
+ * day's LOCAL midnight — see `wrToLocalDate` — so `minDate('2026-01-01')` accepts the
  * 1 January a date picker emits, in every zone.
  */
 function toMs(value: unknown): number {
   if (value instanceof Date) return value.getTime();
   if (typeof value !== 'string' && typeof value !== 'number') return Number.NaN;
-  return toLocalDate(value).getTime();
+  return wrToLocalDate(value).getTime();
 }
 
 /**

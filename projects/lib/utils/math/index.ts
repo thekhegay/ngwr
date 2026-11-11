@@ -1,4 +1,4 @@
-export { clamp } from './clamp';
+export { wrClamp } from './clamp';
 export {
   wrDecimal,
   wrDecimalAdd,
@@ -9,4 +9,4 @@ export {
   wrDecimalSubtract,
 } from './decimal';
 export type { WrDecimalLike } from './decimal';
-export { round } from './round';
+export { wrRound } from './round';

@@ -21,7 +21,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { clamp, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Before/after comparison slider. Works with any content — project two
@@ -118,7 +118,7 @@ export class WrCompare {
    * pointer fell, and a reader announced all of it: `29.99999788072374`.
    */
   protected readonly valueNow = computed(() =>
-    clamp(Math.round(this.position()), this.minPosition(), this.maxPosition())
+    wrClamp(Math.round(this.position()), this.minPosition(), this.maxPosition())
   );
 
   constructor() {
@@ -129,7 +129,7 @@ export class WrCompare {
     // directly while only the handlers clamped — an out-of-range write reached the DOM
     // as `aria-valuenow="150"` against a `valuemax` of 100.
     effect(() => {
-      const clamped = clamp(this.position(), this.minPosition(), this.maxPosition());
+      const clamped = wrClamp(this.position(), this.minPosition(), this.maxPosition());
       if (clamped !== this.position()) this.position.set(clamped);
     });
   }
@@ -149,7 +149,7 @@ export class WrCompare {
    * the same percentage.
    */
   protected readonly clipPath = computed(() => {
-    const p = clamp(this.position(), 0, 100);
+    const p = wrClamp(this.position(), 0, 100);
     if (this.orientation() === 'horizontal') {
       // Show from `p%` to the inline-end edge.
       return this.rtl() ? `inset(0 ${p}% 0 0)` : `inset(0 0 0 ${p}%)`;
@@ -236,7 +236,7 @@ export class WrCompare {
     else if (event.key === 'End') next = this.maxPosition();
     if (next === null) return;
     event.preventDefault();
-    this.position.set(clamp(next, this.minPosition(), this.maxPosition()));
+    this.position.set(wrClamp(next, this.minPosition(), this.maxPosition()));
   }
 
   private updateFromPointer(event: PointerEvent): void {
@@ -250,7 +250,7 @@ export class WrCompare {
     const raw = horizontal
       ? this.inlineFraction(event.clientX, rect) * 100
       : ((event.clientY - rect.top) / extent) * 100;
-    this.position.set(clamp(raw, this.minPosition(), this.maxPosition()));
+    this.position.set(wrClamp(raw, this.minPosition(), this.maxPosition()));
   }
 
   /**

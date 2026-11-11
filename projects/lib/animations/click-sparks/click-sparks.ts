@@ -9,7 +9,7 @@ import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, inject, input } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 /** How long one burst lasts, in ms: every stroke flies, shrinks and fades inside it. */
 const CLICK_SPARKS_MS = 480;
@@ -77,7 +77,7 @@ export class WrClickSparks {
    * How many strokes one burst has. Written as the directive's own value:
    * `wrClickSparks="10"`. Unset or empty, {@link CLICK_SPARKS_COUNT}.
    */
-  readonly count = input(CLICK_SPARKS_COUNT, { alias: 'wrClickSparks', transform: numAttr(CLICK_SPARKS_COUNT) });
+  readonly count = input(CLICK_SPARKS_COUNT, { alias: 'wrClickSparks', transform: wrNumAttr(CLICK_SPARKS_COUNT) });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly platform = inject(WrPlatform);

@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { getFocusableElements } from 'ngwr/utils';
+import { wrGetFocusableElements } from 'ngwr/utils';
 
 /**
  * Whether a keydown is a Tab that takes focus out past either end of an open,
@@ -25,7 +25,7 @@ export function tabLeavesPane(pane: HTMLElement, event: KeyboardEvent): boolean 
   if (event.key !== 'Tab' || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return false;
   const active = pane.ownerDocument.activeElement;
   if (!active || !pane.contains(active)) return false;
-  const all = getFocusableElements(pane);
+  const all = wrGetFocusableElements(pane);
   const at = all.indexOf(active as HTMLElement);
   if (at < 0) return false;
   const beyond = event.shiftKey ? all.slice(0, at) : all.slice(at + 1);

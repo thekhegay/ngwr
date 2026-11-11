@@ -1,5 +1,5 @@
 export { WrIcon } from './icon';
-export { lucide, lucideIcons } from './lucide';
+export { wrLucide, wrLucideIcons } from './lucide';
 export { provideWrIcons } from './providers';
-export { svgIcon } from './svg-icon';
-export type { LucideIconNode, WrIconDef, WrIconName } from './types';
+export { wrSvgIcon } from './svg-icon';
+export type { WrLucideIconNode, WrIconDef, WrIconName } from './types';

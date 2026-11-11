@@ -60,7 +60,7 @@ validators, interfaces — carry the rows nothing compares (the run prints both
 counts; the difference between its `hand-written row(s)` and its `type(s)
 compared` IS that number). It is not a hypothetical: a sweep of those rows found
 fourteen wrong, including a parameter type that does not compile
-(`isNonEmptyArray` takes `Maybe<T[]>`, not `readonly T[]`), an error payload
+(`wrIsNonEmptyArray` takes `WrMaybe<T[]>`, not `readonly T[]`), an error payload
 documented as `true` where the validator returns an object, and a second
 argument documented as an optional scope where the function requires a fallback
 string. A wrong type there is silent. **The comparison never opens a

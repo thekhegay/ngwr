@@ -34,25 +34,25 @@ import { validateIcon } from '../utils';
  * ```ts
  * // App-level registration, from the app's own `lucide` install.
  * import { Home, Settings, User } from 'lucide';
- * import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+ * import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
  *
  * export const appConfig: ApplicationConfig = {
- *   providers: [provideWrIcons(lucideIcons({ home: Home, user: User, settings: Settings }))],
+ *   providers: [provideWrIcons(wrLucideIcons({ home: Home, user: User, settings: Settings }))],
  * };
  * ```
  *
  * @example
  * ```ts
- * // Component-level registration, from raw SVG. `svgIcon` names the glyph;
+ * // Component-level registration, from raw SVG. `wrSvgIcon` names the glyph;
  * // the name is what `<wr-icon name="…">` looks up.
- * import { WrIcon, provideWrIcons, svgIcon } from 'ngwr/icon';
+ * import { WrIcon, provideWrIcons, wrSvgIcon } from 'ngwr/icon';
  *
  * const BRAND = '<svg viewBox="0 0 24 24"><path d="M4 12h16" /></svg>';
  *
  * @Component({
  *   selector: 'ngwr-header',
  *   imports: [WrIcon],
- *   providers: [provideWrIcons([svgIcon('brand', BRAND)])],
+ *   providers: [provideWrIcons([wrSvgIcon('brand', BRAND)])],
  *   template: `<wr-icon name="brand" />`,
  * })
  * export class HeaderComponent {}

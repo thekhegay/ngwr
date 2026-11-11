@@ -1,0 +1,20 @@
+<ngwr-doc-page
+  title="wrIsPrintableKey"
+  updated="16.0.0"
+  description="True for a single printable character typed without Ctrl, Cmd or Alt (Shift is allowed)."
+  [keywords]="['wrIsPrintableKey', 'keyboard', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="Do not guard with `wrHasModifier` first: it counts Shift, so capitals would never arrive."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

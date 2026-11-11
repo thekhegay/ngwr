@@ -2,7 +2,7 @@ import { Component, computed, signal } from '@angular/core';
 
 import { Folder, Home as HomeIcon } from 'lucide';
 import { WrBreadcrumbs, WrBreadcrumbsItem } from 'ngwr/breadcrumbs';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 
 import {
   type DocApiRow,
@@ -26,7 +26,7 @@ import {
     DocCodeComponent,
     DocApiComponent,
   ],
-  providers: [provideWrIcons(lucideIcons({ home: HomeIcon, folder: Folder }))],
+  providers: [provideWrIcons(wrLucideIcons({ home: HomeIcon, folder: Folder }))],
 })
 export default class BreadcrumbsPage {
   protected readonly separator = signal('/');

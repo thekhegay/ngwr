@@ -5,7 +5,7 @@ import { WrGradientFlow } from 'ngwr/animations/gradient-flow';
 import { WrTypewriter } from 'ngwr/animations/typewriter';
 import { WrButton } from 'ngwr/button';
 import { WrCard } from 'ngwr/card';
-import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 
 import { DocCodeComponent } from '../doc-code/doc-code';
 import { DocInstallComponent } from '../doc-install/doc-install';
@@ -66,7 +66,7 @@ interface NgtrueItem {
   providers: [
     provideWrIcons([
       ...BRAND_ICONS,
-      ...lucideIcons({
+      ...wrLucideIcons({
         ngtrue: CircleCheckBig,
         'list-checks': ListChecks,
         'package-check': PackageCheck,

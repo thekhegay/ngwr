@@ -30,10 +30,10 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounce, skip, timer } from 'rxjs';
 
 import { WrHotkey, type WrHotkeyHandle, type WrHotkeySpec } from 'ngwr/hotkey';
-import { readI18nText, useI18nText } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
 import { WR_OVERLAY_CONTAINER } from 'ngwr/overlay';
-import { isComposing, wrCheckStyles, wrRestoreFocus } from 'ngwr/utils';
+import { wrIsComposing, wrCheckStyles, wrRestoreFocus } from 'ngwr/utils';
 
 import type { WrCommandItem } from './types';
 
@@ -127,7 +127,7 @@ export class WrCommandPalette {
    * template — the one string on this component no catalog could reach, so a
    * fully Russian palette still hinted in English.
    */
-  protected readonly resolvedEscHint = readI18nText('commandPalette.escHint', 'esc');
+  protected readonly resolvedEscHint = wrReadI18nText('commandPalette.escHint', 'esc');
 
   /** Auto-close on `(picked)`. Set false to keep open. @default true */
   readonly closeOnPick = input(true, { transform: coerceBooleanProperty });
@@ -401,7 +401,7 @@ export class WrCommandPalette {
     // accepts a candidate, Escape cancels the conversion, the arrows walk the
     // candidate list. Acting on them closed the palette — and threw the query
     // away — the first time a Japanese user pressed Escape to undo a reading.
-    if (isComposing(event)) return;
+    if (wrIsComposing(event)) return;
 
     const list = this.filtered();
     switch (event.key) {

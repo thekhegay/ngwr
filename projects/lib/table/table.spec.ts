@@ -9,7 +9,7 @@ import { Subject } from 'rxjs';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { WrPagination, type WrPaginationSize } from 'ngwr/pagination';
-import { noop } from 'ngwr/utils';
+import { wrNoop } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTable } from './table';
@@ -668,7 +668,7 @@ describe('WrTable header gestures follow the reading direction', () => {
     cellWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
     Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get: () => 120 });
     // jsdom has no pointer capture; the table calls it during a column drag.
-    Object.defineProperty(HTMLElement.prototype, 'setPointerCapture', { configurable: true, value: noop });
+    Object.defineProperty(HTMLElement.prototype, 'setPointerCapture', { configurable: true, value: wrNoop });
   });
 
   afterEach(() => {
@@ -1168,7 +1168,7 @@ describe('WrTable tree rows with a refused mode', () => {
   });
 
   it('warns once per refused pair, and not for a tree on its own', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(wrNoop);
     const fixture = TestBed.createComponent(RefusedHost);
     fixture.detectChanges();
     expect(warn).not.toHaveBeenCalled();
@@ -1308,7 +1308,7 @@ describe('WrTable warns on a projected template no directive registered', () => 
   }
 
   const settle = async <H>(host: new () => H): Promise<{ messages: string[]; fixture: ComponentFixture<H> }> => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(wrNoop);
     const fixture = TestBed.createComponent(host);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -1323,7 +1323,7 @@ describe('WrTable warns on a projected template no directive registered', () => 
   });
 
   it('warns once, naming WrTableCell, when a template registered with nothing', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(wrNoop);
     const fixture = TestBed.createComponent(ForgottenHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -1338,7 +1338,7 @@ describe('WrTable warns on a projected template no directive registered', () => 
   });
 
   it('stays silent when every template is registered', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(wrNoop);
     const fixture = TestBed.createComponent(RegisteredHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -1372,7 +1372,7 @@ describe('WrTable warns on a projected template no directive registered', () => 
   });
 
   it('stays silent with no template at all', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(wrNoop);
     const fixture = TestBed.createComponent(BareHost);
     fixture.detectChanges();
     await fixture.whenStable();
