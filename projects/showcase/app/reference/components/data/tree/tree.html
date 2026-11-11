@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Tree"
+  updated="15.10.0"
   description="A nested list to browse and select from, inline or as a dropdown picker."
   [keywords]="['tree', 'tree-select', 'wr-tree', 'hierarchy', 'folders']"
   [labels]="['Composite']"
@@ -46,6 +47,17 @@
       <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
         Picked: {{ comboSingle() || '(none)' }}
       </small>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Combobox mode — sizes" description="`size` is `sm`, `md` (default) or `lg`, on the trigger.">
+    <ngwr-doc-code [code]="snippets.overlaySizes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap">
+        @for (s of sizes; track s) {
+          <wr-tree openOn="overlay" [size]="s" [nodes]="folders" [placeholder]="s" [(value)]="comboSized" />
+        }
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

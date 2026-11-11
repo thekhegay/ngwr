@@ -38,7 +38,7 @@ import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
-import type { WrTreeNode, WrTreeSelectionMode } from './types';
+import type { WrTreeNode, WrTreeSelectionMode, WrTreeSize } from './types';
 
 interface FlatNode<TId> {
   readonly node: WrTreeNode<TId>;
@@ -151,6 +151,9 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   /** Render shape. @default 'inline' */
   readonly openOn = input<'inline' | 'overlay'>('inline');
+
+  /** Trigger size — shares the `--wr-control-*` contract. The panel keeps its size. @default 'md' */
+  readonly size = input<WrTreeSize>('md');
 
   /** Placeholder shown on the trigger when no node is selected. */
   readonly placeholder = input<string>('');
@@ -406,6 +409,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     else if (this.readonly()) parts.push('wr-tree--readonly');
     if (this.isOverlay()) {
       parts.push('wr-tree--combobox');
+      const size = this.size();
+      if (size !== 'md') parts.push(`wr-tree--${size}`);
       if (this.open()) parts.push('wr-tree--open');
       if (this.isMulti()) parts.push('wr-tree--multi');
     }
