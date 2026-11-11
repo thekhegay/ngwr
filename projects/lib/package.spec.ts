@@ -185,13 +185,14 @@ describe('the published manifest', () => {
     expect(undeclared).toEqual([]);
   });
 
-  it('promises no Angular older than the one it builds against', () => {
+  it('promises no peer older than the one it builds against', () => {
     // An app on an older minor than the build's can be missing an export the
     // library imports: 15.0.0 said `^22.0.0` while `ngwr/sidebar` imported
     // `containsTree` (22.2) and `ngwr/schema-form` `isFieldTree` (22.1), so an
-    // app on 22.1 failed its build. Each `@angular/*` floor is therefore the
-    // major and minor the repository installs, and a bump to a new minor moves
-    // the peers with it.
+    // app on 22.1 failed its build. Each peer's floor is therefore the major
+    // and minor the repository installs, and a bump to a new minor moves the
+    // peer with it. That holds for `rxjs` and ProseMirror as it does for
+    // `@angular/*`: nothing runs the suite on a minor below the installed one.
     const root = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
@@ -199,7 +200,6 @@ describe('the published manifest', () => {
     const installed = { ...root.dependencies, ...root.devDependencies };
     const minor = (range: string): string => /(\d+\.\d+)/.exec(range)?.[1] ?? range;
     const drift = Object.entries(manifest.peerDependencies)
-      .filter(([name]) => name.startsWith('@angular/'))
       .filter(([name, range]) => minor(range) !== minor(installed[name] ?? ''))
       .map(([name, range]) => `${name}: peer ${range}, built against ${installed[name]}`);
 
