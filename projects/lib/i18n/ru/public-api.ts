@@ -152,6 +152,11 @@ export const wrRu: WrI18nCatalog = {
     copied: 'Скопировано',
     closeAll: 'Закрыть все',
   },
+  copyValue: {
+    copy: 'Копировать',
+    copied: 'Скопировано',
+    empty: '-',
+  },
   input: {
     showPassword: 'Показать пароль',
     hidePassword: 'Скрыть пароль',

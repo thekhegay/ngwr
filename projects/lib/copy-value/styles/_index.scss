@@ -1,0 +1,104 @@
+@use '../../theme/styles' as theme;
+
+@include theme.loaded('copy-value');
+
+.wr-copy-value {
+  --wr-copy-value-gap: var(--wr-space-xs);
+  --wr-copy-value-empty-color: var(--wr-color-on-surface-muted);
+  --wr-copy-value-button-color: var(--wr-color-on-surface-muted);
+  --wr-copy-value-button-hover-color: var(--wr-color-on-surface);
+  --wr-copy-value-button-hover-bg: var(--wr-color-hover);
+  // A graphic, so the bare intent: `-ink` is for text.
+  --wr-copy-value-button-copied-color: var(--wr-color-success);
+  --wr-copy-value-button-padding: var(--wr-space-xs);
+  --wr-copy-value-button-radius: var(--wr-border-radius-sm);
+
+  // Relative, so the visually hidden status stays inside the host's box.
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wr-copy-value-gap);
+  // Both, so the text can shrink below its content inside a flex or grid cell
+  // and never runs past the cell it sits in.
+  min-width: 0;
+  max-width: 100%;
+  vertical-align: bottom;
+
+  &__text {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__empty {
+    color: var(--wr-copy-value-empty-color);
+  }
+
+  &__button {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    appearance: none;
+    margin: 0;
+    padding: var(--wr-copy-value-button-padding);
+    border: 0;
+    border-radius: var(--wr-copy-value-button-radius);
+    background: transparent;
+    color: var(--wr-copy-value-button-color);
+    cursor: pointer;
+    // The glyph is `1em`, and a `<button>` takes the browser's control font
+    // unless the app resets it. The size only, never the `font` shorthand.
+    font-size: inherit;
+    transition:
+      color var(--wr-transition-base),
+      background-color var(--wr-transition-base);
+
+    @include theme.touch-target; // glyph -> 44px tap area on touch
+
+    &:hover {
+      color: var(--wr-copy-value-button-hover-color);
+      background: var(--wr-copy-value-button-hover-bg);
+    }
+
+    &:focus-visible {
+      @include theme.focus-ring;
+    }
+  }
+
+  &__icon {
+    display: block;
+    width: 1em;
+    height: 1em;
+  }
+
+  &__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+    white-space: nowrap;
+  }
+
+  &--copied &__button,
+  &--copied &__button:hover {
+    color: var(--wr-copy-value-button-copied-color);
+  }
+
+  &--wrap {
+    // The button stays on the first line of a value that runs over several.
+    align-items: flex-start;
+  }
+
+  &--wrap &__text {
+    overflow: visible;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}

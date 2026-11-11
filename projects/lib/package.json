@@ -432,6 +432,13 @@
     "./cookie": {
       "default": "./cookie/public-api.ts"
     },
+    "./copy-value": {
+      "sass": "./copy-value/styles/_index.scss",
+      "default": "./copy-value/public-api.ts"
+    },
+    "./copy-value/testing": {
+      "default": "./copy-value/testing/public-api.ts"
+    },
     "./counter": {
       "sass": "./counter/styles/_index.scss",
       "default": "./counter/public-api.ts"

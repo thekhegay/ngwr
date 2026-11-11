@@ -152,6 +152,11 @@ export const wrJa: WrI18nCatalog = {
     copied: 'コピーしました',
     closeAll: 'すべて閉じる',
   },
+  copyValue: {
+    copy: 'コピー',
+    copied: 'コピーしました',
+    empty: '-',
+  },
   input: {
     showPassword: 'パスワードを表示',
     hidePassword: 'パスワードを非表示',

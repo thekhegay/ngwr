@@ -355,6 +355,13 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/command-palette',
     'guides/keyboard',
   ],
+  'reference/components/copy-value': [
+    'reference/directives/copy-to-clipboard',
+    'reference/services/clipboard',
+    'reference/directives/typography',
+    'reference/components/descriptions',
+    'reference/components/table',
+  ],
   'reference/components/counter': ['reference/components/statistic', 'reference/pipes/wr-number'],
   'reference/components/date-picker': [
     'reference/components/calendar',
@@ -691,6 +698,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/services/hotkey',
   ],
   'reference/directives/copy-to-clipboard': [
+    'reference/components/copy-value',
     'reference/services/clipboard',
     'reference/components/toast',
     'reference/components/button',
@@ -772,7 +780,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/pipes/wr-mark',
   ],
 
-  'reference/services/clipboard': ['reference/directives/copy-to-clipboard', 'reference/components/toast'],
+  'reference/services/clipboard': [
+    'reference/directives/copy-to-clipboard',
+    'reference/components/copy-value',
+    'reference/components/toast',
+  ],
   'reference/services/cookie': ['reference/services/storage', 'guides/ssr'],
   'reference/services/density': [
     'guides/tokens/density',

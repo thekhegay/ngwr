@@ -158,6 +158,11 @@ export const wrPl: WrI18nCatalog = {
     copied: 'Skopiowano',
     closeAll: 'Zamknij wszystkie',
   },
+  copyValue: {
+    copy: 'Kopiuj',
+    copied: 'Skopiowano',
+    empty: '-',
+  },
   input: {
     showPassword: 'Pokaż hasło',
     hidePassword: 'Ukryj hasło',

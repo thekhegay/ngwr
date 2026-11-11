@@ -150,6 +150,11 @@ export const wrHi: WrI18nCatalog = {
     copied: 'कॉपी हो गया',
     closeAll: 'सभी बंद करें',
   },
+  copyValue: {
+    copy: 'कॉपी करें',
+    copied: 'कॉपी हो गया',
+    empty: '-',
+  },
   input: {
     showPassword: 'पासवर्ड दिखाएं',
     hidePassword: 'पासवर्ड छिपाएं',

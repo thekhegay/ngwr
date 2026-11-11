@@ -10,6 +10,7 @@ export const DISPLAY_ROUTES = [
   { path: components.badge.path, loadComponent: () => import('./badge/badge') },
   { path: components.comment.path, loadComponent: () => import('./comment/comment') },
   { path: components.compare.path, loadComponent: () => import('./compare/compare') },
+  { path: components.copyValue.path, loadComponent: () => import('./copy-value/copy-value') },
   { path: components.counter.path, loadComponent: () => import('./counter/counter') },
   { path: components.keyboard.path, loadComponent: () => import('./keyboard/keyboard') },
   { path: components.descriptions.path, loadComponent: () => import('./descriptions/descriptions') },

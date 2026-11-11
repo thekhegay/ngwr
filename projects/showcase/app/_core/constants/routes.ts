@@ -193,6 +193,7 @@ export const ROUTES = {
       comment: { path: 'comment', title: 'Comment' },
       compare: { path: 'compare', title: 'Compare' },
       contextMenu: { path: 'context-menu', title: 'Context Menu' },
+      copyValue: { path: 'copy-value', title: 'Copy Value' },
       counter: { path: 'counter', title: 'Counter' },
       datePicker: { path: 'date-picker', title: 'Date Picker' },
       dialog: { path: 'dialog', title: 'Dialog' },

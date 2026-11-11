@@ -152,6 +152,11 @@ export const wrKo: WrI18nCatalog = {
     copied: '복사됨',
     closeAll: '모두 닫기',
   },
+  copyValue: {
+    copy: '복사',
+    copied: '복사됨',
+    empty: '-',
+  },
   input: {
     showPassword: '비밀번호 표시',
     hidePassword: '비밀번호 숨기기',

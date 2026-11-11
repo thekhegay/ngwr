@@ -158,6 +158,11 @@ export const wrHe: WrI18nCatalog = {
     copied: 'הועתק',
     closeAll: 'סגירת הכול',
   },
+  copyValue: {
+    copy: 'העתקה',
+    copied: 'הועתק',
+    empty: '-',
+  },
   input: {
     showPassword: 'הצגת הסיסמה',
     hidePassword: 'הסתרת הסיסמה',
