@@ -34,7 +34,7 @@ import {
 
 import { WrCheckbox } from 'ngwr/checkbox';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { WrPagination } from 'ngwr/pagination';
+import { WrPagination, type WrPaginationSize } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
 import {
   KEYS,
@@ -527,6 +527,9 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * ```
    */
   readonly pageSizeOptions = input<readonly number[]>([]);
+
+  /** Size of the pager under the table: its cells and its size menu. @default 'sm' */
+  readonly paginationSize = input<WrPaginationSize>('sm');
 
   /** Fires with the size the reader picks in the pager's size menu. */
   readonly pageSizeChange = output<number>();

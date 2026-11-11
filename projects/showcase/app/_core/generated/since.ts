@@ -138,7 +138,7 @@ export const UPDATED = {
   "reference/components/slider": "15.6.0",
   "reference/components/sortable-list": "15.0.0",
   "reference/components/switch": "15.0.0",
-  "reference/components/table": "15.6.0",
+  "reference/components/table": "15.9.0",
   "reference/components/textarea": "15.0.0",
   "reference/components/timeline": "15.0.0",
   "reference/components/toast": "15.0.0",
