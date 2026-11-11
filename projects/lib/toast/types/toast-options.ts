@@ -31,7 +31,7 @@ export interface WrToastOptions {
    */
   readonly action?: WrToastAction;
   /** Show a close (×) button. @default true */
-  readonly dismissible?: boolean;
+  readonly closable?: boolean;
   /**
    * Corner this toast opens in. The whole stack shares one host, so this is
    * not per-toast: passing a different corner relocates the toasts already on

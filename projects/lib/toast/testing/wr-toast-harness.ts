@@ -93,7 +93,7 @@ export class WrToastHarness extends ComponentHarness {
     return (await this.locatorForOptional('.wr-toast__action--copy')()) !== null;
   }
 
-  /** Click the dismiss button. Throws on a toast shown `dismissible: false`. */
+  /** Click the dismiss button. Throws on a toast shown `closable: false`. */
   async dismiss(): Promise<void> {
     await (await this.locatorFor('.wr-toast__action--close')()).click();
   }

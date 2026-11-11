@@ -273,7 +273,7 @@ export class WrToastHost {
   /**
    * Focus the Close button nearest to where the removed toast stood: the one
    * now at its index, then forward, then back. A toast with no Close button
-   * (`dismissible: false`) is passed over; with none anywhere, "Close all" if
+   * (`closable: false`) is passed over; with none anywhere, "Close all" if
    * it is showing, else the origin.
    */
   private focusNeighbour(index: number): void {

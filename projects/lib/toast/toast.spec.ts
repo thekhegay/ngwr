@@ -386,8 +386,8 @@ describe('WrToast', () => {
       expect(items()).toHaveLength(0);
     });
 
-    it('drops the close button when the toast is not dismissible', () => {
-      toast.show({ message: 'One', dismissible: false });
+    it('drops the close button when the toast is not closable', () => {
+      toast.show({ message: 'One', closable: false });
       tick();
       expect(actions(items()[0])).toHaveLength(0);
     });
@@ -912,7 +912,7 @@ describe('WrToast moves focus on when a focused toast closes', () => {
   it('passes over a toast that has no Close button', () => {
     toast.show({ message: 'One', duration: 0 });
     toast.show({ message: 'Two', duration: 0 });
-    toast.show({ message: 'Sticky', duration: 0, dismissible: false });
+    toast.show({ message: 'Sticky', duration: 0, closable: false });
     tick();
 
     pressClose(1);

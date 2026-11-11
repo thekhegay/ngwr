@@ -49,7 +49,7 @@ export class WrToastItem {
   readonly type = input<WrToastType>('info');
   readonly title = input<string | null>(null);
   readonly message = input.required<string>();
-  readonly dismissible = input<boolean>(true);
+  readonly closable = input<boolean>(true);
   readonly showProgress = input<boolean>(false);
   readonly showCopy = input<boolean>(false);
   /** Text of the action button, from `WrToastOptions.action`. `null` renders none. */
@@ -169,7 +169,7 @@ export class WrToastItem {
   });
 
   protected onSwipeStart(event: TouchEvent): void {
-    if (!this.dismissible()) return;
+    if (!this.closable()) return;
     const touch = event.touches[0];
     if (!touch) return;
     this.swipeStartX = touch.clientX;
