@@ -8,9 +8,10 @@
 import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, inject, input } from '@angular/core';
 
-import { BREAKING_SPACES, VIEW_THRESHOLD, graphemes, optionalMs, staggerGap } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
+
+import { BREAKING_SPACES, VIEW_THRESHOLD, graphemes, optionalMs, staggerGap } from '../internal';
 
 import type { WrBlurRevealBy, WrBlurRevealFrom } from './types';
 

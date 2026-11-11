@@ -7,8 +7,9 @@
 
 import { Component, DestroyRef, ElementRef, ViewEncapsulation, inject, input, viewChild } from '@angular/core';
 
-import { MAX_DPR, MAX_PIXELS, createCanvasBackdrop } from 'ngwr/animations/core';
 import { wrClamp, wrNumAttr, wrResolveCssColorChannels, wrCheckStyles } from 'ngwr/utils';
+
+import { MAX_DPR, MAX_PIXELS, createCanvasBackdrop } from '../internal';
 
 /** How far a dot is pushed at the pointer itself, in px. */
 const PUSH = 14;

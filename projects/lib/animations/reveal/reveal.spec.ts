@@ -1,12 +1,11 @@
 import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import type { WrStaggerBy } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrReveal } from './reveal';
-import type { WrRevealTrigger } from './types';
+import type { WrRevealBy, WrRevealTrigger } from './types';
 
 @Component({
   imports: [WrReveal],
@@ -24,7 +23,7 @@ import type { WrRevealTrigger } from './types';
 })
 class Host {
   readonly text = signal('Héllo 👋🏽 wörld');
-  readonly by = signal<WrStaggerBy>('letters');
+  readonly by = signal<WrRevealBy>('letters');
   readonly start = signal(0);
   readonly stagger = signal<number | null>(null);
   readonly delay = signal(0);

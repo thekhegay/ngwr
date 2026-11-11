@@ -37,9 +37,17 @@ A pnpm + Angular CLI monorepo with three projects:
   `pnpm gen:exports` writes their keys like any other. `@use 'ngwr/animations'`
   is the keyframe UTILITY sheet (`styles/_animations.scss`), not a component;
   the animation EFFECTS are nested under the same name since 15.7
-  (`ngwr/animations/blur-reveal`, `ngwr/animations/shimmer`, …), with
-  `ngwr/animations/core` holding what they share, every export `@internal`
-  like `ngwr/charts/core`. The `ngwr/bits/*` components the package carried
+  (`ngwr/animations/blur-reveal`, `ngwr/animations/shimmer`, …). What they
+  share lives in `projects/lib/animations/internal/`, which is NOT an entry
+  point since v16: it has no `public-api.ts`, so `gen:exports` writes no key for
+  it and an app cannot import it. Each effect imports it by a relative path
+  (`../internal`), and the library builder bundles every entry point in one
+  Rolldown pass, so a module two entry points share is emitted once, as a chunk
+  beside the bundles in `fesm2022/` and `types/`, rather than copied into each.
+  Never import one EFFECT from another that way: an entry point reached by a
+  relative path is bundled into its importer. A type from there that a public
+  signature names needs an alias the effect exports (`WrRevealBy`,
+  `WrBlurRevealBy`), or `check:package` reports it as unexported. The `ngwr/bits/*` components the package carried
   through 15.5 were removed in 15.6; the effects are not those. They export one more harness name than there are classes
   (`harnessClasses` in the same file): `WrCalendarDayHarness` is the
   one exported twice, since a date-picker's popup IS a calendar and
@@ -138,7 +146,7 @@ Public types live in each entry point's
 too — the token file holds the `InjectionToken`, its contract lives beside every
 other type the entry point publishes. The folder was `interfaces/` until v15 and
 the name was a lie in most of them: what it holds is unions and aliases as often
-as it is an `interface`. Cross-cutting types (e.g. `Maybe`, `SafeAny`) live in
+as it is an `interface`. Cross-cutting types (e.g. `WrMaybe`, `WrSafeAny`) live in
 `projects/lib/utils/types/` and are imported from `ngwr/utils` — never from
 `ngwr/utils/types`, which resolves inside the repo through the path alias and
 is not an entry point, so a consumer's compiler cannot follow it.

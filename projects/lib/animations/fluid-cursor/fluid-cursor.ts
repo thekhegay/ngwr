@@ -21,9 +21,10 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { MAX_FRAME_MS, MAX_PIXELS, canvasBackdropRatio } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrNumAttr, wrResolveCssColorChannels, wrWatchColorScheme, wrCheckStyles } from 'ngwr/utils';
+
+import { MAX_FRAME_MS, MAX_PIXELS, canvasBackdropRatio } from '../internal';
 
 import { FLUID_CONTEXT_ATTRIBUTES, type FluidGLContext, type FluidSim, createFluidSim } from './fluid-gl';
 import {

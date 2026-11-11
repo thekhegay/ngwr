@@ -7,8 +7,9 @@
 
 import { Component, DestroyRef, ElementRef, ViewEncapsulation, inject, input, viewChild } from '@angular/core';
 
-import { createCanvasBackdrop } from 'ngwr/animations/core';
 import { wrNumAttr, wrResolveCssColorChannels, wrCheckStyles } from 'ngwr/utils';
+
+import { createCanvasBackdrop } from '../internal';
 
 import { type Ripple, rippleAdd, rippleAlive, rippleField, rippleGridLayout } from './ripple-model';
 

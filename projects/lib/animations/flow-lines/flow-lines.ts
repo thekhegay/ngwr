@@ -23,9 +23,10 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { FRAME_FLOOR_SLACK, MAX_FRAME_MS } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrNumAttr, wrResolveCssColorChannels, wrWatchColorScheme, wrCheckStyles } from 'ngwr/utils';
+
+import { FRAME_FLOOR_SLACK, MAX_FRAME_MS } from '../internal';
 
 import {
   FLOW_CONTEXT_ATTRIBUTES,

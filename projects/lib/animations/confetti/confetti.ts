@@ -8,9 +8,10 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, PLATFORM_ID, Service, effect, inject } from '@angular/core';
 
-import { MAX_FRAME_MS, canvasBackdropRatio } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrClamp, wrResolveCssColor } from 'ngwr/utils';
+
+import { MAX_FRAME_MS, canvasBackdropRatio } from '../internal';
 
 import type { WrConfettiOptions, WrConfettiRect } from './types';
 

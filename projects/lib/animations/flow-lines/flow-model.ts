@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { MAX_DPR } from 'ngwr/animations/core';
+import { MAX_DPR } from '../internal';
 
 /**
  * The pure side of `<wr-flow-lines>`: the spring every pushed point follows,

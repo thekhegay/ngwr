@@ -1,5 +1,5 @@
 // Sass shared by the animation sheets. Not a public entry: there is no
-// `styles/_index.scss` here, so `@use 'ngwr/animations/core'` resolves to
+// `styles/_index.scss` here, so `@use 'ngwr/animations/internal'` resolves to
 // nothing and the manifest carries no `sass` condition for it. An effect's own
 // `_index.scss` loads this file by its relative path.
 

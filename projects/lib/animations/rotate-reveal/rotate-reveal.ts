@@ -22,10 +22,11 @@ import {
   untracked,
 } from '@angular/core';
 
-import { VIEW_THRESHOLD, graphemes } from 'ngwr/animations/core';
 import { useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
 import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
+
+import { VIEW_THRESHOLD, graphemes } from '../internal';
 
 /** How long a word stands before the next one takes its place when `hold` is not set, in ms. */
 const ROTATE_REVEAL_HOLD = 2400;

@@ -19,9 +19,10 @@ import {
   untracked,
 } from '@angular/core';
 
-import { FOCUSABLE, roundTo } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrNumAttr, wrRandomId, wrCheckStyles } from 'ngwr/utils';
+
+import { FOCUSABLE, roundTo } from '../internal';
 
 /** How far a pixel of the text may move at full noise, each way, in em: 2.4px on 16px text. */
 const DESTRUCT_SHIFT = 0.15;

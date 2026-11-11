@@ -18,9 +18,10 @@ import {
   untracked,
 } from '@angular/core';
 
-import { graphemes, optionalSelector, roundTo } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
+
+import { graphemes, optionalSelector, roundTo } from '../internal';
 
 import type { WrFallingLettersState } from './types';
 

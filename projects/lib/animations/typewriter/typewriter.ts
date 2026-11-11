@@ -22,9 +22,10 @@ import {
   untracked,
 } from '@angular/core';
 
-import { VIEW_THRESHOLD, graphemes } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
+
+import { VIEW_THRESHOLD, graphemes } from '../internal';
 
 import type { WrTypewriterPhase, WrTypewriterTrigger } from './types';
 
