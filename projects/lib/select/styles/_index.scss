@@ -575,7 +575,7 @@
   }
 }
 
-// --- Virtual scroll (search-mode data-array path) ---------------------------
+// --- Virtual scroll (data-array path) ---------------------------------------
 .wr-select-panel--virtual {
   // The inner `__vlist` owns scrolling; the panel must not add a second scroll
   // container or cap height, and the flex `gap` would drift the fixed-offset

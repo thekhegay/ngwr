@@ -317,7 +317,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    * On `multi` the trigger keeps its chips and grows an inline text field (the
    * shape `tag` mode already uses); on `single` it is equivalent to
    * `mode="search"`. Every search input (`[loader]`, `[debounceMs]`,
-   * `[minChars]`, `[virtualScroll]`, the `(searchChange)` output, …) applies
+   * `[minChars]`, the `(searchChange)` output, …) applies
    * either way. Ignored in `tag` mode, which owns its own input.
    * @default false
    */
@@ -416,29 +416,29 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   readonly freeText = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Search mode: window the option panel so thousands of `[options]` keep only
-   * ~one viewport of rows in the DOM. Opt-in and OFF by default. Engages ONLY on
-   * the pure data-array search tier — it silently falls back to the full render
-   * when static `<wr-option>` children are projected or the filtered list is
-   * empty. While on, rows are plain `role="option"` elements (no `<wr-option>`),
-   * navigated via `aria-activedescendant`, selected by value. @default false
+   * Window the option panel so thousands of `[options]` keep only ~one viewport
+   * of rows in the DOM, with or without search (`tag` mode has no panel). Opt-in and OFF by
+   * default. Engages ONLY on the pure data-array tier — it silently falls back
+   * to the full render when static `<wr-option>` children are projected. While
+   * on, rows are plain `role="option"` elements (no `<wr-option>`), navigated
+   * via `aria-activedescendant`, selected by value. @default false
    */
   readonly virtualScroll = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Search mode: uniform option-row height in px for the virtual window. `0`
+   * Uniform option-row height in px for the virtual window. `0`
    * (default) measures the first rendered row once and reuses it, so it adapts
    * to the control size. Read only when `virtualScroll` engages. @default 0
    */
   readonly rowHeight = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
 
   /**
-   * Search mode: height of the virtual scroll viewport — a number (px) or any
+   * Height of the virtual scroll viewport — a number (px) or any
    * CSS length. @default 256
    */
   readonly viewportHeight = input<number | string>(256);
 
-  /** Search mode: extra rows kept above/below the virtual viewport. @default 6 */
+  /** Extra rows kept above/below the virtual viewport. @default 6 */
   readonly overscan = input(6, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 6)) });
 
   /** Search mode: text shown when the filter / loader returns nothing. Falls back to `select.noResults`. */
@@ -860,7 +860,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     this.loader() ? this.loadedOptions() : this.options()
   );
 
-  // --- Virtual scroll (search mode, data-array path) ------------------------
+  // --- Virtual scroll (data-array path) --------------------------------------
 
   private static readonly FALLBACK_ROW_PX = 34;
   private static readonly FALLBACK_VIEWPORT_PX = 256;
@@ -894,7 +894,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   });
 
   /**
-   * Virtualization engaged: opt-in, search mode, and NO projected `<wr-option>`
+   * Virtualization engaged: opt-in, a mode with a panel, and NO projected `<wr-option>`
    * children — grouped ones included (those keep the full-render registry path so
    * their DOM-derived labels / selection still work).
    *
@@ -908,7 +908,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    * already answer -1.
    */
   protected readonly virtualActive = computed<boolean>(
-    () => this.virtualScroll() && this.isSearchable() && this.projectedOptions().length === 0
+    () => this.virtualScroll() && !this.isTag() && this.projectedOptions().length === 0
   );
 
   private readonly scrollTop = signal(0);

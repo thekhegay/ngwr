@@ -406,13 +406,13 @@
 
     @if (virtualActive()) {
       <!-- Windowed data-array rows: plain role="option" elements (not <wr-option>),
-           navigated via the input's aria-activedescendant, selected by value. -->
+           navigated via the trigger's aria-activedescendant, selected by value. -->
       <div class="wr-select-panel__vlist" [style.max-height]="resolvedViewportHeight()">
         @if (virtualWindow().padTop > 0) {
           <div class="wr-select-panel__vspacer" aria-hidden="true" [style.height.px]="virtualWindow().padTop"></div>
         }
         @for (entry of windowOptions(); track entry.index) {
-          <!-- Keyboard handled by the search input via aria-activedescendant; the
+          <!-- Keyboard handled by the trigger via aria-activedescendant; the
                row is a pointer target only. -->
           <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
           <div
