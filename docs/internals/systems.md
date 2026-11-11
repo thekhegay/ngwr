@@ -211,7 +211,7 @@ one component folder. Reach for them instead of hand-rolling:
   import path and the `@use`, and reports a list still rendering its row
   through an `<ng-template>` or passing `trackBy`, since the loop needs the
   array name and a track key only the app knows.
-- **Virtual scrolling** — `wr-table`, `wr-tree` and `wr-select` (search mode)
+- **Virtual scrolling** — `wr-table`, `wr-tree` and `wr-select` (`[options]` rows)
   use hand-rolled spacer-row windowing and switch to `aria-activedescendant`
   while virtual. `ngwr/virtual-scroll` is a _separate_ public component wrapping
   `cdk-virtual-scroll-viewport`; the three above deliberately don't use it (the

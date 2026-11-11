@@ -3622,3 +3622,151 @@ describe('WrSelect multi-mode membership', () => {
     expect(selected()).toEqual(['false', 'false', 'true', 'false', 'false']);
   });
 });
+
+/**
+ * `virtualScroll` on a select with no search: the button trigger owns the
+ * keyboard, and the panel is the same window the search mode draws.
+ */
+describe('WrSelect virtual scrolling without search', () => {
+  const COUNT = 2000;
+
+  @Component({
+    imports: [WrSelect],
+    template: `
+      <wr-select
+        ariaLabel="City"
+        virtualScroll
+        [mode]="mode()"
+        [rowHeight]="20"
+        [viewportHeight]="200"
+        [overscan]="2"
+        [options]="cities"
+        [(value)]="city"
+      />
+    `,
+  })
+  class PlainVirtualHost {
+    readonly cities = Array.from({ length: COUNT }, (_, i) => `City ${i}`);
+    readonly mode = signal<WrSelectMode>('single');
+    readonly city = signal<unknown>(null);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<PlainVirtualHost>>;
+  let realScrollTo: PropertyDescriptor | undefined;
+
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('button.wr-select__trigger')!;
+  const rows = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+  const labels = (): string[] => rows().map(r => r.textContent.trim());
+  const active = (): HTMLElement | null => {
+    const id = trigger().getAttribute('aria-activedescendant');
+    return id ? document.getElementById(id) : null;
+  };
+  const press = (key: string): void => {
+    trigger().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  // jsdom has no `Element.scrollTo`, which the virtual list calls on itself.
+  beforeEach(() => {
+    realScrollTo = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollTo');
+    Object.defineProperty(Element.prototype, 'scrollTo', {
+      value: (): void => undefined,
+      configurable: true,
+      writable: true,
+    });
+
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(PlainVirtualHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    if (realScrollTo) Object.defineProperty(Element.prototype, 'scrollTo', realScrollTo);
+    else delete (Element.prototype as { scrollTo?: unknown }).scrollTo;
+  });
+
+  it('renders a window on open instead of every option', () => {
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(document.querySelector('.wr-select-panel__vlist')).not.toBeNull();
+    expect(document.querySelector('wr-option')).toBeNull();
+    expect(rows().length).toBeGreaterThan(0);
+    expect(rows().length).toBeLessThan(20);
+    expect(labels()[0]).toBe('City 0');
+    expect(rows()[0].getAttribute('aria-setsize')).toBe(String(COUNT));
+  });
+
+  it('moves the active option past the window, and renders it', () => {
+    press('ArrowDown');
+    expect(active()?.textContent.trim()).toBe('City 0');
+
+    for (let i = 0; i < 40; i++) press('ArrowDown');
+
+    expect(labels()).not.toContain('City 0');
+    expect(active()?.textContent.trim()).toBe('City 40');
+    expect(active()?.classList.contains('wr-option--active')).toBe(true);
+  });
+
+  it('jumps to the last option on End', () => {
+    press('ArrowDown');
+    press('End');
+
+    expect(active()?.textContent.trim()).toBe(`City ${COUNT - 1}`);
+    expect(rows().length).toBeLessThan(20);
+  });
+
+  it('opens on the selected option, rendered and active', () => {
+    fixture.componentInstance.city.set('City 1500');
+    fixture.detectChanges();
+    expect(trigger().textContent).toContain('City 1500');
+
+    press('Enter');
+
+    expect(labels()).not.toContain('City 0');
+    expect(active()?.textContent.trim()).toBe('City 1500');
+    expect(active()?.getAttribute('aria-selected')).toBe('true');
+    expect(rows().length).toBeLessThan(20);
+  });
+
+  it('commits the row the keyboard is on, and closes', () => {
+    press('ArrowDown');
+    press('ArrowDown');
+    press('ArrowDown');
+    press('Enter');
+
+    expect(fixture.componentInstance.city()).toBe('City 2');
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    expect(trigger().textContent).toContain('City 2');
+  });
+
+  it('commits a clicked row', () => {
+    trigger().click();
+    fixture.detectChanges();
+    rows()[3].click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.city()).toBe('City 3');
+  });
+
+  it('windows a multi select too, and toggles rows by value', () => {
+    fixture.componentInstance.mode.set('multi');
+    fixture.componentInstance.city.set(['City 1']);
+    fixture.detectChanges();
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(rows().length).toBeLessThan(20);
+    expect(rows()[1].getAttribute('aria-selected')).toBe('true');
+
+    rows()[2].click();
+    rows()[1].click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.city()).toEqual(['City 2']);
+    expect(rows()[1].getAttribute('aria-selected')).toBe('false');
+    expect(rows()[2].getAttribute('aria-selected')).toBe('true');
+  });
+});

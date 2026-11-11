@@ -394,7 +394,7 @@ categoryId.setValue(2);`,
     }, 700);
   }
 
-  // 5,000-item array for the virtual-scroll demo (search mode, [options] path).
+  // 5,000-item array for the virtual-scroll demo ([options] path).
   protected readonly bigOptions = Array.from({ length: 5000 }, (_, i) => `Item ${String(i + 1).padStart(4, '0')}`);
   protected readonly bigPick = signal<string | null>(null);
 
