@@ -49,3 +49,39 @@ if (typeof globalThis.localStorage === 'undefined') {
     writable: true,
   });
 }
+
+/**
+ * A frame per call, on whichever `setTimeout` is current.
+ *
+ * jsdom runs its frames on ONE `setInterval`, created when the first frame is
+ * asked for and cleared when none is left. A spec that fakes `setInterval` but
+ * not `requestAnimationFrame` (and Angular asks for a frame on every scheduled
+ * change detection) gets that interval on the fake clock; a frame still pending
+ * when the spec restores real timers leaves jsdom counting one outstanding
+ * frame that will never run, so it never starts a new interval. The builder
+ * runs spec files unisolated, so every later file in that worker waits for a
+ * frame that never comes: a `textarea` harness spec timed out in CI behind the
+ * countdown specs that way. A timeout per frame cannot strand like that.
+ */
+const frames = new Map<number, ReturnType<typeof setTimeout>>();
+let lastFrame = 0;
+const requestFrame = (callback: FrameRequestCallback): number => {
+  const id = ++lastFrame;
+  frames.set(
+    id,
+    setTimeout(() => {
+      frames.delete(id);
+      callback(performance.now());
+    }, 16)
+  );
+  return id;
+};
+const cancelFrame = (id: number): void => {
+  clearTimeout(frames.get(id));
+  frames.delete(id);
+};
+for (const scope of [globalThis, typeof window === 'undefined' ? undefined : window]) {
+  if (!scope) continue;
+  scope.requestAnimationFrame = requestFrame;
+  scope.cancelAnimationFrame = cancelFrame;
+}
