@@ -1287,9 +1287,9 @@ const DELIBERATE_MISMATCH: ReadonlySet<string> = new Set([
 const UNDOCUMENTED_ENTRIES: ReadonlyMap<string, string> = new Map([
   [
     'directives',
-    'the showcase splits `ngwr/directives` across four pages named after the directive' +
-      ' (autofocus, autosize, click-outside, copy-to-clipboard), and a page is held to an entry point as a' +
-      ' whole — so each of the four would be reported missing the other three. Their seven members are' +
+    'the showcase splits `ngwr/directives` across five pages named after the directive' +
+      ' (autofocus, autosize, click-outside, copy-to-clipboard, fit-text), and a page is held to an entry point as a' +
+      ' whole — so each of the five would be reported missing the other four. Their eight members are' +
       ' documented and are NOT compared; fixing it means mapping a page to a class rather than a folder',
   ],
 ]);

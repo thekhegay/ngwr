@@ -71,8 +71,8 @@ one. Mind the ones that do not match the selector: `<wr-btn>` and
 `<wr-btn-group>` are `ngwr/button`, `<wr-tag>` is `ngwr/badge`, `<wr-option>` is
 `ngwr/select`, `<wr-accordion>` is `ngwr/collapse`, `<wr-form-field>` is
 `ngwr/form`, `<wr-kbd>` is `ngwr/keyboard`, `<wr-count-up>` is `ngwr/counter`,
-and `[wrAutofocus]`, `[wrAutosize]`, `[wrClickOutside]` and
-`[wrCopyToClipboard]` are `ngwr/directives`.
+and `[wrAutofocus]`, `[wrAutosize]`, `[wrClickOutside]`,
+`[wrCopyToClipboard]` and `[wrFitText]` are `ngwr/directives`.
 
 Styles: in your global SCSS, `@use 'ngwr/theme'` first, then one
 `@use 'ngwr/<name>'` per component a template renders; there is no

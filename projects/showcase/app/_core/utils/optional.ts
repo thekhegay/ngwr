@@ -18,6 +18,7 @@ const OPTIONAL_ROUTES: readonly string[] = [
   'reference/directives/autosize',
   'reference/directives/click-outside',
   'reference/directives/copy-to-clipboard',
+  'reference/directives/fit-text',
   'reference/directives/typography',
   'reference/interfaces/common',
   'reference/pipes',

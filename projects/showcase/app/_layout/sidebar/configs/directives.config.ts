@@ -10,6 +10,7 @@ export const DIRECTIVES_GROUP: SidebarGroup = {
     wrLink(ROUTES.reference, ROUTES.reference.directives, ROUTES.reference.directives.autosize),
     wrLink(ROUTES.reference, ROUTES.reference.directives, ROUTES.reference.directives.clickOutside),
     wrLink(ROUTES.reference, ROUTES.reference.directives, ROUTES.reference.directives.copyToClipboard),
+    wrLink(ROUTES.reference, ROUTES.reference.directives, ROUTES.reference.directives.fitText),
     wrLink(ROUTES.reference, ROUTES.reference.directives, ROUTES.reference.directives.typography),
   ],
 };

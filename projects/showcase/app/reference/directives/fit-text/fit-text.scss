@@ -1,0 +1,11 @@
+// The width the pill is offered: narrow enough for the label to wrap.
+.fit-text-demo {
+  inline-size: 13rem;
+
+  &__pill {
+    display: inline-block;
+    max-inline-size: 100%;
+    text-align: start;
+    white-space: normal;
+  }
+}

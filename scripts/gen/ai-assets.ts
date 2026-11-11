@@ -216,7 +216,7 @@ const UNPAGED: Readonly<Record<string, string>> = {
   'ngwr/date':
     'The date adapter behind the calendar, the event calendar and every date picker. With no provider it is `WrNativeDateAdapter`, over `Date` and `Intl` in `LOCALE_ID`. `provideWr(withDates({ locale, adapter }))` pins a locale or passes your own `WrDateAdapter` subclass.',
   'ngwr/directives':
-    'Attribute directives for markup you already have: `[wrAutofocus]`, `textarea[wrAutosize]`, `[wrClickOutside]` and `[wrCopyToClipboard]`.',
+    'Attribute directives for markup you already have: `[wrAutofocus]`, `textarea[wrAutosize]`, `[wrClickOutside]`, `[wrCopyToClipboard]` and `[wrFitText]`.',
   'ngwr/overlay':
     "`WrOverlayContainer`, the container every ngwr panel renders into, kept apart from the one Angular Material, NG-ZORRO and plain CDK overlays share, with no provider. Style ngwr's overlays through its `.wr-overlay-container` class; no `z-index` reaches them, since CDK renders overlays in the top layer.",
   'ngwr/pipes':
