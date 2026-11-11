@@ -112,24 +112,28 @@ The codemod also lists a `vi.mock()` / `jest.mock()` factory or a dynamic `impor
 these entry points, where the names are object keys it cannot follow. Running it twice changes
 nothing.
 
-**Three inputs and one option changed name**, so one idea has one name across the library.
+**Three inputs, one option and one harness method changed name**, so one idea has one name across the library.
 
 | Where                               | Before                   | After                                    | Codemod                              |
 | ----------------------------------- | ------------------------ | ---------------------------------------- | ------------------------------------ |
 | `WrToastOptions` (`WrToast.show()`) | `dismissible`            | `closable`                               | Rewrites, lists what it cannot place |
 | `<wr-slider>`                       | `showLabel`              | `showValue`                              | Rewrites                             |
 | `<wr-password-toggle>`              | `showLabel`, `hideLabel` | `showPasswordLabel`, `hidePasswordLabel` | Rewrites                             |
+| `WrToastHarness`                    | `isDismissible()`        | `isClosable()`                           | Rewrites, lists what it cannot tie   |
 | `WrPopover`, `WrDropdown`           | `isOpen.set(…)`          | `open()`, `close()`, `toggle()`          | Lists files                          |
+| `WrPopconfirm`                      | `isOpen.set(…)`          | `open()`, `close()`                      | Lists files                          |
 
 The codemod rewrites the attribute and the `[binding]` on that element alone, in `.html` files and
 inline templates. It rewrites `dismissible` in the argument of `show()` on a `WrToast` and in an
 object typed as `WrToastOptions`; one that reaches the toast through a variable or a spread it
-lists by file and line.
+lists by file and line. It rewrites `isDismissible()` on a harness the file got from
+`getHarness(WrToastHarness)`, `getAllHarnesses()` or `harnessForFixture()`, and lists a call it
+cannot tie to one.
 
-**`isOpen` on a popover and a dropdown is read-only.** Writing it moved the signal without the
-panel. It is a `Signal<boolean>` now, so `isOpen.set()` and `isOpen.update()` fail the build. The
-codemod lists each call, in TypeScript and on a `#ref="wrPopover"` in a template: call `open()`,
-`close()` or `toggle()`.
+**`isOpen` on a popover, a dropdown and a popconfirm is read-only.** Writing it moved the signal
+without the panel. It is a `Signal<boolean>` now, so `isOpen.set()` and `isOpen.update()` fail the
+build. The codemod lists each call, in TypeScript and on a `#ref="wrPopover"` in a template: call
+`open()`, `close()` or `toggle()`.
 
 ---
 

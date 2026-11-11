@@ -14,7 +14,8 @@ import * as ts from 'typescript';
  * `Maybe` is `WrMaybe`. A rename is the shape a codemod exists for, since the
  * new name means what the old one meant in the same place.
  *
- * It also carries the four inputs and options v16 renamed (see below).
+ * It also carries the four inputs and options v16 renamed, and one harness
+ * method (see below).
  *
  * **It REWRITES**, in TypeScript:
  *
@@ -58,17 +59,23 @@ import * as ts from 'typescript';
  *   with `WrToast`, an object declared, asserted or `satisfies`-checked as
  *   `WrToastOptions`, and a member read off one. The checker resolves nothing
  *   outside the file, so "declared with" is read off the declaration: its type
- *   or its initialiser names the `ngwr/toast` import.
+ *   or its initialiser names the `ngwr/toast` import;
+ * - `isDismissible()` on a `WrToastHarness` is `isClosable()`, on a receiver
+ *   declared the same way: typed as the harness, or initialised from a call
+ *   that is handed it (`getHarness(WrToastHarness)`, `getAllHarnesses(...)`,
+ *   `harnessForFixture(...)`), an element of an array of them included.
  *
  * **It REPORTS**, naming each file and line and changing nothing:
  *
  * - a `dismissible` it could not place, in a file that imports `WrToast` or
  *   `WrToastOptions`: an object passed on through a variable, a spread or a
  *   function is the app's to check;
- * - `isOpen.set()` / `isOpen.update()` on a `WrPopover` or a `WrDropdown`, in
- *   TypeScript and on a `#ref="wrPopover"` in a template. The signal is
- *   read-only now, and whether the call meant `open()` or `close()` is the
- *   app's to say;
+ * - an `isDismissible()` call it could not tie to the harness, in a file that
+ *   imports `WrToastHarness`: a callback parameter, a helper's return value;
+ * - `isOpen.set()` / `isOpen.update()` on a `WrPopover`, a `WrDropdown` or a
+ *   `WrPopconfirm`, in TypeScript and on a `#ref="wrPopover"` in a template.
+ *   The signal is read-only now, and whether the call meant `open()` or
+ *   `close()` is the app's to say;
  * - an import of `ngwr/animations/core`. The entry point is gone: what the
  *   effects share is internal, and nothing in an app should have reached it;
  * - a `vi.mock()` / `jest.mock()` or an `import()` of an entry point with
@@ -160,15 +167,21 @@ const RENAMES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
   },
 };
 
-/** The imports whose declarations place a renamed option or a read-only signal. */
-const WATCHED: Readonly<Record<string, Readonly<Record<string, 'toast' | 'options' | 'opener'>>>> = {
+type Role = 'toast' | 'options' | 'opener' | 'harness';
+
+/** The imports whose declarations place a renamed option or method, or a read-only signal. */
+const WATCHED: Readonly<Record<string, Readonly<Record<string, Role>>>> = {
   'ngwr/toast': { WrToast: 'toast', WrToastOptions: 'options' },
+  'ngwr/toast/testing': { WrToastHarness: 'harness' },
   'ngwr/popover': { WrPopover: 'opener' },
   'ngwr/dropdown': { WrDropdown: 'opener' },
+  'ngwr/popconfirm': { WrPopconfirm: 'opener' },
 };
 
 const DISMISSIBLE = 'dismissible';
 const CLOSABLE = 'closable';
+const IS_DISMISSIBLE = 'isDismissible';
+const IS_CLOSABLE = 'isClosable';
 
 /**
  * What an open tag may hold before the attribute a rule is after: a quoted
@@ -190,11 +203,11 @@ const INPUT_RENAMES: readonly Transform[] = [
   inputOn('wr-password-toggle', 'hideLabel', 'hidePasswordLabel'),
 ];
 
-/** A template reference to a popover or a dropdown: `#menu="wrDropdown"`. */
-const OPENER_REF = /#([A-Za-z_$][\w$]*)\s*=\s*["'](?:wrPopover|wrDropdown)["']/g;
+/** A template reference to a popover, a dropdown or a popconfirm: `#menu="wrDropdown"`. */
+const OPENER_REF = /#([A-Za-z_$][\w$]*)\s*=\s*["'](?:wrPopover|wrDropdown|wrPopconfirm)["']/g;
 
 /** A file whose markup may hold any of it. Cheap, and wrong only towards reading. */
-const MARKUP = /<wr-slider|<wr-password-toggle|wrPopover|wrDropdown/;
+const MARKUP = /<wr-slider|<wr-password-toggle|wrPopover|wrDropdown|wrPopconfirm/;
 
 /** The entry point v16 made internal. */
 const ANIMATIONS_CORE = 'ngwr/animations/core';
@@ -232,6 +245,7 @@ interface FileResult {
   readonly dynamic: readonly number[];
   readonly kept: readonly number[];
   readonly dismissible: readonly number[];
+  readonly harness: readonly number[];
   readonly opens: readonly number[];
 }
 
@@ -299,6 +313,7 @@ function migrateFile(path: string, before: string): FileResult {
   const dynamic: number[] = [];
   const kept: number[] = [];
   const dismissible: number[] = [];
+  const harness: number[] = [];
   const opens: number[] = [];
   const replace = (node: ts.Node, text: string): void => {
     edits.push({ start: node.getStart(source), end: node.getEnd(), text });
@@ -310,7 +325,7 @@ function migrateFile(path: string, before: string): FileResult {
   const namespaces: { readonly name: ts.Identifier; readonly table: Readonly<Record<string, string>> }[] = [];
 
   /** A named import this rule reads declarations against. */
-  const watched: { readonly name: ts.Identifier; readonly role: 'toast' | 'options' | 'opener' }[] = [];
+  const watched: { readonly name: ts.Identifier; readonly role: Role }[] = [];
 
   for (const statement of source.statements) {
     if (ts.isImportDeclaration(statement)) {
@@ -375,12 +390,19 @@ function migrateFile(path: string, before: string): FileResult {
   const toasts = new Set<ts.Symbol>();
   const toastOptions = new Set<ts.Symbol>();
   const openers = new Set<ts.Symbol>();
+  const harnesses = new Set<ts.Symbol>();
+  const roles: Readonly<Record<Role, Set<ts.Symbol>>> = {
+    toast: toasts,
+    options: toastOptions,
+    opener: openers,
+    harness: harnesses,
+  };
 
   if (bindings.length > 0 || namespaces.length > 0 || watched.length > 0) {
     checker = checkerFor(source);
     for (const { name, role } of watched) {
       const symbol = checker.getSymbolAtLocation(name);
-      if (symbol) (role === 'toast' ? toasts : role === 'options' ? toastOptions : openers).add(symbol);
+      if (symbol) roles[role].add(symbol);
     }
     for (const { specifier, to } of bindings) {
       const symbol = checker.getSymbolAtLocation(specifier.name);
@@ -423,6 +445,13 @@ function migrateFile(path: string, before: string): FileResult {
 
   /** Whether a declaration says, by its type, its initialiser or a decorator, that it holds one of `symbols`. */
   const declaredWith = (declaration: ts.Declaration, symbols: ReadonlySet<ts.Symbol>): boolean => {
+    // `const [first] = many` and `for (const one of many)` hold what an element of `many` does.
+    if (ts.isBindingElement(declaration) && ts.isArrayBindingPattern(declaration.parent)) {
+      return declaredWith(declaration.parent.parent, symbols);
+    }
+    if (ts.isVariableDeclaration(declaration) && ts.isForOfStatement(declaration.parent.parent)) {
+      return names(declaration.type, symbols) || comesFrom(declaration.parent.parent.expression, symbols);
+    }
     if (ts.isVariableDeclaration(declaration) || ts.isPropertyDeclaration(declaration) || ts.isParameter(declaration)) {
       return (
         names(declaration.type, symbols) ||
@@ -502,6 +531,15 @@ function migrateFile(path: string, before: string): FileResult {
     if (ts.isExportDeclaration(node) && node.moduleSpecifier) return;
 
     if (watchesToast) toastOption(node);
+    if (
+      harnesses.size > 0 &&
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      node.expression.name.text === IS_DISMISSIBLE
+    ) {
+      if (comesFrom(node.expression.expression, harnesses)) replace(node.expression.name, IS_CLOSABLE);
+      else harness.push(node.expression.name.getStart(source));
+    }
     if (
       ts.isCallExpression(node) &&
       ts.isPropertyAccessExpression(node.expression) &&
@@ -591,11 +629,12 @@ function migrateFile(path: string, before: string): FileResult {
     dynamic: shifted(dynamic),
     kept: shifted(kept),
     dismissible: shifted(dismissible),
+    harness: shifted(harness),
     opens: shifted(opens),
   };
 }
 
-/** Where a template writes the open state of a popover or a dropdown it holds a reference to. */
+/** Where a template writes the open state of a popover, a dropdown or a popconfirm it holds a reference to. */
 function templateOpens(text: string): number[] {
   const refs = new Set([...text.matchAll(OPENER_REF)].map(match => match[1].replace(/\$/g, '\\$')));
   if (refs.size === 0) return [];
@@ -622,6 +661,7 @@ function ngUpdateV16(): Rule {
     const dynamic: Hit[] = [];
     const kept: Hit[] = [];
     const dismissible: Hit[] = [];
+    const harness: Hit[] = [];
     const opens: Hit[] = [];
     let rewritten = 0;
 
@@ -650,6 +690,7 @@ function ngUpdateV16(): Rule {
       record(dynamic, result?.dynamic ?? []);
       record(kept, result?.kept ?? []);
       record(dismissible, result?.dismissible ?? []);
+      record(harness, result?.harness ?? []);
       record(opens, [...(result?.opens ?? []), ...(markup ? templateOpens(after) : [])]);
     });
 
@@ -657,8 +698,8 @@ function ngUpdateV16(): Rule {
       context.logger.info(
         `ngwr v16 migration: rewrote ${rewritten} file(s): the wr / WR_ / Wr prefix on the functions, constants and ` +
           'types imported from ngwr and every use of them, `dismissible` to `closable` in toast options, ' +
-          '`showLabel` to `showValue` on <wr-slider>, and `showLabel` / `hideLabel` to `showPasswordLabel` / ' +
-          '`hidePasswordLabel` on <wr-password-toggle>.'
+          '`showLabel` to `showValue` on <wr-slider>, `showLabel` / `hideLabel` to `showPasswordLabel` / ' +
+          '`hidePasswordLabel` on <wr-password-toggle>, and `isDismissible()` to `isClosable()` on a WrToastHarness.'
       );
       context.logger.info('Verify the result with `git diff` — a few edge cases may need manual touch-up.');
     }
@@ -696,9 +737,15 @@ function ngUpdateV16(): Rule {
       dismissible
     );
     warn(
-      '`isOpen.set()` / `isOpen.update()` on a popover or a dropdown',
+      '`isDismissible()` that may be the toast harness method',
+      '`WrToastHarness.isDismissible()` is `isClosable()` now, and was renamed where the file says the receiver is ' +
+        'the harness; these it could not tie to one. Rename the ones called on a `WrToastHarness`.',
+      harness
+    );
+    warn(
+      '`isOpen.set()` / `isOpen.update()` on a popover, a dropdown or a popconfirm',
       '`isOpen` is a read-only signal now, so the call no longer compiles. Call `open()` or `close()` instead, ' +
-        'or `toggle()` where the call flipped it.',
+        'or `toggle()` on a popover or a dropdown where the call flipped it.',
       opens
     );
 

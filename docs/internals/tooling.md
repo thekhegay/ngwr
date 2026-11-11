@@ -75,9 +75,10 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   reads and two values, plus a report for everything that needs a decision**,
   **v16 the `wr` / `WR_` / `Wr` prefix on the functions, constants and types
   imported from ngwr, matched by binding with the TypeScript checker, the
-  renamed inputs on `<wr-slider>` and `<wr-password-toggle>` and the toast's
-  `closable`, plus a report for `ngwr/animations/core` and for a write to a
-  popover's or dropdown's read-only `isOpen`**,
+  renamed inputs on `<wr-slider>` and `<wr-password-toggle>`, the toast's
+  `closable` and its harness's `isClosable()`, plus a report for
+  `ngwr/animations/core` and for a write to a popover's, dropdown's or
+  popconfirm's read-only `isOpen`**,
   plus **v13, which reports every host-`id` selector on `<wr-checkbox>` /
   `<wr-radio>` / `<wr-switch>` and rewrites nothing** — all
   registered in `schematics/migrations.json`. There is deliberately no

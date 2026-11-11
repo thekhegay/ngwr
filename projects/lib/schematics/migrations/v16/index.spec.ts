@@ -15,9 +15,10 @@ import { describe, expect, it } from 'vitest';
 import ngUpdateV16 from './index';
 
 /**
- * `ng update ngwr` to v16, which renames the unprefixed exports, the inputs
- * and the toast option that changed name, and reports an import of the entry
- * point that went internal and a write to a popover's or a dropdown's `isOpen`.
+ * `ng update ngwr` to v16, which renames the unprefixed exports, the inputs,
+ * the toast option and the toast harness method that changed name, and reports
+ * an import of the entry point that went internal and a write to the `isOpen`
+ * of a popover, a dropdown or a popconfirm.
  *
  * The rename fails in two directions and each needs its own case. Missing a
  * use leaves a name that no longer exists, which the build reports. Touching a
@@ -604,6 +605,80 @@ export function notify(extra: object): void {
     });
   });
 
+  describe('the toast harness isDismissible()', () => {
+    it('becomes isClosable() on a harness the file got from a loader', () => {
+      const out = rewrite(
+        `import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+import { WrToastHarness } from 'ngwr/toast/testing';
+
+it('reads the toast', async () => {
+  const loader = TestbedHarnessEnvironment.documentRootLoader(fixture);
+  const toast = await loader.getHarness(WrToastHarness);
+  const filtered = await loader.getHarness(WrToastHarness.with({ type: 'danger' }));
+  const all = await loader.getAllHarnesses(WrToastHarness);
+  const [first] = await loader.getAllHarnesses(WrToastHarness);
+  const root = await TestbedHarnessEnvironment.harnessForFixture(fixture, WrToastHarness);
+  let typed: WrToastHarness | null = null;
+
+  expect(await toast.isDismissible()).toBe(true);
+  expect(await filtered.isDismissible()).toBe(true);
+  expect(await all[0].isDismissible()).toBe(true);
+  expect(await first.isDismissible()).toBe(true);
+  expect(await root.isDismissible()).toBe(true);
+  expect(await typed!.isDismissible()).toBe(true);
+  expect(await (await loader.getHarness(WrToastHarness)).isDismissible()).toBe(true);
+  for (const one of all) expect(await one.isDismissible()).toBe(true);
+  await toast.dismiss();
+});
+`,
+        '/src/app/toast.spec.ts'
+      );
+
+      expect(out).not.toContain('isDismissible');
+      expect(out.match(/\.isClosable\(\)/g)).toHaveLength(8);
+      expect(out).toContain('await toast.dismiss();');
+    });
+
+    it('lists a call it cannot tie to the harness, and leaves a declaration of the same name', () => {
+      const before = `import { WrToastHarness } from 'ngwr/toast/testing';
+import { banner } from './banner';
+
+class Notice {
+  isDismissible(): boolean {
+    return true;
+  }
+}
+
+export async function check(toasts: readonly WrToastHarness[], read: () => Promise<unknown>): Promise<void> {
+  await Promise.all(toasts.map(t => t.isDismissible()));
+  await (await read()).isDismissible();
+  banner.isDismissible();
+  new Notice().isDismissible();
+}
+`;
+      const { read, logs } = run({ '/src/app/check.ts': before });
+
+      expect(read('/src/app/check.ts')).toBe(before);
+      expect(said(logs, 'ngwr v16: `isDismissible()` that may be the toast harness method in 1 file(s)')).toBe(true);
+      expect(said(logs, 'Rename the ones called on a `WrToastHarness`')).toBe(true);
+      expect(logs).toContain('  /src/app/check.ts:11, 12, 13, 14');
+    });
+
+    it('leaves an isDismissible() in a file with no toast harness, and says nothing', () => {
+      const before = `import { WrToast } from 'ngwr/toast';
+import { WrAlertHarness } from 'ngwr/alert/testing';
+
+export const mine = (banner: { isDismissible(): boolean }, toast: WrToast): boolean =>
+  banner.isDismissible() && !!toast;
+export type Harness = WrAlertHarness;
+`;
+      const { read, logs } = run({ '/src/app/banner.ts': before });
+
+      expect(read('/src/app/banner.ts')).toBe(before);
+      expect(said(logs, 'nothing to do')).toBe(true);
+    });
+  });
+
   describe('the read-only isOpen', () => {
     it('lists a write on a popover or a dropdown, by file and line, and rewrites none', () => {
       const before = `import { Component, inject, viewChild, ViewChild } from '@angular/core';
@@ -629,9 +704,9 @@ export class Page {
       const { read, logs } = run({ '/src/app/page.ts': before });
 
       expect(read('/src/app/page.ts')).toBe(before);
-      expect(said(logs, 'ngwr v16: `isOpen.set()` / `isOpen.update()` on a popover or a dropdown in 1 file(s)')).toBe(
-        true
-      );
+      expect(
+        said(logs, 'ngwr v16: `isOpen.set()` / `isOpen.update()` on a popover, a dropdown or a popconfirm in 1 file(s)')
+      ).toBe(true);
       expect(said(logs, 'Call `open()` or `close()` instead')).toBe(true);
       expect(logs).toContain('  /src/app/page.ts:13, 14, 15, 16');
     });
@@ -657,9 +732,42 @@ export class Inline {}
 
       expect(read('/src/app/page.html')).toBe(html);
       expect(read('/src/app/inline.ts')).toBe(inline);
-      expect(said(logs, 'on a popover or a dropdown in 2 file(s)')).toBe(true);
+      expect(said(logs, 'on a popover, a dropdown or a popconfirm in 2 file(s)')).toBe(true);
       expect(logs).toContain('  /src/app/page.html:2, 4');
       expect(logs).toContain('  /src/app/inline.ts:6');
+    });
+
+    it('lists a write on a popconfirm, in TypeScript and through a template reference', () => {
+      const code = `import { Component, viewChild } from '@angular/core';
+import { WrPopconfirm } from 'ngwr/popconfirm';
+
+@Component({
+  selector: 'app-row',
+  template: \`
+    <button wrPopconfirm="Delete?" #ask="wrPopconfirm" (blur)="ask.isOpen.set(false)">Delete</button>
+  \`,
+})
+export class Row {
+  private readonly ask = viewChild.required(WrPopconfirm);
+
+  reopen(): void {
+    this.ask().isOpen.set(true);
+    this.ask().isOpen.update(open => !open);
+    if (!this.ask().isOpen()) this.ask().open();
+  }
+}
+`;
+      const html = `<button wrPopconfirm="Archive?" #archive="wrPopconfirm">Archive</button>
+<button (click)="archive.isOpen.set(true)">Ask again</button>
+<button [disabled]="archive.isOpen()" (click)="archive.open()">Ask</button>
+`;
+      const { read, logs } = run({ '/src/app/row.ts': code, '/src/app/row.html': html });
+
+      expect(read('/src/app/row.ts')).toBe(code);
+      expect(read('/src/app/row.html')).toBe(html);
+      expect(said(logs, 'on a popover, a dropdown or a popconfirm in 2 file(s)')).toBe(true);
+      expect(logs).toContain('  /src/app/row.ts:7, 14, 15');
+      expect(logs).toContain('  /src/app/row.html:2');
     });
 
     it('leaves an isOpen of the app’s own, and one on another ngwr component', () => {
@@ -742,6 +850,34 @@ export const again = (): unknown => inject(WrToast).show(base);
       expect(second.logs).toContain('  /src/app/page.html:3');
     });
 
+    it('changes nothing the second time for the toast harness and the popconfirm, and repeats the reports', () => {
+      const sources = {
+        '/src/app/toast.spec.ts': `import { WrToastHarness } from 'ngwr/toast/testing';
+
+export async function check(loader: Loader, other: Other): Promise<boolean> {
+  const toast = await loader.getHarness(WrToastHarness);
+  return (await toast.isDismissible()) && other.isDismissible();
+}
+`,
+        '/src/app/row.html':
+          '<button wrPopconfirm="Delete?" #ask="wrPopconfirm">Delete</button>\n' +
+          '<button (click)="ask.isOpen.set(true)">Ask</button>\n',
+      };
+      const first = run(sources);
+      const once = Object.fromEntries(Object.keys(sources).map(path => [path, first.read(path)]));
+      const second = run(once);
+
+      expect(once['/src/app/toast.spec.ts']).toContain('(await toast.isClosable()) && other.isDismissible()');
+      expect(once['/src/app/row.html']).toBe(sources['/src/app/row.html']);
+      for (const path of Object.keys(sources)) expect(second.read(path)).toBe(once[path]);
+      expect(said(first.logs, 'rewrote 1 file(s)')).toBe(true);
+      expect(said(second.logs, 'rewrote')).toBe(false);
+      for (const { logs } of [first, second]) {
+        expect(logs).toContain('  /src/app/toast.spec.ts:5');
+        expect(logs).toContain('  /src/app/row.html:2');
+      }
+    });
+
     it('leaves a tree already on v16 byte for byte', () => {
       const before = `import { type WrMaybe, WR_KEYS, wrClamp } from 'ngwr/utils';
 import { wrLucideIcons } from 'ngwr/icon';
@@ -802,6 +938,9 @@ export const icons = wrLucideIcons({});
         'showPasswordLabel',
         'hidePasswordLabel',
         'isOpen.set()',
+        'isClosable()',
+        'WrToastHarness',
+        'popconfirm',
         '.html',
       ]) {
         expect(entry.description, named).toContain(named);

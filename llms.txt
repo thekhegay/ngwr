@@ -214,8 +214,9 @@ list.
 - v16, inputs: the toast option `dismissible` is `closable`. `showLabel` on
   `<wr-slider>` is `showValue`. `showLabel` and `hideLabel` on
   `<wr-password-toggle>` are `showPasswordLabel` and `hidePasswordLabel`.
-  `isOpen` on `WrPopover` and `WrDropdown` is a read-only signal: call
-  `open()`, `close()` or `toggle()`, never `isOpen.set()`.
+  `WrToastHarness.isDismissible()` is `isClosable()`. `isOpen` on `WrPopover`,
+  `WrDropdown` and `WrPopconfirm` is a read-only signal: call `open()`,
+  `close()` or `toggle()`, never `isOpen.set()`.
 
 - v15, providers: `provideWrDensity`, `provideWrToastConfig`,
   `provideWrStorage`, `provideWrMeta`, `provideWrTheme` and

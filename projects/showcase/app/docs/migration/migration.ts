@@ -28,7 +28,7 @@ export default class MigrationPageComponent {
     {
       before: 'v16',
       after:
-        'Rewrites the renamed functions, constants, types, inputs and toast option, lists `ngwr/animations/core` and `isOpen.set()`.',
+        'Rewrites the renamed functions, constants, types, inputs, toast option and harness method, lists `ngwr/animations/core` and `isOpen.set()`.',
     },
     {
       before: 'v15',
@@ -105,7 +105,7 @@ export default class MigrationPageComponent {
     },
   ];
 
-  /** The inputs and the option v16 renamed, and the signal it made read-only. */
+  /** The inputs, the option and the harness method v16 renamed, and the signal it made read-only. */
   protected readonly v16Inputs: readonly Change[] = [
     {
       before: '`dismissible` in `WrToastOptions`',
@@ -119,8 +119,18 @@ export default class MigrationPageComponent {
       update: 'Rewrites',
     },
     {
+      before: '`WrToastHarness.isDismissible()`',
+      after: '`isClosable()`',
+      update: 'Rewrites, lists what it cannot tie',
+    },
+    {
       before: '`isOpen.set()` on `WrPopover` and `WrDropdown`',
       after: '`isOpen` is read-only: `open()`, `close()`, `toggle()`',
+      update: 'Lists files',
+    },
+    {
+      before: '`isOpen.set()` on `WrPopconfirm`',
+      after: '`isOpen` is read-only: `open()`, `close()`',
       update: 'Lists files',
     },
   ];

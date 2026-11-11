@@ -199,10 +199,13 @@ that sequence is a position rather than an oversight:
   `show()` on something whose type or initialiser names the `WrToast` import,
   an object declared, asserted or `satisfies`-checked as `WrToastOptions`. A
   `dismissible` it cannot place in a file that imports either is REPORTED, and
-  so is `isOpen.set()` / `isOpen.update()` on a `WrPopover` or `WrDropdown`
-  (found the same way, and on a `#ref="wrPopover"` in a template): `isOpen` is
-  read-only there, and whether the write meant `open()` or `close()` is the
-  app's to say.
+  so is `isOpen.set()` / `isOpen.update()` on a `WrPopover`, `WrDropdown` or
+  `WrPopconfirm` (found the same way, and on a `#ref="wrPopover"` in a
+  template): `isOpen` is read-only there, and whether the write meant `open()`
+  or `close()` is the app's to say. `WrToastHarness.isDismissible()` is
+  `isClosable()`, rewritten on a receiver declared with the harness
+  (`getHarness(WrToastHarness)`, `getAllHarnesses()`, `harnessForFixture()`, a
+  type) and REPORTED in a file that imports the harness where it is not.
 - **v14 ships `migration-v14`, split down the middle of the rule**, and that
   split is the thing to copy. It REWRITES the six renames — on `<wr-alert>`
   from `closeable` to `closable`, on `<wr-table>` from `totalItems` to `total`,
