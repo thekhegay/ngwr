@@ -226,6 +226,9 @@ export const INSTALL = {
   "reference/components/context-menu": [
       { path: "ngwr/context-menu", symbols: ["WrContextMenu", "WrContextMenuDivider", "WrContextMenuItem", "WrContextMenuPanel"], declarables: ["WrContextMenu", "WrContextMenuDivider", "WrContextMenuItem", "WrContextMenuPanel"], styled: true },
   ],
+  "reference/components/copy-value": [
+      { path: "ngwr/copy-value", symbols: ["WrCopyValue"], declarables: ["WrCopyValue"], styled: true },
+  ],
   "reference/components/counter": [
       { path: "ngwr/counter", symbols: ["WrCountUp", "WrCounter"], declarables: ["WrCountUp", "WrCounter"], styled: true },
   ],
@@ -423,6 +426,10 @@ export const INSTALL = {
   "reference/directives/copy-to-clipboard": [
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
       { path: "ngwr/directives", symbols: ["WrCopyToClipboard"], declarables: ["WrCopyToClipboard"], styled: false },
+  ],
+  "reference/directives/fit-text": [
+      { path: "ngwr/badge", symbols: ["WrTag"], declarables: ["WrTag"], styled: true },
+      { path: "ngwr/directives", symbols: ["WrFitText"], declarables: ["WrFitText"], styled: false },
   ],
   "reference/directives/typography": [
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
