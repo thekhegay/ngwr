@@ -15,11 +15,11 @@ import {
 })
 export default class InterfacesOverviewPage {
   protected readonly snippet = `import type { WrSelectMode } from 'ngwr/select';
-import type { Maybe } from 'ngwr/utils';
+import type { WrMaybe } from 'ngwr/utils';
 
 interface Filters {
   mode: WrSelectMode;
-  owner: Maybe<string>;
+  owner: WrMaybe<string>;
 }`;
 
   protected readonly related: readonly DocSeeAlsoLink[] = [

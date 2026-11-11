@@ -13,11 +13,11 @@
  * another, and not a public API: nothing here carries a stability promise, and an
  * app imports a chart instead.
  */
-export { chartAxis } from './axis';
+export { wrChartAxis } from './axis';
 export { WrChartTable } from './chart-table';
-export { CHART_MARKERS, chartMarker, chartMarkerExtent, chartMarkerPath } from './markers';
+export { WR_CHART_MARKERS, wrChartMarker, wrChartMarkerExtent, wrChartMarkerPath } from './markers';
 export { useChartNumbers } from './numbers';
-export { CHART_DASHES, CHART_PALETTE, chartColor, chartDash } from './palette';
+export { WR_CHART_DASHES, WR_CHART_PALETTE, wrChartColor, wrChartDash } from './palette';
 export type {
   WrChartAxis,
   WrChartAxisOptions,

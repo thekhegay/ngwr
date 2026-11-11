@@ -15,7 +15,7 @@ import { badgeStyle } from './badge-style';
  *
  * @example
  * ```ts
- * badgeLog('icons', '#3969e2', { name: 'plus', registered: true });
+ * wrBadgeLog('icons', '#3969e2', { name: 'plus', registered: true });
  * // → [icons] { name: 'plus', registered: true }
  * ```
  *
@@ -23,7 +23,7 @@ import { badgeStyle } from './badge-style';
  * @param color    CSS colour applied to the pill border and text.
  * @param message  Anything you'd pass to `console.log` as the second argument.
  */
-export function badgeLog(badgeText: string, color: string, message: unknown): void {
+export function wrBadgeLog(badgeText: string, color: string, message: unknown): void {
   // eslint-disable-next-line no-console -- this helper exists to log
   console.log(`%c${badgeText}`, badgeStyle(color), message);
 }

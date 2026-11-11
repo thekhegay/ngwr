@@ -21,7 +21,7 @@ import {
 
 import { WrHaptics } from 'ngwr/platform';
 import { WrSpinner } from 'ngwr/spinner';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Pull-to-refresh wrapper. Make its own content scrollable (give it a height /
@@ -87,7 +87,7 @@ export class WrPullToRefresh {
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /** Distance (px) the pull must reach for a release to trigger `refresh`. @default 64 */
-  readonly threshold = input(64, { transform: numAttr(64) });
+  readonly threshold = input(64, { transform: wrNumAttr(64) });
 
   /** Fires once each time the user pulls past `threshold` and releases. */
   readonly refresh = output<void>();

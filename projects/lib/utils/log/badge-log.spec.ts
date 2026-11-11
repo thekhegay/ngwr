@@ -7,9 +7,9 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { badgeError } from './badge-error';
-import { badgeLog } from './badge-log';
-import { badgeWarn } from './badge-warn';
+import { wrBadgeError } from './badge-error';
+import { wrBadgeLog } from './badge-log';
+import { wrBadgeWarn } from './badge-warn';
 
 const STYLE = `
     display: inline-block;
@@ -21,9 +21,9 @@ const STYLE = `
   `;
 
 const LOGGERS = [
-  { name: 'badgeLog', fn: badgeLog, method: 'log' },
-  { name: 'badgeWarn', fn: badgeWarn, method: 'warn' },
-  { name: 'badgeError', fn: badgeError, method: 'error' },
+  { name: 'wrBadgeLog', fn: wrBadgeLog, method: 'log' },
+  { name: 'wrBadgeWarn', fn: wrBadgeWarn, method: 'warn' },
+  { name: 'wrBadgeError', fn: wrBadgeError, method: 'error' },
 ] as const;
 
 describe('badge loggers', () => {

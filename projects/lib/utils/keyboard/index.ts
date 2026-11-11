@@ -1,2 +1,2 @@
-export { KEYS, KEY_LABELS, type WrKey } from './keys';
-export { hasModifier, isComposing, isPrintableKey } from './predicates';
+export { WR_KEYS, WR_KEY_LABELS, type WrKey } from './keys';
+export { wrHasModifier, wrIsComposing, wrIsPrintableKey } from './predicates';

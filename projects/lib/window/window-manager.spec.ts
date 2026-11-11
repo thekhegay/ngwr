@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
-import { createMemoryStorage, withStorage } from 'ngwr/storage';
+import { wrCreateMemoryStorage, withStorage } from 'ngwr/storage';
 import { withWindows } from 'ngwr/window';
 // Through the ENTRY POINT, deliberately: `readLayout()`'s element type was declared
 // unexported in the service file, so a consumer compiled with `declaration: true`
@@ -25,7 +25,7 @@ class Body {}
  */
 describe('WrWindowManager', () => {
   let manager: WrWindowManager;
-  let engine: ReturnType<typeof createMemoryStorage>;
+  let engine: ReturnType<typeof wrCreateMemoryStorage>;
 
   const setup = (): WrWindowManager => {
     TestBed.resetTestingModule();
@@ -38,7 +38,7 @@ describe('WrWindowManager', () => {
   };
 
   beforeEach(() => {
-    engine = createMemoryStorage();
+    engine = wrCreateMemoryStorage();
     manager = setup();
   });
 
@@ -662,7 +662,7 @@ describe('WrWindowManager follows a direction change while a window is open', ()
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWr(withStorage({ engine: () => createMemoryStorage() }))],
+      providers: [provideWr(withStorage({ engine: () => wrCreateMemoryStorage() }))],
     });
     manager = TestBed.inject(WrWindowManager);
     dir = TestBed.inject(Directionality);
@@ -722,7 +722,7 @@ describe('WrWindowManager work area', () => {
   const mount = (providers: unknown[] = []): void => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWr(withStorage({ engine: () => createMemoryStorage() }), ...(providers as never[]))],
+      providers: [provideWr(withStorage({ engine: () => wrCreateMemoryStorage() }), ...(providers as never[]))],
     });
     manager = TestBed.inject(WrWindowManager);
   };

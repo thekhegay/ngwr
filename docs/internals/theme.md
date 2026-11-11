@@ -64,11 +64,11 @@ Part of [AGENTS.md](../../AGENTS.md). Read this before changing tokens, colours,
   on a dark page — so canvas and WebGL code resolves the colour first, through
   a probe element's computed `color`, which comes back as `rgb(…)` or
   `color(srgb r g b / a)` with 0–1 channels and never as hex. That probe is
-  `resolveCssColor(context, expression, fallback)` in `ngwr/utils`, which every
+  `wrResolveCssColor(context, expression, fallback)` in `ngwr/utils`, which every
   component drawing on a 2D canvas shares — use it rather than a second copy. It is
   not `getPropertyValue('--wr-…')`, which returns the raw declared text,
   `light-dark(#fff, #000)` included, in either scheme. For a WebGL uniform,
-  `resolveCssColorChannels(context, expression, fallback)` beside it reads the
+  `wrResolveCssColorChannels(context, expression, fallback)` beside it reads the
   same result as 0–1 sRGB channels. Never register a theme
   token with `@property … { syntax: '<color>' }` on `:root`: a registered
   colour resolves where it is declared, and every subtree with its own

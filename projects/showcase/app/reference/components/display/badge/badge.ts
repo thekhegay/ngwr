@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 import { Check, CircleCheck, OctagonAlert } from 'lucide';
 import { type WrBadgeShape, WrBadge, WrTag } from 'ngwr/badge';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WR_COLORS } from 'ngwr/theme';
 
 import {
@@ -28,7 +28,7 @@ import { API } from '#core/generated/api';
     DocApiComponent,
   ],
   providers: [
-    provideWrIcons(lucideIcons({ checkmark: Check, 'circle-check': CircleCheck, 'octagon-alert': OctagonAlert })),
+    provideWrIcons(wrLucideIcons({ checkmark: Check, 'circle-check': CircleCheck, 'octagon-alert': OctagonAlert })),
   ],
 })
 export default class BadgeComponent {
@@ -50,10 +50,10 @@ export default class BadgeComponent {
 <wr-tag color="primary" outlined rounded>Beta</wr-tag>
 <wr-tag color="warning" loading>Saving</wr-tag>`,
     statusIcons: `import { CircleCheck, OctagonAlert } from 'lucide';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 
 @Component({
-  providers: [provideWrIcons(lucideIcons({ 'circle-check': CircleCheck, 'octagon-alert': OctagonAlert }))],
+  providers: [provideWrIcons(wrLucideIcons({ 'circle-check': CircleCheck, 'octagon-alert': OctagonAlert }))],
 })
 export class BuildStatus {}`,
     status: `<wr-tag color="success" icon="circle-check">Passed</wr-tag>

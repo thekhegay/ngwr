@@ -27,7 +27,7 @@ import {
 
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';
-import { clamp, randomId, toClassList, wrRestoreFocus } from 'ngwr/utils';
+import { wrClamp, wrRandomId, wrToClassList, wrRestoreFocus } from 'ngwr/utils';
 
 import { storageKey } from '../storage-key';
 import { WR_WINDOW_DATA, WR_WINDOW_DEFAULTS, WR_WINDOW_REF } from '../tokens';
@@ -292,7 +292,7 @@ export class WrWindowManager implements WrWindowRefHost {
     // you need a backdrop + focus trap + scroll block.
     const overlayRef: OverlayRef = this.overlay.create({
       positionStrategy: this.overlay.position().global(),
-      panelClass: toClassList('wr-window-overlay', config.panelClass),
+      panelClass: wrToClassList('wr-window-overlay', config.panelClass),
       hasBackdrop: false,
       // Which window an Escape belongs to is a question the CDK cannot answer
       // here. Its keyboard dispatcher walks the attached overlays newest-first
@@ -329,7 +329,7 @@ export class WrWindowManager implements WrWindowRefHost {
     // disposes it, which is what ends this follower.
     wrFollowDirection(overlayRef, this.dir, this.parentInjector);
 
-    const id = config.id ?? randomId('wr-window');
+    const id = config.id ?? wrRandomId('wr-window');
     const ref = new WrWindowRef<C, R>(id, overlayRef, model);
     const any = ref as unknown as AnyRef;
     self = any;
@@ -673,14 +673,14 @@ export class WrWindowManager implements WrWindowRefHost {
       const wa = m.workArea();
       const o = m.options();
       const fit = (size: number, room: number): number => (o.keepInViewport ? Math.min(size, room) : size);
-      const width = clamp(fit(m.width(), wa.width), o.minWidth, o.maxWidth);
-      const height = clamp(fit(m.height(), wa.height), o.minHeight, o.maxHeight);
+      const width = wrClamp(fit(m.width(), wa.width), o.minWidth, o.maxWidth);
+      const height = wrClamp(fit(m.height(), wa.height), o.minHeight, o.maxHeight);
       const offset = cascadeOffset(index);
       const x = rtl ? wa.left + wa.width - width - offset.x : wa.left + offset.x;
       const y = wa.top + offset.y;
       m.setRaw({
-        x: clamp(x, wa.left, Math.max(wa.left, wa.left + wa.width - width)),
-        y: clamp(y, wa.top, Math.max(wa.top, wa.top + wa.height - height)),
+        x: wrClamp(x, wa.left, Math.max(wa.left, wa.left + wa.width - width)),
+        y: wrClamp(y, wa.top, Math.max(wa.top, wa.top + wa.height - height)),
         width,
         height,
       });
@@ -718,8 +718,8 @@ export class WrWindowManager implements WrWindowRefHost {
       m.setRaw({
         x: x0,
         y: y0,
-        width: clamp(x1 - x0, o.minWidth, o.maxWidth),
-        height: clamp(y1 - y0, o.minHeight, o.maxHeight),
+        width: wrClamp(x1 - x0, o.minWidth, o.maxWidth),
+        height: wrClamp(y1 - y0, o.minHeight, o.maxHeight),
       });
       m.clamp();
     });

@@ -101,7 +101,7 @@ function parseChannels(color: string): [number, number, number] | null {
  * computes for it, which a canvas can paint with: `rgb(…)` / `rgba(…)` for a
  * legacy colour, `color(srgb r g b / a)` (channels 0–1) for a `color-mix()`
  * result. A colour authored in another space — `oklch()`, `lab()` — computes
- * to itself; a caller that needs numbers wants {@link resolveCssColorChannels},
+ * to itself; a caller that needs numbers wants {@link wrResolveCssColorChannels},
  * which reads all of these.
  *
  * A 2D context and a WebGL uniform cannot read CSS: a `var()` is refused
@@ -139,7 +139,7 @@ function parseChannels(color: string): [number, number, number] | null {
  * @example
  * ```ts
  * const canvas = this.canvasRef().nativeElement;
- * ctx.strokeStyle = resolveCssColor(canvas, 'var(--wr-color-on-surface)', '#0f172a');
+ * ctx.strokeStyle = wrResolveCssColor(canvas, 'var(--wr-color-on-surface)', '#0f172a');
  * ```
  *
  * @param context - Element to resolve against; the probe is appended inside it.
@@ -147,7 +147,7 @@ function parseChannels(color: string): [number, number, number] | null {
  * @param fallback - Returned as-is when the expression cannot be resolved.
  * @returns The computed colour, or `fallback`.
  */
-export function resolveCssColor(context: Element, expression: string, fallback: string): string {
+export function wrResolveCssColor(context: Element, expression: string, fallback: string): string {
   const view = context.ownerDocument.defaultView;
   if (!view) return fallback;
 
@@ -178,19 +178,19 @@ export function resolveCssColor(context: Element, expression: string, fallback: 
  * the alpha dropped, for what takes numbers rather than a string: a WebGL `vec3`
  * uniform, above all.
  *
- * {@link resolveCssColor} does the cascade, so a `var()`, a `light-dark()` and a
+ * {@link wrResolveCssColor} does the cascade, so a `var()`, a `light-dark()` and a
  * `color-mix()` all resolve as they would for the element itself, and this reads
  * the result: `rgb()`, `rgba()` and `color(srgb …)`, with `none` as 0 and every
  * channel clamped to 0–1, so a `color-mix()` from a wider gamut stays in range. A
  * colour authored in another space — `oklch()`, `lab()`, `display-p3` — computes
  * to itself, and mixing it into sRGB is what brings it to a form this reads.
  *
- * Total: it always returns three finite channels. When {@link resolveCssColor}
+ * Total: it always returns three finite channels. When {@link wrResolveCssColor}
  * cannot resolve the expression it reads `fallback`, a literal colour in any form
  * CSS parses, hex included; when that cannot be read either, it returns
  * `[0, 0, 0]`, so a uniform never receives a `NaN`.
  *
- * It costs what {@link resolveCssColor} costs plus a parse, so a caller drawing
+ * It costs what {@link wrResolveCssColor} costs plus a parse, so a caller drawing
  * every frame can hold on to the string that function returns and call this only
  * when it changes.
  *
@@ -200,7 +200,7 @@ export function resolveCssColor(context: Element, expression: string, fallback: 
  * @example
  * ```ts
  * const canvas = this.canvasRef().nativeElement;
- * const [r, g, b] = resolveCssColorChannels(canvas, 'var(--wr-color-primary)', '#3969e2');
+ * const [r, g, b] = wrResolveCssColorChannels(canvas, 'var(--wr-color-primary)', '#3969e2');
  * gl.uniform3f(this.tint, r, g, b);
  * ```
  *
@@ -209,14 +209,14 @@ export function resolveCssColor(context: Element, expression: string, fallback: 
  * @param fallback - The literal colour to read when the expression cannot be resolved.
  * @returns The red, green and blue channels, each 0–1.
  */
-export function resolveCssColorChannels(
+export function wrResolveCssColorChannels(
   context: Element,
   expression: string,
   fallback: string
 ): [number, number, number] {
   const read = (color: string): [number, number, number] | null =>
     parseChannels(color) ??
-    parseChannels(resolveCssColor(context, `color-mix(in srgb, ${color} 100%, transparent)`, ''));
+    parseChannels(wrResolveCssColor(context, `color-mix(in srgb, ${color} 100%, transparent)`, ''));
 
-  return read(resolveCssColor(context, expression, fallback)) ?? read(fallback) ?? [0, 0, 0];
+  return read(wrResolveCssColor(context, expression, fallback)) ?? read(fallback) ?? [0, 0, 0];
 }

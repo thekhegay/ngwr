@@ -57,7 +57,7 @@ import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { WrSpinner } from 'ngwr/spinner';
-import { isComposing, toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { wrIsComposing, wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { WrSelectLoadError } from './load-error';
 import { WrOption } from './option';
@@ -1190,7 +1190,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    * field that owns the composition is the only place that reaches both.
    */
   private imeOwnsKey(event: KeyboardEvent): boolean {
-    if (!isComposing(event)) return false;
+    if (!wrIsComposing(event)) return false;
     event.stopPropagation();
     return true;
   }
@@ -2001,7 +2001,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       // overlay and swallow outside-clicks, leaving the panel open. Mirrors how
       // mat-select sizes its overlay.
       minWidth: this.host.nativeElement.getBoundingClientRect().width,
-      panelClass: toClassList('wr-select-overlay', this.panelClass()),
+      panelClass: wrToClassList('wr-select-overlay', this.panelClass()),
     });
 
     // The CDK captured a direction STRING when this ref was created and never

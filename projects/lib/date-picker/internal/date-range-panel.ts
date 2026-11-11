@@ -9,7 +9,7 @@ import { Component, ViewEncapsulation, computed, inject, input, output, signal }
 
 import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
 import { WrDateAdapter } from 'ngwr/date';
-import { readI18nText } from 'ngwr/i18n';
+import { wrReadI18nText } from 'ngwr/i18n';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrDateRange } from '../types';
@@ -76,8 +76,8 @@ export class WrDateRangePanel {
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
 
-  protected readonly startTimeLabel = readI18nText('datePicker.startTime', 'Start time');
-  protected readonly endTimeLabel = readI18nText('datePicker.endTime', 'End time');
+  protected readonly startTimeLabel = wrReadI18nText('datePicker.startTime', 'Start time');
+  protected readonly endTimeLabel = wrReadI18nText('datePicker.endTime', 'End time');
 
   /**
    * A time set before its end has a date. The stepper is always live, so the

@@ -20,7 +20,7 @@ import {
 } from '@angular/core';
 
 import { type WrDurationUnit, wrSplitDuration } from 'ngwr/pipes';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 // Helpers
 
@@ -117,7 +117,7 @@ export class WrStatisticCountdown {
    * fast as the browser would allow, which is a busy loop, not a countdown.
    * @default 1000
    */
-  readonly tickMs = input(1000, { transform: (v: unknown): number => Math.max(16, numAttr(1000)(v)) });
+  readonly tickMs = input(1000, { transform: (v: unknown): number => Math.max(16, wrNumAttr(1000)(v)) });
 
   /**
    * Fires once for each target that is reached, or that has already passed when

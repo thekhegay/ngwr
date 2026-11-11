@@ -23,7 +23,7 @@ const FALLBACK_CATEGORY = 'Docs';
 
 /**
  * Clusters whose own segment is a container rather than a category — the label
- * lives one level in (`/reference/utils/clamp` → 'Utils'). The value here is
+ * lives one level in (`/reference/utils/wr-clamp` → 'Utils'). The value here is
  * what a page sitting directly under the cluster gets instead.
  */
 const CLUSTER_CATEGORY: Readonly<Record<string, string>> = {
@@ -387,7 +387,7 @@ export class DocPageComponent {
   }
 
   private deriveCategoryFromUrl(): string {
-    // `/reference/utils/clamp` → ['reference', 'utils', 'clamp'].
+    // `/reference/utils/wr-clamp` → ['reference', 'utils', 'wr-clamp'].
     const [first = '', second = ''] = this.router.url.split(/[/?#]/).filter(s => s.length > 0);
 
     // Read the cluster before the first segment: the IA moved every page under

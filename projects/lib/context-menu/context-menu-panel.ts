@@ -7,7 +7,7 @@
 
 import { Component, TemplateRef, ViewEncapsulation, computed, input, viewChild } from '@angular/core';
 
-import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 /**
  * Container for the rows shown when a {@link WrContextMenu} opens.
@@ -58,7 +58,7 @@ export class WrContextMenuPanel {
    */
   protected readonly menuClasses = computed(() => {
     const extra = this.panelClass();
-    return extra ? toClassList('wr-context-menu', extra).join(' ') : 'wr-context-menu';
+    return extra ? wrToClassList('wr-context-menu', extra).join(' ') : 'wr-context-menu';
   });
 
   /** The internal template the directive portals into the overlay. @internal */

@@ -23,8 +23,8 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrDateAdapter, WR_DATE_LOCALE } from 'ngwr/date';
-import { readI18nText } from 'ngwr/i18n';
-import { clamp, wrCheckStyles } from 'ngwr/utils';
+import { wrReadI18nText } from 'ngwr/i18n';
+import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Two digits, in the locale's own numbering system.
@@ -236,19 +236,19 @@ export class WrTimePanel implements FormValueControl<Date | null> {
    * the picker around it already localizes its trigger and popup names, so the
    * hard-coded English here put two languages inside one popup.
    */
-  protected readonly hoursLabel = readI18nText('datePicker.hours', 'Hours');
-  protected readonly minutesLabel = readI18nText('datePicker.minutes', 'Minutes');
-  protected readonly secondsLabel = readI18nText('datePicker.seconds', 'Seconds');
-  protected readonly incrementHoursLabel = readI18nText('datePicker.incrementHours', 'Increment hours');
-  protected readonly decrementHoursLabel = readI18nText('datePicker.decrementHours', 'Decrement hours');
-  protected readonly incrementMinutesLabel = readI18nText('datePicker.incrementMinutes', 'Increment minutes');
-  protected readonly decrementMinutesLabel = readI18nText('datePicker.decrementMinutes', 'Decrement minutes');
-  protected readonly incrementSecondsLabel = readI18nText('datePicker.incrementSeconds', 'Increment seconds');
-  protected readonly decrementSecondsLabel = readI18nText('datePicker.decrementSeconds', 'Decrement seconds');
-  protected readonly toggleAmPmLabel = readI18nText('datePicker.toggleAmPm', 'Toggle AM / PM');
+  protected readonly hoursLabel = wrReadI18nText('datePicker.hours', 'Hours');
+  protected readonly minutesLabel = wrReadI18nText('datePicker.minutes', 'Minutes');
+  protected readonly secondsLabel = wrReadI18nText('datePicker.seconds', 'Seconds');
+  protected readonly incrementHoursLabel = wrReadI18nText('datePicker.incrementHours', 'Increment hours');
+  protected readonly decrementHoursLabel = wrReadI18nText('datePicker.decrementHours', 'Decrement hours');
+  protected readonly incrementMinutesLabel = wrReadI18nText('datePicker.incrementMinutes', 'Increment minutes');
+  protected readonly decrementMinutesLabel = wrReadI18nText('datePicker.decrementMinutes', 'Decrement minutes');
+  protected readonly incrementSecondsLabel = wrReadI18nText('datePicker.incrementSeconds', 'Increment seconds');
+  protected readonly decrementSecondsLabel = wrReadI18nText('datePicker.decrementSeconds', 'Decrement seconds');
+  protected readonly toggleAmPmLabel = wrReadI18nText('datePicker.toggleAmPm', 'Toggle AM / PM');
 
-  private readonly amLabel = readI18nText('datePicker.am', 'AM');
-  private readonly pmLabel = readI18nText('datePicker.pm', 'PM');
+  private readonly amLabel = wrReadI18nText('datePicker.am', 'AM');
+  private readonly pmLabel = wrReadI18nText('datePicker.pm', 'PM');
 
   protected readonly amPmLabel = computed(() => (this.isPm() ? this.pmLabel() : this.amLabel()));
 
@@ -281,10 +281,10 @@ export class WrTimePanel implements FormValueControl<Date | null> {
       // request for 1: clamped and re-rendered as `01`, it put the next digit after
       // it, and `019` clamped to 12 — typing `09` set 12 AM.
       if (Math.trunc(n) === 0) return;
-      const h12 = clamp(Math.trunc(n), 1, 12) % 12;
+      const h12 = wrClamp(Math.trunc(n), 1, 12) % 12;
       this.hours.set(this.isPm() ? h12 + 12 : h12);
     } else {
-      this.hours.set(clamp(Math.trunc(n), 0, 23));
+      this.hours.set(wrClamp(Math.trunc(n), 0, 23));
     }
     this.emit();
   }
@@ -296,7 +296,7 @@ export class WrTimePanel implements FormValueControl<Date | null> {
     if (!raw.trim()) return;
     const n = readNumber(raw, this.numerals);
     if (Number.isNaN(n)) return;
-    this.minutes.set(clamp(Math.trunc(n), 0, 59));
+    this.minutes.set(wrClamp(Math.trunc(n), 0, 59));
     this.emit();
   }
 
@@ -307,7 +307,7 @@ export class WrTimePanel implements FormValueControl<Date | null> {
     if (!raw.trim()) return;
     const n = readNumber(raw, this.numerals);
     if (Number.isNaN(n)) return;
-    this.seconds.set(clamp(Math.trunc(n), 0, 59));
+    this.seconds.set(wrClamp(Math.trunc(n), 0, 59));
     this.emit();
   }
 

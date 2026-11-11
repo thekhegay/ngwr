@@ -26,7 +26,7 @@ export interface WrI18nLoader {
  *
  * Defaults to one that serves an empty catalog, which is what makes
  * `provideWrI18n()` genuinely optional: every ngwr component routes its
- * built-in strings through `useI18nText` / `readI18nText`, those inject
+ * built-in strings through `useI18nText` / `wrReadI18nText`, those inject
  * `WrI18n` optionally — and because `WrI18n` is `providedIn: 'root'`, an
  * optional inject still CONSTRUCTS it. Without a default here that construction
  * threw `NG0201: No provider found for WR_I18N_LOADER`, so an app that had

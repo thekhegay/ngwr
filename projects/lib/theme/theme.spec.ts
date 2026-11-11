@@ -2,7 +2,7 @@ import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
-import { createMemoryStorage, withStorage } from 'ngwr/storage';
+import { wrCreateMemoryStorage, withStorage } from 'ngwr/storage';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTheme } from './services/wr-theme';
@@ -30,7 +30,7 @@ import { DEFAULT_WR_THEME_CONFIG, WR_THEME_CONFIG, type WrThemeConfig } from './
  * direction.
  */
 describe('WrTheme', () => {
-  let engine: ReturnType<typeof createMemoryStorage>;
+  let engine: ReturnType<typeof wrCreateMemoryStorage>;
   let listeners: ((event: MediaQueryListEvent) => void)[];
   let systemDark: boolean;
 
@@ -89,7 +89,7 @@ describe('WrTheme', () => {
   };
 
   beforeEach(() => {
-    engine = createMemoryStorage();
+    engine = wrCreateMemoryStorage();
     systemDark = false;
     stubMatchMedia();
     TestBed.resetTestingModule();

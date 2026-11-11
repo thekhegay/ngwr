@@ -1016,7 +1016,7 @@ describe('WrToast moves focus on when a focused toast closes', () => {
 });
 
 /**
- * Toast's four labels lived as English literals in `DEFAULT_TOAST_CONFIG`, which
+ * Toast's four labels lived as English literals in `DEFAULT_WR_TOAST_CONFIG`, which
  * meant `toast.close`, `toast.copy`, `toast.copied` and `toast.closeAll` shipped
  * in both catalogs and were read by nothing — an app on the Russian catalog got
  * an English close button and no gate said a word, because the region's own name

@@ -9,7 +9,7 @@ import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, ElementRef, Injector, PLATFORM_ID, afterNextRender, effect, inject } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { clamp, watchColorScheme } from 'ngwr/utils';
+import { wrClamp, wrWatchColorScheme } from 'ngwr/utils';
 
 class Backdrop implements WrCanvasBackdrop {
   ctx: CanvasRenderingContext2D | null = null;
@@ -62,7 +62,7 @@ class Backdrop implements WrCanvasBackdrop {
       this.viewObserver.observe(host);
     }
 
-    watchColorScheme(
+    wrWatchColorScheme(
       () => {
         this.scene.colors(canvas);
         if (!this.running) this.draw();
@@ -151,7 +151,7 @@ class Backdrop implements WrCanvasBackdrop {
       this.rafId = requestAnimationFrame(this.frame);
       return;
     }
-    const dt = clamp(now - this.lastFrame, 0, MAX_FRAME_MS);
+    const dt = wrClamp(now - this.lastFrame, 0, MAX_FRAME_MS);
     this.lastFrame = now;
     this.scene.advance(dt);
     this.draw();

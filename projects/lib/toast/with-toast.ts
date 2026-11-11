@@ -9,13 +9,13 @@ import { ApplicationRef, ENVIRONMENT_INITIALIZER, EnvironmentInjector, inject, i
 
 import { type WrFeature, wrFeature } from 'ngwr/utils';
 
-import { DEFAULT_TOAST_CONFIG } from './default-toast-config';
+import { DEFAULT_WR_TOAST_CONFIG } from './default-toast-config';
 import { WR_TOAST_CONFIG } from './tokens';
 import type { WrToastConfig } from './types';
 
 /**
  * Registers a global {@link WrToastConfig} for {@link WrToast}, as a feature of
- * `provideWr()`. Any field you omit falls back to {@link DEFAULT_TOAST_CONFIG};
+ * `provideWr()`. Any field you omit falls back to {@link DEFAULT_WR_TOAST_CONFIG};
  * the `labels` sub-object is merged separately so you can override a single
  * string at a time (useful for i18n).
  *
@@ -49,9 +49,9 @@ export function withToast(
   config: Partial<Omit<WrToastConfig, 'labels'>> & { readonly labels?: Partial<WrToastConfig['labels']> }
 ): WrFeature<'toast'> {
   const merged: WrToastConfig = {
-    ...DEFAULT_TOAST_CONFIG,
+    ...DEFAULT_WR_TOAST_CONFIG,
     ...config,
-    labels: { ...DEFAULT_TOAST_CONFIG.labels, ...config.labels },
+    labels: { ...DEFAULT_WR_TOAST_CONFIG.labels, ...config.labels },
   };
   return wrFeature('toast', [
     { provide: WR_TOAST_CONFIG, useValue: merged },

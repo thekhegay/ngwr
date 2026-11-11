@@ -156,8 +156,8 @@ describe('WrInputNumber', () => {
   });
 
   /**
-   * The anti-drift rounding must not manufacture drift. `round(v, 10)` scales
-   * by 1e10, which leaves 2^53 above ~9e8: `round(1000000001, 10)` comes back
+   * The anti-drift rounding must not manufacture drift. `wrRound(v, 10)` scales
+   * by 1e10, which leaves 2^53 above ~9e8: `wrRound(1000000001, 10)` comes back
    * as `1000000000.9999999`, and each press then compounds it.
    */
   it('steps large integers exactly', async () => {

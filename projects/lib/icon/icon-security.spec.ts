@@ -4,10 +4,10 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrIcon } from './icon';
-import { lucide } from './lucide';
+import { wrLucide } from './lucide';
 import { provideWrIcons } from './providers/provide-wr-icons';
-import { svgIcon } from './svg-icon';
-import type { LucideIconNode } from './types';
+import { wrSvgIcon } from './svg-icon';
+import type { WrLucideIconNode } from './types';
 import { sanitizeIcon } from './utils';
 
 /**
@@ -36,8 +36,8 @@ const PAYLOADS = {
   animate: `<svg viewBox="0 0 24 24"><a><animate attributeName="href" values="javascript:window.__hit('icon-animate')"/><text x="0" y="12">click</text></a></svg>`,
 } as const;
 
-/** IconNode tuples handed to `lucide()`, whose serializer built `${key}="${value}"`. */
-const LUCIDE_NODE: Record<'attrName' | 'valueBreakout', LucideIconNode> = {
+/** IconNode tuples handed to `wrLucide()`, whose serializer built `${key}="${value}"`. */
+const LUCIDE_NODE: Record<'attrName' | 'valueBreakout', WrLucideIconNode> = {
   attrName: [['image', { href: 'x', onerror: `window.__hit('lucide-attr-name')` }]],
   valueBreakout: [['image', { href: `x" onerror="window.__hit('lucide-value-breakout')` }]],
 };
@@ -55,7 +55,7 @@ describe('WrIcon treats registered icon data as untrusted', () => {
 
   const render = (data: string): HTMLElement => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrIcons([svgIcon('evil', data)])] });
+    TestBed.configureTestingModule({ providers: [provideWrIcons([wrSvgIcon('evil', data)])] });
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     return (fixture.nativeElement as HTMLElement).querySelector('wr-icon')!;
@@ -175,13 +175,13 @@ describe('WrIcon treats registered icon data as untrusted', () => {
     });
   });
 
-  // Feather registers through `svgIcon()` like every other set that ships SVG,
+  // Feather registers through `wrSvgIcon()` like every other set that ships SVG,
   // so its payloads are the direct-registration ones above.
   describe('through the lucide converter', () => {
     it('serializes a hostile attribute value without letting it break out', () => {
       // The serialiser defect, tested where it lives: the quote in the value
       // used to close `href` and open `onerror` as a second, real attribute.
-      const data = lucide('evil', LUCIDE_NODE.valueBreakout).data;
+      const data = wrLucide('evil', LUCIDE_NODE.valueBreakout).data;
 
       expect(data).not.toContain('onerror="');
       expect(data).toContain('&quot;');
@@ -193,7 +193,7 @@ describe('WrIcon treats registered icon data as untrusted', () => {
       // Escaping cannot help here — `onerror` is a valid attribute name and
       // `onerror="…"` is its only honest serialisation. The sink is what
       // refuses it, and `<image>` with it.
-      const data = lucide('evil', LUCIDE_NODE.attrName).data;
+      const data = wrLucide('evil', LUCIDE_NODE.attrName).data;
       expect(throughInnerHtml(data).querySelector('[onerror]')).not.toBeNull();
 
       const host = render(data);

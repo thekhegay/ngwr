@@ -14,13 +14,13 @@ import type { WrRgb } from './wr-rgb';
  *
  * @example
  * ```ts
- * parseHex('#f00');       // { r: 255, g: 0, b: 0, a: 1 }
- * parseHex('3969e2');     // { r: 57,  g: 105, b: 226, a: 1 }
- * parseHex('#3969e2ff');  // { r: 57,  g: 105, b: 226, a: 1 }
- * parseHex('nope');       // null
+ * wrParseHex('#f00');       // { r: 255, g: 0, b: 0, a: 1 }
+ * wrParseHex('3969e2');     // { r: 57,  g: 105, b: 226, a: 1 }
+ * wrParseHex('#3969e2ff');  // { r: 57,  g: 105, b: 226, a: 1 }
+ * wrParseHex('nope');       // null
  * ```
  */
-export function parseHex(input: string): WrRgb | null {
+export function wrParseHex(input: string): WrRgb | null {
   if (typeof input !== 'string') return null;
 
   let str = input.trim().replace(/^#/, '').toLowerCase();

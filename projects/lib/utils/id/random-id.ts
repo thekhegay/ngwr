@@ -42,13 +42,13 @@ function defaultRandomBytes(count: number): Uint8Array {
  *
  * @example
  * ```ts
- * randomId();
+ * wrRandomId();
  * // → "wr-a8f2bx1k9q4z"
  *
- * randomId('ng', 8);
+ * wrRandomId('ng', 8);
  * // → "ng-k2f9mbeo"
  *
- * randomId('wr', 24);
+ * wrRandomId('wr', 24);
  * // → "wr-a8f2bx1k9q4zmneo73wplr"
  * ```
  *
@@ -58,7 +58,11 @@ function defaultRandomBytes(count: number): Uint8Array {
  *   When omitted, uses `crypto.getRandomValues` with a `Math.random` fallback.
  * @returns A pseudo-random id string matching `/^[a-z]+-[a-z0-9]+$/`.
  */
-export function randomId(prefix = 'wr', length = DEFAULT_LENGTH, random?: (byteLength: number) => Uint8Array): string {
+export function wrRandomId(
+  prefix = 'wr',
+  length = DEFAULT_LENGTH,
+  random?: (byteLength: number) => Uint8Array
+): string {
   const safeLength = Math.min(Math.max(Math.trunc(length), MIN_LENGTH), MAX_LENGTH);
 
   const bytes = random ? random(safeLength) : defaultRandomBytes(safeLength);

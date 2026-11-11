@@ -34,9 +34,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
-import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import type { WrTreeNode, WrTreeSelectionMode, WrTreeSize } from './types';
 
@@ -331,9 +331,9 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   });
 
   /** Resolved ARIA labels — signals, so they follow both a late catalog and a locale switch. */
-  protected readonly clearLabel = readI18nText('tree.clearSelection', 'Clear selection');
-  protected readonly expandLabel = readI18nText('tree.expand', 'Expand');
-  protected readonly collapseLabel = readI18nText('tree.collapse', 'Collapse');
+  protected readonly clearLabel = wrReadI18nText('tree.clearSelection', 'Clear selection');
+  protected readonly expandLabel = wrReadI18nText('tree.expand', 'Expand');
+  protected readonly collapseLabel = wrReadI18nText('tree.collapse', 'Collapse');
   protected readonly chipRemoveLabel = useI18nFormatter('tree.removeItem', 'Remove {{label}}');
 
   /**
@@ -975,7 +975,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
       width: this.host.nativeElement.getBoundingClientRect().width,
-      panelClass: toClassList('wr-tree-overlay', this.panelClass()),
+      panelClass: wrToClassList('wr-tree-overlay', this.panelClass()),
     });
 
     // The pane is appended to `<body>`, so the only thing telling it which way

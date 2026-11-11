@@ -37,8 +37,8 @@ import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPagination, type WrPaginationSize } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
 import {
-  KEYS,
-  toClassList,
+  WR_KEYS,
+  wrToClassList,
   wrCheckStyles,
   wrDecimal,
   wrDecimalAdd,
@@ -94,7 +94,7 @@ type RenderRow =
 
 /**
  * Instance counter for the ids the row controls are named through. Counted, not
- * `randomId()`, so the prerendered `aria-labelledby` is the one the browser
+ * `wrRandomId()`, so the prerendered `aria-labelledby` is the one the browser
  * renders again — the same reason `wr-tabs` and `wr-mention` count.
  */
 let tableUid = 0;
@@ -155,7 +155,7 @@ function isNgTemplateElement(tpl: TemplateRef<unknown>): boolean {
 
 function cellClasses(base: 'wr-table__th' | 'wr-table__td', column: Pick<WrTableColumn, 'align' | 'class'>): string {
   const own = column.align ? `${base} ${base}--align-${column.align}` : base;
-  return column.class ? toClassList(own, column.class).join(' ') : own;
+  return column.class ? wrToClassList(own, column.class).join(' ') : own;
 }
 
 /** A flat row descriptor with the tree fields at their flat-table defaults. */
@@ -1084,7 +1084,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   /** Row half of {@link thClasses}, resolved through the `rowClass` predicate. */
   protected rowClasses(row: Record<string, unknown>, index: number): string {
     const extra = this.rowClass()?.(row, index);
-    return extra ? toClassList('wr-table__tr', extra).join(' ') : 'wr-table__tr';
+    return extra ? wrToClassList('wr-table__tr', extra).join(' ') : 'wr-table__tr';
   }
 
   // --- Column resizing ------------------------------------------------------
@@ -1565,29 +1565,29 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     const key = this.inlineKey(event.key);
     // Ctrl is only meaningful with Home / End (the APG's "first row" chord);
     // with anything else it is someone else's shortcut.
-    if (event.ctrlKey && key !== KEYS.HOME && key !== KEYS.END) return;
+    if (event.ctrlKey && key !== WR_KEYS.HOME && key !== WR_KEYS.END) return;
 
     switch (key) {
-      case KEYS.ARROW_DOWN:
+      case WR_KEYS.ARROW_DOWN:
         this.focusTreeRow(Math.min(index + 1, rows.length - 1));
         break;
-      case KEYS.ARROW_UP:
+      case WR_KEYS.ARROW_UP:
         this.focusTreeRow(Math.max(index - 1, 0));
         break;
-      case KEYS.HOME:
+      case WR_KEYS.HOME:
         this.focusTreeRow(0);
         break;
-      case KEYS.END:
+      case WR_KEYS.END:
         this.focusTreeRow(rows.length - 1);
         break;
-      case KEYS.ARROW_RIGHT:
+      case WR_KEYS.ARROW_RIGHT:
         // Closed: open it, and stay. Open: step down into the first child, which
         // the depth-first flatten always puts on the very next row.
         if (!entry.parent) break;
         if (!entry.open) this.toggleTreeRow(entry.row);
         else if (rows[index + 1]?.depth === entry.depth + 1) this.focusTreeRow(index + 1);
         break;
-      case KEYS.ARROW_LEFT:
+      case WR_KEYS.ARROW_LEFT:
         // Open: close it, and stay. Closed or a leaf: climb to the parent, which
         // is the nearest row above that sits one level up.
         if (entry.open) {
@@ -1601,8 +1601,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
           }
         }
         break;
-      case KEYS.ENTER:
-      case KEYS.SPACE:
+      case WR_KEYS.ENTER:
+      case WR_KEYS.SPACE:
         // Selection is the row's own action when the table offers one. Without
         // it the keys do nothing, rather than guessing at a default.
         if (!this.rowSelection()) return;
@@ -1621,8 +1621,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    */
   private inlineKey(key: string): string {
     if (!this.isRtl()) return key;
-    if (key === KEYS.ARROW_RIGHT) return KEYS.ARROW_LEFT;
-    if (key === KEYS.ARROW_LEFT) return KEYS.ARROW_RIGHT;
+    if (key === WR_KEYS.ARROW_RIGHT) return WR_KEYS.ARROW_LEFT;
+    if (key === WR_KEYS.ARROW_LEFT) return WR_KEYS.ARROW_RIGHT;
     return key;
   }
 

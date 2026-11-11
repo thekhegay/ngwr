@@ -25,16 +25,16 @@ import {
   type WrChartMarkerShape,
   WrChartTable,
   type WrChartTableData,
-  chartAxis,
-  chartColor,
-  chartMarker,
-  chartMarkerExtent,
-  chartMarkerPath,
+  wrChartAxis,
+  wrChartColor,
+  wrChartMarker,
+  wrChartMarkerExtent,
+  wrChartMarkerPath,
   useChartNumbers,
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
-import { round, wrCheckStyles } from 'ngwr/utils';
+import { wrRound, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrScatterAxis, WrScatterSeries } from './types';
 
@@ -257,8 +257,8 @@ export class WrScatterChart {
     this.series().map((s, index) => ({
       index,
       label: s.label,
-      color: s.color ?? chartColor(index),
-      marker: chartMarker(index),
+      color: s.color ?? wrChartColor(index),
+      marker: wrChartMarker(index),
       points: s.data.flatMap((p, i) =>
         Number.isFinite(p.x) && Number.isFinite(p.y)
           ? [
@@ -298,7 +298,7 @@ export class WrScatterChart {
   protected readonly sized = computed(() => this.maxSize() !== null);
 
   /**
-   * The x axis, from `chartAxis` over the points shown: fitted to the data with no zero
+   * The x axis, from `wrChartAxis` over the points shown: fitted to the data with no zero
    * forced in, since a scatter has no baseline, snapped outward at both ends and lifted a
    * step at EITHER end a point would sit on (`symmetric`), so no point lands exactly on
    * the frame. A single value — one point, or a column of them — is centred with a step
@@ -325,7 +325,7 @@ export class WrScatterChart {
           p.size === null || maxSize === null
             ? POINT_RADIUS
             : Math.max(MIN_RADIUS, maxRadius * Math.sqrt(maxSize > 0 ? p.size / maxSize : 0));
-        const halo = chartMarkerExtent(s.marker, r + HALO_GAP);
+        const halo = wrChartMarkerExtent(s.marker, r + HALO_GAP);
         return {
           key: `${s.index}:${p.n}`,
           series: s.index,
@@ -340,7 +340,7 @@ export class WrScatterChart {
           left: percent(((p.x - x.min) / (x.max - x.min)) * 100),
           top: percent(((y.max - p.y) / (y.max - y.min)) * 100),
           r,
-          d: chartMarkerPath(s.marker, r),
+          d: wrChartMarkerPath(s.marker, r),
           halo,
         };
       })
@@ -367,7 +367,7 @@ export class WrScatterChart {
       x = Math.max(x, halo.side);
       y = Math.max(y, halo.top, halo.bottom);
     }
-    return { x: round(x, 3), y: round(Math.min(y, this.height() / 4), 3) };
+    return { x: wrRound(x, 3), y: wrRound(Math.min(y, this.height() / 4), 3) };
   });
 
   /** The y ticks, top to bottom: each value's label and its gridline's distance from the top, in percent. */
@@ -441,7 +441,7 @@ export class WrScatterChart {
   /** The ring round the hovered point: its own shape, a little larger. */
   protected readonly haloPath = computed(() => {
     const point = this.activePoint();
-    return point ? chartMarkerPath(point.marker, point.r + HALO_GAP) : '';
+    return point ? wrChartMarkerPath(point.marker, point.r + HALO_GAP) : '';
   });
 
   /**
@@ -505,7 +505,7 @@ export class WrScatterChart {
     return best;
   }
 
-  /** One axis over the points shown: `chartAxis` with both ends kept off the data, and one value centred. */
+  /** One axis over the points shown: `wrChartAxis` with both ends kept off the data, and one value centred. */
   private fit(read: (point: { readonly x: number; readonly y: number }) => number): WrChartAxis {
     let min = Number.POSITIVE_INFINITY;
     let max = Number.NEGATIVE_INFINITY;
@@ -516,9 +516,9 @@ export class WrScatterChart {
         if (v > max) max = v;
       }
     }
-    // No point at all leaves both infinite, which `chartAxis` answers with the empty frame;
+    // No point at all leaves both infinite, which `wrChartAxis` answers with the empty frame;
     // one value, or a column of them, it centres between a step on either side.
-    return chartAxis(min, max, { symmetric: true });
+    return wrChartAxis(min, max, { symmetric: true });
   }
 }
 

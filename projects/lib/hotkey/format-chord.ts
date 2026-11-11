@@ -5,9 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { KEYS, KEY_LABELS, type WrKey } from 'ngwr/utils';
+import { WR_KEYS, WR_KEY_LABELS, type WrKey } from 'ngwr/utils';
 
-import { parseHotkeySpec } from './parse-spec';
+import { wrParseHotkeySpec } from './parse-spec';
 import type { WrHotkeyPlatform, WrHotkeySpec } from './types';
 
 /** Apple's modifier glyphs, in the order its menus write them. */
@@ -15,20 +15,20 @@ const MAC_MODIFIERS = { ctrl: '⌃', alt: '⌥', shift: '⇧', meta: '⌘' } as 
 
 /** The named keys macOS writes as a glyph. The rest keep their label. */
 const MAC_KEYS: Readonly<Partial<Record<WrKey, string>>> = {
-  [KEYS.ENTER]: '↩',
-  [KEYS.ESCAPE]: '⎋',
-  [KEYS.TAB]: '⇥',
-  [KEYS.BACKSPACE]: '⌫',
-  [KEYS.DELETE]: '⌦',
-  [KEYS.HOME]: '↖',
-  [KEYS.END]: '↘',
-  [KEYS.PAGE_UP]: '⇞',
-  [KEYS.PAGE_DOWN]: '⇟',
+  [WR_KEYS.ENTER]: '↩',
+  [WR_KEYS.ESCAPE]: '⎋',
+  [WR_KEYS.TAB]: '⇥',
+  [WR_KEYS.BACKSPACE]: '⌫',
+  [WR_KEYS.DELETE]: '⌦',
+  [WR_KEYS.HOME]: '↖',
+  [WR_KEYS.END]: '↘',
+  [WR_KEYS.PAGE_UP]: '⇞',
+  [WR_KEYS.PAGE_DOWN]: '⇟',
 };
 
-/** `KEYS` by the lowercased form the spec parser produces. */
+/** `WR_KEYS` by the lowercased form the spec parser produces. */
 const KEY_BY_LOWER: ReadonlyMap<string, WrKey> = new Map(
-  (Object.values(KEYS) as WrKey[]).map(key => [key.toLowerCase(), key])
+  (Object.values(WR_KEYS) as WrKey[]).map(key => [key.toLowerCase(), key])
 );
 
 /** The key token as the spec typed it, since the parser lowercases: `'mod+F5'` keeps `F5`. */
@@ -52,7 +52,7 @@ export function wrHotkeyPlatform(userAgent: string | null = globalThis.navigator
  * A chord written the way the platform writes it: `'mod+k'` is `⌘K` on macOS
  * and `Ctrl+K` elsewhere, `'mod+shift+k'` is `⇧⌘K` and `Ctrl+Shift+K`.
  * Modifiers follow Apple's order (`⌃⌥⇧⌘`) on a Mac and Win, Ctrl, Alt, Shift
- * elsewhere. A named key is labelled from `KEY_LABELS` in `ngwr/utils`, with
+ * elsewhere. A named key is labelled from `WR_KEY_LABELS` in `ngwr/utils`, with
  * Apple's glyph on a Mac (`↩`, `⎋`, `⌫`); an arrow is its glyph everywhere; a
  * letter is uppercased; a key neither table knows is passed through as typed.
  *
@@ -63,7 +63,7 @@ export function wrHotkeyPlatform(userAgent: string | null = globalThis.navigator
  * in `afterNextRender` for that reason. Pass `platform` from such a signal, or
  * let `wr-kbd` print the chord.
  *
- * `labels` replaces a word from `KEY_LABELS` by its `KEYS` value, for a
+ * `labels` replaces a word from `WR_KEY_LABELS` by its `WR_KEYS` value, for a
  * translation; `wr-kbd` passes the i18n catalog's. A glyph is never replaced.
  */
 export function wrFormatChord(
@@ -71,8 +71,8 @@ export function wrFormatChord(
   platform: WrHotkeyPlatform = wrHotkeyPlatform(),
   labels: Readonly<Partial<Record<WrKey, string>>> = {}
 ): string {
-  const parsed = parseHotkeySpec(chord, platform === 'mac');
-  const label = (key: WrKey): string => labels[key] ?? KEY_LABELS[key];
+  const parsed = wrParseHotkeySpec(chord, platform === 'mac');
+  const label = (key: WrKey): string => labels[key] ?? WR_KEY_LABELS[key];
 
   const known = KEY_BY_LOWER.get(parsed.key);
   let key: string;
@@ -86,10 +86,10 @@ export function wrFormatChord(
   }
 
   const parts: string[] = [];
-  if (parsed.meta) parts.push(label(KEYS.META));
-  if (parsed.ctrl) parts.push(label(KEYS.CONTROL));
-  if (parsed.alt) parts.push(label(KEYS.ALT));
-  if (parsed.shift) parts.push(label(KEYS.SHIFT));
+  if (parsed.meta) parts.push(label(WR_KEYS.META));
+  if (parsed.ctrl) parts.push(label(WR_KEYS.CONTROL));
+  if (parsed.alt) parts.push(label(WR_KEYS.ALT));
+  if (parsed.shift) parts.push(label(WR_KEYS.SHIFT));
   parts.push(key);
   return parts.join('+');
 }

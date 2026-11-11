@@ -5,7 +5,7 @@ import { provideWr } from 'ngwr';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrStorage } from './storage';
-import { createMemoryStorage } from './storage-engine';
+import { wrCreateMemoryStorage } from './storage-engine';
 import type { WrStorageEngine, WrStorageOptions } from './types';
 import { withStorage } from './with-storage';
 
@@ -29,7 +29,7 @@ describe('WrStorage', () => {
   };
 
   beforeEach(() => {
-    engine = createMemoryStorage();
+    engine = wrCreateMemoryStorage();
     TestBed.resetTestingModule();
   });
 

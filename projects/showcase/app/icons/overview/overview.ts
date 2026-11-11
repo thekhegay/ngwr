@@ -25,20 +25,20 @@ bootstrapApplication(AppComponent, {
   ],
 });`,
 
-    svgIcon: `// Generic — works with any source that ships full <svg> files.
+    wrSvgIcon: `// Generic — works with any source that ships full <svg> files.
 // Pair with a bundler's raw-svg import (Vite: \`?raw\`, Webpack:
 // \`raw-loader\`, esbuild: \`--loader:.svg=text\`).
-import { svgIcon, provideWrIcons } from 'ngwr/icon';
+import { wrSvgIcon, provideWrIcons } from 'ngwr/icon';
 import plusSvg from '@tabler/icons/icons/outline/plus.svg?raw';
 import trashSvg from 'feather-icons/dist/icons/trash-2.svg?raw';
 
-provideWrIcons([svgIcon('plus', plusSvg), svgIcon('trash', trashSvg)]);`,
+provideWrIcons([wrSvgIcon('plus', plusSvg), wrSvgIcon('trash', trashSvg)]);`,
 
     lucide: `// Lucide ships per-icon JS exports (\`IconNode\` tuples).
 import { Plus, Trash, ChevronDown } from 'lucide';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 
-provideWrIcons(lucideIcons({ plus: Plus, trash: Trash, 'chevron-down': ChevronDown }));`,
+provideWrIcons(wrLucideIcons({ plus: Plus, trash: Trash, 'chevron-down': ChevronDown }));`,
 
     schematic: `# Scaffold an icon set with the schematic — generates a typed barrel
 # under src/app/icons.ts that you import from your bootstrap.

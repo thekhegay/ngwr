@@ -1,3 +1,3 @@
-export { badgeError } from './badge-error';
-export { badgeLog } from './badge-log';
-export { badgeWarn } from './badge-warn';
+export { wrBadgeError } from './badge-error';
+export { wrBadgeLog } from './badge-log';
+export { wrBadgeWarn } from './badge-warn';

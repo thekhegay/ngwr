@@ -7,7 +7,7 @@
 
 import { Directive, TemplateRef, inject, input } from '@angular/core';
 
-import type { SafeAny } from 'ngwr/utils';
+import type { WrSafeAny } from 'ngwr/utils';
 
 import type { WrTableCellContext, WrTableRow } from './types';
 
@@ -32,7 +32,7 @@ import type { WrTableCellContext, WrTableRow } from './types';
 @Directive({
   selector: '[wrTableCell]',
 })
-export class WrTableCell<T extends WrTableRow = SafeAny, K extends string = string> {
+export class WrTableCell<T extends WrTableRow = WrSafeAny, K extends string = string> {
   /** Column key the template applies to. */
   readonly columnKey = input.required<K>({ alias: 'wrTableCell' });
 
@@ -47,7 +47,7 @@ export class WrTableCell<T extends WrTableRow = SafeAny, K extends string = stri
   /**
    * Types the template's `let-` variables under `strictTemplates`.
    *
-   * `T` defaults to `SafeAny` for the reason `WrOptionLeading` gives: a
+   * `T` defaults to `WrSafeAny` for the reason `WrOptionLeading` gives: a
    * template without `[wrTableCellOf]` has nothing to infer the row from, and
    * narrowed to `unknown` every `row.email` would stop compiling. With the
    * input bound, `K` is the key the attribute names, so `let-value` is that

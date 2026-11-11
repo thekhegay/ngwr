@@ -18,7 +18,7 @@ import type { Schema } from './schema';
  * Base peers, regardless of prompt answers.
  *
  * `lucide` is here because the bootstrap snippet this schematic prints registers
- * icons through `lucideIcons()`, which converts glyphs the app imports from
+ * icons through `wrLucideIcons()`, which converts glyphs the app imports from
  * `lucide` itself — leaving it out made the very first snippet a consumer pastes
  * fail to resolve.
  *
@@ -220,10 +220,13 @@ function printNextSteps(options: Schema, context: SchematicContext): Rule {
 
     // `ngwr/icon` ships no icons — there are no bare icon exports, so the old
     // `{ plus, trash }` import did not compile. Glyphs come from the app's own
-    // icon package, through `lucideIcons()` for lucide or `svgIcon()` for a set
+    // icon package, through `wrLucideIcons()` for lucide or `wrSvgIcon()` for a set
     // that ships SVG.
-    imports.push("import { provideWrIcons, lucideIcons } from 'ngwr/icon';", "import { Plus, Trash2 } from 'lucide';");
-    providers.push('provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))');
+    imports.push(
+      "import { provideWrIcons, wrLucideIcons } from 'ngwr/icon';",
+      "import { Plus, Trash2 } from 'lucide';"
+    );
+    providers.push('provideWrIcons(wrLucideIcons({ plus: Plus, trash: Trash2 }))');
 
     const importBlock = imports.join('\n');
     const providerBlock = providers.map(p => `      ${p},`).join('\n');

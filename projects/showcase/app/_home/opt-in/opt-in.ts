@@ -7,7 +7,7 @@ import { WrDecode } from 'ngwr/animations/decode';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrCard, WrCardFooter } from 'ngwr/card';
-import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent, DocInstallComponent, DocRichPipe } from '#core/components';
@@ -70,7 +70,7 @@ interface OptInExample {
   ],
   providers: [
     provideWrIcons(
-      lucideIcons({
+      wrLucideIcons({
         'sliders-horizontal': SlidersHorizontal,
         route: Route,
         'pen-line': PenLine,
@@ -176,9 +176,9 @@ provideWrI18nBaseCatalogs({ de: wrDe });`,
       label: 'Icons',
       caption: 'Register the icons you use. No icon set is a dependency.',
       code: `import { Check, X } from 'lucide';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 
-provideWrIcons(lucideIcons({ check: Check, x: X }));`,
+provideWrIcons(wrLucideIcons({ check: Check, x: X }));`,
       language: 'angular-ts',
       links: [{ label: 'Icon sets', path: wrPath(ROUTES.icons, ROUTES.icons.overview) }],
     },

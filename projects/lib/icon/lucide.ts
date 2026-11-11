@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { LucideIconNode, WrIconDef } from './types';
+import type { WrLucideIconNode, WrIconDef } from './types';
 
 /**
  * Default SVG attributes Lucide applies to every icon. Kept identical
@@ -26,17 +26,17 @@ const SVG_ATTRS =
 /**
  * Wrap a single Lucide icon in the {@link WrIconDef} envelope. Use this
  * when you need fine-grained control over the registered name, or when
- * the bulk {@link lucideIcons} helper isn't a good fit.
+ * the bulk {@link wrLucideIcons} helper isn't a good fit.
  *
  * @example
  * ```ts
  * import { Plus } from 'lucide';
- * import { lucide, provideWrIcons } from 'ngwr/icon';
+ * import { wrLucide, provideWrIcons } from 'ngwr/icon';
  *
- * provideWrIcons([lucide('plus', Plus)]);
+ * provideWrIcons([wrLucide('plus', Plus)]);
  * ```
  */
-function lucide(name: string, children: LucideIconNode): WrIconDef {
+function wrLucide(name: string, children: WrLucideIconNode): WrIconDef {
   const inner = children.map(renderChild).join('');
   return { name, data: `<svg ${SVG_ATTRS}>${inner}</svg>` };
 }
@@ -44,13 +44,13 @@ function lucide(name: string, children: LucideIconNode): WrIconDef {
 /**
  * Wrap a bag of Lucide icons in one shot. Keys become the registered
  * names **verbatim** — exactly what you pass to `<wr-icon name>` — matching
- * the singular `lucide()` helper and `svgIcon()`. Kebab-case by
+ * the singular `wrLucide()` helper and `wrSvgIcon()`. Kebab-case by
  * convention, so quote multi-word keys (`'chevron-down'`). Values are the
  * upstream IconNode tuples.
  *
  * Lucide is the one set with a converter here because it is the one that
  * ships no SVG markup at all; every other set, Feather included, registers
- * its own SVG through `svgIcon()`.
+ * its own SVG through `wrSvgIcon()`.
  *
  * Tree-shaking: every `Plus`, `Trash`, … import lives in *your* file
  * — ngwr ships only this wrapper, not the icon data. Unused icons in
@@ -59,17 +59,17 @@ function lucide(name: string, children: LucideIconNode): WrIconDef {
  * @example
  * ```ts
  * import { Plus, Trash, ChevronDown } from 'lucide';
- * import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+ * import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
  *
  * bootstrapApplication(AppComponent, {
  *   providers: [
- *     provideWrIcons(lucideIcons({ plus: Plus, trash: Trash, 'chevron-down': ChevronDown })),
+ *     provideWrIcons(wrLucideIcons({ plus: Plus, trash: Trash, 'chevron-down': ChevronDown })),
  *   ],
  * });
  * ```
  */
-function lucideIcons(icons: Record<string, LucideIconNode>): WrIconDef[] {
-  return Object.entries(icons).map(([name, node]) => lucide(name, node));
+function wrLucideIcons(icons: Record<string, WrLucideIconNode>): WrIconDef[] {
+  return Object.entries(icons).map(([name, node]) => wrLucide(name, node));
 }
 
 /**
@@ -102,4 +102,4 @@ function renderChild([tag, attrs]: readonly [string, Record<string, string | num
   return `<${tag} ${rendered}/>`;
 }
 
-export { lucide, lucideIcons };
+export { wrLucide, wrLucideIcons };

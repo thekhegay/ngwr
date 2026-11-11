@@ -1,3 +1,3 @@
-export { isDefined } from './is-defined';
-export { isNonEmptyArray } from './is-non-empty-array';
-export { isObservable } from './is-observable';
+export { wrIsDefined } from './is-defined';
+export { wrIsNonEmptyArray } from './is-non-empty-array';
+export { wrIsObservable } from './is-observable';

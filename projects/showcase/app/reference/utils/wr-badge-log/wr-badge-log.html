@@ -1,0 +1,22 @@
+<ngwr-doc-page
+  title="wrBadgeLog"
+  updated="16.0.0"
+  description="Logs a message to the browser console behind a coloured badge. `wrBadgeWarn()` and `wrBadgeError()` do the same at their level."
+  [keywords]="['wrBadgeLog', 'wrBadgeWarn', 'wrBadgeError', 'console', 'warn', 'error', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Warnings and errors"
+    description="The same pill through `console.warn` and `console.error`, so the stack trace and the console's level filters still work."
+  >
+    <ngwr-doc-code [code]="levelsSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

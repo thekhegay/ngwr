@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { Copy, Download, ExternalLink, Settings, Trash2 } from 'lucide';
 import { WrButton } from 'ngwr/button';
 import { WrDropdown, WrDropdownItem, WrDropdownMenu } from 'ngwr/dropdown';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 
 import {
   DocApiComponent,
@@ -30,7 +30,7 @@ import { API } from '#core/generated/api';
   ],
   providers: [
     provideWrIcons(
-      lucideIcons({
+      wrLucideIcons({
         'copy-outline': Copy,
         download: Download,
         trash: Trash2,

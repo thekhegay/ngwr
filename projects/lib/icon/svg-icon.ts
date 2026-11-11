@@ -18,13 +18,13 @@ import type { WrIconDef } from './types';
  * a string at build time.
  *
  * Lucide is the one set that ships no SVG markup — its exports are IconNode
- * tuples — so it goes through {@link lucideIcons} instead. Feather needs no
+ * tuples — so it goes through {@link wrLucideIcons} instead. Feather needs no
  * converter: `feather-icons` ships every icon as a complete `<svg>` under
  * `dist/icons/`, the same string `feather.icons[name].toSvg()` returns.
  *
  * @example
  * ```ts
- * import { svgIcon, provideWrIcons } from 'ngwr/icon';
+ * import { wrSvgIcon, provideWrIcons } from 'ngwr/icon';
  * // Vite: the `?raw` suffix returns the file as a string.
  * import plusSvg from '@tabler/icons/icons/outline/plus.svg?raw';
  * import phosphorPlusSvg from '@phosphor-icons/core/assets/regular/plus.svg?raw';
@@ -33,9 +33,9 @@ import type { WrIconDef } from './types';
  * bootstrapApplication(AppComponent, {
  *   providers: [
  *     provideWrIcons([
- *       svgIcon('plus', plusSvg),
- *       svgIcon('plus-phosphor', phosphorPlusSvg),
- *       svgIcon('plus-feather', featherPlusSvg),
+ *       wrSvgIcon('plus', plusSvg),
+ *       wrSvgIcon('plus-phosphor', phosphorPlusSvg),
+ *       wrSvgIcon('plus-feather', featherPlusSvg),
  *     ]),
  *   ],
  * });
@@ -50,6 +50,6 @@ import type { WrIconDef } from './types';
  * before anything reaches the DOM. In dev mode the component names what it
  * removed, so a legitimate icon that loses something says so out loud.
  */
-export function svgIcon(name: string, svg: string): WrIconDef {
+export function wrSvgIcon(name: string, svg: string): WrIconDef {
   return { name, data: svg };
 }

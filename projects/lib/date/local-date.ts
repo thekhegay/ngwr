@@ -26,7 +26,7 @@ const ISO_DATE_ONLY = /^\d{4}(?:-\d{2}(?:-\d{2})?)?$/;
  *
  * @internal
  */
-export function toLocalDate(value: string | number): Date {
+export function wrToLocalDate(value: string | number): Date {
   const parsed = new Date(value);
   if (typeof value !== 'string' || !ISO_DATE_ONLY.test(value) || Number.isNaN(parsed.getTime())) return parsed;
   const local = new Date(0);

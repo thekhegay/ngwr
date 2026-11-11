@@ -29,7 +29,7 @@ import { WrTypewriter } from 'ngwr/animations/typewriter';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrCard } from 'ngwr/card';
-import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
 
@@ -108,7 +108,7 @@ interface DxLink {
   providers: [
     provideWrIcons([
       ...BRAND_ICONS,
-      ...lucideIcons({
+      ...wrLucideIcons({
         folder: Folder,
         moon: Moon,
         terminal: Terminal,

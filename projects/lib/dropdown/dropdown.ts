@@ -25,7 +25,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import type { WrDropdownMenu } from './dropdown-menu';
 import {
@@ -277,7 +277,7 @@ export class WrDropdown {
       // The menu starts on the placement it asked for, which is what the CDK
       // measures it with — see `wrDropdownPositions` for why that class must
       // already be on the pane rather than arrive with the position.
-      panelClass: toClassList(
+      panelClass: wrToClassList(
         'wr-dropdown-overlay',
         `wr-dropdown-overlay--${requested}`,
         this.arrow() && 'wr-dropdown-overlay--arrow',

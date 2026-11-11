@@ -113,7 +113,7 @@ because it is guidance rather than a plan.
   missing and quietly serves the English default, so a Russian app rendered
   English and no gate said a word. **Parity is not enough**, and a third spec
   covers the rest: it walks `projects/lib`, collects every key passed to
-  `useI18nText` / `readI18nText` / `useI18nFormatter`, and requires each to
+  `useI18nText` / `wrReadI18nText` / `useI18nFormatter`, and requires each to
   exist in the catalog — because two files can agree perfectly about a key
   NEITHER of them has, which is how `imageCropper.window` and `.keyHelp` reached
   `main` read by the component and present in neither, under 3881 green specs.

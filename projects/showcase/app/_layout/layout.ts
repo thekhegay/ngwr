@@ -6,7 +6,7 @@ import { filter } from 'rxjs';
 
 import { Menu } from 'lucide';
 import { WrDrawer } from 'ngwr/drawer';
-import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 
 import { Footer } from './footer/footer';
 import { Sidebar } from './sidebar/sidebar';
@@ -16,7 +16,7 @@ import { Sidebar } from './sidebar/sidebar';
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
   imports: [RouterOutlet, Sidebar, Footer, WrDrawer, WrIcon],
-  providers: [provideWrIcons(lucideIcons({ menu: Menu }))],
+  providers: [provideWrIcons(wrLucideIcons({ menu: Menu }))],
 })
 export default class Layout {
   /**

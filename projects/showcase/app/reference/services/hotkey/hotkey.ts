@@ -87,7 +87,7 @@ wrFormatChord('mod+k', 'mac'); // ⌘K, whatever the platform`,
     {
       name: 'wrFormatChord(chord, platform?, labels?)',
       description:
-        "A chord the way the platform writes it. `platform` defaults to `wrHotkeyPlatform()`, read from `navigator.userAgent`; `labels` replaces a word from `KEY_LABELS` by its `KEYS` value, which is how `<wr-kbd>` passes the catalog's.",
+        "A chord the way the platform writes it. `platform` defaults to `wrHotkeyPlatform()`, read from `navigator.userAgent`; `labels` replaces a word from `WR_KEY_LABELS` by its `WR_KEYS` value, which is how `<wr-kbd>` passes the catalog's.",
       type: "(chord: WrHotkeySpec, platform?: 'mac' | 'other', labels?: Partial<Record<WrKey, string>>) => string",
       default: '-',
     },
@@ -169,8 +169,8 @@ wrFormatChord('mod+k', 'mac'); // ⌘K, whatever the platform`,
     },
     {
       kind: 'Util',
-      title: 'KEYS',
-      url: ['/reference/utils', 'keys'],
+      title: 'WR_KEYS',
+      url: ['/reference/utils', 'wr-keys'],
       description: 'KeyboardEvent.key constants.',
     },
   ];

@@ -1,1 +1,1 @@
-export { randomId } from './random-id';
+export { wrRandomId } from './random-id';

@@ -16,7 +16,7 @@ import {
   Zap,
 } from 'lucide';
 import { WrButton } from 'ngwr/button';
-import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrStatistic, WrStatisticGroup } from 'ngwr/statistic';
 import { WrTypography } from 'ngwr/typography';
 
@@ -70,7 +70,7 @@ interface Tier {
   providers: [
     provideWrIcons([
       ...BRAND_ICONS,
-      ...lucideIcons({
+      ...wrLucideIcons({
         heart: Heart,
         accessibility: Accessibility,
         'chart-column': ChartColumn,

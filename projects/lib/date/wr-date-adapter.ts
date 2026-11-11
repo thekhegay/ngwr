@@ -196,7 +196,7 @@ function pad(n: number, width = 2): string {
 }
 
 /** Whether `value` is one of the shared named format keys. */
-function isNamedFormat(value: string): value is WrDateFormat {
+function wrIsNamedFormat(value: string): value is WrDateFormat {
   return NAMED_KEYS.has(value);
 }
 
@@ -489,7 +489,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   // `(string & {})` keeps autocomplete for the WrDateFormat literals
   // while still accepting any other string as a raw token pattern.
   format(date: Date, formatKeyOrString: WrDateFormat | (string & {})): string {
-    if (isNamedFormat(formatKeyOrString)) {
+    if (wrIsNamedFormat(formatKeyOrString)) {
       return this.intl(formatKeyOrString).format(date);
     }
     return this.formatWithTokens(date, formatKeyOrString);
@@ -515,7 +515,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     const raw = value?.trim();
     if (!raw) return null;
 
-    if (isNamedFormat(formatKeyOrString)) {
+    if (wrIsNamedFormat(formatKeyOrString)) {
       return this.parseNamed(raw, formatKeyOrString);
     }
 
@@ -1029,4 +1029,4 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   }
 }
 
-export { isNamedFormat };
+export { wrIsNamedFormat };

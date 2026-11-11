@@ -9,7 +9,7 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, type ElementRef, ViewEncapsulation, computed, input, model, viewChild } from '@angular/core';
 
 import { WR_CHART_LEGEND_BLOCK, WrChartLegend, type WrChartLegendItem } from 'ngwr/charts/chart-legend';
-import { chartColor, useChartNumbers } from 'ngwr/charts/core';
+import { wrChartColor, useChartNumbers } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
@@ -223,7 +223,7 @@ export class WrDonutChart {
         // the weight is the arc's, not the data's, and printing it named a "0" the data
         // never had. A value that is not a number has no figure to print.
         text: Number.isFinite(s.value) ? this.numbers.value(s.value) : '',
-        color: s.color ?? chartColor(i),
+        color: s.color ?? wrChartColor(i),
         hidden: isHidden,
         path: isHidden ? '' : this.arcPath(startAngle, endAngle),
         percent: (share / total) * 100,

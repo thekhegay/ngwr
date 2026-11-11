@@ -20,7 +20,7 @@ const icons = ROUTES.icons;
  *    arbitrary, alphabetically-first SVGs whose search is client-only, so the
  *    static HTML would carry weight with no SEO value. The overview and lucide
  *    pages stay prerendered as real docs. Feather's page is the same
- *    `svgIcon()` gallery as the six and stays prerendered only because it was
+ *    `wrSvgIcon()` gallery as the six and stays prerendered only because it was
  *    before v15, when it documented an adapter.
  *
  * Client-rendered routes emit no HTML and fall through to the existing Angie

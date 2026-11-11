@@ -21,7 +21,7 @@ import {
 import { WrCountUp } from 'ngwr/counter';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 /** Digits with one optional point and a sign: the form `Intl` reads exactly. */
 const PLAIN_DECIMAL = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
@@ -79,7 +79,7 @@ export class WrStatistic {
   readonly animate = input(true, { transform: coerceBooleanProperty });
 
   /** Count-up duration (ms). @default 700 */
-  readonly duration = input(700, { transform: numAttr(700) });
+  readonly duration = input(700, { transform: wrNumAttr(700) });
 
   /**
    * The current value coerced to a finite number, or `null` when `value` is

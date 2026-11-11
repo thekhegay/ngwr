@@ -16,11 +16,11 @@ export type WrDebouncedFn<TArgs extends readonly unknown[]> = ((...args: TArgs) 
  *
  * @example
  * ```ts
- * const onResize = debounce(() => recalcLayout(), 150);
+ * const onResize = wrDebounce(() => recalcLayout(), 150);
  * window.addEventListener('resize', onResize);
  * ```
  */
-export function debounce<TArgs extends readonly unknown[]>(
+export function wrDebounce<TArgs extends readonly unknown[]>(
   fn: (...args: TArgs) => void,
   waitMs: number
 ): WrDebouncedFn<TArgs> {

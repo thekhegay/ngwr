@@ -7,10 +7,10 @@ import { coerceNumberProperty } from '@angular/cdk/coercion';
  *
  * @example
  * ```ts
- * readonly speed = input(4, { transform: numAttr(4) });
+ * readonly speed = input(4, { transform: wrNumAttr(4) });
  * ```
  */
-export const numAttr =
+export const wrNumAttr =
   (fallback: number) =>
   (value: unknown): number =>
     coerceNumberProperty(value, fallback);

@@ -24,11 +24,11 @@ import type { WrClassInput } from '../types';
  *
  * @example
  * ```ts
- * toClassList('wr-dropdown-overlay', this.arrow() && 'wr-dropdown-overlay--arrow', this.panelClass());
+ * wrToClassList('wr-dropdown-overlay', this.arrow() && 'wr-dropdown-overlay--arrow', this.panelClass());
  * // ['wr-dropdown-overlay', 'wr-dropdown-overlay--arrow', 'p-4', 'rounded-xl']
  * ```
  */
-export function toClassList(...values: readonly (WrClassInput | false)[]): string[] {
+export function wrToClassList(...values: readonly (WrClassInput | false)[]): string[] {
   const out: string[] = [];
   const seen = new Set<string>();
 

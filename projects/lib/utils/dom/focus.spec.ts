@@ -7,7 +7,7 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { getFocusableElements, trapFocus } from './focus';
+import { wrGetFocusableElements, wrTrapFocus } from './focus';
 
 /**
  * jsdom lays nothing out: every `getClientRects()` is empty and every
@@ -32,7 +32,7 @@ const boxless = (el: HTMLElement): void => {
 
 const ids = (els: readonly HTMLElement[]): string[] => els.map(el => el.id);
 
-describe('getFocusableElements', () => {
+describe('wrGetFocusableElements', () => {
   afterEach(() => {
     document.body.innerHTML = '';
   });
@@ -47,7 +47,7 @@ describe('getFocusableElements', () => {
       <div id="t" tabindex="0"></div>
     `);
 
-    expect(ids(getFocusableElements(root))).toEqual(['a', 'b', 'i', 'ce', 't']);
+    expect(ids(wrGetFocusableElements(root))).toEqual(['a', 'b', 'i', 'ce', 't']);
   });
 
   it('drops disabled controls, hidden inputs and tabindex="-1"', () => {
@@ -60,14 +60,14 @@ describe('getFocusableElements', () => {
       <div id="ce-off" contenteditable="false"></div>
     `);
 
-    expect(ids(getFocusableElements(root))).toEqual(['ok']);
+    expect(ids(wrGetFocusableElements(root))).toEqual(['ok']);
   });
 
   it('drops an element with no box — `display: none`, its own or an ancestor’s', () => {
     const root = render(`<button id="shown">a</button><button id="gone">b</button>`);
     boxless(root.querySelector<HTMLElement>('#gone')!);
 
-    expect(ids(getFocusableElements(root))).toEqual(['shown']);
+    expect(ids(wrGetFocusableElements(root))).toEqual(['shown']);
   });
 
   it('drops `visibility: hidden`, which keeps its box and cannot be focused', () => {
@@ -77,7 +77,7 @@ describe('getFocusableElements', () => {
     const root = render(`<button id="shown">a</button><button id="invisible">b</button>`);
     root.querySelector<HTMLElement>('#invisible')!.style.visibility = 'hidden';
 
-    expect(ids(getFocusableElements(root))).toEqual(['shown']);
+    expect(ids(wrGetFocusableElements(root))).toEqual(['shown']);
   });
 
   it('keeps the element that currently holds focus even with no box', () => {
@@ -88,11 +88,11 @@ describe('getFocusableElements', () => {
     active.focus();
     boxless(active);
 
-    expect(ids(getFocusableElements(root))).toEqual(['first', 'active']);
+    expect(ids(wrGetFocusableElements(root))).toEqual(['first', 'active']);
   });
 });
 
-describe('trapFocus', () => {
+describe('wrTrapFocus', () => {
   afterEach(() => {
     document.body.innerHTML = '';
   });
@@ -104,7 +104,7 @@ describe('trapFocus', () => {
     const root = render(`<button id="a">a</button><button id="b">b</button>`);
     const event = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true });
 
-    expect(trapFocus(root, event)).toBe(false);
+    expect(wrTrapFocus(root, event)).toBe(false);
   });
 
   it('wraps from the last element to the first', () => {
@@ -112,7 +112,7 @@ describe('trapFocus', () => {
     root.querySelector<HTMLButtonElement>('#b')!.focus();
     const event = tab();
 
-    expect(trapFocus(root, event)).toBe(true);
+    expect(wrTrapFocus(root, event)).toBe(true);
     expect(event.defaultPrevented).toBe(true);
     expect(document.activeElement?.id).toBe('a');
   });
@@ -122,7 +122,7 @@ describe('trapFocus', () => {
     root.querySelector<HTMLButtonElement>('#a')!.focus();
     const event = tab(true);
 
-    expect(trapFocus(root, event)).toBe(true);
+    expect(wrTrapFocus(root, event)).toBe(true);
     expect(document.activeElement?.id).toBe('b');
   });
 
@@ -131,13 +131,13 @@ describe('trapFocus', () => {
     root.querySelector<HTMLButtonElement>('#b')!.focus();
     const event = tab();
 
-    expect(trapFocus(root, event)).toBe(false);
+    expect(wrTrapFocus(root, event)).toBe(false);
     expect(event.defaultPrevented).toBe(false);
   });
 
   it('reports not-handled when nothing inside can take focus', () => {
     const root = render(`<p id="p">text</p>`);
 
-    expect(trapFocus(root, tab())).toBe(false);
+    expect(wrTrapFocus(root, tab())).toBe(false);
   });
 });

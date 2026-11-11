@@ -1,3 +1,3 @@
 export type { WrClassInput } from './class-input';
-export type { Maybe } from './maybe';
-export type { SafeAny } from './safe-any';
+export type { WrMaybe } from './maybe';
+export type { WrSafeAny } from './safe-any';

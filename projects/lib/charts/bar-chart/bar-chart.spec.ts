@@ -1,7 +1,7 @@
 import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { chartColor } from 'ngwr/charts/core';
+import { wrChartColor } from 'ngwr/charts/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrBarChart } from './bar-chart';
@@ -255,9 +255,9 @@ describe('WrBarChart tooltip', () => {
     // This host binds no `color`. The input keeps the literal default the docs print;
     // this holds it to the palette.
     const bar = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-bar-chart__bar')!;
-    expect(bar.style.background).toBe(chartColor(0));
+    expect(bar.style.background).toBe(wrChartColor(0));
     hover(columns()[0]);
-    expect(part('swatch')!.style.background).toBe(chartColor(0));
+    expect(part('swatch')!.style.background).toBe(wrChartColor(0));
   });
 
   it('shows nothing with `tooltip` off', () => {

@@ -29,10 +29,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import {
-  getFocusableElements,
-  KEYS,
-  numAttr,
-  toClassList,
+  wrGetFocusableElements,
+  WR_KEYS,
+  wrNumAttr,
+  wrToClassList,
   wrCheckStyles,
   wrRestoreFocus,
   type WrClassInput,
@@ -54,15 +54,15 @@ import { type WrPopoverPosition, wrPopoverPositions } from './types';
  * during one of them was placed by a script and a tooltip stays shut.
  */
 const NAVIGATION_KEYS = new Set<string>([
-  KEYS.TAB,
-  KEYS.ARROW_UP,
-  KEYS.ARROW_DOWN,
-  KEYS.ARROW_LEFT,
-  KEYS.ARROW_RIGHT,
-  KEYS.HOME,
-  KEYS.END,
-  KEYS.PAGE_UP,
-  KEYS.PAGE_DOWN,
+  WR_KEYS.TAB,
+  WR_KEYS.ARROW_UP,
+  WR_KEYS.ARROW_DOWN,
+  WR_KEYS.ARROW_LEFT,
+  WR_KEYS.ARROW_RIGHT,
+  WR_KEYS.HOME,
+  WR_KEYS.END,
+  WR_KEYS.PAGE_UP,
+  WR_KEYS.PAGE_DOWN,
 ]);
 
 /**
@@ -156,10 +156,10 @@ export class WrPopover {
   readonly position = input<WrPopoverPosition | null>(null);
 
   /** Tooltip only — delay before showing, in ms. @default 120 */
-  readonly showDelay = input(120, { transform: numAttr(120) });
+  readonly showDelay = input(120, { transform: wrNumAttr(120) });
 
   /** Tooltip only — delay before hiding, in ms. @default 60 */
-  readonly hideDelay = input(60, { transform: numAttr(60) });
+  readonly hideDelay = input(60, { transform: wrNumAttr(60) });
 
   /**
    * Popover mode only — accessible name of the panel. `role="dialog"` with no
@@ -461,7 +461,7 @@ export class WrPopover {
     // The `--<placement>` half is no longer set here: each fallback position
     // carries its own, so the pane names the placement it landed on instead of
     // the one that was requested, and the arrow follows a flip.
-    const overlayClass = toClassList(paneClass, this.panelClass());
+    const overlayClass = wrToClassList(paneClass, this.panelClass());
 
     this.overlayRef = this.overlay.create({
       positionStrategy: connected,
@@ -631,7 +631,7 @@ export class WrPopover {
    * the browser's Tab, and a trigger that is the last stop before the overlay
    * container would send that Tab straight back into the still-attached pane.
    *
-   * Stops are told by `tabIndex`, because `getFocusableElements` lists every
+   * Stops are told by `tabIndex`, because `wrGetFocusableElements` lists every
    * focusable element and a roving composite parks its other items at -1. What
    * that misreads — a native radio group, one stop that lists as several —
    * falls through to `onPaneFocusOut`, which still closes the panel; it just
@@ -641,9 +641,9 @@ export class WrPopover {
     const pane = this.overlayRef?.overlayElement;
     // A control inside that spends Tab on itself (`wr-mention` accepting a
     // suggestion) has said so by preventing it.
-    if (!pane || event.key !== KEYS.TAB || event.defaultPrevented) return;
+    if (!pane || event.key !== WR_KEYS.TAB || event.defaultPrevented) return;
     const active = this.host.nativeElement.ownerDocument.activeElement;
-    const stops = getFocusableElements(pane).filter(el => el.tabIndex >= 0);
+    const stops = wrGetFocusableElements(pane).filter(el => el.tabIndex >= 0);
     if (event.shiftKey) {
       if (active !== pane && active !== stops[0]) return;
       event.preventDefault();
@@ -667,7 +667,7 @@ export class WrPopover {
    */
   private readonly onPaneFocusOut = (event: FocusEvent): void => {
     const next = event.relatedTarget as Node | null;
-    if (next ? this.holdsFocus(next) : this.keystroke.key !== KEYS.TAB) return;
+    if (next ? this.holdsFocus(next) : this.keystroke.key !== WR_KEYS.TAB) return;
     this.isOpen.set(false);
   };
 

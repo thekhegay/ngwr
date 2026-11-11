@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrIcons, svgIcon, type WrIconName } from 'ngwr/icon';
+import { provideWrIcons, wrSvgIcon, type WrIconName } from 'ngwr/icon';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrEmpty } from './empty';
@@ -78,7 +78,7 @@ describe('WrEmpty', () => {
     // `<svg>` root out of registered data, and root-less markup never rendered
     // anyway — `innerHTML` put a `<circle>` in the XHTML namespace, which is an
     // unknown HTML element that paints nothing.
-    mount([provideWrIcons([svgIcon('search', '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /></svg>')])]);
+    mount([provideWrIcons([wrSvgIcon('search', '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /></svg>')])]);
     fixture.componentInstance.iconName.set('search');
     fixture.detectChanges();
 

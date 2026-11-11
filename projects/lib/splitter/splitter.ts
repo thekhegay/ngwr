@@ -10,7 +10,7 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, model } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { clamp, round, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrRound, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Resizable two-pane splitter. Project two pieces of content via
@@ -82,7 +82,7 @@ export class WrSplitter {
     // write reached the DOM as `aria-valuenow="150"` against a `valuemax` of 100 and
     // sized a pane at `150%`.
     effect(() => {
-      const clamped = clamp(this.position(), this.minPosition(), this.maxPosition());
+      const clamped = wrClamp(this.position(), this.minPosition(), this.maxPosition());
       if (clamped !== this.position()) this.position.set(clamped);
     });
   }
@@ -126,7 +126,7 @@ export class WrSplitter {
     // To a tenth of a percent — about a pixel on a full-width split. The raw
     // quotient reached `aria-valuenow` and `[(position)]` as `29.99999822054938`,
     // read out digit by digit and handed to the host to persist.
-    this.position.set(clamp(round(raw, 1), this.minPosition(), this.maxPosition()));
+    this.position.set(wrClamp(wrRound(raw, 1), this.minPosition(), this.maxPosition()));
   }
 
   protected onPointerUp(event: PointerEvent): void {
@@ -141,7 +141,7 @@ export class WrSplitter {
     // An arrow step lands on a whole number, so the keys after a drag do not
     // carry the drag's fraction along (`30.4` stepped to `31.4`, `32.4`, …).
     // Home and End below are the bounds themselves, whatever they are.
-    const position = round(this.position());
+    const position = wrRound(this.position());
     let next: number | null = null;
     if (this.orientation() === 'horizontal') {
       // Arrows follow the VISUAL axis (WAI-ARIA APG). Under `dir="rtl"` the start pane
@@ -161,7 +161,7 @@ export class WrSplitter {
     else if (event.key === 'End') next = this.maxPosition();
     if (next === null) return;
     event.preventDefault();
-    this.position.set(clamp(next, this.minPosition(), this.maxPosition()));
+    this.position.set(wrClamp(next, this.minPosition(), this.maxPosition()));
   }
 
   /**

@@ -21,7 +21,7 @@ import type { FormCheckboxControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
-import { randomId, wrCheckStyles } from 'ngwr/utils';
+import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_CHECKBOX_GROUP } from './tokens';
 
@@ -98,7 +98,7 @@ export class WrCheckbox implements FormCheckboxControl {
    *
    * @default Randomly generated
    */
-  readonly id = input<string>(randomId('wr-checkbox'));
+  readonly id = input<string>(wrRandomId('wr-checkbox'));
 
   /**
    * This checkbox's identity when inside a `<wr-checkbox-group>` — the value

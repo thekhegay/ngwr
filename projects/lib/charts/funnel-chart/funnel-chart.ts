@@ -18,9 +18,9 @@ import {
 } from '@angular/core';
 
 import { WrChartTable, type WrChartTableData, useChartNumbers } from 'ngwr/charts/core';
-import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
-import { clamp, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrFunnelConversion, WrFunnelStage } from './types';
 
@@ -215,10 +215,10 @@ export class WrFunnelChart {
     maximumSignificantDigits: 2,
   });
 
-  private readonly stageName = readI18nText('funnelChart.stage', 'Stage');
+  private readonly stageName = wrReadI18nText('funnelChart.stage', 'Stage');
   private readonly valueName = useI18nText(this.valueLabel, 'funnelChart.value', 'Value');
-  private readonly fromPreviousName = readI18nText('funnelChart.fromPrevious', 'From previous');
-  private readonly fromFirstName = readI18nText('funnelChart.fromFirst', 'From first');
+  private readonly fromPreviousName = wrReadI18nText('funnelChart.fromPrevious', 'From previous');
+  private readonly fromFirstName = wrReadI18nText('funnelChart.fromFirst', 'From first');
   private readonly ofPrevious = useI18nFormatter('funnelChart.ofPrevious', '{{percent}} of previous');
   private readonly ofFirst = useI18nFormatter('funnelChart.ofFirst', '{{percent}} of first');
   /**
@@ -268,7 +268,7 @@ export class WrFunnelChart {
         label: stage.label,
         value,
         color: stage.color ?? this.color(),
-        width: value === null ? 0 : clamp(value / full, 0, 1),
+        width: value === null ? 0 : wrClamp(value / full, 0, 1),
         fromPrevious: i === 0 ? null : share(value, values[i - 1]),
         fromFirst: i === 0 ? null : share(value, first),
       };

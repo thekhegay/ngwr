@@ -25,7 +25,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
-import { clamp, round, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrRound, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrSliderValue } from './types';
 
@@ -468,7 +468,7 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   private valueAt(event: PointerEvent): number {
     const rect = this.track().nativeElement.getBoundingClientRect();
     const offset = this.isRtl() ? rect.right - event.clientX : event.clientX - rect.left;
-    const ratio = clamp(offset / rect.width, 0, 1);
+    const ratio = wrClamp(offset / rect.width, 0, 1);
     return this.minValue() + ratio * (this.maxValue() - this.minValue());
   }
 
@@ -510,11 +510,11 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
 
   private snap(value: number): number {
     const stepped = Math.round((value - this.minValue()) / this.step()) * this.step() + this.minValue();
-    return this.clampToBounds(round(stepped, 6));
+    return this.clampToBounds(wrRound(stepped, 6));
   }
 
   private clampToBounds(v: number): number {
-    return clamp(v, this.minValue(), this.maxValue());
+    return wrClamp(v, this.minValue(), this.maxValue());
   }
 
   private percentOf(v: number): number {

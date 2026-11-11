@@ -34,11 +34,11 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrButton } from 'ngwr/button';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
-import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrInput } from 'ngwr/input';
 import { WrPlatform } from 'ngwr/platform';
 import { WrPopover } from 'ngwr/popover';
-import { isComposing, wrCheckStyles } from 'ngwr/utils';
+import { wrIsComposing, wrCheckStyles } from 'ngwr/utils';
 import type { Node } from 'prosemirror-model';
 import { EditorState, type Transaction } from 'prosemirror-state';
 import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
@@ -295,37 +295,37 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
 
   // Labels
 
-  protected readonly toolbarLabel = readI18nText('editor.toolbar', 'Formatting');
-  protected readonly linkUrlLabel = readI18nText('editor.linkUrl', 'Link address');
-  protected readonly linkApplyLabel = readI18nText('editor.linkApply', 'Apply');
-  protected readonly linkRemoveLabel = readI18nText('editor.linkRemove', 'Remove link');
-  protected readonly linkInvalidLabel = readI18nText('editor.linkInvalid', 'This address cannot be used as a link.');
-  protected readonly taskDoneLabel = readI18nText('editor.taskDone', 'Done:');
-  protected readonly taskTodoLabel = readI18nText('editor.taskTodo', 'To do:');
-  private readonly keyCtrl = readI18nText('editor.keyCtrl', 'Ctrl');
-  private readonly keyShift = readI18nText('editor.keyShift', 'Shift');
-  private readonly keyAlt = readI18nText('editor.keyAlt', 'Alt');
+  protected readonly toolbarLabel = wrReadI18nText('editor.toolbar', 'Formatting');
+  protected readonly linkUrlLabel = wrReadI18nText('editor.linkUrl', 'Link address');
+  protected readonly linkApplyLabel = wrReadI18nText('editor.linkApply', 'Apply');
+  protected readonly linkRemoveLabel = wrReadI18nText('editor.linkRemove', 'Remove link');
+  protected readonly linkInvalidLabel = wrReadI18nText('editor.linkInvalid', 'This address cannot be used as a link.');
+  protected readonly taskDoneLabel = wrReadI18nText('editor.taskDone', 'Done:');
+  protected readonly taskTodoLabel = wrReadI18nText('editor.taskTodo', 'To do:');
+  private readonly keyCtrl = wrReadI18nText('editor.keyCtrl', 'Ctrl');
+  private readonly keyShift = wrReadI18nText('editor.keyShift', 'Shift');
+  private readonly keyAlt = wrReadI18nText('editor.keyAlt', 'Alt');
   private readonly headingLabel = useI18nFormatter('editor.heading', 'Heading {{level}}');
   private readonly shortcutLabel = useI18nFormatter('editor.shortcut', '{{label}} ({{keys}})');
 
   private readonly toolLabels: Readonly<Record<WrEditorCommandTool, Signal<string>>> = {
-    bold: readI18nText('editor.bold', 'Bold'),
-    italic: readI18nText('editor.italic', 'Italic'),
-    underline: readI18nText('editor.underline', 'Underline'),
-    strike: readI18nText('editor.strike', 'Strikethrough'),
-    code: readI18nText('editor.code', 'Inline code'),
-    paragraph: readI18nText('editor.paragraph', 'Paragraph'),
+    bold: wrReadI18nText('editor.bold', 'Bold'),
+    italic: wrReadI18nText('editor.italic', 'Italic'),
+    underline: wrReadI18nText('editor.underline', 'Underline'),
+    strike: wrReadI18nText('editor.strike', 'Strikethrough'),
+    code: wrReadI18nText('editor.code', 'Inline code'),
+    paragraph: wrReadI18nText('editor.paragraph', 'Paragraph'),
     heading1: computed(() => this.headingLabel({ level: 1 })),
     heading2: computed(() => this.headingLabel({ level: 2 })),
     heading3: computed(() => this.headingLabel({ level: 3 })),
-    bulletList: readI18nText('editor.bulletList', 'Bulleted list'),
-    orderedList: readI18nText('editor.orderedList', 'Numbered list'),
-    blockquote: readI18nText('editor.blockquote', 'Quote'),
-    codeBlock: readI18nText('editor.codeBlock', 'Code block'),
-    link: readI18nText('editor.link', 'Insert link'),
-    horizontalRule: readI18nText('editor.horizontalRule', 'Horizontal line'),
-    undo: readI18nText('editor.undo', 'Undo'),
-    redo: readI18nText('editor.redo', 'Redo'),
+    bulletList: wrReadI18nText('editor.bulletList', 'Bulleted list'),
+    orderedList: wrReadI18nText('editor.orderedList', 'Numbered list'),
+    blockquote: wrReadI18nText('editor.blockquote', 'Quote'),
+    codeBlock: wrReadI18nText('editor.codeBlock', 'Code block'),
+    link: wrReadI18nText('editor.link', 'Insert link'),
+    horizontalRule: wrReadI18nText('editor.horizontalRule', 'Horizontal line'),
+    undo: wrReadI18nText('editor.undo', 'Undo'),
+    redo: wrReadI18nText('editor.redo', 'Redo'),
   };
 
   // Toolbar
@@ -586,7 +586,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
 
   /** The APG toolbar keys: the arrows rove and wrap, Home and End jump. */
   protected onToolbarKeydown(event: KeyboardEvent): void {
-    if (isComposing(event) || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (wrIsComposing(event) || event.altKey || event.ctrlKey || event.metaKey) return;
     const buttons = this.toolButtons().map(ref => ref.nativeElement);
     const current = buttons.indexOf(event.target as HTMLButtonElement);
     if (current < 0) return;
@@ -900,7 +900,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
    * skip an event another listener already handled.
    */
   private onSurfaceKeydown(event: KeyboardEvent): boolean {
-    if (isComposing(event) || event.altKey || event.shiftKey) return false;
+    if (wrIsComposing(event) || event.altKey || event.shiftKey) return false;
     const mod = untracked(this.apple) ? event.metaKey && !event.ctrlKey : event.ctrlKey && !event.metaKey;
     if (!mod || (event.key.toLowerCase() !== 'k' && event.code !== 'KeyK')) return false;
     const popover = this.linkPopover();

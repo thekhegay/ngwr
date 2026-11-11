@@ -24,7 +24,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 import { easeOutCubic } from './easing';
 import type { WrCountUpDirection, WrCountUpEasing, WrCountUpTrigger } from './types';
@@ -69,7 +69,7 @@ const SPRING_SETTLE_SHARE = 0.001;
 })
 export class WrCountUp {
   /** Starting value. @default 0 */
-  readonly from = input(0, { transform: numAttr(0) });
+  readonly from = input(0, { transform: wrNumAttr(0) });
 
   /** Target value. */
   readonly to = input.required<number>();
@@ -89,7 +89,7 @@ export class WrCountUp {
    *   (default 2, min 0.05)
    */
   readonly duration = input<number | null>(null, {
-    // Not `numAttr`, which takes a numeric fallback and so cannot express
+    // Not `wrNumAttr`, which takes a numeric fallback and so cannot express
     // "absent": an empty or unparsable value has to stay `null` here, or the
     // easing-dependent default below can never be reached.
     transform: (value: unknown): number | null =>
@@ -100,7 +100,7 @@ export class WrCountUp {
   private readonly resolvedDuration = computed(() => this.duration() ?? (this.easing() === 'spring' ? 2 : 1200));
 
   /** Optional delay (ms) before the animation starts. @default 0 */
-  readonly delay = input(0, { transform: numAttr(0) });
+  readonly delay = input(0, { transform: wrNumAttr(0) });
 
   /** Animation curve. @default 'ease-out' */
   readonly easing = input<WrCountUpEasing>('ease-out');

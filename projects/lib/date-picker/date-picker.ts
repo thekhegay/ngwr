@@ -32,10 +32,10 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrCalendar } from 'ngwr/calendar';
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
-import { readI18nText, useI18nText } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrFollowSize } from 'ngwr/overlay';
-import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { clockFormat } from './internal/clock-format';
 import { WrDateTimePanel } from './internal/date-time-panel';
@@ -252,13 +252,13 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   // "Open calendar" while `fieldLabel` below, off the SAME key, announced the
   // Russian one. A runtime `i18n.use()` moved the field's name and not the
   // trigger's, which made the split permanent rather than a startup race.
-  private readonly labelDate = readI18nText('datePicker.open', 'Open calendar');
-  private readonly labelTime = readI18nText('datePicker.openTime', 'Open time picker');
-  private readonly labelDateTime = readI18nText('datePicker.openDateTime', 'Open date and time picker');
+  private readonly labelDate = wrReadI18nText('datePicker.open', 'Open calendar');
+  private readonly labelTime = wrReadI18nText('datePicker.openTime', 'Open time picker');
+  private readonly labelDateTime = wrReadI18nText('datePicker.openDateTime', 'Open date and time picker');
 
-  private readonly panelLabelDate = readI18nText('datePicker.panel', 'Choose date');
-  private readonly panelLabelTime = readI18nText('datePicker.panelTime', 'Choose time');
-  private readonly panelLabelDateTime = readI18nText('datePicker.panelDateTime', 'Choose date and time');
+  private readonly panelLabelDate = wrReadI18nText('datePicker.panel', 'Choose date');
+  private readonly panelLabelTime = wrReadI18nText('datePicker.panelTime', 'Choose time');
+  private readonly panelLabelDateTime = wrReadI18nText('datePicker.panelDateTime', 'Choose date and time');
 
   /**
    * Accessible name of the text field. Falls back to the placeholder, then to
@@ -837,7 +837,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: toClassList('wr-date-picker-overlay', this.panelClass()),
+      panelClass: wrToClassList('wr-date-picker-overlay', this.panelClass()),
     });
 
     // Two of the four fallbacks anchor on `end`, and the CDK resolves start /

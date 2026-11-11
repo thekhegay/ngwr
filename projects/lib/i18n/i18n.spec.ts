@@ -11,7 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WrI18n, wrInterpolate } from './i18n';
 import type { WrI18nCatalog } from './i18n-config';
 import { provideWrI18n, provideWrI18nBaseCatalogs, provideWrI18nStaticLoader } from './provide-wr-i18n';
-import { readI18nText } from './util';
+import { wrReadI18nText } from './util';
 
 describe('wrInterpolate', () => {
   it('substitutes named placeholders, whitespace and all', () => {
@@ -316,7 +316,7 @@ describe('WrI18n base catalogs under a namespace the app shares', () => {
 
     expect(i18n.t('common.signOut')).toBe('Выйти');
     expect(i18n.t('common.cancel')).toBe('Отмена');
-    expect(TestBed.runInInjectionContext(() => readI18nText('common.cancel', 'Cancel'))()).toBe('Отмена');
+    expect(TestBed.runInInjectionContext(() => wrReadI18nText('common.cancel', 'Cancel'))()).toBe('Отмена');
   });
 
   it('is what a spread merge cannot do: the later namespace replaces the earlier one whole', async () => {
@@ -331,7 +331,7 @@ describe('WrI18n base catalogs under a namespace the app shares', () => {
     // The raw key, which is what a `wrT` read renders under the default handler…
     expect(i18n.t('common.cancel')).toBe('common.cancel');
     // …and a component reading the same key serves its English fallback.
-    expect(TestBed.runInInjectionContext(() => readI18nText('common.cancel', 'Cancel'))()).toBe('Cancel');
+    expect(TestBed.runInInjectionContext(() => wrReadI18nText('common.cancel', 'Cancel'))()).toBe('Cancel');
     // A namespace the app does not define is untouched — the loss is per namespace.
     expect(i18n.t('select.noResults')).toBe('Ничего не найдено');
     expect(warn).not.toHaveBeenCalled();
@@ -486,7 +486,7 @@ describe('the shipped catalogs', () => {
     let calls = 0;
     let keyless = 0;
     for (const text of sources) {
-      for (const m of text.matchAll(/\b(?:useI18nText|readI18nText|useI18nFormatter)\s*\(/g)) {
+      for (const m of text.matchAll(/\b(?:useI18nText|wrReadI18nText|useI18nFormatter)\s*\(/g)) {
         calls++;
         const key = /'(\w+(?:\.\w+)+)'/.exec(argsAt(text, m.index + m[0].length));
         if (key) asked.add(key[1]);

@@ -71,7 +71,7 @@ describe('WrColorPicker', () => {
    * `right` and `bottom` are declared as well as `left` / `top`: a real `DOMRect`
    * derives them, a literal does not, and the RTL branch of the drag measures
    * from `rect.right`. Left off, it reads `undefined` and every RTL fraction
-   * comes back `NaN` — which `clamp` turns into a plausible-looking number rather
+   * comes back `NaN` — which `wrClamp` turns into a plausible-looking number rather
    * than an error.
    */
   const place = (el: HTMLElement): HTMLElement => {
@@ -311,7 +311,7 @@ describe('WrColorPicker', () => {
     });
 
     it('applies a swatch, keeping the alpha the swatch does not mention', () => {
-      // A 6-digit swatch says nothing about alpha, and `parseHex` reports the
+      // A 6-digit swatch says nothing about alpha, and `wrParseHex` reports the
       // absence as 1 — so picking a preset used to snap a translucent colour
       // back to fully opaque.
       drag(alphaBar()!, 100);

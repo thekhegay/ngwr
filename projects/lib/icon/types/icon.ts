@@ -10,8 +10,8 @@ import type { WrIconName } from './icon-name';
 /**
  * Shape of an icon registered with the icon registry.
  *
- * **ngwr ships no icons.** Every `WrIconDef` comes from `svgIcon()` over
- * raw SVG, or from `lucideIcons()` over Lucide's IconNode tuples, so the set
+ * **ngwr ships no icons.** Every `WrIconDef` comes from `wrSvgIcon()` over
+ * raw SVG, or from `wrLucideIcons()` over Lucide's IconNode tuples, so the set
  * an app pays for is the set it registers.
  *
  * @example

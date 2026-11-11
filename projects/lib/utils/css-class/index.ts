@@ -1,1 +1,1 @@
-export { toClassList } from './to-class-list';
+export { wrToClassList } from './to-class-list';

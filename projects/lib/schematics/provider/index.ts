@@ -52,13 +52,13 @@ const PROVIDE_WR = 'provideWr';
 const PROVIDERS: Record<ProviderName, ProviderSpec> = {
   icons: {
     // `ngwr/icon` ships no icons — there are no bare icon exports. The glyphs
-    // come from the app's own `lucide` install through `lucideIcons()`, exactly
+    // come from the app's own `lucide` install through `wrLucideIcons()`, exactly
     // as `ng add` wires them.
     subpath: 'ngwr/icon',
     factory: 'provideWrIcons',
-    call: 'provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))',
+    call: 'provideWrIcons(wrLucideIcons({ plus: Plus, trash: Trash2 }))',
     extras: [
-      ['lucideIcons', 'ngwr/icon'],
+      ['wrLucideIcons', 'ngwr/icon'],
       ['Plus, Trash2', 'lucide'],
     ],
   },
@@ -413,7 +413,7 @@ function printSnippet(spec: ProviderSpec): string {
   // user gets — it has to include `extras`, or the printed code references symbols
   // it never imports. That was exactly the gap `extras` was declared to close.
   // Grouped by module, so an extra from the factory's own entry point
-  // (`lucideIcons` beside `provideWrIcons`) joins its line rather than
+  // (`wrLucideIcons` beside `provideWrIcons`) joins its line rather than
   // printing a second import of `ngwr/icon` — the shape `ensureImport` writes.
   const bySubpath = new Map<string, string[]>();
   if (spec.feature) bySubpath.set('ngwr', [PROVIDE_WR]);

@@ -25,8 +25,8 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix, type WrInputSize } from 'ngwr/input';
 import {
-  clamp,
-  round,
+  wrClamp,
+  wrRound,
   wrCheckStyles,
   wrDecimal,
   wrDecimalAdd,
@@ -325,10 +325,10 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
   /**
    * Above this, the anti-drift round is skipped — it would MANUFACTURE drift.
    *
-   * `round(v, 10)` is `Math.round((v + EPSILON) * 1e10) / 1e10`, and the scale
+   * `wrRound(v, 10)` is `Math.round((v + EPSILON) * 1e10) / 1e10`, and the scale
    * factor is only exact while `v * 1e10` stays inside 2^53, i.e. |v| under
    * about 900,720. In practice the round-trip still recovers up to ~9.2e8 and
-   * then breaks: `round(1000000001, 10)` is `1000000000.9999999`, and since
+   * then breaks: `wrRound(1000000001, 10)` is `1000000000.9999999`, and since
    * `format` prints up to 20 fraction digits that tail reaches the screen —
    * and compounds, because the next press starts from it. Integer stepping at
    * that magnitude is exact in IEEE754 and needed no help; the only thing this
@@ -443,7 +443,7 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
       return;
     }
     const base = (this.value() as number | null) ?? this.fallbackBase();
-    // `round` before `constrain`, and only on the stepped ARITHMETIC. Binary
+    // `wrRound` before `constrain`, and only on the stepped ARITHMETIC. Binary
     // floats do not add: three presses of a `step="0.1"` stepper produced
     // 0.30000000000000004, `constrain` only rounds when `decimals` is set, and
     // `format` prints up to 20 fraction digits — so the drift went into the
@@ -457,7 +457,7 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
     const raw = base + units * stepSize;
     const correctable =
       Math.abs(raw) < WrInputNumber.SAFE_ROUND_MAGNITUDE && Math.abs(stepSize) >= WrInputNumber.SAFE_ROUND_STEP;
-    const next = this.constrain(correctable ? round(raw, WrInputNumber.STEP_PRECISION) : raw);
+    const next = this.constrain(correctable ? wrRound(raw, WrInputNumber.STEP_PRECISION) : raw);
     this.commit(next);
     this.text.set(this.format(next));
   }
@@ -470,9 +470,9 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
   }
 
   private constrain(v: number): number {
-    let next = clamp(v, this.minValue(), this.maxValue());
+    let next = wrClamp(v, this.minValue(), this.maxValue());
     const d = this.decimals();
-    if (d !== null) next = round(next, d);
+    if (d !== null) next = wrRound(next, d);
     return next;
   }
 

@@ -287,7 +287,7 @@ describe('WrAlert emits a modifier for every documented type', () => {
  * The close button leaves the DOM with the rest of the alert, and a focused element
  * that leaves drops the caret on `<body>`: the next Tab, and a screen reader's place,
  * started over from the top of the page. jsdom lays nothing out, so every candidate
- * is given a box; `getFocusableElements` drops what has none.
+ * is given a box; `wrGetFocusableElements` drops what has none.
  */
 describe('WrAlert dismissed from the keyboard', () => {
   @Component({

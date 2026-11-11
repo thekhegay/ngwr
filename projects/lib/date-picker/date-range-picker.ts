@@ -31,10 +31,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
-import { readI18nText, useI18nText } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrFollowSize } from 'ngwr/overlay';
-import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { clockFormat } from './internal/clock-format';
 import { WrDateRangePanel } from './internal/date-range-panel';
@@ -261,12 +261,12 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   protected readonly isDateTime = computed(() => this.mode() === 'datetime');
 
-  protected readonly triggerLabel = readI18nText('datePicker.openRange', 'Open range calendar');
-  protected readonly startLabel = readI18nText('datePicker.rangeStart', 'Range start');
-  protected readonly endLabel = readI18nText('datePicker.rangeEnd', 'Range end');
+  protected readonly triggerLabel = wrReadI18nText('datePicker.openRange', 'Open range calendar');
+  protected readonly startLabel = wrReadI18nText('datePicker.rangeStart', 'Range start');
+  protected readonly endLabel = wrReadI18nText('datePicker.rangeEnd', 'Range end');
 
-  private readonly panelLabelRange = readI18nText('datePicker.panelRange', 'Choose date range');
-  private readonly panelLabelRangeDateTime = readI18nText(
+  private readonly panelLabelRange = wrReadI18nText('datePicker.panelRange', 'Choose date range');
+  private readonly panelLabelRangeDateTime = wrReadI18nText(
     'datePicker.panelRangeDateTime',
     'Choose date and time range'
   );
@@ -797,7 +797,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: toClassList('wr-date-picker-overlay', this.panelClass()),
+      panelClass: wrToClassList('wr-date-picker-overlay', this.panelClass()),
     });
 
     // Same four fallbacks as `wr-date-picker`, two of them anchored on `end`,

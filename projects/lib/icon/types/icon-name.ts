@@ -10,6 +10,6 @@
  *
  * Kept as a string alias so consumers can pass any name they've wired
  * — there are no built-ins shipped by ngwr. Bring an icon set via
- * `svgIcon()`, or `lucideIcons()` for Lucide.
+ * `wrSvgIcon()`, or `wrLucideIcons()` for Lucide.
  */
 export type WrIconName = string;

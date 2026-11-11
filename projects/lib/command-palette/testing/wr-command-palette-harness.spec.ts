@@ -3,7 +3,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrCommandPalette, type WrCommandItem } from 'ngwr/command-palette';
-import { provideWrIcons, svgIcon } from 'ngwr/icon';
+import { provideWrIcons, wrSvgIcon } from 'ngwr/icon';
 import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -123,7 +123,7 @@ describe('WrCommandPaletteHarness', () => {
     // test-environment guard out of production code.
     Element.prototype.scrollIntoView = (): undefined => undefined;
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrIcons([svgIcon('folder', FOLDER_SVG)])] });
+    TestBed.configureTestingModule({ providers: [provideWrIcons([wrSvgIcon('folder', FOLDER_SVG)])] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

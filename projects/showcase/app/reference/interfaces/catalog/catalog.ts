@@ -25,11 +25,11 @@ export default class TypesCatalogPage {
       title: 'Core',
       items: [
         {
-          name: 'Maybe<T>',
+          name: 'WrMaybe<T>',
           description: 'Optional value — T | null | undefined.',
           url: ['/reference/interfaces', 'common'],
         },
-        { name: 'SafeAny', description: 'Greppable, deliberate any.', url: ['/reference/interfaces', 'common'] },
+        { name: 'WrSafeAny', description: 'Greppable, deliberate any.', url: ['/reference/interfaces', 'common'] },
         {
           name: 'WrColor',
           description: 'Intent union — primary, success, warning, danger, info.',
@@ -132,7 +132,7 @@ export default class TypesCatalogPage {
         },
         {
           name: 'WrTreemapNode',
-          description: 'A leaf, or a group drawn round its children.',
+          description: 'A leaf, or a group drawn wrRound its children.',
           url: ['/charts', 'treemap-chart'],
         },
         {

@@ -62,11 +62,11 @@ export default class ColorPickerPageComponent {
   {{ color() }}
 </button>`,
 
-    utils: `import { parseHex, toHex, rgbToHsl } from 'ngwr/color-picker';
+    utils: `import { wrParseHex, wrToHex, wrRgbToHsl } from 'ngwr/color-picker';
 
-const rgb = parseHex('#3969e2');        // { r: 57, g: 105, b: 226, a: 1 }
-const hsl = rgbToHsl(rgb!);             // { h: 222.96, s: 0.744, l: 0.555, a: 1 }
-const back = toHex(rgb!, true);         // '#3969e2ff'`,
+const rgb = wrParseHex('#3969e2');        // { r: 57, g: 105, b: 226, a: 1 }
+const hsl = wrRgbToHsl(rgb!);             // { h: 222.96, s: 0.744, l: 0.555, a: 1 }
+const back = wrToHex(rgb!, true);         // '#3969e2ff'`,
     exportAs: `<button type="button" wrColorPickerTrigger [(value)]="brand" #swatch="wrColorPickerTrigger">
   Brand colour
 </button>
@@ -142,25 +142,25 @@ const back = toHex(rgb!, true);         // '#3969e2ff'`,
 
   protected readonly utilsApi: readonly DocApiRow[] = [
     {
-      name: 'parseHex(s)',
+      name: 'wrParseHex(s)',
       description: 'Parse a 3/4/6/8-digit hex string into `WrRgb`. Returns `null` on invalid input.',
       type: '(s: string) => WrRgb | null',
       default: '—',
     },
     {
-      name: 'toHex(rgb, withAlpha?)',
+      name: 'wrToHex(rgb, withAlpha?)',
       description: 'Format `WrRgb` as a hex string with leading `#`.',
       type: '(rgb: WrRgb, withAlpha?: boolean) => string',
       default: '—',
     },
     {
-      name: 'rgbToHsv / hsvToRgb',
+      name: 'wrRgbToHsv / wrHsvToRgb',
       description: 'Convert between RGB and HSV, keeping alpha.',
       type: 'function',
       default: '—',
     },
     {
-      name: 'rgbToHsl / hslToRgb',
+      name: 'wrRgbToHsl / wrHslToRgb',
       description: 'Convert between RGB and HSL, keeping alpha.',
       type: 'function',
       default: '—',

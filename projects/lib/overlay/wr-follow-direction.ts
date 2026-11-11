@@ -11,7 +11,7 @@ import { type Injector, effect, untracked } from '@angular/core';
 
 import { Subscription } from 'rxjs';
 
-import { noop } from 'ngwr/utils';
+import { wrNoop } from 'ngwr/utils';
 
 /**
  * Keep an OPEN overlay on the application's reading direction.
@@ -67,7 +67,7 @@ export function wrFollowDirection(
   injector: Injector,
   onDirectionChange?: (direction: Direction) => void
 ): () => void {
-  if (!dir) return noop;
+  if (!dir) return wrNoop;
 
   const apply = (next: Direction): void => {
     // Comparing against the REF rather than a direction captured up here does

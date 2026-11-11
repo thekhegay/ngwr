@@ -1,5 +1,5 @@
-export { WrDateAdapter, WrNativeDateAdapter, isNamedFormat } from './wr-date-adapter';
-export { toLocalDate } from './local-date';
+export { WrDateAdapter, WrNativeDateAdapter, wrIsNamedFormat } from './wr-date-adapter';
+export { wrToLocalDate } from './local-date';
 export { wrParseDate } from './parse-date';
 export { withDates } from './with-dates';
 export { WR_DATE_LOCALE } from './tokens';

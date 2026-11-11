@@ -15,7 +15,7 @@ export type WrThrottledFn<TArgs extends readonly unknown[]> = ((...args: TArgs) 
  * fires immediately; trailing-edge call fires once at the end of the window
  * if there were further invocations.
  */
-export function throttle<TArgs extends readonly unknown[]>(
+export function wrThrottle<TArgs extends readonly unknown[]>(
   fn: (...args: TArgs) => void,
   waitMs: number
 ): WrThrottledFn<TArgs> {

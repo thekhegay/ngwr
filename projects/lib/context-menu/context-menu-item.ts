@@ -26,7 +26,7 @@ import type { Subscription } from 'rxjs';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WR_OVERLAY, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
-import { randomId, wrCheckStyles } from 'ngwr/utils';
+import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WrContextMenu } from './context-menu';
 import type { WrContextMenuPanel } from './context-menu-panel';
@@ -329,7 +329,7 @@ export class WrContextMenuItem {
     // the same reason the root does it (a closing pane outlives its close).
     const menuEl = pane.querySelector<HTMLElement>('.wr-context-menu');
     if (menuEl) {
-      menuEl.id = randomId('wr-context-menu');
+      menuEl.id = wrRandomId('wr-context-menu');
       this.submenuId.set(menuEl.id);
     }
 

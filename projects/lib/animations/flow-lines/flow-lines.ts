@@ -25,7 +25,7 @@ import {
 
 import { FRAME_FLOOR_SLACK, MAX_FRAME_MS } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, resolveCssColorChannels, watchColorScheme, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrResolveCssColorChannels, wrWatchColorScheme, wrCheckStyles } from 'ngwr/utils';
 
 import {
   FLOW_CONTEXT_ATTRIBUTES,
@@ -97,7 +97,7 @@ const INK_DARK = 0.26;
  * pixel budget.
  *
  * Colours come from the `--wr-flow-lines-color` and `-accent` hooks through
- * `resolveCssColorChannels`, re-read when the scheme changes; the surface is
+ * `wrResolveCssColorChannels`, re-read when the scheme changes; the surface is
  * read too, so the lines lay a little more light on a dark one than ink on
  * a light one, which is what reads the same. Under `prefers-reduced-motion: reduce` one still frame is
  * drawn, whole and at rest; under `forced-colors: active` nothing is;
@@ -114,23 +114,23 @@ const INK_DARK = 0.26;
 })
 export class WrFlowLines {
   /** Between two lines, in CSS px, four at least. @default 10 */
-  readonly spacing = input(10, { transform: numAttr(10) });
+  readonly spacing = input(10, { transform: wrNumAttr(10) });
   /** How thick a line is, in CSS px. @default 1 */
-  readonly lineWidth = input(1, { transform: numAttr(1) });
+  readonly lineWidth = input(1, { transform: wrNumAttr(1) });
   /** How far the drift bends a line at most, in CSS px. @default 28 */
-  readonly amplitude = input(28, { transform: numAttr(28) });
+  readonly amplitude = input(28, { transform: wrNumAttr(28) });
   /** Which way the lines run across the region. @default 'horizontal' */
   readonly orientation = input<WrFlowLinesOrientation>('horizontal');
   /** The lines' tilt from their orientation, in degrees: positive falls toward the inline end. @default 0 */
-  readonly twist = input(0, { transform: numAttr(0) });
+  readonly twist = input(0, { transform: wrNumAttr(0) });
   /** How fast the drift and the dashes move, a multiplier: none holds the field still between pushes. @default 1 */
-  readonly speed = input(1, { transform: numAttr(1) });
+  readonly speed = input(1, { transform: wrNumAttr(1) });
   /** How far from the pointer a line is still pushed, in CSS px. @default 160 */
-  readonly reach = input(160, { transform: numAttr(160) });
+  readonly reach = input(160, { transform: wrNumAttr(160) });
   /** How hard the pointer pushes, a multiplier: one moves a line a seventh of `reach` at most; none turns the push off. @default 1 */
-  readonly push = input(1, { transform: numAttr(1) });
+  readonly push = input(1, { transform: wrNumAttr(1) });
   /** How much a released line swings past its place, a multiplier: none settles without a swing. @default 1 */
-  readonly bounce = input(1, { transform: numAttr(1) });
+  readonly bounce = input(1, { transform: wrNumAttr(1) });
   /** Whether a click, or a tap, sends a ring out across the field. @default true */
   readonly ripple = input(true, { transform: booleanAttribute });
   /** Whether the lines draw in from the inline start when first on screen. @default false */
@@ -236,7 +236,7 @@ export class WrFlowLines {
       this.mirrored();
       untracked(() => this.still());
     });
-    watchColorScheme(() => {
+    wrWatchColorScheme(() => {
       this.resolveColors();
       this.still();
     });
@@ -380,9 +380,9 @@ export class WrFlowLines {
   private resolveColors(): void {
     if (!this.renderer) return;
     const canvas = this.canvasRef().nativeElement;
-    this.frame.color.set(resolveCssColorChannels(canvas, 'var(--wr-flow-lines-color)', '#6b7280'));
-    this.frame.accent.set(resolveCssColorChannels(canvas, 'var(--wr-flow-lines-accent)', '#3969e2'));
-    const light = flowInk(resolveCssColorChannels(canvas, 'var(--wr-color-surface)', '#ffffff'));
+    this.frame.color.set(wrResolveCssColorChannels(canvas, 'var(--wr-flow-lines-color)', '#6b7280'));
+    this.frame.accent.set(wrResolveCssColorChannels(canvas, 'var(--wr-flow-lines-accent)', '#3969e2'));
+    const light = flowInk(wrResolveCssColorChannels(canvas, 'var(--wr-color-surface)', '#ffffff'));
     this.frame.ink = light ? INK_LIGHT : INK_DARK;
   }
 

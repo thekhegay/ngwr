@@ -1,7 +1,7 @@
 import { Component, computed } from '@angular/core';
 
 import * as LucideAll from 'lucide';
-import { lucide } from 'ngwr/icon';
+import { wrLucide } from 'ngwr/icon';
 
 import { IconGridComponent, type IconEntry } from '../_grid/icon-grid';
 
@@ -26,7 +26,7 @@ function buildLucideEntries(): readonly IconEntry[] {
     if (seen.has(name)) continue;
     seen.add(name);
 
-    const def = lucide(name, value as Parameters<typeof lucide>[1]);
+    const def = wrLucide(name, value as Parameters<typeof wrLucide>[1]);
     out.push({ name, svg: def.data });
   }
 
@@ -75,11 +75,11 @@ export default class LucideBrowser {
   );
 
   protected readonly usage = `import { Plus, Trash2 } from 'lucide';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideWrIcons(lucideIcons({
+    provideWrIcons(wrLucideIcons({
       add: Plus,
       trash: Trash2,
     })),
@@ -89,5 +89,5 @@ bootstrapApplication(AppComponent, {
 // Then in any template: <wr-icon name="add" />`;
 
   protected readonly snippetFor = (entry: IconEntry): string =>
-    `import { ${kebabToPascal(entry.name)} } from 'lucide';\nimport { lucideIcons, provideWrIcons } from 'ngwr/icon';\n\nprovideWrIcons(lucideIcons({ '${entry.name}': ${kebabToPascal(entry.name)} }));`;
+    `import { ${kebabToPascal(entry.name)} } from 'lucide';\nimport { wrLucideIcons, provideWrIcons } from 'ngwr/icon';\n\nprovideWrIcons(wrLucideIcons({ '${entry.name}': ${kebabToPascal(entry.name)} }));`;
 }

@@ -20,7 +20,7 @@ import {
 
 import { graphemes, optionalSelector, roundTo } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrFallingLettersState } from './types';
 
@@ -330,7 +330,7 @@ export class WrFallingLetters {
   readonly floor = input<string | null, unknown>(null, { transform: optionalSelector });
 
   /** How long the heap lies still before the letters spring back on their own, in ms. @default 4000 */
-  readonly rest = input(FALLING_LETTERS_REST, { transform: numAttr(FALLING_LETTERS_REST) });
+  readonly rest = input(FALLING_LETTERS_REST, { transform: wrNumAttr(FALLING_LETTERS_REST) });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly platform = inject(WrPlatform);

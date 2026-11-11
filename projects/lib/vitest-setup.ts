@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { createMemoryStorage } from 'ngwr/storage';
+import { wrCreateMemoryStorage } from 'ngwr/storage';
 
 /**
  * Give the DOM environment a `localStorage` when the Node it runs on has taken
@@ -34,7 +34,7 @@ import { createMemoryStorage } from 'ngwr/storage';
  * all. Upstream is not coming — vitest closed the fix for this collision as not
  * planned (vitest-dev/vitest#10867).
  *
- * The storage is the library's OWN `createMemoryStorage()`, not a second
+ * The storage is the library's OWN `wrCreateMemoryStorage()`, not a second
  * implementation written for tests: it is a complete `Storage`, it is exported
  * for exactly this purpose, and it already has specs of its own.
  *
@@ -44,7 +44,7 @@ import { createMemoryStorage } from 'ngwr/storage';
  */
 if (typeof globalThis.localStorage === 'undefined') {
   Object.defineProperty(globalThis, 'localStorage', {
-    value: createMemoryStorage(),
+    value: wrCreateMemoryStorage(),
     configurable: true,
     writable: true,
   });

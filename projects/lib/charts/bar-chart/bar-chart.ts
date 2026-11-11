@@ -25,16 +25,16 @@ import {
   WrChartTable,
   type WrChartMarkerShape,
   type WrChartTableData,
-  chartColor,
-  chartDash,
-  chartMarker,
-  chartMarkerExtent,
-  chartMarkerPath,
+  wrChartColor,
+  wrChartDash,
+  wrChartMarker,
+  wrChartMarkerExtent,
+  wrChartMarkerPath,
   useChartNumbers,
 } from 'ngwr/charts/core';
-import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, type WrChartTooltipTarget, useChartTooltip } from 'ngwr/popover';
-import { clamp, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrBarChartDatum, WrBarLine, WrBarOrientation, WrBarSeries } from './types';
 
@@ -305,13 +305,13 @@ export class WrBarChart {
    * The word a stacked pile's printed total announces itself by, "Total: 20". From the
    * catalog only, as the legend's "hidden" is: one word an app rewords once there.
    */
-  private readonly totalText = readI18nText('barChart.total', 'Total');
+  private readonly totalText = wrReadI18nText('barChart.total', 'Total');
 
   /**
    * The data table's heading for the column of `data`'s bars, which have no series name
    * of their own. From the catalog only, as the total's word is.
    */
-  private readonly valueText = readI18nText('barChart.value', 'Value');
+  private readonly valueText = wrReadI18nText('barChart.value', 'Value');
 
   /**
    * How a bar, a point and a pile's total name themselves: a label and a figure, "Mon: 12",
@@ -571,8 +571,8 @@ export class WrBarChart {
     this.series().map((s, index) => ({
       index,
       label: s.label,
-      color: s.color ?? chartColor(index),
-      dash: chartDash(index),
+      color: s.color ?? wrChartColor(index),
+      dash: wrChartDash(index),
       data: s.data.map(v => (typeof v === 'number' && Number.isFinite(v) ? v : null)),
     }))
   );
@@ -594,9 +594,9 @@ export class WrBarChart {
     return this.lines().map((line, index) => ({
       index,
       label: line.label,
-      color: line.color ?? chartColor(offset + index),
-      dash: chartDash(index),
-      marker: chartMarker(index),
+      color: line.color ?? wrChartColor(offset + index),
+      dash: wrChartDash(index),
+      marker: wrChartMarker(index),
       data: line.data.map(v => (typeof v === 'number' && Number.isFinite(v) ? v : null)),
     }));
   });
@@ -659,7 +659,7 @@ export class WrBarChart {
   /** A value's place along the value axis, as a share of it from its minimum, held to the axis. */
   private at(value: number): number {
     const { lo, hi } = this.scale();
-    return clamp((value - lo) / (hi - lo), 0, 1);
+    return wrClamp((value - lo) / (hi - lo), 0, 1);
   }
 
   /**
@@ -818,7 +818,7 @@ export class WrBarChart {
         color: line.color,
         dash: line.dash,
         marker: line.marker,
-        d: chartMarkerPath(line.marker, POINT_RADIUS),
+        d: wrChartMarkerPath(line.marker, POINT_RADIUS),
         count,
         segments,
         points,
@@ -837,7 +837,7 @@ export class WrBarChart {
     const horizontal = this.horizontal();
     let reach = 0;
     for (const line of this.resolvedLines()) {
-      const extent = chartMarkerExtent(line.marker, POINT_RADIUS);
+      const extent = wrChartMarkerExtent(line.marker, POINT_RADIUS);
       reach = Math.max(reach, horizontal ? extent.side : Math.max(extent.top, extent.bottom));
     }
     return Math.round(reach * 1000) / 1000;

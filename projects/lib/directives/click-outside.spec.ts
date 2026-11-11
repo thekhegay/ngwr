@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { noop } from 'ngwr/utils';
+import { wrNoop } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrClickOutside } from './click-outside';
@@ -145,8 +145,8 @@ describe('WrClickOutside', () => {
     // subscription down with the view, so a leaked handler emits into nobody and
     // the arrays stay empty either way. What it cannot do quietly is emit on a
     // destroyed `OutputRef` — Angular logs that — so the console is the evidence.
-    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
-    const error = vi.spyOn(console, 'error').mockImplementation(noop);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(wrNoop);
+    const error = vi.spyOn(console, 'error').mockImplementation(wrNoop);
     fixture.destroy();
 
     expect(() => dispatch('mousedown', outsider)).not.toThrow();

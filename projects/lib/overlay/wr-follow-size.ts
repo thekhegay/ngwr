@@ -7,7 +7,7 @@
 
 import type { OverlayRef } from '@angular/cdk/overlay';
 
-import { noop } from 'ngwr/utils';
+import { wrNoop } from 'ngwr/utils';
 
 /**
  * Keep an OPEN overlay positioned as its content changes size.
@@ -28,7 +28,7 @@ import { noop } from 'ngwr/utils';
  * @returns Stops observing. Idempotent, and unnecessary in the normal case.
  */
 export function wrFollowSize(overlayRef: OverlayRef): () => void {
-  if (typeof ResizeObserver === 'undefined') return noop;
+  if (typeof ResizeObserver === 'undefined') return wrNoop;
 
   const observer = new ResizeObserver(() => overlayRef.updatePosition());
   observer.observe(overlayRef.overlayElement);

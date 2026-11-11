@@ -64,7 +64,7 @@ interface WrParsedHotkey {
  * @param spec - the spec to parse
  * @param isMac - when true, `mod` resolves to `meta` (Cmd); otherwise `ctrl`
  */
-function parseHotkeySpec(spec: WrHotkeySpec, isMac = false): WrParsedHotkey {
+function wrParseHotkeySpec(spec: WrHotkeySpec, isMac = false): WrParsedHotkey {
   const tokens = spec
     .split('+')
     .map(t => t.trim().toLowerCase())
@@ -121,7 +121,7 @@ function parseHotkeySpec(spec: WrHotkeySpec, isMac = false): WrParsedHotkey {
  * Nor does a chord holding Alt, since macOS Option and Windows AltGr type a
  * symbol on purpose, `€` on AltGr+E among them.
  */
-function matchesHotkey(event: KeyboardEvent, parsed: WrParsedHotkey): boolean {
+function wrMatchesHotkey(event: KeyboardEvent, parsed: WrParsedHotkey): boolean {
   if (event.ctrlKey !== parsed.ctrl) return false;
   if (event.altKey !== parsed.alt) return false;
   if (event.shiftKey !== parsed.shift) return false;
@@ -130,5 +130,5 @@ function matchesHotkey(event: KeyboardEvent, parsed: WrParsedHotkey): boolean {
   return !event.altKey && isNonLatinLetter(event.key) && physicalKey(event.code) === parsed.key;
 }
 
-export { parseHotkeySpec, matchesHotkey };
+export { wrParseHotkeySpec, wrMatchesHotkey };
 export type { WrParsedHotkey };

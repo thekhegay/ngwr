@@ -21,7 +21,7 @@ function hueToChannel(p: number, q: number, t: number): number {
 /**
  * Convert HSL to sRGB. Preserves alpha. Returns integer channels in `[0, 255]`.
  */
-export function hslToRgb(hsl: WrHsl): WrRgb {
+export function wrHslToRgb(hsl: WrHsl): WrRgb {
   const h = hsl.h / 360;
   const { s, l } = hsl;
 

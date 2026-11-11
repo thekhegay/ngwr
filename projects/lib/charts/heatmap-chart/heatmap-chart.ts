@@ -26,7 +26,7 @@ import {
 import { WrChartTable, type WrChartTableData, useChartNumbers } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
-import { clamp, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrHeatmapMatrix } from './types';
 
@@ -205,7 +205,7 @@ export class WrHeatmapChart {
   readonly levels = input(5, {
     transform: (v: unknown): number => {
       const value = Math.round(coerceNumberProperty(v, 5));
-      return Number.isFinite(value) ? clamp(value, 2, 10) : 5;
+      return Number.isFinite(value) ? wrClamp(value, 2, 10) : 5;
     },
   });
 
@@ -359,7 +359,7 @@ export class WrHeatmapChart {
         const span = scale.max - scale.min;
         // The epsilon keeps a value ON a band's edge in the band above it: 0.3 × 10 is
         // 2.9999999999999996 in floating point.
-        const band = span === 0 ? 0 : Math.floor(clamp((value - scale.min) / span, 0, 1) * levels + 1e-9);
+        const band = span === 0 ? 0 : Math.floor(wrClamp((value - scale.min) / span, 0, 1) * levels + 1e-9);
         return {
           row: r,
           column: c,

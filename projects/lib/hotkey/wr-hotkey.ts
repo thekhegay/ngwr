@@ -11,7 +11,7 @@ import { DestroyRef, Service, NgZone, type Signal, computed, inject, signal } fr
 import { WrPlatform } from 'ngwr/platform';
 
 import { wrHotkeyPlatform } from './format-chord';
-import { matchesHotkey, parseHotkeySpec, type WrParsedHotkey } from './parse-spec';
+import { wrMatchesHotkey, wrParseHotkeySpec, type WrParsedHotkey } from './parse-spec';
 import type { WrHotkeyEntry, WrHotkeyHandle, WrHotkeyOptions, WrHotkeySpec } from './types';
 
 interface Binding {
@@ -96,7 +96,7 @@ export class WrHotkey {
 
   /** Register a binding. */
   bind(spec: WrHotkeySpec, handler: (event: KeyboardEvent) => void, options: WrHotkeyOptions = {}): WrHotkeyHandle {
-    const parsed = parseHotkeySpec(spec, this.isMac);
+    const parsed = wrParseHotkeySpec(spec, this.isMac);
     const { label = null, ...rest } = options;
     const resolved: Required<Omit<WrHotkeyOptions, 'label'>> = { ...FALLBACK_OPTIONS, ...rest };
     const target: EventTarget = resolved.element ?? this.doc;
@@ -154,7 +154,7 @@ export class WrHotkey {
 
     const matches: Binding[] = [];
     for (const binding of bucket) {
-      if (!matchesHotkey(event, binding.parsed)) continue;
+      if (!wrMatchesHotkey(event, binding.parsed)) continue;
       if (!binding.options.allowInInput && isEditableTarget(event.target)) continue;
       matches.push(binding);
     }
