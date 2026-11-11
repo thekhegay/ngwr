@@ -1288,7 +1288,7 @@ export const API = {
     { name: "format", description: "Format string. Tokens: `D`/`DD` (days), `H`/`HH` (hours), `m`/`mm` (minutes), `s`/`ss` (seconds), `SSS` (milliseconds). Double-letter forms zero-pad to width 2. A unit the format leaves out is carried into the next larger one it shows, so `HH:mm:ss` reads `73:00:00` with three days and an hour left.", type: "string", default: "'HH:mm:ss'" },
     { name: "endText", description: "Optional text shown once the countdown reaches zero.", type: "string | null", default: "null" },
     { name: "tickMs", description: "Tick interval in ms. Drop to ~16 for `SSS` (millisecond display). Floored at one frame — `0` (or an unparseable value) asked `setInterval` to run as fast as the browser would allow, which is a busy loop, not a countdown.", type: "number", default: "1000" },
-    { name: "(countdownEnd)", description: "Fires once when the countdown crosses zero.", type: "void" },
+    { name: "(countdownEnd)", description: "Fires once for each target that is reached, or that has already passed when it is set, mount included, so an app reloaded after expiry still hears it. A new future target counts down again and fires again.", type: "void" },
   ],
   // <wr-statistic-group>
   WrStatisticGroup: [
