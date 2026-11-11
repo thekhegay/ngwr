@@ -258,6 +258,28 @@
         </div>
       </div>
     </ngwr-doc-snippet>
+    <p>
+      The header checkbox covers the page on screen. <code>selectAllScope="all"</code> makes it cover every page of
+      <code>items</code>: checked when all of them are selected, mixed when some are. It replaces reaching into the
+      table's protected members. In server mode the table holds one page, so the scope stays that page.
+    </p>
+    <ngwr-doc-code [code]="snippets.selectAllScope" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table
+          rowSelection="multiple"
+          selectAllScope="all"
+          rowKey="email"
+          [pageSize]="5"
+          [(selection)]="selectedAcross"
+          [columns]="columns"
+          [items]="paginatedRows"
+        />
+        <div style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+          selected: <strong>{{ selectedAcross().length }}</strong> of {{ paginatedRows.length }}
+        </div>
+      </div>
+    </ngwr-doc-snippet>
     <ul>
       <li>
         Each row's checkbox is named by an action word and the row's first cell: "Select row Roman". The same goes for

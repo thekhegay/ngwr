@@ -216,7 +216,8 @@ export class WrTableHarness extends ComponentHarness {
   /**
    * Click the select-all box, once.
    *
-   * Its scope is the rows the table RENDERS — the current page, and a collapsed
+   * Under `selectAllScope="all"` its scope is every page of `items`. Otherwise
+   * its scope is the rows the table RENDERS — the current page, and a collapsed
    * group's rows are out because collapsing drops them from that list. A
    * virtualized table's off-window rows are IN, though: the window is a slice
    * taken after the list is built, so one click selects the whole dataset and not
