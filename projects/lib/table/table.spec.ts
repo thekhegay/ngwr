@@ -8,7 +8,7 @@ import { Subject } from 'rxjs';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { WrPagination } from 'ngwr/pagination';
+import { WrPagination, type WrPaginationSize } from 'ngwr/pagination';
 import { noop } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -2069,7 +2069,14 @@ describe('WrTable summary over decimal strings', () => {
 @Component({
   imports: [WrTable],
   template: `
-    <wr-table [columns]="columns" [items]="items" [(pageSize)]="size" [(page)]="page" [pageSizeOptions]="options()" />
+    <wr-table
+      [columns]="columns"
+      [items]="items"
+      [(pageSize)]="size"
+      [(page)]="page"
+      [pageSizeOptions]="options()"
+      [paginationSize]="pagerSize()"
+    />
   `,
 })
 class PageSizeHost {
@@ -2078,6 +2085,7 @@ class PageSizeHost {
   readonly size = signal(10);
   readonly page = signal(1);
   readonly options = signal<readonly number[]>([10, 25, 100]);
+  readonly pagerSize = signal<WrPaginationSize>('sm');
 }
 
 describe('WrTable page size menu', () => {
@@ -2098,6 +2106,16 @@ describe('WrTable page size menu', () => {
     const fixture = mount();
     expect(pager(fixture).showSizeChanger()).toBe(true);
     expect(pager(fixture).pageSizeOptions()).toEqual([10, 25, 100]);
+  });
+
+  it('sizes the pager with paginationSize', () => {
+    const fixture = mount();
+    const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-pagination')!;
+    expect(host().classList).toContain('wr-pagination--sm');
+
+    fixture.componentInstance.pagerSize.set('lg');
+    fixture.detectChanges();
+    expect(host().classList).toContain('wr-pagination--lg');
   });
 
   it('shows no size menu without options', () => {

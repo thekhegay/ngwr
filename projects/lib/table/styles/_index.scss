@@ -59,7 +59,7 @@
   --wr-table-detail-padding: var(--wr-space-lg);
   --wr-table-foot-cell-font-weight: var(--wr-font-weight-semibold);
   --wr-table-empty-padding: var(--wr-space-xl);
-  --wr-table-pager-padding: var(--wr-space-md);
+  --wr-table-pager-padding: var(--wr-space-sm) var(--wr-space-md);
 
   // Card mode (`--responsive` inside its own container query). Declared on the
   // BASE rather than down in the `@container` block, because a custom property
@@ -584,6 +584,12 @@
     padding: var(--wr-table-pager-padding);
     border-top: 1px solid var(--wr-table-border);
     background: var(--wr-table-head-bg);
+
+    // The pager's own block padding is for a pager standing alone. Here the
+    // strip already pads it, and the two added up to 20px above and below.
+    > .wr-pagination {
+      --wr-pagination-padding-block: 0;
+    }
   }
 
   &__loading {

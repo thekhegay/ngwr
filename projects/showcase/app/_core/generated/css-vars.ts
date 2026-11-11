@@ -16,7 +16,7 @@
  * 1628 hook(s) across 112 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
- * declares it also owns it: 34 declaration(s) are one component setting
+ * declares it also owns it: 35 declaration(s) are one component setting
  * another's hook (`--wr-icon-size` inside its own `<wr-icon>`) and belong on
  * the owner's page, not on the setter's. A row marked `host` is one the
  * component writes on its own host, from an input or from its state, and never
@@ -1903,7 +1903,7 @@ export const CSS_VARS = {
       { name: "--wr-table-head-letter-spacing", default: "var(--wr-tracking-normal)", scope: ".wr-table" },
       { name: "--wr-table-head-transform", default: "none", scope: ".wr-table" },
       { name: "--wr-table-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-table" },
-      { name: "--wr-table-pager-padding", default: "var(--wr-space-md)", scope: ".wr-table" },
+      { name: "--wr-table-pager-padding", default: "var(--wr-space-sm) var(--wr-space-md)", scope: ".wr-table" },
       { name: "--wr-table-pin-shadow-ink", default: "light-dark(rgb(0 0 0 / 18%), rgb(0 0 0 / 45%))", scope: ".wr-table" },
       { name: "--wr-table-radius", default: "var(--wr-border-radius-base)", scope: ".wr-table" },
       { name: "--wr-table-resize-handle-bg", default: "var(--wr-border-base)", scope: ".wr-table" },
