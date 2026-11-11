@@ -33,7 +33,7 @@ export interface DocInstallEntry {
 export const INSTALL = {
   "": [
       { path: "ngwr/drawer", symbols: ["WrDrawer"], declarables: ["WrDrawer"], styled: true },
-      { path: "ngwr/icon", symbols: ["WrIcon", "lucideIcons", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
+      { path: "ngwr/icon", symbols: ["WrIcon", "provideWrIcons", "wrLucideIcons"], declarables: ["WrIcon"], styled: true },
   ],
   "**": [
       { path: "ngwr/animations/click-sparks", symbols: ["WrClickSparks"], declarables: ["WrClickSparks"], styled: true },
@@ -164,7 +164,7 @@ export const INSTALL = {
       { path: "ngwr/charts/waterfall-chart", symbols: ["WrWaterfallChart"], declarables: ["WrWaterfallChart"], styled: true },
   ],
   "icons/lucide": [
-      { path: "ngwr/icon", symbols: ["lucide"], declarables: [], styled: true },
+      { path: "ngwr/icon", symbols: ["wrLucide"], declarables: [], styled: true },
   ],
   "reference/components/alert": [
       { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
@@ -271,7 +271,7 @@ export const INSTALL = {
       { path: "ngwr/graph", symbols: ["WrGraph", "WrGraphNodeTemplate"], declarables: ["WrGraph", "WrGraphNodeTemplate"], styled: true },
   ],
   "reference/components/icon": [
-      { path: "ngwr/icon", symbols: ["WrIcon", "lucideIcons", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
+      { path: "ngwr/icon", symbols: ["WrIcon", "provideWrIcons", "wrLucideIcons"], declarables: ["WrIcon"], styled: true },
   ],
   "reference/components/image-cropper": [
       { path: "ngwr/image-cropper", symbols: ["WrImageCropper"], declarables: ["WrImageCropper"], styled: true },

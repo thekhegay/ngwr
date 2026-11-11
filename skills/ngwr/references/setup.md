@@ -12,13 +12,13 @@ snippet tailored to the answers.
 ## Bootstrap
 
 ```ts
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 import { Check, ChevronDown } from 'lucide';
 
 bootstrapApplication(App, {
   providers: [
     provideZonelessChangeDetection(),
-    provideWrIcons(lucideIcons({ check: Check, 'chevron-down': ChevronDown })),
+    provideWrIcons(wrLucideIcons({ check: Check, 'chevron-down': ChevronDown })),
   ],
 });
 ```
@@ -89,7 +89,7 @@ back to the OS. The service applies a remembered choice, or a non-`auto`
 screen never injects it paints the OS scheme. Ship `wrThemePrePaintScript()`
 in `<head>` with the same values to apply the choice before first paint.
 A canvas cannot draw a `light-dark()` value: resolve its colours with
-`resolveCssColor()` and redraw a still frame from `watchColorScheme()`, both
+`wrResolveCssColor()` and redraw a still frame from `wrWatchColorScheme()`, both
 in `ngwr/utils`.
 Write your own dark values with `light-dark()` as well — there is no theme
 attribute to key a selector on.
@@ -99,7 +99,7 @@ tokens are `light-dark()` values.
 
 ## Providers with no default
 
-### `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon'`
+### `provideWrIcons(wrLucideIcons({ … })) // from 'ngwr/icon'`
 
 Icons resolve by name from a registry you populate. Needed by `WrIcon`.
 
