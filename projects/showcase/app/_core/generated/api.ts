@@ -1404,7 +1404,7 @@ export const API = {
   // <wr-tabs>
   WrTabs: [
     { name: "active", description: "Two-way bindable active tab key (content mode).", type: "string | null", default: "null" },
-    { name: "size", description: "Visual size variant.", type: "'sm' | 'md' | 'lg'", default: "'md'" },
+    { name: "size", description: "Visual size variant.", type: "WrTabsSize", default: "'md'" },
   ],
   // <wr-tag>
   WrTag: [
