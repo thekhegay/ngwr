@@ -136,6 +136,11 @@ one component folder. Reach for them instead of hand-rolling:
   adapters were reachable only by the accident of being flat. It reads the
   entry points from the `exports` map now, nested ones included, and skips
   `<name>/testing`: a harness is public but never belongs in `imports: []`.
+  `wrParseDate` (15.10.0) is the entry point's one plain function: a backend
+  value (a `Date`, epoch milliseconds, an ISO string, the SQL space form Safari
+  refuses) as a `Date` or `null`, never an Invalid Date. It reads a date-only
+  string through the internal `toLocalDate`, so it agrees with `wrDate` and the
+  date validators on the day, and it must stay free of the adapter and of DI.
 - **Router integration is OPT-IN since v14, and lives in two nested entry
   points** — `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`, and
   `WrTabsRouting` (the `[wrTabsRouting]` attribute on the strip) from
