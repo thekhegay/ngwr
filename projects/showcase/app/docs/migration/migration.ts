@@ -25,6 +25,7 @@ interface Change {
 export default class MigrationPageComponent {
   /** What `ng update ngwr` does for each major, newest first. */
   protected readonly majors: readonly Change[] = [
+    { before: 'v16', after: 'Rewrites the renamed functions, constants and types, lists `ngwr/animations/core`.' },
     {
       before: 'v15',
       after: 'Rewrites paths, config calls, `-rgb` reads, renamed tokens and two values, lists files for the rest.',
@@ -47,6 +48,56 @@ export default class MigrationPageComponent {
     {
       before: 'You are on 15.0.0-rc.0 or rc.1, which shipped without a codemod',
       after: '`migration-v15`. The next `ng update ngwr` runs it too.',
+    },
+  ];
+
+  /** The v16 renames, one row per entry point. */
+  protected readonly v16Renames: readonly Change[] = [
+    {
+      before:
+        '`ngwr/utils`: `badgeLog`, `badgeWarn`, `badgeError`, `clamp`, `round`, `noop`, `debounce`, `throttle`, `randomId`, `numAttr`, `isDefined`, `isNonEmptyArray`, `isObservable`, `isSafeCssValue`, `toClassList`, `resolveCssColor`, `resolveCssColorChannels`, `resolveCssSize`, `getRootFontSize`, `getFocusableElements`, `trapFocus`, `watchColorScheme`, `hasModifier`, `isComposing`, `isPrintableKey`',
+      after: '`wr` and the name with a capital: `wrBadgeLog`, `wrClamp`, `wrIsDefined`',
+      update: 'Rewrites',
+    },
+    { before: '`ngwr/utils`: `KEYS`, `KEY_LABELS`', after: '`WR_KEYS`, `WR_KEY_LABELS`', update: 'Rewrites' },
+    {
+      before: '`ngwr/utils`: `Maybe`, `SafeAny`, `ResolveCssSizeOptions`, `ResolvedCssSize`, `WatchColorSchemeOptions`',
+      after: '`Wr` and the name: `WrMaybe`, `WrSafeAny`',
+      update: 'Rewrites',
+    },
+    {
+      before: '`ngwr/color-picker`: `hslToRgb`, `hsvToRgb`, `rgbToHsl`, `rgbToHsv`, `parseHex`, `toHex`',
+      after: '`wrHslToRgb`, `wrHsvToRgb`, `wrRgbToHsl`, `wrRgbToHsv`, `wrParseHex`, `wrToHex`',
+      update: 'Rewrites',
+    },
+    {
+      before: '`ngwr/icon`: `lucide`, `lucideIcons`, `svgIcon`, `LucideIconNode`',
+      after: '`wrLucide`, `wrLucideIcons`, `wrSvgIcon`, `WrLucideIconNode`',
+      update: 'Rewrites',
+    },
+    {
+      before: '`ngwr/date`: `toLocalDate`, `isNamedFormat`',
+      after: '`wrToLocalDate`, `wrIsNamedFormat`',
+      update: 'Rewrites',
+    },
+    {
+      before: '`ngwr/hotkey`: `matchesHotkey`, `parseHotkeySpec`',
+      after: '`wrMatchesHotkey`, `wrParseHotkeySpec`',
+      update: 'Rewrites',
+    },
+    { before: '`ngwr/i18n`: `readI18nText`', after: '`wrReadI18nText`', update: 'Rewrites' },
+    { before: '`ngwr/storage`: `createMemoryStorage`', after: '`wrCreateMemoryStorage`', update: 'Rewrites' },
+    { before: '`ngwr/toast`: `DEFAULT_TOAST_CONFIG`', after: '`DEFAULT_WR_TOAST_CONFIG`', update: 'Rewrites' },
+    {
+      before:
+        '`ngwr/charts/core`: `chartAxis`, `chartColor`, `chartDash`, `chartMarker`, `chartMarkerExtent`, `chartMarkerPath`, `CHART_PALETTE`, `CHART_DASHES`, `CHART_MARKERS`',
+      after: '`wrChartAxis` and the rest, `WR_CHART_PALETTE`, `WR_CHART_DASHES`, `WR_CHART_MARKERS`',
+      update: 'Rewrites',
+    },
+    {
+      before: '`ngwr/animations/core`',
+      after: 'Gone. Import the effect from `ngwr/animations/<name>`.',
+      update: 'Lists files',
     },
   ];
 
@@ -267,7 +318,7 @@ export default class MigrationPageComponent {
     },
     {
       before: '`ngwr/icon/adapters/feather`',
-      after: "`svgIcon()` from `ngwr/icon`, with Feather's own SVG files",
+      after: "`wrSvgIcon()` from `ngwr/icon`, with Feather's own SVG files",
       update: 'Lists files',
     },
     {
@@ -396,7 +447,7 @@ export default class MigrationPageComponent {
     { before: '`ngwr/date-adapter-fns`', after: '`ngwr/date/adapters/fns` (removed in v15)', update: 'Rewrites' },
     { before: '`ngwr/date-adapter-luxon`', after: '`ngwr/date/adapters/luxon` (removed in v15)', update: 'Rewrites' },
     {
-      before: '`readI18nText()` returns `string`',
+      before: '`wrReadI18nText()` returns `string`',
       after: '`Signal<string>`: read it as `label()`',
       update: 'No, the compiler finds each',
     },
@@ -406,7 +457,7 @@ export default class MigrationPageComponent {
     { before: '`<wr-checkbox value>` in a group', after: '`checkboxValue`', update: 'Rewrites' },
     { before: 'Checkbox state', after: 'The `checked` model: `[(checked)]` or `[formField]`', update: 'No' },
     {
-      before: '`lucideIcons({ chevronDown })` registers `chevron-down`',
+      before: '`wrLucideIcons({ chevronDown })` registers `chevron-down`',
       after: 'Registers `chevronDown`',
       update: 'No',
     },
@@ -441,6 +492,12 @@ export default class MigrationPageComponent {
     recover: `ng update ${NGWR_PACKAGE}
 git commit -am "chore: update ngwr"
 ng update ngwr --migrate-only --name=migration-v14`,
+
+    v16Renames: `- import { KEYS, clamp, type Maybe } from 'ngwr/utils';
++ import { WR_KEYS, wrClamp, type WrMaybe } from 'ngwr/utils';
+
+- const width: Maybe<number> = clamp(value, 0, 100);
++ const width: WrMaybe<number> = wrClamp(value, 0, 100);`,
 
     v15Providers: `- provideWrDensity({ defaultDensity: 'sm' }),
 - provideWrToastConfig({ duration: 6000 }),
@@ -485,7 +542,7 @@ ng update ngwr --migrate-only --name=migration-v14`,
 # needs "loader": { ".svg": "text" } and declare module '*.svg?raw'
 - provideWrIcons(featherIcons({ plus: featherSource.plus }));
 + import plusSvg from 'feather-icons/dist/icons/plus.svg?raw';
-+ provideWrIcons([svgIcon('plus', plusSvg)]);`,
++ provideWrIcons([wrSvgIcon('plus', plusSvg)]);`,
 
     v15Validation: `# On one rule
 + required(path.email, { message: 'Please fill this in.' });

@@ -110,10 +110,12 @@ guess gets backwards.
   \`provideWrConfig()\`, \`provideWrOverlay()\` or \`provideWrDateAdapter()\`:
   overlays and dates need no provider, and a \`size\` or \`rounded\` default is
   bound on the input.
-- **Code written for v14 or older: run \`ng update ngwr\`.** It runs
+- **Code written for v15 or older: run \`ng update ngwr\`.** It runs
   \`migration-v15\`, which rewrites the paths, the provider calls, the \`-rgb\`
   reads and the renamed token reads, and lists by file and line what needs a
-  decision. ${DOCS}/docs/migration lists every change.
+  decision, then \`migration-v16\`, which renames the exports that had no
+  prefix: \`clamp\` is \`wrClamp\`, \`KEYS\` is \`WR_KEYS\`, \`Maybe\` is
+  \`WrMaybe\`. ${DOCS}/docs/migration lists every change.
 - **The selector is not always the entry point name.** The button is
   \`wr-btn\`, not \`wr-button\`. Check \`references/catalog.md\` before writing a tag.
 - **Check for a MODE before reaching for another component.** The catalog is

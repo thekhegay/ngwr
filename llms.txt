@@ -194,11 +194,22 @@ half is where the silent failures are. Every breaking change, newest first, each
 with a diff: https://ngwr.dev/docs/migration
 
 Names older majors used, which code written for them (and a model trained on
-that code) still spells. Each major's migration rewrites them, v15's included:
-`ng update ngwr` runs `migration-v15`, which moves the paths, the provider
-calls, the readable `-rgb` reads and the renamed token reads, and lists the
-rest. The lists below are the ones an agent most often meets;
-https://ngwr.dev/docs/migration is the complete list.
+that code) still spells. Each major's migration rewrites them: `ng update ngwr`
+runs `migration-v15`, which moves the paths, the provider calls, the readable
+`-rgb` reads and the renamed token reads, and lists the rest, then
+`migration-v16`, which renames the unprefixed exports. The lists below are the
+ones an agent most often meets; https://ngwr.dev/docs/migration is the complete
+list.
+
+- v16, names: every public function, constant and type carries the prefix. A
+  function takes `wr` and a capital (`clamp` is `wrClamp`, `isDefined` is
+  `wrIsDefined`, `resolveCssColor` is `wrResolveCssColor`, `lucideIcons` and
+  `svgIcon` are `wrLucideIcons` and `wrSvgIcon`, `readI18nText` is
+  `wrReadI18nText`), a constant `WR_` (`KEYS` is `WR_KEYS`,
+  `DEFAULT_TOAST_CONFIG` is `DEFAULT_WR_TOAST_CONFIG`), a type `Wr` (`Maybe` is
+  `WrMaybe`, `SafeAny` is `WrSafeAny`). No alias is left. `provide*`, `with*`,
+  `use*` and `inject*` names are unchanged. `ngwr/animations/core` is gone:
+  import an effect from `ngwr/animations/<name>`.
 
 - v15, providers: `provideWrDensity`, `provideWrToastConfig`,
   `provideWrStorage`, `provideWrMeta`, `provideWrTheme` and
