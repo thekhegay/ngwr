@@ -34,6 +34,12 @@
 .wr-date-picker {
   display: inline-block;
 
+  // A form field stretches the host, and the group is the box the user sees.
+  // Alone, the host shrink-wraps, so 100% is the group's content width again.
+  > .wr-input-group {
+    width: 100%;
+  }
+
   // Inner button — same affix sizing rules as wr-input-group's toggle.
   &__trigger {
     appearance: none;
@@ -60,6 +66,11 @@
 
 .wr-date-range-picker {
   display: inline-block;
+
+  // As `.wr-date-picker` above.
+  > .wr-input-group {
+    width: 100%;
+  }
 
   // Each end shares the group's width so the pair reads as one control.
   &__input {
