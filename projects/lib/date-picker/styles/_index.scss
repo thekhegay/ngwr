@@ -42,6 +42,10 @@
 
   // Inner button — same affix sizing rules as wr-input-group's toggle.
   &__trigger {
+    // Box of the calendar / clock glyph. It follows the control's font size, the
+    // way the select chevron and the input-number steppers do.
+    --wr-date-picker-trigger-icon-size: var(--wr-control-font-size-md);
+
     appearance: none;
     background: transparent;
     border: 0;
@@ -61,6 +65,39 @@
       cursor: not-allowed;
       opacity: var(--wr-disabled-opacity);
     }
+
+    // CSS size, so it beats the markup's `width` / `height` attributes.
+    svg {
+      width: var(--wr-date-picker-trigger-icon-size);
+      height: var(--wr-date-picker-trigger-icon-size);
+    }
+  }
+}
+
+// Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px). The fields carry
+// `wr-input--<size>` themselves; the group and the trigger are their siblings and
+// read the size from the host. Both pickers draw the same trigger.
+.wr-date-picker--sm,
+.wr-date-range-picker--sm {
+  > .wr-input-group {
+    --wr-input-group-radius: var(--wr-control-radius-sm);
+    --wr-input-group-padding-x: var(--wr-control-padding-x-sm);
+  }
+
+  .wr-date-picker__trigger {
+    --wr-date-picker-trigger-icon-size: var(--wr-control-font-size-sm);
+  }
+}
+
+.wr-date-picker--lg,
+.wr-date-range-picker--lg {
+  > .wr-input-group {
+    --wr-input-group-radius: var(--wr-control-radius-lg);
+    --wr-input-group-padding-x: var(--wr-control-padding-x-lg);
+  }
+
+  .wr-date-picker__trigger {
+    --wr-date-picker-trigger-icon-size: var(--wr-control-font-size-lg);
   }
 }
 
@@ -86,6 +123,24 @@
     padding: 0 var(--wr-date-range-picker-separator-padding-x);
     color: var(--wr-color-on-surface-muted);
     user-select: none;
+  }
+
+  // The separator inherits the page's text, whose line box is taller than an
+  // `sm` field: left alone it stretched the group past 22px.
+  &--sm &__separator {
+    --wr-date-range-picker-separator-font-size: var(--wr-control-font-size-sm);
+    --wr-date-range-picker-separator-line-height: var(--wr-control-line-height-sm);
+
+    font-size: var(--wr-date-range-picker-separator-font-size);
+    line-height: var(--wr-date-range-picker-separator-line-height);
+  }
+
+  &--lg &__separator {
+    --wr-date-range-picker-separator-font-size: var(--wr-control-font-size-lg);
+    --wr-date-range-picker-separator-line-height: var(--wr-control-line-height-lg);
+
+    font-size: var(--wr-date-range-picker-separator-font-size);
+    line-height: var(--wr-date-range-picker-separator-line-height);
   }
 
   &--disabled {

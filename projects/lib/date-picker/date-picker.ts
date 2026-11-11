@@ -47,7 +47,7 @@ import {
 } from './internal/input-refusal';
 import { tabLeavesPane } from './internal/tab-out';
 import { WrTimePanel } from './internal/time-panel';
-import type { WrDateInputError } from './types';
+import type { WrDateInputError, WrDatePickerSize } from './types';
 
 let panelUid = 0;
 
@@ -154,6 +154,12 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   /** Minute / second step for the time panel. @default 1 */
   readonly step = input(1, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 1)) });
+
+  /**
+   * Control size — forwarded to the field's `[size]`, and shares the
+   * `--wr-control-*` contract. The panel keeps its size. @default 'md'
+   */
+  readonly size = input<WrDatePickerSize>('md');
 
   /**
    * Disable interaction. Bound automatically from the field's disabled state
@@ -409,6 +415,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-date-picker', `wr-date-picker--${this.mode()}`];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-date-picker--${size}`);
     if (this.disabled()) parts.push('wr-date-picker--disabled');
     if (this.inputError()) parts.push('wr-date-picker--invalid');
     return parts.join(' ');

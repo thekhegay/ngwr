@@ -13,6 +13,7 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDatePicker } from './date-picker';
+import type { WrDatePickerSize } from './types';
 
 /**
  * The app's own copy for the picker's four refusals. ngwr ships no error texts: a
@@ -61,6 +62,7 @@ const REFUSAL_COPY: (Provider | EnvironmentProviders)[] = [
       [timeFormat]="timeFormat()"
       [showSeconds]="showSeconds()"
       [panelAriaLabel]="panelAriaLabel()"
+      [size]="size()"
       [disabled]="disabled()"
       [readonly]="readonly()"
       (touch)="touched.set(touched() + 1)"
@@ -77,6 +79,7 @@ class Host {
   readonly timeFormat = signal<'auto' | '12h' | '24h'>('24h');
   readonly showSeconds = signal(false);
   readonly panelAriaLabel = signal<string | null>(null);
+  readonly size = signal<WrDatePickerSize>('md');
   readonly disabled = signal(false);
   readonly readonly = signal(false);
   readonly touched = signal(0);
@@ -972,6 +975,21 @@ describe('WrDatePicker', () => {
       expect(calendar()).toBeNull();
       expect(document.activeElement).toBe(trigger());
     });
+  });
+
+  it('keeps the md field free of a size modifier', () => {
+    expect(field().className).not.toMatch(/wr-input--(sm|lg)/);
+    expect(host().className).not.toMatch(/wr-date-picker--(sm|md|lg)/);
+  });
+
+  it.each(['sm', 'lg'] as const)('forwards size %s to the field and mirrors it on the host', size => {
+    fixture.componentInstance.size.set(size);
+    fixture.detectChanges();
+
+    expect(field().classList).toContain(`wr-input--${size}`);
+    // The group carries no size of its own, so its radius and the trigger read the host.
+    expect(host().classList).toContain(`wr-date-picker--${size}`);
+    expect(host().querySelector('.wr-input-group')).not.toBeNull();
   });
 });
 
