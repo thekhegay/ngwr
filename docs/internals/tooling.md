@@ -45,8 +45,8 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
 - `ng update ngwr@<latest major>` — ONE command from any earlier major. The CLI
   installs the target, then runs every migration in the TARGET's
   `migrations.json` whose version is above the installed one and at or below
-  the target, in order, so an 8.x app gets v9, v12, v13, v14 and v15 in one
-  pass. "At or below the target" is read with the target's prerelease
+  the target, in order, so an 8.x app gets v9, v12, v13, v14, v15 and v16 in
+  one pass. "At or below the target" is read with the target's prerelease
   stripped (`executeMigrations` in the CLI's `utilities/migration.js`), which
   is why `migration-v15` at `15.0.0` runs for an rc target too.
   **Never document stepping through the majors, and never a 7.x, 8.x or 9.x
@@ -73,6 +73,9 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   **v15 the chart, bit, sortable-list and Lucide paths, the config calls into
   one `provideWr()`, the `-rgb` reads into `color-mix()`, the neutral token
   reads and two values, plus a report for everything that needs a decision**,
+  **v16 the `wr` / `WR_` / `Wr` prefix on the functions, constants and types
+  imported from ngwr, matched by binding with the TypeScript checker, plus a
+  report for `ngwr/animations/core`**,
   plus **v13, which reports every host-`id` selector on `<wr-checkbox>` /
   `<wr-radio>` / `<wr-switch>` and rewrites nothing** — all
   registered in `schematics/migrations.json`. There is deliberately no

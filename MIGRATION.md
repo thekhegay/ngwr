@@ -76,6 +76,44 @@ repository.
 
 ---
 
+## v15 to v16
+
+**`ng update ngwr` runs `migration-v16`.** Every public function, constant and type that had no
+prefix now carries the library's: a function takes `wr` and a capital, a constant `WR_`, a type
+`Wr`. The old names are gone, with no alias. The codemod renames each import from the entry points
+below and every use of it in the file, a namespace member (`utils.clamp`) and a re-export
+included. It reads TypeScript only, since a template reaches these through a field of its own
+component, and it leaves a same-named identifier from anywhere else alone: rxjs's `debounce`,
+lodash's `clamp`, a `round` of your own.
+
+| Entry point         | Before                                                                                                                                                                                                                                                                                                                                                                                      | After                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `ngwr/utils`        | `badgeLog`, `badgeWarn`, `badgeError`, `clamp`, `round`, `noop`, `debounce`, `throttle`, `randomId`, `numAttr`, `isDefined`, `isNonEmptyArray`, `isObservable`, `isSafeCssValue`, `toClassList`, `resolveCssColor`, `resolveCssColorChannels`, `resolveCssSize`, `getRootFontSize`, `getFocusableElements`, `trapFocus`, `watchColorScheme`, `hasModifier`, `isComposing`, `isPrintableKey` | `wr` and the name with a capital: `wrBadgeLog`, `wrClamp`, `wrIsDefined`              |
+| `ngwr/utils`        | `KEYS`, `KEY_LABELS`                                                                                                                                                                                                                                                                                                                                                                        | `WR_KEYS`, `WR_KEY_LABELS`                                                            |
+| `ngwr/utils`        | `Maybe`, `SafeAny`, `ResolveCssSizeOptions`, `ResolvedCssSize`, `WatchColorSchemeOptions`                                                                                                                                                                                                                                                                                                   | `Wr` and the name: `WrMaybe`, `WrSafeAny`                                             |
+| `ngwr/color-picker` | `hslToRgb`, `hsvToRgb`, `rgbToHsl`, `rgbToHsv`, `parseHex`, `toHex`                                                                                                                                                                                                                                                                                                                         | `wrHslToRgb`, `wrHsvToRgb`, `wrRgbToHsl`, `wrRgbToHsv`, `wrParseHex`, `wrToHex`       |
+| `ngwr/icon`         | `lucide`, `lucideIcons`, `svgIcon`, `LucideIconNode`                                                                                                                                                                                                                                                                                                                                        | `wrLucide`, `wrLucideIcons`, `wrSvgIcon`, `WrLucideIconNode`                          |
+| `ngwr/date`         | `toLocalDate`, `isNamedFormat`                                                                                                                                                                                                                                                                                                                                                              | `wrToLocalDate`, `wrIsNamedFormat`                                                    |
+| `ngwr/hotkey`       | `matchesHotkey`, `parseHotkeySpec`                                                                                                                                                                                                                                                                                                                                                          | `wrMatchesHotkey`, `wrParseHotkeySpec`                                                |
+| `ngwr/i18n`         | `readI18nText`                                                                                                                                                                                                                                                                                                                                                                              | `wrReadI18nText`                                                                      |
+| `ngwr/storage`      | `createMemoryStorage`                                                                                                                                                                                                                                                                                                                                                                       | `wrCreateMemoryStorage`                                                               |
+| `ngwr/toast`        | `DEFAULT_TOAST_CONFIG`                                                                                                                                                                                                                                                                                                                                                                      | `DEFAULT_WR_TOAST_CONFIG`                                                             |
+| `ngwr/charts/core`  | `chartAxis`, `chartColor`, `chartDash`, `chartMarker`, `chartMarkerExtent`, `chartMarkerPath`, `CHART_PALETTE`, `CHART_DASHES`, `CHART_MARKERS`                                                                                                                                                                                                                                             | `wrChartAxis` and the rest, `WR_CHART_PALETTE`, `WR_CHART_DASHES`, `WR_CHART_MARKERS` |
+
+Unchanged: `provide*`, `with*`, `use*` and `inject*` functions, `NGWR_VERSION`, classes, pipes and
+everything that already had the prefix.
+
+**`ngwr/animations/core` is gone.** What the effects share is internal now, and an import of it
+fails the build. The codemod lists each one and rewrites none: import the effect from
+`ngwr/animations/<name>`, and keep a copy of any helper you used. `WrReveal`'s `by` input is typed
+`WrRevealBy`, exported from `ngwr/animations/reveal`.
+
+The codemod also lists a `vi.mock()` / `jest.mock()` factory or a dynamic `import()` of one of
+these entry points, where the names are object keys it cannot follow. Running it twice changes
+nothing.
+
+---
+
 ## 15.5 to 15.6
 
 **The `ngwr/bits/*` entry points are gone, with no replacement.** Every one of the twenty-five
@@ -173,7 +211,7 @@ follows the OS**, with no JavaScript. A page that is not ready for dark writes
   being the dark seeds. The codemod lists each file.
 - **Code that reads a token in TypeScript gets the raw text.** `getPropertyValue('--wr-color-…')`
   returns `light-dark(…)` unresolved; read an element's computed `color` instead, and always do so
-  before handing a colour to a canvas, which cannot draw `light-dark()`. `resolveCssColor()` from
+  before handing a colour to a canvas, which cannot draw `light-dark()`. `wrResolveCssColor()` from
   `ngwr/utils` is that read: it takes an element, any colour expression and a fallback. The codemod
   lists each `getPropertyValue()` of a colour token.
 - **The browser floor is Chrome 123, Firefox 120 and Safari 17.5**, the first releases with
@@ -272,22 +310,22 @@ that binds neither default icon, and the old classes.
 
 ### The icon adapters are gone
 
-`ngwr/icon/adapters/lucide` and `ngwr/icon/adapters/feather` are removed. `lucideIcons()`,
-`lucide()` and the `LucideIconNode` type moved into `ngwr/icon` under the same names, so for
+`ngwr/icon/adapters/lucide` and `ngwr/icon/adapters/feather` are removed. `wrLucideIcons()`,
+`wrLucide()` and the `WrLucideIconNode` type moved into `ngwr/icon`, so for
 Lucide the import path is the whole change. Feather has no helper any more: register its own SVG
-files with `svgIcon()`, the way every other set is registered. The codemod rewrites the Lucide path
+files with `wrSvgIcon()`, the way every other set is registered. The codemod rewrites the Lucide path
 and lists the Feather files.
 
 ```diff
 - import { lucideIcons } from 'ngwr/icon/adapters/lucide';
-+ import { lucideIcons } from 'ngwr/icon';
++ import { wrLucideIcons } from 'ngwr/icon';
 
 - import featherSource from 'feather-icons/dist/icons.json';
 - import { featherIcons } from 'ngwr/icon/adapters/feather';
 - provideWrIcons(featherIcons({ plus: featherSource.plus }));
 + import plusSvg from 'feather-icons/dist/icons/plus.svg?raw';
-+ import { svgIcon } from 'ngwr/icon';
-+ provideWrIcons([svgIcon('plus', plusSvg)]);
++ import { wrSvgIcon } from 'ngwr/icon';
++ provideWrIcons([wrSvgIcon('plus', plusSvg)]);
 ```
 
 In an Angular CLI app `?raw` needs `"loader": { ".svg": "text" }` in the build options and a
@@ -570,7 +608,7 @@ sets `WR_THEME_CONFIG`, merged with the defaults, and creates `WrTheme` at boot.
 +     withToast({ duration: 6000 }),
 +     withTheme({ defaultMode: 'dark' }),
 +   ),
-    provideWrIcons(lucideIcons({ check: Check })), // unchanged
+    provideWrIcons(wrLucideIcons({ check: Check })), // unchanged
   ]
 ```
 
@@ -690,7 +728,7 @@ from the source.
 
 Two breaking changes needing opposite treatment. The three date entry points moved —
 `ngwr/date-adapter` to `ngwr/date`, and the two adapters under `ngwr/date/adapters/*` (v15 later
-removed both) — which is pure import paths, so the v12 migration, a step of `ng update ngwr`, rewrites all of it. And `readI18nText()` returns
+removed both) — which is pure import paths, so the v12 migration, a step of `ng update ngwr`, rewrites all of it. And `wrReadI18nText()` returns
 `Signal<string>` instead of `string`, so every call site needs a `()`. That one is deliberately not
 codemodded: adding parentheses means knowing which identifiers hold the result, and a wrong guess
 is a silent behaviour change, whereas the type error names every site for you.
@@ -787,13 +825,13 @@ and inline `.ts` templates.
 
 ### Lucide icon names are registered verbatim
 
-`lucideIcons()` used to kebab-case its keys; it now registers them exactly
-as written, matching the singular `lucide()` helper and every other
+`wrLucideIcons()` used to kebab-case its keys; it now registers them exactly
+as written, matching the singular `wrLucide()` helper and every other
 adapter. Quote multi-word keys:
 
 ```diff
 - provideWrIcons(lucideIcons({ chevronDown: ChevronDown }))
-+ provideWrIcons(lucideIcons({ 'chevron-down': ChevronDown }))
++ provideWrIcons(wrLucideIcons({ 'chevron-down': ChevronDown }))
 ```
 
 **No codemod** — the key is yours to name, and we can't know which spelling

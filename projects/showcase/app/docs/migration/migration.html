@@ -50,6 +50,26 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v15 to v16"
+    description="Every public function, constant and type carries the `wr`, `WR_` or `Wr` prefix. `ng update` runs `migration-v16`."
+  >
+    <ngwr-doc-code [code]="snippets.v16Renames" language="diff" />
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v16Renames, head: ['Before', 'After', 'Codemod'] }"
+    />
+    <ul>
+      <li>The codemod renames the import and every use of it in the file, in TypeScript. Templates need nothing.</li>
+      <li>
+        It leaves the same name from another package alone: rxjs's <code>debounce</code>, a local <code>clamp</code>.
+      </li>
+      <li>
+        Unchanged: <code>provide*</code>, <code>with*</code>, <code>use*</code> and <code>inject*</code> functions,
+        classes and pipes.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v14 to v15"
     description="Needs Angular 22.2 or a later 22.x, and Chrome 123, Firefox 120 or Safari 17.5. `ng update` runs `migration-v15`."
   >
@@ -145,7 +165,7 @@
       <li><code>light-dark()</code> takes colours only.</li>
       <li>
         In canvas code, read a token with
-        <a routerLink="/reference/utils/resolve-css-color"><code>resolveCssColor()</code></a
+        <a routerLink="/reference/utils/wr-resolve-css-color"><code>wrResolveCssColor()</code></a
         >, not <code>getPropertyValue()</code>.
       </li>
       <li>
