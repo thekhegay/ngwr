@@ -1,5 +1,16 @@
 # Changelog
 
+## [15.9.0](https://github.com/thekhegay/ngwr/compare/v15.8.0...v15.9.0) (2026-11-11)
+
+### Features
+
+* **table:** pager size input and tighter pager padding ([056402a](https://github.com/thekhegay/ngwr/commit/056402a9868f6120b96a3cddf3c18ea146774ddb))
+
+### Bug Fixes
+
+* **pagination:** size menu takes the pager size and cell height ([90dd553](https://github.com/thekhegay/ngwr/commit/90dd553c24e27be3634fba0ed022650bbc4cafe5))
+* **table:** count only projected ng-template elements in the dev check ([e94ba5f](https://github.com/thekhegay/ngwr/commit/e94ba5f8a452b2914da3b4b6ed5ca835ce4ff703))
+
 ## [15.8.0](https://github.com/thekhegay/ngwr/compare/v15.7.0...v15.8.0) (2026-11-11)
 
 ### Features
