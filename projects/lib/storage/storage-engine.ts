@@ -75,8 +75,13 @@ export function createMemoryStorage(): WrStorageEngine {
 export const WR_STORAGE_ENGINE = new InjectionToken<WrStorageEngine>('WR_STORAGE_ENGINE', {
   providedIn: 'root',
   factory: () => {
-    if (typeof localStorage === 'undefined') return createMemoryStorage();
-    return probe(localStorage) ? localStorage : createMemoryStorage();
+    try {
+      // The getter itself throws a SecurityError when the browser blocks storage.
+      if (typeof localStorage !== 'undefined' && probe(localStorage)) return localStorage;
+    } catch {
+      // Fall through to memory.
+    }
+    return createMemoryStorage();
   },
 });
 
