@@ -292,6 +292,7 @@ describe('the surfaces that draw it', () => {
       'Candlestick Chart',
       'Graph',
       'Comment',
+      'Copy Value',
       'Load State',
       'Editor',
       'wrDuration',

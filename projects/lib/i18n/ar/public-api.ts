@@ -156,6 +156,11 @@ export const wrAr: WrI18nCatalog = {
     copied: 'تم النسخ',
     closeAll: 'إغلاق الكل',
   },
+  copyValue: {
+    copy: 'نسخ',
+    copied: 'تم النسخ',
+    empty: '-',
+  },
   input: {
     showPassword: 'إظهار كلمة المرور',
     hidePassword: 'إخفاء كلمة المرور',

@@ -152,6 +152,11 @@ export const wrZhTw: WrI18nCatalog = {
     copied: '已複製',
     closeAll: '全部關閉',
   },
+  copyValue: {
+    copy: '複製',
+    copied: '已複製',
+    empty: '-',
+  },
   input: {
     showPassword: '顯示密碼',
     hidePassword: '隱藏密碼',

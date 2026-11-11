@@ -211,6 +211,11 @@ export const wrEn: WrI18nCatalog = {
     copied: 'Copied',
     closeAll: 'Close all',
   },
+  copyValue: {
+    copy: 'Copy',
+    copied: 'Copied',
+    empty: '-',
+  },
   input: {
     showPassword: 'Show password',
     hidePassword: 'Hide password',

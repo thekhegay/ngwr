@@ -150,6 +150,11 @@ export const wrZh: WrI18nCatalog = {
     copied: '已复制',
     closeAll: '全部关闭',
   },
+  copyValue: {
+    copy: '复制',
+    copied: '已复制',
+    empty: '-',
+  },
   input: {
     showPassword: '显示密码',
     hidePassword: '隐藏密码',

@@ -1,0 +1,69 @@
+<ngwr-doc-page
+  title="Copy Value"
+  since="16.0.0"
+  description="A value with a copy button beside it."
+  [keywords]="['copy value', 'copy', 'clipboard', 'copyable', 'wr-copy-value']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Takes a string or a number. After a copy the button shows a tick and “Copied” is announced to screen readers."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: var(--wr-space-xl); flex-wrap: wrap">
+        <wr-copy-value [value]="orderId" />
+        <wr-copy-value [value]="serial" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Empty"
+    description="`null`, `undefined` and `''` show `emptyLabel` and no button. `0` is a value."
+  >
+    <ngwr-doc-code [code]="snippets.empty" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: var(--wr-space-xl); flex-wrap: wrap">
+        <wr-copy-value [value]="null" />
+        <wr-copy-value value="" emptyLabel="not set" />
+        <wr-copy-value [value]="0" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Long values"
+    description="A value that does not fit is cut with an ellipsis and keeps the full text in its `title`. The copy always takes the whole value."
+  >
+    <ngwr-doc-code [code]="snippets.truncate" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 16rem; max-width: 100%">
+        <wr-copy-value [value]="token" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Wrap" description="`wrap` lets the value run over several lines instead.">
+    <ngwr-doc-code [code]="snippets.wrap" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 16rem; max-width: 100%">
+        <wr-copy-value [value]="address" wrap />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Labels"
+    description="`copyLabel`, `copiedLabel` and `emptyLabel` override one instance. The `copyValue.copy`, `copyValue.copied` and `copyValue.empty` catalog keys change them all."
+  >
+    <ngwr-doc-code [code]="snippets.labels" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-copy-value [value]="orderId" copyLabel="Copy order id" copiedLabel="Order id copied" />
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.i18n" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

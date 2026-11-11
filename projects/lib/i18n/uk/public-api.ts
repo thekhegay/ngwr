@@ -160,6 +160,11 @@ export const wrUk: WrI18nCatalog = {
     copied: 'Скопійовано',
     closeAll: 'Закрити всі',
   },
+  copyValue: {
+    copy: 'Копіювати',
+    copied: 'Скопійовано',
+    empty: '-',
+  },
   input: {
     showPassword: 'Показати пароль',
     hidePassword: 'Приховати пароль',

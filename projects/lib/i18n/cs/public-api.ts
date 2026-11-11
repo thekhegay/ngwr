@@ -150,6 +150,11 @@ export const wrCs: WrI18nCatalog = {
     copied: 'Zkopírováno',
     closeAll: 'Zavřít vše',
   },
+  copyValue: {
+    copy: 'Kopírovat',
+    copied: 'Zkopírováno',
+    empty: '-',
+  },
   input: {
     showPassword: 'Zobrazit heslo',
     hidePassword: 'Skrýt heslo',

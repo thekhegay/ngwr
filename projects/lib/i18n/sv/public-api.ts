@@ -150,6 +150,11 @@ export const wrSv: WrI18nCatalog = {
     copied: 'Kopierat',
     closeAll: 'Stäng alla',
   },
+  copyValue: {
+    copy: 'Kopiera',
+    copied: 'Kopierat',
+    empty: '-',
+  },
   input: {
     showPassword: 'Visa lösenord',
     hidePassword: 'Dölj lösenord',

@@ -708,6 +708,17 @@ it('walks focus without moving the selection', async () => {
   expect(await orders.isBusy()).toBe(true);
 });`,
 
+    copyValue: `it('copies the order id', async () => {
+  const writeText = vi.fn().mockResolvedValue(undefined);
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+
+  const id = await loader.getHarness(WrCopyValueHarness.with({ value: 'ORD-1042' }));
+  await id.copy();
+
+  expect(writeText).toHaveBeenCalledWith('ORD-1042');
+  expect(await id.isCopied()).toBe(true);
+});`,
+
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 export class MyWidgetHarness extends ComponentHarness {
@@ -2219,6 +2230,26 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'getRetryButton() / isRetrying() / retry()',
       description: 'The default failure. All three throw outside it, and under a `wrLoadStateError` template.',
       type: 'Promise<WrButtonHarness> | Promise<boolean> | Promise<void>',
+    },
+  ];
+
+  protected readonly copyValueApi: readonly DocApiRow[] = [
+    {
+      name: 'getValue() / isEmpty() / getEmptyText()',
+      description:
+        '`getValue()` is `null` for an empty value; `getEmptyText()` reads the placeholder. Filters: `value`, `empty`.',
+      type: 'Promise<string | null> | Promise<boolean> | Promise<string>',
+    },
+    {
+      name: 'copy() / isCopied() / getStatusText()',
+      description:
+        '`copy()` clicks the button and throws on an empty value. Stub `navigator.clipboard` to see the write.',
+      type: 'Promise<void> | Promise<boolean> | Promise<string>',
+    },
+    {
+      name: 'getCopyLabel() / getTitle() / isWrapped() / focus() / isFocused()',
+      description: 'The button name, the full text of a truncated value, the `wrap` mode.',
+      type: 'Promise<…>',
     },
   ];
 
