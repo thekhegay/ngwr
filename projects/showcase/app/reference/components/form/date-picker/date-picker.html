@@ -250,6 +250,13 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Open from code"
+    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled, and on the range picker while read-only. Focus stays where it is."
+  >
+    <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

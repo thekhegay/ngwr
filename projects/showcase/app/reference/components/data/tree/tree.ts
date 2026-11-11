@@ -82,6 +82,9 @@ export default class TreePageComponent {
   protected readonly bigPick = signal<readonly string[]>([]);
 
   protected readonly snippets = {
+    openFromCode: `<wr-tree #folder openOn="overlay" [nodes]="folders" [(value)]="picked" (opened)="onOpened()" (closed)="onClosed()" />
+<button wr-btn (click)="folder.open()">Open</button>`,
+
     single: `<wr-tree
   ariaLabel="Project files"
   [nodes]="folders"

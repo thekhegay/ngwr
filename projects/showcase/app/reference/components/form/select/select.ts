@@ -81,6 +81,9 @@ export default class SelectComponent {
   }
 
   protected readonly snippets = {
+    openFromCode: `<wr-select #sizes [(value)]="size" (opened)="onOpened()" (closed)="onClosed()">…</wr-select>
+<button wr-btn (click)="sizes.open()">Open</button>`,
+
     typed: `interface Country {
   code: string;
   name: string;
@@ -417,6 +420,18 @@ categoryId.setValue(2);`,
       name: '(valueChange)',
       description: 'The `[(value)]` half. Bound automatically by `[formField]` / `[(ngModel)]`.',
       type: 'T | readonly T[] | null',
+      default: '—',
+    },
+    {
+      name: '(opened)',
+      description: 'Fires after the panel opens, by the user or by `open()`.',
+      type: 'void',
+      default: '—',
+    },
+    {
+      name: '(closed)',
+      description: 'Fires after the panel closes, by the user or by `close()`.',
+      type: 'void',
       default: '—',
     },
     {

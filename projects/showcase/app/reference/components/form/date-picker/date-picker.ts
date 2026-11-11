@@ -73,6 +73,9 @@ export default class DatePickerPageComponent {
   protected readonly isWeekday = (d: Date): boolean => d.getDay() > 0 && d.getDay() < 6;
 
   protected readonly snippets = {
+    openFromCode: `<wr-date-picker #due [(value)]="picked" (opened)="onOpened()" (closed)="onClosed()" />
+<button wr-btn (click)="due.open()">Open</button>`,
+
     basic: `<wr-date-picker [(value)]="picked" placeholder="Pick a date" />`,
 
     format: `<wr-date-picker [(value)]="picked" format="dd.MM.yyyy" />`,
@@ -266,6 +269,8 @@ export class MyComponent {
       type: 'void',
       default: '—',
     },
+    { name: '(opened)', description: 'Fires after the popup opens.', type: 'void', default: '—' },
+    { name: '(closed)', description: 'Fires after the popup closes.', type: 'void', default: '—' },
     {
       name: 'readonly',
       description: 'The value cannot change and the popup does not open. `<wr-date-picker>` still opens its popup.',

@@ -616,6 +616,12 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   /** Emitted on blur / commit so a bound field can mark itself touched. */
   readonly touch = output<void>();
 
+  /** Fires after the panel opens. */
+  readonly opened = output<void>();
+
+  /** Fires after the panel closes. */
+  readonly closed = output<void>();
+
   /** Listbox id used by the trigger's `aria-controls`. */
   protected readonly listboxId = `wr-select-listbox-${++listboxUid}`;
 
@@ -683,10 +689,10 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     return idx >= 0 && idx < list.length ? list[idx].id : null;
   });
 
-  protected readonly open = signal(false);
+  protected readonly isOpen = signal(false);
 
   /** WrSelectContext — whether the panel is open. Options gate their leading visual on it. */
-  readonly panelOpen = this.open.asReadonly();
+  readonly panelOpen = this.isOpen.asReadonly();
 
   /**
    * A `<ng-template wrOptionLeading>` declared as a DIRECT child of the select —
@@ -838,7 +844,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
 
   protected readonly classes = computed(() => {
     const parts = ['wr-select'];
-    if (this.open()) parts.push('wr-select--open');
+    if (this.isOpen()) parts.push('wr-select--open');
     if (this.rounded()) parts.push('wr-select--rounded');
     const size = this.size();
     if (size !== 'md') parts.push(`wr-select--${size}`);
@@ -1069,14 +1075,14 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
 
   /** Search mode: show "no results" when the panel has nothing to offer. */
   protected readonly hasNoResults = computed(() => {
-    if (!this.isSearchable() || !this.open() || this.isLoading() || this.loadFailed()) return false;
+    if (!this.isSearchable() || !this.isOpen() || this.isLoading() || this.loadFailed()) return false;
     if (this.searchQuery().trim().length < this.minChars()) return false;
     return this.visibleCount() === 0;
   });
 
   /** Search mode: the error row, in place of "no results", after a failed load and through its retry. */
   protected readonly showLoadError = computed(
-    () => this.isSearchable() && this.open() && this.loadFailed() && (!this.isLoading() || this.retrying())
+    () => this.isSearchable() && this.isOpen() && this.loadFailed() && (!this.isLoading() || this.retrying())
   );
 
   /** A `<ng-template wrSelectLoadError>` declared as a direct child, or `undefined`. */
@@ -1212,9 +1218,9 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery.set(value);
     if (this.meetsMinChars()) {
-      if (!this.open()) this.open.set(true);
-    } else if (this.open()) {
-      this.open.set(false);
+      if (!this.isOpen()) this.isOpen.set(true);
+    } else if (this.isOpen()) {
+      this.isOpen.set(false);
     }
     // A new filter invalidates every index, so re-seed the cursor onto the first
     // option that still matches. This must happen on BOTH paths: on the
@@ -1247,9 +1253,9 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     this.searchHasFocus.set(true);
     if (this.isReadonly() || this.quietFocus) return;
     if (!this.meetsMinChars()) return;
-    if (!this.open()) {
+    if (!this.isOpen()) {
       this.seedActiveIndex();
-      this.open.set(true);
+      this.isOpen.set(true);
     }
   }
 
@@ -1259,7 +1265,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     if (this.freeText() && !this.pressInPanel) this.commitQuery();
     // Leaving the field is what makes a below-threshold query stale, so this is
     // where the panel-close reset would have run if it could have waited.
-    if (!this.open() && this.isSearchable()) this.searchQuery.set('');
+    if (!this.isOpen() && this.isSearchable()) this.searchQuery.set('');
     this.touch.emit();
   }
 
@@ -1280,7 +1286,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     if (!q) return;
     // The query is the value here, so `T` is a string in a tag select.
     this.value.set(q as T);
-    this.open.set(false);
+    this.isOpen.set(false);
   }
 
   protected onSearchKey(event: KeyboardEvent): void {
@@ -1297,7 +1303,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     // freeText: Enter on an unmatched query commits the typed string
     // as the value. Skips when an active option is highlighted (the
     // normal Enter-selects behaviour wins).
-    if (event.key === 'Enter' && this.freeText() && this.open()) {
+    if (event.key === 'Enter' && this.freeText() && this.isOpen()) {
       const q = this.searchQuery().trim();
       const idx = this.activeIndex();
       const list = this.orderedRegistry();
@@ -1365,7 +1371,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    *
    * FOCUS as well as open, and that second term is the whole `[minChars]` story.
    * Backspacing under the threshold closes the panel, and falling back to the
-   * selected label the moment `open()` goes false rewrote the field out from
+   * selected label the moment `isOpen()` goes false rewrote the field out from
    * under someone who was still typing — "sma" -> "sm" showed an empty box.
    *
    * A NON-EMPTY query, though: picking an option clears it and leaves focus in
@@ -1377,7 +1383,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    * @internal
    */
   protected readonly searchShowsValue = computed(() => {
-    if (this.open()) return false;
+    if (this.isOpen()) return false;
     return !(this.searchHasFocus() && this.searchQuery() !== '');
   });
 
@@ -1421,16 +1427,16 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('select');
     // A component destroyed while the panel is open takes its overlay with it.
     // Without this the pane stays in the CDK container forever.
-    this.destroyRef.onDestroy(() => this.closeOverlay());
+    this.destroyRef.onDestroy(() => this.closeOverlay(false));
 
     // Close the panel if the control goes read-only or disabled while it is up —
     // a panel whose every row now refuses the click is a trap, not a view.
     effect(() => {
-      if (this.isDisabled() || this.isReadonly()) this.open.set(false);
+      if (this.isDisabled() || this.isReadonly()) this.isOpen.set(false);
     });
 
     effect(() => {
-      if (this.open()) {
+      if (this.isOpen()) {
         this.openOverlay();
       } else {
         this.closeOverlay();
@@ -1439,7 +1445,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
         //
         // With `[minChars]`, backspacing under the threshold closes the panel
         // (`onSearchInput`), and `searchDisplay` falls back to the selected
-        // label the moment `open()` is false — so an unconditional reset here
+        // label the moment `isOpen()` is false — so an unconditional reset here
         // erased what the user was still typing, mid-word. A query the user is
         // actively editing is not stale.
         if (this.isSearchable() && !this.searchHasFocus()) this.searchQuery.set('');
@@ -1543,7 +1549,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     // portal is attached. Browser-only — the panel never prerenders (overlay).
     effect(onCleanup => {
       if (!isPlatformBrowser(this.platformId)) return;
-      if (!this.open() || !this.virtualActive()) return;
+      if (!this.isOpen() || !this.virtualActive()) return;
       let raf = 0;
       let ro: ResizeObserver | null = null;
       let el: HTMLElement | null = null;
@@ -1633,7 +1639,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     // will not do it while the field is focused, which is right for a panel
     // that closed under `minChars` and wrong for one that closed on a pick.
     this.searchQuery.set('');
-    this.open.set(false);
+    this.isOpen.set(false);
   }
 
   /**
@@ -1774,6 +1780,21 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     this.touch.emit();
   }
 
+  /**
+   * Open the panel, as the trigger does. Refused while disabled or read-only, in
+   * `tag` mode, which has no panel, and below `minChars`.
+   */
+  open(): void {
+    if (this.isDisabled() || this.isReadonly() || this.isTag() || this.isOpen() || !this.meetsMinChars()) return;
+    this.seedActiveIndex();
+    this.isOpen.set(true);
+  }
+
+  /** Close the panel. */
+  close(): void {
+    this.isOpen.set(false);
+  }
+
   // Template handlers
 
   protected onTriggerClick(): void {
@@ -1781,17 +1802,17 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     // Tag mode has no panel — clicks should land on the inline input,
     // not toggle an overlay that's never created.
     if (this.isTag()) return;
-    this.open.update(v => !v);
+    this.isOpen.update(v => !v);
   }
 
   protected onTriggerKey(event: KeyboardEvent): void {
     if (this.isDisabled() || this.isReadonly()) return;
 
-    if (!this.open()) {
+    if (!this.isOpen()) {
       if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
         this.seedActiveIndex();
-        this.open.set(true);
+        this.isOpen.set(true);
         return;
       }
       // Multi mode: Backspace on closed trigger removes last chip. Tag
@@ -1825,7 +1846,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
         // Closing does NOT commit the active option. The cursor is SEEDED on open, so
         // tabbing straight through would select a row the user never looked at — and
         // in multi / search / freeText modes there is no single "the option" to take.
-        this.open.set(false);
+        this.isOpen.set(false);
         break;
       case 'ArrowDown':
         event.preventDefault();
@@ -2004,7 +2025,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     //
     // Twice, and both are needed. Synchronously, because `attachTemplatePortal`
     // appends the rows and calls `detectChanges()` before returning, and
-    // `activeIndex` was seeded before `open()` flipped, so the row is in the DOM
+    // `activeIndex` was seeded before `isOpen()` flipped, so the row is in the DOM
     // and a panel of plain options lands on the cursor from the first frame.
     // Again after the next render, because that `detectChanges()` refreshes the
     // PORTAL's view and not the options: a projected `<wr-option>` belongs to the
@@ -2024,7 +2045,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;
-        this.open.set(false);
+        this.isOpen.set(false);
       });
 
     this.overlayRef
@@ -2033,9 +2054,11 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
-          this.open.set(false);
+          this.isOpen.set(false);
         }
       });
+
+    this.opened.emit();
   }
 
   /** The preferred side first, the other as the fallback. Start-aligned either way. */
@@ -2045,9 +2068,11 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     return this.position() === 'top' ? [above, below] : [below, above];
   }
 
-  private closeOverlay(): void {
+  /** `notify: false` is the destroy path: an output cannot emit from a destroyed view. */
+  private closeOverlay(notify = true): void {
     if (!this.overlayRef) return;
     this.overlayRef.dispose();
     this.overlayRef = null;
+    if (notify) this.closed.emit();
   }
 }
