@@ -415,32 +415,46 @@
     background-image: linear-gradient(var(--wr-table-row-hover), var(--wr-table-row-hover));
   }
 
-  // Separating shadow on the inner edge of each pinned group. `box-shadow` has
-  // no logical form — its offset is always physical — while the cell it belongs
-  // to is anchored by `[style.inset-inline-start.px]` / `[style.inset-inline-end.px]`
-  // in table.html, written from `leftPin()` / `rightPin()`. The shadow leans the
-  // way the offset pins, so the sign has to be set per direction by hand.
+  // Separating shadow on the inner edge of each pinned group, cast only over
+  // columns hidden behind it: the component puts `--overflow-start` on the host
+  // while the table is scrolled away from its start, and `--overflow-end` while
+  // more of it lies past the end. A table that fits draws neither.
+  //
+  // `box-shadow` has no logical form — its offset is always physical — while
+  // the cell it belongs to is anchored by `[style.inset-inline-start.px]` /
+  // `[style.inset-inline-end.px]` in table.html, written from `leftPin()` /
+  // `rightPin()`. The shadow leans the way the offset pins, so the sign has to
+  // be set per direction by hand.
   &__th--pin-edge-left,
-  &__td--pin-edge-left {
+  &__td--pin-edge-left,
+  &__th--pin-edge-right,
+  &__td--pin-edge-right {
+    transition: box-shadow var(--wr-transition-base);
+  }
+
+  &--overflow-start &__th--pin-edge-left,
+  &--overflow-start &__td--pin-edge-left {
     box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
-  &__th--pin-edge-right,
-  &__td--pin-edge-right {
+  &--overflow-end &__th--pin-edge-right,
+  &--overflow-end &__td--pin-edge-right {
     box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
     // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
   }
 
   // Under `dir="rtl"` the start-pinned group sits at the physical right and the
   // end-pinned group at the physical left, so both shadows point the other way.
-  [dir='rtl'] &__th--pin-edge-left,
+  // `:where()` keeps the specificity of the pair above, so card mode's
+  // `box-shadow: none` still wins by order.
+  :where([dir='rtl']) &--overflow-start &__th--pin-edge-left,
     // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
-  [dir='rtl'] &__td--pin-edge-left {
+  :where([dir='rtl']) &--overflow-start &__td--pin-edge-left {
     box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
-  [dir='rtl'] &__th--pin-edge-right,
-  [dir='rtl'] &__td--pin-edge-right {
+  :where([dir='rtl']) &--overflow-end &__th--pin-edge-right,
+  :where([dir='rtl']) &--overflow-end &__td--pin-edge-right {
     box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
     // rtl-ok: this IS the RTL sign for the rule above
   }

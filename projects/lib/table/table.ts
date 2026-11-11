@@ -196,6 +196,8 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
     '[class.wr-table--virtual]': 'virtualized()',
     '[class.wr-table--sticky-head]': 'scrollable()',
     '[class.wr-table--fill]': 'fillsParent()',
+    '[class.wr-table--overflow-start]': 'overflow().start',
+    '[class.wr-table--overflow-end]': 'overflow().end',
     // The rows under the veil are stale while a load is in flight, and nothing
     // said so: the veil marked itself, not the table it covers. Same pairing as
     // `wr-card` — mark busy, don't block (the veil is `pointer-events: none`).
@@ -915,6 +917,53 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       measure();
       onCleanup(() => observer.disconnect());
     });
+
+    // (D) A pinned edge casts its shadow only over content hidden behind it, so
+    // the scroll area reports which inline sides it overflows on.
+    effect(onCleanup => {
+      const el = this.scrollEl()?.nativeElement;
+      const table = el?.firstElementChild;
+      if (
+        !el ||
+        !table ||
+        !this.hasPins() ||
+        !isPlatformBrowser(this.platformId) ||
+        typeof ResizeObserver === 'undefined'
+      ) {
+        this.setOverflow(false, false);
+        return;
+      }
+      let raf = 0;
+      const measure = (): void => {
+        // `scrollLeft` runs from 0 down to a negative end under RTL, so its
+        // magnitude is the distance from the start in either direction. One
+        // pixel of slack absorbs the rounding of fractional column widths.
+        const offset = Math.abs(el.scrollLeft);
+        this.setOverflow(offset > 1, el.scrollWidth - el.clientWidth - offset > 1);
+      };
+      const onScroll = (): void => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          measure();
+        });
+      };
+      const observer = new ResizeObserver(measure);
+      observer.observe(el);
+      observer.observe(table);
+      el.addEventListener('scroll', onScroll, { passive: true });
+      measure();
+      onCleanup(() => {
+        observer.disconnect();
+        el.removeEventListener('scroll', onScroll);
+        if (raf) cancelAnimationFrame(raf);
+      });
+    });
+  }
+
+  private setOverflow(start: boolean, end: boolean): void {
+    const prev = untracked(this.overflow);
+    if (prev.start !== start || prev.end !== end) this.overflow.set({ start, end });
   }
 
   private measurePins(
@@ -962,6 +1011,15 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   protected rightPin(key: string): number | null {
     return this.pins().right.get(key) ?? null;
   }
+
+  private readonly hasPins = computed<boolean>(() => this.displayColumns().some(c => c.column.pin));
+
+  /**
+   * Whether columns are hidden past the start and the end of the scroll area,
+   * the host's `wr-table--overflow-start` / `--overflow-end`. Only a table with
+   * a pinned column measures it.
+   */
+  protected readonly overflow = signal<{ start: boolean; end: boolean }>({ start: false, end: false });
 
   /** Whether `key` is the inner-edge pinned column on `side` (carries the shadow). */
   protected isPinEdge(key: string, side: 'left' | 'right'): boolean {
