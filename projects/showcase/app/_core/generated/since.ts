@@ -96,7 +96,7 @@ export const UPDATED = {
   "guides/mobile": "15.0.0",
   "guides/overlay": "15.0.0",
   "guides/ssr": "15.0.0",
-  "guides/testing": "15.3.0",
+  "guides/testing": "16.0.0",
   "guides/theming": "15.0.0",
   "guides/tokens/colors": "15.0.0",
   "guides/tokens/density": "15.0.0",
