@@ -1,8 +1,8 @@
 <ngwr-doc-page
   title="Table"
-  updated="15.9.0"
+  updated="15.10.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
-  [keywords]="['table', 'wr-table']"
+  [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
 >
   <ngwr-doc-section
@@ -51,7 +51,7 @@
 
   <ngwr-doc-section
     title="Sorting is state, not a sort"
-    description="The table never reorders `items`: sort them yourself from `sort()`."
+    description="The table never reorders `items`: `wrSortRows()` applies `sort()` to them."
   >
     <ngwr-doc-code [code]="snippets.sortState" language="angular-ts" />
     <ul>
@@ -66,6 +66,11 @@
         column.
       </li>
       <li>Sorting does not reset <code>page</code>. Reset it in your sort handler if you want.</li>
+      <li>
+        <code>wrSortRows()</code> puts empty values first, then numbers, then text; <code>desc</code> reverses all of
+        it. <code>'10'</code> sorts after <code>'9'</code>. Text compares by code unit: pass an accessor for anything
+        else. Since v15.10.
+      </li>
     </ul>
   </ngwr-doc-section>
 
@@ -423,6 +428,10 @@
 
   <ngwr-doc-section title="Methods" description="Call them through a template reference.">
     <ngwr-doc-api [rows]="methodsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Helpers">
+    <ngwr-doc-api [rows]="helpersApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="&lt;wr-table-filter&gt;">

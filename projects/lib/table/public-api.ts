@@ -4,6 +4,7 @@ export { WrTableExpand } from './table-expand';
 export { WrTableGroupHeader } from './table-group-header';
 export { WrTableSort } from './table-sort';
 export { WrTableFilter } from './table-filter';
+export { wrReadField, wrSortRows } from './sort-rows';
 export type {
   WrTableCellContext,
   WrTableColumn,
@@ -16,6 +17,7 @@ export type {
   WrTableGroupContext,
   WrTableRow,
   WrTableRowClass,
+  WrTableSortAccessor,
   WrTableSortState,
   WrTableSortDirection,
   WrTableSummary,
