@@ -332,6 +332,43 @@ describe('WrPagination', () => {
       expect(compact().textContent.trim()).toBe('1 / 10');
     });
   });
+
+  describe('focus across a window shift', () => {
+    // The window slides on every move, so a list tracked by position hands the
+    // focused button another page's number, or destroys it and drops focus to
+    // the body.
+    const focusAndClick = (label: string): void => {
+      const button = pageButtons().find(b => b.textContent.trim() === label)!;
+      button.focus();
+      expect(document.activeElement).toBe(button);
+      button.click();
+      fixture.detectChanges();
+    };
+
+    beforeEach(() => {
+      fixture.componentInstance.total.set(200);
+      fixture.componentInstance.page.set(5);
+      fixture.detectChanges();
+    });
+
+    it('keeps focus on the page that was clicked when the window slides', () => {
+      focusAndClick('7');
+
+      const active = document.activeElement as HTMLElement;
+      expect(active.classList.contains('wr-pagination__page')).toBe(true);
+      expect(active.textContent.trim()).toBe('7');
+      expect(active.getAttribute('aria-current')).toBe('page');
+    });
+
+    it('keeps focus on the last page when the window collapses under it', () => {
+      // 1 … 3 4 5 6 7 … 20 becomes 1 … 16 17 18 19 20: two slots fewer.
+      focusAndClick('20');
+
+      const active = document.activeElement as HTMLElement;
+      expect(active.textContent.trim()).toBe('20');
+      expect(active.getAttribute('aria-current')).toBe('page');
+    });
+  });
 });
 
 /**
