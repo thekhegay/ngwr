@@ -167,7 +167,7 @@ protected readonly launchDate = new Date(Date.now() + 1000 * 60 * 60 * 36);`;
     { name: 'tickMs', description: 'Tick interval in milliseconds.', type: 'number', default: '1000', sub: true },
     {
       name: '(countdownEnd)',
-      description: 'Emits once when the target time is reached.',
+      description: 'Emits once per target, when it is reached or has already passed.',
       type: 'void',
       default: '—',
       sub: true,
