@@ -16,17 +16,20 @@ import {
   Service,
   Injector,
   PLATFORM_ID,
+  type WritableSignal,
   afterEveryRender,
   inject,
+  signal,
 } from '@angular/core';
 
 import { WrI18n } from 'ngwr/i18n';
+import { WrMeta } from 'ngwr/meta';
 import { WR_OVERLAY, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
 import { wrToClassList } from 'ngwr/utils';
 
 import { WrDialogConfirm } from './confirm/dialog-confirm';
 import { WrDialogRef } from './dialog-ref';
-import { WR_DIALOG_DATA, WR_DIALOG_REF } from './tokens';
+import { WR_DIALOG_DATA, WR_DIALOG_DEFAULTS, WR_DIALOG_REF } from './tokens';
 import type { WrDialogConfirmOptions, WrDialogOptions } from './types';
 
 const DEFAULT_PANEL_CLASS = 'wr-dialog-panel';
@@ -66,6 +69,7 @@ export class WrDialog {
   // to implement `disposeOnNavigation`.
   private readonly location = inject(Location);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly defaults = inject(WR_DIALOG_DEFAULTS);
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDialogOptions<D> = {}): WrDialogRef<C, R> {
     const overlayRef: OverlayRef = this.overlay.create({
@@ -157,11 +161,13 @@ export class WrDialog {
       //
       // An `alertdialog` is described by its content the same way: the message
       // is the dialog, and it can be conditional too.
+      const tabTitle = (options.tabTitle ?? this.defaults.tabTitle) ? this.nameTab(overlayRef) : null;
       const labelSync = afterEveryRender(
         () => {
           const titleEl = host.querySelector<HTMLElement>('[wrDialogTitle], [wr-dialog-title]');
           if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
           else host.removeAttribute('aria-labelledby');
+          tabTitle?.set((titleEl?.textContent ?? '').replace(/\s+/g, ' ').trim());
           if (role !== 'alertdialog') return;
           const contentEl = host.querySelector<HTMLElement>('[wrDialogContent], [wr-dialog-content]');
           if (contentEl?.id) host.setAttribute('aria-describedby', contentEl.id);
@@ -249,6 +255,26 @@ export class WrDialog {
     // into the slot forEach has already passed, and a SECOND stacked dialog
     // would be skipped and left behind.
     overlayRef.detachments().subscribe(() => queueMicrotask(stopWatching));
+  }
+
+  /**
+   * Put the dialog's title in front of the page title for as long as the
+   * overlay is attached, and hand back where to write that title.
+   *
+   * A `titlePrefix` layer rather than a composed `title`: the page title stays
+   * whatever the layers under it resolve to, so a page that retitles itself
+   * under an open dialog is followed, and closing restores nothing, it only
+   * removes the layer. Stacked dialogs each hold a layer and the top one wins.
+   *
+   * `WrMeta` is resolved here and not injected with the service: constructing
+   * it applies its defaults to `<head>`, which an app that never asked for
+   * `tabTitle` must not pay for.
+   */
+  private nameTab(overlayRef: OverlayRef): WritableSignal<string> {
+    const heading = signal('');
+    const layer = this.parentInjector.get(WrMeta).bind(() => (heading() ? { titlePrefix: heading() } : {}));
+    overlayRef.detachments().subscribe(() => layer.pop());
+    return heading;
   }
 
   /**

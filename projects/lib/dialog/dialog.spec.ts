@@ -4,10 +4,13 @@ import { join } from 'node:path';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { Location } from '@angular/common';
-import { Component, PLATFORM_ID, inject, signal, viewChild } from '@angular/core';
+import { ApplicationRef, Component, EnvironmentInjector, PLATFORM_ID, inject, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWr } from 'ngwr';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { WrMeta, withMeta } from 'ngwr/meta';
+import type { WrFeature } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDialog } from './dialog';
@@ -15,6 +18,7 @@ import { WrDialogRef } from './dialog-ref';
 import { WrDialogClose, WrDialogContent, WrDialogFooter, WrDialogTitle } from './directives';
 import { WR_DIALOG_DATA } from './tokens';
 import type { WrDialogConfirmOptions, WrDialogOptions } from './types';
+import { withDialog } from './with-dialog';
 
 /**
  * `WrDialog` is a service, so there is no element to render in a host template:
@@ -1022,5 +1026,207 @@ describe('WrDialogRef.closeWhen', () => {
     const ref = new WrDialogRef<unknown, unknown>({} as never);
 
     expect(() => ref.closeWhen(signal(true))).toThrow(/opened by WrDialog/);
+  });
+});
+
+@Component({
+  imports: [WrDialogTitle, WrDialogContent],
+  template: `
+    <h2 wrDialogTitle>
+      {{ title() }}
+    </h2>
+    <div wrDialogContent>Body</div>
+  `,
+})
+class Titled {
+  readonly title = signal(inject<string | undefined>(WR_DIALOG_DATA, { optional: true }) ?? 'Edit lamp');
+}
+
+@Component({ template: `<p>No heading here</p>` })
+class Untitled {}
+
+/**
+ * The tab title is `document.title`, read back after the app has settled: the
+ * heading is read after a render and reaches `<head>` through a `WrMeta`
+ * layer one tick later.
+ */
+describe('WrDialog tabTitle', () => {
+  let originalTitle: string;
+  let originalHead: ChildNode[];
+
+  const settle = async (): Promise<void> => {
+    TestBed.tick();
+    await TestBed.inject(ApplicationRef).whenStable();
+    TestBed.tick();
+  };
+
+  const setup = (...features: WrFeature[]): WrDialog => {
+    TestBed.configureTestingModule({ providers: [provideWr(...features)] });
+    return TestBed.inject(WrDialog);
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    originalTitle = document.title;
+    originalHead = [...document.head.childNodes];
+    document.title = 'Lamps - App';
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    for (const node of [...document.head.childNodes]) if (!originalHead.includes(node)) node.remove();
+    document.title = originalTitle;
+  });
+
+  it('puts the dialog title in front of the page title and gives it back on close', async () => {
+    const dialogs = setup(withMeta({ titleTemplate: '{{ title }} - App' }));
+    TestBed.inject(WrMeta).set({ title: 'Lamps' });
+
+    const ref = dialogs.open(Titled, { tabTitle: true });
+    await settle();
+    expect(document.title).toBe('Edit lamp - Lamps - App');
+
+    ref.close();
+    await settle();
+    expect(document.title).toBe('Lamps - App');
+  });
+
+  it('works over a page title WrMeta does not manage', async () => {
+    const dialogs = setup();
+
+    const ref = dialogs.open(Titled, { tabTitle: true });
+    await settle();
+    expect(document.title).toBe('Edit lamp - Lamps - App');
+
+    ref.close();
+    await settle();
+    expect(document.title).toBe('Lamps - App');
+  });
+
+  it('lets the top dialog name the tab and falls back to the one below', async () => {
+    const dialogs = setup();
+    const first = dialogs.open(Titled, { tabTitle: true });
+    await settle();
+
+    const second = dialogs.open(Titled, { tabTitle: true, data: 'Discard changes?' });
+    await settle();
+    expect(document.title).toBe('Discard changes? - Lamps - App');
+
+    second.close();
+    await settle();
+    expect(document.title).toBe('Edit lamp - Lamps - App');
+
+    first.close();
+    await settle();
+    expect(document.title).toBe('Lamps - App');
+  });
+
+  it('keeps the top dialog in the tab when the one below closes first', async () => {
+    const dialogs = setup();
+    const first = dialogs.open(Titled, { tabTitle: true });
+    await settle();
+    const second = dialogs.open(Titled, { tabTitle: true, data: 'Discard changes?' });
+    await settle();
+
+    first.close();
+    await settle();
+    expect(document.title).toBe('Discard changes? - Lamps - App');
+
+    second.close();
+    await settle();
+    expect(document.title).toBe('Lamps - App');
+  });
+
+  it('follows a heading that changes while the dialog is open', async () => {
+    const dialogs = setup();
+    const ref = dialogs.open(Titled, { tabTitle: true });
+    await settle();
+
+    ref.componentInstance.title.set('Lamp 12');
+    await settle();
+
+    expect(document.title).toBe('Lamp 12 - Lamps - App');
+  });
+
+  it('does not bring a stale page title back when the page changed under the dialog', async () => {
+    const dialogs = setup();
+    const meta = TestBed.inject(WrMeta);
+    const page = meta.push({ title: 'Lamps' });
+    const ref = dialogs.open(Titled, { tabTitle: true, closeOnNavigation: false });
+    await settle();
+
+    page.pop();
+    meta.push({ title: 'Shifts' });
+    expect(document.title).toBe('Edit lamp - Shifts');
+
+    ref.close();
+    await settle();
+    expect(document.title).toBe('Shifts');
+  });
+
+  it('changes nothing without the option, and never builds WrMeta', async () => {
+    const dialogs = setup();
+    const built = vi.spyOn(TestBed.inject(EnvironmentInjector), 'get');
+
+    const ref = dialogs.open(Titled);
+    await settle();
+    expect(document.title).toBe('Lamps - App');
+    expect(built.mock.calls.some(([token]) => token === WrMeta)).toBe(false);
+
+    ref.close();
+    await settle();
+    expect(document.title).toBe('Lamps - App');
+  });
+
+  it('takes the app-wide default from withDialog()', async () => {
+    const dialogs = setup(withDialog({ tabTitle: true }));
+
+    dialogs.open(Titled);
+    await settle();
+
+    expect(document.title).toBe('Edit lamp - Lamps - App');
+  });
+
+  it('lets one dialog opt out of the app-wide default', async () => {
+    const dialogs = setup(withDialog({ tabTitle: true }));
+
+    dialogs.open(Titled, { tabTitle: false });
+    await settle();
+
+    expect(document.title).toBe('Lamps - App');
+  });
+
+  it('names the tab after a confirm, too', async () => {
+    const dialogs = setup();
+
+    const answer = dialogs.confirm({ title: 'Delete lamp?', tabTitle: true });
+    await settle();
+    expect(document.title).toBe('Delete lamp? - Lamps - App');
+
+    document.querySelector<HTMLButtonElement>('.wr-dialog__footer button')!.click();
+    await answer;
+    await settle();
+    expect(document.title).toBe('Lamps - App');
+  });
+
+  it('leaves the tab alone for a dialog without a title element', async () => {
+    const dialogs = setup();
+
+    const ref = dialogs.open(Untitled, { tabTitle: true });
+    await settle();
+    expect(document.title).toBe('Lamps - App');
+
+    ref.close();
+    await settle();
+    expect(document.title).toBe('Lamps - App');
+  });
+
+  it('does nothing on the server', async () => {
+    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
+
+    TestBed.inject(WrDialog).open(Titled, { tabTitle: true });
+    await settle();
+
+    expect(document.title).toBe('Lamps - App');
   });
 });

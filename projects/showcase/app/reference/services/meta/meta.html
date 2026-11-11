@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="WrMeta"
-  updated="15.0.0"
+  updated="16.0.0"
   description="Set the page title, description and social tags, and restore them when a page leaves."
   [keywords]="['service', 'meta', 'head', 'SEO', 'WrMeta']"
   [labels]="['Service']"
@@ -73,6 +73,13 @@
         }
       </small>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Title prefix"
+    description="`titlePrefix` goes in front of the title, joined by `titleSeparator` (default `' - '`). The title under it stays live, and Open Graph and Twitter titles never carry it. [Dialog](/reference/components/dialog) `tabTitle` is built on it."
+  >
+    <ngwr-doc-code [code]="snippets.prefix" language="typescript" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
