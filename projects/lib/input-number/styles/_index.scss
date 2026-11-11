@@ -35,6 +35,12 @@
 
   display: inline-block;
 
+  // A form field stretches the host, and the group is the box the user sees.
+  // Alone, the host shrink-wraps, so 100% is the group's content width again.
+  > .wr-input-group {
+    width: 100%;
+  }
+
   &--sm {
     --wr-input-number-step-icon-size: var(--wr-control-font-size-sm); // 12px
   }
