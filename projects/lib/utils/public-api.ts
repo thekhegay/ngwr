@@ -58,7 +58,7 @@ export { KEYS, KEY_LABELS, hasModifier, isComposing, isPrintableKey } from './ke
 export type { WrKey } from './keyboard';
 
 // Log
-export { badgeLog } from './log';
+export { badgeError, badgeLog, badgeWarn } from './log';
 
 // Text
 export { wrInitials } from './text';
