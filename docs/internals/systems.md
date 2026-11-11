@@ -195,7 +195,11 @@ one component folder. Reach for them instead of hand-rolling:
 - **`wr-table` is the data workhorse** — column pin / resize / drag-reorder, row
   selection, expandable rows, summary rows, CSV export, grouping, **tree rows**
   (`childrenKey` makes `items` the roots and the table announces a `treegrid`)
-  and a virtualized body are all opt-in inputs on the one component. Three pairs
+  and a virtualized body are all opt-in inputs on the one component.
+  `stickyHeader` gives any mode its own scroll area under a sticky header, the
+  one a virtualized body already scrolls in (host class `wr-table--sticky-head`
+  for both), sized by `viewportHeight`, where `'fill'` takes the parent's
+  remaining height. Three pairs
   are refused rather than half-supported: tree + `groupBy`, tree +
   `[wrTableExpand]`, tree + `virtualScroll`. Excel (`.xlsx`)
   export is deliberately NOT shipped (would need a third-party dep). Don't

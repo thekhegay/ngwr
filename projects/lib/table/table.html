@@ -7,8 +7,10 @@
 <div
   class="wr-table__scroll"
   #scroll
-  [style.max-height]="virtualized() ? resolvedViewportHeight() : null"
-  [attr.tabindex]="virtualized() ? 0 : null"
+  [style.--wr-table-scroll-height]="scrollHeight()"
+  [style.--wr-table-head-height.px]="stickyEdges().head"
+  [style.--wr-table-foot-height.px]="stickyEdges().foot"
+  [attr.tabindex]="scrollable() ? 0 : null"
 >
   <table
     class="wr-table__table"
@@ -29,7 +31,7 @@
         <col [style.width.px]="colWidth(col.key)" />
       }
     </colgroup>
-    <thead>
+    <thead #head>
       <tr
         cdkDropList
         cdkDropListOrientation="horizontal"
@@ -368,7 +370,7 @@
     </tbody>
 
     @if (hasSummary() && items()?.length) {
-      <tfoot>
+      <tfoot #foot>
         <tr class="wr-table__foot-row">
           @if (rowSelection()) {
             <td class="wr-table__foot-cell wr-table__foot-cell--lead"></td>

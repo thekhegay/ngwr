@@ -205,6 +205,7 @@ export default class TablePageComponent {
   protected readonly paginatedRows = PAGINATED_ROWS;
   protected readonly page = signal(1);
   protected readonly pageSize = signal(5);
+  protected readonly stickyPage = signal(1);
 
   // Row-actions demo. A column key with no data behind it (`actions`) plus a
   // cell template that reads `let-row="item"` — the pair a "Delete" button needs.
@@ -462,6 +463,18 @@ const columns: WrTableColumns = {
     <small>{{ count }} users</small>
   </ng-template>
 </wr-table>`,
+    sticky: `<wr-table
+  stickyHeader
+  [viewportHeight]="320"
+  [columns]="columns"
+  [items]="rows"
+  [pageSize]="10"
+  [(page)]="page"
+/>`,
+    stickyFill: `<section style="display: flex; flex-direction: column; height: 100dvh">
+  <header>…</header>
+  <wr-table stickyHeader viewportHeight="fill" [columns]="columns" [items]="rows" [pageSize]="50" />
+</section>`,
     virtual: `<wr-table
   virtualScroll
   [rowHeight]="41"
