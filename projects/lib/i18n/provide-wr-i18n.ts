@@ -5,8 +5,17 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { type EnvironmentProviders, type Provider, makeEnvironmentProviders } from '@angular/core';
+import {
+  ApplicationRef,
+  EnvironmentInjector,
+  type EnvironmentProviders,
+  type Provider,
+  inject,
+  makeEnvironmentProviders,
+  provideEnvironmentInitializer,
+} from '@angular/core';
 
+import { WrI18n } from './i18n';
 import { WR_I18N_BASE_CATALOGS, type WrI18nBaseCatalogs } from './i18n-base-catalogs';
 import {
   DEFAULT_WR_I18N_CONFIG,
@@ -32,10 +41,22 @@ export interface ProvideWrI18nOptions extends WrI18nConfig {
   readonly loader?: WrI18nLoader;
 }
 
+/**
+ * Configure {@link WrI18n} for the application.
+ *
+ * Call it in the application's root providers (`bootstrapApplication` or
+ * `ApplicationConfig`), together with {@link provideWrI18nBaseCatalogs} and the
+ * loader. `WrI18n` is a root service: a route's `providers` or a lazy module
+ * never reach it, so a locale or catalogs given there do nothing, and dev mode
+ * warns. A lazy area switches the language at runtime with
+ * `inject(WrI18n).use('de')`, for example in its resolver. The switch is
+ * app-wide, and the locale must be in the root `availableLocales`. The area's
+ * own keys load with `registerScope()`.
+ */
 export function provideWrI18n(options: ProvideWrI18nOptions = {}): EnvironmentProviders {
   const { loader, ...config } = options;
 
-  const providers: Provider[] = [
+  const providers: (Provider | EnvironmentProviders)[] = [
     {
       provide: WR_I18N_CONFIG,
       // A factory rather than a value: `defaultLocale` falls back to `LOCALE_ID`,
@@ -48,6 +69,23 @@ export function provideWrI18n(options: ProvideWrI18nOptions = {}): EnvironmentPr
     },
   ];
   if (loader) providers.push({ provide: WR_I18N_LOADER, useValue: loader });
+
+  if (typeof ngDevMode === 'undefined' || ngDevMode) {
+    providers.push(
+      provideEnvironmentInitializer(() => {
+        const here = inject(EnvironmentInjector);
+        if (here === inject(ApplicationRef, { optional: true })?.injector) return;
+        // An injector that lists WrI18n itself owns an instance that does read this config.
+        if (here.get(WrI18n, null, { self: true })) return;
+        // eslint-disable-next-line no-console -- dev-mode validation
+        console.warn(
+          '[NGWR] provideWrI18n() is in a route or child injector. WrI18n is a root service, so this ' +
+            "configuration is ignored. Move provideWrI18n() and the catalogs to the application's root " +
+            'providers, and switch a lazy area with inject(WrI18n).use(locale).'
+        );
+      })
+    );
+  }
 
   return makeEnvironmentProviders(providers);
 }

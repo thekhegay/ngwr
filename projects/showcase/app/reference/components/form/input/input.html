@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Input"
-  updated="15.0.0"
+  updated="15.8.0"
   description="A directive that styles a native `<input>` or `<textarea>`."
   [keywords]="['input', 'wrInput', 'mask', 'ngx-mask', 'text']"
   [labels]="['Directive', 'a11y']"
@@ -101,6 +101,23 @@
     </ngwr-doc-snippet>
 
     <p>Mask tokens: <a href="https://jsdaddy.github.io/ngx-mask" target="_blank" rel="noopener">ngx-mask docs</a>.</p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Border width"
+    description="`--wr-input-border-width` takes a length. The padding gives back what it adds, so the text stays put."
+  >
+    <ngwr-doc-snippet [code]="snippets.borderWidth">
+      <input wrInput value="1px border" aria-label="1px border" />
+      <input
+        wrInput
+        value="2px border"
+        aria-label="2px border"
+        style="--wr-input-border: var(--wr-color-danger); --wr-input-border-width: 2px"
+      />
+    </ngwr-doc-snippet>
+    <p>A 2px border on every invalid field:</p>
+    <ngwr-doc-code [code]="snippets.borderWidthInvalid" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Disabled">

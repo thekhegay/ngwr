@@ -652,4 +652,23 @@ describe('WrButton stylesheet', () => {
     expect(rule(seam)).toMatch(/box-shadow:\s*inset -1px 0 0/);
     expect(rule(`${seam}:dir(rtl)`)).toMatch(/box-shadow:\s*inset 1px 0 0/);
   });
+
+  it('eases transform with the others and never transitions the focus ring', () => {
+    // `smooth-br` splits the base rule in two, so the declaration is looked for in
+    // every `.wr-btn` block rather than the first.
+    const declared = [...css.matchAll(/(?:^|\n)\.wr-btn\s*\{([^}]*)\}/g)].flatMap(m =>
+      [...m[1].matchAll(/transition:([^;]*);/g)].map(t => t[1])
+    );
+    expect(declared).toHaveLength(1);
+    const entries = declared[0].split(',').map(entry => {
+      const [property, ...timing] = entry.trim().split(/\s+/);
+      return { property, timing: timing.join(' ') };
+    });
+    const properties = entries.map(e => e.property);
+    expect(properties).toContain('transform');
+    expect(properties).not.toContain('all');
+    expect(properties).not.toContain('box-shadow');
+    expect(properties.filter(p => p.startsWith('outline'))).toEqual([]);
+    expect(entries.every(e => e.timing === 'var(--wr-transition-base)')).toBe(true);
+  });
 });

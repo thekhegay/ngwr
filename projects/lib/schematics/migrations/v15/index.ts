@@ -891,7 +891,7 @@ const REPORTS: readonly Report[] = [
   {
     lead: "a sheet that now loads the theme above a configured `@use 'ngwr/theme' with (…)`",
     body:
-      '`ngwr/reset`, `ngwr/animations` and `ngwr/typography-utilities` load the theme now, and Sass configures a ' +
+      '`ngwr/animations` and `ngwr/typography-utilities` load the theme now, and Sass configures a ' +
       'module only at its first load, so the build stops with "This module was already loaded". Move them below ' +
       "the configured `@use 'ngwr/theme'`.",
     find: file => {
@@ -900,7 +900,7 @@ const REPORTS: readonly Report[] = [
       if (!configured) return [];
       return at(
         file.after.slice(0, configured.index),
-        /@(?:use|forward)\s+['"]ngwr\/(?:reset|animations|typography-utilities)['"]/
+        /@(?:use|forward)\s+['"]ngwr\/(?:animations|typography-utilities)['"]/
       );
     },
   },

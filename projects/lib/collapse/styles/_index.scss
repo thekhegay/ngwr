@@ -12,7 +12,10 @@
   --wr-collapse-header-padding-x: var(--wr-space-lg);
   --wr-collapse-header-font-size: var(--wr-text-base);
   --wr-collapse-header-font-weight: var(--wr-font-weight-medium);
+  --wr-collapse-header-hover-bg: var(--wr-color-fill);
   --wr-collapse-inner-padding: var(--wr-space-lg);
+  --wr-collapse-indicator: var(--wr-color-on-surface-muted);
+  --wr-collapse-indicator-size: 1em;
 
   display: block;
   border: 1px solid var(--wr-collapse-border);
@@ -43,7 +46,7 @@
     transition: background var(--wr-transition-base);
 
     &:hover:not(:disabled) {
-      background: var(--wr-color-fill);
+      background: var(--wr-collapse-header-hover-bg);
     }
 
     &:disabled {
@@ -55,14 +58,55 @@
     flex: 1 1 auto;
   }
 
-  &__chevron {
+  &__chevron,
+  &__plus {
     flex: 0 0 auto;
-    color: var(--wr-color-on-surface-muted);
+    inline-size: var(--wr-collapse-indicator-size);
+    block-size: var(--wr-collapse-indicator-size);
+    color: var(--wr-collapse-indicator);
+  }
+
+  &__chevron {
     transition: transform var(--wr-transition-base);
   }
 
   &--open &__chevron {
     transform: rotate(180deg);
+  }
+
+  // The vertical bar lies down onto the horizontal one: a plus becomes a minus
+  // in place, with no box change.
+  &__plus-bar {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform var(--wr-transition-base);
+  }
+
+  &--open &__plus-bar {
+    transform: rotate(90deg);
+  }
+
+  // Flat: no frame, no panel, a divider only BETWEEN rows. The hooks below
+  // are set on the modifier, so a consumer overrides them on `.wr-collapse--flat`.
+  &--flat {
+    --wr-collapse-bg: transparent;
+    --wr-collapse-radius: 0;
+    --wr-collapse-margin-top: 0;
+    --wr-collapse-header-padding-x: 0;
+    --wr-collapse-header-hover-bg: transparent;
+    --wr-collapse-inner-padding: 0 0 var(--wr-space-md);
+
+    border: 0;
+    overflow: visible;
+
+    & + & {
+      border-top: 1px solid var(--wr-collapse-border);
+    }
+  }
+
+  // The body rule between header and content is part of the frame.
+  &--flat &__body--open {
+    border-top-width: 0;
   }
 
   &__body {
@@ -96,6 +140,14 @@
   &--disabled {
     --wr-collapse-color: var(--wr-color-on-surface-muted);
     opacity: var(--wr-disabled-opacity);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wr-collapse__chevron,
+  .wr-collapse__plus-bar,
+  .wr-collapse__body {
+    transition-duration: 1ms;
   }
 }
 

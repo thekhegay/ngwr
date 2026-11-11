@@ -299,6 +299,8 @@ export const API = {
     { name: "title", description: "Header text.", type: "string", required: true },
     { name: "open", description: "Two-way bindable open/closed state.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
+    { name: "bordered", description: "Draws the frame, the panel background and the rounded corners. Turn it off for a flat list: no frame, rows split by a divider line between neighbours.", type: "boolean", default: "true" },
+    { name: "indicator", description: "The header glyph: `chevron` turns over, `plus` becomes a minus while open.", type: "WrCollapseIndicator", default: "'chevron'" },
   ],
   // <wr-collapse-group>
   WrCollapseGroup: [
