@@ -131,7 +131,7 @@ describe('WrToastHarness', () => {
 
     const toast = await rootLoader.getHarness(WrToastHarness);
     expect(await toast.hasCopyAction()).toBe(true);
-    expect(await toast.isDismissible()).toBe(true);
+    expect(await toast.isClosable()).toBe(true);
 
     await toast.dismiss();
     await fixture.whenStable();
@@ -175,7 +175,7 @@ describe('WrToastHarness', () => {
 
     const toast = await rootLoader.getHarness(WrToastHarness);
 
-    expect(await toast.isDismissible()).toBe(false);
+    expect(await toast.isClosable()).toBe(false);
     expect(await toast.hasCopyAction()).toBe(false);
     await expect(toast.dismiss()).rejects.toThrow();
   });

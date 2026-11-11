@@ -890,7 +890,7 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<string | null>',
     },
     {
-      name: 'isDismissible() / dismiss()',
+      name: 'isClosable() / dismiss()',
       description: '`dismiss()` throws when shown with `closable: false`.',
       type: 'Promise<boolean> | Promise<void>',
     },
