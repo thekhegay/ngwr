@@ -62,6 +62,7 @@ export { badgeError, badgeLog, badgeWarn } from './log';
 
 // Text
 export { wrInitials } from './text';
+export type { WrInitialsOptions, WrInitialsOrder, WrInitialsStyle } from './text';
 
 // Feature
 export { wrFeature } from './feature';

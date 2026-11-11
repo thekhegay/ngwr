@@ -82,4 +82,95 @@ describe('wrInitials', () => {
     expect(wrInitials('محمد علي')).toBe('مع');
     expect(wrInitials('דוד בן-גוריון')).toBe('דב');
   });
+
+  describe('letters style, spelled out', () => {
+    it('matches the call without options', () => {
+      for (const name of ['Roman Khegay', 'Ada King Lovelace', 'Madonna', '王 小明', '  ada   lovelace ', '...', '']) {
+        expect(wrInitials(name, undefined, { style: 'letters' })).toBe(wrInitials(name));
+        expect(wrInitials(name, undefined, {})).toBe(wrInitials(name));
+      }
+      expect(wrInitials('ismail', 'tr', { style: 'letters' })).toBe('İ');
+      expect(wrInitials(null, undefined, { style: 'letters' })).toBe('');
+    });
+
+    it('ignores the order', () => {
+      expect(wrInitials('Хегай Роман', undefined, { order: 'family-first' })).toBe('ХР');
+      expect(wrInitials('Roman Khegay', undefined, { style: 'letters', order: 'family-first' })).toBe('RK');
+    });
+  });
+
+  describe('surname style', () => {
+    const given = { style: 'surname' } as const;
+    const family = { style: 'surname', order: 'family-first' } as const;
+
+    it('reads the last part as the family name by default', () => {
+      expect(wrInitials('Roman Khegay', undefined, given)).toBe('Khegay R.');
+      expect(wrInitials('Ada King Lovelace', undefined, given)).toBe('Lovelace A. K.');
+      expect(wrInitials('Roman Khegay', undefined, { style: 'surname', order: 'given-first' })).toBe('Khegay R.');
+    });
+
+    it('reads the first part as the family name when told so', () => {
+      expect(wrInitials('Хегай Роман', undefined, family)).toBe('Хегай Р.');
+      expect(wrInitials('Иванов Иван Иванович', undefined, family)).toBe('Иванов И. И.');
+    });
+
+    it('returns a one-part name as written', () => {
+      expect(wrInitials('Madonna', undefined, given)).toBe('Madonna');
+      expect(wrInitials('madonna', undefined, family)).toBe('madonna');
+    });
+
+    it('gives every other part an initial, not the first two', () => {
+      expect(wrInitials('Pablo Diego José Ruiz Picasso', undefined, given)).toBe('Picasso P. D. J. R.');
+    });
+
+    it('collapses whitespace of any kind', () => {
+      expect(wrInitials('  Roman \t\n  Khegay  ', undefined, given)).toBe('Khegay R.');
+      expect(wrInitials(' Иванов   Иван  Иванович ', undefined, family)).toBe('Иванов И. И.');
+    });
+
+    it('keeps a hyphenated family name whole, and gives a hyphenated given name one initial', () => {
+      expect(wrInitials('Петров-Водкин Кузьма Сергеевич', undefined, family)).toBe('Петров-Водкин К. С.');
+      expect(wrInitials('Jean-Luc Picard', undefined, given)).toBe('Picard J.');
+    });
+
+    it('keeps the family name as written and upper-cases the initials', () => {
+      expect(wrInitials('roman khegay', undefined, given)).toBe('khegay R.');
+      expect(wrInitials("d'Artagnan charles", undefined, family)).toBe("d'Artagnan C.");
+    });
+
+    it('gives nothing for nothing, without throwing', () => {
+      expect(wrInitials(null, undefined, given)).toBe('');
+      expect(wrInitials(undefined, undefined, family)).toBe('');
+      expect(wrInitials('', undefined, given)).toBe('');
+      expect(wrInitials('   ', undefined, family)).toBe('');
+    });
+
+    it('drops a part of punctuation alone before it picks the family name', () => {
+      expect(wrInitials('Ada - Lovelace', undefined, given)).toBe('Lovelace A.');
+      expect(wrInitials('Roman Khegay -', undefined, given)).toBe('Khegay R.');
+      expect(wrInitials('- Хегай Роман', undefined, family)).toBe('Хегай Р.');
+      expect(wrInitials('...', undefined, given)).toBe('');
+    });
+
+    it('takes an initial as the letters style does: one grapheme, past punctuation', () => {
+      expect(wrInitials('émile zola', undefined, given)).toBe('zola É.');
+      expect(wrInitials('e\u0301mile zola', undefined, given)).toBe('zola E\u0301.');
+      expect(wrInitials('👩🏽‍🚀 Tereshkova', undefined, given)).toBe('Tereshkova 👩🏽‍🚀.');
+      expect(wrInitials('𝔄da Lovelace', undefined, given)).toBe('Lovelace 𝔄.');
+      expect(wrInitials('(Ada) Lovelace', undefined, given)).toBe('Lovelace A.');
+      expect(wrInitials('ßen Müller', undefined, given)).toBe('Müller ß.');
+    });
+
+    it('upper-cases an initial with the locale given', () => {
+      expect(wrInitials('ismail Kaya', 'tr', given)).toBe('Kaya İ.');
+      expect(wrInitials('Kaya ismail', 'tr', family)).toBe('Kaya İ.');
+      expect(wrInitials('ismail Kaya', undefined, given)).toBe('Kaya I.');
+    });
+
+    it('has no one-character rule for Han, Hangul or kana', () => {
+      expect(wrInitials('王 小明', undefined, family)).toBe('王 小.');
+      expect(wrInitials('김 철수', undefined, family)).toBe('김 철.');
+      expect(wrInitials('王小明', undefined, family)).toBe('王小明');
+    });
+  });
 });
