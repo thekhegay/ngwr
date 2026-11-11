@@ -1,5 +1,18 @@
 # Changelog
 
+## [15.8.0](https://github.com/thekhegay/ngwr/compare/v15.7.0...v15.8.0) (2026-11-11)
+
+### Features
+
+* **collapse:** flat variant and plus indicator ([8301591](https://github.com/thekhegay/ngwr/commit/8301591e045f79926766253c55ae39fe17ca97a4))
+* **input:** border width hook that keeps the content box ([80ce564](https://github.com/thekhegay/ngwr/commit/80ce564dc909cf2c87079c1a335359cab1d0abf9))
+* **reset:** emit no theme and take an optional cascade layer ([a2e296b](https://github.com/thekhegay/ngwr/commit/a2e296be2863822edd5f5ed742d52327375cdb3c))
+
+### Bug Fixes
+
+* **button:** ease transform in the default transition list ([bfd105b](https://github.com/thekhegay/ngwr/commit/bfd105bc17ab58b60a90d24a72aaa74d96624061))
+* **i18n:** warn when the i18n provider sits in a route injector ([e037b0f](https://github.com/thekhegay/ngwr/commit/e037b0f4f1f46a6e2ccc5091b72087faa8f55f5c))
+
 ## [15.7.0](https://github.com/thekhegay/ngwr/compare/v15.6.0...v15.7.0) (2026-11-09)
 
 ### Features
