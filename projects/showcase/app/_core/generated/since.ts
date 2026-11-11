@@ -142,7 +142,7 @@ export const UPDATED = {
   "reference/components/tabs": "15.10.0",
   "reference/components/textarea": "15.0.0",
   "reference/components/timeline": "15.0.0",
-  "reference/components/toast": "15.0.0",
+  "reference/components/toast": "15.10.0",
   "reference/components/tree": "15.10.0",
   "reference/components/window": "15.1.0",
   "reference/directives/copy-to-clipboard": "15.6.0",
