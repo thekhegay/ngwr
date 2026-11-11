@@ -1256,7 +1256,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * otherwise hang the walk.
    */
   private flattenForest(roots: readonly Record<string, unknown>[]): readonly RenderRow[] {
-    const open = new Set(this.expanded());
+    const open = this.expandedSet();
     const out: RenderRow[] = [];
 
     const walk = (
@@ -1494,8 +1494,10 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     return this.expandTpl()?.template;
   }
 
+  private readonly expandedSet = computed(() => new Set(this.expanded()));
+
   protected isExpanded(row: Record<string, unknown>): boolean {
-    return this.expanded().includes(this.rowKeyOf(row));
+    return this.expandedSet().has(this.rowKeyOf(row));
   }
 
   protected toggleExpand(row: Record<string, unknown>): void {

@@ -2262,3 +2262,72 @@ describe('WrTable page size menu', () => {
     expect(fixture.debugElement.query(By.directive(WrPagination))).not.toBeNull();
   });
 });
+
+describe('WrTable expand state over many rows', () => {
+  const COUNT = 300;
+
+  @Component({
+    imports: [WrTable, WrTableExpand],
+    template: `
+      <wr-table rowKey="id" [columns]="columns" [items]="items" [(expanded)]="expanded">
+        <ng-template wrTableExpand let-row>{{ row.name }} detail</ng-template>
+      </wr-table>
+    `,
+  })
+  class DetailHost {
+    protected readonly columns = COLUMNS;
+    readonly items = Array.from({ length: COUNT }, (_, i) => ({ id: i, name: `Row ${i}`, role: 'user' }));
+    readonly expanded = signal<readonly unknown[]>([]);
+  }
+
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table rowKey="id" childrenKey="kids" [columns]="columns" [items]="items" [(expanded)]="expanded" />`,
+  })
+  class ForestHost {
+    protected readonly columns = COLUMNS;
+    readonly items = Array.from({ length: COUNT }, (_, i) => ({
+      id: `p${i}`,
+      name: `Parent ${i}`,
+      kids: [{ id: `c${i}`, name: `Child ${i}` }],
+    }));
+    readonly expanded = signal<readonly unknown[]>([]);
+  }
+
+  it('marks every row expanded once every key is in the model, and only those rows', () => {
+    const fixture = TestBed.createComponent(DetailHost);
+    const host = fixture.componentInstance;
+    const root = fixture.nativeElement as HTMLElement;
+    const states = (): (string | null)[] =>
+      [...root.querySelectorAll('.wr-table__expand-btn')].map(b => b.getAttribute('aria-expanded'));
+    const details = (): string[] =>
+      [...root.querySelectorAll<HTMLElement>('.wr-table__detail')].map(d => d.textContent.trim());
+
+    host.expanded.set(host.items.map(item => item.id));
+    fixture.detectChanges();
+
+    expect(states()).toHaveLength(COUNT);
+    expect(states().every(state => state === 'true')).toBe(true);
+    expect(details()).toHaveLength(COUNT);
+
+    host.expanded.set([7, 250]);
+    fixture.detectChanges();
+
+    expect(states().filter(state => state === 'true')).toHaveLength(2);
+    expect(details()).toEqual(['Row 7 detail', 'Row 250 detail']);
+  });
+
+  it('opens every parent on expandAllRows', () => {
+    const fixture = TestBed.createComponent(ForestHost);
+    const root = fixture.nativeElement as HTMLElement;
+    fixture.detectChanges();
+    expect(root.querySelectorAll('tbody tr[aria-expanded="true"]')).toHaveLength(0);
+
+    (fixture.debugElement.query(By.directive(WrTable)).componentInstance as WrTable).expandAllRows();
+    fixture.detectChanges();
+
+    expect(root.querySelectorAll('tbody tr[aria-expanded="true"]')).toHaveLength(COUNT);
+    expect(root.querySelectorAll('tbody tr[aria-expanded="false"]')).toHaveLength(0);
+    expect(fixture.componentInstance.expanded()).toHaveLength(COUNT);
+  });
+});
