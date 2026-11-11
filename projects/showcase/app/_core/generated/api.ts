@@ -1064,7 +1064,7 @@ export const API = {
   ],
   // <wr-radio>
   WrRadio: [
-    { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "randomId('wr-radio')" },
+    { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "wrRandomId('wr-radio')" },
     { name: "value", description: "Value selected when this radio is checked.", type: "unknown", required: true },
     { name: "icon", description: "Optional icon name rendered inside the dot when checked, in place of the default solid circle. Use any registered NGWR icon.", type: "WrIconName | null", default: "null" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract. Set per option; the group has no `size`.", type: "WrRadioSize", default: "'md'" },
@@ -1072,7 +1072,7 @@ export const API = {
   ],
   // <wr-radio-group>
   WrRadioGroup: [
-    { name: "name", description: "Shared `name` attribute. Defaults to a random id so multiple groups on the same page don't collide. (Also the `FormUiControl.name` slot.)", type: "string", default: "randomId('wr-radio-group')" },
+    { name: "name", description: "Shared `name` attribute. Defaults to a random id so multiple groups on the same page don't collide. (Also the `FormUiControl.name` slot.)", type: "string", default: "wrRandomId('wr-radio-group')" },
     { name: "disabled", description: "Disable the whole group. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse selection changes while every option stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. Native radios ignore the `readonly` attribute, so the group cancels the activation instead and mirrors the state as `aria-readonly`, which role `radiogroup` supports.", type: "boolean", default: "false" },
     { name: "value", description: "The selected radio's value. Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown", default: "null" },
@@ -1113,7 +1113,7 @@ export const API = {
   // <wr-reveal>
   WrReveal: [
     { name: "text", description: "The text of this run. Breaking spaces stay real spaces, so it wraps as plain text would.", type: "string", required: true },
-    { name: "by", description: "What enters one at a time: a grapheme, or a word. In letter mode the letters of one word sit in a no-wrap wrapper, so a word never breaks across lines mid-word.", type: "WrStaggerBy", default: "'letters'" },
+    { name: "by", description: "What enters one at a time: a grapheme, or a word. In letter mode the letters of one word sit in a no-wrap wrapper, so a word never breaks across lines mid-word.", type: "WrRevealBy", default: "'letters'" },
     { name: "masked", description: "Each word clips its pieces at a padded line box, so a letter comes up from under the line instead of fading in where it stands. Descenders and accents at rest sit inside the padding.", type: "boolean", default: "false" },
     { name: "start", description: "The index of this run's first piece. A headline made of several runs passes each one the count the runs before it used, so they play as one sequence.", type: "number", default: "0" },
     { name: "stagger", description: "Gap between the start of one piece and the next, in ms. Unset, the mode decides: 28 for letters, 70 for words. Either way the sequence up to this run's last piece spreads over 1.2 s at most; a long sequence of several runs sets the same `stagger` on each, so the gap is one gap.", type: "number | null", default: "null" },
@@ -1327,7 +1327,7 @@ export const API = {
   // <wr-switch>
   WrSwitch: [
     { name: "ariaLabel", description: "Accessible name for a switch used WITHOUT projected text. The wrapping `<label>` names the control whenever content is projected; with none, the label is empty and the input has no name at all.", type: "string | null", default: "null" },
-    { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "randomId('wr-switch')" },
+    { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "wrRandomId('wr-switch')" },
     { name: "disabled", description: "Disable the switch. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse edits while staying focusable and submittable. Bound automatically from the field's readonly state when used with `[formField]`. A native checkbox ignores the `readonly` attribute, so this cancels the click's activation behaviour instead — which covers Space too, since the key arrives as a click — and mirrors the state as `aria-readonly`, which role `switch` supports.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrSwitchSize", default: "'md'" },
@@ -1337,7 +1337,7 @@ export const API = {
   // <wr-tab>
   WrTab: [
     { name: "title", description: "Visible label on the tab strip.", type: "string", required: true },
-    { name: "key", description: "Stable identifier used by the parent to track the active tab. Auto-generated if omitted.", type: "string", default: "randomId('wr-tab')" },
+    { name: "key", description: "Stable identifier used by the parent to track the active tab. Auto-generated if omitted.", type: "string", default: "wrRandomId('wr-tab')" },
     { name: "routerLink", description: "Router target — when set, the tab becomes a `[routerLink]` link.", type: "string | readonly string[] | null", default: "null" },
     { name: "disabled", description: "Disable the tab.", type: "boolean", default: "false" },
   ],
@@ -1410,7 +1410,7 @@ export const API = {
   ],
   // <wr-tag>
   WrTag: [
-    { name: "color", description: "Color variant — decoration or category, never the state on its own. The label carries the state (`Failed`, not a red `Build`): four of the five intents share one lightness and `success` against `danger` is 1.004:1, so a reader who cannot separate red from green cannot tell those two tags apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand for a status by itself, give it an `icon` as well — register one with `provideWrIcons(lucideIcons({ 'octagon-alert': OctagonAlert }))`, then write `<wr-tag color=\"danger\" icon=\"octagon-alert\">Failed</wr-tag>`.", type: "WrColor | null", default: "'primary'" },
+    { name: "color", description: "Color variant — decoration or category, never the state on its own. The label carries the state (`Failed`, not a red `Build`): four of the five intents share one lightness and `success` against `danger` is 1.004:1, so a reader who cannot separate red from green cannot tell those two tags apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand for a status by itself, give it an `icon` as well — register one with `provideWrIcons(wrLucideIcons({ 'octagon-alert': OctagonAlert }))`, then write `<wr-tag color=\"danger\" icon=\"octagon-alert\">Failed</wr-tag>`.", type: "WrColor | null", default: "'primary'" },
     { name: "icon", description: "Icon name shown alongside the content — the one channel besides the label that a tag has, so the one to reach for when colour is carrying a status. Nothing ships built in: register the name through `provideWrIcons` first. The icon is replaced by a spinner when `loading` is true.", type: "WrIconName | null", default: "null" },
     { name: "iconPosition", description: "Where the icon/spinner is rendered.", type: "WrTagIconPosition", default: "'start'" },
     { name: "outlined", description: "Outlined style — colored text and border on a tinted background.", type: "boolean", default: "false" },
