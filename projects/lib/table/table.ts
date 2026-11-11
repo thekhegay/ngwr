@@ -266,6 +266,24 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   readonly rowSelection = input<'single' | 'multiple' | null>(null);
 
   /**
+   * What the header select-all covers. `'page'` is the rows on screen: the
+   * current page, less a collapsed group's rows and a closed parent's children.
+   * `'all'` is the same rule over every page of `items`, so the box reads
+   * checked only when all of them are selected, mixed when some are, and one
+   * click selects or clears them all. Either way a selected key that is not in
+   * the scope stays selected.
+   *
+   * The table filters nothing itself: `items` is already what the filters left,
+   * so `'all'` never reaches a row a filter removed. Group band checkboxes keep
+   * their page scope, since grouping runs after pagination.
+   *
+   * In server mode (`total` set) the table holds one page and cannot name the
+   * rows of the others, so `'all'` behaves as `'page'` there.
+   * @default 'page'
+   */
+  readonly selectAllScope = input<'page' | 'all'>('page');
+
+  /**
    * Extra CSS classes per body row, from the row and its drawn index.
    *
    * The `<tr>` is ngwr's own element and there is no template slot that renders
@@ -803,6 +821,15 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
           console.warn(`[NGWR] <wr-table>: \`childrenKey\` cannot be combined with ${pair}.`);
         }
       });
+      let scopeWarned = false;
+      effect(() => {
+        if (scopeWarned || this.selectAllScope() !== 'all' || this.total() === null) return;
+        scopeWarned = true;
+        // eslint-disable-next-line no-console -- dev-mode validation
+        console.warn(
+          '[NGWR] <wr-table>: `selectAllScope="all"` cannot be combined with `total` (the table holds one page in server mode, so the select-all covers that page).'
+        );
+      });
     }
 
     // Re-measure whenever the columns or their rendered widths change. Tables
@@ -1286,22 +1313,45 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       .map(entry => this.rowKeyOf(entry.row))
   );
 
+  /**
+   * The header select-all's keys: {@link pageRowKeys}, or under
+   * `selectAllScope="all"` the keys every page would put on screen.
+   */
+  protected readonly selectAllKeys = computed<ReadonlySet<unknown>>(() => {
+    const rows = this.rows();
+    if (this.selectAllScope() !== 'all' || this.total() !== null || !rows) return new Set(this.pageRowKeys());
+    if (this.treeMode()) {
+      return new Set(
+        this.flattenForest(rows).flatMap(entry => (entry.kind === 'row' ? [this.rowKeyOf(entry.row)] : []))
+      );
+    }
+    const by = this.groupBy();
+    if (by === null) return new Set(rows.map(row => this.rowKeyOf(row)));
+    const collapsed = new Set(this.collapsedGroups());
+    return new Set(
+      rows.filter(row => !collapsed.has(typeof by === 'function' ? by(row) : row[by])).map(row => this.rowKeyOf(row))
+    );
+  });
+
   protected isRowSelected(row: Record<string, unknown>): boolean {
     return this.selectionSet().has(this.rowKeyOf(row));
   }
 
-  /** Every current-page row selected (drives the header checkbox). */
+  /** Every row in the select-all scope selected (drives the header checkbox). */
   protected readonly allSelected = computed<boolean>(() => {
-    const keys = this.pageRowKeys();
-    if (keys.length === 0) return false;
+    const keys = this.selectAllKeys();
+    if (keys.size === 0) return false;
     const sel = this.selectionSet();
-    return keys.every(key => sel.has(key));
+    for (const key of keys) if (!sel.has(key)) return false;
+    return true;
   });
 
   /** Some but not all selected (drives the header indeterminate). */
   protected readonly someSelected = computed<boolean>(() => {
+    if (this.allSelected()) return false;
     const sel = this.selectionSet();
-    return this.pageRowKeys().some(key => sel.has(key)) && !this.allSelected();
+    for (const key of this.selectAllKeys()) if (sel.has(key)) return true;
+    return false;
   });
 
   protected toggleRow(row: Record<string, unknown>, checked: boolean): void {
@@ -1315,7 +1365,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   /** Add (or remove) a set of row keys from the selection in one update. */
-  private applySelection(keys: readonly unknown[], checked: boolean): void {
+  private applySelection(keys: Iterable<unknown>, checked: boolean): void {
     const sel = this.selection();
     if (checked) {
       const merged = new Set(sel);
@@ -1328,7 +1378,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   protected toggleAll(checked: boolean): void {
-    this.applySelection(this.pageRowKeys(), checked);
+    this.applySelection(this.selectAllKeys(), checked);
   }
 
   // --- Row expansion --------------------------------------------------------

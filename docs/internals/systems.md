@@ -201,7 +201,9 @@ one component folder. Reach for them instead of hand-rolling:
   for both), sized by `viewportHeight`, where `'fill'` takes the parent's
   remaining height. A pinned edge casts its shadow only over hidden columns:
   the host wears `wr-table--overflow-start` / `--overflow-end`, measured on the
-  scroll area. Three pairs
+  scroll area. `selectAllScope="all"` widens the header select-all from the page
+  to every page of `items`, under the same on-screen rule (no collapsed group, no
+  closed subtree); with `total` it stays the page and warns. Three pairs
   are refused rather than half-supported: tree + `groupBy`, tree +
   `[wrTableExpand]`, tree + `virtualScroll`. Excel (`.xlsx`)
   export is deliberately NOT shipped (would need a third-party dep). Don't

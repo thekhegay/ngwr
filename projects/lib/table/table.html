@@ -51,7 +51,7 @@
                 size="sm"
                 [checked]="allSelected()"
                 [indeterminate]="someSelected()"
-                [disabled]="pageRowKeys().length === 0"
+                [disabled]="selectAllKeys().size === 0"
                 (checkedChange)="toggleAll($event)"
                 [ariaLabel]="resolvedSelectAllLabel()"
               />

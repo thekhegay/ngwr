@@ -242,6 +242,7 @@ export default class TablePageComponent {
   };
 
   protected readonly selected = signal<readonly unknown[]>([]);
+  protected readonly selectedAcross = signal<readonly unknown[]>([]);
   protected readonly expanded = signal<readonly unknown[]>([]);
 
   protected readonly summaryRows: readonly Record<string, unknown>[] = [
@@ -414,6 +415,15 @@ effect(() => {
     selection: `<wr-table
   rowSelection="multiple"
   rowKey="email"
+  [(selection)]="selected"
+  [columns]="columns"
+  [items]="rows"
+/>`,
+    selectAllScope: `<wr-table
+  rowSelection="multiple"
+  selectAllScope="all"
+  rowKey="email"
+  [pageSize]="5"
   [(selection)]="selected"
   [columns]="columns"
   [items]="rows"
