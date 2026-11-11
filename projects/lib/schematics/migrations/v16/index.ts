@@ -14,7 +14,9 @@ import * as ts from 'typescript';
  * `Maybe` is `WrMaybe`. A rename is the shape a codemod exists for, since the
  * new name means what the old one meant in the same place.
  *
- * **It REWRITES**, in TypeScript only:
+ * It also carries the four inputs and options v16 renamed (see below).
+ *
+ * **It REWRITES**, in TypeScript:
  *
  * - a named import of an old name from the entry point that exported it, and
  *   every use of that binding in the file. `import { clamp as c }` keeps `c`
@@ -34,8 +36,8 @@ import * as ts from 'typescript';
  * is enough, because the question is which declaration IN the file a name
  * points at.
  *
- * No template is touched. A template reads its component's members, never an
- * import, so a renamed constant reaches one through a field
+ * No template is touched for these. A template reads its component's members,
+ * never an import, so a renamed constant reaches one through a field
  * (`protected readonly KEYS = KEYS`) whose own name is the app's and stays; the
  * initialiser is TypeScript and is rewritten there. No pipe, directive or
  * component was renamed.
@@ -44,8 +46,29 @@ import * as ts from 'typescript';
  * only the imported one moves (`import { wrClamp as clamp }`), and the file is
  * listed, since that is the one case left reading the old name.
  *
+ * **The renamed inputs and options** are rewritten where the place says whose
+ * they are:
+ *
+ * - `showLabel` on `<wr-slider>` is `showValue`, and `showLabel` / `hideLabel`
+ *   on `<wr-password-toggle>` are `showPasswordLabel` / `hidePasswordLabel`:
+ *   the attribute and the `[binding]`, in `.html` files and in inline
+ *   templates, on that element alone. `showLabel` on anything else stays;
+ * - the toast option `dismissible` is `closable`, in an object the file itself
+ *   says is a toast's options: the argument of `show()` on something declared
+ *   with `WrToast`, an object declared, asserted or `satisfies`-checked as
+ *   `WrToastOptions`, and a member read off one. The checker resolves nothing
+ *   outside the file, so "declared with" is read off the declaration: its type
+ *   or its initialiser names the `ngwr/toast` import.
+ *
  * **It REPORTS**, naming each file and line and changing nothing:
  *
+ * - a `dismissible` it could not place, in a file that imports `WrToast` or
+ *   `WrToastOptions`: an object passed on through a variable, a spread or a
+ *   function is the app's to check;
+ * - `isOpen.set()` / `isOpen.update()` on a `WrPopover` or a `WrDropdown`, in
+ *   TypeScript and on a `#ref="wrPopover"` in a template. The signal is
+ *   read-only now, and whether the call meant `open()` or `close()` is the
+ *   app's to say;
  * - an import of `ngwr/animations/core`. The entry point is gone: what the
  *   effects share is internal, and nothing in an app should have reached it;
  * - a `vi.mock()` / `jest.mock()` or an `import()` of an entry point with
@@ -137,16 +160,59 @@ const RENAMES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
   },
 };
 
+/** The imports whose declarations place a renamed option or a read-only signal. */
+const WATCHED: Readonly<Record<string, Readonly<Record<string, 'toast' | 'options' | 'opener'>>>> = {
+  'ngwr/toast': { WrToast: 'toast', WrToastOptions: 'options' },
+  'ngwr/popover': { WrPopover: 'opener' },
+  'ngwr/dropdown': { WrDropdown: 'opener' },
+};
+
+const DISMISSIBLE = 'dismissible';
+const CLOSABLE = 'closable';
+
+/**
+ * What an open tag may hold before the attribute a rule is after: a quoted
+ * value consumed only as a pair, or one character that is neither a quote nor
+ * `>`. The form `migration-v15` carries, for the reasons it gives: a `>` inside
+ * a binding does not end the tag, and no pairing can start at a closing quote.
+ */
+const IN_TAG = String.raw`(?:"[^"]*"|'[^']*'|[^>"'])*?`;
+
+/** `from` as an attribute or a `[binding]` on `<element>`, and on nothing else. */
+const inputOn = (element: string, from: string, to: string): Transform => ({
+  pattern: new RegExp(String.raw`(<${element}(?![-\w])${IN_TAG}\s\[?)${from}(?![-\w])`, 'g'),
+  replacement: `$1${to}`,
+});
+
+const INPUT_RENAMES: readonly Transform[] = [
+  inputOn('wr-slider', 'showLabel', 'showValue'),
+  inputOn('wr-password-toggle', 'showLabel', 'showPasswordLabel'),
+  inputOn('wr-password-toggle', 'hideLabel', 'hidePasswordLabel'),
+];
+
+/** A template reference to a popover or a dropdown: `#menu="wrDropdown"`. */
+const OPENER_REF = /#([A-Za-z_$][\w$]*)\s*=\s*["'](?:wrPopover|wrDropdown)["']/g;
+
+/** A file whose markup may hold any of it. Cheap, and wrong only towards reading. */
+const MARKUP = /<wr-slider|<wr-password-toggle|wrPopover|wrDropdown/;
+
 /** The entry point v16 made internal. */
 const ANIMATIONS_CORE = 'ngwr/animations/core';
 
 const IGNORE_DIRS = new Set(['node_modules', 'dist', '.git', '.cache', '.angular', 'coverage', '.next', '.nuxt']);
 
 /** A file worth parsing: it names an entry point this rule knows. Cheap, and wrong only towards parsing. */
-const MENTIONS = new RegExp([...Object.keys(RENAMES), ANIMATIONS_CORE].map(name => `['"\`]${name}['"\`]`).join('|'));
+const MENTIONS = new RegExp(
+  [...Object.keys(RENAMES), ...Object.keys(WATCHED), ANIMATIONS_CORE].map(name => `['"\`]${name}['"\`]`).join('|')
+);
 
 const MOCKS = new Set(['mock', 'doMock', 'unmock', 'importActual', 'importMock', 'requireActual']);
 const PROMISE_MEMBERS = new Set(['then', 'catch', 'finally']);
+
+interface Transform {
+  readonly pattern: RegExp;
+  readonly replacement: string;
+}
 
 interface Edit {
   readonly start: number;
@@ -165,6 +231,8 @@ interface FileResult {
   readonly core: readonly number[];
   readonly dynamic: readonly number[];
   readonly kept: readonly number[];
+  readonly dismissible: readonly number[];
+  readonly opens: readonly number[];
 }
 
 /** The table for a module specifier, or nothing when the module exported no renamed name. */
@@ -230,6 +298,8 @@ function migrateFile(path: string, before: string): FileResult {
   const core: number[] = [];
   const dynamic: number[] = [];
   const kept: number[] = [];
+  const dismissible: number[] = [];
+  const opens: number[] = [];
   const replace = (node: ts.Node, text: string): void => {
     edits.push({ start: node.getStart(source), end: node.getEnd(), text });
   };
@@ -239,11 +309,23 @@ function migrateFile(path: string, before: string): FileResult {
   /** A namespace import of a module with renamed exports. */
   const namespaces: { readonly name: ts.Identifier; readonly table: Readonly<Record<string, string>> }[] = [];
 
+  /** A named import this rule reads declarations against. */
+  const watched: { readonly name: ts.Identifier; readonly role: 'toast' | 'options' | 'opener' }[] = [];
+
   for (const statement of source.statements) {
     if (ts.isImportDeclaration(statement)) {
       if (isCore(statement.moduleSpecifier)) core.push(statement.getStart(source));
       const table = renamesOf(statement.moduleSpecifier);
       const named = statement.importClause?.namedBindings;
+      const module = ts.isStringLiteralLike(statement.moduleSpecifier) ? statement.moduleSpecifier.text : '';
+      if (named && ts.isNamedImports(named) && Object.hasOwn(WATCHED, module)) {
+        for (const specifier of named.elements) {
+          const imported = (specifier.propertyName ?? specifier.name).text;
+          if (Object.hasOwn(WATCHED[module], imported)) {
+            watched.push({ name: specifier.name, role: WATCHED[module][imported] });
+          }
+        }
+      }
       if (!table || !named) continue;
 
       if (ts.isNamespaceImport(named)) {
@@ -290,8 +372,16 @@ function migrateFile(path: string, before: string): FileResult {
   const spaces = new Map<ts.Symbol, Readonly<Record<string, string>>>();
   let checker: ts.TypeChecker | undefined;
 
-  if (bindings.length > 0 || namespaces.length > 0) {
+  const toasts = new Set<ts.Symbol>();
+  const toastOptions = new Set<ts.Symbol>();
+  const openers = new Set<ts.Symbol>();
+
+  if (bindings.length > 0 || namespaces.length > 0 || watched.length > 0) {
     checker = checkerFor(source);
+    for (const { name, role } of watched) {
+      const symbol = checker.getSymbolAtLocation(name);
+      if (symbol) (role === 'toast' ? toasts : role === 'options' ? toastOptions : openers).add(symbol);
+    }
     for (const { specifier, to } of bindings) {
       const symbol = checker.getSymbolAtLocation(specifier.name);
       if (taken.has(to) || !symbol) {
@@ -321,9 +411,107 @@ function migrateFile(path: string, before: string): FileResult {
     }
   };
 
+  /** Whether `node` names one of `symbols` anywhere in it. */
+  const names = (node: ts.Node | undefined, symbols: ReadonlySet<ts.Symbol>): boolean => {
+    if (!node || !checker) return false;
+    if (ts.isIdentifier(node)) {
+      const symbol = checker.getSymbolAtLocation(node);
+      return !!symbol && symbols.has(symbol);
+    }
+    return !!ts.forEachChild(node, child => names(child, symbols) || undefined);
+  };
+
+  /** Whether a declaration says, by its type, its initialiser or a decorator, that it holds one of `symbols`. */
+  const declaredWith = (declaration: ts.Declaration, symbols: ReadonlySet<ts.Symbol>): boolean => {
+    if (ts.isVariableDeclaration(declaration) || ts.isPropertyDeclaration(declaration) || ts.isParameter(declaration)) {
+      return (
+        names(declaration.type, symbols) ||
+        names(declaration.initializer, symbols) ||
+        (ts.canHaveDecorators(declaration) && !!ts.getDecorators(declaration)?.some(d => names(d, symbols)))
+      );
+    }
+    if (ts.isPropertySignature(declaration) || ts.isFunctionLike(declaration)) return names(declaration.type, symbols);
+    return false;
+  };
+
+  /**
+   * Whether `expression` reads something declared with one of `symbols`:
+   * `toast`, `this.toast`, `inject(WrToast)`, a signal query read as
+   * `this.menu()`, an element of an array of them.
+   */
+  const comesFrom = (expression: ts.Expression, symbols: ReadonlySet<ts.Symbol>): boolean => {
+    if (!checker || symbols.size === 0) return false;
+    let current = unwrap(expression);
+    while (ts.isCallExpression(current) || ts.isElementAccessExpression(current)) {
+      if (ts.isCallExpression(current)) {
+        const given = [...current.arguments, ...(current.typeArguments ?? [])];
+        if (given.some(node => names(node, symbols))) return true;
+      }
+      current = unwrap(current.expression);
+    }
+    const name = ts.isPropertyAccessExpression(current) ? current.name : current;
+    if (!ts.isIdentifier(name)) return false;
+    return !!checker.getSymbolAtLocation(name)?.declarations?.some(d => declaredWith(d, symbols));
+  };
+
+  /** Whether the file itself says this object literal is a toast's options. */
+  const isToastOptions = (literal: ts.Expression): boolean => {
+    let node: ts.Expression = literal;
+    let parent = node.parent;
+    while (ts.isParenthesizedExpression(parent) || ts.isArrayLiteralExpression(parent)) {
+      node = parent;
+      parent = node.parent;
+    }
+    if (ts.isSatisfiesExpression(parent) || ts.isAsExpression(parent)) return names(parent.type, toastOptions);
+    if (ts.isVariableDeclaration(parent) || ts.isPropertyDeclaration(parent) || ts.isParameter(parent)) {
+      return parent.initializer === node && names(parent.type, toastOptions);
+    }
+    return (
+      node === literal &&
+      ts.isCallExpression(parent) &&
+      parent.arguments[0] === literal &&
+      ts.isPropertyAccessExpression(parent.expression) &&
+      parent.expression.name.text === 'show' &&
+      comesFrom(parent.expression.expression, toasts)
+    );
+  };
+
+  const watchesToast = toasts.size > 0 || toastOptions.size > 0;
+  const isDismissible = (name: ts.Node | undefined): name is ts.Identifier | ts.StringLiteral =>
+    !!name && (ts.isIdentifier(name) || ts.isStringLiteral(name)) && name.text === DISMISSIBLE;
+
+  /** The `dismissible` of a toast's options: rewritten where the file places it, listed where it does not. */
+  const toastOption = (node: ts.Node): void => {
+    if (ts.isPropertyAssignment(node) && isDismissible(node.name)) {
+      if (!isToastOptions(node.parent)) dismissible.push(node.getStart(source));
+      else if (ts.isIdentifier(node.name)) replace(node.name, CLOSABLE);
+      else edits.push({ start: node.name.getStart(source) + 1, end: node.name.getEnd() - 1, text: CLOSABLE });
+    } else if (ts.isShorthandPropertyAssignment(node) && isDismissible(node.name)) {
+      if (isToastOptions(node.parent)) replace(node.name, `${CLOSABLE}: ${DISMISSIBLE}`);
+      else dismissible.push(node.getStart(source));
+    } else if (ts.isPropertyAccessExpression(node) && isDismissible(node.name)) {
+      if (comesFrom(node.expression, toastOptions)) replace(node.name, CLOSABLE);
+      else dismissible.push(node.name.getStart(source));
+    } else if (ts.isBindingElement(node) && ts.isObjectBindingPattern(node.parent)) {
+      if (isDismissible(node.propertyName ?? node.name)) dismissible.push(node.getStart(source));
+    }
+  };
+
   const visit = (node: ts.Node): void => {
     if (ts.isImportDeclaration(node)) return;
     if (ts.isExportDeclaration(node) && node.moduleSpecifier) return;
+
+    if (watchesToast) toastOption(node);
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      (node.expression.name.text === 'set' || node.expression.name.text === 'update') &&
+      ts.isPropertyAccessExpression(node.expression.expression) &&
+      node.expression.expression.name.text === 'isOpen' &&
+      comesFrom(node.expression.expression.expression, openers)
+    ) {
+      opens.push(node.getStart(source));
+    }
 
     const loaded = dynamicImportOf(node);
     const mocked = mockOf(node);
@@ -397,7 +585,22 @@ function migrateFile(path: string, before: string): FileResult {
       edits.reduce((at, edit) => (edit.end <= offset ? at + edit.text.length - (edit.end - edit.start) : at), offset)
     );
 
-  return { text, core: shifted(core), dynamic: shifted(dynamic), kept: shifted(kept) };
+  return {
+    text,
+    core: shifted(core),
+    dynamic: shifted(dynamic),
+    kept: shifted(kept),
+    dismissible: shifted(dismissible),
+    opens: shifted(opens),
+  };
+}
+
+/** Where a template writes the open state of a popover or a dropdown it holds a reference to. */
+function templateOpens(text: string): number[] {
+  const refs = new Set([...text.matchAll(OPENER_REF)].map(match => match[1].replace(/\$/g, '\\$')));
+  if (refs.size === 0) return [];
+  const write = new RegExp(String.raw`(?<![\w$.])(?:${[...refs].join('|')})\??\.isOpen\.(?:set|update)\(`, 'g');
+  return [...text.matchAll(write)].map(match => match.index);
 }
 
 /** The 1-based lines `offsets` fall on, each once, in order. */
@@ -418,30 +621,44 @@ function ngUpdateV16(): Rule {
     const core: Hit[] = [];
     const dynamic: Hit[] = [];
     const kept: Hit[] = [];
+    const dismissible: Hit[] = [];
+    const opens: Hit[] = [];
     let rewritten = 0;
 
     visit(tree, '/', path => {
-      if (!isTypeScript(path)) return;
+      const code = isTypeScript(path);
+      if (!code && !/\.html$/i.test(path)) return;
       const before = tree.readText(path);
-      if (!MENTIONS.test(before)) return;
+      const markup = MARKUP.test(before);
+      const parsed = code && MENTIONS.test(before);
+      if (!markup && !parsed) return;
 
-      const result = migrateFile(path, before);
-      if (result.text !== before) {
-        tree.overwrite(path, result.text);
+      // An inline template is markup inside a .ts file, so the same rules read both.
+      const renamed = markup
+        ? INPUT_RENAMES.reduce((text, rule) => text.replace(rule.pattern, rule.replacement), before)
+        : before;
+      const result = parsed ? migrateFile(path, renamed) : undefined;
+      const after = result?.text ?? renamed;
+      if (after !== before) {
+        tree.overwrite(path, after);
         rewritten += 1;
       }
       const record = (into: Hit[], offsets: readonly number[]): void => {
-        if (offsets.length > 0) into.push({ path, lines: linesOf(result.text, offsets) });
+        if (offsets.length > 0) into.push({ path, lines: linesOf(after, offsets) });
       };
-      record(core, result.core);
-      record(dynamic, result.dynamic);
-      record(kept, result.kept);
+      record(core, result?.core ?? []);
+      record(dynamic, result?.dynamic ?? []);
+      record(kept, result?.kept ?? []);
+      record(dismissible, result?.dismissible ?? []);
+      record(opens, [...(result?.opens ?? []), ...(markup ? templateOpens(after) : [])]);
     });
 
     if (rewritten > 0) {
       context.logger.info(
         `ngwr v16 migration: rewrote ${rewritten} file(s): the wr / WR_ / Wr prefix on the functions, constants and ` +
-          'types imported from ngwr, and every use of them.'
+          'types imported from ngwr and every use of them, `dismissible` to `closable` in toast options, ' +
+          '`showLabel` to `showValue` on <wr-slider>, and `showLabel` / `hideLabel` to `showPasswordLabel` / ' +
+          '`hidePasswordLabel` on <wr-password-toggle>.'
       );
       context.logger.info('Verify the result with `git diff` — a few edge cases may need manual touch-up.');
     }
@@ -471,6 +688,18 @@ function ngUpdateV16(): Rule {
       'The new name was already taken in the file, so the import reads `{ wrX as x }` and its uses are unchanged. ' +
         'It builds as it is; rename the binding when the clash is gone.',
       kept
+    );
+    warn(
+      '`dismissible` that may be a toast option',
+      'The toast option is `closable` now, and was renamed where the file says the object is a `WrToastOptions` ' +
+        'or goes straight into `WrToast.show()`; these it could not place. Rename the ones a toast reads.',
+      dismissible
+    );
+    warn(
+      '`isOpen.set()` / `isOpen.update()` on a popover or a dropdown',
+      '`isOpen` is a read-only signal now, so the call no longer compiles. Call `open()` or `close()` instead, ' +
+        'or `toggle()` where the call flipped it.',
+      opens
     );
 
     if (rewritten === 0 && reported === 0) {

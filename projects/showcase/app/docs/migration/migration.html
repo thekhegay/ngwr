@@ -51,7 +51,7 @@
 
   <ngwr-doc-section
     title="v15 to v16"
-    description="Every public function, constant and type carries the `wr`, `WR_` or `Wr` prefix. `ng update` runs `migration-v16`."
+    description="Every public function, constant and type carries the `wr`, `WR_` or `Wr` prefix, and four inputs and options changed name. `ng update` runs `migration-v16`."
   >
     <ngwr-doc-code [code]="snippets.v16Renames" language="diff" />
     <ng-container
@@ -65,6 +65,20 @@
       <li>
         Unchanged: <code>provide*</code>, <code>with*</code>, <code>use*</code> and <code>inject*</code> functions,
         classes and pipes.
+      </li>
+    </ul>
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v16Inputs, head: ['Before', 'After', 'Codemod'] }"
+    />
+    <ul>
+      <li>An input is renamed on its own element alone, in templates and inline templates.</li>
+      <li>
+        <code>dismissible</code> is renamed in the argument of <code>show()</code> and in an object typed
+        <code>WrToastOptions</code>. One passed through a variable is listed.
+      </li>
+      <li>
+        Writing <code>isOpen</code> moved the signal without the panel, so it no longer compiles. The codemod lists each
+        call.
       </li>
     </ul>
   </ngwr-doc-section>

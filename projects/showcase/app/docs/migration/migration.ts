@@ -25,7 +25,11 @@ interface Change {
 export default class MigrationPageComponent {
   /** What `ng update ngwr` does for each major, newest first. */
   protected readonly majors: readonly Change[] = [
-    { before: 'v16', after: 'Rewrites the renamed functions, constants and types, lists `ngwr/animations/core`.' },
+    {
+      before: 'v16',
+      after:
+        'Rewrites the renamed functions, constants, types, inputs and toast option, lists `ngwr/animations/core` and `isOpen.set()`.',
+    },
     {
       before: 'v15',
       after: 'Rewrites paths, config calls, `-rgb` reads, renamed tokens and two values, lists files for the rest.',
@@ -97,6 +101,26 @@ export default class MigrationPageComponent {
     {
       before: '`ngwr/animations/core`',
       after: 'Gone. Import the effect from `ngwr/animations/<name>`.',
+      update: 'Lists files',
+    },
+  ];
+
+  /** The inputs and the option v16 renamed, and the signal it made read-only. */
+  protected readonly v16Inputs: readonly Change[] = [
+    {
+      before: '`dismissible` in `WrToastOptions`',
+      after: '`closable`',
+      update: 'Rewrites, lists what it cannot place',
+    },
+    { before: '`showLabel` on `<wr-slider>`', after: '`showValue`', update: 'Rewrites' },
+    {
+      before: '`showLabel`, `hideLabel` on `<wr-password-toggle>`',
+      after: '`showPasswordLabel`, `hidePasswordLabel`',
+      update: 'Rewrites',
+    },
+    {
+      before: '`isOpen.set()` on `WrPopover` and `WrDropdown`',
+      after: '`isOpen` is read-only: `open()`, `close()`, `toggle()`',
       update: 'Lists files',
     },
   ];

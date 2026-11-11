@@ -171,7 +171,7 @@ that sequence is a position rather than an oversight:
   run over the v14 showcase edited a real import because of one. Do not write
   a migration for a later major unless the maintainer asks for one; the shape
   rule above says what such a rule may rewrite.
-- **v16 ships `migration-v16`, a rename and one report.** v16 put the prefix on
+- **v16 ships `migration-v16`, a rename and its reports.** v16 put the prefix on
   every public function, constant and type that lacked it (`clamp` to `wrClamp`,
   `KEYS` to `WR_KEYS`, `Maybe` to `WrMaybe`), with no alias left behind, and a
   rename is the plainest case of the rule. It is also the first migration that
@@ -189,6 +189,20 @@ that sequence is a position rather than an oversight:
   same footing `@schematics/angular` is imported on. It REPORTS an import of
   `ngwr/animations/core`, which stopped being an entry point, and a mock factory
   or dynamic `import()` whose names are object keys it cannot follow.
+  It also carries the inputs and the option v16 renamed, each only where the
+  place says whose it is: `showLabel` to `showValue` on `<wr-slider>`,
+  `showLabel` / `hideLabel` to `showPasswordLabel` / `hidePasswordLabel` on
+  `<wr-password-toggle>` (the attribute and the binding, with `migration-v15`'s
+  quote-safe tag pattern, in `.html` and inline templates), and the toast
+  option `dismissible` to `closable`. The checker resolves nothing outside the
+  file, so "is a toast's options" is read off the declaration: the argument of
+  `show()` on something whose type or initialiser names the `WrToast` import,
+  an object declared, asserted or `satisfies`-checked as `WrToastOptions`. A
+  `dismissible` it cannot place in a file that imports either is REPORTED, and
+  so is `isOpen.set()` / `isOpen.update()` on a `WrPopover` or `WrDropdown`
+  (found the same way, and on a `#ref="wrPopover"` in a template): `isOpen` is
+  read-only there, and whether the write meant `open()` or `close()` is the
+  app's to say.
 - **v14 ships `migration-v14`, split down the middle of the rule**, and that
   split is the thing to copy. It REWRITES the six renames — on `<wr-alert>`
   from `closeable` to `closable`, on `<wr-table>` from `totalItems` to `total`,
