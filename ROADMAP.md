@@ -4,7 +4,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very high
 
-- **Naming and types**: small mismatches across tabs, slider, input, alert, drawer, toast, popover and dropdown.
 
 ## High
 
