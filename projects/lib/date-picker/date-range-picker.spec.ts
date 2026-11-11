@@ -53,6 +53,7 @@ const REFUSAL_COPY = [
       [timeFormat]="timeFormat()"
       [showSeconds]="showSeconds()"
       [size]="size()"
+      [clearable]="clearable()"
       [disabled]="disabled()"
       [readonly]="readonly()"
       (touch)="touched.set(touched() + 1)"
@@ -69,6 +70,7 @@ class Host {
   readonly timeFormat = signal<'auto' | '12h' | '24h'>('24h');
   readonly showSeconds = signal(false);
   readonly size = signal<WrDatePickerSize>('md');
+  readonly clearable = signal(false);
   readonly disabled = signal(false);
   readonly readonly = signal(false);
   readonly touched = signal(0);
@@ -784,6 +786,69 @@ describe('WrDateRangePicker', () => {
     fixture.detectChanges();
 
     expect(calendar()).toBeNull();
+  });
+
+  describe('clear button', () => {
+    const clear = (): HTMLElement | null => root().querySelector<HTMLElement>('.wr-date-picker__clear');
+    const set = (range: WrDateRange | null): void => {
+      fixture.componentInstance.period.set(range);
+      fixture.detectChanges();
+    };
+
+    beforeEach(() => {
+      fixture.componentInstance.clearable.set(true);
+      set([new Date(2025, 0, 10), new Date(2025, 0, 20)]);
+    });
+
+    it('is off by default', () => {
+      fixture.componentInstance.clearable.set(false);
+      fixture.detectChanges();
+
+      expect(clear()).toBeNull();
+    });
+
+    it('is a named button between the end field and the trigger, out of the tab order', () => {
+      expect(clear()!.getAttribute('role')).toBe('button');
+      expect(clear()!.getAttribute('aria-label')).toBe('Clear');
+      expect(clear()!.getAttribute('tabindex')).toBe('-1');
+      expect(endField().nextElementSibling).toBe(clear());
+      expect(clear()!.nextElementSibling).toBe(trigger());
+    });
+
+    it('is hidden with no value, and shown for a half-picked range', () => {
+      set(null);
+      expect(clear()).toBeNull();
+
+      set([null, null]);
+      expect(clear()).toBeNull();
+
+      set([new Date(2025, 0, 10), null]);
+      expect(clear()).not.toBeNull();
+    });
+
+    it('is hidden while disabled or readonly', () => {
+      fixture.componentInstance.disabled.set(true);
+      fixture.detectChanges();
+      expect(clear()).toBeNull();
+
+      fixture.componentInstance.disabled.set(false);
+      fixture.componentInstance.readonly.set(true);
+      fixture.detectChanges();
+      expect(clear()).toBeNull();
+    });
+
+    it('commits both ends as null on a click, emits touch and hands focus to the start field', () => {
+      const touched = fixture.componentInstance.touched();
+      clear()!.click();
+      fixture.detectChanges();
+
+      expect(period()).toEqual([null, null]);
+      expect(startField().value).toBe('');
+      expect(endField().value).toBe('');
+      expect(document.activeElement).toBe(startField());
+      expect(fixture.componentInstance.touched()).toBe(touched + 1);
+      expect(clear()).toBeNull();
+    });
   });
 
   it('keeps the md fields free of a size modifier', () => {

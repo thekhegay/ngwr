@@ -63,6 +63,7 @@ const REFUSAL_COPY: (Provider | EnvironmentProviders)[] = [
       [showSeconds]="showSeconds()"
       [panelAriaLabel]="panelAriaLabel()"
       [size]="size()"
+      [clearable]="clearable()"
       [disabled]="disabled()"
       [readonly]="readonly()"
       (touch)="touched.set(touched() + 1)"
@@ -80,6 +81,7 @@ class Host {
   readonly showSeconds = signal(false);
   readonly panelAriaLabel = signal<string | null>(null);
   readonly size = signal<WrDatePickerSize>('md');
+  readonly clearable = signal(false);
   readonly disabled = signal(false);
   readonly readonly = signal(false);
   readonly touched = signal(0);
@@ -974,6 +976,70 @@ describe('WrDatePicker', () => {
 
       expect(calendar()).toBeNull();
       expect(document.activeElement).toBe(trigger());
+    });
+  });
+
+  describe('clear button', () => {
+    const clear = (): HTMLElement | null => root().querySelector<HTMLElement>('.wr-date-picker__clear');
+
+    beforeEach(() => {
+      fixture.componentInstance.clearable.set(true);
+      fixture.detectChanges();
+    });
+
+    it('is off by default', () => {
+      fixture.componentInstance.clearable.set(false);
+      fixture.detectChanges();
+
+      expect(clear()).toBeNull();
+    });
+
+    it('is a named button between the field and the trigger, out of the tab order', () => {
+      expect(clear()!.getAttribute('role')).toBe('button');
+      expect(clear()!.getAttribute('aria-label')).toBe('Clear');
+      expect(clear()!.getAttribute('tabindex')).toBe('-1');
+      expect(field().nextElementSibling).toBe(clear());
+      expect(clear()!.nextElementSibling).toBe(trigger());
+    });
+
+    it('is hidden with no value', () => {
+      fixture.componentInstance.picked.set(null);
+      fixture.detectChanges();
+
+      expect(clear()).toBeNull();
+    });
+
+    it('is hidden while disabled or readonly', () => {
+      fixture.componentInstance.disabled.set(true);
+      fixture.detectChanges();
+      expect(clear()).toBeNull();
+
+      fixture.componentInstance.disabled.set(false);
+      fixture.componentInstance.readonly.set(true);
+      fixture.detectChanges();
+      expect(clear()).toBeNull();
+    });
+
+    it('commits null on a click, empties the field, emits touch and hands focus to the field', () => {
+      const touched = fixture.componentInstance.touched();
+      clear()!.click();
+      fixture.detectChanges();
+
+      expect(picked()).toBeNull();
+      expect(field().value).toBe('');
+      expect(document.activeElement).toBe(field());
+      expect(fixture.componentInstance.touched()).toBe(touched + 1);
+      expect(clear()).toBeNull();
+    });
+
+    it('takes refused text away with the value', () => {
+      type('not a date');
+      clear()!.click();
+      fixture.detectChanges();
+
+      expect(picked()).toBeNull();
+      expect(field().value).toBe('');
+      expect(host().classList).not.toContain('wr-date-picker--invalid');
     });
   });
 

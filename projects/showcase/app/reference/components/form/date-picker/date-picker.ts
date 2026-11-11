@@ -54,6 +54,9 @@ export default class DatePickerPageComponent {
   protected readonly sized = signal<Date | null>(null);
   protected readonly sizedPeriod = signal<WrDateRange | null>(null);
 
+  protected readonly clearableDate = signal<Date | null>(new Date());
+  protected readonly clearablePeriod = signal<WrDateRange | null>([new Date(), new Date()]);
+
   // Bound so the lint rule's unbound-method check stays satisfied.
   private readonly required = Validators.required.bind(Validators);
   protected readonly reactiveForm = new FormGroup({
@@ -132,6 +135,9 @@ export class MyComponent {
 
     sizes: `<wr-date-picker size="sm" [(value)]="picked" />
 <wr-date-range-picker size="lg" [(value)]="period" />`,
+
+    clearable: `<wr-date-picker clearable [(value)]="picked" />
+<wr-date-range-picker clearable [(value)]="period" />`,
 
     forms: `<!-- Signal Forms -->
 <wr-date-picker [formField]="form.due" />
@@ -227,6 +233,18 @@ export class MyComponent {
       description: 'Control size, forwarded to both fields. The popup keeps its size.',
       type: 'WrDatePickerSize',
       default: "'md'",
+    },
+    {
+      name: 'clearable',
+      description: 'Show a clear (×) button once either end is picked. It sets both ends to `null`.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'clearLabel',
+      description: 'Clear button aria-label. Falls back to `common.clear`.',
+      type: 'string | null',
+      default: 'null',
     },
     { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
     {
