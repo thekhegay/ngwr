@@ -52,6 +52,8 @@ export class WrToastItem {
   readonly dismissible = input<boolean>(true);
   readonly showProgress = input<boolean>(false);
   readonly showCopy = input<boolean>(false);
+  /** Text of the action button, from `WrToastOptions.action`. `null` renders none. */
+  readonly actionLabel = input<string | null>(null);
   /** Extra classes from `WrToastOptions.class`, merged into the host's own. */
   readonly extraClass = input<WrClassInput>(null);
   /** Auto-dismiss duration in ms — used to scale the progress bar. `0` hides it. */
@@ -63,6 +65,7 @@ export class WrToastItem {
   readonly labels = input.required<{ [K in keyof WrToastConfig['labels']]: string }>();
 
   readonly dismissed = output<void>();
+  readonly actionRequested = output<void>();
   readonly pauseRequested = output<void>();
   readonly resumeRequested = output<void>();
 

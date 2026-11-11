@@ -236,13 +236,22 @@ export class WrToastHost {
    * @internal
    */
   protected onItemDismissed(id: number, index: number): void {
+    this.removeItem(index, () => this.dismissed.emit(id));
+  }
+
+  /** The action button closes its toast too, so focus moves the same way. @internal */
+  protected onItemAction(id: number, index: number): void {
+    this.removeItem(index, () => this.actionRequested.emit(id));
+  }
+
+  private removeItem(index: number, remove: () => void): void {
     const item = this.items()[index]?.nativeElement as HTMLElement | undefined;
     const active = item?.ownerDocument.activeElement;
     const hadFocus = !!item?.contains(active ?? null) && hasKeyboardFocus(active);
     const origin = this.focusOrigin;
     // Synchronous: the service removes the toast here, and disposes this host
     // when it was the last one.
-    this.dismissed.emit(id);
+    remove();
     if (!hadFocus) return;
     if (this.toasts().length === 0) {
       returnFocus(origin, this.focusMonitor);
@@ -346,6 +355,7 @@ export class WrToastHost {
 
   /** @internal — service listens to update its internal state. */
   readonly dismissed = output<number>();
+  readonly actionRequested = output<number>();
   readonly pauseRequested = output<number>();
   readonly resumeRequested = output<number>();
   /** @internal — `true` while the pointer or focus is inside the region. */

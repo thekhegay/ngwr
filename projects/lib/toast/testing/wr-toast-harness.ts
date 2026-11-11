@@ -103,6 +103,17 @@ export class WrToastHarness extends ComponentHarness {
     await (await this.locatorFor('.wr-toast__action--copy')()).click();
   }
 
+  /** The action button's text, or `null` for a toast shown without an `action`. */
+  async getActionLabel(): Promise<string | null> {
+    const action = await this.locatorForOptional('.wr-toast__action--run')();
+    return action ? action.text() : null;
+  }
+
+  /** Click the action button. Throws on a toast shown without an `action`. */
+  async runAction(): Promise<void> {
+    await (await this.locatorFor('.wr-toast__action--run')()).click();
+  }
+
   /** Whether the auto-dismiss progress bar is showing. */
   async hasProgressBar(): Promise<boolean> {
     return (await this.locatorForOptional('.wr-toast__progress')()) !== null;

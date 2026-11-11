@@ -183,6 +183,13 @@ $toast-colors: (
   --wr-toast-actions-gap: var(--wr-space-xs);
   --wr-toast-action-padding: var(--wr-space-xs);
   --wr-toast-action-radius: var(--wr-border-radius-sm);
+  // The text button of `WrToastOptions.action`. The two hooks above are shared
+  // with the copy and close buttons; these five are its own.
+  --wr-toast-action-color: var(--wr-color-primary-ink);
+  --wr-toast-action-hover-bg: var(--wr-color-hover);
+  --wr-toast-action-padding-x: var(--wr-space-sm);
+  --wr-toast-action-font-size: var(--wr-text-sm);
+  --wr-toast-action-font-weight: var(--wr-font-weight-medium);
 
   position: relative;
   display: flex;
@@ -325,6 +332,23 @@ $toast-colors: (
     }
   }
 
+  // Text on the toast's surface, so it reads the intent's `-ink`, not the bare
+  // accent the glyph and the border keep.
+  &__action--run {
+    padding-inline: var(--wr-toast-action-padding-x);
+    color: var(--wr-toast-action-color);
+    font-family: inherit;
+    font-size: var(--wr-toast-action-font-size);
+    font-weight: var(--wr-toast-action-font-weight);
+    line-height: 1;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--wr-toast-action-color);
+      background: var(--wr-toast-action-hover-bg);
+    }
+  }
+
   &__progress {
     position: absolute;
     bottom: 0;
@@ -361,6 +385,7 @@ $toast-colors: (
   @each $variant, $color in $toast-colors {
     &--#{$variant} {
       --wr-toast-accent: var(--wr-color-#{$color});
+      --wr-toast-action-color: var(--wr-color-#{$color}-ink);
     }
   }
 }
@@ -467,6 +492,11 @@ $toast-colors: (
     width: 2rem;
     height: 2rem;
     padding: 0;
+  }
+
+  .wr-toast__action--run {
+    width: auto;
+    padding-inline: var(--wr-toast-action-padding-x);
   }
 
   .wr-toast-host__close-all {
