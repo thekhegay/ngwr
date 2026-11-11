@@ -146,6 +146,14 @@
     &.wr-select {
       --wr-select-min-width: 0;
     }
+
+    // The select takes the pager's size, so its text matches the cells. Its
+    // height scale (22 / 30 / 36px) is not the cells' (28 / 32 / 40px), so the
+    // trigger is locked to the cell height the same way the buttons are.
+    .wr-select__trigger {
+      height: var(--wr-pagination-cell, 2rem);
+      padding-block: 0;
+    }
   }
 
   // Size variants — set the cell size; each button gets the matching [size].

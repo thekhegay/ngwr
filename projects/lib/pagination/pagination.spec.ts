@@ -6,7 +6,7 @@ import { wrEn } from 'ngwr/i18n/en';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrPagination } from './pagination';
-import type { WrPaginationAlign, WrPaginationShape } from './types';
+import type { WrPaginationAlign, WrPaginationShape, WrPaginationSize } from './types';
 
 @Component({
   imports: [WrPagination],
@@ -19,6 +19,7 @@ import type { WrPaginationAlign, WrPaginationShape } from './types';
       [showSizeChanger]="showSizeChanger()"
       [showTotal]="showTotal()"
       [responsive]="responsive()"
+      [size]="size()"
     />
   `,
 })
@@ -30,6 +31,7 @@ class Host {
   readonly showSizeChanger = signal(false);
   readonly showTotal = signal(false);
   readonly responsive = signal(false);
+  readonly size = signal<WrPaginationSize>('sm');
 }
 
 /**
@@ -253,6 +255,18 @@ describe('WrPagination', () => {
     fixture.detectChanges();
 
     expect(root().querySelector('wr-select')).not.toBeNull();
+  });
+
+  it('sizes the size changer with the pager, so its text matches the cells', () => {
+    fixture.componentInstance.showSizeChanger.set(true);
+    fixture.detectChanges();
+    const select = (): HTMLElement => root().querySelector<HTMLElement>('wr-select')!;
+    expect(select().classList).toContain('wr-select--sm');
+
+    fixture.componentInstance.size.set('lg');
+    fixture.detectChanges();
+    expect(select().classList).toContain('wr-select--lg');
+    expect(root().querySelector('.wr-pagination__page')!.classList).toContain('wr-btn--lg');
   });
 
   it('names the size changer on the combobox, where a screen reader reads it', () => {
