@@ -196,8 +196,10 @@ export class WrPopover {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
-  /** @internal */
-  readonly isOpen = signal(false);
+  private readonly openState = signal(false);
+
+  /** Whether the popover is open. Read-only: `open()` and `close()` change it. */
+  readonly isOpen = this.openState.asReadonly();
 
   /** @internal */
   protected readonly isTooltip = computed(() => this.mode() === 'tooltip');
@@ -306,11 +308,11 @@ export class WrPopover {
   }
 
   open(): void {
-    this.isOpen.set(true);
+    this.openState.set(true);
   }
 
   close(): void {
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   /**
@@ -323,7 +325,7 @@ export class WrPopover {
    * can never be closed from there.
    */
   toggle(): void {
-    this.isOpen.update(v => !v);
+    this.openState.update(v => !v);
   }
 
   // Host listeners
@@ -343,7 +345,7 @@ export class WrPopover {
     }
     if (this.trigger() !== 'hover') return;
     this.clearHoverClose();
-    this.isOpen.set(true);
+    this.openState.set(true);
   }
 
   /** @internal */
@@ -378,14 +380,14 @@ export class WrPopover {
     if (this.isTooltip() || this.trigger() !== 'hover' || this.isOpen()) return;
     event.preventDefault();
     this.openedByKeyboard = true;
-    this.isOpen.set(true);
+    this.openState.set(true);
   }
 
   /** @internal */
   protected onEscape(): void {
     if (!this.isTooltip()) return;
     this.clearTimers();
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   /**
@@ -421,12 +423,12 @@ export class WrPopover {
     const text = this.content();
     if (typeof text === 'string' && !text) return;
     this.clearTimers();
-    this.showTimer = setTimeout(() => this.isOpen.set(true), this.showDelay());
+    this.showTimer = setTimeout(() => this.openState.set(true), this.showDelay());
   }
 
   private scheduleHide(): void {
     this.clearTimers();
-    this.hideTimer = setTimeout(() => this.isOpen.set(false), this.hideDelay());
+    this.hideTimer = setTimeout(() => this.openState.set(false), this.hideDelay());
   }
 
   private clearTimers(): void {
@@ -541,7 +543,7 @@ export class WrPopover {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;
-        this.isOpen.set(false);
+        this.openState.set(false);
       });
 
     this.overlayRef
@@ -550,7 +552,7 @@ export class WrPopover {
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
-          this.isOpen.set(false);
+          this.openState.set(false);
         }
       });
 
@@ -652,7 +654,7 @@ export class WrPopover {
     }
     wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
     this.closeOverlay();
-    this.isOpen.set(false);
+    this.openState.set(false);
   };
 
   /**
@@ -668,7 +670,7 @@ export class WrPopover {
   private readonly onPaneFocusOut = (event: FocusEvent): void => {
     const next = event.relatedTarget as Node | null;
     if (next ? this.holdsFocus(next) : this.keystroke.key !== WR_KEYS.TAB) return;
-    this.isOpen.set(false);
+    this.openState.set(false);
   };
 
   /**
@@ -711,7 +713,7 @@ export class WrPopover {
 
   private scheduleHoverClose(): void {
     this.clearHoverClose();
-    this.hoverCloseTimer = setTimeout(() => this.isOpen.set(false), 120);
+    this.hoverCloseTimer = setTimeout(() => this.openState.set(false), 120);
   }
 
   private clearHoverClose(): void {
