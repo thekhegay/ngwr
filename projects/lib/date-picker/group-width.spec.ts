@@ -29,4 +29,15 @@ describe('date picker group width', () => {
   it('fills the host of a single picker', () => expectFilled('.wr-date-picker'));
 
   it('fills the host of a range picker', () => expectFilled('.wr-date-range-picker'));
+
+  it.each(['sm', 'lg'])('hands the group and the trigger the %s control tokens', size => {
+    const group = rule(`.wr-date-picker--${size} > .wr-input-group,\n.wr-date-range-picker--${size} > .wr-input-group`);
+    expect(group).toContain(`--wr-input-group-radius: var(--wr-control-radius-${size});`);
+    expect(group).toContain(`--wr-input-group-padding-x: var(--wr-control-padding-x-${size});`);
+
+    const trigger = rule(
+      `.wr-date-picker--${size} .wr-date-picker__trigger,\n.wr-date-range-picker--${size} .wr-date-picker__trigger`
+    );
+    expect(trigger).toContain(`--wr-date-picker-trigger-icon-size: var(--wr-control-font-size-${size});`);
+  });
 });

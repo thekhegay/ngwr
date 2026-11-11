@@ -12,7 +12,7 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDateRangePicker } from './date-range-picker';
-import type { WrDateRange } from './types';
+import type { WrDatePickerSize, WrDateRange } from './types';
 
 /**
  * The app's copy for the refusals the cases below read aloud. ngwr ships no error
@@ -52,6 +52,7 @@ const REFUSAL_COPY = [
       [dateFilter]="dateFilter()"
       [timeFormat]="timeFormat()"
       [showSeconds]="showSeconds()"
+      [size]="size()"
       [disabled]="disabled()"
       [readonly]="readonly()"
       (touch)="touched.set(touched() + 1)"
@@ -67,6 +68,7 @@ class Host {
   readonly dateFilter = signal<((date: Date) => boolean) | null>(null);
   readonly timeFormat = signal<'auto' | '12h' | '24h'>('24h');
   readonly showSeconds = signal(false);
+  readonly size = signal<WrDatePickerSize>('md');
   readonly disabled = signal(false);
   readonly readonly = signal(false);
   readonly touched = signal(0);
@@ -782,6 +784,22 @@ describe('WrDateRangePicker', () => {
     fixture.detectChanges();
 
     expect(calendar()).toBeNull();
+  });
+
+  it('keeps the md fields free of a size modifier', () => {
+    for (const field of fields()) expect(field.className).not.toMatch(/wr-input--(sm|lg)/);
+    expect(root().querySelector('wr-date-range-picker')!.className).not.toMatch(/wr-date-range-picker--(sm|md|lg)/);
+  });
+
+  it.each(['sm', 'lg'] as const)('forwards size %s to both fields and mirrors it on the host', size => {
+    fixture.componentInstance.size.set(size);
+    fixture.detectChanges();
+
+    for (const field of fields()) expect(field.classList).toContain(`wr-input--${size}`);
+    // The group carries no size of its own, so its radius, the separator and the trigger read the host.
+    const host = root().querySelector('wr-date-range-picker')!;
+    expect(host.classList).toContain(`wr-date-range-picker--${size}`);
+    expect(host.querySelector('.wr-input-group')).not.toBeNull();
   });
 });
 

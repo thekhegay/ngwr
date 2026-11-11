@@ -46,7 +46,7 @@ import {
 } from './internal/input-refusal';
 import { WrDateRangeEndInput } from './internal/range-end-input';
 import { tabLeavesPane } from './internal/tab-out';
-import type { WrDateInputError, WrDateRange, WrDateRangeInputError } from './types';
+import type { WrDateInputError, WrDatePickerSize, WrDateRange, WrDateRangeInputError } from './types';
 
 /** Which end of the range an edit applies to. */
 type RangeEnd = 0 | 1;
@@ -158,6 +158,12 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   /** Minute / second step for the time panels. @default 1 */
   readonly step = input(1, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 1)) });
+
+  /**
+   * Control size — forwarded to each field's `[size]`, and shares the
+   * `--wr-control-*` contract. The panel keeps its size. @default 'md'
+   */
+  readonly size = input<WrDatePickerSize>('md');
 
   /**
    * Disable interaction. Bound automatically from the field's disabled state
@@ -376,6 +382,8 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-date-range-picker', `wr-date-range-picker--${this.mode()}`];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-date-range-picker--${size}`);
     if (this.disabled()) parts.push('wr-date-range-picker--disabled');
     if (this.shownErrors().some(Boolean)) parts.push('wr-date-range-picker--invalid');
     return parts.join(' ');

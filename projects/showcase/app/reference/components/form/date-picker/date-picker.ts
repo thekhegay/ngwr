@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
-import { type WrDateRange, WrDatePicker, WrDateRangePicker } from 'ngwr/date-picker';
+import { type WrDatePickerSize, type WrDateRange, WrDatePicker, WrDateRangePicker } from 'ngwr/date-picker';
 import { WrFormError, WrFormField } from 'ngwr/form';
 import { WrKbd } from 'ngwr/keyboard';
 
@@ -49,6 +49,10 @@ export default class DatePickerPageComponent {
 
   protected readonly period = signal<WrDateRange | null>(null);
   protected readonly window = signal<WrDateRange | null>(null);
+
+  protected readonly sizes: readonly WrDatePickerSize[] = ['sm', 'md', 'lg'];
+  protected readonly sized = signal<Date | null>(null);
+  protected readonly sizedPeriod = signal<WrDateRange | null>(null);
 
   // Bound so the lint rule's unbound-method check stays satisfied.
   private readonly required = Validators.required.bind(Validators);
@@ -125,6 +129,9 @@ export class MyComponent {
   format="dd.MM.yyyy HH:mm"
   [(value)]="window"
 />`,
+
+    sizes: `<wr-date-picker size="sm" [(value)]="picked" />
+<wr-date-range-picker size="lg" [(value)]="period" />`,
 
     forms: `<!-- Signal Forms -->
 <wr-date-picker [formField]="form.due" />
@@ -215,6 +222,12 @@ export class MyComponent {
       default: 'false',
     },
     { name: 'step', description: 'Minute / second step for the time panels.', type: 'number', default: '1' },
+    {
+      name: 'size',
+      description: 'Control size, forwarded to both fields. The popup keeps its size.',
+      type: 'WrDatePickerSize',
+      default: "'md'",
+    },
     { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
     {
       name: 'panelAriaLabel',
