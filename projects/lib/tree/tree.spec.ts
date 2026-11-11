@@ -1,6 +1,6 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormField, form } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
@@ -10,7 +10,7 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTree } from './tree';
-import type { WrTreeNode, WrTreeSelectionMode } from './types';
+import type { WrTreeNode, WrTreeSelectionMode, WrTreeSize } from './types';
 
 @Component({
   imports: [WrTree],
@@ -67,6 +67,16 @@ class Host {
 class OverlayHost {
   readonly nodes = signal(NODES);
   readonly picked = signal<unknown>(undefined);
+}
+
+@Component({
+  imports: [WrTree],
+  template: `<wr-tree [openOn]="openOn()" [size]="size()" [nodes]="nodes" />`,
+})
+class SizeHost {
+  readonly nodes = NODES;
+  readonly openOn = signal<'inline' | 'overlay'>('overlay');
+  readonly size = signal<WrTreeSize>('md');
 }
 
 /**
@@ -1370,5 +1380,37 @@ describe('WrTree focused by its bound field', () => {
     expect(document.activeElement).toBe(trigger);
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     expect(document.querySelector('.wr-tree-panel')).toBeNull();
+  });
+});
+
+describe('WrTree trigger size', () => {
+  let fixture: ComponentFixture<SizeHost>;
+  const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-tree')!;
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(SizeHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('carries no size modifier at md', () => {
+    expect(host().className).not.toMatch(/wr-tree--(sm|md|lg)/);
+  });
+
+  it.each(['sm', 'lg'] as const)('puts size %s on the host, where the trigger reads it', size => {
+    fixture.componentInstance.size.set(size);
+    fixture.detectChanges();
+
+    expect(host().classList).toContain(`wr-tree--${size}`);
+    expect(host().querySelector('.wr-tree__trigger')).not.toBeNull();
+  });
+
+  it('sizes nothing inline, where there is no trigger', () => {
+    fixture.componentInstance.openOn.set('inline');
+    fixture.componentInstance.size.set('lg');
+    fixture.detectChanges();
+
+    expect(host().className).not.toMatch(/wr-tree--(sm|lg)/);
   });
 });
