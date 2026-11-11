@@ -10,9 +10,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Medium
 
-- **jsdom 31**: the compare and graph specs assert exact inline-style strings; check the geometry instead so the Dependabot bump goes green.
-- **Peer floors**: the `rxjs` and `prosemirror-*` floors are below anything tested. Extend the floor spec to every peer.
-- **Testing guide**: the comment and load-state harnesses are missing from it, with a check that names every `/testing` entry point.
 - **Toast action**: an action button such as Undo or Retry.
 - **Date range presets**: one-click ranges such as Last 7 days, with labels from the app.
 - **Sortable list groups**: drag between connected lists, with a move event that says from and to.
