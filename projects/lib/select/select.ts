@@ -1587,8 +1587,10 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
 
   // WrSelectContext
 
+  private readonly selectedSet = computed(() => new Set(this.asArray(this.value())));
+
   isSelected(value: unknown): boolean {
-    if (this.isMulti()) return this.asArray(this.value()).includes(value);
+    if (this.isMulti()) return this.selectedSet().has(value);
     return this.value() === value;
   }
 
