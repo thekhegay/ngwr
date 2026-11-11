@@ -1,0 +1,77 @@
+<ngwr-doc-page
+  title="wrFitText"
+  since="16.0.0"
+  description="Shrink a block whose text wraps to the width of its longest line."
+  [keywords]="['wrFitText', 'fit', 'text', 'wrap', 'shrink', 'directive']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="A wrapped block keeps the width it was offered, so a tinted pill carries an empty band beside its text. `wrFitText` sets the host's inline `width` to its widest line. The line breaks stay where they were."
+  >
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Without</p>
+          <div class="fit-text-demo">
+            <wr-tag class="fit-text-demo__pill" transparent color="success">{{ label }}</wr-tag>
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>wrFitText</code>
+          </p>
+          <div class="fit-text-demo">
+            <wr-tag class="fit-text-demo__pill" wrFitText transparent color="success">{{ label }}</wr-tag>
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What it needs"
+    description="A host that takes a width and wraps: a block, an inline-block, a flex or grid item. `wr-tag` is one line by default, so let it wrap first."
+  >
+    <ngwr-doc-code [code]="snippets.scss" language="scss" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">When</th>
+            <th scope="col">What happens</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">The text changes</th>
+            <td>Measured again on the next frame.</td>
+          </tr>
+          <tr>
+            <th scope="row">The parent gets wider or narrower</th>
+            <td>Measured again on the next frame.</td>
+          </tr>
+          <tr>
+            <th scope="row">The text fits on one line</th>
+            <td>No width is written.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>[wrFitText]="false"</code></th>
+            <td>The width it wrote is removed.</td>
+          </tr>
+          <tr>
+            <th scope="row">Server rendering</th>
+            <td>Nothing: the width is written in the browser.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

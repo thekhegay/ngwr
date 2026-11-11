@@ -269,6 +269,7 @@ export const ROUTES = {
         path: 'copy-to-clipboard',
         title: 'wrCopyToClipboard',
       },
+      fitText: { path: 'fit-text', title: 'wrFitText' },
       typography: { path: 'typography', title: 'wrTypography API' },
     },
     pipes: {
