@@ -687,6 +687,27 @@ it('walks focus without moving the selection', async () => {
   await expect(transfer.moveTo('target')).rejects.toThrow(/nothing staged/);
 });`,
 
+    commentComposer: `it('sends the draft on Enter', async () => {
+  const composer = await loader.getHarness(WrCommentComposerHarness.with({ placeholder: 'Message' }));
+  expect(await composer.canSend()).toBe(false);
+
+  await composer.setValue('On my way');
+  await composer.pressEnter();
+
+  // With clearOnSend the field is empty once the text is out.
+  expect(await composer.getValue()).toBe('');
+  await expect(composer.send()).rejects.toThrow(/disabled/);
+});`,
+
+    loadState: `it('retries a failed load', async () => {
+  const orders = await loader.getHarness(WrLoadStateHarness);
+  expect(await orders.getState()).toBe('error');
+
+  await orders.retry();
+  expect(await orders.isRetrying()).toBe(true);
+  expect(await orders.isBusy()).toBe(true);
+});`,
+
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 export class MyWidgetHarness extends ComponentHarness {
@@ -2161,6 +2182,43 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'Item: getLabel() / isChecked() / isDisabled() / toggle() / check() / uncheck()',
       description: '`WrTransferItemHarness`. A disabled row refuses.',
       type: 'Promise<…>',
+    },
+  ];
+
+  protected readonly commentComposerApi: readonly DocApiRow[] = [
+    {
+      name: 'getField()',
+      description: 'The field, for everything `WrTextareaHarness` answers.',
+      type: 'Promise<WrTextareaHarness>',
+    },
+    {
+      name: 'getValue() / setValue(value) / getPlaceholder() / getSendLabel()',
+      description: '`WrCommentComposerHarness`. The draft and the names. Filters: `value`, `placeholder`, `disabled`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'canSend() / send() / pressEnter()',
+      description: '`send()` throws when the button is disabled. `pressEnter()` never throws.',
+      type: 'Promise<boolean> | Promise<void>',
+    },
+    {
+      name: 'isDisabled() / isReadonly() / isSending() / focus() / isFocused()',
+      description: 'State and focus. `isSending()` reads `aria-busy`.',
+      type: 'Promise<boolean> | Promise<void>',
+    },
+  ];
+
+  protected readonly loadStateApi: readonly DocApiRow[] = [
+    {
+      name: 'getState()',
+      description: "`'loading'`, `'error'`, `'empty'` or `'ready'`, from the host's modifier class. Filter: `state`.",
+      type: 'Promise<WrLoadStateStatus>',
+    },
+    { name: 'isBusy()', description: 'Whether a load is in flight, from `aria-busy`.', type: 'Promise<boolean>' },
+    {
+      name: 'getRetryButton() / isRetrying() / retry()',
+      description: 'The default failure. All three throw outside it, and under a `wrLoadStateError` template.',
+      type: 'Promise<WrButtonHarness> | Promise<boolean> | Promise<void>',
     },
   ];
 
