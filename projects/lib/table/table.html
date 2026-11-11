@@ -402,6 +402,7 @@
       [pageSize]="currentPageSize()"
       (pageSizeChange)="onPageSizeChange($event)"
       [total]="resolvedTotal()"
+      [size]="paginationSize()"
       [showSizeChanger]="pageSizeOptions().length > 0"
       [pageSizeOptions]="pageSizeOptions()"
     />

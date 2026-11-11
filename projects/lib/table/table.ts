@@ -9,9 +9,9 @@ import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
-import type { ElementRef } from '@angular/core';
 import {
   Component,
+  ElementRef,
   afterNextRender,
   PLATFORM_ID,
   TemplateRef,
@@ -34,7 +34,7 @@ import {
 
 import { WrCheckbox } from 'ngwr/checkbox';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { WrPagination } from 'ngwr/pagination';
+import { WrPagination, type WrPaginationSize } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
 import {
   KEYS,
@@ -140,6 +140,19 @@ function decimalSummary(kind: 'sum' | 'avg' | 'min' | 'max', values: readonly un
  * A header or body cell's classes: the base, the `align` modifier and the
  * column's own `class`, in that order.
  */
+/**
+ * Whether a projected template is an `<ng-template>` element rather than an
+ * `@if` / `@for` / `@switch` block, which a `TemplateRef` query matches too.
+ * Angular offers no public way to tell them apart. The compiler gives an
+ * `<ng-template>` that tag name and never gives it to a block, so this reads
+ * it off the template's declaration node. Dev-mode only: where that field is
+ * missing, every template counts.
+ */
+function isNgTemplateElement(tpl: TemplateRef<unknown>): boolean {
+  const tag = (tpl as unknown as { _declarationTContainer?: { value?: unknown } })._declarationTContainer?.value;
+  return tag === undefined || tag === 'ng-template';
+}
+
 function cellClasses(base: 'wr-table__th' | 'wr-table__td', column: Pick<WrTableColumn, 'align' | 'class'>): string {
   const own = column.align ? `${base} ${base}--align-${column.align}` : base;
   return column.class ? toClassList(own, column.class).join(' ') : own;
@@ -528,6 +541,9 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    */
   readonly pageSizeOptions = input<readonly number[]>([]);
 
+  /** Size of the pager under the table: its cells and its size menu. @default 'sm' */
+  readonly paginationSize = input<WrPaginationSize>('sm');
+
   /** Fires with the size the reader picks in the pager's size menu. */
   readonly pageSizeChange = output<number>();
 
@@ -709,26 +725,41 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }>({ left: new Map(), right: new Map(), leftEdge: null, rightEdge: null });
 
   /**
-   * Every `<ng-template>` projected into the table, registered or not. An
-   * unknown `[wrTableCell]` on an `<ng-template>` compiles under
-   * `strictTemplates`: a binding on a template is an input for whichever
-   * directive claims it, and the compiler reports nothing when none does.
-   * The column then shows the raw value and nothing says why, so the
-   * dev-mode check below counts the templates against the ones a directive
-   * picked up.
+   * Every template the content declares, registered or not. An unknown
+   * `[wrTableCell]` on an `<ng-template>` compiles under `strictTemplates`: a
+   * binding on a template is an input for whichever directive claims it, and
+   * the compiler reports nothing when none does. The column then shows the raw
+   * value and nothing says why, so the dev-mode check below looks for a
+   * projected `<ng-template>` no table directive picked up.
+   *
+   * The query sees more than those. `@if` / `@for` / `@switch` blocks are
+   * templates too, and it also reaches into every view made from a projected
+   * template, so each rendered cell adds the blocks inside it.
    */
   private readonly projectedTemplates = contentChildren(TemplateRef);
+
+  private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef);
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('table');
     if (typeof ngDevMode === 'undefined' || ngDevMode) {
       afterNextRender(() => {
-        const projected = this.projectedTemplates().length;
-        const registered = this.cellTemplates().length + (this.expandTpl() ? 1 : 0) + (this.groupTpl() ? 1 : 0);
-        if (projected <= registered) return;
+        const claimed = new Set<unknown>(
+          [...this.cellTemplates(), this.expandTpl(), this.groupTpl()].map(
+            (dir): unknown => dir?.template.elementRef.nativeElement
+          )
+        );
+        // The content is never projected, so its anchors stay out of the DOM.
+        // An anchor inside the host belongs to a view the table rendered.
+        const host = this.hostEl.nativeElement;
+        const declared = this.projectedTemplates().filter(
+          tpl => isNgTemplateElement(tpl) && !host.contains(tpl.elementRef.nativeElement as Node)
+        );
+        const stray = declared.filter(tpl => !claimed.has(tpl.elementRef.nativeElement)).length;
+        if (stray === 0) return;
         // eslint-disable-next-line no-console -- dev-mode validation
         console.warn(
-          `[NGWR] <wr-table>: ${projected - registered} of ${projected} projected <ng-template>(s) registered with no table directive and will be ignored. ` +
+          `[NGWR] <wr-table>: ${stray} of ${declared.length} projected <ng-template>(s) registered with no table directive and will be ignored. ` +
             'Import `WrTableCell` (or `WrTableExpand` / `WrTableGroupHeader`) beside `WrTable` in the component that declares the template.'
         );
       });

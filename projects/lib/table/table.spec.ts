@@ -1,14 +1,14 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { CdkDropList } from '@angular/cdk/drag-drop';
 import { Component, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
 import { Subject } from 'rxjs';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { WrPagination } from 'ngwr/pagination';
+import { WrPagination, type WrPaginationSize } from 'ngwr/pagination';
 import { noop } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -1228,6 +1228,95 @@ describe('WrTable warns on a projected template no directive registered', () => 
     protected readonly items = ROWS;
   }
 
+  // Every rendered cell instantiates the template, and the blocks inside it are
+  // templates too: a query for every `TemplateRef` saw one per row.
+  @Component({
+    imports: [WrTable, WrTableCell],
+    template: `<wr-table [columns]="columns" [items]="items">
+      <ng-template wrTableCell="name" let-value>
+        @if (value) {
+          <b>{{ value }}</b>
+        } @else {
+          -
+        }
+      </ng-template>
+      <ng-template wrTableCell="role" let-value>
+        @switch (value) {
+          @case ('admin') {
+            <i>{{ value }}</i>
+          }
+          @default {
+            {{ value }}
+          }
+        }
+        <ng-template #unused>{{ value }}</ng-template>
+      </ng-template>
+    </wr-table>`,
+  })
+  class BlocksHost {
+    protected readonly columns = COLUMNS;
+    protected readonly items = Array.from({ length: 120 }, (_, i) => ({
+      id: i + 1,
+      name: i % 3 ? `Row ${i + 1}` : '',
+      role: i % 2 ? 'admin' : 'user',
+    }));
+  }
+
+  // Blocks around the registered templates are not templates the table could
+  // claim, taken or not.
+  @Component({
+    imports: [WrTable, WrTableCell],
+    template: `<wr-table [columns]="columns" [items]="items">
+      @if (shown) {
+        <ng-template wrTableCell="name" let-value>{{ value }}!</ng-template>
+      } @else {
+        <ng-template wrTableCell="name" let-value>{{ value }}?</ng-template>
+      }
+      @for (key of keys; track key) {
+        <ng-template [wrTableCell]="key" let-value>{{ value }}</ng-template>
+      } @empty {
+        <ng-template wrTableCell="role" let-value>{{ value }}</ng-template>
+      }
+      @if (hidden) {
+        <ng-template wrTableCell="role" let-value>{{ value }}</ng-template>
+      }
+    </wr-table>`,
+  })
+  class WrappedHost {
+    protected readonly columns = COLUMNS;
+    protected readonly items = ROWS;
+    protected readonly shown = true;
+    protected readonly hidden = false;
+    protected readonly keys = ['role'];
+  }
+
+  // A typo is still a template nothing claims, inside a block or not.
+  @Component({
+    imports: [WrTable, WrTableCell],
+    template: `<wr-table [columns]="columns" [items]="items">
+      <ng-template wrTableCell="name" let-value>{{ value }}</ng-template>
+      <ng-template wrTabelCell="role" let-value>{{ value }}</ng-template>
+      @if (shown) {
+        <ng-template let-value>{{ value }}</ng-template>
+      }
+    </wr-table>`,
+  })
+  class TypoHost {
+    protected readonly columns = COLUMNS;
+    protected readonly items = ROWS;
+    protected readonly shown = true;
+  }
+
+  const settle = async <H>(host: new () => H): Promise<{ messages: string[]; fixture: ComponentFixture<H> }> => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const fixture = TestBed.createComponent(host);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    return { messages: warn.mock.calls.map(call => String(call[0])), fixture };
+  };
+
   afterEach(() => {
     vi.restoreAllMocks();
     TestBed.resetTestingModule();
@@ -1256,6 +1345,29 @@ describe('WrTable warns on a projected template no directive registered', () => 
 
     expect(warn).not.toHaveBeenCalled();
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Ada!');
+    fixture.destroy();
+  });
+
+  it('stays silent for blocks inside 120 rendered cells', async () => {
+    const { messages, fixture } = await settle(BlocksHost);
+    expect(messages).toEqual([]);
+    const body = (fixture.nativeElement as HTMLElement).querySelector('tbody')!;
+    expect(body.querySelectorAll('b')).toHaveLength(80);
+    expect(body.querySelectorAll('i')).toHaveLength(60);
+    fixture.destroy();
+  });
+
+  it('stays silent for @if, @else, @for and @empty blocks around registered templates', async () => {
+    const { messages, fixture } = await settle(WrappedHost);
+    expect(messages).toEqual([]);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Ada!');
+    fixture.destroy();
+  });
+
+  it('counts a misspelt directive and a bare template, inside a block or not', async () => {
+    const { messages, fixture } = await settle(TypoHost);
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toContain('2 of 3 projected <ng-template>(s)');
     fixture.destroy();
   });
 
@@ -2069,7 +2181,14 @@ describe('WrTable summary over decimal strings', () => {
 @Component({
   imports: [WrTable],
   template: `
-    <wr-table [columns]="columns" [items]="items" [(pageSize)]="size" [(page)]="page" [pageSizeOptions]="options()" />
+    <wr-table
+      [columns]="columns"
+      [items]="items"
+      [(pageSize)]="size"
+      [(page)]="page"
+      [pageSizeOptions]="options()"
+      [paginationSize]="pagerSize()"
+    />
   `,
 })
 class PageSizeHost {
@@ -2078,6 +2197,7 @@ class PageSizeHost {
   readonly size = signal(10);
   readonly page = signal(1);
   readonly options = signal<readonly number[]>([10, 25, 100]);
+  readonly pagerSize = signal<WrPaginationSize>('sm');
 }
 
 describe('WrTable page size menu', () => {
@@ -2098,6 +2218,16 @@ describe('WrTable page size menu', () => {
     const fixture = mount();
     expect(pager(fixture).showSizeChanger()).toBe(true);
     expect(pager(fixture).pageSizeOptions()).toEqual([10, 25, 100]);
+  });
+
+  it('sizes the pager with paginationSize', () => {
+    const fixture = mount();
+    const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-pagination')!;
+    expect(host().classList).toContain('wr-pagination--sm');
+
+    fixture.componentInstance.pagerSize.set('lg');
+    fixture.detectChanges();
+    expect(host().classList).toContain('wr-pagination--lg');
   });
 
   it('shows no size menu without options', () => {

@@ -104,6 +104,7 @@
     <wr-select
       class="wr-pagination__size"
       [ariaLabel]="resolvedItemsPerPage()"
+      [size]="size()"
       [disabled]="disabled()"
       [value]="pageSize()"
       (valueChange)="onSizeChange($event)"
