@@ -3565,3 +3565,60 @@ describe('WrSelect panel position', () => {
     expect(side()).toBe('below');
   });
 });
+
+/**
+ * Multi-mode membership is SameValueZero, the way `Array.prototype.includes`
+ * answers: `NaN` finds itself and `-0` finds `0`, while two objects of the same
+ * shape stay two values.
+ */
+describe('WrSelect multi-mode membership', () => {
+  const twin = { id: 1 };
+
+  @Component({
+    imports: [WrSelect],
+    template: `<wr-select mode="multi" ariaLabel="Values" [options]="items" [(value)]="picked" />`,
+  })
+  class MembershipHost {
+    readonly items: readonly unknown[] = [Number.NaN, 0, 'a', twin, null];
+    readonly picked = signal<unknown>([Number.NaN, -0, { id: 1 }]);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<MembershipHost>>;
+
+  const selected = (): string[] =>
+    [...document.querySelectorAll<HTMLElement>('[role="option"]')].map(o => o.getAttribute('aria-selected')!);
+  const open = (): void => {
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-select__trigger')!.click();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(MembershipHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('selects NaN and a zero of either sign, and compares objects by identity', () => {
+    open();
+
+    expect(selected()).toEqual(['true', 'true', 'false', 'false', 'false']);
+  });
+
+  it('follows the value when it is replaced', () => {
+    open();
+    fixture.componentInstance.picked.set(['a', twin, null]);
+    fixture.detectChanges();
+
+    expect(selected()).toEqual(['false', 'false', 'true', 'true', 'true']);
+  });
+
+  it('reads a scalar written to a multi value as one selection', () => {
+    fixture.componentInstance.picked.set('a');
+    fixture.detectChanges();
+    open();
+
+    expect(selected()).toEqual(['false', 'false', 'true', 'false', 'false']);
+  });
+});
