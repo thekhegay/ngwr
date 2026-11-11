@@ -14,9 +14,9 @@ import {
   ViewEncapsulation,
   afterNextRender,
   computed,
+  effect,
   inject,
   input,
-  isDevMode,
   model,
   output,
   signal,
@@ -103,6 +103,7 @@ interface PaneState {
 export class WrTransfer implements FormValueControl<readonly unknown[]> {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('transfer');
+    if (typeof ngDevMode === 'undefined' || ngDevMode) effect(() => this.warnAboutOrphans(this.orphans()));
   }
 
   /** Every row, in either pane. Membership of the right pane is `value`. */
@@ -230,17 +231,35 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
     )
   );
 
-  protected readonly target = computed<PaneState>(() => {
-    // Right-pane order follows `value`, not `items`: the order a user built is
-    // the one they expect to read back.
-    const rows = this.selected()
-      .map(v => this.items().find(item => item.value === v))
-      .filter((item): item is WrTransferItem => item !== undefined);
-
-    if (isDevMode() && rows.length !== this.selected().length) this.warnAboutOrphans();
-
-    return this.pane(rows, this.targetQuery(), this.targetChecked());
+  /** The first item per value, which is the one a scan of `items` would find. */
+  private readonly itemByValue = computed(() => {
+    const map = new Map<unknown, WrTransferItem>();
+    for (const item of this.items()) if (!map.has(item.value)) map.set(item.value, item);
+    return map;
   });
+
+  // Right-pane order follows `value`, not `items`: the order a user built is
+  // the one they expect to read back. Resolved apart from `target`, so a
+  // keystroke in the filter or a ticked row does not walk the value again.
+  private readonly targetRows = computed<readonly WrTransferItem[]>(() => {
+    const byValue = this.itemByValue();
+    return this.selected()
+      .map(v => byValue.get(v))
+      .filter((item): item is WrTransferItem => item !== undefined);
+  });
+
+  protected readonly target = computed<PaneState>(() =>
+    this.pane(this.targetRows(), this.targetQuery(), this.targetChecked())
+  );
+
+  /** Values no item matches. Equal by content, so its reader runs once per distinct set. */
+  private readonly orphans = computed<readonly unknown[]>(
+    () => {
+      const byValue = this.itemByValue();
+      return this.selected().filter(v => !byValue.has(v));
+    },
+    { equal: (a, b) => a.length === b.length && a.every((v, i) => Object.is(v, b[i])) }
+  );
 
   /**
    * Say something when `value` holds a value no `items` entry matches.
@@ -258,9 +277,7 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
    * about the common transient case — `items` arriving after `value` — because
    * the message names the values and a developer can see them settle.
    */
-  private warnAboutOrphans(): void {
-    const known = new Set(this.items().map(item => item.value));
-    const orphans = this.selected().filter(v => !known.has(v));
+  private warnAboutOrphans(orphans: readonly unknown[]): void {
     if (orphans.length === 0) return;
 
     // eslint-disable-next-line no-console -- dev-mode validation
