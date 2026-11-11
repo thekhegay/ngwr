@@ -199,7 +199,9 @@ one component folder. Reach for them instead of hand-rolling:
   `stickyHeader` gives any mode its own scroll area under a sticky header, the
   one a virtualized body already scrolls in (host class `wr-table--sticky-head`
   for both), sized by `viewportHeight`, where `'fill'` takes the parent's
-  remaining height. Three pairs
+  remaining height. A pinned edge casts its shadow only over hidden columns:
+  the host wears `wr-table--overflow-start` / `--overflow-end`, measured on the
+  scroll area. Three pairs
   are refused rather than half-supported: tree + `groupBy`, tree +
   `[wrTableExpand]`, tree + `virtualScroll`. Excel (`.xlsx`)
   export is deliberately NOT shipped (would need a third-party dep). Don't
