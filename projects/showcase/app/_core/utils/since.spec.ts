@@ -176,11 +176,11 @@ describe('the major the marks are judged against', () => {
   it('steps every mark of the live map back once the next major is declared', () => {
     const ahead = markVersion('15.2.0', ['15.0.0', '16.0.0']);
 
-    // `docs/configuration` was updated in 15.0, the popover in 15.1.
+    // `docs/configuration` was updated in 15.0, the bar chart in 15.1.
     expect(linkMark('/docs/configuration', '15.2.0')).toBe('updated');
-    expect(linkMark('/reference/components/popover', '15.2.0')).toBe('updated');
+    expect(linkMark('/charts/bar-chart', '15.2.0')).toBe('updated');
     expect(linkMark('/docs/configuration', ahead)).toBeNull();
-    expect(linkMark('/reference/components/popover', ahead)).toBeNull();
+    expect(linkMark('/charts/bar-chart', ahead)).toBeNull();
   });
 });
 
