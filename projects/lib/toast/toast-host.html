@@ -16,7 +16,9 @@
     [extraClass]="toast.class ?? null"
     [duration]="toast.resolvedDuration"
     [labels]="labels()"
+    [actionLabel]="toast.action?.label ?? null"
     (dismissed)="onItemDismissed(toast.id, $index)"
+    (actionRequested)="onItemAction(toast.id, $index)"
     (pauseRequested)="pauseRequested.emit(toast.id)"
     (resumeRequested)="resumeRequested.emit(toast.id)"
   />

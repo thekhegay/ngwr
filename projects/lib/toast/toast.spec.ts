@@ -442,6 +442,122 @@ describe('WrToast', () => {
       });
     });
 
+    describe('an action', () => {
+      const run = (t: HTMLElement): HTMLButtonElement | null =>
+        t.querySelector<HTMLButtonElement>('.wr-toast__action--run');
+
+      it('renders a real button carrying its label, ahead of copy and close', () => {
+        toast.show({ message: 'Item deleted', showCopy: true, action: { label: 'Undo', run: vi.fn() } });
+        tick();
+
+        const button = run(items()[0])!;
+        expect(button.tagName).toBe('BUTTON');
+        expect(button.type).toBe('button');
+        expect(button.textContent?.trim()).toBe('Undo');
+        expect(button.hasAttribute('aria-label')).toBe(false);
+        expect(actions(items()[0])[0]).toBe(button);
+        expect(actions(items()[0])).toHaveLength(3);
+      });
+
+      it('renders no button without the option', () => {
+        toast.show({ message: 'Saved' });
+        tick();
+
+        expect(run(items()[0])).toBeNull();
+      });
+
+      it('runs once and closes its toast, leaving the rest of the stack', () => {
+        const undo = vi.fn();
+        toast.show({ message: 'Other', duration: 0 });
+        toast.show({ message: 'Item deleted', duration: 0, action: { label: 'Undo', run: undo } });
+        tick();
+
+        run(items()[1])!.click();
+        tick();
+
+        expect(undo).toHaveBeenCalledTimes(1);
+        expect(messages()).toEqual(['Other']);
+      });
+
+      it('ignores a second press that lands before the toast has left the DOM', () => {
+        const undo = vi.fn();
+        toast.show({ message: 'Other', duration: 0 });
+        toast.show({ message: 'Item deleted', duration: 0, action: { label: 'Undo', run: undo } });
+        tick();
+
+        const button = run(items()[1])!;
+        button.click();
+        button.click();
+        tick();
+
+        expect(undo).toHaveBeenCalledTimes(1);
+      });
+
+      it('has already closed the toast when the action runs', () => {
+        let open = -1;
+        const ref = toast.show({
+          message: 'Item deleted',
+          duration: 0,
+          action: { label: 'Undo', run: () => (open = items().length) },
+        });
+        tick();
+
+        run(items()[0])!.click();
+        tick();
+        expect(open).toBe(0);
+        expect(host()).toBeNull();
+
+        // And closing it again through the ref is the no-op it always was.
+        expect(() => ref.dismiss()).not.toThrow();
+      });
+
+      it('does not run when the toast times out or is closed by hand', () => {
+        const undo = vi.fn();
+        toast.show({ message: 'Timed', duration: 1000, action: { label: 'Undo', run: undo } });
+        toast.show({ message: 'Closed', duration: 0, action: { label: 'Undo', run: undo } });
+        tick();
+
+        vi.advanceTimersByTime(1000);
+        tick();
+        items()[0].querySelector<HTMLButtonElement>('.wr-toast__action--close')!.click();
+        tick();
+
+        expect(items()).toHaveLength(0);
+        expect(undo).not.toHaveBeenCalled();
+      });
+
+      it('stays open past its duration while the pointer rests on it', () => {
+        toast.show({ message: 'Item deleted', duration: 1000, action: { label: 'Undo', run: vi.fn() } });
+        tick();
+
+        mouse(items()[0], 'mouseenter');
+        vi.advanceTimersByTime(5000);
+        tick();
+        expect(run(items()[0])).not.toBeNull();
+
+        mouse(items()[0], 'mouseleave');
+        vi.advanceTimersByTime(1000);
+        tick();
+        expect(items()).toHaveLength(0);
+      });
+
+      it('stays open past its duration while focus is on the action', () => {
+        const undo = vi.fn();
+        toast.show({ message: 'Item deleted', duration: 1000, action: { label: 'Undo', run: undo } });
+        tick();
+
+        focusEvent(run(items()[0])!, 'focusin');
+        vi.advanceTimersByTime(5000);
+        tick();
+        expect(items(), 'the toast expired under the focus').toHaveLength(1);
+
+        run(items()[0])!.click();
+        tick();
+        expect(undo).toHaveBeenCalledTimes(1);
+        expect(items()).toHaveLength(0);
+      });
+    });
+
     it('hides "Close all" until the collapsed stack is hovered open', () => {
       // In stack mode the toasts cascade on top of each other, so a button that
       // appeared immediately would sit under the cursor and flicker.
@@ -808,6 +924,19 @@ describe('WrToast moves focus on when a focused toast closes', () => {
     show('Only');
 
     pressClose(0);
+
+    expect(items()).toHaveLength(0);
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('returns focus the same way when the action button closes the toast', () => {
+    toast.show({ message: 'Item deleted', duration: 0, action: { label: 'Undo', run: vi.fn() } });
+    tick();
+
+    const action = items()[0].querySelector<HTMLButtonElement>('.wr-toast__action--run')!;
+    action.focus();
+    action.click();
+    tick();
 
     expect(items()).toHaveLength(0);
     expect(document.activeElement).toBe(opener);

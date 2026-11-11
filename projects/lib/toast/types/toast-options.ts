@@ -7,6 +7,7 @@
 
 import type { WrClassInput } from 'ngwr/utils';
 
+import type { WrToastAction } from './toast-action';
 import type { WrToastPosition } from './toast-position';
 import type { WrToastType } from './toast-type';
 
@@ -23,6 +24,12 @@ export interface WrToastOptions {
   readonly message: string;
   /** Auto-dismiss after N ms. `0` disables auto-dismiss. Default from global config. */
   readonly duration?: number;
+  /**
+   * A text button beside the message, such as "Undo". Pressing it closes the
+   * toast and calls `run`. The countdown still runs, and holds while the pointer
+   * or focus is on the toast: pass a longer `duration` when the action matters.
+   */
+  readonly action?: WrToastAction;
   /** Show a close (×) button. @default true */
   readonly dismissible?: boolean;
   /**

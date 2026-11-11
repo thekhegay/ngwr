@@ -59,6 +59,12 @@
 </div>
 
 <div class="wr-toast__actions">
+  @if (actionLabel(); as label) {
+    <button type="button" class="wr-toast__action wr-toast__action--run" (click)="actionRequested.emit()">
+      {{ label }}
+    </button>
+  }
+
   @if (showCopy()) {
     <button
       type="button"

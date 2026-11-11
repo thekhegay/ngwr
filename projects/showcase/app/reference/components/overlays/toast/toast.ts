@@ -35,6 +35,7 @@ export default class ToastPageComponent {
   protected readonly mode = signal<WrToastMode>('stack');
   protected readonly showProgress = signal(true);
   protected readonly showCopy = signal(false);
+  protected readonly files = signal<readonly string[]>(['Report.pdf', 'Photo.png', 'Notes.txt']);
 
   protected readonly modeOptions: readonly WrSegmentedOption<WrToastMode>[] = [
     { value: 'stack', label: 'Stack (Sonner)' },
@@ -98,6 +99,18 @@ this.toast.show({ message: 'Link copied' });`,
   duration: 6000,
 });`,
 
+    action: `const index = this.files().indexOf(file);
+this.files.update(files => files.filter(f => f !== file));
+
+this.toast.show({
+  message: \`\${file} deleted\`,
+  duration: 8000,
+  action: {
+    label: 'Undo',
+    run: () => this.files.update(files => [...files.slice(0, index), file, ...files.slice(index)]),
+  },
+});`,
+
     persistent: `this.toast.show({
   type: 'danger',
   message: 'Network error',
@@ -148,6 +161,11 @@ ref.dismiss();`,
       description: 'Auto-dismiss after N ms. 0 disables. Falls back to global config.',
       type: 'number',
       default: 'config.duration',
+    },
+    {
+      name: 'action',
+      description: 'A text button such as "Undo". Pressing it closes the toast and calls `run` once.',
+      type: '{ label: string; run: () => void }',
     },
     { name: 'dismissible', description: 'Show close (×) button.', type: 'boolean', default: 'true' },
     {
@@ -236,6 +254,20 @@ ref.dismiss();`,
         showProgress: this.showProgress(),
       });
     }
+  }
+
+  protected removeFile(file: string): void {
+    const index = this.files().indexOf(file);
+    this.files.update(files => files.filter(f => f !== file));
+    this.toast.show({
+      message: `${file} deleted`,
+      duration: 8000,
+      showProgress: this.showProgress(),
+      action: {
+        label: 'Undo',
+        run: () => this.files.update(files => [...files.slice(0, index), file, ...files.slice(index)]),
+      },
+    });
   }
 
   protected firePersistent(): void {

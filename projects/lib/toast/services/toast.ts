@@ -45,6 +45,7 @@ type ActiveEntry = WrToastOptions & {
  * toast.show({ type: 'success', title: 'Saved', message: 'Profile updated.' });
  * toast.show({ type: 'danger', message: 'Network error', duration: 0 });
  * toast.show({ message: 'Permalink copied', position: 'bottom', showCopy: true });
+ * toast.show({ message: 'Item deleted', action: { label: 'Undo', run: () => restore() } });
  * ```
  *
  * @see https://ngwr.dev/reference/components/toast
@@ -123,6 +124,17 @@ export class WrToast {
     this.promoteFromQueue();
     this.pushToHost();
     if (this.active.length === 0 && this.queue.length === 0) this.disposeHost();
+  }
+
+  /**
+   * Closes first: a second press finds no entry, so `run` cannot fire twice,
+   * and a `run` that throws still leaves the toast closed.
+   */
+  private runAction(id: number): void {
+    const action = this.active.find(t => t.id === id)?.action;
+    if (!action) return;
+    this.dismiss(id);
+    action.run();
   }
 
   /** Dismiss every visible toast. Wired to the host's "Close all" button. */
@@ -208,6 +220,7 @@ export class WrToast {
 
     const inst = this.hostRef.instance;
     inst.dismissed.subscribe(id => this.dismiss(id));
+    inst.actionRequested.subscribe(id => this.runAction(id));
     inst.dismissAllRequested.subscribe(() => this.dismissAll());
     inst.pauseRequested.subscribe(id => {
       const entry = this.active.find(t => t.id === id);

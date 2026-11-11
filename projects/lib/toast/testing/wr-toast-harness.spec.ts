@@ -139,6 +139,36 @@ describe('WrToastHarness', () => {
     expect(await rootLoader.getHarnessOrNull(WrToastHarness)).toBeNull();
   });
 
+  it('reads the action label and presses it', async () => {
+    let undone = 0;
+    fixture.componentInstance.toast.show({
+      message: 'Item deleted',
+      showCopy: true,
+      duration: 0,
+      action: { label: 'Undo', run: () => undone++ },
+    });
+    await fixture.whenStable();
+
+    const toast = await rootLoader.getHarness(WrToastHarness);
+    expect(await toast.getActionLabel()).toBe('Undo');
+
+    await toast.runAction();
+    await fixture.whenStable();
+
+    expect(undone).toBe(1);
+    expect(await rootLoader.getHarnessOrNull(WrToastHarness)).toBeNull();
+  });
+
+  it('reports no action on a toast shown without one', async () => {
+    fixture.componentInstance.toast.show({ message: 'Saved', duration: 0 });
+    await fixture.whenStable();
+
+    const toast = await rootLoader.getHarness(WrToastHarness);
+
+    expect(await toast.getActionLabel()).toBeNull();
+    await expect(toast.runAction()).rejects.toThrow();
+  });
+
   it('reports a toast that cannot be dismissed by hand', async () => {
     fixture.componentInstance.toast.show({ message: 'Working…', dismissible: false, duration: 0 });
     await fixture.whenStable();
