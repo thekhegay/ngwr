@@ -77,6 +77,10 @@
         <code>WrToastOptions</code>. One passed through a variable is listed.
       </li>
       <li>
+        <code>isDismissible()</code> is renamed on a harness from <code>getHarness(WrToastHarness)</code>. A call it
+        cannot tie to one is listed.
+      </li>
+      <li>
         Writing <code>isOpen</code> moved the signal without the panel, so it no longer compiles. The codemod lists each
         call.
       </li>
