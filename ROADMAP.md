@@ -4,8 +4,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very high
 
-- **`wr-select` and `wr-table` lookups**: multi-select membership and table expand state compare arrays item by item; use sets.
-- **`virtualScroll` on a plain select**: the flag only works with search, and does nothing without a word otherwise.
 - **Date picker size**: `wr-date-picker` and `wr-date-range-picker` have no `size`, unlike every other field.
 - **Open pickers from code**: select, cascader, tree overlay and date picker have no `open()` / `close()` and no `opened` / `closed`, unlike `wrDropdown` and `wrPopover`.
 - **Date picker clear**: no `clearable`, unlike select, cascader and tree.
