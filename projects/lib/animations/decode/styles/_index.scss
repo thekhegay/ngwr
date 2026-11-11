@@ -1,5 +1,5 @@
 @use '../../../theme/styles' as theme;
-@use '../../core/styles/mixins' as core;
+@use '../../internal/styles/mixins' as core;
 @include theme.loaded('animations/decode');
 
 // `[wrDecode]`: the host's text shows random glyphs that lock on to the real

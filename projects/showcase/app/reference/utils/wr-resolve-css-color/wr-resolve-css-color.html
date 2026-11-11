@@ -1,0 +1,47 @@
+<ngwr-doc-page
+  title="wrResolveCssColor"
+  since="15.0.0"
+  updated="16.0.0"
+  description="Resolves a CSS colour, such as a `var()` or `light-dark()`, to a value a canvas can paint with."
+  [keywords]="[
+    'wrResolveCssColor',
+    'wrResolveCssColorChannels',
+    'wrWatchColorScheme',
+    'canvas',
+    'webgl',
+    'uniform',
+    'color',
+    'light-dark',
+    'color-mix',
+    'color-scheme',
+    'css variables',
+    'utils',
+  ]"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="Call it in the browser, from `afterNextRender`, with the element you draw on, the expression and a fallback."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+    <ngwr-doc-code [code]="formsSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="As channels"
+    description="A WebGL uniform takes numbers. `wrResolveCssColorChannels()` resolves the same way and returns 0–1 sRGB channels with the alpha dropped, and `[0, 0, 0]` when even the fallback cannot be read, so a uniform never receives `NaN`."
+  >
+    <ngwr-doc-code [code]="channelsSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Redraw on a scheme switch"
+    description="A resolved colour is a snapshot. `wrWatchColorScheme()` calls back when the page's colour scheme changes, so a still canvas can draw again."
+  >
+    <ngwr-doc-code [code]="schemeSnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

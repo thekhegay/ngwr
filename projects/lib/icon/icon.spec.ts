@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrIcon } from './icon';
 import { provideWrIcons } from './providers/provide-wr-icons';
-import { svgIcon } from './svg-icon';
+import { wrSvgIcon } from './svg-icon';
 
 const CHECK = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>';
 const CROSS = '<svg viewBox="0 0 16 16"><path d="M2 2l12 12M14 2L2 14"/></svg>';
@@ -53,14 +53,14 @@ describe('WrIcon and its registry', () => {
   });
 
   it('renders a registered icon', () => {
-    const fixture = render([provideWrIcons([svgIcon('check', CHECK)])]);
+    const fixture = render([provideWrIcons([wrSvgIcon('check', CHECK)])]);
 
     expect(svgOf(fixture)).not.toBeNull();
     expect(svgOf(fixture)!.querySelector('path')).not.toBeNull();
   });
 
   it('marks the glyph aria-hidden', () => {
-    const fixture = render([provideWrIcons([svgIcon('check', CHECK)])]);
+    const fixture = render([provideWrIcons([wrSvgIcon('check', CHECK)])]);
 
     // Decorative by default: registered icons went in without this, so a glyph
     // beside a label announced as a bare "graphic".
@@ -68,14 +68,14 @@ describe('WrIcon and its registry', () => {
   });
 
   it('reflects the name onto the host for styling and for tests', () => {
-    const fixture = render([provideWrIcons([svgIcon('check', CHECK)])]);
+    const fixture = render([provideWrIcons([wrSvgIcon('check', CHECK)])]);
     const host = (fixture.nativeElement as HTMLElement).querySelector('wr-icon')!;
 
     expect(host.getAttribute('data-icon')).toBe('check');
   });
 
   it('swaps the glyph when the name changes', () => {
-    const fixture = render([provideWrIcons([svgIcon('check', CHECK), svgIcon('cross', CROSS)])]);
+    const fixture = render([provideWrIcons([wrSvgIcon('check', CHECK), wrSvgIcon('cross', CROSS)])]);
     expect(svgOf(fixture)!.querySelector('circle')).toBeNull();
 
     fixture.componentInstance.name.set('cross');
@@ -86,7 +86,7 @@ describe('WrIcon and its registry', () => {
 
   describe('an unknown name', () => {
     it('reports the problem without throwing, and renders nothing', () => {
-      const fixture = render([provideWrIcons([svgIcon('cross', CROSS)])]);
+      const fixture = render([provideWrIcons([wrSvgIcon('cross', CROSS)])]);
 
       // Throwing here escapes into `runEffectsInView` and abandons the rest of
       // the view's effects — one bad name would blank every `<wr-icon>` after
@@ -104,7 +104,7 @@ describe('WrIcon and its registry', () => {
       })
       class Pair {}
 
-      TestBed.configureTestingModule({ providers: [provideWrIcons([svgIcon('cross', CROSS)])] });
+      TestBed.configureTestingModule({ providers: [provideWrIcons([wrSvgIcon('cross', CROSS)])] });
       const fixture = TestBed.createComponent(Pair);
       fixture.detectChanges();
 
@@ -113,7 +113,7 @@ describe('WrIcon and its registry', () => {
     });
 
     it('clears a previously rendered glyph rather than leaving it behind', () => {
-      const fixture = render([provideWrIcons([svgIcon('check', CHECK)])]);
+      const fixture = render([provideWrIcons([wrSvgIcon('check', CHECK)])]);
       expect(svgOf(fixture)).not.toBeNull();
 
       fixture.componentInstance.name.set('missing');
@@ -138,7 +138,7 @@ describe('WrIcon and its registry', () => {
       // the aria-hidden pass found no `<svg>` to mark. `<wr-icon>` rebuilds the
       // first `<svg>` root, so the same data now produces the same empty box
       // with a console error naming the icon instead of in silence.
-      const fixture = render([provideWrIcons([svgIcon('check', '<circle cx="8" cy="8" r="6"/>')])]);
+      const fixture = render([provideWrIcons([wrSvgIcon('check', '<circle cx="8" cy="8" r="6"/>')])]);
 
       expect(svgOf(fixture)).toBeNull();
       expect((fixture.nativeElement as HTMLElement).querySelector('circle')).toBeNull();
@@ -153,7 +153,7 @@ describe('WrIcon and its registry', () => {
       @Component({
         imports: [WrIcon],
         selector: 'wr-inner-cmp',
-        providers: [provideWrIcons([svgIcon('cross', CROSS)])],
+        providers: [provideWrIcons([wrSvgIcon('cross', CROSS)])],
         template: `<wr-icon name="check" /><wr-icon name="cross" />`,
       })
       class Inner {}
@@ -161,7 +161,7 @@ describe('WrIcon and its registry', () => {
       @Component({ imports: [Inner], template: `<wr-inner-cmp />` })
       class Outer {}
 
-      TestBed.configureTestingModule({ providers: [provideWrIcons([svgIcon('check', CHECK)])] });
+      TestBed.configureTestingModule({ providers: [provideWrIcons([wrSvgIcon('check', CHECK)])] });
       const fixture = TestBed.createComponent(Outer);
       fixture.detectChanges();
 
@@ -178,7 +178,7 @@ describe('WrIcon and its registry', () => {
       @Component({
         imports: [WrIcon],
         selector: 'wr-inner-cmp',
-        providers: [provideWrIcons([svgIcon('check', OTHER)])],
+        providers: [provideWrIcons([wrSvgIcon('check', OTHER)])],
         template: `<wr-icon name="check" />`,
       })
       class Inner {}
@@ -186,7 +186,7 @@ describe('WrIcon and its registry', () => {
       @Component({ imports: [Inner], template: `<wr-inner-cmp />` })
       class Outer {}
 
-      TestBed.configureTestingModule({ providers: [provideWrIcons([svgIcon('check', CHECK)])] });
+      TestBed.configureTestingModule({ providers: [provideWrIcons([wrSvgIcon('check', CHECK)])] });
       const fixture = TestBed.createComponent(Outer);
       fixture.detectChanges();
 
@@ -195,7 +195,10 @@ describe('WrIcon and its registry', () => {
     });
 
     it('lets a later registration at the same level win', () => {
-      const fixture = render([provideWrIcons([svgIcon('check', CHECK)]), provideWrIcons([svgIcon('check', OTHER)])]);
+      const fixture = render([
+        provideWrIcons([wrSvgIcon('check', CHECK)]),
+        provideWrIcons([wrSvgIcon('check', OTHER)]),
+      ]);
 
       expect(svgOf(fixture)!.querySelector('circle')).not.toBeNull();
     });

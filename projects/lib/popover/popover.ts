@@ -29,10 +29,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import {
-  getFocusableElements,
-  KEYS,
-  numAttr,
-  toClassList,
+  wrGetFocusableElements,
+  WR_KEYS,
+  wrNumAttr,
+  wrToClassList,
   wrCheckStyles,
   wrRestoreFocus,
   type WrClassInput,
@@ -54,15 +54,15 @@ import { type WrPopoverPosition, wrPopoverPositions } from './types';
  * during one of them was placed by a script and a tooltip stays shut.
  */
 const NAVIGATION_KEYS = new Set<string>([
-  KEYS.TAB,
-  KEYS.ARROW_UP,
-  KEYS.ARROW_DOWN,
-  KEYS.ARROW_LEFT,
-  KEYS.ARROW_RIGHT,
-  KEYS.HOME,
-  KEYS.END,
-  KEYS.PAGE_UP,
-  KEYS.PAGE_DOWN,
+  WR_KEYS.TAB,
+  WR_KEYS.ARROW_UP,
+  WR_KEYS.ARROW_DOWN,
+  WR_KEYS.ARROW_LEFT,
+  WR_KEYS.ARROW_RIGHT,
+  WR_KEYS.HOME,
+  WR_KEYS.END,
+  WR_KEYS.PAGE_UP,
+  WR_KEYS.PAGE_DOWN,
 ]);
 
 /**
@@ -156,10 +156,10 @@ export class WrPopover {
   readonly position = input<WrPopoverPosition | null>(null);
 
   /** Tooltip only — delay before showing, in ms. @default 120 */
-  readonly showDelay = input(120, { transform: numAttr(120) });
+  readonly showDelay = input(120, { transform: wrNumAttr(120) });
 
   /** Tooltip only — delay before hiding, in ms. @default 60 */
-  readonly hideDelay = input(60, { transform: numAttr(60) });
+  readonly hideDelay = input(60, { transform: wrNumAttr(60) });
 
   /**
    * Popover mode only — accessible name of the panel. `role="dialog"` with no
@@ -196,8 +196,10 @@ export class WrPopover {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
-  /** @internal */
-  readonly isOpen = signal(false);
+  private readonly openState = signal(false);
+
+  /** Whether the popover is open. Read-only: `open()` and `close()` change it. */
+  readonly isOpen = this.openState.asReadonly();
 
   /** @internal */
   protected readonly isTooltip = computed(() => this.mode() === 'tooltip');
@@ -306,11 +308,11 @@ export class WrPopover {
   }
 
   open(): void {
-    this.isOpen.set(true);
+    this.openState.set(true);
   }
 
   close(): void {
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   /**
@@ -323,7 +325,7 @@ export class WrPopover {
    * can never be closed from there.
    */
   toggle(): void {
-    this.isOpen.update(v => !v);
+    this.openState.update(v => !v);
   }
 
   // Host listeners
@@ -343,7 +345,7 @@ export class WrPopover {
     }
     if (this.trigger() !== 'hover') return;
     this.clearHoverClose();
-    this.isOpen.set(true);
+    this.openState.set(true);
   }
 
   /** @internal */
@@ -378,14 +380,14 @@ export class WrPopover {
     if (this.isTooltip() || this.trigger() !== 'hover' || this.isOpen()) return;
     event.preventDefault();
     this.openedByKeyboard = true;
-    this.isOpen.set(true);
+    this.openState.set(true);
   }
 
   /** @internal */
   protected onEscape(): void {
     if (!this.isTooltip()) return;
     this.clearTimers();
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   /**
@@ -421,12 +423,12 @@ export class WrPopover {
     const text = this.content();
     if (typeof text === 'string' && !text) return;
     this.clearTimers();
-    this.showTimer = setTimeout(() => this.isOpen.set(true), this.showDelay());
+    this.showTimer = setTimeout(() => this.openState.set(true), this.showDelay());
   }
 
   private scheduleHide(): void {
     this.clearTimers();
-    this.hideTimer = setTimeout(() => this.isOpen.set(false), this.hideDelay());
+    this.hideTimer = setTimeout(() => this.openState.set(false), this.hideDelay());
   }
 
   private clearTimers(): void {
@@ -461,7 +463,7 @@ export class WrPopover {
     // The `--<placement>` half is no longer set here: each fallback position
     // carries its own, so the pane names the placement it landed on instead of
     // the one that was requested, and the arrow follows a flip.
-    const overlayClass = toClassList(paneClass, this.panelClass());
+    const overlayClass = wrToClassList(paneClass, this.panelClass());
 
     this.overlayRef = this.overlay.create({
       positionStrategy: connected,
@@ -541,7 +543,7 @@ export class WrPopover {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;
-        this.isOpen.set(false);
+        this.openState.set(false);
       });
 
     this.overlayRef
@@ -550,7 +552,7 @@ export class WrPopover {
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
-          this.isOpen.set(false);
+          this.openState.set(false);
         }
       });
 
@@ -631,7 +633,7 @@ export class WrPopover {
    * the browser's Tab, and a trigger that is the last stop before the overlay
    * container would send that Tab straight back into the still-attached pane.
    *
-   * Stops are told by `tabIndex`, because `getFocusableElements` lists every
+   * Stops are told by `tabIndex`, because `wrGetFocusableElements` lists every
    * focusable element and a roving composite parks its other items at -1. What
    * that misreads — a native radio group, one stop that lists as several —
    * falls through to `onPaneFocusOut`, which still closes the panel; it just
@@ -641,9 +643,9 @@ export class WrPopover {
     const pane = this.overlayRef?.overlayElement;
     // A control inside that spends Tab on itself (`wr-mention` accepting a
     // suggestion) has said so by preventing it.
-    if (!pane || event.key !== KEYS.TAB || event.defaultPrevented) return;
+    if (!pane || event.key !== WR_KEYS.TAB || event.defaultPrevented) return;
     const active = this.host.nativeElement.ownerDocument.activeElement;
-    const stops = getFocusableElements(pane).filter(el => el.tabIndex >= 0);
+    const stops = wrGetFocusableElements(pane).filter(el => el.tabIndex >= 0);
     if (event.shiftKey) {
       if (active !== pane && active !== stops[0]) return;
       event.preventDefault();
@@ -652,7 +654,7 @@ export class WrPopover {
     }
     wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
     this.closeOverlay();
-    this.isOpen.set(false);
+    this.openState.set(false);
   };
 
   /**
@@ -667,8 +669,8 @@ export class WrPopover {
    */
   private readonly onPaneFocusOut = (event: FocusEvent): void => {
     const next = event.relatedTarget as Node | null;
-    if (next ? this.holdsFocus(next) : this.keystroke.key !== KEYS.TAB) return;
-    this.isOpen.set(false);
+    if (next ? this.holdsFocus(next) : this.keystroke.key !== WR_KEYS.TAB) return;
+    this.openState.set(false);
   };
 
   /**
@@ -711,7 +713,7 @@ export class WrPopover {
 
   private scheduleHoverClose(): void {
     this.clearHoverClose();
-    this.hoverCloseTimer = setTimeout(() => this.isOpen.set(false), 120);
+    this.hoverCloseTimer = setTimeout(() => this.openState.set(false), 120);
   }
 
   private clearHoverClose(): void {

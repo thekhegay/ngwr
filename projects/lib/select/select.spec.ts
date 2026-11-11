@@ -1,6 +1,6 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, type Type, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { Component, signal, type Type, viewChild } from '@angular/core';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormField, disabled, form, readonly, required } from '@angular/forms/signals';
 
 import { EMPTY, type Observable } from 'rxjs';
@@ -3563,5 +3563,338 @@ describe('WrSelect panel position', () => {
     open();
 
     expect(side()).toBe('below');
+  });
+});
+
+/**
+ * Multi-mode membership is SameValueZero, the way `Array.prototype.includes`
+ * answers: `NaN` finds itself and `-0` finds `0`, while two objects of the same
+ * shape stay two values.
+ */
+describe('WrSelect multi-mode membership', () => {
+  const twin = { id: 1 };
+
+  @Component({
+    imports: [WrSelect],
+    template: `<wr-select mode="multi" ariaLabel="Values" [options]="items" [(value)]="picked" />`,
+  })
+  class MembershipHost {
+    readonly items: readonly unknown[] = [Number.NaN, 0, 'a', twin, null];
+    readonly picked = signal<unknown>([Number.NaN, -0, { id: 1 }]);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<MembershipHost>>;
+
+  const selected = (): string[] =>
+    [...document.querySelectorAll<HTMLElement>('[role="option"]')].map(o => o.getAttribute('aria-selected')!);
+  const open = (): void => {
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-select__trigger')!.click();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(MembershipHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('selects NaN and a zero of either sign, and compares objects by identity', () => {
+    open();
+
+    expect(selected()).toEqual(['true', 'true', 'false', 'false', 'false']);
+  });
+
+  it('follows the value when it is replaced', () => {
+    open();
+    fixture.componentInstance.picked.set(['a', twin, null]);
+    fixture.detectChanges();
+
+    expect(selected()).toEqual(['false', 'false', 'true', 'true', 'true']);
+  });
+
+  it('reads a scalar written to a multi value as one selection', () => {
+    fixture.componentInstance.picked.set('a');
+    fixture.detectChanges();
+    open();
+
+    expect(selected()).toEqual(['false', 'false', 'true', 'false', 'false']);
+  });
+});
+
+/**
+ * `virtualScroll` on a select with no search: the button trigger owns the
+ * keyboard, and the panel is the same window the search mode draws.
+ */
+describe('WrSelect virtual scrolling without search', () => {
+  const COUNT = 2000;
+
+  @Component({
+    imports: [WrSelect],
+    template: `
+      <wr-select
+        ariaLabel="City"
+        virtualScroll
+        [mode]="mode()"
+        [rowHeight]="20"
+        [viewportHeight]="200"
+        [overscan]="2"
+        [options]="cities"
+        [(value)]="city"
+      />
+    `,
+  })
+  class PlainVirtualHost {
+    readonly cities = Array.from({ length: COUNT }, (_, i) => `City ${i}`);
+    readonly mode = signal<WrSelectMode>('single');
+    readonly city = signal<unknown>(null);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<PlainVirtualHost>>;
+  let realScrollTo: PropertyDescriptor | undefined;
+
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('button.wr-select__trigger')!;
+  const rows = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+  const labels = (): string[] => rows().map(r => r.textContent.trim());
+  const active = (): HTMLElement | null => {
+    const id = trigger().getAttribute('aria-activedescendant');
+    return id ? document.getElementById(id) : null;
+  };
+  const press = (key: string): void => {
+    trigger().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  // jsdom has no `Element.scrollTo`, which the virtual list calls on itself.
+  beforeEach(() => {
+    realScrollTo = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollTo');
+    Object.defineProperty(Element.prototype, 'scrollTo', {
+      value: (): void => undefined,
+      configurable: true,
+      writable: true,
+    });
+
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(PlainVirtualHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    if (realScrollTo) Object.defineProperty(Element.prototype, 'scrollTo', realScrollTo);
+    else delete (Element.prototype as { scrollTo?: unknown }).scrollTo;
+  });
+
+  it('renders a window on open instead of every option', () => {
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(document.querySelector('.wr-select-panel__vlist')).not.toBeNull();
+    expect(document.querySelector('wr-option')).toBeNull();
+    expect(rows().length).toBeGreaterThan(0);
+    expect(rows().length).toBeLessThan(20);
+    expect(labels()[0]).toBe('City 0');
+    expect(rows()[0].getAttribute('aria-setsize')).toBe(String(COUNT));
+  });
+
+  it('moves the active option past the window, and renders it', () => {
+    press('ArrowDown');
+    expect(active()?.textContent.trim()).toBe('City 0');
+
+    for (let i = 0; i < 40; i++) press('ArrowDown');
+
+    expect(labels()).not.toContain('City 0');
+    expect(active()?.textContent.trim()).toBe('City 40');
+    expect(active()?.classList.contains('wr-option--active')).toBe(true);
+  });
+
+  it('jumps to the last option on End', () => {
+    press('ArrowDown');
+    press('End');
+
+    expect(active()?.textContent.trim()).toBe(`City ${COUNT - 1}`);
+    expect(rows().length).toBeLessThan(20);
+  });
+
+  it('opens on the selected option, rendered and active', () => {
+    fixture.componentInstance.city.set('City 1500');
+    fixture.detectChanges();
+    expect(trigger().textContent).toContain('City 1500');
+
+    press('Enter');
+
+    expect(labels()).not.toContain('City 0');
+    expect(active()?.textContent.trim()).toBe('City 1500');
+    expect(active()?.getAttribute('aria-selected')).toBe('true');
+    expect(rows().length).toBeLessThan(20);
+  });
+
+  it('commits the row the keyboard is on, and closes', () => {
+    press('ArrowDown');
+    press('ArrowDown');
+    press('ArrowDown');
+    press('Enter');
+
+    expect(fixture.componentInstance.city()).toBe('City 2');
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    expect(trigger().textContent).toContain('City 2');
+  });
+
+  it('commits a clicked row', () => {
+    trigger().click();
+    fixture.detectChanges();
+    rows()[3].click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.city()).toBe('City 3');
+  });
+
+  it('windows a multi select too, and toggles rows by value', () => {
+    fixture.componentInstance.mode.set('multi');
+    fixture.componentInstance.city.set(['City 1']);
+    fixture.detectChanges();
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(rows().length).toBeLessThan(20);
+    expect(rows()[1].getAttribute('aria-selected')).toBe('true');
+
+    rows()[2].click();
+    rows()[1].click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.city()).toEqual(['City 2']);
+    expect(rows()[1].getAttribute('aria-selected')).toBe('false');
+    expect(rows()[2].getAttribute('aria-selected')).toBe('true');
+  });
+});
+
+describe('WrSelect open and close from code', () => {
+  @Component({
+    imports: [WrSelect, WrOption],
+    template: `
+      <wr-select
+        ariaLabel="Size"
+        [disabled]="disabled()"
+        [readonly]="readonly()"
+        (opened)="opened.update(n => n + 1)"
+        (closed)="closed.update(n => n + 1)"
+      >
+        <wr-option value="sm">Small</wr-option>
+        <wr-option value="md">Medium</wr-option>
+      </wr-select>
+    `,
+  })
+  class ApiHost {
+    readonly control = viewChild.required(WrSelect);
+    readonly disabled = signal(false);
+    readonly readonly = signal(false);
+    readonly opened = signal(0);
+    readonly closed = signal(0);
+  }
+
+  let fixture: ComponentFixture<ApiHost>;
+
+  const host = (): ApiHost => fixture.componentInstance;
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-select__trigger')!;
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-select-panel');
+  const counts = (): [number, number] => [host().opened(), host().closed()];
+  const settle = async (): Promise<void> => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(ApiHost);
+    await settle();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('opens on open() and emits opened once', async () => {
+    host().control().open();
+    await settle();
+
+    expect(panel()).not.toBeNull();
+    expect(trigger().getAttribute('aria-expanded')).toBe('true');
+    expect(counts()).toEqual([1, 0]);
+  });
+
+  it('emits nothing for an open() while open or a close() while closed', async () => {
+    host().control().close();
+    await settle();
+    expect(counts()).toEqual([0, 0]);
+
+    host().control().open();
+    await settle();
+    host().control().open();
+    await settle();
+    expect(counts()).toEqual([1, 0]);
+  });
+
+  it('closes on close() and emits closed once', async () => {
+    host().control().open();
+    await settle();
+    host().control().close();
+    await settle();
+
+    expect(panel()).toBeNull();
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    expect(counts()).toEqual([1, 1]);
+  });
+
+  it('emits for a click on the trigger and for Escape', async () => {
+    trigger().click();
+    await settle();
+    expect(counts()).toEqual([1, 0]);
+
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    await settle();
+    expect(panel()).toBeNull();
+    expect(counts()).toEqual([1, 1]);
+  });
+
+  it('refuses open() while disabled', async () => {
+    host().disabled.set(true);
+    await settle();
+    host().control().open();
+    await settle();
+
+    expect(panel()).toBeNull();
+    expect(counts()).toEqual([0, 0]);
+  });
+
+  it('refuses open() while readonly', async () => {
+    host().readonly.set(true);
+    await settle();
+    host().control().open();
+    await settle();
+
+    expect(panel()).toBeNull();
+    expect(counts()).toEqual([0, 0]);
+  });
+
+  it('emits closed when the control is disabled under an open panel', async () => {
+    host().control().open();
+    await settle();
+    host().disabled.set(true);
+    await settle();
+
+    expect(panel()).toBeNull();
+    expect(counts()).toEqual([1, 1]);
+  });
+
+  it('does not emit from a host destroyed while open', async () => {
+    host().control().open();
+    await settle();
+    const before = host();
+    fixture.destroy();
+
+    expect(panel()).toBeNull();
+    expect([before.opened(), before.closed()]).toEqual([1, 0]);
   });
 });

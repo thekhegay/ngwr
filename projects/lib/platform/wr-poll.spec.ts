@@ -185,5 +185,42 @@ describe('wrPoll', () => {
 
     expect(() => wrPoll(res, 1000)).toThrow(/injection context/);
     expect(() => TestBed.runInInjectionContext(() => wrPoll(res, 0))).toThrow(/positive/);
+    expect(() => TestBed.runInInjectionContext(() => wrPoll(res, Infinity))).toThrow(/positive/);
+  });
+
+  describe('a production build, where the interval is not refused out loud', () => {
+    /** `wrPoll` as a production bundle runs it: `isDevMode()` reads this global. */
+    const pollInProduction = (intervalMs: number): MockInstance<() => boolean> => {
+      const g = globalThis as { ngDevMode?: unknown };
+      const was = g.ngDevMode;
+      g.ngDevMode = false;
+      try {
+        return poll(intervalMs).reload;
+      } finally {
+        g.ngDevMode = was;
+      }
+    };
+
+    it.each([0, -1, NaN, Infinity])('never polls on an interval of %s, and arms no timer', async intervalMs => {
+      setup();
+      const reload = pollInProduction(intervalMs);
+      await settle();
+
+      expect(vi.getTimerCount()).toBe(0);
+      await pass(5000);
+      expect(reload).not.toHaveBeenCalled();
+      expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it('leaves a valid poller beside it on its own interval', async () => {
+      setup();
+      const broken = pollInProduction(NaN);
+      const good = poll(1000);
+      await settle();
+
+      await pass(3000);
+      expect([broken.mock.calls.length, good.reload.mock.calls.length]).toEqual([0, 3]);
+      expect(vi.getTimerCount()).toBe(1);
+    });
   });
 });

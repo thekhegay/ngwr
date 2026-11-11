@@ -8,13 +8,14 @@
 import { Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
-import { type WrDateFormat, WrDateAdapter, toLocalDate } from 'ngwr/date';
+import { type WrDateFormat, WrDateAdapter, wrParseDate } from 'ngwr/date';
 
 /**
  * A date through a `WrDateAdapter`: the same output as the `wrDate` pipe, for a
  * string built in TypeScript. A date-only string (`'2026-01-01'`) is that day in
- * the local zone, as `DatePipe` reads it. `null`, `undefined`, an empty string
- * and a date the engine refuses give an empty string.
+ * the local zone, as `DatePipe` reads it, and `'2026-01-01 14:30:00'` is read
+ * as its `T` form: the value goes through `wrParseDate`. `null`, `undefined`,
+ * an empty string and a date the engine refuses give an empty string.
  *
  * The adapter stands where `wrFormatNumber` takes a locale, because the output
  * is the adapter's: the native one formats in `WR_DATE_LOCALE`, and an app's own
@@ -35,11 +36,8 @@ export function wrFormatDate(
   adapter: WrDateAdapter<Date>,
   format: WrDateFormat | (string & {}) = 'shortDate'
 ): string {
-  if (value === null || value === undefined || value === '') return '';
-  const date = value instanceof Date ? value : toLocalDate(value);
-  if (Number.isNaN(date.getTime())) return '';
-
-  return adapter.format(date, format);
+  const date = wrParseDate(value);
+  return date === null ? '' : adapter.format(date, format);
 }
 
 /**
@@ -47,8 +45,9 @@ export function wrFormatDate(
  * unless the app provides its own — so both the named format keys
  * (`'shortDate'`, `'longDate'`, …) and raw token strings work with nothing to
  * set up. A date-only string (`'2026-01-01'`) is that day in the local zone,
- * as `DatePipe` reads it, not UTC midnight. {@link wrFormatDate} is the same
- * output as a function.
+ * as `DatePipe` reads it, not UTC midnight, and a backend's
+ * `'2026-01-01 14:30:00'` is read as its `T` form. {@link wrFormatDate} is the
+ * same output as a function.
  *
  * @example
  * ```html

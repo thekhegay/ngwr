@@ -50,10 +50,10 @@ one component folder. Reach for them instead of hand-rolling:
   the callback when its own position list is direction-dependent
   (`wrMirrorOffsets`).
 - **Icons** (`ngwr/icon`) — `WrIcon` (`<wr-icon name="…">`) +
-  `provideWrIcons(lucideIcons({…}))`. Both ways in live in `ngwr/icon` itself:
-  `lucideIcons()` / `lucide()` for **lucide only**, the one set whose package
+  `provideWrIcons(wrLucideIcons({…}))`. Both ways in live in `ngwr/icon` itself:
+  `wrLucideIcons()` / `wrLucide()` for **lucide only**, the one set whose package
   ships no SVG files (its exports are `[tag, attrs]` node arrays), and
-  `svgIcon()` from the raw SVG for every other set — feather, tabler, phosphor,
+  `wrSvgIcon()` from the raw SVG for every other set — feather, tabler, phosphor,
   heroicons, iconoir, radix, bootstrap. **v15 deleted both
   `ngwr/icon/adapters/*` entry points**: lucide's moved into `ngwr/icon` under
   the same names, and feather's went without a replacement, because feather
@@ -136,6 +136,12 @@ one component folder. Reach for them instead of hand-rolling:
   adapters were reachable only by the accident of being flat. It reads the
   entry points from the `exports` map now, nested ones included, and skips
   `<name>/testing`: a harness is public but never belongs in `imports: []`.
+  `wrParseDate` is the entry point's one plain function: a backend
+  value (a `Date`, epoch milliseconds, an ISO string, the SQL space form Safari
+  refuses) as a `Date` or `null`, never an Invalid Date. It reads a date-only
+  string through the internal `wrToLocalDate`, and `wrDate`, `wrFormatDate` and
+  the date validators parse through it in turn, so all four read one string as
+  one instant. It must stay free of the adapter and of DI.
 - **Router integration is OPT-IN since v14, and lives in two nested entry
   points** — `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`, and
   `WrTabsRouting` (the `[wrTabsRouting]` attribute on the strip) from
@@ -155,7 +161,7 @@ one component folder. Reach for them instead of hand-rolling:
   `ngwr/breadcrumbs` uses `RouterLink`. With the three nested ones they are the
   only importers, which is why `@angular/router` is an OPTIONAL peer.
 - **Shared code — don't reinvent these.** `ngwr/utils` (`coercion` incl.
-  `numAttr` for input transforms; plus `dom`, `guards`, `id`, `keyboard`,
+  `wrNumAttr` for input transforms; plus `dom`, `guards`, `id`, `keyboard`,
   `css-size`, `css-value`, `fn`, `math` incl. `wrDecimal` and its `Add` /
   `Subtract` / `Multiply` / `Divide` / `Compare` / `Round` siblings, the one
   `BigInt` decimal core `wr-table` summaries and `wr-input-number`'s
@@ -167,7 +173,7 @@ one component folder. Reach for them instead of hand-rolling:
   second argument, except `wrFormatDate`, which takes the adapter the pipe
   injects), and
   `ngwr/validators` (`WrValidators`). A chart builds on `ngwr/charts/core` —
-  the palette, dashes and markers, `useChartNumbers`, `chartAxis` and the
+  the palette, dashes and markers, `useChartNumbers`, `wrChartAxis` and the
   visually hidden `WrChartTable` behind the opt-in `dataTable` input on bar,
   line, scatter, radar, heatmap chart, calendar heatmap, funnel, waterfall,
   treemap, box plot and candlestick — every export `@internal`, so it stays out of
@@ -190,7 +196,15 @@ one component folder. Reach for them instead of hand-rolling:
 - **`wr-table` is the data workhorse** — column pin / resize / drag-reorder, row
   selection, expandable rows, summary rows, CSV export, grouping, **tree rows**
   (`childrenKey` makes `items` the roots and the table announces a `treegrid`)
-  and a virtualized body are all opt-in inputs on the one component. Three pairs
+  and a virtualized body are all opt-in inputs on the one component.
+  `stickyHeader` gives any mode its own scroll area under a sticky header, the
+  one a virtualized body already scrolls in (host class `wr-table--sticky-head`
+  for both), sized by `viewportHeight`, where `'fill'` takes the parent's
+  remaining height. A pinned edge casts its shadow only over hidden columns:
+  the host wears `wr-table--overflow-start` / `--overflow-end`, measured on the
+  scroll area. `selectAllScope="all"` widens the header select-all from the page
+  to every page of `items`, under the same on-screen rule (no collapsed group, no
+  closed subtree); with `total` it stays the page and warns. Three pairs
   are refused rather than half-supported: tree + `groupBy`, tree +
   `[wrTableExpand]`, tree + `virtualScroll`. Excel (`.xlsx`)
   export is deliberately NOT shipped (would need a third-party dep). Don't
@@ -211,7 +225,7 @@ one component folder. Reach for them instead of hand-rolling:
   import path and the `@use`, and reports a list still rendering its row
   through an `<ng-template>` or passing `trackBy`, since the loop needs the
   array name and a track key only the app knows.
-- **Virtual scrolling** — `wr-table`, `wr-tree` and `wr-select` (search mode)
+- **Virtual scrolling** — `wr-table`, `wr-tree` and `wr-select` (`[options]` rows)
   use hand-rolled spacer-row windowing and switch to `aria-activedescendant`
   while virtual. `ngwr/virtual-scroll` is a _separate_ public component wrapping
   `cdk-virtual-scroll-viewport`; the three above deliberately don't use it (the

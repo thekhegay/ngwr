@@ -10,7 +10,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { type WrColorScheme, watchColorScheme } from './watch-color-scheme';
+import { type WrColorScheme, wrWatchColorScheme } from './watch-color-scheme';
 
 /**
  * The helper exists for a still canvas frame, which holds the colours it was
@@ -23,7 +23,7 @@ import { type WrColorScheme, watchColorScheme } from './watch-color-scheme';
  * jsdom computes `color-scheme` from an inline style and has no `matchMedia`,
  * so the OS half runs against a stub that can fire `change` by hand.
  */
-describe('watchColorScheme', () => {
+describe('wrWatchColorScheme', () => {
   let osDark: boolean;
   let listeners: Set<() => void>;
   let seen: WrColorScheme[];
@@ -53,7 +53,7 @@ describe('watchColorScheme', () => {
 
   @Component({ template: '' })
   class Watcher {
-    readonly stop = watchColorScheme(scheme => seen.push(scheme));
+    readonly stop = wrWatchColorScheme(scheme => seen.push(scheme));
   }
 
   const mount = (): ReturnType<typeof TestBed.createComponent<Watcher>> => {
@@ -163,7 +163,7 @@ describe('watchColorScheme', () => {
   it('takes an injector outside an injection context', async () => {
     const parent = TestBed.inject(EnvironmentInjector);
     const child = createEnvironmentInjector([], parent);
-    watchColorScheme(scheme => seen.push(scheme), { injector: child });
+    wrWatchColorScheme(scheme => seen.push(scheme), { injector: child });
 
     html().style.colorScheme = 'dark';
     await flush();
@@ -175,7 +175,7 @@ describe('watchColorScheme', () => {
   });
 
   it('refuses a call with neither an injection context nor an injector', () => {
-    expect(() => watchColorScheme(() => undefined)).toThrow(/NG0203/);
+    expect(() => wrWatchColorScheme(() => undefined)).toThrow(/NG0203/);
   });
 
   it('does nothing on the server', async () => {
@@ -185,7 +185,7 @@ describe('watchColorScheme', () => {
     });
     const observe = vi.spyOn(MutationObserver.prototype, 'observe');
 
-    const stop = watchColorScheme(scheme => seen.push(scheme), { injector: server });
+    const stop = wrWatchColorScheme(scheme => seen.push(scheme), { injector: server });
     html().style.colorScheme = 'dark';
     await flush();
 

@@ -128,10 +128,10 @@ export default class KeyboardGuidePage {
   ];
 
   protected readonly helpers: readonly KeyHelper[] = [
-    { name: 'KEYS', url: '/reference/utils/keys', use: 'Typed KeyboardEvent.key values.' },
-    { name: 'isComposing', url: '/reference/utils/is-composing', use: 'An input method is still converting.' },
-    { name: 'isPrintableKey', url: '/reference/utils/is-printable-key', use: 'The key types a character.' },
-    { name: 'hasModifier', url: '/reference/utils/has-modifier', use: 'Ctrl, Cmd, Alt or Shift is held.' },
+    { name: 'WR_KEYS', url: '/reference/utils/wr-keys', use: 'Typed KeyboardEvent.key values.' },
+    { name: 'wrIsComposing', url: '/reference/utils/wr-is-composing', use: 'An input method is still converting.' },
+    { name: 'wrIsPrintableKey', url: '/reference/utils/wr-is-printable-key', use: 'The key types a character.' },
+    { name: 'wrHasModifier', url: '/reference/utils/wr-has-modifier', use: 'Ctrl, Cmd, Alt or Shift is held.' },
   ];
 
   protected readonly snippets = {
@@ -155,19 +155,19 @@ constructor() {
 <wr-kbd size="sm">Ctrl</wr-kbd>
 <wr-kbd size="sm">K</wr-kbd>`,
 
-    keys: `import { KEYS, hasModifier, isComposing, isPrintableKey } from 'ngwr/utils';
+    keys: `import { WR_KEYS, wrHasModifier, wrIsComposing, wrIsPrintableKey } from 'ngwr/utils';
 
 protected onKeydown(event: KeyboardEvent): void {
-  if (isComposing(event)) return;
-  if (event.key === KEYS.ESCAPE) return this.close();
+  if (wrIsComposing(event)) return;
+  if (event.key === WR_KEYS.ESCAPE) return this.close();
 
-  // Before hasModifier, which counts Shift and would drop capitals.
-  if (isPrintableKey(event)) {
+  // Before wrHasModifier, which counts Shift and would drop capitals.
+  if (wrIsPrintableKey(event)) {
     this.query.update(q => q + event.key);
     return;
   }
 
-  if (hasModifier(event)) return; // leave the browser's own shortcuts alone
+  if (wrHasModifier(event)) return; // leave the browser's own shortcuts alone
 }`,
   };
 

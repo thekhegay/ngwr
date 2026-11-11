@@ -9,7 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Placeholder block shown while content is loading.
@@ -74,7 +74,7 @@ export class WrSkeleton {
    *
    * @default 0
    */
-  readonly lines = input(0, { transform: numAttr(0) });
+  readonly lines = input(0, { transform: wrNumAttr(0) });
 
   /** One entry per line, for the template's `@for`. */
   protected readonly lineIndexes = computed(() =>

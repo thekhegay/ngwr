@@ -7,8 +7,9 @@
 
 import { Component, DestroyRef, ElementRef, ViewEncapsulation, inject, input, viewChild } from '@angular/core';
 
-import { createCanvasBackdrop } from 'ngwr/animations/core';
-import { numAttr, resolveCssColorChannels, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrResolveCssColorChannels, wrCheckStyles } from 'ngwr/utils';
+
+import { createCanvasBackdrop } from '../internal';
 
 import { type Ripple, rippleAdd, rippleAlive, rippleField, rippleGridLayout } from './ripple-model';
 
@@ -40,7 +41,7 @@ const LINE_WIDTH = 1;
  * every few px, and the segments are grouped by glow into a few strokes.
  *
  * Colours come from the `--wr-ripple-grid-*` hooks through
- * `resolveCssColorChannels`, re-read when the scheme changes. Under
+ * `wrResolveCssColorChannels`, re-read when the scheme changes. Under
  * `prefers-reduced-motion: reduce` only the flat grid is drawn; under
  * `forced-colors: active` nothing is. The server renders the empty canvas,
  * absolutely positioned, so the browser's first draw shifts no layout.
@@ -55,7 +56,7 @@ const LINE_WIDTH = 1;
 })
 export class WrRippleGrid {
   /** Distance between two grid lines, in px. @default 32 */
-  readonly spacing = input(32, { transform: numAttr(32) });
+  readonly spacing = input(32, { transform: wrNumAttr(32) });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
@@ -115,8 +116,8 @@ export class WrRippleGrid {
   };
 
   private resolveColors(canvas: HTMLCanvasElement): void {
-    const ink = resolveCssColorChannels(canvas, 'var(--wr-ripple-grid-ink)', '#6b7280');
-    const glow = resolveCssColorChannels(canvas, 'var(--wr-ripple-grid-glow)', '#3969e2');
+    const ink = wrResolveCssColorChannels(canvas, 'var(--wr-ripple-grid-ink)', '#6b7280');
+    const glow = wrResolveCssColorChannels(canvas, 'var(--wr-ripple-grid-glow)', '#3969e2');
     this.strokes = [];
     for (let l = 0; l < LEVELS; l++) {
       const t = l / (LEVELS - 1);

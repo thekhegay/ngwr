@@ -37,8 +37,8 @@ import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPagination, type WrPaginationSize } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
 import {
-  KEYS,
-  toClassList,
+  WR_KEYS,
+  wrToClassList,
   wrCheckStyles,
   wrDecimal,
   wrDecimalAdd,
@@ -94,7 +94,7 @@ type RenderRow =
 
 /**
  * Instance counter for the ids the row controls are named through. Counted, not
- * `randomId()`, so the prerendered `aria-labelledby` is the one the browser
+ * `wrRandomId()`, so the prerendered `aria-labelledby` is the one the browser
  * renders again — the same reason `wr-tabs` and `wr-mention` count.
  */
 let tableUid = 0;
@@ -155,7 +155,7 @@ function isNgTemplateElement(tpl: TemplateRef<unknown>): boolean {
 
 function cellClasses(base: 'wr-table__th' | 'wr-table__td', column: Pick<WrTableColumn, 'align' | 'class'>): string {
   const own = column.align ? `${base} ${base}--align-${column.align}` : base;
-  return column.class ? toClassList(own, column.class).join(' ') : own;
+  return column.class ? wrToClassList(own, column.class).join(' ') : own;
 }
 
 /** A flat row descriptor with the tree fields at their flat-table defaults. */
@@ -194,6 +194,10 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
     class: 'wr-table',
     '[class.wr-table--responsive]': 'responsive()',
     '[class.wr-table--virtual]': 'virtualized()',
+    '[class.wr-table--sticky-head]': 'scrollable()',
+    '[class.wr-table--fill]': 'fillsParent()',
+    '[class.wr-table--overflow-start]': 'overflow().start',
+    '[class.wr-table--overflow-end]': 'overflow().end',
     // The rows under the veil are stale while a load is in flight, and nothing
     // said so: the veil marked itself, not the table it covers. Same pairing as
     // `wr-card` — mark busy, don't block (the veil is `pointer-events: none`).
@@ -260,6 +264,24 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * select-all header; `'single'` keeps one row selected. @default null (off)
    */
   readonly rowSelection = input<'single' | 'multiple' | null>(null);
+
+  /**
+   * What the header select-all covers. `'page'` is the rows on screen: the
+   * current page, less a collapsed group's rows and a closed parent's children.
+   * `'all'` is the same rule over every page of `items`, so the box reads
+   * checked only when all of them are selected, mixed when some are, and one
+   * click selects or clears them all. Either way a selected key that is not in
+   * the scope stays selected.
+   *
+   * The table filters nothing itself: `items` is already what the filters left,
+   * so `'all'` never reaches a row a filter removed. Group band checkboxes keep
+   * their page scope, since grouping runs after pagination.
+   *
+   * In server mode (`total` set) the table holds one page and cannot name the
+   * rows of the others, so `'all'` behaves as `'page'` there.
+   * @default 'page'
+   */
+  readonly selectAllScope = input<'page' | 'all'>('page');
 
   /**
    * Extra CSS classes per body row, from the row and its drawn index.
@@ -598,10 +620,26 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   readonly rowHeight = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
 
   /**
-   * Height of the scroll viewport when `virtualScroll` is on — a number (px) or
-   * any CSS length (`'70vh'`). Applied as `max-height` on `.wr-table__scroll`
-   * (a short table shrinks to fit; a long one caps and scrolls). A numeric px
-   * value lets the server prerender the exact first window. @default 480
+   * Gives the table its own vertical scroll area, with the header row stuck to
+   * its top and the summary footer to its bottom, in every mode: plain, paged,
+   * grouped, tree, with pinned columns or selection. The pager stays below the
+   * scroll area. `viewportHeight` sizes it. A virtualized table already
+   * scrolls this way, so the input adds nothing there.
+   * @default false
+   */
+  readonly stickyHeader = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Height of the scroll area when `virtualScroll` or `stickyHeader` is on — a
+   * number (px), any CSS length (`'70vh'`) or `'fill'`. A length is applied as
+   * `max-height` on `.wr-table__scroll` through `--wr-table-scroll-height` (a
+   * short table shrinks to fit; a long one caps and scrolls). `'fill'` takes
+   * the height the parent has left instead: the parent must be a flex column
+   * with a definite height (every flex ancestor up the chain needs
+   * `min-height: 0`), or a block with a definite height. The table then never
+   * shrinks below `--wr-table-scroll-min-height`. A numeric px value lets the
+   * server prerender the exact first window of a virtualized table.
+   * @default 480
    */
   readonly viewportHeight = input<number | string>(480);
 
@@ -783,6 +821,15 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
           console.warn(`[NGWR] <wr-table>: \`childrenKey\` cannot be combined with ${pair}.`);
         }
       });
+      let scopeWarned = false;
+      effect(() => {
+        if (scopeWarned || this.selectAllScope() !== 'all' || this.total() === null) return;
+        scopeWarned = true;
+        // eslint-disable-next-line no-console -- dev-mode validation
+        console.warn(
+          '[NGWR] <wr-table>: `selectAllScope="all"` cannot be combined with `total` (the table holds one page in server mode, so the select-all covers that page).'
+        );
+      });
     }
 
     // Re-measure whenever the columns or their rendered widths change. Tables
@@ -874,6 +921,76 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         ro?.disconnect();
       });
     });
+
+    // (C) The sticky header and footer cover the edges of the scroll area, so
+    // their heights become its scroll padding.
+    effect(onCleanup => {
+      const head = this.headEl()?.nativeElement;
+      const foot = this.footEl()?.nativeElement;
+      const setEdges = (next: { head: number | null; foot: number | null }): void => {
+        const prev = untracked(this.stickyEdges);
+        if (prev.head !== next.head || prev.foot !== next.foot) this.stickyEdges.set(next);
+      };
+      if (!head || !this.scrollable() || !isPlatformBrowser(this.platformId) || typeof ResizeObserver === 'undefined') {
+        setEdges({ head: null, foot: null });
+        return;
+      }
+      // A header hidden by card mode measures 0, which is no height to pad by.
+      const px = (el: HTMLElement | undefined): number | null => (el && el.offsetHeight > 0 ? el.offsetHeight : null);
+      const measure = (): void => setEdges({ head: px(head), foot: px(foot) });
+      const observer = new ResizeObserver(measure);
+      observer.observe(head);
+      if (foot) observer.observe(foot);
+      measure();
+      onCleanup(() => observer.disconnect());
+    });
+
+    // (D) A pinned edge casts its shadow only over content hidden behind it, so
+    // the scroll area reports which inline sides it overflows on.
+    effect(onCleanup => {
+      const el = this.scrollEl()?.nativeElement;
+      const table = el?.firstElementChild;
+      if (
+        !el ||
+        !table ||
+        !this.hasPins() ||
+        !isPlatformBrowser(this.platformId) ||
+        typeof ResizeObserver === 'undefined'
+      ) {
+        this.setOverflow(false, false);
+        return;
+      }
+      let raf = 0;
+      const measure = (): void => {
+        // `scrollLeft` runs from 0 down to a negative end under RTL, so its
+        // magnitude is the distance from the start in either direction. One
+        // pixel of slack absorbs the rounding of fractional column widths.
+        const offset = Math.abs(el.scrollLeft);
+        this.setOverflow(offset > 1, el.scrollWidth - el.clientWidth - offset > 1);
+      };
+      const onScroll = (): void => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          measure();
+        });
+      };
+      const observer = new ResizeObserver(measure);
+      observer.observe(el);
+      observer.observe(table);
+      el.addEventListener('scroll', onScroll, { passive: true });
+      measure();
+      onCleanup(() => {
+        observer.disconnect();
+        el.removeEventListener('scroll', onScroll);
+        if (raf) cancelAnimationFrame(raf);
+      });
+    });
+  }
+
+  private setOverflow(start: boolean, end: boolean): void {
+    const prev = untracked(this.overflow);
+    if (prev.start !== start || prev.end !== end) this.overflow.set({ start, end });
   }
 
   private measurePins(
@@ -922,6 +1039,15 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     return this.pins().right.get(key) ?? null;
   }
 
+  private readonly hasPins = computed<boolean>(() => this.displayColumns().some(c => c.column.pin));
+
+  /**
+   * Whether columns are hidden past the start and the end of the scroll area,
+   * the host's `wr-table--overflow-start` / `--overflow-end`. Only a table with
+   * a pinned column measures it.
+   */
+  protected readonly overflow = signal<{ start: boolean; end: boolean }>({ start: false, end: false });
+
   /** Whether `key` is the inner-edge pinned column on `side` (carries the shadow). */
   protected isPinEdge(key: string, side: 'left' | 'right'): boolean {
     return (side === 'left' ? this.pins().leftEdge : this.pins().rightEdge) === key;
@@ -958,7 +1084,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   /** Row half of {@link thClasses}, resolved through the `rowClass` predicate. */
   protected rowClasses(row: Record<string, unknown>, index: number): string {
     const extra = this.rowClass()?.(row, index);
-    return extra ? toClassList('wr-table__tr', extra).join(' ') : 'wr-table__tr';
+    return extra ? wrToClassList('wr-table__tr', extra).join(' ') : 'wr-table__tr';
   }
 
   // --- Column resizing ------------------------------------------------------
@@ -1044,6 +1170,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
 
   /** The `.wr-table__scroll` div (always in the template; only read when virtual). */
   private readonly scrollEl = viewChild<ElementRef<HTMLElement>>('scroll');
+  private readonly headEl = viewChild<ElementRef<HTMLElement>>('head');
+  private readonly footEl = viewChild<ElementRef<HTMLElement>>('foot');
   /** Live vertical scroll offset (px); 0 on the server / before first scroll. */
   private readonly scrollTop = signal(0);
   /** Measured viewport clientHeight (px); 0 until the browser observer fires. */
@@ -1077,11 +1205,20 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     return typeof h === 'number' ? h : WrTable.FALLBACK_VIEWPORT_PX;
   });
 
-  /** `viewportHeight` as a CSS length for the inline max-height. */
-  protected readonly resolvedViewportHeight = computed<string>(() => {
+  /** The table scrolls vertically inside `.wr-table__scroll`, under a sticky header. */
+  protected readonly scrollable = computed<boolean>(() => this.virtualized() || this.stickyHeader());
+
+  protected readonly fillsParent = computed<boolean>(() => this.scrollable() && this.viewportHeight() === 'fill');
+
+  /** `viewportHeight` as the value of `--wr-table-scroll-height`; `null` leaves the hook to the stylesheet. */
+  protected readonly scrollHeight = computed<string | null>(() => {
+    if (!this.scrollable() || this.fillsParent()) return null;
     const h = this.viewportHeight();
     return typeof h === 'number' ? `${h}px` : h;
   });
+
+  /** Measured heights (px) of the sticky header and footer, which `scroll-padding` keeps clear; `null` until measured. */
+  protected readonly stickyEdges = signal<{ head: number | null; foot: number | null }>({ head: null, foot: null });
 
   /** Rendered window [start,end) + spacer pads (px). Pure math, O(1) per scroll frame. */
   protected readonly virtualWindow = computed<{ start: number; end: number; padTop: number; padBottom: number }>(() => {
@@ -1176,22 +1313,45 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       .map(entry => this.rowKeyOf(entry.row))
   );
 
+  /**
+   * The header select-all's keys: {@link pageRowKeys}, or under
+   * `selectAllScope="all"` the keys every page would put on screen.
+   */
+  protected readonly selectAllKeys = computed<ReadonlySet<unknown>>(() => {
+    const rows = this.rows();
+    if (this.selectAllScope() !== 'all' || this.total() !== null || !rows) return new Set(this.pageRowKeys());
+    if (this.treeMode()) {
+      return new Set(
+        this.flattenForest(rows).flatMap(entry => (entry.kind === 'row' ? [this.rowKeyOf(entry.row)] : []))
+      );
+    }
+    const by = this.groupBy();
+    if (by === null) return new Set(rows.map(row => this.rowKeyOf(row)));
+    const collapsed = new Set(this.collapsedGroups());
+    return new Set(
+      rows.filter(row => !collapsed.has(typeof by === 'function' ? by(row) : row[by])).map(row => this.rowKeyOf(row))
+    );
+  });
+
   protected isRowSelected(row: Record<string, unknown>): boolean {
     return this.selectionSet().has(this.rowKeyOf(row));
   }
 
-  /** Every current-page row selected (drives the header checkbox). */
+  /** Every row in the select-all scope selected (drives the header checkbox). */
   protected readonly allSelected = computed<boolean>(() => {
-    const keys = this.pageRowKeys();
-    if (keys.length === 0) return false;
+    const keys = this.selectAllKeys();
+    if (keys.size === 0) return false;
     const sel = this.selectionSet();
-    return keys.every(key => sel.has(key));
+    for (const key of keys) if (!sel.has(key)) return false;
+    return true;
   });
 
   /** Some but not all selected (drives the header indeterminate). */
   protected readonly someSelected = computed<boolean>(() => {
+    if (this.allSelected()) return false;
     const sel = this.selectionSet();
-    return this.pageRowKeys().some(key => sel.has(key)) && !this.allSelected();
+    for (const key of this.selectAllKeys()) if (sel.has(key)) return true;
+    return false;
   });
 
   protected toggleRow(row: Record<string, unknown>, checked: boolean): void {
@@ -1205,7 +1365,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   /** Add (or remove) a set of row keys from the selection in one update. */
-  private applySelection(keys: readonly unknown[], checked: boolean): void {
+  private applySelection(keys: Iterable<unknown>, checked: boolean): void {
     const sel = this.selection();
     if (checked) {
       const merged = new Set(sel);
@@ -1218,7 +1378,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   protected toggleAll(checked: boolean): void {
-    this.applySelection(this.pageRowKeys(), checked);
+    this.applySelection(this.selectAllKeys(), checked);
   }
 
   // --- Row expansion --------------------------------------------------------
@@ -1256,7 +1416,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * otherwise hang the walk.
    */
   private flattenForest(roots: readonly Record<string, unknown>[]): readonly RenderRow[] {
-    const open = new Set(this.expanded());
+    const open = this.expandedSet();
     const out: RenderRow[] = [];
 
     const walk = (
@@ -1405,29 +1565,29 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     const key = this.inlineKey(event.key);
     // Ctrl is only meaningful with Home / End (the APG's "first row" chord);
     // with anything else it is someone else's shortcut.
-    if (event.ctrlKey && key !== KEYS.HOME && key !== KEYS.END) return;
+    if (event.ctrlKey && key !== WR_KEYS.HOME && key !== WR_KEYS.END) return;
 
     switch (key) {
-      case KEYS.ARROW_DOWN:
+      case WR_KEYS.ARROW_DOWN:
         this.focusTreeRow(Math.min(index + 1, rows.length - 1));
         break;
-      case KEYS.ARROW_UP:
+      case WR_KEYS.ARROW_UP:
         this.focusTreeRow(Math.max(index - 1, 0));
         break;
-      case KEYS.HOME:
+      case WR_KEYS.HOME:
         this.focusTreeRow(0);
         break;
-      case KEYS.END:
+      case WR_KEYS.END:
         this.focusTreeRow(rows.length - 1);
         break;
-      case KEYS.ARROW_RIGHT:
+      case WR_KEYS.ARROW_RIGHT:
         // Closed: open it, and stay. Open: step down into the first child, which
         // the depth-first flatten always puts on the very next row.
         if (!entry.parent) break;
         if (!entry.open) this.toggleTreeRow(entry.row);
         else if (rows[index + 1]?.depth === entry.depth + 1) this.focusTreeRow(index + 1);
         break;
-      case KEYS.ARROW_LEFT:
+      case WR_KEYS.ARROW_LEFT:
         // Open: close it, and stay. Closed or a leaf: climb to the parent, which
         // is the nearest row above that sits one level up.
         if (entry.open) {
@@ -1441,8 +1601,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
           }
         }
         break;
-      case KEYS.ENTER:
-      case KEYS.SPACE:
+      case WR_KEYS.ENTER:
+      case WR_KEYS.SPACE:
         // Selection is the row's own action when the table offers one. Without
         // it the keys do nothing, rather than guessing at a default.
         if (!this.rowSelection()) return;
@@ -1461,8 +1621,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    */
   private inlineKey(key: string): string {
     if (!this.isRtl()) return key;
-    if (key === KEYS.ARROW_RIGHT) return KEYS.ARROW_LEFT;
-    if (key === KEYS.ARROW_LEFT) return KEYS.ARROW_RIGHT;
+    if (key === WR_KEYS.ARROW_RIGHT) return WR_KEYS.ARROW_LEFT;
+    if (key === WR_KEYS.ARROW_LEFT) return WR_KEYS.ARROW_RIGHT;
     return key;
   }
 
@@ -1494,8 +1654,10 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     return this.expandTpl()?.template;
   }
 
+  private readonly expandedSet = computed(() => new Set(this.expanded()));
+
   protected isExpanded(row: Record<string, unknown>): boolean {
-    return this.expanded().includes(this.rowKeyOf(row));
+    return this.expandedSet().has(this.rowKeyOf(row));
   }
 
   protected toggleExpand(row: Record<string, unknown>): void {

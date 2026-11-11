@@ -9,7 +9,7 @@ import {
   type WrBarOrientation,
   type WrBarSeries,
 } from 'ngwr/charts/bar-chart';
-import { chartColor } from 'ngwr/charts/core';
+import { wrChartColor } from 'ngwr/charts/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrBarChartHarness } from './wr-bar-chart-harness';
@@ -210,9 +210,9 @@ describe('WrBarChartHarness with series', () => {
     const harness = await chart();
 
     expect(await harness.getSeriesBars()).toEqual([
-      { category: 'Q1', name: 'North: 10', startPercent: 0, sizePercent: 33.33, color: chartColor(0), dash: '' },
-      { category: 'Q1', name: 'South: 30', startPercent: 0, sizePercent: 100, color: chartColor(1), dash: '7 4' },
-      { category: 'Q2', name: 'North: 30', startPercent: 0, sizePercent: 100, color: chartColor(0), dash: '' },
+      { category: 'Q1', name: 'North: 10', startPercent: 0, sizePercent: 33.33, color: wrChartColor(0), dash: '' },
+      { category: 'Q1', name: 'South: 30', startPercent: 0, sizePercent: 100, color: wrChartColor(1), dash: '7 4' },
+      { category: 'Q2', name: 'North: 30', startPercent: 0, sizePercent: 100, color: wrChartColor(0), dash: '' },
     ]);
     // The single-series reads have nothing to read here, and say so by being empty.
     expect([await harness.getBars(), await harness.getBarCount()]).toEqual([[], 0]);
@@ -355,7 +355,7 @@ describe('WrBarChartHarness with lines', () => {
 
     expect(target).toEqual({
       label: 'Target',
-      color: chartColor(1),
+      color: wrChartColor(1),
       // The missing Q2 breaks the line, so neither point has a run, and there is no dash
       // to read rather than a solid one.
       dash: null,

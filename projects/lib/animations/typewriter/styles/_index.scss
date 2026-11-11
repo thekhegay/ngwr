@@ -1,5 +1,5 @@
 @use '../../../theme/styles' as theme;
-@use '../../core/styles/mixins' as core;
+@use '../../internal/styles/mixins' as core;
 @include theme.loaded('animations/typewriter');
 
 // `<wr-typewriter>`: a line typed character by character behind a caret.

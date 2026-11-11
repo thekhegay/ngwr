@@ -21,9 +21,10 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { MAX_FRAME_MS, MAX_PIXELS, canvasBackdropRatio } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, resolveCssColorChannels, watchColorScheme, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrResolveCssColorChannels, wrWatchColorScheme, wrCheckStyles } from 'ngwr/utils';
+
+import { MAX_FRAME_MS, MAX_PIXELS, canvasBackdropRatio } from '../internal';
 
 import { FLUID_CONTEXT_ATTRIBUTES, type FluidGLContext, type FluidSim, createFluidSim } from './fluid-gl';
 import {
@@ -94,7 +95,7 @@ const SPLASH_PHASE = 0.17;
  * read-back), and stops on its own after that, the fields cleared.
  *
  * Colours come from the `--wr-fluid-cursor-color-*` hooks through
- * `resolveCssColorChannels`, re-read when the scheme changes; a stroke
+ * `wrResolveCssColorChannels`, re-read when the scheme changes; a stroke
  * cycles through them as it goes, or through the hue circle under `rainbow`.
  * The display pass reads the surface too: on a light one the dye is laid as
  * ink, its colour at full saturation under a coverage that rises with its
@@ -115,17 +116,17 @@ const SPLASH_PHASE = 0.17;
 })
 export class WrFluidCursor {
   /** How much dye a move lays, a multiplier. @default 1 */
-  readonly intensity = input(1, { transform: numAttr(1) });
+  readonly intensity = input(1, { transform: wrNumAttr(1) });
   /** The radius of a splat, in CSS px: how wide the ink the pointer lays is. @default 24 */
-  readonly size = input(24, { transform: numAttr(24) });
+  readonly size = input(24, { transform: wrNumAttr(24) });
   /** How much of the pointer's speed the fluid takes, a multiplier. @default 1 */
-  readonly force = input(1, { transform: numAttr(1) });
+  readonly force = input(1, { transform: wrNumAttr(1) });
   /** How strongly the eddies are fed back, a multiplier: more curls the trail tighter, none lets it smooth out. @default 1 */
-  readonly swirl = input(1, { transform: numAttr(1) });
+  readonly swirl = input(1, { transform: wrNumAttr(1) });
   /** How long the dye lasts, in seconds, from a fresh splat to gone. @default 3 */
-  readonly trail = input(3, { transform: numAttr(3) });
+  readonly trail = input(3, { transform: wrNumAttr(3) });
   /** How long the motion the pointer gave lasts, in seconds. @default 6 */
-  readonly momentum = input(6, { transform: numAttr(6) });
+  readonly momentum = input(6, { transform: wrNumAttr(6) });
   /** Whether the dye is shaded by its own relief, a slight lighting from the top left. @default true */
   readonly shading = input(true, { transform: booleanAttribute });
   /** Whether a stroke cycles the hue circle instead of the theme's palette. @default false */
@@ -191,7 +192,7 @@ export class WrFluidCursor {
       this.quality();
       untracked(() => this.relayout());
     });
-    watchColorScheme(() => this.resolveColors());
+    wrWatchColorScheme(() => this.resolveColors());
 
     afterNextRender(() => this.mount());
     inject(DestroyRef).onDestroy(() => this.unmount());
@@ -339,8 +340,8 @@ export class WrFluidCursor {
     if (!this.sim) return;
     const canvas = this.canvasRef().nativeElement;
     this.palette.length = 0;
-    for (const [hook, fallback] of PALETTE_HOOKS) this.palette.push(resolveCssColorChannels(canvas, hook, fallback));
-    this.ink = fluidInk(resolveCssColorChannels(canvas, 'var(--wr-color-surface)', '#ffffff'));
+    for (const [hook, fallback] of PALETTE_HOOKS) this.palette.push(wrResolveCssColorChannels(canvas, hook, fallback));
+    this.ink = fluidInk(wrResolveCssColorChannels(canvas, 'var(--wr-color-surface)', '#ffffff'));
   }
 
   /** The stroke's colour at its phase, into `color`. */

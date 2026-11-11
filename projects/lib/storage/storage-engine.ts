@@ -29,7 +29,7 @@ function probe(engine: WrStorageEngine): boolean {
  * In-memory implementation of `Storage`. Used as the SSR / private-mode
  * fallback. Exported so consumers can opt into it explicitly for tests.
  */
-export function createMemoryStorage(): WrStorageEngine {
+export function wrCreateMemoryStorage(): WrStorageEngine {
   const map = new Map<string, string>();
   return {
     get length(): number {
@@ -75,8 +75,13 @@ export function createMemoryStorage(): WrStorageEngine {
 export const WR_STORAGE_ENGINE = new InjectionToken<WrStorageEngine>('WR_STORAGE_ENGINE', {
   providedIn: 'root',
   factory: () => {
-    if (typeof localStorage === 'undefined') return createMemoryStorage();
-    return probe(localStorage) ? localStorage : createMemoryStorage();
+    try {
+      // The getter itself throws a SecurityError when the browser blocks storage.
+      if (typeof localStorage !== 'undefined' && probe(localStorage)) return localStorage;
+    } catch {
+      // Fall through to memory.
+    }
+    return wrCreateMemoryStorage();
   },
 });
 

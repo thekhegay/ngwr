@@ -10,6 +10,7 @@
     type="text"
     autocomplete="off"
     spellcheck="false"
+    [size]="size()"
     [attr.aria-label]="nameLabel()"
     [attr.aria-labelledby]="labelledBy()"
     [attr.aria-invalid]="ownAriaInvalid()"
@@ -23,6 +24,31 @@
     (input)="onInput($event)"
     (blur)="onBlur($event)"
   />
+  <!-- Pointer-only, as the select's is: emptying the field is the keyboard way to clear. -->
+  @if (clearable() && hasValue() && !disabled() && !readonly()) {
+    <span
+      class="wr-date-picker__clear"
+      role="button"
+      [attr.aria-label]="resolvedClear()"
+      tabindex="-1"
+      (click)="clear($event)"
+    >
+      <svg
+        class="wr-icon__svg"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M18 6 6 18" />
+        <path d="m6 6 12 12" />
+      </svg>
+    </span>
+  }
   <button
     #trigger
     type="button"

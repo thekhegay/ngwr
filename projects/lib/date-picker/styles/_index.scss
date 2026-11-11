@@ -34,8 +34,18 @@
 .wr-date-picker {
   display: inline-block;
 
+  // A form field stretches the host, and the group is the box the user sees.
+  // Alone, the host shrink-wraps, so 100% is the group's content width again.
+  > .wr-input-group {
+    width: 100%;
+  }
+
   // Inner button — same affix sizing rules as wr-input-group's toggle.
   &__trigger {
+    // Box of the calendar / clock glyph. It follows the control's font size, the
+    // way the select chevron and the input-number steppers do.
+    --wr-date-picker-trigger-icon-size: var(--wr-control-font-size-md);
+
     appearance: none;
     background: transparent;
     border: 0;
@@ -55,11 +65,101 @@
       cursor: not-allowed;
       opacity: var(--wr-disabled-opacity);
     }
+
+    // CSS size, so it beats the markup's `width` / `height` attributes.
+    svg {
+      width: var(--wr-date-picker-trigger-icon-size);
+      height: var(--wr-date-picker-trigger-icon-size);
+    }
+  }
+}
+
+// The clear (×) both pickers draw between the last field and the trigger — the
+// select's, in a group instead of a button.
+.wr-date-picker__clear {
+  --wr-date-picker-clear-radius: var(--wr-border-radius-pill);
+  // The glyph is a bare `.wr-icon__svg`, which is `1em`.
+  --wr-date-picker-clear-icon-size: var(--wr-control-font-size-md);
+
+  flex: 0 0 auto;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: var(--wr-date-picker-clear-radius);
+  color: var(--wr-color-on-surface-muted);
+  font-size: var(--wr-date-picker-clear-icon-size);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--wr-color-on-surface) 6%, transparent);
+    color: var(--wr-color-on-surface);
+  }
+}
+
+// Touch pointers get a wider × that fills the field's height instead of growing it.
+@media (pointer: coarse) {
+  .wr-date-picker__clear {
+    align-self: stretch;
+    width: 2rem;
+    height: auto;
+  }
+}
+
+// The field keeps the affix gutter when the × sits between it and the trigger,
+// so the text does not move as the × comes and goes.
+.wr-date-picker .wr-input:has(+ .wr-date-picker__clear),
+.wr-date-range-picker .wr-input:has(+ .wr-date-picker__clear) {
+  padding-inline-end: var(--wr-input-group-affix-gap);
+}
+
+// Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px). The fields carry
+// `wr-input--<size>` themselves; the group and the trigger are their siblings and
+// read the size from the host. Both pickers draw the same trigger.
+.wr-date-picker--sm,
+.wr-date-range-picker--sm {
+  > .wr-input-group {
+    --wr-input-group-radius: var(--wr-control-radius-sm);
+    --wr-input-group-padding-x: var(--wr-control-padding-x-sm);
+  }
+
+  .wr-date-picker__trigger {
+    --wr-date-picker-trigger-icon-size: var(--wr-control-font-size-sm);
+  }
+
+  .wr-date-picker__clear {
+    --wr-date-picker-clear-icon-size: var(--wr-control-font-size-sm);
+  }
+}
+
+.wr-date-picker--lg,
+.wr-date-range-picker--lg {
+  > .wr-input-group {
+    --wr-input-group-radius: var(--wr-control-radius-lg);
+    --wr-input-group-padding-x: var(--wr-control-padding-x-lg);
+  }
+
+  .wr-date-picker__trigger {
+    --wr-date-picker-trigger-icon-size: var(--wr-control-font-size-lg);
+  }
+
+  .wr-date-picker__clear {
+    --wr-date-picker-clear-icon-size: var(--wr-control-font-size-lg);
   }
 }
 
 .wr-date-range-picker {
   display: inline-block;
+
+  // As `.wr-date-picker` above.
+  > .wr-input-group {
+    width: 100%;
+  }
 
   // Each end shares the group's width so the pair reads as one control.
   &__input {
@@ -69,12 +169,29 @@
 
   &__separator {
     --wr-date-range-picker-separator-padding-x: var(--wr-space-xs);
+    // The page's text at md, as it has always been. `sm` and `lg` take the
+    // control's: the page's line box is taller than an `sm` field and stretched
+    // the group past 22px.
+    --wr-date-range-picker-separator-font-size: inherit;
+    --wr-date-range-picker-separator-line-height: inherit;
 
     display: inline-flex;
     align-items: center;
     padding: 0 var(--wr-date-range-picker-separator-padding-x);
     color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-date-range-picker-separator-font-size);
+    line-height: var(--wr-date-range-picker-separator-line-height);
     user-select: none;
+  }
+
+  &--sm &__separator {
+    --wr-date-range-picker-separator-font-size: var(--wr-control-font-size-sm);
+    --wr-date-range-picker-separator-line-height: var(--wr-control-line-height-sm);
+  }
+
+  &--lg &__separator {
+    --wr-date-range-picker-separator-font-size: var(--wr-control-font-size-lg);
+    --wr-date-range-picker-separator-line-height: var(--wr-control-line-height-lg);
   }
 
   &--disabled {

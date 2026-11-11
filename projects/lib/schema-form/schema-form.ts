@@ -18,7 +18,7 @@ import { WrOption, WrSelect } from 'ngwr/select';
 import { WrSlider } from 'ngwr/slider';
 import { WrSwitch } from 'ngwr/switch';
 import { WrTextarea } from 'ngwr/textarea';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 /** One field the template draws, resolved once per schema change. */
 interface WrRenderedField {
@@ -198,7 +198,7 @@ export class WrSchemaForm<T extends object> {
    * Grid columns. A field spans one of them unless its spec says otherwise.
    * @default 1
    */
-  readonly columns = input(1, { transform: numAttr(1) });
+  readonly columns = input(1, { transform: wrNumAttr(1) });
 
   /**
    * The track list, written as a style rather than published as a

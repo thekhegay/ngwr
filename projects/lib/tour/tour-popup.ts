@@ -8,7 +8,7 @@
 import { Component, InjectionToken, ViewEncapsulation, computed, inject } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
-import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nFormatter } from 'ngwr/i18n';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrTourStep } from './types';
@@ -59,12 +59,12 @@ export class WrTourPopup {
 
   protected readonly tour = inject(WR_TOUR_STEP);
 
-  // `readI18nText`, not `useI18nText`: these have no consumer-facing input to
+  // `wrReadI18nText`, not `useI18nText`: these have no consumer-facing input to
   // forward. Both helpers are reactive.
-  protected readonly nextLabel = readI18nText('tour.next', 'Next');
-  protected readonly backLabel = readI18nText('tour.back', 'Back');
-  protected readonly doneLabel = readI18nText('tour.done', 'Done');
-  protected readonly skipLabel = readI18nText('tour.skip', 'Skip tour');
+  protected readonly nextLabel = wrReadI18nText('tour.next', 'Next');
+  protected readonly backLabel = wrReadI18nText('tour.back', 'Back');
+  protected readonly doneLabel = wrReadI18nText('tour.done', 'Done');
+  protected readonly skipLabel = wrReadI18nText('tour.skip', 'Skip tour');
 
   /** `Step {{current}} of {{total}}` — also the dialog's accessible name. */
   protected readonly progress = useI18nFormatter('tour.progress', 'Step {{current}} of {{total}}');

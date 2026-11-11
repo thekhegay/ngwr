@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Select"
-  updated="15.6.0"
+  updated="16.0.0"
   description="Pick one or several values from a list, with search and free-text tags."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'CDK Overlay']"
@@ -311,8 +311,8 @@
   />
 
   <ngwr-doc-section
-    title="Search mode — virtual scroll"
-    description="Add `virtualScroll` for a long `[options]` array. Projected `<wr-option>`s are not virtualized."
+    title="Virtual scroll"
+    description="Add `virtualScroll` for a long `[options]` array, with or without search. Projected `<wr-option>`s are not virtualized."
   >
     <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -407,6 +407,13 @@
         <code>T</code>.
       </li>
     </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Open from code"
+    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only."
+  >
+    <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Select API">

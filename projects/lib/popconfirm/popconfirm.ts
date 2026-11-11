@@ -25,7 +25,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
-import { toClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrPopconfirmPanel } from './popconfirm-panel';
 import { type WrPopconfirmPosition, wrPopconfirmPositions } from './types';
@@ -130,8 +130,10 @@ export class WrPopconfirm {
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** @internal Public so the host bindings can read it. */
-  readonly isOpen = signal(false);
+  private readonly openState = signal(false);
+
+  /** Whether the popconfirm is open. Read-only: `open()` and `close()` change it. */
+  readonly isOpen = this.openState.asReadonly();
 
   private overlayRef: OverlayRef | null = null;
 
@@ -182,7 +184,7 @@ export class WrPopconfirm {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: toClassList('wr-popconfirm-overlay', this.panelClass()),
+      panelClass: wrToClassList('wr-popconfirm-overlay', this.panelClass()),
     });
 
     // `isRtl()` above answered once, at `create()`, and so did the CDK's own
@@ -226,7 +228,7 @@ export class WrPopconfirm {
     // question still on screen and `aria-expanded` still true. See `onPaneKeydown`.
     pane.addEventListener('keydown', this.onPaneKeydown);
     pane.addEventListener('focusout', this.onPaneFocusOut);
-    this.isOpen.set(true);
+    this.openState.set(true);
 
     ref.instance.confirmed.subscribe(() => {
       this.confirmed.emit();
@@ -277,7 +279,7 @@ export class WrPopconfirm {
     pane.removeEventListener('focusout', this.onPaneFocusOut);
     this.overlayRef.dispose();
     this.overlayRef = null;
-    this.isOpen.set(false);
+    this.openState.set(false);
     if (returnFocus) wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
   }
 

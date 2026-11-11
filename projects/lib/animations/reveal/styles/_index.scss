@@ -1,5 +1,5 @@
 @use '../../../theme/styles' as theme;
-@use '../../core/styles/mixins' as core;
+@use '../../internal/styles/mixins' as core;
 @include theme.loaded('animations/reveal');
 
 // `<wr-reveal>`: a text run whose pieces rise into place one after

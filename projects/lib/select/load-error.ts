@@ -7,7 +7,7 @@
 
 import { Directive, TemplateRef, inject } from '@angular/core';
 
-import type { SafeAny } from 'ngwr/utils';
+import type { WrSafeAny } from 'ngwr/utils';
 
 import type { WrSelectLoadErrorContext } from './types';
 
@@ -39,12 +39,12 @@ import type { WrSelectLoadErrorContext } from './types';
 @Directive({
   selector: 'ng-template[wrSelectLoadError]',
 })
-export class WrSelectLoadError<E = SafeAny> {
+export class WrSelectLoadError<E = WrSafeAny> {
   readonly template = inject<TemplateRef<WrSelectLoadErrorContext<E>>>(TemplateRef);
 
   /**
    * Types the template's `let-` variables under `strictTemplates`. `E` defaults
-   * to `SafeAny` for the reason `WrOptionLeading` gives: nothing infers the error
+   * to `WrSafeAny` for the reason `WrOptionLeading` gives: nothing infers the error
    * type, and narrowed to `unknown`, `error.message` would not compile.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- a guard's parameters exist to be narrowed, never read

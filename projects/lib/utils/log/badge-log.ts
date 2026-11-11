@@ -5,6 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { badgeStyle } from './badge-style';
+
 /**
  * Logs a coloured pill to the browser console followed by a payload.
  *
@@ -13,7 +15,7 @@
  *
  * @example
  * ```ts
- * badgeLog('icons', '#3969e2', { name: 'plus', registered: true });
+ * wrBadgeLog('icons', '#3969e2', { name: 'plus', registered: true });
  * // → [icons] { name: 'plus', registered: true }
  * ```
  *
@@ -21,15 +23,7 @@
  * @param color    CSS colour applied to the pill border and text.
  * @param message  Anything you'd pass to `console.log` as the second argument.
  */
-export function badgeLog(badgeText: string, color: string, message: unknown): void {
-  const style = `
-    display: inline-block;
-    border: 1px solid ${color};
-    color: ${color};
-    padding: 1px 3px;
-    border-radius: 4px;
-    margin-right: 0
-  `;
+export function wrBadgeLog(badgeText: string, color: string, message: unknown): void {
   // eslint-disable-next-line no-console -- this helper exists to log
-  console.log(`%c${badgeText}`, style, message);
+  console.log(`%c${badgeText}`, badgeStyle(color), message);
 }

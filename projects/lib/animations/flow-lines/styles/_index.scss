@@ -4,7 +4,7 @@
 // `<wr-flow-lines />`: a dense field of thin parallel lines behind a section's
 // content, bent in slow waves and pushed aside round the pointer. The component
 // paints one WebGL canvas and reads its two colours and the surface back from
-// the hooks below through `resolveCssColorChannels`, so a retheme and a scheme
+// the hooks below through `wrResolveCssColorChannels`, so a retheme and a scheme
 // switch both reach the pixels. How much of a colour a line lays and its
 // thickness live in the component and its shader: they are the canvas's
 // numbers, not the sheet's.

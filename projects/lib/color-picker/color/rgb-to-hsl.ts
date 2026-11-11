@@ -11,7 +11,7 @@ import type { WrRgb } from './wr-rgb';
 /**
  * Convert sRGB to HSL. Preserves alpha.
  */
-export function rgbToHsl(rgb: WrRgb): WrHsl {
+export function wrRgbToHsl(rgb: WrRgb): WrHsl {
   const r = rgb.r / 255;
   const g = rgb.g / 255;
   const b = rgb.b / 255;

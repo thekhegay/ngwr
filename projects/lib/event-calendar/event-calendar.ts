@@ -28,7 +28,7 @@ import {
 import { WrButton, WrButtonGroup } from 'ngwr/button';
 import { WrDateAdapter } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 import { WrCalendarEventTemplate } from './event-calendar-event-template';
 import type {
@@ -218,16 +218,16 @@ export class WrEventCalendar {
   readonly editable = input(false, { transform: coerceBooleanProperty });
 
   /** Minutes per row in the time views — also the drag snap. @default 30 */
-  readonly slotMinutes = input(30, { transform: numAttr(30) });
+  readonly slotMinutes = input(30, { transform: wrNumAttr(30) });
 
   /** First hour the time views show. @default 0 */
-  readonly dayStartHour = input(0, { transform: numAttr(0) });
+  readonly dayStartHour = input(0, { transform: wrNumAttr(0) });
 
   /** First hour they do NOT show, exclusive. @default 24 */
-  readonly dayEndHour = input(24, { transform: numAttr(24) });
+  readonly dayEndHour = input(24, { transform: wrNumAttr(24) });
 
   /** Lanes a month cell shows before collapsing the rest into “+N more”. @default 3 */
-  readonly maxLanes = input(3, { transform: numAttr(3) });
+  readonly maxLanes = input(3, { transform: wrNumAttr(3) });
 
   /** Hide the built-in header — supply your own navigation instead. @default false */
   readonly hideHeader = input(false, { transform: coerceBooleanProperty });

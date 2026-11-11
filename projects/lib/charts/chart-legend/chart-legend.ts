@@ -9,7 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, ViewEncapsulation, computed, inject, input, model, output, signal } from '@angular/core';
 
-import { chartMarkerPath } from 'ngwr/charts/core';
+import { wrChartMarkerPath } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { wrCheckStyles } from 'ngwr/utils';
 
@@ -141,7 +141,7 @@ export class WrChartLegend {
 
   /** A marker's path, as large as a circle of radius `r` in the swatch's own units. */
   protected markerPath(shape: WrChartMarker, r: number): string {
-    return chartMarkerPath(shape, r);
+    return wrChartMarkerPath(shape, r);
   }
 
   /** Shows or hides the series at `index`, then says so. */

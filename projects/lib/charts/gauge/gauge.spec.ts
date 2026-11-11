@@ -1,7 +1,7 @@
 import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { chartColor } from 'ngwr/charts/core';
+import { wrChartColor } from 'ngwr/charts/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrGauge } from './gauge';
@@ -78,7 +78,7 @@ describe('WrGauge', () => {
 
   it("fills the bar in the shared palette's first colour unless told otherwise", () => {
     // The input keeps the literal default the docs print; this holds it to the palette.
-    expect(bar().getAttribute('stroke')).toBe(chartColor(0));
+    expect(bar().getAttribute('stroke')).toBe(wrChartColor(0));
   });
 
   it('sweeps the bar from nothing to the whole track', () => {

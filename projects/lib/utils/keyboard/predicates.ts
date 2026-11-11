@@ -6,7 +6,7 @@
  */
 
 /** True when any modifier key (Ctrl / Cmd / Alt / Shift / Meta) is held. */
-export function hasModifier(event: KeyboardEvent): boolean {
+export function wrHasModifier(event: KeyboardEvent): boolean {
   return event.ctrlKey || event.altKey || event.metaKey || event.shiftKey;
 }
 
@@ -15,7 +15,7 @@ export function hasModifier(event: KeyboardEvent): boolean {
  * punctuation, etc.). Skips function keys, arrows, modifiers, and named
  * keys like `Backspace` or `Tab`.
  */
-export function isPrintableKey(event: KeyboardEvent): boolean {
+export function wrIsPrintableKey(event: KeyboardEvent): boolean {
   return event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey;
 }
 
@@ -45,12 +45,12 @@ export function isPrintableKey(event: KeyboardEvent): boolean {
  *
  * ```ts
  * protected onKeydown(event: KeyboardEvent): void {
- *   if (isComposing(event)) return;
+ *   if (wrIsComposing(event)) return;
  *   // …
  * }
  * ```
  */
-export function isComposing(event: KeyboardEvent): boolean {
+export function wrIsComposing(event: KeyboardEvent): boolean {
   // `keyCode` is deprecated and stays anyway: it is the only signal Safari
   // leaves on the committing keystroke. See the doc comment above.
   return event.isComposing || event.keyCode === 229;

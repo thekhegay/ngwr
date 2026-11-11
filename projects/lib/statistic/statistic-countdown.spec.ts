@@ -184,6 +184,32 @@ describe('WrStatisticCountdown', () => {
     expect(text()).toBe('Live now');
   });
 
+  it('runs no timer once it has ended, and starts one again for a new future target', async () => {
+    await mount();
+    advance(HOUR);
+    expect(vi.getTimerCount()).toBe(0);
+
+    fixture.componentInstance.target.set(NOW + 2 * HOUR);
+    fixture.detectChanges();
+    expect(vi.getTimerCount()).toBe(1);
+
+    advance(HOUR);
+    expect(fixture.componentInstance.ended).toBe(2);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('announces the end once when the target moves into the past while mounted', async () => {
+    await mount();
+    fixture.componentInstance.target.set(NOW - HOUR);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.ended).toBe(1);
+    expect(vi.getTimerCount()).toBe(0);
+
+    advance(10 * HOUR);
+    expect(fixture.componentInstance.ended).toBe(1);
+  });
+
   it('shows zeroes rather than the end text when there is none', async () => {
     await mount();
     advance(HOUR);
@@ -260,9 +286,48 @@ describe('WrStatisticCountdown', () => {
 
 @Component({
   imports: [WrStatisticCountdown],
-  template: `<wr-statistic-countdown [target]="0" [tickMs]="0" />`,
+  template: `<wr-statistic-countdown [target]="target" [tickMs]="0" />`,
 })
-class BusyHost {}
+class BusyHost {
+  // In the future: a countdown that has ended runs no interval to floor.
+  readonly target = NOW + HOUR;
+}
+
+@Component({
+  imports: [WrStatisticCountdown],
+  template: `<wr-statistic-countdown [target]="target" endText="Live now" (countdownEnd)="ended = ended + 1" />`,
+})
+class ExpiredHost {
+  readonly target = NOW - HOUR;
+  ended = 0;
+}
+
+describe('WrStatisticCountdown mounted after its target has passed', () => {
+  it('announces the end once, shows the end text and never starts a timer', async () => {
+    // An app reloaded after expiry has only this event to switch to its ended state.
+    vi.useFakeTimers({ now: NOW, toFake: ['setInterval', 'clearInterval', 'Date', 'performance'] });
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(ExpiredHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.ended).toBe(1);
+    expect((fixture.nativeElement as HTMLElement).querySelector('.wr-statistic__number')!.textContent.trim()).toBe(
+      'Live now'
+    );
+    expect(vi.getTimerCount()).toBe(0);
+
+    vi.advanceTimersByTime(10 * HOUR);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.ended).toBe(1);
+
+    fixture.destroy();
+    vi.useRealTimers();
+  });
+});
 
 describe('WrStatisticCountdown with a zero tick', () => {
   it('floors the interval at one frame rather than busy-looping', async () => {

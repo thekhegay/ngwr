@@ -59,7 +59,7 @@ function drawModules(ctx: CanvasRenderingContext2D, code: qrcodegen.QrCode, padd
  * Same rules as the link and image URL check inside `ngwr/editor`, and
  * deliberately a copy rather than an import: an entry point may not depend on
  * another's internals, and one call site does not earn a shared util. A third
- * would — put it in `ngwr/utils` beside `isSafeCssValue` when that happens.
+ * would — put it in `ngwr/utils` beside `wrIsSafeCssValue` when that happens.
  *
  * `data:` is allowed for raster types only. An SVG can carry script, and
  * `data:text/html` is a same-origin document.

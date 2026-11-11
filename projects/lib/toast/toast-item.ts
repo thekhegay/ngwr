@@ -7,7 +7,7 @@
 
 import { Component, ElementRef, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
 
-import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import type { WrToastConfig, WrToastType } from './types';
 
@@ -49,9 +49,11 @@ export class WrToastItem {
   readonly type = input<WrToastType>('info');
   readonly title = input<string | null>(null);
   readonly message = input.required<string>();
-  readonly dismissible = input<boolean>(true);
+  readonly closable = input<boolean>(true);
   readonly showProgress = input<boolean>(false);
   readonly showCopy = input<boolean>(false);
+  /** Text of the action button, from `WrToastOptions.action`. `null` renders none. */
+  readonly actionLabel = input<string | null>(null);
   /** Extra classes from `WrToastOptions.class`, merged into the host's own. */
   readonly extraClass = input<WrClassInput>(null);
   /** Auto-dismiss duration in ms — used to scale the progress bar. `0` hides it. */
@@ -63,6 +65,7 @@ export class WrToastItem {
   readonly labels = input.required<{ [K in keyof WrToastConfig['labels']]: string }>();
 
   readonly dismissed = output<void>();
+  readonly actionRequested = output<void>();
   readonly pauseRequested = output<void>();
   readonly resumeRequested = output<void>();
 
@@ -114,7 +117,7 @@ export class WrToastItem {
    * know which one it is reading.
    */
   protected readonly classes = computed(() =>
-    toClassList(
+    wrToClassList(
       'wr-toast',
       `wr-toast--${this.type()}`,
       this.title() ? null : 'wr-toast--untitled',
@@ -166,7 +169,7 @@ export class WrToastItem {
   });
 
   protected onSwipeStart(event: TouchEvent): void {
-    if (!this.dismissible()) return;
+    if (!this.closable()) return;
     const touch = event.touches[0];
     if (!touch) return;
     this.swipeStartX = touch.clientX;

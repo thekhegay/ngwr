@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { WrTree, type WrTreeNode } from 'ngwr/tree';
+import { WrTree, type WrTreeNode, type WrTreeSize } from 'ngwr/tree';
 
 import {
   DocApiComponent,
@@ -68,6 +68,8 @@ export default class TreePageComponent {
   protected readonly expanded = signal<readonly string[]>(['src', 'src/app']);
 
   protected readonly comboSingle = signal<string | null>(null);
+  protected readonly sizes: readonly WrTreeSize[] = ['sm', 'md', 'lg'];
+  protected readonly comboSized = signal<string | null>(null);
   protected readonly comboMulti = signal<readonly string[]>([]);
 
   // 5,020-node tree for the virtual-scroll demo.
@@ -80,6 +82,9 @@ export default class TreePageComponent {
   protected readonly bigPick = signal<readonly string[]>([]);
 
   protected readonly snippets = {
+    openFromCode: `<wr-tree #folder openOn="overlay" [nodes]="folders" [(value)]="picked" (opened)="onOpened()" (closed)="onClosed()" />
+<button wr-btn (click)="folder.open()">Open</button>`,
+
     single: `<wr-tree
   ariaLabel="Project files"
   [nodes]="folders"
@@ -102,6 +107,9 @@ export default class TreePageComponent {
   placeholder="Pick a folder"
   [(value)]="picked"
 />`,
+
+    overlaySizes: `<wr-tree openOn="overlay" size="sm" [nodes]="folders" [(value)]="picked" />
+<wr-tree openOn="overlay" size="lg" [nodes]="folders" [(value)]="picked" />`,
 
     overlayMulti: `<wr-tree
   openOn="overlay"

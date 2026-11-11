@@ -1,5 +1,5 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, type EnvironmentProviders, type Provider, signal } from '@angular/core';
+import { Component, type EnvironmentProviders, type Provider, signal, viewChild } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { FormField, form } from '@angular/forms/signals';
@@ -13,6 +13,7 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDatePicker } from './date-picker';
+import type { WrDatePickerSize } from './types';
 
 /**
  * The app's own copy for the picker's four refusals. ngwr ships no error texts: a
@@ -61,6 +62,8 @@ const REFUSAL_COPY: (Provider | EnvironmentProviders)[] = [
       [timeFormat]="timeFormat()"
       [showSeconds]="showSeconds()"
       [panelAriaLabel]="panelAriaLabel()"
+      [size]="size()"
+      [clearable]="clearable()"
       [disabled]="disabled()"
       [readonly]="readonly()"
       (touch)="touched.set(touched() + 1)"
@@ -77,6 +80,8 @@ class Host {
   readonly timeFormat = signal<'auto' | '12h' | '24h'>('24h');
   readonly showSeconds = signal(false);
   readonly panelAriaLabel = signal<string | null>(null);
+  readonly size = signal<WrDatePickerSize>('md');
+  readonly clearable = signal(false);
   readonly disabled = signal(false);
   readonly readonly = signal(false);
   readonly touched = signal(0);
@@ -754,7 +759,7 @@ describe('WrDatePicker', () => {
     });
 
     /**
-     * jsdom lays nothing out, so `getFocusableElements` would drop every stop but the
+     * jsdom lays nothing out, so `wrGetFocusableElements` would drop every stop but the
      * focused one; and it has no Tab of its own, so what is asserted is the half the
      * picker owns — where focus is handed before the browser's Tab runs from it.
      */
@@ -973,12 +978,91 @@ describe('WrDatePicker', () => {
       expect(document.activeElement).toBe(trigger());
     });
   });
+
+  describe('clear button', () => {
+    const clear = (): HTMLElement | null => root().querySelector<HTMLElement>('.wr-date-picker__clear');
+
+    beforeEach(() => {
+      fixture.componentInstance.clearable.set(true);
+      fixture.detectChanges();
+    });
+
+    it('is off by default', () => {
+      fixture.componentInstance.clearable.set(false);
+      fixture.detectChanges();
+
+      expect(clear()).toBeNull();
+    });
+
+    it('is a named button between the field and the trigger, out of the tab order', () => {
+      expect(clear()!.getAttribute('role')).toBe('button');
+      expect(clear()!.getAttribute('aria-label')).toBe('Clear');
+      expect(clear()!.getAttribute('tabindex')).toBe('-1');
+      expect(field().nextElementSibling).toBe(clear());
+      expect(clear()!.nextElementSibling).toBe(trigger());
+    });
+
+    it('is hidden with no value', () => {
+      fixture.componentInstance.picked.set(null);
+      fixture.detectChanges();
+
+      expect(clear()).toBeNull();
+    });
+
+    it('is hidden while disabled or readonly', () => {
+      fixture.componentInstance.disabled.set(true);
+      fixture.detectChanges();
+      expect(clear()).toBeNull();
+
+      fixture.componentInstance.disabled.set(false);
+      fixture.componentInstance.readonly.set(true);
+      fixture.detectChanges();
+      expect(clear()).toBeNull();
+    });
+
+    it('commits null on a click, empties the field, emits touch and hands focus to the field', () => {
+      const touched = fixture.componentInstance.touched();
+      clear()!.click();
+      fixture.detectChanges();
+
+      expect(picked()).toBeNull();
+      expect(field().value).toBe('');
+      expect(document.activeElement).toBe(field());
+      expect(fixture.componentInstance.touched()).toBe(touched + 1);
+      expect(clear()).toBeNull();
+    });
+
+    it('takes refused text away with the value', () => {
+      type('not a date');
+      clear()!.click();
+      fixture.detectChanges();
+
+      expect(picked()).toBeNull();
+      expect(field().value).toBe('');
+      expect(host().classList).not.toContain('wr-date-picker--invalid');
+    });
+  });
+
+  it('keeps the md field free of a size modifier', () => {
+    expect(field().className).not.toMatch(/wr-input--(sm|lg)/);
+    expect(host().className).not.toMatch(/wr-date-picker--(sm|md|lg)/);
+  });
+
+  it.each(['sm', 'lg'] as const)('forwards size %s to the field and mirrors it on the host', size => {
+    fixture.componentInstance.size.set(size);
+    fixture.detectChanges();
+
+    expect(field().classList).toContain(`wr-input--${size}`);
+    // The group carries no size of its own, so its radius and the trigger read the host.
+    expect(host().classList).toContain(`wr-date-picker--${size}`);
+    expect(host().querySelector('.wr-input-group')).not.toBeNull();
+  });
 });
 
 /**
  * One picker, one catalog key, one language.
  *
- * The field's name (`useI18nText`) and the calendar button's (`readI18nText`)
+ * The field's name (`useI18nText`) and the calendar button's (`wrReadI18nText`)
  * both resolve `datePicker.open`, and they used to disagree: the button's was a
  * plain string captured in a field initializer, which runs before any
  * loader-backed catalog exists. The field read "Открыть календарь" and the
@@ -2097,5 +2181,129 @@ describe('WrDatePicker focused by its bound field', () => {
     expect(root.querySelector('wr-date-picker')!.contains(document.activeElement)).toBe(true);
     expect(root.querySelector('.wr-date-picker__trigger')!.getAttribute('aria-expanded')).toBe('false');
     expect(document.querySelector('wr-calendar')).toBeNull();
+  });
+});
+
+describe('WrDatePicker open and close from code', () => {
+  @Component({
+    imports: [WrDatePicker],
+    template: `<wr-date-picker
+      format="dd.MM.yyyy"
+      [disabled]="disabled()"
+      [readonly]="readonly()"
+      (opened)="opened.update(n => n + 1)"
+      (closed)="closed.update(n => n + 1)"
+    />`,
+  })
+  class ApiHost {
+    readonly control = viewChild.required(WrDatePicker);
+    readonly disabled = signal(false);
+    readonly readonly = signal(false);
+    readonly opened = signal(0);
+    readonly closed = signal(0);
+  }
+
+  let fixture: ComponentFixture<ApiHost>;
+
+  const host = (): ApiHost => fixture.componentInstance;
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-date-picker__trigger')!;
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-date-picker-overlay');
+  const counts = (): [number, number] => [host().opened(), host().closed()];
+  const settle = async (): Promise<void> => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
+    fixture = TestBed.createComponent(ApiHost);
+    await settle();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('opens on open() and emits opened once', async () => {
+    host().control().open();
+    await settle();
+
+    expect(panel()).not.toBeNull();
+    expect(trigger().getAttribute('aria-expanded')).toBe('true');
+    expect(counts()).toEqual([1, 0]);
+  });
+
+  it('emits nothing for an open() while open or a close() while closed', async () => {
+    host().control().close();
+    await settle();
+    expect(counts()).toEqual([0, 0]);
+
+    host().control().open();
+    await settle();
+    host().control().open();
+    await settle();
+    expect(counts()).toEqual([1, 0]);
+  });
+
+  it('closes on close() and emits closed once', async () => {
+    host().control().open();
+    await settle();
+    host().control().close();
+    await settle();
+
+    expect(panel()).toBeNull();
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    expect(counts()).toEqual([1, 1]);
+  });
+
+  it('emits for a click on the trigger and for Escape', async () => {
+    trigger().click();
+    await settle();
+    expect(counts()).toEqual([1, 0]);
+
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    await settle();
+    expect(panel()).toBeNull();
+    expect(counts()).toEqual([1, 1]);
+  });
+
+  it('refuses open() while disabled', async () => {
+    host().disabled.set(true);
+    await settle();
+    host().control().open();
+    await settle();
+
+    expect(panel()).toBeNull();
+    expect(counts()).toEqual([0, 0]);
+  });
+
+  it('still opens on open() while readonly, as a click does', async () => {
+    host().readonly.set(true);
+    await settle();
+    host().control().open();
+    await settle();
+
+    expect(panel()).not.toBeNull();
+    expect(counts()).toEqual([1, 0]);
+  });
+
+  it('emits closed when the control is disabled under an open panel', async () => {
+    host().control().open();
+    await settle();
+    host().disabled.set(true);
+    await settle();
+
+    expect(panel()).toBeNull();
+    expect(counts()).toEqual([1, 1]);
+  });
+
+  it('does not emit from a host destroyed while open', async () => {
+    host().control().open();
+    await settle();
+    const before = host();
+    fixture.destroy();
+
+    expect(panel()).toBeNull();
+    expect([before.opened(), before.closed()]).toEqual([1, 0]);
   });
 });

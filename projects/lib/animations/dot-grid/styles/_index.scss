@@ -3,7 +3,7 @@
 
 // `<wr-dot-grid />`: an even field of small, faint dots behind a section's
 // content. The component paints one canvas and reads its two colours back
-// from the hooks below through `resolveCssColorChannels`, so a retheme and a
+// from the hooks below through `wrResolveCssColorChannels`, so a retheme and a
 // scheme switch both reach the pixels. The strengths (how much of each colour
 // a dot shows at rest and lit) and the dot sizes live in `dot-grid.ts`: they
 // are the canvas's numbers, not the sheet's.

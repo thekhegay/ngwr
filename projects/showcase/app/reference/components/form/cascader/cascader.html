@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Cascader"
-  updated="15.0.0"
+  updated="16.0.0"
   description="Pick a path through nested options, one column per level."
   [keywords]="['cascader', 'wr-cascader', 'multi-level', 'select']"
   [labels]="['Component']"
@@ -84,6 +84,13 @@
     title="Width"
     description="The default is `12rem`; change it with `--wr-cascader-min-width`, not a `min-width` on `.wr-cascader__trigger`."
   />
+
+  <ngwr-doc-section
+    title="Open from code"
+    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only."
+  >
+    <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
+  </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

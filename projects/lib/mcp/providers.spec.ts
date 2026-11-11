@@ -29,7 +29,7 @@ import { REQUIRED_PROVIDERS } from './providers.js';
  * calls.
  *
  * What it does NOT check, because a regex over a snippet cannot: argument types,
- * argument counts, and the `{ … }` placeholders. `provideWrIcons(lucideIcons({ … }))`
+ * argument counts, and the `{ … }` placeholders. `provideWrIcons(wrLucideIcons({ … }))`
  * would pass here with the wrong options object inside it.
  */
 

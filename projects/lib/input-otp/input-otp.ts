@@ -27,7 +27,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { isComposing, wrCheckStyles } from 'ngwr/utils';
+import { wrIsComposing, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrInputOtpMode, WrInputOtpSize } from './types';
 
@@ -266,7 +266,7 @@ export class WrInputOtp implements FormValueControl<string> {
     // Backspace and the arrows move the caret between boxes; while a conversion
     // is open they belong to the candidate window, and moving focus out of the
     // composing box discards it.
-    if (isComposing(event)) return;
+    if (wrIsComposing(event)) return;
 
     const target = event.target as HTMLInputElement;
     switch (this.inlineKey(event.key)) {

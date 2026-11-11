@@ -19,11 +19,11 @@ function channelToHex(n: number): string {
  *
  * @example
  * ```ts
- * toHex({ r: 57, g: 105, b: 226, a: 1 });         // '#3969e2'
- * toHex({ r: 57, g: 105, b: 226, a: 0.5 }, true); // '#3969e280'
+ * wrToHex({ r: 57, g: 105, b: 226, a: 1 });         // '#3969e2'
+ * wrToHex({ r: 57, g: 105, b: 226, a: 0.5 }, true); // '#3969e280'
  * ```
  */
-export function toHex(rgb: WrRgb, withAlpha = false): string {
+export function wrToHex(rgb: WrRgb, withAlpha = false): string {
   const r = channelToHex(rgb.r);
   const g = channelToHex(rgb.g);
   const b = channelToHex(rgb.b);

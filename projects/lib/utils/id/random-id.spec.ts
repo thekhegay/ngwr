@@ -1,20 +1,20 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { randomId } from './random-id';
+import { wrRandomId } from './random-id';
 
-describe('randomId', () => {
+describe('wrRandomId', () => {
   it('prefixes and defaults to 12 characters', () => {
-    const id = randomId();
+    const id = wrRandomId();
     expect(id).toMatch(/^wr-[a-z0-9]{12}$/);
   });
 
   it('takes a custom prefix and length', () => {
-    expect(randomId('opt', 6)).toMatch(/^opt-[a-z0-9]{6}$/);
+    expect(wrRandomId('opt', 6)).toMatch(/^opt-[a-z0-9]{6}$/);
   });
 
   it('clamps the length into 4..64', () => {
-    expect(randomId('x', 1).slice(2)).toHaveLength(4);
-    expect(randomId('x', 999).slice(2)).toHaveLength(64);
+    expect(wrRandomId('x', 1).slice(2)).toHaveLength(4);
+    expect(wrRandomId('x', 999).slice(2)).toHaveLength(64);
   });
 
   it('is selector-safe because the PREFIX leads, not the random part', () => {
@@ -23,20 +23,20 @@ describe('randomId', () => {
     // usable in `querySelector`, and they end up in `aria-controls` /
     // `aria-labelledby`, so that matters.
     for (let i = 0; i < 200; i++) {
-      const id = randomId();
+      const id = wrRandomId();
       expect(id).toMatch(/^[a-z]/);
       expect(() => document.querySelector(`#${id}`)).not.toThrow();
     }
   });
 
   it('does not repeat across a large batch', () => {
-    const ids = new Set(Array.from({ length: 5000 }, () => randomId()));
+    const ids = new Set(Array.from({ length: 5000 }, () => wrRandomId()));
     expect(ids.size).toBe(5000);
   });
 
   it('accepts an injected source of randomness', () => {
     const zeros = (n: number): Uint8Array => new Uint8Array(n);
-    expect(randomId('t', 5, zeros)).toBe('t-aaaaa');
+    expect(wrRandomId('t', 5, zeros)).toBe('t-aaaaa');
   });
 
   /**
@@ -56,13 +56,13 @@ describe('randomId', () => {
 
     it('still produces a well-formed id', () => {
       withoutCrypto();
-      expect(randomId()).toMatch(/^wr-[a-z0-9]{12}$/);
-      expect(randomId('opt', 6)).toMatch(/^opt-[a-z0-9]{6}$/);
+      expect(wrRandomId()).toMatch(/^wr-[a-z0-9]{12}$/);
+      expect(wrRandomId('opt', 6)).toMatch(/^opt-[a-z0-9]{6}$/);
     });
 
     it('is still unique enough to name elements on one page', () => {
       withoutCrypto();
-      const ids = new Set(Array.from({ length: 5000 }, () => randomId()));
+      const ids = new Set(Array.from({ length: 5000 }, () => wrRandomId()));
       expect(ids.size).toBe(5000);
     });
 
@@ -71,15 +71,15 @@ describe('randomId', () => {
       // shape that would throw rather than fall back if the guard only checked
       // for the object.
       Object.defineProperty(globalThis, 'crypto', { value: {}, configurable: true });
-      expect(randomId()).toMatch(/^wr-[a-z0-9]{12}$/);
+      expect(wrRandomId()).toMatch(/^wr-[a-z0-9]{12}$/);
     });
 
     it('does not silently keep using it once it is back', () => {
       withoutCrypto();
-      randomId();
+      wrRandomId();
       Object.defineProperty(globalThis, 'crypto', { value: real, configurable: true });
       const spy = vi.spyOn(real, 'getRandomValues');
-      randomId();
+      wrRandomId();
       expect(spy).toHaveBeenCalled();
       spy.mockRestore();
     });

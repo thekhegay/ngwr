@@ -8,6 +8,12 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Medium
 
+- **Date range presets**: one-click ranges such as Last 7 days, with labels from the app.
+- **Sortable list groups**: drag between connected lists, with a move event that says from and to.
+- **Dropdown submenus**: nested menus with arrow-key support, the base for a split button.
+- **Slider marks and vertical mode**.
+- **Lightbox gallery**: previous and next, a counter and arrow keys across a group.
+
 ## Low
 
 - **`wr-graph` zoom and pan**: zoom in and out and drag the field, like NG-ZORRO's
@@ -15,6 +21,11 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very low
 
+- **Typeahead**: type to jump in select, dropdown, tree and context menu, from the cascader's logic moved into one `ngwr/utils` helper.
+- **Carousel autoplay**: a pause button, an announced slide change and bigger dots.
+- **Tour step text**: the step's text is not tied to the dialog, so a screen reader skips it.
+- **Select announcements**: say loading and no results in a search or async select.
+- **File-upload remove buttons**: each carries the file name, and the two dead catalog keys go.
 - **`ngwr/kit` standalone utilities**: publish the internal signal utils,
   positioning, density, hotkey and storage helpers as a zero-dep package usable
   without the components.

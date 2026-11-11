@@ -49,7 +49,7 @@ export class WrTag {
    * reader who cannot separate red from green cannot tell those two tags
    * apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand
    * for a status by itself, give it an `icon` as well — register one with
-   * `provideWrIcons(lucideIcons({ 'octagon-alert': OctagonAlert }))`, then write
+   * `provideWrIcons(wrLucideIcons({ 'octagon-alert': OctagonAlert }))`, then write
    * `<wr-tag color="danger" icon="octagon-alert">Failed</wr-tag>`.
    *
    * @default 'primary'

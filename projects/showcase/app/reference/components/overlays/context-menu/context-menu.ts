@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 import { FileText, Settings, Trash2 } from 'lucide';
 import { WrContextMenu, WrContextMenuDivider, WrContextMenuItem, WrContextMenuPanel } from 'ngwr/context-menu';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WrKbd } from 'ngwr/keyboard';
 
 import {
@@ -30,7 +30,7 @@ import {
     DocCodeComponent,
     DocApiComponent,
   ],
-  providers: [provideWrIcons(lucideIcons({ document: FileText, trash: Trash2, cog: Settings }))],
+  providers: [provideWrIcons(wrLucideIcons({ document: FileText, trash: Trash2, cog: Settings }))],
 })
 export default class ContextMenuPageComponent {
   protected last = '';

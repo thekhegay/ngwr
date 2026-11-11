@@ -15,13 +15,13 @@ import {
 })
 export default class CommonTypesPage {
   protected readonly snippets = {
-    install: `import type { Maybe, SafeAny, WrClassInput } from 'ngwr/utils';`,
-    usage: `function findUser(id: string): Maybe<User> {
+    install: `import type { WrMaybe, WrSafeAny, WrClassInput } from 'ngwr/utils';`,
+    usage: `function findUser(id: string): WrMaybe<User> {
   return db.get(id) ?? null;
 }
 
 // A deliberate, searchable \`any\`.
-function fromLegacyBridge(payload: SafeAny): void {
+function fromLegacyBridge(payload: WrSafeAny): void {
   // narrow before use
 }
 
@@ -31,13 +31,13 @@ const extra: WrClassInput = wide() ? 'w-[40rem] shadow-2xl' : null;`,
 
   protected readonly api: readonly DocApiRow[] = [
     {
-      name: 'Maybe<T>',
-      description: '`T | null | undefined`. [isDefined](/reference/utils/is-defined) narrows it back to `T`.',
+      name: 'WrMaybe<T>',
+      description: '`T | null | undefined`. [wrIsDefined](/reference/utils/wr-is-defined) narrows it back to `T`.',
       type: 'type alias',
       default: '—',
     },
     {
-      name: 'SafeAny',
+      name: 'WrSafeAny',
       description: 'A deliberate `any` for interop boundaries, easy to search for.',
       type: 'type alias',
       default: '—',
@@ -45,7 +45,7 @@ const extra: WrClassInput = wide() ? 'w-[40rem] shadow-2xl' : null;`,
     {
       name: 'WrClassInput',
       description:
-        'Extra classes for a part ngwr renders: `string | readonly string[] | null | undefined`. Every `panelClass` takes it; [toClassList](/reference/utils/to-class-list) normalises one.',
+        'Extra classes for a part ngwr renders: `string | readonly string[] | null | undefined`. Every `panelClass` takes it; [wrToClassList](/reference/utils/wr-to-class-list) normalises one.',
       type: 'type alias',
       default: '—',
     },

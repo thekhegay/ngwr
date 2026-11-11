@@ -71,3 +71,44 @@ describe('column alignment', () => {
     expect(declarations(`.${cls}`)).toMatch(/text-align: center/);
   });
 });
+
+describe('the pinned edge shadow', () => {
+  const shadow = /box-shadow: -?0\.375rem 0 0\.375rem -0\.25rem var\(--wr-table-pin-shadow-ink\)/;
+
+  // A shadow beside a pinned column says columns are hidden behind it, so a table
+  // that fits draws none: the bare edge class carries the fade only.
+  it.each([
+    'wr-table__th--pin-edge-left',
+    'wr-table__td--pin-edge-left',
+    'wr-table__th--pin-edge-right',
+    'wr-table__td--pin-edge-right',
+  ])('is not on the bare .%s', cls => {
+    const body = declarations(`.${cls}`);
+    expect(body).not.toMatch(/box-shadow:/);
+    expect(body).toMatch(/transition: box-shadow var\(--wr-transition-base\)/);
+  });
+
+  it.each([
+    ['start', 'left'],
+    ['end', 'right'],
+  ])('waits for the host to overflow at the %s', (side, pin) => {
+    for (const cell of ['th', 'td']) {
+      expect(declarations(`.wr-table--overflow-${side} .wr-table__${cell}--pin-edge-${pin}`)).toMatch(shadow);
+    }
+  });
+
+  it('leans the other way under RTL, at the same specificity', () => {
+    const ltr = declarations('.wr-table--overflow-start .wr-table__td--pin-edge-left');
+    const rtl = declarations(':where([dir=rtl]) .wr-table--overflow-start .wr-table__td--pin-edge-left');
+    expect(ltr).toMatch(/box-shadow: 0\.375rem/);
+    expect(rtl).toMatch(/box-shadow: -0\.375rem/);
+    expect(declarations(':where([dir=rtl]) .wr-table--overflow-end .wr-table__td--pin-edge-right')).toMatch(
+      /box-shadow: 0\.375rem/
+    );
+  });
+
+  it('never crosses the two sides', () => {
+    expect(css).not.toMatch(/overflow-start [^{,]*pin-edge-right/);
+    expect(css).not.toMatch(/overflow-end [^{,]*pin-edge-left/);
+  });
+});

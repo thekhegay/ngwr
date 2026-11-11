@@ -170,7 +170,7 @@ describe('ng-add', () => {
     // Every provider named in the snippet has an import above it — the pairing
     // that broke once already, when the icon block imported bare glyph names
     // `ngwr/icon` has never exported.
-    for (const symbol of ['provideWr', 'withDensity', 'provideWrIcons', 'lucideIcons']) {
+    for (const symbol of ['provideWr', 'withDensity', 'provideWrIcons', 'wrLucideIcons']) {
       expect(snippet, symbol).toMatch(new RegExp(`import \\{[^}]*\\b${symbol}\\b[^}]*\\} from`));
     }
     // `provideWr` is the ROOT entry point's, and each feature comes from the
@@ -178,7 +178,7 @@ describe('ng-add', () => {
     expect(snippet).toContain("import { provideWr } from 'ngwr';");
     expect(snippet).toContain("import { withDensity } from 'ngwr/density';");
     // The converter ships in `ngwr/icon` itself since v15.
-    expect(snippet).toContain("import { provideWrIcons, lucideIcons } from 'ngwr/icon';");
+    expect(snippet).toContain("import { provideWrIcons, wrLucideIcons } from 'ngwr/icon';");
   });
 
   it('prints the app config shape `ng new` writes, not a bootstrap call', async () => {
@@ -210,7 +210,7 @@ describe('ng-add', () => {
     // advice below the snippet names `provideWr()` in prose.
     expect(snippet).not.toMatch(/^\s*provideWr\(/m);
     expect(snippet).not.toContain("from 'ngwr';");
-    expect(snippet).toContain('provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))');
+    expect(snippet).toContain('provideWrIcons(wrLucideIcons({ plus: Plus, trash: Trash2 }))');
   });
 });
 

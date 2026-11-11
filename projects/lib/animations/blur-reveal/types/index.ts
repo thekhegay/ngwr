@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrStaggerBy } from 'ngwr/animations/core';
+import type { WrStaggerBy } from '../../internal';
 
 /** What one animated piece of the text is: a word, or a grapheme. */
 type WrBlurRevealBy = WrStaggerBy;

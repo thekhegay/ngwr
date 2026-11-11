@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Date Picker"
-  updated="15.0.0"
+  updated="16.0.0"
   description="A text field with a popup for picking a date, a time or both."
   [keywords]="['date', 'time', 'datetime', 'picker', 'wr-date-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
@@ -154,6 +154,40 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Sizes"
+    description="`sm`, `md` (default) or `lg`, on both pickers. The popup keeps its size."
+  >
+    <ngwr-doc-code [code]="snippets.sizes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap">
+        @for (s of sizes; track s) {
+          <wr-date-picker [size]="s" [(value)]="sized" [placeholder]="s" />
+        }
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap">
+        @for (s of sizes; track s) {
+          <wr-date-range-picker [size]="s" [(value)]="sizedPeriod" startPlaceholder="From" endPlaceholder="To" />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Clearable"
+    description="`clearable` adds a clear button once there is a value. From the keyboard, empty the field."
+  >
+    <ngwr-doc-code [code]="snippets.clearable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap">
+        <wr-date-picker clearable [(value)]="clearableDate" placeholder="Pick a date" />
+        <wr-date-range-picker clearable [(value)]="clearablePeriod" startPlaceholder="From" endPlaceholder="To" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Keyboard" description="The popup is not modal: Tab leaves it.">
     <div class="ngwr-table ngwr-keys">
       <table>
@@ -214,6 +248,13 @@
         </span>
       </form>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Open from code"
+    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled, and on the range picker while read-only. Focus stays where it is."
+  >
+    <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

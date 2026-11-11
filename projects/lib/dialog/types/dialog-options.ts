@@ -55,4 +55,15 @@ export interface WrDialogOptions<D = unknown> {
    * splitting happens here.
    */
   readonly panelClass?: WrClassInput;
+  /**
+   * When `true`, the browser tab reads the dialog's title in front of the page
+   * title while the dialog is open, and the page title comes back when it
+   * closes. The text is read from the `[wrDialogTitle]` element, so it is
+   * already translated; a dialog without one leaves the tab alone. With dialogs
+   * stacked, the top one names the tab. It is written through `WrMeta` from
+   * `ngwr/meta`, as a `titlePrefix` layer, so `titleTemplate` and
+   * `titleSeparator` from `withMeta()` apply.
+   * @default false, or what `withDialog()` sets
+   */
+  readonly tabTitle?: boolean;
 }

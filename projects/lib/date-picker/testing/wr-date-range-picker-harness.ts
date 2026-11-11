@@ -99,7 +99,7 @@ export class WrDateRangePickerHarness extends WrDatePickerHarnessBase {
     await this.type('end', text);
   }
 
-  /** Empty both fields, which clears the range. Neither end has a clear button. */
+  /** Empty both fields, which clears the range, with or without the `clearable` button. */
   async clear(): Promise<void> {
     await (await this.field('start')).clear();
     await (await this.field('end')).clear();

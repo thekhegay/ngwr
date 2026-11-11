@@ -22,9 +22,10 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { FOCUSABLE } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, randomId, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrRandomId, wrCheckStyles } from 'ngwr/utils';
+
+import { FOCUSABLE } from '../internal';
 
 /** The ring at rest, in degrees per second: one turn in 36 s. */
 const ORBIT_SPEED = 10;
@@ -63,7 +64,7 @@ const SNAP = 0.01;
 const TRAILING = /[\s\p{P}\p{S}]+$/u;
 
 /** An optional size in px: `null`, `undefined` or an empty attribute means "the stylesheet's". */
-const optionalPx = (value: unknown): number | null => (value == null || value === '' ? null : numAttr(0)(value));
+const optionalPx = (value: unknown): number | null => (value == null || value === '' ? null : wrNumAttr(0)(value));
 
 /**
  * A short label set around a circle, like a seal, turning slowly, with a slot
@@ -124,12 +125,12 @@ export class WrOrbit {
   readonly size = input(null, { transform: optionalPx });
 
   /** Turn at rest, in degrees per second; negative turns the other way, zero sits still. @default 10 */
-  readonly speed = input(ORBIT_SPEED, { transform: numAttr(ORBIT_SPEED) });
+  readonly speed = input(ORBIT_SPEED, { transform: wrNumAttr(ORBIT_SPEED) });
 
   /** Turn under a pointer or with focus in the host, in degrees per second. @default 40 */
-  readonly hoverSpeed = input(ORBIT_HOVER_SPEED, { transform: numAttr(ORBIT_HOVER_SPEED) });
+  readonly hoverSpeed = input(ORBIT_HOVER_SPEED, { transform: wrNumAttr(ORBIT_HOVER_SPEED) });
 
-  protected readonly pathId = randomId('wr-orbit');
+  protected readonly pathId = wrRandomId('wr-orbit');
   protected readonly pathRef = `#${this.pathId}`;
   protected readonly path = PATH;
   protected readonly view = `0 0 ${VIEW} ${VIEW}`;

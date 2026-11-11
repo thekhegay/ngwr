@@ -1,7 +1,8 @@
 <ngwr-doc-page
   title="wrInitials"
   since="15.6.0"
-  description="Up to two initials of a name, one grapheme each. What `wr-avatar` draws for its `name`."
+  updated="16.0.0"
+  description="Up to two initials of a name, one grapheme each, or the family name with initials. What `wr-avatar` draws for its `name`."
   [keywords]="['wrInitials', 'initials', 'name', 'avatar', 'grapheme', 'string', 'utils']"
   [labels]="['Util']"
 >
@@ -19,7 +20,14 @@
     <ngwr-doc-code [code]="scriptsSnippet" language="typescript" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Rules">
+  <ngwr-doc-section
+    title="Surname with initials"
+    description="`style: 'surname'` writes the family name whole, then an initial and a dot for each other part. `order` says where the family name sits in the input: last by default, first for `'family-first'`."
+  >
+    <ngwr-doc-code [code]="surnameSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rules" description="For the default `'letters'` style.">
     <div class="ngwr-table">
       <table>
         <thead>

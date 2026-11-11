@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
-import { randomId, wrCheckStyles } from 'ngwr/utils';
+import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Visually groups options under a label inside a `<wr-select>`.
@@ -38,5 +38,5 @@ export class WrOptionGroup {
    * `role="group"` alone announces an unnamed group — the visible heading has to
    * be wired to it for the name to reach a screen reader.
    */
-  protected readonly labelId = randomId('wr-option-group-label');
+  protected readonly labelId = wrRandomId('wr-option-group-label');
 }

@@ -34,11 +34,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
-import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
-import type { WrTreeNode, WrTreeSelectionMode } from './types';
+import type { WrTreeNode, WrTreeSelectionMode, WrTreeSize } from './types';
 
 interface FlatNode<TId> {
   readonly node: WrTreeNode<TId>;
@@ -152,6 +152,9 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Render shape. @default 'inline' */
   readonly openOn = input<'inline' | 'overlay'>('inline');
 
+  /** Trigger size — shares the `--wr-control-*` contract. The panel keeps its size. @default 'md' */
+  readonly size = input<WrTreeSize>('md');
+
   /** Placeholder shown on the trigger when no node is selected. */
   readonly placeholder = input<string>('');
 
@@ -252,6 +255,12 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Emitted on blur so a bound field can mark itself touched. */
   readonly touch = output<void>();
 
+  /** Fires after the overlay panel opens. */
+  readonly opened = output<void>();
+
+  /** Fires after the overlay panel closes. */
+  readonly closed = output<void>();
+
   // Internals
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -322,9 +331,9 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   });
 
   /** Resolved ARIA labels — signals, so they follow both a late catalog and a locale switch. */
-  protected readonly clearLabel = readI18nText('tree.clearSelection', 'Clear selection');
-  protected readonly expandLabel = readI18nText('tree.expand', 'Expand');
-  protected readonly collapseLabel = readI18nText('tree.collapse', 'Collapse');
+  protected readonly clearLabel = wrReadI18nText('tree.clearSelection', 'Clear selection');
+  protected readonly expandLabel = wrReadI18nText('tree.expand', 'Expand');
+  protected readonly collapseLabel = wrReadI18nText('tree.collapse', 'Collapse');
   protected readonly chipRemoveLabel = useI18nFormatter('tree.removeItem', 'Remove {{label}}');
 
   /**
@@ -395,7 +404,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   });
 
   /** Overlay open state. Only meaningful when `openOn='overlay'`. */
-  protected readonly open = signal(false);
+  protected readonly isOpen = signal(false);
 
   /** Trigger / panel id for `aria-controls`. */
   protected readonly panelId = `wr-tree-panel-${++panelUid}`;
@@ -406,7 +415,9 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     else if (this.readonly()) parts.push('wr-tree--readonly');
     if (this.isOverlay()) {
       parts.push('wr-tree--combobox');
-      if (this.open()) parts.push('wr-tree--open');
+      const size = this.size();
+      if (size !== 'md') parts.push(`wr-tree--${size}`);
+      if (this.isOpen()) parts.push('wr-tree--open');
       if (this.isMulti()) parts.push('wr-tree--multi');
     }
     return parts.join(' ');
@@ -520,7 +531,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     // Drive the overlay open/close in response to the `open` signal.
     effect(() => {
       if (!this.isOverlay()) return;
-      if (this.open()) {
+      if (this.isOpen()) {
         this.openOverlay();
         // Once per OPEN, which is what the input documents. Reading `expanded()`
         // as part of the guard made it a dependency of this effect, so closing
@@ -541,7 +552,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     // Disabling the control closes any open overlay (mirrors the side effect
     // of the old CVA setDisabledState).
     effect(() => {
-      if (this.disabled() || this.readonly()) this.open.set(false);
+      if (this.disabled() || this.readonly()) this.isOpen.set(false);
     });
 
     // Bridge an external `value` write back into the internal `selected`
@@ -574,7 +585,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     // window from inputs alone).
     effect(onCleanup => {
       if (!isPlatformBrowser(this.platformId) || !this.virtualScroll()) return;
-      const open = this.isOverlay() ? this.open() : true;
+      const open = this.isOverlay() ? this.isOpen() : true;
       this.flat();
       if (!open) return;
       let raf = 0;
@@ -623,7 +634,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       });
     });
 
-    this.destroyRef.onDestroy(() => this.closeOverlay());
+    this.destroyRef.onDestroy(() => this.closeOverlay(false));
   }
 
   // Template handlers
@@ -735,11 +746,22 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     stop?.focus(options);
   }
 
+  /** Open the overlay panel, as the trigger does. Refused inline, and while disabled or read-only. */
+  open(): void {
+    if (!this.isOverlay() || this.disabled() || this.readonly()) return;
+    this.isOpen.set(true);
+  }
+
+  /** Close the overlay panel. */
+  close(): void {
+    this.isOpen.set(false);
+  }
+
   // Overlay-mode trigger handlers
 
   protected onTriggerClick(): void {
     if (this.disabled() || this.readonly()) return;
-    this.open.update(v => !v);
+    this.isOpen.update(v => !v);
   }
 
   /** Trigger blur — mark the bound field touched. */
@@ -796,14 +818,14 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     // The APG combobox keys, and the ones `wr-select` and `wr-cascader` open on:
     // ArrowDown / ArrowUp, with or without Alt. Enter and Space already open it
     // through the native button click.
-    if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && !this.open()) {
+    if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && !this.isOpen()) {
       if (this.disabled() || this.readonly()) return;
       event.preventDefault();
-      this.open.set(true);
+      this.isOpen.set(true);
       return;
     }
     if (event.key !== 'Backspace') return;
-    if (this.disabled() || this.readonly() || this.open() || !this.hasSelection()) return;
+    if (this.disabled() || this.readonly() || this.isOpen() || !this.hasSelection()) return;
 
     if (this.isMulti()) {
       const chips = this.selectedChips();
@@ -884,7 +906,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     // inline tree has no panel to close.
     this.emit();
     if (this.isOverlay() && mode === 'single' && this.selected().length > 0) {
-      this.open.set(false);
+      this.isOpen.set(false);
     }
   }
 
@@ -953,7 +975,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
       width: this.host.nativeElement.getBoundingClientRect().width,
-      panelClass: toClassList('wr-tree-overlay', this.panelClass()),
+      panelClass: wrToClassList('wr-tree-overlay', this.panelClass()),
     });
 
     // The pane is appended to `<body>`, so the only thing telling it which way
@@ -998,7 +1020,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;
-        this.open.set(false);
+        this.isOpen.set(false);
       });
 
     this.overlayRef
@@ -1007,7 +1029,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
-          this.open.set(false);
+          this.isOpen.set(false);
           return;
         }
         if (event.key === 'Tab') {
@@ -1024,12 +1046,15 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
             typedIn instanceof Node &&
             (this.host.nativeElement.contains(typedIn) || (this.overlayRef?.overlayElement.contains(typedIn) ?? false));
           if (ours) this.host.nativeElement.querySelector<HTMLElement>('.wr-tree__trigger')?.focus();
-          this.open.set(false);
+          this.isOpen.set(false);
         }
       });
+
+    this.opened.emit();
   }
 
-  private closeOverlay(): void {
+  /** `notify: false` is the destroy path: an output cannot emit from a destroyed view. */
+  private closeOverlay(notify = true): void {
     if (!this.overlayRef) return;
     // Hand the focus back before the panel it lives in disappears. The keyboard
     // path in virtual mode focuses the list itself, so closing left the document
@@ -1039,6 +1064,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     const inPanel = active instanceof Node && this.overlayRef.overlayElement.contains(active);
     this.overlayRef.dispose();
     this.overlayRef = null;
+    if (!notify) return;
     if (inPanel) this.host.nativeElement.querySelector<HTMLElement>('.wr-tree__trigger')?.focus();
+    this.closed.emit();
   }
 }

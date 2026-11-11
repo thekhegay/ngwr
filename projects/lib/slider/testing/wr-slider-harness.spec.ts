@@ -22,7 +22,7 @@ import { WrSliderHarness } from './wr-slider-harness';
       (touch)="touched.set(touched() + 1)"
     />
     <wr-slider range [(value)]="span" [min]="0" [max]="100" />
-    <wr-slider [value]="7" [min]="0" [max]="10" [showLabel]="false" />
+    <wr-slider [value]="7" [min]="0" [max]="10" [showValue]="false" />
   `,
 })
 class Host {
@@ -94,7 +94,7 @@ describe('WrSliderHarness', () => {
     expect(await (await loader.getHarness(WrSliderHarness.with({ labelText: /–/ }))).isRange()).toBe(true);
   });
 
-  it('prints its value under the track, and none when showLabel is off', async () => {
+  it('prints its value under the track, and none when showValue is off', async () => {
     expect(await (await volume()).getLabelText()).toBe('50');
     // An EN DASH (U+2013), not a hyphen — an assertion typed with `-` misses.
     expect(await (await span()).getLabelText()).toBe('20 – 80');

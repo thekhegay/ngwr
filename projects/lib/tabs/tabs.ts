@@ -28,11 +28,11 @@ import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrTab } from './tab';
 import { WR_TABS, WR_TABS_ROUTING } from './tokens';
-import type { WrTabsContext } from './types';
+import type { WrTabsContext, WrTabsSize } from './types';
 
 /**
  * Instance counter for the header / panel ids. Deterministic under prerender,
- * unlike `randomId()` — the same reason `wr-sidebar` and `wr-mention` count.
+ * unlike `wrRandomId()` — the same reason `wr-sidebar` and `wr-mention` count.
  *
  * The ids used to be built from the tab key alone, so two `<wr-tabs>` on one
  * page that both name a tab `key="overview"` emitted the same
@@ -112,7 +112,7 @@ export class WrTabs implements WrTabsContext {
   readonly active = model<string | null>(null);
 
   /** Visual size variant. */
-  readonly size = input<'sm' | 'md' | 'lg'>('md');
+  readonly size = input<WrTabsSize>('md');
 
   protected readonly tabs = contentChildren(WrTab);
 

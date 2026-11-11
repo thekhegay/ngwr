@@ -19,7 +19,7 @@ import {
 import type { FormCheckboxControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
-import { randomId, wrCheckStyles } from 'ngwr/utils';
+import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Boolean toggle with an iOS-style slider.
@@ -69,7 +69,7 @@ export class WrSwitch implements FormCheckboxControl {
    * Stable id used to associate the native input with its label. Lands on the
    * inner `<input>`; the host never keeps it.
    */
-  readonly id = input<string>(randomId('wr-switch'));
+  readonly id = input<string>(wrRandomId('wr-switch'));
 
   /**
    * Disable the switch. Bound automatically from the field's disabled state

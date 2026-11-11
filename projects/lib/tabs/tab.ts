@@ -17,7 +17,7 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { randomId, wrCheckStyles } from 'ngwr/utils';
+import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_TABS, WR_TABS_ROUTING } from './tokens';
 
@@ -52,7 +52,7 @@ export class WrTab {
    * Stable identifier used by the parent to track the active tab.
    * Auto-generated if omitted.
    */
-  readonly key = input<string>(randomId('wr-tab'));
+  readonly key = input<string>(wrRandomId('wr-tab'));
 
   /** Router target — when set, the tab becomes a `[routerLink]` link. */
   readonly routerLink = input<string | readonly string[] | null>(null);

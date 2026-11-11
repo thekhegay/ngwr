@@ -95,6 +95,8 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/context-menu` | `import { WrContextMenu } from 'ngwr/context-menu'` | `wr-context-menu-divider` `wr-context-menu-item` `wr-context-menu` `[wrContextMenu]` |
 | `ngwr/context-menu/testing` | `import { WrContextMenuHarness } from 'ngwr/context-menu/testing'` | — |
 | `ngwr/cookie` | `import { WrCookie } from 'ngwr/cookie'` | — |
+| `ngwr/copy-value` | `import { WrCopyValue } from 'ngwr/copy-value'` | `wr-copy-value` |
+| `ngwr/copy-value/testing` | `import { WrCopyValueHarness } from 'ngwr/copy-value/testing'` | — |
 | `ngwr/counter` | `import { WrCounter } from 'ngwr/counter'` | `wr-count-up` `wr-counter` |
 | `ngwr/date` | `import { WrDateAdapter } from 'ngwr/date'` | — |
 | `ngwr/date-picker` | `import { WrDatePicker } from 'ngwr/date-picker'` | `wr-date-picker` `wr-date-range-picker` |
@@ -103,7 +105,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/descriptions` | `import { WrDescriptions } from 'ngwr/descriptions'` | `wr-description-item` `wr-descriptions` |
 | `ngwr/dialog` | `import { WrDialog } from 'ngwr/dialog'` | `[wrDialogClose]` `[wrDialogContent]` `[wrDialogFooter]` `[wrDialogTitle]` |
 | `ngwr/dialog/testing` | `import { WrDialogHarness } from 'ngwr/dialog/testing'` | — |
-| `ngwr/directives` | `import { WrAutofocus } from 'ngwr/directives'` | `[wrAutofocus]` `textarea[wrAutosize]` `[wrClickOutside]` `[wrCopyToClipboard]` |
+| `ngwr/directives` | `import { WrAutofocus } from 'ngwr/directives'` | `[wrAutofocus]` `textarea[wrAutosize]` `[wrClickOutside]` `[wrCopyToClipboard]` `[wrFitText]` |
 | `ngwr/divider` | `import { WrDivider } from 'ngwr/divider'` | `wr-divider` |
 | `ngwr/drawer` | `import { WrDrawer } from 'ngwr/drawer'` | `[wrDrawerClose]` `[wrDrawerContent]` `[wrDrawerFooter]` `[wrDrawerTitle]` `wr-drawer` |
 | `ngwr/drawer/testing` | `import { WrDrawerHarness } from 'ngwr/drawer/testing'` | — |
@@ -226,7 +228,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/tree` | `import { WrTree } from 'ngwr/tree'` | `wr-tree` |
 | `ngwr/tree/testing` | `import { WrTreeHarness } from 'ngwr/tree/testing'` | — |
 | `ngwr/typography` | `import { WrTypography } from 'ngwr/typography'` | `[wrTypography]` |
-| `ngwr/utils` | `import { isDefined } from 'ngwr/utils'` | — |
+| `ngwr/utils` | `import { wrIsDefined } from 'ngwr/utils'` | — |
 | `ngwr/utils/router` | `import { wrQueryParam } from 'ngwr/utils/router'` | — |
 | `ngwr/validators` | `import { WrValidators } from 'ngwr/validators'` | — |
 | `ngwr/version` | `import { NGWR_VERSION } from 'ngwr/version'` | — |

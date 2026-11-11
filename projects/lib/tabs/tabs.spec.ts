@@ -626,7 +626,7 @@ describe('WrTabs when the tab list changes under it', () => {
   });
 
   it('seeds a key bound in a loop, not the generated default it starts on', async () => {
-    // The first passes see each `[key]` still on its `randomId()` default, so the
+    // The first passes see each `[key]` still on its `wrRandomId()` default, so the
     // seed used to write `wr-tab-…` into the binding and never look again.
     fixture.destroy();
     fixture = TestBed.createComponent(DynamicHost);

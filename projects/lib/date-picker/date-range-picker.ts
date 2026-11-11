@@ -31,10 +31,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
-import { readI18nText } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrFollowSize } from 'ngwr/overlay';
-import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { clockFormat } from './internal/clock-format';
 import { WrDateRangePanel } from './internal/date-range-panel';
@@ -46,7 +46,7 @@ import {
 } from './internal/input-refusal';
 import { WrDateRangeEndInput } from './internal/range-end-input';
 import { tabLeavesPane } from './internal/tab-out';
-import type { WrDateInputError, WrDateRange, WrDateRangeInputError } from './types';
+import type { WrDateInputError, WrDatePickerSize, WrDateRange, WrDateRangeInputError } from './types';
 
 /** Which end of the range an edit applies to. */
 type RangeEnd = 0 | 1;
@@ -160,6 +160,23 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   readonly step = input(1, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 1)) });
 
   /**
+   * Control size — forwarded to each field's `[size]`, and shares the
+   * `--wr-control-*` contract. The panel keeps its size. @default 'md'
+   */
+  readonly size = input<WrDatePickerSize>('md');
+
+  /**
+   * Show a clear (×) button once either end is picked. It is a pointer control: from the
+   * keyboard, emptying both fields clears the value. @default false
+   */
+  readonly clearable = input(false, { transform: coerceBooleanProperty });
+
+  /** Clear (×) button aria-label. Falls back to `common.clear`. */
+  readonly clearLabel = input<string | null>(null);
+
+  protected readonly resolvedClear = useI18nText(this.clearLabel, 'common.clear', 'Clear');
+
+  /**
    * Disable interaction. Bound automatically from the field's disabled state
    * when used with `[formField]`.
    *
@@ -204,9 +221,20 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   /** Emitted on blur so a bound field can mark itself touched. */
   readonly touch = output<void>();
 
+  /** Fires after the popup opens. */
+  readonly opened = output<void>();
+
+  /** Fires after the popup closes. */
+  readonly closed = output<void>();
+
   /** Text currently in each input (may be partial / invalid mid-type). */
   protected readonly startText = signal<string>('');
   protected readonly endText = signal<string>('');
+
+  protected readonly hasValue = computed(() => {
+    const [start, end] = this.current();
+    return start != null || end != null;
+  });
 
   /** Whether the popover is currently open. */
   protected readonly overlayOpen = signal(false);
@@ -233,12 +261,12 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   protected readonly isDateTime = computed(() => this.mode() === 'datetime');
 
-  protected readonly triggerLabel = readI18nText('datePicker.openRange', 'Open range calendar');
-  protected readonly startLabel = readI18nText('datePicker.rangeStart', 'Range start');
-  protected readonly endLabel = readI18nText('datePicker.rangeEnd', 'Range end');
+  protected readonly triggerLabel = wrReadI18nText('datePicker.openRange', 'Open range calendar');
+  protected readonly startLabel = wrReadI18nText('datePicker.rangeStart', 'Range start');
+  protected readonly endLabel = wrReadI18nText('datePicker.rangeEnd', 'Range end');
 
-  private readonly panelLabelRange = readI18nText('datePicker.panelRange', 'Choose date range');
-  private readonly panelLabelRangeDateTime = readI18nText(
+  private readonly panelLabelRange = wrReadI18nText('datePicker.panelRange', 'Choose date range');
+  private readonly panelLabelRangeDateTime = wrReadI18nText(
     'datePicker.panelRangeDateTime',
     'Choose date and time range'
   );
@@ -376,6 +404,8 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-date-range-picker', `wr-date-range-picker--${this.mode()}`];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-date-range-picker--${size}`);
     if (this.disabled()) parts.push('wr-date-range-picker--disabled');
     if (this.shownErrors().some(Boolean)) parts.push('wr-date-range-picker--invalid');
     return parts.join(' ');
@@ -718,6 +748,33 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.refuse(end, null);
   }
 
+  /** The clear (×) button — the same commit two emptied fields make. */
+  protected clear(event: Event): void {
+    event.stopPropagation();
+    if (this.disabled() || this.readonly()) return;
+    this.startText.set('');
+    this.endText.set('');
+    this.commitRange([null, null], { normalise: false });
+    this.refuse(0, null);
+    this.refuse(1, null);
+    this.startEl().nativeElement.focus();
+    this.touch.emit();
+  }
+
+  /**
+   * Open the popup, as a click on the start field does: focus stays where it is.
+   * Refused while disabled or read-only.
+   */
+  open(): void {
+    if (this.disabled() || this.readonly() || this.overlayRef) return;
+    this.openOverlay(this.startEl().nativeElement, false);
+  }
+
+  /** Close the popup. */
+  close(): void {
+    if (this.overlayRef) this.closeOverlay();
+  }
+
   // Overlay
 
   private openOverlay(openedFrom: HTMLElement | null = null, autoFocus = false): void {
@@ -740,7 +797,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: toClassList('wr-date-picker-overlay', this.panelClass()),
+      panelClass: wrToClassList('wr-date-picker-overlay', this.panelClass()),
     });
 
     // Same four fallbacks as `wr-date-picker`, two of them anchored on `end`,
@@ -803,6 +860,8 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
           this.closeOverlay();
         }
       });
+
+    this.opened.emit();
   }
 
   /**
@@ -818,6 +877,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    * popup, possibly several Tab stops away.
    */
   private closeOverlay(): void {
+    const wasOpen = !!this.overlayRef;
     const pane = this.overlayRef?.overlayElement;
     const doc = this.host.nativeElement.ownerDocument;
     const inside = !!pane && pane.contains(doc.activeElement);
@@ -837,6 +897,8 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     // A panel that closes ends the visit to it: wherever focus is now, the ends it is
     // not in have been left. A pick has already cleared the refusals it replaced.
     this.revealFor(doc.activeElement);
+
+    if (wasOpen) this.closed.emit();
   }
 
   private dispose(): void {

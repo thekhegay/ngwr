@@ -109,8 +109,8 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/services/hotkey',
     'reference/components/keyboard',
     'reference/components/command-palette',
-    'reference/utils/keys',
-    'reference/utils/has-modifier',
+    'reference/utils/wr-keys',
+    'reference/utils/wr-has-modifier',
     'guides/overlay',
   ],
   'guides/mobile': [
@@ -158,7 +158,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/button',
     'reference/components/badge',
     'guides/typography/styles',
-    'reference/utils/resolve-css-color',
+    'reference/utils/wr-resolve-css-color',
   ],
   'guides/tokens/density': [
     'reference/services/density',
@@ -336,7 +336,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/validators/hex-color',
     'guides/forms',
     'reference/components/form-field',
-    'reference/utils/resolve-css-color',
+    'reference/utils/wr-resolve-css-color',
   ],
   'reference/components/command-palette': [
     'guides/keyboard',
@@ -354,6 +354,13 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/popover',
     'reference/components/command-palette',
     'guides/keyboard',
+  ],
+  'reference/components/copy-value': [
+    'reference/directives/copy-to-clipboard',
+    'reference/services/clipboard',
+    'reference/directives/typography',
+    'reference/components/descriptions',
+    'reference/components/table',
   ],
   'reference/components/counter': ['reference/components/statistic', 'reference/pipes/wr-number'],
   'reference/components/date-picker': [
@@ -677,7 +684,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'reference/directives/autofocus': [
     'reference/components/input',
     'guides/overlay',
-    'reference/utils/get-focusable-elements',
+    'reference/utils/wr-get-focusable-elements',
   ],
   'reference/directives/autosize': [
     'reference/components/textarea',
@@ -691,10 +698,12 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/services/hotkey',
   ],
   'reference/directives/copy-to-clipboard': [
+    'reference/components/copy-value',
     'reference/services/clipboard',
     'reference/components/toast',
     'reference/components/button',
   ],
+  'reference/directives/fit-text': ['reference/components/badge', 'reference/directives/typography'],
   'reference/directives/typography': [
     'guides/typography/overview',
     'guides/typography/styles',
@@ -710,11 +719,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/interfaces/theme',
   ],
   'reference/interfaces/common': [
-    'reference/utils/is-defined',
-    'reference/utils/to-class-list',
+    'reference/utils/wr-is-defined',
+    'reference/utils/wr-to-class-list',
     'reference/interfaces/overview',
     'reference/interfaces/catalog',
-    'reference/utils/is-non-empty-array',
+    'reference/utils/wr-is-non-empty-array',
   ],
   'reference/interfaces/overview': [
     'reference/interfaces/catalog',
@@ -772,7 +781,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/pipes/wr-mark',
   ],
 
-  'reference/services/clipboard': ['reference/directives/copy-to-clipboard', 'reference/components/toast'],
+  'reference/services/clipboard': [
+    'reference/directives/copy-to-clipboard',
+    'reference/components/copy-value',
+    'reference/components/toast',
+  ],
   'reference/services/cookie': ['reference/services/storage', 'guides/ssr'],
   'reference/services/density': [
     'guides/tokens/density',
@@ -785,8 +798,8 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/keyboard',
     'reference/components/command-palette',
     'reference/components/keyboard',
-    'reference/utils/keys',
-    'reference/utils/has-modifier',
+    'reference/utils/wr-keys',
+    'reference/utils/wr-has-modifier',
   ],
   'reference/services/i18n': [
     'guides/translations/overview',
@@ -833,93 +846,93 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   ],
   'reference/services/tour': ['reference/components/popover', 'reference/components/stepper'],
 
-  'reference/utils/badge-log': ['reference/utils/resolve-css-color'],
-  'reference/utils/clamp': [
-    'reference/utils/round',
+  'reference/utils/wr-badge-log': ['reference/utils/wr-resolve-css-color'],
+  'reference/utils/wr-clamp': [
+    'reference/utils/wr-round',
     'reference/components/input-number',
     'reference/components/slider',
-    'reference/utils/num-attr',
+    'reference/utils/wr-num-attr',
   ],
-  'reference/utils/debounce': [
-    'reference/utils/throttle',
+  'reference/utils/wr-debounce': [
+    'reference/utils/wr-throttle',
     'reference/components/select',
     'reference/components/command-palette',
   ],
-  'reference/utils/get-focusable-elements': [
-    'reference/utils/trap-focus',
+  'reference/utils/wr-get-focusable-elements': [
+    'reference/utils/wr-trap-focus',
     'guides/overlay',
     'reference/directives/autofocus',
   ],
-  'reference/utils/get-root-font-size': ['reference/utils/resolve-css-size', 'guides/tokens/sizing'],
-  'reference/utils/has-modifier': [
-    'reference/utils/is-printable-key',
+  'reference/utils/wr-get-root-font-size': ['reference/utils/wr-resolve-css-size', 'guides/tokens/sizing'],
+  'reference/utils/wr-has-modifier': [
+    'reference/utils/wr-is-printable-key',
     'guides/keyboard',
     'reference/services/hotkey',
-    'reference/utils/keys',
-    'reference/utils/is-composing',
+    'reference/utils/wr-keys',
+    'reference/utils/wr-is-composing',
   ],
-  'reference/utils/is-composing': [
+  'reference/utils/wr-is-composing': [
     'guides/keyboard',
-    'reference/utils/keys',
-    'reference/utils/has-modifier',
-    'reference/utils/is-printable-key',
+    'reference/utils/wr-keys',
+    'reference/utils/wr-has-modifier',
+    'reference/utils/wr-is-printable-key',
   ],
-  'reference/utils/is-defined': [
-    'reference/utils/is-non-empty-array',
+  'reference/utils/wr-is-defined': [
+    'reference/utils/wr-is-non-empty-array',
     'reference/interfaces/common',
-    'reference/utils/is-observable',
+    'reference/utils/wr-is-observable',
   ],
-  'reference/utils/is-non-empty-array': ['reference/utils/is-defined', 'reference/interfaces/common'],
-  'reference/utils/is-observable': ['reference/utils/is-defined', 'reference/components/select'],
-  'reference/utils/is-printable-key': [
-    'reference/utils/has-modifier',
+  'reference/utils/wr-is-non-empty-array': ['reference/utils/wr-is-defined', 'reference/interfaces/common'],
+  'reference/utils/wr-is-observable': ['reference/utils/wr-is-defined', 'reference/components/select'],
+  'reference/utils/wr-is-printable-key': [
+    'reference/utils/wr-has-modifier',
     'guides/keyboard',
-    'reference/utils/is-composing',
-    'reference/utils/keys',
+    'reference/utils/wr-is-composing',
+    'reference/utils/wr-keys',
   ],
-  'reference/utils/keys': [
+  'reference/utils/wr-keys': [
     'guides/keyboard',
     'reference/services/hotkey',
-    'reference/utils/has-modifier',
-    'reference/utils/is-printable-key',
-    'reference/utils/is-composing',
+    'reference/utils/wr-has-modifier',
+    'reference/utils/wr-is-printable-key',
+    'reference/utils/wr-is-composing',
   ],
-  'reference/utils/noop': ['reference/utils/debounce', 'reference/utils/throttle'],
-  'reference/utils/num-attr': ['reference/utils/resolve-css-size', 'reference/utils/clamp'],
-  'reference/utils/random-id': ['reference/components/form-field', 'reference/components/form'],
-  'reference/utils/resolve-css-color': ['guides/theming', 'guides/tokens/colors', 'reference/services/theme'],
-  'reference/utils/resolve-css-size': [
-    'reference/utils/get-root-font-size',
+  'reference/utils/wr-noop': ['reference/utils/wr-debounce', 'reference/utils/wr-throttle'],
+  'reference/utils/wr-num-attr': ['reference/utils/wr-resolve-css-size', 'reference/utils/wr-clamp'],
+  'reference/utils/wr-random-id': ['reference/components/form-field', 'reference/components/form'],
+  'reference/utils/wr-resolve-css-color': ['guides/theming', 'guides/tokens/colors', 'reference/services/theme'],
+  'reference/utils/wr-resolve-css-size': [
+    'reference/utils/wr-get-root-font-size',
     'reference/components/avatar',
-    'reference/utils/num-attr',
+    'reference/utils/wr-num-attr',
   ],
-  'reference/utils/round': [
-    'reference/utils/clamp',
+  'reference/utils/wr-round': [
+    'reference/utils/wr-clamp',
     'reference/utils/wr-decimal',
     'reference/pipes/wr-number',
     'reference/components/input-number',
   ],
   'reference/utils/wr-decimal': [
-    'reference/utils/round',
+    'reference/utils/wr-round',
     'reference/components/input-number',
     'reference/components/table',
     'reference/pipes/wr-number',
   ],
-  'reference/utils/throttle': ['reference/utils/debounce'],
+  'reference/utils/wr-throttle': ['reference/utils/wr-debounce'],
   'reference/utils/wr-initials': [
     'reference/pipes/wr-initials',
     'reference/components/avatar',
     'reference/pipes/wr-truncate',
   ],
-  'reference/utils/to-class-list': [
+  'reference/utils/wr-to-class-list': [
     'guides/theming',
     'guides/overlay',
     'reference/interfaces/common',
     'reference/components/dialog',
     'reference/components/select',
   ],
-  'reference/utils/trap-focus': [
-    'reference/utils/get-focusable-elements',
+  'reference/utils/wr-trap-focus': [
+    'reference/utils/wr-get-focusable-elements',
     'guides/overlay',
     'reference/components/dialog',
     'reference/components/drawer',

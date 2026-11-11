@@ -570,7 +570,7 @@ describe('WrSlider', () => {
  * while every slider on the page announces the same English word.
  */
 /**
- * `showLabel` printed the raw number, so a slider over hours read "14" where the
+ * `showValue` printed the raw number, so a slider over hours read "14" where the
  * field beside it read "14:00". `labelWith` maps the value for the label and
  * for `aria-valuetext`, so the thumb announces what the label shows.
  */

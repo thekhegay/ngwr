@@ -20,18 +20,12 @@ import {
   signal,
 } from '@angular/core';
 
-import {
-  BREAKING_SPACES,
-  VIEW_THRESHOLD,
-  type WrStaggerBy,
-  graphemes,
-  optionalMs,
-  staggerGap,
-} from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
-import type { WrRevealTrigger } from './types';
+import { BREAKING_SPACES, VIEW_THRESHOLD, graphemes, optionalMs, staggerGap } from '../internal';
+
+import type { WrRevealBy, WrRevealTrigger } from './types';
 
 /** One piece and its place in the sequence. */
 interface RevealPiece {
@@ -85,7 +79,7 @@ export class WrReveal {
    * letters of one word sit in a no-wrap wrapper, so a word never breaks across
    * lines mid-word. @default 'letters'
    */
-  readonly by = input<WrStaggerBy>('letters');
+  readonly by = input<WrRevealBy>('letters');
 
   /**
    * Each word clips its pieces at a padded line box, so a letter comes up from
@@ -99,7 +93,7 @@ export class WrReveal {
    * passes each one the count the runs before it used, so they play as one
    * sequence. @default 0
    */
-  readonly start = input(0, { transform: numAttr(0) });
+  readonly start = input(0, { transform: wrNumAttr(0) });
 
   /**
    * Gap between the start of one piece and the next, in ms. Unset, the mode
@@ -110,7 +104,7 @@ export class WrReveal {
   readonly stagger = input<number | null, unknown>(null, { transform: optionalMs });
 
   /** Pause before the first piece of the sequence, in ms. @default 0 */
-  readonly delay = input(0, { transform: numAttr(0) });
+  readonly delay = input(0, { transform: wrNumAttr(0) });
 
   /**
    * `load` plays from first paint, with no script. `view` keeps the pieces

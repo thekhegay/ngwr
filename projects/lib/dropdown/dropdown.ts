@@ -25,7 +25,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import type { WrDropdownMenu } from './dropdown-menu';
 import {
@@ -145,8 +145,10 @@ export class WrDropdown {
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** @internal Public so host bindings can read it. */
-  readonly isOpen = signal(false);
+  private readonly openState = signal(false);
+
+  /** Whether the menu is open. Read-only: `open()` and `close()` change it. */
+  readonly isOpen = this.openState.asReadonly();
 
   /** The id used only when the consumer's element carries none of its own. */
   private readonly fallbackId = `wr-dropdown-trigger-${++triggerUid}`;
@@ -196,17 +198,17 @@ export class WrDropdown {
 
   /** Open the menu. */
   open(): void {
-    this.isOpen.set(true);
+    this.openState.set(true);
   }
 
   /** Close the menu. */
   close(): void {
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   /** Toggle the menu. */
   toggle(): void {
-    this.isOpen.update(v => !v);
+    this.openState.update(v => !v);
   }
 
   // Host listeners
@@ -235,7 +237,7 @@ export class WrDropdown {
     // A POINTER opened this, so the menu must not take the keyboard with it —
     // see `openedByPointer`.
     this.openedByPointer = true;
-    this.isOpen.set(true);
+    this.openState.set(true);
   }
 
   /** @internal */
@@ -243,7 +245,7 @@ export class WrDropdown {
     if (this.trigger() !== 'hover') return;
     const related = event.relatedTarget as Node | null;
     if (related && this.overlayRef?.overlayElement.contains(related)) return;
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   // Overlay management
@@ -277,7 +279,7 @@ export class WrDropdown {
       // The menu starts on the placement it asked for, which is what the CDK
       // measures it with — see `wrDropdownPositions` for why that class must
       // already be on the pane rather than arrive with the position.
-      panelClass: toClassList(
+      panelClass: wrToClassList(
         'wr-dropdown-overlay',
         `wr-dropdown-overlay--${requested}`,
         this.arrow() && 'wr-dropdown-overlay--arrow',
@@ -359,7 +361,7 @@ export class WrDropdown {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;
-        this.isOpen.set(false);
+        this.openState.set(false);
       });
 
     this.overlayRef
@@ -450,7 +452,7 @@ export class WrDropdown {
     switch (event.key) {
       case 'Escape':
         event.preventDefault();
-        this.isOpen.set(false);
+        this.openState.set(false);
         if (ours) wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
         break;
       case 'Tab':
@@ -465,7 +467,7 @@ export class WrDropdown {
         // past the pane and `closeOverlay` leaves it there. Not from a field
         // outside the menu, for the reason Escape gives above.
         if (ours) wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
-        this.isOpen.set(false);
+        this.openState.set(false);
         break;
       case 'ArrowDown':
         event.preventDefault();
@@ -505,6 +507,6 @@ export class WrDropdown {
   private readonly onOverlayMouseLeave = (event: MouseEvent): void => {
     const related = event.relatedTarget as Node | null;
     if (related && this.host.nativeElement.contains(related)) return;
-    this.isOpen.set(false);
+    this.openState.set(false);
   };
 }

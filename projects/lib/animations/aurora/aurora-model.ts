@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { clamp } from 'ngwr/utils';
+import { wrClamp } from 'ngwr/utils';
 
 import type { WrAuroraEdge } from './types';
 
@@ -98,17 +98,17 @@ const GLOW_LIFT = 0.1;
 
 /** `height` as the shader takes it: a finite share of the region within the bounds. */
 function auroraHeight(height: number): number {
-  return clamp(Number.isFinite(height) ? height : 0.5, HEIGHT_MIN, HEIGHT_MAX);
+  return wrClamp(Number.isFinite(height) ? height : 0.5, HEIGHT_MIN, HEIGHT_MAX);
 }
 
 /** `layers` as the shader takes it: a whole number from one to {@link LAYERS_MAX}. */
 function auroraLayers(layers: number): number {
-  return clamp(Math.round(Number.isFinite(layers) ? layers : 2), 1, LAYERS_MAX);
+  return wrClamp(Math.round(Number.isFinite(layers) ? layers : 2), 1, LAYERS_MAX);
 }
 
 /** A share, `rays` and the like: finite and within zero and one. */
 function auroraShare(value: number, fallback: number): number {
-  return clamp(Number.isFinite(value) ? value : fallback, 0, 1);
+  return wrClamp(Number.isFinite(value) ? value : fallback, 0, 1);
 }
 
 /** A multiplier, `scale`, `amplitude`, `speed` and `glow`: finite and never negative; `scale` never nothing. */
@@ -134,7 +134,7 @@ function auroraEdgeSign(edge: WrAuroraEdge): 1 | -1 {
  * one. The shader's own formula.
  */
 function auroraProfile(v: number): number {
-  const vc = clamp(v, 0, 1);
+  const vc = wrClamp(v, 0, 1);
   const veil = PROFILE_FLOOR + (VEIL - PROFILE_FLOOR) * Math.pow(vc, VEIL_POWER);
   const border = BORDER * Math.exp(-(((v - BORDER_AT) / BORDER_WIDTH) ** 2));
   const edge = 1 - smoothstep(1 - EDGE_SOFT, 1 + EDGE_SOFT * 0.6, v);
@@ -148,8 +148,8 @@ function auroraProfile(v: number): number {
  * ray the faster. The shader's own formula.
  */
 function auroraRay(bright: number, length: number, v: number): number {
-  const len = RAY_SHORT + (1 - RAY_SHORT) * clamp(length, 0, 1);
-  return clamp(bright, 0, 1) * Math.exp((-(1 - clamp(v, 0, 1)) * RAY_FALL) / len);
+  const len = RAY_SHORT + (1 - RAY_SHORT) * wrClamp(length, 0, 1);
+  return wrClamp(bright, 0, 1) * Math.exp((-(1 - wrClamp(v, 0, 1)) * RAY_FALL) / len);
 }
 
 /**
@@ -159,11 +159,11 @@ function auroraRay(bright: number, length: number, v: number): number {
  * itself at {@link RAY_GAIN}; never over one. The shader's own formula.
  */
 function auroraIntensity(v: number, bright: number, length: number, rays: number): number {
-  const vc = clamp(v, 0, 1);
-  const r = clamp(rays, 0, 1);
+  const vc = wrClamp(v, 0, 1);
+  const r = wrClamp(rays, 0, 1);
   const veil = PROFILE_FLOOR + (VEIL - PROFILE_FLOOR) * Math.pow(vc, VEIL_POWER);
   const border = BORDER * Math.exp(-(((v - BORDER_AT) / BORDER_WIDTH) ** 2));
-  const bead = 1 + r * (0.6 + 0.4 * clamp(bright, 0, 1) - 1);
+  const bead = 1 + r * (0.6 + 0.4 * wrClamp(bright, 0, 1) - 1);
   const edge = 1 - smoothstep(1 - EDGE_SOFT, 1 + EDGE_SOFT * 0.6, v);
   return Math.min(1, veil * (1 - 0.5 * r) + border * bead + r * RAY_GAIN * auroraRay(bright, length, v)) * edge;
 }
@@ -174,7 +174,7 @@ function auroraIntensity(v: number, bright: number, length: number, rays: number
  */
 function auroraIntro(elapsed: number): [fade: number, reach: number] {
   if (elapsed >= INTRO_S) return [1, 1];
-  const t = clamp(elapsed, 0, INTRO_S) / INTRO_S;
+  const t = wrClamp(elapsed, 0, INTRO_S) / INTRO_S;
   const eased = 1 - (1 - t) ** 3;
   return [eased, INTRO_REACH_START + (1 - INTRO_REACH_START) * eased];
 }
@@ -198,8 +198,8 @@ function auroraFollowTarget(
   reach: number
 ): [across: number, stretch: number] {
   if (!Number.isFinite(x) || !Number.isFinite(y) || width <= 0 || height <= 0) return [0, 0];
-  const across = clamp(x / width - 0.5, -0.5, 0.5) * 2 * FOLLOW_REACH;
-  const stretch = clamp((y / height - reach) / Math.max(reach, 0.01), -1, 1) * FOLLOW_LIFT;
+  const across = wrClamp(x / width - 0.5, -0.5, 0.5) * 2 * FOLLOW_REACH;
+  const stretch = wrClamp((y / height - reach) / Math.max(reach, 0.01), -1, 1) * FOLLOW_LIFT;
   return [across, stretch];
 }
 
@@ -210,13 +210,13 @@ function auroraDriftLive(across: number, stretch: number, target: readonly [numb
 
 /** How far in from each side the curtain is faded, in CSS px, for a region this wide. */
 function auroraSideFade(width: number): number {
-  return clamp(SIDE_SHARE * width, SIDE_MIN, SIDE_MAX);
+  return wrClamp(SIDE_SHARE * width, SIDE_MIN, SIDE_MAX);
 }
 
 /** The render ratio, device px per CSS px: {@link RATIO_MAX} at most, lowered to keep the canvas under {@link PIXELS}, never under {@link RATIO_MIN}. The device ratio plays no part: the drawing is soft and the browser's upscale is free. */
 function auroraRatio(width: number, height: number): number {
   const area = Math.max(1, width * height);
-  return clamp(Math.sqrt(PIXELS / area), RATIO_MIN, RATIO_MAX);
+  return wrClamp(Math.sqrt(PIXELS / area), RATIO_MIN, RATIO_MAX);
 }
 
 /**
@@ -273,7 +273,7 @@ function auroraOklabToSrgb(lab: ArrayLike<number>): [number, number, number] {
   const r = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
   const g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
   const b = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
-  return [toGamma(clamp(r, 0, 1)), toGamma(clamp(g, 0, 1)), toGamma(clamp(b, 0, 1))];
+  return [toGamma(wrClamp(r, 0, 1)), toGamma(wrClamp(g, 0, 1)), toGamma(wrClamp(b, 0, 1))];
 }
 
 /** An sRGB colour as OKLCh: lightness, chroma and the hue in radians, which is what the shader interpolates. */
@@ -300,14 +300,14 @@ function auroraHueArc(from: number, to: number): number {
  * hue walks the shorter arc. The shader's own formula.
  */
 function auroraColorAt(stops: readonly ArrayLike<number>[], u: number): [L: number, C: number, h: number] {
-  const x = clamp(u, 0, 1);
+  const x = wrClamp(u, 0, 1);
   const [a, b, t] = x < 0.5 ? [stops[0], stops[1], x * 2] : [stops[1], stops[2], x * 2 - 1];
   const s = t * t * (3 - 2 * t);
   return [a[0] + (b[0] - a[0]) * s, a[1] + (b[1] - a[1]) * s, a[2] + auroraHueArc(a[2], b[2]) * s];
 }
 
 function smoothstep(edge0: number, edge1: number, x: number): number {
-  const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+  const t = wrClamp((x - edge0) / (edge1 - edge0), 0, 1);
   return t * t * (3 - 2 * t);
 }
 

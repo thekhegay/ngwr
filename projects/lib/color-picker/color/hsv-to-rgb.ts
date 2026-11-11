@@ -11,7 +11,7 @@ import type { WrRgb } from './wr-rgb';
 /**
  * Convert HSV to sRGB. Preserves alpha. Returns integer channels in `[0, 255]`.
  */
-export function hsvToRgb(hsv: WrHsv): WrRgb {
+export function wrHsvToRgb(hsv: WrHsv): WrRgb {
   const { h, s, v } = hsv;
   const c = v * s;
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));

@@ -16,7 +16,7 @@ import {
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 
 import { Check, Copy } from 'lucide';
-import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 
 import type { DocCodeFile } from './types';
 
@@ -25,7 +25,7 @@ import { copyToClipboard, stripIndent } from '#core/utils';
 
 /**
  * Instance counter for the tab / panel ids. Deterministic under prerender,
- * which `randomId()` is not — the same reason `wr-tabs` counts rather than
+ * which `wrRandomId()` is not — the same reason `wr-tabs` counts rather than
  * randomizes. These ids land in `aria-controls` / `aria-labelledby`, and a
  * page renders many of these blocks, so the pairing has to be per instance.
  */
@@ -76,7 +76,7 @@ let docCodeUid = 0;
     '[attr.data-inactive-files]': 'inactiveFilesJson()',
     '[class.wrap]': 'wrap()',
   },
-  providers: [provideWrIcons(lucideIcons({ copy: Copy, check: Check }))],
+  providers: [provideWrIcons(wrLucideIcons({ copy: Copy, check: Check }))],
 })
 export class DocCodeComponent {
   // Single-file API (legacy)

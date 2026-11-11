@@ -28,7 +28,7 @@
 
   <ngwr-doc-section
     title="Spacing"
-    description="`spacing` is the distance between two grid lines, in px, 32 unset; the grid is centred, so the margins at the edges are equal. A finer grid bends in more places as the wave passes, a coarser one reads as a few lines moving. The two colours are the `--wr-ripple-grid-ink` and `--wr-ripple-grid-glow` hooks, set on the host, where the defaults are declared, and read through `resolveCssColorChannels` and re-read when the scheme changes. The wave's speed, band, height and life are the model's numbers, not inputs."
+    description="`spacing` is the distance between two grid lines, in px, 32 unset; the grid is centred, so the margins at the edges are equal. A finer grid bends in more places as the wave passes, a coarser one reads as a few lines moving. The two colours are the `--wr-ripple-grid-ink` and `--wr-ripple-grid-glow` hooks, set on the host, where the defaults are declared, and read through `wrResolveCssColorChannels` and re-read when the scheme changes. The wave's speed, band, height and life are the model's numbers, not inputs."
   >
     <ngwr-doc-code [code]="snippets.spacing" language="angular-html" />
     <ngwr-doc-snippet code="">

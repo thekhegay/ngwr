@@ -38,6 +38,11 @@ export default class ConfigurationPage {
     { feature: 'withStorage()', entry: 'ngwr/storage', sets: 'Storage engine, key prefix and default TTL' },
     { feature: 'withMeta()', entry: 'ngwr/meta', sets: 'Title template and default Open Graph and Twitter tags' },
     { feature: 'withWindows()', entry: 'ngwr/window', sets: 'The work area windows keep inside: insets or an element' },
+    {
+      feature: 'withDialog()',
+      entry: 'ngwr/dialog',
+      sets: 'Dialog defaults: tabTitle names the browser tab after the open dialog',
+    },
   ];
 
   protected readonly snippets = {
@@ -57,7 +62,7 @@ export const appConfig: ApplicationConfig = {
 };`,
 
     other: `import { Check, Plus } from 'lucide';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 import {
   provideWrI18n,
   provideWrI18nBaseCatalogs,
@@ -67,7 +72,7 @@ import { wrEn } from 'ngwr/i18n/en';
 import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router';
 
 providers: [
-  provideWrIcons(lucideIcons({ check: Check, plus: Plus })),
+  provideWrIcons(wrLucideIcons({ check: Check, plus: Plus })),
   provideWrI18n(),
   provideWrI18nBaseCatalogs({ en: wrEn }),
   provideWrI18nStaticLoader({ en: { app: { title: 'My app' } } }),

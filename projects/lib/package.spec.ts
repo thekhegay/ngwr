@@ -164,8 +164,8 @@ describe('the published manifest', () => {
 
   it('declares a peer only for a package the shipped source imports', () => {
     // The other direction of the check above, and the one `lucide` failed for as
-    // long as it was listed. An ICON set is not a peer dependency: `lucideIcons()`
-    // takes the icon data as an ARGUMENT — `lucideIcons({ Plus })` — so
+    // long as it was listed. An ICON set is not a peer dependency: `wrLucideIcons()`
+    // takes the icon data as an ARGUMENT — `wrLucideIcons({ Plus })` — so
     // `icon/lucide.ts` imports nothing but its own types, and the only
     // `from 'lucide'` in the tree is inside a template literal that
     // `ng g ngwr:icon-set` writes into the CONSUMER's project. Compare
@@ -177,7 +177,7 @@ describe('the published manifest', () => {
     // errors on a conflict, so `>=1.0.0` could fail an install over a package
     // ngwr does not touch. Every icon set is optional in the same way — the ones
     // that ship plain SVG (tabler, phosphor, heroicons, …) go through
-    // `svgIcon()` and were never declared either, which is the consistent
+    // `wrSvgIcon()` and were never declared either, which is the consistent
     // treatment this restores.
     const imported = importedPackages();
     const undeclared = Object.keys(manifest.peerDependencies).filter(name => !imported.has(name));
@@ -185,13 +185,14 @@ describe('the published manifest', () => {
     expect(undeclared).toEqual([]);
   });
 
-  it('promises no Angular older than the one it builds against', () => {
+  it('promises no peer older than the one it builds against', () => {
     // An app on an older minor than the build's can be missing an export the
     // library imports: 15.0.0 said `^22.0.0` while `ngwr/sidebar` imported
     // `containsTree` (22.2) and `ngwr/schema-form` `isFieldTree` (22.1), so an
-    // app on 22.1 failed its build. Each `@angular/*` floor is therefore the
-    // major and minor the repository installs, and a bump to a new minor moves
-    // the peers with it.
+    // app on 22.1 failed its build. Each peer's floor is therefore the major
+    // and minor the repository installs, and a bump to a new minor moves the
+    // peer with it. That holds for `rxjs` and ProseMirror as it does for
+    // `@angular/*`: nothing runs the suite on a minor below the installed one.
     const root = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
@@ -199,7 +200,6 @@ describe('the published manifest', () => {
     const installed = { ...root.dependencies, ...root.devDependencies };
     const minor = (range: string): string => /(\d+\.\d+)/.exec(range)?.[1] ?? range;
     const drift = Object.entries(manifest.peerDependencies)
-      .filter(([name]) => name.startsWith('@angular/'))
       .filter(([name, range]) => minor(range) !== minor(installed[name] ?? ''))
       .map(([name, range]) => `${name}: peer ${range}, built against ${installed[name]}`);
 

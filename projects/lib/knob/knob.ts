@@ -21,7 +21,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
-import { clamp, round, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrRound, wrCheckStyles } from 'ngwr/utils';
 
 const ARC_START = -135; // 7 o'clock
 const ARC_END = 135; // 5 o'clock — 270° sweep total
@@ -162,7 +162,7 @@ export class WrKnob implements FormValueControl<number> {
    * field dirty before anyone touched it — the rule `wr-input-number` and
    * `wr-slider` already follow. A key press or a drag commits a value in range.
    */
-  protected readonly shown = computed(() => clamp(this.value(), this.minValue(), this.maxValue()));
+  protected readonly shown = computed(() => wrClamp(this.value(), this.minValue(), this.maxValue()));
 
   /** Ratio of the filled arc — `0` at min, `1` at max. */
   protected readonly ratio = computed(() => {
@@ -300,7 +300,7 @@ export class WrKnob implements FormValueControl<number> {
   private snap(value: number): number {
     const min = this.minValue();
     const stepped = Math.round((value - min) / this.step()) * this.step() + min;
-    return clamp(round(stepped, 6), min, this.maxValue());
+    return wrClamp(wrRound(stepped, 6), min, this.maxValue());
   }
 
   // Internals
@@ -313,7 +313,7 @@ export class WrKnob implements FormValueControl<number> {
     let angle = (Math.atan2(dx, -dy) * 180) / Math.PI;
     // Map [-180, 180] into the dial's arc range, clamping outside it.
     if (angle < ARC_START) angle = angle + 360 > ARC_END ? ARC_START : angle + 360;
-    angle = clamp(angle, ARC_START, ARC_END);
+    angle = wrClamp(angle, ARC_START, ARC_END);
     const ratio = (angle - ARC_START) / ARC_SWEEP;
     const range = this.maxValue() - this.minValue();
     const raw = this.minValue() + ratio * range;

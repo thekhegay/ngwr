@@ -20,7 +20,7 @@ it. v15 then removed the two date adapters, leaving `ngwr/date` alone, and the
 codemod still rewrites to their paths — which fail the build rather than
 resolve to anything.
 
-**Two — `readI18nText()` returns `Signal<string>`.** Exported from `ngwr/i18n`,
+**Two — `wrReadI18nText()` returns `Signal<string>`.** Exported from `ngwr/i18n`,
 it returned `string`, so every call site needs a `()`. A fix rather than a
 refactor: `WrI18n` writes every loader-backed catalog from
 `firstValueFrom(...).then(...)`, which lands a microtask AFTER the first
@@ -97,7 +97,7 @@ into `next` merges with nothing checked.
 the SHAPE of the break rather than its size: a codemod runs when the new form
 means what the old one meant in the same place — a name, a path — and is refused
 when repairing the break needs a value only the app knows.**
-`schematics/migrations/` holds **v7, v8, v9, v12, v13, v14 and v15**, and every gap in
+`schematics/migrations/` holds **v7, v8, v9, v12, v13, v14, v15 and v16**, and every gap in
 that sequence is a position rather than an oversight:
 
 - **v10 and v11 ship none, and must not.** v10's three breaks were all
@@ -171,6 +171,41 @@ that sequence is a position rather than an oversight:
   run over the v14 showcase edited a real import because of one. Do not write
   a migration for a later major unless the maintainer asks for one; the shape
   rule above says what such a rule may rewrite.
+- **v16 ships `migration-v16`, a rename and its reports.** v16 put the prefix on
+  every public function, constant and type that lacked it (`clamp` to `wrClamp`,
+  `KEYS` to `WR_KEYS`, `Maybe` to `WrMaybe`), with no alias left behind, and a
+  rename is the plainest case of the rule. It is also the first migration that
+  PARSES, and the names are why: `debounce`, `throttle` and `isObservable` are
+  rxjs exports, `clamp` and `round` are lodash's and anybody's, so a pattern over
+  the text would rewrite code that was never ngwr's. The rule finds the import
+  from the entry point that exported the name, hands that one file to the
+  TypeScript checker (no lib, no module resolution, nothing read from disk) and
+  moves an identifier only when it resolves to that import: a shadowing
+  parameter, a property of the same name and another package's export all stay.
+  A re-export and a shorthand property keep the app's own name
+  (`export { wrClamp as clamp }`, `{ clamp: wrClamp }`). Templates are not read,
+  because a template reaches an import only through a field of its component.
+  `typescript` is imported from the workspace, which every Angular app has, the
+  same footing `@schematics/angular` is imported on. It REPORTS an import of
+  `ngwr/animations/core`, which stopped being an entry point, and a mock factory
+  or dynamic `import()` whose names are object keys it cannot follow.
+  It also carries the inputs and the option v16 renamed, each only where the
+  place says whose it is: `showLabel` to `showValue` on `<wr-slider>`,
+  `showLabel` / `hideLabel` to `showPasswordLabel` / `hidePasswordLabel` on
+  `<wr-password-toggle>` (the attribute and the binding, with `migration-v15`'s
+  quote-safe tag pattern, in `.html` and inline templates), and the toast
+  option `dismissible` to `closable`. The checker resolves nothing outside the
+  file, so "is a toast's options" is read off the declaration: the argument of
+  `show()` on something whose type or initialiser names the `WrToast` import,
+  an object declared, asserted or `satisfies`-checked as `WrToastOptions`. A
+  `dismissible` it cannot place in a file that imports either is REPORTED, and
+  so is `isOpen.set()` / `isOpen.update()` on a `WrPopover`, `WrDropdown` or
+  `WrPopconfirm` (found the same way, and on a `#ref="wrPopover"` in a
+  template): `isOpen` is read-only there, and whether the write meant `open()`
+  or `close()` is the app's to say. `WrToastHarness.isDismissible()` is
+  `isClosable()`, rewritten on a receiver declared with the harness
+  (`getHarness(WrToastHarness)`, `getAllHarnesses()`, `harnessForFixture()`, a
+  type) and REPORTED in a file that imports the harness where it is not.
 - **v14 ships `migration-v14`, split down the middle of the rule**, and that
   split is the thing to copy. It REWRITES the six renames — on `<wr-alert>`
   from `closeable` to `closable`, on `<wr-table>` from `totalItems` to `total`,

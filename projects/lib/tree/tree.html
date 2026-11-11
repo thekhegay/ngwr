@@ -6,7 +6,7 @@
     [attr.aria-label]="resolvedAriaLabel()"
     [disabled]="disabled()"
     [attr.aria-haspopup]="'tree'"
-    [attr.aria-expanded]="open()"
+    [attr.aria-expanded]="isOpen()"
     [attr.aria-controls]="panelId"
     [attr.aria-readonly]="readonly() || null"
     [attr.aria-invalid]="fieldAria.ariaInvalid()"

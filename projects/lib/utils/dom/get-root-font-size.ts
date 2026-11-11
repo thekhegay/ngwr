@@ -17,14 +17,14 @@
  *
  * @example
  * ```ts
- * const rootFontSize = getRootFontSize();      // e.g. 16
- * const customFallback = getRootFontSize(14);  // uses 14 if DOM is unavailable
+ * const rootFontSize = wrGetRootFontSize();      // e.g. 16
+ * const customFallback = wrGetRootFontSize(14);  // uses 14 if DOM is unavailable
  * ```
  *
  * @param fallback - Value in pixels when DOM is unavailable. Defaults to `16`.
  * @returns Root font size in pixels.
  */
-export function getRootFontSize(fallback = 16): number {
+export function wrGetRootFontSize(fallback = 16): number {
   try {
     if (typeof window === 'undefined' || typeof document === 'undefined') {
       return fallback;

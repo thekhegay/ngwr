@@ -152,6 +152,11 @@ export const wrNl: WrI18nCatalog = {
     copied: 'Gekopieerd',
     closeAll: 'Alles sluiten',
   },
+  copyValue: {
+    copy: 'Kopiëren',
+    copied: 'Gekopieerd',
+    empty: '-',
+  },
   input: {
     showPassword: 'Wachtwoord tonen',
     hidePassword: 'Wachtwoord verbergen',

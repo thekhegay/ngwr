@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 
 import { Moon, Settings, Sun } from 'lucide';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 
 import {
@@ -18,7 +18,7 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-segmented-page',
   templateUrl: './segmented.html',
   imports: [WrSegmented, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
-  providers: [provideWrIcons(lucideIcons({ sun: Sun, moon: Moon, cog: Settings }))],
+  providers: [provideWrIcons(wrLucideIcons({ sun: Sun, moon: Moon, cog: Settings }))],
 })
 export default class SegmentedPageComponent {
   protected readonly range = signal<string>('week');

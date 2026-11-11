@@ -32,10 +32,10 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrCalendar } from 'ngwr/calendar';
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
-import { readI18nText, useI18nText } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrFollowSize } from 'ngwr/overlay';
-import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import { clockFormat } from './internal/clock-format';
 import { WrDateTimePanel } from './internal/date-time-panel';
@@ -47,7 +47,7 @@ import {
 } from './internal/input-refusal';
 import { tabLeavesPane } from './internal/tab-out';
 import { WrTimePanel } from './internal/time-panel';
-import type { WrDateInputError } from './types';
+import type { WrDateInputError, WrDatePickerSize } from './types';
 
 let panelUid = 0;
 
@@ -156,6 +156,23 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   readonly step = input(1, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 1)) });
 
   /**
+   * Control size — forwarded to the field's `[size]`, and shares the
+   * `--wr-control-*` contract. The panel keeps its size. @default 'md'
+   */
+  readonly size = input<WrDatePickerSize>('md');
+
+  /**
+   * Show a clear (×) button once a date is picked. It is a pointer control: from the
+   * keyboard, emptying the field clears the value. @default false
+   */
+  readonly clearable = input(false, { transform: coerceBooleanProperty });
+
+  /** Clear (×) button aria-label. Falls back to `common.clear`. */
+  readonly clearLabel = input<string | null>(null);
+
+  protected readonly resolvedClear = useI18nText(this.clearLabel, 'common.clear', 'Clear');
+
+  /**
    * Disable interaction. Bound automatically from the field's disabled state
    * when used with `[formField]`.
    *
@@ -189,8 +206,16 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Emitted on blur so a bound field can mark itself touched. */
   readonly touch = output<void>();
 
+  /** Fires after the popup opens. */
+  readonly opened = output<void>();
+
+  /** Fires after the popup closes. */
+  readonly closed = output<void>();
+
   /** Text currently in the input (may be partial / invalid mid-type). */
   protected readonly text = signal<string>('');
+
+  protected readonly hasValue = computed(() => this.value() != null);
 
   /** Whether the popover is currently open. */
   protected readonly overlayOpen = signal(false);
@@ -227,13 +252,13 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   // "Open calendar" while `fieldLabel` below, off the SAME key, announced the
   // Russian one. A runtime `i18n.use()` moved the field's name and not the
   // trigger's, which made the split permanent rather than a startup race.
-  private readonly labelDate = readI18nText('datePicker.open', 'Open calendar');
-  private readonly labelTime = readI18nText('datePicker.openTime', 'Open time picker');
-  private readonly labelDateTime = readI18nText('datePicker.openDateTime', 'Open date and time picker');
+  private readonly labelDate = wrReadI18nText('datePicker.open', 'Open calendar');
+  private readonly labelTime = wrReadI18nText('datePicker.openTime', 'Open time picker');
+  private readonly labelDateTime = wrReadI18nText('datePicker.openDateTime', 'Open date and time picker');
 
-  private readonly panelLabelDate = readI18nText('datePicker.panel', 'Choose date');
-  private readonly panelLabelTime = readI18nText('datePicker.panelTime', 'Choose time');
-  private readonly panelLabelDateTime = readI18nText('datePicker.panelDateTime', 'Choose date and time');
+  private readonly panelLabelDate = wrReadI18nText('datePicker.panel', 'Choose date');
+  private readonly panelLabelTime = wrReadI18nText('datePicker.panelTime', 'Choose time');
+  private readonly panelLabelDateTime = wrReadI18nText('datePicker.panelDateTime', 'Choose date and time');
 
   /**
    * Accessible name of the text field. Falls back to the placeholder, then to
@@ -409,6 +434,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-date-picker', `wr-date-picker--${this.mode()}`];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-date-picker--${size}`);
     if (this.disabled()) parts.push('wr-date-picker--disabled');
     if (this.inputError()) parts.push('wr-date-picker--invalid');
     return parts.join(' ');
@@ -563,6 +590,17 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     }
     this.commitValue(this.withKeptDate(parsed));
     this.refuse(null);
+  }
+
+  /** The clear (×) button — the same commit an emptied field makes. */
+  protected clear(event: Event): void {
+    event.stopPropagation();
+    if (this.disabled() || this.readonly()) return;
+    this.text.set('');
+    this.commitValue(null);
+    this.refuse(null);
+    this.inputEl().nativeElement.focus();
+    this.touch.emit();
   }
 
   /**
@@ -763,6 +801,20 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     target?.focus();
   }
 
+  /**
+   * Open the popup, as a click on the field does: focus stays where it is.
+   * Refused while disabled; a read-only picker still opens, as its field and trigger do.
+   */
+  open(): void {
+    if (this.disabled() || this.overlayRef) return;
+    this.openOverlay(this.inputEl().nativeElement, false);
+  }
+
+  /** Close the popup. */
+  close(): void {
+    if (this.overlayRef) this.closeOverlay();
+  }
+
   // Overlay
 
   private openOverlay(openedFrom: HTMLElement | null = null, autoFocus = false): void {
@@ -785,7 +837,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: toClassList('wr-date-picker-overlay', this.panelClass()),
+      panelClass: wrToClassList('wr-date-picker-overlay', this.panelClass()),
     });
 
     // Two of the four fallbacks anchor on `end`, and the CDK resolves start /
@@ -846,6 +898,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
           this.closeOverlay();
         }
       });
+
+    this.opened.emit();
   }
 
   private attachDate(): void {
@@ -941,6 +995,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
    * stealing it back would fight the user for the caret.
    */
   private closeOverlay(): void {
+    const wasOpen = !!this.overlayRef;
     const pane = this.overlayRef?.overlayElement;
     const inside = !!pane && pane.contains(document.activeElement);
 
@@ -956,6 +1011,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     // user is somewhere else now, and a refusal that waited for the panel shows. A pick
     // has already cleared its refusal, so this only ever reaches text still refused.
     if (document.activeElement !== this.inputEl().nativeElement) this.reveal();
+
+    if (wasOpen) this.closed.emit();
   }
 
   private dispose(): void {

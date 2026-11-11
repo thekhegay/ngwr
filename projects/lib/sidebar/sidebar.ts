@@ -34,7 +34,7 @@ import {
 
 import { filter, map, startWith } from 'rxjs';
 
-import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
 import { wrCheckStyles } from 'ngwr/utils';
 
@@ -95,7 +95,7 @@ function linkOf(entry: WrSidebarEntry): readonly (string | number)[] | null {
 
 /**
  * Instance counter for the row ids. Deterministic under prerender, unlike
- * `randomId()`, and unique across sidebars: a title-only id collided between two
+ * `wrRandomId()`, and unique across sidebars: a title-only id collided between two
  * sidebars on one page, and `aria-controls` then pointed at the wrong body.
  */
 let sidebarUid = 0;
@@ -225,13 +225,13 @@ export class WrSidebar {
   readonly autoCollapse = input(false, { transform: coerceBooleanProperty });
 
   /** Spoken after a collapsed group that holds the current page. */
-  protected readonly containsCurrentLabel = readI18nText('sidebar.containsCurrent', 'contains the current page');
+  protected readonly containsCurrentLabel = wrReadI18nText('sidebar.containsCurrent', 'contains the current page');
 
   /** The split arrow's name: the group's title is the link beside it. */
   protected readonly subpagesLabel = useI18nFormatter('sidebar.subpages', 'Sub-pages of {{title}}');
 
   /** Joins a row's title, badge and count into one name: `،` in Arabic, `、` in Japanese. */
-  protected readonly separator = readI18nText('sidebar.separator', ',');
+  protected readonly separator = wrReadI18nText('sidebar.separator', ',');
 
   private readonly opened = signal<ReadonlySet<string>>(new Set());
 

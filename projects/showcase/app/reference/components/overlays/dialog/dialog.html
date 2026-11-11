@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Dialog"
-  updated="15.5.0"
+  updated="16.0.0"
   description="Open any component as a modal dialog and await its result."
   [keywords]="['dialog', 'modal', 'wr-dialog', 'overlay', 'portal']"
   [labels]="['Service', 'Directives', 'CDK Dialog']"
@@ -98,6 +98,46 @@
     description="A dialog outlives the component that opened it. It closes on navigation; anything else is yours to close."
   >
     <ngwr-doc-code [code]="snippets.lifetime" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tab title"
+    description="`tabTitle: true` puts the dialog's title in front of the page title while it is open. The text is read from `[wrDialogTitle]`, so it is already translated. `withDialog()` sets it for every dialog."
+  >
+    <ngwr-doc-code [code]="snippets.tabTitle" language="typescript" />
+
+    <ngwr-doc-snippet code="dialog.open(ConfirmComponent, { tabTitle: true })">
+      <wr-btn (click)="openNamed()">Open and watch the tab</wr-btn>
+    </ngwr-doc-snippet>
+
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">When</th>
+            <th scope="col">The tab reads</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">One dialog open</th>
+            <td><code>Dialog title - Page title</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Dialogs stacked</th>
+            <td>The top dialog's title; the one below returns when it closes</td>
+          </tr>
+          <tr>
+            <th scope="row">No <code>[wrDialogTitle]</code></th>
+            <td>The page title, unchanged</td>
+          </tr>
+          <tr>
+            <th scope="row">The page title changes under the dialog</th>
+            <td>The new page title, behind the dialog's and after it closes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section

@@ -1,0 +1,21 @@
+// Sass shared by the animation sheets. Not a public entry: there is no
+// `styles/_index.scss` here, so `@use 'ngwr/animations/internal'` resolves to
+// nothing and the manifest carries no `sass` condition for it. An effect's own
+// `_index.scss` loads this file by its relative path.
+
+/// Text that exists for assistive technology and not for the eye: the one copy
+/// of a sentence a screen reader hears while the pieces it is drawn as are
+/// `aria-hidden`. Out of flow rather than hidden, since `display: none` and
+/// `visibility: hidden` take it out of the accessible tree too.
+@mixin sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  // `clip-path`, not the deprecated `clip`: same effect, and it survives
+  // `forced-colors`, where a clipped element is still measured.
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

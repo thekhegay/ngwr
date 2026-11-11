@@ -29,7 +29,7 @@ const CROSS_THICKNESS = CROSS_ARM * 0.35;
 
 /**
  * How far each shape reaches from its centre at `r = 1`, read off the corners
- * {@link chartMarkerPath} draws: up, down, to either side, and to the farthest
+ * {@link wrChartMarkerPath} draws: up, down, to either side, and to the farthest
  * corner.
  */
 const EXTENTS: Readonly<Record<WrChartMarkerShape, WrChartMarkerExtent>> = {
@@ -59,7 +59,7 @@ const polygon = (points: readonly (readonly [number, number])[]): string =>
  *
  * @internal
  */
-export const CHART_MARKERS: readonly WrChartMarkerShape[] = [
+export const WR_CHART_MARKERS: readonly WrChartMarkerShape[] = [
   'circle',
   'square',
   'triangle',
@@ -73,8 +73,8 @@ export const CHART_MARKERS: readonly WrChartMarkerShape[] = [
  *
  * @internal
  */
-export function chartMarker(index: number): WrChartMarkerShape {
-  return CHART_MARKERS[wrap(index, CHART_MARKERS.length)];
+export function wrChartMarker(index: number): WrChartMarkerShape {
+  return WR_CHART_MARKERS[wrap(index, WR_CHART_MARKERS.length)];
 }
 
 /**
@@ -89,7 +89,7 @@ export function chartMarker(index: number): WrChartMarkerShape {
  *
  * @internal
  */
-export function chartMarkerPath(shape: WrChartMarkerShape, r: number): string {
+export function wrChartMarkerPath(shape: WrChartMarkerShape, r: number): string {
   if (!Number.isFinite(r) || r <= 0) return '';
   switch (shape) {
     case 'square': {
@@ -149,7 +149,7 @@ export function chartMarkerPath(shape: WrChartMarkerShape, r: number): string {
 }
 
 /**
- * How far the marker {@link chartMarkerPath} draws at `r` reaches from its centre,
+ * How far the marker {@link wrChartMarkerPath} draws at `r` reaches from its centre,
  * in px, before any stroke: up, down, to either side, and to its farthest corner.
  *
  * Every shape has the circle's AREA, so `r` is not how far a marker reaches: a
@@ -160,7 +160,7 @@ export function chartMarkerPath(shape: WrChartMarkerShape, r: number): string {
  *
  * @internal
  */
-export function chartMarkerExtent(shape: WrChartMarkerShape, r: number): WrChartMarkerExtent {
+export function wrChartMarkerExtent(shape: WrChartMarkerShape, r: number): WrChartMarkerExtent {
   const size = Number.isFinite(r) && r > 0 ? r : 0;
   const unit = EXTENTS[shape] ?? EXTENTS.circle;
   return { top: unit.top * size, bottom: unit.bottom * size, side: unit.side * size, radius: unit.radius * size };

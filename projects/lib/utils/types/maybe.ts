@@ -13,17 +13,17 @@
  *
  * @example
  * ```ts
- * function findUser(id: string): Maybe<User> {
+ * function findUser(id: string): WrMaybe<User> {
  *   return db.get(id) ?? null;
  * }
  *
- * const user: Maybe<User> = findUser('42');
+ * const user: WrMaybe<User> = findUser('42');
  *
- * if (isDefined(user)) {
+ * if (wrIsDefined(user)) {
  *   // user is User
  * }
  * ```
  *
- * @see {@link isDefined} — type guard that narrows `Maybe<T>` to `T`.
+ * @see {@link wrIsDefined} — type guard that narrows `WrMaybe<T>` to `T`.
  */
-export type Maybe<T> = T | null | undefined;
+export type WrMaybe<T> = T | null | undefined;

@@ -50,8 +50,8 @@ function resolveScheme(doc: Document, query: MediaQueryList | null): WrColorSche
 /** The colour scheme a page resolves to: what `light-dark()` picks on its root. */
 export type WrColorScheme = 'light' | 'dark';
 
-/** Options for {@link watchColorScheme}. */
-export interface WatchColorSchemeOptions {
+/** Options for {@link wrWatchColorScheme}. */
+export interface WrWatchColorSchemeOptions {
   /**
    * The injector to take `DestroyRef`, `DOCUMENT` and `PLATFORM_ID` from, for
    * a call made outside an injection context — from `afterNextRender`, say.
@@ -65,7 +65,7 @@ export interface WatchColorSchemeOptions {
  * resolves to changes, and never for a change that leaves it where it was.
  *
  * A canvas or a WebGL uniform cannot take `light-dark()` or a `var()`, so a
- * drawing resolves its colours once, through {@link resolveCssColor}, and holds
+ * drawing resolves its colours once, through {@link wrResolveCssColor}, and holds
  * pixels from then on. A frame loop repaints anyway; a still frame — the one a
  * reduced-motion visitor gets — keeps the old scheme's colours until something
  * asks it to redraw. This is that something.
@@ -90,14 +90,14 @@ export interface WatchColorSchemeOptions {
  * ```ts
  * constructor() {
  *   afterNextRender(() => this.draw());
- *   watchColorScheme(() => this.draw());
+ *   wrWatchColorScheme(() => this.draw());
  * }
  *
  * private draw(): void {
  *   const canvas = this.canvas().nativeElement;
  *   const ctx = canvas.getContext('2d');
  *   if (!ctx) return;
- *   ctx.fillStyle = resolveCssColor(canvas, 'var(--wr-color-primary)', '#3969e2');
+ *   ctx.fillStyle = wrResolveCssColor(canvas, 'var(--wr-color-primary)', '#3969e2');
  *   ctx.fillRect(0, 0, canvas.width, canvas.height);
  * }
  * ```
@@ -106,11 +106,11 @@ export interface WatchColorSchemeOptions {
  * @param options - An injector, for a call outside an injection context.
  * @returns A function that stops watching early.
  */
-export function watchColorScheme(
+export function wrWatchColorScheme(
   callback: (scheme: WrColorScheme) => void,
-  options: WatchColorSchemeOptions = {}
+  options: WrWatchColorSchemeOptions = {}
 ): () => void {
-  if (!options.injector) assertInInjectionContext(watchColorScheme);
+  if (!options.injector) assertInInjectionContext(wrWatchColorScheme);
   const injector = options.injector;
   const get = <T>(token: ProviderToken<T>): T => (injector ? injector.get(token) : inject(token));
 

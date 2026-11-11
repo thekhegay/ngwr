@@ -8,9 +8,10 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, PLATFORM_ID, Service, effect, inject } from '@angular/core';
 
-import { MAX_FRAME_MS, canvasBackdropRatio } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
-import { clamp, resolveCssColor } from 'ngwr/utils';
+import { wrClamp, wrResolveCssColor } from 'ngwr/utils';
+
+import { MAX_FRAME_MS, canvasBackdropRatio } from '../internal';
 
 import type { WrConfettiOptions, WrConfettiRect } from './types';
 
@@ -161,7 +162,7 @@ export function confettiAlive(piece: WrConfettiPiece, height: number): boolean {
 
 /** A piece's opacity: solid, then fading over its last {@link CONFETTI_FADE_MS}. */
 export function confettiAlpha(piece: WrConfettiPiece): number {
-  return clamp(piece.life / CONFETTI_FADE_MS, 0, 1);
+  return wrClamp(piece.life / CONFETTI_FADE_MS, 0, 1);
 }
 
 /**
@@ -241,7 +242,7 @@ export class WrConfetti {
     if (!canvas) return;
     const rect = 'getBoundingClientRect' in from ? from.getBoundingClientRect() : from;
     const seed = options.seed ?? Math.floor(Math.random() * 0x1_0000_0000);
-    const palette = CONFETTI_COLORS.map(([hook, fallback]) => resolveCssColor(canvas, hook, fallback));
+    const palette = CONFETTI_COLORS.map(([hook, fallback]) => wrResolveCssColor(canvas, hook, fallback));
     this.pieces.push(...confettiLaunch(rect, seed, options.count ?? CONFETTI_COUNT, palette));
     this.sync();
   }
@@ -320,7 +321,7 @@ export class WrConfetti {
   private readonly frame = (now: number): void => {
     this.rafId = null;
     // A tab that was throttled comes back with one huge frame; the pieces move at most this far at once.
-    const dt = clamp(now - this.lastFrame, 0, MAX_FRAME_MS);
+    const dt = wrClamp(now - this.lastFrame, 0, MAX_FRAME_MS);
     this.lastFrame = now;
     for (const piece of this.pieces) confettiStep(piece, dt);
     this.pieces = this.pieces.filter(piece => confettiAlive(piece, this.height));

@@ -10,7 +10,7 @@ import type { ElementRef } from '@angular/core';
 import { Component, PLATFORM_ID, ViewEncapsulation, effect, inject, input, viewChild } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { numAttr, resolveCssColor, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrResolveCssColor, wrCheckStyles } from 'ngwr/utils';
 
 import { drawQrCode } from './generator';
 import type { WrQrErrorLevel } from './types';
@@ -40,7 +40,7 @@ export class WrQr {
   readonly level = input<WrQrErrorLevel>('M');
 
   /** Side length of the rendered canvas, in pixels. @default 160 */
-  readonly size = input(160, { transform: numAttr(160) });
+  readonly size = input(160, { transform: wrNumAttr(160) });
 
   /**
    * Outer quiet-zone padding, in BITMAP units — not the CSS pixels `size`
@@ -57,7 +57,7 @@ export class WrQr {
    *
    * @default 10
    */
-  readonly padding = input(10, { transform: numAttr(10) });
+  readonly padding = input(10, { transform: wrNumAttr(10) });
 
   /**
    * Module (dot) color. Any CSS colour, `var()` and `light-dark()` included: it is
@@ -78,7 +78,7 @@ export class WrQr {
   readonly iconUrl = input<string | null>(null);
 
   /** Center icon size in logical pixels. @default 42 */
-  readonly iconSize = input(42, { transform: numAttr(42) });
+  readonly iconSize = input(42, { transform: wrNumAttr(42) });
 
   /**
    * Accessible name. A QR code is content — it usually encodes a URL — and a
@@ -122,8 +122,8 @@ export class WrQr {
       // the way the other canvas components do.
       drawQrCode(el, {
         ...opts,
-        color: resolveCssColor(el, opts.color, '#000000'),
-        bgColor: resolveCssColor(el, opts.bgColor, '#ffffff'),
+        color: wrResolveCssColor(el, opts.color, '#000000'),
+        bgColor: wrResolveCssColor(el, opts.bgColor, '#ffffff'),
       });
     });
   }

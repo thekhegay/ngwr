@@ -2,7 +2,7 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrIcons, svgIcon } from 'ngwr/icon';
+import { provideWrIcons, wrSvgIcon } from 'ngwr/icon';
 import { WrRadio, WrRadioGroup } from 'ngwr/radio';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -116,7 +116,7 @@ describe('WrRadioGroupHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrIcons([svgIcon('check', CHECK_SVG)])] });
+    TestBed.configureTestingModule({ providers: [provideWrIcons([wrSvgIcon('check', CHECK_SVG)])] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

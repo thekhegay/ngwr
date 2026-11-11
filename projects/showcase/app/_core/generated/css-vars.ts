@@ -13,10 +13,10 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1628 hook(s) across 112 page(s). A property is here only when the
+ * 1650 hook(s) across 113 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
- * declares it also owns it: 35 declaration(s) are one component setting
+ * declares it also owns it: 37 declaration(s) are one component setting
  * another's hook (`--wr-icon-size` inside its own `<wr-icon>`) and belong on
  * the owner's page, not on the setter's. A row marked `host` is one the
  * component writes on its own host, from an input or from its state, and never
@@ -1019,9 +1019,25 @@ export const CSS_VARS = {
       { name: "--wr-context-menu-radius", default: "var(--wr-border-radius-base)", scope: ".wr-context-menu" },
     ],
   },
+  "reference/components/copy-value": {
+    subpath: "ngwr/copy-value",
+    vars: [
+      { name: "--wr-copy-value-button-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-button-copied-color", default: "var(--wr-color-success)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-button-hover-bg", default: "var(--wr-color-hover)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-button-hover-color", default: "var(--wr-color-on-surface)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-button-padding", default: "var(--wr-space-xs)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-button-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-empty-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-copy-value" },
+      { name: "--wr-copy-value-gap", default: "var(--wr-space-xs)", scope: ".wr-copy-value" },
+    ],
+  },
   "reference/components/date-picker": {
     subpath: "ngwr/date-picker",
     vars: [
+      { name: "--wr-date-picker-clear-icon-size", default: "var(--wr-control-font-size-md)", scope: ".wr-date-picker__clear", overrides: 2 },
+      { name: "--wr-date-picker-clear-radius", default: "var(--wr-border-radius-pill)", scope: ".wr-date-picker__clear" },
+      { name: "--wr-date-picker-trigger-icon-size", default: "var(--wr-control-font-size-md)", scope: ".wr-date-picker__trigger", overrides: 2 },
       { name: "--wr-date-range-panel-bg", default: "var(--wr-color-surface)", scope: ".wr-date-range-panel--timed", base: false },
       { name: "--wr-date-range-panel-border", default: "var(--wr-border-base)", scope: ".wr-date-range-panel--timed", base: false },
       { name: "--wr-date-range-panel-radius", default: "var(--wr-border-radius-base)", scope: ".wr-date-range-panel--timed", base: false },
@@ -1031,6 +1047,8 @@ export const CSS_VARS = {
       { name: "--wr-date-range-panel-times-gap-x", default: "var(--wr-space-xl)", scope: ".wr-date-range-panel__times" },
       { name: "--wr-date-range-panel-times-gap-y", default: "var(--wr-space-md)", scope: ".wr-date-range-panel__times" },
       { name: "--wr-date-range-panel-times-padding", default: "var(--wr-space-md)", scope: ".wr-date-range-panel__times" },
+      { name: "--wr-date-range-picker-separator-font-size", default: "inherit", scope: ".wr-date-range-picker__separator", overrides: 2 },
+      { name: "--wr-date-range-picker-separator-line-height", default: "inherit", scope: ".wr-date-range-picker__separator", overrides: 2 },
       { name: "--wr-date-range-picker-separator-padding-x", default: "var(--wr-space-xs)", scope: ".wr-date-range-picker__separator" },
       { name: "--wr-date-time-panel-time-border", default: "var(--wr-border-base)", scope: ".wr-date-time-panel__time" },
       { name: "--wr-date-time-panel-time-padding", default: "var(--wr-space-md)", scope: ".wr-date-time-panel__time" },
@@ -1889,6 +1907,7 @@ export const CSS_VARS = {
       { name: "--wr-table-font-family", default: "var(--wr-font-family-base)", scope: ".wr-table" },
       { name: "--wr-table-font-size", default: "var(--wr-text-sm)", scope: ".wr-table" },
       { name: "--wr-table-foot-cell-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-table" },
+      { name: "--wr-table-foot-height", default: "0px", scope: ".wr-table" },
       { name: "--wr-table-group-bg", default: "var(--wr-color-fill-subtle)", scope: ".wr-table" },
       { name: "--wr-table-group-count-font-size", default: "var(--wr-text-xs)", scope: ".wr-table" },
       { name: "--wr-table-group-count-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-table" },
@@ -1900,6 +1919,7 @@ export const CSS_VARS = {
       { name: "--wr-table-head-bg", default: "var(--wr-color-fill)", scope: ".wr-table" },
       { name: "--wr-table-head-font-size", default: "var(--wr-text-xs)", scope: ".wr-table" },
       { name: "--wr-table-head-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-table" },
+      { name: "--wr-table-head-height", default: "2.5rem", scope: ".wr-table" },
       { name: "--wr-table-head-letter-spacing", default: "var(--wr-tracking-normal)", scope: ".wr-table" },
       { name: "--wr-table-head-transform", default: "none", scope: ".wr-table" },
       { name: "--wr-table-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-table" },
@@ -1908,6 +1928,8 @@ export const CSS_VARS = {
       { name: "--wr-table-radius", default: "var(--wr-border-radius-base)", scope: ".wr-table" },
       { name: "--wr-table-resize-handle-bg", default: "var(--wr-border-base)", scope: ".wr-table" },
       { name: "--wr-table-row-hover", default: "var(--wr-color-fill-subtle)", scope: ".wr-table" },
+      { name: "--wr-table-scroll-height", default: "30rem", scope: ".wr-table" },
+      { name: "--wr-table-scroll-min-height", default: "16rem", scope: ".wr-table" },
       { name: "--wr-table-sort-order-font-size", default: "var(--wr-table-head-font-size)", scope: ".wr-table" },
       { name: "--wr-table-sort-order-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-table" },
       { name: "--wr-table-tree-lead-margin-end", default: "var(--wr-space-xs)", scope: ".wr-table", overrides: 1 },
@@ -1977,7 +1999,12 @@ export const CSS_VARS = {
     subpath: "ngwr/toast",
     vars: [
       { name: "--wr-toast-accent", default: "var(--wr-color-primary)", scope: ".wr-toast", overrides: 1 },
+      { name: "--wr-toast-action-color", default: "var(--wr-color-primary-ink)", scope: ".wr-toast", overrides: 1 },
+      { name: "--wr-toast-action-font-size", default: "var(--wr-text-sm)", scope: ".wr-toast" },
+      { name: "--wr-toast-action-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-toast" },
+      { name: "--wr-toast-action-hover-bg", default: "var(--wr-color-hover)", scope: ".wr-toast" },
       { name: "--wr-toast-action-padding", default: "var(--wr-space-xs)", scope: ".wr-toast" },
+      { name: "--wr-toast-action-padding-x", default: "var(--wr-space-sm)", scope: ".wr-toast" },
       { name: "--wr-toast-action-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-toast" },
       { name: "--wr-toast-actions-gap", default: "var(--wr-space-xs)", scope: ".wr-toast", overrides: 1 },
       { name: "--wr-toast-bg", default: "var(--wr-color-surface)", scope: ".wr-toast" },
@@ -2075,15 +2102,15 @@ export const CSS_VARS = {
       { name: "--wr-tree-trigger-border", default: "var(--wr-border-base)", scope: ".wr-tree" },
       { name: "--wr-tree-trigger-color", default: "var(--wr-color-on-surface)", scope: ".wr-tree", overrides: 1 },
       { name: "--wr-tree-trigger-font-family", default: "var(--wr-font-family-base)", scope: ".wr-tree" },
-      { name: "--wr-tree-trigger-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-tree" },
+      { name: "--wr-tree-trigger-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-tree", overrides: 2 },
       { name: "--wr-tree-trigger-gap", default: "var(--wr-space-sm)", scope: ".wr-tree" },
-      { name: "--wr-tree-trigger-line-height", default: "var(--wr-control-line-height-md)", scope: ".wr-tree" },
+      { name: "--wr-tree-trigger-line-height", default: "var(--wr-control-line-height-md)", scope: ".wr-tree", overrides: 2 },
       { name: "--wr-tree-trigger-min-width", default: "12rem", scope: ".wr-tree--combobox", base: false },
       { name: "--wr-tree-trigger-multi-padding-x", default: "var(--wr-space-sm)", scope: ".wr-tree" },
       { name: "--wr-tree-trigger-multi-padding-y", default: "var(--wr-space-xs)", scope: ".wr-tree" },
-      { name: "--wr-tree-trigger-padding-x", default: "var(--wr-control-padding-x-md)", scope: ".wr-tree" },
-      { name: "--wr-tree-trigger-padding-y", default: "var(--wr-control-padding-y-md)", scope: ".wr-tree" },
-      { name: "--wr-tree-trigger-radius", default: "var(--wr-control-radius-md)", scope: ".wr-tree" },
+      { name: "--wr-tree-trigger-padding-x", default: "var(--wr-control-padding-x-md)", scope: ".wr-tree", overrides: 2 },
+      { name: "--wr-tree-trigger-padding-y", default: "var(--wr-control-padding-y-md)", scope: ".wr-tree", overrides: 2 },
+      { name: "--wr-tree-trigger-radius", default: "var(--wr-control-radius-md)", scope: ".wr-tree", overrides: 2 },
     ],
   },
   "reference/components/virtual-scroll": {

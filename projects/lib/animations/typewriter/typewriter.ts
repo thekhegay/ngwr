@@ -22,9 +22,10 @@ import {
   untracked,
 } from '@angular/core';
 
-import { VIEW_THRESHOLD, graphemes } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
+
+import { VIEW_THRESHOLD, graphemes } from '../internal';
 
 import type { WrTypewriterPhase, WrTypewriterTrigger } from './types';
 
@@ -165,10 +166,10 @@ export class WrTypewriter {
   readonly loop = input(false, { transform: booleanAttribute });
 
   /** How long a finished line stands before it is deleted for the next, in ms. @default 1800 */
-  readonly hold = input(TYPEWRITER_HOLD, { transform: numAttr(TYPEWRITER_HOLD) });
+  readonly hold = input(TYPEWRITER_HOLD, { transform: wrNumAttr(TYPEWRITER_HOLD) });
 
   /** Pause before the first character, in ms, from the moment the host is in view: room for the eye to land above it. @default 0 */
-  readonly delay = input(0, { transform: numAttr(0) });
+  readonly delay = input(0, { transform: wrNumAttr(0) });
 
   /**
    * `view` types once most of the host is in view and leaves a host that was

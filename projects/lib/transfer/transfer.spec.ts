@@ -379,6 +379,28 @@ describe('WrTransfer', () => {
 
     warn.mockRestore();
   });
+
+  it('says it once, not again on every keystroke or tick in the right pane', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    fixture.componentInstance.searchable.set(true);
+    fixture.componentInstance.granted.set(['read', 'ghost']);
+    fixture.detectChanges();
+
+    for (const query of ['r', 're', 'rea']) search(1, query);
+    check(1, 0);
+
+    expect(rowLabels(1)).toEqual(['Read']);
+    expect(warn).toHaveBeenCalledTimes(1);
+
+    // A different set of orphans is news again.
+    fixture.componentInstance.granted.set(['read', 'ghost', 'phantom']);
+    fixture.detectChanges();
+    expect(warn).toHaveBeenCalledTimes(2);
+    expect(String(warn.mock.calls[1][0])).toContain('"phantom"');
+
+    warn.mockRestore();
+  });
+
   /**
    * The select-all name used to be a template literal — `` `${title} — ${selectAll}` ``
    * — which froze the separator AND the operand order into English. A translator

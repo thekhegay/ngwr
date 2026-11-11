@@ -16,10 +16,10 @@
  *
  * @example
  * ```ts
- * function wrapThirdPartyCallback(fn: (...args: SafeAny[]) => SafeAny): void {
+ * function wrapThirdPartyCallback(fn: (...args: WrSafeAny[]) => WrSafeAny): void {
  *   // ...
  * }
  * ```
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SafeAny = any;
+export type WrSafeAny = any;

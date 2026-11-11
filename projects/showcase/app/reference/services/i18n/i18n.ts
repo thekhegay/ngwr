@@ -44,23 +44,23 @@ export default class I18nServicePage {
   }
 
   protected readonly snippets = {
-    injectionContext: `import { WrI18n, readI18nText } from 'ngwr/i18n';
+    injectionContext: `import { WrI18n, wrReadI18nText } from 'ngwr/i18n';
 
 @Component({ /* … */ })
 export class InvoiceCard {
   private readonly i18n = inject(WrI18n);
 
   // A field initializer is an injection context.
-  protected readonly heading = readI18nText('invoice.heading', 'Invoice');
+  protected readonly heading = wrReadI18nText('invoice.heading', 'Invoice');
 
   protected onCopy(): void {
-    // A click handler is not: readI18nText() would throw NG0203 here.
+    // A click handler is not: wrReadI18nText() would throw NG0203 here.
     this.toast.show(this.i18n.t('invoice.copied'));
   }
 }
 
 // Anywhere else:
-const label = runInInjectionContext(injector, () => readI18nText('x', 'X'));`,
+const label = runInInjectionContext(injector, () => wrReadI18nText('x', 'X'));`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

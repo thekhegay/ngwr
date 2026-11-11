@@ -19,4 +19,4 @@
  * }
  * ```
  */
-export const noop = (): void => undefined;
+export const wrNoop = (): void => undefined;

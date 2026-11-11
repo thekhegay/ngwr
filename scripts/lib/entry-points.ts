@@ -68,18 +68,18 @@ export function libEntryPoints(libRoot = LIB_PATH): string[] {
  * about it — the MCP server used to call `WrChartTable` "not in the catalog" while
  * the schematic offered to import it. `assertInternalEntryPoints()` in
  * `build-symbol-map.ts` holds the tag at run time, export by export, so a public
- * `ngwr/animations/core` is the same shape for the animations: the grapheme
- * splitter and the stagger gap every text effect shares, `@internal` export by
- * export, so an app imports an effect and never the helpers under it.
- *
  * symbol added here fails the run instead of vanishing from every catalog.
+ *
+ * The animations share helpers the same way and need no entry here: since v16
+ * `projects/lib/animations/internal/` is no entry point at all, reached by a
+ * relative import and emitted as a shared chunk.
  *
  * Deliberately a list of ENTRY POINTS and not a filter on the `@internal` tag:
  * in this repo the tag does not mean "undocumented" (`WrTableFilter` and
  * `WrTableSort` carry it, and the table's page documents both — see
  * `extract-api.ts`).
  */
-export const INTERNAL_ENTRY_POINTS: ReadonlySet<string> = new Set(['charts/core', 'animations/core']);
+export const INTERNAL_ENTRY_POINTS: ReadonlySet<string> = new Set(['charts/core']);
 
 /**
  * The subpaths `@use 'ngwr/<name>'` resolves, sorted: every `exports` key with a

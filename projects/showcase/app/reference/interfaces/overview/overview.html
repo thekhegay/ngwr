@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Type conventions"
   description="How ngwr declares and exports its public types."
-  [keywords]="['types', 'interfaces', 'Maybe', 'SafeAny', 'conventions']"
+  [keywords]="['types', 'interfaces', 'WrMaybe', 'WrSafeAny', 'conventions']"
   [labels]="['Reference']"
 >
   <ngwr-doc-section title="Conventions">
@@ -20,7 +20,7 @@
           </tr>
           <tr>
             <th scope="row">A union or an alias is a <code>type</code>.</th>
-            <td><code>WrColor</code>, <code>Maybe&lt;T&gt;</code></td>
+            <td><code>WrColor</code>, <code>WrMaybe&lt;T&gt;</code></td>
           </tr>
           <tr>
             <th scope="row">Import a type from the entry point that uses it.</th>
@@ -28,7 +28,7 @@
           </tr>
           <tr>
             <th scope="row">Shared aliases live in <code>ngwr/utils</code>.</th>
-            <td><code>Maybe&lt;T&gt;</code>, <code>SafeAny</code>, <code>WrClassInput</code></td>
+            <td><code>WrMaybe&lt;T&gt;</code>, <code>WrSafeAny</code>, <code>WrClassInput</code></td>
           </tr>
         </tbody>
       </table>

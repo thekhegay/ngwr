@@ -23,9 +23,10 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { FRAME_FLOOR_SLACK, MAX_FRAME_MS } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, resolveCssColorChannels, watchColorScheme, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrResolveCssColorChannels, wrWatchColorScheme, wrCheckStyles } from 'ngwr/utils';
+
+import { FRAME_FLOOR_SLACK, MAX_FRAME_MS } from '../internal';
 
 import {
   AURORA_CONTEXT_ATTRIBUTES,
@@ -90,7 +91,7 @@ const FALLBACK_STOPS = ['#008800', '#3969e2', '#8a4fcf'] as const;
  * with `speed` at none only while the intro or the drift still moves.
  *
  * Colours come from the `--wr-aurora-color-1`, `-2` and `-3` hooks through
- * `resolveCssColorChannels`, re-read when the scheme changes; the surface is
+ * `wrResolveCssColorChannels`, re-read when the scheme changes; the surface is
  * read too, which decides between the wash and the light. Under
  * `prefers-reduced-motion: reduce` one still frame is drawn, whole and at
  * rest; under `forced-colors: active` nothing is; without WebGL nothing is;
@@ -109,19 +110,19 @@ export class WrAurora {
   /** The edge the curtain hangs from. @default 'top' */
   readonly edge = input<WrAuroraEdge>('top');
   /** How far into the region the curtain reaches, as a share of its height, from 0.1 to 1. @default 0.5 */
-  readonly height = input(0.5, { transform: numAttr(0.5) });
+  readonly height = input(0.5, { transform: wrNumAttr(0.5) });
   /** How far the free edge's wave moves it, a multiplier: one is about a quarter of the curtain's height; none is a straight edge. @default 1 */
-  readonly amplitude = input(1, { transform: numAttr(1) });
+  readonly amplitude = input(1, { transform: wrNumAttr(1) });
   /** The size of the shapes, a multiplier: one puts about a wave and a half across the width; more is broader. @default 1 */
-  readonly scale = input(1, { transform: numAttr(1) });
+  readonly scale = input(1, { transform: wrNumAttr(1) });
   /** How fast the wave, the rays and the hue move, a multiplier: none holds the curtain still. @default 1 */
-  readonly speed = input(1, { transform: numAttr(1) });
+  readonly speed = input(1, { transform: wrNumAttr(1) });
   /** How strong the light is, a multiplier on the wash's alpha and the glow. @default 1 */
-  readonly glow = input(1, { transform: numAttr(1) });
+  readonly glow = input(1, { transform: wrNumAttr(1) });
   /** How strongly the rays show, from none to one. @default 0.6 */
-  readonly rays = input(0.6, { transform: numAttr(0.6) });
+  readonly rays = input(0.6, { transform: wrNumAttr(0.6) });
   /** How many curtains hang at different depths, from one to three. @default 2 */
-  readonly layers = input(2, { transform: numAttr(2) });
+  readonly layers = input(2, { transform: wrNumAttr(2) });
   /** Whether the curtain fades and lengthens in when first on screen. @default false */
   readonly intro = input(false, { transform: booleanAttribute });
   /** Whether the curtain drifts gently toward the pointer over the parent. @default true */
@@ -228,7 +229,7 @@ export class WrAurora {
         this.sync();
       });
     });
-    watchColorScheme(() => {
+    wrWatchColorScheme(() => {
       this.resolveColors();
       this.still();
     });
@@ -372,10 +373,10 @@ export class WrAurora {
     if (!this.renderer) return;
     const canvas = this.canvasRef().nativeElement;
     FALLBACK_STOPS.forEach((fallback, i) => {
-      const rgb = resolveCssColorChannels(canvas, `var(--wr-aurora-color-${i + 1})`, fallback);
+      const rgb = wrResolveCssColorChannels(canvas, `var(--wr-aurora-color-${i + 1})`, fallback);
       this.frame.stops[i].set(auroraStop(rgb));
     });
-    const light = auroraLight(resolveCssColorChannels(canvas, 'var(--wr-color-surface)', '#ffffff'));
+    const light = auroraLight(wrResolveCssColorChannels(canvas, 'var(--wr-color-surface)', '#ffffff'));
     this.frame.light = light ? 1 : 0;
   }
 

@@ -5,12 +5,12 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { WrI18n } from './i18n';
 import { provideWrI18n, provideWrI18nStaticLoader } from './provide-wr-i18n';
-import { nullSignal, readI18nText, useI18nFormatter, useI18nText } from './util';
+import { nullSignal, wrReadI18nText, useI18nFormatter, useI18nText } from './util';
 
 /**
  * Both no-binding helpers on the SAME key, side by side.
  *
- * `readI18nText` used to return a plain `string`, resolved in this field
+ * `wrReadI18nText` used to return a plain `string`, resolved in this field
  * initializer — which runs during the first change-detection pass, and every
  * loader-backed catalog lands a microtask after it (`WrI18n.loadCatalog` goes
  * through `firstValueFrom(...).then(...)`, even for a static loader serving an
@@ -25,9 +25,9 @@ import { nullSignal, readI18nText, useI18nFormatter, useI18nText } from './util'
     ><span class="fmt">{{ fmt({ label: 'Ада' }) }}</span>`,
 })
 class Host {
-  protected readonly read = readI18nText('tree.expand', 'Expand');
+  protected readonly read = wrReadI18nText('tree.expand', 'Expand');
   protected readonly use = useI18nText(nullSignal(), 'tree.expand', 'Expand');
-  protected readonly missing = readI18nText('tree.nothingHere', 'Nothing here');
+  protected readonly missing = wrReadI18nText('tree.nothingHere', 'Nothing here');
   protected readonly fmt = useI18nFormatter('tree.removeItem', 'Remove {{label}}');
 }
 
@@ -36,7 +36,7 @@ const CATALOGS = {
   en: { tree: { expand: 'Expand', removeItem: 'Remove {{label}}' } },
 };
 
-describe('readI18nText', () => {
+describe('wrReadI18nText', () => {
   // `use()` persists the locale, and jsdom's localStorage outlives TestBed.
   beforeEach(() => localStorage.clear());
 

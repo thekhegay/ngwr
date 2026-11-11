@@ -7,7 +7,7 @@
 
 import { LOCALE_ID, type Signal, inject } from '@angular/core';
 
-import { clamp } from 'ngwr/utils';
+import { wrClamp } from 'ngwr/utils';
 
 import type { WrChartNumbers } from './types';
 
@@ -110,7 +110,7 @@ export function useChartNumbers<A extends readonly unknown[] = []>(
     // spurious precision. Down to the step's last digit, however fine — the six digits
     // `fractionDigits` stops at printed a 2.5e-7 step as `0.000013` twice, and called
     // a step below 1e-9 whole. A step with no last digit (a third) keeps those six.
-    const digits = last <= -21 ? fractionDigits(step) : clamp(-last, 0, 20);
+    const digits = last <= -21 ? fractionDigits(step) : wrClamp(-last, 0, 20);
     const full = new Intl.NumberFormat(locale, { maximumFractionDigits: digits });
     const plain = values.map(v => full.format(v));
     const compact = values.map(v =>
@@ -118,7 +118,7 @@ export function useChartNumbers<A extends readonly unknown[] = []>(
         ? full.format(0)
         : new Intl.NumberFormat(locale, {
             notation: 'compact',
-            maximumSignificantDigits: clamp(magnitude(v) - last + 1, 1, 21),
+            maximumSignificantDigits: wrClamp(magnitude(v) - last + 1, 1, 21),
           }).format(v)
     );
     const longest = (labels: readonly string[]): number => Math.max(...labels.map(text => text.length));
@@ -131,7 +131,7 @@ export function useChartNumbers<A extends readonly unknown[] = []>(
   const exact = (v: number, fractionDigits: number, ...args: A): string => {
     const custom = valueFormat();
     if (custom) return custom(v, ...args);
-    const digits = Number.isFinite(fractionDigits) ? clamp(Math.round(fractionDigits), 0, 20) : 3;
+    const digits = Number.isFinite(fractionDigits) ? wrClamp(Math.round(fractionDigits), 0, 20) : 3;
     let writer = exactNumbers.get(digits);
     if (!writer) {
       writer = new Intl.NumberFormat(locale, { maximumFractionDigits: digits });

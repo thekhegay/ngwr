@@ -170,6 +170,117 @@ describe('WrMeta', () => {
     });
   });
 
+  describe('titlePrefix', () => {
+    it('goes in front of the title, inside the template', () => {
+      const meta = setup({ titleTemplate: '{{ title }} · App' });
+      meta.set({ title: 'Lamps' });
+
+      meta.push({ titlePrefix: 'Edit lamp' });
+
+      expect(document.title).toBe('Edit lamp - Lamps · App');
+    });
+
+    it('joins with the separator the configuration carries', () => {
+      const meta = setup({ titleSeparator: ' · ' });
+      meta.set({ title: 'Lamps' });
+
+      meta.push({ titlePrefix: 'Edit lamp' });
+
+      expect(document.title).toBe('Edit lamp · Lamps');
+    });
+
+    it('gives the title back when its layer pops', () => {
+      const meta = setup();
+      meta.set({ title: 'Lamps' });
+
+      const handle = meta.push({ titlePrefix: 'Edit lamp' });
+      handle.pop();
+
+      expect(document.title).toBe('Lamps');
+    });
+
+    it('follows a title that changes under it, and pops to the new one', () => {
+      const meta = setup();
+      const page = meta.push({ title: 'Lamps' });
+      const prefix = meta.push({ titlePrefix: 'Edit lamp' });
+
+      page.pop();
+      meta.push({ title: 'Shifts' });
+      expect(document.title).toBe('Edit lamp - Shifts');
+
+      prefix.pop();
+      expect(document.title).toBe('Shifts');
+    });
+
+    it('lets the top prefix win and falls back to the one below', () => {
+      const meta = setup();
+      meta.set({ title: 'Lamps' });
+      meta.push({ titlePrefix: 'Edit lamp' });
+
+      const top = meta.push({ titlePrefix: 'Discard changes?' });
+      expect(document.title).toBe('Discard changes? - Lamps');
+
+      top.pop();
+      expect(document.title).toBe('Edit lamp - Lamps');
+    });
+
+    it('stays out of the titles a scraper reads', () => {
+      const meta = setup();
+      meta.set({ title: 'Lamps' });
+
+      meta.push({ titlePrefix: 'Edit lamp' });
+
+      expect(content(prop('og:title'))).toBe('Lamps');
+      expect(content(named('twitter:title'))).toBe('Lamps');
+    });
+
+    it('goes in front of a title somebody else owns, and puts that title back', () => {
+      document.title = 'Set by the router';
+      const meta = setup({ titleTemplate: '{{ title }} · App' });
+
+      const handle = meta.push({ titlePrefix: 'Edit lamp' });
+      // No template: the title it borrowed is already whole.
+      expect(document.title).toBe('Edit lamp - Set by the router');
+
+      handle.pop();
+      expect(document.title).toBe('Set by the router');
+    });
+
+    it('leaves a title alone that its owner changed meanwhile', () => {
+      // Putting back what was there at the start would undo a navigation.
+      document.title = 'Lamps';
+      const meta = setup();
+      const handle = meta.push({ titlePrefix: 'Edit lamp' });
+
+      document.title = 'Shifts';
+      handle.pop();
+
+      expect(document.title).toBe('Shifts');
+    });
+
+    it('borrows the title as it is now, not as it first found it', () => {
+      document.title = 'Lamps';
+      const meta = setup();
+      meta.push({ titlePrefix: 'Edit lamp' }).pop();
+
+      document.title = 'Shifts';
+      const handle = meta.push({ titlePrefix: 'Edit shift' });
+      expect(document.title).toBe('Edit shift - Shifts');
+
+      handle.pop();
+      expect(document.title).toBe('Shifts');
+    });
+
+    it('stands alone on a document with no title', () => {
+      document.title = '';
+      const meta = setup();
+
+      meta.push({ titlePrefix: 'Edit lamp' });
+
+      expect(document.title).toBe('Edit lamp');
+    });
+  });
+
   describe('description', () => {
     it('writes one description tag into the head', () => {
       setup().set({ description: 'Plans for every team.' });

@@ -4,7 +4,7 @@
 // `<wr-aurora />`: a curtain of light hanging from one edge of a section,
 // like an aurora, behind the section's content. The component paints one
 // WebGL canvas and reads its three stops and the surface back from the hooks
-// below through `resolveCssColorChannels`, so a retheme and a scheme switch
+// below through `wrResolveCssColorChannels`, so a retheme and a scheme switch
 // both reach the pixels. How bright it is, how far it reaches and how it
 // moves are inputs and the shader's numbers, not the sheet's.
 .wr-aurora {

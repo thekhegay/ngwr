@@ -14,7 +14,7 @@ import { EnvironmentInjector, Injector, PLATFORM_ID, Service, afterEveryRender, 
 
 import { WrI18n } from 'ngwr/i18n';
 import { WR_OVERLAY, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList } from 'ngwr/utils';
+import { wrToClassList } from 'ngwr/utils';
 
 import { drawerHasFocus, focusIsLost } from './drawer-focus';
 import { WrDrawerRef } from './drawer-ref';
@@ -78,7 +78,7 @@ export class WrDrawerManager {
 
     // The content component is attached straight into the overlay pane, so the
     // panel styles land on the pane rather than on an inner wrapper.
-    const panelClasses = toClassList(
+    const panelClasses = wrToClassList(
       'wr-drawer-overlay',
       `wr-drawer-overlay--${position}`,
       'wr-drawer__panel',
@@ -245,7 +245,7 @@ export class WrDrawerManager {
    * Resolved per open, not stored as a plain string at injection: this is a root
    * service, so a one-shot read — which is what `WrDialog` used to have, and moved
    * off for this reason — would run before an async catalog had loaded and then
-   * freeze that answer for the life of the app. (`readI18nText` hands back a signal
+   * freeze that answer for the life of the app. (`wrReadI18nText` hands back a signal
    * now, so it would no longer freeze; the name still has to be pushed onto the
    * button per open either way.) `WrDialog.closeLabel()` is the matching precedent,
    * not the counter-example.

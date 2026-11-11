@@ -82,3 +82,25 @@ describe('WrInputNumber stepper column height', () => {
     expect(step).toMatch(/overflow: hidden;/);
   });
 });
+
+/**
+ * A form field stretches the host, and the box the user sees is the group inside
+ * it: left at its content width it stopped short of a `wrInput` in the next field.
+ */
+describe('WrInputNumber group width', () => {
+  it('fills the host, so a stretched field is as wide as its neighbours', () => {
+    const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
+      compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+    };
+    const css = sass.compileString(`@use 'input-number/styles';`, {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    }).css;
+    const rule = (selector: string): string =>
+      new RegExp(`(?:^|\\n)${selector.replace(/[.>]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+
+    expect(rule('.wr-input-number > .wr-input-group')).toMatch(/width: 100%;/);
+    // The host still shrink-wraps on its own, where 100% is the content width again.
+    expect(rule('.wr-input-number')).toMatch(/display: inline-block;/);
+  });
+});

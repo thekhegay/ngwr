@@ -47,15 +47,15 @@
     "@angular/forms": "^22.2.0",
     "@angular/platform-browser": "^22.2.0",
     "@angular/router": "^22.2.0",
-    "rxjs": "^7.0.0",
+    "rxjs": "^7.8.2",
     "prosemirror-commands": "^1.7.2",
-    "prosemirror-history": "^1.5.0",
+    "prosemirror-history": "^1.5.1",
     "prosemirror-inputrules": "^1.5.1",
     "prosemirror-keymap": "^1.2.3",
-    "prosemirror-model": "^1.25.8",
-    "prosemirror-schema-list": "^1.5.1",
+    "prosemirror-model": "^1.25.13",
+    "prosemirror-schema-list": "^1.6.0",
     "prosemirror-state": "^1.4.4",
-    "prosemirror-view": "^1.42.3"
+    "prosemirror-view": "^1.42.9"
   },
   "peerDependenciesMeta": {
     "@angular/router": {
@@ -129,9 +129,6 @@
     "./animations/confetti": {
       "sass": "./animations/confetti/styles/_index.scss",
       "default": "./animations/confetti/public-api.ts"
-    },
-    "./animations/core": {
-      "default": "./animations/core/public-api.ts"
     },
     "./animations/decode": {
       "sass": "./animations/decode/styles/_index.scss",
@@ -434,6 +431,13 @@
     },
     "./cookie": {
       "default": "./cookie/public-api.ts"
+    },
+    "./copy-value": {
+      "sass": "./copy-value/styles/_index.scss",
+      "default": "./copy-value/public-api.ts"
+    },
+    "./copy-value/testing": {
+      "default": "./copy-value/testing/public-api.ts"
     },
     "./counter": {
       "sass": "./counter/styles/_index.scss",

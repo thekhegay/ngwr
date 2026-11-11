@@ -150,6 +150,11 @@ export const wrId: WrI18nCatalog = {
     copied: 'Tersalin',
     closeAll: 'Tutup semua',
   },
+  copyValue: {
+    copy: 'Salin',
+    copied: 'Tersalin',
+    empty: '-',
+  },
   input: {
     showPassword: 'Tampilkan kata sandi',
     hidePassword: 'Sembunyikan kata sandi',

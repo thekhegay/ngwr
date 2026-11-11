@@ -150,6 +150,11 @@ export const wrEs: WrI18nCatalog = {
     copied: 'Copiado',
     closeAll: 'Cerrar todas',
   },
+  copyValue: {
+    copy: 'Copiar',
+    copied: 'Copiado',
+    empty: '-',
+  },
   input: {
     showPassword: 'Mostrar contraseña',
     hidePassword: 'Ocultar contraseña',

@@ -24,6 +24,7 @@ import type { WrFeature } from 'ngwr/utils';
  * | `withStorage()` | `ngwr/storage` | the storage engine, key prefix, JSON envelope and TTL |
  * | `withMeta()` | `ngwr/meta` | `<head>` defaults for every route |
  * | `withWindows()` | `ngwr/window` | the work area every floating window keeps inside |
+ * | `withDialog()` | `ngwr/dialog` | dialog defaults: the tab title follows the open dialog |
  *
  * Icons and i18n stay calls of their own (`provideWrIcons()`, `provideWrI18n()`
  * and its loaders), because both chain: a route adds icons or catalog keys to

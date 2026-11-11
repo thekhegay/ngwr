@@ -8,9 +8,10 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, effect, inject, signal } from '@angular/core';
 
-import { FOCUSABLE, VIEW_THRESHOLD } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrCheckStyles } from 'ngwr/utils';
+
+import { FOCUSABLE, VIEW_THRESHOLD } from '../internal';
 
 import type { WrShimmerState } from './types';
 

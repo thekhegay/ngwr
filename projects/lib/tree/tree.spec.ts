@@ -1,6 +1,6 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { Component, signal, viewChild } from '@angular/core';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormField, form } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
@@ -10,7 +10,7 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTree } from './tree';
-import type { WrTreeNode, WrTreeSelectionMode } from './types';
+import type { WrTreeNode, WrTreeSelectionMode, WrTreeSize } from './types';
 
 @Component({
   imports: [WrTree],
@@ -67,6 +67,16 @@ class Host {
 class OverlayHost {
   readonly nodes = signal(NODES);
   readonly picked = signal<unknown>(undefined);
+}
+
+@Component({
+  imports: [WrTree],
+  template: `<wr-tree [openOn]="openOn()" [size]="size()" [nodes]="nodes" />`,
+})
+class SizeHost {
+  readonly nodes = NODES;
+  readonly openOn = signal<'inline' | 'overlay'>('overlay');
+  readonly size = signal<WrTreeSize>('md');
 }
 
 /**
@@ -1370,5 +1380,163 @@ describe('WrTree focused by its bound field', () => {
     expect(document.activeElement).toBe(trigger);
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     expect(document.querySelector('.wr-tree-panel')).toBeNull();
+  });
+});
+
+describe('WrTree trigger size', () => {
+  let fixture: ComponentFixture<SizeHost>;
+  const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-tree')!;
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(SizeHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('carries no size modifier at md', () => {
+    expect(host().className).not.toMatch(/wr-tree--(sm|md|lg)/);
+  });
+
+  it.each(['sm', 'lg'] as const)('puts size %s on the host, where the trigger reads it', size => {
+    fixture.componentInstance.size.set(size);
+    fixture.detectChanges();
+
+    expect(host().classList).toContain(`wr-tree--${size}`);
+    expect(host().querySelector('.wr-tree__trigger')).not.toBeNull();
+  });
+
+  it('sizes nothing inline, where there is no trigger', () => {
+    fixture.componentInstance.openOn.set('inline');
+    fixture.componentInstance.size.set('lg');
+    fixture.detectChanges();
+
+    expect(host().className).not.toMatch(/wr-tree--(sm|lg)/);
+  });
+});
+
+describe('WrTree open and close from code', () => {
+  @Component({
+    imports: [WrTree],
+    template: `<wr-tree
+      openOn="overlay"
+      ariaLabel="File"
+      [nodes]="nodes"
+      [disabled]="disabled()"
+      [readonly]="readonly()"
+      (opened)="opened.update(n => n + 1)"
+      (closed)="closed.update(n => n + 1)"
+    />`,
+  })
+  class ApiHost {
+    readonly control = viewChild.required(WrTree);
+    readonly disabled = signal(false);
+    readonly readonly = signal(false);
+    readonly opened = signal(0);
+    readonly closed = signal(0);
+    readonly nodes = NODES;
+  }
+
+  let fixture: ComponentFixture<ApiHost>;
+
+  const host = (): ApiHost => fixture.componentInstance;
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-tree__trigger')!;
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-tree-panel');
+  const counts = (): [number, number] => [host().opened(), host().closed()];
+  const settle = async (): Promise<void> => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(ApiHost);
+    await settle();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('opens on open() and emits opened once', async () => {
+    host().control().open();
+    await settle();
+
+    expect(panel()).not.toBeNull();
+    expect(trigger().getAttribute('aria-expanded')).toBe('true');
+    expect(counts()).toEqual([1, 0]);
+  });
+
+  it('emits nothing for an open() while open or a close() while closed', async () => {
+    host().control().close();
+    await settle();
+    expect(counts()).toEqual([0, 0]);
+
+    host().control().open();
+    await settle();
+    host().control().open();
+    await settle();
+    expect(counts()).toEqual([1, 0]);
+  });
+
+  it('closes on close() and emits closed once', async () => {
+    host().control().open();
+    await settle();
+    host().control().close();
+    await settle();
+
+    expect(panel()).toBeNull();
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    expect(counts()).toEqual([1, 1]);
+  });
+
+  it('emits for a click on the trigger and for Escape', async () => {
+    trigger().click();
+    await settle();
+    expect(counts()).toEqual([1, 0]);
+
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    await settle();
+    expect(panel()).toBeNull();
+    expect(counts()).toEqual([1, 1]);
+  });
+
+  it('refuses open() while disabled', async () => {
+    host().disabled.set(true);
+    await settle();
+    host().control().open();
+    await settle();
+
+    expect(panel()).toBeNull();
+    expect(counts()).toEqual([0, 0]);
+  });
+
+  it('refuses open() while readonly', async () => {
+    host().readonly.set(true);
+    await settle();
+    host().control().open();
+    await settle();
+
+    expect(panel()).toBeNull();
+    expect(counts()).toEqual([0, 0]);
+  });
+
+  it('emits closed when the control is disabled under an open panel', async () => {
+    host().control().open();
+    await settle();
+    host().disabled.set(true);
+    await settle();
+
+    expect(panel()).toBeNull();
+    expect(counts()).toEqual([1, 1]);
+  });
+
+  it('does not emit from a host destroyed while open', async () => {
+    host().control().open();
+    await settle();
+    const before = host();
+    fixture.destroy();
+
+    expect(panel()).toBeNull();
+    expect([before.opened(), before.closed()]).toEqual([1, 0]);
   });
 });

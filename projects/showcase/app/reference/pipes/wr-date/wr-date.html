@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="wrDate"
-  updated="15.4.0"
+  updated="16.0.0"
   description="Format a date with a named preset or a token string."
   [keywords]="['pipe', 'wrDate', 'date', 'format', 'intl']"
   [labels]="['Pipe']"
@@ -76,6 +76,56 @@
     description="`wrFormatDate` gives the same text for a row built in code. It takes the adapter, not a locale: the output is the adapter's."
   >
     <ngwr-doc-code [code]="snippets.fn" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Dates from a backend"
+    description="`wrParseDate` from `ngwr/date` turns what an API sends into a `Date`, or `null`. Never an Invalid Date. A plain function: no adapter, no injection context. The pipe and `wrFormatDate` read a string the same way."
+  >
+    <ngwr-doc-code [code]="snippets.parse" language="typescript" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Value</th>
+            <th>Read as</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>2026-03-01 14:30:00</code></th>
+            <td>
+              Local time, in every browser: Safari refuses the space on its own. Seconds, a fraction and a zone
+              (<code>Z</code>, <code>+05</code>, <code>+05:00</code>) are optional.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>2026-03-01</code></th>
+            <td>That day at local midnight, not UTC midnight.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>2026-03-01T14:30:00</code></th>
+            <td>Local time.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>2026-03-01T09:30:00Z</code>, <code>…+05:00</code></th>
+            <td>The instant it names.</td>
+          </tr>
+          <tr>
+            <th scope="row">A number</th>
+            <td>Epoch milliseconds.</td>
+          </tr>
+          <tr>
+            <th scope="row">A <code>Date</code></th>
+            <td>Itself, the same object.</td>
+          </tr>
+          <tr>
+            <th scope="row">Empty, blank, <code>null</code>, not a date</th>
+            <td><code>null</code>, an Invalid Date and a non-finite number included.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

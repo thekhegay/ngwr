@@ -20,7 +20,7 @@ import {
 } from '@angular/core';
 
 import { WrI18n, useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 import { WrGraphNodeTemplate } from './graph-node-template';
 import { WrLayeredGraphLayout } from './internal/layout/layered-layout';
@@ -42,7 +42,7 @@ const ARROW_SIZE = 6;
 /**
  * Instance counter for the arrowhead marker id. Several graphs share one page
  * under `ViewEncapsulation.None`, so the id has to be per instance — and
- * counted rather than `randomId()`, so the prerendered id is the one the
+ * counted rather than `wrRandomId()`, so the prerendered id is the one the
  * browser renders again.
  */
 let graphUid = 0;
@@ -257,14 +257,14 @@ export class WrGraph<TData = unknown> {
    *
    * @default 160
    */
-  readonly nodeWidth = input(160, { transform: numAttr(160) });
+  readonly nodeWidth = input(160, { transform: wrNumAttr(160) });
 
   /**
    * Height in pixels of a node that sets none of its own.
    *
    * @default 48
    */
-  readonly nodeHeight = input(48, { transform: numAttr(48) });
+  readonly nodeHeight = input(48, { transform: wrNumAttr(48) });
 
   /** Accessible name of the scrolling viewport. Falls back to `graph.label`, then `'Graph'`. */
   readonly ariaLabel = input<string | null>(null);

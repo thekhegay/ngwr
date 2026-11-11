@@ -8,7 +8,7 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, inject } from '@angular/core';
 
-import { type WrPointerFollower, WrPointerTracker } from 'ngwr/animations/core';
+import { type WrPointerFollower, WrPointerTracker } from '../internal';
 
 /**
  * The most the card leans, in degrees, reached with the pointer at an edge.

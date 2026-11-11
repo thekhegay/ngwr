@@ -57,7 +57,7 @@ export class SvgSetBrowser {
 
   protected readonly snippet = computed(() => this.spec().snippetFor);
 
-  protected readonly labels = computed(() => ['Icons', 'svgIcon()', this.spec().license]);
+  protected readonly labels = computed(() => ['Icons', 'wrSvgIcon()', this.spec().license]);
 
   protected readonly keywords = computed(() => ['icons', this.spec().title.toLowerCase()]);
 }

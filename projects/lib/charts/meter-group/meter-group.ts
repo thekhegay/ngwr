@@ -9,7 +9,7 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, type ElementRef, ViewEncapsulation, computed, input, model, viewChildren } from '@angular/core';
 
 import { WR_CHART_LEGEND_BLOCK, WrChartLegend, type WrChartLegendItem } from 'ngwr/charts/chart-legend';
-import { chartColor, useChartNumbers } from 'ngwr/charts/core';
+import { wrChartColor, useChartNumbers } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
@@ -170,7 +170,7 @@ export class WrMeterGroup {
       // The legend keeps a negative value visible — it is data the caller gave
       // us — but not a non-finite one, which reads as the literal text `NaN`.
       text: this.numbers.value(Number.isFinite(segment.value) ? segment.value : 0),
-      color: segment.color ?? chartColor(i),
+      color: segment.color ?? wrChartColor(i),
       hidden: hidden.has(i),
       percent: hidden.has(i) ? 0 : (WrMeterGroup.amount(segment.value) / max) * 100,
     }));

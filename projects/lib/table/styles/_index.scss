@@ -60,6 +60,15 @@
   --wr-table-foot-cell-font-weight: var(--wr-font-weight-semibold);
   --wr-table-empty-padding: var(--wr-space-xl);
   --wr-table-pager-padding: var(--wr-space-sm) var(--wr-space-md);
+  // The scroll area of a `stickyHeader` or virtualized table. The component
+  // writes `viewportHeight` to `-scroll-height`, and the measured header and
+  // footer heights to the two below it, inline on `.wr-table__scroll`; these
+  // are what holds before that. `-scroll-min-height` is the floor of a table
+  // that fills its parent.
+  --wr-table-scroll-height: 30rem;
+  --wr-table-scroll-min-height: 16rem;
+  --wr-table-head-height: 2.5rem;
+  --wr-table-foot-height: 0px;
 
   // Card mode (`--responsive` inside its own container query). Declared on the
   // BASE rather than down in the `@container` block, because a custom property
@@ -406,32 +415,46 @@
     background-image: linear-gradient(var(--wr-table-row-hover), var(--wr-table-row-hover));
   }
 
-  // Separating shadow on the inner edge of each pinned group. `box-shadow` has
-  // no logical form — its offset is always physical — while the cell it belongs
-  // to is anchored by `[style.inset-inline-start.px]` / `[style.inset-inline-end.px]`
-  // in table.html, written from `leftPin()` / `rightPin()`. The shadow leans the
-  // way the offset pins, so the sign has to be set per direction by hand.
+  // Separating shadow on the inner edge of each pinned group, cast only over
+  // columns hidden behind it: the component puts `--overflow-start` on the host
+  // while the table is scrolled away from its start, and `--overflow-end` while
+  // more of it lies past the end. A table that fits draws neither.
+  //
+  // `box-shadow` has no logical form — its offset is always physical — while
+  // the cell it belongs to is anchored by `[style.inset-inline-start.px]` /
+  // `[style.inset-inline-end.px]` in table.html, written from `leftPin()` /
+  // `rightPin()`. The shadow leans the way the offset pins, so the sign has to
+  // be set per direction by hand.
   &__th--pin-edge-left,
-  &__td--pin-edge-left {
+  &__td--pin-edge-left,
+  &__th--pin-edge-right,
+  &__td--pin-edge-right {
+    transition: box-shadow var(--wr-transition-base);
+  }
+
+  &--overflow-start &__th--pin-edge-left,
+  &--overflow-start &__td--pin-edge-left {
     box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
-  &__th--pin-edge-right,
-  &__td--pin-edge-right {
+  &--overflow-end &__th--pin-edge-right,
+  &--overflow-end &__td--pin-edge-right {
     box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
     // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
   }
 
   // Under `dir="rtl"` the start-pinned group sits at the physical right and the
   // end-pinned group at the physical left, so both shadows point the other way.
-  [dir='rtl'] &__th--pin-edge-left,
+  // `:where()` keeps the specificity of the pair above, so card mode's
+  // `box-shadow: none` still wins by order.
+  :where([dir='rtl']) &--overflow-start &__th--pin-edge-left,
     // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
-  [dir='rtl'] &__td--pin-edge-left {
+  :where([dir='rtl']) &--overflow-start &__td--pin-edge-left {
     box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
-  [dir='rtl'] &__th--pin-edge-right,
-  [dir='rtl'] &__td--pin-edge-right {
+  :where([dir='rtl']) &--overflow-end &__th--pin-edge-right,
+  :where([dir='rtl']) &--overflow-end &__td--pin-edge-right {
     box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
     // rtl-ok: this IS the RTL sign for the rule above
   }
@@ -729,14 +752,24 @@
   }
 }
 
-// --- Virtualized body -------------------------------------------------------
-// Scoped under the host `--virtual` class, so a non-virtual table is untouched.
-.wr-table--virtual {
+// --- Own scroll area --------------------------------------------------------
+// Scoped under the host `--sticky-head` class (`stickyHeader`, or a virtualized
+// body), so a table without either is untouched.
+.wr-table--sticky-head {
   // One dual-axis scroll container: keep overflow-x (pins), add overflow-y.
-  // `max-height` is set inline from `viewportHeight`.
   .wr-table__scroll {
     overflow-y: auto;
     overscroll-behavior: contain;
+    max-height: var(--wr-table-scroll-height);
+    // A row focused or scrolled into view stops clear of the sticky edges.
+    scroll-padding-block-start: var(--wr-table-head-height);
+    scroll-padding-block-end: var(--wr-table-foot-height);
+  }
+
+  // Inset, as on a tree row: the host is `overflow: hidden`.
+  .wr-table__scroll:focus-visible {
+    @include theme.focus-ring;
+    outline-offset: -2px;
   }
 
   // Sticky header. Plain (non-pinned) cells need an OPAQUE base or scrolled body
@@ -759,19 +792,6 @@
     z-index: 3;
   }
 
-  // Uniform row height (fixed layout is already forced → cells truncate via the
-  // existing `--fixed` rules). `height` is a MINIMUM, not a clamp — see the
-  // rowHeight contract on the component.
-  .wr-table__tr {
-    height: var(--wr-table-row-h);
-  }
-
-  // Height-only reserved rows contribute nothing to columns or borders.
-  .wr-table__spacer > td {
-    padding: 0;
-    border: 0;
-  }
-
   // Grand footer pinned to the viewport bottom; plain cells get the opaque base.
   tfoot .wr-table__foot-cell {
     position: sticky;
@@ -792,6 +812,42 @@
   // The loading overlay must outrank the new z-3 corner-sticky header/footer.
   .wr-table__loading {
     z-index: 4;
+  }
+}
+
+// `viewportHeight="fill"`: the table takes the height its parent has left, and
+// the rows scroll in what the pager leaves of it. A flex-column parent shrinks
+// the host; `max-height` does it under a block parent with a definite height.
+.wr-table--fill {
+  display: flex;
+  flex-direction: column;
+  min-height: var(--wr-table-scroll-min-height);
+  max-height: 100%;
+
+  .wr-table__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .wr-table__pager {
+    flex: none;
+  }
+}
+
+// --- Virtualized body -------------------------------------------------------
+.wr-table--virtual {
+  // Uniform row height (fixed layout is already forced → cells truncate via the
+  // existing `--fixed` rules). `height` is a MINIMUM, not a clamp — see the
+  // rowHeight contract on the component.
+  .wr-table__tr {
+    height: var(--wr-table-row-h);
+  }
+
+  // Height-only reserved rows contribute nothing to columns or borders.
+  .wr-table__spacer > td {
+    padding: 0;
+    border: 0;
   }
 }
 

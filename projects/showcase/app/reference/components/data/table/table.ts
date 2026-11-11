@@ -11,6 +11,7 @@ import {
   type WrTableColumns,
   type WrTableFilterChange,
   type WrTableSortState,
+  wrSortRows,
 } from 'ngwr/table';
 
 import {
@@ -52,31 +53,6 @@ const RAW_ROWS: readonly Row[] = [
   { name: 'Cara', email: 'cara@example.com', role: 'editor' },
   { name: 'Diego', email: 'diego@example.com', role: 'viewer' },
 ];
-
-/**
- * The comparator every sorting demo on this page needs — the table writes
- * `sort` and never reorders `items`, so applying it is the host's job.
- */
-function sortRows(
-  rows: readonly Record<string, unknown>[],
-  rules: readonly WrTableSortState[]
-): readonly Record<string, unknown>[] {
-  if (rules.length === 0) return rows;
-
-  const text = (row: Record<string, unknown>, key: string): string => {
-    const value = row[key];
-    return typeof value === 'string' || typeof value === 'number' ? String(value) : '';
-  };
-
-  return [...rows].sort((a, b) => {
-    for (const { key, direction } of rules) {
-      if (!direction) continue;
-      const cmp = text(a, key).localeCompare(text(b, key));
-      if (cmp !== 0) return direction === 'asc' ? cmp : -cmp;
-    }
-    return 0;
-  });
-}
 
 // Large dataset for the virtual-scroll demo — 10k rows the DOM never fully holds.
 const VIRTUAL_ROWS: readonly Record<string, unknown>[] = Array.from({ length: 10_000 }, (_, i) => ({
@@ -192,7 +168,7 @@ export default class TablePageComponent {
 
   protected readonly visibleRows = computed<readonly Record<string, unknown>[]>(() => {
     const roles = this.roleFilter();
-    return sortRows(roles.length === 0 ? [...RAW_ROWS] : RAW_ROWS.filter(r => roles.includes(r.role)), this.sort());
+    return wrSortRows(roles.length === 0 ? [...RAW_ROWS] : RAW_ROWS.filter(r => roles.includes(r.role)), this.sort());
   });
 
   // One column with both a sort and a filter.
@@ -214,7 +190,7 @@ export default class TablePageComponent {
   protected readonly bothRoleFilter = signal<readonly string[]>([]);
 
   protected readonly bothRows = computed<readonly Record<string, unknown>[]>(() =>
-    sortRows(
+    wrSortRows(
       this.bothRoleFilter().length === 0 ? [...RAW_ROWS] : RAW_ROWS.filter(r => this.bothRoleFilter().includes(r.role)),
       this.bothSort()
     )
@@ -229,6 +205,7 @@ export default class TablePageComponent {
   protected readonly paginatedRows = PAGINATED_ROWS;
   protected readonly page = signal(1);
   protected readonly pageSize = signal(5);
+  protected readonly stickyPage = signal(1);
 
   // Row-actions demo. A column key with no data behind it (`actions`) plus a
   // cell template that reads `let-row="item"` — the pair a "Delete" button needs.
@@ -265,6 +242,7 @@ export default class TablePageComponent {
   };
 
   protected readonly selected = signal<readonly unknown[]>([]);
+  protected readonly selectedAcross = signal<readonly unknown[]>([]);
   protected readonly expanded = signal<readonly unknown[]>([]);
 
   protected readonly summaryRows: readonly Record<string, unknown>[] = [
@@ -396,19 +374,12 @@ const columns: WrTableColumns<Invoice> = {
 />`,
     sortState: `protected readonly sort = signal<readonly WrTableSortState[]>([]);
 
-protected readonly rows = computed(() => {
-  const rules = this.sort();
-  if (rules.length === 0) return this.source();
+protected readonly rows = computed(() => wrSortRows(this.source(), this.sort()));
 
-  return [...this.source()].sort((a, b) => {
-    for (const { key, direction } of rules) {
-      if (!direction) continue;
-      const cmp = String(a[key] ?? '').localeCompare(String(b[key] ?? ''));
-      if (cmp !== 0) return direction === 'asc' ? cmp : -cmp;
-    }
-    return 0;
-  });
-});
+// A key that is not a field of the row goes through an accessor.
+protected readonly byTotal = computed(() =>
+  wrSortRows(this.source(), this.sort(), (row, key) => (key === 'total' ? row.price * row.qty : wrReadField(row, key)))
+);
 
 // Server-side, send it with the request instead.
 effect(() => {
@@ -444,6 +415,15 @@ effect(() => {
     selection: `<wr-table
   rowSelection="multiple"
   rowKey="email"
+  [(selection)]="selected"
+  [columns]="columns"
+  [items]="rows"
+/>`,
+    selectAllScope: `<wr-table
+  rowSelection="multiple"
+  selectAllScope="all"
+  rowKey="email"
+  [pageSize]="5"
   [(selection)]="selected"
   [columns]="columns"
   [items]="rows"
@@ -493,6 +473,18 @@ const columns: WrTableColumns = {
     <small>{{ count }} users</small>
   </ng-template>
 </wr-table>`,
+    sticky: `<wr-table
+  stickyHeader
+  [viewportHeight]="320"
+  [columns]="columns"
+  [items]="rows"
+  [pageSize]="10"
+  [(page)]="page"
+/>`,
+    stickyFill: `<section style="display: flex; flex-direction: column; height: 100dvh">
+  <header>…</header>
+  <wr-table stickyHeader viewportHeight="fill" [columns]="columns" [items]="rows" [pageSize]="50" />
+</section>`,
     virtual: `<wr-table
   virtualScroll
   [rowHeight]="41"
@@ -596,6 +588,23 @@ const columns: WrTableColumns = {
     },
   ];
 
+  protected readonly helpersApi: readonly DocApiRow[] = [
+    {
+      name: 'wrSortRows(rows, sort, accessor?)',
+      description:
+        'Rows sorted by the sort state: the first entry decides, later ones break ties, a null direction is skipped. Returns `rows` itself when nothing sorts, a copy otherwise. Stable.',
+      type: '<T>(rows: readonly T[], sort: readonly WrTableSortState[], accessor?: WrTableSortAccessor<T>) => readonly T[]',
+      default: '-',
+    },
+    {
+      name: 'wrReadField(item, key)',
+      description:
+        "The default accessor. null, undefined, '' and an invalid Date read as ''; a number, a numeric string, a boolean (0 or 1) and a Date (its timestamp) read as a number; anything else as String(value).",
+      type: '<T>(item: T, key: string) => string | number',
+      default: '-',
+    },
+  ];
+
   protected readonly filterApi = API.WrTableFilter;
 
   protected readonly sortApi = API.WrTableSort;
@@ -632,6 +641,8 @@ interface WrTableSortState {
   key: string;
   direction: 'asc' | 'desc' | null;
 }
+
+type WrTableSortAccessor<T> = (item: T, key: string) => string | number;
 
 interface WrTableCsvOptions {
   filename?: string;
@@ -726,6 +737,11 @@ type WrTableSummaryContext =
       name: 'WrTableSortState',
       description: 'Emitted by (sortChange).',
       type: '{ key: string; direction: WrTableSortDirection }',
+    },
+    {
+      name: 'WrTableSortAccessor',
+      description: 'Third argument of wrSortRows(): the value a key sorts by.',
+      type: '(item: T, key: string) => string | number',
     },
     { name: 'WrTableCsvOptions', description: 'Argument of exportCsv() / toCsv().', type: 'interface' },
     { name: 'filename', description: 'Download filename.', type: 'string', default: "'table.csv'", sub: true },

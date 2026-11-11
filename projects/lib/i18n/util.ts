@@ -63,7 +63,7 @@ export function useI18nText(binding: Signal<string | null | undefined>, key: str
  * `<wr-date-picker>` the field said "Открыть календарь" and the calendar
  * button beside it "Open calendar", off the same key.
  */
-export function readI18nText(key: string, fallback: string): Signal<string> {
+export function wrReadI18nText(key: string, fallback: string): Signal<string> {
   const i18n = inject(WrI18n, { optional: true });
   if (!i18n) return computed(() => fallback);
 
@@ -91,7 +91,7 @@ export function nullSignal(): Signal<null> {
  *   key is missing.
  *
  * Use this for labels that vary per row. For static labels, prefer
- * {@link useI18nText} or {@link readI18nText}.
+ * {@link useI18nText} or {@link wrReadI18nText}.
  *
  * @example
  * ```ts

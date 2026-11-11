@@ -99,8 +99,9 @@ map, a bound attribute, a version that is not `major.minor.patch`, or an
 before `Updated`, on the sidebar and the cluster index pages alike. A removed
 entry point has no page: its page, route, nav row and `RELATED` entries are
 deleted with it, and `/docs/migration` says what replaced it. A MOVED one keeps
-a redirect (`drag-drop`, `/animations/*`, the chart slugs), and its new page
-declares `updated`.
+a redirect (`drag-drop`, `/animations/*`, the chart slugs, the util slugs v16
+prefixed, from `/reference/utils/clamp` to `/reference/utils/wr-clamp`), and its
+new page declares `updated`.
 
 **Claims the site prints.** v15 deleted the comparison, quality and playground
 pages: `/start/comparison`, `/start/quality` and `/start/playground` redirect to

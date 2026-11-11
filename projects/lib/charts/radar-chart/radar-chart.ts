@@ -27,14 +27,14 @@ import {
   type WrChartAxis,
   WrChartTable,
   type WrChartTableData,
-  chartAxis,
-  chartColor,
-  chartDash,
+  wrChartAxis,
+  wrChartColor,
+  wrChartDash,
   useChartNumbers,
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
-import { clamp, round, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrRound, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrRadarSeries, WrRadarVariant } from './types';
 
@@ -328,7 +328,7 @@ export class WrRadarChart {
   readonly rings = input(4, {
     transform: (v: unknown): number => {
       const value = Math.round(coerceNumberProperty(v, 4));
-      return Number.isFinite(value) ? clamp(value, 1, 10) : 4;
+      return Number.isFinite(value) ? wrClamp(value, 1, 10) : 4;
     },
   });
 
@@ -495,8 +495,8 @@ export class WrRadarChart {
     return this.series().map((s, index) => ({
       index,
       label: s.label,
-      color: s.color ?? chartColor(index),
-      dash: chartDash(index),
+      color: s.color ?? wrChartColor(index),
+      dash: wrChartDash(index),
       values: Array.from({ length: count }, (_, a): number | null => {
         const value = s.data[a];
         return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -512,7 +512,7 @@ export class WrRadarChart {
 
   /**
    * The scale from the centre to the outer ring. A fixed `max` runs from zero, its rings
-   * on the readable step that divides it (`fixedStep`). Otherwise it is `chartAxis` over
+   * on the readable step that divides it (`fixedStep`). Otherwise it is `wrChartAxis` over
    * the series shown, including zero: the centre is zero unless a value is negative, and
    * then the scale's own minimum, which a radar shows as a smaller polygon rather than as
    * anything below a baseline — readable, and worth a fixed `max` where negative values
@@ -526,16 +526,18 @@ export class WrRadarChart {
     if (explicit > 0) {
       const step = fixedStep(explicit, rings);
       const count = Math.round(explicit / step);
-      const ticks = Array.from({ length: count + 1 }, (_, i) => round(explicit - i * step, 6));
+      const ticks = Array.from({ length: count + 1 }, (_, i) => wrRound(explicit - i * step, 6));
       return { min: 0, max: explicit, step, ticks };
     }
     const values = this.visibleSeries().flatMap(s => s.values.filter((v): v is number => v !== null));
-    if (values.length === 0) return chartAxis(Number.NaN, Number.NaN);
+    if (values.length === 0) return wrChartAxis(Number.NaN, Number.NaN);
     const peak = Math.max(...values);
     if (this.polar()) {
-      return peak > 0 ? chartAxis(0, peak, { includeZero: true, tickCount: rings }) : chartAxis(Number.NaN, Number.NaN);
+      return peak > 0
+        ? wrChartAxis(0, peak, { includeZero: true, tickCount: rings })
+        : wrChartAxis(Number.NaN, Number.NaN);
     }
-    return chartAxis(Math.min(...values), peak, { includeZero: true, tickCount: rings });
+    return wrChartAxis(Math.min(...values), peak, { includeZero: true, tickCount: rings });
   });
 
   /**
@@ -548,7 +550,7 @@ export class WrRadarChart {
    */
   private radius(value: number): number {
     const { min, max } = this.scale();
-    const share = clamp((value - min) / (max - min), 0, 1);
+    const share = wrClamp((value - min) / (max - min), 0, 1);
     return RADIUS * (this.polar() ? Math.sqrt(share) : share);
   }
 

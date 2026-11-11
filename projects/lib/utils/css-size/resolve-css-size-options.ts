@@ -6,9 +6,9 @@
  */
 
 /**
- * Options for {@link resolveCssSize}.
+ * Options for {@link wrResolveCssSize}.
  */
-export interface ResolveCssSizeOptions {
+export interface WrResolveCssSizeOptions {
   /**
    * Fallback value used when the raw input is `null` or `undefined`.
    *

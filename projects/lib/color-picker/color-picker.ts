@@ -25,18 +25,18 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
-import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
+import { wrReadI18nText, useI18nFormatter } from 'ngwr/i18n';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
-import { clamp, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 import {
   formatColor,
-  hsvToRgb,
+  wrHsvToRgb,
   parseColor,
-  parseHex,
-  rgbToHsl,
-  rgbToHsv,
-  toHex,
+  wrParseHex,
+  wrRgbToHsl,
+  wrRgbToHsv,
+  wrToHex,
   type WrHsl,
   type WrRgb,
 } from './color';
@@ -166,10 +166,10 @@ export class WrColorPicker implements FormValueControl<string> {
   // Derived values
 
   /** RGB view of the current colour, computed lazily. */
-  protected readonly rgb = computed<WrRgb>(() => hsvToRgb({ h: this.h(), s: this.s(), v: this.v(), a: this.a() }));
+  protected readonly rgb = computed<WrRgb>(() => wrHsvToRgb({ h: this.h(), s: this.s(), v: this.v(), a: this.a() }));
 
   /** Canonical hex — what the HEX field shows, whatever `format` emits. */
-  protected readonly hex = computed(() => toHex(this.rgb(), this.alpha()));
+  protected readonly hex = computed(() => wrToHex(this.rgb(), this.alpha()));
 
   /** The colour as the consumer asked for it; this is what `value` receives. */
   protected readonly formatted = computed(() => formatColor(this.rgb(), this.format(), this.alpha()));
@@ -228,7 +228,7 @@ export class WrColorPicker implements FormValueControl<string> {
     const typed = this.typedHsl();
     if (typed?.value === this.value()) return typed.hsl;
     // The hue the surfaces hold, not the one RGB reports — which is 0 at every grey.
-    return { ...rgbToHsl(this.rgb()), h: this.h() };
+    return { ...wrRgbToHsl(this.rgb()), h: this.h() };
   });
 
   /** Alpha as integer percent — the numeric tabs and the alpha slider's `aria-valuenow`. */
@@ -247,8 +247,8 @@ export class WrColorPicker implements FormValueControl<string> {
     this.areaLabel({ saturation: Math.round(this.s() * 100), brightness: Math.round(this.v() * 100) })
   );
 
-  protected readonly resolvedHueLabel = readI18nText('colorPicker.hue', 'Hue');
-  protected readonly resolvedAlphaLabel = readI18nText('colorPicker.alpha', 'Opacity');
+  protected readonly resolvedHueLabel = wrReadI18nText('colorPicker.hue', 'Hue');
+  protected readonly resolvedAlphaLabel = wrReadI18nText('colorPicker.alpha', 'Opacity');
 
   /**
    * Every visible word in this component that is not a slider name.
@@ -264,18 +264,18 @@ export class WrColorPicker implements FormValueControl<string> {
    * Signals, not strings: they follow a locale switch, and a catalog that lands
    * a microtask after the first change-detection pass.
    */
-  protected readonly channelHexLabel = readI18nText('colorPicker.channelHex', 'HEX');
-  protected readonly channelRedLabel = readI18nText('colorPicker.channelRed', 'R');
-  protected readonly channelGreenLabel = readI18nText('colorPicker.channelGreen', 'G');
-  protected readonly channelBlueLabel = readI18nText('colorPicker.channelBlue', 'B');
-  protected readonly channelHueLabel = readI18nText('colorPicker.channelHue', 'H');
-  protected readonly channelSaturationLabel = readI18nText('colorPicker.channelSaturation', 'S%');
-  protected readonly channelLightnessLabel = readI18nText('colorPicker.channelLightness', 'L%');
-  protected readonly channelAlphaLabel = readI18nText('colorPicker.channelAlpha', 'A%');
+  protected readonly channelHexLabel = wrReadI18nText('colorPicker.channelHex', 'HEX');
+  protected readonly channelRedLabel = wrReadI18nText('colorPicker.channelRed', 'R');
+  protected readonly channelGreenLabel = wrReadI18nText('colorPicker.channelGreen', 'G');
+  protected readonly channelBlueLabel = wrReadI18nText('colorPicker.channelBlue', 'B');
+  protected readonly channelHueLabel = wrReadI18nText('colorPicker.channelHue', 'H');
+  protected readonly channelSaturationLabel = wrReadI18nText('colorPicker.channelSaturation', 'S%');
+  protected readonly channelLightnessLabel = wrReadI18nText('colorPicker.channelLightness', 'L%');
+  protected readonly channelAlphaLabel = wrReadI18nText('colorPicker.channelAlpha', 'A%');
 
-  private readonly formatHexLabel = readI18nText('colorPicker.formatHex', 'HEX');
-  private readonly formatRgbLabel = readI18nText('colorPicker.formatRgb', 'RGB');
-  private readonly formatHslLabel = readI18nText('colorPicker.formatHsl', 'HSL');
+  private readonly formatHexLabel = wrReadI18nText('colorPicker.formatHex', 'HEX');
+  private readonly formatRgbLabel = wrReadI18nText('colorPicker.formatRgb', 'RGB');
+  private readonly formatHslLabel = wrReadI18nText('colorPicker.formatHsl', 'HSL');
 
   /** A `computed`, because `WrSegmentedOption.label` is a plain string. */
   protected readonly tabOptions = computed<readonly WrSegmentedOption<Tab>[]>(() => [
@@ -321,12 +321,12 @@ export class WrColorPicker implements FormValueControl<string> {
         return;
       }
       const rgb = parseColor(value) ?? { r: 0, g: 0, b: 0, a: 1 };
-      const hsv = rgbToHsv(rgb);
+      const hsv = wrRgbToHsv(rgb);
       this.h.set(hsv.h);
       this.s.set(hsv.s);
       this.v.set(hsv.v);
       this.a.set(hsv.a);
-      this.hexInput.set(toHex(rgb, this.alpha()));
+      this.hexInput.set(wrToHex(rgb, this.alpha()));
     });
   }
 
@@ -418,7 +418,7 @@ export class WrColorPicker implements FormValueControl<string> {
         return;
     }
     event.preventDefault();
-    const value = clamp(next, 0, max);
+    const value = wrClamp(next, 0, max);
     if (surface === 'hue') this.h.set(value);
     else this.a.set(value / 100);
     this.emit();
@@ -438,16 +438,16 @@ export class WrColorPicker implements FormValueControl<string> {
     const step = (event.shiftKey ? KEY_STEP_COARSE : KEY_STEP) / 100;
     switch (event.key) {
       case 'ArrowRight':
-        this.s.set(clamp(this.s() + step, 0, 1));
+        this.s.set(wrClamp(this.s() + step, 0, 1));
         break;
       case 'ArrowLeft':
-        this.s.set(clamp(this.s() - step, 0, 1));
+        this.s.set(wrClamp(this.s() - step, 0, 1));
         break;
       case 'ArrowUp':
-        this.v.set(clamp(this.v() + step, 0, 1));
+        this.v.set(wrClamp(this.v() + step, 0, 1));
         break;
       case 'ArrowDown':
-        this.v.set(clamp(this.v() - step, 0, 1));
+        this.v.set(wrClamp(this.v() - step, 0, 1));
         break;
       default:
         return;
@@ -485,7 +485,7 @@ export class WrColorPicker implements FormValueControl<string> {
   private fraction(event: PointerEvent, rect: DOMRect, surface: Edges): number {
     const offset =
       surface !== 'sv' && this.dir?.value === 'rtl' ? rect.right - event.clientX : event.clientX - rect.left;
-    return clamp(offset / rect.width, 0, 1);
+    return wrClamp(offset / rect.width, 0, 1);
   }
 
   private updateFromEvent(event: PointerEvent, target: HTMLElement, surface: Edges): void {
@@ -493,7 +493,7 @@ export class WrColorPicker implements FormValueControl<string> {
     const x = this.fraction(event, rect, surface);
 
     if (surface === 'sv') {
-      const y = clamp((event.clientY - rect.top) / rect.height, 0, 1);
+      const y = wrClamp((event.clientY - rect.top) / rect.height, 0, 1);
       this.s.set(x);
       this.v.set(1 - y);
     } else if (surface === 'hue') {
@@ -510,9 +510,9 @@ export class WrColorPicker implements FormValueControl<string> {
     if (this.disabled() || this.readonly()) return;
     const raw = (event.target as HTMLInputElement).value;
     this.hexInput.set(raw);
-    const rgb = parseHex(raw);
+    const rgb = wrParseHex(raw);
     if (!rgb) return;
-    const hsv = rgbToHsv(rgb);
+    const hsv = wrRgbToHsv(rgb);
     this.h.set(hsv.h);
     this.s.set(hsv.s);
     this.v.set(hsv.v);
@@ -561,7 +561,7 @@ export class WrColorPicker implements FormValueControl<string> {
     if (this.disabled() || this.readonly()) return;
     const typed = this.channelValue(event);
     if (typed === null) return;
-    const n = clamp(typed, 0, 255);
+    const n = wrClamp(typed, 0, 255);
     const current = this.rgb();
     const next: WrRgb = { ...current, [channel]: n };
     this.applyRgb(next);
@@ -573,7 +573,7 @@ export class WrColorPicker implements FormValueControl<string> {
     if (n === null) return;
     const current = this.hslView();
     const next: WrHsl =
-      channel === 'h' ? { ...current, h: clamp(n, 0, 360) } : { ...current, [channel]: clamp(n, 0, 100) / 100 };
+      channel === 'h' ? { ...current, h: wrClamp(n, 0, 360) } : { ...current, [channel]: wrClamp(n, 0, 100) / 100 };
     // Straight into HSV rather than through RGB, which has no hue to hand back at grey.
     const v = next.l + next.s * Math.min(next.l, 1 - next.l);
     this.h.set(next.h);
@@ -587,15 +587,15 @@ export class WrColorPicker implements FormValueControl<string> {
     if (this.disabled() || this.readonly()) return;
     const typed = this.channelValue(event);
     if (typed === null) return;
-    this.a.set(clamp(typed, 0, 100) / 100);
+    this.a.set(wrClamp(typed, 0, 100) / 100);
     this.emit();
   }
 
   protected onSwatchClick(hex: string): void {
     if (this.disabled() || this.readonly()) return;
-    const rgb = parseHex(hex);
+    const rgb = wrParseHex(hex);
     if (!rgb) return;
-    // A 6-digit swatch says nothing about alpha, and `parseHex` reports the
+    // A 6-digit swatch says nothing about alpha, and `wrParseHex` reports the
     // absence as `1` — so picking a preset used to silently snap a translucent
     // colour back to fully opaque.
     this.applyRgb(hasAlphaDigits(hex) ? rgb : { ...rgb, a: this.a() });
@@ -603,7 +603,7 @@ export class WrColorPicker implements FormValueControl<string> {
 
   /** Push an RGB triple into the HSV source of truth. */
   private applyRgb(rgb: WrRgb): void {
-    const hsv = rgbToHsv(rgb);
+    const hsv = wrRgbToHsv(rgb);
     this.h.set(hsv.h);
     this.s.set(hsv.s);
     this.v.set(hsv.v);

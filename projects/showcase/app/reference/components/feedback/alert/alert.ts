@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { Sparkles } from 'lucide';
 import { WrAlert, type WrAlertType } from 'ngwr/alert';
 import { WrButton } from 'ngwr/button';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 
 import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 import { API } from '#core/generated/api';
@@ -12,7 +12,7 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-alert-page',
   templateUrl: './alert.html',
   imports: [WrAlert, WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
-  providers: [provideWrIcons(lucideIcons({ sparkles: Sparkles }))],
+  providers: [provideWrIcons(wrLucideIcons({ sparkles: Sparkles }))],
 })
 export default class AlertComponent {
   protected readonly types: readonly WrAlertType[] = ['info', 'success', 'warning', 'danger', 'neutral', 'offline'];

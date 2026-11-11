@@ -258,6 +258,23 @@
     }
   }
 
+  // Trigger sizes — share the `--wr-control-*` contract (22 / 30 / 36 px).
+  &--sm {
+    --wr-tree-trigger-radius: var(--wr-control-radius-sm);
+    --wr-tree-trigger-padding-y: var(--wr-control-padding-y-sm);
+    --wr-tree-trigger-padding-x: var(--wr-control-padding-x-sm);
+    --wr-tree-trigger-font-size: var(--wr-control-font-size-sm);
+    --wr-tree-trigger-line-height: var(--wr-control-line-height-sm);
+  }
+
+  &--lg {
+    --wr-tree-trigger-radius: var(--wr-control-radius-lg);
+    --wr-tree-trigger-padding-y: var(--wr-control-padding-y-lg);
+    --wr-tree-trigger-padding-x: var(--wr-control-padding-x-lg);
+    --wr-tree-trigger-font-size: var(--wr-control-font-size-lg);
+    --wr-tree-trigger-line-height: var(--wr-control-line-height-lg);
+  }
+
   &__trigger {
     display: inline-flex;
     align-items: center;

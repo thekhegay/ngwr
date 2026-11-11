@@ -6,4 +6,4 @@
  */
 
 export { WrReveal } from './reveal';
-export type { WrRevealTrigger } from './types';
+export type { WrRevealBy, WrRevealTrigger } from './types';

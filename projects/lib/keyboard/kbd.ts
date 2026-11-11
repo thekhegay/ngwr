@@ -8,8 +8,8 @@
 import { Component, ViewEncapsulation, afterNextRender, computed, input, signal } from '@angular/core';
 
 import { type WrHotkeyPlatform, type WrHotkeySpec, wrFormatChord, wrHotkeyPlatform } from 'ngwr/hotkey';
-import { readI18nText } from 'ngwr/i18n';
-import { KEYS, wrCheckStyles, type WrKey } from 'ngwr/utils';
+import { wrReadI18nText } from 'ngwr/i18n';
+import { WR_KEYS, wrCheckStyles, type WrKey } from 'ngwr/utils';
 
 import type { WrKbdSize } from './types';
 
@@ -48,34 +48,34 @@ export class WrKbd {
   // render has to match it for hydration, so the Mac form arrives after it.
   private readonly platform = signal<WrHotkeyPlatform>('other');
 
-  private readonly ctrl = readI18nText('kbd.ctrl', 'Ctrl');
-  private readonly shift = readI18nText('kbd.shift', 'Shift');
-  private readonly alt = readI18nText('kbd.alt', 'Alt');
-  private readonly enter = readI18nText('kbd.enter', 'Enter');
-  private readonly esc = readI18nText('kbd.esc', 'Esc');
-  private readonly tab = readI18nText('kbd.tab', 'Tab');
-  private readonly space = readI18nText('kbd.space', 'Space');
-  private readonly backspace = readI18nText('kbd.backspace', 'Backspace');
-  private readonly del = readI18nText('kbd.delete', 'Delete');
-  private readonly home = readI18nText('kbd.home', 'Home');
-  private readonly end = readI18nText('kbd.end', 'End');
-  private readonly pageUp = readI18nText('kbd.pageUp', 'Page Up');
-  private readonly pageDown = readI18nText('kbd.pageDown', 'Page Down');
+  private readonly ctrl = wrReadI18nText('kbd.ctrl', 'Ctrl');
+  private readonly shift = wrReadI18nText('kbd.shift', 'Shift');
+  private readonly alt = wrReadI18nText('kbd.alt', 'Alt');
+  private readonly enter = wrReadI18nText('kbd.enter', 'Enter');
+  private readonly esc = wrReadI18nText('kbd.esc', 'Esc');
+  private readonly tab = wrReadI18nText('kbd.tab', 'Tab');
+  private readonly space = wrReadI18nText('kbd.space', 'Space');
+  private readonly backspace = wrReadI18nText('kbd.backspace', 'Backspace');
+  private readonly del = wrReadI18nText('kbd.delete', 'Delete');
+  private readonly home = wrReadI18nText('kbd.home', 'Home');
+  private readonly end = wrReadI18nText('kbd.end', 'End');
+  private readonly pageUp = wrReadI18nText('kbd.pageUp', 'Page Up');
+  private readonly pageDown = wrReadI18nText('kbd.pageDown', 'Page Down');
 
   private readonly labels = computed<Partial<Record<WrKey, string>>>(() => ({
-    [KEYS.CONTROL]: this.ctrl(),
-    [KEYS.SHIFT]: this.shift(),
-    [KEYS.ALT]: this.alt(),
-    [KEYS.ENTER]: this.enter(),
-    [KEYS.ESCAPE]: this.esc(),
-    [KEYS.TAB]: this.tab(),
-    [KEYS.SPACE]: this.space(),
-    [KEYS.BACKSPACE]: this.backspace(),
-    [KEYS.DELETE]: this.del(),
-    [KEYS.HOME]: this.home(),
-    [KEYS.END]: this.end(),
-    [KEYS.PAGE_UP]: this.pageUp(),
-    [KEYS.PAGE_DOWN]: this.pageDown(),
+    [WR_KEYS.CONTROL]: this.ctrl(),
+    [WR_KEYS.SHIFT]: this.shift(),
+    [WR_KEYS.ALT]: this.alt(),
+    [WR_KEYS.ENTER]: this.enter(),
+    [WR_KEYS.ESCAPE]: this.esc(),
+    [WR_KEYS.TAB]: this.tab(),
+    [WR_KEYS.SPACE]: this.space(),
+    [WR_KEYS.BACKSPACE]: this.backspace(),
+    [WR_KEYS.DELETE]: this.del(),
+    [WR_KEYS.HOME]: this.home(),
+    [WR_KEYS.END]: this.end(),
+    [WR_KEYS.PAGE_UP]: this.pageUp(),
+    [WR_KEYS.PAGE_DOWN]: this.pageDown(),
   }));
 
   protected readonly printed = computed(() => {

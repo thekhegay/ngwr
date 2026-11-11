@@ -167,7 +167,7 @@ export function wrDecimalCompare(a: WrDecimalLike, b: WrDecimalLike): -1 | 0 | 1
  * Sets the scale to exactly `decimals` places: pads with zeros
  * (`wrDecimalRound('1.5', 2)` is `'1.50'`) or rounds half away from zero
  * (`wrDecimalRound('2.345', 2)` is `'2.35'`, `wrDecimalRound('-2.5', 0)` is
- * `'-3'`). Unlike `round` from the same entry point there is no float on the
+ * `'-3'`). Unlike `wrRound` from the same entry point there is no float on the
  * way, so `'1.005'` rounds to `'1.01'` because that is what the digits say.
  * `null` when the value is malformed or `decimals` is not a whole number of
  * places.

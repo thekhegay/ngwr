@@ -77,6 +77,14 @@ export class WrMeta {
    */
   private titleBeforeFirstWrite: string | null = null;
 
+  /**
+   * Set while a `titlePrefix` stands in front of a title this service does not
+   * manage: the document's own title as it was found, and what was written
+   * over it. Whoever owns that title may change it meanwhile, so it is put back
+   * only if the document still reads `written`.
+   */
+  private borrowed: { page: string; written: string } | null = null;
+
   constructor() {
     // Apply defaults immediately on construction.
     this.apply();
@@ -201,14 +209,28 @@ export class WrMeta {
   }
 
   private diffTitle(next: WrMetaConfig): void {
-    if (next.title === this.applied.title && next.titleTemplate === this.applied.titleTemplate) return;
+    if (
+      next.title === this.applied.title &&
+      next.titleTemplate === this.applied.titleTemplate &&
+      next.titlePrefix === this.applied.titlePrefix &&
+      next.titleSeparator === this.applied.titleSeparator
+    ) {
+      return;
+    }
+    const prefix = next.titlePrefix ?? '';
+    const lead = (page: string): string =>
+      prefix && page ? prefix + (next.titleSeparator ?? ' - ') + page : prefix || page;
+    const found = this.title.getTitle();
+    // The document's own title, with a prefix this service put on it taken off.
+    const own = found === this.borrowed?.written ? this.borrowed.page : found;
     if (next.title) {
-      this.titleBeforeFirstWrite ??= this.title.getTitle();
+      this.titleBeforeFirstWrite ??= own;
+      this.borrowed = null;
       // `{{ title }}` reads like Angular; `%s` stays for printf fans. One pass over
       // the TEMPLATE, with a function, so the title goes in literally: a string
       // replacement expands `$&` / `$1` inside it, and a second pass would replace a
       // `%s` the title itself carries.
-      const title = next.title;
+      const title = lead(next.title);
       let percent = 0;
       const formatted = next.titleTemplate
         ? next.titleTemplate.replace(/\{\{\s*title\s*\}\}|%s/g, token =>
@@ -216,6 +238,13 @@ export class WrMeta {
           )
         : title;
       this.title.setTitle(formatted);
+    } else if (prefix) {
+      const page = this.applied.title ? (this.titleBeforeFirstWrite ?? '') : own;
+      this.borrowed = { page, written: lead(page) };
+      this.title.setTitle(this.borrowed.written);
+    } else if (this.borrowed) {
+      if (found === this.borrowed.written) this.title.setTitle(this.borrowed.page);
+      this.borrowed = null;
     } else if (this.applied.title) {
       this.title.setTitle(this.titleBeforeFirstWrite ?? '');
     }

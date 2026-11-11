@@ -44,7 +44,10 @@
       </svg>
     </wr-btn>
 
-    @for (page of pages(); track $index) {
+    <!-- Tracked by page, not by slot: the window slides on every move, and the
+         focused button has to stay the page it was. The two ellipses are
+         different items, and the leading one is always the second entry. -->
+    @for (page of pages(); track page === ellipsis ? ($index === 1 ? 'before' : 'after') : page) {
       @if (page === ellipsis) {
         <span class="wr-pagination__ellipsis">{{ ellipsis }}</span>
       } @else {

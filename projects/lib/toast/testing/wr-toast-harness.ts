@@ -84,7 +84,7 @@ export class WrToastHarness extends ComponentHarness {
   }
 
   /** Whether the toast offers a dismiss button. */
-  async isDismissible(): Promise<boolean> {
+  async isClosable(): Promise<boolean> {
     return (await this.locatorForOptional('.wr-toast__action--close')()) !== null;
   }
 
@@ -93,7 +93,7 @@ export class WrToastHarness extends ComponentHarness {
     return (await this.locatorForOptional('.wr-toast__action--copy')()) !== null;
   }
 
-  /** Click the dismiss button. Throws on a toast shown `dismissible: false`. */
+  /** Click the dismiss button. Throws on a toast shown `closable: false`. */
   async dismiss(): Promise<void> {
     await (await this.locatorFor('.wr-toast__action--close')()).click();
   }
@@ -101,6 +101,17 @@ export class WrToastHarness extends ComponentHarness {
   /** Click the copy button. Throws unless the toast was shown `showCopy: true`. */
   async copy(): Promise<void> {
     await (await this.locatorFor('.wr-toast__action--copy')()).click();
+  }
+
+  /** The action button's text, or `null` for a toast shown without an `action`. */
+  async getActionLabel(): Promise<string | null> {
+    const action = await this.locatorForOptional('.wr-toast__action--run')();
+    return action ? action.text() : null;
+  }
+
+  /** Click the action button. Throws on a toast shown without an `action`. */
+  async runAction(): Promise<void> {
+    await (await this.locatorFor('.wr-toast__action--run')()).click();
   }
 
   /** Whether the auto-dismiss progress bar is showing. */

@@ -33,7 +33,7 @@ export interface DocInstallEntry {
 export const INSTALL = {
   "": [
       { path: "ngwr/drawer", symbols: ["WrDrawer"], declarables: ["WrDrawer"], styled: true },
-      { path: "ngwr/icon", symbols: ["WrIcon", "lucideIcons", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
+      { path: "ngwr/icon", symbols: ["WrIcon", "provideWrIcons", "wrLucideIcons"], declarables: ["WrIcon"], styled: true },
   ],
   "**": [
       { path: "ngwr/animations/click-sparks", symbols: ["WrClickSparks"], declarables: ["WrClickSparks"], styled: true },
@@ -164,7 +164,7 @@ export const INSTALL = {
       { path: "ngwr/charts/waterfall-chart", symbols: ["WrWaterfallChart"], declarables: ["WrWaterfallChart"], styled: true },
   ],
   "icons/lucide": [
-      { path: "ngwr/icon", symbols: ["lucide"], declarables: [], styled: true },
+      { path: "ngwr/icon", symbols: ["wrLucide"], declarables: [], styled: true },
   ],
   "reference/components/alert": [
       { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
@@ -226,6 +226,9 @@ export const INSTALL = {
   "reference/components/context-menu": [
       { path: "ngwr/context-menu", symbols: ["WrContextMenu", "WrContextMenuDivider", "WrContextMenuItem", "WrContextMenuPanel"], declarables: ["WrContextMenu", "WrContextMenuDivider", "WrContextMenuItem", "WrContextMenuPanel"], styled: true },
   ],
+  "reference/components/copy-value": [
+      { path: "ngwr/copy-value", symbols: ["WrCopyValue"], declarables: ["WrCopyValue"], styled: true },
+  ],
   "reference/components/counter": [
       { path: "ngwr/counter", symbols: ["WrCountUp", "WrCounter"], declarables: ["WrCountUp", "WrCounter"], styled: true },
   ],
@@ -271,7 +274,7 @@ export const INSTALL = {
       { path: "ngwr/graph", symbols: ["WrGraph", "WrGraphNodeTemplate"], declarables: ["WrGraph", "WrGraphNodeTemplate"], styled: true },
   ],
   "reference/components/icon": [
-      { path: "ngwr/icon", symbols: ["WrIcon", "lucideIcons", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
+      { path: "ngwr/icon", symbols: ["WrIcon", "provideWrIcons", "wrLucideIcons"], declarables: ["WrIcon"], styled: true },
   ],
   "reference/components/image-cropper": [
       { path: "ngwr/image-cropper", symbols: ["WrImageCropper"], declarables: ["WrImageCropper"], styled: true },
@@ -376,7 +379,7 @@ export const INSTALL = {
       { path: "ngwr/switch", symbols: ["WrSwitch"], declarables: ["WrSwitch"], styled: true },
   ],
   "reference/components/table": [
-      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell", "WrTableExpand", "WrTableGroupHeader"], declarables: ["WrTable", "WrTableCell", "WrTableExpand", "WrTableGroupHeader"], styled: true },
+      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell", "WrTableExpand", "WrTableGroupHeader", "wrSortRows"], declarables: ["WrTable", "WrTableCell", "WrTableExpand", "WrTableGroupHeader"], styled: true },
   ],
   "reference/components/tabs": [
       { path: "ngwr/tabs", symbols: ["WrTab", "WrTabs"], declarables: ["WrTab", "WrTabs"], styled: true },
@@ -423,6 +426,10 @@ export const INSTALL = {
   "reference/directives/copy-to-clipboard": [
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
       { path: "ngwr/directives", symbols: ["WrCopyToClipboard"], declarables: ["WrCopyToClipboard"], styled: false },
+  ],
+  "reference/directives/fit-text": [
+      { path: "ngwr/badge", symbols: ["WrTag"], declarables: ["WrTag"], styled: true },
+      { path: "ngwr/directives", symbols: ["WrFitText"], declarables: ["WrFitText"], styled: false },
   ],
   "reference/directives/typography": [
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },

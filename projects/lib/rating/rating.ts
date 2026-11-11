@@ -23,7 +23,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
-import { clamp, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Star rating input. Click or hover to set a value; supports half-star
@@ -132,7 +132,7 @@ export class WrRating implements FormValueControl<number | null> {
    * model holds. The MODEL is left alone — see the note above `fillFor` for why
    * the clamp is not written back.
    */
-  protected readonly displayValue = computed(() => clamp(this.hoverValue() ?? this.value() ?? 0, 0, this.count()));
+  protected readonly displayValue = computed(() => wrClamp(this.hoverValue() ?? this.value() ?? 0, 0, this.count()));
 
   /**
    * What the slider REPORTS, and where the arrows start from.
@@ -142,7 +142,7 @@ export class WrRating implements FormValueControl<number | null> {
    * has to step from the committed number rather than from wherever the mouse
    * happened to rest.
    */
-  protected readonly announcedValue = computed(() => clamp(this.value() ?? 0, 0, this.count()));
+  protected readonly announcedValue = computed(() => wrClamp(this.value() ?? 0, 0, this.count()));
 
   protected readonly slots = computed(() => Array.from({ length: this.count() }, (_, i) => i));
 
@@ -205,7 +205,7 @@ export class WrRating implements FormValueControl<number | null> {
    */
   /** Fill ratio for slot `i` in `[0, 1]` — drives the CSS clip width. */
   protected fillFor(i: number): number {
-    return clamp(this.displayValue() - i, 0, 1);
+    return wrClamp(this.displayValue() - i, 0, 1);
   }
 
   /**
@@ -253,16 +253,16 @@ export class WrRating implements FormValueControl<number | null> {
     let next: number | null;
     switch (event.key) {
       case 'ArrowRight':
-        next = clamp(current + inline, 0, max);
+        next = wrClamp(current + inline, 0, max);
         break;
       case 'ArrowUp':
-        next = clamp(current + step, 0, max);
+        next = wrClamp(current + step, 0, max);
         break;
       case 'ArrowLeft':
-        next = clamp(current - inline, 0, max);
+        next = wrClamp(current - inline, 0, max);
         break;
       case 'ArrowDown':
-        next = clamp(current - step, 0, max);
+        next = wrClamp(current - step, 0, max);
         break;
       case 'Home':
         next = 0;
@@ -300,7 +300,7 @@ export class WrRating implements FormValueControl<number | null> {
    */
   private inlineRatio(clientX: number, rect: DOMRect): number {
     const offset = this.isRtl() ? rect.right - clientX : clientX - rect.left;
-    return clamp(offset / rect.width, 0, 1);
+    return wrClamp(offset / rect.width, 0, 1);
   }
 
   /** Convert a mouse position over slot `index` to a snapped value. */
@@ -311,7 +311,7 @@ export class WrRating implements FormValueControl<number | null> {
     const raw = index + ratio;
     const step = this.step();
     const snapped = Math.ceil(raw / step) * step;
-    return clamp(snapped, step, this.count());
+    return wrClamp(snapped, step, this.count());
   }
 
   private commit(value: number | null): void {

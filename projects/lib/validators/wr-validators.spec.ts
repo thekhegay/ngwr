@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { type AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { WrValidators } from './wr-validators';
 
@@ -294,7 +294,27 @@ describe('WrValidators.oneOf', () => {
   });
 });
 
+/**
+ * Safari's `Date` for the one string it refuses and Chrome reads: a space
+ * where ISO 8601 has a `T`. Without it these cases pass on V8 whatever parses.
+ */
+function refuseSpaceForm(): void {
+  const Native = Date;
+  vi.stubGlobal(
+    'Date',
+    class extends Native {
+      constructor(...args: ConstructorParameters<DateConstructor>) {
+        const [first] = args as unknown[];
+        if (typeof first === 'string' && /^\d{4}-\d{2}-\d{2} /.test(first)) super(Number.NaN);
+        else super(...args);
+      }
+    }
+  );
+}
+
 describe('WrValidators.minDate / maxDate', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
   const min = WrValidators.minDate('2026-01-01');
   // A LOCAL date, as a picker emits one: `new Date('2026-12-31')` is UTC
   // midnight, and against it the bound day's own midnight fails west of UTC.
@@ -337,6 +357,26 @@ describe('WrValidators.minDate / maxDate', () => {
   it('leaves the engine to decide what is a date', () => {
     // Only the zone moves; a month the engine refuses stays refused.
     expect(min(control('2026-13-01'))).toEqual({ minDate: { min: '2026-01-01' } });
+  });
+
+  it('reads a backend date-time with a space as its T form, as a value and as a bound', () => {
+    refuseSpaceForm();
+    expect(Number.isNaN(new Date('2026-03-01 14:30:00').getTime())).toBe(true);
+
+    expect(min(control('2026-03-01 14:30:00'))).toBeNull();
+    expect(min(control('2025-12-31 23:59:59'))).toEqual({ minDate: { min: '2026-01-01' } });
+
+    const from = WrValidators.minDate('2026-03-01 14:30:00');
+    const until = WrValidators.maxDate('2026-03-01 14:30:00');
+    for (const [value, early, late] of [
+      ['2026-03-01T14:30:00', null, null],
+      ['2026-03-01 14:30:00', null, null],
+      ['2026-03-01T14:29:59', { minDate: { min: '2026-03-01 14:30:00' } }, null],
+      ['2026-03-01 14:30:01', null, { maxDate: { max: '2026-03-01 14:30:00' } }],
+    ] as const) {
+      expect(from(control(value)), value).toEqual(early);
+      expect(until(control(value)), value).toEqual(late);
+    }
   });
 
   it('treats an unparsable value as out of bounds', () => {

@@ -23,7 +23,7 @@ import { WrEmpty } from 'ngwr/empty';
 import { useI18nText } from 'ngwr/i18n';
 import { WrResult } from 'ngwr/result';
 import { WrSkeleton } from 'ngwr/skeleton';
-import { numAttr, type SafeAny, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, type WrSafeAny, wrCheckStyles } from 'ngwr/utils';
 
 import { WrLoadStateContent, WrLoadStateEmpty, WrLoadStateError, WrLoadStateLoading } from './load-state-templates';
 import type { WrLoadStateContentContext, WrLoadStateErrorContext, WrLoadStateStatus } from './types';
@@ -81,7 +81,7 @@ const isEmptyValue = (value: unknown): boolean => value == null || (Array.isArra
     '[attr.aria-busy]': 'busy() ? "true" : null',
   },
 })
-export class WrLoadState<T = SafeAny> {
+export class WrLoadState<T = WrSafeAny> {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('load-state');
   }
@@ -114,7 +114,7 @@ export class WrLoadState<T = SafeAny> {
    *
    * @default 3
    */
-  readonly lines = input(3, { transform: numAttr(3) });
+  readonly lines = input(3, { transform: wrNumAttr(3) });
 
   /** The failure's title. Falls back to `loadState.failed`, then `'Could not load'`. */
   readonly errorLabel = input<string | null>(null);

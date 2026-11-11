@@ -1,1 +1,1 @@
-export { isSafeCssValue } from './is-safe-css-value';
+export { wrIsSafeCssValue } from './is-safe-css-value';

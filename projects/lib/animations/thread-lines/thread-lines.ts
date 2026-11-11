@@ -22,9 +22,10 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { FRAME_FLOOR_SLACK, MAX_FRAME_MS } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, resolveCssColorChannels, watchColorScheme, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrResolveCssColorChannels, wrWatchColorScheme, wrCheckStyles } from 'ngwr/utils';
+
+import { FRAME_FLOOR_SLACK, MAX_FRAME_MS } from '../internal';
 
 import {
   THREAD_CONTEXT_ATTRIBUTES,
@@ -93,7 +94,7 @@ const INK_DARK: readonly [number, number] = [0.75, 0.07];
  * The canvas renders at the device ratio under the model's pixel budget.
  *
  * Colours come from the `--wr-thread-lines-color` and `-accent` hooks through
- * `resolveCssColorChannels`, re-read when the scheme changes; the surface is
+ * `wrResolveCssColorChannels`, re-read when the scheme changes; the surface is
  * read too, so on a light one the strands are laid as ink with next to no
  * glow and on a dark one they are lit, with a soft glow. Under
  * `prefers-reduced-motion: reduce` one still frame is drawn; under
@@ -112,19 +113,19 @@ const INK_DARK: readonly [number, number] = [0.75, 0.07];
 })
 export class WrThreadLines {
   /** How many strands the bundle has, 128 at most. @default 72 */
-  readonly count = input(72, { transform: numAttr(72) });
+  readonly count = input(72, { transform: wrNumAttr(72) });
   /** How thick a strand is, in device px. @default 1 */
-  readonly thickness = input(1, { transform: numAttr(1) });
+  readonly thickness = input(1, { transform: wrNumAttr(1) });
   /** How high the travelling wave lifts the bundle, in CSS px. @default 16 */
-  readonly amplitude = input(16, { transform: numAttr(16) });
+  readonly amplitude = input(16, { transform: wrNumAttr(16) });
   /** How fast the wave travels, a multiplier: one is a wave every nine seconds. @default 1 */
-  readonly speed = input(1, { transform: numAttr(1) });
+  readonly speed = input(1, { transform: wrNumAttr(1) });
   /** How far the strands part by the far end, a multiplier: none keeps them a cord the whole way. @default 1 */
-  readonly fray = input(1, { transform: numAttr(1) });
+  readonly fray = input(1, { transform: wrNumAttr(1) });
   /** The ribbon's tilt, in degrees: positive falls toward the far end, negative rises. @default -6 */
-  readonly angle = input(-6, { transform: numAttr(-6) });
+  readonly angle = input(-6, { transform: wrNumAttr(-6) });
   /** How strongly the pointer parts the strands, a multiplier: none turns the parting off. @default 1 */
-  readonly parting = input(1, { transform: numAttr(1) });
+  readonly parting = input(1, { transform: wrNumAttr(1) });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly platform = inject(WrPlatform);
@@ -216,7 +217,7 @@ export class WrThreadLines {
       this.angle();
       untracked(() => this.still());
     });
-    watchColorScheme(() => {
+    wrWatchColorScheme(() => {
       this.resolveColors();
       this.still();
     });
@@ -362,9 +363,9 @@ export class WrThreadLines {
   private resolveColors(): void {
     if (!this.renderer) return;
     const canvas = this.canvasRef().nativeElement;
-    this.frame.color.set(resolveCssColorChannels(canvas, 'var(--wr-thread-lines-color)', '#6b7280'));
-    this.frame.accent.set(resolveCssColorChannels(canvas, 'var(--wr-thread-lines-accent)', '#3969e2'));
-    const light = threadInk(resolveCssColorChannels(canvas, 'var(--wr-color-surface)', '#ffffff'));
+    this.frame.color.set(wrResolveCssColorChannels(canvas, 'var(--wr-thread-lines-color)', '#6b7280'));
+    this.frame.accent.set(wrResolveCssColorChannels(canvas, 'var(--wr-thread-lines-accent)', '#3969e2'));
+    const light = threadInk(wrResolveCssColorChannels(canvas, 'var(--wr-color-surface)', '#ffffff'));
     const ink = light ? INK_LIGHT : INK_DARK;
     this.frame.core = ink[0];
     this.frame.glow = ink[1];

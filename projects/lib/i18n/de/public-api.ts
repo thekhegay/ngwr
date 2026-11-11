@@ -154,6 +154,11 @@ export const wrDe: WrI18nCatalog = {
     copied: 'Kopiert',
     closeAll: 'Alle schließen',
   },
+  copyValue: {
+    copy: 'Kopieren',
+    copied: 'Kopiert',
+    empty: '-',
+  },
   input: {
     showPassword: 'Passwort anzeigen',
     hidePassword: 'Passwort ausblenden',

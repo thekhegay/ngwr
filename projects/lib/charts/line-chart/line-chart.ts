@@ -30,13 +30,13 @@ import { WR_CHART_LEGEND_BLOCK, WrChartLegend, type WrChartLegendItem } from 'ng
 import {
   WrChartTable,
   type WrChartTableData,
-  chartAxis,
-  chartColor,
-  chartDash,
+  wrChartAxis,
+  wrChartColor,
+  wrChartDash,
   useChartNumbers,
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
-import { clamp, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrLineSeries } from './types';
 
@@ -349,7 +349,7 @@ export class WrLineChart {
   }
 
   /**
-   * Every series, resolved: its palette colour, its dash (`chartDash`, so the lines are
+   * Every series, resolved: its palette colour, its dash (`wrChartDash`, so the lines are
    * told apart by shape and not only by hue, the first one solid) and its data with a
    * HOLE at each non-finite point. Hidden ones included, since the legend lists them.
    *
@@ -366,9 +366,9 @@ export class WrLineChart {
     this.series().map((s, i) => ({
       index: i,
       label: s.label,
-      dash: chartDash(i),
+      dash: wrChartDash(i),
       data: s.data.map(v => (typeof v === 'number' && Number.isFinite(v) ? v : null)),
-      color: s.color ?? chartColor(i),
+      color: s.color ?? wrChartColor(i),
     }))
   );
 
@@ -417,7 +417,7 @@ export class WrLineChart {
   });
 
   /**
-   * The y axis, from `chartAxis`, over what is plotted for the series still shown. It
+   * The y axis, from `wrChartAxis`, over what is plotted for the series still shown. It
    * floors at zero and never lifts to zero from below, so an all-negative series keeps
    * an axis that ends just above its peak, and it snaps to a readable step: seven
    * integers between 3 and 35 read 0 / 10 / 20 / 30 / 40, where "the data's max plus
@@ -440,9 +440,9 @@ export class WrLineChart {
         if (v > max) max = v;
       }
     }
-    if (min > max) return chartAxis(Number.NaN, Number.NaN);
-    if (this.showArea() || this.stacked()) return chartAxis(min, max, { includeZero: true });
-    return chartAxis(Math.min(0, min), max);
+    if (min > max) return wrChartAxis(Number.NaN, Number.NaN);
+    if (this.showArea() || this.stacked()) return wrChartAxis(min, max, { includeZero: true });
+    return wrChartAxis(Math.min(0, min), max);
   });
 
   protected readonly pointCount = computed(() => {
@@ -615,7 +615,7 @@ export class WrLineChart {
     const step = count <= 1 ? strip : width / (count - 1);
     /** Where a printed label's box starts, in px from the strip's start: centred on its point, moved in at either end. */
     const start = (index: number): number =>
-      clamp(inset + this.pointX(index) * (width / this.vbW) - label / 2, 0, strip - label);
+      wrClamp(inset + this.pointX(index) * (width / this.vbW) - label / 2, 0, strip - label);
     // A hair of slack on every comparison, so the regular spacing never fails on a rounding.
     const crowds = (from: number, previousEnd: number): boolean => from + 1e-6 < previousEnd + LABEL_GAP;
 
@@ -678,7 +678,7 @@ export class WrLineChart {
     const box = this.svg().nativeElement.getBoundingClientRect();
     if (count === 0 || box.width <= 0) return;
     const ratio = (event.clientX - box.left) / box.width;
-    const i = count === 1 ? 0 : clamp(Math.round(ratio * (count - 1)), 0, count - 1);
+    const i = count === 1 ? 0 : wrClamp(Math.round(ratio * (count - 1)), 0, count - 1);
     if (i === this.dismissed) return;
     this.dismissed = null;
     this.hoveredIndex.set(i);
@@ -732,7 +732,7 @@ export class WrLineChart {
     const x = box.left + (points[0].x / this.vbW) * box.width;
     const ys = points.map(p => box.top + (p.y / this.vbH) * box.height);
     /** Held inside the plot, as the stylesheet's clamp holds it. */
-    const across = (left: number): number => clamp(left, plot.left, plot.right - width);
+    const across = (left: number): number => wrClamp(left, plot.left, plot.right - width);
     const top = box.top + inset;
     const candidates: readonly { placement: TooltipPlacement; left: number; top: number }[] = [
       { placement: 'top', left: across(x - width / 2), top },

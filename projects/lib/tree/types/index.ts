@@ -13,5 +13,8 @@ export interface WrTreeNode<TId = string> {
   readonly disabled?: boolean;
 }
 
+/** Trigger size for an overlay {@link WrTree} — shares the `--wr-control-*` contract. */
+export type WrTreeSize = 'sm' | 'md' | 'lg';
+
 /** Selection mode for {@link WrTree}. */
 export type WrTreeSelectionMode = 'none' | 'single' | 'multi';

@@ -26,7 +26,7 @@ import {
 import { WrButton } from 'ngwr/button';
 import { useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrMarqueeItem, WrMarqueeItemContext } from './types';
 
@@ -86,7 +86,7 @@ export class WrMarquee {
   readonly items = input.required<readonly WrMarqueeItem[]>();
 
   /** How fast the row travels, in px per second. @default 40 */
-  readonly speed = input(MARQUEE_SPEED, { transform: numAttr(MARQUEE_SPEED) });
+  readonly speed = input(MARQUEE_SPEED, { transform: wrNumAttr(MARQUEE_SPEED) });
 
   /** The accessible name of the list. */
   readonly label = input<string | null>(null);

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Toast"
-  updated="15.0.0"
+  updated="16.0.0"
   description="Short notifications that stack in a corner of the screen."
   [keywords]="['toast', 'notification', 'wr-toast']"
   [labels]="['Service', 'CDK Overlay']"
@@ -46,6 +46,26 @@
     <ngwr-doc-snippet code="">
       <wr-btn (click)="fireCopy()">Show with copy button</wr-btn>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Action"
+    description="`action` adds a text button. Pressing it closes the toast and calls `run` once. You supply the label."
+  >
+    <ngwr-doc-code [code]="snippets.action" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap">
+        @for (file of files(); track file) {
+          <wr-btn outlined color="danger" (click)="removeFile(file)">Delete {{ file }}</wr-btn>
+        } @empty {
+          <span>No files left.</span>
+        }
+      </div>
+    </ngwr-doc-snippet>
+    <p>
+      The countdown still runs, and holds while the pointer or focus is on the toast. Pass a longer
+      <code>duration</code> when the action matters.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section

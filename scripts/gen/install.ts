@@ -138,7 +138,7 @@ async function main(): Promise<void> {
     // The recipe is the page's OWN entry point and nothing else.
     //
     // A docs page imports whatever its DEMOS render, which is a different set:
-    // the button page pulls `provideWrIcons`, `lucideIcons`, `WR_COLORS` and
+    // the button page pulls `provideWrIcons`, `wrLucideIcons`, `WR_COLORS` and
     // `WrTypography` to draw its own examples, and listing them turned
     // "install a button" into five imports and a three-line footnote about
     // which of them are not declarables. Leading with the own entry point was

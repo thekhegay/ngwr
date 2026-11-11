@@ -1,13 +1,13 @@
 <ngwr-doc-page
   title="Icon"
-  updated="15.0.0"
+  updated="16.0.0"
   description="Renders an SVG icon you register by name; ngwr ships none of its own."
   [keywords]="['icon', 'wr-icon', 'svg']"
   [labels]="['Component']"
 >
   <ngwr-doc-section
     title="Register icons"
-    description="`lucideIcons()` for Lucide, `svgIcon()` for any set that ships SVG files."
+    description="`wrLucideIcons()` for Lucide, `wrSvgIcon()` for any set that ships SVG files."
   >
     <ngwr-doc-install packages="lucide" />
     <ngwr-doc-code [code]="snippets.register" language="angular-ts" />
@@ -28,7 +28,7 @@
 
   <ngwr-doc-section
     title="Custom inline SVG"
-    description="Wrap a one-off SVG in `svgIcon()` and style it with `fill` and `stroke`: `style`, `<style>`, `<image>`, `<a>`, `<foreignObject>`, filters and SMIL are removed."
+    description="Wrap a one-off SVG in `wrSvgIcon()` and style it with `fill` and `stroke`: `style`, `<style>`, `<image>`, `<a>`, `<foreignObject>`, filters and SMIL are removed."
   >
     <ngwr-doc-code [code]="snippets.custom" language="angular-ts" />
   </ngwr-doc-section>

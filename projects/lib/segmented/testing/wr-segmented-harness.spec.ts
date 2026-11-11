@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { FormField, form, required } from '@angular/forms/signals';
 
 import { WrFormField } from 'ngwr/form';
-import { provideWrIcons, svgIcon } from 'ngwr/icon';
+import { provideWrIcons, wrSvgIcon } from 'ngwr/icon';
 import { WrSegmented, type WrSegmentedOption, type WrSegmentedSize } from 'ngwr/segmented';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -404,7 +404,7 @@ describe('WrSegmentedHarness — icons, and the names they fall back to', () => 
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrIcons([svgIcon('check', CHECK_SVG), svgIcon('search', SEARCH_SVG)])],
+      providers: [provideWrIcons([wrSvgIcon('check', CHECK_SVG), wrSvgIcon('search', SEARCH_SVG)])],
     });
     fixture = TestBed.createComponent(IconHost);
     fixture.detectChanges();

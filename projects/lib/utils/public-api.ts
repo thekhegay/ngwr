@@ -1,13 +1,13 @@
 // Types
-export type { Maybe, SafeAny, WrClassInput } from './types';
+export type { WrMaybe, WrSafeAny, WrClassInput } from './types';
 
 // Guards
-export { isDefined, isNonEmptyArray, isObservable } from './guards';
+export { wrIsDefined, wrIsNonEmptyArray, wrIsObservable } from './guards';
 
 // Math
 export {
-  clamp,
-  round,
+  wrClamp,
+  wrRound,
   wrDecimal,
   wrDecimalAdd,
   wrDecimalCompare,
@@ -19,49 +19,50 @@ export {
 export type { WrDecimalLike } from './math';
 
 // Coercion
-export { numAttr } from './coercion';
+export { wrNumAttr } from './coercion';
 
 // CSS class
-export { toClassList } from './css-class';
+export { wrToClassList } from './css-class';
 
 // CSS value
-export { isSafeCssValue } from './css-value';
+export { wrIsSafeCssValue } from './css-value';
 
 // CSS size
-export { resolveCssSize } from './css-size';
-export type { ResolveCssSizeOptions, ResolvedCssSize } from './css-size';
+export { wrResolveCssSize } from './css-size';
+export type { WrResolveCssSizeOptions, WrResolvedCssSize } from './css-size';
 
 // DOM
 export {
-  getRootFontSize,
-  getFocusableElements,
-  resolveCssColor,
-  resolveCssColorChannels,
-  trapFocus,
-  watchColorScheme,
+  wrGetRootFontSize,
+  wrGetFocusableElements,
+  wrResolveCssColor,
+  wrResolveCssColorChannels,
+  wrTrapFocus,
+  wrWatchColorScheme,
   wrCheckStyles,
   wrContentDispositionFileName,
   wrDownloadBlob,
   wrRestoreFocus,
 } from './dom';
-export type { WatchColorSchemeOptions, WrColorScheme } from './dom';
+export type { WrWatchColorSchemeOptions, WrColorScheme } from './dom';
 
 // ID
-export { randomId } from './id';
+export { wrRandomId } from './id';
 
 // Fn
-export { noop, debounce, throttle } from './fn';
+export { wrNoop, wrDebounce, wrThrottle } from './fn';
 export type { WrDebouncedFn, WrThrottledFn } from './fn';
 
 // Keyboard
-export { KEYS, KEY_LABELS, hasModifier, isComposing, isPrintableKey } from './keyboard';
+export { WR_KEYS, WR_KEY_LABELS, wrHasModifier, wrIsComposing, wrIsPrintableKey } from './keyboard';
 export type { WrKey } from './keyboard';
 
 // Log
-export { badgeLog } from './log';
+export { wrBadgeError, wrBadgeLog, wrBadgeWarn } from './log';
 
 // Text
 export { wrInitials } from './text';
+export type { WrInitialsOptions, WrInitialsOrder, WrInitialsStyle } from './text';
 
 // Feature
 export { wrFeature } from './feature';

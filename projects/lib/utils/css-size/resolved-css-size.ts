@@ -6,9 +6,9 @@
  */
 
 /**
- * Result of resolving a CSS size value via {@link resolveCssSize}.
+ * Result of resolving a CSS size value via {@link wrResolveCssSize}.
  */
-export interface ResolvedCssSize {
+export interface WrResolvedCssSize {
   /**
    * Value suitable for use in CSS styles (e.g. `"48px"`, `"3rem"`, `"80%"`).
    */

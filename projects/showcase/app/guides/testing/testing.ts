@@ -687,6 +687,38 @@ it('walks focus without moving the selection', async () => {
   await expect(transfer.moveTo('target')).rejects.toThrow(/nothing staged/);
 });`,
 
+    commentComposer: `it('sends the draft on Enter', async () => {
+  const composer = await loader.getHarness(WrCommentComposerHarness.with({ placeholder: 'Message' }));
+  expect(await composer.canSend()).toBe(false);
+
+  await composer.setValue('On my way');
+  await composer.pressEnter();
+
+  // With clearOnSend the field is empty once the text is out.
+  expect(await composer.getValue()).toBe('');
+  await expect(composer.send()).rejects.toThrow(/disabled/);
+});`,
+
+    loadState: `it('retries a failed load', async () => {
+  const orders = await loader.getHarness(WrLoadStateHarness);
+  expect(await orders.getState()).toBe('error');
+
+  await orders.retry();
+  expect(await orders.isRetrying()).toBe(true);
+  expect(await orders.isBusy()).toBe(true);
+});`,
+
+    copyValue: `it('copies the order id', async () => {
+  const writeText = vi.fn().mockResolvedValue(undefined);
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+
+  const id = await loader.getHarness(WrCopyValueHarness.with({ value: 'ORD-1042' }));
+  await id.copy();
+
+  expect(writeText).toHaveBeenCalledWith('ORD-1042');
+  expect(await id.isCopied()).toBe(true);
+});`,
+
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 export class MyWidgetHarness extends ComponentHarness {
@@ -858,8 +890,8 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<string | null>',
     },
     {
-      name: 'isDismissible() / dismiss()',
-      description: '`dismiss()` throws when shown with `dismissible: false`.',
+      name: 'isClosable() / dismiss()',
+      description: '`dismiss()` throws when shown with `closable: false`.',
       type: 'Promise<boolean> | Promise<void>',
     },
     {
@@ -2160,6 +2192,63 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'Item: getLabel() / isChecked() / isDisabled() / toggle() / check() / uncheck()',
       description: '`WrTransferItemHarness`. A disabled row refuses.',
+      type: 'Promise<…>',
+    },
+  ];
+
+  protected readonly commentComposerApi: readonly DocApiRow[] = [
+    {
+      name: 'getField()',
+      description: 'The field, for everything `WrTextareaHarness` answers.',
+      type: 'Promise<WrTextareaHarness>',
+    },
+    {
+      name: 'getValue() / setValue(value) / getPlaceholder() / getSendLabel()',
+      description: '`WrCommentComposerHarness`. The draft and the names. Filters: `value`, `placeholder`, `disabled`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'canSend() / send() / pressEnter()',
+      description: '`send()` throws when the button is disabled. `pressEnter()` never throws.',
+      type: 'Promise<boolean> | Promise<void>',
+    },
+    {
+      name: 'isDisabled() / isReadonly() / isSending() / focus() / isFocused()',
+      description: 'State and focus. `isSending()` reads `aria-busy`.',
+      type: 'Promise<boolean> | Promise<void>',
+    },
+  ];
+
+  protected readonly loadStateApi: readonly DocApiRow[] = [
+    {
+      name: 'getState()',
+      description: "`'loading'`, `'error'`, `'empty'` or `'ready'`, from the host's modifier class. Filter: `state`.",
+      type: 'Promise<WrLoadStateStatus>',
+    },
+    { name: 'isBusy()', description: 'Whether a load is in flight, from `aria-busy`.', type: 'Promise<boolean>' },
+    {
+      name: 'getRetryButton() / isRetrying() / retry()',
+      description: 'The default failure. All three throw outside it, and under a `wrLoadStateError` template.',
+      type: 'Promise<WrButtonHarness> | Promise<boolean> | Promise<void>',
+    },
+  ];
+
+  protected readonly copyValueApi: readonly DocApiRow[] = [
+    {
+      name: 'getValue() / isEmpty() / getEmptyText()',
+      description:
+        '`getValue()` is `null` for an empty value; `getEmptyText()` reads the placeholder. Filters: `value`, `empty`.',
+      type: 'Promise<string | null> | Promise<boolean> | Promise<string>',
+    },
+    {
+      name: 'copy() / isCopied() / getStatusText()',
+      description:
+        '`copy()` clicks the button and throws on an empty value. Stub `navigator.clipboard` to see the write.',
+      type: 'Promise<void> | Promise<boolean> | Promise<string>',
+    },
+    {
+      name: 'getCopyLabel() / getTitle() / isWrapped() / focus() / isFocused()',
+      description: 'The button name, the full text of a truncated value, the `wrap` mode.',
       type: 'Promise<…>',
     },
   ];

@@ -7,7 +7,7 @@
 
 import { Directive, type Resource, TemplateRef, inject, input } from '@angular/core';
 
-import type { SafeAny } from 'ngwr/utils';
+import type { WrSafeAny } from 'ngwr/utils';
 
 import type { WrLoadStateContentContext, WrLoadStateErrorContext } from './types';
 
@@ -33,7 +33,7 @@ import type { WrLoadStateContentContext, WrLoadStateErrorContext } from './types
 @Directive({
   selector: 'ng-template[wrLoadStateContent]',
 })
-export class WrLoadStateContent<T = SafeAny> {
+export class WrLoadStateContent<T = WrSafeAny> {
   /**
    * The resource the template draws, for the type checker: nothing reads it at
    * runtime. Bind the same resource as the wrapper's `[resource]`.
@@ -44,7 +44,7 @@ export class WrLoadStateContent<T = SafeAny> {
 
   /**
    * Types the template's `let-` variables under `strictTemplates`. `T` defaults
-   * to `SafeAny` for the reason `WrOptionLeading` gives: without
+   * to `WrSafeAny` for the reason `WrOptionLeading` gives: without
    * `[wrLoadStateContentOf]` nothing infers the value, and narrowed to
    * `unknown` every `value.length` would stop compiling.
    */
@@ -85,12 +85,12 @@ export class WrLoadStateLoading {
 @Directive({
   selector: 'ng-template[wrLoadStateError]',
 })
-export class WrLoadStateError<E = SafeAny> {
+export class WrLoadStateError<E = WrSafeAny> {
   readonly template = inject<TemplateRef<WrLoadStateErrorContext<E>>>(TemplateRef);
 
   /**
    * Types the template's `let-` variables under `strictTemplates`. `E` defaults
-   * to `SafeAny` for the reason `WrOptionLeading` gives: nothing infers the error
+   * to `WrSafeAny` for the reason `WrOptionLeading` gives: nothing infers the error
    * type, and narrowed to `unknown`, `error.message` would not compile.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- a guard's parameters exist to be narrowed, never read

@@ -54,7 +54,7 @@ const SITE = 'https://ngwr.dev';
  *
  * 209 was 201 plus the eight `/reference` catalog roots, which used to redirect
  * and so exported a meta-refresh stub instead of a page. 210 is that plus
- * `/reference/utils/is-composing`, added in v14 — the third time the floor was
+ * `/reference/utils/wr-is-composing`, added in v14 — the third time the floor was
  * left behind by the export it guards, and the reason this paragraph now names
  * every increment. 216 is that plus `/start/versioning`, `/guides/forms`,
  * `/guides/ssr`, `/reference/components/graph` and `/reference/components/schema-form`,
@@ -67,7 +67,7 @@ const SITE = 'https://ngwr.dev';
  * the export it guards, so it moves down when pages are removed on purpose
  * and never to make a red run green. 209 is 210 less the charts cluster's own
  * index redirect, which `/reference/components` no longer carries.
- * `/guides/typography/styles` and `/reference/utils/resolve-css-color` arrived
+ * `/guides/typography/styles` and `/reference/utils/wr-resolve-css-color` arrived
  * as `/guides/tokens/builder` and `/reference/services/media` went, which nets
  * to nothing. 208 is 209 less `/reference/components/markdown`, which v15
  * deleted with `ngwr/markdown`.

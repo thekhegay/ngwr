@@ -25,7 +25,7 @@ import {
 } from '@angular/core';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { randomId, wrCheckStyles } from 'ngwr/utils';
+import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WrWindowManager } from './services/window-manager';
 import type { WrWindowResolvedOs, WrWindowSlotContent, WrWindowSlotContext, WrWindowSnapTarget } from './types';
@@ -158,7 +158,7 @@ export class WrWindow implements OnInit {
   readonly closed = output<void>();
 
   /** Auto-generated id for the title element, referenced by `aria-labelledby`. */
-  protected readonly titleId = randomId('wr-window-title');
+  protected readonly titleId = wrRandomId('wr-window-title');
 
   // `window.close` had been sitting in both catalogs unread while the template
   // hard-coded the same English beside it; the other four had no key at all, so a

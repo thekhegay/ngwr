@@ -2,12 +2,12 @@
  * Brand silhouettes used by the showcase chrome (hero, header).
  *
  * The ngwr icon registry doesn't ship vendor logos — they're not part of
- * the public lib. Showcase embeds the marks inline as `svgIcon()` defs
+ * the public lib. Showcase embeds the marks inline as `wrSvgIcon()` defs
  * so they survive without a peer dependency on `simple-icons` or
  * equivalent.
  */
 
-import { svgIcon, type WrIconDef } from 'ngwr/icon';
+import { wrSvgIcon, type WrIconDef } from 'ngwr/icon';
 
 /**
  * The Angular mark as angular.dev draws it today: the gradient shield, red
@@ -57,10 +57,10 @@ const ALGOLIA_SVG = `<svg viewBox="0 0 2196.2 500" fill="currentColor" xmlns="ht
 
 /** Brand marks consumed by showcase chrome. */
 export const BRAND_ICONS: readonly WrIconDef[] = [
-  svgIcon('logo-angular', ANGULAR_SVG),
-  svgIcon('github', GITHUB_SVG),
-  svgIcon('npm', NPM_SVG),
-  svgIcon('stackblitz', STACKBLITZ_SVG),
-  svgIcon('ngwr', NGWR_SVG),
-  svgIcon('algolia', ALGOLIA_SVG),
+  wrSvgIcon('logo-angular', ANGULAR_SVG),
+  wrSvgIcon('github', GITHUB_SVG),
+  wrSvgIcon('npm', NPM_SVG),
+  wrSvgIcon('stackblitz', STACKBLITZ_SVG),
+  wrSvgIcon('ngwr', NGWR_SVG),
+  wrSvgIcon('algolia', ALGOLIA_SVG),
 ];

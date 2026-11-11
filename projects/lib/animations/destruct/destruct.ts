@@ -19,9 +19,10 @@ import {
   untracked,
 } from '@angular/core';
 
-import { FOCUSABLE, roundTo } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, randomId, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrRandomId, wrCheckStyles } from 'ngwr/utils';
+
+import { FOCUSABLE, roundTo } from '../internal';
 
 /** How far a pixel of the text may move at full noise, each way, in em: 2.4px on 16px text. */
 const DESTRUCT_SHIFT = 0.15;
@@ -97,12 +98,12 @@ const SVG = 'http://www.w3.org/2000/svg';
 })
 export class WrDestruct {
   /** How far a pixel of the text may move at full noise, each way, in em of the host's font size. @default 0.15 */
-  readonly shift = input(DESTRUCT_SHIFT, { transform: numAttr(DESTRUCT_SHIFT) });
+  readonly shift = input(DESTRUCT_SHIFT, { transform: wrNumAttr(DESTRUCT_SHIFT) });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly platform = inject(WrPlatform);
   private readonly doc = inject(DOCUMENT);
-  private readonly id = randomId('wr-destruct');
+  private readonly id = wrRandomId('wr-destruct');
   private readonly hot = signal(false);
   private listeners: AbortController | null = null;
   private svg: SVGSVGElement | null = null;

@@ -5,7 +5,7 @@ import { provideRouter, Router, RouterOutlet } from '@angular/router';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrJa } from 'ngwr/i18n/ja';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrIcons, svgIcon } from 'ngwr/icon';
+import { provideWrIcons, wrSvgIcon } from 'ngwr/icon';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { WrSidebarActiveOptions, WrSidebarEntry } from './public-api';
@@ -158,7 +158,7 @@ describe('WrSidebar', () => {
           { path: 'editor', component: Page },
           { path: 'graph', component: Page },
         ]),
-        provideWrIcons([svgIcon('folder', ICON), svgIcon('caret-forward', ICON)]),
+        provideWrIcons([wrSvgIcon('folder', ICON), wrSvgIcon('caret-forward', ICON)]),
         ...(extra as never[]),
       ],
     });
@@ -486,7 +486,7 @@ describe('WrSidebar', () => {
 
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
-        providers: [provideRouter([]), provideWrIcons([svgIcon('folder', ICON)])],
+        providers: [provideRouter([]), provideWrIcons([wrSvgIcon('folder', ICON)])],
       });
       const two = TestBed.createComponent(TwoHost);
       two.detectChanges();
@@ -767,7 +767,7 @@ describe('WrSidebar under a localized catalog', () => {
     TestBed.configureTestingModule({
       providers: [
         provideRouter([{ path: 'table', component: Page }]),
-        provideWrIcons([svgIcon('folder', ICON)]),
+        provideWrIcons([wrSvgIcon('folder', ICON)]),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],

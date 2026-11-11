@@ -8,9 +8,10 @@
 import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, inject, input } from '@angular/core';
 
-import { BREAKING_SPACES, VIEW_THRESHOLD, graphemes, optionalMs, staggerGap } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
+
+import { BREAKING_SPACES, VIEW_THRESHOLD, graphemes, optionalMs, staggerGap } from '../internal';
 
 import type { WrBlurRevealBy, WrBlurRevealFrom } from './types';
 
@@ -56,7 +57,7 @@ export class WrBlurReveal {
   readonly stagger = input<number | null, unknown>(null, { transform: optionalMs });
 
   /** Pause between the host entering the viewport and the first piece, in ms. @default 0 */
-  readonly delay = input(0, { transform: numAttr(0) });
+  readonly delay = input(0, { transform: wrNumAttr(0) });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly platform = inject(WrPlatform);

@@ -110,10 +110,12 @@ guess gets backwards.
   \`provideWrConfig()\`, \`provideWrOverlay()\` or \`provideWrDateAdapter()\`:
   overlays and dates need no provider, and a \`size\` or \`rounded\` default is
   bound on the input.
-- **Code written for v14 or older: run \`ng update ngwr\`.** It runs
+- **Code written for v15 or older: run \`ng update ngwr\`.** It runs
   \`migration-v15\`, which rewrites the paths, the provider calls, the \`-rgb\`
   reads and the renamed token reads, and lists by file and line what needs a
-  decision. ${DOCS}/docs/migration lists every change.
+  decision, then \`migration-v16\`, which renames the exports that had no
+  prefix: \`clamp\` is \`wrClamp\`, \`KEYS\` is \`WR_KEYS\`, \`Maybe\` is
+  \`WrMaybe\`. ${DOCS}/docs/migration lists every change.
 - **The selector is not always the entry point name.** The button is
   \`wr-btn\`, not \`wr-button\`. Check \`references/catalog.md\` before writing a tag.
 - **Check for a MODE before reaching for another component.** The catalog is
@@ -302,13 +304,13 @@ snippet tailored to the answers.
 ## Bootstrap
 
 \`\`\`ts
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 import { Check, ChevronDown } from 'lucide';
 
 bootstrapApplication(App, {
   providers: [
     provideZonelessChangeDetection(),
-    provideWrIcons(lucideIcons({ check: Check, 'chevron-down': ChevronDown })),
+    provideWrIcons(wrLucideIcons({ check: Check, 'chevron-down': ChevronDown })),
   ],
 });
 \`\`\`
@@ -379,7 +381,7 @@ back to the OS. The service applies a remembered choice, or a non-\`auto\`
 screen never injects it paints the OS scheme. Ship \`wrThemePrePaintScript()\`
 in \`<head>\` with the same values to apply the choice before first paint.
 A canvas cannot draw a \`light-dark()\` value: resolve its colours with
-\`resolveCssColor()\` and redraw a still frame from \`watchColorScheme()\`, both
+\`wrResolveCssColor()\` and redraw a still frame from \`wrWatchColorScheme()\`, both
 in \`ngwr/utils\`.
 Write your own dark values with \`light-dark()\` as well — there is no theme
 attribute to key a selector on.
@@ -428,11 +430,12 @@ bootstrapApplication(App, {
 - \`withTheme({ defaultMode: 'dark' })\` from \`ngwr/theme\` — the default
   scheme and its storage key, and \`WrTheme\` created at boot.
 - \`withToast({ … })\` from \`ngwr/toast\`, \`withStorage({ … })\` from
-  \`ngwr/storage\`, \`withMeta({ … })\` from \`ngwr/meta\` and
-  \`withWindows({ bounds })\` from \`ngwr/window\` — toast defaults, the storage
-  engine, prefix and TTL, \`<head>\` defaults for every route, and the work area
-  floating windows keep inside. Like density and theme they configure a root
-  service, so they belong at bootstrap.
+  \`ngwr/storage\`, \`withMeta({ … })\` from \`ngwr/meta\`,
+  \`withWindows({ bounds })\` from \`ngwr/window\` and
+  \`withDialog({ tabTitle })\` from \`ngwr/dialog\` — toast defaults, the storage
+  engine, prefix and TTL, \`<head>\` defaults for every route, the work area
+  floating windows keep inside, and the browser tab named after the open dialog.
+  Like density and theme they configure a root service, so they belong at bootstrap.
 - A \`validation\` namespace in your own i18n catalog — ngwr ships no validation
   copy. \`<wr-form-field>\` reads \`validation.<key>\` for an error whose validator
   carries no \`{ message }\`, with the error payload as params.

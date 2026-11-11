@@ -9,7 +9,7 @@ import { Subject } from 'rxjs';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { WrPagination, type WrPaginationSize } from 'ngwr/pagination';
-import { noop } from 'ngwr/utils';
+import { wrNoop } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTable } from './table';
@@ -668,7 +668,7 @@ describe('WrTable header gestures follow the reading direction', () => {
     cellWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
     Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get: () => 120 });
     // jsdom has no pointer capture; the table calls it during a column drag.
-    Object.defineProperty(HTMLElement.prototype, 'setPointerCapture', { configurable: true, value: noop });
+    Object.defineProperty(HTMLElement.prototype, 'setPointerCapture', { configurable: true, value: wrNoop });
   });
 
   afterEach(() => {
@@ -1168,7 +1168,7 @@ describe('WrTable tree rows with a refused mode', () => {
   });
 
   it('warns once per refused pair, and not for a tree on its own', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(wrNoop);
     const fixture = TestBed.createComponent(RefusedHost);
     fixture.detectChanges();
     expect(warn).not.toHaveBeenCalled();
@@ -1308,7 +1308,7 @@ describe('WrTable warns on a projected template no directive registered', () => 
   }
 
   const settle = async <H>(host: new () => H): Promise<{ messages: string[]; fixture: ComponentFixture<H> }> => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(wrNoop);
     const fixture = TestBed.createComponent(host);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -1323,7 +1323,7 @@ describe('WrTable warns on a projected template no directive registered', () => 
   });
 
   it('warns once, naming WrTableCell, when a template registered with nothing', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(wrNoop);
     const fixture = TestBed.createComponent(ForgottenHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -1338,7 +1338,7 @@ describe('WrTable warns on a projected template no directive registered', () => 
   });
 
   it('stays silent when every template is registered', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(wrNoop);
     const fixture = TestBed.createComponent(RegisteredHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -1372,7 +1372,7 @@ describe('WrTable warns on a projected template no directive registered', () => 
   });
 
   it('stays silent with no template at all', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(wrNoop);
     const fixture = TestBed.createComponent(BareHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -2260,5 +2260,74 @@ describe('WrTable page size menu', () => {
 
     expect(ids(fixture)).toHaveLength(60);
     expect(fixture.debugElement.query(By.directive(WrPagination))).not.toBeNull();
+  });
+});
+
+describe('WrTable expand state over many rows', () => {
+  const COUNT = 300;
+
+  @Component({
+    imports: [WrTable, WrTableExpand],
+    template: `
+      <wr-table rowKey="id" [columns]="columns" [items]="items" [(expanded)]="expanded">
+        <ng-template wrTableExpand let-row>{{ row.name }} detail</ng-template>
+      </wr-table>
+    `,
+  })
+  class DetailHost {
+    protected readonly columns = COLUMNS;
+    readonly items = Array.from({ length: COUNT }, (_, i) => ({ id: i, name: `Row ${i}`, role: 'user' }));
+    readonly expanded = signal<readonly unknown[]>([]);
+  }
+
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table rowKey="id" childrenKey="kids" [columns]="columns" [items]="items" [(expanded)]="expanded" />`,
+  })
+  class ForestHost {
+    protected readonly columns = COLUMNS;
+    readonly items = Array.from({ length: COUNT }, (_, i) => ({
+      id: `p${i}`,
+      name: `Parent ${i}`,
+      kids: [{ id: `c${i}`, name: `Child ${i}` }],
+    }));
+    readonly expanded = signal<readonly unknown[]>([]);
+  }
+
+  it('marks every row expanded once every key is in the model, and only those rows', () => {
+    const fixture = TestBed.createComponent(DetailHost);
+    const host = fixture.componentInstance;
+    const root = fixture.nativeElement as HTMLElement;
+    const states = (): (string | null)[] =>
+      [...root.querySelectorAll('.wr-table__expand-btn')].map(b => b.getAttribute('aria-expanded'));
+    const details = (): string[] =>
+      [...root.querySelectorAll<HTMLElement>('.wr-table__detail')].map(d => d.textContent.trim());
+
+    host.expanded.set(host.items.map(item => item.id));
+    fixture.detectChanges();
+
+    expect(states()).toHaveLength(COUNT);
+    expect(states().every(state => state === 'true')).toBe(true);
+    expect(details()).toHaveLength(COUNT);
+
+    host.expanded.set([7, 250]);
+    fixture.detectChanges();
+
+    expect(states().filter(state => state === 'true')).toHaveLength(2);
+    expect(details()).toEqual(['Row 7 detail', 'Row 250 detail']);
+  });
+
+  it('opens every parent on expandAllRows', () => {
+    const fixture = TestBed.createComponent(ForestHost);
+    const root = fixture.nativeElement as HTMLElement;
+    fixture.detectChanges();
+    expect(root.querySelectorAll('tbody tr[aria-expanded="true"]')).toHaveLength(0);
+
+    (fixture.debugElement.query(By.directive(WrTable)).componentInstance as WrTable).expandAllRows();
+    fixture.detectChanges();
+
+    expect(root.querySelectorAll('tbody tr[aria-expanded="true"]')).toHaveLength(COUNT);
+    expect(root.querySelectorAll('tbody tr[aria-expanded="false"]')).toHaveLength(0);
+    expect(fixture.componentInstance.expanded()).toHaveLength(COUNT);
   });
 });

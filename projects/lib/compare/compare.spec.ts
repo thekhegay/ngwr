@@ -44,6 +44,25 @@ const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-compare')!
 const slider = (): HTMLElement => root().querySelector<HTMLElement>('[role="slider"]')!;
 const after = (): HTMLElement => root().querySelector<HTMLElement>('.wr-compare__layer--after')!;
 const divider = (): HTMLElement => root().querySelector<HTMLElement>('.wr-compare__divider')!;
+
+/**
+ * The after layer's clip as percentages, `[top, right, bottom, left]`. Numbers,
+ * not the string: `inset(0 0 0 50%)` and `inset(0px 0px 0px 50%)` are one clip,
+ * and which of them `style.clipPath` answers with is the engine's choice.
+ */
+const clip = (): number[] => {
+  const value = after().style.clipPath;
+  const sides = (/^inset\(([^)]*)\)$/.exec(value)?.[1] ?? '').trim().split(/\s+/).filter(Boolean);
+  const lengths = sides.map(side => {
+    const number = parseFloat(side);
+    return side.endsWith('%') || number === 0 ? number : NaN;
+  });
+  if (lengths.length === 0 || lengths.length > 4 || lengths.some(Number.isNaN)) {
+    throw new Error(`not an inset() of percentages: "${value}"`);
+  }
+  const [top, right = top, bottom = top, left = right] = lengths;
+  return [top, right, bottom, left];
+};
 const position = (): number => fixture.componentInstance.position();
 
 const press = (key: string, init: KeyboardEventInit = {}): KeyboardEvent => {
@@ -113,19 +132,19 @@ describe('WrCompare', () => {
   });
 
   it('reveals the after layer from the divider outwards', () => {
-    expect(after().style.clipPath).toBe('inset(0 0 0 50%)');
+    expect(clip()).toEqual([0, 0, 0, 50]);
     expect(divider().style.left).toBe('50%');
 
     fixture.componentInstance.position.set(20);
     fixture.detectChanges();
-    expect(after().style.clipPath).toBe('inset(0 0 0 20%)');
+    expect(clip()).toEqual([0, 0, 0, 20]);
   });
 
   it('clips from the top when it is vertical', () => {
     fixture.componentInstance.orientation.set('vertical');
     fixture.detectChanges();
 
-    expect(after().style.clipPath).toBe('inset(50% 0 0 0)');
+    expect(clip()).toEqual([50, 0, 0, 0]);
     expect(divider().style.top).toBe('50%');
     expect(slider().getAttribute('aria-orientation')).toBe('vertical');
   });
@@ -323,7 +342,7 @@ describe('WrCompare and reading direction', () => {
     fixture.componentInstance.position.set(30);
     fixture.detectChanges();
     // LTR: before owns the leftmost 30%, after is clipped away from the left.
-    expect(after().style.clipPath).toBe('inset(0 0 0 30%)');
+    expect(clip()).toEqual([0, 0, 0, 30]);
     expect(divider().style.left).toBe('30%');
 
     setup('rtl');
@@ -331,7 +350,7 @@ describe('WrCompare and reading direction', () => {
     fixture.detectChanges();
     // RTL: the same 30% of "before", now against the right edge — so the after layer is
     // clipped from the right and the divider line sits 70% from the physical left.
-    expect(after().style.clipPath).toBe('inset(0 30% 0 0)');
+    expect(clip()).toEqual([0, 30, 0, 0]);
     expect(divider().style.left).toBe('70%');
   });
 
@@ -392,7 +411,7 @@ describe('WrCompare and reading direction', () => {
     fixture.detectChanges();
     measureHost();
 
-    expect(after().style.clipPath).toBe('inset(30% 0 0 0)');
+    expect(clip()).toEqual([30, 0, 0, 0]);
     expect(divider().style.top).toBe('30%');
     press('ArrowDown');
     expect(position()).toBe(31);
@@ -405,7 +424,7 @@ describe('WrCompare and reading direction', () => {
     fixture.detectChanges();
     measureHost();
 
-    expect(after().style.clipPath).toBe('inset(30% 0 0 0)');
+    expect(clip()).toEqual([30, 0, 0, 0]);
     expect(divider().style.top).toBe('30%');
     press('ArrowDown');
     expect(position()).toBe(31);
@@ -425,11 +444,11 @@ describe('WrCompare and reading direction', () => {
     fixture = TestBed.createComponent(Host);
     fixture.componentInstance.position.set(30);
     fixture.detectChanges();
-    expect(after().style.clipPath).toBe('inset(0 0 0 30%)');
+    expect(clip()).toEqual([0, 0, 0, 30]);
 
     change.next('rtl');
     fixture.detectChanges();
-    expect(after().style.clipPath).toBe('inset(0 30% 0 0)');
+    expect(clip()).toEqual([0, 30, 0, 0]);
     expect(divider().style.left).toBe('70%');
   });
 

@@ -158,7 +158,7 @@ function inferType(
   const named = initial && /^[A-Z][A-Z0-9_]*$/.test(initial) ? resolve(initial) : undefined;
   if (named) return inferType(named, args, () => undefined);
   if (args.includes('coerceBooleanProperty')) return 'boolean';
-  if (/numAttr|coerceNumberProperty/.test(args)) return 'number';
+  if (/wrNumAttr|coerceNumberProperty/.test(args)) return 'number';
   return undefined;
 }
 
@@ -451,7 +451,7 @@ export function extractApi(): Map<string, ApiEntry> {
  * `maxStack` live on `WrDrawerOptions` / `WrToastConfig`, which a page documents
  * under its own heading — one the check never sees, because the heading is in
  * the template and the rows are in the class. Exported functions: the colour
- * picker documents `rgbToHsv` and its three siblings, which are `export
+ * picker documents `wrRgbToHsv` and its three siblings, which are `export
  * function`s in `ngwr/color-picker`, not inputs on anything. And the attribute
  * of a selector: `[wrInput]` matches `input[wrInput]`, so the page writes the
  * name bare — the same way a consumer types it — where the bracketed form would

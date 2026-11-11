@@ -1,10 +1,10 @@
 import { LOCALE_ID, computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { clamp, round } from 'ngwr/utils';
+import { wrClamp, wrRound } from 'ngwr/utils';
 import { describe, expect, it } from 'vitest';
 
-import { chartAxis } from './axis';
+import { wrChartAxis } from './axis';
 import { useChartNumbers } from './numbers';
 import type { WrChartNumbers } from './types';
 
@@ -75,7 +75,7 @@ function v15LineAxis(all: readonly number[]): { min: number; max: number; step: 
   })();
   const ticks: number[] = [];
   const count = Math.round((bounds.max - bounds.min) / bounds.step);
-  for (let i = 0; i <= count; i++) ticks.push(round(bounds.max - i * bounds.step, 6));
+  for (let i = 0; i <= count; i++) ticks.push(wrRound(bounds.max - i * bounds.step, 6));
   return { ...bounds, ticks };
 }
 
@@ -95,7 +95,7 @@ function v15TickLabels(
       ? full.format(0)
       : new Intl.NumberFormat(locale, {
           notation: 'compact',
-          maximumSignificantDigits: clamp(magnitude(value) - last + 1, 1, 21),
+          maximumSignificantDigits: wrClamp(magnitude(value) - last + 1, 1, 21),
         }).format(value)
   );
   const longest = (labels: readonly string[]): number => Math.max(...labels.map(label => label.length));
@@ -193,8 +193,8 @@ const format = (custom: ((value: number) => string) | null = null, locale = 'en-
  */
 const sixDigitsHold = (step: number): boolean => lastDigit(step) >= -6;
 
-const lineAxis = (data: readonly number[]): ReturnType<typeof chartAxis> =>
-  data.length === 0 ? chartAxis(Number.NaN, Number.NaN) : chartAxis(Math.min(0, ...data), Math.max(...data));
+const lineAxis = (data: readonly number[]): ReturnType<typeof wrChartAxis> =>
+  data.length === 0 ? wrChartAxis(Number.NaN, Number.NaN) : wrChartAxis(Math.min(0, ...data), Math.max(...data));
 
 describe('useChartNumbers', () => {
   describe('writes exactly what the v15 charts wrote', () => {
@@ -276,7 +276,7 @@ describe('useChartNumbers', () => {
   ] as const)(
     'ticks %s to %s (symmetric: %s) by %s, every one distinct and exact',
     (lo, hi, symmetric, step, expected) => {
-      const axis = chartAxis(lo, hi, { symmetric });
+      const axis = wrChartAxis(lo, hi, { symmetric });
       expect(axis.step).toBeCloseTo(step, 20);
       expect(axis.ticks.slice(0, expected.length).map(tick => format().ticks([tick], axis.step)[0])).toEqual(
         expected.map(String)

@@ -1,8 +1,8 @@
 <ngwr-doc-page
   title="Table"
-  updated="15.9.0"
+  updated="16.0.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
-  [keywords]="['table', 'wr-table']"
+  [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
 >
   <ngwr-doc-section
@@ -51,7 +51,7 @@
 
   <ngwr-doc-section
     title="Sorting is state, not a sort"
-    description="The table never reorders `items`: sort them yourself from `sort()`."
+    description="The table never reorders `items`: `wrSortRows()` applies `sort()` to them."
   >
     <ngwr-doc-code [code]="snippets.sortState" language="angular-ts" />
     <ul>
@@ -66,6 +66,11 @@
         column.
       </li>
       <li>Sorting does not reset <code>page</code>. Reset it in your sort handler if you want.</li>
+      <li>
+        <code>wrSortRows()</code> puts empty values first, then numbers, then text; <code>desc</code> reverses all of
+        it. <code>'10'</code> sorts after <code>'9'</code>. Text compares by code unit: pass an accessor for anything
+        else. Since v15.10.
+      </li>
     </ul>
   </ngwr-doc-section>
 
@@ -179,8 +184,39 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Sticky header"
+    description="`stickyHeader` scrolls the rows inside the table, under a header that stays put. `viewportHeight` caps the scroll area; the pager sits below it."
+  >
+    <ngwr-doc-code [code]="snippets.sticky" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table
+          stickyHeader
+          [viewportHeight]="320"
+          [columns]="columns"
+          [items]="paginatedRows"
+          [pageSize]="10"
+          [(page)]="stickyPage"
+        />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        It works in every mode: paged, grouped, tree rows, pinned columns, selection. The summary footer sticks too.
+      </li>
+      <li>
+        <code>viewportHeight="fill"</code> takes the height the parent has left. The parent is a flex column with a
+        height of its own, and every flex ancestor above it has <code>min-height: 0</code>; or it is a block with a set
+        height.
+      </li>
+      <li>A filling table never shrinks below <code>--wr-table-scroll-min-height</code>.</li>
+    </ul>
+    <ngwr-doc-code [code]="snippets.stickyFill" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Virtual scroll"
-    description="Set `virtualScroll` and `viewportHeight`; all rows share one height."
+    description="Set `virtualScroll` and `viewportHeight`; all rows share one height. The header sticks without `stickyHeader`."
   >
     <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -219,6 +255,28 @@
         />
         <div style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
           selected: <strong>{{ selected().length }}</strong>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <p>
+      The header checkbox covers the page on screen. <code>selectAllScope="all"</code> makes it cover every page of
+      <code>items</code>: checked when all of them are selected, mixed when some are. It replaces reaching into the
+      table's protected members. In server mode the table holds one page, so the scope stays that page.
+    </p>
+    <ngwr-doc-code [code]="snippets.selectAllScope" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table
+          rowSelection="multiple"
+          selectAllScope="all"
+          rowKey="email"
+          [pageSize]="5"
+          [(selection)]="selectedAcross"
+          [columns]="columns"
+          [items]="paginatedRows"
+        />
+        <div style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+          selected: <strong>{{ selectedAcross().length }}</strong> of {{ paginatedRows.length }}
         </div>
       </div>
     </ngwr-doc-snippet>
@@ -331,7 +389,7 @@
 
   <ngwr-doc-section
     title="Pinned columns"
-    description="`pin: 'left'` or `pin: 'right'` keeps a column in place while the rest scrolls sideways."
+    description="`pin: 'left'` or `pin: 'right'` keeps a column in place while the rest scrolls sideways. Its edge casts a shadow only while columns are hidden behind it."
   >
     <ngwr-doc-code [code]="snippets.pinned" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -423,6 +481,10 @@
 
   <ngwr-doc-section title="Methods" description="Call them through a template reference.">
     <ngwr-doc-api [rows]="methodsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Helpers">
+    <ngwr-doc-api [rows]="helpersApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="&lt;wr-table-filter&gt;">

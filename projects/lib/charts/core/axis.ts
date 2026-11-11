@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { round } from 'ngwr/utils';
+import { wrRound } from 'ngwr/utils';
 
 import type { WrChartAxis, WrChartAxisOptions } from './types';
 
@@ -69,7 +69,7 @@ function centredAxis(value: number): WrChartAxis {
     min: value - step,
     max: value + step,
     step,
-    ticks: [round(value + step, digits), value, round(value - step, digits)],
+    ticks: [wrRound(value + step, digits), value, wrRound(value - step, digits)],
   };
 }
 
@@ -111,13 +111,13 @@ export function niceStep(raw: number): number {
  * 1. Bounds handed in the wrong order are swapped.
  *
  * The line chart's own rule, which floors its axis at zero and never lifts it to
- * zero from below, is `chartAxis(Math.min(0, min), max)`: an all-negative series
+ * zero from below, is `wrChartAxis(Math.min(0, min), max)`: an all-negative series
  * keeps an axis that ends just above its peak. `includeZero` is the other reading,
  * zero inside the range on either side, which an area needs for its baseline.
  *
  * @internal
  */
-export function chartAxis(min: number, max: number, options: WrChartAxisOptions = {}): WrChartAxis {
+export function wrChartAxis(min: number, max: number, options: WrChartAxisOptions = {}): WrChartAxis {
   if (!Number.isFinite(min) || !Number.isFinite(max)) return EMPTY;
   const dataLo = Math.min(min, max);
   const dataHi = Math.max(min, max);
@@ -144,6 +144,6 @@ export function chartAxis(min: number, max: number, options: WrChartAxisOptions 
   const gaps = Math.round((top - bottom) / step);
   const digits = tickDigits(step);
   const ticks: number[] = [];
-  for (let i = 0; i <= gaps; i++) ticks.push(round(top - i * step, digits));
+  for (let i = 0; i <= gaps; i++) ticks.push(wrRound(top - i * step, digits));
   return { min: bottom, max: top, step, ticks };
 }

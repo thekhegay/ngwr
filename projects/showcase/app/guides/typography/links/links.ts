@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 import { ArrowRight } from 'lucide';
-import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
@@ -10,7 +10,7 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
   selector: 'ngwr-typo-links-page',
   templateUrl: './links.html',
   imports: [WrTypography, WrIcon, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
-  providers: [provideWrIcons(lucideIcons({ 'arrow-forward': ArrowRight }))],
+  providers: [provideWrIcons(wrLucideIcons({ 'arrow-forward': ArrowRight }))],
 })
 export default class TypographyLinksPage {
   protected readonly snippets = {

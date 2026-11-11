@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { chartColor, chartDash, chartMarker, chartMarkerExtent } from 'ngwr/charts/core';
+import { wrChartColor, wrChartDash, wrChartMarker, wrChartMarkerExtent } from 'ngwr/charts/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrBarChart } from './bar-chart';
@@ -183,17 +183,17 @@ describe('WrBarChart lines', () => {
 
       const [target, rate] = lines();
       expect(segments(target).map(s => [s.getAttribute('stroke'), s.getAttribute('stroke-dasharray')])).toEqual([
-        [chartColor(2), null],
-        [chartColor(2), null],
+        [wrChartColor(2), null],
+        [wrChartColor(2), null],
       ]);
       expect(segments(rate)[0].getAttribute('stroke')).toBe('#123456');
-      expect(segments(rate)[0].getAttribute('stroke-dasharray')).toBe(chartDash(1));
+      expect(segments(rate)[0].getAttribute('stroke-dasharray')).toBe(wrChartDash(1));
       expect(points(target).map(p => p.getAttribute('data-marker'))).toEqual([
-        chartMarker(0),
-        chartMarker(0),
-        chartMarker(0),
+        wrChartMarker(0),
+        wrChartMarker(0),
+        wrChartMarker(0),
       ]);
-      expect(points(rate)[0].getAttribute('data-marker')).toBe(chartMarker(1));
+      expect(points(rate)[0].getAttribute('data-marker')).toBe(wrChartMarker(1));
       expect(points(rate)[0].querySelector('path')!.getAttribute('fill')).toBe('#123456');
     });
 
@@ -286,7 +286,7 @@ describe('WrBarChart lines', () => {
     });
 
     it('takes the palette’s second colour, past the one the bars are painted in', () => {
-      expect(segments()[0].getAttribute('stroke')).toBe(chartColor(1));
+      expect(segments()[0].getAttribute('stroke')).toBe(wrChartColor(1));
     });
 
     it('lists the lines alone in the legend, keyed by dash and marker', () => {
@@ -420,8 +420,8 @@ describe('WrBarChart lines', () => {
 
   describe('room for the markers', () => {
     const reach = (): string => chart().style.getPropertyValue('--wr-bar-chart-reach');
-    const along = (shape: Parameters<typeof chartMarkerExtent>[0]): number => {
-      const extent = chartMarkerExtent(shape, 4);
+    const along = (shape: Parameters<typeof wrChartMarkerExtent>[0]): number => {
+      const extent = wrChartMarkerExtent(shape, 4);
       return Math.round(Math.max(extent.top, extent.bottom) * 1000) / 1000;
     };
 
@@ -462,7 +462,7 @@ describe('WrBarChart lines', () => {
           { label: 'C', data: [1, 2, 3] },
         ]);
       });
-      expect(Number(reach())).toBe(Math.round(chartMarkerExtent('triangle', 4).side * 1000) / 1000);
+      expect(Number(reach())).toBe(Math.round(wrChartMarkerExtent('triangle', 4).side * 1000) / 1000);
 
       set(h => h.lines.set([]));
       expect(reach()).toBe('');

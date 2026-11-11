@@ -7,10 +7,10 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { getRootFontSize } from './get-root-font-size';
+import { wrGetRootFontSize } from './get-root-font-size';
 
 /**
- * The rem half of `resolveCssSize` rests on this, and so does every component
+ * The rem half of `wrResolveCssSize` rests on this, and so does every component
  * that converts a rem input into a number — which is why the fallbacks matter
  * more than the happy path. Each of the three below is a real runtime: a
  * browser, an SSR render with no `window`, and a DOM that has one but answers
@@ -21,12 +21,12 @@ import { getRootFontSize } from './get-root-font-size';
  * `NaNpx` in a style attribute — a size the browser drops, on an element that
  * then renders at its intrinsic size with nothing in the console.
  */
-describe('getRootFontSize', () => {
+describe('wrGetRootFontSize', () => {
   afterEach(() => vi.restoreAllMocks());
 
   it('reads the computed root font size in a real DOM', () => {
     document.documentElement.style.fontSize = '20px';
-    expect(getRootFontSize()).toBe(20);
+    expect(wrGetRootFontSize()).toBe(20);
     document.documentElement.style.fontSize = '';
   });
 
@@ -35,8 +35,8 @@ describe('getRootFontSize', () => {
     // fallback is only reachable through the stubs below.
     vi.spyOn(window, 'getComputedStyle').mockReturnValue({ fontSize: '' } as CSSStyleDeclaration);
 
-    expect(getRootFontSize()).toBe(16);
-    expect(getRootFontSize(14)).toBe(14);
+    expect(wrGetRootFontSize()).toBe(16);
+    expect(wrGetRootFontSize(14)).toBe(14);
   });
 
   it('falls back when the computed value cannot be parsed as a number', () => {
@@ -44,7 +44,7 @@ describe('getRootFontSize', () => {
     // and what domino returns under SSR for an unstyled element.
     for (const fontSize of ['', 'medium', 'inherit', 'NaN']) {
       vi.spyOn(window, 'getComputedStyle').mockReturnValue({ fontSize } as CSSStyleDeclaration);
-      expect(getRootFontSize(15), fontSize).toBe(15);
+      expect(wrGetRootFontSize(15), fontSize).toBe(15);
     }
   });
 
@@ -56,24 +56,24 @@ describe('getRootFontSize', () => {
       throw new Error('no view');
     });
 
-    expect(getRootFontSize()).toBe(16);
-    expect(getRootFontSize(12)).toBe(12);
+    expect(wrGetRootFontSize()).toBe(16);
+    expect(wrGetRootFontSize(12)).toBe(12);
   });
 
   it('falls back with no DOM at all, which is every SSR render', () => {
-    // The documented SSR branch, and the reason `resolveCssSize` can be called
+    // The documented SSR branch, and the reason `wrResolveCssSize` can be called
     // from a component's field initialiser: the server has no `window`, and a
     // throw there fails the prerender rather than the component.
     vi.stubGlobal('window', undefined);
-    expect(getRootFontSize()).toBe(16);
-    expect(getRootFontSize(18)).toBe(18);
+    expect(wrGetRootFontSize()).toBe(16);
+    expect(wrGetRootFontSize(18)).toBe(18);
     vi.unstubAllGlobals();
   });
 
   it('never returns NaN, whatever the DOM says', () => {
-    // The property that actually matters downstream: `resolveCssSize('3rem')`
+    // The property that actually matters downstream: `wrResolveCssSize('3rem')`
     // multiplies by this, and a NaN there reaches a style attribute as `NaNpx`.
     vi.spyOn(window, 'getComputedStyle').mockReturnValue({ fontSize: 'nonsense' } as CSSStyleDeclaration);
-    expect(Number.isFinite(getRootFontSize())).toBe(true);
+    expect(Number.isFinite(wrGetRootFontSize())).toBe(true);
   });
 });

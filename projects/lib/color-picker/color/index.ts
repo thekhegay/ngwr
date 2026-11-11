@@ -1,11 +1,11 @@
 export type { WrRgb } from './wr-rgb';
 export type { WrHsv } from './wr-hsv';
 export type { WrHsl } from './wr-hsl';
-export { rgbToHsv } from './rgb-to-hsv';
-export { hsvToRgb } from './hsv-to-rgb';
-export { rgbToHsl } from './rgb-to-hsl';
-export { hslToRgb } from './hsl-to-rgb';
-export { parseHex } from './parse-hex';
-export { toHex } from './to-hex';
+export { wrRgbToHsv } from './rgb-to-hsv';
+export { wrHsvToRgb } from './hsv-to-rgb';
+export { wrRgbToHsl } from './rgb-to-hsl';
+export { wrHslToRgb } from './hsl-to-rgb';
+export { wrParseHex } from './parse-hex';
+export { wrToHex } from './to-hex';
 export { parseColor } from './parse-color';
 export { formatColor } from './format-color';

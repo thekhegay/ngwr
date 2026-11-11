@@ -21,9 +21,10 @@ import {
   untracked,
 } from '@angular/core';
 
-import { FOCUSABLE, optionalSelector } from 'ngwr/animations/core';
 import { WrPlatform } from 'ngwr/platform';
 import { wrCheckStyles } from 'ngwr/utils';
+
+import { FOCUSABLE, optionalSelector } from '../internal';
 
 /**
  * A short piece of text that looks like a broken signal while the pointer is

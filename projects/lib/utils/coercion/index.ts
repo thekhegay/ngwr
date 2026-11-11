@@ -1,1 +1,1 @@
-export { numAttr } from './num-attr';
+export { wrNumAttr } from './num-attr';

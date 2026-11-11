@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 
 import { Copy, Download, Plus, Trash2, TriangleAlert } from 'lucide';
 import { WrButton, type WrButtonShape } from 'ngwr/button';
-import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WR_COLORS } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
 
@@ -30,7 +30,7 @@ import { API } from '#core/generated/api';
   styleUrl: './button.scss',
   providers: [
     provideWrIcons(
-      lucideIcons({
+      wrLucideIcons({
         add: Plus,
         'copy-outline': Copy,
         download: Download,
