@@ -98,6 +98,13 @@ const dates = inject(WrDateAdapter); // once, in a field or a constructor
 wrFormatDate(row.createdAt, dates);                   // shortDate
 wrFormatDate(row.createdAt, dates, 'mediumDateTime'); // Jun 12, 2026, 10:51 AM
 wrFormatDate(row.createdAt, dates, 'dd.MM.yyyy');     // 12.06.2026`,
+    parse: `import { wrParseDate } from 'ngwr/date';
+
+wrParseDate('2026-03-01 14:30:00');        // 1 March 2026, 14:30 local
+wrParseDate('2026-03-01');                 // 1 March 2026, 00:00 local
+wrParseDate('2026-03-01T09:30:00+05:00');  // that instant
+wrParseDate(1772343000000);                // epoch milliseconds
+wrParseDate('n/a');                        // null`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -111,6 +118,13 @@ wrFormatDate(row.createdAt, dates, 'dd.MM.yyyy');     // 12.06.2026`,
       name: 'wrFormatDate',
       description: 'The pipe as a function, over the adapter given.',
       type: "(value: Date | string | number | null | undefined, adapter: WrDateAdapter<Date>, format: WrDateFormat | string = 'shortDate') => string",
+      default: '—',
+    },
+    {
+      name: 'wrParseDate',
+      description:
+        'From `ngwr/date`. A backend value as a `Date`: the space form, a date-only string as the local day, an ISO string, epoch milliseconds or a `Date`. `null` for anything that holds no date.',
+      type: '(value: Date | string | number | null | undefined) => Date | null',
       default: '—',
     },
   ];
