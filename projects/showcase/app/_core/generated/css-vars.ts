@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1638 hook(s) across 112 page(s). A property is here only when the
+ * 1642 hook(s) across 112 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -1894,6 +1894,7 @@ export const CSS_VARS = {
       { name: "--wr-table-font-family", default: "var(--wr-font-family-base)", scope: ".wr-table" },
       { name: "--wr-table-font-size", default: "var(--wr-text-sm)", scope: ".wr-table" },
       { name: "--wr-table-foot-cell-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-table" },
+      { name: "--wr-table-foot-height", default: "0px", scope: ".wr-table" },
       { name: "--wr-table-group-bg", default: "var(--wr-color-fill-subtle)", scope: ".wr-table" },
       { name: "--wr-table-group-count-font-size", default: "var(--wr-text-xs)", scope: ".wr-table" },
       { name: "--wr-table-group-count-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-table" },
@@ -1905,6 +1906,7 @@ export const CSS_VARS = {
       { name: "--wr-table-head-bg", default: "var(--wr-color-fill)", scope: ".wr-table" },
       { name: "--wr-table-head-font-size", default: "var(--wr-text-xs)", scope: ".wr-table" },
       { name: "--wr-table-head-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-table" },
+      { name: "--wr-table-head-height", default: "2.5rem", scope: ".wr-table" },
       { name: "--wr-table-head-letter-spacing", default: "var(--wr-tracking-normal)", scope: ".wr-table" },
       { name: "--wr-table-head-transform", default: "none", scope: ".wr-table" },
       { name: "--wr-table-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-table" },
@@ -1913,6 +1915,8 @@ export const CSS_VARS = {
       { name: "--wr-table-radius", default: "var(--wr-border-radius-base)", scope: ".wr-table" },
       { name: "--wr-table-resize-handle-bg", default: "var(--wr-border-base)", scope: ".wr-table" },
       { name: "--wr-table-row-hover", default: "var(--wr-color-fill-subtle)", scope: ".wr-table" },
+      { name: "--wr-table-scroll-height", default: "30rem", scope: ".wr-table" },
+      { name: "--wr-table-scroll-min-height", default: "16rem", scope: ".wr-table" },
       { name: "--wr-table-sort-order-font-size", default: "var(--wr-table-head-font-size)", scope: ".wr-table" },
       { name: "--wr-table-sort-order-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-table" },
       { name: "--wr-table-tree-lead-margin-end", default: "var(--wr-space-xs)", scope: ".wr-table", overrides: 1 },
