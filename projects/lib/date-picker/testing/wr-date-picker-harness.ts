@@ -95,8 +95,8 @@ export class WrDatePickerHarness extends WrDatePickerHarnessBase {
   /**
    * Empty the field, which clears the value.
    *
-   * There is no clear button to click: unlike `wr-select`, this component ships no
-   * `×` affordance, and an empty field is the documented way to get back to `null`.
+   * Not a click on the `×`: that button exists only on a `clearable` picker, and an
+   * empty field gets back to `null` on every one.
    */
   async clear(): Promise<void> {
     await (await this.field()).clear();

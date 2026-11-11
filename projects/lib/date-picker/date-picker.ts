@@ -162,6 +162,17 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   readonly size = input<WrDatePickerSize>('md');
 
   /**
+   * Show a clear (×) button once a date is picked. It is a pointer control: from the
+   * keyboard, emptying the field clears the value. @default false
+   */
+  readonly clearable = input(false, { transform: coerceBooleanProperty });
+
+  /** Clear (×) button aria-label. Falls back to `common.clear`. */
+  readonly clearLabel = input<string | null>(null);
+
+  protected readonly resolvedClear = useI18nText(this.clearLabel, 'common.clear', 'Clear');
+
+  /**
    * Disable interaction. Bound automatically from the field's disabled state
    * when used with `[formField]`.
    *
@@ -197,6 +208,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   /** Text currently in the input (may be partial / invalid mid-type). */
   protected readonly text = signal<string>('');
+
+  protected readonly hasValue = computed(() => this.value() != null);
 
   /** Whether the popover is currently open. */
   protected readonly overlayOpen = signal(false);
@@ -571,6 +584,17 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     }
     this.commitValue(this.withKeptDate(parsed));
     this.refuse(null);
+  }
+
+  /** The clear (×) button — the same commit an emptied field makes. */
+  protected clear(event: Event): void {
+    event.stopPropagation();
+    if (this.disabled() || this.readonly()) return;
+    this.text.set('');
+    this.commitValue(null);
+    this.refuse(null);
+    this.inputEl().nativeElement.focus();
+    this.touch.emit();
   }
 
   /**

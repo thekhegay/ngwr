@@ -31,7 +31,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
-import { readI18nText } from 'ngwr/i18n';
+import { readI18nText, useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrFollowSize } from 'ngwr/overlay';
 import { toClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
@@ -166,6 +166,17 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   readonly size = input<WrDatePickerSize>('md');
 
   /**
+   * Show a clear (×) button once either end is picked. It is a pointer control: from the
+   * keyboard, emptying both fields clears the value. @default false
+   */
+  readonly clearable = input(false, { transform: coerceBooleanProperty });
+
+  /** Clear (×) button aria-label. Falls back to `common.clear`. */
+  readonly clearLabel = input<string | null>(null);
+
+  protected readonly resolvedClear = useI18nText(this.clearLabel, 'common.clear', 'Clear');
+
+  /**
    * Disable interaction. Bound automatically from the field's disabled state
    * when used with `[formField]`.
    *
@@ -213,6 +224,11 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   /** Text currently in each input (may be partial / invalid mid-type). */
   protected readonly startText = signal<string>('');
   protected readonly endText = signal<string>('');
+
+  protected readonly hasValue = computed(() => {
+    const [start, end] = this.current();
+    return start != null || end != null;
+  });
 
   /** Whether the popover is currently open. */
   protected readonly overlayOpen = signal(false);
@@ -724,6 +740,19 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     // still typing over to the other input. Ordering is settled on blur.
     this.commitRange(end === 0 ? [parsed, finish] : [start, parsed], { normalise: false });
     this.refuse(end, null);
+  }
+
+  /** The clear (×) button — the same commit two emptied fields make. */
+  protected clear(event: Event): void {
+    event.stopPropagation();
+    if (this.disabled() || this.readonly()) return;
+    this.startText.set('');
+    this.endText.set('');
+    this.commitRange([null, null], { normalise: false });
+    this.refuse(0, null);
+    this.refuse(1, null);
+    this.startEl().nativeElement.focus();
+    this.touch.emit();
   }
 
   // Overlay

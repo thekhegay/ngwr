@@ -46,6 +46,31 @@
     (input)="onEndInput($event)"
     (blur)="onBlur($event)"
   />
+  <!-- Pointer-only, as the select's is: emptying both fields is the keyboard way to clear. -->
+  @if (clearable() && hasValue() && !disabled() && !readonly()) {
+    <span
+      class="wr-date-picker__clear"
+      role="button"
+      [attr.aria-label]="resolvedClear()"
+      tabindex="-1"
+      (click)="clear($event)"
+    >
+      <svg
+        class="wr-icon__svg"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M18 6 6 18" />
+        <path d="m6 6 12 12" />
+      </svg>
+    </span>
+  }
   <!--
     `readonly` refuses to open the popup, so the trigger is disabled with it —
     otherwise it stays a focusable button advertising `aria-haspopup="dialog"`

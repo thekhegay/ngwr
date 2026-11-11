@@ -74,6 +74,50 @@
   }
 }
 
+// The clear (×) both pickers draw between the last field and the trigger — the
+// select's, in a group instead of a button.
+.wr-date-picker__clear {
+  --wr-date-picker-clear-radius: var(--wr-border-radius-pill);
+  // The glyph is a bare `.wr-icon__svg`, which is `1em`.
+  --wr-date-picker-clear-icon-size: var(--wr-control-font-size-md);
+
+  flex: 0 0 auto;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: var(--wr-date-picker-clear-radius);
+  color: var(--wr-color-on-surface-muted);
+  font-size: var(--wr-date-picker-clear-icon-size);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--wr-color-on-surface) 6%, transparent);
+    color: var(--wr-color-on-surface);
+  }
+}
+
+// Touch pointers get a wider × that fills the field's height instead of growing it.
+@media (pointer: coarse) {
+  .wr-date-picker__clear {
+    align-self: stretch;
+    width: 2rem;
+    height: auto;
+  }
+}
+
+// The field keeps the affix gutter when the × sits between it and the trigger,
+// so the text does not move as the × comes and goes.
+.wr-date-picker .wr-input:has(+ .wr-date-picker__clear),
+.wr-date-range-picker .wr-input:has(+ .wr-date-picker__clear) {
+  padding-inline-end: var(--wr-input-group-affix-gap);
+}
+
 // Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px). The fields carry
 // `wr-input--<size>` themselves; the group and the trigger are their siblings and
 // read the size from the host. Both pickers draw the same trigger.
@@ -87,6 +131,10 @@
   .wr-date-picker__trigger {
     --wr-date-picker-trigger-icon-size: var(--wr-control-font-size-sm);
   }
+
+  .wr-date-picker__clear {
+    --wr-date-picker-clear-icon-size: var(--wr-control-font-size-sm);
+  }
 }
 
 .wr-date-picker--lg,
@@ -98,6 +146,10 @@
 
   .wr-date-picker__trigger {
     --wr-date-picker-trigger-icon-size: var(--wr-control-font-size-lg);
+  }
+
+  .wr-date-picker__clear {
+    --wr-date-picker-clear-icon-size: var(--wr-control-font-size-lg);
   }
 }
 
@@ -117,30 +169,29 @@
 
   &__separator {
     --wr-date-range-picker-separator-padding-x: var(--wr-space-xs);
+    // The page's text at md, as it has always been. `sm` and `lg` take the
+    // control's: the page's line box is taller than an `sm` field and stretched
+    // the group past 22px.
+    --wr-date-range-picker-separator-font-size: inherit;
+    --wr-date-range-picker-separator-line-height: inherit;
 
     display: inline-flex;
     align-items: center;
     padding: 0 var(--wr-date-range-picker-separator-padding-x);
     color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-date-range-picker-separator-font-size);
+    line-height: var(--wr-date-range-picker-separator-line-height);
     user-select: none;
   }
 
-  // The separator inherits the page's text, whose line box is taller than an
-  // `sm` field: left alone it stretched the group past 22px.
   &--sm &__separator {
     --wr-date-range-picker-separator-font-size: var(--wr-control-font-size-sm);
     --wr-date-range-picker-separator-line-height: var(--wr-control-line-height-sm);
-
-    font-size: var(--wr-date-range-picker-separator-font-size);
-    line-height: var(--wr-date-range-picker-separator-line-height);
   }
 
   &--lg &__separator {
     --wr-date-range-picker-separator-font-size: var(--wr-control-font-size-lg);
     --wr-date-range-picker-separator-line-height: var(--wr-control-line-height-lg);
-
-    font-size: var(--wr-date-range-picker-separator-font-size);
-    line-height: var(--wr-date-range-picker-separator-line-height);
   }
 
   &--disabled {
