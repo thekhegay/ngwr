@@ -16,6 +16,7 @@ import {
   input,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 
 import { type WrDurationUnit, wrSplitDuration } from 'ngwr/pipes';
@@ -118,7 +119,11 @@ export class WrStatisticCountdown {
    */
   readonly tickMs = input(1000, { transform: (v: unknown): number => Math.max(16, numAttr(1000)(v)) });
 
-  /** Fires once when the countdown crosses zero. */
+  /**
+   * Fires once for each target that is reached, or that has already passed when
+   * it is set, mount included, so an app reloaded after expiry still hears it.
+   * A new future target counts down again and fires again.
+   */
   readonly countdownEnd = output<void>();
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -153,6 +158,8 @@ export class WrStatisticCountdown {
       const ms = this.remainingMs();
       this.remaining.set(ms ?? 0);
       this.finished.set(ms === 0);
+      // A target already past never crosses zero in `tick`, so it ends here.
+      if (ms === 0) untracked(() => this.countdownEnd.emit());
     });
 
     if (!this.isBrowser) return;
@@ -166,6 +173,7 @@ export class WrStatisticCountdown {
     // what keeps a period change from leaving the old interval running beside
     // the new one.
     effect(onCleanup => {
+      if (this.finished()) return;
       const handle = setInterval(() => this.tick(), this.tickMs());
       onCleanup(() => clearInterval(handle));
     });
