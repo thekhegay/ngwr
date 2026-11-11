@@ -114,7 +114,7 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
    */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
   /** Render the current value below the track. @default true */
-  readonly showLabel = input(true, { transform: coerceBooleanProperty });
+  readonly showValue = input(true, { transform: coerceBooleanProperty });
 
   /**
    * Maps a value to the text of the value label, and to `aria-valuetext` on

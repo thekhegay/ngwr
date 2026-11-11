@@ -111,7 +111,7 @@ export class WrSliderHarness extends ComponentHarness {
   }
 
   /**
-   * The text the slider prints under the track, or `null` when `showLabel` is
+   * The text the slider prints under the track, or `null` when `showValue` is
    * off.
    *
    * A range slider joins its ends with an EN DASH — `'20 – 80'`, U+2013 — so an

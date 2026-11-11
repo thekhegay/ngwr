@@ -39,16 +39,24 @@ export class WrPasswordToggle {
   protected readonly revealed = signal(false);
 
   /** Accessible name while the password is hidden. Falls back to `input.showPassword`. */
-  readonly showLabel = input<string | null>(null);
+  readonly showPasswordLabel = input<string | null>(null);
 
   /** Accessible name while the password is revealed. Falls back to `input.hidePassword`. */
-  readonly hideLabel = input<string | null>(null);
+  readonly hidePasswordLabel = input<string | null>(null);
 
-  private readonly resolvedShowLabel = useI18nText(this.showLabel, 'input.showPassword', 'Show password');
-  private readonly resolvedHideLabel = useI18nText(this.hideLabel, 'input.hidePassword', 'Hide password');
+  private readonly resolvedShowPasswordLabel = useI18nText(
+    this.showPasswordLabel,
+    'input.showPassword',
+    'Show password'
+  );
+  private readonly resolvedHidePasswordLabel = useI18nText(
+    this.hidePasswordLabel,
+    'input.hidePassword',
+    'Hide password'
+  );
 
   protected readonly ariaLabel = computed(() =>
-    this.revealed() ? this.resolvedHideLabel() : this.resolvedShowLabel()
+    this.revealed() ? this.resolvedHidePasswordLabel() : this.resolvedShowPasswordLabel()
   );
 
   protected toggle(): void {

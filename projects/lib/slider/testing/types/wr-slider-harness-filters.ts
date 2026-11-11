@@ -27,7 +27,7 @@ export interface WrSliderHarnessFilters extends BaseHarnessFilters {
   readonly disabled?: boolean;
   /**
    * Match the text the slider prints under its track — a string is an exact
-   * match, a RegExp is tested. A slider with `showLabel="false"` prints none and
+   * match, a RegExp is tested. A slider with `showValue="false"` prints none and
    * never matches.
    */
   readonly labelText?: string | RegExp;
