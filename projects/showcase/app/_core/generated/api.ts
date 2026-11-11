@@ -1004,8 +1004,8 @@ export const API = {
   // <wr-password-toggle>
   WrPasswordToggle: [
     { name: "for", description: "Reference to the linked password input.", type: "HTMLInputElement", required: true },
-    { name: "showLabel", description: "Accessible name while the password is hidden. Falls back to `input.showPassword`.", type: "string | null", default: "null" },
-    { name: "hideLabel", description: "Accessible name while the password is revealed. Falls back to `input.hidePassword`.", type: "string | null", default: "null" },
+    { name: "showPasswordLabel", description: "Accessible name while the password is hidden. Falls back to `input.showPassword`.", type: "string | null", default: "null" },
+    { name: "hidePasswordLabel", description: "Accessible name while the password is revealed. Falls back to `input.hidePassword`.", type: "string | null", default: "null" },
   ],
   // <[wrPopconfirm]>
   WrPopconfirm: [
@@ -1243,7 +1243,7 @@ export const API = {
     { name: "range", description: "Render two thumbs and emit `[low, high]`.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse value changes while the thumbs stay focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. The thumbs keep their tab stop and keep announcing their value — arrow keys, Home / End and the pointer simply move nothing — which is the whole difference from `disabled`, where they would leave the tab order entirely. Mirrored as `aria-readonly`, which role `slider` supports.", type: "boolean", default: "false" },
-    { name: "showLabel", description: "Render the current value below the track.", type: "boolean", default: "true" },
+    { name: "showValue", description: "Render the current value below the track.", type: "boolean", default: "true" },
     { name: "labelWith", description: "Maps a value to the text of the value label, and to `aria-valuetext` on the thumb, so a screen reader hears what the label shows. In range mode each end is mapped on its own. Unset, the label prints the number and the thumb announces `aria-valuenow`.", type: "(value: number) => string" },
     { name: "ariaLabel", description: "Accessible name of the thumb — the single one, or the LOWER one in range mode. Falls back to `slider.label` / `slider.lower`.", type: "string | null", default: "null" },
     { name: "upperLabel", description: "Accessible name of the upper thumb in range mode. Falls back to `slider.upper`.", type: "string | null", default: "null" },
