@@ -91,6 +91,7 @@ interface Drag {
   selector: '[wrResizable]',
   exportAs: 'wrResizable',
   host: {
+    class: 'wr-resizable',
     '[class]': 'classes()',
     '[style.width.px]': 'axis() === "inline" ? shown() : null',
     '[style.height.px]': 'axis() === "block" ? shown() : null',
@@ -213,7 +214,7 @@ export class WrResizable {
   private readonly inactive = computed(() => this.disabled() || this.collapsed());
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-resizable', `wr-resizable--${this.edge()}`];
+    const parts = [`wr-resizable--${this.edge()}`];
     if (this.collapsed()) parts.push('wr-resizable--collapsed');
     if (this.disabled()) parts.push('wr-resizable--disabled');
     if (this.draft() !== null) parts.push('wr-resizable--resizing');
