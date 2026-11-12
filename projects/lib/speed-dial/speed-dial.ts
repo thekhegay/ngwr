@@ -49,7 +49,7 @@ let menuUid = 0;
   selector: 'wr-speed-dial',
   templateUrl: './speed-dial.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()', '(keydown)': 'onKeydown($event)' },
+  host: { class: 'wr-speed-dial', '[class]': 'classes()', '(keydown)': 'onKeydown($event)' },
   imports: [WrIcon],
 })
 export class WrSpeedDial {
@@ -106,7 +106,7 @@ export class WrSpeedDial {
   }
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-speed-dial', `wr-speed-dial--${this.direction()}`];
+    const parts = [`wr-speed-dial--${this.direction()}`];
     if (this.open()) parts.push('wr-speed-dial--open');
     if (this.disabled()) parts.push('wr-speed-dial--disabled');
     if (this.safeArea()) parts.push('wr-speed-dial--safe-area');

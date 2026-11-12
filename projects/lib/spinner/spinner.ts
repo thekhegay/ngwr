@@ -32,6 +32,7 @@ import type { WrSpinnerSize } from './types';
   host: {
     role: 'status',
     '[attr.aria-label]': 'resolvedAriaLabel()',
+    class: 'wr-spinner',
     '[class]': 'classes()',
   },
 })
@@ -58,6 +59,6 @@ export class WrSpinner {
 
   protected readonly classes = computed(() => {
     const size = this.size();
-    return size === 'md' ? 'wr-spinner' : `wr-spinner wr-spinner--${size}`;
+    return size === 'md' ? '' : `wr-spinner--${size}`;
   });
 }

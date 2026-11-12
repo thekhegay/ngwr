@@ -76,6 +76,7 @@ type ActiveToast = WrToastOptions & {
   templateUrl: './toast-host.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-toast-host',
     '[class]': 'classes()',
     '[style.--wr-toast-front-height]': 'frontHeight()',
     role: 'region',

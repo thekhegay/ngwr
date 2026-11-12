@@ -82,6 +82,7 @@ interface PaneState {
   templateUrl: './transfer.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-transfer',
     '[class]': 'classes()',
     // `role="group"` so the error state below has somewhere legible to live: the
     // control is a composite with no single element carrying its semantics, and
@@ -297,7 +298,7 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
   );
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-transfer'];
+    const parts: string[] = [];
     if (this.disabled()) parts.push('wr-transfer--disabled');
     else if (this.readonly()) parts.push('wr-transfer--readonly');
     if (this.searchable()) parts.push('wr-transfer--searchable');

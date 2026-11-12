@@ -61,6 +61,7 @@ import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types'
   templateUrl: './button.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-btn',
     '[class]': 'classes()',
     '[attr.disabled]': 'nativeDisabled()',
     '[attr.aria-busy]': 'loading() ? "true" : null',
@@ -304,7 +305,7 @@ export class WrButton {
   }
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-btn'];
+    const parts: string[] = [];
 
     const color = this.color();
     if (color) parts.push(`wr-btn--${color}`);

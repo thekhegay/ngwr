@@ -50,7 +50,7 @@ const NO_OVERRIDE = signal<string | null>(null).asReadonly();
   selector: 'wr-stepper',
   templateUrl: './stepper.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-stepper', '[class]': 'classes()' },
   providers: [
     {
       provide: WR_STEPPER,
@@ -97,7 +97,7 @@ export class WrStepper implements WrStepperContext {
   protected readonly completedLabel = useI18nText(NO_OVERRIDE, 'stepper.completed', 'completed');
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-stepper', `wr-stepper--${this.orientation()}`];
+    const parts = [`wr-stepper--${this.orientation()}`];
     if (this.linear()) parts.push('wr-stepper--linear');
     if (this.responsive()) parts.push('wr-stepper--responsive');
     return parts.join(' ');

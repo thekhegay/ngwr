@@ -33,6 +33,7 @@ import { wrCheckStyles } from 'ngwr/utils';
     'aria-valuemax': '100',
     '[attr.aria-valuenow]': 'clamped()',
     '[attr.aria-label]': 'resolvedAriaLabel()',
+    class: 'wr-progress',
     '[class]': 'classes()',
   },
 })
@@ -62,5 +63,5 @@ export class WrProgress {
 
   protected readonly clamped = computed(() => Math.max(0, Math.min(100, this.value())));
 
-  protected readonly classes = computed(() => `wr-progress wr-progress--${this.color()}`);
+  protected readonly classes = computed(() => `wr-progress--${this.color()}`);
 }

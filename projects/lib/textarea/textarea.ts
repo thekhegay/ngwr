@@ -56,7 +56,7 @@ export type WrTextareaResize = 'none' | 'vertical' | 'horizontal' | 'both';
   selector: 'wr-textarea',
   templateUrl: './textarea.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-textarea', '[class]': 'classes()' },
 })
 export class WrTextarea implements FormValueControl<string> {
   /** Native placeholder text. @default '' */
@@ -160,7 +160,7 @@ export class WrTextarea implements FormValueControl<string> {
   protected readonly controlId = computed(() => this.field?.controlId() ?? null);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-textarea'];
+    const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-textarea--${size}`);
     if (this.autosize()) parts.push('wr-textarea--no-resize');

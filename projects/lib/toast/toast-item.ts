@@ -24,6 +24,7 @@ import type { WrToastConfig, WrToastType } from './types';
   host: {
     // See `WrAlert`: a static `title=` feeds the input AND lands on the host.
     '[attr.title]': 'null',
+    class: 'wr-toast',
     '[class]': 'classes()',
     '[style.--wr-toast-duration]': 'durationMs()',
     '[style.transform]': 'swipeTransform()',

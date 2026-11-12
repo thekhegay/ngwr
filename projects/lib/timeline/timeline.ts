@@ -26,7 +26,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   selector: 'wr-timeline',
   template: '<ng-content />',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-timeline', '[class]': 'classes()' },
 })
 export class WrTimeline {
   constructor() {
@@ -39,5 +39,5 @@ export class WrTimeline {
    */
   readonly orientation = input<'vertical' | 'horizontal'>('vertical');
 
-  protected readonly classes = computed(() => `wr-timeline wr-timeline--${this.orientation()}`);
+  protected readonly classes = computed(() => `wr-timeline--${this.orientation()}`);
 }

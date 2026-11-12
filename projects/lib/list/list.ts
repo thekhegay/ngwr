@@ -41,6 +41,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
   styleUrl: './list.scss',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-list',
     '[class]': 'classes()',
   },
 })
@@ -58,7 +59,7 @@ export class WrList {
   readonly ariaLabel = input<string>('');
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-list'];
+    const parts: string[] = [];
     if (this.bordered()) parts.push('wr-list--bordered');
     if (this.dividers()) parts.push('wr-list--dividers');
     if (this.dense()) parts.push('wr-list--dense');

@@ -102,7 +102,7 @@ let panelUid = 0;
   selector: 'wr-tree',
   templateUrl: './tree.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()', '(focusout)': 'onFocusOut($event)' },
+  host: { class: 'wr-tree', '[class]': 'classes()', '(focusout)': 'onFocusOut($event)' },
   imports: [NgTemplateOutlet],
 })
 export class WrTree<TId = string> implements FormValueControl<unknown> {
@@ -410,7 +410,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   protected readonly panelId = `wr-tree-panel-${++panelUid}`;
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-tree'];
+    const parts: string[] = [];
     if (this.disabled()) parts.push('wr-tree--disabled');
     else if (this.readonly()) parts.push('wr-tree--readonly');
     if (this.isOverlay()) {

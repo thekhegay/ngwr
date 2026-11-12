@@ -104,7 +104,7 @@ type EndRefusals = readonly [WrDateInputError | null, WrDateInputError | null];
   selector: 'wr-date-range-picker',
   templateUrl: './date-range-picker.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-date-range-picker', '[class]': 'classes()' },
   imports: [WrDateRangeEndInput, WrInput, WrInputGroup, WrInputSuffix],
   providers: [WrDateInputField],
   viewProviders: [WR_DATE_INPUT_FIELD_VIEW_PROVIDER],
@@ -403,7 +403,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   );
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-date-range-picker', `wr-date-range-picker--${this.mode()}`];
+    const parts = [`wr-date-range-picker--${this.mode()}`];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-date-range-picker--${size}`);
     if (this.disabled()) parts.push('wr-date-range-picker--disabled');

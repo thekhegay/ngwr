@@ -32,7 +32,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   encapsulation: ViewEncapsulation.None,
   // See `WrAlert`: a static `title=` feeds the input AND lands on the host,
   // where the browser draws it as a tooltip over the whole component.
-  host: { '[class]': 'classes()', '[attr.title]': 'null' },
+  host: { class: 'wr-descriptions', '[class]': 'classes()', '[attr.title]': 'null' },
 })
 export class WrDescriptions {
   constructor() {
@@ -57,7 +57,7 @@ export class WrDescriptions {
   readonly responsive = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-descriptions'];
+    const parts: string[] = [];
     if (this.inline()) parts.push('wr-descriptions--inline');
     if (this.bordered()) parts.push('wr-descriptions--bordered');
     if (this.responsive()) parts.push('wr-descriptions--responsive');

@@ -34,7 +34,7 @@ import type { WrResultStatus } from './types';
   encapsulation: ViewEncapsulation.None,
   // See `WrAlert`: a static `title=` feeds the input AND lands on the host,
   // where the browser draws it as a tooltip over the whole component.
-  host: { '[class]': 'classes()', '[attr.title]': 'null' },
+  host: { class: 'wr-result', '[class]': 'classes()', '[attr.title]': 'null' },
 })
 export class WrResult {
   constructor() {
@@ -57,7 +57,7 @@ export class WrResult {
    */
   readonly status = input<WrResultStatus>('info');
 
-  protected readonly classes = computed(() => `wr-result wr-result--${this.status()}`);
+  protected readonly classes = computed(() => `wr-result--${this.status()}`);
 }
 
 export type { WrResultStatus } from './types';

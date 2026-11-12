@@ -42,6 +42,7 @@ import type { WrDividerAlign, WrDividerType } from './types';
   encapsulation: ViewEncapsulation.None,
   host: {
     role: 'separator',
+    class: 'wr-divider',
     '[class]': 'classes()',
     '[style.--wr-divider-width.px]': 'width()',
   },
@@ -78,7 +79,7 @@ export class WrDivider {
   readonly align = input<WrDividerAlign>('center');
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-divider', `wr-divider--${this.type()}`];
+    const parts = [`wr-divider--${this.type()}`];
     const color = this.color();
     if (color) parts.push(`wr-divider--${color}`);
     const align = this.align();
