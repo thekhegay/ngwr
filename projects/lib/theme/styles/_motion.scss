@@ -82,4 +82,10 @@
   .wr-card__spinner {
     animation-duration: 1.4s !important;
   }
+
+  // The table's loading bar is a spinner drawn as a line: its sweep is the
+  // message, so it is slowed like one rather than stopped.
+  .wr-table__loading-bar::after {
+    animation-duration: 4s !important;
+  }
 }

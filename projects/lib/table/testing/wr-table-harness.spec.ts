@@ -246,14 +246,22 @@ describe('WrTableHarness', () => {
     expect(bodyRowCount()).toBe(1);
   });
 
-  it('sees the loading overlay come and go', async () => {
+  it('sees loading come and go, and the form it takes', async () => {
     const table = await loader.getHarness(WrTableHarness);
     expect(await table.isLoading()).toBe(false);
+    expect(await table.getLoadingForm()).toBeNull();
 
     fixture.componentInstance.loading.set(true);
     fixture.detectChanges();
 
     expect(await table.isLoading()).toBe(true);
+    expect(await table.getLoadingForm()).toBe('bar');
+
+    fixture.componentInstance.items.set([]);
+    fixture.detectChanges();
+
+    expect(await table.isLoading()).toBe(true);
+    expect(await table.getLoadingForm()).toBe('overlay');
   });
 
   it('cycles a column through the sort states and announces each in ARIA', async () => {

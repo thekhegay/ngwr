@@ -85,8 +85,8 @@ because it is guidance rather than a plan.
   purpose — seven labels do not fit.
 - A component that animates on its own honours `prefers-reduced-motion`
   itself when its motion is the feature (`wr-count-up`, the carousel's
-  autoplay), and **that does not generalise to chrome**: ten always-on chrome
-  components, four of them animating infinitely, including the spinner and the
+  autoplay), and **that does not generalise to chrome**: eleven always-on chrome
+  components, five of them animating infinitely, including the spinner and the
   skeleton that paint on every page, are covered by `theme/styles/_motion.scss`, one shared
   `@media (prefers-reduced-motion: reduce)` block, and NOT by per-component
   rules: the theme layer is loaded before every component stylesheet, so each

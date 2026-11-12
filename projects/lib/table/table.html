@@ -1,7 +1,12 @@
-@if (loading()) {
-  <div class="wr-table__loading" role="status" [attr.aria-label]="resolvedLoadingLabel()">
-    <wr-spinner size="lg" />
-  </div>
+@switch (loadingForm()) {
+  @case ('overlay') {
+    <div class="wr-table__loading" role="status" [attr.aria-label]="resolvedLoadingLabel()">
+      <wr-spinner size="lg" />
+    </div>
+  }
+  @case ('bar') {
+    <div class="wr-table__loading-bar" role="status" [attr.aria-label]="resolvedLoadingLabel()"></div>
+  }
 }
 
 <div

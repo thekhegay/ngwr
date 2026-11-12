@@ -1563,8 +1563,9 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     { name: 'getDetailTexts()', description: 'Open detail rows.', type: 'Promise<string[]>' },
     {
-      name: 'getFooterTexts() / getEmptyText() / isLoading() / isVirtual() / getAriaRowCount()',
-      description: '`getAriaRowCount()` is the total row count.',
+      name: 'getFooterTexts() / getEmptyText() / isLoading() / getLoadingForm() / isVirtual() / getAriaRowCount()',
+      description:
+        "`getAriaRowCount()` is the total row count. `getLoadingForm()` is `'overlay'`, `'bar'` or `null`. Since v16.1.",
       type: 'Promise<…>',
     },
     {

@@ -10,6 +10,7 @@ import {
   WrTable,
   type WrTableColumns,
   type WrTableFilterChange,
+  type WrTableLoadingMode,
   type WrTableSortState,
   wrSortRows,
 } from 'ngwr/table';
@@ -224,6 +225,20 @@ export default class TablePageComponent {
     this.actionRows.set([...RAW_ROWS]);
   }
 
+  protected readonly loadModes: readonly WrTableLoadingMode[] = ['auto', 'overlay', 'bar'];
+  protected readonly loadMode = signal<WrTableLoadingMode>('auto');
+  protected readonly loadRows = signal<readonly Row[]>(RAW_ROWS);
+  protected readonly refreshing = signal(false);
+
+  protected refresh(): void {
+    this.refreshing.set(true);
+    setTimeout(() => this.refreshing.set(false), 2000);
+  }
+
+  protected toggleLoadRows(): void {
+    this.loadRows.update(rows => (rows.length ? [] : RAW_ROWS));
+  }
+
   protected readonly wideRows = WIDE_ROWS;
   protected readonly wideColumns: WrTableColumns = {
     name: { title: 'Name', pin: 'left', sortable: true },
@@ -365,6 +380,11 @@ const columns: WrTableColumns<Invoice> = {
   <wr-alert type="danger" title="Could not load users" [message]="message" />
 }
 <wr-table [columns]="columns" [items]="rows()" [loading]="loading()" />`,
+    loadingModes: `<!-- 'auto': a spinner over an empty table, a bar over a filled one. -->
+<wr-table [columns]="columns" [items]="rows()" [loading]="refreshing()" />
+
+<!-- Always the bar, or always the overlay. -->
+<wr-table [columns]="columns" [items]="rows()" [loading]="refreshing()" loadingMode="bar" />`,
     paginated: `<wr-table
   [columns]="columns"
   [items]="rows"

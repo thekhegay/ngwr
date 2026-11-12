@@ -85,9 +85,15 @@ export class WrTableHarness extends ComponentHarness {
     return (await this.host()).hasClass('wr-table--virtual');
   }
 
-  /** Whether the loading spinner is covering the table. */
+  /** Whether the table is loading, as the overlay or as the bar: the host's `aria-busy`. */
   async isLoading(): Promise<boolean> {
-    return (await this.locatorForOptional('.wr-table__loading')()) !== null;
+    return (await (await this.host()).getAttribute('aria-busy')) === 'true';
+  }
+
+  /** Which form `loading` takes: the overlay with the spinner, the bar, or `null` while idle. */
+  async getLoadingForm(): Promise<'overlay' | 'bar' | null> {
+    if ((await this.locatorForOptional('.wr-table__loading')()) !== null) return 'overlay';
+    return (await this.locatorForOptional('.wr-table__loading-bar')()) !== null ? 'bar' : null;
   }
 
   /** The column headers, in render order — which `columnOrder` and a drag can change. */
