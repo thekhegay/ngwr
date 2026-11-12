@@ -420,3 +420,58 @@ describe('WrSliderHarness', () => {
     });
   });
 });
+
+@Component({
+  imports: [WrSlider],
+  template: `
+    <wr-slider
+      [(value)]="level"
+      snapToMarks
+      [marks]="[
+        { value: 0, label: 'Low' },
+        { value: 30 },
+        { value: 50, label: 'Medium' },
+        { value: 100, label: 'High' },
+      ]"
+    />
+    <wr-slider />
+  `,
+})
+class MarksHost {
+  readonly level = signal<WrSliderValue>(0);
+}
+
+describe('WrSliderHarness marks', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<MarksHost>>;
+  let sliders: WrSliderHarness[];
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(MarksHost);
+    fixture.detectChanges();
+    sliders = await TestbedHarnessEnvironment.loader(fixture).getAllHarnesses(WrSliderHarness);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('reads the marks with their labels, and none off a plain slider', async () => {
+    expect(await sliders[0].getMarks()).toEqual([
+      { value: 0, label: 'Low' },
+      { value: 30 },
+      { value: 50, label: 'Medium' },
+      { value: 100, label: 'High' },
+    ]);
+    expect(await sliders[1].getMarks()).toEqual([]);
+  });
+
+  it('walks a snapping slider to a mark and refuses a value between two', async () => {
+    await sliders[0].setValue(50);
+    expect(fixture.componentInstance.level()).toBe(50);
+
+    await sliders[0].setValue(100);
+    expect(fixture.componentInstance.level()).toBe(100);
+
+    await expect(sliders[0].setValue(40)).rejects.toThrow(/settled on/);
+  });
+});

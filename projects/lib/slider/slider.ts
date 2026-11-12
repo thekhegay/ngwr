@@ -27,7 +27,7 @@ import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { wrClamp, wrRound, wrCheckStyles } from 'ngwr/utils';
 
-import type { WrSliderValue } from './types';
+import type { WrSliderMark, WrSliderValue } from './types';
 
 /** Trim float drift from step calculations. */
 
@@ -42,6 +42,8 @@ import type { WrSliderValue } from './types';
  *
  * Keyboard: ← / → adjust by `step`; ↑ / ↓ same; Shift+arrow by `step × 10`;
  * Home / End jump to min / max; PageUp / PageDown by `step × 10`.
+ * With `snapToMarks` every one of those keys moves one mark instead, and
+ * Home / End land on the first and the last mark.
  *
  * Reading direction: the arrows follow the VISUAL track, so under `dir="rtl"`
  * → moves toward the lower end and ← toward the higher one, and a drag reads
@@ -128,6 +130,28 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
    * ```
    */
   readonly labelWith = input<(value: number) => string>();
+
+  /**
+   * Stops drawn on the track: a tick at each `value`, and its `label` under the
+   * track when it has one. A mark outside `[min, max]` is not drawn. The thumb
+   * announces the label of the mark it stands on as `aria-valuetext`, ahead of
+   * `labelWith`.
+   *
+   * @example
+   * ```html
+   * <wr-slider [marks]="[{ value: 0, label: 'Low' }, { value: 50 }, { value: 100, label: 'High' }]" />
+   * ```
+   */
+  readonly marks = input<readonly WrSliderMark[]>([]);
+
+  /**
+   * Restrict the value to the marks: a drag lands on the nearest one and the
+   * keyboard moves from mark to mark, whatever `step` says. Without marks it
+   * does nothing.
+   *
+   * @default false
+   */
+  readonly snapToMarks = input(false, { transform: coerceBooleanProperty });
 
   /**
    * Accessible name of the thumb — the single one, or the LOWER one in range
@@ -281,10 +305,24 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
     this.range() ? this.highPercent() - this.lowPercent() : this.lowPercent()
   );
 
-  /** `aria-valuetext` of the lower thumb: `null` without `labelWith`, so the number announces as is. */
-  protected readonly lowText = computed<string | null>(() => this.labelWith()?.(this.low()) ?? null);
+  /** The marks inside the bounds, in value order: what is drawn and what `snapToMarks` walks. */
+  protected readonly visibleMarks = computed(() =>
+    this.marks()
+      .filter(mark => mark.value >= this.minValue() && mark.value <= this.maxValue())
+      .sort((a, b) => a.value - b.value)
+      .map(mark => ({ ...mark, percent: this.percentOf(mark.value) }))
+  );
+  protected readonly labelledMarks = computed(() => this.visibleMarks().filter(mark => !!mark.label));
+
+  private readonly snapping = computed(() => this.snapToMarks() && this.visibleMarks().length > 0);
+
+  /**
+   * `aria-valuetext` of the lower thumb: the label of the mark it stands on,
+   * else `labelWith`, else `null` so the number announces as is.
+   */
+  protected readonly lowText = computed<string | null>(() => this.textOf(this.low()));
   /** `aria-valuetext` of the upper thumb, see {@link lowText}. */
-  protected readonly highText = computed<string | null>(() => this.labelWith()?.(this.high()) ?? null);
+  protected readonly highText = computed<string | null>(() => this.textOf(this.high()));
 
   protected readonly label = computed(() => {
     const low = this.lowText() ?? `${this.low()}`;
@@ -403,23 +441,24 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
     const current = thumb === 'low' ? this.low() : this.high();
     // The horizontal arrows name a SIDE of the track, so they follow the
     // reading direction; every other key names a value and does not.
-    const inline = this.isRtl() ? -delta : delta;
+    const inline = this.isRtl() ? -1 : 1;
+    let direction = 0;
     let next: number | null = null;
 
     switch (event.key) {
       case 'ArrowRight':
-        next = current + inline;
+        direction = inline;
         break;
       case 'ArrowLeft':
-        next = current - inline;
+        direction = -inline;
         break;
       case 'ArrowUp':
       case 'PageUp':
-        next = current + delta;
+        direction = 1;
         break;
       case 'ArrowDown':
       case 'PageDown':
-        next = current - delta;
+        direction = -1;
         break;
       case 'Home':
         next = this.minValue();
@@ -429,6 +468,7 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
         break;
     }
 
+    if (direction) next = this.snapping() ? this.adjacentMark(current, direction) : current + direction * delta;
     if (next === null) return;
     event.preventDefault();
     this.setThumb(thumb, next);
@@ -509,8 +549,32 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   }
 
   private snap(value: number): number {
+    if (this.snapping()) return this.nearestMark(value);
     const stepped = Math.round((value - this.minValue()) / this.step()) * this.step() + this.minValue();
     return this.clampToBounds(wrRound(stepped, 6));
+  }
+
+  private nearestMark(value: number): number {
+    return this.visibleMarks().reduce((best, mark) =>
+      Math.abs(mark.value - value) < Math.abs(best.value - value) ? mark : best
+    ).value;
+  }
+
+  /** The next mark above or below `value`; `value` itself when there is none, which `snap` then settles. */
+  private adjacentMark(value: number, direction: number): number {
+    const marks = this.visibleMarks();
+    const next =
+      direction > 0 ? marks.find(mark => mark.value > value) : [...marks].reverse().find(mark => mark.value < value);
+    return next?.value ?? value;
+  }
+
+  private textOf(value: number): string | null {
+    const mark = this.labelledMarks().find(({ value: at }) => at === value);
+    return mark?.label ?? this.labelWith()?.(value) ?? null;
+  }
+
+  protected isActiveMark(value: number): boolean {
+    return this.range() ? value >= this.low() && value <= this.high() : value <= this.low();
   }
 
   private clampToBounds(v: number): number {
