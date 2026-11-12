@@ -235,6 +235,9 @@ export const INSTALL = {
   "reference/components/date-picker": [
       { path: "ngwr/date-picker", symbols: ["WrDatePicker", "WrDateRangePicker"], declarables: ["WrDatePicker", "WrDateRangePicker"], styled: true },
   ],
+  "reference/components/date-stamp": [
+      { path: "ngwr/date-stamp", symbols: ["WrDateStamp"], declarables: ["WrDateStamp"], styled: true },
+  ],
   "reference/components/descriptions": [
       { path: "ngwr/descriptions", symbols: ["WrDescriptionItem", "WrDescriptions"], declarables: ["WrDescriptionItem", "WrDescriptions"], styled: true },
   ],
