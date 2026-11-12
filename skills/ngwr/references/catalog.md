@@ -219,7 +219,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/textarea/testing` | `import { WrTextareaHarness } from 'ngwr/textarea/testing'` | — |
 | `ngwr/theme` | `import { WrTheme } from 'ngwr/theme'` | — |
 | `ngwr/timeline` | `import { WrTimeline } from 'ngwr/timeline'` | `wr-timeline-item` `wr-timeline` |
-| `ngwr/toast` | `import { WrToast } from 'ngwr/toast'` | — |
+| `ngwr/toast` | `import { WrToast } from 'ngwr/toast'` | `wr-toast-outlet` |
 | `ngwr/toast/testing` | `import { WrToastHarness } from 'ngwr/toast/testing'` | — |
 | `ngwr/toolbar` | `import { WrToolbar } from 'ngwr/toolbar'` | `wr-toolbar` |
 | `ngwr/tour` | `import { WrTour } from 'ngwr/tour'` | `wr-tour-popup` |

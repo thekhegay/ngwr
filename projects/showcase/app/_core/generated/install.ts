@@ -394,7 +394,7 @@ export const INSTALL = {
       { path: "ngwr/timeline", symbols: ["WrTimeline", "WrTimelineItem"], declarables: ["WrTimeline", "WrTimelineItem"], styled: true },
   ],
   "reference/components/toast": [
-      { path: "ngwr/toast", symbols: ["WrToast"], declarables: [], styled: true },
+      { path: "ngwr/toast", symbols: ["WrToast", "WrToastOutlet"], declarables: ["WrToastOutlet"], styled: true },
   ],
   "reference/components/toolbar": [
       { path: "ngwr/toolbar", symbols: ["WrToolbar"], declarables: ["WrToolbar"], styled: true },
