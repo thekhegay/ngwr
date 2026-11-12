@@ -188,6 +188,23 @@ describe('withDates({ timeZone })', () => {
   });
 });
 
+describe('withDates({ timeZone }) as an offset', () => {
+  // `'+0500'` is what Angular's `DatePipe` takes, so an app's config often holds that form.
+  it.each([
+    ['+0500', '13:45'],
+    ['+05:00', '13:45'],
+    ['+05', '13:45'],
+    ['-0330', '05:15'],
+    ['-03:30', '05:15'],
+    ['+0000', '08:45'],
+  ])('reads %s', (offset, wall) => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    expect(adapters(offset).zoned.format(INSTANT, 'HH:mm')).toBe(wall);
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+});
+
 describe('withDates({ epochUnit, zonelessIn })', () => {
   const options = (dates: Parameters<typeof withDates>[0], route?: Parameters<typeof withDates>[0]): object => {
     TestBed.resetTestingModule();
