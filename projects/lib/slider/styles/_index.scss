@@ -15,6 +15,14 @@
   --wr-slider-label-margin-top: var(--wr-space-sm);
   --wr-slider-label-font-size: var(--wr-text-sm);
   --wr-slider-label-line-height: var(--wr-text-sm-leading);
+  --wr-slider-mark-size: var(--wr-space-sm);
+  --wr-slider-mark-bg: var(--wr-color-surface);
+  --wr-slider-mark-color: var(--wr-border-base);
+  --wr-slider-mark-active-color: var(--wr-color-primary);
+  --wr-slider-mark-gap: var(--wr-space-sm);
+  --wr-slider-mark-label-color: var(--wr-color-on-surface-muted);
+  --wr-slider-mark-label-font-size: var(--wr-text-xs);
+  --wr-slider-mark-label-line-height: var(--wr-text-xs-leading);
 
   display: block;
   width: 100%;
@@ -38,6 +46,50 @@
     background: var(--wr-slider-fill);
     border-radius: var(--wr-slider-track-radius);
     pointer-events: none;
+  }
+
+  // A ring centred on its value the way the thumb is, mirrored the same way.
+  &__mark {
+    position: absolute;
+    top: 50%;
+    width: var(--wr-slider-mark-size);
+    height: var(--wr-slider-mark-size);
+    transform: translate(-50%, -50%);
+    box-sizing: border-box;
+    background: var(--wr-slider-mark-bg);
+    border: 2px solid var(--wr-slider-mark-color);
+    border-radius: 50%;
+    pointer-events: none;
+
+    &--active {
+      border-color: var(--wr-slider-mark-active-color);
+    }
+
+    [dir='rtl'] & {
+      transform: translate(50%, -50%);
+    }
+  }
+
+  // One grid cell holds every label, so the tallest one sets the row's height
+  // and each is then offset along the track from the cell's start edge.
+  &__mark-labels {
+    display: grid;
+    margin-top: var(--wr-slider-mark-gap);
+    color: var(--wr-slider-mark-label-color);
+    font-size: var(--wr-slider-mark-label-font-size);
+    line-height: var(--wr-slider-mark-label-line-height);
+  }
+
+  &__mark-label {
+    position: relative;
+    grid-area: 1 / 1;
+    justify-self: start;
+    transform: translateX(-50%);
+    white-space: nowrap;
+
+    [dir='rtl'] & {
+      transform: translateX(50%);
+    }
   }
 
   &__thumb {
@@ -101,6 +153,7 @@
   &--disabled {
     --wr-slider-thumb-border: var(--wr-color-on-surface-muted);
     --wr-slider-fill: var(--wr-color-on-surface-muted);
+    --wr-slider-mark-active-color: var(--wr-color-on-surface-muted);
     pointer-events: none;
     opacity: var(--wr-disabled-opacity);
   }

@@ -1,2 +1,2 @@
 export { WrSlider } from './slider';
-export type { WrSliderValue } from './types';
+export type { WrSliderMark, WrSliderValue } from './types';
