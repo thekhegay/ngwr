@@ -43,6 +43,10 @@ export default [
   { path: utils.wrInitials.path, loadComponent: () => import('./wr-initials/wr-initials') },
   { path: utils.wrPoll.path, loadComponent: () => import('./wr-poll/wr-poll') },
   { path: utils.wrQueryParam.path, loadComponent: () => import('./wr-query-param/wr-query-param') },
+  {
+    path: utils.withRenderOnNavigation.path,
+    loadComponent: () => import('./with-render-on-navigation/with-render-on-navigation'),
+  },
   // v16 put the `wr` prefix on every util, and each page took its new name.
   // Every old slug was published, so every one keeps resolving.
   { path: 'badge-log', redirectTo: '/reference/utils/wr-badge-log' },

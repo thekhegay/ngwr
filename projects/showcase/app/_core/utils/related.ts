@@ -937,6 +937,8 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/pipes/wr-number',
   ],
   'reference/utils/wr-throttle': ['reference/utils/wr-debounce'],
+  'reference/utils/wr-query-param': ['reference/utils/with-render-on-navigation', 'reference/components/pagination'],
+  'reference/utils/with-render-on-navigation': ['docs/configuration', 'reference/utils/wr-query-param'],
   'reference/utils/wr-initials': [
     'reference/pipes/wr-initials',
     'reference/components/avatar',

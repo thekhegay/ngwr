@@ -71,6 +71,7 @@ export const SINCE = {
   "reference/directives/fit-text": "16.0.0",
   "reference/pipes/wr-duration": "15.4.0",
   "reference/pipes/wr-initials": "15.6.0",
+  "reference/utils/with-render-on-navigation": "16.1.0",
   "reference/utils/wr-action": "15.5.0",
   "reference/utils/wr-decimal": "15.5.0",
   "reference/utils/wr-download-blob": "15.5.0",
