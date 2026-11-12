@@ -295,6 +295,7 @@ describe('the surfaces that draw it', () => {
       'Copy Value',
       'Load State',
       'Editor',
+      'Resizable',
       'wrFitText',
       'wrDuration',
       'wrInitials',
