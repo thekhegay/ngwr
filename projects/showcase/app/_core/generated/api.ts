@@ -479,6 +479,8 @@ export const API = {
     { name: "step", description: "Minute / second step for the time panels.", type: "number", default: "1" },
     { name: "size", description: "Control size — forwarded to each field's `[size]`, and shares the `--wr-control-*` contract. The panel keeps its size.", type: "WrDatePickerSize", default: "'md'" },
     { name: "clearable", description: "Show a clear (×) button once either end is picked. It is a pointer control: from the keyboard, emptying both fields clears the value.", type: "boolean", default: "false" },
+    { name: "presets", description: "One-click ranges, drawn as a list of buttons on the start side of the panel. A click commits the range, closes the panel and emits `touch`, in both modes. The preset whose range equals the value is marked pressed, and one that reaches outside `minDate` / `maxDate` is disabled. The labels are the app's: the library ships none. A range function is called when the panel opens, with today in the display time zone. `wrLastDays`, `wrThisWeek`, `wrThisMonth` and `wrLastMonth` return one. See {@link WrDateRangePreset} for what each mode commits.", type: "readonly WrDateRangePreset[]", default: "[]" },
+    { name: "presetsLabel", description: "Accessible name of the preset list. The library ships none.", type: "string | null", default: "null" },
     { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Read-only — neither the inputs nor the calendar can change the value. Deliberately stricter than `wr-date-picker`, which still opens its popup while read-only: with two fields feeding one calendar there is no reading of \"untypeable\" that leaves the grid free to rewrite both ends. The doc used to promise the trigger still opened; the code has always refused, and refusing is the behaviour worth keeping.", type: "boolean", default: "false" },
@@ -491,9 +493,12 @@ export const API = {
   ],
   // <wr-date-stamp>
   WrDateStamp: [
-    { name: "value", description: "The moment shown: a `Date`, epoch milliseconds, or a string `wrParseDate` reads. `null`, `undefined`, `''` and a value that is not a date are empty.", type: "Date | string | number | null | undefined", default: "null" },
-    { name: "dateFormat", description: "Format of the first line: a named key or a token string (`'d MMM yyyy'`).", type: "WrDateFormat | string", default: "'mediumDate'" },
-    { name: "timeFormat", description: "Format of the second line: a named key (`'time24hSeconds'`) or a token string (`'HH:mm'`).", type: "WrDateFormat | string", default: "'time'" },
+    { name: "value", description: "The moment shown: a `Date`, an epoch number, or a string `wrParseDate` reads. `null`, `undefined`, `''` and a value that is not a date are empty.", type: "Date | string | number | null | undefined", default: "null" },
+    { name: "dateFormat", description: "Format of the first line: a named key or a token string (`'d MMM yyyy'`). `withDates({ stamp })` changes the default.", type: "WrDateFormat | string", default: "'mediumDate'" },
+    { name: "timeFormat", description: "Format of the second line: a named key (`'time24hSeconds'`) or a token string (`'HH:mm'`). `withDates({ stamp })` changes the default.", type: "WrDateFormat | string", default: "'time'" },
+    { name: "seconds", description: "Write the seconds in the time line: `'time'` is read as `'timeSeconds'` and `'HH:mm'` as `'HH:mm:ss'`. A format that already has them is left alone. `withDates({ stamp })` changes the default.", type: "unknown", default: "false" },
+    { name: "todayTimeOnly", description: "Show the time alone for a value from today. Today is the day in the display zone, read when the stamp renders: one left on screen past midnight keeps its single line. A date-only value keeps its date. `withDates({ stamp })` changes the default.", type: "unknown", default: "false" },
+    { name: "epochUnit", description: "What a number in `value` counts since the epoch: `'ms'`, `'us'`, `'s'` or `'auto'`, by size. `null` follows `withDates({ epochUnit })`.", type: "WrEpochUnit | null", default: "null" },
     { name: "emptyLabel", description: "What stands in for an empty value. Falls back to `copyValue.empty`, then `'-'`.", type: "string | null", default: "null" },
   ],
   // <[wrDecode]>
@@ -600,6 +605,12 @@ export const API = {
   WrDropdownItem: [
     { name: "icon", description: "Optional leading icon name.", type: "WrIconName | null", default: "null" },
     { name: "disabled", description: "Disable interaction (suppresses pointer + keyboard).", type: "boolean", default: "false" },
+  ],
+  // <[wrDropdownSubmenu]>
+  WrDropdownSubmenu: [
+    { name: "wrDropdownSubmenu", description: "Menu to open beside the item. Pass a `<wr-dropdown-menu>` template reference.", type: "WrDropdownMenu", required: true },
+    { name: "showDelay", description: "How long the pointer rests on the item before the submenu opens, in ms.", type: "number", default: "150" },
+    { name: "hideDelay", description: "How long the submenu stays once the pointer has left both the item and the submenu, in ms. Long enough to cross a neighbouring item on the way in.", type: "number", default: "150" },
   ],
   // <wr-editor>
   WrEditor: [
@@ -881,6 +892,10 @@ export const API = {
     { name: "caption", description: "Caption shown under the full image in the lightbox.", type: "string", default: "''" },
     { name: "aspectRatio", description: "Reserve space before the image resolves by fixing the thumbnail's `aspect-ratio` (e.g. `'16 / 9'`, `'4 / 3'`, or a number like `1.5`). Prevents the layout jump when the intrinsic image size isn't known up front — pair it with a `width` and the box keeps its height from first paint.", type: "string | number | null", default: "null" },
     { name: "panelClass", description: "Extra CSS classes for the viewer's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
+    { name: "group", description: "Gallery name. Every `wr-lightbox` with the same group, in document order, can be paged through from whichever one was opened. A lightbox with `disablePreview` stays out of it.", type: "string | null", default: "null" },
+    { name: "loop", description: "Wrap from the last image of the group to the first, and back.", type: "boolean", default: "false" },
+    { name: "previousLabel", description: "Accessible name of the viewer's previous button. Falls back to `common.previous`.", type: "string | null", default: "null" },
+    { name: "nextLabel", description: "Accessible name of the viewer's next button. Falls back to `common.next`.", type: "string | null", default: "null" },
   ],
   // <wr-line-chart>
   WrLineChart: [
@@ -1270,6 +1285,9 @@ export const API = {
     { name: "readonly", description: "Refuse value changes while the thumbs stay focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. The thumbs keep their tab stop and keep announcing their value — arrow keys, Home / End and the pointer simply move nothing — which is the whole difference from `disabled`, where they would leave the tab order entirely. Mirrored as `aria-readonly`, which role `slider` supports.", type: "boolean", default: "false" },
     { name: "showValue", description: "Render the current value below the track.", type: "boolean", default: "true" },
     { name: "labelWith", description: "Maps a value to the text of the value label, and to `aria-valuetext` on the thumb, so a screen reader hears what the label shows. In range mode each end is mapped on its own. Unset, the label prints the number and the thumb announces `aria-valuenow`.", type: "(value: number) => string" },
+    { name: "marks", description: "Stops drawn on the track: a tick at each `value`, and its `label` under the track when it has one. A mark outside `[min, max]` is not drawn. The thumb announces the label of the mark it stands on as `aria-valuetext`, ahead of `labelWith`.", type: "readonly WrSliderMark[]", default: "[]" },
+    { name: "snapToMarks", description: "Restrict the value to the marks: a drag lands on the nearest one and the keyboard moves from mark to mark, whatever `step` says. Without marks it does nothing.", type: "boolean", default: "false" },
+    { name: "orientation", description: "Axis of the track. `vertical` runs from the bottom (min) to the top (max), as tall as `--wr-slider-vertical-height`, with the value and the marks' labels beside it.", type: "'horizontal' | 'vertical'", default: "'horizontal'" },
     { name: "ariaLabel", description: "Accessible name of the thumb — the single one, or the LOWER one in range mode. Falls back to `slider.label` / `slider.lower`.", type: "string | null", default: "null" },
     { name: "upperLabel", description: "Accessible name of the upper thumb in range mode. Falls back to `slider.upper`.", type: "string | null", default: "null" },
     { name: "value", description: "Current value. Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `range`: a plain `number`, or `[low, high]` in range mode.", type: "WrSliderValue", default: "0" },
@@ -1282,7 +1300,12 @@ export const API = {
     { name: "disabled", description: "Disable all dragging.", type: "boolean", default: "false" },
     { name: "lockAxis", description: "Locked axis — restrict drag movement to one axis even diagonally.", type: "'x' | 'y' | undefined", default: "undefined" },
     { name: "dragStartDelay", description: "Delay (ms) before a drag begins after the pointer goes down. The touch delay is the fix for the classic CDK touch snag: without it, the `touch-action: none` CDK puts on each item blocks scrolling the list on a phone. With a small touch delay, a quick swipe scrolls and a brief hold starts the drag; mouse stays instant. Pass a single number to apply one delay to both pointers.", type: "number | { touch: number; mouse: number }", default: "{ touch: 150, mouse: 0 }" },
-    { name: "(reorder)", description: "Fired after a successful reorder with the new array + indices.", type: "WrSortableReorderEvent<T>" },
+    { name: "group", description: "Name of the group this list belongs to. Lists with the same group exchange items, wherever they sit in the page.", type: "string | null", default: "null" },
+    { name: "canEnter", description: "Refuses an item coming from another list of the group, by drag and by keyboard alike. An item can always return to the list it left.", type: "WrSortableCanEnter<T> | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the list. A keyboard move into this list announces it; without one the announcement falls back to the list's position in the group.", type: "string | null", default: "null" },
+    { name: "id", description: "The host's `id`, and what tells the lists of a `move` apart. Generated when omitted.", type: "string" },
+    { name: "(reorder)", description: "Fired after a successful reorder with the new array + indices. Not fired for a move between lists.", type: "WrSortableReorderEvent<T>" },
+    { name: "(move)", description: "Fired once on the list an item ARRIVED in from another list of the group, after both lists have written `items`. The list it left emits nothing but `itemsChange`.", type: "WrSortableMoveEvent<T>" },
   ],
   // <wr-sparkline>
   WrSparkline: [

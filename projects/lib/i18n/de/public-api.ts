@@ -225,6 +225,11 @@ export const wrDe: WrI18nCatalog = {
     moved: '{{index}} von {{total}}.',
     dropped: 'Abgelegt. {{index}} von {{total}}.',
     cancelled: 'Verschieben abgebrochen.',
+    groupKeyHelp:
+      'Drücken Sie die Leertaste, um dieses Element aufzunehmen, und verschieben Sie es dann mit den Pfeiltasten, innerhalb der Liste oder in die benachbarte Liste. ' +
+      'Drücken Sie die Leertaste erneut, um es abzulegen, oder Escape, um es an seinen Platz zurückzulegen.',
+    movedTo: 'Verschoben nach {{list}}. {{index}} von {{total}}.',
+    listPosition: 'Liste {{index}} von {{total}}',
   },
   colorPicker: {
     area: 'Sättigung und Helligkeit, {{saturation}} % und {{brightness}} %',
@@ -354,6 +359,8 @@ export const wrDe: WrI18nCatalog = {
     viewer: 'Bildvorschau',
     open: 'Vorschau öffnen',
     close: 'Vorschau schließen',
+    counter: '{{current}} / {{total}}',
+    position: 'Bild {{current}} von {{total}}',
   },
   window: {
     close: 'Schließen',

@@ -217,6 +217,11 @@ export const wrId: WrI18nCatalog = {
     moved: '{{index}} dari {{total}}.',
     dropped: 'Dilepaskan. {{index}} dari {{total}}.',
     cancelled: 'Pemindahan dibatalkan.',
+    groupKeyHelp:
+      'Tekan Spasi untuk mengangkat item ini, lalu gunakan tombol panah untuk memindahkannya di dalam daftar atau ke daftar di sebelahnya. ' +
+      'Tekan Spasi lagi untuk melepaskannya, atau Escape untuk mengembalikannya.',
+    movedTo: 'Dipindahkan ke {{list}}. {{index}} dari {{total}}.',
+    listPosition: 'daftar {{index}} dari {{total}}',
   },
   colorPicker: {
     area: 'Saturasi dan kecerahan, {{saturation}}% dan {{brightness}}%',
@@ -343,6 +348,8 @@ export const wrId: WrI18nCatalog = {
     viewer: 'Pratinjau gambar',
     open: 'Buka pratinjau',
     close: 'Tutup pratinjau',
+    counter: '{{current}} / {{total}}',
+    position: 'Gambar {{current}} dari {{total}}',
   },
   window: {
     close: 'Tutup',

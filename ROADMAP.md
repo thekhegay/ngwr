@@ -8,12 +8,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Medium
 
-- **Date range presets**: one-click ranges such as Last 7 days, with labels from the app.
-- **Sortable list groups**: drag between connected lists, with a move event that says from and to.
-- **Dropdown submenus**: nested menus with arrow-key support, the base for a split button.
-- **Slider marks and vertical mode**.
-- **Lightbox gallery**: previous and next, a counter and arrow keys across a group.
-
 ## Low
 
 - **`wr-graph` zoom and pan**: zoom in and out and drag the field, like NG-ZORRO's

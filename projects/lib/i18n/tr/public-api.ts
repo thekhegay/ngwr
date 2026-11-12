@@ -225,6 +225,11 @@ export const wrTr: WrI18nCatalog = {
     moved: '{{index}} / {{total}}.',
     dropped: 'Bırakıldı. {{index}} / {{total}}.',
     cancelled: 'Taşıma iptal edildi.',
+    groupKeyHelp:
+      'Bu öğeyi almak için Boşluk tuşuna basın, sonra ok tuşlarıyla liste içinde veya yandaki listeye taşıyın. ' +
+      'Bırakmak için Boşluk tuşuna yeniden basın, geri koymak için Escape tuşuna basın.',
+    movedTo: 'Şuraya taşındı: {{list}}. {{index}} / {{total}}.',
+    listPosition: 'liste {{index}} / {{total}}',
   },
   colorPicker: {
     area: 'Doygunluk ve parlaklık, %{{saturation}} ve %{{brightness}}',
@@ -358,6 +363,8 @@ export const wrTr: WrI18nCatalog = {
     viewer: 'Görsel önizlemesi',
     open: 'Önizlemeyi aç',
     close: 'Önizlemeyi kapat',
+    counter: '{{current}} / {{total}}',
+    position: 'Görsel {{current}}, toplam {{total}}',
   },
   window: {
     close: 'Kapat',

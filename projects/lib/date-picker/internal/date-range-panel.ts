@@ -12,7 +12,7 @@ import { WrDateAdapter } from 'ngwr/date';
 import { wrReadI18nText } from 'ngwr/i18n';
 import { wrCheckStyles } from 'ngwr/utils';
 
-import type { WrDateRange } from '../types';
+import type { WrDateRange, WrDateRangePreset } from '../types';
 
 import { WrTimePanel } from './time-panel';
 
@@ -24,6 +24,9 @@ import { WrTimePanel } from './time-panel';
  * The calendar owns range picking (including the start/end swap and the hover
  * preview); this panel only re-attaches the times so a datetime range keeps the
  * hours the user set while the dates move around.
+ *
+ * With `presets` it also draws them as a list of buttons on the start side, and
+ * the panel becomes one surface, as it does with times.
  *
  * The steppers bind `WrTimePanel`'s own `value` model, NOT `[ngModel]`. The
  * classic-forms bridge defers its first write, and under zoneless change
@@ -37,7 +40,11 @@ import { WrTimePanel } from './time-panel';
   selector: 'wr-date-range-panel',
   templateUrl: './date-range-panel.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-date-range-panel', '[class.wr-date-range-panel--timed]': 'withTime()' },
+  host: {
+    class: 'wr-date-range-panel',
+    '[class.wr-date-range-panel--timed]': 'withTime()',
+    '[class.wr-date-range-panel--presets]': 'presets().length > 0',
+  },
   imports: [WrCalendar, WrTimePanel],
 })
 export class WrDateRangePanel {
@@ -53,6 +60,8 @@ export class WrDateRangePanel {
   readonly timeFormat = input<'auto' | '12h' | '24h'>('auto');
   readonly showSeconds = input(false);
   readonly step = input(1);
+  readonly presets = input<readonly WrDateRangePreset[]>([]);
+  readonly presetsLabel = input<string | null>(null);
 
   /**
    * Forwarded to the calendar only: a range panel opened from the keyboard
@@ -73,6 +82,9 @@ export class WrDateRangePanel {
    * closes — the same rule the text inputs already follow for typing.
    */
   readonly timeChanged = output<WrDateRange>();
+
+  /** A preset's range, complete: the picker commits it and closes. */
+  readonly presetPicked = output<WrDateRange>();
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
 
@@ -95,11 +107,46 @@ export class WrDateRangePanel {
    * fallback must NOT be the current wall clock: picking a date carries no time
    * across until a stepper is touched, so a `14:37` default would display a time
    * the commit never actually stores.
+   *
+   * Today is read in the display zone in both modes. A date-only panel holds
+   * browser-local days, so the zone's day is rebuilt as one of those.
    */
   private readonly dayStart = computed(() => {
-    const t = this.adapter.today();
-    return this.adapter.createDate(this.adapter.getYear(t), this.adapter.getMonth(t), this.adapter.getDate(t));
+    const zoned = this.adapter.zoned();
+    const t = zoned.today();
+    return this.adapter.createDate(zoned.getYear(t), zoned.getMonth(t), zoned.getDate(t));
   });
+
+  protected readonly resolvedPresets = computed(() => {
+    const presets = this.presets();
+    if (!presets.length) return [];
+    const context = { adapter: this.adapter, today: this.dayStart() };
+    const [start, end] = this.value();
+    const [min, max] = [this.min(), this.max()];
+    return presets.map(preset => {
+      const [from, to] = typeof preset.range === 'function' ? preset.range(context) : preset.range;
+      const valid = this.adapter.isValid(from) && this.adapter.isValid(to);
+      const range: WrDateRange = valid && !this.withTime() ? [this.dayOf(from), this.dayOf(to)] : [from, to];
+      return {
+        label: preset.label,
+        range,
+        active: valid && this.sameEnd(start, range[0]) && this.sameEnd(end, range[1]),
+        disabled:
+          !valid ||
+          (!!min && this.adapter.compareDate(from, min) < 0) ||
+          (!!max && this.adapter.compareDate(to, max) > 0),
+      };
+    });
+  });
+
+  private dayOf(date: Date): Date {
+    return this.adapter.createDate(this.adapter.getYear(date), this.adapter.getMonth(date), this.adapter.getDate(date));
+  }
+
+  private sameEnd(a: Date | null, b: Date | null): boolean {
+    if (!a || !b) return false;
+    return this.withTime() ? a.getTime() === b.getTime() : this.adapter.isSameDay(a, b);
+  }
 
   /** Time steppers need a concrete date; fall back to a parked time, then midnight. */
   protected readonly startTime = computed(() => this.value()[0] ?? this.pendingStartTime() ?? this.dayStart());

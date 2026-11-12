@@ -217,6 +217,11 @@ export const wrHi: WrI18nCatalog = {
     moved: '{{total}} में से {{index}}।',
     dropped: 'छोड़ा गया। {{total}} में से {{index}}।',
     cancelled: 'स्थानांतरण रद्द किया गया।',
+    groupKeyHelp:
+      'इस आइटम को उठाने के लिए स्पेस दबाएं, फिर तीर कुंजियों से इसे इसकी सूची के भीतर या बगल की सूची में खिसकाएं। ' +
+      'छोड़ने के लिए फिर से स्पेस दबाएं, या वापस रखने के लिए Escape दबाएं।',
+    movedTo: '{{list}} में ले जाया गया। {{total}} में से {{index}}।',
+    listPosition: '{{total}} में से सूची {{index}}',
   },
   colorPicker: {
     area: 'संतृप्ति और चमक, {{saturation}}% और {{brightness}}%',
@@ -343,6 +348,8 @@ export const wrHi: WrI18nCatalog = {
     viewer: 'इमेज प्रीव्यू',
     open: 'प्रीव्यू खोलें',
     close: 'प्रीव्यू बंद करें',
+    counter: '{{current}} / {{total}}',
+    position: '{{total}} में से इमेज {{current}}',
   },
   window: {
     close: 'बंद करें',

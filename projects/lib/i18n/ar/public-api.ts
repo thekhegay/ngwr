@@ -226,6 +226,11 @@ export const wrAr: WrI18nCatalog = {
     moved: '{{index}} من {{total}}.',
     dropped: 'تم الإفلات. {{index}} من {{total}}.',
     cancelled: 'تم إلغاء النقل.',
+    groupKeyHelp:
+      'اضغط مفتاح المسافة لالتقاط هذا العنصر، ثم استخدم مفاتيح الأسهم لتحريكه داخل قائمته أو إلى القائمة المجاورة. ' +
+      'اضغط مفتاح المسافة مرة أخرى لإفلاته، أو Escape لإعادته إلى مكانه.',
+    movedTo: 'تم النقل إلى {{list}}. {{index}} من {{total}}.',
+    listPosition: 'القائمة {{index}} من {{total}}',
   },
   colorPicker: {
     area: 'التشبع والسطوع، {{saturation}}% و{{brightness}}%',
@@ -355,6 +360,8 @@ export const wrAr: WrI18nCatalog = {
     viewer: 'معاينة الصورة',
     open: 'فتح المعاينة',
     close: 'إغلاق المعاينة',
+    counter: '{{current}} / {{total}}',
+    position: 'الصورة {{current}} من {{total}}',
   },
   window: {
     close: 'إغلاق',

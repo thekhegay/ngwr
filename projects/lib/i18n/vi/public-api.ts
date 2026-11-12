@@ -226,6 +226,11 @@ export const wrVi: WrI18nCatalog = {
     moved: '{{index}} trên {{total}}.',
     dropped: 'Đã thả. {{index}} trên {{total}}.',
     cancelled: 'Đã hủy di chuyển.',
+    groupKeyHelp:
+      'Nhấn phím cách để nhấc mục này lên, rồi dùng các phím mũi tên để di chuyển trong danh sách hoặc sang danh sách bên cạnh. ' +
+      'Nhấn phím cách lần nữa để thả, hoặc nhấn Escape để trả về chỗ cũ.',
+    movedTo: 'Đã chuyển sang {{list}}. {{index}} trên {{total}}.',
+    listPosition: 'danh sách {{index}} trên {{total}}',
   },
   colorPicker: {
     area: 'Độ bão hòa và độ sáng, {{saturation}}% và {{brightness}}%',
@@ -355,6 +360,8 @@ export const wrVi: WrI18nCatalog = {
     viewer: 'Xem trước ảnh',
     open: 'Mở xem trước',
     close: 'Đóng xem trước',
+    counter: '{{current}} / {{total}}',
+    position: 'Ảnh {{current}} trên {{total}}',
   },
   window: {
     close: 'Đóng',

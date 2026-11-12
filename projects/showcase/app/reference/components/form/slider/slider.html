@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Slider"
-  updated="16.0.0"
+  updated="16.2.0"
   description="Pick a number, or a range of two, by dragging a thumb."
   [keywords]="['slider', 'range', 'wr-slider']"
   [labels]="['Signal Forms', 'a11y']"
@@ -38,6 +38,46 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Marks"
+    description="`[marks]` draws a tick at each value and its label under the track. Add `snapToMarks` to allow only those values. On a labelled mark the thumb announces the label."
+  >
+    <ngwr-doc-snippet [code]="snippets.marks" language="angular-html">
+      <wr-slider [(value)]="level" [marks]="levels" snapToMarks />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Vertical"
+    description='`orientation="vertical"` runs the track from the bottom to the top, with the value and the mark labels beside it. Its height is `--wr-slider-vertical-height`.'
+  >
+    <ngwr-doc-snippet [code]="snippets.vertical" language="angular-html">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Volume</p>
+          <wr-slider orientation="vertical" [(value)]="loudness" [marks]="loudnessMarks" ariaLabel="Volume" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">Equaliser</p>
+          <div style="display: flex; gap: var(--wr-space-xl)">
+            @for (band of bands; track band.name) {
+              <wr-slider
+                orientation="vertical"
+                [(value)]="band.gain"
+                min="-12"
+                max="12"
+                [marks]="[{ value: 0 }]"
+                [showValue]="false"
+                [labelWith]="decibels"
+                [ariaLabel]="band.name"
+              />
+            }
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Disabled">
     <ngwr-doc-snippet [code]="snippets.disabled" language="angular-html">
       <wr-slider [(value)]="volume" disabled />
@@ -46,7 +86,7 @@
 
   <ngwr-doc-section
     title="Keyboard"
-    description="Arrows move one step, Shift + arrow and PageUp / PageDown ten steps, Home / End jump to the ends."
+    description="Arrows move one step, Shift + arrow and PageUp / PageDown ten steps, Home / End jump to the ends. With `snapToMarks` each of them moves one mark, and Home / End go to the first and last mark. On a vertical slider the right arrow raises the value and the left arrow lowers it, in both reading directions."
   />
 
   <ngwr-doc-section title="Gotchas">

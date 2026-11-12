@@ -10,12 +10,15 @@ import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import type { TemplateRef } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import type { Signal, TemplateRef } from '@angular/core';
 import {
   Component,
   DestroyRef,
+  ElementRef,
   EnvironmentInjector,
   Injector,
+  PLATFORM_ID,
   ViewContainerRef,
   ViewEncapsulation,
   computed,
@@ -23,13 +26,19 @@ import {
   inject,
   input,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { useI18nText } from 'ngwr/i18n';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { wrToClassList, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+
+import { WrLightboxGroups } from './lightbox-groups';
+
+/** How far a horizontal swipe travels before it turns the page. */
+const SWIPE_STEP_PX = 48;
 
 let viewerUid = 0;
 
@@ -38,6 +47,9 @@ let viewerUid = 0;
  * with whatever sizing/`object-fit` you give it; clicking opens a CDK
  * overlay showing the full image, with Escape + close button + backdrop
  * to dismiss.
+ *
+ * Lightboxes that share a `group` form a gallery in document order: the viewer
+ * gains previous and next buttons, a counter and the arrow keys.
  *
  * @example
  * ```html
@@ -100,7 +112,11 @@ export class WrLightbox {
     'Open preview'
   );
 
-  protected readonly resolvedViewerLabel = useI18nText(this.alt, 'image.viewer', 'Image preview');
+  protected readonly resolvedViewerLabel = useI18nText(
+    computed(() => this.shown().alt()),
+    'image.viewer',
+    'Image preview'
+  );
 
   /** Disable the click-to-zoom lightbox. @default false */
   readonly disablePreview = input(false, { transform: coerceBooleanProperty });
@@ -127,6 +143,27 @@ export class WrLightbox {
    */
   readonly panelClass = input<WrClassInput>(null);
 
+  /**
+   * Gallery name. Every `wr-lightbox` with the same group, in document order,
+   * can be paged through from whichever one was opened. A lightbox with
+   * `disablePreview` stays out of it. @default null
+   */
+  readonly group = input<string | null>(null);
+
+  /** Wrap from the last image of the group to the first, and back. @default false */
+  readonly loop = input(false, { transform: coerceBooleanProperty });
+
+  /** Accessible name of the viewer's previous button. Falls back to `common.previous`. */
+  readonly previousLabel = input<string | null>(null);
+
+  /** Accessible name of the viewer's next button. Falls back to `common.next`. */
+  readonly nextLabel = input<string | null>(null);
+
+  protected readonly resolvedPreviousLabel = useI18nText(this.previousLabel, 'common.previous', 'Previous');
+  protected readonly resolvedNextLabel = useI18nText(this.nextLabel, 'common.next', 'Next');
+  private readonly counterText = useI18nFormatter('image.counter', '{{current}} / {{total}}');
+  private readonly positionText = useI18nFormatter('image.position', 'Image {{current}} of {{total}}');
+
   protected readonly open = signal(false);
   protected readonly loaded = signal(false);
 
@@ -148,6 +185,9 @@ export class WrLightbox {
   // unqualified TemplateRef query would grab the thumbnail branch instead.
   protected readonly panelTpl = viewChild.required<TemplateRef<unknown>>('viewerTpl');
 
+  private readonly groups = inject(WrLightboxGroups);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly focusMonitor = inject(FocusMonitor);
   private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
@@ -172,6 +212,37 @@ export class WrLightbox {
   private previouslyFocused: HTMLElement | null = null;
   private overlayRef: OverlayRef | null = null;
 
+  /** The gallery this lightbox pages through; empty when it stands alone. */
+  protected readonly gallery: Signal<readonly WrLightbox[]> = computed(() => {
+    const group = this.group();
+    if (!group) return [];
+    const members = this.groups.members(group).filter(member => !member.disablePreview());
+    return members.length > 1 && members.includes(this) ? members : [];
+  });
+
+  private readonly target = signal<WrLightbox | null>(null);
+  private lastIndex = 0;
+
+  /** The lightbox whose image the viewer is showing. */
+  protected readonly shown: Signal<WrLightbox> = computed(() => {
+    const target = this.target();
+    return target && this.gallery().includes(target) ? target : this;
+  });
+
+  protected readonly index = computed(() => this.gallery().indexOf(this.shown()));
+  protected readonly canPrevious = computed(() => this.loop() || this.index() > 0);
+  protected readonly canNext = computed(() => this.loop() || this.index() < this.gallery().length - 1);
+
+  protected readonly counter = computed(() => this.counterText(this.place()));
+
+  protected readonly announcement = computed(() => {
+    const alt = this.shown().alt();
+    const position = this.positionText(this.place());
+    return alt ? `${position}, ${alt}` : position;
+  });
+
+  private readonly preloaded = new Set<string>();
+
   constructor() {
     // Destroying the component while the viewer is open removes the projected
     // content (the portal uses this component's ViewContainerRef) but leaves the
@@ -183,11 +254,71 @@ export class WrLightbox {
       if (this.open()) this.openOverlay();
       else this.closeOverlay();
     });
+
+    effect(onCleanup => {
+      const group = this.group();
+      if (!group) return;
+      this.groups.add(group, this, this.host);
+      onCleanup(() => this.groups.remove(group, this));
+    });
+
+    // The image on screen left the group: stay at its place in the order
+    // instead of jumping back to the one that was opened.
+    effect(() => {
+      const target = this.target();
+      if (!target) return;
+      const gallery = this.gallery();
+      const index = gallery.indexOf(target);
+      if (index >= 0) {
+        this.lastIndex = index;
+        return;
+      }
+      untracked(() => this.target.set(gallery[Math.min(this.lastIndex, gallery.length - 1)] ?? null));
+    });
+
+    effect(() => {
+      if (!this.isBrowser || !this.open()) return;
+      const gallery = this.gallery();
+      // The viewer's own <img> fetches this one.
+      this.preloaded.add(this.shown().src());
+      for (const delta of [-1, 1]) {
+        const neighbour = gallery[this.wrap(this.index() + delta)];
+        if (neighbour) this.preload(neighbour.src());
+      }
+    });
   }
 
   protected onClick(): void {
     if (this.disablePreview()) return;
+    const group = this.group();
+    if (group) this.groups.refresh(group);
+    this.target.set(this);
     this.open.set(true);
+  }
+
+  /** Move through the gallery by one image; a no-op at an end unless `loop` is set. */
+  protected step(delta: -1 | 1): void {
+    this.show(this.wrap(this.index() + delta));
+  }
+
+  private show(index: number): void {
+    const member = this.gallery()[index];
+    if (member) this.target.set(member);
+  }
+
+  private wrap(index: number): number {
+    const total = this.gallery().length;
+    return this.loop() && total ? (index + total) % total : index;
+  }
+
+  private place(): { current: number; total: number } {
+    return { current: this.index() + 1, total: this.gallery().length };
+  }
+
+  private preload(src: string): void {
+    if (this.preloaded.has(src)) return;
+    this.preloaded.add(src);
+    new Image().src = src;
   }
 
   protected onClose(): void {
@@ -196,12 +327,14 @@ export class WrLightbox {
 
   // Swipe-down-to-dismiss on the open viewer. The image follows the finger and
   // fades; releasing past ~20% of the viewer height closes it.
+  private viewerStartX = 0;
   private viewerStartY = 0;
   private viewerSwiping = false;
 
   protected onViewerSwipeStart(event: TouchEvent): void {
     const touch = event.touches[0];
     if (!touch) return;
+    this.viewerStartX = touch.clientX;
     this.viewerStartY = touch.clientY;
     this.viewerSwiping = true;
   }
@@ -211,7 +344,7 @@ export class WrLightbox {
     const touch = event.touches[0];
     if (!touch) return;
     const dy = touch.clientY - this.viewerStartY;
-    if (dy <= 0) {
+    if (dy <= 0 || this.isSideways(touch.clientX - this.viewerStartX, dy)) {
       viewer.style.transform = '';
       viewer.style.opacity = '';
       return;
@@ -226,14 +359,26 @@ export class WrLightbox {
     if (!this.viewerSwiping) return;
     this.viewerSwiping = false;
     const touch = event.changedTouches[0];
+    const dx = touch ? touch.clientX - this.viewerStartX : 0;
     const dy = touch ? touch.clientY - this.viewerStartY : 0;
-    if (dy > (viewer.offsetHeight || 0) * 0.2) {
+    if (this.isSideways(dx, dy)) {
+      if (Math.abs(dx) >= SWIPE_STEP_PX) this.step(dx < 0 !== this.isRtl() ? 1 : -1);
+    } else if (dy > (viewer.offsetHeight || 0) * 0.2) {
       this.onClose();
     } else {
       viewer.style.transition = '';
       viewer.style.transform = '';
       viewer.style.opacity = '';
     }
+  }
+
+  /** A drag that belongs to the gallery rather than to swipe-down-to-dismiss. */
+  private isSideways(dx: number, dy: number): boolean {
+    return this.gallery().length > 0 && Math.abs(dx) > Math.abs(dy);
+  }
+
+  private isRtl(): boolean {
+    return this.dir?.value === 'rtl';
   }
 
   /**
@@ -288,8 +433,33 @@ export class WrLightbox {
         if (event.key === 'Escape') {
           event.preventDefault();
           this.open.set(false);
+        } else {
+          this.onGalleryKey(event);
         }
       });
+  }
+
+  private onGalleryKey(event: KeyboardEvent): void {
+    const total = this.gallery().length;
+    if (!total || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+
+    switch (event.key) {
+      case 'ArrowLeft':
+        this.step(this.isRtl() ? 1 : -1);
+        break;
+      case 'ArrowRight':
+        this.step(this.isRtl() ? -1 : 1);
+        break;
+      case 'Home':
+        this.show(0);
+        break;
+      case 'End':
+        this.show(total - 1);
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
   }
 
   private closeOverlay(): void {

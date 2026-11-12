@@ -5,16 +5,30 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
+import { Component, ViewEncapsulation, booleanAttribute, computed, inject, input } from '@angular/core';
 
-import { type WrDateFormat, WrDateAdapter, wrIsDateOnly, wrParseDate } from 'ngwr/date';
+import {
+  type WrDateFormat,
+  type WrEpochUnit,
+  WR_DATE_STAMP_DEFAULTS,
+  WrDateAdapter,
+  wrIsDateOnly,
+  wrIsNamedFormat,
+  wrParseDate,
+} from 'ngwr/date';
 import { useI18nText } from 'ngwr/i18n';
 import { wrCheckStyles } from 'ngwr/utils';
 
 interface Stamp {
   readonly iso: string;
-  readonly date: string;
+  readonly date: string | null;
   readonly time: string | null;
+}
+
+/** The format with seconds: the `Seconds` twin of a named key, `ss` after the minutes of a token string. */
+function withSeconds(format: string): string {
+  if (wrIsNamedFormat(format)) return /^(?:time|shortDateTime)(?:12h|24h)?$/.test(format) ? `${format}Seconds` : format;
+  return format.includes('ss') ? format : format.replace('mm', 'mm:ss');
 }
 
 function pad(n: number, width = 2): string {
@@ -27,9 +41,13 @@ function pad(n: number, width = 2): string {
  * Both lines are written by the date adapter, so they are in the interface
  * language and, for an instant, on the wall clock of
  * `withDates({ timeZone })`, and they follow both at runtime. The value is read
- * as `wrDate` reads it: a `Date`, epoch milliseconds or a string. A date-only
- * string (`'2026-11-12'`) is a day, so it shows the date line alone and does
- * not shift with the zone.
+ * as `wrDate` reads it: a `Date`, an epoch number or a string, under the
+ * `epochUnit` and `zonelessIn` of `withDates()`. A date-only string
+ * (`'2026-11-12'`) is a day, so it shows the date line alone and does not
+ * shift with the zone.
+ *
+ * `withDates({ stamp })` sets the formats, `todayTimeOnly` and `seconds` for
+ * every stamp of the app; an input set here wins.
  *
  * The lines sit in one `<time>` whose `datetime` is the instant in ISO 8601,
  * or the day for a date-only string. `null`, `undefined`, `''` and a value
@@ -39,6 +57,7 @@ function pad(n: number, width = 2): string {
  * ```html
  * <wr-date-stamp [value]="row.createdAt" />
  * <wr-date-stamp [value]="row.createdAt" dateFormat="d MMM yyyy" timeFormat="time24hSeconds" />
+ * <wr-date-stamp [value]="message.sentAt" todayTimeOnly seconds />
  * ```
  *
  * @see https://ngwr.dev/reference/components/date-stamp
@@ -54,8 +73,10 @@ export class WrDateStamp {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('date-stamp');
   }
 
+  private readonly defaults = inject(WR_DATE_STAMP_DEFAULTS);
+
   /**
-   * The moment shown: a `Date`, epoch milliseconds, or a string `wrParseDate`
+   * The moment shown: a `Date`, an epoch number, or a string `wrParseDate`
    * reads. `null`, `undefined`, `''` and a value that is not a date are empty.
    *
    * @default null
@@ -64,18 +85,46 @@ export class WrDateStamp {
 
   /**
    * Format of the first line: a named key or a token string (`'d MMM yyyy'`).
+   * `withDates({ stamp })` changes the default.
    *
    * @default 'mediumDate'
    */
-  readonly dateFormat = input<WrDateFormat | (string & {})>('mediumDate');
+  readonly dateFormat = input<WrDateFormat | (string & {})>(this.defaults.dateFormat ?? 'mediumDate');
 
   /**
    * Format of the second line: a named key (`'time24hSeconds'`) or a token
-   * string (`'HH:mm'`).
+   * string (`'HH:mm'`). `withDates({ stamp })` changes the default.
    *
    * @default 'time'
    */
-  readonly timeFormat = input<WrDateFormat | (string & {})>('time');
+  readonly timeFormat = input<WrDateFormat | (string & {})>(this.defaults.timeFormat ?? 'time');
+
+  /**
+   * Write the seconds in the time line: `'time'` is read as `'timeSeconds'`
+   * and `'HH:mm'` as `'HH:mm:ss'`. A format that already has them is left
+   * alone. `withDates({ stamp })` changes the default.
+   *
+   * @default false
+   */
+  readonly seconds = input(this.defaults.seconds ?? false, { transform: booleanAttribute });
+
+  /**
+   * Show the time alone for a value from today. Today is the day in the
+   * display zone, read when the stamp renders: one left on screen past
+   * midnight keeps its single line. A date-only value keeps its date.
+   * `withDates({ stamp })` changes the default.
+   *
+   * @default false
+   */
+  readonly todayTimeOnly = input(this.defaults.todayTimeOnly ?? false, { transform: booleanAttribute });
+
+  /**
+   * What a number in `value` counts since the epoch: `'ms'`, `'us'`, `'s'` or
+   * `'auto'`, by size. `null` follows `withDates({ epochUnit })`.
+   *
+   * @default null
+   */
+  readonly epochUnit = input<WrEpochUnit | null>(null);
 
   /** What stands in for an empty value. Falls back to `copyValue.empty`, then `'-'`. */
   readonly emptyLabel = input<string | null>(null);
@@ -87,7 +136,8 @@ export class WrDateStamp {
 
   protected readonly parts = computed<Stamp | null>(() => {
     const value = this.value();
-    const date = wrParseDate(value);
+    const epochUnit = this.epochUnit();
+    const date = wrParseDate(value, { ...this.adapter.parseOptions(), ...(epochUnit ? { epochUnit } : {}) });
     if (date === null) return null;
 
     if (wrIsDateOnly(value)) {
@@ -99,10 +149,11 @@ export class WrDateStamp {
     }
 
     const zoned = this.adapter.zoned();
+    const timeFormat = this.timeFormat();
     return {
       iso: date.toISOString(),
-      date: zoned.format(date, this.dateFormat()),
-      time: zoned.format(date, this.timeFormat()),
+      date: this.todayTimeOnly() && zoned.isSameDay(date, zoned.today()) ? null : zoned.format(date, this.dateFormat()),
+      time: zoned.format(date, this.seconds() ? withSeconds(timeFormat) : timeFormat),
     };
   });
 }

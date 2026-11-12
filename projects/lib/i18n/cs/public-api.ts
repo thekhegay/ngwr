@@ -217,6 +217,11 @@ export const wrCs: WrI18nCatalog = {
     moved: '{{index}} z {{total}}.',
     dropped: 'Položeno. {{index}} z {{total}}.',
     cancelled: 'Přesun zrušen.',
+    groupKeyHelp:
+      'Mezerníkem položku uchopíte, šipkami ji přesunete v seznamu nebo do sousedního seznamu. ' +
+      'Dalším stisknutím mezerníku ji položíte, klávesou Escape ji vrátíte zpět.',
+    movedTo: 'Přesunuto do: {{list}}. {{index}} z {{total}}.',
+    listPosition: 'seznam {{index}} z {{total}}',
   },
   colorPicker: {
     area: 'Sytost a jas, {{saturation}} % a {{brightness}} %',
@@ -343,6 +348,8 @@ export const wrCs: WrI18nCatalog = {
     viewer: 'Náhled obrázku',
     open: 'Otevřít náhled',
     close: 'Zavřít náhled',
+    counter: '{{current}} / {{total}}',
+    position: 'Obrázek {{current}} z {{total}}',
   },
   window: {
     close: 'Zavřít',

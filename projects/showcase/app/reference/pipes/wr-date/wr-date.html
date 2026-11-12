@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="wrDate"
-  updated="16.0.0"
+  updated="16.2.0"
   description="Format a date with a named preset or a token string."
   [keywords]="['pipe', 'wrDate', 'date', 'format', 'intl']"
   [labels]="['Pipe']"
@@ -55,7 +55,7 @@
 
   <ngwr-doc-section
     title="Token strings"
-    description="Tokens: `yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a`, plus 'quoted' text. There is no weekday token."
+    description="Tokens: `yyyy yy y MMMM MMM MM M dd d HH H hh h mm ss a`, plus 'quoted' text. `y` is the full year, as in `DatePipe`'s `d MMM y`. There is no weekday token."
   >
     <ngwr-doc-code [code]="snippets.tokens" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -87,7 +87,7 @@
 
   <ngwr-doc-section
     title="Dates from a backend"
-    description="`wrParseDate` from `ngwr/date` turns what an API sends into a `Date`, or `null`. Never an Invalid Date. A plain function: no adapter, no injection context. The pipe and `wrFormatDate` read a string the same way."
+    description="`wrParseDate` from `ngwr/date` turns what an API sends into a `Date`, or `null`. Never an Invalid Date. A plain function: no adapter, no injection context. The pipe and `wrFormatDate` read a value the same way, under the `epochUnit` and `zonelessIn` of `withDates()`, see [Configuration](/docs/configuration)."
   >
     <ngwr-doc-code [code]="snippets.parse" language="typescript" />
     <div class="ngwr-table">
@@ -120,7 +120,17 @@
           </tr>
           <tr>
             <th scope="row">A number</th>
-            <td>Epoch milliseconds.</td>
+            <td>
+              Epoch milliseconds, or what <code>epochUnit</code> says: <code>'s'</code>, <code>'us'</code> or
+              <code>'auto'</code>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>2026-03-01 14:30:00</code> with <code>zonelessIn</code></th>
+            <td>
+              <code>'utc'</code> reads a string with no offset as UTC, <code>'display'</code> as a wall clock of the
+              <code>timeZone</code> option.
+            </td>
           </tr>
           <tr>
             <th scope="row">A <code>Date</code></th>

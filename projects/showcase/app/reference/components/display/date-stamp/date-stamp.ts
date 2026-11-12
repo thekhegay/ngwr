@@ -35,6 +35,7 @@ interface Shift {
 })
 export default class DateStampPageComponent {
   protected readonly created = new Date(Date.UTC(2026, 10, 12, 8, 45, 30));
+  protected readonly now = new Date();
 
   protected readonly columns: WrTableColumns<Shift> = {
     id: { title: 'Shift' },
@@ -74,6 +75,24 @@ providers: [
 // <wr-date-stamp value="2026-11-12T08:45:00Z" />
 // 12 нояб. 2026 г.
 // 13:45`,
+    today: `<wr-date-stamp [value]="message.sentAt" todayTimeOnly />
+<wr-date-stamp [value]="at" seconds />                     <!-- time is read as timeSeconds -->
+<wr-date-stamp [value]="at" timeFormat="HH:mm" seconds />  <!-- HH:mm:ss -->`,
+    defaults: `import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
+
+providers: [
+  provideWr(
+    withDates({
+      stamp: { dateFormat: 'd MMM y', timeFormat: 'HH:mm', todayTimeOnly: true },
+    })
+  ),
+],
+
+// <wr-date-stamp [value]="at" />                        12 Nov 2026 over 13:45
+// <wr-date-stamp [value]="at" dateFormat="longDate" />  the input wins`,
+    backend: `<wr-date-stamp [value]="1794473100000123" epochUnit="us" />
+<wr-date-stamp [value]="1794473100" epochUnit="auto" />`,
     dateOnly: `<wr-date-stamp value="2026-11-12" />`,
     empty: `<wr-date-stamp [value]="null" />
 <wr-date-stamp [value]="shift.closedAt" emptyLabel="not closed" />`,

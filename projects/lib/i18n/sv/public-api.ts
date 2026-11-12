@@ -217,6 +217,11 @@ export const wrSv: WrI18nCatalog = {
     moved: '{{index}} av {{total}}.',
     dropped: 'Släppt. {{index}} av {{total}}.',
     cancelled: 'Flytten avbröts.',
+    groupKeyHelp:
+      'Tryck på blanksteg för att ta upp objektet och flytta det sedan med piltangenterna, inom listan eller till listan bredvid. ' +
+      'Tryck på blanksteg igen för att släppa det, eller Escape för att lägga tillbaka det.',
+    movedTo: 'Flyttat till {{list}}. {{index}} av {{total}}.',
+    listPosition: 'lista {{index}} av {{total}}',
   },
   colorPicker: {
     area: 'Mättnad och ljusstyrka, {{saturation}} % och {{brightness}} %',
@@ -343,6 +348,8 @@ export const wrSv: WrI18nCatalog = {
     viewer: 'Förhandsgranskning av bild',
     open: 'Öppna förhandsgranskning',
     close: 'Stäng förhandsgranskning',
+    counter: '{{current}} / {{total}}',
+    position: 'Bild {{current}} av {{total}}',
   },
   window: {
     close: 'Stäng',

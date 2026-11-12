@@ -38,6 +38,16 @@ class Host {
 })
 class TwoHost {}
 
+@Component({
+  imports: [WrLightbox],
+  template: `
+    <wr-lightbox src="/one.jpg" alt="One" group="trip" />
+    <wr-lightbox src="/two.jpg" alt="Two" group="trip" />
+    <wr-lightbox src="/three.jpg" alt="Three" group="trip" />
+  `,
+})
+class GalleryHost {}
+
 /**
  * The thumbnail is in the fixture and the viewer is an overlay, so the harness has to
  * cross between them; the container belongs to the TestBed's root injector, so it never
@@ -228,5 +238,63 @@ describe('WrLightboxHarness — two lightboxes on one page', () => {
 
     expect(await loader.getHarnessOrNull(WrLightboxHarness.with({ caption: 'A dog' }))).not.toBeNull();
     expect(await loader.getHarnessOrNull(WrLightboxHarness.with({ caption: 'A cat' }))).toBeNull();
+  });
+});
+
+describe('WrLightboxHarness in a gallery', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<GalleryHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(GalleryHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('pages through the group from the lightbox that opened', async () => {
+    const harness = await loader.getHarness(WrLightboxHarness.with({ alt: 'Two' }));
+    await harness.open();
+
+    expect(await harness.getCounter()).toBe('2 / 3');
+    expect(await harness.getCurrentSrc()).toContain('/two.jpg');
+    expect(await harness.isNextDisabled()).toBe(false);
+
+    await harness.next();
+    expect(await harness.getCounter()).toBe('3 / 3');
+    expect(await harness.getCurrentSrc()).toContain('/three.jpg');
+    expect(await harness.isNextDisabled()).toBe(true);
+
+    await harness.previous();
+    await harness.previous();
+    expect(await harness.getCurrentSrc()).toContain('/one.jpg');
+    expect(await harness.isPreviousDisabled()).toBe(true);
+  });
+
+  it('keeps the viewer on the lightbox that opened it', async () => {
+    const [one, two] = await loader.getAllHarnesses(WrLightboxHarness);
+    await one.open();
+    await one.next();
+
+    expect(await one.isOpen()).toBe(true);
+    expect(await two.isOpen()).toBe(false);
+  });
+});
+
+describe('WrLightboxHarness outside a gallery', () => {
+  it('has no counter and says why it cannot move', async () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    const harness = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrLightboxHarness);
+
+    await expect(harness.getCounter()).rejects.toThrow(/not open/);
+    await harness.open();
+    expect(await harness.getCounter()).toBeNull();
+    await expect(harness.next()).rejects.toThrow(/not in a gallery/);
+
+    fixture.destroy();
   });
 });

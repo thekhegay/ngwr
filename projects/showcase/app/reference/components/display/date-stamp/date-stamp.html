@@ -1,12 +1,13 @@
 <ngwr-doc-page
   title="Date Stamp"
   since="16.1.0"
+  updated="16.2.0"
   description="A date over a time, for a table cell."
   [keywords]="['date stamp', 'date', 'time', 'timestamp', 'table cell', 'time zone', 'wr-date-stamp']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="Takes a `Date`, epoch milliseconds or a string, read as `wrDate` reads it. Both lines sit in one `<time>` with the instant in `datetime`."
+    description="Takes a `Date`, an epoch number or a string, read as `wrDate` reads it. Both lines sit in one `<time>` with the instant in `datetime`."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -43,6 +44,41 @@
       <div style="display: flex; gap: var(--wr-space-xl); flex-wrap: wrap">
         <wr-date-stamp [value]="created" dateFormat="longDate" timeFormat="time24hSeconds" />
         <wr-date-stamp [value]="created" dateFormat="d MMM yyyy" timeFormat="HH:mm" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Today and seconds"
+    description="`todayTimeOnly` shows the time alone for a value from today, as a message list does. Today is the day in the display zone, read when the stamp renders. `seconds` adds the seconds to `timeFormat`."
+  >
+    <ngwr-doc-code [code]="snippets.today" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: var(--wr-space-xl); flex-wrap: wrap">
+        <wr-date-stamp [value]="now" todayTimeOnly />
+        <wr-date-stamp [value]="created" todayTimeOnly />
+        <wr-date-stamp [value]="created" seconds />
+        <wr-date-stamp [value]="created" timeFormat="HH:mm" seconds />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="App-wide defaults"
+    description="`withDates({ stamp })` sets `dateFormat`, `timeFormat`, `todayTimeOnly` and `seconds` for every stamp. An input on a stamp wins."
+  >
+    <ngwr-doc-code [code]="snippets.defaults" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Backend values"
+    description="A number is epoch milliseconds, or what `epochUnit` says: `us`, `s`, or `auto` by size. The input overrides `withDates({ epochUnit })` for one stamp. A string with no offset is read as `withDates({ zonelessIn })` says, see [Configuration](/docs/configuration)."
+  >
+    <ngwr-doc-code [code]="snippets.backend" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: var(--wr-space-xl); flex-wrap: wrap">
+        <wr-date-stamp [value]="1794473100000123" epochUnit="us" />
+        <wr-date-stamp [value]="1794473100" epochUnit="auto" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

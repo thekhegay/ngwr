@@ -31,3 +31,41 @@
     line-height: 1;
   }
 }
+
+.ngwr-sortable-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--wr-space-md);
+  width: 100%;
+
+  &__column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wr-space-sm);
+    padding: var(--wr-space-md);
+    border: 1px solid var(--wr-border-base);
+    border-radius: var(--wr-border-radius-base);
+    background: var(--wr-color-fill-subtle);
+
+    // The list fills the column, so a drop below the last card still lands.
+    > wr-sortable-list {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+
+      > .wr-sortable-list__list {
+        flex: 1;
+      }
+    }
+  }
+
+  &__title,
+  &__empty {
+    margin: 0;
+  }
+
+  &__empty {
+    padding: var(--wr-space-md);
+    text-align: center;
+  }
+}

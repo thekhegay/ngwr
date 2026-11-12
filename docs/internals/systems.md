@@ -181,6 +181,18 @@ one component folder. Reach for them instead of hand-rolling:
   string through the internal `wrToLocalDate`, and `wrDate`, `wrFormatDate` and
   the date validators parse through it in turn, so all four read one string as
   one instant. It must stay free of the adapter and of DI.
+  **Backend values** (16.2): `wrParseDate(value, options)` takes `epochUnit`
+  (`ms`, `us`, `s`, `auto`), `zonelessIn` (`browser`, `display`, `utc`) and the
+  `timeZone` that `display` reads in, through the wall-clock helpers of
+  `date/time-zone.ts`. `withDates({ epochUnit, zonelessIn })` provides
+  `WR_DATE_INPUT`, and `adapter.parseOptions()` hands it out with the zone:
+  `wrFormatDate` and `wr-date-stamp` pass that to `wrParseDate`, so the
+  function itself still injects nothing. The base adapter returns `{}`, so a
+  custom one honours the options only when it overrides `parseOptions()`. The
+  validators and the pickers do not read them. `withDates({ stamp })` provides
+  `WR_DATE_STAMP_DEFAULTS`, which lives in `ngwr/date` so that `withDates()`
+  imports no component; both tokens merge over the injector above, so a
+  route's call keeps the app's other keys.
 - **Router integration is OPT-IN since v14, and lives in two nested entry
   points** — `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`, and
   `WrTabsRouting` (the `[wrTabsRouting]` attribute on the strip) from
@@ -273,6 +285,20 @@ one component folder. Reach for them instead of hand-rolling:
   import path and the `@use`, and reports a list still rendering its row
   through an `<ng-template>` or passing `trackBy`, since the loop needs the
   array name and a track key only the app knows.
+  **Groups.** Lists with the same `group` exchange items. They find each other
+  through the root registry `WR_SORTABLE_LISTS` and are handed to the CDK as
+  `connectedTo`; `cdkDropListGroup` is not used, because it needs a common
+  ancestor directive and columns can sit in separate components. `move` fires
+  once, on the list the item arrived in, after both lists wrote `items`;
+  `reorder` is for a move inside one list. `canEnter` and `disabled` gate the
+  drag (the CDK enter predicate) and the keyboard alike, and an item can always
+  return to the list it left. The keyboard crosses lists on the arrows of the
+  other axis, in DOCUMENT order mirrored under RTL, stepping over a list that
+  refuses; the gesture's origin travels with the row, so Escape returns it to
+  the list it started in. `CdkDropList` is a HOST directive: rows are projected,
+  and a projected `cdkDrag` resolves its list through the element injector,
+  which never enters the component's own view. With the drop list in the
+  template every row was a free drag that sorted nothing.
 - **Virtual scrolling** — `wr-table`, `wr-tree` and `wr-select` (`[options]` rows)
   use hand-rolled spacer-row windowing and switch to `aria-activedescendant`
   while virtual. `ngwr/virtual-scroll` is a _separate_ public component wrapping

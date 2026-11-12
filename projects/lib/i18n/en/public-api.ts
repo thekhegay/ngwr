@@ -291,6 +291,11 @@ export const wrEn: WrI18nCatalog = {
     moved: '{{index}} of {{total}}.',
     dropped: 'Dropped. {{index}} of {{total}}.',
     cancelled: 'Move cancelled.',
+    groupKeyHelp:
+      'Press Space to pick this item up, then use the arrow keys to move it, within its list or into the next one. ' +
+      'Press Space again to drop it, or Escape to put it back.',
+    movedTo: 'Moved to {{list}}. {{index}} of {{total}}.',
+    listPosition: 'list {{index}} of {{total}}',
   },
   colorPicker: {
     // The saturation / brightness canvas is a `role="group"`, which has no
@@ -442,6 +447,8 @@ export const wrEn: WrI18nCatalog = {
     viewer: 'Image preview',
     open: 'Open preview',
     close: 'Close preview',
+    counter: '{{current}} / {{total}}',
+    position: 'Image {{current}} of {{total}}',
   },
   window: {
     close: 'Close',

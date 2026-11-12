@@ -394,6 +394,101 @@ describe('wrDate in a display time zone', () => {
   });
 });
 
+/**
+ * The backend forms an app reads: a number in another unit, and a date-time
+ * with no offset that is the display zone's own wall clock. The second half of
+ * each expectation runs with the process in another zone.
+ */
+describe('wrDate reading backend values', () => {
+  const AT = Date.UTC(2026, 10, 12, 8, 45, 0);
+
+  const adapter = (dates?: Parameters<typeof withDates>[0]): WrDateAdapter<Date> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: LOCALE_ID, useValue: 'en-US' }, ...(dates ? [provideWr(withDates(dates))] : [])],
+    });
+    return TestBed.inject<WrDateAdapter<Date>>(WrDateAdapter);
+  };
+  const pipe = (): WrDate => TestBed.runInInjectionContext(() => new WrDate());
+
+  /** Run with the process in another zone: Node re-reads `TZ` when it is assigned. */
+  const inProcessZone = (timeZone: string, run: () => void): void => {
+    const before = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    process.env['TZ'] = timeZone;
+    try {
+      expect(new Date(2026, 10, 12).getTimezoneOffset()).toBe(timeZone === 'America/New_York' ? 300 : -540);
+      run();
+    } finally {
+      process.env['TZ'] = before;
+    }
+  };
+  const everywhere = (run: () => void): void => {
+    run();
+    inProcessZone('America/New_York', run);
+    inProcessZone('Asia/Tokyo', run);
+  };
+
+  it('reads a number in the unit of withDates', () => {
+    everywhere(() => {
+      const dates = adapter({ timeZone: '+0500', epochUnit: 'auto' });
+      expect(wrFormatDate(AT, dates, 'dd.MM.yyyy HH:mm')).toBe('12.11.2026 13:45');
+      expect(wrFormatDate(AT * 1000, dates, 'dd.MM.yyyy HH:mm')).toBe('12.11.2026 13:45');
+      expect(wrFormatDate(AT / 1000, dates, 'dd.MM.yyyy HH:mm')).toBe('12.11.2026 13:45');
+      expect(pipe().transform(AT * 1000, 'HH:mm')).toBe('13:45');
+
+      expect(wrFormatDate(AT / 1000, adapter({ timeZone: '+0500', epochUnit: 's' }), 'HH:mm')).toBe('13:45');
+      expect(wrFormatDate(AT * 1000, adapter({ timeZone: '+0500', epochUnit: 'us' }), 'HH:mm')).toBe('13:45');
+    });
+  });
+
+  it('takes the unit for one call, over the one of withDates', () => {
+    const dates = adapter({ timeZone: '+0500' });
+    expect(wrFormatDate(AT * 1000, dates, 'HH:mm', { epochUnit: 'us' })).toBe('13:45');
+    const p = pipe();
+    expect(p.transform(AT * 1000, 'HH:mm', { epochUnit: 'us' })).toBe('13:45');
+    expect(p.transform(AT * 1000, 'HH:mm', { epochUnit: 'auto' })).toBe('13:45');
+    // The same value and format with another unit is another result, not the one kept.
+    expect(p.transform(AT / 1000, 'HH:mm', { epochUnit: 's' })).toBe('13:45');
+    expect(p.transform(AT / 1000, 'yyyy', { epochUnit: 'ms' })).toBe('1970');
+    expect(p.transform(AT / 1000, 'yyyy', { epochUnit: 's' })).toBe('2026');
+  });
+
+  it('prints a zoneless string unchanged when it is read in the display zone', () => {
+    everywhere(() => {
+      const dates = adapter({ timeZone: '+0500', zonelessIn: 'display' });
+      expect(wrFormatDate('2026-11-12 13:45:00', dates, 'yyyy-MM-dd HH:mm:ss')).toBe('2026-11-12 13:45:00');
+      expect(wrFormatDate('2026-11-12T13:45', dates, 'yyyy-MM-dd HH:mm')).toBe('2026-11-12 13:45');
+      expect(pipe().transform('2026-11-12 13:45:00', 'd MMM y HH:mm')).toBe('12 Nov 2026 13:45');
+
+      const named = adapter({ timeZone: 'Australia/Adelaide', zonelessIn: 'display' });
+      expect(wrFormatDate('2026-11-12 13:45:00', named, 'yyyy-MM-dd HH:mm:ss')).toBe('2026-11-12 13:45:00');
+    });
+  });
+
+  it('reads a zoneless string as UTC and shows it in the display zone', () => {
+    everywhere(() => {
+      const dates = adapter({ timeZone: '+0500', zonelessIn: 'utc' });
+      expect(wrFormatDate('2026-11-12 13:45:00', dates, 'yyyy-MM-dd HH:mm')).toBe('2026-11-12 18:45');
+    });
+  });
+
+  it('leaves a string with an offset and a date-only string as they were', () => {
+    everywhere(() => {
+      const dates = adapter({ timeZone: '+0500', zonelessIn: 'display', epochUnit: 'auto' });
+      expect(wrFormatDate('2026-11-12 13:45:00Z', dates, 'yyyy-MM-dd HH:mm')).toBe('2026-11-12 18:45');
+      expect(wrFormatDate('2026-11-12T13:45:00+09:00', dates, 'yyyy-MM-dd HH:mm')).toBe('2026-11-12 09:45');
+      expect(wrFormatDate('2026-11-12', dates, 'yyyy-MM-dd HH:mm')).toBe('2026-11-12 00:00');
+    });
+  });
+
+  it('changes nothing with no option', () => {
+    const dates = adapter();
+    expect(dates.parseOptions()).toEqual({ epochUnit: 'ms', zonelessIn: 'browser', timeZone: null });
+    expect(wrFormatDate(AT, dates, 'yyyy')).toBe('2026');
+    expect(wrFormatDate('2026-11-12 13:45:00', dates, 'yyyy-MM-dd HH:mm')).toBe('2026-11-12 13:45');
+  });
+});
+
 describe('wrRange', () => {
   it('counts from zero', () => {
     expect(new WrRange().transform(4)).toEqual([0, 1, 2, 3]);
@@ -537,6 +632,43 @@ describe('wrDuration', () => {
         expect(wrFormatDuration(value, locale)).toBe(p.transform(value));
         expect(wrFormatDuration(value, locale, 'units')).toBe(p.transform(value, 'units'));
       }
+    }
+  });
+
+  it('writes a timer as HH:mm:ss, two digits a field, whatever the length', () => {
+    const p = pipe();
+    expect(p.transform(3_723_000, 'timer')).toBe('01:02:03');
+    expect(p.transform(5 * MINUTE + 7 * SECOND, 'timer')).toBe('00:05:07');
+    expect(p.transform(0, 'timer')).toBe('00:00:00');
+    expect(p.transform(23 * HOUR + 59 * MINUTE + 59 * SECOND + 999, 'timer')).toBe('23:59:59');
+    expect(wrFormatDuration(3_723_000, 'en-US', 'timer')).toBe('01:02:03');
+    expect(wrFormatDuration('3723000', 'en-US', 'timer')).toBe('01:02:03');
+  });
+
+  it('puts the days of a timer in front, as the narrow unit of the locale', () => {
+    expect(pipe().transform(DAY + 2 * HOUR + 3 * MINUTE + 4 * SECOND, 'timer')).toBe('1d 02:03:04');
+    expect(pipe().transform(12 * DAY, 'timer')).toBe('12d 00:00:00');
+    expect(pipe('ru-RU').transform(DAY + 2 * HOUR + 3 * MINUTE + 4 * SECOND, 'timer')).toBe('1 д. 02:03:04');
+    expect(pipe('ar-EG').transform(HOUR + 2 * MINUTE + 3 * SECOND, 'timer')).toBe('٠١:٠٢:٠٣');
+  });
+
+  it('signs a negative timer and not one that floors to zero', () => {
+    const p = pipe();
+    expect(p.transform(-(5 * MINUTE + 7 * SECOND), 'timer')).toBe('-00:05:07');
+    expect(p.transform(-(DAY + HOUR), 'timer')).toBe('-1d 01:00:00');
+    expect(p.transform(-500, 'timer')).toBe('00:00:00');
+  });
+
+  it('reads no time zone: a timer is the same in any zone of the process', () => {
+    const before = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    try {
+      for (const timeZone of [before, 'America/New_York', 'Asia/Kolkata', 'UTC']) {
+        process.env['TZ'] = timeZone;
+        expect(pipe().transform(3_723_000, 'timer')).toBe('01:02:03');
+        expect(pipe().transform(3_723_000)).toBe('1:02:03');
+      }
+    } finally {
+      process.env['TZ'] = before;
     }
   });
 

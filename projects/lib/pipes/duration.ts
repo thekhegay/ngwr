@@ -30,6 +30,15 @@ function formatClock(ms: number, locale: string): string {
   return hour > 0 ? `${digits(hour, 1)}:${tail}` : tail;
 }
 
+function formatTimer(ms: number, locale: string): string {
+  const { day = 0, hour = 0, minute = 0, second = 0 } = wrSplitDuration(ms, LIST_UNITS);
+  const two = new Intl.NumberFormat(locale, { useGrouping: false, minimumIntegerDigits: 2 });
+  const clock = [hour, minute, second].map(n => two.format(n)).join(':');
+  if (day === 0) return clock;
+  const days = new Intl.NumberFormat(locale, { style: 'unit', unit: 'day', unitDisplay: 'narrow' }).format(day);
+  return `${days} ${clock}`;
+}
+
 function formatUnits(ms: number, locale: string): string {
   const parts = wrSplitDuration(ms, LIST_UNITS);
   const unit = (name: WrDurationUnit, n: number): string =>
@@ -69,16 +78,23 @@ export function wrSplitDuration(
 /**
  * A span of milliseconds as text, in the given locale.
  *
- * Two styles. `'clock'` is digits and colons: `1:30:00`, and `5:07` under an
+ * Three styles. `'clock'` is digits and colons: `1:30:00`, and `5:07` under an
  * hour; days are carried into the hours, since a clock has no day digit, so two
  * days read `48:00:00`. `'units'` is every non-zero unit as a word the locale
  * writes, `1 hr 30 min` in English and `1 h 30 min` in French, through
  * `Intl.NumberFormat`'s unit style and `Intl.ListFormat` — `Intl.DurationFormat`
- * is above the browser floor. The digits are the locale's own in both styles.
+ * is above the browser floor. `'timer'` is what an elapsed-time counter shows:
+ * always `HH:mm:ss`, each field two digits, `01:02:03` and `00:05:07`; from a
+ * day on, the days stand in front as the locale's narrow unit, `1d 02:03:04`.
+ * The digits are the locale's own in every style.
  *
- * Whole seconds: a fraction of a second is floored in both styles. Zero reads
- * `0:00` and `0 sec`. A negative span is its absolute value with the locale's
- * minus sign in front, `-5:07`. `null`, `undefined`, an empty string and a value
+ * A span is not an instant: no style reads a time zone, so the output is the
+ * same wherever it runs. Formatting an elapsed time as a date would add the
+ * display zone's offset to it.
+ *
+ * Whole seconds: a fraction of a second is floored in every style. Zero reads
+ * `0:00`, `0 sec` and `00:00:00`. A negative span is its absolute value with
+ * the locale's minus sign in front, `-5:07` and `-00:05:07`. `null`, `undefined`, an empty string and a value
  * that is not a finite number give an empty string, as `wrFormatNumber` does.
  *
  * The same output as the `wrDuration` pipe, for a string built in TypeScript.
@@ -88,6 +104,8 @@ export function wrSplitDuration(
  * wrFormatDuration(5_400_000, 'en-US');           // "1:30:00"
  * wrFormatDuration(5_400_000, 'en-US', 'units');  // "1 hr 30 min"
  * wrFormatDuration(307_000, 'fr-FR', 'units');    // "5 min 7 s"
+ * wrFormatDuration(3_723_000, 'en-US', 'timer');  // "01:02:03"
+ * wrFormatDuration(93_784_000, 'en-US', 'timer'); // "1d 02:03:04"
  * ```
  */
 export function wrFormatDuration(
@@ -100,7 +118,12 @@ export function wrFormatDuration(
   if (!Number.isFinite(ms)) return '';
 
   const span = Math.abs(ms);
-  const body = style === 'units' ? formatUnits(span, locale) : formatClock(span, locale);
+  const body =
+    style === 'units'
+      ? formatUnits(span, locale)
+      : style === 'timer'
+        ? formatTimer(span, locale)
+        : formatClock(span, locale);
   // A span that floors to zero carries no sign: `-0:00` states nothing.
   if (ms >= 0 || span < 1000) return body;
 
@@ -109,14 +132,16 @@ export function wrFormatDuration(
 }
 
 /**
- * A span of milliseconds as clock digits or as units, in Angular's `LOCALE_ID`.
- * See {@link wrFormatDuration} for the two styles and the edge cases.
+ * A span of milliseconds as clock digits, as units or as a timer, in Angular's
+ * `LOCALE_ID`. See {@link wrFormatDuration} for the three styles and the edge
+ * cases.
  *
  * @example
  * ```html
  * {{ 5400000 | wrDuration }}            <!-- "1:30:00"      -->
  * {{ 5400000 | wrDuration: 'units' }}   <!-- "1 hr 30 min"  -->
  * {{ 307000 | wrDuration }}             <!-- "5:07"         -->
+ * {{ 3723000 | wrDuration: 'timer' }}   <!-- "01:02:03"     -->
  * ```
  */
 @Pipe({ name: 'wrDuration' })

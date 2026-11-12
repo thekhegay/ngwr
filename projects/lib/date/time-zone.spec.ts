@@ -1,4 +1,11 @@
-import { InjectionToken, LOCALE_ID, inject, signal } from '@angular/core';
+import {
+  EnvironmentInjector,
+  InjectionToken,
+  LOCALE_ID,
+  createEnvironmentInjector,
+  inject,
+  signal,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
@@ -178,5 +185,63 @@ describe('withDates({ timeZone })', () => {
   it('writes the month and the clock in the adapter locale', () => {
     const { zoned } = adapters('+05:00', 'ru-RU');
     expect(zoned.format(INSTANT, 'd MMMM yyyy, HH:mm')).toBe('12 ноября 2026, 13:45');
+  });
+});
+
+describe('withDates({ timeZone }) as an offset', () => {
+  // `'+0500'` is what Angular's `DatePipe` takes, so an app's config often holds that form.
+  it.each([
+    ['+0500', '13:45'],
+    ['+05:00', '13:45'],
+    ['+05', '13:45'],
+    ['-0330', '05:15'],
+    ['-03:30', '05:15'],
+    ['+0000', '08:45'],
+  ])('reads %s', (offset, wall) => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    expect(adapters(offset).zoned.format(INSTANT, 'HH:mm')).toBe(wall);
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+});
+
+describe('withDates({ epochUnit, zonelessIn })', () => {
+  const options = (dates: Parameters<typeof withDates>[0], route?: Parameters<typeof withDates>[0]): object => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates(dates))] });
+    if (!route) return TestBed.inject<WrDateAdapter<Date>>(WrDateAdapter).parseOptions();
+    const child = createEnvironmentInjector([provideWr(withDates(route))], TestBed.inject(EnvironmentInjector));
+    return child.get<WrDateAdapter<Date>>(WrDateAdapter).parseOptions();
+  };
+
+  it('reads milliseconds and the browser zone with nothing set', () => {
+    expect(options({})).toEqual({ epochUnit: 'ms', zonelessIn: 'browser', timeZone: null });
+  });
+
+  it('hands the options and the zone to whoever parses for the adapter', () => {
+    expect(options({ epochUnit: 'auto', zonelessIn: 'display', timeZone: '+0500' })).toEqual({
+      epochUnit: 'auto',
+      zonelessIn: 'display',
+      timeZone: '+0500',
+    });
+    expect(options({ zonelessIn: 'utc' })).toEqual({ epochUnit: 'ms', zonelessIn: 'utc', timeZone: null });
+  });
+
+  it('follows a zone that is a signal', () => {
+    const zone = signal<string | null>('+05:00');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ timeZone: zone, zonelessIn: 'display' }))] });
+    const adapter = TestBed.inject<WrDateAdapter<Date>>(WrDateAdapter);
+    expect(adapter.parseOptions().timeZone).toBe('+05:00');
+    zone.set('Asia/Tokyo');
+    expect(adapter.parseOptions().timeZone).toBe('Asia/Tokyo');
+  });
+
+  it('keeps the app keys a route does not name', () => {
+    expect(options({ epochUnit: 'us', zonelessIn: 'utc' }, { epochUnit: 's' })).toEqual({
+      epochUnit: 's',
+      zonelessIn: 'utc',
+      timeZone: null,
+    });
   });
 });

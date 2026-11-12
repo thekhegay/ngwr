@@ -2,6 +2,62 @@ import type { Type } from '@angular/core';
 
 import type { WrDateAdapter } from '../wr-date-adapter';
 
+import type { WrDateFormat } from './wr-date-format';
+
+/**
+ * What a number counts since the epoch: milliseconds, microseconds or seconds.
+ *
+ * `'auto'` decides by magnitude: under `1e10` it is seconds, under `1e13`
+ * milliseconds, and microseconds from there. `1e10` seconds and `1e13`
+ * milliseconds are both 20 November 2286, and `1e10` milliseconds and `1e13`
+ * microseconds are both 26 April 1970, so a date between those two reads the
+ * same in every unit. Outside them `'auto'` guesses wrong: name the unit.
+ */
+type WrEpochUnit = 'ms' | 'us' | 's' | 'auto';
+
+/**
+ * The zone a date-time string with no offset (`2026-11-12 13:45:00`) was
+ * written in: the display zone of `withDates({ timeZone })`, the browser's, or
+ * UTC.
+ */
+type WrZonelessIn = 'display' | 'browser' | 'utc';
+
+/** How `wrParseDate` reads a value. Every key is optional and defaults to what 16.1 did. */
+interface WrParseDateOptions {
+  /**
+   * The unit of a number.
+   *
+   * @default 'ms'
+   */
+  readonly epochUnit?: WrEpochUnit;
+
+  /**
+   * The zone of a date-time string with no offset. A string with `Z` or an
+   * offset, and a date-only string, are not affected.
+   *
+   * @default 'browser'
+   */
+  readonly zonelessIn?: WrZonelessIn;
+
+  /**
+   * The display zone `zonelessIn: 'display'` reads in: an IANA name or an
+   * offset. `null`, `undefined` and a zone no engine knows are the browser's.
+   */
+  readonly timeZone?: string | null;
+}
+
+/** App-wide defaults of `wr-date-stamp`. The component's own inputs win. */
+interface WrDateStampDefaults {
+  /** Format of the date line. Default: `'mediumDate'`. */
+  readonly dateFormat?: WrDateFormat | (string & {});
+  /** Format of the time line. Default: `'time'`. */
+  readonly timeFormat?: WrDateFormat | (string & {});
+  /** Show the time alone for a value from today. Default: `false`. */
+  readonly todayTimeOnly?: boolean;
+  /** Write the seconds in the time line. Default: `false`. */
+  readonly seconds?: boolean;
+}
+
 /**
  * Options for `withDates()`.
  */
@@ -45,7 +101,34 @@ interface WrDatesOptions {
    * dev mode.
    */
   readonly timeZone?: string | (() => string | null | undefined);
+
+  /**
+   * What a NUMBER counts since the epoch, for `wrDate`, `wrFormatDate` and
+   * `wr-date-stamp`: `'ms'`, `'us'` (microseconds, sixteen digits today), `'s'`,
+   * or `'auto'`, which decides by magnitude, see {@link WrEpochUnit}.
+   *
+   * @default 'ms'
+   */
+  readonly epochUnit?: WrEpochUnit;
+
+  /**
+   * The zone a date-time string with NO offset (`'2026-11-12 13:45:00'`) is
+   * read in, for `wrDate`, `wrFormatDate` and `wr-date-stamp`. `'display'`
+   * reads it as a wall clock of `timeZone`, so it prints unchanged; `'utc'`
+   * reads it as UTC; `'browser'` as the browser's local time. A string with
+   * `Z` or an offset is the instant it names, and a date-only string stays a
+   * day, whatever this says.
+   *
+   * @default 'browser'
+   */
+  readonly zonelessIn?: WrZonelessIn;
+
+  /**
+   * App-wide defaults of `wr-date-stamp`: `dateFormat`, `timeFormat`,
+   * `todayTimeOnly` and `seconds`. An input set on a stamp wins.
+   */
+  readonly stamp?: WrDateStampDefaults;
 }
 
-export type { WrDateFormat } from './wr-date-format';
-export type { WrDatesOptions };
+export type { WrDateFormat };
+export type { WrDateStampDefaults, WrDatesOptions, WrEpochUnit, WrParseDateOptions, WrZonelessIn };

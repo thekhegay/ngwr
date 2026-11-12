@@ -233,7 +233,7 @@ export const INSTALL = {
       { path: "ngwr/counter", symbols: ["WrCountUp", "WrCounter"], declarables: ["WrCountUp", "WrCounter"], styled: true },
   ],
   "reference/components/date-picker": [
-      { path: "ngwr/date-picker", symbols: ["WrDatePicker", "WrDateRangePicker"], declarables: ["WrDatePicker", "WrDateRangePicker"], styled: true },
+      { path: "ngwr/date-picker", symbols: ["WrDatePicker", "WrDateRangePicker", "wrLastDays", "wrLastMonth", "wrThisMonth"], declarables: ["WrDatePicker", "WrDateRangePicker"], styled: true },
   ],
   "reference/components/date-stamp": [
       { path: "ngwr/date-stamp", symbols: ["WrDateStamp"], declarables: ["WrDateStamp"], styled: true },
@@ -251,7 +251,7 @@ export const INSTALL = {
       { path: "ngwr/drawer", symbols: ["WR_DRAWER_DATA", "WrDrawer", "WrDrawerClose", "WrDrawerContent", "WrDrawerFooter", "WrDrawerManager", "WrDrawerRef", "WrDrawerTitle"], declarables: ["WrDrawer", "WrDrawerClose", "WrDrawerContent", "WrDrawerFooter", "WrDrawerTitle"], styled: true },
   ],
   "reference/components/dropdown": [
-      { path: "ngwr/dropdown", symbols: ["WrDropdown", "WrDropdownItem", "WrDropdownMenu"], declarables: ["WrDropdown", "WrDropdownItem", "WrDropdownMenu"], styled: true },
+      { path: "ngwr/dropdown", symbols: ["WrDropdown", "WrDropdownItem", "WrDropdownMenu", "WrDropdownSubmenu"], declarables: ["WrDropdown", "WrDropdownItem", "WrDropdownMenu", "WrDropdownSubmenu"], styled: true },
   ],
   "reference/components/editor": [
       { path: "ngwr/editor", symbols: ["WrEditor"], declarables: ["WrEditor"], styled: true },

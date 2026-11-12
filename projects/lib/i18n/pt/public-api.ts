@@ -221,6 +221,11 @@ export const wrPt: WrI18nCatalog = {
     moved: '{{index}} de {{total}}.',
     dropped: 'Largado. {{index}} de {{total}}.',
     cancelled: 'Movimento cancelado.',
+    groupKeyHelp:
+      'Prima a barra de espaços para agarrar este item e depois use as teclas de setas para o mover, dentro da lista ou para a lista ao lado. ' +
+      'Prima novamente a barra de espaços para o largar ou Escape para o voltar a colocar.',
+    movedTo: 'Movido para {{list}}. {{index}} de {{total}}.',
+    listPosition: 'lista {{index}} de {{total}}',
   },
   colorPicker: {
     area: 'Saturação e brilho, {{saturation}}% e {{brightness}}%',
@@ -347,6 +352,8 @@ export const wrPt: WrI18nCatalog = {
     viewer: 'Pré-visualização da imagem',
     open: 'Abrir pré-visualização',
     close: 'Fechar pré-visualização',
+    counter: '{{current}} / {{total}}',
+    position: 'Imagem {{current}} de {{total}}',
   },
   window: {
     close: 'Fechar',

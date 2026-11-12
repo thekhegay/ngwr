@@ -13,7 +13,7 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrSlider } from './slider';
-import type { WrSliderValue } from './types';
+import type { WrSliderMark, WrSliderValue } from './types';
 
 @Component({
   imports: [WrSlider],
@@ -786,5 +786,429 @@ describe('WrSlider focusBoundControl', () => {
     fixture.componentInstance.form.price().focusBoundControl();
 
     expect(document.activeElement).toBe(lowThumb('span'));
+  });
+});
+
+@Component({
+  imports: [WrSlider],
+  template: `
+    <wr-slider
+      [(value)]="amount"
+      [range]="range()"
+      [min]="0"
+      [max]="100"
+      [step]="5"
+      [marks]="marks()"
+      [snapToMarks]="snap()"
+      [labelWith]="percent"
+    />
+  `,
+})
+class MarksHost {
+  readonly amount = signal<WrSliderValue>(50);
+  readonly range = signal(false);
+  readonly snap = signal(false);
+  readonly marks = signal<readonly WrSliderMark[]>([
+    { value: 100, label: 'High' },
+    { value: 0, label: 'Low' },
+    { value: 25 },
+    { value: 50, label: 'Medium' },
+    { value: 140, label: 'Off the track' },
+  ]);
+  readonly percent = (value: number): string => `${value}%`;
+}
+
+describe('WrSlider marks', () => {
+  type Direction = 'ltr' | 'rtl';
+  let fixture: ComponentFixture<MarksHost>;
+
+  const mount = (direction: Direction = 'ltr'): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: Directionality, useValue: { value: direction, change: new Subject<Direction>() } }],
+    });
+    fixture = TestBed.createComponent(MarksHost);
+    fixture.detectChanges();
+  };
+
+  const host = (): MarksHost => fixture.componentInstance;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const ticks = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-slider__mark')];
+  const labels = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-slider__mark-label')];
+  const thumbs = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="slider"]')];
+  const offsets = (els: HTMLElement[]): string[] => els.map(el => el.style.getPropertyValue('inset-inline-start'));
+
+  const press = (key: string, thumb = 0, init: KeyboardEventInit = {}): WrSliderValue => {
+    thumbs()[thumb].dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init }));
+    fixture.detectChanges();
+    return host().amount();
+  };
+
+  /** A 200px track at x 0: jsdom has no layout, so the rect is what makes a pointer mean a value. */
+  const clickTrack = (clientX: number): WrSliderValue => {
+    const track = root().querySelector<HTMLElement>('.wr-slider__track')!;
+    track.getBoundingClientRect = (): DOMRect => ({ left: 0, right: 200, width: 200 }) as DOMRect;
+    track.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, cancelable: true, clientX }));
+    fixture.detectChanges();
+    return host().amount();
+  };
+
+  const set = (change: () => void): void => {
+    change();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => mount());
+  afterEach(() => fixture.destroy());
+
+  it('draws nothing extra without marks', () => {
+    set(() => host().marks.set([]));
+
+    expect(ticks()).toEqual([]);
+    expect(root().querySelector('.wr-slider__mark-labels')).toBeNull();
+  });
+
+  it('draws a tick per mark inside the bounds, in value order, at its percentage', () => {
+    expect(ticks().map(tick => tick.dataset['value'])).toEqual(['0', '25', '50', '100']);
+    expect(offsets(ticks())).toEqual(['0%', '25%', '50%', '100%']);
+  });
+
+  it('places the ticks against the bounds, not against zero', () => {
+    TestBed.resetTestingModule();
+    @Component({
+      imports: [WrSlider],
+      template: `<wr-slider [min]="200" [max]="400" [marks]="[{ value: 250 }, { value: 400 }]" />`,
+    })
+    class Shifted {}
+    const shifted = TestBed.createComponent(Shifted);
+    shifted.detectChanges();
+
+    const drawn = [...(shifted.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-slider__mark')];
+    expect(offsets(drawn)).toEqual(['25%', '100%']);
+  });
+
+  it('prints the labelled ones under the track, at the same percentage', () => {
+    expect(labels().map(label => label.textContent.trim())).toEqual(['Low', 'Medium', 'High']);
+    expect(offsets(labels())).toEqual(['0%', '50%', '100%']);
+    expect(root().querySelector('.wr-slider__mark-labels')!.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  // The inline inset is the right edge under RTL, so the same numbers mirror.
+  it('positions ticks and labels on the inline axis, so they mirror under RTL', () => {
+    mount('rtl');
+
+    expect(offsets(ticks())).toEqual(['0%', '25%', '50%', '100%']);
+    expect(offsets(labels())).toEqual(['0%', '50%', '100%']);
+    for (const el of [...ticks(), ...labels()]) expect(el.style.getPropertyValue('left')).toBe('');
+  });
+
+  const active = (): string[] =>
+    ticks()
+      .filter(tick => tick.classList.contains('wr-slider__mark--active'))
+      .map(tick => tick.dataset['value']!);
+
+  it('paints the marks up to the value as active', () => {
+    expect(active()).toEqual(['0', '25', '50']);
+
+    set(() => host().amount.set(30));
+    expect(active()).toEqual(['0', '25']);
+  });
+
+  it('paints only the marks between the two thumbs in range mode', () => {
+    set(() => {
+      host().range.set(true);
+      host().amount.set([25, 60]);
+    });
+
+    expect(active()).toEqual(['25', '50']);
+  });
+
+  it('keeps the step while snapToMarks is off: the marks are decoration', () => {
+    expect(press('ArrowUp')).toBe(55);
+    expect(clickTrack(64)).toBe(30);
+  });
+
+  describe('snapToMarks', () => {
+    beforeEach(() => set(() => host().snap.set(true)));
+
+    it('lands a pointer on the nearest mark', () => {
+      expect(clickTrack(64)).toBe(25);
+      expect(clickTrack(80)).toBe(50);
+      expect(clickTrack(199)).toBe(100);
+    });
+
+    it('mirrors the pointer under RTL', () => {
+      mount('rtl');
+      set(() => host().snap.set(true));
+
+      expect(clickTrack(150)).toBe(25);
+    });
+
+    it('steps from mark to mark with the arrows', () => {
+      expect(press('ArrowUp')).toBe(100);
+      expect(press('ArrowUp')).toBe(100);
+      expect(press('ArrowDown')).toBe(50);
+      expect(press('ArrowLeft')).toBe(25);
+      expect(press('ArrowRight')).toBe(50);
+    });
+
+    it('takes one mark per PageUp, PageDown and Shift + arrow too', () => {
+      set(() => host().amount.set(0));
+
+      expect(press('PageUp')).toBe(25);
+      expect(press('ArrowUp', 0, { shiftKey: true })).toBe(50);
+      expect(press('PageDown')).toBe(25);
+    });
+
+    it('mirrors the horizontal arrows under RTL', () => {
+      mount('rtl');
+      set(() => host().snap.set(true));
+
+      expect(press('ArrowRight')).toBe(25);
+      expect(press('ArrowLeft')).toBe(50);
+    });
+
+    it('goes to the first and the last mark on Home and End', () => {
+      set(() => host().marks.set([{ value: 20 }, { value: 40 }, { value: 80 }]));
+
+      expect(press('Home')).toBe(20);
+      expect(press('End')).toBe(80);
+    });
+
+    it('leaves a value between two marks for the nearer side the key names', () => {
+      set(() => host().amount.set(30));
+
+      expect(press('ArrowUp')).toBe(50);
+      set(() => host().amount.set(30));
+      expect(press('ArrowDown')).toBe(25);
+    });
+
+    it('snaps each end of a range and still refuses to cross', () => {
+      set(() => {
+        host().range.set(true);
+        host().amount.set([25, 50]);
+      });
+
+      expect(press('ArrowUp', 0)).toEqual([50, 50]);
+      expect(press('ArrowUp', 0)).toEqual([50, 50]);
+      expect(press('ArrowUp', 1)).toEqual([50, 100]);
+    });
+
+    it('does nothing without marks: the step is back', () => {
+      set(() => host().marks.set([]));
+
+      expect(press('ArrowUp')).toBe(55);
+    });
+  });
+
+  describe('aria-valuetext', () => {
+    it('reads the label of the mark the thumb stands on', () => {
+      expect(thumbs()[0].getAttribute('aria-valuetext')).toBe('Medium');
+      expect(root().querySelector('.wr-slider__label')!.textContent.trim()).toBe('Medium');
+    });
+
+    it('falls back to labelWith on an unlabelled mark and between marks', () => {
+      set(() => host().amount.set(25));
+      expect(thumbs()[0].getAttribute('aria-valuetext')).toBe('25%');
+
+      set(() => host().amount.set(60));
+      expect(thumbs()[0].getAttribute('aria-valuetext')).toBe('60%');
+    });
+
+    it('reads each end of a range on its own', () => {
+      set(() => {
+        host().range.set(true);
+        host().amount.set([0, 60]);
+      });
+
+      expect(thumbs().map(thumb => thumb.getAttribute('aria-valuetext'))).toEqual(['Low', '60%']);
+    });
+  });
+});
+
+@Component({
+  imports: [WrSlider],
+  template: `
+    <wr-slider
+      [(value)]="amount"
+      [orientation]="orientation()"
+      [range]="range()"
+      [marks]="marks()"
+      [snapToMarks]="snap()"
+    />
+  `,
+})
+class VerticalHost {
+  readonly amount = signal<WrSliderValue>(50);
+  readonly orientation = signal<'horizontal' | 'vertical'>('vertical');
+  readonly range = signal(false);
+  readonly snap = signal(false);
+  readonly marks = signal<readonly WrSliderMark[]>([]);
+}
+
+describe('WrSlider vertical', () => {
+  type Direction = 'ltr' | 'rtl';
+  let fixture: ComponentFixture<VerticalHost>;
+
+  const mount = (direction: Direction = 'ltr'): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: Directionality, useValue: { value: direction, change: new Subject<Direction>() } }],
+    });
+    fixture = TestBed.createComponent(VerticalHost);
+    fixture.detectChanges();
+  };
+
+  const host = (): VerticalHost => fixture.componentInstance;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const slider = (): HTMLElement => root().querySelector<HTMLElement>('wr-slider')!;
+  const thumbs = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="slider"]')];
+  const part = (name: string): HTMLElement => root().querySelector<HTMLElement>(`.wr-slider__${name}`)!;
+  const style = (el: HTMLElement, property: string): string => el.style.getPropertyValue(property);
+
+  const press = (key: string, thumb = 0): WrSliderValue => {
+    thumbs()[thumb].dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    return host().amount();
+  };
+
+  /**
+   * A 200px tall track from y 100 to y 300, and wide enough that a ratio read
+   * off the X axis by mistake would land somewhere else.
+   */
+  const clickTrack = (clientY: number, clientX = 5): WrSliderValue => {
+    const track = part('track');
+    track.getBoundingClientRect = (): DOMRect =>
+      ({ left: 0, right: 10, width: 10, top: 100, bottom: 300, height: 200 }) as DOMRect;
+    track.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, cancelable: true, clientX, clientY }));
+    fixture.detectChanges();
+    return host().amount();
+  };
+
+  const set = (change: () => void): void => {
+    change();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => mount());
+  afterEach(() => fixture.destroy());
+
+  it('says so to assistive tech and to the stylesheet', () => {
+    expect(thumbs()[0].getAttribute('aria-orientation')).toBe('vertical');
+    expect(slider().classList.contains('wr-slider--vertical')).toBe(true);
+  });
+
+  it('leaves a horizontal slider exactly as it was', () => {
+    set(() => host().orientation.set('horizontal'));
+
+    expect(thumbs()[0].hasAttribute('aria-orientation')).toBe(false);
+    expect(slider().className).toBe('wr-slider');
+    expect(style(thumbs()[0], 'inset-inline-start')).toBe('50%');
+    expect(style(thumbs()[0], 'bottom')).toBe('');
+    expect(style(part('fill'), 'width')).toBe('50%');
+    expect(style(part('fill'), 'height')).toBe('');
+    expect(style(part('label'), 'bottom')).toBe('');
+  });
+
+  it('paints every part up from the bottom of the track', () => {
+    set(() => {
+      host().amount.set(30);
+      host().marks.set([{ value: 20, label: 'Quiet' }]);
+    });
+
+    expect(style(thumbs()[0], 'bottom')).toBe('30%');
+    expect(style(thumbs()[0], 'inset-inline-start')).toBe('');
+    expect(style(part('fill'), 'bottom')).toBe('0%');
+    expect(style(part('fill'), 'height')).toBe('30%');
+    expect(style(part('fill'), 'width')).toBe('');
+    expect(style(part('mark'), 'bottom')).toBe('20%');
+    expect(style(part('mark-label'), 'bottom')).toBe('20%');
+    expect(style(part('mark-label'), 'inset-inline-start')).toBe('');
+  });
+
+  it('puts the value label beside the thumb', () => {
+    set(() => host().amount.set(30));
+
+    expect(style(part('label'), 'bottom')).toBe('30%');
+  });
+
+  it('reads a pointer off the Y axis, with the bottom as the minimum', () => {
+    expect(clickTrack(300)).toBe(0);
+    expect(clickTrack(250)).toBe(25);
+    expect(clickTrack(100)).toBe(100);
+    expect(clickTrack(400), 'below the track').toBe(0);
+  });
+
+  it('does not mirror the pointer under RTL', () => {
+    mount('rtl');
+
+    expect(clickTrack(250, 9)).toBe(25);
+  });
+
+  it('raises the value with ArrowUp and ArrowRight, lowers it with ArrowDown and ArrowLeft', () => {
+    expect(press('ArrowUp')).toBe(51);
+    expect(press('ArrowRight')).toBe(52);
+    expect(press('ArrowDown')).toBe(51);
+    expect(press('ArrowLeft')).toBe(50);
+  });
+
+  it('keeps those keys the same under RTL', () => {
+    mount('rtl');
+
+    expect(press('ArrowRight')).toBe(51);
+    expect(press('ArrowLeft')).toBe(50);
+    expect(press('ArrowUp')).toBe(51);
+  });
+
+  it('keeps PageUp, PageDown, Home and End', () => {
+    expect(press('PageUp')).toBe(60);
+    expect(press('PageDown')).toBe(50);
+    expect(press('Home')).toBe(0);
+    expect(press('End')).toBe(100);
+  });
+
+  it('snaps to marks on both paths', () => {
+    set(() => {
+      host().marks.set([{ value: 0 }, { value: 50 }, { value: 100 }]);
+      host().snap.set(true);
+    });
+
+    expect(clickTrack(140)).toBe(100);
+    expect(press('ArrowLeft')).toBe(50);
+    expect(press('ArrowRight')).toBe(100);
+  });
+
+  describe('range mode', () => {
+    beforeEach(() =>
+      set(() => {
+        host().range.set(true);
+        host().amount.set([20, 80]);
+      })
+    );
+
+    it('marks both thumbs vertical and stacks them on the track', () => {
+      expect(thumbs().map(thumb => thumb.getAttribute('aria-orientation'))).toEqual(['vertical', 'vertical']);
+      expect(thumbs().map(thumb => style(thumb, 'bottom'))).toEqual(['20%', '80%']);
+      expect(style(part('fill'), 'bottom')).toBe('20%');
+      expect(style(part('fill'), 'height')).toBe('60%');
+    });
+
+    it('centres the value label on the selected stretch', () => {
+      expect(style(part('label'), 'bottom')).toBe('50%');
+    });
+
+    it('grabs the thumb nearest the pointer on the Y axis', () => {
+      expect(clickTrack(120)).toEqual([20, 90]);
+      expect(clickTrack(280)).toEqual([10, 90]);
+    });
+
+    it('moves each end from the keyboard without crossing', () => {
+      expect(press('ArrowRight', 0)).toEqual([21, 80]);
+      expect(press('ArrowDown', 1)).toEqual([21, 79]);
+
+      set(() => host().amount.set([79, 80]));
+      press('ArrowUp', 0);
+      expect(press('ArrowUp', 0)).toEqual([80, 80]);
+    });
   });
 });

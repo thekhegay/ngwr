@@ -99,6 +99,11 @@ export class WrSortableItem {
       this.drag.lockAxis = this.list.lockAxis() ?? null;
       this.drag.dragStartDelay = this.list.dragStartDelay();
     });
+
+    // What a connected list's `canEnter` is asked about.
+    effect(() => {
+      this.drag.data = this.list.items()[this.index()];
+    });
   }
 
   /**

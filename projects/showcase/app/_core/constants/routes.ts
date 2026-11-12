@@ -343,6 +343,7 @@ export const ROUTES = {
       wrInitials: { path: 'wr-initials', title: 'wrInitials' },
       wrPoll: { path: 'wr-poll', title: 'wrPoll' },
       wrQueryParam: { path: 'wr-query-param', title: 'wrQueryParam' },
+      withRenderOnNavigation: { path: 'with-render-on-navigation', title: 'withRenderOnNavigation' },
     },
     validators: {
       path: 'validators',

@@ -47,6 +47,11 @@ export class WrDropdownItemHarness extends ComponentHarness {
     return (await (await this.host()).getAttribute('aria-disabled')) === 'true';
   }
 
+  /** Whether the item opens a submenu. `WrDropdownHarness.openSubmenu()` opens it. */
+  async hasSubmenu(): Promise<boolean> {
+    return (await (await this.host()).getAttribute('aria-haspopup')) === 'menu';
+  }
+
   /** Whether the item shows a leading icon. */
   async hasIcon(): Promise<boolean> {
     return (await this.locatorForOptional('.wr-dropdown-item__icon')()) !== null;

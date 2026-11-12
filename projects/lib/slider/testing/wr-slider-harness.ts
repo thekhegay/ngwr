@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrSliderValue } from 'ngwr/slider';
+import type { WrSliderMark, WrSliderValue } from 'ngwr/slider';
 
 import type { WrSliderHarnessFilters, WrSliderThumbHarnessFilters } from './types';
 import { WrSliderThumbHarness } from './wr-slider-thumb-harness';
@@ -84,6 +84,12 @@ export class WrSliderHarness extends ComponentHarness {
     return (await this.getLowThumb()).isDisabled();
   }
 
+  /** The axis of the track, from the thumb's `aria-orientation`, which is what a screen reader is told. */
+  async getOrientation(): Promise<'horizontal' | 'vertical'> {
+    const orientation = await (await (await this.getLowThumb()).host()).getAttribute('aria-orientation');
+    return orientation === 'vertical' ? 'vertical' : 'horizontal';
+  }
+
   /**
    * The current value, in the shape the model uses: a plain number for one
    * thumb, `[low, high]` for two.
@@ -120,6 +126,25 @@ export class WrSliderHarness extends ComponentHarness {
   async getLabelText(): Promise<string | null> {
     const label = await this.locatorForOptional('.wr-slider__label')();
     return label ? label.text() : null;
+  }
+
+  /**
+   * The marks drawn on the track, in value order, each with its label when it
+   * has one. Marks outside `[min, max]` are not drawn, so they are not here.
+   */
+  async getMarks(): Promise<WrSliderMark[]> {
+    const labels = new Map<string | null, string>();
+    for (const label of await this.locatorForAll('.wr-slider__mark-label')()) {
+      labels.set(await label.getAttribute('data-value'), await label.text());
+    }
+
+    const marks: WrSliderMark[] = [];
+    for (const tick of await this.locatorForAll('.wr-slider__mark')()) {
+      const raw = await tick.getAttribute('data-value');
+      const label = labels.get(raw);
+      marks.push(label === undefined ? { value: Number(raw) } : { value: Number(raw), label });
+    }
+    return marks;
   }
 
   /** The slider's thumbs in DOM order: the lower one first. */

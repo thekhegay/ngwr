@@ -223,6 +223,11 @@ export const wrFr: WrI18nCatalog = {
     moved: '{{index}} sur {{total}}.',
     dropped: 'Élément déposé. {{index}} sur {{total}}.',
     cancelled: 'Déplacement annulé.',
+    groupKeyHelp:
+      'Appuyez sur Espace pour saisir cet élément, puis déplacez-le avec les touches fléchées, dans sa liste ou vers la liste voisine. ' +
+      'Appuyez de nouveau sur Espace pour le déposer, ou sur Échap pour le remettre à sa place.',
+    movedTo: 'Déplacé vers {{list}}. {{index}} sur {{total}}.',
+    listPosition: 'liste {{index}} sur {{total}}',
   },
   colorPicker: {
     area: 'Saturation et luminosité, {{saturation}}% et {{brightness}}%',
@@ -352,6 +357,8 @@ export const wrFr: WrI18nCatalog = {
     viewer: "Aperçu de l'image",
     open: "Ouvrir l'aperçu",
     close: "Fermer l'aperçu",
+    counter: '{{current}} / {{total}}',
+    position: 'Image {{current}} sur {{total}}',
   },
   window: {
     close: 'Fermer',

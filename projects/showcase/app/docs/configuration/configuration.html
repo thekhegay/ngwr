@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Configuration"
-  updated="16.1.0"
+  updated="16.2.0"
   description="Set app-wide options at bootstrap."
   [keywords]="['configuration', 'providers', 'bootstrap', 'provideWr', 'features']"
   [labels]="['Getting started']"
@@ -20,7 +20,13 @@
           @for (f of features; track f.feature) {
             <tr>
               <th scope="row">
-                <code>{{ f.feature }}</code>
+                @if (f.page; as page) {
+                  <a [routerLink]="page"
+                    ><code>{{ f.feature }}</code></a
+                  >
+                } @else {
+                  <code>{{ f.feature }}</code>
+                }
               </th>
               <td>
                 <code>{{ f.entry }}</code>
@@ -81,7 +87,7 @@
 
   <ngwr-doc-section
     title="Time zone"
-    description="Dates are shown in the browser's zone. `timeZone` names another: an IANA name, an offset, or a function that returns one."
+    description="Dates are shown in the browser's zone. `timeZone` names another: an IANA name, an offset (`+05:00`, or `+0500` as `DatePipe` takes it), or a function that returns one."
   >
     <ngwr-doc-code [code]="snippets.timeZone" language="angular-ts" />
     <div class="ngwr-table">
@@ -125,6 +131,79 @@
       <li>
         Your own adapter overrides <code>zoned()</code> and reads <code>WR_DATE_TIME_ZONE</code> to honour the option.
       </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Backend values"
+    description="`epochUnit` and `zonelessIn` say how `wrDate`, `wrFormatDate` and `wr-date-stamp` read what an API sends. `stamp` sets the defaults of every `wr-date-stamp`."
+  >
+    <ngwr-doc-code [code]="snippets.backend" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Option</th>
+            <th scope="col">The backend sends</th>
+            <th scope="col">Read as</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>epochUnit: 'ms'</code>, the default</th>
+            <td><code>1794473100000</code></td>
+            <td>Milliseconds.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>epochUnit: 'us'</code></th>
+            <td><code>1794473100000123</code></td>
+            <td>Microseconds.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>epochUnit: 's'</code></th>
+            <td><code>1794473100</code></td>
+            <td>Seconds.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>epochUnit: 'auto'</code></th>
+            <td>Any of the three</td>
+            <td>
+              By size: seconds under <code>1e10</code>, milliseconds under <code>1e13</code>, microseconds from there.
+              Right for a date from 26 April 1970 to 20 November 2286.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>zonelessIn: 'browser'</code>, the default</th>
+            <td><code>2026-11-12 13:45:00</code></td>
+            <td>The browser's local time, then shown in the display zone.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>zonelessIn: 'display'</code></th>
+            <td><code>2026-11-12 13:45:00</code></td>
+            <td>A wall clock of <code>timeZone</code>: it prints as it is, 13:45.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>zonelessIn: 'utc'</code></th>
+            <td><code>2026-11-12 13:45:00</code></td>
+            <td>UTC, then shown in the display zone.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>
+        A string with <code>Z</code> or an offset is the instant it names, and a date-only string stays a day, whatever
+        <code>zonelessIn</code> says.
+      </li>
+      <li>
+        One field in another unit: <code>wrDate: 'time' : {{ '{' }} epochUnit: 's' {{ '}' }}</code
+        >, the last argument of <code>wrFormatDate</code>, or <code>epochUnit</code> on <code>wr-date-stamp</code>.
+      </li>
+      <li>
+        <code>wrParseDate</code> is a plain function and does not see these: pass it
+        <code>inject(WrDateAdapter).parseOptions()</code>.
+      </li>
+      <li>The pickers and the validators are not affected: they take a <code>Date</code>.</li>
     </ul>
   </ngwr-doc-section>
 

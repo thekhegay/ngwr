@@ -1,3 +1,20 @@
+@if (resolvedPresets().length) {
+  <div class="wr-date-range-presets" role="group" [attr.aria-label]="presetsLabel()">
+    @for (preset of resolvedPresets(); track $index) {
+      <button
+        type="button"
+        class="wr-date-range-presets__item"
+        [class.wr-date-range-presets__item--active]="preset.active"
+        [attr.aria-pressed]="preset.active"
+        [disabled]="preset.disabled"
+        (click)="presetPicked.emit(preset.range)"
+      >
+        {{ preset.label }}
+      </button>
+    }
+  </div>
+}
+
 <wr-calendar
   mode="range"
   [range]="calendarRange()"

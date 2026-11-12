@@ -222,6 +222,11 @@ export const wrNl: WrI18nCatalog = {
     moved: '{{index}} van {{total}}.',
     dropped: 'Neergezet. {{index}} van {{total}}.',
     cancelled: 'Verplaatsing geannuleerd.',
+    groupKeyHelp:
+      'Druk op de spatiebalk om dit item op te pakken en verplaats het daarna met de pijltoetsen, binnen de lijst of naar de lijst ernaast. ' +
+      'Druk nogmaals op de spatiebalk om het neer te zetten, of op Escape om het terug te zetten.',
+    movedTo: 'Verplaatst naar {{list}}. {{index}} van {{total}}.',
+    listPosition: 'lijst {{index}} van {{total}}',
   },
   colorPicker: {
     area: 'Verzadiging en helderheid, {{saturation}}% en {{brightness}}%',
@@ -351,6 +356,8 @@ export const wrNl: WrI18nCatalog = {
     viewer: 'Afbeeldingsvoorbeeld',
     open: 'Voorbeeld openen',
     close: 'Voorbeeld sluiten',
+    counter: '{{current}} / {{total}}',
+    position: 'Afbeelding {{current}} van {{total}}',
   },
   window: {
     close: 'Sluiten',

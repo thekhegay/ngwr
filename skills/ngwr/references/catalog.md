@@ -111,7 +111,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/divider` | `import { WrDivider } from 'ngwr/divider'` | `wr-divider` |
 | `ngwr/drawer` | `import { WrDrawer } from 'ngwr/drawer'` | `[wrDrawerClose]` `[wrDrawerContent]` `[wrDrawerFooter]` `[wrDrawerTitle]` `wr-drawer` |
 | `ngwr/drawer/testing` | `import { WrDrawerHarness } from 'ngwr/drawer/testing'` | — |
-| `ngwr/dropdown` | `import { WrDropdown } from 'ngwr/dropdown'` | `wr-dropdown-item` `wr-dropdown-menu` `[wrDropdown]` |
+| `ngwr/dropdown` | `import { WrDropdown } from 'ngwr/dropdown'` | `wr-dropdown-item` `wr-dropdown-menu` `[wrDropdownSubmenu]` `[wrDropdown]` |
 | `ngwr/dropdown/testing` | `import { WrDropdownHarness } from 'ngwr/dropdown/testing'` | — |
 | `ngwr/editor` | `import { WrEditor } from 'ngwr/editor'` | `wr-editor` |
 | `ngwr/editor/testing` | `import { WrEditorHarness } from 'ngwr/editor/testing'` | — |
@@ -201,6 +201,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/slider` | `import { WrSlider } from 'ngwr/slider'` | `wr-slider` |
 | `ngwr/slider/testing` | `import { WrSliderHarness } from 'ngwr/slider/testing'` | — |
 | `ngwr/sortable-list` | `import { WrSortableList } from 'ngwr/sortable-list'` | `[wrDragHandle]` `wr-sortable-item` `wr-sortable-list` |
+| `ngwr/sortable-list/testing` | `import { WrSortableListHarness } from 'ngwr/sortable-list/testing'` | — |
 | `ngwr/speed-dial` | `import { WrSpeedDial } from 'ngwr/speed-dial'` | `wr-speed-dial` |
 | `ngwr/speed-dial/testing` | `import { WrSpeedDialActionHarness } from 'ngwr/speed-dial/testing'` | — |
 | `ngwr/spinner` | `import { WrSpinner } from 'ngwr/spinner'` | `wr-spinner` |

@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 
-import { Copy, Download, ExternalLink, Settings, Trash2 } from 'lucide';
-import { WrButton } from 'ngwr/button';
-import { WrDropdown, WrDropdownItem, WrDropdownMenu } from 'ngwr/dropdown';
+import { ChevronDown, Copy, Download, ExternalLink, Settings, Trash2 } from 'lucide';
+import { WrButton, WrButtonGroup } from 'ngwr/button';
+import { WrDropdown, WrDropdownItem, WrDropdownMenu, WrDropdownSubmenu } from 'ngwr/dropdown';
 import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 
 import {
@@ -19,9 +19,11 @@ import { API } from '#core/generated/api';
   templateUrl: './dropdown.html',
   imports: [
     WrButton,
+    WrButtonGroup,
     WrDropdown,
     WrDropdownMenu,
     WrDropdownItem,
+    WrDropdownSubmenu,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -36,6 +38,7 @@ import { API } from '#core/generated/api';
         trash: Trash2,
         cog: Settings,
         'external-outline': ExternalLink,
+        'chevron-down': ChevronDown,
       })
     ),
   ],
@@ -70,6 +73,42 @@ export default class DropdownComponent {
 <wr-dropdown-menu #menu>
   <wr-dropdown-item icon="trash" (click)="remove(picked)">Delete</wr-dropdown-item>
 </wr-dropdown-menu>`,
+    submenu: `<button wr-btn type="button" [wrDropdown]="fileMenu" #file="wrDropdown">File</button>
+
+<wr-dropdown-menu #fileMenu>
+  <wr-dropdown-item (click)="create(); file.close()">New</wr-dropdown-item>
+  <wr-dropdown-item [wrDropdownSubmenu]="exportMenu">Export</wr-dropdown-item>
+  <wr-dropdown-item [wrDropdownSubmenu]="shareMenu">Share</wr-dropdown-item>
+</wr-dropdown-menu>
+
+<wr-dropdown-menu #exportMenu>
+  <wr-dropdown-item (click)="export('csv'); file.close()">CSV</wr-dropdown-item>
+  <wr-dropdown-item (click)="export('pdf'); file.close()">PDF</wr-dropdown-item>
+  <wr-dropdown-item (click)="export('xlsx'); file.close()">Excel</wr-dropdown-item>
+</wr-dropdown-menu>
+
+<wr-dropdown-menu #shareMenu>
+  <wr-dropdown-item (click)="share('link'); file.close()">Link</wr-dropdown-item>
+  <wr-dropdown-item (click)="share('email'); file.close()">Email</wr-dropdown-item>
+</wr-dropdown-menu>`,
+    split: `<wr-btn-group>
+  <button wr-btn type="button" color="primary" (click)="save()">Save</button>
+  <button
+    wr-btn
+    type="button"
+    color="primary"
+    icon="chevron-down"
+    aria-label="More ways to save"
+    position="bottom-end"
+    [wrDropdown]="saveMenu"
+    #more="wrDropdown"
+  ></button>
+</wr-btn-group>
+
+<wr-dropdown-menu #saveMenu>
+  <wr-dropdown-item (click)="saveDraft(); more.close()">Save as draft</wr-dropdown-item>
+  <wr-dropdown-item (click)="saveAndClose(); more.close()">Save and close</wr-dropdown-item>
+</wr-dropdown-menu>`,
     triggerId: `<!-- The menu gets aria-labelledby="row-actions" -->
 <button wr-btn type="button" id="row-actions" [wrDropdown]="menu">Actions</button>
 
@@ -101,4 +140,6 @@ export class PanelComponent {}`,
   protected readonly api = API.WrDropdown;
 
   protected readonly itemApi = API.WrDropdownItem;
+
+  protected readonly submenuApi = API.WrDropdownSubmenu;
 }

@@ -420,3 +420,107 @@ describe('WrSliderHarness', () => {
     });
   });
 });
+
+@Component({
+  imports: [WrSlider],
+  template: `
+    <wr-slider
+      [(value)]="level"
+      snapToMarks
+      [marks]="[
+        { value: 0, label: 'Low' },
+        { value: 30 },
+        { value: 50, label: 'Medium' },
+        { value: 100, label: 'High' },
+      ]"
+    />
+    <wr-slider />
+  `,
+})
+class MarksHost {
+  readonly level = signal<WrSliderValue>(0);
+}
+
+describe('WrSliderHarness marks', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<MarksHost>>;
+  let sliders: WrSliderHarness[];
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(MarksHost);
+    fixture.detectChanges();
+    sliders = await TestbedHarnessEnvironment.loader(fixture).getAllHarnesses(WrSliderHarness);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('reads the marks with their labels, and none off a plain slider', async () => {
+    expect(await sliders[0].getMarks()).toEqual([
+      { value: 0, label: 'Low' },
+      { value: 30 },
+      { value: 50, label: 'Medium' },
+      { value: 100, label: 'High' },
+    ]);
+    expect(await sliders[1].getMarks()).toEqual([]);
+  });
+
+  it('walks a snapping slider to a mark and refuses a value between two', async () => {
+    await sliders[0].setValue(50);
+    expect(fixture.componentInstance.level()).toBe(50);
+
+    await sliders[0].setValue(100);
+    expect(fixture.componentInstance.level()).toBe(100);
+
+    await expect(sliders[0].setValue(40)).rejects.toThrow(/settled on/);
+  });
+});
+
+@Component({
+  imports: [WrSlider],
+  template: `
+    <wr-slider orientation="vertical" [(value)]="volume" />
+    <wr-slider orientation="vertical" range [(value)]="span" />
+    <wr-slider />
+  `,
+})
+class VerticalHost {
+  readonly volume = signal<WrSliderValue>(50);
+  readonly span = signal<WrSliderValue>([20, 80]);
+}
+
+describe('WrSliderHarness vertical', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<VerticalHost>>;
+  let sliders: WrSliderHarness[];
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(VerticalHost);
+    fixture.detectChanges();
+    sliders = await TestbedHarnessEnvironment.loader(fixture).getAllHarnesses(WrSliderHarness);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('reads the orientation', async () => {
+    expect(await Promise.all(sliders.map(slider => slider.getOrientation()))).toEqual([
+      'vertical',
+      'vertical',
+      'horizontal',
+    ]);
+  });
+
+  it('writes a vertical slider with the same calls', async () => {
+    await sliders[0].setValue(73);
+    expect(fixture.componentInstance.volume()).toBe(73);
+
+    await sliders[0].stepUp();
+    expect(fixture.componentInstance.volume()).toBe(74);
+    await sliders[0].toMin();
+    expect(fixture.componentInstance.volume()).toBe(0);
+
+    await sliders[1].setRange(35, 60);
+    expect(fixture.componentInstance.span()).toEqual([35, 60]);
+  });
+});

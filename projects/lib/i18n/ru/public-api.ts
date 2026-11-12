@@ -222,6 +222,11 @@ export const wrRu: WrI18nCatalog = {
     moved: '{{index}} из {{total}}.',
     dropped: 'Отпущен. {{index}} из {{total}}.',
     cancelled: 'Перемещение отменено.',
+    groupKeyHelp:
+      'Нажмите пробел, чтобы взять элемент, затем перемещайте его стрелками внутри списка или в соседний список. ' +
+      'Нажмите пробел ещё раз, чтобы отпустить, или Escape, чтобы вернуть на место.',
+    movedTo: 'Перемещено: {{list}}. {{index}} из {{total}}.',
+    listPosition: 'список {{index}} из {{total}}',
   },
   colorPicker: {
     area: 'Насыщенность и яркость, {{saturation}}% и {{brightness}}%',
@@ -350,6 +355,8 @@ export const wrRu: WrI18nCatalog = {
     viewer: 'Просмотр изображения',
     open: 'Открыть превью',
     close: 'Закрыть превью',
+    counter: '{{current}} / {{total}}',
+    position: 'Изображение {{current}} из {{total}}',
   },
   window: {
     close: 'Закрыть',

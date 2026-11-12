@@ -3,8 +3,25 @@
     Positioned on the INLINE axis, not with `left`: `inset-inline-start` is the
     same edge in LTR and mirrors under `dir="rtl"`, so the track paints itself
     the right way round without the component reading a direction to draw.
+    A vertical track measures every part up from `bottom` instead.
   -->
-  <span class="wr-slider__fill" [style.inset-inline-start.%]="fillStart()" [style.width.%]="fillWidth()"></span>
+  <span
+    class="wr-slider__fill"
+    [style.inset-inline-start.%]="vertical() ? null : fillStart()"
+    [style.width.%]="vertical() ? null : fillWidth()"
+    [style.bottom.%]="vertical() ? fillStart() : null"
+    [style.height.%]="vertical() ? fillWidth() : null"
+  ></span>
+
+  @for (mark of visibleMarks(); track $index) {
+    <span
+      class="wr-slider__mark"
+      [class.wr-slider__mark--active]="isActiveMark(mark.value)"
+      [attr.data-value]="mark.value"
+      [style.inset-inline-start.%]="vertical() ? null : mark.percent"
+      [style.bottom.%]="vertical() ? mark.percent : null"
+    ></span>
+  }
 
   <button
     #lowThumb
@@ -12,12 +29,14 @@
     class="wr-slider__thumb wr-slider__thumb--low"
     role="slider"
     [attr.id]="thumbId()"
-    [style.inset-inline-start.%]="lowPercent()"
+    [style.inset-inline-start.%]="vertical() ? null : lowPercent()"
+    [style.bottom.%]="vertical() ? lowPercent() : null"
     [disabled]="disabled()"
     [attr.aria-valuemin]="min()"
     [attr.aria-valuemax]="range() ? high() : max()"
     [attr.aria-valuenow]="low()"
     [attr.aria-valuetext]="lowText()"
+    [attr.aria-orientation]="vertical() ? 'vertical' : null"
     [attr.aria-label]="lowNameLabel()"
     [attr.aria-labelledby]="labelledBy()"
     [attr.aria-readonly]="readonly() || null"
@@ -32,12 +51,14 @@
       type="button"
       class="wr-slider__thumb wr-slider__thumb--high"
       role="slider"
-      [style.inset-inline-start.%]="highPercent()"
+      [style.inset-inline-start.%]="vertical() ? null : highPercent()"
+      [style.bottom.%]="vertical() ? highPercent() : null"
       [disabled]="disabled()"
       [attr.aria-valuemin]="low()"
       [attr.aria-valuemax]="max()"
       [attr.aria-valuenow]="high()"
       [attr.aria-valuetext]="highText()"
+      [attr.aria-orientation]="vertical() ? 'vertical' : null"
       [attr.aria-label]="resolvedUpperLabel()"
       [attr.aria-readonly]="readonly() || null"
       (pointerdown)="onPointerDown($event, 'high')"
@@ -46,6 +67,21 @@
   }
 </div>
 
+@if (labelledMarks().length) {
+  <!-- Hidden from assistive tech: the thumb announces the label of the mark it stands on. -->
+  <div class="wr-slider__mark-labels" aria-hidden="true">
+    @for (mark of labelledMarks(); track $index) {
+      <span
+        class="wr-slider__mark-label"
+        [attr.data-value]="mark.value"
+        [style.inset-inline-start.%]="vertical() ? null : mark.percent"
+        [style.bottom.%]="vertical() ? mark.percent : null"
+        >{{ mark.label }}</span
+      >
+    }
+  </div>
+}
+
 @if (showValue()) {
-  <div class="wr-slider__label">{{ label() }}</div>
+  <div class="wr-slider__label" [style.bottom.%]="vertical() ? labelPercent() : null">{{ label() }}</div>
 }

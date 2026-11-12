@@ -221,6 +221,11 @@ export const wrJa: WrI18nCatalog = {
     moved: '{{total}}件中{{index}}件目。',
     dropped: 'ドロップしました。{{total}}件中{{index}}件目。',
     cancelled: '移動をキャンセルしました。',
+    groupKeyHelp:
+      'スペースキーで項目を持ち上げ、矢印キーでリスト内または隣のリストへ移動します。' +
+      'もう一度スペースキーでドロップ、Escape キーで元の位置に戻します。',
+    movedTo: '{{list}}に移動しました。{{total}}件中{{index}}件目。',
+    listPosition: 'リスト {{index}}/{{total}}',
   },
   colorPicker: {
     area: '彩度{{saturation}}%、明度{{brightness}}%',
@@ -347,6 +352,8 @@ export const wrJa: WrI18nCatalog = {
     viewer: '画像プレビュー',
     open: 'プレビューを開く',
     close: 'プレビューを閉じる',
+    counter: '{{current}} / {{total}}',
+    position: '画像 {{total}} 枚中 {{current}} 枚目',
   },
   window: {
     close: '閉じる',
