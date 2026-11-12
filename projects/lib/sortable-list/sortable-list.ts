@@ -7,24 +7,35 @@
 
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import type { ElementRef } from '@angular/core';
+import { type CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import {
   Component,
+  DestroyRef,
+  ElementRef,
   Injector,
+  type WritableSignal,
   ViewEncapsulation,
   afterNextRender,
+  computed,
+  effect,
   inject,
   input,
   model,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 
 import { wrReadI18nText, useI18nFormatter } from 'ngwr/i18n';
 
-import { WR_SORTABLE_LIST } from './tokens';
-import type { WrSortableListContext, WrSortableReorderEvent } from './types';
+import { WR_SORTABLE_LIST, WR_SORTABLE_LISTS } from './tokens';
+import type {
+  WrSortableCanEnter,
+  WrSortableListContext,
+  WrSortableMoveEnd,
+  WrSortableMoveEvent,
+  WrSortableReorderEvent,
+} from './types';
 
 /** Whether `b` comes after `a` in the document. */
 function follows(a: HTMLElement, b: HTMLElement): boolean {
@@ -63,6 +74,13 @@ let sortableListUid = 0;
  * click would be picking itself straight back up. A visible move-up /
  * move-down affordance is the remaining answer, and that is a design change.
  *
+ * Lists that share a `group` exchange items, by drag and by keyboard. The
+ * target list emits `move` once, and both lists write `[(items)]`; `reorder`
+ * stays for a move inside one list. Lists find each other through a root
+ * registry and are handed to `cdkDropListConnectedTo`, not through
+ * `cdkDropListGroup`, which needs a common ancestor directive and so cannot
+ * join lists that live in separate components.
+ *
  * @example
  * ```html
  * <wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
@@ -82,8 +100,16 @@ let sortableListUid = 0;
   templateUrl: './sortable-list.html',
   styleUrl: './sortable-list.scss',
   encapsulation: ViewEncapsulation.None,
-  imports: [CdkDropList],
-  host: { class: 'wr-sortable-list' },
+  // On the host, not in the template: rows are projected, and a projected
+  // `cdkDrag` resolves its drop list through the element injector, which
+  // never passes through this component's own view.
+  hostDirectives: [CdkDropList],
+  host: {
+    class: 'wr-sortable-list',
+    '[class.wr-sortable-list--connected]': '!!group()',
+    '[class.wr-sortable-list--empty]': 'items().length === 0',
+    '[attr.id]': 'id() ?? fallbackId',
+  },
   providers: [{ provide: WR_SORTABLE_LIST, useExisting: WrSortableList }],
 })
 export class WrSortableList<T = unknown> implements WrSortableListContext {
@@ -109,13 +135,53 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
    */
   readonly dragStartDelay = input<number | { touch: number; mouse: number }>({ touch: 150, mouse: 0 });
 
-  /** Fired after a successful reorder with the new array + indices. */
-  readonly reorder = output<WrSortableReorderEvent<T>>();
-
-  private readonly injector = inject(Injector);
+  /**
+   * Name of the group this list belongs to. Lists with the same group exchange
+   * items, wherever they sit in the page. @default null
+   */
+  readonly group = input<string | null>(null);
 
   /**
-   * Ambient reading direction, for the horizontal keyboard path only.
+   * Refuses an item coming from another list of the group, by drag and by
+   * keyboard alike. An item can always return to the list it left.
+   * @default null
+   */
+  readonly canEnter = input<WrSortableCanEnter<T> | null>(null);
+
+  /**
+   * Accessible name of the list. A keyboard move into this list announces it;
+   * without one the announcement falls back to the list's position in the group.
+   * @default null
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  /** The host's `id`, and what tells the lists of a `move` apart. Generated when omitted. */
+  readonly id = input<string>();
+
+  /** Fired after a successful reorder with the new array + indices. Not fired for a move between lists. */
+  readonly reorder = output<WrSortableReorderEvent<T>>();
+
+  /**
+   * Fired once on the list an item ARRIVED in from another list of the group,
+   * after both lists have written `items`. The list it left emits nothing but
+   * `itemsChange`.
+   */
+  readonly move = output<WrSortableMoveEvent<T>>();
+
+  private readonly injector = inject(Injector);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly dropList = inject<CdkDropList<WrSortableList<T>>>(CdkDropList, { self: true });
+  private readonly lists = inject(WR_SORTABLE_LISTS) as unknown as WritableSignal<readonly WrSortableList<T>[]>;
+  private readonly listEl = viewChild.required<ElementRef<HTMLElement>>('list');
+
+  /** The other lists of this list's group. */
+  private readonly peers = computed(() => {
+    const group = this.group();
+    return group ? this.lists().filter(list => list !== this && list.group() === group) : [];
+  });
+
+  /**
+   * Ambient reading direction, for the keyboard path.
    *
    * Optional so a bare `TestBed` — or any consumer that never set a direction —
    * needs no provider; `Directionality` is root-provided, so `null` only ever
@@ -148,27 +214,77 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
   /** Live-region text. Written by the keyboard path only. */
   protected readonly announcement = signal('');
 
-  /** Links every row to the key model via `aria-describedby`. */
-  readonly keyHelpId = `wr-sortable-list-help-${++sortableListUid}`;
+  private readonly uid = ++sortableListUid;
 
-  protected readonly resolvedKeyHelp = wrReadI18nText(
+  /** Links every row to the key model via `aria-describedby`. */
+  readonly keyHelpId = `wr-sortable-list-help-${this.uid}`;
+
+  protected readonly fallbackId = `wr-sortable-list-${this.uid}`;
+
+  private readonly keyHelp = wrReadI18nText(
     'sortableList.keyHelp',
     'Press Space to pick this item up, then use the arrow keys to move it. ' +
       'Press Space again to drop it, or Escape to put it back.'
   );
+  private readonly groupKeyHelp = wrReadI18nText(
+    'sortableList.groupKeyHelp',
+    'Press Space to pick this item up, then use the arrow keys to move it, within its list or into the next one. ' +
+      'Press Space again to drop it, or Escape to put it back.'
+  );
+  protected readonly resolvedKeyHelp = computed(() => (this.group() ? this.groupKeyHelp() : this.keyHelp()));
 
   private readonly grabbedText = useI18nFormatter('sortableList.grabbed', 'Grabbed. {{index}} of {{total}}.');
   private readonly movedText = useI18nFormatter('sortableList.moved', '{{index}} of {{total}}.');
   private readonly droppedText = useI18nFormatter('sortableList.dropped', 'Dropped. {{index}} of {{total}}.');
   private readonly cancelledText = wrReadI18nText('sortableList.cancelled', 'Move cancelled.');
+  private readonly movedToText = useI18nFormatter('sortableList.movedTo', 'Moved to {{list}}. {{index}} of {{total}}.');
+  private readonly listPositionText = useI18nFormatter('sortableList.listPosition', 'list {{index}} of {{total}}');
 
-  /** Where the held row started. Escape puts it back there. */
-  private grabOrigin = -1;
+  /** Where the held row started, which can be another list. Escape puts it back there. */
+  private grabOrigin: WrSortableMoveEnd<T> | null = null;
 
   /** True while a keyboard move is handing focus back — see `onRowFocusout`. */
   private restoringFocus = false;
 
-  protected onDrop(event: CdkDragDrop<T[]>): void {
+  constructor() {
+    this.lists.update(lists => [...lists, this]);
+    inject(DestroyRef).onDestroy(() => this.lists.update(lists => lists.filter(list => list !== this)));
+
+    const dropList = this.dropList;
+    dropList.data = this;
+    dropList.elementContainerSelector = '.wr-sortable-list__list';
+    dropList.enterPredicate = (drag: CdkDrag<T>) => {
+      const from = drag.dropContainer?.data as WrSortableList<T> | undefined;
+      return !!from && this.accepts(drag.data, from);
+    };
+    dropList.dropped.subscribe((event: CdkDragDrop<WrSortableList<T>>) => this.onDrop(event));
+
+    // Assigned, not bound: a host directive's inputs are out of a host binding's reach.
+    effect(() => {
+      dropList.id = this.id() ?? this.fallbackId;
+      dropList.orientation = this.orientation();
+      dropList.disabled = this.disabled();
+      dropList.connectedTo = this.peers().map(list => list.dropList);
+    });
+
+    // The CDK resolves the selector above only on the list a drag STARTS in. A
+    // list that only ever receives would append the placeholder to the host,
+    // beside the rows' container rather than in it.
+    afterNextRender(() => dropList._dropListRef.withElementContainer(this.listEl().nativeElement));
+  }
+
+  private onDrop(event: CdkDragDrop<WrSortableList<T>>): void {
+    if (event.previousContainer !== event.container) {
+      const source = event.previousContainer.data;
+      const item = source.removeAt(event.previousIndex);
+      this.insertAt(item, event.currentIndex);
+      this.move.emit({
+        item,
+        from: { list: source, index: event.previousIndex },
+        to: { list: this, index: event.currentIndex },
+      });
+      return;
+    }
     if (event.previousIndex === event.currentIndex) return;
     const next = this.items().slice();
     moveItemInArray(next, event.previousIndex, event.currentIndex);
@@ -236,9 +352,15 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
     // one failure in this set a user cannot rationalise, because it inverts their
     // model of the list silently. The block arrows name a value's direction in a
     // column and never mirror, which is why only the horizontal pair is swapped.
-    const rtl = horizontal && this.dir?.value === 'rtl';
-    const forward = horizontal ? (rtl ? 'ArrowLeft' : 'ArrowRight') : 'ArrowDown';
-    const back = horizontal ? (rtl ? 'ArrowRight' : 'ArrowLeft') : 'ArrowUp';
+    const rtl = this.dir?.value === 'rtl';
+    const inlineForward = rtl ? 'ArrowLeft' : 'ArrowRight';
+    const inlineBack = rtl ? 'ArrowRight' : 'ArrowLeft';
+    const forward = horizontal ? inlineForward : 'ArrowDown';
+    const back = horizontal ? inlineBack : 'ArrowUp';
+    // The arrows of the other axis walk the group: columns sit side by side, so
+    // a vertical list hands the row over on the inline pair, mirrored like above.
+    const nextList = horizontal ? 'ArrowDown' : inlineForward;
+    const previousList = horizontal ? 'ArrowUp' : inlineBack;
 
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
@@ -261,6 +383,12 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
     if (event.key === forward || event.key === back) {
       event.preventDefault();
       this.moveGrabbed(event.key === forward ? 1 : -1);
+      return;
+    }
+
+    if (this.group() && (event.key === nextList || event.key === previousList)) {
+      event.preventDefault();
+      this.moveToList(event.key === nextList ? 1 : -1);
     }
   }
 
@@ -278,7 +406,7 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
   }
 
   private grab(index: number): void {
-    this.grabOrigin = index;
+    this.grabOrigin = { list: this, index };
     this.grabbedIndex.set(index);
     this.announcement.set(this.grabbedText(this.position(index)));
   }
@@ -294,36 +422,107 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
     this.announcement.set(this.movedText(this.position(to)));
   }
 
+  /**
+   * Hands the held row to the nearest list of the group, in document order,
+   * that takes it. A list that refuses is stepped over, since a drag can reach
+   * any list of the group and the keyboard must not reach fewer.
+   */
+  private moveToList(step: 1 | -1): void {
+    const from = this.grabbedIndex();
+    const origin = this.grabOrigin;
+    if (from === null || !origin) return;
+
+    const group = this.groupLists();
+    const item = this.items()[from];
+    let at = group.indexOf(this) + step;
+    while (group[at] && !group[at].accepts(item, origin.list)) at += step;
+    const target = group[at];
+    if (!target) return;
+
+    this.grabbedIndex.set(null);
+    this.grabOrigin = null;
+    this.announcement.set('');
+    this.removeAt(from);
+
+    const to = Math.min(from, target.items().length);
+    target.insertAt(item, to);
+    target.grabOrigin = origin;
+    target.grabbedIndex.set(to);
+    const list =
+      target.ariaLabel() ?? target.listPositionText({ index: group.indexOf(target) + 1, total: group.length });
+    target.announcement.set(target.movedToText({ list, ...target.position(to) }));
+    target.focusRow(to);
+  }
+
   private drop(): void {
     const to = this.grabbedIndex();
-    const from = this.grabOrigin;
+    const origin = this.grabOrigin;
     this.grabbedIndex.set(null);
-    this.grabOrigin = -1;
-    if (to === null) return;
+    this.grabOrigin = null;
+    if (to === null || !origin) return;
 
     this.announcement.set(this.droppedText(this.position(to)));
-    if (from === to) return;
+    if (origin.list !== this) {
+      this.move.emit({ item: this.items()[to], from: origin, to: { list: this, index: to } });
+      return;
+    }
+    if (origin.index === to) return;
     // One event per gesture, the way a drag emits one on drop — not one per
     // arrow press, which would put a host that persists on `reorder` through a
     // write per keystroke. `[(items)]` still updates on every press, because
     // the rendered order has to follow the row the user is moving.
-    this.reorder.emit({ items: this.items(), previousIndex: from, currentIndex: to, item: this.items()[to] });
+    this.reorder.emit({ items: this.items(), previousIndex: origin.index, currentIndex: to, item: this.items()[to] });
   }
 
   private cancelGrab(): void {
     const from = this.grabbedIndex();
-    if (from === null) return;
-    if (from !== this.grabOrigin) this.relocate(from, this.grabOrigin);
+    const origin = this.grabOrigin;
+    if (from === null || !origin) return;
     this.grabbedIndex.set(null);
-    this.grabOrigin = -1;
-    this.announcement.set(this.cancelledText());
+    this.grabOrigin = null;
+
+    if (origin.list === this) {
+      if (from !== origin.index) this.relocate(from, origin.index);
+      this.announcement.set(this.cancelledText());
+      return;
+    }
+    this.announcement.set('');
+    origin.list.insertAt(this.removeAt(from), origin.index);
+    origin.list.announcement.set(origin.list.cancelledText());
+    origin.list.focusRow(origin.index);
+  }
+
+  /** Whether this list takes `item` from another list of the group. */
+  private accepts(item: T, from: WrSortableList<T>): boolean {
+    return !this.disabled() && (from === this || (this.canEnter()?.(item, from) ?? true));
+  }
+
+  /** This list and its peers, in document order. */
+  private groupLists(): WrSortableList<T>[] {
+    return [this, ...this.peers()].sort((a, b) => (follows(a.host.nativeElement, b.host.nativeElement) ? -1 : 1));
+  }
+
+  private removeAt(index: number): T {
+    const next = this.items().slice();
+    const [item] = next.splice(index, 1);
+    this.items.set(next);
+    return item;
+  }
+
+  private insertAt(item: T, index: number): void {
+    const next = this.items().slice();
+    next.splice(index, 0, item);
+    this.items.set(next);
   }
 
   private relocate(from: number, to: number): void {
     const next = this.items().slice();
     moveItemInArray(next, from, to);
     this.items.set(next);
+    this.focusRow(to);
+  }
 
+  private focusRow(to: number): void {
     // The row is the same DOM node moved to another slot, and moving a focused
     // node hands focus back to `<body>` — so it has to be taken again once the
     // move has rendered. `afterNextRender`, never a microtask: zoneless change
@@ -352,4 +551,4 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
   }
 }
 
-export type { WrSortableReorderEvent } from './types';
+export type { WrSortableCanEnter, WrSortableMoveEnd, WrSortableMoveEvent, WrSortableReorderEvent } from './types';

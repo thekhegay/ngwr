@@ -7,15 +7,12 @@
   Rows arrive through `<ng-content>` — the consumer writes the loop, so the
   markup says what each row is instead of hiding it in an unnamed template.
 -->
-<div
-  cdkDropList
-  role="list"
-  class="wr-sortable-list__list"
-  [cdkDropListOrientation]="orientation()"
-  [cdkDropListDisabled]="disabled()"
-  (cdkDropListDropped)="onDrop($event)"
->
+<div #list role="list" class="wr-sortable-list__list" [attr.aria-label]="ariaLabel()">
   <ng-content />
+  @if (items().length === 0) {
+    <!-- A row of its own, so the list announces what it shows; hidden by `:empty` when nothing is projected. -->
+    <div role="listitem" class="wr-sortable-list__empty"><ng-content select="[wrSortableListEmpty]" /></div>
+  }
 </div>
 
 <!--

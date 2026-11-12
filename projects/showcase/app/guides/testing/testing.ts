@@ -674,6 +674,17 @@ it('walks focus without moving the selection', async () => {
   expect(await shipping.isRegionBound()).toBe(true);
 });`,
 
+    sortableList: `it('moves a task to Done', async () => {
+  const todo = await loader.getHarness(WrSortableListHarness.with({ ariaLabel: 'To do' }));
+  const done = await loader.getHarness(WrSortableListHarness.with({ ariaLabel: 'Done' }));
+
+  // By keyboard: pick up, cross the group, drop. Throws if Done refuses the row.
+  await todo.moveItemTo(0, done, 0);
+
+  expect(await done.getItems()).toEqual(['Draft the changelog']);
+  expect(await todo.isEmpty()).toBe(false);
+});`,
+
     transfer: `it('moves a row across', async () => {
   const transfer = await loader.getHarness(WrTransferHarness);
   const source = await transfer.getPane('source');
@@ -2156,6 +2167,25 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'getRole() / getAccessibleName() / getSize() / isDisabled()',
       description: 'Shape and state.',
       type: 'Promise<…>',
+    },
+  ];
+
+  protected readonly sortableListApi: readonly DocApiRow[] = [
+    {
+      name: 'getItems() / getAriaLabel() / getId() / isEmpty() / isConnected() / getEmptyText()',
+      description: 'Row texts in order, and what the host shows. Filters: `ariaLabel`, `item`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'moveItem(from, to) / moveItemTo(from, target, to)',
+      description:
+        'A keyboard move inside the list, or into another list of its group. Vertical lists only. Throws when the row does not land.',
+      type: 'Promise<void>',
+    },
+    {
+      name: 'getHeldIndex() / getAnnouncement()',
+      description: 'The row the keyboard holds in this list, and what the live region last said.',
+      type: 'Promise<number | null> | Promise<string>',
     },
   ];
 

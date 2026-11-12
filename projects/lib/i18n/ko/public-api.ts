@@ -222,6 +222,11 @@ export const wrKo: WrI18nCatalog = {
     moved: '{{total}}개 중 {{index}}번째.',
     dropped: '내려놓았습니다. {{total}}개 중 {{index}}번째.',
     cancelled: '이동을 취소했습니다.',
+    groupKeyHelp:
+      '스페이스 키를 누르면 항목을 집고, 화살표 키로 목록 안에서 또는 옆 목록으로 옮길 수 있습니다. ' +
+      '스페이스 키를 다시 누르면 내려놓고, Esc 키를 누르면 제자리로 되돌립니다.',
+    movedTo: '{{list}}(으)로 옮겼습니다. {{total}}개 중 {{index}}번째.',
+    listPosition: '목록 {{total}}개 중 {{index}}번째',
   },
   colorPicker: {
     area: '채도 {{saturation}}%, 명도 {{brightness}}%',

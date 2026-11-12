@@ -222,6 +222,11 @@ export const wrIt: WrI18nCatalog = {
     moved: '{{index}} di {{total}}.',
     dropped: 'Rilasciato. {{index}} di {{total}}.',
     cancelled: 'Spostamento annullato.',
+    groupKeyHelp:
+      "Premi la barra spaziatrice per prendere questo elemento, poi spostalo con i tasti freccia, nel suo elenco o nell'elenco accanto. " +
+      'Premi di nuovo la barra spaziatrice per rilasciarlo oppure Esc per rimetterlo al suo posto.',
+    movedTo: 'Spostato in {{list}}. {{index}} di {{total}}.',
+    listPosition: 'elenco {{index}} di {{total}}',
   },
   colorPicker: {
     area: 'Saturazione e luminosità, {{saturation}}% e {{brightness}}%',

@@ -230,6 +230,11 @@ export const wrHe: WrI18nCatalog = {
     moved: '{{index}} מתוך {{total}}.',
     dropped: 'הונח. {{index}} מתוך {{total}}.',
     cancelled: 'ההזזה בוטלה.',
+    groupKeyHelp:
+      'לחיצה על מקש הרווח מרימה את הפריט, ואז מקשי החיצים מזיזים אותו בתוך הרשימה או אל הרשימה הסמוכה. ' +
+      'רווח נוסף מניח אותו, ו-Escape מחזיר אותו למקומו.',
+    movedTo: 'הועבר אל {{list}}. {{index}} מתוך {{total}}.',
+    listPosition: 'רשימה {{index}} מתוך {{total}}',
   },
   colorPicker: {
     area: 'רוויה ובהירות, {{saturation}}% ו-{{brightness}}%',
