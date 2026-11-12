@@ -501,7 +501,7 @@ export const DOC_ROUTES: Readonly<
   "reference/interfaces/theme": {"title":"Theme types","kind":"Type","labels":["Type"],"description":"The intent and mode unions from `ngwr/theme`."},
   "reference/pipes/wr-bytes": {"title":"wrBytes","kind":"Pipe","labels":["Pipe"],"description":"Show a byte count as kB, MB or GB."},
   "reference/pipes/wr-date": {"title":"wrDate","kind":"Pipe","labels":["Pipe"],"description":"Format a date with a named preset or a token string."},
-  "reference/pipes/wr-duration": {"title":"wrDuration","kind":"Pipe","labels":["Pipe"],"description":"Show a span of milliseconds as clock digits or as units."},
+  "reference/pipes/wr-duration": {"title":"wrDuration","kind":"Pipe","labels":["Pipe"],"description":"Show a span of milliseconds as clock digits, as units or as a timer."},
   "reference/pipes/wr-initials": {"title":"wrInitials","kind":"Pipe","labels":["Pipe"],"description":"Up to two initials of a name, one grapheme each."},
   "reference/pipes/wr-mark": {"title":"wrMark","kind":"Pipe","labels":["Pipe"],"description":"Highlight a search query in text with `<mark>`."},
   "reference/pipes/wr-number": {"title":"wrNumber","kind":"Pipe","labels":["Pipe"],"description":"Format a number, percent or price in the app locale."},
