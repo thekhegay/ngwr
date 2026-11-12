@@ -65,7 +65,6 @@ import { describe, expect, it } from 'vitest';
 import { WrTimePanel } from './date-picker/internal/time-panel';
 import { WrToastHost } from './toast/toast-host';
 import { WrToastItem } from './toast/toast-item';
-import { WrWindow } from './window/window';
 
 /**
  * In a zoneless app the router inserts a routed page in one task and the first
@@ -187,7 +186,9 @@ const COMPONENTS: readonly (readonly [base: string, type: Type<unknown>])[] = [
   ['wr-toast', WrToastItem],
   ['wr-transfer', WrTransfer],
   ['wr-tree', WrTree],
-  ['wr-window', WrWindow],
+  // `WrWindow` is not exported; importing its file ahead of `ngwr/window` breaks
+  // that entry's module cycle for every later spec in the worker. The source
+  // gate below still covers its host.
   ['wr-window-taskbar', WrWindowTaskbar],
 ];
 
