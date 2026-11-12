@@ -163,6 +163,18 @@ The rest are calls of their own, added from their entry points as needed:
   `withDates({ adapter })`. Its `format` and `parse` handle every `WrDateFormat`
   key, including the `12h`, `24h` and `Seconds` variants of `time` and
   `shortDateTime` (`time24h`, `shortDateTime12hSeconds`) that v15 added.
+- Backend dates (16.2): `withDates({ epochUnit: 'ms' | 'us' | 's' | 'auto' })`
+  says what a number counts (`auto` by size: seconds under 1e10, milliseconds
+  under 1e13, microseconds above).
+- `withDates({ zonelessIn: 'display' | 'browser' | 'utc' })` says which zone a
+  string with no offset (`2026-11-12 13:45:00`) is in; `display` prints it as is.
+- `timeZone` takes `'+0500'` as well as `'+05:00'`; the `y` token is the full
+  year (`d MMM y`).
+- `<wr-date-stamp>` (`ngwr/date-stamp`) is a date over a time: `todayTimeOnly`,
+  `seconds`, `epochUnit`; `withDates({ stamp: { dateFormat, timeFormat } })`
+  sets its defaults.
+- An elapsed time is `ms | wrDuration: 'timer'` (`01:02:03`, `1d 02:03:04`),
+  never `wrDate`: a duration has no time zone.
 
 Injected rather than provided: `WrTour` (`ngwr/tour`) runs a guided onboarding
 tour — `tour.start([{ target: '[data-tour="save"]', content: '…' }])` spotlights

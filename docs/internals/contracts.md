@@ -69,7 +69,19 @@ because it is guidance rather than a plan.
   midnight is what `wrToLocalDate`, the validators and the calendar already
   agree on. Only a value with a time is an instant and is shown on the zone's
   wall clock. A string with a time and no zone (`2026-11-12 14:30`) is still
-  read in the BROWSER's zone, as before, and then shown in the display zone.
+  read in the BROWSER's zone, as before, and then shown in the display zone,
+  unless `withDates({ zonelessIn })` says `'display'` or `'utc'` (16.2). The
+  default must stay `'browser'`, and `epochUnit` must stay `'ms'`.
+- **`epochUnit: 'auto'` is a guess with stated limits**: seconds under `1e10`,
+  milliseconds under `1e13`, microseconds from there. A date before 26 April
+  1970 in milliseconds or microseconds, or after 20 November 2286, reads in the
+  wrong unit. That is the trade, not a bug: name the unit for such data.
+- `'yyyy [year]'` prints `2025 [2025eamr]` since 16.2: the `y` token took the
+  letter a pattern used to leave alone. Literal text is quoted.
+- `wr-date-stamp`'s `todayTimeOnly` reads today when it renders. The library
+  has no clock signal, so a stamp left on screen past midnight keeps one line.
+- `wrDuration`'s `'clock'` stays `1:02:03` and carries days into the hours.
+  The fixed `01:02:03` is the separate `'timer'` style, so no output moved.
 - `wrDate` is an impure pipe on purpose. A pure one is called again only when
   an argument changes, so it cannot follow the zone or the locale; this one
   keeps its last result and compares `adapter.displayKey()`.

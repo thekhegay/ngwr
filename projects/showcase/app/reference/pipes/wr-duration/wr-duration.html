@@ -1,8 +1,9 @@
 <ngwr-doc-page
   title="wrDuration"
   since="15.4.0"
-  description="Show a span of milliseconds as clock digits or as units."
-  [keywords]="['pipe', 'wrDuration', 'duration', 'elapsed', 'time', 'format']"
+  updated="16.2.0"
+  description="Show a span of milliseconds as clock digits, as units or as a timer."
+  [keywords]="['pipe', 'wrDuration', 'duration', 'elapsed', 'timer', 'time', 'format']"
   [labels]="['Pipe']"
 >
   <ngwr-doc-section
@@ -45,6 +46,30 @@
                   <code>{{ span }}</code>
                 </th>
                 <td>{{ span | wrDuration: 'units' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Timer"
+    description="`'timer'` is what an elapsed-time counter shows: always `HH:mm:ss`, two digits a field, with the days in front from a day on. A span is not an instant: no style reads a time zone, where a date format would add the zone's offset."
+  >
+    <ngwr-doc-code [code]="snippets.timer" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <!-- Keep the <tbody>: without it hydration fails (NG0501). -->
+      <div class="ngwr-table">
+        <table>
+          <tbody>
+            @for (span of spans; track span) {
+              <tr>
+                <th scope="row">
+                  <code>{{ span }}</code>
+                </th>
+                <td>{{ span | wrDuration: 'timer' }}</td>
               </tr>
             }
           </tbody>

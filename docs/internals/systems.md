@@ -181,6 +181,18 @@ one component folder. Reach for them instead of hand-rolling:
   string through the internal `wrToLocalDate`, and `wrDate`, `wrFormatDate` and
   the date validators parse through it in turn, so all four read one string as
   one instant. It must stay free of the adapter and of DI.
+  **Backend values** (16.2): `wrParseDate(value, options)` takes `epochUnit`
+  (`ms`, `us`, `s`, `auto`), `zonelessIn` (`browser`, `display`, `utc`) and the
+  `timeZone` that `display` reads in, through the wall-clock helpers of
+  `date/time-zone.ts`. `withDates({ epochUnit, zonelessIn })` provides
+  `WR_DATE_INPUT`, and `adapter.parseOptions()` hands it out with the zone:
+  `wrFormatDate` and `wr-date-stamp` pass that to `wrParseDate`, so the
+  function itself still injects nothing. The base adapter returns `{}`, so a
+  custom one honours the options only when it overrides `parseOptions()`. The
+  validators and the pickers do not read them. `withDates({ stamp })` provides
+  `WR_DATE_STAMP_DEFAULTS`, which lives in `ngwr/date` so that `withDates()`
+  imports no component; both tokens merge over the injector above, so a
+  route's call keeps the app's other keys.
 - **Router integration is OPT-IN since v14, and lives in two nested entry
   points** — `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`, and
   `WrTabsRouting` (the `[wrTabsRouting]` attribute on the strip) from
