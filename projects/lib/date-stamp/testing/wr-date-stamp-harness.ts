@@ -40,7 +40,7 @@ export class WrDateStampHarness extends ComponentHarness {
 
   private readonly time = this.locatorForOptional('time.wr-date-stamp__value');
 
-  /** The first line, or `null` when the stamp is empty. */
+  /** The first line, or `null` when the stamp is empty or `todayTimeOnly` shows a value from today. */
   async getDate(): Promise<string | null> {
     return (await (await this.locatorForOptional('.wr-date-stamp__date')())?.text()) ?? null;
   }
