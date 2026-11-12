@@ -1,5 +1,32 @@
 # Changelog
 
+## [16.1.0](https://github.com/thekhegay/ngwr/compare/v16.0.0...v16.1.0) (2026-11-12)
+
+### Features
+
+* **date-stamp:** date over time for table cells ([7dbbe46](https://github.com/thekhegay/ngwr/commit/7dbbe46b140c0341bc3557b856e108950cb657bd))
+* **date:** a display time zone ([f83c8d0](https://github.com/thekhegay/ngwr/commit/f83c8d01ca9be3b76afc801655968a0fe8476021))
+* **date:** formatting follows the interface language ([be2b8e7](https://github.com/thekhegay/ngwr/commit/be2b8e7ca94152928368106d028ecee4db6cfb47))
+* **dialog,drawer:** toasts below a chosen overlay ([7fad58c](https://github.com/thekhegay/ngwr/commit/7fad58c399a816f5744424f19dee5c52374ee3f1))
+* **dialog:** alert with one button and an intent icon on alert and confirm ([fc1a26b](https://github.com/thekhegay/ngwr/commit/fc1a26bd45d3e6c1c86bcf4831d54f96a426413d))
+* **directives:** copy to clipboard says it copied ([85cf2c1](https://github.com/thekhegay/ngwr/commit/85cf2c1c837d5b3a3628024835f5b4dfd29f06b8))
+* **i18n:** a fallback for a missing key ([666a361](https://github.com/thekhegay/ngwr/commit/666a36106cb88ca7b0f70b5d1cba83cb877b3a9a))
+* **resizable:** resize an element by one edge ([00d1e51](https://github.com/thekhegay/ngwr/commit/00d1e5169d53363aef8e0a8da4cfbf72eba721ed))
+* **table:** a loading bar that keeps rows clickable ([0caedd4](https://github.com/thekhegay/ngwr/commit/0caedd48612a895d2ac11b245eb5b1ccc101e676))
+* **table:** header hints and tooltips on truncated cells ([3ce8567](https://github.com/thekhegay/ngwr/commit/3ce85671f9db62c54379c68896cc03c35b0504a1))
+* **table:** row click that ignores interactive elements in the row ([5c9d8f5](https://github.com/thekhegay/ngwr/commit/5c9d8f561f4a2f7ff891433b18a3653ada13ea2b))
+* **toast:** a held outlet keeps what it shows ([bae4a99](https://github.com/thekhegay/ngwr/commit/bae4a99695ea822b01ca86fe364a8f70dda8748d))
+* **toast:** outlets render a toast channel inside the page ([897099a](https://github.com/thekhegay/ngwr/commit/897099a3453b4a7381b71ea613d88c1c73928494))
+* **utils:** render a routed page before the browser paints it ([cb4d005](https://github.com/thekhegay/ngwr/commit/cb4d0053ce13728198fd2919c3ebbb0efb0b3180))
+
+### Bug Fixes
+
+* **dialog:** export the options confirm and alert share ([7286d51](https://github.com/thekhegay/ngwr/commit/7286d514c7e2396eb389396486c6ad9f8d4ae8af))
+* **directives:** static block class on the copy to clipboard host ([9114543](https://github.com/thekhegay/ngwr/commit/9114543f52ee59dd8e38c0ee7bc6d266bc4b3218))
+* **lib:** static base class on every component host ([c77d66c](https://github.com/thekhegay/ngwr/commit/c77d66cda5fe5f044de151a27d6ef41fbec6fd53))
+* **lib:** static variants match by attribute from the first paint ([3143733](https://github.com/thekhegay/ngwr/commit/31437330ee234b4d27177c6dc59d17171195656f))
+* **resizable:** static base class on the host ([f8e5061](https://github.com/thekhegay/ngwr/commit/f8e5061e373a956c9cbdf160bbf71b1eacee590c))
+
 ## [16.0.0](https://github.com/thekhegay/ngwr/compare/v15.9.0...v16.0.0) (2026-11-12)
 
 ### ⚠ BREAKING CHANGES
