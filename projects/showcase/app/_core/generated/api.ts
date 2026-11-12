@@ -1103,6 +1103,20 @@ export const API = {
     { name: "value", description: "The rating. Bound by `[formField]`, or two-way via `[(value)]`.", type: "number | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
+  // <[wrResizable]>
+  WrResizable: [
+    { name: "edge", description: "The edge that drags. `start` and `end` resize the width and mirror under RTL; `top` and `bottom` resize the height.", type: "WrResizableEdge", default: "'end'" },
+    { name: "size", description: "The size in pixels. Two-way bindable. `null` means not set yet: the element keeps the size its CSS gives it until the first resize. `sizeChange` fires when a drag is released, on each key and on a reset, never during a drag: bind `resizing` for that.", type: "number | null", default: "null" },
+    { name: "minSize", description: "Smallest size: pixels, or a percentage of the parent's matching dimension (`'20%'`). `null` for none.", type: "WrResizableLimit | null", default: "0" },
+    { name: "maxSize", description: "Largest size: pixels, or a percentage of the parent's matching dimension. `null` for none.", type: "WrResizableLimit | null", default: "'100%'" },
+    { name: "defaultSize", description: "The size Enter and a double click on the handle go back to. `null` goes back to what the element started with: the `size` bound at creation, or its CSS size when there was none.", type: "number | null", default: "null" },
+    { name: "step", description: "Pixels an arrow key moves the edge. Shift moves it ten times as far.", type: "number", default: "10" },
+    { name: "persistKey", description: "Saves the size under this key through `WrStorage` (which adds the app's prefix) when a resize ends, and restores it on creation.", type: "string | null", default: "null" },
+    { name: "collapsed", description: "Shrinks the element to zero and hides the handle. `size` is left alone, so the element is back at its size when this turns off.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Keeps the size and stops the handle.", type: "boolean", default: "false" },
+    { name: "resizeLabel", description: "Accessible name of the handle. A focusable `role=\"separator\"` is an interactive widget, so it needs one. Falls back to `resizable.handle`.", type: "string | null", default: "null" },
+    { name: "(resizing)", description: "The size in pixels on every move of a drag, before `sizeChange` settles it on release.", type: "number" },
+  ],
   // <wr-result>
   WrResult: [
     { name: "title", description: "The headline — the outcome in a few words. Pair it with `description` for the detail; a result with neither renders the illustration alone.", type: "string", default: "''" },

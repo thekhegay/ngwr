@@ -336,6 +336,9 @@ export const INSTALL = {
   "reference/components/rating": [
       { path: "ngwr/rating", symbols: ["WrRating"], declarables: ["WrRating"], styled: true },
   ],
+  "reference/components/resizable": [
+      { path: "ngwr/resizable", symbols: ["WrResizable"], declarables: ["WrResizable"], styled: true },
+  ],
   "reference/components/result": [
       { path: "ngwr/result", symbols: ["WrResult", "WrResult403", "WrResult404", "WrResult500"], declarables: ["WrResult", "WrResult403", "WrResult404", "WrResult500"], styled: true },
   ],

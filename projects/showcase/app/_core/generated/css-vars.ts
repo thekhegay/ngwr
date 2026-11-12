@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1650 hook(s) across 113 page(s). A property is here only when the
+ * 1660 hook(s) across 114 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -1620,6 +1620,21 @@ export const CSS_VARS = {
       { name: "--wr-rating-gap", default: "0.125rem", scope: ".wr-rating", overrides: 2 },
       { name: "--wr-rating-row-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-rating__row" },
       { name: "--wr-rating-size", default: "1.25rem", scope: ".wr-rating", overrides: 2 },
+    ],
+  },
+  "reference/components/resizable": {
+    subpath: "ngwr/resizable",
+    vars: [
+      { name: "--wr-resizable-grip-active-color", default: "var(--wr-color-primary)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-grip-color", default: "var(--wr-border-base)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-grip-length", default: "2rem", scope: ".wr-resizable" },
+      { name: "--wr-resizable-grip-radius", default: "var(--wr-border-radius-pill)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-grip-thickness", default: "var(--wr-space-xs)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-handle-hover-bg", default: "var(--wr-color-primary-soft)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-handle-size", default: "var(--wr-space-sm)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-line-active-color", default: "var(--wr-color-primary)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-line-color", default: "var(--wr-border-subtle)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-line-size", default: "1px", scope: ".wr-resizable" },
     ],
   },
   "reference/components/result": {
