@@ -6,6 +6,7 @@
  */
 
 import {
+  type ComponentHarnessConstructor,
   ContentContainerComponentHarness,
   type HarnessLoader,
   HarnessPredicate,
@@ -29,8 +30,8 @@ import { WrDropdownItemHarness } from './wr-dropdown-item-harness';
  * That scoped loader is also this harness's CONTENT loader, so
  * `dropdown.getHarness(…)` resolves inside THIS dropdown's menu: the consumer's
  * own components in the menu are reachable without the spec ever touching the
- * overlay, and so is a nested `[wrDropdown]`, which is how a submenu is built
- * here (the component ships no submenu API of its own).
+ * overlay, and so is a nested `[wrDropdown]`. A submenu is reached with
+ * `openSubmenu()`, which answers with a harness scoped to that submenu.
  *
  * @example
  * ```ts
@@ -49,8 +50,11 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
   static hostSelector = '.wr-dropdown-trigger';
 
   /** Build a predicate that narrows the query. */
-  static with(options: WrDropdownHarnessFilters = {}): HarnessPredicate<WrDropdownHarness> {
-    return new HarnessPredicate(WrDropdownHarness, options)
+  static with<T extends WrDropdownHarness>(
+    this: ComponentHarnessConstructor<T>,
+    options: WrDropdownHarnessFilters = {}
+  ): HarnessPredicate<T> {
+    return new HarnessPredicate(this, options)
       .addOption('text', options.text, (harness, text) =>
         HarnessPredicate.stringMatches(harness.getTriggerText(), text)
       )
@@ -205,6 +209,30 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
   }
 
   /**
+   * Open the menu if it is closed, then open the submenu of the item with this
+   * label and answer with its harness: `getItems()`, `clickItem()` and a further
+   * `openSubmenu()` all read that submenu and nothing else.
+   *
+   * A click opens it, since hovering waits out the item's `showDelay`.
+   */
+  async openSubmenu(text: string | RegExp): Promise<WrDropdownSubmenuHarness> {
+    await this.open();
+
+    const submenu = await this.getHarnessOrNull(WrDropdownSubmenuHarness.with({ text }));
+    if (!submenu) {
+      const offered = await this.getAllHarnesses(WrDropdownSubmenuHarness);
+      const labels = await Promise.all(offered.map(item => item.getTriggerText()));
+      throw new Error(
+        `WrDropdownHarness.openSubmenu(): no item labelled ${String(text)} opens a submenu. ` +
+          `Items with a submenu here: ${labels.join(', ') || 'none'}.`
+      );
+    }
+
+    await submenu.open();
+    return submenu;
+  }
+
+  /**
    * The label of the item that currently holds focus, or `null` when focus is
    * elsewhere.
    *
@@ -233,7 +261,7 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
   }
 
   /** This dropdown's menu element in the overlay. */
-  private async menu(): Promise<TestElement> {
+  protected async menu(): Promise<TestElement> {
     return this.documentRootLocatorFactory().locatorFor(`#${await this.menuId()}`)();
   }
 
@@ -247,5 +275,74 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
       );
     }
     return id;
+  }
+}
+
+/**
+ * Test harness for an item carrying `[wrDropdownSubmenu]`, and the submenu it
+ * opens. Usually reached through `openSubmenu()` on the level above.
+ *
+ * It is a `WrDropdownHarness` whose trigger is the item, so everything that
+ * reads a menu reads the submenu, scoped the same way, by the id the item
+ * publishes. Two things differ. `hoverTrigger()` opens nothing by itself: the
+ * item waits out its `showDelay`, which is the spec's own fake timer to
+ * advance. And clicking a leaf item closes every submenu, so `clickItem()`
+ * leaves this one closed, while the root menu stays open as it always has.
+ *
+ * Which side the submenu opened on is not readable: jsdom has no layout.
+ *
+ * @example
+ * ```ts
+ * const file = await loader.getHarness(WrDropdownHarness.with({ text: 'File' }));
+ * const exportAs = await file.openSubmenu('Export');
+ *
+ * expect(await exportAs.getItemTexts()).toEqual(['CSV', 'PDF', 'Excel']);
+ * await exportAs.clickItem({ text: 'CSV' });
+ * ```
+ *
+ * @see https://ngwr.dev/guides/testing
+ */
+export class WrDropdownSubmenuHarness extends WrDropdownHarness {
+  /** The class the directive puts on its item. */
+  static override hostSelector = '.wr-dropdown-submenu-trigger';
+
+  /** Open the submenu with a click on its item. */
+  override async open(): Promise<void> {
+    if (await this.isOpen()) return;
+
+    await (await this.host()).click();
+    if (await this.isOpen()) return;
+
+    throw new Error(
+      'WrDropdownSubmenuHarness.open(): clicking the item did not open its submenu. A disabled item ' +
+        'opens nothing, and neither does one whose own menu has closed; check isOpen() on the level above.'
+    );
+  }
+
+  /**
+   * Open the submenu from the keyboard, with Enter on its item. Enter rather
+   * than the arrow because the arrow that opens a submenu depends on the
+   * reading direction, and Enter does not.
+   */
+  override async openByKeyboard(): Promise<void> {
+    if (await this.isOpen()) return;
+
+    await (await this.host()).sendKeys(TestKey.ENTER);
+    if (await this.isOpen()) return;
+
+    throw new Error(
+      'WrDropdownSubmenuHarness.openByKeyboard(): Enter on the item did not open its submenu. Enter ' +
+        'reaches it through `<wr-dropdown-item>`, so check that the directive sits on one and that it is enabled.'
+    );
+  }
+
+  /** Close the submenu with Escape typed inside it, which closes this level only. */
+  override async close(): Promise<void> {
+    if (!(await this.isOpen())) return;
+
+    await (await this.menu()).sendKeys(TestKey.ESCAPE);
+    if (!(await this.isOpen())) return;
+
+    throw new Error('WrDropdownSubmenuHarness.close(): the submenu is still open after Escape was typed in it.');
   }
 }

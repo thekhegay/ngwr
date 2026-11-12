@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Dropdown"
-  updated="16.0.0"
+  updated="16.2.0"
   description="A menu that opens from any trigger."
   [keywords]="['dropdown', 'menu', 'wr-dropdown', 'overlay']"
   [labels]="['Directive', 'Components', 'CDK Overlay']"
@@ -97,6 +97,105 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Submenus"
+    description="Put `[wrDropdownSubmenu]` on an item and point it at another `<wr-dropdown-menu>`. It opens beside the item on hover, click or the arrow key, and its own items can open further ones. Choosing an item in a submenu closes the submenus; the root menu still waits for `close()`."
+  >
+    <ngwr-doc-snippet [code]="snippets.submenu">
+      <button type="button" wr-btn [wrDropdown]="fileMenu" #file="wrDropdown">File</button>
+      <wr-dropdown-menu #fileMenu>
+        <wr-dropdown-item (click)="file.close()">New</wr-dropdown-item>
+        <wr-dropdown-item [wrDropdownSubmenu]="exportMenu">Export</wr-dropdown-item>
+        <wr-dropdown-item [wrDropdownSubmenu]="shareMenu">Share</wr-dropdown-item>
+      </wr-dropdown-menu>
+      <wr-dropdown-menu #exportMenu>
+        <wr-dropdown-item (click)="file.close()">CSV</wr-dropdown-item>
+        <wr-dropdown-item (click)="file.close()">PDF</wr-dropdown-item>
+        <wr-dropdown-item (click)="file.close()">Excel</wr-dropdown-item>
+      </wr-dropdown-menu>
+      <wr-dropdown-menu #shareMenu>
+        <wr-dropdown-item (click)="file.close()">Link</wr-dropdown-item>
+        <wr-dropdown-item (click)="file.close()">Email</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Split button"
+    description="A `<wr-btn-group>` of the main action and a `[wrDropdown]` trigger for the rest. Name the icon-only trigger with `aria-label`."
+  >
+    <ngwr-doc-snippet [code]="snippets.split">
+      <wr-btn-group>
+        <button type="button" wr-btn color="primary">Save</button>
+        <button
+          type="button"
+          wr-btn
+          color="primary"
+          icon="chevron-down"
+          aria-label="More ways to save"
+          position="bottom-end"
+          [wrDropdown]="saveMenu"
+          #save="wrDropdown"
+        ></button>
+      </wr-btn-group>
+      <wr-dropdown-menu #saveMenu>
+        <wr-dropdown-item (click)="save.close()">Save as draft</wr-dropdown-item>
+        <wr-dropdown-item (click)="save.close()">Save and close</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Keyboard" description="The arrows that open and close a submenu swap under RTL.">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">On the trigger</th>
+            <th scope="col">In a menu</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Enter, Space</th>
+            <td>Opens the menu, focus on the first item</td>
+            <td>Chooses the item, or opens its submenu</td>
+          </tr>
+          <tr>
+            <th scope="row">ArrowDown, ArrowUp</th>
+            <td>Opens the menu, focus on the first item</td>
+            <td>Next or previous item, wrapping</td>
+          </tr>
+          <tr>
+            <th scope="row">Home, End</th>
+            <td></td>
+            <td>First or last item</td>
+          </tr>
+          <tr>
+            <th scope="row">ArrowRight</th>
+            <td></td>
+            <td>Opens the item's submenu, focus on its first item</td>
+          </tr>
+          <tr>
+            <th scope="row">ArrowLeft</th>
+            <td></td>
+            <td>Closes the submenu, focus back on its item</td>
+          </tr>
+          <tr>
+            <th scope="row">Escape</th>
+            <td></td>
+            <td>Closes one level: a submenu, then the menu, focus back on what opened it</td>
+          </tr>
+          <tr>
+            <th scope="row">Tab</th>
+            <td></td>
+            <td>Closes every level and moves on from the trigger</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Template reference"
     description="The trigger exports `wrDropdown`, so the template can open, close or read the menu."
   >
@@ -123,5 +222,9 @@
 
   <ngwr-doc-section title="Item API">
     <ngwr-doc-api [rows]="itemApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Submenu API">
+    <ngwr-doc-api [rows]="submenuApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>

@@ -134,7 +134,16 @@ $arrow-gap: 0.5rem;
   $panel: '> .wr-dropdown-menu',
   $background: var(--wr-dropdown-bg),
   $border: var(--wr-dropdown-border),
-  $placements-used: (top, top-start, top-end, bottom, bottom-start, bottom-end, left, right)
+  $placements-used: (
+    top,
+    top-start,
+    top-end,
+    bottom,
+    bottom-start,
+    bottom-end,
+    left,
+    right,
+  )
 );
 
 // `[arrow]="false"` — the directive leaves `--arrow` off the pane and the square
@@ -152,6 +161,8 @@ $arrow-gap: 0.5rem;
   --wr-dropdown-item-radius: var(--wr-border-radius-sm);
   --wr-dropdown-item-font-size: var(--wr-text-sm);
   --wr-dropdown-item-line-height: var(--wr-text-sm-leading);
+  --wr-dropdown-item-chevron-size: 0.375rem;
+  --wr-dropdown-item-chevron-color: var(--wr-color-on-surface-muted);
 
   display: flex;
   align-items: center;
@@ -201,5 +212,30 @@ $arrow-gap: 0.5rem;
     &:hover {
       background: transparent;
     }
+  }
+}
+
+// An item that opens a submenu. The chevron is two borders of a rotated box:
+// decorative, so it is generated content and never reaches the item's name.
+.wr-dropdown-submenu-trigger {
+  &::after {
+    content: '';
+    flex: 0 0 auto;
+    inline-size: var(--wr-dropdown-item-chevron-size);
+    block-size: var(--wr-dropdown-item-chevron-size);
+    margin-inline-start: auto;
+    border-block-start: 1.5px solid var(--wr-dropdown-item-chevron-color);
+    border-inline-end: 1.5px solid var(--wr-dropdown-item-chevron-color);
+    rotate: 45deg;
+  }
+
+  // The submenus cascade toward the inline end, so the chevron turns with them.
+  [dir='rtl'] &::after {
+    rotate: -45deg;
+  }
+
+  // The path to the open submenu stays marked while the pointer is inside it.
+  &[aria-expanded='true'] {
+    background: var(--wr-dropdown-item-bg-hover);
   }
 }

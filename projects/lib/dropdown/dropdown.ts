@@ -27,6 +27,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
+import {
+  type WrDropdownLevel,
+  wrDropdownItems,
+  wrDropdownLevelOf,
+  wrDropdownRegisterLevel,
+  wrDropdownReleaseLevel,
+} from './dropdown-chain';
 import type { WrDropdownMenu } from './dropdown-menu';
 import {
   WR_DROPDOWN_FALLBACKS,
@@ -180,6 +187,9 @@ export class WrDropdown {
 
   private overlayRef: OverlayRef | null = null;
 
+  /** The root menu's link to the submenus open below it. */
+  private level: WrDropdownLevel | null = null;
+
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('dropdown');
     // The host view carrying `[wrDropdown]` can be destroyed while the menu is
@@ -244,7 +254,7 @@ export class WrDropdown {
   protected onMouseLeave(event: MouseEvent): void {
     if (this.trigger() !== 'hover') return;
     const related = event.relatedTarget as Node | null;
-    if (related && this.overlayRef?.overlayElement.contains(related)) return;
+    if (this.inMenus(related)) return;
     this.openState.set(false);
   }
 
@@ -348,6 +358,15 @@ export class WrDropdown {
     const portal = new TemplatePortal(this.menu().contentTpl(), this.vcr);
     this.overlayRef.attach(portal);
 
+    this.level = {
+      pane,
+      parent: null,
+      child: null,
+      close: () => this.close(),
+      pointerLeft: related => this.onMenusLeave(related),
+    };
+    wrDropdownRegisterLevel(this.level);
+
     // Focus the first menu item after the menu renders — unless a POINTER
     // opened it. This used to be unconditional, so merely sweeping the cursor
     // over a `trigger="hover"` menu yanked the caret out of whatever the user
@@ -403,8 +422,14 @@ export class WrDropdown {
     // next Tab starts from the top of the document. Only when focus is actually
     // inside the menu: closing a menu nobody was in must not steal the caret
     // from wherever the user has since moved.
-    const active = document.activeElement;
-    const focusWasInside = active instanceof Node && this.overlayRef.overlayElement.contains(active);
+    // Submenus count, and are read before they close: each hands focus to its
+    // own item on the way out.
+    const focusWasInside = this.inMenus(document.activeElement);
+    if (this.level) {
+      this.level.child?.close();
+      wrDropdownReleaseLevel(this.level);
+      this.level = null;
+    }
     this.overlayRef.dispose();
     this.overlayRef = null;
     if (notify) {
@@ -428,7 +453,12 @@ export class WrDropdown {
   }
 
   private handleMenuKeydown(event: KeyboardEvent): void {
-    const items = this.getItems();
+    // The one keyboard handler of the whole chain: a submenu pane does not
+    // listen, so the dispatcher brings its keys here, and the pane they were
+    // typed in is the one the arrows walk.
+    const level = this.level && wrDropdownLevelOf(this.level, event.target);
+    const submenu = level?.parent ? level : null;
+    const items = this.getItems(level?.pane);
     if (items.length === 0 && event.key !== 'Escape' && event.key !== 'Tab') return;
     const current = document.activeElement as HTMLElement | null;
     const idx = current ? items.indexOf(current) : -1;
@@ -441,13 +471,24 @@ export class WrDropdown {
     // and yanked focus into the menu. The trigger counts as ours — a hover menu
     // that the user has tabbed back to should still open to the keyboard.
     const typedIn = event.target;
-    const ours =
-      typedIn instanceof Node &&
-      (this.host.nativeElement.contains(typedIn) || (this.overlayRef?.overlayElement.contains(typedIn) ?? false));
+    const ours = typedIn instanceof Node && (this.host.nativeElement.contains(typedIn) || level !== null);
     // Escape (and Tab) still close from anywhere — routing to the topmost
     // overlay regardless of focus is the dispatcher's whole job. Escape just
     // must not drag the caret onto the trigger from a field the user is in.
     if (!ours && event.key !== 'Escape' && event.key !== 'Tab') return;
+
+    // Escape, or the arrow pointing back at the parent menu, steps out of a
+    // submenu one level and lands on the item that owns it.
+    if (submenu && (event.key === 'Escape' || event.key === (this.dir?.value === 'rtl' ? 'ArrowRight' : 'ArrowLeft'))) {
+      event.preventDefault();
+      submenu.close();
+      return;
+    }
+
+    const focusAt = (index: number): void => {
+      event.preventDefault();
+      items[index]?.focus();
+    };
 
     switch (event.key) {
       case 'Escape':
@@ -470,31 +511,38 @@ export class WrDropdown {
         this.openState.set(false);
         break;
       case 'ArrowDown':
-        event.preventDefault();
-        this.focusItemAt(idx < items.length - 1 ? idx + 1 : 0);
+        focusAt(idx < items.length - 1 ? idx + 1 : 0);
         break;
       case 'ArrowUp':
-        event.preventDefault();
-        this.focusItemAt(idx > 0 ? idx - 1 : items.length - 1);
+        focusAt(idx > 0 ? idx - 1 : items.length - 1);
         break;
       case 'Home':
-        event.preventDefault();
-        this.focusItemAt(0);
+        focusAt(0);
         break;
       case 'End':
-        event.preventDefault();
-        this.focusItemAt(items.length - 1);
+        focusAt(items.length - 1);
         break;
       default:
         break;
     }
   }
 
-  private getItems(): readonly HTMLElement[] {
-    if (!this.overlayRef) return [];
-    return Array.from(
-      this.overlayRef.overlayElement.querySelectorAll<HTMLElement>('.wr-dropdown-item:not(.wr-dropdown-item--disabled)')
-    );
+  /** The focus stops of `pane`, the root menu's own by default. */
+  private getItems(pane = this.overlayRef?.overlayElement): readonly HTMLElement[] {
+    return pane ? wrDropdownItems(pane) : [];
+  }
+
+  /** Whether `node` is in the root menu or in a submenu open below it. */
+  private inMenus(node: unknown): boolean {
+    return this.level !== null && wrDropdownLevelOf(this.level, node) !== null;
+  }
+
+  /** A `trigger="hover"` menu closes once the pointer is off the trigger and every pane. */
+  private onMenusLeave(related: EventTarget | null): void {
+    if (this.trigger() !== 'hover') return;
+    if (related instanceof Node && this.host.nativeElement.contains(related)) return;
+    if (this.inMenus(related)) return;
+    this.openState.set(false);
   }
 
   private focusItemAt(index: number): void {
@@ -504,9 +552,5 @@ export class WrDropdown {
     items[clamped]?.focus();
   }
 
-  private readonly onOverlayMouseLeave = (event: MouseEvent): void => {
-    const related = event.relatedTarget as Node | null;
-    if (related && this.host.nativeElement.contains(related)) return;
-    this.openState.set(false);
-  };
+  private readonly onOverlayMouseLeave = (event: MouseEvent): void => this.onMenusLeave(event.relatedTarget);
 }
