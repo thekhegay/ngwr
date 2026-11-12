@@ -47,6 +47,37 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Vertical"
+    description='`orientation="vertical"` runs the track from the bottom to the top, with the value and the mark labels beside it. Its height is `--wr-slider-vertical-height`.'
+  >
+    <ngwr-doc-snippet [code]="snippets.vertical" language="angular-html">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Volume</p>
+          <wr-slider orientation="vertical" [(value)]="loudness" [marks]="loudnessMarks" ariaLabel="Volume" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">Equaliser</p>
+          <div style="display: flex; gap: var(--wr-space-xl)">
+            @for (band of bands; track band.name) {
+              <wr-slider
+                orientation="vertical"
+                [(value)]="band.gain"
+                min="-12"
+                max="12"
+                [marks]="[{ value: 0 }]"
+                [showValue]="false"
+                [labelWith]="decibels"
+                [ariaLabel]="band.name"
+              />
+            }
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Disabled">
     <ngwr-doc-snippet [code]="snippets.disabled" language="angular-html">
       <wr-slider [(value)]="volume" disabled />
@@ -55,7 +86,7 @@
 
   <ngwr-doc-section
     title="Keyboard"
-    description="Arrows move one step, Shift + arrow and PageUp / PageDown ten steps, Home / End jump to the ends. With `snapToMarks` each of them moves one mark, and Home / End go to the first and last mark."
+    description="Arrows move one step, Shift + arrow and PageUp / PageDown ten steps, Home / End jump to the ends. With `snapToMarks` each of them moves one mark, and Home / End go to the first and last mark. On a vertical slider the right arrow raises the value and the left arrow lowers it, in both reading directions."
   />
 
   <ngwr-doc-section title="Gotchas">
