@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Drawer"
-  updated="15.0.0"
+  updated="16.1.0"
   description="A side panel that slides in from any edge of the screen."
   [keywords]="['drawer', 'wr-drawer', 'panel', 'overlay', 'sheet']"
   [labels]="['Component', 'Service', 'Directives', 'CDK Overlay']"
@@ -80,6 +80,13 @@
       A drawer from <code>WrDrawerManager</code> outlives its opener: close the ref in
       <code>DestroyRef.onDestroy</code>. <code>&lt;wr-drawer&gt;</code> closes with its view.
     </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Toasts below this drawer"
+    description="A global toast paints over an open drawer. `toasts: 'below'` keeps the stack under this one and its backdrop until it closes."
+  >
+    <ngwr-doc-code [code]="snippets.toastsBelow" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Service API">

@@ -13,7 +13,7 @@ import { Location, isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, Injector, PLATFORM_ID, Service, afterEveryRender, inject } from '@angular/core';
 
 import { WrI18n } from 'ngwr/i18n';
-import { WR_OVERLAY, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
 import { wrToClassList } from 'ngwr/utils';
 
 import { drawerHasFocus, focusIsLost } from './drawer-focus';
@@ -63,6 +63,7 @@ export class WrDrawerManager {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly i18n = inject(WrI18n);
   private readonly location = inject(Location);
+  private readonly order = inject(WrOverlayOrder);
   /**
    * The application's reading direction — the instance the CDK itself read when
    * it stamped the overlay. A root service has no node injector above it, so a
@@ -147,6 +148,7 @@ export class WrDrawerManager {
 
     const portal = new ComponentPortal(component, null, injector);
     drawerRef.componentRef = overlayRef.attach(portal);
+    overlayRef.detachments().subscribe(this.order.add(overlayRef.hostElement, options.toasts));
 
     // Wired BEFORE the panel is decorated, and the order is the fix: everything
     // below attaches attributes, a ✕ and a focus trap to an overlay that is

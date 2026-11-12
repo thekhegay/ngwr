@@ -24,7 +24,7 @@ import {
 
 import { WrI18n } from 'ngwr/i18n';
 import { WrMeta } from 'ngwr/meta';
-import { WR_OVERLAY, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
 import { wrToClassList } from 'ngwr/utils';
 
 import { WrDialogConfirm } from './confirm/dialog-confirm';
@@ -70,6 +70,7 @@ export class WrDialog {
   private readonly location = inject(Location);
   private readonly destroyRef = inject(DestroyRef);
   private readonly defaults = inject(WR_DIALOG_DEFAULTS);
+  private readonly order = inject(WrOverlayOrder);
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDialogOptions<D> = {}): WrDialogRef<C, R> {
     const overlayRef: OverlayRef = this.overlay.create({
@@ -112,6 +113,7 @@ export class WrDialog {
 
     const portal = new ComponentPortal(component, null, injector);
     dialogRef.componentRef = overlayRef.attach(portal);
+    overlayRef.detachments().subscribe(this.order.add(overlayRef.hostElement, options.toasts));
 
     // Wired BEFORE the panel is decorated, and the order is the fix: everything
     // below attaches attributes, a ✕ and a focus trap to an overlay that is

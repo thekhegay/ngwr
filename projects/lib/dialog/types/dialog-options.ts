@@ -66,4 +66,13 @@ export interface WrDialogOptions<D = unknown> {
    * @default false, or what `withDialog()` sets
    */
   readonly tabTitle?: boolean;
+  /**
+   * Where the global toast stack paints while this dialog is open. `'below'`
+   * keeps it under the dialog and its backdrop, so a toast neither covers the
+   * dialog nor can be reached until the dialog closes. Toasts in a
+   * `<wr-toast-outlet>` are page content and are under every dialog anyway.
+   * With dialogs stacked, the top one decides.
+   * @default 'above'
+   */
+  readonly toasts?: 'above' | 'below';
 }

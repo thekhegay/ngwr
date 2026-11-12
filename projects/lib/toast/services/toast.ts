@@ -10,7 +10,7 @@ import { type OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { type ComponentRef, Injector, Service, inject } from '@angular/core';
 
-import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOverlayOrder, wrFollowDirection } from 'ngwr/overlay';
 
 import { WrToastChannel, WrToastChannels, type WrToastEntry } from '../toast-channel';
 import { WrToastHost } from '../toast-host';
@@ -42,6 +42,7 @@ import type { WrToastOptions, WrToastPosition } from '../types';
 @Service()
 export class WrToast {
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly order = inject(WrOverlayOrder);
   private readonly config = inject(WR_TOAST_CONFIG);
   private readonly injector = inject(Injector);
   private readonly dir = inject(Directionality, { optional: true });
@@ -214,6 +215,11 @@ export class WrToast {
    * previously focused element, and a host the user is already tabbing through
    * is by definition reachable. In practice the two never coincide — a modal
    * traps focus, so focus inside the host means nothing is above it to escape.
+   *
+   * `WrOverlayOrder` does the move, because "on top" has an exception: an
+   * overlay opened with `toasts: 'below'` stays over the host, so it leaves the
+   * host alone where it already sits under one and promotes those overlays
+   * again where it does not.
    */
   private raiseHost(): void {
     const host = this.overlayRef?.hostElement;
@@ -221,12 +227,7 @@ export class WrToast {
     // server), and then there is no top layer to be at the wrong end of.
     if (!host?.isConnected || !host.hasAttribute('popover')) return;
     if (host.contains(host.ownerDocument.activeElement)) return;
-    try {
-      host.hidePopover();
-      host.showPopover();
-    } catch {
-      // `hidePopover` throws if the host is not showing — nothing to raise.
-    }
+    this.order.raiseToasts(host);
   }
 
   /**
@@ -259,6 +260,7 @@ export class WrToast {
     this.global.setHeld(false);
     this.containerObserver?.disconnect();
     this.containerObserver = null;
+    this.order.dropToasts();
     if (this.overlayRef) {
       this.overlayRef.dispose();
       this.overlayRef = null;

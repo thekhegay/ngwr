@@ -48,7 +48,18 @@ one component folder. Reach for them instead of hand-rolling:
   the direction once, as a string, when the overlay is created and never looks
   again, so a new overlay calls this right after `overlay.create(...)`, passing
   the callback when its own position list is direction-dependent
-  (`wrMirrorOffsets`).
+  (`wrMirrorOffsets`). **Whether global toasts paint over an overlay is
+  `WrOverlayOrder`, never a z-index** — the top layer is ordered by promotion
+  time only, and the toast host re-promotes itself on every `show()` and
+  whenever an overlay joins the container. An overlay that takes a
+  `toasts: 'above' | 'below'` option (dialog, drawer) calls
+  `order.add(overlayRef.hostElement, toasts)` right after `attach()` and
+  subscribes the returned function to `detachments()`. The registry leaves the
+  toast host alone while it sits right under the covering overlays, and
+  otherwise promotes it and then them again, with every host attached after
+  the first of them, in one task and with focus given back if it moved. With
+  overlays stacked the newest decides: a covering overlay under an `'above'`
+  one cannot go over the toasts without going over that one too.
 - **Icons** (`ngwr/icon`) — `WrIcon` (`<wr-icon name="…">`) +
   `provideWrIcons(wrLucideIcons({…}))`. Both ways in live in `ngwr/icon` itself:
   `wrLucideIcons()` / `wrLucide()` for **lucide only**, the one set whose package

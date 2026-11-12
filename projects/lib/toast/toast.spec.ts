@@ -1,9 +1,16 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, EnvironmentInjector, type EnvironmentProviders, createEnvironmentInjector } from '@angular/core';
+import {
+  Component,
+  EnvironmentInjector,
+  type EnvironmentProviders,
+  createEnvironmentInjector,
+  signal,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
-import { WrDialog, WrDialogContent, type WrDialogRef } from 'ngwr/dialog';
+import { WrDialog, WrDialogContent, type WrDialogOptions, type WrDialogRef } from 'ngwr/dialog';
+import { WrDrawer, WrDrawerManager } from 'ngwr/drawer';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -1124,6 +1131,14 @@ describe('WrToast labels', () => {
 })
 class StackProbe {}
 
+@Component({
+  imports: [WrDrawer],
+  template: `<wr-drawer [(open)]="open" toasts="below">Drawer content</wr-drawer>`,
+})
+class DrawerProbe {
+  readonly open = signal(false);
+}
+
 describe('WrToast stacking', () => {
   let toast: WrToast;
   let dialog: WrDialog;
@@ -1131,6 +1146,8 @@ describe('WrToast stacking', () => {
 
   /** The modelled top layer: last entry paints over every earlier one. */
   let topLayer: HTMLElement[] = [];
+  /** Every host taken out of the top layer to be promoted again. */
+  let moved: HTMLElement[] = [];
 
   const descriptors = {
     show: Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'showPopover'),
@@ -1156,6 +1173,7 @@ describe('WrToast stacking', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     topLayer = [];
+    moved = [];
     Object.defineProperty(HTMLElement.prototype, 'showPopover', {
       configurable: true,
       writable: true,
@@ -1170,6 +1188,7 @@ describe('WrToast stacking', () => {
       value(this: HTMLElement) {
         if (!topLayer.includes(this)) throw new DOMException('Not showing', 'InvalidStateError');
         topLayer = topLayer.filter(el => el !== this);
+        moved.push(this);
       },
     });
 
@@ -1178,9 +1197,21 @@ describe('WrToast stacking', () => {
     openDialogs = [];
   });
 
-  const openDialog = (): void => {
-    openDialogs = [...openDialogs, dialog.open<StackProbe>(StackProbe)];
+  const openDialog = (options?: WrDialogOptions): WrDialogRef<StackProbe> => {
+    const ref = dialog.open<StackProbe>(StackProbe, options);
+    openDialogs = [...openDialogs, ref];
+    return ref;
   };
+
+  /** Overlay hosts in the top layer, as the panel class inside each. A host
+   * removed from the page leaves the browser's top layer with no call. */
+  const layers = (): string[] =>
+    topLayer
+      .filter(el => el.isConnected)
+      .map(
+        el =>
+          ['wr-toast-overlay', 'wr-dialog-panel', 'wr-drawer-overlay'].find(name => el.querySelector(`.${name}`)) ?? '?'
+      );
 
   afterEach(() => {
     toast.dismissAll();
@@ -1254,6 +1285,139 @@ describe('WrToast stacking', () => {
 
     expect(top()).toBe(host);
     foreign.remove();
+  });
+
+  describe("with `toasts: 'below'`", () => {
+    it('keeps a toast that was on screen under the dialog, and the next one too', async () => {
+      toast.show({ message: 'Saved', duration: 0 });
+      await settle();
+
+      openDialog({ toasts: 'below' });
+      await settle();
+      expect(layers()).toEqual(['wr-toast-overlay', 'wr-dialog-panel']);
+
+      moved = [];
+      toast.show({ message: 'Copied', duration: 0 });
+      await settle();
+
+      expect(layers()).toEqual(['wr-toast-overlay', 'wr-dialog-panel']);
+      // Nothing was taken out of the top layer to get there.
+      expect(moved).toEqual([]);
+    });
+
+    it('puts the first toast of a run under a dialog that is already open', async () => {
+      openDialog({ toasts: 'below' });
+      await settle();
+
+      toast.show({ message: 'Saved', duration: 0 });
+      await settle();
+
+      expect(layers()).toEqual(['wr-toast-overlay', 'wr-dialog-panel']);
+    });
+
+    it('keeps the stack under a dialog opened from a toast action', async () => {
+      toast.show({ message: 'Saved', duration: 0 });
+      toast.show({
+        message: 'Deleted',
+        duration: 0,
+        action: { label: 'Review', run: () => openDialog({ toasts: 'below' }) },
+      });
+      await settle();
+
+      document.querySelector<HTMLButtonElement>('.wr-toast__action:not(.wr-toast__action--close)')!.click();
+      await settle();
+
+      expect(layers()).toEqual(['wr-toast-overlay', 'wr-dialog-panel']);
+    });
+
+    it('lets a dialog over it decide, and covers the toasts again when that one closes', async () => {
+      toast.show({ message: 'Saved', duration: 0 });
+      await settle();
+      openDialog({ toasts: 'below' });
+      await settle();
+
+      const inner = openDialog();
+      await settle();
+      expect(layers()).toEqual(['wr-dialog-panel', 'wr-dialog-panel', 'wr-toast-overlay']);
+
+      inner.close();
+      await settle();
+      expect(layers()).toEqual(['wr-toast-overlay', 'wr-dialog-panel']);
+    });
+
+    it('puts the toasts between a dialog and a covering dialog opened from it', async () => {
+      toast.show({ message: 'Saved', duration: 0 });
+      await settle();
+      openDialog();
+      await settle();
+      const outer = topLayer[0];
+
+      openDialog({ toasts: 'below' });
+      await settle();
+      toast.show({ message: 'Copied', duration: 0 });
+      await settle();
+
+      expect(layers()).toEqual(['wr-dialog-panel', 'wr-toast-overlay', 'wr-dialog-panel']);
+      expect(topLayer[0]).toBe(outer);
+    });
+
+    it('leaves the toasts on top, untouched, once the dialog closes', async () => {
+      toast.show({ message: 'Saved', duration: 0 });
+      await settle();
+      const ref = openDialog({ toasts: 'below' });
+      await settle();
+
+      moved = [];
+      ref.close();
+      // Before the observer has run: the order is right with nothing moved.
+      expect(layers()).toEqual(['wr-toast-overlay']);
+      expect(moved).toEqual([]);
+
+      openDialog();
+      await settle();
+      expect(top()).toBe(toastHost());
+    });
+
+    it('takes the rule from `confirm()` as well', async () => {
+      toast.show({ message: 'Saved', duration: 0 });
+      await settle();
+
+      void dialog.confirm({ title: 'Delete?', toasts: 'below' });
+      await settle();
+
+      expect(layers()).toEqual(['wr-toast-overlay', 'wr-dialog-panel']);
+      document.querySelector<HTMLButtonElement>('.wr-dialog-panel button')!.click();
+      await settle();
+    });
+
+    it('covers the toasts with a drawer opened by the manager', async () => {
+      toast.show({ message: 'Saved', duration: 0 });
+      await settle();
+
+      const ref = TestBed.inject(WrDrawerManager).open(StackProbe, { toasts: 'below' });
+      await settle();
+      toast.show({ message: 'Copied', duration: 0 });
+      await settle();
+
+      expect(layers()).toEqual(['wr-toast-overlay', 'wr-drawer-overlay']);
+      ref.close();
+    });
+
+    it('covers the toasts with a `<wr-drawer toasts="below">`', async () => {
+      const fixture = TestBed.createComponent(DrawerProbe);
+      fixture.detectChanges();
+      toast.show({ message: 'Saved', duration: 0 });
+      await settle();
+
+      fixture.componentInstance.open.set(true);
+      fixture.detectChanges();
+      await settle();
+      toast.show({ message: 'Copied', duration: 0 });
+      await settle();
+
+      expect(layers()).toEqual(['wr-toast-overlay', 'wr-drawer-overlay']);
+      fixture.destroy();
+    });
   });
 
   it('stops watching once the last toast is gone', async () => {
