@@ -219,6 +219,9 @@ export const wrEn: WrI18nCatalog = {
     copied: 'Copied',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'Copied',
+  },
   input: {
     showPassword: 'Show password',
     hidePassword: 'Hide password',

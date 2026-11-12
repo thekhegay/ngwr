@@ -158,6 +158,9 @@ export const wrId: WrI18nCatalog = {
     copied: 'Tersalin',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'Tersalin',
+  },
   input: {
     showPassword: 'Tampilkan kata sandi',
     hidePassword: 'Sembunyikan kata sandi',

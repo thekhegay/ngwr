@@ -158,6 +158,9 @@ export const wrHi: WrI18nCatalog = {
     copied: 'कॉपी हो गया',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'कॉपी हो गया',
+  },
   input: {
     showPassword: 'पासवर्ड दिखाएं',
     hidePassword: 'पासवर्ड छिपाएं',

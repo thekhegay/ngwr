@@ -1,6 +1,9 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { WR_COPIED_DURATION } from 'ngwr/clipboard';
+import { WrPopover } from 'ngwr/popover';
+import { WrToast } from 'ngwr/toast';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCopyToClipboard } from './copy-to-clipboard';
@@ -310,5 +313,203 @@ describe('WrCopyToClipboard template reference', () => {
     await expect(fixture.componentInstance.clipboard().copy()).resolves.toBe(false);
 
     fixture.destroy();
+  });
+});
+
+describe('WrCopyToClipboard feedback', () => {
+  @Component({
+    imports: [WrCopyToClipboard, WrPopover],
+    template: `
+      <button
+        type="button"
+        class="plain"
+        wrCopyToClipboard="ngwr"
+        [wrCopyToClipboardToast]="toast()"
+        [copiedLabel]="label()"
+        (copied)="copied.push($event)"
+        (copyFailed)="failed.push($event)"
+      >
+        Copy
+      </button>
+      <button type="button" class="hinted" wrCopyToClipboard="ngwr" wrPopover="Copy the name" mode="tooltip">
+        Copy
+      </button>
+    `,
+  })
+  class FeedbackHost {
+    readonly toast = signal(false);
+    readonly label = signal<string | null>(null);
+    readonly copied: string[] = [];
+    readonly failed: unknown[] = [];
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FeedbackHost>>;
+
+  const pristineClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+  const pristineExecCommand = Object.getOwnPropertyDescriptor(document, 'execCommand');
+
+  const button = (selector = '.plain'): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(selector)!;
+  const isCopied = (): boolean => button().classList.contains('wr-copy-to-clipboard--copied');
+  const tooltips = (): string[] =>
+    Array.from(document.querySelectorAll('.wr-tooltip-overlay .wr-tooltip'), node => node.textContent ?? '');
+  const announced = (): string => document.querySelector('.cdk-live-announcer-element')?.textContent ?? '';
+  const toasts = (): string[] => Array.from(document.querySelectorAll('wr-toast'), node => node.textContent ?? '');
+
+  /** Click, then let the awaited write settle and the signal it sets reach the DOM. */
+  const clickCopy = async (selector?: string): Promise<void> => {
+    button(selector).click();
+    await vi.advanceTimersByTimeAsync(0);
+    fixture.detectChanges();
+  };
+
+  /** The announcer writes its region on a 100 ms timer of its own. */
+  const advance = async (ms: number): Promise<void> => {
+    await vi.advanceTimersByTimeAsync(ms);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers({
+      toFake: [
+        'setTimeout',
+        'clearTimeout',
+        'setInterval',
+        'clearInterval',
+        'requestAnimationFrame',
+        'cancelAnimationFrame',
+      ],
+    });
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: vi.fn().mockResolvedValue(undefined) },
+      configurable: true,
+    });
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(FeedbackHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    TestBed.inject(WrToast).dismissAll();
+    fixture.destroy();
+    vi.useRealTimers();
+
+    if (pristineClipboard) Object.defineProperty(navigator, 'clipboard', pristineClipboard);
+    else Reflect.deleteProperty(navigator, 'clipboard');
+
+    if (pristineExecCommand) Object.defineProperty(document, 'execCommand', pristineExecCommand);
+    else Reflect.deleteProperty(document, 'execCommand');
+  });
+
+  it('is quiet before a copy', () => {
+    expect(isCopied()).toBe(false);
+    expect(tooltips()).toEqual([]);
+  });
+
+  it('marks the host, shows the tooltip and announces "Copied"', async () => {
+    await clickCopy();
+
+    expect(isCopied()).toBe(true);
+    expect(tooltips()).toEqual(['Copied']);
+    expect(document.querySelector('.wr-tooltip-overlay')!.getAttribute('role')).toBe('tooltip');
+    expect(toasts()).toEqual([]);
+
+    await advance(100);
+    expect(announced()).toBe('Copied');
+    expect(document.querySelector('.cdk-live-announcer-element')!.getAttribute('aria-live')).toBe('polite');
+  });
+
+  it('resets after the shared duration, not before', async () => {
+    await clickCopy();
+
+    await advance(WR_COPIED_DURATION - 1);
+    expect(isCopied()).toBe(true);
+    expect(tooltips()).toEqual(['Copied']);
+
+    await advance(1);
+    expect(isCopied()).toBe(false);
+    expect(tooltips()).toEqual([]);
+
+    await advance(100);
+    expect(announced()).toBe('');
+  });
+
+  it('restarts the duration on a second copy and keeps one tooltip', async () => {
+    await clickCopy();
+    await advance(1000);
+    await clickCopy();
+
+    await advance(1000);
+    expect(isCopied()).toBe(true);
+    expect(tooltips()).toEqual(['Copied']);
+
+    await advance(WR_COPIED_DURATION - 1000);
+    expect(isCopied()).toBe(false);
+    expect(tooltips()).toEqual([]);
+  });
+
+  it('takes its text from copiedLabel', async () => {
+    fixture.componentInstance.label.set('Copied to clipboard');
+    fixture.detectChanges();
+
+    await clickCopy();
+    await advance(100);
+
+    expect(tooltips()).toEqual(['Copied to clipboard']);
+    expect(announced()).toBe('Copied to clipboard');
+  });
+
+  it('shows a toast instead of the tooltip and the announcement when asked', async () => {
+    fixture.componentInstance.toast.set(true);
+    fixture.detectChanges();
+
+    await clickCopy();
+    await advance(100);
+
+    expect(toasts()).toHaveLength(1);
+    expect(toasts()[0]).toContain('Copied');
+    expect(document.querySelector('wr-toast .wr-toast__action--copy')).toBeNull();
+    expect(tooltips()).toEqual([]);
+    expect(announced()).toBe('');
+    expect(isCopied()).toBe(true);
+
+    await advance(WR_COPIED_DURATION);
+    expect(isCopied()).toBe(false);
+  });
+
+  it('changes nothing and emits copyFailed when the write is refused', async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) },
+      configurable: true,
+    });
+    Object.defineProperty(document, 'execCommand', { value: undefined, configurable: true });
+
+    await clickCopy();
+    await advance(100);
+
+    expect(fixture.componentInstance.failed).toHaveLength(1);
+    expect(fixture.componentInstance.copied).toEqual([]);
+    expect(isCopied()).toBe(false);
+    expect(tooltips()).toEqual([]);
+    expect(toasts()).toEqual([]);
+    expect(announced()).toBe('');
+  });
+
+  it("closes the host's own tooltip, which would sit in the same place", async () => {
+    button('.hinted').dispatchEvent(new MouseEvent('mouseenter'));
+    await advance(200);
+    expect(tooltips()).toEqual(['Copy the name']);
+
+    await clickCopy('.hinted');
+
+    expect(tooltips()).toEqual(['Copied']);
+  });
+
+  it('takes the tooltip away with the host', async () => {
+    await clickCopy();
+    fixture.destroy();
+
+    expect(tooltips()).toEqual([]);
+    await vi.advanceTimersByTimeAsync(WR_COPIED_DURATION);
   });
 });

@@ -162,6 +162,9 @@ export const wrVi: WrI18nCatalog = {
     copied: 'Đã sao chép',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'Đã sao chép',
+  },
   input: {
     showPassword: 'Hiện mật khẩu',
     hidePassword: 'Ẩn mật khẩu',

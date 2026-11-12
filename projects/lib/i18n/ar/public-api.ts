@@ -164,6 +164,9 @@ export const wrAr: WrI18nCatalog = {
     copied: 'تم النسخ',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'تم النسخ',
+  },
   input: {
     showPassword: 'إظهار كلمة المرور',
     hidePassword: 'إخفاء كلمة المرور',

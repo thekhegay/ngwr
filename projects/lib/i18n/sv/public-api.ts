@@ -158,6 +158,9 @@ export const wrSv: WrI18nCatalog = {
     copied: 'Kopierat',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'Kopierat',
+  },
   input: {
     showPassword: 'Visa lösenord',
     hidePassword: 'Dölj lösenord',

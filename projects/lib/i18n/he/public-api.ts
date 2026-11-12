@@ -166,6 +166,9 @@ export const wrHe: WrI18nCatalog = {
     copied: 'הועתק',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'הועתק',
+  },
   input: {
     showPassword: 'הצגת הסיסמה',
     hidePassword: 'הסתרת הסיסמה',

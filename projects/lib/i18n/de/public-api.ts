@@ -162,6 +162,9 @@ export const wrDe: WrI18nCatalog = {
     copied: 'Kopiert',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'Kopiert',
+  },
   input: {
     showPassword: 'Passwort anzeigen',
     hidePassword: 'Passwort ausblenden',
