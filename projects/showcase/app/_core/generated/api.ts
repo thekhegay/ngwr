@@ -398,6 +398,8 @@ export const API = {
   // <[wrCopyToClipboard]>
   WrCopyToClipboard: [
     { name: "wrCopyToClipboard", description: "The text to copy.", type: "string", required: true },
+    { name: "wrCopyToClipboardToast", description: "Confirm a copy with a toast instead of the tooltip and the announcement.", type: "boolean", default: "false" },
+    { name: "copiedLabel", description: "Text of the tooltip, the announcement and the toast. Falls back to `copyToClipboard.copied`, then `'Copied'`.", type: "string | null", default: "null" },
     { name: "(copied)", description: "Emitted with the copied text once the write succeeds.", type: "string" },
     { name: "(copyFailed)", description: "Emitted if the copy fails (denied permission, no clipboard, …).", type: "unknown" },
   ],
@@ -1457,6 +1459,7 @@ export const API = {
     { name: "wrT", description: "Translation key. Required.", type: "string", required: true },
     { name: "wrTParams", description: "Interpolation params for `{{name}}` tokens.", type: "WrI18nParams | null", default: "null" },
     { name: "wrTScope", description: "Optional scope — scoped lookup first, then root fallback.", type: "string | null", default: "null" },
+    { name: "wrTFallback", description: "Text shown as is when the key is missing; `missingHandler` is not called.", type: "string | null", default: "null" },
   ],
   // <wr-textarea>
   WrTextarea: [
