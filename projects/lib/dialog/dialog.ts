@@ -28,9 +28,10 @@ import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFollowDirection } f
 import { wrToClassList } from 'ngwr/utils';
 
 import { WrDialogConfirm } from './confirm/dialog-confirm';
+import type { WrDialogConfirmData } from './confirm/dialog-confirm-data';
 import { WrDialogRef } from './dialog-ref';
 import { WR_DIALOG_DATA, WR_DIALOG_DEFAULTS, WR_DIALOG_REF } from './tokens';
-import type { WrDialogConfirmOptions, WrDialogOptions } from './types';
+import type { WrDialogAlertOptions, WrDialogConfirmOptions, WrDialogOptions } from './types';
 
 const DEFAULT_PANEL_CLASS = 'wr-dialog-panel';
 const DEFAULT_BACKDROP_CLASS = 'wr-dialog-backdrop';
@@ -204,6 +205,10 @@ export class WrDialog {
    * is on the confirm button. Focus returns to the opener on close, as it does
    * for `open()`.
    *
+   * `intent` puts an icon before the title, and `danger` or `warning` color the
+   * confirm button unless `confirmColor` is set, so a `danger` question also
+   * starts on the cancel button.
+   *
    * On the server nothing can answer, so it resolves `false` at once and opens
    * nothing.
    *
@@ -213,25 +218,58 @@ export class WrDialog {
    *   title: 'Delete this item?',
    *   message: 'This cannot be undone.',
    *   confirmLabel: 'Delete',
-   *   confirmColor: 'danger',
+   *   intent: 'danger',
    * });
    * if (ok) remove();
    * ```
    */
   async confirm(options: WrDialogConfirmOptions): Promise<boolean> {
     if (!this.isBrowser) return false;
-    const { title, message, confirmLabel, cancelLabel, confirmColor, ...rest } = options;
-    const ref = this.open<WrDialogConfirm, boolean, WrDialogConfirmOptions>(WrDialogConfirm, {
-      ...rest,
+    const { title, message, confirmLabel, cancelLabel, confirmColor, intent, ...rest } = options;
+    return (await this.ask(rest, { title, message, confirmLabel, cancelLabel, confirmColor, intent })) === true;
+  }
+
+  /**
+   * Show a message with one button and wait until the user has dismissed it.
+   * The button, Escape, the backdrop, a navigation and the application being
+   * torn down all resolve the promise, which settles exactly once with no
+   * value and never rejects.
+   *
+   * The dialog is `confirm()`'s with one button: `role="alertdialog"` for every
+   * intent, named by `title` and described by `message`, with no corner
+   * dismiss. The button takes the initial focus and its label falls back to the
+   * `common.ok` catalog key. `intent` puts an icon before the title.
+   *
+   * On the server it resolves at once and opens nothing.
+   *
+   * @example
+   * ```ts
+   * await dialog.alert({
+   *   title: 'Range too large',
+   *   message: 'Pick at most 31 days to export.',
+   *   okLabel: 'Close',
+   *   intent: 'danger',
+   * });
+   * ```
+   */
+  async alert(options: WrDialogAlertOptions): Promise<void> {
+    if (!this.isBrowser) return;
+    const { title, message, okLabel, intent, ...rest } = options;
+    await this.ask(rest, { title, message, confirmLabel: okLabel, intent, alert: true });
+  }
+
+  private ask(options: WrDialogOptions, data: WrDialogConfirmData): Promise<boolean | undefined> {
+    const ref = this.open<WrDialogConfirm, boolean, WrDialogConfirmData>(WrDialogConfirm, {
+      ...options,
       role: 'alertdialog',
       closable: false,
-      data: { title, message, confirmLabel, cancelLabel, confirmColor },
+      data,
     });
     // The root injector going away takes the overlay container with it and
     // completes nothing, which would leave this promise pending for good.
     const unhook = this.destroyRef.onDestroy(() => ref.close());
     ref.closed.subscribe({ complete: unhook });
-    return (await ref.awaitClose()) === true;
+    return ref.awaitClose();
   }
 
   /**

@@ -86,6 +86,12 @@
   --wr-dialog-close-radius: var(--wr-border-radius-sm);
   --wr-dialog-close-font-size: var(--wr-text-base);
   --wr-dialog-footer-gap: var(--wr-space-sm);
+  --wr-dialog-intent-size: 1.25rem;
+  --wr-dialog-intent-gap: var(--wr-space-sm);
+  --wr-dialog-intent-info: var(--wr-color-info);
+  --wr-dialog-intent-success: var(--wr-color-success);
+  --wr-dialog-intent-warning: var(--wr-color-warning);
+  --wr-dialog-intent-danger: var(--wr-color-danger);
 
   display: flex;
   flex-direction: column;
@@ -244,6 +250,38 @@
     }
     &--end {
       justify-content: flex-end;
+    }
+  }
+}
+
+// `confirm()` and `alert()`: the intent icon sits before the title as a flex
+// item, so a title that wraps keeps its lines clear of the icon.
+.wr-dialog-confirm {
+  .wr-dialog__title {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--wr-dialog-intent-gap);
+  }
+
+  &__icon {
+    flex: 0 0 auto;
+    width: var(--wr-dialog-intent-size);
+    height: var(--wr-dialog-intent-size);
+    // Centred on the title's first line.
+    margin-block-start: calc((var(--wr-dialog-title-line-height) - var(--wr-dialog-intent-size)) / 2);
+
+    // Written out, not looped: `gen:css-vars` reads the hooks from the source.
+    &--info {
+      color: var(--wr-dialog-intent-info);
+    }
+    &--success {
+      color: var(--wr-dialog-intent-success);
+    }
+    &--warning {
+      color: var(--wr-dialog-intent-warning);
+    }
+    &--danger {
+      color: var(--wr-dialog-intent-danger);
     }
   }
 }
