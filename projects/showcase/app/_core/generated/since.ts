@@ -143,7 +143,7 @@ export const UPDATED = {
   "reference/components/select": "16.0.0",
   "reference/components/sidebar": "15.0.0",
   "reference/components/skeleton": "15.6.0",
-  "reference/components/slider": "16.0.0",
+  "reference/components/slider": "16.2.0",
   "reference/components/sortable-list": "16.2.0",
   "reference/components/switch": "15.0.0",
   "reference/components/table": "16.1.0",
