@@ -18,7 +18,14 @@ import type { WrDialogOptions } from './dialog-options';
  */
 export interface WrDialogConfirmOptions extends Pick<
   WrDialogOptions,
-  'width' | 'maxWidth' | 'panelClass' | 'closeOnBackdropClick' | 'closeOnEscape' | 'closeOnNavigation' | 'tabTitle'
+  | 'width'
+  | 'maxWidth'
+  | 'panelClass'
+  | 'closeOnBackdropClick'
+  | 'closeOnEscape'
+  | 'closeOnNavigation'
+  | 'tabTitle'
+  | 'toasts'
 > {
   /** The question. Names the dialog through `aria-labelledby`. */
   readonly title: string;

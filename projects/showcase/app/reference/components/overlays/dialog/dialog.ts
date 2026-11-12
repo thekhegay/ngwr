@@ -102,6 +102,8 @@ provideWr(withDialog({ tabTitle: true }));
 
 // The joiner comes from ngwr/meta. The default is ' - '.
 provideWr(withDialog({ tabTitle: true }), withMeta({ titleSeparator: ' · ' }));`,
+    toastsBelow: `this.dialog.open(EditComponent, { toasts: 'below' });
+this.dialog.confirm({ title: 'Discard changes?', toasts: 'below' });`,
     closeWhen: `const ref = this.dialog.open(UploadingComponent);
 ref.closeWhen(this.upload.isDone, 'uploaded');
 
@@ -134,7 +136,7 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
     {
       name: 'WrDialogConfirmOptions',
       description:
-        'Argument of `confirm()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation` and `tabTitle` from `WrDialogOptions`.',
+        'Argument of `confirm()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation`, `tabTitle` and `toasts` from `WrDialogOptions`.',
       type: 'interface',
       default: '-',
     },
@@ -279,6 +281,13 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
         'The browser tab reads the dialog title in front of the page title while the dialog is open. The default comes from `withDialog()`.',
       type: 'boolean',
       default: 'false',
+      sub: true,
+    },
+    {
+      name: 'toasts',
+      description: "`'below'` keeps the global toast stack under this dialog while it is open.",
+      type: "'above' | 'below'",
+      default: "'above'",
       sub: true,
     },
   ];

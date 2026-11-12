@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Dialog"
-  updated="16.0.0"
+  updated="16.1.0"
   description="Open any component as a modal dialog and await its result."
   [keywords]="['dialog', 'modal', 'wr-dialog', 'overlay', 'portal']"
   [labels]="['Service', 'Directives', 'CDK Dialog']"
@@ -152,6 +152,14 @@
     description="Focus moves to `cdkFocusInitial`, else to the first tabbable element, and returns to the trigger on close."
   >
     <ngwr-doc-code [code]="snippets.focus" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Toasts below this dialog"
+    description="A global toast paints over an open dialog. `toasts: 'below'` keeps the stack under this one and its backdrop until it closes."
+  >
+    <ngwr-doc-code [code]="snippets.toastsBelow" language="typescript" />
+    <p>With dialogs stacked, the top one decides. Toasts in a <code>&lt;wr-toast-outlet&gt;</code> are page content.</p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Gotchas">

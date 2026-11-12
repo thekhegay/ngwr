@@ -31,7 +31,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOverlayOrder, wrFollowDirection } from 'ngwr/overlay';
 import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrDrawerTitle } from './directives/drawer-title';
@@ -138,6 +138,13 @@ export class WrDrawer {
    */
   readonly panelClass = input<WrClassInput>(null);
 
+  /**
+   * Where the global toast stack paints while the drawer is open. `'below'`
+   * keeps it under the drawer and its backdrop. Read when the drawer opens.
+   * @default 'above'
+   */
+  readonly toasts = input<'above' | 'below'>('above');
+
   protected readonly resolvedCloseLabel = useI18nText(this.closeLabel, 'drawer.close', 'Close drawer');
 
   protected readonly panelTpl = viewChild.required(TemplateRef);
@@ -168,6 +175,7 @@ export class WrDrawer {
 
   private readonly focusMonitor = inject(FocusMonitor);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly order = inject(WrOverlayOrder);
   private readonly vcr = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -286,6 +294,7 @@ export class WrDrawer {
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);
+    this.overlayRef.detachments().subscribe(this.order.add(this.overlayRef.hostElement, this.toasts()));
 
     if (this.isBrowser) {
       const active = document.activeElement;
