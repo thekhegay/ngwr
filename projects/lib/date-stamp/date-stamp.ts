@@ -85,7 +85,7 @@ export class WrDateStamp {
 
   /**
    * Format of the first line: a named key or a token string (`'d MMM yyyy'`).
-   * The default is `withDates({ stamp: { dateFormat } })` when the app sets it.
+   * `withDates({ stamp })` changes the default.
    *
    * @default 'mediumDate'
    */
@@ -93,30 +93,26 @@ export class WrDateStamp {
 
   /**
    * Format of the second line: a named key (`'time24hSeconds'`) or a token
-   * string (`'HH:mm'`). The default is `withDates({ stamp: { timeFormat } })`
-   * when the app sets it.
+   * string (`'HH:mm'`). `withDates({ stamp })` changes the default.
    *
    * @default 'time'
    */
   readonly timeFormat = input<WrDateFormat | (string & {})>(this.defaults.timeFormat ?? 'time');
 
   /**
-   * Write the seconds in the time line: a named `timeFormat` becomes its
-   * `Seconds` twin (`'time'` is read as `'timeSeconds'`) and a token string
-   * gets `:ss` after its minutes (`'HH:mm'` is read as `'HH:mm:ss'`). A format
-   * that already has them is left alone. The default is
-   * `withDates({ stamp: { seconds } })` when the app sets it.
+   * Write the seconds in the time line: `'time'` is read as `'timeSeconds'`
+   * and `'HH:mm'` as `'HH:mm:ss'`. A format that already has them is left
+   * alone. `withDates({ stamp })` changes the default.
    *
    * @default false
    */
   readonly seconds = input(this.defaults.seconds ?? false, { transform: booleanAttribute });
 
   /**
-   * Show the time alone when the value is from today, as a message list does.
-   * Today is the day of the display zone (`withDates({ timeZone })`), read when
-   * the stamp renders: one left on screen past midnight keeps its single line
-   * until its value or the zone changes. A date-only value keeps its date. The
-   * default is `withDates({ stamp: { todayTimeOnly } })` when the app sets it.
+   * Show the time alone for a value from today. Today is the day in the
+   * display zone, read when the stamp renders: one left on screen past
+   * midnight keeps its single line. A date-only value keeps its date.
+   * `withDates({ stamp })` changes the default.
    *
    * @default false
    */
@@ -124,8 +120,7 @@ export class WrDateStamp {
 
   /**
    * What a number in `value` counts since the epoch: `'ms'`, `'us'`, `'s'` or
-   * `'auto'`, by magnitude. `null` follows `withDates({ epochUnit })`, which
-   * is milliseconds unless the app says otherwise.
+   * `'auto'`, by size. `null` follows `withDates({ epochUnit })`.
    *
    * @default null
    */

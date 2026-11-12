@@ -33,7 +33,7 @@ export default class ConfigurationPage {
     {
       feature: 'withDates()',
       entry: 'ngwr/date',
-      sets: '{ locale } pins the date locale (default: the interface language); { timeZone } is the zone dates are shown in; { adapter } is your own adapter',
+      sets: '{ locale } pins the date locale (default: the interface language); { timeZone } is the zone dates are shown in; { epochUnit, zonelessIn } say how backend values are read; { stamp } sets the wr-date-stamp defaults; { adapter } is your own adapter',
     },
     { feature: 'withStorage()', entry: 'ngwr/storage', sets: 'Storage engine, key prefix and default TTL' },
     { feature: 'withMeta()', entry: 'ngwr/meta', sets: 'Title template and default Open Graph and Twitter tags' },
@@ -95,6 +95,19 @@ providers: [provideWr(withDates({ timeZone: 'Asia/Almaty' }))],
 // From a config that loads after bootstrap. AppConfig.timeZone is a signal,
 // null until the config arrives: the browser's zone until then.
 providers: [provideWr(withDates({ timeZone: () => inject(AppConfig).timeZone() }))],`,
+    backend: `import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
+
+providers: [
+  provideWr(
+    withDates({
+      timeZone: '+0500',
+      epochUnit: 'auto',       // 1794473100000 and 1794473100000123 are the same moment
+      zonelessIn: 'display',   // '2026-11-12 13:45:00' is 13:45 on the site, and prints as 13:45
+      stamp: { dateFormat: 'd MMM y', timeFormat: 'HH:mm' },
+    })
+  ),
+],`,
 
     language: `import { provideWr } from 'ngwr';
 import { withDates } from 'ngwr/date';
