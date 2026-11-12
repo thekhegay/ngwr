@@ -174,6 +174,30 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Header hints and truncated cells"
+    description="`headerHint` on a column explains its header in a tooltip and in the names of its sort and filter controls. `truncate: 'tooltip'` keeps a cell on one line and shows the full text in a tooltip, only while the text is cut."
+  >
+    <ngwr-doc-code [code]="snippets.hints" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table [columns]="hintColumns" [items]="hintRows" />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>With an empty <code>title</code>, the hint is the column's name: the last column here.</li>
+      <li>
+        <code>truncate="tooltip"</code> on the table covers every column; a column's own <code>truncate</code> wins, and
+        <code>null</code> there turns it off.
+      </li>
+      <li>A cell is cut only where its column cannot grow: give the column a <code>width</code>.</li>
+      <li>
+        The tooltip opens on hover, and on keyboard focus of a control in the header or the cell. A table holds one
+        tooltip, created on first use.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Loading, empty — and error"
     description="`[loading]` shows a spinner and `emptyLabel` the empty text. There is no error input: show a `<wr-alert>` beside the table."
   >

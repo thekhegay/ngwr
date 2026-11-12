@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Popover"
-  updated="16.0.0"
+  updated="16.1.0"
   description="Show a template, or a text tooltip, next to its trigger."
   [keywords]="['popover', 'tooltip', 'wr-popover', 'overlay']"
   [labels]="['Directive', 'CDK Overlay']"
@@ -64,6 +64,13 @@
     <ngwr-doc-snippet [code]="snippets.tooltipDelays">
       <wr-btn wrPopover="Slow to appear" mode="tooltip" [showDelay]="500" [hideDelay]="100">Hover</wr-btn>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="One tooltip for many elements"
+    description="`[wrPopoverOrigin]` names the element a tooltip is for, when that is not its host. Bind it and the text from one delegated listener and a long list needs one directive, not one per item. Since v16.1."
+  >
+    <ngwr-doc-code [code]="snippets.origin" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section

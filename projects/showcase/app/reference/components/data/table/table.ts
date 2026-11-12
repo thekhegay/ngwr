@@ -250,6 +250,18 @@ export default class TablePageComponent {
     open: { title: '', width: 96 },
   };
 
+  protected readonly hintRows: readonly Record<string, unknown>[] = [
+    { name: 'Roman', note: 'Owns the release train and signs off every publish to npm', seats: 12, alarm: '!' },
+    { name: 'Alice', note: 'Design', seats: 3, alarm: '' },
+    { name: 'Bob', note: 'Answers the support queue on weekdays, escalates billing to finance', seats: 5, alarm: '!' },
+  ];
+  protected readonly hintColumns: WrTableColumns = {
+    name: { title: 'Name', sortable: true, width: 140 },
+    note: { title: 'Note', width: 220, truncate: 'tooltip' },
+    seats: { title: 'Seats', align: 'end', sortable: true, headerHint: 'Paid seats on the current plan' },
+    alarm: { title: '', width: 56, sortable: true, headerHint: 'Needs attention' },
+  };
+
   protected readonly wideRows = WIDE_ROWS;
   protected readonly wideColumns: WrTableColumns = {
     name: { title: 'Name', pin: 'left', sortable: true },
@@ -404,6 +416,15 @@ const columns: WrTableColumns<Invoice> = {
 
 <!-- An element of your own that handles its clicks. -->
 <app-status-menu wrTableIgnoreRowClick [status]="value" />`,
+    hints: `protected readonly columns: WrTableColumns = {
+  name: { title: 'Name', sortable: true, width: 140 },
+  // One line, an ellipsis, and the full text in a tooltip while it is cut.
+  note: { title: 'Note', width: 220, truncate: 'tooltip' },
+  // The sort button reads "Sort Seats, Paid seats on the current plan".
+  seats: { title: 'Seats', align: 'end', sortable: true, headerHint: 'Paid seats on the current plan' },
+  // No title: the hint names the column and its sort button.
+  alarm: { title: '', width: 56, sortable: true, headerHint: 'Needs attention' },
+};`,
     loadingModes: `<!-- 'auto': a spinner over an empty table, a bar over a filled one. -->
 <wr-table [columns]="columns" [items]="rows()" [loading]="refreshing()" />
 
@@ -670,6 +691,7 @@ const columns: WrTableColumns = {
 
 interface WrTableColumn<T = object> {
   title: string;
+  headerHint?: string;
   sortable?: boolean;
   filterItems?: readonly WrTableFilterItem[];
   pin?: 'left' | 'right';
@@ -679,6 +701,7 @@ interface WrTableColumn<T = object> {
   align?: 'start' | 'center' | 'end';
   format?: (value: unknown, row: T) => string;
   empty?: string;
+  truncate?: 'tooltip' | null;
   class?: WrClassInput;
 }
 
@@ -728,6 +751,13 @@ type WrTableSummaryContext =
     },
     { name: 'WrTableColumn', description: 'A single column definition.', type: 'interface' },
     { name: 'title', description: 'Heading shown in the header.', type: 'string', required: true, sub: true },
+    {
+      name: 'headerHint',
+      description:
+        'Tooltip on the header, added to the names of the sort and filter controls. Names the column when `title` is empty. Since v16.1.',
+      type: 'string',
+      sub: true,
+    },
     { name: 'sortable', description: 'Show a clickable sort indicator.', type: 'boolean', default: 'false', sub: true },
     {
       name: 'filterItems',
@@ -772,6 +802,13 @@ type WrTableSummaryContext =
       name: 'empty',
       description: "Placeholder for null, undefined and ''. 0 and false are values. The CSV uses it.",
       type: 'string',
+      sub: true,
+    },
+    {
+      name: 'truncate',
+      description:
+        "'tooltip' cuts the cells to one line and shows a cut cell's full text in a tooltip. `null` turns the table's `truncate` off for the column. Since v16.1.",
+      type: "'tooltip' | null",
       sub: true,
     },
     {

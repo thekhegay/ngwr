@@ -37,6 +37,29 @@ export default class PopoverPageComponent {
     hover: `<wr-btn [wrPopover]="card" trigger="hover">Hover me</wr-btn>`,
     positions: `<wr-btn [wrPopover]="hint" position="right">Right</wr-btn>`,
     tooltip: `<wr-btn [wrPopover]="'Save changes'" mode="tooltip" position="top">Save</wr-btn>`,
+    origin: `@Component({
+  imports: [WrPopover],
+  template: \`
+    <ul (mouseover)="point($event)">
+      @for (file of files; track file.path) {
+        <li [attr.data-path]="file.path">{{ file.name }}</li>
+      }
+    </ul>
+    @if (shown(); as tip) {
+      <span hidden [wrPopover]="tip.text" mode="tooltip" [wrPopoverOrigin]="tip.el"></span>
+    }
+  \`,
+})
+export class Files {
+  protected readonly shown = signal<{ el: HTMLElement; text: string } | null>(null);
+
+  // The tooltip then follows the item's own hover and focus. It names nothing:
+  // aria-describedby stays on the host, so the item needs its own name.
+  protected point(event: Event): void {
+    const el = (event.target as Element).closest<HTMLElement>('li');
+    if (el) this.shown.set({ el, text: el.dataset['path'] ?? '' });
+  }
+}`,
     tooltipDelays: `<wr-btn
   [wrPopover]="'Slow to appear'"
   mode="tooltip"

@@ -24,4 +24,5 @@ export type {
   WrTableSortDirection,
   WrTableSummary,
   WrTableSummaryContext,
+  WrTableTruncate,
 } from './types';
