@@ -25,6 +25,7 @@ import type { WrFeature } from 'ngwr/utils';
  * | `withMeta()` | `ngwr/meta` | `<head>` defaults for every route |
  * | `withWindows()` | `ngwr/window` | the work area every floating window keeps inside |
  * | `withDialog()` | `ngwr/dialog` | dialog defaults: the tab title follows the open dialog |
+ * | `withRenderOnNavigation()` | `ngwr/utils/router` | a routed page is bound before the browser paints it (zoneless) |
  *
  * Icons and i18n stay calls of their own (`provideWrIcons()`, `provideWrI18n()`
  * and its loaders), because both chain: a route adds icons or catalog keys to
