@@ -12,6 +12,8 @@ import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, inp
 import { useI18nText } from 'ngwr/i18n';
 import { wrClamp, wrRound, wrCheckStyles } from 'ngwr/utils';
 
+import { wrBeginSeparatorDrag, wrEndSeparatorDrag, wrSeparatorKeyMove } from './internal';
+
 /**
  * Resizable two-pane splitter. Project two pieces of content via
  * `[wrSplitterStart]` and `[wrSplitterEnd]`; the user drags the divider
@@ -100,18 +102,7 @@ export class WrSplitter {
 
   protected onPointerDown(event: PointerEvent): void {
     if (this.disabled()) return;
-    // Any pointerdown used to start a drag, so holding the RIGHT button over the
-    // divider and moving resized the panes; the same guard keeps a second finger
-    // from taking over a drag already in progress.
-    if (event.button !== 0 || !event.isPrimary) return;
-    event.preventDefault();
-    this.dragging = true;
-    const handle = event.currentTarget as HTMLElement;
-    handle.setPointerCapture(event.pointerId);
-    // `preventDefault` above also suppresses the click's default focus, so without
-    // this the arrows did nothing after a mouse drag until the user found the
-    // divider again with Tab. `wr-slider` focuses its thumb for the same reason.
-    handle.focus();
+    this.dragging = wrBeginSeparatorDrag(event);
   }
 
   protected onPointerMove(event: PointerEvent): void {
@@ -132,35 +123,21 @@ export class WrSplitter {
   protected onPointerUp(event: PointerEvent): void {
     if (!this.dragging) return;
     this.dragging = false;
-    (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
+    wrEndSeparatorDrag(event);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
     if (this.disabled()) return;
-    const step = event.shiftKey ? 10 : 1;
+    const move = wrSeparatorKeyMove(event, this.orientation() === 'horizontal' ? 'inline' : 'block', this.isRtl());
+    if (move === null) return;
+    event.preventDefault();
+    let next: number;
+    if (move === 'min') next = this.minPosition();
+    else if (move === 'max') next = this.maxPosition();
     // An arrow step lands on a whole number, so the keys after a drag do not
     // carry the drag's fraction along (`30.4` stepped to `31.4`, `32.4`, …).
-    // Home and End below are the bounds themselves, whatever they are.
-    const position = wrRound(this.position());
-    let next: number | null = null;
-    if (this.orientation() === 'horizontal') {
-      // Arrows follow the VISUAL axis (WAI-ARIA APG). Under `dir="rtl"` the start pane
-      // is the one on the RIGHT, so the visual right is the low end of the range and
-      // ArrowRight has to shrink the position rather than grow it — otherwise the
-      // divider walks away from the key the user is pressing.
-      const inline = this.isRtl() ? -step : step;
-      if (event.key === 'ArrowLeft') next = position - inline;
-      else if (event.key === 'ArrowRight') next = position + inline;
-    } else {
-      // Block axis: unaffected by `dir`.
-      if (event.key === 'ArrowUp') next = position - step;
-      else if (event.key === 'ArrowDown') next = position + step;
-    }
-    // Home/End are semantic — first/last, not left/right — so they never mirror.
-    if (event.key === 'Home') next = this.minPosition();
-    else if (event.key === 'End') next = this.maxPosition();
-    if (next === null) return;
-    event.preventDefault();
+    // Home and End above are the bounds themselves, whatever they are.
+    else next = wrRound(this.position()) + move * (event.shiftKey ? 10 : 1);
     this.position.set(wrClamp(next, this.minPosition(), this.maxPosition()));
   }
 
