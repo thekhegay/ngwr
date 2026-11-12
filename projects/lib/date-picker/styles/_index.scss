@@ -444,7 +444,8 @@
   flex-direction: column;
   gap: 0;
 
-  &--timed {
+  &--timed,
+  &--presets {
     --wr-date-range-panel-bg: var(--wr-color-surface);
     --wr-date-range-panel-border: var(--wr-border-base);
     --wr-date-range-panel-radius: var(--wr-border-radius-base);
@@ -460,6 +461,17 @@
       background: transparent;
       border: 0;
       border-radius: 0;
+    }
+  }
+
+  // The presets take the start column and the calendar and the time row share
+  // the other.
+  &--presets {
+    display: inline-grid;
+    grid-template-columns: auto auto;
+
+    > .wr-date-range-presets {
+      grid-row: 1 / span 2;
     }
   }
 
@@ -490,5 +502,81 @@
     color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-date-range-panel-time-label-font-size);
     font-weight: var(--wr-date-range-panel-time-label-font-weight);
+  }
+}
+
+// One-click ranges on the start side of the range panel.
+.wr-date-range-presets {
+  --wr-date-range-presets-width: 9rem;
+  --wr-date-range-presets-gap: var(--wr-space-xs);
+  --wr-date-range-presets-padding: var(--wr-space-sm);
+  --wr-date-range-presets-border: var(--wr-border-base);
+  --wr-date-range-presets-color: var(--wr-color-on-surface);
+  --wr-date-range-presets-hover-bg: var(--wr-color-hover);
+  --wr-date-range-presets-active-bg: var(--wr-color-primary-soft);
+  --wr-date-range-presets-active-color: var(--wr-color-primary-ink);
+  --wr-date-range-presets-item-padding-y: var(--wr-space-xs);
+  --wr-date-range-presets-item-padding-x: var(--wr-space-sm);
+  --wr-date-range-presets-item-radius: var(--wr-border-radius-sm);
+  --wr-date-range-presets-font-family: var(--wr-font-family-base);
+  --wr-date-range-presets-font-size: var(--wr-text-sm);
+  --wr-date-range-presets-line-height: var(--wr-text-sm-leading);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--wr-date-range-presets-gap);
+  box-sizing: border-box;
+  inline-size: var(--wr-date-range-presets-width);
+  padding: var(--wr-date-range-presets-padding);
+  border-inline-end: 1px solid var(--wr-date-range-presets-border);
+
+  &__item {
+    appearance: none;
+    padding: var(--wr-date-range-presets-item-padding-y) var(--wr-date-range-presets-item-padding-x);
+    background: transparent;
+    border: 0;
+    border-radius: var(--wr-date-range-presets-item-radius);
+    color: var(--wr-date-range-presets-color);
+    font-family: var(--wr-date-range-presets-font-family);
+    font-size: var(--wr-date-range-presets-font-size);
+    line-height: var(--wr-date-range-presets-line-height);
+    text-align: start;
+    cursor: pointer;
+    transition:
+      color var(--wr-transition-base),
+      background var(--wr-transition-base);
+
+    &:hover:not(:disabled) {
+      background: var(--wr-date-range-presets-hover-bg);
+    }
+
+    &:focus-visible {
+      @include theme.focus-ring;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: var(--wr-disabled-opacity);
+    }
+
+    &--active,
+    &--active:hover:not(:disabled) {
+      background: var(--wr-date-range-presets-active-bg);
+      color: var(--wr-date-range-presets-active-color);
+    }
+  }
+}
+
+// A phone has no room for a side column: the presets wrap above the calendar.
+@media (max-width: 480px) {
+  .wr-date-range-panel--presets {
+    display: inline-flex;
+  }
+
+  .wr-date-range-presets {
+    flex-flow: row wrap;
+    inline-size: auto;
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--wr-date-range-presets-border);
   }
 }
