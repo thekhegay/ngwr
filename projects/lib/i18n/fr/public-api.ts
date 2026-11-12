@@ -74,6 +74,9 @@ export const wrFr: WrI18nCatalog = {
     skip: 'Passer la visite',
     progress: 'Étape {{current}} sur {{total}}',
   },
+  resizable: {
+    handle: 'Redimensionner',
+  },
   splitter: {
     divider: 'Redimensionner les panneaux',
   },

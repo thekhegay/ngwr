@@ -44,6 +44,8 @@ A pnpm + Angular CLI monorepo with three projects:
   (`../internal`), and the library builder bundles every entry point in one
   Rolldown pass, so a module two entry points share is emitted once, as a chunk
   beside the bundles in `fesm2022/` and `types/`, rather than copied into each.
+  `projects/lib/splitter/internal/` is the same arrangement for the separator
+  keys and the pointer capture `wr-splitter` and `[wrResizable]` share.
   Never import one EFFECT from another that way: an entry point reached by a
   relative path is bundled into its importer. A type from there that a public
   signature names needs an alias the effect exports (`WrRevealBy`,

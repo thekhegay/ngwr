@@ -76,6 +76,9 @@ export const wrVi: WrI18nCatalog = {
     skip: 'Bỏ qua',
     progress: 'Bước {{current}} trên {{total}}',
   },
+  resizable: {
+    handle: 'Đổi kích thước',
+  },
   splitter: {
     divider: 'Đổi kích thước khung',
   },

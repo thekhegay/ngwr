@@ -82,6 +82,9 @@ export const wrUk: WrI18nCatalog = {
     skip: 'Пропустити тур',
     progress: 'Крок {{current}} з {{total}}',
   },
+  resizable: {
+    handle: 'Змінити розмір',
+  },
   splitter: {
     divider: 'Змінити розмір панелей',
   },

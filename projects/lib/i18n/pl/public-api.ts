@@ -77,6 +77,9 @@ export const wrPl: WrI18nCatalog = {
     skip: 'Pomiń przewodnik',
     progress: 'Krok {{current}} z {{total}}',
   },
+  resizable: {
+    handle: 'Zmień rozmiar',
+  },
   splitter: {
     divider: 'Zmień rozmiar paneli',
   },

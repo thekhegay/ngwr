@@ -1,0 +1,154 @@
+@use '../../theme/styles' as theme;
+@include theme.loaded('resizable');
+
+.wr-resizable {
+  --wr-resizable-handle-size: var(--wr-space-sm);
+  --wr-resizable-handle-hover-bg: var(--wr-color-primary-soft);
+  --wr-resizable-line-size: 1px;
+  --wr-resizable-line-color: var(--wr-border-subtle);
+  --wr-resizable-line-active-color: var(--wr-color-primary);
+  --wr-resizable-grip-length: 2rem;
+  --wr-resizable-grip-thickness: var(--wr-space-xs);
+  --wr-resizable-grip-color: var(--wr-border-base);
+  --wr-resizable-grip-active-color: var(--wr-color-primary);
+  --wr-resizable-grip-radius: var(--wr-border-radius-pill);
+
+  // The content of a box with no size must not hang out of it. Padding and
+  // borders are the host's own and stay, so a host that has them keeps them on
+  // an inner element.
+  &--collapsed {
+    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  // A strip INSIDE the host, flush with the edge, so a host that clips its
+  // overflow keeps the whole of it. The line is drawn on the edge itself.
+  &__handle {
+    position: absolute;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: 0;
+    // Own the drag gesture: without this a coarse pointer can hand the drag to
+    // the browser as a pan and fire pointercancel mid-drag.
+    touch-action: none;
+    transition: background-color var(--wr-transition-base);
+
+    // Coarse pointers: a 44px tap area centred on the strip.
+    @include theme.touch-target($positioned: true);
+
+    &::before {
+      content: '';
+      position: absolute;
+      background: var(--wr-resizable-line-color);
+      transition: background-color var(--wr-transition-base);
+    }
+
+    &:hover,
+    &:focus-visible {
+      background: var(--wr-resizable-handle-hover-bg);
+
+      &::before {
+        background: var(--wr-resizable-line-active-color);
+      }
+    }
+
+    &:focus-visible {
+      @include theme.focus-ring;
+      // Inside the host, which may clip: an outset ring would be cut off.
+      outline-offset: calc(-1 * var(--wr-focus-ring-width));
+    }
+  }
+
+  &__grip {
+    flex: 0 0 auto;
+    background: var(--wr-resizable-grip-color);
+    border-radius: var(--wr-resizable-grip-radius);
+    transition: background-color var(--wr-transition-base);
+  }
+
+  &__handle:hover &__grip,
+  &__handle:focus-visible &__grip {
+    background: var(--wr-resizable-grip-active-color);
+  }
+
+  &--start > &__handle,
+  &--end > &__handle {
+    inset-block: 0;
+    width: var(--wr-resizable-handle-size);
+    cursor: col-resize;
+
+    &::before {
+      inset-block: 0;
+      width: var(--wr-resizable-line-size);
+    }
+  }
+
+  &--start > &__handle,
+  &--start > &__handle::before {
+    inset-inline-start: 0;
+  }
+
+  &--end > &__handle,
+  &--end > &__handle::before {
+    inset-inline-end: 0;
+  }
+
+  &--top > &__handle,
+  &--bottom > &__handle {
+    inset-inline: 0;
+    height: var(--wr-resizable-handle-size);
+    cursor: row-resize;
+
+    &::before {
+      inset-inline: 0;
+      height: var(--wr-resizable-line-size);
+    }
+  }
+
+  &--top > &__handle,
+  &--top > &__handle::before {
+    // rtl-ok: the block axis, which `dir` does not mirror.
+    top: 0;
+  }
+
+  &--bottom > &__handle,
+  &--bottom > &__handle::before {
+    // rtl-ok: the block axis, which `dir` does not mirror.
+    bottom: 0;
+  }
+
+  &--start > &__handle > &__grip,
+  &--end > &__handle > &__grip {
+    width: var(--wr-resizable-grip-thickness);
+    height: var(--wr-resizable-grip-length);
+  }
+
+  &--top > &__handle > &__grip,
+  &--bottom > &__handle > &__grip {
+    width: var(--wr-resizable-grip-length);
+    height: var(--wr-resizable-grip-thickness);
+  }
+
+  &--collapsed > &__handle {
+    visibility: hidden;
+  }
+
+  &--disabled > &__handle {
+    cursor: not-allowed;
+
+    &:hover {
+      background: transparent;
+
+      &::before {
+        background: var(--wr-resizable-line-color);
+      }
+    }
+  }
+
+  &--disabled > &__handle:hover > &__grip {
+    background: var(--wr-resizable-grip-color);
+  }
+}

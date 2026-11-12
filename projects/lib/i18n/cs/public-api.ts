@@ -74,6 +74,9 @@ export const wrCs: WrI18nCatalog = {
     skip: 'Přeskočit',
     progress: 'Krok {{current}} z {{total}}',
   },
+  resizable: {
+    handle: 'Změnit velikost',
+  },
   splitter: {
     divider: 'Změnit velikost panelů',
   },

@@ -543,6 +543,12 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/forms',
   ],
   'reference/components/rating': ['reference/components/slider', 'reference/components/form-field', 'guides/forms'],
+  'reference/components/resizable': [
+    'reference/components/splitter',
+    'reference/components/drawer',
+    'reference/components/layout',
+    'reference/services/storage',
+  ],
   'reference/components/result': [
     'reference/components/empty',
     'reference/components/alert',
@@ -597,7 +603,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/button',
     'reference/services/loading-bar',
   ],
-  'reference/components/splitter': ['reference/components/layout', 'reference/components/compare'],
+  'reference/components/splitter': [
+    'reference/components/resizable',
+    'reference/components/layout',
+    'reference/components/compare',
+  ],
   'reference/components/statistic': [
     'charts/sparkline',
     'reference/components/card',
