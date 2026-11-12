@@ -159,6 +159,25 @@ $toast-colors: (
   }
 }
 
+// The stack in the page: `<wr-toast-outlet>` covers its nearest positioned
+// ancestor and the host sits inside that box, not against the viewport. No
+// `z-index`: where the outlet paints against its siblings is the app's own
+// CSS. `isolation` keeps the collapsed stack's own z-indexes from joining
+// that contest.
+.wr-toast-outlet {
+  position: absolute;
+  inset: 0;
+  display: block;
+  isolation: isolate;
+  pointer-events: none;
+
+  > .wr-toast-host {
+    position: absolute;
+    // The box is not the screen, so its edges carry no safe-area inset.
+    padding: 1rem;
+  }
+}
+
 .wr-toast {
   --wr-toast-bg: var(--wr-color-surface);
   --wr-toast-border: var(--wr-border-base);

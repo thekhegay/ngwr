@@ -1,0 +1,13 @@
+@if (channel().toasts().length > 0) {
+  <wr-toast-host
+    [position]="position()"
+    [mode]="mode()"
+    [config]="resolved()"
+    (dismissed)="onDismissed($event)"
+    (actionRequested)="onAction($event)"
+    (dismissAllRequested)="onDismissAll()"
+    (pauseRequested)="channel().pause($event)"
+    (resumeRequested)="channel().resume($event)"
+    (holdChange)="channel().setHeld($event)"
+  />
+}

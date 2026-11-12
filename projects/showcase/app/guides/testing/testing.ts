@@ -905,6 +905,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<boolean>',
     },
     { name: 'hover() / mouseAway()', description: 'Hover pauses auto-dismiss.', type: 'Promise<void>' },
+    {
+      name: 'isInOutlet(name)',
+      description:
+        'Whether the toast is in that `<wr-toast-outlet>`; `null` asks for the global stack. Also the `outlet` filter.',
+      type: 'Promise<boolean>',
+    },
   ];
 
   protected readonly dropdownApi: readonly DocApiRow[] = [

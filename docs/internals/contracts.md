@@ -4,7 +4,7 @@ Part of [AGENTS.md](../../AGENTS.md). Read this before changing behaviour that l
 
 ## Contracts that look like bugs
 
-Eighteen behaviours that read as defects until you know why they are that way.
+Nineteen behaviours that read as defects until you know why they are that way.
 Each was questioned at least once, each has a spec pinning it, and each would
 be "fixed" by someone reading only the symptom. This list used to live in
 ROADMAP.md; it moved here when that file was cut back to remaining work,
@@ -125,3 +125,11 @@ because it is guidance rather than a plan.
   argument list by matching parentheses and asserts EVERY call yielded a key, so
   a call shape it cannot read fails the suite instead of quietly shrinking the
   set it checks.
+- A `<wr-toast-outlet>` DROPS the oldest toast past `maxStack`, where the
+  global stack queues the newest and drops nothing. An outlet is for a stream
+  (alarms at thousands a minute): a queue there only grows, and the toast it
+  finally shows is minutes stale. Dropping keeps a channel at `maxStack`
+  entries and timers whatever has passed through (`toast-channel.ts`). A toast
+  sent to a name with no outlet in the page is kept, capped the same way, and
+  its countdown starts when the outlet mounts; `dismissAll()` with no name is
+  the global stack only, because the global "Close all" button calls it.

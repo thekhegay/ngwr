@@ -3,7 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { WrButton } from 'ngwr/button';
 import { WrCheckbox } from 'ngwr/checkbox';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
-import { WrToast, type WrToastMode, type WrToastPosition, type WrToastType } from 'ngwr/toast';
+import { WrToast, type WrToastMode, WrToastOutlet, type WrToastPosition, type WrToastType } from 'ngwr/toast';
 
 import {
   DocApiComponent,
@@ -13,6 +13,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-toast-page',
@@ -21,6 +22,7 @@ import {
     WrButton,
     WrCheckbox,
     WrSegmented,
+    WrToastOutlet,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -119,6 +121,18 @@ this.toast.show({
 
     position: `this.toast.setPosition('bottom-end');`,
 
+    outlet: `<div class="map" style="position: relative">
+  <wr-toast-outlet name="alarms" position="top" [maxStack]="3" />
+</div>`,
+
+    outletShow: `this.toast.show({ type: 'danger', message: 'Door forced', outlet: 'alarms' });
+
+this.toast.dismissAll('alarms');`,
+
+    outletOrder: `wr-toast-outlet {
+  z-index: 3; /* under a panel at 4, over the map */
+}`,
+
     scope: `const ref = this.toast.show({ message: 'Uploading…', duration: 0 });
 await this.upload();
 ref.dismiss();`,
@@ -132,7 +146,12 @@ ref.dismiss();`,
       default: '—',
     },
     { name: 'dismiss(id)', description: 'Removes a single toast by id.', type: '(number) => void', default: '—' },
-    { name: 'dismissAll()', description: 'Removes every toast in the stack.', type: '() => void', default: '—' },
+    {
+      name: 'dismissAll(outlet?)',
+      description: 'Removes every toast of the global stack, or of the named outlet. Never both.',
+      type: '(string?) => void',
+      default: '—',
+    },
     {
       name: 'setPosition(position)',
       description: 'Move the stack to another corner.',
@@ -175,6 +194,11 @@ ref.dismiss();`,
       default: 'config.position',
     },
     {
+      name: 'outlet',
+      description: 'Name of the `<wr-toast-outlet>` that renders the toast. Omitted: the global stack.',
+      type: 'string',
+    },
+    {
       name: 'showProgress',
       description: 'Override the progress bar visibility.',
       type: 'boolean',
@@ -192,6 +216,8 @@ ref.dismiss();`,
       type: 'WrClassInput',
     },
   ];
+
+  protected readonly outletApi = API.WrToastOutlet;
 
   protected readonly configApi: readonly DocApiRow[] = [
     {
@@ -319,6 +345,22 @@ ref.dismiss();`,
       position: this.position(),
       showProgress: this.showProgress(),
     });
+  }
+
+  private alarm = 0;
+
+  protected fireOutlet(count = 1): void {
+    for (let i = 0; i < count; i++) {
+      this.toast.show({ type: 'danger', message: `Alarm ${++this.alarm}`, outlet: 'demo' });
+    }
+  }
+
+  protected fireGlobal(): void {
+    this.toast.show({ message: 'A global toast, in the top layer.' });
+  }
+
+  protected dismissOutlet(): void {
+    this.toast.dismissAll('demo');
   }
 
   protected dismissAll(): void {
