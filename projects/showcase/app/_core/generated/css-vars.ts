@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1703 hook(s) across 115 page(s). A property is here only when the
+ * 1706 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -1486,8 +1486,11 @@ export const CSS_VARS = {
       { name: "--wr-lightbox-viewer-caption-font-family", default: "var(--wr-font-family-base)", scope: ".wr-lightbox-viewer__caption" },
       { name: "--wr-lightbox-viewer-caption-font-size", default: "var(--wr-text-sm)", scope: ".wr-lightbox-viewer__caption" },
       { name: "--wr-lightbox-viewer-close-radius", default: "var(--wr-border-radius-pill)", scope: ".wr-lightbox-viewer__close" },
+      { name: "--wr-lightbox-viewer-counter-font-family", default: "var(--wr-font-family-base)", scope: ".wr-lightbox-viewer__counter" },
+      { name: "--wr-lightbox-viewer-counter-font-size", default: "var(--wr-text-sm)", scope: ".wr-lightbox-viewer__counter" },
       { name: "--wr-lightbox-viewer-full-radius", default: "var(--wr-border-radius-base)", scope: ".wr-lightbox-viewer__full" },
       { name: "--wr-lightbox-viewer-gap", default: "var(--wr-space-lg)", scope: ".wr-lightbox-viewer" },
+      { name: "--wr-lightbox-viewer-nav-radius", default: "var(--wr-border-radius-pill)", scope: ".wr-lightbox-viewer__nav" },
       { name: "--wr-lightbox-viewer-padding", default: "var(--wr-space-lg)", scope: ".wr-lightbox-viewer" },
     ],
   },

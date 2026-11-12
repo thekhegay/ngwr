@@ -892,6 +892,10 @@ export const API = {
     { name: "caption", description: "Caption shown under the full image in the lightbox.", type: "string", default: "''" },
     { name: "aspectRatio", description: "Reserve space before the image resolves by fixing the thumbnail's `aspect-ratio` (e.g. `'16 / 9'`, `'4 / 3'`, or a number like `1.5`). Prevents the layout jump when the intrinsic image size isn't known up front — pair it with a `width` and the box keeps its height from first paint.", type: "string | number | null", default: "null" },
     { name: "panelClass", description: "Extra CSS classes for the viewer's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
+    { name: "group", description: "Gallery name. Every `wr-lightbox` with the same group, in document order, can be paged through from whichever one was opened. A lightbox with `disablePreview` stays out of it.", type: "string | null", default: "null" },
+    { name: "loop", description: "Wrap from the last image of the group to the first, and back.", type: "boolean", default: "false" },
+    { name: "previousLabel", description: "Accessible name of the viewer's previous button. Falls back to `common.previous`.", type: "string | null", default: "null" },
+    { name: "nextLabel", description: "Accessible name of the viewer's next button. Falls back to `common.next`.", type: "string | null", default: "null" },
   ],
   // <wr-line-chart>
   WrLineChart: [
