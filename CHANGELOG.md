@@ -1,5 +1,21 @@
 # Changelog
 
+## [16.2.0](https://github.com/thekhegay/ngwr/compare/v16.1.0...v16.2.0) (2026-11-12)
+
+### Features
+
+* **date-picker:** preset ranges on the range picker ([9b77196](https://github.com/thekhegay/ngwr/commit/9b771960c7a31eed3e8ecf15e2fece5c9ec1a635))
+* **date-stamp:** time only for today, seconds and app-wide defaults ([7cb5f0e](https://github.com/thekhegay/ngwr/commit/7cb5f0e9aceea8aa46d6e246ffb79806f833ad6e))
+* **date:** epoch timestamps in seconds, ms or microseconds ([63c1735](https://github.com/thekhegay/ngwr/commit/63c173547298988ffb4f1d6b9a9275d3405af2a9))
+* **date:** read zoneless strings in the display zone ([53f846e](https://github.com/thekhegay/ngwr/commit/53f846efda1d0ff2d8ba3c301f9dacdaa25a7149))
+* **date:** the y token is the full year ([41da2b3](https://github.com/thekhegay/ngwr/commit/41da2b300dc23a80b86fa9bfcc312c1f5a3e9e88))
+* **dropdown:** submenus with arrow keys ([652211a](https://github.com/thekhegay/ngwr/commit/652211aa9703e6e689411e14f81fc7eec4d41169))
+* **lightbox:** gallery navigation across a group ([8dc98e5](https://github.com/thekhegay/ngwr/commit/8dc98e5a433d07af8c6e0892ffd6421ac55e9e91))
+* **pipes:** a timer form for durations ([fa0edef](https://github.com/thekhegay/ngwr/commit/fa0edeff4f4d1d1f1480a69f00b1184f8c8b2e5d))
+* **slider:** marks and snapping to them ([bb4603b](https://github.com/thekhegay/ngwr/commit/bb4603b05a3013c9bf848b9a8e9f8bff3a563000))
+* **slider:** vertical orientation ([779da6c](https://github.com/thekhegay/ngwr/commit/779da6cb5314a69728787cdbdf89c6459c61fe61))
+* **sortable-list:** drag between connected lists ([9fe77af](https://github.com/thekhegay/ngwr/commit/9fe77af817dcc5aaf896ecd966ed0fb6ed607fe5))
+
 ## [16.1.0](https://github.com/thekhegay/ngwr/compare/v16.0.0...v16.1.0) (2026-11-12)
 
 ### Features
