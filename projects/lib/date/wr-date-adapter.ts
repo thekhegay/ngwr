@@ -196,7 +196,7 @@ const NAMED_KEYS: ReadonlySet<string> = new Set(Object.keys(INTL_OPTIONS));
  * Quote literals the way `DatePipe` and LDML do — `'at'` — and `''` for a real quote,
  * inside a run as well as outside one: `h 'o''clock'` is `6 o'clock`.
  */
-const PART_RE = /'((?:[^']|'')*)'|yyyy|yy|MMMM|MMM|MM|M|dd|d|HH|H|hh|h|mm|ss|a/g;
+const PART_RE = /'((?:[^']|'')*)'|yyyy|yy|y|MMMM|MMM|MM|M|dd|d|HH|H|hh|h|mm|ss|a/g;
 
 /** The text a quoted run stands for: `''` alone is one quote, and so is `''` inside a run. */
 function unquote(quoted: string): string {
@@ -224,6 +224,8 @@ function tokenToRegex(token: string, digits: string): string {
       return `(${digits}{4})`;
     case 'yy':
       return `(${digits}{2})`;
+    case 'y':
+      return `(${digits}{1,6})`;
     case 'MM':
     case 'dd':
     case 'HH':
@@ -340,7 +342,8 @@ export abstract class WrDateAdapter<TDate = Date> {
    * adapter that treats one as a raw pattern prints its letters into the field.
    * v15 added them; an adapter written for v14 has to handle them.
    *
-   * Supported tokens for raw strings: `yyyy`, `yy`, `MMMM`, `MMM`, `MM`, `M`,
+   * Supported tokens for raw strings: `yyyy`, `yy`, `y` (the full year, as
+   * `DatePipe` reads it: `d MMM y`), `MMMM`, `MMM`, `MM`, `M`,
    * `dd`, `d`, `HH`, `H`, `hh`, `h`, `mm`, `ss`, `a` (the locale's day-period
    * marker — `PM`, `م`, `午後`).
    *
@@ -858,6 +861,8 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
           return pad(year, 4);
         case 'yy':
           return pad(year % 100, 2);
+        case 'y':
+          return String(year);
         case 'MMMM':
           return monthNames[month] ?? '';
         case 'MMM':
@@ -923,6 +928,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
       const n = digitsToNumber(raw, numerals);
       switch (token) {
         case 'yyyy':
+        case 'y':
           parts.year = n;
           break;
         case 'yy':

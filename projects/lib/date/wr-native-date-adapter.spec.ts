@@ -160,7 +160,22 @@ describe('WrNativeDateAdapter', () => {
       // `''` is how a single quote is written.
       expect(adapter.format(at(2025, 7, 11), "yyyy''")).toBe("2025'");
       // Unquoted, those letters ARE tokens — pinned so the trade-off is explicit.
-      expect(adapter.format(at(2025, 7, 11), 'yyyy [year]')).toBe('2025 [yeamr]');
+      expect(adapter.format(at(2025, 7, 11), 'yyyy [year]')).toBe('2025 [2025eamr]');
+    });
+
+    it('reads y as the full year, as DatePipe does, beside yy and yyyy', () => {
+      expect(adapter.format(at(2026, 10, 12), 'd MMM y')).toBe('12 Nov 2026');
+      expect(adapter.format(at(2026, 10, 12), 'd.M.yy')).toBe('12.11.26');
+      expect(adapter.format(at(2026, 10, 12), 'yyyy/y/yy')).toBe('2026/2026/26');
+      const early = at(2026, 10, 12);
+      early.setFullYear(987);
+      expect(adapter.format(early, 'y')).toBe('987');
+      expect(adapter.format(early, 'yyyy')).toBe('0987');
+
+      const read = adapter.parse('12 Nov 2026', 'd MMM y');
+      expect(read && iso(read)).toBe('2026-11-12');
+      const packed = adapter.parse('20261112', 'yMMdd');
+      expect(packed && iso(packed)).toBe('2026-11-12');
     });
 
     it('round-trips a pattern with quoted text', () => {
