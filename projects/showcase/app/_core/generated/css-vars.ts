@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1670 hook(s) across 114 page(s). A property is here only when the
+ * 1676 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -1078,6 +1078,17 @@ export const CSS_VARS = {
       { name: "--wr-time-picker-sep-padding-top", default: "var(--wr-space-sm)", scope: ".wr-time-picker__sep" },
       { name: "--wr-time-picker-step-line-height", default: "var(--wr-leading-none)", scope: ".wr-time-picker__step" },
       { name: "--wr-time-picker-step-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-time-picker__step" },
+    ],
+  },
+  "reference/components/date-stamp": {
+    subpath: "ngwr/date-stamp",
+    vars: [
+      { name: "--wr-date-stamp-date-color", default: "inherit", scope: ".wr-date-stamp" },
+      { name: "--wr-date-stamp-empty-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-date-stamp" },
+      { name: "--wr-date-stamp-gap", default: "0", scope: ".wr-date-stamp" },
+      { name: "--wr-date-stamp-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-date-stamp" },
+      { name: "--wr-date-stamp-time-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-date-stamp" },
+      { name: "--wr-date-stamp-time-font-size", default: "var(--wr-text-sm)", scope: ".wr-date-stamp" },
     ],
   },
   "reference/components/descriptions": {

@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 197 of 210 declarations are mapped: 0 carry no selector and
+ * 198 of 211 declarations are mapped: 0 carry no selector and
  * 13 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -77,6 +77,7 @@ export const SELECTORS = {
     "wr-counter": { symbol: "WrCounter", path: "ngwr/counter" },
     "wr-date-picker": { symbol: "WrDatePicker", path: "ngwr/date-picker" },
     "wr-date-range-picker": { symbol: "WrDateRangePicker", path: "ngwr/date-picker" },
+    "wr-date-stamp": { symbol: "WrDateStamp", path: "ngwr/date-stamp" },
     "wr-description-item": { symbol: "WrDescriptionItem", path: "ngwr/descriptions" },
     "wr-descriptions": { symbol: "WrDescriptions", path: "ngwr/descriptions" },
     "wr-divider": { symbol: "WrDivider", path: "ngwr/divider" },
@@ -312,6 +313,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/copy-value",
   "ngwr/counter",
   "ngwr/date-picker",
+  "ngwr/date-stamp",
   "ngwr/density",
   "ngwr/descriptions",
   "ngwr/dialog",

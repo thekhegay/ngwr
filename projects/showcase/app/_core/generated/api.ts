@@ -489,6 +489,13 @@ export const API = {
     { name: "panelAriaLabel", description: "Accessible name of the popup. The trigger advertises `aria-haspopup=\"dialog\"`, so the pane is a `role=\"dialog\"` — and an unnamed dialog announces as a bare \"dialog\". Defaults to the catalog's `datePicker.panelRange*` string for the current `mode`.", type: "string | null", default: "null" },
     { name: "panelClass", description: "Extra CSS classes for the calendar panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
   ],
+  // <wr-date-stamp>
+  WrDateStamp: [
+    { name: "value", description: "The moment shown: a `Date`, epoch milliseconds, or a string `wrParseDate` reads. `null`, `undefined`, `''` and a value that is not a date are empty.", type: "Date | string | number | null | undefined", default: "null" },
+    { name: "dateFormat", description: "Format of the first line: a named key or a token string (`'d MMM yyyy'`).", type: "WrDateFormat | string", default: "'mediumDate'" },
+    { name: "timeFormat", description: "Format of the second line: a named key (`'time24hSeconds'`) or a token string (`'HH:mm'`).", type: "WrDateFormat | string", default: "'time'" },
+    { name: "emptyLabel", description: "What stands in for an empty value. Falls back to `copyValue.empty`, then `'-'`.", type: "string | null", default: "null" },
+  ],
   // <[wrDecode]>
   WrDecode: [
     { name: "trigger", description: "`view` plays once, the first time most of the host is in the viewport. `hover` plays on every pointer enter and focus of the host or its closest focusable ancestor, but never restarts while already playing.", type: "WrDecodeTrigger", default: "'view'" },
