@@ -930,10 +930,10 @@ describe('WrDropdown when the requested placement does not fit', () => {
 });
 
 /**
- * A submenu is a second `[wrDropdown]` whose trigger lives inside the first
- * menu (the component ships no submenu API of its own). It is an anchored menu
- * like any other, so it gets the same arrow and the same placement bookkeeping:
- * pointing at the row that opened it, from the side it opened on.
+ * A second `[wrDropdown]` whose trigger lives inside the first menu, which is
+ * not `[wrDropdownSubmenu]` (see dropdown-submenu.spec.ts). It is an anchored
+ * menu like any other, so it gets the same arrow and the same placement
+ * bookkeeping: pointing at the row that opened it, from the side it opened on.
  */
 describe('WrDropdown nested inside another menu', () => {
   @Component({

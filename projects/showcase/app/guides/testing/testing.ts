@@ -959,6 +959,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<string | null>',
     },
     {
+      name: 'openSubmenu(label)',
+      description:
+        'Opens the submenu of the item with this label. The `WrDropdownSubmenuHarness` it returns reads that submenu with the same methods, `openSubmenu()` included.',
+      type: 'Promise<WrDropdownSubmenuHarness>',
+    },
+    {
       name: 'getMenuRole() / isMenuLabelledByTrigger()',
       description: 'The menu role and name.',
       type: 'Promise<string | null> | Promise<boolean>',
@@ -974,7 +980,7 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Item: getRole() / isDisabled() / isFocused() / click()',
+      name: 'Item: getRole() / isDisabled() / hasSubmenu() / isFocused() / click()',
       description: 'Role, state and click.',
       type: 'Promise<…>',
     },

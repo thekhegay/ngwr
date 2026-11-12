@@ -2,11 +2,11 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { WrDropdown, WrDropdownItem, WrDropdownMenu } from 'ngwr/dropdown';
+import { WrDropdown, WrDropdownItem, WrDropdownMenu, WrDropdownSubmenu } from 'ngwr/dropdown';
 import { provideWrIcons, wrSvgIcon } from 'ngwr/icon';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { WrDropdownHarness } from './wr-dropdown-harness';
+import { WrDropdownHarness, WrDropdownSubmenuHarness } from './wr-dropdown-harness';
 
 /**
  * The `<title>` earns its place: `WrIcon` writes a registered icon in with
@@ -373,5 +373,117 @@ describe('WrDropdownHarness — a dropdown inside a dropdown', () => {
     expect(await file.isOpen()).toBe(true);
     expect(await file.getItemTexts()).toEqual(['New']);
     expect(await share.getItemTexts()).toEqual(['Copy link', 'Invite']);
+  });
+});
+
+describe('WrDropdownHarness — submenus', () => {
+  @Component({
+    imports: [WrDropdown, WrDropdownMenu, WrDropdownItem, WrDropdownSubmenu],
+    template: `
+      <button type="button" [wrDropdown]="file">File</button>
+      <wr-dropdown-menu #file>
+        <wr-dropdown-item>New</wr-dropdown-item>
+        <wr-dropdown-item [wrDropdownSubmenu]="exportAs">Export</wr-dropdown-item>
+        <wr-dropdown-item [wrDropdownSubmenu]="share">Share</wr-dropdown-item>
+      </wr-dropdown-menu>
+      <wr-dropdown-menu #exportAs>
+        <wr-dropdown-item (click)="picked.push('csv')">CSV</wr-dropdown-item>
+        <wr-dropdown-item [wrDropdownSubmenu]="pdf">PDF</wr-dropdown-item>
+      </wr-dropdown-menu>
+      <wr-dropdown-menu #pdf>
+        <wr-dropdown-item (click)="picked.push('a4')">A4</wr-dropdown-item>
+      </wr-dropdown-menu>
+      <wr-dropdown-menu #share>
+        <wr-dropdown-item>Link</wr-dropdown-item>
+        <wr-dropdown-item>Email</wr-dropdown-item>
+      </wr-dropdown-menu>
+    `,
+  })
+  class SubmenuHost {
+    readonly picked: string[] = [];
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<SubmenuHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(SubmenuHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('opens a submenu by its item label, opening the menu on the way', async () => {
+    const file = await loader.getHarness(WrDropdownHarness);
+    const exportAs = await file.openSubmenu('Export');
+
+    expect(exportAs).toBeInstanceOf(WrDropdownSubmenuHarness);
+    expect(await file.isOpen()).toBe(true);
+    expect(await exportAs.isOpen()).toBe(true);
+    expect(await exportAs.getTriggerText()).toBe('Export');
+    expect(await exportAs.getMenuRole()).toBe('menu');
+    expect(await exportAs.isMenuLabelledByTrigger()).toBe(true);
+  });
+
+  it('reads only the submenu it opened', async () => {
+    const file = await loader.getHarness(WrDropdownHarness);
+    const exportAs = await file.openSubmenu('Export');
+
+    expect(await exportAs.getItemTexts()).toEqual(['CSV', 'PDF']);
+    expect(await file.getItemTexts()).toEqual(['New', 'Export', 'Share']);
+  });
+
+  it('says which items open a submenu', async () => {
+    const file = await loader.getHarness(WrDropdownHarness);
+    await file.open();
+    const items = await file.getItems();
+
+    expect(await Promise.all(items.map(item => item.hasSubmenu()))).toEqual([false, true, true]);
+    await expect(file.openSubmenu('New')).rejects.toThrow(/Items with a submenu here: Export, Share/);
+  });
+
+  it('goes a level further from the submenu it handed back', async () => {
+    const file = await loader.getHarness(WrDropdownHarness);
+    const exportAs = await file.openSubmenu('Export');
+    const pdf = await exportAs.openSubmenu(/pdf/i);
+
+    expect(await pdf.getItemTexts()).toEqual(['A4']);
+    expect(await exportAs.isOpen()).toBe(true);
+  });
+
+  it('closes every submenu on a leaf click and leaves the root menu open', async () => {
+    const file = await loader.getHarness(WrDropdownHarness);
+    const exportAs = await file.openSubmenu('Export');
+    const pdf = await exportAs.openSubmenu('PDF');
+
+    await pdf.clickItem({ text: 'A4' });
+
+    expect(fixture.componentInstance.picked).toEqual(['a4']);
+    expect(await exportAs.isOpen()).toBe(false);
+    expect(await file.isOpen()).toBe(true);
+  });
+
+  it('opens from the keyboard and closes one level with Escape', async () => {
+    const file = await loader.getHarness(WrDropdownHarness);
+    await file.open();
+    const share = await file.getHarness(WrDropdownSubmenuHarness.with({ text: 'Share' }));
+
+    await share.openByKeyboard();
+    expect(await share.getFocusedItemText()).toBe('Link');
+
+    await share.close();
+    expect(await share.isOpen()).toBe(false);
+    expect(await file.isOpen()).toBe(true);
+    expect(await file.getFocusedItemText()).toBe('Share');
+  });
+
+  it('narrows submenu items by open state', async () => {
+    const file = await loader.getHarness(WrDropdownHarness);
+    await file.openSubmenu('Share');
+
+    const open = await file.getAllHarnesses(WrDropdownSubmenuHarness.with({ open: true }));
+    expect(await Promise.all(open.map(item => item.getTriggerText()))).toEqual(['Share']);
   });
 });
