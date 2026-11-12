@@ -1488,6 +1488,18 @@ export const API = {
     { name: "time", description: "When it happened, already formatted — the component does no date formatting. Run a `Date` through the `wrDate` pipe on the way in.", type: "string", default: "''" },
     { name: "color", description: "Tint of this item's dot. Decoration by default: it carries no meaning on its own, so say the state in the title as well if it is one.", type: "WrTimelineColor", default: "'primary'" },
   ],
+  // <wr-toast-outlet>
+  WrToastOutlet: [
+    { name: "name", description: "The channel this outlet renders: the `outlet` of `WrToast.show()`.", type: "string", required: true },
+    { name: "position", description: "Where the stack sits inside the outlet's box.", type: "WrToastPosition", default: "the `withToast()` position" },
+    { name: "mode", description: "Layout for several toasts: a cascade or a column.", type: "WrToastMode", default: "the `withToast()` mode" },
+    { name: "duration", description: "Auto-dismiss in ms for a toast that sets none; `0` disables.", type: "number", default: "the `withToast()` duration" },
+    { name: "showProgress", description: "Render the countdown bar.", type: "boolean", default: "the `withToast()` value" },
+    { name: "showCopy", description: "Render a copy button on each toast.", type: "boolean", default: "the `withToast()` value" },
+    { name: "showCloseAll", description: "Render \"Close all\" once the stack reaches the threshold.", type: "boolean", default: "the `withToast()` value" },
+    { name: "closeAllThreshold", description: "Minimum stack size before \"Close all\" appears.", type: "number", default: "the `withToast()` value" },
+    { name: "maxStack", description: "Maximum toasts in the stack; `0` is unlimited. Past it the oldest toast is dropped to make room.", type: "number", default: "the `withToast()` value" },
+  ],
   // <wr-toolbar>
   WrToolbar: [
     { name: "responsive", description: "Stack the zones vertically when the toolbar's own box is too narrow to fit them in a row (a container query on its own width, not the viewport — so it adapts inside a narrow column or split pane).", type: "boolean", default: "false" },

@@ -40,16 +40,16 @@ export const QUALITY = {
   harnessClasses: 95,
 
   /** `@Component` classes a `public-api.ts` exports. Excludes the ones the library instantiates for itself (the toast host, the window container), which no consumer can write. */
-  components: 143,
+  components: 144,
 
   /** `@Directive` classes a `public-api.ts` exports, counted the same way. */
   directives: 53,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 344,
+  specFiles: 345,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 7172,
+  testCases: 7191,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page prints the count as "N+" (`formatCount(n, { floor: true })`) rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
