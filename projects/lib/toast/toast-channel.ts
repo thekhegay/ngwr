@@ -33,7 +33,7 @@ export type WrToastEntry = WrToastOptions & {
 export class WrToastChannel {
   /** The rendered toasts, capped at `maxStack`. */
   readonly toasts = signal<readonly WrToastEntry[]>([]);
-  /** How many wait behind the cap. Always `0` on a channel that drops. */
+  /** How many wait behind the cap. */
   readonly queued = signal(0);
 
   private queue: WrToastEntry[] = [];
@@ -69,6 +69,13 @@ export class WrToastChannel {
     const active = this.toasts();
     if (max <= 0 || active.length < max) {
       this.toasts.set([...active, entry]);
+    } else if (this.drops && this.held) {
+      // What the user is reading stays. The arrivals wait, bounded like the
+      // stack, and enter on release.
+      if (this.queue.length >= max) this.queue.shift();
+      this.queue.push(entry);
+      this.queued.set(this.queue.length);
+      return;
     } else if (this.drops) {
       // Straight out of the array, with no exit to run.
       const kept = active.length - max + 1;
@@ -121,6 +128,7 @@ export class WrToastChannel {
 
   setHeld(held: boolean): void {
     this.held = held;
+    if (!held) this.release();
     this.syncTimers();
   }
 
@@ -147,7 +155,19 @@ export class WrToastChannel {
     if (--this.mounts > 0) return;
     this.live = false;
     this.held = false;
+    this.release();
     this.syncTimers();
+  }
+
+  /** Let in what arrived during a hold, in arrival order, the oldest toasts making room. */
+  private release(): void {
+    if (!this.drops || this.queue.length === 0) return;
+    const all = [...this.toasts(), ...this.queue];
+    const over = this.maxStack > 0 ? Math.max(0, all.length - this.maxStack) : 0;
+    for (let i = 0; i < over; i++) this.stopTimer(all[i]);
+    this.queue = [];
+    this.queued.set(0);
+    this.toasts.set(all.slice(over));
   }
 
   private syncTimers(): void {
