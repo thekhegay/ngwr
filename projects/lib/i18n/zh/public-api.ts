@@ -345,6 +345,8 @@ export const wrZh: WrI18nCatalog = {
     viewer: '图片预览',
     open: '打开预览',
     close: '关闭预览',
+    counter: '{{current}} / {{total}}',
+    position: '第 {{current}} 张图片，共 {{total}} 张',
   },
   window: {
     close: '关闭',

@@ -364,6 +364,8 @@ export const wrHe: WrI18nCatalog = {
     viewer: 'תצוגה מקדימה של התמונה',
     open: 'פתיחת התצוגה המקדימה',
     close: 'סגירת התצוגה המקדימה',
+    counter: '{{current}} / {{total}}',
+    position: 'תמונה {{current}} מתוך {{total}}',
   },
   window: {
     close: 'סגירה',

@@ -348,6 +348,8 @@ export const wrId: WrI18nCatalog = {
     viewer: 'Pratinjau gambar',
     open: 'Buka pratinjau',
     close: 'Tutup pratinjau',
+    counter: '{{current}} / {{total}}',
+    position: 'Gambar {{current}} dari {{total}}',
   },
   window: {
     close: 'Tutup',

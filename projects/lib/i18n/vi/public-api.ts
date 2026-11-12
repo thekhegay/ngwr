@@ -360,6 +360,8 @@ export const wrVi: WrI18nCatalog = {
     viewer: 'Xem trước ảnh',
     open: 'Mở xem trước',
     close: 'Đóng xem trước',
+    counter: '{{current}} / {{total}}',
+    position: 'Ảnh {{current}} trên {{total}}',
   },
   window: {
     close: 'Đóng',

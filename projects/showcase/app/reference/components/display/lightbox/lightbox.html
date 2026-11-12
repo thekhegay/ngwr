@@ -3,6 +3,7 @@
   description="An image that opens full size in an overlay when clicked."
   [keywords]="['lightbox', 'image', 'preview', 'zoom', 'wr-lightbox', 'wr-image']"
   [labels]="['Component']"
+  updated="16.2.0"
 >
   <ngwr-doc-section
     title="Basic usage"
@@ -32,6 +33,25 @@
         aspectRatio="3 / 2"
         style="width: 18rem"
       />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Gallery"
+    description="Lightboxes with the same `group` open as one gallery, in document order: previous and next buttons, a counter, the arrow keys, Home and End, and a sideways swipe. `loop` wraps around the ends."
+  >
+    <ngwr-doc-snippet [code]="snippets.gallery">
+      @for (photo of gallery; track photo.src) {
+        <wr-lightbox
+          group="trip"
+          [src]="photo.src"
+          [preview]="photo.preview"
+          [alt]="photo.alt"
+          [caption]="photo.caption"
+          aspectRatio="1"
+          style="width: 9rem"
+        />
+      }
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

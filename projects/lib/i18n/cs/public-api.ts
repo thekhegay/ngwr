@@ -348,6 +348,8 @@ export const wrCs: WrI18nCatalog = {
     viewer: 'Náhled obrázku',
     open: 'Otevřít náhled',
     close: 'Zavřít náhled',
+    counter: '{{current}} / {{total}}',
+    position: 'Obrázek {{current}} z {{total}}',
   },
   window: {
     close: 'Zavřít',

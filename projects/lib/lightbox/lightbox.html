@@ -67,6 +67,55 @@
         <path d="m6 6 12 12" />
       </svg>
     </button>
+    @if (gallery().length) {
+      <span class="wr-lightbox-viewer__counter" aria-hidden="true">{{ counter() }}</span>
+      <!-- `aria-disabled`, not `disabled`: a disabled button drops focus to <body>,
+           out of the trap, the moment the last image is reached. -->
+      <button
+        type="button"
+        class="wr-lightbox-viewer__nav wr-lightbox-viewer__nav--previous"
+        [class.wr-lightbox-viewer__nav--disabled]="!canPrevious()"
+        [attr.aria-label]="resolvedPreviousLabel()"
+        [attr.aria-disabled]="canPrevious() ? null : 'true'"
+        (click)="step(-1)"
+      >
+        <svg
+          class="wr-icon__svg"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="wr-lightbox-viewer__nav wr-lightbox-viewer__nav--next"
+        [class.wr-lightbox-viewer__nav--disabled]="!canNext()"
+        [attr.aria-label]="resolvedNextLabel()"
+        [attr.aria-disabled]="canNext() ? null : 'true'"
+        (click)="step(1)"
+      >
+        <svg
+          class="wr-icon__svg"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </button>
+    }
     <!--
       Styled `cursor: zoom-out`, which is a promise: clicking the image closes. A
       REDUNDANT mouse affordance — the close button, Escape, the backdrop and
@@ -74,9 +123,12 @@
       out of the tab order rather than becoming a second close stop.
     -->
     <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
-    <img class="wr-lightbox-viewer__full" [src]="src()" [alt]="alt()" (click)="onClose()" />
-    @if (caption()) {
-      <div class="wr-lightbox-viewer__caption">{{ caption() }}</div>
+    <img class="wr-lightbox-viewer__full" [src]="shown().src()" [alt]="shown().alt()" (click)="onClose()" />
+    @if (shown().caption()) {
+      <div class="wr-lightbox-viewer__caption">{{ shown().caption() }}</div>
+    }
+    @if (gallery().length) {
+      <span class="wr-lightbox-viewer__status" role="status" aria-live="polite">{{ announcement() }}</span>
     }
   </div>
 </ng-template>

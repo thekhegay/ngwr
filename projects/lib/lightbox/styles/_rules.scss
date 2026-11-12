@@ -183,6 +183,102 @@
     }
   }
 
+  // On the edges of the screen like the ✕, so over the image itself once it is
+  // wide enough. The fill is therefore dark rather than the ✕'s white tint,
+  // which disappears against a bright photograph.
+  &__nav {
+    --wr-lightbox-viewer-nav-radius: var(--wr-border-radius-pill);
+
+    font-size: inherit;
+    position: absolute;
+    inset-block: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin-block: auto;
+    padding: 0;
+    border: 0;
+    border-radius: var(--wr-lightbox-viewer-nav-radius);
+    background: rgb(0 0 0 / 55%);
+    color: rgb(255 255 255 / 90%);
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      transform 0.15s ease;
+
+    @include theme.touch-target($positioned: true);
+
+    &--previous {
+      inset-inline-start: 1rem;
+    }
+
+    &--next {
+      inset-inline-end: 1rem;
+    }
+
+    // Drawn pointing physically left and right, so they turn around with the
+    // order: going back is going right for an RTL reader.
+    [dir='rtl'] & svg {
+      transform: scaleX(-1);
+    }
+
+    &:hover {
+      background: rgb(0 0 0 / 75%);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgb(255 255 255 / 90%);
+      outline-offset: 2px;
+    }
+
+    &--disabled {
+      opacity: 0.4;
+      cursor: default;
+
+      &:hover {
+        background: rgb(0 0 0 / 55%);
+      }
+
+      &:active {
+        transform: none;
+      }
+    }
+  }
+
+  &__counter {
+    --wr-lightbox-viewer-counter-font-family: var(--wr-font-family-base);
+    --wr-lightbox-viewer-counter-font-size: var(--wr-text-sm);
+
+    position: absolute;
+    top: 1rem;
+    inset-inline-start: 1rem;
+    // On the backdrop, so white in both schemes — see `__close`.
+    color: rgb(255 255 255 / 85%);
+    font-family: var(--wr-lightbox-viewer-counter-font-family);
+    font-size: var(--wr-lightbox-viewer-counter-font-size);
+    font-variant-numeric: tabular-nums;
+    // The ✕ in the opposite corner is 2.25rem tall: share its centre line.
+    line-height: 2.25rem;
+  }
+
+  &__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+    white-space: nowrap;
+  }
+
   &__full {
     --wr-lightbox-viewer-full-radius: var(--wr-border-radius-base);
 

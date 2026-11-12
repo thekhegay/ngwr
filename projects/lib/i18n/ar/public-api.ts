@@ -360,6 +360,8 @@ export const wrAr: WrI18nCatalog = {
     viewer: 'معاينة الصورة',
     open: 'فتح المعاينة',
     close: 'إغلاق المعاينة',
+    counter: '{{current}} / {{total}}',
+    position: 'الصورة {{current}} من {{total}}',
   },
   window: {
     close: 'إغلاق',

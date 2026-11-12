@@ -1465,6 +1465,11 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'next() / previous() / getCounter() / getCurrentSrc() / isNextDisabled() / isPreviousDisabled()',
+      description: 'A `group` gallery, from the lightbox that opened it; `getCounter()` is `null` outside one.',
+      type: 'Promise<…>',
+    },
+    {
       name: 'isInteractive() / getOpenLabel() / isLoading() / isViewerBound()',
       description: '`isInteractive()` is false with `disablePreview`.',
       type: 'Promise<…>',

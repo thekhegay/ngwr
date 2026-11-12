@@ -359,6 +359,8 @@ export const wrDe: WrI18nCatalog = {
     viewer: 'Bildvorschau',
     open: 'Vorschau öffnen',
     close: 'Vorschau schließen',
+    counter: '{{current}} / {{total}}',
+    position: 'Bild {{current}} von {{total}}',
   },
   window: {
     close: 'Schließen',

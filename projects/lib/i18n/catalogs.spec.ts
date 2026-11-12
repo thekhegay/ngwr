@@ -58,6 +58,7 @@ const COMMON = [
   'statistic.deltaSuffix',
   'pagination.compact',
   'transfer.count',
+  'image.counter',
   'fileUpload.size',
   'editor.keyAlt',
   'kbd.alt',

@@ -356,6 +356,8 @@ export const wrIt: WrI18nCatalog = {
     viewer: 'Anteprima immagine',
     open: 'Apri anteprima',
     close: 'Chiudi anteprima',
+    counter: '{{current}} / {{total}}',
+    position: 'Immagine {{current}} di {{total}}',
   },
   window: {
     close: 'Chiudi',

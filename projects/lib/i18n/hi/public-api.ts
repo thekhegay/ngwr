@@ -348,6 +348,8 @@ export const wrHi: WrI18nCatalog = {
     viewer: 'इमेज प्रीव्यू',
     open: 'प्रीव्यू खोलें',
     close: 'प्रीव्यू बंद करें',
+    counter: '{{current}} / {{total}}',
+    position: '{{total}} में से इमेज {{current}}',
   },
   window: {
     close: 'बंद करें',

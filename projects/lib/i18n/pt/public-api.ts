@@ -352,6 +352,8 @@ export const wrPt: WrI18nCatalog = {
     viewer: 'Pré-visualização da imagem',
     open: 'Abrir pré-visualização',
     close: 'Fechar pré-visualização',
+    counter: '{{current}} / {{total}}',
+    position: 'Imagem {{current}} de {{total}}',
   },
   window: {
     close: 'Fechar',

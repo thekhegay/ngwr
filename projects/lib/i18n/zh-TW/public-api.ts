@@ -352,6 +352,8 @@ export const wrZhTw: WrI18nCatalog = {
     viewer: '圖片預覽',
     open: '開啟預覽',
     close: '關閉預覽',
+    counter: '{{current}} / {{total}}',
+    position: '第 {{current}} 張圖片，共 {{total}} 張',
   },
   window: {
     close: '關閉',

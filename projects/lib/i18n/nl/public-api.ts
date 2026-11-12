@@ -356,6 +356,8 @@ export const wrNl: WrI18nCatalog = {
     viewer: 'Afbeeldingsvoorbeeld',
     open: 'Voorbeeld openen',
     close: 'Voorbeeld sluiten',
+    counter: '{{current}} / {{total}}',
+    position: 'Afbeelding {{current}} van {{total}}',
   },
   window: {
     close: 'Sluiten',

@@ -355,6 +355,8 @@ export const wrKo: WrI18nCatalog = {
     viewer: '이미지 미리 보기',
     open: '미리 보기 열기',
     close: '미리 보기 닫기',
+    counter: '{{current}} / {{total}}',
+    position: '이미지 {{total}}개 중 {{current}}번째',
   },
   window: {
     close: '닫기',

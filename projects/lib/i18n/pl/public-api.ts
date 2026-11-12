@@ -365,6 +365,8 @@ export const wrPl: WrI18nCatalog = {
     viewer: 'Podgląd obrazu',
     open: 'Otwórz podgląd',
     close: 'Zamknij podgląd',
+    counter: '{{current}} / {{total}}',
+    position: 'Obraz {{current}} z {{total}}',
   },
   window: {
     close: 'Zamknij',
