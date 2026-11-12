@@ -635,6 +635,43 @@ describe('wrDuration', () => {
     }
   });
 
+  it('writes a timer as HH:mm:ss, two digits a field, whatever the length', () => {
+    const p = pipe();
+    expect(p.transform(3_723_000, 'timer')).toBe('01:02:03');
+    expect(p.transform(5 * MINUTE + 7 * SECOND, 'timer')).toBe('00:05:07');
+    expect(p.transform(0, 'timer')).toBe('00:00:00');
+    expect(p.transform(23 * HOUR + 59 * MINUTE + 59 * SECOND + 999, 'timer')).toBe('23:59:59');
+    expect(wrFormatDuration(3_723_000, 'en-US', 'timer')).toBe('01:02:03');
+    expect(wrFormatDuration('3723000', 'en-US', 'timer')).toBe('01:02:03');
+  });
+
+  it('puts the days of a timer in front, as the narrow unit of the locale', () => {
+    expect(pipe().transform(DAY + 2 * HOUR + 3 * MINUTE + 4 * SECOND, 'timer')).toBe('1d 02:03:04');
+    expect(pipe().transform(12 * DAY, 'timer')).toBe('12d 00:00:00');
+    expect(pipe('ru-RU').transform(DAY + 2 * HOUR + 3 * MINUTE + 4 * SECOND, 'timer')).toBe('1 д. 02:03:04');
+    expect(pipe('ar-EG').transform(HOUR + 2 * MINUTE + 3 * SECOND, 'timer')).toBe('٠١:٠٢:٠٣');
+  });
+
+  it('signs a negative timer and not one that floors to zero', () => {
+    const p = pipe();
+    expect(p.transform(-(5 * MINUTE + 7 * SECOND), 'timer')).toBe('-00:05:07');
+    expect(p.transform(-(DAY + HOUR), 'timer')).toBe('-1d 01:00:00');
+    expect(p.transform(-500, 'timer')).toBe('00:00:00');
+  });
+
+  it('reads no time zone: a timer is the same in any zone of the process', () => {
+    const before = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    try {
+      for (const timeZone of [before, 'America/New_York', 'Asia/Kolkata', 'UTC']) {
+        process.env['TZ'] = timeZone;
+        expect(pipe().transform(3_723_000, 'timer')).toBe('01:02:03');
+        expect(pipe().transform(3_723_000)).toBe('1:02:03');
+      }
+    } finally {
+      process.env['TZ'] = before;
+    }
+  });
+
   it('splits a span into the units asked for, carrying the rest into the largest', () => {
     // The half `wr-statistic-countdown` shares: its tokens pick the units.
     expect(wrSplitDuration(3 * DAY + HOUR, new Set(['hour', 'minute', 'second']))).toEqual({
