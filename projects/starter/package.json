@@ -13,7 +13,7 @@
     "@angular/core": "^22.2.5",
     "@angular/forms": "^22.2.5",
     "@angular/platform-browser": "^22.2.5",
-    "ngwr": "^15.0.0",
+    "ngwr": "^16.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.9.1"
   },
