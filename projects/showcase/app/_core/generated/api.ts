@@ -567,6 +567,7 @@ export const API = {
     { name: "closable", description: "Show a dismiss (×) button in the panel's top-right corner. Set `false` when the projected content supplies its own close affordance.", type: "boolean", default: "true" },
     { name: "closeLabel", description: "Accessible name for the dismiss button. Falls back to `drawer.close`.", type: "string | null", default: "null" },
     { name: "panelClass", description: "Extra CSS classes for the drawer's panel — the box that slides in. On the panel rather than on the CDK pane, because that is the element `WrDrawerManager.open({ panelClass })` styles too: there the content IS the pane, so one name has to mean the same surface on both paths.", type: "WrClassInput", default: "null" },
+    { name: "toasts", description: "Where the global toast stack paints while the drawer is open. `'below'` keeps it under the drawer and its backdrop. Read when the drawer opens.", type: "'above' | 'below'", default: "'above'" },
   ],
   // <[wrDrawerClose]>
   WrDrawerClose: [
@@ -1498,7 +1499,7 @@ export const API = {
     { name: "showCopy", description: "Render a copy button on each toast.", type: "boolean", default: "the `withToast()` value" },
     { name: "showCloseAll", description: "Render \"Close all\" once the stack reaches the threshold.", type: "boolean", default: "the `withToast()` value" },
     { name: "closeAllThreshold", description: "Minimum stack size before \"Close all\" appears.", type: "number", default: "the `withToast()` value" },
-    { name: "maxStack", description: "Maximum toasts in the stack; `0` is unlimited. Past it the oldest toast is dropped to make room.", type: "number", default: "the `withToast()` value" },
+    { name: "maxStack", description: "Maximum toasts in the stack; `0` is unlimited. Past it the oldest toast is dropped to make room, once the pointer and focus are out of the stack.", type: "number", default: "the `withToast()` value" },
   ],
   // <wr-toolbar>
   WrToolbar: [
