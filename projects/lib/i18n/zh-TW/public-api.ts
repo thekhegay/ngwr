@@ -220,6 +220,10 @@ export const wrZhTw: WrI18nCatalog = {
     moved: '第 {{index}} 項，共 {{total}} 項。',
     dropped: '已放下。第 {{index}} 項，共 {{total}} 項。',
     cancelled: '已取消移動。',
+    groupKeyHelp:
+      '按空白鍵拿起這個項目，再用方向鍵在清單內移動或移到相鄰清單。' + '再按一次空白鍵放下，或按 Escape 放回原位。',
+    movedTo: '已移至{{list}}。第 {{index}} 項，共 {{total}} 項。',
+    listPosition: '第 {{index}} 個清單，共 {{total}} 個',
   },
   colorPicker: {
     area: '飽和度 {{saturation}}%，亮度 {{brightness}}%',

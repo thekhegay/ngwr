@@ -22,6 +22,8 @@
 .wr-sortable-list {
   --wr-sortable-list-gap: var(--wr-space-sm);
   --wr-sortable-list-placeholder-radius: var(--wr-border-radius-base);
+  --wr-sortable-list-empty-min-height: calc(var(--wr-space-xl) * 2);
+  --wr-sortable-list-empty-color: var(--wr-color-placeholder);
 
   display: block;
 
@@ -83,6 +85,26 @@
     &--grabbed:focus-visible {
       outline-color: var(--wr-color-primary);
     }
+  }
+
+  // A list with no rows has no height, and a drop needs a box to land in. Only
+  // a connected list can be dropped into from outside, so only it reserves one.
+  &--connected#{&}--empty &__list {
+    min-height: var(--wr-sortable-list-empty-min-height);
+  }
+
+  &__empty {
+    color: var(--wr-sortable-list-empty-color);
+
+    // Nothing projected into the slot: no row, and no empty list item read out.
+    &:empty {
+      display: none;
+    }
+  }
+
+  // The placeholder of the row being dragged in stands where the hint was.
+  &.cdk-drop-list-dragging &__empty {
+    display: none;
   }
 
   // The key model and the position announcements: read out, never drawn.
@@ -176,6 +198,6 @@
   transition: transform 0.18s var(--wr-ease-spring);
 }
 
-.wr-sortable-list__list.cdk-drop-list-dragging .wr-sortable-list__item:not(.cdk-drag-placeholder) {
+.wr-sortable-list.cdk-drop-list-dragging .wr-sortable-list__item:not(.cdk-drag-placeholder) {
   transition: transform 0.18s var(--wr-ease-spring);
 }

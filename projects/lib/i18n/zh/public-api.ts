@@ -215,6 +215,10 @@ export const wrZh: WrI18nCatalog = {
     moved: '第 {{index}} 项，共 {{total}} 项。',
     dropped: '已放下。第 {{index}} 项，共 {{total}} 项。',
     cancelled: '已取消移动。',
+    groupKeyHelp:
+      '按空格键拿起此项，然后用方向键在列表内移动或移到相邻列表。' + '再次按空格键放下，或按 Esc 键放回原位。',
+    movedTo: '已移至{{list}}。第 {{index}} 项，共 {{total}} 项。',
+    listPosition: '第 {{index}} 个列表，共 {{total}} 个',
   },
   colorPicker: {
     area: '饱和度 {{saturation}}%，明度 {{brightness}}%',

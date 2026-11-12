@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Sortable List"
-  updated="15.0.0"
+  updated="16.2.0"
   description="A list the user reorders by drag or keyboard."
   [keywords]="[
     'sortable-list',
@@ -9,6 +9,8 @@
     'wr-sortable-item',
     'wrDragHandle',
     'reorder',
+    'kanban',
+    'connected lists',
     'touch',
   ]"
   [labels]="['Component']"
@@ -59,6 +61,39 @@
         </wr-sortable-list>
         <p wrTypography variant="small" tone="muted">Only the ≡ handle starts a drag.</p>
       </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Connected lists"
+    description="Lists with the same `group` exchange items, by drag and by keyboard. The list an item arrives in emits `move` once, and both lists write `[(items)]`. `canEnter` refuses an item, and an empty list still takes a drop."
+  >
+    <ngwr-doc-code [code]="snippets.group" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.groupTs" language="typescript" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-sortable-board">
+        @for (column of board; track column.id) {
+          <section class="ngwr-sortable-board__column">
+            <h3 wrTypography variant="h6" class="ngwr-sortable-board__title">{{ column.title }}</h3>
+            <wr-sortable-list
+              group="board"
+              [id]="column.id"
+              [ariaLabel]="column.title"
+              [(items)]="column.tasks"
+              [canEnter]="column.canEnter"
+              (move)="onMove($event)"
+            >
+              @for (task of column.tasks(); track task.id) {
+                <wr-sortable-item>
+                  <div class="ngwr-sortable-demo__row">{{ task.label }}</div>
+                </wr-sortable-item>
+              }
+              <p wrSortableListEmpty class="ngwr-sortable-board__empty">Drop a task here</p>
+            </wr-sortable-list>
+          </section>
+        }
+      </div>
+      <p wrTypography variant="small" tone="muted">Last move: {{ lastMove() }}. To do refuses a task from Done.</p>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

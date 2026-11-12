@@ -1,6 +1,6 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { CdkDropList } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -11,7 +11,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrSortableItem } from './sortable-item';
 import { WrSortableList } from './sortable-list';
-import type { WrSortableReorderEvent } from './types';
+import type { WrSortableCanEnter, WrSortableMoveEvent, WrSortableReorderEvent } from './types';
 
 interface Row {
   readonly id: number;
@@ -400,6 +400,358 @@ describe('WrSortableList under a reading direction', () => {
     await fixture.whenStable();
 
     expect(labels()).toEqual(['Two', 'One', 'Three']);
+  });
+});
+
+interface Column {
+  readonly id: string;
+  readonly group: string;
+  readonly label: string | null;
+  readonly items: ReturnType<typeof signal<Row[]>>;
+}
+
+const column = (id: string, group: string, label: string | null, rows: Row[]): Column => ({
+  id,
+  group,
+  label,
+  items: signal(rows),
+});
+
+@Component({
+  imports: [WrSortableList, WrSortableItem],
+  template: `
+    @for (col of columns(); track col.id) {
+      <wr-sortable-list
+        [id]="col.id"
+        [group]="col.group"
+        [ariaLabel]="col.label"
+        [(items)]="col.items"
+        [canEnter]="col.id === 'done' ? doneRule() : null"
+        [disabled]="col.id === 'doing' && doingDisabled()"
+        (reorder)="reorders.push(col.id)"
+        (move)="moves.push($event)"
+      >
+        @for (row of col.items(); track row.id) {
+          <wr-sortable-item>
+            <span class="row">{{ row.label }}</span>
+          </wr-sortable-item>
+        }
+        <p wrSortableListEmpty class="hint">Drop here</p>
+      </wr-sortable-list>
+    }
+  `,
+})
+class BoardHost {
+  readonly columns = signal<Column[]>([
+    column('todo', 'board', 'To do', [...ROWS]),
+    column('doing', 'board', 'Doing', [{ id: 4, label: 'Four' }]),
+    column('done', 'board', null, []),
+    column('archive', 'other', 'Archive', [{ id: 5, label: 'Five' }]),
+  ]);
+  readonly doneRule = signal<WrSortableCanEnter<Row> | null>(null);
+  readonly doingDisabled = signal(false);
+  readonly reorders: string[] = [];
+  readonly moves: WrSortableMoveEvent<Row>[] = [];
+}
+
+/**
+ * Lists that share a `group`. As above, the gesture itself needs layout, so the
+ * pointer half drives what the CDK hands over at the end of one: a `dropped`
+ * event naming both containers, and the enter predicate it consults on the way.
+ */
+describe('WrSortableList in a group', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<BoardHost>>;
+
+  const host = (): BoardHost => fixture.componentInstance;
+  const listEls = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('wr-sortable-list'),
+  ];
+  const dropLists = (): CdkDropList[] =>
+    fixture.debugElement.queryAll(By.directive(CdkDropList)).map(de => de.injector.get(CdkDropList));
+  const drags = (list: number): CdkDrag[] =>
+    fixture.debugElement
+      .queryAll(By.directive(WrSortableList))
+      [list].queryAll(By.directive(CdkDrag))
+      .map(de => de.injector.get(CdkDrag));
+  const labels = (list: number): string[] =>
+    host()
+      .columns()
+      [list].items()
+      .map(r => r.label);
+  const rowEls = (list: number): HTMLElement[] => [
+    ...listEls()[list].querySelectorAll<HTMLElement>('.wr-sortable-list__item'),
+  ];
+  const status = (list: number): string => listEls()[list].querySelector('[role="status"]')!.textContent.trim();
+  const moves = (): unknown[] =>
+    host().moves.map(e => ({
+      item: e.item.label,
+      from: [e.from.list.id(), e.from.index],
+      to: [e.to.list.id(), e.to.index],
+    }));
+
+  const drop = (from: number, previousIndex: number, to: number, currentIndex: number): void => {
+    const lists = dropLists();
+    lists[to].dropped.emit({
+      previousIndex,
+      currentIndex,
+      previousContainer: lists[from],
+      container: lists[to],
+    } as CdkDragDrop<unknown>);
+    fixture.detectChanges();
+  };
+
+  const key = async (list: number, index: number, k: string): Promise<void> => {
+    rowEls(list)[index].dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  const mount = (dir?: Direction): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: dir
+        ? [
+            {
+              provide: Directionality,
+              useValue: { value: dir, valueSignal: signal(dir), change: new Subject<Direction>() },
+            },
+          ]
+        : [],
+    });
+    fixture = TestBed.createComponent(BoardHost);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => mount());
+  afterEach(() => fixture.destroy());
+
+  it('gives every projected row its own list as the drop container', () => {
+    // A projected `cdkDrag` finds its list through the element injector. With
+    // the drop list inside the component's view it found none, and every row
+    // was a free drag that sorted nothing.
+    const lists = dropLists();
+    for (const [i, list] of lists.entries()) {
+      for (const drag of drags(i)) expect(drag.dropContainer).toBe(list);
+    }
+    expect(drags(0)).toHaveLength(3);
+  });
+
+  it('connects the lists of one group and leaves another group out', () => {
+    const [todo, doing, done, archive] = dropLists();
+
+    expect(todo.connectedTo).toEqual([doing, done]);
+    expect(doing.connectedTo).toEqual([todo, done]);
+    expect(done.connectedTo).toEqual([todo, doing]);
+    expect(archive.connectedTo).toEqual([]);
+    expect(listEls().map(el => el.classList.contains('wr-sortable-list--connected'))).toEqual([true, true, true, true]);
+  });
+
+  it('connects nothing without a group', () => {
+    TestBed.resetTestingModule();
+    const plain = TestBed.createComponent(Host);
+    plain.detectChanges();
+    const list = plain.debugElement.query(By.directive(CdkDropList)).injector.get(CdkDropList);
+
+    expect(list.connectedTo).toEqual([]);
+    expect((plain.nativeElement as HTMLElement).querySelector('.wr-sortable-list--connected')).toBeNull();
+    plain.destroy();
+  });
+
+  it('drops a list out of the group when it is destroyed', async () => {
+    host().columns.update(columns => columns.filter(col => col.id !== 'doing'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const [todo, done] = dropLists();
+
+    expect(dropLists()).toHaveLength(3);
+    expect(todo.connectedTo).toHaveLength(1);
+    expect((todo.connectedTo as CdkDropList[])[0]).toBe(done);
+  });
+
+  it('moves a dragged item from one list into another and writes both models', () => {
+    drop(0, 1, 1, 0);
+
+    expect(labels(0)).toEqual(['One', 'Three']);
+    expect(labels(1)).toEqual(['Two', 'Four']);
+    expect(rowEls(1).map(el => el.textContent.trim())).toEqual(['Two', 'Four']);
+  });
+
+  it('reports the move once, on the list the item arrived in, and no reorder', () => {
+    drop(0, 1, 1, 1);
+
+    expect(moves()).toEqual([{ item: 'Two', from: ['todo', 1], to: ['doing', 1] }]);
+    expect(host().moves[0].to.list.items()).toBe(host().columns()[1].items());
+    expect(host().reorders).toEqual([]);
+  });
+
+  it('keeps reporting a move inside one list as a reorder', () => {
+    drop(0, 0, 0, 2);
+
+    expect(host().reorders).toEqual(['todo']);
+    expect(host().moves).toEqual([]);
+  });
+
+  it('takes a drop while empty, and shows the projected hint only until then', () => {
+    const done = listEls()[2];
+    expect(done.classList.contains('wr-sortable-list--empty')).toBe(true);
+    expect(done.querySelector('.wr-sortable-list__empty .hint')?.textContent).toBe('Drop here');
+    expect(listEls()[0].querySelector('.wr-sortable-list__empty')).toBeNull();
+
+    drop(1, 0, 2, 0);
+
+    expect(labels(2)).toEqual(['Four']);
+    expect(labels(1)).toEqual([]);
+    expect(done.classList.contains('wr-sortable-list--empty')).toBe(false);
+    expect(done.querySelector('.wr-sortable-list__empty')).toBeNull();
+    expect(listEls()[1].classList.contains('wr-sortable-list--empty')).toBe(true);
+  });
+
+  it('asks canEnter about the item and the list it comes from', () => {
+    const seen: unknown[] = [];
+    host().doneRule.set((item, from) => {
+      seen.push([item.label, from.id()]);
+      return item.id !== 2;
+    });
+    fixture.detectChanges();
+    const done = dropLists()[2];
+    const [one, two] = drags(0);
+
+    expect(done.enterPredicate(one, done)).toBe(true);
+    expect(done.enterPredicate(two, done)).toBe(false);
+    expect(seen).toEqual([
+      ['One', 'todo'],
+      ['Two', 'todo'],
+    ]);
+    // A list without a rule takes everything from its group.
+    expect(dropLists()[1].enterPredicate(two, dropLists()[1])).toBe(true);
+  });
+
+  it('refuses every item while disabled', () => {
+    host().doingDisabled.set(true);
+    fixture.detectChanges();
+    const doing = dropLists()[1];
+
+    expect(doing.enterPredicate(drags(0)[0], doing)).toBe(false);
+  });
+
+  it('names the list by its id, generated when none is given', () => {
+    expect(listEls().map(el => el.id)).toEqual(['todo', 'doing', 'done', 'archive']);
+    expect(listEls().map(el => el.querySelector('[role="list"]')!.getAttribute('aria-label'))).toEqual([
+      'To do',
+      'Doing',
+      null,
+      'Archive',
+    ]);
+
+    TestBed.resetTestingModule();
+    const plain = TestBed.createComponent(Host);
+    plain.detectChanges();
+    expect((plain.nativeElement as HTMLElement).querySelector('wr-sortable-list')!.id).toMatch(
+      /^wr-sortable-list-\d+$/
+    );
+    plain.destroy();
+  });
+
+  describe('by keyboard', () => {
+    it('describes the keys that cross lists', () => {
+      const help = listEls()[0].querySelector(`#${rowEls(0)[0].getAttribute('aria-describedby')}`);
+      expect(help?.textContent).toContain('into the next one');
+    });
+
+    it('hands a held row to the next list, announces it there, and reports on drop', async () => {
+      await key(0, 1, ' ');
+      await key(0, 1, 'ArrowRight');
+
+      expect(labels(0)).toEqual(['One', 'Three']);
+      // Same slot in the new list, clamped to its length.
+      expect(labels(1)).toEqual(['Four', 'Two']);
+      expect(status(1)).toBe('Moved to Doing. 2 of 2.');
+      expect(status(0)).toBe('');
+      expect(rowEls(1)[1].classList.contains('wr-sortable-list__item--grabbed')).toBe(true);
+      expect(document.activeElement).toBe(rowEls(1)[1]);
+      // `[(items)]` moved, the gesture is not over.
+      expect(host().moves).toEqual([]);
+
+      await key(1, 1, 'ArrowUp');
+      expect(labels(1)).toEqual(['Two', 'Four']);
+
+      await key(1, 0, ' ');
+      expect(status(1)).toBe('Dropped. 1 of 2.');
+      expect(moves()).toEqual([{ item: 'Two', from: ['todo', 1], to: ['doing', 0] }]);
+      expect(host().reorders).toEqual([]);
+    });
+
+    it('names an unlabelled list by its position in the group', async () => {
+      await key(1, 0, ' ');
+      await key(1, 0, 'ArrowRight');
+
+      expect(labels(2)).toEqual(['Four']);
+      expect(status(2)).toBe('Moved to list 3 of 3. 1 of 1.');
+    });
+
+    it('stops at the last list of the group and never enters another group', async () => {
+      await key(1, 0, ' ');
+      await key(1, 0, 'ArrowRight');
+      await key(2, 0, 'ArrowRight');
+
+      expect(labels(2)).toEqual(['Four']);
+      expect(labels(3)).toEqual(['Five']);
+    });
+
+    it('steps over a list that refuses the item', async () => {
+      host().doneRule.set(() => false);
+      host().doingDisabled.set(true);
+      fixture.detectChanges();
+
+      await key(0, 0, ' ');
+      await key(0, 0, 'ArrowRight');
+      // Doing is disabled and Done refuses: nowhere to go.
+      expect(labels(0)).toEqual(['One', 'Two', 'Three']);
+
+      host().doneRule.set(null);
+      fixture.detectChanges();
+      await key(0, 0, 'ArrowRight');
+      expect(labels(1)).toEqual(['Four']);
+      expect(labels(2)).toEqual(['One']);
+    });
+
+    it('puts the row back into the list it started in on Escape', async () => {
+      await key(0, 1, ' ');
+      await key(0, 1, 'ArrowRight');
+      await key(1, 1, 'ArrowRight');
+      expect(labels(2)).toEqual(['Two']);
+
+      await key(2, 0, 'Escape');
+
+      expect(labels(0)).toEqual(['One', 'Two', 'Three']);
+      expect(labels(2)).toEqual([]);
+      expect(status(0)).toBe('Move cancelled.');
+      expect(host().moves).toEqual([]);
+      expect(host().reorders).toEqual([]);
+    });
+
+    it('reports a reorder, not a move, for a row that came back to its own list', async () => {
+      await key(0, 0, ' ');
+      await key(0, 0, 'ArrowRight');
+      await key(1, 0, 'ArrowDown');
+      await key(1, 1, 'ArrowLeft');
+      expect(labels(0)).toEqual(['Two', 'One', 'Three']);
+
+      await key(0, 1, ' ');
+
+      expect(host().moves).toEqual([]);
+      expect(host().reorders).toEqual(['todo']);
+    });
+
+    it('mirrors the pair under RTL, where the next list sits to the left', async () => {
+      mount('rtl');
+      await key(0, 0, ' ');
+      await key(0, 0, 'ArrowRight');
+      expect(labels(0)).toEqual(['One', 'Two', 'Three']);
+
+      await key(0, 0, 'ArrowLeft');
+      expect(labels(1)).toEqual(['One', 'Four']);
+    });
   });
 });
 

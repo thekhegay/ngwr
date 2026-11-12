@@ -230,6 +230,11 @@ export const wrUk: WrI18nCatalog = {
     moved: '{{index}} з {{total}}.',
     dropped: 'Відпущено. {{index}} з {{total}}.',
     cancelled: 'Переміщення скасовано.',
+    groupKeyHelp:
+      'Натисніть пробіл, щоб узяти елемент, потім переміщуйте його стрілками в межах списку або до сусіднього списку. ' +
+      'Натисніть пробіл ще раз, щоб відпустити, або Escape, щоб повернути на місце.',
+    movedTo: 'Переміщено: {{list}}. {{index}} з {{total}}.',
+    listPosition: 'список {{index}} з {{total}}',
   },
   colorPicker: {
     area: 'Насиченість і яскравість, {{saturation}}% і {{brightness}}%',

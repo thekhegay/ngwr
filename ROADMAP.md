@@ -8,7 +8,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Medium
 
-- **Sortable list groups**: drag between connected lists, with a move event that says from and to.
 - **Dropdown submenus**: nested menus with arrow-key support, the base for a split button.
 - **Slider marks and vertical mode**.
 - **Lightbox gallery**: previous and next, a counter and arrow keys across a group.

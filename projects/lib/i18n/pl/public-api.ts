@@ -229,6 +229,11 @@ export const wrPl: WrI18nCatalog = {
     moved: '{{index}} z {{total}}.',
     dropped: 'Upuszczono. {{index}} z {{total}}.',
     cancelled: 'Przenoszenie anulowane.',
+    groupKeyHelp:
+      'Naciśnij spację, aby podnieść ten element, a następnie przesuwaj go strzałkami w obrębie listy lub na sąsiednią listę. ' +
+      'Naciśnij spację ponownie, aby go upuścić, albo Escape, aby cofnąć przenoszenie.',
+    movedTo: 'Przeniesiono do: {{list}}. {{index}} z {{total}}.',
+    listPosition: 'lista {{index}} z {{total}}',
   },
   colorPicker: {
     area: 'Nasycenie i jasność, {{saturation}}% i {{brightness}}%',

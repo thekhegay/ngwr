@@ -797,6 +797,9 @@
       "sass": "./sortable-list/styles/_index.scss",
       "default": "./sortable-list/public-api.ts"
     },
+    "./sortable-list/testing": {
+      "default": "./sortable-list/testing/public-api.ts"
+    },
     "./speed-dial": {
       "sass": "./speed-dial/styles/_index.scss",
       "default": "./speed-dial/public-api.ts"

@@ -25,7 +25,7 @@ A pnpm + Angular CLI monorepo with three projects:
   `rating`, `file-upload`, `color-picker`, `knob`, `form`, `segmented`, `editor`), the overlays
   (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `toast`,
   `context-menu`, `popconfirm`, `command-palette`, `cascader`, `mention`),
-  the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
+  the data views (`table`, `tree`, `graph`, `sortable-list`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`, `load-state`, `copy-value`, `date-stamp`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`
   and **every chart** — each at

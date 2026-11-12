@@ -54,6 +54,13 @@ because it is guidance rather than a plan.
   move", and so did the output's own JSDoc — both wrong since the emit has
   always sat in the drag's cleanup. A consumer persisting the position wants
   the landing rather than the path, which is what it does.
+- `wr-sortable-list` in a group: `move` fires ONCE, on the list the item
+  arrived in, and never on the one it left, which reports through
+  `itemsChange` alone; a keyboard move writes `[(items)]` on both lists at
+  every press and emits on drop, and a row carried out and back emits `reorder`
+  (or nothing), not `move`. Only an EMPTY connected list reserves a height
+  (`--wr-sortable-list-empty-min-height`): an ungrouped list cannot be dropped
+  into from outside, so it stays as flat as it was.
 - `wr-tour` skips a step whose target is missing (a tour has to survive a
   feature behind a flag) while the progress line still counts every step it
   was given.
