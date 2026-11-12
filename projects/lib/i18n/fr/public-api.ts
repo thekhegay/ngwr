@@ -357,6 +357,8 @@ export const wrFr: WrI18nCatalog = {
     viewer: "Aperçu de l'image",
     open: "Ouvrir l'aperçu",
     close: "Fermer l'aperçu",
+    counter: '{{current}} / {{total}}',
+    position: 'Image {{current}} sur {{total}}',
   },
   window: {
     close: 'Fermer',

@@ -1,10 +1,10 @@
 import { Dir, type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, signal } from '@angular/core';
+import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrLightbox } from './lightbox';
 
@@ -312,5 +312,338 @@ describe('WrLightbox follows the application, not a scoped [dir] island', () => 
     await fixture.whenStable();
 
     expect(document.querySelector<HTMLElement>('.wr-lightbox-overlay')!.parentElement!.getAttribute('dir')).toBe('ltr');
+  });
+});
+
+/**
+ * Lightboxes sharing a `group` page through each other from one viewer: the one
+ * that was opened renders it and the others lend it their image.
+ */
+describe('WrLightbox in a gallery', () => {
+  @Component({
+    imports: [WrLightbox],
+    template: `
+      @if (early()) {
+        <wr-lightbox src="/zero.jpg" alt="Zeroth" group="pets" />
+      }
+      <wr-lightbox src="/one.jpg" alt="First" caption="One" group="pets" [loop]="loop()" />
+      @if (middle()) {
+        <wr-lightbox src="/two.jpg" alt="Second" group="pets" [loop]="loop()" previousLabel="Back one" />
+      }
+      <wr-lightbox src="/three.jpg" alt="Third" caption="Three" group="pets" [loop]="loop()" />
+      <wr-lightbox src="/solo.jpg" alt="Solo" />
+    `,
+  })
+  class GalleryHost {
+    readonly early = signal(false);
+    readonly middle = signal(true);
+    readonly loop = signal(false);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<GalleryHost>>;
+  let preloads: string[];
+
+  const q = <T extends HTMLElement>(selector: string): T | null => document.querySelector<T>(selector);
+  const full = (): string => q<HTMLImageElement>('.wr-lightbox-viewer__full')!.getAttribute('src')!;
+  const counter = (): string => q('.wr-lightbox-viewer__counter')!.textContent.trim();
+  const status = (): HTMLElement => q('.wr-lightbox-viewer__status')!;
+  const previous = (): HTMLButtonElement => q<HTMLButtonElement>('.wr-lightbox-viewer__nav--previous')!;
+  const next = (): HTMLButtonElement => q<HTMLButtonElement>('.wr-lightbox-viewer__nav--next')!;
+
+  const click = (el: HTMLElement): void => {
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+    fixture.detectChanges();
+  };
+
+  const press = (key: string, init: KeyboardEventInit = {}): KeyboardEvent => {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
+    document.body.dispatchEvent(event);
+    fixture.detectChanges();
+    return event;
+  };
+
+  const open = (alt: string): void =>
+    click(
+      (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(`.wr-lightbox__trigger[aria-label="${alt}"]`)!
+    );
+
+  const create = (): void => {
+    fixture = TestBed.createComponent(GalleryHost);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    preloads = [];
+    vi.stubGlobal(
+      'Image',
+      class {
+        set src(value: string) {
+          preloads.push(value);
+        }
+      }
+    );
+    TestBed.resetTestingModule();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.unstubAllGlobals();
+  });
+
+  it('leaves a lightbox with no group exactly as it was', () => {
+    create();
+    open('Solo');
+
+    expect(full()).toBe('/solo.jpg');
+    expect(q('.wr-lightbox-viewer__nav')).toBeNull();
+    expect(q('.wr-lightbox-viewer__counter')).toBeNull();
+    expect(q('.wr-lightbox-viewer__status')).toBeNull();
+    expect(press('ArrowRight').defaultPrevented).toBe(false);
+    expect(full()).toBe('/solo.jpg');
+    expect(preloads).toEqual([]);
+  });
+
+  it('opens the gallery at the image that was clicked', () => {
+    create();
+    open('Second');
+
+    expect(full()).toBe('/two.jpg');
+    expect(counter()).toBe('2 / 3');
+    expect(q('.wr-lightbox-viewer__counter')!.getAttribute('aria-hidden')).toBe('true');
+    expect(q('.wr-lightbox-viewer')!.getAttribute('aria-label')).toBe('Second');
+  });
+
+  it('moves by its two named buttons, swapping the image and caption in place', () => {
+    create();
+    open('Second');
+    const viewer = q('.wr-lightbox-viewer');
+
+    expect(previous().getAttribute('aria-label')).toBe('Back one');
+    expect(next().getAttribute('aria-label')).toBe('Next');
+    expect(q('.wr-lightbox-viewer__caption')).toBeNull();
+
+    click(next());
+    expect(full()).toBe('/three.jpg');
+    expect(counter()).toBe('3 / 3');
+    expect(q('.wr-lightbox-viewer__caption')!.textContent.trim()).toBe('Three');
+    expect(q<HTMLImageElement>('.wr-lightbox-viewer__full')!.alt).toBe('Third');
+
+    click(previous());
+    click(previous());
+    expect(full()).toBe('/one.jpg');
+    expect(q('.wr-lightbox-viewer')).toBe(viewer);
+    expect(document.querySelectorAll('.wr-lightbox-viewer')).toHaveLength(1);
+  });
+
+  it('moves with the arrow keys, and to either end with Home and End', () => {
+    create();
+    open('Second');
+
+    expect(press('ArrowRight').defaultPrevented).toBe(true);
+    expect(counter()).toBe('3 / 3');
+
+    press('ArrowLeft');
+    press('ArrowLeft');
+    expect(counter()).toBe('1 / 3');
+
+    press('End');
+    expect(full()).toBe('/three.jpg');
+
+    press('Home');
+    expect(full()).toBe('/one.jpg');
+  });
+
+  it('leaves a modified arrow to the browser', () => {
+    create();
+    open('Second');
+
+    expect(press('ArrowLeft', { altKey: true }).defaultPrevented).toBe(false);
+    expect(counter()).toBe('2 / 3');
+  });
+
+  it('stops at both ends unless it is told to loop', () => {
+    create();
+    open('Third');
+
+    expect(next().getAttribute('aria-disabled')).toBe('true');
+    expect(next().classList.contains('wr-lightbox-viewer__nav--disabled')).toBe(true);
+    expect(previous().hasAttribute('aria-disabled')).toBe(false);
+
+    click(next());
+    press('ArrowRight');
+    expect(counter()).toBe('3 / 3');
+
+    press('Home');
+    expect(previous().getAttribute('aria-disabled')).toBe('true');
+    press('ArrowLeft');
+    expect(counter()).toBe('1 / 3');
+  });
+
+  it('wraps around both ends with loop', () => {
+    create();
+    fixture.componentInstance.loop.set(true);
+    fixture.detectChanges();
+    open('Third');
+
+    expect(next().hasAttribute('aria-disabled')).toBe(false);
+    click(next());
+    expect(counter()).toBe('1 / 3');
+
+    press('ArrowLeft');
+    expect(counter()).toBe('3 / 3');
+  });
+
+  it('turns the arrow keys around under RTL, so the inline start is still previous', () => {
+    create();
+    TestBed.inject(Directionality).valueSignal.set('rtl');
+    open('Second');
+
+    press('ArrowLeft');
+    expect(counter()).toBe('3 / 3');
+
+    press('ArrowRight');
+    press('ArrowRight');
+    expect(counter()).toBe('1 / 3');
+  });
+
+  it('turns the page on a sideways swipe and still closes on a downward one', () => {
+    create();
+    open('Second');
+    const viewer = q('.wr-lightbox-viewer')!;
+    const touch = (type: string, clientX: number, clientY: number): void => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      const point = [{ clientX, clientY }];
+      Object.assign(event, { touches: type === 'touchend' ? [] : point, changedTouches: point });
+      viewer.dispatchEvent(event);
+      fixture.detectChanges();
+    };
+    Object.defineProperty(viewer, 'offsetHeight', { value: 400 });
+
+    touch('touchstart', 200, 100);
+    touch('touchend', 120, 110);
+    expect(counter()).toBe('3 / 3');
+
+    touch('touchstart', 120, 100);
+    touch('touchend', 200, 90);
+    expect(counter()).toBe('2 / 3');
+
+    touch('touchstart', 200, 100);
+    touch('touchend', 205, 300);
+    expect(q('.wr-lightbox-viewer')).toBeNull();
+  });
+
+  it('announces the new position and image politely', () => {
+    create();
+    open('First');
+
+    expect(status().getAttribute('role')).toBe('status');
+    expect(status().getAttribute('aria-live')).toBe('polite');
+    const region = status();
+
+    click(next());
+    expect(status()).toBe(region);
+    expect(region.textContent.trim()).toBe('Image 2 of 3, Second');
+  });
+
+  it('keeps focus on the button that just reached the end', () => {
+    // A `disabled` button cannot hold focus: the browser drops it to <body>, which
+    // is outside the trap. So the end of the group is `aria-disabled` only.
+    create();
+    open('Second');
+    next().focus();
+
+    click(next());
+    expect(next().getAttribute('aria-disabled')).toBe('true');
+    expect(next().disabled).toBe(false);
+    expect(document.activeElement).toBe(next());
+    expect(q('.wr-lightbox-viewer')!.contains(document.activeElement)).toBe(true);
+  });
+
+  it('hands focus back to the thumbnail that opened it, wherever it ended', () => {
+    create();
+    const trigger = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[aria-label="First"]')!;
+    trigger.focus();
+    open('First');
+    press('End');
+
+    press('Escape');
+    expect(q('.wr-lightbox-viewer')).toBeNull();
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('orders the group by the document, not by who registered first', () => {
+    create();
+    fixture.componentInstance.early.set(true);
+    fixture.detectChanges();
+    open('First');
+
+    expect(counter()).toBe('2 / 4');
+    press('Home');
+    expect(full()).toBe('/zero.jpg');
+  });
+
+  it('drops a destroyed member and stays at its place in the order', () => {
+    create();
+    open('First');
+    click(next());
+    expect(full()).toBe('/two.jpg');
+
+    fixture.componentInstance.middle.set(false);
+    fixture.detectChanges();
+
+    expect(full()).toBe('/three.jpg');
+    expect(counter()).toBe('2 / 2');
+  });
+
+  it('preloads the neighbour on each side, once', () => {
+    create();
+    open('Second');
+    expect([...preloads].sort()).toEqual(['/one.jpg', '/three.jpg']);
+
+    click(next());
+    click(previous());
+    expect(preloads).toHaveLength(2);
+  });
+
+  it('preloads nothing on the server', () => {
+    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
+    create();
+    open('Second');
+
+    expect(counter()).toBe('2 / 3');
+    expect(preloads).toEqual([]);
+  });
+});
+
+describe('WrLightbox gallery under a localized catalog', () => {
+  it('takes its button names and the announcement from the catalog', async () => {
+    @Component({
+      imports: [WrLightbox],
+      template: `
+        <wr-lightbox src="/one.jpg" alt="Кот" group="pets" />
+        <wr-lightbox src="/two.jpg" alt="Пёс" group="pets" />
+      `,
+    })
+    class RuHost {}
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    const fixture = TestBed.createComponent(RuHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-lightbox__trigger')!.click();
+    fixture.detectChanges();
+
+    expect(document.querySelector('.wr-lightbox-viewer__nav--previous')!.getAttribute('aria-label')).toBe('Назад');
+    expect(document.querySelector('.wr-lightbox-viewer__nav--next')!.getAttribute('aria-label')).toBe('Далее');
+    expect(document.querySelector('.wr-lightbox-viewer__status')!.textContent.trim()).toBe('Изображение 1 из 2, Кот');
+
+    fixture.destroy();
   });
 });

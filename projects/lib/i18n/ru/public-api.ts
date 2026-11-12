@@ -355,6 +355,8 @@ export const wrRu: WrI18nCatalog = {
     viewer: 'Просмотр изображения',
     open: 'Открыть превью',
     close: 'Закрыть превью',
+    counter: '{{current}} / {{total}}',
+    position: 'Изображение {{current}} из {{total}}',
   },
   window: {
     close: 'Закрыть',

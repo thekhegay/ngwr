@@ -363,6 +363,8 @@ export const wrTr: WrI18nCatalog = {
     viewer: 'Görsel önizlemesi',
     open: 'Önizlemeyi aç',
     close: 'Önizlemeyi kapat',
+    counter: '{{current}} / {{total}}',
+    position: 'Görsel {{current}}, toplam {{total}}',
   },
   window: {
     close: 'Kapat',

@@ -363,6 +363,8 @@ export const wrUk: WrI18nCatalog = {
     viewer: 'Перегляд зображення',
     open: 'Відкрити перегляд',
     close: 'Закрити перегляд',
+    counter: '{{current}} / {{total}}',
+    position: 'Зображення {{current}} з {{total}}',
   },
   window: {
     close: 'Закрити',

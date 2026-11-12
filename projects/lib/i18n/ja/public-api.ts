@@ -352,6 +352,8 @@ export const wrJa: WrI18nCatalog = {
     viewer: '画像プレビュー',
     open: 'プレビューを開く',
     close: 'プレビューを閉じる',
+    counter: '{{current}} / {{total}}',
+    position: '画像 {{total}} 枚中 {{current}} 枚目',
   },
   window: {
     close: '閉じる',

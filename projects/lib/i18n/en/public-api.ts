@@ -447,6 +447,8 @@ export const wrEn: WrI18nCatalog = {
     viewer: 'Image preview',
     open: 'Open preview',
     close: 'Close preview',
+    counter: '{{current}} / {{total}}',
+    position: 'Image {{current}} of {{total}}',
   },
   window: {
     close: 'Close',

@@ -154,6 +154,53 @@ export class WrLightboxHarness extends ComponentHarness {
     return (await this.viewerPart('.wr-lightbox-viewer__full', 'getFullSrc')).getProperty<string>('src');
   }
 
+  /**
+   * The image the viewer is showing right now.
+   *
+   * {@link getFullSrc} under the name a gallery spec reads better with: after
+   * {@link next} it is another member's `src`, not this lightbox's own.
+   */
+  async getCurrentSrc(): Promise<string> {
+    return this.getFullSrc();
+  }
+
+  /**
+   * Go to the next image of the group through the viewer's button.
+   *
+   * At the last image without `loop` the button is `aria-disabled` and the click
+   * lands on nothing — read {@link isNextDisabled} to tell the two apart. Throws on
+   * a lightbox that is closed, or that has no gallery to move through.
+   */
+  async next(): Promise<void> {
+    await (await this.navButton('next', 'next')).click();
+  }
+
+  /** Go to the previous image of the group. The mirror of {@link next}. */
+  async previous(): Promise<void> {
+    await (await this.navButton('previous', 'previous')).click();
+  }
+
+  /** Whether the next button reports the end of the group (`aria-disabled`). */
+  async isNextDisabled(): Promise<boolean> {
+    return (await (await this.navButton('next', 'isNextDisabled')).getAttribute('aria-disabled')) === 'true';
+  }
+
+  /** Whether the previous button reports the start of the group (`aria-disabled`). */
+  async isPreviousDisabled(): Promise<boolean> {
+    return (await (await this.navButton('previous', 'isPreviousDisabled')).getAttribute('aria-disabled')) === 'true';
+  }
+
+  /**
+   * The counter as drawn, e.g. `2 / 3`, or `null` for a lightbox outside a gallery.
+   * Throws while the viewer is closed.
+   */
+  async getCounter(): Promise<string | null> {
+    const viewer = await this.requireViewer('getCounter');
+    const id = await viewer.getAttribute('id');
+    const counter = await this.documentRootLocatorFactory().locatorForOptional(`#${id} .wr-lightbox-viewer__counter`)();
+    return counter ? counter.text() : null;
+  }
+
   /** The caption under the full image, or `null` when there is none. Throws while closed. */
   async getCaption(): Promise<string | null> {
     await this.requireViewer('getCaption');
@@ -234,6 +281,22 @@ export class WrLightboxHarness extends ComponentHarness {
       );
     }
     return viewer;
+  }
+
+  private async navButton(side: 'previous' | 'next', method: string): Promise<TestElement> {
+    const viewer = await this.requireViewer(method);
+    const id = await viewer.getAttribute('id');
+
+    const button = await this.documentRootLocatorFactory().locatorForOptional(
+      `#${id} .wr-lightbox-viewer__nav--${side}`
+    )();
+    if (!button) {
+      throw new Error(
+        `WrLightboxHarness.${method}(): this lightbox is not in a gallery, so the viewer has no ${side} button. ` +
+          'It needs a `group` shared with at least one other lightbox that can open.'
+      );
+    }
+    return button;
   }
 
   private async viewerPart(selector: string, method: string): Promise<TestElement> {

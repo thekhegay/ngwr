@@ -348,6 +348,8 @@ export const wrSv: WrI18nCatalog = {
     viewer: 'Förhandsgranskning av bild',
     open: 'Öppna förhandsgranskning',
     close: 'Stäng förhandsgranskning',
+    counter: '{{current}} / {{total}}',
+    position: 'Bild {{current}} av {{total}}',
   },
   window: {
     close: 'Stäng',

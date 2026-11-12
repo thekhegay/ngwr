@@ -348,6 +348,8 @@ export const wrEs: WrI18nCatalog = {
     viewer: 'Vista previa de la imagen',
     open: 'Abrir vista previa',
     close: 'Cerrar vista previa',
+    counter: '{{current}} / {{total}}',
+    position: 'Imagen {{current}} de {{total}}',
   },
   window: {
     close: 'Cerrar',
