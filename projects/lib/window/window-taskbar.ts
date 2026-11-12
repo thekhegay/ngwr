@@ -111,6 +111,7 @@ const maxTabsAttr = (value: unknown): number | null =>
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-window-taskbar',
     '[class]': 'classes()',
     role: 'toolbar',
     '[attr.aria-label]': 'railLabel()',
@@ -209,7 +210,7 @@ export class WrWindowTaskbar {
   /** The "+N" menu opens away from the edge the rail is pinned to. */
   protected readonly menuPosition = computed(() => (this.position() === 'top' ? 'bottom-end' : 'top-end'));
 
-  protected readonly classes = computed(() => `wr-window-taskbar wr-window-taskbar--${this.position()}`);
+  protected readonly classes = computed(() => `wr-window-taskbar--${this.position()}`);
 
   /**
    * One row per entry of `items()`, in the same order. A folded window keeps its

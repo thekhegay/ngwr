@@ -188,7 +188,7 @@ export class WrFormError {
   selector: 'wr-form-field',
   templateUrl: './form-field.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-form-field', '[class]': 'classes()' },
   providers: [
     {
       provide: WR_FORM_FIELD,
@@ -455,7 +455,7 @@ export class WrFormField implements WrFormFieldContext, AfterContentChecked {
   }
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-form-field'];
+    const parts: string[] = [];
     if (this.hasError()) parts.push('wr-form-field--invalid');
     if (this.required()) parts.push('wr-form-field--required');
     return parts.join(' ');

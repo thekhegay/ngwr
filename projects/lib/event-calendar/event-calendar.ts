@@ -189,6 +189,7 @@ interface DragState {
   templateUrl: './event-calendar.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-event-calendar',
     '[class]': 'classes()',
     // A drag has to end wherever the pointer is released, including outside the
     // chip it started on — so the host owns the release, not the chip.
@@ -316,7 +317,7 @@ export class WrEventCalendar {
   );
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-event-calendar', `wr-event-calendar--${this.view()}`];
+    const parts = [`wr-event-calendar--${this.view()}`];
     if (this.editable()) parts.push('wr-event-calendar--editable');
     if (this.drag()) parts.push('wr-event-calendar--dragging');
     return parts.join(' ');

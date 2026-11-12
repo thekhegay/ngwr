@@ -35,7 +35,7 @@ import { WrLayoutSider } from './layout-sider';
   selector: 'wr-layout',
   template: '<ng-content />',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-layout', '[class]': 'classes()' },
 })
 export class WrLayout {
   constructor() {
@@ -45,7 +45,7 @@ export class WrLayout {
   protected readonly siders = contentChildren(WrLayoutSider);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-layout'];
+    const parts: string[] = [];
     if (this.siders().length > 0) parts.push('wr-layout--has-sider');
     return parts.join(' ');
   });

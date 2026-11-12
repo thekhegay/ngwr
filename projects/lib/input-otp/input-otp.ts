@@ -58,6 +58,7 @@ import type { WrInputOtpMode, WrInputOtpSize } from './types';
   templateUrl: './input-otp.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-input-otp',
     '[class]': 'classes()',
     role: 'group',
     '[attr.aria-label]': 'groupName()',
@@ -156,7 +157,7 @@ export class WrInputOtp implements FormValueControl<string> {
   protected readonly cells = signal<readonly string[]>(Array.from({ length: 6 }, () => ''));
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-input-otp'];
+    const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-input-otp--${size}`);
     if (this.disabled()) parts.push('wr-input-otp--disabled');

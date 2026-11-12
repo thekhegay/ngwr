@@ -38,7 +38,7 @@ import { wrBeginSeparatorDrag, wrEndSeparatorDrag, wrSeparatorKeyMove } from './
   selector: 'wr-splitter',
   templateUrl: './splitter.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-splitter', '[class]': 'classes()' },
 })
 export class WrSplitter {
   /** Position of the divider as a percentage (0–100). Two-way bindable. @default 50 */

@@ -35,7 +35,7 @@ import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from '.
  */
 @Directive({
   selector: '[wrTypography]',
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-typography', '[class]': 'classes()' },
 })
 export class WrTypography {
   constructor() {
@@ -68,7 +68,7 @@ export class WrTypography {
   readonly mono = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-typography', `wr-typography--${this.variant()}`];
+    const parts = [`wr-typography--${this.variant()}`];
     const tone = this.tone();
     if (tone) parts.push(`wr-typography--tone-${tone}`);
     const align = this.align();

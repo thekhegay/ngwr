@@ -63,7 +63,7 @@ import type { WrSliderValue } from './types';
   selector: 'wr-slider',
   templateUrl: './slider.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()', '(focusout)': 'onFocusOut($event)' },
+  host: { class: 'wr-slider', '[class]': 'classes()', '(focusout)': 'onFocusOut($event)' },
 })
 export class WrSlider implements FormValueControl<WrSliderValue> {
   // Typed `WrSliderValue | undefined` (not `number`) to satisfy the reserved
@@ -265,7 +265,7 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   private readonly dir = inject(Directionality, { optional: true });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-slider'];
+    const parts: string[] = [];
     if (this.range()) parts.push('wr-slider--range');
     if (this.disabled()) parts.push('wr-slider--disabled');
     else if (this.readonly()) parts.push('wr-slider--readonly');

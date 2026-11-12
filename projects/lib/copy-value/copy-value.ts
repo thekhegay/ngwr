@@ -39,7 +39,7 @@ const COPIED_MS = 1500;
   selector: 'wr-copy-value',
   templateUrl: './copy-value.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-copy-value', '[class]': 'classes()' },
 })
 export class WrCopyValue {
   constructor() {
@@ -90,7 +90,7 @@ export class WrCopyValue {
   protected readonly justCopied = signal(false);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-copy-value'];
+    const parts: string[] = [];
     if (this.wrap()) parts.push('wr-copy-value--wrap');
     if (this.empty()) parts.push('wr-copy-value--empty');
     if (this.justCopied()) parts.push('wr-copy-value--copied');

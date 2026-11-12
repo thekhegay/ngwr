@@ -77,6 +77,7 @@ const isEmptyValue = (value: unknown): boolean => value == null || (Array.isArra
   imports: [NgTemplateOutlet, WrSkeleton, WrResult, WrEmpty, WrButton],
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-load-state',
     '[class]': 'classes()',
     '[attr.aria-busy]': 'busy() ? "true" : null',
   },
@@ -169,7 +170,7 @@ export class WrLoadState<T = WrSafeAny> {
   protected readonly retrying = computed(() => this.pressed() || (this.resource()?.isLoading() ?? false));
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-load-state', `wr-load-state--${this.state()}`];
+    const parts = [`wr-load-state--${this.state()}`];
     if (this.busy()) parts.push('wr-load-state--busy');
     return parts.join(' ');
   });

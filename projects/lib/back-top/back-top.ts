@@ -33,6 +33,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   templateUrl: './back-top.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-back-top',
     '[class]': 'classes()',
     '[attr.aria-hidden]': '!visible()',
     // `aria-hidden` alone left a 44px button that focus still landed on: invisible
@@ -63,7 +64,7 @@ export class WrBackTop {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-back-top'];
+    const parts: string[] = [];
     if (this.visible()) parts.push('wr-back-top--visible');
     return parts.join(' ');
   });

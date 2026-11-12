@@ -60,6 +60,7 @@ import type { WrAlertType } from './types';
     // did this, which is why the two forms behaved differently for no reason a
     // reader could see.
     '[attr.title]': 'null',
+    class: 'wr-alert',
     '[class]': 'classes()',
     '[attr.role]': 'liveRole()',
     '[attr.aria-live]': 'liveLevel()',
@@ -129,7 +130,7 @@ export class WrAlert {
   protected readonly dismissed = signal(false);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-alert', `wr-alert--${this.type()}`];
+    const parts = [`wr-alert--${this.type()}`];
     if (this.dismissed()) parts.push('wr-alert--dismissed');
     return parts.join(' ');
   });

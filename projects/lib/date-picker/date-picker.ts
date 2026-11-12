@@ -106,7 +106,7 @@ const SILENCE_MS = 100;
   selector: 'wr-date-picker',
   templateUrl: './date-picker.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-date-picker', '[class]': 'classes()' },
   imports: [WrInput, WrInputGroup, WrInputSuffix],
   providers: [WrDateInputField],
   viewProviders: [WR_DATE_INPUT_FIELD_VIEW_PROVIDER],
@@ -433,7 +433,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   protected readonly nameLabel = computed(() => (this.labelledBy() ? null : this.resolvedAriaLabel()));
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-date-picker', `wr-date-picker--${this.mode()}`];
+    const parts = [`wr-date-picker--${this.mode()}`];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-date-picker--${size}`);
     if (this.disabled()) parts.push('wr-date-picker--disabled');

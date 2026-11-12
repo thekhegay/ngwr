@@ -38,7 +38,7 @@ import type { WrCollapseIndicator } from './types';
   encapsulation: ViewEncapsulation.None,
   // See `WrAlert`: a static `title=` feeds the input AND lands on the host,
   // where the browser draws it as a tooltip over the whole component.
-  host: { '[class]': 'classes()', '[attr.title]': 'null' },
+  host: { class: 'wr-collapse', '[class]': 'classes()', '[attr.title]': 'null' },
 })
 export class WrCollapse {
   /** Header text. */
@@ -73,7 +73,7 @@ export class WrCollapse {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-collapse'];
+    const parts: string[] = [];
     if (this.open()) parts.push('wr-collapse--open');
     if (!this.bordered()) parts.push('wr-collapse--flat');
     if (this.disabled()) parts.push('wr-collapse--disabled');

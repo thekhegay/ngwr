@@ -73,7 +73,7 @@ function matchesAccept(file: File, accept: string): boolean {
   selector: 'wr-file-upload',
   templateUrl: './file-upload.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-file-upload', '[class]': 'classes()' },
   imports: [],
 })
 export class WrFileUpload implements FormValueControl<File | readonly File[] | null> {
@@ -196,7 +196,7 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   private readonly injector = inject(Injector);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-file-upload'];
+    const parts: string[] = [];
     if (this.dragging()) parts.push('wr-file-upload--dragging');
     if (this.disabled()) parts.push('wr-file-upload--disabled');
     else if (this.readonly()) parts.push('wr-file-upload--readonly');

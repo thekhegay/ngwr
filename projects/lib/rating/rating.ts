@@ -64,7 +64,7 @@ export type WrRatingSize = 'sm' | 'md' | 'lg';
   selector: 'wr-rating',
   templateUrl: './rating.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-rating', '[class]': 'classes()' },
 })
 export class WrRating implements FormValueControl<number | null> {
   constructor() {
@@ -176,7 +176,7 @@ export class WrRating implements FormValueControl<number | null> {
   protected readonly nameLabel = computed(() => (this.labelledBy() ? null : this.resolvedAriaLabel()));
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-rating'];
+    const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-rating--${size}`);
     if (this.readonly()) parts.push('wr-rating--readonly');

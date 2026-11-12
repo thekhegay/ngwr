@@ -56,6 +56,7 @@ let viewerUid = 0;
   styleUrl: './lightbox.scss',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-lightbox',
     '[class]': 'classes()',
     '[style.aspect-ratio]': 'aspectRatio()',
   },
@@ -137,7 +138,7 @@ export class WrLightbox {
   protected readonly viewerId = `wr-lightbox-viewer-${++viewerUid}`;
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-lightbox'];
+    const parts: string[] = [];
     if (this.open()) parts.push('wr-lightbox--open');
     if (!this.loaded()) parts.push('wr-lightbox--loading');
     return parts.join(' ');

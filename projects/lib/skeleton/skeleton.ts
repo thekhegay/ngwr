@@ -35,6 +35,7 @@ import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
   host: {
     'aria-busy': 'true',
     'aria-live': 'polite',
+    class: 'wr-skeleton',
     '[class]': 'classes()',
   },
 })
@@ -82,7 +83,7 @@ export class WrSkeleton {
   );
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-skeleton'];
+    const parts: string[] = [];
 
     const color = this.color();
     if (color) parts.push(`wr-skeleton--${color}`);

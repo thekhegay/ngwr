@@ -26,6 +26,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   encapsulation: ViewEncapsulation.None,
   host: {
     role: 'menuitem',
+    class: 'wr-dropdown-item',
     '[class]': 'classes()',
     '[attr.tabindex]': '-1',
     '[attr.aria-disabled]': 'disabled() ? true : null',
@@ -46,7 +47,7 @@ export class WrDropdownItem {
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-dropdown-item'];
+    const parts: string[] = [];
     if (this.disabled()) parts.push('wr-dropdown-item--disabled');
     return parts.join(' ');
   });

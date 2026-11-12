@@ -22,7 +22,7 @@ import { wrCheckStyles } from 'ngwr/utils';
  */
 @Directive({
   selector: '[wrDialogFooter]',
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-dialog__footer', '[class]': 'classes()' },
 })
 export class WrDialogFooter {
   constructor() {

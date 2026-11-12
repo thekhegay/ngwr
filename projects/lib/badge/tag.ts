@@ -34,7 +34,7 @@ import type { WrTagIconPosition } from './types';
   selector: 'wr-tag',
   templateUrl: './tag.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-tag', '[class]': 'classes()' },
   imports: [WrIcon, WrSpinner],
 })
 export class WrTag {
@@ -109,7 +109,7 @@ export class WrTag {
   readonly loading = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-tag'];
+    const parts: string[] = [];
 
     const color = this.color();
     if (color) parts.push(`wr-tag--${color}`);

@@ -21,7 +21,7 @@ import type { WrTimelineColor } from './types';
   encapsulation: ViewEncapsulation.None,
   // See `WrAlert`: a static `title=` feeds the input AND lands on the host,
   // where the browser draws it as a tooltip over the whole component.
-  host: { '[class]': 'classes()', '[attr.title]': 'null' },
+  host: { class: 'wr-timeline-item', '[class]': 'classes()', '[attr.title]': 'null' },
 })
 export class WrTimelineItem {
   constructor() {
@@ -44,7 +44,7 @@ export class WrTimelineItem {
    */
   readonly color = input<WrTimelineColor>('primary');
 
-  protected readonly classes = computed(() => `wr-timeline-item wr-timeline-item--${this.color()}`);
+  protected readonly classes = computed(() => `wr-timeline-item--${this.color()}`);
 }
 
 export type { WrTimelineColor } from './types';

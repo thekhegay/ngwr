@@ -127,7 +127,7 @@ function asBound<M extends WrInputNumberMode>(bound: number): NonNullable<WrInpu
   selector: 'wr-input-number',
   templateUrl: './input-number.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-input-number', '[class]': 'classes()' },
   imports: [WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix],
 })
 export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements FormValueControl<WrInputNumberValue<M>> {
@@ -307,7 +307,7 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
    * every size and ran its dividers into a pill's rounded end.
    */
   protected readonly classes = computed(() => {
-    const parts = ['wr-input-number'];
+    const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-input-number--${size}`);
     if (this.rounded()) parts.push('wr-input-number--rounded');

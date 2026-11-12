@@ -91,6 +91,7 @@ function hash(text: string): number {
   templateUrl: './avatar.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-avatar',
     '[class]': 'classes()',
     '[style.width]': 'cssSize()',
     '[style.height]': 'cssSize()',
@@ -280,7 +281,7 @@ export class WrAvatar {
   protected readonly pxSize = computed(() => this.resolved().pxValue);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-avatar'];
+    const parts: string[] = [];
     const shape = this.shape();
     if (shape !== 'rounded') parts.push(`wr-avatar--${shape}`);
     if (this.loaded()) parts.push('wr-avatar--loaded');

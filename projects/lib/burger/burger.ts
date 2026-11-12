@@ -32,7 +32,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   selector: 'wr-burger',
   templateUrl: './burger.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-burger', '[class]': 'classes()' },
 })
 export class WrBurger {
   constructor() {
@@ -54,7 +54,6 @@ export class WrBurger {
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => ({
-    'wr-burger': true,
     'wr-burger--opened': this.open(),
   }));
 

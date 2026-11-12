@@ -35,7 +35,7 @@ const selectionVersion = signal(0);
   selector: 'wr-table-filter',
   templateUrl: './table-filter.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-table-filter', '[class]': 'classes()' },
   imports: [WrDropdown, WrDropdownMenu],
 })
 export class WrTableFilter {
@@ -121,7 +121,7 @@ export class WrTableFilter {
   });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-table-filter'];
+    const parts: string[] = [];
     if (this.selectedCount() > 0) parts.push('wr-table-filter--active');
     return parts.join(' ');
   });

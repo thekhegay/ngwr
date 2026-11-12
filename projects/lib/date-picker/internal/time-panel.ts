@@ -127,7 +127,7 @@ function isLocaleHour12(locale: string): boolean {
   selector: 'wr-time-picker',
   templateUrl: './time-panel.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-time-picker', '[class]': 'classes()' },
 })
 export class WrTimePanel implements FormValueControl<Date | null> {
   /** 12 / 24-hour mode. @default 'auto' (derived from the locale) */
@@ -257,7 +257,7 @@ export class WrTimePanel implements FormValueControl<Date | null> {
   protected readonly secondsDisplay = computed(() => padLocale(this.seconds(), this.locale));
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-time-picker'];
+    const parts: string[] = [];
     if (this.is12h()) parts.push('wr-time-picker--12h');
     if (this.showSeconds()) parts.push('wr-time-picker--with-seconds');
     if (this.effectiveDisabled()) parts.push('wr-time-picker--disabled');

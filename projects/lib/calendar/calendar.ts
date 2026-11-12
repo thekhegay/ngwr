@@ -68,6 +68,7 @@ const YEAR_COLS = 4;
   templateUrl: './calendar.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-calendar',
     '[class]': 'classes()',
     // No `role="grid"` here: the host also wraps the nav header, and a grid may
     // only own rows. The role sits on `.wr-calendar__body`, which is the day
@@ -292,7 +293,7 @@ export class WrCalendar {
   });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-calendar', `wr-calendar--${this.mode()}`];
+    const parts = [`wr-calendar--${this.mode()}`];
     if (this.disabled()) parts.push('wr-calendar--disabled');
     return parts.join(' ');
   });

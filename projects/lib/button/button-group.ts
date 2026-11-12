@@ -39,6 +39,7 @@ import type { WrButtonShape, WrButtonGroupContext } from './types';
   template: '<ng-content />',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-btn-group',
     '[class]': 'hostClasses()',
     role: 'group',
   },
@@ -61,7 +62,7 @@ export class WrButtonGroup implements WrButtonGroupContext {
   readonly shape = input<WrButtonShape | null>(null);
 
   protected readonly hostClasses = computed(() => {
-    const parts = ['wr-btn-group'];
+    const parts: string[] = [];
     const s = this.shape();
     if (s) parts.push(`wr-btn-group--${s}`);
     return parts.join(' ');
