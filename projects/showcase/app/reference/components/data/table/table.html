@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="16.0.0"
+  updated="16.1.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
@@ -147,6 +147,40 @@
     description="`[loading]` shows a spinner and `emptyLabel` the empty text. There is no error input: show a `<wr-alert>` beside the table."
   >
     <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Loading modes"
+    description="`loadingMode` picks how `[loading]` shows: `overlay` veils the table, `bar` runs a thin bar along the top and leaves the rows readable, `auto` (default) is the overlay while the table is empty and the bar once it has rows."
+  >
+    <ngwr-doc-snippet [code]="snippets.loadingModes">
+      <div style="width: 100%">
+        <wr-table [columns]="columns" [items]="loadRows()" [loading]="refreshing()" [loadingMode]="loadMode()" />
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem">
+          <wr-btn size="sm" (click)="refresh()">Refresh</wr-btn>
+          <wr-btn size="sm" outlined (click)="toggleLoadRows()">
+            {{ loadRows().length ? 'Clear rows' : 'Restore rows' }}
+          </wr-btn>
+          @for (mode of loadModes; track mode) {
+            <wr-btn
+              size="sm"
+              [outlined]="loadMode() !== mode"
+              [attr.aria-pressed]="loadMode() === mode"
+              (click)="loadMode.set(mode)"
+            >
+              {{ mode }}
+            </wr-btn>
+          }
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>The table carries <code>aria-busy</code> in every mode, and <code>loadingLabel</code> names both forms.</li>
+      <li>
+        The bar is styled through <code>--wr-table-loading-bar-color</code>, <code>-track</code>,
+        <code>-height</code> and <code>-duration</code>. Reduced motion slows its sweep.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section

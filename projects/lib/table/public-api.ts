@@ -15,6 +15,7 @@ export type {
   WrTableFilterChange,
   WrTableFilterItem,
   WrTableGroupContext,
+  WrTableLoadingMode,
   WrTableRow,
   WrTableRowClass,
   WrTableSortAccessor,

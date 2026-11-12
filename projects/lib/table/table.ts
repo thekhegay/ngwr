@@ -61,6 +61,7 @@ import type {
   WrTableFilterChange,
   WrTableFilterItem,
   WrTableGroupContext,
+  WrTableLoadingMode,
   WrTableRow,
   WrTableRowClass,
   WrTableSortState,
@@ -239,8 +240,26 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     () => this.items() as unknown as readonly Record<string, unknown>[] | null | undefined
   );
 
-  /** Show the loading spinner overlay. @default false */
+  /** Mark the table as loading; `loadingMode` picks how it shows. @default false */
   readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * How `loading` shows. `'overlay'` veils the table under a spinner. `'bar'`
+   * runs a thin progress bar along the top edge and leaves the rows as they
+   * are, for a table that refreshes while it is being read. `'auto'` is the
+   * overlay while no row is shown and the bar once rows are. The host carries
+   * `aria-busy` in every form.
+   * @default 'auto'
+   */
+  readonly loadingMode = input<WrTableLoadingMode>('auto');
+
+  /** The form `loading` takes right now, `null` while nothing loads. */
+  protected readonly loadingForm = computed<'overlay' | 'bar' | null>(() => {
+    if (!this.loading()) return null;
+    const mode = this.loadingMode();
+    if (mode !== 'auto') return mode;
+    return this.renderRows().length ? 'bar' : 'overlay';
+  });
 
   /**
    * Collapse each row to a labelled card when the table's own box is too narrow
@@ -441,7 +460,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    */
   readonly toggleGroupLabel = input<string | null>(null);
 
-  /** Accessible name of the loading overlay. Falls back to `table.loading`. */
+  /** Accessible name of the loading overlay or bar. Falls back to `table.loading`. */
   readonly loadingLabel = input<string | null>(null);
 
   protected readonly resolvedEmptyLabel = useI18nText(this.emptyLabel, 'table.empty', 'No data');
