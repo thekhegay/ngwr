@@ -16,8 +16,9 @@ import { WrDateAdapter, WrNativeDateAdapter } from './wr-date-adapter';
 
 /**
  * Replace the date adapter the calendar / date picker / time picker use, pin
- * the locale it formats in, set the time zone dates are shown in, or say what a
- * backend's numbers count (`epochUnit`), as a feature of `provideWr()`. Optional: with no call at all they run on
+ * the locale it formats in, set the time zone dates are shown in, or say how a
+ * backend's numbers and zoneless strings are read (`epochUnit`, `zonelessIn`),
+ * as a feature of `provideWr()`. Optional: with no call at all they run on
  * {@link WrNativeDateAdapter} in Angular's `LOCALE_ID` and the browser's zone.
  *
  * Omit `locale` and dates follow the interface language of `provideWrI18n()`,
@@ -66,17 +67,20 @@ export function withDates(options: WrDatesOptions = {}): WrFeature<'dates'> {
     });
   }
 
-  // Merged over what an injector above set, so a route's call keeps the app's.
-  const { epochUnit } = options;
-  if (epochUnit) {
+  // Merged over what an injector above set, so a route's call that names one
+  // key keeps the app's other one.
+  const { epochUnit, zonelessIn } = options;
+  if (epochUnit || zonelessIn) {
     providers.push({
       provide: WR_DATE_INPUT,
       useFactory: () => {
         const above = inject(WR_DATE_INPUT, { skipSelf: true, optional: true });
-        return { epochUnit, zonelessIn: above?.zonelessIn ?? 'browser' };
+        return {
+          epochUnit: epochUnit ?? above?.epochUnit ?? 'ms',
+          zonelessIn: zonelessIn ?? above?.zonelessIn ?? 'browser',
+        };
       },
     });
   }
-
   return wrFeature('dates', providers);
 }

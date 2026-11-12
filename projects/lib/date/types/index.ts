@@ -110,6 +110,18 @@ interface WrDatesOptions {
    * @default 'ms'
    */
   readonly epochUnit?: WrEpochUnit;
+
+  /**
+   * The zone a date-time string with NO offset (`'2026-11-12 13:45:00'`) is
+   * read in, for `wrDate`, `wrFormatDate` and `wr-date-stamp`. `'display'`
+   * reads it as a wall clock of `timeZone`, so it prints unchanged; `'utc'`
+   * reads it as UTC; `'browser'` as the browser's local time. A string with
+   * `Z` or an offset is the instant it names, and a date-only string stays a
+   * day, whatever this says.
+   *
+   * @default 'browser'
+   */
+  readonly zonelessIn?: WrZonelessIn;
 }
 
 export type { WrDateFormat };

@@ -394,7 +394,11 @@ describe('wrDate in a display time zone', () => {
   });
 });
 
-/** A number in another unit than milliseconds. Each expectation also runs with the process in other zones. */
+/**
+ * The backend forms an app reads: a number in another unit, and a date-time
+ * with no offset that is the display zone's own wall clock. The second half of
+ * each expectation runs with the process in another zone.
+ */
 describe('wrDate reading backend values', () => {
   const AT = Date.UTC(2026, 10, 12, 8, 45, 0);
 
@@ -449,10 +453,39 @@ describe('wrDate reading backend values', () => {
     expect(p.transform(AT / 1000, 'yyyy', { epochUnit: 's' })).toBe('2026');
   });
 
+  it('prints a zoneless string unchanged when it is read in the display zone', () => {
+    everywhere(() => {
+      const dates = adapter({ timeZone: '+0500', zonelessIn: 'display' });
+      expect(wrFormatDate('2026-11-12 13:45:00', dates, 'yyyy-MM-dd HH:mm:ss')).toBe('2026-11-12 13:45:00');
+      expect(wrFormatDate('2026-11-12T13:45', dates, 'yyyy-MM-dd HH:mm')).toBe('2026-11-12 13:45');
+      expect(pipe().transform('2026-11-12 13:45:00', 'd MMM y HH:mm')).toBe('12 Nov 2026 13:45');
+
+      const named = adapter({ timeZone: 'Australia/Adelaide', zonelessIn: 'display' });
+      expect(wrFormatDate('2026-11-12 13:45:00', named, 'yyyy-MM-dd HH:mm:ss')).toBe('2026-11-12 13:45:00');
+    });
+  });
+
+  it('reads a zoneless string as UTC and shows it in the display zone', () => {
+    everywhere(() => {
+      const dates = adapter({ timeZone: '+0500', zonelessIn: 'utc' });
+      expect(wrFormatDate('2026-11-12 13:45:00', dates, 'yyyy-MM-dd HH:mm')).toBe('2026-11-12 18:45');
+    });
+  });
+
+  it('leaves a string with an offset and a date-only string as they were', () => {
+    everywhere(() => {
+      const dates = adapter({ timeZone: '+0500', zonelessIn: 'display', epochUnit: 'auto' });
+      expect(wrFormatDate('2026-11-12 13:45:00Z', dates, 'yyyy-MM-dd HH:mm')).toBe('2026-11-12 18:45');
+      expect(wrFormatDate('2026-11-12T13:45:00+09:00', dates, 'yyyy-MM-dd HH:mm')).toBe('2026-11-12 09:45');
+      expect(wrFormatDate('2026-11-12', dates, 'yyyy-MM-dd HH:mm')).toBe('2026-11-12 00:00');
+    });
+  });
+
   it('changes nothing with no option', () => {
     const dates = adapter();
     expect(dates.parseOptions()).toEqual({ epochUnit: 'ms', zonelessIn: 'browser', timeZone: null });
     expect(wrFormatDate(AT, dates, 'yyyy')).toBe('2026');
+    expect(wrFormatDate('2026-11-12 13:45:00', dates, 'yyyy-MM-dd HH:mm')).toBe('2026-11-12 13:45');
   });
 });
 
