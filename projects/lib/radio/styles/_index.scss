@@ -97,13 +97,15 @@
   }
 
   // Sizes — dot, label font + line-height scale together.
-  &--sm {
+  &--sm,
+  &:where([size='sm']) {
     --wr-radio-size: 1rem; // 16px
     --wr-radio-font-size: var(--wr-text-xs);
     --wr-radio-line-height: var(--wr-control-line-height-sm);
   }
 
-  &--lg {
+  &--lg,
+  &:where([size='lg']) {
     --wr-radio-size: 1.25rem; // 20px
     --wr-radio-font-size: var(--wr-text-base);
     --wr-radio-line-height: var(--wr-control-line-height-lg);

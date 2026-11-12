@@ -22,11 +22,12 @@ const css = sass
 
 type Scope = Map<string, string>;
 
-/** The declarations of every unnested rule whose selector is exactly `selector`, later ones winning. */
+/** The declarations of every unnested rule whose selector list holds exactly `selector`, later ones winning. */
 function rule(selector: string): Scope {
   const out: Scope = new Map();
   for (const m of css.matchAll(/(?:^|\n)([^\s{}@][^{}]*?)\s*\{([^{}]*)\}/g)) {
-    if (m[1].trim() !== selector) continue;
+    // Split on the commas of the list itself, not on the ones inside `:not(a, b)`.
+    if (!m[1].split(/,(?![^()]*\))/).some(part => part.trim() === selector)) continue;
     for (const d of m[2].matchAll(/([\w-]+)\s*:\s*([^;]+);/g)) out.set(d[1], d[2].trim().replace(/\s+/g, ' '));
   }
   return out;

@@ -193,6 +193,19 @@ A rule that reads `--wr-color-surface` or `--wr-space-lg` directly leaves the
 consumer no hook of the component's own to restyle it with, and the hooks are
 public API (see `gen:css-vars` below).
 
+**The base block class is static host metadata, and modifiers are bindings.**
+`host: { class: 'wr-btn', '[class]': 'classes()' }`, where `classes()` returns the
+modifiers only. In a zoneless app the first update pass can run a frame after the
+element is in the document, so a base class that arrives through a binding leaves
+the host on user-agent styles and its own `transition` then animates from them.
+For the same reason a variant commonly written as a static attribute also matches
+by attribute in the same rule, inside `:where()` so the specificity stays that of
+the class: `&--sm, &:where([size='sm'])` and
+`&--outlined, &:where([outlined]:not([outlined='false']))`. Only a plain `input()`
+qualifies, never a `model()` or an input a form drives, since the attribute stays
+when the value changes. `static-host-class.spec.ts` and
+`static-variant-selectors.spec.ts` hold both.
+
 **An input that can be unset never binds to a hook's own name.** Angular compiles
 `[style.--wr-x]` under a namespaced key that misses a value of the same name in the
 host's `style` attribute and in `[style]`, so a `null` binding wipes the author's
