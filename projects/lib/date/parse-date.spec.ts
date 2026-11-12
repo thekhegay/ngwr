@@ -154,4 +154,63 @@ describe('wrParseDate', () => {
       expect(wrParseDate('2026-11-12T08:45:00Z', { epochUnit: 's' })?.getTime()).toBe(AT);
     });
   });
+
+  describe('zonelessIn', () => {
+    const UTC_1345 = Date.UTC(2026, 10, 12, 13, 45, 0);
+    const HOUR = 3_600_000;
+
+    it('reads a zoneless date-time in the browser zone by default, as before', () => {
+      const local = new Date(2026, 10, 12, 13, 45, 0).getTime();
+      expect(time('2026-11-12 13:45:00')).toBe(local);
+      expect(wrParseDate('2026-11-12 13:45:00', { zonelessIn: 'browser', timeZone: '+09:00' })?.getTime()).toBe(local);
+    });
+
+    it('reads it as UTC', () => {
+      expect(wrParseDate('2026-11-12 13:45:00', { zonelessIn: 'utc' })?.getTime()).toBe(UTC_1345);
+      expect(wrParseDate('2026-11-12T13:45', { zonelessIn: 'utc' })?.getTime()).toBe(UTC_1345);
+      expect(wrParseDate('2026-11-12 13:45:00.123456', { zonelessIn: 'utc' })?.getTime()).toBe(UTC_1345 + 123);
+    });
+
+    it('reads it as a wall clock of the display zone, an offset or a name', () => {
+      const read = (timeZone: string): number | undefined =>
+        wrParseDate('2026-11-12 13:45:00', { zonelessIn: 'display', timeZone })?.getTime();
+      expect(read('+0500')).toBe(UTC_1345 - 5 * HOUR);
+      expect(read('-03:30')).toBe(UTC_1345 + 3.5 * HOUR);
+      expect(read('Asia/Tokyo')).toBe(UTC_1345 - 9 * HOUR);
+      expect(read('America/New_York')).toBe(UTC_1345 + 5 * HOUR);
+      expect(
+        wrParseDate('2026-07-12T13:45:00', { zonelessIn: 'display', timeZone: 'America/New_York' })?.getTime()
+      ).toBe(Date.UTC(2026, 6, 12, 17, 45, 0));
+    });
+
+    it('falls back to the browser zone when display has no zone', () => {
+      const local = new Date(2026, 10, 12, 13, 45, 0).getTime();
+      expect(wrParseDate('2026-11-12 13:45:00', { zonelessIn: 'display' })?.getTime()).toBe(local);
+      expect(wrParseDate('2026-11-12 13:45:00', { zonelessIn: 'display', timeZone: null })?.getTime()).toBe(local);
+    });
+
+    it('does not touch a string that names its zone', () => {
+      for (const zonelessIn of ['display', 'utc'] as const) {
+        const options = { zonelessIn, timeZone: '+09:00' };
+        expect(wrParseDate('2026-11-12 13:45:00Z', options)?.getTime()).toBe(UTC_1345);
+        expect(wrParseDate('2026-11-12 13:45:00+05', options)?.getTime()).toBe(UTC_1345 - 5 * HOUR);
+        expect(wrParseDate('2026-11-12T13:45:00+05:00', options)?.getTime()).toBe(UTC_1345 - 5 * HOUR);
+      }
+    });
+
+    it('keeps a date-only string a local day', () => {
+      for (const zonelessIn of ['display', 'utc'] as const) {
+        const day = wrParseDate('2026-11-12', { zonelessIn, timeZone: '-11:00' });
+        expect(day?.getTime()).toBe(new Date(2026, 10, 12).getTime());
+      }
+    });
+
+    it('refuses a time no calendar has', () => {
+      for (const zonelessIn of ['display', 'utc'] as const) {
+        expect(wrParseDate('2026-02-30 10:00:00', { zonelessIn, timeZone: '+05:00' })).toBeNull();
+        expect(wrParseDate('2026-11-12 25:00:00', { zonelessIn, timeZone: '+05:00' })).toBeNull();
+        expect(wrParseDate('2026-11-12 10:61', { zonelessIn, timeZone: '+05:00' })).toBeNull();
+      }
+    });
+  });
 });
