@@ -8,7 +8,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Medium
 
-- **jsdom 31, second pass**: on jsdom 31 the textarea autosize specs time out, the falling-letters transform regex finds nothing, the colour picker harness rounds its thumbs differently and an orbit timing check misses by 0.0002. Make them engine-neutral, then merge the Dependabot bump.
 - **Date range presets**: one-click ranges such as Last 7 days, with labels from the app.
 - **Sortable list groups**: drag between connected lists, with a move event that says from and to.
 - **Dropdown submenus**: nested menus with arrow-key support, the base for a split button.
