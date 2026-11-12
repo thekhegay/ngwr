@@ -12,27 +12,15 @@ import { type ComponentRef, Injector, Service, inject } from '@angular/core';
 
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 
+import { WrToastChannel, WrToastChannels, type WrToastEntry } from '../toast-channel';
 import { WrToastHost } from '../toast-host';
 import { WrToastRef } from '../toast-ref';
 import { WR_TOAST_CONFIG } from '../tokens';
 import type { WrToastOptions, WrToastPosition } from '../types';
 
-type ActiveEntry = WrToastOptions & {
-  readonly id: number;
-  /** Resolved auto-dismiss duration in ms after merging with global config. */
-  readonly resolvedDuration: number;
-  /** Resolved corner for this stack. */
-  readonly resolvedPosition: WrToastPosition;
-  /** Pending timeout handle. */
-  timer?: ReturnType<typeof setTimeout>;
-  /** Timestamp of the last timer (re)start, used to compute remaining on pause. */
-  startedAt?: number;
-  /** Milliseconds left when paused. */
-  remaining: number;
-};
-
 /**
- * Opens toast notifications in a single shared overlay.
+ * Opens toast notifications in a single shared overlay, or in the page
+ * through a `<wr-toast-outlet>` when `show()` names one.
  *
  * Global defaults come from {@link WR_TOAST_CONFIG}; register
  * `provideWr(withToast(...))` once at bootstrap to customise. Each
@@ -46,6 +34,7 @@ type ActiveEntry = WrToastOptions & {
  * toast.show({ type: 'danger', message: 'Network error', duration: 0 });
  * toast.show({ message: 'Permalink copied', position: 'bottom', showCopy: true });
  * toast.show({ message: 'Item deleted', action: { label: 'Undo', run: () => restore() } });
+ * toast.show({ type: 'danger', message: 'Door forced', outlet: 'alarms' });
  * ```
  *
  * @see https://ngwr.dev/reference/components/toast
@@ -64,17 +53,29 @@ export class WrToast {
   private currentPosition: WrToastPosition = this.config.position;
   private currentMode: 'stack' | 'list' = this.config.mode;
   private nextId = 1;
-  /** Currently rendered toasts (capped at `config.maxStack`). */
-  private active: ActiveEntry[] = [];
-  /** Overflow waiting for a free slot — promoted FIFO as actives dismiss, so
-   * nothing is ever silently dropped. */
-  private queue: ActiveEntry[] = [];
-  /** The pointer or focus is inside the host: no countdown runs, a toast that
-   * arrives meanwhile included. See `WrToastHost.syncHold`. */
-  private held = false;
+  /** The stack in the overlay. Past `maxStack` the newest waits, so nothing is
+   * ever silently dropped. */
+  private readonly global = new WrToastChannel(
+    id => this.dismiss(id),
+    false,
+    true,
+    this.config.maxStack,
+    this.config.duration
+  );
+  private readonly outlets = inject(WrToastChannels);
 
   /** Open a toast. Returns a handle you can `dismiss()` early. */
   show(options: WrToastOptions): WrToastRef {
+    const id = this.nextId++;
+    const ref = new WrToastRef(id, options, toastId => this.dismiss(toastId));
+
+    if (options.outlet != null) {
+      const channel = this.outlets.get(options.outlet);
+      const resolvedDuration = options.duration ?? channel.duration;
+      channel.add({ ...options, id, resolvedDuration, remaining: resolvedDuration });
+      return ref;
+    }
+
     // `currentPosition` before the injected default, so `setPosition()` holds
     // across a host that has been disposed. `dismiss()` and `dismissAll()`
     // tear the host down, so "no host alive" is the state before the first
@@ -92,38 +93,18 @@ export class WrToast {
     // `raiseHost`.
     this.raiseHost();
 
-    const entry: ActiveEntry = {
-      ...options,
-      id: this.nextId++,
-      resolvedDuration,
-      resolvedPosition,
-      remaining: resolvedDuration,
-    };
+    const entry: WrToastEntry = { ...options, id, resolvedDuration, remaining: resolvedDuration };
+    this.global.add(entry);
+    this.pushToHost();
 
-    const max = this.config.maxStack;
-    if (max > 0 && this.active.length >= max) {
-      // Stack is full — hold this one in the queue (no timer until it's shown).
-      this.queue = [...this.queue, entry];
-      this.pushToHost();
-    } else {
-      this.active = [...this.active, entry];
-      this.pushToHost();
-      this.startTimer(entry);
-    }
-
-    return new WrToastRef(entry.id, options, id => this.dismiss(id));
+    return ref;
   }
 
-  /** Dismiss a single toast by id. */
+  /** Dismiss a single toast by id, in whichever stack holds it. */
   dismiss(id: number): void {
-    const entry = this.active.find(t => t.id === id);
-    if (entry?.timer) clearTimeout(entry.timer);
-    this.active = this.active.filter(t => t.id !== id);
-    // A dismiss can also target a still-queued toast.
-    this.queue = this.queue.filter(t => t.id !== id);
-    this.promoteFromQueue();
+    if (!this.global.remove(id)) this.outlets.remove(id);
     this.pushToHost();
-    if (this.active.length === 0 && this.queue.length === 0) this.disposeHost();
+    if (this.global.empty) this.disposeHost();
   }
 
   /**
@@ -131,19 +112,23 @@ export class WrToast {
    * and a `run` that throws still leaves the toast closed.
    */
   private runAction(id: number): void {
-    const action = this.active.find(t => t.id === id)?.action;
+    const action = this.global.find(id)?.action;
     if (!action) return;
     this.dismiss(id);
     action.run();
   }
 
-  /** Dismiss every visible toast. Wired to the host's "Close all" button. */
-  dismissAll(): void {
-    for (const entry of this.active) {
-      if (entry.timer) clearTimeout(entry.timer);
+  /**
+   * Dismiss every toast of one stack: the global one, or the named outlet's.
+   * The global "Close all" button calls it with no name, so it leaves the
+   * outlets alone.
+   */
+  dismissAll(outlet?: string): void {
+    if (outlet != null) {
+      this.outlets.get(outlet).clear();
+      return;
     }
-    this.active = [];
-    this.queue = [];
+    this.global.clear();
     this.disposeHost();
   }
 
@@ -157,33 +142,6 @@ export class WrToast {
   setMode(mode: 'stack' | 'list'): void {
     this.currentMode = mode;
     if (this.hostRef) this.hostRef.setInput('mode', mode);
-  }
-
-  // Timer
-
-  private startTimer(entry: ActiveEntry): void {
-    // Never a second timer for one entry: a toast's own pause and the host's
-    // hold both resume, and whichever comes second finds the clock running.
-    if (entry.remaining <= 0 || entry.timer || this.held) return;
-    entry.startedAt = Date.now();
-    entry.timer = setTimeout(() => this.dismiss(entry.id), entry.remaining);
-  }
-
-  private pauseTimer(entry: ActiveEntry): void {
-    if (!entry.timer) return;
-    clearTimeout(entry.timer);
-    entry.timer = undefined;
-    if (entry.startedAt) {
-      entry.remaining = Math.max(0, entry.remaining - (Date.now() - entry.startedAt));
-    }
-  }
-
-  private setHeld(held: boolean): void {
-    this.held = held;
-    for (const entry of this.active) {
-      if (held) this.pauseTimer(entry);
-      else this.startTimer(entry);
-    }
   }
 
   // Host plumbing
@@ -222,15 +180,9 @@ export class WrToast {
     inst.dismissed.subscribe(id => this.dismiss(id));
     inst.actionRequested.subscribe(id => this.runAction(id));
     inst.dismissAllRequested.subscribe(() => this.dismissAll());
-    inst.pauseRequested.subscribe(id => {
-      const entry = this.active.find(t => t.id === id);
-      if (entry) this.pauseTimer(entry);
-    });
-    inst.resumeRequested.subscribe(id => {
-      const entry = this.active.find(t => t.id === id);
-      if (entry) this.startTimer(entry);
-    });
-    inst.holdChange.subscribe(held => this.setHeld(held));
+    inst.pauseRequested.subscribe(id => this.global.pause(id));
+    inst.resumeRequested.subscribe(id => this.global.resume(id));
+    inst.holdChange.subscribe(held => this.global.setHeld(held));
 
     this.watchForNewerOverlays();
   }
@@ -297,26 +249,14 @@ export class WrToast {
     this.containerObserver.observe(parent, { childList: true });
   }
 
-  /** Fill any free stack slots from the queue (FIFO), starting each promoted
-   * toast's auto-dismiss timer only as it becomes visible. */
-  private promoteFromQueue(): void {
-    const max = this.config.maxStack;
-    while ((max <= 0 || this.active.length < max) && this.queue.length > 0) {
-      const [next, ...rest] = this.queue;
-      this.queue = rest;
-      this.active = [...this.active, next];
-      this.startTimer(next);
-    }
-  }
-
   private pushToHost(): void {
-    this.hostRef?.instance.toasts.set([...this.active]);
-    this.hostRef?.instance.queued.set(this.queue.length);
+    this.hostRef?.instance.toasts.set(this.global.toasts());
+    this.hostRef?.instance.queued.set(this.global.queued());
   }
 
   private disposeHost(): void {
     // The next host starts with nobody in it.
-    this.held = false;
+    this.global.setHeld(false);
     this.containerObserver?.disconnect();
     this.containerObserver = null;
     if (this.overlayRef) {

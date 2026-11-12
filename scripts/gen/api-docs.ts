@@ -1305,9 +1305,20 @@ const UNDOCUMENTED_ENTRIES: ReadonlyMap<string, string> = new Map([
  * that introduces it. That is the whole difference from the count this replaces:
  * a total of six could be raised to seven to cover a row other than the one that
  * earned it.
+ *
+ * The eight `toast.*` are the inputs of `<wr-toast-outlet>`: each defaults to
+ * the app's own `withToast()` value, which only the running app knows.
  */
 const EXPRESSION_DEFAULTS: ReadonlySet<string> = new Set([
   'tabs.key',
+  'toast.closeAllThreshold',
+  'toast.duration',
+  'toast.maxStack',
+  'toast.mode',
+  'toast.position',
+  'toast.showCloseAll',
+  'toast.showCopy',
+  'toast.showProgress',
   'virtual-scroll.maxBufferPx',
   'virtual-scroll.minBufferPx',
   'virtual-scroll.trackBy',

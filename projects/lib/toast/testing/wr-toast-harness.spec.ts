@@ -2,12 +2,12 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { WrToast } from 'ngwr/toast';
+import { WrToast, WrToastOutlet } from 'ngwr/toast';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrToastHarness } from './wr-toast-harness';
 
-@Component({ template: '' })
+@Component({ imports: [WrToastOutlet], template: '<wr-toast-outlet name="alarms" />' })
 class Host {
   readonly toast = inject(WrToast);
 }
@@ -34,6 +34,7 @@ describe('WrToastHarness', () => {
 
   afterEach(() => {
     fixture.componentInstance.toast.dismissAll();
+    fixture.componentInstance.toast.dismissAll('alarms');
     fixture.destroy();
   });
 
@@ -190,5 +191,23 @@ describe('WrToastHarness', () => {
 
     expect(await timed.hasProgressBar()).toBe(true);
     expect(await sticky.hasProgressBar()).toBe(false);
+  });
+
+  it('tells the toasts of an outlet from the global stack', async () => {
+    fixture.componentInstance.toast.show({ message: 'Saved', duration: 0 });
+    fixture.componentInstance.toast.show({ message: 'Door forced', duration: 0, outlet: 'alarms' });
+    await fixture.whenStable();
+
+    expect(await rootLoader.getAllHarnesses(WrToastHarness)).toHaveLength(2);
+
+    const alarms = await rootLoader.getAllHarnesses(WrToastHarness.with({ outlet: 'alarms' }));
+    expect(await Promise.all(alarms.map(t => t.getMessage()))).toEqual(['Door forced']);
+
+    const global = await rootLoader.getAllHarnesses(WrToastHarness.with({ outlet: null }));
+    expect(await Promise.all(global.map(t => t.getMessage()))).toEqual(['Saved']);
+
+    expect(await rootLoader.getAllHarnesses(WrToastHarness.with({ outlet: 'other' }))).toHaveLength(0);
+    expect(await alarms[0].isInOutlet('alarms')).toBe(true);
+    expect(await alarms[0].isInOutlet(null)).toBe(false);
   });
 });

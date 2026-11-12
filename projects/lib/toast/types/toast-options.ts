@@ -38,6 +38,13 @@ export interface WrToastOptions {
    * screen along with this one.
    */
   readonly position?: WrToastPosition;
+  /**
+   * Name of the `<wr-toast-outlet>` that renders this toast in the page, in a
+   * stack of its own. Omitted, the toast goes to the global stack in the
+   * overlay. A toast sent before its outlet is in the page waits for it, and
+   * `position` is ignored: the outlet's own input places the stack.
+   */
+  readonly outlet?: string;
   /** Override the progress bar visibility for this toast only. */
   readonly showProgress?: boolean;
   /** Override the copy button visibility for this toast only. */
