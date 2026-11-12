@@ -129,7 +129,11 @@ because it is guidance rather than a plan.
   global stack queues the newest and drops nothing. An outlet is for a stream
   (alarms at thousands a minute): a queue there only grows, and the toast it
   finally shows is minutes stale. Dropping keeps a channel at `maxStack`
-  entries and timers whatever has passed through (`toast-channel.ts`). A toast
+  entries and timers whatever has passed through (`toast-channel.ts`). The one
+  time it does not drop is while the stack is held, by the pointer or by focus:
+  the toast under the pointer must not vanish, so arrivals wait in a queue
+  capped at `maxStack` (its oldest dropped) and enter on release, in arrival
+  order, the stack still capped. A toast
   sent to a name with no outlet in the page is kept, capped the same way, and
   its countdown starts when the outlet mounts; `dismissAll()` with no name is
   the global stack only, because the global "Close all" button calls it.

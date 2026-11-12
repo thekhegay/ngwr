@@ -145,6 +145,10 @@
         thousands a minute stays at <code>maxStack</code> toasts and timers.
       </li>
       <li>
+        While the pointer or focus is in the stack nothing shown is dropped: arrivals wait, at most
+        <code>maxStack</code> of them, and enter when it leaves.
+      </li>
+      <li>
         A toast sent while its outlet is not in the page waits, without counting down, and shows when the outlet
         appears.
       </li>

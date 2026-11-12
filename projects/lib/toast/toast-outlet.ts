@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, ViewEncapsulation, computed, effect, inject, input, viewChild } from '@angular/core';
+import { Component, ViewEncapsulation, computed, effect, inject, input, untracked, viewChild } from '@angular/core';
 
 import { wrCheckStyles } from 'ngwr/utils';
 
@@ -26,7 +26,9 @@ import type { WrToastConfig, WrToastMode, WrToastPosition } from './types';
  * carries no `z-index`: order it against its siblings in your own CSS.
  *
  * Past `maxStack` the OLDEST toast is dropped, where the global stack queues
- * the newest, so a busy stream stays at `maxStack` toasts and timers. A toast
+ * the newest, so a busy stream stays at `maxStack` toasts and timers. While
+ * the pointer or focus is in the stack nothing shown is dropped: arrivals
+ * wait, at most `maxStack` of them, and enter when it leaves. A toast
  * sent while no outlet of the name is in the page waits, without counting
  * down, and shows when the outlet appears.
  *
@@ -76,7 +78,7 @@ export class WrToastOutlet {
   readonly closeAllThreshold = input<number>(this.config.closeAllThreshold);
   /**
    * Maximum toasts in the stack; `0` is unlimited. Past it the oldest toast is
-   * dropped to make room.
+   * dropped to make room, once the pointer and focus are out of the stack.
    *
    * @default the `withToast()` value
    */
@@ -106,7 +108,9 @@ export class WrToastOutlet {
 
     effect(onCleanup => {
       const channel = this.channel();
-      if (channel.mount() > 1 && (typeof ngDevMode === 'undefined' || ngDevMode)) {
+      // `mount()` reads the stack; tracked, every toast would remount the
+      // channel and drop its hold.
+      if (untracked(() => channel.mount()) > 1 && (typeof ngDevMode === 'undefined' || ngDevMode)) {
         // eslint-disable-next-line no-console -- dev-mode misconfiguration diagnostic
         console.warn(
           `[NGWR] Two <wr-toast-outlet> share the name "${this.name()}", so both render the same toasts. ` +

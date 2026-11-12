@@ -221,6 +221,61 @@ describe('WrToastOutlet', () => {
     expect(items(box('alarms'))).toHaveLength(0);
   });
 
+  it('keeps what a held outlet shows: arrivals wait, and enter on release', () => {
+    for (let i = 1; i <= 3; i++) toast.show({ message: `alarm ${i}`, duration: 0, outlet: 'alarms' });
+    tick();
+    const shown = items(box('alarms'));
+
+    mouse(box('alarms').querySelector('.wr-toast-host')!, 'mouseenter');
+    for (let i = 4; i <= 23; i++) toast.show({ message: `alarm ${i}`, duration: 0, outlet: 'alarms' });
+    tick();
+
+    // The same three elements, not three that read the same.
+    expect(items(box('alarms'))).toEqual(shown);
+    expect(messages(box('alarms'))).toEqual(['alarm 1', 'alarm 2', 'alarm 3']);
+
+    mouse(box('alarms').querySelector('.wr-toast-host')!, 'mouseleave');
+    expect(messages(box('alarms'))).toEqual(['alarm 21', 'alarm 22', 'alarm 23']);
+  });
+
+  it('fills a slot the reader frees during a hold with the oldest waiting toast', () => {
+    for (let i = 1; i <= 5; i++) toast.show({ message: `alarm ${i}`, duration: 0, outlet: 'alarms' });
+    tick();
+    mouse(box('alarms').querySelector('.wr-toast-host')!, 'mouseenter');
+    toast.show({ message: 'alarm 6', duration: 0, outlet: 'alarms' });
+    toast.show({ message: 'alarm 7', duration: 0, outlet: 'alarms' });
+    tick();
+    expect(messages(box('alarms'))).toEqual(['alarm 3', 'alarm 4', 'alarm 5']);
+
+    items(box('alarms'))[0].querySelector<HTMLButtonElement>('.wr-toast__action--close')!.click();
+    tick();
+    expect(messages(box('alarms'))).toEqual(['alarm 4', 'alarm 5', 'alarm 6']);
+
+    mouse(box('alarms').querySelector('.wr-toast-host')!, 'mouseleave');
+    expect(messages(box('alarms'))).toEqual(['alarm 5', 'alarm 6', 'alarm 7']);
+  });
+
+  it('stays at maxStack toasts and timers through a burst of 1000 into a held outlet', () => {
+    const before = vi.getTimerCount();
+    for (let i = 1; i <= 3; i++) toast.show({ message: `alarm ${i}`, outlet: 'alarms' });
+    tick();
+    mouse(box('alarms').querySelector('.wr-toast-host')!, 'mouseenter');
+    const started = performance.now();
+
+    for (let i = 4; i <= 1003; i++) toast.show({ message: `alarm ${i}`, outlet: 'alarms' });
+    tick();
+
+    expect(performance.now() - started).toBeLessThan(1000);
+    expect(messages(box('alarms'))).toEqual(['alarm 1', 'alarm 2', 'alarm 3']);
+    expect(vi.getTimerCount()).toBeLessThanOrEqual(before);
+
+    mouse(box('alarms').querySelector('.wr-toast-host')!, 'mouseleave');
+    expect(messages(box('alarms'))).toEqual(['alarm 1001', 'alarm 1002', 'alarm 1003']);
+    expect(box('alarms').querySelectorAll('[aria-live]')).toHaveLength(3);
+    // Three countdowns and the host's collapse timer.
+    expect(vi.getTimerCount() - before).toBeLessThanOrEqual(4);
+  });
+
   it('keeps toasts sent before the outlet mounts, without counting them down', () => {
     fixture.componentInstance.mounted.set(false);
     tick();
