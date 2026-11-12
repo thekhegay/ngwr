@@ -394,6 +394,68 @@ describe('wrDate in a display time zone', () => {
   });
 });
 
+/** A number in another unit than milliseconds. Each expectation also runs with the process in other zones. */
+describe('wrDate reading backend values', () => {
+  const AT = Date.UTC(2026, 10, 12, 8, 45, 0);
+
+  const adapter = (dates?: Parameters<typeof withDates>[0]): WrDateAdapter<Date> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: LOCALE_ID, useValue: 'en-US' }, ...(dates ? [provideWr(withDates(dates))] : [])],
+    });
+    return TestBed.inject<WrDateAdapter<Date>>(WrDateAdapter);
+  };
+  const pipe = (): WrDate => TestBed.runInInjectionContext(() => new WrDate());
+
+  /** Run with the process in another zone: Node re-reads `TZ` when it is assigned. */
+  const inProcessZone = (timeZone: string, run: () => void): void => {
+    const before = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    process.env['TZ'] = timeZone;
+    try {
+      expect(new Date(2026, 10, 12).getTimezoneOffset()).toBe(timeZone === 'America/New_York' ? 300 : -540);
+      run();
+    } finally {
+      process.env['TZ'] = before;
+    }
+  };
+  const everywhere = (run: () => void): void => {
+    run();
+    inProcessZone('America/New_York', run);
+    inProcessZone('Asia/Tokyo', run);
+  };
+
+  it('reads a number in the unit of withDates', () => {
+    everywhere(() => {
+      const dates = adapter({ timeZone: '+0500', epochUnit: 'auto' });
+      expect(wrFormatDate(AT, dates, 'dd.MM.yyyy HH:mm')).toBe('12.11.2026 13:45');
+      expect(wrFormatDate(AT * 1000, dates, 'dd.MM.yyyy HH:mm')).toBe('12.11.2026 13:45');
+      expect(wrFormatDate(AT / 1000, dates, 'dd.MM.yyyy HH:mm')).toBe('12.11.2026 13:45');
+      expect(pipe().transform(AT * 1000, 'HH:mm')).toBe('13:45');
+
+      expect(wrFormatDate(AT / 1000, adapter({ timeZone: '+0500', epochUnit: 's' }), 'HH:mm')).toBe('13:45');
+      expect(wrFormatDate(AT * 1000, adapter({ timeZone: '+0500', epochUnit: 'us' }), 'HH:mm')).toBe('13:45');
+    });
+  });
+
+  it('takes the unit for one call, over the one of withDates', () => {
+    const dates = adapter({ timeZone: '+0500' });
+    expect(wrFormatDate(AT * 1000, dates, 'HH:mm', { epochUnit: 'us' })).toBe('13:45');
+    const p = pipe();
+    expect(p.transform(AT * 1000, 'HH:mm', { epochUnit: 'us' })).toBe('13:45');
+    expect(p.transform(AT * 1000, 'HH:mm', { epochUnit: 'auto' })).toBe('13:45');
+    // The same value and format with another unit is another result, not the one kept.
+    expect(p.transform(AT / 1000, 'HH:mm', { epochUnit: 's' })).toBe('13:45');
+    expect(p.transform(AT / 1000, 'yyyy', { epochUnit: 'ms' })).toBe('1970');
+    expect(p.transform(AT / 1000, 'yyyy', { epochUnit: 's' })).toBe('2026');
+  });
+
+  it('changes nothing with no option', () => {
+    const dates = adapter();
+    expect(dates.parseOptions()).toEqual({ epochUnit: 'ms', zonelessIn: 'browser', timeZone: null });
+    expect(wrFormatDate(AT, dates, 'yyyy')).toBe('2026');
+  });
+});
+
 describe('wrRange', () => {
   it('counts from zero', () => {
     expect(new WrRange().transform(4)).toEqual([0, 1, 2, 3]);
