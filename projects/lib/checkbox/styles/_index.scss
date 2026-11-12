@@ -100,14 +100,16 @@
   }
 
   // Sizes — box, radius, label font + line-height scale together.
-  &--sm {
+  &--sm,
+  &:where([size='sm']) {
     --wr-checkbox-size: 1rem; // 16px
     --wr-checkbox-radius: var(--wr-control-radius-sm);
     --wr-checkbox-font-size: var(--wr-text-xs);
     --wr-checkbox-line-height: var(--wr-control-line-height-sm);
   }
 
-  &--lg {
+  &--lg,
+  &:where([size='lg']) {
     --wr-checkbox-size: 1.25rem; // 20px
     --wr-checkbox-radius: var(--wr-control-radius-lg);
     --wr-checkbox-font-size: var(--wr-text-base);

@@ -18,7 +18,7 @@ describe('date picker group width', () => {
     style: 'expanded',
   }).css;
   const rule = (selector: string): string =>
-    new RegExp(`(?:^|\\n)${selector.replace(/[.>]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+    new RegExp(`(?:^|\\n)${selector.replace(/[.>()[\]]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
 
   const expectFilled = (host: string): void => {
     expect(rule(`${host} > .wr-input-group`)).toMatch(/width: 100%;/);
@@ -31,13 +31,16 @@ describe('date picker group width', () => {
   it('fills the host of a range picker', () => expectFilled('.wr-date-range-picker'));
 
   it.each(['sm', 'lg'])('hands the group and the trigger the %s control tokens', size => {
-    const group = rule(`.wr-date-picker--${size} > .wr-input-group,\n.wr-date-range-picker--${size} > .wr-input-group`);
+    // Each host reads its size by class and, for a static `size="…"`, by attribute.
+    const hosts = ['wr-date-picker', 'wr-date-range-picker'].flatMap(block => [
+      `.${block}--${size}`,
+      `.${block}:where([size=${size}])`,
+    ]);
+    const group = rule(hosts.map(host => `${host} > .wr-input-group`).join(',\n'));
     expect(group).toContain(`--wr-input-group-radius: var(--wr-control-radius-${size});`);
     expect(group).toContain(`--wr-input-group-padding-x: var(--wr-control-padding-x-${size});`);
 
-    const trigger = rule(
-      `.wr-date-picker--${size} .wr-date-picker__trigger,\n.wr-date-range-picker--${size} .wr-date-picker__trigger`
-    );
+    const trigger = rule(hosts.map(host => `${host} .wr-date-picker__trigger`).join(',\n'));
     expect(trigger).toContain(`--wr-date-picker-trigger-icon-size: var(--wr-control-font-size-${size});`);
   });
 });

@@ -141,7 +141,7 @@
   //
   // `block` is excluded — it is width:100% by contract, and squaring it would
   // turn a full-width button into a giant tile.
-  &:has(> &__label:empty):not(&--block) {
+  &:has(> &__label:empty):not(&--block, &:where([block]:not([block='false']))) {
     padding-inline: calc(var(--wr-btn-padding-y) * var(--wr-density-y, 1));
 
     .wr-btn__icon {
@@ -175,7 +175,8 @@
   // three `--wr-control-*-sm` tokens are shared so button, input and select line
   // up in a row, and 22px is the number `/guides/tokens/sizing` publishes.
   // Space the targets, or use `md` where they sit together.
-  &--sm {
+  &--sm,
+  &:where([size='sm']) {
     --wr-btn-radius: var(--wr-control-radius-sm);
     --wr-btn-gap: var(--wr-space-xs);
     --wr-btn-padding-y: var(--wr-control-padding-y-sm);
@@ -185,7 +186,8 @@
     --wr-btn-icon-size: 0.875rem; // 14px
   }
 
-  &--lg {
+  &--lg,
+  &:where([size='lg']) {
     --wr-btn-radius: var(--wr-control-radius-lg);
     --wr-btn-gap: var(--wr-space-md);
     --wr-btn-padding-y: var(--wr-control-padding-y-lg);
@@ -217,7 +219,8 @@
   }
 
   // Layout
-  &--block {
+  &--block,
+  &:where([block]:not([block='false'])) {
     display: flex;
     width: 100%;
   }
@@ -249,7 +252,8 @@
   // wherever a removed intent had been, and the docs page put the two side by
   // side. Transparent rather than a tint: the border is the whole of what
   // outlined means here, and the surface behind it belongs to the host.
-  &--outlined {
+  &--outlined,
+  &:where([outlined]:not([outlined='false'])) {
     --wr-btn-bg: transparent;
 
     &:hover {
@@ -263,7 +267,8 @@
 
   // Color variants
   @each $name in theme.$colors {
-    &--#{$name} {
+    &--#{$name},
+    &:where([color='#{$name}']) {
       --wr-btn-color: var(--wr-color-#{$name}-contrast);
       --wr-btn-bg: var(--wr-color-#{$name});
       --wr-btn-border: var(--wr-color-#{$name});
@@ -278,7 +283,8 @@
         --wr-btn-border: var(--wr-color-#{$name}-darker);
       }
 
-      &.wr-btn--outlined {
+      &.wr-btn--outlined,
+      &:where([outlined]:not([outlined='false'])) {
         // `-ink`, not the bare intent. The label is TEXT on whatever surface the
         // host gives the transparent button, and the bare token does not clear
         // AA there: `#3567ff` on the dark canvas measures 4.06:1, and in light

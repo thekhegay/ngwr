@@ -122,7 +122,9 @@
 // `wr-input--<size>` themselves; the group and the trigger are their siblings and
 // read the size from the host. Both pickers draw the same trigger.
 .wr-date-picker--sm,
-.wr-date-range-picker--sm {
+.wr-date-picker:where([size='sm']),
+.wr-date-range-picker--sm,
+.wr-date-range-picker:where([size='sm']) {
   > .wr-input-group {
     --wr-input-group-radius: var(--wr-control-radius-sm);
     --wr-input-group-padding-x: var(--wr-control-padding-x-sm);
@@ -138,7 +140,9 @@
 }
 
 .wr-date-picker--lg,
-.wr-date-range-picker--lg {
+.wr-date-picker:where([size='lg']),
+.wr-date-range-picker--lg,
+.wr-date-range-picker:where([size='lg']) {
   > .wr-input-group {
     --wr-input-group-radius: var(--wr-control-radius-lg);
     --wr-input-group-padding-x: var(--wr-control-padding-x-lg);
