@@ -154,9 +154,12 @@ The rest are calls of their own, added from their entry points as needed:
   last, and the other side's keys stop resolving with nothing logged — ngwr's
   components fall back to English and a `wrT` read renders the raw key.
 - Calendar, event calendar and date-picker need no date provider:
-  `WrDateAdapter` resolves to the native adapter (`Date` + `Intl`, locale from
-  `LOCALE_ID`). `provideWr(withDates({ locale }))` (`ngwr/date`) pins another
-  locale; for another date library, extend `WrDateAdapter` and pass the class as
+  `WrDateAdapter` resolves to the native adapter (`Date` + `Intl`). It writes in
+  the interface language of `provideWrI18n()` and follows `WrI18n.use()`, or in
+  `LOCALE_ID` without it. `provideWr(withDates({ locale }))` (`ngwr/date`) pins
+  another locale, and `withDates({ timeZone })` sets the zone instants are
+  shown in: an IANA name, an offset, or a function returning one. A date-only
+  value does not shift. For another date library, extend `WrDateAdapter` and pass the class as
   `withDates({ adapter })`. Its `format` and `parse` handle every `WrDateFormat`
   key, including the `12h`, `24h` and `Seconds` variants of `time` and
   `shortDateTime` (`time24h`, `shortDateTime12hSeconds`) that v15 added.
@@ -453,7 +456,8 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `provideWrLoadingBarRouter()` (`ngwr/loading-bar/router`), and it does NOT
   throw — without the provider the bar simply never moves.
 - **i18n** — `{{ 'key' | wrT }}` (pipe from `ngwr/i18n`). The locale defaults to
-  Angular's `LOCALE_ID`, not the browser, for both copy and dates; an app that
+  Angular's `LOCALE_ID`, not the browser, for both copy and dates, and
+  `WrI18n.use()` moves both at runtime; an app that
   wants the browser's tag writes
   `provideWr(withDates({ locale: navigator.language }))`. A named date format
   (`shortDate`, `time`, …) parses through the same `Intl` formatter that printed

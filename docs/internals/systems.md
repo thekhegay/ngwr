@@ -124,9 +124,19 @@ one component folder. Reach for them instead of hand-rolling:
 - **Date adapters** (`ngwr/date`) — `WrDateAdapter` powers the calendar, the
   event calendar and every date-picker mode, and since v15 it needs no provider:
   injected with nothing provided, it resolves to `WrNativeDateAdapter`, over
-  `Date` and `Intl`, in the `WR_DATE_LOCALE` locale (which is `LOCALE_ID`).
-  `provideWr(withDates({ locale, adapter }))` is for a pinned locale or an
-  adapter of the app's own, and the one feature that also works in a route's
+  `Date` and `Intl`, in the locale `wrDateLocale()` holds. That is a signal with
+  a stated order: `withDates({ locale })` is a pin and wins; else
+  `WrI18n.locale()` when the app calls `provideWrI18n()`, so dates follow
+  `use()` (16.1); else `LOCALE_ID`. `ngwr/date` does not import `ngwr/i18n`:
+  `provideWrI18n()` provides the locale signal as `WR_LIVE_LOCALE`, a token in
+  `ngwr/utils`, and `wrDateLocale()` injects it as optional. `WR_DATE_LOCALE`
+  stays a plain string, the pin or `LOCALE_ID`, and the internal
+  `WR_DATE_LOCALE_PINNED` says which, so a bare provider of `WR_DATE_LOCALE` is
+  a fallback and not a pin. The native adapter keeps its formatters, parsers
+  and names per locale and drops them when it moves. Numbers (`wrNumber`,
+  `wr-input-number`, …) still read `LOCALE_ID` and do not follow.
+  `provideWr(withDates({ locale, timeZone, adapter }))` is for a pinned locale,
+  a display time zone or an adapter of the app's own, and the one feature that also works in a route's
   `providers`, where it gives that subtree an adapter of its own. **The base
   class and the native one share one module, and that is load-bearing**: the base's injectable default names the
   subclass, so with each in its own file the base would import the file that

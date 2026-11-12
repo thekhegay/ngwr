@@ -97,6 +97,7 @@ export function wrInterpolate(template: string, params: WrI18nParams | undefined
  *    specific statement wins, because it can only have been deliberate.
  * 2. **`WrI18n.locale()` — the runtime value.** The only one of the three that
  *    can change without a reload, so it is what a language switcher writes.
+ *    With `provideWrI18n()` in the app, dates are written in it.
  * 3. **`LOCALE_ID`.** Angular's app-wide constant, and the seed for both of the
  *    above when neither was given. One statement, one answer.
  * 4. `'en-US'`, which is what `LOCALE_ID` itself falls back to.
@@ -106,11 +107,12 @@ export function wrInterpolate(template: string, params: WrI18nParams | undefined
  * the hydrated page disagree.
  *
  * **What a runtime switch reaches, and what it does not.** `use()` repaints
- * every catalog string. It does not move `LOCALE_ID`, which is a constant, so
- * anything keyed on it — `wrNumber` / `wrPlural`, `wr-input-number`,
- * `wr-statistic`, `wr-counter` — and anything keyed on `WR_DATE_LOCALE` — the
- * date adapter, and so `wr-calendar`, `wr-date-picker` and `wrDate` — stays
- * where it was. `use()` says so once in dev mode rather than leaving it to be
+ * every catalog string, and every date: the date adapter, and so
+ * `wr-calendar`, `wr-date-picker`, `wrDate` and `wr-date-stamp`, formats in
+ * this locale unless `withDates({ locale })` pinned another. It does not move
+ * `LOCALE_ID`, which is a constant, so anything keyed on it — `wrNumber` /
+ * `wrPlural`, `wr-input-number`, `wr-statistic`, `wr-counter` — stays where it
+ * was. `use()` says so once in dev mode rather than leaving it to be
  * discovered.
  *
  * @example
@@ -176,9 +178,9 @@ export class WrI18n {
   /**
    * Switch active locale. Ignored when not whitelisted.
    *
-   * Text only — see the class docs for what a runtime switch cannot reach. The
+   * Text and dates — see the class docs for what a runtime switch cannot reach. The
    * dev-mode warning below is the whole reporting of that limit; without it the
-   * failure is a screen showing German labels beside `3/15/2026`, with nothing
+   * failure is a screen showing German labels beside `1,234.5`, with nothing
    * anywhere saying why.
    */
   use(locale: string): void {
@@ -295,9 +297,9 @@ export class WrI18n {
    * Say once, in dev, that a runtime switch moved the text and nothing else.
    *
    * The mismatch is otherwise invisible in the way that costs the most time:
-   * the catalog strings all change, which reads as "the switch worked", and the
-   * dates and numbers beside them are still correct-looking output in the old
-   * locale. Silent when the new locale IS `LOCALE_ID`, because then nothing is
+   * the catalog strings and the dates all change, which reads as "the switch
+   * worked", and the numbers beside them are still correct-looking output in
+   * the old locale. Silent when the new locale IS `LOCALE_ID`, because then nothing is
    * out of step and a warning that fires when everything agrees is one people
    * learn to ignore. Production builds drop the call entirely via `isDevMode()`
    * tree-shaking.
@@ -308,11 +310,10 @@ export class WrI18n {
     // eslint-disable-next-line no-console -- dev-mode validation
     console.warn(
       `[NGWR] WrI18n.use('${locale}') switched the catalog, but LOCALE_ID is still '${this.localeId}'. ` +
-        `LOCALE_ID is an Angular constant and WR_DATE_LOCALE resolves from it once at bootstrap, so ` +
-        `formatted dates and numbers do not follow the switch and stay on '${this.localeId}': the date ` +
-        `adapter (and so wr-calendar / wr-date-picker), the wrDate / wrNumber / wrPlural pipes, ` +
-        `wr-input-number, wr-statistic, wr-counter, wr-pagination's total and wr-file-upload's sizes. ` +
-        `Reload the app with the new LOCALE_ID to move those, or keep runtime switching to text.`
+        `Dates follow the switch (wrDate, wr-calendar, wr-date-picker), unless withDates({ locale }) pinned ` +
+        `them. LOCALE_ID is an Angular constant, so formatted numbers do not and stay on '${this.localeId}': ` +
+        `the wrNumber / wrPlural pipes, wr-input-number, wr-statistic, wr-counter, wr-pagination's total ` +
+        `and wr-file-upload's sizes. Reload the app with the new LOCALE_ID to move those.`
     );
   }
 

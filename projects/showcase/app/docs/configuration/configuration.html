@@ -129,6 +129,47 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Language"
+    description="Month names, the order of the fields and the first day of the week follow the interface language."
+  >
+    <ngwr-doc-code [code]="snippets.language" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">The app has</th>
+            <th scope="col">Dates are written in</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">
+              <code>withDates({{ '{' }} locale {{ '}' }})</code>
+            </th>
+            <td>That locale, always.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>provideWrI18n()</code></th>
+            <td><code>WrI18n.locale()</code>, and they follow <code>use()</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">Neither</th>
+            <td><code>LOCALE_ID</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>The first row that applies wins.</li>
+      <li>Numbers still follow <code>LOCALE_ID</code>.</li>
+      <li>
+        Your own adapter, or a component that calls <code>Intl</code> itself, reads <code>wrDateLocale()</code> from
+        <code>ngwr/date</code>: the same rule as a signal.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Your own date adapter"
     description="For another date library, extend `WrDateAdapter<Date>` and pass the class to `withDates()`."
   >

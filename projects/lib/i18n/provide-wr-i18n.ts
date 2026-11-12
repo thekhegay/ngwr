@@ -15,6 +15,8 @@ import {
   provideEnvironmentInitializer,
 } from '@angular/core';
 
+import { WR_LIVE_LOCALE } from 'ngwr/utils';
+
 import { WrI18n } from './i18n';
 import { WR_I18N_BASE_CATALOGS, type WrI18nBaseCatalogs } from './i18n-base-catalogs';
 import {
@@ -69,6 +71,8 @@ export function provideWrI18n(options: ProvideWrI18nOptions = {}): EnvironmentPr
     },
   ];
   if (loader) providers.push({ provide: WR_I18N_LOADER, useValue: loader });
+  // What `ngwr/date` formats in, so dates follow `use()` without importing this entry point.
+  providers.push({ provide: WR_LIVE_LOCALE, useFactory: () => inject(WrI18n).locale });
 
   if (typeof ngDevMode === 'undefined' || ngDevMode) {
     providers.push(
