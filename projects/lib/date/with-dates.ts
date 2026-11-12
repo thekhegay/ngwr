@@ -9,16 +9,16 @@ import { Injector, type Provider, inject, runInInjectionContext } from '@angular
 
 import { type WrFeature, wrFeature } from 'ngwr/utils';
 
-import { WR_DATE_INPUT, WR_DATE_LOCALE, WR_DATE_TIME_ZONE } from './tokens';
+import { WR_DATE_INPUT, WR_DATE_LOCALE, WR_DATE_STAMP_DEFAULTS, WR_DATE_TIME_ZONE } from './tokens';
 import { WR_DATE_LOCALE_PINNED } from './tokens/wr-date-locale-pinned.token';
 import type { WrDatesOptions } from './types';
 import { WrDateAdapter, WrNativeDateAdapter } from './wr-date-adapter';
 
 /**
  * Replace the date adapter the calendar / date picker / time picker use, pin
- * the locale it formats in, set the time zone dates are shown in, or say how a
+ * the locale it formats in, set the time zone dates are shown in, say how a
  * backend's numbers and zoneless strings are read (`epochUnit`, `zonelessIn`),
- * as a feature of `provideWr()`. Optional: with no call at all they run on
+ * or set the defaults of `wr-date-stamp`, as a feature of `provideWr()`. Optional: with no call at all they run on
  * {@link WrNativeDateAdapter} in Angular's `LOCALE_ID` and the browser's zone.
  *
  * Omit `locale` and dates follow the interface language of `provideWrI18n()`,
@@ -67,9 +67,9 @@ export function withDates(options: WrDatesOptions = {}): WrFeature<'dates'> {
     });
   }
 
-  // Merged over what an injector above set, so a route's call that names one
-  // key keeps the app's other one.
-  const { epochUnit, zonelessIn } = options;
+  // Each of the two merges over what an injector above set, so a route's call
+  // that names one key keeps the app's other ones.
+  const { epochUnit, zonelessIn, stamp } = options;
   if (epochUnit || zonelessIn) {
     providers.push({
       provide: WR_DATE_INPUT,
@@ -82,5 +82,12 @@ export function withDates(options: WrDatesOptions = {}): WrFeature<'dates'> {
       },
     });
   }
+  if (stamp) {
+    providers.push({
+      provide: WR_DATE_STAMP_DEFAULTS,
+      useFactory: () => ({ ...inject(WR_DATE_STAMP_DEFAULTS, { skipSelf: true, optional: true }), ...stamp }),
+    });
+  }
+
   return wrFeature('dates', providers);
 }

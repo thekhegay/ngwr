@@ -122,6 +122,12 @@ interface WrDatesOptions {
    * @default 'browser'
    */
   readonly zonelessIn?: WrZonelessIn;
+
+  /**
+   * App-wide defaults of `wr-date-stamp`: `dateFormat`, `timeFormat`,
+   * `todayTimeOnly` and `seconds`. An input set on a stamp wins.
+   */
+  readonly stamp?: WrDateStampDefaults;
 }
 
 export type { WrDateFormat };
