@@ -37,7 +37,11 @@ import { wrRestoreFocus } from 'ngwr/utils';
 @Directive({
   selector: '[wrCopyToClipboard]',
   exportAs: 'wrCopyToClipboard',
-  host: { '[class.wr-copy-to-clipboard--copied]': 'justCopied()', '(click)': 'copy()' },
+  host: {
+    class: 'wr-copy-to-clipboard',
+    '[class.wr-copy-to-clipboard--copied]': 'justCopied()',
+    '(click)': 'copy()',
+  },
 })
 export class WrCopyToClipboard {
   constructor() {
