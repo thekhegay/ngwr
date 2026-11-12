@@ -62,8 +62,9 @@ export interface WrDateInputRefusals {
  *
  * @internal
  */
-export function useDateInputRefusals(): WrDateInputRefusals {
-  const adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
+export function useDateInputRefusals(pick?: () => WrDateAdapter<Date>): WrDateInputRefusals {
+  const injected = inject<WrDateAdapter<Date>>(WrDateAdapter);
+  const dates = pick ?? ((): WrDateAdapter<Date> => injected);
   // The `validation.*` keys a surrounding field reads too, so the message a picker
   // announces on its own and the one the field renders are one sentence, whichever
   // of the two ends up saying it. A refusal is raised either way; it carries a
@@ -79,11 +80,13 @@ export function useDateInputRefusals(): WrDateInputRefusals {
       // so the example shows the ORDER of the fields as well as their separators —
       // which is the whole question for someone typing `07.09.1994` into a field
       // that reads `9/7/1994`. The year is the current one so it never looks stale.
+      const adapter = dates();
       const reference = adapter.setTime(adapter.createDate(adapter.getYear(adapter.today()), 11, 31), 18, 45, 0);
       const example = adapter.format(reference, format);
       return { kind: 'dateFormat', example, message: formatText({ example }) };
     },
     outOfBounds(date, { min, max, filter }) {
+      const adapter = dates();
       if (min && adapter.compareDate(date, min) < 0) return { kind: 'minDate', date, min, message: minText() };
       if (max && adapter.compareDate(date, max) > 0) return { kind: 'maxDate', date, max, message: maxText() };
       if (filter && !filter(date)) return { kind: 'dateFilter', date, message: filterText() };

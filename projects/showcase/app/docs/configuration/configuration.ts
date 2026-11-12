@@ -33,7 +33,7 @@ export default class ConfigurationPage {
     {
       feature: 'withDates()',
       entry: 'ngwr/date',
-      sets: '{ locale } pins the date locale (default: LOCALE_ID); { adapter } is your own adapter',
+      sets: '{ locale } pins the date locale (default: LOCALE_ID); { timeZone } is the zone dates are shown in; { adapter } is your own adapter',
     },
     { feature: 'withStorage()', entry: 'ngwr/storage', sets: 'Storage engine, key prefix and default TTL' },
     { feature: 'withMeta()', entry: 'ngwr/meta', sets: 'Title template and default Open Graph and Twitter tags' },
@@ -84,6 +84,17 @@ providers: [
   provideRouter(routes),
   provideWrLoadingBarRouter(),
 ],`,
+
+    timeZone: `import { inject } from '@angular/core';
+import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
+
+// A fixed zone, or an offset: '+05:00', '+05:30'.
+providers: [provideWr(withDates({ timeZone: 'Asia/Almaty' }))],
+
+// From a config that loads after bootstrap. AppConfig.timeZone is a signal,
+// null until the config arrives: the browser's zone until then.
+providers: [provideWr(withDates({ timeZone: () => inject(AppConfig).timeZone() }))],`,
 
     dateAdapter: `import { Service } from '@angular/core';
 import { provideWr } from 'ngwr';

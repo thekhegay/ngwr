@@ -9,6 +9,17 @@
 const ISO_DATE_ONLY = /^\d{4}(?:-\d{2}(?:-\d{2})?)?$/;
 
 /**
+ * Whether a value names a calendar day (`2026-01-01`, `2026-01`, `2026`) rather
+ * than an instant. Such a day is the same day in every time zone, so `wrDate`
+ * does not move it to the display zone.
+ *
+ * @internal
+ */
+export function wrIsDateOnly(value: unknown): boolean {
+  return typeof value === 'string' && ISO_DATE_ONLY.test(value.trim());
+}
+
+/**
  * A string or a timestamp as a `Date`, with one exception to `new Date()`: a
  * date-only ISO string names a calendar day, so it is read as that day's LOCAL
  * midnight — the instant a date picker emits for it.

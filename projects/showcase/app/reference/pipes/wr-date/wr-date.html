@@ -65,6 +65,13 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Time zone"
+    description="An instant is printed in the zone of `withDates({ timeZone })`, see [Configuration](/docs/configuration), and printed again when the zone changes. A date-only string is a day and does not shift."
+  >
+    <ngwr-doc-code [code]="snippets.zone" language="angular-html" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Playground">
     <ngwr-doc-playground [code]="playgroundSnippet()" [controls]="controls">
       <p class="ngwr-pipe-output">{{ now() | wrDate: format() }}</p>

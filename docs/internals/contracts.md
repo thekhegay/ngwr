@@ -63,6 +63,16 @@ because it is guidance rather than a plan.
   between the click and the response. Clamping there pulled every page back to 1
   and emitted a `pageChange` the host could not tell from a click. The
   LOWER bound stays unconditional, and that one does write back.
+- **`withDates({ timeZone })` does not move a date-only value.** `mode="date"`
+  on either picker, `wr-calendar`, and a `'2026-11-12'` string through `wrDate`
+  stay browser-local days: a day is the same day in every zone, and the local
+  midnight is what `wrToLocalDate`, the validators and the calendar already
+  agree on. Only a value with a time is an instant and is shown on the zone's
+  wall clock. A string with a time and no zone (`2026-11-12 14:30`) is still
+  read in the BROWSER's zone, as before, and then shown in the display zone.
+- `wrDate` is an impure pipe on purpose. A pure one is called again only when
+  an argument changes, so it cannot follow the zone or the locale; this one
+  keeps its last result and compares `adapter.displayKey()`.
 - The date adapter emits single-quoted runs verbatim and treats unquoted
   letters as tokens, the way `DatePipe` and LDML do. `addDays` moves the
   CALENDAR day, not 86 400 000 ms — across a DST change the arithmetic

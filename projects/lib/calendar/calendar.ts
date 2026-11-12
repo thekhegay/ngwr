@@ -113,11 +113,22 @@ export class WrCalendar {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
 
+  /**
+   * Today as this adapter's day. With `withDates({ timeZone })` it is the day
+   * the display zone is in, which near midnight is not the browser's.
+   */
+  private zoneToday(): Date {
+    const zoned = this.adapter.zoned();
+    const now = zoned.today();
+    if (zoned === this.adapter) return now;
+    return this.adapter.createDate(zoned.getYear(now), zoned.getMonth(now), zoned.getDate(now));
+  }
+
   /** Currently displayed month (any date inside it). */
-  protected readonly viewDate = signal(this.adapter.today());
+  protected readonly viewDate = signal(this.zoneToday());
 
   /** Date currently focused by keyboard (single roving tabindex). */
-  protected readonly focusedDate = signal(this.adapter.today());
+  protected readonly focusedDate = signal(this.zoneToday());
 
   /** Hovered date during range-mode end-pick — drives the preview highlight. */
   protected readonly hoverDate = signal<Date | null>(null);
@@ -173,7 +184,7 @@ export class WrCalendar {
     }
   });
 
-  protected readonly today = computed(() => this.adapter.today());
+  protected readonly today = computed(() => this.zoneToday());
 
   protected readonly weekdayNames = computed(() => this.adapter.getDayOfWeekNames('short'));
 
@@ -308,7 +319,7 @@ export class WrCalendar {
     // exactly what a `min` in the future does to "today" — and the sole tab
     // stop is an unfocusable button, leaving the grid unreachable by keyboard.
     afterNextRender(() => {
-      const initial = this.nearestEnabled(this.date() ?? this.range()[0] ?? this.adapter.today());
+      const initial = this.nearestEnabled(this.date() ?? this.range()[0] ?? this.zoneToday());
       this.focusedDate.set(initial);
       this.viewDate.set(initial);
 
@@ -459,6 +470,11 @@ export class WrCalendar {
   }
 
   // Cell state predicates (used by template)
+
+  /** Through the adapter, not `Date#getDate`: a zoned adapter's day is not the browser's. */
+  protected dayOfMonth(date: Date): number {
+    return this.adapter.getDate(date);
+  }
 
   protected isToday(date: Date): boolean {
     return this.adapter.isSameDay(date, this.today());
