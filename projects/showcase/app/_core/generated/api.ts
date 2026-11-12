@@ -1285,7 +1285,12 @@ export const API = {
     { name: "disabled", description: "Disable all dragging.", type: "boolean", default: "false" },
     { name: "lockAxis", description: "Locked axis — restrict drag movement to one axis even diagonally.", type: "'x' | 'y' | undefined", default: "undefined" },
     { name: "dragStartDelay", description: "Delay (ms) before a drag begins after the pointer goes down. The touch delay is the fix for the classic CDK touch snag: without it, the `touch-action: none` CDK puts on each item blocks scrolling the list on a phone. With a small touch delay, a quick swipe scrolls and a brief hold starts the drag; mouse stays instant. Pass a single number to apply one delay to both pointers.", type: "number | { touch: number; mouse: number }", default: "{ touch: 150, mouse: 0 }" },
-    { name: "(reorder)", description: "Fired after a successful reorder with the new array + indices.", type: "WrSortableReorderEvent<T>" },
+    { name: "group", description: "Name of the group this list belongs to. Lists with the same group exchange items, wherever they sit in the page.", type: "string | null", default: "null" },
+    { name: "canEnter", description: "Refuses an item coming from another list of the group, by drag and by keyboard alike. An item can always return to the list it left.", type: "WrSortableCanEnter<T> | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the list. A keyboard move into this list announces it; without one the announcement falls back to the list's position in the group.", type: "string | null", default: "null" },
+    { name: "id", description: "The host's `id`, and what tells the lists of a `move` apart. Generated when omitted.", type: "string" },
+    { name: "(reorder)", description: "Fired after a successful reorder with the new array + indices. Not fired for a move between lists.", type: "WrSortableReorderEvent<T>" },
+    { name: "(move)", description: "Fired once on the list an item ARRIVED in from another list of the group, after both lists have written `items`. The list it left emits nothing but `itemsChange`.", type: "WrSortableMoveEvent<T>" },
   ],
   // <wr-sparkline>
   WrSparkline: [

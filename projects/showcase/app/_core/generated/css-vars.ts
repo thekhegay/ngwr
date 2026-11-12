@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1676 hook(s) across 115 page(s). A property is here only when the
+ * 1678 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -1809,6 +1809,8 @@ export const CSS_VARS = {
   "reference/components/sortable-list": {
     subpath: "ngwr/sortable-list",
     vars: [
+      { name: "--wr-sortable-list-empty-color", default: "var(--wr-color-placeholder)", scope: ".wr-sortable-list" },
+      { name: "--wr-sortable-list-empty-min-height", default: "calc(var(--wr-space-xl) * 2)", scope: ".wr-sortable-list" },
       { name: "--wr-sortable-list-gap", default: "var(--wr-space-sm)", scope: ".wr-sortable-list" },
       { name: "--wr-sortable-list-item-font-family", default: "var(--wr-font-family-base)", scope: ".wr-sortable-list__item" },
       { name: "--wr-sortable-list-placeholder-radius", default: "var(--wr-border-radius-base)", scope: ".wr-sortable-list" },

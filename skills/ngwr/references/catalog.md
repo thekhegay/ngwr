@@ -201,6 +201,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/slider` | `import { WrSlider } from 'ngwr/slider'` | `wr-slider` |
 | `ngwr/slider/testing` | `import { WrSliderHarness } from 'ngwr/slider/testing'` | — |
 | `ngwr/sortable-list` | `import { WrSortableList } from 'ngwr/sortable-list'` | `[wrDragHandle]` `wr-sortable-item` `wr-sortable-list` |
+| `ngwr/sortable-list/testing` | `import { WrSortableListHarness } from 'ngwr/sortable-list/testing'` | — |
 | `ngwr/speed-dial` | `import { WrSpeedDial } from 'ngwr/speed-dial'` | `wr-speed-dial` |
 | `ngwr/speed-dial/testing` | `import { WrSpeedDialActionHarness } from 'ngwr/speed-dial/testing'` | — |
 | `ngwr/spinner` | `import { WrSpinner } from 'ngwr/spinner'` | `wr-spinner` |
