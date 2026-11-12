@@ -186,6 +186,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/radio/testing` | `import { WrRadioGroupHarness } from 'ngwr/radio/testing'` | — |
 | `ngwr/rating` | `import { WrRating } from 'ngwr/rating'` | `wr-rating` |
 | `ngwr/rating/testing` | `import { WrRatingHarness } from 'ngwr/rating/testing'` | — |
+| `ngwr/resizable` | `import { WrResizable } from 'ngwr/resizable'` | `[wrResizable]` |
 | `ngwr/result` | `import { WrResult } from 'ngwr/result'` | `wr-result-404` `wr-result-403` `wr-result-500` `wr-result` |
 | `ngwr/schema-form` | `import { WrSchemaForm } from 'ngwr/schema-form'` | `wr-schema-form` |
 | `ngwr/scroll` | `import { WrScroll } from 'ngwr/scroll'` | — |
