@@ -25,10 +25,10 @@
 
 export const QUALITY = {
   /** The published version, read from `projects/lib/package.json` — cross-checked against the `NGWR_VERSION` constant, which is a separate copy. */
-  version: "15.9.0",
+  version: "16.0.0",
 
   /** The newest stable release of each major, from the `CHANGELOG.md` headings. The docs version switcher labels an archived major with it. */
-  lastReleaseByMajor: { 4: "4.3.0", 5: "5.0.3", 6: "6.1.1", 7: "7.3.0", 8: "8.0.0", 9: "9.1.0", 10: "10.2.1", 11: "11.2.0", 12: "12.2.0", 13: "13.0.1", 14: "14.12.1", 15: "15.9.0" },
+  lastReleaseByMajor: { 4: "4.3.0", 5: "5.0.3", 6: "6.1.1", 7: "7.3.0", 8: "8.0.0", 9: "9.1.0", 10: "10.2.1", 11: "11.2.0", 12: "12.2.0", 13: "13.0.1", 14: "14.12.1", 15: "15.9.0", 16: "16.0.0" },
 
   /** Secondary entry points — `ngwr/button`, `ngwr/select`, … Read from the `exports` map, which is what the library builder compiles, so `styles/` and `schematics/` are correctly absent. Excludes the primary `ngwr`. */
   entryPoints: 230,

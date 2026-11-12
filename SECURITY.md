@@ -7,9 +7,9 @@ only when the change is mechanical (no breaking surface).
 
 | Version | Supported |
 | ------- | --------- |
-| 15.x    | ✅ Full — all security fixes |
-| 14.x    | ⚠️ Limited — mechanical fixes only, until the next major |
-| < 14.0  | ❌ Unsupported |
+| 16.x    | ✅ Full — all security fixes |
+| 15.x    | ⚠️ Limited — mechanical fixes only, until the next major |
+| < 15.0  | ❌ Unsupported |
 
 Where the only correct fix on an older major is **not** mechanical — a sanitizer
 that changes what already-accepted input renders, a narrowed input type — the

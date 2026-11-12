@@ -1,5 +1,63 @@
 # Changelog
 
+## [16.0.0](https://github.com/thekhegay/ngwr/compare/v15.9.0...v16.0.0) (2026-11-12)
+
+### ⚠ BREAKING CHANGES
+
+* **toast:** closable instead of dismissible
+* **animations:** core is internal
+* **toast:** harness reads closable
+* **popconfirm:** read-only open state
+* **popover,dropdown:** read-only open state
+* **slider,input:** show value and the password toggle label
+* **lib:** wr prefix on every public function, constant and type
+
+### Features
+
+* **animations:** core is internal ([2e7680c](https://github.com/thekhegay/ngwr/commit/2e7680cf899dac0105c8964ed2cad0e305711c70))
+* **copy-value:** copyable value component ([69883f4](https://github.com/thekhegay/ngwr/commit/69883f446a0cae5556e66ef26d37452c15f66642))
+* **date-picker:** clear button ([60cd4cf](https://github.com/thekhegay/ngwr/commit/60cd4cf9076d9856dfef059046a79204269602e8))
+* **date-picker:** size input ([5aa67ad](https://github.com/thekhegay/ngwr/commit/5aa67ad4518bc0254c4a9e3a42ff067c8bab3e19))
+* **date:** parse backend date strings ([2d3b66c](https://github.com/thekhegay/ngwr/commit/2d3b66c201c7478dd8b8cd065745ea0b231b220f))
+* **dialog:** tab title follows the open dialog ([3fc52ed](https://github.com/thekhegay/ngwr/commit/3fc52ed6e61b7300bec4e2eca9c476d15b80ce98))
+* **directives:** fit a wrapped block to its longest line ([7a15db1](https://github.com/thekhegay/ngwr/commit/7a15db1883d3af16aefb7b84b7351cfa7fdaf083))
+* **lib:** wr prefix on every public function, constant and type ([bf07c09](https://github.com/thekhegay/ngwr/commit/bf07c0969b874a2199c24c3b6b765cf50ae05af4))
+* **popconfirm:** read-only open state ([f7e6cb9](https://github.com/thekhegay/ngwr/commit/f7e6cb909f582d3435bebd1f4e07b62db624e9ad))
+* **popover,dropdown:** read-only open state ([dbbf09e](https://github.com/thekhegay/ngwr/commit/dbbf09ec95173842abc3de67d9d7b5349839c375))
+* **schematics:** migration-v16 covers the renamed inputs ([ab250ed](https://github.com/thekhegay/ngwr/commit/ab250ed2fcda45584f10a97843f0a886e6a596e1))
+* **schematics:** migration-v16 covers the toast harness and popconfirm ([ee16ce9](https://github.com/thekhegay/ngwr/commit/ee16ce97adba08068371b384d2471e08a25efc74))
+* **schematics:** migration-v16 renames the prefixed exports ([60ebe84](https://github.com/thekhegay/ngwr/commit/60ebe8402947af2527150da7102f1cf821d20038))
+* **select,cascader,tree,date-picker:** open and close from code ([b5be311](https://github.com/thekhegay/ngwr/commit/b5be3115c198bfbad846c04fe6ba65540597af57))
+* **select:** virtual scroll without search ([7a5c6b5](https://github.com/thekhegay/ngwr/commit/7a5c6b5ef0272ca5398db4bf4238d518a5ba332a))
+* **slider,input:** show value and the password toggle label ([e74211d](https://github.com/thekhegay/ngwr/commit/e74211d588f23df274844113cb5b14bc609ff7e9))
+* **table:** pinned column shadow only while the table overflows ([1f1e785](https://github.com/thekhegay/ngwr/commit/1f1e78598c3f16ef4d375f03972507b70fcdf8d0))
+* **table:** select all rows across pages ([61c5748](https://github.com/thekhegay/ngwr/commit/61c5748f74c5a7136b8b60440b4530f578acf2ac))
+* **table:** sort rows helper for the table sort state ([a8023fc](https://github.com/thekhegay/ngwr/commit/a8023fc17957ce139e2de8c6527076fee43e8609))
+* **table:** sticky header in its own scroll area ([3c44261](https://github.com/thekhegay/ngwr/commit/3c442616a151ee07164dedff2ecae569618db298))
+* **tabs:** export the size type ([bf6888a](https://github.com/thekhegay/ngwr/commit/bf6888a8823bf509efc866b77fc00dbd7a74fa62))
+* **toast:** action button ([a80ea99](https://github.com/thekhegay/ngwr/commit/a80ea99fd7e69fc36def30a0a12e893802578cdb))
+* **toast:** closable instead of dismissible ([56fe0e1](https://github.com/thekhegay/ngwr/commit/56fe0e1d58eb7283d01d752ae967709871e6d73f))
+* **toast:** harness reads closable ([5a9be7f](https://github.com/thekhegay/ngwr/commit/5a9be7f0e66d74a54e3fccb927b381622aba30e6))
+* **tree:** size on the overlay trigger ([97e0593](https://github.com/thekhegay/ngwr/commit/97e0593e9fd3c49d8dab41b832bb7783ff3ed69d))
+* **utils:** surname style for initials ([e1fbfd9](https://github.com/thekhegay/ngwr/commit/e1fbfd981bd7a73731d911117fa2c2073513679a))
+* **utils:** warn and error badge logs ([d4ab08e](https://github.com/thekhegay/ngwr/commit/d4ab08ebb702916d41171e007ea7ab44c81efd5c))
+
+### Bug Fixes
+
+* **date:** pipe, format and validators parse backend strings ([dd40017](https://github.com/thekhegay/ngwr/commit/dd4001734621f29e5b4dab6d7994e1501c642bc7))
+* **input-number,date-picker:** fill the host so a form field lines up ([3f1db75](https://github.com/thekhegay/ngwr/commit/3f1db75d0b7a5f89a193615144c824cf6499aa7d))
+* **lib:** peer floors at the versions the build is tested on ([f3d7ef2](https://github.com/thekhegay/ngwr/commit/f3d7ef2089ebfb0b2ec16ca826d785620432802c))
+* **pagination:** keep focus on the clicked page when the window shifts ([ff4c686](https://github.com/thekhegay/ngwr/commit/ff4c6863b6251b6146b107acd3c239ff1e9bd242))
+* **platform:** poll nothing on a non-positive or non-finite interval ([6cef788](https://github.com/thekhegay/ngwr/commit/6cef788b450e3d1006a553470469142a3915b06e))
+* **statistic:** end a countdown once per target and stop its timer ([0d032a2](https://github.com/thekhegay/ngwr/commit/0d032a2e655b168498f129752a0ef7ec0ccd20d3))
+* **storage:** fall back to memory when the browser blocks storage ([19e9003](https://github.com/thekhegay/ngwr/commit/19e9003b565ba061f416b6f09488ce52027d3378))
+* **transfer:** resolve the right pane once and warn about orphans once ([796bfb7](https://github.com/thekhegay/ngwr/commit/796bfb78494f5d96f41d730a0941c2477a32f34f))
+
+### Performance Improvements
+
+* **select:** look up multi values in a set ([4d3a467](https://github.com/thekhegay/ngwr/commit/4d3a4678f61fe26249b0e66753ad3e7712460cfd))
+* **table:** look up expanded rows in a set ([988f957](https://github.com/thekhegay/ngwr/commit/988f9579488aec2326fe275b90e7a666de8c4214))
+
 ## [15.9.0](https://github.com/thekhegay/ngwr/compare/v15.8.0...v15.9.0) (2026-11-11)
 
 ### Features
