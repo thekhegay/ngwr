@@ -162,6 +162,54 @@ export class WrDateRangePickerHarness extends WrDatePickerHarnessBase {
     await (await this.timePanel(end)).toggleMeridiem();
   }
 
+  /**
+   * The labels of the `[presets]` in the open popup, in the order they render —
+   * empty when the picker has none.
+   */
+  async getPresets(): Promise<string[]> {
+    return Promise.all((await this.presetButtons()).map(button => button.text()));
+  }
+
+  /**
+   * The label of the preset marked `aria-pressed` — the one whose range equals
+   * the value — or `null` when the value matches none.
+   */
+  async getActivePreset(): Promise<string | null> {
+    for (const button of await this.presetButtons()) {
+      if ((await button.getAttribute('aria-pressed')) === 'true') return button.text();
+    }
+    return null;
+  }
+
+  /**
+   * Click a preset by its label. That commits the range and closes the popup.
+   * Throws for a label the popup does not show, and for a preset the picker
+   * disabled because it reaches outside `minDate` / `maxDate`.
+   */
+  async selectPreset(label: string): Promise<void> {
+    const buttons = await this.presetButtons();
+    const labels = await Promise.all(buttons.map(button => button.text()));
+    const button = buttons[labels.indexOf(label)];
+    if (!button) {
+      throw new Error(
+        `${this.harnessName}.selectPreset(${JSON.stringify(label)}): no such preset. The popup shows ` +
+          `${labels.length ? labels.map(shown => JSON.stringify(shown)).join(', ') : 'none'}.`
+      );
+    }
+    if (await button.getProperty<boolean>('disabled')) {
+      throw new Error(
+        `${this.harnessName}.selectPreset(${JSON.stringify(label)}): the preset is disabled — its range reaches ` +
+          'outside minDate / maxDate.'
+      );
+    }
+
+    await button.click();
+  }
+
+  private presetButtons(): Promise<TestElement[]> {
+    return this.allInPanel('.wr-date-range-presets__item');
+  }
+
   private async type(end: WrDateRangePickerEnd, text: string): Promise<void> {
     const field = await this.field(end);
     await field.clear();
