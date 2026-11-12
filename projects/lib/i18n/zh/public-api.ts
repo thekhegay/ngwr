@@ -158,6 +158,9 @@ export const wrZh: WrI18nCatalog = {
     copied: '已复制',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: '已复制',
+  },
   input: {
     showPassword: '显示密码',
     hidePassword: '隐藏密码',

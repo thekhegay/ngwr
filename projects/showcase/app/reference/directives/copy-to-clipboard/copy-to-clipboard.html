@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="wrCopyToClipboard"
-  updated="15.6.0"
-  description="Copy a string to the clipboard when the element is clicked."
+  updated="16.1.0"
+  description="Copy a string to the clipboard when the element is clicked, and say so."
   [keywords]="['wrCopyToClipboard', 'copy', 'clipboard', 'directive']"
   [labels]="['Directive']"
 >
@@ -20,6 +20,54 @@
         </small>
       }
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Feedback"
+    description="For a moment after a copy the host carries `wr-copy-to-clipboard--copied`, a tooltip reads Copied and the text is announced politely. A refused write shows nothing."
+  >
+    <ngwr-doc-code [code]="snippets.feedback" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+        <button wr-btn type="button" [wrCopyToClipboard]="clipboardText()">Tooltip</button>
+        <button wr-btn type="button" wrCopyToClipboardToast [wrCopyToClipboard]="clipboardText()">Toast</button>
+        <button
+          wr-btn
+          type="button"
+          wrCopyToClipboardToast
+          copiedLabel="Copied to clipboard"
+          [wrCopyToClipboard]="clipboardText()"
+        >
+          Toast, own text
+        </button>
+      </div>
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Binding</th>
+            <th scope="col">Shows</th>
+            <th scope="col">Announced by</th>
+            <th scope="col">Styles to load</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Default</th>
+            <td>A tooltip over the host</td>
+            <td>A polite live region</td>
+            <td><code>ngwr/popover</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wrCopyToClipboardToast</code></th>
+            <td>A success toast</td>
+            <td>The toast</td>
+            <td><code>ngwr/toast</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section

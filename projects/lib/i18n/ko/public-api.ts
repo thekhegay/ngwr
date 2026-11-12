@@ -160,6 +160,9 @@ export const wrKo: WrI18nCatalog = {
     copied: '복사됨',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: '복사됨',
+  },
   input: {
     showPassword: '비밀번호 표시',
     hidePassword: '비밀번호 숨기기',

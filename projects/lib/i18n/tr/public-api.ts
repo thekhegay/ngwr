@@ -163,6 +163,9 @@ export const wrTr: WrI18nCatalog = {
     copied: 'Kopyalandı',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'Kopyalandı',
+  },
   input: {
     showPassword: 'Parolayı göster',
     hidePassword: 'Parolayı gizle',

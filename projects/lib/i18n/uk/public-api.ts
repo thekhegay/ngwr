@@ -168,6 +168,9 @@ export const wrUk: WrI18nCatalog = {
     copied: 'Скопійовано',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'Скопійовано',
+  },
   input: {
     showPassword: 'Показати пароль',
     hidePassword: 'Приховати пароль',

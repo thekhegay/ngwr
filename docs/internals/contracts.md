@@ -107,6 +107,13 @@ because it is guidance rather than a plan.
   as is and skips `missingHandler`: no interpolation and no report, because the
   caller said a miss is expected (a key built from a server value). The
   background catalog load still fires, so a locale that has the key wins.
+- `[wrCopyToClipboard]` confirms a copy by default: a class on the host, a
+  tooltip and a polite announcement, or a toast under `wrCopyToClipboardToast`.
+  The tooltip is `wrUseTextTooltip()`, an `@internal` export of `ngwr/popover`
+  that opens the tooltip panel from code, because `WrPopover` cannot be a host
+  directive here: the host may carry its own `[wrPopover]`. `ngwr/directives`
+  has no stylesheet, so the tooltip needs `@use 'ngwr/popover'`. The duration is
+  `WR_COPIED_DURATION` from `ngwr/clipboard`, shared with `<wr-copy-value>`.
 - Escape does NOT depend on focus being inside an overlay:
   `overlayRef.keydownEvents()` is fed by CDK's `OverlayKeyboardDispatcher`,
   which keeps one document listener and routes to the topmost overlay.

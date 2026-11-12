@@ -158,6 +158,9 @@ export const wrCs: WrI18nCatalog = {
     copied: 'Zkopírováno',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'Zkopírováno',
+  },
   input: {
     showPassword: 'Zobrazit heslo',
     hidePassword: 'Skrýt heslo',

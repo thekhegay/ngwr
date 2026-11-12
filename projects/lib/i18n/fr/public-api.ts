@@ -160,6 +160,9 @@ export const wrFr: WrI18nCatalog = {
     copied: 'Copié',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'Copié',
+  },
   input: {
     showPassword: 'Afficher le mot de passe',
     hidePassword: 'Masquer le mot de passe',

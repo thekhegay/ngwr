@@ -160,6 +160,9 @@ export const wrJa: WrI18nCatalog = {
     copied: 'コピーしました',
     empty: '-',
   },
+  copyToClipboard: {
+    copied: 'コピーしました',
+  },
   input: {
     showPassword: 'パスワードを表示',
     hidePassword: 'パスワードを非表示',
