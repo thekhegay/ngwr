@@ -196,6 +196,7 @@ export const ROUTES = {
       copyValue: { path: 'copy-value', title: 'Copy Value' },
       counter: { path: 'counter', title: 'Counter' },
       datePicker: { path: 'date-picker', title: 'Date Picker' },
+      dateStamp: { path: 'date-stamp', title: 'Date Stamp' },
       dialog: { path: 'dialog', title: 'Dialog' },
       divider: { path: 'divider', title: 'Divider' },
       drawer: { path: 'drawer', title: 'Drawer' },

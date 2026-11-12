@@ -21,6 +21,7 @@ import { WrCompare } from 'ngwr/compare';
 import { WrContextMenuItem } from 'ngwr/context-menu';
 import { WrCopyValue } from 'ngwr/copy-value';
 import { WrDatePicker, WrDateRangePicker } from 'ngwr/date-picker';
+import { WrDateStamp } from 'ngwr/date-stamp';
 import { WrDescriptions } from 'ngwr/descriptions';
 import { WrDialogFooter } from 'ngwr/dialog';
 import { WrDivider } from 'ngwr/divider';
@@ -143,6 +144,7 @@ const COMPONENTS: readonly (readonly [base: string, type: Type<unknown>])[] = [
   ['wr-copy-value', WrCopyValue],
   ['wr-date-picker', WrDatePicker],
   ['wr-date-range-picker', WrDateRangePicker],
+  ['wr-date-stamp', WrDateStamp],
   ['wr-time-picker', WrTimePanel],
   ['wr-descriptions', WrDescriptions],
   ['wr-divider', WrDivider],
