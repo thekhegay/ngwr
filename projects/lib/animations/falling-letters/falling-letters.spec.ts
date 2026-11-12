@@ -496,7 +496,9 @@ describe('WrFallingLetters', () => {
     const second = await trace();
     expect(second).toEqual(first);
     // And it is a fall: the letters are lower at the end than at the start.
-    const ys = (frame: string[]): number[] => frame.map(t => Number(/, (-?[\d.]+)px\)/.exec(t)![1]));
+    // `translate(x, 0px)` serialises as `translate(x)` in jsdom 31: a missing y is 0.
+    const ys = (frame: string[]): number[] =>
+      frame.map(t => Number(/translate\([^,)]+(?:,\s*(-?[\d.e]+)px)?\)/.exec(t)?.[1] ?? 0));
     expect(Math.max(...ys(first[39]))).toBeGreaterThan(Math.max(...ys(first[0])) + 100);
   });
 

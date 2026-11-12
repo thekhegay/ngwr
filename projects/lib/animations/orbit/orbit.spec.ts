@@ -82,6 +82,26 @@ const FRAME = 16;
 describe('WrOrbit', () => {
   let frames: Frames;
 
+  // The step maths needs the angle as the component wrote it. jsdom 31 serialises a
+  // transform to six significant digits, so a read-back angle near 300deg keeps three
+  // decimals and two consecutive reads differ by a rounding, not by the step.
+  const written = new WeakMap<CSSStyleDeclaration, string>();
+  const track = (el: SVGSVGElement): void => {
+    const style = el.style;
+    if (written.has(style)) return;
+    const proto = Object.getPrototypeOf(style) as object;
+    if (!Object.getOwnPropertyDescriptor(proto, 'transform')?.set) return;
+    written.set(style, style.transform);
+    Object.defineProperty(style, 'transform', {
+      configurable: true,
+      get: () => written.get(style) ?? '',
+      set: (value: string) => {
+        written.set(style, value);
+        Reflect.set(proto, 'transform', value, style);
+      },
+    });
+  };
+
   const render = async <T>(
     host: new () => T,
     providers: unknown[] = [platform(stub())]
@@ -90,6 +110,8 @@ describe('WrOrbit', () => {
     const fixture = TestBed.createComponent(host);
     fixture.detectChanges();
     await fixture.whenStable();
+    const rings = (fixture.nativeElement as HTMLElement).querySelectorAll<SVGSVGElement>('.wr-orbit__ring');
+    rings.forEach(track);
     return fixture;
   };
 
@@ -100,7 +122,8 @@ describe('WrOrbit', () => {
 
   /** The ring's angle, in degrees, as written to its transform; `null` when nothing was written. */
   const angle = (el: HTMLElement): number | null => {
-    const match = /rotate\(([-\d.e]+)deg\)/.exec(ring(el).style.transform);
+    const style = ring(el).style;
+    const match = /rotate\(([-\d.e]+)deg\)/.exec(written.get(style) ?? style.transform);
     return match ? Number(match[1]) : null;
   };
 
