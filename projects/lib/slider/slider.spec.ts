@@ -1025,3 +1025,190 @@ describe('WrSlider marks', () => {
     });
   });
 });
+
+@Component({
+  imports: [WrSlider],
+  template: `
+    <wr-slider
+      [(value)]="amount"
+      [orientation]="orientation()"
+      [range]="range()"
+      [marks]="marks()"
+      [snapToMarks]="snap()"
+    />
+  `,
+})
+class VerticalHost {
+  readonly amount = signal<WrSliderValue>(50);
+  readonly orientation = signal<'horizontal' | 'vertical'>('vertical');
+  readonly range = signal(false);
+  readonly snap = signal(false);
+  readonly marks = signal<readonly WrSliderMark[]>([]);
+}
+
+describe('WrSlider vertical', () => {
+  type Direction = 'ltr' | 'rtl';
+  let fixture: ComponentFixture<VerticalHost>;
+
+  const mount = (direction: Direction = 'ltr'): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: Directionality, useValue: { value: direction, change: new Subject<Direction>() } }],
+    });
+    fixture = TestBed.createComponent(VerticalHost);
+    fixture.detectChanges();
+  };
+
+  const host = (): VerticalHost => fixture.componentInstance;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const slider = (): HTMLElement => root().querySelector<HTMLElement>('wr-slider')!;
+  const thumbs = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="slider"]')];
+  const part = (name: string): HTMLElement => root().querySelector<HTMLElement>(`.wr-slider__${name}`)!;
+  const style = (el: HTMLElement, property: string): string => el.style.getPropertyValue(property);
+
+  const press = (key: string, thumb = 0): WrSliderValue => {
+    thumbs()[thumb].dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    return host().amount();
+  };
+
+  /**
+   * A 200px tall track from y 100 to y 300, and wide enough that a ratio read
+   * off the X axis by mistake would land somewhere else.
+   */
+  const clickTrack = (clientY: number, clientX = 5): WrSliderValue => {
+    const track = part('track');
+    track.getBoundingClientRect = (): DOMRect =>
+      ({ left: 0, right: 10, width: 10, top: 100, bottom: 300, height: 200 }) as DOMRect;
+    track.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, cancelable: true, clientX, clientY }));
+    fixture.detectChanges();
+    return host().amount();
+  };
+
+  const set = (change: () => void): void => {
+    change();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => mount());
+  afterEach(() => fixture.destroy());
+
+  it('says so to assistive tech and to the stylesheet', () => {
+    expect(thumbs()[0].getAttribute('aria-orientation')).toBe('vertical');
+    expect(slider().classList.contains('wr-slider--vertical')).toBe(true);
+  });
+
+  it('leaves a horizontal slider exactly as it was', () => {
+    set(() => host().orientation.set('horizontal'));
+
+    expect(thumbs()[0].hasAttribute('aria-orientation')).toBe(false);
+    expect(slider().className).toBe('wr-slider');
+    expect(style(thumbs()[0], 'inset-inline-start')).toBe('50%');
+    expect(style(thumbs()[0], 'bottom')).toBe('');
+    expect(style(part('fill'), 'width')).toBe('50%');
+    expect(style(part('fill'), 'height')).toBe('');
+    expect(style(part('label'), 'bottom')).toBe('');
+  });
+
+  it('paints every part up from the bottom of the track', () => {
+    set(() => {
+      host().amount.set(30);
+      host().marks.set([{ value: 20, label: 'Quiet' }]);
+    });
+
+    expect(style(thumbs()[0], 'bottom')).toBe('30%');
+    expect(style(thumbs()[0], 'inset-inline-start')).toBe('');
+    expect(style(part('fill'), 'bottom')).toBe('0%');
+    expect(style(part('fill'), 'height')).toBe('30%');
+    expect(style(part('fill'), 'width')).toBe('');
+    expect(style(part('mark'), 'bottom')).toBe('20%');
+    expect(style(part('mark-label'), 'bottom')).toBe('20%');
+    expect(style(part('mark-label'), 'inset-inline-start')).toBe('');
+  });
+
+  it('puts the value label beside the thumb', () => {
+    set(() => host().amount.set(30));
+
+    expect(style(part('label'), 'bottom')).toBe('30%');
+  });
+
+  it('reads a pointer off the Y axis, with the bottom as the minimum', () => {
+    expect(clickTrack(300)).toBe(0);
+    expect(clickTrack(250)).toBe(25);
+    expect(clickTrack(100)).toBe(100);
+    expect(clickTrack(400), 'below the track').toBe(0);
+  });
+
+  it('does not mirror the pointer under RTL', () => {
+    mount('rtl');
+
+    expect(clickTrack(250, 9)).toBe(25);
+  });
+
+  it('raises the value with ArrowUp and ArrowRight, lowers it with ArrowDown and ArrowLeft', () => {
+    expect(press('ArrowUp')).toBe(51);
+    expect(press('ArrowRight')).toBe(52);
+    expect(press('ArrowDown')).toBe(51);
+    expect(press('ArrowLeft')).toBe(50);
+  });
+
+  it('keeps those keys the same under RTL', () => {
+    mount('rtl');
+
+    expect(press('ArrowRight')).toBe(51);
+    expect(press('ArrowLeft')).toBe(50);
+    expect(press('ArrowUp')).toBe(51);
+  });
+
+  it('keeps PageUp, PageDown, Home and End', () => {
+    expect(press('PageUp')).toBe(60);
+    expect(press('PageDown')).toBe(50);
+    expect(press('Home')).toBe(0);
+    expect(press('End')).toBe(100);
+  });
+
+  it('snaps to marks on both paths', () => {
+    set(() => {
+      host().marks.set([{ value: 0 }, { value: 50 }, { value: 100 }]);
+      host().snap.set(true);
+    });
+
+    expect(clickTrack(140)).toBe(100);
+    expect(press('ArrowLeft')).toBe(50);
+    expect(press('ArrowRight')).toBe(100);
+  });
+
+  describe('range mode', () => {
+    beforeEach(() =>
+      set(() => {
+        host().range.set(true);
+        host().amount.set([20, 80]);
+      })
+    );
+
+    it('marks both thumbs vertical and stacks them on the track', () => {
+      expect(thumbs().map(thumb => thumb.getAttribute('aria-orientation'))).toEqual(['vertical', 'vertical']);
+      expect(thumbs().map(thumb => style(thumb, 'bottom'))).toEqual(['20%', '80%']);
+      expect(style(part('fill'), 'bottom')).toBe('20%');
+      expect(style(part('fill'), 'height')).toBe('60%');
+    });
+
+    it('centres the value label on the selected stretch', () => {
+      expect(style(part('label'), 'bottom')).toBe('50%');
+    });
+
+    it('grabs the thumb nearest the pointer on the Y axis', () => {
+      expect(clickTrack(120)).toEqual([20, 90]);
+      expect(clickTrack(280)).toEqual([10, 90]);
+    });
+
+    it('moves each end from the keyboard without crossing', () => {
+      expect(press('ArrowRight', 0)).toEqual([21, 80]);
+      expect(press('ArrowDown', 1)).toEqual([21, 79]);
+
+      set(() => host().amount.set([79, 80]));
+      press('ArrowUp', 0);
+      expect(press('ArrowUp', 0)).toEqual([80, 80]);
+    });
+  });
+});

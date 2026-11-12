@@ -50,6 +50,10 @@ import type { WrSliderMark, WrSliderValue } from './types';
  * its ratio from the right edge. ↑ / ↓, PageUp / PageDown and Home / End are
  * unchanged — they name a value, not a side of the screen.
  *
+ * `orientation="vertical"` runs the track from the bottom (min) to the top
+ * (max). → then raises the value like ↑ and ← lowers it like ↓, in both
+ * reading directions.
+ *
  * @example
  * ```html
  * <!-- signal forms -->
@@ -152,6 +156,15 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
    * @default false
    */
   readonly snapToMarks = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Axis of the track. `vertical` runs from the bottom (min) to the top (max),
+   * as tall as `--wr-slider-vertical-height`, with the value and the marks'
+   * labels beside it.
+   *
+   * @default 'horizontal'
+   */
+  readonly orientation = input<'horizontal' | 'vertical'>('horizontal');
 
   /**
    * Accessible name of the thumb — the single one, or the LOWER one in range
@@ -291,10 +304,13 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   protected readonly classes = computed(() => {
     const parts: string[] = [];
     if (this.range()) parts.push('wr-slider--range');
+    if (this.vertical()) parts.push('wr-slider--vertical');
     if (this.disabled()) parts.push('wr-slider--disabled');
     else if (this.readonly()) parts.push('wr-slider--readonly');
     return parts.join(' ');
   });
+
+  protected readonly vertical = computed(() => this.orientation() === 'vertical');
 
   protected readonly lowPercent = computed(() => this.percentOf(this.low()));
   protected readonly highPercent = computed(() => this.percentOf(this.high()));
@@ -323,6 +339,11 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   protected readonly lowText = computed<string | null>(() => this.textOf(this.low()));
   /** `aria-valuetext` of the upper thumb, see {@link lowText}. */
   protected readonly highText = computed<string | null>(() => this.textOf(this.high()));
+
+  /** Where the value label sits along a vertical track: beside the thumb, or midway between two. */
+  protected readonly labelPercent = computed(() =>
+    this.range() ? (this.lowPercent() + this.highPercent()) / 2 : this.lowPercent()
+  );
 
   protected readonly label = computed(() => {
     const low = this.lowText() ?? `${this.low()}`;
@@ -440,8 +461,9 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
     const delta = this.step() * big;
     const current = thumb === 'low' ? this.low() : this.high();
     // The horizontal arrows name a SIDE of the track, so they follow the
-    // reading direction; every other key names a value and does not.
-    const inline = this.isRtl() ? -1 : 1;
+    // reading direction; every other key names a value and does not. A
+    // vertical track has no inline side to name.
+    const inline = this.isRtl() && !this.vertical() ? -1 : 1;
     let direction = 0;
     let next: number | null = null;
 
@@ -498,7 +520,8 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   }
 
   /**
-   * The value under a pointer, measured along the track's INLINE axis.
+   * The value under a pointer, measured along the track's INLINE axis, or up
+   * from its bottom edge when vertical.
    *
    * The offset is taken from whichever edge the track starts at — the left one
    * in LTR, the right one in RTL — so the whole component needs the direction
@@ -507,8 +530,8 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
    */
   private valueAt(event: PointerEvent): number {
     const rect = this.track().nativeElement.getBoundingClientRect();
-    const offset = this.isRtl() ? rect.right - event.clientX : event.clientX - rect.left;
-    const ratio = wrClamp(offset / rect.width, 0, 1);
+    const inline = this.isRtl() ? rect.right - event.clientX : event.clientX - rect.left;
+    const ratio = wrClamp(this.vertical() ? (rect.bottom - event.clientY) / rect.height : inline / rect.width, 0, 1);
     return this.minValue() + ratio * (this.maxValue() - this.minValue());
   }
 

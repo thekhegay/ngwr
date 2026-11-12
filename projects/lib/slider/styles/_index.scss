@@ -15,6 +15,7 @@
   --wr-slider-label-margin-top: var(--wr-space-sm);
   --wr-slider-label-font-size: var(--wr-text-sm);
   --wr-slider-label-line-height: var(--wr-text-sm-leading);
+  --wr-slider-vertical-height: 10rem;
   --wr-slider-mark-size: var(--wr-space-sm);
   --wr-slider-mark-bg: var(--wr-color-surface);
   --wr-slider-mark-color: var(--wr-border-base);
@@ -140,6 +141,58 @@
     font-size: var(--wr-slider-label-font-size);
     line-height: var(--wr-slider-label-line-height);
     font-variant-numeric: tabular-nums;
+  }
+
+  // After the parts above, so these outrank their RTL mirrors at equal weight.
+  &--vertical,
+  &:where([orientation='vertical']) {
+    display: inline-flex;
+    width: auto;
+    height: var(--wr-slider-vertical-height);
+
+    .wr-slider__track {
+      flex: none;
+      width: var(--wr-slider-track-height);
+      height: auto;
+      margin: 0 calc((var(--wr-slider-thumb-size) - var(--wr-slider-track-height)) / 2);
+    }
+
+    .wr-slider__fill {
+      top: auto;
+      inset-inline: 0;
+    }
+
+    .wr-slider__thumb,
+    .wr-slider__mark {
+      top: auto;
+      // rtl-ok: centred across the track against a physical translateX, identical under RTL
+      left: 50%;
+      transform: translate(-50%, 50%);
+    }
+
+    .wr-slider__thumb:active {
+      transform: translate(-50%, 50%) scale(1.1);
+    }
+
+    // Both are raised by a percentage of the track's height and centred on it.
+    .wr-slider__mark-labels {
+      margin-top: 0;
+      margin-inline-start: var(--wr-slider-mark-gap);
+    }
+
+    .wr-slider__mark-label {
+      align-self: end;
+      transform: translateY(50%);
+    }
+
+    .wr-slider__label {
+      position: relative;
+      align-self: flex-end;
+      margin-top: 0;
+      margin-inline-start: var(--wr-slider-label-margin-top);
+      transform: translateY(50%);
+      white-space: nowrap;
+    }
   }
 
   // A read-only slider still takes focus and still announces its value, so it

@@ -84,6 +84,12 @@ export class WrSliderHarness extends ComponentHarness {
     return (await this.getLowThumb()).isDisabled();
   }
 
+  /** The axis of the track, from the thumb's `aria-orientation`, which is what a screen reader is told. */
+  async getOrientation(): Promise<'horizontal' | 'vertical'> {
+    const orientation = await (await (await this.getLowThumb()).host()).getAttribute('aria-orientation');
+    return orientation === 'vertical' ? 'vertical' : 'horizontal';
+  }
+
   /**
    * The current value, in the shape the model uses: a plain number for one
    * thumb, `[low, high]` for two.
