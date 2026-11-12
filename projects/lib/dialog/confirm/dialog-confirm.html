@@ -1,29 +1,83 @@
-<h2 wrDialogTitle>{{ data.title }}</h2>
+<h2 wrDialogTitle>
+  @if (intent) {
+    <svg
+      [class]="`wr-dialog-confirm__icon wr-dialog-confirm__icon--${intent}`"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <!-- The glyphs `wr-alert` and `wr-toast` draw for the same four meanings. -->
+      @switch (intent) {
+        @case ('success') {
+          <path d="M21.801 10A10 10 0 1 1 17 3.335" />
+          <path d="m9 11 3 3L22 4" />
+        }
+        @case ('warning') {
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+          <path d="M12 9v4" />
+          <path d="M12 17h.01" />
+        }
+        @case ('danger') {
+          <path
+            d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"
+          />
+          <path d="M12 8v4" />
+          <path d="M12 16h.01" />
+        }
+        @default {
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4" />
+          <path d="M12 8h.01" />
+        }
+      }
+    </svg>
+  }
+  {{ data.title }}
+</h2>
 @if (data.message) {
   <div wrDialogContent>{{ data.message }}</div>
 }
 <!--
   Initial focus sits on the safe answer of a danger question and on the confirm
   button otherwise, through the `cdkFocusInitial` the focus trap already reads.
+  An alert has one button, and it takes the focus.
 -->
 <div wrDialogFooter>
-  <button
-    wr-btn
-    type="button"
-    class="wr-dialog-confirm__action wr-dialog-confirm__action--cancel"
-    [attr.cdkFocusInitial]="danger ? '' : null"
-    (click)="ref.close(false)"
-  >
-    {{ cancelLabel() }}
-  </button>
-  <button
-    wr-btn
-    type="button"
-    class="wr-dialog-confirm__action wr-dialog-confirm__action--confirm"
-    [color]="color"
-    [attr.cdkFocusInitial]="danger ? null : ''"
-    (click)="ref.close(true)"
-  >
-    {{ confirmLabel() }}
-  </button>
+  @if (alert) {
+    <button
+      wr-btn
+      type="button"
+      class="wr-dialog-confirm__action wr-dialog-confirm__action--ok"
+      [color]="color"
+      [attr.cdkFocusInitial]="''"
+      (click)="ref.close()"
+    >
+      {{ confirmLabel() }}
+    </button>
+  } @else {
+    <button
+      wr-btn
+      type="button"
+      class="wr-dialog-confirm__action wr-dialog-confirm__action--cancel"
+      [attr.cdkFocusInitial]="danger ? '' : null"
+      (click)="ref.close(false)"
+    >
+      {{ cancelLabel() }}
+    </button>
+    <button
+      wr-btn
+      type="button"
+      class="wr-dialog-confirm__action wr-dialog-confirm__action--confirm"
+      [color]="color"
+      [attr.cdkFocusInitial]="danger ? null : ''"
+      (click)="ref.close(true)"
+    >
+      {{ confirmLabel() }}
+    </button>
+  }
 </div>
