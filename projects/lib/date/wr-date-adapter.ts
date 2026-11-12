@@ -5,9 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Injectable, Service, forwardRef, inject } from '@angular/core';
+import { Injectable, Injector, Service, forwardRef, inject, runInInjectionContext } from '@angular/core';
 
-import { WR_DATE_LOCALE } from './tokens';
+import { type WrResolvedZone, wrResolveZone, wrUtcTime, wrZoneInstant, wrZoneWallTime } from './time-zone';
+import { WR_DATE_LOCALE, WR_DATE_TIME_ZONE } from './tokens';
 import type { WrDateFormat } from './types';
 
 /**
@@ -351,6 +352,32 @@ export abstract class WrDateAdapter<TDate = Date> {
    */
   abstract parse(value: string, formatKeyOrString: WrDateFormat | (string & {})): TDate | null;
 
+  /**
+   * This adapter for instants: every accessor, `createDate`, the math, `format`
+   * and `parse` read a date on the wall clock of the display time zone
+   * (`withDates({ timeZone })`) instead of the browser's. The adapter itself
+   * keeps reading the browser's zone, because a calendar day has no zone: the
+   * 12th picked in a date-only field is the 12th wherever it is shown.
+   *
+   * `wrDate`, `wr-date-stamp` and the pickers' modes with a time ask for it.
+   * The base class returns itself, so an adapter that does not override this
+   * shows every date in the browser's zone.
+   */
+  zoned(): WrDateAdapter<TDate> {
+    return this;
+  }
+
+  /**
+   * What `format` writes in besides its arguments, as one string: the locale,
+   * and the time zone on the {@link zoned} adapter. Equal keys mean equal
+   * output, so a caller that keeps a formatted string compares keys instead of
+   * formatting again. The native adapter reads its signals here: called in a
+   * template, a `computed` or an `effect`, it re-runs them when either moves.
+   */
+  displayKey(): string {
+    return '';
+  }
+
   // Locale info
 
   /** `0` Sunday, `1` Monday — locale-dependent. */
@@ -373,6 +400,65 @@ export abstract class WrDateAdapter<TDate = Date> {
 @Service()
 export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   private readonly locale = inject(WR_DATE_LOCALE);
+  private readonly zoneSource = inject(WR_DATE_TIME_ZONE);
+  private readonly injector = inject(Injector);
+
+  /** Whether this instance is the one {@link zoned} hands out. */
+  private zonal = false;
+  private zonedSelf: WrNativeDateAdapter | null = null;
+
+  /**
+   * A second instance of the same class, so an app's subclass keeps its
+   * overrides. With no `timeZone` option at all it is this instance.
+   */
+  override zoned(): WrDateAdapter<Date> {
+    if (this.zonal || !this.zoneSource) return this;
+    this.zonedSelf ??= runInInjectionContext(this.injector, () => {
+      const zoned = new (this.constructor as new () => WrNativeDateAdapter)();
+      zoned.zonal = true;
+      return zoned;
+    });
+    return this.zonedSelf;
+  }
+
+  override displayKey(): string {
+    return `${this.locale}|${this.zonal ? (this.zone()?.id ?? '') : ''}`;
+  }
+
+  private zone(): WrResolvedZone | null {
+    return wrResolveZone(this.zoneSource?.());
+  }
+
+  private wallZone: WrResolvedZone | null = null;
+  private readonly walls = new Map<number, number>();
+
+  /**
+   * The date on the display zone's wall clock, as a `Date` read with the UTC
+   * getters, or `null` on the adapter that reads the browser's zone. Reading a
+   * named zone costs an `Intl` call and a month grid asks for the same day many
+   * times over, so those are kept.
+   */
+  private wall(date: Date): Date | null {
+    if (!this.zonal) return null;
+    const zone = this.zone();
+    const time = date.getTime();
+    if (zone?.kind !== 'iana' || Number.isNaN(time)) return new Date(wrZoneWallTime(time, zone));
+    if (this.wallZone !== zone || this.walls.size > 512) {
+      this.walls.clear();
+      this.wallZone = zone;
+    }
+    let wall = this.walls.get(time);
+    if (wall === undefined) {
+      wall = wrZoneWallTime(time, zone);
+      this.walls.set(time, wall);
+    }
+    return new Date(wall);
+  }
+
+  /** The instant a wall clock from {@link wall} names. */
+  private instant(wall: Date): Date {
+    return new Date(wrZoneInstant(wall.getTime(), this.zone()));
+  }
 
   // Construction & identity
 
@@ -385,6 +471,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   }
 
   createDate(year: number, month: number, day: number): Date {
+    if (this.zonal) return this.instant(new Date(wrUtcTime(year, month, day)));
     // Native Date constructor with year < 100 maps to 1900 + year unless we explicitly setFullYear.
     const d = new Date(year, month, day);
     if (year >= 0 && year < 100) d.setFullYear(year);
@@ -398,46 +485,59 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   // Accessors
 
   getYear(date: Date): number {
-    return date.getFullYear();
+    return this.wall(date)?.getUTCFullYear() ?? date.getFullYear();
   }
 
   getMonth(date: Date): number {
-    return date.getMonth();
+    return this.wall(date)?.getUTCMonth() ?? date.getMonth();
   }
 
   getDate(date: Date): number {
-    return date.getDate();
+    return this.wall(date)?.getUTCDate() ?? date.getDate();
   }
 
   getDayOfWeek(date: Date): number {
-    return date.getDay();
+    return this.wall(date)?.getUTCDay() ?? date.getDay();
   }
 
   getDaysInMonth(date: Date): number {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    return new Date(this.getYear(date), this.getMonth(date) + 1, 0).getDate();
   }
 
   getHours(date: Date): number {
-    return date.getHours();
+    return this.wall(date)?.getUTCHours() ?? date.getHours();
   }
 
   getMinutes(date: Date): number {
-    return date.getMinutes();
+    return this.wall(date)?.getUTCMinutes() ?? date.getMinutes();
   }
 
   getSeconds(date: Date): number {
-    return date.getSeconds();
+    return this.wall(date)?.getUTCSeconds() ?? date.getSeconds();
   }
 
   // Immutable math
 
   addYears(date: Date, amount: number): Date {
+    const wall = this.wall(date);
+    if (wall) {
+      wall.setUTCFullYear(wall.getUTCFullYear() + amount);
+      return this.instant(wall);
+    }
     const d = this.clone(date);
     d.setFullYear(d.getFullYear() + amount);
     return d;
   }
 
   addMonths(date: Date, amount: number): Date {
+    const wall = this.wall(date);
+    if (wall) {
+      const day = wall.getUTCDate();
+      wall.setUTCDate(1);
+      wall.setUTCMonth(wall.getUTCMonth() + amount);
+      wall.setUTCDate(Math.min(day, new Date(wall.getUTCFullYear(), wall.getUTCMonth() + 1, 0).getDate()));
+      return this.instant(wall);
+    }
     const d = this.clone(date);
     const desiredDay = d.getDate();
     d.setDate(1);
@@ -453,12 +553,22 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     // autumn change — lands back on the same calendar date, which makes a month grid
     // repeat a day and lose one. Not observable in a fixed-offset timezone, which is why
     // the reason lives here rather than only in a test.
+    const wall = this.wall(date);
+    if (wall) {
+      wall.setUTCDate(wall.getUTCDate() + amount);
+      return this.instant(wall);
+    }
     const d = this.clone(date);
     d.setDate(d.getDate() + amount);
     return d;
   }
 
   setTime(date: Date, hours: number, minutes: number, seconds: number): Date {
+    const wall = this.wall(date);
+    if (wall) {
+      wall.setUTCHours(hours, minutes, seconds, 0);
+      return this.instant(wall);
+    }
     const d = this.clone(date);
     d.setHours(hours, minutes, seconds, 0);
     return d;
@@ -467,21 +577,21 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   // Comparison
 
   isSameDay(a: Date, b: Date): boolean {
-    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    return this.compareDate(a, b) === 0;
   }
 
   isSameMonth(a: Date, b: Date): boolean {
-    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+    return this.getYear(a) === this.getYear(b) && this.getMonth(a) === this.getMonth(b);
   }
 
   compareDate(a: Date, b: Date): number {
-    const ay = a.getFullYear();
-    const by = b.getFullYear();
+    const ay = this.getYear(a);
+    const by = this.getYear(b);
     if (ay !== by) return ay - by;
-    const am = a.getMonth();
-    const bm = b.getMonth();
+    const am = this.getMonth(a);
+    const bm = this.getMonth(b);
     if (am !== bm) return am - bm;
-    return a.getDate() - b.getDate();
+    return this.getDate(a) - this.getDate(b);
   }
 
   // Formatting / parsing
@@ -490,7 +600,8 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   // while still accepting any other string as a raw token pattern.
   format(date: Date, formatKeyOrString: WrDateFormat | (string & {})): string {
     if (wrIsNamedFormat(formatKeyOrString)) {
-      return this.intl(formatKeyOrString).format(date);
+      const wall = this.wall(date);
+      return wall ? this.intl(formatKeyOrString, true).format(wall) : this.intl(formatKeyOrString).format(date);
     }
     return this.formatWithTokens(date, formatKeyOrString);
   }
@@ -569,11 +680,14 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     return { ...options, calendar: 'gregory' };
   }
 
-  private intl(key: WrDateFormat): Intl.DateTimeFormat {
-    let found = this.formatters.get(key);
+  /** `utc` is the formatter a wall clock from {@link wall} is printed with. */
+  private intl(key: WrDateFormat, utc = false): Intl.DateTimeFormat {
+    const cacheKey = utc ? `utc:${key}` : key;
+    let found = this.formatters.get(cacheKey);
     if (!found) {
-      found = new Intl.DateTimeFormat(this.locale, this.intlOptions(INTL_OPTIONS[key]));
-      this.formatters.set(key, found);
+      const options = this.intlOptions(INTL_OPTIONS[key]);
+      found = new Intl.DateTimeFormat(this.locale, utc ? { ...options, timeZone: 'UTC' } : options);
+      this.formatters.set(cacheKey, found);
     }
     return found;
   }
@@ -689,13 +803,14 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   }
 
   private formatWithTokens(date: Date, pattern: string): string {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const day = date.getDate();
-    const hours24 = date.getHours();
+    const wall = this.wall(date);
+    const year = wall ? wall.getUTCFullYear() : date.getFullYear();
+    const month = wall ? wall.getUTCMonth() : date.getMonth();
+    const day = wall ? wall.getUTCDate() : date.getDate();
+    const hours24 = wall ? wall.getUTCHours() : date.getHours();
     const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
+    const minutes = wall ? wall.getUTCMinutes() : date.getMinutes();
+    const seconds = wall ? wall.getUTCSeconds() : date.getSeconds();
     // A pattern that writes the day wants the month declined for that position — `MMMM`
     // used to hand `15 март 2026` to a Russian field, which reads as machine output.
     const context = this.hasDayToken(pattern) ? 'format' : 'standalone';
@@ -1002,8 +1117,8 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
    */
   private compose(parts: DateParts): Date | null {
     const now = new Date();
-    const year = parts.year ?? now.getFullYear();
-    const month = parts.month ?? now.getMonth();
+    const year = parts.year ?? this.getYear(now);
+    const month = parts.month ?? this.getMonth(now);
 
     let hours = parts.hours ?? 0;
     if (parts.hour12 !== undefined) hours = (parts.hour12 % 12) + (parts.isPm ? 12 : 0);
@@ -1017,7 +1132,13 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     // the month it lands in, because an unclamped 31st would roll a February string
     // forward and the rollover check below would then refuse a well-formed string.
     const monthLength = new Date(year, month + 1, 0).getDate();
-    const day = parts.day ?? Math.min(now.getDate(), monthLength);
+    const day = parts.day ?? Math.min(this.getDate(now), monthLength);
+
+    if (this.zonal) {
+      const wall = new Date(wrUtcTime(year, month, day, hours, minutes, seconds));
+      if (wall.getUTCMonth() !== month || wall.getUTCDate() !== day) return null;
+      return this.instant(wall);
+    }
 
     const out = new Date(year, month, day, hours, minutes, seconds);
     // Same trap `createDate` documents: a year under 100 maps onto 1900 + year unless it

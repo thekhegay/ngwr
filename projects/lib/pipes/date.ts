@@ -8,7 +8,7 @@
 import { Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
-import { type WrDateFormat, WrDateAdapter, wrParseDate } from 'ngwr/date';
+import { type WrDateFormat, WrDateAdapter, wrIsDateOnly, wrParseDate } from 'ngwr/date';
 
 /**
  * A date through a `WrDateAdapter`: the same output as the `wrDate` pipe, for a
@@ -16,6 +16,10 @@ import { type WrDateFormat, WrDateAdapter, wrParseDate } from 'ngwr/date';
  * the local zone, as `DatePipe` reads it, and `'2026-01-01 14:30:00'` is read
  * as its `T` form: the value goes through `wrParseDate`. `null`, `undefined`,
  * an empty string and a date the engine refuses give an empty string.
+ *
+ * An instant is printed on the wall clock of `withDates({ timeZone })`, through
+ * the adapter's `zoned()`. A date-only string is a calendar day and is not
+ * moved: `'2026-01-01'` prints as 1 January in every zone.
  *
  * The adapter stands where `wrFormatNumber` takes a locale, because the output
  * is the adapter's: the native one formats in `WR_DATE_LOCALE`, and an app's own
@@ -37,7 +41,8 @@ export function wrFormatDate(
   format: WrDateFormat | (string & {}) = 'shortDate'
 ): string {
   const date = wrParseDate(value);
-  return date === null ? '' : adapter.format(date, format);
+  if (date === null) return '';
+  return (wrIsDateOnly(value) ? adapter : adapter.zoned()).format(date, format);
 }
 
 /**
@@ -49,6 +54,13 @@ export function wrFormatDate(
  * `'2026-01-01 14:30:00'` is read as its `T` form. {@link wrFormatDate} is the
  * same output as a function.
  *
+ * An instant is printed in the time zone of `withDates({ timeZone })`, and the
+ * output follows that zone and the adapter's locale when they change at
+ * runtime. A pure pipe cannot: Angular calls it again only when an argument
+ * changes. So the pipe is impure and keeps its last result, and a
+ * change-detection pass with nothing new costs three comparisons, not a
+ * format.
+ *
  * @example
  * ```html
  * {{ now | wrDate }}                          <!-- shortDate            -->
@@ -56,14 +68,29 @@ export function wrFormatDate(
  * {{ now | wrDate: 'dd.MM.yyyy' }}            <!-- raw token string     -->
  * ```
  */
-@Pipe({ name: 'wrDate' })
+// eslint-disable-next-line @angular-eslint/no-pipe-impure -- a pure pipe cannot follow the zone or the locale; see above
+@Pipe({ name: 'wrDate', pure: false })
 export class WrDate implements PipeTransform {
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
+
+  private value: unknown;
+  private format = '';
+  private key: string | null = null;
+  private text = '';
 
   transform(
     value: Date | string | number | null | undefined,
     format: WrDateFormat | (string & {}) = 'shortDate'
   ): string {
-    return wrFormatDate(value, this.adapter, format);
+    // A signal read on the native adapter, which is what makes the template run
+    // again when the zone or the locale moves.
+    const key = this.adapter.zoned().displayKey();
+    if (key !== this.key || format !== this.format || !Object.is(value, this.value)) {
+      this.text = wrFormatDate(value, this.adapter, format);
+      this.value = value;
+      this.format = format;
+      this.key = key;
+    }
+    return this.text;
   }
 }

@@ -5,10 +5,10 @@ import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
 import { provideWr } from 'ngwr';
-import { withDates } from 'ngwr/date';
+import { WrDateAdapter, withDates } from 'ngwr/date';
 import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCalendar } from './calendar';
 import type { WrCalendarRange } from './types';
@@ -685,5 +685,34 @@ describe('WrCalendar with no date provider', () => {
 
     expect(root.querySelector('.wr-calendar__label')!.textContent.trim()).toBe('January 2026');
     expect(fifteenth!.getAttribute('aria-label')).toBe('Thursday, January 15, 2026');
+  });
+});
+
+/**
+ * A standalone calendar holds days, which have no zone, so the one thing a
+ * display zone moves in it is which day is today. The clock is pinned on the
+ * adapter rather than with fake timers, and the two offsets are 26 hours apart,
+ * so they cannot both agree with the zone of the runner.
+ */
+describe('WrCalendar today in a display time zone', () => {
+  const today = (timeZone: string): string => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US', timeZone }))] });
+    const zoned = TestBed.inject<WrDateAdapter<Date>>(WrDateAdapter).zoned();
+    vi.spyOn(zoned, 'today').mockReturnValue(new Date(Date.UTC(2026, 10, 12, 20, 0)));
+    const fixture = TestBed.createComponent(WritebackHost);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const marked = root.querySelectorAll<HTMLElement>('.wr-calendar__day--today');
+    expect(marked).toHaveLength(1);
+    return `${marked[0].textContent?.trim()} ${root.querySelector('.wr-calendar__label')?.textContent?.trim()}`;
+  };
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it('marks the day the zone is in, and opens on its month', () => {
+    expect(today('+14:00')).toContain('13');
+    expect(today('-12:00')).toContain('12');
+    expect(today('+14:00')).toContain('November 2026');
   });
 });

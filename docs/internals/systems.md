@@ -147,6 +147,24 @@ one component folder. Reach for them instead of hand-rolling:
   adapters were reachable only by the accident of being flat. It reads the
   entry points from the `exports` map now, nested ones included, and skips
   `<name>/testing`: a harness is public but never belongs in `imports: []`.
+  **A display time zone** (16.1): `withDates({ timeZone })` takes an IANA
+  name, an offset or a function (run in an injection context, so a signal or an
+  `inject()` works), and provides it as `WR_DATE_TIME_ZONE`. The adapter itself
+  never moves: it reads a `Date` in the browser's zone, because the calendar
+  and a date-only picker hold DAYS, and a day has no zone. `adapter.zoned()` is
+  the second reading, for instants: a sibling instance whose accessors, math,
+  `format` and `parse` all work on the zone's wall clock. `wrDate` /
+  `wrFormatDate` (except for a date-only string), `wr-date-stamp` and the
+  pickers' modes with a time use it; the pickers hand it to their panel through
+  the portal's injector, so nothing in a panel converts anything. The wall
+  clock is held as a `Date` read with the UTC getters (`date/time-zone.ts`),
+  never as a local `Date`: a local one cannot name an hour the BROWSER's own
+  daylight saving skips. That is also why `+05:30` is exact, with no
+  `Etc/GMT` detour. `adapter.displayKey()` is the locale and the zone as one
+  string, and a signal read: `wrDate` is impure and compares it to keep its
+  last result, and both pickers fold it into their echo guard. A custom
+  adapter inherits `zoned()` returning itself, so it shows the browser's zone
+  until it overrides it. `wr-event-calendar` does not use `zoned()` yet.
   `wrParseDate` is the entry point's one plain function: a backend
   value (a `Date`, epoch milliseconds, an ISO string, the SQL space form Safari
   refuses) as a `Date` or `null`, never an Invalid Date. It reads a date-only

@@ -14,6 +14,7 @@ import {
   type ComponentRef,
   DestroyRef,
   ElementRef,
+  EnvironmentInjector,
   Injector,
   type Signal,
   ViewEncapsulation,
@@ -47,6 +48,7 @@ import {
 } from './internal/input-refusal';
 import { tabLeavesPane } from './internal/tab-out';
 import { WrTimePanel } from './internal/time-panel';
+import { wrPickerAdapter, wrPickerPanelInjector } from './internal/zoned-adapter';
 import type { WrDateInputError, WrDatePickerSize } from './types';
 
 let panelUid = 0;
@@ -183,7 +185,13 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Read-only — input not typeable, but the trigger icon still opens the overlay. @default false */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
 
-  private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
+  private readonly dayAdapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
+  private readonly environment = inject(EnvironmentInjector);
+
+  private get adapter(): WrDateAdapter<Date> {
+    return wrPickerAdapter(this.dayAdapter, this.mode() !== 'date');
+  }
+
   private readonly overlay = inject(WR_OVERLAY);
   private readonly outsideClick = inject(WrOutsideClick);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
@@ -313,7 +321,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     return this.panelLabelDate();
   });
 
-  private readonly refusals = useDateInputRefusals();
+  private readonly refusals = useDateInputRefusals(() => this.adapter);
   private readonly reportToForm = useFormParseErrors(this.value, () => this.onFormReset());
   private readonly inputField = inject(WrDateInputField);
 
@@ -462,6 +470,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
    * `[format]` / `[mode]` change makes it stale with the value untouched. */
   private lastFormat: string | null = null;
 
+  /** The adapter's `displayKey()` the text was last written under. */
+  private lastKey: string | null = null;
+
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('date-picker');
     this.destroyRef.onDestroy(() => {
@@ -486,15 +497,19 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     effect(() => {
       const v = this.value();
       const fmt = this.resolvedFormat();
+      // Read here to be tracked: the same value prints differently once the
+      // display zone or the locale moves.
+      const key = this.adapter.displayKey();
       untracked(() => {
         // Our own commits hand `value` the very object `commitValue` remembered, so a
         // DIFFERENT object holding the same date came from outside — a reset to a fresh
         // copy of the day, say. That is no reason to re-render text the user is
         // typing, but it does replace text the picker refused.
         const outside = v !== this.lastValue;
-        const echo = this.sameDate(v, this.lastValue) && fmt === this.lastFormat;
+        const echo = this.sameDate(v, this.lastValue) && fmt === this.lastFormat && key === this.lastKey;
         this.lastValue = v;
         this.lastFormat = fmt;
+        this.lastKey = key;
         if (echo && !(outside && this.refusal())) return;
         this.text.set(v && this.adapter.isValid(v) ? this.adapter.format(v, fmt) : '');
         // The text the refusal was about is gone — replaced by a value written from
@@ -902,6 +917,10 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     this.opened.emit();
   }
 
+  private panelInjector(): Injector {
+    return wrPickerPanelInjector(this.environment, this.adapter);
+  }
+
   private attachDate(): void {
     if (!this.overlayRef) return;
     const ref = this.overlayRef.attach(new ComponentPortal(WrCalendar));
@@ -920,7 +939,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   private attachTime(): void {
     if (!this.overlayRef) return;
-    const ref = this.overlayRef.attach(new ComponentPortal(WrTimePanel));
+    const ref = this.overlayRef.attach(new ComponentPortal(WrTimePanel, null, this.panelInjector()));
     ref.setInput('format', this.timeFormat());
     ref.setInput('showSeconds', this.showSeconds());
     ref.setInput('step', this.step());
@@ -937,7 +956,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   private attachDateTime(): void {
     if (!this.overlayRef) return;
-    const ref = this.overlayRef.attach(new ComponentPortal(WrDateTimePanel));
+    const ref = this.overlayRef.attach(new ComponentPortal(WrDateTimePanel, null, this.panelInjector()));
     ref.setInput('value', this.value());
     ref.setInput('min', this.min());
     ref.setInput('max', this.max());

@@ -89,6 +89,9 @@ export default class WrDatePipePage {
 {{ now | wrDate: 'shortDateTimeSeconds' }}  <!-- 6/12/2026, 10:51:07 AM -->`,
     tokens: `{{ now | wrDate: 'dd.MM.yyyy' }}  <!-- 12.06.2026   -->
 {{ now | wrDate: 'd MMMM yyyy' }} <!-- 12 June 2026 -->`,
+    zone: `<!-- provideWr(withDates({ timeZone: 'Asia/Almaty' })) -->
+{{ '2026-11-12T08:45:00Z' | wrDate: 'HH:mm' }}       <!-- 13:45      -->
+{{ '2026-11-12' | wrDate: 'dd.MM.yyyy' }}            <!-- 12.11.2026 -->`,
     fn: `import { inject } from '@angular/core';
 import { WrDateAdapter } from 'ngwr/date';
 import { wrFormatDate } from 'ngwr/pipes';

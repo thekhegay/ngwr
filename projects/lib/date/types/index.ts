@@ -25,6 +25,26 @@ interface WrDatesOptions {
    * browser happens to be.
    */
   readonly locale?: string;
+
+  /**
+   * The time zone dates are SHOWN in: an IANA name (`'Asia/Almaty'`), an offset
+   * (`'+05:00'`, `'+05:30'`), or a function returning one. The function runs in
+   * an injection context, so it may `inject()` the service that holds the
+   * value, and a signal is such a function: a zone that arrives from a runtime
+   * config after bootstrap repaints what is on screen. Default, and for `null`
+   * or `undefined`: the browser's zone.
+   *
+   * Display only. A `Date` stays the instant it is, and so does a picker's
+   * `value`. `wrDate`, `wrFormatDate` and `wr-date-stamp` print an instant on
+   * this zone's wall clock; `wr-date-picker` in `time` and `datetime` mode shows
+   * and reads its field and panel on it; the calendar marks this zone's today.
+   * A date-only value is a calendar day and does not shift: `mode="date"` and a
+   * `'2026-11-12'` string are the 12th in every zone.
+   *
+   * A value no engine knows falls back to the browser's zone and warns once in
+   * dev mode.
+   */
+  readonly timeZone?: string | (() => string | null | undefined);
 }
 
 export type { WrDateFormat } from './wr-date-format';
