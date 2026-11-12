@@ -606,6 +606,12 @@ export const API = {
     { name: "icon", description: "Optional leading icon name.", type: "WrIconName | null", default: "null" },
     { name: "disabled", description: "Disable interaction (suppresses pointer + keyboard).", type: "boolean", default: "false" },
   ],
+  // <[wrDropdownSubmenu]>
+  WrDropdownSubmenu: [
+    { name: "wrDropdownSubmenu", description: "Menu to open beside the item. Pass a `<wr-dropdown-menu>` template reference.", type: "WrDropdownMenu", required: true },
+    { name: "showDelay", description: "How long the pointer rests on the item before the submenu opens, in ms.", type: "number", default: "150" },
+    { name: "hideDelay", description: "How long the submenu stays once the pointer has left both the item and the submenu, in ms. Long enough to cross a neighbouring item on the way in.", type: "number", default: "150" },
+  ],
   // <wr-editor>
   WrEditor: [
     { name: "value", description: "The document as a {@link WrEditorJson} tree; `null` when nothing is written. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrEditorValue", default: "null" },
