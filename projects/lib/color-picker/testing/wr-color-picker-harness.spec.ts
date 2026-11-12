@@ -183,7 +183,11 @@ describe('WrColorPickerHarness', () => {
   it('moves the thumbs with the colour, from percentages rather than a measured box', async () => {
     const harness = await picker();
 
-    expect(await harness.getThumbs()).toEqual({ sv: { x: 100, y: 0 }, hue: 8.888888888888889, alpha: 100 });
+    // The harness reads the declared percentage back, and jsdom 31 keeps six significant digits of it.
+    const thumbs = await harness.getThumbs();
+    expect(thumbs.sv).toEqual({ x: 100, y: 0 });
+    expect(thumbs.hue).toBeCloseTo(8.888888888888889, 4);
+    expect(thumbs.alpha).toBe(100);
 
     await harness.setTab('rgb');
     await harness.setAlphaPercent(25);
