@@ -15,6 +15,21 @@ export interface WrI18nCatalog {
 /** Parameters passed to interpolation — coerced to strings via `String(v)`. */
 export type WrI18nParams = Readonly<Record<string, unknown>>;
 
+/**
+ * The third argument of `WrI18n.t()`, `WrI18n.translate()` and the `wrT` pipe,
+ * where a bare string is the scope.
+ */
+export interface WrI18nTranslateOptions {
+  /** Scoped lookup first, then the root catalog. */
+  readonly scope?: string;
+
+  /**
+   * Returned as is when the key is missing: no interpolation, no
+   * `missingHandler` call. `null` and `undefined` mean no fallback.
+   */
+  readonly fallback?: string | null;
+}
+
 /** Hook called once on every key that resolves to nothing. */
 export type WrI18nMissingHandler = (key: string, locale: string) => string;
 

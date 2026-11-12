@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Usage in templates"
+  updated="16.1.0"
   description="Read a translation with the `wrT` pipe, the `[wrT]` directive or the `WrI18n` service."
   [keywords]="['i18n', 'translate', 'pipe', 'directive', 'service']"
   [labels]="['Service']"
@@ -34,6 +35,27 @@
     <ngwr-doc-snippet code="">
       <p wrTypography wrT="common.save"></p>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A key that may be missing"
+    description="A key built from a server value has no translation for every value. Pass a `fallback` to show the value itself."
+  >
+    <ngwr-doc-code [code]="snippets.fallback" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+        @for (action of actions; track action) {
+          <wr-tag>{{ `common.${action}` | wrT: null : { fallback: action } }}</wr-tag>
+        }
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.fallbackService" language="typescript" />
+    <p>
+      The fallback is shown as is, with no params filled in, and <code>missingHandler</code> is not called. A key that
+      exists ignores it. A string in the same place is still the scope: pass both as
+      <code>{{ '{' }} scope, fallback {{ '}' }}</code
+      >.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Service" description="`t()` returns a string, `translate()` a signal.">

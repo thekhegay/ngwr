@@ -103,6 +103,10 @@ because it is guidance rather than a plan.
   made i18n mandatory in practice — `WR_I18N_LOADER` now defaults to a loader
   serving an empty catalog, so every lookup misses and components fall through
   to their English defaults.
+- `WrI18n.t(key, params, { fallback })` on a missing key returns the fallback
+  as is and skips `missingHandler`: no interpolation and no report, because the
+  caller said a miss is expected (a key built from a server value). The
+  background catalog load still fires, so a locale that has the key wins.
 - Escape does NOT depend on focus being inside an overlay:
   `overlayRef.keydownEvents()` is fed by CDK's `OverlayKeyboardDispatcher`,
   which keeps one document listener and routes to the topmost overlay.

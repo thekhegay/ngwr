@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { WrI18n, WrTDirective, WrTPipe } from 'ngwr/i18n';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
@@ -19,6 +20,7 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-svc-i18n-page',
   templateUrl: './i18n.html',
   imports: [
+    RouterLink,
     WrTPipe,
     WrTDirective,
     WrSegmented,
@@ -80,15 +82,16 @@ const label = runInInjectionContext(injector, () => wrReadI18nText('x', 'X'));`,
       default: '—',
     },
     {
-      name: 't(key, params?, scope?)',
-      description: 'Translate once. Returns the value or the missing-handler fallback.',
-      type: '(key, params?, scope?) => string',
+      name: 't(key, params?, scopeOrOptions?)',
+      description:
+        'Translate once. The third argument is a scope or `{ scope, fallback }`. A missing key returns `fallback` as is, or the `missingHandler` result when there is none.',
+      type: '(key: string, params?: WrI18nParams, scopeOrOptions?: string | WrI18nTranslateOptions) => string',
       default: '—',
     },
     {
-      name: 'translate(key, params?, scope?)',
-      description: 'Translate as a signal that follows the locale and the catalogs.',
-      type: '(key, params?, scope?) => Signal<string>',
+      name: 'translate(key, params?, scopeOrOptions?)',
+      description: 'Translate as a signal that follows the locale and the catalogs. Same arguments as `t()`.',
+      type: '(key: string, params?: WrI18nParams, scopeOrOptions?: string | WrI18nTranslateOptions) => Signal<string>',
       default: '—',
     },
     {
@@ -137,16 +140,29 @@ const label = runInInjectionContext(injector, () => wrReadI18nText('x', 'X'));`,
     },
   ];
 
+  /** The third argument of `t()`, `translate()` and the pipe. */
+  protected readonly optionsApi: readonly DocApiRow[] = [
+    { name: 'scope', description: 'Scoped lookup first, then the root catalog.', type: 'string', default: '—' },
+    {
+      name: 'fallback',
+      description:
+        'Returned as is when the key is missing: not interpolated, and `missingHandler` is not called. `null` means none.',
+      type: 'string | null',
+      default: '—',
+    },
+  ];
+
   /** The template-side surface of the same service. */
   protected readonly templateApi: readonly DocApiRow[] = [
     {
-      name: 'WrTPipe — `| wrT[: params][: scope]`',
-      description: 'Impure pipe; re-evaluates on every change detection.',
+      name: 'WrTPipe — `| wrT[: params][: scope | { scope, fallback }]`',
+      description:
+        'Impure pipe; re-evaluates on every change detection. `fallback` is the text for a missing key, shown as is.',
       type: 'pipe',
       default: '—',
     },
     {
-      name: 'WrTDirective — `[wrT]="key" [wrTParams] [wrTScope]`',
+      name: 'WrTDirective — `[wrT]="key" [wrTParams] [wrTScope] [wrTFallback]`',
       description: "Writes the host element's text on every locale change.",
       type: 'directive',
       default: '—',

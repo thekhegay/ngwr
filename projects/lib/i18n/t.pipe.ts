@@ -8,7 +8,7 @@
 import { Pipe, type PipeTransform, inject } from '@angular/core';
 
 import { WrI18n } from './i18n';
-import { type WrI18nParams } from './i18n-config';
+import { type WrI18nParams, type WrI18nTranslateOptions } from './i18n-config';
 
 /**
  * Translate a key. Impure — re-evaluates on every CD so locale switches
@@ -19,6 +19,7 @@ import { type WrI18nParams } from './i18n-config';
  * <h1>{{ 'home.title' | wrT }}</h1>
  * <p>{{ 'greeting' | wrT: { name: user().name } }}</p>
  * <button>{{ 'forms.save' | wrT: null : 'checkout' }}</button>
+ * <span>{{ 'types.' + type | wrT: null : { fallback: type } }}</span>
  * ```
  */
 // eslint-disable-next-line @angular-eslint/no-pipe-impure -- intentional: locale + catalog updates must propagate even when args are stable
@@ -26,7 +27,7 @@ import { type WrI18nParams } from './i18n-config';
 export class WrTPipe implements PipeTransform {
   private readonly i18n = inject(WrI18n);
 
-  transform(key: string, params?: WrI18nParams | null, scope?: string): string {
-    return this.i18n.t(key, params ?? undefined, scope);
+  transform(key: string, params?: WrI18nParams | null, scopeOrOptions?: string | WrI18nTranslateOptions): string {
+    return this.i18n.t(key, params ?? undefined, scopeOrOptions);
   }
 }
