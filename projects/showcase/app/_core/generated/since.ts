@@ -121,7 +121,7 @@ export const UPDATED = {
   "reference/components/collapse": "15.8.0",
   "reference/components/color-picker": "16.0.0",
   "reference/components/command-palette": "15.0.0",
-  "reference/components/date-picker": "16.0.0",
+  "reference/components/date-picker": "16.2.0",
   "reference/components/date-stamp": "16.2.0",
   "reference/components/dialog": "16.1.0",
   "reference/components/drawer": "16.1.0",

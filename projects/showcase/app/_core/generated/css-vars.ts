@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1676 hook(s) across 115 page(s). A property is here only when the
+ * 1690 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -1050,6 +1050,20 @@ export const CSS_VARS = {
       { name: "--wr-date-range-picker-separator-font-size", default: "inherit", scope: ".wr-date-range-picker__separator", overrides: 2 },
       { name: "--wr-date-range-picker-separator-line-height", default: "inherit", scope: ".wr-date-range-picker__separator", overrides: 2 },
       { name: "--wr-date-range-picker-separator-padding-x", default: "var(--wr-space-xs)", scope: ".wr-date-range-picker__separator" },
+      { name: "--wr-date-range-presets-active-bg", default: "var(--wr-color-primary-soft)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-active-color", default: "var(--wr-color-primary-ink)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-border", default: "var(--wr-border-base)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-color", default: "var(--wr-color-on-surface)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-font-family", default: "var(--wr-font-family-base)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-font-size", default: "var(--wr-text-sm)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-gap", default: "var(--wr-space-xs)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-hover-bg", default: "var(--wr-color-hover)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-item-padding-x", default: "var(--wr-space-sm)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-item-padding-y", default: "var(--wr-space-xs)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-item-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-padding", default: "var(--wr-space-sm)", scope: ".wr-date-range-presets" },
+      { name: "--wr-date-range-presets-width", default: "9rem", scope: ".wr-date-range-presets" },
       { name: "--wr-date-time-panel-time-border", default: "var(--wr-border-base)", scope: ".wr-date-time-panel__time" },
       { name: "--wr-date-time-panel-time-padding", default: "var(--wr-space-md)", scope: ".wr-date-time-panel__time" },
       { name: "--wr-date-time-panel-time-radius", default: "var(--wr-border-radius-base)", scope: ".wr-date-time-panel__time" },
