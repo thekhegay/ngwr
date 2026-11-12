@@ -8,8 +8,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Medium
 
-- **Lightbox gallery**: previous and next, a counter and arrow keys across a group.
-
 ## Low
 
 - **`wr-graph` zoom and pan**: zoom in and out and drag the field, like NG-ZORRO's
