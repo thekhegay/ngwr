@@ -1,0 +1,83 @@
+<ngwr-doc-page
+  title="Date Stamp"
+  since="16.1.0"
+  description="A date over a time, for a table cell."
+  [keywords]="['date stamp', 'date', 'time', 'timestamp', 'table cell', 'time zone', 'wr-date-stamp']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Takes a `Date`, epoch milliseconds or a string, read as `wrDate` reads it. Both lines sit in one `<time>` with the instant in `datetime`."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: var(--wr-space-xl); flex-wrap: wrap">
+        <wr-date-stamp [value]="created" />
+        <wr-date-stamp value="2026-11-12T08:45:00Z" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="In a table"
+    description="A `[wrTableCell]` template puts a stamp in a column. The digits are tabular, so a column lines up."
+  >
+    <ngwr-doc-code [code]="snippets.table" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-table [columns]="columns" [items]="rows">
+        <ng-template wrTableCell="createdAt" let-value>
+          <wr-date-stamp [value]="value" />
+        </ng-template>
+        <ng-template wrTableCell="closedAt" let-value>
+          <wr-date-stamp [value]="value" />
+        </ng-template>
+      </wr-table>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Formats"
+    description="`dateFormat` and `timeFormat` take a named key or a token string, as `wrDate` does."
+  >
+    <ngwr-doc-code [code]="snippets.formats" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: var(--wr-space-xl); flex-wrap: wrap">
+        <wr-date-stamp [value]="created" dateFormat="longDate" timeFormat="time24hSeconds" />
+        <wr-date-stamp [value]="created" dateFormat="d MMM yyyy" timeFormat="HH:mm" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Time zone and language"
+    description="An instant is shown in the [display time zone](/docs/configuration) and both lines are written in the interface language. They follow both at runtime."
+  >
+    <ngwr-doc-code [code]="snippets.zone" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Date only"
+    description="A date-only string is a day: it shows the date line alone and does not shift with the zone."
+  >
+    <ngwr-doc-code [code]="snippets.dateOnly" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-date-stamp value="2026-11-12" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Empty"
+    description="`null`, `undefined`, `''` and a value that is not a date show `emptyLabel`. The `copyValue.empty` catalog key changes it everywhere, for `wr-copy-value` too."
+  >
+    <ngwr-doc-code [code]="snippets.empty" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: var(--wr-space-xl); flex-wrap: wrap">
+        <wr-date-stamp [value]="null" />
+        <wr-date-stamp [value]="null" emptyLabel="not closed" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

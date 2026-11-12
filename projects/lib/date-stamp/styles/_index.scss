@@ -1,0 +1,38 @@
+@use '../../theme/styles' as theme;
+
+@include theme.loaded('date-stamp');
+
+.wr-date-stamp {
+  --wr-date-stamp-gap: 0;
+  --wr-date-stamp-line-height: var(--wr-text-sm-leading);
+  --wr-date-stamp-date-color: inherit;
+  --wr-date-stamp-time-color: var(--wr-color-on-surface-muted);
+  --wr-date-stamp-time-font-size: var(--wr-text-sm);
+  --wr-date-stamp-empty-color: var(--wr-color-on-surface-muted);
+
+  display: inline-block;
+  // A column of stamps lines up digit under digit.
+  font-variant-numeric: tabular-nums;
+  line-height: var(--wr-date-stamp-line-height);
+  white-space: nowrap;
+  vertical-align: middle;
+
+  &__value {
+    display: inline-flex;
+    flex-direction: column;
+    gap: var(--wr-date-stamp-gap);
+  }
+
+  &__date {
+    color: var(--wr-date-stamp-date-color);
+  }
+
+  &__time {
+    color: var(--wr-date-stamp-time-color);
+    font-size: var(--wr-date-stamp-time-font-size);
+  }
+
+  &__empty {
+    color: var(--wr-date-stamp-empty-color);
+  }
+}

@@ -719,6 +719,14 @@ it('walks focus without moving the selection', async () => {
   expect(await id.isCopied()).toBe(true);
 });`,
 
+    dateStamp: `it('shows when the shift opened', async () => {
+  const opened = await loader.getHarness(WrDateStampHarness);
+
+  // The instant, whatever locale and time zone the test runs in.
+  expect(await opened.getDateTime()).toBe('2026-11-12T08:45:00.000Z');
+  expect(await opened.isEmpty()).toBe(false);
+});`,
+
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 export class MyWidgetHarness extends ComponentHarness {
@@ -2237,6 +2245,20 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'getRetryButton() / isRetrying() / retry()',
       description: 'The default failure. All three throw outside it, and under a `wrLoadStateError` template.',
       type: 'Promise<WrButtonHarness> | Promise<boolean> | Promise<void>',
+    },
+  ];
+
+  protected readonly dateStampApi: readonly DocApiRow[] = [
+    {
+      name: 'getDate() / getTime() / getDateTime()',
+      description:
+        'The two lines as text, and the `datetime` attribute: the instant in ISO 8601, or the day for a date-only value. `null` when empty. Filters: `date`, `empty`.',
+      type: 'Promise<string | null>',
+    },
+    {
+      name: 'isEmpty() / getEmptyText()',
+      description: '`getEmptyText()` reads the placeholder and throws when there is a value.',
+      type: 'Promise<boolean> | Promise<string>',
     },
   ];
 

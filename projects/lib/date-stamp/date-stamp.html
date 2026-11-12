@@ -1,0 +1,10 @@
+@if (parts(); as stamp) {
+  <time class="wr-date-stamp__value" [attr.datetime]="stamp.iso">
+    <span class="wr-date-stamp__date">{{ stamp.date }}</span>
+    @if (stamp.time !== null) {
+      <span class="wr-date-stamp__time">{{ stamp.time }}</span>
+    }
+  </time>
+} @else {
+  <span class="wr-date-stamp__empty">{{ resolvedEmptyLabel() }}</span>
+}
