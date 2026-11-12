@@ -18,6 +18,7 @@ export type {
   WrTableLoadingMode,
   WrTableRow,
   WrTableRowClass,
+  WrTableRowClick,
   WrTableSortAccessor,
   WrTableSortState,
   WrTableSortDirection,

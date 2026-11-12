@@ -64,6 +64,7 @@ import type {
   WrTableLoadingMode,
   WrTableRow,
   WrTableRowClass,
+  WrTableRowClick,
   WrTableSortState,
   WrTableSortDirection,
   WrTableSummary,
@@ -105,6 +106,25 @@ const WR_TABLE_TOTAL_SCOPE: WrTableSummaryContext = { scope: 'total', group: nul
 
 /** A formatted figure such as `-1,234.50`, which no spreadsheet evaluates as a formula. */
 const CSV_FIGURE = /^[+-]?[\d\s.,]+%?$/;
+
+/**
+ * What a click inside a row belongs to instead of the row. `label` is here
+ * because a click on one is replayed on its control.
+ */
+const ROW_CLICK_IGNORE = [
+  'button',
+  'a[href]',
+  'input',
+  'select',
+  'textarea',
+  '[role=button]',
+  '[contenteditable]:not([contenteditable="false"])',
+  'label',
+  '[wrTableIgnoreRowClick]',
+  // A near miss around the row's own checkbox or toggle is not a row click.
+  '.wr-table__td--select',
+  '.wr-table__td--expand',
+].join(', ');
 
 /** A missing cell value: `null`, `undefined` or `''`. `0` and `false` are values. */
 function noValue(value: unknown): value is null | undefined | '' {
@@ -562,6 +582,36 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
 
   /** Fires whenever a column's filter selection changes. */
   readonly filterChange = output<WrTableFilterChange>();
+
+  /**
+   * Fires when a body row is clicked, with the row, its index in `items` and the
+   * click. Group bands, summary rows and detail rows do not fire it.
+   *
+   * A click on an interactive element inside the row is that element's own and
+   * does not fire: a button, a link, a form field, a label, `[role=button]`,
+   * editable content, the table's own toggles and its selection and expand
+   * cells. Mark anything else with the `wrTableIgnoreRowClick` attribute,
+   * which needs no import: `<app-menu wrTableIgnoreRowClick />`.
+   *
+   * Pointer only: a row takes no focus and no key for it, so give the same
+   * action a control of its own in the row (a link or a button in a cell) for
+   * keyboard and screen reader users. The table adds no cursor either: style
+   * `.wr-table__tr` when the rows are clickable.
+   */
+  readonly rowClick = output<WrTableRowClick<T>>();
+
+  protected onBodyClick(event: MouseEvent): void {
+    const target = event.target as Element;
+    const index = this.rowEls().findIndex(el => el.nativeElement.contains(target));
+    if (index < 0) return;
+    const tr = this.rowEls()[index].nativeElement;
+    const control = target.closest(ROW_CLICK_IGNORE);
+    if (control && control !== tr && tr.contains(control)) return;
+    const row = this.windowRows().filter(entry => entry.kind === 'row')[index];
+    if (row?.kind !== 'row') return;
+    const item = row.row;
+    this.rowClick.emit({ row: item as unknown as T, index: this.rows()?.indexOf(item) ?? -1, event });
+  }
 
   /**
    * Rows per page. Set to `0` (default) to disable client-side pagination

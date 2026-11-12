@@ -132,7 +132,11 @@
       </tr>
     </thead>
 
-    <tbody>
+    <!-- One delegated listener for `rowClick`, which is pointer only by contract:
+         the body is no control, and a row's keyboard path is the consumer's own
+         button or link in a cell. -->
+    <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+    <tbody (click)="onBodyClick($event)">
       @if (visibleItems()) {
         @if (virtualized() && virtualWindow().padTop > 0) {
           <tr class="wr-table__spacer" aria-hidden="true">
