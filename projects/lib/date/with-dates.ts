@@ -9,15 +9,15 @@ import { Injector, type Provider, inject, runInInjectionContext } from '@angular
 
 import { type WrFeature, wrFeature } from 'ngwr/utils';
 
-import { WR_DATE_LOCALE, WR_DATE_TIME_ZONE } from './tokens';
+import { WR_DATE_INPUT, WR_DATE_LOCALE, WR_DATE_TIME_ZONE } from './tokens';
 import { WR_DATE_LOCALE_PINNED } from './tokens/wr-date-locale-pinned.token';
 import type { WrDatesOptions } from './types';
 import { WrDateAdapter, WrNativeDateAdapter } from './wr-date-adapter';
 
 /**
  * Replace the date adapter the calendar / date picker / time picker use, pin
- * the locale it formats in, or set the time zone dates are shown in, as a
- * feature of `provideWr()`. Optional: with no call at all they run on
+ * the locale it formats in, set the time zone dates are shown in, or say what a
+ * backend's numbers count (`epochUnit`), as a feature of `provideWr()`. Optional: with no call at all they run on
  * {@link WrNativeDateAdapter} in Angular's `LOCALE_ID` and the browser's zone.
  *
  * Omit `locale` and dates follow the interface language of `provideWrI18n()`,
@@ -62,6 +62,18 @@ export function withDates(options: WrDatesOptions = {}): WrFeature<'dates'> {
         if (typeof timeZone !== 'function') return () => timeZone;
         const injector = inject(Injector);
         return () => runInInjectionContext(injector, timeZone);
+      },
+    });
+  }
+
+  // Merged over what an injector above set, so a route's call keeps the app's.
+  const { epochUnit } = options;
+  if (epochUnit) {
+    providers.push({
+      provide: WR_DATE_INPUT,
+      useFactory: () => {
+        const above = inject(WR_DATE_INPUT, { skipSelf: true, optional: true });
+        return { epochUnit, zonelessIn: above?.zonelessIn ?? 'browser' };
       },
     });
   }

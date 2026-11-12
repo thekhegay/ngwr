@@ -107,4 +107,51 @@ describe('wrParseDate', () => {
     expect(wrParseDate('2026-13-45')).toBeNull();
     expect(wrParseDate('2026-03-01T25:00:00')).toBeNull();
   });
+
+  describe('epochUnit', () => {
+    const AT = Date.UTC(2026, 10, 12, 8, 45, 0);
+
+    it('reads a number as milliseconds unless told otherwise', () => {
+      expect(time(AT)).toBe(AT);
+      expect(wrParseDate(AT, {})?.getTime()).toBe(AT);
+      expect(wrParseDate(AT, { epochUnit: 'ms' })?.getTime()).toBe(AT);
+    });
+
+    it('reads seconds and microseconds when named', () => {
+      expect(wrParseDate(AT / 1000, { epochUnit: 's' })?.getTime()).toBe(AT);
+      expect(wrParseDate(AT * 1000, { epochUnit: 'us' })?.getTime()).toBe(AT);
+      // The microseconds a `Date` cannot hold are dropped.
+      expect(wrParseDate(1794489310740123, { epochUnit: 'us' })?.getTime()).toBe(1794489310740);
+    });
+
+    it('decides by magnitude under auto', () => {
+      expect(wrParseDate(AT / 1000, { epochUnit: 'auto' })?.getTime()).toBe(AT);
+      expect(wrParseDate(AT, { epochUnit: 'auto' })?.getTime()).toBe(AT);
+      expect(wrParseDate(AT * 1000, { epochUnit: 'auto' })?.getTime()).toBe(AT);
+      expect(wrParseDate(1794489310740123, { epochUnit: 'auto' })?.getTime()).toBe(1794489310740);
+      expect(wrParseDate(-AT, { epochUnit: 'auto' })?.getTime()).toBe(-AT);
+    });
+
+    it('draws the lines of auto at 1e10 and 1e13', () => {
+      const auto = (value: number): string | undefined => wrParseDate(value, { epochUnit: 'auto' })?.toISOString();
+      // The last second and the first millisecond: 20 November 2286 and 26 April 1970.
+      expect(auto(1e10 - 1)).toBe('2286-11-20T17:46:39.000Z');
+      expect(auto(1e10)).toBe('1970-04-26T17:46:40.000Z');
+      // The last millisecond and the first microsecond: the same two days.
+      expect(auto(1e13 - 1)).toBe('2286-11-20T17:46:39.999Z');
+      expect(auto(1e13)).toBe('1970-04-26T17:46:40.000Z');
+      expect(auto(0)).toBe('1970-01-01T00:00:00.000Z');
+    });
+
+    it('gives null for a number that is no date in the unit', () => {
+      expect(wrParseDate(Number.NaN, { epochUnit: 'auto' })).toBeNull();
+      expect(wrParseDate(8.64e15, { epochUnit: 's' })).toBeNull();
+    });
+
+    it('leaves a Date and a string alone', () => {
+      const date = new Date(AT);
+      expect(wrParseDate(date, { epochUnit: 's' })).toBe(date);
+      expect(wrParseDate('2026-11-12T08:45:00Z', { epochUnit: 's' })?.getTime()).toBe(AT);
+    });
+  });
 });

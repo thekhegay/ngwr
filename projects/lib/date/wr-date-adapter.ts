@@ -9,8 +9,8 @@ import { Injectable, Injector, Service, forwardRef, inject, runInInjectionContex
 
 import { wrDateLocale } from './date-locale';
 import { type WrResolvedZone, wrResolveZone, wrUtcTime, wrZoneInstant, wrZoneWallTime } from './time-zone';
-import { WR_DATE_TIME_ZONE } from './tokens';
-import type { WrDateFormat } from './types';
+import { WR_DATE_INPUT, WR_DATE_TIME_ZONE } from './tokens';
+import type { WrDateFormat, WrParseDateOptions } from './types';
 
 /**
  * Bidi control marks ICU embeds in a right-to-left date pattern — ar-SA writes its
@@ -392,6 +392,17 @@ export abstract class WrDateAdapter<TDate = Date> {
     return '';
   }
 
+  /**
+   * How `wrDate`, `wrFormatDate` and `wr-date-stamp` read a backend value
+   * before this adapter formats it: the `epochUnit` and `zonelessIn` of
+   * `withDates()`, and the display zone. The base class returns nothing, which
+   * is epoch milliseconds and the browser's zone; an adapter of your own
+   * returns `inject(WR_DATE_INPUT)` and its zone to honour the options.
+   */
+  parseOptions(): WrParseDateOptions {
+    return {};
+  }
+
   // Locale info
 
   /** `0` Sunday, `1` Monday — locale-dependent. */
@@ -463,6 +474,12 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
 
   override displayKey(): string {
     return `${this.locale}|${this.zonal ? (this.zone()?.id ?? '') : ''}`;
+  }
+
+  private readonly input = inject(WR_DATE_INPUT);
+
+  override parseOptions(): WrParseDateOptions {
+    return { ...this.input, timeZone: this.zoneSource?.() ?? null };
   }
 
   private zone(): WrResolvedZone | null {

@@ -6,6 +6,17 @@
  */
 
 import { wrToLocalDate } from './local-date';
+import type { WrEpochUnit, WrParseDateOptions } from './types';
+
+// 1e10 s and 1e13 ms are both 20 November 2286; 1e10 ms and 1e13 us are both 26 April 1970.
+const SECONDS_BELOW = 1e10;
+const MILLISECONDS_BELOW = 1e13;
+
+function fromNumber(value: number, unit: WrEpochUnit): Date {
+  const size = Math.abs(value);
+  const resolved = unit !== 'auto' ? unit : size < SECONDS_BELOW ? 's' : size < MILLISECONDS_BELOW ? 'ms' : 'us';
+  return new Date(resolved === 's' ? value * 1000 : resolved === 'us' ? value / 1000 : value);
+}
 
 /**
  * `2026-03-01 14:30`, with optional seconds, a fraction and a zone (`Z`, `+05`,
@@ -30,8 +41,11 @@ function fromString(value: string): Date | null {
  * Never an Invalid Date, so the result needs one check rather than two.
  *
  * - A `Date` comes back as it is, the same object; an Invalid Date gives `null`.
- * - A number is epoch milliseconds; `NaN`, an infinity and a number outside the
- *   range of `Date` give `null`.
+ * - A number is epoch milliseconds, or what `epochUnit` says: `'s'`, `'us'`
+ *   (microseconds), or `'auto'`, which reads a number under `1e10` as seconds,
+ *   under `1e13` as milliseconds and anything larger as microseconds, right
+ *   for a date from 26 April 1970 to 20 November 2286. `NaN`, an infinity and
+ *   a number outside the range of `Date` give `null`.
  * - `2026-03-01 14:30:00`, a space where ISO 8601 has a `T`, is rewritten to the
  *   ISO form first. Chrome reads the space form and Safari gives an Invalid Date
  *   for it. Seconds, a fraction and a zone are optional; the fraction is cut to
@@ -46,7 +60,9 @@ function fromString(value: string): Date | null {
  *   refuses give `null`.
  *
  * Surrounding whitespace is ignored. A plain function: no adapter and no
- * injection context, so it runs in a mapper, a resolver or a store.
+ * injection context, so it runs in a mapper, a resolver or a store. For the
+ * same reason it does not see `withDates()`: pass the options, or
+ * `inject(WrDateAdapter).parseOptions()` for the app's.
  *
  * @example
  * ```ts
@@ -54,13 +70,22 @@ function fromString(value: string): Date | null {
  * wrParseDate('2026-03-01');                // 1 March 2026, 00:00 local
  * wrParseDate('2026-03-01T09:30:00+05:00'); // that instant
  * wrParseDate(1772343000000);               // epoch milliseconds
+ * wrParseDate(1772343000000123, { epochUnit: 'auto' });  // microseconds, by magnitude
  * wrParseDate('n/a');                       // null
  * ```
  *
  * @see https://ngwr.dev/reference/pipes/wr-date
  */
-export function wrParseDate(value: Date | string | number | null | undefined): Date | null {
+export function wrParseDate(
+  value: Date | string | number | null | undefined,
+  options: WrParseDateOptions = {}
+): Date | null {
   if (value === null || value === undefined) return null;
-  const date = value instanceof Date ? value : typeof value === 'number' ? new Date(value) : fromString(value);
+  const date =
+    value instanceof Date
+      ? value
+      : typeof value === 'number'
+        ? fromNumber(value, options.epochUnit ?? 'ms')
+        : fromString(value);
   return date === null || Number.isNaN(date.getTime()) ? null : date;
 }
