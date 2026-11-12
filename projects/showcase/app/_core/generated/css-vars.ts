@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1660 hook(s) across 114 page(s). A property is here only when the
+ * 1666 hook(s) across 114 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -1113,6 +1113,12 @@ export const CSS_VARS = {
       { name: "--wr-dialog-content-line-height", default: "var(--wr-text-base-leading)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-font-family", default: "var(--wr-font-family-base)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-footer-gap", default: "var(--wr-space-sm)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-danger", default: "var(--wr-color-danger)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-gap", default: "var(--wr-space-sm)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-info", default: "var(--wr-color-info)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-size", default: "1.25rem", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-success", default: "var(--wr-color-success)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-warning", default: "var(--wr-color-warning)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-min-width", default: "18rem", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-padding-x", default: "var(--wr-space-lg)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-padding-y", default: "var(--wr-space-lg)", scope: ".wr-dialog-panel" },
