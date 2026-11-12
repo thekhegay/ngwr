@@ -251,7 +251,7 @@ export const INSTALL = {
       { path: "ngwr/drawer", symbols: ["WR_DRAWER_DATA", "WrDrawer", "WrDrawerClose", "WrDrawerContent", "WrDrawerFooter", "WrDrawerManager", "WrDrawerRef", "WrDrawerTitle"], declarables: ["WrDrawer", "WrDrawerClose", "WrDrawerContent", "WrDrawerFooter", "WrDrawerTitle"], styled: true },
   ],
   "reference/components/dropdown": [
-      { path: "ngwr/dropdown", symbols: ["WrDropdown", "WrDropdownItem", "WrDropdownMenu"], declarables: ["WrDropdown", "WrDropdownItem", "WrDropdownMenu"], styled: true },
+      { path: "ngwr/dropdown", symbols: ["WrDropdown", "WrDropdownItem", "WrDropdownMenu", "WrDropdownSubmenu"], declarables: ["WrDropdown", "WrDropdownItem", "WrDropdownMenu", "WrDropdownSubmenu"], styled: true },
   ],
   "reference/components/editor": [
       { path: "ngwr/editor", symbols: ["WrEditor"], declarables: ["WrEditor"], styled: true },
