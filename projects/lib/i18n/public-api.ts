@@ -8,6 +8,7 @@ export {
   type WrI18nConfig,
   type WrI18nConfigResolved,
   type WrI18nParams,
+  type WrI18nTranslateOptions,
   type WrI18nMissingHandler,
 } from './i18n-config';
 export { WR_I18N_LOADER, type WrI18nLoader } from './i18n-loader';

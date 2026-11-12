@@ -19,6 +19,7 @@ import { type WrI18nParams } from './i18n-config';
  * <span [wrT]="'home.title'"></span>
  * <span [wrT]="'greeting'" [wrTParams]="{ name: user().name }"></span>
  * <span [wrT]="'forms.save'" wrTScope="checkout"></span>
+ * <span [wrT]="'types.' + type" [wrTFallback]="type"></span>
  * ```
  */
 @Directive({
@@ -34,11 +35,17 @@ export class WrTDirective {
   /** Optional scope — scoped lookup first, then root fallback. */
   readonly wrTScope = input<string | null>(null);
 
+  /** Text shown as is when the key is missing; `missingHandler` is not called. */
+  readonly wrTFallback = input<string | null>(null);
+
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly i18n = inject(WrI18n);
 
   private readonly text = computed(() =>
-    this.i18n.t(this.wrT(), this.wrTParams() ?? undefined, this.wrTScope() ?? undefined)
+    this.i18n.t(this.wrT(), this.wrTParams() ?? undefined, {
+      scope: this.wrTScope() ?? undefined,
+      fallback: this.wrTFallback(),
+    })
   );
 
   constructor() {
