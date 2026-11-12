@@ -43,5 +43,6 @@ export const UTILS_GROUP: SidebarGroup = {
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrInitials),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrPoll),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrQueryParam),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.withRenderOnNavigation),
   ],
 };

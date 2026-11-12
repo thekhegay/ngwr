@@ -520,6 +520,7 @@ export const DOC_ROUTES: Readonly<
   "reference/services/storage": {"title":"WrStorage","kind":"Service","labels":["Service"],"description":"Typed key-value storage over localStorage or any engine, read as a signal or written through one, safe under SSR."},
   "reference/services/theme": {"title":"WrTheme","kind":"Service","labels":["Service"],"description":"Switch between light, dark and auto, and keep the choice."},
   "reference/services/tour": {"title":"WrTour","kind":"Service","labels":["Service"],"description":"A guided tour that highlights one element at a time and explains it."},
+  "reference/utils/with-render-on-navigation": {"title":"withRenderOnNavigation","kind":"Util","labels":["Util"],"description":"A provideWr() feature for zoneless apps: a routed page is bound in the task that inserted it, so nothing fades in from browser defaults."},
   "reference/utils/wr-action": {"title":"wrAction","kind":"Util","labels":["Util"],"description":"One async write as signals: status, loading, value, error, a single-flight `run()`. Beside it, `wrKeyedAction()` for which row is pending and `wrResourceValue()` for a resource's value that never throws."},
   "reference/utils/wr-badge-log": {"title":"wrBadgeLog","kind":"Util","labels":["Util"],"description":"Logs a message to the browser console behind a coloured badge. `wrBadgeWarn()` and `wrBadgeError()` do the same at their level."},
   "reference/utils/wr-clamp": {"title":"wrClamp","kind":"Util","labels":["Util"],"description":"Clamps a number into an inclusive `[min, max]` range."},
