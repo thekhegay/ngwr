@@ -10,7 +10,7 @@ import type { WrColor } from 'ngwr/theme';
 import type { WrDialogOptions } from './dialog-options';
 
 /** The `WrDialogOptions` that `confirm()` and `alert()` pass through to the dialog. */
-type WrDialogMessageOptions = Pick<
+export type WrDialogMessageOptions = Pick<
   WrDialogOptions,
   | 'width'
   | 'maxWidth'

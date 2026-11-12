@@ -49,6 +49,7 @@ const NON_DECLARABLE: Readonly<Record<string, string>> = {
   WrNativeDateAdapter: 'a service',
   WrOutsideClick: 'a service',
   WrOverlayContainer: 'a service',
+  WrOverlayOrder: 'a service',
   WrPlatform: 'a service',
   WrScroll: 'a service',
   WrStorage: 'a service',

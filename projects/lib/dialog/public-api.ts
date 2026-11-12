@@ -7,6 +7,7 @@ export type {
   WrDialogConfirmOptions,
   WrDialogDefaults,
   WrDialogIntent,
+  WrDialogMessageOptions,
   WrDialogOptions,
   WrDialogRole,
 } from './types';
