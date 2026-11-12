@@ -7,8 +7,9 @@
 
 import { Injectable, Injector, Service, forwardRef, inject, runInInjectionContext } from '@angular/core';
 
+import { wrDateLocale } from './date-locale';
 import { type WrResolvedZone, wrResolveZone, wrUtcTime, wrZoneInstant, wrZoneWallTime } from './time-zone';
-import { WR_DATE_LOCALE, WR_DATE_TIME_ZONE } from './tokens';
+import { WR_DATE_TIME_ZONE } from './tokens';
 import type { WrDateFormat } from './types';
 
 /**
@@ -130,6 +131,16 @@ interface NamedParser {
   readonly hourCycle: string | undefined;
 }
 
+/** Everything the native adapter keeps for one locale. */
+interface LocaleCache {
+  readonly locale: string;
+  readonly formatters: Map<string, Intl.DateTimeFormat>;
+  readonly monthNames: Map<string, readonly string[]>;
+  readonly namedParsers: Map<WrDateFormat, NamedParser | null>;
+  numerals: readonly string[] | null;
+  dayPeriods: readonly [string, string] | null;
+}
+
 /** The parts assembled into a `Date`, whatever route read them. */
 interface DateParts {
   year?: number;
@@ -238,7 +249,7 @@ function tokenToRegex(token: string, digits: string): string {
  * changing component code.
  *
  * Injected with nothing provided it is {@link WrNativeDateAdapter} (native
- * `Date`, `Intl.DateTimeFormat`, the locale from {@link WR_DATE_LOCALE}), so the
+ * `Date`, `Intl.DateTimeFormat`, the locale from {@link wrDateLocale}), so the
  * date components need no provider. For another library, subclass this,
  * decorate the subclass with `@Service()` and register it via
  * `provideWr(withDates({ adapter: MyAdapter }))`. An undecorated subclass still
@@ -399,7 +410,33 @@ export abstract class WrDateAdapter<TDate = Date> {
  */
 @Service()
 export class WrNativeDateAdapter extends WrDateAdapter<Date> {
-  private readonly locale = inject(WR_DATE_LOCALE);
+  private readonly localeSource = wrDateLocale();
+  private cache: LocaleCache | null = null;
+
+  /**
+   * What is kept for the current locale, and the locale with it. A signal read,
+   * so what formats in a reactive context follows a language switch; the switch
+   * drops everything kept for the locale before it.
+   */
+  private caches(): LocaleCache {
+    const locale = this.localeSource();
+    if (this.cache?.locale !== locale) {
+      this.cache = {
+        locale,
+        formatters: new Map(),
+        monthNames: new Map(),
+        namedParsers: new Map(),
+        numerals: null,
+        dayPeriods: null,
+      };
+    }
+    return this.cache;
+  }
+
+  private get locale(): string {
+    return this.caches().locale;
+  }
+
   private readonly zoneSource = inject(WR_DATE_TIME_ZONE);
   private readonly injector = inject(Injector);
 
@@ -657,11 +694,8 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
    * Constructing one is the expensive part of `format()`, and this adapter is
    * called per CELL: `wr-event-calendar` builds an `aria-label` for every time
    * slot on every day, so a week view asked for hundreds of identical
-   * formatters. `locale` is injected once and never changes for the life of the
-   * adapter, so the cache needs no invalidation — that is the whole reason it
-   * can be this simple.
+   * formatters. They are kept per locale, in {@link caches}.
    */
-  private readonly formatters = new Map<string, Intl.DateTimeFormat>();
 
   /**
    * Every `Intl` call this adapter makes pins `calendar: 'gregory'`, and that is a
@@ -682,12 +716,13 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
 
   /** `utc` is the formatter a wall clock from {@link wall} is printed with. */
   private intl(key: WrDateFormat, utc = false): Intl.DateTimeFormat {
+    const { locale, formatters } = this.caches();
     const cacheKey = utc ? `utc:${key}` : key;
-    let found = this.formatters.get(cacheKey);
+    let found = formatters.get(cacheKey);
     if (!found) {
       const options = this.intlOptions(INTL_OPTIONS[key]);
-      found = new Intl.DateTimeFormat(this.locale, utc ? { ...options, timeZone: 'UTC' } : options);
-      this.formatters.set(cacheKey, found);
+      found = new Intl.DateTimeFormat(locale, utc ? { ...options, timeZone: 'UTC' } : options);
+      formatters.set(cacheKey, found);
     }
     return found;
   }
@@ -715,16 +750,13 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     return this.monthNames(style, 'standalone');
   }
 
-  private numeralsCache: readonly string[] | null = null;
-
   /** The locale's own ten digits, cached — empty when its system is algorithmic. */
   private localeNumerals(): readonly string[] {
-    this.numeralsCache ??=
-      numeralsFor(this.locale, new Intl.NumberFormat(this.locale).resolvedOptions().numberingSystem) ?? [];
-    return this.numeralsCache;
+    const cache = this.caches();
+    cache.numerals ??=
+      numeralsFor(cache.locale, new Intl.NumberFormat(cache.locale).resolvedOptions().numberingSystem) ?? [];
+    return cache.numerals;
   }
-
-  private dayPeriodCache: readonly [string, string] | null = null;
 
   /**
    * `[am, pm]` as the LOCALE writes them — `PM`, `م`, `午後`.
@@ -737,10 +769,11 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
    * there and passes a 24-hour pattern here.
    */
   private dayPeriods(): readonly [string, string] {
-    if (this.dayPeriodCache) return this.dayPeriodCache;
+    const cache = this.caches();
+    if (cache.dayPeriods) return cache.dayPeriods;
     let periods: [string, string] = ['AM', 'PM'];
     try {
-      const formatter = new Intl.DateTimeFormat(this.locale, this.intlOptions({ hour: 'numeric', hour12: true }));
+      const formatter = new Intl.DateTimeFormat(cache.locale, this.intlOptions({ hour: 'numeric', hour12: true }));
       const read = (hour: number): string =>
         formatter.formatToParts(new Date(2024, 0, 15, hour)).find(p => p.type === 'dayPeriod')?.value ?? '';
       const [am, pm] = [read(9), read(21)];
@@ -748,11 +781,9 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     } catch {
       // No `Intl` day period for this locale — the English pair stays.
     }
-    this.dayPeriodCache = periods;
+    cache.dayPeriods = periods;
     return periods;
   }
-
-  private readonly monthNameCache = new Map<string, readonly string[]>();
 
   /**
    * `context: 'format'` asks `Intl` for the month name as it appears BESIDE A DAY, which
@@ -767,18 +798,19 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
    * `dd MMMM yyyy` would render `15 3 2026` in Japanese.
    */
   private monthNames(style: 'narrow' | 'short' | 'long', context: 'standalone' | 'format'): readonly string[] {
+    const { locale, monthNames } = this.caches();
     const cacheKey = `${style}:${context}`;
-    const cached = this.monthNameCache.get(cacheKey);
+    const cached = monthNames.get(cacheKey);
     if (cached) return cached;
 
-    const standaloneFormatter = new Intl.DateTimeFormat(this.locale, this.intlOptions({ month: style }));
+    const standaloneFormatter = new Intl.DateTimeFormat(locale, this.intlOptions({ month: style }));
     const standalone: string[] = [];
     for (let i = 0; i < 12; i++) standalone.push(standaloneFormatter.format(new Date(2024, i, 15)));
 
     let out: readonly string[] = standalone;
     if (context === 'format') {
-      const numerals = numeralsFor(this.locale, standaloneFormatter.resolvedOptions().numberingSystem) ?? [];
-      const inDate = new Intl.DateTimeFormat(this.locale, this.intlOptions({ day: 'numeric', month: style }));
+      const numerals = numeralsFor(locale, standaloneFormatter.resolvedOptions().numberingSystem) ?? [];
+      const inDate = new Intl.DateTimeFormat(locale, this.intlOptions({ day: 'numeric', month: style }));
       out = standalone.map((name, i) => {
         const part = inDate.formatToParts(new Date(2024, i, 15)).find(p => p.type === 'month')?.value;
         if (!part || isAllDigits(part, numerals)) return name;
@@ -786,7 +818,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
       });
     }
 
-    this.monthNameCache.set(cacheKey, out);
+    monthNames.set(cacheKey, out);
     return out;
   }
 
@@ -1047,13 +1079,12 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     return [read(9), read(21)];
   }
 
-  private readonly namedParsers = new Map<WrDateFormat, NamedParser | null>();
-
   private parseNamed(raw: string, key: WrDateFormat): Date | null {
-    let parser = this.namedParsers.get(key);
+    const { namedParsers } = this.caches();
+    let parser = namedParsers.get(key);
     if (parser === undefined) {
       parser = this.buildNamedParser(key);
-      this.namedParsers.set(key, parser);
+      namedParsers.set(key, parser);
     }
     if (!parser) return null;
 

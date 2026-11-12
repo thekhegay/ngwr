@@ -340,10 +340,10 @@ describe('WrI18n base catalogs under a namespace the app shares', () => {
 });
 
 /**
- * `use()` moves text and nothing else — `LOCALE_ID` is a constant and
- * `WR_DATE_LOCALE` resolves once at bootstrap. That limit is real and cannot be
- * fixed from inside this service; what it CAN do is stop being silent about it.
- * The failure it replaces is a screen of German labels beside `3/15/2026`.
+ * `use()` moves text and dates and nothing else — `LOCALE_ID` is a constant, so
+ * numbers stay. That limit is real and cannot be fixed from inside this
+ * service; what it CAN do is stop being silent about it. The failure it
+ * replaces is a screen of German labels beside `1,234.5`.
  */
 describe('WrI18n runtime-switch warning', () => {
   beforeEach(() => localStorage.clear());

@@ -64,6 +64,9 @@ export { wrBadgeError, wrBadgeLog, wrBadgeWarn } from './log';
 export { wrInitials } from './text';
 export type { WrInitialsOptions, WrInitialsOrder, WrInitialsStyle } from './text';
 
+// Locale
+export { WR_LIVE_LOCALE } from './locale';
+
 // Feature
 export { wrFeature } from './feature';
 export type { WrFeature } from './feature';

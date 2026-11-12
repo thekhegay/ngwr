@@ -10,6 +10,7 @@ import { Injector, type Provider, inject, runInInjectionContext } from '@angular
 import { type WrFeature, wrFeature } from 'ngwr/utils';
 
 import { WR_DATE_LOCALE, WR_DATE_TIME_ZONE } from './tokens';
+import { WR_DATE_LOCALE_PINNED } from './tokens/wr-date-locale-pinned.token';
 import type { WrDatesOptions } from './types';
 import { WrDateAdapter, WrNativeDateAdapter } from './wr-date-adapter';
 
@@ -19,9 +20,9 @@ import { WrDateAdapter, WrNativeDateAdapter } from './wr-date-adapter';
  * feature of `provideWr()`. Optional: with no call at all they run on
  * {@link WrNativeDateAdapter} in Angular's `LOCALE_ID` and the browser's zone.
  *
- * Omit `locale` and dates follow Angular's `LOCALE_ID`, which is what the app
- * already says it is. Pass one only to pin dates to something else — see
- * {@link WR_DATE_LOCALE}, and `WrI18n` for how the three locale inputs rank.
+ * Omit `locale` and dates follow the interface language of `provideWrI18n()`,
+ * `WrI18n.use()` included, and Angular's `LOCALE_ID` in an app without it.
+ * Pass one only to pin dates to something else, see {@link wrDateLocale}.
  *
  * The one feature that works in a route's `providers` as well: that subtree
  * gets an adapter of its own.
@@ -47,7 +48,10 @@ export function withDates(options: WrDatesOptions = {}): WrFeature<'dates'> {
   const providers: Provider[] = [{ provide: WrDateAdapter, useClass: options.adapter ?? WrNativeDateAdapter }];
 
   if (options.locale) {
-    providers.push({ provide: WR_DATE_LOCALE, useValue: options.locale });
+    providers.push(
+      { provide: WR_DATE_LOCALE, useValue: options.locale },
+      { provide: WR_DATE_LOCALE_PINNED, useValue: true }
+    );
   }
 
   const { timeZone } = options;

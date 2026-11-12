@@ -8,9 +8,9 @@
 import { InjectionToken, LOCALE_ID, inject } from '@angular/core';
 
 /**
- * BCP 47 locale tag the {@link WrDateAdapter} implementations read. Defaults to
- * Angular's `LOCALE_ID`; override via the `locale` option of
- * `provideWr(withDates(...))`.
+ * The BCP 47 locale tag `withDates({ locale })` pinned, and Angular's
+ * `LOCALE_ID` when nothing was. An adapter reads {@link wrDateLocale} instead,
+ * which puts the interface language of `provideWrI18n()` between the two.
  *
  * **It used to default to `navigator.language`, and that was wrong in the
  * documented case.** The provider's own first example was the no-argument call,
@@ -24,10 +24,10 @@ import { InjectionToken, LOCALE_ID, inject } from '@angular/core';
  * to match. An app that genuinely wants the browser's tag can still say so:
  * `provideWr(withDates({ locale: navigator.language }))`.
  *
- * The token is a plain string, resolved once. It is therefore the *pinned* date
- * locale, not a live one — `WrI18n.use()` moves catalog text and cannot move
- * this. `WrI18n`'s class docs carry the full precedence and `use()` warns about
- * the gap in dev mode.
+ * The token is a plain string, resolved once: the *pinned* date locale, not a
+ * live one. `WrI18n.use()` cannot move it, and moves dates only when nothing
+ * was pinned. Provide it through `withDates({ locale })`: a bare provider of
+ * this token is read as the fallback, not as a pin.
  *
  * **How far it reaches is up to the adapter.** The native one threads it through
  * everything. A subclass over a library that resolves its patterns against a

@@ -33,7 +33,7 @@ export default class ConfigurationPage {
     {
       feature: 'withDates()',
       entry: 'ngwr/date',
-      sets: '{ locale } pins the date locale (default: LOCALE_ID); { timeZone } is the zone dates are shown in; { adapter } is your own adapter',
+      sets: '{ locale } pins the date locale (default: the interface language); { timeZone } is the zone dates are shown in; { adapter } is your own adapter',
     },
     { feature: 'withStorage()', entry: 'ngwr/storage', sets: 'Storage engine, key prefix and default TTL' },
     { feature: 'withMeta()', entry: 'ngwr/meta', sets: 'Title template and default Open Graph and Twitter tags' },
@@ -95,6 +95,19 @@ providers: [provideWr(withDates({ timeZone: 'Asia/Almaty' }))],
 // From a config that loads after bootstrap. AppConfig.timeZone is a signal,
 // null until the config arrives: the browser's zone until then.
 providers: [provideWr(withDates({ timeZone: () => inject(AppConfig).timeZone() }))],`,
+
+    language: `import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
+import { WrI18n, provideWrI18n } from 'ngwr/i18n';
+
+// Dates are written in the interface language.
+providers: [provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru', 'kk', 'en'] })],
+
+// A switch at runtime rewrites every date on screen: wrDate, the calendar, the pickers.
+inject(WrI18n).use('kk');
+
+// A pin. The language switch no longer moves dates.
+providers: [provideWr(withDates({ locale: 'ru-RU' }))],`,
 
     dateAdapter: `import { Service } from '@angular/core';
 import { provideWr } from 'ngwr';

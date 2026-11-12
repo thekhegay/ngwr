@@ -20,7 +20,7 @@ import {
 } from '@angular/core';
 
 import { WrChartTable, type WrChartTableData, useChartNumbers } from 'ngwr/charts/core';
-import { WR_DATE_LOCALE } from 'ngwr/date';
+import { wrDateLocale } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
@@ -214,7 +214,11 @@ export class WrCalendarHeatmap {
    */
   protected readonly scrollable = signal(false);
 
-  private readonly locale = inject(WR_DATE_LOCALE);
+  private readonly dateLocale = wrDateLocale();
+
+  private get locale(): string {
+    return this.dateLocale();
+  }
 
   /**
    * Weekday names from the locale rather than a hard-coded English list — the row order is
