@@ -43,6 +43,11 @@ export default class ConfigurationPage {
       entry: 'ngwr/dialog',
       sets: 'Dialog defaults: tabTitle names the browser tab after the open dialog',
     },
+    {
+      feature: 'withRenderOnNavigation()',
+      entry: 'ngwr/utils/router',
+      sets: 'Zoneless: a routed page is bound before the browser paints it, so no transition runs from browser defaults',
+    },
   ];
 
   protected readonly snippets = {
