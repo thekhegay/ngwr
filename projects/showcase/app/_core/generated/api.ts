@@ -491,9 +491,12 @@ export const API = {
   ],
   // <wr-date-stamp>
   WrDateStamp: [
-    { name: "value", description: "The moment shown: a `Date`, epoch milliseconds, or a string `wrParseDate` reads. `null`, `undefined`, `''` and a value that is not a date are empty.", type: "Date | string | number | null | undefined", default: "null" },
-    { name: "dateFormat", description: "Format of the first line: a named key or a token string (`'d MMM yyyy'`).", type: "WrDateFormat | string", default: "'mediumDate'" },
-    { name: "timeFormat", description: "Format of the second line: a named key (`'time24hSeconds'`) or a token string (`'HH:mm'`).", type: "WrDateFormat | string", default: "'time'" },
+    { name: "value", description: "The moment shown: a `Date`, an epoch number, or a string `wrParseDate` reads. `null`, `undefined`, `''` and a value that is not a date are empty.", type: "Date | string | number | null | undefined", default: "null" },
+    { name: "dateFormat", description: "Format of the first line: a named key or a token string (`'d MMM yyyy'`). `withDates({ stamp })` changes the default.", type: "WrDateFormat | string", default: "'mediumDate'" },
+    { name: "timeFormat", description: "Format of the second line: a named key (`'time24hSeconds'`) or a token string (`'HH:mm'`). `withDates({ stamp })` changes the default.", type: "WrDateFormat | string", default: "'time'" },
+    { name: "seconds", description: "Write the seconds in the time line: `'time'` is read as `'timeSeconds'` and `'HH:mm'` as `'HH:mm:ss'`. A format that already has them is left alone. `withDates({ stamp })` changes the default.", type: "unknown", default: "false" },
+    { name: "todayTimeOnly", description: "Show the time alone for a value from today. Today is the day in the display zone, read when the stamp renders: one left on screen past midnight keeps its single line. A date-only value keeps its date. `withDates({ stamp })` changes the default.", type: "unknown", default: "false" },
+    { name: "epochUnit", description: "What a number in `value` counts since the epoch: `'ms'`, `'us'`, `'s'` or `'auto'`, by size. `null` follows `withDates({ epochUnit })`.", type: "WrEpochUnit | null", default: "null" },
     { name: "emptyLabel", description: "What stands in for an empty value. Falls back to `copyValue.empty`, then `'-'`.", type: "string | null", default: "null" },
   ],
   // <[wrDecode]>
