@@ -74,6 +74,9 @@ export const wrId: WrI18nCatalog = {
     skip: 'Lewati tur',
     progress: 'Langkah {{current}} dari {{total}}',
   },
+  resizable: {
+    handle: 'Ubah ukuran',
+  },
   splitter: {
     divider: 'Ubah ukuran panel',
   },
@@ -154,6 +157,9 @@ export const wrId: WrI18nCatalog = {
     copy: 'Salin',
     copied: 'Tersalin',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Tersalin',
   },
   input: {
     showPassword: 'Tampilkan kata sandi',

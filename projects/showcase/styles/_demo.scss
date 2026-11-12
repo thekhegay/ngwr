@@ -86,3 +86,49 @@
     isolation: isolate;
   }
 }
+
+// A box with a panel lying over it, for a demo of something that floats above
+// content it does not push (the resizable panel). The stage is the positioning
+// context and clips; the panel is pinned to three of its edges and sized on the
+// fourth. `__under` is what the panel covers, `__body` carries the panel's
+// padding so the panel itself can go down to zero.
+.ngwr-demo-stage {
+  position: relative;
+  width: 100%;
+  height: 14rem;
+  overflow: hidden;
+  border: 1px solid var(--wr-border-base);
+  border-radius: var(--wr-border-radius-base);
+  background: var(--wr-color-fill-subtle);
+
+  &__under {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    margin: 0;
+    padding: var(--wr-space-lg);
+    color: var(--wr-color-text-muted);
+  }
+
+  &__panel {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 16rem;
+    overflow: hidden;
+    background: var(--wr-color-surface);
+    box-shadow: var(--wr-shadow-float);
+
+    &--bottom {
+      inset-block-start: auto;
+      inset-inline: 0;
+      width: auto;
+      height: 6rem;
+    }
+  }
+
+  &__body {
+    padding: var(--wr-space-lg);
+  }
+}

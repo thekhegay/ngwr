@@ -4,7 +4,7 @@ Part of [AGENTS.md](../../AGENTS.md). Read this before changing behaviour that l
 
 ## Contracts that look like bugs
 
-Eighteen behaviours that read as defects until you know why they are that way.
+Nineteen behaviours that read as defects until you know why they are that way.
 Each was questioned at least once, each has a spec pinning it, and each would
 be "fixed" by someone reading only the symptom. This list used to live in
 ROADMAP.md; it moved here when that file was cut back to remaining work,
@@ -63,6 +63,16 @@ because it is guidance rather than a plan.
   between the click and the response. Clamping there pulled every page back to 1
   and emitted a `pageChange` the host could not tell from a click. The
   LOWER bound stays unconditional, and that one does write back.
+- **`withDates({ timeZone })` does not move a date-only value.** `mode="date"`
+  on either picker, `wr-calendar`, and a `'2026-11-12'` string through `wrDate`
+  stay browser-local days: a day is the same day in every zone, and the local
+  midnight is what `wrToLocalDate`, the validators and the calendar already
+  agree on. Only a value with a time is an instant and is shown on the zone's
+  wall clock. A string with a time and no zone (`2026-11-12 14:30`) is still
+  read in the BROWSER's zone, as before, and then shown in the display zone.
+- `wrDate` is an impure pipe on purpose. A pure one is called again only when
+  an argument changes, so it cannot follow the zone or the locale; this one
+  keeps its last result and compares `adapter.displayKey()`.
 - The date adapter emits single-quoted runs verbatim and treats unquoted
   letters as tokens, the way `DatePipe` and LDML do. `addDays` moves the
   CALENDAR day, not 86 400 000 ms — across a DST change the arithmetic
@@ -85,8 +95,8 @@ because it is guidance rather than a plan.
   purpose — seven labels do not fit.
 - A component that animates on its own honours `prefers-reduced-motion`
   itself when its motion is the feature (`wr-count-up`, the carousel's
-  autoplay), and **that does not generalise to chrome**: ten always-on chrome
-  components, four of them animating infinitely, including the spinner and the
+  autoplay), and **that does not generalise to chrome**: eleven always-on chrome
+  components, five of them animating infinitely, including the spinner and the
   skeleton that paint on every page, are covered by `theme/styles/_motion.scss`, one shared
   `@media (prefers-reduced-motion: reduce)` block, and NOT by per-component
   rules: the theme layer is loaded before every component stylesheet, so each
@@ -103,6 +113,17 @@ because it is guidance rather than a plan.
   made i18n mandatory in practice — `WR_I18N_LOADER` now defaults to a loader
   serving an empty catalog, so every lookup misses and components fall through
   to their English defaults.
+- `WrI18n.t(key, params, { fallback })` on a missing key returns the fallback
+  as is and skips `missingHandler`: no interpolation and no report, because the
+  caller said a miss is expected (a key built from a server value). The
+  background catalog load still fires, so a locale that has the key wins.
+- `[wrCopyToClipboard]` confirms a copy by default: a class on the host, a
+  tooltip and a polite announcement, or a toast under `wrCopyToClipboardToast`.
+  The tooltip is `wrUseTextTooltip()`, an `@internal` export of `ngwr/popover`
+  that opens the tooltip panel from code, because `WrPopover` cannot be a host
+  directive here: the host may carry its own `[wrPopover]`. `ngwr/directives`
+  has no stylesheet, so the tooltip needs `@use 'ngwr/popover'`. The duration is
+  `WR_COPIED_DURATION` from `ngwr/clipboard`, shared with `<wr-copy-value>`.
 - Escape does NOT depend on focus being inside an overlay:
   `overlayRef.keydownEvents()` is fed by CDK's `OverlayKeyboardDispatcher`,
   which keeps one document listener and routes to the topmost overlay.
@@ -125,3 +146,15 @@ because it is guidance rather than a plan.
   argument list by matching parentheses and asserts EVERY call yielded a key, so
   a call shape it cannot read fails the suite instead of quietly shrinking the
   set it checks.
+- A `<wr-toast-outlet>` DROPS the oldest toast past `maxStack`, where the
+  global stack queues the newest and drops nothing. An outlet is for a stream
+  (alarms at thousands a minute): a queue there only grows, and the toast it
+  finally shows is minutes stale. Dropping keeps a channel at `maxStack`
+  entries and timers whatever has passed through (`toast-channel.ts`). The one
+  time it does not drop is while the stack is held, by the pointer or by focus:
+  the toast under the pointer must not vanish, so arrivals wait in a queue
+  capped at `maxStack` (its oldest dropped) and enter on release, in arrival
+  order, the stack still capped. A toast
+  sent to a name with no outlet in the page is kept, capped the same way, and
+  its countdown starts when the outlet mounts; `dismissAll()` with no name is
+  the global stack only, because the global "Close all" button calls it.

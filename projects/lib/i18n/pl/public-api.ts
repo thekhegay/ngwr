@@ -77,6 +77,9 @@ export const wrPl: WrI18nCatalog = {
     skip: 'Pomiń przewodnik',
     progress: 'Krok {{current}} z {{total}}',
   },
+  resizable: {
+    handle: 'Zmień rozmiar',
+  },
   splitter: {
     divider: 'Zmień rozmiar paneli',
   },
@@ -162,6 +165,9 @@ export const wrPl: WrI18nCatalog = {
     copy: 'Kopiuj',
     copied: 'Skopiowano',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Skopiowano',
   },
   input: {
     showPassword: 'Pokaż hasło',

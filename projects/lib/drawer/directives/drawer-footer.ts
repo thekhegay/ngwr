@@ -24,7 +24,7 @@ import { wrCheckStyles } from 'ngwr/utils';
  */
 @Directive({
   selector: '[wrDrawerFooter]',
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-drawer__footer', '[class]': 'classes()' },
 })
 export class WrDrawerFooter {
   constructor() {

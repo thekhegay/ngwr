@@ -30,7 +30,7 @@ import type { WrTableSortDirection } from './types';
   template:
     '<svg class="wr-icon__svg wr-table-sort__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">@if (direction()) {<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>} @else {<path d="M6 12h12"/>}</svg>',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-table-sort', '[class]': 'classes()' },
 })
 export class WrTableSort {
   constructor() {
@@ -44,7 +44,7 @@ export class WrTableSort {
   readonly direction = input<WrTableSortDirection>(null);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-table-sort'];
+    const parts: string[] = [];
     const dir = this.direction();
     if (dir) parts.push(`wr-table-sort--${dir}`);
     return parts.join(' ');

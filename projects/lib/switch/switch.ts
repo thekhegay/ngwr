@@ -46,6 +46,7 @@ export type WrSwitchSize = 'sm' | 'md' | 'lg';
   templateUrl: './switch.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-switch',
     '[class]': 'classes()',
     // The `id` input belongs to the native input, not to this element — a static
     // `id="x"` would otherwise be written here too and leave the document with
@@ -107,7 +108,7 @@ export class WrSwitch implements FormCheckboxControl {
   private readonly native = viewChild.required<ElementRef<HTMLInputElement>>('native');
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-switch'];
+    const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-switch--${size}`);
     if (this.checked()) parts.push('wr-switch--checked');

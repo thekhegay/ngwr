@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
-import { WrDialog } from 'ngwr/dialog';
+import { WrDialog, type WrDialogIntent } from 'ngwr/dialog';
 
 import { ConfirmDialogComponent, type ConfirmData } from './confirm-dialog';
 import { WaitingDialogComponent } from './waiting-dialog';
@@ -94,6 +94,18 @@ if (result === undefined) return;      // dismissed`,
   confirmColor: 'danger',
 });
 if (ok) this.store.remove(item);`,
+    alert: `await this.dialog.alert({
+  title: 'Range too large',
+  message: 'Pick at most 31 days to export.',
+  okLabel: 'Close',
+  intent: 'danger',
+});`,
+    intent: `const ok = await this.dialog.confirm({
+  title: 'Delete this layer?',
+  message: 'Its 12 markers go with it.',
+  confirmLabel: 'Delete',
+  intent: 'danger', // also confirmColor: 'danger', so focus starts on cancel
+});`,
     tabTitle: `// One dialog.
 this.dialog.open(EditLampComponent, { tabTitle: true });
 
@@ -102,6 +114,8 @@ provideWr(withDialog({ tabTitle: true }));
 
 // The joiner comes from ngwr/meta. The default is ' - '.
 provideWr(withDialog({ tabTitle: true }), withMeta({ titleSeparator: ' · ' }));`,
+    toastsBelow: `this.dialog.open(EditComponent, { toasts: 'below' });
+this.dialog.confirm({ title: 'Discard changes?', toasts: 'below' });`,
     closeWhen: `const ref = this.dialog.open(UploadingComponent);
 ref.closeWhen(this.upload.isDone, 'uploaded');
 
@@ -123,6 +137,13 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
       default: '-',
     },
     {
+      name: 'alert(options)',
+      description:
+        'Shows a message with one button. Resolves with no value from the button, Escape, the backdrop, a navigation and app teardown. On the server it resolves at once.',
+      type: '(WrDialogAlertOptions) => Promise<void>',
+      default: '-',
+    },
+    {
       name: 'withDialog(defaults)',
       description: 'App-wide defaults, as a feature of `provideWr()`. Takes `tabTitle`.',
       type: '(WrDialogDefaults) => WrFeature',
@@ -134,7 +155,7 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
     {
       name: 'WrDialogConfirmOptions',
       description:
-        'Argument of `confirm()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation` and `tabTitle` from `WrDialogOptions`.',
+        'Argument of `confirm()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation`, `tabTitle` and `toasts` from `WrDialogOptions`.',
       type: 'interface',
       default: '-',
     },
@@ -164,7 +185,47 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
       name: 'confirmColor',
       description: 'Color of the confirm button. `danger` also puts initial focus on cancel.',
       type: 'WrColor',
-      default: "'primary'",
+      default: "'primary', or the `intent` when that is `danger` or `warning`",
+      sub: true,
+    },
+    {
+      name: 'intent',
+      description:
+        'A decorative icon before the title. `danger` and `warning` also color the confirm button unless `confirmColor` is set.',
+      type: 'WrDialogIntent',
+      default: '-',
+      sub: true,
+    },
+  ];
+
+  protected readonly alertApi: readonly DocApiRow[] = [
+    {
+      name: 'WrDialogAlertOptions',
+      description:
+        'Argument of `alert()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation`, `tabTitle` and `toasts` from `WrDialogOptions`.',
+      type: 'interface',
+      default: '-',
+    },
+    { name: 'title', description: 'The headline. Names the dialog.', type: 'string', default: '-', sub: true },
+    {
+      name: 'message',
+      description: 'Plain text under the title, never HTML. Describes the dialog.',
+      type: 'string',
+      default: '-',
+      sub: true,
+    },
+    {
+      name: 'okLabel',
+      description: 'Button text. Falls back to the common.ok catalog key.',
+      type: 'string',
+      default: '-',
+      sub: true,
+    },
+    {
+      name: 'intent',
+      description: 'A decorative icon before the title.',
+      type: "'info' | 'success' | 'warning' | 'danger'",
+      default: '-',
       sub: true,
     },
   ];
@@ -281,6 +342,13 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
       default: 'false',
       sub: true,
     },
+    {
+      name: 'toasts',
+      description: "`'below'` keeps the global toast stack under this dialog while it is open.",
+      type: "'above' | 'below'",
+      default: "'above'",
+      sub: true,
+    },
   ];
 
   protected readonly injectablesApi: readonly DocApiRow[] = [
@@ -386,6 +454,26 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
       confirmLabel: 'Delete',
       confirmColor: 'danger',
     });
+    this.lastAnswer.set(String(ok));
+  }
+
+  protected async exportRange(): Promise<void> {
+    await this.dialog.alert({
+      title: 'Range too large',
+      message: 'Pick at most 31 days to export.',
+      okLabel: 'Close',
+      intent: 'danger',
+    });
+  }
+
+  protected async askIntent(intent: WrDialogIntent): Promise<void> {
+    const copy: Record<WrDialogIntent, { title: string; message: string; confirmLabel: string }> = {
+      danger: { title: 'Delete this layer?', message: 'Its 12 markers go with it.', confirmLabel: 'Delete' },
+      warning: { title: 'Overwrite the file?', message: 'export.csv already exists.', confirmLabel: 'Overwrite' },
+      info: { title: 'Share this map?', message: 'Anyone with the link can view it.', confirmLabel: 'Share' },
+      success: { title: 'Publish this map?', message: 'Every check has passed.', confirmLabel: 'Publish' },
+    };
+    const ok = await this.dialog.confirm({ ...copy[intent], intent });
     this.lastAnswer.set(String(ok));
   }
 

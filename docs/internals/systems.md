@@ -48,7 +48,18 @@ one component folder. Reach for them instead of hand-rolling:
   the direction once, as a string, when the overlay is created and never looks
   again, so a new overlay calls this right after `overlay.create(...)`, passing
   the callback when its own position list is direction-dependent
-  (`wrMirrorOffsets`).
+  (`wrMirrorOffsets`). **Whether global toasts paint over an overlay is
+  `WrOverlayOrder`, never a z-index** — the top layer is ordered by promotion
+  time only, and the toast host re-promotes itself on every `show()` and
+  whenever an overlay joins the container. An overlay that takes a
+  `toasts: 'above' | 'below'` option (dialog, drawer) calls
+  `order.add(overlayRef.hostElement, toasts)` right after `attach()` and
+  subscribes the returned function to `detachments()`. The registry leaves the
+  toast host alone while it sits right under the covering overlays, and
+  otherwise promotes it and then them again, with every host attached after
+  the first of them, in one task and with focus given back if it moved. With
+  overlays stacked the newest decides: a covering overlay under an `'above'`
+  one cannot go over the toasts without going over that one too.
 - **Icons** (`ngwr/icon`) — `WrIcon` (`<wr-icon name="…">`) +
   `provideWrIcons(wrLucideIcons({…}))`. Both ways in live in `ngwr/icon` itself:
   `wrLucideIcons()` / `wrLucide()` for **lucide only**, the one set whose package
@@ -113,9 +124,19 @@ one component folder. Reach for them instead of hand-rolling:
 - **Date adapters** (`ngwr/date`) — `WrDateAdapter` powers the calendar, the
   event calendar and every date-picker mode, and since v15 it needs no provider:
   injected with nothing provided, it resolves to `WrNativeDateAdapter`, over
-  `Date` and `Intl`, in the `WR_DATE_LOCALE` locale (which is `LOCALE_ID`).
-  `provideWr(withDates({ locale, adapter }))` is for a pinned locale or an
-  adapter of the app's own, and the one feature that also works in a route's
+  `Date` and `Intl`, in the locale `wrDateLocale()` holds. That is a signal with
+  a stated order: `withDates({ locale })` is a pin and wins; else
+  `WrI18n.locale()` when the app calls `provideWrI18n()`, so dates follow
+  `use()` (16.1); else `LOCALE_ID`. `ngwr/date` does not import `ngwr/i18n`:
+  `provideWrI18n()` provides the locale signal as `WR_LIVE_LOCALE`, a token in
+  `ngwr/utils`, and `wrDateLocale()` injects it as optional. `WR_DATE_LOCALE`
+  stays a plain string, the pin or `LOCALE_ID`, and the internal
+  `WR_DATE_LOCALE_PINNED` says which, so a bare provider of `WR_DATE_LOCALE` is
+  a fallback and not a pin. The native adapter keeps its formatters, parsers
+  and names per locale and drops them when it moves. Numbers (`wrNumber`,
+  `wr-input-number`, …) still read `LOCALE_ID` and do not follow.
+  `provideWr(withDates({ locale, timeZone, adapter }))` is for a pinned locale,
+  a display time zone or an adapter of the app's own, and the one feature that also works in a route's
   `providers`, where it gives that subtree an adapter of its own. **The base
   class and the native one share one module, and that is load-bearing**: the base's injectable default names the
   subclass, so with each in its own file the base would import the file that
@@ -136,6 +157,24 @@ one component folder. Reach for them instead of hand-rolling:
   adapters were reachable only by the accident of being flat. It reads the
   entry points from the `exports` map now, nested ones included, and skips
   `<name>/testing`: a harness is public but never belongs in `imports: []`.
+  **A display time zone** (16.1): `withDates({ timeZone })` takes an IANA
+  name, an offset or a function (run in an injection context, so a signal or an
+  `inject()` works), and provides it as `WR_DATE_TIME_ZONE`. The adapter itself
+  never moves: it reads a `Date` in the browser's zone, because the calendar
+  and a date-only picker hold DAYS, and a day has no zone. `adapter.zoned()` is
+  the second reading, for instants: a sibling instance whose accessors, math,
+  `format` and `parse` all work on the zone's wall clock. `wrDate` /
+  `wrFormatDate` (except for a date-only string), `wr-date-stamp` and the
+  pickers' modes with a time use it; the pickers hand it to their panel through
+  the portal's injector, so nothing in a panel converts anything. The wall
+  clock is held as a `Date` read with the UTC getters (`date/time-zone.ts`),
+  never as a local `Date`: a local one cannot name an hour the BROWSER's own
+  daylight saving skips. That is also why `+05:30` is exact, with no
+  `Etc/GMT` detour. `adapter.displayKey()` is the locale and the zone as one
+  string, and a signal read: `wrDate` is impure and compares it to keep its
+  last result, and both pickers fold it into their echo guard. A custom
+  adapter inherits `zoned()` returning itself, so it shows the browser's zone
+  until it overrides it. `wr-event-calendar` does not use `zoned()` yet.
   `wrParseDate` is the entry point's one plain function: a backend
   value (a `Date`, epoch milliseconds, an ISO string, the SQL space form Safari
   refuses) as a `Date` or `null`, never an Invalid Date. It reads a date-only
@@ -204,7 +243,16 @@ one component folder. Reach for them instead of hand-rolling:
   the host wears `wr-table--overflow-start` / `--overflow-end`, measured on the
   scroll area. `selectAllScope="all"` widens the header select-all from the page
   to every page of `items`, under the same on-screen rule (no collapsed group, no
-  closed subtree); with `total` it stays the page and warns. Three pairs
+  closed subtree); with `total` it stays the page and warns. `loadingMode`
+  picks the form of `[loading]`: the overlay, a bar along the top edge that
+  leaves the rows readable, or `'auto'`, the overlay over an empty table and
+  the bar over a filled one. `(rowClick)` is one delegated listener on the
+  body and pointer only; a click on a control in the row, or under
+  `wrTableIgnoreRowClick` (an attribute, no directive), is not a row click.
+  Header hints (`headerHint`) and cut cells (`truncate: 'tooltip'`) share ONE
+  `WrPopover` per table, created on first use and pointed at the hovered or
+  focused cell through `wrPopoverOrigin`; the table listens natively, so a
+  `mouseover` runs no change detection. Three pairs
   are refused rather than half-supported: tree + `groupBy`, tree +
   `[wrTableExpand]`, tree + `virtualScroll`. Excel (`.xlsx`)
   export is deliberately NOT shipped (would need a third-party dep). Don't

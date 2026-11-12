@@ -29,6 +29,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   template: '<ng-content />',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-layout-sider',
     '[class]': 'classes()',
     '[style.width]': 'collapsed() ? collapsedWidth() : width()',
     role: 'complementary',
@@ -69,7 +70,7 @@ export class WrLayoutSider {
   }
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-layout-sider'];
+    const parts: string[] = [];
     if (this.collapsed()) parts.push('wr-layout-sider--collapsed');
     if (this.reverse()) parts.push('wr-layout-sider--reverse');
     return parts.join(' ');

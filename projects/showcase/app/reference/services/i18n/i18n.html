@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="WrI18n"
-  updated="16.0.0"
+  updated="16.1.0"
   description="Translate strings at runtime and switch the locale without a reload."
   [keywords]="['i18n', 'translation', 'locale', 'transloco', 'wr-i18n', 'service']"
   [labels]="['Service']"
@@ -84,10 +84,23 @@
     </div>
     <ngwr-doc-code [code]="snippets.injectionContext" language="typescript" />
     <p>Call the signal in the template: a read at construction freezes the English fallback.</p>
+    <p>
+      For a key built from a server value, pass <code>{{ '{' }} fallback {{ '}' }}</code> as the third argument: see
+      <a class="ngwr-doc-link" routerLink="/guides/translations/usage" fragment="a-key-that-may-be-missing"
+        >a key that may be missing</a
+      >.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Service">
     <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrI18nTranslateOptions"
+    description="The third argument of `t()`, `translate()` and the pipe."
+  >
+    <ngwr-doc-api [rows]="optionsApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section

@@ -74,6 +74,9 @@ export const wrSv: WrI18nCatalog = {
     skip: 'Hoppa över guiden',
     progress: 'Steg {{current}} av {{total}}',
   },
+  resizable: {
+    handle: 'Ändra storlek',
+  },
   splitter: {
     divider: 'Ändra storlek på panelerna',
   },
@@ -154,6 +157,9 @@ export const wrSv: WrI18nCatalog = {
     copy: 'Kopiera',
     copied: 'Kopierat',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Kopierat',
   },
   input: {
     showPassword: 'Visa lösenord',

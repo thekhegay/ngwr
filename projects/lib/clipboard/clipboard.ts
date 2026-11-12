@@ -14,6 +14,14 @@ import { wrRestoreFocus } from 'ngwr/utils';
 import type { WrClipboardPermission } from './types';
 
 /**
+ * How long a "Copied" confirmation stays, in ms: `<wr-copy-value>` and
+ * `[wrCopyToClipboard]` share it.
+ *
+ * @internal
+ */
+export const WR_COPIED_DURATION = 1500;
+
+/**
  * Programmatic clipboard read / write.
  *
  * - **Write** uses `navigator.clipboard.writeText` with a hidden

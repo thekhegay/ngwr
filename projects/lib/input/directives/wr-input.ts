@@ -37,6 +37,7 @@ import type { WrInputSize } from '../types';
 @Directive({
   selector: 'input[wrInput], textarea[wrInput]',
   host: {
+    class: 'wr-input',
     '[class]': 'classes()',
     '[attr.id]': 'resolvedId()',
     '[attr.aria-invalid]': 'ariaInvalid()',
@@ -103,7 +104,7 @@ export class WrInput {
   readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-input'];
+    const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-input--${size}`);
     if (this.rounded()) parts.push('wr-input--rounded');

@@ -73,6 +73,7 @@ import { wrIsComposing, WR_KEYS, wrCheckStyles } from 'ngwr/utils';
   imports: [WrButton, WrTextarea],
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-comment-composer',
     '[class]': 'classes()',
     '[attr.aria-busy]': 'sending() ? "true" : null',
   },
@@ -158,7 +159,7 @@ export class WrCommentComposer implements FormValueControl<string> {
   );
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-comment-composer'];
+    const parts: string[] = [];
     if (this.disabled()) parts.push('wr-comment-composer--disabled');
     if (this.readonly()) parts.push('wr-comment-composer--readonly');
     if (this.sending()) parts.push('wr-comment-composer--sending');

@@ -63,6 +63,7 @@ const SUBMENU_TRANSITION_MS = 220;
   encapsulation: ViewEncapsulation.None,
   host: {
     role: 'menuitem',
+    class: 'wr-context-menu-item',
     '[class]': 'classes()',
     '[attr.tabindex]': '-1',
     '[attr.aria-disabled]': 'disabled() ? true : null',
@@ -93,7 +94,7 @@ export class WrContextMenuItem {
   readonly submenu = input<WrContextMenuPanel | null>(null);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-context-menu-item'];
+    const parts: string[] = [];
     if (this.disabled()) parts.push('wr-context-menu-item--disabled');
     if (this.submenu()) parts.push('wr-context-menu-item--has-submenu');
     return parts.join(' ');

@@ -82,6 +82,9 @@ export const wrUk: WrI18nCatalog = {
     skip: 'Пропустити тур',
     progress: 'Крок {{current}} з {{total}}',
   },
+  resizable: {
+    handle: 'Змінити розмір',
+  },
   splitter: {
     divider: 'Змінити розмір панелей',
   },
@@ -164,6 +167,9 @@ export const wrUk: WrI18nCatalog = {
     copy: 'Копіювати',
     copied: 'Скопійовано',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Скопійовано',
   },
   input: {
     showPassword: 'Показати пароль',

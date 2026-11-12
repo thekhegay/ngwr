@@ -74,6 +74,9 @@ export const wrNl: WrI18nCatalog = {
     skip: 'Rondleiding overslaan',
     progress: 'Stap {{current}} van {{total}}',
   },
+  resizable: {
+    handle: 'Formaat wijzigen',
+  },
   splitter: {
     divider: 'Deelvensters vergroten of verkleinen',
   },
@@ -156,6 +159,9 @@ export const wrNl: WrI18nCatalog = {
     copy: 'Kopiëren',
     copied: 'Gekopieerd',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Gekopieerd',
   },
   input: {
     showPassword: 'Wachtwoord tonen',

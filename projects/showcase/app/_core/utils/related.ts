@@ -363,6 +363,13 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/table',
   ],
   'reference/components/counter': ['reference/components/statistic', 'reference/pipes/wr-number'],
+  'reference/components/date-stamp': [
+    'reference/pipes/wr-date',
+    'docs/configuration',
+    'reference/components/table',
+    'reference/components/copy-value',
+    'reference/components/descriptions',
+  ],
   'reference/components/date-picker': [
     'reference/components/calendar',
     'reference/components/form-field',
@@ -543,6 +550,12 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/forms',
   ],
   'reference/components/rating': ['reference/components/slider', 'reference/components/form-field', 'guides/forms'],
+  'reference/components/resizable': [
+    'reference/components/splitter',
+    'reference/components/drawer',
+    'reference/components/layout',
+    'reference/services/storage',
+  ],
   'reference/components/result': [
     'reference/components/empty',
     'reference/components/alert',
@@ -597,7 +610,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/button',
     'reference/services/loading-bar',
   ],
-  'reference/components/splitter': ['reference/components/layout', 'reference/components/compare'],
+  'reference/components/splitter': [
+    'reference/components/resizable',
+    'reference/components/layout',
+    'reference/components/compare',
+  ],
   'reference/components/statistic': [
     'charts/sparkline',
     'reference/components/card',
@@ -740,6 +757,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
 
   'reference/pipes/wr-bytes': ['reference/components/file-upload', 'reference/pipes/wr-number'],
   'reference/pipes/wr-date': [
+    'reference/components/date-stamp',
     'reference/components/date-picker',
     'docs/configuration',
     'reference/pipes/wr-number',

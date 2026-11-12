@@ -74,6 +74,9 @@ export const wrTr: WrI18nCatalog = {
     skip: 'Turu atla',
     progress: 'Adım {{current}} / {{total}}',
   },
+  resizable: {
+    handle: 'Yeniden boyutlandır',
+  },
   splitter: {
     divider: 'Bölmeleri yeniden boyutlandır',
   },
@@ -159,6 +162,9 @@ export const wrTr: WrI18nCatalog = {
     copy: 'Kopyala',
     copied: 'Kopyalandı',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Kopyalandı',
   },
   input: {
     showPassword: 'Parolayı göster',

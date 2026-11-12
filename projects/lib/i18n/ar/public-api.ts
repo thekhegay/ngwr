@@ -74,6 +74,9 @@ export const wrAr: WrI18nCatalog = {
     skip: 'تخطي الجولة',
     progress: 'الخطوة {{current}} من {{total}}',
   },
+  resizable: {
+    handle: 'تغيير الحجم',
+  },
   splitter: {
     divider: 'تغيير حجم الأجزاء',
   },
@@ -160,6 +163,9 @@ export const wrAr: WrI18nCatalog = {
     copy: 'نسخ',
     copied: 'تم النسخ',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'تم النسخ',
   },
   input: {
     showPassword: 'إظهار كلمة المرور',

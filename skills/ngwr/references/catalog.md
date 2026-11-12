@@ -101,6 +101,8 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/date` | `import { WrDateAdapter } from 'ngwr/date'` | — |
 | `ngwr/date-picker` | `import { WrDatePicker } from 'ngwr/date-picker'` | `wr-date-picker` `wr-date-range-picker` |
 | `ngwr/date-picker/testing` | `import { WrDatePickerDayHarness } from 'ngwr/date-picker/testing'` | — |
+| `ngwr/date-stamp` | `import { WrDateStamp } from 'ngwr/date-stamp'` | `wr-date-stamp` |
+| `ngwr/date-stamp/testing` | `import { WrDateStampHarness } from 'ngwr/date-stamp/testing'` | — |
 | `ngwr/density` | `import { WrDensity } from 'ngwr/density'` | `[wrDensity]` |
 | `ngwr/descriptions` | `import { WrDescriptions } from 'ngwr/descriptions'` | `wr-description-item` `wr-descriptions` |
 | `ngwr/dialog` | `import { WrDialog } from 'ngwr/dialog'` | `[wrDialogClose]` `[wrDialogContent]` `[wrDialogFooter]` `[wrDialogTitle]` |
@@ -186,6 +188,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/radio/testing` | `import { WrRadioGroupHarness } from 'ngwr/radio/testing'` | — |
 | `ngwr/rating` | `import { WrRating } from 'ngwr/rating'` | `wr-rating` |
 | `ngwr/rating/testing` | `import { WrRatingHarness } from 'ngwr/rating/testing'` | — |
+| `ngwr/resizable` | `import { WrResizable } from 'ngwr/resizable'` | `[wrResizable]` |
 | `ngwr/result` | `import { WrResult } from 'ngwr/result'` | `wr-result-404` `wr-result-403` `wr-result-500` `wr-result` |
 | `ngwr/schema-form` | `import { WrSchemaForm } from 'ngwr/schema-form'` | `wr-schema-form` |
 | `ngwr/scroll` | `import { WrScroll } from 'ngwr/scroll'` | — |
@@ -218,7 +221,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/textarea/testing` | `import { WrTextareaHarness } from 'ngwr/textarea/testing'` | — |
 | `ngwr/theme` | `import { WrTheme } from 'ngwr/theme'` | — |
 | `ngwr/timeline` | `import { WrTimeline } from 'ngwr/timeline'` | `wr-timeline-item` `wr-timeline` |
-| `ngwr/toast` | `import { WrToast } from 'ngwr/toast'` | — |
+| `ngwr/toast` | `import { WrToast } from 'ngwr/toast'` | `wr-toast-outlet` |
 | `ngwr/toast/testing` | `import { WrToastHarness } from 'ngwr/toast/testing'` | — |
 | `ngwr/toolbar` | `import { WrToolbar } from 'ngwr/toolbar'` | `wr-toolbar` |
 | `ngwr/tour` | `import { WrTour } from 'ngwr/tour'` | `wr-tour-popup` |

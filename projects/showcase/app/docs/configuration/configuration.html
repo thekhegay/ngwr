@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Configuration"
-  updated="15.0.0"
+  updated="16.1.0"
   description="Set app-wide options at bootstrap."
   [keywords]="['configuration', 'providers', 'bootstrap', 'provideWr', 'features']"
   [labels]="['Getting started']"
@@ -77,6 +77,96 @@
         </tbody>
       </table>
     </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Time zone"
+    description="Dates are shown in the browser's zone. `timeZone` names another: an IANA name, an offset, or a function that returns one."
+  >
+    <ngwr-doc-code [code]="snippets.timeZone" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Where</th>
+            <th scope="col">With a time zone</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>wrDate</code>, <code>wrFormatDate</code></th>
+            <td>An instant is printed on that zone's wall clock, and printed again when the zone changes.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wr-date-picker</code>, <code>time</code> and <code>datetime</code></th>
+            <td>The field and the popup show and read that zone's wall clock.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wr-date-picker</code>, <code>date</code></th>
+            <td>No shift. A day is a day: the 12th is the 12th in every zone.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wr-calendar</code></th>
+            <td>Today is the day in that zone.</td>
+          </tr>
+          <tr>
+            <th scope="row">A date-only string, <code>2026-11-12</code></th>
+            <td>No shift, for the same reason.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>Display only. A <code>Date</code> and a picker's <code>value</code> stay the instants they are.</li>
+      <li>The function runs in an injection context and may read signals: the screen follows them.</li>
+      <li>
+        <code>null</code>, or a zone the browser does not know, is the browser's zone. The second warns in dev mode.
+      </li>
+      <li>
+        Your own adapter overrides <code>zoned()</code> and reads <code>WR_DATE_TIME_ZONE</code> to honour the option.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Language"
+    description="Month names, the order of the fields and the first day of the week follow the interface language."
+  >
+    <ngwr-doc-code [code]="snippets.language" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">The app has</th>
+            <th scope="col">Dates are written in</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">
+              <code>withDates({{ '{' }} locale {{ '}' }})</code>
+            </th>
+            <td>That locale, always.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>provideWrI18n()</code></th>
+            <td><code>WrI18n.locale()</code>, and they follow <code>use()</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">Neither</th>
+            <td><code>LOCALE_ID</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>The first row that applies wins.</li>
+      <li>Numbers still follow <code>LOCALE_ID</code>.</li>
+      <li>
+        Your own adapter, or a component that calls <code>Intl</code> itself, reads <code>wrDateLocale()</code> from
+        <code>ngwr/date</code>: the same rule as a signal.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section

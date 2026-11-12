@@ -77,6 +77,9 @@ export const wrHe: WrI18nCatalog = {
     skip: 'דילוג על הסיור',
     progress: 'שלב {{current}} מתוך {{total}}',
   },
+  resizable: {
+    handle: 'שינוי גודל',
+  },
   splitter: {
     divider: 'שינוי גודל החלוניות',
   },
@@ -162,6 +165,9 @@ export const wrHe: WrI18nCatalog = {
     copy: 'העתקה',
     copied: 'הועתק',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'הועתק',
   },
   input: {
     showPassword: 'הצגת הסיסמה',

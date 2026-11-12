@@ -174,6 +174,36 @@ describe('WrDialogHarness', () => {
     await expect(no).resolves.toBe(false);
   });
 
+  it('dismisses a WrDialog.alert() dialog and reads its intent', async () => {
+    const done = fixture.componentInstance.dialog.alert({ title: 'Range too large', intent: 'danger' });
+    await fixture.whenStable();
+
+    const dialog = await rootLoader.getHarness(WrDialogHarness.with({ title: 'Range too large' }));
+    expect(await dialog.isAlert()).toBe(true);
+    expect(await dialog.isConfirm()).toBe(false);
+    expect(await dialog.getIntent()).toBe('danger');
+    await expect(dialog.confirm()).rejects.toThrow(/opened with alert\(\)/);
+    await dialog.ok();
+    await fixture.whenStable();
+    await expect(done).resolves.toBeUndefined();
+  });
+
+  it('reads the intent of a confirm, and none where there is none', async () => {
+    void fixture.componentInstance.dialog.confirm({ title: 'Delete item?', intent: 'warning' });
+    await fixture.whenStable();
+
+    const dialog = await rootLoader.getHarness(WrDialogHarness);
+    expect(await dialog.isAlert()).toBe(false);
+    expect(await dialog.getIntent()).toBe('warning');
+    await expect(dialog.ok()).rejects.toThrow(/opened with confirm\(\)/);
+    await dialog.cancel();
+    await fixture.whenStable();
+
+    fixture.componentInstance.dialog.open(Confirm);
+    await fixture.whenStable();
+    expect(await (await rootLoader.getHarness(WrDialogHarness)).getIntent()).toBeNull();
+  });
+
   it('refuses to answer a dialog opened with open()', async () => {
     fixture.componentInstance.dialog.open(Confirm);
     await fixture.whenStable();
@@ -183,6 +213,7 @@ describe('WrDialogHarness', () => {
     expect(await dialog.isConfirm()).toBe(false);
     await expect(dialog.confirm()).rejects.toThrow(/opened with open\(\)/);
     await expect(dialog.cancel()).rejects.toThrow(/opened with open\(\)/);
+    await expect(dialog.ok()).rejects.toThrow(/opened with open\(\)/);
   });
 });
 

@@ -72,7 +72,8 @@
   }
 
   // Sizes — track, thumb, label font + line-height scale together.
-  &--sm {
+  &--sm,
+  &:where([size='sm']) {
     --wr-switch-track-width: 1.75rem;
     --wr-switch-track-height: 1rem;
     --wr-switch-thumb-size: 0.75rem;
@@ -80,7 +81,8 @@
     --wr-switch-line-height: var(--wr-control-line-height-sm);
   }
 
-  &--lg {
+  &--lg,
+  &:where([size='lg']) {
     --wr-switch-track-width: 2.375rem;
     --wr-switch-track-height: 1.25rem;
     --wr-switch-thumb-size: 1rem;

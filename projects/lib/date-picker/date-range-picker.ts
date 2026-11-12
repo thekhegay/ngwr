@@ -14,6 +14,7 @@ import {
   type ComponentRef,
   DestroyRef,
   ElementRef,
+  EnvironmentInjector,
   Injector,
   type Signal,
   ViewEncapsulation,
@@ -46,6 +47,7 @@ import {
 } from './internal/input-refusal';
 import { WrDateRangeEndInput } from './internal/range-end-input';
 import { tabLeavesPane } from './internal/tab-out';
+import { wrPickerAdapter, wrPickerPanelInjector } from './internal/zoned-adapter';
 import type { WrDateInputError, WrDatePickerSize, WrDateRange, WrDateRangeInputError } from './types';
 
 /** Which end of the range an edit applies to. */
@@ -104,7 +106,7 @@ type EndRefusals = readonly [WrDateInputError | null, WrDateInputError | null];
   selector: 'wr-date-range-picker',
   templateUrl: './date-range-picker.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-date-range-picker', '[class]': 'classes()' },
   imports: [WrDateRangeEndInput, WrInput, WrInputGroup, WrInputSuffix],
   providers: [WrDateInputField],
   viewProviders: [WR_DATE_INPUT_FIELD_VIEW_PROVIDER],
@@ -197,7 +199,13 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
 
-  private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
+  private readonly dayAdapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
+  private readonly environment = inject(EnvironmentInjector);
+
+  private get adapter(): WrDateAdapter<Date> {
+    return wrPickerAdapter(this.dayAdapter, this.mode() === 'datetime');
+  }
+
   private readonly overlay = inject(WR_OVERLAY);
   private readonly outsideClick = inject(WrOutsideClick);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
@@ -298,7 +306,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     return this.isDateTime() ? this.panelLabelRangeDateTime() : this.panelLabelRange();
   });
 
-  private readonly refusalBuilder = useDateInputRefusals();
+  private readonly refusalBuilder = useDateInputRefusals(() => this.adapter);
   private readonly reportToForm = useFormParseErrors(this.value, () => this.onFormReset());
   private readonly inputField = inject(WrDateInputField);
 
@@ -403,7 +411,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   );
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-date-range-picker', `wr-date-range-picker--${this.mode()}`];
+    const parts = [`wr-date-range-picker--${this.mode()}`];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-date-range-picker--${size}`);
     if (this.disabled()) parts.push('wr-date-range-picker--disabled');
@@ -441,7 +449,9 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     // then be parsed against the new one and refused.
     effect(() => {
       const v = this.value();
-      const fmt = this.resolvedFormat();
+      // The adapter's key rides with the format: the same range prints
+      // differently once the display zone or the locale moves.
+      const fmt = `${this.resolvedFormat()}|${this.adapter.displayKey()}`;
       untracked(() => {
         const formatMoved = this.lastFormat !== null && fmt !== this.lastFormat;
         this.lastFormat = fmt;
@@ -819,7 +829,9 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     pane.setAttribute('aria-label', this.resolvedPanelLabel());
     pane.addEventListener('focusout', this.onPaneFocusOut);
 
-    const ref = this.overlayRef.attach(new ComponentPortal(WrDateRangePanel));
+    const ref = this.overlayRef.attach(
+      new ComponentPortal(WrDateRangePanel, null, wrPickerPanelInjector(this.environment, this.adapter))
+    );
     ref.setInput('value', this.value() ?? [null, null]);
     ref.setInput('autoFocus', this.autoFocusPanel);
     this.panelRef.set(ref);

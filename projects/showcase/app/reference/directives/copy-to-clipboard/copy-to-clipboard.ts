@@ -37,7 +37,11 @@ export default class CopyToClipboardPage {
   }
 
   protected readonly snippets = {
-    usage: `<button [wrCopyToClipboard]="value" (copied)="toast('Copied!')">Copy</button>`,
+    usage: `<button [wrCopyToClipboard]="value" (copied)="track($event)">Copy</button>`,
+    feedback: `<button [wrCopyToClipboard]="value">Copy</button>
+
+<!-- A toast instead of the tooltip -->
+<button [wrCopyToClipboard]="rows" wrCopyToClipboardToast copiedLabel="Copied to clipboard">Copy all</button>`,
     exportAs: `<code [wrCopyToClipboard]="value" #snippet="wrCopyToClipboard">{{ value }}</code>
 
 <!-- Anywhere else in the same template -->
@@ -50,6 +54,21 @@ export default class CopyToClipboardPage {
       description: 'The string copied on host click. Required.',
       type: 'string',
       required: true,
+    },
+    {
+      name: '[wrCopyToClipboardToast]',
+      description: 'Confirm a copy with a toast instead of the tooltip and the announcement.',
+      type: 'boolean',
+      default: 'false',
+      sub: true,
+    },
+    {
+      name: '[copiedLabel]',
+      description:
+        'Text of the tooltip, the announcement and the toast. Falls back to `copyToClipboard.copied`, then `Copied`.',
+      type: 'string | null',
+      default: 'null',
+      sub: true,
     },
     {
       name: '(copied)',
@@ -70,9 +89,21 @@ export default class CopyToClipboardPage {
       description: 'What a click does: the outputs fire, and it resolves with whether the text reached the clipboard.',
       type: '() => Promise<boolean>',
     },
+    {
+      name: '.wr-copy-to-clipboard--copied',
+      description: 'On the host for 1.5 s after a successful copy.',
+      type: 'class',
+      default: '—',
+    },
   ];
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-copy-value',
+      url: ['/reference/components', 'copy-value'],
+      description: 'A value with its own copy button.',
+    },
     {
       kind: 'Service',
       title: 'WrClipboard',

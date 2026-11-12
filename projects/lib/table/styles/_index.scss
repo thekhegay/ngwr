@@ -15,6 +15,7 @@
 @use '../../checkbox/styles' as checkbox-styles; // WrCheckbox
 @use '../../dropdown/styles' as dropdown-styles; // WrDropdown
 @use '../../pagination/styles' as pagination-styles; // WrPagination
+@use '../../popover/styles' as popover-styles; // WrPopover
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
 @include theme.loaded('table');
 
@@ -60,6 +61,10 @@
   --wr-table-foot-cell-font-weight: var(--wr-font-weight-semibold);
   --wr-table-empty-padding: var(--wr-space-xl);
   --wr-table-pager-padding: var(--wr-space-sm) var(--wr-space-md);
+  --wr-table-loading-bar-height: 0.125rem;
+  --wr-table-loading-bar-color: var(--wr-color-primary);
+  --wr-table-loading-bar-track: color-mix(in srgb, var(--wr-color-primary) 20%, transparent);
+  --wr-table-loading-bar-duration: 1.4s;
   // The scroll area of a `stickyHeader` or virtualized table. The component
   // writes `viewportHeight` to `-scroll-height`, and the measured header and
   // footer heights to the two below it, inline on `.wr-table__scroll`; these
@@ -150,6 +155,14 @@
 
   &__table--fixed &__th {
     overflow: hidden;
+  }
+
+  // `truncate: 'tooltip'`. The cut happens where the column cannot grow: under
+  // a fixed layout, or at the `max-width` the component writes from `width`.
+  &__td--truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__resize-handle {
@@ -630,6 +643,36 @@
     // stayed operable by Tab + Enter. The veil is a marker (the host carries
     // `aria-busy`), not a shield, so it stops eating the pointer too.
     pointer-events: none;
+  }
+
+  // Along the top edge of the header, which is the top of the scroll area under
+  // a sticky header too. Above the corner-sticky header cells (z-index 3).
+  &__loading-bar {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 4;
+    height: var(--wr-table-loading-bar-height);
+    overflow: hidden;
+    background: var(--wr-table-loading-bar-track);
+    pointer-events: none;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      // rtl-ok: an indeterminate sweep has no reading direction
+      left: 0;
+      width: 40%;
+      background: var(--wr-table-loading-bar-color);
+      animation: wr-table-loading-bar var(--wr-table-loading-bar-duration) var(--wr-ease-in-out) infinite;
+    }
+
+    @media (forced-colors: active) {
+      &::after {
+        background: CanvasText;
+      }
+    }
   }
 
   // --- Row grouping ---------------------------------------------------------
@@ -1242,4 +1285,14 @@
 // it must come after it to beat that `transition: none` at equal specificity.
 .cdk-drag-animating.wr-table__th {
   transition: transform 0.18s var(--wr-ease-out);
+}
+
+@keyframes wr-table-loading-bar {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(250%);
+  }
 }

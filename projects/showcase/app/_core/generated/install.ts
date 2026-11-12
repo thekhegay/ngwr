@@ -235,6 +235,9 @@ export const INSTALL = {
   "reference/components/date-picker": [
       { path: "ngwr/date-picker", symbols: ["WrDatePicker", "WrDateRangePicker"], declarables: ["WrDatePicker", "WrDateRangePicker"], styled: true },
   ],
+  "reference/components/date-stamp": [
+      { path: "ngwr/date-stamp", symbols: ["WrDateStamp"], declarables: ["WrDateStamp"], styled: true },
+  ],
   "reference/components/descriptions": [
       { path: "ngwr/descriptions", symbols: ["WrDescriptionItem", "WrDescriptions"], declarables: ["WrDescriptionItem", "WrDescriptions"], styled: true },
   ],
@@ -336,6 +339,9 @@ export const INSTALL = {
   "reference/components/rating": [
       { path: "ngwr/rating", symbols: ["WrRating"], declarables: ["WrRating"], styled: true },
   ],
+  "reference/components/resizable": [
+      { path: "ngwr/resizable", symbols: ["WrResizable"], declarables: ["WrResizable"], styled: true },
+  ],
   "reference/components/result": [
       { path: "ngwr/result", symbols: ["WrResult", "WrResult403", "WrResult404", "WrResult500"], declarables: ["WrResult", "WrResult403", "WrResult404", "WrResult500"], styled: true },
   ],
@@ -391,7 +397,7 @@ export const INSTALL = {
       { path: "ngwr/timeline", symbols: ["WrTimeline", "WrTimelineItem"], declarables: ["WrTimeline", "WrTimelineItem"], styled: true },
   ],
   "reference/components/toast": [
-      { path: "ngwr/toast", symbols: ["WrToast"], declarables: [], styled: true },
+      { path: "ngwr/toast", symbols: ["WrToast", "WrToastOutlet"], declarables: ["WrToastOutlet"], styled: true },
   ],
   "reference/components/toolbar": [
       { path: "ngwr/toolbar", symbols: ["WrToolbar"], declarables: ["WrToolbar"], styled: true },

@@ -8,12 +8,9 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, DestroyRef, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
 
-import { WrClipboard } from 'ngwr/clipboard';
+import { WR_COPIED_DURATION, WrClipboard } from 'ngwr/clipboard';
 import { useI18nText } from 'ngwr/i18n';
 import { wrCheckStyles } from 'ngwr/utils';
-
-/** How long the tick and the "Copied" text stay, the same as the toast's copy button. */
-const COPIED_MS = 1500;
 
 /**
  * A short value with a copy button beside it: an id, a serial number, an
@@ -39,7 +36,7 @@ const COPIED_MS = 1500;
   selector: 'wr-copy-value',
   templateUrl: './copy-value.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-copy-value', '[class]': 'classes()' },
 })
 export class WrCopyValue {
   constructor() {
@@ -90,7 +87,7 @@ export class WrCopyValue {
   protected readonly justCopied = signal(false);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-copy-value'];
+    const parts: string[] = [];
     if (this.wrap()) parts.push('wr-copy-value--wrap');
     if (this.empty()) parts.push('wr-copy-value--empty');
     if (this.justCopied()) parts.push('wr-copy-value--copied');
@@ -121,7 +118,7 @@ export class WrCopyValue {
 
     this.clearTimer();
     this.justCopied.set(true);
-    this.timer = setTimeout(() => this.justCopied.set(false), COPIED_MS);
+    this.timer = setTimeout(() => this.justCopied.set(false), WR_COPIED_DURATION);
     this.copied.emit(text);
     return true;
   }

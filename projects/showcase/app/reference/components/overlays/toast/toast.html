@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Toast"
-  updated="16.0.0"
+  updated="16.1.0"
   description="Short notifications that stack in a corner of the screen."
   [keywords]="['toast', 'notification', 'wr-toast']"
   [labels]="['Service', 'CDK Overlay']"
@@ -28,6 +28,10 @@
         <wr-btn color="danger" (click)="fire('danger')">Danger</wr-btn>
       </div>
     </ngwr-doc-snippet>
+    <p>
+      The stack paints over every dialog and drawer, unless one is opened with
+      <a class="ngwr-doc-link" href="/reference/components/dialog#toasts-below-this-dialog">toasts: 'below'</a>.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -114,6 +118,49 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Outlets"
+    description="`<wr-toast-outlet>` renders a stack inside the page, not in the top layer. `show({ outlet })` sends a toast to it by name."
+  >
+    <ngwr-doc-code [code]="snippets.outlet" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.outletShow" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena" style="position: relative">
+        <wr-toast-outlet name="demo" position="top" [maxStack]="3" />
+        <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; margin-top: auto">
+          <wr-btn color="danger" (click)="fireOutlet()">Send to the box</wr-btn>
+          <wr-btn color="danger" outlined (click)="fireOutlet(50)">Burst of 50</wr-btn>
+          <wr-btn outlined (click)="dismissOutlet()">Close the box's toasts</wr-btn>
+          <wr-btn (click)="fireGlobal()">Global toast</wr-btn>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>The outlet fills its nearest positioned ancestor: give the container <code>position: relative</code>.</li>
+      <li>
+        Each name is a stack of its own: its <code>maxStack</code>, its hold on hover and focus, its “Close all”. The
+        global stack still opens on top.
+      </li>
+      <li>
+        Past <code>maxStack</code> the oldest toast is dropped, where the global stack queues the newest. A stream of
+        thousands a minute stays at <code>maxStack</code> toasts and timers.
+      </li>
+      <li>
+        While the pointer or focus is in the stack nothing shown is dropped: arrivals wait, at most
+        <code>maxStack</code> of them, and enter when it leaves.
+      </li>
+      <li>
+        A toast sent while its outlet is not in the page waits, without counting down, and shows when the outlet
+        appears.
+      </li>
+      <li>
+        The outlet sets no <code>z-index</code>. Its order against its siblings is your own CSS, and clicks pass through
+        it wherever no toast is.
+      </li>
+    </ul>
+    <ngwr-doc-code [code]="snippets.outletOrder" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Keyboard"
     description="Focus inside the stack pauses every countdown, and expands a collapsed stack so “Close all” can be reached."
   >
@@ -143,6 +190,13 @@
     description="Per-call options for `show()`. Omitted fields fall back to `WrToastConfig`."
   >
     <ngwr-doc-api [rows]="optionsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="wr-toast-outlet"
+    description="Inputs of the outlet. Each defaults to the `withToast()` value. Labels come from it too."
+  >
+    <ngwr-doc-api [rows]="outletApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="WrToastConfig" description="Set once with `withToast()`.">

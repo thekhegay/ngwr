@@ -12,6 +12,7 @@ export const DISPLAY_ROUTES = [
   { path: components.compare.path, loadComponent: () => import('./compare/compare') },
   { path: components.copyValue.path, loadComponent: () => import('./copy-value/copy-value') },
   { path: components.counter.path, loadComponent: () => import('./counter/counter') },
+  { path: components.dateStamp.path, loadComponent: () => import('./date-stamp/date-stamp') },
   { path: components.keyboard.path, loadComponent: () => import('./keyboard/keyboard') },
   { path: components.descriptions.path, loadComponent: () => import('./descriptions/descriptions') },
   { path: components.divider.path, loadComponent: () => import('./divider/divider') },

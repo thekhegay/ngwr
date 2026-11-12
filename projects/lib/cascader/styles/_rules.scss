@@ -73,7 +73,8 @@
   }
 
   // Sizes — trigger on the control contract (sm 22 / md 30 / lg 36).
-  &--sm {
+  &--sm,
+  &:where([size='sm']) {
     --wr-cascader-radius: var(--wr-control-radius-sm);
     --wr-cascader-padding-y: var(--wr-control-padding-y-sm);
     --wr-cascader-padding-x: var(--wr-control-padding-x-sm);
@@ -81,7 +82,8 @@
     --wr-cascader-line-height: var(--wr-control-line-height-sm);
   }
 
-  &--lg {
+  &--lg,
+  &:where([size='lg']) {
     --wr-cascader-radius: var(--wr-control-radius-lg);
     --wr-cascader-padding-y: var(--wr-control-padding-y-lg);
     --wr-cascader-padding-x: var(--wr-control-padding-x-lg);

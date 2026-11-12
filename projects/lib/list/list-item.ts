@@ -41,6 +41,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   templateUrl: './list-item.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-list__item',
     '[class]': 'classes()',
     role: 'listitem',
     '[attr.tabindex]': 'interactive() ? "0" : null',
@@ -61,7 +62,7 @@ export class WrListItem {
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-list__item'];
+    const parts: string[] = [];
     if (this.interactive()) parts.push('wr-list__item--interactive');
     if (this.disabled()) parts.push('wr-list__item--disabled');
     return parts.join(' ');

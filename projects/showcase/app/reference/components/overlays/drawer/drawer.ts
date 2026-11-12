@@ -49,6 +49,9 @@ export default class DrawerPageComponent {
   ];
 
   protected readonly snippets = {
+    toastsBelow: `this.drawers.open(FiltersComponent, { toasts: 'below' });
+
+// <wr-drawer [(open)]="open" toasts="below">…</wr-drawer>`,
     basic: `<wr-btn (click)="open.set(true)">Open</wr-btn>
 
 <wr-drawer [(open)]="open" position="right" width="22rem">
@@ -130,6 +133,12 @@ export class ChatComponent {
       type: 'string | null',
       default: 'null',
     },
+    {
+      name: 'toasts',
+      description: "`'below'` keeps the global toast stack under the drawer while it is open.",
+      type: "'above' | 'below'",
+      default: "'above'",
+    },
   ];
 
   protected readonly serviceApi: readonly DocApiRow[] = [
@@ -196,6 +205,12 @@ export class ChatComponent {
       description: 'Extra class(es) on the box that slides in, not the CDK pane.',
       type: 'WrClassInput',
       default: '—',
+    },
+    {
+      name: 'toasts',
+      description: "`'below'` keeps the global toast stack under the drawer while it is open.",
+      type: "'above' | 'below'",
+      default: "'above'",
     },
   ];
 

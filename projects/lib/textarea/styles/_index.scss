@@ -55,7 +55,8 @@
   }
 
   // Sizes — radius, padding, font + line-height scale; height stays content-driven.
-  &--sm {
+  &--sm,
+  &:where([size='sm']) {
     --wr-textarea-radius: var(--wr-control-radius-sm);
     --wr-textarea-padding-y: var(--wr-space-xs);
     --wr-textarea-padding-x: var(--wr-control-padding-x-sm);
@@ -63,7 +64,8 @@
     --wr-textarea-line-height: var(--wr-control-line-height-sm);
   }
 
-  &--lg {
+  &--lg,
+  &:where([size='lg']) {
     --wr-textarea-radius: var(--wr-control-radius-lg);
     --wr-textarea-padding-y: var(--wr-space-md);
     --wr-textarea-padding-x: var(--wr-control-padding-x-lg);

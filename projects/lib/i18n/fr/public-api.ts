@@ -74,6 +74,9 @@ export const wrFr: WrI18nCatalog = {
     skip: 'Passer la visite',
     progress: 'Étape {{current}} sur {{total}}',
   },
+  resizable: {
+    handle: 'Redimensionner',
+  },
   splitter: {
     divider: 'Redimensionner les panneaux',
   },
@@ -156,6 +159,9 @@ export const wrFr: WrI18nCatalog = {
     copy: 'Copier',
     copied: 'Copié',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Copié',
   },
   input: {
     showPassword: 'Afficher le mot de passe',

@@ -22,7 +22,7 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { WrDateAdapter, WR_DATE_LOCALE } from 'ngwr/date';
+import { WrDateAdapter, wrDateLocale } from 'ngwr/date';
 import { wrReadI18nText } from 'ngwr/i18n';
 import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
@@ -127,7 +127,7 @@ function isLocaleHour12(locale: string): boolean {
   selector: 'wr-time-picker',
   templateUrl: './time-panel.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-time-picker', '[class]': 'classes()' },
 })
 export class WrTimePanel implements FormValueControl<Date | null> {
   /** 12 / 24-hour mode. @default 'auto' (derived from the locale) */
@@ -153,11 +153,15 @@ export class WrTimePanel implements FormValueControl<Date | null> {
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly locale = inject(WR_DATE_LOCALE);
-  private readonly numerals = numeralsFor(this.locale);
+  private readonly dateLocale = wrDateLocale();
+  private readonly numerals = computed(() => numeralsFor(this.locale));
+
+  private get locale(): string {
+    return this.dateLocale();
+  }
 
   /** Hour / minute separator, read off the locale rather than written into the template. */
-  protected readonly separator = timeSeparatorFor(this.locale);
+  protected readonly separator = computed(() => timeSeparatorFor(this.locale));
 
   /**
    * Form value — the selected time as a `Date` (its date portion is preserved).
@@ -257,7 +261,7 @@ export class WrTimePanel implements FormValueControl<Date | null> {
   protected readonly secondsDisplay = computed(() => padLocale(this.seconds(), this.locale));
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-time-picker'];
+    const parts: string[] = [];
     if (this.is12h()) parts.push('wr-time-picker--12h');
     if (this.showSeconds()) parts.push('wr-time-picker--with-seconds');
     if (this.effectiveDisabled()) parts.push('wr-time-picker--disabled');
@@ -274,7 +278,7 @@ export class WrTimePanel implements FormValueControl<Date | null> {
     // An emptied box is someone mid-retype, not a request for zero: `Number('')`
     // is 0, so committing here rewrote the field they had just cleared.
     if (!raw.trim()) return;
-    const n = readNumber(raw, this.numerals);
+    const n = readNumber(raw, this.numerals());
     if (Number.isNaN(n)) return;
     if (this.is12h()) {
       // A 12-hour clock has no hour 0, so a zero is the first digit of 01–09, not a
@@ -294,7 +298,7 @@ export class WrTimePanel implements FormValueControl<Date | null> {
     // An emptied box is someone mid-retype, not a request for zero: `Number('')`
     // is 0, so committing here rewrote the field they had just cleared.
     if (!raw.trim()) return;
-    const n = readNumber(raw, this.numerals);
+    const n = readNumber(raw, this.numerals());
     if (Number.isNaN(n)) return;
     this.minutes.set(wrClamp(Math.trunc(n), 0, 59));
     this.emit();
@@ -305,7 +309,7 @@ export class WrTimePanel implements FormValueControl<Date | null> {
     // An emptied box is someone mid-retype, not a request for zero: `Number('')`
     // is 0, so committing here rewrote the field they had just cleared.
     if (!raw.trim()) return;
-    const n = readNumber(raw, this.numerals);
+    const n = readNumber(raw, this.numerals());
     if (Number.isNaN(n)) return;
     this.seconds.set(wrClamp(Math.trunc(n), 0, 59));
     this.emit();

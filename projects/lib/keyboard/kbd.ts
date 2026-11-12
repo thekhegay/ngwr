@@ -33,7 +33,7 @@ import type { WrKbdSize } from './types';
   selector: 'wr-kbd',
   template: '@if (chord()) {{{ printed() }}} @else {<ng-content />}',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-kbd', '[class]': 'classes()' },
 })
 export class WrKbd {
   /** Visual size variant. @default 'md' */
@@ -42,7 +42,7 @@ export class WrKbd {
   /** A chord to print in place of the content: `'mod+k'`. @default null */
   readonly chord = input<WrHotkeySpec | null>(null);
 
-  protected readonly classes = computed(() => `wr-kbd wr-kbd--${this.size()}`);
+  protected readonly classes = computed(() => `wr-kbd--${this.size()}`);
 
   // The server has no user agent and prints the Ctrl form; the first client
   // render has to match it for hydration, so the Mac form arrives after it.

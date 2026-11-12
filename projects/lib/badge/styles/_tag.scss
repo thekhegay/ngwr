@@ -50,7 +50,8 @@
   transition: var(--wr-transition-base);
 
   // Shape
-  &--rounded {
+  &--rounded,
+  &:where([rounded]:not([rounded='false'])) {
     --wr-tag-radius: var(--wr-border-radius-pill);
     --wr-tag-padding-x: var(--wr-space-md);
   }
@@ -77,7 +78,8 @@
 
   // Colored variants
   @each $name in theme.$colors {
-    &--#{$name} {
+    &--#{$name},
+    &:where([color='#{$name}']) {
       --wr-tag-color: var(--wr-color-#{$name}-contrast);
       --wr-tag-bg: var(--wr-color-#{$name});
       --wr-tag-border: var(--wr-color-#{$name});
@@ -88,13 +90,15 @@
       // whole visual change here. The 6% fill stays, and that is the one place
       // the two deliberately differ: a tag is a chip you can click, hover and
       // dismiss, so it keeps a body the badge has none of.
-      &.wr-tag--outlined {
+      &.wr-tag--outlined,
+      &:where([outlined]:not([outlined='false'])) {
         --wr-tag-color: var(--wr-color-#{$name}-ink);
         --wr-tag-bg: color-mix(in srgb, var(--wr-color-#{$name}) 6%, transparent);
         --wr-tag-border: var(--wr-color-#{$name}-soft-border);
       }
 
-      &.wr-tag--transparent {
+      &.wr-tag--transparent,
+      &:where([transparent]:not([transparent='false'])) {
         --wr-tag-color: var(--wr-color-#{$name}-ink);
         --wr-tag-bg: color-mix(in srgb, var(--wr-color-#{$name}) 10%, transparent);
         --wr-tag-border: transparent;

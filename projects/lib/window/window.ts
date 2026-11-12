@@ -123,6 +123,7 @@ function asComponent(content: WrWindowSlotContent | null): ComponentType<unknown
     // window's own surface focuses, so the window the user is in is the one
     // `WrWindowManager` hands Escape to.
     tabindex: '-1',
+    class: 'wr-window',
     '[class]': 'classes()',
     '[style.left.px]': 'rect().left',
     '[style.top.px]': 'rect().top',
@@ -252,7 +253,6 @@ export class WrWindow implements OnInit {
   protected readonly classes = computed(() => {
     const model = this.model();
     const parts = [
-      'wr-window',
       `wr-window--${this.state()}`,
       `wr-window--os-${this.resolvedOs()}`,
       `wr-window--chrome-${this.options().chromeSize}`,

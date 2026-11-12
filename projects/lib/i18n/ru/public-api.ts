@@ -74,6 +74,9 @@ export const wrRu: WrI18nCatalog = {
     skip: 'Пропустить',
     progress: 'Шаг {{current}} из {{total}}',
   },
+  resizable: {
+    handle: 'Изменить размер',
+  },
   splitter: {
     divider: 'Изменить размер областей',
   },
@@ -156,6 +159,9 @@ export const wrRu: WrI18nCatalog = {
     copy: 'Копировать',
     copied: 'Скопировано',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Скопировано',
   },
   input: {
     showPassword: 'Показать пароль',

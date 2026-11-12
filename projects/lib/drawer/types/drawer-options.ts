@@ -71,4 +71,12 @@ export interface WrDrawerOptions<D = unknown> {
    * splitting happens here.
    */
   readonly panelClass?: WrClassInput;
+  /**
+   * Where the global toast stack paints while this drawer is open. `'below'`
+   * keeps it under the drawer and its backdrop. Toasts in a
+   * `<wr-toast-outlet>` are page content and are under every drawer anyway.
+   * With overlays stacked, the top one decides.
+   * @default 'above'
+   */
+  readonly toasts?: 'above' | 'below';
 }

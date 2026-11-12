@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="16.0.0"
+  updated="16.1.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
@@ -143,10 +143,99 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Row click"
+    description="`(rowClick)` fires for a click on a body row, with the row, its index in `items` and the event. A click on a button, a link, a form field or a label inside the row belongs to that element and does not fire it."
+  >
+    <ngwr-doc-snippet [code]="snippets.rowClick">
+      <div style="width: 100%">
+        <wr-table [columns]="clickColumns" [items]="rows" (rowClick)="opened.set($event.row.name)">
+          <ng-template wrTableCell="email" let-value>
+            <wr-copy-value [value]="value" />
+          </ng-template>
+          <ng-template wrTableCell="open" let-row="item">
+            <wr-btn size="sm" outlined (click)="opened.set(row.name)">Open</wr-btn>
+          </ng-template>
+        </wr-table>
+        <p style="margin-top: 0.75rem">Opened: {{ opened() ?? 'nothing yet' }}</p>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>The copy button copies and the row stays closed; a click on the name or the role opens it.</li>
+      <li>
+        Add the <code>wrTableIgnoreRowClick</code> attribute to an element of your own that handles its clicks. The
+        selection and expand cells never fire it.
+      </li>
+      <li>
+        It is pointer only: a row takes no focus. Keep a button or a link in the row for the same action, as the Open
+        button here, and style <code>.wr-table__tr</code> yourself if you want a pointer cursor.
+      </li>
+      <li>Group bands, summary rows and detail rows do not fire it. A child row in tree mode has index -1.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Header hints and truncated cells"
+    description="`headerHint` on a column explains its header in a tooltip and in the names of its sort and filter controls. `truncate: 'tooltip'` keeps a cell on one line and shows the full text in a tooltip, only while the text is cut."
+  >
+    <ngwr-doc-code [code]="snippets.hints" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table [columns]="hintColumns" [items]="hintRows" />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>With an empty <code>title</code>, the hint is the column's name: the last column here.</li>
+      <li>
+        <code>truncate="tooltip"</code> on the table covers every column; a column's own <code>truncate</code> wins, and
+        <code>null</code> there turns it off.
+      </li>
+      <li>A cell is cut only where its column cannot grow: give the column a <code>width</code>.</li>
+      <li>
+        The tooltip opens on hover, and on keyboard focus of a control in the header or the cell. A table holds one
+        tooltip, created on first use.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Loading, empty — and error"
     description="`[loading]` shows a spinner and `emptyLabel` the empty text. There is no error input: show a `<wr-alert>` beside the table."
   >
     <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Loading modes"
+    description="`loadingMode` picks how `[loading]` shows: `overlay` veils the table, `bar` runs a thin bar along the top and leaves the rows readable, `auto` (default) is the overlay while the table is empty and the bar once it has rows."
+  >
+    <ngwr-doc-snippet [code]="snippets.loadingModes">
+      <div style="width: 100%">
+        <wr-table [columns]="columns" [items]="loadRows()" [loading]="refreshing()" [loadingMode]="loadMode()" />
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem">
+          <wr-btn size="sm" (click)="refresh()">Refresh</wr-btn>
+          <wr-btn size="sm" outlined (click)="toggleLoadRows()">
+            {{ loadRows().length ? 'Clear rows' : 'Restore rows' }}
+          </wr-btn>
+          @for (mode of loadModes; track mode) {
+            <wr-btn
+              size="sm"
+              [outlined]="loadMode() !== mode"
+              [attr.aria-pressed]="loadMode() === mode"
+              (click)="loadMode.set(mode)"
+            >
+              {{ mode }}
+            </wr-btn>
+          }
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>The table carries <code>aria-busy</code> in every mode, and <code>loadingLabel</code> names both forms.</li>
+      <li>
+        The bar is styled through <code>--wr-table-loading-bar-color</code>, <code>-track</code>,
+        <code>-height</code> and <code>-duration</code>. Reduced motion slows its sweep.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section

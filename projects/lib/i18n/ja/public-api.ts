@@ -76,6 +76,9 @@ export const wrJa: WrI18nCatalog = {
     skip: 'ツアーをスキップ',
     progress: 'ステップ {{current}} / {{total}}',
   },
+  resizable: {
+    handle: 'サイズ変更',
+  },
   splitter: {
     divider: 'ペインのサイズ変更',
   },
@@ -156,6 +159,9 @@ export const wrJa: WrI18nCatalog = {
     copy: 'コピー',
     copied: 'コピーしました',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'コピーしました',
   },
   input: {
     showPassword: 'パスワードを表示',

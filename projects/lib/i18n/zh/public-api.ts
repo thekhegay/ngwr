@@ -74,6 +74,9 @@ export const wrZh: WrI18nCatalog = {
     skip: '跳过引导',
     progress: '第 {{current}} 步，共 {{total}} 步',
   },
+  resizable: {
+    handle: '调整大小',
+  },
   splitter: {
     divider: '调整面板大小',
   },
@@ -154,6 +157,9 @@ export const wrZh: WrI18nCatalog = {
     copy: '复制',
     copied: '已复制',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: '已复制',
   },
   input: {
     showPassword: '显示密码',

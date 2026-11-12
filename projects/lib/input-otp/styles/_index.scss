@@ -81,14 +81,16 @@
   // from the default in the one dimension this block exists to scale. A tier
   // that no longer differs is worse than a tier two pixels off, so `sm` takes
   // `xs` and the ramp survives as 4 / 8 / 12.
-  &--sm {
+  &--sm,
+  &:where([size='sm']) {
     --wr-input-otp-size: 2rem; // 32px
     --wr-input-otp-font: var(--wr-text-base); // 16px
     --wr-input-otp-radius: var(--wr-control-radius-sm);
     --wr-input-otp-gap: var(--wr-space-xs);
   }
 
-  &--lg {
+  &--lg,
+  &:where([size='lg']) {
     --wr-input-otp-size: 3rem; // 48px
     --wr-input-otp-font: var(--wr-text-xl); // 20px
     --wr-input-otp-radius: var(--wr-control-radius-lg);

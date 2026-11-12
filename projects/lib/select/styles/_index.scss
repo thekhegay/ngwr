@@ -73,7 +73,8 @@
   // Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px). Multi/tag
   // min-height and the search/tag inputs all read these vars, so every mode
   // tracks the size. Declared before `--rounded` so the pill modifier wins.
-  &--sm {
+  &--sm,
+  &:where([size='sm']) {
     --wr-select-radius: var(--wr-control-radius-sm);
     --wr-select-padding-y: var(--wr-control-padding-y-sm);
     --wr-select-padding-x: var(--wr-control-padding-x-sm);
@@ -81,7 +82,8 @@
     --wr-select-line-height: var(--wr-control-line-height-sm);
   }
 
-  &--lg {
+  &--lg,
+  &:where([size='lg']) {
     --wr-select-radius: var(--wr-control-radius-lg);
     --wr-select-padding-y: var(--wr-control-padding-y-lg);
     --wr-select-padding-x: var(--wr-control-padding-x-lg);
@@ -89,7 +91,8 @@
     --wr-select-line-height: var(--wr-control-line-height-lg);
   }
 
-  &--rounded {
+  &--rounded,
+  &:where([rounded]:not([rounded='false'])) {
     --wr-select-radius: var(--wr-border-radius-pill);
     --wr-select-padding-x: var(--wr-space-lg);
 

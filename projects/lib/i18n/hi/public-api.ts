@@ -74,6 +74,9 @@ export const wrHi: WrI18nCatalog = {
     skip: 'टूर छोड़ें',
     progress: '{{total}} में से चरण {{current}}',
   },
+  resizable: {
+    handle: 'आकार बदलें',
+  },
   splitter: {
     divider: 'पैनल का आकार बदलें',
   },
@@ -154,6 +157,9 @@ export const wrHi: WrI18nCatalog = {
     copy: 'कॉपी करें',
     copied: 'कॉपी हो गया',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'कॉपी हो गया',
   },
   input: {
     showPassword: 'पासवर्ड दिखाएं',

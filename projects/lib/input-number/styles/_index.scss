@@ -41,11 +41,13 @@
     width: 100%;
   }
 
-  &--sm {
+  &--sm,
+  &:where([size='sm']) {
     --wr-input-number-step-icon-size: var(--wr-control-font-size-sm); // 12px
   }
 
-  &--lg {
+  &--lg,
+  &:where([size='lg']) {
     --wr-input-number-step-icon-size: var(--wr-control-font-size-lg); // 16px
   }
 
@@ -152,7 +154,8 @@
   // arc, but a square-cornered tint at the tip did not. So the pill stops
   // clipping and insets the pair, and the tints take a shape of their own below.
   // The dividers this used to undo are gone from every variant now.
-  &--rounded {
+  &--rounded,
+  &:where([rounded]:not([rounded='false'])) {
     .wr-input-number__steppers.wr-input-group__affix {
       border-radius: 0;
       overflow: visible;

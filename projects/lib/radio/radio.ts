@@ -34,6 +34,7 @@ export type WrRadioSize = 'sm' | 'md' | 'lg';
   templateUrl: './radio.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-radio',
     '[class]': 'classes()',
     // The `id` input belongs to the native input, not to this element. A static
     // `id="x"` in a consumer's template is written to the host as a plain
@@ -98,7 +99,7 @@ export class WrRadio {
   protected readonly isReadonly = computed(() => this.group?.isReadonly() ?? false);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-radio'];
+    const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-radio--${size}`);
     if (this.checked()) parts.push('wr-radio--checked');

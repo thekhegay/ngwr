@@ -146,7 +146,7 @@ interface SelectedChip {
   selector: 'wr-select',
   templateUrl: './select.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-select', '[class]': 'classes()' },
   imports: [WrOption, NgTemplateOutlet, WrSpinner],
   providers: [
     {
@@ -843,7 +843,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   protected readonly isReadonly = computed(() => this.readonly());
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-select'];
+    const parts: string[] = [];
     if (this.isOpen()) parts.push('wr-select--open');
     if (this.rounded()) parts.push('wr-select--rounded');
     const size = this.size();

@@ -63,7 +63,7 @@ import { wrClamp, wrCheckStyles } from 'ngwr/utils';
   selector: 'wr-compare',
   templateUrl: './compare.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-compare', '[class]': 'classes()' },
 })
 export class WrCompare {
   /** Divider position as a percentage (0–100). Two-way bindable. @default 50 */
@@ -135,7 +135,7 @@ export class WrCompare {
   }
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-compare', `wr-compare--${this.orientation()}`];
+    const parts = [`wr-compare--${this.orientation()}`];
     if (this.disabled()) parts.push('wr-compare--disabled');
     return parts.join(' ');
   });

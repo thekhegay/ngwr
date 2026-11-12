@@ -51,7 +51,7 @@ const ARC_SWEEP = ARC_END - ARC_START;
   selector: 'wr-knob',
   templateUrl: './knob.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-knob', '[class]': 'classes()' },
 })
 export class WrKnob implements FormValueControl<number> {
   constructor() {
@@ -142,7 +142,7 @@ export class WrKnob implements FormValueControl<number> {
   protected readonly nameLabel = computed(() => (this.labelledBy() ? null : this.resolvedAriaLabel()));
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-knob'];
+    const parts: string[] = [];
     if (this.disabled()) parts.push('wr-knob--disabled');
     if (this.readonly()) parts.push('wr-knob--readonly');
     return parts.join(' ');

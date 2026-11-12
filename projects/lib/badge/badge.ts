@@ -33,6 +33,7 @@ import type { WrBadgeShape, WrBadgeSize } from './types';
   template: '<ng-content />',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-badge',
     '[class]': 'classes()',
   },
 })
@@ -76,7 +77,7 @@ export class WrBadge {
   readonly outlined = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-badge'];
+    const parts: string[] = [];
 
     const color = this.color();
     if (color) parts.push(`wr-badge--${color}`);

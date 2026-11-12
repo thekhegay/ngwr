@@ -74,6 +74,9 @@ export const wrEs: WrI18nCatalog = {
     skip: 'Omitir el tutorial',
     progress: 'Paso {{current}} de {{total}}',
   },
+  resizable: {
+    handle: 'Redimensionar',
+  },
   splitter: {
     divider: 'Redimensionar los paneles',
   },
@@ -154,6 +157,9 @@ export const wrEs: WrI18nCatalog = {
     copy: 'Copiar',
     copied: 'Copiado',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Copiado',
   },
   input: {
     showPassword: 'Mostrar contraseña',

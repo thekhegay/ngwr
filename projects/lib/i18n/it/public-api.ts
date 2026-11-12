@@ -74,6 +74,9 @@ export const wrIt: WrI18nCatalog = {
     skip: 'Salta il tour',
     progress: 'Passaggio {{current}} di {{total}}',
   },
+  resizable: {
+    handle: 'Ridimensiona',
+  },
   splitter: {
     divider: 'Ridimensiona i riquadri',
   },
@@ -156,6 +159,9 @@ export const wrIt: WrI18nCatalog = {
     copy: 'Copia',
     copied: 'Copiato',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Copiato',
   },
   input: {
     showPassword: 'Mostra la password',

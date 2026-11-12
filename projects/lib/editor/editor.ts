@@ -133,6 +133,7 @@ interface WrToolState {
   templateUrl: './editor.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-editor',
     '[class]': 'classes()',
     '(focusout)': 'onFocusOut($event)',
   },
@@ -448,7 +449,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-editor'];
+    const parts: string[] = [];
     if (this.focused()) parts.push('wr-editor--focused');
     if (this.disabled()) parts.push('wr-editor--disabled');
     else if (this.locked()) parts.push('wr-editor--readonly');

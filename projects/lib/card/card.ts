@@ -39,6 +39,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   styleUrl: './card.scss',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-card',
     '[class]': 'classes()',
     '[attr.aria-busy]': 'loading() ? true : null',
   },
@@ -57,7 +58,7 @@ export class WrCard {
   readonly compact = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-card'];
+    const parts: string[] = [];
     if (this.bordered()) parts.push('wr-card--bordered');
     if (this.hoverable()) parts.push('wr-card--hoverable');
     if (this.loading()) parts.push('wr-card--loading');

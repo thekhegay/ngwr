@@ -12,7 +12,7 @@ import { type Observable, firstValueFrom } from 'rxjs';
 import { WrStorage } from 'ngwr/storage';
 
 import { WR_I18N_BASE_CATALOGS } from './i18n-base-catalogs';
-import { WR_I18N_CONFIG, type WrI18nCatalog, type WrI18nParams } from './i18n-config';
+import { WR_I18N_CONFIG, type WrI18nCatalog, type WrI18nParams, type WrI18nTranslateOptions } from './i18n-config';
 import { WR_I18N_LOADER } from './i18n-loader';
 
 /** Cache key shape: `<locale>::<scope|''>`. @internal */
@@ -97,6 +97,7 @@ export function wrInterpolate(template: string, params: WrI18nParams | undefined
  *    specific statement wins, because it can only have been deliberate.
  * 2. **`WrI18n.locale()` — the runtime value.** The only one of the three that
  *    can change without a reload, so it is what a language switcher writes.
+ *    With `provideWrI18n()` in the app, dates are written in it.
  * 3. **`LOCALE_ID`.** Angular's app-wide constant, and the seed for both of the
  *    above when neither was given. One statement, one answer.
  * 4. `'en-US'`, which is what `LOCALE_ID` itself falls back to.
@@ -106,11 +107,12 @@ export function wrInterpolate(template: string, params: WrI18nParams | undefined
  * the hydrated page disagree.
  *
  * **What a runtime switch reaches, and what it does not.** `use()` repaints
- * every catalog string. It does not move `LOCALE_ID`, which is a constant, so
- * anything keyed on it — `wrNumber` / `wrPlural`, `wr-input-number`,
- * `wr-statistic`, `wr-counter` — and anything keyed on `WR_DATE_LOCALE` — the
- * date adapter, and so `wr-calendar`, `wr-date-picker` and `wrDate` — stays
- * where it was. `use()` says so once in dev mode rather than leaving it to be
+ * every catalog string, and every date: the date adapter, and so
+ * `wr-calendar`, `wr-date-picker`, `wrDate` and `wr-date-stamp`, formats in
+ * this locale unless `withDates({ locale })` pinned another. It does not move
+ * `LOCALE_ID`, which is a constant, so anything keyed on it — `wrNumber` /
+ * `wrPlural`, `wr-input-number`, `wr-statistic`, `wr-counter` — stays where it
+ * was. `use()` says so once in dev mode rather than leaving it to be
  * discovered.
  *
  * @example
@@ -119,6 +121,7 @@ export function wrInterpolate(template: string, params: WrI18nParams | undefined
  * i18n.use('ru');                                  // switch locale
  * i18n.t('cart.checkout');                         // → 'Оформить заказ'
  * i18n.t('greeting', { name: 'Ada' });             // → 'Hello, Ada!'
+ * i18n.t(`types.${type}`, undefined, { fallback: type }); // → type, when no key
  *
  * effect(() => console.log(i18n.translate('hi')())); // re-runs on locale change
  * ```
@@ -175,9 +178,9 @@ export class WrI18n {
   /**
    * Switch active locale. Ignored when not whitelisted.
    *
-   * Text only — see the class docs for what a runtime switch cannot reach. The
+   * Text and dates — see the class docs for what a runtime switch cannot reach. The
    * dev-mode warning below is the whole reporting of that limit; without it the
-   * failure is a screen showing German labels beside `3/15/2026`, with nothing
+   * failure is a screen showing German labels beside `1,234.5`, with nothing
    * anywhere saying why.
    */
   use(locale: string): void {
@@ -216,11 +219,18 @@ export class WrI18n {
    * Eager translate — returns the current value or the missing-handler
    * fallback. Does NOT auto-load missing catalogs; combine with the
    * reactive `translate(...)` if you want load-on-demand.
+   *
+   * The third argument is a scope, or `{ scope, fallback }`. With a `fallback`
+   * a missing key returns it as is, not interpolated, and `missingHandler` is
+   * not called: for a key built from a server value that may have no
+   * translation.
    */
-  t(key: string, params?: WrI18nParams, scope?: string): string {
+  t(key: string, params?: WrI18nParams, scopeOrOptions?: string | WrI18nTranslateOptions): string {
     // Read revision so callers inside computed/effect re-run on updates.
     this.revision();
     const lc = this._locale();
+    const options = typeof scopeOrOptions === 'string' ? { scope: scopeOrOptions } : scopeOrOptions;
+    const scope = options?.scope;
 
     const chain = localeChain(lc);
     let hit: string | null = null;
@@ -237,14 +247,14 @@ export class WrI18n {
     if (hit === null) {
       // Fire a background load so a future read can resolve it.
       void this.loadChain(lc, scope ?? null);
-      return this.config.missingHandler(key, lc);
+      return options?.fallback ?? this.config.missingHandler(key, lc);
     }
     return wrInterpolate(hit, params);
   }
 
   /** Reactive translate — re-evaluates on locale or catalog updates. */
-  translate(key: string, params?: WrI18nParams, scope?: string): Signal<string> {
-    return computed(() => this.t(key, params, scope));
+  translate(key: string, params?: WrI18nParams, scopeOrOptions?: string | WrI18nTranslateOptions): Signal<string> {
+    return computed(() => this.t(key, params, scopeOrOptions));
   }
 
   // Internals
@@ -287,9 +297,9 @@ export class WrI18n {
    * Say once, in dev, that a runtime switch moved the text and nothing else.
    *
    * The mismatch is otherwise invisible in the way that costs the most time:
-   * the catalog strings all change, which reads as "the switch worked", and the
-   * dates and numbers beside them are still correct-looking output in the old
-   * locale. Silent when the new locale IS `LOCALE_ID`, because then nothing is
+   * the catalog strings and the dates all change, which reads as "the switch
+   * worked", and the numbers beside them are still correct-looking output in
+   * the old locale. Silent when the new locale IS `LOCALE_ID`, because then nothing is
    * out of step and a warning that fires when everything agrees is one people
    * learn to ignore. Production builds drop the call entirely via `isDevMode()`
    * tree-shaking.
@@ -300,11 +310,10 @@ export class WrI18n {
     // eslint-disable-next-line no-console -- dev-mode validation
     console.warn(
       `[NGWR] WrI18n.use('${locale}') switched the catalog, but LOCALE_ID is still '${this.localeId}'. ` +
-        `LOCALE_ID is an Angular constant and WR_DATE_LOCALE resolves from it once at bootstrap, so ` +
-        `formatted dates and numbers do not follow the switch and stay on '${this.localeId}': the date ` +
-        `adapter (and so wr-calendar / wr-date-picker), the wrDate / wrNumber / wrPlural pipes, ` +
-        `wr-input-number, wr-statistic, wr-counter, wr-pagination's total and wr-file-upload's sizes. ` +
-        `Reload the app with the new LOCALE_ID to move those, or keep runtime switching to text.`
+        `Dates follow the switch (wrDate, wr-calendar, wr-date-picker), unless withDates({ locale }) pinned ` +
+        `them. LOCALE_ID is an Angular constant, so formatted numbers do not and stay on '${this.localeId}': ` +
+        `the wrNumber / wrPlural pipes, wr-input-number, wr-statistic, wr-counter, wr-pagination's total ` +
+        `and wr-file-upload's sizes. Reload the app with the new LOCALE_ID to move those.`
     );
   }
 

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Dialog"
-  updated="16.0.0"
+  updated="16.1.0"
   description="Open any component as a modal dialog and await its result."
   [keywords]="['dialog', 'modal', 'wr-dialog', 'overlay', 'portal']"
   [labels]="['Service', 'Directives', 'CDK Dialog']"
@@ -70,6 +70,41 @@
         </tbody>
       </table>
     </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Alert"
+    description="One call for a message with one button. It resolves with no value, whichever way the user dismisses it."
+  >
+    <ngwr-doc-code [code]="snippets.alert" language="typescript" />
+
+    <ngwr-doc-snippet code="dialog.alert({ title, message, okLabel, intent })">
+      <wr-btn (click)="exportRange()">Export 90 days</wr-btn>
+    </ngwr-doc-snippet>
+
+    <p>
+      Every alert is <code>role="alertdialog"</code>, named by its title and described by its message, and focus starts
+      on the button. The button label falls back to the <code>common.ok</code> catalog key.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Intent"
+    description="`intent` puts an icon before the title of a confirm or an alert. On a confirm, `danger` and `warning` also color the confirm button unless `confirmColor` is set."
+  >
+    <ngwr-doc-code [code]="snippets.intent" language="typescript" />
+
+    <ngwr-doc-snippet code="dialog.confirm({ title, message, confirmLabel, intent })">
+      <wr-btn color="danger" (click)="askIntent('danger')">Delete layer</wr-btn>
+      <wr-btn color="warning" (click)="askIntent('warning')">Overwrite file</wr-btn>
+      <wr-btn (click)="askIntent('info')">Share map</wr-btn>
+      <wr-btn (click)="askIntent('success')">Publish map</wr-btn>
+    </ngwr-doc-snippet>
+
+    <p>
+      The icon is decorative and hidden from assistive technology, so the title and the message have to say what
+      happened. Its color and size are the <code>--wr-dialog-intent-*</code> hooks.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -154,6 +189,14 @@
     <ngwr-doc-code [code]="snippets.focus" language="angular-html" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Toasts below this dialog"
+    description="A global toast paints over an open dialog. `toasts: 'below'` keeps the stack under this one and its backdrop until it closes."
+  >
+    <ngwr-doc-code [code]="snippets.toastsBelow" language="typescript" />
+    <p>With dialogs stacked, the top one decides. Toasts in a <code>&lt;wr-toast-outlet&gt;</code> are page content.</p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Gotchas">
     <div class="ngwr-table">
       <table>
@@ -214,6 +257,10 @@
 
   <ngwr-doc-section title="WrDialogConfirmOptions">
     <ngwr-doc-api [rows]="confirmApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrDialogAlertOptions">
+    <ngwr-doc-api [rows]="alertApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Layout directives">

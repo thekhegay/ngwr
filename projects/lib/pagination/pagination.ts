@@ -40,7 +40,7 @@ type PageEntry = number | typeof ELLIPSIS;
   selector: 'wr-pagination',
   templateUrl: './pagination.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()', role: 'navigation', '[attr.aria-label]': 'navLabel()' },
+  host: { class: 'wr-pagination', '[class]': 'classes()', role: 'navigation', '[attr.aria-label]': 'navLabel()' },
   imports: [WrButton, WrSelect, WrOption],
 })
 export class WrPagination {
@@ -246,12 +246,7 @@ export class WrPagination {
   protected readonly ellipsis = ELLIPSIS;
 
   protected readonly classes = computed(() => {
-    const parts = [
-      'wr-pagination',
-      `wr-pagination--${this.align()}`,
-      `wr-pagination--${this.size()}`,
-      `wr-pagination--${this.shape()}`,
-    ];
+    const parts = [`wr-pagination--${this.align()}`, `wr-pagination--${this.size()}`, `wr-pagination--${this.shape()}`];
     if (this.disabled()) parts.push('wr-pagination--disabled');
     if (this.responsive()) parts.push('wr-pagination--responsive');
     return parts.join(' ');

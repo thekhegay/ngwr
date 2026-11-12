@@ -34,7 +34,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   selector: 'wr-input-group',
   template: '<ng-content />',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-input-group', '[class]': 'classes()' },
 })
 export class WrInputGroup {
   constructor() {
@@ -45,7 +45,7 @@ export class WrInputGroup {
   readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-input-group'];
+    const parts: string[] = [];
     if (this.rounded()) parts.push('wr-input-group--rounded');
     return parts.join(' ');
   });

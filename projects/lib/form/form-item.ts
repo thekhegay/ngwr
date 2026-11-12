@@ -31,7 +31,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   selector: 'wr-form-item',
   template: '<ng-content />',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-form-item', '[class]': 'classes()' },
 })
 export class WrFormItem {
   constructor() {
@@ -46,7 +46,7 @@ export class WrFormItem {
   readonly hasError = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-form-item'];
+    const parts: string[] = [];
     if (this.hasError()) parts.push('wr-form-item--error');
     return parts.join(' ');
   });

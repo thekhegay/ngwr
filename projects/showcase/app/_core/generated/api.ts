@@ -398,6 +398,8 @@ export const API = {
   // <[wrCopyToClipboard]>
   WrCopyToClipboard: [
     { name: "wrCopyToClipboard", description: "The text to copy.", type: "string", required: true },
+    { name: "wrCopyToClipboardToast", description: "Confirm a copy with a toast instead of the tooltip and the announcement.", type: "boolean", default: "false" },
+    { name: "copiedLabel", description: "Text of the tooltip, the announcement and the toast. Falls back to `copyToClipboard.copied`, then `'Copied'`.", type: "string | null", default: "null" },
     { name: "(copied)", description: "Emitted with the copied text once the write succeeds.", type: "string" },
     { name: "(copyFailed)", description: "Emitted if the copy fails (denied permission, no clipboard, …).", type: "unknown" },
   ],
@@ -487,6 +489,13 @@ export const API = {
     { name: "panelAriaLabel", description: "Accessible name of the popup. The trigger advertises `aria-haspopup=\"dialog\"`, so the pane is a `role=\"dialog\"` — and an unnamed dialog announces as a bare \"dialog\". Defaults to the catalog's `datePicker.panelRange*` string for the current `mode`.", type: "string | null", default: "null" },
     { name: "panelClass", description: "Extra CSS classes for the calendar panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
   ],
+  // <wr-date-stamp>
+  WrDateStamp: [
+    { name: "value", description: "The moment shown: a `Date`, epoch milliseconds, or a string `wrParseDate` reads. `null`, `undefined`, `''` and a value that is not a date are empty.", type: "Date | string | number | null | undefined", default: "null" },
+    { name: "dateFormat", description: "Format of the first line: a named key or a token string (`'d MMM yyyy'`).", type: "WrDateFormat | string", default: "'mediumDate'" },
+    { name: "timeFormat", description: "Format of the second line: a named key (`'time24hSeconds'`) or a token string (`'HH:mm'`).", type: "WrDateFormat | string", default: "'time'" },
+    { name: "emptyLabel", description: "What stands in for an empty value. Falls back to `copyValue.empty`, then `'-'`.", type: "string | null", default: "null" },
+  ],
   // <[wrDecode]>
   WrDecode: [
     { name: "trigger", description: "`view` plays once, the first time most of the host is in the viewport. `hover` plays on every pointer enter and focus of the host or its closest focusable ancestor, but never restarts while already playing.", type: "WrDecodeTrigger", default: "'view'" },
@@ -567,6 +576,7 @@ export const API = {
     { name: "closable", description: "Show a dismiss (×) button in the panel's top-right corner. Set `false` when the projected content supplies its own close affordance.", type: "boolean", default: "true" },
     { name: "closeLabel", description: "Accessible name for the dismiss button. Falls back to `drawer.close`.", type: "string | null", default: "null" },
     { name: "panelClass", description: "Extra CSS classes for the drawer's panel — the box that slides in. On the panel rather than on the CDK pane, because that is the element `WrDrawerManager.open({ panelClass })` styles too: there the content IS the pane, so one name has to mean the same surface on both paths.", type: "WrClassInput", default: "null" },
+    { name: "toasts", description: "Where the global toast stack paints while the drawer is open. `'below'` keeps it under the drawer and its backdrop. Read when the drawer opens.", type: "'above' | 'below'", default: "'above'" },
   ],
   // <[wrDrawerClose]>
   WrDrawerClose: [
@@ -1027,6 +1037,7 @@ export const API = {
     { name: "position", description: "Anchor side.", type: "WrPopoverPosition | null", default: "'bottom' for popover, 'top' for tooltip" },
     { name: "showDelay", description: "Tooltip only — delay before showing, in ms.", type: "number", default: "120" },
     { name: "hideDelay", description: "Tooltip only — delay before hiding, in ms.", type: "number", default: "60" },
+    { name: "wrPopoverOrigin", description: "Tooltip only — the element the tooltip is for, when that is not the host. The panel is placed against it, and its hover and focus show and hide the tooltip the way the host's do. Setting it shows the tooltip after `showDelay`: name the element once the pointer or the focus is on it. It lets one tooltip serve many elements, as `wr-table` does for its header hints and truncated cells: the owner listens once, and binds this to the element under the pointer and `wrPopover` to its text. `aria-describedby` stays on the host, so the owner names or describes the element itself.", type: "HTMLElement | null", default: "null" },
     { name: "ariaLabel", description: "Popover mode only — accessible name of the panel. `role=\"dialog\"` with no name announces as a bare \"dialog\", so the catalog's `popover.label` is used when nothing is given. A popover has no universal name; whenever the panel has a heading or a purpose, pass it.", type: "string | null", default: "null" },
     { name: "panelClass", description: "Extra CSS classes for the popover's (or tooltip's) overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
     { name: "(opened)", description: "Fires after the panel opens.", type: "void" },
@@ -1102,6 +1113,20 @@ export const API = {
     { name: "ariaLabel", description: "Accessible label. Falls back to `rating.label`, then `'Rating'`.", type: "string | null", default: "null" },
     { name: "value", description: "The rating. Bound by `[formField]`, or two-way via `[(value)]`.", type: "number | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+  ],
+  // <[wrResizable]>
+  WrResizable: [
+    { name: "edge", description: "The edge that drags. `start` and `end` resize the width and mirror under RTL; `top` and `bottom` resize the height.", type: "WrResizableEdge", default: "'end'" },
+    { name: "size", description: "The size in pixels. Two-way bindable. `null` means not set yet: the element keeps the size its CSS gives it until the first resize. `sizeChange` fires when a drag is released, on each key and on a reset, never during a drag: bind `resizing` for that.", type: "number | null", default: "null" },
+    { name: "minSize", description: "Smallest size: pixels, or a percentage of the parent's matching dimension (`'20%'`). `null` for none.", type: "WrResizableLimit | null", default: "0" },
+    { name: "maxSize", description: "Largest size: pixels, or a percentage of the parent's matching dimension. `null` for none.", type: "WrResizableLimit | null", default: "'100%'" },
+    { name: "defaultSize", description: "The size Enter and a double click on the handle go back to. `null` goes back to what the element started with: the `size` bound at creation, or its CSS size when there was none.", type: "number | null", default: "null" },
+    { name: "step", description: "Pixels an arrow key moves the edge. Shift moves it ten times as far.", type: "number", default: "10" },
+    { name: "persistKey", description: "Saves the size under this key through `WrStorage` (which adds the app's prefix) when a resize ends, and restores it on creation.", type: "string | null", default: "null" },
+    { name: "collapsed", description: "Shrinks the element to zero and hides the handle. `size` is left alone, so the element is back at its size when this turns off.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Keeps the size and stops the handle.", type: "boolean", default: "false" },
+    { name: "resizeLabel", description: "Accessible name of the handle. A focusable `role=\"separator\"` is an interactive widget, so it needs one. Falls back to `resizable.handle`.", type: "string | null", default: "null" },
+    { name: "(resizing)", description: "The size in pixels on every move of a drag, before `sizeChange` settles it on release.", type: "number" },
   ],
   // <wr-result>
   WrResult: [
@@ -1359,7 +1384,8 @@ export const API = {
   WrTable: [
     { name: "columns", description: "Column definitions, keyed by row property name. Typed against the row `[items]` carries, so a column's `format` sees it: `WrTableColumns<User>` binds to `[items]=\"users\"` and to nothing else, while a bare `WrTableColumns` still binds anywhere.", type: "WrTableColumns<T>", required: true },
     { name: "items", description: "Row items. `null`/`undefined` renders the empty state; use `[loading]` for the spinner. `T` is inferred from here, and it is constrained to `WrTableRow` (= `object`) rather than `Record<string, unknown>`, so an array of an `interface` binds as readily as an array of a `type` — see {@link WrTableRow} for why those two are not the same to TypeScript.", type: "readonly T[] | null | undefined", default: "null" },
-    { name: "loading", description: "Show the loading spinner overlay.", type: "boolean", default: "false" },
+    { name: "loading", description: "Mark the table as loading; `loadingMode` picks how it shows.", type: "boolean", default: "false" },
+    { name: "loadingMode", description: "How `loading` shows. `'overlay'` veils the table under a spinner. `'bar'` runs a thin progress bar along the top edge and leaves the rows as they are, for a table that refreshes while it is being read. `'auto'` is the overlay while no row is shown and the bar once rows are. The host carries `aria-busy` in every form.", type: "WrTableLoadingMode", default: "'auto'" },
     { name: "responsive", description: "Collapse each row to a labelled card when the table's own box is too narrow for columns (a container query on its own width, not the viewport). Every cell shows its column title as a label.", type: "boolean", default: "false" },
     { name: "reorderable", description: "Enable drag-to-reorder on the column headers.", type: "boolean", default: "false" },
     { name: "columnOrder", description: "Two-way bindable column order — an array of column keys. Reflects and drives the header order: the table falls back to declaration order for any key not listed, and updates this on drag. Bind it to persist a user's arrangement.", type: "readonly string[]", default: "[]" },
@@ -1384,8 +1410,9 @@ export const API = {
     { name: "expandRowLabel", description: "The action word that names a row's detail toggle, joined to the row's label cell like `selectRowLabel`. Falls back to `table.expandRow`.", type: "string | null", default: "null" },
     { name: "selectGroupLabel", description: "The action word that names a group band's select checkbox. The group's label is joined to it — \"Select group EMEA\". Falls back to `table.selectGroup`.", type: "string | null", default: "null" },
     { name: "toggleGroupLabel", description: "The action word that names a group band's collapse toggle, joined to the group's label like `selectGroupLabel`. Falls back to `table.toggleGroup`.", type: "string | null", default: "null" },
-    { name: "loadingLabel", description: "Accessible name of the loading overlay. Falls back to `table.loading`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "Accessible name of the loading overlay or bar. Falls back to `table.loading`.", type: "string | null", default: "null" },
     { name: "(filterChange)", description: "Fires whenever a column's filter selection changes.", type: "WrTableFilterChange" },
+    { name: "(rowClick)", description: "Fires when a body row is clicked, with the row, its index in `items` and the click. Group bands, summary rows and detail rows do not fire it. A click on an interactive element inside the row is that element's own and does not fire: a button, a link, a form field, a label, `[role=button]`, editable content, the table's own toggles and its selection and expand cells. Mark anything else with the `wrTableIgnoreRowClick` attribute, which needs no import: `<app-menu wrTableIgnoreRowClick />`. Pointer only: a row takes no focus and no key for it, so give the same action a control of its own in the row (a link or a button in a cell) for keyboard and screen reader users. The table adds no cursor either: style `.wr-table__tr` when the rows are clickable.", type: "WrTableRowClick<T>" },
     { name: "pageSize", description: "Rows per page. Set to `0` (default) to disable client-side pagination and render every row at once.", type: "number", default: "0" },
     { name: "pageSizeOptions", description: "Sizes the pager offers in a size menu. Empty (default) shows no menu. A size the reader picks pages the rows at once and fires `pageSizeChange`, so `[(pageSize)]` keeps it on the host; the page moves to keep the first visible row on screen.", type: "readonly number[]", default: "[]" },
     { name: "paginationSize", description: "Size of the pager under the table: its cells and its size menu.", type: "WrPaginationSize", default: "'sm'" },
@@ -1397,6 +1424,7 @@ export const API = {
     { name: "stickyHeader", description: "Gives the table its own vertical scroll area, with the header row stuck to its top and the summary footer to its bottom, in every mode: plain, paged, grouped, tree, with pinned columns or selection. The pager stays below the scroll area. `viewportHeight` sizes it. A virtualized table already scrolls this way, so the input adds nothing there.", type: "boolean", default: "false" },
     { name: "viewportHeight", description: "Height of the scroll area when `virtualScroll` or `stickyHeader` is on — a number (px), any CSS length (`'70vh'`) or `'fill'`. A length is applied as `max-height` on `.wr-table__scroll` through `--wr-table-scroll-height` (a short table shrinks to fit; a long one caps and scrolls). `'fill'` takes the height the parent has left instead: the parent must be a flex column with a definite height (every flex ancestor up the chain needs `min-height: 0`), or a block with a definite height. The table then never shrinks below `--wr-table-scroll-min-height`. A numeric px value lets the server prerender the exact first window of a virtualized table.", type: "number | string", default: "480" },
     { name: "overscan", description: "Extra rows kept rendered above and below the viewport as scroll headroom.", type: "number", default: "6" },
+    { name: "truncate", description: "`'tooltip'` cuts every body cell to one line with an ellipsis and shows a cut cell's full text in a tooltip on hover and focus; a cell that fits shows none. A column's own `truncate` wins, and `null` there turns it off for that column. A cell is cut only where its column cannot grow: give the column a `width`, or the table a fixed layout (a resized or virtualized one has it).", type: "WrTableTruncate | null", default: "null" },
   ],
   // <[wrTableCell]>
   WrTableCell: [
@@ -1438,6 +1466,7 @@ export const API = {
     { name: "wrT", description: "Translation key. Required.", type: "string", required: true },
     { name: "wrTParams", description: "Interpolation params for `{{name}}` tokens.", type: "WrI18nParams | null", default: "null" },
     { name: "wrTScope", description: "Optional scope — scoped lookup first, then root fallback.", type: "string | null", default: "null" },
+    { name: "wrTFallback", description: "Text shown as is when the key is missing; `missingHandler` is not called.", type: "string | null", default: "null" },
   ],
   // <wr-textarea>
   WrTextarea: [
@@ -1473,6 +1502,18 @@ export const API = {
     { name: "title", description: "The headline for this point on the line. Projected content goes below it as the body, so keep this to what happened.", type: "string", default: "''" },
     { name: "time", description: "When it happened, already formatted — the component does no date formatting. Run a `Date` through the `wrDate` pipe on the way in.", type: "string", default: "''" },
     { name: "color", description: "Tint of this item's dot. Decoration by default: it carries no meaning on its own, so say the state in the title as well if it is one.", type: "WrTimelineColor", default: "'primary'" },
+  ],
+  // <wr-toast-outlet>
+  WrToastOutlet: [
+    { name: "name", description: "The channel this outlet renders: the `outlet` of `WrToast.show()`.", type: "string", required: true },
+    { name: "position", description: "Where the stack sits inside the outlet's box.", type: "WrToastPosition", default: "the `withToast()` position" },
+    { name: "mode", description: "Layout for several toasts: a cascade or a column.", type: "WrToastMode", default: "the `withToast()` mode" },
+    { name: "duration", description: "Auto-dismiss in ms for a toast that sets none; `0` disables.", type: "number", default: "the `withToast()` duration" },
+    { name: "showProgress", description: "Render the countdown bar.", type: "boolean", default: "the `withToast()` value" },
+    { name: "showCopy", description: "Render a copy button on each toast.", type: "boolean", default: "the `withToast()` value" },
+    { name: "showCloseAll", description: "Render \"Close all\" once the stack reaches the threshold.", type: "boolean", default: "the `withToast()` value" },
+    { name: "closeAllThreshold", description: "Minimum stack size before \"Close all\" appears.", type: "number", default: "the `withToast()` value" },
+    { name: "maxStack", description: "Maximum toasts in the stack; `0` is unlimited. Past it the oldest toast is dropped to make room, once the pointer and focus are out of the stack.", type: "number", default: "the `withToast()` value" },
   ],
   // <wr-toolbar>
   WrToolbar: [

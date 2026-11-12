@@ -74,6 +74,9 @@ export const wrCs: WrI18nCatalog = {
     skip: 'Přeskočit',
     progress: 'Krok {{current}} z {{total}}',
   },
+  resizable: {
+    handle: 'Změnit velikost',
+  },
   splitter: {
     divider: 'Změnit velikost panelů',
   },
@@ -154,6 +157,9 @@ export const wrCs: WrI18nCatalog = {
     copy: 'Kopírovat',
     copied: 'Zkopírováno',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Zkopírováno',
   },
   input: {
     showPassword: 'Zobrazit heslo',

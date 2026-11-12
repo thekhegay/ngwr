@@ -74,6 +74,9 @@ export const wrDe: WrI18nCatalog = {
     skip: 'Tour überspringen',
     progress: 'Schritt {{current}} von {{total}}',
   },
+  resizable: {
+    handle: 'Größe ändern',
+  },
   splitter: {
     divider: 'Bereichsgröße ändern',
   },
@@ -158,6 +161,9 @@ export const wrDe: WrI18nCatalog = {
     copy: 'Kopieren',
     copied: 'Kopiert',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Kopiert',
   },
   input: {
     showPassword: 'Passwort anzeigen',

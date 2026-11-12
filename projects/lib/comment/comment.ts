@@ -55,6 +55,7 @@ import type { WrCommentSide, WrCommentVariant } from './types';
   templateUrl: './comment.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-comment',
     '[class]': 'classes()',
     role: 'article',
     '[attr.aria-label]': 'author() || null',
@@ -117,7 +118,7 @@ export class WrComment {
   });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-comment'];
+    const parts: string[] = [];
     if (this.variant() === 'bubble') parts.push('wr-comment--bubble', `wr-comment--${this.side()}`);
     return parts.join(' ');
   });

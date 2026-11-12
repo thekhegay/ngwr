@@ -72,6 +72,7 @@ export type WrSegmentedSize = 'sm' | 'md' | 'lg';
   templateUrl: './segmented.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-segmented',
     '[class]': 'classes()',
     '[style]': 'thumbStyle()',
     role: 'group',
@@ -253,7 +254,7 @@ export class WrSegmented<T = unknown> implements FormValueControl<T | null> {
   }
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-segmented'];
+    const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-segmented--${size}`);
     if (this.disabled()) parts.push('wr-segmented--disabled');

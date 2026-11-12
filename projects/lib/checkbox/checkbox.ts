@@ -62,6 +62,7 @@ export type WrCheckboxSize = 'sm' | 'md' | 'lg';
   templateUrl: './checkbox.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-checkbox',
     '[class]': 'classes()',
     // The `id` input belongs to the native input, not to this element. A static
     // `id="x"` in a consumer's template is written to the host as a plain
@@ -233,7 +234,7 @@ export class WrCheckbox implements FormCheckboxControl {
   protected readonly describedBy = computed(() => (this.group ? null : this.fieldAria.describedBy()));
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-checkbox'];
+    const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-checkbox--${size}`);
     if (this.indeterminate()) parts.push('wr-checkbox--indeterminate');

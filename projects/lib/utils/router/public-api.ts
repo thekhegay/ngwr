@@ -6,4 +6,5 @@
  */
 
 export { wrQueryParam } from './query-param';
+export { withRenderOnNavigation } from './render-on-navigation';
 export type { WrQueryParamOptions, WrQueryParamStringOptions } from './types';

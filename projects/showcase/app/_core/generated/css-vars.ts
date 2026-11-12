@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1650 hook(s) across 113 page(s). A property is here only when the
+ * 1676 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -1080,6 +1080,17 @@ export const CSS_VARS = {
       { name: "--wr-time-picker-step-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-time-picker__step" },
     ],
   },
+  "reference/components/date-stamp": {
+    subpath: "ngwr/date-stamp",
+    vars: [
+      { name: "--wr-date-stamp-date-color", default: "inherit", scope: ".wr-date-stamp" },
+      { name: "--wr-date-stamp-empty-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-date-stamp" },
+      { name: "--wr-date-stamp-gap", default: "0", scope: ".wr-date-stamp" },
+      { name: "--wr-date-stamp-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-date-stamp" },
+      { name: "--wr-date-stamp-time-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-date-stamp" },
+      { name: "--wr-date-stamp-time-font-size", default: "var(--wr-text-sm)", scope: ".wr-date-stamp" },
+    ],
+  },
   "reference/components/descriptions": {
     subpath: "ngwr/descriptions",
     vars: [
@@ -1113,6 +1124,12 @@ export const CSS_VARS = {
       { name: "--wr-dialog-content-line-height", default: "var(--wr-text-base-leading)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-font-family", default: "var(--wr-font-family-base)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-footer-gap", default: "var(--wr-space-sm)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-danger", default: "var(--wr-color-danger)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-gap", default: "var(--wr-space-sm)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-info", default: "var(--wr-color-info)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-size", default: "1.25rem", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-success", default: "var(--wr-color-success)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-warning", default: "var(--wr-color-warning)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-min-width", default: "18rem", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-padding-x", default: "var(--wr-space-lg)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-padding-y", default: "var(--wr-space-lg)", scope: ".wr-dialog-panel" },
@@ -1622,6 +1639,21 @@ export const CSS_VARS = {
       { name: "--wr-rating-size", default: "1.25rem", scope: ".wr-rating", overrides: 2 },
     ],
   },
+  "reference/components/resizable": {
+    subpath: "ngwr/resizable",
+    vars: [
+      { name: "--wr-resizable-grip-active-color", default: "var(--wr-color-primary)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-grip-color", default: "var(--wr-border-base)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-grip-length", default: "2rem", scope: ".wr-resizable" },
+      { name: "--wr-resizable-grip-radius", default: "var(--wr-border-radius-pill)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-grip-thickness", default: "var(--wr-space-xs)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-handle-hover-bg", default: "var(--wr-color-primary-soft)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-handle-size", default: "var(--wr-space-sm)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-line-active-color", default: "var(--wr-color-primary)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-line-color", default: "var(--wr-border-subtle)", scope: ".wr-resizable" },
+      { name: "--wr-resizable-line-size", default: "1px", scope: ".wr-resizable" },
+    ],
+  },
   "reference/components/result": {
     subpath: "ngwr/result",
     vars: [
@@ -1923,6 +1955,10 @@ export const CSS_VARS = {
       { name: "--wr-table-head-letter-spacing", default: "var(--wr-tracking-normal)", scope: ".wr-table" },
       { name: "--wr-table-head-transform", default: "none", scope: ".wr-table" },
       { name: "--wr-table-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-table" },
+      { name: "--wr-table-loading-bar-color", default: "var(--wr-color-primary)", scope: ".wr-table" },
+      { name: "--wr-table-loading-bar-duration", default: "1.4s", scope: ".wr-table" },
+      { name: "--wr-table-loading-bar-height", default: "0.125rem", scope: ".wr-table" },
+      { name: "--wr-table-loading-bar-track", default: "color-mix(in srgb, var(--wr-color-primary) 20%, transparent)", scope: ".wr-table" },
       { name: "--wr-table-pager-padding", default: "var(--wr-space-sm) var(--wr-space-md)", scope: ".wr-table" },
       { name: "--wr-table-pin-shadow-ink", default: "light-dark(rgb(0 0 0 / 18%), rgb(0 0 0 / 45%))", scope: ".wr-table" },
       { name: "--wr-table-radius", default: "var(--wr-border-radius-base)", scope: ".wr-table" },

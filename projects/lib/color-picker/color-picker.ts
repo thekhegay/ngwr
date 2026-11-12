@@ -81,6 +81,7 @@ function hasAlphaDigits(hex: string): boolean {
   templateUrl: './color-picker.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    class: 'wr-color-picker',
     '[class]': 'classes()',
     // `role="group"` so the field's label has somewhere to land: the picker is
     // a composite with no single element carrying its semantics, and its parts
@@ -285,7 +286,7 @@ export class WrColorPicker implements FormValueControl<string> {
   ]);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-color-picker'];
+    const parts: string[] = [];
     if (this.alpha()) parts.push('wr-color-picker--alpha');
     if (this.disabled()) parts.push('wr-color-picker--disabled');
     else if (this.readonly()) parts.push('wr-color-picker--readonly');

@@ -105,7 +105,7 @@ export type WrCascaderSize = 'sm' | 'md' | 'lg';
   templateUrl: './cascader.html',
   styleUrl: './cascader.scss',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { class: 'wr-cascader', '[class]': 'classes()' },
 })
 export class WrCascader<T = string> implements FormValueControl<unknown> {
   /** Accessible name. Falls back to `select.clearSelection`, then `'Clear selection'`. */
@@ -311,7 +311,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   protected readonly hasSelection = computed(() => this.path().length > 0);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-cascader'];
+    const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-cascader--${size}`);
     if (this.isOpen()) parts.push('wr-cascader--open');

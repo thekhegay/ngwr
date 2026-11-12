@@ -1,8 +1,9 @@
-import { LOCALE_ID, SecurityContext } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { Component, LOCALE_ID, SecurityContext, signal } from '@angular/core';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { WrDateAdapter } from 'ngwr/date';
+import { provideWr } from 'ngwr';
+import { WrDateAdapter, withDates } from 'ngwr/date';
 import { wrInitials } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -299,6 +300,97 @@ describe('wrDate', () => {
     const adapter = TestBed.inject<WrDateAdapter<Date>>(WrDateAdapter);
     expect(wrFormatDate('2026-06-12', adapter)).toBe('12.6.2026');
     expect(wrFormatDate('2026-06-12', adapter, 'd MMMM yyyy')).toBe('12 Juni 2026');
+  });
+});
+
+/**
+ * Instants are written as UTC and zones as offsets or names, so nothing here
+ * depends on the zone of the runner.
+ */
+describe('wrDate in a display time zone', () => {
+  const INSTANT = new Date(Date.UTC(2026, 10, 12, 8, 45));
+
+  @Component({
+    imports: [WrDate],
+    template: `<p>{{ at() | wrDate: 'dd.MM.yyyy HH:mm' }}</p>
+      <i>{{ day | wrDate: 'dd.MM.yyyy HH:mm' }}</i>`,
+  })
+  class Host {
+    readonly at = signal<Date | string>(INSTANT);
+    readonly day = '2026-11-12';
+  }
+
+  const zone = signal<string | null>(null);
+  const setup = (timeZone: string | (() => string | null)): ComponentFixture<Host> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: LOCALE_ID, useValue: 'en-US' }, provideWr(withDates({ timeZone }))],
+    });
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    return fixture;
+  };
+  const text = (fixture: ComponentFixture<Host>, tag = 'p'): string =>
+    (fixture.nativeElement as HTMLElement).querySelector(tag)!.textContent;
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it.each([
+    ['+05:00', '12.11.2026 13:45'],
+    ['+05:30', '12.11.2026 14:15'],
+    ['Asia/Tokyo', '12.11.2026 17:45'],
+    ['America/Los_Angeles', '12.11.2026 00:45'],
+  ])('prints an instant on the wall clock of %s', (timeZone, shown) => {
+    expect(text(setup(timeZone))).toBe(shown);
+  });
+
+  it('does not move a date-only string: a day has no zone', () => {
+    expect(text(setup('+14:00'), 'i')).toBe('12.11.2026 00:00');
+    expect(text(setup('-12:00'), 'i')).toBe('12.11.2026 00:00');
+  });
+
+  it('reads a string with an offset as the instant it names', () => {
+    const fixture = setup('+05:30');
+    fixture.componentInstance.at.set('2026-11-12T08:45:00Z');
+    fixture.detectChanges();
+    expect(text(fixture)).toBe('12.11.2026 14:15');
+  });
+
+  it('renders again when the zone a signal holds changes', async () => {
+    zone.set(null);
+    const fixture = setup(zone);
+    const adapter = TestBed.inject<WrDateAdapter<Date>>(WrDateAdapter);
+    expect(text(fixture)).toBe(adapter.format(INSTANT, 'dd.MM.yyyy HH:mm'));
+
+    // No `detectChanges()`: the signal read in the pipe is what schedules the pass.
+    zone.set('+05:30');
+    await fixture.whenStable();
+    expect(text(fixture)).toBe('12.11.2026 14:15');
+
+    zone.set('Asia/Tokyo');
+    await fixture.whenStable();
+    expect(text(fixture)).toBe('12.11.2026 17:45');
+  });
+
+  it('formats once, however many passes run with nothing new', () => {
+    const fixture = setup('+05:30');
+    const format = vi.spyOn(TestBed.inject(WrDateAdapter).zoned(), 'format');
+    for (let i = 0; i < 5; i++) fixture.detectChanges();
+    expect(format).not.toHaveBeenCalled();
+
+    fixture.componentInstance.at.set(new Date(Date.UTC(2026, 10, 12, 9, 0)));
+    fixture.detectChanges();
+    fixture.detectChanges();
+    expect(format).toHaveBeenCalledTimes(1);
+    expect(text(fixture)).toBe('12.11.2026 14:30');
+  });
+
+  it('is wrFormatDate over the same adapter', () => {
+    setup('+05:30');
+    const adapter = TestBed.inject<WrDateAdapter<Date>>(WrDateAdapter);
+    expect(wrFormatDate(INSTANT, adapter, 'HH:mm')).toBe('14:15');
+    expect(wrFormatDate(INSTANT.getTime(), adapter, 'time24h')).toBe('14:15');
+    expect(wrFormatDate('2026-11-12', adapter, 'dd.MM.yyyy')).toBe('12.11.2026');
   });
 });
 

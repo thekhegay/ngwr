@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 195 of 208 declarations are mapped: 0 carry no selector and
+ * 198 of 211 declarations are mapped: 0 carry no selector and
  * 13 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -77,6 +77,7 @@ export const SELECTORS = {
     "wr-counter": { symbol: "WrCounter", path: "ngwr/counter" },
     "wr-date-picker": { symbol: "WrDatePicker", path: "ngwr/date-picker" },
     "wr-date-range-picker": { symbol: "WrDateRangePicker", path: "ngwr/date-picker" },
+    "wr-date-stamp": { symbol: "WrDateStamp", path: "ngwr/date-stamp" },
     "wr-description-item": { symbol: "WrDescriptionItem", path: "ngwr/descriptions" },
     "wr-descriptions": { symbol: "WrDescriptions", path: "ngwr/descriptions" },
     "wr-divider": { symbol: "WrDivider", path: "ngwr/divider" },
@@ -169,6 +170,7 @@ export const SELECTORS = {
     "wr-thread-lines": { symbol: "WrThreadLines", path: "ngwr/animations/thread-lines" },
     "wr-timeline": { symbol: "WrTimeline", path: "ngwr/timeline" },
     "wr-timeline-item": { symbol: "WrTimelineItem", path: "ngwr/timeline" },
+    "wr-toast-outlet": { symbol: "WrToastOutlet", path: "ngwr/toast" },
     "wr-toolbar": { symbol: "WrToolbar", path: "ngwr/toolbar" },
     "wr-tour-popup": { symbol: "WrTourPopup", path: "ngwr/tour" },
     "wr-transfer": { symbol: "WrTransfer", path: "ngwr/transfer" },
@@ -225,6 +227,7 @@ export const SELECTORS = {
     "wrOptionLeading": { symbol: "WrOptionLeading", path: "ngwr/select" },
     "wrPopconfirm": { symbol: "WrPopconfirm", path: "ngwr/popconfirm" },
     "wrPopover": { symbol: "WrPopover", path: "ngwr/popover" },
+    "wrResizable": { symbol: "WrResizable", path: "ngwr/resizable" },
     "wrSelectLoadError": { symbol: "WrSelectLoadError", path: "ngwr/select" },
     "wrShimmer": { symbol: "WrShimmer", path: "ngwr/animations/shimmer" },
     "wrSpotlight": { symbol: "WrSpotlight", path: "ngwr/animations/spotlight" },
@@ -310,6 +313,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/copy-value",
   "ngwr/counter",
   "ngwr/date-picker",
+  "ngwr/date-stamp",
   "ngwr/density",
   "ngwr/descriptions",
   "ngwr/dialog",
@@ -344,6 +348,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/qr",
   "ngwr/radio",
   "ngwr/rating",
+  "ngwr/resizable",
   "ngwr/result",
   "ngwr/schema-form",
   "ngwr/segmented",

@@ -453,6 +453,13 @@
     "./date-picker/testing": {
       "default": "./date-picker/testing/public-api.ts"
     },
+    "./date-stamp": {
+      "sass": "./date-stamp/styles/_index.scss",
+      "default": "./date-stamp/public-api.ts"
+    },
+    "./date-stamp/testing": {
+      "default": "./date-stamp/testing/public-api.ts"
+    },
     "./density": {
       "sass": "./density/styles/_index.scss",
       "default": "./density/public-api.ts"
@@ -741,6 +748,10 @@
     },
     "./rating/testing": {
       "default": "./rating/testing/public-api.ts"
+    },
+    "./resizable": {
+      "sass": "./resizable/styles/_index.scss",
+      "default": "./resizable/public-api.ts"
     },
     "./result": {
       "sass": "./result/styles/_index.scss",

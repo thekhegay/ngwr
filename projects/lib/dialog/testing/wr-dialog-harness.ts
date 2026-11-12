@@ -92,7 +92,31 @@ export class WrDialogHarness extends ContentContainerComponentHarness {
 
   /** Whether this is a `WrDialog.confirm()` dialog, the one `confirm()` and `cancel()` answer. */
   async isConfirm(): Promise<boolean> {
-    return (await this.locatorForOptional('.wr-dialog-confirm')()) !== null;
+    return (await this.locatorForOptional('.wr-dialog-confirm__action--confirm')()) !== null;
+  }
+
+  /** Whether this is a `WrDialog.alert()` dialog, the one `ok()` dismisses. */
+  async isAlert(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-dialog-confirm__action--ok')()) !== null;
+  }
+
+  /**
+   * The `intent` a `confirm()` or an `alert()` dialog shows as an icon, or
+   * `null` when it has none. Read off the icon's modifier class, which is all
+   * the intent leaves in the DOM: the icon is decorative.
+   */
+  async getIntent(): Promise<'info' | 'success' | 'warning' | 'danger' | null> {
+    const icon = await this.locatorForOptional('.wr-dialog-confirm__icon')();
+    if (!icon) return null;
+    for (const intent of ['info', 'success', 'warning', 'danger'] as const) {
+      if (await icon.hasClass(`wr-dialog-confirm__icon--${intent}`)) return intent;
+    }
+    return null;
+  }
+
+  /** Press the button of a `WrDialog.alert()` dialog. Throws on any other dialog. */
+  async ok(): Promise<void> {
+    await (await this.answer('ok')).click();
   }
 
   /** Press the confirm button of a `WrDialog.confirm()` dialog. Throws on any other dialog. */
@@ -105,11 +129,13 @@ export class WrDialogHarness extends ContentContainerComponentHarness {
     await (await this.answer('cancel')).click();
   }
 
-  private async answer(which: 'confirm' | 'cancel'): Promise<TestElement> {
+  private async answer(which: 'confirm' | 'cancel' | 'ok'): Promise<TestElement> {
     const button = await this.locatorForOptional(`.wr-dialog-confirm__action--${which}`)();
     if (!button) {
+      const method = which === 'ok' ? 'alert' : 'confirm';
+      const opener = (await this.isAlert()) ? 'alert' : (await this.isConfirm()) ? 'confirm' : 'open';
       throw new Error(
-        `WrDialogHarness: ${which}() answers a WrDialog.confirm() dialog; this one was opened with open()`
+        `WrDialogHarness: ${which}() answers a WrDialog.${method}() dialog; this one was opened with ${opener}()`
       );
     }
     return button;

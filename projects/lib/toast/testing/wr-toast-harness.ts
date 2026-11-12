@@ -17,7 +17,8 @@ const TYPES: readonly WrToastType[] = ['info', 'success', 'warning', 'danger'];
  * Test harness for a toast shown with `WrToast.show()`.
  *
  * Toasts live in the overlay, so load this from
- * `TestbedHarnessEnvironment.documentRootLoader()`. What is worth asserting on a
+ * `TestbedHarnessEnvironment.documentRootLoader()`. That finds the toasts of a
+ * `<wr-toast-outlet>` too, and `with({ outlet })` tells the stacks apart. What is worth asserting on a
  * toast is mostly what it ANNOUNCES: `getRole()` and `getLiveLevel()` are how a
  * screen-reader user learns something happened, and they escalate with the
  * intent — a `danger` toast interrupts, an `info` toast waits its turn.
@@ -44,7 +45,8 @@ export class WrToastHarness extends ComponentHarness {
         HarnessPredicate.stringMatches(harness.getMessage(), message)
       )
       .addOption('title', options.title, (harness, title) => HarnessPredicate.stringMatches(harness.getTitle(), title))
-      .addOption('type', options.type, async (harness, type) => (await harness.getType()) === type);
+      .addOption('type', options.type, async (harness, type) => (await harness.getType()) === type)
+      .addOption('outlet', options.outlet, (harness, outlet) => harness.isInOutlet(outlet));
   }
 
   /**
@@ -71,6 +73,16 @@ export class WrToastHarness extends ComponentHarness {
       if (await host.hasClass(`wr-toast--${type}`)) return type;
     }
     return null;
+  }
+
+  /**
+   * Whether the toast is in the `<wr-toast-outlet>` of that name. `null` asks
+   * for the global stack: a toast in no outlet.
+   */
+  async isInOutlet(name: string | null): Promise<boolean> {
+    const host = await this.host();
+    if (name === null) return !(await host.matchesSelector('wr-toast-outlet wr-toast'));
+    return host.matchesSelector(`wr-toast-outlet[name=${JSON.stringify(name)}] wr-toast`);
   }
 
   /** `'alert'` for a danger toast, `'status'` otherwise — how urgently it interrupts. */

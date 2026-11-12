@@ -719,6 +719,14 @@ it('walks focus without moving the selection', async () => {
   expect(await id.isCopied()).toBe(true);
 });`,
 
+    dateStamp: `it('shows when the shift opened', async () => {
+  const opened = await loader.getHarness(WrDateStampHarness);
+
+  // The instant, whatever locale and time zone the test runs in.
+  expect(await opened.getDateTime()).toBe('2026-11-12T08:45:00.000Z');
+  expect(await opened.isEmpty()).toBe(false);
+});`,
+
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 export class MyWidgetHarness extends ComponentHarness {
@@ -905,6 +913,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<boolean>',
     },
     { name: 'hover() / mouseAway()', description: 'Hover pauses auto-dismiss.', type: 'Promise<void>' },
+    {
+      name: 'isInOutlet(name)',
+      description:
+        'Whether the toast is in that `<wr-toast-outlet>`; `null` asks for the global stack. Also the `outlet` filter.',
+      type: 'Promise<boolean>',
+    },
   ];
 
   protected readonly dropdownApi: readonly DocApiRow[] = [
@@ -1557,8 +1571,9 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     { name: 'getDetailTexts()', description: 'Open detail rows.', type: 'Promise<string[]>' },
     {
-      name: 'getFooterTexts() / getEmptyText() / isLoading() / isVirtual() / getAriaRowCount()',
-      description: '`getAriaRowCount()` is the total row count.',
+      name: 'getFooterTexts() / getEmptyText() / isLoading() / getLoadingForm() / isVirtual() / getAriaRowCount()',
+      description:
+        "`getAriaRowCount()` is the total row count. `getLoadingForm()` is `'overlay'`, `'bar'` or `null`. Since v16.1.",
       type: 'Promise<…>',
     },
     {
@@ -2230,6 +2245,20 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'getRetryButton() / isRetrying() / retry()',
       description: 'The default failure. All three throw outside it, and under a `wrLoadStateError` template.',
       type: 'Promise<WrButtonHarness> | Promise<boolean> | Promise<void>',
+    },
+  ];
+
+  protected readonly dateStampApi: readonly DocApiRow[] = [
+    {
+      name: 'getDate() / getTime() / getDateTime()',
+      description:
+        'The two lines as text, and the `datetime` attribute: the instant in ISO 8601, or the day for a date-only value. `null` when empty. Filters: `date`, `empty`.',
+      type: 'Promise<string | null>',
+    },
+    {
+      name: 'isEmpty() / getEmptyText()',
+      description: '`getEmptyText()` reads the placeholder and throws when there is a value.',
+      type: 'Promise<boolean> | Promise<string>',
     },
   ];
 

@@ -62,6 +62,7 @@ const ELEMENT_NODE = 1;
   host: {
     role: 'option',
     '[attr.id]': 'id',
+    class: 'wr-option',
     '[class]': 'classes()',
     '[attr.aria-selected]': 'selected()',
     '[attr.aria-disabled]': 'unavailable() ? true : null',
@@ -193,7 +194,7 @@ export class WrOption {
   });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-option'];
+    const parts: string[] = [];
     if (this.selected()) parts.push('wr-option--selected');
     if (this.active()) parts.push('wr-option--active');
     if (this.unavailable()) parts.push('wr-option--disabled');

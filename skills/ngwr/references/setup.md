@@ -155,6 +155,9 @@ bootstrapApplication(App, {
   engine, prefix and TTL, `<head>` defaults for every route, the work area
   floating windows keep inside, and the browser tab named after the open dialog.
   Like density and theme they configure a root service, so they belong at bootstrap.
+- `withRenderOnNavigation()` from `ngwr/utils/router` — in a zoneless app, ticks
+  right after `NavigationEnd` so a routed page is bound before the browser
+  paints it and no transition runs from the browser's defaults.
 - A `validation` namespace in your own i18n catalog — ngwr ships no validation
   copy. `<wr-form-field>` reads `validation.<key>` for an error whose validator
   carries no `{ message }`, with the error payload as params.

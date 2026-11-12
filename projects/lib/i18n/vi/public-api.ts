@@ -76,6 +76,9 @@ export const wrVi: WrI18nCatalog = {
     skip: 'Bỏ qua',
     progress: 'Bước {{current}} trên {{total}}',
   },
+  resizable: {
+    handle: 'Đổi kích thước',
+  },
   splitter: {
     divider: 'Đổi kích thước khung',
   },
@@ -158,6 +161,9 @@ export const wrVi: WrI18nCatalog = {
     copy: 'Sao chép',
     copied: 'Đã sao chép',
     empty: '-',
+  },
+  copyToClipboard: {
+    copied: 'Đã sao chép',
   },
   input: {
     showPassword: 'Hiện mật khẩu',

@@ -10,6 +10,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideWr } from 'ngwr';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { WrMeta, withMeta } from 'ngwr/meta';
+import { WrOverlayOrder } from 'ngwr/overlay';
 import type { WrFeature } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -17,7 +18,7 @@ import { WrDialog } from './dialog';
 import { WrDialogRef } from './dialog-ref';
 import { WrDialogClose, WrDialogContent, WrDialogFooter, WrDialogTitle } from './directives';
 import { WR_DIALOG_DATA } from './tokens';
-import type { WrDialogConfirmOptions, WrDialogOptions } from './types';
+import type { WrDialogAlertOptions, WrDialogConfirmOptions, WrDialogIntent, WrDialogOptions } from './types';
 import { withDialog } from './with-dialog';
 
 /**
@@ -912,6 +913,277 @@ describe('WrDialog.confirm while the app is torn down', () => {
   });
 });
 
+/**
+ * `alert()` is `confirm()`'s component with one button, so this asks what
+ * differs: the one button, where focus lands, and a promise with no value.
+ */
+describe('WrDialog.alert', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-dialog-panel');
+  const buttons = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-dialog__footer button')];
+  const okButton = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-dialog-confirm__action--ok');
+
+  const settle = async (): Promise<void> => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  const alert = (options: Partial<WrDialogAlertOptions> = {}): Promise<void> =>
+    fixture.componentInstance.dialog.alert({ title: 'Range too large', ...options });
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      new DOMRect(0, 0, 120, 32),
+    ] as unknown as DOMRectList);
+
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    fixture.destroy();
+  });
+
+  it('renders one button, labelled OK, and takes a label per call', async () => {
+    void alert();
+    await settle();
+    expect(buttons()).toEqual([okButton()]);
+    expect(okButton()!.textContent?.trim()).toBe('OK');
+    expect(okButton()!.classList.contains('wr-btn--primary')).toBe(true);
+    okButton()!.click();
+    await settle();
+
+    void alert({ okLabel: 'Close' });
+    await settle();
+    expect(buttons()).toHaveLength(1);
+    expect(okButton()!.textContent?.trim()).toBe('Close');
+  });
+
+  it('reads the label from a registered catalog', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
+        provideWrI18nStaticLoader({ en: { common: { ok: 'Rozumim' } } }),
+      ],
+    });
+    const dialogs = TestBed.inject(WrDialog);
+    TestBed.tick();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+
+    void dialogs.alert({ title: 'Hotovo' });
+    TestBed.tick();
+    await Promise.resolve();
+
+    expect(okButton()!.textContent?.trim()).toBe('Rozumim');
+  });
+
+  it('focuses its button', async () => {
+    void alert();
+    await settle();
+    await fixture.whenStable();
+
+    expect(document.activeElement).toBe(okButton());
+  });
+
+  it('announces an alertdialog named by the title and described by the message, whatever the intent', async () => {
+    void alert({ message: 'Pick at most 31 days.' });
+    await settle();
+
+    const el = panel()!;
+    expect(el.getAttribute('role')).toBe('alertdialog');
+    expect(document.getElementById(el.getAttribute('aria-labelledby')!)!.textContent?.trim()).toBe('Range too large');
+    expect(document.getElementById(el.getAttribute('aria-describedby')!)!.textContent).toBe('Pick at most 31 days.');
+    expect(el.querySelector('.wr-dialog__close')).toBeNull();
+    okButton()!.click();
+    await settle();
+
+    void alert({ intent: 'success' });
+    await settle();
+    expect(panel()!.getAttribute('role')).toBe('alertdialog');
+  });
+
+  it('resolves with no value from the button, once', async () => {
+    const settled = vi.fn();
+    const done = alert().then(settled);
+    await settle();
+
+    const button = okButton()!;
+    button.click();
+    button.click();
+    await done;
+    await settle();
+
+    expect(settled).toHaveBeenCalledTimes(1);
+    expect(settled).toHaveBeenCalledWith(undefined);
+    expect(panel()).toBeNull();
+  });
+
+  it('resolves with no value from Escape', async () => {
+    const done = alert();
+    await settle();
+
+    panel()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+    await expect(done).resolves.toBeUndefined();
+    await settle();
+    expect(panel()).toBeNull();
+  });
+
+  it('resolves from the backdrop, and keeps the backdrop closed when told to', async () => {
+    const done = alert();
+    await settle();
+    document.querySelector<HTMLElement>('.wr-dialog-backdrop')!.click();
+    await expect(done).resolves.toBeUndefined();
+    await settle();
+
+    void alert({ closeOnBackdropClick: false });
+    await settle();
+    document.querySelector<HTMLElement>('.wr-dialog-backdrop')!.click();
+    await settle();
+    expect(panel()).toBeTruthy();
+  });
+
+  it('passes the toasts option through to the overlay order', async () => {
+    const add = vi.spyOn(TestBed.inject(WrOverlayOrder), 'add');
+
+    void alert({ toasts: 'below' });
+    await settle();
+
+    expect(add).toHaveBeenCalledWith(expect.anything(), 'below');
+  });
+
+  it('resolves on the server without opening anything', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
+
+    await expect(TestBed.inject(WrDialog).alert({ title: 'Saved' })).resolves.toBeUndefined();
+    expect(panel()).toBeNull();
+  });
+
+  it('settles instead of hanging when the app is torn down', async () => {
+    TestBed.resetTestingModule();
+    const done = TestBed.inject(WrDialog).alert({ title: 'Saved' });
+    TestBed.tick();
+    expect(panel()).toBeTruthy();
+
+    TestBed.resetTestingModule();
+
+    await expect(done).resolves.toBeUndefined();
+  });
+});
+
+describe('WrDialog intent', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const INTENTS: readonly WrDialogIntent[] = ['info', 'success', 'warning', 'danger'];
+  const icon = (): SVGElement | null => document.querySelector<SVGElement>('.wr-dialog-confirm__icon');
+  const title = (): HTMLElement => document.querySelector<HTMLElement>('.wr-dialog__title')!;
+  const confirmButton = (): HTMLElement => document.querySelector<HTMLElement>('.wr-dialog-confirm__action--confirm')!;
+  const cancelButton = (): HTMLElement => document.querySelector<HTMLElement>('.wr-dialog-confirm__action--cancel')!;
+
+  const settle = async (): Promise<void> => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      new DOMRect(0, 0, 120, 32),
+    ] as unknown as DOMRectList);
+
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    fixture.destroy();
+  });
+
+  it.each(INTENTS)('draws a decorative %s icon before the title of an alert', async intent => {
+    void fixture.componentInstance.dialog.alert({ title: 'Export', intent });
+    await settle();
+
+    expect(icon()!.classList.contains(`wr-dialog-confirm__icon--${intent}`)).toBe(true);
+    expect(icon()!.getAttribute('aria-hidden')).toBe('true');
+    expect(icon()!.querySelector('path, circle')).toBeTruthy();
+    expect(title().firstElementChild).toBe(icon());
+    expect(title().textContent?.trim()).toBe('Export');
+  });
+
+  it.each(INTENTS)('draws a decorative %s icon before the title of a confirm', async intent => {
+    void fixture.componentInstance.dialog.confirm({ title: 'Export?', intent });
+    await settle();
+
+    expect(icon()!.classList.contains(`wr-dialog-confirm__icon--${intent}`)).toBe(true);
+    expect(icon()!.getAttribute('aria-hidden')).toBe('true');
+    expect(title().firstElementChild).toBe(icon());
+  });
+
+  it('draws a different glyph for each intent', async () => {
+    const glyphs = new Set<string>();
+    for (const intent of INTENTS) {
+      void fixture.componentInstance.dialog.alert({ title: 'Export', intent });
+      await settle();
+      glyphs.add(icon()!.innerHTML.replace(/<!--.*?-->/gs, ''));
+      document.querySelector<HTMLElement>('.wr-dialog-confirm__action--ok')!.click();
+      await settle();
+    }
+
+    expect(glyphs.size).toBe(INTENTS.length);
+  });
+
+  it('draws no icon without an intent', async () => {
+    void fixture.componentInstance.dialog.confirm({ title: 'Export?' });
+    await settle();
+
+    expect(icon()).toBeNull();
+  });
+
+  it.each([
+    ['danger', 'danger'],
+    ['warning', 'warning'],
+    ['info', 'primary'],
+    ['success', 'primary'],
+  ] as const)('colors the confirm button of a %s question %s', async (intent, color) => {
+    void fixture.componentInstance.dialog.confirm({ title: 'Export?', intent });
+    await settle();
+
+    expect(confirmButton().classList.contains(`wr-btn--${color}`)).toBe(true);
+  });
+
+  it('starts a danger question on the cancel button', async () => {
+    void fixture.componentInstance.dialog.confirm({ title: 'Delete?', intent: 'danger' });
+    await settle();
+    await fixture.whenStable();
+
+    expect(document.activeElement).toBe(cancelButton());
+  });
+
+  it('lets confirmColor win over the intent', async () => {
+    void fixture.componentInstance.dialog.confirm({ title: 'Delete?', intent: 'danger', confirmColor: 'success' });
+    await settle();
+
+    expect(confirmButton().classList.contains('wr-btn--success')).toBe(true);
+    expect(icon()!.classList.contains('wr-dialog-confirm__icon--danger')).toBe(true);
+  });
+
+  it('keeps the button of a danger alert primary', async () => {
+    void fixture.componentInstance.dialog.alert({ title: 'Range too large', intent: 'danger' });
+    await settle();
+
+    const ok = document.querySelector<HTMLElement>('.wr-dialog-confirm__action--ok')!;
+    expect(ok.classList.contains('wr-btn--primary')).toBe(true);
+  });
+});
+
 describe('WrDialogRef.closeWhen', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -1205,6 +1477,19 @@ describe('WrDialog tabTitle', () => {
 
     document.querySelector<HTMLButtonElement>('.wr-dialog__footer button')!.click();
     await answer;
+    await settle();
+    expect(document.title).toBe('Lamps - App');
+  });
+
+  it('names the tab after an alert, without the icon getting in the way', async () => {
+    const dialogs = setup();
+
+    const done = dialogs.alert({ title: 'Range too large', intent: 'danger', tabTitle: true });
+    await settle();
+    expect(document.title).toBe('Range too large - Lamps - App');
+
+    document.querySelector<HTMLButtonElement>('.wr-dialog__footer button')!.click();
+    await done;
     await settle();
     expect(document.title).toBe('Lamps - App');
   });
