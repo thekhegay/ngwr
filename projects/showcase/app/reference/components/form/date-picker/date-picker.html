@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Date Picker"
-  updated="16.0.0"
+  updated="16.2.0"
   description="A text field with a popup for picking a date, a time or both."
   [keywords]="['date', 'time', 'datetime', 'picker', 'wr-date-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
@@ -155,6 +155,72 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Presets"
+    description="`[presets]` adds one-click ranges beside the calendar. A click commits the range and closes the popup. The labels are yours."
+  >
+    <ngwr-doc-code [code]="snippets.presets" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.presetsTemplate" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-date-range-picker
+          presetsLabel="Quick ranges"
+          [(value)]="presetPeriod"
+          [presets]="presets"
+          startPlaceholder="From"
+          endPlaceholder="To"
+        />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Value: {{ presetPeriod()?.[0]?.toLocaleDateString() ?? '—' }} to
+          {{ presetPeriod()?.[1]?.toLocaleDateString() ?? '—' }}
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Helper</th>
+            <th scope="col">Range</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>wrLastDays(n)</code></th>
+            <td>The last <code>n</code> days, today included.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wrThisWeek()</code></th>
+            <td>The current week, from the locale's first day of the week.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wrThisMonth()</code></th>
+            <td>The current month, first day to last.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wrLastMonth()</code></th>
+            <td>The month before the current one.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>The preset whose range equals the value is marked pressed.</li>
+      <li>A preset that reaches outside <code>minDate</code> or <code>maxDate</code> is disabled.</li>
+      <li>
+        Today is read when the popup opens, in the display time zone of <code>withDates(&#123; timeZone &#125;)</code>.
+      </li>
+      <li>
+        <code>mode="date"</code> commits whole days. <code>mode="datetime"</code> commits the pair as given: the helpers
+        run from 00:00:00 on the first day to 23:59:59 on the last.
+      </li>
+      <li>
+        <code>range</code> is a fixed pair or a function of <code>&#123; adapter, today &#125;</code>, for a range of
+        your own.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Sizes"
     description="`sm`, `md` (default) or `lg`, on both pickers. The popup keeps its size."
   >
@@ -209,6 +275,10 @@
           <tr>
             <th scope="row"><wr-kbd size="sm">Tab</wr-kbd> <wr-kbd size="sm">Shift + Tab</wr-kbd></th>
             <td>Past the popup's last or first control: closes it and moves on from the trigger.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Shift + Tab</wr-kbd> from the calendar</th>
+            <td>Reaches the presets, which come first in the popup. Enter or Space picks one.</td>
           </tr>
           <tr>
             <th scope="row"><wr-kbd size="sm">Escape</wr-kbd></th>

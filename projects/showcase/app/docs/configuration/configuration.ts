@@ -15,6 +15,8 @@ interface FeatureRow {
   readonly feature: string;
   readonly entry: string;
   readonly sets: string;
+  /** A reference page for the feature, linked from the row. */
+  readonly page?: string;
 }
 
 @Component({
@@ -46,6 +48,7 @@ export default class ConfigurationPage {
     {
       feature: 'withRenderOnNavigation()',
       entry: 'ngwr/utils/router',
+      page: wrPath(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.withRenderOnNavigation),
       sets: 'Zoneless: a routed page is bound before the browser paints it, so no transition runs from browser defaults',
     },
   ];

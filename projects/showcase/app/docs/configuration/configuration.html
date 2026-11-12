@@ -20,7 +20,13 @@
           @for (f of features; track f.feature) {
             <tr>
               <th scope="row">
-                <code>{{ f.feature }}</code>
+                @if (f.page; as page) {
+                  <a [routerLink]="page"
+                    ><code>{{ f.feature }}</code></a
+                  >
+                } @else {
+                  <code>{{ f.feature }}</code>
+                }
               </th>
               <td>
                 <code>{{ f.entry }}</code>

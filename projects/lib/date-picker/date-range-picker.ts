@@ -48,7 +48,13 @@ import {
 import { WrDateRangeEndInput } from './internal/range-end-input';
 import { tabLeavesPane } from './internal/tab-out';
 import { wrPickerAdapter, wrPickerPanelInjector } from './internal/zoned-adapter';
-import type { WrDateInputError, WrDatePickerSize, WrDateRange, WrDateRangeInputError } from './types';
+import type {
+  WrDateInputError,
+  WrDatePickerSize,
+  WrDateRange,
+  WrDateRangeInputError,
+  WrDateRangePreset,
+} from './types';
 
 /** Which end of the range an edit applies to. */
 type RangeEnd = 0 | 1;
@@ -98,6 +104,9 @@ type EndRefusals = readonly [WrDateInputError | null, WrDateInputError | null];
  *
  * <!-- date + time on both ends -->
  * <wr-date-range-picker mode="datetime" [(value)]="window" timeFormat="24h" />
+ *
+ * <!-- one-click ranges, labelled by the app -->
+ * <wr-date-range-picker [(value)]="period" [presets]="presets" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/date-picker
@@ -172,6 +181,24 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    * keyboard, emptying both fields clears the value. @default false
    */
   readonly clearable = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * One-click ranges, drawn as a list of buttons on the start side of the
+   * panel. A click commits the range, closes the panel and emits `touch`, in
+   * both modes. The preset whose range equals the value is marked pressed, and
+   * one that reaches outside `minDate` / `maxDate` is disabled. The labels are
+   * the app's: the library ships none.
+   *
+   * A range function is called when the panel opens, with today in the display
+   * time zone. `wrLastDays`, `wrThisWeek`, `wrThisMonth` and `wrLastMonth`
+   * return one. See {@link WrDateRangePreset} for what each mode commits.
+   *
+   * @default []
+   */
+  readonly presets = input<readonly WrDateRangePreset[]>([]);
+
+  /** Accessible name of the preset list. The library ships none. */
+  readonly presetsLabel = input<string | null>(null);
 
   /** Clear (×) button aria-label. Falls back to `common.clear`. */
   readonly clearLabel = input<string | null>(null);
@@ -502,6 +529,8 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       ref.setInput('timeFormat', this.timeFormat());
       ref.setInput('showSeconds', this.showSeconds());
       ref.setInput('step', this.step());
+      ref.setInput('presets', this.presets());
+      ref.setInput('presetsLabel', this.presetsLabel());
     });
   }
 
@@ -846,6 +875,15 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       // A complete date-only range is the end of the interaction; a datetime
       // range still needs its hours, so the panel stays put.
       if (!this.isDateTime() && committed[0] && committed[1]) this.closeOverlay();
+    });
+
+    ref.instance.presetPicked.subscribe(range => {
+      // A preset replaces both ends, refused text included.
+      this.refuse(0, null);
+      this.refuse(1, null);
+      this.commitRange(range, { normalise: true });
+      this.closeOverlay();
+      this.touch.emit();
     });
 
     this.outsideClick

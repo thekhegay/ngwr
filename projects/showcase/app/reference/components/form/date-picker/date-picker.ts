@@ -2,7 +2,16 @@ import { Component, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
-import { type WrDatePickerSize, type WrDateRange, WrDatePicker, WrDateRangePicker } from 'ngwr/date-picker';
+import {
+  type WrDatePickerSize,
+  type WrDateRange,
+  type WrDateRangePreset,
+  WrDatePicker,
+  WrDateRangePicker,
+  wrLastDays,
+  wrLastMonth,
+  wrThisMonth,
+} from 'ngwr/date-picker';
 import { WrFormError, WrFormField } from 'ngwr/form';
 import { WrKbd } from 'ngwr/keyboard';
 
@@ -49,6 +58,14 @@ export default class DatePickerPageComponent {
 
   protected readonly period = signal<WrDateRange | null>(null);
   protected readonly window = signal<WrDateRange | null>(null);
+
+  protected readonly presetPeriod = signal<WrDateRange | null>(null);
+  protected readonly presets: readonly WrDateRangePreset[] = [
+    { label: 'Last 7 days', range: wrLastDays(7) },
+    { label: 'Last 30 days', range: wrLastDays(30) },
+    { label: 'This month', range: wrThisMonth() },
+    { label: 'Last month', range: wrLastMonth() },
+  ];
 
   protected readonly sizes: readonly WrDatePickerSize[] = ['sm', 'md', 'lg'];
   protected readonly sized = signal<Date | null>(null);
@@ -135,6 +152,19 @@ export class MyComponent {
   format="dd.MM.yyyy HH:mm"
   [(value)]="window"
 />`,
+
+    presets: `import { type WrDateRangePreset, wrLastDays, wrLastMonth, wrThisMonth } from 'ngwr/date-picker';
+
+protected readonly presets: readonly WrDateRangePreset[] = [
+  { label: 'Last 7 days', range: wrLastDays(7) },
+  { label: 'Last 30 days', range: wrLastDays(30) },
+  { label: 'This month', range: wrThisMonth() },
+  { label: 'Last month', range: wrLastMonth() },
+  // A range of your own: a fixed pair, or a function of { adapter, today }.
+  { label: 'Yesterday', range: ({ adapter, today }) => [adapter.addDays(today, -1), adapter.addDays(today, -1)] },
+];`,
+
+    presetsTemplate: `<wr-date-range-picker [(value)]="period" [presets]="presets" presetsLabel="Quick ranges" />`,
 
     sizes: `<wr-date-picker size="sm" [(value)]="picked" />
 <wr-date-range-picker size="lg" [(value)]="period" />`,
@@ -246,6 +276,19 @@ export class MyComponent {
     {
       name: 'clearLabel',
       description: 'Clear button aria-label. Falls back to `common.clear`.',
+      type: 'string | null',
+      default: 'null',
+    },
+    {
+      name: 'presets',
+      description:
+        'One-click ranges beside the calendar, labelled by the app. `range` is a `[start, end]` pair or a function of `{ adapter, today }`.',
+      type: 'readonly WrDateRangePreset[]',
+      default: '[]',
+    },
+    {
+      name: 'presetsLabel',
+      description: 'Accessible name of the preset list.',
       type: 'string | null',
       default: 'null',
     },

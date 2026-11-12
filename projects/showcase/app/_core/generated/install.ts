@@ -233,7 +233,7 @@ export const INSTALL = {
       { path: "ngwr/counter", symbols: ["WrCountUp", "WrCounter"], declarables: ["WrCountUp", "WrCounter"], styled: true },
   ],
   "reference/components/date-picker": [
-      { path: "ngwr/date-picker", symbols: ["WrDatePicker", "WrDateRangePicker"], declarables: ["WrDatePicker", "WrDateRangePicker"], styled: true },
+      { path: "ngwr/date-picker", symbols: ["WrDatePicker", "WrDateRangePicker", "wrLastDays", "wrLastMonth", "wrThisMonth"], declarables: ["WrDatePicker", "WrDateRangePicker"], styled: true },
   ],
   "reference/components/date-stamp": [
       { path: "ngwr/date-stamp", symbols: ["WrDateStamp"], declarables: ["WrDateStamp"], styled: true },

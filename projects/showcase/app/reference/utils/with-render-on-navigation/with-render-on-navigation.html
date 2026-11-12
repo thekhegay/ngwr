@@ -1,0 +1,69 @@
+<ngwr-doc-page
+  title="withRenderOnNavigation"
+  since="16.1.0"
+  description="A provideWr() feature for zoneless apps: a routed page is bound in the task that inserted it, so nothing fades in from browser defaults."
+  [keywords]="[
+    'withRenderOnNavigation',
+    'zoneless',
+    'navigation',
+    'transition',
+    'flicker',
+    'router',
+    'NavigationEnd',
+    'change detection',
+    'provideWr',
+    'utils',
+  ]"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="What it fixes"
+    description="Zoneless, the router inserts a routed page in one task and Angular runs its first change detection in a later one. A browser that styles the page in between paints it without its bound classes. Fields fade from grey borders and white backgrounds into the theme on every page switch."
+  >
+    <p>
+      The feature ticks right after <code>NavigationEnd</code>, before the task ends. The page is bound before the first
+      paint. Angular schedules the tick as a macrotask on purpose, see
+      <a href="https://github.com/angular/angular/issues/57528">angular/angular#57528</a>.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Usage"
+    description="Pass it to `provideWr()` at bootstrap. Lives in `ngwr/utils/router`, since `@angular/router` is an optional peer."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="When you do not need it">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Case</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Your app uses zones</th>
+            <td>Change detection already runs in the same task.</td>
+          </tr>
+          <tr>
+            <th scope="row">Routed pages have no transitioning bindings</th>
+            <td>Nothing fades, so nothing shows.</td>
+          </tr>
+          <tr>
+            <th scope="row">Only ngwr components flicker</th>
+            <td>They carry static host classes since v16.1. The feature covers your own bindings.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>
