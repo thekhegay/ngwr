@@ -12,6 +12,7 @@ export const LAYOUT_ROUTES = [
   { path: components.layout.path, loadComponent: () => import('./layout/layout') },
   { path: components.list.path, loadComponent: () => import('./list/list') },
   { path: components.pageHeader.path, loadComponent: () => import('./page-header/page-header') },
+  { path: components.resizable.path, loadComponent: () => import('./resizable/resizable') },
   { path: components.splitter.path, loadComponent: () => import('./splitter/splitter') },
   { path: components.toolbar.path, loadComponent: () => import('./toolbar/toolbar') },
 ] satisfies Routes;

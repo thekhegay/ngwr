@@ -101,6 +101,7 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.layout),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.list),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.pageHeader),
+      wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.resizable),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.splitter),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.toolbar),
     ],

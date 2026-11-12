@@ -114,6 +114,9 @@ export const wrEn: WrI18nCatalog = {
     skip: 'Skip tour',
     progress: 'Step {{current}} of {{total}}',
   },
+  resizable: {
+    handle: 'Resize',
+  },
   splitter: {
     divider: 'Resize panes',
   },

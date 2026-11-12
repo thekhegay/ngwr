@@ -74,6 +74,9 @@ export const wrDe: WrI18nCatalog = {
     skip: 'Tour überspringen',
     progress: 'Schritt {{current}} von {{total}}',
   },
+  resizable: {
+    handle: 'Größe ändern',
+  },
   splitter: {
     divider: 'Bereichsgröße ändern',
   },

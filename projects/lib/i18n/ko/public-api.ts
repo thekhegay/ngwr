@@ -74,6 +74,9 @@ export const wrKo: WrI18nCatalog = {
     skip: '건너뛰기',
     progress: '{{total}}단계 중 {{current}}단계',
   },
+  resizable: {
+    handle: '크기 조절',
+  },
   splitter: {
     divider: '영역 크기 조절',
   },

@@ -74,6 +74,9 @@ export const wrRu: WrI18nCatalog = {
     skip: 'Пропустить',
     progress: 'Шаг {{current}} из {{total}}',
   },
+  resizable: {
+    handle: 'Изменить размер',
+  },
   splitter: {
     divider: 'Изменить размер областей',
   },

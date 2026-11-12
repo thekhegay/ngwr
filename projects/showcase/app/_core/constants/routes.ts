@@ -217,6 +217,7 @@ export const ROUTES = {
       knob: { path: 'knob', title: 'Knob' },
       mention: { path: 'mention', title: 'Mention' },
       pageHeader: { path: 'page-header', title: 'Page Header' },
+      resizable: { path: 'resizable', title: 'Resizable' },
       result: { path: 'result', title: 'Result' },
       speedDial: { path: 'speed-dial', title: 'Speed Dial' },
       splitter: { path: 'splitter', title: 'Splitter' },

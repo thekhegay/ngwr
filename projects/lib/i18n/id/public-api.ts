@@ -74,6 +74,9 @@ export const wrId: WrI18nCatalog = {
     skip: 'Lewati tur',
     progress: 'Langkah {{current}} dari {{total}}',
   },
+  resizable: {
+    handle: 'Ubah ukuran',
+  },
   splitter: {
     divider: 'Ubah ukuran panel',
   },

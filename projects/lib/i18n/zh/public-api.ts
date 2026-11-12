@@ -74,6 +74,9 @@ export const wrZh: WrI18nCatalog = {
     skip: '跳过引导',
     progress: '第 {{current}} 步，共 {{total}} 步',
   },
+  resizable: {
+    handle: '调整大小',
+  },
   splitter: {
     divider: '调整面板大小',
   },

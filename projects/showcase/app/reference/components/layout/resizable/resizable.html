@@ -1,0 +1,134 @@
+<ngwr-doc-page
+  title="Resizable"
+  since="16.1.0"
+  description="Lets one element be resized by dragging one of its edges."
+  [keywords]="['resizable', 'resize', 'drag edge', 'side panel', 'wrResizable']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Put `wrResizable` on the element. It writes the element's own `width` in pixels and nothing else, so a panel lying over other content stays over it. `[(size)]` changes when the drag is released; `(resizing)` fires on every move."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.basicStyles" language="scss" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-stage">
+        <p class="ngwr-demo-stage__under">size: {{ width() ?? 'not set' }}, resizing: {{ live() ?? 'not yet' }}</p>
+        <aside class="ngwr-demo-stage__panel" wrResizable [(size)]="width" (resizing)="live.set($event)">
+          <div class="ngwr-demo-stage__body">Layers</div>
+        </aside>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Limits"
+    description="`minSize` and `maxSize` take pixels or a percentage of the parent's matching dimension. The default range is `0` to `100%`; `null` removes a limit."
+  >
+    <ngwr-doc-code [code]="snippets.limits" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-stage">
+        <aside class="ngwr-demo-stage__panel" wrResizable [minSize]="160" maxSize="60%">
+          <div class="ngwr-demo-stage__body">160px to 60%</div>
+        </aside>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Edges"
+    description="`edge` is `end` by default. `start` and `end` resize the width and swap sides under RTL; `top` and `bottom` resize the height."
+  >
+    <ngwr-doc-code [code]="snippets.edges" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-stage">
+        <footer
+          class="ngwr-demo-stage__panel ngwr-demo-stage__panel--bottom"
+          wrResizable
+          edge="top"
+          [minSize]="48"
+          maxSize="80%"
+        >
+          <div class="ngwr-demo-stage__body">Timeline</div>
+        </footer>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Saved size"
+    description="`persistKey` saves the size through `WrStorage` when a resize ends and restores it on the next visit. Enter or a double click on the handle goes back to `defaultSize`, or to the size the element started with."
+  >
+    <ngwr-doc-code [code]="snippets.persist" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-stage">
+        <aside class="ngwr-demo-stage__panel" wrResizable persistKey="docs-resizable" [defaultSize]="256">
+          <div class="ngwr-demo-stage__body">Resize, then reload</div>
+        </aside>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Collapsed and disabled"
+    description="`collapsed` shrinks the element to zero, hides the handle and keeps `size`, so the element comes back as it was. `disabled` keeps the size and stops the handle. Keep padding and borders on an inner element: the host's own would stay visible at zero."
+  >
+    <ngwr-doc-code [code]="snippets.collapsed" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-stage">
+        <p class="ngwr-demo-stage__under">
+          <wr-btn (click)="open.set(!open())">{{ open() ? 'Collapse' : 'Expand' }}</wr-btn>
+        </p>
+        <aside class="ngwr-demo-stage__panel" wrResizable [collapsed]="!open()">
+          <div class="ngwr-demo-stage__body">Layers</div>
+        </aside>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard"
+    description="The handle is a focusable separator that announces the size and its limits in pixels."
+  >
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Arrows</th>
+            <td>Move the edge by <code>step</code> (10px), the way the arrow points.</td>
+          </tr>
+          <tr>
+            <th scope="row">Shift + arrows</th>
+            <td>Ten steps.</td>
+          </tr>
+          <tr>
+            <th scope="row">Home / End</th>
+            <td>The smallest and the largest size.</td>
+          </tr>
+          <tr>
+            <th scope="row">Enter</th>
+            <td>Back to <code>defaultSize</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Handle"
+    description="The directive adds the handle inside the host, over the edge. It needs a positioning context: a host whose computed `position` is `static` gets `position: relative`. Scroll an inner element, not the host, or the handle scrolls away with the content. Name the handle with `resizeLabel`, or translate `resizable.handle`."
+  >
+    <ngwr-doc-code [code]="snippets.label" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.i18n" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
