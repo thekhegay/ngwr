@@ -43,6 +43,13 @@ export type WrTableSummary =
 export type WrTableColumnAlign = 'start' | 'center' | 'end';
 
 /**
+ * What a cell does with text wider than its column. `'tooltip'` keeps the
+ * cell on one line behind an ellipsis and shows the full text in a tooltip on
+ * hover and focus, only while the text is cut.
+ */
+export type WrTableTruncate = 'tooltip';
+
+/**
  * A single column definition.
  *
  * `T` is the row, so `format` sees it typed. The default is `WrTableRow`
@@ -52,6 +59,12 @@ export type WrTableColumnAlign = 'start' | 'center' | 'end';
 export interface WrTableColumn<T extends WrTableRow = WrTableRow> {
   /** Heading shown in the column's header. */
   readonly title: string;
+  /**
+   * A longer explanation of the column, shown as a tooltip on its header and
+   * added to the names of its sort button and filter trigger. With an empty
+   * `title` (an icon column) it is the column's name.
+   */
+  readonly headerHint?: string;
   /** Show a clickable sort indicator in the header. */
   readonly sortable?: boolean;
   /** When non-empty, shows a filter dropdown in the header. */
@@ -94,6 +107,13 @@ export interface WrTableColumn<T extends WrTableRow = WrTableRow> {
    * writes the placeholder for a no-value cell.
    */
   readonly empty?: string;
+  /**
+   * `'tooltip'` cuts this column's cells to one line with an ellipsis and shows
+   * a cut cell's full text in a tooltip. `null` turns the table's own
+   * `truncate` off for this column; unset follows it. A cell is cut only where
+   * the column cannot grow: give it a `width`.
+   */
+  readonly truncate?: WrTableTruncate | null;
   /**
    * Extra CSS classes for this column's header cell AND every body cell under
    * it - the one place to set a monospace face or any other treatment of your

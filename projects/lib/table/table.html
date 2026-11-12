@@ -73,6 +73,7 @@
             [cdkDragDisabled]="!reorderable() || !!col.column.pin"
             [class]="thClasses(col.column)"
             [attr.aria-sort]="ariaSortFor(col.key, col.column.sortable)"
+            [attr.aria-label]="col.column.title ? null : (col.column.headerHint ?? null)"
             [class.wr-table__th--draggable]="reorderable() && !col.column.pin"
             [class.wr-table__th--pin-left]="col.column.pin === 'left'"
             [class.wr-table__th--pin-right]="col.column.pin === 'right'"
@@ -88,7 +89,7 @@
                 <button
                   type="button"
                   class="wr-table__sort-btn"
-                  [attr.aria-label]="sortLabelFor(col.column.title)"
+                  [attr.aria-label]="sortLabelFor(headerName(col.column))"
                   (click)="cycleSort(col.key)"
                 >
                   <wr-table-sort [direction]="directionFor(col.key)" />
@@ -108,7 +109,7 @@
                 @if (filterItems.length) {
                   <wr-table-filter
                     [items]="filterItems"
-                    [column]="col.column.title"
+                    [column]="headerName(col.column)"
                     (selectionChange)="onFilter(col.key, $event)"
                   />
                 }
@@ -302,6 +303,7 @@
                   [class.wr-table__td--pin-edge-right]="isPinEdge(col.key, 'right')"
                   [style.inset-inline-start.px]="leftPin(col.key)"
                   [style.inset-inline-end.px]="rightPin(col.key)"
+                  [style.max-width.px]="truncates(col.column) ? (col.column.width ?? null) : null"
                   [attr.data-label]="col.column.title"
                   [attr.id]="col.key === labelColumnKey() ? rowLabelId(entry.id) : null"
                 >
@@ -418,6 +420,11 @@
       [pageSizeOptions]="pageSizeOptions()"
     />
   </div>
+}
+
+<!-- The table's one tooltip, for a header hint or a cut cell (see `tip`). -->
+@if (tip(); as shown) {
+  <span hidden [wrPopover]="shown.text" mode="tooltip" [wrPopoverOrigin]="shown.el"></span>
 }
 
 <!-- The action words the row and group controls are named with, once per table.

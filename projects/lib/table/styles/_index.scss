@@ -15,6 +15,7 @@
 @use '../../checkbox/styles' as checkbox-styles; // WrCheckbox
 @use '../../dropdown/styles' as dropdown-styles; // WrDropdown
 @use '../../pagination/styles' as pagination-styles; // WrPagination
+@use '../../popover/styles' as popover-styles; // WrPopover
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
 @include theme.loaded('table');
 
@@ -154,6 +155,14 @@
 
   &__table--fixed &__th {
     overflow: hidden;
+  }
+
+  // `truncate: 'tooltip'`. The cut happens where the column cannot grow: under
+  // a fixed layout, or at the `max-width` the component writes from `width`.
+  &__td--truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__resize-handle {

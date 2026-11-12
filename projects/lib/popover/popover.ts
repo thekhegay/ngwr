@@ -7,7 +7,7 @@
 
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { type FlexibleConnectedPositionStrategy, type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import type { ComponentRef, TemplateRef } from '@angular/core';
 import {
@@ -23,6 +23,7 @@ import {
   input,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -162,6 +163,20 @@ export class WrPopover {
   readonly hideDelay = input(60, { transform: wrNumAttr(60) });
 
   /**
+   * Tooltip only — the element the tooltip is for, when that is not the host.
+   * The panel is placed against it, and its hover and focus show and hide the
+   * tooltip the way the host's do. Setting it shows the tooltip after
+   * `showDelay`: name the element once the pointer or the focus is on it.
+   *
+   * It lets one tooltip serve many elements, as `wr-table` does for its header
+   * hints and truncated cells: the owner listens once, and binds this to the
+   * element under the pointer and `wrPopover` to its text. `aria-describedby`
+   * stays on the host, so the owner names or describes the element itself.
+   * @default null
+   */
+  readonly origin = input<HTMLElement | null>(null, { alias: 'wrPopoverOrigin' });
+
+  /**
    * Popover mode only — accessible name of the panel. `role="dialog"` with no
    * name announces as a bare "dialog", so the catalog's `popover.label` is used
    * when nothing is given. A popover has no universal name; whenever the panel
@@ -214,6 +229,7 @@ export class WrPopover {
   );
 
   private overlayRef: OverlayRef | null = null;
+  private connected: FlexibleConnectedPositionStrategy | null = null;
   private textPanelRef: ComponentRef<WrPopoverTextPanel> | null = null;
   /** Whether the HOST itself holds focus — not a descendant of it. */
   private hostFocused = false;
@@ -276,6 +292,34 @@ export class WrPopover {
     //
     // `afterNextRender` because monitoring binds document listeners: there is no
     // DOM to bind them to on the server.
+    effect(onCleanup => {
+      const origin = this.origin();
+      if (!origin || !this.isTooltip()) return;
+      const show = (): void => this.scheduleShow();
+      const leave = (event: MouseEvent): void => this.onMouseLeave(event);
+      const focus = (): void => {
+        if (this.fromNavigationKey()) this.scheduleShow();
+      };
+      const blur = (): void => this.scheduleHide();
+      origin.addEventListener('mouseenter', show);
+      origin.addEventListener('mouseleave', leave);
+      origin.addEventListener('focusin', focus);
+      origin.addEventListener('focusout', blur);
+      untracked(() => {
+        // An open panel follows the new element instead of closing and reopening,
+        // once its new text has been drawn and it has its new size.
+        this.connected?.setOrigin(origin);
+        afterNextRender(() => this.overlayRef?.updatePosition(), { injector: this.injector });
+        this.scheduleShow();
+      });
+      onCleanup(() => {
+        origin.removeEventListener('mouseenter', show);
+        origin.removeEventListener('mouseleave', leave);
+        origin.removeEventListener('focusin', focus);
+        origin.removeEventListener('focusout', blur);
+        if (!this.destroyRef.destroyed) this.scheduleHide();
+      });
+    });
     afterNextRender(() => {
       this.focusMonitor
         .monitor(this.host)
@@ -455,10 +499,11 @@ export class WrPopover {
     // Kept as its own binding: it is the half a direction flip has to rebuild.
     const connected = this.overlay
       .position()
-      .flexibleConnectedTo(this.host)
+      .flexibleConnectedTo((tooltip ? this.origin() : null) ?? this.host)
       .withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), this.isRtl()))
       .withPush(true)
       .withViewportMargin(VIEWPORT_MARGIN);
+    this.connected = connected;
 
     // The `--<placement>` half is no longer set here: each fallback position
     // carries its own, so the pane names the placement it landed on instead of
@@ -542,7 +587,7 @@ export class WrPopover {
       .outsidePointerEvents(this.overlayRef)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
-        if (this.host.nativeElement.contains(event.target as Node)) return;
+        if (this.isTrigger(event.target as Node)) return;
         this.openState.set(false);
       });
 
@@ -609,6 +654,7 @@ export class WrPopover {
     pane.removeEventListener('focusout', this.onPaneFocusOut);
     this.overlayRef.dispose();
     this.overlayRef = null;
+    this.connected = null;
     // Disposing destroys the panel component; a retained ref would pin its view.
     this.textPanelRef = null;
     if (notify) {
@@ -695,7 +741,7 @@ export class WrPopover {
 
   private readonly onOverlayLeave = (event: MouseEvent): void => {
     const related = event.relatedTarget as Node | null;
-    if (related && this.host.nativeElement.contains(related)) return;
+    if (related && this.isTrigger(related)) return;
     // A tooltip leaves on its own `hideDelay`, the same one the trigger uses; a
     // hover popover has the longer grace period for crossing the gap back.
     if (this.isTooltip()) this.scheduleHide();
@@ -730,6 +776,11 @@ export class WrPopover {
    * an app — but a bare `TestBed` that provides nothing should still get a
    * component that works, and defaulting to LTR is the honest fallback.
    */
+  /** Whether a node is in the host or in the element a shared tooltip is for. */
+  private isTrigger(node: Node): boolean {
+    return this.host.nativeElement.contains(node) || (this.origin()?.contains(node) ?? false);
+  }
+
   private isRtl(): boolean {
     return this.dir?.value === 'rtl';
   }

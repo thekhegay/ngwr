@@ -215,7 +215,16 @@ one component folder. Reach for them instead of hand-rolling:
   the host wears `wr-table--overflow-start` / `--overflow-end`, measured on the
   scroll area. `selectAllScope="all"` widens the header select-all from the page
   to every page of `items`, under the same on-screen rule (no collapsed group, no
-  closed subtree); with `total` it stays the page and warns. Three pairs
+  closed subtree); with `total` it stays the page and warns. `loadingMode`
+  picks the form of `[loading]`: the overlay, a bar along the top edge that
+  leaves the rows readable, or `'auto'`, the overlay over an empty table and
+  the bar over a filled one. `(rowClick)` is one delegated listener on the
+  body and pointer only; a click on a control in the row, or under
+  `wrTableIgnoreRowClick` (an attribute, no directive), is not a row click.
+  Header hints (`headerHint`) and cut cells (`truncate: 'tooltip'`) share ONE
+  `WrPopover` per table, created on first use and pointed at the hovered or
+  focused cell through `wrPopoverOrigin`; the table listens natively, so a
+  `mouseover` runs no change detection. Three pairs
   are refused rather than half-supported: tree + `groupBy`, tree +
   `[wrTableExpand]`, tree + `virtualScroll`. Excel (`.xlsx`)
   export is deliberately NOT shipped (would need a third-party dep). Don't

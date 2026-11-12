@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { InputModalityDetector } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -12,6 +13,7 @@ import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import {
   Component,
   ElementRef,
+  Injector,
   afterNextRender,
   PLATFORM_ID,
   TemplateRef,
@@ -35,6 +37,7 @@ import {
 import { WrCheckbox } from 'ngwr/checkbox';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPagination, type WrPaginationSize } from 'ngwr/pagination';
+import { WrPopover } from 'ngwr/popover';
 import { WrSpinner } from 'ngwr/spinner';
 import {
   WR_KEYS,
@@ -69,6 +72,7 @@ import type {
   WrTableSortDirection,
   WrTableSummary,
   WrTableSummaryContext,
+  WrTableTruncate,
 } from './types';
 
 /** Sentinel value for the single synthetic bucket used when grouping is off. */
@@ -228,7 +232,17 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
     '(keydown)': 'onTreeKeydown($event)',
     '(focusin)': 'onTreeFocusin($event)',
   },
-  imports: [NgTemplateOutlet, CdkDropList, CdkDrag, WrCheckbox, WrPagination, WrSpinner, WrTableSort, WrTableFilter],
+  imports: [
+    NgTemplateOutlet,
+    CdkDropList,
+    CdkDrag,
+    WrCheckbox,
+    WrPagination,
+    WrPopover,
+    WrSpinner,
+    WrTableSort,
+    WrTableFilter,
+  ],
 })
 export class WrTable<T extends WrTableRow = WrTableRow> {
   /**
@@ -846,9 +860,36 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   private readonly projectedTemplates = contentChildren(TemplateRef);
 
   private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('table');
+    // Native and delegated: a template listener would run change detection on
+    // every `mouseover` inside the table, and one per cell is what this avoids.
+    effect(onCleanup => {
+      if (!this.hasTips() || !isPlatformBrowser(this.platformId)) return;
+      const host = this.hostEl.nativeElement;
+      const listener = (event: Event): void => this.onTipTarget(event);
+      host.addEventListener('mouseover', listener);
+      host.addEventListener('focusin', listener);
+      onCleanup(() => {
+        host.removeEventListener('mouseover', listener);
+        host.removeEventListener('focusin', listener);
+      });
+    });
+    // A cell removed under the pointer fires no `mouseleave` to close its tooltip.
+    effect(() => {
+      const tip = this.tip();
+      if (!tip) return;
+      this.windowRows();
+      this.displayColumns();
+      afterNextRender(
+        () => {
+          if (!tip.el.isConnected && untracked(this.tip) === tip) this.tip.set(null);
+        },
+        { injector: this.injector }
+      );
+    });
     if (typeof ngDevMode === 'undefined' || ngDevMode) {
       afterNextRender(() => {
         const claimed = new Set<unknown>(
@@ -1136,9 +1177,77 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     return cellClasses('wr-table__th', column);
   }
 
-  /** Body-cell half of {@link thClasses}. */
+  /** Body-cell half of {@link thClasses}, with the `truncate` modifier. */
   protected tdClasses(column: WrTableColumn<T>): string {
-    return cellClasses('wr-table__td', column);
+    const own = cellClasses('wr-table__td', column);
+    return this.truncates(column) ? `${own} wr-table__td--truncate` : own;
+  }
+
+  // --- Header hints and truncated cells --------------------------------------
+
+  /**
+   * `'tooltip'` cuts every body cell to one line with an ellipsis and shows a
+   * cut cell's full text in a tooltip on hover and focus; a cell that fits
+   * shows none. A column's own `truncate` wins, and `null` there turns it off
+   * for that column. A cell is cut only where its column cannot grow: give the
+   * column a `width`, or the table a fixed layout (a resized or virtualized
+   * one has it).
+   * @default null
+   */
+  readonly truncate = input<WrTableTruncate | null>(null);
+
+  /** Whether a column's cells are cut to one line. */
+  protected truncates(column: WrTableColumn<T>): boolean {
+    return (column.truncate === undefined ? this.truncate() : column.truncate) === 'tooltip';
+  }
+
+  /**
+   * A column's name for its controls: the title, the hint after it, or the hint
+   * alone under an empty title.
+   */
+  protected headerName(column: WrTableColumn<T>): string {
+    const { title, headerHint } = column;
+    if (!headerHint) return title;
+    return title ? `${title}, ${headerHint}` : headerHint;
+  }
+
+  /** Whether any column has something a tooltip could show. */
+  private readonly hasTips = computed<boolean>(
+    () =>
+      this.truncate() === 'tooltip' ||
+      this.displayColumns().some(c => !!c.column.headerHint || c.column.truncate === 'tooltip')
+  );
+
+  /**
+   * The element the table's one tooltip is for, and its text. One `WrPopover`
+   * for the whole table, created on the first hint or cut cell the pointer or
+   * the focus reaches: a table of thousands of cells holds none before that.
+   */
+  protected readonly tip = signal<{ readonly el: HTMLElement; readonly text: string } | null>(null);
+
+  private readonly modality = inject(InputModalityDetector);
+
+  private onTipTarget(event: Event): void {
+    // A focus the keyboard did not move (a click, a script handing it back)
+    // shows no tooltip, as on any `wrPopover` tooltip.
+    if (event.type === 'focusin' && this.modality.mostRecentModality !== 'keyboard') return;
+    const host = this.hostEl.nativeElement;
+    const cell = (event.target as Element).closest<HTMLElement>('.wr-table__th, .wr-table__td--truncate');
+    // A table nested in a cell answers for its own cells.
+    if (cell?.closest('.wr-table') !== host) return;
+    let text = '';
+    if (cell.classList.contains('wr-table__th')) {
+      const index = this.headerCells().findIndex(th => th.nativeElement === cell);
+      text = this.displayColumns()[index]?.column.headerHint ?? '';
+    } else if (cell.scrollWidth > cell.clientWidth) {
+      text = cell.textContent.trim();
+    }
+    const current = this.tip();
+    if (!text) {
+      if (current?.el === cell) this.tip.set(null);
+    } else if (current?.el !== cell || current.text !== text) {
+      this.tip.set({ el: cell, text });
+    }
   }
 
   /**
