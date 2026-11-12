@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
+import { WrCopyValue } from 'ngwr/copy-value';
 import {
   WrTableCell,
   WrTableExpand,
@@ -130,6 +131,7 @@ const WIDE_ROWS: readonly Record<string, unknown>[] = [
     WrTableGroupHeader,
     WrTag,
     WrButton,
+    WrCopyValue,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -238,6 +240,15 @@ export default class TablePageComponent {
   protected toggleLoadRows(): void {
     this.loadRows.update(rows => (rows.length ? [] : RAW_ROWS));
   }
+
+  protected readonly rows = RAW_ROWS;
+  protected readonly opened = signal<string | null>(null);
+  protected readonly clickColumns: WrTableColumns<Row> = {
+    name: { title: 'Name' },
+    email: { title: 'Email' },
+    role: { title: 'Role' },
+    open: { title: '', width: 96 },
+  };
 
   protected readonly wideRows = WIDE_ROWS;
   protected readonly wideColumns: WrTableColumns = {
@@ -380,6 +391,19 @@ const columns: WrTableColumns<Invoice> = {
   <wr-alert type="danger" title="Could not load users" [message]="message" />
 }
 <wr-table [columns]="columns" [items]="rows()" [loading]="loading()" />`,
+    rowClick: `<wr-table [columns]="columns" [items]="rows" (rowClick)="open($event.row)">
+  <!-- The copy button is a button: it copies, and the row does not open. -->
+  <ng-template wrTableCell="email" let-value>
+    <wr-copy-value [value]="value" />
+  </ng-template>
+  <!-- The same action for the keyboard. -->
+  <ng-template wrTableCell="open" let-row="item">
+    <wr-btn size="sm" outlined (click)="open(row)">Open</wr-btn>
+  </ng-template>
+</wr-table>
+
+<!-- An element of your own that handles its clicks. -->
+<app-status-menu wrTableIgnoreRowClick [status]="value" />`,
     loadingModes: `<!-- 'auto': a spinner over an empty table, a bar over a filled one. -->
 <wr-table [columns]="columns" [items]="rows()" [loading]="refreshing()" />
 
@@ -537,6 +561,13 @@ const columns: WrTableColumns = {
       name: '<ng-template wrTableGroupHeader>',
       description: 'Custom band label template (let-value, let-count, let-toggle, …).',
       type: 'directive',
+      default: '—',
+    },
+    {
+      name: '[wrTableIgnoreRowClick]',
+      description:
+        'A plain attribute, no import: a click on the element or in it does not fire `rowClick`. Since v16.1.',
+      type: 'attribute',
       default: '—',
     },
     {

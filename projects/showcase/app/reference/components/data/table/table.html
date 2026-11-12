@@ -143,6 +143,37 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Row click"
+    description="`(rowClick)` fires for a click on a body row, with the row, its index in `items` and the event. A click on a button, a link, a form field or a label inside the row belongs to that element and does not fire it."
+  >
+    <ngwr-doc-snippet [code]="snippets.rowClick">
+      <div style="width: 100%">
+        <wr-table [columns]="clickColumns" [items]="rows" (rowClick)="opened.set($event.row.name)">
+          <ng-template wrTableCell="email" let-value>
+            <wr-copy-value [value]="value" />
+          </ng-template>
+          <ng-template wrTableCell="open" let-row="item">
+            <wr-btn size="sm" outlined (click)="opened.set(row.name)">Open</wr-btn>
+          </ng-template>
+        </wr-table>
+        <p style="margin-top: 0.75rem">Opened: {{ opened() ?? 'nothing yet' }}</p>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>The copy button copies and the row stays closed; a click on the name or the role opens it.</li>
+      <li>
+        Add the <code>wrTableIgnoreRowClick</code> attribute to an element of your own that handles its clicks. The
+        selection and expand cells never fire it.
+      </li>
+      <li>
+        It is pointer only: a row takes no focus. Keep a button or a link in the row for the same action, as the Open
+        button here, and style <code>.wr-table__tr</code> yourself if you want a pointer cursor.
+      </li>
+      <li>Group bands, summary rows and detail rows do not fire it. A child row in tree mode has index -1.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Loading, empty — and error"
     description="`[loading]` shows a spinner and `emptyLabel` the empty text. There is no error input: show a `<wr-alert>` beside the table."
   >
