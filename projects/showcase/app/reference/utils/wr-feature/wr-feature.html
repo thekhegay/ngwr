@@ -1,0 +1,49 @@
+<ngwr-doc-page
+  title="wrFeature"
+  since="15.0.0"
+  description="Builds a `provideWr()` feature: what every `withX()` function returns. For a library that adds its own app-wide setting."
+  [keywords]="['wrFeature', 'WrFeature', 'provideWr', 'withX', 'feature', 'providers', 'library author', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="Name the feature and list what it provides. The app passes the result to `provideWr()` with the built-in features."
+  >
+    <ngwr-doc-code [code]="snippets.feature" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.app" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Argument</th>
+            <th scope="col">What it is</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>kind</code></th>
+            <td>
+              The feature's name. In dev mode <code>provideWr()</code> throws when it gets the same kind twice, so pick
+              one no other feature uses.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>providers</code></th>
+            <td>What the feature registers. <code>provideWr()</code> flattens them into its own providers.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>Give the token a root default, so the setting is optional.</li>
+      <li>
+        Annotate the return type as <code>WrFeature&lt;'kind'&gt;</code>. Do not read the object's members: they are
+        private.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

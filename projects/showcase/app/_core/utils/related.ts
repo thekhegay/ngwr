@@ -948,6 +948,19 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'reference/utils/wr-throttle': ['reference/utils/wr-debounce'],
   'reference/utils/wr-query-param': ['reference/utils/with-render-on-navigation', 'reference/components/pagination'],
   'reference/utils/with-render-on-navigation': ['docs/configuration', 'reference/utils/wr-query-param'],
+  'reference/utils/wr-feature': ['docs/configuration', 'reference/utils/with-render-on-navigation'],
+  'reference/utils/wr-is-safe-css-value': [
+    'reference/utils/wr-resolve-css-color',
+    'reference/utils/wr-resolve-css-size',
+    'guides/csp',
+    'guides/theming',
+  ],
+  'reference/utils/wr-live-locale': [
+    'reference/services/i18n',
+    'guides/translations/setup',
+    'docs/configuration',
+    'reference/pipes/wr-date',
+  ],
   'reference/utils/wr-initials': [
     'reference/pipes/wr-initials',
     'reference/components/avatar',

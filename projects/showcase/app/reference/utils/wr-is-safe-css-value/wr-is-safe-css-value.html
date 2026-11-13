@@ -1,0 +1,51 @@
+<ngwr-doc-page
+  title="wrIsSafeCssValue"
+  updated="16.0.0"
+  description="Answers whether a CSS value can be put inside a larger expression, such as a colour inside a `linear-gradient()` you build, without breaking out of its slot."
+  [keywords]="['wrIsSafeCssValue', 'css', 'injection', 'gradient', 'color', 'url', 'sanitize', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="Check a value that comes from outside before you compose it. Fall back to your default when it fails: do not repair it."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Value</th>
+            <th scope="col">Safe</th>
+            <th scope="col">Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of cases; track row.value) {
+            <tr>
+              <th scope="row">
+                <code>{{ row.value }}</code>
+              </th>
+              <td>{{ row.safe ? 'Yes' : 'No' }}</td>
+              <td>{{ row.why }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>A containment check, not a colour parser: a safe value can still be one no browser accepts.</li>
+      <li>
+        Allowed functions: the colour functions, <code>color-mix()</code>, <code>light-dark()</code>,
+        <code>var()</code>, <code>calc()</code>, <code>min()</code>, <code>max()</code> and <code>clamp()</code>.
+      </li>
+      <li>A value longer than 256 characters is refused.</li>
+      <li>
+        A value bound straight to <code>[style.background]</code> needs no check: there is nothing to break out of.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
