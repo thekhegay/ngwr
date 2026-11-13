@@ -16,6 +16,7 @@ import {
   ElementRef,
   Injector,
   PLATFORM_ID,
+  PendingTasks,
   TemplateRef,
   ViewContainerRef,
   ViewEncapsulation,
@@ -33,12 +34,16 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { finalize, from, isObservable, take } from 'rxjs';
+
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
+import { WrMark } from 'ngwr/pipes';
+import { WrSpinner } from 'ngwr/spinner';
 import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
-import type { WrTreeNode, WrTreeSelectionMode, WrTreeSize } from './types';
+import type { WrTreeChildrenLoader, WrTreeFilterFn, WrTreeNode, WrTreeSelectionMode, WrTreeSize } from './types';
 
 interface FlatNode<TId> {
   readonly node: WrTreeNode<TId>;
@@ -50,6 +55,31 @@ interface FlatNode<TId> {
   readonly posinset: number;
   /** Sibling count at this level (ARIA `aria-setsize`). */
   readonly setsize: number;
+  /** `@for` key: the node id, or an object of its own for a status row. */
+  readonly key: unknown;
+  /** Set on the row standing for a branch's pending or failed load; `node` is that branch. */
+  readonly status: 'loading' | 'error' | null;
+  /** The node's own children are loading. */
+  readonly busy: boolean;
+}
+
+/** What `loadChildren` answered for one node id. */
+type LazyEntry<TId> =
+  | { readonly status: 'loading' | 'error' }
+  | { readonly status: 'loaded'; readonly children: readonly WrTreeNode<TId>[] };
+
+type LazyMap<TId> = ReadonlyMap<TId, LazyEntry<TId>>;
+
+const NO_NODES: readonly never[] = [];
+
+function isLazy<TId>(node: WrTreeNode<TId>): boolean {
+  return node.children === undefined && node.hasChildren === true;
+}
+
+function childrenOf<TId>(node: WrTreeNode<TId>, lazy: LazyMap<TId>): readonly WrTreeNode<TId>[] {
+  if (node.children) return node.children;
+  const entry = lazy.get(node.id);
+  return entry?.status === 'loaded' ? entry.children : NO_NODES;
 }
 
 interface SelectedChip<TId> {
@@ -102,8 +132,12 @@ let panelUid = 0;
   selector: 'wr-tree',
   templateUrl: './tree.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-tree', '[class]': 'classes()', '(focusout)': 'onFocusOut($event)' },
-  imports: [NgTemplateOutlet],
+  host: {
+    class: 'wr-tree',
+    '[class]': 'classes()',
+    '(focusout)': 'onFocusOut($event)',
+  },
+  imports: [NgTemplateOutlet, WrMark, WrSpinner],
 })
 export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Tree data. */
@@ -244,6 +278,43 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   readonly panelClass = input<WrClassInput>(null);
 
   /**
+   * Loads the children of a node that set `hasChildren` and left `children`
+   * undefined. Runs once, on the first expand, and the answer is cached by node
+   * id: the row shows a loading row meanwhile and an error row with a retry
+   * when the loader fails. Accepts an array, a Promise or an Observable.
+   * @default null
+   */
+  readonly loadChildren = input<WrTreeChildrenLoader<TId> | null>(null);
+
+  /**
+   * Filter text. While set, only matching nodes and their ancestors show, the
+   * ancestors open to reveal the matches and the match is highlighted.
+   * `[(expanded)]` is left alone, so clearing the text restores it. Children a
+   * `loadChildren` has not fetched yet are not searched.
+   * @default ''
+   */
+  readonly filter = input<string | null>('');
+
+  /**
+   * Decides whether a node matches `filter`. The default is a case-insensitive
+   * substring of the label.
+   * @default null
+   */
+  readonly filterFn = input<WrTreeFilterFn<TId> | null>(null);
+
+  /**
+   * Cascading checks, in `selectionMode="multi"` only. Every row draws a
+   * checkbox and a click toggles it: checking a node checks its loaded,
+   * enabled descendants, and an ancestor is checked exactly while all of its
+   * enabled children are. An ancestor with only some of them checked announces
+   * `aria-checked="mixed"`. The value holds EVERY checked node, parents and
+   * leaves alike, never a mixed one. Rows announce `aria-checked` in place of
+   * `aria-selected`.
+   * @default false
+   */
+  readonly cascade = input(false, { transform: coerceBooleanProperty });
+
+  /**
    * Form value — the current selection as seen by a bound field. Bound by
    * `[formField]`, or two-way via `[(value)]`. Shape follows `selectionMode`:
    * `TId | null` in single mode, `readonly TId[]` in multi mode. Works in both
@@ -271,6 +342,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly injector = inject(Injector);
+  private readonly pendingTasks = inject(PendingTasks);
   /**
    * Ambient reading direction. Optional so a bare `TestBed` — or a consumer who
    * never set a direction — needs no provider; `Directionality` is root-provided
@@ -293,18 +365,34 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
    */
   private readonly cursorId = signal<{ readonly id: TId } | null>(null);
 
-  /** Each node's parent id, so a cursor hidden by a collapse can climb to a visible row. */
-  private readonly parentMap = computed<ReadonlyMap<TId, TId>>(() => {
-    const map = new Map<TId, TId>();
-    const walk = (list: readonly WrTreeNode<TId>[], parent: TId | null): void => {
+  /** What `loadChildren` has answered so far, by node id. */
+  private readonly lazy = signal<LazyMap<TId>>(new Map());
+
+  /**
+   * Every node the tree knows, loaded children included: the node and its
+   * parent by id, and which ids sit under a `loadChildren` answer, held in this
+   * component's cache rather than in `nodes`.
+   */
+  private readonly lookup = computed(() => {
+    const lazy = this.lazy();
+    const byId = new Map<TId, WrTreeNode<TId>>();
+    const parents = new Map<TId, TId>();
+    const cached = new Set<TId>();
+    const walk = (list: readonly WrTreeNode<TId>[], parent: WrTreeNode<TId> | null, inCache: boolean): void => {
       for (const n of list) {
-        if (parent !== null) map.set(n.id, parent);
-        if (n.children?.length) walk(n.children, n.id);
+        byId.set(n.id, n);
+        if (parent !== null) parents.set(n.id, parent.id);
+        if (inCache) cached.add(n.id);
+        const children = childrenOf(n, lazy);
+        if (children.length) walk(children, n, inCache || !n.children);
       }
     };
-    walk(this.nodes(), null);
-    return map;
+    walk(this.nodes(), null, false);
+    return { byId, parents, cached };
   });
+
+  /** Each node's parent id, so a cursor hidden by a collapse can climb to a visible row. */
+  private readonly parentMap = computed<ReadonlyMap<TId, TId>>(() => this.lookup().parents);
 
   /**
    * The cursor as the DOM sees it: the row of the cursor's node, else its
@@ -339,6 +427,18 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Accessible name of the toggle of an expanded node. Falls back to `tree.collapse`, then `'Collapse'`. */
   readonly collapseLabel = input<string | null>(null);
 
+  /** Text of the row shown while children load. Falls back to `select.loading`, then `'Loading…'`. */
+  readonly loadingLabel = input<string | null>(null);
+
+  /** Text of the row shown when `loadChildren` failed. Falls back to `loadState.failed`, then `'Could not load'`. */
+  readonly loadErrorLabel = input<string | null>(null);
+
+  /** Label of the retry button on that row. Falls back to `loadState.retry`, then `'Try again'`. */
+  readonly retryLabel = input<string | null>(null);
+
+  protected readonly resolvedLoadingLabel = useI18nText(this.loadingLabel, 'select.loading', 'Loading…');
+  protected readonly resolvedLoadErrorLabel = useI18nText(this.loadErrorLabel, 'loadState.failed', 'Could not load');
+  protected readonly resolvedRetryLabel = useI18nText(this.retryLabel, 'loadState.retry', 'Try again');
   /** Resolved ARIA labels — signals, so they follow both a late catalog and a locale switch. */
   protected readonly resolvedClearSelectionLabel = useI18nText(
     this.clearSelectionLabel,
@@ -357,30 +457,156 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
    */
   protected readonly chipMoreLabel = useI18nFormatter('tree.more', '+{{count}} more');
 
-  /** Flattened list of currently visible nodes — what the template renders. */
-  protected readonly flat = computed<readonly FlatNode<TId>[]>(() => {
-    const expanded = new Set(this.expanded());
-    const out: FlatNode<TId>[] = [];
+  /** The trimmed filter text; `''` means no filter. */
+  protected readonly filterQuery = computed(() => (this.filter() ?? '').trim());
+
+  /**
+   * Under a filter: the nodes that show (a match, or an ancestor of one) and
+   * the ancestors that open to reveal a match. `null` with no filter.
+   */
+  private readonly filterView = computed(() => {
+    const query = this.filterQuery();
+    if (!query) return null;
+    const lazy = this.lazy();
+    const custom = this.filterFn();
+    const needle = query.toLowerCase();
+    const matches = (node: WrTreeNode<TId>): boolean =>
+      custom ? custom(node, query) : node.label.toLowerCase().includes(needle);
+    const visible = new Set<TId>();
+    const opened = new Set<TId>();
+    const walk = (list: readonly WrTreeNode<TId>[]): boolean => {
+      let any = false;
+      for (const node of list) {
+        const below = walk(childrenOf(node, lazy));
+        if (below) opened.add(node.id);
+        if (below || matches(node)) {
+          visible.add(node.id);
+          any = true;
+        }
+      }
+      return any;
+    };
+    walk(this.nodes());
+    return { visible, opened };
+  });
+
+  /**
+   * What the user opened and closed while a filter was showing, kept apart
+   * from `expanded` so that clearing the filter restores the tree they had.
+   * It belongs to one filter text and is ignored under any other.
+   */
+  private readonly filterToggles = signal<{ readonly query: string; readonly open: ReadonlyMap<TId, boolean> }>({
+    query: '',
+    open: new Map(),
+  });
+
+  /** A status row's `@for` key, one object per branch, so it never collides with a node id. */
+  private readonly statusKeys = new Map<TId, object>();
+
+  /** The visible rows, and the lazy branches that are open with nothing loaded yet. */
+  private readonly view = computed(() => {
+    const expanded = this.expandedSet();
+    const lazy = this.lazy();
+    const visible = this.filterView()?.visible ?? null;
+    const canLoad = this.loadChildren() !== null;
+    const rows: FlatNode<TId>[] = [];
+    const toLoad: WrTreeNode<TId>[] = [];
     const walk = (list: readonly WrTreeNode<TId>[], depth: number): void => {
-      list.forEach((node, i) => {
-        const hasChildren = (node.children?.length ?? 0) > 0;
-        out.push({ node, depth, hasChildren, index: out.length, posinset: i + 1, setsize: list.length });
-        if (hasChildren && expanded.has(node.id)) walk(node.children!, depth + 1);
+      const shown = visible ? list.filter(n => visible.has(n.id)) : list;
+      shown.forEach((node, i) => {
+        const state = lazy.get(node.id)?.status;
+        const unloaded = isLazy(node) && state !== 'loaded';
+        const children = childrenOf(node, lazy);
+        const hasChildren = unloaded || (visible ? children.some(c => visible.has(c.id)) : children.length > 0);
+        rows.push({
+          node,
+          depth,
+          hasChildren,
+          index: rows.length,
+          posinset: i + 1,
+          setsize: shown.length,
+          key: node.id,
+          status: null,
+          busy: state === 'loading',
+        });
+        if (!hasChildren || !expanded.has(node.id)) return;
+        if (!unloaded) {
+          walk(children, depth + 1);
+          return;
+        }
+        const status = state === 'error' ? 'error' : canLoad ? 'loading' : null;
+        if (!status) return;
+        if (!state) toLoad.push(node);
+        let key = this.statusKeys.get(node.id);
+        if (!key) this.statusKeys.set(node.id, (key = {}));
+        rows.push({
+          node,
+          depth: depth + 1,
+          hasChildren: false,
+          index: rows.length,
+          posinset: 1,
+          setsize: 1,
+          key,
+          status,
+          busy: false,
+        });
       });
     };
     walk(this.nodes(), 0);
-    return out;
+    return { rows, toLoad };
   });
+
+  /** Flattened list of currently visible nodes — what the template renders. */
+  protected readonly flat = computed<readonly FlatNode<TId>[]>(() => this.view().rows);
 
   /** Each visible node's row, the first one when an id repeats. */
   private readonly flatIndex = computed<ReadonlyMap<TId, number>>(() => {
     const map = new Map<TId, number>();
-    for (const row of this.flat()) if (!map.has(row.node.id)) map.set(row.node.id, row.index);
+    for (const row of this.flat()) if (!row.status && !map.has(row.node.id)) map.set(row.node.id, row.index);
     return map;
   });
 
   protected readonly selectedSet = computed(() => new Set(this.selected()));
-  protected readonly expandedSet = computed(() => new Set(this.expanded()));
+
+  /**
+   * The branches that are open right now. `expanded` alone with no filter; under
+   * one, also every ancestor of a match, then whatever the user toggled since.
+   */
+  protected readonly expandedSet = computed(() => {
+    const set = new Set(this.expanded());
+    const view = this.filterView();
+    if (!view) return set;
+    for (const id of view.opened) set.add(id);
+    const toggles = this.filterToggles();
+    if (toggles.query !== this.filterQuery()) return set;
+    for (const [id, open] of toggles.open) {
+      if (open) set.add(id);
+      else set.delete(id);
+    }
+    return set;
+  });
+
+  protected readonly isCascade = computed(() => this.cascade() && this.selectionMode() === 'multi');
+
+  /** Cascade only: the nodes that are not checked themselves and have a checked node below them. */
+  protected readonly mixedSet = computed<ReadonlySet<TId>>(() => {
+    const mixed = new Set<TId>();
+    if (!this.isCascade()) return mixed;
+    const selected = this.selectedSet();
+    const lazy = this.lazy();
+    const walk = (list: readonly WrTreeNode<TId>[]): boolean => {
+      let any = false;
+      for (const node of list) {
+        const below = walk(childrenOf(node, lazy));
+        const own = selected.has(node.id);
+        if (below && !own) mixed.add(node.id);
+        if (below || own) any = true;
+      }
+      return any;
+    };
+    walk(this.nodes());
+    return mixed;
+  });
 
   protected readonly isOverlay = computed(() => this.openOn() === 'overlay');
   protected readonly isMulti = computed(() => this.selectionMode() === 'multi');
@@ -389,13 +615,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Overlay-mode trigger label / chip map. */
   private readonly labelMap = computed<ReadonlyMap<TId, string>>(() => {
     const map = new Map<TId, string>();
-    const walk = (list: readonly WrTreeNode<TId>[]): void => {
-      for (const n of list) {
-        map.set(n.id, n.label);
-        if (n.children?.length) walk(n.children);
-      }
-    };
-    walk(this.nodes());
+    for (const [id, node] of this.lookup().byId) map.set(id, node.label);
     return map;
   });
 
@@ -659,6 +879,15 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       });
     });
 
+    // A lazy branch that is open with nothing loaded starts its load, whichever
+    // way it came to be open: the toggle, the keyboard, or `expanded` itself.
+    // Browser only, so a prerender draws the loading row and calls no loader.
+    effect(() => {
+      if (!isPlatformBrowser(this.platformId)) return;
+      const pending = this.view().toLoad;
+      if (pending.length) untracked(() => pending.forEach(node => this.load(node)));
+    });
+
     this.destroyRef.onDestroy(() => this.closeOverlay(false));
   }
 
@@ -666,6 +895,10 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   protected onRowClick(flat: FlatNode<TId>, event: MouseEvent): void {
     if (this.disabled() || flat.node.disabled) return;
+    if (flat.status) {
+      this.focusIndex(flat.index);
+      return;
+    }
     if (flat.hasChildren && (event.target as HTMLElement).closest('.wr-tree__toggle')) {
       this.toggleExpanded(flat.node.id);
       return;
@@ -749,7 +982,11 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       case 'Enter':
       case ' ':
         event.preventDefault();
-        if (!current.node.disabled) this.select(current.node.id, event.ctrlKey || event.metaKey);
+        if (current.status) {
+          if (current.status === 'error') this.retryLoad(current.node);
+        } else if (!current.node.disabled) {
+          this.select(current.node.id, event.ctrlKey || event.metaKey);
+        }
         break;
       default:
         break;
@@ -869,8 +1106,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   protected removeChip(id: TId, event: Event): void {
     event.stopPropagation();
     if (this.disabled() || this.readonly()) return;
-    const next = this.selected().filter(x => x !== id);
-    this.selected.set(next);
+    if (this.isCascade()) this.setChecked(id, false);
+    else this.selected.set(this.selected().filter(x => x !== id));
     this.emit();
   }
 
@@ -884,16 +1121,25 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   // Selection / expansion plumbing
 
   private toggleExpanded(id: TId): void {
-    const set = new Set(this.expanded());
-    const collapsing = set.has(id);
-    if (collapsing) set.delete(id);
-    else set.add(id);
-    this.expanded.set([...set]);
+    const collapsing = this.expandedSet().has(id);
+    const query = this.filterQuery();
+    if (query) {
+      // Under a filter the toggle is a view of the results, not the user's tree.
+      const toggles = this.filterToggles();
+      const open = new Map(toggles.query === query ? toggles.open : []);
+      open.set(id, !collapsing);
+      this.filterToggles.set({ query, open });
+    } else {
+      const set = new Set(this.expanded());
+      if (collapsing) set.delete(id);
+      else set.add(id);
+      this.expanded.set([...set]);
+    }
     // A collapse that hid the cursor hands it to the row that hid it, the APG's
     // rule — so reopening the branch does not pull the tab stop back inside.
     if (!collapsing) return;
     const row = this.flat()[this.cursorIndex()];
-    if (row) this.cursorId.set({ id: row.node.id });
+    if (row && !row.status) this.cursorId.set({ id: row.node.id });
   }
 
   private select(id: TId, additive: boolean): void {
@@ -904,6 +1150,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     if (mode === 'none') return;
     if (mode === 'single') {
       this.selected.set([id]);
+    } else if (this.isCascade()) {
+      this.setChecked(id, !this.selectedSet().has(id));
     } else {
       const set = new Set(this.selected());
       if (additive) {
@@ -937,6 +1185,10 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   private emit(): void {
     this.touch.emit();
+    this.writeValue();
+  }
+
+  private writeValue(): void {
     if (this.isMulti()) {
       this.value.set(this.selected());
     } else {
@@ -944,10 +1196,107 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     }
   }
 
+  /**
+   * The cascade rule, in one place. Down: the node and its loaded descendants
+   * take the new state, and a disabled node keeps its own and shields its
+   * subtree. Up: each ancestor is checked exactly while all of its enabled
+   * children are.
+   */
+  private setChecked(id: TId, checked: boolean): void {
+    const { byId, parents } = this.lookup();
+    const lazy = this.lazy();
+    const set = new Set(this.selected());
+    const apply = (node: WrTreeNode<TId>): void => {
+      if (node.disabled) return;
+      if (checked) set.add(node.id);
+      else set.delete(node.id);
+      for (const child of childrenOf(node, lazy)) apply(child);
+    };
+    const node = byId.get(id);
+    if (node) apply(node);
+    else set.delete(id);
+
+    for (let up = parents.get(id); up !== undefined; up = parents.get(up)) {
+      const parent = byId.get(up);
+      if (!parent || parent.disabled) continue;
+      const children = childrenOf(parent, lazy).filter(child => !child.disabled);
+      if (!children.length) continue;
+      if (children.every(child => set.has(child.id))) set.add(up);
+      else set.delete(up);
+    }
+    this.selected.set([...set]);
+  }
+
+  // Lazy children
+
+  private load(node: WrTreeNode<TId>): void {
+    const loader = this.loadChildren();
+    if (!loader) return;
+    const id = node.id;
+    const settle = (entry: LazyEntry<TId>): void => {
+      // The status row leaves the DOM when the load settles, and takes real focus with it.
+      const cursor = this.flat()[this.cursorIndex()];
+      const active = this.host.nativeElement.ownerDocument.activeElement;
+      const held = !!cursor?.status && cursor.node.id === id && !!this.listElement?.contains(active);
+      this.lazy.update(map => new Map(map).set(id, entry));
+      if (held && entry.status !== 'loading') this.refocusCursor();
+    };
+    settle({ status: 'loading' });
+    // A pending task, so `whenStable()` and a harness wait for the children.
+    const done = this.pendingTasks.add();
+    let answer: ReturnType<WrTreeChildrenLoader<TId>>;
+    try {
+      answer = loader(node);
+    } catch {
+      settle({ status: 'error' });
+      done();
+      return;
+    }
+    (isObservable(answer) ? answer : from(Promise.resolve(answer)))
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef), finalize(done))
+      .subscribe({
+        next: children => {
+          settle({ status: 'loaded', children });
+          // Children that arrive under a checked parent are checked with it.
+          if (this.isCascade() && this.selectedSet().has(id)) {
+            this.setChecked(id, true);
+            this.writeValue();
+          }
+        },
+        error: () => settle({ status: 'error' }),
+        // An observable that completed without a value has no children to show.
+        complete: () => {
+          if (this.lazy().get(id)?.status === 'loading') settle({ status: 'loaded', children: [] });
+        },
+      });
+  }
+
+  /** The error row's retry: by its button, or by Enter while the cursor is on the row. */
+  protected retryLoad(node: WrTreeNode<TId>, event?: Event): void {
+    event?.stopPropagation();
+    if (this.disabled()) return;
+    this.load(node);
+  }
+
+  /** Puts real focus back on the cursor row, after the element that held it left the DOM or was moved in it. */
+  private refocusCursor(): void {
+    if (this.virtualized()) return;
+    afterNextRender(
+      () => {
+        const root = this.overlayRef?.overlayElement ?? this.host.nativeElement;
+        const active = root.ownerDocument.activeElement;
+        if (active && active !== root.ownerDocument.body && !root.contains(active)) return;
+        root.querySelector<HTMLElement>(`[data-tree-index="${this.cursorIndex()}"]`)?.focus();
+      },
+      { injector: this.injector }
+    );
+  }
+
   private focusIndex(i: number): void {
     this.focusedIndex.set(i);
     const row = this.flat()[i];
-    this.cursorId.set(row ? { id: row.node.id } : null);
+    // A status row has no id of its own: the slot index alone holds the cursor there.
+    this.cursorId.set(row && !row.status ? { id: row.node.id } : null);
     if (this.virtualized()) {
       // Managed-focus (aria-activedescendant): focus stays on the list container.
       // Setting `scrollTop` synchronously materializes row `i` in the SAME change
@@ -972,9 +1321,10 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     const out: TId[] = [];
     const walk = (items: readonly WrTreeNode<TId>[]): void => {
       for (const n of items) {
-        if (n.children?.length) {
+        const children = childrenOf(n, this.lazy());
+        if (children.length) {
           out.push(n.id);
-          walk(n.children);
+          walk(children);
         }
       }
     };

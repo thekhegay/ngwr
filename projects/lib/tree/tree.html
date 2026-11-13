@@ -133,6 +133,7 @@
     [style.overflow-y]="virtualized() ? 'auto' : null"
     (keydown)="onKeydown($event)"
   >
+    @let query = filterQuery();
     @if (virtualized() && virtualWindow().padTop > 0) {
       <!-- `aria-setsize` / `aria-posinset` in BOTH shapes: the list is flat with no
            `role="group"` either way, so the set a row belongs to is never expressed
@@ -145,45 +146,121 @@
         [style.height.px]="virtualWindow().padTop"
       ></li>
     }
-    @for (entry of windowRows(); track entry.node.id) {
-      <!-- Click handler lives on focusable rows; keyboard handling is owned
-           by the parent <ul> via the roving-tabindex pattern. -->
-      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events -->
-      <li
-        class="wr-tree__row"
-        role="treeitem"
-        [attr.id]="virtualized() ? rowId(entry.index) : null"
-        [class.wr-tree__row--selected]="selectedSet().has(entry.node.id)"
-        [class.wr-tree__row--active]="virtualized() && entry.index === cursorIndex()"
-        [class.wr-tree__row--disabled]="entry.node.disabled"
-        [attr.aria-level]="entry.depth + 1"
-        [attr.aria-setsize]="entry.setsize"
-        [attr.aria-posinset]="entry.posinset"
-        [attr.aria-expanded]="entry.hasChildren ? expandedSet().has(entry.node.id) : null"
-        [attr.aria-selected]="selectionMode() === 'none' ? null : selectedSet().has(entry.node.id)"
-        [attr.aria-disabled]="entry.node.disabled || disabled() || null"
-        [attr.data-tree-index]="entry.index"
-        [attr.tabindex]="virtualized() ? null : entry.index === cursorIndex() ? 0 : -1"
-        [style.--wr-tree-depth]="entry.depth"
-        (click)="onRowClick(entry, $event)"
-      >
-        @if (entry.hasChildren) {
-          <button
-            type="button"
-            class="wr-tree__toggle"
-            tabindex="-1"
-            [attr.aria-label]="expandedSet().has(entry.node.id) ? resolvedCollapseLabel() : resolvedExpandLabel()"
-            (click)="onToggleClick(entry.node, $event)"
-          >
-            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
-              <path d="M3 1 L7 5 L3 9 Z" fill="currentColor" />
-            </svg>
-          </button>
-        } @else {
-          <span class="wr-tree__toggle wr-tree__toggle--leaf" aria-hidden="true"></span>
-        }
-        <span class="wr-tree__label">{{ entry.node.label }}</span>
-      </li>
+    @for (entry of windowRows(); track entry.key) {
+      @if (entry.status) {
+        <!-- A branch's pending or failed load, as a row of its own: the cursor
+             can land on it, which is how the keyboard reaches the retry. -->
+        <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events -->
+        <li
+          class="wr-tree__status"
+          role="treeitem"
+          [class.wr-tree__status--error]="entry.status === 'error'"
+          [class.wr-tree__status--active]="virtualized() && entry.index === cursorIndex()"
+          [attr.id]="virtualized() ? rowId(entry.index) : null"
+          [attr.aria-level]="entry.depth + 1"
+          [attr.aria-selected]="selectionMode() === 'none' || isCascade() ? null : false"
+          [attr.data-tree-index]="entry.index"
+          [attr.tabindex]="virtualized() ? null : entry.index === cursorIndex() ? 0 : -1"
+          [style.--wr-tree-depth]="entry.depth"
+          (click)="onRowClick(entry, $event)"
+        >
+          @if (entry.status === 'loading') {
+            <wr-spinner class="wr-tree__spinner" size="sm" aria-hidden="true" />
+            <span class="wr-tree__status-text">{{ resolvedLoadingLabel() }}</span>
+          } @else {
+            <span class="wr-tree__status-text">{{ resolvedLoadErrorLabel() }}</span>
+            <button type="button" class="wr-tree__retry" tabindex="-1" (click)="retryLoad(entry.node, $event)">
+              {{ resolvedRetryLabel() }}
+            </button>
+          }
+        </li>
+      } @else {
+        <!-- Click handler lives on focusable rows; keyboard handling is owned
+             by the parent <ul> via the roving-tabindex pattern. -->
+        <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events -->
+        <li
+          class="wr-tree__row"
+          role="treeitem"
+          [attr.id]="virtualized() ? rowId(entry.index) : null"
+          [class.wr-tree__row--selected]="selectedSet().has(entry.node.id)"
+          [class.wr-tree__row--mixed]="mixedSet().has(entry.node.id)"
+          [class.wr-tree__row--active]="virtualized() && entry.index === cursorIndex()"
+          [class.wr-tree__row--disabled]="entry.node.disabled"
+          [attr.aria-level]="entry.depth + 1"
+          [attr.aria-setsize]="entry.setsize"
+          [attr.aria-posinset]="entry.posinset"
+          [attr.aria-expanded]="entry.hasChildren ? expandedSet().has(entry.node.id) : null"
+          [attr.aria-busy]="entry.busy ? 'true' : null"
+          [attr.aria-selected]="selectionMode() === 'none' || isCascade() ? null : selectedSet().has(entry.node.id)"
+          [attr.aria-checked]="
+            isCascade() ? (mixedSet().has(entry.node.id) ? 'mixed' : selectedSet().has(entry.node.id)) : null
+          "
+          [attr.aria-disabled]="entry.node.disabled || disabled() || null"
+          [attr.data-tree-index]="entry.index"
+          [attr.tabindex]="virtualized() ? null : entry.index === cursorIndex() ? 0 : -1"
+          [style.--wr-tree-depth]="entry.depth"
+          (click)="onRowClick(entry, $event)"
+        >
+          @if (entry.hasChildren) {
+            <button
+              type="button"
+              class="wr-tree__toggle"
+              tabindex="-1"
+              [attr.aria-label]="expandedSet().has(entry.node.id) ? resolvedCollapseLabel() : resolvedExpandLabel()"
+              (click)="onToggleClick(entry.node, $event)"
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+                <path d="M3 1 L7 5 L3 9 Z" fill="currentColor" />
+              </svg>
+            </button>
+          } @else {
+            <span class="wr-tree__toggle wr-tree__toggle--leaf" aria-hidden="true"></span>
+          }
+          @if (isCascade()) {
+            <!-- The checkbox's own box, drawn from its classes: the row is the
+                 control and announces `aria-checked`, so a second focusable
+                 input inside it would be one tab stop too many. -->
+            <span
+              class="wr-checkbox wr-checkbox--sm wr-tree__check"
+              aria-hidden="true"
+              [class.wr-checkbox--checked]="selectedSet().has(entry.node.id)"
+              [class.wr-checkbox--indeterminate]="mixedSet().has(entry.node.id)"
+            >
+              <span class="wr-checkbox__box">
+                @if (mixedSet().has(entry.node.id)) {
+                  <svg viewBox="0 0 16 16" class="wr-checkbox__dash">
+                    <line
+                      x1="3.5"
+                      y1="8"
+                      x2="12.5"
+                      y2="8"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                } @else {
+                  <svg viewBox="0 0 16 16" class="wr-checkbox__mark">
+                    <polyline
+                      points="3.5 8.5 6.5 11.5 12.5 5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                }
+              </span>
+            </span>
+          }
+          @if (query) {
+            <span class="wr-tree__label" [innerHTML]="entry.node.label | wrMark: query"></span>
+          } @else {
+            <span class="wr-tree__label">{{ entry.node.label }}</span>
+          }
+        </li>
+      }
     }
     @if (virtualized() && virtualWindow().padBottom > 0) {
       <li

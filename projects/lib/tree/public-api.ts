@@ -1,2 +1,2 @@
 export { WrTree } from './tree';
-export type { WrTreeNode, WrTreeSelectionMode, WrTreeSize } from './types';
+export type { WrTreeChildrenLoader, WrTreeFilterFn, WrTreeNode, WrTreeSelectionMode, WrTreeSize } from './types';
