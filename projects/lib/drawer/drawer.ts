@@ -8,7 +8,7 @@
 import { ConfigurableFocusTrapFactory, type FocusTrap, FocusTrapFactory, FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { type OverlayRef } from '@angular/cdk/overlay';
+import type { GlobalPositionStrategy, OverlayRef, OverlaySizeConfig } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
 import {
@@ -207,6 +207,8 @@ export class WrDrawer {
   private previouslyFocused: HTMLElement | null = null;
   /** Whether the open panel is modal — `hasBackdrop` as it was when it opened. */
   private modal = true;
+  /** The side the open overlay sits on. */
+  private side: WrDrawerPosition = 'right';
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('drawer');
@@ -241,27 +243,55 @@ export class WrDrawer {
     else host.removeAttribute('aria-labelledby');
   }
 
-  private openOverlay(): void {
-    if (this.overlayRef) return;
-
-    const pos = this.position();
-    const isHorizontal = pos === 'left' || pos === 'right';
-
-    const positionStrategy = this.overlay
+  private positionStrategy(pos: WrDrawerPosition): GlobalPositionStrategy {
+    const strategy = this.overlay
       .position()
       .global()
       [pos === 'left' ? 'left' : pos === 'right' ? 'right' : 'centerHorizontally']();
 
-    if (pos === 'top') positionStrategy.top();
-    else if (pos === 'bottom') positionStrategy.bottom();
-    else positionStrategy.centerVertically();
+    if (pos === 'top') strategy.top();
+    else if (pos === 'bottom') strategy.bottom();
+    else strategy.centerVertically();
+    return strategy;
+  }
 
-    const cap = this.maxHeight();
+  private size(pos: WrDrawerPosition): OverlaySizeConfig {
+    const isHorizontal = pos === 'left' || pos === 'right';
+    return {
+      width: isHorizontal ? this.width() : '100vw',
+      height: isHorizontal ? undefined : this.height(),
+      maxHeight: isHorizontal ? undefined : (this.maxHeight() ?? undefined),
+    };
+  }
+
+  /**
+   * Carry `position`, `width`, `height` and `maxHeight` over to the open
+   * overlay. The CDK reads them once, in `create()`.
+   */
+  private syncOverlay(ref: OverlayRef): void {
+    const pos = this.position();
+    if (pos !== this.side) {
+      ref.removePanelClass(`wr-drawer-overlay--${this.side}`);
+      ref.addPanelClass(`wr-drawer-overlay--${pos}`);
+      this.side = pos;
+      ref.updatePositionStrategy(this.positionStrategy(pos));
+    }
+    ref.updateSize(this.size(pos));
+  }
+
+  private openOverlay(): void {
+    if (this.overlayRef) {
+      this.syncOverlay(this.overlayRef);
+      return;
+    }
+
+    const pos = this.position();
+    this.side = pos;
     const modal = this.hasBackdrop();
     this.modal = modal;
 
     this.overlayRef = this.overlay.create({
-      positionStrategy,
+      positionStrategy: this.positionStrategy(pos),
       hasBackdrop: modal,
       backdropClass: 'wr-drawer-backdrop',
       panelClass: ['wr-drawer-overlay', `wr-drawer-overlay--${pos}`],
@@ -276,9 +306,7 @@ export class WrDrawer {
       // Focus on `<body>` still counts: a click on the panel's own text
       // focuses nothing, so that is where a reader inside it usually is.
       eventPredicate: modal ? undefined : () => drawerHasFocus(this.overlayRef) || focusIsLost(),
-      width: isHorizontal ? this.width() : '100vw',
-      height: isHorizontal ? undefined : this.height(),
-      maxHeight: isHorizontal ? undefined : (cap ?? undefined),
+      ...this.size(pos),
     });
 
     // `position` is PHYSICAL — a `left` drawer is on the physical left in either
