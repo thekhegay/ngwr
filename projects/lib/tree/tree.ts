@@ -37,13 +37,22 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { finalize, from, isObservable, take } from 'rxjs';
 
 import { useFormFieldAria } from 'ngwr/form';
-import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { useI18nFormatter, useI18nText, wrReadI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { WrMark } from 'ngwr/pipes';
 import { WrSpinner } from 'ngwr/spinner';
 import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
-import type { WrTreeChildrenLoader, WrTreeFilterFn, WrTreeNode, WrTreeSelectionMode, WrTreeSize } from './types';
+import type {
+  WrTreeCanDrop,
+  WrTreeChildrenLoader,
+  WrTreeFilterFn,
+  WrTreeMoveEnd,
+  WrTreeMoveEvent,
+  WrTreeNode,
+  WrTreeSelectionMode,
+  WrTreeSize,
+} from './types';
 
 interface FlatNode<TId> {
   readonly node: WrTreeNode<TId>;
@@ -70,7 +79,38 @@ type LazyEntry<TId> =
 
 type LazyMap<TId> = ReadonlyMap<TId, LazyEntry<TId>>;
 
+/** A move in progress, by drag or by keyboard. `target` is where a drop would land now. */
+interface MoveState<TId> {
+  readonly node: WrTreeNode<TId>;
+  readonly from: WrTreeMoveEnd<TId>;
+  readonly keyboard: boolean;
+  readonly target: WrTreeMoveEnd<TId> | null;
+}
+
+/** The row that carries the drop indicator, and how. */
+interface DropMark {
+  readonly row: number;
+  readonly position: 'before' | 'after' | 'inside';
+  readonly depth: number;
+}
+
 const NO_NODES: readonly never[] = [];
+
+/** The keys a held row answers to. */
+const MOVE_KEYS: ReadonlySet<string> = new Set([
+  'Escape',
+  'Enter',
+  ' ',
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'Home',
+  'End',
+]);
+
+/** How long a drag rests on a collapsed branch before it opens. */
+const HOVER_EXPAND_MS = 700;
 
 function isLazy<TId>(node: WrTreeNode<TId>): boolean {
   return node.children === undefined && node.hasChildren === true;
@@ -80,6 +120,10 @@ function childrenOf<TId>(node: WrTreeNode<TId>, lazy: LazyMap<TId>): readonly Wr
   if (node.children) return node.children;
   const entry = lazy.get(node.id);
   return entry?.status === 'loaded' ? entry.children : NO_NODES;
+}
+
+function sameEnd<TId>(a: WrTreeMoveEnd<TId> | null, b: WrTreeMoveEnd<TId> | null): boolean {
+  return a === b || (!!a && !!b && a.parentId === b.parentId && a.index === b.index);
 }
 
 interface SelectedChip<TId> {
@@ -135,6 +179,9 @@ let panelUid = 0;
   host: {
     class: 'wr-tree',
     '[class]': 'classes()',
+    // A static `draggable="true"` also lands on the host as the HTML attribute,
+    // which would make the whole tree one native drag source.
+    '[attr.draggable]': 'null',
     '(focusout)': 'onFocusOut($event)',
   },
   imports: [NgTemplateOutlet, WrMark, WrSpinner],
@@ -315,6 +362,28 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   readonly cascade = input(false, { transform: coerceBooleanProperty });
 
   /**
+   * Lets rows be moved: dragged between rows to reorder, onto a row to become
+   * its child. The keyboard twin is Alt+Enter to pick the row up, the arrows to
+   * move it (up and down among siblings, toward the indent into the sibling
+   * above, away from it out of the parent), Enter to drop and Escape to cancel.
+   * The tree never writes to `nodes`: apply `nodeMove` yourself, with
+   * `wrMoveTreeNode`. Off while a `filter` is set, and for rows that came from
+   * `loadChildren`, which `nodes` does not hold.
+   * @default false
+   */
+  readonly draggable = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Refuses a drop, by drag and by keyboard alike. A node is never offered its
+   * own subtree, so that case does not reach the predicate.
+   * @default null
+   */
+  readonly canDrop = input<WrTreeCanDrop<TId> | null>(null);
+
+  /** Fired once when a row is dropped somewhere new. The tree does not move it: the handler does. */
+  readonly nodeMove = output<WrTreeMoveEvent<TId>>();
+
+  /**
    * Form value — the current selection as seen by a bound field. Bound by
    * `[formField]`, or two-way via `[(value)]`. Shape follows `selectionMode`:
    * `TId | null` in single mode, `readonly TId[]` in multi mode. Works in both
@@ -370,8 +439,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   /**
    * Every node the tree knows, loaded children included: the node and its
-   * parent by id, and which ids sit under a `loadChildren` answer, held in this
-   * component's cache rather than in `nodes`.
+   * parent by id, and which ids sit under a `loadChildren` answer. Those live
+   * in this component's cache rather than in `nodes`, so a move cannot touch them.
    */
   private readonly lookup = computed(() => {
     const lazy = this.lazy();
@@ -436,9 +505,28 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Label of the retry button on that row. Falls back to `loadState.retry`, then `'Try again'`. */
   readonly retryLabel = input<string | null>(null);
 
+  /**
+   * The keyboard move, as a screen reader hears it on entering a `draggable`
+   * tree. Falls back to `tree.moveKeyHelp`.
+   */
+  readonly moveHelpLabel = input<string | null>(null);
+
   protected readonly resolvedLoadingLabel = useI18nText(this.loadingLabel, 'select.loading', 'Loading…');
   protected readonly resolvedLoadErrorLabel = useI18nText(this.loadErrorLabel, 'loadState.failed', 'Could not load');
   protected readonly resolvedRetryLabel = useI18nText(this.retryLabel, 'loadState.retry', 'Try again');
+  protected readonly resolvedMoveHelp = useI18nText(
+    this.moveHelpLabel,
+    'tree.moveKeyHelp',
+    'Press Alt+Enter to pick this item up, then use the arrow keys to move it. ' +
+      'Press Enter to drop it, or Escape to put it back.'
+  );
+
+  // The position announcements are the sortable list's: the same gesture, the same words.
+  private readonly grabbedText = useI18nFormatter('sortableList.grabbed', 'Grabbed. {{index}} of {{total}}.');
+  private readonly movedText = useI18nFormatter('sortableList.moved', '{{index}} of {{total}}.');
+  private readonly droppedText = useI18nFormatter('sortableList.dropped', 'Dropped. {{index}} of {{total}}.');
+  private readonly cancelledText = wrReadI18nText('sortableList.cancelled', 'Move cancelled.');
+
   /** Resolved ARIA labels — signals, so they follow both a late catalog and a locale switch. */
   protected readonly resolvedClearSelectionLabel = useI18nText(
     this.clearSelectionLabel,
@@ -888,7 +976,10 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       if (pending.length) untracked(() => pending.forEach(node => this.load(node)));
     });
 
-    this.destroyRef.onDestroy(() => this.closeOverlay(false));
+    this.destroyRef.onDestroy(() => {
+      this.clearHoverExpand();
+      this.closeOverlay(false);
+    });
   }
 
   // Template handlers
@@ -937,6 +1028,16 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     const i = this.cursorIndex();
     const current = flat[i];
     if (!current) return;
+
+    if (this.move()?.keyboard) {
+      this.onMoveKey(event);
+      return;
+    }
+    if (this.draggable() && event.altKey && event.key === 'Enter') {
+      event.preventDefault();
+      if (this.canDrag(current)) this.grab(current);
+      return;
+    }
 
     // The cursor move is identical in both render shapes — `focusIndex()` owns
     // the roving-tabindex / `aria-activedescendant` split — so mirroring here
@@ -1276,6 +1377,298 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     event?.stopPropagation();
     if (this.disabled()) return;
     this.load(node);
+  }
+
+  // Moving a row: drag and drop, and its keyboard twin
+
+  private readonly move = signal<MoveState<TId> | null>(null);
+
+  /** The node being moved, for the row's `--dragging` modifier. */
+  protected readonly movingNode = computed(() => this.move()?.node ?? null);
+
+  /** Live-region text. Written by the keyboard move only: a drag is its own feedback. */
+  protected readonly announcement = signal('');
+
+  /** Links the tree to the keyboard move's description. */
+  protected readonly moveHelpId = `${this.panelId}-move-help`;
+
+  protected readonly listDescribedBy = computed(() => {
+    const ids = [this.isOverlay() ? null : this.fieldAria.describedBy(), this.draggable() ? this.moveHelpId : null];
+    return ids.filter(Boolean).join(' ') || null;
+  });
+
+  private hoverExpand: { readonly id: TId; readonly timer: ReturnType<typeof setTimeout> } | null = null;
+
+  /** A filter shows a subset of every sibling group, and an index into a subset is not one into `nodes`. */
+  private readonly movable = computed(() => this.draggable() && !this.disabled() && !this.filterQuery());
+
+  protected canDrag(row: FlatNode<TId>): boolean {
+    return this.movable() && !row.status && !row.node.disabled && !this.lookup().cached.has(row.node.id);
+  }
+
+  /** A sibling group as `nodes` holds it, without the node being moved. */
+  private siblings(parentId: TId | null, moving: TId): readonly WrTreeNode<TId>[] {
+    const list = parentId === null ? this.nodes() : (this.lookup().byId.get(parentId)?.children ?? NO_NODES);
+    return list.filter(node => node.id !== moving);
+  }
+
+  private locate(node: WrTreeNode<TId>): WrTreeMoveEnd<TId> {
+    const parentId = this.parentMap().get(node.id) ?? null;
+    const list = parentId === null ? this.nodes() : (this.lookup().byId.get(parentId)?.children ?? NO_NODES);
+    return { parentId, index: list.indexOf(node) };
+  }
+
+  /** Whether `node` may land at `target`: never under itself, never in the cache, and `canDrop` willing. */
+  private allows(node: WrTreeNode<TId>, target: WrTreeMoveEnd<TId>): boolean {
+    const { byId, parents, cached } = this.lookup();
+    let parent: WrTreeNode<TId> | null = null;
+    if (target.parentId !== null) {
+      parent = byId.get(target.parentId) ?? null;
+      if (!parent || parent.disabled || isLazy(parent) || cached.has(parent.id)) return false;
+      for (let id: TId | undefined = parent.id; id !== undefined; id = parents.get(id)) {
+        if (id === node.id) return false;
+      }
+    }
+    return this.canDrop()?.(node, { ...target, parent }) ?? true;
+  }
+
+  /** Where the drop indicator sits for the current target. */
+  protected readonly dropMark = computed<DropMark | null>(() => {
+    const move = this.move();
+    const target = move?.target;
+    if (!move || !target) return null;
+    const rows = this.flat();
+    const at = this.flatIndex();
+    const siblings = this.siblings(target.parentId, move.node.id);
+    let depth = 0;
+    if (target.parentId !== null) {
+      const parentRow = at.get(target.parentId);
+      if (parentRow === undefined) return null;
+      depth = rows[parentRow].depth + 1;
+      // A closed or empty parent has no row to draw a line against.
+      if (!siblings.length || !this.expandedSet().has(target.parentId)) {
+        return { row: parentRow, position: 'inside', depth };
+      }
+    }
+    if (target.index < siblings.length) {
+      const row = at.get(siblings[target.index].id);
+      return row === undefined ? null : { row, position: 'before', depth };
+    }
+    const last = siblings[siblings.length - 1];
+    let row = last ? at.get(last.id) : undefined;
+    if (row === undefined) return null;
+    // Below the last sibling's whole open subtree; the line's indent names the level.
+    while (rows[row + 1] && rows[row + 1].depth > depth) row += 1;
+    return { row, position: 'after', depth };
+  });
+
+  private rowOf(event: Event): { readonly row: FlatNode<TId>; readonly el: HTMLElement } | null {
+    const target = event.target;
+    const from = target instanceof Element ? target : target instanceof Node ? target.parentElement : null;
+    const el = from?.closest<HTMLElement>('[data-tree-index]');
+    const row = el ? this.flat()[Number(el.getAttribute('data-tree-index'))] : undefined;
+    return el && row ? { row, el } : null;
+  }
+
+  protected onDragStart(event: DragEvent): void {
+    const hit = this.rowOf(event);
+    if (!hit || !this.canDrag(hit.row)) {
+      if (this.draggable()) event.preventDefault();
+      return;
+    }
+    const node = hit.row.node;
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      // Firefox starts no drag without data.
+      event.dataTransfer.setData('text/plain', node.label);
+    }
+    this.announcement.set('');
+    this.move.set({ node, from: this.locate(node), keyboard: false, target: null });
+    // On the row itself too: a windowed list can unrender it mid-drag, and the
+    // event then never bubbles to the list.
+    hit.el.addEventListener('dragend', () => this.endDrag(), { once: true });
+  }
+
+  protected onDragOver(event: DragEvent): void {
+    const move = this.move();
+    if (!move || move.keyboard) return;
+    const hit = this.rowOf(event);
+    const target = hit && !hit.row.status ? this.pointerTarget(move, hit.row, hit.el, event.clientY) : null;
+    if (hit && !hit.row.status) this.restOn(move, hit.row);
+    else this.clearHoverExpand();
+    if (target) {
+      event.preventDefault();
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    }
+    if (!sameEnd(move.target, target)) this.move.set({ ...move, target });
+  }
+
+  protected onDragLeave(event: DragEvent): void {
+    const move = this.move();
+    if (!move || move.keyboard) return;
+    const next = event.relatedTarget;
+    if (next instanceof Node && this.listElement?.contains(next)) return;
+    this.clearHoverExpand();
+    if (move.target) this.move.set({ ...move, target: null });
+  }
+
+  protected onDrop(event: DragEvent): void {
+    const move = this.move();
+    if (!move || move.keyboard) return;
+    event.preventDefault();
+    this.endDrag();
+    if (move.target) this.commit(move, move.target);
+  }
+
+  protected endDrag(): void {
+    this.clearHoverExpand();
+    if (this.move() && !this.move()!.keyboard) this.move.set(null);
+  }
+
+  /**
+   * The target a pointer names on a row: its top quarter places the node
+   * before it, its bottom quarter after it (as the first child, when the row
+   * is an open branch), the middle makes it the row's last child. Where the
+   * middle is refused the row splits in half instead.
+   */
+  private pointerTarget(
+    move: MoveState<TId>,
+    row: FlatNode<TId>,
+    el: HTMLElement,
+    clientY: number
+  ): WrTreeMoveEnd<TId> | null {
+    const { node } = move;
+    const over = row.node;
+    const rect = el.getBoundingClientRect();
+    const ratio = rect.height > 0 ? (clientY - rect.top) / rect.height : 0.5;
+    const parentId = this.parentMap().get(over.id) ?? null;
+    const index = this.siblings(parentId, node.id).indexOf(over);
+    const open = row.hasChildren && this.expandedSet().has(over.id);
+
+    const inside: WrTreeMoveEnd<TId> = { parentId: over.id, index: this.siblings(over.id, node.id).length };
+    const before: WrTreeMoveEnd<TId> = { parentId, index };
+    const after: WrTreeMoveEnd<TId> = open ? { parentId: over.id, index: 0 } : { parentId, index: index + 1 };
+    const ok = (target: WrTreeMoveEnd<TId>): boolean =>
+      // `index < 0` is the moved row itself, or a row `nodes` does not hold.
+      (target.parentId === over.id || index >= 0) && !sameEnd(target, move.from) && this.allows(node, target);
+
+    const order = ratio < 0.25 ? [before] : ratio > 0.75 ? [after] : ratio < 0.5 ? [inside, before] : [inside, after];
+    return order.find(ok) ?? null;
+  }
+
+  /** A drag resting on a collapsed branch opens it, so its children can be reached. */
+  private restOn(move: MoveState<TId>, row: FlatNode<TId>): void {
+    const id = row.node.id;
+    if (this.hoverExpand?.id === id) return;
+    this.clearHoverExpand();
+    if (!row.hasChildren || row.node.disabled || id === move.node.id || this.expandedSet().has(id)) return;
+    const timer = setTimeout(() => {
+      this.hoverExpand = null;
+      if (this.move() && !this.expandedSet().has(id)) this.toggleExpanded(id);
+    }, HOVER_EXPAND_MS);
+    this.hoverExpand = { id, timer };
+  }
+
+  private clearHoverExpand(): void {
+    if (this.hoverExpand) clearTimeout(this.hoverExpand.timer);
+    this.hoverExpand = null;
+  }
+
+  /** Reports the move and opens the new parent, so the row is in view once the consumer applies it. */
+  private commit(move: MoveState<TId>, to: WrTreeMoveEnd<TId>): void {
+    if (sameEnd(move.from, to)) return;
+    if (to.parentId !== null && !this.expanded().includes(to.parentId)) {
+      this.expanded.set([...this.expanded(), to.parentId]);
+    }
+    this.nodeMove.emit({ node: move.node, from: move.from, to });
+  }
+
+  private grab(row: FlatNode<TId>): void {
+    const from = this.locate(row.node);
+    this.move.set({ node: row.node, from, keyboard: true, target: from });
+    this.announcement.set(this.grabbedText(this.position(row.node, from)));
+  }
+
+  /**
+   * The held row's keys. Up and Down walk its sibling group, stepping over a
+   * place `canDrop` refuses; the arrow toward the indent makes it the last
+   * child of the sibling above, the other one puts it after its parent. The row
+   * itself stays where it is until the consumer applies the drop: the
+   * indicator and the live region say where it would land.
+   */
+  private onMoveKey(event: KeyboardEvent): void {
+    const move = this.move();
+    const target = move?.target;
+    if (!move || !target) return;
+    const { node, from } = move;
+    const key = this.inlineKey(event.key);
+    // Tab and everything else stay the browser's; Home and End are swallowed so the cursor stays on the held row.
+    if (!MOVE_KEYS.has(key)) return;
+    event.preventDefault();
+
+    if (key === 'Escape') {
+      // The overlay closes on Escape too; this one only puts the row back.
+      event.stopPropagation();
+      this.cancelMove();
+      return;
+    }
+    if (key === 'Enter' || key === ' ') {
+      this.move.set(null);
+      this.announcement.set(this.droppedText(this.position(node, target)));
+      this.commit(move, target);
+      this.refocusCursor();
+      return;
+    }
+
+    const ok = (to: WrTreeMoveEnd<TId>): boolean => sameEnd(to, from) || this.allows(node, to);
+    const siblings = this.siblings(target.parentId, node.id);
+    let next: WrTreeMoveEnd<TId> | null = null;
+    if (key === 'ArrowUp' || key === 'ArrowDown') {
+      const step = key === 'ArrowDown' ? 1 : -1;
+      for (let index = target.index + step; index >= 0 && index <= siblings.length; index += step) {
+        if (ok({ parentId: target.parentId, index })) {
+          next = { parentId: target.parentId, index };
+          break;
+        }
+      }
+    } else if (key === 'ArrowRight') {
+      const above = siblings[target.index - 1];
+      if (above) next = { parentId: above.id, index: this.siblings(above.id, node.id).length };
+    } else if (key === 'ArrowLeft' && target.parentId !== null) {
+      const parentId = this.parentMap().get(target.parentId) ?? null;
+      const parent = this.lookup().byId.get(target.parentId);
+      if (parent) next = { parentId, index: this.siblings(parentId, node.id).indexOf(parent) + 1 };
+    }
+    if (!next || !ok(next)) return;
+
+    // The indicator needs the new parent open to have a row to sit on.
+    if (next.parentId !== null && next.parentId !== target.parentId && !this.expandedSet().has(next.parentId)) {
+      this.expanded.set([...this.expanded(), next.parentId]);
+    }
+    this.move.set({ ...move, target: next });
+    const place = this.movedText(this.position(node, next));
+    const parent = next.parentId === null ? undefined : this.lookup().byId.get(next.parentId);
+    this.announcement.set(parent && next.parentId !== target.parentId ? `${parent.label}. ${place}` : place);
+    const mark = this.dropMark();
+    if (mark && this.virtualized()) this.ensureVisible(mark.row);
+  }
+
+  private cancelMove(): void {
+    if (!this.move()?.keyboard) return;
+    this.move.set(null);
+    this.announcement.set(this.cancelledText());
+  }
+
+  /** A held row is put back when focus leaves the list: nothing was written, so nothing is lost. */
+  protected onListFocusOut(event: FocusEvent): void {
+    if (!this.move()?.keyboard) return;
+    const next = event.relatedTarget;
+    if (next instanceof Node && this.listElement?.contains(next)) return;
+    this.cancelMove();
+  }
+
+  private position(node: WrTreeNode<TId>, end: WrTreeMoveEnd<TId>): { index: number; total: number } {
+    return { index: end.index + 1, total: this.siblings(end.parentId, node.id).length + 1 };
   }
 
   /** Puts real focus back on the cursor row, after the element that held it left the DOM or was moved in it. */

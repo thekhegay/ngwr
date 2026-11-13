@@ -123,6 +123,7 @@ export const wrZhTw: WrI18nCatalog = {
     clearSelection: '清除選取',
     removeItem: '移除 {{label}}',
     more: '+{{count}} 項',
+    moveKeyHelp: '按 Alt+Enter 拿起這個項目，再用方向鍵移動。' + '按 Enter 放下，或按 Escape 放回原位。',
   },
   commandPalette: {
     label: '命令面板',

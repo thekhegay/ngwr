@@ -121,6 +121,9 @@ export const wrCs: WrI18nCatalog = {
     clearSelection: 'Zrušit výběr',
     removeItem: 'Odebrat {{label}}',
     more: 'Další: {{count}}',
+    moveKeyHelp:
+      'Klávesami Alt+Enter položku uchopíte, šipkami ji přesunete. ' +
+      'Klávesou Enter ji položíte, klávesou Escape ji vrátíte zpět.',
   },
   commandPalette: {
     label: 'Paleta příkazů',

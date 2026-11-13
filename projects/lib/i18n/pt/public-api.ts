@@ -121,6 +121,9 @@ export const wrPt: WrI18nCatalog = {
     clearSelection: 'Limpar seleção',
     removeItem: 'Remover {{label}}',
     more: '+{{count}} mais',
+    moveKeyHelp:
+      'Prima Alt+Enter para agarrar este item e depois use as teclas de setas para o mover. ' +
+      'Prima Enter para o largar ou Escape para o voltar a colocar.',
   },
   commandPalette: {
     label: 'Paleta de comandos',

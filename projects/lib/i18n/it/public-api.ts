@@ -123,6 +123,9 @@ export const wrIt: WrI18nCatalog = {
     clearSelection: 'Cancella la selezione',
     removeItem: 'Rimuovi {{label}}',
     more: '+{{count}} in più',
+    moveKeyHelp:
+      'Premi Alt+Invio per prendere questo elemento, poi spostalo con i tasti freccia. ' +
+      'Premi Invio per rilasciarlo oppure Esc per rimetterlo al suo posto.',
   },
   commandPalette: {
     label: 'Palette dei comandi',

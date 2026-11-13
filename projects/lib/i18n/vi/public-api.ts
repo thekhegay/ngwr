@@ -125,6 +125,9 @@ export const wrVi: WrI18nCatalog = {
     clearSelection: 'Xóa lựa chọn',
     removeItem: 'Xóa {{label}}',
     more: '+{{count}} nữa',
+    moveKeyHelp:
+      'Nhấn Alt+Enter để nhấc mục này lên, rồi dùng các phím mũi tên để di chuyển. ' +
+      'Nhấn Enter để thả, hoặc nhấn Escape để trả về chỗ cũ.',
   },
   commandPalette: {
     label: 'Bảng lệnh',

@@ -129,6 +129,9 @@ export const wrPl: WrI18nCatalog = {
     clearSelection: 'Wyczyść wybór',
     removeItem: 'Usuń {{label}}',
     more: '+{{count}} więcej',
+    moveKeyHelp:
+      'Naciśnij Alt+Enter, aby podnieść ten element, a następnie przesuwaj go strzałkami. ' +
+      'Naciśnij Enter, aby go upuścić, albo Escape, aby cofnąć przenoszenie.',
   },
   commandPalette: {
     label: 'Paleta poleceń',

@@ -123,6 +123,9 @@ export const wrNl: WrI18nCatalog = {
     clearSelection: 'Selectie wissen',
     removeItem: '{{label}} verwijderen',
     more: '+{{count}} meer',
+    moveKeyHelp:
+      'Druk op Alt+Enter om dit item op te pakken en verplaats het daarna met de pijltoetsen. ' +
+      'Druk op Enter om het neer te zetten, of op Escape om het terug te zetten.',
   },
   commandPalette: {
     label: 'Opdrachtenpalet',

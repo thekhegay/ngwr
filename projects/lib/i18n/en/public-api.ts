@@ -173,6 +173,11 @@ export const wrEn: WrI18nCatalog = {
     // Same string and same shape as `select.more` — the two components render
     // the identical overflow chip, and only one of them could be translated.
     more: '+{{count}} more',
+    // A `draggable` tree's keyboard move. Space and Enter select in a tree, so
+    // the pick-up is a chord of its own.
+    moveKeyHelp:
+      'Press Alt+Enter to pick this item up, then use the arrow keys to move it. ' +
+      'Press Enter to drop it, or Escape to put it back.',
   },
   commandPalette: {
     label: 'Command palette',

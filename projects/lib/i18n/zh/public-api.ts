@@ -121,6 +121,7 @@ export const wrZh: WrI18nCatalog = {
     clearSelection: '清除选择',
     removeItem: '移除 {{label}}',
     more: '+{{count}} 项',
+    moveKeyHelp: '按 Alt+Enter 键拿起此项，然后用方向键移动。' + '按 Enter 键放下，或按 Esc 键放回原位。',
   },
   commandPalette: {
     label: '命令面板',

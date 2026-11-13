@@ -126,6 +126,9 @@ export const wrHe: WrI18nCatalog = {
     clearSelection: 'ניקוי הבחירה',
     removeItem: 'הסרת {{label}}',
     more: 'עוד {{count}}',
+    moveKeyHelp:
+      'לחיצה על Alt+Enter מרימה את הפריט, ואז מקשי החיצים מזיזים אותו. ' +
+      'Enter מניח אותו, ו-Escape מחזיר אותו למקומו.',
   },
   commandPalette: {
     label: 'לוח פקודות',

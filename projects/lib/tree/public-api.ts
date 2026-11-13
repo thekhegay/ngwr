@@ -1,2 +1,13 @@
 export { WrTree } from './tree';
-export type { WrTreeChildrenLoader, WrTreeFilterFn, WrTreeNode, WrTreeSelectionMode, WrTreeSize } from './types';
+export { wrMoveTreeNode } from './move-node';
+export type {
+  WrTreeCanDrop,
+  WrTreeChildrenLoader,
+  WrTreeDropTarget,
+  WrTreeFilterFn,
+  WrTreeMoveEnd,
+  WrTreeMoveEvent,
+  WrTreeNode,
+  WrTreeSelectionMode,
+  WrTreeSize,
+} from './types';
