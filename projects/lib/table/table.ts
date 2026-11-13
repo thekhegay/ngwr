@@ -99,6 +99,36 @@ type RenderRow =
   | { readonly kind: 'group-foot'; readonly id: string; readonly summaries: ReadonlyMap<string, unknown> };
 
 /**
+ * A display column with everything its cells draw from the column alone, so a
+ * cell binding reads a property instead of calling a method on every pass.
+ */
+interface CellColumn<T extends WrTableRow> {
+  readonly key: string;
+  readonly column: WrTableColumn<T>;
+  readonly thClass: string;
+  readonly tdClass: string;
+  readonly footClass: string;
+  readonly pinned: boolean;
+  readonly pinLeft: boolean;
+  readonly pinRight: boolean;
+  /** The inner-edge pinned column of its side, which carries the shadow. */
+  readonly edgeLeft: boolean;
+  readonly edgeRight: boolean;
+  /** Sticky `inset-inline-start` / `-end` offsets in px, `null` off the pinned set. */
+  readonly start: number | null;
+  readonly end: number | null;
+  /** The `<col>` width in px, `null` for auto. A live resize wins. */
+  readonly width: number | null;
+  /** The `width` a truncated column's cells are capped at. */
+  readonly maxWidth: number | null;
+  /** Whether its cell names the row (see `labelColumnKey`). */
+  readonly label: boolean;
+  /** Whether its cell carries the tree indent and toggle. */
+  readonly tree: boolean;
+  readonly template: TemplateRef<WrTableCellContext> | undefined;
+}
+
+/**
  * Instance counter for the ids the row controls are named through. Counted, not
  * `wrRandomId()`, so the prerendered `aria-labelledby` is the one the browser
  * renders again — the same reason `wr-tabs` and `wr-mention` count.
@@ -1132,22 +1162,56 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   /**
-   * Sticky `inset-inline-start` offset (px) for a `pin: 'left'` column, else `null`.
+   * {@link displayColumns} with the per-column half of every cell resolved
+   * once. Apart from `displayColumns` because the pin effect reads that one
+   * and writes `pins`, which this reads.
    *
-   * The input keeps its physical name — it is public API — but the offset it
-   * produces is LOGICAL. `measurePins()` accumulates in DOM order, which is
-   * start-to-end semantics, and under `dir="rtl"` the column order mirrors: a
-   * `pin: 'left'` column then sits at the physical right, where a `left: 0`
-   * sticky inset can never catch it and the column just scrolls away.
+   * `pin` keeps its physical name — it is public API — but the offsets are
+   * LOGICAL. `measurePins()` accumulates in DOM order, which is start-to-end
+   * semantics, and under `dir="rtl"` the column order mirrors: a `pin: 'left'`
+   * column then sits at the physical right, where a `left: 0` sticky inset can
+   * never catch it and the column just scrolls away.
+   *
+   * The class strings are the BEM class and the consumer's own, merged. One
+   * binding rather than a static `class` beside a `[class]` — Angular does
+   * merge the two, but `no-duplicate-attributes` refuses the shape, and a
+   * reader should not have to know the merge rules to know what a cell ends up
+   * with. The summary and group-footer cells take `align` only, on the body
+   * cell's modifier, the way they already wear `__td--pin-*`: `column.class`
+   * stays off them, as its docs say.
    */
-  protected leftPin(key: string): number | null {
-    return this.pins().left.get(key) ?? null;
-  }
-
-  /** Sticky `inset-inline-end` offset (px) for a `pin: 'right'` column, else `null`. See {@link leftPin}. */
-  protected rightPin(key: string): number | null {
-    return this.pins().right.get(key) ?? null;
-  }
+  protected readonly cellColumns = computed<readonly CellColumn<T>[]>(() => {
+    const pins = this.pins();
+    const resized = this.resizeWidths();
+    const templates = this.cellMap();
+    const tableTruncate = this.truncate();
+    const labelKey = this.labelColumnKey();
+    const treeKey = this.treeColumnKey();
+    return this.displayColumns().map(({ key, column }) => {
+      const { align, pin } = column;
+      const truncates = (column.truncate === undefined ? tableTruncate : column.truncate) === 'tooltip';
+      const tdClass = cellClasses('wr-table__td', column);
+      return {
+        key,
+        column,
+        thClass: cellClasses('wr-table__th', column),
+        tdClass: truncates ? `${tdClass} wr-table__td--truncate` : tdClass,
+        footClass: align ? `wr-table__foot-cell wr-table__td--align-${align}` : 'wr-table__foot-cell',
+        pinned: !!pin,
+        pinLeft: pin === 'left',
+        pinRight: pin === 'right',
+        edgeLeft: pins.leftEdge === key,
+        edgeRight: pins.rightEdge === key,
+        start: pins.left.get(key) ?? null,
+        end: pins.right.get(key) ?? null,
+        width: resized.get(key) ?? column.width ?? null,
+        maxWidth: truncates ? (column.width ?? null) : null,
+        label: key === labelKey,
+        tree: key === treeKey,
+        template: templates.get(key),
+      };
+    });
+  });
 
   private readonly hasPins = computed<boolean>(() => this.displayColumns().some(c => c.column.pin));
 
@@ -1157,31 +1221,6 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * a pinned column measures it.
    */
   protected readonly overflow = signal<{ start: boolean; end: boolean }>({ start: false, end: false });
-
-  /** Whether `key` is the inner-edge pinned column on `side` (carries the shadow). */
-  protected isPinEdge(key: string, side: 'left' | 'right'): boolean {
-    return (side === 'left' ? this.pins().leftEdge : this.pins().rightEdge) === key;
-  }
-
-  /**
-   * The BEM class and the consumer's own, merged into one string.
-   *
-   * One binding rather than a static `class` beside a `[class]` — Angular does
-   * merge the two, but `no-duplicate-attributes` refuses the shape, and a reader
-   * should not have to know the merge rules to know what a cell ends up with.
-   * Each returns the shared constant untouched when the column sets neither
-   * `align` nor `class`, so a table without these hooks allocates nothing per
-   * cell.
-   */
-  protected thClasses(column: WrTableColumn<T>): string {
-    return cellClasses('wr-table__th', column);
-  }
-
-  /** Body-cell half of {@link thClasses}, with the `truncate` modifier. */
-  protected tdClasses(column: WrTableColumn<T>): string {
-    const own = cellClasses('wr-table__td', column);
-    return this.truncates(column) ? `${own} wr-table__td--truncate` : own;
-  }
 
   // --- Header hints and truncated cells --------------------------------------
 
@@ -1195,11 +1234,6 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * @default null
    */
   readonly truncate = input<WrTableTruncate | null>(null);
-
-  /** Whether a column's cells are cut to one line. */
-  protected truncates(column: WrTableColumn<T>): boolean {
-    return (column.truncate === undefined ? this.truncate() : column.truncate) === 'tooltip';
-  }
 
   /**
    * A column's name for its controls: the title, the hint after it, or the hint
@@ -1250,16 +1284,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     }
   }
 
-  /**
-   * Summary and group-footer half of {@link thClasses}: `align` only, on the
-   * body cell's modifier, the way those cells already wear `__td--pin-*`.
-   * `column.class` stays off them, as its docs say.
-   */
-  protected footClasses(column: WrTableColumn<T>): string {
-    return column.align ? `wr-table__foot-cell wr-table__td--align-${column.align}` : 'wr-table__foot-cell';
-  }
-
-  /** Row half of {@link thClasses}, resolved through the `rowClass` predicate. */
+  /** The row's class with the consumer's own, resolved through the `rowClass` predicate. */
   protected rowClasses(row: Record<string, unknown>, index: number): string {
     const extra = this.rowClass()?.(row, index);
     return extra ? wrToClassList('wr-table__tr', extra).join(' ') : 'wr-table__tr';
@@ -1278,11 +1303,6 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * `<col>` widths are honoured exactly (auto layout treats them as minimums).
    */
   protected readonly fixedLayout = signal(false);
-
-  /** Current width (px) for a column, or `null` for auto — a live resize wins. */
-  protected colWidth(key: string): number | null {
-    return this.resizeWidths().get(key) ?? this.columns()[key]?.width ?? null;
-  }
 
   /** Freeze every column at its current rendered header width (skips frozen keys). */
   private freezeColumnWidths(): void {
@@ -2194,8 +2214,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     this.filterChange.emit({ key, items });
   }
 
-  protected cellContext(item: Record<string, unknown>, key: string, column: unknown): WrTableCellContext {
-    return { $implicit: item[key], item, column: column as WrTableCellContext['column'] };
+  protected cellContext(item: Record<string, unknown>, col: CellColumn<T>): WrTableCellContext {
+    return { $implicit: item[col.key], item, column: col.column as WrTableCellContext['column'] };
   }
 
   /**
@@ -2207,9 +2227,5 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     const value = item[key];
     if (noValue(value)) return column.empty ?? '';
     return column.format ? column.format(value, item as T) : value;
-  }
-
-  protected templateFor(key: unknown): TemplateRef<WrTableCellContext> | undefined {
-    return this.cellMap().get(String(key));
   }
 }
