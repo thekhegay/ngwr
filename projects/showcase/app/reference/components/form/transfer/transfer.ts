@@ -1,7 +1,7 @@
 import { JsonPipe } from '@angular/common';
 import { Component, signal } from '@angular/core';
 
-import { WrTransfer, type WrTransferItem } from 'ngwr/transfer';
+import { WrTransfer, type WrTransferItem, type WrTransferSize } from 'ngwr/transfer';
 
 import {
   DocApiComponent,
@@ -36,6 +36,8 @@ export default class TransferComponent {
     { value: 'audit', label: 'Read the audit log', disabled: true },
   ];
 
+  protected readonly sizes: readonly WrTransferSize[] = ['sm', 'md', 'lg'];
+
   protected readonly granted = signal<readonly unknown[]>(['read']);
   protected readonly searchGranted = signal<readonly unknown[]>([]);
 
@@ -48,6 +50,9 @@ export default class TransferComponent {
   [items]="permissions"
   [(value)]="granted"
 />`,
+    sizes: `<wr-transfer size="sm" searchable [items]="permissions" [(value)]="granted" />
+<wr-transfer size="md" searchable [items]="permissions" [(value)]="granted" />
+<wr-transfer size="lg" searchable [items]="permissions" [(value)]="granted" />`,
     forms: `<!-- Signal Forms -->
 <wr-transfer [items]="permissions" [formField]="form.granted" />
 

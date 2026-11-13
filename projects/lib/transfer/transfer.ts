@@ -30,7 +30,7 @@ import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrInput } from 'ngwr/input';
 import { wrCheckStyles } from 'ngwr/utils';
 
-import type { WrTransferItem } from './types';
+import type { WrTransferItem, WrTransferSize } from './types';
 
 /** A pane's rows plus the header state derived from them. */
 interface PaneState {
@@ -153,6 +153,18 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
 
   /** The surrounding field's label, unless the author named the control. */
   protected readonly labelledBy = computed(() => this.ownLabelledBy ?? this.fieldAria.labelledBy());
+
+  /**
+   * Control size: the panes, the headings, the rows and the move buttons. The
+   * checkboxes, search boxes and buttons inside are `sm` controls at `sm` and
+   * `md`, and `md` controls at `lg`.
+   *
+   * @default 'md'
+   */
+  readonly size = input<WrTransferSize>('md');
+
+  /** Size of the checkboxes, search boxes and buttons the panes render. */
+  protected readonly controlSize = computed(() => (this.size() === 'lg' ? 'md' : 'sm'));
 
   /** Show a filter box above each pane. @default false */
   readonly searchable = input(false, { transform: coerceBooleanProperty });
@@ -299,6 +311,8 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
 
   protected readonly classes = computed(() => {
     const parts: string[] = [];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-transfer--${size}`);
     if (this.disabled()) parts.push('wr-transfer--disabled');
     else if (this.readonly()) parts.push('wr-transfer--readonly');
     if (this.searchable()) parts.push('wr-transfer--searchable');

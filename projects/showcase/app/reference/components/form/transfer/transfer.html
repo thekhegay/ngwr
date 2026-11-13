@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Transfer"
+  updated="16.3.0"
   description="Move items between two lists; the right one is the value."
   [keywords]="['transfer', 'dual listbox', 'picklist', 'shuttle', 'wr-transfer']"
   [labels]="['Component']"
@@ -33,6 +34,20 @@
           [items]="permissions"
           [(value)]="searchGranted"
         />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sizes"
+    description="`sm`, `md` (default) or `lg` scale the lists, the headings and the rows; `lg` also steps the checkboxes, the search and the buttons up. Since v16.3."
+  >
+    <ngwr-doc-code [code]="snippets.sizes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%">
+        @for (s of sizes; track s) {
+          <wr-transfer searchable [size]="s" [items]="permissions" [value]="['read']" />
+        }
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

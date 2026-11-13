@@ -438,3 +438,23 @@ describe('WrTransferHarness', () => {
     });
   });
 });
+
+describe('WrTransferHarness.getSize()', () => {
+  @Component({
+    imports: [WrTransfer],
+    template: `<wr-transfer /><wr-transfer size="sm" /><wr-transfer size="lg" />`,
+  })
+  class SizesHost {}
+
+  it('reads md for the default and the modifier for the other two', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(SizesHost);
+    await fixture.whenStable();
+    const harnesses = await TestbedHarnessEnvironment.loader(fixture).getAllHarnesses(WrTransferHarness);
+
+    expect(await Promise.all(harnesses.map(harness => harness.getSize()))).toEqual(['md', 'sm', 'lg']);
+
+    fixture.destroy();
+  });
+});

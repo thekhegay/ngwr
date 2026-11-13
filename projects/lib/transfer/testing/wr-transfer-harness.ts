@@ -7,6 +7,8 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
+import type { WrTransferSize } from 'ngwr/transfer';
+
 import type { WrTransferHarnessFilters, WrTransferSide } from './types';
 import { WrTransferItemHarness } from './wr-transfer-item-harness';
 import { WrTransferPaneHarness } from './wr-transfer-pane-harness';
@@ -82,6 +84,14 @@ export class WrTransferHarness extends ComponentHarness {
    */
   async getPane(side: WrTransferSide): Promise<WrTransferPaneHarness> {
     return this.locatorFor(WrTransferPaneHarness.with({ side }))();
+  }
+
+  /** The control size. `'md'` is the default and paints no modifier of its own. */
+  async getSize(): Promise<WrTransferSize> {
+    const host = await this.host();
+    if (await host.hasClass('wr-transfer--sm')) return 'sm';
+    if (await host.hasClass('wr-transfer--lg')) return 'lg';
+    return 'md';
   }
 
   /**

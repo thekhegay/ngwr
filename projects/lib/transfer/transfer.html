@@ -13,7 +13,7 @@
   <div class="wr-transfer__pane" [class.wr-transfer__pane--target]="pane === 'target'">
     <div class="wr-transfer__head">
       <wr-checkbox
-        size="sm"
+        [size]="controlSize()"
         [checked]="state.allChecked"
         [indeterminate]="state.someChecked"
         [disabled]="disabled() || state.enabledCount === 0"
@@ -31,7 +31,7 @@
       <div class="wr-transfer__search">
         <input
           wrInput
-          size="sm"
+          [size]="controlSize()"
           type="search"
           [placeholder]="resolvedSearch()"
           [disabled]="disabled()"
@@ -45,7 +45,7 @@
       @for (item of state.rows; track item.value) {
         <li class="wr-transfer__item" [class.wr-transfer__item--disabled]="item.disabled">
           <wr-checkbox
-            size="sm"
+            [size]="controlSize()"
             [checked]="isChecked(pane, item)"
             [disabled]="disabled() || !!item.disabled"
             [readonly]="readonly()"
@@ -67,7 +67,7 @@
       <button
         wr-btn
         type="button"
-        size="sm"
+        [size]="controlSize()"
         color="primary"
         outlined
         class="wr-transfer__move wr-transfer__move--to-target"
@@ -92,7 +92,7 @@
       <button
         wr-btn
         type="button"
-        size="sm"
+        [size]="controlSize()"
         color="primary"
         outlined
         class="wr-transfer__move wr-transfer__move--to-source"

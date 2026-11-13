@@ -166,6 +166,90 @@
     transform: scaleX(-1);
   }
 
+  // Sizes. The pane's two dimensions and the gap are the host's own hooks, the
+  // rest live on the parts. A row keeps its 24px pitch at `sm`: the checkbox in
+  // it is a 16px target, and any tighter the rows fail the 24px spacing rule.
+  &--sm,
+  &:where([size='sm']) {
+    --wr-transfer-pane-width: 12rem;
+    --wr-transfer-pane-height: 12rem;
+    --wr-transfer-gap: var(--wr-space-sm);
+  }
+
+  &--sm &__head,
+  &:where([size='sm']) &__head {
+    --wr-transfer-head-padding-y: var(--wr-space-xs);
+    --wr-transfer-head-padding-x: var(--wr-space-sm);
+  }
+
+  &--sm &__title,
+  &:where([size='sm']) &__title {
+    --wr-transfer-title-font-size: var(--wr-text-xs);
+  }
+
+  &--sm &__search,
+  &:where([size='sm']) &__search {
+    --wr-transfer-search-padding-y: var(--wr-space-xs);
+    --wr-transfer-search-padding-x: var(--wr-space-sm);
+  }
+
+  &--sm &__item,
+  &:where([size='sm']) &__item {
+    --wr-transfer-item-padding-x: var(--wr-space-xs);
+  }
+
+  &--sm &__empty,
+  &:where([size='sm']) &__empty {
+    --wr-transfer-empty-padding-y: var(--wr-space-md);
+    --wr-transfer-empty-font-size: var(--wr-text-xs);
+  }
+
+  &--lg,
+  &:where([size='lg']) {
+    --wr-transfer-pane-width: 16rem;
+    --wr-transfer-pane-height: 18rem;
+    --wr-transfer-gap: var(--wr-space-lg);
+  }
+
+  &--lg &__head,
+  &:where([size='lg']) &__head {
+    --wr-transfer-head-padding-y: var(--wr-space-md);
+    --wr-transfer-head-padding-x: var(--wr-space-lg);
+  }
+
+  &--lg &__title,
+  &:where([size='lg']) &__title {
+    --wr-transfer-title-font-size: var(--wr-text-base);
+  }
+
+  &--lg &__count,
+  &:where([size='lg']) &__count {
+    --wr-transfer-count-font-size: var(--wr-text-sm);
+  }
+
+  &--lg &__search,
+  &:where([size='lg']) &__search {
+    --wr-transfer-search-padding-y: var(--wr-space-md);
+    --wr-transfer-search-padding-x: var(--wr-space-lg);
+  }
+
+  &--lg &__list,
+  &:where([size='lg']) &__list {
+    --wr-transfer-list-padding: var(--wr-space-sm);
+  }
+
+  &--lg &__item,
+  &:where([size='lg']) &__item {
+    --wr-transfer-item-padding-y: var(--wr-space-sm);
+    --wr-transfer-item-padding-x: var(--wr-space-md);
+  }
+
+  &--lg &__empty,
+  &:where([size='lg']) &__empty {
+    --wr-transfer-empty-padding-y: var(--wr-space-xl);
+    --wr-transfer-empty-font-size: var(--wr-text-base);
+  }
+
   // No container query here on purpose: `@container` only styles DESCENDANTS, so
   // a rule that reflows `.wr-transfer` itself could never match its own query.
   // Doing it properly means the house `responsive` opt-in modifier (a wrapper
