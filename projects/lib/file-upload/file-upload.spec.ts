@@ -193,6 +193,32 @@ describe('WrFileUpload', () => {
       expect((picked() as readonly File[]).map(f => f.name)).toEqual(['a.png', 'b.png']);
       expect(rejections().map(r => [r.file.name, r.reason])).toEqual([['c.png', 'count']]);
     });
+
+    it('fills the room left under maxFiles and rejects the rest of the batch', () => {
+      fixture.componentInstance.multiple.set(true);
+      fixture.componentInstance.maxFiles.set(3);
+      fixture.detectChanges();
+      choose(file('a.png'), file('b.png'));
+
+      choose(file('c.png'), file('d.png'));
+
+      expect((picked() as readonly File[]).map(f => f.name)).toEqual(['a.png', 'b.png', 'c.png']);
+      expect(rejections().map(r => [r.file.name, r.reason])).toEqual([['d.png', 'count']]);
+    });
+
+    it('keeps a list already over maxFiles and rejects only the incoming file', () => {
+      const prefilled = ['a', 'b', 'c', 'd', 'e'].map(name => file(`${name}.png`));
+      fixture.componentInstance.multiple.set(true);
+      fixture.componentInstance.maxFiles.set(3);
+      fixture.componentInstance.picked.set(prefilled);
+      fixture.detectChanges();
+
+      choose(file('new.png'));
+
+      expect(picked()).toEqual(prefilled);
+      expect(root().querySelectorAll('.wr-file-upload__remove')).toHaveLength(5);
+      expect(rejections().map(r => [r.file.name, r.reason])).toEqual([['new.png', 'count']]);
+    });
   });
 
   describe('removing a file from the keyboard', () => {

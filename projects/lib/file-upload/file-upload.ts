@@ -376,12 +376,12 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
 
     let next: File[];
     if (this.multiple()) {
-      next = [...this.files(), ...accepted];
+      const listed = this.files();
       const maxFiles = this.maxFiles();
-      if (maxFiles > 0 && next.length > maxFiles) {
-        const overflow = next.splice(maxFiles);
-        for (const file of overflow) rejections.push({ file, reason: 'count' });
-      }
+      // The cap rejects incoming files only: a list already over it keeps what it holds.
+      const room = maxFiles > 0 ? Math.max(0, maxFiles - listed.length) : accepted.length;
+      for (const file of accepted.slice(room)) rejections.push({ file, reason: 'count' });
+      next = [...listed, ...accepted.slice(0, room)];
     } else {
       // Single mode — last accepted wins, prior selection cleared.
       next = accepted.length > 0 ? [accepted[accepted.length - 1]] : [...this.files()];
