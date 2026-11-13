@@ -13,3 +13,6 @@ export interface WrFileUploadRejection {
   readonly file: File;
   readonly reason: WrFileUploadRejectionReason;
 }
+
+/** Size of a `<wr-file-upload>`. */
+export type WrFileUploadSize = 'sm' | 'md' | 'lg';

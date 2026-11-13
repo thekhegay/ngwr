@@ -29,7 +29,7 @@ import { useFormFieldAria } from 'ngwr/form';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
-import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './types';
+import type { WrFileUploadRejection, WrFileUploadRejectionReason, WrFileUploadSize } from './types';
 
 /** Does `file` match the `accept` attribute (extensions or MIME globs)? */
 function matchesAccept(file: File, accept: string): boolean {
@@ -82,6 +82,13 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
 
   /** `accept` attribute — comma-separated MIME types or extensions. @default '' */
   readonly accept = input<string>('');
+
+  /**
+   * Control size: the drop zone's padding, icon and text, and the list rows.
+   *
+   * @default 'md'
+   */
+  readonly size = input<WrFileUploadSize>('md');
 
   /** Max bytes per file. `0` disables the check. @default 0 */
   readonly maxSize = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
@@ -197,6 +204,8 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
 
   protected readonly classes = computed(() => {
     const parts: string[] = [];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-file-upload--${size}`);
     if (this.dragging()) parts.push('wr-file-upload--dragging');
     if (this.disabled()) parts.push('wr-file-upload--disabled');
     else if (this.readonly()) parts.push('wr-file-upload--readonly');
