@@ -273,7 +273,16 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
     afterNextRender(() => dropList._dropListRef.withElementContainer(this.listEl().nativeElement));
   }
 
+  /** Rows whose pointer drag Escape cancelled; the drop that follows is ignored. */
+  private readonly cancelledDrags = new WeakSet<object>();
+
+  /** @internal A row's pointer drag was cancelled with Escape. */
+  cancelDrag(drag: object): void {
+    this.cancelledDrags.add(drag);
+  }
+
   private onDrop(event: CdkDragDrop<WrSortableList<T>>): void {
+    if (event.item && this.lists().some(list => list.cancelledDrags.delete(event.item))) return;
     if (event.previousContainer !== event.container) {
       const source = event.previousContainer.data;
       const item = source.removeAt(event.previousIndex);

@@ -101,6 +101,9 @@
         cdkDropListOrientation="horizontal"
         [cdkDropListSortPredicate]="sortPredicate"
         (cdkDropListDropped)="onColumnDrop($event)"
+        (cdkDropListSorted)="onColumnListSorted($event)"
+        (cdkDropListEntered)="onColumnListEntered()"
+        (cdkDropListExited)="onColumnListExited()"
       >
         @if (rowSelection()) {
           <th class="wr-table__th wr-table__th--select">
@@ -133,6 +136,9 @@
             cdkDrag
             [attr.inert]="selectionBar() ? '' : null"
             [cdkDragDisabled]="!reorderable() || col.pinned"
+            (cdkDragStarted)="onColumnDragStart($event)"
+            (cdkDragMoved)="onColumnDragMoved($event)"
+            (cdkDragEnded)="onColumnDragEnd()"
             [class]="col.thClass"
             [attr.aria-sort]="ariaSortFor(col.key, col.column.sortable)"
             [attr.aria-label]="col.column.title ? null : (col.column.headerHint ?? null)"
