@@ -5,8 +5,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 ## Very high
 
 - **Value-control edges**: `wr-color-picker` ignores an external write back to the colour it last emitted, `wr-input-number` steps a NaN model into the text "NaN", and `wr-file-upload` evicts accepted files when the list is already over `maxFiles`.
-- **Textarea autosize**: refit when the width changes and when a textarea fitted while hidden is shown.
-- **Drawer live size**: width, height, maxHeight and position changes apply while the drawer is open.
 - **Toast outlet count**: the Close all count and threshold include queued toasts, as the global stack does.
 - **Toast storm**: `show()` reshows the host in the top layer only when another overlay joined since the last raise.
 - **Select at scale**: registering options copies the list per option (quadratic on every open and close), and search lowercases every label on every keystroke.
