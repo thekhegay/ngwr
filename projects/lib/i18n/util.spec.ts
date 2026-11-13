@@ -21,8 +21,9 @@ import { nullSignal, wrReadI18nText, useI18nFormatter, useI18nText } from './uti
  */
 @Component({
   template: `<span class="read">{{ read() }}</span
-    ><span class="use">{{ use() }}</span> <span class="missing">{{ missing() }}</span
-    ><span class="fmt">{{ fmt({ label: 'Ада' }) }}</span>`,
+    ><span class="use">{{ use() }}</span> <span class="missing">{{ missing() }}</span><span class="fmt">{{
+      fmt({ label: 'Ада' })
+    }}</span>`,
 })
 class Host {
   protected readonly read = wrReadI18nText('tree.expand', 'Expand');
