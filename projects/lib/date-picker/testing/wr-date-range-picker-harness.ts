@@ -7,6 +7,8 @@
 
 import { HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
+import type { WrDateRangePickerMode } from 'ngwr/date-picker';
+
 import type { WrDatePickerTimeFields, WrDateRangePickerEnd, WrDateRangePickerHarnessFilters } from './types';
 import { WrDatePickerHarnessBase } from './wr-date-picker-harness-base';
 import type { WrTimePanelHarness } from './wr-time-panel-harness';
@@ -59,8 +61,12 @@ export class WrDateRangePickerHarness extends WrDatePickerHarnessBase {
   protected readonly harnessName = 'WrDateRangePickerHarness';
 
   /** Which mode the picker is in, read from the `wr-date-range-picker--*` modifier. */
-  async getMode(): Promise<'date' | 'datetime'> {
-    return (await (await this.host()).hasClass('wr-date-range-picker--datetime')) ? 'datetime' : 'date';
+  async getMode(): Promise<WrDateRangePickerMode> {
+    const host = await this.host();
+    for (const mode of ['datetime', 'month', 'quarter', 'year'] as const) {
+      if (await host.hasClass(`wr-date-range-picker--${mode}`)) return mode;
+    }
+    return 'date';
   }
 
   /** What the start field is showing — `''` while that end is unpicked. */

@@ -95,12 +95,15 @@ export abstract class WrDatePickerHarnessBase extends ComponentHarness {
   }
 
   /**
-   * Which of the calendar's three views is showing. The header label zooms out
-   * (day → month → year); picking a month or a year zooms back in.
+   * Which of the calendar's views is showing. The header label zooms out
+   * (day, then month, then year); picking a month or a year zooms back in. A period
+   * mode opens on the view it picks from, and `quarter` exists only in
+   * `mode="quarter"`.
    */
-  async getView(): Promise<'day' | 'month' | 'year'> {
+  async getView(): Promise<'day' | 'month' | 'quarter' | 'year'> {
     if (await this.inPanel('[role="grid"]')) return 'day';
     if (await this.inPanel('.wr-calendar__months')) return 'month';
+    if (await this.inPanel('.wr-calendar__quarters')) return 'quarter';
     if (await this.inPanel('.wr-calendar__years')) return 'year';
 
     throw new Error(this.noCalendar('getView'));
@@ -180,6 +183,47 @@ export abstract class WrDatePickerHarnessBase extends ComponentHarness {
     }
 
     await chip.click();
+  }
+
+  /**
+   * Pick a quarter, 1 to 4, of the year in the header. `mode="quarter"` only:
+   * no other mode has a quarter view.
+   */
+  async selectQuarter(quarter: 1 | 2 | 3 | 4): Promise<void> {
+    const chips = await this.allInPanel('.wr-calendar__quarters .wr-calendar__chip');
+    if (chips.length === 0) {
+      throw new Error(
+        `${this.harnessName}.selectQuarter(): the calendar is not showing its quarter view. Only mode="quarter" ` +
+          'has one, and from its year view selectYear() comes back to it.'
+      );
+    }
+
+    const chip = chips[quarter - 1];
+    if (!chip) throw new Error(`${this.harnessName}.selectQuarter(${quarter}): a year has quarters 1 to 4.`);
+    if (await chip.getProperty<boolean>('disabled')) {
+      throw new Error(
+        `${this.harnessName}.selectQuarter(${quarter}): that quarter is disabled: min / max or dateFilter rules ` +
+          'out every day in it.'
+      );
+    }
+
+    await chip.click();
+  }
+
+  /**
+   * Pick the week holding a day of the month on show. `mode="week"` only: the
+   * click is a day click, and what makes it a week is the mode, so in any other
+   * mode this throws rather than quietly picking a day.
+   */
+  async selectWeek(dayOfMonth: number): Promise<void> {
+    if (!(await this.inPanel('.wr-calendar--week'))) {
+      throw new Error(
+        `${this.harnessName}.selectWeek(): the calendar does not pick weeks, that is mode="week". selectDay() ` +
+          'picks a day.'
+      );
+    }
+
+    await this.selectDay(dayOfMonth);
   }
 
   /** Pick a year in the year view. Only the twelve on show can be picked. */
@@ -305,8 +349,8 @@ export abstract class WrDatePickerHarnessBase extends ComponentHarness {
 
     throw new Error(
       `${this.harnessName}.${method}(): this popup has no day grid. mode="time" renders a time stepper only, and a ` +
-        'calendar zoomed out to its month / year view offers chips instead of day cells — selectMonth() / ' +
-        'selectYear() come back to the days.'
+        'calendar on its month / quarter / year view offers chips instead of day cells: selectMonth() / ' +
+        'selectYear() come back to the days, except in a period mode, which has none.'
     );
   }
 

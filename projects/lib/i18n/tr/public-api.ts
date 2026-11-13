@@ -212,6 +212,8 @@ export const wrTr: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Aylar',
     yearList: 'Yıllar',
+    quarterList: 'Çeyrekler',
+    quarter: '{{quarter}}. çeyrek',
     prevYears: 'Önceki 12 yıl',
     nextYears: 'Sonraki 12 yıl',
     header: '{{month}} {{year}}',
@@ -473,6 +475,8 @@ export const wrTr: WrI18nCatalog = {
     panelDateTime: 'Tarih ve saat seçin',
     panelRange: 'Tarih aralığı seçin',
     panelRangeDateTime: 'Tarih ve saat aralığı seçin',
+    quarterValue: '{{year}} {{quarter}}. çeyrek',
+    weekValue: '{{year}}, {{week}}. hafta',
     rangeStart: 'Aralık başlangıcı',
     rangeEnd: 'Aralık bitişi',
     startTime: 'Başlangıç saati',

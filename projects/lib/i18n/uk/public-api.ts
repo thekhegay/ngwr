@@ -217,6 +217,8 @@ export const wrUk: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Місяці',
     yearList: 'Роки',
+    quarterList: 'Квартали',
+    quarter: '{{quarter}} кв.',
     prevYears: 'Попередні 12 років',
     nextYears: 'Наступні 12 років',
     header: '{{month}} {{year}}',
@@ -472,6 +474,8 @@ export const wrUk: WrI18nCatalog = {
     panelDateTime: 'Вибір дати й часу',
     panelRange: 'Вибір періоду',
     panelRangeDateTime: 'Вибір періоду й часу',
+    quarterValue: '{{quarter}} кв. {{year}}',
+    weekValue: 'Тиждень {{week}}, {{year}}',
     rangeStart: 'Початок періоду',
     rangeEnd: 'Кінець періоду',
     startTime: 'Час початку',

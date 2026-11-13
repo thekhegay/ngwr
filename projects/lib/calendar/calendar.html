@@ -91,7 +91,7 @@
                 [disabled]="isDisabled(day)"
                 [attr.tabindex]="isFocused(day) ? 0 : -1"
                 [attr.aria-label]="dayLabel(day)"
-                [attr.aria-selected]="isSelected(day)"
+                [attr.aria-selected]="isAriaSelected(day)"
                 [attr.aria-disabled]="isDisabled(day)"
                 (click)="onCellClick(day)"
                 (mouseenter)="onCellEnter(day)"
@@ -118,21 +118,57 @@
       [attr.aria-label]="resolvedMonthListLabel()"
       [attr.aria-invalid]="fieldAria.ariaInvalid()"
       [attr.aria-describedby]="fieldAria.describedBy()"
+      (mouseleave)="onCellLeave()"
     >
       @for (name of monthsView(); track name) {
         <button
           type="button"
           class="wr-calendar__chip"
           role="option"
-          [class.wr-calendar__chip--current]="isMonthCurrent($index)"
-          [class.wr-calendar__chip--selected]="isMonthSelected($index)"
+          [class.wr-calendar__chip--current]="isChipCurrent($index)"
+          [class.wr-calendar__chip--selected]="isChipSelected($index)"
+          [class.wr-calendar__chip--in-range]="isChipInRange($index)"
+          [class.wr-calendar__chip--range-preview]="isChipRangePreview($index)"
           [disabled]="isMonthDisabled($index)"
           [attr.tabindex]="activeChip() === $index ? 0 : -1"
-          [attr.aria-selected]="isMonthSelected($index)"
+          [attr.aria-selected]="isChipSelected($index)"
           [attr.aria-disabled]="isMonthDisabled($index)"
           (click)="onMonthSelect($index)"
+          (mouseenter)="onChipEnter($index)"
         >
           {{ name }}
+        </button>
+      }
+    </div>
+  }
+
+  @case ('quarter') {
+    <!-- Only under `granularity="quarter"`, where a chip is the pick itself. -->
+    <div
+      class="wr-calendar__quarters"
+      role="listbox"
+      [attr.aria-label]="resolvedQuarterListLabel()"
+      [attr.aria-invalid]="fieldAria.ariaInvalid()"
+      [attr.aria-describedby]="fieldAria.describedBy()"
+      (mouseleave)="onCellLeave()"
+    >
+      @for (quarter of quartersView; track quarter) {
+        <button
+          type="button"
+          class="wr-calendar__chip"
+          role="option"
+          [class.wr-calendar__chip--current]="isChipCurrent($index)"
+          [class.wr-calendar__chip--selected]="isChipSelected($index)"
+          [class.wr-calendar__chip--in-range]="isChipInRange($index)"
+          [class.wr-calendar__chip--range-preview]="isChipRangePreview($index)"
+          [disabled]="isQuarterDisabled($index)"
+          [attr.tabindex]="activeChip() === $index ? 0 : -1"
+          [attr.aria-selected]="isChipSelected($index)"
+          [attr.aria-disabled]="isQuarterDisabled($index)"
+          (click)="onQuarterSelect($index)"
+          (mouseenter)="onChipEnter($index)"
+        >
+          {{ quarterLabel(quarter) }}
         </button>
       }
     </div>
@@ -145,19 +181,23 @@
       [attr.aria-label]="resolvedYearListLabel()"
       [attr.aria-invalid]="fieldAria.ariaInvalid()"
       [attr.aria-describedby]="fieldAria.describedBy()"
+      (mouseleave)="onCellLeave()"
     >
       @for (year of yearsView(); track year) {
         <button
           type="button"
           class="wr-calendar__chip"
           role="option"
-          [class.wr-calendar__chip--current]="isYearCurrent(year)"
-          [class.wr-calendar__chip--selected]="isYearSelected(year)"
+          [class.wr-calendar__chip--current]="isChipCurrent($index)"
+          [class.wr-calendar__chip--selected]="isChipSelected($index)"
+          [class.wr-calendar__chip--in-range]="isChipInRange($index)"
+          [class.wr-calendar__chip--range-preview]="isChipRangePreview($index)"
           [disabled]="isYearDisabled(year)"
           [attr.tabindex]="activeChip() === $index ? 0 : -1"
-          [attr.aria-selected]="isYearSelected(year)"
+          [attr.aria-selected]="isChipSelected($index)"
           [attr.aria-disabled]="isYearDisabled(year)"
           (click)="onYearSelect(year)"
+          (mouseenter)="onChipEnter($index)"
         >
           {{ year }}
         </button>

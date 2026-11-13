@@ -24,12 +24,12 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { WrDateAdapter } from 'ngwr/date';
+import { WrDateAdapter, type WrDatePeriod, wrPeriodEnd, wrPeriodStart } from 'ngwr/date';
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { wrCheckStyles } from 'ngwr/utils';
 
-import type { WrCalendarMode, WrCalendarRange, WrCalendarValue } from './types';
+import type { WrCalendarGranularity, WrCalendarMode, WrCalendarRange, WrCalendarValue } from './types';
 
 const EMPTY_RANGE: WrCalendarRange = [null, null];
 
@@ -49,6 +49,17 @@ const COLS = 7;
  */
 const MONTH_COLS = 3;
 const YEAR_COLS = 4;
+/** Four quarters read as two rows of two, which leaves a chip room for a spelled-out label. */
+const QUARTER_COLS = 2;
+
+/** The views behind the header. `quarter` is reached only under `granularity="quarter"`. */
+type WrCalendarViewMode = 'day' | 'month' | 'quarter' | 'year';
+
+const CHIP_COLS: Readonly<Record<Exclude<WrCalendarViewMode, 'day'>, number>> = {
+  month: MONTH_COLS,
+  quarter: QUARTER_COLS,
+  year: YEAR_COLS,
+};
 
 /**
  * Month-view calendar. Supports single-date selection (`mode="single"`) or
@@ -93,6 +104,20 @@ const YEAR_COLS = 4;
 export class WrCalendar implements FormValueControl<WrCalendarValue> {
   /** Selection mode. @default 'single' */
   readonly mode = input<WrCalendarMode>('single');
+
+  /**
+   * What one pick names. `'week'` keeps the day grid, where hovering and
+   * picking take the whole week; `'month'`, `'quarter'` and `'year'` open on
+   * that view and pick there, with no day grid to drop to.
+   *
+   * A period is held as its first day. In `range` mode the end is the last day
+   * of the end period, so the range stays an inclusive run of days. `min`,
+   * `max` and `dateFilter` close a period only when they close every day in it.
+   * A week starts on the adapter's first day of the week.
+   *
+   * @default 'day'
+   */
+  readonly granularity = input<WrCalendarGranularity>('day');
 
   /** Two-way bindable single value (used when `mode === 'single'`). */
   readonly date = model<Date | null>(null);
@@ -174,7 +199,36 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
   protected readonly hoverDate = signal<Date | null>(null);
 
   /** Which sub-view is currently shown. Cycles `day → month → year` on header click. */
-  protected readonly viewMode = signal<'day' | 'month' | 'year'>('day');
+  protected readonly viewMode = signal<WrCalendarViewMode>('day');
+
+  /** The period a pick names, or `null` while a pick names a day. */
+  private readonly period = computed<WrDatePeriod | null>(() => {
+    const granularity = this.granularity();
+    return granularity === 'day' ? null : granularity;
+  });
+
+  /** The view a pick is made on: the one the calendar opens on and returns to. */
+  private readonly homeView = computed<WrCalendarViewMode>(() => {
+    const granularity = this.granularity();
+    return granularity === 'day' || granularity === 'week' ? 'day' : granularity;
+  });
+
+  /** Whether the chips on screen are what a click picks, rather than a step towards a finer view. */
+  private readonly picksChips = computed(() => this.viewMode() !== 'day' && this.viewMode() === this.homeView());
+
+  /** The week a single `granularity="week"` calendar holds, as its first and last day. */
+  private readonly pickedWeek = computed<readonly [Date, Date] | null>(() => {
+    if (this.period() !== 'week' || this.mode() !== 'single') return null;
+    const picked = this.date();
+    return picked ? this.weekOf(picked) : null;
+  });
+
+  /** The week under the pointer, while `granularity="week"`. */
+  private readonly hoverWeek = computed<readonly [Date, Date] | null>(() => {
+    if (this.period() !== 'week') return null;
+    const hover = this.hoverDate();
+    return hover ? this.weekOf(hover) : null;
+  });
 
   /**
    * Chip the month / year listbox has moved its ring to, as an index into
@@ -206,6 +260,9 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
   /** Accessible name of the year list. Falls back to `calendar.yearList`, then `'Years'`. */
   readonly yearListLabel = input<string | null>(null);
 
+  /** Accessible name of the quarter list. Falls back to `calendar.quarterList`, then `'Quarters'`. */
+  readonly quarterListLabel = input<string | null>(null);
+
   /** Accessible name of the back arrow on the month view. Falls back to `calendar.prevYear`, then `'Previous year'`. */
   readonly prevYearLabel = input<string | null>(null);
 
@@ -222,6 +279,7 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
   private readonly resolvedNextMonthLabel = useI18nText(this.nextMonthLabel, 'calendar.nextMonth', 'Next month');
   protected readonly resolvedMonthListLabel = useI18nText(this.monthListLabel, 'calendar.monthList', 'Months');
   protected readonly resolvedYearListLabel = useI18nText(this.yearListLabel, 'calendar.yearList', 'Years');
+  protected readonly resolvedQuarterListLabel = useI18nText(this.quarterListLabel, 'calendar.quarterList', 'Quarters');
   private readonly resolvedPrevYearLabel = useI18nText(this.prevYearLabel, 'calendar.prevYear', 'Previous year');
   private readonly resolvedNextYearLabel = useI18nText(this.nextYearLabel, 'calendar.nextYear', 'Next year');
   private readonly resolvedPrevYearsLabel = useI18nText(this.prevYearsLabel, 'calendar.prevYears', 'Previous 12 years');
@@ -233,6 +291,7 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
       case 'year':
         return this.resolvedPrevYearsLabel();
       case 'month':
+      case 'quarter':
         return this.resolvedPrevYearLabel();
       default:
         return this.resolvedPrevMonthLabel();
@@ -245,6 +304,7 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
       case 'year':
         return this.resolvedNextYearsLabel();
       case 'month':
+      case 'quarter':
         return this.resolvedNextYearLabel();
       default:
         return this.resolvedNextMonthLabel();
@@ -285,6 +345,7 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
         });
       }
       case 'month':
+      case 'quarter':
         return `${this.adapter.getYear(v)}`;
       case 'year': {
         const years = this.yearsView();
@@ -296,6 +357,15 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
   private readonly headerText = useI18nFormatter('calendar.header', '{{month}} {{year}}');
   private readonly yearRangeText = useI18nFormatter('calendar.yearRange', '{{from}} – {{to}}');
   private readonly dayLabelText = useI18nFormatter('calendar.dayLabel', '{{weekday}}, {{date}}');
+  private readonly quarterText = useI18nFormatter('calendar.quarter', 'Q{{quarter}}');
+
+  /** The four quarters of the year on screen, by number. */
+  protected readonly quartersView: readonly number[] = [1, 2, 3, 4];
+
+  /** A quarter chip's text: the arrangement is the catalog's, as the header's is. */
+  protected quarterLabel(quarter: number): string {
+    return this.quarterText({ quarter });
+  }
 
   /**
    * Long weekday names for the cell names.
@@ -372,6 +442,8 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
 
   protected readonly classes = computed(() => {
     const parts = [`wr-calendar--${this.mode()}`];
+    const period = this.period();
+    if (period) parts.push(`wr-calendar--${period}`);
     if (this.disabled()) parts.push('wr-calendar--disabled');
     if (this.readonly()) parts.push('wr-calendar--readonly');
     return parts.join(' ');
@@ -417,6 +489,13 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
       });
     });
 
+    // A calendar opens on the view its picks are made on, and goes back to it
+    // when the granularity moves.
+    effect(() => {
+      const home = this.homeView();
+      untracked(() => this.setViewMode(home));
+    });
+
     // Initial focus: selected date if any, else today. Also snap viewDate to
     // that month.
     //
@@ -433,7 +512,9 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
       // schedules another change-detection pass — the `--focused` class and the
       // `tabindex` are not in the DOM until that one has run.
       if (this.autoFocus()) {
-        afterNextRender(() => this.focusActiveCell(), { injector: this.injector });
+        afterNextRender(() => (this.viewMode() === 'day' ? this.focusActiveCell() : this.focusActiveChip()), {
+          injector: this.injector,
+        });
       }
     });
 
@@ -445,7 +526,7 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
       const candidate = this.mode() === 'single' ? this.date() : this.range()[0];
       if (!candidate) return;
       untracked(() => {
-        if (!this.adapter.isSameMonth(candidate, this.viewDate())) {
+        if (!this.isInViewMonth(candidate)) {
           this.viewDate.set(candidate);
           // Only the tab stop moves, never real focus: nobody asked to be taken
           // here. A cursor still in the grid is one a click just placed, on the
@@ -501,6 +582,22 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     this.focusedDate.set(this.nearestEnabled(landing));
   }
 
+  /**
+   * Whether the month on screen already shows the selection. A week that
+   * straddles two months is on show in both, so picking it from the later one
+   * does not page the grid back to where its first day is.
+   */
+  private isInViewMonth(selected: Date): boolean {
+    const view = this.viewDate();
+    if (this.adapter.isSameMonth(selected, view)) return true;
+    return this.period() === 'week' && this.adapter.isSameMonth(this.weekOf(selected)[1], view);
+  }
+
+  /** The first and last day of the week `date` is in. */
+  private weekOf(date: Date): readonly [Date, Date] {
+    return [wrPeriodStart(this.adapter, date, 'week'), wrPeriodEnd(this.adapter, date, 'week')];
+  }
+
   /** Whether `date` is one of the 42 days the grid is showing. */
   private isRendered(date: Date): boolean {
     const weeks = this.weeks();
@@ -514,7 +611,7 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     if (this.disabled()) return;
     if (this.viewMode() === 'day') {
       this.setViewMode('month');
-    } else if (this.viewMode() === 'month') {
+    } else if (this.viewMode() !== 'year') {
       this.setViewMode('year');
       // The label is disabled on the year page, and disabling the button that
       // holds focus drops it to `<body>`. The page that opened takes it instead.
@@ -546,6 +643,10 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     if (this.isMonthDisabled(monthIdx)) return;
     const v = this.viewDate();
     const year = this.adapter.getYear(v);
+    if (this.picksChips()) {
+      this.pickChip(monthIdx, this.adapter.createDate(year, monthIdx, 1));
+      return;
+    }
     this.viewDate.set(this.adapter.createDate(year, monthIdx, 1));
 
     const focused = this.focusedDate();
@@ -556,13 +657,37 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     afterNextRender(() => this.focusActiveCell(), { injector: this.injector });
   }
 
-  /** Year → month view, with the same focus restoration; the landing view is chips. */
+  /**
+   * From the year view to the month view, with the same focus restoration; the landing view is chips.
+   * Under `granularity="quarter"` the landing view is the quarters, and under
+   * `granularity="year"` the year is the pick.
+   */
   protected onYearSelect(year: number): void {
     if (this.isYearDisabled(year)) return;
+    if (this.picksChips()) {
+      this.pickChip(this.yearsView().indexOf(year), this.adapter.createDate(year, 0, 1));
+      return;
+    }
     const v = this.viewDate();
     this.viewDate.set(this.adapter.createDate(year, this.adapter.getMonth(v), 1));
-    this.setViewMode('month');
+    this.setViewMode(this.homeView() === 'quarter' ? 'quarter' : 'month');
     afterNextRender(() => this.focusActiveChip(), { injector: this.injector });
+  }
+
+  /** A quarter chip, which only `granularity="quarter"` renders: always a pick. */
+  protected onQuarterSelect(index: number): void {
+    if (this.isQuarterDisabled(index)) return;
+    this.pickChip(index, this.chipStart(index));
+  }
+
+  /**
+   * A chip that IS the pick. The view stays, so the chip keeps real focus, and
+   * the ring is moved onto it: a click is a navigation too.
+   */
+  private pickChip(index: number, start: Date): void {
+    if (this.readonly()) return;
+    this.rovedChip.set(index);
+    this.pick(start);
   }
 
   /**
@@ -572,7 +697,7 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
    * is the one place the ring has to forget where it was — otherwise a year
    * picked at index 7 rings the eighth MONTH on the way back down.
    */
-  private setViewMode(view: 'day' | 'month' | 'year'): void {
+  private setViewMode(view: WrCalendarViewMode): void {
     this.rovedChip.set(null);
     this.viewMode.set(view);
   }
@@ -583,6 +708,7 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
       case 'day':
         return this.adapter.addMonths(v, direction);
       case 'month':
+      case 'quarter':
         return this.adapter.addYears(v, direction);
       case 'year':
         return this.adapter.addYears(v, direction * 12);
@@ -605,6 +731,9 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
   }
 
   protected isSelected(date: Date): boolean {
+    // A picked week reads as a band: its two ends filled, the days between tinted.
+    const week = this.pickedWeek();
+    if (week) return this.adapter.isSameDay(date, week[0]) || this.adapter.isSameDay(date, week[1]);
     if (this.mode() === 'single') {
       const v = this.date();
       return v ? this.adapter.isSameDay(date, v) : false;
@@ -615,7 +744,17 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     return false;
   }
 
+  /**
+   * What `aria-selected` says. Every day of a picked week is selected, though
+   * only its two ends are drawn filled.
+   */
+  protected isAriaSelected(date: Date): boolean {
+    return this.isSelected(date) || (!!this.pickedWeek() && this.isInRange(date));
+  }
+
   protected isInRange(date: Date): boolean {
+    const week = this.pickedWeek();
+    if (week) return this.adapter.compareDate(date, week[0]) > 0 && this.adapter.compareDate(date, week[1]) < 0;
     if (this.mode() !== 'range') return false;
     const [start, end] = this.range();
     if (!start || !end) return false;
@@ -623,11 +762,22 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
   }
 
   protected isInRangePreview(date: Date): boolean {
-    if (this.mode() !== 'range') return false;
+    const hoverWeek = this.hoverWeek();
+    if (this.mode() !== 'range') {
+      // The week a click would pick, whole, unless it is the one already picked.
+      if (!hoverWeek || this.isAriaSelected(date)) return false;
+      return this.adapter.compareDate(date, hoverWeek[0]) >= 0 && this.adapter.compareDate(date, hoverWeek[1]) <= 0;
+    }
     const [start, end] = this.range();
     const hover = this.hoverDate();
     if (!start || end || !hover) return false;
     const before = this.adapter.compareDate(start, hover) <= 0;
+    if (hoverWeek) {
+      // The hovered week is part of what a click would take, up to its far end.
+      return before
+        ? this.adapter.compareDate(date, start) > 0 && this.adapter.compareDate(date, hoverWeek[1]) <= 0
+        : this.adapter.compareDate(date, hoverWeek[0]) >= 0 && this.adapter.compareDate(date, start) < 0;
+    }
     const lo = before ? start : hover;
     const hi = before ? hover : start;
     return this.adapter.compareDate(date, lo) > 0 && this.adapter.compareDate(date, hi) < 0;
@@ -648,46 +798,120 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     return false;
   }
 
-  // Month / year view predicates
+  // Month / quarter / year view predicates
 
-  protected isMonthCurrent(monthIdx: number): boolean {
-    return this.adapter.getMonth(this.viewDate()) === monthIdx;
+  /**
+   * The first day of the period the chip at `index` names, in the view on
+   * screen: a month or a quarter of the year in the header, or a year of the
+   * twelve on the page.
+   */
+  private chipStart(index: number): Date {
+    const year = this.adapter.getYear(this.viewDate());
+    switch (this.viewMode()) {
+      case 'quarter':
+        return this.adapter.createDate(year, index * 3, 1);
+      case 'year':
+        return this.adapter.createDate(this.yearsView()[index] ?? year, 0, 1);
+      default:
+        return this.adapter.createDate(year, index, 1);
+    }
   }
 
-  protected isMonthSelected(monthIdx: number): boolean {
-    const v = this.mode() === 'single' ? this.date() : this.range()[0];
-    if (!v) return false;
-    return this.adapter.getYear(v) === this.adapter.getYear(this.viewDate()) && this.adapter.getMonth(v) === monthIdx;
+  /** Whether `date` falls in the period the chip at `index` names. */
+  private isInChip(date: Date, index: number): boolean {
+    const chip = this.chipStart(index);
+    if (this.adapter.getYear(date) !== this.adapter.getYear(chip)) return false;
+    switch (this.viewMode()) {
+      case 'quarter':
+        return Math.floor(this.adapter.getMonth(date) / 3) === index;
+      case 'year':
+        return true;
+      default:
+        return this.adapter.getMonth(date) === index;
+    }
+  }
+
+  /** The chip the view itself points at: see {@link currentChip}. */
+  protected isChipCurrent(index: number): boolean {
+    return this.currentChip() === index;
+  }
+
+  /**
+   * Whether the chip holds the selection. On the way to a finer view it marks
+   * where the selection is; where the chip is the pick, both ends of a range
+   * count.
+   */
+  protected isChipSelected(index: number): boolean {
+    if (this.mode() === 'single') {
+      const v = this.date();
+      return !!v && this.isInChip(v, index);
+    }
+    const [start, end] = this.range();
+    if (start && this.isInChip(start, index)) return true;
+    return this.picksChips() && !!end && this.isInChip(end, index);
+  }
+
+  /** A chip strictly between the two ends of a picked range of periods. */
+  protected isChipInRange(index: number): boolean {
+    if (this.mode() !== 'range' || !this.picksChips()) return false;
+    const [start, end] = this.range();
+    if (!start || !end || this.isChipSelected(index)) return false;
+    const chip = this.chipStart(index);
+    return this.adapter.compareDate(chip, start) > 0 && this.adapter.compareDate(chip, end) < 0;
+  }
+
+  /** A chip the range would take if the hovered one were clicked. */
+  protected isChipRangePreview(index: number): boolean {
+    if (this.mode() !== 'range' || !this.picksChips()) return false;
+    const [start, end] = this.range();
+    const hover = this.hoverDate();
+    if (!start || end || !hover || this.isChipSelected(index)) return false;
+    const before = this.adapter.compareDate(start, hover) <= 0;
+    const chip = this.chipStart(index);
+    return (
+      this.adapter.compareDate(chip, before ? start : hover) >= 0 &&
+      this.adapter.compareDate(chip, before ? hover : start) <= 0
+    );
+  }
+
+  protected onChipEnter(index: number): void {
+    if (this.mode() === 'range' && this.picksChips() && !this.readonly()) this.hoverDate.set(this.chipStart(index));
+  }
+
+  /**
+   * Whether `min`, `max` or, where the span is what a click picks, `dateFilter`
+   * closes every day from `start` to `end`. A filter is asked only about a
+   * period that can be picked: on the way to the day grid a month stays open,
+   * as it always has, and its days say which of them are closed.
+   */
+  private isSpanClosed(start: Date, end: Date): boolean {
+    if (this.disabled()) return true;
+    const min = asBound(this.min());
+    if (min && this.adapter.compareDate(end, min) < 0) return true;
+    const max = asBound(this.max());
+    if (max && this.adapter.compareDate(start, max) > 0) return true;
+    const filter = this.dateFilter();
+    if (!filter || !this.picksChips()) return false;
+    for (let day = start; this.adapter.compareDate(day, end) <= 0; day = this.adapter.addDays(day, 1)) {
+      if (filter(day)) return false;
+    }
+    return true;
   }
 
   protected isMonthDisabled(monthIdx: number): boolean {
-    if (this.disabled()) return true;
     const year = this.adapter.getYear(this.viewDate());
     const monthStart = this.adapter.createDate(year, monthIdx, 1);
-    const monthEnd = this.adapter.createDate(year, monthIdx, this.adapter.getDaysInMonth(monthStart));
-    const min = asBound(this.min());
-    if (min && this.adapter.compareDate(monthEnd, min) < 0) return true;
-    const max = asBound(this.max());
-    if (max && this.adapter.compareDate(monthStart, max) > 0) return true;
-    return false;
+    return this.isSpanClosed(monthStart, wrPeriodEnd(this.adapter, monthStart, 'month'));
   }
 
-  protected isYearCurrent(year: number): boolean {
-    return this.adapter.getYear(this.viewDate()) === year;
-  }
-
-  protected isYearSelected(year: number): boolean {
-    const v = this.mode() === 'single' ? this.date() : this.range()[0];
-    return v ? this.adapter.getYear(v) === year : false;
+  protected isQuarterDisabled(index: number): boolean {
+    const year = this.adapter.getYear(this.viewDate());
+    const quarterStart = this.adapter.createDate(year, index * 3, 1);
+    return this.isSpanClosed(quarterStart, wrPeriodEnd(this.adapter, quarterStart, 'quarter'));
   }
 
   protected isYearDisabled(year: number): boolean {
-    if (this.disabled()) return true;
-    const min = asBound(this.min());
-    if (min && year < this.adapter.getYear(min)) return true;
-    const max = asBound(this.max());
-    if (max && year > this.adapter.getYear(max)) return true;
-    return false;
+    return this.isSpanClosed(this.adapter.createDate(year, 0, 1), this.adapter.createDate(year, 11, 31));
   }
 
   // Interaction
@@ -695,8 +919,21 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
   protected onCellClick(date: Date): void {
     // The one way a pick reaches the models, so the one place `readonly` guards.
     if (this.readonly() || this.isDisabled(date)) return;
+    this.pick(date);
+    this.focusedDate.set(date);
+    if (!this.adapter.isSameMonth(date, this.viewDate())) {
+      this.viewDate.set(date);
+    }
+  }
+
+  /**
+   * Writes a pick to the models: the day itself, or under a `granularity` the
+   * first day of the period it is in.
+   */
+  private pick(date: Date): void {
     if (this.mode() === 'single') {
-      const picked = this.adapter.clone(date);
+      const period = this.period();
+      const picked = period ? wrPeriodStart(this.adapter, date, period) : this.adapter.clone(date);
       this.date.set(picked);
       this.seenOwn = picked;
       this.mirrorToValue(picked);
@@ -705,15 +942,11 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
       this.seenOwn = this.range();
       this.mirrorToValue(this.seenOwn);
     }
-    this.focusedDate.set(date);
-    if (!this.adapter.isSameMonth(date, this.viewDate())) {
-      this.viewDate.set(date);
-    }
   }
 
   protected onCellEnter(date: Date): void {
     // No preview while read-only: it draws the range a click would not make.
-    if (this.mode() === 'range' && !this.readonly()) this.hoverDate.set(date);
+    if ((this.mode() === 'range' || this.period() === 'week') && !this.readonly()) this.hoverDate.set(date);
   }
 
   /**
@@ -751,19 +984,26 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
   }
 
   protected onCellLeave(): void {
-    if (this.mode() === 'range') this.hoverDate.set(null);
+    this.hoverDate.set(null);
   }
 
+  /**
+   * Under a `granularity` each end is widened to its period: the start to the
+   * period's first day and the end to its last, so the range is still an
+   * inclusive run of days.
+   */
   private applyRangeClick(date: Date): void {
+    const period = this.period();
     const [start, end] = this.range();
+    const from = period ? wrPeriodStart(this.adapter, date, period) : this.adapter.clone(date);
     if (!start || (start && end)) {
-      this.range.set([this.adapter.clone(date), null]);
+      this.range.set([from, null]);
       return;
     }
     if (this.adapter.compareDate(date, start) < 0) {
-      this.range.set([this.adapter.clone(date), start]);
+      this.range.set([from, period ? wrPeriodEnd(this.adapter, start, period) : start]);
     } else {
-      this.range.set([start, this.adapter.clone(date)]);
+      this.range.set([start, period ? wrPeriodEnd(this.adapter, date, period) : this.adapter.clone(date)]);
     }
     this.hoverDate.set(null);
   }
@@ -878,7 +1118,9 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
    * button and to whatever owns the calendar.
    */
   private onChipKeyDown(event: KeyboardEvent): void {
-    const cols = this.viewMode() === 'month' ? MONTH_COLS : YEAR_COLS;
+    const view = this.viewMode();
+    if (view === 'day') return;
+    const cols = CHIP_COLS[view];
     const count = this.chipCount();
     const current = this.activeChip();
     // Assigned on every branch that does not return, so it needs no placeholder.
@@ -924,21 +1166,30 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     afterNextRender(() => this.focusActiveChip(), { injector: this.injector });
   }
 
-  /** How many chips the current view renders — twelve either way, read rather than assumed. */
+  /** How many chips the current view renders, read rather than assumed. */
   private chipCount(): number {
-    return this.viewMode() === 'month' ? this.monthsView().length : this.yearsView().length;
+    switch (this.viewMode()) {
+      case 'month':
+        return this.monthsView().length;
+      case 'quarter':
+        return this.quartersView.length;
+      default:
+        return this.yearsView().length;
+    }
   }
 
   /** Whether the chip at `index` refuses selection in the current view. */
   private isChipDisabled(index: number): boolean {
     if (this.viewMode() === 'month') return this.isMonthDisabled(index);
+    if (this.viewMode() === 'quarter') return this.isQuarterDisabled(index);
     const year = this.yearsView()[index];
     return year === undefined || this.isYearDisabled(year);
   }
 
-  /** The chip the view itself points at: the month or year currently on screen. */
+  /** The chip the view itself points at: the month, quarter or year currently on screen. */
   private currentChip(): number {
     if (this.viewMode() === 'month') return this.adapter.getMonth(this.viewDate());
+    if (this.viewMode() === 'quarter') return Math.floor(this.adapter.getMonth(this.viewDate()) / 3);
     const index = this.yearsView().indexOf(this.adapter.getYear(this.viewDate()));
     return index === -1 ? 0 : index;
   }

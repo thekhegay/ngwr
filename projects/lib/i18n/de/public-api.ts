@@ -211,6 +211,8 @@ export const wrDe: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Monate',
     yearList: 'Jahre',
+    quarterList: 'Quartale',
+    quarter: '{{quarter}}. Quartal',
     prevYears: 'Vorherige 12 Jahre',
     nextYears: 'Nächste 12 Jahre',
     header: '{{month}} {{year}}',
@@ -469,6 +471,8 @@ export const wrDe: WrI18nCatalog = {
     panelDateTime: 'Datum und Uhrzeit wählen',
     panelRange: 'Zeitraum wählen',
     panelRangeDateTime: 'Zeitraum mit Uhrzeit wählen',
+    quarterValue: '{{quarter}}. Quartal {{year}}',
+    weekValue: 'KW {{week}}, {{year}}',
     rangeStart: 'Beginn des Zeitraums',
     rangeEnd: 'Ende des Zeitraums',
     startTime: 'Startzeit',

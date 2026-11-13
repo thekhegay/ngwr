@@ -51,11 +51,18 @@ export default class CalendarPageComponent {
    * build would ship the broken render as static HTML.
    */
   protected readonly bounded = signal<Date | null>(null);
+  protected readonly week = signal<Date | null>(new Date());
+  protected readonly quarter = signal<Date | null>(new Date());
+  protected readonly months = signal<WrCalendarRange>([null, null]);
 
   protected readonly snippets = {
     single: `<wr-calendar [(date)]="picked" />`,
 
     range: `<wr-calendar mode="range" [(range)]="picked" />`,
+
+    granularity: `<wr-calendar granularity="week" [(date)]="week" />
+<wr-calendar granularity="quarter" [(date)]="quarter" />
+<wr-calendar granularity="month" mode="range" [(range)]="months" />`,
 
     bounds: `<wr-calendar
   [(date)]="picked"
