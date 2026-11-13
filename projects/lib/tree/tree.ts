@@ -34,7 +34,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
-import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
@@ -330,10 +330,23 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     return Math.min(this.focusedIndex(), Math.max(0, this.flat().length - 1));
   });
 
+  /** Accessible name of the clear button. Falls back to `tree.clearSelection`, then `'Clear selection'`. */
+  readonly clearSelectionLabel = input<string | null>(null);
+
+  /** Accessible name of the toggle of a collapsed node. Falls back to `tree.expand`, then `'Expand'`. */
+  readonly expandLabel = input<string | null>(null);
+
+  /** Accessible name of the toggle of an expanded node. Falls back to `tree.collapse`, then `'Collapse'`. */
+  readonly collapseLabel = input<string | null>(null);
+
   /** Resolved ARIA labels — signals, so they follow both a late catalog and a locale switch. */
-  protected readonly clearLabel = wrReadI18nText('tree.clearSelection', 'Clear selection');
-  protected readonly expandLabel = wrReadI18nText('tree.expand', 'Expand');
-  protected readonly collapseLabel = wrReadI18nText('tree.collapse', 'Collapse');
+  protected readonly resolvedClearSelectionLabel = useI18nText(
+    this.clearSelectionLabel,
+    'tree.clearSelection',
+    'Clear selection'
+  );
+  protected readonly resolvedExpandLabel = useI18nText(this.expandLabel, 'tree.expand', 'Expand');
+  protected readonly resolvedCollapseLabel = useI18nText(this.collapseLabel, 'tree.collapse', 'Collapse');
   protected readonly chipRemoveLabel = useI18nFormatter('tree.removeItem', 'Remove {{label}}');
 
   /**
