@@ -49,6 +49,7 @@ export const wrKo: WrI18nCatalog = {
     noMatches: '일치하는 항목 없음',
     search: '검색',
     reset: '초기화',
+    columns: '열',
   },
   eventCalendar: {
     today: '오늘',

@@ -34,6 +34,7 @@ import {
   viewChildren,
 } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrCheckbox } from 'ngwr/checkbox';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPagination, type WrPaginationSize } from 'ngwr/pagination';
@@ -285,6 +286,7 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
     NgTemplateOutlet,
     CdkDropList,
     CdkDrag,
+    WrButton,
     WrCheckbox,
     WrPagination,
     WrPopover,
@@ -360,6 +362,24 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * listed, and updates this on drag. Bind it to persist a user's arrangement.
    */
   readonly columnOrder = model<readonly string[]>([]);
+
+  /**
+   * Two-way bindable hidden columns, an array of column keys. A hidden column
+   * renders nothing: no header, no cell, no summary, no `<col>`. Its sort and
+   * its filter selection stay as they are, and `toCsv()` leaves it out. A
+   * column with `hideable: false` is shown whatever this lists, and so is the
+   * first column when the list would leave none. Bind it beside `columnOrder`
+   * to persist a user's arrangement.
+   */
+  readonly hiddenColumns = model<readonly string[]>([]);
+
+  /**
+   * Show a toolbar above the table with a button that opens the column
+   * chooser: one checkbox per column, in column order, named by the column's
+   * title. A `hideable: false` column and the last visible one cannot be
+   * unchecked. Each toggle writes `hiddenColumns`. @default false
+   */
+  readonly columnChooser = input(false, { transform: coerceBooleanProperty });
 
   /**
    * Row selection with a leading checkbox column — `'multiple'` adds a
@@ -546,6 +566,9 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   /** Accessible name of the loading overlay or bar. Falls back to `table.loading`. */
   readonly loadingLabel = input<string | null>(null);
 
+  /** Text of the column chooser's button and name of its panel. Falls back to `table.columns`. */
+  readonly columnsLabel = input<string | null>(null);
+
   protected readonly resolvedEmptyLabel = useI18nText(this.emptyLabel, 'table.empty', 'No data');
   /**
    * The loading overlay was a bare spinner in a `<div>` — a busy state with no
@@ -554,6 +577,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * never read.
    */
   protected readonly resolvedLoadingLabel = useI18nText(this.loadingLabel, 'table.loading', 'Loading…');
+  protected readonly resolvedColumnsLabel = useI18nText(this.columnsLabel, 'table.columns', 'Columns');
   private readonly sortText = useI18nFormatter('table.sort', 'Sort {{column}}');
 
   /**
@@ -858,11 +882,10 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   /**
-   * Columns in render order — declaration order, overridden by `columnOrder`
-   * once reordered; new keys append, removed keys drop out. Pin and resize
-   * measurement key off this, so it must equal the rendered order.
+   * Every column in order, hidden ones included — declaration order, overridden
+   * by `columnOrder` once reordered; new keys append, removed keys drop out.
    */
-  protected readonly displayColumns = computed<readonly { key: string; column: WrTableColumn<T> }[]>(() => {
+  private readonly orderedColumns = computed<readonly { key: string; column: WrTableColumn<T> }[]>(() => {
     const cols = this.columns();
     const seen = new Set<string>();
     const result: { key: string; column: WrTableColumn<T> }[] = [];
@@ -880,6 +903,43 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     }
     return result;
   });
+
+  /**
+   * Columns in render order: {@link orderedColumns} less `hiddenColumns`. Pin
+   * and resize measurement key off this, so it must equal the rendered order.
+   * The same array as `orderedColumns()` while nothing is hidden.
+   */
+  protected readonly displayColumns = computed<readonly { key: string; column: WrTableColumn<T> }[]>(() => {
+    const ordered = this.orderedColumns();
+    const hidden = new Set(this.hiddenColumns());
+    if (hidden.size === 0) return ordered;
+    const shown = ordered.filter(c => c.column.hideable === false || !hidden.has(c.key));
+    if (shown.length === ordered.length) return ordered;
+    // A table with columns always draws one.
+    return shown.length > 0 ? shown : ordered.slice(0, 1);
+  });
+
+  /** One row of the column chooser per column, hidden ones included. */
+  protected readonly chooserColumns = computed(() => {
+    const shown = new Set(this.displayColumns().map(c => c.key));
+    return this.orderedColumns().map(({ key, column }) => {
+      const visible = shown.has(key);
+      return {
+        key,
+        title: column.title || (column.headerHint ?? key),
+        visible,
+        locked: column.hideable === false || (visible && shown.size === 1),
+      };
+    });
+  });
+
+  protected setColumnVisible(key: string, visible: boolean): void {
+    const shown = this.displayColumns();
+    if (visible === shown.some(c => c.key === key)) return;
+    if (!visible && shown.length === 1) return;
+    const hidden = this.hiddenColumns().filter(k => k !== key);
+    this.hiddenColumns.set(visible ? hidden : [...hidden, key]);
+  }
 
   /**
    * Sticky offsets for pinned columns, measured from the header cells so any
@@ -1180,11 +1240,11 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     this.pins.set({ left, right, leftEdge, rightEdge });
   }
 
-  /** Per column key. Rebuilt with the columns and the cell templates, never on a pin measurement or a resize. */
+  /** Per column key. Rebuilt with the columns and the cell templates, never on a pin measurement, a resize or a hidden column. */
   private readonly cellContexts = computed(() => {
     this.cellMap();
     return new Map(
-      this.displayColumns().map(c => [c.key, new WeakMap<Record<string, unknown>, WrTableCellContext>()] as const)
+      this.orderedColumns().map(c => [c.key, new WeakMap<Record<string, unknown>, WrTableCellContext>()] as const)
     );
   });
 
@@ -1489,9 +1549,13 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
 
   protected onColumnDrop(event: CdkDragDrop<unknown>): void {
     if (event.previousIndex === event.currentIndex) return;
-    const order = this.displayColumns().map(c => c.key);
-    moveItemInArray(order, event.previousIndex, event.currentIndex);
-    this.columnOrder.set(order);
+    const shown = this.displayColumns().map(c => c.key);
+    const slots = new Set(shown);
+    moveItemInArray(shown, event.previousIndex, event.currentIndex);
+    // A hidden column keeps its place: the visible ones are dealt back into
+    // the slots they held.
+    let next = 0;
+    this.columnOrder.set(this.orderedColumns().map(c => (slots.has(c.key) ? shown[next++] : c.key)));
   }
 
   /**
@@ -1624,9 +1688,13 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   protected readonly expandable = computed<boolean>(() => !this.treeMode() && !!this.expandTpl());
 
   /** The column that carries the indent + toggle — named, else whichever renders first. */
-  protected readonly treeColumnKey = computed<string | null>(() =>
-    this.treeMode() ? (this.treeColumn() ?? this.displayColumns()[0]?.key ?? null) : null
-  );
+  protected readonly treeColumnKey = computed<string | null>(() => {
+    if (!this.treeMode()) return null;
+    const shown = this.displayColumns();
+    const named = this.treeColumn();
+    // A hidden tree column hands the toggle to the first one drawn.
+    return named !== null && shown.some(c => c.key === named) ? named : (shown[0]?.key ?? null);
+  });
 
   /** This row's children, whatever shape `childrenKey` names. */
   private childrenOf(row: Record<string, unknown>): readonly Record<string, unknown>[] {
@@ -1908,7 +1976,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
 
   /** Whether any column defines a `summary` (so the footer row shows). */
   protected readonly hasSummary = computed<boolean>(() =>
-    Object.values(this.columns()).some(col => col.summary !== undefined)
+    this.displayColumns().some(c => c.column.summary !== undefined)
   );
 
   /** Per-column footer values, computed over `items` (the current page in server mode). */

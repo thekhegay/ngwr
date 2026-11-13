@@ -49,6 +49,7 @@ export const wrAr: WrI18nCatalog = {
     noMatches: 'لا توجد نتائج مطابقة',
     search: 'بحث',
     reset: 'إعادة تعيين',
+    columns: 'الأعمدة',
   },
   eventCalendar: {
     today: 'اليوم',

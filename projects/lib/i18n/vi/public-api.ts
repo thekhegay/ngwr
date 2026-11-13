@@ -49,6 +49,7 @@ export const wrVi: WrI18nCatalog = {
     noMatches: 'Không có kết quả phù hợp',
     search: 'Tìm kiếm',
     reset: 'Đặt lại',
+    columns: 'Cột',
   },
   eventCalendar: {
     today: 'Hôm nay',

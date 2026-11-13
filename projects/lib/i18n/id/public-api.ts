@@ -49,6 +49,7 @@ export const wrId: WrI18nCatalog = {
     noMatches: 'Tidak ada yang cocok',
     search: 'Cari',
     reset: 'Atur ulang',
+    columns: 'Kolom',
   },
   eventCalendar: {
     today: 'Hari ini',

@@ -49,6 +49,7 @@ export const wrTr: WrI18nCatalog = {
     noMatches: 'Eşleşme yok',
     search: 'Ara',
     reset: 'Sıfırla',
+    columns: 'Sütunlar',
   },
   eventCalendar: {
     today: 'Bugün',

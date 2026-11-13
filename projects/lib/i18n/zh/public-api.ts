@@ -49,6 +49,7 @@ export const wrZh: WrI18nCatalog = {
     noMatches: '无匹配结果',
     search: '搜索',
     reset: '重置',
+    columns: '列',
   },
   eventCalendar: {
     today: '今天',

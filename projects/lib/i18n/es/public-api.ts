@@ -49,6 +49,7 @@ export const wrEs: WrI18nCatalog = {
     noMatches: 'Sin coincidencias',
     search: 'Buscar',
     reset: 'Restablecer',
+    columns: 'Columnas',
   },
   eventCalendar: {
     today: 'Hoy',

@@ -81,6 +81,7 @@ export const wrEn: WrI18nCatalog = {
     // placeholder AND its accessible name.
     search: 'Search',
     reset: 'Reset',
+    columns: 'Columns',
   },
   eventCalendar: {
     today: 'Today',

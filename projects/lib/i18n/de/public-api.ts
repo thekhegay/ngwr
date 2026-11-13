@@ -49,6 +49,7 @@ export const wrDe: WrI18nCatalog = {
     noMatches: 'Keine Treffer',
     search: 'Suchen',
     reset: 'Zurücksetzen',
+    columns: 'Spalten',
   },
   eventCalendar: {
     today: 'Heute',

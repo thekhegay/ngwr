@@ -52,6 +52,7 @@ export const wrHe: WrI18nCatalog = {
     noMatches: 'אין תוצאות',
     search: 'חיפוש',
     reset: 'איפוס',
+    columns: 'עמודות',
   },
   eventCalendar: {
     today: 'היום',

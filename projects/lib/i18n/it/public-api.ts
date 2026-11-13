@@ -49,6 +49,7 @@ export const wrIt: WrI18nCatalog = {
     noMatches: 'Nessun risultato',
     search: 'Cerca',
     reset: 'Reimposta',
+    columns: 'Colonne',
   },
   eventCalendar: {
     today: 'Oggi',

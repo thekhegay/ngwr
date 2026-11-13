@@ -52,6 +52,7 @@ export const wrPl: WrI18nCatalog = {
     noMatches: 'Brak wyników',
     search: 'Szukaj',
     reset: 'Resetuj',
+    columns: 'Kolumny',
   },
   eventCalendar: {
     today: 'Dzisiaj',

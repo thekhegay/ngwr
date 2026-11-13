@@ -49,6 +49,7 @@ export const wrNl: WrI18nCatalog = {
     noMatches: 'Geen resultaten',
     search: 'Zoeken',
     reset: 'Wissen',
+    columns: 'Kolommen',
   },
   eventCalendar: {
     today: 'Vandaag',
