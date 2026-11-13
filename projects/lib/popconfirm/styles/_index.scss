@@ -60,19 +60,11 @@
 // The arrow that ties the panel to the control it is asking about — the same one
 // `wr-popover` draws, from the same mixin, because the two are the same kind of
 // anchored non-modal panel and a second copy of the geometry would drift.
-//
-// Four placements, not twelve: `WrPopconfirmPosition` is `top | bottom | left |
-// right`, and the eight `-start` / `-end` rules would be selectors that can
-// never match. Widen this list if the input ever grows them.
+// All twelve placements, the mixin's default: `WrPopconfirmPosition` is the
+// shared set.
 @include arrow.anchored-arrow(
   $pane: '.wr-popconfirm-overlay',
   $panel: '> .wr-popconfirm',
   $background: var(--wr-color-surface),
-  $border: var(--wr-popconfirm-border),
-  $placements-used: (
-    top,
-    bottom,
-    left,
-    right,
-  )
+  $border: var(--wr-popconfirm-border)
 );

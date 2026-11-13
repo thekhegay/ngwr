@@ -296,7 +296,7 @@ export class WrPopconfirmHarness extends ContentContainerComponentHarness {
   }
 
   /**
-   * Which side of the trigger the panel is anchored to.
+   * Which side of the trigger the panel is anchored to, and how it is aligned.
    *
    * Read off the pane's public modifier class — `position` is an input, so a
    * bound one never reaches the DOM, and the panel's own offset is a CDK inline
@@ -306,7 +306,7 @@ export class WrPopconfirmHarness extends ContentContainerComponentHarness {
    */
   async getPosition(): Promise<WrPopconfirmPosition | null> {
     const classes = (await (await this.pane()).getAttribute('class')) ?? '';
-    const modifier = /wr-popconfirm-overlay--([a-z]+)/.exec(classes);
+    const modifier = /wr-popconfirm-overlay--([a-z-]+)/.exec(classes);
     return modifier ? (modifier[1] as WrPopconfirmPosition) : null;
   }
 

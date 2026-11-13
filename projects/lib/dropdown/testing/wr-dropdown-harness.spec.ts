@@ -53,13 +53,16 @@ class HoverHost {}
       <wr-dropdown-item>Apple</wr-dropdown-item>
     </wr-dropdown-menu>
 
-    <button type="button" [wrDropdown]="veg">Veg</button>
+    <button type="button" [wrDropdown]="veg" [position]="vegPosition">Veg</button>
     <wr-dropdown-menu #veg>
       <wr-dropdown-item>Carrot</wr-dropdown-item>
     </wr-dropdown-menu>
   `,
 })
-class TwoHost {}
+class TwoHost {
+  /** Bound, so the trigger carries no attribute a harness could read instead of the pane. */
+  readonly vegPosition = 'right-end' as const;
+}
 
 /**
  * A submenu, the only way this component has one: a second `[wrDropdown]` whose
@@ -118,6 +121,7 @@ describe('WrDropdownHarness', () => {
     // three lines later with a message about the wrong thing.
     await expect(dropdown.getItems()).rejects.toThrow(/menu is closed/);
     await expect(dropdown.getMenuRole()).rejects.toThrow(/menu is closed/);
+    await expect(dropdown.getPosition()).rejects.toThrow(/menu is closed/);
   });
 
   it('opens and closes the menu', async () => {
@@ -344,6 +348,17 @@ describe('WrDropdownHarness — two on one page', () => {
     expect(await fruit.isMenuLabelledByTrigger()).toBe(true);
     expect(await veg.isMenuLabelledByTrigger()).toBe(true);
   });
+
+  it('reads each menu’s placement off its own pane', async () => {
+    const [fruit, veg] = await loader.getAllHarnesses(WrDropdownHarness);
+    await fruit.openByKeyboard();
+    await veg.openByKeyboard();
+
+    // The default, and an aligned side read whole. The pane also carries
+    // `--arrow`, which is not a placement.
+    expect(await fruit.getPosition()).toBe('bottom-start');
+    expect(await veg.getPosition()).toBe('right-end');
+  });
 });
 
 describe('WrDropdownHarness — a dropdown inside a dropdown', () => {
@@ -433,6 +448,14 @@ describe('WrDropdownHarness — submenus', () => {
 
     expect(await exportAs.getItemTexts()).toEqual(['CSV', 'PDF']);
     expect(await file.getItemTexts()).toEqual(['New', 'Export', 'Share']);
+  });
+
+  it('has no placement to report for a submenu, whose pane names none', async () => {
+    const file = await loader.getHarness(WrDropdownHarness);
+    const exportAs = await file.openSubmenu('Export');
+
+    expect(await file.getPosition()).toBe('bottom-start');
+    expect(await exportAs.getPosition()).toBeNull();
   });
 
   it('says which items open a submenu', async () => {

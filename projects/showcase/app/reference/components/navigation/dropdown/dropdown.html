@@ -19,7 +19,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Positions" description="Set `position`. A menu that does not fit flips to the other side.">
+  <ngwr-doc-section
+    title="Positions"
+    description="Set `position`, one of the twelve the popover takes. A menu that does not fit flips to the other side. The `-start` and `-end` side positions are since v16.3."
+  >
     <ngwr-doc-snippet [code]="snippets.positions">
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="bottom-start">Bottom start</button>
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="bottom">Bottom</button>
@@ -28,7 +31,11 @@
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="top">Top</button>
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="top-end">Top end</button>
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="left">Left</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="left-start">Left start</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="left-end">Left end</button>
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="right">Right</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="right-start">Right start</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="right-end">Right end</button>
       <wr-dropdown-menu #positionMenu>
         <wr-dropdown-item icon="cog">Settings</wr-dropdown-item>
         <wr-dropdown-item icon="external-outline">Help</wr-dropdown-item>

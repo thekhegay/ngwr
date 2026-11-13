@@ -11,8 +11,8 @@
 // is the token layer plus mixins any element can use — `smooth-br`,
 // `touch-target`, `focus-ring`. This is not one of those. It only means anything
 // against a CDK pane that carries a `--<placement>` modifier written by
-// `wrPopoverPositions()` / a directive's `panelClass`, and the eight-to-twelve
-// placement names it keys off are `WR_POPOVER_POSITIONS`. That is the overlay
+// `wrAnchoredPositions()` / a directive's `panelClass`, and the twelve
+// placement names it keys off are `WR_ANCHORED_POSITIONS`. That is the overlay
 // layer's vocabulary. Promoting it to `ngwr/theme` would advertise it to every
 // component in the catalog as something general, which it is not.
 //
@@ -186,8 +186,8 @@ $placements: (
 ///   tooltip, whose arrow overlaps the very control the tooltip describes, so a
 ///   hittable arrow eats clicks meant for it.
 /// @param {List} $placements-used - which placements to emit, defaulting to all
-///   twelve. A component whose position input offers four should pass four
-///   rather than shipping eight rules that can never match.
+///   twelve. A component whose position input offers fewer should pass those
+///   rather than shipping rules that can never match.
 @mixin anchored-arrow($pane, $panel, $background, $border: null, $inert: false, $placements-used: map.keys($placements)) {
   #{$pane} {
     #{$panel} {

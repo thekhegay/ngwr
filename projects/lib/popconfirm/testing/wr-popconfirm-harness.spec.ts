@@ -197,6 +197,15 @@ describe('WrPopconfirmHarness', () => {
     expect(await remove.getPosition()).toBe('left');
   });
 
+  it('reads an aligned placement whole, not just its side', async () => {
+    fixture.componentInstance.side.set('right-start');
+    fixture.detectChanges();
+    const remove = await get('Delete');
+    await remove.open();
+
+    expect(await remove.getPosition()).toBe('right-start');
+  });
+
   it('resolves the description through the aria link, not by reading the paragraph', async () => {
     const remove = await get('Delete');
     await remove.open();

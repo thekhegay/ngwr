@@ -1,7 +1,2 @@
 export type { WrChartTooltip, WrChartTooltipDatum, WrChartTooltipRow, WrChartTooltipTarget } from './chart-tooltip';
-export {
-  type WrPopoverPosition,
-  WR_POPOVER_FALLBACKS,
-  WR_POPOVER_POSITIONS,
-  wrPopoverPositions,
-} from './popover-position';
+export { type WrPopoverPosition, wrPopoverPositions } from './popover-position';

@@ -48,7 +48,14 @@ one component folder. Reach for them instead of hand-rolling:
   the direction once, as a string, when the overlay is created and never looks
   again, so a new overlay calls this right after `overlay.create(...)`, passing
   the callback when its own position list is direction-dependent
-  (`wrMirrorOffsets`). **Whether global toasts paint over an overlay is
+  (`wrMirrorOffsets`). **An anchored panel takes the one set of twelve
+  positions, `WrAnchoredPosition`, and builds its CDK list with
+  `wrAnchoredPositions(position, { gap, paneClass })`** — `wr-popover`,
+  `wr-dropdown` and `wr-popconfirm` share the geometry and the flip chains, and
+  their own position types are aliases of it. A host only picks whether its gap
+  is a CDK offset (`gap`) or pane padding, and whether the links carry the
+  placement class (`paneClass`) or the host writes it. **Whether global toasts
+  paint over an overlay is
   `WrOverlayOrder`, never a z-index** — the top layer is ordered by promotion
   time only, and the toast host re-promotes itself on a `show()` and when an
   overlay joins the container, but only if something joined the top layer since

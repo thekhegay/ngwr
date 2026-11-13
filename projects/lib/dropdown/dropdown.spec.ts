@@ -6,18 +6,13 @@ import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
+import { WR_ANCHORED_FALLBACKS, WR_ANCHORED_POSITIONS } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDropdown } from './dropdown';
 import { WrDropdownItem } from './dropdown-item';
 import { WrDropdownMenu } from './dropdown-menu';
-import {
-  WR_DROPDOWN_FALLBACKS,
-  WR_DROPDOWN_POSITIONS,
-  type WrDropdownPosition,
-  type WrDropdownTrigger,
-  wrDropdownPositions,
-} from './types';
+import { type WrDropdownPosition, type WrDropdownTrigger, wrDropdownPositions } from './types';
 
 /**
  * The menu is a CDK overlay rendered from a template portal, so it lands in the
@@ -542,7 +537,7 @@ describe('WrDropdown', () => {
 });
 
 /**
- * The stylesheet against `WR_DROPDOWN_POSITIONS`, not the painting.
+ * The stylesheet against `WR_ANCHORED_POSITIONS`, not the painting.
  *
  * The arrow is a `::after` drawn by the shared `anchored-arrow` mixin, and jsdom
  * loads no stylesheet — so no spec here can see it, and one that asserted a
@@ -552,8 +547,8 @@ describe('WrDropdown', () => {
  * rule or no gap for it.
  *
  * The painting was measured in Chromium against the built showcase instead, for
- * all eight placements in both themes: `content: ""`, a 6px square filled with
- * the menu's own background and outlined on its two outward faces in the menu's
+ * the eight placements it had then, in both themes: `content: ""`, a 6px square
+ * filled with the menu's own background and outlined on its two outward faces in the menu's
  * own border colour, 8px from trigger to menu, and `content: none` with a 4px gap
  * under `[arrow]="false"`.
  */
@@ -562,16 +557,14 @@ describe('the dropdown arrow stylesheet', () => {
     .split('\n')
     .filter(line => !line.trim().startsWith('//'))
     .join('\n');
-  const placements = Object.keys(WR_DROPDOWN_POSITIONS) as WrDropdownPosition[];
+  const placements = Object.keys(WR_ANCHORED_POSITIONS) as WrDropdownPosition[];
 
-  it('emits the arrow for exactly the placements the directive can land on', () => {
-    const used = /\$placements-used:\s*\(([^)]*)\)/.exec(code)?.[1] ?? '';
-    const names = used
-      .split(',')
-      .map(name => name.trim())
-      .filter(Boolean);
-
-    expect([...names].sort()).toEqual([...placements].sort());
+  it('emits the arrow for every placement the directive can land on', () => {
+    // The mixin draws all twelve unless a caller narrows it with
+    // `$placements-used`, which is how the dropdown once lost `left-start`.
+    expect(placements).toHaveLength(12);
+    expect(code).toContain('arrow.anchored-arrow(');
+    expect(code).not.toContain('$placements-used');
   });
 
   /** The selectors written inside `&--arrow { … }`, one per rule. */
@@ -654,7 +647,11 @@ describe('WrDropdown pane position', () => {
     'bottom-start',
     'bottom-end',
     'left',
+    'left-start',
+    'left-end',
     'right',
+    'right-start',
+    'right-end',
   ];
 
   let fixture: ReturnType<typeof TestBed.createComponent<PositionHost>>;
@@ -869,7 +866,7 @@ describe('WrDropdown when the requested placement does not fit', () => {
     const on = (...names: string[]): boolean =>
       names.some(name => pane.classList.contains(`wr-dropdown-overlay--${name}`));
     return {
-      width: 160 + (on('left', 'right') ? 8 : 0),
+      width: 160 + (on('left', 'left-start', 'left-end', 'right', 'right-start', 'right-end') ? 8 : 0),
       height: 66 + (on('top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end') ? 8 : 0),
     };
   };
@@ -917,6 +914,53 @@ describe('WrDropdown when the requested placement does not fit', () => {
 
     expect(pane.classList).toContain('wr-dropdown-overlay--bottom');
     expect(pane.classList).not.toContain('wr-dropdown-overlay--right');
+  });
+
+  it('crosses an aligned side menu to the other side, keeping its alignment', () => {
+    const pane = openAt('right-start', { x: 950, y: 300, width: 60, height: 30 });
+
+    expect(pane.classList).toContain('wr-dropdown-overlay--left-start');
+    expect(pane.classList).not.toContain('wr-dropdown-overlay--right-start');
+
+    fixture.destroy();
+    fixture = TestBed.createComponent(FlipHost);
+    fixture.detectChanges();
+    const other = openAt('left-end', { x: 10, y: 300, width: 60, height: 30 });
+
+    expect(other.classList).toContain('wr-dropdown-overlay--right-end');
+    expect(other.classList).not.toContain('wr-dropdown-overlay--left-end');
+  });
+
+  it('anchors an aligned side menu to the edge of the trigger it names', () => {
+    // `right-start` starts at the trigger's inline end and shares its top edge;
+    // `right-end` shares its bottom edge, so the 120px pane ends at 330.
+    const start = openAt('right-start', { x: 100, y: 300, width: 60, height: 30 });
+    expect([start.parentElement!.style.left, start.parentElement!.style.top]).toEqual(['160px', '300px']);
+
+    fixture.destroy();
+    fixture = TestBed.createComponent(FlipHost);
+    fixture.detectChanges();
+    const end = openAt('right-end', { x: 100, y: 300, width: 60, height: 30 });
+    expect([end.parentElement!.style.left, end.parentElement!.style.bottom]).toEqual(['160px', '438px']);
+  });
+
+  it('drops an aligned side menu below with the block gap, and keeps it there', async () => {
+    paneSize = withGap;
+    // Neither side has 168px, and below holds the 74px pane.
+    const pane = openAt('left-start', { x: 100, y: 300, width: 824, height: 30 });
+    await fixture.whenStable();
+
+    expect(pane.classList).toContain('wr-dropdown-overlay--bottom-start');
+    expect(measuredWith.at(0)).toContain('wr-dropdown-overlay--left-start');
+    expect(measuredWith.at(-1)).toContain('wr-dropdown-overlay--bottom-start');
+
+    // Room beside the trigger again: the side links stay out until it closes.
+    triggerRect = { x: 400, y: 300, width: 100, height: 30 };
+    window.dispatchEvent(new Event('resize'));
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    expect(pane.classList).toContain('wr-dropdown-overlay--bottom-start');
+    expect(pane.classList).not.toContain('wr-dropdown-overlay--left-start');
   });
 
   it('stays where it was asked to open when that fits', () => {
@@ -1009,15 +1053,14 @@ describe('WrDropdown nested inside another menu', () => {
 
 /**
  * The flip chains, asserted as a TABLE — the same properties `wr-popover`'s
- * chains are held to, since these are those chains restricted to the eight
- * placements a dropdown offers.
+ * chains are held to, since these are those chains.
  */
 describe('WrDropdown placement fallbacks', () => {
-  const names = Object.keys(WR_DROPDOWN_POSITIONS) as WrDropdownPosition[];
+  const names = Object.keys(WR_ANCHORED_POSITIONS) as WrDropdownPosition[];
 
   it('gives every placement somewhere to flip to, leading with itself', () => {
     for (const name of names) {
-      const chain = WR_DROPDOWN_FALLBACKS[name];
+      const chain = WR_ANCHORED_FALLBACKS[name];
       expect(chain.length, `${name} has no fallback`).toBeGreaterThan(1);
       expect(chain[0], `${name} does not lead with itself`).toBe(name);
       expect(new Set(chain).size, `${name} repeats a placement`).toBe(chain.length);
@@ -1028,7 +1071,7 @@ describe('WrDropdown placement fallbacks', () => {
   it('keeps the requested alignment down a block-axis chain, and never sends it sideways', () => {
     const alignment = (name: WrDropdownPosition): string => name.split('-')[1] ?? '';
     for (const name of ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end'] as const) {
-      for (const link of WR_DROPDOWN_FALLBACKS[name]) {
+      for (const link of WR_ANCHORED_FALLBACKS[name]) {
         expect(link).toMatch(/^(top|bottom)/);
         expect(alignment(link)).toBe(alignment(name));
       }
@@ -1036,8 +1079,8 @@ describe('WrDropdown placement fallbacks', () => {
   });
 
   it('lets a side placement reach the block axis, where a phone has the room', () => {
-    for (const name of ['left', 'right'] as const) {
-      const chain = WR_DROPDOWN_FALLBACKS[name];
+    for (const name of ['left', 'left-start', 'left-end', 'right', 'right-start', 'right-end'] as const) {
+      const chain = WR_ANCHORED_FALLBACKS[name];
       expect(
         chain.some(link => link.startsWith('bottom')),
         `${name} cannot fall below`
@@ -1052,12 +1095,31 @@ describe('WrDropdown placement fallbacks', () => {
   it('hands the CDK the chain in order, as untagged copies it can report back by identity', () => {
     for (const name of names) {
       const list = wrDropdownPositions(name);
-      expect(list).toEqual(WR_DROPDOWN_FALLBACKS[name].map(link => WR_DROPDOWN_POSITIONS[link]));
+      expect(list).toEqual(WR_ANCHORED_FALLBACKS[name].map(link => WR_ANCHORED_POSITIONS[link]));
       // A `panelClass` here would be stripped by the CDK before it measures the pane.
       expect(list.every(position => position.panelClass === undefined)).toBe(true);
       // Fresh objects each call: the directive matches the reported link by identity.
-      expect(list[0]).not.toBe(WR_DROPDOWN_POSITIONS[name]);
+      expect(list[0]).not.toBe(WR_ANCHORED_POSITIONS[name]);
     }
+  });
+
+  it('offers the twelve placements `wr-popover` does', () => {
+    expect([...names].sort()).toEqual(
+      [
+        'top',
+        'top-start',
+        'top-end',
+        'bottom',
+        'bottom-start',
+        'bottom-end',
+        'left',
+        'left-start',
+        'left-end',
+        'right',
+        'right-start',
+        'right-end',
+      ].sort()
+    );
   });
 
   it('keeps the gap out of the CDK offsets, where a hover menu would lose the pointer crossing it', () => {
@@ -1065,8 +1127,10 @@ describe('WrDropdown placement fallbacks', () => {
     // from the trigger to the menu. An offset would leave a strip of page between
     // them, and a `trigger="hover"` menu closes the moment the pointer is on it.
     for (const name of names) {
-      expect(WR_DROPDOWN_POSITIONS[name].offsetX, name).toBeUndefined();
-      expect(WR_DROPDOWN_POSITIONS[name].offsetY, name).toBeUndefined();
+      for (const link of wrDropdownPositions(name)) {
+        expect(link.offsetX, name).toBeUndefined();
+        expect(link.offsetY, name).toBeUndefined();
+      }
     }
   });
 });
@@ -1132,6 +1196,45 @@ describe('WrDropdown across a direction flip', () => {
     flipTo('rtl');
 
     expect([overlayHost().getAttribute('dir'), anchoredTo()]).toEqual(['rtl', ['auto', '0px']]);
+  });
+
+  it('mirrors an aligned side menu with nothing but the direction', () => {
+    @Component({
+      imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+      template: `
+        <button type="button" [wrDropdown]="menu" position="left-start">Open</button>
+        <wr-dropdown-menu #menu><wr-dropdown-item>Copy</wr-dropdown-item></wr-dropdown-menu>
+      `,
+    })
+    class SideHost {}
+
+    const side = TestBed.createComponent(SideHost);
+    side.detectChanges();
+    (side.nativeElement as HTMLElement).querySelector('button')!.click();
+    side.detectChanges();
+    const sideHost = (): HTMLElement =>
+      document.querySelector<HTMLElement>('.wr-dropdown-overlay--left-start')!.parentElement!;
+
+    // `left-start` puts the menu's END edge on the trigger's START edge: pinned
+    // by its right edge in LTR, by its left edge once mirrored. No offset to turn
+    // around, the gap being padding, so the pane keeps its name and no transform.
+    expect([sideHost().getAttribute('dir'), sideHost().style.left, sideHost().style.right]).toEqual([
+      'ltr',
+      'auto',
+      '0px',
+    ]);
+
+    ambient.valueSignal.set('rtl');
+    side.detectChanges();
+
+    expect([sideHost().getAttribute('dir'), sideHost().style.left, sideHost().style.right]).toEqual([
+      'rtl',
+      '0px',
+      'auto',
+    ]);
+    expect(sideHost().querySelector<HTMLElement>('.wr-dropdown-overlay')!.style.transform).toBe('');
+
+    side.destroy();
   });
 
   it('leaves the menu alone when the write lands on the direction it already has', () => {
