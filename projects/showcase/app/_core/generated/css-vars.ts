@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1716 hook(s) across 115 page(s). A property is here only when the
+ * 1727 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -1948,6 +1948,9 @@ export const CSS_VARS = {
       { name: "--wr-table-card-cell-padding-x", default: "var(--wr-space-lg)", scope: ".wr-table" },
       { name: "--wr-table-card-cell-padding-y", default: "var(--wr-space-xs)", scope: ".wr-table" },
       { name: "--wr-table-card-row-padding-y", default: "var(--wr-space-sm)", scope: ".wr-table" },
+      { name: "--wr-table-columns-gap", default: "var(--wr-space-sm)", scope: ".wr-table__columns" },
+      { name: "--wr-table-columns-max-height", default: "20rem", scope: ".wr-table__columns" },
+      { name: "--wr-table-columns-padding", default: "var(--wr-space-md)", scope: ".wr-table__columns" },
       { name: "--wr-table-detail-padding", default: "var(--wr-space-lg)", scope: ".wr-table" },
       { name: "--wr-table-empty-padding", default: "var(--wr-space-xl)", scope: ".wr-table" },
       { name: "--wr-table-expand-btn-padding", default: "var(--wr-space-xs)", scope: ".wr-table" },
@@ -2005,8 +2008,16 @@ export const CSS_VARS = {
       { name: "--wr-table-row-hover", default: "var(--wr-color-fill-subtle)", scope: ".wr-table" },
       { name: "--wr-table-scroll-height", default: "30rem", scope: ".wr-table" },
       { name: "--wr-table-scroll-min-height", default: "16rem", scope: ".wr-table" },
+      { name: "--wr-table-selection-bar-bg", default: "var(--wr-color-primary-soft)", scope: ".wr-table" },
+      { name: "--wr-table-selection-bar-color", default: "var(--wr-color-primary-ink)", scope: ".wr-table" },
+      { name: "--wr-table-selection-bar-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-table" },
+      { name: "--wr-table-selection-bar-gap", default: "var(--wr-space-md)", scope: ".wr-table" },
+      { name: "--wr-table-selection-bar-height", default: "2.5rem", scope: ".wr-table" },
+      { name: "--wr-table-selection-bar-inset", default: "2.75rem", scope: ".wr-table" },
+      { name: "--wr-table-selection-bar-padding-x", default: "var(--wr-space-md)", scope: ".wr-table" },
       { name: "--wr-table-sort-order-font-size", default: "var(--wr-table-head-font-size)", scope: ".wr-table" },
       { name: "--wr-table-sort-order-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-table" },
+      { name: "--wr-table-toolbar-padding", default: "var(--wr-space-sm) var(--wr-space-md)", scope: ".wr-table" },
       { name: "--wr-table-tree-lead-margin-end", default: "var(--wr-space-xs)", scope: ".wr-table", overrides: 1 },
       { name: "--wr-table-tree-toggle-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-table" },
     ],
