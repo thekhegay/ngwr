@@ -157,6 +157,8 @@ export class WrOption {
     return explicit !== null && explicit !== '' ? explicit : this.labelText();
   });
 
+  private readonly searchLabel: Signal<string> = computed(() => this.resolvedLabel().toLowerCase());
+
   /**
    * @internal — true when this option is currently selected. Works for
    * both single and multi-select parents via `WrSelectContext.isSelected`.
@@ -191,7 +193,7 @@ export class WrOption {
     if (!parent?.isSearchable() || !parent.clientFilter()) return false;
     const q = parent.searchQuery().trim().toLowerCase();
     if (!q) return false;
-    return !this.resolvedLabel().toLowerCase().includes(q);
+    return !this.searchLabel().includes(q);
   });
 
   protected readonly classes = computed(() => {
@@ -224,6 +226,7 @@ export class WrOption {
           value: this.value(),
           disabled: this.disabled(),
           label: this.resolvedLabel,
+          searchLabel: this.searchLabel,
           host: this.host.nativeElement,
           leading: this.leading,
         };

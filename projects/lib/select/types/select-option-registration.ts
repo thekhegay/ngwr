@@ -21,6 +21,8 @@ export interface WrSelectOptionRegistration {
    * plain reader let the trigger cache the English fallback forever.
    */
   readonly label: Signal<string>;
+  /** `label` lowercased once, for the search filter. Optional, like `host`. */
+  readonly searchLabel?: Signal<string>;
   /**
    * The option's own element, when it has one. The keyboard cursor walks the
    * registry, and registration order is CREATION order — projected children are
