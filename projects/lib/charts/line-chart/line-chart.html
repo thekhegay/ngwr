@@ -83,23 +83,21 @@
           stroke-linejoin="round"
           vector-effect="non-scaling-stroke"
         />
-        @for (dot of s.dots; track $index) {
-          <!-- A hole in the data gets no dot: the index still belongs to it, so the
-               points after it stay on their own x. A dot is a zero-length line with a
-               round cap and a non-scaling stroke, which stays a 6px circle however the
-               drawing stretches; a `<circle>` scaled with it, into a 3 × 5px oval on a
-               phone and a 9 × 5px one at 1920px. -->
-          @if (dot !== null) {
-            <path
-              class="wr-line-chart__dot"
-              [attr.d]="dot"
-              fill="none"
-              [attr.stroke]="s.color"
-              stroke-width="6"
-              stroke-linecap="round"
-              vector-effect="non-scaling-stroke"
-            />
-          }
+        <!-- Every dot of the series in one path, a subpath each, so a long series costs
+             one element rather than one per point. A hole in the data gets no dot. A dot
+             is a zero-length line with a round cap and a non-scaling stroke, which stays
+             a 6px circle however the drawing stretches; a `<circle>` scaled with it, into
+             a 3 × 5px oval on a phone and a 9 × 5px one at 1920px. -->
+        @if (s.dots) {
+          <path
+            class="wr-line-chart__dot"
+            [attr.d]="s.dots"
+            fill="none"
+            [attr.stroke]="s.color"
+            stroke-width="6"
+            stroke-linecap="round"
+            vector-effect="non-scaling-stroke"
+          />
         }
       }
 
