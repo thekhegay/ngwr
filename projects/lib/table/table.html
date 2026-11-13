@@ -9,6 +9,37 @@
   }
 }
 
+@if (columnChooser()) {
+  <div class="wr-table__toolbar">
+    <button
+      wr-btn
+      type="button"
+      size="sm"
+      outlined
+      class="wr-table__columns-btn"
+      position="bottom-end"
+      [wrPopover]="chooser"
+      [ariaLabel]="resolvedColumnsLabel()"
+    >
+      {{ resolvedColumnsLabel() }}
+    </button>
+    <ng-template #chooser>
+      <div class="wr-table__columns">
+        @for (entry of chooserColumns(); track entry.key) {
+          <wr-checkbox
+            class="wr-table__columns-item"
+            size="sm"
+            [checked]="entry.visible"
+            [disabled]="entry.locked"
+            (checkedChange)="setColumnVisible(entry.key, $event)"
+            >{{ entry.title }}</wr-checkbox
+          >
+        }
+      </div>
+    </ng-template>
+  </div>
+}
+
 <div
   class="wr-table__scroll"
   #scroll

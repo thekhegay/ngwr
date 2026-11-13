@@ -49,6 +49,7 @@ export const wrJa: WrI18nCatalog = {
     noMatches: '該当なし',
     search: '検索',
     reset: 'リセット',
+    columns: '列',
   },
   eventCalendar: {
     today: '今日',

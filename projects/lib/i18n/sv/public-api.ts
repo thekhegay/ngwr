@@ -49,6 +49,7 @@ export const wrSv: WrI18nCatalog = {
     noMatches: 'Inga träffar',
     search: 'Sök',
     reset: 'Återställ',
+    columns: 'Kolumner',
   },
   eventCalendar: {
     today: 'Idag',

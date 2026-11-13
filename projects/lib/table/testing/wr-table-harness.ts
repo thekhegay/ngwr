@@ -54,6 +54,7 @@ export class WrTableHarness extends ComponentHarness {
 
   private readonly tableEl = this.locatorFor('table.wr-table__table');
   private readonly selectAllBox = this.locatorForOptional('.wr-table__th--select input.wr-checkbox__input');
+  private readonly chooserButton = this.locatorForOptional('.wr-table__columns-btn');
 
   /**
    * The role the table announces.
@@ -269,6 +270,71 @@ export class WrTableHarness extends ComponentHarness {
   /** Collapse or expand the band with this label. */
   async toggleGroup(label: string): Promise<void> {
     await (await this.groupToggleFor(label)).click();
+  }
+
+  /** Whether the table shows the column chooser's button (`columnChooser`). */
+  async hasColumnChooser(): Promise<boolean> {
+    return (await this.chooserButton()) !== null;
+  }
+
+  /**
+   * The titles of the hidden columns, in column order, read from the column
+   * chooser: a hidden column is nowhere else in the DOM. Opens the chooser and
+   * leaves it open.
+   */
+  async getHiddenColumns(): Promise<string[]> {
+    const entries = await this.chooserEntries();
+    const hidden: string[] = [];
+    for (const entry of entries) {
+      if (!(await entry.box.getProperty<boolean>('checked'))) hidden.push(entry.title);
+    }
+    return hidden;
+  }
+
+  /** Whether the chooser refuses to hide a column: `hideable: false`, or the last one shown. */
+  async isColumnLocked(columnTitle: string): Promise<boolean> {
+    return (await this.chooserEntryFor(columnTitle)).box.getProperty<boolean>('disabled');
+  }
+
+  /** Hide a shown column or show a hidden one through the column chooser, which stays open. */
+  async toggleColumn(columnTitle: string): Promise<void> {
+    const entry = await this.chooserEntryFor(columnTitle);
+    if (await entry.box.getProperty<boolean>('disabled')) {
+      throw new Error(
+        `WrTableHarness: the column "${columnTitle}" cannot be toggled — it is \`hideable: false\`, ` +
+          'or it is the last column shown.'
+      );
+    }
+    await entry.box.click();
+  }
+
+  /**
+   * The chooser's rows, opening it first. The panel is a popover in the overlay
+   * container, found through the id its trigger publishes while open.
+   */
+  private async chooserEntries(): Promise<{ title: string; box: TestElement }[]> {
+    const button = await this.chooserButton();
+    if (!button) {
+      throw new Error('WrTableHarness: this table has no column chooser — set `columnChooser`.');
+    }
+    if ((await button.getAttribute('aria-expanded')) !== 'true') await button.click();
+    const panelId = await button.getAttribute('aria-controls');
+    const root = this.documentRootLocatorFactory();
+    const items = await root.locatorForAll(`#${panelId} .wr-table__columns-item`)();
+    const boxes = await root.locatorForAll(`#${panelId} .wr-table__columns-item input.wr-checkbox__input`)();
+    return Promise.all(items.map(async (item, i) => ({ title: wrTableHarnessText(await item.text()), box: boxes[i] })));
+  }
+
+  private async chooserEntryFor(columnTitle: string): Promise<{ title: string; box: TestElement }> {
+    const entries = await this.chooserEntries();
+    const entry = entries.find(candidate => candidate.title === columnTitle);
+    if (!entry) {
+      throw new Error(
+        `WrTableHarness: the column chooser lists no "${columnTitle}" — it lists ` +
+          `[${entries.map(candidate => candidate.title).join(', ')}].`
+      );
+    }
+    return entry;
   }
 
   /** The header for a column title, or a failure that says which titles do exist. */

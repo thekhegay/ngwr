@@ -49,6 +49,7 @@ export const wrCs: WrI18nCatalog = {
     noMatches: 'Žádné shody',
     search: 'Hledat',
     reset: 'Resetovat',
+    columns: 'Sloupce',
   },
   eventCalendar: {
     today: 'Dnes',

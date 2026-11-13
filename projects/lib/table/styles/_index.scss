@@ -12,6 +12,7 @@
 //
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
+@use '../../button/styles' as button-styles; // WrButton
 @use '../../checkbox/styles' as checkbox-styles; // WrCheckbox
 @use '../../dropdown/styles' as dropdown-styles; // WrDropdown
 @use '../../pagination/styles' as pagination-styles; // WrPagination
@@ -61,6 +62,7 @@
   --wr-table-foot-cell-font-weight: var(--wr-font-weight-semibold);
   --wr-table-empty-padding: var(--wr-space-xl);
   --wr-table-pager-padding: var(--wr-space-sm) var(--wr-space-md);
+  --wr-table-toolbar-padding: var(--wr-space-sm) var(--wr-space-md);
   --wr-table-loading-bar-height: 0.125rem;
   --wr-table-loading-bar-color: var(--wr-color-primary);
   --wr-table-loading-bar-track: color-mix(in srgb, var(--wr-color-primary) 20%, transparent);
@@ -628,6 +630,32 @@
     }
   }
 
+  // The strip above the table that holds the column chooser's button.
+  &__toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--wr-table-toolbar-padding);
+    border-bottom: 1px solid var(--wr-table-border);
+    background: var(--wr-table-head-bg);
+  }
+
+  // The column chooser's panel. Its hooks are declared here rather than on
+  // `.wr-table`: the panel is a popover template, so it renders into the
+  // overlay container and inherits nothing from the table.
+  &__columns {
+    --wr-table-columns-padding: var(--wr-space-md);
+    --wr-table-columns-gap: var(--wr-space-sm);
+    --wr-table-columns-max-height: 20rem;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--wr-table-columns-gap);
+    min-width: 10rem;
+    max-height: var(--wr-table-columns-max-height);
+    padding: var(--wr-table-columns-padding);
+    overflow-y: auto;
+  }
+
   &__loading {
     position: absolute;
     inset: 0;
@@ -873,7 +901,8 @@
     max-height: none;
   }
 
-  .wr-table__pager {
+  .wr-table__pager,
+  .wr-table__toolbar {
     flex: none;
   }
 }

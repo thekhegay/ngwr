@@ -49,6 +49,7 @@ export const wrHi: WrI18nCatalog = {
     noMatches: 'कोई मिलान नहीं',
     search: 'खोजें',
     reset: 'रीसेट करें',
+    columns: 'कॉलम',
   },
   eventCalendar: {
     today: 'आज',

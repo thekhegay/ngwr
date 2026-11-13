@@ -57,6 +57,7 @@ export const wrUk: WrI18nCatalog = {
     noMatches: 'Нічого не знайдено',
     search: 'Пошук',
     reset: 'Скинути',
+    columns: 'Стовпці',
   },
   eventCalendar: {
     today: 'Сьогодні',
