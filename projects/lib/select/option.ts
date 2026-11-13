@@ -9,6 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
+  DestroyRef,
   ElementRef,
   type Signal,
   type TemplateRef,
@@ -206,9 +207,11 @@ export class WrOption {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('select');
     if (this.parent) {
       const parent = this.parent;
-      // Re-register when disabled or value changes so the parent has fresh metadata.
+      const destroyRef = inject(DestroyRef);
+      // Runs again when disabled or value changes so the parent has fresh metadata.
       // The label is seeded here as well, which is the read the server takes.
-      effect(onCleanup => {
+      let registered = false;
+      effect(() => {
         // Untracked: the read goes through the `leadingSlot` query, which moves
         // every time the panel opens or closes, and a registration keyed on it
         // would unregister and re-register every option on each of those — a
@@ -216,15 +219,20 @@ export class WrOption {
         // derives from the registry, for a change the registration does not
         // carry. The label itself still follows through `afterEveryRender`.
         untracked(() => this.syncLabel());
-        const unreg = parent.registerOption({
+        const reg = {
           id: this.id,
           value: this.value(),
           disabled: this.disabled(),
           label: this.resolvedLabel,
           host: this.host.nativeElement,
           leading: this.leading,
-        });
-        onCleanup(() => unreg());
+        };
+        if (registered) {
+          parent.updateOption(reg);
+          return;
+        }
+        registered = true;
+        destroyRef.onDestroy(parent.registerOption(reg));
       });
 
       afterEveryRender(() => this.syncLabel());
