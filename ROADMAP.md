@@ -4,7 +4,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very high
 
-- **Lost tab stops**: an external jump of more than a month leaves no day of `wr-calendar` in the tab order, and disabling the active tab drops the whole `wr-tabs` strip from it.
 - **Select state**: an option whose value or disabled changes while the panel is closed moves to the end of the keyboard order, and on touch a scroll in the panel keeps free text from committing on blur.
 - **Value-control edges**: `wr-color-picker` ignores an external write back to the colour it last emitted, `wr-input-number` steps a NaN model into the text "NaN", and `wr-file-upload` evicts accepted files when the list is already over `maxFiles`.
 - **Textarea autosize**: refit when the width changes and when a textarea fitted while hidden is shown.
