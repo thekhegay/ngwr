@@ -17,6 +17,9 @@ import {
   inject,
   input,
   isDevMode,
+  linkedSignal,
+  output,
+  signal,
 } from '@angular/core';
 
 import { WrI18n, useI18nFormatter, useI18nText } from 'ngwr/i18n';
@@ -70,6 +73,29 @@ interface PreparedGraph<TData> {
   readonly duplicates: readonly string[];
   readonly dangling: readonly string[];
   readonly badSizes: readonly string[];
+}
+
+/** One call to the engine: the graph it was given, its answer as returned, and what aborts it. */
+interface LayoutRun<TData> {
+  readonly graph: PreparedGraph<TData>;
+  readonly raw: WrGraphLayoutResult | PromiseLike<WrGraphLayoutResult>;
+  readonly controller: AbortController;
+}
+
+/** An asynchronous run that settled, and its result: `null` for a rejection. */
+interface SettledRun<TData> {
+  readonly run: LayoutRun<TData>;
+  readonly result: WrGraphLayoutResult | null;
+}
+
+/**
+ * A result with the graph it was computed for. The two travel together, so the
+ * picture left on screen while a newer layout is pending is whole: its own
+ * nodes, its own edges, its own sentences.
+ */
+interface Drawing<TData> {
+  readonly graph: PreparedGraph<TData>;
+  readonly result: WrGraphLayoutResult;
 }
 
 /** A placed node in layout coordinates, before any mirroring. */
@@ -185,9 +211,9 @@ function listFormat(locale: string): Intl.ListFormat {
   return new Intl.ListFormat('en', { type: 'conjunction' });
 }
 
-function warn(message: string): void {
+function warn(message: string, ...detail: unknown[]): void {
   // eslint-disable-next-line no-console -- dev-mode validation
-  console.warn(`[NGWR] <wr-graph>: ${message}`);
+  console.warn(`[NGWR] <wr-graph>: ${message}`, ...detail);
 }
 
 /** What a layout returned that the component cannot draw faithfully. */
@@ -216,6 +242,12 @@ function layoutProblems(graph: PreparedGraph<unknown>, result: WrGraphLayoutResu
  * the consumer's: `nodeWidth` / `nodeHeight` for every node, or `width` /
  * `height` on one. A prerender therefore ships the finished picture.
  *
+ * A provided `WrGraphLayout` may answer with a Promise. The last picture stays
+ * on screen until it resolves, `layoutPending` is true meanwhile, and a newer
+ * run or the graph's destruction aborts it through the `AbortSignal` it was
+ * given. The server does not wait for it: a prerender ships an empty, pending
+ * graph and the browser draws it.
+ *
  * What the lines show is also written out: every node carries visually hidden
  * text naming its parents and children, and the lines themselves are hidden
  * from assistive technology.
@@ -234,6 +266,7 @@ function layoutProblems(graph: PreparedGraph<unknown>, result: WrGraphLayoutResu
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-graph',
+    '[class.wr-graph--pending]': 'layoutPending()',
   },
 })
 export class WrGraph<TData = unknown> {
@@ -268,6 +301,12 @@ export class WrGraph<TData = unknown> {
 
   /** Accessible name of the scrolling viewport. Falls back to `graph.label`, then `'Graph'`. */
   readonly ariaLabel = input<string | null>(null);
+
+  /**
+   * An asynchronous layout rejected. Carries the rejection as thrown. The last
+   * picture stays on screen, and a run that was aborted never reports here.
+   */
+  readonly layoutError = output<unknown>();
 
   protected readonly label = useI18nText(this.ariaLabel, 'graph.label', 'Graph');
   // Each value is a whole sentence, terminator included, so the punctuation is the
@@ -311,25 +350,48 @@ export class WrGraph<TData = unknown> {
     return prepare(this.nodes(), this.edges(), width, height);
   });
 
-  /** The engine's answer, as returned. A fresh signal per run: nothing aborts a synchronous layout. */
-  private readonly raw = computed(() =>
-    this.engine.layout(this.prepared().input, { signal: new AbortController().signal })
-  );
+  /** One run per cleaned input. A controller of its own, so aborting a run never touches another. */
+  private readonly run = computed((): LayoutRun<TData> => {
+    const graph = this.prepared();
+    const controller = new AbortController();
+    return { graph, controller, raw: this.engine.layout(graph.input, { signal: controller.signal }) };
+  });
+
+  /** The asynchronous run that last settled. */
+  private readonly settled = signal<SettledRun<TData> | null>(null);
 
   /**
-   * The drawable result. An asynchronous layout is declared by the interface and
-   * not supported by this release: a thenable draws nothing, and dev mode says so.
+   * What is drawn. A synchronous answer is drawn in the pass that computed it. A
+   * Promise keeps the previous drawing until it resolves, and a rejected one
+   * keeps it for good.
    */
-  private readonly result = computed(() => {
-    const raw = this.raw();
-    return isThenable(raw) ? null : raw;
+  private readonly drawing = linkedSignal<
+    { readonly run: LayoutRun<TData>; readonly settled: SettledRun<TData> | null },
+    Drawing<TData> | null
+  >({
+    source: () => ({ run: this.run(), settled: this.settled() }),
+    computation: ({ run, settled }, previous) => {
+      if (!isThenable(run.raw)) return { graph: run.graph, result: run.raw };
+      if (settled?.run === run && settled.result) return { graph: run.graph, result: settled.result };
+      return previous?.value ?? null;
+    },
+  });
+
+  /**
+   * Whether an asynchronous layout is running for the current inputs. The host
+   * carries `wr-graph--pending` and the viewport `aria-busy` while it is. Always
+   * `false` with a synchronous layout.
+   */
+  readonly layoutPending = computed(() => {
+    const run = this.run();
+    return isThenable(run.raw) && this.settled()?.run !== run;
   });
 
   /** Layout joined to the nodes and edges, direction-free, nodes in reading order. */
   private readonly placed = computed((): PlacedGraph<TData> => {
-    const graph = this.prepared();
-    const result = this.result();
-    if (!result) return { width: 0, height: 0, nodes: [], edges: [] };
+    const drawing = this.drawing();
+    if (!drawing) return { width: 0, height: 0, nodes: [], edges: [] };
+    const { graph, result } = drawing;
 
     const positions = new Map(result.nodes.map(placement => [placement.id, placement]));
     const nodes = graph.nodes.flatMap(prepared => {
@@ -430,7 +492,7 @@ export class WrGraph<TData = unknown> {
       set.add(neighbour);
       map.set(id, set);
     };
-    for (const { from, to } of this.prepared().edges) {
+    for (const { from, to } of this.drawing()?.graph.edges ?? []) {
       if (!order.has(from) || !order.has(to)) continue;
       link(parents, to, from);
       link(children, from, to);
@@ -459,10 +521,31 @@ export class WrGraph<TData = unknown> {
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('graph');
+    // Settles each asynchronous run. The cleanup runs when the inputs change and
+    // when the graph is destroyed, so either one aborts the run in flight, and a
+    // result that lands after it is dropped.
+    effect(onCleanup => {
+      const run = this.run();
+      const { raw } = run;
+      if (!isThenable(raw)) return;
+      const { signal: aborted } = run.controller;
+      onCleanup(() => run.controller.abort());
+      raw.then(
+        result => {
+          if (!aborted.aborted) this.settled.set({ run, result });
+        },
+        (error: unknown) => {
+          if (aborted.aborted) return;
+          this.settled.set({ run, result: null });
+          if (isDevMode()) warn('the layout rejected, so the last drawn result stays.', error);
+          this.layoutError.emit(error);
+        }
+      );
+    });
+
     if (isDevMode()) {
       effect(() => {
         const graph = this.prepared();
-        const raw = this.raw();
         if (graph.duplicates.length) {
           warn(
             `node id(s) ${graph.duplicates.map(id => `"${id}"`).join(', ')} appear more than once. ` +
@@ -491,14 +574,10 @@ export class WrGraph<TData = unknown> {
               `drawn ${used.width} × ${used.height}.`
           );
         }
-        if (isThenable(raw)) {
-          warn(
-            'the provided WrGraphLayout returned a Promise. Asynchronous layouts are not supported in this ' +
-              'release, so nothing is drawn.'
-          );
-          return;
-        }
-        const problems = layoutProblems(graph, raw);
+      });
+      effect(() => {
+        const drawing = this.drawing();
+        const problems = drawing ? layoutProblems(drawing.graph, drawing.result) : [];
         if (problems.length) warn(`the layout result cannot be drawn faithfully: ${problems.join('; ')}.`);
       });
     }

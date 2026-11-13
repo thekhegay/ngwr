@@ -4,7 +4,7 @@ Part of [AGENTS.md](../../AGENTS.md). Read this before changing behaviour that l
 
 ## Contracts that look like bugs
 
-Nineteen behaviours that read as defects until you know why they are that way.
+Twenty behaviours that read as defects until you know why they are that way.
 Each was questioned at least once, each has a spec pinning it, and each would
 be "fixed" by someone reading only the symptom. This list used to live in
 ROADMAP.md; it moved here when that file was cut back to remaining work,
@@ -192,3 +192,9 @@ because it is guidance rather than a plan.
   sent to a name with no outlet in the page is kept, capped the same way, and
   its countdown starts when the outlet mounts; `dismissAll()` with no name is
   the global stack only, because the global "Close all" button calls it.
+- `wr-graph` prerenders EMPTY, pending, with an asynchronous `WrGraphLayout`:
+  the server never waits for the Promise (no `PendingTasks`), because a layout
+  in a worker cannot run there and one that never settles would hang the
+  prerender. Destroying the app aborts the run. While a newer run is pending
+  the graph draws the OLD nodes and edges, not the new inputs: a result travels
+  with the graph it was computed for, so the picture on screen is always whole.
