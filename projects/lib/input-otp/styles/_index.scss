@@ -97,6 +97,20 @@
     --wr-input-otp-gap: var(--wr-space-md);
   }
 
+  // Every box, not the two outer ones: the boxes stand apart by
+  // `--wr-input-otp-gap`, so each is a field of its own and a square one takes
+  // the pill radius as a circle. After the sizes, so it wins at each.
+  &--rounded,
+  &:where([rounded]:not([rounded='false'])) {
+    --wr-input-otp-radius: var(--wr-border-radius-pill);
+  }
+
+  // `corner-shape` does not inherit: the reset sits on the box `smooth-br` ran on.
+  &--rounded &__cell,
+  &:where([rounded]:not([rounded='false'])) &__cell {
+    corner-shape: round;
+  }
+
   &--disabled {
     opacity: var(--wr-disabled-opacity);
   }

@@ -86,9 +86,14 @@ const VARIANTS: [entry: string, byClass: string, byAttribute: string][] = [
   ...sizes('select', 'wr-select'),
   ['select', '.wr-select--rounded', `.wr-select${flag('rounded')}`],
   ...sizes('textarea', 'wr-textarea'),
+  ['textarea', '.wr-textarea--rounded', `.wr-textarea${flag('rounded')}`],
+  ['textarea', '.wr-textarea--rounded .wr-textarea__resize', `.wr-textarea${flag('rounded')} .wr-textarea__resize`],
   ...sizes('input-number', 'wr-input-number'),
   ...sizes('input-otp', 'wr-input-otp'),
+  ['input-otp', '.wr-input-otp--rounded', `.wr-input-otp${flag('rounded')}`],
+  ['input-otp', '.wr-input-otp--rounded .wr-input-otp__cell', `.wr-input-otp${flag('rounded')} .wr-input-otp__cell`],
   ...sizes('cascader', 'wr-cascader'),
+  ['cascader', '.wr-cascader--rounded', `.wr-cascader${flag('rounded')}`],
   // The pickers size their group and trigger from the host, with no rule of the host's own.
   ...['wr-date-picker', 'wr-date-range-picker'].flatMap(block =>
     sizes('date-picker', block).map(([entry, byClass, byAttribute]): [string, string, string] => [
@@ -97,6 +102,14 @@ const VARIANTS: [entry: string, byClass: string, byAttribute: string][] = [
       `${byAttribute} > .wr-input-group`,
     ])
   ),
+  ...['wr-date-picker', 'wr-date-range-picker'].flatMap((block): [string, string, string][] => [
+    ['date-picker', `.${block}--rounded > .wr-input-group`, `.${block}${flag('rounded')} > .wr-input-group`],
+    [
+      'date-picker',
+      `.${block}--rounded .wr-date-picker__trigger`,
+      `.${block}${flag('rounded')} .wr-date-picker__trigger`,
+    ],
+  ]),
   ...sizes('checkbox', 'wr-checkbox'),
   ...sizes('radio', 'wr-radio'),
   ...sizes('switch', 'wr-switch'),

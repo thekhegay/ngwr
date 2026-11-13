@@ -83,6 +83,13 @@ export class WrTextarea implements FormValueControl<string> {
   /** Control size — shares the `--wr-control-*` contract. @default 'md' */
   readonly size = input<WrTextareaSize>('md');
 
+  /**
+   * Round the corners to match a row of pill fields. The radius stops at half
+   * the height of a one-row field, so a taller box keeps straight sides.
+   * @default false
+   */
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
+
   /** Visible row count. @default 3 */
   readonly rows = input(3, { transform: (v: unknown): number => coerceNumberProperty(v, 3) });
 
@@ -189,6 +196,7 @@ export class WrTextarea implements FormValueControl<string> {
     const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-textarea--${size}`);
+    if (this.rounded()) parts.push('wr-textarea--rounded');
     if (this.autosize()) parts.push('wr-textarea--no-resize');
     const resize = this.effectiveResize();
     if (resize === 'horizontal' || resize === 'both') parts.push('wr-textarea--resize-x');

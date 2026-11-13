@@ -71,6 +71,9 @@ export default class DatePickerPageComponent {
   protected readonly sized = signal<Date | null>(null);
   protected readonly sizedPeriod = signal<WrDateRange | null>(null);
 
+  protected readonly roundedDate = signal<Date | null>(null);
+  protected readonly roundedPeriod = signal<WrDateRange | null>(null);
+
   protected readonly clearableDate = signal<Date | null>(new Date());
   protected readonly clearablePeriod = signal<WrDateRange | null>([new Date(), new Date()]);
 
@@ -168,6 +171,9 @@ protected readonly presets: readonly WrDateRangePreset[] = [
 
     sizes: `<wr-date-picker size="sm" [(value)]="picked" />
 <wr-date-range-picker size="lg" [(value)]="period" />`,
+
+    rounded: `<wr-date-picker rounded [(value)]="picked" />
+<wr-date-range-picker rounded [(value)]="period" />`,
 
     clearable: `<wr-date-picker clearable [(value)]="picked" />
 <wr-date-range-picker clearable [(value)]="period" />`,

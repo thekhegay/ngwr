@@ -1,4 +1,4 @@
-<wr-input-group>
+<wr-input-group [rounded]="rounded()">
   <input
     #startInput
     wrInput
@@ -7,6 +7,7 @@
     spellcheck="false"
     class="wr-date-range-picker__input"
     [size]="size()"
+    [rounded]="rounded()"
     [attr.aria-label]="startLabel()"
     [attr.aria-invalid]="startAriaInvalid()"
     [attr.aria-describedby]="startDescribedBy()"
@@ -34,6 +35,7 @@
     spellcheck="false"
     class="wr-date-range-picker__input"
     [size]="size()"
+    [rounded]="rounded()"
     [attr.aria-label]="endLabel()"
     [attr.aria-invalid]="endAriaInvalid()"
     [attr.aria-describedby]="endDescribedBy()"

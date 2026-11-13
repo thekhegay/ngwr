@@ -37,6 +37,15 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Rounded"
+    description="`rounded` matches a row of pill fields. The radius stops at half a one-row field, so a taller box keeps straight sides."
+  >
+    <ngwr-doc-snippet [code]="snippets.rounded">
+      <div style="width: 100%"><wr-textarea rounded placeholder="Rounded" /></div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Clear button and loading"
     description="`clearable` draws a clear button while the field has text. `loading` draws a spinner and marks the field `aria-busy`; the field stays editable."
   >

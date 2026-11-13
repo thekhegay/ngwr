@@ -1,4 +1,4 @@
-<wr-input-group>
+<wr-input-group [rounded]="rounded()">
   <!--
     A plain textbox, per the APG date-picker-dialog pattern: `aria-haspopup` and
     `aria-expanded` are not permitted on `textbox` and belong to the trigger
@@ -11,6 +11,7 @@
     autocomplete="off"
     spellcheck="false"
     [size]="size()"
+    [rounded]="rounded()"
     [attr.aria-label]="nameLabel()"
     [attr.aria-labelledby]="labelledBy()"
     [attr.aria-invalid]="ownAriaInvalid()"

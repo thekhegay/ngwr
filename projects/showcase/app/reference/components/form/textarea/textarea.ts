@@ -22,6 +22,7 @@ export default class TextareaComponent {
     autosize: `<wr-textarea autosize [maxRows]="6" [(value)]="text" />`,
     clearable: `<wr-textarea clearable [(value)]="text" />
 <wr-textarea [loading]="saving()" [(value)]="draft" />`,
+    rounded: `<wr-textarea rounded placeholder="Rounded" />`,
     fixed: `<wr-textarea [resizable]="false" [rows]="4" placeholder="No resize handle" />`,
   };
 

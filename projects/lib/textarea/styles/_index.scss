@@ -79,6 +79,28 @@
     --wr-textarea-line-height: var(--wr-control-line-height-lg);
   }
 
+  // The pill token on a box several lines tall is a stadium whose curve runs
+  // through the first and last lines of text, and it grows with `autosize`. So
+  // the radius stops at half the height of a one-row field: one row is a pill
+  // like the inputs beside it, and more rows keep that corner. After the sizes,
+  // so it wins at each of them.
+  &--rounded,
+  &:where([rounded]:not([rounded='false'])) {
+    --wr-textarea-radius: min(
+      var(--wr-border-radius-pill),
+      calc(var(--wr-textarea-line-height) / 2 + var(--wr-textarea-padding-y) * var(--wr-density-y, 1) + 1px)
+    );
+    --wr-textarea-padding-x: var(--wr-control-padding-x-lg);
+    corner-shape: round; // override squircle from smooth-br for pills
+  }
+
+  // 0.3 of the radius is where a square's corner meets the arc.
+  &--rounded &__resize,
+  &:where([rounded]:not([rounded='false'])) &__resize {
+    inset-inline-end: calc(var(--wr-textarea-radius) * 0.3);
+    bottom: calc(var(--wr-textarea-radius) * 0.3);
+  }
+
   &--no-resize &__native {
     resize: none;
   }
