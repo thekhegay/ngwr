@@ -22,11 +22,12 @@ A pnpm + Angular CLI monorepo with three projects:
   test harnesses (`testingEntryPoints` in the same file), which cover the form
   controls (`button`, `input`, `textarea`,
   `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
-  `rating`, `file-upload`, `color-picker`, `knob`, `form`, `segmented`, `editor`), the overlays
+  `rating`, `file-upload`, `color-picker`, `knob`, `form`, `schema-form`, `segmented`, `editor`), the overlays
   (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `toast`,
   `context-menu`, `popconfirm`, `command-palette`, `cascader`, `mention`),
   the data views (`table`, `tree`, `graph`, `sortable-list`), the navigation / disclosure set (`tabs`,
-  `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`, `load-state`, `copy-value`, `date-stamp`,
+  `stepper`, `carousel`, `pagination`, `collapse`, `transfer`, `sidebar`, `breadcrumbs`, `burger`), `splitter`,
+  `resizable`, `compare`, `alert`, `pull-to-refresh`, `speed-dial`, `load-state`, `copy-value`, `date-stamp`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`
   and **every chart** — each at
   `ngwr/<name>/testing`. Charts are NESTED since v15:

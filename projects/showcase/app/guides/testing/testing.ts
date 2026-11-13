@@ -738,6 +738,72 @@ it('walks focus without moving the selection', async () => {
   expect(await opened.isEmpty()).toBe(false);
 });`,
 
+    alert: `it('dismisses the failure', async () => {
+  const alert = await loader.getHarness(WrAlertHarness.with({ type: 'danger' }));
+  expect(await alert.getTitle()).toBe('Sync failed');
+
+  await alert.close();
+  expect(await alert.isDismissed()).toBe(true);
+});`,
+
+    sidebar: `it('opens Billing from the nav', async () => {
+  const nav = await loader.getHarness(WrSidebarHarness);
+
+  // A row inside a closed group is out of reach: open the group first.
+  await nav.openGroup('Settings');
+  await nav.clickItem('Billing');
+
+  expect(await nav.getCurrentTitles()).toEqual(['Billing']);
+});`,
+
+    resizable: `it('widens the side panel', async () => {
+  const panel = await loader.getHarness(WrResizableHarness.with({ label: 'Resize' }));
+
+  // Arrow keys on the handle, one step a press.
+  await panel.resizeBy(40);
+  expect(await panel.getSize()).toBe(360);
+
+  await panel.reset();
+  expect(await panel.getSize()).toBe(320);
+});`,
+
+    compare: `it('shows a third of the old design', async () => {
+  const compare = await loader.getHarness(WrCompareHarness);
+
+  await compare.setPosition(30);
+  expect(await compare.getPosition()).toBe(30);
+});`,
+
+    breadcrumbs: `it('goes back up to Docs', async () => {
+  const trail = await loader.getHarness(WrBreadcrumbsHarness);
+  expect(await trail.getItems()).toEqual(['Home', 'Docs', 'Testing']);
+  expect(await trail.getCurrent()).toBe('Testing');
+
+  await trail.clickItem('Docs');
+});`,
+
+    schemaForm: `it('asks for a work address', async () => {
+  const form = await loader.getHarness(WrSchemaFormHarness);
+
+  // By the label the field draws, typed by the kind you name.
+  const role = await form.getControl('Role', 'select'); // WrSelectHarness
+  await role.selectOption({ text: 'Admin' });
+
+  const email = await form.getControl('Work email', 'input');
+  await email.focus();
+  await email.blur();
+  expect(await form.getErrors()).toEqual(['Enter your work address.']);
+});`,
+
+    pullToRefresh: `it('reloads on a pull', async () => {
+  const list = await loader.getHarness(WrPullToRefreshHarness);
+
+  await list.pull();
+
+  expect(reload).toHaveBeenCalledOnce();
+  expect(await list.isRefreshing()).toBe(true);
+});`,
+
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 export class MyWidgetHarness extends ComponentHarness {
@@ -2340,6 +2406,165 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'getCopyLabel() / getTitle() / isWrapped() / focus() / isFocused()',
       description: 'The button name, the full text of a truncated value, the `wrap` mode.',
       type: 'Promise<…>',
+    },
+  ];
+
+  protected readonly alertApi: readonly DocApiRow[] = [
+    {
+      name: 'getTitle() / getMessage() / getContentText() / getText()',
+      description:
+        '`WrAlertHarness`. A message with no title is the headline. Filters: `title`, `text`, `type`, `closable`.',
+      type: 'Promise<string | null> | Promise<string>',
+    },
+    {
+      name: 'getType() / getRole() / getLiveLevel() / hasIcon()',
+      description: 'The variant, and how it is announced.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'isClosable() / getCloseLabel() / close() / isDismissed()',
+      description: '`close()` throws without a close button.',
+      type: 'Promise<…>',
+    },
+  ];
+
+  protected readonly sidebarApi: readonly DocApiRow[] = [
+    {
+      name: 'getItemTitles() / getItems(filters?) / getItem(title) / clickItem(title)',
+      description: '`WrSidebarHarness`. The rows outside every closed group. Filters: `title`, `current`, `disabled`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'getGroups(filters?) / getGroup(title) / isGroupOpen(title) / openGroup(title) / closeGroup(title)',
+      description: 'Groups, by title. Filters: `title`, `open`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'getCurrentTitles() / getLabel()',
+      description: 'Every row marked `aria-current`, closed groups included, and the landmark name.',
+      type: 'Promise<string[]> | Promise<string | null>',
+    },
+    {
+      name: 'Group: getTitle() / getRow() / isOpen() / open() / close() / toggle() / getItems(filters?) / getItemTitles()',
+      description: '`WrSidebarGroupHarness`. Open state comes from `aria-expanded`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Group: isLink() / getToggleLabel() / holdsCurrent() / isContentHidden()',
+      description: 'A group that is a page has an arrow button of its own.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Row: getTitle() / getSubtitle() / getBadge() / getCount() / getLevel() / isCurrent() / isDisabled() / isGroup() / click() / focus() / isFocused()',
+      description: '`WrSidebarItemHarness`. `click()` throws on a disabled row.',
+      type: 'Promise<…>',
+    },
+  ];
+
+  protected readonly resizableApi: readonly DocApiRow[] = [
+    {
+      name: 'getSize() / getAnnouncedSize() / getMinSize() / getMaxSize()',
+      description:
+        '`WrResizableHarness`. `getSize()` is the pixel size written on the element, `null` until one is set. Filters: `label`, `edge`, `disabled`, `collapsed`.',
+      type: 'Promise<number | null>',
+    },
+    {
+      name: 'resizeBy(px) / resizeToMin() / resizeToMax() / reset()',
+      description: 'Keys on the handle. `resizeBy()` throws when a limit or the step stops it short.',
+      type: 'Promise<void>',
+    },
+    {
+      name: 'getEdge() / getLabel() / isDisabled() / isCollapsed() / isHandleActive() / focus() / isFocused()',
+      description: 'State and focus. In a unit test bind limits in pixels: a percentage measures zero.',
+      type: 'Promise<…>',
+    },
+  ];
+
+  protected readonly compareApi: readonly DocApiRow[] = [
+    {
+      name: 'getPosition() / getMinPosition() / getMaxPosition() / setPosition(target)',
+      description:
+        '`WrCompareHarness`. Whole percent, written with the keyboard. Filters: `label`, `orientation`, `disabled`.',
+      type: 'Promise<number> | Promise<void>',
+    },
+    {
+      name: 'getOrientation() / getLabel() / isDisabled() / hasHandle() / getBeforeText() / getAfterText() / focus() / isFocused()',
+      description: 'The slider and its two layers.',
+      type: 'Promise<…>',
+    },
+  ];
+
+  protected readonly burgerApi: readonly DocApiRow[] = [
+    {
+      name: 'isOpen() / open() / close() / toggle()',
+      description: '`WrBurgerHarness`. Open state comes from `aria-expanded`. Filters: `label`, `open`, `disabled`.',
+      type: 'Promise<boolean> | Promise<void>',
+    },
+    {
+      name: 'getLabel() / isDisabled() / focus() / isFocused()',
+      description: '`open()` and `close()` throw on a disabled toggle.',
+      type: 'Promise<…>',
+    },
+  ];
+
+  protected readonly breadcrumbsApi: readonly DocApiRow[] = [
+    {
+      name: 'getItems() / getCurrent() / clickItem(text) / getLabel() / getSeparator()',
+      description: '`WrBreadcrumbsHarness`. `clickItem()` throws on the current page. Filter: `label`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'getItemHarnesses(filters?) / getItem(text)',
+      description: 'The crumbs themselves. Filters: `text`, `current`.',
+      type: 'Promise<WrBreadcrumbsItemHarness[]> | Promise<WrBreadcrumbsItemHarness>',
+    },
+    {
+      name: 'Item: getText() / isCurrent() / isLink() / getHref() / isExternal() / hasIcon() / click()',
+      description: '`WrBreadcrumbsItemHarness`.',
+      type: 'Promise<…>',
+    },
+  ];
+
+  protected readonly schemaFormApi: readonly DocApiRow[] = [
+    {
+      name: 'getLabels() / getFields(filters?) / getField(label)',
+      description:
+        '`WrSchemaFormHarness`. A field is found by its label, not its key. Filters: `label`, `kind`, `invalid`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'getControl(label, kind)',
+      description: "The control's own harness: `'select'` gives `WrSelectHarness`. Throws on another kind.",
+      type: 'Promise<WrSchemaFormControlHarnesses[K]>',
+    },
+    {
+      name: 'getErrors() / getColumns()',
+      description: 'Every message shown, in field order. A field nobody touched shows none.',
+      type: 'Promise<string[]> | Promise<number>',
+    },
+    {
+      name: 'Field: getLabel() / getKind() / getControl(kind) / getFormField() / getErrors() / isInvalid() / isRequired() / getHint() / getSpan()',
+      description: '`WrSchemaFormFieldHarness`. `getFormField()` is the `WrFormFieldHarness` around the control.',
+      type: 'Promise<…>',
+    },
+  ];
+
+  protected readonly pullToRefreshApi: readonly DocApiRow[] = [
+    {
+      name: 'pull()',
+      description: 'Drags until armed, then lets go. Throws when disabled, already refreshing or scrolled down.',
+      type: 'Promise<void>',
+    },
+    {
+      name: 'isRefreshing() / isPulling() / isArmed() / getPullDistance() / getContentText()',
+      description:
+        '`WrPullToRefreshHarness`. `isRefreshing()` follows the `refreshing` you bind. Filter: `refreshing`.',
+      type: 'Promise<boolean> | Promise<number> | Promise<string>',
+    },
+    {
+      name: 'pullBy(travel) / release() / cancel()',
+      description: 'One step of the gesture at a time. The indicator opens by half the travel.',
+      type: 'Promise<void>',
     },
   ];
 

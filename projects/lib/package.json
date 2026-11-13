@@ -110,6 +110,9 @@
       "sass": "./alert/styles/_index.scss",
       "default": "./alert/public-api.ts"
     },
+    "./alert/testing": {
+      "default": "./alert/testing/public-api.ts"
+    },
     "./anchor": {
       "sass": "./anchor/styles/_index.scss",
       "default": "./anchor/public-api.ts"
@@ -221,9 +224,15 @@
       "sass": "./breadcrumbs/styles/_index.scss",
       "default": "./breadcrumbs/public-api.ts"
     },
+    "./breadcrumbs/testing": {
+      "default": "./breadcrumbs/testing/public-api.ts"
+    },
     "./burger": {
       "sass": "./burger/styles/_index.scss",
       "default": "./burger/public-api.ts"
+    },
+    "./burger/testing": {
+      "default": "./burger/testing/public-api.ts"
     },
     "./button": {
       "sass": "./button/styles/_index.scss",
@@ -421,6 +430,9 @@
     "./compare": {
       "sass": "./compare/styles/_index.scss",
       "default": "./compare/public-api.ts"
+    },
+    "./compare/testing": {
+      "default": "./compare/testing/public-api.ts"
     },
     "./context-menu": {
       "sass": "./context-menu/styles/_index.scss",
@@ -731,6 +743,9 @@
       "sass": "./pull-to-refresh/styles/_index.scss",
       "default": "./pull-to-refresh/public-api.ts"
     },
+    "./pull-to-refresh/testing": {
+      "default": "./pull-to-refresh/testing/public-api.ts"
+    },
     "./qr": {
       "sass": "./qr/styles/_index.scss",
       "default": "./qr/public-api.ts"
@@ -753,6 +768,9 @@
       "sass": "./resizable/styles/_index.scss",
       "default": "./resizable/public-api.ts"
     },
+    "./resizable/testing": {
+      "default": "./resizable/testing/public-api.ts"
+    },
     "./result": {
       "sass": "./result/styles/_index.scss",
       "default": "./result/public-api.ts"
@@ -760,6 +778,9 @@
     "./schema-form": {
       "sass": "./schema-form/styles/_index.scss",
       "default": "./schema-form/public-api.ts"
+    },
+    "./schema-form/testing": {
+      "default": "./schema-form/testing/public-api.ts"
     },
     "./scroll": {
       "default": "./scroll/public-api.ts"
@@ -781,6 +802,9 @@
     "./sidebar": {
       "sass": "./sidebar/styles/_index.scss",
       "default": "./sidebar/public-api.ts"
+    },
+    "./sidebar/testing": {
+      "default": "./sidebar/testing/public-api.ts"
     },
     "./skeleton": {
       "sass": "./skeleton/styles/_index.scss",
