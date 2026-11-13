@@ -183,11 +183,14 @@ export const API = {
     { name: "mode", description: "Selection mode.", type: "WrCalendarMode", default: "'single'" },
     { name: "date", description: "Two-way bindable single value (used when `mode === 'single'`).", type: "Date | null", default: "null" },
     { name: "range", description: "Two-way bindable `[start, end]` (used when `mode === 'range'`).", type: "WrCalendarRange", default: "[null, null]" },
-    { name: "min", description: "Min selectable date (inclusive).", type: "Date | null", default: "null" },
-    { name: "max", description: "Max selectable date (inclusive).", type: "Date | null", default: "null" },
+    { name: "value", description: "The selection as one value, whatever the mode: a `Date` in `single` mode, a `[start, end]` tuple in `range` mode, `null` while nothing is picked. Bound by `[formField]`, or two-way via `[(value)]`. Kept in step with `date` and `range`: a write to either side reaches the other.", type: "WrCalendarValue", default: "null" },
+    { name: "(touch)", description: "Emitted when focus leaves the calendar, so a bound field can mark itself touched.", type: "void" },
+    { name: "min", description: "Min selectable date (inclusive). Takes a `Date`; `null` or `undefined` is no bound.", type: "NonNullable<WrCalendarValue> | undefined", default: "undefined" },
+    { name: "max", description: "Max selectable date (inclusive). Takes a `Date`; `null` or `undefined` is no bound.", type: "NonNullable<WrCalendarValue> | undefined", default: "undefined" },
     { name: "dateFilter", description: "Predicate — return `false` to disable specific dates (e.g. weekends only).", type: "((date: Date) => boolean) | null", default: "null" },
     { name: "autoFocus", description: "Move real focus onto the roving cell as soon as the grid is on screen. Off by default: a standalone `<wr-calendar>` sitting in a page must not steal focus on load. `wr-date-picker` turns it on for the popup it opens from its trigger, where the user asked to be taken to the calendar.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction entirely.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Read-only: the grid keeps its tab stop, the arrows still move the cursor and the header still pages through months and years, but picking a day writes nothing. Bound automatically from the field's readonly state when used with `[formField]`. Mirrored as `aria-readonly` on the day grid.", type: "boolean", default: "false" },
   ],
   // <wr-calendar-heatmap>
   WrCalendarHeatmap: [
