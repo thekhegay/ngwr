@@ -61,6 +61,7 @@ import {
   wrDownloadBlob,
   wrIsComposing,
   wrIsPrintableKey,
+  wrWatchDragCancel,
 } from 'ngwr/utils';
 
 import { WrTableCell } from './table-cell';
@@ -1825,6 +1826,11 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   protected onColumnDrop(event: CdkDragDrop<unknown>): void {
+    // An Escape-cancelled drag still ends in a drop, which must change nothing.
+    if (this.dragCancelled) {
+      this.dragCancelled = false;
+      return;
+    }
     if (event.previousIndex === event.currentIndex) return;
     const shown = this.displayColumns().map(c => c.key);
     const slots = new Set(shown);
@@ -1872,10 +1878,13 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   private dragSlots: readonly (readonly [number, number])[] = [];
   private dragInList = false;
   private dragActive = false;
+  private dragCancelled = false;
+  private stopDragCancel: (() => void) | null = null;
   /** The dragged column's current slot in DOM order, kept by the CDK's `sorted` event. */
   private dragOwn = -1;
   // A table destroyed mid-drag never gets its `cdkDragEnded`.
   private readonly clearDragCursor = this.destroyRef.onDestroy(() => {
+    this.stopDragCancel?.();
     if (this.dragActive) this.setDragCursor(null);
   });
 
@@ -1905,7 +1914,13 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     this.dragOwn = this.headerCells().findIndex(ref => ref.nativeElement === source);
     this.dragInList = true;
     this.dragActive = true;
+    this.dragCancelled = false;
     this.setDragCursor('blocked');
+    this.stopDragCancel?.();
+    this.stopDragCancel = wrWatchDragCancel(this.doc, event.event, () => {
+      this.dragCancelled = true;
+      this.onColumnDragEnd();
+    });
   }
 
   protected onColumnDragMoved(event: CdkDragMove): void {
@@ -1931,6 +1946,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   protected onColumnDragEnd(): void {
+    this.stopDragCancel?.();
+    this.stopDragCancel = null;
     this.dragActive = false;
     this.setDragCursor(null);
   }

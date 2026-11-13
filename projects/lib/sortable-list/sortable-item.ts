@@ -6,9 +6,10 @@
  */
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, ViewEncapsulation, computed, effect, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, DestroyRef, ElementRef, ViewEncapsulation, computed, effect, inject } from '@angular/core';
 
-import { wrCheckStyles } from 'ngwr/utils';
+import { wrCheckStyles, wrWatchDragCancel } from 'ngwr/utils';
 
 import { WR_SORTABLE_LIST } from './tokens';
 
@@ -99,6 +100,19 @@ export class WrSortableItem {
       this.drag.lockAxis = this.list.lockAxis() ?? null;
       this.drag.dragStartDelay = this.list.dragStartDelay();
     });
+
+    // Escape cancels a pointer drag; CDK has no cancel of its own.
+    const doc = inject(DOCUMENT);
+    let stopCancel: (() => void) | null = null;
+    this.drag.started.subscribe(event => {
+      stopCancel?.();
+      stopCancel = wrWatchDragCancel(doc, event.event, () => this.list.cancelDrag(this.drag));
+    });
+    this.drag.ended.subscribe(() => {
+      stopCancel?.();
+      stopCancel = null;
+    });
+    inject(DestroyRef).onDestroy(() => stopCancel?.());
 
     // What a connected list's `canEnter` is asked about.
     effect(() => {
