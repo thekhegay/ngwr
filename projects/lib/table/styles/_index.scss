@@ -1431,6 +1431,19 @@
   transition: none;
 }
 
+// The cursor of a column drag. The CDK preview takes no pointer events, so the
+// cursor comes from a class on `<html>` for the length of the drag, set by the
+// table; `!important` because every control under the pointer has its own.
+html.wr-table-dragging--allowed,
+html.wr-table-dragging--allowed * {
+  cursor: grabbing !important;
+}
+
+html.wr-table-dragging--blocked,
+html.wr-table-dragging--blocked * {
+  cursor: not-allowed !important;
+}
+
 // The settle animation after a drop. Same element as the rule above — CDK adds
 // `cdk-drag-animating` to the preview while it flies back to the drop slot — so
 // it must come after it to beat that `transition: none` at equal specificity.

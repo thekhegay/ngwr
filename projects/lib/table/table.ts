@@ -8,10 +8,19 @@
 import { InputModalityDetector } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
+import {
+  CdkDrag,
+  type CdkDragDrop,
+  type CdkDragMove,
+  type CdkDragSortEvent,
+  type CdkDragStart,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import { DOCUMENT, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import {
   Component,
+  DestroyRef,
   ElementRef,
   Injector,
   afterNextRender,
@@ -1842,11 +1851,89 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * `currentIndex` come from `getItemIndex`, which the CDK already un-mirrors
    * back to DOM order.
    */
-  protected readonly sortPredicate = (index: number): boolean => {
+  protected readonly sortPredicate = (index: number): boolean => this.slotOpen(index);
+
+  /**
+   * The one rule for a header slot, in the CDK's left-to-right sweep order: it
+   * is open unless a pinned column holds it. The drop guard and the drag cursor
+   * both ask it, so they cannot disagree.
+   */
+  private slotOpen(index: number): boolean {
     const cols = this.displayColumns();
     const slot = this.isRtl() ? cols.length - 1 - index : index;
     return !cols[slot]?.column.pin;
-  };
+  }
+
+  // --- Column drag cursor ---------------------------------------------------
+
+  private readonly doc = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
+  /** Sweep-order `[left, right]` of each header slot, measured when a drag starts. */
+  private dragSlots: readonly (readonly [number, number])[] = [];
+  private dragInList = false;
+  private dragActive = false;
+  /** The dragged column's current slot in DOM order, kept by the CDK's `sorted` event. */
+  private dragOwn = -1;
+  // A table destroyed mid-drag never gets its `cdkDragEnded`.
+  private readonly clearDragCursor = this.destroyRef.onDestroy(() => {
+    if (this.dragActive) this.setDragCursor(null);
+  });
+
+  /**
+   * The pointer cursor of a column drag lives on `<html>`: the CDK preview has
+   * `pointer-events: none`, so the cursor is whatever sits under it, and a class
+   * on the root is the only place that covers the whole page, margins included
+   * (`<body>` ends where its content does).
+   */
+  private setDragCursor(state: 'allowed' | 'blocked' | null): void {
+    const list = this.doc.documentElement.classList;
+    list.toggle('wr-table-dragging', state !== null);
+    list.toggle('wr-table-dragging--allowed', state === 'allowed');
+    list.toggle('wr-table-dragging--blocked', state === 'blocked');
+  }
+
+  protected onColumnDragStart(event: CdkDragStart): void {
+    if (!isPlatformBrowser(this.platformId) || !this.reorderable()) return;
+    const source = event.source.element.nativeElement;
+    // The CDK hides the source and leaves a placeholder where it stood.
+    const rects = this.headerCells().map(ref => {
+      const el = ref.nativeElement === source ? event.source.getPlaceholderElement() : ref.nativeElement;
+      const { left, right } = el.getBoundingClientRect();
+      return [left, right] as const;
+    });
+    this.dragSlots = rects.sort((a, b) => a[0] - b[0]);
+    this.dragOwn = this.headerCells().findIndex(ref => ref.nativeElement === source);
+    this.dragInList = true;
+    this.dragActive = true;
+    this.setDragCursor('blocked');
+  }
+
+  protected onColumnDragMoved(event: CdkDragMove): void {
+    if (!this.dragActive || !this.dragInList) return;
+    const x = event.pointerPosition.x;
+    const slot = this.dragSlots.findIndex(([left, right]) => x >= left && x < right);
+    const own = this.isRtl() ? this.dragSlots.length - 1 - this.dragOwn : this.dragOwn;
+    this.setDragCursor(slot >= 0 && slot !== own && this.slotOpen(slot) ? 'allowed' : 'blocked');
+  }
+
+  protected onColumnListSorted(event: CdkDragSortEvent): void {
+    this.dragOwn = event.currentIndex;
+  }
+
+  protected onColumnListEntered(): void {
+    this.dragInList = true;
+  }
+
+  protected onColumnListExited(): void {
+    if (!this.dragActive) return;
+    this.dragInList = false;
+    this.setDragCursor('blocked');
+  }
+
+  protected onColumnDragEnd(): void {
+    this.dragActive = false;
+    this.setDragCursor(null);
+  }
 
   // --- Row selection --------------------------------------------------------
 
