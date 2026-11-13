@@ -110,6 +110,32 @@ export class WrTextareaHarness extends ComponentHarness {
     await (await this.assertWritable('clear')).clear();
   }
 
+  /** Whether the clear (×) button is on show: `clearable`, with text, neither disabled nor read-only. */
+  async hasClearButton(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-textarea__clear')()) !== null;
+  }
+
+  /**
+   * Click the clear (×) button, which sets the value to `''` and emits `touch`.
+   * {@link clear} empties the field from the keyboard instead. Throws when the
+   * button is not on show.
+   */
+  async clickClear(): Promise<void> {
+    const button = await this.locatorForOptional('.wr-textarea__clear')();
+    if (!button) {
+      throw new Error(
+        'WrTextareaHarness.clickClear(): no clear button. It shows on a `clearable` textarea ' +
+          'that has text and is neither disabled nor read-only.'
+      );
+    }
+    await button.click();
+  }
+
+  /** Whether the textarea is drawing its `loading` spinner. */
+  async isLoading(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-textarea__spinner')()) !== null;
+  }
+
   /** The placeholder text, or `''` when the field has none. */
   async getPlaceholder(): Promise<string> {
     return (await this.native()).getProperty<string>('placeholder');

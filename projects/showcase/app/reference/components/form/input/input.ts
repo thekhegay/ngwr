@@ -37,6 +37,7 @@ export default class InputComponent {
   protected readonly text = signal('Hello world');
   protected readonly amount = signal(0);
   protected readonly password = signal('');
+  protected readonly query = signal('ngwr');
   protected readonly phone = signal('');
   protected readonly card = signal('');
   protected readonly expiry = signal('');
@@ -74,6 +75,13 @@ export default class InputComponent {
     password: `<wr-input-group>
   <input wrInput type="password" [(ngModel)]="password" #pwInput />
   <wr-password-toggle [for]="pwInput" />
+</wr-input-group>`,
+
+    clearable: `<wr-input-group clearable>
+  <input wrInput aria-label="Search" placeholder="Search" [(ngModel)]="query" />
+</wr-input-group>
+<wr-input-group [loading]="pending()">
+  <input wrInput aria-label="Username" [(ngModel)]="username" />
 </wr-input-group>`,
 
     maskSetup: `import { provideEnvironmentNgxMask } from 'ngx-mask';
@@ -133,6 +141,26 @@ export class MyForm {}`,
       default: '—',
     },
     { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
+    {
+      name: 'clearable',
+      description:
+        'Shows a clear (×) button while the field has text and is neither disabled nor read-only. Clearing fires an `input` event on the field and puts focus back in it.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'clearLabel',
+      description: 'Accessible name of the clear button. Defaults to the `common.clear` catalog key.',
+      type: 'string | null',
+      default: 'null',
+    },
+    {
+      name: 'loading',
+      description: 'Shows a spinner after the field and marks the field `aria-busy`. The field stays editable.',
+      type: 'boolean',
+      default: 'false',
+    },
+    { name: '(cleared)', description: 'Emitted after the clear button emptied the field.', type: 'void', default: '—' },
   ];
 
   protected readonly affixApi: readonly DocApiRow[] = [

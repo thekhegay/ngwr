@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Number Input"
-  updated="15.5.0"
+  updated="16.3.0"
   description="A number field with stepper buttons and locale formatting."
   [keywords]="['number', 'input', 'stepper', 'numeric', 'wr-input-number']"
   [labels]="['Signal Forms']"
@@ -102,6 +102,17 @@
     <ngwr-doc-code [code]="snippets.noSteppers" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-input-number ariaLabel="Value" [(value)]="noSteppers" [showSteppers]="false" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Clear button and loading"
+    description="`clearable` draws a clear button that sets the value to `null`. `loading` draws a spinner and marks the field `aria-busy`; the field stays editable."
+  >
+    <ngwr-doc-code [code]="snippets.clearable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-input-number clearable ariaLabel="Clearable quantity" [(value)]="clearableValue" />
+      <wr-input-number loading ariaLabel="Checking stock" [(value)]="loadingValue" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
