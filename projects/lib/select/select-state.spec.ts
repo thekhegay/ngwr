@@ -52,6 +52,19 @@ class GrowingSearchHost {
   readonly items = signal(['Ab', 'Cb']);
 }
 
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="search" freeText ariaLabel="City" [(value)]="city">
+      <wr-option value="paris">Paris</wr-option>
+      <wr-option value="berlin">Berlin</wr-option>
+    </wr-select>
+  `,
+})
+class FreeTextHost {
+  readonly city = signal<unknown>(null);
+}
+
 /**
  * Projected options are detached while the panel is closed, so nothing can sort
  * them then: what changed in that time has to show in the cursor order on open.
@@ -191,5 +204,99 @@ describe('WrSelect opened by a query after its options change while closed', () 
 
     const id = field().getAttribute('aria-activedescendant');
     expect(document.getElementById(id ?? '')?.textContent?.trim()).toBe('Bb');
+  });
+});
+
+describe('WrSelect with freeText after a press in the panel', () => {
+  let fixture: ComponentFixture<FreeTextHost>;
+
+  const field = (): HTMLInputElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  const paris = (): HTMLElement =>
+    [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(o => o.textContent.trim() === 'Paris')!;
+  const type = (value: string): void => {
+    const input = field();
+    input.value = value;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+  const blur = (): void => {
+    field().dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+  };
+  const mount = (): void => {
+    fixture = TestBed.createComponent(FreeTextHost);
+    fixture.detectChanges();
+    field().dispatchEvent(new Event('focus'));
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('commits the typed text on blur after a touch scroll cancelled the press', () => {
+    mount();
+    type('par');
+
+    // A touch that turns into a scroll ends with `pointercancel` and no `pointerup`.
+    paris().dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    window.dispatchEvent(new Event('pointercancel'));
+    blur();
+
+    expect(fixture.componentInstance.city()).toBe('par');
+  });
+
+  it('commits the typed text on blur after the press lifted', () => {
+    mount();
+    type('par');
+
+    paris().dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    window.dispatchEvent(new Event('pointerup'));
+    blur();
+
+    expect(fixture.componentInstance.city()).toBe('par');
+  });
+
+  it('stops listening for the end of a press once the press ended', () => {
+    mount();
+    type('par');
+    const added: string[] = [];
+    const removed: string[] = [];
+    const add = window.addEventListener.bind(window);
+    window.addEventListener = ((name: string, fn: EventListener, options?: AddEventListenerOptions) => {
+      added.push(name);
+      options?.signal?.addEventListener('abort', () => removed.push(name));
+      add(name, fn, options);
+    }) as typeof window.addEventListener;
+
+    try {
+      paris().dispatchEvent(new Event('pointerdown', { bubbles: true }));
+      window.dispatchEvent(new Event('pointercancel'));
+    } finally {
+      window.addEventListener = add;
+    }
+
+    expect(added.sort()).toEqual(['pointercancel', 'pointerup']);
+    expect(removed.sort()).toEqual(['pointercancel', 'pointerup']);
+  });
+
+  it('stops listening when the select is destroyed mid-press', () => {
+    mount();
+    type('par');
+    const signals: AbortSignal[] = [];
+    const add = window.addEventListener.bind(window);
+    window.addEventListener = ((name: string, fn: EventListener, options?: AddEventListenerOptions) => {
+      if (options?.signal) signals.push(options.signal);
+      add(name, fn, options);
+    }) as typeof window.addEventListener;
+
+    try {
+      paris().dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    } finally {
+      window.addEventListener = add;
+    }
+    fixture.destroy();
+
+    expect(signals).toHaveLength(2);
+    expect(signals.every(s => s.aborted)).toBe(true);
   });
 });

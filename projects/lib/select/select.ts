@@ -1282,12 +1282,23 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
 
   /** A pointer is down inside the panel: until it lifts, a blur of the field is not a leave. */
   private pressInPanel = false;
+  private pressEnd: AbortController | null = null;
+
   protected onPanelPointerDown(event: PointerEvent): void {
+    this.endPanelPress();
     this.pressInPanel = true;
-    (event.view ?? window).addEventListener('pointerup', () => (this.pressInPanel = false), {
-      once: true,
-      capture: true,
-    });
+    const pressEnd = (this.pressEnd = new AbortController());
+    const target = event.view ?? window;
+    const options = { capture: true, signal: pressEnd.signal };
+    target.addEventListener('pointerup', () => this.endPanelPress(), options);
+    // A touch that becomes a scroll ends with `pointercancel` and never lifts.
+    target.addEventListener('pointercancel', () => this.endPanelPress(), options);
+  }
+
+  private endPanelPress(): void {
+    this.pressInPanel = false;
+    this.pressEnd?.abort();
+    this.pressEnd = null;
   }
 
   /** `freeText`: a non-empty trimmed query becomes the value. */
@@ -1437,7 +1448,10 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('select');
     // A component destroyed while the panel is open takes its overlay with it.
     // Without this the pane stays in the CDK container forever.
-    this.destroyRef.onDestroy(() => this.closeOverlay(false));
+    this.destroyRef.onDestroy(() => {
+      this.endPanelPress();
+      this.closeOverlay(false);
+    });
 
     // Close the panel if the control goes read-only or disabled while it is up —
     // a panel whose every row now refuses the click is a trap, not a view.
