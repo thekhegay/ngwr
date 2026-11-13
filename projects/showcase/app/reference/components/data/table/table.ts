@@ -4,13 +4,18 @@ import { RouterLink } from '@angular/router';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrCopyValue } from 'ngwr/copy-value';
+import { WrInputNumber } from 'ngwr/input-number';
+import { WrOption, WrSelect } from 'ngwr/select';
 import {
   WrTableCell,
+  WrTableEditCell,
   WrTableExpand,
   WrTableGroupHeader,
   WrTableSelectionBar,
   WrTable,
+  type WrTableCellEdit,
   type WrTableColumns,
+  type WrTableEditable,
   type WrTableFilterChange,
   type WrTableLoadingMode,
   type WrTableSortState,
@@ -48,6 +53,20 @@ const INVOICES: readonly Invoice[] = [
   { id: 2, customer: 'Alice', amount: null, currency: 'USD', due: null, paid: false },
   { id: 3, customer: 'Bob', amount: 0, currency: 'EUR', due: '', paid: false },
   { id: 4, customer: 'Cara', amount: 86.5, currency: 'GBP', due: '2026-12-15', paid: false },
+];
+
+interface Price {
+  id: number;
+  product: string;
+  price: number;
+  status: 'active' | 'draft' | 'archived';
+}
+
+const PRICES: readonly Price[] = [
+  { id: 1, product: 'Espresso', price: 2.5, status: 'active' },
+  { id: 2, product: 'Flat white', price: 3.5, status: 'active' },
+  { id: 3, product: 'Cold brew', price: 4, status: 'draft' },
+  { id: 4, product: 'Pumpkin latte', price: 4.5, status: 'archived' },
 ];
 
 const RAW_ROWS: readonly Row[] = [
@@ -129,9 +148,13 @@ const WIDE_ROWS: readonly Record<string, unknown>[] = [
     RouterLink,
     WrTable,
     WrTableCell,
+    WrTableEditCell,
     WrTableExpand,
     WrTableGroupHeader,
     WrTableSelectionBar,
+    WrInputNumber,
+    WrSelect,
+    WrOption,
     WrTag,
     WrButton,
     WrCopyValue,
@@ -360,6 +383,19 @@ export default class TablePageComponent {
     this.bulkRows.set(RAW_ROWS);
   }
 
+  protected readonly prices = signal<readonly Price[]>(PRICES);
+  protected readonly priceColumns: WrTableColumns<Price> = {
+    product: { title: 'Product' },
+    price: { title: 'Price', align: 'end', format: value => Number(value).toFixed(2) },
+    status: { title: 'Status' },
+  };
+  protected readonly priceEditable: WrTableEditable<Price> = (row, key) => key !== 'price' || row.status !== 'archived';
+
+  protected savePrice({ row, key, value }: WrTableCellEdit<Price>): void {
+    if (key === 'price' && typeof value !== 'number') return;
+    this.prices.update(all => all.map(item => (item === row ? { ...item, [key]: value } : item)));
+  }
+
   protected readonly viewState = signal<WrTableState | null>(null);
   protected readonly savedView = signal<WrTableState | null>(null);
   protected readonly viewColumns: WrTableColumns<Row> = {
@@ -552,6 +588,26 @@ readonly hidden = signal<readonly string[]>(['joined']);
     <button wr-btn type="button" size="sm" color="danger" (click)="remove(rows, clear)">Delete</button>
   </ng-template>
 </wr-table>`,
+    inlineEdit: `readonly prices = signal<readonly Price[]>(PRICES);
+readonly editable: WrTableEditable<Price> = (row, key) => key !== 'price' || row.status !== 'archived';
+
+save({ row, key, value }: WrTableCellEdit<Price>): void {
+  if (key === 'price' && typeof value !== 'number') return;
+  this.prices.update(all => all.map(item => (item === row ? { ...item, [key]: value } : item)));
+}
+
+<wr-table rowKey="id" [columns]="columns" [items]="prices()" [editable]="editable" (cellEdit)="save($event)">
+  <ng-template wrTableEditCell="price" let-value let-set="set">
+    <wr-input-number ariaLabel="Price" [min]="0" [value]="value" (valueChange)="set($event)" />
+  </ng-template>
+  <ng-template wrTableEditCell="status" [wrTableEditCellOf]="prices()" let-value let-commit="commit">
+    <wr-select ariaLabel="Status" [value]="value" (valueChange)="commit($event)">
+      <wr-option value="active">active</wr-option>
+      <wr-option value="draft">draft</wr-option>
+      <wr-option value="archived">archived</wr-option>
+    </wr-select>
+  </ng-template>
+</wr-table>`,
     savedView: `readonly state = signal<WrTableState | null>(null);
 readonly saved = signal<WrTableState | null>(null);
 
@@ -671,6 +727,62 @@ const columns: WrTableColumns = {
       description: 'Custom band label template (let-value, let-count, let-toggle, …).',
       type: 'directive',
       default: '—',
+    },
+    {
+      name: '[wrTableEditCell]',
+      description:
+        "A column's editor, by column key, which makes the column editable; import `WrTableEditCell`. Since v16.3.",
+      type: 'directive',
+      default: '—',
+    },
+    {
+      name: '[wrTableEditCellOf]',
+      description:
+        'The rows, for the type checker only: types `let-value` and `let-row`. Bind the same array as `[items]`.',
+      type: 'readonly T[] | null | undefined',
+      sub: true,
+    },
+    {
+      name: 'let-value',
+      description: "The pending value: the cell's own at first, then what `set` last took.",
+      type: 'T[K]',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'let-row="row"',
+      description: 'The row being edited.',
+      type: 'T',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'let-col="column"',
+      description: 'The column definition.',
+      type: 'WrTableColumn',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'let-set="set"',
+      description: 'Keeps a value without ending the edit. Enter, Tab and a click outside commit it.',
+      type: '(value: unknown) => void',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'let-commit="commit"',
+      description: 'Ends the edit with a value: the table emits `cellEdit` and focus returns to the cell.',
+      type: '(value: unknown) => void',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'let-cancel="cancel"',
+      description: 'Drops the edit. Focus returns to the cell.',
+      type: '() => void',
+      default: '—',
+      sub: true,
     },
     {
       name: '[wrTableSelectionBar]',
@@ -831,6 +943,7 @@ interface WrTableColumn<T = object> {
   filterItems?: readonly WrTableFilterItem[];
   pin?: 'left' | 'right';
   hideable?: boolean;
+  editable?: boolean;
   resizable?: boolean;
   width?: number;
   summary?: WrTableSummary;
@@ -876,6 +989,24 @@ interface WrTableSelectionContext<T = object> {
   count: number;
   clear: () => void;
   scope: 'page' | 'all';
+}
+
+interface WrTableCellEdit<T = object> {
+  row: T;
+  key: string;
+  value: unknown;
+  previous: unknown;
+}
+
+type WrTableEditable<T = object> = (row: T, key: string) => boolean;
+
+interface WrTableEditCellContext<T, K extends string> {
+  $implicit: T[K];
+  row: T;
+  column: WrTableColumn<T>;
+  set: (value: unknown) => void;
+  commit: (value: unknown) => void;
+  cancel: () => void;
 }
 
 interface WrTableState {
@@ -926,6 +1057,13 @@ type WrTableSummaryContext =
     {
       name: 'hideable',
       description: '`false` keeps the column out of reach of `hiddenColumns` and the column chooser. Since v16.3.',
+      type: 'boolean',
+      default: 'true',
+      sub: true,
+    },
+    {
+      name: 'editable',
+      description: '`false` keeps the column read-only even with a `[wrTableEditCell]` template. Since v16.3.',
       type: 'boolean',
       default: 'true',
       sub: true,

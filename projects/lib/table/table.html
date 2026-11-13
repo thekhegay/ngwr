@@ -81,7 +81,7 @@
     [class.wr-table__table--fixed]="fixedLayoutActive()"
     [style.--wr-table-row-h.px]="virtualized() ? effRowH() : null"
     [attr.aria-rowcount]="virtualized() ? renderRows().length + 1 + (hasSummary() && items()?.length ? 1 : 0) : null"
-    [attr.role]="treeMode() ? 'treegrid' : null"
+    [attr.role]="treeMode() ? 'treegrid' : editGrid() ? 'grid' : null"
     [attr.aria-multiselectable]="treeMode() && rowSelection() === 'multiple' ? true : null"
   >
     <colgroup>
@@ -197,15 +197,22 @@
 
     <!-- One delegated listener for `rowClick`, which is pointer only by contract:
          the body is no control, and a row's keyboard path is the consumer's own
-         button or link in a cell. -->
-    <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
-    <tbody (click)="onBodyClick($event)">
+         button or link in a cell. The other three serve inline editing and
+         return at once in a table with no edit template. -->
+    <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+    <tbody
+      (click)="onBodyClick($event)"
+      (dblclick)="onCellDblclick($event)"
+      (keydown)="onCellKeydown($event)"
+      (focusin)="onCellFocusin($event)"
+    >
       @if (visibleItems()) {
         @if (virtualized() && virtualWindow().padTop > 0) {
           <tr class="wr-table__spacer" aria-hidden="true">
             <td [attr.colspan]="totalCols()" [style.height.px]="virtualWindow().padTop"></td>
           </tr>
         }
+        @let edit = editing();
         @for (entry of windowRows(); track entry.id; let i = $index) {
           @if (entry.kind === 'group') {
             <tr class="wr-table__group-row" [class.wr-table__group-row--collapsed]="entry.group.collapsed">
@@ -357,6 +364,7 @@
                 </td>
               }
               @for (col of cellColumns(); track col.key) {
+                @let cellEdit = edit !== null && edit.row === entry.row && edit.key === col.key ? edit : null;
                 <td
                   [class]="col.tdClass"
                   [class.wr-table__td--pin-left]="col.pinLeft"
@@ -368,6 +376,9 @@
                   [style.max-width.px]="col.maxWidth"
                   [attr.data-label]="col.column.title"
                   [attr.id]="col.label ? rowLabelId(entry.id) : null"
+                  [attr.tabindex]="editGrid() ? cellTabindex(entry, col) : null"
+                  [class.wr-table__td--editable]="col.editTemplate ? cellEditable(entry.row, col) : false"
+                  [class.wr-table__td--editing]="cellEdit !== null"
                 >
                   @if (col.tree) {
                     <span class="wr-table__tree-lead">
@@ -399,7 +410,12 @@
                       }
                     </span>
                   }
-                  @if (col.template; as tpl) {
+                  @if (cellEdit) {
+                    <ng-container
+                      [ngTemplateOutlet]="col.editTemplate ?? null"
+                      [ngTemplateOutletContext]="cellEdit.context"
+                    />
+                  } @else if (col.template; as tpl) {
                     <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="cellContext(entry.row, col)" />
                   } @else {
                     {{ cellText(entry.row, col.key, col.column) }}

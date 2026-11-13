@@ -5,9 +5,16 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ComponentHarness, type HarnessLoader, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
+import {
+  ComponentHarness,
+  type HarnessLoader,
+  HarnessPredicate,
+  type TestElement,
+  TestKey,
+} from '@angular/cdk/testing';
 
 import type { WrTableHarnessFilters, WrTableHeaderCellHarnessFilters, WrTableRowHarnessFilters } from './types';
+import type { WrTableCellHarness } from './wr-table-cell-harness';
 import { wrTableHarnessText } from './wr-table-harness-text';
 import { WrTableHeaderCellHarness } from './wr-table-header-cell-harness';
 import { WrTableRowHarness } from './wr-table-row-harness';
@@ -59,13 +66,15 @@ export class WrTableHarness extends ComponentHarness {
   /**
    * The role the table announces.
    *
-   * A flat table sets no `role` at all, so it announces the native `table` role —
-   * NOT `grid`, which would promise cell-by-cell keyboard navigation it does not
-   * implement. `childrenKey` turns it into a `treegrid`, and that role is the only
-   * place the hierarchy exists for a screen-reader user: the indent is decoration.
+   * A flat table sets no `role` at all, so it announces the native `table` role.
+   * A `[wrTableEditCell]` template makes it a `grid`, whose data cells take focus
+   * and the arrow keys. `childrenKey` turns it into a `treegrid`, and that role is
+   * the only place the hierarchy exists for a screen-reader user: the indent is
+   * decoration.
    */
-  async getRole(): Promise<'treegrid' | 'table'> {
-    return (await (await this.tableEl()).getAttribute('role')) === 'treegrid' ? 'treegrid' : 'table';
+  async getRole(): Promise<'treegrid' | 'grid' | 'table'> {
+    const role = await (await this.tableEl()).getAttribute('role');
+    return role === 'treegrid' || role === 'grid' ? role : 'table';
   }
 
   /** Whether the rows are a hierarchy rather than a flat list. */
@@ -307,6 +316,61 @@ export class WrTableHarness extends ComponentHarness {
       );
     }
     return part;
+  }
+
+  /**
+   * Start editing a cell the way the keyboard does: focus it and press Enter.
+   * `row` is the 0-based position among {@link getRows}, `columnTitle` the
+   * column's header. Hands back the cell, whose loader reaches the editor's own
+   * harnesses: `cell.getHarness(WrInputNumberHarness)`.
+   *
+   * Throws when the cell does not open an editor: it has no `[wrTableEditCell]`
+   * template, its column says `editable: false`, or the `editable` predicate
+   * refused the row.
+   */
+  async editCell(row: number, columnTitle: string): Promise<WrTableCellHarness> {
+    const rows = await this.getRows();
+    if (!rows[row]) {
+      throw new Error(`WrTableHarness: no row ${row} — the table renders ${rows.length} row(s).`);
+    }
+    const [cell] = await rows[row].getCells({ columnTitle });
+    if (!cell) {
+      throw new Error(`WrTableHarness: row ${row} has no cell under "${columnTitle}".`);
+    }
+    await (await cell.host()).sendKeys(TestKey.ENTER);
+    if (!(await cell.isEditing())) {
+      throw new Error(
+        `WrTableHarness: the cell under "${columnTitle}" in row ${row} is not editable — its column has no ` +
+          '`[wrTableEditCell]` template or says `editable: false`, or the `editable` predicate refused the row.'
+      );
+    }
+    return cell;
+  }
+
+  /** Whether a cell is being edited. One cell edits at a time. */
+  async isEditing(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-table__td--editing')()) !== null;
+  }
+
+  /**
+   * Commit the edit in flight the way Enter does: the table emits `cellEdit`
+   * with the value the editor last kept, when it differs from the cell's.
+   * Focus goes to the cell first, so a control that publishes on blur has
+   * published.
+   */
+  async commitEdit(): Promise<void> {
+    await (await this.editingCell()).sendKeys(TestKey.ENTER);
+  }
+
+  /** Drop the edit in flight the way Escape does. */
+  async cancelEdit(): Promise<void> {
+    await (await this.editingCell()).sendKeys(TestKey.ESCAPE);
+  }
+
+  private async editingCell(): Promise<TestElement> {
+    const cell = await this.locatorForOptional('.wr-table__td--editing')();
+    if (!cell) throw new Error('WrTableHarness: no cell is being edited — call `editCell()` first.');
+    return cell;
   }
 
   /** Whether the table shows the column chooser's button (`columnChooser`). */
