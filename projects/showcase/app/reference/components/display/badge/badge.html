@@ -73,6 +73,20 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Tag sizes"
+    description="`sm`, `md` (default) or `lg`. The icon and the remove button follow. Since v16.3."
+  >
+    <ngwr-doc-code [code]="snippets.tagSizes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem">
+        @for (s of tagSizes; track s) {
+          <wr-tag color="success" icon="checkmark" closable [size]="s">{{ s }}</wr-tag>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Removable tag"
     description="`closable` adds a remove button, named after the tag's text. The tag stays until you drop it in `(removed)`. Since v16.3."
   >

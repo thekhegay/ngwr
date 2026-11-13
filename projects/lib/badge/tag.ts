@@ -26,7 +26,7 @@ import { WrSpinner } from 'ngwr/spinner';
 import type { WrColor } from 'ngwr/theme';
 import { wrCheckStyles, wrGetFocusableElements } from 'ngwr/utils';
 
-import type { WrTagIconPosition } from './types';
+import type { WrTagIconPosition, WrTagSize } from './types';
 
 /**
  * Rich inline label — icons, loading state, three visual styles
@@ -79,6 +79,14 @@ export class WrTag {
    * @default 'primary'
    */
   readonly color = input<WrColor | null>('primary');
+
+  /**
+   * Size variant. `md` is the 22px chip that sits beside an `sm` control, `sm`
+   * is 18px and `lg` 30px, the heights of a badge at those sizes.
+   *
+   * @default 'md'
+   */
+  readonly size = input<WrTagSize>('md');
 
   /**
    * Icon name shown alongside the content — the one channel besides the label
@@ -178,6 +186,9 @@ export class WrTag {
 
     const color = this.color();
     if (color) parts.push(`wr-tag--${color}`);
+
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-tag--${size}`);
 
     if (this.outlined()) parts.push('wr-tag--outlined');
     if (this.transparent()) parts.push('wr-tag--transparent');

@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 
 import { Check, CircleCheck, OctagonAlert } from 'lucide';
-import { type WrBadgeShape, WrBadge, WrTag } from 'ngwr/badge';
+import { type WrBadgeShape, type WrTagSize, WrBadge, WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WR_COLORS } from 'ngwr/theme';
@@ -37,6 +37,8 @@ export default class BadgeComponent {
   protected readonly colors = WR_COLORS;
   protected readonly shapes: readonly WrBadgeShape[] = ['rounded', 'pill', 'squircle'];
 
+  protected readonly tagSizes: readonly WrTagSize[] = ['sm', 'md', 'lg'];
+
   protected readonly allTopics = ['Angular', 'Signals', 'Forms'];
   protected readonly topics = signal(this.allTopics);
 
@@ -57,6 +59,9 @@ export default class BadgeComponent {
     tag: `<wr-tag color="success" icon="checkmark">Done</wr-tag>
 <wr-tag color="primary" outlined rounded>Beta</wr-tag>
 <wr-tag color="warning" loading>Saving</wr-tag>`,
+    tagSizes: `<wr-tag size="sm" icon="checkmark" closable>Small</wr-tag>
+<wr-tag size="md" icon="checkmark" closable>Medium</wr-tag>
+<wr-tag size="lg" icon="checkmark" closable>Large</wr-tag>`,
     statusIcons: `import { CircleCheck, OctagonAlert } from 'lucide';
 import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 
@@ -78,6 +83,7 @@ export class BuildStatus {}`,
       type: 'WrColor | null',
       default: "'primary'",
     },
+    { name: 'size', description: 'Height, padding and text: 18, 22 or 30px tall.', type: 'WrTagSize', default: "'md'" },
     {
       name: 'icon',
       description: 'Icon beside the label.',
