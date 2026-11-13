@@ -629,8 +629,8 @@ describe('WrTreeHarness — overlay multi with chips', () => {
 
   it('removes one chip by label, leaving the rest', async () => {
     await tree.open();
-    await (await tree.getNode({ label: 'src' })).expand();
 
+    // The row click opens `src` as it selects it.
     await tree.selectNode({ label: 'src' }, { additive: true });
     await tree.selectNode({ label: 'styles.css' }, { additive: true });
     await tree.selectNode({ label: 'README.md' }, { additive: true });

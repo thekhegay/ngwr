@@ -21,6 +21,7 @@
   --wr-tree-status-color: var(--wr-color-on-surface-muted);
   --wr-tree-status-error-color: var(--wr-color-danger-ink);
   --wr-tree-retry-color: var(--wr-color-primary-ink);
+  --wr-tree-row-hover-bg: var(--wr-color-hover);
   --wr-tree-match-bg: var(--wr-color-warning-soft);
   --wr-tree-match-color: var(--wr-color-warning-ink);
   --wr-tree-drop-color: var(--wr-color-primary);
@@ -88,8 +89,8 @@
       background var(--wr-transition-base),
       color var(--wr-transition-base);
 
-    &:hover:not(.wr-tree__row--disabled) {
-      background: var(--wr-color-hover);
+    &:hover:not(.wr-tree__row--disabled, [aria-disabled='true']) {
+      background: var(--wr-tree-row-hover-bg);
     }
 
     // A selected row had nothing but the tint, and `wr-tree` — unlike its

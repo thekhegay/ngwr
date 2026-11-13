@@ -196,6 +196,15 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Expanded node ids (two-way bindable). */
   readonly expanded = model<readonly TId[]>([]);
 
+  /**
+   * Opens and closes a node by a click anywhere on its row, not only on the
+   * arrow. In `selectionMode="single"` the click selects too. Under `cascade`
+   * the checkbox is the way to check a branch, so a click elsewhere on its row
+   * only opens it. A disabled node and a leaf behave as without it.
+   * @default true
+   */
+  readonly expandOnClick = input(true, { transform: coerceBooleanProperty });
+
   /** Selection behavior. @default 'single' */
   readonly selectionMode = input<WrTreeSelectionMode>('single');
 
@@ -995,6 +1004,14 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       return;
     }
     this.focusIndex(flat.index);
+    if (flat.hasChildren && this.expandOnClick()) {
+      // Under cascade the box only checks, and the rest of the row only opens.
+      const onBox = this.isCascade() && !!(event.target as HTMLElement).closest('.wr-tree__check');
+      if (!onBox) {
+        this.toggleExpanded(flat.node.id);
+        if (this.isCascade()) return;
+      }
+    }
     this.select(flat.node.id, event.ctrlKey || event.metaKey);
   }
 
