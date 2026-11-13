@@ -71,7 +71,7 @@
   @if (!toggleable() && isHidden(index)) {
     <!-- A toggle says hidden through aria-pressed. A row that is not one has nothing but
          the strike-through and the faded key, which reach no one who cannot see them. -->
-    <span class="wr-chart-legend__sr-only"> {{ hiddenText() }} </span>
+    <span class="wr-chart-legend__sr-only"> {{ resolvedHiddenLabel() }} </span>
   }
   @if (item.value !== undefined && item.value !== null) {
     <span class="wr-chart-legend__value" [wrChartLegendPart]="part('legend-value')">{{ item.value }}</span>

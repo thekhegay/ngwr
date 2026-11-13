@@ -1,6 +1,7 @@
 <ngwr-doc-page
   title="Chart Legend"
   since="15.1.0"
+  updated="16.3.0"
   description="A chart's key: a swatch, a name and a value per series. Rows can toggle their series."
   [keywords]="['legend', 'chart-legend', 'wr-chart-legend']"
   [labels]="['Component']"
@@ -69,7 +70,10 @@
           </tr>
           <tr>
             <th scope="row">Hidden series</th>
-            <td>Struck through as well as muted, so the state does not rest on colour.</td>
+            <td>
+              Struck through as well as muted, so the state does not rest on colour. A row that does not toggle also
+              reads "hidden"; <code>hiddenLabel</code> replaces the word.
+            </td>
           </tr>
           <tr>
             <th scope="row">Name</th>
