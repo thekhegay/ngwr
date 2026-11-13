@@ -341,6 +341,9 @@ export const wrCs: WrI18nCatalog = {
   alert: {
     close: 'Zavřít upozornění',
   },
+  tag: {
+    remove: 'Odebrat {{label}}',
+  },
   qr: {
     label: 'QR kód',
   },

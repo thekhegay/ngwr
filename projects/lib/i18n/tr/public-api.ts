@@ -354,6 +354,9 @@ export const wrTr: WrI18nCatalog = {
   alert: {
     close: 'Uyarıyı kapat',
   },
+  tag: {
+    remove: '{{label}} öğesini kaldır',
+  },
   qr: {
     label: 'QR kodu',
   },

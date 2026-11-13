@@ -345,6 +345,9 @@ export const wrZhTw: WrI18nCatalog = {
   alert: {
     close: '關閉警示',
   },
+  tag: {
+    remove: '移除 {{label}}',
+  },
   qr: {
     label: 'QR 碼',
   },

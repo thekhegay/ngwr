@@ -352,6 +352,9 @@ export const wrDe: WrI18nCatalog = {
   alert: {
     close: 'Hinweis schließen',
   },
+  tag: {
+    remove: '{{label}} entfernen',
+  },
   qr: {
     label: 'QR-Code',
   },

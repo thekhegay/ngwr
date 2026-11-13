@@ -345,6 +345,9 @@ export const wrPt: WrI18nCatalog = {
   alert: {
     close: 'Fechar alerta',
   },
+  tag: {
+    remove: 'Remover {{label}}',
+  },
   qr: {
     label: 'Código QR',
   },

@@ -349,6 +349,9 @@ export const wrNl: WrI18nCatalog = {
   alert: {
     close: 'Melding sluiten',
   },
+  tag: {
+    remove: '{{label}} verwijderen',
+  },
   qr: {
     label: 'QR-code',
   },

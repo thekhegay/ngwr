@@ -350,6 +350,9 @@ export const wrFr: WrI18nCatalog = {
   alert: {
     close: "Fermer l'alerte",
   },
+  tag: {
+    remove: 'Retirer {{label}}',
+  },
   qr: {
     label: 'Code QR',
   },

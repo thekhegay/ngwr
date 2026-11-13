@@ -353,6 +353,9 @@ export const wrVi: WrI18nCatalog = {
   alert: {
     close: 'Đóng cảnh báo',
   },
+  tag: {
+    remove: 'Xóa {{label}}',
+  },
   qr: {
     label: 'Mã QR',
   },

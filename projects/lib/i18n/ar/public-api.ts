@@ -353,6 +353,9 @@ export const wrAr: WrI18nCatalog = {
   alert: {
     close: 'إغلاق التنبيه',
   },
+  tag: {
+    remove: 'إزالة {{label}}',
+  },
   qr: {
     label: 'رمز QR',
   },

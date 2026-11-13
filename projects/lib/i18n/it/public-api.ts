@@ -349,6 +349,9 @@ export const wrIt: WrI18nCatalog = {
   alert: {
     close: 'Chiudi avviso',
   },
+  tag: {
+    remove: 'Rimuovi {{label}}',
+  },
   qr: {
     label: 'Codice QR',
   },

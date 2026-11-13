@@ -356,6 +356,9 @@ export const wrUk: WrI18nCatalog = {
   alert: {
     close: 'Закрити оповіщення',
   },
+  tag: {
+    remove: 'Вилучити {{label}}',
+  },
   qr: {
     label: 'QR-код',
   },

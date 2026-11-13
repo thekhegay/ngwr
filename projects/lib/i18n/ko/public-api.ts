@@ -348,6 +348,9 @@ export const wrKo: WrI18nCatalog = {
   alert: {
     close: '알림 닫기',
   },
+  tag: {
+    remove: '{{label}} 제거',
+  },
   qr: {
     label: 'QR 코드',
   },
