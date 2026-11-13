@@ -42,6 +42,21 @@ because it is guidance rather than a plan.
   announced `aria-selected` on the row the user clicked, and left the control
   at its initial value for the life of the form. A binding that carries one
   direction is worse than one that is refused, because nothing looks wrong.
+- `wr-tree` never writes to `nodes`. `loadChildren` answers live in the tree's
+  own cache, keyed by node id, and a drop only emits `nodeMove`: the consumer
+  applies it (`wrMoveTreeNode`), which is the opposite of the sortable list's
+  two-way `items`. `to.index` counts the new siblings WITHOUT the moved node.
+  So a row the cache supplied cannot be dragged or dropped into, and dragging
+  is off under a `filter`, whose sibling groups are subsets. The drag is the
+  browser's own (`draggable` rows, `drag*` events on the list) and not the
+  CDK's: a drop list sorts one flat list and has no "onto a row", and it needs
+  a `DragRef` per row of a tree that windows thousands. The keyboard move picks
+  up on Alt+Enter, because Space and Enter select, and it moves an indicator
+  while the row stays put. `filter` never writes `expanded` either: its opened
+  ancestors and the user's toggles under it are view state, dropped with the
+  text. `cascade` holds EVERY checked node in the value, parents and leaves,
+  never a mixed one: leaves-only cannot say "this unloaded branch is checked".
+  A cascade row announces `aria-checked` in place of `aria-selected`.
 - `wr-alert` does not use one live region: danger interrupts
   (`role="alert"` / assertive), warning is assertive without interrupting,
   the rest wait their turn — and all of it goes away on dismiss.
