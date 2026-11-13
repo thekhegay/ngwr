@@ -317,7 +317,8 @@ export const API = {
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse changes while every surface stays focusable and the colour still submits. Bound automatically from the field's readonly state when used with `[formField]`. The two sliders keep their tab stop and keep announcing `aria-valuenow` — they simply do not move — the hex / channel fields take the native `readonly` attribute, and the swatches go inert. Switching TABS still works: that changes which notation is displayed, not the colour. `aria-readonly` is mirrored on the sliders, which support it; the saturation surface is a `role=\"group\"`, which does not, so it carries nothing.", type: "boolean", default: "false" },
     { name: "format", description: "Format the control writes into `value`. See {@link WrColorFormat} — all three are accepted on the way in whichever one is set.", type: "WrColorFormat", default: "'hex'" },
-    { name: "swatches", description: "Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row.", type: "readonly string[]", default: "[]" },
+    { name: "swatches", description: "Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row. An entry is a colour string, or `{ value, label }` to give its button a name: a bare string announces itself, `#3366ff`.", type: "readonly WrColorPickerSwatch[]", default: "[]" },
+    { name: "size", description: "Panel size: its width, padding, the saturation surface and the thumbs. The preset buttons follow the width. The format tabs and the channel fields keep their size.", type: "WrColorPickerSize", default: "'md'" },
     { name: "value", description: "The selected colour as a string. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
@@ -326,7 +327,8 @@ export const API = {
     { name: "value", description: "Two-way bindable colour value (hex string).", type: "string", default: "''" },
     { name: "alpha", description: "Forwarded to the inner picker.", type: "boolean", default: "true" },
     { name: "format", description: "Forwarded to the inner picker.", type: "WrColorFormat", default: "'hex'" },
-    { name: "swatches", description: "Forwarded to the inner picker.", type: "readonly string[]", default: "[]" },
+    { name: "swatches", description: "Forwarded to the inner picker.", type: "readonly WrColorPickerSwatch[]", default: "[]" },
+    { name: "size", description: "Forwarded to the inner picker: the size of the panel this opens.", type: "WrColorPickerSize", default: "'md'" },
     { name: "disabled", description: "Disable the trigger entirely.", type: "boolean", default: "false" },
     { name: "panelClass", description: "Extra CSS classes for the picker panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
     { name: "(opened)", description: "Fires after the picker opens.", type: "void" },
@@ -659,6 +661,7 @@ export const API = {
   WrFileUpload: [
     { name: "multiple", description: "Allow multiple files. Single mode replaces on each add.", type: "boolean", default: "false" },
     { name: "accept", description: "`accept` attribute — comma-separated MIME types or extensions.", type: "string", default: "''" },
+    { name: "size", description: "Control size: the drop zone's padding, icon and text, and the list rows.", type: "WrFileUploadSize", default: "'md'" },
     { name: "maxSize", description: "Max bytes per file. `0` disables the check.", type: "number", default: "0" },
     { name: "maxFiles", description: "Max files (multi mode only). `0` disables the check.", type: "number", default: "0" },
     { name: "showList", description: "Render the picked-files list below the zone.", type: "boolean", default: "true" },
@@ -1075,6 +1078,7 @@ export const API = {
   WrProgress: [
     { name: "ariaLabel", description: "Accessible name — `role=\"progressbar\"` needs one. Falls back to `progress.label`.", type: "string | null", default: "null" },
     { name: "color", description: "Bar color.", type: "WrColor", default: "'primary'" },
+    { name: "size", description: "Bar thickness: 4px, 8px or 12px, through `--wr-progress-height`.", type: "WrProgressSize", default: "'md'" },
     { name: "value", description: "Progress value, clamped to `[0, 100]`.", type: "number", default: "0" },
   ],
   // <wr-pull-to-refresh>
@@ -1301,6 +1305,7 @@ export const API = {
     { name: "marks", description: "Stops drawn on the track: a tick at each `value`, and its `label` under the track when it has one. A mark outside `[min, max]` is not drawn. The thumb announces the label of the mark it stands on as `aria-valuetext`, ahead of `labelWith`.", type: "readonly WrSliderMark[]", default: "[]" },
     { name: "snapToMarks", description: "Restrict the value to the marks: a drag lands on the nearest one and the keyboard moves from mark to mark, whatever `step` says. Without marks it does nothing.", type: "boolean", default: "false" },
     { name: "orientation", description: "Axis of the track. `vertical` runs from the bottom (min) to the top (max), as tall as `--wr-slider-vertical-height`, with the value and the marks' labels beside it.", type: "'horizontal' | 'vertical'", default: "'horizontal'" },
+    { name: "size", description: "Control size: the track's thickness, the thumb, the marks and both kinds of label text.", type: "WrSliderSize", default: "'md'" },
     { name: "ariaLabel", description: "Accessible name of the thumb — the single one, or the LOWER one in range mode. Falls back to `slider.label` / `slider.lower`.", type: "string | null", default: "null" },
     { name: "upperLabel", description: "Accessible name of the upper thumb in range mode. Falls back to `slider.upper`.", type: "string | null", default: "null" },
     { name: "value", description: "Current value. Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `range`: a plain `number`, or `[low, high]` in range mode.", type: "WrSliderValue", default: "0" },
@@ -1489,6 +1494,7 @@ export const API = {
   // <wr-tag>
   WrTag: [
     { name: "color", description: "Color variant — decoration or category, never the state on its own. The label carries the state (`Failed`, not a red `Build`): four of the five intents share one lightness and `success` against `danger` is 1.004:1, so a reader who cannot separate red from green cannot tell those two tags apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand for a status by itself, give it an `icon` as well — register one with `provideWrIcons(wrLucideIcons({ 'octagon-alert': OctagonAlert }))`, then write `<wr-tag color=\"danger\" icon=\"octagon-alert\">Failed</wr-tag>`.", type: "WrColor | null", default: "'primary'" },
+    { name: "size", description: "Size variant. `md` is the 22px chip that sits beside an `sm` control, `sm` is 18px and `lg` 30px, the heights of a badge at those sizes.", type: "WrTagSize", default: "'md'" },
     { name: "icon", description: "Icon name shown alongside the content — the one channel besides the label that a tag has, so the one to reach for when colour is carrying a status. Nothing ships built in: register the name through `provideWrIcons` first. The icon is replaced by a spinner when `loading` is true.", type: "WrIconName | null", default: "null" },
     { name: "iconPosition", description: "Where the icon/spinner is rendered.", type: "WrTagIconPosition", default: "'start'" },
     { name: "outlined", description: "Outlined style — colored text and border on a tinted background.", type: "boolean", default: "false" },
@@ -1568,6 +1574,7 @@ export const API = {
     { name: "(touch)", description: "Emitted on blur / commit so a bound field marks itself touched.", type: "void" },
     { name: "disabled", description: "Disable the whole control.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse changes to the value while both panes stay focusable and readable. Bound automatically from the field's readonly state when used with `[formField]`. The move buttons go inert and the row checkboxes go read-only; SEARCH keeps working, because filtering a pane changes what is shown and not what is chosen. No `aria-readonly` on the host: role `group` does not support the state, so each row's checkbox mirrors its own instead.", type: "boolean", default: "false" },
+    { name: "size", description: "Control size: the panes, the headings, the rows and the move buttons. The checkboxes, search boxes and buttons inside are `sm` controls at `sm` and `md`, and `md` controls at `lg`.", type: "WrTransferSize", default: "'md'" },
     { name: "searchable", description: "Show a filter box above each pane.", type: "boolean", default: "false" },
     { name: "sourceTitle", description: "Heading above the left pane. Falls back to `transfer.source`.", type: "string | null", default: "null" },
     { name: "targetTitle", description: "Heading above the right pane. Falls back to `transfer.target`.", type: "string | null", default: "null" },
