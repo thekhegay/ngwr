@@ -1321,6 +1321,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       this.resizeWidths.set(new Map());
       this.fixedLayout.set(false);
       this.virtualFixed.set(false);
+      this.editHold = null;
+      this.editHeld.set(false);
     });
 
     // (A) Virtual activation: freeze the natural column widths BEFORE fixed
@@ -1634,6 +1636,29 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    */
   protected readonly fixedLayout = signal(false);
 
+  /**
+   * Fixed layout held only while a cell edits, so an editor of another width
+   * cannot move the columns. `editHold` keeps the widths in force before it, to
+   * put back when the edit ends.
+   */
+  protected readonly editHeld = signal(false);
+  private editHold: ReadonlyMap<string, number> | null = null;
+
+  private holdWidthsForEdit(): void {
+    if (this.fixedLayoutActive() || !isPlatformBrowser(this.platformId)) return;
+    this.editHold = this.resizeWidths();
+    this.freezeColumnWidths();
+    this.editHeld.set(true);
+  }
+
+  private releaseEditHold(): void {
+    if (!this.editHeld()) return;
+    this.editHeld.set(false);
+    // A resize that began during the edit made the layout fixed for good: its widths stay.
+    if (this.editHold && !this.fixedLayout()) this.resizeWidths.set(this.editHold);
+    this.editHold = null;
+  }
+
   /** Freeze every column at its current rendered header width (skips frozen keys). */
   private freezeColumnWidths(): void {
     const cols = this.displayColumns();
@@ -1780,7 +1805,9 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   });
 
   /** Fixed layout is on when a resize drag latched it OR virtualization forces it. */
-  protected readonly fixedLayoutActive = computed<boolean>(() => this.fixedLayout() || this.virtualFixed());
+  protected readonly fixedLayoutActive = computed<boolean>(
+    () => this.fixedLayout() || this.virtualFixed() || this.editHeld()
+  );
 
   /** Scroll a flat row index to the top of the virtual viewport. No-op on the server / when not virtual. */
   scrollToRow(index: number, behavior: ScrollBehavior = 'auto'): void {
@@ -2420,6 +2447,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     const current = untracked(this.editing);
     if (current?.row === row && current.key === col.key) return true;
     this.endEdit(true, false);
+    this.holdWidthsForEdit();
     const previous = row[col.key];
     const pending = signal(previous);
     const live = (): boolean => untracked(this.editing) === edit;
@@ -2479,6 +2507,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     // The blur may have ended it from the template.
     if (untracked(this.editing) !== edit) return;
     this.editing.set(null);
+    this.releaseEditHold();
     if (focus === 'inside' ? held && edit.td.isConnected : focus) edit.td.focus();
     const value = untracked(edit.pending);
     if (commit && !Object.is(value, edit.previous)) {
