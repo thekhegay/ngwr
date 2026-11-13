@@ -31,7 +31,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
+import { WrDateAdapter, type WrDateFormat, wrPeriodEnd, wrPeriodStart } from 'ngwr/date';
 import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrFollowSize } from 'ngwr/overlay';
@@ -45,6 +45,7 @@ import {
   useDateInputRefusals,
   useFormParseErrors,
 } from './internal/input-refusal';
+import { usePickerText, wrPickerPeriod } from './internal/period-text';
 import { WrDateRangeEndInput } from './internal/range-end-input';
 import { tabLeavesPane } from './internal/tab-out';
 import { wrPickerAdapter, wrPickerPanelInjector } from './internal/zoned-adapter';
@@ -53,6 +54,7 @@ import type {
   WrDatePickerSize,
   WrDateRange,
   WrDateRangeInputError,
+  WrDateRangePickerMode,
   WrDateRangePreset,
 } from './types';
 
@@ -81,6 +83,11 @@ type EndRefusals = readonly [WrDateInputError | null, WrDateInputError | null];
  *   date closes the overlay.
  * - `'datetime'` — popover adds a time stepper per end. Picking dates does NOT
  *   close, since the user typically sets the times next.
+ * - `'month'`, `'quarter'`, `'year'`: popover renders that view of the
+ *   calendar and each pick is a period. The range runs from the first day of
+ *   the start period to the LAST day of the end period, so it stays an
+ *   inclusive run of days, as a `date` range is. Each field shows its period
+ *   (`March 2026`, `Q1 2026`, `2026`) and reads the same text back.
  *
  * A signal-forms native control: it implements
  * `FormValueControl<WrDateRange | null>`, so `[formField]` binds straight to
@@ -121,15 +128,20 @@ type EndRefusals = readonly [WrDateInputError | null, WrDateInputError | null];
   viewProviders: [WR_DATE_INPUT_FIELD_VIEW_PROVIDER],
 })
 export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
-  /** Picker behavior — see class doc. @default 'date' */
-  readonly mode = input<'date' | 'datetime'>('date');
+  /**
+   * What each end picks: `'date'`, `'datetime'`, or a period: `'month'`,
+   * `'quarter'`, `'year'`. A range of periods runs to the last day of the end
+   * period.
+   * @default 'date'
+   */
+  readonly mode = input<WrDateRangePickerMode>('date');
 
   /**
    * Format used for both display and parsing, on both ends. When `null`
    * (default), it is derived from `mode` (`shortDate` / `shortDateTime`), with
    * the hour cycle of `timeFormat` and the seconds of `showSeconds`
    * (`shortDateTime24hSeconds`, …). Pass a named key or raw token string to
-   * override.
+   * override. A period mode writes the period when this is `null`.
    */
   readonly format = input<WrDateFormat | (string & {}) | null>(null);
 
@@ -302,6 +314,9 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   protected readonly isDateTime = computed(() => this.mode() === 'datetime');
 
+  /** The period a period mode names, `null` in `date` and `datetime`. */
+  private readonly period = computed(() => wrPickerPeriod(this.mode()));
+
   protected readonly triggerLabel = wrReadI18nText('datePicker.openRange', 'Open range calendar');
   protected readonly startLabel = wrReadI18nText('datePicker.rangeStart', 'Range start');
   protected readonly endLabel = wrReadI18nText('datePicker.rangeEnd', 'Range end');
@@ -340,6 +355,15 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   });
 
   private readonly refusalBuilder = useDateInputRefusals(() => this.adapter);
+
+  /** What each field writes and reads: the adapter's format, or the period in a period mode. */
+  private readonly fieldText = usePickerText({
+    adapter: () => this.adapter,
+    period: () => this.period(),
+    explicit: () => this.format(),
+    format: () => this.resolvedFormat(),
+    refusals: this.refusalBuilder,
+  });
   private readonly reportToForm = useFormParseErrors(this.value, () => this.onFormReset());
   private readonly inputField = inject(WrDateInputField);
 
@@ -485,7 +509,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       const v = this.value();
       // The adapter's key rides with the format: the same range prints
       // differently once the display zone or the locale moves.
-      const fmt = `${this.resolvedFormat()}|${this.adapter.displayKey()}`;
+      const fmt = this.fieldText.key();
       untracked(() => {
         const formatMoved = this.lastFormat !== null && fmt !== this.lastFormat;
         this.lastFormat = fmt;
@@ -538,6 +562,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       ref.setInput('step', this.step());
       ref.setInput('presets', this.presets());
       ref.setInput('presetsLabel', this.presetsLabel());
+      ref.setInput('granularity', this.period() ?? 'day');
     });
   }
 
@@ -744,6 +769,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     const pane = this.overlayRef?.overlayElement;
     const target =
       pane?.querySelector<HTMLElement>('.wr-calendar__day--focused:not([disabled])') ??
+      pane?.querySelector<HTMLElement>('.wr-calendar__chip[tabindex="0"]') ??
       pane?.querySelector<HTMLElement>('.wr-time-picker__input');
     target?.focus();
   }
@@ -777,9 +803,9 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       this.refuse(end, null);
       return;
     }
-    const parsed = this.adapter.parse(raw, this.resolvedFormat());
-    if (!parsed || !this.adapter.isValid(parsed)) {
-      this.refuse(end, this.refusalBuilder.unreadable(this.resolvedFormat()));
+    const parsed = this.parseText(raw, end);
+    if (!parsed) {
+      this.refuse(end, this.fieldText.unreadable());
       return;
     }
     const outOfBounds = this.outOfBounds(parsed);
@@ -868,6 +894,8 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     const ref = this.overlayRef.attach(
       new ComponentPortal(WrDateRangePanel, null, wrPickerPanelInjector(this.environment, this.adapter))
     );
+    // Before the value: a period mode opens on its own view, never on the day grid.
+    ref.setInput('granularity', this.period() ?? 'day');
     ref.setInput('value', this.value() ?? [null, null]);
     ref.setInput('autoFocus', this.autoFocusPanel);
     this.panelRef.set(ref);
@@ -1015,10 +1043,10 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
     // Only rewrite the text of an end whose date moved out from under it —
     // otherwise a half-typed date would be reformatted on every keystroke.
-    if (!refusedStart && !this.sameDate(normalised[0], this.parseText(this.startText()))) {
+    if (!refusedStart && !this.sameDate(normalised[0], this.parseText(this.startText(), 0))) {
       this.startText.set(this.display(normalised[0]));
     }
-    if (!refusedEnd && !this.sameDate(normalised[1], this.parseText(this.endText()))) {
+    if (!refusedEnd && !this.sameDate(normalised[1], this.parseText(this.endText(), 1))) {
       this.endText.set(this.display(normalised[1]));
     }
     return normalised;
@@ -1031,20 +1059,31 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   }
 
   private display(date: Date | null): string {
-    return date && this.adapter.isValid(date) ? this.adapter.format(date, this.resolvedFormat()) : '';
+    return date && this.adapter.isValid(date) ? this.fieldText.show(date) : '';
   }
 
-  private parseText(raw: string): Date | null {
+  /**
+   * The date an end's text names. In a period mode the start field reads the
+   * first day of its period and the end field the last day of its own, which is
+   * what a pick in the panel gives each of them.
+   */
+  private parseText(raw: string, end: RangeEnd): Date | null {
     if (!raw) return null;
-    const parsed = this.adapter.parse(raw, this.resolvedFormat());
-    return parsed && this.adapter.isValid(parsed) ? parsed : null;
+    const parsed = this.fieldText.read(raw);
+    const period = this.period();
+    return parsed && period && end === 1 ? wrPeriodEnd(this.adapter, parsed, period) : parsed;
   }
 
-  /** Keep `[start, end]` in chronological order once both ends exist. */
+  /**
+   * Keep `[start, end]` in chronological order once both ends exist. Two
+   * periods that swap are widened again, each to the side it has moved to; a
+   * range already in order is left exactly as it was written.
+   */
   private normalise(range: WrDateRange): WrDateRange {
     const [start, end] = range;
-    if (start && end && this.compareEnds(start, end) > 0) return [end, start];
-    return [start, end];
+    if (!start || !end || this.compareEnds(start, end) <= 0) return [start, end];
+    const period = this.period();
+    return period ? [wrPeriodStart(this.adapter, end, period), wrPeriodEnd(this.adapter, start, period)] : [end, start];
   }
 
   /**
@@ -1066,11 +1105,15 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    * keyboard would make the two entry paths disagree.
    */
   private outOfBounds(date: Date): WrDateInputError | null {
-    return this.refusalBuilder.outOfBounds(date, {
-      min: this.minDate(),
-      max: this.maxDate(),
-      filter: this.dateFilter(),
-    });
+    const bounds = { min: this.minDate(), max: this.maxDate(), filter: this.dateFilter() };
+    const period = this.period();
+    if (!period) return this.refusalBuilder.outOfBounds(date, bounds);
+    // A period is refused as its chip is disabled: only when every day in it is.
+    return this.refusalBuilder.outOfBounds(
+      wrPeriodStart(this.adapter, date, period),
+      bounds,
+      wrPeriodEnd(this.adapter, date, period)
+    );
   }
 
   private sameDate(a: Date | null, b: Date | null): boolean {

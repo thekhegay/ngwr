@@ -209,6 +209,8 @@ export const wrNl: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Maanden',
     yearList: 'Jaren',
+    quarterList: 'Kwartalen',
+    quarter: 'K{{quarter}}',
     prevYears: 'Vorige 12 jaar',
     nextYears: 'Volgende 12 jaar',
     header: '{{month}} {{year}}',
@@ -465,6 +467,8 @@ export const wrNl: WrI18nCatalog = {
     panelDateTime: 'Datum en tijd kiezen',
     panelRange: 'Periode kiezen',
     panelRangeDateTime: 'Periode met tijd kiezen',
+    quarterValue: 'K{{quarter}} {{year}}',
+    weekValue: 'Week {{week}} van {{year}}',
     rangeStart: 'Begin van periode',
     rangeEnd: 'Einde van periode',
     startTime: 'Begintijd',

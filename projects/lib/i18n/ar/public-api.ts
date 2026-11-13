@@ -213,6 +213,8 @@ export const wrAr: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'الأشهر',
     yearList: 'السنوات',
+    quarterList: 'الأرباع',
+    quarter: 'الربع {{quarter}}',
     prevYears: '12 سنة سابقة',
     nextYears: '12 سنة تالية',
     header: '{{month}} {{year}}',
@@ -474,6 +476,8 @@ export const wrAr: WrI18nCatalog = {
     panelDateTime: 'اختيار التاريخ والوقت',
     panelRange: 'اختيار الفترة',
     panelRangeDateTime: 'اختيار الفترة بالتاريخ والوقت',
+    quarterValue: 'الربع {{quarter}} {{year}}',
+    weekValue: 'الأسبوع {{week}}، {{year}}',
     rangeStart: 'بداية الفترة',
     rangeEnd: 'نهاية الفترة',
     startTime: 'وقت البدء',

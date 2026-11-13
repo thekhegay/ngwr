@@ -36,6 +36,7 @@
   --wr-calendar-day-font-weight: var(--wr-font-weight-semibold);
   --wr-calendar-months-gap: var(--wr-space-xs);
   --wr-calendar-years-gap: var(--wr-space-xs);
+  --wr-calendar-quarters-gap: var(--wr-space-xs);
   --wr-calendar-chip-font-size: var(--wr-text-sm);
   --wr-calendar-chip-font-weight: var(--wr-font-weight-semibold);
 
@@ -258,6 +259,13 @@
     gap: var(--wr-calendar-years-gap);
   }
 
+  // Two rows of two: a quarter's label is a word in some locales, not `Q1`.
+  &__quarters {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--wr-calendar-quarters-gap);
+  }
+
   &__chip {
     appearance: none;
     background: transparent;
@@ -290,6 +298,15 @@
       // ring is a graphic and keeps the bare accent.
       color: var(--wr-calendar-accent-ink);
       font-weight: var(--wr-calendar-chip-font-weight);
+    }
+
+    // A range of periods, tinted as a range of days is.
+    &--in-range {
+      background: color-mix(in srgb, var(--wr-calendar-accent) 12%, transparent);
+    }
+
+    &--range-preview {
+      background: color-mix(in srgb, var(--wr-calendar-accent) 6%, transparent);
     }
 
     &--selected {

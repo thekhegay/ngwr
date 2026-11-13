@@ -217,6 +217,8 @@ export const wrHe: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'חודשים',
     yearList: 'שנים',
+    quarterList: 'רבעונים',
+    quarter: 'רבעון {{quarter}}',
     prevYears: '12 השנים הקודמות',
     nextYears: '12 השנים הבאות',
     header: '{{month}} {{year}}',
@@ -472,6 +474,8 @@ export const wrHe: WrI18nCatalog = {
     panelDateTime: 'בחירת תאריך ושעה',
     panelRange: 'בחירת טווח תאריכים',
     panelRangeDateTime: 'בחירת טווח תאריכים ושעות',
+    quarterValue: 'רבעון {{quarter}} {{year}}',
+    weekValue: 'שבוע {{week}}, {{year}}',
     rangeStart: 'תחילת הטווח',
     rangeEnd: 'סוף הטווח',
     startTime: 'שעת ההתחלה',

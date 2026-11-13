@@ -7,13 +7,16 @@
 
 import { HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
+import type { WrDatePickerMode } from 'ngwr/date-picker';
+
 import type { WrDatePickerHarnessFilters, WrDatePickerTimeFields } from './types';
 import { WrDatePickerHarnessBase } from './wr-date-picker-harness-base';
 import type { WrTimePanelHarness } from './wr-time-panel-harness';
 
 /**
  * Test harness for `<wr-date-picker>` — the `date`, `time` and `datetime` modes
- * of the one component.
+ * of the one component, and its period modes: `selectMonth()`, `selectYear()`,
+ * `selectQuarter()` and `selectWeek()` are the pick where the mode makes them one.
  *
  * The popup is NOT inside the picker: it is a pane in the overlay container, a
  * sibling of the whole app. Everything inside it is therefore reached through the
@@ -57,10 +60,11 @@ export class WrDatePickerHarness extends WrDatePickerHarnessBase {
   protected readonly harnessName = 'WrDatePickerHarness';
 
   /** Which mode the picker is in, read from the `wr-date-picker--*` modifier. */
-  async getMode(): Promise<'date' | 'time' | 'datetime'> {
+  async getMode(): Promise<WrDatePickerMode> {
     const host = await this.host();
-    if (await host.hasClass('wr-date-picker--time')) return 'time';
-    if (await host.hasClass('wr-date-picker--datetime')) return 'datetime';
+    for (const mode of ['time', 'datetime', 'week', 'month', 'quarter', 'year'] as const) {
+      if (await host.hasClass(`wr-date-picker--${mode}`)) return mode;
+    }
     return 'date';
   }
 

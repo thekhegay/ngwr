@@ -49,8 +49,16 @@ export interface WrDateInputBounds {
 export interface WrDateInputRefusals {
   /** The text does not read as a date in `format`. */
   unreadable(format: string): WrDateInputError;
-  /** Why `date` would be refused by `bounds`, or `null` when it would not be. */
-  outOfBounds(date: Date, bounds: WrDateInputBounds): WrDateInputError | null;
+  /** The same refusal for text no adapter format prints: `example` is what the field would have read. */
+  unreadableAs(example: string): WrDateInputError;
+  /**
+   * Why `date` would be refused by `bounds`, or `null` when it would not be.
+   *
+   * With `end`, `date` is the first day of a period and `end` its last: the
+   * period is refused only when every day in it is, which is when the calendar
+   * disables its chip.
+   */
+  outOfBounds(date: Date, bounds: WrDateInputBounds, end?: Date): WrDateInputError | null;
 }
 
 /**
@@ -85,11 +93,20 @@ export function useDateInputRefusals(pick?: () => WrDateAdapter<Date>): WrDateIn
       const example = adapter.format(reference, format);
       return { kind: 'dateFormat', example, message: formatText({ example }) };
     },
-    outOfBounds(date, { min, max, filter }) {
+    unreadableAs(example) {
+      return { kind: 'dateFormat', example, message: formatText({ example }) };
+    },
+    outOfBounds(date, { min, max, filter }, end = date) {
       const adapter = dates();
-      if (min && adapter.compareDate(date, min) < 0) return { kind: 'minDate', date, min, message: minText() };
+      if (min && adapter.compareDate(end, min) < 0) return { kind: 'minDate', date, min, message: minText() };
       if (max && adapter.compareDate(date, max) > 0) return { kind: 'maxDate', date, max, message: maxText() };
-      if (filter && !filter(date)) return { kind: 'dateFilter', date, message: filterText() };
+      if (filter) {
+        let day = date;
+        while (!filter(day)) {
+          if (adapter.compareDate(day, end) >= 0) return { kind: 'dateFilter', date, message: filterText() };
+          day = adapter.addDays(day, 1);
+        }
+      }
       return null;
     },
   };

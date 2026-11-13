@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
 
-import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
+import { WrCalendar, type WrCalendarGranularity, type WrCalendarRange } from 'ngwr/calendar';
 import { WrDateAdapter } from 'ngwr/date';
 import { wrReadI18nText } from 'ngwr/i18n';
 import { wrCheckStyles } from 'ngwr/utils';
@@ -57,6 +57,8 @@ export class WrDateRangePanel {
   readonly max = input<Date | null>(null);
   readonly dateFilter = input<((date: Date) => boolean) | null>(null);
   readonly withTime = input(false);
+  /** What a pick names: forwarded to the calendar, which widens each end to its period. */
+  readonly granularity = input<WrCalendarGranularity>('day');
   readonly timeFormat = input<'auto' | '12h' | '24h'>('auto');
   readonly showSeconds = input(false);
   readonly step = input(1);

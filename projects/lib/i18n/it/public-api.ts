@@ -209,6 +209,8 @@ export const wrIt: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Mesi',
     yearList: 'Anni',
+    quarterList: 'Trimestri',
+    quarter: 'T{{quarter}}',
     prevYears: '12 anni precedenti',
     nextYears: '12 anni successivi',
     header: '{{month}} {{year}}',
@@ -465,6 +467,8 @@ export const wrIt: WrI18nCatalog = {
     panelDateTime: 'Scegli data e ora',
     panelRange: 'Scegli il periodo',
     panelRangeDateTime: 'Scegli il periodo con data e ora',
+    quarterValue: 'T{{quarter}} {{year}}',
+    weekValue: 'Settimana {{week}}, {{year}}',
     rangeStart: 'Inizio del periodo',
     rangeEnd: 'Fine del periodo',
     startTime: 'Ora di inizio',

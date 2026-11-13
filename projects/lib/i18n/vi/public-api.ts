@@ -211,6 +211,8 @@ export const wrVi: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Các tháng',
     yearList: 'Các năm',
+    quarterList: 'Các quý',
+    quarter: 'Quý {{quarter}}',
     // “12 năm trước” đọc ra thành “12 years ago” chứ không phải “previous 12
     // years”, nên hai nút này phải nói rõ là trước đó / tiếp theo.
     prevYears: '12 năm trước đó',
@@ -468,6 +470,8 @@ export const wrVi: WrI18nCatalog = {
     panelDateTime: 'Chọn ngày và giờ',
     panelRange: 'Chọn khoảng ngày',
     panelRangeDateTime: 'Chọn khoảng ngày và giờ',
+    quarterValue: 'Quý {{quarter}} {{year}}',
+    weekValue: 'Tuần {{week}}, {{year}}',
     rangeStart: 'Ngày bắt đầu',
     rangeEnd: 'Ngày kết thúc',
     startTime: 'Giờ bắt đầu',

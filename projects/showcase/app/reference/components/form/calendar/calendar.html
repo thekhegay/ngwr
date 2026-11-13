@@ -23,6 +23,20 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Weeks, months, quarters and years"
+    description="`granularity` sets what a pick names. The value is the period's first day; in range mode the end is the last day of the end period. A bound or a filter closes a period only when it closes every day in it."
+  >
+    <ngwr-doc-code [code]="snippets.granularity" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-wrap: wrap; gap: 1rem">
+        <wr-calendar granularity="week" [(date)]="week" />
+        <wr-calendar granularity="quarter" [(date)]="quarter" />
+        <wr-calendar granularity="month" mode="range" [(range)]="months" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Bounds + filter"
     description="`min` and `max` limit the range. `dateFilter` turns single dates off, here weekends."
   >

@@ -203,6 +203,20 @@ one component folder. Reach for them instead of hand-rolling:
   `WR_DATE_STAMP_DEFAULTS`, which lives in `ngwr/date` so that `withDates()`
   imports no component; both tokens merge over the injector above, so a
   route's call keeps the app's other keys.
+  **Periods** (16.3): `wrPeriodStart`, `wrPeriodEnd`, `wrWeekOfYear` and
+  `wrWeekStart` are plain functions over an adapter, for a week, month, quarter
+  or year. A week starts on `getFirstDayOfWeek()` and week 1 holds 4 January,
+  which with Monday first is the ISO week. `wr-calendar` takes a `granularity`
+  and both pickers take the same periods as a `mode`; the value is the period's
+  first day, and a range ends on the last day of its end period, as a `date`
+  range ends on a day. A period is closed by `min`, `max` or `dateFilter` only
+  when every day in it is. The pickers write `March 2026`, `Q1 2026`,
+  `Week 12, 2026` themselves (`date-picker/internal/period-text.ts`): the month
+  name and the numbers come from the adapter and the arrangement from the
+  catalog, and the field reads the text back by asking the template to print
+  itself with markers. **No `WrDateFormat` key was added for it**, on purpose:
+  a custom adapter has to handle every key, and a new one in a minor would
+  print its own name into the field of an adapter written before it.
 - **Router integration is OPT-IN since v14, and lives in two nested entry
   points** — `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`, and
   `WrTabsRouting` (the `[wrTabsRouting]` attribute on the strip) from

@@ -209,6 +209,8 @@ export const wrZhTw: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: '月份清單',
     yearList: '年份清單',
+    quarterList: '季度清單',
+    quarter: '第{{quarter}}季',
     prevYears: '前 12 年',
     nextYears: '後 12 年',
     header: '{{year}}年{{month}}',
@@ -457,6 +459,8 @@ export const wrZhTw: WrI18nCatalog = {
     panelDateTime: '選擇日期與時間',
     panelRange: '選擇日期範圍',
     panelRangeDateTime: '選擇日期與時間範圍',
+    quarterValue: '{{year}}年第{{quarter}}季',
+    weekValue: '{{year}}年第{{week}}週',
     rangeStart: '開始日期',
     rangeEnd: '結束日期',
     startTime: '開始時間',

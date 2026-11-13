@@ -209,6 +209,8 @@ export const wrKo: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: '월 목록',
     yearList: '연도 목록',
+    quarterList: '분기 목록',
+    quarter: '{{quarter}}분기',
     prevYears: '이전 12년',
     nextYears: '다음 12년',
     header: '{{year}}년 {{month}}',
@@ -463,6 +465,8 @@ export const wrKo: WrI18nCatalog = {
     panelDateTime: '날짜 및 시간 선택',
     panelRange: '기간 선택',
     panelRangeDateTime: '기간 및 시간 선택',
+    quarterValue: '{{year}}년 {{quarter}}분기',
+    weekValue: '{{year}}년 {{week}}주차',
     rangeStart: '기간 시작',
     rangeEnd: '기간 종료',
     startTime: '시작 시간',

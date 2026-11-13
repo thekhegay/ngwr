@@ -273,6 +273,10 @@ export const wrEn: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Months',
     yearList: 'Years',
+    quarterList: 'Quarters',
+    // A quarter chip under `granularity="quarter"`. A template for the reason the
+    // header is one: `T1` and `第1四半期` are arrangements, not translations of `Q`.
+    quarter: 'Q{{quarter}}',
     prevYears: 'Previous 12 years',
     nextYears: 'Next 12 years',
     // The header above the grid, as ONE template. It was `${month} ${year}` in
@@ -567,6 +571,9 @@ export const wrEn: WrI18nCatalog = {
     panelDateTime: 'Choose date and time',
     panelRange: 'Choose date range',
     panelRangeDateTime: 'Choose date and time range',
+    // What the field shows, and reads back, in `mode="quarter"` and `mode="week"`.
+    quarterValue: 'Q{{quarter}} {{year}}',
+    weekValue: 'Week {{week}}, {{year}}',
     rangeStart: 'Range start',
     rangeEnd: 'Range end',
     startTime: 'Start time',
