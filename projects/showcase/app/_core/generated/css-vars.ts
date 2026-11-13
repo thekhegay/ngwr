@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1709 hook(s) across 115 page(s). A property is here only when the
+ * 1714 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -710,6 +710,11 @@ export const CSS_VARS = {
       { name: "--wr-tag-padding-x", default: "var(--wr-space-sm)", scope: ".wr-tag", overrides: 1 },
       { name: "--wr-tag-padding-y", default: "0.125rem", scope: ".wr-tag" },
       { name: "--wr-tag-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-tag", overrides: 1 },
+      { name: "--wr-tag-remove-color", default: "var(--wr-tag-color)", scope: ".wr-tag" },
+      { name: "--wr-tag-remove-hover-bg", default: "color-mix(in srgb, var(--wr-tag-color) 16%, transparent)", scope: ".wr-tag" },
+      { name: "--wr-tag-remove-icon-size", default: "0.75rem", scope: ".wr-tag" },
+      { name: "--wr-tag-remove-radius", default: "var(--wr-tag-radius)", scope: ".wr-tag" },
+      { name: "--wr-tag-remove-size", default: "1rem", scope: ".wr-tag" },
     ],
   },
   "reference/components/breadcrumbs": {
