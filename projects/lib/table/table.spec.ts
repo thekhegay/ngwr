@@ -813,7 +813,7 @@ describe('WrTable pins on the inline axis, not the physical one', () => {
     fixture = TestBed.createComponent(PinHost);
     fixture.detectChanges();
 
-    // `leftPin()` / `rightPin()` answer `null` off the pinned set, and a null
+    // The pin offsets are `null` off the pinned set, and a null
     // style binding must clear rather than resolve to `0px` — otherwise every
     // ordinary cell would carry a sticky inset it never asked for.
     const plain = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-table__th')].find(

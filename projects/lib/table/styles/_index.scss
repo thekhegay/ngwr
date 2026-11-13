@@ -435,8 +435,8 @@
   //
   // `box-shadow` has no logical form — its offset is always physical — while
   // the cell it belongs to is anchored by `[style.inset-inline-start.px]` /
-  // `[style.inset-inline-end.px]` in table.html, written from `leftPin()` /
-  // `rightPin()`. The shadow leans the way the offset pins, so the sign has to
+  // `[style.inset-inline-end.px]` in table.html, written from the measured
+  // pin offsets. The shadow leans the way the offset pins, so the sign has to
   // be set per direction by hand.
   &__th--pin-edge-left,
   &__td--pin-edge-left,
