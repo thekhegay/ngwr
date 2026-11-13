@@ -1760,6 +1760,16 @@ export class MyWidgetHarness extends ComponentHarness {
       description: 'Group bands; empty with a custom group header.',
       type: 'Promise<…>',
     },
+    {
+      name: 'hasColumnChooser() / getHiddenColumns() / isColumnLocked(title) / toggleColumn(title)',
+      description: 'The column chooser, opened as needed. `toggleColumn()` throws on a locked column.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'hasSelectionBar() / getSelectionBarText() / clearSelection() / getSelectionBarLoader()',
+      description: 'The selection bar; the loader reaches the harnesses of your own actions.',
+      type: 'Promise<…>',
+    },
     { name: 'getDetailTexts()', description: 'Open detail rows.', type: 'Promise<string[]>' },
     {
       name: 'getFooterTexts() / getEmptyText() / isLoading() / getLoadingForm() / isVirtual() / getAriaRowCount()',

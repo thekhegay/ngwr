@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="16.1.0"
+  updated="16.3.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
@@ -379,6 +379,42 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Bulk actions"
+    description="A `wrTableSelectionBar` template puts a bar over the header while rows are selected: the count, a clear button and your actions."
+  >
+    <ngwr-doc-code [code]="snippets.selectionBar" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table
+          rowSelection="multiple"
+          rowKey="email"
+          [(selection)]="bulkSelected"
+          [columns]="bulkColumns"
+          [items]="bulkRows()"
+        >
+          <ng-template wrTableSelectionBar [wrTableSelectionBarOf]="bulkRows()" let-rows let-clear="clear">
+            <button wr-btn type="button" size="sm" color="danger" (click)="removeRows(rows, clear)">Delete</button>
+          </ng-template>
+        </wr-table>
+        <div style="margin-top: 0.75rem">
+          <button wr-btn type="button" size="sm" outlined (click)="resetBulkRows()">Bring the rows back</button>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        The template reads the selected rows (<code>let-rows</code>), <code>count</code>, <code>clear</code> and
+        <code>scope</code>, the select-all scope in force.
+      </li>
+      <li>
+        The count is announced politely. The bar takes no focus when it appears, and hands it to the table when the
+        selection is emptied from inside it.
+      </li>
+      <li><code>selectedLabel</code> and <code>clearSelectionLabel</code> set its two texts.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Expandable rows"
     description="`<ng-template wrTableExpand let-row>` adds a detail panel per row. Set `rowKey` and bind `[(expanded)]`."
   >
@@ -510,6 +546,56 @@
         <wr-table reorderable [columns]="columns" [items]="visibleRows()" />
       </div>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Hidden columns"
+    description="`[(hiddenColumns)]` holds the keys of the columns that are not drawn. `columnChooser` adds a button that lists every column."
+  >
+    <ngwr-doc-code [code]="snippets.hiddenColumns" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table columnChooser [(hiddenColumns)]="hiddenColumns" [columns]="chooserColumns" [items]="wideRows" />
+        <div style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+          hidden: <strong>{{ hiddenColumns().join(', ') || 'none' }}</strong>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>A hidden column keeps its sort and its filter, and <code>toCsv()</code> leaves it out.</li>
+      <li><code>hideable: false</code> keeps a column on screen. The last visible column cannot be hidden.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Saved view"
+    description="`(stateChange)` reports sort, filters, page, page size, column order and hidden columns in one object, once per action. `[state]` restores all of it."
+  >
+    <ngwr-doc-code [code]="snippets.savedView" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem">
+          <button wr-btn type="button" size="sm" color="primary" (click)="saveView()">Save view</button>
+          <button wr-btn type="button" size="sm" outlined [disabled]="!savedView()" (click)="restoreView()">
+            Restore view
+          </button>
+        </div>
+        <wr-table
+          reorderable
+          columnChooser
+          [pageSize]="5"
+          [pageSizeOptions]="[5, 10]"
+          [columns]="viewColumns"
+          [items]="viewRows()"
+          [(state)]="viewState"
+        />
+        <ngwr-doc-code [code]="viewStateText()" language="typescript" />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>Only the reader's actions fire <code>stateChange</code>. A restore does not.</li>
+      <li><code>[state]</code> is applied when the object changes: pass a copy to restore the same view again.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
