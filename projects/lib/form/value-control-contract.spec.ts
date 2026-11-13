@@ -774,12 +774,13 @@ describe('every value control, as a form control', () => {
       row.click();
       fixture.detectChanges();
       expect(row.getAttribute('aria-selected')).toBe('false');
+      // Expanding is NAVIGATION, not a value — a read-only tree stays browsable,
+      // by the row click (`expandOnClick`) as well as by the arrow.
+      expect(q('tree', '.wr-tree__row').getAttribute('aria-expanded')).toBe('true');
 
       q<HTMLElement>('tree', '.wr-tree__toggle').click();
       fixture.detectChanges();
-
-      // Expanding is NAVIGATION, not a value — a read-only tree stays browsable.
-      expect(q('tree', '.wr-tree__row').getAttribute('aria-expanded')).toBe('true');
+      expect(q('tree', '.wr-tree__row').getAttribute('aria-expanded')).toBe('false');
     });
 
     it('does not move a slider, a knob or a rating from the keyboard', () => {

@@ -69,7 +69,8 @@ describe('WrTree cascading checks', () => {
     fixture.detectChanges();
   };
   const click = async (label: string): Promise<void> => {
-    row(label).click();
+    // The box is the way to check; a click elsewhere on a branch's row opens it.
+    (row(label).querySelector<HTMLElement>('.wr-tree__check') ?? row(label)).click();
     await settle();
   };
 
