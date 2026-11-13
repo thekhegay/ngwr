@@ -12,6 +12,9 @@ import { useI18nText } from 'ngwr/i18n';
 import type { WrColor } from 'ngwr/theme';
 import { wrCheckStyles } from 'ngwr/utils';
 
+/** Size of a `<wr-progress>`. */
+export type WrProgressSize = 'sm' | 'md' | 'lg';
+
 /**
  * Horizontal progress bar.
  *
@@ -55,6 +58,13 @@ export class WrProgress {
   readonly color = input<WrColor>('primary');
 
   /**
+   * Bar thickness: 4px, 8px or 12px, through `--wr-progress-height`.
+   *
+   * @default 'md'
+   */
+  readonly size = input<WrProgressSize>('md');
+
+  /**
    * Progress value, clamped to `[0, 100]`.
    *
    * @default 0
@@ -63,5 +73,8 @@ export class WrProgress {
 
   protected readonly clamped = computed(() => Math.max(0, Math.min(100, this.value())));
 
-  protected readonly classes = computed(() => `wr-progress--${this.color()}`);
+  protected readonly classes = computed(() => {
+    const size = this.size();
+    return size === 'md' ? `wr-progress--${this.color()}` : `wr-progress--${this.color()} wr-progress--${size}`;
+  });
 }
