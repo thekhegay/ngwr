@@ -61,9 +61,8 @@ function describeFilters(filters: WrGraphNodeHarnessFilters): string {
  *   `WrLineChartHarness`.
  * - **No node positions.** jsdom lays nothing out, so every measured box is 0×0. The
  *   inline `transform` IS the component's own write and would be readable, but its
- *   numbers belong to a layout that is internal in this release — a harness method
- *   returning them would make every layout improvement a breaking change to consumer
- *   specs. Coordinates are pinned in the layout's own pure spec, where the arithmetic is.
+ *   numbers belong to the layout, built-in or provided — a harness method returning
+ *   them would make every layout improvement a breaking change to consumer specs. Coordinates are pinned in the layout's own pure spec, where the arithmetic is.
  * - **No "is scrollable".** Overflow is layout: in jsdom `scrollWidth` and `clientWidth`
  *   are both 0 for a graph that fits and for one ten times wider. The viewport's
  *   `tabindex` is no proxy either — it is always `0`, precisely so the tab stop never
@@ -107,6 +106,15 @@ export class WrGraphHarness extends ComponentHarness {
    */
   async getAccessibleName(): Promise<string | null> {
     return (await this.locatorFor(VIEWPORT)()).getAttribute('aria-label');
+  }
+
+  /**
+   * Whether an asynchronous layout is still running, from the host's
+   * `wr-graph--pending`. The graph draws its previous picture meanwhile, so wait
+   * for this to turn `false` before reading the nodes of the new one.
+   */
+  async isPending(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-graph--pending');
   }
 
   /**

@@ -4,6 +4,7 @@
   [keywords]="['graph', 'wr-graph', 'org chart', 'dependency graph', 'diagram', 'hierarchy', 'dag']"
   [labels]="['Component', 'SSR-safe']"
   since="14.5.0"
+  updated="16.3.0"
 >
   <ngwr-doc-section
     title="Nodes and edges"
@@ -67,6 +68,57 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Asynchronous layouts"
+    description="Provide a `WrGraphLayout` whose `layout()` returns a Promise, to lay out in a worker or on a server. The last picture stays until it resolves."
+  >
+    <ngwr-doc-snippet [files]="asyncFiles">
+      <div class="async">
+        <wr-btn size="sm" (click)="addReview()">Add a review</wr-btn>
+        <wr-graph
+          #asyncGraph
+          ngwrDelayedLayout
+          class="async__graph"
+          [class.async__graph--dimmed]="asyncGraph.layoutPending()"
+          [nodes]="reviewNodes()"
+          [edges]="reviewEdges()"
+          ariaLabel="Review workflow"
+        />
+      </div>
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">When</th>
+            <th scope="col">What the graph does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Pending</th>
+            <td>
+              <code>layoutPending()</code> is true, the host has <code>wr-graph--pending</code> and the viewport is
+              <code>aria-busy</code>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Inputs change, or the graph is destroyed</th>
+            <td>The run's <code>AbortSignal</code> aborts, and a result that still arrives is dropped.</td>
+          </tr>
+          <tr>
+            <th scope="row">Rejected</th>
+            <td>The last picture stays and <code>layoutError</code> emits the error.</td>
+          </tr>
+          <tr>
+            <th scope="row">Prerender</th>
+            <td>The server does not wait: the page ships an empty, pending graph and the browser draws it.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Accessibility"
     description="Each node reads out its parents and children. Give every graph on a page its own `ariaLabel`."
   />
@@ -78,6 +130,10 @@
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="State" description="Read it through a template reference.">
+    <ngwr-doc-api [rows]="stateRows" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Types">

@@ -1,7 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, Directive, signal } from '@angular/core';
 
 import { WrAvatar } from 'ngwr/avatar';
-import { WrGraph, WrGraphNodeTemplate, type WrGraphEdge, type WrGraphNode } from 'ngwr/graph';
+import { WrButton } from 'ngwr/button';
+import {
+  WrGraph,
+  WrGraphLayout,
+  WrGraphNodeTemplate,
+  WrLayeredGraphLayout,
+  type WrGraphEdge,
+  type WrGraphLayoutContext,
+  type WrGraphLayoutInput,
+  type WrGraphLayoutResult,
+  type WrGraphNode,
+} from 'ngwr/graph';
 
 import {
   DocApiComponent,
@@ -94,6 +105,28 @@ const PACKAGE_EDGES: readonly WrGraphEdge[] = [
   { from: 'ui', to: 'tokens' },
 ];
 
+/** The built-in layout, answered late: what a worker or a server would do. */
+class DelayedLayout extends WrGraphLayout {
+  private readonly layered = new WrLayeredGraphLayout();
+
+  override layout(input: WrGraphLayoutInput, { signal }: WrGraphLayoutContext): Promise<WrGraphLayoutResult> {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => resolve(this.layered.layout(input)), 800);
+      signal.addEventListener('abort', () => {
+        clearTimeout(timer);
+        reject(signal.reason as Error);
+      });
+    });
+  }
+}
+
+/** Gives one graph of the page the delayed layout; the others keep the built-in one. */
+@Directive({
+  selector: 'wr-graph[ngwrDelayedLayout]',
+  providers: [{ provide: WrGraphLayout, useClass: DelayedLayout }],
+})
+class DelayedLayoutDirective {}
+
 @Component({
   selector: 'ngwr-graph-page',
   templateUrl: './graph.html',
@@ -102,6 +135,8 @@ const PACKAGE_EDGES: readonly WrGraphEdge[] = [
     WrGraph,
     WrGraphNodeTemplate,
     WrAvatar,
+    WrButton,
+    DelayedLayoutDirective,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -115,6 +150,17 @@ export default class GraphPageComponent {
   protected readonly teamEdges = TEAM_EDGES;
   protected readonly packageNodes = PACKAGE_NODES;
   protected readonly packageEdges = PACKAGE_EDGES;
+
+  protected readonly reviewNodes = signal<readonly WrGraphNode[]>(WORKFLOW_NODES);
+  protected readonly reviewEdges = signal<readonly WrGraphEdge[]>(WORKFLOW_EDGES);
+
+  /** Puts one more review between the draft and publishing. */
+  protected addReview(): void {
+    const count = this.reviewNodes().length - WORKFLOW_NODES.length + 1;
+    const id = `review-${count}`;
+    this.reviewNodes.update(nodes => [...nodes, { id, label: `Review ${count}` }]);
+    this.reviewEdges.update(edges => [...edges, { from: 'draft', to: id }, { from: id, to: 'publish' }]);
+  }
 
   protected readonly workflowFiles: readonly DocCodeFile[] = [
     {
@@ -348,7 +394,126 @@ export class Dependencies {
     },
   ];
 
+  protected readonly asyncFiles: readonly DocCodeFile[] = [
+    {
+      label: 'HTML',
+      language: 'angular-html',
+      code: `<wr-btn size="sm" (click)="addReview()">Add a review</wr-btn>
+
+<wr-graph
+  #graph
+  [class.dimmed]="graph.layoutPending()"
+  [nodes]="nodes()"
+  [edges]="edges()"
+  ariaLabel="Review workflow"
+  (layoutError)="report($event)"
+/>`,
+    },
+    {
+      label: 'TS',
+      language: 'angular-ts',
+      code: `import { Component, signal } from '@angular/core';
+
+import { WrButton } from 'ngwr/button';
+import {
+  WrGraph,
+  WrGraphLayout,
+  WrLayeredGraphLayout,
+  type WrGraphEdge,
+  type WrGraphLayoutContext,
+  type WrGraphLayoutInput,
+  type WrGraphLayoutResult,
+  type WrGraphNode,
+} from 'ngwr/graph';
+
+// The built-in layout, answered 800 ms late.
+class DelayedLayout extends WrGraphLayout {
+  private readonly layered = new WrLayeredGraphLayout();
+
+  override layout(input: WrGraphLayoutInput, { signal }: WrGraphLayoutContext): Promise<WrGraphLayoutResult> {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => resolve(this.layered.layout(input)), 800);
+      // A newer run or the graph's destruction aborts this one.
+      signal.addEventListener('abort', () => {
+        clearTimeout(timer);
+        reject(signal.reason as Error);
+      });
+    });
+  }
+}
+
+@Component({
+  selector: 'app-review-workflow',
+  templateUrl: './review-workflow.html',
+  imports: [WrGraph, WrButton],
+  providers: [{ provide: WrGraphLayout, useClass: DelayedLayout }],
+  styles: \`
+    .dimmed {
+      opacity: 0.5;
+    }
+  \`,
+})
+export class ReviewWorkflow {
+  protected readonly nodes = signal<readonly WrGraphNode[]>([
+    { id: 'draft', label: 'Draft' },
+    { id: 'publish', label: 'Publish' },
+  ]);
+  protected readonly edges = signal<readonly WrGraphEdge[]>([{ from: 'draft', to: 'publish' }]);
+
+  protected addReview(): void {
+    const count = this.nodes().length - 1;
+    const id = \`review-\${count}\`;
+    this.nodes.update(nodes => [...nodes, { id, label: \`Review \${count}\` }]);
+    this.edges.update(edges => [...edges, { from: 'draft', to: id }, { from: id, to: 'publish' }]);
+  }
+
+  protected report(error: unknown): void {
+    console.error(error);
+  }
+}`,
+    },
+    {
+      label: 'Worker',
+      language: 'typescript',
+      code: `import { WrGraphLayout, type WrGraphLayoutContext, type WrGraphLayoutInput, type WrGraphLayoutResult } from 'ngwr/graph';
+
+// layout.worker.ts answers each message with a WrGraphLayoutResult.
+export class WorkerLayout extends WrGraphLayout {
+  override layout(input: WrGraphLayoutInput, { signal }: WrGraphLayoutContext): Promise<WrGraphLayoutResult> {
+    return new Promise((resolve, reject) => {
+      const worker = new Worker(new URL('./layout.worker', import.meta.url), { type: 'module' });
+      const settle = (): void => worker.terminate();
+      worker.onmessage = ({ data }: MessageEvent<WrGraphLayoutResult>) => {
+        settle();
+        resolve(data);
+      };
+      worker.onerror = event => {
+        settle();
+        reject(new Error(event.message));
+      };
+      signal.addEventListener('abort', () => {
+        settle();
+        reject(signal.reason as Error);
+      });
+      // The input is plain data, so it crosses to a worker as it is.
+      worker.postMessage(input);
+    });
+  }
+}`,
+    },
+  ];
+
   protected readonly api = API.WrGraph;
+
+  protected readonly stateRows: readonly DocApiRow[] = [
+    {
+      name: 'layoutPending()',
+      description:
+        'Whether an asynchronous layout is running for the current inputs. Always `false` with a synchronous one.',
+      type: 'Signal<boolean>',
+      default: '—',
+    },
+  ];
 
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrGraphNode', description: 'One block. `TData` is whatever `data` carries.', type: 'interface' },
@@ -399,6 +564,46 @@ export class Dependencies {
       sub: true,
     },
     { name: 'to', description: 'Id of the child.', type: 'string', required: true, sub: true },
+    {
+      name: 'WrGraphLayout',
+      description: 'The layout engine, and its DI token. Provide a subclass to replace the built-in layout.',
+      type: 'abstract class',
+    },
+    {
+      name: 'layout(input, context)',
+      description:
+        'Places `input.nodes` and routes `input.edges`. A Promise is awaited; `context.signal` aborts a run that is no longer wanted.',
+      type: 'WrGraphLayoutResult | Promise<WrGraphLayoutResult>',
+      required: true,
+      sub: true,
+    },
+    {
+      name: 'WrGraphLayoutResult',
+      description: 'A finished layout, in pixels from the top-left corner.',
+      type: 'interface',
+    },
+    {
+      name: 'nodes',
+      description: 'The top-left corner of each node: `{ id, x, y }`.',
+      type: 'readonly WrGraphNodePlacement[]',
+      required: true,
+      sub: true,
+    },
+    {
+      name: 'edges',
+      description: 'The line of each edge, parent end first: `{ id, points }` with at least two points.',
+      type: 'readonly WrGraphEdgeRoute[]',
+      required: true,
+      sub: true,
+    },
+    { name: 'width', description: 'Width of the whole drawing.', type: 'number', required: true, sub: true },
+    { name: 'height', description: 'Height of the whole drawing.', type: 'number', required: true, sub: true },
+    {
+      name: 'WrLayeredGraphLayout',
+      description:
+        'The built-in layout. `new WrLayeredGraphLayout({ nodeGap, layerGap, edgeGap, componentGap })` sets its spacing.',
+      type: 'class',
+    },
     {
       name: 'WrGraphNodeContext',
       description: 'What an `ng-template wrGraphNode` receives.',

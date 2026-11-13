@@ -42,8 +42,9 @@ export interface WrGraphLayoutInput {
 
 /**
  * Per-call context. An object from day one so later fields are additive. The
- * signal aborts when the input changes before an asynchronous layout settles —
- * an engine that cannot stop its work can still discard the result.
+ * signal aborts when the input changes, or the graph is destroyed, before an
+ * asynchronous layout settles. An engine that cannot stop its work can leave it
+ * running: the graph drops the late result.
  */
 export interface WrGraphLayoutContext {
   readonly signal: AbortSignal;
@@ -78,10 +79,14 @@ export interface WrGraphLayoutResult {
  * The seam a layout engine plugs into. Used as both the type and the DI token,
  * the way `WrDateAdapter` is.
  *
- * The return type admits a Promise from the first release, even though the
- * built-in engine is synchronous: an asynchronous engine (elk runs in a worker)
- * has to fit without a breaking change, and widening a synchronous return type
- * later would break every caller that reads the result directly.
+ * A synchronous result is drawn in the same pass. A Promise is for an engine
+ * that works in a worker or on a server: the graph keeps its last picture until
+ * the Promise resolves, and reports a rejection through `layoutError`.
+ *
+ * @example
+ * ```ts
+ * providers: [{ provide: WrGraphLayout, useClass: WorkerLayout }]
+ * ```
  */
 export abstract class WrGraphLayout {
   abstract layout(
