@@ -50,6 +50,8 @@ export const wrId: WrI18nCatalog = {
     search: 'Cari',
     reset: 'Atur ulang',
     columns: 'Kolom',
+    selected: '{{count}} dipilih',
+    clearSelection: 'Hapus pilihan',
   },
   eventCalendar: {
     today: 'Hari ini',

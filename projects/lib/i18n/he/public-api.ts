@@ -53,6 +53,8 @@ export const wrHe: WrI18nCatalog = {
     search: 'חיפוש',
     reset: 'איפוס',
     columns: 'עמודות',
+    selected: '{{count}} נבחרו',
+    clearSelection: 'ניקוי הבחירה',
   },
   eventCalendar: {
     today: 'היום',

@@ -50,6 +50,8 @@ export const wrSv: WrI18nCatalog = {
     search: 'Sök',
     reset: 'Återställ',
     columns: 'Kolumner',
+    selected: '{{count}} valda',
+    clearSelection: 'Rensa markering',
   },
   eventCalendar: {
     today: 'Idag',

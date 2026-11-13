@@ -50,6 +50,8 @@ export const wrVi: WrI18nCatalog = {
     search: 'Tìm kiếm',
     reset: 'Đặt lại',
     columns: 'Cột',
+    selected: 'Đã chọn {{count}}',
+    clearSelection: 'Bỏ chọn',
   },
   eventCalendar: {
     today: 'Hôm nay',

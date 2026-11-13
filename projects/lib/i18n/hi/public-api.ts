@@ -50,6 +50,8 @@ export const wrHi: WrI18nCatalog = {
     search: 'खोजें',
     reset: 'रीसेट करें',
     columns: 'कॉलम',
+    selected: '{{count}} चयनित',
+    clearSelection: 'चयन साफ़ करें',
   },
   eventCalendar: {
     today: 'आज',

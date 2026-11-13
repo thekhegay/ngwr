@@ -50,6 +50,8 @@ export const wrJa: WrI18nCatalog = {
     search: '検索',
     reset: 'リセット',
     columns: '列',
+    selected: '{{count}} 件選択中',
+    clearSelection: '選択を解除',
   },
   eventCalendar: {
     today: '今日',

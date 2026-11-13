@@ -50,6 +50,8 @@ export const wrNl: WrI18nCatalog = {
     search: 'Zoeken',
     reset: 'Wissen',
     columns: 'Kolommen',
+    selected: '{{count}} geselecteerd',
+    clearSelection: 'Selectie wissen',
   },
   eventCalendar: {
     today: 'Vandaag',

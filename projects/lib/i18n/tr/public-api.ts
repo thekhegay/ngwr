@@ -50,6 +50,8 @@ export const wrTr: WrI18nCatalog = {
     search: 'Ara',
     reset: 'Sıfırla',
     columns: 'Sütunlar',
+    selected: '{{count}} seçildi',
+    clearSelection: 'Seçimi temizle',
   },
   eventCalendar: {
     today: 'Bugün',

@@ -82,6 +82,8 @@ export const wrEn: WrI18nCatalog = {
     search: 'Search',
     reset: 'Reset',
     columns: 'Columns',
+    selected: '{{count}} selected',
+    clearSelection: 'Clear selection',
   },
   eventCalendar: {
     today: 'Today',
