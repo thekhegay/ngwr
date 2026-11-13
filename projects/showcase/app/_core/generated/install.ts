@@ -482,7 +482,7 @@ export const INSTALL = {
       { path: "ngwr/density", symbols: ["WrDensity", "WrDensityDirective", "wrDensityPrePaintScript"], declarables: ["WrDensityDirective"], styled: true },
   ],
   "reference/services/hotkey": [
-      { path: "ngwr/hotkey", symbols: ["WrHotkey", "wrFormatChord"], declarables: [], styled: false },
+      { path: "ngwr/hotkey", symbols: ["WrHotkey", "wrFormatChord", "wrHotkeyPlatform", "wrMatchesHotkey", "wrParseHotkeySpec"], declarables: [], styled: false },
   ],
   "reference/services/i18n": [
       { path: "ngwr/i18n", symbols: ["WrI18n", "WrTDirective", "WrTPipe"], declarables: ["WrTDirective", "WrTPipe"], styled: false },
@@ -511,6 +511,9 @@ export const INSTALL = {
   "reference/utils/wr-decimal": [
       { path: "ngwr/input-number", symbols: ["WrInputNumber"], declarables: ["WrInputNumber"], styled: true },
       { path: "ngwr/utils", symbols: ["wrDecimalAdd"], declarables: [], styled: false },
+  ],
+  "reference/utils/wr-is-safe-css-value": [
+      { path: "ngwr/utils", symbols: ["wrIsSafeCssValue"], declarables: [], styled: false },
   ],
   "reference/utils/wr-poll": [
       { path: "ngwr/platform", symbols: ["wrPoll"], declarables: [], styled: false },
