@@ -802,6 +802,7 @@ export const API = {
     { name: "nodeWidth", description: "Width in pixels of a node that sets none of its own.", type: "number", default: "160" },
     { name: "nodeHeight", description: "Height in pixels of a node that sets none of its own.", type: "number", default: "48" },
     { name: "ariaLabel", description: "Accessible name of the scrolling viewport. Falls back to `graph.label`, then `'Graph'`.", type: "string | null", default: "null" },
+    { name: "(layoutError)", description: "An asynchronous layout rejected. Carries the rejection as thrown. The last picture stays on screen, and a run that was aborted never reports here.", type: "unknown" },
   ],
   // <wr-heatmap-chart>
   WrHeatmapChart: [
