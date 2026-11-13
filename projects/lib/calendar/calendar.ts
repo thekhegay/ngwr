@@ -31,12 +31,6 @@ import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrCalendarMode, WrCalendarRange, WrCalendarValue } from './types';
 
-/**
- * Stands in for the consumer input `useI18nText` expects, for labels the calendar
- * exposes no input for. Constant and read-only, so one instance is safe to share.
- */
-const NO_OVERRIDE = signal<string | null>(null).asReadonly();
-
 const EMPTY_RANGE: WrCalendarRange = [null, null];
 
 /** A `min` / `max` binding as the calendar reads it: a date, or no bound. */
@@ -193,28 +187,55 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
    */
   private readonly rovedChip = signal<number | null>(null);
 
-  // The four month/year strings have been in both catalogs since they were written
-  // and nothing read them: the template hard-coded the same English beside them, so a
-  // localized app announced its calendar's arrows in English. `nullSignal()` is the
-  // shim for exactly this — a label with no consumer input to forward.
-  private readonly prevMonthLabel = useI18nText(NO_OVERRIDE, 'calendar.prevMonth', 'Previous month');
-  private readonly nextMonthLabel = useI18nText(NO_OVERRIDE, 'calendar.nextMonth', 'Next month');
-  protected readonly monthListLabel = useI18nText(NO_OVERRIDE, 'calendar.monthList', 'Months');
-  protected readonly yearListLabel = useI18nText(NO_OVERRIDE, 'calendar.yearList', 'Years');
-  private readonly prevYearLabel = useI18nText(NO_OVERRIDE, 'calendar.prevYear', 'Previous year');
-  private readonly nextYearLabel = useI18nText(NO_OVERRIDE, 'calendar.nextYear', 'Next year');
-  private readonly prevYearsLabel = useI18nText(NO_OVERRIDE, 'calendar.prevYears', 'Previous 12 years');
-  private readonly nextYearsLabel = useI18nText(NO_OVERRIDE, 'calendar.nextYears', 'Next 12 years');
+  /**
+   * Accessible name of the day grid, for a calendar that stands alone: a
+   * `role="grid"` has no name of its own. Inside a `<wr-form-field>` the field's
+   * label names the grid instead.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  /** Accessible name of the back arrow on the day view. Falls back to `calendar.prevMonth`, then `'Previous month'`. */
+  readonly prevMonthLabel = input<string | null>(null);
+
+  /** Accessible name of the forward arrow on the day view. Falls back to `calendar.nextMonth`, then `'Next month'`. */
+  readonly nextMonthLabel = input<string | null>(null);
+
+  /** Accessible name of the month list. Falls back to `calendar.monthList`, then `'Months'`. */
+  readonly monthListLabel = input<string | null>(null);
+
+  /** Accessible name of the year list. Falls back to `calendar.yearList`, then `'Years'`. */
+  readonly yearListLabel = input<string | null>(null);
+
+  /** Accessible name of the back arrow on the month view. Falls back to `calendar.prevYear`, then `'Previous year'`. */
+  readonly prevYearLabel = input<string | null>(null);
+
+  /** Accessible name of the forward arrow on the month view. Falls back to `calendar.nextYear`, then `'Next year'`. */
+  readonly nextYearLabel = input<string | null>(null);
+
+  /** Accessible name of the back arrow on the year view. Falls back to `calendar.prevYears`, then `'Previous 12 years'`. */
+  readonly prevYearsLabel = input<string | null>(null);
+
+  /** Accessible name of the forward arrow on the year view. Falls back to `calendar.nextYears`, then `'Next 12 years'`. */
+  readonly nextYearsLabel = input<string | null>(null);
+
+  private readonly resolvedPrevMonthLabel = useI18nText(this.prevMonthLabel, 'calendar.prevMonth', 'Previous month');
+  private readonly resolvedNextMonthLabel = useI18nText(this.nextMonthLabel, 'calendar.nextMonth', 'Next month');
+  protected readonly resolvedMonthListLabel = useI18nText(this.monthListLabel, 'calendar.monthList', 'Months');
+  protected readonly resolvedYearListLabel = useI18nText(this.yearListLabel, 'calendar.yearList', 'Years');
+  private readonly resolvedPrevYearLabel = useI18nText(this.prevYearLabel, 'calendar.prevYear', 'Previous year');
+  private readonly resolvedNextYearLabel = useI18nText(this.nextYearLabel, 'calendar.nextYear', 'Next year');
+  private readonly resolvedPrevYearsLabel = useI18nText(this.prevYearsLabel, 'calendar.prevYears', 'Previous 12 years');
+  private readonly resolvedNextYearsLabel = useI18nText(this.nextYearsLabel, 'calendar.nextYears', 'Next 12 years');
 
   /** What the ← button does from here — a month, a year, or a 12-year page. */
   protected readonly prevLabel = computed(() => {
     switch (this.viewMode()) {
       case 'year':
-        return this.prevYearsLabel();
+        return this.resolvedPrevYearsLabel();
       case 'month':
-        return this.prevYearLabel();
+        return this.resolvedPrevYearLabel();
       default:
-        return this.prevMonthLabel();
+        return this.resolvedPrevMonthLabel();
     }
   });
 
@@ -222,11 +243,11 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
   protected readonly nextLabel = computed(() => {
     switch (this.viewMode()) {
       case 'year':
-        return this.nextYearsLabel();
+        return this.resolvedNextYearsLabel();
       case 'month':
-        return this.nextYearLabel();
+        return this.resolvedNextYearLabel();
       default:
-        return this.nextMonthLabel();
+        return this.resolvedNextMonthLabel();
     }
   });
 

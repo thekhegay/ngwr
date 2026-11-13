@@ -62,6 +62,7 @@
     <div
       class="wr-calendar__body"
       role="grid"
+      [attr.aria-label]="fieldAria.labelledBy() ? null : ariaLabel()"
       [attr.aria-labelledby]="fieldAria.labelledBy()"
       [attr.aria-readonly]="readonly() ? 'true' : null"
       [attr.aria-invalid]="fieldAria.ariaInvalid()"
@@ -114,7 +115,7 @@
     <div
       class="wr-calendar__months"
       role="listbox"
-      [attr.aria-label]="monthListLabel()"
+      [attr.aria-label]="resolvedMonthListLabel()"
       [attr.aria-invalid]="fieldAria.ariaInvalid()"
       [attr.aria-describedby]="fieldAria.describedBy()"
     >
@@ -141,7 +142,7 @@
     <div
       class="wr-calendar__years"
       role="listbox"
-      [attr.aria-label]="yearListLabel()"
+      [attr.aria-label]="resolvedYearListLabel()"
       [attr.aria-invalid]="fieldAria.ariaInvalid()"
       [attr.aria-describedby]="fieldAria.describedBy()"
     >
