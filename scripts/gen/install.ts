@@ -38,6 +38,7 @@ import { walkFiles } from '../lib/fs/walk-files';
 import { emitGenerated, GENERATED_DIR, generatedHeader } from '../lib/generated';
 import { docPages, requireSingleRoutePages } from '../lib/page-routes';
 import { LIB_PATH } from '../lib/paths/lib';
+import { isEntry } from '../lib/run/is-entry';
 
 const OUT_FILE = join(GENERATED_DIR, 'install.ts');
 
@@ -122,8 +123,8 @@ export type DocInstallRoute = keyof typeof INSTALL;
 `;
 }
 
-async function main(): Promise<void> {
-  const { check } = parseFlags('gen:install [--check]', { check: { type: 'boolean', default: false } });
+/** Writes the map, or with `check` exits 1 when the committed copy is stale. */
+async function runInstall(check: boolean): Promise<void> {
   const pages = await requireSingleRoutePages();
   const doc = docPages(pages);
 
@@ -178,4 +179,8 @@ async function main(): Promise<void> {
   });
 }
 
-void main();
+if (isEntry(import.meta.url)) {
+  void runInstall(parseFlags('gen:install [--check]', { check: { type: 'boolean', default: false } }).check);
+}
+
+export { runInstall };

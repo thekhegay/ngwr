@@ -32,6 +32,7 @@ import { parseFlags } from '../lib/args';
 import { buildSelectorMap, type WrSelectorMap, type WrSelectorTarget } from '../lib/build-selector-map';
 import { libEntryPoints, libStyleEntryPoints } from '../lib/entry-points';
 import { emitGenerated, GENERATED_DIR, generatedHeader } from '../lib/generated';
+import { isEntry } from '../lib/run/is-entry';
 
 const OUT_FILE = join(GENERATED_DIR, 'selectors.ts');
 
@@ -97,8 +98,8 @@ ${styles.map(p => `  ${JSON.stringify(p)},`).join('\n')}
 `;
 }
 
-function main(): void {
-  const { check } = parseFlags('gen:selectors [--check]', { check: { type: 'boolean', default: false } });
+/** Writes the map, or with `check` exits 1 when the committed copy is stale. */
+function runSelectors(check: boolean): void {
   const map = buildSelectorMap();
   const { stats } = map;
 
@@ -137,4 +138,8 @@ function main(): void {
   }
 }
 
-main();
+if (isEntry(import.meta.url)) {
+  runSelectors(parseFlags('gen:selectors [--check]', { check: { type: 'boolean', default: false } }).check);
+}
+
+export { runSelectors };

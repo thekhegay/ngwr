@@ -6,7 +6,11 @@ Part of [AGENTS.md](../../AGENTS.md). Read this before changing a lint stage, `c
 
 `pnpm lint` is **multi-stage**: `ng lint` (lib, then showcase) `&&`
 `eslint scripts` `&&` `stylelint` `&&` `check:rtl` (`scripts/check/rtl.ts`, see RTL below) `&&` `check:tokens` (`scripts/check/tokens.ts`
-— a `var()` read of a theme token nothing declares) `&&` `check:selectors` (`scripts/gen/selectors.ts --check` — the committed
+— a `var()` read of a theme token nothing declares) `&&` `check:generated`
+(`scripts/check/generated.ts`), which runs three checks in one process, in this
+order, each still a script of its own: `check:selectors`, `check:attrs` and
+`check:install`. One process starts tsx once and lexes the library once, where
+three did both three times and twice. `check:selectors` is `scripts/gen/selectors.ts --check` — the committed
 `#core/generated/selectors.ts` against what the generator produces now, the same
 `--check` shape `gen/css-vars.ts` and `gen/api-docs.ts` use. It reads source and
 `projects/lib/package.json` only, which is why it is a lint stage where
@@ -15,10 +19,10 @@ unconditionally, so a run meant to inspect the drift created it instead, and a
 stale copy sat in the tree for two days after a `lucide` bump. **Keep the root
 `package.json` out of the generated map**: it once carried `lucide`'s range, so
 every Dependabot bump of it failed this stage until someone regenerated. It
-runs before the next two stages because both read that map) `&&` `check:attrs`
+runs before the next two checks because both read that map). `check:attrs` is
 (`scripts/check/unknown-attrs.ts` — a STATIC attribute on an ngwr element that
 is none of its inputs, which `strictTemplates` accepts because an unknown
-attribute on a custom element is legal HTML) `&&` `check:install`
+attribute on a custom element is legal HTML), and `check:install` is
 (`scripts/gen/install.ts --check` — the committed `#core/generated/install.ts`
 against the generator) — and the last stages are the ones that most often turn
 a green-looking run red. The first stage prints `All files pass linting.` even
