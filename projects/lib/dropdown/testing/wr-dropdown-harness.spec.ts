@@ -1,5 +1,5 @@
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrDropdown, WrDropdownItem, WrDropdownMenu, WrDropdownSubmenu } from 'ngwr/dropdown';
@@ -485,5 +485,59 @@ describe('WrDropdownHarness — submenus', () => {
 
     const open = await file.getAllHarnesses(WrDropdownSubmenuHarness.with({ open: true }));
     expect(await Promise.all(open.map(item => item.getTriggerText()))).toEqual(['Share']);
+  });
+});
+
+@Component({
+  imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+  template: `
+    <button type="button" [wrDropdown]="menu" [wrDropdownDisabled]="off()">Actions</button>
+    <button type="button" [wrDropdown]="menu">More</button>
+    <wr-dropdown-menu #menu>
+      <wr-dropdown-item>Copy</wr-dropdown-item>
+    </wr-dropdown-menu>
+  `,
+})
+class DisabledHost {
+  readonly off = signal(true);
+}
+
+describe('WrDropdownHarness — a disabled trigger', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DisabledHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(DisabledHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('reports the disabled state, and follows it back', async () => {
+    const dropdown = await loader.getHarness(WrDropdownHarness.with({ text: 'Actions' }));
+
+    expect([await dropdown.isDisabled(), await dropdown.isOpen()]).toEqual([true, false]);
+
+    fixture.componentInstance.off.set(false);
+
+    expect(await dropdown.isDisabled()).toBe(false);
+    await dropdown.open();
+    expect(await dropdown.isOpen()).toBe(true);
+  });
+
+  it('narrows by the disabled state', async () => {
+    const texts = (found: WrDropdownHarness[]): Promise<string[]> => Promise.all(found.map(d => d.getTriggerText()));
+
+    expect(await texts(await loader.getAllHarnesses(WrDropdownHarness.with({ disabled: true })))).toEqual(['Actions']);
+    expect(await texts(await loader.getAllHarnesses(WrDropdownHarness.with({ disabled: false })))).toEqual(['More']);
+  });
+
+  it('points at the disabled state when neither the pointer nor the keyboard opens it', async () => {
+    const dropdown = await loader.getHarness(WrDropdownHarness.with({ text: 'Actions' }));
+
+    await expect(dropdown.open()).rejects.toThrow(/not disabled \(isDisabled\(\)\)/);
+    await expect(dropdown.openByKeyboard()).rejects.toThrow(/not disabled \(isDisabled\(\)\)/);
   });
 });

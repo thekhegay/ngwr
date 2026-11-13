@@ -70,7 +70,8 @@ export class WrPopconfirmHarness extends ContentContainerComponentHarness {
       .addOption('triggerText', options.triggerText, (harness, text) =>
         HarnessPredicate.stringMatches(harness.getTriggerText(), text)
       )
-      .addOption('open', options.open, async (harness, open) => (await harness.isOpen()) === open);
+      .addOption('open', options.open, async (harness, open) => (await harness.isOpen()) === open)
+      .addOption('disabled', options.disabled, async (harness, disabled) => (await harness.isDisabled()) === disabled);
   }
 
   /** The trigger's own visible label. The question inside the panel is `getMessage()`. */
@@ -82,11 +83,21 @@ export class WrPopconfirmHarness extends ContentContainerComponentHarness {
    * Whether the dialog is showing.
    *
    * Read from `aria-expanded` rather than from a class, because that is the whole
-   * of what the trigger tells a screen reader — the directive puts no state class
-   * on its host at all.
+   * of what the trigger tells a screen reader — the directive puts no open-state
+   * class on its host at all.
    */
   async isOpen(): Promise<boolean> {
     return (await (await this.host()).getAttribute('aria-expanded')) === 'true';
+  }
+
+  /**
+   * Whether `wrPopconfirmDisabled` has turned the question off — read from
+   * `wr-popconfirm-trigger--disabled`, the one mark a disabled trigger carries.
+   * The HOST's own `disabled` is another question: the directive never sets it,
+   * so ask the host's harness (`WrButtonHarness.isDisabled()`).
+   */
+  async isDisabled(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-popconfirm-trigger--disabled');
   }
 
   /** Whether the trigger currently has keyboard focus — the state it is handed back on close. */

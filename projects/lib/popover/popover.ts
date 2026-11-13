@@ -7,6 +7,7 @@
 
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type FlexibleConnectedPositionStrategy, type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import type { ComponentRef, TemplateRef } from '@angular/core';
@@ -112,8 +113,9 @@ let popoverUid = 0;
     // publishes no ARIA either — so without this there is nothing to find a
     // trigger by. (Only the static string form, `wrPopover="text"`, would be.)
     class: 'wr-popover-trigger',
-    '[attr.aria-haspopup]': 'isTooltip() ? null : "dialog"',
-    '[attr.aria-expanded]': 'isTooltip() ? null : isOpen()',
+    '[class.wr-popover-trigger--disabled]': 'disabled()',
+    '[attr.aria-haspopup]': 'isTooltip() || disabled() ? null : "dialog"',
+    '[attr.aria-expanded]': 'isTooltip() || disabled() ? null : isOpen()',
     '[attr.aria-controls]': '!isTooltip() && isOpen() ? panelId : null',
     '[attr.aria-describedby]': 'isTooltip() && isOpen() ? panelId : null',
     '(click)': 'onClick($event)',
@@ -175,6 +177,19 @@ export class WrPopover {
    * @default null
    */
   readonly origin = input<HTMLElement | null>(null, { alias: 'wrPopoverOrigin' });
+
+  /**
+   * Turns the trigger off: no hover, focus, click or key opens the panel,
+   * `open()` and `toggle()` do nothing, and an open panel closes. The host
+   * publishes no popup ARIA meanwhile and carries `wr-popover-trigger--disabled`.
+   *
+   * The host's own `disabled` stays yours: the directive never sets it, so a
+   * button keeps working as a button. Typical use is a tooltip that only shows
+   * for truncated text.
+   *
+   * @default false
+   */
+  readonly disabled = input(false, { alias: 'wrPopoverDisabled', transform: coerceBooleanProperty });
 
   /**
    * Popover mode only — accessible name of the panel. `role="dialog"` with no
@@ -252,6 +267,12 @@ export class WrPopover {
       } else {
         this.closeOverlay();
       }
+    });
+    effect(() => {
+      if (!this.disabled()) return;
+      this.clearTimers();
+      this.clearHoverClose();
+      this.openState.set(false);
     });
     // The tooltip string is pushed into the panel when the panel is created, and
     // `openOverlay()` returns early while one is already up — so a `content()`
@@ -351,7 +372,9 @@ export class WrPopover {
     });
   }
 
+  /** Open the panel. Does nothing while the trigger is disabled. */
   open(): void {
+    if (this.disabled()) return;
     this.openState.set(true);
   }
 
@@ -369,14 +392,15 @@ export class WrPopover {
    * can never be closed from there.
    */
   toggle(): void {
-    this.openState.update(v => !v);
+    if (this.isOpen()) this.close();
+    else this.open();
   }
 
   // Host listeners
 
   /** @internal */
   protected onClick(event: MouseEvent): void {
-    if (this.isTooltip() || this.trigger() !== 'click') return;
+    if (this.disabled() || this.isTooltip() || this.trigger() !== 'click') return;
     event.stopPropagation();
     this.toggle();
   }
@@ -389,7 +413,7 @@ export class WrPopover {
     }
     if (this.trigger() !== 'hover') return;
     this.clearHoverClose();
-    this.openState.set(true);
+    this.open();
   }
 
   /** @internal */
@@ -421,7 +445,7 @@ export class WrPopover {
    * @internal
    */
   protected onActivateKey(event: Event): void {
-    if (this.isTooltip() || this.trigger() !== 'hover' || this.isOpen()) return;
+    if (this.disabled() || this.isTooltip() || this.trigger() !== 'hover' || this.isOpen()) return;
     event.preventDefault();
     this.openedByKeyboard = true;
     this.openState.set(true);
@@ -460,6 +484,7 @@ export class WrPopover {
   // Tooltip timers
 
   private scheduleShow(): void {
+    if (this.disabled()) return;
     if (this.isOpen()) {
       this.clearTimers();
       return;
@@ -467,7 +492,7 @@ export class WrPopover {
     const text = this.content();
     if (typeof text === 'string' && !text) return;
     this.clearTimers();
-    this.showTimer = setTimeout(() => this.openState.set(true), this.showDelay());
+    this.showTimer = setTimeout(() => this.open(), this.showDelay());
   }
 
   private scheduleHide(): void {

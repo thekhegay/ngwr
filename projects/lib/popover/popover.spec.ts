@@ -1,6 +1,6 @@
 import { FocusMonitor, type FocusOrigin } from '@angular/cdk/a11y';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild, viewChildren } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
@@ -1327,5 +1327,169 @@ describe('WrPopover when the direction flips while it is open', () => {
     // Nothing here is one-way: the mirror is rebuilt from the direction it is
     // handed, not toggled.
     expect([paneDir(), pane().getAttribute('style')?.includes('translateX(-8px)')]).toEqual(['ltr', true]);
+  });
+});
+
+@Component({
+  imports: [WrPopover],
+  template: `
+    <button type="button" class="click-trigger" [wrPopover]="panel" [wrPopoverDisabled]="off()">Details</button>
+    <button type="button" class="hover-trigger" trigger="hover" [wrPopover]="panel" [wrPopoverDisabled]="off()">
+      Hover
+    </button>
+    <button type="button" class="tip-trigger" mode="tooltip" wrPopover="Save changes" [wrPopoverDisabled]="off()">
+      Save
+    </button>
+
+    <ng-template #panel><p>Anything you can render.</p></ng-template>
+  `,
+})
+class DisabledHost {
+  readonly off = signal(true);
+  readonly popovers = viewChildren(WrPopover);
+}
+
+describe('WrPopover while disabled', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DisabledHost>>;
+
+  const trigger = (kind: 'click' | 'hover' | 'tip'): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(`.${kind}-trigger`)!;
+  const popoverPane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popover-overlay');
+  const tooltipPane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-tooltip-overlay');
+
+  const tick = (ms: number): void => {
+    vi.advanceTimersByTime(ms);
+    fixture.detectChanges();
+  };
+
+  const enter = (el: HTMLElement): void => {
+    el.dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+  };
+
+  const press = (key: string, target: EventTarget): KeyboardEvent => {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    target.dispatchEvent(event);
+    fixture.detectChanges();
+    return event;
+  };
+
+  const setOff = (off: boolean): void => {
+    fixture.componentInstance.off.set(off);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    fixture = TestBed.createComponent(DisabledHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.useRealTimers();
+  });
+
+  it('opens nothing on a click, and lets the click through', () => {
+    const seen: Event[] = [];
+    const listen = (event: Event): number => seen.push(event);
+    document.addEventListener('click', listen);
+
+    trigger('click').click();
+    fixture.detectChanges();
+    document.removeEventListener('click', listen);
+
+    expect(popoverPane()).toBeNull();
+    // An enabled trigger stops its click; a disabled one is only a button.
+    expect(seen).toHaveLength(1);
+  });
+
+  it('opens nothing on hover, on Enter or on Space', () => {
+    enter(trigger('hover'));
+    tick(500);
+    expect(popoverPane()).toBeNull();
+
+    const enterKey = press('Enter', trigger('hover'));
+    const space = press(' ', trigger('hover'));
+
+    expect(popoverPane()).toBeNull();
+    // The keys are the button's own again.
+    expect([enterKey.defaultPrevented, space.defaultPrevented]).toEqual([false, false]);
+  });
+
+  it('shows no tooltip on hover or on keyboard focus', () => {
+    enter(trigger('tip'));
+    tick(500);
+    expect(tooltipPane()).toBeNull();
+
+    TestBed.inject(FocusMonitor).focusVia(trigger('tip'), 'keyboard');
+    fixture.detectChanges();
+    tick(500);
+
+    expect(tooltipPane()).toBeNull();
+    expect(trigger('tip').hasAttribute('aria-describedby')).toBe(false);
+  });
+
+  it('ignores open() and toggle() called from code', () => {
+    const [click] = fixture.componentInstance.popovers();
+
+    click.open();
+    fixture.detectChanges();
+    click.toggle();
+    fixture.detectChanges();
+
+    expect([click.isOpen(), popoverPane()]).toEqual([false, null]);
+  });
+
+  it('withdraws the popup ARIA and marks the host, leaving its own disabled state alone', () => {
+    for (const kind of ['click', 'hover'] as const) {
+      expect(trigger(kind).hasAttribute('aria-haspopup')).toBe(false);
+      expect(trigger(kind).hasAttribute('aria-expanded')).toBe(false);
+      expect(trigger(kind).classList.contains('wr-popover-trigger--disabled')).toBe(true);
+      expect(trigger(kind).disabled).toBe(false);
+    }
+
+    setOff(false);
+
+    expect(trigger('click').getAttribute('aria-haspopup')).toBe('dialog');
+    expect(trigger('click').getAttribute('aria-expanded')).toBe('false');
+    expect(trigger('click').classList.contains('wr-popover-trigger--disabled')).toBe(false);
+  });
+
+  it('closes an open popover when it becomes disabled, and opens again once re-enabled', () => {
+    setOff(false);
+    trigger('click').click();
+    fixture.detectChanges();
+    expect(popoverPane()).not.toBeNull();
+
+    setOff(true);
+
+    expect(popoverPane()).toBeNull();
+    expect(trigger('click').hasAttribute('aria-controls')).toBe(false);
+
+    setOff(false);
+    trigger('click').click();
+    fixture.detectChanges();
+
+    expect(popoverPane()).not.toBeNull();
+    expect(trigger('click').getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('closes an open tooltip when it becomes disabled, and drops one still waiting to show', () => {
+    setOff(false);
+    enter(trigger('tip'));
+    tick(120);
+    expect(tooltipPane()).not.toBeNull();
+
+    setOff(true);
+    expect(tooltipPane()).toBeNull();
+
+    setOff(false);
+    enter(trigger('tip'));
+    // Disabled inside the show delay: the timer already armed must not fire.
+    setOff(true);
+    tick(500);
+
+    expect(tooltipPane()).toBeNull();
   });
 });

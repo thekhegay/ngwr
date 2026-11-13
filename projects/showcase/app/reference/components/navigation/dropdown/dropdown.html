@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Dropdown"
-  updated="16.2.0"
+  updated="16.3.0"
   description="A menu that opens from any trigger."
   [keywords]="['dropdown', 'menu', 'wr-dropdown', 'overlay']"
   [labels]="['Directive', 'Components', 'CDK Overlay']"
@@ -81,6 +81,20 @@
       <wr-dropdown-menu #rowMenu>
         <wr-dropdown-item icon="copy-outline">Copy {{ picked }}</wr-dropdown-item>
         <wr-dropdown-item icon="trash">Delete {{ picked }}</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Disabled trigger"
+    description="`[wrDropdownDisabled]` turns the trigger off: no click, hover or key opens the menu, `open()` included, and an open one closes. The host keeps its own `disabled`. Since v16.3."
+  >
+    <ngwr-doc-snippet [code]="snippets.disabledTrigger">
+      <button type="button" wr-btn [wrDropdown]="offMenu" [wrDropdownDisabled]="off()">Actions</button>
+      <wr-btn outlined (click)="off.set(!off())">{{ off() ? 'Enable the menu' : 'Disable the menu' }}</wr-btn>
+      <wr-dropdown-menu #offMenu>
+        <wr-dropdown-item icon="copy-outline">Copy</wr-dropdown-item>
+        <wr-dropdown-item icon="trash">Delete</wr-dropdown-item>
       </wr-dropdown-menu>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Popconfirm"
-  updated="16.0.0"
+  updated="16.3.0"
   description='Ask "Are you sure?" next to a button before its action runs.'
   [keywords]="['popconfirm', 'confirm', 'wr-popconfirm']"
   [labels]="['Directive', 'CDK Overlay']"
@@ -33,6 +33,28 @@
           <wr-btn outlined wrPopconfirm="Delete this item?" [position]="p" (confirmed)="onConfirm()">{{ p }}</wr-btn>
         }
       </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Disabled"
+    description="`[wrPopconfirmDisabled]` skips the question: the click reaches the button's own `(click)`, `open()` does nothing, and an open panel closes without `(cancelled)`. Since v16.3."
+  >
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <wr-btn
+        color="danger"
+        wrPopconfirm="Discard your changes?"
+        confirmText="Discard"
+        confirmColor="danger"
+        [wrPopconfirmDisabled]="!dirty()"
+        (click)="!dirty() && status.set('Closed, nothing to ask')"
+        (confirmed)="status.set('Discarded')"
+        >Close</wr-btn
+      >
+      <wr-btn outlined (click)="dirty.set(!dirty())">{{ dirty() ? 'Mark as saved' : 'Make a change' }}</wr-btn>
+      <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; align-self: center">
+        Last result: {{ status() }}
+      </span>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

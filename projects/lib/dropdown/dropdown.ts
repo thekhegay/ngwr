@@ -70,9 +70,10 @@ let triggerUid = 0;
   exportAs: 'wrDropdown',
   host: {
     class: 'wr-dropdown-trigger',
+    '[class.wr-dropdown-trigger--disabled]': 'disabled()',
     '[attr.id]': 'triggerId',
-    '[attr.aria-haspopup]': '"menu"',
-    '[attr.aria-expanded]': 'isOpen()',
+    '[attr.aria-haspopup]': 'disabled() ? null : "menu"',
+    '[attr.aria-expanded]': 'disabled() ? null : isOpen()',
     '[attr.aria-controls]': 'isOpen() ? menu().menuId() : null',
     '(click)': 'onClick($event)',
     '(keydown)': 'onKeydown($event)',
@@ -118,6 +119,18 @@ export class WrDropdown {
    * Read when the menu opens. @default true
    */
   readonly arrow = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Turns the trigger off: no click, hover or key opens the menu, `open()` and
+   * `toggle()` do nothing (a `manual` trigger included), and an open menu
+   * closes. The host publishes no popup ARIA meanwhile and carries
+   * `wr-dropdown-trigger--disabled`.
+   *
+   * The host's own `disabled` stays yours: the directive never sets it.
+   *
+   * @default false
+   */
+  readonly disabled = input(false, { alias: 'wrDropdownDisabled', transform: coerceBooleanProperty });
 
   /**
    * Extra CSS classes for the menu's overlay pane.
@@ -204,10 +217,14 @@ export class WrDropdown {
         this.closeOverlay();
       }
     });
+    effect(() => {
+      if (this.disabled()) this.openState.set(false);
+    });
   }
 
-  /** Open the menu. */
+  /** Open the menu. Does nothing while the trigger is disabled. */
   open(): void {
+    if (this.disabled()) return;
     this.openState.set(true);
   }
 
@@ -218,7 +235,8 @@ export class WrDropdown {
 
   /** Toggle the menu. */
   toggle(): void {
-    this.openState.update(v => !v);
+    if (this.isOpen()) this.close();
+    else this.open();
   }
 
   // Host listeners
@@ -235,7 +253,7 @@ export class WrDropdown {
   private openedByPointer = false;
 
   protected onClick(event: MouseEvent): void {
-    if (this.trigger() !== 'click') return;
+    if (this.disabled() || this.trigger() !== 'click') return;
     event.stopPropagation();
     this.openedByPointer = false;
     this.toggle();
@@ -247,7 +265,7 @@ export class WrDropdown {
     // A POINTER opened this, so the menu must not take the keyboard with it —
     // see `openedByPointer`.
     this.openedByPointer = true;
-    this.openState.set(true);
+    this.open();
   }
 
   /** @internal */
@@ -442,7 +460,7 @@ export class WrDropdown {
 
   /** @internal Trigger keydown — ArrowDown/Up/Enter/Space open the menu. */
   protected onKeydown(event: KeyboardEvent): void {
-    if (this.isOpen() || this.trigger() === 'manual') return;
+    if (this.disabled() || this.isOpen() || this.trigger() === 'manual') return;
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       // Opened from the keyboard — including on a `hover` trigger, which stays

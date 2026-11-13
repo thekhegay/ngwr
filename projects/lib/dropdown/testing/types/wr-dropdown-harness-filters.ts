@@ -17,6 +17,8 @@ export interface WrDropdownHarnessFilters extends BaseHarnessFilters {
   readonly text?: string | RegExp;
   /** Match only open (`true`) or only closed (`false`) dropdowns. */
   readonly open?: boolean;
+  /** Match only disabled (`true`) or only enabled (`false`) triggers. */
+  readonly disabled?: boolean;
 }
 
 /** Narrows which item inside a dropdown's menu a harness query matches. */

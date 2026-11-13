@@ -58,7 +58,8 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
       .addOption('text', options.text, (harness, text) =>
         HarnessPredicate.stringMatches(harness.getTriggerText(), text)
       )
-      .addOption('open', options.open, async (harness, open) => (await harness.isOpen()) === open);
+      .addOption('open', options.open, async (harness, open) => (await harness.isOpen()) === open)
+      .addOption('disabled', options.disabled, async (harness, disabled) => (await harness.isDisabled()) === disabled);
   }
 
   /** The trigger's visible text. */
@@ -69,6 +70,16 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
   /** Whether the menu is showing. */
   async isOpen(): Promise<boolean> {
     return (await (await this.host()).getAttribute('aria-expanded')) === 'true';
+  }
+
+  /**
+   * Whether `wrDropdownDisabled` has turned the trigger off — read from
+   * `wr-dropdown-trigger--disabled`, the one mark a disabled trigger carries.
+   * The HOST's own `disabled` is another question: the directive never sets it,
+   * so ask the host's harness (`WrButtonHarness.isDisabled()`).
+   */
+  async isDisabled(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-dropdown-trigger--disabled');
   }
 
   /** The role the menu announces — `menu`. Throws while the menu is closed. */
@@ -110,7 +121,8 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
     throw new Error(
       'WrDropdownHarness.open(): the menu did not open — neither hovering the trigger nor clicking it ' +
         'had any effect. Both gestures were tried, so the `trigger` mode is not the cause; check that this ' +
-        'element is the trigger you meant. openByKeyboard() is the third route in.'
+        'element is the trigger you meant and that it is not disabled (isDisabled()). openByKeyboard() is ' +
+        'the third route in.'
     );
   }
 
@@ -131,7 +143,7 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
     throw new Error(
       'WrDropdownHarness.openByKeyboard(): ArrowDown on the trigger did not open the menu. The component ' +
         'takes ArrowDown / ArrowUp / Enter / Space in EVERY `trigger` mode, so the mode is not the cause; ' +
-        'check that this element is the trigger you meant.'
+        'check that this element is the trigger you meant and that it is not disabled (isDisabled()).'
     );
   }
 
