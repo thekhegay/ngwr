@@ -92,6 +92,11 @@ export class WrCalendarHarness extends ComponentHarness {
     return (await this.host()).hasClass('wr-calendar--disabled');
   }
 
+  /** Whether the calendar is read-only: still browsable, but a day click picks nothing. */
+  async isReadonly(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-calendar--readonly');
+  }
+
   /** The header text — `March 2026`, `2026`, or `2016 – 2027` depending on the view. */
   async getHeaderLabel(): Promise<string> {
     return (await this.header()).text();

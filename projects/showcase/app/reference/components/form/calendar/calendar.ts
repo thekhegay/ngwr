@@ -1,10 +1,14 @@
 import { Component, signal } from '@angular/core';
+import { FormField, form, readonly, required } from '@angular/forms/signals';
 
 import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
+import { WrFormField } from 'ngwr/form';
 import { WrKbd } from 'ngwr/keyboard';
+import { WrSwitch } from 'ngwr/switch';
 
 import {
   DocApiComponent,
+  type DocCodeFile,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -16,8 +20,11 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-calendar-page',
   templateUrl: './calendar.html',
   imports: [
+    FormField,
     WrCalendar,
+    WrFormField,
     WrKbd,
+    WrSwitch,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -57,6 +64,48 @@ export default class CalendarPageComponent {
   [dateFilter]="isWeekday"
 />`,
   };
+
+  protected readonly locked = signal(false);
+  private readonly model = signal<{ due: Date | null }>({ due: null });
+  protected readonly task = form(this.model, path => {
+    required(path.due, { message: 'Pick a day.' });
+    readonly(path.due, () => this.locked());
+  });
+
+  protected readonly formFiles: readonly DocCodeFile[] = [
+    {
+      label: 'HTML',
+      language: 'angular-html',
+      code: `<wr-form-field label="Due date">
+  <wr-calendar [formField]="task.due" />
+</wr-form-field>
+<wr-switch [(checked)]="locked">Read-only</wr-switch>`,
+    },
+    {
+      label: 'TS',
+      language: 'angular-ts',
+      code: `import { Component, signal } from '@angular/core';
+import { FormField, form, readonly, required } from '@angular/forms/signals';
+
+import { WrCalendar } from 'ngwr/calendar';
+import { WrFormField } from 'ngwr/form';
+import { WrSwitch } from 'ngwr/switch';
+
+@Component({
+  selector: 'app-task',
+  templateUrl: './task.html',
+  imports: [FormField, WrCalendar, WrFormField, WrSwitch],
+})
+export class Task {
+  protected readonly locked = signal(false);
+  private readonly model = signal<{ due: Date | null }>({ due: null });
+  protected readonly task = form(this.model, path => {
+    required(path.due, { message: 'Pick a day.' });
+    readonly(path.due, () => this.locked());
+  });
+}`,
+    },
+  ];
 
   protected readonly api = API.WrCalendar;
 }

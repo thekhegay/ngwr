@@ -2,7 +2,7 @@
 
 Part of [AGENTS.md](../../AGENTS.md). Read this before changing a value control, Signal Forms, `wr-schema-form` or validation copy.
 
-**Forms.** Value components are **Signal Forms-native** — twenty public
+**Forms.** Value components are **Signal Forms-native** — twenty-two public
 controls implement `FormValueControl` or `FormCheckboxControl`, so
 `[formField]="form.x"` binds straight to the component's `value` / `checked`
 model. A count and not "each", deliberately: `[wrColorPickerTrigger]` is public,
