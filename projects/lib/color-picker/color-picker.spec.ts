@@ -295,6 +295,37 @@ describe('WrColorPicker', () => {
       expect(hexField().value.toLowerCase(), 'the write-back was swallowed').toBe(emitted.toLowerCase());
     });
 
+    it('honours a write back to a colour it emitted without moving', async () => {
+      const settle = async (): Promise<void> => {
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+      };
+      const nudge = (): void => {
+        sv().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+      };
+
+      // Saturation is already at its end, so the second nudge emits the colour
+      // the model holds: a write that changes nothing.
+      nudge();
+      await settle();
+      const held = value();
+      nudge();
+      await settle();
+      expect(value()).toBe(held);
+
+      fixture.componentInstance.value.set('#00ff00ff');
+      await settle();
+      expect(hexField().value.toLowerCase()).toBe('#00ff00ff');
+
+      fixture.componentInstance.value.set(held);
+      await settle();
+
+      expect(hexField().value.toLowerCase(), 'the write-back was swallowed').toBe(held.toLowerCase());
+      expect(hue().getAttribute('aria-valuenow')).toBe('32');
+      expect(sv().getAttribute('aria-label')).toBe('Saturation and brightness, 100% and 100%');
+    });
+
     it('puts the canonical value back in the field on blur', () => {
       const field = hexField();
       field.value = 'garbage';
