@@ -39,6 +39,7 @@
   // The remove button reads the tag's own colour and radius, so it follows
   // every variant: contrast on a fill, ink on a tint, round in a pill. Its box
   // is the tag's content height, 22px less the border and the block padding.
+  --wr-tag-icon-size: 0.875rem;
   --wr-tag-remove-size: 1rem;
   --wr-tag-remove-icon-size: 0.75rem;
   --wr-tag-remove-color: var(--wr-tag-color);
@@ -64,9 +65,43 @@
     --wr-tag-padding-x: var(--wr-space-md);
   }
 
+  // Sizes. After the shape, and with the pill's wider inline padding restated
+  // per size, so `rounded` keeps its extra step at every size.
+  &--sm,
+  &:where([size='sm']) {
+    --wr-tag-padding-y: 0;
+    --wr-tag-padding-x: 0.375rem;
+    --wr-tag-font-size: 0.6875rem; // 11px, a label and not a count, so above the badge's 10px
+    --wr-tag-min-height: 1.125rem;
+    --wr-tag-icon-size: 0.75rem;
+    --wr-tag-remove-size: 0.875rem;
+    --wr-tag-remove-icon-size: 0.625rem;
+
+    &.wr-tag--rounded,
+    &:where([rounded]:not([rounded='false'])) {
+      --wr-tag-padding-x: var(--wr-space-sm);
+    }
+  }
+
+  &--lg,
+  &:where([size='lg']) {
+    --wr-tag-padding-y: 0.25rem;
+    --wr-tag-padding-x: var(--wr-space-md);
+    --wr-tag-font-size: var(--wr-text-sm);
+    --wr-tag-min-height: 1.875rem;
+    --wr-tag-icon-size: 1rem;
+    --wr-tag-remove-size: 1.25rem;
+    --wr-tag-remove-icon-size: 0.875rem;
+
+    &.wr-tag--rounded,
+    &:where([rounded]:not([rounded='false'])) {
+      --wr-tag-padding-x: var(--wr-space-lg);
+    }
+  }
+
   // Icon slot sizing
   &__adornment {
-    --wr-icon-size: 0.875rem;
+    --wr-icon-size: var(--wr-tag-icon-size);
     color: inherit;
     flex: 0 0 auto;
   }
