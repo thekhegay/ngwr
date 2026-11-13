@@ -10,9 +10,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 ## Medium
 
 - **Unused devDependency**: drop `@angular-devkit/core` if nothing needs it directly.
-- **Table column visibility**: a hidden-columns model beside `columnOrder`, with an optional chooser.
-- **Table bulk actions**: a bar over the header while rows are selected.
-- **Table state**: one output for sort, filters, page and page size.
 - **Select all**: in a multi select, honouring the search and `maxItems`.
 - **Period pickers**: month, year, week and quarter modes on the date-picker.
 - **Upload lifecycle**: progress, status, retry, image previews and paste in `wr-file-upload`.
