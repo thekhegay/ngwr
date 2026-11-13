@@ -326,3 +326,67 @@ describe('WrColorPickerTriggerHarness', () => {
     expect(await locked.isOpen()).toBe(false);
   });
 });
+
+describe('WrColorPickerHarness.getSize()', () => {
+  @Component({
+    imports: [WrColorPicker],
+    template: `<wr-color-picker value="#ff8800" /><wr-color-picker value="#ff8800" size="sm" /><wr-color-picker
+        value="#ff8800"
+        size="lg"
+      />`,
+  })
+  class SizesHost {}
+
+  it('reads md for the default and the modifier for the other two', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(SizesHost);
+    await fixture.whenStable();
+    const harnesses = await TestbedHarnessEnvironment.loader(fixture).getAllHarnesses(WrColorPickerHarness);
+
+    expect(await Promise.all(harnesses.map(harness => harness.getSize()))).toEqual(['md', 'sm', 'lg']);
+
+    fixture.destroy();
+  });
+});
+
+describe('WrColorPickerHarness named swatches', () => {
+  @Component({
+    imports: [WrColorPicker],
+    template: `<wr-color-picker [alpha]="false" [(value)]="value" [swatches]="swatches" />`,
+  })
+  class NamedHost {
+    readonly value = signal('#000000');
+    readonly swatches = [{ value: '#3366ff', label: 'Brand blue' }, '#00ff00'];
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<NamedHost>>;
+  let harness: WrColorPickerHarness;
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(NamedHost);
+    await fixture.whenStable();
+    harness = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrColorPickerHarness);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('answers the colours and the names as two questions', async () => {
+    expect(await harness.getSwatches()).toEqual(['#3366ff', '#00ff00']);
+    expect(await harness.getSwatchLabels()).toEqual(['Brand blue', '#00ff00']);
+  });
+
+  it('picks a named preset by its name or by its colour', async () => {
+    await harness.pickSwatch('#00ff00');
+    expect(fixture.componentInstance.value()).toBe('#00ff00');
+
+    await harness.pickSwatch('Brand blue');
+    expect(fixture.componentInstance.value()).toBe('#3366ff');
+
+    await harness.pickSwatch('#00ff00');
+    await harness.pickSwatch('#3366ff');
+    expect(fixture.componentInstance.value()).toBe('#3366ff');
+  });
+});
