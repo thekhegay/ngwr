@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1727 hook(s) across 115 page(s). A property is here only when the
+ * 1725 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -1325,6 +1325,10 @@ export const CSS_VARS = {
   "reference/components/file-upload": {
     subpath: "ngwr/file-upload",
     vars: [
+      { name: "--wr-file-upload-done-color", default: "var(--wr-color-success)", scope: ".wr-file-upload__done" },
+      { name: "--wr-file-upload-error-color", default: "var(--wr-color-danger-ink)", scope: ".wr-file-upload__error" },
+      { name: "--wr-file-upload-error-font-size", default: "var(--wr-text-xs)", scope: ".wr-file-upload__error" },
+      { name: "--wr-file-upload-error-line-height", default: "var(--wr-text-xs-leading)", scope: ".wr-file-upload__error" },
       { name: "--wr-file-upload-font-family", default: "var(--wr-font-family-base)", scope: ".wr-file-upload" },
       { name: "--wr-file-upload-hint-font-size", default: "var(--wr-text-sm)", scope: ".wr-file-upload__hint", overrides: 2 },
       { name: "--wr-file-upload-hint-gap", default: "var(--wr-space-xs)", scope: ".wr-file-upload__hint" },
@@ -1334,14 +1338,18 @@ export const CSS_VARS = {
       { name: "--wr-file-upload-hint-strong-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-file-upload__hint" },
       { name: "--wr-file-upload-icon-size", default: "2rem", scope: ".wr-file-upload__icon", overrides: 2 },
       { name: "--wr-file-upload-item-border", default: "var(--wr-border-base)", scope: ".wr-file-upload__item" },
+      { name: "--wr-file-upload-item-error-border", default: "var(--wr-color-danger)", scope: ".wr-file-upload__item" },
       { name: "--wr-file-upload-item-font-size", default: "var(--wr-text-sm)", scope: ".wr-file-upload__item", overrides: 2 },
       { name: "--wr-file-upload-item-gap", default: "var(--wr-space-md)", scope: ".wr-file-upload__item", overrides: 1 },
       { name: "--wr-file-upload-item-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-file-upload__item", overrides: 2 },
       { name: "--wr-file-upload-item-padding-x", default: "var(--wr-space-md)", scope: ".wr-file-upload__item", overrides: 2 },
       { name: "--wr-file-upload-item-padding-y", default: "var(--wr-space-sm)", scope: ".wr-file-upload__item", overrides: 2 },
       { name: "--wr-file-upload-item-radius", default: "var(--wr-border-radius-base)", scope: ".wr-file-upload__item" },
+      { name: "--wr-file-upload-item-row-gap", default: "var(--wr-space-xs)", scope: ".wr-file-upload__item" },
       { name: "--wr-file-upload-list-gap", default: "var(--wr-space-sm)", scope: ".wr-file-upload__list", overrides: 1 },
       { name: "--wr-file-upload-list-margin-top", default: "var(--wr-space-md)", scope: ".wr-file-upload__list", overrides: 2 },
+      { name: "--wr-file-upload-preview-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-file-upload__preview" },
+      { name: "--wr-file-upload-preview-size", default: "2rem", scope: ".wr-file-upload__preview", overrides: 2 },
       { name: "--wr-file-upload-remove-padding", default: "var(--wr-space-xs)", scope: ".wr-file-upload__remove" },
       { name: "--wr-file-upload-remove-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-file-upload__remove" },
       { name: "--wr-file-upload-zone-border", default: "var(--wr-border-base)", scope: ".wr-file-upload__zone" },
@@ -1625,6 +1633,7 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-progress-bar", default: "var(--wr-color-primary)", scope: ".wr-progress", overrides: 1 },
       { name: "--wr-progress-height", default: "0.5rem", scope: ".wr-progress", overrides: 2 },
+      { name: "--wr-progress-indeterminate-duration", default: "1.4s", scope: ".wr-progress" },
       { name: "--wr-progress-radius", default: "var(--wr-border-radius-pill)", scope: ".wr-progress" },
       { name: "--wr-progress-track", default: "var(--wr-color-fill)", scope: ".wr-progress", overrides: 1 },
     ],
@@ -1948,9 +1957,6 @@ export const CSS_VARS = {
       { name: "--wr-table-card-cell-padding-x", default: "var(--wr-space-lg)", scope: ".wr-table" },
       { name: "--wr-table-card-cell-padding-y", default: "var(--wr-space-xs)", scope: ".wr-table" },
       { name: "--wr-table-card-row-padding-y", default: "var(--wr-space-sm)", scope: ".wr-table" },
-      { name: "--wr-table-columns-gap", default: "var(--wr-space-sm)", scope: ".wr-table__columns" },
-      { name: "--wr-table-columns-max-height", default: "20rem", scope: ".wr-table__columns" },
-      { name: "--wr-table-columns-padding", default: "var(--wr-space-md)", scope: ".wr-table__columns" },
       { name: "--wr-table-detail-padding", default: "var(--wr-space-lg)", scope: ".wr-table" },
       { name: "--wr-table-empty-padding", default: "var(--wr-space-xl)", scope: ".wr-table" },
       { name: "--wr-table-expand-btn-padding", default: "var(--wr-space-xs)", scope: ".wr-table" },
@@ -2008,16 +2014,8 @@ export const CSS_VARS = {
       { name: "--wr-table-row-hover", default: "var(--wr-color-fill-subtle)", scope: ".wr-table" },
       { name: "--wr-table-scroll-height", default: "30rem", scope: ".wr-table" },
       { name: "--wr-table-scroll-min-height", default: "16rem", scope: ".wr-table" },
-      { name: "--wr-table-selection-bar-bg", default: "var(--wr-color-primary-soft)", scope: ".wr-table" },
-      { name: "--wr-table-selection-bar-color", default: "var(--wr-color-primary-ink)", scope: ".wr-table" },
-      { name: "--wr-table-selection-bar-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-table" },
-      { name: "--wr-table-selection-bar-gap", default: "var(--wr-space-md)", scope: ".wr-table" },
-      { name: "--wr-table-selection-bar-height", default: "2.5rem", scope: ".wr-table" },
-      { name: "--wr-table-selection-bar-inset", default: "2.75rem", scope: ".wr-table" },
-      { name: "--wr-table-selection-bar-padding-x", default: "var(--wr-space-md)", scope: ".wr-table" },
       { name: "--wr-table-sort-order-font-size", default: "var(--wr-table-head-font-size)", scope: ".wr-table" },
       { name: "--wr-table-sort-order-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-table" },
-      { name: "--wr-table-toolbar-padding", default: "var(--wr-space-sm) var(--wr-space-md)", scope: ".wr-table" },
       { name: "--wr-table-tree-lead-margin-end", default: "var(--wr-space-xs)", scope: ".wr-table", overrides: 1 },
       { name: "--wr-table-tree-toggle-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-table" },
     ],
