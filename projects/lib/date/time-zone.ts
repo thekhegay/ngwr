@@ -110,7 +110,8 @@ function wrZoneWallTime(time: number, zone: WrResolvedZone | null): number {
 /**
  * The instant a wall clock (see {@link wrZoneWallTime}) names in the zone. A
  * wall clock a daylight-saving change skips lands after the change, as
- * `new Date(y, m, d, h)` does for the browser's own zone.
+ * `new Date(y, m, d, h)` does for the browser's own zone. One the change
+ * repeats is its first pass in a zone west of UTC and its second east of it.
  *
  * @internal
  */
@@ -126,10 +127,12 @@ function wrZoneInstant(wall: number, zone: WrResolvedZone | null): number {
 
   // The offset is known only for an instant, so guess with the offset the wall
   // clock would have as an instant and correct once: two passes settle
-  // everything but a skipped hour, which has no answer to settle on.
+  // everything but a skipped hour, which has no answer to settle on. There the
+  // passes hold the offsets of the two sides of the change, and the one from
+  // before it gives the later instant, which is the one past the gap.
   const first = wall - (wrZoneWallTime(wall, zone) - wall);
   const second = wall - (wrZoneWallTime(first, zone) - first);
-  return second;
+  return wrZoneWallTime(second, zone) === wall ? second : Math.max(first, second);
 }
 
 export { wrResolveZone, wrUtcTime, wrZoneInstant, wrZoneWallTime };
