@@ -223,9 +223,9 @@ export class WrTabsHarness extends ComponentHarness {
    *
    * A LIST rather than one label, because the count is what breaks: both modes
    * rove a single `tabindex="0"` and answer with exactly one label — the selected
-   * tab, or in router mode the first enabled one while no route matches — and a
-   * router strip used to answer with every enabled tab. Either way a disabled tab is
-   * never in here.
+   * tab, or the first enabled one while the selected tab is disabled or, in router
+   * mode, while no route matches — and a router strip used to answer with every
+   * enabled tab. Either way a disabled tab is never in here.
    */
   async getTabStopLabels(): Promise<string[]> {
     const labels: string[] = [];
@@ -266,10 +266,10 @@ export class WrTabsHarness extends ComponentHarness {
   /**
    * Put focus where a Tab press would put it — the first tab stop in render order.
    *
-   * That is the selected tab in content mode, and the first enabled tab in a router
-   * strip. Throws when the strip has no stop at all, because Tab then skips past it
-   * rather than entering it — a content strip whose selected tab is disabled has
-   * none, and neither has one whose every tab is disabled, or one with no tabs.
+   * That is the selected tab in content mode, or the first enabled one while it is
+   * disabled, and the first enabled tab in a router strip. Throws when the strip
+   * has no stop at all, because Tab then skips past it rather than entering it — a
+   * strip whose every tab is disabled has none, and neither has one with no tabs.
    */
   async focusTabStop(): Promise<void> {
     for (const tab of await this.getTabs()) {
@@ -280,8 +280,8 @@ export class WrTabsHarness extends ComponentHarness {
     }
 
     throw new Error(
-      'WrTabsHarness.focusTabStop(): this strip has no tab stop — its selected tab is disabled, every tab ' +
-        'is disabled, or it renders no tabs — so Tab skips it rather than entering it.'
+      'WrTabsHarness.focusTabStop(): this strip has no tab stop — every tab is disabled, or it renders ' +
+        'no tabs — so Tab skips it rather than entering it.'
     );
   }
 

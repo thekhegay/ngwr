@@ -187,17 +187,14 @@ describe('WrTabs', () => {
     expect((disabled as HTMLButtonElement).disabled).toBe(true);
   });
 
-  it('keeps the tab stop off a disabled tab, even when it is the active one', () => {
-    // The roving tabindex follows `active`, and a host is free to point `active` at
-    // a disabled key. Left alone that rendered `<button disabled tabindex="0">` —
-    // a tab stop no Tab press can reach, so the strip had none at all. jsdom
-    // happily focuses a disabled button, which is why only the attribute tells the
-    // truth here.
+  it('moves the tab stop to the first enabled tab while the active one is disabled', () => {
+    // jsdom focuses a disabled button, so only the attribute tells the truth here.
     fixture.componentInstance.active.set('three');
     fixture.detectChanges();
 
-    expect(tabs()[2].getAttribute('tabindex')).toBe('-1');
-    expect(tabs().filter(t => t.getAttribute('tabindex') === '0')).toHaveLength(0);
+    expect(tabs().map(t => t.getAttribute('tabindex'))).toEqual(['0', '-1', '-1', '-1']);
+    expect(selected()).toBe('Three');
+    expect(fixture.componentInstance.active()).toBe('three');
   });
 
   it('carries the public BEM classes', () => {
@@ -588,6 +585,81 @@ class DynamicHost {
   readonly keys = signal(['a', 'b', 'c']);
   readonly active = signal<string | null>('c');
 }
+
+@Component({
+  imports: [WrTabs, WrTab],
+  template: `
+    <wr-tabs [(active)]="active">
+      <wr-tab title="One" key="one">Panel one</wr-tab>
+      <wr-tab title="Two" key="two" [disabled]="twoDisabled()">Panel two</wr-tab>
+      <wr-tab title="Three" key="three">Panel three</wr-tab>
+    </wr-tabs>
+  `,
+})
+class RuntimeDisabledHost {
+  readonly active = signal<string | null>('two');
+  readonly twoDisabled = signal(false);
+}
+
+describe('WrTabs when the active tab is disabled at runtime', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<RuntimeDisabledHost>>;
+
+  const tabs = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[role="tab"]'),
+  ];
+  const stops = (): (string | undefined)[] =>
+    tabs()
+      .filter(t => t.getAttribute('tabindex') === '0')
+      .map(t => t.textContent?.trim());
+  const panel = (): string | undefined =>
+    (fixture.nativeElement as HTMLElement).querySelector('[role="tabpanel"]')?.textContent?.trim();
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(RuntimeDisabledHost);
+    document.body.appendChild(fixture.nativeElement);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    (fixture.nativeElement as HTMLElement).remove();
+    fixture.destroy();
+  });
+
+  it('keeps one tab stop, on the first enabled tab, and leaves the panel alone', () => {
+    expect(stops()).toEqual(['Two']);
+
+    fixture.componentInstance.twoDisabled.set(true);
+    fixture.detectChanges();
+
+    expect(stops()).toEqual(['One']);
+    expect(panel()).toBe('Panel two');
+    expect(fixture.componentInstance.active()).toBe('two');
+  });
+
+  it('still walks the strip with the arrow keys from that stop', () => {
+    fixture.componentInstance.twoDisabled.set(true);
+    fixture.detectChanges();
+
+    const stop = tabs()[0];
+    stop.focus();
+    stop.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.active()).toBe('three');
+    expect(stops()).toEqual(['Three']);
+    expect(document.activeElement).toBe(tabs()[2]);
+  });
+
+  it('gives the stop back to the active tab when it is enabled again', () => {
+    fixture.componentInstance.twoDisabled.set(true);
+    fixture.detectChanges();
+    fixture.componentInstance.twoDisabled.set(false);
+    fixture.detectChanges();
+
+    expect(stops()).toEqual(['Two']);
+  });
+});
 
 describe('WrTabs when the tab list changes under it', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<DynamicHost>>;

@@ -167,6 +167,17 @@ export class WrTabs implements WrTabsContext {
   });
 
   /**
+   * Content mode: the one tab in the tab order. The active tab, or the first
+   * enabled one while the active tab is disabled: its panel stays up and
+   * `active` keeps its key, but a disabled button cannot hold the stop.
+   */
+  protected readonly contentStop = computed(() => {
+    const active = this.activeTab();
+    if (active && !active.disabled()) return active;
+    return this.tabs().find(t => !t.disabled()) ?? null;
+  });
+
+  /**
    * Router mode: the one tab in the tab order — the tab the route selects, else
    * the first enabled one, so a URL no tab matches still leaves the strip
    * reachable. The roving stop content mode keeps; without it every router tab
@@ -332,8 +343,8 @@ export class WrTabs implements WrTabsContext {
       focused instanceof HTMLElement && strip?.contains(focused)
         ? tabs.findIndex(t => this.headerId(t.key()) === focused.id)
         : -1;
-    const active = this.activeTab();
-    const idx = focusedIdx >= 0 ? focusedIdx : active ? tabs.indexOf(active) : -1;
+    const stop = this.contentStop();
+    const idx = focusedIdx >= 0 ? focusedIdx : stop ? tabs.indexOf(stop) : -1;
     // The two neighbours in DOM order, wrapping at the ends.
     const forward = idx < tabs.length - 1 ? idx + 1 : 0;
     const backward = idx > 0 ? idx - 1 : tabs.length - 1;
