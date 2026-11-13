@@ -51,6 +51,9 @@ export class WrToast {
   private hostRef: ComponentRef<WrToastHost> | null = null;
   /** Watches the overlay container for overlays opened after the host. */
   private containerObserver: MutationObserver | null = null;
+  /** Set for the rest of the frame in which the host was moved. */
+  private raiseFrame: number | null = null;
+  private raiseAgain = false;
   private currentPosition: WrToastPosition = this.config.position;
   private currentMode: 'stack' | 'list' = this.config.mode;
   private nextId = 1;
@@ -90,8 +93,8 @@ export class WrToast {
 
     this.ensureHost(resolvedPosition);
     // A toast raised now belongs above everything already on screen, and the host
-    // it goes into may be much older than the dialog it has to clear. See
-    // `raiseHost`.
+    // it goes into may be much older than the dialog it has to clear. It moves
+    // only if something joined the top layer since. See `raiseHost`.
     this.raiseHost();
 
     const entry: WrToastEntry = { ...options, id, resolvedDuration, remaining: resolvedDuration };
@@ -219,7 +222,11 @@ export class WrToast {
    * `WrOverlayOrder` does the move, because "on top" has an exception: an
    * overlay opened with `toasts: 'below'` stays over the host, so it leaves the
    * host alone where it already sits under one and promotes those overlays
-   * again where it does not.
+   * again where it does not. It also knows whether anything joined the top
+   * layer since the last move, and moves nothing when nothing did.
+   *
+   * The move restyles the whole stack, so it runs once a frame at most: a
+   * second one asked for in the same frame waits for the next.
    */
   private raiseHost(): void {
     const host = this.overlayRef?.hostElement;
@@ -227,7 +234,17 @@ export class WrToast {
     // server), and then there is no top layer to be at the wrong end of.
     if (!host?.isConnected || !host.hasAttribute('popover')) return;
     if (host.contains(host.ownerDocument.activeElement)) return;
-    this.order.raiseToasts(host);
+    if (this.raiseFrame !== null) {
+      this.raiseAgain = true;
+      return;
+    }
+    if (!this.order.raiseToasts(host)) return;
+    this.raiseFrame = requestAnimationFrame(() => {
+      this.raiseFrame = null;
+      if (!this.raiseAgain) return;
+      this.raiseAgain = false;
+      this.raiseHost();
+    });
   }
 
   /**
@@ -246,7 +263,11 @@ export class WrToast {
   private watchForNewerOverlays(): void {
     const parent = this.overlayRef?.hostElement.parentElement;
     if (!parent || typeof MutationObserver === 'undefined') return;
-    this.containerObserver = new MutationObserver(() => this.raiseHost());
+    this.containerObserver = new MutationObserver(records => {
+      if (!records.some(record => record.addedNodes.length > 0)) return;
+      this.order.joined();
+      this.raiseHost();
+    });
     this.containerObserver.observe(parent, { childList: true });
   }
 
@@ -260,6 +281,9 @@ export class WrToast {
     this.global.setHeld(false);
     this.containerObserver?.disconnect();
     this.containerObserver = null;
+    if (this.raiseFrame !== null) cancelAnimationFrame(this.raiseFrame);
+    this.raiseFrame = null;
+    this.raiseAgain = false;
     this.order.dropToasts();
     if (this.overlayRef) {
       this.overlayRef.dispose();

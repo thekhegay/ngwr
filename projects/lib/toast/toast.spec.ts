@@ -1176,7 +1176,14 @@ describe('WrToast stacking', () => {
     tick();
     await Promise.resolve();
     await Promise.resolve();
+    // A raise that lands in the frame of an earlier one waits for the next.
+    vi.advanceTimersToNextFrame();
     tick();
+  };
+
+  /** What the browser fires, synchronously, from both calls. */
+  const beforeToggle = (el: HTMLElement, newState: 'open' | 'closed'): void => {
+    el.dispatchEvent(Object.assign(new Event('beforetoggle'), { newState }));
   };
 
   const toastHost = (): HTMLElement | null =>
@@ -1193,6 +1200,7 @@ describe('WrToast stacking', () => {
       writable: true,
       value(this: HTMLElement) {
         // The real one throws when already showing; nothing here calls it twice.
+        beforeToggle(this, 'open');
         topLayer = [...topLayer.filter(el => el !== this), this];
       },
     });
@@ -1201,6 +1209,7 @@ describe('WrToast stacking', () => {
       writable: true,
       value(this: HTMLElement) {
         if (!topLayer.includes(this)) throw new DOMException('Not showing', 'InvalidStateError');
+        beforeToggle(this, 'closed');
         topLayer = topLayer.filter(el => el !== this);
         moved.push(this);
       },
@@ -1431,6 +1440,97 @@ describe('WrToast stacking', () => {
 
       expect(layers()).toEqual(['wr-toast-overlay', 'wr-drawer-overlay']);
       fixture.destroy();
+    });
+  });
+
+  describe('through a storm of toasts', () => {
+    const storm = (count: number): void => {
+      for (let i = 0; i < count; i++) toast.show({ message: `Alarm ${i}`, duration: 0 });
+    };
+    const foreignPopover = (): HTMLElement => {
+      const foreign = document.createElement('div');
+      document.body.appendChild(foreign);
+      foreign.showPopover();
+      return foreign;
+    };
+
+    it('moves the host once at most while nothing opens over it', async () => {
+      storm(100);
+      await settle();
+      for (let frame = 0; frame < 5; frame++) {
+        storm(20);
+        await settle();
+      }
+
+      expect(moved.length).toBeLessThanOrEqual(1);
+      expect(top()).toBe(toastHost());
+    });
+
+    it('still clears a dialog opened in the middle of it', async () => {
+      storm(50);
+      await settle();
+      openDialog();
+      await settle();
+      moved = [];
+
+      storm(50);
+      await settle();
+
+      expect(top()).toBe(toastHost());
+      expect(moved).toEqual([]);
+    });
+
+    it("stays under a dialog opened with `toasts: 'below'` in the middle of it", async () => {
+      storm(50);
+      await settle();
+      openDialog({ toasts: 'below' });
+      await settle();
+      moved = [];
+
+      storm(50);
+      await settle();
+
+      expect(layers()).toEqual(['wr-toast-overlay', 'wr-dialog-panel']);
+      expect(moved).toEqual([]);
+    });
+
+    it('moves the host once a frame, however many popovers join in it', async () => {
+      toast.show({ message: 'Saved', duration: 0 });
+      await settle();
+      const host = toastHost();
+      moved = [];
+
+      const foreign: HTMLElement[] = [];
+      for (let i = 0; i < 10; i++) {
+        foreign.push(foreignPopover());
+        toast.show({ message: `Alarm ${i}`, duration: 0 });
+      }
+      expect(moved.length).toBeLessThanOrEqual(1);
+
+      await settle();
+      expect(moved.length).toBeLessThanOrEqual(2);
+      expect(top()).toBe(host);
+      for (const el of foreign) el.remove();
+    });
+
+    it('leaves a host that holds focus where it is, and raises it once focus is out', async () => {
+      toast.show({ message: 'Saved', duration: 0 });
+      await settle();
+      const host = toastHost();
+      const foreign = foreignPopover();
+      moved = [];
+
+      document.querySelector<HTMLButtonElement>('.wr-toast__action--close')!.focus();
+      toast.show({ message: 'Copied', duration: 0 });
+      await settle();
+      expect(moved).toEqual([]);
+      expect(top()).toBe(foreign);
+
+      (document.activeElement as HTMLElement).blur();
+      toast.show({ message: 'Sent', duration: 0 });
+      await settle();
+      expect(top()).toBe(host);
+      foreign.remove();
     });
   });
 

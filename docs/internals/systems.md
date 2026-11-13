@@ -50,8 +50,11 @@ one component folder. Reach for them instead of hand-rolling:
   the callback when its own position list is direction-dependent
   (`wrMirrorOffsets`). **Whether global toasts paint over an overlay is
   `WrOverlayOrder`, never a z-index** — the top layer is ordered by promotion
-  time only, and the toast host re-promotes itself on every `show()` and
-  whenever an overlay joins the container. An overlay that takes a
+  time only, and the toast host re-promotes itself on a `show()` and when an
+  overlay joins the container, but only if something joined the top layer since
+  its last move (`order.add`, a `beforetoggle` or `fullscreenchange` on the
+  document, a node added to the container) and once a frame at most, so a
+  storm of toasts moves nothing. An overlay that takes a
   `toasts: 'above' | 'below'` option (dialog, drawer) calls
   `order.add(overlayRef.hostElement, toasts)` right after `attach()` and
   subscribes the returned function to `detachments()`. The registry leaves the
