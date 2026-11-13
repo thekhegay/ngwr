@@ -138,9 +138,9 @@ export class WrWindowManager implements WrWindowRefHost {
   private readonly taskbars = signal<readonly WrWindowTaskbarTabs[]>([]);
 
   /**
-   * ONE viewport for every window, kept by one `resize` listener. Each window
-   * used to add its own — twenty listeners for twenty windows, each writing its
-   * own copy of the same two numbers.
+   * ONE viewport for every window, kept by one `resize` listener while any
+   * window is open. Each window used to add its own — twenty listeners for
+   * twenty windows, each writing its own copy of the same two numbers.
    */
   private readonly viewport = signal(readViewport(), {
     equal: (a, b) => a.width === b.width && a.height === b.height,
@@ -151,6 +151,16 @@ export class WrWindowManager implements WrWindowRefHost {
   private boundsObserver: ResizeObserver | null = null;
   private readonly boundElements = new Map<HTMLElement, number>();
   private readonly bumpLayout = (): void => this.layoutTick.update(n => n + 1);
+  private readonly measure = (): void => this.viewport.set(readViewport());
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.unlisten();
+      if (!this.isBrowser) return;
+      document.removeEventListener('scroll', this.bumpLayout, true);
+      this.boundsObserver?.disconnect();
+    });
+  }
 
   /** The strip the taskbars cover, edge by edge. */
   private readonly reserve = computed(() => {
@@ -395,6 +405,7 @@ export class WrWindowManager implements WrWindowRefHost {
       model.complete();
       this._windows.update(list => list.filter(r => r !== any));
       if (this._active() === any) this.setActive(null);
+      if (this._windows().length === 0) this.unlisten();
       if (back?.isConnected) wrRestoreFocus(back, this.focusMonitor);
     };
 
@@ -466,20 +477,21 @@ export class WrWindowManager implements WrWindowRefHost {
     this.setActive(null);
   };
 
-  /** Install the shared listeners, once, on the first open in a browser. */
+  /** Install the shared listeners while a window is open. */
   private listen(): void {
     if (this.listening || !this.isBrowser) return;
     this.listening = true;
-    const measure = (): void => this.viewport.set(readViewport());
-    measure();
-    window.addEventListener('resize', measure, { passive: true });
+    // Nothing kept the viewport current while no window was open.
+    this.measure();
+    window.addEventListener('resize', this.measure, { passive: true });
     document.addEventListener('focusin', this.onFocusIn, true);
-    this.destroyRef.onDestroy(() => {
-      window.removeEventListener('resize', measure);
-      document.removeEventListener('focusin', this.onFocusIn, true);
-      document.removeEventListener('scroll', this.bumpLayout, true);
-      this.boundsObserver?.disconnect();
-    });
+  }
+
+  private unlisten(): void {
+    if (!this.listening) return;
+    this.listening = false;
+    window.removeEventListener('resize', this.measure);
+    document.removeEventListener('focusin', this.onFocusIn, true);
   }
 
   private boundsElement(bounds: WrWindowBounds | undefined): HTMLElement | null {
