@@ -4,7 +4,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very high
 
-- **Idle listeners**: the anchor scroll spy measures every heading on every scroll event, the window manager keeps its focus and resize listeners after the last window closes, and the tree finds its cursor by scanning per ancestor.
 - **Overlay trigger `disabled`**: on popover, dropdown and popconfirm.
 - **Readable open state**: `isOpen` public on select, cascader, color-picker and date-picker, as on popover.
 - **Removable tag**: `closable` and a `removed` output on `wr-tag`.
