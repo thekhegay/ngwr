@@ -7,7 +7,7 @@
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, ViewEncapsulation, computed, inject, input, model, output, signal } from '@angular/core';
+import { Component, ViewEncapsulation, computed, inject, input, model, output } from '@angular/core';
 
 import { wrChartMarkerPath } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
@@ -16,8 +16,6 @@ import { wrCheckStyles } from 'ngwr/utils';
 import { WrChartLegendPart } from './internal/chart-legend-part';
 import { WR_CHART_LEGEND_BLOCK } from './tokens';
 import type { WrChartLegendItem, WrChartLegendToggle, WrChartMarker } from './types';
-
-const NO_OVERRIDE = signal<string | null>(null).asReadonly();
 
 /**
  * A chart's key: one row per series, each a swatch, a name and an optional value.
@@ -117,11 +115,12 @@ export class WrChartLegend {
   /**
    * The word a hidden row of a legend that does not toggle carries after its name,
    * visually hidden: the strike-through and the faded key are the eye's half of the
-   * state, and a toggle row's `aria-pressed` is the other half there. Catalog-only
-   * rather than an input, as `stepper.completed` is: one word shared by every row,
-   * which an app rewords once in its catalog.
+   * state, and a toggle row's `aria-pressed` is the other half there. Falls back to
+   * `chartLegend.hidden`, then `'hidden'`.
    */
-  protected readonly hiddenText = useI18nText(NO_OVERRIDE, 'chartLegend.hidden', 'hidden');
+  readonly hiddenLabel = input<string | null>(null);
+
+  protected readonly resolvedHiddenLabel = useI18nText(this.hiddenLabel, 'chartLegend.hidden', 'hidden');
 
   protected readonly label = computed(() => (this.ariaLabel() || this.toggleable() ? this.toggleLabel() : null));
 
