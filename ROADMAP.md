@@ -4,12 +4,8 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very high
 
-- **Toast outlet count**: the Close all count and threshold include queued toasts, as the global stack does.
-- **Toast storm**: `show()` reshows the host in the top layer only when another overlay joined since the last raise.
 - **Select at scale**: registering options copies the list per option (quadratic on every open and close), and search lowercases every label on every keystroke.
 - **Table cells**: a fresh context object per cell per pass, and per-cell method calls for classes, pins and truncation.
-- **Line-chart dots**: one path per series instead of one element per point.
-- **Event-calendar events**: filter before sorting, and bucket chips once instead of filtering per slot.
 - **Idle listeners**: the anchor scroll spy measures every heading on every scroll event, the window manager keeps its focus and resize listeners after the last window closes, and the tree finds its cursor by scanning per ancestor.
 - **Overlay trigger `disabled`**: on popover, dropdown and popconfirm.
 - **Readable open state**: `isOpen` public on select, cascader, color-picker and date-picker, as on popover.
