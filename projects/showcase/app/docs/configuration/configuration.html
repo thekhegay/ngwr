@@ -255,5 +255,68 @@
     <ngwr-doc-code [code]="snippets.dateAdapter" language="angular-ts" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Date tokens and helpers"
+    description="What `withDates()` provides, for an adapter or a component of your own, and the two functions that read a date-only string as a day."
+  >
+    <ngwr-doc-code [code]="snippets.dateTokens" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Export of <code>ngwr/date</code></th>
+            <th scope="col">Type</th>
+            <th scope="col">What it is</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>WR_DATE_INPUT</code></th>
+            <td>
+              <code>InjectionToken&lt;{{ '{' }} epochUnit: WrEpochUnit; zonelessIn: WrZonelessIn {{ '}' }}&gt;</code>
+            </td>
+            <td>
+              The <code>epochUnit</code> and <code>zonelessIn</code> options. Without them: <code>'ms'</code> and
+              <code>'browser'</code>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>WR_DATE_STAMP_DEFAULTS</code></th>
+            <td><code>InjectionToken&lt;WrDateStampDefaults&gt;</code></td>
+            <td>The <code>stamp</code> option. Without it: an empty object.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>WrEpochUnit</code></th>
+            <td><code>'ms' | 'us' | 's' | 'auto'</code></td>
+            <td>What a number counts since the epoch.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wrIsDateOnly(value)</code></th>
+            <td><code>(value: unknown) =&gt; boolean</code></td>
+            <td>
+              Whether a value names a day and not an instant: <code>2026</code>, <code>2026-01</code> or
+              <code>2026-01-01</code> as a string.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wrToLocalDate(value)</code></th>
+            <td><code>(value: string | number) =&gt; Date</code></td>
+            <td>
+              <code>new Date(value)</code>, except that a date-only string is that day's local midnight, not UTC
+              midnight.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>A route's <code>withDates()</code> merges over the app's: a key it leaves out keeps the app's value.</li>
+      <li>
+        The two functions are what <code>wrDate</code> and the date validators use themselves, and may change with them.
+        To read any backend value, call <code>wrParseDate()</code>.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
   <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>
