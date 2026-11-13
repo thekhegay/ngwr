@@ -1,17 +1,32 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { WrSlider, type WrSliderMark } from 'ngwr/slider';
+import { WrSlider, type WrSliderMark, type WrSliderSize } from 'ngwr/slider';
 
-import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
+import {
+  DocApiComponent,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-slider-page',
   templateUrl: './slider.html',
-  imports: [FormsModule, WrSlider, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
+  imports: [
+    FormsModule,
+    WrSlider,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
 export default class SliderPageComponent {
+  protected readonly sizes: readonly WrSliderSize[] = ['sm', 'md', 'lg'];
   protected volume = 35;
   protected priceRange: [number, number] = [200, 800];
   protected stepped = 50;
@@ -67,6 +82,10 @@ export default class SliderPageComponent {
 }`,
 
     disabled: `<wr-slider [(value)]="volume" disabled />`,
+
+    sizes: `<wr-slider size="sm" [(value)]="level" [marks]="levels" />
+<wr-slider size="md" [(value)]="level" [marks]="levels" />
+<wr-slider size="lg" [(value)]="level" [marks]="levels" />`,
 
     labelWith: `<wr-slider [(value)]="hours" range min="0" max="24" [labelWith]="hour" />
 

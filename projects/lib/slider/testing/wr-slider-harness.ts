@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrSliderMark, WrSliderValue } from 'ngwr/slider';
+import type { WrSliderMark, WrSliderSize, WrSliderValue } from 'ngwr/slider';
 
 import type { WrSliderHarnessFilters, WrSliderThumbHarnessFilters } from './types';
 import { WrSliderThumbHarness } from './wr-slider-thumb-harness';
@@ -70,6 +70,14 @@ export class WrSliderHarness extends ComponentHarness {
   /** Whether the slider has two thumbs and answers with a `[low, high]` tuple. */
   async isRange(): Promise<boolean> {
     return (await this.host()).hasClass('wr-slider--range');
+  }
+
+  /** The control size. `'md'` is the default and paints no modifier of its own. */
+  async getSize(): Promise<WrSliderSize> {
+    const host = await this.host();
+    if (await host.hasClass('wr-slider--sm')) return 'sm';
+    if (await host.hasClass('wr-slider--lg')) return 'lg';
+    return 'md';
   }
 
   /**

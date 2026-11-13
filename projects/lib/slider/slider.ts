@@ -27,7 +27,7 @@ import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { wrClamp, wrRound, wrCheckStyles } from 'ngwr/utils';
 
-import type { WrSliderMark, WrSliderValue } from './types';
+import type { WrSliderMark, WrSliderSize, WrSliderValue } from './types';
 
 /** Trim float drift from step calculations. */
 
@@ -167,6 +167,14 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   readonly orientation = input<'horizontal' | 'vertical'>('horizontal');
 
   /**
+   * Control size: the track's thickness, the thumb, the marks and both kinds
+   * of label text.
+   *
+   * @default 'md'
+   */
+  readonly size = input<WrSliderSize>('md');
+
+  /**
    * Accessible name of the thumb — the single one, or the LOWER one in range
    * mode. Falls back to `slider.label` / `slider.lower`.
    */
@@ -303,6 +311,8 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
 
   protected readonly classes = computed(() => {
     const parts: string[] = [];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-slider--${size}`);
     if (this.range()) parts.push('wr-slider--range');
     if (this.vertical()) parts.push('wr-slider--vertical');
     if (this.disabled()) parts.push('wr-slider--disabled');
