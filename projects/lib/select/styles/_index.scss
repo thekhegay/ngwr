@@ -625,11 +625,35 @@
   cursor: pointer;
   user-select: none;
   transition: background var(--wr-transition-short);
+  // Positioning context for the `--active` cursor bar below.
+  position: relative;
 
   &:hover {
     background: var(--wr-color-hover);
   }
 
+  // Keyboard cursor highlight — the list is navigated by
+  // aria-activedescendant, so real focus never lands on the row and the tint
+  // is all there was. `--wr-color-hover` is translucent and lands within about
+  // 1.1:1 of the panel behind it, which is the same grey to a reader who
+  // cannot separate hue — and it is the declaration `:hover` uses, so the row
+  // the arrows reached and a row under the mouse were indistinguishable. The
+  // bar is the channel; the tint stays as reinforcement.
+  &--active {
+    background: var(--wr-color-hover);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      width: 2px;
+      background: var(--wr-color-primary);
+    }
+  }
+
+  // After the cursor, so a selected row keeps its own tint (the bar still shows
+  // the cursor on it, since it is a pseudo-element and not a background).
   &--selected {
     background: var(--wr-color-primary-soft);
     // Text on the intent's own `-soft` tint: `-ink`, by calibration.
@@ -689,8 +713,6 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    // Positioning context for the `--active` cursor bar below.
-    position: relative;
   }
 
   // A virtual row is a block, not a flex row (one line, so it can ellipsize),
@@ -698,26 +720,6 @@
   .wr-option__leading {
     vertical-align: middle;
     margin-inline-end: var(--wr-option-inline-gap, 0.5rem);
-  }
-
-  // Keyboard cursor highlight — the virtualized list is navigated by
-  // aria-activedescendant, so real focus never lands on the row and the tint
-  // is all there was. `--wr-color-hover` is translucent and lands within about
-  // 1.1:1 of the panel behind it, which is the same grey to a reader who
-  // cannot separate hue — and it is the declaration `:hover` uses, so the row
-  // the arrows reached and a row under the mouse were indistinguishable. The
-  // bar is the channel; the tint stays as reinforcement.
-  .wr-option--active {
-    background: var(--wr-color-hover);
-
-    &::before {
-      content: '';
-      position: absolute;
-      inset-block: 0;
-      inset-inline-start: 0;
-      width: 2px;
-      background: var(--wr-color-primary);
-    }
   }
 }
 
