@@ -1726,8 +1726,8 @@ export class MyWidgetHarness extends ComponentHarness {
   protected readonly tableApi: readonly DocApiRow[] = [
     {
       name: 'getRole() / isTree()',
-      description: '`treegrid` with `childrenKey`, else `table`.',
-      type: "Promise<'treegrid' | 'table'>",
+      description: '`treegrid` with `childrenKey`, `grid` with a `[wrTableEditCell]` template, else `table`.',
+      type: "Promise<'treegrid' | 'grid' | 'table'>",
     },
     {
       name: 'getHeaderCells(filters?) / getHeaderTexts()',
@@ -1770,6 +1770,12 @@ export class MyWidgetHarness extends ComponentHarness {
       description: 'The selection bar; the loader reaches the harnesses of your own actions.',
       type: 'Promise<…>',
     },
+    {
+      name: 'editCell(row, title) / isEditing() / commitEdit() / cancelEdit()',
+      description:
+        'Inline editing by keyboard. `editCell()` takes the 0-based rendered row and the column title, hands back the cell and throws on a cell that is not editable; drive the editor through the cell with its own harness. Since v16.3.',
+      type: 'Promise<WrTableCellHarness> | Promise<boolean> | Promise<void>',
+    },
     { name: 'getDetailTexts()', description: 'Open detail rows.', type: 'Promise<string[]>' },
     {
       name: 'getFooterTexts() / getEmptyText() / isLoading() / getLoadingForm() / isVirtual() / getAriaRowCount()',
@@ -1798,8 +1804,8 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<number | null>',
     },
     {
-      name: 'Cell: getText() / getColumnTitle() / getPin()',
-      description: '`WrTableCellHarness`: text, column title and pinned edge.',
+      name: 'Cell: getText() / getColumnTitle() / getPin() / isEditable() / isEditing()',
+      description: '`WrTableCellHarness`: text, column title, pinned edge and the edit state.',
       type: 'Promise<…>',
     },
     {

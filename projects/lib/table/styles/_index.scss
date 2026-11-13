@@ -59,6 +59,7 @@
   --wr-table-expand-btn-padding: var(--wr-space-xs);
   --wr-table-expand-btn-radius: var(--wr-border-radius-sm);
   --wr-table-detail-padding: var(--wr-space-lg);
+  --wr-table-edit-padding: var(--wr-space-xs) var(--wr-space-sm);
   --wr-table-foot-cell-font-weight: var(--wr-font-weight-semibold);
   --wr-table-empty-padding: var(--wr-space-xl);
   --wr-table-pager-padding: var(--wr-space-sm) var(--wr-space-md);
@@ -573,6 +574,20 @@
     font-weight: var(--wr-table-sort-order-font-weight);
     font-variant-numeric: tabular-nums;
     line-height: 1;
+  }
+
+  // --- Inline editing ------------------------------------------------------
+  // A data cell of an editable table takes focus (the grid's roving tab
+  // stop). Inset, for the reason the tree row's ring is.
+  &__td:focus-visible {
+    @include theme.focus-ring;
+    outline-offset: -2px;
+  }
+
+  // The editor fills the cell, so the row keeps its height while it edits.
+  &__table &__td--editing {
+    padding: var(--wr-table-edit-padding);
+    overflow: visible;
   }
 
   &__tr {

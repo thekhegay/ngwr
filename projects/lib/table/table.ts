@@ -18,6 +18,7 @@ import {
   PLATFORM_ID,
   TemplateRef,
   ViewEncapsulation,
+  type WritableSignal,
   computed,
   contentChild,
   contentChildren,
@@ -49,9 +50,12 @@ import {
   wrDecimalCompare,
   wrDecimalDivide,
   wrDownloadBlob,
+  wrIsComposing,
+  wrIsPrintableKey,
 } from 'ngwr/utils';
 
 import { WrTableCell } from './table-cell';
+import { WrTableEditCell } from './table-edit-cell';
 import { WrTableExpand } from './table-expand';
 import { WrTableFilter, markFilterSelectionChanged } from './table-filter';
 import { WrTableGroupHeader } from './table-group-header';
@@ -59,9 +63,12 @@ import { WrTableSelectionBar } from './table-selection-bar';
 import { WrTableSort } from './table-sort';
 import type {
   WrTableCellContext,
+  WrTableCellEdit,
   WrTableColumn,
   WrTableColumns,
   WrTableCsvOptions,
+  WrTableEditCellContext,
+  WrTableEditable,
   WrTableExpandContext,
   WrTableFilterChange,
   WrTableFilterItem,
@@ -130,6 +137,8 @@ interface CellColumn<T extends WrTableRow> {
   /** Whether its cell carries the tree indent and toggle. */
   readonly tree: boolean;
   readonly template: TemplateRef<WrTableCellContext> | undefined;
+  /** The column's editor, `undefined` without one and under `editable: false`. */
+  readonly editTemplate: TemplateRef<WrTableEditCellContext> | undefined;
   /** The context each row's cell template gets, kept so a pass hands the outlet the same object. */
   readonly contexts: WeakMap<Record<string, unknown>, WrTableCellContext>;
 }
@@ -150,6 +159,30 @@ class CellContext implements WrTableCellContext {
     return this.item[this.key];
   }
 }
+
+/** One cell edit in flight. */
+interface CellEdit {
+  readonly row: Record<string, unknown>;
+  readonly key: string;
+  readonly td: HTMLElement;
+  readonly previous: unknown;
+  readonly pending: WritableSignal<unknown>;
+  readonly context: WrTableEditCellContext;
+}
+
+/**
+ * What an editor's first focus lands on. Not `wrGetFocusableElements`: that one
+ * drops an element with no box, and the editor may not be laid out yet.
+ */
+const EDITOR_FOCUSABLE = [
+  'input:not([disabled]):not([type="hidden"])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  'button:not([disabled])',
+  'a[href]',
+  '[contenteditable]:not([contenteditable="false"])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(', ');
 
 /**
  * Instance counter for the ids the row controls are named through. Counted, not
@@ -178,6 +211,7 @@ const ROW_CLICK_IGNORE = [
   '[contenteditable]:not([contenteditable="false"])',
   'label',
   '[wrTableIgnoreRowClick]',
+  '.wr-table__td--editing',
   // A near miss around the row's own checkbox or toggle is not a row click.
   '.wr-table__td--select',
   '.wr-table__td--expand',
@@ -966,6 +1000,15 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     return map;
   });
 
+  private readonly editTemplates = contentChildren<WrTableEditCell<Record<string, unknown>>>(WrTableEditCell);
+
+  /** Map of column key → editor template (if provided via `[wrTableEditCell]`). */
+  private readonly editMap = computed(() => {
+    const map = new Map<string, TemplateRef<WrTableEditCellContext>>();
+    for (const cell of this.editTemplates()) map.set(cell.columnKey(), cell.template);
+    return map;
+  });
+
   // --- Column pinning -------------------------------------------------------
 
   private readonly platformId = inject(PLATFORM_ID);
@@ -1105,12 +1148,58 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         { injector: this.injector }
       );
     });
+    // An edit whose cell left the screen ends. A row the virtual window
+    // dropped still commits, like any other way of leaving the cell; a row or
+    // a column that is gone has nothing to commit to.
+    effect(() => {
+      const edit = this.editing();
+      if (!edit) return;
+      const column = this.cellColumns().some(c => c.key === edit.key && c.editTemplate);
+      if (column && this.dataRows().some(entry => entry.row === edit.row)) return;
+      const windowed = column && this.renderRows().some(entry => entry.kind === 'row' && entry.row === edit.row);
+      untracked(() => this.endEdit(windowed, 'inside'));
+    });
+    effect(() => {
+      this.sort();
+      untracked(() => this.endEdit(false, 'inside'));
+    });
+    // Capture-phase and on the document: the click that leaves the cell may
+    // land on something that stops it.
+    effect(onCleanup => {
+      const edit = this.editing();
+      if (!edit || !isPlatformBrowser(this.platformId)) return;
+      const doc = this.hostEl.nativeElement.ownerDocument;
+      const inside = (target: EventTarget | null): boolean =>
+        target instanceof Node &&
+        (edit.td.contains(target) || (target instanceof Element && !!target.closest('.cdk-overlay-container')));
+      // A press that started in the editor and ended outside (a text
+      // selection dragged past the cell) is not a click outside.
+      let pressedInside: boolean | null = null;
+      const onPress = (event: Event): void => {
+        pressedInside = inside(event.target);
+      };
+      const onClick = (event: Event): void => {
+        const within = pressedInside ?? inside(event.target);
+        pressedInside = null;
+        if (!within) this.endEdit(true, false);
+      };
+      doc.addEventListener('pointerdown', onPress, true);
+      doc.addEventListener('click', onClick, true);
+      onCleanup(() => {
+        doc.removeEventListener('pointerdown', onPress, true);
+        doc.removeEventListener('click', onClick, true);
+      });
+    });
     if (typeof ngDevMode === 'undefined' || ngDevMode) {
       afterNextRender(() => {
         const claimed = new Set<unknown>(
-          [...this.cellTemplates(), this.expandTpl(), this.groupTpl(), this.selectionBarTpl()].map(
-            (dir): unknown => dir?.template.elementRef.nativeElement
-          )
+          [
+            ...this.cellTemplates(),
+            ...this.editTemplates(),
+            this.expandTpl(),
+            this.groupTpl(),
+            this.selectionBarTpl(),
+          ].map((dir): unknown => dir?.template.elementRef.nativeElement)
         );
         // The content is never projected, so its anchors stay out of the DOM.
         // An anchor inside the host belongs to a view the table rendered.
@@ -1123,7 +1212,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         // eslint-disable-next-line no-console -- dev-mode validation
         console.warn(
           `[NGWR] <wr-table>: ${stray} of ${declared.length} projected <ng-template>(s) registered with no table directive and will be ignored. ` +
-            'Import `WrTableCell` (or `WrTableExpand` / `WrTableGroupHeader` / `WrTableSelectionBar`) beside `WrTable` in the component that declares the template.'
+            'Import `WrTableCell` (or `WrTableEditCell` / `WrTableExpand` / `WrTableGroupHeader` / `WrTableSelectionBar`) beside `WrTable` in the component that declares the template.'
         );
       });
     }
@@ -1422,6 +1511,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     const pins = this.pins();
     const resized = this.resizeWidths();
     const templates = this.cellMap();
+    const editors = this.editMap();
     const tableTruncate = this.truncate();
     const labelKey = this.labelColumnKey();
     const treeKey = this.treeColumnKey();
@@ -1447,6 +1537,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         label: key === labelKey,
         tree: key === treeKey,
         template: templates.get(key),
+        editTemplate: column.editable === false ? undefined : editors.get(key),
         contexts: contexts.get(key)!,
       };
     });
@@ -2135,6 +2226,264 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     if (!entry) return;
     this.activeRow.set({ key: this.rowKeyOf(entry.row) });
     this.rowEls()[index]?.nativeElement.focus();
+  }
+
+  // --- Inline editing ---------------------------------------------------------
+  //
+  // An edit template turns the table into a `grid` (a tree stays a `treegrid`):
+  // one data cell holds the tab stop, the arrows, Home and End move between the
+  // rendered data cells, and Enter, F2, a double click or a typed character put
+  // an editable cell's editor in its place. The header, the selection boxes and
+  // a cell template's own controls keep their tab stops, as the tree rows do.
+
+  /**
+   * Vetoes the edit of single cells: called with the row and the column key,
+   * `false` keeps that cell read-only. Asked only for a column that has a
+   * `[wrTableEditCell]` template and does not say `editable: false`.
+   */
+  readonly editable = input<WrTableEditable<T> | null>(null);
+
+  /**
+   * Emits when a cell edit commits with a value other than the cell's own. The
+   * table does not write it: update the data behind `items` in the handler.
+   */
+  readonly cellEdit = output<WrTableCellEdit<T>>();
+
+  /** The edit in flight. One cell edits at a time. */
+  protected readonly editing = signal<CellEdit | null>(null);
+
+  /** Whether any column has an editor: the table is then a grid of focusable cells. */
+  protected readonly editGrid = computed<boolean>(() => {
+    const editors = this.editMap();
+    return editors.size > 0 && this.orderedColumns().some(c => c.column.editable !== false && editors.has(c.key));
+  });
+
+  /** The rendered data rows, 1:1 with {@link rowEls}. */
+  private readonly dataRows = computed<readonly Extract<RenderRow, { kind: 'row' }>[]>(() =>
+    this.windowRows().filter((entry): entry is Extract<RenderRow, { kind: 'row' }> => entry.kind === 'row')
+  );
+
+  /** The cell the keyboard last stood on, by `rowKey` and column key. */
+  private readonly activeCell = signal<{ readonly row: unknown; readonly key: string } | null>(null);
+
+  /**
+   * The grid's one tab stop: the active cell while it is on screen, else the
+   * first data cell. `null` in a tree, where the row holds the tab stop.
+   */
+  private readonly tabStopCell = computed<{ readonly id: string; readonly key: string } | null>(() => {
+    if (!this.editGrid() || this.treeMode()) return null;
+    const rows = this.dataRows();
+    const columns = this.cellColumns();
+    const active = this.activeCell();
+    if (active && columns.some(c => c.key === active.key)) {
+      const hit = rows.find(entry => this.rowKeyOf(entry.row) === active.row);
+      if (hit) return { id: hit.id, key: active.key };
+    }
+    return rows.length && columns.length ? { id: rows[0].id, key: columns[0].key } : null;
+  });
+
+  protected cellEditable(row: Record<string, unknown>, col: CellColumn<T>): boolean {
+    return !!col.editTemplate && (this.editable()?.(row as T, col.key) ?? true);
+  }
+
+  /**
+   * A data cell's `tabindex` in an editable table. In a tree the tab-stop
+   * row's editable cells are tab stops, so Tab walks from the row into them.
+   */
+  protected cellTabindex(entry: Extract<RenderRow, { kind: 'row' }>, col: CellColumn<T>): 0 | -1 {
+    if (this.treeMode()) return entry.id === this.tabStopRowId() && this.cellEditable(entry.row, col) ? 0 : -1;
+    const stop = this.tabStopCell();
+    return stop?.id === entry.id && stop.key === col.key ? 0 : -1;
+  }
+
+  /** The data cell an event came from, with its row and column. */
+  private cellAt(
+    target: EventTarget | null
+  ): { td: HTMLTableCellElement; row: Record<string, unknown>; col: CellColumn<T> } | null {
+    const td = target instanceof Element ? target.closest<HTMLTableCellElement>('.wr-table__td') : null;
+    // A table nested in a cell answers for its own cells.
+    if (td?.closest('.wr-table') !== this.hostEl.nativeElement) return null;
+    const index = this.rowEls().findIndex(el => el.nativeElement === td.parentElement);
+    const entry = this.dataRows()[index];
+    const col = this.cellColumns()[td.cellIndex - this.leadingCols()];
+    return entry && col ? { td, row: entry.row, col } : null;
+  }
+
+  protected onCellFocusin(event: FocusEvent): void {
+    if (!this.editGrid()) return;
+    const cell = this.cellAt(event.target);
+    if (cell) this.activeCell.set({ row: this.rowKeyOf(cell.row), key: cell.col.key });
+  }
+
+  protected onCellDblclick(event: MouseEvent): void {
+    if (!this.editGrid()) return;
+    const cell = this.cellAt(event.target);
+    if (cell) this.startEdit(cell.row, cell.col, cell.td);
+  }
+
+  protected onCellKeydown(event: KeyboardEvent): void {
+    if (!this.editGrid() || event.defaultPrevented || wrIsComposing(event)) return;
+    const edit = this.editing();
+    if (edit) {
+      if (edit.td.contains(event.target as Node)) this.onEditorKeydown(event, edit);
+      return;
+    }
+    // Only a key pressed on the cell itself: one pressed in a control a cell
+    // template drew belongs to that control.
+    const cell = (event.target as Element).classList.contains('wr-table__td') ? this.cellAt(event.target) : null;
+    if (!cell || event.altKey || event.metaKey) return;
+    const key = this.inlineKey(event.key);
+    const plain = !event.ctrlKey && !event.shiftKey;
+    if (plain && (key === WR_KEYS.ENTER || key === 'F2')) {
+      if (!this.startEdit(cell.row, cell.col, cell.td)) return;
+    } else if (key !== WR_KEYS.SPACE && wrIsPrintableKey(event)) {
+      if (!this.startEdit(cell.row, cell.col, cell.td, event.key)) return;
+    } else if (event.shiftKey || !this.moveCellFocus(cell.td, key, event.ctrlKey)) {
+      return;
+    }
+    event.preventDefault();
+  }
+
+  /** Arrow, Home and End on a focused cell. Ctrl is the first or last row's chord. */
+  private moveCellFocus(td: HTMLTableCellElement, key: string, ctrl: boolean): boolean {
+    if (ctrl && key !== WR_KEYS.HOME && key !== WR_KEYS.END) return false;
+    const rows = this.rowEls().map(el => el.nativeElement);
+    const tr = td.parentElement as HTMLTableRowElement;
+    const row = rows.indexOf(tr);
+    const first = this.leadingCols();
+    const last = tr.cells.length - 1;
+    let target: HTMLElement | undefined;
+    switch (key) {
+      case WR_KEYS.ARROW_RIGHT:
+        target = tr.cells[Math.min(td.cellIndex + 1, last)];
+        break;
+      case WR_KEYS.ARROW_LEFT:
+        target = tr.cells[Math.max(td.cellIndex - 1, first)];
+        break;
+      case WR_KEYS.ARROW_DOWN:
+        target = rows[row + 1]?.cells[td.cellIndex];
+        break;
+      case WR_KEYS.ARROW_UP:
+        target = rows[row - 1]?.cells[td.cellIndex];
+        break;
+      case WR_KEYS.HOME:
+        target = (ctrl ? rows[0] : tr).cells[first];
+        break;
+      case WR_KEYS.END:
+        target = (ctrl ? rows[rows.length - 1] : tr).cells[last];
+        break;
+      default:
+        return false;
+    }
+    target?.focus();
+    return true;
+  }
+
+  private onEditorKeydown(event: KeyboardEvent, edit: CellEdit): void {
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+    const target = event.target as HTMLElement;
+    // Escape and Enter go to the editor's open popup first (a select's panel).
+    const popup = event.key !== WR_KEYS.TAB && !!target.closest('[aria-expanded="true"]');
+    if (popup) return;
+    if (event.key === WR_KEYS.ESCAPE) {
+      this.endEdit(false, true);
+    } else if (event.key === WR_KEYS.ENTER) {
+      // Enter is a line break in a multi-line editor.
+      if (event.shiftKey || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+      this.endEdit(true, true);
+    } else if (event.key === WR_KEYS.TAB) {
+      this.endEdit(true, true);
+      this.editableSibling(edit, event.shiftKey ? -1 : 1)?.focus();
+    } else {
+      return;
+    }
+    event.preventDefault();
+    // An Escape that ended the edit must not also close the dialog around the table.
+    event.stopPropagation();
+  }
+
+  /** The next or previous editable cell of the edited row. */
+  private editableSibling(edit: CellEdit, step: 1 | -1): HTMLElement | undefined {
+    const columns = this.cellColumns();
+    const tr = edit.td.parentElement as HTMLTableRowElement;
+    let index = columns.findIndex(c => c.key === edit.key) + step;
+    while (columns[index] && !this.cellEditable(edit.row, columns[index])) index += step;
+    return columns[index] ? tr.cells[index + this.leadingCols()] : undefined;
+  }
+
+  /**
+   * Put a cell's editor in its place and move focus into it. `typed` is the
+   * character that started the edit: it replaces the content of a text field.
+   */
+  private startEdit(row: Record<string, unknown>, col: CellColumn<T>, td: HTMLElement, typed?: string): boolean {
+    if (!this.cellEditable(row, col)) return false;
+    const current = untracked(this.editing);
+    if (current?.row === row && current.key === col.key) return true;
+    this.endEdit(true, false);
+    const previous = row[col.key];
+    const pending = signal(previous);
+    const live = (): boolean => untracked(this.editing) === edit;
+    const edit: CellEdit = {
+      row,
+      key: col.key,
+      td,
+      previous,
+      pending,
+      context: {
+        get $implicit(): unknown {
+          return pending();
+        },
+        row,
+        column: col.column as WrTableEditCellContext['column'],
+        set: value => pending.set(value),
+        commit: value => {
+          if (!live()) return;
+          pending.set(value);
+          this.endEdit(true, true, false);
+        },
+        cancel: () => {
+          if (live()) this.endEdit(false, true);
+        },
+      },
+    };
+    this.editing.set(edit);
+    afterNextRender(
+      () => {
+        if (!live()) return;
+        const field = td.querySelector<HTMLElement>(EDITOR_FOCUSABLE);
+        field?.focus();
+        if (typed === undefined) return;
+        if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) {
+          field.value = typed;
+          field.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      },
+      { injector: this.injector }
+    );
+    return true;
+  }
+
+  /**
+   * End the edit in flight. `commit` emits `cellEdit` when the pending value
+   * differs from the cell's. `focus` hands focus back to the cell: always, or
+   * (`'inside'`) only when the editor held it. Either way a field that held
+   * focus is blurred first when `flush` is set, for a control that publishes
+   * its value on blur.
+   */
+  private endEdit(commit: boolean, focus: boolean | 'inside', flush = commit): void {
+    const edit = untracked(this.editing);
+    if (!edit) return;
+    const active = edit.td.ownerDocument.activeElement;
+    const held = active instanceof HTMLElement && active !== edit.td && edit.td.contains(active);
+    if (flush && held) active.blur();
+    // The blur may have ended it from the template.
+    if (untracked(this.editing) !== edit) return;
+    this.editing.set(null);
+    if (focus === 'inside' ? held && edit.td.isConnected : focus) edit.td.focus();
+    const value = untracked(edit.pending);
+    if (commit && !Object.is(value, edit.previous)) {
+      this.cellEdit.emit({ row: edit.row as T, key: edit.key, value, previous: edit.previous });
+    }
   }
 
   /** Leading control columns — selection + expand. */

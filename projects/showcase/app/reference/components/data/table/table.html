@@ -599,6 +599,99 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Inline editing"
+    description="A `[wrTableEditCell]` template is a column's editor. The table emits `cellEdit` and leaves the data to you."
+  >
+    <ngwr-doc-snippet [code]="snippets.inlineEdit">
+      <div style="width: 100%">
+        <wr-table
+          rowKey="id"
+          [columns]="priceColumns"
+          [items]="prices()"
+          [editable]="priceEditable"
+          (cellEdit)="savePrice($event)"
+        >
+          <ng-template wrTableCell="status" let-value>
+            <wr-tag [color]="value === 'active' ? 'success' : value === 'draft' ? 'warning' : null" transparent>
+              {{ value }}
+            </wr-tag>
+          </ng-template>
+          <ng-template wrTableEditCell="price" let-value let-set="set">
+            <wr-input-number
+              size="sm"
+              ariaLabel="Price"
+              [min]="0"
+              [step]="0.5"
+              [value]="value"
+              (valueChange)="set($event)"
+            />
+          </ng-template>
+          <ng-template wrTableEditCell="status" [wrTableEditCellOf]="prices()" let-value let-commit="commit">
+            <wr-select size="sm" ariaLabel="Status" [value]="value" (valueChange)="commit($event)">
+              <wr-option value="active">active</wr-option>
+              <wr-option value="draft">draft</wr-option>
+              <wr-option value="archived">archived</wr-option>
+            </wr-select>
+          </ng-template>
+        </wr-table>
+      </div>
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Arrows, Home, End</th>
+            <td>Move between cells. Ctrl+Home and Ctrl+End jump to the first and last row.</td>
+          </tr>
+          <tr>
+            <th scope="row">Enter, F2, double click</th>
+            <td>Open the editor of an editable cell.</td>
+          </tr>
+          <tr>
+            <th scope="row">A character</th>
+            <td>Opens the editor and types it over the value.</td>
+          </tr>
+          <tr>
+            <th scope="row">Enter</th>
+            <td>Commits. Focus returns to the cell.</td>
+          </tr>
+          <tr>
+            <th scope="row">Tab, Shift+Tab</th>
+            <td>Commits and moves to the next or previous editable cell of the row.</td>
+          </tr>
+          <tr>
+            <th scope="row">Escape</th>
+            <td>Drops the edit. Focus returns to the cell.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>
+        <code>set(value)</code> keeps a value while the reader types. Enter, Tab and a click outside commit it.
+        <code>commit(value)</code> ends the edit at once, <code>cancel()</code> drops it.
+      </li>
+      <li>
+        <code>cellEdit</code> carries <code>row</code>, <code>key</code>, <code>value</code> and <code>previous</code>.
+        Validate there: a value you do not write is refused. An unchanged value emits nothing.
+      </li>
+      <li>
+        <code>editable: false</code> on a column keeps it read-only. The <code>editable</code> input vetoes single
+        cells: here an archived product keeps its price.
+      </li>
+      <li>One cell edits at a time. A sort, a hidden column or a removed row ends the edit without a commit.</li>
+      <li>With an edit template the table announces a <code>grid</code> and its data cells take focus.</li>
+      <li>Name the editor: the cell has no label for it, so set <code>ariaLabel</code>.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Narrow container (stacked cards)"
     description="With `responsive`, rows become labelled cards when the table's own box is narrow."
   >

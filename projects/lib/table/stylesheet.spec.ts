@@ -103,3 +103,17 @@ describe('the pinned edge shadow', () => {
     expect(css).not.toMatch(/overflow-end [^{,]*pin-edge-left/);
   });
 });
+
+describe('the cells of an editable table', () => {
+  it('rings a focused data cell inside its own box', () => {
+    const body = declarations('.wr-table__td:focus-visible');
+    expect(body).toMatch(/outline: var\(--wr-focus-ring-width\)/);
+    expect(body).toMatch(/outline-offset: -2px/);
+  });
+
+  it('pads the editing cell through its hook and lets the editor past a truncated cell', () => {
+    const body = declarations('.wr-table__table .wr-table__td--editing');
+    expect(body).toMatch(/padding: var\(--wr-table-edit-padding\)/);
+    expect(body).toMatch(/overflow: visible/);
+  });
+});

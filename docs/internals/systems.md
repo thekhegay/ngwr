@@ -298,7 +298,14 @@ one component folder. Reach for them instead of hand-rolling:
   needs no sticky rule in any mode, leaves the select-all cell uncovered and
   makes the header cells under it `inert`. `stateChange` reports reader actions
   only and is emitted from an effect, which is what folds an action that writes
-  two parts into one event; `[state]` restores by object identity. Three pairs
+  two parts into one event; `[state]` restores by object identity. A
+  `[wrTableEditCell]` template makes its column editable and the table a `grid`
+  (a tree stays a `treegrid`): one data cell holds a roving tab stop, the
+  arrows move between rendered cells, and the header and the row controls keep
+  their own tab stops. One cell edits at a time, its editor in the cell's place;
+  the table emits `cellEdit` and never writes `items`. A click outside, Tab,
+  Enter and a row the virtual window drops commit the value last passed to
+  `set`; Escape, a sort, a hidden column and a removed row drop it. Three pairs
   are refused rather than half-supported: tree + `groupBy`, tree +
   `[wrTableExpand]`, tree + `virtualScroll`. Excel (`.xlsx`)
   export is deliberately NOT shipped (would need a third-party dep). Don't
