@@ -4,7 +4,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very high
 
-- **Select at scale**: registering options copies the list per option (quadratic on every open and close), and search lowercases every label on every keystroke.
 - **Idle listeners**: the anchor scroll spy measures every heading on every scroll event, the window manager keeps its focus and resize listeners after the last window closes, and the tree finds its cursor by scanning per ancestor.
 - **Overlay trigger `disabled`**: on popover, dropdown and popconfirm.
 - **Readable open state**: `isOpen` public on select, cascader, color-picker and date-picker, as on popover.
