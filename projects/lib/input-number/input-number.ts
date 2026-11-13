@@ -442,7 +442,9 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
       this.text.set(this.format(next));
       return;
     }
-    const base = (this.value() as number | null) ?? this.fallbackBase();
+    const current = this.value() as number | null;
+    // A non-finite value gives no number to step from, so it steps like an empty field.
+    const base = current !== null && Number.isFinite(current) ? current : this.fallbackBase();
     // `wrRound` before `constrain`, and only on the stepped ARITHMETIC. Binary
     // floats do not add: three presses of a `step="0.1"` stepper produced
     // 0.30000000000000004, `constrain` only rounds when `decimals` is set, and
