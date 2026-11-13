@@ -642,11 +642,9 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   ],
   'reference/components/table': [
     'reference/components/tree',
-    'reference/components/list',
     'reference/components/sortable-list',
     'reference/components/date-stamp',
     'reference/components/descriptions',
-    'reference/components/empty',
     'reference/utils/wr-download-blob',
     'guides/mobile',
   ],
