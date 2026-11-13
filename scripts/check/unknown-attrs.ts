@@ -31,6 +31,7 @@ import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
 import { LIB_PATH } from '../lib/paths/lib';
 import { ROOT_PATH } from '../lib/paths/root';
+import { isEntry } from '../lib/run/is-entry';
 import { templateLiteralsOnly } from '../lib/ts-lex';
 
 const SHOWCASE = join(ROOT_PATH, 'projects/showcase');
@@ -168,7 +169,8 @@ function projectionSlots(): Set<string> {
   return out;
 }
 
-function main(): void {
+/** Exits 1 when a static attribute on an ngwr element is nobody's input. */
+function runUnknownAttrs(): void {
   const tags: Readonly<Record<string, SelectorRef>> = SELECTORS.tags;
   const attributes: Readonly<Record<string, SelectorRef>> = SELECTORS.attributes;
   const inputs = inputsBySymbol();
@@ -242,4 +244,6 @@ function main(): void {
   exit(1);
 }
 
-main();
+if (isEntry(import.meta.url)) runUnknownAttrs();
+
+export { runUnknownAttrs };

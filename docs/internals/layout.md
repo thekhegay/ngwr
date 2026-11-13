@@ -92,7 +92,9 @@ A pnpm + Angular CLI monorepo with three projects:
   generator's own `--check`, because a generator that can verify its output is
   one file, not two: `check:selectors`, `check:css-vars`, `check:install` and
   `check:api-docs` are `gen/<name>.ts --check`. One check file differs from its
-  script's name: `check:attrs` runs `check/unknown-attrs.ts`.
+  script's name: `check:attrs` runs `check/unknown-attrs.ts`. `check:generated`
+  (`check/generated.ts`) is the `pnpm lint` stage that runs `check:selectors`,
+  `check:attrs` and `check:install` in one process.
   **The four browser-driven checks share `scripts/lib/dist-site.ts`** — the
   static server over `dist/showcase`, the route list, the "did you build it"
   guard, and `withDistBrowser`, which owns the server and the browser. The one
