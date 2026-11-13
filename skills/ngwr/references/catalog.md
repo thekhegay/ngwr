@@ -8,6 +8,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr` | `import { provideWr } from 'ngwr'` | — |
 | `ngwr/affix` | `import { WrAffix } from 'ngwr/affix'` | `[wrAffix]` |
 | `ngwr/alert` | `import { WrAlert } from 'ngwr/alert'` | `wr-alert` |
+| `ngwr/alert/testing` | `import { WrAlertHarness } from 'ngwr/alert/testing'` | — |
 | `ngwr/anchor` | `import { WrAnchor } from 'ngwr/anchor'` | `wr-anchor` |
 | `ngwr/animations/aurora` | `import { WrAurora } from 'ngwr/animations/aurora'` | `wr-aurora` |
 | `ngwr/animations/blur-reveal` | `import { WrBlurReveal } from 'ngwr/animations/blur-reveal'` | `[wrBlurReveal]` |
@@ -36,7 +37,9 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/back-top` | `import { WrBackTop } from 'ngwr/back-top'` | `wr-back-top` |
 | `ngwr/badge` | `import { WrBadge } from 'ngwr/badge'` | `wr-badge` `wr-tag` |
 | `ngwr/breadcrumbs` | `import { WrBreadcrumbs } from 'ngwr/breadcrumbs'` | `wr-breadcrumbs-item` `wr-breadcrumbs` |
+| `ngwr/breadcrumbs/testing` | `import { WrBreadcrumbsHarness } from 'ngwr/breadcrumbs/testing'` | — |
 | `ngwr/burger` | `import { WrBurger } from 'ngwr/burger'` | `wr-burger` |
+| `ngwr/burger/testing` | `import { WrBurgerHarness } from 'ngwr/burger/testing'` | — |
 | `ngwr/button` | `import { WrButton } from 'ngwr/button'` | `wr-btn-group` `wr-btn` `button[wr-btn]` `a[wr-btn]` |
 | `ngwr/button/testing` | `import { WrButtonHarness } from 'ngwr/button/testing'` | — |
 | `ngwr/calendar` | `import { WrCalendar } from 'ngwr/calendar'` | `wr-calendar` |
@@ -92,6 +95,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/comment` | `import { WrComment } from 'ngwr/comment'` | `wr-comment-composer` `wr-comment` |
 | `ngwr/comment/testing` | `import { WrCommentComposerHarness } from 'ngwr/comment/testing'` | — |
 | `ngwr/compare` | `import { WrCompare } from 'ngwr/compare'` | `wr-compare` |
+| `ngwr/compare/testing` | `import { WrCompareHarness } from 'ngwr/compare/testing'` | — |
 | `ngwr/context-menu` | `import { WrContextMenu } from 'ngwr/context-menu'` | `wr-context-menu-divider` `wr-context-menu-item` `wr-context-menu` `[wrContextMenu]` |
 | `ngwr/context-menu/testing` | `import { WrContextMenuHarness } from 'ngwr/context-menu/testing'` | — |
 | `ngwr/cookie` | `import { WrCookie } from 'ngwr/cookie'` | — |
@@ -183,20 +187,24 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/popover/testing` | `import { WrPopoverHarness } from 'ngwr/popover/testing'` | — |
 | `ngwr/progress` | `import { WrProgress } from 'ngwr/progress'` | `wr-progress` |
 | `ngwr/pull-to-refresh` | `import { WrPullToRefresh } from 'ngwr/pull-to-refresh'` | `wr-pull-to-refresh` |
+| `ngwr/pull-to-refresh/testing` | `import { WrPullToRefreshHarness } from 'ngwr/pull-to-refresh/testing'` | — |
 | `ngwr/qr` | `import { WrQr } from 'ngwr/qr'` | `wr-qr` |
 | `ngwr/radio` | `import { WrRadio } from 'ngwr/radio'` | `wr-radio-group` `wr-radio` |
 | `ngwr/radio/testing` | `import { WrRadioGroupHarness } from 'ngwr/radio/testing'` | — |
 | `ngwr/rating` | `import { WrRating } from 'ngwr/rating'` | `wr-rating` |
 | `ngwr/rating/testing` | `import { WrRatingHarness } from 'ngwr/rating/testing'` | — |
 | `ngwr/resizable` | `import { WrResizable } from 'ngwr/resizable'` | `[wrResizable]` |
+| `ngwr/resizable/testing` | `import { WrResizableHarness } from 'ngwr/resizable/testing'` | — |
 | `ngwr/result` | `import { WrResult } from 'ngwr/result'` | `wr-result-404` `wr-result-403` `wr-result-500` `wr-result` |
 | `ngwr/schema-form` | `import { WrSchemaForm } from 'ngwr/schema-form'` | `wr-schema-form` |
+| `ngwr/schema-form/testing` | `import { WrSchemaFormFieldHarness } from 'ngwr/schema-form/testing'` | — |
 | `ngwr/scroll` | `import { WrScroll } from 'ngwr/scroll'` | — |
 | `ngwr/segmented` | `import { WrSegmented } from 'ngwr/segmented'` | `wr-segmented` |
 | `ngwr/segmented/testing` | `import { WrSegmentedHarness } from 'ngwr/segmented/testing'` | — |
 | `ngwr/select` | `import { WrSelect } from 'ngwr/select'` | `ng-template[wrSelectLoadError]` `wr-option-group` `ng-template[wrOptionLeading]` `wr-option` `wr-select` |
 | `ngwr/select/testing` | `import { WrOptionHarness } from 'ngwr/select/testing'` | — |
 | `ngwr/sidebar` | `import { WrSidebar } from 'ngwr/sidebar'` | `wr-sidebar` |
+| `ngwr/sidebar/testing` | `import { WrSidebarGroupHarness } from 'ngwr/sidebar/testing'` | — |
 | `ngwr/skeleton` | `import { WrSkeleton } from 'ngwr/skeleton'` | `wr-skeleton` |
 | `ngwr/slider` | `import { WrSlider } from 'ngwr/slider'` | `wr-slider` |
 | `ngwr/slider/testing` | `import { WrSliderHarness } from 'ngwr/slider/testing'` | — |
