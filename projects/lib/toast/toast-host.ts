@@ -382,7 +382,7 @@ export class WrToastHost {
     // Only show it once the stack is expanded — by hover OR by focus entering
     // it, so it stays reachable from the keyboard — or always in list mode.
     if (this.mode() === 'stack' && !this.expanded()) return false;
-    return cfg.showCloseAll && this.toasts().length >= cfg.closeAllThreshold;
+    return cfg.showCloseAll && this.totalCount() >= cfg.closeAllThreshold;
   });
 
   protected showProgressFor(t: WrToastOptions): boolean {
