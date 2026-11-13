@@ -66,6 +66,9 @@ export const QUALITY = {
   /** Runtime dependencies of the published package, from `projects/lib/package.json`. Peer dependencies are the consumer's Angular; this is what npm installs on top of it. */
   runtimeDependencies: [],
 
+  /** What this release line needs: the `@angular/core` and `@angular/cdk` peers from `projects/lib/package.json` and the Node lines from the root `engines`. The installation page's compatibility table opens with it. */
+  requires: { angular: "^22.2", cdk: "^22.2", node: "22.22+, 24.15+, 26" },
+
   /** The `&&` chain inside `pnpm lint`. Worth listing separately because the first stage prints "All files pass linting." even when a later one fails, so the chain is the gate, not `ng lint`. */
   lintStages: [
     { name: "ng lint", command: "ng lint" },

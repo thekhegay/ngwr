@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Migration guide"
+  updated="16.3.0"
   description="Upgrade ngwr from any earlier major."
   [keywords]="['migration', 'ng update', 'upgrade', 'breaking changes', 'codemod', 'schematics']"
 >
@@ -85,6 +86,8 @@
         call.
       </li>
     </ul>
+    <p>Date output that changed in a 16.x minor, with nothing to rewrite:</p>
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v16Dates, head: ['Release', 'What changed'] }" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
