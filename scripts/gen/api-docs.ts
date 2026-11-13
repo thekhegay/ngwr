@@ -1345,6 +1345,7 @@ const SELECTOR_ROWS: ReadonlySet<string> = new Set([
   'projects/showcase/app/reference/components/overlays/dialog/dialog.ts [wrDialogClose]',
   'projects/showcase/app/reference/components/overlays/drawer/drawer.ts [wrDrawerClose]="value?"',
   'projects/showcase/app/reference/components/data/table/table.ts [wrTableCell]',
+  'projects/showcase/app/reference/components/data/table/table.ts [wrTableEditCell]',
   'projects/showcase/app/reference/services/density/density.ts [wrDensity]',
 ]);
 

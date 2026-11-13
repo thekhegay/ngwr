@@ -1510,11 +1510,18 @@ export const API = {
     { name: "viewportHeight", description: "Height of the scroll area when `virtualScroll` or `stickyHeader` is on — a number (px), any CSS length (`'70vh'`) or `'fill'`. A length is applied as `max-height` on `.wr-table__scroll` through `--wr-table-scroll-height` (a short table shrinks to fit; a long one caps and scrolls). `'fill'` takes the height the parent has left instead: the parent must be a flex column with a definite height (every flex ancestor up the chain needs `min-height: 0`), or a block with a definite height. The table then never shrinks below `--wr-table-scroll-min-height`. A numeric px value lets the server prerender the exact first window of a virtualized table.", type: "number | string", default: "480" },
     { name: "overscan", description: "Extra rows kept rendered above and below the viewport as scroll headroom.", type: "number", default: "6" },
     { name: "truncate", description: "`'tooltip'` cuts every body cell to one line with an ellipsis and shows a cut cell's full text in a tooltip on hover and focus; a cell that fits shows none. A column's own `truncate` wins, and `null` there turns it off for that column. A cell is cut only where its column cannot grow: give the column a `width`, or the table a fixed layout (a resized or virtualized one has it).", type: "WrTableTruncate | null", default: "null" },
+    { name: "editable", description: "Vetoes the edit of single cells: called with the row and the column key, `false` keeps that cell read-only. Asked only for a column that has a `[wrTableEditCell]` template and does not say `editable: false`.", type: "WrTableEditable<T> | null", default: "null" },
+    { name: "(cellEdit)", description: "Emits when a cell edit commits with a value other than the cell's own. The table does not write it: update the data behind `items` in the handler.", type: "WrTableCellEdit<T>" },
   ],
   // <[wrTableCell]>
   WrTableCell: [
     { name: "wrTableCell", description: "Column key the template applies to.", type: "K", required: true },
     { name: "wrTableCellOf", description: "The rows the template draws, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.", type: "readonly T[] | null | undefined", default: "undefined" },
+  ],
+  // <[wrTableEditCell]>
+  WrTableEditCell: [
+    { name: "wrTableEditCell", description: "Column key the editor applies to.", type: "K", required: true },
+    { name: "wrTableEditCellOf", description: "The rows the table draws, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.", type: "readonly T[] | null | undefined", default: "undefined" },
   ],
   // <wr-table-filter>
   WrTableFilter: [
