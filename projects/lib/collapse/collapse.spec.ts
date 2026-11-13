@@ -1,10 +1,9 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 import { WrCollapse } from './collapse';
 import { WrCollapseGroup } from './collapse-group';
@@ -210,13 +209,7 @@ describe('WrCollapseGroup in accordion mode', () => {
  * `@angular/build`, as `theme/sass-entry.spec.ts` does.
  */
 describe('WrCollapse stylesheet', () => {
-  interface Sass {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  }
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-  const css = sass
-    .compileString("@use 'collapse/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const css = compileSass("@use 'collapse/styles';").replace(/\/\*[\s\S]*?\*\//g, '');
   /** The declarations of the rule whose selector list is exactly `selector`, in `source`. */
   const rule = (source: string, selector: string): string =>
     new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.()>:+,]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(source)?.[1] ??

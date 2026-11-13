@@ -1,10 +1,9 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass } from '../spec-sass';
 
 import { WrInputNumber } from './input-number';
 
@@ -62,15 +61,9 @@ describe('WrInputNumber stepper geometry, in the rendered DOM', () => {
  * hundredth of a pixel. `sass` is resolved through `@angular/build`, as
  * `theme/sass-entry.spec.ts` does.
  */
-describe('WrInputNumber stepper column height', () => {
+describe('WrInputNumber stepper column height', { timeout: COMPILE_TIMEOUT }, () => {
   it('gives the step buttons no height of their own, so the density-scaled input sets the row', () => {
-    const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
-      compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-    };
-    const css = sass.compileString(`@use 'input-number/styles';`, {
-      loadPaths: [join(process.cwd(), 'projects/lib')],
-      style: 'expanded',
-    }).css;
+    const css = compileSass(`@use 'input-number/styles';`);
     const step = /(?:^|\n)\.wr-input-number__step\s*\{([^}]*)\}/.exec(css)?.[1] ?? '';
 
     // A 50% basis of an auto-height column falls back to the content, and the two glyph
@@ -87,15 +80,9 @@ describe('WrInputNumber stepper column height', () => {
  * A form field stretches the host, and the box the user sees is the group inside
  * it: left at its content width it stopped short of a `wrInput` in the next field.
  */
-describe('WrInputNumber group width', () => {
+describe('WrInputNumber group width', { timeout: COMPILE_TIMEOUT }, () => {
   it('fills the host, so a stretched field is as wide as its neighbours', () => {
-    const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
-      compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-    };
-    const css = sass.compileString(`@use 'input-number/styles';`, {
-      loadPaths: [join(process.cwd(), 'projects/lib')],
-      style: 'expanded',
-    }).css;
+    const css = compileSass(`@use 'input-number/styles';`);
     const rule = (selector: string): string =>
       new RegExp(`(?:^|\\n)${selector.replace(/[.>]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
 

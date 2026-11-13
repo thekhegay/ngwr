@@ -1,24 +1,17 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrCascader } from 'ngwr/cascader';
 import { describe, expect, it } from 'vitest';
 
+import { compileSass } from '../spec-sass';
+
 /**
  * `rounded`: the modifier class off the rendered DOM, and the radius it resolves
  * to off the COMPILED sheet, since jsdom applies no stylesheet. `sass` is resolved
  * through `@angular/build`, as `input/border-width.spec.ts` does.
  */
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-};
-
-const css = sass
-  .compileString(`@use 'cascader/styles';`, { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-  .css.replace(/\/\*[\s\S]*?\*\//g, '');
+const css = compileSass(`@use 'cascader/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
 
 /** Every unnested rule, in source order: its selector list and its declarations. */
 const rules = [...css.matchAll(/(?:^|\n)([^\s{}@][^{}]*?)\s*\{([^{}]*)\}/g)].map(m => ({

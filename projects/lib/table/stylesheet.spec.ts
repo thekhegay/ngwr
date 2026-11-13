@@ -1,7 +1,6 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { describe, expect, it } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 /**
  * What the table's stylesheet promises that no rendered DOM in jsdom can show — no
@@ -11,15 +10,7 @@ import { describe, expect, it } from 'vitest';
  *
  * `sass` is resolved through `@angular/build`, as `theme/sass-entry.spec.ts` does.
  */
-interface Sass {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-}
-
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-
-const css = sass
-  .compileString(`@use 'table/styles';`, { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-  .css.replace(/\/\*[\s\S]*?\*\//g, '');
+const css = compileSass(`@use 'table/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
 
 /** The declarations of every rule whose selector list contains `selector`, joined. */
 function declarations(selector: string): string {

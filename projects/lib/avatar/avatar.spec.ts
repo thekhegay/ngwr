@@ -1,12 +1,11 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass } from '../spec-sass';
 
 import { WrAvatar } from './avatar';
 import type { WrAvatarShape, WrAvatarSize } from './types';
@@ -387,15 +386,8 @@ describe('WrAvatar projected fallback', () => {
       expect(announced()).toEqual(['ХР']);
     });
 
-    it('hides that name with display: none, which takes it out of the tree too', () => {
-      interface Sass {
-        compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-      }
-      const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-      const css = sass.compileString("@use 'avatar/styles';", {
-        loadPaths: [join(process.cwd(), 'projects/lib')],
-        style: 'expanded',
-      }).css;
+    it('hides that name with display: none, which takes it out of the tree too', { timeout: COMPILE_TIMEOUT }, () => {
+      const css = compileSass("@use 'avatar/styles';");
 
       expect(css).toMatch(/\.wr-avatar__content:not\(:empty\) ~ \.wr-avatar__alt \{\s*display: none;/);
     });
@@ -777,28 +769,25 @@ describe('WrAvatar name', () => {
     });
   });
 
-  it('paints the tint through the hooks, and drops the initials behind projected content', () => {
-    interface Sass {
-      compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-    }
-    const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-    const css = sass.compileString("@use 'avatar/styles';", {
-      loadPaths: [join(process.cwd(), 'projects/lib')],
-      style: 'expanded',
-    }).css;
+  it(
+    'paints the tint through the hooks, and drops the initials behind projected content',
+    { timeout: COMPILE_TIMEOUT },
+    () => {
+      const css = compileSass("@use 'avatar/styles';");
 
-    for (const tint of ['primary', 'success', 'warning', 'danger', 'info']) {
-      expect(css).toMatch(
-        new RegExp(
-          `\\.wr-avatar--tint-${tint} \\{\\s*--wr-avatar-bg: var\\(--wr-color-${tint}-soft\\);\\s*--wr-avatar-initials-color: var\\(--wr-color-${tint}-ink\\);`
-        )
-      );
+      for (const tint of ['primary', 'success', 'warning', 'danger', 'info']) {
+        expect(css).toMatch(
+          new RegExp(
+            `\\.wr-avatar--tint-${tint} \\{\\s*--wr-avatar-bg: var\\(--wr-color-${tint}-soft\\);\\s*--wr-avatar-initials-color: var\\(--wr-color-${tint}-ink\\);`
+          )
+        );
+      }
+      expect(css).toMatch(/\.wr-avatar__content:not\(:empty\) ~ \.wr-avatar__initials \{\s*display: none;/);
+      expect(css).toMatch(/\.wr-avatar__initials ~ \.wr-avatar__alt \{\s*display: none;/);
+      expect(css).toMatch(/\.wr-avatar__initials ~ \.wr-avatar__spin \{\s*display: none;/);
+      expect(css).toMatch(/\.wr-avatar--loaded \.wr-avatar__initials\[aria-hidden=true\] \{\s*visibility: hidden;/);
     }
-    expect(css).toMatch(/\.wr-avatar__content:not\(:empty\) ~ \.wr-avatar__initials \{\s*display: none;/);
-    expect(css).toMatch(/\.wr-avatar__initials ~ \.wr-avatar__alt \{\s*display: none;/);
-    expect(css).toMatch(/\.wr-avatar__initials ~ \.wr-avatar__spin \{\s*display: none;/);
-    expect(css).toMatch(/\.wr-avatar--loaded \.wr-avatar__initials\[aria-hidden=true\] \{\s*visibility: hidden;/);
-  });
+  );
 });
 
 describe('WrAvatar under a localized catalog', () => {

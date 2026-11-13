@@ -1,7 +1,6 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { describe, expect, it } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 /**
  * `@use 'ngwr/grid'` compiled rather than read, the way `theme/sass-entry.spec.ts`
@@ -11,16 +10,7 @@ import { describe, expect, it } from 'vitest';
  *
  * `sass` is resolved through `@angular/build`, for the reason that file gives.
  */
-interface Sass {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-}
-
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-
-const css = sass.compileString(`@use 'styles/grid';`, {
-  loadPaths: [join(process.cwd(), 'projects/lib')],
-  style: 'expanded',
-}).css;
+const css = compileSass(`@use 'styles/grid';`);
 
 describe('ngwr/grid', () => {
   it('gives the twelve columns a zero minimum, so they fit the container', () => {

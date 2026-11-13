@@ -1,11 +1,10 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { compileSass } from '../../spec-sass';
 
 import { WrBulletChart } from './bullet-chart';
 
@@ -745,15 +744,7 @@ describe('WrBulletChart on a page with another', () => {
  * does. That each rule then paints what it says is measured in a browser.
  */
 describe('WrBulletChart stylesheet', () => {
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  };
-  const css = sass
-    .compileString(`@use 'charts/bullet-chart/styles';`, {
-      loadPaths: [join(process.cwd(), 'projects/lib')],
-      style: 'expanded',
-    })
-    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const css = compileSass(`@use 'charts/bullet-chart/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
   const rule = (block: string, selector: string): string =>
     new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(block)?.[1] ??
     '';

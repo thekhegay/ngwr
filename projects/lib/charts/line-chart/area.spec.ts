@@ -1,10 +1,9 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass } from '../../spec-sass';
 
 import { WrLineChart } from './line-chart';
 import type { WrLineSeries } from './types';
@@ -308,16 +307,8 @@ describe('WrLineChart area, stack and data table', () => {
  * The fill's share of its colour is a hook the stylesheet reads, so a consumer restyles
  * it without reaching for the path. jsdom applies no sheet, so the compiled CSS is read.
  */
-describe('wr-line-chart area stylesheet', () => {
-  interface Sass {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  }
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-  const css = (): string =>
-    sass.compileString(`@use 'charts/line-chart/styles';`, {
-      loadPaths: [join(process.cwd(), 'projects/lib')],
-      style: 'expanded',
-    }).css;
+describe('wr-line-chart area stylesheet', { timeout: COMPILE_TIMEOUT }, () => {
+  const css = (): string => compileSass(`@use 'charts/line-chart/styles';`);
   const rule = (source: string, selector: string): string =>
     new RegExp(`(?:^|\\n)${selector.replace(/[.-]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(source)?.[1] ?? '';
 

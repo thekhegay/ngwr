@@ -1,7 +1,6 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { describe, expect, it } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 /**
  * `--wr-input-border-width`, held against the COMPILED sheet, since jsdom applies
@@ -12,13 +11,7 @@ import { describe, expect, it } from 'vitest';
  * default 1px the padding is the one the field had before the hook existed.
  * `sass` is resolved through `@angular/build`, as `theme/sass-entry.spec.ts` does.
  */
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-};
-
-const css = sass
-  .compileString(`@use 'input/styles';`, { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-  .css.replace(/\/\*[\s\S]*?\*\//g, '');
+const css = compileSass(`@use 'input/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
 
 type Scope = Map<string, string>;
 
