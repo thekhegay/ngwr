@@ -1258,6 +1258,8 @@ export const API = {
   WrSchemaForm: [
     { name: "field", description: "The form to draw — the value `form()` returned, or any object-valued field inside one.", type: "FieldTree<T>", required: true },
     { name: "columns", description: "Grid columns. A field spans one of them unless its spec says otherwise.", type: "number", default: "1" },
+    { name: "addLabel", description: "Text of the button that adds an item to a repeating group. Falls back to `common.add`.", type: "string | null", default: "null" },
+    { name: "removeLabel", description: "Text of the button that removes one item of a repeating group. Falls back to `common.remove`.", type: "string | null", default: "null" },
   ],
   // <wr-segmented>
   WrSegmented: [
