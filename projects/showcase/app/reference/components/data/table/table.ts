@@ -598,10 +598,10 @@ save({ row, key, value }: WrTableCellEdit<Price>): void {
 
 <wr-table rowKey="id" [columns]="columns" [items]="prices()" [editable]="editable" (cellEdit)="save($event)">
   <ng-template wrTableEditCell="price" let-value let-set="set">
-    <wr-input-number ariaLabel="Price" [min]="0" [value]="value" (valueChange)="set($event)" />
+    <wr-input-number size="sm" ariaLabel="Price" [min]="0" [value]="value" (valueChange)="set($event)" />
   </ng-template>
   <ng-template wrTableEditCell="status" [wrTableEditCellOf]="prices()" let-value let-commit="commit">
-    <wr-select ariaLabel="Status" [value]="value" (valueChange)="commit($event)">
+    <wr-select size="sm" ariaLabel="Status" [value]="value" (valueChange)="commit($event)">
       <wr-option value="active">active</wr-option>
       <wr-option value="draft">draft</wr-option>
       <wr-option value="archived">archived</wr-option>

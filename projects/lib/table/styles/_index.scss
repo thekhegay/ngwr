@@ -589,6 +589,13 @@
   &__table &__td--editing {
     padding: var(--wr-table-edit-padding);
     overflow: visible;
+    // The held column width is the editor's width: it never pushes the column.
+    min-width: 0;
+
+    > :only-child {
+      inline-size: 100%;
+      min-width: 0;
+    }
   }
 
   &__tr {
