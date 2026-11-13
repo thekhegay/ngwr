@@ -115,6 +115,47 @@ describe('withDates({ timeZone })', () => {
     expect(zoned.createDate(2026, 6, 1).getTime()).toBe(Date.UTC(2026, 6, 1, 4, 0));
   });
 
+  it('lands a wall clock the zone skips after the change, west of UTC and east of it', () => {
+    const newYork = adapters('America/New_York').zoned;
+    // 8 March 2026: 02:00 to 03:00 does not exist in New York, so 02:30 is 03:30 EDT.
+    const skipped = newYork.setTime(newYork.createDate(2026, 2, 8), 2, 30, 0);
+    expect(skipped.getTime()).toBe(Date.UTC(2026, 2, 8, 7, 30));
+    expect(newYork.format(skipped, 'yyyy-MM-dd HH:mm')).toBe('2026-03-08 03:30');
+
+    const berlin = adapters('Europe/Berlin').zoned;
+    // 29 March 2026: 02:00 to 03:00 does not exist in Berlin.
+    const east = berlin.setTime(berlin.createDate(2026, 2, 29), 2, 30, 0);
+    expect(east.getTime()).toBe(Date.UTC(2026, 2, 29, 1, 30));
+    expect(berlin.format(east, 'yyyy-MM-dd HH:mm')).toBe('2026-03-29 03:30');
+  });
+
+  it('builds a day whose midnight the zone skips, and walks past it', () => {
+    const { zoned } = adapters('America/Santiago');
+    // 6 September 2026 starts at 01:00 in Santiago: the clocks leave 23:59:59 for 01:00.
+    const sixth = zoned.createDate(2026, 8, 6);
+    expect(sixth.getTime()).toBe(Date.UTC(2026, 8, 6, 4, 0));
+    expect(zoned.format(sixth, 'yyyy-MM-dd HH:mm')).toBe('2026-09-06 01:00');
+
+    const first = zoned.createDate(2026, 8, 1);
+    const days = Array.from({ length: 42 }, (_, index) => zoned.format(zoned.addDays(first, index), 'yyyy-MM-dd'));
+    expect(new Set(days).size).toBe(42);
+    expect(days.slice(4, 7)).toEqual(['2026-09-05', '2026-09-06', '2026-09-07']);
+    expect(days[41]).toBe('2026-10-12');
+  });
+
+  it('reads a wall clock the zone repeats as its first pass west of UTC and its second east of it', () => {
+    const newYork = adapters('America/New_York').zoned;
+    // 1 November 2026: 01:30 happens at 05:30Z (EDT) and again at 06:30Z (EST).
+    const west = newYork.setTime(newYork.createDate(2026, 10, 1), 1, 30, 0);
+    expect(west.getTime()).toBe(Date.UTC(2026, 10, 1, 5, 30));
+
+    const berlin = adapters('Europe/Berlin').zoned;
+    // 25 October 2026: 02:30 happens at 00:30Z (CEST) and again at 01:30Z (CET).
+    const east = berlin.setTime(berlin.createDate(2026, 9, 25), 2, 30, 0);
+    expect(east.getTime()).toBe(Date.UTC(2026, 9, 25, 1, 30));
+    expect(berlin.format(east, 'HH:mm')).toBe('02:30');
+  });
+
   it('reads back what it printed, as the same instant', () => {
     for (const zone of ['+05:30', 'Asia/Tokyo', 'America/New_York']) {
       const { zoned } = adapters(zone);
