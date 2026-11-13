@@ -598,7 +598,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/form-field',
     'guides/forms',
   ],
-  'reference/components/sortable-list': ['reference/components/list', 'reference/components/transfer'],
+  'reference/components/sortable-list': [
+    'reference/components/list',
+    'reference/components/table',
+    'reference/components/transfer',
+  ],
   'reference/components/speed-dial': [
     'reference/components/dropdown',
     'reference/components/back-top',
@@ -639,6 +643,8 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'reference/components/table': [
     'reference/components/tree',
     'reference/components/list',
+    'reference/components/sortable-list',
+    'reference/components/date-stamp',
     'reference/components/descriptions',
     'reference/components/empty',
     'reference/utils/wr-download-blob',
@@ -663,7 +669,12 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/list',
     'reference/pipes/wr-date',
   ],
-  'reference/components/toast': ['reference/components/alert', 'reference/components/dialog', 'guides/mobile'],
+  'reference/components/toast': [
+    'reference/components/alert',
+    'reference/components/dialog',
+    'reference/components/drawer',
+    'guides/mobile',
+  ],
   'reference/components/toolbar': [
     'reference/components/page-header',
     'reference/components/button-group',
