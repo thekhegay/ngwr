@@ -5,7 +5,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 ## Very high
 
 - **Overlay trigger `disabled`**: on popover, dropdown and popconfirm.
-- **Readable open state**: `isOpen` public on select, cascader, color-picker and date-picker, as on popover.
 - **Removable tag**: `closable` and a `removed` output on `wr-tag`.
 - **Clearable and loading fields**: on input, textarea and input-number.
 - **Size everywhere**: sm, md and lg on slider, color-picker, file-upload, transfer, progress and tag.
