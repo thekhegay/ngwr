@@ -816,6 +816,10 @@ export const API = {
   // <wr-input-group>
   WrInputGroup: [
     { name: "rounded", description: "Pill-shaped corners.", type: "boolean", default: "false" },
+    { name: "clearable", description: "Show a clear (×) button while the field holds text and is neither disabled nor read-only. Clearing empties the field through an `input` event, so whatever is bound to it (`ngModel`, `[formField]`, an `(input)` listener) hears it as an edit, and puts focus back in the field. It is a pointer control: from the keyboard, emptying the field clears it.", type: "boolean", default: "false" },
+    { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
+    { name: "loading", description: "Show a spinner after the field and mark the field `aria-busy`. The field stays editable.", type: "boolean", default: "false" },
+    { name: "(cleared)", description: "Emitted after the clear (×) button emptied the field.", type: "void" },
   ],
   // <wr-input-number>
   WrInputNumber: [
@@ -833,10 +837,13 @@ export const API = {
     { name: "ariaLabel", description: "Accessible name for the field. Unset, the field is named by whatever labels it — there is deliberately no fallback here. It used to mirror the `placeholder`, and an `aria-label` OUTRANKS a `<label>` in the accname order: inside a `<wr-form-field label=\"Quantity\">` the very input that adopts the field's id announced the placeholder (\"0\") instead, and a placeholder disappears as soon as the user types. Standalone nothing was lost by dropping it — an input with no other name already falls back to its own `placeholder` attribute, which is the name axe's `label` rule accepts too.", type: "string | null", default: "null" },
     { name: "incrementLabel", description: "Increment button aria-label. Falls back to `inputNumber.increment`.", type: "string | null", default: "null" },
     { name: "decrementLabel", description: "Decrement button aria-label. Falls back to `inputNumber.decrement`.", type: "string | null", default: "null" },
+    { name: "clearable", description: "Show a clear (×) button while the field holds text and is neither disabled nor read-only. Clearing sets `value` to `null`, emits `touch` and puts focus back in the field. It is a pointer control: from the keyboard, emptying the field clears the value.", type: "boolean", default: "false" },
+    { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
+    { name: "loading", description: "Show a spinner after the field and mark the field `aria-busy`. The field stays editable.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "readonly", description: "Read-only — values cannot be changed (steppers + typing disabled).", type: "boolean", default: "false" },
     { name: "value", description: "The value, `null` when empty: a `number` in `'number'` mode, a canonical decimal string in `'decimal'` mode. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrInputNumberValue<M>", default: "null" },
-    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "(touch)", description: "Emitted on blur, and by the clear (×) button, so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-input-otp>
   WrInputOtp: [
@@ -1508,9 +1515,12 @@ export const API = {
     { name: "readonly", description: "Read-only state.", type: "boolean", default: "false" },
     { name: "autosize", description: "Grow the textarea to fit its content.", type: "boolean", default: "false" },
     { name: "maxRows", description: "Cap autosize at this many rows. Ignored when `autosize` is false.", type: "number | null", default: "null" },
+    { name: "clearable", description: "Show a clear (×) button while the field holds text and is neither disabled nor read-only. Clearing sets `value` to `''`, emits `touch` and puts focus back in the field. It is a pointer control: from the keyboard, emptying the field clears the value.", type: "boolean", default: "false" },
+    { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
+    { name: "loading", description: "Show a spinner in the field's corner and mark the field `aria-busy`. The field stays editable.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable the textarea. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "value", description: "The edited text. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
-    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "(touch)", description: "Emitted on blur, and by the clear (×) button, so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-thread-lines>
   WrThreadLines: [
