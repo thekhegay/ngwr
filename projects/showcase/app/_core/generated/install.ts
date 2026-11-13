@@ -385,7 +385,7 @@ export const INSTALL = {
       { path: "ngwr/switch", symbols: ["WrSwitch"], declarables: ["WrSwitch"], styled: true },
   ],
   "reference/components/table": [
-      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell", "WrTableExpand", "WrTableGroupHeader", "wrSortRows"], declarables: ["WrTable", "WrTableCell", "WrTableExpand", "WrTableGroupHeader"], styled: true },
+      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell", "WrTableExpand", "WrTableGroupHeader", "WrTableSelectionBar", "wrSortRows"], declarables: ["WrTable", "WrTableCell", "WrTableExpand", "WrTableGroupHeader", "WrTableSelectionBar"], styled: true },
   ],
   "reference/components/tabs": [
       { path: "ngwr/tabs", symbols: ["WrTab", "WrTabs"], declarables: ["WrTab", "WrTabs"], styled: true },
