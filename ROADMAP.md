@@ -9,7 +9,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 ## Medium
 
 - **Unused devDependency**: drop `@angular-devkit/core` if nothing needs it directly.
-- **Table inline edit**: an edit-cell template, Enter commits, Escape cancels.
 - **Schema-form arrays and sections**: repeating groups, fieldsets and more field kinds.
 - **Async graph layouts**: a layout that returns a promise draws when it resolves.
 
