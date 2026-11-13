@@ -145,6 +145,11 @@ export const wrKo: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: '업로드 중',
+    uploaded: '업로드 완료',
+    failed: '업로드 실패',
+    status: '{{name}}: {{status}}',
+    retry: '다시 시도',
   },
   popconfirm: {
     label: '작업 확인',

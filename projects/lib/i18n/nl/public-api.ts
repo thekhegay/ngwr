@@ -145,6 +145,11 @@ export const wrNl: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Bezig met uploaden',
+    uploaded: 'Geüpload',
+    failed: 'Uploaden mislukt',
+    status: '{{name}}: {{status}}',
+    retry: 'Opnieuw proberen',
   },
   popconfirm: {
     label: 'Actie bevestigen',

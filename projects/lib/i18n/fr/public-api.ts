@@ -145,6 +145,11 @@ export const wrFr: WrI18nCatalog = {
     unitMb: 'Mo',
     unitGb: 'Go',
     unitTb: 'To',
+    uploading: 'Envoi en cours',
+    uploaded: 'Envoyé',
+    failed: 'Envoi échoué',
+    status: '{{name}}: {{status}}',
+    retry: 'Réessayer',
   },
   popconfirm: {
     label: "Confirmer l'action",

@@ -148,6 +148,11 @@ export const wrTr: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Yükleniyor',
+    uploaded: 'Yüklendi',
+    failed: 'Yükleme başarısız',
+    status: '{{name}}: {{status}}',
+    retry: 'Tekrar dene',
   },
   popconfirm: {
     label: 'İşlemi onayla',

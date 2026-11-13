@@ -14,6 +14,7 @@
   (dragover)="onDragOver($event)"
   (dragleave)="onDragLeave()"
   (drop)="onDrop($event)"
+  (paste)="onPaste($event)"
 >
   <svg class="wr-file-upload__icon" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true">
     <path
@@ -56,11 +57,49 @@
 />
 
 @if (showList() && files().length > 0) {
-  <ul class="wr-file-upload__list">
-    @for (file of files(); track $index) {
-      <li class="wr-file-upload__item">
-        <span class="wr-file-upload__name" [title]="file.name">{{ file.name }}</span>
-        <span class="wr-file-upload__size">{{ formatBytes(file.size) }}</span>
+  <ul class="wr-file-upload__list" [attr.aria-busy]="busy() || null">
+    @for (row of rows(); track $index) {
+      <li [class]="row.classes">
+        @if (row.preview; as url) {
+          <img class="wr-file-upload__preview" alt="" [src]="url" />
+        }
+        <span
+          class="wr-file-upload__name"
+          [attr.id]="row.state === 'error' ? `${nameId}-${$index}` : null"
+          [title]="row.file.name"
+          >{{ row.file.name }}</span
+        >
+        <span class="wr-file-upload__size">{{ formatBytes(row.file.size) }}</span>
+        @switch (row.state) {
+          @case ('done') {
+            <span class="wr-file-upload__done" role="img" [attr.aria-label]="resolvedUploaded()">
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M20 6 9 17l-5-5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+          }
+          @case ('error') {
+            <button
+              wr-btn
+              type="button"
+              size="sm"
+              outlined
+              class="wr-file-upload__retry"
+              [attr.aria-describedby]="`${nameId}-${$index}`"
+              [disabled]="disabled()"
+              (click)="onRetry(row.file, $index)"
+            >
+              {{ resolvedRetry() }}
+            </button>
+          }
+        }
         <button
           type="button"
           class="wr-file-upload__remove"
@@ -78,7 +117,24 @@
             />
           </svg>
         </button>
+        @if (row.state === 'uploading') {
+          <wr-progress
+            class="wr-file-upload__progress"
+            size="sm"
+            [indeterminate]="row.percent === null"
+            [value]="row.percent ?? 0"
+            [ariaLabel]="statusText({ name: row.file.name, status: resolvedUploading() })"
+          />
+        } @else if (row.state === 'error') {
+          <span class="wr-file-upload__error">{{ row.message ?? resolvedFailed() }}</span>
+        }
       </li>
     }
   </ul>
+}
+
+<!-- One live region for the whole list, in the DOM before any state changes: a
+     region inserted together with its text is often not read. -->
+@if (status() !== null) {
+  <span class="wr-file-upload__announce" role="status" aria-live="polite">{{ announcement() }}</span>
 }

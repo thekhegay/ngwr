@@ -143,6 +143,11 @@ export const wrCs: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Nahrávání',
+    uploaded: 'Nahráno',
+    failed: 'Nahrání se nezdařilo',
+    status: '{{name}}: {{status}}',
+    retry: 'Zkusit znovu',
   },
   popconfirm: {
     label: 'Potvrzení akce',

@@ -143,6 +143,11 @@ export const wrId: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Mengunggah',
+    uploaded: 'Terunggah',
+    failed: 'Gagal mengunggah',
+    status: '{{name}}: {{status}}',
+    retry: 'Coba lagi',
   },
   popconfirm: {
     label: 'Konfirmasi tindakan',
