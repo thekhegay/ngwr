@@ -781,3 +781,122 @@ describe('WrWindowManager work area', () => {
     desk.remove();
   });
 });
+
+/**
+ * The manager's `resize` and `focusin` listeners are app-wide, so they exist
+ * only while a window does: `focusin` otherwise ran on every focus change of an
+ * app that had closed its last window long ago.
+ */
+describe('WrWindowManager global listeners', () => {
+  let manager: WrWindowManager;
+  /** Listeners added and not yet removed, per target and type, since the manager was created. */
+  let live: Map<string, Set<unknown>>;
+
+  const track = (target: Window | Document, name: string): void => {
+    const key = (type: string): string => `${name}:${type}`;
+    const add = target.addEventListener.bind(target);
+    const remove = target.removeEventListener.bind(target);
+    vi.spyOn(target, 'addEventListener').mockImplementation((type, listener, options) => {
+      if (!live.has(key(type))) live.set(key(type), new Set());
+      live.get(key(type))!.add(listener);
+      add(type, listener, options);
+    });
+    vi.spyOn(target, 'removeEventListener').mockImplementation((type, listener, options) => {
+      live.get(key(type))?.delete(listener);
+      remove(type, listener, options);
+    });
+  };
+  const count = (key: string): number => live.get(key)?.size ?? 0;
+  const counts = (): number[] => [count('document:focusin'), count('window:resize')];
+  const focusInto = (node: Element): void => {
+    node.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+  };
+  const windowEl = (title: string): HTMLElement =>
+    [...document.querySelectorAll<HTMLElement>('wr-window')].find(el => el.textContent.includes(title))!;
+  const resizeTo = (width: number): void => {
+    Object.defineProperty(window, 'innerWidth', { value: width, configurable: true, writable: true });
+    window.dispatchEvent(new Event('resize'));
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [provideWr(withStorage({ engine: () => wrCreateMemoryStorage() }))],
+    });
+    manager = TestBed.inject(WrWindowManager);
+    live = new Map();
+    track(window, 'window');
+    track(document, 'document');
+  });
+
+  afterEach(() => {
+    manager.closeAll();
+    TestBed.resetTestingModule();
+    vi.restoreAllMocks();
+    Object.defineProperty(window, 'innerWidth', { value: 1024, configurable: true, writable: true });
+  });
+
+  it('listens for nothing until a window opens', () => {
+    expect(counts()).toEqual([0, 0]);
+
+    manager.open(Body);
+    manager.open(Body);
+    TestBed.tick();
+
+    // Shared by every window, not one each.
+    expect(counts()).toEqual([1, 1]);
+  });
+
+  it('stops listening when the last window closes, and not before', async () => {
+    const first = manager.open(Body);
+    const second = manager.open(Body);
+    TestBed.tick();
+
+    await first.close();
+    expect(counts()).toEqual([1, 1]);
+
+    await second.close();
+    expect(counts()).toEqual([0, 0]);
+  });
+
+  it('listens again for the next window, and still follows focus', async () => {
+    await manager.open(Body).close();
+    expect(counts()).toEqual([0, 0]);
+
+    const one = manager.open(Body, { title: 'One' });
+    const two = manager.open(Body, { title: 'Two' });
+    TestBed.tick();
+    expect(counts()).toEqual([1, 1]);
+
+    focusInto(windowEl('One'));
+    expect(manager.active()).toBe(one);
+    focusInto(windowEl('Two'));
+    expect(manager.active()).toBe(two);
+    focusInto(document.body);
+    expect(manager.active()).toBeNull();
+  });
+
+  it('gives a window opened after a resize the viewport of that moment', async () => {
+    await manager.open(Body).close();
+
+    // Nothing is listening now, so nothing saw this.
+    resizeTo(800);
+
+    const ref = manager.open(Body);
+    TestBed.tick();
+    ref.maximize();
+    expect(ref.width()).toBe(800);
+
+    resizeTo(640);
+    expect(ref.width()).toBe(640);
+  });
+
+  it('removes them when the manager itself goes away with windows open', () => {
+    manager.open(Body);
+    TestBed.tick();
+
+    TestBed.resetTestingModule();
+
+    expect(counts()).toEqual([0, 0]);
+  });
+});
