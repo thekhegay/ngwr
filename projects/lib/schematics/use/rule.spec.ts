@@ -166,6 +166,18 @@ function filesOf(dir: string): string[] {
   return out;
 }
 
+const entrySources = new Map<string, string[]>();
+
+/** An entry point's sources, comments stripped, read once however many symbols it publishes. */
+function sourcesOf(entry: string): string[] {
+  let sources = entrySources.get(entry);
+  if (!sources) {
+    sources = filesOf(join(LIB, entry)).map(file => stripComments(readFileSync(file, 'utf8')));
+    entrySources.set(entry, sources);
+  }
+  return sources;
+}
+
 /**
  * What a symbol is, read off its declaration — `'component'`, `'a service'`,
  * `'a class'`, …
@@ -176,9 +188,7 @@ function filesOf(dir: string): string[] {
  * that as the declaration's own decorator.
  */
 function kindOf(symbol: string, entry: string): string {
-  for (const file of filesOf(join(LIB, entry))) {
-    const source = stripComments(readFileSync(file, 'utf8'));
-
+  for (const source of sourcesOf(entry)) {
     const cls = new RegExp(`export\\s+(abstract\\s+)?class\\s+${symbol}\\b`).exec(source);
     if (cls) {
       const head = source.slice(0, cls.index).trimEnd();
