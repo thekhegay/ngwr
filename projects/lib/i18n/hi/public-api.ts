@@ -143,6 +143,11 @@ export const wrHi: WrI18nCatalog = {
     unitMb: 'एमबी',
     unitGb: 'जीबी',
     unitTb: 'टीबी',
+    uploading: 'अपलोड हो रहा है',
+    uploaded: 'अपलोड हो गया',
+    failed: 'अपलोड विफल',
+    status: '{{name}}: {{status}}',
+    retry: 'फिर से कोशिश करें',
   },
   popconfirm: {
     label: 'कार्रवाई की पुष्टि',

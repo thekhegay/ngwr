@@ -149,6 +149,11 @@ export const wrAr: WrI18nCatalog = {
     unitMb: 'ميجابايت',
     unitGb: 'جيجابايت',
     unitTb: 'تيرابايت',
+    uploading: 'جارٍ الرفع',
+    uploaded: 'تم الرفع',
+    failed: 'فشل الرفع',
+    status: '{{name}}: {{status}}',
+    retry: 'إعادة المحاولة',
   },
   popconfirm: {
     label: 'تأكيد الإجراء',

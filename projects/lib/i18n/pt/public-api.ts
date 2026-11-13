@@ -143,6 +143,11 @@ export const wrPt: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Enviando',
+    uploaded: 'Enviado',
+    failed: 'Falha no envio',
+    status: '{{name}}: {{status}}',
+    retry: 'Tentar novamente',
   },
   popconfirm: {
     label: 'Confirmar ação',

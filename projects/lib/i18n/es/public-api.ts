@@ -143,6 +143,11 @@ export const wrEs: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Subiendo',
+    uploaded: 'Subido',
+    failed: 'Error al subir',
+    status: '{{name}}: {{status}}',
+    retry: 'Reintentar',
   },
   popconfirm: {
     label: 'Confirmar la acción',

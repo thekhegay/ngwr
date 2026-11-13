@@ -60,6 +60,7 @@ const COMMON = [
   'transfer.count',
   'image.counter',
   'fileUpload.size',
+  'fileUpload.status',
   'editor.keyAlt',
   'kbd.alt',
   'kbd.tab',

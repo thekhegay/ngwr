@@ -204,6 +204,13 @@ export const wrEn: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    // Per-file upload state. The three words name a row's state, and `status` joins
+    // one to a file name for the progress bar's name and the live announcement.
+    uploading: 'Uploading',
+    uploaded: 'Uploaded',
+    failed: 'Upload failed',
+    status: '{{name}}: {{status}}',
+    retry: 'Try again',
   },
   popconfirm: {
     label: 'Confirm action',

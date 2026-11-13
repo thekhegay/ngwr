@@ -1,4 +1,6 @@
 @use '../../theme/styles' as theme;
+@use '../../button/styles' as button-styles; // WrButton
+@use '../../progress/styles' as progress-styles; // WrProgress
 @include theme.loaded('file-upload');
 
 .wr-file-upload {
@@ -139,6 +141,10 @@
     --wr-file-upload-item-radius: var(--wr-border-radius-base);
     --wr-file-upload-item-font-size: var(--wr-text-sm);
     --wr-file-upload-item-line-height: var(--wr-text-sm-leading);
+    // The states a `[status]` entry puts a row in: the gap above its second
+    // line, and the edge of a failed one.
+    --wr-file-upload-item-row-gap: var(--wr-space-xs);
+    --wr-file-upload-item-error-border: var(--wr-color-danger);
 
     display: flex;
     align-items: center;
@@ -163,6 +169,77 @@
     flex: 0 0 auto;
     color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
+  }
+
+  // A row that carries a second line (the progress bar, the error text) wraps to
+  // make room for it. The name gives up its content width there, or a long one
+  // would take a line of its own instead of truncating.
+  &__item--uploading,
+  &__item--error {
+    flex-wrap: wrap;
+    row-gap: var(--wr-file-upload-item-row-gap);
+  }
+
+  &__item--uploading &__name,
+  &__item--error &__name {
+    flex-basis: 0;
+    min-width: 0;
+  }
+
+  &__item--error {
+    border-color: var(--wr-file-upload-item-error-border);
+  }
+
+  &__preview {
+    --wr-file-upload-preview-size: 2rem;
+    --wr-file-upload-preview-radius: var(--wr-border-radius-sm);
+
+    flex: 0 0 auto;
+    width: var(--wr-file-upload-preview-size);
+    height: var(--wr-file-upload-preview-size);
+    object-fit: cover;
+    border-radius: var(--wr-file-upload-preview-radius);
+    background: var(--wr-color-fill);
+  }
+
+  &__done {
+    --wr-file-upload-done-color: var(--wr-color-success);
+
+    flex: 0 0 auto;
+    display: inline-flex;
+    color: var(--wr-file-upload-done-color);
+  }
+
+  &__retry {
+    flex: 0 0 auto;
+  }
+
+  &__progress {
+    flex: 0 0 100%;
+  }
+
+  &__error {
+    --wr-file-upload-error-color: var(--wr-color-danger-ink);
+    --wr-file-upload-error-font-size: var(--wr-text-xs);
+    --wr-file-upload-error-line-height: var(--wr-text-xs-leading);
+
+    flex: 0 0 100%;
+    color: var(--wr-file-upload-error-color);
+    font-size: var(--wr-file-upload-error-font-size);
+    line-height: var(--wr-file-upload-error-line-height);
+  }
+
+  // The live region: read out, never drawn.
+  &__announce {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   &__remove {
@@ -228,6 +305,11 @@
     --wr-file-upload-item-line-height: var(--wr-text-xs-leading);
   }
 
+  &--sm &__preview,
+  &:where([size='sm']) &__preview {
+    --wr-file-upload-preview-size: 1.5rem;
+  }
+
   &--lg &__zone,
   &:where([size='lg']) &__zone {
     --wr-file-upload-zone-gap: var(--wr-space-lg);
@@ -257,5 +339,10 @@
     --wr-file-upload-item-padding-x: var(--wr-space-lg);
     --wr-file-upload-item-font-size: var(--wr-text-base);
     --wr-file-upload-item-line-height: var(--wr-text-base-leading);
+  }
+
+  &--lg &__preview,
+  &:where([size='lg']) &__preview {
+    --wr-file-upload-preview-size: 2.5rem;
   }
 }

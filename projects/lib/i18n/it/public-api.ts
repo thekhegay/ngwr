@@ -145,6 +145,11 @@ export const wrIt: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Caricamento in corso',
+    uploaded: 'Caricato',
+    failed: 'Caricamento non riuscito',
+    status: '{{name}}: {{status}}',
+    retry: 'Riprova',
   },
   popconfirm: {
     label: 'Conferma azione',

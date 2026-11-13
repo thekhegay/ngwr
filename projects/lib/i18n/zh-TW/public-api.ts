@@ -145,6 +145,11 @@ export const wrZhTw: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: '正在上傳',
+    uploaded: '已上傳',
+    failed: '上傳失敗',
+    status: '{{name}}: {{status}}',
+    retry: '重試',
   },
   popconfirm: {
     label: '確認操作',

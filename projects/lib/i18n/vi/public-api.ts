@@ -147,6 +147,11 @@ export const wrVi: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Đang tải lên',
+    uploaded: 'Đã tải lên',
+    failed: 'Tải lên thất bại',
+    status: '{{name}}: {{status}}',
+    retry: 'Thử lại',
   },
   popconfirm: {
     label: 'Xác nhận hành động',

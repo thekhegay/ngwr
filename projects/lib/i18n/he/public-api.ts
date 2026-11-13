@@ -151,6 +151,11 @@ export const wrHe: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'מעלה',
+    uploaded: 'הועלה',
+    failed: 'ההעלאה נכשלה',
+    status: '{{name}}: {{status}}',
+    retry: 'ניסיון חוזר',
   },
   popconfirm: {
     label: 'אישור פעולה',

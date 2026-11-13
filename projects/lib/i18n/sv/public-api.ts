@@ -143,6 +143,11 @@ export const wrSv: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Laddar upp',
+    uploaded: 'Uppladdad',
+    failed: 'Uppladdningen misslyckades',
+    status: '{{name}}: {{status}}',
+    retry: 'Försök igen',
   },
   popconfirm: {
     label: 'Bekräfta åtgärden',

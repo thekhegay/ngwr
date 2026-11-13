@@ -145,6 +145,11 @@ export const wrRu: WrI18nCatalog = {
     unitMb: 'МБ',
     unitGb: 'ГБ',
     unitTb: 'ТБ',
+    uploading: 'Загружается',
+    uploaded: 'Загружено',
+    failed: 'Не удалось загрузить',
+    status: '{{name}}: {{status}}',
+    retry: 'Повторить',
   },
   popconfirm: {
     label: 'Подтверждение действия',

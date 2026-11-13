@@ -147,6 +147,11 @@ export const wrDe: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Wird hochgeladen',
+    uploaded: 'Hochgeladen',
+    failed: 'Hochladen fehlgeschlagen',
+    status: '{{name}}: {{status}}',
+    retry: 'Erneut versuchen',
   },
   popconfirm: {
     label: 'Aktion bestätigen',

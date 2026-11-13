@@ -153,6 +153,11 @@ export const wrUk: WrI18nCatalog = {
     unitMb: 'МБ',
     unitGb: 'ГБ',
     unitTb: 'ТБ',
+    uploading: 'Завантажується',
+    uploaded: 'Завантажено',
+    failed: 'Не вдалося завантажити',
+    status: '{{name}}: {{status}}',
+    retry: 'Повторити',
   },
   popconfirm: {
     label: 'Підтвердження дії',

@@ -145,6 +145,11 @@ export const wrJa: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'アップロード中',
+    uploaded: 'アップロード済み',
+    failed: 'アップロード失敗',
+    status: '{{name}}: {{status}}',
+    retry: '再試行',
   },
   popconfirm: {
     label: '操作の確認',
