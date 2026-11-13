@@ -43,7 +43,6 @@ import type {
  * Stands in for the consumer input `useI18nText` expects — the header strings take no
  * label inputs of their own.
  */
-const NO_OVERRIDE = signal<string | null>(null).asReadonly();
 
 const MINUTES_PER_DAY = 24 * 60;
 const DAYS_PER_WEEK = 7;
@@ -249,14 +248,38 @@ export class WrEventCalendar {
   private readonly dir = inject(Directionality, { optional: true });
   private readonly chipTpl = contentChild(WrCalendarEventTemplate);
 
+  /** Text of the button that jumps to today. Falls back to `eventCalendar.today`, then `'Today'`. */
+  readonly todayLabel = input<string | null>(null);
+
+  /** Accessible name of the back arrow. Falls back to `eventCalendar.previous`, then `'Previous'`. */
+  readonly previousLabel = input<string | null>(null);
+
+  /** Accessible name of the forward arrow. Falls back to `eventCalendar.next`, then `'Next'`. */
+  readonly nextLabel = input<string | null>(null);
+
+  /** Text of the all-day band, also read as the time of an all-day event. Falls back to `eventCalendar.allDay`, then `'All day'`. */
+  readonly allDayLabel = input<string | null>(null);
+
+  /** Accessible name of the time gutter column. Falls back to `eventCalendar.time`, then `'Time'`. */
+  readonly timeLabel = input<string | null>(null);
+
+  /** Text of the month option in the view switcher. Falls back to `eventCalendar.month`, then `'Month'`. */
+  readonly monthLabel = input<string | null>(null);
+
+  /** Text of the week option in the view switcher. Falls back to `eventCalendar.week`, then `'Week'`. */
+  readonly weekLabel = input<string | null>(null);
+
+  /** Text of the day option in the view switcher. Falls back to `eventCalendar.day`, then `'Day'`. */
+  readonly dayLabel = input<string | null>(null);
+
   // Reactive: a calendar is as long-lived as the page it sits on, so a catalog that
   // finishes loading after construction — or a locale switch — has to reach these.
   // Resolved once, as they were, they froze the English defaults in place.
-  protected readonly todayLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.today', 'Today');
-  protected readonly previousLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.previous', 'Previous');
-  protected readonly nextLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.next', 'Next');
-  protected readonly allDayLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.allDay', 'All day');
-  protected readonly timeLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.time', 'Time');
+  protected readonly resolvedTodayLabel = useI18nText(this.todayLabel, 'eventCalendar.today', 'Today');
+  protected readonly resolvedPreviousLabel = useI18nText(this.previousLabel, 'eventCalendar.previous', 'Previous');
+  protected readonly resolvedNextLabel = useI18nText(this.nextLabel, 'eventCalendar.next', 'Next');
+  protected readonly resolvedAllDayLabel = useI18nText(this.allDayLabel, 'eventCalendar.allDay', 'All day');
+  protected readonly resolvedTimeLabel = useI18nText(this.timeLabel, 'eventCalendar.time', 'Time');
   protected readonly moreLabel = useI18nFormatter('eventCalendar.more', '+{{count}} more');
   // The five composed strings. Each was a template literal, which localises the
   // words inside it and freezes the word ORDER and the punctuation between them
@@ -267,14 +290,14 @@ export class WrEventCalendar {
   private readonly chipLabelText = useI18nFormatter('eventCalendar.chipLabel', '{{title}}, {{time}}');
   private readonly slotLabelText = useI18nFormatter('eventCalendar.slotLabel', '{{time}} — {{date}}');
   private readonly allDayCellText = useI18nFormatter('eventCalendar.allDayCellLabel', '{{label}} — {{date}}');
-  private readonly monthLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.month', 'Month');
-  private readonly weekLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.week', 'Week');
-  private readonly dayLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.day', 'Day');
+  protected readonly resolvedMonthLabel = useI18nText(this.monthLabel, 'eventCalendar.month', 'Month');
+  protected readonly resolvedWeekLabel = useI18nText(this.weekLabel, 'eventCalendar.week', 'Week');
+  protected readonly resolvedDayLabel = useI18nText(this.dayLabel, 'eventCalendar.day', 'Day');
 
   protected readonly viewLabels = computed<Record<WrCalendarView, string>>(() => ({
-    month: this.monthLabel(),
-    week: this.weekLabel(),
-    day: this.dayLabel(),
+    month: this.resolvedMonthLabel(),
+    week: this.resolvedWeekLabel(),
+    day: this.resolvedDayLabel(),
   }));
 
   /** Accessible name of the grid; overridable for a page with several. */
@@ -456,7 +479,7 @@ export class WrEventCalendar {
     return days.map((date, col) => ({
       key: this.iso(date),
       date,
-      label: this.allDayCellText({ label: this.allDayLabel(), date: this.adapter.format(date, 'longDate') }),
+      label: this.allDayCellText({ label: this.resolvedAllDayLabel(), date: this.adapter.format(date, 'longDate') }),
       bands: bands[col],
     }));
   });
@@ -911,12 +934,12 @@ export class WrEventCalendar {
   // --------------------------------------------------------------- chrome
 
   protected chipLabel(event: WrCalendarEvent): string {
-    const time = event.allDay ? this.allDayLabel() : this.adapter.format(event.start, 'time');
+    const time = event.allDay ? this.resolvedAllDayLabel() : this.adapter.format(event.start, 'time');
     return this.chipLabelText({ title: event.title, time });
   }
 
   protected chipTime(event: WrCalendarEvent): string {
-    return event.allDay ? this.allDayLabel() : this.adapter.format(event.start, 'time');
+    return event.allDay ? this.resolvedAllDayLabel() : this.adapter.format(event.start, 'time');
   }
 
   protected canDrag(event: WrCalendarEvent): boolean {
