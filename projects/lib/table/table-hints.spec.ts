@@ -329,7 +329,9 @@ describe('WrTable header hints and truncated cells', () => {
     expect(document.querySelectorAll('.wr-overlay-container [title]')).toHaveLength(0);
   });
 
-  it('creates no tooltip in a large table until a cell is hovered, and then one', () => {
+  // 400 rows and 2,000 truncated cells in jsdom: about a second alone, and past
+  // the default five when every worker is busy.
+  it('creates no tooltip in a large table until a cell is hovered, and then one', { timeout: 20_000 }, () => {
     fixture.componentInstance.items.set(
       Array.from({ length: 400 }, (_, i) => ({
         id: i,
