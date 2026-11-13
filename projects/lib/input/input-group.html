@@ -17,6 +17,9 @@
       <path d="m6 6 12 12" />
     </svg>
   </span>
+} @else if (clearable()) {
+  <!-- Holds the ×'s room while the field is empty, so clearing does not narrow the group. -->
+  <span class="wr-input-group__clear-space" aria-hidden="true"></span>
 }
 <!-- Hidden from the accessibility tree: the field says it is busy with `aria-busy`. -->
 @if (loading()) {
