@@ -88,4 +88,9 @@
   .wr-table__loading-bar::after {
     animation-duration: 4s !important;
   }
+
+  // The same line as a component of its own.
+  .wr-progress--indeterminate .wr-progress__bar {
+    animation-duration: 4s !important;
+  }
 }

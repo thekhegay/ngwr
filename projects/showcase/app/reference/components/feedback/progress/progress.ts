@@ -37,6 +37,7 @@ export default class ProgressComponent {
     sizes: `<wr-progress size="sm" [value]="65" />
 <wr-progress size="md" [value]="65" />
 <wr-progress size="lg" [value]="65" />`,
+    indeterminate: `<wr-progress indeterminate />`,
     interactive: `<wr-progress [value]="value()" />
 <wr-slider [(value)]="value" />`,
   };
