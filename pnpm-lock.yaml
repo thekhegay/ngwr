@@ -291,8 +291,8 @@ importers:
         specifier: ^31.0.0
         version: 31.0.0
       lucide:
-        specifier: ^1.71.0
-        version: 1.71.0
+        specifier: ^1.72.0
+        version: 1.72.0
       ngtrue:
         specifier: ^0.3.0
         version: 0.3.0(@angular-devkit/schematics@22.2.6(chokidar@6.0.0))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(@angular/forms@22.2.5(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(@angular/platform-browser@22.2.5(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)))(rxjs@7.8.2))(semver@7.8.6)(typescript@6.0.3)
@@ -3401,8 +3401,8 @@ packages:
     resolution: {integrity: sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg==}
     engines: {node: 20 || >=22}
 
-  lucide@1.71.0:
-    resolution: {integrity: sha512-n6KHs0byHCG6fAQKBb+UhZtrUZM6v0ithDErPte6PkWkSijH0tPQoETnMobubUSj4okhAMeE6xUc/5S8LndrRg==}
+  lucide@1.72.0:
+    resolution: {integrity: sha512-075vCJzyx+LU3xBzfaHjsvrtbiIvVUjbfsdJCG5rPeXs0O/07aH5cDz1zoWn0acupuffXsN/iG6OkvVqYTGunw==}
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -7292,7 +7292,7 @@ snapshots:
 
   lru-cache@11.5.3: {}
 
-  lucide@1.71.0: {}
+  lucide@1.72.0: {}
 
   magic-string@0.30.21:
     dependencies:
