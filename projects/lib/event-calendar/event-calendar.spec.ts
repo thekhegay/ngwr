@@ -908,3 +908,102 @@ describe('WrEventCalendar composes its strings from the catalog', () => {
     ).toBe(true);
   });
 });
+
+/** A few hundred single-day events from late December to mid February, in no order. */
+const MANY: readonly WrCalendarEvent[] = (() => {
+  let seed = 7;
+  const next = (below: number): number => {
+    seed = (seed * 1103515245 + 12345) % 2147483648;
+    return seed % below;
+  };
+  return Array.from({ length: 320 }, (_, i): WrCalendarEvent => {
+    // Day -10 is December 21st and day 50 February 19th, both outside the January grid.
+    const day = next(61) - 10;
+    if (i % 9 === 0) return { id: i, title: `E${i}`, start: AT(day, 0), end: AT(day + 1, 0), allDay: true };
+    const start = AT(day, 1 + next(20), next(12) * 5);
+    return { id: i, title: `E${i}`, start, end: new Date(start.getTime() + (15 + next(8) * 15) * 60_000) };
+  });
+})();
+
+@Component({
+  imports: [WrEventCalendar],
+  template: ` <wr-event-calendar maxLanes="100" [events]="events" [view]="view()" [date]="date" /> `,
+})
+class ManyHost {
+  protected readonly events = MANY;
+  protected readonly date = AT(14);
+  readonly view = signal<WrCalendarView>('month');
+}
+
+/**
+ * The layouts bucket their chips once per view rather than filtering per cell, so what
+ * holds them is the whole output: every event in range, in the cell it starts in, in order.
+ */
+describe('WrEventCalendar with a few hundred events', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ManyHost>>;
+
+  /** What each cell holding chips shows, in DOM order: its accessible name and its chips' events. */
+  const rendered = (): string[][] =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[role="gridcell"]')]
+      .map(cell =>
+        [...cell.querySelectorAll<HTMLElement>('.wr-event-calendar__chip')].map(
+          chip => /E\d+/.exec(chip.getAttribute('aria-label') ?? chip.textContent)?.[0] ?? '?'
+        )
+      )
+      .filter(titles => titles.length > 0);
+  /** The component's own order: by start, the longer event first on a tie, then as given. */
+  const inOrder = (events: readonly WrCalendarEvent[]): WrCalendarEvent[] =>
+    [...events].sort((a, b) => a.start.getTime() - b.start.getTime() || b.end.getTime() - a.end.getTime());
+  const between = (from: Date, to: Date): WrCalendarEvent[] =>
+    inOrder(MANY.filter(e => e.end.getTime() > from.getTime() && e.start.getTime() < to.getTime()));
+  const titles = (events: readonly WrCalendarEvent[]): string[] => events.map(e => e.title);
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
+    fixture = TestBed.createComponent(ManyHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('draws every event of the month grid in the day it starts on, in order', () => {
+    // January 2026 on a Sunday-first grid: December 28th to February 7th.
+    const expected: string[][] = [];
+    for (let day = -3; day <= 38; day++) {
+      const onDay = between(AT(day, 0), AT(day + 1, 0));
+      if (onDay.length > 0) expected.push(titles(onDay));
+    }
+
+    expect(expected.flat().length).toBeGreaterThan(150);
+    expect(rendered()).toEqual(expected);
+  });
+
+  it('draws every event of a week in its all-day cell or in the slot it starts in, in order', () => {
+    fixture.componentInstance.view.set('week');
+    fixture.detectChanges();
+
+    // The week of the 14th is the 11th to the 17th: the all-day row first, then a row per
+    // half hour, each a cell per day.
+    const week = between(AT(11, 0), AT(18, 0));
+    const expected: string[][] = [];
+    for (let day = 11; day <= 17; day++) {
+      const allDay = week.filter(e => e.allDay && e.start.getTime() === AT(day, 0).getTime());
+      if (allDay.length > 0) expected.push(titles(allDay));
+    }
+    for (let slot = 0; slot < 48; slot++) {
+      for (let day = 11; day <= 17; day++) {
+        const from = AT(day, 0).getTime() + slot * 30 * 60_000;
+        const inSlot = week.filter(
+          e => !e.allDay && e.start.getTime() >= from && e.start.getTime() < from + 30 * 60_000
+        );
+        if (inSlot.length > 0) expected.push(titles(inSlot));
+      }
+    }
+
+    expect(expected.flat()).toHaveLength(week.length);
+    expect(week.length).toBeGreaterThan(25);
+    expect(week.length).toBeLessThan(MANY.length / 4);
+    expect(rendered()).toEqual(expected);
+  });
+});
