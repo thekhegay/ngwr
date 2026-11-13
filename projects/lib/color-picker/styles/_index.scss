@@ -12,6 +12,7 @@
 //
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
+@use '../../popover/styles' as popover-styles; // WrPopover
 @use '../../segmented/styles' as segmented-styles; // WrSegmented
 @include theme.loaded('color-picker');
 

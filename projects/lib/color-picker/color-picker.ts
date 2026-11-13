@@ -5,13 +5,15 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { InputModalityDetector } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, isPlatformBrowser } from '@angular/common';
 import {
   Component,
   type ElementRef,
   HostAttributeToken,
+  PLATFORM_ID,
   ViewEncapsulation,
   computed,
   effect,
@@ -20,12 +22,14 @@ import {
   model,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { wrReadI18nText, useI18nFormatter } from 'ngwr/i18n';
+import { WrPopover } from 'ngwr/popover';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
@@ -99,7 +103,7 @@ function hasAlphaDigits(hex: string): boolean {
   // tab strip found the field's token and announced the colour field's error as
   // its own — which is why `fieldAria` below reads the field with `skipSelf`.
   providers: [{ provide: WR_FORM_FIELD, useValue: null }],
-  imports: [DecimalPipe, WrSegmented],
+  imports: [DecimalPipe, WrPopover, WrSegmented],
 })
 export class WrColorPicker implements FormValueControl<string> {
   /** Render the alpha slider and emit 8-digit hex / `rgba()`. @default true */
@@ -159,8 +163,21 @@ export class WrColorPicker implements FormValueControl<string> {
 
   /** The presets, each with the name its button announces. */
   protected readonly presets = computed(() =>
-    this.swatches().map(swatch => (typeof swatch === 'string' ? { value: swatch, label: swatch } : swatch))
+    this.swatches().map(swatch =>
+      typeof swatch === 'string' ? { value: swatch, label: swatch, named: false } : { ...swatch, named: true }
+    )
   );
+
+  /**
+   * The swatch the picker's one tooltip is for, and its name. A bare string has
+   * none: its value is already its accessible name and a tooltip would only
+   * repeat it. `aria-describedby` lands on the tooltip's hidden host, so the
+   * button keeps `aria-label` as its only name and nothing is read twice.
+   */
+  protected readonly tip = signal<{ readonly el: HTMLElement; readonly text: string } | null>(null);
+  private readonly swatchRow = viewChild<ElementRef<HTMLElement>>('swatchRow');
+  private readonly modality = inject(InputModalityDetector);
+  private readonly platformId = inject(PLATFORM_ID);
 
   /**
    * Panel size: its width, padding, the saturation surface and the thumbs. The
@@ -330,8 +347,43 @@ export class WrColorPicker implements FormValueControl<string> {
 
   private readonly area = viewChild.required<ElementRef<HTMLElement>>('area');
 
+  private onSwatchTarget(event: Event): void {
+    // A focus the keyboard did not move shows no tooltip, as on any `wrPopover`.
+    if (event.type === 'focusin' && this.modality.mostRecentModality !== 'keyboard') return;
+    const button = (event.target as Element).closest<HTMLElement>('.wr-color-picker__swatch');
+    if (!button || button.hasAttribute('disabled')) return;
+    const swatch = this.presets()[Array.prototype.indexOf.call(button.parentElement?.children ?? [], button)];
+    const text = swatch?.named ? swatch.label : '';
+    const current = this.tip();
+    if (!text) {
+      if (current?.el === button) this.tip.set(null);
+    } else if (current?.el !== button || current.text !== text) {
+      this.tip.set({ el: button, text });
+    }
+  }
+
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('color-picker');
+    // Native and delegated: one pair of listeners for the whole row, and no
+    // change detection per `mouseover`.
+    effect(onCleanup => {
+      const row = this.swatchRow()?.nativeElement;
+      if (!row || !isPlatformBrowser(this.platformId)) return;
+      const listener = (event: Event): void => this.onSwatchTarget(event);
+      row.addEventListener('mouseover', listener);
+      row.addEventListener('focusin', listener);
+      onCleanup(() => {
+        row.removeEventListener('mouseover', listener);
+        row.removeEventListener('focusin', listener);
+      });
+    });
+    // A swatch that is gone, or the picker going inert, leaves no tooltip behind.
+    effect(() => {
+      this.presets();
+      this.disabled();
+      this.readonly();
+      untracked(() => this.tip.set(null));
+    });
     // External writes (via `[formField]` / `[(value)]`) flow the incoming hex
     // string back into the HSV source of truth. Our own emits are skipped via
     // `lastEmitted` so dragging keeps its continuous (unquantised) values.

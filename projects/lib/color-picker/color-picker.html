@@ -210,7 +210,7 @@
 }
 
 @if (presets().length > 0) {
-  <div class="wr-color-picker__swatches">
+  <div #swatchRow class="wr-color-picker__swatches">
     @for (swatch of presets(); track swatch.value) {
       <button
         type="button"
@@ -223,4 +223,8 @@
       ></button>
     }
   </div>
+  <!-- The picker's one tooltip, for a named swatch (see `tip`). -->
+  @if (tip(); as shown) {
+    <span hidden [wrPopover]="shown.text" mode="tooltip" [wrPopoverOrigin]="shown.el"></span>
+  }
 }
