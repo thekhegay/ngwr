@@ -71,4 +71,6 @@ export interface WrSelectContext {
   selectOption(value: unknown): void;
   /** Register an option; returns an unregister function. */
   registerOption(reg: WrSelectOptionRegistration): () => void;
+  /** Replace a registered option, matched by id, without moving it. */
+  updateOption(reg: WrSelectOptionRegistration): void;
 }

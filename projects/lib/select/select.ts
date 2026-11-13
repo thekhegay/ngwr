@@ -639,6 +639,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    * keeps its place, since the sort is stable.
    */
   private readonly orderedRegistry = computed<readonly WrSelectOptionRegistration[]>(() => {
+    this.panelAttached();
     const list = this.registry();
     if (list.length < 2) return list;
     return [...list].sort((a, b) => {
@@ -655,8 +656,8 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       // binding reads this computed on exactly that pass. For disconnected nodes
       // the spec lets a UA answer PRECEDING or FOLLOWING arbitrarily, as long as
       // it answers consistently; the answer means nothing, and the computed
-      // CACHES it until the registry itself changes, so one meaningless
-      // comparison decides the cursor order for the life of the select. Chromium
+      // CACHES it until the registry changes or the panel attaches, so one
+      // meaningless comparison would decide the cursor order until then. Chromium
       // happens to answer in tree order and jsdom happens to answer in reverse,
       // which is the whole difference between a working component and one where
       // End lands on the first option. Registration order is the honest fallback:
@@ -668,6 +669,13 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       return 0;
     });
   });
+
+  /**
+   * Bumped once the panel is attached. Only then are projected option hosts in
+   * the document, so only then can `orderedRegistry` sort what was added or
+   * moved while the panel was closed.
+   */
+  private readonly panelAttached = signal(0);
 
   /** Keyboard cursor index into `options`. -1 = none. */
   protected readonly activeIndex = signal(-1);
@@ -1218,7 +1226,10 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery.set(value);
     if (this.meetsMinChars()) {
-      if (!this.isOpen()) this.isOpen.set(true);
+      if (!this.isOpen()) {
+        this.reseedOnAttach = 'first';
+        this.isOpen.set(true);
+      }
     } else if (this.isOpen()) {
       this.isOpen.set(false);
     }
@@ -1271,7 +1282,6 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
 
   /** A pointer is down inside the panel: until it lifts, a blur of the field is not a leave. */
   private pressInPanel = false;
-
   protected onPanelPointerDown(event: PointerEvent): void {
     this.pressInPanel = true;
     (event.view ?? window).addEventListener('pointerup', () => (this.pressInPanel = false), {
@@ -1653,6 +1663,14 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     return () => this.registry.update(list => list.filter(o => o.id !== reg.id));
   }
 
+  /**
+   * Replaces a registered option in its slot, so a change of value or disabled
+   * does not move it in the keyboard order. @internal
+   */
+  updateOption(reg: WrSelectOptionRegistration): void {
+    this.registry.update(list => list.map(o => (o.id === reg.id ? reg : o)));
+  }
+
   // Chip handlers (multi + tag)
 
   /**
@@ -1894,13 +1912,15 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
 
   /**
    * A seed was taken before the panel attached. The panel's own `[options]` rows
-   * register as the portal attaches, so a seed over a registry without them is
-   * redone then; a click-open seeds nothing and stays cursor-less.
+   * register as the portal attaches, and projected ones can only be put in DOM
+   * order then, so a seed is redone over the list as rendered: `selected` as
+   * `seedActiveIndex` takes it, `first` as a query does. A click-open seeds
+   * nothing and stays cursor-less.
    */
-  private reseedOnAttach = false;
+  private reseedOnAttach: 'selected' | 'first' | null = null;
 
   private seedActiveIndex(): void {
-    this.reseedOnAttach = true;
+    this.reseedOnAttach = 'selected';
     if (this.virtualActive()) {
       const list = this.filteredDynamicOptions();
       const idx = list.findIndex(it => this.isSelected(it));
@@ -2010,12 +2030,13 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
-    const registered = this.registry().length;
     this.overlayRef.attach(portal);
-    if (this.reseedOnAttach && !this.virtualActive() && this.registry().length !== registered) {
-      this.seedActiveIndex();
+    this.panelAttached.update(n => n + 1);
+    if (!this.virtualActive()) {
+      if (this.reseedOnAttach === 'selected') this.seedActiveIndex();
+      else if (this.reseedOnAttach === 'first') this.activeIndex.set(this.firstEnabled());
     }
-    this.reseedOnAttach = false;
+    this.reseedOnAttach = null;
 
     // Seed the projected panel's scroll onto the cursor the same way the virtual
     // one is seeded from its own effect: opening a select whose selected option
