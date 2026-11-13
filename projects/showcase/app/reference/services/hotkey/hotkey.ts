@@ -1,6 +1,14 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 
-import { WrHotkey, type WrHotkeySpec, wrFormatChord } from 'ngwr/hotkey';
+import { WrButton } from 'ngwr/button';
+import {
+  WrHotkey,
+  type WrHotkeySpec,
+  wrFormatChord,
+  wrHotkeyPlatform,
+  wrMatchesHotkey,
+  wrParseHotkeySpec,
+} from 'ngwr/hotkey';
 import { WrKbd } from 'ngwr/keyboard';
 
 import {
@@ -19,6 +27,7 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-svc-hotkey-page',
   templateUrl: './hotkey.html',
   imports: [
+    WrButton,
     WrKbd,
     DocPageComponent,
     DocSectionComponent,
@@ -53,7 +62,44 @@ export default class HotkeyServicePageComponent {
   protected readonly mac = (chord: WrHotkeySpec): string => wrFormatChord(chord, 'mac');
   protected readonly other = (chord: WrHotkeySpec): string => wrFormatChord(chord, 'other');
 
+  /** The last chord pressed in the matching demo, and whether it is `mod+shift+k`. */
+  protected readonly pressed = signal<{ readonly keys: string; readonly matches: boolean } | null>(null);
+
+  protected onChord(event: KeyboardEvent): void {
+    // A modifier on its own is not a chord yet, and Tab has to keep leaving the field.
+    if (['Control', 'Alt', 'Shift', 'Meta', 'Tab'].includes(event.key)) return;
+    const matches = wrMatchesHotkey(event, wrParseHotkeySpec('mod+shift+k', wrHotkeyPlatform() === 'mac'));
+    if (matches) event.preventDefault();
+    const keys = [
+      event.ctrlKey && 'Ctrl',
+      event.altKey && 'Alt',
+      event.shiftKey && 'Shift',
+      event.metaKey && 'Meta',
+      event.key === ' ' ? 'Space' : event.key,
+    ];
+    this.pressed.set({ keys: keys.filter(Boolean).join(' + '), matches });
+  }
+
+  protected readonly parsedRows = (
+    [
+      ['mod+shift+k', false],
+      ['mod+shift+k', true],
+      ['alt+up', false],
+      ['esc', false],
+    ] as const
+  ).map(([spec, isMac]) => ({ spec, isMac, parsed: JSON.stringify(wrParseHotkeySpec(spec, isMac)) }));
+
   protected readonly snippets = {
+    match: `import { wrHotkeyPlatform, wrMatchesHotkey, wrParseHotkeySpec } from 'ngwr/hotkey';
+
+// In the browser: on the server the platform reads 'other'.
+private readonly save = wrParseHotkeySpec('mod+s', wrHotkeyPlatform() === 'mac');
+
+protected onKeydown(event: KeyboardEvent): void {
+  if (!wrMatchesHotkey(event, this.save)) return;
+  event.preventDefault();
+  this.saveCell();
+}`,
     usage: `private readonly hotkeys = inject(WrHotkey);
 
 constructor() {
@@ -96,6 +142,24 @@ wrFormatChord('mod+k', 'mac'); // ⌘K, whatever the platform`,
       description:
         "`'mac'` when the user agent names a Mac, `'other'` elsewhere and where there is no navigator, which is the server.",
       type: "(userAgent?: string | null) => 'mac' | 'other'",
+      default: '-',
+    },
+    {
+      name: 'wrParseHotkeySpec(spec, isMac?)',
+      description: 'A spec as a `WrParsedHotkey`. `isMac` decides `mod`: `meta` when `true`, `ctrl` otherwise.',
+      type: '(spec: WrHotkeySpec, isMac?: boolean) => WrParsedHotkey',
+      default: 'isMac: false',
+    },
+    {
+      name: 'wrMatchesHotkey(event, parsed)',
+      description: 'Whether the event is the parsed chord: the four modifiers exactly, then the key.',
+      type: '(event: KeyboardEvent, parsed: WrParsedHotkey) => boolean',
+      default: '-',
+    },
+    {
+      name: 'WrParsedHotkey',
+      description: 'A parsed spec: the four modifier flags and the lowercased `KeyboardEvent.key`.',
+      type: '{ ctrl: boolean; alt: boolean; shift: boolean; meta: boolean; key: string }',
       default: '-',
     },
     {
