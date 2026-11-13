@@ -18,21 +18,31 @@ import {
   inject,
   input,
   model,
+  output,
   signal,
   untracked,
 } from '@angular/core';
+import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrDateAdapter } from 'ngwr/date';
+import { useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { wrCheckStyles } from 'ngwr/utils';
 
-import type { WrCalendarMode, WrCalendarRange } from './types';
+import type { WrCalendarMode, WrCalendarRange, WrCalendarValue } from './types';
 
 /**
  * Stands in for the consumer input `useI18nText` expects, for labels the calendar
  * exposes no input for. Constant and read-only, so one instance is safe to share.
  */
 const NO_OVERRIDE = signal<string | null>(null).asReadonly();
+
+const EMPTY_RANGE: WrCalendarRange = [null, null];
+
+/** A `min` / `max` binding as the calendar reads it: a date, or no bound. */
+function asBound(value: unknown): Date | undefined {
+  return value instanceof Date ? value : undefined;
+}
 
 const ROWS = 6;
 const COLS = 7;
@@ -54,11 +64,20 @@ const YEAR_COLS = 4;
  * Uses {@link WrDateAdapter} for all date math and formatting — the native
  * one unless `provideWr(withDates(...))` registers another.
  *
+ * A signal-forms native control: it implements
+ * `FormValueControl<WrCalendarValue>`, so `[formField]` binds straight to its
+ * `value` model: a `Date | null` in `single` mode, a `[start, end]` tuple or
+ * `null` in `range` mode. `[(date)]` and `[(range)]` stay the standalone
+ * bindings, and each mirrors `value` in its own mode.
+ *
  * @example
  * ```html
  * <wr-calendar [(date)]="picked" [min]="minDate" />
  *
  * <wr-calendar mode="range" [(range)]="[start, end]" />
+ *
+ * <!-- signal forms -->
+ * <wr-calendar [formField]="form.due" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/calendar
@@ -74,9 +93,10 @@ const YEAR_COLS = 4;
     // only own rows. The role sits on `.wr-calendar__body`, which is the day
     // matrix and nothing else.
     '(keydown)': 'onKeyDown($event)',
+    '(focusout)': 'onFocusOut($event)',
   },
 })
-export class WrCalendar {
+export class WrCalendar implements FormValueControl<WrCalendarValue> {
   /** Selection mode. @default 'single' */
   readonly mode = input<WrCalendarMode>('single');
 
@@ -86,11 +106,26 @@ export class WrCalendar {
   /** Two-way bindable `[start, end]` (used when `mode === 'range'`). */
   readonly range = model<WrCalendarRange>([null, null]);
 
-  /** Min selectable date (inclusive). */
-  readonly min = input<Date | null>(null);
+  /**
+   * The selection as one value, whatever the mode: a `Date` in `single` mode, a
+   * `[start, end]` tuple in `range` mode, `null` while nothing is picked. Bound
+   * by `[formField]`, or two-way via `[(value)]`. Kept in step with `date` and
+   * `range`: a write to either side reaches the other.
+   */
+  readonly value = model<WrCalendarValue>(null);
 
-  /** Max selectable date (inclusive). */
-  readonly max = input<Date | null>(null);
+  /** Emitted when focus leaves the calendar, so a bound field can mark itself touched. */
+  readonly touch = output<void>();
+
+  // `FormUiControl` reserves `min` / `max`, keyed to the control's value type:
+  // `[formField]` type-checks the field's value against them and writes the
+  // schema's bound here. So they are typed by the value, take anything and keep
+  // only a date, which leaves `null` working as "no bound". `wr-slider` does the same.
+  /** Min selectable date (inclusive). Takes a `Date`; `null` or `undefined` is no bound. */
+  readonly min = input<NonNullable<WrCalendarValue> | undefined, unknown>(undefined, { transform: asBound });
+
+  /** Max selectable date (inclusive). Takes a `Date`; `null` or `undefined` is no bound. */
+  readonly max = input<NonNullable<WrCalendarValue> | undefined, unknown>(undefined, { transform: asBound });
 
   /** Predicate — return `false` to disable specific dates (e.g. weekends only). */
   readonly dateFilter = input<((date: Date) => boolean) | null>(null);
@@ -107,6 +142,17 @@ export class WrCalendar {
 
   /** Disable interaction entirely. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Read-only: the grid keeps its tab stop, the arrows still move the cursor and
+   * the header still pages through months and years, but picking a day writes
+   * nothing. Bound automatically from the field's readonly state when used with
+   * `[formField]`. Mirrored as `aria-readonly` on the day grid.
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  protected readonly fieldAria = useFormFieldAria();
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
   private readonly dir = inject(Directionality, { optional: true });
@@ -306,11 +352,50 @@ export class WrCalendar {
   protected readonly classes = computed(() => {
     const parts = [`wr-calendar--${this.mode()}`];
     if (this.disabled()) parts.push('wr-calendar--disabled');
+    if (this.readonly()) parts.push('wr-calendar--readonly');
     return parts.join(' ');
   });
 
+  /** What the sync effect last saw on each side, so it can tell which one was written. */
+  private seenValue: WrCalendarValue = null;
+  private seenOwn: Date | WrCalendarRange | null | undefined;
+
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('calendar');
+
+    // `value` and the mode's own model (`date` or `range`) are one selection
+    // under two names. Whichever was written since the last run is copied onto
+    // the other; when both were, `value` wins, since it is what a form owns.
+    // Declared first, so the effect below already reads the settled `date` / `range`.
+    // The default tuple, by identity: how a range nobody has bound is told apart.
+    const unboundRange = this.range();
+    effect(() => {
+      const isRange = this.mode() === 'range';
+      const value = this.value();
+      const own = isRange ? this.range() : this.date();
+      untracked(() => {
+        if (this.seenOwn === undefined) this.seenOwn = isRange ? unboundRange : null;
+
+        if (value !== this.seenValue) {
+          this.seenValue = value;
+          if (isRange) {
+            const next = this.asRange(value);
+            const [start, end] = own as WrCalendarRange;
+            // Same two ends: the tuple the consumer bound stays the one it reads.
+            if (next[0] !== start || next[1] !== end) this.range.set(next);
+            this.seenOwn = this.range();
+          } else {
+            const next = value instanceof Date ? value : null;
+            this.date.set(next);
+            this.seenOwn = next;
+          }
+        } else if (own !== this.seenOwn) {
+          this.seenOwn = own;
+          this.mirrorToValue(own);
+        }
+      });
+    });
+
     // Initial focus: selected date if any, else today. Also snap viewDate to
     // that month.
     //
@@ -533,9 +618,9 @@ export class WrCalendar {
 
   protected isDisabled(date: Date): boolean {
     if (this.disabled()) return true;
-    const min = this.min();
+    const min = asBound(this.min());
     if (min && this.adapter.compareDate(date, min) < 0) return true;
-    const max = this.max();
+    const max = asBound(this.max());
     if (max && this.adapter.compareDate(date, max) > 0) return true;
     const filter = this.dateFilter();
     if (filter && !filter(date)) return true;
@@ -559,9 +644,9 @@ export class WrCalendar {
     const year = this.adapter.getYear(this.viewDate());
     const monthStart = this.adapter.createDate(year, monthIdx, 1);
     const monthEnd = this.adapter.createDate(year, monthIdx, this.adapter.getDaysInMonth(monthStart));
-    const min = this.min();
+    const min = asBound(this.min());
     if (min && this.adapter.compareDate(monthEnd, min) < 0) return true;
-    const max = this.max();
+    const max = asBound(this.max());
     if (max && this.adapter.compareDate(monthStart, max) > 0) return true;
     return false;
   }
@@ -577,9 +662,9 @@ export class WrCalendar {
 
   protected isYearDisabled(year: number): boolean {
     if (this.disabled()) return true;
-    const min = this.min();
+    const min = asBound(this.min());
     if (min && year < this.adapter.getYear(min)) return true;
-    const max = this.max();
+    const max = asBound(this.max());
     if (max && year > this.adapter.getYear(max)) return true;
     return false;
   }
@@ -587,11 +672,17 @@ export class WrCalendar {
   // Interaction
 
   protected onCellClick(date: Date): void {
-    if (this.isDisabled(date)) return;
+    // The one way a pick reaches the models, so the one place `readonly` guards.
+    if (this.readonly() || this.isDisabled(date)) return;
     if (this.mode() === 'single') {
-      this.date.set(this.adapter.clone(date));
+      const picked = this.adapter.clone(date);
+      this.date.set(picked);
+      this.seenOwn = picked;
+      this.mirrorToValue(picked);
     } else {
       this.applyRangeClick(date);
+      this.seenOwn = this.range();
+      this.mirrorToValue(this.seenOwn);
     }
     this.focusedDate.set(date);
     if (!this.adapter.isSameMonth(date, this.viewDate())) {
@@ -600,7 +691,42 @@ export class WrCalendar {
   }
 
   protected onCellEnter(date: Date): void {
-    if (this.mode() === 'range') this.hoverDate.set(date);
+    // No preview while read-only: it draws the range a click would not make.
+    if (this.mode() === 'range' && !this.readonly()) this.hoverDate.set(date);
+  }
+
+  /**
+   * Focus the calendar, which is what Signal Forms calls to focus this control.
+   * Focus goes where Tab would put it: the day or the chip holding the roving
+   * tab stop, since the host has none of its own.
+   */
+  focus(options?: FocusOptions): void {
+    this.host.nativeElement
+      .querySelector<HTMLElement>('.wr-calendar__day[tabindex="0"], .wr-calendar__chip[tabindex="0"]')
+      ?.focus(options);
+  }
+
+  /**
+   * Leaving the calendar marks a bound field touched. A `relatedTarget` inside
+   * the host is focus moving between cells, chips and the header, which is not
+   * leaving.
+   */
+  protected onFocusOut(event: FocusEvent): void {
+    const next = event.relatedTarget;
+    if (next instanceof Node && this.host.nativeElement.contains(next)) return;
+    this.touch.emit();
+  }
+
+  /** Mirrors the mode's own model onto `value`. An empty range is `null`, as a form reads "nothing picked". */
+  private mirrorToValue(own: Date | WrCalendarRange | null): void {
+    const next = Array.isArray(own) && !own[0] && !own[1] ? null : own;
+    this.seenValue = next;
+    this.value.set(next);
+  }
+
+  /** `value` as the `range` model holds it. A lone `Date` is not a range and reads as empty. */
+  private asRange(value: WrCalendarValue): WrCalendarRange {
+    return Array.isArray(value) ? (value as WrCalendarRange) : EMPTY_RANGE;
   }
 
   protected onCellLeave(): void {

@@ -1,9 +1,9 @@
 <ngwr-doc-page
   title="Calendar"
-  updated="15.0.0"
+  updated="16.3.0"
   description="A month calendar for picking a date or a date range."
   [keywords]="['calendar', 'date', 'range', 'wr-calendar']"
-  [labels]="['a11y']"
+  [labels]="['Signal Forms', 'a11y']"
 >
   <ngwr-doc-section
     title="Single date"
@@ -30,6 +30,22 @@
     <ngwr-doc-snippet code="">
       <wr-calendar [(date)]="bounded" [min]="minDate" [max]="maxDate" [dateFilter]="isWeekday" />
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="In a form"
+    description="`[formField]` binds `value`: a date, or a `[start, end]` pair in range mode. Leaving the calendar marks the field touched."
+  >
+    <ngwr-doc-snippet [files]="formFiles">
+      <wr-form-field label="Due date">
+        <wr-calendar [formField]="task.due" />
+      </wr-form-field>
+      <wr-switch [(checked)]="locked">Read-only</wr-switch>
+    </ngwr-doc-snippet>
+    <p>
+      A <code>readonly</code> calendar keeps its tab stop, its arrows and its header. Only the pick is refused.
+      <code>disabled</code> takes it out of the tab order.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section

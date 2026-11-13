@@ -309,4 +309,9 @@
     pointer-events: none;
     opacity: var(--wr-disabled-opacity);
   }
+
+  // Still focusable and browsable, so only the cue changes: a day no longer picks.
+  &--readonly &__day:not(:disabled) {
+    cursor: default;
+  }
 }

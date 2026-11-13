@@ -59,7 +59,14 @@
       parent at all. `.wr-calendar__body` repeats the host's column gap, so the
       rendered spacing is unchanged.
     -->
-    <div class="wr-calendar__body" role="grid">
+    <div
+      class="wr-calendar__body"
+      role="grid"
+      [attr.aria-labelledby]="fieldAria.labelledBy()"
+      [attr.aria-readonly]="readonly() ? 'true' : null"
+      [attr.aria-invalid]="fieldAria.ariaInvalid()"
+      [attr.aria-describedby]="fieldAria.describedBy()"
+    >
       <div class="wr-calendar__weekdays" role="row">
         @for (name of weekdayNames(); track name) {
           <span class="wr-calendar__weekday" role="columnheader">{{ name }}</span>
@@ -104,7 +111,13 @@
       out of the list — that the component did not have. `activeChip()` is where
       the ring is, and it is always an enabled chip.
     -->
-    <div class="wr-calendar__months" role="listbox" [attr.aria-label]="monthListLabel()">
+    <div
+      class="wr-calendar__months"
+      role="listbox"
+      [attr.aria-label]="monthListLabel()"
+      [attr.aria-invalid]="fieldAria.ariaInvalid()"
+      [attr.aria-describedby]="fieldAria.describedBy()"
+    >
       @for (name of monthsView(); track name) {
         <button
           type="button"
@@ -125,7 +138,13 @@
   }
 
   @case ('year') {
-    <div class="wr-calendar__years" role="listbox" [attr.aria-label]="yearListLabel()">
+    <div
+      class="wr-calendar__years"
+      role="listbox"
+      [attr.aria-label]="yearListLabel()"
+      [attr.aria-invalid]="fieldAria.ariaInvalid()"
+      [attr.aria-describedby]="fieldAria.describedBy()"
+    >
       @for (year of yearsView(); track year) {
         <button
           type="button"

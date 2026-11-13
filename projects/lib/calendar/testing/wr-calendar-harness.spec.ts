@@ -22,6 +22,7 @@ import { WrCalendarHarness } from './wr-calendar-harness';
       [max]="max()"
       [dateFilter]="filter()"
       [disabled]="disabled()"
+      [readonly]="locked()"
     />
   `,
 })
@@ -33,6 +34,7 @@ class Host {
   readonly max = signal<Date | null>(null);
   readonly filter = signal<((date: Date) => boolean) | null>(null);
   readonly disabled = signal(false);
+  readonly locked = signal(false);
 }
 
 /**
@@ -304,6 +306,23 @@ describe('WrCalendarHarness', () => {
 
     await harness.pressArrow('right');
     expect(await harness.getActiveDayNumber()).toBe(15);
+  });
+
+  it('reports a read-only calendar, which still pages and refuses the pick', async () => {
+    const harness = await calendar();
+    expect(await harness.isReadonly()).toBe(false);
+
+    fixture.componentInstance.locked.set(true);
+    await fixture.whenStable();
+
+    expect(await harness.isReadonly()).toBe(true);
+    expect(await harness.isDisabled()).toBe(false);
+
+    await (await harness.getDay(20)).click();
+    expect(await harness.getSelectedDayNumbers()).toEqual([15]);
+
+    await harness.next();
+    expect(await harness.getHeaderLabel()).toBe('April 2026');
   });
 
   it('marks the days min and max ruled out', async () => {
