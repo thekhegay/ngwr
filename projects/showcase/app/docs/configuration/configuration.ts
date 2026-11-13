@@ -141,6 +141,34 @@ export class AppDateAdapter extends WrDateAdapter<Date> {
 }
 
 providers: [provideWr(withDates({ adapter: AppDateAdapter }))],`,
+
+    dateTokens: `import { inject } from '@angular/core';
+import {
+  WR_DATE_INPUT,
+  WR_DATE_STAMP_DEFAULTS,
+  WrDateAdapter,
+  wrIsDateOnly,
+  wrToLocalDate,
+  type WrParseDateOptions,
+} from 'ngwr/date';
+
+// Your adapter honours epochUnit and zonelessIn.
+export class AppDateAdapter extends WrDateAdapter<Date> {
+  private readonly input = inject(WR_DATE_INPUT);
+
+  override parseOptions(): WrParseDateOptions {
+    return this.input;
+  }
+}
+
+// Your component follows the wr-date-stamp defaults.
+private readonly stamp = inject(WR_DATE_STAMP_DEFAULTS);
+protected readonly dateFormat = this.stamp.dateFormat ?? 'mediumDate';
+
+wrIsDateOnly('2026-01-01'); // true: a day
+wrIsDateOnly('2026-01-01T09:00:00Z'); // false: an instant
+wrToLocalDate('2026-01-01'); // 1 January at local midnight, in every zone
+new Date('2026-01-01'); // UTC midnight: still 31 December in New York`,
   };
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
