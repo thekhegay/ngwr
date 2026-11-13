@@ -50,6 +50,8 @@ export const wrRu: WrI18nCatalog = {
     search: 'Поиск',
     reset: 'Сбросить',
     columns: 'Столбцы',
+    selected: 'Выбрано: {{count}}',
+    clearSelection: 'Снять выделение',
   },
   eventCalendar: {
     today: 'Сегодня',

@@ -58,6 +58,8 @@ export const wrUk: WrI18nCatalog = {
     search: 'Пошук',
     reset: 'Скинути',
     columns: 'Стовпці',
+    selected: 'Вибрано: {{count}}',
+    clearSelection: 'Скасувати вибір',
   },
   eventCalendar: {
     today: 'Сьогодні',

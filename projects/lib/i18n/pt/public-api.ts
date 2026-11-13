@@ -50,6 +50,8 @@ export const wrPt: WrI18nCatalog = {
     search: 'Pesquisar',
     reset: 'Repor',
     columns: 'Colunas',
+    selected: '{{count}} selecionadas',
+    clearSelection: 'Limpar seleção',
   },
   eventCalendar: {
     today: 'Hoje',

@@ -63,6 +63,15 @@
   --wr-table-empty-padding: var(--wr-space-xl);
   --wr-table-pager-padding: var(--wr-space-sm) var(--wr-space-md);
   --wr-table-toolbar-padding: var(--wr-space-sm) var(--wr-space-md);
+  // The selection bar. `-height` is the header's, written inline once it is
+  // measured; `-inset` is the select-all column the bar leaves uncovered.
+  --wr-table-selection-bar-bg: var(--wr-color-primary-soft);
+  --wr-table-selection-bar-color: var(--wr-color-primary-ink);
+  --wr-table-selection-bar-padding-x: var(--wr-space-md);
+  --wr-table-selection-bar-gap: var(--wr-space-md);
+  --wr-table-selection-bar-height: 2.5rem;
+  --wr-table-selection-bar-inset: 2.75rem;
+  --wr-table-selection-bar-font-weight: var(--wr-font-weight-medium);
   --wr-table-loading-bar-height: 0.125rem;
   --wr-table-loading-bar-color: var(--wr-color-primary);
   --wr-table-loading-bar-track: color-mix(in srgb, var(--wr-color-primary) 20%, transparent);
@@ -656,6 +665,66 @@
     overflow-y: auto;
   }
 
+  // --- Selection bar --------------------------------------------------------
+  // In flow and of no height, right above the scroll area: its top edge is the
+  // header's in every mode, with or without the toolbar.
+  &__selection {
+    position: relative;
+    // Above the corner-sticky header cells (z-index 3).
+    z-index: 4;
+    flex: none;
+    height: 0;
+  }
+
+  &__selection-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  &__selection-bar {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--wr-table-selection-bar-gap);
+    box-sizing: border-box;
+    min-height: var(--wr-table-selection-bar-height);
+    padding-inline: var(--wr-table-selection-bar-padding-x);
+    border-bottom: 1px solid var(--wr-table-border);
+    // Opaque under the tint, so the header does not show through.
+    background-color: var(--wr-table-bg);
+    background-image: linear-gradient(var(--wr-table-selection-bar-bg), var(--wr-table-selection-bar-bg));
+    color: var(--wr-table-selection-bar-color);
+    font-size: var(--wr-table-font-size);
+    line-height: var(--wr-table-line-height);
+
+    &--inset {
+      inset-inline-start: var(--wr-table-selection-bar-inset);
+    }
+  }
+
+  &__selection-count {
+    font-weight: var(--wr-table-selection-bar-font-weight);
+    white-space: nowrap;
+  }
+
+  &__selection-actions {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--wr-table-selection-bar-gap);
+    min-width: 0;
+  }
+
   &__loading {
     position: absolute;
     inset: 0;
@@ -886,6 +955,25 @@
   }
 }
 
+// While the selection bar shows. After the sticky-header block, whose header
+// and loading layers these outrank.
+.wr-table--selection-bar {
+  // The select-all cell stays in view beside the bar while the columns scroll
+  // under it, opaque and above the bar.
+  .wr-table__th--select {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 5;
+    background-color: var(--wr-table-bg);
+    background-image: linear-gradient(var(--wr-table-head-bg), var(--wr-table-head-bg));
+  }
+
+  .wr-table__loading,
+  .wr-table__loading-bar {
+    z-index: 6;
+  }
+}
+
 // `viewportHeight="fill"`: the table takes the height its parent has left, and
 // the rows scroll in what the pager leaves of it. A flex-column parent shrinks
 // the host; `max-height` does it under a block parent with a definite height.
@@ -937,6 +1025,17 @@
   .wr-table--responsive .wr-table__tr,
   .wr-table--responsive .wr-table__td {
     display: block;
+  }
+
+  // No header to lie over: the bar takes its own strip above the cards.
+  .wr-table--responsive .wr-table__selection {
+    height: auto;
+  }
+
+  .wr-table--responsive .wr-table__selection-bar {
+    position: static;
+    flex-wrap: wrap;
+    padding-block: var(--wr-space-sm);
   }
 
   .wr-table--responsive .wr-table__table thead {

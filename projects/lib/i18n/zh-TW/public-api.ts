@@ -50,6 +50,8 @@ export const wrZhTw: WrI18nCatalog = {
     search: '搜尋',
     reset: '重設',
     columns: '欄位',
+    selected: '已選取 {{count}} 項',
+    clearSelection: '清除選取',
   },
   eventCalendar: {
     today: '今天',

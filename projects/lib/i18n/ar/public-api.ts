@@ -50,6 +50,8 @@ export const wrAr: WrI18nCatalog = {
     search: 'بحث',
     reset: 'إعادة تعيين',
     columns: 'الأعمدة',
+    selected: 'تم تحديد {{count}}',
+    clearSelection: 'مسح التحديد',
   },
   eventCalendar: {
     today: 'اليوم',

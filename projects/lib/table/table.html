@@ -40,13 +40,41 @@
   </div>
 }
 
+<!-- The selection bar lies over the header: a box of no height in front of
+     the scroll area, so the bar stays put while the columns scroll under it.
+     The count is announced from a region that is in the DOM before it has
+     anything to say, and the drawn copy is hidden from it. -->
+@if (hasSelectionBar()) {
+  <div class="wr-table__selection">
+    <span class="wr-table__selection-status" role="status">{{ selectionBar() ? selectionCountText() : '' }}</span>
+    @if (selectionBar(); as tpl) {
+      <div
+        #selectionBarEl
+        class="wr-table__selection-bar"
+        [class.wr-table__selection-bar--inset]="rowSelection() === 'multiple'"
+        [style.--wr-table-selection-bar-height.px]="selectionBarHeight()"
+      >
+        <span class="wr-table__selection-count" aria-hidden="true">{{ selectionCountText() }}</span>
+        <button wr-btn type="button" size="sm" class="wr-table__selection-clear" (click)="clearSelection()">
+          {{ resolvedClearSelectionLabel() }}
+        </button>
+        <div class="wr-table__selection-actions">
+          <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="selectionContext()" />
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- With a selection bar the scroll area takes focus from script, for the bar
+     to hand it to when it leaves a table that has no checkbox to take it. -->
 <div
   class="wr-table__scroll"
   #scroll
   [style.--wr-table-scroll-height]="scrollHeight()"
   [style.--wr-table-head-height.px]="stickyEdges().head"
   [style.--wr-table-foot-height.px]="stickyEdges().foot"
-  [attr.tabindex]="scrollable() ? 0 : null"
+  [attr.tabindex]="scrollable() ? 0 : hasSelectionBar() ? -1 : null"
 >
   <table
     class="wr-table__table"
@@ -97,10 +125,13 @@
         @if (expandable()) {
           <th class="wr-table__th wr-table__th--expand"></th>
         }
+        <!-- `inert` under the selection bar: a control the bar covers takes no
+             focus and no click. The select-all cell stays out from under it. -->
         @for (col of cellColumns(); track col.key) {
           <th
             #thCell
             cdkDrag
+            [attr.inert]="selectionBar() ? '' : null"
             [cdkDragDisabled]="!reorderable() || col.pinned"
             [class]="col.thClass"
             [attr.aria-sort]="ariaSortFor(col.key, col.column.sortable)"

@@ -53,6 +53,8 @@ export const wrPl: WrI18nCatalog = {
     search: 'Szukaj',
     reset: 'Resetuj',
     columns: 'Kolumny',
+    selected: 'Zaznaczono: {{count}}',
+    clearSelection: 'Wyczyść zaznaczenie',
   },
   eventCalendar: {
     today: 'Dzisiaj',

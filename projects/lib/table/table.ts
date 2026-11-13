@@ -55,6 +55,7 @@ import { WrTableCell } from './table-cell';
 import { WrTableExpand } from './table-expand';
 import { WrTableFilter } from './table-filter';
 import { WrTableGroupHeader } from './table-group-header';
+import { WrTableSelectionBar } from './table-selection-bar';
 import { WrTableSort } from './table-sort';
 import type {
   WrTableCellContext,
@@ -69,6 +70,7 @@ import type {
   WrTableRow,
   WrTableRowClass,
   WrTableRowClick,
+  WrTableSelectionContext,
   WrTableSortState,
   WrTableSortDirection,
   WrTableSummary,
@@ -273,6 +275,7 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
     '[class.wr-table--fill]': 'fillsParent()',
     '[class.wr-table--overflow-start]': 'overflow().start',
     '[class.wr-table--overflow-end]': 'overflow().end',
+    '[class.wr-table--selection-bar]': 'selectionBar() !== null',
     // The rows under the veil are stale while a load is in flight, and nothing
     // said so: the veil marked itself, not the table it covers. Same pairing as
     // `wr-card` — mark busy, don't block (the veil is `pointer-events: none`).
@@ -566,6 +569,15 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   /** Accessible name of the loading overlay or bar. Falls back to `table.loading`. */
   readonly loadingLabel = input<string | null>(null);
 
+  /**
+   * Text of the selection bar's count, with `{{count}}` where the number goes.
+   * Falls back to `table.selected`.
+   */
+  readonly selectedLabel = input<string | null>(null);
+
+  /** Text of the selection bar's clear button. Falls back to `table.clearSelection`. */
+  readonly clearSelectionLabel = input<string | null>(null);
+
   /** Text of the column chooser's button and name of its panel. Falls back to `table.columns`. */
   readonly columnsLabel = input<string | null>(null);
 
@@ -578,6 +590,12 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    */
   protected readonly resolvedLoadingLabel = useI18nText(this.loadingLabel, 'table.loading', 'Loading…');
   protected readonly resolvedColumnsLabel = useI18nText(this.columnsLabel, 'table.columns', 'Columns');
+  protected readonly resolvedClearSelectionLabel = useI18nText(
+    this.clearSelectionLabel,
+    'table.clearSelection',
+    'Clear selection'
+  );
+  private readonly selectedText = useI18nFormatter('table.selected', '{{count}} selected');
   private readonly sortText = useI18nFormatter('table.sort', 'Sort {{column}}');
 
   /**
@@ -1002,7 +1020,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     if (typeof ngDevMode === 'undefined' || ngDevMode) {
       afterNextRender(() => {
         const claimed = new Set<unknown>(
-          [...this.cellTemplates(), this.expandTpl(), this.groupTpl()].map(
+          [...this.cellTemplates(), this.expandTpl(), this.groupTpl(), this.selectionBarTpl()].map(
             (dir): unknown => dir?.template.elementRef.nativeElement
           )
         );
@@ -1017,7 +1035,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         // eslint-disable-next-line no-console -- dev-mode validation
         console.warn(
           `[NGWR] <wr-table>: ${stray} of ${declared.length} projected <ng-template>(s) registered with no table directive and will be ignored. ` +
-            'Import `WrTableCell` (or `WrTableExpand` / `WrTableGroupHeader`) beside `WrTable` in the component that declares the template.'
+            'Import `WrTableCell` (or `WrTableExpand` / `WrTableGroupHeader` / `WrTableSelectionBar`) beside `WrTable` in the component that declares the template.'
         );
       });
     }
@@ -1050,6 +1068,36 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         );
       });
     }
+
+    // The bar takes the header's height, which only the browser knows.
+    effect(onCleanup => {
+      const head = this.headEl()?.nativeElement;
+      if (
+        !head ||
+        this.selectionBar() === null ||
+        !isPlatformBrowser(this.platformId) ||
+        typeof ResizeObserver === 'undefined'
+      ) {
+        this.selectionBarHeight.set(null);
+        return;
+      }
+      // A header hidden by card mode measures 0, and the bar keeps its own height.
+      const measure = (): void => this.selectionBarHeight.set(head.offsetHeight > 0 ? head.offsetHeight : null);
+      const observer = new ResizeObserver(measure);
+      observer.observe(head);
+      measure();
+      onCleanup(() => observer.disconnect());
+    });
+
+    // The bar leaves with the last selected row. Focus that was in it would fall
+    // to the document, so it goes to the table instead. This runs before the
+    // view drops the bar, while the bar still holds the focus.
+    effect(() => {
+      if (this.selectionBar() !== null || !isPlatformBrowser(this.platformId)) return;
+      const bar = untracked(this.selectionBarEl)?.nativeElement;
+      if (!bar?.contains(bar.ownerDocument.activeElement)) return;
+      afterNextRender(() => this.focusTable(), { injector: this.injector });
+    });
 
     // Re-measure whenever the columns or their rendered widths change. Tables
     // with no pinned column skip the observer entirely.
@@ -1670,6 +1718,53 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
 
   protected toggleAll(checked: boolean): void {
     this.applySelection(this.selectAllKeys(), checked);
+  }
+
+  // --- Selection bar ---------------------------------------------------------
+
+  private readonly selectionBarTpl = contentChild(WrTableSelectionBar);
+  private readonly selectionBarEl = viewChild<ElementRef<HTMLElement>>('selectionBarEl');
+
+  /** Whether a `[wrTableSelectionBar]` template was projected. */
+  protected readonly hasSelectionBar = computed<boolean>(() => !!this.selectionBarTpl());
+
+  /** The bar's template while rows are selected, `null` while the bar is away. */
+  protected readonly selectionBar = computed<TemplateRef<WrTableSelectionContext> | null>(() =>
+    this.selection().length > 0 ? (this.selectionBarTpl()?.template ?? null) : null
+  );
+
+  /** The header's measured height in px for the bar to match; `null` until measured. */
+  protected readonly selectionBarHeight = signal<number | null>(null);
+
+  protected readonly selectionCountText = computed<string>(() => {
+    const count = this.selection().length;
+    const own = this.selectedLabel();
+    return own === null ? this.selectedText({ count }) : own.replace(/\{\{\s*count\s*\}\}/g, String(count));
+  });
+
+  protected readonly selectionContext = computed<WrTableSelectionContext>(() => ({
+    $implicit: this.selectedRows(),
+    count: this.selection().length,
+    clear: () => this.clearSelection(),
+    scope: this.selectAllScope() === 'all' && this.total() === null ? 'all' : 'page',
+  }));
+
+  /**
+   * Empty the selection. When the focus is in the selection bar, which leaves
+   * with the last selected row, it moves to the table.
+   */
+  clearSelection(): void {
+    this.selection.set([]);
+  }
+
+  /** Focus the first control of the table: a selection checkbox, else the scroll area. */
+  private focusTable(): void {
+    const host = this.hostEl.nativeElement;
+    const target =
+      host.querySelector<HTMLElement>(
+        '.wr-table__th--select input:not(:disabled), .wr-table__td--select input:not(:disabled)'
+      ) ?? this.scrollEl()?.nativeElement;
+    target?.focus();
   }
 
   // --- Row expansion --------------------------------------------------------

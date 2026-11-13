@@ -50,6 +50,8 @@ export const wrKo: WrI18nCatalog = {
     search: '검색',
     reset: '초기화',
     columns: '열',
+    selected: '{{count}}개 선택됨',
+    clearSelection: '선택 해제',
   },
   eventCalendar: {
     today: '오늘',

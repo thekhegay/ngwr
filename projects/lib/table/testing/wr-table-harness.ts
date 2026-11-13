@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
+import { ComponentHarness, type HarnessLoader, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
 import type { WrTableHarnessFilters, WrTableHeaderCellHarnessFilters, WrTableRowHarnessFilters } from './types';
 import { wrTableHarnessText } from './wr-table-harness-text';
@@ -270,6 +270,43 @@ export class WrTableHarness extends ComponentHarness {
   /** Collapse or expand the band with this label. */
   async toggleGroup(label: string): Promise<void> {
     await (await this.groupToggleFor(label)).click();
+  }
+
+  /** Whether the selection bar is over the header: a `[wrTableSelectionBar]` template and a selection. */
+  async hasSelectionBar(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-table__selection-bar')()) !== null;
+  }
+
+  /** The selection bar's count as drawn ("3 selected"), or `null` while the bar is away. */
+  async getSelectionBarText(): Promise<string | null> {
+    const count = await this.locatorForOptional('.wr-table__selection-count')();
+    return count ? wrTableHarnessText(await count.text()) : null;
+  }
+
+  /** Click the selection bar's clear button, which empties the selection and takes the bar away. */
+  async clearSelection(): Promise<void> {
+    await (await this.selectionBarPart('.wr-table__selection-clear')).click();
+  }
+
+  /**
+   * A loader over the `[wrTableSelectionBar]` template's own content, for the
+   * harnesses of the actions it holds.
+   */
+  async getSelectionBarLoader(): Promise<HarnessLoader> {
+    await this.selectionBarPart('.wr-table__selection-actions');
+    return this.locatorFactory.harnessLoaderFor('.wr-table__selection-actions');
+  }
+
+  /** A part of the selection bar, or a failure naming both reasons the bar is away. */
+  private async selectionBarPart(selector: string): Promise<TestElement> {
+    const part = await this.locatorForOptional(selector)();
+    if (!part) {
+      throw new Error(
+        'WrTableHarness: this table shows no selection bar — it has no `[wrTableSelectionBar]` ' +
+          'template, or no row is selected.'
+      );
+    }
+    return part;
   }
 
   /** Whether the table shows the column chooser's button (`columnChooser`). */
