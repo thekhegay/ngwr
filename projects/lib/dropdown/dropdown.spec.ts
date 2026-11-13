@@ -1212,3 +1212,118 @@ describe('WrDropdown destroyed while open', () => {
     expect(warnings.filter(message => message.includes('NG0953'))).toEqual([]);
   });
 });
+
+@Component({
+  imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+  template: `
+    <button type="button" [wrDropdown]="menu" [trigger]="how()" [wrDropdownDisabled]="off()">Actions</button>
+    <wr-dropdown-menu #menu>
+      <wr-dropdown-item>Copy</wr-dropdown-item>
+    </wr-dropdown-menu>
+  `,
+})
+class DisabledHost {
+  readonly how = signal<WrDropdownTrigger>('click');
+  readonly off = signal(true);
+  readonly dropdown = viewChild.required(WrDropdown);
+}
+
+describe('WrDropdown while disabled', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DisabledHost>>;
+
+  const trigger = (): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button')!;
+  const menu = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-dropdown-menu');
+
+  const setOff = (off: boolean): void => {
+    fixture.componentInstance.off.set(off);
+    fixture.detectChanges();
+  };
+
+  const click = (): void => {
+    trigger().dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(DisabledHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('opens nothing on a click, and lets the click through', () => {
+    const seen: Event[] = [];
+    const listen = (event: Event): number => seen.push(event);
+    document.addEventListener('click', listen);
+
+    click();
+    document.removeEventListener('click', listen);
+
+    expect(menu()).toBeNull();
+    expect(seen).toHaveLength(1);
+  });
+
+  it('opens nothing on hover', () => {
+    fixture.componentInstance.how.set('hover');
+    fixture.detectChanges();
+
+    trigger().dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+
+    expect(menu()).toBeNull();
+  });
+
+  it.each(['ArrowDown', 'ArrowUp', 'Enter', ' '])('opens nothing on %j, and leaves the key to the host', name => {
+    const event = new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true });
+    trigger().dispatchEvent(event);
+    fixture.detectChanges();
+
+    expect(menu()).toBeNull();
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it('ignores open() and toggle() called from code, on a manual trigger too', () => {
+    fixture.componentInstance.how.set('manual');
+    fixture.detectChanges();
+    const dropdown = fixture.componentInstance.dropdown();
+
+    dropdown.open();
+    fixture.detectChanges();
+    dropdown.toggle();
+    fixture.detectChanges();
+
+    expect([dropdown.isOpen(), menu()]).toEqual([false, null]);
+  });
+
+  it('withdraws the popup ARIA and marks the host, leaving its own disabled state alone', () => {
+    expect(trigger().hasAttribute('aria-haspopup')).toBe(false);
+    expect(trigger().hasAttribute('aria-expanded')).toBe(false);
+    expect(trigger().classList.contains('wr-dropdown-trigger--disabled')).toBe(true);
+    expect(trigger().disabled).toBe(false);
+
+    setOff(false);
+
+    expect(trigger().getAttribute('aria-haspopup')).toBe('menu');
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    expect(trigger().classList.contains('wr-dropdown-trigger--disabled')).toBe(false);
+  });
+
+  it('closes an open menu when it becomes disabled, and opens again once re-enabled', () => {
+    setOff(false);
+    click();
+    expect(menu()).not.toBeNull();
+
+    setOff(true);
+
+    expect(menu()).toBeNull();
+    expect(trigger().hasAttribute('aria-controls')).toBe(false);
+
+    setOff(false);
+    click();
+
+    expect(menu()).not.toBeNull();
+    expect(trigger().getAttribute('aria-expanded')).toBe('true');
+  });
+});

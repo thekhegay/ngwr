@@ -17,4 +17,6 @@ export interface WrPopconfirmHarnessFilters extends BaseHarnessFilters {
   readonly triggerText?: string | RegExp;
   /** Match only open (`true`) or only closed (`false`) popconfirms. */
   readonly open?: boolean;
+  /** Match only disabled (`true`) or only enabled (`false`) triggers. */
+  readonly disabled?: boolean;
 }

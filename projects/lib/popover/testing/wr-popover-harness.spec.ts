@@ -353,3 +353,60 @@ describe('WrPopoverHarness — mode bound rather than set statically', () => {
     expect(await bound.getDescriptionText()).toBe('Bound tip');
   });
 });
+
+@Component({
+  imports: [WrPopover],
+  template: `
+    <button type="button" [wrPopover]="panel" [wrPopoverDisabled]="off()">Details</button>
+    <button type="button" mode="tooltip" wrPopover="Save changes">Save</button>
+
+    <ng-template #panel><p>Anything you can render.</p></ng-template>
+  `,
+})
+class DisabledHost {
+  readonly off = signal(true);
+}
+
+describe('WrPopoverHarness — a disabled trigger', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DisabledHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  const details = (): Promise<WrPopoverHarness> => loader.getHarness(WrPopoverHarness.with({ triggerText: 'Details' }));
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(DisabledHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('reports the disabled state, and follows it back', async () => {
+    const popover = await details();
+
+    expect([await popover.isDisabled(), await popover.isOpen()]).toEqual([true, false]);
+
+    fixture.componentInstance.off.set(false);
+
+    expect(await popover.isDisabled()).toBe(false);
+    await popover.open();
+    expect(await popover.isOpen()).toBe(true);
+  });
+
+  it('narrows by the disabled state, and matches a disabled trigger to neither mode', async () => {
+    const texts = (found: WrPopoverHarness[]): Promise<string[]> => Promise.all(found.map(p => p.getTriggerText()));
+
+    expect(await texts(await loader.getAllHarnesses(WrPopoverHarness.with({ disabled: true })))).toEqual(['Details']);
+    expect(await texts(await loader.getAllHarnesses(WrPopoverHarness.with({ disabled: false })))).toEqual(['Save']);
+    expect(await texts(await loader.getAllHarnesses(WrPopoverHarness.with({ mode: 'popover' })))).toEqual([]);
+    expect(await texts(await loader.getAllHarnesses(WrPopoverHarness.with({ mode: 'tooltip' })))).toEqual(['Save']);
+  });
+
+  it('refuses to open it or to guess its mode, saying why', async () => {
+    const popover = await details();
+
+    await expect(popover.open()).rejects.toThrow(/disabled \(`wrPopoverDisabled`\)/);
+    await expect(popover.getMode()).rejects.toThrow(/no ARIA to tell a popover from a tooltip/);
+  });
+});

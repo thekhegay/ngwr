@@ -15,8 +15,13 @@ export interface WrPopoverHarnessFilters extends BaseHarnessFilters {
    * exact match, a RegExp is tested.
    */
   readonly triggerText?: string | RegExp;
-  /** Match only popovers (`'popover'`) or only tooltips (`'tooltip'`). */
+  /**
+   * Match only popovers (`'popover'`) or only tooltips (`'tooltip'`). A disabled
+   * trigger publishes no ARIA to tell them apart by, so it matches neither.
+   */
   readonly mode?: 'popover' | 'tooltip';
   /** Match only showing (`true`) or only hidden (`false`) panels. */
   readonly open?: boolean;
+  /** Match only disabled (`true`) or only enabled (`false`) triggers. */
+  readonly disabled?: boolean;
 }

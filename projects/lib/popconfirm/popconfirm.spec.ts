@@ -537,3 +537,106 @@ describe('WrPopconfirm placement fallbacks', () => {
     }
   });
 });
+
+@Component({
+  imports: [WrPopconfirm],
+  template: `
+    <button
+      type="button"
+      wrPopconfirm="Delete this for good?"
+      [wrPopconfirmDisabled]="off()"
+      (click)="log.push('click')"
+      (confirmed)="log.push('confirmed')"
+      (cancelled)="log.push('cancelled')"
+    >
+      Delete
+    </button>
+  `,
+})
+class DisabledHost {
+  readonly off = signal(true);
+  readonly log: string[] = [];
+  readonly popconfirm = viewChild.required(WrPopconfirm);
+}
+
+describe('WrPopconfirm while disabled', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DisabledHost>>;
+
+  const trigger = (): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button')!;
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popconfirm');
+  const log = (): string[] => fixture.componentInstance.log;
+
+  const setOff = (off: boolean): void => {
+    fixture.componentInstance.off.set(off);
+    fixture.detectChanges();
+  };
+
+  const click = (): void => {
+    trigger().dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(DisabledHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('asks nothing on a click, and lets the click through', () => {
+    const seen: Event[] = [];
+    const listen = (event: Event): number => seen.push(event);
+    document.addEventListener('click', listen);
+
+    click();
+    document.removeEventListener('click', listen);
+
+    expect(panel()).toBeNull();
+    // The host's own handler still runs, and the click is no longer stopped.
+    expect(log()).toEqual(['click']);
+    expect(seen).toHaveLength(1);
+  });
+
+  it('ignores open() called from code', () => {
+    const popconfirm = fixture.componentInstance.popconfirm();
+
+    popconfirm.open();
+    fixture.detectChanges();
+
+    expect([popconfirm.isOpen(), panel()]).toEqual([false, null]);
+  });
+
+  it('withdraws the popup ARIA and marks the host, leaving its own disabled state alone', () => {
+    expect(trigger().hasAttribute('aria-haspopup')).toBe(false);
+    expect(trigger().hasAttribute('aria-expanded')).toBe(false);
+    expect(trigger().classList.contains('wr-popconfirm-trigger--disabled')).toBe(true);
+    expect(trigger().disabled).toBe(false);
+
+    setOff(false);
+
+    expect(trigger().getAttribute('aria-haspopup')).toBe('dialog');
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    expect(trigger().classList.contains('wr-popconfirm-trigger--disabled')).toBe(false);
+  });
+
+  it('closes an open panel when it becomes disabled, without calling it cancelled', () => {
+    setOff(false);
+    click();
+    expect(panel()).not.toBeNull();
+
+    setOff(true);
+
+    expect(panel()).toBeNull();
+    expect(trigger().hasAttribute('aria-controls')).toBe(false);
+    expect(log()).toEqual(['click']);
+  });
+
+  it('opens again once re-enabled', () => {
+    setOff(false);
+    click();
+
+    expect(panel()).not.toBeNull();
+    expect(trigger().getAttribute('aria-expanded')).toBe('true');
+  });
+});
