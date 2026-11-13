@@ -191,6 +191,15 @@ export const API = {
     { name: "autoFocus", description: "Move real focus onto the roving cell as soon as the grid is on screen. Off by default: a standalone `<wr-calendar>` sitting in a page must not steal focus on load. `wr-date-picker` turns it on for the popup it opens from its trigger, where the user asked to be taken to the calendar.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction entirely.", type: "boolean", default: "false" },
     { name: "readonly", description: "Read-only: the grid keeps its tab stop, the arrows still move the cursor and the header still pages through months and years, but picking a day writes nothing. Bound automatically from the field's readonly state when used with `[formField]`. Mirrored as `aria-readonly` on the day grid.", type: "boolean", default: "false" },
+    { name: "ariaLabel", description: "Accessible name of the day grid, for a calendar that stands alone: a `role=\"grid\"` has no name of its own. Inside a `<wr-form-field>` the field's label names the grid instead.", type: "string | null", default: "null" },
+    { name: "prevMonthLabel", description: "Accessible name of the back arrow on the day view. Falls back to `calendar.prevMonth`, then `'Previous month'`.", type: "string | null", default: "null" },
+    { name: "nextMonthLabel", description: "Accessible name of the forward arrow on the day view. Falls back to `calendar.nextMonth`, then `'Next month'`.", type: "string | null", default: "null" },
+    { name: "monthListLabel", description: "Accessible name of the month list. Falls back to `calendar.monthList`, then `'Months'`.", type: "string | null", default: "null" },
+    { name: "yearListLabel", description: "Accessible name of the year list. Falls back to `calendar.yearList`, then `'Years'`.", type: "string | null", default: "null" },
+    { name: "prevYearLabel", description: "Accessible name of the back arrow on the month view. Falls back to `calendar.prevYear`, then `'Previous year'`.", type: "string | null", default: "null" },
+    { name: "nextYearLabel", description: "Accessible name of the forward arrow on the month view. Falls back to `calendar.nextYear`, then `'Next year'`.", type: "string | null", default: "null" },
+    { name: "prevYearsLabel", description: "Accessible name of the back arrow on the year view. Falls back to `calendar.prevYears`, then `'Previous 12 years'`.", type: "string | null", default: "null" },
+    { name: "nextYearsLabel", description: "Accessible name of the forward arrow on the year view. Falls back to `calendar.nextYears`, then `'Next 12 years'`.", type: "string | null", default: "null" },
   ],
   // <wr-calendar-heatmap>
   WrCalendarHeatmap: [
@@ -270,6 +279,7 @@ export const API = {
     { name: "hiddenSeries", description: "The positions in `items` of the series that are hidden, ascending. Positions rather than labels: two series may share a label, and a label translated into another language would no longer match the one it hid. A position past the end of `items` is kept and ignored, so a series coming back finds its state. Written by a click on a `toggleable` row; read in either mode, so a legend that does not toggle still shows a series hidden from elsewhere as hidden.", type: "readonly number[]", default: "[]" },
     { name: "ariaLabel", description: "Accessible name of the list. A `toggleable` legend falls back to `chartLegend.toggleLabel` (\"Toggle series visibility\"), which tells a reader what its buttons do; one that does not toggle has no name unless given one.", type: "string | null", default: "null" },
     { name: "(toggled)", description: "Emits when a reader shows or hides a series from a `toggleable` legend, after `hiddenSeries` moves.", type: "WrChartLegendToggle" },
+    { name: "hiddenLabel", description: "The word a hidden row of a legend that does not toggle carries after its name, visually hidden: the strike-through and the faded key are the eye's half of the state, and a toggle row's `aria-pressed` is the other half there. Falls back to `chartLegend.hidden`, then `'hidden'`.", type: "string | null", default: "null" },
   ],
   // <wr-checkbox>
   WrCheckbox: [
@@ -652,6 +662,14 @@ export const API = {
     { name: "(eventClick)", description: "A chip was activated.", type: "WrCalendarEvent" },
     { name: "(slotClick)", description: "Empty space was activated — the slot the user pointed at.", type: "WrCalendarSlot" },
     { name: "(eventChange)", description: "A drag or an `Alt` + arrow finished. Apply it yourself; nothing moves until you do.", type: "WrCalendarEventChange" },
+    { name: "todayLabel", description: "Text of the button that jumps to today. Falls back to `eventCalendar.today`, then `'Today'`.", type: "string | null", default: "null" },
+    { name: "previousLabel", description: "Accessible name of the back arrow. Falls back to `eventCalendar.previous`, then `'Previous'`.", type: "string | null", default: "null" },
+    { name: "nextLabel", description: "Accessible name of the forward arrow. Falls back to `eventCalendar.next`, then `'Next'`.", type: "string | null", default: "null" },
+    { name: "allDayLabel", description: "Text of the all-day band, also read as the time of an all-day event. Falls back to `eventCalendar.allDay`, then `'All day'`.", type: "string | null", default: "null" },
+    { name: "timeLabel", description: "Accessible name of the time gutter column. Falls back to `eventCalendar.time`, then `'Time'`.", type: "string | null", default: "null" },
+    { name: "monthLabel", description: "Text of the month option in the view switcher. Falls back to `eventCalendar.month`, then `'Month'`.", type: "string | null", default: "null" },
+    { name: "weekLabel", description: "Text of the week option in the view switcher. Falls back to `eventCalendar.week`, then `'Week'`.", type: "string | null", default: "null" },
+    { name: "dayLabel", description: "Text of the day option in the view switcher. Falls back to `eventCalendar.day`, then `'Day'`.", type: "string | null", default: "null" },
     { name: "ariaLabel", description: "Accessible name of the grid; overridable for a page with several.", type: "string | null", default: "null" },
   ],
   // <[wrFallingLetters]>
@@ -1407,6 +1425,8 @@ export const API = {
     { name: "orientation", description: "Layout direction.", type: "'horizontal' | 'vertical'", default: "'horizontal'" },
     { name: "linear", description: "Lock steps after the latest completed one.", type: "boolean", default: "false" },
     { name: "responsive", description: "Drop a horizontal stepper to a vertical layout when its own box is too narrow for the row (a container query on its own width, not the viewport — so it adapts inside a narrow column or side panel). No effect when `orientation` is already `vertical`.", type: "boolean", default: "false" },
+    { name: "optionalLabel", description: "The word of the \"optional\" badge, which sits inside the header button's label and so is part of each optional step's accessible name. One input on the stepper covers every step. Falls back to `stepper.optional`, then `'optional'`.", type: "string | null", default: "null" },
+    { name: "completedLabel", description: "The word a completed step's header button carries after its label, visually hidden: the check mark that replaces the number is `aria-hidden`. Falls back to `stepper.completed`, then `'completed'`.", type: "string | null", default: "null" },
   ],
   // <wr-switch>
   WrSwitch: [
@@ -1613,6 +1633,9 @@ export const API = {
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
     { name: "(opened)", description: "Fires after the overlay panel opens.", type: "void" },
     { name: "(closed)", description: "Fires after the overlay panel closes.", type: "void" },
+    { name: "clearSelectionLabel", description: "Accessible name of the clear button. Falls back to `tree.clearSelection`, then `'Clear selection'`.", type: "string | null", default: "null" },
+    { name: "expandLabel", description: "Accessible name of the toggle of a collapsed node. Falls back to `tree.expand`, then `'Expand'`.", type: "string | null", default: "null" },
+    { name: "collapseLabel", description: "Accessible name of the toggle of an expanded node. Falls back to `tree.collapse`, then `'Collapse'`.", type: "string | null", default: "null" },
   ],
   // <wr-treemap-chart>
   WrTreemapChart: [
