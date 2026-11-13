@@ -6,10 +6,11 @@
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
 @include theme.loaded('tree');
 
-.wr-tree {
+// Row hooks are declared on the panel as well: its rows render in the CDK
+// overlay container, outside the `.wr-tree` host, and would read them unset.
+.wr-tree,
+.wr-tree-panel {
   --wr-tree-indent: 1.25rem;
-  --wr-tree-font-family: var(--wr-font-family-base);
-  --wr-tree-font-size: var(--wr-text-sm);
   --wr-tree-list-padding-y: var(--wr-space-xs);
   --wr-tree-row-gap: var(--wr-space-sm);
   --wr-tree-row-padding-y: var(--wr-space-xs);
@@ -23,6 +24,11 @@
   --wr-tree-match-bg: var(--wr-color-warning-soft);
   --wr-tree-match-color: var(--wr-color-warning-ink);
   --wr-tree-drop-color: var(--wr-color-primary);
+}
+
+.wr-tree {
+  --wr-tree-font-family: var(--wr-font-family-base);
+  --wr-tree-font-size: var(--wr-text-sm);
   // The combobox trigger's own hooks live on the BASE rather than inside
   // `&--combobox`, although nothing paints them until that modifier is on.
   // `.wr-tree` and `.wr-tree--combobox` are the same element, so the modifier's
