@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Input"
-  updated="16.0.0"
+  updated="16.3.0"
   description="A directive that styles a native `<input>` or `<textarea>`."
   [keywords]="['input', 'wrInput', 'mask', 'ngx-mask', 'text']"
   [labels]="['Directive', 'a11y']"
@@ -58,6 +58,20 @@
           #pwInput
         />
         <wr-password-toggle [for]="pwInput" />
+      </wr-input-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Clear button and loading"
+    description="On `<wr-input-group>`, `clearable` draws a clear button while the field has text, and `loading` draws a spinner and marks the field `aria-busy`. The field stays editable."
+  >
+    <ngwr-doc-snippet [code]="snippets.clearable">
+      <wr-input-group clearable>
+        <input wrInput aria-label="Search" placeholder="Search" [(ngModel)]="query" />
+      </wr-input-group>
+      <wr-input-group loading>
+        <input wrInput aria-label="Username" value="ada" />
       </wr-input-group>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

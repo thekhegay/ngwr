@@ -25,6 +25,8 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
+import { useI18nText } from 'ngwr/i18n';
+import { WrSpinner } from 'ngwr/spinner';
 import { wrCheckStyles } from 'ngwr/utils';
 
 /**
@@ -57,6 +59,7 @@ export type WrTextareaResize = 'none' | 'vertical' | 'horizontal' | 'both';
   templateUrl: './textarea.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-textarea', '[class]': 'classes()' },
+  imports: [WrSpinner],
 })
 export class WrTextarea implements FormValueControl<string> {
   /** Native placeholder text. @default '' */
@@ -99,6 +102,25 @@ export class WrTextarea implements FormValueControl<string> {
   readonly maxRows = input<number | null>(null);
 
   /**
+   * Show a clear (×) button while the field holds text and is neither disabled
+   * nor read-only. Clearing sets `value` to `''`, emits `touch` and puts focus
+   * back in the field. It is a pointer control: from the keyboard, emptying the
+   * field clears the value. @default false
+   */
+  readonly clearable = input(false, { transform: coerceBooleanProperty });
+
+  /** Clear (×) button aria-label. Falls back to `common.clear`. */
+  readonly clearLabel = input<string | null>(null);
+
+  protected readonly resolvedClear = useI18nText(this.clearLabel, 'common.clear', 'Clear');
+
+  /**
+   * Show a spinner in the field's corner and mark the field `aria-busy`. The
+   * field stays editable. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
    * Disable the textarea. Bound automatically from the field's disabled state
    * when used with `[formField]`.
    *
@@ -109,8 +131,12 @@ export class WrTextarea implements FormValueControl<string> {
   /** The edited text. Bound by `[formField]`, or two-way via `[(value)]`. */
   readonly value = model<string>('');
 
-  /** Emitted on blur so a bound field can mark itself touched. */
+  /** Emitted on blur, and by the clear (×) button, so a bound field can mark itself touched. */
   readonly touch = output<void>();
+
+  protected readonly clearShown = computed(
+    () => this.clearable() && this.value() !== '' && !this.disabled() && !this.readonly()
+  );
 
   protected readonly focused = signal(false);
 
@@ -175,6 +201,8 @@ export class WrTextarea implements FormValueControl<string> {
     // own contract for a value control is a `wr-<x>--readonly` class with a
     // non-editable cue, which `.wr-input[readonly]` already draws.
     if (this.readonly()) parts.push('wr-textarea--readonly');
+    if (this.clearable()) parts.push('wr-textarea--clearable');
+    if (this.loading()) parts.push('wr-textarea--loading');
     return parts.join(' ');
   });
 
@@ -256,6 +284,14 @@ export class WrTextarea implements FormValueControl<string> {
   }
 
   // Template handlers
+
+  /** The clear (×) button: the same write an emptied field makes. */
+  protected clear(): void {
+    if (this.disabled() || this.readonly()) return;
+    this.value.set('');
+    this.native().nativeElement.focus();
+    this.touch.emit();
+  }
 
   protected onInput(event: Event): void {
     this.value.set((event.target as HTMLTextAreaElement).value);

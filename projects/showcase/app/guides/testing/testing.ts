@@ -779,6 +779,16 @@ export class MyWidgetHarness extends ComponentHarness {
     { name: 'focus() / blur() / isFocused()', description: 'Focus.', type: 'Promise<void> | Promise<boolean>' },
   ];
 
+  protected readonly inputGroupApi: readonly DocApiRow[] = [
+    { name: 'getInput()', description: 'The field the group wraps.', type: 'Promise<WrInputHarness>' },
+    {
+      name: 'hasClearButton() / clear()',
+      description: 'The clear button. `clear()` clicks it and throws when it is not shown.',
+      type: 'Promise<boolean> | Promise<void>',
+    },
+    { name: 'isLoading()', description: 'Whether the spinner shows.', type: 'Promise<boolean>' },
+  ];
+
   protected readonly checkboxApi: readonly DocApiRow[] = [
     { name: 'getLabel()', description: 'The label.', type: 'Promise<string>' },
     { name: 'isChecked() / isIndeterminate() / isDisabled()', description: 'Box state.', type: 'Promise<boolean>' },
@@ -1681,6 +1691,11 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<boolean>',
     },
     {
+      name: 'hasClearButton() / clickClear() / isLoading()',
+      description: 'The clear button and the spinner. `clickClear()` throws when the button is not shown.',
+      type: 'Promise<boolean> | Promise<void>',
+    },
+    {
       name: 'isAutosizing() / hasFittedHeight() / getRows() / getSize() / getResizeDirection()',
       description: 'Sizing. `hasFittedHeight()` means a height was written.',
       type: 'Promise<…>',
@@ -1706,6 +1721,11 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     { name: 'stepUp() / stepDown()', description: 'ArrowUp and ArrowDown.', type: 'Promise<void>' },
+    {
+      name: 'hasClearButton() / clickClear() / isLoading()',
+      description: 'The clear button and the spinner. `clickClear()` throws when the button is not shown.',
+      type: 'Promise<boolean> | Promise<void>',
+    },
     {
       name: 'getPrefix() / getSuffix() / getPlaceholder() / getAriaLabel()',
       description: 'Field decorations.',
