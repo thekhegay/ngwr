@@ -100,6 +100,25 @@ const VARIANTS: [entry: string, byClass: string, byAttribute: string][] = [
   ...sizes('checkbox', 'wr-checkbox'),
   ...sizes('radio', 'wr-radio'),
   ...sizes('switch', 'wr-switch'),
+  ...sizes('badge', 'wr-tag'),
+  ['badge', '.wr-tag--sm.wr-tag--rounded', `.wr-tag${value('size', 'sm')}${flag('rounded')}`],
+  ...sizes('progress', 'wr-progress'),
+  ...sizes('slider', 'wr-slider'),
+  ...sizes('color-picker', 'wr-color-picker'),
+  ...sizes('transfer', 'wr-transfer'),
+  // These two keep their hooks on the parts, so a size is a rule per part.
+  ...[
+    ['file-upload', 'wr-file-upload', ['zone', 'icon', 'hint', 'list', 'item']] as const,
+    ['transfer', 'wr-transfer', ['head', 'title', 'search', 'item', 'empty']] as const,
+  ].flatMap(([entry, block, parts]) =>
+    parts.flatMap(element =>
+      sizes(entry, block).map(([, byClass, byAttribute]): [string, string, string] => [
+        entry,
+        `${byClass} .${block}__${element}`,
+        `${byAttribute} .${block}__${element}`,
+      ])
+    )
+  ),
 ];
 
 describe('a variant set by a static attribute', () => {
