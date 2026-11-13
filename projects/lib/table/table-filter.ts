@@ -26,6 +26,11 @@ import type { WrTableFilterItem } from './types';
  */
 const selectionVersion = signal(0);
 
+/** Tells every filter that `selected` was written on its items from outside, by the table's `state`. */
+export function markFilterSelectionChanged(): void {
+  selectionVersion.update(v => v + 1);
+}
+
 /**
  * Filter dropdown rendered in a filterable column's header.
  *

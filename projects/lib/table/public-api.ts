@@ -24,6 +24,7 @@ export type {
   WrTableSortAccessor,
   WrTableSortState,
   WrTableSortDirection,
+  WrTableState,
   WrTableSummary,
   WrTableSummaryContext,
   WrTableTruncate,

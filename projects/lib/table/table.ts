@@ -53,7 +53,7 @@ import {
 
 import { WrTableCell } from './table-cell';
 import { WrTableExpand } from './table-expand';
-import { WrTableFilter } from './table-filter';
+import { WrTableFilter, markFilterSelectionChanged } from './table-filter';
 import { WrTableGroupHeader } from './table-group-header';
 import { WrTableSelectionBar } from './table-selection-bar';
 import { WrTableSort } from './table-sort';
@@ -73,6 +73,7 @@ import type {
   WrTableSelectionContext,
   WrTableSortState,
   WrTableSortDirection,
+  WrTableState,
   WrTableSummary,
   WrTableSummaryContext,
   WrTableTruncate,
@@ -181,6 +182,10 @@ const ROW_CLICK_IGNORE = [
   '.wr-table__td--select',
   '.wr-table__td--expand',
 ].join(', ');
+
+function sameList(a: readonly unknown[], b: readonly unknown[]): boolean {
+  return a.length === b.length && a.every((value, i) => Object.is(value, b[i]));
+}
 
 /** A missing cell value: `null`, `undefined` or `''`. `0` and `false` are values. */
 function noValue(value: unknown): value is null | undefined | '' {
@@ -689,6 +694,82 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   readonly filterChange = output<WrTableFilterChange>();
 
   /**
+   * Restores the table in one write: the sort, each column's filter selection,
+   * the page, the page size, the column order and the hidden columns. A saved
+   * view binds here. It is applied when the bound object changes, so hand it a
+   * new object to restore the same view a second time; a key left out keeps
+   * what the table has. The models it writes fire their own `*Change`, and
+   * `pageSizeChange` fires for a new size; `filterChange` and `stateChange` do
+   * not, since the host already holds what it restored. Pairs with
+   * `stateChange` as `[(state)]`.
+   * @default null
+   */
+  readonly state = input<Partial<WrTableState> | null>(null);
+
+  /**
+   * Fires with the whole state after a change the reader makes: a sort, a
+   * filter, a page, a page size, a column drag, a column shown or hidden. One
+   * action is one event, so a new page size that also moves the page fires
+   * once. A write from the host, through `state` or a model, does not fire.
+   */
+  readonly stateChange = output<WrTableState>();
+
+  /** Bumped by every reader action `stateChange` reports. */
+  private readonly readerChanges = signal(0);
+
+  /** The last state emitted, which comes straight back under `[(state)]`. */
+  private emittedState: WrTableState | null = null;
+
+  private currentState(): WrTableState {
+    const filters: Record<string, readonly unknown[]> = {};
+    for (const [key, column] of Object.entries(this.columns())) {
+      const selected = column.filterItems?.filter(item => item.selected).map(item => item.value);
+      if (selected?.length) filters[key] = selected;
+    }
+    return {
+      sort: this.sort(),
+      filters,
+      page: this.page(),
+      pageSize: this.currentPageSize(),
+      columnOrder: this.columnOrder(),
+      hiddenColumns: this.hiddenColumns(),
+    };
+  }
+
+  private restoreState(state: Partial<WrTableState>): void {
+    const { sort, filters, page, pageSize, columnOrder, hiddenColumns } = state;
+    if (
+      sort &&
+      !(
+        sort.length === this.sort().length &&
+        sort.every((entry, i) => entry.key === this.sort()[i].key && entry.direction === this.sort()[i].direction)
+      )
+    ) {
+      this.sort.set(sort);
+    }
+    if (columnOrder && !sameList(columnOrder, this.columnOrder())) this.columnOrder.set(columnOrder);
+    if (hiddenColumns && !sameList(hiddenColumns, this.hiddenColumns())) this.hiddenColumns.set(hiddenColumns);
+    if (pageSize !== undefined && pageSize !== this.currentPageSize()) {
+      this.currentPageSize.set(pageSize);
+      this.pageSizeChange.emit(pageSize);
+    }
+    if (page !== undefined && page !== this.page()) this.page.set(page);
+    if (filters) {
+      let changed = false;
+      for (const [key, column] of Object.entries(this.columns())) {
+        const wanted = new Set(filters[key] ?? []);
+        for (const item of column.filterItems ?? []) {
+          const selected = wanted.has(item.value);
+          if (!!item.selected === selected) continue;
+          item.selected = selected;
+          changed = true;
+        }
+      }
+      if (changed) markFilterSelectionChanged();
+    }
+  }
+
+  /**
    * Fires when a body row is clicked, with the row, its index in `items` and the
    * click. Group bands, summary rows and detail rows do not fire it.
    *
@@ -864,6 +945,12 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     this.currentPageSize.set(size);
     this.page.set(Math.floor(firstRow / size) + 1);
     this.pageSizeChange.emit(size);
+    this.readerChanges.update(n => n + 1);
+  }
+
+  protected onPagerPage(page: number): void {
+    this.page.set(page);
+    this.readerChanges.update(n => n + 1);
   }
 
   /**
@@ -957,6 +1044,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     if (!visible && shown.length === 1) return;
     const hidden = this.hiddenColumns().filter(k => k !== key);
     this.hiddenColumns.set(visible ? hidden : [...hidden, key]);
+    this.readerChanges.update(n => n + 1);
   }
 
   /**
@@ -1068,6 +1156,20 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         );
       });
     }
+
+    // One `stateChange` per pass, however many parts one action wrote.
+    effect(() => {
+      if (this.readerChanges() === 0) return;
+      untracked(() => {
+        this.emittedState = this.currentState();
+        this.stateChange.emit(this.emittedState);
+      });
+    });
+    effect(() => {
+      const state = this.state();
+      if (!state || state === this.emittedState) return;
+      untracked(() => this.restoreState(state));
+    });
 
     // The bar takes the header's height, which only the browser knows.
     effect(onCleanup => {
@@ -1604,6 +1706,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     // the slots they held.
     let next = 0;
     this.columnOrder.set(this.orderedColumns().map(c => (slots.has(c.key) ? shown[next++] : c.key)));
+    this.readerChanges.update(n => n + 1);
   }
 
   /**
@@ -2407,10 +2510,12 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     else if (at === -1) list.push({ key, direction: next });
     else list[at] = { key, direction: next };
     this.sort.set(list);
+    this.readerChanges.update(n => n + 1);
   }
 
   protected onFilter(key: string, items: readonly WrTableFilterItem[]): void {
     this.filterChange.emit({ key, items });
+    this.readerChanges.update(n => n + 1);
   }
 
   protected cellContext(item: Record<string, unknown>, col: CellColumn<T>): WrTableCellContext {
