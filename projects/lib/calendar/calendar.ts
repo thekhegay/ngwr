@@ -341,6 +341,12 @@ export class WrCalendar {
       untracked(() => {
         if (!this.adapter.isSameMonth(candidate, this.viewDate())) {
           this.viewDate.set(candidate);
+          // Only the tab stop moves, never real focus: nobody asked to be taken
+          // here. A cursor still in the grid is one a click just placed, on the
+          // end of a range whose start is what this effect follows.
+          if (!this.isRendered(this.focusedDate())) {
+            this.focusedDate.set(this.nearestEnabled(candidate));
+          }
         }
       });
     });
@@ -387,6 +393,14 @@ export class WrCalendar {
     const day = Math.min(this.adapter.getDate(focused), this.adapter.getDaysInMonth(view));
     const landing = this.adapter.createDate(this.adapter.getYear(view), this.adapter.getMonth(view), day);
     this.focusedDate.set(this.nearestEnabled(landing));
+  }
+
+  /** Whether `date` is one of the 42 days the grid is showing. */
+  private isRendered(date: Date): boolean {
+    const weeks = this.weeks();
+    return (
+      this.adapter.compareDate(date, weeks[0][0]) >= 0 && this.adapter.compareDate(date, weeks[ROWS - 1][COLS - 1]) <= 0
+    );
   }
 
   /** Header label click — zooms out (`day → month → year`). No-op at year view. */
