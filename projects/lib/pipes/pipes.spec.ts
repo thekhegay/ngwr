@@ -453,6 +453,17 @@ describe('wrDate reading backend values', () => {
     expect(p.transform(AT / 1000, 'yyyy', { epochUnit: 's' })).toBe('2026');
   });
 
+  it('keeps the option of withDates when the one for the call is undefined', () => {
+    const dates = adapter({ timeZone: '+0500', epochUnit: 'us', zonelessIn: 'utc' });
+    const unset = { epochUnit: undefined, zonelessIn: undefined, timeZone: undefined };
+    expect(wrFormatDate(AT * 1000, dates, 'yyyy HH:mm', unset)).toBe('2026 13:45');
+    expect(wrFormatDate('2026-11-12 13:45:00', dates, 'HH:mm', unset)).toBe('18:45');
+    const p = pipe();
+    expect(p.transform(AT * 1000, 'yyyy HH:mm', { epochUnit: undefined })).toBe('2026 13:45');
+    expect(p.transform(AT * 1000, 'yyyy HH:mm')).toBe('2026 13:45');
+    expect(p.transform(AT, 'yyyy HH:mm', { epochUnit: 'ms' })).toBe('2026 13:45');
+  });
+
   it('prints a zoneless string unchanged when it is read in the display zone', () => {
     everywhere(() => {
       const dates = adapter({ timeZone: '+0500', zonelessIn: 'display' });
