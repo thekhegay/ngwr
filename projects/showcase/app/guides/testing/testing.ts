@@ -965,6 +965,21 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<boolean> | Promise<string | null> | Promise<void>',
     },
     {
+      name: 'isConfirm() / confirm() / cancel()',
+      description: 'A `WrDialog.confirm()` dialog and its two buttons. Both throw on any other dialog.',
+      type: 'Promise<boolean> | Promise<void>',
+    },
+    {
+      name: 'isAlert() / ok()',
+      description: 'A `WrDialog.alert()` dialog and its button. `ok()` throws on any other dialog.',
+      type: 'Promise<boolean> | Promise<void>',
+    },
+    {
+      name: 'getIntent()',
+      description: 'The `intent` icon of a confirm or alert dialog, or `null`.',
+      type: "Promise<'info' | 'success' | 'warning' | 'danger' | null>",
+    },
+    {
       name: 'sendEscape()',
       description: 'Presses Escape; ignored with `closeOnEscape: false`.',
       type: 'Promise<void>',
@@ -995,6 +1010,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<boolean> | Promise<void>',
     },
     {
+      name: 'getActionLabel() / runAction()',
+      description:
+        'The `action` button. `getActionLabel()` is `null` and `runAction()` throws on a toast shown without one.',
+      type: 'Promise<string | null> | Promise<void>',
+    },
+    {
       name: 'hasProgressBar()',
       description: 'Needs `showProgress` and a non-zero duration.',
       type: 'Promise<boolean>',
@@ -1015,7 +1036,7 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<void>',
     },
     {
-      name: 'isOpen() / getTriggerText()',
+      name: 'isOpen() / isDisabled() / getTriggerText()',
       description: 'Menu state and trigger label.',
       type: 'Promise<boolean> | Promise<string>',
     },
@@ -1104,9 +1125,14 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<string> | Promise<void>',
     },
     {
-      name: 'getMode() / isDisabled() / isReadonly() / focus() / blur() / isFocused()',
+      name: 'getMode() / getPlaceholder() / isDisabled() / isReadonly() / focus() / blur() / isFocused()',
       description: 'Mode and field state.',
       type: 'Promise<…>',
+    },
+    {
+      name: 'getPanelRole() / getPanelAriaLabel()',
+      description: 'The popup: `dialog`, named by its mode or by `[panelAriaLabel]`.',
+      type: 'Promise<string | null>',
     },
     {
       name: 'Day: getDayOfMonth() / getText()',
@@ -1134,9 +1160,20 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'Range: getMode() / isDisabled() / isReadonly()',
+      description: "`'date'` or `'datetime'`. A read-only range picker does not open.",
+      type: 'Promise<…>',
+    },
+    {
       name: 'Range: getTime(end) / setTime(end, fields) / stepTime(end, unit, ±1) / toggleMeridiem(end)',
       description: 'Time per end. The panel methods above work on both pickers.',
       type: 'Promise<…>',
+    },
+    {
+      name: 'Range: getPresets() / getActivePreset() / selectPreset(label)',
+      description:
+        'The `[presets]` in the open popup, and the one that equals the value. `selectPreset()` commits the range and closes the popup; it throws on an unknown or disabled preset.',
+      type: 'Promise<string[]> | Promise<string | null> | Promise<void>',
     },
   ];
 
@@ -1145,6 +1182,11 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'getMode()',
       description: '`popover` or `tooltip`.',
       type: "Promise<'popover' | 'tooltip'>",
+    },
+    {
+      name: 'getTriggerText() / isOpen() / isDisabled()',
+      description: 'The trigger text and state. `isDisabled()` reads `wrPopoverDisabled`.',
+      type: 'Promise<string> | Promise<boolean>',
     },
     {
       name: 'open(timeout?) / close(timeout?)',
@@ -1227,9 +1269,19 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'getSwatchLabels() / getSize()',
+      description: 'What each preset announces: its `label`, or the colour string. The panel size.',
+      type: 'Promise<string[]> | Promise<WrColorPickerSize>',
+    },
+    {
       name: 'Trigger: isOpen() / open() / close() / toggle() / sendEscape() / getPicker() / isDisabled()',
       description: '`WrColorPickerTriggerHarness`. `open()` returns the picker.',
       type: 'Promise<…>',
+    },
+    {
+      name: 'Trigger: getText() / getHasPopup()',
+      description: 'The trigger text, and the role it opens: `dialog`.',
+      type: 'Promise<string> | Promise<string | null>',
     },
   ];
 
@@ -1376,6 +1428,11 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'Bar, line, donut, meter group, radar, scatter: getLegendHarness()',
+      description: 'The legend as a `WrChartLegendHarness`.',
+      type: 'Promise<WrChartLegendHarness>',
+    },
+    {
       name: 'Legend: getItems() / getLabels() / getItemCount() / getHidden() / isToggleable() / toggle(index)',
       description:
         '`WrChartLegendHarness`, standalone or from `getLegendHarness()` on the bar, line, donut, meter group, scatter and radar harnesses. Filters: `ariaLabel`, `itemLabel`.',
@@ -1405,8 +1462,18 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'hasHeader() / getAccessibleName() / getPreviousLabel() / getNextLabel() / getTodayLabel()',
+      description: 'The header (`hideHeader`), the grid name and the navigation labels.',
+      type: 'Promise<…>',
+    },
+    {
       name: 'Chip: getLabel() / getTitle() / getTime() / isBand() / continuesBefore() / continuesAfter() / click() / move(arrow) / resize(arrow)',
       description: '`WrEventCalendarChipHarness`. `move()` is Alt + arrow; `resize()` adds Shift.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Chip: getText() / isDragging() / hasResizeHandle() / focus() / isFocused() / pressArrow(arrow) / sendEscape()',
+      description: 'A bare arrow is left to the grid. Escape hands focus back to the cell.',
       type: 'Promise<…>',
     },
   ];
@@ -1423,8 +1490,19 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<void>',
     },
     {
+      name: 'dispatchImageError() / isFailed()',
+      description: 'Fires the image `error` event, as a source that cannot be decoded does.',
+      type: 'Promise<void> | Promise<boolean>',
+    },
+    {
       name: 'getCropBox() / getHandles() / hasBackdrop()',
       description: 'The crop window in display pixels.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'pressArrow(arrow, { alt, shift }) / getCropWindowLabel() / getAnnouncement()',
+      description:
+        'An arrow moves the crop window one pixel, ten with `shift`; `alt` resizes it. The announcement is the crop rect in source pixels.',
       type: 'Promise<…>',
     },
   ];
@@ -1470,6 +1548,11 @@ export class MyWidgetHarness extends ComponentHarness {
       description: 'With `show="all"`: the active window\'s tab, the one with `aria-pressed="true"`.',
       type: 'Promise<string | null> | Promise<boolean>',
     },
+    {
+      name: 'Taskbar: getFoldedCount() / getFoldedTitles() / restoreFolded(title)',
+      description: 'The windows folded under the “+N” button.',
+      type: 'Promise<number> | Promise<string[]> | Promise<void>',
+    },
   ];
 
   protected readonly calendarApi: readonly DocApiRow[] = [
@@ -1495,12 +1578,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<void>',
     },
     {
-      name: 'getWeekdayNames() / getWeekCount() / getGridRole() / getPreviousLabel() / getNextLabel() / getMode() / isDisabled()',
+      name: 'getWeekdayNames() / getWeekCount() / getGridRole() / getPreviousLabel() / getNextLabel() / getMode() / isDisabled() / isReadonly()',
       description: 'Shape and labels.',
       type: 'Promise<…>',
     },
     {
-      name: 'Day: getText() / getAccessibleName() / getDayOfMonth() / isSelected() / isDisabled() / isToday() / isOutOfMonth() / isInRange() / isActive() / click()',
+      name: 'Day: getText() / getAccessibleName() / getRole() / getDayOfMonth() / isSelected() / isDisabled() / isToday() / isOutOfMonth() / isInRange() / isActive() / click()',
       description: '`WrCalendarDayHarness`, also exported as `WrDatePickerDayHarness`.',
       type: 'Promise<…>',
     },
@@ -1576,7 +1659,12 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     { name: 'getMenuRole() / isMenuBound()', description: 'The trigger-to-menu link.', type: 'Promise<…>' },
     {
-      name: 'Action: getLabel() / getInitial() / hasIcon() / getIconName() / isDisabled() / click()',
+      name: 'focusTrigger() / isTriggerFocused()',
+      description: 'Focus on the trigger.',
+      type: 'Promise<void> | Promise<boolean>',
+    },
+    {
+      name: 'Action: getLabel() / getInitial() / hasIcon() / getIconName() / isDisabled() / click() / focus() / isFocused()',
       description: '`WrSpeedDialActionHarness`. `getLabel()` is the name; `getInitial()` the drawn glyph.',
       type: 'Promise<…>',
     },
@@ -1600,7 +1688,7 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<{ x: number; y: number }>',
     },
     {
-      name: 'isDisabled() / isReadonly() / isFocusable() / focus() / blur() / getLabel()',
+      name: 'isDisabled() / isReadonly() / isFocusable() / focus() / blur() / isFocused() / getLabel()',
       description: 'State and focus. `blur()` emits `touch`.',
       type: 'Promise<…>',
     },
@@ -1705,7 +1793,7 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Header cell: isSortable() / sort() / getSortDirection() / getSortIndicator() / getSortOrder() / isFilterable()',
+      name: 'Header cell: getText() / getPin() / isSortable() / sort() / getSortDirection() / getSortIndicator() / getSortOrder() / isFilterable()',
       description: '`WrTableHeaderCellHarness`. `isFilterable()` needs non-empty `filterItems`.',
       type: 'Promise<…>',
     },
@@ -1739,7 +1827,7 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Radio: getLabel() / getValue() / isChecked() / isDisabled() / getSize() / hasIcon() / isLabelBound() / check() / focus() / blur() / isFocused()',
+      name: 'Radio: getLabel() / getValue() / getName() / isChecked() / isDisabled() / getSize() / hasIcon() / isLabelBound() / check() / focus() / blur() / isFocused()',
       description: '`WrRadioHarness`. `getLabel()` is the text only.',
       type: 'Promise<…>',
     },
@@ -1831,6 +1919,11 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     { name: 'focus() / blur()', description: '`blur()` blurs the focused box.', type: 'Promise<void>' },
+    {
+      name: 'Box: getValue() / isEmpty() / getLabel() / isMasked() / isDisabled() / isFocused() / focus() / type(char)',
+      description: '`WrInputOtpBoxHarness`. `focus()` throws on a disabled control.',
+      type: 'Promise<…>',
+    },
   ];
 
   protected readonly sliderApi: readonly DocApiRow[] = [
@@ -1854,6 +1947,27 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'isRange() / isDisabled() / getMin() / getMax() / getLabelText() / focus() / isFocused()',
       description: 'Shape and state.',
       type: 'Promise<…>',
+    },
+    {
+      name: 'getMarks()',
+      description:
+        'The marks on the track, in value order, each with its label. A mark outside `[min, max]` is not drawn.',
+      type: 'Promise<WrSliderMark[]>',
+    },
+    {
+      name: 'getSize() / getOrientation()',
+      description: "The control size, and the track axis: `'horizontal'` or `'vertical'`.",
+      type: "Promise<WrSliderSize> | Promise<'horizontal' | 'vertical'>",
+    },
+    {
+      name: 'Thumb: getPosition() / getValue() / getMin() / getMax() / getLabel() / getRole() / isDisabled() / focus() / isFocused()',
+      description: '`WrSliderThumbHarness`. On a range, `getMin()` and `getMax()` stop at the other thumb.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Thumb: stepUp() / stepDown() / largeStepUp() / largeStepDown() / toMin() / toMax() / setValue(n)',
+      description: 'Arrows, PageUp and PageDown (ten steps), Home and End. `setValue()` walks there with the keys.',
+      type: 'Promise<void>',
     },
   ];
 
@@ -1896,7 +2010,7 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     { name: 'removeFile(i) / removeFileNamed(name)', description: 'By index or exact name.', type: 'Promise<void>' },
     {
-      name: 'getLabel() / getPickText() / getDropText() / getHelperText() / getAccept() / isMultiple() / isDisabled()',
+      name: 'getLabel() / getPickText() / getDropText() / getHelperText() / getAccept() / isMultiple() / isDisabled() / getSize()',
       description: 'Copy and settings.',
       type: 'Promise<…>',
     },
@@ -1911,6 +2025,11 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     { name: 'isOpen()', description: "From the target's `aria-controls`.", type: 'Promise<boolean>' },
     {
+      name: 'getFocusedItemText()',
+      description: 'Where the roving focus is, or `null`.',
+      type: 'Promise<string | null>',
+    },
+    {
       name: 'getItems(filters?) / getItemTexts() / clickItem(filters)',
       description: 'Items, without dividers. Filters: `text`, `disabled`, `hasSubmenu`.',
       type: 'Promise<…>',
@@ -1922,13 +2041,28 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Item: hasSubmenu() / isSubmenuOpen() / openSubmenu() / openSubmenuByHover() / closeSubmenu() / getSubmenuItems() / clickSubmenuItem()',
+      name: 'Item: getText() / getRole() / isDisabled() / hasIcon() / getIconName() / isFocused()',
+      description: '`WrContextMenuItemHarness`: label, icon and state.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Item: click() / activateByKeyboard()',
+      description: '`click()` throws on a disabled item; `activateByKeyboard()` presses Enter.',
+      type: 'Promise<void>',
+    },
+    {
+      name: 'Item: hasSubmenu() / isSubmenuOpen() / openSubmenu() / openSubmenuByHover() / closeSubmenu() / getSubmenuItems() / getSubmenuItemTexts() / clickSubmenuItem()',
       description: '`WrContextMenuItemHarness`. Submenus at any depth.',
       type: 'Promise<…>',
     },
   ];
 
   protected readonly popconfirmApi: readonly DocApiRow[] = [
+    {
+      name: 'getTriggerText() / isOpen() / isDisabled()',
+      description: 'The trigger label and state. `isDisabled()` reads `wrPopconfirmDisabled`.',
+      type: 'Promise<string> | Promise<boolean>',
+    },
     {
       name: 'open() / close() / confirm() / cancel() / sendEscape() / clickOutside()',
       description: '`confirm()` emits `confirmed`; cancel, Escape and an outside click emit `cancelled`.',
@@ -1957,6 +2091,11 @@ export class MyWidgetHarness extends ComponentHarness {
       description: 'Ways in and out.',
       type: 'Promise<void>',
     },
+    {
+      name: 'isOpen()',
+      description: 'Whether the palette is showing.',
+      type: 'Promise<boolean>',
+    },
     { name: 'setQuery(text) / getQuery() / getPlaceholder()', description: 'The search field.', type: 'Promise<…>' },
     {
       name: 'getItems(filters?) / getItemLabels() / runItem(filters) / getGroups() / getGroupTitles()',
@@ -1978,6 +2117,22 @@ export class MyWidgetHarness extends ComponentHarness {
       description: 'Shape, state and focus.',
       type: 'Promise<…>',
     },
+    {
+      name: 'Group: getTitle() / getRole() / isLabelledByTitle() / getItems(filters?) / getItemLabels()',
+      description: '`WrCommandPaletteGroupHarness`. `getTitle()` is `null` for the bucket of ungrouped items.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Item: getLabel() / getDescription() / getShortcut() / getIconName() / getId() / getRole() / isActive()',
+      description:
+        '`WrCommandPaletteItemHarness`. Description, shortcut and icon are `null` when the item declares none.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Item: click() / hover()',
+      description: '`click()` runs the command; `hover()` highlights it.',
+      type: 'Promise<void>',
+    },
   ];
 
   protected readonly cascaderApi: readonly DocApiRow[] = [
@@ -1997,6 +2152,11 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'clearByKeyboard()',
+      description: 'Backspace on the closed trigger.',
+      type: 'Promise<void>',
+    },
+    {
       name: 'getValueText() / getPlaceholder() / getAccessibleName() / isDisabled() / isOpen()',
       description: 'What the trigger shows.',
       type: 'Promise<…>',
@@ -2004,6 +2164,22 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'getPopupRole() / getPanelRole() / getPanelId() / isPanelWiredToTrigger()',
       description: 'The trigger-to-panel link.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Column: getOptions(filters?) / getOptionLabels() / getOption(filters) / getActiveOption() / getActiveOptionText() / getRole()',
+      description: '`WrCascaderColumnHarness`: one level. `getOption()` throws when nothing matches.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Option: getText() / getLevel() / hasChildren() / isActive() / isSelected() / isExpanded() / isDisabled()',
+      description:
+        '`WrCascaderOptionHarness`. `isSelected()` is `null` for an option that is not a choice, `isExpanded()` is `null` for a leaf.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Option: click() / selectByKeyboard() / hover() / focus() / isFocused() / getRole() / getTabIndex()',
+      description: 'A click opens a branch or commits a leaf; hover expands nothing. The panel holds one tab stop.',
       type: 'Promise<…>',
     },
   ];
@@ -2030,6 +2206,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'getPlaceholder() / clearByKeyboard()',
+      description:
+        'Overlay mode. The placeholder is `null` while a selection hides it. `clearByKeyboard()` presses Backspace on the closed trigger.',
+      type: 'Promise<string | null> | Promise<void>',
+    },
+    {
       name: 'getRole() / isMultiple() / getSelectionMode() / isVirtual() / isDisabled()',
       description: 'Shape and mode.',
       type: 'Promise<…>',
@@ -2037,6 +2219,12 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'Node: getLabel() / getLevel() / getPosInSet() / getSetSize() / getIndex() / isExpandable() / isExpanded() / expand() / collapse() / isSelected() / isDisabled() / isActive() / click() / ctrlClick()',
       description: '`WrTreeNodeHarness`. Set size and position are per sibling group.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Node: getId() / toggleExpand() / isSelectable() / isFocused()',
+      description:
+        'Only a windowed tree gives its rows an id. `isFocused()` is real DOM focus, which a windowed tree keeps on the list.',
       type: 'Promise<…>',
     },
   ];
@@ -2067,6 +2255,16 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'isDisabled() / isReadonly() / isInvalid()',
+      description: 'State. A read-only editor keeps its tab stop.',
+      type: 'Promise<boolean>',
+    },
+    {
+      name: 'focus() / blur() / isFocused()',
+      description: 'Focus on the text. `focus()` throws on a disabled editor; a focused toolbar button does not count.',
+      type: 'Promise<void> | Promise<boolean>',
+    },
+    {
       name: 'setText(text) / paste(text) / pasteHtml(html, text?) / selectAll() / pressKey(key, modifiers?)',
       description: 'Edits. `pressKey` refuses a printable key with no modifier.',
       type: 'Promise<void>',
@@ -2075,6 +2273,11 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'getTool(label) / getToolLabels() / isToolPressed(label) / getToolShortcuts(label) / getToolbarTabStop()',
       description: 'Toolbar tools; `getTool` returns a `WrButtonHarness`.',
       type: 'Promise<…>',
+    },
+    {
+      name: 'hasToolbar() / getToolbarLabel()',
+      description: 'The toolbar and its name. `getToolbarLabel()` throws without a toolbar.',
+      type: 'Promise<boolean> | Promise<string | null>',
     },
     {
       name: 'openLinkPanel() / setLink(url) / removeLink() / getLinkError() / isLinkPanelOpen()',
@@ -2087,6 +2290,12 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'type(text) / setValue(text) / getValue() / clear()',
       description: 'Only `type()` opens the panel.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'getPlaceholder() / click() / focus() / isFocused()',
+      description:
+        'The field. A click with the caret inside a mention reopens the suggestions; focus alone opens nothing.',
       type: 'Promise<…>',
     },
     {
@@ -2103,6 +2312,11 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'getAutocomplete() / getPopupRole() / getListboxRole() / getListboxLabel() / getStatusMessage()',
       description: 'Combobox ARIA while the panel is open.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Option: getText() / isActive() / getId() / click() / hover()',
+      description: '`WrMentionOptionHarness`. `click()` picks the suggestion; `hover()` makes it the active one.',
       type: 'Promise<…>',
     },
   ];
@@ -2152,6 +2366,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'getSelectedTab() / hasPanel() / getPanelText()',
+      description:
+        'The selected tab and the panel that is showing. A router strip has no panel; `getPanelText()` throws when nothing is selected.',
+      type: 'Promise<…>',
+    },
+    {
       name: 'getTabStopLabels() / isRoving() / getFocusedLabel() / focusTabStop()',
       description: 'The roving tab stop, separate from the selection.',
       type: 'Promise<…>',
@@ -2169,6 +2389,12 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'Tab: getLabel() / isSelected() / isDisabled() / isTabStop() / isLink() / getHref() / getPanelId() / isPanelBound() / getPanelText()',
       description: '`WrTabHarness`. `isPanelBound()` checks the tab and panel point at each other.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Tab: getId() / hasPanel() / click() / focus() / blur() / isFocused()',
+      description:
+        '`hasPanel()` is true for the selected tab only. `isFocused()` is the roving cursor, not the selection.',
       type: 'Promise<…>',
     },
   ];
@@ -2191,7 +2417,7 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Step: getLabel() / getDescription() / isOptional() / getAccessibleName() / isActive() / isCompleted() / isReachable() / select()',
+      name: 'Step: getLabel() / getDescription() / isOptional() / getAccessibleName() / isActive() / isCompleted() / isDisabled() / isReachable() / select() / focus() / isFocused()',
       description: '`WrStepHarness`. `select()` respects `isReachable()`.',
       type: 'Promise<…>',
     },
@@ -2213,7 +2439,18 @@ export class MyWidgetHarness extends ComponentHarness {
       description: 'Dots, arrows and their labels.',
       type: 'Promise<…>',
     },
+    {
+      name: 'getPaginationLabel()',
+      description: 'The name of the dot group. Throws when the dots are not rendered.',
+      type: 'Promise<string | null>',
+    },
     { name: 'hover() / mouseAway()', description: 'Pauses and resumes autoplay.', type: 'Promise<void>' },
+    {
+      name: 'focus() / blur() / isFocused()',
+      description:
+        'Focus on the first arrow or dot, which also holds autoplay. `blur()` throws when none of them is focused.',
+      type: 'Promise<void> | Promise<boolean>',
+    },
     {
       name: 'getRole() / getRoleDescription() / getSlideRoleDescriptions() / getAccessibleName() / getTrackOffsetPercent()',
       description: 'Roles, name and track offset.',
@@ -2270,6 +2507,23 @@ export class MyWidgetHarness extends ComponentHarness {
       description: 'Shape and state.',
       type: 'Promise<…>',
     },
+    {
+      name: 'getSelectedOption() / isInvalid() / getDescriptionText() / blur()',
+      description:
+        'The pressed segment, and what a form field hands the control: `aria-invalid` and the text `aria-describedby` points at. `blur()` marks a bound field touched.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Option: getText() / getAccessibleName() / getLabel() / isSelected() / isDisabled() / hasIcon() / getIconName()',
+      description:
+        '`WrSegmentedOptionHarness`. `getText()` is `null` for an icon-only segment; `getLabel()` throws when nothing names it.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Option: select() / focus() / blur() / isFocused()',
+      description: 'Click and focus.',
+      type: 'Promise<void> | Promise<boolean>',
+    },
   ];
 
   protected readonly sortableListApi: readonly DocApiRow[] = [
@@ -2293,7 +2547,7 @@ export class MyWidgetHarness extends ComponentHarness {
 
   protected readonly collapseApi: readonly DocApiRow[] = [
     {
-      name: 'Group: getPanelTitles() / getPanels(filters?) / getPanel(filters) / getPanelAt(i) / getOpenTitles()',
+      name: 'Group: getPanelTitles() / getPanels(filters?) / getPanel(filters) / getPanelAt(i) / getOpenTitles() / getOpenPanels()',
       description: '`WrCollapseGroupHarness`. Filters: `title`, `open`, `disabled`.',
       type: 'Promise<…>',
     },
@@ -2308,6 +2562,11 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'Panel: getTitle() / isDisabled() / getIndicator() / isFlat() / focus() / isFocused()',
+      description: "The header: its text, state and focus. `getIndicator()` is `'chevron'` or `'plus'`.",
+      type: 'Promise<…>',
+    },
+    {
       name: 'Panel: getRegionId() / isRegionBound() / isContentHidden()',
       description: 'The header and region point at each other.',
       type: 'Promise<…>',
@@ -2319,6 +2578,11 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'canMoveTo(side) / moveTo(side) / moveAllTo(side) / getMoveLabel(side)',
       description: '`moveTo()` throws when nothing is staged.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'getSize() / isDisabled() / isSearchable()',
+      description: 'Control size and state. `[searchable]` gives both panes a filter box.',
       type: 'Promise<…>',
     },
     {
@@ -2337,7 +2601,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Item: getLabel() / isChecked() / isDisabled() / toggle() / check() / uncheck()',
+      name: 'Pane: getSide() / getListLabel() / getSearchPlaceholder() / getSearchLabel() / getSelectAllLabel()',
+      description: 'Which side the pane is, and the names of its list, filter box and select-all box.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Item: getLabel() / isChecked() / isDisabled() / toggle() / check() / uncheck() / focus() / isFocused()',
       description: '`WrTransferItemHarness`. A disabled row refuses.',
       type: 'Promise<…>',
     },
