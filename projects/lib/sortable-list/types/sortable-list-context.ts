@@ -43,6 +43,9 @@ export interface WrSortableListContext {
    */
   readonly items: Signal<readonly unknown[]>;
 
+  /** A row's pointer drag was cancelled with Escape; the drop that follows changes nothing. */
+  cancelDrag(drag: object): void;
+
   /** Register a row on construction, in projection order. */
   register(item: { readonly host: ElementRef<HTMLElement> }): void;
 

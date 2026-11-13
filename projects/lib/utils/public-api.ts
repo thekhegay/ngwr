@@ -43,6 +43,7 @@ export {
   wrContentDispositionFileName,
   wrDownloadBlob,
   wrRestoreFocus,
+  wrWatchDragCancel,
 } from './dom';
 export type { WrWatchColorSchemeOptions, WrColorScheme } from './dom';
 
