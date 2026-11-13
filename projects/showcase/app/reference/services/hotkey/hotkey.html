@@ -2,7 +2,17 @@
   title="WrHotkey"
   updated="16.0.0"
   description="Register keyboard shortcuts like `mod+k`, where `mod` is ⌘ on macOS and Ctrl elsewhere. A letter shortcut also fires on a non-Latin layout. `bindings()` lists what is registered, for a cheat sheet."
-  [keywords]="['service', 'hotkey', 'keyboard', 'WrHotkey', 'cheat sheet', 'wrFormatChord']"
+  [keywords]="[
+    'service',
+    'hotkey',
+    'keyboard',
+    'WrHotkey',
+    'cheat sheet',
+    'wrFormatChord',
+    'wrMatchesHotkey',
+    'wrParseHotkeySpec',
+    'WrParsedHotkey',
+  ]"
   [labels]="['Service']"
 >
   <ngwr-doc-section
@@ -79,6 +89,64 @@
         </tbody>
       </table>
     </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Match a chord yourself"
+    description="`wrParseHotkeySpec()` turns a spec into flags and a key, and `wrMatchesHotkey()` tests a `KeyboardEvent` against them. They are what `bind()` runs, for a listener of your own: a canvas, a grid cell, an editor command."
+  >
+    <ngwr-doc-code [code]="snippets.match" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: grid; gap: var(--wr-space-sm); justify-items: start">
+        <button wr-btn outlined type="button" (keydown)="onChord($event)">Focus here, then press a chord</button>
+        <small style="color: var(--wr-color-on-surface-muted)" aria-live="polite">
+          @if (pressed(); as chord) {
+            {{ chord.keys }}: {{ chord.matches ? 'matches' : 'does not match' }} <code>mod+shift+k</code>
+          } @else {
+            Tests against <code>mod+shift+k</code>.
+          }
+        </small>
+      </div>
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Spec</th>
+            <th scope="col"><code>isMac</code></th>
+            <th scope="col"><code>WrParsedHotkey</code></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of parsedRows; track $index) {
+            <tr>
+              <th scope="row">
+                <code>{{ row.spec }}</code>
+              </th>
+              <td>
+                <code>{{ row.isMac }}</code>
+              </td>
+              <td>
+                <code>{{ row.parsed }}</code>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>All four modifiers must match exactly: <code>mod+k</code> does not fire on <code>mod+shift+k</code>.</li>
+      <li>
+        <code>key</code> is a lowercased <code>KeyboardEvent.key</code>. The aliases <code>esc</code>,
+        <code>space</code>, <code>return</code>, <code>up</code>, <code>down</code>, <code>left</code>,
+        <code>right</code> and <code>del</code> are resolved.
+      </li>
+      <li>
+        On a non-Latin layout the physical key stands in for a letter, so <code>mod+k</code> fires on a Russian layout.
+        Not with Alt held.
+      </li>
+      <li>Parse once and keep the result: a spec does not change between events.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
