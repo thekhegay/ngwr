@@ -353,7 +353,7 @@ export class WrEventCalendar {
   /** Only what overlaps the window — everything downstream works off this. */
   private readonly visible = computed<readonly WrCalendarEvent[]>(() => {
     const [start, end] = this.range();
-    return [...this.events()]
+    return this.events()
       .filter(e => e.end.getTime() > start.getTime() && e.start.getTime() < end.getTime())
       .sort((a, b) => {
         const byStart = a.start.getTime() - b.start.getTime();
@@ -403,6 +403,7 @@ export class WrEventCalendar {
     for (let w = 0; w * DAYS_PER_WEEK < days.length; w++) {
       const row = days.slice(w * DAYS_PER_WEEK, (w + 1) * DAYS_PER_WEEK);
       const { chips, hidden } = this.bandLayout(events, row, this.maxLanes());
+      const bands = this.byColumn(chips, row.length);
 
       weeks.push({
         key: this.iso(row[0]),
@@ -414,7 +415,7 @@ export class WrEventCalendar {
           label: this.adapter.format(date, 'longDate'),
           inMonth: this.adapter.getMonth(date) === month,
           isToday: this.adapter.isSameDay(date, this.adapter.today()),
-          bands: chips.filter(chip => chip.column === col),
+          bands: bands[col],
           hidden: hidden[col],
         })),
       });
@@ -451,12 +452,12 @@ export class WrEventCalendar {
     readonly { key: string; date: Date; label: string; bands: readonly BandChip[] }[]
   >(() => {
     const days = this.days();
-    const chips = this.allDayBands();
+    const bands = this.byColumn(this.allDayBands(), days.length);
     return days.map((date, col) => ({
       key: this.iso(date),
       date,
       label: this.allDayCellText({ label: this.allDayLabel(), date: this.adapter.format(date, 'longDate') }),
-      bands: chips.filter(chip => chip.column === col),
+      bands: bands[col],
     }));
   });
 
@@ -470,7 +471,15 @@ export class WrEventCalendar {
     const from = Math.max(0, Math.min(23, this.dayStartHour())) * 60;
     const to = Math.max(from + slot, Math.min(24, this.dayEndHour()) * 60);
     const days = this.days();
-    const placed = this.timeLayout(days, slot);
+    const placed = this.timeLayout(days, slot).map(column => {
+      const bySlot = new Map<number, TimeChip[]>();
+      for (const { chip, slotMinutes } of column) {
+        const chips = bySlot.get(slotMinutes);
+        if (chips) chips.push(chip);
+        else bySlot.set(slotMinutes, [chip]);
+      }
+      return bySlot;
+    });
     const rows: TimeRow[] = [];
 
     // Each half of a cell's name is invariant along one axis: the day reads the
@@ -491,7 +500,7 @@ export class WrEventCalendar {
           key: `${this.iso(date)}:${minutes}`,
           date,
           label: this.slotLabelText({ time: clock, date: dayLabels[col] }),
-          chips: placed[col].filter(chip => chip.slotMinutes === minutes).map(chip => chip.chip),
+          chips: placed[col].get(minutes) ?? [],
         })),
       });
     }
@@ -814,6 +823,13 @@ export class WrEventCalendar {
     return { chips, hidden };
   }
 
+  /** The chips that start in each column, in the order they were laid out. */
+  private byColumn(chips: readonly BandChip[], columns: number): readonly BandChip[][] {
+    const out = Array.from({ length: columns }, (): BandChip[] => []);
+    for (const chip of chips) out[chip.column].push(chip);
+    return out;
+  }
+
   private laneCount(chips: readonly BandChip[]): number {
     return chips.reduce((count, chip) => Math.max(count, chip.lane + 1), 0);
   }
@@ -828,13 +844,22 @@ export class WrEventCalendar {
     const to = Math.max(from + slot, Math.min(24, this.dayEndHour()) * 60);
     const timed = this.visible().filter(e => !e.allDay && !this.spansWholeDay(e));
 
-    return days.map(day => {
+    const windows = days.map(day => {
       const dayStart = this.startOfDay(day);
-      const windowStart = dayStart.getTime() + from * 60_000;
-      const windowEnd = dayStart.getTime() + to * 60_000;
+      return { dayStart, windowStart: dayStart.getTime() + from * 60_000, windowEnd: dayStart.getTime() + to * 60_000 };
+    });
+    // The events come sorted by start and the windows run in order, so the first day an
+    // event can touch only moves forward: one pass fills every day, in the events' order.
+    const perDay = windows.map((): WrCalendarEvent[] => []);
+    let first = 0;
+    for (const event of timed) {
+      const end = event.end.getTime();
+      while (first < windows.length && windows[first].windowEnd <= event.start.getTime()) first++;
+      for (let d = first; d < windows.length && windows[d].windowStart < end; d++) perDay[d].push(event);
+    }
 
-      const onDay = timed
-        .filter(e => e.end.getTime() > windowStart && e.start.getTime() < windowEnd)
+    return windows.map(({ dayStart, windowStart, windowEnd }, d) => {
+      const onDay = perDay[d]
         .map(event => ({
           event,
           from: Math.max(windowStart, event.start.getTime()),
