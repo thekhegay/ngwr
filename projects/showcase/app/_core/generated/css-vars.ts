@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1711 hook(s) across 115 page(s). A property is here only when the
+ * 1709 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 37 declaration(s) are one component setting
@@ -710,11 +710,6 @@ export const CSS_VARS = {
       { name: "--wr-tag-padding-x", default: "var(--wr-space-sm)", scope: ".wr-tag", overrides: 1 },
       { name: "--wr-tag-padding-y", default: "0.125rem", scope: ".wr-tag" },
       { name: "--wr-tag-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-tag", overrides: 1 },
-      { name: "--wr-tag-remove-color", default: "var(--wr-tag-color)", scope: ".wr-tag" },
-      { name: "--wr-tag-remove-hover-bg", default: "color-mix(in srgb, var(--wr-tag-color) 16%, transparent)", scope: ".wr-tag" },
-      { name: "--wr-tag-remove-icon-size", default: "0.75rem", scope: ".wr-tag" },
-      { name: "--wr-tag-remove-radius", default: "var(--wr-tag-radius)", scope: ".wr-tag" },
-      { name: "--wr-tag-remove-size", default: "1rem", scope: ".wr-tag" },
     ],
   },
   "reference/components/breadcrumbs": {
@@ -1418,6 +1413,8 @@ export const CSS_VARS = {
       { name: "--wr-input-group-affix-gap", default: "var(--wr-space-xs)", scope: ".wr-input-group" },
       { name: "--wr-input-group-bg", default: "var(--wr-color-surface)", scope: ".wr-input-group", overrides: 1 },
       { name: "--wr-input-group-border", default: "var(--wr-border-base)", scope: ".wr-input-group", overrides: 1 },
+      { name: "--wr-input-group-clear-icon-size", default: "var(--wr-control-font-size-md)", scope: ".wr-input-group", overrides: 2 },
+      { name: "--wr-input-group-clear-radius", default: "var(--wr-border-radius-pill)", scope: ".wr-input-group" },
       { name: "--wr-input-group-font-family", default: "var(--wr-font-family-base)", scope: ".wr-input-group" },
       { name: "--wr-input-group-font-size", default: "var(--wr-text-sm)", scope: ".wr-input-group" },
       { name: "--wr-input-group-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-input-group" },
@@ -2034,6 +2031,7 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-textarea-bg", default: "var(--wr-color-surface)", scope: ".wr-textarea", overrides: 2 },
       { name: "--wr-textarea-border", default: "var(--wr-border-base)", scope: ".wr-textarea", overrides: 1 },
+      { name: "--wr-textarea-clear-radius", default: "var(--wr-border-radius-pill)", scope: ".wr-textarea" },
       { name: "--wr-textarea-color", default: "var(--wr-color-on-surface)", scope: ".wr-textarea", overrides: 1 },
       { name: "--wr-textarea-font-family", default: "var(--wr-font-family-base)", scope: ".wr-textarea" },
       { name: "--wr-textarea-font-size", default: "var(--wr-text-sm)", scope: ".wr-textarea", overrides: 2 },
