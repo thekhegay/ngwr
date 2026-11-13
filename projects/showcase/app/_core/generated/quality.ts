@@ -46,10 +46,10 @@ export const QUALITY = {
   directives: 56,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 422,
+  specFiles: 426,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 8199,
+  testCases: 8218,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page prints the count as "N+" (`formatCount(n, { floor: true })`) rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,

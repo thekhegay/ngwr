@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1763 hook(s) across 115 page(s). A property is here only when the
+ * 1764 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 38 declaration(s) are one component setting
@@ -2214,6 +2214,7 @@ export const CSS_VARS = {
       { name: "--wr-tree-panel-radius", default: "var(--wr-border-radius-base)", scope: ".wr-tree-panel" },
       { name: "--wr-tree-retry-color", default: "var(--wr-color-primary-ink)", scope: ".wr-tree" },
       { name: "--wr-tree-row-gap", default: "var(--wr-space-sm)", scope: ".wr-tree" },
+      { name: "--wr-tree-row-hover-bg", default: "var(--wr-color-hover)", scope: ".wr-tree" },
       { name: "--wr-tree-row-padding-x", default: "var(--wr-space-sm)", scope: ".wr-tree" },
       { name: "--wr-tree-row-padding-y", default: "var(--wr-space-xs)", scope: ".wr-tree", overrides: 1 },
       { name: "--wr-tree-row-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-tree" },

@@ -1648,6 +1648,7 @@ export const API = {
     { name: "nodes", description: "Tree data.", type: "readonly WrTreeNode<TId>[]", default: "[]" },
     { name: "selected", description: "Selected node ids (two-way bindable).", type: "readonly TId[]", default: "[]" },
     { name: "expanded", description: "Expanded node ids (two-way bindable).", type: "readonly TId[]", default: "[]" },
+    { name: "expandOnClick", description: "Opens and closes a node by a click anywhere on its row, not only on the arrow. In `selectionMode=\"single\"` the click selects too. Under `cascade` the checkbox is the way to check a branch, so a click elsewhere on its row only opens it. A disabled node and a leaf behave as without it.", type: "boolean", default: "true" },
     { name: "selectionMode", description: "Selection behavior.", type: "WrTreeSelectionMode", default: "'single'" },
     { name: "disabled", description: "Disable the whole tree. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse selection changes while the tree stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. Expanding and collapsing keep working: a branch is NAVIGATION, not a value, so a read-only tree is still browsable — it is picking and un-picking that stops. In `overlay` mode the trigger additionally refuses to open, because there the panel exists only to choose from and it already shows what is chosen. `aria-readonly` rides on the combobox trigger only; role `tree` does not support the state, so the inline shape has nothing valid to mirror it onto.", type: "boolean", default: "false" },
@@ -1680,6 +1681,7 @@ export const API = {
     { name: "loadingLabel", description: "Text of the row shown while children load. Falls back to `select.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
     { name: "loadErrorLabel", description: "Text of the row shown when `loadChildren` failed. Falls back to `loadState.failed`, then `'Could not load'`.", type: "string | null", default: "null" },
     { name: "retryLabel", description: "Label of the retry button on that row. Falls back to `loadState.retry`, then `'Try again'`.", type: "string | null", default: "null" },
+    { name: "noMatchesLabel", description: "Shown in place of the rows when `filter` matches nothing. Falls back to `select.noResults`.", type: "string | null", default: "null" },
     { name: "moveHelpLabel", description: "The keyboard move, as a screen reader hears it on entering a `draggable` tree. Falls back to `tree.moveKeyHelp`.", type: "string | null", default: "null" },
   ],
   // <wr-treemap-chart>
