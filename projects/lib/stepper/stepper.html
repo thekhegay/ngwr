@@ -33,10 +33,10 @@
         <span class="wr-stepper__label">
           {{ step.label() }}
           @if (isCompleted($index)) {
-            <span class="wr-stepper__sr-only"> {{ completedLabel() }} </span>
+            <span class="wr-stepper__sr-only"> {{ resolvedCompletedLabel() }} </span>
           }
           @if (step.optional()) {
-            <small class="wr-stepper__optional">{{ optionalLabel() }}</small>
+            <small class="wr-stepper__optional">{{ resolvedOptionalLabel() }}</small>
           }
           @if (step.description()) {
             <small class="wr-stepper__description">{{ step.description() }}</small>
