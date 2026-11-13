@@ -95,7 +95,6 @@ export const UPDATED = {
   "docs/configuration": "16.2.0",
   "docs/installation": "16.3.0",
   "docs/mcp-server": "15.1.0",
-  "docs/migration": "16.3.0",
   "guides/csp": "15.0.0",
   "guides/forms": "15.0.0",
   "guides/mobile": "15.0.0",
