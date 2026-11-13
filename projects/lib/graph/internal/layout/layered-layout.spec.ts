@@ -831,17 +831,21 @@ describe('WrLayeredGraphLayout', () => {
 
   describe('a seeded graph of 200 nodes and 400 edges', () => {
     const input = randomGraph(20260913, 200, 400);
+    // The layout of a graph this size is the cost of the file, so the cases
+    // read one result; only the determinism case lays it out again.
+    let first: WrGraphLayoutResult | undefined;
+    const baseline = (): WrGraphLayoutResult => (first ??= run(input));
 
     it('passes every invariant', () => {
-      expectValidLayout(input, run(input));
+      expectValidLayout(input, baseline());
     });
 
     it('draws no line through a card it does not connect', () => {
-      expectNoLineThroughNodes(input, run(input));
+      expectNoLineThroughNodes(input, baseline());
     });
 
     it('is deterministic across calls, clones, freezing and renames', () => {
-      const result = run(input);
+      const result = baseline();
       expect(run(input)).toEqual(result);
       expect(run(deepFreeze(structuredClone(input)))).toEqual(result);
       const renamed = renameIds(input, (_, i) => String((i * 919) % 1000));
