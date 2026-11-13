@@ -66,7 +66,6 @@ const HOOKS: [entry: string, block: string, element: string, hook: string, md: s
   ['slider', 'wr-slider', '', '--wr-slider-mark-label-font-size', 'var(--wr-text-xs)'],
   ['color-picker', 'wr-color-picker', '', '--wr-color-picker-width', '17rem'],
   ['color-picker', 'wr-color-picker', '', '--wr-color-picker-sv-height', '10rem'],
-  ['color-picker', 'wr-color-picker', '', '--wr-color-picker-thumb-size', '0.875rem'],
   ['color-picker', 'wr-color-picker', '', '--wr-color-picker-padding', 'var(--wr-space-md)'],
   ['file-upload', 'wr-file-upload', 'zone', '--wr-file-upload-zone-padding', 'var(--wr-space-xl)'],
   ['file-upload', 'wr-file-upload', 'zone', '--wr-file-upload-zone-gap', 'var(--wr-space-md)'],
@@ -86,6 +85,8 @@ const HOOKS: [entry: string, block: string, element: string, hook: string, md: s
 /** Hooks only `lg` moves: at `sm` the part is already at the smallest target it may be. */
 const LG_ONLY: [entry: string, block: string, element: string, hook: string, md: string][] = [
   ['color-picker', 'wr-color-picker', '', '--wr-color-picker-slider-height', '0.75rem'],
+  // A smaller thumb at `sm` brings the hue and alpha targets under 2.5.8's spacing.
+  ['color-picker', 'wr-color-picker', '', '--wr-color-picker-thumb-size', '0.875rem'],
   ['transfer', 'wr-transfer', 'item', '--wr-transfer-item-padding-y', 'var(--wr-space-xs)'],
 ];
 
