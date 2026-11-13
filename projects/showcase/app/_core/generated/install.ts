@@ -274,7 +274,7 @@ export const INSTALL = {
       { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
   ],
   "reference/components/graph": [
-      { path: "ngwr/graph", symbols: ["WrGraph", "WrGraphNodeTemplate"], declarables: ["WrGraph", "WrGraphNodeTemplate"], styled: true },
+      { path: "ngwr/graph", symbols: ["WrGraph", "WrGraphLayout", "WrGraphNodeTemplate", "WrLayeredGraphLayout"], declarables: ["WrGraph", "WrGraphNodeTemplate"], styled: true },
   ],
   "reference/components/icon": [
       { path: "ngwr/icon", symbols: ["WrIcon", "provideWrIcons", "wrLucideIcons"], declarables: ["WrIcon"], styled: true },
