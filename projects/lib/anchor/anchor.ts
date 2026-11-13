@@ -114,7 +114,7 @@ export class WrAnchor {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('anchor');
     if (!this.platform.isBrowser) return;
-    const handler = (): void => {
+    const measure = (): void => {
       const y = window.scrollY;
       const pin = this.pinned;
       if (pin) {
@@ -138,13 +138,24 @@ export class WrAnchor {
       }
       if (active !== this.activeId()) this.zone.run(() => this.activeId.set(active));
     };
+    let frame = 0;
+    const handler = (): void => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        measure();
+      });
+    };
     this.zone.runOutsideAngular(() => window.addEventListener('scroll', handler, { passive: true }));
-    this.destroyRef.onDestroy(() => window.removeEventListener('scroll', handler));
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('scroll', handler);
+      if (frame) cancelAnimationFrame(frame);
+    });
     // The first pass has to wait for a render: the targets are elsewhere on the
     // page and are usually rendered AFTER this list, so a constructor-time pass
     // found nothing by `getElementById` and left the page with no highlight at
     // all until the reader happened to scroll.
-    afterNextRender(() => handler());
+    afterNextRender(() => measure());
   }
 
   protected onClick(id: string, event: MouseEvent): void {
