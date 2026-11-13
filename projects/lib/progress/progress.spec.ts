@@ -1,6 +1,3 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -8,6 +5,8 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import type { WrColor } from 'ngwr/theme';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 import { WrProgress } from './progress';
 
@@ -122,13 +121,7 @@ describe('WrProgress under a localized catalog', () => {
  * `sass` is resolved through `@angular/build`, as `theme/sass-entry.spec.ts` does.
  */
 describe('WrProgress under forced colors', () => {
-  interface Sass {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  }
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-  const css = sass
-    .compileString("@use 'progress/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const css = compileSass("@use 'progress/styles';").replace(/\/\*[\s\S]*?\*\//g, '');
   /** The `@media (forced-colors: active)` blocks, joined. */
   const forced = [...css.matchAll(/@media \(forced-colors: active\)\s*\{([\s\S]*?\})\s*\}/g)].map(m => m[1]).join('\n');
   /** The declarations of the rule whose selector is exactly `selector`, in `source`. */

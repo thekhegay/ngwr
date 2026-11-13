@@ -1,12 +1,11 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WR_CHART_DASHES, wrChartColor } from 'ngwr/charts/core';
 import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { compileSass } from '../../spec-sass';
 
 import { WrBarChart } from './bar-chart';
 import type { WrBarChartDatum, WrBarSeries } from './types';
@@ -477,16 +476,7 @@ describe('WrBarChart series tooltip', () => {
  * read here. `sass` is resolved through `@angular/build`, as that file does.
  */
 describe('WrBarChart series under forced colors', () => {
-  interface Sass {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  }
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-  const css = sass
-    .compileString(`@use 'charts/bar-chart/styles';`, {
-      loadPaths: [join(process.cwd(), 'projects/lib')],
-      style: 'expanded',
-    })
-    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const css = compileSass(`@use 'charts/bar-chart/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
   const rule = (cls: string): string => new RegExp(`(?:^|\\n)\\.${cls}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
 
   it("keeps a series bar's tint and a line's strokes and points", () => {

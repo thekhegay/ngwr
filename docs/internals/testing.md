@@ -71,6 +71,18 @@ straight through the kind of change that actually breaks people. `*.spec.ts` has
 an eslint override for the inline-template and selector rules, since a host that
 exists for one `describe` should not ship a `.html` file.
 
+**A spec that reads compiled CSS** calls `compileSass(source)` from
+`projects/lib/spec-sass.ts`, never `sass.compileString` itself. jsdom applies no
+stylesheet, so about forty specs compile one, and the helper compiles each
+distinct source once per worker: spec files share module state (`isolate:
+false`), so the five table specs pay for `table/styles` once. An entry is
+dropped when a file it loaded changes on disk. The file is not a `.spec.ts`, so
+`tsconfig.lib.json` excludes it by name. A spec whose subject is the compile
+itself (a custom importer, as in `schematics/component-style/index.spec.ts`)
+keeps its own compiler. A file that is heavy for a reason caching cannot remove
+takes a timeout on its `describe`, as `mcp/server.spec.ts` does for cases that
+each start a Node process; the global timeout stays where it is.
+
 **Writing a HARNESS** (`ngwr/<name>/testing`): copy
 `projects/lib/collapse/testing/` for the layout and the voice, or
 `projects/lib/image-cropper/testing/` for a component whose geometry a unit test

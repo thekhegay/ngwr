@@ -1,15 +1,9 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { describe, expect, it } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass } from '../../spec-sass';
 
 import { WR_CHART_MARKERS, wrChartMarker, wrChartMarkerExtent, wrChartMarkerPath } from './markers';
 import { WR_CHART_DASHES, WR_CHART_PALETTE, wrChartColor, wrChartDash } from './palette';
-
-/** `sass`, resolved through `@angular/build` as `charts/stylesheets.spec.ts` does. */
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
-  compileString(source: string, options: { loadPaths: string[] }): { css: string };
-};
 
 describe('WR_CHART_PALETTE', () => {
   it('is four intents and the neutral role, with no info', () => {
@@ -22,10 +16,10 @@ describe('WR_CHART_PALETTE', () => {
     ]);
   });
 
-  it('paints only through tokens the theme declares', () => {
+  it('paints only through tokens the theme declares', { timeout: COMPILE_TIMEOUT }, () => {
     // A token nothing declares is invalid at computed-value time, and the browser drops
     // the whole declaration holding it: a series would vanish without a word.
-    const css = sass.compileString("@use 'theme/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')] }).css;
+    const css = compileSass("@use 'theme/styles';");
     for (const color of WR_CHART_PALETTE) {
       const token = /var\((--wr-[a-z-]+)\)/.exec(color)?.[1] ?? '';
       expect(css, token).toMatch(new RegExp(`${token}:`));

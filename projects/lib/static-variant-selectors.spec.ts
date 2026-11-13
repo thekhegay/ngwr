@@ -1,6 +1,3 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -8,6 +5,8 @@ import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrInput, WrInputGroup } from 'ngwr/input';
 import { describe, expect, it } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass } from './spec-sass';
 
 /**
  * A variant written as a static attribute (`<wr-btn outlined size="sm">`) still
@@ -19,12 +18,6 @@ import { describe, expect, it } from 'vitest';
  * Read off the COMPILED sheet, as `table/stylesheet.spec.ts` does. `sass` is
  * resolved through `@angular/build`.
  */
-interface Sass {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-}
-
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-
 const sheets = new Map<string, string[][]>();
 
 /** A selector list split on its own commas, not on the ones inside `:not(a, b)`. */
@@ -47,9 +40,7 @@ function topLevel(list: string): string[] {
 function selectorLists(entry: string): string[][] {
   let lists = sheets.get(entry);
   if (!lists) {
-    const css = sass
-      .compileString(`@use '${entry}/styles';`, { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-      .css.replace(/\/\*[\s\S]*?\*\//g, '');
+    const css = compileSass(`@use '${entry}/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
     lists = [...css.matchAll(/(?:^|\n)\s*([^{}@]+)\{/g)].map(([, list]) =>
       topLevel(list).map(part => part.trim().replace(/\s+/g, ' '))
     );
@@ -134,7 +125,7 @@ const VARIANTS: [entry: string, byClass: string, byAttribute: string][] = [
   ),
 ];
 
-describe('a variant set by a static attribute', () => {
+describe('a variant set by a static attribute', { timeout: COMPILE_TIMEOUT }, () => {
   it.each(VARIANTS)('%s: every rule of %s also matches %s', (entry, byClass, byAttribute) => {
     const rules = selectorLists(entry).filter(list => list.includes(byClass));
 
@@ -182,7 +173,7 @@ describe('a variant set by a static attribute', () => {
 })
 class Host {}
 
-describe('before the first update pass', () => {
+describe('before the first update pass', { timeout: COMPILE_TIMEOUT }, () => {
   /** Every selector of `entry` that matches `el`, reduced to the ones written by attribute. */
   function attributeMatches(entry: string, el: Element): string[] {
     return selectorLists(entry)

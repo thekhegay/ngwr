@@ -1,6 +1,3 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { Location } from '@angular/common';
@@ -13,6 +10,8 @@ import { WrMeta, withMeta } from 'ngwr/meta';
 import { WrOverlayOrder } from 'ngwr/overlay';
 import type { WrFeature } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 import { WrDialog } from './dialog';
 import { WrDialogRef } from './dialog-ref';
@@ -616,13 +615,7 @@ describe('WrDialog follows a direction change while a dialog is open', () => {
  * that the gutter then holds was measured in Chromium at 390px.
  */
 describe('WrDialog panel gutter', () => {
-  interface Sass {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  }
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-  const css = sass
-    .compileString("@use 'dialog/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const css = compileSass("@use 'dialog/styles';").replace(/\/\*[\s\S]*?\*\//g, '');
   /** Every rule block whose selector list is exactly `selector`, joined. */
   const rules = (selector: string): string =>
     [...css.matchAll(new RegExp(`(?:^|\\n)${selector.replace(/\./g, '\\.')} \\{([^}]*)\\}`, 'g'))]

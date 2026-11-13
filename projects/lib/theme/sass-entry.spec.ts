@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass, LIB } from '../spec-sass';
 
 import { WR_COLORS } from './colors';
 
@@ -17,17 +18,8 @@ import { WR_COLORS } from './colors';
  * catching here — a dangling `var()`, a `light-dark()` holding a length, a
  * channel list that came back — are only visible in the second.
  *
- * `sass` is resolved through `@angular/build` rather than declared: the repo has
- * no direct dependency on it, it is present because the builder compiles with
- * it, and a spec is not a reason to add a second copy to the tree.
+ * `sass` is resolved through `@angular/build`, in `spec-sass.ts`, which says why.
  */
-interface Sass {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-}
-
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-
-const LIB = join(process.cwd(), 'projects/lib');
 const THEME = join(LIB, 'theme');
 
 /**
@@ -36,8 +28,7 @@ const THEME = join(LIB, 'theme');
  * survive into expanded output, and prose naming `light-dark($light, $dark)` is
  * not a declaration.
  */
-const compile = (source: string): string =>
-  sass.compileString(source, { loadPaths: [LIB], style: 'expanded' }).css.replace(/\/\*[\s\S]*?\*\//g, '');
+const compile = (source: string): string => compileSass(source).replace(/\/\*[\s\S]*?\*\//g, '');
 
 /** The custom properties a stylesheet declares, last declaration winning, by name. */
 function declarations(css: string): Map<string, string> {
@@ -84,7 +75,7 @@ function signatures(file: string): Record<string, string> {
   return out;
 }
 
-describe("the public entry `@use 'ngwr/theme'`", () => {
+describe("the public entry `@use 'ngwr/theme'`", { timeout: COMPILE_TIMEOUT }, () => {
   /**
    * The wrappers in `theme/_index.scss` exist because no Sass language server
    * follows `@forward` into `node_modules` — the file a consumer's editor
@@ -182,8 +173,9 @@ describe("the public entry `@use 'ngwr/theme'`", () => {
   });
 });
 
-describe('the compiled token layer', () => {
-  const layer = (): string => compile("@use 'theme';");
+describe('the compiled token layer', { timeout: COMPILE_TIMEOUT }, () => {
+  let compiled: string | undefined;
+  const layer = (): string => (compiled ??= compile("@use 'theme';"));
 
   /** The plain `:root` blocks — the token layer proper, outside every at-rule. */
   const root = (): string => [...layer().matchAll(/(^|\n):root \{([^}]*)\}/g)].map(m => m[2]).join('\n');
@@ -302,7 +294,7 @@ describe('the compiled token layer', () => {
   });
 });
 
-describe('rebrand()', () => {
+describe('rebrand()', { timeout: COMPILE_TIMEOUT }, () => {
   const tokens = (call: string): Map<string, string> =>
     declarations(compile(`@use 'theme' as t; .x { @include t.rebrand(${call}); }`).split('.x {')[1]);
 

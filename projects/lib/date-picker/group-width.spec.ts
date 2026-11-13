@@ -1,7 +1,6 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { describe, expect, it } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 /**
  * A form field stretches the picker's host, and the box the user sees is the
@@ -10,13 +9,7 @@ import { describe, expect, it } from 'vitest';
  * `sass` is resolved through `@angular/build`, as `theme/sass-entry.spec.ts` does.
  */
 describe('date picker group width', () => {
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  };
-  const css = sass.compileString(`@use 'date-picker/styles';`, {
-    loadPaths: [join(process.cwd(), 'projects/lib')],
-    style: 'expanded',
-  }).css;
+  const css = compileSass(`@use 'date-picker/styles';`);
   const rule = (selector: string): string =>
     new RegExp(`(?:^|\\n)${selector.replace(/[.>()[\]]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
 

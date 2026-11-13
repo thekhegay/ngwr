@@ -1,11 +1,10 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import type { WrColor } from 'ngwr/theme';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 import { WrBadge } from './badge';
 import { WrTag } from './tag';
@@ -133,13 +132,7 @@ describe('WrTag emits a modifier for every documented icon position', () => {
  * `sass` is resolved through `@angular/build`, as `theme/sass-entry.spec.ts` does.
  */
 describe('WrBadge hooks', () => {
-  interface Sass {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  }
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-  const css = sass
-    .compileString("@use 'badge/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const css = compileSass("@use 'badge/styles';").replace(/\/\*[\s\S]*?\*\//g, '');
   /** The declarations of the rule whose selector is exactly `selector`, in `source`. */
   const rule = (source: string, selector: string): string =>
     new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.()>:]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(source)?.[1] ?? '';

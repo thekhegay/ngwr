@@ -1,8 +1,9 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { join, relative } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass, LIB } from '../spec-sass';
 
 /**
  * The scrollbar mixin. Compiled where the output is the claim (what the theme
@@ -10,17 +11,9 @@ import { describe, expect, it } from 'vitest';
  * files (no stray `scrollbar-width`, who includes it): jsdom paints no
  * scrollbar. `sass` comes through `@angular/build`, as in `sass-entry.spec.ts`.
  */
-interface Sass {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-}
-
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-
-const LIB = join(process.cwd(), 'projects/lib');
 const SHEET = join(LIB, 'theme/styles/_scrollbar.scss');
 
-const compile = (source: string): string =>
-  sass.compileString(source, { loadPaths: [LIB], style: 'expanded' }).css.replace(/\/\*[\s\S]*?\*\//g, '');
+const compile = (source: string): string => compileSass(source).replace(/\/\*[\s\S]*?\*\//g, '');
 
 function strip(source: string): string {
   return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/[^\n]*/g, '$1');
@@ -57,7 +50,7 @@ const USE = "@use 'theme' as wr;";
 /** The mixin alone, so a selector list holds nothing but its own rules. */
 const ALONE = "@use 'theme/styles/scrollbar' as sb;";
 
-describe('theme scrollbar', () => {
+describe('theme scrollbar', { timeout: COMPILE_TIMEOUT }, () => {
   const sheet = strip(readFileSync(SHEET, 'utf8'));
   const variables = strip(readFileSync(join(LIB, 'theme/styles/_variables.scss'), 'utf8'));
 

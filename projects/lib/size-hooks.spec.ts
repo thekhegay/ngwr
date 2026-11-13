@@ -1,7 +1,6 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { describe, expect, it } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass } from './spec-sass';
 
 /**
  * What a `size` does to the hooks it scales. jsdom has no cascade from a sheet,
@@ -12,20 +11,12 @@ import { describe, expect, it } from 'vitest';
  * The base value is what `md` paints, since `md` adds no class. That the boxes
  * then measure what the hooks say is a browser's to confirm.
  */
-interface Sass {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-}
-
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-
 const sheets = new Map<string, string>();
 
 function sheet(entry: string): string {
   let css = sheets.get(entry);
   if (css === undefined) {
-    css = sass
-      .compileString(`@use '${entry}/styles';`, { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-      .css.replace(/\/\*[\s\S]*?\*\//g, '');
+    css = compileSass(`@use '${entry}/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
     sheets.set(entry, css);
   }
   return css;
@@ -98,7 +89,7 @@ const LG_ONLY: [entry: string, block: string, element: string, hook: string, md:
   ['transfer', 'wr-transfer', 'item', '--wr-transfer-item-padding-y', 'var(--wr-space-xs)'],
 ];
 
-describe('a size scales its hooks', () => {
+describe('a size scales its hooks', { timeout: COMPILE_TIMEOUT }, () => {
   it.each(HOOKS)('%s: .%s %s %s runs sm < md < lg, md unchanged', (entry, block, element, hook, md) => {
     const base = element ? `.${block}__${element}` : `.${block}`;
 

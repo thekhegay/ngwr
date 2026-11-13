@@ -1,11 +1,10 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import type { WrColor } from 'ngwr/theme';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 import { WrButton } from './button';
 import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types';
@@ -628,13 +627,7 @@ describe('WrButton while loading', () => {
  * as `theme/sass-entry.spec.ts` does.
  */
 describe('WrButton stylesheet', () => {
-  interface Sass {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  }
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-  const css = sass
-    .compileString("@use 'button/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const css = compileSass("@use 'button/styles';").replace(/\/\*[\s\S]*?\*\//g, '');
   /** The declarations of the rule whose selector is exactly `selector`. */
   const rule = (selector: string): string =>
     new RegExp(`(?:^|\\n)${selector.replace(/[.()>:]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
