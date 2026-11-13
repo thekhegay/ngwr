@@ -4,8 +4,9 @@ import { RouterLink } from '@angular/router';
 import { NGWR_PACKAGE } from '../package-spec';
 
 import { DocCodeComponent, DocInstallComponent, DocPageComponent, DocSectionComponent } from '#core/components';
+import { QUALITY } from '#core/generated/quality';
 
-/** One major line: what it needs. Copied from each line's last release. */
+/** One major line: what it needs. The current line is generated, the older ones are copied from each line's last release. */
 interface CompatRow {
   readonly ngwr: string;
   readonly angular: string;
@@ -35,6 +36,7 @@ export default class InstallationPageComponent {
   protected readonly packages = `${NGWR_PACKAGE} @angular/cdk`;
 
   protected readonly compatibility: readonly CompatRow[] = [
+    { ngwr: `${QUALITY.version.split('.')[0]}.x`, ...QUALITY.requires },
     { ngwr: '15.x', angular: '^22.2', cdk: '^22.2', node: '22.22+, 24.15+, 26' },
     { ngwr: '14.x', angular: '22+', cdk: '22+', node: '22.22+, 24.15+, 26' },
     { ngwr: '7.x to 13.x', angular: '22+', cdk: '22+', node: '24.16+, 26' },
