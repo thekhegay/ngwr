@@ -112,6 +112,7 @@ export const wrZhTw: WrI18nCatalog = {
     loadError: '無法載入結果',
     retry: '重試',
     more: '+{{count}} 項',
+    selectAll: '全選',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).

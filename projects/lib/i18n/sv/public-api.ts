@@ -112,6 +112,7 @@ export const wrSv: WrI18nCatalog = {
     loadError: 'Det gick inte att läsa in resultaten',
     retry: 'Försök igen',
     more: '+{{count}} till',
+    selectAll: 'Markera alla',
   },
   tree: {
     expand: 'Fäll ut',

@@ -115,6 +115,7 @@ export const wrHe: WrI18nCatalog = {
     loadError: 'לא ניתן לטעון את התוצאות',
     retry: 'ניסיון חוזר',
     more: 'עוד {{count}}',
+    selectAll: 'בחירת הכול',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).

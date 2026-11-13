@@ -112,6 +112,7 @@ export const wrId: WrI18nCatalog = {
     loadError: 'Gagal memuat hasil',
     retry: 'Coba lagi',
     more: '+{{count}} lainnya',
+    selectAll: 'Pilih semua',
   },
   tree: {
     expand: 'Perluas',

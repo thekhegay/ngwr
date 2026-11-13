@@ -118,6 +118,7 @@ export const wrPl: WrI18nCatalog = {
     loadError: 'Nie udało się wczytać wyników',
     retry: 'Spróbuj ponownie',
     more: '+{{count}} więcej',
+    selectAll: 'Zaznacz wszystko',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).

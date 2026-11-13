@@ -112,6 +112,7 @@ export const wrEs: WrI18nCatalog = {
     loadError: 'No se pudieron cargar los resultados',
     retry: 'Reintentar',
     more: '+{{count}} más',
+    selectAll: 'Seleccionar todo',
   },
   tree: {
     expand: 'Expandir',

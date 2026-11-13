@@ -112,6 +112,7 @@ export const wrZh: WrI18nCatalog = {
     loadError: '无法加载结果',
     retry: '重试',
     more: '+{{count}} 项',
+    selectAll: '全选',
   },
   tree: {
     expand: '展开',

@@ -112,6 +112,7 @@ export const wrHi: WrI18nCatalog = {
     loadError: 'नतीजे लोड नहीं हो सके',
     retry: 'फिर से कोशिश करें',
     more: '+{{count}} और',
+    selectAll: 'सभी चुनें',
   },
   tree: {
     expand: 'विस्तार करें',

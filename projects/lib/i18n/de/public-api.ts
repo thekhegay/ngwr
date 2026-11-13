@@ -114,6 +114,7 @@ export const wrDe: WrI18nCatalog = {
     loadError: 'Ergebnisse konnten nicht geladen werden',
     retry: 'Erneut versuchen',
     more: '+{{count}} weitere',
+    selectAll: 'Alle auswählen',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).

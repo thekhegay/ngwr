@@ -116,6 +116,7 @@ export const wrAr: WrI18nCatalog = {
     loadError: 'تعذّر تحميل النتائج',
     retry: 'إعادة المحاولة',
     more: '+{{count}} أخرى',
+    selectAll: 'تحديد الكل',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).

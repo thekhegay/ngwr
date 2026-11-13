@@ -404,6 +404,47 @@
       <div class="wr-select-panel__loading">{{ resolvedLoading() }}</div>
     }
 
+    <!-- Multi mode under `selectAll`. An option, since a listbox owns only options
+         and groups, and deliberately NOT a `.wr-option`: it carries no value, so a
+         query for the options must not count it. Its state is `aria-checked`,
+         which has the `mixed` that `aria-selected` lacks. Reached through the
+         trigger's aria-activedescendant like every row, so it is a pointer
+         target only. First in the panel and pinned there; the virtual list
+         scrolls in its own box below it. No `aria-selected`, which the lint
+         rule below asks of every option: ARIA 1.2 no longer requires it, and it
+         asks authors not to put it beside `aria-checked` on one option. -->
+    @if (showSelectAll()) {
+      <!-- eslint-disable @angular-eslint/template/role-has-required-aria -->
+      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+      <div
+        class="wr-select-panel__select-all"
+        role="option"
+        [id]="selectAllId"
+        [class.wr-select-panel__select-all--active]="selectAllActive()"
+        [class.wr-select-panel__select-all--checked]="selectAllState() === 'all'"
+        [class.wr-select-panel__select-all--mixed]="selectAllState() === 'some'"
+        [class.wr-select-panel__select-all--disabled]="selectAllUnavailable()"
+        [attr.aria-checked]="selectAllChecked()"
+        [attr.aria-disabled]="selectAllUnavailable() ? true : null"
+        (click)="toggleSelectAll()"
+      >
+        <span class="wr-select-panel__select-all-box" aria-hidden="true">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            @switch (selectAllState()) {
+              @case ('all') {
+                <path d="m4 8.5 3 3 5-6" stroke-linejoin="round" />
+              }
+              @case ('some') {
+                <path d="M4 8h8" />
+              }
+            }
+          </svg>
+        </span>
+        {{ resolvedSelectAll() }}
+      </div>
+      <!-- eslint-enable @angular-eslint/template/role-has-required-aria -->
+    }
+
     @if (virtualActive()) {
       <!-- Windowed data-array rows: plain role="option" elements (not <wr-option>),
            navigated via the trigger's aria-activedescendant, selected by value. -->

@@ -76,6 +76,13 @@ import type {
 
 let listboxUid = 0;
 
+/**
+ * `activeIndex` while the keyboard cursor is on the select-all row, which is no
+ * option: every reader that asks for an option bounds its index at zero, so to
+ * them it is "no option", as `-1` is.
+ */
+const SELECT_ALL_INDEX = -2;
+
 function searchLabelOf(option: WrSelectOptionRegistration): string {
   return option.searchLabel ? option.searchLabel() : option.label().toLowerCase();
 }
@@ -631,6 +638,27 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   });
 
   /**
+   * Multi mode: a first, pinned "Select all" row in the panel. It toggles every
+   * enabled option the panel is offering, so under a search only the ones the
+   * query matches, and with `virtualScroll` the whole filtered list rather than
+   * the rendered rows. It adds in display order and stops at `maxItems`; a
+   * second press, with nothing left to add, takes the offered options out again.
+   * A selection the search is hiding is never touched.
+   *
+   * The row is a `role="option"`, since a listbox owns nothing else, and says
+   * its state through `aria-checked`: `true` when every offered option is
+   * selected, `mixed` when some are, `false` when none. The arrows and Home
+   * reach it like any row and Enter or Space toggles it. Not drawn in single
+   * mode, in tag mode, or while the panel offers no option. @default false
+   */
+  readonly selectAll = input(false, { transform: coerceBooleanProperty });
+
+  /** Text of the select-all row. Falls back to `select.selectAll`, then `'Select all'`. */
+  readonly selectAllLabel = input<string | null>(null);
+
+  protected readonly resolvedSelectAll = useI18nText(this.selectAllLabel, 'select.selectAll', 'Select all');
+
+  /**
    * Maximum number of chips rendered before collapsing the rest into a
    * `+N more` indicator. `0` = render every chip. @default 0
    */
@@ -729,6 +757,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     // The error row is the one thing on offer after a failed load, so the field
     // names it as active: a screen reader reads it, and Enter runs the retry.
     if (this.retryOffered() && !this.freeText()) return this.retryRowId;
+    if (this.selectAllActive()) return this.selectAllId;
     const idx = this.activeIndex();
     if (this.virtualActive()) {
       // Virtual rows aren't registered; the active id is derived from the index,
@@ -1099,8 +1128,11 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     const panelRect = panel.getBoundingClientRect();
     const rowRect = row.getBoundingClientRect();
     const cur = panel.scrollTop;
-    const top = rowRect.top - panelRect.top + cur;
-    const vp = panel.clientHeight;
+    // The select-all row is pinned over the top of the list, so a row scrolled
+    // flush to the top would sit under it.
+    const pinned = panel.querySelector('.wr-select-panel__select-all')?.getBoundingClientRect().height ?? 0;
+    const top = rowRect.top - panelRect.top + cur - pinned;
+    const vp = panel.clientHeight - pinned;
 
     let next = cur;
     if (top < cur) next = top;
@@ -1175,6 +1207,77 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
 
   /** Id of the error row, which `aria-activedescendant` names while it offers a retry. */
   protected readonly retryRowId = `${this.listboxId}-retry`;
+
+  /** Id of the select-all row, which `aria-activedescendant` names while the cursor is on it. */
+  protected readonly selectAllId = `${this.listboxId}-all`;
+
+  /**
+   * What the select-all row acts on: the value of every enabled option the panel
+   * is offering, in display order. The virtual path reads the filtered data, not
+   * the rendered window; the full-render path reads the registry, where a
+   * filtered-out option stays registered and has to be dropped by hand.
+   */
+  private readonly selectAllTargets = computed<readonly unknown[]>(() => {
+    if (!this.selectAll() || !this.isMulti()) return [];
+    if (this.virtualActive()) return this.filteredDynamicOptions();
+    return this.orderedRegistry()
+      .filter(option => !option.disabled && !this.isOptionHidden(option))
+      .map(option => option.value);
+  });
+
+  /** Whether the panel draws the select-all row: asked for, multi, and with something to select. */
+  protected readonly showSelectAll = computed(() => this.selectAllTargets().length > 0);
+
+  /** How many of the offered options are selected: every one, some, or none. */
+  protected readonly selectAllState = computed<'all' | 'some' | 'none'>(() => {
+    const targets = this.selectAllTargets();
+    const selected = this.selectedSet();
+    let count = 0;
+    for (const value of targets) if (selected.has(value)) count++;
+    if (count === 0) return 'none';
+    return count === targets.length ? 'all' : 'some';
+  });
+
+  /** The row's `aria-checked`. */
+  protected readonly selectAllChecked = computed(() => {
+    const state = this.selectAllState();
+    return state === 'all' ? 'true' : state === 'some' ? 'mixed' : 'false';
+  });
+
+  /**
+   * `maxItems` is full of options the panel is not offering, so the row can
+   * neither add one nor take one out.
+   */
+  protected readonly selectAllUnavailable = computed(() => this.selectAllState() === 'none' && this.atCapacity());
+
+  /** Whether the keyboard cursor is on the select-all row. */
+  protected readonly selectAllActive = computed(() => this.showSelectAll() && this.activeIndex() === SELECT_ALL_INDEX);
+
+  /**
+   * The select-all row. While an offered option can still be added it adds them,
+   * in display order, up to `maxItems`; with nothing left to add it removes the
+   * offered ones. Values the search is hiding stay as they are either way.
+   */
+  protected toggleSelectAll(): void {
+    if (this.isReadonly() || this.isDisabled() || !this.showSelectAll()) return;
+    const targets = this.selectAllTargets();
+    const current = this.asArray(this.value());
+    const selected = this.selectedSet();
+    const missing = targets.filter(value => !selected.has(value));
+    const cap = this.maxItems();
+    const room = cap > 0 ? Math.max(0, cap - current.length) : missing.length;
+
+    let next: readonly unknown[];
+    if (missing.length > 0 && room > 0) {
+      next = [...current, ...missing.slice(0, room)];
+    } else {
+      const offered = new Set(targets);
+      next = current.filter(value => !offered.has(value));
+      if (next.length === current.length) return;
+    }
+    this.value.set(next as readonly T[]);
+    this.touch.emit();
+  }
 
   /** Search mode: is this option hidden by the current query? @internal */
   private isOptionHidden(option: WrSelectOptionRegistration): boolean {
@@ -1965,7 +2068,8 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
         break;
       case 'Home':
         event.preventDefault();
-        this.activeIndex.set(this.firstEnabled());
+        // The select-all row is the first row of the panel.
+        this.activeIndex.set(this.showSelectAll() ? SELECT_ALL_INDEX : this.firstEnabled());
         this.ensureVisible(this.activeIndex());
         break;
       case 'End':
@@ -1976,6 +2080,10 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       case 'Enter':
       case ' ': {
         event.preventDefault();
+        if (this.selectAllActive()) {
+          this.toggleSelectAll();
+          break;
+        }
         const idx = this.activeIndex();
         if (this.virtualActive()) {
           // Virtual rows aren't in the DOM to click — select the value directly.
@@ -2029,6 +2137,25 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   }
 
   private moveActive(delta: number): void {
+    // The select-all row sits between the last option and the first: the arrows
+    // wrap through it, so it is one more stop on the same loop.
+    if (this.showSelectAll()) {
+      const current = this.activeIndex();
+      if (current === SELECT_ALL_INDEX) {
+        const landing = delta > 0 ? this.firstEnabled() : this.lastEnabled();
+        if (landing >= 0) {
+          this.activeIndex.set(landing);
+          this.ensureVisible(landing);
+        }
+        return;
+      }
+      const edge = delta > 0 ? this.lastEnabled() : this.firstEnabled();
+      if (current === edge || (current < 0 && delta > 0)) {
+        this.activeIndex.set(SELECT_ALL_INDEX);
+        return;
+      }
+    }
+
     // Virtual rows are never disabled or hidden (the list is already filtered),
     // so navigation is a plain wrap plus a scroll-into-view.
     if (this.virtualActive()) {

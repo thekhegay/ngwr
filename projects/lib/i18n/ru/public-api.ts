@@ -112,6 +112,7 @@ export const wrRu: WrI18nCatalog = {
     loadError: 'Не удалось загрузить результаты',
     retry: 'Повторить',
     more: 'ещё {{count}}',
+    selectAll: 'Выбрать все',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
