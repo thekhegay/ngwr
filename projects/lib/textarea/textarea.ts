@@ -206,21 +206,43 @@ export class WrTextarea implements FormValueControl<string> {
   private resizeMinHeight = 36;
   private resizeMaxWidth = Number.POSITIVE_INFINITY;
 
+  /** The pending autosize frame, `0` when none. */
+  private frame = 0;
+
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('textarea');
-    // Autosize: re-fit whenever value or autosize toggles.
-    effect(() => {
-      if (!this.isBrowser) return;
-      if (!this.autosize()) {
+    effect(onCleanup => {
+      if (!this.isBrowser || !this.autosize()) return;
+      const el = this.native().nativeElement;
+      // Width only: the height written by the fit must not call it back. It
+      // also fires when a hidden field is shown, which a fit skipped until then.
+      let width = -1;
+      const observer =
+        typeof ResizeObserver === 'undefined'
+          ? null
+          : new ResizeObserver(([entry]) => {
+              if (entry.contentRect.width === width) return;
+              width = entry.contentRect.width;
+              this.scheduleFit();
+            });
+      observer?.observe(el);
+      onCleanup(() => {
+        observer?.disconnect();
+        cancelAnimationFrame(this.frame);
+        this.frame = 0;
         // Hand the height back. Left behind, the field stays frozen at whatever
         // was last fitted and `rows` silently stops meaning anything, which reads
         // as the input having done nothing.
-        this.releaseHeight();
-        return;
-      }
-      // Read `value` to register dependency
+        el.style.height = '';
+        el.style.overflowY = '';
+      });
+    });
+    effect(() => {
+      if (!this.isBrowser || !this.autosize()) return;
       this.value();
-      requestAnimationFrame(() => this.autofit());
+      this.rows();
+      this.maxRows();
+      this.scheduleFit();
     });
   }
 
@@ -298,11 +320,12 @@ export class WrTextarea implements FormValueControl<string> {
     (event.target as HTMLElement).releasePointerCapture(event.pointerId);
   }
 
-  private releaseHeight(): void {
-    const el = this.native()?.nativeElement;
-    if (!el) return;
-    el.style.height = '';
-    el.style.overflowY = '';
+  private scheduleFit(): void {
+    if (this.frame) return;
+    this.frame = requestAnimationFrame(() => {
+      this.frame = 0;
+      this.autofit();
+    });
   }
 
   private autofit(): void {
@@ -312,6 +335,9 @@ export class WrTextarea implements FormValueControl<string> {
     // between the effect and the frame would otherwise fit a height nobody asked
     // for, and `releaseHeight` has already run by then.
     if (!this.autosize()) return;
+    // Not rendered (an ancestor is `display: none`): there is nothing to measure,
+    // and a height written now would collapse the field to its borders.
+    if (!el.clientWidth || !el.scrollHeight) return;
     el.style.height = 'auto';
 
     // `scrollHeight` is the content PLUS the vertical padding, and the height it is
