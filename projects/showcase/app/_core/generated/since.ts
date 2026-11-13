@@ -134,7 +134,7 @@ export const UPDATED = {
   "reference/components/icon": "16.0.0",
   "reference/components/input": "16.3.0",
   "reference/components/input-number": "16.3.0",
-  "reference/components/input-otp": "15.0.0",
+  "reference/components/input-otp": "16.3.0",
   "reference/components/keyboard": "15.5.0",
   "reference/components/lightbox": "16.2.0",
   "reference/components/mention": "15.6.0",
