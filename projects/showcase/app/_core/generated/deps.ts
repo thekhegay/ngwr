@@ -430,7 +430,7 @@ export const DOC_ROUTES: Readonly<
   "reference/components/context-menu": {"title":"Context Menu","kind":"Component","labels":["Overlay"],"description":"A right-click menu for any element."},
   "reference/components/copy-value": {"title":"Copy Value","kind":"Component","labels":[],"description":"A value with a copy button beside it."},
   "reference/components/counter": {"title":"Counter","kind":"Component","labels":["Display"],"description":"An animated number: rolling digits or an eased count."},
-  "reference/components/date-picker": {"title":"Date Picker","kind":"Component","labels":["Signal Forms","CDK Overlay"],"description":"A text field with a popup for picking a date, a time or both."},
+  "reference/components/date-picker": {"title":"Date Picker","kind":"Component","labels":["Signal Forms","CDK Overlay"],"description":"A text field with a popup for picking a date, a time, both, or a week, month, quarter or year."},
   "reference/components/date-stamp": {"title":"Date Stamp","kind":"Component","labels":[],"description":"A date over a time, for a table cell."},
   "reference/components/descriptions": {"title":"Descriptions","kind":"Component","labels":[],"description":"A read-only list of labels and their values."},
   "reference/components/dialog": {"title":"Dialog","kind":"Component","labels":["Service","Directives","CDK Dialog"],"description":"Open any component as a modal dialog and await its result."},

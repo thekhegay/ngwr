@@ -181,6 +181,7 @@ export const API = {
   // <wr-calendar>
   WrCalendar: [
     { name: "mode", description: "Selection mode.", type: "WrCalendarMode", default: "'single'" },
+    { name: "granularity", description: "What one pick names. `'week'` keeps the day grid, where hovering and picking take the whole week; `'month'`, `'quarter'` and `'year'` open on that view and pick there, with no day grid to drop to. A period is held as its first day. In `range` mode the end is the last day of the end period, so the range stays an inclusive run of days. `min`, `max` and `dateFilter` close a period only when they close every day in it. A week starts on the adapter's first day of the week.", type: "WrCalendarGranularity", default: "'day'" },
     { name: "date", description: "Two-way bindable single value (used when `mode === 'single'`).", type: "Date | null", default: "null" },
     { name: "range", description: "Two-way bindable `[start, end]` (used when `mode === 'range'`).", type: "WrCalendarRange", default: "[null, null]" },
     { name: "value", description: "The selection as one value, whatever the mode: a `Date` in `single` mode, a `[start, end]` tuple in `range` mode, `null` while nothing is picked. Bound by `[formField]`, or two-way via `[(value)]`. Kept in step with `date` and `range`: a write to either side reaches the other.", type: "WrCalendarValue", default: "null" },
@@ -196,6 +197,7 @@ export const API = {
     { name: "nextMonthLabel", description: "Accessible name of the forward arrow on the day view. Falls back to `calendar.nextMonth`, then `'Next month'`.", type: "string | null", default: "null" },
     { name: "monthListLabel", description: "Accessible name of the month list. Falls back to `calendar.monthList`, then `'Months'`.", type: "string | null", default: "null" },
     { name: "yearListLabel", description: "Accessible name of the year list. Falls back to `calendar.yearList`, then `'Years'`.", type: "string | null", default: "null" },
+    { name: "quarterListLabel", description: "Accessible name of the quarter list. Falls back to `calendar.quarterList`, then `'Quarters'`.", type: "string | null", default: "null" },
     { name: "prevYearLabel", description: "Accessible name of the back arrow on the month view. Falls back to `calendar.prevYear`, then `'Previous year'`.", type: "string | null", default: "null" },
     { name: "nextYearLabel", description: "Accessible name of the forward arrow on the month view. Falls back to `calendar.nextYear`, then `'Next year'`.", type: "string | null", default: "null" },
     { name: "prevYearsLabel", description: "Accessible name of the back arrow on the year view. Falls back to `calendar.prevYears`, then `'Previous 12 years'`.", type: "string | null", default: "null" },
@@ -458,11 +460,11 @@ export const API = {
   ],
   // <wr-date-picker>
   WrDatePicker: [
-    { name: "mode", description: "Picker behavior — see class doc.", type: "'date' | 'time' | 'datetime'", default: "'date'" },
-    { name: "format", description: "Format used for both display and parsing. When `null` (default), the format is derived from `mode` (`shortDate` / `time` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`time24hSeconds`, …). Pass a named key or raw token string to override.", type: "WrDateFormat | string | null", default: "null" },
+    { name: "mode", description: "What the picker picks: `'date'`, `'time'`, `'datetime'`, or a period held as its first day: `'week'`, `'month'`, `'quarter'`, `'year'`.", type: "WrDatePickerMode", default: "'date'" },
+    { name: "format", description: "Format used for both display and parsing. When `null` (default), the format is derived from `mode` (`shortDate` / `time` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`time24hSeconds`, …). Pass a named key or raw token string to override. A period mode writes the period when this is `null`, and with a format (`MM.yyyy`) reads the typed date as the period it is in.", type: "WrDateFormat | string | null", default: "null" },
     { name: "placeholder", description: "Placeholder shown when the input is empty.", type: "string", default: "''" },
-    { name: "min", description: "Min selectable date (forwarded to the calendar). Ignored in `time` mode.", type: "Date | undefined", default: "undefined" },
-    { name: "max", description: "Max selectable date (forwarded to the calendar). Ignored in `time` mode.", type: "Date | undefined", default: "undefined" },
+    { name: "min", description: "Min selectable date (forwarded to the calendar). Ignored in `time` mode. A period mode refuses a period that ends before it.", type: "Date | undefined", default: "undefined" },
+    { name: "max", description: "Max selectable date (forwarded to the calendar). Ignored in `time` mode. A period mode refuses a period that starts after it.", type: "Date | undefined", default: "undefined" },
     { name: "dateFilter", description: "Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode.", type: "((date: Date) => boolean) | null", default: "null" },
     { name: "timeFormat", description: "12 / 24-hour clock, in the time panel and in the field, unless `format` is set. `'auto'` follows the locale. Applies in `time` + `datetime` modes.", type: "'auto' | '12h' | '24h'", default: "'auto'" },
     { name: "showSeconds", description: "Show seconds, in the time panel and in the field, unless `format` is set. Applies in `time` + `datetime` modes.", type: "boolean", default: "false" },
@@ -483,8 +485,8 @@ export const API = {
   ],
   // <wr-date-range-picker>
   WrDateRangePicker: [
-    { name: "mode", description: "Picker behavior — see class doc.", type: "'date' | 'datetime'", default: "'date'" },
-    { name: "format", description: "Format used for both display and parsing, on both ends. When `null` (default), it is derived from `mode` (`shortDate` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`shortDateTime24hSeconds`, …). Pass a named key or raw token string to override.", type: "WrDateFormat | string | null", default: "null" },
+    { name: "mode", description: "What each end picks: `'date'`, `'datetime'`, or a period: `'month'`, `'quarter'`, `'year'`. A range of periods runs to the last day of the end period.", type: "WrDateRangePickerMode", default: "'date'" },
+    { name: "format", description: "Format used for both display and parsing, on both ends. When `null` (default), it is derived from `mode` (`shortDate` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`shortDateTime24hSeconds`, …). Pass a named key or raw token string to override. A period mode writes the period when this is `null`.", type: "WrDateFormat | string | null", default: "null" },
     { name: "startPlaceholder", description: "Placeholder for the start input.", type: "string", default: "''" },
     { name: "endPlaceholder", description: "Placeholder for the end input.", type: "string", default: "''" },
     { name: "separator", description: "Glyph rendered between the two inputs.", type: "string", default: "'–'" },
@@ -1302,6 +1304,8 @@ export const API = {
     { name: "panelClass", description: "Extra CSS classes for the dropdown panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array. The pane is a positioning wrapper carrying the gap above the list; the box that paints is `.wr-select-panel` inside it, so a rule meant for the surface reads `.my-class .wr-select-panel`.", type: "WrClassInput", default: "null" },
     { name: "position", description: "Side of the trigger the panel opens on. A side with no room gives way to the other, so `'top'` still drops below at the top of the viewport.", type: "WrSelectPosition", default: "'bottom'" },
     { name: "maxItems", description: "Cap on selected items (multi mode). `0` = unlimited. Once reached, the unselected options are marked unavailable — `aria-disabled` and the disabled look — and refuse a pick until one is removed.", type: "number", default: "0" },
+    { name: "selectAll", description: "Multi mode: a first, pinned \"Select all\" row in the panel. It toggles every enabled option the panel is offering, so under a search only the ones the query matches, and with `virtualScroll` the whole filtered list rather than the rendered rows. It adds in display order and stops at `maxItems`; a second press, with nothing left to add, takes the offered options out again. A selection the search is hiding is never touched. The row is a `role=\"option\"`, since a listbox owns nothing else, and says its state through `aria-checked`: `true` when every offered option is selected, `mixed` when some are, `false` when none. The arrows and Home reach it like any row and Enter or Space toggles it. Not drawn in single mode, in tag mode, or while the panel offers no option.", type: "boolean", default: "false" },
+    { name: "selectAllLabel", description: "Text of the select-all row. Falls back to `select.selectAll`, then `'Select all'`.", type: "string | null", default: "null" },
     { name: "maxTagCount", description: "Maximum number of chips rendered before collapsing the rest into a `+N more` indicator. `0` = render every chip.", type: "number", default: "0" },
     { name: "value", description: "Unified value. Single mode holds a scalar (or `null`); multi / tag mode holds `readonly T[]`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "T | readonly T[] | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur / commit so a bound field can mark itself touched.", type: "void" },
