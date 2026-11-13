@@ -9,7 +9,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 ## Medium
 
 - **Unused devDependency**: drop `@angular-devkit/core` if nothing needs it directly.
-- **Schema-form arrays and sections**: repeating groups, fieldsets and more field kinds.
 
 ## Low
 
