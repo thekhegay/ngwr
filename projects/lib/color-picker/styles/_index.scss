@@ -44,13 +44,13 @@
   font-family: var(--wr-color-picker-font-family);
   user-select: none;
 
-  // Sizes. The two sliders keep their 12px track at `sm`: they sit one gap
-  // apart, and a thinner pair would be two targets closer than they are now.
+  // Sizes. The two sliders keep their 12px track and 14px thumb at `sm`: they
+  // sit one gap apart, and a thinner pair or a smaller thumb fails 2.5.8's
+  // spacing between the hue and alpha targets (axe, target-size).
   &--sm,
   &:where([size='sm']) {
     --wr-color-picker-width: 14rem;
     --wr-color-picker-sv-height: 8rem;
-    --wr-color-picker-thumb-size: 0.75rem;
     --wr-color-picker-padding: var(--wr-space-sm);
   }
 
