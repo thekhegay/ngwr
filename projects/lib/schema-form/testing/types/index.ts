@@ -1,2 +1,7 @@
-export type { WrSchemaFormControlHarnesses } from './wr-schema-form-control-harness';
-export type { WrSchemaFormFieldHarnessFilters, WrSchemaFormHarnessFilters } from './wr-schema-form-harness-filters';
+export type { WrSchemaFormControlHarnesses, WrSchemaFormControlKind } from './wr-schema-form-control-harness';
+export type {
+  WrSchemaFormArrayHarnessFilters,
+  WrSchemaFormFieldHarnessFilters,
+  WrSchemaFormHarnessFilters,
+  WrSchemaFormSectionHarnessFilters,
+} from './wr-schema-form-harness-filters';

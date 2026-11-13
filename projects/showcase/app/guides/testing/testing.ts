@@ -2840,8 +2840,26 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     {
       name: 'getErrors() / getColumns()',
-      description: 'Every message shown, in field order. A field nobody touched shows none.',
+      description: 'Every message shown, in the order drawn. A field nobody touched shows none.',
       type: 'Promise<string[]> | Promise<number>',
+    },
+    {
+      name: 'getSection(title) / getSections(filters?)',
+      description:
+        '`WrSchemaFormSectionHarness`: `getTitle()`, `getDescription()`, `getColumns()`, `getFields(filters?)`, `getLabels()`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'addItem(arrayLabel) / removeItem(arrayLabel, index) / getItemCount(arrayLabel) / getItem(arrayLabel, index)',
+      description:
+        'A repeating group, by its label. Add and Remove throw on a disabled button. `getItem()` is the `WrSchemaFormHarness` of one item.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'getArray(label) / getArrays(filters?)',
+      description:
+        '`WrSchemaFormArrayHarness`: `getLabel()`, `isRequired()`, `getItemCount()`, `getItemTitles()`, `getItems()`, `getItem(index)`, `add()`, `remove(index)`, `canAdd()`, `canRemove()`, `getRemoveName(index)`, `isAddFocused()`, `getErrors()`.',
+      type: 'Promise<…>',
     },
     {
       name: 'Field: getLabel() / getKind() / getControl(kind) / getFormField() / getErrors() / isInvalid() / isRequired() / getHint() / getSpan()',

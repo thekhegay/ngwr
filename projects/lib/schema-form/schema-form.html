@@ -1,61 +1,172 @@
-@for (f of fields(); track f.key) {
+<ng-template #cell let-drawn>
+  @let f = rendered(drawn);
   @let state = f.field();
 
   <!-- Angular's `hidden()` does not hide anything on its own; the docs are
        explicit that the template has to honour it. -->
   @if (!state.hidden()) {
-    <div class="wr-schema-form__field" [style.grid-column]="f.column">
-      <wr-form-field [label]="f.labelAbove" [hint]="f.spec.hint ?? ''" [required]="state.required()">
-        @switch (f.spec.kind) {
-          @case ('textarea') {
-            <wr-textarea [formField]="f.field" [placeholder]="f.spec.placeholder ?? ''" [ariaLabel]="f.label" />
+    @if (f.spec.kind === 'array') {
+      <fieldset class="wr-schema-form__array" [style.grid-column]="f.column" [attr.aria-describedby]="describedBy(f)">
+        <legend class="wr-schema-form__legend">
+          {{ f.label }}
+          @if (state.required()) {
+            <span class="wr-form-field__required" aria-hidden="true">*</span>
           }
-          @case ('number') {
-            <wr-input-number
-              [formField]="f.field"
-              [placeholder]="f.spec.placeholder ?? ''"
-              [step]="f.spec.step ?? 1"
-              [ariaLabel]="f.label"
-            />
+        </legend>
+        <wr-form-field [hint]="f.spec.hint ?? ''" [controlId]="f.id">
+          <div #list class="wr-schema-form__items" [id]="`${f.id}-items`" [wrSchemaFormArrayState]="f.field">
+            @for (item of f.items(); track item) {
+              <div class="wr-schema-form__item" role="group" [attr.aria-labelledby]="`${f.id}-title-${$index}`">
+                <div class="wr-schema-form__item-head">
+                  <span class="wr-schema-form__item-title" [id]="`${f.id}-title-${$index}`"
+                    >{{ f.spec.itemLabel ?? f.label }} {{ $index + 1 }}</span
+                  >
+                  <!-- Named by its own text and then the item's heading, so a
+                       list of five reads "Remove Address 2", not "Remove" five times. -->
+                  <button
+                    wr-btn
+                    type="button"
+                    size="sm"
+                    class="wr-schema-form__remove"
+                    [id]="`${f.id}-remove-${$index}`"
+                    [attr.aria-labelledby]="`${f.id}-remove-${$index} ${f.id}-title-${$index}`"
+                    [disabled]="!canRemove(f)"
+                    (click)="remove(f, $index, list)"
+                  >
+                    {{ resolvedRemove() }}
+                  </button>
+                </div>
+                <wr-schema-form
+                  [field]="item"
+                  [columns]="f.spec.columns ?? 1"
+                  [addLabel]="addLabel()"
+                  [removeLabel]="removeLabel()"
+                />
+              </div>
+            }
+            @if (f.spec.item) {
+              <button wr-btn type="button" class="wr-schema-form__add" [disabled]="!canAdd(f)" (click)="add(f)">
+                {{ resolvedAdd() }}
+              </button>
+            }
+          </div>
+        </wr-form-field>
+      </fieldset>
+    } @else {
+      <div class="wr-schema-form__field" [style.grid-column]="f.column">
+        <wr-form-field [label]="f.labelAbove" [hint]="f.spec.hint ?? ''" [required]="state.required()">
+          @switch (f.spec.kind) {
+            @case ('textarea') {
+              <wr-textarea [formField]="f.field" [placeholder]="f.spec.placeholder ?? ''" [ariaLabel]="f.label" />
+            }
+            @case ('number') {
+              <wr-input-number
+                [formField]="f.field"
+                [placeholder]="f.spec.placeholder ?? ''"
+                [step]="f.spec.step ?? 1"
+                [ariaLabel]="f.label"
+              />
+            }
+            @case ('select') {
+              <wr-select [formField]="f.field" [placeholder]="f.spec.placeholder ?? null" [ariaLabel]="f.label">
+                @for (option of f.spec.options ?? []; track option.value) {
+                  <wr-option [value]="option.value" [disabled]="option.disabled ?? false">{{ option.label }}</wr-option>
+                }
+              </wr-select>
+            }
+            @case ('multiselect') {
+              <wr-select
+                mode="multi"
+                [formField]="f.field"
+                [placeholder]="f.spec.placeholder ?? null"
+                [ariaLabel]="f.label"
+              >
+                @for (option of f.spec.options ?? []; track option.value) {
+                  <wr-option [value]="option.value" [disabled]="option.disabled ?? false">{{ option.label }}</wr-option>
+                }
+              </wr-select>
+            }
+            @case ('tags') {
+              <wr-select
+                mode="tag"
+                [formField]="f.field"
+                [placeholder]="f.spec.placeholder ?? null"
+                [ariaLabel]="f.label"
+              />
+            }
+            @case ('checkbox') {
+              <wr-checkbox [formField]="f.field">{{ f.label }}</wr-checkbox>
+            }
+            @case ('switch') {
+              <wr-switch [formField]="f.field">{{ f.label }}</wr-switch>
+            }
+            @case ('radio') {
+              <!-- `wr-radio-group` has no `ariaLabel` input, and needs none: its
+                   host is a `role="radiogroup"`, where `aria-label` is legal. -->
+              <wr-radio-group [formField]="f.field" [attr.aria-label]="f.label">
+                @for (option of f.spec.options ?? []; track option.value) {
+                  <wr-radio [value]="option.value" [disabled]="option.disabled ?? false">{{ option.label }}</wr-radio>
+                }
+              </wr-radio-group>
+            }
+            @case ('segmented') {
+              <wr-segmented [formField]="f.field" [options]="f.spec.options ?? []" />
+            }
+            @case ('date') {
+              <wr-date-picker [formField]="f.field" [placeholder]="f.spec.placeholder ?? ''" [ariaLabel]="f.label" />
+            }
+            @case ('daterange') {
+              <!-- The picker names its two inputs "Range start" and "Range end";
+                   the group around them is what carries the field's own label. -->
+              <wr-date-range-picker [formField]="f.field" role="group" [attr.aria-label]="f.label" />
+            }
+            @case ('slider') {
+              <wr-slider [formField]="f.field" [step]="f.spec.step ?? 1" [ariaLabel]="f.label" />
+            }
+            @case ('rating') {
+              <wr-rating [formField]="f.field" [ariaLabel]="f.label" />
+            }
+            @case ('file') {
+              <wr-file-upload
+                [formField]="f.field"
+                [multiple]="f.spec.multiple ?? false"
+                [accept]="f.spec.accept ?? ''"
+              />
+            }
+            @default {
+              <input
+                wrInput
+                [formField]="f.field"
+                [type]="f.spec.type ?? 'text'"
+                [placeholder]="f.spec.placeholder ?? ''"
+              />
+            }
           }
-          @case ('select') {
-            <wr-select [formField]="f.field" [placeholder]="f.spec.placeholder ?? null" [ariaLabel]="f.label">
-              @for (option of f.spec.options ?? []; track option.value) {
-                <wr-option [value]="option.value" [disabled]="option.disabled ?? false">{{ option.label }}</wr-option>
-              }
-            </wr-select>
-          }
-          @case ('checkbox') {
-            <wr-checkbox [formField]="f.field">{{ f.label }}</wr-checkbox>
-          }
-          @case ('switch') {
-            <wr-switch [formField]="f.field">{{ f.label }}</wr-switch>
-          }
-          @case ('radio') {
-            <!-- `wr-radio-group` has no `ariaLabel` input, and needs none: its
-                 host is a `role="radiogroup"`, where `aria-label` is legal. -->
-            <wr-radio-group [formField]="f.field" [attr.aria-label]="f.label">
-              @for (option of f.spec.options ?? []; track option.value) {
-                <wr-radio [value]="option.value" [disabled]="option.disabled ?? false">{{ option.label }}</wr-radio>
-              }
-            </wr-radio-group>
-          }
-          @case ('date') {
-            <wr-date-picker [formField]="f.field" [placeholder]="f.spec.placeholder ?? ''" [ariaLabel]="f.label" />
-          }
-          @case ('slider') {
-            <wr-slider [formField]="f.field" [step]="f.spec.step ?? 1" [ariaLabel]="f.label" />
-          }
-          @default {
-            <input
-              wrInput
-              [formField]="f.field"
-              [type]="f.spec.type ?? 'text'"
-              [placeholder]="f.spec.placeholder ?? ''"
-            />
-          }
+        </wr-form-field>
+      </div>
+    }
+  }
+</ng-template>
+
+@for (c of cells(); track c.key) {
+  @if (c.section; as section) {
+    @if (section.visible()) {
+      <fieldset
+        class="wr-schema-form__section"
+        [attr.aria-describedby]="section.description ? `${section.id}-description` : null"
+      >
+        <legend class="wr-schema-form__legend">{{ section.title }}</legend>
+        @if (section.description) {
+          <p class="wr-schema-form__description" [id]="`${section.id}-description`">{{ section.description }}</p>
         }
-      </wr-form-field>
-    </div>
+        <div class="wr-schema-form__grid" [style.grid-template-columns]="section.template">
+          @for (f of section.fields; track f.key) {
+            <ng-container [ngTemplateOutlet]="cell" [ngTemplateOutletContext]="{ $implicit: f }" />
+          }
+        </div>
+      </fieldset>
+    }
+  } @else {
+    <ng-container [ngTemplateOutlet]="cell" [ngTemplateOutletContext]="{ $implicit: c.field }" />
   }
 }

@@ -12,12 +12,16 @@
 //
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
+@use '../../button/styles' as button-styles; // WrButton
 @use '../../checkbox/styles' as checkbox-styles; // WrCheckbox
 @use '../../date-picker/styles' as date_picker-styles; // WrDatePicker
+@use '../../file-upload/styles' as file_upload-styles; // WrFileUpload
 @use '../../form/styles' as form-styles; // WrFormField
 @use '../../input/styles' as input-styles; // WrInput
 @use '../../input-number/styles' as input_number-styles; // WrInputNumber
 @use '../../radio/styles' as radio-styles; // WrRadio
+@use '../../rating/styles' as rating-styles; // WrRating
+@use '../../segmented/styles' as segmented-styles; // WrSegmented
 @use '../../select/styles' as select-styles; // WrOption
 @use '../../slider/styles' as slider-styles; // WrSlider
 @use '../../switch/styles' as switch-styles; // WrSwitch
@@ -26,6 +30,17 @@
 
 .wr-schema-form {
   --wr-schema-form-gap: var(--wr-space-lg);
+  --wr-schema-form-legend-color: var(--wr-color-on-surface);
+  --wr-schema-form-legend-font-size: var(--wr-text-base);
+  --wr-schema-form-legend-font-weight: var(--wr-font-weight-semibold);
+  --wr-schema-form-description-color: var(--wr-color-on-surface-muted);
+  --wr-schema-form-description-font-size: var(--wr-text-sm);
+  --wr-schema-form-item-gap: var(--wr-space-md);
+  --wr-schema-form-item-padding: var(--wr-space-md);
+  --wr-schema-form-item-border: var(--wr-border-base);
+  --wr-schema-form-item-radius: var(--wr-border-radius-base);
+  --wr-schema-form-item-title-color: var(--wr-color-on-surface-muted);
+  --wr-schema-form-item-title-font-size: var(--wr-text-sm);
 
   display: grid;
   gap: var(--wr-schema-form-gap);
@@ -36,4 +51,67 @@
   // A grid item's default `min-width: auto` refuses to shrink below its
   // content, so a long option label pushes the whole column past the form.
   min-width: 0;
+}
+
+.wr-schema-form__section,
+.wr-schema-form__array {
+  // A fieldset's default `min-inline-size: min-content` is the same refusal.
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+// A section is a row of its own, whatever the form's column count.
+.wr-schema-form__section {
+  grid-column: 1 / -1;
+}
+
+.wr-schema-form__legend {
+  margin-block-end: var(--wr-schema-form-item-gap);
+  padding: 0;
+  color: var(--wr-schema-form-legend-color);
+  font-size: var(--wr-schema-form-legend-font-size);
+  font-weight: var(--wr-schema-form-legend-font-weight);
+}
+
+.wr-schema-form__description {
+  margin-block: 0 var(--wr-schema-form-item-gap);
+  color: var(--wr-schema-form-description-color);
+  font-size: var(--wr-schema-form-description-font-size);
+}
+
+.wr-schema-form__grid {
+  display: grid;
+  gap: var(--wr-schema-form-gap);
+}
+
+.wr-schema-form__items {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--wr-schema-form-item-gap);
+}
+
+.wr-schema-form__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wr-schema-form-item-gap);
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--wr-schema-form-item-padding);
+  border: 1px solid var(--wr-schema-form-item-border);
+  border-radius: var(--wr-schema-form-item-radius);
+}
+
+.wr-schema-form__item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wr-schema-form-item-gap);
+}
+
+.wr-schema-form__item-title {
+  color: var(--wr-schema-form-item-title-color);
+  font-size: var(--wr-schema-form-item-title-font-size);
 }

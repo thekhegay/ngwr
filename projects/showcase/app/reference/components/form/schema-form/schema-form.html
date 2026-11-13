@@ -3,6 +3,7 @@
   description="Draws a whole form from a Signal Forms schema."
   [keywords]="['schema form', 'signal forms', 'generated form', 'metadata', 'wr-schema-form']"
   [labels]="['Component', 'Signal Forms']"
+  updated="16.3.0"
 >
   <ngwr-doc-section
     title="Basic usage"
@@ -19,10 +20,77 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Back-office form"
+    description="Sections, a multi-select, a repeating group, an upload and a conditional field, all from one schema."
+  >
+    <ngwr-doc-snippet [code]="snippets.backOffice" language="typescript">
+      <div style="max-width: 40rem">
+        <wr-schema-form [field]="employee" [columns]="2" addLabel="Add address" />
+        <button wr-btn type="button" color="primary" style="margin-top: 1rem" (click)="save()">Save</button>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Kinds" description="Each kind draws one ngwr control and writes one value type.">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Kind</th>
+            <th scope="col">Control</th>
+            <th scope="col">Field value</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of kinds; track row.kind) {
+            <tr>
+              <th scope="row">
+                <code>{{ row.kind }}</code>
+              </th>
+              <td>
+                <code>{{ row.control }}</code>
+              </td>
+              <td>
+                <code>{{ row.value }}</code>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Layout"
     description="`columns` sets the grid. A field's `span` widens it, up to the number of columns."
   >
     <ngwr-doc-code [code]="snippets.layout" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sections"
+    description="Fields naming one `section` are drawn in a `<fieldset>` under its title. A section can state a description and its own columns."
+  >
+    <ngwr-doc-code [code]="snippets.sections" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Repeating groups"
+    description="`kind: 'array'` draws one group per item, with Add and Remove. Describe the item's fields with `applyEach`; `minLength` and `maxLength` on the array bound the list."
+  >
+    <ngwr-doc-code [code]="snippets.array" language="typescript" />
+    <ul>
+      <li>Add puts focus in the new item. Remove puts it in the next item, or on Add after the last one.</li>
+      <li>With no <code>item</code> in the spec there is no Add button.</li>
+      <li><code>addLabel</code> and <code>removeLabel</code> set the button texts for every group in the form.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Conditional fields"
+    description="A condition is the schema's `hidden()` rule. A hidden field is not drawn and does not count toward validity, in an item as well."
+  >
+    <ngwr-doc-code [code]="snippets.conditional" language="typescript" />
   </ngwr-doc-section>
 
   <ngwr-doc-section

@@ -66,12 +66,33 @@ and for the last two that is not a preference: Angular refuses a `[min]` or
 `[max]` binding on a `[formField]`-bound control (NG8022), so the bounds can
 only live in the schema. `hidden()` is the one state the component acts on
 itself, because Angular's docs say a template has to. And **the entry point is
-its own** rather than part of `ngwr/form`: drawing nine kinds means depending on
-nine controls, and `ngwr/form` is what every form imports for
+its own** rather than part of `ngwr/form`: drawing every kind means depending on
+every control it maps to, and `ngwr/form` is what every form imports for
 `<wr-form-field>` alone. The one thing nothing else can catch is a `kind` that
 contradicts the field's type — TypeScript cannot hold a metadata string against
 it — so the component warns in dev mode off the runtime value, and says nothing
 while that value is still empty.
+
+**Sections, repeating groups and conditions are the schema's too.** A `section`
+key on the spec groups the fields that name one title into a `<fieldset>` with a
+`<legend>`, drawn where the first of them stands; the description and the column
+count come from the first field that states them. `kind: 'array'` draws a field
+over an array of objects as one group per item, and each item is a nested
+`<wr-schema-form [field]="item">`, so an item's fields are described once inside
+`applyEach` and nothing about items is a second mechanism. Add appends
+`spec.item()` and Remove filters the array, both through the field's own
+`value`, and they stop at the `minLength` and `maxLength` the SCHEMA put on the
+array (`state.minLength()` / `state.maxLength()`), for the reason bounds are
+never in the spec. Focus after either goes through `focusBoundControl()` on the
+first drawn field of the item, inside `afterNextRender`. The array has no
+control, so `WrSchemaFormArrayState` (internal) hands its state to the
+`<wr-form-field>` around the list as an `NgControl`: that is what lets the
+array's own errors use the one copy rule below. A conditional field is
+`hidden()`, at the top level and inside `applyEach` alike; there is no `when`
+key. Two things to know: Signal Forms writes a symbol-keyed id onto each object
+of an array it tracks, so an item in the model is not `toEqual` its literal, and
+`WrSchemaFormHarness.getFields()` reads the items' fields as well, which is why
+`getItem(label, index)` exists.
 
 **ngwr ships no validation copy.** For an error no projected
 `<wr-form-error key>` claims, `<wr-form-field>` renders the error's own
