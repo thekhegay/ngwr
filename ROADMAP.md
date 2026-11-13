@@ -4,15 +4,11 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very high
 
-
 ## High
 
 ## Medium
 
 - **Unused devDependency**: drop `@angular-devkit/core` if nothing needs it directly.
-- **Select all**: in a multi select, honouring the search and `maxItems`.
-- **Period pickers**: month, year, week and quarter modes on the date-picker.
-- **Upload lifecycle**: progress, status, retry, image previews and paste in `wr-file-upload`.
 - **Table inline edit**: an edit-cell template, Enter commits, Escape cancels.
 - **Tree at scale**: lazy children, a filter and cascading checks.
 - **Tree drag and drop**: reorder and reparent with an output.
