@@ -1,5 +1,16 @@
 import { Component, signal } from '@angular/core';
-import { form, max, metadata, min, minLength, required, schema } from '@angular/forms/signals';
+import {
+  applyEach,
+  form,
+  hidden,
+  max,
+  maxLength,
+  metadata,
+  min,
+  minLength,
+  required,
+  schema,
+} from '@angular/forms/signals';
 
 import { WrButton } from 'ngwr/button';
 import { WR_FIELD } from 'ngwr/form';
@@ -27,6 +38,29 @@ interface Signup {
   readonly agree: boolean;
   readonly internalRef: string;
 }
+
+interface Address {
+  readonly street: string;
+  readonly city: string;
+}
+
+interface Employee {
+  readonly fullName: string;
+  readonly workEmail: string;
+  readonly roles: readonly string[];
+  readonly contractor: boolean;
+  readonly agency: string;
+  readonly addresses: readonly Address[];
+  readonly attachments: readonly File[];
+}
+
+const ROLES = [
+  { value: 'admin', label: 'Admin' },
+  { value: 'billing', label: 'Billing' },
+  { value: 'support', label: 'Support' },
+];
+
+const ACCOUNT = { title: 'Account', description: 'Who signs in, and what they may do.', columns: 2 };
 
 const PLANS = [
   { value: 'starter', label: 'Starter' },
@@ -103,9 +137,88 @@ export default class SchemaFormPage {
     this.signup().markAsTouched();
   }
 
+  private readonly employeeModel = signal<Employee>({
+    fullName: 'Ada Lovelace',
+    workEmail: 'ada@example.com',
+    roles: ['admin'],
+    contractor: false,
+    agency: '',
+    addresses: [{ street: '12 St James Square', city: 'London' }],
+    attachments: [],
+  });
+
+  protected readonly employee = form(
+    this.employeeModel,
+    schema<Employee>(path => {
+      required(path.fullName, { message: 'Enter a name.' });
+      metadata(path.fullName, WR_FIELD, () => ({ kind: 'input', section: ACCOUNT }));
+      metadata(path.workEmail, WR_FIELD, () => ({ kind: 'input', type: 'email', section: 'Account' }));
+      required(path.roles, { message: 'Pick at least one role.' });
+      metadata(path.roles, WR_FIELD, () => ({
+        kind: 'multiselect',
+        options: ROLES,
+        placeholder: 'Pick roles',
+        section: 'Account',
+        span: 2,
+      }));
+
+      metadata(path.contractor, WR_FIELD, () => ({ kind: 'switch', section: 'Employment' }));
+      required(path.agency, { message: 'Name the agency.' });
+      hidden(path.agency, ({ valueOf }) => !valueOf(path.contractor));
+      metadata(path.agency, WR_FIELD, () => ({ kind: 'input', section: 'Employment' }));
+
+      minLength(path.addresses, 1, { message: 'Keep at least one address.' });
+      maxLength(path.addresses, 3);
+      metadata(path.addresses, WR_FIELD, () => ({
+        kind: 'array',
+        itemLabel: 'Address',
+        hint: 'One to three.',
+        columns: 2,
+        span: 2,
+        item: (): Address => ({ street: '', city: '' }),
+      }));
+      applyEach(path.addresses, item => {
+        required(item.street, { message: 'Enter the street.' });
+        metadata(item.street, WR_FIELD, () => ({ kind: 'input' }));
+        metadata(item.city, WR_FIELD, () => ({ kind: 'input' }));
+      });
+
+      metadata(path.attachments, WR_FIELD, () => ({
+        kind: 'file',
+        multiple: true,
+        accept: '.pdf,image/*',
+        span: 2,
+      }));
+    })
+  );
+
+  protected save(): void {
+    this.employee().markAsTouched();
+  }
+
+  protected readonly kinds = [
+    { kind: 'input', control: '<input wrInput>', value: 'string' },
+    { kind: 'textarea', control: '<wr-textarea>', value: 'string' },
+    { kind: 'number', control: '<wr-input-number>', value: 'number | null' },
+    { kind: 'select', control: '<wr-select>', value: 'T | null' },
+    { kind: 'multiselect', control: '<wr-select mode="multi">', value: 'T[]' },
+    { kind: 'tags', control: '<wr-select mode="tag">', value: 'string[]' },
+    { kind: 'checkbox', control: '<wr-checkbox>', value: 'boolean' },
+    { kind: 'switch', control: '<wr-switch>', value: 'boolean' },
+    { kind: 'radio', control: '<wr-radio-group>', value: 'T | null' },
+    { kind: 'segmented', control: '<wr-segmented>', value: 'T | null' },
+    { kind: 'date', control: '<wr-date-picker>', value: 'Date | null' },
+    { kind: 'daterange', control: '<wr-date-range-picker>', value: 'WrDateRange | null' },
+    { kind: 'slider', control: '<wr-slider>', value: 'number' },
+    { kind: 'rating', control: '<wr-rating>', value: 'number | null' },
+    { kind: 'file', control: '<wr-file-upload>', value: 'File | null, or File[] with multiple' },
+    { kind: 'array', control: 'one <wr-schema-form> per item', value: 'object[]' },
+  ] as const;
+
   protected readonly typeSnippet = `type WrFieldKind =
-  | 'input' | 'textarea' | 'number' | 'select'
-  | 'checkbox' | 'switch' | 'radio' | 'date' | 'slider';
+  | 'input' | 'textarea' | 'number' | 'select' | 'multiselect' | 'tags'
+  | 'checkbox' | 'switch' | 'radio' | 'segmented' | 'date' | 'daterange'
+  | 'slider' | 'rating' | 'file' | 'array';
 
 interface WrFieldOption {
   value: unknown;
@@ -122,6 +235,18 @@ interface WrFieldSpec {
   type?: string;
   step?: number;
   span?: number;
+  section?: string | WrFieldSection;
+  multiple?: boolean;
+  accept?: string;
+  item?: () => unknown;
+  itemLabel?: string;
+  columns?: number;
+}
+
+interface WrFieldSection {
+  title: string;
+  description?: string;
+  columns?: number;
 }`;
 
   protected readonly typeRows: readonly DocApiRow[] = [
@@ -153,7 +278,7 @@ interface WrFieldSpec {
     },
     {
       name: 'options',
-      description: 'For `select` and `radio`. Ignored by every other kind.',
+      description: 'For `select`, `multiselect`, `radio` and `segmented`. Ignored by every other kind.',
       type: 'readonly WrFieldOption[]',
       default: '—',
       sub: true,
@@ -178,6 +303,48 @@ interface WrFieldSpec {
       type: 'number',
       default: '1',
       sub: true,
+    },
+    {
+      name: 'section',
+      description: 'The section the field is drawn in: a title, or a `WrFieldSection`.',
+      type: 'string | WrFieldSection',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'multiple',
+      description: 'For `file`: accept several files, so the field holds `File[]`.',
+      type: 'boolean',
+      default: 'false',
+      sub: true,
+    },
+    { name: 'accept', description: 'For `file`: the native `accept` list.', type: 'string', default: '—', sub: true },
+    {
+      name: 'item',
+      description: 'For `array`: the value a new item starts as. Without it there is no Add button.',
+      type: '() => unknown',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'itemLabel',
+      description: 'For `array`: what one item is called, numbered in its heading: “Address 2”.',
+      type: 'string',
+      default: 'the label',
+      sub: true,
+    },
+    {
+      name: 'columns',
+      description: 'For `array`: grid columns inside each item.',
+      type: 'number',
+      default: '1',
+      sub: true,
+    },
+    {
+      name: 'WrFieldSection',
+      description:
+        'A titled `<fieldset>`: `{ title, description?, columns? }`. The first field to state a member sets it. `columns` defaults to the form’s own.',
+      type: 'interface',
     },
     {
       name: 'WrFieldOption',
@@ -214,6 +381,73 @@ const signupSchema = schema<Signup>(path => {
 });`,
 
     template: `<wr-schema-form [field]="signup" [columns]="2" />`,
+
+    backOffice: `const ACCOUNT = { title: 'Account', description: 'Who signs in, and what they may do.', columns: 2 };
+
+const employeeSchema = schema<Employee>(path => {
+  required(path.fullName, { message: 'Enter a name.' });
+  metadata(path.fullName, WR_FIELD, () => ({ kind: 'input', section: ACCOUNT }));
+  metadata(path.workEmail, WR_FIELD, () => ({ kind: 'input', type: 'email', section: 'Account' }));
+  required(path.roles, { message: 'Pick at least one role.' });
+  metadata(path.roles, WR_FIELD, () => ({ kind: 'multiselect', options: ROLES, section: 'Account', span: 2 }));
+
+  metadata(path.contractor, WR_FIELD, () => ({ kind: 'switch', section: 'Employment' }));
+  required(path.agency, { message: 'Name the agency.' });
+  hidden(path.agency, ({ valueOf }) => !valueOf(path.contractor));
+  metadata(path.agency, WR_FIELD, () => ({ kind: 'input', section: 'Employment' }));
+
+  minLength(path.addresses, 1, { message: 'Keep at least one address.' });
+  maxLength(path.addresses, 3);
+  metadata(path.addresses, WR_FIELD, () => ({
+    kind: 'array',
+    itemLabel: 'Address',
+    columns: 2,
+    span: 2,
+    item: () => ({ street: '', city: '' }),
+  }));
+  applyEach(path.addresses, item => {
+    required(item.street, { message: 'Enter the street.' });
+    metadata(item.street, WR_FIELD, () => ({ kind: 'input' }));
+    metadata(item.city, WR_FIELD, () => ({ kind: 'input' }));
+  });
+
+  metadata(path.attachments, WR_FIELD, () => ({ kind: 'file', multiple: true, accept: '.pdf,image/*', span: 2 }));
+});
+
+// <wr-schema-form [field]="employee" [columns]="2" addLabel="Add address" />`,
+
+    sections: `// The first field states the section; the rest name its title.
+metadata(path.fullName, WR_FIELD, () => ({
+  kind: 'input',
+  section: { title: 'Account', description: 'Who signs in.', columns: 2 },
+}));
+metadata(path.workEmail, WR_FIELD, () => ({ kind: 'input', section: 'Account' }));`,
+
+    array: `minLength(path.addresses, 1, { message: 'Keep at least one address.' });
+maxLength(path.addresses, 3);
+metadata(path.addresses, WR_FIELD, () => ({
+  kind: 'array',
+  itemLabel: 'Address',
+  columns: 2,
+  item: () => ({ street: '', city: '' }),
+}));
+
+// The item's own fields and rules, once for every item.
+applyEach(path.addresses, item => {
+  required(item.street, { message: 'Enter the street.' });
+  metadata(item.street, WR_FIELD, () => ({ kind: 'input' }));
+  metadata(item.city, WR_FIELD, () => ({ kind: 'input' }));
+});`,
+
+    conditional: `// Drawn, and required, only for a contractor.
+required(path.agency, { message: 'Name the agency.' });
+hidden(path.agency, ({ valueOf }) => !valueOf(path.contractor));
+metadata(path.agency, WR_FIELD, () => ({ kind: 'input' }));
+
+// Inside applyEach the rule reads the item it belongs to.
+applyEach(path.addresses, item => {
+  hidden(item.vatId, ({ valueOf }) => !valueOf(item.business));
+});`,
     layout: `metadata(path.notes, WR_FIELD, () => ({ kind: 'textarea', label: 'Notes', span: 2 }));
 
 // notes fills the row; in one column its span is clamped to 1.

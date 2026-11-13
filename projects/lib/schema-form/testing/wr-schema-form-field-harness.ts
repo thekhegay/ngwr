@@ -8,33 +8,42 @@
 import { ComponentHarness, type HarnessQuery, HarnessPredicate } from '@angular/cdk/testing';
 
 import { WrCheckboxHarness } from 'ngwr/checkbox/testing';
-import { WrDatePickerHarness } from 'ngwr/date-picker/testing';
-import type { WrFieldKind } from 'ngwr/form';
+import { WrDatePickerHarness, WrDateRangePickerHarness } from 'ngwr/date-picker/testing';
+import { WrFileUploadHarness } from 'ngwr/file-upload/testing';
 import { WrFormFieldHarness } from 'ngwr/form/testing';
 import { WrInputHarness } from 'ngwr/input/testing';
 import { WrInputNumberHarness } from 'ngwr/input-number/testing';
 import { WrRadioGroupHarness } from 'ngwr/radio/testing';
+import { WrRatingHarness } from 'ngwr/rating/testing';
+import { WrSegmentedHarness } from 'ngwr/segmented/testing';
 import { WrSelectHarness } from 'ngwr/select/testing';
 import { WrSliderHarness } from 'ngwr/slider/testing';
 import { WrSwitchHarness } from 'ngwr/switch/testing';
 import { WrTextareaHarness } from 'ngwr/textarea/testing';
 
-import type { WrSchemaFormControlHarnesses, WrSchemaFormFieldHarnessFilters } from './types';
+import type { WrSchemaFormControlHarnesses, WrSchemaFormControlKind, WrSchemaFormFieldHarnessFilters } from './types';
 
 /**
  * The element each kind draws, and the harness that drives it. `input` is
  * last and has no element of its own to look for: it is the kind left when
- * none of the others matched, as it is in the component's template.
+ * none of the others matched, as it is in the component's template. The two
+ * `wr-select` modes come before the plain one, which matches all three.
  */
-const CONTROLS: readonly (readonly [WrFieldKind, string, HarnessQuery<ComponentHarness>])[] = [
+const CONTROLS: readonly (readonly [WrSchemaFormControlKind, string, HarnessQuery<ComponentHarness>])[] = [
   ['textarea', 'wr-textarea', WrTextareaHarness],
   ['number', 'wr-input-number', WrInputNumberHarness],
+  ['multiselect', 'wr-select.wr-select--multi', WrSelectHarness],
+  ['tags', 'wr-select.wr-select--tag', WrSelectHarness],
   ['select', 'wr-select', WrSelectHarness],
   ['checkbox', 'wr-checkbox', WrCheckboxHarness],
   ['switch', 'wr-switch', WrSwitchHarness],
   ['radio', 'wr-radio-group', WrRadioGroupHarness],
+  ['segmented', 'wr-segmented', WrSegmentedHarness],
   ['date', 'wr-date-picker', WrDatePickerHarness],
+  ['daterange', 'wr-date-range-picker', WrDateRangePickerHarness],
   ['slider', 'wr-slider', WrSliderHarness],
+  ['rating', 'wr-rating', WrRatingHarness],
+  ['file', 'wr-file-upload', WrFileUploadHarness],
   ['input', 'input[wrInput]', WrInputHarness],
 ];
 
@@ -76,7 +85,7 @@ export class WrSchemaFormFieldHarness extends ComponentHarness {
   }
 
   /** The kind of control the field draws, from the element in it. */
-  async getKind(): Promise<WrFieldKind> {
+  async getKind(): Promise<WrSchemaFormControlKind> {
     for (const [kind, selector] of CONTROLS) {
       if (await this.locatorForOptional(selector)()) return kind;
     }
@@ -88,7 +97,7 @@ export class WrSchemaFormFieldHarness extends ComponentHarness {
    * `getControl('select')` is a `WrSelectHarness`. Throws when the field draws
    * another kind, and says which.
    */
-  async getControl<K extends WrFieldKind>(kind: K): Promise<WrSchemaFormControlHarnesses[K]> {
+  async getControl<K extends WrSchemaFormControlKind>(kind: K): Promise<WrSchemaFormControlHarnesses[K]> {
     const drawn = await this.getKind();
     if (drawn !== kind) {
       throw new Error(

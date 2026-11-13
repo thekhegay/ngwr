@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Forms"
-  updated="15.0.0"
+  updated="16.3.0"
   description="Bind ngwr controls to any Angular form and show their errors."
   [keywords]="[
     'signal forms',
@@ -134,6 +134,10 @@
         has no keys for them.
       </li>
       <li>A nested object field is skipped. Point a second <code>&lt;wr-schema-form&gt;</code> at it.</li>
+      <li>
+        A <code>section</code> key draws a fieldset, <code>kind: 'array'</code> a repeating group, and
+        <code>hidden()</code> a conditional field.
+      </li>
     </ul>
   </ngwr-doc-section>
 

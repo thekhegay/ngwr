@@ -28,13 +28,43 @@ import { createMetadataKey } from '@angular/forms/signals';
  * of truth is a compile error rather than a drift.
  */
 export type WrFieldKind =
-  'input' | 'textarea' | 'number' | 'select' | 'checkbox' | 'switch' | 'radio' | 'date' | 'slider';
+  | 'input'
+  | 'textarea'
+  | 'number'
+  | 'select'
+  | 'multiselect'
+  | 'tags'
+  | 'checkbox'
+  | 'switch'
+  | 'radio'
+  | 'segmented'
+  | 'date'
+  | 'daterange'
+  | 'slider'
+  | 'rating'
+  | 'file'
+  | 'array';
 
 /** One choice, for the kinds that offer a list. */
 export interface WrFieldOption {
   readonly value: unknown;
   readonly label: string;
   readonly disabled?: boolean;
+}
+
+/**
+ * A titled group of fields, drawn as a `<fieldset>` with a `<legend>`.
+ *
+ * Fields that name the same `title` are drawn together, where the first of them
+ * stands in the model's key order. The description and the column count come
+ * from the first field that states them.
+ */
+export interface WrFieldSection {
+  readonly title: string;
+  /** A line under the title, announced as the group's description. */
+  readonly description?: string;
+  /** Grid columns inside the section. Defaults to the form's own `columns`. */
+  readonly columns?: number;
 }
 
 /**
@@ -51,7 +81,7 @@ export interface WrFieldSpec {
   readonly placeholder?: string;
   /** Help text under the control. Errors replace it while the field is invalid. */
   readonly hint?: string;
-  /** For `select` and `radio`. Ignored by every other kind. */
+  /** For `select`, `multiselect`, `radio` and `segmented`. Ignored by every other kind. */
   readonly options?: readonly WrFieldOption[];
   /** Native `type` for `kind: 'input'` — `email`, `password`, `url`, `tel`. */
   readonly type?: string;
@@ -69,6 +99,30 @@ export interface WrFieldSpec {
    * wider.
    */
   readonly span?: number;
+  /**
+   * The section this field is drawn in: a title, or a title with a description
+   * and its own column count. A field with none is drawn straight on the form's
+   * grid.
+   */
+  readonly section?: string | WrFieldSection;
+  /** For `file`: accept several files, so the field holds `File[]` rather than `File | null`. */
+  readonly multiple?: boolean;
+  /** For `file`: the native `accept` list, e.g. `'image/*,.pdf'`. */
+  readonly accept?: string;
+  /**
+   * For `array`: the value a new item starts as. It is what draws the Add
+   * button, and an array with no `item` is a fixed list whose items can only be
+   * removed. Describe the item's own fields with `applyEach(path.x, item => …)`,
+   * and bound the list with `minLength` and `maxLength` on the array itself.
+   */
+  readonly item?: () => unknown;
+  /**
+   * For `array`: what one item is called, numbered in the item's heading:
+   * "Address 2". Defaults to the field's label.
+   */
+  readonly itemLabel?: string;
+  /** For `array`: grid columns inside each item. Defaults to 1. */
+  readonly columns?: number;
 }
 
 /**
@@ -80,6 +134,12 @@ export interface WrFieldSpec {
  *   email(path.email, { message: 'That is not an email address.' });
  *   metadata(path.email, WR_FIELD, () => ({ kind: 'input', type: 'email', label: 'Work email' }));
  *   metadata(path.role, WR_FIELD, () => ({ kind: 'select', options: ROLES }));
+ *
+ *   // A repeating group: the array is described once, its items through `applyEach`.
+ *   metadata(path.addresses, WR_FIELD, () => ({ kind: 'array', item: () => ({ city: '' }) }));
+ *   applyEach(path.addresses, item => {
+ *     metadata(item.city, WR_FIELD, () => ({ kind: 'input' }));
+ *   });
  * });
  * ```
  *
