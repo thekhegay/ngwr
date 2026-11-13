@@ -126,10 +126,28 @@ export class WrTreeNodeHarness extends ComponentHarness {
     return (await (await this.host()).getAttribute('aria-expanded')) === 'true';
   }
 
-  /** Open the branch. Already-open branches are left alone; a leaf throws. */
+  /**
+   * Whether the branch is loading its children (`aria-busy`), which is the time
+   * between the first expand of a `hasChildren` node and its `loadChildren`
+   * answering.
+   */
+  async isLoading(): Promise<boolean> {
+    return (await (await this.host()).getAttribute('aria-busy')) === 'true';
+  }
+
+  /**
+   * Open the branch. Already-open branches are left alone; a leaf throws.
+   *
+   * A lazy branch is waited for: the tree holds a pending task while
+   * `loadChildren` runs, so this resolves with the children rendered, or with
+   * the error row. A loader that never answers never lets it resolve, and a
+   * spec about the loading row itself clicks the toggle through
+   * {@link toggleExpand} instead.
+   */
   async expand(): Promise<void> {
     if (await this.isExpanded()) return;
     await this.toggleExpand();
+    for (let pass = 0; (await this.isLoading()) && pass < 20; pass += 1) await this.forceStabilize();
 
     if (!(await this.isExpanded())) {
       throw new Error(
@@ -175,7 +193,20 @@ export class WrTreeNodeHarness extends ComponentHarness {
    * without saying so is the bug worth catching.
    */
   async isSelected(): Promise<boolean> {
-    return (await (await this.host()).getAttribute('aria-selected')) === 'true';
+    const host = await this.host();
+    // A `cascade` tree announces `aria-checked` in place of `aria-selected`.
+    return (
+      (await host.getAttribute('aria-selected')) === 'true' || (await host.getAttribute('aria-checked')) === 'true'
+    );
+  }
+
+  /**
+   * Whether the node is PARTLY checked: a `cascade` tree's ancestor with some,
+   * not all, of what is below it checked (`aria-checked="mixed"`). It is not
+   * selected then, and it is not in the value.
+   */
+  async isMixed(): Promise<boolean> {
+    return (await (await this.host()).getAttribute('aria-checked')) === 'mixed';
   }
 
   /**
@@ -186,7 +217,8 @@ export class WrTreeNodeHarness extends ComponentHarness {
    * look identical otherwise.
    */
   async isSelectable(): Promise<boolean> {
-    return (await (await this.host()).getAttribute('aria-selected')) !== null;
+    const host = await this.host();
+    return (await host.getAttribute('aria-selected')) !== null || (await host.getAttribute('aria-checked')) !== null;
   }
 
   /**

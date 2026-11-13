@@ -1,4 +1,9 @@
 @use '../../theme/styles' as theme;
+
+// Styles for the entry points this component's own markup renders: the cascade
+// box is the checkbox's, drawn from its classes, and the loading row spins.
+@use '../../checkbox/styles' as checkbox-styles; // WrCheckbox
+@use '../../spinner/styles' as spinner-styles; // WrSpinner
 @include theme.loaded('tree');
 
 .wr-tree {
@@ -12,6 +17,11 @@
   --wr-tree-row-radius: var(--wr-border-radius-sm);
   --wr-tree-row-selected-font-weight: var(--wr-font-weight-medium);
   --wr-tree-toggle-radius: var(--wr-border-radius-sm);
+  --wr-tree-status-color: var(--wr-color-on-surface-muted);
+  --wr-tree-status-error-color: var(--wr-color-danger-ink);
+  --wr-tree-retry-color: var(--wr-color-primary-ink);
+  --wr-tree-match-bg: var(--wr-color-warning-soft);
+  --wr-tree-match-color: var(--wr-color-warning-ink);
   // The combobox trigger's own hooks live on the BASE rather than inside
   // `&--combobox`, although nothing paints them until that modifier is on.
   // `.wr-tree` and `.wr-tree--combobox` are the same element, so the modifier's
@@ -86,6 +96,14 @@
       color: var(--wr-color-primary-ink);
     }
 
+    // Cascade: the box says it, so a checked row keeps its plain face. `:where`
+    // holds the specificity down, and hover and the cursor still win.
+    &--selected:where([aria-checked]) {
+      background: transparent;
+      font-weight: inherit;
+      color: inherit;
+    }
+
     // Visible ring only when the row truly has keyboard focus — not
     // just because it's the roving-tabindex cursor row.
     &:focus-visible {
@@ -117,6 +135,68 @@
         background: var(--wr-color-primary);
       }
     }
+  }
+
+  // A branch's pending or failed load. The row's own box, so a windowed list
+  // keeps its one row height; the spinner sits in the toggle's slot.
+  &__status {
+    display: flex;
+    align-items: center;
+    gap: var(--wr-tree-row-gap);
+    padding: var(--wr-tree-row-padding-y) var(--wr-tree-row-padding-x);
+    padding-inline-start: calc(0.5rem + var(--wr-tree-depth, 0) * var(--wr-tree-indent));
+    border-radius: var(--wr-tree-row-radius);
+    color: var(--wr-tree-status-color);
+    cursor: default;
+    user-select: none;
+    outline: 0;
+    position: relative;
+
+    &:focus-visible {
+      @include theme.focus-ring;
+    }
+
+    &--error {
+      color: var(--wr-tree-status-error-color);
+    }
+
+    &--active {
+      background: var(--wr-color-hover);
+    }
+  }
+
+  &__spinner {
+    --wr-spinner-size: 1rem;
+
+    flex: 0 0 auto;
+  }
+
+  &__status-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__retry {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--wr-tree-retry-color);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  &__check {
+    flex: 0 0 auto;
+  }
+
+  // The filter's match inside a label.
+  &__label mark {
+    background: var(--wr-tree-match-bg);
+    color: var(--wr-tree-match-color);
+    border-radius: 2px;
   }
 
   // Virtualized list: the container owns scrolling + keyboard focus.

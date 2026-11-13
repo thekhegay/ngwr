@@ -513,6 +513,14 @@ export class WrTreeHarness extends ContentContainerComponentHarness {
   }
 
   /**
+   * Whether the node with this label is PARTLY checked, in a `cascade` tree.
+   * Throws when no such node is showing.
+   */
+  async isMixed(label: string | RegExp): Promise<boolean> {
+    return (await this.getNode({ label })).isMixed();
+  }
+
+  /**
    * The loader every node query runs through — the host inline, THIS tree's overlay
    * panel otherwise.
    *
