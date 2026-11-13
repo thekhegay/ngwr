@@ -126,6 +126,25 @@ interface CellColumn<T extends WrTableRow> {
   /** Whether its cell carries the tree indent and toggle. */
   readonly tree: boolean;
   readonly template: TemplateRef<WrTableCellContext> | undefined;
+  /** The context each row's cell template gets, kept so a pass hands the outlet the same object. */
+  readonly contexts: WeakMap<Record<string, unknown>, WrTableCellContext>;
+}
+
+/** `$implicit` is read through, so a row edited in place still shows its current value. */
+class CellContext implements WrTableCellContext {
+  readonly item: Record<string, unknown>;
+  readonly column: WrTableCellContext['column'];
+  private readonly key: string;
+
+  constructor(item: Record<string, unknown>, column: WrTableCellContext['column'], key: string) {
+    this.item = item;
+    this.column = column;
+    this.key = key;
+  }
+
+  get $implicit(): unknown {
+    return this.item[this.key];
+  }
 }
 
 /**
@@ -1161,6 +1180,14 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     this.pins.set({ left, right, leftEdge, rightEdge });
   }
 
+  /** Per column key. Rebuilt with the columns and the cell templates, never on a pin measurement or a resize. */
+  private readonly cellContexts = computed(() => {
+    this.cellMap();
+    return new Map(
+      this.displayColumns().map(c => [c.key, new WeakMap<Record<string, unknown>, WrTableCellContext>()] as const)
+    );
+  });
+
   /**
    * {@link displayColumns} with the per-column half of every cell resolved
    * once. Apart from `displayColumns` because the pin effect reads that one
@@ -1181,6 +1208,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * stays off them, as its docs say.
    */
   protected readonly cellColumns = computed<readonly CellColumn<T>[]>(() => {
+    const contexts = this.cellContexts();
     const pins = this.pins();
     const resized = this.resizeWidths();
     const templates = this.cellMap();
@@ -1209,6 +1237,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         label: key === labelKey,
         tree: key === treeKey,
         template: templates.get(key),
+        contexts: contexts.get(key)!,
       };
     });
   });
@@ -1864,8 +1893,15 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     this.expanded.set(set.includes(key) ? set.filter(k => k !== key) : [...set, key]);
   }
 
+  private readonly expandContexts = new WeakMap<Record<string, unknown>, WrTableExpandContext>();
+
   protected expandContext(row: Record<string, unknown>): WrTableExpandContext {
-    return { $implicit: row, row };
+    let context = this.expandContexts.get(row);
+    if (!context) {
+      context = { $implicit: row, row };
+      this.expandContexts.set(row, context);
+    }
+    return context;
   }
 
   // --- Summary row ----------------------------------------------------------
@@ -2215,7 +2251,12 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   protected cellContext(item: Record<string, unknown>, col: CellColumn<T>): WrTableCellContext {
-    return { $implicit: item[col.key], item, column: col.column as WrTableCellContext['column'] };
+    let context = col.contexts.get(item);
+    if (!context) {
+      context = new CellContext(item, col.column as WrTableCellContext['column'], col.key);
+      col.contexts.set(item, context);
+    }
+    return context;
   }
 
   /**
