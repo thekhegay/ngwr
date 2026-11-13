@@ -3,6 +3,7 @@
 // Styles for the entry points this component's own markup renders: the cascade
 // box is the checkbox's, drawn from its classes, and the loading row spins.
 @use '../../checkbox/styles' as checkbox-styles; // WrCheckbox
+@use '../../empty/styles' as empty-styles; // WrEmpty
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
 @include theme.loaded('tree');
 

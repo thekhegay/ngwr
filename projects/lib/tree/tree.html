@@ -285,6 +285,9 @@
       ></li>
     }
   </ul>
+  @if (filterQuery() && flat().length === 0) {
+    <wr-empty class="wr-tree__empty" [title]="resolvedNoMatchesLabel()" />
+  }
   @if (draggable()) {
     <!-- The keyboard move: its description hangs off the tree, and the live
          region is written by the keyboard path only. -->
