@@ -344,6 +344,9 @@ export const ROUTES = {
       wrPoll: { path: 'wr-poll', title: 'wrPoll' },
       wrQueryParam: { path: 'wr-query-param', title: 'wrQueryParam' },
       withRenderOnNavigation: { path: 'with-render-on-navigation', title: 'withRenderOnNavigation' },
+      wrFeature: { path: 'wr-feature', title: 'wrFeature' },
+      wrIsSafeCssValue: { path: 'wr-is-safe-css-value', title: 'wrIsSafeCssValue' },
+      wrLiveLocale: { path: 'wr-live-locale', title: 'WR_LIVE_LOCALE' },
     },
     validators: {
       path: 'validators',
