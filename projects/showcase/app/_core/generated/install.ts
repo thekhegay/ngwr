@@ -406,7 +406,7 @@ export const INSTALL = {
       { path: "ngwr/transfer", symbols: ["WrTransfer"], declarables: ["WrTransfer"], styled: true },
   ],
   "reference/components/tree": [
-      { path: "ngwr/tree", symbols: ["WrTree"], declarables: ["WrTree"], styled: true },
+      { path: "ngwr/tree", symbols: ["WrTree", "wrMoveTreeNode"], declarables: ["WrTree"], styled: true },
   ],
   "reference/components/virtual-scroll": [
       { path: "ngwr/virtual-scroll", symbols: ["WrVirtualScroll"], declarables: ["WrVirtualScroll"], styled: true },
