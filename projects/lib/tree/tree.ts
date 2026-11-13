@@ -318,16 +318,16 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
    * because `onKeydown` bails when `flat[i]` is undefined.
    */
   protected readonly cursorIndex = computed(() => {
-    const flat = this.flat();
     const cursor = this.cursorId();
     if (cursor) {
+      const rows = this.flatIndex();
       const parents = this.parentMap();
       for (let id: TId | undefined = cursor.id; id !== undefined; id = parents.get(id)) {
-        const at = flat.findIndex(f => f.node.id === id);
-        if (at !== -1) return at;
+        const at = rows.get(id);
+        if (at !== undefined) return at;
       }
     }
-    return Math.min(this.focusedIndex(), Math.max(0, flat.length - 1));
+    return Math.min(this.focusedIndex(), Math.max(0, this.flat().length - 1));
   });
 
   /** Resolved ARIA labels — signals, so they follow both a late catalog and a locale switch. */
@@ -357,6 +357,13 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     };
     walk(this.nodes(), 0);
     return out;
+  });
+
+  /** Each visible node's row, the first one when an id repeats. */
+  private readonly flatIndex = computed<ReadonlyMap<TId, number>>(() => {
+    const map = new Map<TId, number>();
+    for (const row of this.flat()) if (!map.has(row.node.id)) map.set(row.node.id, row.index);
+    return map;
   });
 
   protected readonly selectedSet = computed(() => new Set(this.selected()));
