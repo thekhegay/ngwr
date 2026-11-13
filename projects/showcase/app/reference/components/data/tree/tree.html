@@ -108,6 +108,118 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Lazy children"
+    description="A node with `hasChildren` and no `children` loads them on its first expand, through `loadChildren`. The answer is cached; a failed load shows a retry."
+  >
+    <ngwr-doc-code [code]="snippets.lazy" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.lazyTs" language="typescript" />
+    <ngwr-doc-snippet code="">
+      <wr-tree ariaLabel="Mail folders" selectionMode="none" [nodes]="remote" [loadChildren]="loadFolder" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Filter"
+    description="`filter` keeps the matching nodes and their ancestors, opens the ancestors and highlights the match. `[(expanded)]` is not written, so clearing the text restores it. `filterFn` replaces the label match."
+  >
+    <ngwr-doc-code [code]="snippets.filter" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <input
+        wrInput
+        placeholder="Filter files"
+        aria-label="Filter files"
+        style="margin-bottom: 0.5rem"
+        [(ngModel)]="filterText"
+      />
+      <wr-tree
+        ariaLabel="Project files"
+        selectionMode="none"
+        [nodes]="folders"
+        [(expanded)]="filterExpanded"
+        [filter]="filterText()"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Cascading checks"
+    description="In multi mode, `cascade` draws a checkbox on every row. Checking a parent checks what is below it, and a parent with some of it checked is mixed. The value holds every checked node, parents included, and never a mixed one."
+  >
+    <ngwr-doc-code [code]="snippets.cascade" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-tree
+        ariaLabel="Project files"
+        selectionMode="multi"
+        cascade
+        [nodes]="folders"
+        [expanded]="['src', 'src/app']"
+        [(selected)]="checked"
+      />
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
+        Checked: {{ checked().join(', ') || '(none)' }}
+      </small>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Drag and drop"
+    description="`draggable` lets a row be dragged between rows to reorder, or onto a row to become its child. The tree emits `nodeMove` and does not change `nodes`: apply it with `wrMoveTreeNode`. `canDrop` refuses a target."
+  >
+    <ngwr-doc-code [code]="snippets.drag" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.dragTs" language="typescript" />
+    <ngwr-doc-snippet code="">
+      <wr-tree
+        ariaLabel="Project files"
+        selectionMode="none"
+        draggable
+        [nodes]="movable()"
+        [(expanded)]="movableExpanded"
+        [canDrop]="intoFolders"
+        (nodeMove)="onMove($event)"
+      />
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
+        Last move: {{ lastMove() || '(none)' }}
+      </small>
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Alt + Enter</th>
+            <td>Picks the row up</td>
+          </tr>
+          <tr>
+            <th scope="row">Up, Down</th>
+            <td>Moves it among its siblings</td>
+          </tr>
+          <tr>
+            <th scope="row">Right, Left</th>
+            <td>Into the row above as its last child, or out to follow its parent (swapped under RTL)</td>
+          </tr>
+          <tr>
+            <th scope="row">Enter</th>
+            <td>Drops it</td>
+          </tr>
+          <tr>
+            <th scope="row">Escape</th>
+            <td>Puts it back</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      A held row stays where it is until you apply the move; the indicator and a live region say where it would land.
+      Dragging is off while a <code>filter</code> is set, and for rows that <code>loadChildren</code> supplied.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Open from code"
     description="In combobox mode, `open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only. `isOpen()` reads the state, for an `aria-expanded` on your own trigger."
   >
@@ -116,8 +228,9 @@
 
   <ngwr-doc-section title="Accessibility">
     <p>
-      Each built-in name takes a per-instance override: <code>clearSelectionLabel</code>, <code>expandLabel</code> and
-      <code>collapseLabel</code>.
+      Each built-in string takes a per-instance override: <code>clearSelectionLabel</code>, <code>expandLabel</code>,
+      <code>collapseLabel</code>, <code>loadingLabel</code>, <code>loadErrorLabel</code>, <code>retryLabel</code> and
+      <code>moveHelpLabel</code>.
     </p>
   </ngwr-doc-section>
 
