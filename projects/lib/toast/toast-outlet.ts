@@ -151,6 +151,8 @@ export class WrToastOutlet {
    * render.
    */
   private push(): void {
-    this.host()?.toasts.set(this.channel().toasts());
+    const channel = this.channel();
+    this.host()?.toasts.set(channel.toasts());
+    this.host()?.queued.set(channel.queued());
   }
 }

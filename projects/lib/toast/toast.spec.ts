@@ -721,6 +721,20 @@ describe('WrToast', () => {
     });
   });
 
+  it('counts the toasts queued behind the cap toward the "Close all" threshold', () => {
+    toast = setup([provideWr(withToast({ mode: 'list', maxStack: 2, closeAllThreshold: 3 }))]);
+    toast.show({ message: 'One', duration: 0 });
+    toast.show({ message: 'Two', duration: 0 });
+    tick();
+    expect(closeAll()).toBeNull();
+
+    toast.show({ message: 'Three', duration: 0 });
+    tick();
+
+    expect(messages()).toEqual(['One', 'Two']);
+    expect(closeAll()?.textContent?.trim()).toBe('Close all (3)');
+  });
+
   describe('configured through withToast', () => {
     beforeEach(() => {
       toast = setup([

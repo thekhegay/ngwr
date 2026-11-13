@@ -11,7 +11,13 @@ import { WrToastOutlet } from './toast-outlet';
   template: `
     <div class="alarms" style="position: relative">
       @if (mounted()) {
-        <wr-toast-outlet name="alarms" mode="list" position="top" [maxStack]="maxStack()" />
+        <wr-toast-outlet
+          name="alarms"
+          mode="list"
+          position="top"
+          [maxStack]="maxStack()"
+          [closeAllThreshold]="closeAllThreshold()"
+        />
       }
     </div>
     <div class="notes" style="position: relative">
@@ -22,6 +28,7 @@ import { WrToastOutlet } from './toast-outlet';
 class Page {
   readonly mounted = signal(true);
   readonly maxStack = signal(3);
+  readonly closeAllThreshold = signal(2);
 }
 
 /**
@@ -159,6 +166,26 @@ describe('WrToastOutlet', () => {
 
     expect(box('alarms').querySelector('.wr-toast-host')).toBeNull();
     expect(messages(box('notes'))).toEqual(['note']);
+  });
+
+  it('counts the toasts waiting behind a held stack toward "Close all" and its threshold', () => {
+    fixture.componentInstance.closeAllThreshold.set(4);
+    for (const message of ['a', 'b', 'c']) toast.show({ message, outlet: 'alarms', duration: 0 });
+    tick();
+    expect(box('alarms').querySelector('.wr-toast-host__close-all')).toBeNull();
+
+    mouse(box('alarms').querySelector('.wr-toast-host')!, 'mouseenter');
+    toast.show({ message: 'd', outlet: 'alarms', duration: 0 });
+    toast.show({ message: 'e', outlet: 'alarms', duration: 0 });
+    tick();
+
+    expect(messages(box('alarms'))).toEqual(['a', 'b', 'c']);
+    const button = box('alarms').querySelector<HTMLButtonElement>('.wr-toast-host__close-all');
+    expect(button?.textContent?.trim()).toBe('Close all (5)');
+
+    button?.click();
+    tick();
+    expect(box('alarms').querySelector('.wr-toast-host')).toBeNull();
   });
 
   it('closes one toast from its Close button and from its ref', () => {
