@@ -159,6 +159,8 @@ export const wrEn: WrI18nCatalog = {
     loadError: 'Could not load results',
     retry: 'Try again',
     more: '+{{count}} more',
+    // The first row of a multi select's panel under `selectAll`.
+    selectAll: 'Select all',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).

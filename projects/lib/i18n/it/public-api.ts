@@ -112,6 +112,7 @@ export const wrIt: WrI18nCatalog = {
     loadError: 'Impossibile caricare i risultati',
     retry: 'Riprova',
     more: '+{{count}} in più',
+    selectAll: 'Seleziona tutto',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).

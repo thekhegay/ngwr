@@ -112,6 +112,7 @@ export const wrCs: WrI18nCatalog = {
     loadError: 'Výsledky se nepodařilo načíst',
     retry: 'Zkusit znovu',
     more: 'Další: {{count}}',
+    selectAll: 'Vybrat vše',
   },
   tree: {
     expand: 'Rozbalit',

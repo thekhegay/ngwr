@@ -114,6 +114,7 @@ export const wrJa: WrI18nCatalog = {
     loadError: '結果を読み込めませんでした',
     retry: '再試行',
     more: '他{{count}}件',
+    selectAll: 'すべて選択',
   },
   tree: {
     expand: '展開',

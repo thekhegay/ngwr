@@ -157,6 +157,39 @@ export class WrSelectHarness extends ComponentHarness {
     await option.click();
   }
 
+  /**
+   * Open the panel if needed, then click the select-all row.
+   *
+   * Throws when the panel has no such row, and names the reasons: the row needs
+   * `selectAll`, multi mode, and at least one option on offer, so a search that
+   * matches nothing takes it away.
+   */
+  async toggleSelectAll(): Promise<void> {
+    await this.open();
+    await (await this.selectAllRow('toggleSelectAll')).click();
+  }
+
+  /**
+   * Whether every option the panel is offering is selected: the row's
+   * `aria-checked="true"`. Under a search that is every MATCHING option, which
+   * is what the row toggles. `false` covers both "none" and "some";
+   * {@link getSelectAllState} tells those apart.
+   */
+  async isAllSelected(): Promise<boolean> {
+    return (await this.getSelectAllState()) === 'checked';
+  }
+
+  /** The select-all row's state, read from `aria-checked`. Throws when there is no row. */
+  async getSelectAllState(): Promise<'checked' | 'mixed' | 'unchecked'> {
+    const checked = await (await this.selectAllRow('getSelectAllState')).getAttribute('aria-checked');
+    return checked === 'true' ? 'checked' : checked === 'mixed' ? 'mixed' : 'unchecked';
+  }
+
+  /** Whether the open panel is showing a select-all row. */
+  async hasSelectAll(): Promise<boolean> {
+    return (await this.inPanel('.wr-select-panel__select-all')) !== null;
+  }
+
   /** Type into a search or tag select's input, replacing whatever is there. */
   async typeSearch(query: string): Promise<void> {
     const input = await this.searchInput();
@@ -228,6 +261,16 @@ export class WrSelectHarness extends ComponentHarness {
   async focus(): Promise<void> {
     const input = await this.searchInput();
     return (input ?? (await this.locatorFor('.wr-select__trigger')())).focus();
+  }
+
+  private async selectAllRow(method: string): Promise<TestElement> {
+    const row = await this.inPanel('.wr-select-panel__select-all');
+    if (row) return row;
+
+    throw new Error(
+      `WrSelectHarness.${method}(): the panel has no select-all row. It is drawn only with \`selectAll\`, in ` +
+        'multi mode, and while the panel offers at least one option: a search that matches nothing removes it.'
+    );
   }
 
   /** The text input of a search or tag select, or `null` for the button trigger. */

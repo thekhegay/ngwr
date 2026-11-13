@@ -112,6 +112,7 @@ export const wrKo: WrI18nCatalog = {
     loadError: '결과를 불러오지 못했습니다',
     retry: '다시 시도',
     more: '+{{count}}개',
+    selectAll: '전체 선택',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).

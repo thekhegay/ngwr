@@ -112,6 +112,7 @@ export const wrPt: WrI18nCatalog = {
     loadError: 'Não foi possível carregar os resultados',
     retry: 'Tentar novamente',
     more: '+{{count}} mais',
+    selectAll: 'Selecionar tudo',
   },
   tree: {
     expand: 'Expandir',

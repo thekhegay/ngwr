@@ -114,6 +114,7 @@ export const wrVi: WrI18nCatalog = {
     loadError: 'Không thể tải kết quả',
     retry: 'Thử lại',
     more: '+{{count}} nữa',
+    selectAll: 'Chọn tất cả',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).

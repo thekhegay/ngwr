@@ -112,6 +112,7 @@ export const wrNl: WrI18nCatalog = {
     loadError: 'Resultaten konden niet worden geladen',
     retry: 'Opnieuw proberen',
     more: '+{{count}} meer',
+    selectAll: 'Alles selecteren',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).

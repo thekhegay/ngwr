@@ -115,6 +115,7 @@ export const wrTr: WrI18nCatalog = {
     loadError: 'Sonuçlar yüklenemedi',
     retry: 'Tekrar dene',
     more: '+{{count}} daha',
+    selectAll: 'Tümünü seç',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
