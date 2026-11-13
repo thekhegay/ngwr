@@ -527,16 +527,21 @@
   // `--wr-option-*` hooks, and pinned: the panel scrolls under it. Its fill is
   // the panel's own surface with the hover tint painted OVER it as an image,
   // because that tint is translucent and the options behind would show through.
+  // It runs edge to edge over the panel's padding and pins to the padding's top
+  // edge, so no option shows above or beside it while the list scrolls; the
+  // panel's rounded clip draws its top corners.
   &__select-all {
     position: sticky;
-    inset-block-start: 0;
+    inset-block-start: calc(-1 * var(--wr-select-panel-padding));
     z-index: 1;
     display: flex;
     flex: none;
     align-items: center;
     gap: var(--wr-option-inline-gap, 0.5rem);
-    padding: var(--wr-option-padding-y) var(--wr-option-padding-x);
-    border-radius: var(--wr-option-radius);
+    margin-block-start: calc(-1 * var(--wr-select-panel-padding));
+    margin-inline: calc(-1 * var(--wr-select-panel-padding));
+    padding-block: calc(var(--wr-option-padding-y) + var(--wr-select-panel-padding)) var(--wr-option-padding-y);
+    padding-inline: calc(var(--wr-option-padding-x) + var(--wr-select-panel-padding));
     background-color: var(--wr-select-panel-bg);
     box-shadow: 0 1px 0 var(--wr-select-panel-border);
     color: var(--wr-color-on-surface);
