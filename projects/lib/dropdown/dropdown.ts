@@ -24,7 +24,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
+import {
+  WR_ANCHORED_FALLBACKS,
+  WR_ANCHORED_POSITIONS,
+  WR_OVERLAY,
+  WrOutsideClick,
+  wrFollowDirection,
+} from 'ngwr/overlay';
 import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import {
@@ -35,16 +41,10 @@ import {
   wrDropdownReleaseLevel,
 } from './dropdown-chain';
 import type { WrDropdownMenu } from './dropdown-menu';
-import {
-  WR_DROPDOWN_FALLBACKS,
-  WR_DROPDOWN_POSITIONS,
-  type WrDropdownPosition,
-  type WrDropdownTrigger,
-  wrDropdownPositions,
-} from './types';
+import { type WrDropdownPosition, type WrDropdownTrigger, wrDropdownPositions } from './types';
 
 /** Whether a placement puts the menu BESIDE its trigger, where the gap is inline padding. */
-const isSidePlacement = (name: WrDropdownPosition): boolean => name === 'left' || name === 'right';
+const isSidePlacement = (name: WrDropdownPosition): boolean => name.startsWith('left') || name.startsWith('right');
 
 /**
  * Attach to any element to open a `<wr-dropdown-menu>` as a CDK overlay.
@@ -98,9 +98,10 @@ export class WrDropdown {
   readonly trigger = input<WrDropdownTrigger>('click');
 
   /**
-   * Where the menu anchors relative to the trigger. A placement that does not
-   * fit flips to the opposite side (a `left` / `right` menu may also drop below
-   * or above, and then stays there until it closes), and the pane's
+   * Where the menu anchors relative to the trigger: the twelve placements
+   * `wr-popover` takes. A placement that does not fit flips to the opposite side
+   * (a `left*` / `right*` menu may also drop below or above, and then stays
+   * there until it closes), and the pane's
    * `wr-dropdown-overlay--<placement>` class names the side it actually took.
    * @default 'bottom-start'
    */
@@ -323,12 +324,12 @@ export class WrDropdown {
     const ref = this.overlayRef;
     const pane = ref.overlayElement;
     // Index-aligned: `links[i]` is the object the CDK hands back for `chain[i]`.
-    let chain = WR_DROPDOWN_FALLBACKS[requested];
+    let chain = WR_ANCHORED_FALLBACKS[requested];
     let links = positions;
     connected.positionChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ connectionPair }) => {
       const landed = chain[links.indexOf(connectionPair)];
       if (!landed) return;
-      for (const name of Object.keys(WR_DROPDOWN_POSITIONS)) {
+      for (const name of Object.keys(WR_ANCHORED_POSITIONS)) {
         pane.classList.toggle(`wr-dropdown-overlay--${name}`, name === landed);
       }
 
@@ -365,7 +366,7 @@ export class WrDropdown {
     // site keeps its own LTR/RTL switch INSIDE a dropdown, so the flip is made
     // from within the one panel that has to answer it.
     //
-    // No callback — `WR_DROPDOWN_POSITIONS` anchors on `start` / `end` and
+    // No callback — `WR_ANCHORED_POSITIONS` anchors on `start` / `end` and
     // carries no `offsetX`, so letting the CDK re-resolve those against the new
     // direction is the whole job.
     wrFollowDirection(this.overlayRef, this.dir, this.injector);

@@ -7,10 +7,11 @@ import { Subject } from 'rxjs';
 
 import { WrDialog, type WrDialogRef } from 'ngwr/dialog';
 import { WrDrawerManager } from 'ngwr/drawer';
+import { WR_ANCHORED_FALLBACKS, WR_ANCHORED_POSITIONS, wrAnchoredPositions } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrPopover } from './popover';
-import { WR_POPOVER_FALLBACKS, WR_POPOVER_POSITIONS, type WrPopoverPosition, wrPopoverPositions } from './types';
+import { type WrPopoverPosition, wrPopoverPositions } from './types';
 
 /**
  * `[wrPopover]` renders its panel into a CDK overlay, so nothing it opens is
@@ -233,7 +234,7 @@ describe('WrPopover', () => {
       fixture.detectChanges();
       open();
 
-      // The 8px gap in WR_POPOVER_POSITIONS reaches the DOM as the CDK's own
+      // The 8px gap in `wrPopoverPositions` reaches the DOM as the CDK's own
       // transform, which is what makes the RTL twin below assertable at all.
       expect(popoverPane()?.getAttribute('style')).toContain('translateX(-8px)');
     });
@@ -1131,11 +1132,11 @@ describe('WrPopover under dir="rtl"', () => {
  * `bottom-start` and lands at 375 with nothing off-screen.
  */
 describe('WrPopover placement fallbacks', () => {
-  const names = Object.keys(WR_POPOVER_POSITIONS) as WrPopoverPosition[];
+  const names = Object.keys(WR_ANCHORED_POSITIONS) as WrPopoverPosition[];
 
   it('gives every placement somewhere to flip to', () => {
     for (const name of names) {
-      const chain = WR_POPOVER_FALLBACKS[name];
+      const chain = WR_ANCHORED_FALLBACKS[name];
       expect(chain.length, `${name} has no fallback`).toBeGreaterThan(1);
       expect(chain[0], `${name} does not lead with itself`).toBe(name);
       expect(new Set(chain).size, `${name} repeats a placement`).toBe(chain.length);
@@ -1146,7 +1147,7 @@ describe('WrPopover placement fallbacks', () => {
   it('keeps the requested alignment down the whole chain', () => {
     const alignment = (name: WrPopoverPosition): string => name.split('-')[1] ?? '';
     for (const name of names) {
-      for (const link of WR_POPOVER_FALLBACKS[name]) expect(alignment(link)).toBe(alignment(name));
+      for (const link of WR_ANCHORED_FALLBACKS[name]) expect(alignment(link)).toBe(alignment(name));
     }
   });
 
@@ -1154,7 +1155,7 @@ describe('WrPopover placement fallbacks', () => {
     // At 375px a 233px panel fits on NEITHER side of a mid-page trigger, so a
     // left/right chain that only offers the opposite side still has nowhere to go.
     for (const name of ['left', 'left-start', 'left-end', 'right', 'right-start', 'right-end'] as const) {
-      const chain = WR_POPOVER_FALLBACKS[name];
+      const chain = WR_ANCHORED_FALLBACKS[name];
       expect(
         chain.some(link => link.startsWith('bottom')),
         `${name} cannot fall below`
@@ -1168,7 +1169,7 @@ describe('WrPopover placement fallbacks', () => {
 
   it('never sends a block-axis placement sideways', () => {
     for (const name of ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end'] as const) {
-      expect(WR_POPOVER_FALLBACKS[name].every(link => /^(top|bottom)/.test(link))).toBe(true);
+      expect(WR_ANCHORED_FALLBACKS[name].every(link => /^(top|bottom)/.test(link))).toBe(true);
     }
   });
 
@@ -1190,10 +1191,11 @@ describe('WrPopover placement fallbacks', () => {
 
   it('carries the geometry of the placement each link names', () => {
     for (const name of names) {
-      const resolved = wrPopoverPositions(name, 'wr-popover-overlay');
-      WR_POPOVER_FALLBACKS[name].forEach((link, index) => {
-        expect(resolved[index]).toEqual({ ...WR_POPOVER_POSITIONS[link], panelClass: `wr-popover-overlay--${link}` });
-      });
+      // The shared chain, 8px clear of the trigger: `wrAnchoredPositions`'s own
+      // spec pins that geometry link by link.
+      expect(wrPopoverPositions(name, 'wr-popover-overlay')).toEqual(
+        wrAnchoredPositions(name, { gap: 8, paneClass: 'wr-popover-overlay' })
+      );
     }
   });
 });

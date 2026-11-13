@@ -80,7 +80,11 @@ export class WrPopconfirm {
   /** Confirmation message. */
   readonly message = input.required<string>({ alias: 'wrPopconfirm' });
 
-  /** Anchor side; the panel flips to another side when this one has no room. @default 'top' */
+  /**
+   * Anchor side and alignment, the twelve placements `wr-popover` takes; the
+   * panel flips to another side when this one has no room.
+   * @default 'top'
+   */
   readonly position = input<WrPopconfirmPosition>('top');
 
   /** Label for the confirm button. @default 'Confirm' */

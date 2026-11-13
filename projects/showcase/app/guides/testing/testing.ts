@@ -1046,6 +1046,11 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<string | null> | Promise<boolean>',
     },
     {
+      name: 'getPosition()',
+      description: 'The placement the menu landed on. `null` for a submenu.',
+      type: 'Promise<WrDropdownPosition | null>',
+    },
+    {
       name: 'clickTrigger() / hoverTrigger() / mouseAwayFromTrigger()',
       description: 'Single gestures, to test one `trigger` mode.',
       type: 'Promise<void>',

@@ -14,6 +14,8 @@ import {
   type TestElement,
 } from '@angular/cdk/testing';
 
+import type { WrDropdownPosition } from 'ngwr/dropdown';
+
 import type { WrDropdownHarnessFilters, WrDropdownItemHarnessFilters } from './types';
 import { WrDropdownItemHarness } from './wr-dropdown-item-harness';
 
@@ -85,6 +87,24 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
   /** The role the menu announces — `menu`. Throws while the menu is closed. */
   async getMenuRole(): Promise<string | null> {
     return (await this.menu()).getAttribute('role');
+  }
+
+  /**
+   * Where the menu sits relative to the trigger, or `null` when its pane names
+   * no placement, as a submenu's does not. Throws while the menu is closed.
+   *
+   * Read off the pane's public modifier class, since a bound `position` never
+   * reaches the DOM. The class names the placement the menu LANDED on, which is
+   * the one asked for unless it had no room there and flipped; in jsdom, with no
+   * layout to run out of, the two are the same.
+   */
+  async getPosition(): Promise<WrDropdownPosition | null> {
+    const pane = await this.documentRootLocatorFactory().locatorFor(
+      `.wr-dropdown-overlay:has(> #${await this.menuId()})`
+    )();
+    const classes = (await pane.getAttribute('class')) ?? '';
+    const modifier = /wr-dropdown-overlay--((?:top|bottom|left|right)(?:-(?:start|end))?)(?![a-z-])/.exec(classes);
+    return modifier ? (modifier[1] as WrDropdownPosition) : null;
   }
 
   /**

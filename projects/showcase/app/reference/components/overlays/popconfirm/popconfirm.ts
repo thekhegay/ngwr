@@ -29,10 +29,23 @@ export default class PopconfirmPageComponent {
   protected readonly status = signal<string>('—');
   protected readonly dirty = signal(false);
 
-  protected readonly positions: readonly WrPopconfirmPosition[] = ['top', 'bottom', 'left', 'right'];
+  protected readonly positions: readonly WrPopconfirmPosition[] = [
+    'top',
+    'top-start',
+    'top-end',
+    'bottom',
+    'bottom-start',
+    'bottom-end',
+    'left',
+    'left-start',
+    'left-end',
+    'right',
+    'right-start',
+    'right-end',
+  ];
 
   protected readonly snippets = {
-    positions: `<wr-btn wrPopconfirm="Delete this item?" position="bottom" (confirmed)="remove()">Delete</wr-btn>`,
+    positions: `<wr-btn wrPopconfirm="Delete this item?" position="bottom-start" (confirmed)="remove()">Delete</wr-btn>`,
     basic: `<wr-btn
   color="danger"
   wrPopconfirm="Delete this item?"
