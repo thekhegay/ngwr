@@ -4,8 +4,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very high
 
-- **Rounded fields**: on textarea, cascader, date-picker, range picker and input-otp.
-- **Per-instance labels**: `*Label` inputs on calendar, event-calendar, tree, chart-legend and stepper.
 - **One position set**: popconfirm and dropdown take popover's twelve positions.
 
 ## High
