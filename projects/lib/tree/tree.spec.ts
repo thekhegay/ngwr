@@ -354,6 +354,84 @@ describe('WrTree keyboard cursor', () => {
   });
 });
 
+describe('WrTree keyboard cursor in a deep tree', () => {
+  const DEPTH = 12;
+  /** A chain `n0 > n1 > … > n11`, each level with a leaf sibling after the branch, then a root leaf. */
+  const chain = (level: number): WrTreeNode[] =>
+    level === DEPTH
+      ? [{ id: 'leaf', label: 'leaf' }]
+      : [
+          { id: `n${level}`, label: `n${level}`, children: chain(level + 1) },
+          { id: `s${level}`, label: `s${level}` },
+        ];
+  const DEEP: readonly WrTreeNode[] = chain(0);
+  const ALL = Array.from({ length: DEPTH }, (_, i) => `n${i}`);
+
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const rows = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="treeitem"]')];
+  const label = (row: HTMLElement): string => row.querySelector('.wr-tree__label')?.textContent.trim() ?? '';
+  const rowFor = (text: string): HTMLElement => rows().find(r => label(r) === text)!;
+  const cursor = (): string[] =>
+    rows()
+      .filter(r => r.getAttribute('tabindex') === '0')
+      .map(label);
+  const expand = (ids: readonly string[]): void => {
+    fixture.componentInstance.expanded.set(ids);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.nodes.set(DEEP);
+    expand(ALL);
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('climbs to the nearest visible ancestor at each collapse, and comes back down', async () => {
+    rowFor('leaf').click();
+    await fixture.whenStable();
+    expect(cursor()).toEqual(['leaf']);
+
+    // Collapsed in the middle: `n6` is the deepest ancestor still drawn.
+    expand(ALL.filter(id => id !== 'n6'));
+    expect(cursor()).toEqual(['n6']);
+
+    expand([]);
+    expect(cursor()).toEqual(['n0']);
+
+    // The cursor is the node, not the slot: it is back as soon as it is visible.
+    expand(ALL);
+    expect(cursor()).toEqual(['leaf']);
+    expect(rows().indexOf(rowFor('leaf'))).toBe(DEPTH);
+  });
+
+  it('finds the row without scanning the list once per ancestor', async () => {
+    rowFor('leaf').click();
+    await fixture.whenStable();
+    // Only scans of the row list count: the framework searches arrays of its own.
+    const findIndex = Array.prototype.findIndex;
+    let scans = 0;
+    vi.spyOn(Array.prototype, 'findIndex').mockImplementation(function (this: unknown[], ...args) {
+      if (this.length > 0 && this.every(row => !!row && typeof row === 'object' && 'posinset' in row)) scans += 1;
+      return findIndex.apply(this, args);
+    });
+
+    expand([]);
+    expand(ALL);
+    expand(ALL.slice(0, 5));
+
+    expect(cursor()).toEqual(['n5']);
+    expect(scans).toBe(0);
+  });
+});
+
 describe('WrTree names an inline tree', () => {
   @Component({
     imports: [WrTree],
@@ -1487,6 +1565,40 @@ describe('WrTree open and close from code', () => {
     expect(panel()).toBeNull();
     expect(trigger().getAttribute('aria-expanded')).toBe('false');
     expect(counts()).toEqual([1, 1]);
+  });
+
+  it('reports the open state through a read-only isOpen()', async () => {
+    const control = host().control();
+    const escape = (): boolean =>
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    const clickOutside = (): boolean =>
+      document.body.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+
+    expect(control.isOpen()).toBe(false);
+
+    control.open();
+    await settle();
+    expect(control.isOpen()).toBe(true);
+    control.close();
+    await settle();
+    expect(control.isOpen()).toBe(false);
+
+    trigger().click();
+    await settle();
+    expect(control.isOpen()).toBe(true);
+    escape();
+    await settle();
+    expect(control.isOpen()).toBe(false);
+
+    control.open();
+    await settle();
+    clickOutside();
+    await settle();
+    expect(control.isOpen()).toBe(false);
+
+    // @ts-expect-error -- `isOpen` is a read-only signal: `open()` and `close()` change it
+    const write: unknown = control.isOpen.set;
+    expect(write).toBeUndefined();
   });
 
   it('emits for a click on the trigger and for Escape', async () => {

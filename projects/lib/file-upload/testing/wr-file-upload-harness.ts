@@ -7,6 +7,8 @@
 
 import { ComponentHarness, type EventData, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
+import type { WrFileUploadSize, WrFileUploadState } from 'ngwr/file-upload';
+
 import type { WrFileUploadHarnessFilters } from './types';
 
 /**
@@ -99,8 +101,11 @@ function setPickerFiles(input: HTMLInputElement, files: readonly File[]): void {
  * `multiple` land on it, and {@link selectFiles} has to hand it the files.
  *
  * What this component does NOT have, so this harness does not either:
- * - **no per-file progress or status.** `<wr-file-upload>` picks files; uploading
- *   them is the app's job, and there is no bar or state to read.
+ * - **no upload.** `<wr-file-upload>` picks files and uploading them is the app's
+ *   job. What the app says through `[status]` is readable, per file, with
+ *   {@link getFileStatus}; the percent is on the row's `wr-progress`.
+ * - **no thumbnail pixels.** {@link hasPreview} says a thumbnail is in the row.
+ *   jsdom decodes no image, so whether it shows the file cannot be read.
  * - **no rendered error.** A file refused for its type, its size or the file count
  *   leaves NOTHING in the DOM — no `aria-invalid`, no message, and a list that
  *   simply did not grow. The `(rejected)` output is the only channel, so a spec
@@ -199,6 +204,14 @@ export class WrFileUploadHarness extends ComponentHarness {
    */
   async isMultiple(): Promise<boolean> {
     return (await this.picker()).getProperty<boolean>('multiple');
+  }
+
+  /** The control size. `'md'` is the default and paints no modifier of its own. */
+  async getSize(): Promise<WrFileUploadSize> {
+    const host = await this.host();
+    if (await host.hasClass('wr-file-upload--sm')) return 'sm';
+    if (await host.hasClass('wr-file-upload--lg')) return 'lg';
+    return 'md';
   }
 
   /**
@@ -362,17 +375,73 @@ export class WrFileUploadHarness extends ComponentHarness {
 
   /** Remove the file with this name. Names come from {@link getFileNames}. */
   async removeFileNamed(name: string): Promise<void> {
+    await this.removeFile(await this.indexNamed('removeFileNamed', name));
+  }
+
+  /**
+   * The upload state the app set for this file through `[status]`: `'pending'`,
+   * `'uploading'`, `'done'` or `'error'`, or `null` for a file with no entry.
+   *
+   * Read off the row's `wr-file-upload__item--<state>` modifier, the one place
+   * every state leaves a mark: `pending` draws no part of its own.
+   */
+  async getFileStatus(name: string): Promise<WrFileUploadState | null> {
+    const row = await this.rowNamed('getFileStatus', name);
+    for (const state of ['pending', 'uploading', 'done', 'error'] as const) {
+      if (await row.hasClass(`wr-file-upload__item--${state}`)) return state;
+    }
+    return null;
+  }
+
+  /**
+   * Press the retry button of this file's row, which emits `(retry)` with the file.
+   *
+   * @throws if the file is not in the `error` state: only a failed row has the button.
+   */
+  async retry(name: string): Promise<void> {
+    const index = await this.indexNamed('retry', name);
+    const button = await this.locatorForOptional(
+      `.wr-file-upload__item:nth-child(${index + 1}) .wr-file-upload__retry`
+    )();
+
+    if (button === null) {
+      throw new Error(
+        `WrFileUploadHarness.retry(${JSON.stringify(name)}): the row has no retry button. Only a file whose ` +
+          `status is 'error' has one; this one is ${JSON.stringify(await this.getFileStatus(name))}.`
+      );
+    }
+
+    await button.click();
+  }
+
+  /**
+   * Whether this file's row shows a thumbnail: `[previews]` is on and the file
+   * is an image. jsdom has no `URL.createObjectURL`, so a spec that expects
+   * `true` has to stub it.
+   */
+  async hasPreview(name: string): Promise<boolean> {
+    const index = await this.indexNamed('hasPreview', name);
+    const image = await this.locatorForOptional(
+      `.wr-file-upload__item:nth-child(${index + 1}) img.wr-file-upload__preview`
+    )();
+    return image !== null;
+  }
+
+  /** Index of the row with this name, or a throw that says what the list holds. */
+  private async indexNamed(method: string, name: string): Promise<number> {
     const names = await this.getFileNames();
     const index = names.indexOf(name);
 
     if (index === -1) {
       const holding = names.length > 0 ? names.map(n => JSON.stringify(n)).join(', ') : 'no files';
-      throw new Error(
-        `WrFileUploadHarness.removeFileNamed(${JSON.stringify(name)}): the rendered list holds ${holding}.`
-      );
+      throw new Error(`WrFileUploadHarness.${method}(${JSON.stringify(name)}): the rendered list holds ${holding}.`);
     }
 
-    await this.removeFile(index);
+    return index;
+  }
+
+  private async rowNamed(method: string, name: string): Promise<TestElement> {
+    return (await this.items())[await this.indexNamed(method, name)];
   }
 
   /** Move keyboard focus to the zone — the control's only tab stop. */

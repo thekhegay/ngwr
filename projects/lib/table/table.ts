@@ -18,6 +18,7 @@ import {
   PLATFORM_ID,
   TemplateRef,
   ViewEncapsulation,
+  type WritableSignal,
   computed,
   contentChild,
   contentChildren,
@@ -34,6 +35,7 @@ import {
   viewChildren,
 } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrCheckbox } from 'ngwr/checkbox';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPagination, type WrPaginationSize } from 'ngwr/pagination';
@@ -48,18 +50,25 @@ import {
   wrDecimalCompare,
   wrDecimalDivide,
   wrDownloadBlob,
+  wrIsComposing,
+  wrIsPrintableKey,
 } from 'ngwr/utils';
 
 import { WrTableCell } from './table-cell';
+import { WrTableEditCell } from './table-edit-cell';
 import { WrTableExpand } from './table-expand';
-import { WrTableFilter } from './table-filter';
+import { WrTableFilter, markFilterSelectionChanged } from './table-filter';
 import { WrTableGroupHeader } from './table-group-header';
+import { WrTableSelectionBar } from './table-selection-bar';
 import { WrTableSort } from './table-sort';
 import type {
   WrTableCellContext,
+  WrTableCellEdit,
   WrTableColumn,
   WrTableColumns,
   WrTableCsvOptions,
+  WrTableEditCellContext,
+  WrTableEditable,
   WrTableExpandContext,
   WrTableFilterChange,
   WrTableFilterItem,
@@ -68,8 +77,10 @@ import type {
   WrTableRow,
   WrTableRowClass,
   WrTableRowClick,
+  WrTableSelectionContext,
   WrTableSortState,
   WrTableSortDirection,
+  WrTableState,
   WrTableSummary,
   WrTableSummaryContext,
   WrTableTruncate,
@@ -99,6 +110,81 @@ type RenderRow =
   | { readonly kind: 'group-foot'; readonly id: string; readonly summaries: ReadonlyMap<string, unknown> };
 
 /**
+ * A display column with everything its cells draw from the column alone, so a
+ * cell binding reads a property instead of calling a method on every pass.
+ */
+interface CellColumn<T extends WrTableRow> {
+  readonly key: string;
+  readonly column: WrTableColumn<T>;
+  readonly thClass: string;
+  readonly tdClass: string;
+  readonly footClass: string;
+  readonly pinned: boolean;
+  readonly pinLeft: boolean;
+  readonly pinRight: boolean;
+  /** The inner-edge pinned column of its side, which carries the shadow. */
+  readonly edgeLeft: boolean;
+  readonly edgeRight: boolean;
+  /** Sticky `inset-inline-start` / `-end` offsets in px, `null` off the pinned set. */
+  readonly start: number | null;
+  readonly end: number | null;
+  /** The `<col>` width in px, `null` for auto. A live resize wins. */
+  readonly width: number | null;
+  /** The `width` a truncated column's cells are capped at. */
+  readonly maxWidth: number | null;
+  /** Whether its cell names the row (see `labelColumnKey`). */
+  readonly label: boolean;
+  /** Whether its cell carries the tree indent and toggle. */
+  readonly tree: boolean;
+  readonly template: TemplateRef<WrTableCellContext> | undefined;
+  /** The column's editor, `undefined` without one and under `editable: false`. */
+  readonly editTemplate: TemplateRef<WrTableEditCellContext> | undefined;
+  /** The context each row's cell template gets, kept so a pass hands the outlet the same object. */
+  readonly contexts: WeakMap<Record<string, unknown>, WrTableCellContext>;
+}
+
+/** `$implicit` is read through, so a row edited in place still shows its current value. */
+class CellContext implements WrTableCellContext {
+  readonly item: Record<string, unknown>;
+  readonly column: WrTableCellContext['column'];
+  private readonly key: string;
+
+  constructor(item: Record<string, unknown>, column: WrTableCellContext['column'], key: string) {
+    this.item = item;
+    this.column = column;
+    this.key = key;
+  }
+
+  get $implicit(): unknown {
+    return this.item[this.key];
+  }
+}
+
+/** One cell edit in flight. */
+interface CellEdit {
+  readonly row: Record<string, unknown>;
+  readonly key: string;
+  readonly td: HTMLElement;
+  readonly previous: unknown;
+  readonly pending: WritableSignal<unknown>;
+  readonly context: WrTableEditCellContext;
+}
+
+/**
+ * What an editor's first focus lands on. Not `wrGetFocusableElements`: that one
+ * drops an element with no box, and the editor may not be laid out yet.
+ */
+const EDITOR_FOCUSABLE = [
+  'input:not([disabled]):not([type="hidden"])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  'button:not([disabled])',
+  'a[href]',
+  '[contenteditable]:not([contenteditable="false"])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(', ');
+
+/**
  * Instance counter for the ids the row controls are named through. Counted, not
  * `wrRandomId()`, so the prerendered `aria-labelledby` is the one the browser
  * renders again — the same reason `wr-tabs` and `wr-mention` count.
@@ -125,10 +211,15 @@ const ROW_CLICK_IGNORE = [
   '[contenteditable]:not([contenteditable="false"])',
   'label',
   '[wrTableIgnoreRowClick]',
+  '.wr-table__td--editing',
   // A near miss around the row's own checkbox or toggle is not a row click.
   '.wr-table__td--select',
   '.wr-table__td--expand',
 ].join(', ');
+
+function sameList(a: readonly unknown[], b: readonly unknown[]): boolean {
+  return a.length === b.length && a.every((value, i) => Object.is(value, b[i]));
+}
 
 /** A missing cell value: `null`, `undefined` or `''`. `0` and `false` are values. */
 function noValue(value: unknown): value is null | undefined | '' {
@@ -223,6 +314,7 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
     '[class.wr-table--fill]': 'fillsParent()',
     '[class.wr-table--overflow-start]': 'overflow().start',
     '[class.wr-table--overflow-end]': 'overflow().end',
+    '[class.wr-table--selection-bar]': 'selectionBar() !== null',
     // The rows under the veil are stale while a load is in flight, and nothing
     // said so: the veil marked itself, not the table it covers. Same pairing as
     // `wr-card` — mark busy, don't block (the veil is `pointer-events: none`).
@@ -236,6 +328,7 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
     NgTemplateOutlet,
     CdkDropList,
     CdkDrag,
+    WrButton,
     WrCheckbox,
     WrPagination,
     WrPopover,
@@ -311,6 +404,24 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * listed, and updates this on drag. Bind it to persist a user's arrangement.
    */
   readonly columnOrder = model<readonly string[]>([]);
+
+  /**
+   * Two-way bindable hidden columns, an array of column keys. A hidden column
+   * renders nothing: no header, no cell, no summary, no `<col>`. Its sort and
+   * its filter selection stay as they are, and `toCsv()` leaves it out. A
+   * column with `hideable: false` is shown whatever this lists, and so is the
+   * first column when the list would leave none. Bind it beside `columnOrder`
+   * to persist a user's arrangement.
+   */
+  readonly hiddenColumns = model<readonly string[]>([]);
+
+  /**
+   * Show a toolbar above the table with a button that opens the column
+   * chooser: one checkbox per column, in column order, named by the column's
+   * title. A `hideable: false` column and the last visible one cannot be
+   * unchecked. Each toggle writes `hiddenColumns`. @default false
+   */
+  readonly columnChooser = input(false, { transform: coerceBooleanProperty });
 
   /**
    * Row selection with a leading checkbox column — `'multiple'` adds a
@@ -497,6 +608,18 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   /** Accessible name of the loading overlay or bar. Falls back to `table.loading`. */
   readonly loadingLabel = input<string | null>(null);
 
+  /**
+   * Text of the selection bar's count, with `{{count}}` where the number goes.
+   * Falls back to `table.selected`.
+   */
+  readonly selectedLabel = input<string | null>(null);
+
+  /** Text of the selection bar's clear button. Falls back to `table.clearSelection`. */
+  readonly clearSelectionLabel = input<string | null>(null);
+
+  /** Text of the column chooser's button and name of its panel. Falls back to `table.columns`. */
+  readonly columnsLabel = input<string | null>(null);
+
   protected readonly resolvedEmptyLabel = useI18nText(this.emptyLabel, 'table.empty', 'No data');
   /**
    * The loading overlay was a bare spinner in a `<div>` — a busy state with no
@@ -505,6 +628,13 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * never read.
    */
   protected readonly resolvedLoadingLabel = useI18nText(this.loadingLabel, 'table.loading', 'Loading…');
+  protected readonly resolvedColumnsLabel = useI18nText(this.columnsLabel, 'table.columns', 'Columns');
+  protected readonly resolvedClearSelectionLabel = useI18nText(
+    this.clearSelectionLabel,
+    'table.clearSelection',
+    'Clear selection'
+  );
+  private readonly selectedText = useI18nFormatter('table.selected', '{{count}} selected');
   private readonly sortText = useI18nFormatter('table.sort', 'Sort {{column}}');
 
   /**
@@ -596,6 +726,82 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
 
   /** Fires whenever a column's filter selection changes. */
   readonly filterChange = output<WrTableFilterChange>();
+
+  /**
+   * Restores the table in one write: the sort, each column's filter selection,
+   * the page, the page size, the column order and the hidden columns. A saved
+   * view binds here. It is applied when the bound object changes, so hand it a
+   * new object to restore the same view a second time; a key left out keeps
+   * what the table has. The models it writes fire their own `*Change`, and
+   * `pageSizeChange` fires for a new size; `filterChange` and `stateChange` do
+   * not, since the host already holds what it restored. Pairs with
+   * `stateChange` as `[(state)]`.
+   * @default null
+   */
+  readonly state = input<Partial<WrTableState> | null>(null);
+
+  /**
+   * Fires with the whole state after a change the reader makes: a sort, a
+   * filter, a page, a page size, a column drag, a column shown or hidden. One
+   * action is one event, so a new page size that also moves the page fires
+   * once. A write from the host, through `state` or a model, does not fire.
+   */
+  readonly stateChange = output<WrTableState>();
+
+  /** Bumped by every reader action `stateChange` reports. */
+  private readonly readerChanges = signal(0);
+
+  /** The last state emitted, which comes straight back under `[(state)]`. */
+  private emittedState: WrTableState | null = null;
+
+  private currentState(): WrTableState {
+    const filters: Record<string, readonly unknown[]> = {};
+    for (const [key, column] of Object.entries(this.columns())) {
+      const selected = column.filterItems?.filter(item => item.selected).map(item => item.value);
+      if (selected?.length) filters[key] = selected;
+    }
+    return {
+      sort: this.sort(),
+      filters,
+      page: this.page(),
+      pageSize: this.currentPageSize(),
+      columnOrder: this.columnOrder(),
+      hiddenColumns: this.hiddenColumns(),
+    };
+  }
+
+  private restoreState(state: Partial<WrTableState>): void {
+    const { sort, filters, page, pageSize, columnOrder, hiddenColumns } = state;
+    if (
+      sort &&
+      !(
+        sort.length === this.sort().length &&
+        sort.every((entry, i) => entry.key === this.sort()[i].key && entry.direction === this.sort()[i].direction)
+      )
+    ) {
+      this.sort.set(sort);
+    }
+    if (columnOrder && !sameList(columnOrder, this.columnOrder())) this.columnOrder.set(columnOrder);
+    if (hiddenColumns && !sameList(hiddenColumns, this.hiddenColumns())) this.hiddenColumns.set(hiddenColumns);
+    if (pageSize !== undefined && pageSize !== this.currentPageSize()) {
+      this.currentPageSize.set(pageSize);
+      this.pageSizeChange.emit(pageSize);
+    }
+    if (page !== undefined && page !== this.page()) this.page.set(page);
+    if (filters) {
+      let changed = false;
+      for (const [key, column] of Object.entries(this.columns())) {
+        const wanted = new Set(filters[key] ?? []);
+        for (const item of column.filterItems ?? []) {
+          const selected = wanted.has(item.value);
+          if (!!item.selected === selected) continue;
+          item.selected = selected;
+          changed = true;
+        }
+      }
+      if (changed) markFilterSelectionChanged();
+    }
+  }
 
   /**
    * Fires when a body row is clicked, with the row, its index in `items` and the
@@ -773,6 +979,12 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     this.currentPageSize.set(size);
     this.page.set(Math.floor(firstRow / size) + 1);
     this.pageSizeChange.emit(size);
+    this.readerChanges.update(n => n + 1);
+  }
+
+  protected onPagerPage(page: number): void {
+    this.page.set(page);
+    this.readerChanges.update(n => n + 1);
   }
 
   /**
@@ -785,6 +997,15 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   protected readonly cellMap = computed(() => {
     const map = new Map<string, TemplateRef<WrTableCellContext>>();
     for (const cell of this.cellTemplates()) map.set(cell.columnKey(), cell.template);
+    return map;
+  });
+
+  private readonly editTemplates = contentChildren<WrTableEditCell<Record<string, unknown>>>(WrTableEditCell);
+
+  /** Map of column key → editor template (if provided via `[wrTableEditCell]`). */
+  private readonly editMap = computed(() => {
+    const map = new Map<string, TemplateRef<WrTableEditCellContext>>();
+    for (const cell of this.editTemplates()) map.set(cell.columnKey(), cell.template);
     return map;
   });
 
@@ -809,11 +1030,10 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   /**
-   * Columns in render order — declaration order, overridden by `columnOrder`
-   * once reordered; new keys append, removed keys drop out. Pin and resize
-   * measurement key off this, so it must equal the rendered order.
+   * Every column in order, hidden ones included — declaration order, overridden
+   * by `columnOrder` once reordered; new keys append, removed keys drop out.
    */
-  protected readonly displayColumns = computed<readonly { key: string; column: WrTableColumn<T> }[]>(() => {
+  private readonly orderedColumns = computed<readonly { key: string; column: WrTableColumn<T> }[]>(() => {
     const cols = this.columns();
     const seen = new Set<string>();
     const result: { key: string; column: WrTableColumn<T> }[] = [];
@@ -831,6 +1051,44 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     }
     return result;
   });
+
+  /**
+   * Columns in render order: {@link orderedColumns} less `hiddenColumns`. Pin
+   * and resize measurement key off this, so it must equal the rendered order.
+   * The same array as `orderedColumns()` while nothing is hidden.
+   */
+  protected readonly displayColumns = computed<readonly { key: string; column: WrTableColumn<T> }[]>(() => {
+    const ordered = this.orderedColumns();
+    const hidden = new Set(this.hiddenColumns());
+    if (hidden.size === 0) return ordered;
+    const shown = ordered.filter(c => c.column.hideable === false || !hidden.has(c.key));
+    if (shown.length === ordered.length) return ordered;
+    // A table with columns always draws one.
+    return shown.length > 0 ? shown : ordered.slice(0, 1);
+  });
+
+  /** One row of the column chooser per column, hidden ones included. */
+  protected readonly chooserColumns = computed(() => {
+    const shown = new Set(this.displayColumns().map(c => c.key));
+    return this.orderedColumns().map(({ key, column }) => {
+      const visible = shown.has(key);
+      return {
+        key,
+        title: column.title || (column.headerHint ?? key),
+        visible,
+        locked: column.hideable === false || (visible && shown.size === 1),
+      };
+    });
+  });
+
+  protected setColumnVisible(key: string, visible: boolean): void {
+    const shown = this.displayColumns();
+    if (visible === shown.some(c => c.key === key)) return;
+    if (!visible && shown.length === 1) return;
+    const hidden = this.hiddenColumns().filter(k => k !== key);
+    this.hiddenColumns.set(visible ? hidden : [...hidden, key]);
+    this.readerChanges.update(n => n + 1);
+  }
 
   /**
    * Sticky offsets for pinned columns, measured from the header cells so any
@@ -890,12 +1148,58 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         { injector: this.injector }
       );
     });
+    // An edit whose cell left the screen ends. A row the virtual window
+    // dropped still commits, like any other way of leaving the cell; a row or
+    // a column that is gone has nothing to commit to.
+    effect(() => {
+      const edit = this.editing();
+      if (!edit) return;
+      const column = this.cellColumns().some(c => c.key === edit.key && c.editTemplate);
+      if (column && this.dataRows().some(entry => entry.row === edit.row)) return;
+      const windowed = column && this.renderRows().some(entry => entry.kind === 'row' && entry.row === edit.row);
+      untracked(() => this.endEdit(windowed, 'inside'));
+    });
+    effect(() => {
+      this.sort();
+      untracked(() => this.endEdit(false, 'inside'));
+    });
+    // Capture-phase and on the document: the click that leaves the cell may
+    // land on something that stops it.
+    effect(onCleanup => {
+      const edit = this.editing();
+      if (!edit || !isPlatformBrowser(this.platformId)) return;
+      const doc = this.hostEl.nativeElement.ownerDocument;
+      const inside = (target: EventTarget | null): boolean =>
+        target instanceof Node &&
+        (edit.td.contains(target) || (target instanceof Element && !!target.closest('.cdk-overlay-container')));
+      // A press that started in the editor and ended outside (a text
+      // selection dragged past the cell) is not a click outside.
+      let pressedInside: boolean | null = null;
+      const onPress = (event: Event): void => {
+        pressedInside = inside(event.target);
+      };
+      const onClick = (event: Event): void => {
+        const within = pressedInside ?? inside(event.target);
+        pressedInside = null;
+        if (!within) this.endEdit(true, false);
+      };
+      doc.addEventListener('pointerdown', onPress, true);
+      doc.addEventListener('click', onClick, true);
+      onCleanup(() => {
+        doc.removeEventListener('pointerdown', onPress, true);
+        doc.removeEventListener('click', onClick, true);
+      });
+    });
     if (typeof ngDevMode === 'undefined' || ngDevMode) {
       afterNextRender(() => {
         const claimed = new Set<unknown>(
-          [...this.cellTemplates(), this.expandTpl(), this.groupTpl()].map(
-            (dir): unknown => dir?.template.elementRef.nativeElement
-          )
+          [
+            ...this.cellTemplates(),
+            ...this.editTemplates(),
+            this.expandTpl(),
+            this.groupTpl(),
+            this.selectionBarTpl(),
+          ].map((dir): unknown => dir?.template.elementRef.nativeElement)
         );
         // The content is never projected, so its anchors stay out of the DOM.
         // An anchor inside the host belongs to a view the table rendered.
@@ -908,7 +1212,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         // eslint-disable-next-line no-console -- dev-mode validation
         console.warn(
           `[NGWR] <wr-table>: ${stray} of ${declared.length} projected <ng-template>(s) registered with no table directive and will be ignored. ` +
-            'Import `WrTableCell` (or `WrTableExpand` / `WrTableGroupHeader`) beside `WrTable` in the component that declares the template.'
+            'Import `WrTableCell` (or `WrTableEditCell` / `WrTableExpand` / `WrTableGroupHeader` / `WrTableSelectionBar`) beside `WrTable` in the component that declares the template.'
         );
       });
     }
@@ -942,6 +1246,50 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       });
     }
 
+    // One `stateChange` per pass, however many parts one action wrote.
+    effect(() => {
+      if (this.readerChanges() === 0) return;
+      untracked(() => {
+        this.emittedState = this.currentState();
+        this.stateChange.emit(this.emittedState);
+      });
+    });
+    effect(() => {
+      const state = this.state();
+      if (!state || state === this.emittedState) return;
+      untracked(() => this.restoreState(state));
+    });
+
+    // The bar takes the header's height, which only the browser knows.
+    effect(onCleanup => {
+      const head = this.headEl()?.nativeElement;
+      if (
+        !head ||
+        this.selectionBar() === null ||
+        !isPlatformBrowser(this.platformId) ||
+        typeof ResizeObserver === 'undefined'
+      ) {
+        this.selectionBarHeight.set(null);
+        return;
+      }
+      // A header hidden by card mode measures 0, and the bar keeps its own height.
+      const measure = (): void => this.selectionBarHeight.set(head.offsetHeight > 0 ? head.offsetHeight : null);
+      const observer = new ResizeObserver(measure);
+      observer.observe(head);
+      measure();
+      onCleanup(() => observer.disconnect());
+    });
+
+    // The bar leaves with the last selected row. Focus that was in it would fall
+    // to the document, so it goes to the table instead. This runs before the
+    // view drops the bar, while the bar still holds the focus.
+    effect(() => {
+      if (this.selectionBar() !== null || !isPlatformBrowser(this.platformId)) return;
+      const bar = untracked(this.selectionBarEl)?.nativeElement;
+      if (!bar?.contains(bar.ownerDocument.activeElement)) return;
+      afterNextRender(() => this.focusTable(), { injector: this.injector });
+    });
+
     // Re-measure whenever the columns or their rendered widths change. Tables
     // with no pinned column skip the observer entirely.
     effect(onCleanup => {
@@ -973,6 +1321,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       this.resizeWidths.set(new Map());
       this.fixedLayout.set(false);
       this.virtualFixed.set(false);
+      this.editHold = null;
+      this.editHeld.set(false);
     });
 
     // (A) Virtual activation: freeze the natural column widths BEFORE fixed
@@ -1131,23 +1481,69 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     this.pins.set({ left, right, leftEdge, rightEdge });
   }
 
-  /**
-   * Sticky `inset-inline-start` offset (px) for a `pin: 'left'` column, else `null`.
-   *
-   * The input keeps its physical name — it is public API — but the offset it
-   * produces is LOGICAL. `measurePins()` accumulates in DOM order, which is
-   * start-to-end semantics, and under `dir="rtl"` the column order mirrors: a
-   * `pin: 'left'` column then sits at the physical right, where a `left: 0`
-   * sticky inset can never catch it and the column just scrolls away.
-   */
-  protected leftPin(key: string): number | null {
-    return this.pins().left.get(key) ?? null;
-  }
+  /** Per column key. Rebuilt with the columns and the cell templates, never on a pin measurement, a resize or a hidden column. */
+  private readonly cellContexts = computed(() => {
+    this.cellMap();
+    return new Map(
+      this.orderedColumns().map(c => [c.key, new WeakMap<Record<string, unknown>, WrTableCellContext>()] as const)
+    );
+  });
 
-  /** Sticky `inset-inline-end` offset (px) for a `pin: 'right'` column, else `null`. See {@link leftPin}. */
-  protected rightPin(key: string): number | null {
-    return this.pins().right.get(key) ?? null;
-  }
+  /**
+   * {@link displayColumns} with the per-column half of every cell resolved
+   * once. Apart from `displayColumns` because the pin effect reads that one
+   * and writes `pins`, which this reads.
+   *
+   * `pin` keeps its physical name — it is public API — but the offsets are
+   * LOGICAL. `measurePins()` accumulates in DOM order, which is start-to-end
+   * semantics, and under `dir="rtl"` the column order mirrors: a `pin: 'left'`
+   * column then sits at the physical right, where a `left: 0` sticky inset can
+   * never catch it and the column just scrolls away.
+   *
+   * The class strings are the BEM class and the consumer's own, merged. One
+   * binding rather than a static `class` beside a `[class]` — Angular does
+   * merge the two, but `no-duplicate-attributes` refuses the shape, and a
+   * reader should not have to know the merge rules to know what a cell ends up
+   * with. The summary and group-footer cells take `align` only, on the body
+   * cell's modifier, the way they already wear `__td--pin-*`: `column.class`
+   * stays off them, as its docs say.
+   */
+  protected readonly cellColumns = computed<readonly CellColumn<T>[]>(() => {
+    const contexts = this.cellContexts();
+    const pins = this.pins();
+    const resized = this.resizeWidths();
+    const templates = this.cellMap();
+    const editors = this.editMap();
+    const tableTruncate = this.truncate();
+    const labelKey = this.labelColumnKey();
+    const treeKey = this.treeColumnKey();
+    return this.displayColumns().map(({ key, column }) => {
+      const { align, pin } = column;
+      const truncates = (column.truncate === undefined ? tableTruncate : column.truncate) === 'tooltip';
+      const tdClass = cellClasses('wr-table__td', column);
+      return {
+        key,
+        column,
+        thClass: cellClasses('wr-table__th', column),
+        tdClass: truncates ? `${tdClass} wr-table__td--truncate` : tdClass,
+        footClass: align ? `wr-table__foot-cell wr-table__td--align-${align}` : 'wr-table__foot-cell',
+        pinned: !!pin,
+        pinLeft: pin === 'left',
+        pinRight: pin === 'right',
+        edgeLeft: pins.leftEdge === key,
+        edgeRight: pins.rightEdge === key,
+        start: pins.left.get(key) ?? null,
+        end: pins.right.get(key) ?? null,
+        width: resized.get(key) ?? column.width ?? null,
+        maxWidth: truncates ? (column.width ?? null) : null,
+        label: key === labelKey,
+        tree: key === treeKey,
+        template: templates.get(key),
+        editTemplate: column.editable === false ? undefined : editors.get(key),
+        contexts: contexts.get(key)!,
+      };
+    });
+  });
 
   private readonly hasPins = computed<boolean>(() => this.displayColumns().some(c => c.column.pin));
 
@@ -1157,31 +1553,6 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * a pinned column measures it.
    */
   protected readonly overflow = signal<{ start: boolean; end: boolean }>({ start: false, end: false });
-
-  /** Whether `key` is the inner-edge pinned column on `side` (carries the shadow). */
-  protected isPinEdge(key: string, side: 'left' | 'right'): boolean {
-    return (side === 'left' ? this.pins().leftEdge : this.pins().rightEdge) === key;
-  }
-
-  /**
-   * The BEM class and the consumer's own, merged into one string.
-   *
-   * One binding rather than a static `class` beside a `[class]` — Angular does
-   * merge the two, but `no-duplicate-attributes` refuses the shape, and a reader
-   * should not have to know the merge rules to know what a cell ends up with.
-   * Each returns the shared constant untouched when the column sets neither
-   * `align` nor `class`, so a table without these hooks allocates nothing per
-   * cell.
-   */
-  protected thClasses(column: WrTableColumn<T>): string {
-    return cellClasses('wr-table__th', column);
-  }
-
-  /** Body-cell half of {@link thClasses}, with the `truncate` modifier. */
-  protected tdClasses(column: WrTableColumn<T>): string {
-    const own = cellClasses('wr-table__td', column);
-    return this.truncates(column) ? `${own} wr-table__td--truncate` : own;
-  }
 
   // --- Header hints and truncated cells --------------------------------------
 
@@ -1195,11 +1566,6 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * @default null
    */
   readonly truncate = input<WrTableTruncate | null>(null);
-
-  /** Whether a column's cells are cut to one line. */
-  protected truncates(column: WrTableColumn<T>): boolean {
-    return (column.truncate === undefined ? this.truncate() : column.truncate) === 'tooltip';
-  }
 
   /**
    * A column's name for its controls: the title, the hint after it, or the hint
@@ -1250,16 +1616,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     }
   }
 
-  /**
-   * Summary and group-footer half of {@link thClasses}: `align` only, on the
-   * body cell's modifier, the way those cells already wear `__td--pin-*`.
-   * `column.class` stays off them, as its docs say.
-   */
-  protected footClasses(column: WrTableColumn<T>): string {
-    return column.align ? `wr-table__foot-cell wr-table__td--align-${column.align}` : 'wr-table__foot-cell';
-  }
-
-  /** Row half of {@link thClasses}, resolved through the `rowClass` predicate. */
+  /** The row's class with the consumer's own, resolved through the `rowClass` predicate. */
   protected rowClasses(row: Record<string, unknown>, index: number): string {
     const extra = this.rowClass()?.(row, index);
     return extra ? wrToClassList('wr-table__tr', extra).join(' ') : 'wr-table__tr';
@@ -1279,9 +1636,27 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    */
   protected readonly fixedLayout = signal(false);
 
-  /** Current width (px) for a column, or `null` for auto — a live resize wins. */
-  protected colWidth(key: string): number | null {
-    return this.resizeWidths().get(key) ?? this.columns()[key]?.width ?? null;
+  /**
+   * Fixed layout held only while a cell edits, so an editor of another width
+   * cannot move the columns. `editHold` keeps the widths in force before it, to
+   * put back when the edit ends.
+   */
+  protected readonly editHeld = signal(false);
+  private editHold: ReadonlyMap<string, number> | null = null;
+
+  private holdWidthsForEdit(): void {
+    if (this.fixedLayoutActive() || !isPlatformBrowser(this.platformId)) return;
+    this.editHold = this.resizeWidths();
+    this.freezeColumnWidths();
+    this.editHeld.set(true);
+  }
+
+  private releaseEditHold(): void {
+    if (!this.editHeld()) return;
+    this.editHeld.set(false);
+    // A resize that began during the edit made the layout fixed for good: its widths stay.
+    if (this.editHold && !this.fixedLayout()) this.resizeWidths.set(this.editHold);
+    this.editHold = null;
   }
 
   /** Freeze every column at its current rendered header width (skips frozen keys). */
@@ -1430,7 +1805,9 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   });
 
   /** Fixed layout is on when a resize drag latched it OR virtualization forces it. */
-  protected readonly fixedLayoutActive = computed<boolean>(() => this.fixedLayout() || this.virtualFixed());
+  protected readonly fixedLayoutActive = computed<boolean>(
+    () => this.fixedLayout() || this.virtualFixed() || this.editHeld()
+  );
 
   /** Scroll a flat row index to the top of the virtual viewport. No-op on the server / when not virtual. */
   scrollToRow(index: number, behavior: ScrollBehavior = 'auto'): void {
@@ -1440,9 +1817,14 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
 
   protected onColumnDrop(event: CdkDragDrop<unknown>): void {
     if (event.previousIndex === event.currentIndex) return;
-    const order = this.displayColumns().map(c => c.key);
-    moveItemInArray(order, event.previousIndex, event.currentIndex);
-    this.columnOrder.set(order);
+    const shown = this.displayColumns().map(c => c.key);
+    const slots = new Set(shown);
+    moveItemInArray(shown, event.previousIndex, event.currentIndex);
+    // A hidden column keeps its place: the visible ones are dealt back into
+    // the slots they held.
+    let next = 0;
+    this.columnOrder.set(this.orderedColumns().map(c => (slots.has(c.key) ? shown[next++] : c.key)));
+    this.readerChanges.update(n => n + 1);
   }
 
   /**
@@ -1559,6 +1941,53 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     this.applySelection(this.selectAllKeys(), checked);
   }
 
+  // --- Selection bar ---------------------------------------------------------
+
+  private readonly selectionBarTpl = contentChild(WrTableSelectionBar);
+  private readonly selectionBarEl = viewChild<ElementRef<HTMLElement>>('selectionBarEl');
+
+  /** Whether a `[wrTableSelectionBar]` template was projected. */
+  protected readonly hasSelectionBar = computed<boolean>(() => !!this.selectionBarTpl());
+
+  /** The bar's template while rows are selected, `null` while the bar is away. */
+  protected readonly selectionBar = computed<TemplateRef<WrTableSelectionContext> | null>(() =>
+    this.selection().length > 0 ? (this.selectionBarTpl()?.template ?? null) : null
+  );
+
+  /** The header's measured height in px for the bar to match; `null` until measured. */
+  protected readonly selectionBarHeight = signal<number | null>(null);
+
+  protected readonly selectionCountText = computed<string>(() => {
+    const count = this.selection().length;
+    const own = this.selectedLabel();
+    return own === null ? this.selectedText({ count }) : own.replace(/\{\{\s*count\s*\}\}/g, String(count));
+  });
+
+  protected readonly selectionContext = computed<WrTableSelectionContext>(() => ({
+    $implicit: this.selectedRows(),
+    count: this.selection().length,
+    clear: () => this.clearSelection(),
+    scope: this.selectAllScope() === 'all' && this.total() === null ? 'all' : 'page',
+  }));
+
+  /**
+   * Empty the selection. When the focus is in the selection bar, which leaves
+   * with the last selected row, it moves to the table.
+   */
+  clearSelection(): void {
+    this.selection.set([]);
+  }
+
+  /** Focus the first control of the table: a selection checkbox, else the scroll area. */
+  private focusTable(): void {
+    const host = this.hostEl.nativeElement;
+    const target =
+      host.querySelector<HTMLElement>(
+        '.wr-table__th--select input:not(:disabled), .wr-table__td--select input:not(:disabled)'
+      ) ?? this.scrollEl()?.nativeElement;
+    target?.focus();
+  }
+
   // --- Row expansion --------------------------------------------------------
 
   private readonly expandTpl = contentChild(WrTableExpand);
@@ -1575,9 +2004,13 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   protected readonly expandable = computed<boolean>(() => !this.treeMode() && !!this.expandTpl());
 
   /** The column that carries the indent + toggle — named, else whichever renders first. */
-  protected readonly treeColumnKey = computed<string | null>(() =>
-    this.treeMode() ? (this.treeColumn() ?? this.displayColumns()[0]?.key ?? null) : null
-  );
+  protected readonly treeColumnKey = computed<string | null>(() => {
+    if (!this.treeMode()) return null;
+    const shown = this.displayColumns();
+    const named = this.treeColumn();
+    // A hidden tree column hands the toggle to the first one drawn.
+    return named !== null && shown.some(c => c.key === named) ? named : (shown[0]?.key ?? null);
+  });
 
   /** This row's children, whatever shape `childrenKey` names. */
   private childrenOf(row: Record<string, unknown>): readonly Record<string, unknown>[] {
@@ -1822,6 +2255,266 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     this.rowEls()[index]?.nativeElement.focus();
   }
 
+  // --- Inline editing ---------------------------------------------------------
+  //
+  // An edit template turns the table into a `grid` (a tree stays a `treegrid`):
+  // one data cell holds the tab stop, the arrows, Home and End move between the
+  // rendered data cells, and Enter, F2, a double click or a typed character put
+  // an editable cell's editor in its place. The header, the selection boxes and
+  // a cell template's own controls keep their tab stops, as the tree rows do.
+
+  /**
+   * Vetoes the edit of single cells: called with the row and the column key,
+   * `false` keeps that cell read-only. Asked only for a column that has a
+   * `[wrTableEditCell]` template and does not say `editable: false`.
+   */
+  readonly editable = input<WrTableEditable<T> | null>(null);
+
+  /**
+   * Emits when a cell edit commits with a value other than the cell's own. The
+   * table does not write it: update the data behind `items` in the handler.
+   */
+  readonly cellEdit = output<WrTableCellEdit<T>>();
+
+  /** The edit in flight. One cell edits at a time. */
+  protected readonly editing = signal<CellEdit | null>(null);
+
+  /** Whether any column has an editor: the table is then a grid of focusable cells. */
+  protected readonly editGrid = computed<boolean>(() => {
+    const editors = this.editMap();
+    return editors.size > 0 && this.orderedColumns().some(c => c.column.editable !== false && editors.has(c.key));
+  });
+
+  /** The rendered data rows, 1:1 with {@link rowEls}. */
+  private readonly dataRows = computed<readonly Extract<RenderRow, { kind: 'row' }>[]>(() =>
+    this.windowRows().filter((entry): entry is Extract<RenderRow, { kind: 'row' }> => entry.kind === 'row')
+  );
+
+  /** The cell the keyboard last stood on, by `rowKey` and column key. */
+  private readonly activeCell = signal<{ readonly row: unknown; readonly key: string } | null>(null);
+
+  /**
+   * The grid's one tab stop: the active cell while it is on screen, else the
+   * first data cell. `null` in a tree, where the row holds the tab stop.
+   */
+  private readonly tabStopCell = computed<{ readonly id: string; readonly key: string } | null>(() => {
+    if (!this.editGrid() || this.treeMode()) return null;
+    const rows = this.dataRows();
+    const columns = this.cellColumns();
+    const active = this.activeCell();
+    if (active && columns.some(c => c.key === active.key)) {
+      const hit = rows.find(entry => this.rowKeyOf(entry.row) === active.row);
+      if (hit) return { id: hit.id, key: active.key };
+    }
+    return rows.length && columns.length ? { id: rows[0].id, key: columns[0].key } : null;
+  });
+
+  protected cellEditable(row: Record<string, unknown>, col: CellColumn<T>): boolean {
+    return !!col.editTemplate && (this.editable()?.(row as T, col.key) ?? true);
+  }
+
+  /**
+   * A data cell's `tabindex` in an editable table. In a tree the tab-stop
+   * row's editable cells are tab stops, so Tab walks from the row into them.
+   */
+  protected cellTabindex(entry: Extract<RenderRow, { kind: 'row' }>, col: CellColumn<T>): 0 | -1 {
+    if (this.treeMode()) return entry.id === this.tabStopRowId() && this.cellEditable(entry.row, col) ? 0 : -1;
+    const stop = this.tabStopCell();
+    return stop?.id === entry.id && stop.key === col.key ? 0 : -1;
+  }
+
+  /** The data cell an event came from, with its row and column. */
+  private cellAt(
+    target: EventTarget | null
+  ): { td: HTMLTableCellElement; row: Record<string, unknown>; col: CellColumn<T> } | null {
+    const td = target instanceof Element ? target.closest<HTMLTableCellElement>('.wr-table__td') : null;
+    // A table nested in a cell answers for its own cells.
+    if (td?.closest('.wr-table') !== this.hostEl.nativeElement) return null;
+    const index = this.rowEls().findIndex(el => el.nativeElement === td.parentElement);
+    const entry = this.dataRows()[index];
+    const col = this.cellColumns()[td.cellIndex - this.leadingCols()];
+    return entry && col ? { td, row: entry.row, col } : null;
+  }
+
+  protected onCellFocusin(event: FocusEvent): void {
+    if (!this.editGrid()) return;
+    const cell = this.cellAt(event.target);
+    if (cell) this.activeCell.set({ row: this.rowKeyOf(cell.row), key: cell.col.key });
+  }
+
+  protected onCellDblclick(event: MouseEvent): void {
+    if (!this.editGrid()) return;
+    const cell = this.cellAt(event.target);
+    if (cell) this.startEdit(cell.row, cell.col, cell.td);
+  }
+
+  protected onCellKeydown(event: KeyboardEvent): void {
+    if (!this.editGrid() || event.defaultPrevented || wrIsComposing(event)) return;
+    const edit = this.editing();
+    if (edit) {
+      if (edit.td.contains(event.target as Node)) this.onEditorKeydown(event, edit);
+      return;
+    }
+    // Only a key pressed on the cell itself: one pressed in a control a cell
+    // template drew belongs to that control.
+    const cell = (event.target as Element).classList.contains('wr-table__td') ? this.cellAt(event.target) : null;
+    if (!cell || event.altKey || event.metaKey) return;
+    const key = this.inlineKey(event.key);
+    const plain = !event.ctrlKey && !event.shiftKey;
+    if (plain && (key === WR_KEYS.ENTER || key === 'F2')) {
+      if (!this.startEdit(cell.row, cell.col, cell.td)) return;
+    } else if (key !== WR_KEYS.SPACE && wrIsPrintableKey(event)) {
+      if (!this.startEdit(cell.row, cell.col, cell.td, event.key)) return;
+    } else if (event.shiftKey || !this.moveCellFocus(cell.td, key, event.ctrlKey)) {
+      return;
+    }
+    event.preventDefault();
+  }
+
+  /** Arrow, Home and End on a focused cell. Ctrl is the first or last row's chord. */
+  private moveCellFocus(td: HTMLTableCellElement, key: string, ctrl: boolean): boolean {
+    if (ctrl && key !== WR_KEYS.HOME && key !== WR_KEYS.END) return false;
+    const rows = this.rowEls().map(el => el.nativeElement);
+    const tr = td.parentElement as HTMLTableRowElement;
+    const row = rows.indexOf(tr);
+    const first = this.leadingCols();
+    const last = tr.cells.length - 1;
+    let target: HTMLElement | undefined;
+    switch (key) {
+      case WR_KEYS.ARROW_RIGHT:
+        target = tr.cells[Math.min(td.cellIndex + 1, last)];
+        break;
+      case WR_KEYS.ARROW_LEFT:
+        target = tr.cells[Math.max(td.cellIndex - 1, first)];
+        break;
+      case WR_KEYS.ARROW_DOWN:
+        target = rows[row + 1]?.cells[td.cellIndex];
+        break;
+      case WR_KEYS.ARROW_UP:
+        target = rows[row - 1]?.cells[td.cellIndex];
+        break;
+      case WR_KEYS.HOME:
+        target = (ctrl ? rows[0] : tr).cells[first];
+        break;
+      case WR_KEYS.END:
+        target = (ctrl ? rows[rows.length - 1] : tr).cells[last];
+        break;
+      default:
+        return false;
+    }
+    target?.focus();
+    return true;
+  }
+
+  private onEditorKeydown(event: KeyboardEvent, edit: CellEdit): void {
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+    const target = event.target as HTMLElement;
+    // Escape and Enter go to the editor's open popup first (a select's panel).
+    const popup = event.key !== WR_KEYS.TAB && !!target.closest('[aria-expanded="true"]');
+    if (popup) return;
+    if (event.key === WR_KEYS.ESCAPE) {
+      this.endEdit(false, true);
+    } else if (event.key === WR_KEYS.ENTER) {
+      // Enter is a line break in a multi-line editor.
+      if (event.shiftKey || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+      this.endEdit(true, true);
+    } else if (event.key === WR_KEYS.TAB) {
+      this.endEdit(true, true);
+      this.editableSibling(edit, event.shiftKey ? -1 : 1)?.focus();
+    } else {
+      return;
+    }
+    event.preventDefault();
+    // An Escape that ended the edit must not also close the dialog around the table.
+    event.stopPropagation();
+  }
+
+  /** The next or previous editable cell of the edited row. */
+  private editableSibling(edit: CellEdit, step: 1 | -1): HTMLElement | undefined {
+    const columns = this.cellColumns();
+    const tr = edit.td.parentElement as HTMLTableRowElement;
+    let index = columns.findIndex(c => c.key === edit.key) + step;
+    while (columns[index] && !this.cellEditable(edit.row, columns[index])) index += step;
+    return columns[index] ? tr.cells[index + this.leadingCols()] : undefined;
+  }
+
+  /**
+   * Put a cell's editor in its place and move focus into it. `typed` is the
+   * character that started the edit: it replaces the content of a text field.
+   */
+  private startEdit(row: Record<string, unknown>, col: CellColumn<T>, td: HTMLElement, typed?: string): boolean {
+    if (!this.cellEditable(row, col)) return false;
+    const current = untracked(this.editing);
+    if (current?.row === row && current.key === col.key) return true;
+    this.endEdit(true, false);
+    this.holdWidthsForEdit();
+    const previous = row[col.key];
+    const pending = signal(previous);
+    const live = (): boolean => untracked(this.editing) === edit;
+    const edit: CellEdit = {
+      row,
+      key: col.key,
+      td,
+      previous,
+      pending,
+      context: {
+        get $implicit(): unknown {
+          return pending();
+        },
+        row,
+        column: col.column as WrTableEditCellContext['column'],
+        set: value => pending.set(value),
+        commit: value => {
+          if (!live()) return;
+          pending.set(value);
+          this.endEdit(true, true, false);
+        },
+        cancel: () => {
+          if (live()) this.endEdit(false, true);
+        },
+      },
+    };
+    this.editing.set(edit);
+    afterNextRender(
+      () => {
+        if (!live()) return;
+        const field = td.querySelector<HTMLElement>(EDITOR_FOCUSABLE);
+        field?.focus();
+        if (typed === undefined) return;
+        if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) {
+          field.value = typed;
+          field.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      },
+      { injector: this.injector }
+    );
+    return true;
+  }
+
+  /**
+   * End the edit in flight. `commit` emits `cellEdit` when the pending value
+   * differs from the cell's. `focus` hands focus back to the cell: always, or
+   * (`'inside'`) only when the editor held it. Either way a field that held
+   * focus is blurred first when `flush` is set, for a control that publishes
+   * its value on blur.
+   */
+  private endEdit(commit: boolean, focus: boolean | 'inside', flush = commit): void {
+    const edit = untracked(this.editing);
+    if (!edit) return;
+    const active = edit.td.ownerDocument.activeElement;
+    const held = active instanceof HTMLElement && active !== edit.td && edit.td.contains(active);
+    if (flush && held) active.blur();
+    // The blur may have ended it from the template.
+    if (untracked(this.editing) !== edit) return;
+    this.editing.set(null);
+    this.releaseEditHold();
+    if (focus === 'inside' ? held && edit.td.isConnected : focus) edit.td.focus();
+    const value = untracked(edit.pending);
+    if (commit && !Object.is(value, edit.previous)) {
+      this.cellEdit.emit({ row: edit.row as T, key: edit.key, value, previous: edit.previous });
+    }
+  }
+
   /** Leading control columns — selection + expand. */
   protected readonly leadingCols = computed<number>(() => (this.rowSelection() ? 1 : 0) + (this.expandable() ? 1 : 0));
 
@@ -1844,15 +2537,22 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     this.expanded.set(set.includes(key) ? set.filter(k => k !== key) : [...set, key]);
   }
 
+  private readonly expandContexts = new WeakMap<Record<string, unknown>, WrTableExpandContext>();
+
   protected expandContext(row: Record<string, unknown>): WrTableExpandContext {
-    return { $implicit: row, row };
+    let context = this.expandContexts.get(row);
+    if (!context) {
+      context = { $implicit: row, row };
+      this.expandContexts.set(row, context);
+    }
+    return context;
   }
 
   // --- Summary row ----------------------------------------------------------
 
   /** Whether any column defines a `summary` (so the footer row shows). */
   protected readonly hasSummary = computed<boolean>(() =>
-    Object.values(this.columns()).some(col => col.summary !== undefined)
+    this.displayColumns().some(c => c.column.summary !== undefined)
   );
 
   /** Per-column footer values, computed over `items` (the current page in server mode). */
@@ -2188,14 +2888,21 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     else if (at === -1) list.push({ key, direction: next });
     else list[at] = { key, direction: next };
     this.sort.set(list);
+    this.readerChanges.update(n => n + 1);
   }
 
   protected onFilter(key: string, items: readonly WrTableFilterItem[]): void {
     this.filterChange.emit({ key, items });
+    this.readerChanges.update(n => n + 1);
   }
 
-  protected cellContext(item: Record<string, unknown>, key: string, column: unknown): WrTableCellContext {
-    return { $implicit: item[key], item, column: column as WrTableCellContext['column'] };
+  protected cellContext(item: Record<string, unknown>, col: CellColumn<T>): WrTableCellContext {
+    let context = col.contexts.get(item);
+    if (!context) {
+      context = new CellContext(item, col.column as WrTableCellContext['column'], col.key);
+      col.contexts.set(item, context);
+    }
+    return context;
   }
 
   /**
@@ -2207,9 +2914,5 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     const value = item[key];
     if (noValue(value)) return column.empty ?? '';
     return column.format ? column.format(value, item as T) : value;
-  }
-
-  protected templateFor(key: unknown): TemplateRef<WrTableCellContext> | undefined {
-    return this.cellMap().get(String(key));
   }
 }

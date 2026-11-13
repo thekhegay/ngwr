@@ -75,6 +75,16 @@ export interface WrTableColumn<T extends WrTableRow = WrTableRow> {
    * `'left'` and the rightmost `'right'`; several per side stack in order.
    */
   readonly pin?: 'left' | 'right';
+  /**
+   * `false` keeps the column out of reach of `hiddenColumns`: it is always
+   * shown, and its checkbox in the column chooser is disabled.
+   */
+  readonly hideable?: boolean;
+  /**
+   * `false` keeps the column's cells read-only even with a `[wrTableEditCell]`
+   * template for its key.
+   */
+  readonly editable?: boolean;
   /** Show a drag handle on the header edge to resize the column. */
   readonly resizable?: boolean;
   /** Initial column width in px. Overridden once the user drags to resize. */

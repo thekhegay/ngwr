@@ -49,6 +49,9 @@ export const wrFr: WrI18nCatalog = {
     noMatches: 'Aucun résultat',
     search: 'Rechercher',
     reset: 'Réinitialiser',
+    columns: 'Colonnes',
+    selected: '{{count}} sélectionnées',
+    clearSelection: 'Effacer la sélection',
   },
   eventCalendar: {
     today: "Aujourd'hui",
@@ -109,6 +112,7 @@ export const wrFr: WrI18nCatalog = {
     loadError: 'Impossible de charger les résultats',
     retry: 'Réessayer',
     more: '+{{count}} de plus',
+    selectAll: 'Tout sélectionner',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -119,6 +123,9 @@ export const wrFr: WrI18nCatalog = {
     clearSelection: 'Effacer la sélection',
     removeItem: 'Retirer {{label}}',
     more: '+{{count}} de plus',
+    moveKeyHelp:
+      'Appuyez sur Alt+Entrée pour saisir cet élément, puis déplacez-le avec les touches fléchées. ' +
+      'Appuyez sur Entrée pour le déposer, ou sur Échap pour le remettre à sa place.',
   },
   commandPalette: {
     label: 'Palette de commandes',
@@ -142,6 +149,11 @@ export const wrFr: WrI18nCatalog = {
     unitMb: 'Mo',
     unitGb: 'Go',
     unitTb: 'To',
+    uploading: 'Envoi en cours',
+    uploaded: 'Envoyé',
+    failed: 'Envoi échoué',
+    status: '{{name}}: {{status}}',
+    retry: 'Réessayer',
   },
   popconfirm: {
     label: "Confirmer l'action",
@@ -201,6 +213,8 @@ export const wrFr: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Mois',
     yearList: 'Années',
+    quarterList: 'Trimestres',
+    quarter: 'T{{quarter}}',
     prevYears: '12 années précédentes',
     nextYears: '12 années suivantes',
     header: '{{month}} {{year}}',
@@ -350,6 +364,9 @@ export const wrFr: WrI18nCatalog = {
   alert: {
     close: "Fermer l'alerte",
   },
+  tag: {
+    remove: 'Retirer {{label}}',
+  },
   qr: {
     label: 'Code QR',
   },
@@ -459,6 +476,8 @@ export const wrFr: WrI18nCatalog = {
     panelDateTime: 'Choisir une date et une heure',
     panelRange: 'Choisir une période',
     panelRangeDateTime: 'Choisir une période et des heures',
+    quarterValue: 'T{{quarter}} {{year}}',
+    weekValue: 'Semaine {{week}}, {{year}}',
     rangeStart: 'Début de la période',
     rangeEnd: 'Fin de la période',
     startTime: 'Heure de début',

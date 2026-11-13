@@ -17,11 +17,11 @@ import type { WrCalendarMode } from 'ngwr/calendar';
 export type WrCalendarArrowKey = 'left' | 'right' | 'up' | 'down';
 
 /** Which of the three sub-views the calendar is showing. */
-export type WrCalendarView = 'day' | 'month' | 'year';
+export type WrCalendarView = 'day' | 'month' | 'quarter' | 'year';
 
 /** One month or year chip, as the picker views render them. */
 export interface WrCalendarChip {
-  /** The label as printed — a short month name, or the year. */
+  /** The label as printed: a short month name, a quarter (`Q1`), or the year. */
   readonly label: string;
   /** Whether it is the current selection. */
   readonly selected: boolean;

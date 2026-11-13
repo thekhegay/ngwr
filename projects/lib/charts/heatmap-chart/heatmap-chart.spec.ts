@@ -1,10 +1,9 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, LOCALE_ID, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { compileSass } from '../../spec-sass';
 
 import { WrHeatmapChart } from './heatmap-chart';
 import type { WrHeatmapMatrix } from './types';
@@ -650,15 +649,7 @@ describe('WrHeatmapChart column names', () => {
  * does. That each rule then paints what it says is measured in a browser.
  */
 describe('WrHeatmapChart stylesheet', () => {
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  };
-  const css = sass
-    .compileString(`@use 'charts/heatmap-chart/styles';`, {
-      loadPaths: [join(process.cwd(), 'projects/lib')],
-      style: 'expanded',
-    })
-    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const css = compileSass(`@use 'charts/heatmap-chart/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
   const rule = (selector: string): string =>
     new RegExp(`(?:^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
 

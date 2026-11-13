@@ -36,6 +36,15 @@
   // Zero leading would otherwise shrink the tag 22px -> 21px, so the box is
   // floored explicitly instead of being an accident of the line height.
   --wr-tag-min-height: 1.375rem;
+  // The remove button reads the tag's own colour and radius, so it follows
+  // every variant: contrast on a fill, ink on a tint, round in a pill. Its box
+  // is the tag's content height, 22px less the border and the block padding.
+  --wr-tag-icon-size: 0.875rem;
+  --wr-tag-remove-size: 1rem;
+  --wr-tag-remove-icon-size: 0.75rem;
+  --wr-tag-remove-color: var(--wr-tag-color);
+  --wr-tag-remove-hover-bg: color-mix(in srgb, var(--wr-tag-color) 16%, transparent);
+  --wr-tag-remove-radius: var(--wr-tag-radius);
 
   color: var(--wr-tag-color);
   background: var(--wr-tag-bg);
@@ -56,11 +65,74 @@
     --wr-tag-padding-x: var(--wr-space-md);
   }
 
+  // Sizes. After the shape, and with the pill's wider inline padding restated
+  // per size, so `rounded` keeps its extra step at every size.
+  &--sm,
+  &:where([size='sm']) {
+    --wr-tag-padding-y: 0.0625rem;
+    --wr-tag-padding-x: 0.375rem;
+    --wr-tag-font-size: 0.6875rem; // 11px, a label and not a count, so above the badge's 10px
+    --wr-tag-min-height: 1.25rem;
+    --wr-tag-icon-size: 0.75rem;
+    --wr-tag-remove-size: 0.875rem;
+    --wr-tag-remove-icon-size: 0.625rem;
+
+    &.wr-tag--rounded,
+    &:where([rounded]:not([rounded='false'])) {
+      --wr-tag-padding-x: var(--wr-space-sm);
+    }
+  }
+
+  &--lg,
+  &:where([size='lg']) {
+    --wr-tag-padding-y: 0.25rem;
+    --wr-tag-padding-x: var(--wr-space-md);
+    --wr-tag-font-size: var(--wr-text-base);
+    --wr-tag-min-height: 2rem;
+    --wr-tag-icon-size: 1.125rem;
+    --wr-tag-remove-size: 1.375rem;
+    --wr-tag-remove-icon-size: 1rem;
+
+    &.wr-tag--rounded,
+    &:where([rounded]:not([rounded='false'])) {
+      --wr-tag-padding-x: var(--wr-space-lg);
+    }
+  }
+
   // Icon slot sizing
   &__adornment {
-    --wr-icon-size: 0.875rem;
+    --wr-icon-size: var(--wr-tag-icon-size);
     color: inherit;
     flex: 0 0 auto;
+  }
+
+  &__remove {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    appearance: none;
+    width: var(--wr-tag-remove-size);
+    height: var(--wr-tag-remove-size);
+    // Half the inline padding back, so the ✕ sits as far from the edge as the
+    // label does from the other one, glyph to glyph.
+    margin-inline-end: calc(var(--wr-tag-padding-x) * var(--wr-density-x, 1) * -0.5);
+    padding: 0;
+    border: 0;
+    border-radius: var(--wr-tag-remove-radius);
+    background: transparent;
+    color: var(--wr-tag-remove-color);
+    // The ✕ is a bare `.wr-icon__svg`, which is `1em`, and a `<button>` takes
+    // the browser's control font unless the app resets it.
+    font-size: var(--wr-tag-remove-icon-size);
+    cursor: pointer;
+    transition: background var(--wr-transition-base);
+
+    @include theme.touch-target;
+
+    &:hover {
+      background: var(--wr-tag-remove-hover-bg);
+    }
   }
 
   // Hoverable (used when the tag is interactive)

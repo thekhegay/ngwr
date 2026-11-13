@@ -13,3 +13,24 @@ export interface WrFileUploadRejection {
   readonly file: File;
   readonly reason: WrFileUploadRejectionReason;
 }
+
+/** Size of a `<wr-file-upload>`. */
+export type WrFileUploadSize = 'sm' | 'md' | 'lg';
+
+/** Where the app's own upload of one file stands. */
+export type WrFileUploadState = 'pending' | 'uploading' | 'done' | 'error';
+
+/**
+ * The state of one file, set by the app through `[status]`. The component never
+ * uploads: it draws what it is told.
+ */
+export interface WrFileUploadStatus {
+  readonly state: WrFileUploadState;
+  /** `uploading` only: how far it has got, 0 to 100. Left out, the bar is indeterminate. */
+  readonly percent?: number | null;
+  /** `error` only: what went wrong, in the app's words. Left out, the row says `fileUpload.failed`. */
+  readonly message?: string | null;
+}
+
+/** Per-file upload state, keyed by the `File` objects in `value`. */
+export type WrFileUploadStatusMap = ReadonlyMap<File, WrFileUploadStatus>;

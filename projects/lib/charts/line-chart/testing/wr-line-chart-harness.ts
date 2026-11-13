@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
+import { ComponentHarness, HarnessPredicate, parallel } from '@angular/cdk/testing';
 
 import { WrChartLegendHarness } from 'ngwr/charts/chart-legend/testing';
 
@@ -118,9 +118,14 @@ export class WrLineChartHarness extends ComponentHarness {
     return (await this.locatorForAll('.wr-line-chart__line')()).length;
   }
 
-  /** How many point dots were drawn across every series (`showDots`). */
+  /**
+   * How many point dots were drawn across every series (`showDots`). A series draws its
+   * dots as one path with a subpath each, so this counts subpaths, not elements.
+   */
   async getDotCount(): Promise<number> {
-    return (await this.locatorForAll('.wr-line-chart__dot')()).length;
+    const paths = await this.locatorForAll('.wr-line-chart__dot')();
+    const drawn = await parallel(() => paths.map(path => path.getAttribute('d')));
+    return drawn.reduce((count, d) => count + (d?.match(/M/g)?.length ?? 0), 0);
   }
 
   /**

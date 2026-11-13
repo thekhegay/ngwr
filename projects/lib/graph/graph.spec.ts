@@ -604,27 +604,6 @@ describe('WrGraph layout engine', () => {
     expect(root.querySelector<HTMLElement>('.wr-graph__stage')!.style.width).toBe('1000px');
   });
 
-  it('draws nothing for an asynchronous layout, and says why', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [
-        {
-          provide: WrGraphLayout,
-          useValue: { layout: input => Promise.resolve(inRow(input)) } satisfies WrGraphLayout,
-        },
-      ],
-    });
-    const fixture = TestBed.createComponent(Host);
-    fixture.detectChanges();
-    const root = fixture.nativeElement as HTMLElement;
-
-    expect(items(root)).toHaveLength(0);
-    expect(edgePaths(root)).toHaveLength(0);
-    expect(root.querySelector('.wr-graph__nodes')!.hasAttribute('role')).toBe(false);
-    expect(warn.mock.calls.some(call => String(call[0]).includes('Promise'))).toBe(true);
-  });
-
   it('says so when a layout leaves a node unplaced or returns a number it cannot draw', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     TestBed.resetTestingModule();

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Popover"
-  updated="16.1.0"
+  updated="16.3.0"
   description="Show a template, or a text tooltip, next to its trigger."
   [keywords]="['popover', 'tooltip', 'wr-popover', 'overlay']"
   [labels]="['Directive', 'CDK Overlay']"
@@ -71,6 +71,16 @@
     description="`[wrPopoverOrigin]` names the element a tooltip is for, when that is not its host. Bind it and the text from one delegated listener and a long list needs one directive, not one per item. Since v16.1."
   >
     <ngwr-doc-code [code]="snippets.origin" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Disabled"
+    description="`[wrPopoverDisabled]` turns the trigger off: nothing opens the panel, `open()` included, and an open one closes. The host keeps its own `disabled`. Since v16.3."
+  >
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <wr-btn wrPopover="Save changes" mode="tooltip" [wrPopoverDisabled]="off()">Save</wr-btn>
+      <wr-btn outlined (click)="off.set(!off())">{{ off() ? 'Enable the tooltip' : 'Disable the tooltip' }}</wr-btn>
+    </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section

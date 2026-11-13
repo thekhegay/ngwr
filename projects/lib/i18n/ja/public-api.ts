@@ -49,6 +49,9 @@ export const wrJa: WrI18nCatalog = {
     noMatches: '該当なし',
     search: '検索',
     reset: 'リセット',
+    columns: '列',
+    selected: '{{count}} 件選択中',
+    clearSelection: '選択を解除',
   },
   eventCalendar: {
     today: '今日',
@@ -111,6 +114,7 @@ export const wrJa: WrI18nCatalog = {
     loadError: '結果を読み込めませんでした',
     retry: '再試行',
     more: '他{{count}}件',
+    selectAll: 'すべて選択',
   },
   tree: {
     expand: '展開',
@@ -119,6 +123,9 @@ export const wrJa: WrI18nCatalog = {
     clearSelection: '選択をクリア',
     removeItem: '{{label}}を削除',
     more: '他{{count}}件',
+    moveKeyHelp:
+      'Alt+Enter キーで項目を持ち上げ、矢印キーで移動します。' +
+      'Enter キーでドロップ、Escape キーで元の位置に戻します。',
   },
   commandPalette: {
     label: 'コマンドパレット',
@@ -142,6 +149,11 @@ export const wrJa: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'アップロード中',
+    uploaded: 'アップロード済み',
+    failed: 'アップロード失敗',
+    status: '{{name}}: {{status}}',
+    retry: '再試行',
   },
   popconfirm: {
     label: '操作の確認',
@@ -198,6 +210,8 @@ export const wrJa: WrI18nCatalog = {
     nextYear: '次の年',
     monthList: '月の一覧',
     yearList: '年の一覧',
+    quarterList: '四半期の一覧',
+    quarter: '第{{quarter}}四半期',
     prevYears: '前の12年',
     nextYears: '次の12年',
     header: '{{year}}年{{month}}',
@@ -345,6 +359,9 @@ export const wrJa: WrI18nCatalog = {
   alert: {
     close: 'アラートを閉じる',
   },
+  tag: {
+    remove: '{{label}}を削除',
+  },
   qr: {
     label: 'QRコード',
   },
@@ -444,6 +461,8 @@ export const wrJa: WrI18nCatalog = {
     panelDateTime: '日時を選択',
     panelRange: '期間を選択',
     panelRangeDateTime: '日時の期間を選択',
+    quarterValue: '{{year}}年 第{{quarter}}四半期',
+    weekValue: '{{year}}年 第{{week}}週',
     rangeStart: '期間の開始',
     rangeEnd: '期間の終了',
     startTime: '開始時刻',

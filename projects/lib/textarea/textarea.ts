@@ -25,6 +25,8 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
+import { useI18nText } from 'ngwr/i18n';
+import { WrSpinner } from 'ngwr/spinner';
 import { wrCheckStyles } from 'ngwr/utils';
 
 /**
@@ -57,6 +59,7 @@ export type WrTextareaResize = 'none' | 'vertical' | 'horizontal' | 'both';
   templateUrl: './textarea.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-textarea', '[class]': 'classes()' },
+  imports: [WrSpinner],
 })
 export class WrTextarea implements FormValueControl<string> {
   /** Native placeholder text. @default '' */
@@ -80,6 +83,13 @@ export class WrTextarea implements FormValueControl<string> {
   /** Control size — shares the `--wr-control-*` contract. @default 'md' */
   readonly size = input<WrTextareaSize>('md');
 
+  /**
+   * Round the corners to match a row of pill fields. The radius stops at half
+   * the height of a one-row field, so a taller box keeps straight sides.
+   * @default false
+   */
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
+
   /** Visible row count. @default 3 */
   readonly rows = input(3, { transform: (v: unknown): number => coerceNumberProperty(v, 3) });
 
@@ -99,6 +109,25 @@ export class WrTextarea implements FormValueControl<string> {
   readonly maxRows = input<number | null>(null);
 
   /**
+   * Show a clear (×) button while the field holds text and is neither disabled
+   * nor read-only. Clearing sets `value` to `''`, emits `touch` and puts focus
+   * back in the field. It is a pointer control: from the keyboard, emptying the
+   * field clears the value. @default false
+   */
+  readonly clearable = input(false, { transform: coerceBooleanProperty });
+
+  /** Clear (×) button aria-label. Falls back to `common.clear`. */
+  readonly clearLabel = input<string | null>(null);
+
+  protected readonly resolvedClear = useI18nText(this.clearLabel, 'common.clear', 'Clear');
+
+  /**
+   * Show a spinner in the field's corner and mark the field `aria-busy`. The
+   * field stays editable. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
    * Disable the textarea. Bound automatically from the field's disabled state
    * when used with `[formField]`.
    *
@@ -109,8 +138,12 @@ export class WrTextarea implements FormValueControl<string> {
   /** The edited text. Bound by `[formField]`, or two-way via `[(value)]`. */
   readonly value = model<string>('');
 
-  /** Emitted on blur so a bound field can mark itself touched. */
+  /** Emitted on blur, and by the clear (×) button, so a bound field can mark itself touched. */
   readonly touch = output<void>();
+
+  protected readonly clearShown = computed(
+    () => this.clearable() && this.value() !== '' && !this.disabled() && !this.readonly()
+  );
 
   protected readonly focused = signal(false);
 
@@ -163,6 +196,7 @@ export class WrTextarea implements FormValueControl<string> {
     const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-textarea--${size}`);
+    if (this.rounded()) parts.push('wr-textarea--rounded');
     if (this.autosize()) parts.push('wr-textarea--no-resize');
     const resize = this.effectiveResize();
     if (resize === 'horizontal' || resize === 'both') parts.push('wr-textarea--resize-x');
@@ -175,6 +209,8 @@ export class WrTextarea implements FormValueControl<string> {
     // own contract for a value control is a `wr-<x>--readonly` class with a
     // non-editable cue, which `.wr-input[readonly]` already draws.
     if (this.readonly()) parts.push('wr-textarea--readonly');
+    if (this.clearable()) parts.push('wr-textarea--clearable');
+    if (this.loading()) parts.push('wr-textarea--loading');
     return parts.join(' ');
   });
 
@@ -206,21 +242,43 @@ export class WrTextarea implements FormValueControl<string> {
   private resizeMinHeight = 36;
   private resizeMaxWidth = Number.POSITIVE_INFINITY;
 
+  /** The pending autosize frame, `0` when none. */
+  private frame = 0;
+
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('textarea');
-    // Autosize: re-fit whenever value or autosize toggles.
-    effect(() => {
-      if (!this.isBrowser) return;
-      if (!this.autosize()) {
+    effect(onCleanup => {
+      if (!this.isBrowser || !this.autosize()) return;
+      const el = this.native().nativeElement;
+      // Width only: the height written by the fit must not call it back. It
+      // also fires when a hidden field is shown, which a fit skipped until then.
+      let width = -1;
+      const observer =
+        typeof ResizeObserver === 'undefined'
+          ? null
+          : new ResizeObserver(([entry]) => {
+              if (entry.contentRect.width === width) return;
+              width = entry.contentRect.width;
+              this.scheduleFit();
+            });
+      observer?.observe(el);
+      onCleanup(() => {
+        observer?.disconnect();
+        cancelAnimationFrame(this.frame);
+        this.frame = 0;
         // Hand the height back. Left behind, the field stays frozen at whatever
         // was last fitted and `rows` silently stops meaning anything, which reads
         // as the input having done nothing.
-        this.releaseHeight();
-        return;
-      }
-      // Read `value` to register dependency
+        el.style.height = '';
+        el.style.overflowY = '';
+      });
+    });
+    effect(() => {
+      if (!this.isBrowser || !this.autosize()) return;
       this.value();
-      requestAnimationFrame(() => this.autofit());
+      this.rows();
+      this.maxRows();
+      this.scheduleFit();
     });
   }
 
@@ -234,6 +292,14 @@ export class WrTextarea implements FormValueControl<string> {
   }
 
   // Template handlers
+
+  /** The clear (×) button: the same write an emptied field makes. */
+  protected clear(): void {
+    if (this.disabled() || this.readonly()) return;
+    this.value.set('');
+    this.native().nativeElement.focus();
+    this.touch.emit();
+  }
 
   protected onInput(event: Event): void {
     this.value.set((event.target as HTMLTextAreaElement).value);
@@ -298,11 +364,12 @@ export class WrTextarea implements FormValueControl<string> {
     (event.target as HTMLElement).releasePointerCapture(event.pointerId);
   }
 
-  private releaseHeight(): void {
-    const el = this.native()?.nativeElement;
-    if (!el) return;
-    el.style.height = '';
-    el.style.overflowY = '';
+  private scheduleFit(): void {
+    if (this.frame) return;
+    this.frame = requestAnimationFrame(() => {
+      this.frame = 0;
+      this.autofit();
+    });
   }
 
   private autofit(): void {
@@ -312,6 +379,9 @@ export class WrTextarea implements FormValueControl<string> {
     // between the effect and the frame would otherwise fit a height nobody asked
     // for, and `releaseHeight` has already run by then.
     if (!this.autosize()) return;
+    // Not rendered (an ancestor is `display: none`): there is nothing to measure,
+    // and a height written now would collapse the field to its borders.
+    if (!el.clientWidth || !el.scrollHeight) return;
     el.style.height = 'auto';
 
     // `scrollHeight` is the content PLUS the vertical padding, and the height it is

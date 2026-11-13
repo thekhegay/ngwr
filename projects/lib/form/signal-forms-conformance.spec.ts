@@ -7,6 +7,7 @@ import { FormField, form } from '@angular/forms/signals';
 
 import { assertSignalFormsControl } from 'ngtrue/testing';
 import { provideWr } from 'ngwr';
+import { WrCalendar } from 'ngwr/calendar';
 import { WrCascader, type WrCascaderOption } from 'ngwr/cascader';
 import { WrCheckbox, WrCheckboxGroup } from 'ngwr/checkbox';
 import { WrColorPicker } from 'ngwr/color-picker';
@@ -45,6 +46,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
  * normalises would rightly refuse ngtrue's default anonymous objects.
  */
 type Kind =
+  | 'calendar'
   | 'cascader'
   | 'checkbox'
   | 'checkbox-group'
@@ -68,6 +70,7 @@ type Kind =
   | 'tree';
 
 interface Model {
+  calendar: Date | null;
   cascader: string[];
   checkbox: boolean;
   checkboxGroup: string[];
@@ -93,6 +96,7 @@ interface Model {
 @Component({
   imports: [
     FormField,
+    WrCalendar,
     WrCascader,
     WrCheckbox,
     WrCheckboxGroup,
@@ -119,6 +123,9 @@ interface Model {
   ],
   template: `
     @switch (kind()) {
+      @case ('calendar') {
+        <wr-calendar [formField]="f.calendar" />
+      }
       @case ('cascader') {
         <wr-cascader [options]="cascaderOptions" [formField]="f.cascader" />
       }
@@ -215,6 +222,7 @@ class Host {
   ];
 
   readonly model = signal<Model>({
+    calendar: null,
     cascader: [],
     checkbox: false,
     checkboxGroup: [],
@@ -283,6 +291,7 @@ interface Case {
 }
 
 const CASES: readonly Case[] = [
+  { kind: 'calendar', control: 'WrCalendar', values: [new Date(2026, 2, 15), new Date(2026, 3, 20)] },
   {
     kind: 'cascader',
     control: 'WrCascader',

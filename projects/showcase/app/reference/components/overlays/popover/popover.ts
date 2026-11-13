@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrPopover } from 'ngwr/popover';
@@ -26,7 +26,11 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class PopoverPageComponent {
+  protected readonly off = signal(true);
+
   protected readonly snippets = {
+    disabled: `<!-- A tooltip only where the label is cut short -->
+<wr-btn [wrPopover]="name" mode="tooltip" [wrPopoverDisabled]="!truncated()">{{ name }}</wr-btn>`,
     basic: `<wr-btn [wrPopover]="info">Details</wr-btn>
 
 <ng-template #info>

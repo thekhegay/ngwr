@@ -1,10 +1,9 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 import { WrTable } from './table';
 import type { WrTableColumns } from './types';
@@ -227,15 +226,7 @@ describe('WrTable without `stickyHeader`', () => {
  * What only the compiled sheet can show, as `stylesheet.spec.ts` holds it: jsdom
  * has no layout and no stacking.
  */
-interface Sass {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-}
-
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-
-const css = sass
-  .compileString(`@use 'table/styles';`, { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-  .css.replace(/\/\*[\s\S]*?\*\//g, '');
+const css = compileSass(`@use 'table/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
 
 /** The declarations of every rule whose selector list contains `selector`, joined. */
 function declarations(selector: string): string {

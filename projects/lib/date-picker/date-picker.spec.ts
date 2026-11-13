@@ -2256,6 +2256,40 @@ describe('WrDatePicker open and close from code', () => {
     expect(counts()).toEqual([1, 1]);
   });
 
+  it('reports the open state through a read-only isOpen()', async () => {
+    const control = host().control();
+    const escape = (): boolean =>
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    const clickOutside = (): boolean =>
+      document.body.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+
+    expect(control.isOpen()).toBe(false);
+
+    control.open();
+    await settle();
+    expect(control.isOpen()).toBe(true);
+    control.close();
+    await settle();
+    expect(control.isOpen()).toBe(false);
+
+    trigger().click();
+    await settle();
+    expect(control.isOpen()).toBe(true);
+    escape();
+    await settle();
+    expect(control.isOpen()).toBe(false);
+
+    control.open();
+    await settle();
+    clickOutside();
+    await settle();
+    expect(control.isOpen()).toBe(false);
+
+    // @ts-expect-error -- `isOpen` is a read-only signal: `open()` and `close()` change it
+    const write: unknown = control.isOpen.set;
+    expect(write).toBeUndefined();
+  });
+
   it('emits for a click on the trigger and for Escape', async () => {
     trigger().click();
     await settle();

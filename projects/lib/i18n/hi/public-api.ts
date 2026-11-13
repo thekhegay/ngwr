@@ -49,6 +49,9 @@ export const wrHi: WrI18nCatalog = {
     noMatches: 'कोई मिलान नहीं',
     search: 'खोजें',
     reset: 'रीसेट करें',
+    columns: 'कॉलम',
+    selected: '{{count}} चयनित',
+    clearSelection: 'चयन साफ़ करें',
   },
   eventCalendar: {
     today: 'आज',
@@ -109,6 +112,7 @@ export const wrHi: WrI18nCatalog = {
     loadError: 'नतीजे लोड नहीं हो सके',
     retry: 'फिर से कोशिश करें',
     more: '+{{count}} और',
+    selectAll: 'सभी चुनें',
   },
   tree: {
     expand: 'विस्तार करें',
@@ -117,6 +121,9 @@ export const wrHi: WrI18nCatalog = {
     clearSelection: 'चयन हटाएं',
     removeItem: '{{label}} हटाएं',
     more: '+{{count}} और',
+    moveKeyHelp:
+      'इस आइटम को उठाने के लिए Alt+Enter दबाएं, फिर तीर कुंजियों से इसे खिसकाएं। ' +
+      'छोड़ने के लिए Enter दबाएं, या वापस रखने के लिए Escape दबाएं।',
   },
   commandPalette: {
     label: 'कमांड पैलेट',
@@ -140,6 +147,11 @@ export const wrHi: WrI18nCatalog = {
     unitMb: 'एमबी',
     unitGb: 'जीबी',
     unitTb: 'टीबी',
+    uploading: 'अपलोड हो रहा है',
+    uploaded: 'अपलोड हो गया',
+    failed: 'अपलोड विफल',
+    status: '{{name}}: {{status}}',
+    retry: 'फिर से कोशिश करें',
   },
   popconfirm: {
     label: 'कार्रवाई की पुष्टि',
@@ -196,6 +208,8 @@ export const wrHi: WrI18nCatalog = {
     nextYear: 'अगला साल',
     monthList: 'महीने',
     yearList: 'साल',
+    quarterList: 'तिमाहियां',
+    quarter: 'तिमाही {{quarter}}',
     prevYears: 'पिछले 12 साल',
     nextYears: 'अगले 12 साल',
     header: '{{month}} {{year}}',
@@ -341,6 +355,9 @@ export const wrHi: WrI18nCatalog = {
   alert: {
     close: 'अलर्ट बंद करें',
   },
+  tag: {
+    remove: '{{label}} हटाएं',
+  },
   qr: {
     label: 'QR कोड',
   },
@@ -440,6 +457,8 @@ export const wrHi: WrI18nCatalog = {
     panelDateTime: 'तारीख़ और समय चुनें',
     panelRange: 'तारीख़ की अवधि चुनें',
     panelRangeDateTime: 'तारीख़ और समय की अवधि चुनें',
+    quarterValue: 'तिमाही {{quarter}}, {{year}}',
+    weekValue: 'सप्ताह {{week}}, {{year}}',
     rangeStart: 'अवधि की शुरुआत',
     rangeEnd: 'अवधि का अंत',
     startTime: 'प्रारंभ समय',

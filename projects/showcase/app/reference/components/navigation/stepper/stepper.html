@@ -3,6 +3,7 @@
   description="A multi-step flow with numbered headers."
   [keywords]="['stepper', 'wizard', 'wr-stepper']"
   [labels]="['Composite']"
+  updated="16.3.0"
 >
   <ngwr-doc-section title="Basic" description="Bind `[(active)]` to the step index. A header click jumps to its step.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
@@ -81,6 +82,13 @@
         </wr-stepper>
       </div>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <p>
+      The words read with a step's name take a per-instance override on the stepper: <code>optionalLabel</code> and
+      <code>completedLabel</code>.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

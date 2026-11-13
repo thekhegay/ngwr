@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { FormField, form, readonly, requiredError, validate } from '@angular/forms/signals';
 
 import { provideWr } from 'ngwr';
+import { WrCalendar } from 'ngwr/calendar';
 import { WrCascader, type WrCascaderOption } from 'ngwr/cascader';
 import { WrCheckbox, WrCheckboxGroup } from 'ngwr/checkbox';
 import { WrColorPicker } from 'ngwr/color-picker';
@@ -43,6 +44,7 @@ import { WrFormField } from './form-field';
  * spec living next to one component cannot see.
  */
 interface Model {
+  calendar: Date | null;
   cascader: string[];
   checkbox: boolean;
   checkboxGroup: string[];
@@ -74,6 +76,7 @@ const DRAFT: WrEditorJson = {
 @Component({
   imports: [
     FormField,
+    WrCalendar,
     WrCascader,
     WrCheckbox,
     WrCheckboxGroup,
@@ -99,6 +102,10 @@ const DRAFT: WrEditorJson = {
     WrTree,
   ],
   template: `
+    <wr-form-field data-k="calendar" label="Calendar">
+      <wr-calendar [formField]="f.calendar" />
+    </wr-form-field>
+
     <wr-form-field data-k="cascader" label="Cascader">
       <wr-cascader [options]="cascaderOptions" [formField]="f.cascader" placeholder="Choose a region" />
     </wr-form-field>
@@ -207,6 +214,7 @@ class Host {
   readonly failing = signal(false);
 
   readonly model = signal<Model>({
+    calendar: null,
     cascader: [],
     checkbox: false,
     checkboxGroup: [],
@@ -249,6 +257,7 @@ class Host {
       this.failing() ? requiredError({ message: 'Required.' }) : undefined;
     const locked = (): boolean => this.locked();
 
+    readonly(path.calendar, locked);
     readonly(path.cascader, locked);
     readonly(path.checkbox, locked);
     readonly(path.checkboxGroup, locked);
@@ -270,6 +279,7 @@ class Host {
     readonly(path.transfer, locked);
     readonly(path.tree, locked);
 
+    validate(path.calendar, fails);
     validate(path.cascader, fails);
     validate(path.checkbox, fails);
     validate(path.checkboxGroup, fails);
@@ -319,6 +329,7 @@ const hasClass =
     !!field.querySelector(selector)?.classList.contains(klass);
 
 const PROBES: readonly Probe[] = [
+  { key: 'calendar', aria: '.wr-calendar__body', isReadonly: ariaReadonly('.wr-calendar__body') },
   { key: 'cascader', aria: '.wr-cascader__trigger', isReadonly: ariaReadonly('.wr-cascader__trigger') },
   { key: 'checkbox', aria: 'input.wr-checkbox__input', isReadonly: ariaReadonly('input.wr-checkbox__input') },
   {
@@ -396,7 +407,7 @@ describe('every value control, as a form control', () => {
   it('renders one field per control, and the table covers all of them', () => {
     // A probe table that quietly stopped growing looks exactly like one that
     // covers the catalog, so the count is asserted rather than assumed.
-    expect(PROBES).toHaveLength(20);
+    expect(PROBES).toHaveLength(21);
     for (const probe of PROBES) expect(field(probe.key), probe.key).toBeTruthy();
   });
 
@@ -675,6 +686,7 @@ describe('every value control, as a form control', () => {
       q<HTMLElement>('select', '.wr-select__trigger').click();
       q<HTMLElement>('cascader', '.wr-cascader__trigger').click();
       q<HTMLElement>('tree', '.wr-tree__row').click();
+      q<HTMLElement>('calendar', '.wr-calendar__day:not(.wr-calendar__day--out-of-month)').click();
       fixture.detectChanges();
       press(q('slider', '.wr-slider__thumb--low'), 'ArrowRight');
       press(q('knob', '.wr-knob__surface'), 'ArrowRight');
@@ -691,6 +703,7 @@ describe('every value control, as a form control', () => {
       expect(model().checkboxGroup).toEqual(['a']);
       expect(model().radioGroup).toBe('a');
       expect(model().segmented).toBe('day');
+      expect(model().calendar?.getDate()).toBe(1);
       // An INLINE tree's selection is `[(selected)]`, not `value` — a documented
       // contract, so the row's own ARIA state is what says the click landed.
       expect(q('tree', '.wr-tree__row').getAttribute('aria-selected')).toBe('true');
@@ -735,6 +748,18 @@ describe('every value control, as a form control', () => {
       expect(model().segmented).toBeNull();
     });
 
+    it('leaves a calendar alone when a day is clicked, and still pages', () => {
+      const label = (): string => q('calendar', '.wr-calendar__label').textContent?.trim() ?? '';
+      const before = label();
+      q<HTMLElement>('calendar', '.wr-calendar__day:not(.wr-calendar__day--out-of-month)').click();
+      q<HTMLElement>('calendar', '.wr-calendar__nav--next').click();
+      fixture.detectChanges();
+
+      expect(model().calendar).toBeNull();
+      // Paging is NAVIGATION, not a value: a read-only calendar stays browsable.
+      expect(label()).not.toBe(before);
+    });
+
     it('does not open the select or the cascader', () => {
       q<HTMLElement>('select', '.wr-select__trigger').click();
       q<HTMLElement>('cascader', '.wr-cascader__trigger').click();
@@ -749,12 +774,13 @@ describe('every value control, as a form control', () => {
       row.click();
       fixture.detectChanges();
       expect(row.getAttribute('aria-selected')).toBe('false');
+      // Expanding is NAVIGATION, not a value — a read-only tree stays browsable,
+      // by the row click (`expandOnClick`) as well as by the arrow.
+      expect(q('tree', '.wr-tree__row').getAttribute('aria-expanded')).toBe('true');
 
       q<HTMLElement>('tree', '.wr-tree__toggle').click();
       fixture.detectChanges();
-
-      // Expanding is NAVIGATION, not a value — a read-only tree stays browsable.
-      expect(q('tree', '.wr-tree__row').getAttribute('aria-expanded')).toBe('true');
+      expect(q('tree', '.wr-tree__row').getAttribute('aria-expanded')).toBe('false');
     });
 
     it('does not move a slider, a knob or a rating from the keyboard', () => {

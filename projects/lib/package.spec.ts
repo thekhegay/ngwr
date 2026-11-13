@@ -77,16 +77,52 @@ function sources(dir: string, out: string[] = [], excluded = excludedFromTheBuil
   return out;
 }
 
-/** Package names imported by the shipped sources, mapped to the files that import them. */
-function importedPackages(): Map<string, string[]> {
-  const found = new Map<string, string[]>();
+/**
+ * The tree is walked once and each file read once: five cases below ask for the
+ * shipped sources, and reading a couple of thousand files five times over was
+ * most of what this file cost.
+ */
+let shipped: string[] | undefined;
+const shippedSources = (): string[] => (shipped ??= sources(LIB));
 
-  for (const file of sources(LIB)) {
-    // Comments first: a JSDoc example or a prose sentence ending in "… from '"
-    // otherwise reads as an import and pollutes the set.
-    const src = readFileSync(file, 'utf8')
+const texts = new Map<string, string>();
+function read(file: string): string {
+  let text = texts.get(file);
+  if (text === undefined) {
+    text = readFileSync(file, 'utf8');
+    texts.set(file, text);
+  }
+  return text;
+}
+
+/**
+ * A source with its comments stripped: a JSDoc example or a prose sentence
+ * ending in "… from '" otherwise reads as an import and pollutes the set.
+ */
+const stripped = new Map<string, string>();
+function code(file: string): string {
+  let text = stripped.get(file);
+  if (text === undefined) {
+    text = read(file)
       .replace(/\/\*[\s\S]*?\*\//g, '')
       .replace(/(^|\s)\/\/[^\n]*/g, '$1');
+    stripped.set(file, text);
+  }
+  return text;
+}
+
+let imported: Map<string, string[]> | undefined;
+
+/** Package names imported by the shipped sources, mapped to the files that import them. */
+function importedPackages(): Map<string, string[]> {
+  return (imported ??= scanImportedPackages());
+}
+
+function scanImportedPackages(): Map<string, string[]> {
+  const found = new Map<string, string[]>();
+
+  for (const file of shippedSources()) {
+    const src = code(file);
 
     const specifiers = [
       ...src.matchAll(/\bfrom\s*['"]([^'"]+)['"]/g),
@@ -218,13 +254,8 @@ describe('the published manifest', () => {
  */
 describe('the root entry point', () => {
   it('is imported by no shipped source', () => {
-    const offenders = sources(LIB)
-      .filter(file => {
-        const src = readFileSync(file, 'utf8')
-          .replace(/\/\*[\s\S]*?\*\//g, '')
-          .replace(/(^|\s)\/\/[^\n]*/g, '$1');
-        return /\bfrom\s*['"]ngwr['"]|\bimport\s*\(\s*['"]ngwr['"]/.test(src);
-      })
+    const offenders = shippedSources()
+      .filter(file => /\bfrom\s*['"]ngwr['"]|\bimport\s*\(\s*['"]ngwr['"]/.test(code(file)))
       .map(file => relative(LIB, file));
 
     expect(offenders).toEqual([]);
@@ -283,7 +314,7 @@ describe('component stylesheets', () => {
       const file = queue.shift()!;
       if (seen.has(file)) continue;
       seen.add(file);
-      const src = readFileSync(file, 'utf8').replace(/(^|\s)\/\/[^\n]*/g, '$1');
+      const src = read(file).replace(/(^|\s)\/\/[^\n]*/g, '$1');
       for (const m of src.matchAll(/@(?:use|forward)\s+'([^']+)'/g)) {
         if (m[1].startsWith('sass:')) continue;
         const next = resolveScss(file, m[1]);
@@ -295,10 +326,12 @@ describe('component stylesheets', () => {
   };
 
   /** Component file to the stylesheet its `styleUrl` names. */
-  const styleUrls = (): Map<string, string> => {
+  let urls: Map<string, string> | undefined;
+  const styleUrls = (): Map<string, string> => (urls ??= scanStyleUrls());
+  const scanStyleUrls = (): Map<string, string> => {
     const found = new Map<string, string>();
-    for (const file of sources(LIB)) {
-      const url = /styleUrl:\s*'\.\/([\w.-]+\.scss)'/.exec(readFileSync(file, 'utf8'))?.[1];
+    for (const file of shippedSources()) {
+      const url = /styleUrl:\s*'\.\/([\w.-]+\.scss)'/.exec(read(file))?.[1];
       if (url === undefined) continue;
       const scss = join(dirname(file), url);
       if (existsSync(scss)) found.set(relative(LIB, file), scss);
@@ -316,7 +349,7 @@ describe('component stylesheets', () => {
 
     for (const [component, scss] of styleUrls()) {
       for (const file of loaded(scss)) {
-        const src = readFileSync(file, 'utf8').replace(/(^|\s)\/\/[^\n]*/g, '$1');
+        const src = read(file).replace(/(^|\s)\/\/[^\n]*/g, '$1');
         for (const { what, re } of GLOBAL_LAYER) {
           if (re.test(src)) offenders.push(`${component} reaches ${relative(LIB, file)}, which declares ${what}`);
         }

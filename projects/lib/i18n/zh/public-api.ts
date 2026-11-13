@@ -49,6 +49,9 @@ export const wrZh: WrI18nCatalog = {
     noMatches: '无匹配结果',
     search: '搜索',
     reset: '重置',
+    columns: '列',
+    selected: '已选择 {{count}} 项',
+    clearSelection: '清除选择',
   },
   eventCalendar: {
     today: '今天',
@@ -109,6 +112,7 @@ export const wrZh: WrI18nCatalog = {
     loadError: '无法加载结果',
     retry: '重试',
     more: '+{{count}} 项',
+    selectAll: '全选',
   },
   tree: {
     expand: '展开',
@@ -117,6 +121,7 @@ export const wrZh: WrI18nCatalog = {
     clearSelection: '清除选择',
     removeItem: '移除 {{label}}',
     more: '+{{count}} 项',
+    moveKeyHelp: '按 Alt+Enter 键拿起此项，然后用方向键移动。' + '按 Enter 键放下，或按 Esc 键放回原位。',
   },
   commandPalette: {
     label: '命令面板',
@@ -140,6 +145,11 @@ export const wrZh: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: '正在上传',
+    uploaded: '已上传',
+    failed: '上传失败',
+    status: '{{name}}: {{status}}',
+    retry: '重试',
   },
   popconfirm: {
     label: '确认操作',
@@ -196,6 +206,8 @@ export const wrZh: WrI18nCatalog = {
     nextYear: '下一年',
     monthList: '月份',
     yearList: '年份',
+    quarterList: '季度',
+    quarter: '第{{quarter}}季度',
     prevYears: '前 12 年',
     nextYears: '后 12 年',
     header: '{{year}}年{{month}}',
@@ -338,6 +350,9 @@ export const wrZh: WrI18nCatalog = {
   alert: {
     close: '关闭提示',
   },
+  tag: {
+    remove: '移除 {{label}}',
+  },
   qr: {
     label: '二维码',
   },
@@ -437,6 +452,8 @@ export const wrZh: WrI18nCatalog = {
     panelDateTime: '选择日期和时间',
     panelRange: '选择日期范围',
     panelRangeDateTime: '选择日期和时间范围',
+    quarterValue: '{{year}}年第{{quarter}}季度',
+    weekValue: '{{year}}年第{{week}}周',
     rangeStart: '起始日期',
     rangeEnd: '结束日期',
     startTime: '开始时间',

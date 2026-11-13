@@ -27,11 +27,25 @@ import { API } from '#core/generated/api';
 })
 export default class PopconfirmPageComponent {
   protected readonly status = signal<string>('—');
+  protected readonly dirty = signal(false);
 
-  protected readonly positions: readonly WrPopconfirmPosition[] = ['top', 'bottom', 'left', 'right'];
+  protected readonly positions: readonly WrPopconfirmPosition[] = [
+    'top',
+    'top-start',
+    'top-end',
+    'bottom',
+    'bottom-start',
+    'bottom-end',
+    'left',
+    'left-start',
+    'left-end',
+    'right',
+    'right-start',
+    'right-end',
+  ];
 
   protected readonly snippets = {
-    positions: `<wr-btn wrPopconfirm="Delete this item?" position="bottom" (confirmed)="remove()">Delete</wr-btn>`,
+    positions: `<wr-btn wrPopconfirm="Delete this item?" position="bottom-start" (confirmed)="remove()">Delete</wr-btn>`,
     basic: `<wr-btn
   color="danger"
   wrPopconfirm="Delete this item?"
@@ -40,6 +54,13 @@ export default class PopconfirmPageComponent {
   (confirmed)="remove()"
   (cancelled)="onCancel()"
 >Delete</wr-btn>`,
+    disabled: `<!-- Ask only when there is something to lose -->
+<wr-btn
+  wrPopconfirm="Discard your changes?"
+  [wrPopconfirmDisabled]="!dirty()"
+  (click)="!dirty() && close()"
+  (confirmed)="close()"
+>Close</wr-btn>`,
     exportAs: `<wr-btn wrPopconfirm="Delete this file?" #ask="wrPopconfirm" (confirmed)="remove()">
   Delete
 </wr-btn>

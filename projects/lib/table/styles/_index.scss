@@ -12,6 +12,7 @@
 //
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
+@use '../../button/styles' as button-styles; // WrButton
 @use '../../checkbox/styles' as checkbox-styles; // WrCheckbox
 @use '../../dropdown/styles' as dropdown-styles; // WrDropdown
 @use '../../pagination/styles' as pagination-styles; // WrPagination
@@ -58,9 +59,21 @@
   --wr-table-expand-btn-padding: var(--wr-space-xs);
   --wr-table-expand-btn-radius: var(--wr-border-radius-sm);
   --wr-table-detail-padding: var(--wr-space-lg);
+  --wr-table-edit-padding: var(--wr-space-xs) var(--wr-space-sm);
   --wr-table-foot-cell-font-weight: var(--wr-font-weight-semibold);
   --wr-table-empty-padding: var(--wr-space-xl);
   --wr-table-pager-padding: var(--wr-space-sm) var(--wr-space-md);
+  --wr-table-toolbar-padding: var(--wr-space-sm) var(--wr-space-md);
+  // The selection bar. `-height` is the header's, written inline once it is
+  // measured; `-inset` is the select-all column the bar leaves uncovered. It
+  // wears the header's own fill: the selected rows are already tinted.
+  --wr-table-selection-bar-bg: var(--wr-table-head-bg);
+  --wr-table-selection-bar-color: var(--wr-color-on-surface);
+  --wr-table-selection-bar-padding-x: var(--wr-space-md);
+  --wr-table-selection-bar-gap: var(--wr-space-md);
+  --wr-table-selection-bar-height: 2.5rem;
+  --wr-table-selection-bar-inset: 2.75rem;
+  --wr-table-selection-bar-font-weight: var(--wr-font-weight-medium);
   --wr-table-loading-bar-height: 0.125rem;
   --wr-table-loading-bar-color: var(--wr-color-primary);
   --wr-table-loading-bar-track: color-mix(in srgb, var(--wr-color-primary) 20%, transparent);
@@ -435,8 +448,8 @@
   //
   // `box-shadow` has no logical form — its offset is always physical — while
   // the cell it belongs to is anchored by `[style.inset-inline-start.px]` /
-  // `[style.inset-inline-end.px]` in table.html, written from `leftPin()` /
-  // `rightPin()`. The shadow leans the way the offset pins, so the sign has to
+  // `[style.inset-inline-end.px]` in table.html, written from the measured
+  // pin offsets. The shadow leans the way the offset pins, so the sign has to
   // be set per direction by hand.
   &__th--pin-edge-left,
   &__td--pin-edge-left,
@@ -564,6 +577,27 @@
     line-height: 1;
   }
 
+  // --- Inline editing ------------------------------------------------------
+  // A data cell of an editable table takes focus (the grid's roving tab
+  // stop). Inset, for the reason the tree row's ring is.
+  &__td:focus-visible {
+    @include theme.focus-ring;
+    outline-offset: -2px;
+  }
+
+  // The editor fills the cell, so the row keeps its height while it edits.
+  &__table &__td--editing {
+    padding: var(--wr-table-edit-padding);
+    overflow: visible;
+    // The held column width is the editor's width: it never pushes the column.
+    min-width: 0;
+
+    > :only-child {
+      inline-size: 100%;
+      min-width: 0;
+    }
+  }
+
   &__tr {
     transition: background var(--wr-transition-base);
 
@@ -626,6 +660,92 @@
     > .wr-pagination {
       --wr-pagination-padding-block: 0;
     }
+  }
+
+  // The strip above the table that holds the column chooser's button.
+  &__toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--wr-table-toolbar-padding);
+    border-bottom: 1px solid var(--wr-table-border);
+    background: var(--wr-table-head-bg);
+  }
+
+  // The column chooser's panel. Its hooks are declared here rather than on
+  // `.wr-table`: the panel is a popover template, so it renders into the
+  // overlay container and inherits nothing from the table.
+  &__columns {
+    --wr-table-columns-padding: var(--wr-space-md);
+    --wr-table-columns-gap: var(--wr-space-sm);
+    --wr-table-columns-max-height: 20rem;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--wr-table-columns-gap);
+    min-width: 10rem;
+    max-height: var(--wr-table-columns-max-height);
+    padding: var(--wr-table-columns-padding);
+    overflow-y: auto;
+  }
+
+  // --- Selection bar --------------------------------------------------------
+  // In flow and of no height, right above the scroll area: its top edge is the
+  // header's in every mode, with or without the toolbar.
+  &__selection {
+    position: relative;
+    // Above the corner-sticky header cells (z-index 3).
+    z-index: 4;
+    flex: none;
+    height: 0;
+  }
+
+  &__selection-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  &__selection-bar {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--wr-table-selection-bar-gap);
+    box-sizing: border-box;
+    min-height: var(--wr-table-selection-bar-height);
+    padding-inline: var(--wr-table-selection-bar-padding-x);
+    border-bottom: 1px solid var(--wr-table-border);
+    // Opaque under the tint, so the header does not show through.
+    background-color: var(--wr-table-bg);
+    background-image: linear-gradient(var(--wr-table-selection-bar-bg), var(--wr-table-selection-bar-bg));
+    color: var(--wr-table-selection-bar-color);
+    font-size: var(--wr-table-font-size);
+    line-height: var(--wr-table-line-height);
+
+    &--inset {
+      inset-inline-start: var(--wr-table-selection-bar-inset);
+    }
+  }
+
+  &__selection-count {
+    font-weight: var(--wr-table-selection-bar-font-weight);
+    white-space: nowrap;
+  }
+
+  &__selection-actions {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--wr-table-selection-bar-gap);
+    min-width: 0;
   }
 
   &__loading {
@@ -858,6 +978,25 @@
   }
 }
 
+// While the selection bar shows. After the sticky-header block, whose header
+// and loading layers these outrank.
+.wr-table--selection-bar {
+  // The select-all cell stays in view beside the bar while the columns scroll
+  // under it, opaque and above the bar.
+  .wr-table__th--select {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 5;
+    background-color: var(--wr-table-bg);
+    background-image: linear-gradient(var(--wr-table-head-bg), var(--wr-table-head-bg));
+  }
+
+  .wr-table__loading,
+  .wr-table__loading-bar {
+    z-index: 6;
+  }
+}
+
 // `viewportHeight="fill"`: the table takes the height its parent has left, and
 // the rows scroll in what the pager leaves of it. A flex-column parent shrinks
 // the host; `max-height` does it under a block parent with a definite height.
@@ -873,7 +1012,8 @@
     max-height: none;
   }
 
-  .wr-table__pager {
+  .wr-table__pager,
+  .wr-table__toolbar {
     flex: none;
   }
 }
@@ -908,6 +1048,17 @@
   .wr-table--responsive .wr-table__tr,
   .wr-table--responsive .wr-table__td {
     display: block;
+  }
+
+  // No header to lie over: the bar takes its own strip above the cards.
+  .wr-table--responsive .wr-table__selection {
+    height: auto;
+  }
+
+  .wr-table--responsive .wr-table__selection-bar {
+    position: static;
+    flex-wrap: wrap;
+    padding-block: var(--wr-space-sm);
   }
 
   .wr-table--responsive .wr-table__table thead {

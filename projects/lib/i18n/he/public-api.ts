@@ -52,6 +52,9 @@ export const wrHe: WrI18nCatalog = {
     noMatches: 'אין תוצאות',
     search: 'חיפוש',
     reset: 'איפוס',
+    columns: 'עמודות',
+    selected: '{{count}} נבחרו',
+    clearSelection: 'ניקוי הבחירה',
   },
   eventCalendar: {
     today: 'היום',
@@ -112,6 +115,7 @@ export const wrHe: WrI18nCatalog = {
     loadError: 'לא ניתן לטעון את התוצאות',
     retry: 'ניסיון חוזר',
     more: 'עוד {{count}}',
+    selectAll: 'בחירת הכול',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -122,6 +126,9 @@ export const wrHe: WrI18nCatalog = {
     clearSelection: 'ניקוי הבחירה',
     removeItem: 'הסרת {{label}}',
     more: 'עוד {{count}}',
+    moveKeyHelp:
+      'לחיצה על Alt+Enter מרימה את הפריט, ואז מקשי החיצים מזיזים אותו. ' +
+      'Enter מניח אותו, ו-Escape מחזיר אותו למקומו.',
   },
   commandPalette: {
     label: 'לוח פקודות',
@@ -148,6 +155,11 @@ export const wrHe: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'מעלה',
+    uploaded: 'הועלה',
+    failed: 'ההעלאה נכשלה',
+    status: '{{name}}: {{status}}',
+    retry: 'ניסיון חוזר',
   },
   popconfirm: {
     label: 'אישור פעולה',
@@ -209,6 +221,8 @@ export const wrHe: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'חודשים',
     yearList: 'שנים',
+    quarterList: 'רבעונים',
+    quarter: 'רבעון {{quarter}}',
     prevYears: '12 השנים הקודמות',
     nextYears: '12 השנים הבאות',
     header: '{{month}} {{year}}',
@@ -357,6 +371,9 @@ export const wrHe: WrI18nCatalog = {
   alert: {
     close: 'סגירת ההתראה',
   },
+  tag: {
+    remove: 'הסרת {{label}}',
+  },
   qr: {
     label: 'קוד QR',
   },
@@ -461,6 +478,8 @@ export const wrHe: WrI18nCatalog = {
     panelDateTime: 'בחירת תאריך ושעה',
     panelRange: 'בחירת טווח תאריכים',
     panelRangeDateTime: 'בחירת טווח תאריכים ושעות',
+    quarterValue: 'רבעון {{quarter}} {{year}}',
+    weekValue: 'שבוע {{week}}, {{year}}',
     rangeStart: 'תחילת הטווח',
     rangeEnd: 'סוף הטווח',
     startTime: 'שעת ההתחלה',

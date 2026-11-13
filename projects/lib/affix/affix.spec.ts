@@ -1,10 +1,9 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass } from '../spec-sass';
 
 import { WrAffix } from './affix';
 
@@ -89,12 +88,7 @@ class GroupsHost {
  * directive tags a parent with is held to the rule that styles it. `sass` comes
  * through `@angular/build`, as in `theme/sass-entry.spec.ts`.
  */
-const affixCss = (): string =>
-  (
-    createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
-      compileString(source: string, options: { loadPaths: string[] }): { css: string };
-    }
-  ).compileString("@use 'affix/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')] }).css;
+const affixCss = (): string => compileSass("@use 'affix/styles';");
 
 /** One observer the directive created, with the levers a test needs. */
 interface Recorded {
@@ -543,37 +537,41 @@ describe('WrAffix', () => {
       expect(parent.classList).not.toContain('wr-affix__container');
     });
 
-    it('tags the parent rather than styling it when ngwr/affix is loaded, so an author position wins', async () => {
-      // An inline `position` beats every stylesheet rule on the parent, so a
-      // sidebar a media query makes `fixed` on phones stayed `relative`. The
-      // library rule is `:where()`: zero specificity, so the author rule wins even
-      // declared BEFORE it.
-      const sheet = document.createElement('style');
-      sheet.textContent = affixCss();
-      document.head.append(sheet);
-      try {
-        await mountIn(GridHost);
-        const parent = layout();
-        expect(parent.style.position).toBe('');
-        expect(parent.classList).toContain('wr-affix__container');
-        expect(getComputedStyle(parent).position).toBe('relative');
-
-        const author = document.createElement('style');
-        author.textContent = '.layout { position: fixed; }';
-        document.head.prepend(author);
+    it(
+      'tags the parent rather than styling it when ngwr/affix is loaded, so an author position wins',
+      { timeout: COMPILE_TIMEOUT },
+      async () => {
+        // An inline `position` beats every stylesheet rule on the parent, so a
+        // sidebar a media query makes `fixed` on phones stayed `relative`. The
+        // library rule is `:where()`: zero specificity, so the author rule wins even
+        // declared BEFORE it.
+        const sheet = document.createElement('style');
+        sheet.textContent = affixCss();
+        document.head.append(sheet);
         try {
-          expect(getComputedStyle(parent).position).toBe('fixed');
-        } finally {
-          author.remove();
-        }
+          await mountIn(GridHost);
+          const parent = layout();
+          expect(parent.style.position).toBe('');
+          expect(parent.classList).toContain('wr-affix__container');
+          expect(getComputedStyle(parent).position).toBe('relative');
 
-        fixture.destroy();
-        expect(parent.classList).not.toContain('wr-affix__container');
-        expect(parent.style.position).toBe('');
-      } finally {
-        sheet.remove();
+          const author = document.createElement('style');
+          author.textContent = '.layout { position: fixed; }';
+          document.head.prepend(author);
+          try {
+            expect(getComputedStyle(parent).position).toBe('fixed');
+          } finally {
+            author.remove();
+          }
+
+          fixture.destroy();
+          expect(parent.classList).not.toContain('wr-affix__container');
+          expect(parent.style.position).toBe('');
+        } finally {
+          sheet.remove();
+        }
       }
-    });
+    );
 
     it('keeps the parent the containing block until the last affix in it is gone', async () => {
       // Group headers in a filtered list: the first one to mount is not the last

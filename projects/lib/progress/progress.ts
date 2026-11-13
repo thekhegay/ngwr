@@ -5,12 +5,15 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
 import type { WrColor } from 'ngwr/theme';
 import { wrCheckStyles } from 'ngwr/utils';
+
+/** Size of a `<wr-progress>`. */
+export type WrProgressSize = 'sm' | 'md' | 'lg';
 
 /**
  * Horizontal progress bar.
@@ -19,19 +22,20 @@ import { wrCheckStyles } from 'ngwr/utils';
  * ```html
  * <wr-progress [value]="42" />
  * <wr-progress color="success" [value]="80" />
+ * <wr-progress indeterminate />
  * ```
  *
  * @see https://ngwr.dev/reference/components/progress
  */
 @Component({
   selector: 'wr-progress',
-  template: `<div class="wr-progress__bar" [style.width.%]="clamped()"></div>`,
+  template: `<div class="wr-progress__bar" [style.width.%]="indeterminate() ? null : clamped()"></div>`,
   encapsulation: ViewEncapsulation.None,
   host: {
     role: 'progressbar',
     'aria-valuemin': '0',
     'aria-valuemax': '100',
-    '[attr.aria-valuenow]': 'clamped()',
+    '[attr.aria-valuenow]': 'indeterminate() ? null : clamped()',
     '[attr.aria-label]': 'resolvedAriaLabel()',
     class: 'wr-progress',
     '[class]': 'classes()',
@@ -55,13 +59,35 @@ export class WrProgress {
   readonly color = input<WrColor>('primary');
 
   /**
+   * Bar thickness: 4px, 8px or 12px, through `--wr-progress-height`.
+   *
+   * @default 'md'
+   */
+  readonly size = input<WrProgressSize>('md');
+
+  /**
    * Progress value, clamped to `[0, 100]`.
    *
    * @default 0
    */
   readonly value = input(0, { transform: (v: unknown): number => coerceNumberProperty(v, 0) });
 
+  /**
+   * Show that work is running without saying how far it has got: the bar sweeps,
+   * `value` is ignored and `aria-valuenow` is left off, which is how a
+   * progressbar says its value is unknown.
+   *
+   * @default false
+   */
+  readonly indeterminate = input(false, { transform: coerceBooleanProperty });
+
   protected readonly clamped = computed(() => Math.max(0, Math.min(100, this.value())));
 
-  protected readonly classes = computed(() => `wr-progress--${this.color()}`);
+  protected readonly classes = computed(() => {
+    const parts = [`wr-progress--${this.color()}`];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-progress--${size}`);
+    if (this.indeterminate()) parts.push('wr-progress--indeterminate');
+    return parts.join(' ');
+  });
 }

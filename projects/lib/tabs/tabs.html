@@ -42,7 +42,7 @@
         role="tab"
         [attr.id]="headerId(tab.key())"
         [attr.aria-controls]="panelId(tab.key())"
-        [attr.tabindex]="tab === activeTab() && !tab.disabled() ? 0 : -1"
+        [attr.tabindex]="tab === contentStop() ? 0 : -1"
         [class.wr-tabs__tab--active]="tab === activeTab()"
         [class.wr-tabs__tab--disabled]="tab.disabled()"
         [attr.aria-selected]="tab === activeTab()"

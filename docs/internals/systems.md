@@ -48,10 +48,20 @@ one component folder. Reach for them instead of hand-rolling:
   the direction once, as a string, when the overlay is created and never looks
   again, so a new overlay calls this right after `overlay.create(...)`, passing
   the callback when its own position list is direction-dependent
-  (`wrMirrorOffsets`). **Whether global toasts paint over an overlay is
+  (`wrMirrorOffsets`). **An anchored panel takes the one set of twelve
+  positions, `WrAnchoredPosition`, and builds its CDK list with
+  `wrAnchoredPositions(position, { gap, paneClass })`** — `wr-popover`,
+  `wr-dropdown` and `wr-popconfirm` share the geometry and the flip chains, and
+  their own position types are aliases of it. A host only picks whether its gap
+  is a CDK offset (`gap`) or pane padding, and whether the links carry the
+  placement class (`paneClass`) or the host writes it. **Whether global toasts
+  paint over an overlay is
   `WrOverlayOrder`, never a z-index** — the top layer is ordered by promotion
-  time only, and the toast host re-promotes itself on every `show()` and
-  whenever an overlay joins the container. An overlay that takes a
+  time only, and the toast host re-promotes itself on a `show()` and when an
+  overlay joins the container, but only if something joined the top layer since
+  its last move (`order.add`, a `beforetoggle` or `fullscreenchange` on the
+  document, a node added to the container) and once a frame at most, so a
+  storm of toasts moves nothing. An overlay that takes a
   `toasts: 'above' | 'below'` option (dialog, drawer) calls
   `order.add(overlayRef.hostElement, toasts)` right after `attach()` and
   subscribes the returned function to `detachments()`. The registry leaves the
@@ -193,6 +203,20 @@ one component folder. Reach for them instead of hand-rolling:
   `WR_DATE_STAMP_DEFAULTS`, which lives in `ngwr/date` so that `withDates()`
   imports no component; both tokens merge over the injector above, so a
   route's call keeps the app's other keys.
+  **Periods** (16.3): `wrPeriodStart`, `wrPeriodEnd`, `wrWeekOfYear` and
+  `wrWeekStart` are plain functions over an adapter, for a week, month, quarter
+  or year. A week starts on `getFirstDayOfWeek()` and week 1 holds 4 January,
+  which with Monday first is the ISO week. `wr-calendar` takes a `granularity`
+  and both pickers take the same periods as a `mode`; the value is the period's
+  first day, and a range ends on the last day of its end period, as a `date`
+  range ends on a day. A period is closed by `min`, `max` or `dateFilter` only
+  when every day in it is. The pickers write `March 2026`, `Q1 2026`,
+  `Week 12, 2026` themselves (`date-picker/internal/period-text.ts`): the month
+  name and the numbers come from the adapter and the arrangement from the
+  catalog, and the field reads the text back by asking the template to print
+  itself with markers. **No `WrDateFormat` key was added for it**, on purpose:
+  a custom adapter has to handle every key, and a new one in a minor would
+  print its own name into the field of an adapter written before it.
 - **Router integration is OPT-IN since v14, and lives in two nested entry
   points** — `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`, and
   `WrTabsRouting` (the `[wrTabsRouting]` attribute on the strip) from
@@ -264,7 +288,24 @@ one component folder. Reach for them instead of hand-rolling:
   Header hints (`headerHint`) and cut cells (`truncate: 'tooltip'`) share ONE
   `WrPopover` per table, created on first use and pointed at the hovered or
   focused cell through `wrPopoverOrigin`; the table listens natively, so a
-  `mouseover` runs no change detection. Three pairs
+  `mouseover` runs no change detection. `hiddenColumns` filters
+  `displayColumns`, the one list every measurement keys off, so pins, widths
+  and colspans follow a hidden column with no code of their own; `columnChooser`
+  adds a toolbar strip above the scroll area (the table had no place for a
+  control of its own, and a header cell is gone in card mode). A
+  `[wrTableSelectionBar]` template draws a bar over the header while rows are
+  selected: it sits in a box of no height in front of the scroll area, so it
+  needs no sticky rule in any mode, leaves the select-all cell uncovered and
+  makes the header cells under it `inert`. `stateChange` reports reader actions
+  only and is emitted from an effect, which is what folds an action that writes
+  two parts into one event; `[state]` restores by object identity. A
+  `[wrTableEditCell]` template makes its column editable and the table a `grid`
+  (a tree stays a `treegrid`): one data cell holds a roving tab stop, the
+  arrows move between rendered cells, and the header and the row controls keep
+  their own tab stops. One cell edits at a time, its editor in the cell's place;
+  the table emits `cellEdit` and never writes `items`. A click outside, Tab,
+  Enter and a row the virtual window drops commit the value last passed to
+  `set`; Escape, a sort, a hidden column and a removed row drop it. Three pairs
   are refused rather than half-supported: tree + `groupBy`, tree +
   `[wrTableExpand]`, tree + `virtualScroll`. Excel (`.xlsx`)
   export is deliberately NOT shipped (would need a third-party dep). Don't

@@ -1,7 +1,6 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { describe, expect, it } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass } from '../spec-sass';
 
 /**
  * `@use 'ngwr/reset'` compiled rather than read, the way `theme/sass-entry.spec.ts`
@@ -17,16 +16,8 @@ import { describe, expect, it } from 'vitest';
  *
  * `sass` is resolved through `@angular/build`, for the reason that file gives.
  */
-interface Sass {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' | 'compressed' }): { css: string };
-}
-
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-
-const LIB = join(process.cwd(), 'projects/lib');
-
 const compile = (source: string, style: 'expanded' | 'compressed' = 'compressed'): string =>
-  sass.compileString(source, { loadPaths: [LIB], style }).css;
+  compileSass(source, { style });
 
 const RESET = "@use 'styles/reset';";
 const THEME = "@use 'theme';";
@@ -41,7 +32,7 @@ const read = (css: string): string[] => [...new Set([...css.matchAll(/var\(\s*(-
 const selectors = (css: string): string[] =>
   [...css.matchAll(/(?:^|\})([^{}@]+)\{/g)].map(m => m[1].trim().replace(/\s*,\s*/g, ', '));
 
-describe("the reset `@use 'ngwr/reset'`", () => {
+describe("the reset `@use 'ngwr/reset'`", { timeout: COMPILE_TIMEOUT }, () => {
   it('emits no theme: no token declaration, no `:root`', () => {
     const css = compile(RESET);
 
@@ -121,7 +112,7 @@ describe("the reset `@use 'ngwr/reset'`", () => {
   });
 });
 
-describe("the reset's `$layer`", () => {
+describe("the reset's `$layer`", { timeout: COMPILE_TIMEOUT }, () => {
   it('leaves the rules unlayered by default', () => {
     expect(compile(RESET)).not.toContain('@layer');
   });

@@ -452,6 +452,16 @@
   --wr-select-panel-message-padding: var(--wr-space-md);
   --wr-select-panel-retry-gap: var(--wr-space-sm);
   --wr-select-panel-retry-active-bg: var(--wr-color-hover);
+  // The select-all row's box: a checkbox drawn, not a control, so it has hooks
+  // of its own rather than `--wr-checkbox-*`.
+  --wr-select-panel-select-all-box-size: 1rem;
+  --wr-select-panel-select-all-box-radius: var(--wr-border-radius-sm);
+  --wr-select-panel-select-all-box-bg: var(--wr-color-surface);
+  --wr-select-panel-select-all-box-border: var(--wr-border-base);
+  --wr-select-panel-select-all-box-on-bg: var(--wr-color-primary);
+  --wr-select-panel-select-all-box-on-color: var(--wr-color-primary-contrast);
+  --wr-select-panel-select-all-hover-bg: var(--wr-color-hover);
+  --wr-select-panel-select-all-cursor: var(--wr-color-primary);
   // Option sizing — default md. --sm/--lg are set from the trigger size because
   // the panel is portaled into an overlay and can't inherit the host size class.
   --wr-option-font-size: var(--wr-control-font-size-md);
@@ -513,6 +523,86 @@
     text-align: center;
   }
 
+  // The first row under `selectAll`. Laid out as an option, from the same
+  // `--wr-option-*` hooks, and pinned: the panel scrolls under it. Its fill is
+  // the panel's own surface with the hover tint painted OVER it as an image,
+  // because that tint is translucent and the options behind would show through.
+  // It runs edge to edge over the panel's padding and pins to the padding's top
+  // edge, so no option shows above or beside it while the list scrolls; the
+  // panel's rounded clip draws its top corners.
+  &__select-all {
+    position: sticky;
+    inset-block-start: calc(-1 * var(--wr-select-panel-padding));
+    z-index: 1;
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--wr-option-inline-gap, 0.5rem);
+    margin-block-start: calc(-1 * var(--wr-select-panel-padding));
+    margin-inline: calc(-1 * var(--wr-select-panel-padding));
+    padding-block: calc(var(--wr-option-padding-y) + var(--wr-select-panel-padding)) var(--wr-option-padding-y);
+    padding-inline: calc(var(--wr-option-padding-x) + var(--wr-select-panel-padding));
+    background-color: var(--wr-select-panel-bg);
+    box-shadow: 0 1px 0 var(--wr-select-panel-border);
+    color: var(--wr-color-on-surface);
+    font-size: var(--wr-option-font-size);
+    font-weight: var(--wr-option-font-weight);
+    line-height: var(--wr-option-line-height);
+    cursor: pointer;
+    user-select: none;
+
+    &:hover,
+    &--active {
+      background-image: linear-gradient(
+        var(--wr-select-panel-select-all-hover-bg),
+        var(--wr-select-panel-select-all-hover-bg)
+      );
+    }
+
+    // The keyboard cursor: focus stays in the trigger, so this bar is the only
+    // sign of where the arrows are, as it is on a virtual row.
+    &--active::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      width: 2px;
+      background: var(--wr-select-panel-select-all-cursor);
+    }
+
+    &--disabled {
+      color: var(--wr-color-on-surface-muted);
+      cursor: not-allowed;
+      opacity: var(--wr-disabled-opacity);
+
+      &:hover {
+        background-image: none;
+      }
+    }
+  }
+
+  &__select-all-box {
+    display: inline-flex;
+    flex: none;
+    width: var(--wr-select-panel-select-all-box-size);
+    height: var(--wr-select-panel-select-all-box-size);
+    background: var(--wr-select-panel-select-all-box-bg);
+    border: 1px solid var(--wr-select-panel-select-all-box-border);
+    border-radius: var(--wr-select-panel-select-all-box-radius);
+    color: var(--wr-select-panel-select-all-box-on-color);
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &__select-all--checked &__select-all-box,
+  &__select-all--mixed &__select-all-box {
+    --wr-select-panel-select-all-box-bg: var(--wr-select-panel-select-all-box-on-bg);
+    --wr-select-panel-select-all-box-border: var(--wr-select-panel-select-all-box-on-bg);
+  }
+
   // A button on a line of its own, under the message.
   &__retry {
     display: flex;
@@ -540,11 +630,35 @@
   cursor: pointer;
   user-select: none;
   transition: background var(--wr-transition-short);
+  // Positioning context for the `--active` cursor bar below.
+  position: relative;
 
   &:hover {
     background: var(--wr-color-hover);
   }
 
+  // Keyboard cursor highlight — the list is navigated by
+  // aria-activedescendant, so real focus never lands on the row and the tint
+  // is all there was. `--wr-color-hover` is translucent and lands within about
+  // 1.1:1 of the panel behind it, which is the same grey to a reader who
+  // cannot separate hue — and it is the declaration `:hover` uses, so the row
+  // the arrows reached and a row under the mouse were indistinguishable. The
+  // bar is the channel; the tint stays as reinforcement.
+  &--active {
+    background: var(--wr-color-hover);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      width: 2px;
+      background: var(--wr-color-primary);
+    }
+  }
+
+  // After the cursor, so a selected row keeps its own tint (the bar still shows
+  // the cursor on it, since it is a pseudo-element and not a background).
   &--selected {
     background: var(--wr-color-primary-soft);
     // Text on the intent's own `-soft` tint: `-ink`, by calibration.
@@ -604,8 +718,6 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    // Positioning context for the `--active` cursor bar below.
-    position: relative;
   }
 
   // A virtual row is a block, not a flex row (one line, so it can ellipsize),
@@ -613,26 +725,6 @@
   .wr-option__leading {
     vertical-align: middle;
     margin-inline-end: var(--wr-option-inline-gap, 0.5rem);
-  }
-
-  // Keyboard cursor highlight — the virtualized list is navigated by
-  // aria-activedescendant, so real focus never lands on the row and the tint
-  // is all there was. `--wr-color-hover` is translucent and lands within about
-  // 1.1:1 of the panel behind it, which is the same grey to a reader who
-  // cannot separate hue — and it is the declaration `:hover` uses, so the row
-  // the arrows reached and a row under the mouse were indistinguishable. The
-  // bar is the channel; the tint stays as reinforcement.
-  .wr-option--active {
-    background: var(--wr-color-hover);
-
-    &::before {
-      content: '';
-      position: absolute;
-      inset-block: 0;
-      inset-inline-start: 0;
-      width: 2px;
-      background: var(--wr-color-primary);
-    }
   }
 }
 

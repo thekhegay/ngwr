@@ -7,6 +7,7 @@
 
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import {
@@ -15,6 +16,7 @@ import {
   ElementRef,
   Injector,
   ViewContainerRef,
+  effect,
   inject,
   input,
   output,
@@ -64,9 +66,10 @@ let popconfirmUid = 0;
     // attribute in the DOM at all, so without this there is nothing to find a
     // trigger by once the panel is shut.
     class: 'wr-popconfirm-trigger',
+    '[class.wr-popconfirm-trigger--disabled]': 'disabled()',
     '(click)': 'toggle($event)',
-    '[attr.aria-haspopup]': '"dialog"',
-    '[attr.aria-expanded]': 'isOpen()',
+    '[attr.aria-haspopup]': 'disabled() ? null : "dialog"',
+    '[attr.aria-expanded]': 'disabled() ? null : isOpen()',
     // Names the dialog this trigger opened, as every other overlay trigger in the
     // catalog does. `aria-haspopup="dialog"` promises a dialog and `aria-expanded`
     // says it is showing; without the id, which one is left to guess.
@@ -77,7 +80,11 @@ export class WrPopconfirm {
   /** Confirmation message. */
   readonly message = input.required<string>({ alias: 'wrPopconfirm' });
 
-  /** Anchor side; the panel flips to another side when this one has no room. @default 'top' */
+  /**
+   * Anchor side and alignment, the twelve placements `wr-popover` takes; the
+   * panel flips to another side when this one has no room.
+   * @default 'top'
+   */
   readonly position = input<WrPopconfirmPosition>('top');
 
   /** Label for the confirm button. @default 'Confirm' */
@@ -114,6 +121,20 @@ export class WrPopconfirm {
    */
   readonly panelClass = input<WrClassInput>(null);
 
+  /**
+   * Turns the question off: a click on the host opens nothing and is left to
+   * propagate, `open()` does nothing, and an open panel closes without
+   * `cancelled`. The host publishes no popup ARIA meanwhile and carries
+   * `wr-popconfirm-trigger--disabled`.
+   *
+   * The host's own `disabled` stays yours: the directive never sets it, so the
+   * button still takes its own `(click)` — the way to skip the question when
+   * there is nothing to confirm.
+   *
+   * @default false
+   */
+  readonly disabled = input(false, { alias: 'wrPopconfirmDisabled', transform: coerceBooleanProperty });
+
   /** Fires when the user clicks confirm. */
   readonly confirmed = output<void>();
 
@@ -147,10 +168,14 @@ export class WrPopconfirm {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('popconfirm');
     this.destroyRef.onDestroy(() => this.dispose());
+    effect(() => {
+      if (this.disabled()) this.close();
+    });
   }
 
   /** @internal */
   protected toggle(event: MouseEvent): void {
+    if (this.disabled()) return;
     event.stopPropagation();
     if (this.overlayRef) {
       this.close();
@@ -159,8 +184,9 @@ export class WrPopconfirm {
     }
   }
 
+  /** Open the panel. Does nothing while the trigger is disabled. */
   open(): void {
-    if (this.overlayRef) return;
+    if (this.disabled() || this.overlayRef) return;
 
     // Read ONCE, here, and mirror this list rather than the input: the side is
     // chosen at open and a later `position` write moves nothing, so a follower

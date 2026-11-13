@@ -7,6 +7,8 @@
 
 import type { BaseHarnessFilters } from '@angular/cdk/testing';
 
+import type { WrDatePickerMode, WrDateRangePickerMode } from 'ngwr/date-picker';
+
 import type { WrDatePickerHarness } from '../wr-date-picker-harness';
 import type { WrDateRangePickerHarness } from '../wr-date-range-picker-harness';
 
@@ -38,7 +40,7 @@ export interface WrDatePickerHarnessFilters extends BaseHarnessFilters {
   /** Match the field's placeholder — a string is an exact match, a RegExp is tested. */
   readonly placeholder?: string | RegExp;
   /** Match one mode only. */
-  readonly mode?: 'date' | 'time' | 'datetime';
+  readonly mode?: WrDatePickerMode;
   /** Match only enabled (`false`) or only disabled (`true`) pickers. */
   readonly disabled?: boolean;
   /** Match only pickers whose popup is up (`true`) or down (`false`). */
@@ -52,7 +54,7 @@ export interface WrDateRangePickerHarnessFilters extends BaseHarnessFilters {
   /** Match the text in the END field. A string is an exact match, a RegExp is tested. */
   readonly endText?: string | RegExp;
   /** Match one mode only. The range picker has no `time` mode. */
-  readonly mode?: 'date' | 'datetime';
+  readonly mode?: WrDateRangePickerMode;
   /** Match only enabled (`false`) or only disabled (`true`) pickers. */
   readonly disabled?: boolean;
   /** Match only pickers whose popup is up (`true`) or down (`false`). */

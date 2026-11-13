@@ -6,14 +6,27 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EnvironmentInjector,
+  ViewEncapsulation,
+  afterEveryRender,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 
+import { useI18nFormatter, wrReadI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
 import type { WrColor } from 'ngwr/theme';
-import { wrCheckStyles } from 'ngwr/utils';
+import { wrCheckStyles, wrGetFocusableElements } from 'ngwr/utils';
 
-import type { WrTagIconPosition } from './types';
+import type { WrTagIconPosition, WrTagSize } from './types';
 
 /**
  * Rich inline label — icons, loading state, three visual styles
@@ -26,6 +39,7 @@ import type { WrTagIconPosition } from './types';
  * <wr-tag color="success" icon="checkmark">Done</wr-tag>
  * <wr-tag color="primary" outlined rounded>Beta</wr-tag>
  * <wr-tag color="warning" loading>Saving</wr-tag>
+ * <wr-tag closable (removed)="drop(topic)">{{ topic }}</wr-tag>
  * ```
  *
  * @see https://ngwr.dev/reference/components/badge
@@ -34,12 +48,22 @@ import type { WrTagIconPosition } from './types';
   selector: 'wr-tag',
   templateUrl: './tag.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-tag', '[class]': 'classes()' },
+  host: {
+    class: 'wr-tag',
+    '[class]': 'classes()',
+    '(keydown.delete)': 'onRemoveKey($event)',
+    '(keydown.backspace)': 'onRemoveKey($event)',
+  },
   imports: [WrIcon, WrSpinner],
 })
 export class WrTag {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('badge');
+    // The label is projected, so only the DOM knows it, and the parent can
+    // rewrite it without this component being checked.
+    afterEveryRender(() => {
+      if (this.closable()) this.text.set(this.readText());
+    });
   }
 
   /**
@@ -55,6 +79,14 @@ export class WrTag {
    * @default 'primary'
    */
   readonly color = input<WrColor | null>('primary');
+
+  /**
+   * Size variant. `md` is the 22px chip that sits beside an `sm` control, `sm`
+   * is 18px and `lg` 30px, the heights of a badge at those sizes.
+   *
+   * @default 'md'
+   */
+  readonly size = input<WrTagSize>('md');
 
   /**
    * Icon name shown alongside the content — the one channel besides the label
@@ -108,21 +140,114 @@ export class WrTag {
    */
   readonly loading = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Renders a remove button at the end of the tag. The tag does not remove
+   * itself: drop it from your list in `(removed)`. A `loading` tag keeps the
+   * button; bind `[closable]="!saving"` to withhold it.
+   *
+   * @default false
+   */
+  readonly closable = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Accessible name of the remove button. Falls back to the catalog's
+   * `tag.remove` with the tag's own text, "Remove Angular", or to
+   * `common.remove` for a tag with no text.
+   *
+   * @default null
+   */
+  readonly removeLabel = input<string | null>(null);
+
+  /**
+   * Emitted when the user removes the tag: a click on the remove button, or
+   * Delete / Backspace on it (or on the tag itself, if you made it focusable).
+   * The click does not reach a `(click)` on the tag. If the button had focus and
+   * the tag is gone after the next render, focus moves to the next tab stop, or
+   * the one before it when nothing follows.
+   */
+  readonly removed = output<void>();
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly environment = inject(EnvironmentInjector);
+
+  private readonly text = signal('');
+  private readonly removeText = useI18nFormatter('tag.remove', 'Remove {{label}}');
+  private readonly removeBare = wrReadI18nText('common.remove', 'Remove');
+
+  protected readonly removeName = computed(() => {
+    const given = this.removeLabel();
+    if (given) return given;
+    const label = this.text();
+    return label ? this.removeText({ label }) : this.removeBare();
+  });
+
   protected readonly classes = computed(() => {
     const parts: string[] = [];
 
     const color = this.color();
     if (color) parts.push(`wr-tag--${color}`);
 
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-tag--${size}`);
+
     if (this.outlined()) parts.push('wr-tag--outlined');
     if (this.transparent()) parts.push('wr-tag--transparent');
     if (this.rounded()) parts.push('wr-tag--rounded');
     if (this.hoverable()) parts.push('wr-tag--hoverable');
     if (this.loading()) parts.push('wr-tag--loading');
+    if (this.closable()) parts.push('wr-tag--closable');
 
     const hasAdornment = !!this.icon() || this.loading();
     if (hasAdornment) parts.push(`wr-tag--icon-${this.iconPosition()}`);
 
     return parts.join(' ');
   });
+
+  protected onRemove(event: Event): void {
+    event.stopPropagation();
+    this.remove();
+  }
+
+  protected onRemoveKey(event: Event): void {
+    if (!this.closable()) return;
+    const host = this.host.nativeElement;
+    if (event.target !== host && event.target !== this.removeButton()) return;
+    event.preventDefault();
+    this.remove();
+  }
+
+  private remove(): void {
+    const host = this.host.nativeElement;
+    const doc = host.ownerDocument;
+    const button = this.removeButton();
+    const stops =
+      button && doc.activeElement === button ? wrGetFocusableElements(doc.body).filter(el => el.tabIndex >= 0) : [];
+    const at = button ? stops.indexOf(button) : -1;
+    this.removed.emit();
+    if (at < 0) return;
+    // The environment's injector: this component's own is destroyed with the tag.
+    afterNextRender(
+      () => {
+        const active = doc.activeElement;
+        if (host.isConnected || (active && active !== doc.body)) return;
+        [stops[at + 1], stops[at - 1]].find(el => el?.isConnected)?.focus();
+      },
+      { injector: this.environment }
+    );
+  }
+
+  private removeButton(): HTMLElement | null {
+    return this.host.nativeElement.querySelector<HTMLElement>(':scope > .wr-tag__remove');
+  }
+
+  private readText(): string {
+    let text = '';
+    for (const node of this.host.nativeElement.childNodes) {
+      // Angular's anchors are comments, and a comment's `textContent` is its data.
+      if (node.nodeType === Node.COMMENT_NODE) continue;
+      if (node instanceof Element && node.matches('.wr-tag__adornment, .wr-tag__remove')) continue;
+      text += node.textContent ?? '';
+    }
+    return text.replace(/\s+/g, ' ').trim();
+  }
 }

@@ -14,8 +14,13 @@ export type {
   WrTableTruncate,
 } from './table-columns';
 export type { WrTableCellContext } from './table-cell-context';
+export type { WrTableCellEdit } from './table-cell-edit';
+export type { WrTableEditCellContext } from './table-edit-cell-context';
+export type { WrTableEditable } from './table-editable';
 export type { WrTableCsvOptions } from './table-csv-options';
 export type { WrTableExpandContext } from './table-expand-context';
 export type { WrTableGroupContext } from './table-group-context';
 export type { WrTableLoadingMode } from './table-loading-mode';
+export type { WrTableSelectionContext } from './table-selection-context';
+export type { WrTableState } from './table-state';
 export type { WrTableSummaryContext } from './table-summary-context';

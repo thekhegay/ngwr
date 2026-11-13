@@ -28,7 +28,7 @@ import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { wrGetFocusableElements, wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrColorPicker } from './color-picker';
-import type { WrColorFormat } from './types';
+import type { WrColorFormat, WrColorPickerSize, WrColorPickerSwatch } from './types';
 
 let triggerUid = 0;
 
@@ -57,7 +57,7 @@ function tabLeavesPane(pane: HTMLElement, event: KeyboardEvent): boolean {
  *
  * Apply to any clickable element (typically a button). Two-way binds the
  * current colour through `[(value)]`; forwards `alpha` / `format` /
- * `swatches` / `disabled` to the inner picker.
+ * `swatches` / `size` / `disabled` to the inner picker.
  *
  * Same overlay isolation as the rest of the lib — uses {@link WR_OVERLAY},
  * not CDK's root container.
@@ -104,7 +104,10 @@ export class WrColorPickerTrigger {
   readonly format = input<WrColorFormat>('hex');
 
   /** Forwarded to the inner picker. @default [] */
-  readonly swatches = input<readonly string[]>([]);
+  readonly swatches = input<readonly WrColorPickerSwatch[]>([]);
+
+  /** Forwarded to the inner picker: the size of the panel this opens. @default 'md' */
+  readonly size = input<WrColorPickerSize>('md');
 
   /** Disable the trigger entirely. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
@@ -141,7 +144,10 @@ export class WrColorPickerTrigger {
    */
   private readonly dir = inject(Directionality, { optional: true });
 
-  protected readonly isOpen = signal(false);
+  private readonly openState = signal(false);
+
+  /** Whether the picker panel is open. Read-only: `open()` and `close()` change it. */
+  readonly isOpen = this.openState.asReadonly();
   private overlayRef: OverlayRef | null = null;
 
   /** @internal Public so the host binding can read it. */
@@ -199,6 +205,7 @@ export class WrColorPickerTrigger {
     ref.setInput('alpha', this.alpha());
     ref.setInput('format', this.format());
     ref.setInput('swatches', this.swatches());
+    ref.setInput('size', this.size());
     ref.setInput('disabled', this.disabled());
     ref.setInput('value', this.value());
 
@@ -247,7 +254,7 @@ export class WrColorPickerTrigger {
         }
       });
 
-    this.isOpen.set(true);
+    this.openState.set(true);
     this.opened.emit();
   }
 
@@ -260,7 +267,7 @@ export class WrColorPickerTrigger {
     // already clicked elsewhere, taking it back would be stealing.
     const returnFocus = !!this.overlayRef?.overlayElement.contains(document.activeElement);
     this.dispose();
-    this.isOpen.set(false);
+    this.openState.set(false);
     this.closed.emit();
     if (returnFocus) wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
   }

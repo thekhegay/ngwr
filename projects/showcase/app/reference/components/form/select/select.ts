@@ -82,7 +82,7 @@ export default class SelectComponent {
 
   protected readonly snippets = {
     openFromCode: `<wr-select #sizes [(value)]="size" (opened)="onOpened()" (closed)="onClosed()">…</wr-select>
-<button wr-btn (click)="sizes.open()">Open</button>`,
+<button wr-btn [attr.aria-expanded]="sizes.isOpen()" (click)="sizes.open()">Open</button>`,
 
     typed: `interface Country {
   code: string;
@@ -229,6 +229,11 @@ export class AssigneePicker {
   // One template, three places: size it per placement.
   protected readonly avatarPx: Record<WrOptionLeadingPlacement, number> = { option: 24, value: 20, chip: 16 };
 }`,
+    selectAll: `<wr-select mode="multi" selectAll searchable clearable [maxTagCount]="3" [(value)]="picked">
+  @for (c of allCategories; track c) {
+    <wr-option [value]="c">{{ c }}</wr-option>
+  }
+</wr-select>`,
     searchableMulti: `<wr-select mode="multi" searchable placeholder="Filter categories" [(value)]="categories">
   @for (c of allCategories; track c) {
     <wr-option [value]="c">{{ c }}</wr-option>
@@ -329,6 +334,7 @@ categoryId.setValue(2);`,
   ];
 
   protected readonly categories = signal<readonly string[]>(['Cranes']);
+  protected readonly allPicked = signal<readonly string[]>([]);
 
   // Assignee-picker demo — a leading avatar per person, kept out of the label.
   protected readonly people = [

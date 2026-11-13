@@ -14,7 +14,7 @@
         size="sm"
         outlined
         class="wr-event-calendar__step wr-event-calendar__step--prev"
-        [attr.aria-label]="previousLabel()"
+        [attr.aria-label]="resolvedPreviousLabel()"
         (click)="step(-1)"
       >
         <svg
@@ -32,7 +32,7 @@
         </svg>
       </button>
       <button wr-btn type="button" size="sm" outlined class="wr-event-calendar__today" (click)="goToday()">
-        {{ todayLabel() }}
+        {{ resolvedTodayLabel() }}
       </button>
       <button
         wr-btn
@@ -40,7 +40,7 @@
         size="sm"
         outlined
         class="wr-event-calendar__step wr-event-calendar__step--next"
-        [attr.aria-label]="nextLabel()"
+        [attr.aria-label]="resolvedNextLabel()"
         (click)="step(1)"
       >
         <svg
@@ -144,7 +144,7 @@
     [attr.aria-label]="resolvedAriaLabel()"
   >
     <div role="row" class="wr-event-calendar__row">
-      <div role="columnheader" class="wr-event-calendar__gutter" [attr.aria-label]="timeLabel()"></div>
+      <div role="columnheader" class="wr-event-calendar__gutter" [attr.aria-label]="resolvedTimeLabel()"></div>
       @for (column of columns(); track column.key) {
         <div
           role="columnheader"
@@ -163,7 +163,7 @@
         class="wr-event-calendar__row wr-event-calendar__row--allday"
         [style.--wr-event-calendar-lanes]="allDayLanes()"
       >
-        <div role="rowheader" class="wr-event-calendar__gutter">{{ allDayLabel() }}</div>
+        <div role="rowheader" class="wr-event-calendar__gutter">{{ resolvedAllDayLabel() }}</div>
         @for (cell of allDayCells(); track cell.key; let c = $index) {
           <div
             role="gridcell"

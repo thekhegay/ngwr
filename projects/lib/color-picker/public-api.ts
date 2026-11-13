@@ -11,4 +11,4 @@ export {
   type WrHsv,
   type WrRgb,
 } from './color';
-export type { WrColorFormat } from './types';
+export type { WrColorFormat, WrColorPickerSize, WrColorPickerSwatch } from './types';

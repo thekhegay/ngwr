@@ -23,7 +23,8 @@ import { type WrDateFormat, type WrParseDateOptions, WrDateAdapter, wrIsDateOnly
  *
  * The value is read as `withDates()` says: `epochUnit` for a number and
  * `zonelessIn` for a date-time string with no offset. The last argument
- * overrides either for one call, for a field whose unit differs from the app's.
+ * overrides either for one call, for a field whose unit differs from the app's;
+ * a key left `undefined` keeps the app's value.
  *
  * The adapter stands where `wrFormatNumber` takes a locale, because the output
  * is the adapter's: the native one formats in `WR_DATE_LOCALE`, and an app's own
@@ -46,7 +47,13 @@ export function wrFormatDate(
   format: WrDateFormat | (string & {}) = 'shortDate',
   options?: WrParseDateOptions
 ): string {
-  const date = wrParseDate(value, { ...adapter.parseOptions(), ...options });
+  const app = adapter.parseOptions();
+  // Not a spread: a key set to `undefined` would erase the app's value.
+  const date = wrParseDate(value, {
+    epochUnit: options?.epochUnit ?? app.epochUnit,
+    zonelessIn: options?.zonelessIn ?? app.zonelessIn,
+    timeZone: options?.timeZone === undefined ? app.timeZone : options.timeZone,
+  });
   if (date === null) return '';
   return (wrIsDateOnly(value) ? adapter : adapter.zoned()).format(date, format);
 }

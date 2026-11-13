@@ -22,6 +22,9 @@ const OFFSET = /^([+-])(\d{2})(?::?(\d{2}))?$/;
 
 const MINUTE = 60_000;
 
+/** The largest time a `Date` holds. */
+const MAX_TIME = 8.64e15;
+
 const resolved = new Map<string, WrResolvedZone | null>();
 
 /**
@@ -100,6 +103,8 @@ function wrResolveZone(value: string | null | undefined): WrResolvedZone | null 
 function wrZoneWallTime(time: number, zone: WrResolvedZone | null): number {
   if (!zone) return time - new Date(time).getTimezoneOffset() * MINUTE;
   if (zone.kind === 'offset') return time + zone.minutes * MINUTE;
+  // `formatToParts` throws on a time no `Date` holds.
+  if (!(Math.abs(time) <= MAX_TIME)) return NaN;
 
   const read: Record<string, number> = {};
   for (const part of zone.fields.formatToParts(time)) read[part.type] = Number(part.value);
@@ -110,7 +115,9 @@ function wrZoneWallTime(time: number, zone: WrResolvedZone | null): number {
 /**
  * The instant a wall clock (see {@link wrZoneWallTime}) names in the zone. A
  * wall clock a daylight-saving change skips lands after the change, as
- * `new Date(y, m, d, h)` does for the browser's own zone.
+ * `new Date(y, m, d, h)` does for the browser's own zone. One the change
+ * repeats is its first pass in a zone west of UTC and its second east of it.
+ * An invalid wall clock gives `NaN`.
  *
  * @internal
  */
@@ -126,10 +133,12 @@ function wrZoneInstant(wall: number, zone: WrResolvedZone | null): number {
 
   // The offset is known only for an instant, so guess with the offset the wall
   // clock would have as an instant and correct once: two passes settle
-  // everything but a skipped hour, which has no answer to settle on.
+  // everything but a skipped hour, which has no answer to settle on. There the
+  // passes hold the offsets of the two sides of the change, and the one from
+  // before it gives the later instant, which is the one past the gap.
   const first = wall - (wrZoneWallTime(wall, zone) - wall);
   const second = wall - (wrZoneWallTime(first, zone) - first);
-  return second;
+  return wrZoneWallTime(second, zone) === wall ? second : Math.max(first, second);
 }
 
 export { wrResolveZone, wrUtcTime, wrZoneInstant, wrZoneWallTime };

@@ -49,6 +49,9 @@ export const wrEs: WrI18nCatalog = {
     noMatches: 'Sin coincidencias',
     search: 'Buscar',
     reset: 'Restablecer',
+    columns: 'Columnas',
+    selected: '{{count}} seleccionadas',
+    clearSelection: 'Borrar selección',
   },
   eventCalendar: {
     today: 'Hoy',
@@ -109,6 +112,7 @@ export const wrEs: WrI18nCatalog = {
     loadError: 'No se pudieron cargar los resultados',
     retry: 'Reintentar',
     more: '+{{count}} más',
+    selectAll: 'Seleccionar todo',
   },
   tree: {
     expand: 'Expandir',
@@ -117,6 +121,9 @@ export const wrEs: WrI18nCatalog = {
     clearSelection: 'Borrar la selección',
     removeItem: 'Quitar {{label}}',
     more: '+{{count}} más',
+    moveKeyHelp:
+      'Pulsa Alt+Intro para levantar este elemento y muévelo con las flechas. ' +
+      'Pulsa Intro para soltarlo o Escape para devolverlo a su sitio.',
   },
   commandPalette: {
     label: 'Paleta de comandos',
@@ -140,6 +147,11 @@ export const wrEs: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Subiendo',
+    uploaded: 'Subido',
+    failed: 'Error al subir',
+    status: '{{name}}: {{status}}',
+    retry: 'Reintentar',
   },
   popconfirm: {
     label: 'Confirmar la acción',
@@ -196,6 +208,8 @@ export const wrEs: WrI18nCatalog = {
     nextYear: 'Año siguiente',
     monthList: 'Meses',
     yearList: 'Años',
+    quarterList: 'Trimestres',
+    quarter: 'T{{quarter}}',
     prevYears: '12 años anteriores',
     nextYears: '12 años siguientes',
     header: '{{month}} de {{year}}',
@@ -341,6 +355,9 @@ export const wrEs: WrI18nCatalog = {
   alert: {
     close: 'Cerrar la alerta',
   },
+  tag: {
+    remove: 'Quitar {{label}}',
+  },
   qr: {
     label: 'Código QR',
   },
@@ -440,6 +457,8 @@ export const wrEs: WrI18nCatalog = {
     panelDateTime: 'Elegir fecha y hora',
     panelRange: 'Elegir intervalo de fechas',
     panelRangeDateTime: 'Elegir intervalo de fecha y hora',
+    quarterValue: 'T{{quarter}} {{year}}',
+    weekValue: 'Semana {{week}}, {{year}}',
     rangeStart: 'Inicio del intervalo',
     rangeEnd: 'Fin del intervalo',
     startTime: 'Hora de inicio',

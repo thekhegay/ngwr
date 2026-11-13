@@ -81,6 +81,9 @@ export const wrEn: WrI18nCatalog = {
     // placeholder AND its accessible name.
     search: 'Search',
     reset: 'Reset',
+    columns: 'Columns',
+    selected: '{{count}} selected',
+    clearSelection: 'Clear selection',
   },
   eventCalendar: {
     today: 'Today',
@@ -156,6 +159,8 @@ export const wrEn: WrI18nCatalog = {
     loadError: 'Could not load results',
     retry: 'Try again',
     more: '+{{count}} more',
+    // The first row of a multi select's panel under `selectAll`.
+    selectAll: 'Select all',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -168,6 +173,11 @@ export const wrEn: WrI18nCatalog = {
     // Same string and same shape as `select.more` — the two components render
     // the identical overflow chip, and only one of them could be translated.
     more: '+{{count}} more',
+    // A `draggable` tree's keyboard move. Space and Enter select in a tree, so
+    // the pick-up is a chord of its own.
+    moveKeyHelp:
+      'Press Alt+Enter to pick this item up, then use the arrow keys to move it. ' +
+      'Press Enter to drop it, or Escape to put it back.',
   },
   commandPalette: {
     label: 'Command palette',
@@ -201,6 +211,13 @@ export const wrEn: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    // Per-file upload state. The three words name a row's state, and `status` joins
+    // one to a file name for the progress bar's name and the live announcement.
+    uploading: 'Uploading',
+    uploaded: 'Uploaded',
+    failed: 'Upload failed',
+    status: '{{name}}: {{status}}',
+    retry: 'Try again',
   },
   popconfirm: {
     label: 'Confirm action',
@@ -263,6 +280,10 @@ export const wrEn: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Months',
     yearList: 'Years',
+    quarterList: 'Quarters',
+    // A quarter chip under `granularity="quarter"`. A template for the reason the
+    // header is one: `T1` and `第1四半期` are arrangements, not translations of `Q`.
+    quarter: 'Q{{quarter}}',
     prevYears: 'Previous 12 years',
     nextYears: 'Next 12 years',
     // The header above the grid, as ONE template. It was `${month} ${year}` in
@@ -440,6 +461,9 @@ export const wrEn: WrI18nCatalog = {
   alert: {
     close: 'Close alert',
   },
+  tag: {
+    remove: 'Remove {{label}}',
+  },
   qr: {
     label: 'QR code',
   },
@@ -554,6 +578,9 @@ export const wrEn: WrI18nCatalog = {
     panelDateTime: 'Choose date and time',
     panelRange: 'Choose date range',
     panelRangeDateTime: 'Choose date and time range',
+    // What the field shows, and reads back, in `mode="quarter"` and `mode="week"`.
+    quarterValue: 'Q{{quarter}} {{year}}',
+    weekValue: 'Week {{week}}, {{year}}',
     rangeStart: 'Range start',
     rangeEnd: 'Range end',
     startTime: 'Start time',

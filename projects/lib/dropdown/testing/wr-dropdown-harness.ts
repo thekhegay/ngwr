@@ -14,6 +14,8 @@ import {
   type TestElement,
 } from '@angular/cdk/testing';
 
+import type { WrDropdownPosition } from 'ngwr/dropdown';
+
 import type { WrDropdownHarnessFilters, WrDropdownItemHarnessFilters } from './types';
 import { WrDropdownItemHarness } from './wr-dropdown-item-harness';
 
@@ -58,7 +60,8 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
       .addOption('text', options.text, (harness, text) =>
         HarnessPredicate.stringMatches(harness.getTriggerText(), text)
       )
-      .addOption('open', options.open, async (harness, open) => (await harness.isOpen()) === open);
+      .addOption('open', options.open, async (harness, open) => (await harness.isOpen()) === open)
+      .addOption('disabled', options.disabled, async (harness, disabled) => (await harness.isDisabled()) === disabled);
   }
 
   /** The trigger's visible text. */
@@ -71,9 +74,37 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
     return (await (await this.host()).getAttribute('aria-expanded')) === 'true';
   }
 
+  /**
+   * Whether `wrDropdownDisabled` has turned the trigger off — read from
+   * `wr-dropdown-trigger--disabled`, the one mark a disabled trigger carries.
+   * The HOST's own `disabled` is another question: the directive never sets it,
+   * so ask the host's harness (`WrButtonHarness.isDisabled()`).
+   */
+  async isDisabled(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-dropdown-trigger--disabled');
+  }
+
   /** The role the menu announces — `menu`. Throws while the menu is closed. */
   async getMenuRole(): Promise<string | null> {
     return (await this.menu()).getAttribute('role');
+  }
+
+  /**
+   * Where the menu sits relative to the trigger, or `null` when its pane names
+   * no placement, as a submenu's does not. Throws while the menu is closed.
+   *
+   * Read off the pane's public modifier class, since a bound `position` never
+   * reaches the DOM. The class names the placement the menu LANDED on, which is
+   * the one asked for unless it had no room there and flipped; in jsdom, with no
+   * layout to run out of, the two are the same.
+   */
+  async getPosition(): Promise<WrDropdownPosition | null> {
+    const pane = await this.documentRootLocatorFactory().locatorFor(
+      `.wr-dropdown-overlay:has(> #${await this.menuId()})`
+    )();
+    const classes = (await pane.getAttribute('class')) ?? '';
+    const modifier = /wr-dropdown-overlay--((?:top|bottom|left|right)(?:-(?:start|end))?)(?![a-z-])/.exec(classes);
+    return modifier ? (modifier[1] as WrDropdownPosition) : null;
   }
 
   /**
@@ -110,7 +141,8 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
     throw new Error(
       'WrDropdownHarness.open(): the menu did not open — neither hovering the trigger nor clicking it ' +
         'had any effect. Both gestures were tried, so the `trigger` mode is not the cause; check that this ' +
-        'element is the trigger you meant. openByKeyboard() is the third route in.'
+        'element is the trigger you meant and that it is not disabled (isDisabled()). openByKeyboard() is ' +
+        'the third route in.'
     );
   }
 
@@ -131,7 +163,7 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
     throw new Error(
       'WrDropdownHarness.openByKeyboard(): ArrowDown on the trigger did not open the menu. The component ' +
         'takes ArrowDown / ArrowUp / Enter / Space in EVERY `trigger` mode, so the mode is not the cause; ' +
-        'check that this element is the trigger you meant.'
+        'check that this element is the trigger you meant and that it is not disabled (isDisabled()).'
     );
   }
 

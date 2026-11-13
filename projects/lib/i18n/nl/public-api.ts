@@ -49,6 +49,9 @@ export const wrNl: WrI18nCatalog = {
     noMatches: 'Geen resultaten',
     search: 'Zoeken',
     reset: 'Wissen',
+    columns: 'Kolommen',
+    selected: '{{count}} geselecteerd',
+    clearSelection: 'Selectie wissen',
   },
   eventCalendar: {
     today: 'Vandaag',
@@ -109,6 +112,7 @@ export const wrNl: WrI18nCatalog = {
     loadError: 'Resultaten konden niet worden geladen',
     retry: 'Opnieuw proberen',
     more: '+{{count}} meer',
+    selectAll: 'Alles selecteren',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -119,6 +123,9 @@ export const wrNl: WrI18nCatalog = {
     clearSelection: 'Selectie wissen',
     removeItem: '{{label}} verwijderen',
     more: '+{{count}} meer',
+    moveKeyHelp:
+      'Druk op Alt+Enter om dit item op te pakken en verplaats het daarna met de pijltoetsen. ' +
+      'Druk op Enter om het neer te zetten, of op Escape om het terug te zetten.',
   },
   commandPalette: {
     label: 'Opdrachtenpalet',
@@ -142,6 +149,11 @@ export const wrNl: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Bezig met uploaden',
+    uploaded: 'Geüpload',
+    failed: 'Uploaden mislukt',
+    status: '{{name}}: {{status}}',
+    retry: 'Opnieuw proberen',
   },
   popconfirm: {
     label: 'Actie bevestigen',
@@ -201,6 +213,8 @@ export const wrNl: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Maanden',
     yearList: 'Jaren',
+    quarterList: 'Kwartalen',
+    quarter: 'K{{quarter}}',
     prevYears: 'Vorige 12 jaar',
     nextYears: 'Volgende 12 jaar',
     header: '{{month}} {{year}}',
@@ -349,6 +363,9 @@ export const wrNl: WrI18nCatalog = {
   alert: {
     close: 'Melding sluiten',
   },
+  tag: {
+    remove: '{{label}} verwijderen',
+  },
   qr: {
     label: 'QR-code',
   },
@@ -454,6 +471,8 @@ export const wrNl: WrI18nCatalog = {
     panelDateTime: 'Datum en tijd kiezen',
     panelRange: 'Periode kiezen',
     panelRangeDateTime: 'Periode met tijd kiezen',
+    quarterValue: 'K{{quarter}} {{year}}',
+    weekValue: 'Week {{week}} van {{year}}',
     rangeStart: 'Begin van periode',
     rangeEnd: 'Einde van periode',
     startTime: 'Begintijd',

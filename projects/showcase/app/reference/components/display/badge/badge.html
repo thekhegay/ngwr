@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Badge"
-  updated="15.0.0"
+  updated="16.3.0"
   description="A small label for a count or a status."
   [keywords]="['badge', 'tag', 'status', 'wr-badge', 'wr-tag']"
   [labels]="['Component']"
@@ -73,6 +73,34 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Tag sizes"
+    description="`sm`, `md` (default) or `lg`. The icon and the remove button follow. Since v16.3."
+  >
+    <ngwr-doc-code [code]="snippets.tagSizes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem">
+        @for (s of tagSizes; track s) {
+          <wr-tag color="success" icon="checkmark" closable [size]="s">{{ s }}</wr-tag>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Removable tag"
+    description="`closable` adds a remove button, named after the tag's text. The tag stays until you drop it in `(removed)`. Since v16.3."
+  >
+    <ngwr-doc-snippet [code]="snippets.removable">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem">
+        @for (topic of topics(); track topic) {
+          <wr-tag closable outlined (removed)="drop(topic)">{{ topic }}</wr-tag>
+        }
+        <wr-btn size="sm" outlined (click)="topics.set(allTopics)">Reset</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Colour is not a label"
     description="Write the state in the label (`Failed`, not a red `Build`), and give a status tag an `icon` you register."
   >
@@ -89,7 +117,7 @@
   <ngwr-doc-section title="API" description="Inputs of &lt;wr-badge&gt;.">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
-  <ngwr-doc-section title="Tag API" description="Inputs of &lt;wr-tag&gt;.">
+  <ngwr-doc-section title="Tag API" description="Inputs and outputs of &lt;wr-tag&gt;.">
     <ngwr-doc-api [rows]="tagApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>

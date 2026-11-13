@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="16.1.0"
+  updated="16.3.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
@@ -379,6 +379,42 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Bulk actions"
+    description="A `wrTableSelectionBar` template puts a bar over the header while rows are selected: the count, a clear button and your actions."
+  >
+    <ngwr-doc-code [code]="snippets.selectionBar" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table
+          rowSelection="multiple"
+          rowKey="email"
+          [(selection)]="bulkSelected"
+          [columns]="bulkColumns"
+          [items]="bulkRows()"
+        >
+          <ng-template wrTableSelectionBar [wrTableSelectionBarOf]="bulkRows()" let-rows let-clear="clear">
+            <button wr-btn type="button" size="sm" color="danger" (click)="removeRows(rows, clear)">Delete</button>
+          </ng-template>
+        </wr-table>
+        <div style="margin-top: 0.75rem">
+          <button wr-btn type="button" size="sm" outlined (click)="resetBulkRows()">Bring the rows back</button>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        The template reads the selected rows (<code>let-rows</code>), <code>count</code>, <code>clear</code> and
+        <code>scope</code>, the select-all scope in force.
+      </li>
+      <li>
+        The count is announced politely. The bar takes no focus when it appears, and hands it to the table when the
+        selection is emptied from inside it.
+      </li>
+      <li><code>selectedLabel</code> and <code>clearSelectionLabel</code> set its two texts.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Expandable rows"
     description="`<ng-template wrTableExpand let-row>` adds a detail panel per row. Set `rowKey` and bind `[(expanded)]`."
   >
@@ -510,6 +546,149 @@
         <wr-table reorderable [columns]="columns" [items]="visibleRows()" />
       </div>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Hidden columns"
+    description="`[(hiddenColumns)]` holds the keys of the columns that are not drawn. `columnChooser` adds a button that lists every column."
+  >
+    <ngwr-doc-code [code]="snippets.hiddenColumns" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table columnChooser [(hiddenColumns)]="hiddenColumns" [columns]="chooserColumns" [items]="wideRows" />
+        <div style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+          hidden: <strong>{{ hiddenColumns().join(', ') || 'none' }}</strong>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>A hidden column keeps its sort and its filter, and <code>toCsv()</code> leaves it out.</li>
+      <li><code>hideable: false</code> keeps a column on screen. The last visible column cannot be hidden.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Saved view"
+    description="`(stateChange)` reports sort, filters, page, page size, column order and hidden columns in one object, once per action. `[state]` restores all of it."
+  >
+    <ngwr-doc-code [code]="snippets.savedView" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem">
+          <button wr-btn type="button" size="sm" color="primary" (click)="saveView()">Save view</button>
+          <button wr-btn type="button" size="sm" outlined [disabled]="!savedView()" (click)="restoreView()">
+            Restore view
+          </button>
+        </div>
+        <wr-table
+          reorderable
+          columnChooser
+          [pageSize]="5"
+          [pageSizeOptions]="[5, 10]"
+          [columns]="viewColumns"
+          [items]="viewRows()"
+          [(state)]="viewState"
+        />
+        <ngwr-doc-code [code]="viewStateText()" language="typescript" />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>Only the reader's actions fire <code>stateChange</code>. A restore does not.</li>
+      <li><code>[state]</code> is applied when the object changes: pass a copy to restore the same view again.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Inline editing"
+    description="A `[wrTableEditCell]` template is a column's editor. The table emits `cellEdit` and leaves the data to you."
+  >
+    <ngwr-doc-snippet [code]="snippets.inlineEdit">
+      <div style="width: 100%">
+        <wr-table
+          rowKey="id"
+          [columns]="priceColumns"
+          [items]="prices()"
+          [editable]="priceEditable"
+          (cellEdit)="savePrice($event)"
+        >
+          <ng-template wrTableCell="status" let-value>
+            <wr-tag [color]="value === 'active' ? 'success' : value === 'draft' ? 'warning' : null" transparent>
+              {{ value }}
+            </wr-tag>
+          </ng-template>
+          <ng-template wrTableEditCell="price" let-value let-set="set">
+            <wr-input-number
+              size="sm"
+              ariaLabel="Price"
+              [min]="0"
+              [step]="0.5"
+              [value]="value"
+              (valueChange)="set($event)"
+            />
+          </ng-template>
+          <ng-template wrTableEditCell="status" [wrTableEditCellOf]="prices()" let-value let-commit="commit">
+            <wr-select size="sm" ariaLabel="Status" [value]="value" (valueChange)="commit($event)">
+              <wr-option value="active">active</wr-option>
+              <wr-option value="draft">draft</wr-option>
+              <wr-option value="archived">archived</wr-option>
+            </wr-select>
+          </ng-template>
+        </wr-table>
+      </div>
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Arrows, Home, End</th>
+            <td>Move between cells. Ctrl+Home and Ctrl+End jump to the first and last row.</td>
+          </tr>
+          <tr>
+            <th scope="row">Enter, F2, double click</th>
+            <td>Open the editor of an editable cell.</td>
+          </tr>
+          <tr>
+            <th scope="row">A character</th>
+            <td>Opens the editor and types it over the value.</td>
+          </tr>
+          <tr>
+            <th scope="row">Enter</th>
+            <td>Commits. Focus returns to the cell.</td>
+          </tr>
+          <tr>
+            <th scope="row">Tab, Shift+Tab</th>
+            <td>Commits and moves to the next or previous editable cell of the row.</td>
+          </tr>
+          <tr>
+            <th scope="row">Escape</th>
+            <td>Drops the edit. Focus returns to the cell.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>
+        <code>set(value)</code> keeps a value while the reader types. Enter, Tab and a click outside commit it.
+        <code>commit(value)</code> ends the edit at once, <code>cancel()</code> drops it.
+      </li>
+      <li>
+        <code>cellEdit</code> carries <code>row</code>, <code>key</code>, <code>value</code> and <code>previous</code>.
+        Validate there: a value you do not write is refused. An unchanged value emits nothing.
+      </li>
+      <li>
+        <code>editable: false</code> on a column keeps it read-only. The <code>editable</code> input vetoes single
+        cells: here an archived product keeps its price.
+      </li>
+      <li>One cell edits at a time. A sort, a hidden column or a removed row ends the edit without a commit.</li>
+      <li>With an edit template the table announces a <code>grid</code> and its data cells take focus.</li>
+      <li>Name the editor: the cell has no label for it, so set <code>ariaLabel</code>.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section

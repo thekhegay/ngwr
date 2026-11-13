@@ -184,6 +184,32 @@ export class WrInputNumberHarness extends ComponentHarness {
     await (await this.field()).clear();
   }
 
+  /** Whether the clear (×) button is on show: `clearable`, with text, neither disabled nor read-only. */
+  async hasClearButton(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-input-group__clear')()) !== null;
+  }
+
+  /**
+   * Click the clear (×) button, which sets the value to `null` and emits `touch`.
+   * {@link clear} empties the field from the keyboard instead. Throws when the
+   * button is not on show.
+   */
+  async clickClear(): Promise<void> {
+    const button = await this.locatorForOptional('.wr-input-group__clear')();
+    if (!button) {
+      throw new Error(
+        'WrInputNumberHarness.clickClear(): no clear button. It shows on a `clearable` field ' +
+          'that has text and is neither disabled nor read-only.'
+      );
+    }
+    await button.click();
+  }
+
+  /** Whether the field is drawing its `loading` spinner. */
+  async isLoading(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-input-group__spinner')()) !== null;
+  }
+
   /** Whether the ▲▼ column is rendered at all — `[showSteppers]="false"` drops it. */
   async hasSteppers(): Promise<boolean> {
     return (await this.locatorForOptional('.wr-input-number__steppers')()) !== null;

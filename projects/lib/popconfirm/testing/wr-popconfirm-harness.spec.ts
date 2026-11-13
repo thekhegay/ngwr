@@ -197,6 +197,15 @@ describe('WrPopconfirmHarness', () => {
     expect(await remove.getPosition()).toBe('left');
   });
 
+  it('reads an aligned placement whole, not just its side', async () => {
+    fixture.componentInstance.side.set('right-start');
+    fixture.detectChanges();
+    const remove = await get('Delete');
+    await remove.open();
+
+    expect(await remove.getPosition()).toBe('right-start');
+  });
+
   it('resolves the description through the aria link, not by reading the paragraph', async () => {
     const remove = await get('Delete');
     await remove.open();
@@ -511,5 +520,52 @@ describe('WrPopconfirmHarness under a localized catalog', () => {
     expect(await remove.getCancelText()).toBe('Отмена');
     expect(await remove.getConfirmText()).toBe('Подтвердить');
     expect(await remove.getLabel()).toBe('Подтверждение действия');
+  });
+});
+
+@Component({
+  imports: [WrPopconfirm],
+  template: `
+    <button type="button" wrPopconfirm="Delete this for good?" [wrPopconfirmDisabled]="off()">Delete</button>
+    <button type="button" wrPopconfirm="Publish now?">Publish</button>
+  `,
+})
+class DisabledHost {
+  readonly off = signal(true);
+}
+
+describe('WrPopconfirmHarness — a disabled trigger', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DisabledHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(DisabledHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('reports the disabled state, and follows it back', async () => {
+    const popconfirm = await loader.getHarness(WrPopconfirmHarness.with({ triggerText: 'Delete' }));
+
+    expect([await popconfirm.isDisabled(), await popconfirm.isOpen()]).toEqual([true, false]);
+    await expect(popconfirm.open()).rejects.toThrow(/assert the disabled state/);
+
+    fixture.componentInstance.off.set(false);
+
+    expect(await popconfirm.isDisabled()).toBe(false);
+    await popconfirm.open();
+    expect(await popconfirm.isOpen()).toBe(true);
+  });
+
+  it('narrows by the disabled state', async () => {
+    const texts = (found: WrPopconfirmHarness[]): Promise<string[]> => Promise.all(found.map(p => p.getTriggerText()));
+
+    expect(await texts(await loader.getAllHarnesses(WrPopconfirmHarness.with({ disabled: true })))).toEqual(['Delete']);
+    expect(await texts(await loader.getAllHarnesses(WrPopconfirmHarness.with({ disabled: false })))).toEqual([
+      'Publish',
+    ]);
   });
 });

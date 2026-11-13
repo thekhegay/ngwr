@@ -1,6 +1,3 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, type ElementRef, signal, viewChildren } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -8,6 +5,8 @@ import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass } from '../spec-sass';
 
 import { useChartTooltip } from './chart-tooltip';
 import type { WrChartTooltipRow } from './types';
@@ -767,14 +766,8 @@ describe('useChartTooltip under dir="rtl"', () => {
  * `@angular/build`, as `charts/stylesheets.spec.ts` does.
  */
 describe('chart tooltip swatch under forced colors', () => {
-  it('keeps its colour, on the heading and on every row', () => {
-    const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
-      compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-    };
-    const css = sass.compileString(`@use 'popover/styles';`, {
-      loadPaths: [join(process.cwd(), 'projects/lib')],
-      style: 'expanded',
-    }).css;
+  it('keeps its colour, on the heading and on every row', { timeout: COMPILE_TIMEOUT }, () => {
+    const css = compileSass(`@use 'popover/styles';`);
     for (const cls of ['wr-chart-tooltip__swatch', 'wr-chart-tooltip__row-swatch']) {
       const swatch = new RegExp(`(?:^|\\n)\\.${cls}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
 

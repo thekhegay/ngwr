@@ -8,8 +8,11 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Medium
 
+- **Unused devDependency**: drop `@angular-devkit/core` if nothing needs it directly.
+
 ## Low
 
+- **One intent name**: alert and toast say `type`, result and load-state say `status`, button and tag say `color`; a rename waits for a major.
 - **`wr-graph` zoom and pan**: zoom in and out and drag the field, like NG-ZORRO's
   graph. Selection and highlight come after that.
 

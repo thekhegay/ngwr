@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrOverlayOrder } from './wr-overlay-order';
 
@@ -52,6 +52,56 @@ describe('WrOverlayOrder', () => {
 
     expect(calls).toEqual(['hide toasts', 'show toasts']);
     expect(top).toEqual(['dialog', 'toasts']);
+  });
+
+  it('moves nothing for a second raise with nothing opened since', () => {
+    const toasts = host('toasts');
+    order.add(host('dialog'));
+    order.raiseToasts(toasts);
+    calls = [];
+
+    expect(order.raiseToasts(toasts)).toBe(false);
+
+    expect(calls).toEqual([]);
+    expect(top).toEqual(['dialog', 'toasts']);
+  });
+
+  it('raises the toasts over a popover it was never told of', () => {
+    const toasts = host('toasts');
+    order.raiseToasts(toasts);
+    calls = [];
+
+    const foreign = host('foreign');
+    foreign.dispatchEvent(Object.assign(new Event('beforetoggle'), { newState: 'open' }));
+
+    expect(order.raiseToasts(toasts)).toBe(true);
+    expect(top).toEqual(['foreign', 'toasts']);
+  });
+
+  it('raises the toasts over an element that went fullscreen', () => {
+    const toasts = host('toasts');
+    order.raiseToasts(toasts);
+    calls = [];
+
+    document.dispatchEvent(new Event('fullscreenchange'));
+    order.raiseToasts(toasts);
+
+    expect(calls).toEqual(['hide toasts', 'show toasts']);
+  });
+
+  it('does not take a popover that closes, or its own move, for one that joined', () => {
+    const toasts = host('toasts');
+    toasts.showPopover = () => {
+      toasts.dispatchEvent(Object.assign(new Event('beforetoggle'), { newState: 'open' }));
+      top = [...top, 'toasts'];
+    };
+    order.raiseToasts(toasts);
+    host('foreign').dispatchEvent(Object.assign(new Event('beforetoggle'), { newState: 'closed' }));
+    calls = [];
+
+    order.raiseToasts(toasts);
+
+    expect(calls).toEqual([]);
   });
 
   it('leaves toasts that are already under a covering overlay where they are', () => {
@@ -192,5 +242,15 @@ describe('WrOverlayOrder', () => {
     order.add(host('dialog'), 'below')();
 
     expect(calls).toEqual([]);
+  });
+
+  it('stops listening to the document with the last toast', () => {
+    const remove = vi.spyOn(document, 'removeEventListener');
+    order.raiseToasts(host('toasts'));
+
+    order.dropToasts();
+
+    expect(remove.mock.calls.map(([type]) => type).sort()).toEqual(['beforetoggle', 'fullscreenchange']);
+    remove.mockRestore();
   });
 });

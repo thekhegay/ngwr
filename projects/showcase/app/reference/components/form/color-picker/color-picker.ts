@@ -2,7 +2,12 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
-import { WrColorPicker, WrColorPickerTrigger } from 'ngwr/color-picker';
+import {
+  WrColorPicker,
+  type WrColorPickerSize,
+  type WrColorPickerSwatch,
+  WrColorPickerTrigger,
+} from 'ngwr/color-picker';
 
 import {
   DocApiComponent,
@@ -33,6 +38,17 @@ export default class ColorPickerPageComponent {
   protected readonly opaque = signal('#f51c6a');
   protected readonly branded = signal('#00a400');
   protected readonly triggered = signal('#ffba00');
+  protected readonly named = signal('#3969e2');
+
+  protected readonly sizes: readonly WrColorPickerSize[] = ['sm', 'md', 'lg'];
+
+  protected readonly namedPalette: readonly WrColorPickerSwatch[] = [
+    { value: '#3969e2', label: 'Brand blue' },
+    { value: '#f51c6a', label: 'Raspberry' },
+    { value: '#00a400', label: 'Leaf green' },
+    { value: '#ffba00', label: 'Amber' },
+    '#0f172a',
+  ];
 
   protected readonly palette: readonly string[] = [
     '#3969e2',
@@ -55,6 +71,24 @@ export default class ColorPickerPageComponent {
   [swatches]="['#3969e2', '#f51c6a', '#00a400', '#ffba00', '#fa383e', '#cbd5e1', '#8594a4', '#0f172a']"
 />`,
 
+    named: `import type { WrColorPickerSwatch } from 'ngwr/color-picker';
+
+palette: readonly WrColorPickerSwatch[] = [
+  { value: '#3969e2', label: 'Brand blue' },
+  { value: '#f51c6a', label: 'Raspberry' },
+  { value: '#00a400', label: 'Leaf green' },
+  { value: '#ffba00', label: 'Amber' },
+  '#0f172a', // announces "#0f172a"
+];
+
+// <wr-color-picker [(value)]="color" [swatches]="palette" />`,
+
+    sizes: `<wr-color-picker size="sm" [(value)]="color" />
+<wr-color-picker size="md" [(value)]="color" />
+<wr-color-picker size="lg" [(value)]="color" />
+
+<button wrColorPickerTrigger size="sm" [(value)]="color">Pick</button>`,
+
     trigger: `<button wrColorPickerTrigger
         [(value)]="color"
         [swatches]="palette">
@@ -72,7 +106,7 @@ const back = wrToHex(rgb!, true);         // '#3969e2ff'`,
 </button>
 
 <!-- Anywhere else in the same template -->
-<wr-btn (click)="swatch.open()">Pick a colour</wr-btn>
+<wr-btn [disabled]="swatch.isOpen()" (click)="swatch.open()">Pick a colour</wr-btn>
 <span [style.color]="swatch.value()">{{ swatch.value() }}</span>`,
   };
 
@@ -104,9 +138,15 @@ const back = wrToHex(rgb!, true);         // '#3969e2ff'`,
     },
     {
       name: 'swatches',
-      description: 'Preset hex colours shown below the inputs.',
-      type: 'readonly string[]',
+      description: 'Preset hex colours shown below the inputs: a string, or `{ value, label }` to name its button.',
+      type: 'readonly WrColorPickerSwatch[]',
       default: '[]',
+    },
+    {
+      name: 'size',
+      description: 'Panel size: its width, padding, colour surface and thumbs.',
+      type: 'WrColorPickerSize',
+      default: "'md'",
     },
     {
       name: '(touch)',
@@ -125,7 +165,13 @@ const back = wrToHex(rgb!, true);         // '#3969e2ff'`,
     },
     { name: 'alpha', description: 'Forwarded to the inner picker.', type: 'boolean', default: 'true' },
     { name: 'format', description: 'Forwarded to the inner picker.', type: 'WrColorFormat', default: "'hex'" },
-    { name: 'swatches', description: 'Forwarded to the inner picker.', type: 'readonly string[]', default: '[]' },
+    {
+      name: 'swatches',
+      description: 'Forwarded to the inner picker.',
+      type: 'readonly WrColorPickerSwatch[]',
+      default: '[]',
+    },
+    { name: 'size', description: 'Forwarded to the inner picker.', type: 'WrColorPickerSize', default: "'md'" },
     { name: 'disabled', description: 'Disable the trigger itself.', type: 'boolean', default: 'false' },
     {
       name: 'panelClass',

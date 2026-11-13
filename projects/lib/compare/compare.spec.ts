@@ -1,6 +1,3 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Directionality } from '@angular/cdk/bidi';
 import type { Direction } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
@@ -11,6 +8,8 @@ import { Subject } from 'rxjs';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 import { WrCompare } from './compare';
 
@@ -503,13 +502,7 @@ describe('WrCompare under a localized catalog', () => {
  * `theme/sass-entry.spec.ts` does.
  */
 describe('WrCompare stylesheet', () => {
-  interface Sass {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  }
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-  const css = sass
-    .compileString("@use 'compare/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const css = compileSass("@use 'compare/styles';").replace(/\/\*[\s\S]*?\*\//g, '');
   const rule = (cls: string): string => new RegExp(`(?:^|\\n)\\.${cls}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
 
   it('claims only the axis the divider moves along, leaving the other to the page', () => {

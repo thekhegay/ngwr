@@ -56,8 +56,15 @@ export default class DatePickerPageComponent {
   protected readonly datetime = signal<Date | null>(null);
   protected readonly datetimeSeconds = signal<Date | null>(null);
 
+  protected readonly month = signal<Date | null>(null);
+  protected readonly quarter = signal<Date | null>(null);
+  protected readonly year = signal<Date | null>(null);
+  protected readonly week = signal<Date | null>(null);
+
   protected readonly period = signal<WrDateRange | null>(null);
   protected readonly window = signal<WrDateRange | null>(null);
+  protected readonly months = signal<WrDateRange | null>(null);
+  protected readonly quarters = signal<WrDateRange | null>(null);
 
   protected readonly presetPeriod = signal<WrDateRange | null>(null);
   protected readonly presets: readonly WrDateRangePreset[] = [
@@ -70,6 +77,9 @@ export default class DatePickerPageComponent {
   protected readonly sizes: readonly WrDatePickerSize[] = ['sm', 'md', 'lg'];
   protected readonly sized = signal<Date | null>(null);
   protected readonly sizedPeriod = signal<WrDateRange | null>(null);
+
+  protected readonly roundedDate = signal<Date | null>(null);
+  protected readonly roundedPeriod = signal<WrDateRange | null>(null);
 
   protected readonly clearableDate = signal<Date | null>(new Date());
   protected readonly clearablePeriod = signal<WrDateRange | null>([new Date(), new Date()]);
@@ -91,7 +101,7 @@ export default class DatePickerPageComponent {
 
   protected readonly snippets = {
     openFromCode: `<wr-date-picker #due [(value)]="picked" (opened)="onOpened()" (closed)="onClosed()" />
-<button wr-btn (click)="due.open()">Open</button>`,
+<button wr-btn [attr.aria-expanded]="due.isOpen()" (click)="due.open()">Open</button>`,
 
     basic: `<wr-date-picker [(value)]="picked" placeholder="Pick a date" />`,
 
@@ -133,6 +143,14 @@ export default class DatePickerPageComponent {
   [(value)]="when"
 />`,
 
+    periods: `<wr-date-picker mode="month" [(value)]="month" />
+<wr-date-picker mode="quarter" [(value)]="quarter" />
+<wr-date-picker mode="year" [(value)]="year" />
+<wr-date-picker mode="week" [(value)]="week" />`,
+
+    rangePeriods: `<wr-date-range-picker mode="month" [(value)]="months" />
+<wr-date-range-picker mode="quarter" [(value)]="quarters" />`,
+
     range: `import { type WrDateRange, WrDateRangePicker } from 'ngwr/date-picker';
 
 @Component({ imports: [WrDateRangePicker] })
@@ -168,6 +186,9 @@ protected readonly presets: readonly WrDateRangePreset[] = [
 
     sizes: `<wr-date-picker size="sm" [(value)]="picked" />
 <wr-date-range-picker size="lg" [(value)]="period" />`,
+
+    rounded: `<wr-date-picker rounded [(value)]="picked" />
+<wr-date-range-picker rounded [(value)]="period" />`,
 
     clearable: `<wr-date-picker clearable [(value)]="picked" />
 <wr-date-range-picker clearable [(value)]="period" />`,
@@ -216,8 +237,9 @@ export class MyComponent {
     },
     {
       name: 'mode',
-      description: '`date` (default) renders a range calendar; `datetime` adds a time stepper per end.',
-      type: "'date' | 'datetime'",
+      description:
+        '`date` (default) renders a range calendar; `datetime` adds a time stepper per end; `month`, `quarter` and `year` pick two periods, ending on the last day of the end one.',
+      type: 'WrDateRangePickerMode',
       default: "'date'",
     },
     {

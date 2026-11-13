@@ -21,11 +21,22 @@ import { describe, expect, it } from 'vitest';
 const LIB = join(process.cwd(), 'projects/lib');
 const THEME_STYLES = join(LIB, 'theme/styles');
 
-/** Comments stripped, so a `[data-theme=…]` inside prose is not a violation. */
+const stripped = new Map<string, string>();
+
+/**
+ * Comments stripped, so a `[data-theme=…]` inside prose is not a violation.
+ * Read once per file: the load closures below reach the theme's sheets from
+ * every entry point.
+ */
 function code(file: string): string {
-  return readFileSync(file, 'utf8')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/(^|\s)\/\/[^\n]*/g, '$1');
+  let text = stripped.get(file);
+  if (text === undefined) {
+    text = readFileSync(file, 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/(^|\s)\/\/[^\n]*/g, '$1');
+    stripped.set(file, text);
+  }
+  return text;
 }
 
 /** `@use 'x'` / `@forward 'x'` resolved the way Sass resolves a relative load. */

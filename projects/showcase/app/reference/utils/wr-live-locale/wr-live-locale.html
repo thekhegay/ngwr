@@ -1,0 +1,48 @@
+<ngwr-doc-page
+  title="WR_LIVE_LOCALE"
+  since="16.1.0"
+  description="The interface language as a signal, for code that follows a language switch without importing `ngwr/i18n`."
+  [keywords]="['WR_LIVE_LOCALE', 'locale', 'language', 'i18n', 'signal', 'Intl', 'injection token', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="`provideWrI18n()` provides it as `WrI18n.locale`. An app without i18n does not provide it, so inject it as optional and fall back to `LOCALE_ID`."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">You want</th>
+            <th scope="col">Read</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">The language, in an app that has i18n</th>
+            <td><code>inject(WrI18n).locale</code></td>
+          </tr>
+          <tr>
+            <th scope="row">The language, in a library that must not import <code>ngwr/i18n</code></th>
+            <td><code>WR_LIVE_LOCALE</code></td>
+          </tr>
+          <tr>
+            <th scope="row">The locale dates are written in</th>
+            <td><code>wrDateLocale()</code> from <code>ngwr/date</code>, which also honours a pinned locale</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>
+        The value is the code the app passes to <code>WrI18n.use()</code>. <code>Intl</code> throws on a code that is
+        not a BCP 47 tag, so guard it when the app names its languages another way.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

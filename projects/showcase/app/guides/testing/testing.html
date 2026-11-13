@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Testing"
-  updated="16.2.0"
+  updated="16.3.0"
   description="Drive ngwr components from your specs with Angular CDK test harnesses."
   [keywords]="['testing', 'harness', 'cdk', 'vitest', 'jest', 'TestbedHarnessEnvironment', 'spec']"
 >
@@ -100,6 +100,8 @@
 
   <ngwr-doc-section title="Input" description="`ngwr/input/testing`">
     <ngwr-doc-api [rows]="inputApi" />
+    <p><code>WrInputGroupHarness</code>, for <code>&lt;wr-input-group&gt;</code>:</p>
+    <ngwr-doc-api [rows]="inputGroupApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Checkbox" description="`ngwr/checkbox/testing`">
@@ -333,6 +335,45 @@
   <ngwr-doc-section title="Date stamp" description="`ngwr/date-stamp/testing`">
     <ngwr-doc-code [code]="snippets.dateStamp" language="typescript" />
     <ngwr-doc-api [rows]="dateStampApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Alert" description="`ngwr/alert/testing`">
+    <ngwr-doc-code [code]="snippets.alert" language="typescript" />
+    <ngwr-doc-api [rows]="alertApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Sidebar" description="`ngwr/sidebar/testing`">
+    <ngwr-doc-code [code]="snippets.sidebar" language="typescript" />
+    <ngwr-doc-api [rows]="sidebarApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Resizable" description="`ngwr/resizable/testing`">
+    <ngwr-doc-code [code]="snippets.resizable" language="typescript" />
+    <ngwr-doc-api [rows]="resizableApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Compare" description="`ngwr/compare/testing`">
+    <ngwr-doc-code [code]="snippets.compare" language="typescript" />
+    <ngwr-doc-api [rows]="compareApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Burger" description="`ngwr/burger/testing`">
+    <ngwr-doc-api [rows]="burgerApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Breadcrumbs" description="`ngwr/breadcrumbs/testing`">
+    <ngwr-doc-code [code]="snippets.breadcrumbs" language="typescript" />
+    <ngwr-doc-api [rows]="breadcrumbsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Schema form" description="`ngwr/schema-form/testing`">
+    <ngwr-doc-code [code]="snippets.schemaForm" language="typescript" />
+    <ngwr-doc-api [rows]="schemaFormApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Pull to refresh" description="`ngwr/pull-to-refresh/testing`">
+    <ngwr-doc-code [code]="snippets.pullToRefresh" language="typescript" />
+    <ngwr-doc-api [rows]="pullToRefreshApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section

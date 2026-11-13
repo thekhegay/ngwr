@@ -1,3 +1,10 @@
+export {
+  WR_ANCHORED_FALLBACKS,
+  WR_ANCHORED_POSITIONS,
+  type WrAnchoredPosition,
+  type WrAnchoredPositionsOptions,
+  wrAnchoredPositions,
+} from './wr-anchored-positions';
 export { wrAppendOverlayClose } from './wr-overlay-close';
 export { wrFollowDirection } from './wr-follow-direction';
 export { wrFollowSize } from './wr-follow-size';

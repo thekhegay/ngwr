@@ -1,8 +1,8 @@
 <ngwr-doc-page
   title="Date Picker"
-  updated="16.2.0"
-  description="A text field with a popup for picking a date, a time or both."
-  [keywords]="['date', 'time', 'datetime', 'picker', 'wr-date-picker']"
+  updated="16.3.0"
+  description="A text field with a popup for picking a date, a time, both, or a week, month, quarter or year."
+  [keywords]="['date', 'time', 'datetime', 'month', 'quarter', 'year', 'week', 'period', 'picker', 'wr-date-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
 >
   <ngwr-doc-section title="Basic" description="Bind `[(value)]`. The default format follows the locale.">
@@ -117,6 +117,81 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Periods"
+    description="Four modes pick a period instead of a day. The value is the period's first day, and the field shows the period and reads it back, so it can be typed."
+  >
+    <ngwr-doc-code [code]="snippets.periods" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-date-picker mode="month" [(value)]="month" placeholder="Month" />
+        <wr-date-picker mode="quarter" [(value)]="quarter" placeholder="Quarter" />
+        <wr-date-picker mode="year" [(value)]="year" placeholder="Year" />
+        <wr-date-picker mode="week" [(value)]="week" placeholder="Week" />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Values: {{ month()?.toLocaleDateString() ?? '-' }} · {{ quarter()?.toLocaleDateString() ?? '-' }} ·
+          {{ year()?.toLocaleDateString() ?? '-' }} · {{ week()?.toLocaleDateString() ?? '-' }}
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Mode</th>
+            <th scope="col">Panel</th>
+            <th scope="col">Value</th>
+            <th scope="col">Field</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>month</code></th>
+            <td>Months of a year</td>
+            <td>The 1st of the month</td>
+            <td>March 2026</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>quarter</code></th>
+            <td>Four quarters of a year</td>
+            <td>1 January, April, July or October</td>
+            <td>Q1 2026</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>year</code></th>
+            <td>Twelve years</td>
+            <td>1 January</td>
+            <td>2026</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>week</code></th>
+            <td>The day grid, a week at a time</td>
+            <td>The week's first day</td>
+            <td>Week 12, 2026</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>
+        <code>min</code>, <code>max</code> and <code>dateFilter</code> close a period only when they close every day in
+        it.
+      </li>
+      <li>
+        A week starts on the locale's first day, and week 1 is the one holding 4 January: the ISO week where weeks start
+        on Monday.
+      </li>
+      <li>
+        The month name and the numbers come from the date adapter. Their order comes from the i18n catalog:
+        <code>calendar.header</code>, <code>datePicker.quarterValue</code>, <code>datePicker.weekValue</code>.
+      </li>
+      <li>
+        The value is the first day only. <code>wrPeriodEnd(adapter, value, 'month')</code> from
+        <code>ngwr/date</code> gives the last one.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Date range"
     description="`<wr-date-range-picker>` binds a `[start, end]` pair. Picking the second date closes the popup."
   >
@@ -149,6 +224,31 @@
         />
         <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
           Value: {{ window()?.[0]?.toLocaleString() ?? '—' }} → {{ window()?.[1]?.toLocaleString() ?? '—' }}
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Range of periods"
+    description='`mode="month"`, `"quarter"` or `"year"` on the range picker picks two periods. The range runs from the first day of the start period to the last day of the end period.'
+  >
+    <ngwr-doc-code [code]="snippets.rangePeriods" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-date-range-picker mode="month" [(value)]="months" startPlaceholder="From month" endPlaceholder="To month" />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Value: {{ months()?.[0]?.toLocaleDateString() ?? '-' }} to {{ months()?.[1]?.toLocaleDateString() ?? '-' }}
+        </span>
+        <wr-date-range-picker
+          mode="quarter"
+          [(value)]="quarters"
+          startPlaceholder="From quarter"
+          endPlaceholder="To quarter"
+        />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Value: {{ quarters()?.[0]?.toLocaleDateString() ?? '-' }} to
+          {{ quarters()?.[1]?.toLocaleDateString() ?? '-' }}
         </span>
       </div>
     </ngwr-doc-snippet>
@@ -241,6 +341,16 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Rounded" description="`rounded` gives the field pill corners, on both pickers.">
+    <ngwr-doc-code [code]="snippets.rounded" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap">
+        <wr-date-picker rounded [(value)]="roundedDate" placeholder="Pick a date" />
+        <wr-date-range-picker rounded [(value)]="roundedPeriod" startPlaceholder="From" endPlaceholder="To" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section
     title="Clearable"
     description="`clearable` adds a clear button once there is a value. From the keyboard, empty the field."
@@ -252,6 +362,11 @@
         <wr-date-range-picker clearable [(value)]="clearablePeriod" startPlaceholder="From" endPlaceholder="To" />
       </div>
     </ngwr-doc-snippet>
+
+    <p>
+      The button is named <code>Clear</code>. Rename it with <code>clearLabel</code> on either picker, or with
+      <code>common.clear</code> in your i18n catalog.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Keyboard" description="The popup is not modal: Tab leaves it.">
@@ -322,7 +437,7 @@
 
   <ngwr-doc-section
     title="Open from code"
-    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled, and on the range picker while read-only. Focus stays where it is."
+    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled, and on the range picker while read-only. Focus stays where it is. `isOpen()` reads the state, for an `aria-expanded` on your own trigger."
   >
     <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
   </ngwr-doc-section>

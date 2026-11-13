@@ -408,3 +408,23 @@ describe('WrFileUploadHarness', () => {
     expect(document.activeElement?.className).toContain('wr-file-upload__zone');
   });
 });
+
+describe('WrFileUploadHarness.getSize()', () => {
+  @Component({
+    imports: [WrFileUpload],
+    template: `<wr-file-upload /><wr-file-upload size="sm" /><wr-file-upload size="lg" />`,
+  })
+  class SizesHost {}
+
+  it('reads md for the default and the modifier for the other two', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(SizesHost);
+    await fixture.whenStable();
+    const harnesses = await TestbedHarnessEnvironment.loader(fixture).getAllHarnesses(WrFileUploadHarness);
+
+    expect(await Promise.all(harnesses.map(harness => harness.getSize()))).toEqual(['md', 'sm', 'lg']);
+
+    fixture.destroy();
+  });
+});

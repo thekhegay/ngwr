@@ -495,9 +495,10 @@ export class WrLineChart {
   }
 
   /**
-   * Every series shown as the template draws it: its line's path, and with `showDots` a
-   * dot's path per x, `null` on a hole. Built once per change to the data or the axis, so
-   * moving the pointer from x to x, which re-renders the hover layer, rebuilds no path.
+   * Every series shown as the template draws it: its line's path, and with `showDots` one
+   * path holding a subpath per dot, empty when there is none to draw. Built once per change
+   * to the data or the axis, so moving the pointer from x to x, which re-renders the hover
+   * layer, rebuilds no path.
    */
   protected readonly drawn = computed(() => {
     const dots = this.showDots();
@@ -506,9 +507,20 @@ export class WrLineChart {
       color: s.color,
       dash: s.dash,
       d: this.pathFor(s.tops),
-      dots: dots ? s.tops.map((v, i) => (v === null ? null : this.dotPath(this.pointX(i), this.pointY(v)))) : [],
+      dots: dots ? this.dotsFor(s.tops) : '',
     }));
   });
+
+  /** A series' dots as one path, a subpath each. A hole in the data gets none. */
+  private dotsFor(values: readonly (number | null)[]): string {
+    const { min, max } = this.bounds();
+    const commands: string[] = [];
+    for (let i = 0; i < values.length; i++) {
+      const v = values[i];
+      if (v !== null) commands.push(this.dotPath(this.pointX(i), ((max - v) / (max - min)) * this.vbH));
+    }
+    return commands.join(' ');
+  }
 
   /**
    * The fills under the lines with `showArea`: one per unbroken run of two points or

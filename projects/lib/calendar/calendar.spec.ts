@@ -42,6 +42,23 @@ class WritebackHost {
   readonly date = signal<Date | null>(null);
 }
 
+@Component({
+  imports: [WrCalendar],
+  template: `<wr-calendar [(date)]="date" [dateFilter]="filter()" />`,
+})
+class BoundHost {
+  readonly date = signal<Date | null>(new Date(2026, 0, 15));
+  readonly filter = signal<((d: Date) => boolean) | null>(null);
+}
+
+@Component({
+  imports: [WrCalendar],
+  template: `<wr-calendar mode="range" [(range)]="range" />`,
+})
+class RangeBoundHost {
+  readonly range = signal<WrCalendarRange>([new Date(2026, 3, 20), null]);
+}
+
 describe('WrCalendar keyboard focus', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -158,6 +175,86 @@ describe('WrCalendar keyboard focus', () => {
 
     expect(ring()).toBe('15');
     expect(tabStops()[0].disabled).toBe(false);
+  });
+});
+
+describe('WrCalendar after a date written from outside', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<BoundHost>>;
+
+  const tabStops = (): HTMLButtonElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.wr-calendar__day[tabindex="0"]'),
+  ];
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
+    fixture = TestBed.createComponent(BoundHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps one day in the tab order, the written one, and leaves focus alone', async () => {
+    const before = document.activeElement;
+
+    fixture.componentInstance.date.set(new Date(2026, 3, 20));
+    await fixture.whenStable();
+
+    expect(tabStops()).toHaveLength(1);
+    expect(tabStops()[0].getAttribute('aria-label')).toContain('April 20, 2026');
+    expect(document.activeElement).toBe(before);
+  });
+
+  it('lands on the nearest enabled day when the written one is disabled', async () => {
+    fixture.componentInstance.filter.set(d => d.getDate() !== 20);
+    fixture.componentInstance.date.set(new Date(2026, 3, 20));
+    await fixture.whenStable();
+
+    expect(tabStops()).toHaveLength(1);
+    expect(tabStops()[0].getAttribute('aria-label')).toContain('April 21, 2026');
+    expect(tabStops()[0].disabled).toBe(false);
+  });
+
+  it('follows the start of a range written from outside', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
+    const probe = TestBed.createComponent(AutoFocusHost);
+    probe.componentInstance.autoFocus.set(false);
+    probe.detectChanges();
+    await probe.whenStable();
+
+    probe.componentInstance.range.set([new Date(2026, 3, 20), new Date(2026, 8, 2)]);
+    await probe.whenStable();
+
+    const stops = [
+      ...(probe.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-calendar__day[tabindex="0"]'),
+    ];
+    expect(stops).toHaveLength(1);
+    expect(stops[0].getAttribute('aria-label')).toContain('April 20, 2026');
+
+    probe.destroy();
+  });
+
+  it('leaves the stop on a range end clicked among the days of the next month', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
+    const probe = TestBed.createComponent(RangeBoundHost);
+    probe.detectChanges();
+    await probe.whenStable();
+
+    const el = probe.nativeElement as HTMLElement;
+    const day = (label: string): HTMLElement =>
+      [...el.querySelectorAll<HTMLElement>('.wr-calendar__day')].find(d =>
+        d.getAttribute('aria-label')?.includes(label)
+      )!;
+    day('May 2, 2026').click();
+    await probe.whenStable();
+
+    const stops = [...el.querySelectorAll<HTMLElement>('.wr-calendar__day[tabindex="0"]')];
+    expect(stops).toHaveLength(1);
+    expect(stops[0]).toBe(day('May 2, 2026'));
+
+    probe.destroy();
   });
 });
 

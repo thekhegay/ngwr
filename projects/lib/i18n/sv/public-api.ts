@@ -49,6 +49,9 @@ export const wrSv: WrI18nCatalog = {
     noMatches: 'Inga träffar',
     search: 'Sök',
     reset: 'Återställ',
+    columns: 'Kolumner',
+    selected: '{{count}} valda',
+    clearSelection: 'Rensa markering',
   },
   eventCalendar: {
     today: 'Idag',
@@ -109,6 +112,7 @@ export const wrSv: WrI18nCatalog = {
     loadError: 'Det gick inte att läsa in resultaten',
     retry: 'Försök igen',
     more: '+{{count}} till',
+    selectAll: 'Markera alla',
   },
   tree: {
     expand: 'Fäll ut',
@@ -117,6 +121,9 @@ export const wrSv: WrI18nCatalog = {
     clearSelection: 'Rensa valet',
     removeItem: 'Ta bort {{label}}',
     more: '+{{count}} till',
+    moveKeyHelp:
+      'Tryck på Alt+Enter för att ta upp objektet och flytta det sedan med piltangenterna. ' +
+      'Tryck på Enter för att släppa det, eller Escape för att lägga tillbaka det.',
   },
   commandPalette: {
     label: 'Kommandopalett',
@@ -140,6 +147,11 @@ export const wrSv: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Laddar upp',
+    uploaded: 'Uppladdad',
+    failed: 'Uppladdningen misslyckades',
+    status: '{{name}}: {{status}}',
+    retry: 'Försök igen',
   },
   popconfirm: {
     label: 'Bekräfta åtgärden',
@@ -196,6 +208,8 @@ export const wrSv: WrI18nCatalog = {
     nextYear: 'Nästa år',
     monthList: 'Månader',
     yearList: 'År',
+    quarterList: 'Kvartal',
+    quarter: 'Kvartal {{quarter}}',
     prevYears: 'Föregående 12 år',
     nextYears: 'Nästa 12 år',
     header: '{{month}} {{year}}',
@@ -341,6 +355,9 @@ export const wrSv: WrI18nCatalog = {
   alert: {
     close: 'Stäng meddelandet',
   },
+  tag: {
+    remove: 'Ta bort {{label}}',
+  },
   qr: {
     label: 'QR-kod',
   },
@@ -440,6 +457,8 @@ export const wrSv: WrI18nCatalog = {
     panelDateTime: 'Välj datum och tid',
     panelRange: 'Välj datumintervall',
     panelRangeDateTime: 'Välj datum- och tidsintervall',
+    quarterValue: 'Kvartal {{quarter}} {{year}}',
+    weekValue: 'Vecka {{week}}, {{year}}',
     rangeStart: 'Intervallets start',
     rangeEnd: 'Intervallets slut',
     startTime: 'Starttid',

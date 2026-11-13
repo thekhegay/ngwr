@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Select"
-  updated="16.0.0"
+  updated="16.3.0"
   description="Pick one or several values from a list, with search and free-text tags."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'CDK Overlay']"
@@ -146,6 +146,38 @@
         >
       </div>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Select all"
+    description="`selectAll` adds a first, pinned row to a `multi` panel. It toggles every option the panel offers, so under a search only the matches, and it stops at `[maxItems]`."
+  >
+    <ngwr-doc-snippet [code]="snippets.selectAll">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
+        <wr-select
+          mode="multi"
+          selectAll
+          searchable
+          clearable
+          placeholder="Pick categories"
+          [maxTagCount]="3"
+          [(value)]="allPicked"
+        >
+          @for (c of allCategories; track c) {
+            <wr-option [value]="c">{{ c }}</wr-option>
+          }
+        </wr-select>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem"
+          >Picked: {{ allPicked().length }} of {{ allCategories.length }}</span
+        >
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>The box reads checked, mixed or empty for the options on offer. A second press clears them.</li>
+      <li>A selection the search hides is left alone.</li>
+      <li>With <code>[options]</code> and <code>virtualScroll</code> it works on the whole filtered list.</li>
+      <li><code>selectAllLabel</code> sets the text. The default is <code>select.selectAll</code> in the catalog.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -307,7 +339,7 @@
 
   <ngwr-doc-section
     title="Keyboard"
-    description="Arrow keys move the highlight, Home and End jump to the ends, Enter picks, Escape closes. Focus stays on the trigger."
+    description="Arrow keys move the highlight, Home and End jump to the ends, Enter picks, Escape closes. Focus stays on the trigger. A select-all row is the first stop: Home lands on it and Enter or Space toggles it."
   />
 
   <ngwr-doc-section
@@ -411,7 +443,7 @@
 
   <ngwr-doc-section
     title="Open from code"
-    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only."
+    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only. `isOpen()` reads the state, for an `aria-expanded` on your own trigger."
   >
     <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
   </ngwr-doc-section>

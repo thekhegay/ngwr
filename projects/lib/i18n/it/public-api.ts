@@ -49,6 +49,9 @@ export const wrIt: WrI18nCatalog = {
     noMatches: 'Nessun risultato',
     search: 'Cerca',
     reset: 'Reimposta',
+    columns: 'Colonne',
+    selected: '{{count}} selezionate',
+    clearSelection: 'Annulla selezione',
   },
   eventCalendar: {
     today: 'Oggi',
@@ -109,6 +112,7 @@ export const wrIt: WrI18nCatalog = {
     loadError: 'Impossibile caricare i risultati',
     retry: 'Riprova',
     more: '+{{count}} in più',
+    selectAll: 'Seleziona tutto',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -119,6 +123,9 @@ export const wrIt: WrI18nCatalog = {
     clearSelection: 'Cancella la selezione',
     removeItem: 'Rimuovi {{label}}',
     more: '+{{count}} in più',
+    moveKeyHelp:
+      'Premi Alt+Invio per prendere questo elemento, poi spostalo con i tasti freccia. ' +
+      'Premi Invio per rilasciarlo oppure Esc per rimetterlo al suo posto.',
   },
   commandPalette: {
     label: 'Palette dei comandi',
@@ -142,6 +149,11 @@ export const wrIt: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Caricamento in corso',
+    uploaded: 'Caricato',
+    failed: 'Caricamento non riuscito',
+    status: '{{name}}: {{status}}',
+    retry: 'Riprova',
   },
   popconfirm: {
     label: 'Conferma azione',
@@ -201,6 +213,8 @@ export const wrIt: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Mesi',
     yearList: 'Anni',
+    quarterList: 'Trimestri',
+    quarter: 'T{{quarter}}',
     prevYears: '12 anni precedenti',
     nextYears: '12 anni successivi',
     header: '{{month}} {{year}}',
@@ -349,6 +363,9 @@ export const wrIt: WrI18nCatalog = {
   alert: {
     close: 'Chiudi avviso',
   },
+  tag: {
+    remove: 'Rimuovi {{label}}',
+  },
   qr: {
     label: 'Codice QR',
   },
@@ -454,6 +471,8 @@ export const wrIt: WrI18nCatalog = {
     panelDateTime: 'Scegli data e ora',
     panelRange: 'Scegli il periodo',
     panelRangeDateTime: 'Scegli il periodo con data e ora',
+    quarterValue: 'T{{quarter}} {{year}}',
+    weekValue: 'Settimana {{week}}, {{year}}',
     rangeStart: 'Inizio del periodo',
     rangeEnd: 'Fine del periodo',
     startTime: 'Ora di inizio',

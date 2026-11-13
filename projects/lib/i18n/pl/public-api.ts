@@ -52,6 +52,9 @@ export const wrPl: WrI18nCatalog = {
     noMatches: 'Brak wyników',
     search: 'Szukaj',
     reset: 'Resetuj',
+    columns: 'Kolumny',
+    selected: 'Zaznaczono: {{count}}',
+    clearSelection: 'Wyczyść zaznaczenie',
   },
   eventCalendar: {
     today: 'Dzisiaj',
@@ -115,6 +118,7 @@ export const wrPl: WrI18nCatalog = {
     loadError: 'Nie udało się wczytać wyników',
     retry: 'Spróbuj ponownie',
     more: '+{{count}} więcej',
+    selectAll: 'Zaznacz wszystko',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -125,6 +129,9 @@ export const wrPl: WrI18nCatalog = {
     clearSelection: 'Wyczyść wybór',
     removeItem: 'Usuń {{label}}',
     more: '+{{count}} więcej',
+    moveKeyHelp:
+      'Naciśnij Alt+Enter, aby podnieść ten element, a następnie przesuwaj go strzałkami. ' +
+      'Naciśnij Enter, aby go upuścić, albo Escape, aby cofnąć przenoszenie.',
   },
   commandPalette: {
     label: 'Paleta poleceń',
@@ -148,6 +155,11 @@ export const wrPl: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Przesyłanie',
+    uploaded: 'Przesłano',
+    failed: 'Przesyłanie nie powiodło się',
+    status: '{{name}}: {{status}}',
+    retry: 'Spróbuj ponownie',
   },
   popconfirm: {
     label: 'Potwierdzenie działania',
@@ -207,6 +219,8 @@ export const wrPl: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Miesiące',
     yearList: 'Lata',
+    quarterList: 'Kwartały',
+    quarter: 'Kwartał {{quarter}}',
     prevYears: 'Poprzednie 12 lat',
     nextYears: 'Następne 12 lat',
     header: '{{month}} {{year}}',
@@ -358,6 +372,9 @@ export const wrPl: WrI18nCatalog = {
   alert: {
     close: 'Zamknij komunikat',
   },
+  tag: {
+    remove: 'Usuń {{label}}',
+  },
   qr: {
     label: 'Kod QR',
   },
@@ -463,6 +480,8 @@ export const wrPl: WrI18nCatalog = {
     panelDateTime: 'Wybierz datę i godzinę',
     panelRange: 'Wybierz zakres dat',
     panelRangeDateTime: 'Wybierz zakres dat i godzin',
+    quarterValue: 'Kwartał {{quarter}} {{year}}',
+    weekValue: 'Tydzień {{week}}, {{year}}',
     rangeStart: 'Początek zakresu',
     rangeEnd: 'Koniec zakresu',
     startTime: 'Godzina początkowa',

@@ -49,6 +49,9 @@ export const wrTr: WrI18nCatalog = {
     noMatches: 'Eşleşme yok',
     search: 'Ara',
     reset: 'Sıfırla',
+    columns: 'Sütunlar',
+    selected: '{{count}} seçildi',
+    clearSelection: 'Seçimi temizle',
   },
   eventCalendar: {
     today: 'Bugün',
@@ -112,6 +115,7 @@ export const wrTr: WrI18nCatalog = {
     loadError: 'Sonuçlar yüklenemedi',
     retry: 'Tekrar dene',
     more: '+{{count}} daha',
+    selectAll: 'Tümünü seç',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -122,6 +126,9 @@ export const wrTr: WrI18nCatalog = {
     clearSelection: 'Seçimi temizle',
     removeItem: '{{label}} öğesini kaldır',
     more: '+{{count}} daha',
+    moveKeyHelp:
+      'Bu öğeyi almak için Alt+Enter tuşlarına basın, sonra ok tuşlarıyla taşıyın. ' +
+      'Bırakmak için Enter tuşuna, geri koymak için Escape tuşuna basın.',
   },
   commandPalette: {
     label: 'Komut paleti',
@@ -145,6 +152,11 @@ export const wrTr: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Yükleniyor',
+    uploaded: 'Yüklendi',
+    failed: 'Yükleme başarısız',
+    status: '{{name}}: {{status}}',
+    retry: 'Tekrar dene',
   },
   popconfirm: {
     label: 'İşlemi onayla',
@@ -204,6 +216,8 @@ export const wrTr: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Aylar',
     yearList: 'Yıllar',
+    quarterList: 'Çeyrekler',
+    quarter: '{{quarter}}. çeyrek',
     prevYears: 'Önceki 12 yıl',
     nextYears: 'Sonraki 12 yıl',
     header: '{{month}} {{year}}',
@@ -354,6 +368,9 @@ export const wrTr: WrI18nCatalog = {
   alert: {
     close: 'Uyarıyı kapat',
   },
+  tag: {
+    remove: '{{label}} öğesini kaldır',
+  },
   qr: {
     label: 'QR kodu',
   },
@@ -462,6 +479,8 @@ export const wrTr: WrI18nCatalog = {
     panelDateTime: 'Tarih ve saat seçin',
     panelRange: 'Tarih aralığı seçin',
     panelRangeDateTime: 'Tarih ve saat aralığı seçin',
+    quarterValue: '{{year}} {{quarter}}. çeyrek',
+    weekValue: '{{year}}, {{week}}. hafta',
     rangeStart: 'Aralık başlangıcı',
     rangeEnd: 'Aralık bitişi',
     startTime: 'Başlangıç saati',

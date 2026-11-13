@@ -181,13 +181,27 @@ export const API = {
   // <wr-calendar>
   WrCalendar: [
     { name: "mode", description: "Selection mode.", type: "WrCalendarMode", default: "'single'" },
+    { name: "granularity", description: "What one pick names. `'week'` keeps the day grid, where hovering and picking take the whole week; `'month'`, `'quarter'` and `'year'` open on that view and pick there, with no day grid to drop to. A period is held as its first day. In `range` mode the end is the last day of the end period, so the range stays an inclusive run of days. `min`, `max` and `dateFilter` close a period only when they close every day in it. A week starts on the adapter's first day of the week.", type: "WrCalendarGranularity", default: "'day'" },
     { name: "date", description: "Two-way bindable single value (used when `mode === 'single'`).", type: "Date | null", default: "null" },
     { name: "range", description: "Two-way bindable `[start, end]` (used when `mode === 'range'`).", type: "WrCalendarRange", default: "[null, null]" },
-    { name: "min", description: "Min selectable date (inclusive).", type: "Date | null", default: "null" },
-    { name: "max", description: "Max selectable date (inclusive).", type: "Date | null", default: "null" },
+    { name: "value", description: "The selection as one value, whatever the mode: a `Date` in `single` mode, a `[start, end]` tuple in `range` mode, `null` while nothing is picked. Bound by `[formField]`, or two-way via `[(value)]`. Kept in step with `date` and `range`: a write to either side reaches the other.", type: "WrCalendarValue", default: "null" },
+    { name: "(touch)", description: "Emitted when focus leaves the calendar, so a bound field can mark itself touched.", type: "void" },
+    { name: "min", description: "Min selectable date (inclusive). Takes a `Date`; `null` or `undefined` is no bound.", type: "NonNullable<WrCalendarValue> | undefined", default: "undefined" },
+    { name: "max", description: "Max selectable date (inclusive). Takes a `Date`; `null` or `undefined` is no bound.", type: "NonNullable<WrCalendarValue> | undefined", default: "undefined" },
     { name: "dateFilter", description: "Predicate — return `false` to disable specific dates (e.g. weekends only).", type: "((date: Date) => boolean) | null", default: "null" },
     { name: "autoFocus", description: "Move real focus onto the roving cell as soon as the grid is on screen. Off by default: a standalone `<wr-calendar>` sitting in a page must not steal focus on load. `wr-date-picker` turns it on for the popup it opens from its trigger, where the user asked to be taken to the calendar.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction entirely.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Read-only: the grid keeps its tab stop, the arrows still move the cursor and the header still pages through months and years, but picking a day writes nothing. Bound automatically from the field's readonly state when used with `[formField]`. Mirrored as `aria-readonly` on the day grid.", type: "boolean", default: "false" },
+    { name: "ariaLabel", description: "Accessible name of the day grid, for a calendar that stands alone: a `role=\"grid\"` has no name of its own. Inside a `<wr-form-field>` the field's label names the grid instead.", type: "string | null", default: "null" },
+    { name: "prevMonthLabel", description: "Accessible name of the back arrow on the day view. Falls back to `calendar.prevMonth`, then `'Previous month'`.", type: "string | null", default: "null" },
+    { name: "nextMonthLabel", description: "Accessible name of the forward arrow on the day view. Falls back to `calendar.nextMonth`, then `'Next month'`.", type: "string | null", default: "null" },
+    { name: "monthListLabel", description: "Accessible name of the month list. Falls back to `calendar.monthList`, then `'Months'`.", type: "string | null", default: "null" },
+    { name: "yearListLabel", description: "Accessible name of the year list. Falls back to `calendar.yearList`, then `'Years'`.", type: "string | null", default: "null" },
+    { name: "quarterListLabel", description: "Accessible name of the quarter list. Falls back to `calendar.quarterList`, then `'Quarters'`.", type: "string | null", default: "null" },
+    { name: "prevYearLabel", description: "Accessible name of the back arrow on the month view. Falls back to `calendar.prevYear`, then `'Previous year'`.", type: "string | null", default: "null" },
+    { name: "nextYearLabel", description: "Accessible name of the forward arrow on the month view. Falls back to `calendar.nextYear`, then `'Next year'`.", type: "string | null", default: "null" },
+    { name: "prevYearsLabel", description: "Accessible name of the back arrow on the year view. Falls back to `calendar.prevYears`, then `'Previous 12 years'`.", type: "string | null", default: "null" },
+    { name: "nextYearsLabel", description: "Accessible name of the forward arrow on the year view. Falls back to `calendar.nextYears`, then `'Next 12 years'`.", type: "string | null", default: "null" },
   ],
   // <wr-calendar-heatmap>
   WrCalendarHeatmap: [
@@ -250,6 +264,7 @@ export const API = {
     { name: "disabled", description: "Disable the cascader. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse changes while the trigger stays focusable and the path still submits. Bound automatically from the field's readonly state when used with `[formField]`. The panel is where every edit happens, so a read-only cascader simply does not open — there is nothing to browse that is not already on the trigger — and the clear button goes away with it. Mirrored as `aria-readonly`, which role `combobox` supports.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrCascaderSize", default: "'md'" },
+    { name: "rounded", description: "Pill-shaped corners on the trigger.", type: "boolean", default: "false" },
     { name: "clearable", description: "Show a clear-all (×) button on the trigger when a path is selected.", type: "boolean", default: "true" },
     { name: "changeOnSelect", description: "Allow selecting non-leaf (parent) nodes. When `false`, only leaves (nodes without children) commit a selection.", type: "boolean", default: "false" },
     { name: "separator", description: "Separator between labels in the trigger display.", type: "string", default: "'/'" },
@@ -266,6 +281,7 @@ export const API = {
     { name: "hiddenSeries", description: "The positions in `items` of the series that are hidden, ascending. Positions rather than labels: two series may share a label, and a label translated into another language would no longer match the one it hid. A position past the end of `items` is kept and ignored, so a series coming back finds its state. Written by a click on a `toggleable` row; read in either mode, so a legend that does not toggle still shows a series hidden from elsewhere as hidden.", type: "readonly number[]", default: "[]" },
     { name: "ariaLabel", description: "Accessible name of the list. A `toggleable` legend falls back to `chartLegend.toggleLabel` (\"Toggle series visibility\"), which tells a reader what its buttons do; one that does not toggle has no name unless given one.", type: "string | null", default: "null" },
     { name: "(toggled)", description: "Emits when a reader shows or hides a series from a `toggleable` legend, after `hiddenSeries` moves.", type: "WrChartLegendToggle" },
+    { name: "hiddenLabel", description: "The word a hidden row of a legend that does not toggle carries after its name, visually hidden: the strike-through and the faded key are the eye's half of the state, and a toggle row's `aria-pressed` is the other half there. Falls back to `chartLegend.hidden`, then `'hidden'`.", type: "string | null", default: "null" },
   ],
   // <wr-checkbox>
   WrCheckbox: [
@@ -314,7 +330,8 @@ export const API = {
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse changes while every surface stays focusable and the colour still submits. Bound automatically from the field's readonly state when used with `[formField]`. The two sliders keep their tab stop and keep announcing `aria-valuenow` — they simply do not move — the hex / channel fields take the native `readonly` attribute, and the swatches go inert. Switching TABS still works: that changes which notation is displayed, not the colour. `aria-readonly` is mirrored on the sliders, which support it; the saturation surface is a `role=\"group\"`, which does not, so it carries nothing.", type: "boolean", default: "false" },
     { name: "format", description: "Format the control writes into `value`. See {@link WrColorFormat} — all three are accepted on the way in whichever one is set.", type: "WrColorFormat", default: "'hex'" },
-    { name: "swatches", description: "Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row.", type: "readonly string[]", default: "[]" },
+    { name: "swatches", description: "Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row. An entry is a colour string, or `{ value, label }` to give its button a name: a bare string announces itself, `#3366ff`.", type: "readonly WrColorPickerSwatch[]", default: "[]" },
+    { name: "size", description: "Panel size: its width, padding, the saturation surface and the thumbs. The preset buttons follow the width. The format tabs and the channel fields keep their size.", type: "WrColorPickerSize", default: "'md'" },
     { name: "value", description: "The selected colour as a string. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
@@ -323,7 +340,8 @@ export const API = {
     { name: "value", description: "Two-way bindable colour value (hex string).", type: "string", default: "''" },
     { name: "alpha", description: "Forwarded to the inner picker.", type: "boolean", default: "true" },
     { name: "format", description: "Forwarded to the inner picker.", type: "WrColorFormat", default: "'hex'" },
-    { name: "swatches", description: "Forwarded to the inner picker.", type: "readonly string[]", default: "[]" },
+    { name: "swatches", description: "Forwarded to the inner picker.", type: "readonly WrColorPickerSwatch[]", default: "[]" },
+    { name: "size", description: "Forwarded to the inner picker: the size of the panel this opens.", type: "WrColorPickerSize", default: "'md'" },
     { name: "disabled", description: "Disable the trigger entirely.", type: "boolean", default: "false" },
     { name: "panelClass", description: "Extra CSS classes for the picker panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
     { name: "(opened)", description: "Fires after the picker opens.", type: "void" },
@@ -442,16 +460,17 @@ export const API = {
   ],
   // <wr-date-picker>
   WrDatePicker: [
-    { name: "mode", description: "Picker behavior — see class doc.", type: "'date' | 'time' | 'datetime'", default: "'date'" },
-    { name: "format", description: "Format used for both display and parsing. When `null` (default), the format is derived from `mode` (`shortDate` / `time` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`time24hSeconds`, …). Pass a named key or raw token string to override.", type: "WrDateFormat | string | null", default: "null" },
+    { name: "mode", description: "What the picker picks: `'date'`, `'time'`, `'datetime'`, or a period held as its first day: `'week'`, `'month'`, `'quarter'`, `'year'`.", type: "WrDatePickerMode", default: "'date'" },
+    { name: "format", description: "Format used for both display and parsing. When `null` (default), the format is derived from `mode` (`shortDate` / `time` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`time24hSeconds`, …). Pass a named key or raw token string to override. A period mode writes the period when this is `null`, and with a format (`MM.yyyy`) reads the typed date as the period it is in.", type: "WrDateFormat | string | null", default: "null" },
     { name: "placeholder", description: "Placeholder shown when the input is empty.", type: "string", default: "''" },
-    { name: "min", description: "Min selectable date (forwarded to the calendar). Ignored in `time` mode.", type: "Date | undefined", default: "undefined" },
-    { name: "max", description: "Max selectable date (forwarded to the calendar). Ignored in `time` mode.", type: "Date | undefined", default: "undefined" },
+    { name: "min", description: "Min selectable date (forwarded to the calendar). Ignored in `time` mode. A period mode refuses a period that ends before it.", type: "Date | undefined", default: "undefined" },
+    { name: "max", description: "Max selectable date (forwarded to the calendar). Ignored in `time` mode. A period mode refuses a period that starts after it.", type: "Date | undefined", default: "undefined" },
     { name: "dateFilter", description: "Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode.", type: "((date: Date) => boolean) | null", default: "null" },
     { name: "timeFormat", description: "12 / 24-hour clock, in the time panel and in the field, unless `format` is set. `'auto'` follows the locale. Applies in `time` + `datetime` modes.", type: "'auto' | '12h' | '24h'", default: "'auto'" },
     { name: "showSeconds", description: "Show seconds, in the time panel and in the field, unless `format` is set. Applies in `time` + `datetime` modes.", type: "boolean", default: "false" },
     { name: "step", description: "Minute / second step for the time panel.", type: "number", default: "1" },
     { name: "size", description: "Control size — forwarded to the field's `[size]`, and shares the `--wr-control-*` contract. The panel keeps its size.", type: "WrDatePickerSize", default: "'md'" },
+    { name: "rounded", description: "Pill-shaped corners on the field. The panel keeps its shape.", type: "boolean", default: "false" },
     { name: "clearable", description: "Show a clear (×) button once a date is picked. It is a pointer control: from the keyboard, emptying the field clears the value.", type: "boolean", default: "false" },
     { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
@@ -466,8 +485,8 @@ export const API = {
   ],
   // <wr-date-range-picker>
   WrDateRangePicker: [
-    { name: "mode", description: "Picker behavior — see class doc.", type: "'date' | 'datetime'", default: "'date'" },
-    { name: "format", description: "Format used for both display and parsing, on both ends. When `null` (default), it is derived from `mode` (`shortDate` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`shortDateTime24hSeconds`, …). Pass a named key or raw token string to override.", type: "WrDateFormat | string | null", default: "null" },
+    { name: "mode", description: "What each end picks: `'date'`, `'datetime'`, or a period: `'month'`, `'quarter'`, `'year'`. A range of periods runs to the last day of the end period.", type: "WrDateRangePickerMode", default: "'date'" },
+    { name: "format", description: "Format used for both display and parsing, on both ends. When `null` (default), it is derived from `mode` (`shortDate` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`shortDateTime24hSeconds`, …). Pass a named key or raw token string to override. A period mode writes the period when this is `null`.", type: "WrDateFormat | string | null", default: "null" },
     { name: "startPlaceholder", description: "Placeholder for the start input.", type: "string", default: "''" },
     { name: "endPlaceholder", description: "Placeholder for the end input.", type: "string", default: "''" },
     { name: "separator", description: "Glyph rendered between the two inputs.", type: "string", default: "'–'" },
@@ -478,6 +497,7 @@ export const API = {
     { name: "showSeconds", description: "Show seconds, in the time panels and in both fields, unless `format` is set. Applies in `datetime` mode.", type: "boolean", default: "false" },
     { name: "step", description: "Minute / second step for the time panels.", type: "number", default: "1" },
     { name: "size", description: "Control size — forwarded to each field's `[size]`, and shares the `--wr-control-*` contract. The panel keeps its size.", type: "WrDatePickerSize", default: "'md'" },
+    { name: "rounded", description: "Pill-shaped corners on the field. The panel keeps its shape.", type: "boolean", default: "false" },
     { name: "clearable", description: "Show a clear (×) button once either end is picked. It is a pointer control: from the keyboard, emptying both fields clears the value.", type: "boolean", default: "false" },
     { name: "presets", description: "One-click ranges, drawn as a list of buttons on the start side of the panel. A click commits the range, closes the panel and emits `touch`, in both modes. The preset whose range equals the value is marked pressed, and one that reaches outside `minDate` / `maxDate` is disabled. The labels are the app's: the library ships none. A range function is called when the panel opens, with today in the display time zone. `wrLastDays`, `wrThisWeek`, `wrThisMonth` and `wrLastMonth` return one. See {@link WrDateRangePreset} for what each mode commits.", type: "readonly WrDateRangePreset[]", default: "[]" },
     { name: "presetsLabel", description: "Accessible name of the preset list. The library ships none.", type: "string | null", default: "null" },
@@ -595,8 +615,9 @@ export const API = {
   WrDropdown: [
     { name: "wrDropdown", description: "Menu to open. Pass a `<wr-dropdown-menu>` template reference.", type: "WrDropdownMenu", required: true },
     { name: "trigger", description: "How the menu opens. `manual` leaves the host alone, for one menu shared by many anchors: a click handler records the row, then calls `open()`.", type: "WrDropdownTrigger", default: "'click'" },
-    { name: "position", description: "Where the menu anchors relative to the trigger. A placement that does not fit flips to the opposite side (a `left` / `right` menu may also drop below or above, and then stays there until it closes), and the pane's `wr-dropdown-overlay--<placement>` class names the side it actually took.", type: "WrDropdownPosition", default: "'bottom-start'" },
+    { name: "position", description: "Where the menu anchors relative to the trigger: the twelve placements `wr-popover` takes. A placement that does not fit flips to the opposite side (a `left*` / `right*` menu may also drop below or above, and then stays there until it closes), and the pane's `wr-dropdown-overlay--<placement>` class names the side it actually took.", type: "WrDropdownPosition", default: "'bottom-start'" },
     { name: "arrow", description: "Draw a small arrow on the menu's edge, pointing at the trigger — the one `wr-popover` and `wr-popconfirm` draw, from the same shared rule. It follows the placement the menu actually took, so a flipped menu points the right way, and it widens the gap to the trigger from 0.25rem to popover's 0.5rem so the tip does not touch the control. Turn it off on a menu with no padding of its own (`--wr-dropdown-padding: 0`) or one that clips its overflow: the square reaches about 3px inside the menu's border, over the first row, and `overflow` cuts its tip off. Read when the menu opens.", type: "boolean", default: "true" },
+    { name: "wrDropdownDisabled", description: "Turns the trigger off: no click, hover or key opens the menu, `open()` and `toggle()` do nothing (a `manual` trigger included), and an open menu closes. The host publishes no popup ARIA meanwhile and carries `wr-dropdown-trigger--disabled`. The host's own `disabled` stays yours: the directive never sets it.", type: "boolean", default: "false" },
     { name: "panelClass", description: "Extra CSS classes for the menu's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
     { name: "(opened)", description: "Fires after the menu opens.", type: "void" },
     { name: "(closed)", description: "Fires after the menu closes.", type: "void" },
@@ -643,6 +664,14 @@ export const API = {
     { name: "(eventClick)", description: "A chip was activated.", type: "WrCalendarEvent" },
     { name: "(slotClick)", description: "Empty space was activated — the slot the user pointed at.", type: "WrCalendarSlot" },
     { name: "(eventChange)", description: "A drag or an `Alt` + arrow finished. Apply it yourself; nothing moves until you do.", type: "WrCalendarEventChange" },
+    { name: "todayLabel", description: "Text of the button that jumps to today. Falls back to `eventCalendar.today`, then `'Today'`.", type: "string | null", default: "null" },
+    { name: "previousLabel", description: "Accessible name of the back arrow. Falls back to `eventCalendar.previous`, then `'Previous'`.", type: "string | null", default: "null" },
+    { name: "nextLabel", description: "Accessible name of the forward arrow. Falls back to `eventCalendar.next`, then `'Next'`.", type: "string | null", default: "null" },
+    { name: "allDayLabel", description: "Text of the all-day band, also read as the time of an all-day event. Falls back to `eventCalendar.allDay`, then `'All day'`.", type: "string | null", default: "null" },
+    { name: "timeLabel", description: "Accessible name of the time gutter column. Falls back to `eventCalendar.time`, then `'Time'`.", type: "string | null", default: "null" },
+    { name: "monthLabel", description: "Text of the month option in the view switcher. Falls back to `eventCalendar.month`, then `'Month'`.", type: "string | null", default: "null" },
+    { name: "weekLabel", description: "Text of the week option in the view switcher. Falls back to `eventCalendar.week`, then `'Week'`.", type: "string | null", default: "null" },
+    { name: "dayLabel", description: "Text of the day option in the view switcher. Falls back to `eventCalendar.day`, then `'Day'`.", type: "string | null", default: "null" },
     { name: "ariaLabel", description: "Accessible name of the grid; overridable for a page with several.", type: "string | null", default: "null" },
   ],
   // <[wrFallingLetters]>
@@ -655,18 +684,27 @@ export const API = {
   WrFileUpload: [
     { name: "multiple", description: "Allow multiple files. Single mode replaces on each add.", type: "boolean", default: "false" },
     { name: "accept", description: "`accept` attribute — comma-separated MIME types or extensions.", type: "string", default: "''" },
+    { name: "size", description: "Control size: the drop zone's padding, icon and text, and the list rows.", type: "WrFileUploadSize", default: "'md'" },
     { name: "maxSize", description: "Max bytes per file. `0` disables the check.", type: "number", default: "0" },
     { name: "maxFiles", description: "Max files (multi mode only). `0` disables the check.", type: "number", default: "0" },
     { name: "showList", description: "Render the picked-files list below the zone.", type: "boolean", default: "true" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse changes to the selection while the zone stays focusable and the files still submit. Bound automatically from the field's readonly state when used with `[formField]`. The zone stops opening the picker, a drop is refused and the per-file remove buttons go inert — but the list stays readable, which is the point. No `aria-readonly`: the zone is a `role=\"button\"`, and ARIA does not define the state for that role, so `aria-disabled` would be the only mirror available and it would say the wrong thing.", type: "boolean", default: "false" },
+    { name: "status", description: "Where the app's upload of each file stands, keyed by the `File` objects in `value`. A row with an entry draws its state: a progress bar while `uploading` (indeterminate without a `percent`), a mark when `done`, the `message` and a retry button on `error`. A file with no entry is a plain row. Pass a new `Map` on each change: an input sees a new reference, not a `set()` on the one it already holds. `null` (the default) renders nothing extra.", type: "WrFileUploadStatusMap | null", default: "null" },
+    { name: "previews", description: "Show a thumbnail beside each image file. The thumbnail is an object URL, revoked when its file leaves the list or the component is destroyed. Browser only: nothing is created on the server.", type: "boolean", default: "false" },
+    { name: "acceptPaste", description: "Take files pasted with Ctrl/Cmd+V while the drop zone has focus. They go through the same `accept`, `maxSize` and `maxFiles` rules as a drop. A paste that carries no file is left alone.", type: "boolean", default: "false" },
     { name: "pickLabel", description: "Primary call-to-action label. Falls back to `fileUpload.browse`.", type: "string | null", default: "null" },
     { name: "dropLabel", description: "Secondary instruction below the CTA. Falls back to `fileUpload.dropZone`.", type: "string | null", default: "null" },
     { name: "dropZoneLabel", description: "Overrides the drop zone's accessible name. Unset, the zone is named by its visible copy, after the field's label inside a `<wr-form-field>`. An override must contain that copy, or speech input cannot reach the control (WCAG 2.5.3).", type: "string | null", default: "null" },
     { name: "removeFileLabel", description: "Remove-file button aria-label. Falls back to `fileUpload.removeFile`.", type: "string | null", default: "null" },
+    { name: "retryLabel", description: "Retry button text on a failed row. Falls back to `fileUpload.retry`.", type: "string | null", default: "null" },
+    { name: "uploadingLabel", description: "Name of the `uploading` state: the progress bar's name and the announcement. Falls back to `fileUpload.uploading`.", type: "string | null", default: "null" },
+    { name: "uploadedLabel", description: "Name of the `done` state: the mark's name and the announcement. Falls back to `fileUpload.uploaded`.", type: "string | null", default: "null" },
+    { name: "failedLabel", description: "Text of a failed row whose status carries no `message`. Falls back to `fileUpload.failed`.", type: "string | null", default: "null" },
     { name: "helperText", description: "Optional helper text shown below the labels (e.g. accepted formats).", type: "string", default: "''" },
     { name: "value", description: "Selected file(s). Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `multiple`: a single `File` (or `null`), or a `File[]` array.", type: "File | readonly File[] | null", default: "null" },
     { name: "(rejected)", description: "Emitted when files are rejected for type / size / count reasons.", type: "readonly WrFileUploadRejection[]" },
+    { name: "(retry)", description: "Emitted with the file when the retry button of a failed row is pressed.", type: "File" },
     { name: "(touch)", description: "Emitted on commit so a bound field can mark itself touched.", type: "void" },
   ],
   // <[wrFitText]>
@@ -764,6 +802,7 @@ export const API = {
     { name: "nodeWidth", description: "Width in pixels of a node that sets none of its own.", type: "number", default: "160" },
     { name: "nodeHeight", description: "Height in pixels of a node that sets none of its own.", type: "number", default: "48" },
     { name: "ariaLabel", description: "Accessible name of the scrolling viewport. Falls back to `graph.label`, then `'Graph'`.", type: "string | null", default: "null" },
+    { name: "(layoutError)", description: "An asynchronous layout rejected. Carries the rejection as thrown. The last picture stays on screen, and a run that was aborted never reports here.", type: "unknown" },
   ],
   // <wr-heatmap-chart>
   WrHeatmapChart: [
@@ -815,6 +854,10 @@ export const API = {
   // <wr-input-group>
   WrInputGroup: [
     { name: "rounded", description: "Pill-shaped corners.", type: "boolean", default: "false" },
+    { name: "clearable", description: "Show a clear (×) button while the field holds text and is neither disabled nor read-only. Clearing empties the field through an `input` event, so whatever is bound to it (`ngModel`, `[formField]`, an `(input)` listener) hears it as an edit, and puts focus back in the field. It is a pointer control: from the keyboard, emptying the field clears it.", type: "boolean", default: "false" },
+    { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
+    { name: "loading", description: "Show a spinner after the field and mark the field `aria-busy`. The field stays editable.", type: "boolean", default: "false" },
+    { name: "(cleared)", description: "Emitted after the clear (×) button emptied the field.", type: "void" },
   ],
   // <wr-input-number>
   WrInputNumber: [
@@ -832,10 +875,13 @@ export const API = {
     { name: "ariaLabel", description: "Accessible name for the field. Unset, the field is named by whatever labels it — there is deliberately no fallback here. It used to mirror the `placeholder`, and an `aria-label` OUTRANKS a `<label>` in the accname order: inside a `<wr-form-field label=\"Quantity\">` the very input that adopts the field's id announced the placeholder (\"0\") instead, and a placeholder disappears as soon as the user types. Standalone nothing was lost by dropping it — an input with no other name already falls back to its own `placeholder` attribute, which is the name axe's `label` rule accepts too.", type: "string | null", default: "null" },
     { name: "incrementLabel", description: "Increment button aria-label. Falls back to `inputNumber.increment`.", type: "string | null", default: "null" },
     { name: "decrementLabel", description: "Decrement button aria-label. Falls back to `inputNumber.decrement`.", type: "string | null", default: "null" },
+    { name: "clearable", description: "Show a clear (×) button while the field holds text and is neither disabled nor read-only. Clearing sets `value` to `null`, emits `touch` and puts focus back in the field. It is a pointer control: from the keyboard, emptying the field clears the value.", type: "boolean", default: "false" },
+    { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
+    { name: "loading", description: "Show a spinner after the field and mark the field `aria-busy`. The field stays editable.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "readonly", description: "Read-only — values cannot be changed (steppers + typing disabled).", type: "boolean", default: "false" },
     { name: "value", description: "The value, `null` when empty: a `number` in `'number'` mode, a canonical decimal string in `'decimal'` mode. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrInputNumberValue<M>", default: "null" },
-    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "(touch)", description: "Emitted on blur, and by the clear (×) button, so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-input-otp>
   WrInputOtp: [
@@ -843,6 +889,7 @@ export const API = {
     { name: "length", description: "Number of cells to render. Clamped to `[1, 20]`.", type: "number", default: "6" },
     { name: "mode", description: "Character set per cell.", type: "WrInputOtpMode", default: "'numeric'" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract. A box carries no size of its own: the host modifier sets `--wr-input-otp-size` / `-font` / `-radius` / `-gap` and every box reads them from the cascade, so one value sizes the whole strip however many boxes `length` renders.", type: "WrInputOtpSize", default: "'md'" },
+    { name: "rounded", description: "Pill-shaped corners. Every box takes them, so a square box draws a circle.", type: "boolean", default: "false" },
     { name: "mask", description: "Mask the typed characters like a password.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse edits while every box stays focusable and the code still submits. Bound automatically from the field's readonly state when used with `[formField]`. Each box is a real text input, so this is the native `readonly` attribute — arrow keys, Home / End and selection keep working, which is the whole difference from `disabled`. Paste is cancelled too, since a `paste` still reaches a read-only input even though typing does not.", type: "boolean", default: "false" },
@@ -1035,12 +1082,13 @@ export const API = {
   // <[wrPopconfirm]>
   WrPopconfirm: [
     { name: "wrPopconfirm", description: "Confirmation message.", type: "string", required: true },
-    { name: "position", description: "Anchor side; the panel flips to another side when this one has no room.", type: "WrPopconfirmPosition", default: "'top'" },
+    { name: "position", description: "Anchor side and alignment, the twelve placements `wr-popover` takes; the panel flips to another side when this one has no room.", type: "WrPopconfirmPosition", default: "'top'" },
     { name: "confirmText", description: "Confirm button text. Falls back to `popconfirm.confirm`.", type: "string | null", default: "null" },
     { name: "cancelText", description: "Cancel button text. Falls back to `popconfirm.cancel`.", type: "string | null", default: "null" },
     { name: "ariaLabel", description: "Accessible name of the confirmation dialog. `role=\"dialog\"` with no name announces as a bare \"dialog\". Falls back to `popconfirm.label`.", type: "string | null", default: "null" },
     { name: "confirmColor", description: "Color of the confirm button.", type: "WrColor", default: "'primary'" },
     { name: "panelClass", description: "Extra CSS classes for the confirmation bubble's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
+    { name: "wrPopconfirmDisabled", description: "Turns the question off: a click on the host opens nothing and is left to propagate, `open()` does nothing, and an open panel closes without `cancelled`. The host publishes no popup ARIA meanwhile and carries `wr-popconfirm-trigger--disabled`. The host's own `disabled` stays yours: the directive never sets it, so the button still takes its own `(click)` — the way to skip the question when there is nothing to confirm.", type: "boolean", default: "false" },
     { name: "(confirmed)", description: "Fires when the user clicks confirm.", type: "void" },
     { name: "(cancelled)", description: "Fires when the user clicks cancel or dismisses the overlay.", type: "void" },
   ],
@@ -1053,6 +1101,7 @@ export const API = {
     { name: "showDelay", description: "Tooltip only — delay before showing, in ms.", type: "number", default: "120" },
     { name: "hideDelay", description: "Tooltip only — delay before hiding, in ms.", type: "number", default: "60" },
     { name: "wrPopoverOrigin", description: "Tooltip only — the element the tooltip is for, when that is not the host. The panel is placed against it, and its hover and focus show and hide the tooltip the way the host's do. Setting it shows the tooltip after `showDelay`: name the element once the pointer or the focus is on it. It lets one tooltip serve many elements, as `wr-table` does for its header hints and truncated cells: the owner listens once, and binds this to the element under the pointer and `wrPopover` to its text. `aria-describedby` stays on the host, so the owner names or describes the element itself.", type: "HTMLElement | null", default: "null" },
+    { name: "wrPopoverDisabled", description: "Turns the trigger off: no hover, focus, click or key opens the panel, `open()` and `toggle()` do nothing, and an open panel closes. The host publishes no popup ARIA meanwhile and carries `wr-popover-trigger--disabled`. The host's own `disabled` stays yours: the directive never sets it, so a button keeps working as a button. Typical use is a tooltip that only shows for truncated text.", type: "boolean", default: "false" },
     { name: "ariaLabel", description: "Popover mode only — accessible name of the panel. `role=\"dialog\"` with no name announces as a bare \"dialog\", so the catalog's `popover.label` is used when nothing is given. A popover has no universal name; whenever the panel has a heading or a purpose, pass it.", type: "string | null", default: "null" },
     { name: "panelClass", description: "Extra CSS classes for the popover's (or tooltip's) overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
     { name: "(opened)", description: "Fires after the panel opens.", type: "void" },
@@ -1062,7 +1111,9 @@ export const API = {
   WrProgress: [
     { name: "ariaLabel", description: "Accessible name — `role=\"progressbar\"` needs one. Falls back to `progress.label`.", type: "string | null", default: "null" },
     { name: "color", description: "Bar color.", type: "WrColor", default: "'primary'" },
+    { name: "size", description: "Bar thickness: 4px, 8px or 12px, through `--wr-progress-height`.", type: "WrProgressSize", default: "'md'" },
     { name: "value", description: "Progress value, clamped to `[0, 100]`.", type: "number", default: "0" },
+    { name: "indeterminate", description: "Show that work is running without saying how far it has got: the bar sweeps, `value` is ignored and `aria-valuenow` is left off, which is how a progressbar says its value is unknown.", type: "boolean", default: "false" },
   ],
   // <wr-pull-to-refresh>
   WrPullToRefresh: [
@@ -1207,6 +1258,8 @@ export const API = {
   WrSchemaForm: [
     { name: "field", description: "The form to draw — the value `form()` returned, or any object-valued field inside one.", type: "FieldTree<T>", required: true },
     { name: "columns", description: "Grid columns. A field spans one of them unless its spec says otherwise.", type: "number", default: "1" },
+    { name: "addLabel", description: "Text of the button that adds an item to a repeating group. Falls back to `common.add`.", type: "string | null", default: "null" },
+    { name: "removeLabel", description: "Text of the button that removes one item of a repeating group. Falls back to `common.remove`.", type: "string | null", default: "null" },
   ],
   // <wr-segmented>
   WrSegmented: [
@@ -1254,6 +1307,8 @@ export const API = {
     { name: "panelClass", description: "Extra CSS classes for the dropdown panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array. The pane is a positioning wrapper carrying the gap above the list; the box that paints is `.wr-select-panel` inside it, so a rule meant for the surface reads `.my-class .wr-select-panel`.", type: "WrClassInput", default: "null" },
     { name: "position", description: "Side of the trigger the panel opens on. A side with no room gives way to the other, so `'top'` still drops below at the top of the viewport.", type: "WrSelectPosition", default: "'bottom'" },
     { name: "maxItems", description: "Cap on selected items (multi mode). `0` = unlimited. Once reached, the unselected options are marked unavailable — `aria-disabled` and the disabled look — and refuse a pick until one is removed.", type: "number", default: "0" },
+    { name: "selectAll", description: "Multi mode: a first, pinned \"Select all\" row in the panel. It toggles every enabled option the panel is offering, so under a search only the ones the query matches, and with `virtualScroll` the whole filtered list rather than the rendered rows. It adds in display order and stops at `maxItems`; a second press, with nothing left to add, takes the offered options out again. A selection the search is hiding is never touched. The row is a `role=\"option\"`, since a listbox owns nothing else, and says its state through `aria-checked`: `true` when every offered option is selected, `mixed` when some are, `false` when none. The arrows and Home reach it like any row and Enter or Space toggles it. Not drawn in single mode, in tag mode, or while the panel offers no option.", type: "boolean", default: "false" },
+    { name: "selectAllLabel", description: "Text of the select-all row. Falls back to `select.selectAll`, then `'Select all'`.", type: "string | null", default: "null" },
     { name: "maxTagCount", description: "Maximum number of chips rendered before collapsing the rest into a `+N more` indicator. `0` = render every chip.", type: "number", default: "0" },
     { name: "value", description: "Unified value. Single mode holds a scalar (or `null`); multi / tag mode holds `readonly T[]`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "T | readonly T[] | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur / commit so a bound field can mark itself touched.", type: "void" },
@@ -1288,6 +1343,7 @@ export const API = {
     { name: "marks", description: "Stops drawn on the track: a tick at each `value`, and its `label` under the track when it has one. A mark outside `[min, max]` is not drawn. The thumb announces the label of the mark it stands on as `aria-valuetext`, ahead of `labelWith`.", type: "readonly WrSliderMark[]", default: "[]" },
     { name: "snapToMarks", description: "Restrict the value to the marks: a drag lands on the nearest one and the keyboard moves from mark to mark, whatever `step` says. Without marks it does nothing.", type: "boolean", default: "false" },
     { name: "orientation", description: "Axis of the track. `vertical` runs from the bottom (min) to the top (max), as tall as `--wr-slider-vertical-height`, with the value and the marks' labels beside it.", type: "'horizontal' | 'vertical'", default: "'horizontal'" },
+    { name: "size", description: "Control size: the track's thickness, the thumb, the marks and both kinds of label text.", type: "WrSliderSize", default: "'md'" },
     { name: "ariaLabel", description: "Accessible name of the thumb — the single one, or the LOWER one in range mode. Falls back to `slider.label` / `slider.lower`.", type: "string | null", default: "null" },
     { name: "upperLabel", description: "Accessible name of the upper thumb in range mode. Falls back to `slider.upper`.", type: "string | null", default: "null" },
     { name: "value", description: "Current value. Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `range`: a plain `number`, or `[low, high]` in range mode.", type: "WrSliderValue", default: "0" },
@@ -1385,6 +1441,8 @@ export const API = {
     { name: "orientation", description: "Layout direction.", type: "'horizontal' | 'vertical'", default: "'horizontal'" },
     { name: "linear", description: "Lock steps after the latest completed one.", type: "boolean", default: "false" },
     { name: "responsive", description: "Drop a horizontal stepper to a vertical layout when its own box is too narrow for the row (a container query on its own width, not the viewport — so it adapts inside a narrow column or side panel). No effect when `orientation` is already `vertical`.", type: "boolean", default: "false" },
+    { name: "optionalLabel", description: "The word of the \"optional\" badge, which sits inside the header button's label and so is part of each optional step's accessible name. One input on the stepper covers every step. Falls back to `stepper.optional`, then `'optional'`.", type: "string | null", default: "null" },
+    { name: "completedLabel", description: "The word a completed step's header button carries after its label, visually hidden: the check mark that replaces the number is `aria-hidden`. Falls back to `stepper.completed`, then `'completed'`.", type: "string | null", default: "null" },
   ],
   // <wr-switch>
   WrSwitch: [
@@ -1412,6 +1470,8 @@ export const API = {
     { name: "responsive", description: "Collapse each row to a labelled card when the table's own box is too narrow for columns (a container query on its own width, not the viewport). Every cell shows its column title as a label.", type: "boolean", default: "false" },
     { name: "reorderable", description: "Enable drag-to-reorder on the column headers.", type: "boolean", default: "false" },
     { name: "columnOrder", description: "Two-way bindable column order — an array of column keys. Reflects and drives the header order: the table falls back to declaration order for any key not listed, and updates this on drag. Bind it to persist a user's arrangement.", type: "readonly string[]", default: "[]" },
+    { name: "hiddenColumns", description: "Two-way bindable hidden columns, an array of column keys. A hidden column renders nothing: no header, no cell, no summary, no `<col>`. Its sort and its filter selection stay as they are, and `toCsv()` leaves it out. A column with `hideable: false` is shown whatever this lists, and so is the first column when the list would leave none. Bind it beside `columnOrder` to persist a user's arrangement.", type: "readonly string[]", default: "[]" },
+    { name: "columnChooser", description: "Show a toolbar above the table with a button that opens the column chooser: one checkbox per column, in column order, named by the column's title. A `hideable: false` column and the last visible one cannot be unchecked. Each toggle writes `hiddenColumns`.", type: "boolean", default: "false" },
     { name: "rowSelection", description: "Row selection with a leading checkbox column — `'multiple'` adds a select-all header; `'single'` keeps one row selected.", type: "'single' | 'multiple' | null", default: "null (off)" },
     { name: "selectAllScope", description: "What the header select-all covers. `'page'` is the rows on screen: the current page, less a collapsed group's rows and a closed parent's children. `'all'` is the same rule over every page of `items`, so the box reads checked only when all of them are selected, mixed when some are, and one click selects or clears them all. Either way a selected key that is not in the scope stays selected. The table filters nothing itself: `items` is already what the filters left, so `'all'` never reaches a row a filter removed. Group band checkboxes keep their page scope, since grouping runs after pagination. In server mode (`total` set) the table holds one page and cannot name the rows of the others, so `'all'` behaves as `'page'` there.", type: "'page' | 'all'", default: "'page'" },
     { name: "rowClass", description: "Extra CSS classes per body row, from the row and its drawn index. The `<tr>` is ngwr's own element and there is no template slot that renders as one, so this is the only way to mark a row — overdue, unsaved, over budget — without a rule that has to re-derive the condition in CSS. It does NOT touch the detail row an expanded row opens, the group header or the summary row: each of those is a sibling `<tr>` with its own meaning, and a row predicate that painted them too would stripe a table's totals.", type: "WrTableRowClass | null", default: "null" },
@@ -1434,7 +1494,12 @@ export const API = {
     { name: "selectGroupLabel", description: "The action word that names a group band's select checkbox. The group's label is joined to it — \"Select group EMEA\". Falls back to `table.selectGroup`.", type: "string | null", default: "null" },
     { name: "toggleGroupLabel", description: "The action word that names a group band's collapse toggle, joined to the group's label like `selectGroupLabel`. Falls back to `table.toggleGroup`.", type: "string | null", default: "null" },
     { name: "loadingLabel", description: "Accessible name of the loading overlay or bar. Falls back to `table.loading`.", type: "string | null", default: "null" },
+    { name: "selectedLabel", description: "Text of the selection bar's count, with `{{count}}` where the number goes. Falls back to `table.selected`.", type: "string | null", default: "null" },
+    { name: "clearSelectionLabel", description: "Text of the selection bar's clear button. Falls back to `table.clearSelection`.", type: "string | null", default: "null" },
+    { name: "columnsLabel", description: "Text of the column chooser's button and name of its panel. Falls back to `table.columns`.", type: "string | null", default: "null" },
     { name: "(filterChange)", description: "Fires whenever a column's filter selection changes.", type: "WrTableFilterChange" },
+    { name: "state", description: "Restores the table in one write: the sort, each column's filter selection, the page, the page size, the column order and the hidden columns. A saved view binds here. It is applied when the bound object changes, so hand it a new object to restore the same view a second time; a key left out keeps what the table has. The models it writes fire their own `*Change`, and `pageSizeChange` fires for a new size; `filterChange` and `stateChange` do not, since the host already holds what it restored. Pairs with `stateChange` as `[(state)]`.", type: "Partial<WrTableState> | null", default: "null" },
+    { name: "(stateChange)", description: "Fires with the whole state after a change the reader makes: a sort, a filter, a page, a page size, a column drag, a column shown or hidden. One action is one event, so a new page size that also moves the page fires once. A write from the host, through `state` or a model, does not fire.", type: "WrTableState" },
     { name: "(rowClick)", description: "Fires when a body row is clicked, with the row, its index in `items` and the click. Group bands, summary rows and detail rows do not fire it. A click on an interactive element inside the row is that element's own and does not fire: a button, a link, a form field, a label, `[role=button]`, editable content, the table's own toggles and its selection and expand cells. Mark anything else with the `wrTableIgnoreRowClick` attribute, which needs no import: `<app-menu wrTableIgnoreRowClick />`. Pointer only: a row takes no focus and no key for it, so give the same action a control of its own in the row (a link or a button in a cell) for keyboard and screen reader users. The table adds no cursor either: style `.wr-table__tr` when the rows are clickable.", type: "WrTableRowClick<T>" },
     { name: "pageSize", description: "Rows per page. Set to `0` (default) to disable client-side pagination and render every row at once.", type: "number", default: "0" },
     { name: "pageSizeOptions", description: "Sizes the pager offers in a size menu. Empty (default) shows no menu. A size the reader picks pages the rows at once and fires `pageSizeChange`, so `[(pageSize)]` keeps it on the host; the page moves to keep the first visible row on screen.", type: "readonly number[]", default: "[]" },
@@ -1448,11 +1513,18 @@ export const API = {
     { name: "viewportHeight", description: "Height of the scroll area when `virtualScroll` or `stickyHeader` is on — a number (px), any CSS length (`'70vh'`) or `'fill'`. A length is applied as `max-height` on `.wr-table__scroll` through `--wr-table-scroll-height` (a short table shrinks to fit; a long one caps and scrolls). `'fill'` takes the height the parent has left instead: the parent must be a flex column with a definite height (every flex ancestor up the chain needs `min-height: 0`), or a block with a definite height. The table then never shrinks below `--wr-table-scroll-min-height`. A numeric px value lets the server prerender the exact first window of a virtualized table.", type: "number | string", default: "480" },
     { name: "overscan", description: "Extra rows kept rendered above and below the viewport as scroll headroom.", type: "number", default: "6" },
     { name: "truncate", description: "`'tooltip'` cuts every body cell to one line with an ellipsis and shows a cut cell's full text in a tooltip on hover and focus; a cell that fits shows none. A column's own `truncate` wins, and `null` there turns it off for that column. A cell is cut only where its column cannot grow: give the column a `width`, or the table a fixed layout (a resized or virtualized one has it).", type: "WrTableTruncate | null", default: "null" },
+    { name: "editable", description: "Vetoes the edit of single cells: called with the row and the column key, `false` keeps that cell read-only. Asked only for a column that has a `[wrTableEditCell]` template and does not say `editable: false`.", type: "WrTableEditable<T> | null", default: "null" },
+    { name: "(cellEdit)", description: "Emits when a cell edit commits with a value other than the cell's own. The table does not write it: update the data behind `items` in the handler.", type: "WrTableCellEdit<T>" },
   ],
   // <[wrTableCell]>
   WrTableCell: [
     { name: "wrTableCell", description: "Column key the template applies to.", type: "K", required: true },
     { name: "wrTableCellOf", description: "The rows the template draws, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.", type: "readonly T[] | null | undefined", default: "undefined" },
+  ],
+  // <[wrTableEditCell]>
+  WrTableEditCell: [
+    { name: "wrTableEditCell", description: "Column key the editor applies to.", type: "K", required: true },
+    { name: "wrTableEditCellOf", description: "The rows the table draws, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.", type: "readonly T[] | null | undefined", default: "undefined" },
   ],
   // <wr-table-filter>
   WrTableFilter: [
@@ -1463,6 +1535,10 @@ export const API = {
     { name: "resetLabel", description: "Label of the clear-selection button. Falls back to `table.reset`.", type: "string | null", default: "null" },
     { name: "items", description: "The values the column can be filtered by. Shown as a checkbox list, so pass the distinct values rather than one entry per row.", type: "readonly WrTableFilterItem[]", required: true },
     { name: "(selectionChange)", description: "Fires whenever the selection changes.", type: "readonly WrTableFilterItem[]" },
+  ],
+  // <ng-template[wrTableSelectionBar]>
+  WrTableSelectionBar: [
+    { name: "wrTableSelectionBarOf", description: "The rows the template receives, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.", type: "readonly T[] | null | undefined", default: "undefined" },
   ],
   // <wr-table-sort>
   WrTableSort: [
@@ -1476,6 +1552,7 @@ export const API = {
   // <wr-tag>
   WrTag: [
     { name: "color", description: "Color variant — decoration or category, never the state on its own. The label carries the state (`Failed`, not a red `Build`): four of the five intents share one lightness and `success` against `danger` is 1.004:1, so a reader who cannot separate red from green cannot tell those two tags apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand for a status by itself, give it an `icon` as well — register one with `provideWrIcons(wrLucideIcons({ 'octagon-alert': OctagonAlert }))`, then write `<wr-tag color=\"danger\" icon=\"octagon-alert\">Failed</wr-tag>`.", type: "WrColor | null", default: "'primary'" },
+    { name: "size", description: "Size variant. `md` is the 22px chip that sits beside an `sm` control, `sm` is 18px and `lg` 30px, the heights of a badge at those sizes.", type: "WrTagSize", default: "'md'" },
     { name: "icon", description: "Icon name shown alongside the content — the one channel besides the label that a tag has, so the one to reach for when colour is carrying a status. Nothing ships built in: register the name through `provideWrIcons` first. The icon is replaced by a spinner when `loading` is true.", type: "WrIconName | null", default: "null" },
     { name: "iconPosition", description: "Where the icon/spinner is rendered.", type: "WrTagIconPosition", default: "'start'" },
     { name: "outlined", description: "Outlined style — colored text and border on a tinted background.", type: "boolean", default: "false" },
@@ -1483,6 +1560,9 @@ export const API = {
     { name: "rounded", description: "Pill-shaped corners.", type: "boolean", default: "false" },
     { name: "hoverable", description: "Adds a hover state — use when the tag is interactive (button/link).", type: "boolean", default: "false" },
     { name: "loading", description: "Show a spinner in place of the icon.", type: "boolean", default: "false" },
+    { name: "closable", description: "Renders a remove button at the end of the tag. The tag does not remove itself: drop it from your list in `(removed)`. A `loading` tag keeps the button; bind `[closable]=\"!saving\"` to withhold it.", type: "boolean", default: "false" },
+    { name: "removeLabel", description: "Accessible name of the remove button. Falls back to the catalog's `tag.remove` with the tag's own text, \"Remove Angular\", or to `common.remove` for a tag with no text.", type: "string | null", default: "null" },
+    { name: "(removed)", description: "Emitted when the user removes the tag: a click on the remove button, or Delete / Backspace on it (or on the tag itself, if you made it focusable). The click does not reach a `(click)` on the tag. If the button had focus and the tag is gone after the next render, focus moves to the next tab stop, or the one before it when nothing follows.", type: "void" },
   ],
   // <[wrT]>
   WrTDirective: [
@@ -1496,15 +1576,19 @@ export const API = {
     { name: "placeholder", description: "Native placeholder text.", type: "string", default: "''" },
     { name: "ariaLabel", description: "Accessible name for the field. Falls back to the placeholder — the native `<textarea>` lives inside the component, so a `<label for>` outside cannot reach it.", type: "string | null", default: "null" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrTextareaSize", default: "'md'" },
+    { name: "rounded", description: "Round the corners to match a row of pill fields. The radius stops at half the height of a one-row field, so a taller box keeps straight sides.", type: "boolean", default: "false" },
     { name: "rows", description: "Visible row count.", type: "number", default: "3" },
     { name: "resizable", description: "Allow user resize via the corner grip.", type: "boolean", default: "true" },
     { name: "resize", description: "Resize direction of the corner grip (the grip icon adapts).", type: "WrTextareaResize", default: "'vertical'" },
     { name: "readonly", description: "Read-only state.", type: "boolean", default: "false" },
     { name: "autosize", description: "Grow the textarea to fit its content.", type: "boolean", default: "false" },
     { name: "maxRows", description: "Cap autosize at this many rows. Ignored when `autosize` is false.", type: "number | null", default: "null" },
+    { name: "clearable", description: "Show a clear (×) button while the field holds text and is neither disabled nor read-only. Clearing sets `value` to `''`, emits `touch` and puts focus back in the field. It is a pointer control: from the keyboard, emptying the field clears the value.", type: "boolean", default: "false" },
+    { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
+    { name: "loading", description: "Show a spinner in the field's corner and mark the field `aria-busy`. The field stays editable.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable the textarea. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "value", description: "The edited text. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
-    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "(touch)", description: "Emitted on blur, and by the clear (×) button, so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-thread-lines>
   WrThreadLines: [
@@ -1549,6 +1633,7 @@ export const API = {
     { name: "(touch)", description: "Emitted on blur / commit so a bound field marks itself touched.", type: "void" },
     { name: "disabled", description: "Disable the whole control.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse changes to the value while both panes stay focusable and readable. Bound automatically from the field's readonly state when used with `[formField]`. The move buttons go inert and the row checkboxes go read-only; SEARCH keeps working, because filtering a pane changes what is shown and not what is chosen. No `aria-readonly` on the host: role `group` does not support the state, so each row's checkbox mirrors its own instead.", type: "boolean", default: "false" },
+    { name: "size", description: "Control size: the panes, the headings, the rows and the move buttons. The checkboxes, search boxes and buttons inside are `sm` controls at `sm` and `md`, and `md` controls at `lg`.", type: "WrTransferSize", default: "'md'" },
     { name: "searchable", description: "Show a filter box above each pane.", type: "boolean", default: "false" },
     { name: "sourceTitle", description: "Heading above the left pane. Falls back to `transfer.source`.", type: "string | null", default: "null" },
     { name: "targetTitle", description: "Heading above the right pane. Falls back to `transfer.target`.", type: "string | null", default: "null" },
@@ -1563,6 +1648,7 @@ export const API = {
     { name: "nodes", description: "Tree data.", type: "readonly WrTreeNode<TId>[]", default: "[]" },
     { name: "selected", description: "Selected node ids (two-way bindable).", type: "readonly TId[]", default: "[]" },
     { name: "expanded", description: "Expanded node ids (two-way bindable).", type: "readonly TId[]", default: "[]" },
+    { name: "expandOnClick", description: "Opens and closes a node by a click anywhere on its row, not only on the arrow. In `selectionMode=\"single\"` the click selects too. Under `cascade` the checkbox is the way to check a branch, so a click elsewhere on its row only opens it. A disabled node and a leaf behave as without it.", type: "boolean", default: "true" },
     { name: "selectionMode", description: "Selection behavior.", type: "WrTreeSelectionMode", default: "'single'" },
     { name: "disabled", description: "Disable the whole tree. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse selection changes while the tree stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. Expanding and collapsing keep working: a branch is NAVIGATION, not a value, so a read-only tree is still browsable — it is picking and un-picking that stops. In `overlay` mode the trigger additionally refuses to open, because there the panel exists only to choose from and it already shows what is chosen. `aria-readonly` rides on the combobox trigger only; role `tree` does not support the state, so the inline shape has nothing valid to mirror it onto.", type: "boolean", default: "false" },
@@ -1578,10 +1664,25 @@ export const API = {
     { name: "viewportHeight", description: "Height of the scroll viewport when `virtualScroll` is on — a number (px) or any CSS length (`'60vh'`). A numeric px value lets the server prerender the exact first window.", type: "number | string", default: "288" },
     { name: "overscan", description: "Extra rows kept rendered above and below the viewport as scroll headroom.", type: "number", default: "6" },
     { name: "panelClass", description: "Extra CSS classes for the overlay pane, when `openOn` puts the tree in one. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array. Inline trees never open an overlay, so this input does nothing for the default `openOn=\"inline\"` — the host element is right there to take a class of its own.", type: "WrClassInput", default: "null" },
+    { name: "loadChildren", description: "Loads the children of a node that set `hasChildren` and left `children` undefined. Runs once, on the first expand, and the answer is cached by node id: the row shows a loading row meanwhile and an error row with a retry when the loader fails. Accepts an array, a Promise or an Observable.", type: "WrTreeChildrenLoader<TId> | null", default: "null" },
+    { name: "filter", description: "Filter text. While set, only matching nodes and their ancestors show, the ancestors open to reveal the matches and the match is highlighted. `[(expanded)]` is left alone, so clearing the text restores it. Children a `loadChildren` has not fetched yet are not searched.", type: "string | null", default: "''" },
+    { name: "filterFn", description: "Decides whether a node matches `filter`. The default is a case-insensitive substring of the label.", type: "WrTreeFilterFn<TId> | null", default: "null" },
+    { name: "cascade", description: "Cascading checks, in `selectionMode=\"multi\"` only. Every row draws a checkbox and a click toggles it: checking a node checks its loaded, enabled descendants, and an ancestor is checked exactly while all of its enabled children are. An ancestor with only some of them checked announces `aria-checked=\"mixed\"`. The value holds EVERY checked node, parents and leaves alike, never a mixed one. Rows announce `aria-checked` in place of `aria-selected`.", type: "boolean", default: "false" },
+    { name: "draggable", description: "Lets rows be moved: dragged between rows to reorder, onto a row to become its child. The keyboard twin is Alt+Enter to pick the row up, the arrows to move it (up and down among siblings, toward the indent into the sibling above, away from it out of the parent), Enter to drop and Escape to cancel. The tree never writes to `nodes`: apply `nodeMove` yourself, with `wrMoveTreeNode`. Off while a `filter` is set, and for rows that came from `loadChildren`, which `nodes` does not hold.", type: "boolean", default: "false" },
+    { name: "canDrop", description: "Refuses a drop, by drag and by keyboard alike. A node is never offered its own subtree, so that case does not reach the predicate.", type: "WrTreeCanDrop<TId> | null", default: "null" },
+    { name: "(nodeMove)", description: "Fired once when a row is dropped somewhere new. The tree does not move it: the handler does.", type: "WrTreeMoveEvent<TId>" },
     { name: "value", description: "Form value — the current selection as seen by a bound field. Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `selectionMode`: `TId | null` in single mode, `readonly TId[]` in multi mode. Works in both `openOn` modes; `[(selected)]` stays the inline-native API and always carries an array, whatever the selection mode.", type: "unknown", default: "undefined" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
     { name: "(opened)", description: "Fires after the overlay panel opens.", type: "void" },
     { name: "(closed)", description: "Fires after the overlay panel closes.", type: "void" },
+    { name: "clearSelectionLabel", description: "Accessible name of the clear button. Falls back to `tree.clearSelection`, then `'Clear selection'`.", type: "string | null", default: "null" },
+    { name: "expandLabel", description: "Accessible name of the toggle of a collapsed node. Falls back to `tree.expand`, then `'Expand'`.", type: "string | null", default: "null" },
+    { name: "collapseLabel", description: "Accessible name of the toggle of an expanded node. Falls back to `tree.collapse`, then `'Collapse'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "Text of the row shown while children load. Falls back to `select.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "loadErrorLabel", description: "Text of the row shown when `loadChildren` failed. Falls back to `loadState.failed`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "retryLabel", description: "Label of the retry button on that row. Falls back to `loadState.retry`, then `'Try again'`.", type: "string | null", default: "null" },
+    { name: "noMatchesLabel", description: "Shown in place of the rows when `filter` matches nothing. Falls back to `select.noResults`.", type: "string | null", default: "null" },
+    { name: "moveHelpLabel", description: "The keyboard move, as a screen reader hears it on entering a `draggable` tree. Falls back to `tree.moveKeyHelp`.", type: "string | null", default: "null" },
   ],
   // <wr-treemap-chart>
   WrTreemapChart: [

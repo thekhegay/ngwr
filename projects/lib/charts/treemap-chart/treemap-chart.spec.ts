@@ -1,10 +1,9 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, LOCALE_ID, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { compileSass } from '../../spec-sass';
 
 import { WrTreemapChart } from './treemap-chart';
 import type { WrTreemapNode } from './types';
@@ -830,15 +829,7 @@ describe('WrTreemapChart tooltip', () => {
  * does. That each rule then paints what it says is measured in a browser.
  */
 describe('WrTreemapChart stylesheet', () => {
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  };
-  const css = sass
-    .compileString(`@use 'charts/treemap-chart/styles';`, {
-      loadPaths: [join(process.cwd(), 'projects/lib')],
-      style: 'expanded',
-    })
-    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const css = compileSass(`@use 'charts/treemap-chart/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
   const rule = (block: string, selector: string): string =>
     new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(block)?.[1] ??
     '';

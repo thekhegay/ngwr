@@ -274,7 +274,7 @@ export const INSTALL = {
       { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
   ],
   "reference/components/graph": [
-      { path: "ngwr/graph", symbols: ["WrGraph", "WrGraphNodeTemplate"], declarables: ["WrGraph", "WrGraphNodeTemplate"], styled: true },
+      { path: "ngwr/graph", symbols: ["WrGraph", "WrGraphLayout", "WrGraphNodeTemplate", "WrLayeredGraphLayout"], declarables: ["WrGraph", "WrGraphNodeTemplate"], styled: true },
   ],
   "reference/components/icon": [
       { path: "ngwr/icon", symbols: ["WrIcon", "provideWrIcons", "wrLucideIcons"], declarables: ["WrIcon"], styled: true },
@@ -385,7 +385,7 @@ export const INSTALL = {
       { path: "ngwr/switch", symbols: ["WrSwitch"], declarables: ["WrSwitch"], styled: true },
   ],
   "reference/components/table": [
-      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell", "WrTableExpand", "WrTableGroupHeader", "wrSortRows"], declarables: ["WrTable", "WrTableCell", "WrTableExpand", "WrTableGroupHeader"], styled: true },
+      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell", "WrTableEditCell", "WrTableExpand", "WrTableGroupHeader", "WrTableSelectionBar", "wrSortRows"], declarables: ["WrTable", "WrTableCell", "WrTableEditCell", "WrTableExpand", "WrTableGroupHeader", "WrTableSelectionBar"], styled: true },
   ],
   "reference/components/tabs": [
       { path: "ngwr/tabs", symbols: ["WrTab", "WrTabs"], declarables: ["WrTab", "WrTabs"], styled: true },
@@ -406,7 +406,7 @@ export const INSTALL = {
       { path: "ngwr/transfer", symbols: ["WrTransfer"], declarables: ["WrTransfer"], styled: true },
   ],
   "reference/components/tree": [
-      { path: "ngwr/tree", symbols: ["WrTree"], declarables: ["WrTree"], styled: true },
+      { path: "ngwr/tree", symbols: ["WrTree", "wrMoveTreeNode"], declarables: ["WrTree"], styled: true },
   ],
   "reference/components/virtual-scroll": [
       { path: "ngwr/virtual-scroll", symbols: ["WrVirtualScroll"], declarables: ["WrVirtualScroll"], styled: true },
@@ -482,7 +482,7 @@ export const INSTALL = {
       { path: "ngwr/density", symbols: ["WrDensity", "WrDensityDirective", "wrDensityPrePaintScript"], declarables: ["WrDensityDirective"], styled: true },
   ],
   "reference/services/hotkey": [
-      { path: "ngwr/hotkey", symbols: ["WrHotkey", "wrFormatChord"], declarables: [], styled: false },
+      { path: "ngwr/hotkey", symbols: ["WrHotkey", "wrFormatChord", "wrHotkeyPlatform", "wrMatchesHotkey", "wrParseHotkeySpec"], declarables: [], styled: false },
   ],
   "reference/services/i18n": [
       { path: "ngwr/i18n", symbols: ["WrI18n", "WrTDirective", "WrTPipe"], declarables: ["WrTDirective", "WrTPipe"], styled: false },
@@ -511,6 +511,9 @@ export const INSTALL = {
   "reference/utils/wr-decimal": [
       { path: "ngwr/input-number", symbols: ["WrInputNumber"], declarables: ["WrInputNumber"], styled: true },
       { path: "ngwr/utils", symbols: ["wrDecimalAdd"], declarables: [], styled: false },
+  ],
+  "reference/utils/wr-is-safe-css-value": [
+      { path: "ngwr/utils", symbols: ["wrIsSafeCssValue"], declarables: [], styled: false },
   ],
   "reference/utils/wr-poll": [
       { path: "ngwr/platform", symbols: ["wrPoll"], declarables: [], styled: false },

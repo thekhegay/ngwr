@@ -49,6 +49,9 @@ export const wrZhTw: WrI18nCatalog = {
     noMatches: '沒有相符項目',
     search: '搜尋',
     reset: '重設',
+    columns: '欄位',
+    selected: '已選取 {{count}} 項',
+    clearSelection: '清除選取',
   },
   eventCalendar: {
     today: '今天',
@@ -109,6 +112,7 @@ export const wrZhTw: WrI18nCatalog = {
     loadError: '無法載入結果',
     retry: '重試',
     more: '+{{count}} 項',
+    selectAll: '全選',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -119,6 +123,7 @@ export const wrZhTw: WrI18nCatalog = {
     clearSelection: '清除選取',
     removeItem: '移除 {{label}}',
     more: '+{{count}} 項',
+    moveKeyHelp: '按 Alt+Enter 拿起這個項目，再用方向鍵移動。' + '按 Enter 放下，或按 Escape 放回原位。',
   },
   commandPalette: {
     label: '命令面板',
@@ -142,6 +147,11 @@ export const wrZhTw: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: '正在上傳',
+    uploaded: '已上傳',
+    failed: '上傳失敗',
+    status: '{{name}}: {{status}}',
+    retry: '重試',
   },
   popconfirm: {
     label: '確認操作',
@@ -201,6 +211,8 @@ export const wrZhTw: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: '月份清單',
     yearList: '年份清單',
+    quarterList: '季度清單',
+    quarter: '第{{quarter}}季',
     prevYears: '前 12 年',
     nextYears: '後 12 年',
     header: '{{year}}年{{month}}',
@@ -345,6 +357,9 @@ export const wrZhTw: WrI18nCatalog = {
   alert: {
     close: '關閉警示',
   },
+  tag: {
+    remove: '移除 {{label}}',
+  },
   qr: {
     label: 'QR 碼',
   },
@@ -446,6 +461,8 @@ export const wrZhTw: WrI18nCatalog = {
     panelDateTime: '選擇日期與時間',
     panelRange: '選擇日期範圍',
     panelRangeDateTime: '選擇日期與時間範圍',
+    quarterValue: '{{year}}年第{{quarter}}季',
+    weekValue: '{{year}}年第{{week}}週',
     rangeStart: '開始日期',
     rangeEnd: '結束日期',
     startTime: '開始時間',

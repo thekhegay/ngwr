@@ -1,7 +1,16 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { WrTree, type WrTreeNode, type WrTreeSize } from 'ngwr/tree';
+import { WrInput } from 'ngwr/input';
+import {
+  WrTree,
+  type WrTreeCanDrop,
+  type WrTreeChildrenLoader,
+  type WrTreeMoveEvent,
+  type WrTreeNode,
+  type WrTreeSize,
+  wrMoveTreeNode,
+} from 'ngwr/tree';
 
 import {
   DocApiComponent,
@@ -18,6 +27,7 @@ import { API } from '#core/generated/api';
   templateUrl: './tree.html',
   imports: [
     FormsModule,
+    WrInput,
     WrTree,
     DocPageComponent,
     DocSectionComponent,
@@ -81,9 +91,82 @@ export default class TreePageComponent {
   protected readonly bigExpanded = signal<readonly string[]>(Array.from({ length: 20 }, (_, g) => `g${g}`));
   protected readonly bigPick = signal<readonly string[]>([]);
 
+  // Lazy loading: a fake server that answers after 800ms, and fails for one folder.
+  protected readonly remote: readonly WrTreeNode[] = [
+    { id: 'inbox', label: 'Inbox', hasChildren: true },
+    { id: 'archive', label: 'Archive', hasChildren: true },
+    { id: 'offline', label: 'Offline share (fails once)', hasChildren: true },
+  ];
+  private offlineTries = 0;
+  protected readonly loadFolder: WrTreeChildrenLoader = node =>
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (node.id === 'offline' && this.offlineTries++ === 0) {
+          reject(new Error('offline'));
+          return;
+        }
+        resolve([
+          { id: `${node.id}/2026`, label: '2026', hasChildren: node.id.split('/').length < 2 },
+          { id: `${node.id}/notes.md`, label: 'notes.md' },
+          { id: `${node.id}/todo.md`, label: 'todo.md' },
+        ]);
+      }, 800);
+    });
+
+  protected readonly filterText = signal('');
+  protected readonly filterExpanded = signal<readonly string[]>(['src']);
+
+  protected readonly checked = signal<readonly string[]>(['src/app/app.ts']);
+
+  protected readonly movable = signal<readonly WrTreeNode[]>(this.folders);
+  protected readonly movableExpanded = signal<readonly string[]>(['src', 'public']);
+  protected readonly lastMove = signal('');
+  // Folders take children, files do not.
+  protected readonly intoFolders: WrTreeCanDrop = (_node, target) => target.parent === null || !!target.parent.children;
+
+  protected onMove(move: WrTreeMoveEvent): void {
+    this.movable.update(nodes => wrMoveTreeNode(nodes, move));
+    this.lastMove.set(`${move.node.label}: to ${move.to.parentId ?? 'the root'}, index ${move.to.index}`);
+  }
+
   protected readonly snippets = {
+    lazy: `<wr-tree ariaLabel="Mail folders" [nodes]="folders" [loadChildren]="load" />`,
+
+    lazyTs: `folders: WrTreeNode[] = [{ id: 'inbox', label: 'Inbox', hasChildren: true }];
+
+// Called once per node, on its first expand. A Promise, an Observable or an array.
+load: WrTreeChildrenLoader = node => this.http.get<WrTreeNode[]>(\`/folders/\${node.id}\`);`,
+
+    filter: `<input wrInput placeholder="Filter files" [(ngModel)]="query" />
+<wr-tree ariaLabel="Project files" [nodes]="folders" [(expanded)]="open" [filter]="query()" />`,
+
+    cascade: `<wr-tree
+  ariaLabel="Project files"
+  [nodes]="folders"
+  selectionMode="multi"
+  cascade
+  [(selected)]="checked"
+/>`,
+
+    drag: `<wr-tree
+  ariaLabel="Project files"
+  draggable
+  [nodes]="nodes()"
+  [(expanded)]="open"
+  [canDrop]="intoFolders"
+  (nodeMove)="onMove($event)"
+/>`,
+
+    dragTs: `// The tree never writes to nodes: apply the move yourself.
+onMove(move: WrTreeMoveEvent): void {
+  this.nodes.update(nodes => wrMoveTreeNode(nodes, move));
+}
+
+// Folders take children, files do not.
+intoFolders: WrTreeCanDrop = (node, target) => target.parent === null || !!target.parent.children;`,
+
     openFromCode: `<wr-tree #folder openOn="overlay" [nodes]="folders" [(value)]="picked" (opened)="onOpened()" (closed)="onClosed()" />
-<button wr-btn (click)="folder.open()">Open</button>`,
+<button wr-btn [attr.aria-expanded]="folder.isOpen()" (click)="folder.open()">Open</button>`,
 
     single: `<wr-tree
   ariaLabel="Project files"
@@ -137,8 +220,40 @@ export default class TreePageComponent {
     {
       name: 'WrTreeNode',
       description:
-        '`{ id, label, children?, disabled? }`. `id` is what `[(selected)]` / `[(expanded)]` carry; a node without `children` is a leaf.',
+        '`{ id, label, children?, hasChildren?, disabled? }`. `id` is what `[(selected)]` / `[(expanded)]` carry; a node without `children` is a leaf, unless `hasChildren` says they load on expand.',
       type: 'interface',
+      default: '—',
+    },
+    {
+      name: 'WrTreeChildrenLoader',
+      description: '`(node) => WrTreeNode[]`, or a Promise or an Observable of it. What `loadChildren` takes.',
+      type: 'type',
+      default: '—',
+    },
+    {
+      name: 'WrTreeFilterFn',
+      description: '`(node, query) => boolean`. What `filterFn` takes.',
+      type: 'type',
+      default: '—',
+    },
+    {
+      name: 'WrTreeMoveEvent',
+      description:
+        '`{ node, from, to }`, each end a `WrTreeMoveEnd`: `{ parentId, index }`, with `parentId` `null` for the root. `to.index` counts the new siblings without the moved node.',
+      type: 'interface',
+      default: '—',
+    },
+    {
+      name: 'WrTreeCanDrop',
+      description:
+        '`(node, target) => boolean`. `target` is a `WrTreeDropTarget`: a `WrTreeMoveEnd` plus the `parent` node, `null` for the root.',
+      type: 'type',
+      default: '—',
+    },
+    {
+      name: 'wrMoveTreeNode',
+      description: '`wrMoveTreeNode(nodes, move)` returns a new array with a `nodeMove` applied. Nothing is mutated.',
+      type: 'function',
       default: '—',
     },
   ];

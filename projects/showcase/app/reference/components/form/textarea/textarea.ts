@@ -14,11 +14,15 @@ import { API } from '#core/generated/api';
 export default class TextareaComponent {
   protected readonly text = signal('Hello world');
   protected readonly autoText = signal('Type to see autosize…');
+  protected readonly clearText = signal('Clear me');
 
   protected readonly snippets = {
     basic: `<wr-textarea placeholder="Notes" [(value)]="text" />`,
     rows: `<wr-textarea [rows]="5" />`,
     autosize: `<wr-textarea autosize [maxRows]="6" [(value)]="text" />`,
+    clearable: `<wr-textarea clearable [(value)]="text" />
+<wr-textarea [loading]="saving()" [(value)]="draft" />`,
+    rounded: `<wr-textarea rounded placeholder="Rounded" />`,
     fixed: `<wr-textarea [resizable]="false" [rows]="4" placeholder="No resize handle" />`,
   };
 

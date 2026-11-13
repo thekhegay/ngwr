@@ -26,7 +26,7 @@ import type { ConnectedPosition } from '@angular/cdk/overlay';
  * ```ts
  * const dir = inject(Directionality, { optional: true });
  *
- * strategy.withPositions(wrMirrorOffsets(WR_POPOVER_POSITIONS[position], dir?.value === 'rtl'));
+ * strategy.withPositions(wrMirrorOffsets(wrAnchoredPositions(position, { gap: 8 }), dir?.value === 'rtl'));
  * ```
  */
 export function wrMirrorOffsets(positions: readonly ConnectedPosition[], isRtl: boolean): ConnectedPosition[] {

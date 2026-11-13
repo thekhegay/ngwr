@@ -5,9 +5,16 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
+import {
+  ComponentHarness,
+  type HarnessLoader,
+  HarnessPredicate,
+  type TestElement,
+  TestKey,
+} from '@angular/cdk/testing';
 
 import type { WrTableHarnessFilters, WrTableHeaderCellHarnessFilters, WrTableRowHarnessFilters } from './types';
+import type { WrTableCellHarness } from './wr-table-cell-harness';
 import { wrTableHarnessText } from './wr-table-harness-text';
 import { WrTableHeaderCellHarness } from './wr-table-header-cell-harness';
 import { WrTableRowHarness } from './wr-table-row-harness';
@@ -54,17 +61,20 @@ export class WrTableHarness extends ComponentHarness {
 
   private readonly tableEl = this.locatorFor('table.wr-table__table');
   private readonly selectAllBox = this.locatorForOptional('.wr-table__th--select input.wr-checkbox__input');
+  private readonly chooserButton = this.locatorForOptional('.wr-table__columns-btn');
 
   /**
    * The role the table announces.
    *
-   * A flat table sets no `role` at all, so it announces the native `table` role —
-   * NOT `grid`, which would promise cell-by-cell keyboard navigation it does not
-   * implement. `childrenKey` turns it into a `treegrid`, and that role is the only
-   * place the hierarchy exists for a screen-reader user: the indent is decoration.
+   * A flat table sets no `role` at all, so it announces the native `table` role.
+   * A `[wrTableEditCell]` template makes it a `grid`, whose data cells take focus
+   * and the arrow keys. `childrenKey` turns it into a `treegrid`, and that role is
+   * the only place the hierarchy exists for a screen-reader user: the indent is
+   * decoration.
    */
-  async getRole(): Promise<'treegrid' | 'table'> {
-    return (await (await this.tableEl()).getAttribute('role')) === 'treegrid' ? 'treegrid' : 'table';
+  async getRole(): Promise<'treegrid' | 'grid' | 'table'> {
+    const role = await (await this.tableEl()).getAttribute('role');
+    return role === 'treegrid' || role === 'grid' ? role : 'table';
   }
 
   /** Whether the rows are a hierarchy rather than a flat list. */
@@ -269,6 +279,163 @@ export class WrTableHarness extends ComponentHarness {
   /** Collapse or expand the band with this label. */
   async toggleGroup(label: string): Promise<void> {
     await (await this.groupToggleFor(label)).click();
+  }
+
+  /** Whether the selection bar is over the header: a `[wrTableSelectionBar]` template and a selection. */
+  async hasSelectionBar(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-table__selection-bar')()) !== null;
+  }
+
+  /** The selection bar's count as drawn ("3 selected"), or `null` while the bar is away. */
+  async getSelectionBarText(): Promise<string | null> {
+    const count = await this.locatorForOptional('.wr-table__selection-count')();
+    return count ? wrTableHarnessText(await count.text()) : null;
+  }
+
+  /** Click the selection bar's clear button, which empties the selection and takes the bar away. */
+  async clearSelection(): Promise<void> {
+    await (await this.selectionBarPart('.wr-table__selection-clear')).click();
+  }
+
+  /**
+   * A loader over the `[wrTableSelectionBar]` template's own content, for the
+   * harnesses of the actions it holds.
+   */
+  async getSelectionBarLoader(): Promise<HarnessLoader> {
+    await this.selectionBarPart('.wr-table__selection-actions');
+    return this.locatorFactory.harnessLoaderFor('.wr-table__selection-actions');
+  }
+
+  /** A part of the selection bar, or a failure naming both reasons the bar is away. */
+  private async selectionBarPart(selector: string): Promise<TestElement> {
+    const part = await this.locatorForOptional(selector)();
+    if (!part) {
+      throw new Error(
+        'WrTableHarness: this table shows no selection bar — it has no `[wrTableSelectionBar]` ' +
+          'template, or no row is selected.'
+      );
+    }
+    return part;
+  }
+
+  /**
+   * Start editing a cell the way the keyboard does: focus it and press Enter.
+   * `row` is the 0-based position among {@link getRows}, `columnTitle` the
+   * column's header. Hands back the cell, whose loader reaches the editor's own
+   * harnesses: `cell.getHarness(WrInputNumberHarness)`.
+   *
+   * Throws when the cell does not open an editor: it has no `[wrTableEditCell]`
+   * template, its column says `editable: false`, or the `editable` predicate
+   * refused the row.
+   */
+  async editCell(row: number, columnTitle: string): Promise<WrTableCellHarness> {
+    const rows = await this.getRows();
+    if (!rows[row]) {
+      throw new Error(`WrTableHarness: no row ${row} — the table renders ${rows.length} row(s).`);
+    }
+    const [cell] = await rows[row].getCells({ columnTitle });
+    if (!cell) {
+      throw new Error(`WrTableHarness: row ${row} has no cell under "${columnTitle}".`);
+    }
+    await (await cell.host()).sendKeys(TestKey.ENTER);
+    if (!(await cell.isEditing())) {
+      throw new Error(
+        `WrTableHarness: the cell under "${columnTitle}" in row ${row} is not editable — its column has no ` +
+          '`[wrTableEditCell]` template or says `editable: false`, or the `editable` predicate refused the row.'
+      );
+    }
+    return cell;
+  }
+
+  /** Whether a cell is being edited. One cell edits at a time. */
+  async isEditing(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-table__td--editing')()) !== null;
+  }
+
+  /**
+   * Commit the edit in flight the way Enter does: the table emits `cellEdit`
+   * with the value the editor last kept, when it differs from the cell's.
+   * Focus goes to the cell first, so a control that publishes on blur has
+   * published.
+   */
+  async commitEdit(): Promise<void> {
+    await (await this.editingCell()).sendKeys(TestKey.ENTER);
+  }
+
+  /** Drop the edit in flight the way Escape does. */
+  async cancelEdit(): Promise<void> {
+    await (await this.editingCell()).sendKeys(TestKey.ESCAPE);
+  }
+
+  private async editingCell(): Promise<TestElement> {
+    const cell = await this.locatorForOptional('.wr-table__td--editing')();
+    if (!cell) throw new Error('WrTableHarness: no cell is being edited — call `editCell()` first.');
+    return cell;
+  }
+
+  /** Whether the table shows the column chooser's button (`columnChooser`). */
+  async hasColumnChooser(): Promise<boolean> {
+    return (await this.chooserButton()) !== null;
+  }
+
+  /**
+   * The titles of the hidden columns, in column order, read from the column
+   * chooser: a hidden column is nowhere else in the DOM. Opens the chooser and
+   * leaves it open.
+   */
+  async getHiddenColumns(): Promise<string[]> {
+    const entries = await this.chooserEntries();
+    const hidden: string[] = [];
+    for (const entry of entries) {
+      if (!(await entry.box.getProperty<boolean>('checked'))) hidden.push(entry.title);
+    }
+    return hidden;
+  }
+
+  /** Whether the chooser refuses to hide a column: `hideable: false`, or the last one shown. */
+  async isColumnLocked(columnTitle: string): Promise<boolean> {
+    return (await this.chooserEntryFor(columnTitle)).box.getProperty<boolean>('disabled');
+  }
+
+  /** Hide a shown column or show a hidden one through the column chooser, which stays open. */
+  async toggleColumn(columnTitle: string): Promise<void> {
+    const entry = await this.chooserEntryFor(columnTitle);
+    if (await entry.box.getProperty<boolean>('disabled')) {
+      throw new Error(
+        `WrTableHarness: the column "${columnTitle}" cannot be toggled — it is \`hideable: false\`, ` +
+          'or it is the last column shown.'
+      );
+    }
+    await entry.box.click();
+  }
+
+  /**
+   * The chooser's rows, opening it first. The panel is a popover in the overlay
+   * container, found through the id its trigger publishes while open.
+   */
+  private async chooserEntries(): Promise<{ title: string; box: TestElement }[]> {
+    const button = await this.chooserButton();
+    if (!button) {
+      throw new Error('WrTableHarness: this table has no column chooser — set `columnChooser`.');
+    }
+    if ((await button.getAttribute('aria-expanded')) !== 'true') await button.click();
+    const panelId = await button.getAttribute('aria-controls');
+    const root = this.documentRootLocatorFactory();
+    const items = await root.locatorForAll(`#${panelId} .wr-table__columns-item`)();
+    const boxes = await root.locatorForAll(`#${panelId} .wr-table__columns-item input.wr-checkbox__input`)();
+    return Promise.all(items.map(async (item, i) => ({ title: wrTableHarnessText(await item.text()), box: boxes[i] })));
+  }
+
+  private async chooserEntryFor(columnTitle: string): Promise<{ title: string; box: TestElement }> {
+    const entries = await this.chooserEntries();
+    const entry = entries.find(candidate => candidate.title === columnTitle);
+    if (!entry) {
+      throw new Error(
+        `WrTableHarness: the column chooser lists no "${columnTitle}" — it lists ` +
+          `[${entries.map(candidate => candidate.title).join(', ')}].`
+      );
+    }
+    return entry;
   }
 
   /** The header for a column title, or a failure that says which titles do exist. */

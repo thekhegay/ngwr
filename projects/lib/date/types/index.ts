@@ -3,6 +3,7 @@ import type { Type } from '@angular/core';
 import type { WrDateAdapter } from '../wr-date-adapter';
 
 import type { WrDateFormat } from './wr-date-format';
+import type { WrDatePeriod, WrWeekOfYear } from './wr-date-period';
 
 /**
  * What a number counts since the epoch: milliseconds, microseconds or seconds.
@@ -130,5 +131,5 @@ interface WrDatesOptions {
   readonly stamp?: WrDateStampDefaults;
 }
 
-export type { WrDateFormat };
+export type { WrDateFormat, WrDatePeriod, WrWeekOfYear };
 export type { WrDateStampDefaults, WrDatesOptions, WrEpochUnit, WrParseDateOptions, WrZonelessIn };

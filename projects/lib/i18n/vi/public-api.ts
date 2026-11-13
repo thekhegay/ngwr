@@ -49,6 +49,9 @@ export const wrVi: WrI18nCatalog = {
     noMatches: 'Không có kết quả phù hợp',
     search: 'Tìm kiếm',
     reset: 'Đặt lại',
+    columns: 'Cột',
+    selected: 'Đã chọn {{count}}',
+    clearSelection: 'Bỏ chọn',
   },
   eventCalendar: {
     today: 'Hôm nay',
@@ -111,6 +114,7 @@ export const wrVi: WrI18nCatalog = {
     loadError: 'Không thể tải kết quả',
     retry: 'Thử lại',
     more: '+{{count}} nữa',
+    selectAll: 'Chọn tất cả',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -121,6 +125,9 @@ export const wrVi: WrI18nCatalog = {
     clearSelection: 'Xóa lựa chọn',
     removeItem: 'Xóa {{label}}',
     more: '+{{count}} nữa',
+    moveKeyHelp:
+      'Nhấn Alt+Enter để nhấc mục này lên, rồi dùng các phím mũi tên để di chuyển. ' +
+      'Nhấn Enter để thả, hoặc nhấn Escape để trả về chỗ cũ.',
   },
   commandPalette: {
     label: 'Bảng lệnh',
@@ -144,6 +151,11 @@ export const wrVi: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Đang tải lên',
+    uploaded: 'Đã tải lên',
+    failed: 'Tải lên thất bại',
+    status: '{{name}}: {{status}}',
+    retry: 'Thử lại',
   },
   popconfirm: {
     label: 'Xác nhận hành động',
@@ -203,6 +215,8 @@ export const wrVi: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Các tháng',
     yearList: 'Các năm',
+    quarterList: 'Các quý',
+    quarter: 'Quý {{quarter}}',
     // “12 năm trước” đọc ra thành “12 years ago” chứ không phải “previous 12
     // years”, nên hai nút này phải nói rõ là trước đó / tiếp theo.
     prevYears: '12 năm trước đó',
@@ -353,6 +367,9 @@ export const wrVi: WrI18nCatalog = {
   alert: {
     close: 'Đóng cảnh báo',
   },
+  tag: {
+    remove: 'Xóa {{label}}',
+  },
   qr: {
     label: 'Mã QR',
   },
@@ -457,6 +474,8 @@ export const wrVi: WrI18nCatalog = {
     panelDateTime: 'Chọn ngày và giờ',
     panelRange: 'Chọn khoảng ngày',
     panelRangeDateTime: 'Chọn khoảng ngày và giờ',
+    quarterValue: 'Quý {{quarter}} {{year}}',
+    weekValue: 'Tuần {{week}}, {{year}}',
     rangeStart: 'Ngày bắt đầu',
     rangeEnd: 'Ngày kết thúc',
     startTime: 'Giờ bắt đầu',

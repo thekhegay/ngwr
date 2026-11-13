@@ -255,5 +255,46 @@
     <ngwr-doc-code [code]="snippets.dateAdapter" language="angular-ts" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Date tokens and helpers"
+    description="What `withDates()` provides, for an adapter or a component of your own."
+  >
+    <ngwr-doc-code [code]="snippets.dateTokens" language="angular-ts" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Export of <code>ngwr/date</code></th>
+            <th scope="col">Type</th>
+            <th scope="col">What it is</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>WR_DATE_INPUT</code></th>
+            <td>
+              <code>InjectionToken&lt;{{ '{' }} epochUnit: WrEpochUnit; zonelessIn: WrZonelessIn {{ '}' }}&gt;</code>
+            </td>
+            <td>
+              The <code>epochUnit</code> and <code>zonelessIn</code> options. Without them: <code>'ms'</code> and
+              <code>'browser'</code>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>WR_DATE_STAMP_DEFAULTS</code></th>
+            <td><code>InjectionToken&lt;WrDateStampDefaults&gt;</code></td>
+            <td>The <code>stamp</code> option. Without it: an empty object.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>WrEpochUnit</code></th>
+            <td><code>'ms' | 'us' | 's' | 'auto'</code></td>
+            <td>What a number counts since the epoch.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>A route's <code>withDates()</code> merges over the app's: a key it leaves out keeps the app's value.</p>
+  </ngwr-doc-section>
+
   <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>

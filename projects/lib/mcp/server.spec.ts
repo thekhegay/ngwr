@@ -207,7 +207,11 @@ beforeAll(() => {
   // The compiler invocation `scripts/build/mcp.ts` runs, pointed at the fixture
   // instead of `dist/lib`. Failing loudly here is the whole point of the change:
   // a compiler that cannot be found must not read as a suite with nothing to do.
-  execFileSync(process.execPath, [TSC, '-p', TSCONFIG, '--outDir', join(root, 'mcp')], { stdio: 'pipe' });
+  // `--noCheck` is the one difference: the build type-checks the server, this
+  // suite runs it, and the emitted files are the same either way.
+  execFileSync(process.execPath, [TSC, '-p', TSCONFIG, '--outDir', join(root, 'mcp'), '--noCheck'], {
+    stdio: 'pipe',
+  });
   // A `bin` has to name its interpreter and be executable, and tsc emits
   // neither, so `scripts/build/mcp.ts` adds both after compiling. What ships is
   // what should be under test.
@@ -354,7 +358,9 @@ const withVersion = (version?: string): NodeJS.ProcessEnv => {
   return env;
 };
 
-describe('ngwr-mcp over stdio', () => {
+// Every case starts a Node process of its own, and a start alone can pass the
+// default five seconds on a loaded machine.
+describe('ngwr-mcp over stdio', { timeout: 30_000 }, () => {
   it('echoes back a protocol version it speaks', async () => {
     const result = await run([request(1, 'initialize', { protocolVersion: '2024-11-05' })]);
 

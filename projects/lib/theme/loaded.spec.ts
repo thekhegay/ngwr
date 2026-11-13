@@ -1,8 +1,9 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { basename, dirname, join, relative } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass, LIB } from '../spec-sass';
 
 /**
  * The missing-stylesheet warning, held at both ends.
@@ -22,7 +23,6 @@ import { describe, expect, it } from 'vitest';
  * applies no stylesheet, so the composite case (a nested component's marker
  * arriving with its parent's sheet) is proved on the compiled CSS.
  */
-const LIB = join(process.cwd(), 'projects/lib');
 const MIXIN = join(LIB, 'theme/styles/_loaded.scss');
 const GUARD = "if (typeof ngDevMode === 'undefined' || ngDevMode) ";
 
@@ -33,13 +33,6 @@ const GUARD = "if (typeof ngDevMode === 'undefined' || ngDevMode) ";
  * is one nobody should write. `styles.spec.ts` holds the same exemption.
  */
 const LOADED_BY_ITS_CONSUMERS = ['charts/core'];
-
-interface Sass {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-}
-
-/** The compiler the builder itself uses, resolved the way `sass-entry.spec.ts` does. */
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
 
 /** Comments stripped, so a `@Component` in a JSDoc example is not a declarable. */
 function code(file: string): string {
@@ -207,14 +200,11 @@ describe('every entry point with a stylesheet declares its marker', () => {
     expect(loaded(join(LIB, 'theme/_index.scss'))).toContain(MIXIN);
   });
 
-  it('spells a nested key with dashes, and brings a rendered entry point along', () => {
+  it('spells a nested key with dashes, and brings a rendered entry point along', { timeout: COMPILE_TIMEOUT }, () => {
     // `ngwr/table` renders checkboxes and a pager and loads both sheets, so a
     // `<wr-checkbox>` inside a table warns nothing when only `@use 'ngwr/table'`
     // was added. `charts/bar-chart` is the nested shape of the key.
-    const css = sass.compileString("@use 'table/styles' as t; @use 'charts/bar-chart/styles' as b;", {
-      loadPaths: [LIB],
-      style: 'expanded',
-    }).css;
+    const css = compileSass("@use 'table/styles' as t; @use 'charts/bar-chart/styles' as b;");
     const emitted = [...css.matchAll(/--wr-loaded-([a-z-]+): 1/g)].map(m => m[1]);
 
     expect(emitted).toContain('theme');

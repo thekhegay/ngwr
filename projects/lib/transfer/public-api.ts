@@ -1,2 +1,2 @@
 export { WrTransfer } from './transfer';
-export type { WrTransferItem } from './types';
+export type { WrTransferItem, WrTransferSize } from './types';

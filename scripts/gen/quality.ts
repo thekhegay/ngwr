@@ -388,6 +388,26 @@ function lastReleaseByMajor(): Readonly<Record<number, string>> {
   return Object.fromEntries([...newest].sort(([a], [b]) => a - b).map(([m, [mi, p]]) => [m, `${m}.${mi}.${p}`]));
 }
 
+interface Requires {
+  readonly angular: string;
+  readonly cdk: string;
+  readonly node: string;
+}
+
+/** `^22.2.0` as `^22.2`: a caret range without its zero patch. */
+function shortRange(range: string | undefined, what: string): string {
+  const m = /^\^(\d+)\.(\d+)\.(\d+)$/.exec(range ?? '');
+  if (!m) throw new Error(`${what} is ${range ?? '(nothing)'}, not a single caret range: teach shortRange() the new shape.`);
+  return m[3] === '0' ? `^${m[1]}.${m[2]}` : `^${m[1]}.${m[2]}.${m[3]}`;
+}
+
+/** `^22.22.3 || ^24.15.0 || ^26.0.0` as `22.22+, 24.15+, 26`: one arm per Node major. */
+function nodeLines(range: string | undefined): string {
+  const arms = (range ?? '').split('||').map(arm => /^\^(\d+)\.(\d+)\.\d+$/.exec(arm.trim()));
+  if (!range || arms.some(m => !m)) throw new Error(`engines.node is ${range ?? '(nothing)'}, not caret arms: teach nodeLines() the new shape.`);
+  return arms.map(m => (m![2] === '0' ? m![1] : `${m![1]}.${m![2]}+`)).join(', ');
+}
+
 interface Facts {
   readonly version: string;
   readonly lastReleaseByMajor: Readonly<Record<number, string>>;
@@ -403,6 +423,7 @@ interface Facts {
   readonly docRoutes: number;
   readonly locales: readonly string[];
   readonly runtimeDependencies: readonly string[];
+  readonly requires: Requires;
   readonly lintStages: readonly Gate[];
   readonly prGates: readonly Gate[];
   readonly nightlyGates: readonly Gate[];
@@ -471,6 +492,9 @@ export const QUALITY = {
   /** Runtime dependencies of the published package, from \`projects/lib/package.json\`. Peer dependencies are the consumer's Angular; this is what npm installs on top of it. */
   runtimeDependencies: [${f.runtimeDependencies.map(quote).join(', ')}],
 
+  /** What this release line needs: the \`@angular/core\` and \`@angular/cdk\` peers from \`projects/lib/package.json\` and the Node lines from the root \`engines\`. The installation page's compatibility table opens with it. */
+  requires: { angular: ${quote(f.requires.angular)}, cdk: ${quote(f.requires.cdk)}, node: ${quote(f.requires.node)} },
+
   /** The \`&&\` chain inside \`pnpm lint\`. Worth listing separately because the first stage prints "All files pass linting." even when a later one fails, so the chain is the gate, not \`ng lint\`. */
   lintStages: [
 ${gates(f.lintStages)}
@@ -501,10 +525,14 @@ function shippedLocales(): readonly string[] {
 }
 
 async function main(): Promise<void> {
-  const rootPkg = JSON.parse(readFileSync(resolve(ROOT_PATH, 'package.json'), 'utf8')) as { scripts?: Record<string, string> };
+  const rootPkg = JSON.parse(readFileSync(resolve(ROOT_PATH, 'package.json'), 'utf8')) as {
+    scripts?: Record<string, string>;
+    engines?: Record<string, string>;
+  };
   const libPkg = JSON.parse(readFileSync(join(LIB_PATH, 'package.json'), 'utf8')) as {
     version?: string;
     dependencies?: Record<string, string>;
+    peerDependencies?: Record<string, string>;
   };
   const scripts = rootPkg.scripts ?? {};
 
@@ -544,6 +572,11 @@ async function main(): Promise<void> {
     docRoutes: atLeast(docRouteCount(routes), 100, 'doc routes'),
     locales: shippedLocales(),
     runtimeDependencies: Object.keys(libPkg.dependencies ?? {}).sort(),
+    requires: {
+      angular: shortRange(libPkg.peerDependencies?.['@angular/core'], 'the @angular/core peer'),
+      cdk: shortRange(libPkg.peerDependencies?.['@angular/cdk'], 'the @angular/cdk peer'),
+      node: nodeLines(rootPkg.engines?.['node']),
+    },
     lintStages: stagesOf(lintScript, scripts),
     prGates: workflowGates(CI_WORKFLOW, scripts),
     nightlyGates: workflowGates(NIGHTLY_WORKFLOW, scripts),

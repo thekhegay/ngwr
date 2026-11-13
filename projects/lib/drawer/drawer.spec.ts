@@ -489,6 +489,147 @@ describe('WrDrawerFooter emits a modifier for every documented align', () => {
 });
 
 /**
+ * The CDK reads an overlay's size and position strategy once, in `create()`,
+ * and the drawer is created by the write to `open`. An input that changes
+ * afterwards has to be carried over by hand, or the drawer keeps the size and
+ * the side it opened with until it is closed.
+ */
+describe('WrDrawer follows its size and side while it is open', () => {
+  @Component({
+    imports: [WrDrawer],
+    template: `
+      <wr-drawer
+        [(open)]="open"
+        [position]="position()"
+        [width]="width()"
+        [height]="height()"
+        [maxHeight]="maxHeight()"
+        [hasBackdrop]="hasBackdrop()"
+      >
+        <p class="body">Drawer body</p>
+      </wr-drawer>
+    `,
+  })
+  class SizeHost {
+    readonly open = signal(false);
+    readonly position = signal<WrDrawerPosition>('right');
+    readonly width = signal('320px');
+    readonly height = signal('240px');
+    readonly maxHeight = signal<string | null>(null);
+    readonly hasBackdrop = signal(true);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<SizeHost>>;
+  let host: SizeHost;
+
+  const pane = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer-overlay')!;
+  /** What the CDK places the pane with: `justify-content` and `align-items` on its wrapper. */
+  const wrapper = (): HTMLElement => pane().parentElement!;
+  const backdrop = (): HTMLElement | null => document.querySelector<HTMLElement>('.cdk-overlay-backdrop');
+
+  const openAt = async (position: WrDrawerPosition): Promise<void> => {
+    host.position.set(position);
+    host.open.set(true);
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => {
+    // The block strategy restores the scroll position on close; jsdom has no `scroll()`.
+    vi.spyOn(window, 'scroll').mockImplementation(() => undefined);
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(SizeHost);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('resizes a side drawer when its width changes', async () => {
+    await openAt('right');
+    expect(pane().style.width).toBe('320px');
+
+    host.width.set('480px');
+    await fixture.whenStable();
+
+    expect(pane().style.width).toBe('480px');
+  });
+
+  it('resizes a bottom drawer when its height or its cap changes', async () => {
+    await openAt('bottom');
+    expect(pane().style.height).toBe('240px');
+    expect(pane().style.maxHeight).toBe('');
+
+    host.height.set('360px');
+    host.maxHeight.set('80vh');
+    await fixture.whenStable();
+
+    expect(pane().style.height).toBe('360px');
+    expect(pane().style.maxHeight).toBe('80vh');
+
+    host.maxHeight.set(null);
+    await fixture.whenStable();
+
+    expect(pane().style.maxHeight).toBe('');
+  });
+
+  it('moves the panel to the other side, with the class consumer CSS targets', async () => {
+    await openAt('right');
+    expect(wrapper().style.justifyContent).toBe('flex-end');
+    const opened = pane();
+
+    host.position.set('left');
+    await fixture.whenStable();
+
+    // The same pane: the drawer moves, it is not closed and opened again.
+    expect(pane()).toBe(opened);
+    expect(wrapper().style.justifyContent).toBe('flex-start');
+    expect(pane().classList).toContain('wr-drawer-overlay--left');
+    expect(pane().classList).not.toContain('wr-drawer-overlay--right');
+    expect(pane().querySelector('.wr-drawer__panel')!.classList).toContain('wr-drawer__panel--left');
+  });
+
+  it('swaps the sizing axis when a side drawer becomes a bottom one', async () => {
+    await openAt('right');
+
+    host.position.set('bottom');
+    await fixture.whenStable();
+
+    expect(wrapper().style.alignItems).toBe('flex-end');
+    expect(wrapper().style.justifyContent).toBe('center');
+    expect(pane().style.width).toBe('100vw');
+    expect(pane().style.height).toBe('240px');
+
+    host.position.set('right');
+    await fixture.whenStable();
+
+    expect(pane().style.width).toBe('320px');
+    expect(pane().style.height).toBe('');
+  });
+
+  it('still reads hasBackdrop on the next open only', async () => {
+    await openAt('right');
+    expect(backdrop()).not.toBeNull();
+
+    host.hasBackdrop.set(false);
+    await fixture.whenStable();
+
+    expect(backdrop()).not.toBeNull();
+    expect(pane().getAttribute('aria-modal')).toBe('true');
+
+    host.open.set(false);
+    await fixture.whenStable();
+    host.open.set(true);
+    await fixture.whenStable();
+
+    expect(backdrop()).toBeNull();
+    expect(pane().hasAttribute('aria-modal')).toBe(false);
+  });
+});
+
+/**
  * A drawer outlives a direction change — this site's own LTR/RTL switch is a
  * menu item, so the flip always arrives with something already open — and the
  * CDK captures the direction as a string when the overlay is created, writes it

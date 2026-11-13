@@ -1,10 +1,9 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { beforeEach, describe, expect, it } from 'vitest';
+
+import { compileSass } from '../../spec-sass';
 
 import { WrChartTable } from './chart-table';
 import type { WrChartTableData } from './types';
@@ -233,13 +232,7 @@ describe('WrChartTable', () => {
  * scroll is measured in a browser.
  */
 describe('WrChartTable stylesheet', () => {
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  };
-  const css = sass.compileString(`@use 'charts/core/styles';`, {
-    loadPaths: [join(process.cwd(), 'projects/lib')],
-    style: 'expanded',
-  }).css;
+  const css = compileSass(`@use 'charts/core/styles';`);
   const rule = /(?:^|\n)\.wr-chart-table\s*\{([^}]*)\}/.exec(css)?.[1] ?? '';
 
   it('clips the host to nothing, out of flow', () => {

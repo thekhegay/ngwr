@@ -47,6 +47,9 @@ export default [
     path: utils.withRenderOnNavigation.path,
     loadComponent: () => import('./with-render-on-navigation/with-render-on-navigation'),
   },
+  { path: utils.wrFeature.path, loadComponent: () => import('./wr-feature/wr-feature') },
+  { path: utils.wrIsSafeCssValue.path, loadComponent: () => import('./wr-is-safe-css-value/wr-is-safe-css-value') },
+  { path: utils.wrLiveLocale.path, loadComponent: () => import('./wr-live-locale/wr-live-locale') },
   // v16 put the `wr` prefix on every util, and each page took its new name.
   // Every old slug was published, so every one keeps resolving.
   { path: 'badge-log', redirectTo: '/reference/utils/wr-badge-log' },

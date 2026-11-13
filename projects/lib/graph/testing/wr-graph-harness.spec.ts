@@ -2,7 +2,14 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { WrGraph, type WrGraphEdge, type WrGraphNode, WrGraphNodeTemplate } from 'ngwr/graph';
+import {
+  WrGraph,
+  type WrGraphEdge,
+  WrGraphLayout,
+  type WrGraphLayoutResult,
+  type WrGraphNode,
+  WrGraphNodeTemplate,
+} from 'ngwr/graph';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrGraphHarness } from './wr-graph-harness';
@@ -373,5 +380,35 @@ describe('WrGraphHarness with a graph inside a node template', () => {
     expect(await (await loader.getHarness(WrGraphHarness.with({ nodeLabel: 'Harbor' }))).getAccessibleName()).toBe(
       'Outer'
     );
+  });
+});
+
+describe('WrGraphHarness with an asynchronous layout', () => {
+  it('is pending until the layout resolves, and never with the built-in one', async () => {
+    let resolve!: (result: WrGraphLayoutResult) => void;
+    const layout = (): Promise<WrGraphLayoutResult> => new Promise(done => (resolve = done));
+    TestBed.configureTestingModule({ providers: [{ provide: WrGraphLayout, useValue: { layout } }] });
+    const fixture = TestBed.createComponent(Host);
+    const graph = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrGraphHarness);
+
+    expect(await graph.isPending()).toBe(true);
+    expect(await graph.getNodes()).toEqual([]);
+
+    resolve({
+      nodes: NODES.map((node, index) => ({ id: node.id, x: index * 200, y: 0 })),
+      edges: [],
+      width: 1200,
+      height: 48,
+    });
+
+    expect(await graph.isPending()).toBe(false);
+    expect(await graph.getNodes()).toHaveLength(NODES.length);
+    fixture.destroy();
+
+    TestBed.resetTestingModule();
+    const plain = TestBed.createComponent(Host);
+    const builtIn = await TestbedHarnessEnvironment.loader(plain).getHarness(WrGraphHarness);
+    expect(await builtIn.isPending()).toBe(false);
+    plain.destroy();
   });
 });

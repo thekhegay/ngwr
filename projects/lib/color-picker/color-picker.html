@@ -209,17 +209,22 @@
   }
 }
 
-@if (swatches().length > 0) {
-  <div class="wr-color-picker__swatches">
-    @for (color of swatches(); track color) {
+@if (presets().length > 0) {
+  <div #swatchRow class="wr-color-picker__swatches">
+    @for (swatch of presets(); track swatch.value) {
       <button
         type="button"
         class="wr-color-picker__swatch"
-        [style.background]="color"
-        [attr.aria-label]="color"
+        [style.background]="swatch.value"
+        [attr.aria-label]="swatch.label"
+        [attr.data-color]="swatch.value"
         [disabled]="disabled() || readonly()"
-        (click)="onSwatchClick(color)"
+        (click)="onSwatchClick(swatch.value)"
       ></button>
     }
   </div>
+  <!-- The picker's one tooltip, for a named swatch (see `tip`). -->
+  @if (tip(); as shown) {
+    <span hidden [wrPopover]="shown.text" mode="tooltip" [wrPopoverOrigin]="shown.el"></span>
+  }
 }

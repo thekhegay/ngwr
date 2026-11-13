@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { Check, CircleCheck, OctagonAlert } from 'lucide';
-import { type WrBadgeShape, WrBadge, WrTag } from 'ngwr/badge';
+import { type WrBadgeShape, type WrTagSize, WrBadge, WrTag } from 'ngwr/badge';
+import { WrButton } from 'ngwr/button';
 import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WR_COLORS } from 'ngwr/theme';
 
@@ -21,6 +22,7 @@ import { API } from '#core/generated/api';
   imports: [
     WrBadge,
     WrTag,
+    WrButton,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -35,7 +37,15 @@ export default class BadgeComponent {
   protected readonly colors = WR_COLORS;
   protected readonly shapes: readonly WrBadgeShape[] = ['rounded', 'pill', 'squircle'];
 
+  protected readonly tagSizes: readonly WrTagSize[] = ['sm', 'md', 'lg'];
+
+  protected readonly allTopics = ['Angular', 'Signals', 'Forms'];
+  protected readonly topics = signal(this.allTopics);
+
   protected readonly snippets = {
+    removable: `@for (topic of topics(); track topic) {
+  <wr-tag closable outlined (removed)="drop(topic)">{{ topic }}</wr-tag>
+}`,
     basic: `<wr-badge>New</wr-badge>`,
     colors: `<wr-badge color="primary">Primary</wr-badge>
 <wr-badge color="success">Success</wr-badge>`,
@@ -49,6 +59,9 @@ export default class BadgeComponent {
     tag: `<wr-tag color="success" icon="checkmark">Done</wr-tag>
 <wr-tag color="primary" outlined rounded>Beta</wr-tag>
 <wr-tag color="warning" loading>Saving</wr-tag>`,
+    tagSizes: `<wr-tag size="sm" icon="checkmark" closable>Small</wr-tag>
+<wr-tag size="md" icon="checkmark" closable>Medium</wr-tag>
+<wr-tag size="lg" icon="checkmark" closable>Large</wr-tag>`,
     statusIcons: `import { CircleCheck, OctagonAlert } from 'lucide';
 import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
 
@@ -70,6 +83,7 @@ export class BuildStatus {}`,
       type: 'WrColor | null',
       default: "'primary'",
     },
+    { name: 'size', description: 'Height, padding and text: 18, 22 or 30px tall.', type: 'WrTagSize', default: "'md'" },
     {
       name: 'icon',
       description: 'Icon beside the label.',
@@ -92,5 +106,21 @@ export class BuildStatus {}`,
     { name: 'rounded', description: 'Pill radius instead of the default.', type: 'boolean', default: 'false' },
     { name: 'hoverable', description: 'Add a hover affordance.', type: 'boolean', default: 'false' },
     { name: 'loading', description: 'Swap the icon for a spinner.', type: 'boolean', default: 'false' },
+    { name: 'closable', description: 'Add a remove button at the end.', type: 'boolean', default: 'false' },
+    {
+      name: 'removeLabel',
+      description: "Name of the remove button. Falls back to `tag.remove` with the tag's text.",
+      type: 'string | null',
+      default: 'null',
+    },
+    {
+      name: '(removed)',
+      description: 'The user removed the tag: the button, or Delete / Backspace on it. Drop the tag yourself.',
+      type: 'void',
+    },
   ];
+
+  protected drop(topic: string): void {
+    this.topics.update(all => all.filter(t => t !== topic));
+  }
 }

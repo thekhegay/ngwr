@@ -49,6 +49,9 @@ export const wrKo: WrI18nCatalog = {
     noMatches: '일치하는 항목 없음',
     search: '검색',
     reset: '초기화',
+    columns: '열',
+    selected: '{{count}}개 선택됨',
+    clearSelection: '선택 해제',
   },
   eventCalendar: {
     today: '오늘',
@@ -109,6 +112,7 @@ export const wrKo: WrI18nCatalog = {
     loadError: '결과를 불러오지 못했습니다',
     retry: '다시 시도',
     more: '+{{count}}개',
+    selectAll: '전체 선택',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -119,6 +123,9 @@ export const wrKo: WrI18nCatalog = {
     clearSelection: '선택 해제',
     removeItem: '{{label}} 제거',
     more: '+{{count}}개',
+    moveKeyHelp:
+      'Alt+Enter 키를 누르면 항목을 집고, 화살표 키로 옮길 수 있습니다. ' +
+      'Enter 키를 누르면 내려놓고, Esc 키를 누르면 제자리로 되돌립니다.',
   },
   commandPalette: {
     label: '명령 팔레트',
@@ -142,6 +149,11 @@ export const wrKo: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: '업로드 중',
+    uploaded: '업로드 완료',
+    failed: '업로드 실패',
+    status: '{{name}}: {{status}}',
+    retry: '다시 시도',
   },
   popconfirm: {
     label: '작업 확인',
@@ -201,6 +213,8 @@ export const wrKo: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: '월 목록',
     yearList: '연도 목록',
+    quarterList: '분기 목록',
+    quarter: '{{quarter}}분기',
     prevYears: '이전 12년',
     nextYears: '다음 12년',
     header: '{{year}}년 {{month}}',
@@ -348,6 +362,9 @@ export const wrKo: WrI18nCatalog = {
   alert: {
     close: '알림 닫기',
   },
+  tag: {
+    remove: '{{label}} 제거',
+  },
   qr: {
     label: 'QR 코드',
   },
@@ -452,6 +469,8 @@ export const wrKo: WrI18nCatalog = {
     panelDateTime: '날짜 및 시간 선택',
     panelRange: '기간 선택',
     panelRangeDateTime: '기간 및 시간 선택',
+    quarterValue: '{{year}}년 {{quarter}}분기',
+    weekValue: '{{year}}년 {{week}}주차',
     rangeStart: '기간 시작',
     rangeEnd: '기간 종료',
     startTime: '시작 시간',

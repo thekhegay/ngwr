@@ -1,5 +1,5 @@
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrDropdown, WrDropdownItem, WrDropdownMenu, WrDropdownSubmenu } from 'ngwr/dropdown';
@@ -53,13 +53,16 @@ class HoverHost {}
       <wr-dropdown-item>Apple</wr-dropdown-item>
     </wr-dropdown-menu>
 
-    <button type="button" [wrDropdown]="veg">Veg</button>
+    <button type="button" [wrDropdown]="veg" [position]="vegPosition">Veg</button>
     <wr-dropdown-menu #veg>
       <wr-dropdown-item>Carrot</wr-dropdown-item>
     </wr-dropdown-menu>
   `,
 })
-class TwoHost {}
+class TwoHost {
+  /** Bound, so the trigger carries no attribute a harness could read instead of the pane. */
+  readonly vegPosition = 'right-end' as const;
+}
 
 /**
  * A submenu, the only way this component has one: a second `[wrDropdown]` whose
@@ -118,6 +121,7 @@ describe('WrDropdownHarness', () => {
     // three lines later with a message about the wrong thing.
     await expect(dropdown.getItems()).rejects.toThrow(/menu is closed/);
     await expect(dropdown.getMenuRole()).rejects.toThrow(/menu is closed/);
+    await expect(dropdown.getPosition()).rejects.toThrow(/menu is closed/);
   });
 
   it('opens and closes the menu', async () => {
@@ -344,6 +348,17 @@ describe('WrDropdownHarness — two on one page', () => {
     expect(await fruit.isMenuLabelledByTrigger()).toBe(true);
     expect(await veg.isMenuLabelledByTrigger()).toBe(true);
   });
+
+  it('reads each menu’s placement off its own pane', async () => {
+    const [fruit, veg] = await loader.getAllHarnesses(WrDropdownHarness);
+    await fruit.openByKeyboard();
+    await veg.openByKeyboard();
+
+    // The default, and an aligned side read whole. The pane also carries
+    // `--arrow`, which is not a placement.
+    expect(await fruit.getPosition()).toBe('bottom-start');
+    expect(await veg.getPosition()).toBe('right-end');
+  });
 });
 
 describe('WrDropdownHarness — a dropdown inside a dropdown', () => {
@@ -435,6 +450,14 @@ describe('WrDropdownHarness — submenus', () => {
     expect(await file.getItemTexts()).toEqual(['New', 'Export', 'Share']);
   });
 
+  it('has no placement to report for a submenu, whose pane names none', async () => {
+    const file = await loader.getHarness(WrDropdownHarness);
+    const exportAs = await file.openSubmenu('Export');
+
+    expect(await file.getPosition()).toBe('bottom-start');
+    expect(await exportAs.getPosition()).toBeNull();
+  });
+
   it('says which items open a submenu', async () => {
     const file = await loader.getHarness(WrDropdownHarness);
     await file.open();
@@ -485,5 +508,59 @@ describe('WrDropdownHarness — submenus', () => {
 
     const open = await file.getAllHarnesses(WrDropdownSubmenuHarness.with({ open: true }));
     expect(await Promise.all(open.map(item => item.getTriggerText()))).toEqual(['Share']);
+  });
+});
+
+@Component({
+  imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+  template: `
+    <button type="button" [wrDropdown]="menu" [wrDropdownDisabled]="off()">Actions</button>
+    <button type="button" [wrDropdown]="menu">More</button>
+    <wr-dropdown-menu #menu>
+      <wr-dropdown-item>Copy</wr-dropdown-item>
+    </wr-dropdown-menu>
+  `,
+})
+class DisabledHost {
+  readonly off = signal(true);
+}
+
+describe('WrDropdownHarness — a disabled trigger', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DisabledHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(DisabledHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('reports the disabled state, and follows it back', async () => {
+    const dropdown = await loader.getHarness(WrDropdownHarness.with({ text: 'Actions' }));
+
+    expect([await dropdown.isDisabled(), await dropdown.isOpen()]).toEqual([true, false]);
+
+    fixture.componentInstance.off.set(false);
+
+    expect(await dropdown.isDisabled()).toBe(false);
+    await dropdown.open();
+    expect(await dropdown.isOpen()).toBe(true);
+  });
+
+  it('narrows by the disabled state', async () => {
+    const texts = (found: WrDropdownHarness[]): Promise<string[]> => Promise.all(found.map(d => d.getTriggerText()));
+
+    expect(await texts(await loader.getAllHarnesses(WrDropdownHarness.with({ disabled: true })))).toEqual(['Actions']);
+    expect(await texts(await loader.getAllHarnesses(WrDropdownHarness.with({ disabled: false })))).toEqual(['More']);
+  });
+
+  it('points at the disabled state when neither the pointer nor the keyboard opens it', async () => {
+    const dropdown = await loader.getHarness(WrDropdownHarness.with({ text: 'Actions' }));
+
+    await expect(dropdown.open()).rejects.toThrow(/not disabled \(isDisabled\(\)\)/);
+    await expect(dropdown.openByKeyboard()).rejects.toThrow(/not disabled \(isDisabled\(\)\)/);
   });
 });

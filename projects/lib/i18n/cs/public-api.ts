@@ -49,6 +49,9 @@ export const wrCs: WrI18nCatalog = {
     noMatches: 'Žádné shody',
     search: 'Hledat',
     reset: 'Resetovat',
+    columns: 'Sloupce',
+    selected: 'Vybráno: {{count}}',
+    clearSelection: 'Zrušit výběr',
   },
   eventCalendar: {
     today: 'Dnes',
@@ -109,6 +112,7 @@ export const wrCs: WrI18nCatalog = {
     loadError: 'Výsledky se nepodařilo načíst',
     retry: 'Zkusit znovu',
     more: 'Další: {{count}}',
+    selectAll: 'Vybrat vše',
   },
   tree: {
     expand: 'Rozbalit',
@@ -117,6 +121,9 @@ export const wrCs: WrI18nCatalog = {
     clearSelection: 'Zrušit výběr',
     removeItem: 'Odebrat {{label}}',
     more: 'Další: {{count}}',
+    moveKeyHelp:
+      'Klávesami Alt+Enter položku uchopíte, šipkami ji přesunete. ' +
+      'Klávesou Enter ji položíte, klávesou Escape ji vrátíte zpět.',
   },
   commandPalette: {
     label: 'Paleta příkazů',
@@ -140,6 +147,11 @@ export const wrCs: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Nahrávání',
+    uploaded: 'Nahráno',
+    failed: 'Nahrání se nezdařilo',
+    status: '{{name}}: {{status}}',
+    retry: 'Zkusit znovu',
   },
   popconfirm: {
     label: 'Potvrzení akce',
@@ -196,6 +208,8 @@ export const wrCs: WrI18nCatalog = {
     nextYear: 'Další rok',
     monthList: 'Měsíce',
     yearList: 'Roky',
+    quarterList: 'Čtvrtletí',
+    quarter: '{{quarter}}. čtvrtletí',
     prevYears: 'Předchozích 12 let',
     nextYears: 'Dalších 12 let',
     header: '{{month}} {{year}}',
@@ -341,6 +355,9 @@ export const wrCs: WrI18nCatalog = {
   alert: {
     close: 'Zavřít upozornění',
   },
+  tag: {
+    remove: 'Odebrat {{label}}',
+  },
   qr: {
     label: 'QR kód',
   },
@@ -440,6 +457,8 @@ export const wrCs: WrI18nCatalog = {
     panelDateTime: 'Výběr data a času',
     panelRange: 'Výběr období',
     panelRangeDateTime: 'Výběr období a času',
+    quarterValue: '{{quarter}}. čtvrtletí {{year}}',
+    weekValue: '{{week}}. týden {{year}}',
     rangeStart: 'Začátek období',
     rangeEnd: 'Konec období',
     startTime: 'Čas začátku',

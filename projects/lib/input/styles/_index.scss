@@ -1,4 +1,7 @@
 @use '../../theme/styles' as theme;
+
+// Styles for the entry points this component's own markup renders.
+@use '../../spinner/styles' as spinner-styles; // WrSpinner
 @include theme.loaded('input');
 
 //
@@ -115,6 +118,9 @@
   --wr-input-group-font-size: var(--wr-text-sm);
   --wr-input-group-font-weight: var(--wr-font-weight-medium);
   --wr-input-group-line-height: var(--wr-control-line-height-md);
+  --wr-input-group-clear-radius: var(--wr-border-radius-pill);
+  // The × is a bare `.wr-icon__svg` and the spinner a `sm` `wr-spinner`: both `1em`.
+  --wr-input-group-clear-icon-size: var(--wr-control-font-size-md);
 
   display: inline-flex;
   align-items: stretch;
@@ -207,8 +213,59 @@
   }
 
   .wr-input:has(+ &__affix--suffix),
-  .wr-input:has(+ wr-password-toggle) {
+  .wr-input:has(+ wr-password-toggle),
+  .wr-input:has(+ &__clear),
+  .wr-input:has(+ &__clear-space),
+  .wr-input:has(+ &__spinner) {
     padding-inline-end: var(--wr-input-group-affix-gap);
+  }
+
+  &:has(> .wr-input--sm) {
+    --wr-input-group-clear-icon-size: var(--wr-control-font-size-sm);
+  }
+
+  &:has(> .wr-input--lg) {
+    --wr-input-group-clear-icon-size: var(--wr-control-font-size-lg);
+  }
+
+  // The clear (×) and the spinner sit after the field and before any suffix.
+  // The select's ×, in a group instead of a button.
+  &__clear,
+  &__clear-space,
+  &__spinner {
+    flex: 0 0 auto;
+    align-self: center;
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-input-group-clear-icon-size);
+    margin-inline-end: var(--wr-input-group-affix-gap);
+
+    // Nothing after it: it keeps the inset an affix would.
+    &:last-child {
+      margin-inline-end: var(--wr-input-group-padding-x);
+    }
+  }
+
+  &__clear-space {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  &__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: var(--wr-input-group-clear-radius);
+    cursor: pointer;
+    transition:
+      background 0.12s ease,
+      color 0.12s ease;
+
+    &:hover {
+      background: color-mix(in srgb, var(--wr-color-on-surface) 6%, transparent);
+      color: var(--wr-color-on-surface);
+    }
   }
 
   // The toggle's flex item is its HOST, not the `<button>`. The group stretches
@@ -275,5 +332,15 @@
       cursor: not-allowed;
       opacity: var(--wr-disabled-opacity);
     }
+  }
+}
+
+// Touch pointers get a wider × that fills the field's height instead of growing it.
+@media (pointer: coarse) {
+  .wr-input-group__clear,
+  .wr-input-group__clear-space {
+    align-self: stretch;
+    width: 2rem;
+    height: auto;
   }
 }

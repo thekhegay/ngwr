@@ -5,10 +5,11 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
+import { WR_ANCHORED_FALLBACKS, WR_ANCHORED_POSITIONS, wrAnchoredPositions } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrPopconfirm } from './popconfirm';
-import { WR_POPCONFIRM_FALLBACKS, type WrPopconfirmPosition } from './types';
+import { type WrPopconfirmPosition, wrPopconfirmPositions } from './types';
 
 @Component({
   imports: [WrPopconfirm],
@@ -531,9 +532,232 @@ describe('WrPopconfirm placement fallbacks', () => {
 
   it('gives every side somewhere to flip to, leading with itself', () => {
     for (const side of ['top', 'bottom', 'left', 'right'] as const) {
-      const chain = WR_POPCONFIRM_FALLBACKS[side];
+      const chain = WR_ANCHORED_FALLBACKS[side];
       expect(chain[0]).toBe(side);
       expect(chain.length).toBeGreaterThan(1);
     }
+  });
+
+  it('flips an aligned panel to the opposite side and keeps its alignment', () => {
+    openAt('top-start', rect(400, 10, 56, 30));
+
+    expect(pane().classList).toContain('wr-popconfirm-overlay--bottom-start');
+    expect(pane().classList).not.toContain('wr-popconfirm-overlay--top-start');
+  });
+
+  it('moves a `right-end` panel across when the right edge has no room', () => {
+    openAt('right-end', rect(900, 300, 100, 30));
+
+    expect(pane().classList).toContain('wr-popconfirm-overlay--left-end');
+    expect(pane().classList).not.toContain('wr-popconfirm-overlay--right-end');
+  });
+
+  it('drops a `left-start` panel below a trigger with no room on either side', () => {
+    // 100px on the left, 100px on the right, and a 224px panel.
+    openAt('left-start', rect(100, 300, 824, 30));
+
+    expect(pane().classList).toContain('wr-popconfirm-overlay--bottom-start');
+    // The gap changed axis with the placement.
+    expect(pane().style.transform).toBe('translateY(8px)');
+  });
+
+  it('keeps an aligned side when there is room', () => {
+    openAt('bottom-end', rect(400, 300, 56, 30));
+
+    expect(pane().classList).toContain('wr-popconfirm-overlay--bottom-end');
+  });
+});
+
+/**
+ * The twelve placements `wr-popover` takes, with its geometry: the same chain,
+ * the same 8px gap, the pane tagged with the placement it landed on.
+ */
+describe('WrPopconfirm positions', () => {
+  @Component({
+    imports: [WrPopconfirm],
+    template: `<button type="button" wrPopconfirm="Delete this for good?" [position]="side()">Delete</button>`,
+  })
+  class SideHost {
+    readonly side = signal<WrPopconfirmPosition>('top');
+  }
+
+  const names = Object.keys(WR_ANCHORED_POSITIONS) as WrPopconfirmPosition[];
+  let fixture: ReturnType<typeof TestBed.createComponent<SideHost>>;
+  let ambient: Directionality;
+
+  const pane = (): HTMLElement => document.querySelector<HTMLElement>('.wr-popconfirm-overlay')!;
+
+  const openAt = (side: WrPopconfirmPosition): void => {
+    fixture.componentInstance.side.set(side);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement)
+      .querySelector('button')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+    fixture.detectChanges();
+  };
+
+  /** The gap as the CDK writes it: away from the trigger, on the placement's own axis. */
+  const gap = (side: WrPopconfirmPosition, rtl = false): string => {
+    if (side.startsWith('top')) return 'translateY(-8px)';
+    if (side.startsWith('bottom')) return 'translateY(8px)';
+    return side.startsWith('left') === rtl ? 'translateX(8px)' : 'translateX(-8px)';
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    ambient = TestBed.inject(Directionality);
+    fixture = TestBed.createComponent(SideHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('takes the twelve placements', () => {
+    expect(names).toHaveLength(12);
+  });
+
+  it.each(names)('%s names the pane and keeps the gap clear of the trigger', side => {
+    openAt(side);
+
+    expect(pane().className.match(/wr-popconfirm-overlay--[a-z-]+/g)).toEqual([`wr-popconfirm-overlay--${side}`]);
+    expect(pane().style.transform).toBe(gap(side));
+  });
+
+  it.each(names)('%s hands the CDK the list the popover hands it', side => {
+    expect(wrPopconfirmPositions(side)).toEqual(
+      wrAnchoredPositions(side, { gap: 8, paneClass: 'wr-popconfirm-overlay' })
+    );
+  });
+
+  it.each(names)('%s turns its gap around under RTL, on the inline axis only', side => {
+    ambient.valueSignal.set('rtl');
+    fixture.detectChanges();
+    openAt(side);
+
+    expect(pane().parentElement!.getAttribute('dir')).toBe('rtl');
+    expect(pane().classList).toContain(`wr-popconfirm-overlay--${side}`);
+    expect(pane().style.transform).toBe(gap(side, true));
+  });
+
+  it('mirrors an open `right-start` panel when the direction flips', () => {
+    openAt('right-start');
+    // Starts at the trigger's inline end, sharing its top edge.
+    expect([pane().parentElement!.style.left, pane().parentElement!.style.right, pane().style.transform]).toEqual([
+      '0px',
+      'auto',
+      'translateX(8px)',
+    ]);
+
+    ambient.valueSignal.set('rtl');
+    fixture.detectChanges();
+
+    expect([pane().parentElement!.style.left, pane().parentElement!.style.right, pane().style.transform]).toEqual([
+      'auto',
+      '1024px',
+      'translateX(-8px)',
+    ]);
+  });
+});
+
+@Component({
+  imports: [WrPopconfirm],
+  template: `
+    <button
+      type="button"
+      wrPopconfirm="Delete this for good?"
+      [wrPopconfirmDisabled]="off()"
+      (click)="log.push('click')"
+      (confirmed)="log.push('confirmed')"
+      (cancelled)="log.push('cancelled')"
+    >
+      Delete
+    </button>
+  `,
+})
+class DisabledHost {
+  readonly off = signal(true);
+  readonly log: string[] = [];
+  readonly popconfirm = viewChild.required(WrPopconfirm);
+}
+
+describe('WrPopconfirm while disabled', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DisabledHost>>;
+
+  const trigger = (): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button')!;
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popconfirm');
+  const log = (): string[] => fixture.componentInstance.log;
+
+  const setOff = (off: boolean): void => {
+    fixture.componentInstance.off.set(off);
+    fixture.detectChanges();
+  };
+
+  const click = (): void => {
+    trigger().dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(DisabledHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('asks nothing on a click, and lets the click through', () => {
+    const seen: Event[] = [];
+    const listen = (event: Event): number => seen.push(event);
+    document.addEventListener('click', listen);
+
+    click();
+    document.removeEventListener('click', listen);
+
+    expect(panel()).toBeNull();
+    // The host's own handler still runs, and the click is no longer stopped.
+    expect(log()).toEqual(['click']);
+    expect(seen).toHaveLength(1);
+  });
+
+  it('ignores open() called from code', () => {
+    const popconfirm = fixture.componentInstance.popconfirm();
+
+    popconfirm.open();
+    fixture.detectChanges();
+
+    expect([popconfirm.isOpen(), panel()]).toEqual([false, null]);
+  });
+
+  it('withdraws the popup ARIA and marks the host, leaving its own disabled state alone', () => {
+    expect(trigger().hasAttribute('aria-haspopup')).toBe(false);
+    expect(trigger().hasAttribute('aria-expanded')).toBe(false);
+    expect(trigger().classList.contains('wr-popconfirm-trigger--disabled')).toBe(true);
+    expect(trigger().disabled).toBe(false);
+
+    setOff(false);
+
+    expect(trigger().getAttribute('aria-haspopup')).toBe('dialog');
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    expect(trigger().classList.contains('wr-popconfirm-trigger--disabled')).toBe(false);
+  });
+
+  it('closes an open panel when it becomes disabled, without calling it cancelled', () => {
+    setOff(false);
+    click();
+    expect(panel()).not.toBeNull();
+
+    setOff(true);
+
+    expect(panel()).toBeNull();
+    expect(trigger().hasAttribute('aria-controls')).toBe(false);
+    expect(log()).toEqual(['click']);
+  });
+
+  it('opens again once re-enabled', () => {
+    setOff(false);
+    click();
+
+    expect(panel()).not.toBeNull();
+    expect(trigger().getAttribute('aria-expanded')).toBe('true');
   });
 });

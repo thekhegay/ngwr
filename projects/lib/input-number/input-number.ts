@@ -242,6 +242,23 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
   protected readonly resolvedIncrement = useI18nText(this.incrementLabel, 'inputNumber.increment', 'Increment');
   protected readonly resolvedDecrement = useI18nText(this.decrementLabel, 'inputNumber.decrement', 'Decrement');
 
+  /**
+   * Show a clear (×) button while the field holds text and is neither disabled
+   * nor read-only. Clearing sets `value` to `null`, emits `touch` and puts focus
+   * back in the field. It is a pointer control: from the keyboard, emptying the
+   * field clears the value. @default false
+   */
+  readonly clearable = input(false, { transform: coerceBooleanProperty });
+
+  /** Clear (×) button aria-label. Falls back to `common.clear`. */
+  readonly clearLabel = input<string | null>(null);
+
+  /**
+   * Show a spinner after the field and mark the field `aria-busy`. The field
+   * stays editable. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
@@ -255,7 +272,7 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
    */
   readonly value = model<WrInputNumberValue<M>>(null);
 
-  /** Emitted on blur so a bound field can mark itself touched. */
+  /** Emitted on blur, and by the clear (×) button, so a bound field can mark itself touched. */
   readonly touch = output<void>();
 
   private readonly locale = inject(LOCALE_ID);
@@ -442,7 +459,9 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
       this.text.set(this.format(next));
       return;
     }
-    const base = (this.value() as number | null) ?? this.fallbackBase();
+    const current = this.value() as number | null;
+    // A non-finite value gives no number to step from, so it steps like an empty field.
+    const base = current !== null && Number.isFinite(current) ? current : this.fallbackBase();
     // `wrRound` before `constrain`, and only on the stepped ARITHMETIC. Binary
     // floats do not add: three presses of a `step="0.1"` stepper produced
     // 0.30000000000000004, `constrain` only rounds when `decimals` is set, and

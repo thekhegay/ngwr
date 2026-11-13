@@ -92,17 +92,17 @@ describe('the docs "new" rule', () => {
 
 describe('the docs "updated" mark', () => {
   it('reads it out of the generated map', () => {
-    expect(updatedOf('reference/components/calendar')).toBe('15.0.0');
+    expect(updatedOf('reference/components/editor')).toBe('15.0.0');
     expect(updatedOf('reference/components/divider')).toBeNull();
   });
 
   // `updated` rides the same expiring rule as `since`, and the first release of a
   // major counts like any other: `updated="15.0.0"` stands until v16.
   it('marks an update for its whole major and drops it when the next one ships', () => {
-    expect(linkMark('/reference/components/calendar', '15.0.0')).toBe('updated');
-    expect(linkMark('/reference/components/calendar', '15.0.0-rc.1')).toBe('updated');
-    expect(linkMark('/reference/components/calendar', '15.2.0')).toBe('updated');
-    expect(linkMark('/reference/components/calendar', '16.0.0')).toBeNull();
+    expect(linkMark('/reference/components/editor', '15.0.0')).toBe('updated');
+    expect(linkMark('/reference/components/editor', '15.0.0-rc.1')).toBe('updated');
+    expect(linkMark('/reference/components/editor', '15.2.0')).toBe('updated');
+    expect(linkMark('/reference/components/editor', '16.0.0')).toBeNull();
   });
 
   it('gives a page one mark, and "new" wins over "updated"', () => {
@@ -176,10 +176,10 @@ describe('the major the marks are judged against', () => {
   it('steps every mark of the live map back once the next major is declared', () => {
     const ahead = markVersion('15.2.0', ['15.0.0', '16.0.0']);
 
-    // The calendar was updated in 15.0, the bar chart in 15.1.
-    expect(linkMark('/reference/components/calendar', '15.2.0')).toBe('updated');
+    // The editor was updated in 15.0, the bar chart in 15.1.
+    expect(linkMark('/reference/components/editor', '15.2.0')).toBe('updated');
     expect(linkMark('/charts/bar-chart', '15.2.0')).toBe('updated');
-    expect(linkMark('/reference/components/calendar', ahead)).toBeNull();
+    expect(linkMark('/reference/components/editor', ahead)).toBeNull();
     expect(linkMark('/charts/bar-chart', ahead)).toBeNull();
   });
 });
@@ -309,6 +309,8 @@ describe('the surfaces that draw it', () => {
       'wrPoll',
       'wrQueryParam',
       'withRenderOnNavigation',
+      'wrFeature',
+      'WR_LIVE_LOCALE',
       'Scrollbar',
     ]);
   });

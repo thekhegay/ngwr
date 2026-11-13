@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey, type TestElement } from '@angular/cdk/testing';
 
-import type { WrCalendarMode } from 'ngwr/calendar';
+import type { WrCalendarGranularity, WrCalendarMode } from 'ngwr/calendar';
 
 import type {
   WrCalendarArrowKey,
@@ -31,7 +31,9 @@ const ARROWS: Record<WrCalendarArrowKey, TestKey> = {
  *
  * **It is three views behind one header.** Clicking the header label walks
  * `day → month → year`, and each view renders something different: a
- * `role="grid"` of day cells, or a `role="listbox"` of chips. Every day method
+ * `role="grid"` of day cells, or a `role="listbox"` of chips. Under a
+ * `granularity` the calendar opens on the view that granularity picks from, and
+ * `quarter` is a fourth view only `granularity="quarter"` reaches. Every day method
  * throws off the day view rather than answering `[]`, which would read as "this
  * month has no days".
  *
@@ -78,6 +80,7 @@ export class WrCalendarHarness extends ComponentHarness {
   /** Which sub-view is showing. */
   async getView(): Promise<WrCalendarView> {
     if ((await this.locatorForOptional('.wr-calendar__months')()) !== null) return 'month';
+    if ((await this.locatorForOptional('.wr-calendar__quarters')()) !== null) return 'quarter';
     if ((await this.locatorForOptional('.wr-calendar__years')()) !== null) return 'year';
     return 'day';
   }
@@ -87,9 +90,26 @@ export class WrCalendarHarness extends ComponentHarness {
     return (await (await this.host()).hasClass('wr-calendar--range')) ? 'range' : 'single';
   }
 
+  /**
+   * What one pick names, from the host modifier: a day unless `granularity` says
+   * a week, a month, a quarter or a year.
+   */
+  async getGranularity(): Promise<WrCalendarGranularity> {
+    const host = await this.host();
+    for (const period of ['week', 'month', 'quarter', 'year'] as const) {
+      if (await host.hasClass(`wr-calendar--${period}`)) return period;
+    }
+    return 'day';
+  }
+
   /** Whether the whole calendar refuses interaction. */
   async isDisabled(): Promise<boolean> {
     return (await this.host()).hasClass('wr-calendar--disabled');
+  }
+
+  /** Whether the calendar is read-only: still browsable, but a day click picks nothing. */
+  async isReadonly(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-calendar--readonly');
   }
 
   /** The header text — `March 2026`, `2026`, or `2016 – 2027` depending on the view. */
@@ -210,6 +230,12 @@ export class WrCalendarHarness extends ComponentHarness {
     return this.readChips();
   }
 
+  /** The quarter chips, with their state. Throws off the quarter view, which only `granularity="quarter"` has. */
+  async getQuarters(): Promise<WrCalendarChip[]> {
+    await this.requireView('quarter', 'getQuarters');
+    return this.readChips();
+  }
+
   /** The year chips, with their state. Throws off the year view. */
   async getYears(): Promise<WrCalendarChip[]> {
     await this.requireView('year', 'getYears');
@@ -217,8 +243,9 @@ export class WrCalendarHarness extends ComponentHarness {
   }
 
   /**
-   * Click a month or year chip by its printed label — which drops the calendar back
-   * one view, the way clicking the header climbed up.
+   * Click a month, quarter or year chip by its printed label, which drops the
+   * calendar back one view, the way clicking the header climbed up. Where the chip
+   * is what `granularity` picks, the click is the pick and the view stays.
    *
    * Throws on the day view, where there are no chips, and on a label the view does
    * not offer, naming what it does.

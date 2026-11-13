@@ -98,8 +98,13 @@ export class WrPopoverHarness extends ContentContainerComponentHarness {
       .addOption('triggerText', options.triggerText, (harness, text) =>
         HarnessPredicate.stringMatches(harness.getTriggerText(), text)
       )
-      .addOption('mode', options.mode, async (harness, mode) => (await harness.getMode()) === mode)
-      .addOption('open', options.open, async (harness, open) => (await harness.isOpen()) === open);
+      .addOption(
+        'mode',
+        options.mode,
+        async (harness, mode) => !(await harness.isDisabled()) && (await harness.getMode()) === mode
+      )
+      .addOption('open', options.open, async (harness, open) => (await harness.isOpen()) === open)
+      .addOption('disabled', options.disabled, async (harness, disabled) => (await harness.isDisabled()) === disabled);
   }
 
   /**
@@ -109,14 +114,34 @@ export class WrPopoverHarness extends ContentContainerComponentHarness {
    * never reaches the DOM, while `aria-haspopup="dialog"` is on every popover
    * trigger and on no tooltip trigger — a tooltip is a description of the
    * control, not a popup it owns.
+   *
+   * Throws on a disabled trigger: `wrPopoverDisabled` withdraws that ARIA from
+   * both shapes, and answering `'tooltip'` for a disabled popover would be a
+   * guess.
    */
   async getMode(): Promise<'popover' | 'tooltip'> {
+    if (await this.isDisabled()) {
+      throw new Error(
+        'WrPopoverHarness.getMode(): the trigger is disabled (`wrPopoverDisabled`), and a disabled trigger ' +
+          'publishes no ARIA to tell a popover from a tooltip by. Assert isDisabled() instead.'
+      );
+    }
     return (await (await this.host()).getAttribute('aria-haspopup')) === 'dialog' ? 'popover' : 'tooltip';
   }
 
   /** The trigger's own visible text. The panel's content is `getContentText()`. */
   async getTriggerText(): Promise<string> {
     return (await this.host()).text();
+  }
+
+  /**
+   * Whether `wrPopoverDisabled` has turned the trigger off — read from
+   * `wr-popover-trigger--disabled`, the one mark a disabled trigger carries.
+   * The HOST's own `disabled` is another question: the directive never sets it,
+   * so ask the host's harness (`WrButtonHarness.isDisabled()`).
+   */
+  async isDisabled(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-popover-trigger--disabled');
   }
 
   /**
@@ -130,6 +155,7 @@ export class WrPopoverHarness extends ContentContainerComponentHarness {
    * two bindings fight over one attribute.
    */
   async isOpen(): Promise<boolean> {
+    if (await this.isDisabled()) return false;
     const host = await this.host();
     return (await this.getMode()) === 'popover'
       ? (await host.getAttribute('aria-expanded')) === 'true'
@@ -150,9 +176,16 @@ export class WrPopoverHarness extends ContentContainerComponentHarness {
    * `FocusMonitor`'s to grant (see {@link focus}).
    *
    * Throws when nothing appears: a tooltip with an empty string never opens, and
-   * a spec on fake timers has to advance the clock itself.
+   * a spec on fake timers has to advance the clock itself. Throws at once on a
+   * disabled trigger, which no gesture opens.
    */
   async open(timeout = DEFAULT_TIMEOUT): Promise<void> {
+    if (await this.isDisabled()) {
+      throw new Error(
+        'WrPopoverHarness.open(): the trigger is disabled (`wrPopoverDisabled`), so nothing opens it. ' +
+          'Assert isDisabled() instead of trying to open it.'
+      );
+    }
     if (await this.isOpen()) return;
 
     const host = await this.host();

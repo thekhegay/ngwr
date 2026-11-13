@@ -85,6 +85,8 @@
         call.
       </li>
     </ul>
+    <p>Date output that changed in a 16.x minor, with nothing to rewrite:</p>
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v16Dates, head: ['Release', 'What changed'] }" />
   </ngwr-doc-section>
 
   <ngwr-doc-section

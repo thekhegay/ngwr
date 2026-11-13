@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Color Picker"
-  updated="16.0.0"
+  updated="16.3.0"
   description="Pick a colour inline, or from a button that opens the picker."
   [keywords]="['color', 'colour', 'picker', 'palette', 'hsv', 'hex', 'wr-color-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
@@ -50,6 +50,30 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Named presets"
+    description="A preset written as `{ value, label }` announces its label, and hovering or focusing it shows the name in a tooltip; a bare string announces itself, `#3969e2`, and shows none. Since v16.3."
+  >
+    <ngwr-doc-code [code]="snippets.named" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-color-picker [(value)]="named" [swatches]="namedPalette" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sizes"
+    description="`sm`, `md` (default) or `lg` scale the panel: its width, padding, colour surface and thumbs. The trigger takes the same `size` for the panel it opens. Since v16.3."
+  >
+    <ngwr-doc-code [code]="snippets.sizes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start">
+        @for (s of sizes; track s) {
+          <wr-color-picker value="#3969e2" [size]="s" [swatches]="palette" />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Popover trigger"
     description="`[wrColorPickerTrigger]` on any button opens the picker in an overlay."
   >
@@ -79,7 +103,7 @@
 
   <ngwr-doc-section
     title="Template reference"
-    description="Export the trigger as `wrColorPickerTrigger` to open it or read its value from elsewhere."
+    description="Export the trigger as `wrColorPickerTrigger` to open it, or to read its value and `isOpen()` from elsewhere."
   >
     <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
   </ngwr-doc-section>

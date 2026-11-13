@@ -1,10 +1,9 @@
-import { createRequire } from 'node:module';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 import { WrTable } from './table';
 import { WrTableCell } from './table-cell';
@@ -330,7 +329,9 @@ describe('WrTable header hints and truncated cells', () => {
     expect(document.querySelectorAll('.wr-overlay-container [title]')).toHaveLength(0);
   });
 
-  it('creates no tooltip in a large table until a cell is hovered, and then one', () => {
+  // 400 rows and 2,000 truncated cells in jsdom: about a second alone, and past
+  // the default five when every worker is busy.
+  it('creates no tooltip in a large table until a cell is hovered, and then one', { timeout: 20_000 }, () => {
     fixture.componentInstance.items.set(
       Array.from({ length: 400 }, (_, i) => ({
         id: i,
@@ -379,15 +380,7 @@ describe('WrTable with no hint and no truncation', () => {
   });
 });
 
-interface Sass {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-}
-
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-
-const css = sass
-  .compileString(`@use 'table/styles';`, { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
-  .css.replace(/\/\*[\s\S]*?\*\//g, '');
+const css = compileSass(`@use 'table/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
 
 describe('a truncating cell in the compiled sheet', () => {
   it('stays on one line behind an ellipsis', () => {

@@ -12,6 +12,7 @@
 //
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
+@use '../../popover/styles' as popover-styles; // WrPopover
 @use '../../segmented/styles' as segmented-styles; // WrSegmented
 @include theme.loaded('color-picker');
 
@@ -42,6 +43,26 @@
   box-shadow: var(--wr-shadow-overlay);
   font-family: var(--wr-color-picker-font-family);
   user-select: none;
+
+  // Sizes. The two sliders keep their 12px track at `sm`: they sit one gap
+  // apart, and a thinner pair would be two targets closer than they are now.
+  &--sm,
+  &:where([size='sm']) {
+    --wr-color-picker-width: 14rem;
+    --wr-color-picker-sv-height: 8rem;
+    --wr-color-picker-thumb-size: 0.75rem;
+    --wr-color-picker-padding: var(--wr-space-sm);
+  }
+
+  &--lg,
+  &:where([size='lg']) {
+    --wr-color-picker-width: 20rem;
+    --wr-color-picker-sv-height: 12rem;
+    --wr-color-picker-slider-height: 1rem;
+    --wr-color-picker-thumb-size: 1.125rem;
+    --wr-color-picker-padding: var(--wr-space-lg);
+    --wr-color-picker-gap: var(--wr-space-md);
+  }
 
   // SV (saturation + value) canvas
   &__sv {

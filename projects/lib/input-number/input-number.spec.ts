@@ -312,6 +312,53 @@ describe('WrInputNumber', () => {
     expect(field().value).toBe('42');
   });
 
+  describe('a NaN model', () => {
+    beforeEach(() => {
+      fixture.componentInstance.amount.set(NaN);
+      fixture.detectChanges();
+    });
+
+    it('draws empty and leaves both steppers enabled', () => {
+      expect(field().value).toBe('');
+      expect(stepper('Increment').disabled).toBe(false);
+      expect(stepper('Decrement').disabled).toBe(false);
+    });
+
+    it('steps from zero with the arrow key, as an empty field does', () => {
+      press('ArrowUp');
+
+      expect(amount()).toBe(1);
+      expect(field().value).toBe('1');
+    });
+
+    it('steps from zero with the button', () => {
+      stepper('Decrement').click();
+      fixture.detectChanges();
+
+      expect(amount()).toBe(-1);
+      expect(field().value).toBe('-1');
+    });
+
+    it('starts from the lower bound when there is one', () => {
+      fixture.componentInstance.min.set(3);
+      fixture.componentInstance.max.set(9);
+      fixture.detectChanges();
+      expect(stepper('Increment').disabled).toBe(false);
+      expect(stepper('Decrement').disabled).toBe(false);
+
+      stepper('Decrement').click();
+      fixture.detectChanges();
+      expect(amount()).toBe(3);
+      expect(field().value).toBe('3');
+
+      fixture.componentInstance.amount.set(NaN);
+      fixture.detectChanges();
+      press('ArrowUp');
+      expect(amount()).toBe(4);
+      expect(field().value).toBe('4');
+    });
+  });
+
   it('leaves keys it does not own to the field', () => {
     // Typing a digit must not be swallowed by the stepper handler.
     expect(press('7').defaultPrevented).toBe(false);

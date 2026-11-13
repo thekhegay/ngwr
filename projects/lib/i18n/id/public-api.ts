@@ -49,6 +49,9 @@ export const wrId: WrI18nCatalog = {
     noMatches: 'Tidak ada yang cocok',
     search: 'Cari',
     reset: 'Atur ulang',
+    columns: 'Kolom',
+    selected: '{{count}} dipilih',
+    clearSelection: 'Hapus pilihan',
   },
   eventCalendar: {
     today: 'Hari ini',
@@ -109,6 +112,7 @@ export const wrId: WrI18nCatalog = {
     loadError: 'Gagal memuat hasil',
     retry: 'Coba lagi',
     more: '+{{count}} lainnya',
+    selectAll: 'Pilih semua',
   },
   tree: {
     expand: 'Perluas',
@@ -117,6 +121,9 @@ export const wrId: WrI18nCatalog = {
     clearSelection: 'Hapus pilihan',
     removeItem: 'Hapus {{label}}',
     more: '+{{count}} lainnya',
+    moveKeyHelp:
+      'Tekan Alt+Enter untuk mengangkat item ini, lalu gunakan tombol panah untuk memindahkannya. ' +
+      'Tekan Enter untuk melepaskannya, atau Escape untuk mengembalikannya.',
   },
   commandPalette: {
     label: 'Palet perintah',
@@ -140,6 +147,11 @@ export const wrId: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Mengunggah',
+    uploaded: 'Terunggah',
+    failed: 'Gagal mengunggah',
+    status: '{{name}}: {{status}}',
+    retry: 'Coba lagi',
   },
   popconfirm: {
     label: 'Konfirmasi tindakan',
@@ -196,6 +208,8 @@ export const wrId: WrI18nCatalog = {
     nextYear: 'Tahun berikutnya',
     monthList: 'Daftar bulan',
     yearList: 'Daftar tahun',
+    quarterList: 'Daftar kuartal',
+    quarter: 'Kuartal {{quarter}}',
     prevYears: '12 tahun sebelumnya',
     nextYears: '12 tahun berikutnya',
     header: '{{month}} {{year}}',
@@ -341,6 +355,9 @@ export const wrId: WrI18nCatalog = {
   alert: {
     close: 'Tutup pemberitahuan',
   },
+  tag: {
+    remove: 'Hapus {{label}}',
+  },
   qr: {
     label: 'Kode QR',
   },
@@ -440,6 +457,8 @@ export const wrId: WrI18nCatalog = {
     panelDateTime: 'Pilih tanggal dan waktu',
     panelRange: 'Pilih rentang tanggal',
     panelRangeDateTime: 'Pilih rentang tanggal dan waktu',
+    quarterValue: 'Kuartal {{quarter}} {{year}}',
+    weekValue: 'Minggu {{week}}, {{year}}',
     rangeStart: 'Awal rentang',
     rangeEnd: 'Akhir rentang',
     startTime: 'Waktu mulai',

@@ -1,10 +1,17 @@
 @use '../../theme/styles' as theme;
+
+// Styles for the entry points this component's own markup renders: the cascade
+// box is the checkbox's, drawn from its classes, and the loading row spins.
+@use '../../checkbox/styles' as checkbox-styles; // WrCheckbox
+@use '../../empty/styles' as empty-styles; // WrEmpty
+@use '../../spinner/styles' as spinner-styles; // WrSpinner
 @include theme.loaded('tree');
 
-.wr-tree {
+// Row hooks are declared on the panel as well: its rows render in the CDK
+// overlay container, outside the `.wr-tree` host, and would read them unset.
+.wr-tree,
+.wr-tree-panel {
   --wr-tree-indent: 1.25rem;
-  --wr-tree-font-family: var(--wr-font-family-base);
-  --wr-tree-font-size: var(--wr-text-sm);
   --wr-tree-list-padding-y: var(--wr-space-xs);
   --wr-tree-row-gap: var(--wr-space-sm);
   --wr-tree-row-padding-y: var(--wr-space-xs);
@@ -12,6 +19,18 @@
   --wr-tree-row-radius: var(--wr-border-radius-sm);
   --wr-tree-row-selected-font-weight: var(--wr-font-weight-medium);
   --wr-tree-toggle-radius: var(--wr-border-radius-sm);
+  --wr-tree-status-color: var(--wr-color-on-surface-muted);
+  --wr-tree-status-error-color: var(--wr-color-danger-ink);
+  --wr-tree-retry-color: var(--wr-color-primary-ink);
+  --wr-tree-row-hover-bg: var(--wr-color-hover);
+  --wr-tree-match-bg: var(--wr-color-warning-soft);
+  --wr-tree-match-color: var(--wr-color-warning-ink);
+  --wr-tree-drop-color: var(--wr-color-primary);
+}
+
+.wr-tree {
+  --wr-tree-font-family: var(--wr-font-family-base);
+  --wr-tree-font-size: var(--wr-text-sm);
   // The combobox trigger's own hooks live on the BASE rather than inside
   // `&--combobox`, although nothing paints them until that modifier is on.
   // `.wr-tree` and `.wr-tree--combobox` are the same element, so the modifier's
@@ -71,8 +90,8 @@
       background var(--wr-transition-base),
       color var(--wr-transition-base);
 
-    &:hover:not(.wr-tree__row--disabled) {
-      background: var(--wr-color-hover);
+    &:hover:not(.wr-tree__row--disabled, [aria-disabled='true']) {
+      background: var(--wr-tree-row-hover-bg);
     }
 
     // A selected row had nothing but the tint, and `wr-tree` — unlike its
@@ -84,6 +103,45 @@
       font-weight: var(--wr-tree-row-selected-font-weight);
       // Text on the `-soft` tint: `-ink`. Bare measured 4.19:1 light / 3.63:1 dark.
       color: var(--wr-color-primary-ink);
+    }
+
+    // Cascade: the box says it, so a checked row keeps its plain face. `:where`
+    // holds the specificity down, and hover and the cursor still win.
+    &--selected:where([aria-checked]) {
+      background: transparent;
+      font-weight: inherit;
+      color: inherit;
+    }
+
+    // The row being moved, by drag or by keyboard. It stays in place until the
+    // consumer applies the move, so it only steps back.
+    &--dragging {
+      opacity: var(--wr-disabled-opacity);
+    }
+
+    // Where a drop would land: a line above or below the row, indented to the
+    // level the node would take, or a frame when the row becomes its parent.
+    &--drop-inside {
+      box-shadow: inset 0 0 0 2px var(--wr-tree-drop-color);
+    }
+
+    &--drop-before::after,
+    &--drop-after::after {
+      content: '';
+      position: absolute;
+      inset-inline: calc(0.5rem + var(--wr-tree-drop-depth, 0) * var(--wr-tree-indent)) 0;
+      height: 2px;
+      border-radius: 1px;
+      background: var(--wr-tree-drop-color);
+      pointer-events: none;
+    }
+
+    &--drop-before::after {
+      inset-block-start: -1px;
+    }
+
+    &--drop-after::after {
+      inset-block-end: -1px;
     }
 
     // Visible ring only when the row truly has keyboard focus — not
@@ -117,6 +175,81 @@
         background: var(--wr-color-primary);
       }
     }
+  }
+
+  // A branch's pending or failed load. The row's own box, so a windowed list
+  // keeps its one row height; the spinner sits in the toggle's slot.
+  &__status {
+    display: flex;
+    align-items: center;
+    gap: var(--wr-tree-row-gap);
+    padding: var(--wr-tree-row-padding-y) var(--wr-tree-row-padding-x);
+    padding-inline-start: calc(0.5rem + var(--wr-tree-depth, 0) * var(--wr-tree-indent));
+    border-radius: var(--wr-tree-row-radius);
+    color: var(--wr-tree-status-color);
+    cursor: default;
+    user-select: none;
+    outline: 0;
+    position: relative;
+
+    &:focus-visible {
+      @include theme.focus-ring;
+    }
+
+    &--error {
+      color: var(--wr-tree-status-error-color);
+    }
+
+    &--active {
+      background: var(--wr-color-hover);
+    }
+  }
+
+  &__spinner {
+    --wr-spinner-size: 1rem;
+
+    flex: 0 0 auto;
+  }
+
+  &__status-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__retry {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--wr-tree-retry-color);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  &__check {
+    flex: 0 0 auto;
+  }
+
+  // The filter's match inside a label.
+  &__label mark {
+    background: var(--wr-tree-match-bg);
+    color: var(--wr-tree-match-color);
+    border-radius: 2px;
+  }
+
+  // The keyboard move's description and live region.
+  &__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   // Virtualized list: the container owns scrolling + keyboard focus.

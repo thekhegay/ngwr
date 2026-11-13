@@ -1,16 +1,17 @@
 import { FocusMonitor, type FocusOrigin } from '@angular/cdk/a11y';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild, viewChildren } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
 import { WrDialog, type WrDialogRef } from 'ngwr/dialog';
 import { WrDrawerManager } from 'ngwr/drawer';
+import { WR_ANCHORED_FALLBACKS, WR_ANCHORED_POSITIONS, wrAnchoredPositions } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrPopover } from './popover';
-import { WR_POPOVER_FALLBACKS, WR_POPOVER_POSITIONS, type WrPopoverPosition, wrPopoverPositions } from './types';
+import { type WrPopoverPosition, wrPopoverPositions } from './types';
 
 /**
  * `[wrPopover]` renders its panel into a CDK overlay, so nothing it opens is
@@ -233,7 +234,7 @@ describe('WrPopover', () => {
       fixture.detectChanges();
       open();
 
-      // The 8px gap in WR_POPOVER_POSITIONS reaches the DOM as the CDK's own
+      // The 8px gap in `wrPopoverPositions` reaches the DOM as the CDK's own
       // transform, which is what makes the RTL twin below assertable at all.
       expect(popoverPane()?.getAttribute('style')).toContain('translateX(-8px)');
     });
@@ -1131,11 +1132,11 @@ describe('WrPopover under dir="rtl"', () => {
  * `bottom-start` and lands at 375 with nothing off-screen.
  */
 describe('WrPopover placement fallbacks', () => {
-  const names = Object.keys(WR_POPOVER_POSITIONS) as WrPopoverPosition[];
+  const names = Object.keys(WR_ANCHORED_POSITIONS) as WrPopoverPosition[];
 
   it('gives every placement somewhere to flip to', () => {
     for (const name of names) {
-      const chain = WR_POPOVER_FALLBACKS[name];
+      const chain = WR_ANCHORED_FALLBACKS[name];
       expect(chain.length, `${name} has no fallback`).toBeGreaterThan(1);
       expect(chain[0], `${name} does not lead with itself`).toBe(name);
       expect(new Set(chain).size, `${name} repeats a placement`).toBe(chain.length);
@@ -1146,7 +1147,7 @@ describe('WrPopover placement fallbacks', () => {
   it('keeps the requested alignment down the whole chain', () => {
     const alignment = (name: WrPopoverPosition): string => name.split('-')[1] ?? '';
     for (const name of names) {
-      for (const link of WR_POPOVER_FALLBACKS[name]) expect(alignment(link)).toBe(alignment(name));
+      for (const link of WR_ANCHORED_FALLBACKS[name]) expect(alignment(link)).toBe(alignment(name));
     }
   });
 
@@ -1154,7 +1155,7 @@ describe('WrPopover placement fallbacks', () => {
     // At 375px a 233px panel fits on NEITHER side of a mid-page trigger, so a
     // left/right chain that only offers the opposite side still has nowhere to go.
     for (const name of ['left', 'left-start', 'left-end', 'right', 'right-start', 'right-end'] as const) {
-      const chain = WR_POPOVER_FALLBACKS[name];
+      const chain = WR_ANCHORED_FALLBACKS[name];
       expect(
         chain.some(link => link.startsWith('bottom')),
         `${name} cannot fall below`
@@ -1168,7 +1169,7 @@ describe('WrPopover placement fallbacks', () => {
 
   it('never sends a block-axis placement sideways', () => {
     for (const name of ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end'] as const) {
-      expect(WR_POPOVER_FALLBACKS[name].every(link => /^(top|bottom)/.test(link))).toBe(true);
+      expect(WR_ANCHORED_FALLBACKS[name].every(link => /^(top|bottom)/.test(link))).toBe(true);
     }
   });
 
@@ -1190,10 +1191,11 @@ describe('WrPopover placement fallbacks', () => {
 
   it('carries the geometry of the placement each link names', () => {
     for (const name of names) {
-      const resolved = wrPopoverPositions(name, 'wr-popover-overlay');
-      WR_POPOVER_FALLBACKS[name].forEach((link, index) => {
-        expect(resolved[index]).toEqual({ ...WR_POPOVER_POSITIONS[link], panelClass: `wr-popover-overlay--${link}` });
-      });
+      // The shared chain, 8px clear of the trigger: `wrAnchoredPositions`'s own
+      // spec pins that geometry link by link.
+      expect(wrPopoverPositions(name, 'wr-popover-overlay')).toEqual(
+        wrAnchoredPositions(name, { gap: 8, paneClass: 'wr-popover-overlay' })
+      );
     }
   });
 });
@@ -1327,5 +1329,169 @@ describe('WrPopover when the direction flips while it is open', () => {
     // Nothing here is one-way: the mirror is rebuilt from the direction it is
     // handed, not toggled.
     expect([paneDir(), pane().getAttribute('style')?.includes('translateX(-8px)')]).toEqual(['ltr', true]);
+  });
+});
+
+@Component({
+  imports: [WrPopover],
+  template: `
+    <button type="button" class="click-trigger" [wrPopover]="panel" [wrPopoverDisabled]="off()">Details</button>
+    <button type="button" class="hover-trigger" trigger="hover" [wrPopover]="panel" [wrPopoverDisabled]="off()">
+      Hover
+    </button>
+    <button type="button" class="tip-trigger" mode="tooltip" wrPopover="Save changes" [wrPopoverDisabled]="off()">
+      Save
+    </button>
+
+    <ng-template #panel><p>Anything you can render.</p></ng-template>
+  `,
+})
+class DisabledHost {
+  readonly off = signal(true);
+  readonly popovers = viewChildren(WrPopover);
+}
+
+describe('WrPopover while disabled', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DisabledHost>>;
+
+  const trigger = (kind: 'click' | 'hover' | 'tip'): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(`.${kind}-trigger`)!;
+  const popoverPane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popover-overlay');
+  const tooltipPane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-tooltip-overlay');
+
+  const tick = (ms: number): void => {
+    vi.advanceTimersByTime(ms);
+    fixture.detectChanges();
+  };
+
+  const enter = (el: HTMLElement): void => {
+    el.dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+  };
+
+  const press = (key: string, target: EventTarget): KeyboardEvent => {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    target.dispatchEvent(event);
+    fixture.detectChanges();
+    return event;
+  };
+
+  const setOff = (off: boolean): void => {
+    fixture.componentInstance.off.set(off);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    fixture = TestBed.createComponent(DisabledHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.useRealTimers();
+  });
+
+  it('opens nothing on a click, and lets the click through', () => {
+    const seen: Event[] = [];
+    const listen = (event: Event): number => seen.push(event);
+    document.addEventListener('click', listen);
+
+    trigger('click').click();
+    fixture.detectChanges();
+    document.removeEventListener('click', listen);
+
+    expect(popoverPane()).toBeNull();
+    // An enabled trigger stops its click; a disabled one is only a button.
+    expect(seen).toHaveLength(1);
+  });
+
+  it('opens nothing on hover, on Enter or on Space', () => {
+    enter(trigger('hover'));
+    tick(500);
+    expect(popoverPane()).toBeNull();
+
+    const enterKey = press('Enter', trigger('hover'));
+    const space = press(' ', trigger('hover'));
+
+    expect(popoverPane()).toBeNull();
+    // The keys are the button's own again.
+    expect([enterKey.defaultPrevented, space.defaultPrevented]).toEqual([false, false]);
+  });
+
+  it('shows no tooltip on hover or on keyboard focus', () => {
+    enter(trigger('tip'));
+    tick(500);
+    expect(tooltipPane()).toBeNull();
+
+    TestBed.inject(FocusMonitor).focusVia(trigger('tip'), 'keyboard');
+    fixture.detectChanges();
+    tick(500);
+
+    expect(tooltipPane()).toBeNull();
+    expect(trigger('tip').hasAttribute('aria-describedby')).toBe(false);
+  });
+
+  it('ignores open() and toggle() called from code', () => {
+    const [click] = fixture.componentInstance.popovers();
+
+    click.open();
+    fixture.detectChanges();
+    click.toggle();
+    fixture.detectChanges();
+
+    expect([click.isOpen(), popoverPane()]).toEqual([false, null]);
+  });
+
+  it('withdraws the popup ARIA and marks the host, leaving its own disabled state alone', () => {
+    for (const kind of ['click', 'hover'] as const) {
+      expect(trigger(kind).hasAttribute('aria-haspopup')).toBe(false);
+      expect(trigger(kind).hasAttribute('aria-expanded')).toBe(false);
+      expect(trigger(kind).classList.contains('wr-popover-trigger--disabled')).toBe(true);
+      expect(trigger(kind).disabled).toBe(false);
+    }
+
+    setOff(false);
+
+    expect(trigger('click').getAttribute('aria-haspopup')).toBe('dialog');
+    expect(trigger('click').getAttribute('aria-expanded')).toBe('false');
+    expect(trigger('click').classList.contains('wr-popover-trigger--disabled')).toBe(false);
+  });
+
+  it('closes an open popover when it becomes disabled, and opens again once re-enabled', () => {
+    setOff(false);
+    trigger('click').click();
+    fixture.detectChanges();
+    expect(popoverPane()).not.toBeNull();
+
+    setOff(true);
+
+    expect(popoverPane()).toBeNull();
+    expect(trigger('click').hasAttribute('aria-controls')).toBe(false);
+
+    setOff(false);
+    trigger('click').click();
+    fixture.detectChanges();
+
+    expect(popoverPane()).not.toBeNull();
+    expect(trigger('click').getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('closes an open tooltip when it becomes disabled, and drops one still waiting to show', () => {
+    setOff(false);
+    enter(trigger('tip'));
+    tick(120);
+    expect(tooltipPane()).not.toBeNull();
+
+    setOff(true);
+    expect(tooltipPane()).toBeNull();
+
+    setOff(false);
+    enter(trigger('tip'));
+    // Disabled inside the show delay: the timer already armed must not fire.
+    setOff(true);
+    tick(500);
+
+    expect(tooltipPane()).toBeNull();
   });
 });

@@ -135,12 +135,33 @@ function readDecoratorBody(
   throw new Error(`${where}: unbalanced decorator body — brace matching walked off the end of the file`);
 }
 
+interface LexedFile {
+  readonly source: string;
+  readonly lex: ReturnType<typeof lexTs>;
+  readonly starts: ReadonlyMap<number, TsToken>;
+}
+
+const LEXED = new Map<string, LexedFile>();
+
+/**
+ * One file, read and lexed once per process: `check:generated` scans the
+ * library for the selector map and again for the install map's declarables.
+ */
+function lexed(file: string): LexedFile {
+  let entry = LEXED.get(file);
+  if (!entry) {
+    const source = readFileSync(file, 'utf8');
+    const lex = lexTs(source);
+    entry = { source, lex, starts: new Map(lex.tokens.map(token => [token.start, token])) };
+    LEXED.set(file, entry);
+  }
+  return entry;
+}
+
 /** Every declaration `pattern` finds in one file, plus the count of non-code mentions. */
 function declarationsIn(file: string, pattern: RegExp): { declarations: DecoratedClass[]; mentions: number } {
-  const source = readFileSync(file, 'utf8');
+  const { source, lex, starts } = lexed(file);
   const rel = relative(ROOT_PATH, file);
-  const lex = lexTs(source);
-  const starts = new Map(lex.tokens.map(token => [token.start, token]));
   const declarations: DecoratedClass[] = [];
   let mentions = 0;
 

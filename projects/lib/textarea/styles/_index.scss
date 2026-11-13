@@ -1,4 +1,7 @@
 @use '../../theme/styles' as theme;
+
+// Styles for the entry points this component's own markup renders.
+@use '../../spinner/styles' as spinner-styles; // WrSpinner
 @include theme.loaded('textarea');
 
 .wr-textarea {
@@ -19,6 +22,9 @@
   --wr-textarea-font-family: var(--wr-font-family-base);
   --wr-textarea-font-size: var(--wr-text-sm);
   --wr-textarea-line-height: var(--wr-control-line-height-md);
+  --wr-textarea-clear-radius: var(--wr-border-radius-pill);
+  // The box the × and the spinner each take, and the room the text leaves for it.
+  --_action-size: 1.125rem;
 
   background: var(--wr-textarea-bg);
   color: var(--wr-textarea-color);
@@ -73,6 +79,28 @@
     --wr-textarea-line-height: var(--wr-control-line-height-lg);
   }
 
+  // The pill token on a box several lines tall is a stadium whose curve runs
+  // through the first and last lines of text, and it grows with `autosize`. So
+  // the radius stops at half the height of a one-row field: one row is a pill
+  // like the inputs beside it, and more rows keep that corner. After the sizes,
+  // so it wins at each of them.
+  &--rounded,
+  &:where([rounded]:not([rounded='false'])) {
+    --wr-textarea-radius: min(
+      var(--wr-border-radius-pill),
+      calc(var(--wr-textarea-line-height) / 2 + var(--wr-textarea-padding-y) * var(--wr-density-y, 1) + 1px)
+    );
+    --wr-textarea-padding-x: var(--wr-control-padding-x-lg);
+    corner-shape: round; // override squircle from smooth-br for pills
+  }
+
+  // 0.3 of the radius is where a square's corner meets the arc.
+  &--rounded &__resize,
+  &:where([rounded]:not([rounded='false'])) &__resize {
+    inset-inline-end: calc(var(--wr-textarea-radius) * 0.3);
+    bottom: calc(var(--wr-textarea-radius) * 0.3);
+  }
+
   &--no-resize &__native {
     resize: none;
   }
@@ -105,6 +133,58 @@
 
   // Corner resize grip — icon (move-vertical / -horizontal / -diagonal-2) and
   // cursor follow the `resize` direction.
+  // The text stops short of the × and the spinner, whether or not they are on
+  // show, so it does not rewrap as they come and go.
+  &--clearable &__native,
+  &--loading &__native {
+    padding-inline-end: calc(
+      var(--wr-textarea-padding-x) * var(--wr-density-x, 1) + var(--_action-size) + var(--wr-space-xs)
+    );
+  }
+
+  &--clearable#{&}--loading &__native {
+    padding-inline-end: calc(
+      var(--wr-textarea-padding-x) * var(--wr-density-x, 1) + (var(--_action-size) + var(--wr-space-xs)) * 2
+    );
+  }
+
+  // The clear (×) and the spinner, in the corner the first line ends at.
+  &__actions {
+    position: absolute;
+    top: calc(var(--wr-textarea-padding-y) * var(--wr-density-y, 1));
+    inset-inline-end: calc(var(--wr-textarea-padding-x) * var(--wr-density-x, 1));
+    display: inline-flex;
+    align-items: center;
+    gap: var(--wr-space-xs);
+    // One line of the field's own text tall, so both centre on the first line.
+    height: var(--wr-textarea-line-height);
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-textarea-font-size);
+  }
+
+  // The select's ×.
+  &__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--_action-size);
+    height: var(--_action-size);
+    border-radius: var(--wr-textarea-clear-radius);
+    cursor: pointer;
+    transition:
+      background 0.12s ease,
+      color 0.12s ease;
+
+    &:hover {
+      background: color-mix(in srgb, var(--wr-color-on-surface) 6%, transparent);
+      color: var(--wr-color-on-surface);
+    }
+  }
+
+  &__spinner {
+    flex: 0 0 auto;
+  }
+
   &__resize {
     position: absolute;
     // Logical now, and the drag maths moved with it: `onResize` reads

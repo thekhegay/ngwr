@@ -157,6 +157,25 @@
   }
 }
 
+// The pill. The group and the fields carry their own `--rounded` class; the host
+// rule is here because the size rules above set the group's radius from the host
+// and would otherwise outrank the group's own modifier at `sm` and `lg`.
+.wr-date-picker--rounded,
+.wr-date-picker:where([rounded]:not([rounded='false'])),
+.wr-date-range-picker--rounded,
+.wr-date-range-picker:where([rounded]:not([rounded='false'])) {
+  > .wr-input-group {
+    --wr-input-group-radius: var(--wr-border-radius-pill);
+    --wr-input-group-padding-x: var(--wr-control-padding-x-lg);
+  }
+
+  // Flush to the pill's end, so its focus ring follows the curve, less the border.
+  .wr-date-picker__trigger {
+    border-start-end-radius: calc(var(--wr-input-group-radius) - 1px);
+    border-end-end-radius: calc(var(--wr-input-group-radius) - 1px);
+  }
+}
+
 .wr-date-range-picker {
   display: inline-block;
 

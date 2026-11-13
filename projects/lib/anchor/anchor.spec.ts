@@ -62,14 +62,27 @@ describe('WrAnchor', () => {
       .filter(a => a.classList.contains('wr-anchor__link--active'))
       .map(a => a.getAttribute('href')!.slice(1));
 
-  /** Give each id a top edge, then let the spy read them. */
-  const placeTargets = (tops: Record<string, number>): void => {
+  /** The spy measures once per frame, so the frames are run by hand. */
+  let frames: FrameRequestCallback[] = [];
+  const runFrame = (): void => {
+    const due = frames;
+    frames = [];
+    for (const callback of due) callback(0);
+    fixture.detectChanges();
+  };
+
+  const setTops = (tops: Record<string, number>): void => {
     for (const [id, top] of Object.entries(tops)) {
       const el = document.getElementById(id)!;
       el.getBoundingClientRect = (): DOMRect => ({ top, bottom: top + 20, height: 20 }) as DOMRect;
     }
+  };
+
+  /** Give each id a top edge, then let the spy read them. */
+  const placeTargets = (tops: Record<string, number>): void => {
+    setTops(tops);
     window.dispatchEvent(new Event('scroll'));
-    fixture.detectChanges();
+    runFrame();
   };
 
   const mount = async (providers: unknown[] = []): Promise<void> => {
@@ -84,11 +97,19 @@ describe('WrAnchor', () => {
     fixture.detectChanges();
   };
 
-  beforeEach(async () => mount());
+  beforeEach(async () => {
+    frames = [];
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback): number => frames.push(callback));
+    vi.stubGlobal('cancelAnimationFrame', (): void => {
+      frames = [];
+    });
+    await mount();
+  });
 
   afterEach(() => {
     fixture.destroy();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('is a named navigation landmark', () => {
@@ -219,6 +240,34 @@ describe('WrAnchor', () => {
     } finally {
       scrollTo(0);
     }
+  });
+
+  it('measures the headings once per frame, however many scroll events the frame held', () => {
+    setTops({ intro: -400, usage: -100, basic: -20, advanced: 300 });
+    const lookups = vi.spyOn(document, 'getElementById');
+
+    for (let i = 0; i < 20; i++) window.dispatchEvent(new Event('scroll'));
+    expect(lookups).not.toHaveBeenCalled();
+
+    runFrame();
+    // One pass: the three headings above the line and the one that ends it.
+    expect(lookups.mock.calls.map(([id]) => id)).toEqual(['intro', 'usage', 'basic', 'advanced']);
+    expect(activeIds()).toEqual(['basic']);
+
+    // The next frame measures again.
+    setTops({ intro: -40, usage: 200, basic: 400, advanced: 600 });
+    window.dispatchEvent(new Event('scroll'));
+    runFrame();
+    expect(activeIds()).toEqual(['intro']);
+  });
+
+  it('drops a measurement still waiting for its frame when it goes away', () => {
+    const lookups = vi.spyOn(document, 'getElementById');
+    window.dispatchEvent(new Event('scroll'));
+    fixture.destroy();
+
+    expect(frames).toEqual([]);
+    expect(lookups).not.toHaveBeenCalled();
   });
 
   it('drops its listener when it goes away', () => {

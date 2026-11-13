@@ -31,40 +31,43 @@ export const QUALITY = {
   lastReleaseByMajor: { 4: "4.3.0", 5: "5.0.3", 6: "6.1.1", 7: "7.3.0", 8: "8.0.0", 9: "9.1.0", 10: "10.2.1", 11: "11.2.0", 12: "12.2.0", 13: "13.0.1", 14: "14.12.1", 15: "15.9.0", 16: "16.2.0" },
 
   /** Secondary entry points — `ngwr/button`, `ngwr/select`, … Read from the `exports` map, which is what the library builder compiles, so `styles/` and `schematics/` are correctly absent. Excludes the primary `ngwr`. */
-  entryPoints: 234,
+  entryPoints: 242,
 
   /** Entry points that are CDK test harnesses, published at `ngwr/<name>/testing`. Included in `entryPoints`. */
-  testingEntryPoints: 67,
+  testingEntryPoints: 75,
 
   /** Distinct harness CLASSES those entry points publish, which is one fewer than the number of exported names: a date-picker's popup IS a calendar, so one class ships under two. A scan that stops at the barrel reports the higher number. */
-  harnessClasses: 98,
+  harnessClasses: 113,
 
   /** `@Component` classes a `public-api.ts` exports. Excludes the ones the library instantiates for itself (the toast host, the window container), which no consumer can write. */
   components: 145,
 
   /** `@Directive` classes a `public-api.ts` exports, counted the same way. */
-  directives: 54,
+  directives: 56,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 359,
+  specFiles: 426,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 7528,
+  testCases: 8218,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page prints the count as "N+" (`formatCount(n, { floor: true })`) rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
 
   /** Entry points owning a spec file or more. Compare against `entryPoints`: the claim is coverage of the catalog, not of every branch in it. */
-  entryPointsWithSpecs: 214,
+  entryPointsWithSpecs: 222,
 
   /** Documentation pages the showcase's route tables declare — routes with a `loadComponent`, minus the layout shell (it has `children`) and the `**` 404, neither of which is a page. NOT the prerendered-route count either: `app.routes.server.ts` sends the raw-SVG icon galleries and the legacy redirects to the client. */
-  docRoutes: 245,
+  docRoutes: 248,
 
   /** Locale catalogs the package ships, as the subpath each is imported from — `ngwr/i18n/de`. Counted from the folders under `projects/lib/i18n` that hold a catalog, so a locale added or removed moves this on its own. Region codes appear only where the script genuinely differs; every other code is a language, which a region `LOCALE_ID` falls back to. */
   locales: ["ar", "cs", "de", "en", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "sv", "tr", "uk", "vi", "zh", "zh-TW"],
 
   /** Runtime dependencies of the published package, from `projects/lib/package.json`. Peer dependencies are the consumer's Angular; this is what npm installs on top of it. */
   runtimeDependencies: [],
+
+  /** What this release line needs: the `@angular/core` and `@angular/cdk` peers from `projects/lib/package.json` and the Node lines from the root `engines`. The installation page's compatibility table opens with it. */
+  requires: { angular: "^22.2", cdk: "^22.2", node: "22.22+, 24.15+, 26" },
 
   /** The `&&` chain inside `pnpm lint`. Worth listing separately because the first stage prints "All files pass linting." even when a later one fails, so the chain is the gate, not `ng lint`. */
   lintStages: [
@@ -73,14 +76,12 @@ export const QUALITY = {
     { name: "lint:styles", command: "stylelint \"projects/**/*.scss\"" },
     { name: "check:rtl", command: "tsx scripts/check/rtl.ts" },
     { name: "check:tokens", command: "tsx scripts/check/tokens.ts" },
-    { name: "check:selectors", command: "tsx scripts/gen/selectors.ts --check" },
-    { name: "check:attrs", command: "tsx scripts/check/unknown-attrs.ts" },
-    { name: "check:install", command: "tsx scripts/gen/install.ts --check" },
+    { name: "check:generated", command: "tsx scripts/check/generated.ts" },
   ],
 
   /** Every `package.json` script `.github/workflows/ci.yml` runs on a pull request, in order. Parsed from the workflow, so a gate added or removed there moves this list. */
   prGates: [
-    { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:rtl && pnpm check:tokens && pnpm check:selectors && pnpm check:attrs && pnpm check:install" },
+    { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:rtl && pnpm check:tokens && pnpm check:generated" },
     { name: "test:coverage", command: "ng test lib --coverage --coverage-reporters lcovonly text-summary" },
     { name: "check:api-docs", command: "tsx scripts/gen/api-docs.ts --check" },
     { name: "check:css-vars", command: "tsx scripts/gen/css-vars.ts --check" },

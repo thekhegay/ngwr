@@ -6,11 +6,14 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
+  DestroyRef,
   ElementRef,
   Injector,
   LOCALE_ID,
+  PLATFORM_ID,
   ViewEncapsulation,
   afterNextRender,
   computed,
@@ -25,11 +28,29 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { WrButton } from 'ngwr/button';
 import { useFormFieldAria } from 'ngwr/form';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { WrProgress } from 'ngwr/progress';
 import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
-import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './types';
+import type {
+  WrFileUploadRejection,
+  WrFileUploadRejectionReason,
+  WrFileUploadSize,
+  WrFileUploadState,
+  WrFileUploadStatusMap,
+} from './types';
+
+/** One list row: the file, what `[status]` says about it and its thumbnail. */
+interface FileRow {
+  readonly file: File;
+  readonly classes: string;
+  readonly state: WrFileUploadState | null;
+  readonly percent: number | null;
+  readonly message: string | null;
+  readonly preview: string | null;
+}
 
 /** Does `file` match the `accept` attribute (extensions or MIME globs)? */
 function matchesAccept(file: File, accept: string): boolean {
@@ -67,6 +88,13 @@ function matchesAccept(file: File, accept: string): boolean {
  * <wr-file-upload [(value)]="avatar" accept=".png,.jpg" [maxSize]="2 * 1024 * 1024" />
  * ```
  *
+ * The component does no HTTP. The app uploads, and tells the list where each
+ * file stands through `[status]`, a `Map` keyed by the `File` objects in `value`:
+ *
+ * ```html
+ * <wr-file-upload [(value)]="files" multiple [status]="statuses()" (retry)="upload($event)" />
+ * ```
+ *
  * @see https://ngwr.dev/reference/components/file-upload
  */
 @Component({
@@ -74,7 +102,7 @@ function matchesAccept(file: File, accept: string): boolean {
   templateUrl: './file-upload.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-file-upload', '[class]': 'classes()' },
-  imports: [],
+  imports: [WrButton, WrProgress],
 })
 export class WrFileUpload implements FormValueControl<File | readonly File[] | null> {
   /** Allow multiple files. Single mode replaces on each add. @default false */
@@ -82,6 +110,13 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
 
   /** `accept` attribute — comma-separated MIME types or extensions. @default '' */
   readonly accept = input<string>('');
+
+  /**
+   * Control size: the drop zone's padding, icon and text, and the list rows.
+   *
+   * @default 'md'
+   */
+  readonly size = input<WrFileUploadSize>('md');
 
   /** Max bytes per file. `0` disables the check. @default 0 */
   readonly maxSize = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
@@ -114,6 +149,37 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
    * @default false
    */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Where the app's upload of each file stands, keyed by the `File` objects in
+   * `value`. A row with an entry draws its state: a progress bar while
+   * `uploading` (indeterminate without a `percent`), a mark when `done`, the
+   * `message` and a retry button on `error`. A file with no entry is a plain row.
+   *
+   * Pass a new `Map` on each change: an input sees a new reference, not a `set()`
+   * on the one it already holds. `null` (the default) renders nothing extra.
+   *
+   * @default null
+   */
+  readonly status = input<WrFileUploadStatusMap | null>(null);
+
+  /**
+   * Show a thumbnail beside each image file. The thumbnail is an object URL,
+   * revoked when its file leaves the list or the component is destroyed. Browser
+   * only: nothing is created on the server.
+   *
+   * @default false
+   */
+  readonly previews = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Take files pasted with Ctrl/Cmd+V while the drop zone has focus. They go
+   * through the same `accept`, `maxSize` and `maxFiles` rules as a drop. A paste
+   * that carries no file is left alone.
+   *
+   * @default false
+   */
+  readonly acceptPaste = input(false, { transform: coerceBooleanProperty });
 
   /** The surrounding `<wr-form-field>`'s error state. @internal */
   protected readonly fieldAria = useFormFieldAria();
@@ -158,9 +224,29 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   /** Remove-file button aria-label. Falls back to `fileUpload.removeFile`. */
   readonly removeFileLabel = input<string | null>(null);
 
+  /** Retry button text on a failed row. Falls back to `fileUpload.retry`. */
+  readonly retryLabel = input<string | null>(null);
+
+  /** Name of the `uploading` state: the progress bar's name and the announcement. Falls back to `fileUpload.uploading`. */
+  readonly uploadingLabel = input<string | null>(null);
+
+  /** Name of the `done` state: the mark's name and the announcement. Falls back to `fileUpload.uploaded`. */
+  readonly uploadedLabel = input<string | null>(null);
+
+  /** Text of a failed row whose status carries no `message`. Falls back to `fileUpload.failed`. */
+  readonly failedLabel = input<string | null>(null);
+
   protected readonly resolvedPick = useI18nText(this.pickLabel, 'fileUpload.browse', 'Click to browse');
   protected readonly resolvedDrop = useI18nText(this.dropLabel, 'fileUpload.dropZone', 'or drop files here');
   protected readonly resolvedRemove = useI18nText(this.removeFileLabel, 'fileUpload.removeFile', 'Remove file');
+
+  protected readonly resolvedRetry = useI18nText(this.retryLabel, 'fileUpload.retry', 'Try again');
+  protected readonly resolvedUploading = useI18nText(this.uploadingLabel, 'fileUpload.uploading', 'Uploading');
+  protected readonly resolvedUploaded = useI18nText(this.uploadedLabel, 'fileUpload.uploaded', 'Uploaded');
+  protected readonly resolvedFailed = useI18nText(this.failedLabel, 'fileUpload.failed', 'Upload failed');
+
+  /** `{{name}}: {{status}}`: a state said about one file. */
+  protected readonly statusText = useI18nFormatter('fileUpload.status', '{{name}}: {{status}}');
 
   /** Optional helper text shown below the labels (e.g. accepted formats). */
   readonly helperText = input<string>('');
@@ -173,6 +259,9 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
 
   /** Emitted when files are rejected for type / size / count reasons. */
   readonly rejected = output<readonly WrFileUploadRejection[]>();
+
+  /** Emitted with the file when the retry button of a failed row is pressed. */
+  readonly retry = output<File>();
 
   /** Emitted on commit so a bound field can mark itself touched. */
   readonly touch = output<void>();
@@ -194,9 +283,45 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
+  private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
+
+  /** id prefix of the file names, which describe each row's retry button. @internal */
+  protected readonly nameId = wrRandomId('wr-file-upload-name');
+
+  /** The object URL of each previewed image file. */
+  private readonly previewUrls = signal<ReadonlyMap<File, string>>(new Map());
+
+  protected readonly rows = computed<readonly FileRow[]>(() => {
+    const status = this.status();
+    const urls = this.previewUrls();
+    return this.files().map(file => {
+      const entry = status?.get(file);
+      const percent = entry?.state === 'uploading' ? entry.percent : null;
+      const state = entry?.state ?? null;
+      return {
+        file,
+        classes: state ? `wr-file-upload__item wr-file-upload__item--${state}` : 'wr-file-upload__item',
+        state,
+        percent: typeof percent === 'number' && Number.isFinite(percent) ? percent : null,
+        message: entry?.state === 'error' && entry.message ? entry.message : null,
+        preview: urls.get(file) ?? null,
+      };
+    });
+  });
+
+  /** `aria-busy` on the list: at least one file is uploading. */
+  protected readonly busy = computed(() => this.rows().some(row => row.state === 'uploading'));
+
+  /** What the one live region says: the states that changed in the last `[status]` write. */
+  protected readonly announcement = signal('');
+
+  /** The state each file had at the last `[status]` write, to tell a change from a percent tick. */
+  private lastStates: ReadonlyMap<File, WrFileUploadState> | null = null;
 
   protected readonly classes = computed(() => {
     const parts: string[] = [];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-file-upload--${size}`);
     if (this.dragging()) parts.push('wr-file-upload--dragging');
     if (this.disabled()) parts.push('wr-file-upload--disabled');
     else if (this.readonly()) parts.push('wr-file-upload--readonly');
@@ -274,6 +399,17 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
         this.files.set(next);
       });
     });
+
+    effect(() => {
+      const rows = this.status() === null ? null : this.rows();
+      untracked(() => this.announce(rows));
+    });
+
+    effect(() => {
+      const images = this.previews() && this.browser ? this.files().filter(file => file.type.startsWith('image/')) : [];
+      untracked(() => this.syncPreviews(images));
+    });
+    inject(DestroyRef).onDestroy(() => this.syncPreviews([]));
   }
 
   /**
@@ -336,6 +472,31 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     if (dropped.length > 0) this.acceptFiles(dropped);
   }
 
+  protected onPaste(event: ClipboardEvent): void {
+    if (!this.acceptPaste() || this.disabled() || this.readonly()) return;
+    const pasted = event.clipboardData?.files ? Array.from(event.clipboardData.files) : [];
+    if (pasted.length === 0) return;
+    event.preventDefault();
+    this.acceptFiles(pasted);
+  }
+
+  protected onRetry(file: File, index: number): void {
+    if (this.disabled()) return;
+    const button = this.host.nativeElement.ownerDocument.activeElement;
+    const hadFocus = !!button?.matches('.wr-file-upload__retry') && this.host.nativeElement.contains(button);
+    this.retry.emit(file);
+    if (!hadFocus) return;
+    // A handler that moves the file out of `error` takes the button away, and
+    // focus with it. The row's remove button is what is left to hold it.
+    afterNextRender(
+      () => {
+        if (button?.isConnected) return;
+        this.host.nativeElement.querySelectorAll<HTMLElement>('.wr-file-upload__remove')[index]?.focus();
+      },
+      { injector: this.injector }
+    );
+  }
+
   protected removeAt(index: number): void {
     if (this.disabled() || this.readonly()) return;
     // Read before the row goes: the button that holds focus is about to leave the
@@ -376,12 +537,12 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
 
     let next: File[];
     if (this.multiple()) {
-      next = [...this.files(), ...accepted];
+      const listed = this.files();
       const maxFiles = this.maxFiles();
-      if (maxFiles > 0 && next.length > maxFiles) {
-        const overflow = next.splice(maxFiles);
-        for (const file of overflow) rejections.push({ file, reason: 'count' });
-      }
+      // The cap rejects incoming files only: a list already over it keeps what it holds.
+      const room = maxFiles > 0 ? Math.max(0, maxFiles - listed.length) : accepted.length;
+      for (const file of accepted.slice(room)) rejections.push({ file, reason: 'count' });
+      next = [...listed, ...accepted.slice(0, room)];
     } else {
       // Single mode — last accepted wins, prior selection cleared.
       next = accepted.length > 0 ? [accepted[accepted.length - 1]] : [...this.files()];
@@ -391,6 +552,48 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     this.touch.emit();
     this.emit();
     if (rejections.length > 0) this.rejected.emit(rejections);
+  }
+
+  /**
+   * Say each state a file has just entered, in one string. `pending` is the
+   * resting state and a percent tick is not a change, so neither is said, and
+   * the states present when `[status]` is first bound are a starting point
+   * rather than news.
+   */
+  private announce(rows: readonly FileRow[] | null): void {
+    if (rows === null) {
+      this.lastStates = null;
+      return;
+    }
+    const next = new Map<File, WrFileUploadState>();
+    const changed: string[] = [];
+    for (const row of rows) {
+      if (row.state === null) continue;
+      next.set(row.file, row.state);
+      if (this.lastStates === null || row.state === 'pending' || this.lastStates.get(row.file) === row.state) continue;
+      const status =
+        row.state === 'uploading'
+          ? this.resolvedUploading()
+          : row.state === 'done'
+            ? this.resolvedUploaded()
+            : (row.message ?? this.resolvedFailed());
+      changed.push(this.statusText({ name: row.file.name, status }));
+    }
+    this.lastStates = next;
+    if (changed.length > 0) {
+      this.announcement.set(new Intl.ListFormat(this.locale, { style: 'short', type: 'unit' }).format(changed));
+    }
+  }
+
+  /** Hold one object URL per file in `images`, and revoke the ones that left. */
+  private syncPreviews(images: readonly File[]): void {
+    const current = this.previewUrls();
+    if (current.size === images.length && images.every(file => current.has(file))) return;
+    if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') return;
+    const next = new Map<File, string>();
+    for (const file of images) next.set(file, current.get(file) ?? URL.createObjectURL(file));
+    for (const [file, url] of current) if (!next.has(file)) URL.revokeObjectURL(url);
+    this.previewUrls.set(next);
   }
 
   private reject(file: File, accept: string, maxSize: number): WrFileUploadRejectionReason | null {

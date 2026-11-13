@@ -196,6 +196,46 @@ describe('WrColorPickerTrigger template reference', () => {
 
     fixture.destroy();
   });
+
+  it('reports the open state through a read-only isOpen()', () => {
+    TestBed.resetTestingModule();
+
+    const fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+    const control = fixture.componentInstance.trigger();
+    const button = (fixture.nativeElement as HTMLElement).querySelector('button')!;
+    const dispatch = (target: EventTarget, event: Event): void => {
+      target.dispatchEvent(event);
+      fixture.detectChanges();
+    };
+    const click = (target: EventTarget): void =>
+      dispatch(target, new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+
+    expect(control.isOpen()).toBe(false);
+
+    control.open();
+    fixture.detectChanges();
+    expect(control.isOpen()).toBe(true);
+    control.close();
+    fixture.detectChanges();
+    expect(control.isOpen()).toBe(false);
+
+    click(button);
+    expect(control.isOpen()).toBe(true);
+    dispatch(document.body, new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    expect(control.isOpen()).toBe(false);
+
+    control.open();
+    fixture.detectChanges();
+    click(document.body);
+    expect(control.isOpen()).toBe(false);
+
+    // @ts-expect-error -- `isOpen` is a read-only signal: `open()` and `close()` change it
+    const write: unknown = control.isOpen.set;
+    expect(write).toBeUndefined();
+
+    fixture.destroy();
+  });
 });
 
 /**

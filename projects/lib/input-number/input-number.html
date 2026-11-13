@@ -1,4 +1,10 @@
-<wr-input-group [rounded]="rounded()">
+<wr-input-group
+  [rounded]="rounded()"
+  [clearable]="clearable()"
+  [clearLabel]="clearLabel()"
+  [loading]="loading()"
+  (cleared)="touch.emit()"
+>
   @if (prefix(); as p) {
     <span wrInputPrefix>{{ p }}</span>
   }

@@ -1,9 +1,10 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
 import { WR_CHART_MARKERS, wrChartMarkerPath } from 'ngwr/charts/core';
 import { describe, expect, it } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass, LIB } from '../spec-sass';
 
 /**
  * What the charts' stylesheets promise that no rendered DOM in jsdom can show — no
@@ -12,19 +13,10 @@ import { describe, expect, it } from 'vitest';
  *
  * `sass` is resolved through `@angular/build`, as `theme/sass-entry.spec.ts` does.
  */
-interface Sass {
-  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-}
-
-const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-
-const LIB = join(process.cwd(), 'projects/lib');
 const CHARTS = join(LIB, 'charts');
 
 const compile = (chart: string): string =>
-  sass
-    .compileString(`@use 'charts/${chart}/styles';`, { loadPaths: [LIB], style: 'expanded' })
-    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  compileSass(`@use 'charts/${chart}/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
 
 /** The declarations of the rule whose selector is exactly `.${cls}`, outside any at-rule. */
 function rule(css: string, cls: string): string {
@@ -62,7 +54,7 @@ const marks = drawn.flatMap(({ name }) => {
  * chart's own hooks instead is out of this scan's reach, and is pinned in that chart's
  * own spec.
  */
-describe('chart marks under forced colors', () => {
+describe('chart marks under forced colors', { timeout: COMPILE_TIMEOUT }, () => {
   it('reads the template of every folder that draws', () => {
     expect(folders.filter(entry => !drawn.includes(entry)).map(({ name }) => name)).toEqual(TEMPLATELESS);
   });
@@ -86,7 +78,7 @@ describe('chart marks under forced colors', () => {
   });
 });
 
-describe('chart geometry', () => {
+describe('chart geometry', { timeout: COMPILE_TIMEOUT }, () => {
   it("lays the meter's gaps over the slices rather than beside them", () => {
     // A margin between slices was added ON TOP of widths that are already shares of the
     // bar: a 50/100 meter of five slices filled 55% of it, and a zero slice still added
@@ -140,7 +132,7 @@ describe('chart geometry', () => {
  * 2000px down a 300px scroller grew the page by 1600px of blank scroll before its host
  * was positioned. Read off the templates, so a chart that gains the table is held to it.
  */
-describe('charts with a data table', () => {
+describe('charts with a data table', { timeout: COMPILE_TIMEOUT }, () => {
   const tabled = drawn
     .map(({ name }) => name)
     .filter(name => readFileSync(join(CHARTS, name, `${name}.html`), 'utf8').includes('<wr-chart-table'));
@@ -163,7 +155,7 @@ describe('charts with a data table', () => {
  * since jsdom renders the chip's markup whether its sheet loads or not. Read off the
  * sources, so a chart that gains a tooltip is held to it.
  */
-describe('charts with a tooltip', () => {
+describe('charts with a tooltip', { timeout: COMPILE_TIMEOUT }, () => {
   const tipped = drawn
     .map(({ name }) => name)
     .filter(name => readFileSync(join(CHARTS, name, `${name}.ts`), 'utf8').includes('useChartTooltip('));

@@ -49,6 +49,9 @@ export const wrPt: WrI18nCatalog = {
     noMatches: 'Sem correspondências',
     search: 'Pesquisar',
     reset: 'Repor',
+    columns: 'Colunas',
+    selected: '{{count}} selecionadas',
+    clearSelection: 'Limpar seleção',
   },
   eventCalendar: {
     today: 'Hoje',
@@ -109,6 +112,7 @@ export const wrPt: WrI18nCatalog = {
     loadError: 'Não foi possível carregar os resultados',
     retry: 'Tentar novamente',
     more: '+{{count}} mais',
+    selectAll: 'Selecionar tudo',
   },
   tree: {
     expand: 'Expandir',
@@ -117,6 +121,9 @@ export const wrPt: WrI18nCatalog = {
     clearSelection: 'Limpar seleção',
     removeItem: 'Remover {{label}}',
     more: '+{{count}} mais',
+    moveKeyHelp:
+      'Prima Alt+Enter para agarrar este item e depois use as teclas de setas para o mover. ' +
+      'Prima Enter para o largar ou Escape para o voltar a colocar.',
   },
   commandPalette: {
     label: 'Paleta de comandos',
@@ -140,6 +147,11 @@ export const wrPt: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Enviando',
+    uploaded: 'Enviado',
+    failed: 'Falha no envio',
+    status: '{{name}}: {{status}}',
+    retry: 'Tentar novamente',
   },
   popconfirm: {
     label: 'Confirmar ação',
@@ -196,6 +208,8 @@ export const wrPt: WrI18nCatalog = {
     nextYear: 'Ano seguinte',
     monthList: 'Meses',
     yearList: 'Anos',
+    quarterList: 'Trimestres',
+    quarter: 'T{{quarter}}',
     prevYears: '12 anos anteriores',
     nextYears: '12 anos seguintes',
     header: '{{month}} de {{year}}',
@@ -345,6 +359,9 @@ export const wrPt: WrI18nCatalog = {
   alert: {
     close: 'Fechar alerta',
   },
+  tag: {
+    remove: 'Remover {{label}}',
+  },
   qr: {
     label: 'Código QR',
   },
@@ -444,6 +461,8 @@ export const wrPt: WrI18nCatalog = {
     panelDateTime: 'Escolher data e hora',
     panelRange: 'Escolher intervalo de datas',
     panelRangeDateTime: 'Escolher intervalo de datas e horas',
+    quarterValue: 'T{{quarter}} {{year}}',
+    weekValue: 'Semana {{week}}, {{year}}',
     rangeStart: 'Início do intervalo',
     rangeEnd: 'Fim do intervalo',
     startTime: 'Hora de início',

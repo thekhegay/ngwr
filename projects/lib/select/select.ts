@@ -76,6 +76,45 @@ import type {
 
 let listboxUid = 0;
 
+/**
+ * `activeIndex` while the keyboard cursor is on the select-all row, which is no
+ * option: every reader that asks for an option bounds its index at zero, so to
+ * them it is "no option", as `-1` is.
+ */
+const SELECT_ALL_INDEX = -2;
+
+function searchLabelOf(option: WrSelectOptionRegistration): string {
+  return option.searchLabel ? option.searchLabel() : option.label().toLowerCase();
+}
+
+/** Orders two registrations as their hosts sit in the document; 0 when it cannot tell. */
+function byDocumentPosition(a: WrSelectOptionRegistration, b: WrSelectOptionRegistration): number {
+  if (!a.host || !b.host || a.host === b.host) return 0;
+  const relation = a.host.compareDocumentPosition(b.host);
+  // `compareDocumentPosition` returns a BITMASK — a node can be both
+  // following and contained — so masking is the API's own idiom, not a
+  // cleverness to be rewritten as a comparison.
+  /* eslint-disable no-bitwise -- reading the flags of a DOM bitmask */
+  // DISCONNECTED is checked FIRST, and it is not defensive noise. Projected
+  // `<wr-option>` hosts live in an `<ng-template>` that only instantiates
+  // when the panel opens, so on the first change detection they are not in
+  // the document yet — and the template's own `aria-activedescendant`
+  // binding reads this order on exactly that pass. For disconnected nodes
+  // the spec lets a UA answer PRECEDING or FOLLOWING arbitrarily, as long as
+  // it answers consistently; the answer means nothing, and the order is
+  // KEPT until the registry changes or the panel attaches, so one
+  // meaningless comparison would decide the cursor order until then. Chromium
+  // happens to answer in tree order and jsdom happens to answer in reverse,
+  // which is the whole difference between a working component and one where
+  // End lands on the first option. Registration order is the honest fallback:
+  // the sort is stable, and it is already DOM order for a static list.
+  if (relation & Node.DOCUMENT_POSITION_DISCONNECTED) return 0;
+  if (relation & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
+  if (relation & Node.DOCUMENT_POSITION_PRECEDING) return 1;
+  /* eslint-enable no-bitwise */
+  return 0;
+}
+
 interface SelectedChip {
   readonly value: unknown;
   readonly label: string;
@@ -599,6 +638,27 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   });
 
   /**
+   * Multi mode: a first, pinned "Select all" row in the panel. It toggles every
+   * enabled option the panel is offering, so under a search only the ones the
+   * query matches, and with `virtualScroll` the whole filtered list rather than
+   * the rendered rows. It adds in display order and stops at `maxItems`; a
+   * second press, with nothing left to add, takes the offered options out again.
+   * A selection the search is hiding is never touched.
+   *
+   * The row is a `role="option"`, since a listbox owns nothing else, and says
+   * its state through `aria-checked`: `true` when every offered option is
+   * selected, `mixed` when some are, `false` when none. The arrows and Home
+   * reach it like any row and Enter or Space toggles it. Not drawn in single
+   * mode, in tag mode, or while the panel offers no option. @default false
+   */
+  readonly selectAll = input(false, { transform: coerceBooleanProperty });
+
+  /** Text of the select-all row. Falls back to `select.selectAll`, then `'Select all'`. */
+  readonly selectAllLabel = input<string | null>(null);
+
+  protected readonly resolvedSelectAll = useI18nText(this.selectAllLabel, 'select.selectAll', 'Select all');
+
+  /**
    * Maximum number of chips rendered before collapsing the rest into a
    * `+N more` indicator. `0` = render every chip. @default 0
    */
@@ -625,49 +685,69 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   /** Listbox id used by the trigger's `aria-controls`. */
   protected readonly listboxId = `wr-select-listbox-${++listboxUid}`;
 
-  /** Registered options (insertion order). Internal — distinct from the public `[options]` input. */
-  private readonly registry = signal<readonly WrSelectOptionRegistration[]>([]);
+  /**
+   * Registered options by id, in creation order. Internal, distinct from the
+   * public `[options]` input. A plain map and not a signal of arrays: every
+   * option registers as the panel opens and unregisters as it closes, and a
+   * copy of the list per option is quadratic. Readers track `registryVersion`.
+   */
+  private readonly registrations = new Map<string, WrSelectOptionRegistration>();
+  private readonly registryVersion = signal(0);
+
+  /** The first registration carrying each value, as `find` over creation order answered. */
+  private readonly registryByValue = computed<ReadonlyMap<unknown, WrSelectOptionRegistration>>(() => {
+    this.registryVersion();
+    const byValue = new Map<unknown, WrSelectOptionRegistration>();
+    for (const reg of this.registrations.values()) {
+      if (!byValue.has(reg.value)) byValue.set(reg.value, reg);
+    }
+    return byValue;
+  });
+
+  /**
+   * The registry sorted by document position. Kept between reads and appended
+   * to while each new option follows the last one, as every `[options]` row of
+   * an opening panel does: each option's `active` binding reads the order
+   * between two registrations, so a sort per read is a sort per option.
+   */
+  private ordered: WrSelectOptionRegistration[] = [];
+  private orderStale = false;
+  /** `ordered` is also creation order, so an option no sort can place goes last in both. */
+  private orderIsCreation = true;
 
   /**
    * The registry in DOM order — the list the keyboard cursor walks.
    *
-   * `registry` is CREATION order, and projected `<wr-option>` children are created
+   * The registry is CREATION order, and projected `<wr-option>` children are created
    * before the panel renders its own `[options]` rows, so with both in play the
    * cursor moved in an order the eye could not follow: opening highlighted the
-   * third row on screen and ArrowDown went to the last. Value lookups keep reading
-   * `registry` — they do not care about order — and a registration with no element
-   * keeps its place, since the sort is stable.
+   * third row on screen and ArrowDown went to the last. Value lookups do not
+   * care about order, and a registration with no element keeps its place, since
+   * the sort is stable.
+   *
+   * It hands out the one `ordered` array, so it never compares equal.
    */
-  private readonly orderedRegistry = computed<readonly WrSelectOptionRegistration[]>(() => {
-    const list = this.registry();
-    if (list.length < 2) return list;
-    return [...list].sort((a, b) => {
-      if (!a.host || !b.host || a.host === b.host) return 0;
-      const relation = a.host.compareDocumentPosition(b.host);
-      // `compareDocumentPosition` returns a BITMASK — a node can be both
-      // following and contained — so masking is the API's own idiom, not a
-      // cleverness to be rewritten as a comparison.
-      /* eslint-disable no-bitwise -- reading the flags of a DOM bitmask */
-      // DISCONNECTED is checked FIRST, and it is not defensive noise. Projected
-      // `<wr-option>` hosts live in an `<ng-template>` that only instantiates
-      // when the panel opens, so on the first change detection they are not in
-      // the document yet — and the template's own `aria-activedescendant`
-      // binding reads this computed on exactly that pass. For disconnected nodes
-      // the spec lets a UA answer PRECEDING or FOLLOWING arbitrarily, as long as
-      // it answers consistently; the answer means nothing, and the computed
-      // CACHES it until the registry itself changes, so one meaningless
-      // comparison decides the cursor order for the life of the select. Chromium
-      // happens to answer in tree order and jsdom happens to answer in reverse,
-      // which is the whole difference between a working component and one where
-      // End lands on the first option. Registration order is the honest fallback:
-      // the sort is stable, and it is already DOM order for a static list.
-      if (relation & Node.DOCUMENT_POSITION_DISCONNECTED) return 0;
-      if (relation & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
-      if (relation & Node.DOCUMENT_POSITION_PRECEDING) return 1;
-      /* eslint-enable no-bitwise */
-      return 0;
-    });
-  });
+  private readonly orderedRegistry = computed<readonly WrSelectOptionRegistration[]>(
+    () => {
+      this.panelAttached();
+      this.registryVersion();
+      if (this.orderStale) {
+        const list = [...this.registrations.values()];
+        this.ordered = list.length < 2 ? list : [...list].sort(byDocumentPosition);
+        this.orderIsCreation = this.ordered.every((reg, i) => reg === list[i]);
+        this.orderStale = false;
+      }
+      return this.ordered;
+    },
+    { equal: () => false }
+  );
+
+  /**
+   * Bumped once the panel is attached. Only then are projected option hosts in
+   * the document, so only then can `orderedRegistry` sort what was added or
+   * moved while the panel was closed.
+   */
+  private readonly panelAttached = signal(0);
 
   /** Keyboard cursor index into `options`. -1 = none. */
   protected readonly activeIndex = signal(-1);
@@ -677,6 +757,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     // The error row is the one thing on offer after a failed load, so the field
     // names it as active: a screen reader reads it, and Enter runs the retry.
     if (this.retryOffered() && !this.freeText()) return this.retryRowId;
+    if (this.selectAllActive()) return this.selectAllId;
     const idx = this.activeIndex();
     if (this.virtualActive()) {
       // Virtual rows aren't registered; the active id is derived from the index,
@@ -689,10 +770,13 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     return idx >= 0 && idx < list.length ? list[idx].id : null;
   });
 
-  protected readonly isOpen = signal(false);
+  private readonly openState = signal(false);
+
+  /** Whether the panel is open. Read-only: `open()` and `close()` change it. */
+  readonly isOpen = this.openState.asReadonly();
 
   /** WrSelectContext — whether the panel is open. Options gate their leading visual on it. */
-  readonly panelOpen = this.isOpen.asReadonly();
+  readonly panelOpen = this.isOpen;
 
   /**
    * A `<ng-template wrOptionLeading>` declared as a DIRECT child of the select —
@@ -717,7 +801,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    * registered option — a virtual row, or one a loader has since dropped.
    */
   private leadingFor(value: unknown): TemplateRef<WrOptionLeadingContext> | null {
-    const found = this.registry().find(o => o.value === value);
+    const found = this.registryByValue().get(value);
     if (found?.leading) return found.leading();
     return this.optionLeading();
   }
@@ -769,7 +853,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    * Trigger label for single mode. Multi reads `selectedChips` instead.
    *
    * A `computed`, and that is the whole point. It used to be a `signal` written
-   * from an effect keyed on `value` / `registry` / `isMulti` / `displayWith` —
+   * from an effect keyed on `value` / the registry / `isMulti` / `displayWith` —
    * not one of which moves when the OPTION'S OWN TEXT does, and that text is
    * projected content whose ordinary way of changing is a translation catalog
    * landing a microtask after the first pass. The trigger kept the English
@@ -780,7 +864,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   protected readonly selectedLabel = computed<string | null>(() => {
     const v = this.value();
     if (this.isMulti()) return null;
-    const match = this.registry().find(o => o.value === v);
+    const match = this.registryByValue().get(v);
     if (match) return match.label();
     if (v == null) return null;
     // A value picked from a virtualized (or since-unmounted) row has no
@@ -788,7 +872,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     // same function that rendered the row. Outside search mode only an item of
     // `[options]` qualifies: the rows live in the panel and register when it
     // opens, while a value no option carries keeps showing the placeholder.
-    if (this.isSearchable() || this.dynamicOptions().includes(v as T)) return this.displayWith()(v as T);
+    if (this.isSearchable() || this.dynamicOptionSet().has(v as T)) return this.displayWith()(v as T);
     return null;
   });
 
@@ -804,9 +888,9 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       // Tag values are free text with no option behind them, so no leading.
       return arr.map<SelectedChip>(v => ({ value: v, label: String(v), leading: null }));
     }
-    const list = this.registry();
+    const byValue = this.registryByValue();
     return arr.map<SelectedChip>(v => {
-      const found = list.find(o => o.value === v);
+      const found = byValue.get(v);
       // Fall back to `displayWith` (defaults to `String`) rather than `String`
       // directly: a searchable multi fed from `[options]` has no registered
       // `<wr-option>` for a virtualized or unmounted row, and object items
@@ -866,6 +950,14 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     this.loader() ? this.loadedOptions() : this.options()
   );
 
+  private readonly dynamicOptionSet = computed<ReadonlySet<T>>(() => new Set(this.dynamicOptions()));
+
+  /** Lowercased labels of `dynamicOptions()`, by index: a query reads them, and never `displayWith`. */
+  private readonly dynamicSearchLabels = computed<readonly string[]>(() => {
+    const label = this.displayWith();
+    return this.dynamicOptions().map(it => label(it).toLowerCase());
+  });
+
   // --- Virtual scroll (data-array path) --------------------------------------
 
   private static readonly FALLBACK_ROW_PX = 34;
@@ -895,8 +987,8 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     if (!this.clientFilter()) return items;
     const q = this.searchQuery().trim().toLowerCase();
     if (!q) return items;
-    const label = this.displayWith();
-    return items.filter(it => label(it).toLowerCase().includes(q));
+    const labels = this.dynamicSearchLabels();
+    return items.filter((_, i) => labels[i].includes(q));
   });
 
   /**
@@ -1036,8 +1128,11 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     const panelRect = panel.getBoundingClientRect();
     const rowRect = row.getBoundingClientRect();
     const cur = panel.scrollTop;
-    const top = rowRect.top - panelRect.top + cur;
-    const vp = panel.clientHeight;
+    // The select-all row is pinned over the top of the list, so a row scrolled
+    // flush to the top would sit under it.
+    const pinned = panel.querySelector('.wr-select-panel__select-all')?.getBoundingClientRect().height ?? 0;
+    const top = rowRect.top - panelRect.top + cur - pinned;
+    const vp = panel.clientHeight - pinned;
 
     let next = cur;
     if (top < cur) next = top;
@@ -1051,13 +1146,14 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    */
   protected readonly visibleCount = computed(() => {
     if (this.virtualActive()) return this.filteredDynamicOptions().length;
-    const list = this.registry();
-    if (!this.isSearchable() || !this.clientFilter()) return list.length;
+    this.registryVersion();
+    const list = this.registrations;
+    if (!this.isSearchable() || !this.clientFilter()) return list.size;
     const q = this.searchQuery().trim().toLowerCase();
-    if (!q) return list.length;
+    if (!q) return list.size;
     let count = 0;
-    for (const o of list) {
-      if (o.label().toLowerCase().includes(q)) count++;
+    for (const o of list.values()) {
+      if (searchLabelOf(o).includes(q)) count++;
     }
     return count;
   });
@@ -1112,12 +1208,83 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   /** Id of the error row, which `aria-activedescendant` names while it offers a retry. */
   protected readonly retryRowId = `${this.listboxId}-retry`;
 
+  /** Id of the select-all row, which `aria-activedescendant` names while the cursor is on it. */
+  protected readonly selectAllId = `${this.listboxId}-all`;
+
+  /**
+   * What the select-all row acts on: the value of every enabled option the panel
+   * is offering, in display order. The virtual path reads the filtered data, not
+   * the rendered window; the full-render path reads the registry, where a
+   * filtered-out option stays registered and has to be dropped by hand.
+   */
+  private readonly selectAllTargets = computed<readonly unknown[]>(() => {
+    if (!this.selectAll() || !this.isMulti()) return [];
+    if (this.virtualActive()) return this.filteredDynamicOptions();
+    return this.orderedRegistry()
+      .filter(option => !option.disabled && !this.isOptionHidden(option))
+      .map(option => option.value);
+  });
+
+  /** Whether the panel draws the select-all row: asked for, multi, and with something to select. */
+  protected readonly showSelectAll = computed(() => this.selectAllTargets().length > 0);
+
+  /** How many of the offered options are selected: every one, some, or none. */
+  protected readonly selectAllState = computed<'all' | 'some' | 'none'>(() => {
+    const targets = this.selectAllTargets();
+    const selected = this.selectedSet();
+    let count = 0;
+    for (const value of targets) if (selected.has(value)) count++;
+    if (count === 0) return 'none';
+    return count === targets.length ? 'all' : 'some';
+  });
+
+  /** The row's `aria-checked`. */
+  protected readonly selectAllChecked = computed(() => {
+    const state = this.selectAllState();
+    return state === 'all' ? 'true' : state === 'some' ? 'mixed' : 'false';
+  });
+
+  /**
+   * `maxItems` is full of options the panel is not offering, so the row can
+   * neither add one nor take one out.
+   */
+  protected readonly selectAllUnavailable = computed(() => this.selectAllState() === 'none' && this.atCapacity());
+
+  /** Whether the keyboard cursor is on the select-all row. */
+  protected readonly selectAllActive = computed(() => this.showSelectAll() && this.activeIndex() === SELECT_ALL_INDEX);
+
+  /**
+   * The select-all row. While an offered option can still be added it adds them,
+   * in display order, up to `maxItems`; with nothing left to add it removes the
+   * offered ones. Values the search is hiding stay as they are either way.
+   */
+  protected toggleSelectAll(): void {
+    if (this.isReadonly() || this.isDisabled() || !this.showSelectAll()) return;
+    const targets = this.selectAllTargets();
+    const current = this.asArray(this.value());
+    const selected = this.selectedSet();
+    const missing = targets.filter(value => !selected.has(value));
+    const cap = this.maxItems();
+    const room = cap > 0 ? Math.max(0, cap - current.length) : missing.length;
+
+    let next: readonly unknown[];
+    if (missing.length > 0 && room > 0) {
+      next = [...current, ...missing.slice(0, room)];
+    } else {
+      const offered = new Set(targets);
+      next = current.filter(value => !offered.has(value));
+      if (next.length === current.length) return;
+    }
+    this.value.set(next as readonly T[]);
+    this.touch.emit();
+  }
+
   /** Search mode: is this option hidden by the current query? @internal */
-  private isOptionHidden(label: string): boolean {
+  private isOptionHidden(option: WrSelectOptionRegistration): boolean {
     if (!this.isSearchable() || !this.clientFilter()) return false;
     const q = this.searchQuery().trim().toLowerCase();
     if (!q) return false;
-    return !label.toLowerCase().includes(q);
+    return !searchLabelOf(option).includes(q);
   }
 
   protected readonly panelTpl = viewChild.required('panelTpl', { read: TemplateRef });
@@ -1218,9 +1385,12 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery.set(value);
     if (this.meetsMinChars()) {
-      if (!this.isOpen()) this.isOpen.set(true);
+      if (!this.isOpen()) {
+        this.reseedOnAttach = 'first';
+        this.openState.set(true);
+      }
     } else if (this.isOpen()) {
-      this.isOpen.set(false);
+      this.openState.set(false);
     }
     // A new filter invalidates every index, so re-seed the cursor onto the first
     // option that still matches. This must happen on BOTH paths: on the
@@ -1255,7 +1425,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     if (!this.meetsMinChars()) return;
     if (!this.isOpen()) {
       this.seedActiveIndex();
-      this.isOpen.set(true);
+      this.openState.set(true);
     }
   }
 
@@ -1271,13 +1441,23 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
 
   /** A pointer is down inside the panel: until it lifts, a blur of the field is not a leave. */
   private pressInPanel = false;
+  private pressEnd: AbortController | null = null;
 
   protected onPanelPointerDown(event: PointerEvent): void {
+    this.endPanelPress();
     this.pressInPanel = true;
-    (event.view ?? window).addEventListener('pointerup', () => (this.pressInPanel = false), {
-      once: true,
-      capture: true,
-    });
+    const pressEnd = (this.pressEnd = new AbortController());
+    const target = event.view ?? window;
+    const options = { capture: true, signal: pressEnd.signal };
+    target.addEventListener('pointerup', () => this.endPanelPress(), options);
+    // A touch that becomes a scroll ends with `pointercancel` and never lifts.
+    target.addEventListener('pointercancel', () => this.endPanelPress(), options);
+  }
+
+  private endPanelPress(): void {
+    this.pressInPanel = false;
+    this.pressEnd?.abort();
+    this.pressEnd = null;
   }
 
   /** `freeText`: a non-empty trimmed query becomes the value. */
@@ -1286,7 +1466,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     if (!q) return;
     // The query is the value here, so `T` is a string in a tag select.
     this.value.set(q as T);
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   protected onSearchKey(event: KeyboardEvent): void {
@@ -1309,7 +1489,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       const list = this.orderedRegistry();
       const hasActive = this.virtualActive()
         ? idx >= 0 && idx < this.filteredDynamicOptions().length
-        : idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].label());
+        : idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx]);
       if (!hasActive && q) {
         event.preventDefault();
         this.commitQuery();
@@ -1427,12 +1607,15 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('select');
     // A component destroyed while the panel is open takes its overlay with it.
     // Without this the pane stays in the CDK container forever.
-    this.destroyRef.onDestroy(() => this.closeOverlay(false));
+    this.destroyRef.onDestroy(() => {
+      this.endPanelPress();
+      this.closeOverlay(false);
+    });
 
     // Close the panel if the control goes read-only or disabled while it is up —
     // a panel whose every row now refuses the click is a trap, not a view.
     effect(() => {
-      if (this.isDisabled() || this.isReadonly()) this.isOpen.set(false);
+      if (this.isDisabled() || this.isReadonly()) this.openState.set(false);
     });
 
     effect(() => {
@@ -1639,7 +1822,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     // will not do it while the field is focused, which is right for a panel
     // that closed under `minChars` and wrong for one that closed on a pick.
     this.searchQuery.set('');
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   /**
@@ -1649,8 +1832,35 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    * is not exported from `ngwr/select`. @internal
    */
   registerOption(reg: WrSelectOptionRegistration): () => void {
-    this.registry.update(list => [...list, reg]);
-    return () => this.registry.update(list => list.filter(o => o.id !== reg.id));
+    this.registrations.set(reg.id, reg);
+    if (!this.orderStale) {
+      const last = this.ordered.at(-1);
+      const order = last ? byDocumentPosition(last, reg) : -1;
+      if (order < 0 || (order === 0 && this.orderIsCreation)) this.ordered.push(reg);
+      else this.orderStale = true;
+    }
+    this.registryVersion.update(n => n + 1);
+    return () => {
+      this.registrations.delete(reg.id);
+      this.orderStale = true;
+      this.registryVersion.update(n => n + 1);
+    };
+  }
+
+  /**
+   * Replaces a registered option in its slot, so a change of value or disabled
+   * does not move it in the keyboard order. @internal
+   */
+  updateOption(reg: WrSelectOptionRegistration): void {
+    const previous = this.registrations.get(reg.id);
+    if (!previous) return;
+    this.registrations.set(reg.id, reg);
+    if (!this.orderStale) {
+      const slot = this.ordered.indexOf(previous);
+      if (slot < 0) this.orderStale = true;
+      else this.ordered[slot] = reg;
+    }
+    this.registryVersion.update(n => n + 1);
   }
 
   // Chip handlers (multi + tag)
@@ -1787,12 +1997,12 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   open(): void {
     if (this.isDisabled() || this.isReadonly() || this.isTag() || this.isOpen() || !this.meetsMinChars()) return;
     this.seedActiveIndex();
-    this.isOpen.set(true);
+    this.openState.set(true);
   }
 
   /** Close the panel. */
   close(): void {
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   // Template handlers
@@ -1802,7 +2012,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     // Tag mode has no panel — clicks should land on the inline input,
     // not toggle an overlay that's never created.
     if (this.isTag()) return;
-    this.isOpen.update(v => !v);
+    this.openState.update(v => !v);
   }
 
   protected onTriggerKey(event: KeyboardEvent): void {
@@ -1812,7 +2022,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
         this.seedActiveIndex();
-        this.isOpen.set(true);
+        this.openState.set(true);
         return;
       }
       // Multi mode: Backspace on closed trigger removes last chip. Tag
@@ -1846,7 +2056,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
         // Closing does NOT commit the active option. The cursor is SEEDED on open, so
         // tabbing straight through would select a row the user never looked at — and
         // in multi / search / freeText modes there is no single "the option" to take.
-        this.isOpen.set(false);
+        this.openState.set(false);
         break;
       case 'ArrowDown':
         event.preventDefault();
@@ -1858,7 +2068,8 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
         break;
       case 'Home':
         event.preventDefault();
-        this.activeIndex.set(this.firstEnabled());
+        // The select-all row is the first row of the panel.
+        this.activeIndex.set(this.showSelectAll() ? SELECT_ALL_INDEX : this.firstEnabled());
         this.ensureVisible(this.activeIndex());
         break;
       case 'End':
@@ -1869,6 +2080,10 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       case 'Enter':
       case ' ': {
         event.preventDefault();
+        if (this.selectAllActive()) {
+          this.toggleSelectAll();
+          break;
+        }
         const idx = this.activeIndex();
         if (this.virtualActive()) {
           // Virtual rows aren't in the DOM to click — select the value directly.
@@ -1880,7 +2095,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
         // Filtered-out options stay registered (they only self-hide via CSS), so
         // the hidden check is load-bearing: without it Enter can commit a row
         // that is not on screen.
-        if (idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].label())) {
+        if (idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx])) {
           const id = list[idx].id;
           const el = this.overlayRef?.overlayElement.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
           el?.click();
@@ -1894,13 +2109,15 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
 
   /**
    * A seed was taken before the panel attached. The panel's own `[options]` rows
-   * register as the portal attaches, so a seed over a registry without them is
-   * redone then; a click-open seeds nothing and stays cursor-less.
+   * register as the portal attaches, and projected ones can only be put in DOM
+   * order then, so a seed is redone over the list as rendered: `selected` as
+   * `seedActiveIndex` takes it, `first` as a query does. A click-open seeds
+   * nothing and stays cursor-less.
    */
-  private reseedOnAttach = false;
+  private reseedOnAttach: 'selected' | 'first' | null = null;
 
   private seedActiveIndex(): void {
-    this.reseedOnAttach = true;
+    this.reseedOnAttach = 'selected';
     if (this.virtualActive()) {
       const list = this.filteredDynamicOptions();
       const idx = list.findIndex(it => this.isSelected(it));
@@ -1920,6 +2137,25 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   }
 
   private moveActive(delta: number): void {
+    // The select-all row sits between the last option and the first: the arrows
+    // wrap through it, so it is one more stop on the same loop.
+    if (this.showSelectAll()) {
+      const current = this.activeIndex();
+      if (current === SELECT_ALL_INDEX) {
+        const landing = delta > 0 ? this.firstEnabled() : this.lastEnabled();
+        if (landing >= 0) {
+          this.activeIndex.set(landing);
+          this.ensureVisible(landing);
+        }
+        return;
+      }
+      const edge = delta > 0 ? this.lastEnabled() : this.firstEnabled();
+      if (current === edge || (current < 0 && delta > 0)) {
+        this.activeIndex.set(SELECT_ALL_INDEX);
+        return;
+      }
+    }
+
     // Virtual rows are never disabled or hidden (the list is already filtered),
     // so navigation is a plain wrap plus a scroll-into-view.
     if (this.virtualActive()) {
@@ -1937,7 +2173,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     while (attempts-- > 0) {
       i = (i + delta + list.length) % list.length;
       const o = list[i];
-      if (!o.disabled && !this.isOptionHidden(o.label())) {
+      if (!o.disabled && !this.isOptionHidden(o)) {
         this.activeIndex.set(i);
         this.ensureVisible(i);
         return;
@@ -1947,7 +2183,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
 
   /**
    * Both scan `orderedRegistry`, and that is not interchangeable with
-   * `registry`.
+   * creation order.
    *
    * They RETURN an index, and every reader of `activeIndex` — `activeOptionId`,
    * `moveActive`, `seedActiveIndex`, the Enter branch of `onTriggerKey` —
@@ -1960,7 +2196,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
    */
   private firstEnabled(): number {
     if (this.virtualActive()) return this.filteredDynamicOptions().length > 0 ? 0 : -1;
-    return this.orderedRegistry().findIndex(o => !o.disabled && !this.isOptionHidden(o.label()));
+    return this.orderedRegistry().findIndex(o => !o.disabled && !this.isOptionHidden(o));
   }
 
   private lastEnabled(): number {
@@ -1968,7 +2204,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     const list = this.orderedRegistry();
     let found = -1;
     list.forEach((o, i) => {
-      if (!o.disabled && !this.isOptionHidden(o.label())) found = i;
+      if (!o.disabled && !this.isOptionHidden(o)) found = i;
     });
     return found;
   }
@@ -2010,12 +2246,14 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
-    const registered = this.registry().length;
     this.overlayRef.attach(portal);
-    if (this.reseedOnAttach && !this.virtualActive() && this.registry().length !== registered) {
-      this.seedActiveIndex();
+    this.orderStale = true;
+    this.panelAttached.update(n => n + 1);
+    if (!this.virtualActive()) {
+      if (this.reseedOnAttach === 'selected') this.seedActiveIndex();
+      else if (this.reseedOnAttach === 'first') this.activeIndex.set(this.firstEnabled());
     }
-    this.reseedOnAttach = false;
+    this.reseedOnAttach = null;
 
     // Seed the projected panel's scroll onto the cursor the same way the virtual
     // one is seeded from its own effect: opening a select whose selected option
@@ -2045,7 +2283,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;
-        this.isOpen.set(false);
+        this.openState.set(false);
       });
 
     this.overlayRef
@@ -2054,7 +2292,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
-          this.isOpen.set(false);
+          this.openState.set(false);
         }
       });
 

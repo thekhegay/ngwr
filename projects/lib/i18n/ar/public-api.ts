@@ -49,6 +49,9 @@ export const wrAr: WrI18nCatalog = {
     noMatches: 'لا توجد نتائج مطابقة',
     search: 'بحث',
     reset: 'إعادة تعيين',
+    columns: 'الأعمدة',
+    selected: 'تم تحديد {{count}}',
+    clearSelection: 'مسح التحديد',
   },
   eventCalendar: {
     today: 'اليوم',
@@ -113,6 +116,7 @@ export const wrAr: WrI18nCatalog = {
     loadError: 'تعذّر تحميل النتائج',
     retry: 'إعادة المحاولة',
     more: '+{{count}} أخرى',
+    selectAll: 'تحديد الكل',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -123,6 +127,9 @@ export const wrAr: WrI18nCatalog = {
     clearSelection: 'مسح التحديد',
     removeItem: 'إزالة {{label}}',
     more: '+{{count}} أخرى',
+    moveKeyHelp:
+      'اضغط Alt+Enter لالتقاط هذا العنصر، ثم استخدم مفاتيح الأسهم لتحريكه. ' +
+      'اضغط Enter لإفلاته، أو Escape لإعادته إلى مكانه.',
   },
   commandPalette: {
     label: 'لوحة الأوامر',
@@ -146,6 +153,11 @@ export const wrAr: WrI18nCatalog = {
     unitMb: 'ميجابايت',
     unitGb: 'جيجابايت',
     unitTb: 'تيرابايت',
+    uploading: 'جارٍ الرفع',
+    uploaded: 'تم الرفع',
+    failed: 'فشل الرفع',
+    status: '{{name}}: {{status}}',
+    retry: 'إعادة المحاولة',
   },
   popconfirm: {
     label: 'تأكيد الإجراء',
@@ -205,6 +217,8 @@ export const wrAr: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'الأشهر',
     yearList: 'السنوات',
+    quarterList: 'الأرباع',
+    quarter: 'الربع {{quarter}}',
     prevYears: '12 سنة سابقة',
     nextYears: '12 سنة تالية',
     header: '{{month}} {{year}}',
@@ -353,6 +367,9 @@ export const wrAr: WrI18nCatalog = {
   alert: {
     close: 'إغلاق التنبيه',
   },
+  tag: {
+    remove: 'إزالة {{label}}',
+  },
   qr: {
     label: 'رمز QR',
   },
@@ -463,6 +480,8 @@ export const wrAr: WrI18nCatalog = {
     panelDateTime: 'اختيار التاريخ والوقت',
     panelRange: 'اختيار الفترة',
     panelRangeDateTime: 'اختيار الفترة بالتاريخ والوقت',
+    quarterValue: 'الربع {{quarter}} {{year}}',
+    weekValue: 'الأسبوع {{week}}، {{year}}',
     rangeStart: 'بداية الفترة',
     rangeEnd: 'نهاية الفترة',
     startTime: 'وقت البدء',

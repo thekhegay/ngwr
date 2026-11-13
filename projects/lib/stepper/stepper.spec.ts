@@ -282,8 +282,8 @@ describe('WrStepper', () => {
 /**
  * The badge sits INSIDE the header button's label span, so the word is part of
  * the step's accessible name — the hard-coded literal was announced to every
- * locale, not merely shown. There is no `*Label` input on purpose: one word
- * shared by every step is a catalog entry, not a per-step binding.
+ * locale, not merely shown. The `optionalLabel` input over it is in
+ * `labels.spec.ts`.
  */
 describe('WrStepper optional badge', () => {
   afterEach(() => TestBed.resetTestingModule());
@@ -315,7 +315,7 @@ describe('WrStepper optional badge', () => {
   });
 });
 
-/** The same shape as the optional badge: one catalog word, no `*Label` input. */
+/** The same shape as the optional badge: one catalog word. */
 describe('WrStepper completed state', () => {
   afterEach(() => TestBed.resetTestingModule());
 

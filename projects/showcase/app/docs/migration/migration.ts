@@ -135,6 +135,25 @@ export default class MigrationPageComponent {
     },
   ];
 
+  /** Date output a 16.x minor moved. No codemod: nothing in the source changes. */
+  protected readonly v16Dates: readonly Change[] = [
+    {
+      before: '16.1',
+      after:
+        'Dates print in the interface language of `provideWrI18n()`, and follow `WrI18n.use()`. Without it they keep `LOCALE_ID`. `withDates({ locale })` pins one.',
+    },
+    {
+      before: '16.2',
+      after:
+        "A bare `y` in a pattern prints the full year, as `DatePipe` does. Quote a literal one: `'y'`. New `zonelessIn: 'display'` reads a date-time string with no offset in the display zone; the default `'browser'` reads it as before.",
+    },
+    {
+      before: '16.3',
+      after:
+        'A time the clocks skip lands after the change in every zone: 02:30 on 29 March 2026 in `Europe/Berlin` is 03:30.',
+    },
+  ];
+
   /** What `migration-v15` does, before the tables say it per row. */
   protected readonly v15Codemod: readonly Change[] = [
     {

@@ -61,6 +61,20 @@ export class WrTableCellHarness extends ContentContainerComponentHarness {
     return (await this.host()).getAttribute('data-label');
   }
 
+  /**
+   * Whether the cell opens an editor: its column has a `[wrTableEditCell]`
+   * template and neither `editable: false` nor the `editable` predicate
+   * refused it.
+   */
+  async isEditable(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-table__td--editable');
+  }
+
+  /** Whether the cell shows its editor right now. */
+  async isEditing(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-table__td--editing');
+  }
+
   /** Which edge the cell's column is frozen against, or `null` when it scrolls. */
   async getPin(): Promise<'left' | 'right' | null> {
     const host = await this.host();

@@ -57,6 +57,9 @@ export const wrUk: WrI18nCatalog = {
     noMatches: 'Нічого не знайдено',
     search: 'Пошук',
     reset: 'Скинути',
+    columns: 'Стовпці',
+    selected: 'Вибрано: {{count}}',
+    clearSelection: 'Скасувати вибір',
   },
   eventCalendar: {
     today: 'Сьогодні',
@@ -117,6 +120,7 @@ export const wrUk: WrI18nCatalog = {
     loadError: 'Не вдалося завантажити результати',
     retry: 'Повторити',
     more: 'ще {{count}}',
+    selectAll: 'Вибрати всі',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -127,6 +131,9 @@ export const wrUk: WrI18nCatalog = {
     clearSelection: 'Очистити вибір',
     removeItem: 'Вилучити {{label}}',
     more: 'ще {{count}}',
+    moveKeyHelp:
+      'Натисніть Alt+Enter, щоб узяти елемент, потім переміщуйте його стрілками. ' +
+      'Enter — відпустити, Escape — повернути на місце.',
   },
   commandPalette: {
     label: 'Палітра команд',
@@ -150,6 +157,11 @@ export const wrUk: WrI18nCatalog = {
     unitMb: 'МБ',
     unitGb: 'ГБ',
     unitTb: 'ТБ',
+    uploading: 'Завантажується',
+    uploaded: 'Завантажено',
+    failed: 'Не вдалося завантажити',
+    status: '{{name}}: {{status}}',
+    retry: 'Повторити',
   },
   popconfirm: {
     label: 'Підтвердження дії',
@@ -209,6 +221,8 @@ export const wrUk: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Місяці',
     yearList: 'Роки',
+    quarterList: 'Квартали',
+    quarter: '{{quarter}} кв.',
     prevYears: 'Попередні 12 років',
     nextYears: 'Наступні 12 років',
     header: '{{month}} {{year}}',
@@ -356,6 +370,9 @@ export const wrUk: WrI18nCatalog = {
   alert: {
     close: 'Закрити оповіщення',
   },
+  tag: {
+    remove: 'Вилучити {{label}}',
+  },
   qr: {
     label: 'QR-код',
   },
@@ -461,6 +478,8 @@ export const wrUk: WrI18nCatalog = {
     panelDateTime: 'Вибір дати й часу',
     panelRange: 'Вибір періоду',
     panelRangeDateTime: 'Вибір періоду й часу',
+    quarterValue: '{{quarter}} кв. {{year}}',
+    weekValue: 'Тиждень {{week}}, {{year}}',
     rangeStart: 'Початок періоду',
     rangeEnd: 'Кінець періоду',
     startTime: 'Час початку',

@@ -49,6 +49,9 @@ export const wrDe: WrI18nCatalog = {
     noMatches: 'Keine Treffer',
     search: 'Suchen',
     reset: 'Zurücksetzen',
+    columns: 'Spalten',
+    selected: '{{count}} ausgewählt',
+    clearSelection: 'Auswahl aufheben',
   },
   eventCalendar: {
     today: 'Heute',
@@ -111,6 +114,7 @@ export const wrDe: WrI18nCatalog = {
     loadError: 'Ergebnisse konnten nicht geladen werden',
     retry: 'Erneut versuchen',
     more: '+{{count}} weitere',
+    selectAll: 'Alle auswählen',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -121,6 +125,9 @@ export const wrDe: WrI18nCatalog = {
     clearSelection: 'Auswahl aufheben',
     removeItem: '{{label}} entfernen',
     more: '+{{count}} weitere',
+    moveKeyHelp:
+      'Drücken Sie Alt+Eingabe, um dieses Element aufzunehmen, und verschieben Sie es dann mit den Pfeiltasten. ' +
+      'Drücken Sie die Eingabetaste, um es abzulegen, oder Escape, um es an seinen Platz zurückzulegen.',
   },
   commandPalette: {
     label: 'Befehlspalette',
@@ -144,6 +151,11 @@ export const wrDe: WrI18nCatalog = {
     unitMb: 'MB',
     unitGb: 'GB',
     unitTb: 'TB',
+    uploading: 'Wird hochgeladen',
+    uploaded: 'Hochgeladen',
+    failed: 'Hochladen fehlgeschlagen',
+    status: '{{name}}: {{status}}',
+    retry: 'Erneut versuchen',
   },
   popconfirm: {
     label: 'Aktion bestätigen',
@@ -203,6 +215,8 @@ export const wrDe: WrI18nCatalog = {
     // all. Caught by `check:state-a11y` once a state finally opened the view.
     monthList: 'Monate',
     yearList: 'Jahre',
+    quarterList: 'Quartale',
+    quarter: '{{quarter}}. Quartal',
     prevYears: 'Vorherige 12 Jahre',
     nextYears: 'Nächste 12 Jahre',
     header: '{{month}} {{year}}',
@@ -352,6 +366,9 @@ export const wrDe: WrI18nCatalog = {
   alert: {
     close: 'Hinweis schließen',
   },
+  tag: {
+    remove: '{{label}} entfernen',
+  },
   qr: {
     label: 'QR-Code',
   },
@@ -458,6 +475,8 @@ export const wrDe: WrI18nCatalog = {
     panelDateTime: 'Datum und Uhrzeit wählen',
     panelRange: 'Zeitraum wählen',
     panelRangeDateTime: 'Zeitraum mit Uhrzeit wählen',
+    quarterValue: '{{quarter}}. Quartal {{year}}',
+    weekValue: 'KW {{week}}, {{year}}',
     rangeStart: 'Beginn des Zeitraums',
     rangeEnd: 'Ende des Zeitraums',
     startTime: 'Startzeit',

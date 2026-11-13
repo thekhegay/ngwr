@@ -145,11 +145,7 @@ describe('WrTabsHarness', () => {
   it('does not call a disabled tab a tab stop, even when it is the selected one', async () => {
     const tabs = await loader.getHarness(WrTabsHarness);
 
-    // `<wr-tabs>` hands the roving `tabindex="0"` to whatever `active` names without
-    // checking `disabled`, so a host can render a selected, disabled, `tabindex="0"`
-    // tab. A Tab press still skips it — a disabled button is unreachable — so the
-    // strip has no stop at all. jsdom will happily focus that button, which is why
-    // the assertion is about the stop rather than about where focus ended up.
+    // The stop falls to the first enabled tab while the selected one is disabled.
     fixture.componentInstance.active.set('three');
     await fixture.whenStable();
 
@@ -157,8 +153,9 @@ describe('WrTabsHarness', () => {
     expect(await tabs.getSelectedLabel()).toBe('Three');
     expect(await three.isDisabled()).toBe(true);
     expect(await three.isTabStop()).toBe(false);
-    expect(await tabs.getTabStopLabels()).toEqual([]);
-    await expect(tabs.focusTabStop()).rejects.toThrow(/no tab stop/);
+    expect(await tabs.getTabStopLabels()).toEqual(['One']);
+    await tabs.focusTabStop();
+    expect(await tabs.getFocusedLabel()).toBe('One');
   });
 
   it('lists its tabs in order', async () => {
