@@ -72,7 +72,7 @@ const back = wrToHex(rgb!, true);         // '#3969e2ff'`,
 </button>
 
 <!-- Anywhere else in the same template -->
-<wr-btn (click)="swatch.open()">Pick a colour</wr-btn>
+<wr-btn [disabled]="swatch.isOpen()" (click)="swatch.open()">Pick a colour</wr-btn>
 <span [style.color]="swatch.value()">{{ swatch.value() }}</span>`,
   };
 

@@ -141,7 +141,10 @@ export class WrColorPickerTrigger {
    */
   private readonly dir = inject(Directionality, { optional: true });
 
-  protected readonly isOpen = signal(false);
+  private readonly openState = signal(false);
+
+  /** Whether the picker panel is open. Read-only: `open()` and `close()` change it. */
+  readonly isOpen = this.openState.asReadonly();
   private overlayRef: OverlayRef | null = null;
 
   /** @internal Public so the host binding can read it. */
@@ -247,7 +250,7 @@ export class WrColorPickerTrigger {
         }
       });
 
-    this.isOpen.set(true);
+    this.openState.set(true);
     this.opened.emit();
   }
 
@@ -260,7 +263,7 @@ export class WrColorPickerTrigger {
     // already clicked elsewhere, taking it back would be stealing.
     const returnFocus = !!this.overlayRef?.overlayElement.contains(document.activeElement);
     this.dispose();
-    this.isOpen.set(false);
+    this.openState.set(false);
     this.closed.emit();
     if (returnFocus) wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
   }

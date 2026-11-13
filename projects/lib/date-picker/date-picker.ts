@@ -228,6 +228,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Whether the popover is currently open. */
   protected readonly overlayOpen = signal(false);
 
+  /** Whether the popup is open. Read-only: `open()` and `close()` change it. */
+  readonly isOpen = this.overlayOpen.asReadonly();
+
   /**
    * Where focus came from, captured as an explicit argument at open time —
    * never read off `document.activeElement`, which by then may already be the

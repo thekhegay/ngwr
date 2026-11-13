@@ -741,10 +741,13 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     return idx >= 0 && idx < list.length ? list[idx].id : null;
   });
 
-  protected readonly isOpen = signal(false);
+  private readonly openState = signal(false);
+
+  /** Whether the panel is open. Read-only: `open()` and `close()` change it. */
+  readonly isOpen = this.openState.asReadonly();
 
   /** WrSelectContext — whether the panel is open. Options gate their leading visual on it. */
-  readonly panelOpen = this.isOpen.asReadonly();
+  readonly panelOpen = this.isOpen;
 
   /**
    * A `<ng-template wrOptionLeading>` declared as a DIRECT child of the select —
@@ -1281,10 +1284,10 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     if (this.meetsMinChars()) {
       if (!this.isOpen()) {
         this.reseedOnAttach = 'first';
-        this.isOpen.set(true);
+        this.openState.set(true);
       }
     } else if (this.isOpen()) {
-      this.isOpen.set(false);
+      this.openState.set(false);
     }
     // A new filter invalidates every index, so re-seed the cursor onto the first
     // option that still matches. This must happen on BOTH paths: on the
@@ -1319,7 +1322,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     if (!this.meetsMinChars()) return;
     if (!this.isOpen()) {
       this.seedActiveIndex();
-      this.isOpen.set(true);
+      this.openState.set(true);
     }
   }
 
@@ -1360,7 +1363,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     if (!q) return;
     // The query is the value here, so `T` is a string in a tag select.
     this.value.set(q as T);
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   protected onSearchKey(event: KeyboardEvent): void {
@@ -1509,7 +1512,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     // Close the panel if the control goes read-only or disabled while it is up —
     // a panel whose every row now refuses the click is a trap, not a view.
     effect(() => {
-      if (this.isDisabled() || this.isReadonly()) this.isOpen.set(false);
+      if (this.isDisabled() || this.isReadonly()) this.openState.set(false);
     });
 
     effect(() => {
@@ -1716,7 +1719,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     // will not do it while the field is focused, which is right for a panel
     // that closed under `minChars` and wrong for one that closed on a pick.
     this.searchQuery.set('');
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   /**
@@ -1891,12 +1894,12 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   open(): void {
     if (this.isDisabled() || this.isReadonly() || this.isTag() || this.isOpen() || !this.meetsMinChars()) return;
     this.seedActiveIndex();
-    this.isOpen.set(true);
+    this.openState.set(true);
   }
 
   /** Close the panel. */
   close(): void {
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   // Template handlers
@@ -1906,7 +1909,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     // Tag mode has no panel — clicks should land on the inline input,
     // not toggle an overlay that's never created.
     if (this.isTag()) return;
-    this.isOpen.update(v => !v);
+    this.openState.update(v => !v);
   }
 
   protected onTriggerKey(event: KeyboardEvent): void {
@@ -1916,7 +1919,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
         this.seedActiveIndex();
-        this.isOpen.set(true);
+        this.openState.set(true);
         return;
       }
       // Multi mode: Backspace on closed trigger removes last chip. Tag
@@ -1950,7 +1953,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
         // Closing does NOT commit the active option. The cursor is SEEDED on open, so
         // tabbing straight through would select a row the user never looked at — and
         // in multi / search / freeText modes there is no single "the option" to take.
-        this.isOpen.set(false);
+        this.openState.set(false);
         break;
       case 'ArrowDown':
         event.preventDefault();
@@ -2153,7 +2156,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;
-        this.isOpen.set(false);
+        this.openState.set(false);
       });
 
     this.overlayRef
@@ -2162,7 +2165,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
-          this.isOpen.set(false);
+          this.openState.set(false);
         }
       });
 

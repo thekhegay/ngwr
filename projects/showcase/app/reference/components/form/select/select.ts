@@ -82,7 +82,7 @@ export default class SelectComponent {
 
   protected readonly snippets = {
     openFromCode: `<wr-select #sizes [(value)]="size" (opened)="onOpened()" (closed)="onClosed()">…</wr-select>
-<button wr-btn (click)="sizes.open()">Open</button>`,
+<button wr-btn [attr.aria-expanded]="sizes.isOpen()" (click)="sizes.open()">Open</button>`,
 
     typed: `interface Country {
   code: string;

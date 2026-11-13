@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Tree"
-  updated="16.0.0"
+  updated="16.3.0"
   description="A nested list to browse and select from, inline or as a dropdown picker."
   [keywords]="['tree', 'tree-select', 'wr-tree', 'hierarchy', 'folders']"
   [labels]="['Composite']"
@@ -109,7 +109,7 @@
 
   <ngwr-doc-section
     title="Open from code"
-    description="In combobox mode, `open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only."
+    description="In combobox mode, `open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only. `isOpen()` reads the state, for an `aria-expanded` on your own trigger."
   >
     <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
   </ngwr-doc-section>

@@ -91,7 +91,7 @@ export default class DatePickerPageComponent {
 
   protected readonly snippets = {
     openFromCode: `<wr-date-picker #due [(value)]="picked" (opened)="onOpened()" (closed)="onClosed()" />
-<button wr-btn (click)="due.open()">Open</button>`,
+<button wr-btn [attr.aria-expanded]="due.isOpen()" (click)="due.open()">Open</button>`,
 
     basic: `<wr-date-picker [(value)]="picked" placeholder="Pick a date" />`,
 

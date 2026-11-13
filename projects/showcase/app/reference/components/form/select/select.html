@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Select"
-  updated="16.0.0"
+  updated="16.3.0"
   description="Pick one or several values from a list, with search and free-text tags."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'CDK Overlay']"
@@ -411,7 +411,7 @@
 
   <ngwr-doc-section
     title="Open from code"
-    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only."
+    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only. `isOpen()` reads the state, for an `aria-expanded` on your own trigger."
   >
     <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
   </ngwr-doc-section>

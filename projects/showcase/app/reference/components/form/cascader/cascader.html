@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Cascader"
-  updated="16.0.0"
+  updated="16.3.0"
   description="Pick a path through nested options, one column per level."
   [keywords]="['cascader', 'wr-cascader', 'multi-level', 'select']"
   [labels]="['Component']"
@@ -87,7 +87,7 @@
 
   <ngwr-doc-section
     title="Open from code"
-    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only."
+    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only. `isOpen()` reads the state, for an `aria-expanded` on your own trigger."
   >
     <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
   </ngwr-doc-section>

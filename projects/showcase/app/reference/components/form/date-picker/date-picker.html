@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Date Picker"
-  updated="16.2.0"
+  updated="16.3.0"
   description="A text field with a popup for picking a date, a time or both."
   [keywords]="['date', 'time', 'datetime', 'picker', 'wr-date-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
@@ -322,7 +322,7 @@
 
   <ngwr-doc-section
     title="Open from code"
-    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled, and on the range picker while read-only. Focus stays where it is."
+    description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled, and on the range picker while read-only. Focus stays where it is. `isOpen()` reads the state, for an `aria-expanded` on your own trigger."
   >
     <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
   </ngwr-doc-section>

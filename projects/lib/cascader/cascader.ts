@@ -223,7 +223,10 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   /** Currently-expanded column path — drives which columns the panel shows. @internal */
   protected readonly activePath = signal<readonly T[]>([]);
 
-  protected readonly isOpen = signal(false);
+  private readonly openState = signal(false);
+
+  /** Whether the panel is open. Read-only: `open()` and `close()` change it. */
+  readonly isOpen = this.openState.asReadonly();
 
   /**
    * The option the user last moved to inside the open panel — `null` until they
@@ -355,7 +358,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
 
     // Close the panel if the control becomes disabled or read-only while open.
     effect(() => {
-      if (this.disabled() || this.readonly()) this.isOpen.set(false);
+      if (this.disabled() || this.readonly()) this.openState.set(false);
     });
 
     // Mirror an external `value` write into the internal path/activePath
@@ -387,12 +390,12 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   open(): void {
     if (this.disabled() || this.readonly() || this.isOpen()) return;
     this.activePath.set(this.path());
-    this.isOpen.set(true);
+    this.openState.set(true);
   }
 
   /** Close the panel. */
   close(): void {
-    this.isOpen.set(false);
+    this.openState.set(false);
   }
 
   // Template handlers
@@ -400,7 +403,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   protected onTriggerClick(): void {
     if (this.disabled() || this.readonly()) return;
     if (!this.isOpen()) this.activePath.set(this.path());
-    this.isOpen.update(v => !v);
+    this.openState.update(v => !v);
   }
 
   /**
@@ -432,7 +435,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
     event.preventDefault();
     this.activePath.set(this.path());
-    this.isOpen.set(true);
+    this.openState.set(true);
   }
 
   protected onOptionClick(colIndex: number, opt: WrCascaderOption<T>, event: Event): void {
@@ -456,7 +459,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
       this.value.set(newPath);
       this.touch.emit();
       // Close once we hit a true leaf — parent commits keep the panel open.
-      if (!hasChildren) this.isOpen.set(false);
+      if (!hasChildren) this.openState.set(false);
     }
   }
 
@@ -692,7 +695,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;
-        this.isOpen.set(false);
+        this.openState.set(false);
       });
 
     this.overlayRef
@@ -701,12 +704,12 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
-          this.isOpen.set(false);
+          this.openState.set(false);
           return;
         }
         if (this.overlayRef && tabLeavesPane(this.overlayRef.overlayElement, event)) {
           this.host.nativeElement.querySelector<HTMLElement>('.wr-cascader__trigger')?.focus();
-          this.isOpen.set(false);
+          this.openState.set(false);
         }
       });
 

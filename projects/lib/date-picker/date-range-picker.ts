@@ -274,6 +274,9 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   /** Whether the popover is currently open. */
   protected readonly overlayOpen = signal(false);
 
+  /** Whether the popup is open. Read-only: `open()` and `close()` change it. */
+  readonly isOpen = this.overlayOpen.asReadonly();
+
   /**
    * Which element opened the popup — captured as an argument, never read off
    * `document.activeElement`, which by then may already be the pane. With TWO
