@@ -521,6 +521,72 @@ export class WrTreeHarness extends ContentContainerComponentHarness {
   }
 
   /**
+   * What the tree's live region last said, `''` when it has said nothing. Only a
+   * `draggable` tree has one, and only the keyboard move writes to it.
+   */
+  async getAnnouncement(): Promise<string> {
+    const region = await this.scoped('[role="status"]');
+    return region ? (await region.text()).trim() : '';
+  }
+
+  /** The label of the row a keyboard move is holding, or `null`. */
+  async getHeldLabel(): Promise<string | null> {
+    const [held] = await this.getNodes({ selector: '.wr-tree__row--dragging' });
+    return held ? held.getLabel() : null;
+  }
+
+  /**
+   * The row the drop indicator is on and how: `before` or `after` it, or
+   * `inside` when the held row would become its child. `null` with no move in
+   * progress. The class is all a unit test can read: where the line is drawn
+   * is layout, and jsdom has none.
+   */
+  async getDropMark(): Promise<{ label: string; position: 'before' | 'after' | 'inside' } | null> {
+    for (const position of ['before', 'after', 'inside'] as const) {
+      const [row] = await this.getNodes({ selector: `.wr-tree__row--drop-${position}` });
+      if (row) return { label: await row.getLabel(), position };
+    }
+    return null;
+  }
+
+  /**
+   * Pick the cursor row up from the keyboard: Alt+Enter. Throws when the row
+   * was not picked up, which is a tree that is not `draggable`, a disabled row,
+   * a filtered tree, or a row that `loadChildren` supplied.
+   */
+  async grabActive(): Promise<void> {
+    await (await this.list()).sendKeys({ alt: true }, TestKey.ENTER);
+    if ((await this.getHeldLabel()) === null) {
+      throw new Error(
+        'WrTreeHarness.grabActive(): the cursor row was not picked up. The tree has to be `draggable` with ' +
+          'no `filter` set, and the row enabled and part of `nodes` rather than loaded by `loadChildren`.'
+      );
+    }
+  }
+
+  /**
+   * Move the held row: `up` and `down` among its siblings, `in` to become the
+   * last child of the sibling above, `out` to follow its parent. The PHYSICAL
+   * arrows, so under `dir="rtl"` the last two swap, as {@link expandActive}
+   * does. A refused step moves nothing: assert {@link getDropMark} or the
+   * announcement.
+   */
+  async moveHeld(direction: 'up' | 'down' | 'in' | 'out'): Promise<void> {
+    const keys = { up: TestKey.UP_ARROW, down: TestKey.DOWN_ARROW, in: TestKey.RIGHT_ARROW, out: TestKey.LEFT_ARROW };
+    await this.press(keys[direction]);
+  }
+
+  /** Drop the held row where the indicator is: Enter. The tree emits `nodeMove` and moves nothing itself. */
+  async dropHeld(): Promise<void> {
+    await this.press(TestKey.ENTER);
+  }
+
+  /** Put the held row back: Escape. */
+  async cancelHeld(): Promise<void> {
+    await this.press(TestKey.ESCAPE);
+  }
+
+  /**
    * The loader every node query runs through — the host inline, THIS tree's overlay
    * panel otherwise.
    *
@@ -531,6 +597,12 @@ export class WrTreeHarness extends ContentContainerComponentHarness {
   protected override async getRootHarnessLoader(): Promise<HarnessLoader> {
     if (!(await this.isOverlay())) return super.getRootHarnessLoader();
     return this.documentRootLocatorFactory().harnessLoaderFor(`#${await this.panelId()}`);
+  }
+
+  /** An element beside the list, in the host inline and in this tree's panel otherwise. */
+  private async scoped(selector: string): Promise<TestElement | null> {
+    if (!(await this.isOverlay())) return this.locatorForOptional(selector)();
+    return this.documentRootLocatorFactory().locatorForOptional(`#${await this.panelId()} ${selector}`)();
   }
 
   /**

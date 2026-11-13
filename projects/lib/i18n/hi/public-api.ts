@@ -121,6 +121,9 @@ export const wrHi: WrI18nCatalog = {
     clearSelection: 'चयन हटाएं',
     removeItem: '{{label}} हटाएं',
     more: '+{{count}} और',
+    moveKeyHelp:
+      'इस आइटम को उठाने के लिए Alt+Enter दबाएं, फिर तीर कुंजियों से इसे खिसकाएं। ' +
+      'छोड़ने के लिए Enter दबाएं, या वापस रखने के लिए Escape दबाएं।',
   },
   commandPalette: {
     label: 'कमांड पैलेट',

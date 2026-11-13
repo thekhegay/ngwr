@@ -127,6 +127,9 @@ export const wrAr: WrI18nCatalog = {
     clearSelection: 'مسح التحديد',
     removeItem: 'إزالة {{label}}',
     more: '+{{count}} أخرى',
+    moveKeyHelp:
+      'اضغط Alt+Enter لالتقاط هذا العنصر، ثم استخدم مفاتيح الأسهم لتحريكه. ' +
+      'اضغط Enter لإفلاته، أو Escape لإعادته إلى مكانه.',
   },
   commandPalette: {
     label: 'لوحة الأوامر',

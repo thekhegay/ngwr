@@ -123,6 +123,9 @@ export const wrKo: WrI18nCatalog = {
     clearSelection: '선택 해제',
     removeItem: '{{label}} 제거',
     more: '+{{count}}개',
+    moveKeyHelp:
+      'Alt+Enter 키를 누르면 항목을 집고, 화살표 키로 옮길 수 있습니다. ' +
+      'Enter 키를 누르면 내려놓고, Esc 키를 누르면 제자리로 되돌립니다.',
   },
   commandPalette: {
     label: '명령 팔레트',

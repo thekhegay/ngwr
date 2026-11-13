@@ -123,6 +123,9 @@ export const wrJa: WrI18nCatalog = {
     clearSelection: '選択をクリア',
     removeItem: '{{label}}を削除',
     more: '他{{count}}件',
+    moveKeyHelp:
+      'Alt+Enter キーで項目を持ち上げ、矢印キーで移動します。' +
+      'Enter キーでドロップ、Escape キーで元の位置に戻します。',
   },
   commandPalette: {
     label: 'コマンドパレット',

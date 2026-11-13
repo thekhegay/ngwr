@@ -121,6 +121,9 @@ export const wrSv: WrI18nCatalog = {
     clearSelection: 'Rensa valet',
     removeItem: 'Ta bort {{label}}',
     more: '+{{count}} till',
+    moveKeyHelp:
+      'Tryck på Alt+Enter för att ta upp objektet och flytta det sedan med piltangenterna. ' +
+      'Tryck på Enter för att släppa det, eller Escape för att lägga tillbaka det.',
   },
   commandPalette: {
     label: 'Kommandopalett',

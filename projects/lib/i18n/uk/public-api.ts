@@ -131,6 +131,9 @@ export const wrUk: WrI18nCatalog = {
     clearSelection: 'Очистити вибір',
     removeItem: 'Вилучити {{label}}',
     more: 'ще {{count}}',
+    moveKeyHelp:
+      'Натисніть Alt+Enter, щоб узяти елемент, потім переміщуйте його стрілками. ' +
+      'Enter — відпустити, Escape — повернути на місце.',
   },
   commandPalette: {
     label: 'Палітра команд',

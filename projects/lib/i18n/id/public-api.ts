@@ -121,6 +121,9 @@ export const wrId: WrI18nCatalog = {
     clearSelection: 'Hapus pilihan',
     removeItem: 'Hapus {{label}}',
     more: '+{{count}} lainnya',
+    moveKeyHelp:
+      'Tekan Alt+Enter untuk mengangkat item ini, lalu gunakan tombol panah untuk memindahkannya. ' +
+      'Tekan Enter untuk melepaskannya, atau Escape untuk mengembalikannya.',
   },
   commandPalette: {
     label: 'Palet perintah',

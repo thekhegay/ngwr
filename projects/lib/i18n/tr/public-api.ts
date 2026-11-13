@@ -126,6 +126,9 @@ export const wrTr: WrI18nCatalog = {
     clearSelection: 'Seçimi temizle',
     removeItem: '{{label}} öğesini kaldır',
     more: '+{{count}} daha',
+    moveKeyHelp:
+      'Bu öğeyi almak için Alt+Enter tuşlarına basın, sonra ok tuşlarıyla taşıyın. ' +
+      'Bırakmak için Enter tuşuna, geri koymak için Escape tuşuna basın.',
   },
   commandPalette: {
     label: 'Komut paleti',

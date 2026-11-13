@@ -121,6 +121,9 @@ export const wrEs: WrI18nCatalog = {
     clearSelection: 'Borrar la selección',
     removeItem: 'Quitar {{label}}',
     more: '+{{count}} más',
+    moveKeyHelp:
+      'Pulsa Alt+Intro para levantar este elemento y muévelo con las flechas. ' +
+      'Pulsa Intro para soltarlo o Escape para devolverlo a su sitio.',
   },
   commandPalette: {
     label: 'Paleta de comandos',

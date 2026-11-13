@@ -209,6 +209,11 @@ export class WrTreeNodeHarness extends ComponentHarness {
     return (await (await this.host()).getAttribute('aria-checked')) === 'mixed';
   }
 
+  /** Whether the row can be dragged right now (`draggable="true"`). */
+  async isDraggable(): Promise<boolean> {
+    return (await (await this.host()).getAttribute('draggable')) === 'true';
+  }
+
   /**
    * Whether the tree offers selection at all.
    *

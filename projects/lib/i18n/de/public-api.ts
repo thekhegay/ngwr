@@ -125,6 +125,9 @@ export const wrDe: WrI18nCatalog = {
     clearSelection: 'Auswahl aufheben',
     removeItem: '{{label}} entfernen',
     more: '+{{count}} weitere',
+    moveKeyHelp:
+      'Drücken Sie Alt+Eingabe, um dieses Element aufzunehmen, und verschieben Sie es dann mit den Pfeiltasten. ' +
+      'Drücken Sie die Eingabetaste, um es abzulegen, oder Escape, um es an seinen Platz zurückzulegen.',
   },
   commandPalette: {
     label: 'Befehlspalette',

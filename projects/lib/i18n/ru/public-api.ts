@@ -123,6 +123,9 @@ export const wrRu: WrI18nCatalog = {
     clearSelection: 'Очистить выбор',
     removeItem: 'Удалить {{label}}',
     more: 'ещё {{count}}',
+    moveKeyHelp:
+      'Нажмите Alt+Enter, чтобы взять элемент, затем перемещайте его стрелками. ' +
+      'Enter — отпустить, Escape — вернуть на место.',
   },
   commandPalette: {
     label: 'Палитра команд',
