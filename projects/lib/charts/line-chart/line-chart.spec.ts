@@ -52,9 +52,12 @@ describe('WrLineChart', () => {
   const legendLabels = (): string[] =>
     [...root().querySelectorAll('.wr-line-chart__legend-item')].map(el => el.textContent.trim());
   const allPaths = (): string[] => [...root().querySelectorAll('path')].map(el => el.getAttribute('d') ?? '');
-  const dots = (): SVGPathElement[] => [...root().querySelectorAll<SVGPathElement>('path.wr-line-chart__dot')];
+  /** One path per series, holding every dot of it as a subpath. */
+  const dotPaths = (): SVGPathElement[] => [...root().querySelectorAll<SVGPathElement>('path.wr-line-chart__dot')];
+  /** Every dot drawn, as its own subpath, series by series. */
+  const dots = (): string[] => dotPaths().flatMap(path => path.getAttribute('d')?.match(/M [^M]*h 0/g) ?? []);
   /** A dot's x in viewBox units — it is a zero-length line drawn at its point. */
-  const cx = (dot: Element): number => Number(/^M (\S+) /.exec(dot.getAttribute('d') ?? '')?.[1]);
+  const cx = (dot: string): number => Number(/^M (\S+) /.exec(dot)?.[1]);
   /** The y-axis labels, top to bottom, as rendered. */
   const ticks = (): string[] =>
     [...root().querySelectorAll<HTMLElement>('.wr-line-chart__tick')].map(el => el.textContent?.trim() ?? '');
@@ -491,10 +494,11 @@ describe('WrLineChart', () => {
     // which is measured in a browser; what jsdom holds is that every dot is drawn that way.
     expect(root().querySelector('circle')).toBeNull();
     expect(dots().length).toBeGreaterThan(0);
-    for (const dot of dots()) {
-      expect(dot.getAttribute('d')).toMatch(/^M \S+ \S+ h 0$/);
-      expect(dot.getAttribute('stroke-linecap')).toBe('round');
-      expect(dot.getAttribute('vector-effect')).toBe('non-scaling-stroke');
+    for (const dot of dots()) expect(dot).toMatch(/^M \S+ \S+ h 0$/);
+    for (const path of dotPaths()) {
+      expect(path.getAttribute('d')).toMatch(/^M \S+ \S+ h 0( M \S+ \S+ h 0)*$/);
+      expect(path.getAttribute('stroke-linecap')).toBe('round');
+      expect(path.getAttribute('vector-effect')).toBe('non-scaling-stroke');
     }
   });
 
@@ -779,5 +783,64 @@ describe('WrLineChart under a localized catalog', () => {
     expect(plot.getAttribute('aria-label')).toBe('Линейный график');
 
     fixture.destroy();
+  });
+});
+
+describe('WrLineChart dots', () => {
+  const POINTS = 50;
+
+  @Component({
+    imports: [WrLineChart],
+    template: `<wr-line-chart [series]="series" [showDots]="showDots()" />`,
+  })
+  class DotsHost {
+    readonly showDots = signal(true);
+    readonly series: readonly WrLineSeries[] = [
+      { label: 'Visits', data: Array.from({ length: POINTS }, (_, i) => i) },
+      { label: 'Signups', data: Array.from({ length: POINTS }, (_, i) => i * 2), color: '#abcdef' },
+      { label: 'Sales', data: Array.from({ length: POINTS }, (_, i) => (i === 7 ? Number.NaN : i * 3)) },
+    ];
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<DotsHost>>;
+  const dotPaths = (): SVGPathElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<SVGPathElement>('path.wr-line-chart__dot'),
+  ];
+  const subpaths = (path: SVGPathElement): string[] => path.getAttribute('d')?.match(/M [^M]*h 0/g) ?? [];
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(DotsHost);
+    fixture.detectChanges();
+  });
+
+  it('draws the dots of a series as one path, a subpath per point', () => {
+    // An element per point was 15,000 of them for three series of 5,000 points.
+    expect(dotPaths()).toHaveLength(3);
+    expect(subpaths(dotPaths()[0])).toHaveLength(POINTS);
+    expect(subpaths(dotPaths()[1])).toHaveLength(POINTS);
+    // A hole in the data draws no dot.
+    expect(subpaths(dotPaths()[2])).toHaveLength(POINTS - 1);
+
+    // Each dot sits on its own point of the line.
+    const line = (fixture.nativeElement as HTMLElement).querySelector('path.wr-line-chart__line')!;
+    const points = line
+      .getAttribute('d')!
+      .split(/ ?[ML] /)
+      .filter(Boolean);
+    expect(subpaths(dotPaths()[0]).map(dot => dot.slice(2, -4))).toEqual(points);
+  });
+
+  it("strokes each series' dots in the series' colour", () => {
+    const lines = [...(fixture.nativeElement as HTMLElement).querySelectorAll('path.wr-line-chart__line')];
+
+    expect(dotPaths()[1].getAttribute('stroke')).toBe('#abcdef');
+    expect(dotPaths().map(path => path.getAttribute('stroke'))).toEqual(lines.map(l => l.getAttribute('stroke')));
+  });
+
+  it('draws no dot path with `showDots` off', () => {
+    fixture.componentInstance.showDots.set(false);
+    fixture.detectChanges();
+
+    expect(dotPaths()).toHaveLength(0);
   });
 });

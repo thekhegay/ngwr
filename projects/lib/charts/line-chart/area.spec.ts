@@ -59,7 +59,9 @@ describe('WrLineChart area, stack and data table', () => {
   const drawing = (): SVGSVGElement => root().querySelector<SVGSVGElement>('.wr-line-chart__svg')!;
   const areas = (): SVGPathElement[] => [...root().querySelectorAll<SVGPathElement>('.wr-line-chart__area')];
   const lines = (): SVGPathElement[] => [...root().querySelectorAll<SVGPathElement>('.wr-line-chart__line')];
-  const dots = (): string[] => [...root().querySelectorAll('.wr-line-chart__dot')].map(d => d.getAttribute('d')!);
+  /** Every dot drawn, series by series: a series holds its dots as the subpaths of one path. */
+  const dots = (): string[] =>
+    [...root().querySelectorAll('.wr-line-chart__dot')].flatMap(d => d.getAttribute('d')!.match(/M [^M]*h 0/g) ?? []);
   const ticks = (): string[] => [...root().querySelectorAll('.wr-line-chart__tick')].map(t => t.textContent.trim());
   const table = (): HTMLTableElement | null => root().querySelector<HTMLTableElement>('wr-chart-table table');
   const columns = (): string[] =>
