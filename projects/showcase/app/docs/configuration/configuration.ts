@@ -147,8 +147,6 @@ import {
   WR_DATE_INPUT,
   WR_DATE_STAMP_DEFAULTS,
   WrDateAdapter,
-  wrIsDateOnly,
-  wrToLocalDate,
   type WrParseDateOptions,
 } from 'ngwr/date';
 
@@ -163,12 +161,7 @@ export class AppDateAdapter extends WrDateAdapter<Date> {
 
 // Your component follows the wr-date-stamp defaults.
 private readonly stamp = inject(WR_DATE_STAMP_DEFAULTS);
-protected readonly dateFormat = this.stamp.dateFormat ?? 'mediumDate';
-
-wrIsDateOnly('2026-01-01'); // true: a day
-wrIsDateOnly('2026-01-01T09:00:00Z'); // false: an instant
-wrToLocalDate('2026-01-01'); // 1 January at local midnight, in every zone
-new Date('2026-01-01'); // UTC midnight: still 31 December in New York`,
+protected readonly dateFormat = this.stamp.dateFormat ?? 'mediumDate';`,
   };
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
