@@ -215,6 +215,7 @@
   .wr-input:has(+ &__affix--suffix),
   .wr-input:has(+ wr-password-toggle),
   .wr-input:has(+ &__clear),
+  .wr-input:has(+ &__clear-space),
   .wr-input:has(+ &__spinner) {
     padding-inline-end: var(--wr-input-group-affix-gap);
   }
@@ -230,6 +231,7 @@
   // The clear (×) and the spinner sit after the field and before any suffix.
   // The select's ×, in a group instead of a button.
   &__clear,
+  &__clear-space,
   &__spinner {
     flex: 0 0 auto;
     align-self: center;
@@ -241,6 +243,11 @@
     &:last-child {
       margin-inline-end: var(--wr-input-group-padding-x);
     }
+  }
+
+  &__clear-space {
+    width: 1.125rem;
+    height: 1.125rem;
   }
 
   &__clear {
@@ -330,7 +337,8 @@
 
 // Touch pointers get a wider × that fills the field's height instead of growing it.
 @media (pointer: coarse) {
-  .wr-input-group__clear {
+  .wr-input-group__clear,
+  .wr-input-group__clear-space {
     align-self: stretch;
     width: 2rem;
     height: auto;

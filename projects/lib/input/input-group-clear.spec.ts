@@ -85,6 +85,25 @@ describe('WrInputGroup clearable and loading', () => {
     expect(clear()).toBeNull();
   });
 
+  // Clearing used to drop the × and narrow the group by its width.
+  it('holds the room of the clear button while the field is empty', async () => {
+    const space = (): HTMLElement | null => root().querySelector<HTMLElement>('.wr-input-group__clear-space');
+    expect(space()?.getAttribute('aria-hidden')).toBe('true');
+
+    await type('ada');
+    expect(space()).toBeNull();
+    expect(clear()).not.toBeNull();
+
+    clear()!.click();
+    await settle();
+    expect(clear()).toBeNull();
+    expect(space()).not.toBeNull();
+
+    fixture.componentInstance.clearable.set(false);
+    await settle();
+    expect(space()).toBeNull();
+  });
+
   it('shows the clear button once text is typed', async () => {
     await type('ada');
 
