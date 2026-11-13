@@ -40,7 +40,7 @@ import {
   type WrHsl,
   type WrRgb,
 } from './color';
-import type { WrColorFormat } from './types';
+import type { WrColorFormat, WrColorPickerSize, WrColorPickerSwatch } from './types';
 
 type Tab = 'hex' | 'rgb' | 'hsl';
 
@@ -148,8 +148,28 @@ export class WrColorPicker implements FormValueControl<string> {
    */
   readonly format = input<WrColorFormat>('hex');
 
-  /** Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row. @default [] */
-  readonly swatches = input<readonly string[]>([]);
+  /**
+   * Preset hex colours rendered as a clickable row beneath the inputs. Empty =
+   * no row. An entry is a colour string, or `{ value, label }` to give its
+   * button a name: a bare string announces itself, `#3366ff`.
+   *
+   * @default []
+   */
+  readonly swatches = input<readonly WrColorPickerSwatch[]>([]);
+
+  /** The presets, each with the name its button announces. */
+  protected readonly presets = computed(() =>
+    this.swatches().map(swatch => (typeof swatch === 'string' ? { value: swatch, label: swatch } : swatch))
+  );
+
+  /**
+   * Panel size: its width, padding, the saturation surface and the thumbs. The
+   * preset buttons follow the width. The format tabs and the channel fields
+   * keep their size.
+   *
+   * @default 'md'
+   */
+  readonly size = input<WrColorPickerSize>('md');
 
   /** The selected colour as a string. Bound by `[formField]`, or two-way via `[(value)]`. */
   readonly value = model<string>('');
@@ -287,6 +307,8 @@ export class WrColorPicker implements FormValueControl<string> {
 
   protected readonly classes = computed(() => {
     const parts: string[] = [];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-color-picker--${size}`);
     if (this.alpha()) parts.push('wr-color-picker--alpha');
     if (this.disabled()) parts.push('wr-color-picker--disabled');
     else if (this.readonly()) parts.push('wr-color-picker--readonly');

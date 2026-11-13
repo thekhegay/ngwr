@@ -28,7 +28,7 @@ import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { wrGetFocusableElements, wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrColorPicker } from './color-picker';
-import type { WrColorFormat } from './types';
+import type { WrColorFormat, WrColorPickerSize, WrColorPickerSwatch } from './types';
 
 let triggerUid = 0;
 
@@ -57,7 +57,7 @@ function tabLeavesPane(pane: HTMLElement, event: KeyboardEvent): boolean {
  *
  * Apply to any clickable element (typically a button). Two-way binds the
  * current colour through `[(value)]`; forwards `alpha` / `format` /
- * `swatches` / `disabled` to the inner picker.
+ * `swatches` / `size` / `disabled` to the inner picker.
  *
  * Same overlay isolation as the rest of the lib — uses {@link WR_OVERLAY},
  * not CDK's root container.
@@ -104,7 +104,10 @@ export class WrColorPickerTrigger {
   readonly format = input<WrColorFormat>('hex');
 
   /** Forwarded to the inner picker. @default [] */
-  readonly swatches = input<readonly string[]>([]);
+  readonly swatches = input<readonly WrColorPickerSwatch[]>([]);
+
+  /** Forwarded to the inner picker: the size of the panel this opens. @default 'md' */
+  readonly size = input<WrColorPickerSize>('md');
 
   /** Disable the trigger entirely. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
@@ -202,6 +205,7 @@ export class WrColorPickerTrigger {
     ref.setInput('alpha', this.alpha());
     ref.setInput('format', this.format());
     ref.setInput('swatches', this.swatches());
+    ref.setInput('size', this.size());
     ref.setInput('disabled', this.disabled());
     ref.setInput('value', this.value());
 

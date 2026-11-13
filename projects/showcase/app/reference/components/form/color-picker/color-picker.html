@@ -50,6 +50,30 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Named presets"
+    description="A preset written as `{ value, label }` announces its label; a bare string announces itself, `#3969e2`. Since v16.3."
+  >
+    <ngwr-doc-code [code]="snippets.named" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-color-picker [(value)]="named" [swatches]="namedPalette" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sizes"
+    description="`sm`, `md` (default) or `lg` scale the panel: its width, padding, colour surface and thumbs. The trigger takes the same `size` for the panel it opens. Since v16.3."
+  >
+    <ngwr-doc-code [code]="snippets.sizes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start">
+        @for (s of sizes; track s) {
+          <wr-color-picker value="#3969e2" [size]="s" [swatches]="palette" />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Popover trigger"
     description="`[wrColorPickerTrigger]` on any button opens the picker in an overlay."
   >

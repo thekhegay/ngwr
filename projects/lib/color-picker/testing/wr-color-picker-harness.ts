@@ -7,6 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
+import type { WrColorPickerSize } from 'ngwr/color-picker';
 import { WrSegmentedHarness } from 'ngwr/segmented/testing';
 
 import type { WrColorPickerHarnessFilters, WrColorPickerTab, WrColorPickerThumbs } from './types';
@@ -267,8 +268,20 @@ export class WrColorPickerHarness extends ComponentHarness {
     return (await this.host()).hasClass('wr-color-picker--disabled');
   }
 
-  /** The preset colours offered under the fields, as the strings the consumer passed. */
+  /**
+   * The preset colours offered under the fields: the string the consumer passed, or
+   * the `value` of a named preset.
+   */
   async getSwatches(): Promise<string[]> {
+    const swatches = await this.locatorForAll('.wr-color-picker__swatch')();
+    return Promise.all(swatches.map(async swatch => (await swatch.getAttribute('data-color')) ?? ''));
+  }
+
+  /**
+   * What each preset button announces, in order: the `label` of a named preset, and
+   * the colour string itself for a bare one.
+   */
+  async getSwatchLabels(): Promise<string[]> {
     const swatches = await this.locatorForAll('.wr-color-picker__swatch')();
     return Promise.all(swatches.map(async swatch => (await swatch.getAttribute('aria-label')) ?? ''));
   }
@@ -276,14 +289,14 @@ export class WrColorPickerHarness extends ComponentHarness {
   /**
    * Click a preset.
    *
-   * Matched on the string the consumer passed, which is what the button publishes as
-   * its accessible name — the rendered background is a CSS colour and would come back
-   * normalised and alpha-stripped. Throws when nothing matches, naming what is offered.
+   * Matched on the colour string the consumer passed, or on a named preset's label —
+   * the rendered background is a CSS colour and would come back normalised and
+   * alpha-stripped. Throws when nothing matches, naming what is offered.
    */
   async pickSwatch(color: string): Promise<void> {
     const swatches = await this.locatorForAll('.wr-color-picker__swatch')();
     for (const swatch of swatches) {
-      if ((await swatch.getAttribute('aria-label')) === color) {
+      if ((await swatch.getAttribute('data-color')) === color || (await swatch.getAttribute('aria-label')) === color) {
         await swatch.click();
         return;
       }
@@ -292,6 +305,14 @@ export class WrColorPickerHarness extends ComponentHarness {
       `WrColorPickerHarness.pickSwatch(): no swatch for "${color}". The picker offers: ` +
         `${(await this.getSwatches()).join(', ')}.`
     );
+  }
+
+  /** The panel size. `'md'` is the default and paints no modifier of its own. */
+  async getSize(): Promise<WrColorPickerSize> {
+    const host = await this.host();
+    if (await host.hasClass('wr-color-picker--sm')) return 'sm';
+    if (await host.hasClass('wr-color-picker--lg')) return 'lg';
+    return 'md';
   }
 
   /**
