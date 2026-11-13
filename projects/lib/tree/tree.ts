@@ -36,6 +36,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { finalize, from, isObservable, take } from 'rxjs';
 
+import { WrEmpty } from 'ngwr/empty';
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText, wrReadI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
@@ -184,7 +185,7 @@ let panelUid = 0;
     '[attr.draggable]': 'null',
     '(focusout)': 'onFocusOut($event)',
   },
-  imports: [NgTemplateOutlet, WrMark, WrSpinner],
+  imports: [NgTemplateOutlet, WrEmpty, WrMark, WrSpinner],
 })
 export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Tree data. */
@@ -514,6 +515,9 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Label of the retry button on that row. Falls back to `loadState.retry`, then `'Try again'`. */
   readonly retryLabel = input<string | null>(null);
 
+  /** Shown in place of the rows when `filter` matches nothing. Falls back to `select.noResults`. */
+  readonly noMatchesLabel = input<string | null>(null);
+
   /**
    * The keyboard move, as a screen reader hears it on entering a `draggable`
    * tree. Falls back to `tree.moveKeyHelp`.
@@ -522,6 +526,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   protected readonly resolvedLoadingLabel = useI18nText(this.loadingLabel, 'select.loading', 'Loading…');
   protected readonly resolvedLoadErrorLabel = useI18nText(this.loadErrorLabel, 'loadState.failed', 'Could not load');
+  protected readonly resolvedNoMatchesLabel = useI18nText(this.noMatchesLabel, 'select.noResults', 'No results');
   protected readonly resolvedRetryLabel = useI18nText(this.retryLabel, 'loadState.retry', 'Try again');
   protected readonly resolvedMoveHelp = useI18nText(
     this.moveHelpLabel,

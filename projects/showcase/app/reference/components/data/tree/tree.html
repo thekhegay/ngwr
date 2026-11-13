@@ -120,7 +120,7 @@
 
   <ngwr-doc-section
     title="Filter"
-    description="`filter` keeps the matching nodes and their ancestors, opens the ancestors and highlights the match. `[(expanded)]` is not written, so clearing the text restores it. `filterFn` replaces the label match."
+    description="`filter` keeps the matching nodes and their ancestors, opens the ancestors and highlights the match. `[(expanded)]` is not written, so clearing the text restores it. `filterFn` replaces the label match. A filter that matches nothing shows an empty state, `noMatchesLabel` sets its text."
   >
     <ngwr-doc-code [code]="snippets.filter" language="angular-html" />
     <ngwr-doc-snippet code="">
