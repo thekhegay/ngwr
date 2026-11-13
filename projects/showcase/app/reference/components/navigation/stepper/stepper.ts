@@ -83,6 +83,18 @@ export default class StepperPageComponent {
       type: 'boolean',
       default: 'false',
     },
+    {
+      name: 'optionalLabel',
+      description: 'The word of the "optional" badge. Falls back to `stepper.optional`.',
+      type: 'string | null',
+      default: 'null',
+    },
+    {
+      name: 'completedLabel',
+      description: 'The word read after a completed step. Falls back to `stepper.completed`.',
+      type: 'string | null',
+      default: 'null',
+    },
     { name: 'next() / prev() / goTo(i)', description: 'Imperative navigation.', type: 'method', default: '—' },
     { name: '<wr-step>.label', description: 'Header text.', type: 'string', default: "''" },
     { name: '<wr-step>.description', description: 'Secondary header text.', type: 'string', default: "''" },

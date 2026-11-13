@@ -15,7 +15,6 @@ import {
   forwardRef,
   input,
   model,
-  signal,
 } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
@@ -23,9 +22,6 @@ import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrStep } from './step';
 import { WR_STEPPER, type WrStepperContext } from './tokens';
-
-/** A label with no consumer input to forward — see `optionalLabel` below. */
-const NO_OVERRIDE = signal<string | null>(null).asReadonly();
 
 /**
  * Multi-step wizard container. Children are `<wr-step>` components — the
@@ -80,21 +76,21 @@ export class WrStepper implements WrStepperContext {
   protected readonly steps = contentChildren(WrStep);
 
   /**
-   * The "optional" badge sits INSIDE the header button's label span, so the word
-   * is part of the step's accessible name — a hard-coded literal announced English
-   * to every locale, not just showed it. Catalog-only rather than an input: the
-   * badge is one word shared by every step, and an app that wants other wording
-   * overrides `stepper.optional` once instead of on every `<wr-step>`.
+   * The word of the "optional" badge, which sits inside the header button's label
+   * and so is part of each optional step's accessible name. One input on the
+   * stepper covers every step. Falls back to `stepper.optional`, then `'optional'`.
    */
-  protected readonly optionalLabel = useI18nText(NO_OVERRIDE, 'stepper.optional', 'optional');
+  readonly optionalLabel = input<string | null>(null);
 
   /**
-   * The check mark that replaces a completed step's number is `aria-hidden`, so
-   * the state it draws reached nobody who cannot see it. This word goes into the
-   * header button's name instead, visually hidden. Catalog-only, for the reason
-   * `optionalLabel` is.
+   * The word a completed step's header button carries after its label, visually
+   * hidden: the check mark that replaces the number is `aria-hidden`. Falls back
+   * to `stepper.completed`, then `'completed'`.
    */
-  protected readonly completedLabel = useI18nText(NO_OVERRIDE, 'stepper.completed', 'completed');
+  readonly completedLabel = input<string | null>(null);
+
+  protected readonly resolvedOptionalLabel = useI18nText(this.optionalLabel, 'stepper.optional', 'optional');
+  protected readonly resolvedCompletedLabel = useI18nText(this.completedLabel, 'stepper.completed', 'completed');
 
   protected readonly classes = computed(() => {
     const parts = [`wr-stepper--${this.orientation()}`];
