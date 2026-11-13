@@ -315,12 +315,11 @@ export class WrColorPicker implements FormValueControl<string> {
     // `lastEmitted` so dragging keeps its continuous (unquantised) values.
     effect(() => {
       const value = this.value();
-      if (value === this.lastEmitted) {
-        // Ours, and now observed. Release the guard so the NEXT write of the
-        // same string — which can only come from outside — is honoured.
-        this.lastEmitted = null;
-        return;
-      }
+      // Released on every run, matched or not, so the NEXT write of the same
+      // string, which can only come from outside, is honoured.
+      const ours = value === this.lastEmitted;
+      this.lastEmitted = null;
+      if (ours) return;
       const rgb = parseColor(value) ?? { r: 0, g: 0, b: 0, a: 1 };
       const hsv = wrRgbToHsv(rgb);
       this.h.set(hsv.h);
@@ -536,6 +535,9 @@ export class WrColorPicker implements FormValueControl<string> {
 
   private emitWithoutHexSync(): void {
     const next = this.formatted();
+    // An equal write changes nothing, so the sync effect would never run to
+    // release the guard.
+    if (next === this.value()) return;
     this.lastEmitted = next;
     this.value.set(next);
   }
