@@ -60,6 +60,10 @@
   }
 
   &__icon {
+    --wr-file-upload-icon-size: 2rem;
+
+    width: var(--wr-file-upload-icon-size);
+    height: var(--wr-file-upload-icon-size);
     color: var(--wr-color-on-surface-muted);
     transition: color var(--wr-transition-base);
   }
@@ -188,5 +192,70 @@
       cursor: not-allowed;
       opacity: var(--wr-disabled-opacity);
     }
+  }
+
+  // Sizes. The hooks live on the parts, so each size restates them there. The
+  // remove button keeps its box at every size: it is the row's one target.
+  &--sm &__zone,
+  &:where([size='sm']) &__zone {
+    --wr-file-upload-zone-gap: var(--wr-space-sm);
+    --wr-file-upload-zone-padding: var(--wr-space-lg);
+  }
+
+  &--sm &__icon,
+  &:where([size='sm']) &__icon {
+    --wr-file-upload-icon-size: 1.5rem;
+  }
+
+  &--sm &__hint,
+  &:where([size='sm']) &__hint {
+    --wr-file-upload-hint-font-size: var(--wr-text-xs);
+    --wr-file-upload-hint-line-height: var(--wr-text-xs-leading);
+  }
+
+  &--sm &__list,
+  &:where([size='sm']) &__list {
+    --wr-file-upload-list-margin-top: var(--wr-space-sm);
+    --wr-file-upload-list-gap: var(--wr-space-xs);
+  }
+
+  &--sm &__item,
+  &:where([size='sm']) &__item {
+    --wr-file-upload-item-gap: var(--wr-space-sm);
+    --wr-file-upload-item-padding-y: var(--wr-space-xs);
+    --wr-file-upload-item-padding-x: var(--wr-space-sm);
+    --wr-file-upload-item-font-size: var(--wr-text-xs);
+    --wr-file-upload-item-line-height: var(--wr-text-xs-leading);
+  }
+
+  &--lg &__zone,
+  &:where([size='lg']) &__zone {
+    --wr-file-upload-zone-gap: var(--wr-space-lg);
+    --wr-file-upload-zone-padding: 2rem; // one step past `xl`, where the scale ends
+  }
+
+  &--lg &__icon,
+  &:where([size='lg']) &__icon {
+    --wr-file-upload-icon-size: 2.5rem;
+  }
+
+  &--lg &__hint,
+  &:where([size='lg']) &__hint {
+    --wr-file-upload-hint-font-size: var(--wr-text-base);
+    --wr-file-upload-hint-line-height: var(--wr-text-base-leading);
+    --wr-file-upload-hint-small-font-size: var(--wr-text-sm);
+  }
+
+  &--lg &__list,
+  &:where([size='lg']) &__list {
+    --wr-file-upload-list-margin-top: var(--wr-space-lg);
+  }
+
+  &--lg &__item,
+  &:where([size='lg']) &__item {
+    --wr-file-upload-item-padding-y: var(--wr-space-md);
+    --wr-file-upload-item-padding-x: var(--wr-space-lg);
+    --wr-file-upload-item-font-size: var(--wr-text-base);
+    --wr-file-upload-item-line-height: var(--wr-text-base-leading);
   }
 }

@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="File Upload"
+  updated="16.3.0"
   description="Pick files by dropping them on a zone or browsing."
   [keywords]="['file', 'upload', 'drop zone', 'wr-file-upload']"
   [labels]="['Signal Forms']"
@@ -36,6 +37,20 @@
           Rejected: {{ lastRejection() }}
         </small>
       }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sizes"
+    description="`sm`, `md` (default) or `lg` scale the zone's padding, icon and text, and the file rows. Since v16.3."
+  >
+    <ngwr-doc-code [code]="snippets.sizes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%">
+        @for (s of sizes; track s) {
+          <wr-file-upload [size]="s" [multiple]="true" />
+        }
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

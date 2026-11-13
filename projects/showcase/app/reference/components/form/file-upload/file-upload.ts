@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 
-import { WrFileUpload, type WrFileUploadRejection } from 'ngwr/file-upload';
+import { WrFileUpload, type WrFileUploadRejection, type WrFileUploadSize } from 'ngwr/file-upload';
 
 import {
   DocApiComponent,
@@ -25,6 +25,7 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class FileUploadPageComponent {
+  protected readonly sizes: readonly WrFileUploadSize[] = ['sm', 'md', 'lg'];
   protected readonly single = signal<File | null>(null);
   protected readonly multi = signal<readonly File[] | null>(null);
   protected readonly avatar = signal<File | null>(null);
@@ -48,6 +49,10 @@ export default class FileUploadPageComponent {
   helperText="PNG, JPG or WebP, up to 2 MB"
   (rejected)="onRejected($event)"
 />`,
+
+    sizes: `<wr-file-upload size="sm" [(value)]="files" multiple />
+<wr-file-upload size="md" [(value)]="files" multiple />
+<wr-file-upload size="lg" [(value)]="files" multiple />`,
   };
 
   protected readonly api = API.WrFileUpload;

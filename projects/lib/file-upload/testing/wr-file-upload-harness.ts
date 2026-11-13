@@ -7,6 +7,8 @@
 
 import { ComponentHarness, type EventData, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
+import type { WrFileUploadSize } from 'ngwr/file-upload';
+
 import type { WrFileUploadHarnessFilters } from './types';
 
 /**
@@ -199,6 +201,14 @@ export class WrFileUploadHarness extends ComponentHarness {
    */
   async isMultiple(): Promise<boolean> {
     return (await this.picker()).getProperty<boolean>('multiple');
+  }
+
+  /** The control size. `'md'` is the default and paints no modifier of its own. */
+  async getSize(): Promise<WrFileUploadSize> {
+    const host = await this.host();
+    if (await host.hasClass('wr-file-upload--sm')) return 'sm';
+    if (await host.hasClass('wr-file-upload--lg')) return 'lg';
+    return 'md';
   }
 
   /**
