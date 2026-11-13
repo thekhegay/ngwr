@@ -9,8 +9,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Medium
 
-- **Faster slow specs**: one cached Sass compile helper, the theme and layered-layout specs computing once, and timeouts on the MCP compile hook and the other heavy files.
-- **Lint stages**: `check:selectors`, `check:install` and `check:attrs` build the selector map once.
 - **Unused devDependency**: drop `@angular-devkit/core` if nothing needs it directly.
 - **Table column visibility**: a hidden-columns model beside `columnOrder`, with an optional chooser.
 - **Table bulk actions**: a bar over the header while rows are selected.
