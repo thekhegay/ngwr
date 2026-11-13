@@ -230,6 +230,9 @@ describe('WrTextareaHarness', () => {
     expect(await notes.isAutosizing()).toBe(false);
     expect(await notes.hasFittedHeight()).toBe(false);
 
+    // jsdom lays nothing out, and autosize fits nothing it cannot measure.
+    Object.defineProperty(notesNative(), 'clientWidth', { configurable: true, get: () => 200 });
+    Object.defineProperty(notesNative(), 'scrollHeight', { configurable: true, get: () => 60 });
     fixture.componentInstance.autosize.set(true);
     await settle();
 

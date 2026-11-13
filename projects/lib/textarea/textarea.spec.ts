@@ -6,7 +6,7 @@ import { FormField, form, readonly } from '@angular/forms/signals';
 import { Subject } from 'rxjs';
 
 import { WrFormField } from 'ngwr/form';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTextarea, type WrTextareaResize, type WrTextareaSize } from './textarea';
 
@@ -44,6 +44,12 @@ class Host {
   touched = 0;
 }
 
+/** jsdom lays nothing out, so the box autosize measures is described by hand. */
+const layOut = (el: HTMLElement, box: { width: number; scroll: number }): void => {
+  Object.defineProperty(el, 'clientWidth', { configurable: true, get: () => box.width });
+  Object.defineProperty(el, 'scrollHeight', { configurable: true, get: () => box.scroll });
+};
+
 /**
  * The native `<textarea>` lives INSIDE the component, which is the whole reason
  * this contract needs pinning: a `<label for>` outside cannot reach it and an
@@ -51,9 +57,9 @@ class Host {
  * be forwarded — and the fallback chain that does it treats an empty placeholder
  * as no name rather than as an empty one.
  *
- * Autosize is only half-testable here: jsdom lays nothing out, so `scrollHeight`
- * is always 0 and the FITTED height means nothing. What it can prove is who owns
- * the inline `height` — which turns out to be the interesting half.
+ * Autosize is only half-testable here: jsdom lays nothing out, so the box is
+ * described by hand (`layOut`) and the FITTED height is arithmetic on it. What
+ * it can prove is who owns the inline `height`, and when a fit runs.
  */
 describe('WrTextarea', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -185,20 +191,20 @@ describe('WrTextarea', () => {
   });
 
   it('hands height over to autosize, grip and all', async () => {
+    layOut(native(), { width: 200, scroll: 60 });
     fixture.componentInstance.autosize.set(true);
     await settle();
 
     expect(grip()).toBeNull();
     expect(host().classList.contains('wr-textarea--no-resize')).toBe(true);
-    // The fitted number is meaningless under jsdom; that it OWNS the inline
-    // height is the part that matters.
-    expect(native().style.height).not.toBe('');
+    expect(native().style.height).toBe('60px');
     expect(native().style.overflowY).toBe('hidden');
   });
 
   it('gives height back when autosize is switched off', async () => {
     // Otherwise the field is frozen at whatever autosize last computed and `rows`
     // silently stops meaning anything — the input looks like it did nothing.
+    layOut(native(), { width: 200, scroll: 60 });
     fixture.componentInstance.autosize.set(true);
     await settle();
     expect(native().style.height).not.toBe('');
@@ -217,7 +223,7 @@ describe('WrTextarea', () => {
     // six rows stopped at 120px — 5.2 rows on screen.
     const el = native();
     Object.assign(el.style, { lineHeight: '20px', paddingTop: '8px', paddingBottom: '8px', boxSizing: 'border-box' });
-    Object.defineProperty(el, 'scrollHeight', { configurable: true, get: () => 8 * 20 + 16 });
+    layOut(el, { width: 200, scroll: 8 * 20 + 16 });
     fixture.componentInstance.autosize.set(true);
     fixture.componentInstance.maxRows.set(6);
     await settle();
@@ -243,6 +249,184 @@ describe('WrTextarea', () => {
     fixture.componentInstance.rows.set(Number.NaN);
     fixture.detectChanges();
     expect(native().rows).toBe(3);
+  });
+});
+
+/**
+ * When a fit runs, which is everything autosize gets wrong without an observer:
+ * the height depends on where the lines break, and a line breaks on the WIDTH.
+ * `requestAnimationFrame` and `ResizeObserver` are stubbed so a frame and a
+ * resize happen when the spec says.
+ */
+describe('WrTextarea autosize keeps up with its box', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  let frames: Map<number, FrameRequestCallback>;
+  let nextFrame: number;
+  let observers: StubResizeObserver[];
+  let box: { width: number; scroll: number };
+
+  class StubResizeObserver {
+    readonly targets: Element[] = [];
+    connected = false;
+
+    constructor(private readonly callback: ResizeObserverCallback) {
+      observers.push(this);
+    }
+
+    observe(target: Element): void {
+      this.connected = true;
+      this.targets.push(target);
+    }
+
+    disconnect(): void {
+      this.connected = false;
+    }
+
+    resize(width: number): void {
+      this.callback([{ contentRect: { width } } as ResizeObserverEntry], this as unknown as ResizeObserver);
+    }
+  }
+
+  const native = (): HTMLTextAreaElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLTextAreaElement>('.wr-textarea__native')!;
+
+  const runFrame = (): void => {
+    const pending = [...frames.values()];
+    frames.clear();
+    for (const callback of pending) callback(0);
+  };
+
+  /** The stable pass, then the frame the fit was deferred to. */
+  const settle = async (): Promise<void> => {
+    await fixture.whenStable();
+    runFrame();
+  };
+
+  const mount = async (autosize: boolean): Promise<void> => {
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.autosize.set(autosize);
+    fixture.detectChanges();
+    const el = native();
+    Object.defineProperty(el, 'clientWidth', { configurable: true, get: () => box.width });
+    Object.defineProperty(el, 'scrollHeight', { configurable: true, get: () => box.scroll });
+    await settle();
+  };
+
+  beforeEach(() => {
+    frames = new Map();
+    nextFrame = 0;
+    observers = [];
+    box = { width: 200, scroll: 60 };
+
+    vi.stubGlobal('ResizeObserver', StubResizeObserver);
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback): number => {
+      frames.set(++nextFrame, callback);
+      return nextFrame;
+    });
+    vi.stubGlobal('cancelAnimationFrame', (id: number): void => void frames.delete(id));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+  });
+
+  afterEach(() => {
+    fixture?.destroy();
+    vi.unstubAllGlobals();
+  });
+
+  it('refits when its width changes, since that is what moves a line break', async () => {
+    await mount(true);
+    expect(native().style.height).toBe('60px');
+    expect(observers).toHaveLength(1);
+    expect(observers[0].targets).toEqual([native()]);
+
+    // Narrower: the same text now takes five lines instead of three.
+    box = { width: 120, scroll: 100 };
+    observers[0].resize(120);
+    runFrame();
+
+    expect(native().style.height).toBe('100px');
+  });
+
+  it('does not answer a resize that left the width alone', async () => {
+    await mount(true);
+    observers[0].resize(200);
+    runFrame();
+
+    // The height the fit writes is itself a resize; answering it would loop.
+    observers[0].resize(200);
+
+    expect(frames.size).toBe(0);
+  });
+
+  it('writes nothing while it is not rendered, and fits once it is shown', async () => {
+    // Under a `display: none` ancestor every box metric reads 0. Fitting to that
+    // collapsed the field to its borders until somebody typed into it.
+    box = { width: 0, scroll: 0 };
+    await mount(true);
+    fixture.componentInstance.notes.set('set while the tab was hidden');
+    await settle();
+
+    expect(native().style.height).toBe('');
+    expect(native().style.overflowY).toBe('');
+
+    box = { width: 200, scroll: 80 };
+    observers[0].resize(200);
+    runFrame();
+
+    expect(native().style.height).toBe('80px');
+  });
+
+  it('refits when maxRows changes', async () => {
+    box = { width: 200, scroll: 200 };
+    await mount(true);
+    Object.assign(native().style, { lineHeight: '20px', boxSizing: 'border-box' });
+    expect(native().style.height).toBe('200px');
+
+    fixture.componentInstance.maxRows.set(4);
+    await settle();
+
+    expect(native().style.height).toBe('80px');
+    expect(native().style.overflowY).toBe('auto');
+  });
+
+  it('refits when rows changes, which is the floor it measures from', async () => {
+    await mount(true);
+
+    box = { width: 200, scroll: 120 };
+    fixture.componentInstance.rows.set(6);
+    await settle();
+
+    expect(native().style.height).toBe('120px');
+  });
+
+  it('cancels the pending frame and stops observing when it is destroyed', async () => {
+    await mount(true);
+    fixture.componentInstance.notes.set('one more line');
+    await fixture.whenStable();
+    expect(frames.size).toBe(1);
+
+    fixture.destroy();
+
+    expect(frames.size).toBe(0);
+    expect(observers[0].connected).toBe(false);
+  });
+
+  it('stops observing when autosize is switched off', async () => {
+    await mount(true);
+
+    fixture.componentInstance.autosize.set(false);
+    await settle();
+
+    expect(observers[0].connected).toBe(false);
+    expect(native().style.height).toBe('');
+  });
+
+  it('observes nothing while autosize is off', async () => {
+    await mount(false);
+
+    expect(observers).toHaveLength(0);
+    expect(frames.size).toBe(0);
   });
 });
 
