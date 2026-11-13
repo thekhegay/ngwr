@@ -309,6 +309,8 @@ describe('the surfaces that draw it', () => {
       'wrPoll',
       'wrQueryParam',
       'withRenderOnNavigation',
+      'wrFeature',
+      'WR_LIVE_LOCALE',
       'Scrollbar',
     ]);
   });
