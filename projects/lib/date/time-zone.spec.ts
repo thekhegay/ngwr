@@ -156,6 +156,29 @@ describe('withDates({ timeZone })', () => {
     expect(berlin.format(east, 'HH:mm')).toBe('02:30');
   });
 
+  it('answers an Invalid Date as the adapter on the browser zone does, without throwing', () => {
+    const invalid = new Date(NaN);
+    const day = new Date(Date.UTC(2026, 10, 12, 8, 45));
+    for (const zone of ['Europe/Berlin', 'America/New_York', '+05:30']) {
+      const { plain, zoned } = adapters(zone);
+      expect(zoned.getYear(invalid)).toBeNaN();
+      expect(zoned.getHours(invalid)).toBeNaN();
+      expect(zoned.getDayOfWeek(invalid)).toBeNaN();
+      expect(zoned.format(invalid, 'yyyy-MM-dd HH:mm')).toBe(plain.format(invalid, 'yyyy-MM-dd HH:mm'));
+      expect(zoned.addDays(invalid, 1).getTime()).toBeNaN();
+      expect(zoned.addMonths(invalid, 1).getTime()).toBeNaN();
+      expect(zoned.addYears(invalid, 1).getTime()).toBeNaN();
+      expect(zoned.setTime(invalid, 1, 2, 3).getTime()).toBeNaN();
+      expect(zoned.createDate(NaN, 0, 1).getTime()).toBeNaN();
+      expect(zoned.compareDate(invalid, day)).toBeNaN();
+      expect(zoned.compareDate(day, invalid)).toBeNaN();
+      expect(zoned.isSameDay(invalid, day)).toBe(false);
+      expect(zoned.isSameDay(invalid, invalid)).toBe(false);
+      expect(zoned.isSameMonth(invalid, day)).toBe(false);
+      expect(zoned.isValid(invalid)).toBe(false);
+    }
+  });
+
   it('reads back what it printed, as the same instant', () => {
     for (const zone of ['+05:30', 'Asia/Tokyo', 'America/New_York']) {
       const { zoned } = adapters(zone);

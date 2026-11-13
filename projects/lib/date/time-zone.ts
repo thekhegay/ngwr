@@ -22,6 +22,9 @@ const OFFSET = /^([+-])(\d{2})(?::?(\d{2}))?$/;
 
 const MINUTE = 60_000;
 
+/** The largest time a `Date` holds. */
+const MAX_TIME = 8.64e15;
+
 const resolved = new Map<string, WrResolvedZone | null>();
 
 /**
@@ -100,6 +103,8 @@ function wrResolveZone(value: string | null | undefined): WrResolvedZone | null 
 function wrZoneWallTime(time: number, zone: WrResolvedZone | null): number {
   if (!zone) return time - new Date(time).getTimezoneOffset() * MINUTE;
   if (zone.kind === 'offset') return time + zone.minutes * MINUTE;
+  // `formatToParts` throws on a time no `Date` holds.
+  if (!(Math.abs(time) <= MAX_TIME)) return NaN;
 
   const read: Record<string, number> = {};
   for (const part of zone.fields.formatToParts(time)) read[part.type] = Number(part.value);
@@ -112,6 +117,7 @@ function wrZoneWallTime(time: number, zone: WrResolvedZone | null): number {
  * wall clock a daylight-saving change skips lands after the change, as
  * `new Date(y, m, d, h)` does for the browser's own zone. One the change
  * repeats is its first pass in a zone west of UTC and its second east of it.
+ * An invalid wall clock gives `NaN`.
  *
  * @internal
  */
