@@ -180,6 +180,9 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   /** Control size — shares the `--wr-control-*` contract. @default 'md' */
   readonly size = input<WrCascaderSize>('md');
 
+  /** Pill-shaped corners on the trigger. @default false */
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
+
   /** Show a clear-all (×) button on the trigger when a path is selected. @default true */
   readonly clearable = input(true, { transform: coerceBooleanProperty });
 
@@ -317,6 +320,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-cascader--${size}`);
+    if (this.rounded()) parts.push('wr-cascader--rounded');
     if (this.isOpen()) parts.push('wr-cascader--open');
     if (this.disabled()) parts.push('wr-cascader--disabled');
     else if (this.readonly()) parts.push('wr-cascader--readonly');

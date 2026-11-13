@@ -163,6 +163,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
    */
   readonly size = input<WrDatePickerSize>('md');
 
+  /** Pill-shaped corners on the field. The panel keeps its shape. @default false */
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
+
   /**
    * Show a clear (×) button once a date is picked. It is a pointer control: from the
    * keyboard, emptying the field clears the value. @default false
@@ -447,6 +450,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     const parts = [`wr-date-picker--${this.mode()}`];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-date-picker--${size}`);
+    if (this.rounded()) parts.push('wr-date-picker--rounded');
     if (this.disabled()) parts.push('wr-date-picker--disabled');
     if (this.inputError()) parts.push('wr-date-picker--invalid');
     return parts.join(' ');

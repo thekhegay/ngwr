@@ -90,6 +90,12 @@ export class WrInputOtp implements FormValueControl<string> {
    */
   readonly size = input<WrInputOtpSize>('md');
 
+  /**
+   * Pill-shaped corners. Every box takes them, so a square box draws a circle.
+   * @default false
+   */
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
+
   /** Mask the typed characters like a password. @default false */
   readonly mask = input(false, { transform: coerceBooleanProperty });
 
@@ -160,6 +166,7 @@ export class WrInputOtp implements FormValueControl<string> {
     const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-input-otp--${size}`);
+    if (this.rounded()) parts.push('wr-input-otp--rounded');
     if (this.disabled()) parts.push('wr-input-otp--disabled');
     else if (this.readonly()) parts.push('wr-input-otp--readonly');
     return parts.join(' ');

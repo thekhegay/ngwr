@@ -21,6 +21,7 @@ export default class InputOtpPageComponent {
   protected codeShort = '';
   protected secret = '';
   protected alphaNumeric = '';
+  protected roundedCode = '';
   protected readonly lastCompleted = signal<string | null>(null);
 
   /** Pre-filled so the read-only strip has something to announce. */
@@ -34,6 +35,8 @@ export default class InputOtpPageComponent {
     length: `<wr-input-otp [(value)]="codeShort" length="4" />`,
 
     masked: `<wr-input-otp [(value)]="secret" mask />`,
+
+    rounded: `<wr-input-otp [(value)]="code" rounded />`,
 
     alpha: `<wr-input-otp [(value)]="alphaNumeric" mode="alphanumeric" length="8" />`,
   };

@@ -91,6 +91,13 @@
     --wr-cascader-line-height: var(--wr-control-line-height-lg);
   }
 
+  // After the sizes, so the pill wins at every one of them.
+  &--rounded,
+  &:where([rounded]:not([rounded='false'])) {
+    --wr-cascader-radius: var(--wr-border-radius-pill);
+    --wr-cascader-padding-x: var(--wr-control-padding-x-lg);
+  }
+
   &__trigger {
     display: inline-flex;
     align-items: center;

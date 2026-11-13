@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Input OTP"
-  updated="15.0.0"
+  updated="16.3.0"
   description="Enter a one-time code, one character per box."
   [keywords]="['otp', 'pin', 'code', 'verification', 'wr-input-otp']"
   [labels]="['Signal Forms', 'a11y']"
@@ -34,6 +34,12 @@
   <ngwr-doc-section title="Masked" description="`mask` hides the characters like a password field.">
     <ngwr-doc-snippet [code]="snippets.masked" language="angular-html">
       <wr-input-otp [(value)]="secret" mask />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rounded" description="`rounded` gives every box pill corners, so a square box is a circle.">
+    <ngwr-doc-snippet [code]="snippets.rounded" language="angular-html">
+      <wr-input-otp [(value)]="roundedCode" rounded />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

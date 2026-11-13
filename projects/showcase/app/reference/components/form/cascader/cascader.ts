@@ -94,9 +94,12 @@ export default class CascaderPage {
   ];
 
   protected readonly picked = signal<readonly string[]>(['us', 'ca', 'sf']);
+  protected readonly roundedPick = signal<readonly string[]>(['us', 'ca', 'sf']);
   protected readonly pickedAny = signal<readonly string[]>([]);
 
   protected readonly snippets = {
+    rounded: `<wr-cascader rounded [options]="locations" [(value)]="picked" placeholder="Pick a location" />`,
+
     openFromCode: `<wr-cascader #place [options]="locations" [(value)]="picked" (opened)="onOpened()" (closed)="onClosed()" />
 <button wr-btn [attr.aria-expanded]="place.isOpen()" (click)="place.open()">Open</button>`,
 

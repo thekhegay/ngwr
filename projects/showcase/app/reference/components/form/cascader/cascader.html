@@ -80,6 +80,13 @@
     </div>
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Rounded" description="`rounded` gives the trigger pill corners. The panel keeps its shape.">
+    <ngwr-doc-code [code]="snippets.rounded" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-cascader rounded [options]="locations" [(value)]="roundedPick" placeholder="Pick a location" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section
     title="Width"
     description="The default is `12rem`; change it with `--wr-cascader-min-width`, not a `min-width` on `.wr-cascader__trigger`."

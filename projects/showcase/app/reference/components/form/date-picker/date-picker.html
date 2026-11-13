@@ -241,6 +241,16 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Rounded" description="`rounded` gives the field pill corners, on both pickers.">
+    <ngwr-doc-code [code]="snippets.rounded" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap">
+        <wr-date-picker rounded [(value)]="roundedDate" placeholder="Pick a date" />
+        <wr-date-range-picker rounded [(value)]="roundedPeriod" startPlaceholder="From" endPlaceholder="To" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section
     title="Clearable"
     description="`clearable` adds a clear button once there is a value. From the keyboard, empty the field."
