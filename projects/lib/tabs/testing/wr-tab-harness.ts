@@ -123,16 +123,13 @@ export class WrTabHarness extends ContentContainerComponentHarness {
   /**
    * Whether a Tab press can land on this header.
    *
-   * Either strip is ONE tab stop: a content strip hands it to the selected tab, a
-   * router strip to the tab the route selects, or to the first enabled one while
-   * no route matches. See `WrTabsHarness.getTabStopLabels()`.
+   * Either strip is ONE tab stop: a content strip hands it to the selected tab, or
+   * to the first enabled one while the selected tab is disabled; a router strip to
+   * the tab the route selects, or to the first enabled one while no route matches.
+   * See `WrTabsHarness.getTabStopLabels()`.
    *
-   * A non-negative `tabindex` is not enough on its own, which is why `disabled` is
-   * read too: `<wr-tabs>` gives the roving `tabindex="0"` to whatever `active`
-   * names without checking whether that tab is disabled, so a host binding `active`
-   * to a disabled tab's key renders a `<button disabled tabindex="0">` — which no
-   * Tab press reaches. jsdom will focus such a button anyway, so this is the only
-   * place a unit test can tell the difference.
+   * `disabled` is read as well as `tabindex`, because no Tab press reaches a
+   * disabled button whatever its `tabindex` says, and jsdom will focus one anyway.
    */
   async isTabStop(): Promise<boolean> {
     if (await this.isDisabled()) return false;
