@@ -357,6 +357,9 @@ export const wrHe: WrI18nCatalog = {
   alert: {
     close: 'סגירת ההתראה',
   },
+  tag: {
+    remove: 'הסרת {{label}}',
+  },
   qr: {
     label: 'קוד QR',
   },

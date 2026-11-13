@@ -341,6 +341,9 @@ export const wrId: WrI18nCatalog = {
   alert: {
     close: 'Tutup pemberitahuan',
   },
+  tag: {
+    remove: 'Hapus {{label}}',
+  },
   qr: {
     label: 'Kode QR',
   },

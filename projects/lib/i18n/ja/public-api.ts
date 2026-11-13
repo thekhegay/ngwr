@@ -345,6 +345,9 @@ export const wrJa: WrI18nCatalog = {
   alert: {
     close: 'アラートを閉じる',
   },
+  tag: {
+    remove: '{{label}}を削除',
+  },
   qr: {
     label: 'QRコード',
   },

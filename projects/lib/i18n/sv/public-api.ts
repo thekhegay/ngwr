@@ -341,6 +341,9 @@ export const wrSv: WrI18nCatalog = {
   alert: {
     close: 'Stäng meddelandet',
   },
+  tag: {
+    remove: 'Ta bort {{label}}',
+  },
   qr: {
     label: 'QR-kod',
   },

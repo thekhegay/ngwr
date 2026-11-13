@@ -341,6 +341,9 @@ export const wrEs: WrI18nCatalog = {
   alert: {
     close: 'Cerrar la alerta',
   },
+  tag: {
+    remove: 'Quitar {{label}}',
+  },
   qr: {
     label: 'Código QR',
   },

@@ -341,6 +341,9 @@ export const wrHi: WrI18nCatalog = {
   alert: {
     close: 'अलर्ट बंद करें',
   },
+  tag: {
+    remove: '{{label}} हटाएं',
+  },
   qr: {
     label: 'QR कोड',
   },

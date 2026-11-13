@@ -338,6 +338,9 @@ export const wrZh: WrI18nCatalog = {
   alert: {
     close: '关闭提示',
   },
+  tag: {
+    remove: '移除 {{label}}',
+  },
   qr: {
     label: '二维码',
   },

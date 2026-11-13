@@ -440,6 +440,9 @@ export const wrEn: WrI18nCatalog = {
   alert: {
     close: 'Close alert',
   },
+  tag: {
+    remove: 'Remove {{label}}',
+  },
   qr: {
     label: 'QR code',
   },
