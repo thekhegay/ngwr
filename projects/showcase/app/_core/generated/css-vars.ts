@@ -924,7 +924,7 @@ export const CSS_VARS = {
       { name: "--wr-color-picker-swatch-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-color-picker__swatch" },
       { name: "--wr-color-picker-swatches-gap", default: "var(--wr-space-xs)", scope: ".wr-color-picker__swatches" },
       { name: "--wr-color-picker-tabs-font-size", default: "var(--wr-text-xs)", scope: ".wr-color-picker__tabs" },
-      { name: "--wr-color-picker-thumb-size", default: "0.875rem", scope: ".wr-color-picker", overrides: 2 },
+      { name: "--wr-color-picker-thumb-size", default: "0.875rem", scope: ".wr-color-picker", overrides: 1 },
       { name: "--wr-color-picker-width", default: "17rem", scope: ".wr-color-picker", overrides: 2 },
       { name: "--wr-preview-size", default: "1.75rem", scope: ".wr-color-picker__preview" },
     ],
