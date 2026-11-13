@@ -470,7 +470,8 @@
 @if (showPager()) {
   <div class="wr-table__pager">
     <wr-pagination
-      [(page)]="page"
+      [page]="page()"
+      (pageChange)="onPagerPage($event)"
       [pageSize]="currentPageSize()"
       (pageSizeChange)="onPageSizeChange($event)"
       [total]="resolvedTotal()"

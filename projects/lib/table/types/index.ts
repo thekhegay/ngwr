@@ -19,4 +19,5 @@ export type { WrTableExpandContext } from './table-expand-context';
 export type { WrTableGroupContext } from './table-group-context';
 export type { WrTableLoadingMode } from './table-loading-mode';
 export type { WrTableSelectionContext } from './table-selection-context';
+export type { WrTableState } from './table-state';
 export type { WrTableSummaryContext } from './table-summary-context';

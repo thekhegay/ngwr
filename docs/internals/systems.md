@@ -274,7 +274,17 @@ one component folder. Reach for them instead of hand-rolling:
   Header hints (`headerHint`) and cut cells (`truncate: 'tooltip'`) share ONE
   `WrPopover` per table, created on first use and pointed at the hovered or
   focused cell through `wrPopoverOrigin`; the table listens natively, so a
-  `mouseover` runs no change detection. Three pairs
+  `mouseover` runs no change detection. `hiddenColumns` filters
+  `displayColumns`, the one list every measurement keys off, so pins, widths
+  and colspans follow a hidden column with no code of their own; `columnChooser`
+  adds a toolbar strip above the scroll area (the table had no place for a
+  control of its own, and a header cell is gone in card mode). A
+  `[wrTableSelectionBar]` template draws a bar over the header while rows are
+  selected: it sits in a box of no height in front of the scroll area, so it
+  needs no sticky rule in any mode, leaves the select-all cell uncovered and
+  makes the header cells under it `inert`. `stateChange` reports reader actions
+  only and is emitted from an effect, which is what folds an action that writes
+  two parts into one event; `[state]` restores by object identity. Three pairs
   are refused rather than half-supported: tree + `groupBy`, tree +
   `[wrTableExpand]`, tree + `virtualScroll`. Excel (`.xlsx`)
   export is deliberately NOT shipped (would need a third-party dep). Don't
