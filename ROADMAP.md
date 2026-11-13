@@ -4,12 +4,9 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very high
 
-- **Size everywhere**: sm, md and lg on slider, color-picker, file-upload, transfer, progress and tag.
 - **Rounded fields**: on textarea, cascader, date-picker, range picker and input-otp.
 - **Per-instance labels**: `*Label` inputs on calendar, event-calendar, tree, chart-legend and stepper.
 - **One position set**: popconfirm and dropdown take popover's twelve positions.
-- **More harnesses**: alert, sidebar, resizable, compare, burger, breadcrumbs, schema-form and pull-to-refresh.
-- **Swatch labels**: a colour-picker preset announces a name, not its raw colour string.
 
 ## High
 
