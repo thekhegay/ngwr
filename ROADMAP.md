@@ -9,7 +9,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Medium
 
-- **Missing reference pages**: `ngwr/charts/core`, the `ngwr/date` exports (`wrIsDateOnly`, `wrToLocalDate`, `WR_DATE_INPUT`, `WR_DATE_STAMP_DEFAULTS`), `wrFeature`, `wrIsSafeCssValue`, `WR_LIVE_LOCALE`, `wrMatchesHotkey` and `wrParseHotkeySpec`.
 - **Faster slow specs**: one cached Sass compile helper, the theme and layered-layout specs computing once, and timeouts on the MCP compile hook and the other heavy files.
 - **Lint stages**: `check:selectors`, `check:install` and `check:attrs` build the selector map once.
 - **Unused devDependency**: drop `@angular-devkit/core` if nothing needs it directly.
