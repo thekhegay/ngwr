@@ -8,11 +8,13 @@ import {
   WrTableCell,
   WrTableExpand,
   WrTableGroupHeader,
+  WrTableSelectionBar,
   WrTable,
   type WrTableColumns,
   type WrTableFilterChange,
   type WrTableLoadingMode,
   type WrTableSortState,
+  type WrTableState,
   wrSortRows,
 } from 'ngwr/table';
 
@@ -129,6 +131,7 @@ const WIDE_ROWS: readonly Record<string, unknown>[] = [
     WrTableCell,
     WrTableExpand,
     WrTableGroupHeader,
+    WrTableSelectionBar,
     WrTag,
     WrButton,
     WrCopyValue,
@@ -331,6 +334,65 @@ export default class TablePageComponent {
     role: { title: 'Role', width: 160 },
   };
 
+  protected readonly hiddenColumns = signal<readonly string[]>(['joined']);
+  protected readonly chooserColumns: WrTableColumns = {
+    name: { title: 'Name', hideable: false },
+    email: { title: 'Email' },
+    department: { title: 'Department' },
+    location: { title: 'Location' },
+    joined: { title: 'Joined' },
+  };
+
+  protected readonly bulkSelected = signal<readonly unknown[]>([]);
+  protected readonly bulkRows = signal<readonly Row[]>(RAW_ROWS);
+  protected readonly bulkColumns: WrTableColumns<Row> = {
+    name: { title: 'Name' },
+    email: { title: 'Email' },
+    role: { title: 'Role' },
+  };
+
+  protected removeRows(rows: readonly Row[], clear: () => void): void {
+    this.bulkRows.update(all => all.filter(row => !rows.includes(row)));
+    clear();
+  }
+
+  protected resetBulkRows(): void {
+    this.bulkRows.set(RAW_ROWS);
+  }
+
+  protected readonly viewState = signal<WrTableState | null>(null);
+  protected readonly savedView = signal<WrTableState | null>(null);
+  protected readonly viewColumns: WrTableColumns<Row> = {
+    name: { title: 'Name', sortable: true },
+    email: { title: 'Email' },
+    role: {
+      title: 'Role',
+      sortable: true,
+      filterItems: [
+        { title: 'Admin', value: 'admin' },
+        { title: 'Editor', value: 'editor' },
+        { title: 'Viewer', value: 'viewer' },
+      ],
+    },
+  };
+  // The table sorts and filters nothing: the host reads both off the state.
+  protected readonly viewRows = computed<readonly Row[]>(() => {
+    const state = this.viewState();
+    const roles = state?.filters['role'] ?? [];
+    const rows = roles.length === 0 ? PAGINATED_ROWS : PAGINATED_ROWS.filter(row => roles.includes(row.role));
+    return wrSortRows(rows, state?.sort ?? []);
+  });
+  protected readonly viewStateText = computed(() => JSON.stringify(this.viewState(), null, 2));
+
+  protected saveView(): void {
+    this.savedView.set(this.viewState());
+  }
+
+  protected restoreView(): void {
+    const saved = this.savedView();
+    if (saved) this.viewState.set({ ...saved });
+  }
+
   protected readonly snippets = {
     basic: `<wr-table [columns]="columns" [items]="rows" />`,
     custom: `<wr-table [columns]="columns" [items]="rows" [(sort)]="sort" (filterChange)="onFilter($event)">
@@ -477,6 +539,32 @@ effect(() => {
   role:  { title: 'Role', resizable: true },
 };`,
     reorderable: `<wr-table reorderable [(columnOrder)]="order" [columns]="columns" [items]="rows" />`,
+    hiddenColumns: `const columns: WrTableColumns = {
+  name:   { title: 'Name', hideable: false },
+  email:  { title: 'Email' },
+  joined: { title: 'Joined' },
+};
+readonly hidden = signal<readonly string[]>(['joined']);
+
+<wr-table columnChooser [(hiddenColumns)]="hidden" [columns]="columns" [items]="rows" />`,
+    selectionBar: `<wr-table rowSelection="multiple" rowKey="email" [(selection)]="selected" [columns]="columns" [items]="rows()">
+  <ng-template wrTableSelectionBar [wrTableSelectionBarOf]="rows()" let-rows let-clear="clear">
+    <button wr-btn type="button" size="sm" color="danger" (click)="remove(rows, clear)">Delete</button>
+  </ng-template>
+</wr-table>`,
+    savedView: `readonly state = signal<WrTableState | null>(null);
+readonly saved = signal<WrTableState | null>(null);
+
+save(): void {
+  this.saved.set(this.state());
+}
+
+restore(): void {
+  const saved = this.saved();
+  if (saved) this.state.set({ ...saved });
+}
+
+<wr-table [columns]="columns" [items]="rows()" [pageSize]="5" [(state)]="state" />`,
     selection: `<wr-table
   rowSelection="multiple"
   rowKey="email"
@@ -585,6 +673,47 @@ const columns: WrTableColumns = {
       default: '—',
     },
     {
+      name: '[wrTableSelectionBar]',
+      description:
+        'Actions of the bar drawn over the header while rows are selected; import `WrTableSelectionBar`. Since v16.3.',
+      type: 'directive',
+      default: '—',
+    },
+    {
+      name: '[wrTableSelectionBarOf]',
+      description: 'The rows, for the type checker only: types `let-rows`. Bind the same array as `[items]`.',
+      type: 'readonly T[] | null | undefined',
+      sub: true,
+    },
+    {
+      name: 'let-rows',
+      description: 'The selected rows the table holds, in `items` order.',
+      type: 'readonly T[]',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'let-count="count"',
+      description: 'How many keys `selection` holds.',
+      type: 'number',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'let-clear="clear"',
+      description: 'Empties the selection.',
+      type: '() => void',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'let-scope="scope"',
+      description: "The select-all scope in force: `selectAllScope`, or `'page'` in server mode.",
+      type: "'page' | 'all'",
+      default: '—',
+      sub: true,
+    },
+    {
       name: '[wrTableIgnoreRowClick]',
       description:
         'A plain attribute, no import: a click on the element or in it does not fire `rowClick`. Since v16.1.',
@@ -631,6 +760,12 @@ const columns: WrTableColumns = {
     {
       name: 'expandAllRows() / collapseAllRows()',
       description: 'Open or close every parent in a tree-mode forest. No-ops when `childrenKey` is unset.',
+      type: '() => void',
+      default: '—',
+    },
+    {
+      name: 'clearSelection()',
+      description: 'Empty the selection, as the clear button of the selection bar does. Since v16.3.',
       type: '() => void',
       default: '—',
     },
@@ -695,6 +830,7 @@ interface WrTableColumn<T = object> {
   sortable?: boolean;
   filterItems?: readonly WrTableFilterItem[];
   pin?: 'left' | 'right';
+  hideable?: boolean;
   resizable?: boolean;
   width?: number;
   summary?: WrTableSummary;
@@ -735,6 +871,22 @@ interface WrTableGroupContext {
   toggle: () => void;
 }
 
+interface WrTableSelectionContext<T = object> {
+  $implicit: readonly T[];
+  count: number;
+  clear: () => void;
+  scope: 'page' | 'all';
+}
+
+interface WrTableState {
+  sort: readonly WrTableSortState[];
+  filters: Readonly<Record<string, readonly unknown[]>>;
+  page: number;
+  pageSize: number;
+  columnOrder: readonly string[];
+  hiddenColumns: readonly string[];
+}
+
 type WrTableSummary =
   | 'sum' | 'avg' | 'count' | 'min' | 'max'
   | ((rows: readonly Record<string, unknown>[], context: WrTableSummaryContext) => unknown);
@@ -769,6 +921,13 @@ type WrTableSummaryContext =
       name: 'pin',
       description: "Freeze the column against the 'left' or 'right' edge while the rest scrolls.",
       type: "'left' | 'right'",
+      sub: true,
+    },
+    {
+      name: 'hideable',
+      description: '`false` keeps the column out of reach of `hiddenColumns` and the column chooser. Since v16.3.',
+      type: 'boolean',
+      default: 'true',
       sub: true,
     },
     {
