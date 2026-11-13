@@ -65,9 +65,10 @@
   --wr-table-pager-padding: var(--wr-space-sm) var(--wr-space-md);
   --wr-table-toolbar-padding: var(--wr-space-sm) var(--wr-space-md);
   // The selection bar. `-height` is the header's, written inline once it is
-  // measured; `-inset` is the select-all column the bar leaves uncovered.
-  --wr-table-selection-bar-bg: var(--wr-color-primary-soft);
-  --wr-table-selection-bar-color: var(--wr-color-primary-ink);
+  // measured; `-inset` is the select-all column the bar leaves uncovered. It
+  // wears the header's own fill: the selected rows are already tinted.
+  --wr-table-selection-bar-bg: var(--wr-table-head-bg);
+  --wr-table-selection-bar-color: var(--wr-color-on-surface);
   --wr-table-selection-bar-padding-x: var(--wr-space-md);
   --wr-table-selection-bar-gap: var(--wr-space-md);
   --wr-table-selection-bar-height: 2.5rem;
