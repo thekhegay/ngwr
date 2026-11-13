@@ -2020,6 +2020,17 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     { name: 'removeFile(i) / removeFileNamed(name)', description: 'By index or exact name.', type: 'Promise<void>' },
     {
+      name: 'getFileStatus(name)',
+      description: "The `[status]` state of a file: `'pending'`, `'uploading'`, `'done'`, `'error'` or `null`.",
+      type: 'Promise<WrFileUploadState | null>',
+    },
+    { name: 'retry(name)', description: 'Presses the retry button of a failed file.', type: 'Promise<void>' },
+    {
+      name: 'hasPreview(name)',
+      description: 'Whether the row shows a thumbnail. Stub `URL.createObjectURL` in jsdom.',
+      type: 'Promise<boolean>',
+    },
+    {
       name: 'getLabel() / getPickText() / getDropText() / getHelperText() / getAccept() / isMultiple() / isDisabled() / getSize()',
       description: 'Copy and settings.',
       type: 'Promise<…>',

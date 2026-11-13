@@ -54,6 +54,52 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Upload progress"
+    description="The component does no HTTP. Upload each file yourself and set its state in `[status]`, a `Map` keyed by `File`: `pending`, `uploading` (with a `percent`, or indeterminate without), `done` or `error`. A failed row shows your `message` and a button that emits `(retry)`. Since v16.3."
+  >
+    <ngwr-doc-code [code]="snippets.progress" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.progressTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
+        <wr-file-upload
+          [multiple]="true"
+          [value]="uploads()"
+          [status]="statuses()"
+          helperText="A fake upload: every second file fails once"
+          (valueChange)="onUploads($event)"
+          (retry)="upload($event)"
+        />
+        <div><wr-btn size="sm" outlined (click)="addSamples()">Add sample files</wr-btn></div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Image previews"
+    description="`previews` shows a thumbnail beside each image file. Since v16.3."
+  >
+    <ngwr-doc-code [code]="snippets.previews" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-file-upload [(value)]="previewed" [multiple]="true" [previews]="true" accept="image/*" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Paste"
+    description="`acceptPaste` takes files pasted with Ctrl/Cmd+V while the zone has focus, under the same `accept`, `maxSize` and `maxFiles` rules as a drop. Since v16.3."
+  >
+    <ngwr-doc-code [code]="snippets.paste" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-file-upload
+        [(value)]="pasted"
+        [multiple]="true"
+        [acceptPaste]="true"
+        helperText="Focus the zone, then paste a screenshot or a copied file"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Types">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />
