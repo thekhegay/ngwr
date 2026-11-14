@@ -495,6 +495,9 @@ export const wrHi: WrI18nCatalog = {
     label: 'ग्राफ़',
     parents: 'पैरेंट: {{names}}।',
     children: 'चाइल्ड: {{names}}।',
+    zoomIn: 'ज़ूम इन करें',
+    zoomOut: 'ज़ूम आउट करें',
+    fit: 'दृश्य में फ़िट करें',
   },
   progress: {
     label: 'प्रगति',

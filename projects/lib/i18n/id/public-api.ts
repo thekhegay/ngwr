@@ -495,6 +495,9 @@ export const wrId: WrI18nCatalog = {
     label: 'Graf',
     parents: 'Induk: {{names}}.',
     children: 'Anak: {{names}}.',
+    zoomIn: 'Perbesar',
+    zoomOut: 'Perkecil',
+    fit: 'Sesuaikan dengan tampilan',
   },
   progress: {
     label: 'Kemajuan',

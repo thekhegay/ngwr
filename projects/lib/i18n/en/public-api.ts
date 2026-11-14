@@ -626,6 +626,9 @@ export const wrEn: WrI18nCatalog = {
     // the two joined by a single space, and adds no punctuation of its own.
     parents: 'Parents: {{names}}.',
     children: 'Children: {{names}}.',
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out',
+    fit: 'Fit to view',
   },
   progress: {
     label: 'Progress',

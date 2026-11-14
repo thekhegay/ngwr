@@ -507,6 +507,9 @@ export const wrKo: WrI18nCatalog = {
     label: '그래프',
     parents: '상위 항목: {{names}}.',
     children: '하위 항목: {{names}}.',
+    zoomIn: '확대',
+    zoomOut: '축소',
+    fit: '화면에 맞추기',
   },
   progress: {
     label: '진행률',

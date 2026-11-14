@@ -514,6 +514,9 @@ export const wrFr: WrI18nCatalog = {
     label: 'Graphe',
     parents: 'Parents : {{names}}.',
     children: 'Enfants : {{names}}.',
+    zoomIn: 'Zoom avant',
+    zoomOut: 'Zoom arrière',
+    fit: 'Ajuster à la vue',
   },
   progress: {
     label: 'Progression',

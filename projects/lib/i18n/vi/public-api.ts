@@ -512,6 +512,9 @@ export const wrVi: WrI18nCatalog = {
     label: 'Đồ thị',
     parents: 'Nút cha: {{names}}.',
     children: 'Nút con: {{names}}.',
+    zoomIn: 'Phóng to',
+    zoomOut: 'Thu nhỏ',
+    fit: 'Vừa khung nhìn',
   },
   progress: {
     label: 'Tiến trình',

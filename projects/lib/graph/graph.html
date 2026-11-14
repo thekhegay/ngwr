@@ -1,13 +1,22 @@
 @let graph = view();
-<!-- The scroller is the one tab stop: a named group, so its label is allowed, and focusable so a keyboard can scroll it. -->
+<!-- The scroller is the one tab stop: a named group, so its label is allowed, and focusable so a keyboard can scroll it — or, when zoomable, zoom and pan it. -->
 <div
+  #viewport
   class="wr-graph__viewport"
   role="group"
   tabindex="0"
   [attr.aria-label]="label()"
   [attr.aria-busy]="layoutPending() ? 'true' : null"
 >
-  <div class="wr-graph__stage" [style.width.px]="graph.width" [style.height.px]="graph.height">
+  <div
+    #stage
+    class="wr-graph__stage"
+    [class.wr-graph__stage--animated]="animated()"
+    [style.width.px]="graph.width"
+    [style.height.px]="graph.height"
+    [style.transform]="stageTransform()"
+    (transitionend)="animated.set(false)"
+  >
     <svg
       class="wr-graph__edges"
       aria-hidden="true"
@@ -63,3 +72,78 @@
     </div>
   </div>
 </div>
+<!-- After the viewport, never inside it: the buttons stay put while the drawing moves, and follow it in the tab order. -->
+@if (zoomable()) {
+  <div class="wr-graph__controls">
+    <!-- `aria-disabled`, not `disabled`: a button that reached its bound under the keyboard keeps the focus. -->
+    <button
+      type="button"
+      class="wr-graph__control wr-graph__control--zoom-in"
+      [attr.aria-label]="zoomInText()"
+      [attr.aria-disabled]="atMaxZoom() ? 'true' : null"
+      (click)="zoomIn()"
+    >
+      <svg
+        class="wr-icon__svg"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M5 12h14" />
+        <path d="M12 5v14" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="wr-graph__control wr-graph__control--zoom-out"
+      [attr.aria-label]="zoomOutText()"
+      [attr.aria-disabled]="atMinZoom() ? 'true' : null"
+      (click)="zoomOut()"
+    >
+      <svg
+        class="wr-icon__svg"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M5 12h14" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="wr-graph__control wr-graph__control--fit"
+      [attr.aria-label]="fitText()"
+      (click)="fitView(true)"
+    >
+      <svg
+        class="wr-icon__svg"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+        <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+        <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+        <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+      </svg>
+    </button>
+  </div>
+}

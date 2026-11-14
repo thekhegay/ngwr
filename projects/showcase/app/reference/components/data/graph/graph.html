@@ -4,7 +4,7 @@
   [keywords]="['graph', 'wr-graph', 'org chart', 'dependency graph', 'diagram', 'hierarchy', 'dag']"
   [labels]="['Component', 'SSR-safe']"
   since="14.5.0"
-  updated="16.3.0"
+  updated="16.4.0"
 >
   <ngwr-doc-section
     title="Nodes and edges"
@@ -119,20 +119,77 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Zoom and pan"
+    description="`zoomable` swaps scrolling for zoom and pan and adds three buttons. The drawing is fitted until the view is moved; `fit()` fits it again."
+  >
+    <ngwr-doc-snippet [files]="zoomFiles">
+      <div class="zoom">
+        <div class="zoom__bar">
+          <wr-btn size="sm" (click)="serviceGraph.resetView()">100%</wr-btn>
+          <wr-btn size="sm" (click)="serviceGraph.fit()">Fit</wr-btn>
+          <span class="zoom__value">{{ zoomPercent() }}%</span>
+        </div>
+        <wr-graph
+          #serviceGraph
+          zoomable
+          class="zoom__graph"
+          [nodes]="serviceNodes"
+          [edges]="serviceEdges"
+          [nodeWidth]="144"
+          ariaLabel="Service map"
+          [(zoom)]="zoom"
+        />
+      </div>
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Input</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><kbd>Ctrl</kbd> or <kbd>⌘</kbd> + wheel, pinch</th>
+            <td>Zooms around the pointer. A plain wheel scrolls the page, unless <code>wheelZoom</code> is set.</td>
+          </tr>
+          <tr>
+            <th scope="row">Drag</th>
+            <td>Pans. A drag that starts on a link or a control inside a node does not.</td>
+          </tr>
+          <tr>
+            <th scope="row"><kbd>+</kbd> / <kbd>-</kbd></th>
+            <td>Zooms in or out by a step, while the viewport has focus.</td>
+          </tr>
+          <tr>
+            <th scope="row"><kbd>0</kbd></th>
+            <td>Fits the whole drawing, never above 100%.</td>
+          </tr>
+          <tr>
+            <th scope="row">Arrow keys</th>
+            <td>Move the view, as they scroll a page.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Accessibility"
     description="Each node reads out its parents and children. Give every graph on a page its own `ariaLabel`."
   />
 
   <ngwr-doc-section
     title="What it does not do"
-    description="No selection, zoom, editing or edge labels. Content larger than its node box spills over, so size the box."
+    description="No selection, editing or edge labels. Content larger than its node box spills over, so size the box."
   />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="State" description="Read it through a template reference.">
+  <ngwr-doc-section title="State and methods" description="Reach them through a template reference.">
     <ngwr-doc-api [rows]="stateRows" />
   </ngwr-doc-section>
 

@@ -26,6 +26,15 @@
   --wr-graph-card-padding: var(--wr-space-sm) var(--wr-space-md);
   --wr-graph-card-font-size: var(--wr-text-sm);
   --wr-graph-card-line-height: var(--wr-leading-tight);
+  // The zoom buttons, drawn only with `zoomable`.
+  --wr-graph-controls-offset: var(--wr-space-sm);
+  --wr-graph-controls-gap: var(--wr-space-xs);
+  --wr-graph-control-size: 1.75rem;
+  --wr-graph-control-background: var(--wr-color-surface);
+  --wr-graph-control-hover-background: var(--wr-color-hover);
+  --wr-graph-control-color: var(--wr-color-on-surface);
+  --wr-graph-control-border: var(--wr-border-base);
+  --wr-graph-control-radius: var(--wr-border-radius-base);
 
   display: block;
   // A grid or flex item's automatic minimum width is its min-content width, and
@@ -113,5 +122,83 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+
+  // Zoom and pan. The viewport stops scrolling: the stage keeps its layout box,
+  // so the viewport still grows to the drawing when the host has no height, and
+  // one transform moves the picture inside it.
+  &--zoomable {
+    position: relative;
+  }
+
+  &--zoomable &__viewport {
+    // The stage's offset parent, which is how its untransformed place is measured.
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+    // A drag and a pinch on the graph are the graph's, not the page's.
+    touch-action: none;
+  }
+
+  &--zoomable &__stage {
+    // rtl-ok: the transform is written in physical pixels from the top-left corner
+    transform-origin: 0 0;
+  }
+
+  // Only a step from a button or a key eases; a drag, a pinch and the wheel
+  // follow the pointer frame by frame.
+  &__stage--animated {
+    transition: transform var(--wr-duration-base) var(--wr-ease-out);
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  &--panning &__viewport {
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  &__controls {
+    position: absolute;
+    inset-block-end: var(--wr-graph-controls-offset);
+    inset-inline-end: var(--wr-graph-controls-offset);
+    display: flex;
+    gap: var(--wr-graph-controls-gap);
+  }
+
+  &__control {
+    display: inline-flex;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    width: var(--wr-graph-control-size);
+    height: var(--wr-graph-control-size);
+    padding: 0;
+    color: var(--wr-graph-control-color);
+    font: inherit;
+    cursor: pointer;
+    background: var(--wr-graph-control-background);
+    border: 1px solid var(--wr-graph-control-border);
+    border-radius: var(--wr-graph-control-radius);
+    transition: background-color var(--wr-transition-short);
+
+    @include theme.touch-target;
+
+    &:hover {
+      background: var(--wr-graph-control-hover-background);
+    }
+
+    &[aria-disabled='true'] {
+      cursor: not-allowed;
+      background: var(--wr-graph-control-background);
+      opacity: 0.5;
+    }
+
+    .wr-icon__svg {
+      width: 1rem;
+      height: 1rem;
+    }
   }
 }

@@ -495,6 +495,9 @@ export const wrCs: WrI18nCatalog = {
     label: 'Graf',
     parents: 'Rodiče: {{names}}.',
     children: 'Potomci: {{names}}.',
+    zoomIn: 'Přiblížit',
+    zoomOut: 'Oddálit',
+    fit: 'Přizpůsobit zobrazení',
   },
   progress: {
     label: 'Průběh',

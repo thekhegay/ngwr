@@ -509,6 +509,9 @@ export const wrNl: WrI18nCatalog = {
     label: 'Graaf',
     parents: 'Ouders: {{names}}.',
     children: 'Kinderen: {{names}}.',
+    zoomIn: 'Inzoomen',
+    zoomOut: 'Uitzoomen',
+    fit: 'Passend maken',
   },
   progress: {
     label: 'Voortgang',

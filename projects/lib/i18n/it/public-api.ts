@@ -509,6 +509,9 @@ export const wrIt: WrI18nCatalog = {
     label: 'Grafo',
     parents: 'Genitori: {{names}}.',
     children: 'Figli: {{names}}.',
+    zoomIn: 'Ingrandisci',
+    zoomOut: 'Riduci',
+    fit: 'Adatta alla vista',
   },
   progress: {
     label: 'Avanzamento',

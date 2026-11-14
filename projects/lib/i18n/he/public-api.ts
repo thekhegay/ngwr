@@ -516,6 +516,9 @@ export const wrHe: WrI18nCatalog = {
     label: 'גרף',
     parents: 'הורים: {{names}}.',
     children: 'ילדים: {{names}}.',
+    zoomIn: 'הגדלה',
+    zoomOut: 'הקטנה',
+    fit: 'התאמה לתצוגה',
   },
   progress: {
     label: 'התקדמות',
