@@ -28,7 +28,7 @@ import {
   WrChartTable,
   type WrChartTableData,
   wrChartAxis,
-  wrChartColor,
+  wrChartLegacyColor,
   wrChartDash,
   useChartNumbers,
 } from 'ngwr/charts/core';
@@ -495,7 +495,7 @@ export class WrRadarChart {
     return this.series().map((s, index) => ({
       index,
       label: s.label,
-      color: s.color ?? wrChartColor(index),
+      color: s.color ?? wrChartLegacyColor(index),
       dash: wrChartDash(index),
       values: Array.from({ length: count }, (_, a): number | null => {
         const value = s.data[a];

@@ -1,7 +1,7 @@
 import { Component, LOCALE_ID, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { wrChartColor } from 'ngwr/charts/core';
+import { wrChartLegacyColor } from 'ngwr/charts/core';
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { compileSass } from '../../spec-sass';
@@ -151,8 +151,8 @@ describe('WrBoxplotChart', () => {
     it("paints every group in the chart's colour unless it has its own", () => {
       // The input keeps the literal default the docs print; this holds it to the palette.
       expect(groups().map(group => group.style.getPropertyValue('--wr-boxplot-chart-group-color'))).toEqual([
-        wrChartColor(0),
-        wrChartColor(0),
+        wrChartLegacyColor(0),
+        wrChartLegacyColor(0),
       ]);
 
       host().color.set('var(--wr-color-success)');
@@ -417,7 +417,9 @@ describe('WrBoxplotChart', () => {
       // The outliers row lists VALUES, as the data table's column of the same name does:
       // North's one outlier is 30, which a count would have written as 1.
       expect(chipTexts('.wr-chart-tooltip__row-value')).toEqual(['10', '8.5', '6', '3.5', '1', '30']);
-      expect(chip()!.querySelector<HTMLElement>('.wr-chart-tooltip__swatch')!.style.background).toBe(wrChartColor(0));
+      expect(chip()!.querySelector<HTMLElement>('.wr-chart-tooltip__swatch')!.style.background).toBe(
+        wrChartLegacyColor(0)
+      );
       expect(groups()[0].classList).toContain('wr-boxplot-chart__group--active');
     });
 

@@ -343,6 +343,13 @@ export const wrEn: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  // What a chart shows in place of its marks: no data, a request in flight, a failed
+  // load. One set for every chart; each has a `*Label` input over it.
+  chart: {
+    empty: 'No data',
+    loading: 'Loading…',
+    error: 'Could not load',
+  },
   barChart: {
     label: 'Bar chart',
     total: 'Total',

@@ -31,7 +31,7 @@ import {
   WrChartTable,
   type WrChartTableData,
   wrChartAxis,
-  wrChartColor,
+  wrChartLegacyColor,
   wrChartDash,
   useChartNumbers,
 } from 'ngwr/charts/core';
@@ -368,7 +368,7 @@ export class WrLineChart {
       label: s.label,
       dash: wrChartDash(i),
       data: s.data.map(v => (typeof v === 'number' && Number.isFinite(v) ? v : null)),
-      color: s.color ?? wrChartColor(i),
+      color: s.color ?? wrChartLegacyColor(i),
     }))
   );
 

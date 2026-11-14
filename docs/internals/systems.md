@@ -253,7 +253,29 @@ one component folder. Reach for them instead of hand-rolling:
   line, scatter, radar, heatmap chart, calendar heatmap, funnel, waterfall,
   treemap, box plot and candlestick — every export `@internal`, so it stays out of
   `llms-full.txt` and the skill catalog; a chart that renders the table
-  positions its host. Its legend is `ul[wr-chart-legend]`
+  positions its host. **The chart theme is that entry point's stylesheet**:
+  `--wr-chart-*` on `:root` (grid, axis, zero, label, stroke, marker,
+  bar-radius, gap, separator, dim, track, band, duration, the palette
+  `--wr-chart-1` to `-8`, `--wr-chart-seq-1` to `-5`, `--wr-chart-div-neg` /
+  `-pos`), each on a role, with the measured contrast in the sheet's own
+  comment and held by `charts/core/theme.spec.ts`. A chart's own
+  `--wr-<chart>-*` hooks default to those tokens, so a token restyles every
+  chart and a hook one. `WR_CHART_PALETTE` / `wrChartColor` resolve to the
+  tokens; `wrChartLegacyColor` is the old intent palette, for the charts not
+  moved yet - a chart moves by swapping the call and loading
+  `charts/core/styles`. The sheet loads the theme it names the roles of, and
+  also carries the shared rules: the hover-dim (`data-wr-series` on every mark
+  and legend row, `wr-chart--dim` / `wr-chart-mark--on` set by
+  `useChartHover`, one native listener pair per chart reading
+  `data-wr-index`), the legend-beside-the-chart layout
+  (`wr-chart--legend-side`) and `wr-chart-state`, the empty / loading / error
+  message a chart shows over the frame it keeps (`useChartState`, keys
+  `chart.empty` / `chart.loading` / `chart.error`). Beside them:
+  `wrChartNumberFormat` (one `Intl.NumberFormat` per locale and options for the
+  page), `wrChartRound`, `wrChartLongest` (measure a few of the longest labels,
+  never all), `wrChartLabelStep` and `useChartSize` / `wrChartObserveSize` (one
+  `ResizeObserver` for every chart). `wr-bar-chart` is the reference
+  implementation: copy its use of each. Its legend is `ul[wr-chart-legend]`
   (`ngwr/charts/chart-legend`), whose opt-in `toggleable` rows are
   `<button aria-pressed>` over a `hiddenSeries` model the chart feeds to its
   axis, tooltip and table. Only the three charts whose legends predate the

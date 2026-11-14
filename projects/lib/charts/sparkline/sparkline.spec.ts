@@ -1,7 +1,7 @@
 import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { wrChartColor } from 'ngwr/charts/core';
+import { wrChartLegacyColor } from 'ngwr/charts/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrSparkline } from './sparkline';
@@ -135,8 +135,8 @@ describe('WrSparkline', () => {
     // The colour a multi-series chart gives its first series, so a sparkline beside one
     // matches it. The input keeps the literal default the docs print; this holds the two
     // together.
-    expect(line()!.getAttribute('stroke')).toBe(wrChartColor(0));
-    expect(tip()!.getAttribute('stroke')).toBe(wrChartColor(0));
+    expect(line()!.getAttribute('stroke')).toBe(wrChartLegacyColor(0));
+    expect(tip()!.getAttribute('stroke')).toBe(wrChartLegacyColor(0));
   });
 
   it('is decorative until the consumer gives it a name', () => {

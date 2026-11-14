@@ -420,9 +420,16 @@ function startsMember(body: string, at: number): boolean {
  * `ngwr/charts/core` is how a chart in another entry point reaches it, and every export
  * of that entry point is `@internal`. A chart's `dataTable` input is what a consumer
  * writes, and the chart's page documents that; the table's own `data` is filled by the
- * chart and has no page to be held to.
+ * chart and has no page to be held to. `WrChartState` sits beside it for the same reason:
+ * a chart's `loading`, `error` and `*Label` inputs are what a consumer writes, and the
+ * message's own `kind` and `label` are filled by the chart.
  */
-const EXPORTED_BUT_INTERNAL: ReadonlySet<string> = new Set(['WrChartTable', 'WrMentionPanel', 'WrPopconfirmPanel']);
+const EXPORTED_BUT_INTERNAL: ReadonlySet<string> = new Set([
+  'WrChartState',
+  'WrChartTable',
+  'WrMentionPanel',
+  'WrPopconfirmPanel',
+]);
 
 /** Every documented component / directive in the library, keyed by class name. */
 export function extractApi(): Map<string, ApiEntry> {

@@ -209,15 +209,6 @@ describe('a style entry point loads the token layer it paints with', () => {
   const isTheme = themeTokens();
 
   /**
-   * The one entry whose TypeScript reads are answered by the entries built on it,
-   * by name and with the reason: `ngwr/charts/core` is `@internal`, so no consumer
-   * writes its `@use` alone — its palette is drawn by the charts, each of which
-   * loads the layer from its own entry, and its own sheet reads no token and says
-   * so. The guard below holds every half of that, so the name cannot outlive it.
-   */
-  const RESOLVED_BY_ITS_CONSUMERS = [join(LIB, 'charts/core/styles/_index.scss')];
-
-  /**
    * The one entry that reads theme tokens and loads no theme on purpose:
    * `ngwr/reset` is the sheet an app puts in a cascade layer, and
    * `meta.load-css()` re-emits a module's dependencies inside the layer it is
@@ -251,9 +242,7 @@ describe('a style entry point loads the token layer it paints with', () => {
         for (const m of src.matchAll(DECLARED)) own.add(m[1]);
         for (const m of src.matchAll(REFERENCED)) referenced.add(m[1]);
       }
-      if (!RESOLVED_BY_ITS_CONSUMERS.includes(entry)) {
-        for (const name of readFromCode(entry)) referenced.add(name);
-      }
+      for (const name of readFromCode(entry)) referenced.add(name);
 
       const unresolved = [...referenced].filter(name => !own.has(name) && isTheme(name));
       if (unresolved.length > 0) {
@@ -264,20 +253,6 @@ describe('a style entry point loads the token layer it paints with', () => {
     }
 
     expect(offenders).toEqual([]);
-  });
-
-  it('exempts only an entry still answered by every entry that loads it', () => {
-    for (const exempt of RESOLVED_BY_ITS_CONSUMERS) {
-      const name = relative(LIB, exempt);
-      expect(loadsTokenLayer(loaded(exempt)), `${name} loads the theme now`).toBe(false);
-      expect([...readFromCode(exempt)].some(isTheme), `${name} reads no theme token from its code now`).toBe(true);
-
-      const dependants = styleEntries().filter(entry => entry !== exempt && loaded(entry).includes(exempt));
-      expect(dependants.length, `nothing loads ${name}`).toBeGreaterThan(0);
-      for (const entry of dependants) {
-        expect(loadsTokenLayer(loaded(entry)), `${relative(LIB, entry)} loads ${name} and not the theme`).toBe(true);
-      }
-    }
   });
 
   it('exempts only an entry that still loads no theme and reads one', () => {
