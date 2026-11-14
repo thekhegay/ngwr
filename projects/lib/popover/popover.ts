@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { FocusMonitor } from '@angular/cdk/a11y';
+import { type FocusTrap, FocusMonitor, FocusTrapFactory } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type FlexibleConnectedPositionStrategy, type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
@@ -29,7 +29,14 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
+import {
+  WR_OVERLAY,
+  WrOutsideClick,
+  type WrOverlayAutoFocus,
+  wrFocusOverlay,
+  wrFollowDirection,
+  wrMirrorOffsets,
+} from 'ngwr/overlay';
 import {
   wrGetFocusableElements,
   WR_KEYS,
@@ -127,6 +134,7 @@ let popoverUid = 0;
     '(keydown.escape)': 'onEscape()',
     '(keydown.enter)': 'onActivateKey($event)',
     '(keydown.space)': 'onActivateKey($event)',
+    '(keydown.tab)': 'onTriggerTab($event)',
   },
 })
 export class WrPopover {
@@ -200,6 +208,18 @@ export class WrPopover {
   readonly ariaLabel = input<string | null>(null);
 
   /**
+   * Popover mode only: where focus goes when a click or the keyboard opens the
+   * panel. `false` leaves it on the trigger, and Tab from there walks into the
+   * panel; `'dialog'` puts it on the panel itself, with no ring;
+   * `'first-tabbable'` on the first control inside. An element marked
+   * `cdkFocusInitial` in the content takes focus in every mode. A pointer
+   * hovering a `trigger="hover"` popover never moves focus. Closing hands focus
+   * back to the trigger whenever it was inside.
+   * @default false
+   */
+  readonly autoFocus = input<WrOverlayAutoFocus>(false);
+
+  /**
    * Extra CSS classes for the popover's (or tooltip's) overlay pane.
    *
    * The pane is appended to the overlay container, not to this component, so
@@ -217,6 +237,7 @@ export class WrPopover {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly focusMonitor = inject(FocusMonitor);
+  private readonly focusTraps = inject(FocusTrapFactory);
   private readonly keystroke = inject(WrCurrentKeystroke);
   private readonly overlay = inject(WR_OVERLAY);
   private readonly dir = inject(Directionality, { optional: true });
@@ -246,14 +267,15 @@ export class WrPopover {
   private overlayRef: OverlayRef | null = null;
   private connected: FlexibleConnectedPositionStrategy | null = null;
   private textPanelRef: ComponentRef<WrPopoverTextPanel> | null = null;
+  private finder: FocusTrap | null = null;
   /** Whether the HOST itself holds focus — not a descendant of it. */
   private hostFocused = false;
   private hoverCloseTimer: ReturnType<typeof setTimeout> | null = null;
   /**
    * Whether Enter or Space opened a `trigger="hover"` popover. The pointer owns
    * a hover popover and must leave the caret alone; the keyboard has nothing
-   * else to reach the content with, so a keyboard open moves focus in, exactly
-   * as a click popover's open does.
+   * else to reach the content with, so a keyboard open behaves exactly as a
+   * click popover's open does: `autoFocus` applies and Tab walks in.
    */
   private openedByKeyboard = false;
   private showTimer: ReturnType<typeof setTimeout> | null = null;
@@ -451,6 +473,30 @@ export class WrPopover {
     this.openState.set(true);
   }
 
+  /**
+   * Tab on the trigger while its click or keyboard-opened popover is showing
+   * walks into the panel, as it would into one rendered beside the trigger: the
+   * pane sits at the end of `<body>`, where Tab would not find it. A panel with
+   * no tab stop closes instead and Tab moves on through the page, which is what
+   * Tab past the last control of a panel does.
+   *
+   * @internal
+   */
+  protected onTriggerTab(event: Event): void {
+    const pane = this.overlayRef?.overlayElement;
+    if (!pane || this.isTooltip() || (event as KeyboardEvent).shiftKey || event.defaultPrevented) return;
+    if (event.target !== this.host.nativeElement) return;
+    if (this.trigger() !== 'click' && !this.openedByKeyboard) return;
+    const first = wrGetFocusableElements(pane).find(el => el.tabIndex >= 0);
+    if (!first) {
+      this.closeOverlay();
+      this.openState.set(false);
+      return;
+    }
+    event.preventDefault();
+    first.focus();
+  }
+
   /** @internal */
   protected onEscape(): void {
     if (!this.isTooltip()) return;
@@ -583,20 +629,22 @@ export class WrPopover {
         // `wr-popconfirm` does — a reader announcing the dialog reads what is in
         // it, and on an empty pane that is nothing.
         view.detectChanges();
-        // Focus has to ENTER the panel. The overlay container sits at the end of
-        // `<body>`, so Tab from the trigger went to the next control on the page
-        // and left the dialog stranded behind it (WCAG F85). The pane takes it
-        // rather than the first control inside: a popover's content is
-        // arbitrary, and landing on a text field would raise the on-screen
-        // keyboard and skip whatever the panel says above it. Tab from the pane
-        // reaches that first control anyway, since the pane precedes its own
-        // content in document order.
+        // Focus has to be able to ENTER the panel. The overlay container sits at
+        // the end of `<body>`, so Tab from the trigger went to the next control on
+        // the page and left the dialog stranded behind it (WCAG F85). Nothing
+        // moves on open unless `autoFocus` or a `cdkFocusInitial` in the content
+        // asks: Tab on the trigger walks in instead, see `onTriggerTab`. The pane
+        // is focusable either way, so a press on its padding keeps focus inside.
         //
         // Click- or keyboard-opened only — a hover popover must not pull the
         // caret out of what the user is typing in, and `scheduleHoverClose()`
         // would then dispose the pane out from under the focused element.
+        //
+        // `deferAnchors`: the trap is only the finder `wrFocusOverlay` asks for.
+        // No anchors go into the page and nothing is trapped.
         pane.tabIndex = -1;
-        pane.focus();
+        this.finder = this.focusTraps.create(pane, true);
+        wrFocusOverlay(pane, this.finder, this.autoFocus(), this.injector);
         // And it has to LEAVE with the panel. Non-modal means Tab is not
         // trapped, not that it walks out and strands the dialog open behind it:
         // the pane sits at the end of `<body>`, so Tab past its last control went
@@ -677,6 +725,8 @@ export class WrPopover {
     // removed, and the pane is about to be.
     pane.removeEventListener('keydown', this.onPaneKeydown);
     pane.removeEventListener('focusout', this.onPaneFocusOut);
+    this.finder?.destroy();
+    this.finder = null;
     this.overlayRef.dispose();
     this.overlayRef = null;
     this.connected = null;
