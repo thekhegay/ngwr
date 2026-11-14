@@ -1,5 +1,6 @@
 @let valueBar = bar();
 @let target = targetAt();
+@let shown = state();
 @if (labelled()) {
   <!-- Hidden, as the scale is: the label opens the drawing's name and the sub-label is its
        description, so read here as well they would be heard twice. -->
@@ -14,21 +15,21 @@
 }
 
 <!-- The drawing: one named image. Its parts are empty boxes placed by the shares the
-     component writes, every one a logical inset, so the drawing mirrors under RTL with no
-     rule of its own. -->
+     component writes. The bands are logical insets, which mirror under RTL by themselves;
+     the bar and the marker move by a transform, which the stylesheet mirrors by hand.
+     `data-wr-index` makes it the one section the chart's hover listener reports. -->
 <div
   #track
   class="wr-bullet-chart__track"
   role="img"
+  data-wr-index="0"
   [attr.aria-label]="resolvedAriaLabel()"
   [attr.aria-describedby]="subLabel() ? subLabelId : null"
-  (mouseenter)="tip.enter(0)"
-  (mouseleave)="tip.leave($event)"
 >
   <!-- The bands sit in a layer of their own, which clips them to the track's corners
        without clipping the target marker at either end. -->
   <div class="wr-bullet-chart__ranges">
-    @for (band of bands(); track band.index) {
+    @for (band of shown ? [] : bands(); track band.index) {
       <span
         class="wr-bullet-chart__range"
         [attr.data-index]="band.index"
@@ -39,7 +40,7 @@
     }
   </div>
 
-  @if (valueBar) {
+  @if (valueBar && !shown) {
     <span
       class="wr-bullet-chart__bar"
       [class.wr-bullet-chart__bar--negative]="valueBar.negative"
@@ -48,10 +49,18 @@
     ></span>
   }
 
-  @if (target !== null) {
+  @if (target !== null && !shown) {
     <span class="wr-bullet-chart__target" [style.--wr-bullet-chart-at]="target"></span>
   }
 </div>
+
+@if (shown) {
+  <!-- Over the track, beside the drawing's `img` and never inside it: `img` makes
+       everything it holds presentational, and the message is a live region. -->
+  <div class="wr-bullet-chart__status">
+    <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
+  </div>
+}
 
 @if (showScale()) {
   <div class="wr-bullet-chart__scale" aria-hidden="true">

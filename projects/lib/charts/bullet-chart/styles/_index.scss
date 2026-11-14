@@ -1,5 +1,9 @@
 @use '../../../theme/styles' as theme;
 @use '../../../popover/styles' as popover-styles; // the `.wr-tooltip` chip the hover tooltip renders into
+
+// Styles for the entry points this component's own markup renders, and the chart theme
+// the hooks below default to.
+@use '../../core/styles' as core-styles; // WrChartState
 @include theme.loaded('charts/bullet-chart');
 
 .wr-bullet-chart {
@@ -11,26 +15,30 @@
   // The least the drawing narrows to, so a chart in a shrink-to-fit parent (a flex row of
   // tiles) still draws one rather than collapsing to its label.
   --wr-bullet-chart-track-min-width: 6rem;
-  --wr-bullet-chart-track-radius: var(--wr-border-radius-sm);
-  // The track is what shows past the last band, and with no `ranges` the whole frame.
-  --wr-bullet-chart-track-color: var(--wr-color-fill);
+  --wr-bullet-chart-track-radius: var(--wr-chart-bar-radius);
+  // The track is what shows past the last band, and with no `ranges` the whole frame: the
+  // chart theme's track, as the unfilled part of a meter or a gauge is.
+  --wr-bullet-chart-track-color: var(--wr-chart-track);
   // The bands step from the first colour, nearest zero, to the second, at the last range
-  // limit: steps in LIGHTNESS, which survive greyscale. Both are the theme's neutral fill
-  // roles, so each scheme and `prefers-contrast: more` (which deepens the muted ink) moves
-  // them on its own. The first is the strong fill pulled halfway to the muted ink, since
-  // the fills alone are too close to the surface to read as bands.
-  --wr-bullet-chart-range-start: color-mix(in srgb, var(--wr-color-on-surface-muted) 50%, var(--wr-color-fill-strong));
-  --wr-bullet-chart-range-end: var(--wr-color-fill-strong);
+  // limit: steps in LIGHTNESS, which survive greyscale. Both are steps of the chart
+  // theme's sequential scale, tints of the first palette colour, so the bands follow the
+  // palette and each scheme turns them over on its own. They were greys of this chart's
+  // own. Against the surface the three steps measure 2.42, 1.76 and 1.31 in light and
+  // 2.21, 1.62 and 1.22 in dark.
+  --wr-bullet-chart-range-start: var(--wr-chart-seq-3);
+  --wr-bullet-chart-range-end: var(--wr-chart-seq-1);
+  // The line between two bands: the chart theme's separator, the surface.
+  --wr-bullet-chart-separator: var(--wr-chart-separator);
   // The rule where the last band ends, drawn only where the scale runs on past it — a
   // value or a target above the last limit, or a `max` beyond it. The faintest band and
   // the track are a step of lightness apart that no reader can see, so the end of the
   // last band is a line rather than a shade.
-  --wr-bullet-chart-range-edge-color: var(--wr-color-on-surface-muted);
+  --wr-bullet-chart-range-edge-color: var(--wr-chart-label);
   // The value and the target are drawn in the text colour, as in Few's own design, and
-  // told apart by shape. Measured in Chromium against the strongest band, the text colour
-  // holds 6.6:1 in light and 5.0:1 in dark (6.4 and 4.7 under `prefers-contrast: more`),
-  // where the primary blue reads 1.8:1 and 1.3:1 — under the 3:1 WCAG 1.4.11 asks of a
-  // mark a reader needs.
+  // told apart by shape. Against the strongest band the text colour holds 7.3:1 in light
+  // and 7.1:1 in dark; the palette colour the bands are tinted from is a step of the same
+  // scale, and reads 2.0:1 and 1.8:1 there — under the 3:1 WCAG 1.4.11 asks of a mark a
+  // reader needs.
   --wr-bullet-chart-value-color: var(--wr-color-on-surface);
   --wr-bullet-chart-bar-thickness: calc(100% / 3);
   --wr-bullet-chart-target-color: var(--wr-color-on-surface);
@@ -47,17 +55,27 @@
   --wr-bullet-chart-label-max-width: 12rem;
   --wr-bullet-chart-label-width: fit-content(var(--wr-bullet-chart-label-max-width));
   --wr-bullet-chart-label-gap: var(--wr-space-md);
-  --wr-bullet-chart-label-font-size: var(--wr-text-sm);
-  --wr-bullet-chart-label-font-weight: var(--wr-font-weight-semibold);
+  // The label is the chart's one category name: the size every chart on the theme writes
+  // its labels in, a weight up so it still heads the row. It was a step larger and
+  // semibold. The sub-label and the ticks are the theme's muted label.
+  --wr-bullet-chart-label-font-size: var(--wr-chart-label-size);
+  --wr-bullet-chart-label-font-weight: var(--wr-font-weight-medium);
   --wr-bullet-chart-label-color: var(--wr-color-on-surface);
-  --wr-bullet-chart-sub-label-font-size: var(--wr-text-xs);
+  --wr-bullet-chart-sub-label-font-size: var(--wr-chart-label-size);
   --wr-bullet-chart-sub-label-line-height: var(--wr-text-xs-leading);
-  --wr-bullet-chart-sub-label-color: var(--wr-color-on-surface-muted);
+  --wr-bullet-chart-sub-label-color: var(--wr-chart-label);
   --wr-bullet-chart-scale-gap: var(--wr-space-xs);
   --wr-bullet-chart-tick-length: var(--wr-space-xs);
-  --wr-bullet-chart-tick-color: var(--wr-color-on-surface-muted);
-  --wr-bullet-chart-tick-font-size: var(--wr-text-xs);
+  --wr-bullet-chart-tick-color: var(--wr-chart-label);
+  --wr-bullet-chart-tick-mark-color: var(--wr-chart-axis);
+  --wr-bullet-chart-tick-font-size: var(--wr-chart-label-size);
   --wr-bullet-chart-tick-line-height: var(--wr-text-xs-leading);
+  // The bar growing to a new value and the marker sliding to a new target.
+  --wr-bullet-chart-duration: var(--wr-chart-duration);
+  --wr-bullet-chart-ease: var(--wr-chart-ease);
+  // Which way the bar and the marker move: 1 from the left, -1 from the right. A
+  // transform is physical, so the stylesheet turns it over under RTL.
+  --wr-bullet-chart-dir: 1;
 
   // The drawing above its scale, and with a label, the label column at inline start of
   // both. A grid follows `direction`, so under RTL the labels are on the right.
@@ -68,6 +86,10 @@
   grid-template-columns: minmax(var(--wr-bullet-chart-track-min-width), 1fr);
   font-family: var(--wr-bullet-chart-font-family);
   color: var(--wr-bullet-chart-color);
+
+  &:dir(rtl) {
+    --wr-bullet-chart-dir: -1;
+  }
 
   &--labelled {
     grid-template-areas:
@@ -131,11 +153,18 @@
     inset-block: 0;
     inset-inline-start: calc(var(--wr-bullet-chart-start, 0) * 100%);
     inline-size: calc(var(--wr-bullet-chart-size, 0) * 100%);
+    box-sizing: border-box;
     background: color-mix(
       in srgb,
       var(--wr-bullet-chart-range-end) var(--wr-bullet-chart-range-mix, 0%),
       var(--wr-bullet-chart-range-start)
     );
+
+    // Two bands that touch are parted by a line in the surface, inside the first one's
+    // own box, so each still ends at its exact limit.
+    &:not(:last-child) {
+      border-inline-end: 1px solid var(--wr-bullet-chart-separator);
+    }
 
     // The end of the last band, as a rule just past it. A last band that reaches the end
     // of the scale puts the rule outside the track, where the layer above clips it, so it
@@ -150,33 +179,64 @@
   }
 
   // A third of the line high and centred on it, from zero to the value; a zero value is
-  // still a sliver, since it is a reading.
+  // still a sliver, since it is a reading. As wide as the track, moved to where it starts
+  // and scaled to its share (`--wr-bullet-chart-start` and `-size`, 0 to 1): a new value
+  // moves a transform, which lays nothing out, where it used to move an inset and a size.
+  // The bar has square ends, so the scale bends nothing.
   &__bar {
     position: absolute;
     inset-block: calc(50% - var(--wr-bullet-chart-bar-thickness) / 2);
-    inset-inline-start: calc(var(--wr-bullet-chart-start, 0) * 100%);
-    inline-size: calc(var(--wr-bullet-chart-size, 0) * 100%);
-    min-inline-size: 1px;
+    inset-inline: 0;
+    transform-origin: 0 50%;
+    transform: translateX(calc(var(--wr-bullet-chart-start, 0) * 100% * var(--wr-bullet-chart-dir)))
+      scaleX(max(var(--wr-bullet-chart-size, 0), 0.004));
     background: var(--wr-bullet-chart-value-color);
-    transition:
-      inset-inline-start var(--wr-duration-slow) var(--wr-ease-out),
-      inline-size var(--wr-duration-slow) var(--wr-ease-out);
+    transition: transform var(--wr-bullet-chart-duration) var(--wr-bullet-chart-ease);
+
+    &:dir(rtl) {
+      transform-origin: 100% 50%;
+    }
   }
 
   // Across the line on its value, held inside the drawing at either end so no part of it
-  // is cut off or reaches past the chart's box.
+  // is cut off or reaches past the chart's box. A box as wide as the track, slid to the
+  // target's share of it, with the marker itself on its starting edge.
   &__target {
     position: absolute;
     inset-block: calc(50% - var(--wr-bullet-chart-target-length) / 2);
-    inset-inline-start: clamp(
-      0px,
-      calc(var(--wr-bullet-chart-at, 0) * 100% - var(--wr-bullet-chart-target-thickness) / 2),
-      calc(100% - var(--wr-bullet-chart-target-thickness))
+    inset-inline: 0;
+    pointer-events: none;
+    transform: translateX(
+      calc(
+        clamp(
+            0px,
+            var(--wr-bullet-chart-at, 0) * 100% - var(--wr-bullet-chart-target-thickness) / 2,
+            100% - var(--wr-bullet-chart-target-thickness)
+          ) *
+          var(--wr-bullet-chart-dir)
+      )
     );
-    inline-size: var(--wr-bullet-chart-target-thickness);
-    background: var(--wr-bullet-chart-target-color);
-    outline: var(--wr-bullet-chart-target-ring-width) solid var(--wr-bullet-chart-target-ring);
-    transition: inset-inline-start var(--wr-duration-slow) var(--wr-ease-out);
+    transition: transform var(--wr-bullet-chart-duration) var(--wr-bullet-chart-ease);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      inline-size: var(--wr-bullet-chart-target-thickness);
+      background: var(--wr-bullet-chart-target-color);
+      outline: var(--wr-bullet-chart-target-ring-width) solid var(--wr-bullet-chart-target-ring);
+    }
+  }
+
+  // The message of an empty, loading or failed chart, laid over the track.
+  &__status {
+    --wr-chart-state-gap: var(--wr-space-xs);
+    --wr-chart-state-font-size: var(--wr-chart-label-size);
+
+    grid-area: track;
+    position: relative;
+    block-size: var(--wr-bullet-chart-track-height);
   }
 
   // As wide as the drawing, so a tick's share is of the drawing too. Every tick is out of
@@ -207,7 +267,7 @@
     &::before {
       content: '';
       block-size: var(--wr-bullet-chart-tick-length);
-      border-inline-start: 1px solid var(--wr-bullet-chart-tick-color);
+      border-inline-start: 1px solid var(--wr-bullet-chart-tick-mark-color);
     }
 
     &--start {
@@ -253,6 +313,7 @@
     border-inline-start: 1px solid GrayText;
   }
 
+  // Inherited, so the marker drawn on the target's starting edge keeps its paint too.
   .wr-bullet-chart__bar,
   .wr-bullet-chart__target {
     forced-color-adjust: none;
@@ -260,10 +321,10 @@
 }
 
 // The bar grows to its value and the marker slides to its target; with reduced motion
-// both land there at once.
-@media (prefers-reduced-motion: reduce) {
-  .wr-bullet-chart__bar,
-  .wr-bullet-chart__target {
-    transition: none;
+// the theme's duration is 0s, and both land there at once. A bar entering the page grows
+// from where it starts, where the browser can start a transition from a style of its own.
+@starting-style {
+  .wr-bullet-chart__bar {
+    transform: translateX(calc(var(--wr-bullet-chart-start, 0) * 100% * var(--wr-bullet-chart-dir))) scaleX(0);
   }
 }

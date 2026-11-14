@@ -21,7 +21,15 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { wrChartAxis, useChartNumbers } from 'ngwr/charts/core';
+import {
+  WrChartState,
+  useChartHover,
+  useChartNumbers,
+  useChartSize,
+  useChartState,
+  wrChartAxis,
+  wrChartRound,
+} from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { wrClamp, wrRound, wrCheckStyles } from 'ngwr/utils';
@@ -49,7 +57,7 @@ const TICK_GAP = 8;
 const TICK_COUNTS = [4, 3, 2, 1] as const;
 
 /** A share of the scale for an inline style, to four decimals with `-0` folded to `0`, so the style stays short. */
-const short = (value: number): number => wrRound(value, 4) || 0;
+const short = (value: number): number => wrChartRound(value, 4);
 
 /** One qualitative band as drawn: where it starts and how much of the scale it covers, both as shares from 0 to 1. */
 interface Band {
@@ -57,7 +65,7 @@ interface Band {
   readonly index: number;
   readonly start: number;
   readonly size: number;
-  /** How far its shade has moved from the strongest grey towards the faintest, as a CSS percentage. */
+  /** How far its shade has moved from the strongest step towards the faintest, as a CSS percentage. */
   readonly mix: string;
 }
 
@@ -85,12 +93,17 @@ interface Measured {
  * ```
  *
  * **What is drawn.** `ranges` are the upper limits of the qualitative bands — poor,
- * satisfactory, good — drawn as stepped greys from the theme's neutral roles, the
- * strongest nearest zero and each band after it fainter, so they read as steps in
- * LIGHTNESS and survive greyscale. The value is a bar a third of the line high, from zero;
- * the target is a perpendicular marker. The two are told apart by shape, not by colour,
- * and both are drawn in the text colour, which keeps 3:1 against the strongest band in
- * either theme where the primary blue does not.
+ * satisfactory, good — drawn as steps of the chart theme's sequential scale
+ * (`--wr-chart-seq-3` down to `-1`, tints of the first palette colour), the strongest
+ * nearest zero and each band after it fainter, so they read as steps in LIGHTNESS, survive
+ * greyscale, and follow the palette when an app retints it. A 1px line in the surface
+ * parts two bands. The value is a bar a third of the line high, from zero; the target is
+ * a perpendicular marker. The two are told apart by shape, not by colour, and both are
+ * drawn in the text colour, which holds 7:1 against the strongest band in either scheme
+ * where the palette colour itself, a step of the same scale, would not reach 3:1.
+ *
+ * **Empty, loading, error.** With neither a value nor a target the track is empty and
+ * says "No data"; `loading` and `error` put their own message there.
  *
  * **The scale** starts at zero, or lower where a value, the target or a range limit is
  * negative, and ends at `max` — by default the largest of the value, the target and the
@@ -118,6 +131,7 @@ interface Measured {
     // drawing takes the whole width rather than leaving a gap where a column would be.
     '[class.wr-bullet-chart--labelled]': 'labelled()',
   },
+  imports: [WrChartState],
 })
 export class WrBulletChart {
   /**
@@ -137,14 +151,14 @@ export class WrBulletChart {
    * The upper limit of each qualitative band, in any order: `[150, 225, 300]` draws a band
    * from the scale's start to 150, one from 150 to 225 and one from 225 to 300. They are
    * sorted, a repeated limit counts once, and one that is not a finite number is dropped.
-   * The band nearest zero is the strongest grey and each one after it fainter, between
+   * The band nearest zero is the strongest step and each one after it fainter, between
    * `--wr-bullet-chart-range-start` and `--wr-bullet-chart-range-end`. Few recommends no
    * more than five.
    *
    * The first band is everything below the first limit, so it has room only where the
    * scale reaches below that limit. A negative first limit lower than both the value and
    * the target is where the scale starts, which leaves that band no room: it is not drawn,
-   * and the drawing opens with the second band and its paler grey. Where the scale runs on
+   * and the drawing opens with the second band and its paler step. Where the scale runs on
    * past the last limit, a rule marks where the last band ends.
    */
   readonly ranges = input<readonly number[]>([]);
@@ -197,6 +211,30 @@ export class WrBulletChart {
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * A request for the measure is in flight: the bands, the bar and the marker give way to
+   * the loading message on the track. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The measure failed to load: the marks give way to the error message. `loading` wins
+   * while both are set. @default false
+   */
+  readonly error = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The message shown with neither a value nor a target. Falls back to `chart.empty`,
+   * then `'No data'`.
+   */
+  readonly emptyLabel = input<string | null>(null);
+
+  /** The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`. */
+  readonly loadingLabel = input<string | null>(null);
+
+  /** The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`. */
+  readonly errorLabel = input<string | null>(null);
+
   /** The exact figures and the scale's compact ticks, in `LOCALE_ID` unless `valueFormat` is given. */
   private readonly numbers = useChartNumbers(this.valueFormat);
 
@@ -214,34 +252,40 @@ export class WrBulletChart {
   /** The drawing's width as the observer last reported it, in px; 0 until it has. */
   private trackWidth = 0;
 
+  /**
+   * The drawing's box, on the observer every chart shares: a table of a hundred bullets
+   * is one observer and one callback a frame, where each bullet used to make its own.
+   */
+  private readonly trackSize = useChartSize(this.track);
+
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/bullet-chart');
     const destroyRef = inject(DestroyRef);
+
+    // One pair of native listeners on the host: the drawing is the chart's one section.
+    useChartHover({ enter: index => this.tip.enter(index), leave: event => this.tip.leave(event) });
+
     // Measured after render, so nothing here touches the DOM before a browser has one.
+    afterRenderEffect(() => {
+      const { width } = this.trackSize();
+      // A hidden chart measures nothing; keep the last reading rather than thin to it.
+      if (width <= 0) return;
+      this.trackWidth = width;
+      untracked(() => this.measure());
+    });
+
+    // A web font arriving after the first measurement widens the labels and leaves the
+    // drawing as wide as it was, so the observer never hears of it.
     afterNextRender(() => {
-      const track = this.track()?.nativeElement;
-      if (!track || typeof ResizeObserver === 'undefined') return;
-      const observer = new ResizeObserver(([entry]) => {
-        const width = entry.contentRect.width;
-        // A hidden chart measures nothing; keep the last reading rather than thin to it.
-        if (width <= 0) return;
-        this.trackWidth = width;
-        this.measure();
-      });
-      observer.observe(track);
       let destroyed = false;
-      destroyRef.onDestroy(() => {
-        destroyed = true;
-        observer.disconnect();
-      });
-      // A web font arriving after the first measurement widens the labels and leaves the
-      // drawing as wide as it was, so the observer never hears of it.
+      destroyRef.onDestroy(() => (destroyed = true));
       if ('fonts' in document) {
         void document.fonts.ready.then(() => {
           if (!destroyed) this.measure();
         });
       }
     });
+
     // Labels that first appear after the drawing was measured — `showScale` switched on —
     // have never been measured either, and the drawing's width does not change for them.
     // Only while no width per character is known: measuring again on every change of the
@@ -403,6 +447,16 @@ export class WrBulletChart {
     }
     return true;
   }
+
+  /** What the chart shows in place of its marks, or `null` while it draws them. */
+  protected readonly state = useChartState({
+    loading: this.loading,
+    error: this.error,
+    empty: computed(() => this.value() === null && this.target() === null),
+    emptyLabel: this.emptyLabel,
+    loadingLabel: this.loadingLabel,
+    errorLabel: this.errorLabel,
+  });
 
   /** The accessible name's subject: the label, else the catalog's name for the chart. */
   private readonly subject = useI18nText(this.label, 'bulletChart.label', 'Bullet chart');
