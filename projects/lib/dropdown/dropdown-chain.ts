@@ -5,8 +5,37 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { wrTypeahead } from 'ngwr/utils';
+
 /** Open levels by their pane, so an item can find the level it was rendered in. */
 const levels = new WeakMap<HTMLElement, WrDropdownLevel>();
+
+/**
+ * Type a letter to move to the next item of this pane that starts with it.
+ *
+ * On the pane and in the capture phase, so each level keeps its own run and a
+ * Space that belongs to one ("save a" for "Save as") stops before the item's
+ * own Space activates it. The listener goes with the pane.
+ */
+function listenForTypeahead(pane: HTMLElement, locale?: () => string | undefined): void {
+  const typeahead = wrTypeahead({ locale });
+  pane.addEventListener(
+    'keydown',
+    event => {
+      const items = wrDropdownItems(pane);
+      const index = typeahead.handleKey(
+        event,
+        items.map(item => item.textContent),
+        items.indexOf(document.activeElement as HTMLElement)
+      );
+      if (index === null) return;
+      event.preventDefault();
+      if (event.key === ' ') event.stopPropagation();
+      items[index]?.focus();
+    },
+    true
+  );
+}
 
 /**
  * One open menu of a dropdown: the root, or a submenu hanging off an item.
@@ -29,10 +58,15 @@ export interface WrDropdownLevel {
   pointerLeft?(related: EventTarget | null): void;
 }
 
-/** @internal */
-export function wrDropdownRegisterLevel(level: WrDropdownLevel): void {
+/**
+ * `locale` is the interface language, for the type-ahead's case folding.
+ *
+ * @internal
+ */
+export function wrDropdownRegisterLevel(level: WrDropdownLevel, locale?: () => string | undefined): void {
   levels.set(level.pane, level);
   if (level.parent) level.parent.child = level;
+  listenForTypeahead(level.pane, locale);
 }
 
 /** @internal */

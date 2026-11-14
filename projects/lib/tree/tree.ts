@@ -42,7 +42,7 @@ import { useI18nFormatter, useI18nText, wrReadI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { WrMark } from 'ngwr/pipes';
 import { WrSpinner } from 'ngwr/spinner';
-import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import { WR_LIVE_LOCALE, wrToClassList, wrCheckStyles, wrTypeahead, type WrClassInput } from 'ngwr/utils';
 
 import type {
   WrTreeCanDrop,
@@ -432,6 +432,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
    * `wrFollowDirection` in `openOverlay()` is where that lives.
    */
   private readonly dir = inject(Directionality, { optional: true });
+  private readonly liveLocale = inject(WR_LIVE_LOCALE, { optional: true });
+  private readonly typeahead = wrTypeahead({ locale: () => this.liveLocale?.() });
 
   /** Currently focused row's index in the flattened visible list. */
   protected readonly focusedIndex = signal(0);
@@ -1058,6 +1060,19 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     if (this.draggable() && event.altKey && event.key === 'Enter') {
       event.preventDefault();
       if (this.canDrag(current)) this.grab(current);
+      return;
+    }
+
+    // A letter moves to the next visible row that starts with it. It opens
+    // nothing, a status row has no label of its own to match, and a disabled
+    // node is a stop here as it is for the arrows.
+    if (this.typeahead.type(event)) {
+      event.preventDefault();
+      const match = this.typeahead.find(
+        flat.map(row => ({ label: row.node.label, disabled: row.status !== null })),
+        i
+      );
+      if (match >= 0) this.focusIndex(match);
       return;
     }
 

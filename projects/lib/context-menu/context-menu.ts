@@ -20,11 +20,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { Subscription } from 'rxjs';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { wrRandomId, wrCheckStyles, wrRestoreFocus } from 'ngwr/utils';
+import { WR_LIVE_LOCALE, wrRandomId, wrCheckStyles, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrContextMenuItem } from './context-menu-item';
 import type { WrContextMenuPanel } from './context-menu-panel';
-import { wrFocusMenuItemAt, wrHandleMenuNavigation } from './menu-focus';
+import { wrFocusMenuItemAt, wrHandleMenuNavigation, wrListenForMenuTypeahead } from './menu-focus';
 
 /**
  * Where the menu may hang off the pointer, best first: down-and-inline-start of
@@ -122,6 +122,7 @@ export class WrContextMenu {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly liveLocale = inject(WR_LIVE_LOCALE, { optional: true });
 
   /**
    * Id of the menu element while this trigger's menu is open, published on the
@@ -353,6 +354,7 @@ export class WrContextMenu {
       scrollStrategy: this.scrollStrategies.noop(),
       panelClass: ['wr-context-menu-overlay'],
     });
+    wrListenForMenuTypeahead(this.overlayRef.overlayElement, () => this.liveLocale?.());
 
     // The direction `create()` just captured is a string the CDK never reads
     // again, so a flip while the menu is open would leave `overlayX: 'start'`

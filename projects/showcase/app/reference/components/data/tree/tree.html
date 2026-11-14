@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Tree"
-  updated="16.3.0"
+  updated="16.4.0"
   description="A nested list to browse and select from, inline or as a dropdown picker."
   [keywords]="['tree', 'tree-select', 'wr-tree', 'hierarchy', 'folders']"
   [labels]="['Composite']"
@@ -224,6 +224,55 @@
     description="In combobox mode, `open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only. `isOpen()` reads the state, for an `aria-expanded` on your own trigger."
   >
     <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Keyboard" description="The arrows that open and close a branch swap under RTL.">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">ArrowDown, ArrowUp</th>
+            <td>Next or previous visible row.</td>
+          </tr>
+          <tr>
+            <th scope="row">ArrowRight</th>
+            <td>Opens a branch, or moves to its first child.</td>
+          </tr>
+          <tr>
+            <th scope="row">ArrowLeft</th>
+            <td>Closes a branch, or moves to the parent.</td>
+          </tr>
+          <tr>
+            <th scope="row">Home, End</th>
+            <td>First or last visible row.</td>
+          </tr>
+          <tr>
+            <th scope="row">Type a letter</th>
+            <td>
+              Moves to the next visible row that starts with what you typed; the same letter again cycles. It opens no
+              branch.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Enter, Space</th>
+            <td>Selects the row. With Ctrl or Cmd, adds it to the selection.</td>
+          </tr>
+          <tr>
+            <th scope="row">Alt+Enter</th>
+            <td>
+              On a <code>draggable</code> tree, picks the row up: the arrows move it, Enter drops it, Escape puts it
+              back.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Accessibility">
