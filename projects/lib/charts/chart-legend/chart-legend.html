@@ -1,9 +1,9 @@
-@for (item of items(); track $index) {
+@for (row of rows(); track $index) {
   <li
     class="wr-chart-legend__item"
     [class.wr-chart-legend__item--hidden]="isHidden($index)"
     [attr.data-wr-series]="$index"
-    [wrChartLegendPart]="part('legend-item')"
+    [wrChartLegendPart]="parts.item"
   >
     @if (toggleable()) {
       <!-- Pressed means SHOWN: the button's name is the series, and pressing it turns
@@ -15,66 +15,71 @@
         [attr.aria-pressed]="!isHidden($index)"
         (click)="toggle($index)"
       >
-        <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{ $implicit: $index }" />
+        <ng-container [ngTemplateOutlet]="key" [ngTemplateOutletContext]="{ $implicit: row, index: $index }" />
       </button>
     } @else {
-      <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{ $implicit: $index }" />
+      <ng-container [ngTemplateOutlet]="key" [ngTemplateOutletContext]="{ $implicit: row, index: $index }" />
     }
   </li>
 }
 
-<ng-template #row let-index>
-  @let item = items()[index];
-  @if (item.dash !== undefined) {
-    <!-- The key draws the series' own dash, not a solid block. A legend that pairs a
-         coloured square with a name leaves the reader to match the square to the LINE,
-         and matching by colour is the step the patterns exist to remove. -->
-    <svg
-      class="wr-chart-legend__swatch wr-chart-legend__swatch--line"
-      [wrChartLegendPart]="part('swatch')"
-      viewBox="0 0 16 2"
-      aria-hidden="true"
-      [attr.data-marker]="item.marker ?? null"
-    >
-      <line
-        x1="0"
-        y1="1"
-        x2="16"
-        y2="1"
-        [attr.stroke]="item.color"
-        [attr.stroke-dasharray]="item.dash || null"
-        stroke-width="2"
-        stroke-linecap="round"
-      />
-      @if (item.marker) {
-        <path [attr.d]="markerPath(item.marker, 3.5)" transform="translate(8 1)" [attr.fill]="item.color" />
-      }
-    </svg>
-  } @else if (item.marker) {
-    <svg
-      class="wr-chart-legend__swatch wr-chart-legend__swatch--marker"
-      [wrChartLegendPart]="part('swatch')"
-      viewBox="-6 -6 12 12"
-      aria-hidden="true"
-      [attr.data-marker]="item.marker"
-    >
-      <path [attr.d]="markerPath(item.marker, 5)" [attr.fill]="item.color" />
-    </svg>
-  } @else {
-    <span
-      class="wr-chart-legend__swatch wr-chart-legend__swatch--dot"
-      [wrChartLegendPart]="part('swatch')"
-      aria-hidden="true"
-      [style.background]="item.color"
-    ></span>
+<!-- Every binding here reads the row the component built from its item, never the item:
+     which key to draw and the marker's path are worked out once, when `items` changes. -->
+<ng-template #key let-row let-index="index">
+  @switch (row.key) {
+    @case ('line') {
+      <!-- The key draws the series' own dash, not a solid block. A legend that pairs a
+           coloured square with a name leaves the reader to match the square to the LINE,
+           and matching by colour is the step the patterns exist to remove. -->
+      <svg
+        class="wr-chart-legend__swatch wr-chart-legend__swatch--line"
+        [wrChartLegendPart]="parts.swatch"
+        viewBox="0 0 16 2"
+        aria-hidden="true"
+        [attr.data-marker]="row.marker"
+      >
+        <line
+          x1="0"
+          y1="1"
+          x2="16"
+          y2="1"
+          [attr.stroke]="row.color"
+          [attr.stroke-dasharray]="row.dash"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+        @if (row.path) {
+          <path [attr.d]="row.path" transform="translate(8 1)" [attr.fill]="row.color" />
+        }
+      </svg>
+    }
+    @case ('marker') {
+      <svg
+        class="wr-chart-legend__swatch wr-chart-legend__swatch--marker"
+        [wrChartLegendPart]="parts.swatch"
+        viewBox="-6 -6 12 12"
+        aria-hidden="true"
+        [attr.data-marker]="row.marker"
+      >
+        <path [attr.d]="row.path" [attr.fill]="row.color" />
+      </svg>
+    }
+    @default {
+      <span
+        class="wr-chart-legend__swatch wr-chart-legend__swatch--dot"
+        [wrChartLegendPart]="parts.swatch"
+        aria-hidden="true"
+        [style.background]="row.color"
+      ></span>
+    }
   }
-  <span class="wr-chart-legend__label" [wrChartLegendPart]="part('legend-label')">{{ item.label }}</span>
+  <span class="wr-chart-legend__label" [wrChartLegendPart]="parts.label">{{ row.label }}</span>
   @if (!toggleable() && isHidden(index)) {
     <!-- A toggle says hidden through aria-pressed. A row that is not one has nothing but
          the strike-through and the faded key, which reach no one who cannot see them. -->
     <span class="wr-chart-legend__sr-only"> {{ resolvedHiddenLabel() }} </span>
   }
-  @if (item.value !== undefined && item.value !== null) {
-    <span class="wr-chart-legend__value" [wrChartLegendPart]="part('legend-value')">{{ item.value }}</span>
+  @if (row.value !== null) {
+    <span class="wr-chart-legend__value" [wrChartLegendPart]="parts.value">{{ row.value }}</span>
   }
 </ng-template>

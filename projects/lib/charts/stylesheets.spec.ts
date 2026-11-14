@@ -82,10 +82,12 @@ describe('chart geometry', { timeout: COMPILE_TIMEOUT }, () => {
   it("lays the meter's gaps over the slices rather than beside them", () => {
     // A margin between slices was added ON TOP of widths that are already shares of the
     // bar: a 50/100 meter of five slices filled 55% of it, and a zero slice still added
-    // its margin. An outline takes no room.
+    // its margin. The line is the end edge of each slice, inside its own box, which takes
+    // no room: the chart theme's 1px separator.
     const css = compile('meter-group');
-    expect(rule(css, 'wr-meter-group__slice')).toMatch(/outline: var\(--wr-meter-group-slice-gap\) solid/);
-    expect(rule(css, 'wr-meter-group')).toMatch(/--wr-meter-group-slice-gap: calc\(var\(--wr-space-xs\) \/ 2\)/);
+    expect(rule(css, 'wr-meter-group__slice')).toMatch(/border-inline-end: var\(--wr-meter-group-slice-gap\) solid/);
+    expect(rule(css, 'wr-meter-group__slice')).toMatch(/box-sizing: border-box/);
+    expect(rule(css, 'wr-meter-group')).toMatch(/--wr-meter-group-slice-gap: 1px/);
     expect(rule(css, 'wr-meter-group__slice')).not.toMatch(/margin/);
     expect(css).not.toMatch(/\.wr-meter-group__slice \+ \.wr-meter-group__slice/);
   });
@@ -103,12 +105,15 @@ describe('chart geometry', { timeout: COMPILE_TIMEOUT }, () => {
   it("lets a legend's marker reach past its box, since every shape has the circle's area", () => {
     // The swatch's viewBox is sized for the circle, and a triangle's point and a
     // diamond's tips reach past it. An SVG clips at its own viewport by default, which
-    // cut the point off three of the six shapes. Read off the template, so a resized
-    // viewBox or radius moves the list of shapes that overhang.
+    // cut the point off three of the six shapes. Read off the template and the radius the
+    // component builds the path with, so a resized viewBox or radius moves the list of
+    // shapes that overhang.
     const template = readFileSync(join(CHARTS, 'chart-legend/chart-legend.html'), 'utf8');
+    const source = readFileSync(join(CHARTS, 'chart-legend/chart-legend.ts'), 'utf8');
     const svg = /<svg\b[^>]*wr-chart-legend__swatch--marker[\s\S]*?<\/svg>/.exec(template)?.[0] ?? '';
     const half = Math.abs(Number(/viewBox="(-?[\d.]+)/.exec(svg)?.[1]));
-    const r = Number(/markerPath\(item\.marker, ([\d.]+)\)/.exec(svg)?.[1]);
+    const r = Number(/const MARKER_RADIUS = ([\d.]+);/.exec(source)?.[1]);
+    expect(r).toBeGreaterThan(0);
     const reach = (shape: (typeof WR_CHART_MARKERS)[number]): number =>
       Math.max(...(wrChartMarkerPath(shape, r).match(/-?[\d.]+/g) ?? []).map(value => Math.abs(Number(value))));
 
