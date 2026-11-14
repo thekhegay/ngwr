@@ -15,7 +15,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Very low
 
-- **Typeahead**: type to jump in select, dropdown, tree and context menu, from the cascader's logic moved into one `ngwr/utils` helper.
 - **`ngwr/kit` standalone utilities**: publish the internal signal utils,
   positioning, density, hotkey and storage helpers as a zero-dep package usable
   without the components.
