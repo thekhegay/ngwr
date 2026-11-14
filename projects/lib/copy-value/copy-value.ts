@@ -10,6 +10,7 @@ import { Component, DestroyRef, ViewEncapsulation, computed, inject, input, outp
 
 import { WR_COPIED_DURATION, WrClipboard } from 'ngwr/clipboard';
 import { useI18nText } from 'ngwr/i18n';
+import { WrPopover } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
 /**
@@ -34,6 +35,7 @@ import { wrCheckStyles } from 'ngwr/utils';
  */
 @Component({
   selector: 'wr-copy-value',
+  imports: [WrPopover],
   templateUrl: './copy-value.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-copy-value', '[class]': 'classes()' },
@@ -81,6 +83,13 @@ export class WrCopyValue {
   protected readonly resolvedEmptyLabel = useI18nText(this.emptyLabel, 'copyValue.empty', '-');
 
   protected readonly text = computed(() => String(this.value() ?? ''));
+  /** In `wrap` mode the text up to its last word and that word with any trailing space; else the whole text and nothing. */
+  protected readonly parts = computed(() => {
+    if (!this.wrap()) return { head: this.text(), tail: '' };
+    const [, head = '', tail = ''] = /^([\s\S]*?)(\S*\s*)$/.exec(this.text()) ?? [];
+    return { head, tail };
+  });
+
   protected readonly empty = computed(() => this.text() === '');
 
   /** True for a moment after a successful copy. */
