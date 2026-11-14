@@ -178,3 +178,85 @@
     opacity: var(--wr-chart-legend-hidden-swatch-opacity);
   }
 }
+
+// ── The key of a colour scale ──────────────────────────────────────────────────────
+//
+// What a heatmap draws in the legend's place: the steps of its scale side by side,
+// between the labels of the two ends. The hooks at zero specificity, as the legend's are,
+// so the chart that draws it re-points one from any selector.
+:where(.wr-chart-scale) {
+  --wr-chart-scale-gap: var(--wr-space-sm);
+  --wr-chart-scale-font-size: var(--wr-text-xs);
+  --wr-chart-scale-color: var(--wr-color-on-surface-muted);
+  // A step is a small square, as a cell of the scale's chart is, and two steps sit as far
+  // apart as two cells do.
+  --wr-chart-scale-step-width: 0.75rem;
+  --wr-chart-scale-step-height: 0.75rem;
+  --wr-chart-scale-step-gap: 2px;
+  --wr-chart-scale-step-radius: var(--wr-chart-bar-radius, 2px);
+  // The faint edge that keeps the lowest steps, tints of the surface, readable as steps.
+  --wr-chart-scale-step-edge: color-mix(in srgb, var(--wr-color-on-surface) 14%, transparent);
+}
+
+.wr-chart-scale {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wr-chart-scale-gap);
+  font-size: var(--wr-chart-scale-font-size);
+  color: var(--wr-chart-scale-color);
+}
+
+.wr-chart-scale--start,
+.wr-chart-scale--end {
+  flex: none;
+}
+
+.wr-chart-scale--none {
+  display: none;
+}
+
+// The room between a chart and the key it draws, as for a legend: only inside a chart
+// that opted in (`wr-chart--legend`).
+:where(.wr-chart--legend) > .wr-chart-scale--top {
+  margin-block-end: var(--wr-chart-legend-space, var(--wr-space-md));
+  justify-content: center;
+}
+
+:where(.wr-chart--legend) > .wr-chart-scale--bottom {
+  margin-block-start: var(--wr-chart-legend-space, var(--wr-space-md));
+  justify-content: center;
+}
+
+:where(.wr-chart--legend) > .wr-chart-scale--start {
+  margin-inline-end: var(--wr-chart-legend-space, var(--wr-space-md));
+}
+
+:where(.wr-chart--legend) > .wr-chart-scale--end {
+  margin-inline-start: var(--wr-chart-legend-space, var(--wr-space-md));
+}
+
+.wr-chart-scale__label {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  // The scale's ends, `-50` among them: a figure has no strong character of its own, so
+  // on an RTL page its minus landed after the digits. Plaintext takes the direction from
+  // the text. Shrunk to its text, so the direction moves nothing but the sign.
+  unicode-bidi: plaintext;
+}
+
+.wr-chart-scale__ramp {
+  display: inline-flex;
+  gap: var(--wr-chart-scale-step-gap);
+}
+
+.wr-chart-scale__step {
+  flex: none;
+  inline-size: var(--wr-chart-scale-step-width);
+  block-size: var(--wr-chart-scale-step-height);
+  border-radius: var(--wr-chart-scale-step-radius);
+  box-shadow: inset 0 0 0 1px var(--wr-chart-scale-step-edge);
+  // The key to colours the chart keeps under forced colors, painted by an inline
+  // `background`, which forced colors would reset to `Canvas`.
+  forced-color-adjust: none;
+}

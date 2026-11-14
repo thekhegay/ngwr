@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrChartLegend, type WrChartLegendItem } from 'ngwr/charts/chart-legend';
+import { WrChartLegend, type WrChartLegendItem, WrChartScale } from 'ngwr/charts/chart-legend';
 import { WrSparkline } from 'ngwr/charts/sparkline';
 
 import {
@@ -24,6 +24,7 @@ interface Metric {
   templateUrl: './chart-legend.html',
   imports: [
     WrChartLegend,
+    WrChartScale,
     WrSparkline,
     DocPageComponent,
     DocSectionComponent,
@@ -60,7 +61,28 @@ export default class ChartLegendPageComponent {
     this.metrics.map(({ label, color }) => ({ label, color, dash: '' }))
   );
 
+  /** The five steps of the chart theme's sequential scale, lowest first. */
+  protected readonly scaleSteps: readonly string[] = [
+    'var(--wr-chart-seq-1)',
+    'var(--wr-chart-seq-2)',
+    'var(--wr-chart-seq-3)',
+    'var(--wr-chart-seq-4)',
+    'var(--wr-chart-seq-5)',
+  ];
+
   protected readonly snippets = {
+    scale: `<wr-chart-scale
+  aria-hidden="true"
+  minLabel="0"
+  maxLabel="120"
+  [steps]="[
+    'var(--wr-chart-seq-1)',
+    'var(--wr-chart-seq-2)',
+    'var(--wr-chart-seq-3)',
+    'var(--wr-chart-seq-4)',
+    'var(--wr-chart-seq-5)'
+  ]"
+/>`,
     basic: `<ul
   wr-chart-legend
   [items]="[
@@ -161,4 +183,6 @@ interface WrChartLegendToggle {
   ];
 
   protected readonly api = API.WrChartLegend;
+
+  protected readonly scaleApi = API.WrChartScale;
 }
