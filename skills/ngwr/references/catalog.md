@@ -59,7 +59,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/charts/calendar-heatmap/testing` | `import { WrCalendarHeatmapHarness } from 'ngwr/charts/calendar-heatmap/testing'` | — |
 | `ngwr/charts/candlestick-chart` | `import { WrCandlestickChart } from 'ngwr/charts/candlestick-chart'` | `wr-candlestick-chart` |
 | `ngwr/charts/candlestick-chart/testing` | `import { WrCandlestickChartHarness } from 'ngwr/charts/candlestick-chart/testing'` | — |
-| `ngwr/charts/chart-legend` | `import { WrChartLegend } from 'ngwr/charts/chart-legend'` | `ul[wr-chart-legend]` |
+| `ngwr/charts/chart-legend` | `import { WrChartLegend } from 'ngwr/charts/chart-legend'` | `ul[wr-chart-legend]` `wr-chart-scale` |
 | `ngwr/charts/chart-legend/testing` | `import { WrChartLegendHarness } from 'ngwr/charts/chart-legend/testing'` | — |
 | `ngwr/charts/donut-chart` | `import { WrDonutChart } from 'ngwr/charts/donut-chart'` | `wr-donut-chart` |
 | `ngwr/charts/donut-chart/testing` | `import { WrDonutChartHarness } from 'ngwr/charts/donut-chart/testing'` | — |
