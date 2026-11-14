@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Gauge"
-  updated="15.1.0"
+  updated="16.5.0"
   description="A read-only semicircle dial for a single value."
   [keywords]="['gauge', 'progress', 'wr-gauge']"
   [labels]="['Component']"
@@ -12,10 +12,68 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Custom range and colour" description="Set `min`, `max` and `valueColor`.">
+  <ngwr-doc-section
+    title="Custom range and colour"
+    description="Set `min`, `max` and `valueColor`. The arc defaults to the first chart palette colour, `--wr-chart-1`. Pass another palette token, or an intent once the reading crosses a threshold."
+  >
     <ngwr-doc-code [code]="snippets.colored" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-gauge [value]="9.5" [min]="0" [max]="10" suffix="/10" valueColor="var(--wr-color-warning)" />
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">A palette colour</p>
+          <wr-gauge [value]="9.5" [min]="0" [max]="10" suffix="/10" valueColor="var(--wr-chart-3)" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">An intent, past a threshold</p>
+          <wr-gauge [value]="94" suffix="%" valueColor="var(--wr-color-danger)" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Size and stroke"
+    description="`strokeWidth` is in CSS pixels, so the arc is as thick at any `size`."
+  >
+    <ngwr-doc-code [code]="snippets.stroke" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[size]="96"</code>
+          </p>
+          <wr-gauge [value]="72" [size]="96" [strokeWidth]="8" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[size]="200"</code>
+          </p>
+          <wr-gauge [value]="72" [size]="200" [strokeWidth]="8" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Loading and error"
+    description="`loading` and `error` put their message in place of the reading, over the track. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-gauge [value]="72" suffix="%" loading />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-gauge [value]="72" suffix="%" error errorLabel="Unavailable" />
+        </div>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

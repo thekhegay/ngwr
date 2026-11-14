@@ -8,7 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChild } from '@angular/core';
 
-import { useChartNumbers } from 'ngwr/charts/core';
+import { WrChartState, useChartNumbers, useChartState, wrChartRound } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { wrClamp, wrCheckStyles } from 'ngwr/utils';
@@ -23,6 +23,15 @@ import { wrClamp, wrCheckStyles } from 'ngwr/utils';
  * <wr-gauge [value]="9.5" [min]="0" [max]="10" suffix="/10" valueColor="var(--wr-color-warning)" />
  * ```
  *
+ * **The look is the chart theme's.** The arc is the first colour of the chart palette
+ * (`--wr-chart-1`) over a track in `--wr-chart-track`, and `strokeWidth` is in CSS pixels,
+ * so two gauges of different sizes draw the same arc. `valueColor` takes any colour: a
+ * palette token, or an intent once the reading crosses a threshold.
+ *
+ * **Loading and error.** `loading` and `error` put their message in place of the reading,
+ * over the track; the gauge is a named group rather than a meter while it has no reading
+ * to announce.
+ *
  * @see https://ngwr.dev/charts/gauge
  */
 @Component({
@@ -30,6 +39,7 @@ import { wrClamp, wrCheckStyles } from 'ngwr/utils';
   templateUrl: './gauge.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-gauge' },
+  imports: [WrChartState],
 })
 export class WrGauge {
   constructor() {
@@ -63,23 +73,28 @@ export class WrGauge {
   /** Diameter in CSS pixels. @default 160 */
   readonly size = input(160, { transform: (v: unknown): number => Math.max(48, coerceNumberProperty(v, 160)) });
 
-  /** Arc stroke thickness in viewBox units (out of 100). @default 10 */
-  readonly strokeWidth = input(10, {
-    transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 10)),
+  /**
+   * Arc stroke thickness in CSS pixels, the same at any `size`. It was a share of the
+   * drawing until 16.5, so a gauge twice the size drew an arc twice as thick.
+   * @default 16
+   */
+  readonly strokeWidth = input(16, {
+    transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 16)),
   });
 
   /**
-   * Colour of the unfilled arc behind the value. Any CSS colour; the default is
-   * `--wr-border-base` at 60%, which reads as a hairline in both themes.
-   * @default color-mix(in srgb, var(--wr-border-base) 60%, transparent)
+   * Colour of the unfilled arc behind the value. Any CSS colour; the default is the
+   * chart theme's track, shared with the meter group and the bullet chart.
+   * @default 'var(--wr-chart-track)'
    */
-  readonly trackColor = input<string>('color-mix(in srgb, var(--wr-border-base) 60%, transparent)');
+  readonly trackColor = input<string>('var(--wr-chart-track)');
   /**
-   * Colour of the filled arc. Any CSS colour — pass an intent token to tie it to
+   * Colour of the filled arc. Any CSS colour: the default is the first colour of the
+   * chart palette; pass another (`var(--wr-chart-3)`), or an intent token to tie it to
    * a threshold, e.g. `var(--wr-color-danger)` once the value crosses one.
-   * @default 'var(--wr-color-primary)'
+   * @default 'var(--wr-chart-1)'
    */
-  readonly valueColor = input<string>('var(--wr-color-primary)');
+  readonly valueColor = input<string>('var(--wr-chart-1)');
 
   /** Show the value text in the center. @default true */
   readonly showValue = input(true, { transform: coerceBooleanProperty });
@@ -89,6 +104,24 @@ export class WrGauge {
    * the accessible text too, so the gauge is announced the way it reads.
    */
   readonly suffix = input<string>('');
+
+  /**
+   * A request for the reading is in flight: the arc and the number give way to the
+   * loading message, over the track. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The reading failed to load: the arc and the number give way to the error message.
+   * `loading` wins while both are set. @default false
+   */
+  readonly error = input(false, { transform: coerceBooleanProperty });
+
+  /** The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`. */
+  readonly loadingLabel = input<string | null>(null);
+
+  /** The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`. */
+  readonly errorLabel = input<string | null>(null);
 
   /**
    * Show a tooltip with the reading on hover, named by `ariaLabel` when one is
@@ -108,12 +141,22 @@ export class WrGauge {
 
   private readonly surface = viewChild<ElementRef<HTMLElement>>('surface');
 
-  // Geometry — semicircle in a 100×56 viewBox (centre at 50, 50).
+  // Geometry — a semicircle in a viewBox 100 wide (centre at 50, 50), as tall as the arc's
+  // round caps reach below the centre: 56 at the default stroke.
   protected readonly cx = 50;
   protected readonly cy = 50;
+
+  /**
+   * The stroke in the viewBox's units. The drawing is `size` px wide and 100 units wide,
+   * so a width in pixels is that many hundredths of `size`: worked out from the input
+   * rather than measured, since the surface is laid out at exactly `size`, and the radius
+   * and the viewBox depend on it, which a non-scaling stroke would leave behind.
+   */
+  protected readonly stroke = computed(() => wrChartRound((this.strokeWidth() * 100) / this.size(), 2));
+
   // A negative radius is invalid in the SVG path grammar, so the browser drops the arc
-  // and the dial vanishes — which a fat stroke reaches at 99. `wr-knob` floors it too.
-  protected readonly radius = computed(() => Math.max(1, 50 - this.strokeWidth() / 2 - 0.5));
+  // and the dial vanishes — which a fat stroke reaches at 99 units. `wr-knob` floors it too.
+  protected readonly radius = computed(() => Math.max(1, wrChartRound(50 - this.stroke() / 2 - 0.5, 2)));
 
   /**
    * The reading as it can actually be shown. Only `ratio` used to be clamped, so an
@@ -151,7 +194,18 @@ export class WrGauge {
     return `M ${this.cx - r} ${this.cy} A ${r} ${r} 0 0 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
   });
 
-  protected readonly viewBox = '0 0 100 56';
+  /** A unit past the caps, which end half a stroke below the centre. */
+  protected readonly viewBox = computed(() => `0 0 100 ${wrChartRound(this.cy + this.stroke() / 2 + 1, 2)}`);
+
+  /** Loading, or a failed load, or `null` while the gauge shows its reading. A gauge always has a value, so it is never empty. */
+  protected readonly state = useChartState({
+    loading: this.loading,
+    error: this.error,
+    empty: computed(() => false),
+    emptyLabel: computed(() => null),
+    loadingLabel: this.loadingLabel,
+    errorLabel: this.errorLabel,
+  });
 
   /**
    * The reading as the meter announces it — `aria-valuetext`, the number plus the
@@ -167,7 +221,8 @@ export class WrGauge {
    */
   protected readonly tip = useChartTooltip(this.tooltip, () => {
     const el = this.surface()?.nativeElement;
-    if (!el) return null;
+    // No reading to show under a state: its message is already on the dial.
+    if (!el || this.state()) return null;
     return {
       datum: { label: this.ariaLabel() ?? undefined, value: this.valueText(), color: this.valueColor() },
       anchor: el,
