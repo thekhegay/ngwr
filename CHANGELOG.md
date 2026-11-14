@@ -1,5 +1,23 @@
 # Changelog
 
+## [16.4.0](https://github.com/thekhegay/ngwr/compare/v16.3.0...v16.4.0) (2026-11-14)
+
+### Features
+
+* **graph:** zoom and pan ([1d8ff32](https://github.com/thekhegay/ngwr/commit/1d8ff326f7f940e84da1849ebeb096a9bb782eb4))
+* **schematics:** eject a component into your repo ([53b5cef](https://github.com/thekhegay/ngwr/commit/53b5cef43699fccb19e52116f8686808a6df568c))
+* **select:** type to jump in select, dropdown, tree and context menu ([fad5b8e](https://github.com/thekhegay/ngwr/commit/fad5b8eaa9a24c2027b051a693c2677f473c81f0))
+* **table:** a column chooser for your own menu, with show all ([532de03](https://github.com/thekhegay/ngwr/commit/532de0342f543dd0cbbafea2fe39a28e5d51248b))
+* **utils:** a typeahead helper ([af0fa6a](https://github.com/thekhegay/ngwr/commit/af0fa6a83d1ebb763e2d5f3141869354c6ac6909))
+
+### Bug Fixes
+
+* **carousel:** pause control, quiet autoplay and larger dots ([da5134c](https://github.com/thekhegay/ngwr/commit/da5134cfeda7d61ee9053b1e042bc91193055488))
+* **file-upload:** name each remove button after its file ([17f54a4](https://github.com/thekhegay/ngwr/commit/17f54a442c5da1750b7a5645f646c8a64a921ccf))
+* **schematics:** ejected components bring the private files they need ([c277466](https://github.com/thekhegay/ngwr/commit/c277466c8004f3310dc6613fc7d900fe1f1b4e80))
+* **select:** announce loading and results ([f6630f0](https://github.com/thekhegay/ngwr/commit/f6630f0ee7a4c42ac031f366855b219d00864ba3))
+* **tour:** the step text is the dialog's description ([80002b7](https://github.com/thekhegay/ngwr/commit/80002b76ef99bb605a944281daeaefad703827b2))
+
 ## [16.3.0](https://github.com/thekhegay/ngwr/compare/v16.2.0...v16.3.0) (2026-11-13)
 
 ### Features
