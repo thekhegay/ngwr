@@ -76,6 +76,18 @@ because it is guidance rather than a plan.
   `tabindex="-1"` with `outline: none` on `:focus`. The library's own
   `cdkFocusInitial` (confirm, alert) follows the option and is only emitted
   under `'first-tabbable'`; the consumer's own always wins.
+- Components do not move focus on open unless asked; keyboard navigation
+  inside composites does (since 16.5). An overlay that is a dialog (a
+  popconfirm, a tour card, the lightbox viewer, a window) focuses its PANEL,
+  through the same `wrFocusOverlay` and `autoFocus` modes as the dialog. A
+  non-modal panel (`[wrPopover]`, `[wrColorPickerTrigger]`) moves nothing by
+  default and Tab on the trigger walks into it, which is what keeps WCAG F85
+  answered with the pane at the end of `<body>`; the date pickers move in for
+  the keyboard (Enter on the calendar button, `Alt+ArrowDown`) and not for a
+  pointer press. Roving arrows, Home / End, typeahead, a submenu opened by its
+  arrow, the editor of an inline edit and the hand-back of focus on close are
+  the user's own moves and stay. Menus, the command palette, the cascader and
+  the overlay tree still take focus on open: their keyboard lives in the panel.
 - `wr-sortable-list` in a group: `move` fires ONCE, on the list the item
   arrived in, and never on the one it left, which reports through
   `itemsChange` alone; a keyboard move writes `[(items)]` on both lists at
