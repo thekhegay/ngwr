@@ -135,7 +135,7 @@ export default class MigrationPageComponent {
     },
   ];
 
-  /** Date output a 16.x minor moved. No codemod: nothing in the source changes. */
+  /** Output and behaviour a 16.x minor moved. No codemod: nothing in the source changes. */
   protected readonly v16Dates: readonly Change[] = [
     {
       before: '16.1',
@@ -150,7 +150,12 @@ export default class MigrationPageComponent {
     {
       before: '16.3',
       after:
-        'A time the clocks skip lands after the change in every zone: 02:30 on 29 March 2026 in `Europe/Berlin` is 03:30.',
+        'A time the clocks skip lands after the change in every zone: 02:30 on 29 March 2026 in `Europe/Berlin` is 03:30. A click anywhere on a branch row of `<wr-tree>` opens it: `[expandOnClick]="false"` leaves that to the arrow.',
+    },
+    {
+      before: '16.4',
+      after:
+        'An `autoplay` `<wr-carousel>` draws a pause / play button. A letter typed on a select with no search field, a dropdown, a context menu or a tree jumps to the next row that starts with it.',
     },
   ];
 
