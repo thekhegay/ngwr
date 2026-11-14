@@ -10,7 +10,9 @@ import { WrColorPickerTrigger } from './color-picker-trigger';
 @Component({
   imports: [WrColorPickerTrigger],
   template: `
-    <button type="button" wrColorPickerTrigger [autoFocus]="autoFocus()" [(value)]="brand">Brand</button>
+    <button type="button" wrColorPickerTrigger [wrColorPickerTriggerAutoFocus]="autoFocus()" [(value)]="brand">
+      Brand
+    </button>
     <button type="button" id="elsewhere">Something else</button>
   `,
 })
@@ -87,7 +89,7 @@ describe('[wrColorPickerTrigger] focus', () => {
     expect(document.activeElement).toBe(surface());
   });
 
-  it('moves focus onto the surface on open under autoFocus="first-tabbable"', async () => {
+  it('moves focus onto the surface on open under wrColorPickerTriggerAutoFocus="first-tabbable"', async () => {
     // jsdom lays nothing out, and the CDK passes over a control with no box.
     const boxes = vi
       .spyOn(HTMLElement.prototype, 'getClientRects')
@@ -104,7 +106,7 @@ describe('[wrColorPickerTrigger] focus', () => {
     }
   });
 
-  it('moves focus onto the panel itself under autoFocus="dialog"', async () => {
+  it('moves focus onto the panel itself under wrColorPickerTriggerAutoFocus="dialog"', async () => {
     fixture.componentInstance.autoFocus.set('dialog');
     fixture.detectChanges();
     open();
@@ -113,6 +115,23 @@ describe('[wrColorPickerTrigger] focus', () => {
     const pane = document.querySelector<HTMLElement>('.wr-color-picker-overlay');
     expect(document.activeElement).toBe(pane);
     expect(pane!.tabIndex).toBe(-1);
+  });
+
+  it('takes a static wrColorPickerTriggerAutoFocus and leaves no native autofocus on the trigger', async () => {
+    @Component({
+      imports: [WrColorPickerTrigger],
+      template: `<button type="button" wrColorPickerTrigger wrColorPickerTriggerAutoFocus="dialog">Brand</button>`,
+    })
+    class StaticHost {}
+
+    fixture.destroy();
+    fixture = TestBed.createComponent(StaticHost) as unknown as typeof fixture;
+    fixture.detectChanges();
+    expect(trigger().hasAttribute('autofocus')).toBe(false);
+
+    open();
+    await settle();
+    expect(document.activeElement).toBe(document.querySelector<HTMLElement>('.wr-color-picker-overlay'));
   });
 
   it('hands focus back to the trigger when it closes', () => {

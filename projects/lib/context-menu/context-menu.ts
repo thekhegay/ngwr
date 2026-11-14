@@ -113,12 +113,12 @@ export class WrContextMenu {
    * page walk into it at its first / last item; a letter jumps to the item it
    * starts. Closing hands focus back only when it was inside.
    *
-   * Bind it, `[autoFocus]="true"`: a bare `autoFocus` attribute is also the
-   * native `autofocus`.
+   * Prefixed because the directive sits on your own element, where an
+   * `autoFocus` attribute would also be the native `autofocus`.
    *
    * @default false
    */
-  readonly autoFocus = input(false, { transform: coerceBooleanProperty });
+  readonly autoFocus = input(false, { alias: 'wrContextMenuAutoFocus', transform: coerceBooleanProperty });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly focusMonitor = inject(FocusMonitor);
@@ -413,7 +413,7 @@ export class WrContextMenu {
     // stays where you put it" than a menu that simply slides with the page.
     const sync = (): void => positionStrategy.reapplyLastPosition();
 
-    // Opening moves no focus unless `autoFocus` asks. The menu is still
+    // Opening moves no focus unless `wrContextMenuAutoFocus` asks. The menu is still
     // reachable: rows are `tabindex="-1"` (the roving-focus contract) and the
     // pane is not a tab stop, but the dispatcher subscription below hears every
     // keydown on the page while the menu is open, so ArrowDown / ArrowUp / Home

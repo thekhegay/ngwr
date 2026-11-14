@@ -283,7 +283,7 @@ describe('WrPopover', () => {
 
       const pane = popoverPane()!;
       expect(document.activeElement, 'opening moved focus unasked').toBe(trigger('click'));
-      // Focusable all the same, so `autoFocus="dialog"` and a press on its padding land on it.
+      // Focusable all the same, so `wrPopoverAutoFocus="dialog"` and a press on its padding land on it.
       expect(pane.tabIndex).toBe(-1);
       expect(pane.querySelector('.panel-action')).toBeTruthy();
     });
@@ -1518,7 +1518,7 @@ describe('WrPopover while disabled', () => {
 });
 
 /**
- * Opening a popover moves focus only when asked: by `autoFocus`, or by a
+ * Opening a popover moves focus only when asked: by `wrPopoverAutoFocus`, or by a
  * `cdkFocusInitial` the consumer put in the content. The close hands focus back
  * to the trigger in every mode it was moved in.
  */
@@ -1526,7 +1526,12 @@ describe('WrPopover autoFocus', () => {
   @Component({
     imports: [WrPopover],
     template: `
-      <button type="button" class="trigger" [wrPopover]="marked() ? withMarker : plain" [autoFocus]="autoFocus()">
+      <button
+        type="button"
+        class="trigger"
+        [wrPopover]="marked() ? withMarker : plain"
+        [wrPopoverAutoFocus]="autoFocus()"
+      >
         Settings
       </button>
 
@@ -1592,6 +1597,29 @@ describe('WrPopover autoFocus', () => {
   it('focuses the first control under "first-tabbable"', async () => {
     await open('first-tabbable');
     expect(document.activeElement).toBe(inside('first'));
+  });
+
+  it('takes a static wrPopoverAutoFocus and leaves no native autofocus on the trigger', async () => {
+    @Component({
+      imports: [WrPopover],
+      template: `
+        <button type="button" class="trigger" [wrPopover]="content" wrPopoverAutoFocus="dialog">Settings</button>
+        <ng-template #content><button type="button">First</button></ng-template>
+      `,
+    })
+    class StaticHost {}
+
+    fixture.destroy();
+    fixture = TestBed.createComponent(StaticHost) as unknown as typeof fixture;
+    fixture.detectChanges();
+    expect(trigger().hasAttribute('autofocus')).toBe(false);
+
+    trigger().focus();
+    trigger().click();
+    await fixture.whenStable();
+    TestBed.tick();
+    await fixture.whenStable();
+    expect(document.activeElement).toBe(pane());
   });
 
   it.each<WrOverlayAutoFocus>([false, 'dialog', 'first-tabbable'])(

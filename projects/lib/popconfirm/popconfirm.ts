@@ -135,9 +135,12 @@ export class WrPopconfirm {
    * `'first-tabbable'` puts it on Cancel; `false` leaves it on the trigger,
    * and Tab from there walks into the panel. Closing hands focus back to the
    * trigger in every mode.
+   *
+   * Prefixed because the directive sits on your own element, where an
+   * `autoFocus` attribute would also be the native `autofocus`.
    * @default 'dialog'
    */
-  readonly autoFocus = input<WrOverlayAutoFocus>('dialog');
+  readonly autoFocus = input<WrOverlayAutoFocus>('dialog', { alias: 'wrPopconfirmAutoFocus' });
 
   /**
    * Turns the question off: a click on the host opens nothing and is left to
@@ -266,7 +269,7 @@ export class WrPopconfirm {
     // Focus has to be able to enter the panel: the overlay container sits at the
     // end of `<body>`, so Tab from the trigger went to the next thing on the PAGE
     // and the only way to confirm was unreachable. It enters on open as
-    // `autoFocus` says, and never onto a button unasked: the panel itself by
+    // `wrPopconfirmAutoFocus` says, and never onto a button unasked: the panel itself by
     // default, Cancel under `'first-tabbable'` (the action being confirmed is
     // usually the destructive one). Under `false` Tab on the trigger walks in,
     // see `onTriggerKeydown`.
@@ -367,7 +370,7 @@ export class WrPopconfirm {
   /**
    * Tab on the trigger while the panel is open walks into it, as it would into a
    * panel rendered beside the trigger. The way in when focus did not move on
-   * open (`autoFocus` is `false`).
+   * open (`wrPopconfirmAutoFocus` is `false`).
    *
    * @internal
    */

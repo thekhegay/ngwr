@@ -53,7 +53,7 @@ const OUTSIDE_GUARD_MS = 250;
  *   `clickItem()` leaves it closed.
  * - Submenus are a first-class input here rather than a nested trigger, so they
  *   are driven from {@link WrContextMenuItemHarness}.
- * - Opening leaves focus where it was unless the trigger sets `autoFocus`, as a
+ * - Opening leaves focus where it was unless the trigger sets `wrContextMenuAutoFocus`, as a
  *   dropdown's does. ArrowDown anywhere on the page walks in while the menu is
  *   open: `(await menu.host()).sendKeys(TestKey.DOWN_ARROW)`, and
  *   `getFocusedItemText()` answers from there.
@@ -295,7 +295,7 @@ export class WrContextMenuHarness extends ContentContainerComponentHarness {
    * keyboard is elsewhere.
    *
    * The menu roves focus rather than drawing a cursor — ArrowDown lands on the
-   * first ENABLED item (opening alone moves nothing unless `autoFocus` is set),
+   * first ENABLED item (opening alone moves nothing unless `wrContextMenuAutoFocus` is set),
    * and the arrows walk it over the enabled items only — so this is the only way
    * to ask where the keyboard is. It answers
    * `null` once a submenu has taken the cursor: that pane is a separate overlay,

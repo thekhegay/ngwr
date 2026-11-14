@@ -40,7 +40,7 @@ class Host {
 @Component({
   imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
   template: `
-    <button type="button" [autoFocus]="true" [wrDropdown]="menu" [trigger]="how()">Actions</button>
+    <button type="button" wrDropdownAutoFocus [wrDropdown]="menu" [trigger]="how()">Actions</button>
     <wr-dropdown-menu #menu>
       <wr-dropdown-item>Copy</wr-dropdown-item>
       <wr-dropdown-item>Rename</wr-dropdown-item>
@@ -302,10 +302,12 @@ describe('WrDropdown', () => {
     expect(document.activeElement).toBe(trigger());
   });
 
-  it('moves focus onto the first item once the menu has rendered, under autoFocus', async () => {
+  it('moves focus onto the first item once the menu has rendered, under wrDropdownAutoFocus', async () => {
     fixture.destroy();
     fixture = TestBed.createComponent(AutoFocusHost) as unknown as typeof fixture;
     fixture.detectChanges();
+    // The static, prefixed input leaves no native `autofocus` on the consumer's button.
+    expect(trigger().hasAttribute('autofocus')).toBe(false);
     // The initial focus is queued in a microtask, so it lands after the synchronous
     // `detectChanges` an event triggers — worth pinning, because every arrow key
     // measures its next target from `document.activeElement`.
@@ -555,7 +557,7 @@ describe('WrDropdown', () => {
     }
   });
 
-  it('focuses the first item when the KEYBOARD opens a hover menu under autoFocus, never for the pointer', async () => {
+  it('focuses the first item when the KEYBOARD opens a hover menu under wrDropdownAutoFocus, never for the pointer', async () => {
     fixture.destroy();
     fixture = TestBed.createComponent(AutoFocusHost) as unknown as typeof fixture;
     fixture.componentInstance.how.set('hover');

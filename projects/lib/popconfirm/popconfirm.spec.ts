@@ -22,7 +22,7 @@ import { type WrPopconfirmPosition, wrPopconfirmPositions } from './types';
     <button
       type="button"
       [wrPopconfirm]="message()"
-      [autoFocus]="autoFocus()"
+      [wrPopconfirmAutoFocus]="autoFocus()"
       (confirmed)="log.push('confirmed')"
       (cancelled)="log.push('cancelled')"
     >
@@ -141,7 +141,7 @@ describe('WrPopconfirm', () => {
     expect(pane()!.getAttribute('tabindex')).toBe('-1');
   });
 
-  it('lands on Cancel under autoFocus="first-tabbable"', async () => {
+  it('lands on Cancel under wrPopconfirmAutoFocus="first-tabbable"', async () => {
     // jsdom lays nothing out, and the CDK passes over a control with no box.
     const boxes = vi
       .spyOn(HTMLElement.prototype, 'getClientRects')
@@ -157,7 +157,33 @@ describe('WrPopconfirm', () => {
     }
   });
 
-  it('leaves focus on the trigger under [autoFocus]="false", and Tab walks in', async () => {
+  it('takes a static wrPopconfirmAutoFocus and leaves no native autofocus on the trigger', async () => {
+    @Component({
+      imports: [WrPopconfirm],
+      template: `<button type="button" wrPopconfirm="Delete it?" wrPopconfirmAutoFocus="first-tabbable">
+        Delete
+      </button>`,
+    })
+    class StaticHost {}
+
+    const boxes = vi
+      .spyOn(HTMLElement.prototype, 'getClientRects')
+      .mockReturnValue([new DOMRect(0, 0, 120, 32)] as unknown as DOMRectList);
+    try {
+      fixture.destroy();
+      fixture = TestBed.createComponent(StaticHost) as unknown as typeof fixture;
+      fixture.detectChanges();
+      expect(trigger().hasAttribute('autofocus')).toBe(false);
+
+      open();
+      await settle();
+      expect(document.activeElement).toBe(cancel());
+    } finally {
+      boxes.mockRestore();
+    }
+  });
+
+  it('leaves focus on the trigger under [wrPopconfirmAutoFocus]="false", and Tab walks in', async () => {
     fixture.componentInstance.autoFocus.set(false);
     fixture.detectChanges();
     trigger().focus();

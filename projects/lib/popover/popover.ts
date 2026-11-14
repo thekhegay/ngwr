@@ -215,9 +215,12 @@ export class WrPopover {
    * `cdkFocusInitial` in the content takes focus in every mode. A pointer
    * hovering a `trigger="hover"` popover never moves focus. Closing hands focus
    * back to the trigger whenever it was inside.
+   *
+   * Prefixed because the directive sits on your own element, where an
+   * `autoFocus` attribute would also be the native `autofocus`.
    * @default false
    */
-  readonly autoFocus = input<WrOverlayAutoFocus>(false);
+  readonly autoFocus = input<WrOverlayAutoFocus>(false, { alias: 'wrPopoverAutoFocus' });
 
   /**
    * Extra CSS classes for the popover's (or tooltip's) overlay pane.
@@ -275,7 +278,7 @@ export class WrPopover {
    * Whether Enter or Space opened a `trigger="hover"` popover. The pointer owns
    * a hover popover and must leave the caret alone; the keyboard has nothing
    * else to reach the content with, so a keyboard open behaves exactly as a
-   * click popover's open does: `autoFocus` applies and Tab walks in.
+   * click popover's open does: `wrPopoverAutoFocus` applies and Tab walks in.
    */
   private openedByKeyboard = false;
   private showTimer: ReturnType<typeof setTimeout> | null = null;
@@ -632,7 +635,7 @@ export class WrPopover {
         // Focus has to be able to ENTER the panel. The overlay container sits at
         // the end of `<body>`, so Tab from the trigger went to the next control on
         // the page and left the dialog stranded behind it (WCAG F85). Nothing
-        // moves on open unless `autoFocus` or a `cdkFocusInitial` in the content
+        // moves on open unless `wrPopoverAutoFocus` or a `cdkFocusInitial` in the content
         // asks: Tab on the trigger walks in instead, see `onTriggerTab`. The pane
         // is focusable either way, so a press on its padding keeps focus inside.
         //
