@@ -110,6 +110,10 @@ export default class KeyboardGuidePage {
         { keys: ['Home', 'End'], does: 'first / last visible row' },
         { keys: ['A letter'], does: 'jumps to the next visible row that starts with it' },
         { keys: ['Enter', 'Space'], does: 'select; hold `Ctrl` / `⌘` to add' },
+        {
+          keys: ['Alt', 'Enter'],
+          does: 'picks a row up when `draggable`: the arrows move it, `Enter` drops it, `Esc` puts it back',
+        },
       ],
     },
     {
@@ -126,6 +130,31 @@ export default class KeyboardGuidePage {
       rows: [
         { keys: ['Tab'], does: 'walks the sort, filter, selection and expand controls' },
         { keys: ['↑', '↓', 'PgUp', 'PgDn'], does: 'scroll a `virtualScroll` body' },
+        {
+          keys: ['↑', '↓', '←', '→', 'Home', 'End'],
+          does: 'move between cells, when a column has a `wrTableEditCell` editor',
+        },
+        { keys: ['Enter', 'F2'], does: 'open the cell editor; a typed character opens it with that character' },
+        { keys: ['Enter', 'Tab'], does: 'keep the edit; `Tab` goes on to the next editable cell' },
+        { keys: ['Esc'], does: 'drops the edit, or cancels a column drag' },
+      ],
+    },
+    {
+      component: 'Sortable list',
+      url: '/reference/components/sortable-list',
+      rows: [
+        { keys: ['Space', 'Enter'], does: 'pick a row up, then drop it' },
+        { keys: ['↑', '↓'], does: 'move the held row; `←` / `→` in a horizontal list' },
+        { keys: ['Esc'], does: 'puts the row back, also during a pointer drag' },
+      ],
+    },
+    {
+      component: 'Graph',
+      url: '/reference/components/graph',
+      rows: [
+        { keys: ['+', '-'], does: 'zoom in / out, when `zoomable`' },
+        { keys: ['0'], does: 'fits the graph' },
+        { keys: ['↑', '↓', '←', '→'], does: 'pan the view' },
       ],
     },
   ];

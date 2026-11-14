@@ -919,6 +919,12 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     { name: 'clear()', description: 'Clicks the clear control.', type: 'Promise<void>' },
     {
+      name: 'hasSelectAll() / toggleSelectAll() / isAllSelected() / getSelectAllState()',
+      description:
+        "The `selectAll` row of a multi select, which covers the options on offer, so the matches under a search. `toggleSelectAll()` opens if needed and throws with no row; the state is `'checked'`, `'mixed'` or `'unchecked'`. Since v16.3.",
+      type: "Promise<boolean> | Promise<void> | Promise<'checked' | 'mixed' | 'unchecked'>",
+    },
+    {
       name: 'getNoResultsText() / isLoading()',
       description: 'The empty and loading rows.',
       type: 'Promise<string | null> | Promise<boolean>',
@@ -1568,8 +1574,9 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'getMonths() / getYears() / selectChip(label)',
-      description: 'The month and year views; throws in the day view.',
+      name: 'getMonths() / getQuarters() / getYears() / selectChip(label)',
+      description:
+        'The month, quarter and year views; each throws off its own view. Only `granularity="quarter"` has a quarter view.',
       type: 'Promise<…>',
     },
     {
@@ -1578,8 +1585,9 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<void>',
     },
     {
-      name: 'getWeekdayNames() / getWeekCount() / getGridRole() / getPreviousLabel() / getNextLabel() / getMode() / isDisabled() / isReadonly()',
-      description: 'Shape and labels.',
+      name: 'getWeekdayNames() / getWeekCount() / getGridRole() / getPreviousLabel() / getNextLabel() / getMode() / getGranularity() / isDisabled() / isReadonly()',
+      description:
+        'Shape and labels. `getGranularity()` is what one pick names: a day, a week, a month, a quarter or a year.',
       type: 'Promise<…>',
     },
     {
@@ -2261,6 +2269,29 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'isMixed(label)',
+      description: 'Whether a node of a `cascade` tree is partly checked. Throws when no such node shows. Since v16.3.',
+      type: 'Promise<boolean>',
+    },
+    {
+      name: 'grabActive() / moveHeld(direction) / dropHeld() / cancelHeld()',
+      description:
+        "The keyboard move of a `draggable` tree: Alt+Enter, the arrows, Enter, Escape. `direction` is `'up'`, `'down'`, `'in'` or `'out'`. `grabActive()` throws when the row was not picked up. A drop emits `nodeMove` and moves nothing. Since v16.3.",
+      type: 'Promise<void>',
+    },
+    {
+      name: 'getHeldLabel() / getDropMark() / getAnnouncement()',
+      description:
+        'The held row, where it would drop as `{ label, position }` with `before`, `after` or `inside`, and what the live region last said.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Node: isLoading() / isMixed() / isDraggable()',
+      description:
+        'A branch waiting on `loadChildren`, a partly checked `cascade` node, and a row that can be dragged now. Since v16.3.',
+      type: 'Promise<boolean>',
+    },
+    {
       name: 'Node: getLabel() / getLevel() / getPosInSet() / getSetSize() / getIndex() / isExpandable() / isExpanded() / expand() / collapse() / isSelected() / isDisabled() / isActive() / click() / ctrlClick()',
       description: '`WrTreeNodeHarness`. Set size and position are per sibling group.',
       type: 'Promise<…>',
@@ -2283,6 +2314,12 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'getEdges()',
       description: '`{ from, to }` per line, by node id. Throws on a graph with no nodes.',
       type: 'Promise<{ from: string; to: string }[]>',
+    },
+    {
+      name: 'isPending()',
+      description:
+        'Whether an asynchronous layout still runs. The graph draws the previous picture meanwhile, so wait for `false` before reading nodes. Since v16.3.',
+      type: 'Promise<boolean>',
     },
     {
       name: 'isZoomable() / zoomIn() / zoomOut() / fit() / getZoom()',
