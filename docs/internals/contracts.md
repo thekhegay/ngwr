@@ -198,10 +198,25 @@ because it is guidance rather than a plan.
   prerender. Destroying the app aborts the run. While a newer run is pending
   the graph draws the OLD nodes and edges, not the new inputs: a result travels
   with the graph it was computed for, so the picture on screen is always whole.
-- `wr-graph` with `zoomable` leaves a plain wheel to the page: only `Ctrl` or
-  `⌘` with the wheel (a trackpad pinch arrives that way) zooms, unless
-  `wheelZoom` is set. A graph that swallowed the wheel would trap a page
-  scrolling past it. `zoomable` is off by default, because it replaces the
+- `wr-graph` with `zoomable` treats a plain wheel, which is also a trackpad's
+  two-finger scroll, as a scroll container does: the drawing pans while it has
+  more to show in that direction, up to the viewport's padding, and the event
+  is taken; once it has none the event is not prevented and the page scrolls
+  on. A drawing that fits never takes the wheel, so a page scrolling past a
+  graph is not trapped. The larger of the two deltas decides, so the sideways
+  drift of a vertical swipe over a wide graph does not hold the page. `Shift`
+  with the wheel pans sideways. A wheel event that is not cancelable is left
+  alone: the browser is already scrolling the page with that gesture. A drag
+  reaches further than the wheel, until 48 pixels of the drawing are left in
+  view, and the wheel only brings such a view back. Only `Ctrl` or `⌘` with
+  the wheel zooms (a trackpad pinch arrives that way in Chromium and Firefox),
+  unless `wheelZoom` is set, and then a plain wheel zooms and never pans.
+  Safari sends a trackpad pinch as `gesturestart` / `gesturechange` /
+  `gestureend` instead: the graph zooms by the gesture's `scale` from where it
+  started, around its point, and prevents all three so the page does not zoom.
+  While touch pointers are down those events are prevented and otherwise
+  ignored, because the same pinch already zooms through the pointers.
+  `zoomable` is off by default, because it replaces the
   viewport's scrolling and takes touch drags from the page. A fit never goes
   above 100%. Once the view was moved by hand, by a gesture, a key, a button or
   a write to `zoom`, a new layout result is no longer fitted, an asynchronous
