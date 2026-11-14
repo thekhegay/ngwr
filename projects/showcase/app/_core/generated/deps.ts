@@ -381,6 +381,7 @@ export const DOC_ROUTES: Readonly<
   "docs/migration": {"title":"Migration guide","kind":"Docs","labels":[],"description":"Upgrade ngwr from any earlier major."},
   "docs/skills": {"title":"Agent skill","kind":"Docs","labels":[],"description":"Give your AI agent the ngwr rules and catalog as a skill."},
   "guides/csp": {"title":"Content Security Policy","kind":"Guide","labels":[],"description":"Run ngwr under a strict Content Security Policy."},
+  "guides/eject": {"title":"Eject a component","kind":"Guide","labels":[],"description":"Copy one component's source into your app and own it. The rest stays on npm."},
   "guides/forms": {"title":"Forms","kind":"Guide","labels":["Core"],"description":"Bind ngwr controls to any Angular form and show their errors."},
   "guides/grid": {"title":"Grid","kind":"Guide","labels":[],"description":"Lay out a page with a 12-column grid, containers and breakpoint mixins."},
   "guides/keyboard": {"title":"Keyboard","kind":"Guide","labels":["Core"],"description":"Bind shortcuts, show them as keycaps, and see which keys each component handles."},
