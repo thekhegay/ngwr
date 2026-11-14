@@ -1,17 +1,21 @@
 @use '../../../theme/styles' as theme;
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
+// The chart theme the arcs default to (`--wr-chart-1`, `--wr-chart-track`) and the
+// loading / error message.
+@use '../../core/styles' as core-styles; // WrChartState
 @include theme.loaded('charts/gauge');
 
 .wr-gauge {
   --wr-gauge-font-family: var(--wr-font-family-base);
   --wr-gauge-color: var(--wr-color-on-surface);
   --wr-gauge-text-padding-bottom: var(--wr-space-sm);
+  // The headline figure of a radial chart, the size the donut prints its centre value at.
   --wr-gauge-text-font-size: var(--wr-text-xl);
   --wr-gauge-text-font-weight: var(--wr-font-weight-semibold);
   --wr-gauge-suffix-margin-inline-start: var(--wr-space-xs);
   --wr-gauge-suffix-font-size: var(--wr-text-sm);
   --wr-gauge-suffix-font-weight: var(--wr-font-weight-medium);
-  --wr-gauge-suffix-color: var(--wr-color-on-surface-muted);
+  --wr-gauge-suffix-color: var(--wr-chart-label);
 
   display: inline-block;
   font-family: var(--wr-gauge-font-family);
@@ -38,6 +42,13 @@
     font-size: var(--wr-gauge-text-font-size);
     font-weight: var(--wr-gauge-text-font-weight);
     font-variant-numeric: tabular-nums;
+  }
+
+  // A state's message sits where the reading does, in the mouth of the dial, rather than
+  // across the arc: the shared rule centres it in the box.
+  .wr-chart-state {
+    align-items: flex-end;
+    padding-block-end: var(--wr-gauge-text-padding-bottom);
   }
 
   &__suffix {

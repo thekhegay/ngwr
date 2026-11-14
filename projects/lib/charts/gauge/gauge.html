@@ -3,38 +3,49 @@
   with `showValue` off the component had no accessible representation at all.
   `role="meter"` plus the value attributes make it readable either way.
 -->
+@let shown = state();
+<!-- Under a state there is no reading to announce, and a meter with no `aria-valuenow`
+     is an invalid one: the surface is a named group, and the message inside it is the
+     live region. -->
 <div
   #surface
   class="wr-gauge__surface"
   [style.width.px]="size()"
-  role="meter"
+  [attr.role]="shown ? 'group' : 'meter'"
   [attr.aria-label]="resolvedAriaLabel()"
-  [attr.aria-valuemin]="min()"
-  [attr.aria-valuemax]="max()"
-  [attr.aria-valuenow]="displayValue()"
-  [attr.aria-valuetext]="valueText()"
+  [attr.aria-valuemin]="shown ? null : min()"
+  [attr.aria-valuemax]="shown ? null : max()"
+  [attr.aria-valuenow]="shown ? null : displayValue()"
+  [attr.aria-valuetext]="shown ? null : valueText()"
   (mouseenter)="tip.enter(0)"
   (mouseleave)="tip.leave($event)"
 >
-  <svg [attr.viewBox]="viewBox" aria-hidden="true">
+  <!-- `strokeWidth` is in CSS pixels: `stroke()` is the same width in the drawing's own
+       units at this `size`, so the arc is as thick on a large gauge as on a small one. -->
+  <svg [attr.viewBox]="viewBox()" aria-hidden="true">
     <path
       class="wr-gauge__track"
       [attr.d]="trackPath()"
       fill="none"
       [attr.stroke]="trackColor()"
-      [attr.stroke-width]="strokeWidth()"
+      [attr.stroke-width]="stroke()"
       stroke-linecap="round"
     />
-    <path
-      class="wr-gauge__value"
-      [attr.d]="valuePath()"
-      fill="none"
-      [attr.stroke]="valueColor()"
-      [attr.stroke-width]="strokeWidth()"
-      stroke-linecap="round"
-    />
+    @if (!shown) {
+      <path
+        class="wr-gauge__value"
+        [attr.d]="valuePath()"
+        fill="none"
+        [attr.stroke]="valueColor()"
+        [attr.stroke-width]="stroke()"
+        stroke-linecap="round"
+      />
+    }
   </svg>
-  @if (showValue()) {
+  @if (shown) {
+    <!-- Loading or failed: the message, where the reading was, over the track. -->
+    <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
+  } @else if (showValue()) {
     <!--
       `dir="auto"`, as on `wr-knob`'s value: a number and its unit read as one phrase,
       and the browser is the only thing that knows which way that phrase runs. In an

@@ -1,7 +1,7 @@
 import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { wrChartLegacyColor } from 'ngwr/charts/core';
+import { wrChartColor } from 'ngwr/charts/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrGauge } from './gauge';
@@ -23,7 +23,7 @@ class Host {
   readonly value = signal(40);
   readonly min = signal(0);
   readonly max = signal(100);
-  readonly strokeWidth = signal(10);
+  readonly strokeWidth = signal(16);
   readonly showValue = signal(true);
   readonly suffix = signal('');
 }
@@ -78,12 +78,12 @@ describe('WrGauge', () => {
 
   it("fills the bar in the shared palette's first colour unless told otherwise", () => {
     // The input keeps the literal default the docs print; this holds it to the palette.
-    expect(bar().getAttribute('stroke')).toBe(wrChartLegacyColor(0));
+    expect(bar().getAttribute('stroke')).toBe(wrChartColor(0));
   });
 
   it('sweeps the bar from nothing to the whole track', () => {
-    // Radius is `50 - strokeWidth / 2 - 0.5` — 44.5 at the default stroke of 10 — so the
-    // semicircle runs from x = 5.5 to x = 94.5 along y = 50.
+    // Radius is `50 - stroke / 2 - 0.5` — 44.5 at the default stroke of 16px, which is 10
+    // of the drawing's 100 units at the default 160px — so the semicircle runs from x = 5.5 to x = 94.5 along y = 50.
     fixture.componentInstance.value.set(0);
     fixture.detectChanges();
     // At zero there is no bar at all. It used to be a zero-length arc, and with a round
@@ -127,10 +127,10 @@ describe('WrGauge', () => {
   });
 
   it('keeps the arc radius positive however fat the stroke', () => {
-    // `50 - strokeWidth / 2 - 0.5` goes negative past 99, and a negative radius is
+    // `50 - stroke / 2 - 0.5` goes negative past 99 units, and a negative radius is
     // invalid in the SVG path grammar — the browser drops the arc and the dial
-    // vanishes. `wr-knob` floors it for exactly this reason.
-    fixture.componentInstance.strokeWidth.set(140);
+    // vanishes. `wr-knob` floors it for exactly this reason. 224px is 140 units at 160px.
+    fixture.componentInstance.strokeWidth.set(224);
     fixture.detectChanges();
 
     for (const path of [track(), bar()]) {
