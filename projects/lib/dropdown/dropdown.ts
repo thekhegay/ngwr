@@ -31,7 +31,7 @@ import {
   WrOutsideClick,
   wrFollowDirection,
 } from 'ngwr/overlay';
-import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+import { WR_LIVE_LOCALE, wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import {
   type WrDropdownLevel,
@@ -165,6 +165,7 @@ export class WrDropdown {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly liveLocale = inject(WR_LIVE_LOCALE, { optional: true });
 
   private readonly openState = signal(false);
 
@@ -384,7 +385,7 @@ export class WrDropdown {
       close: () => this.close(),
       pointerLeft: related => this.onMenusLeave(related),
     };
-    wrDropdownRegisterLevel(this.level);
+    wrDropdownRegisterLevel(this.level, () => this.liveLocale?.());
 
     // Focus the first menu item after the menu renders — unless a POINTER
     // opened it. This used to be unconditional, so merely sweeping the cursor

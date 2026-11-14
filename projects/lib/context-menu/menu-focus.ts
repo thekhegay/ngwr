@@ -5,6 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { wrTypeahead } from 'ngwr/utils';
+
 /**
  * Roving focus inside ONE context-menu pane.
  *
@@ -63,4 +65,33 @@ export function wrHandleMenuNavigation(pane: HTMLElement, event: KeyboardEvent):
   }
   event.preventDefault();
   return true;
+}
+
+/**
+ * Type a letter to move to the next row of `pane` that starts with it.
+ *
+ * A listener on the pane, in the capture phase, rather than a branch of
+ * {@link wrHandleMenuNavigation}: each pane keeps its own run, and a Space that
+ * belongs to one ("save a" for "Save as") stops before the row's own Space
+ * activates it. The listener goes with the pane. `locale` is the interface
+ * language, for the case folding.
+ */
+export function wrListenForMenuTypeahead(pane: HTMLElement, locale?: () => string | undefined): void {
+  const typeahead = wrTypeahead({ locale });
+  pane.addEventListener(
+    'keydown',
+    event => {
+      const items = wrMenuItems(pane);
+      const index = typeahead.handleKey(
+        event,
+        items.map(item => item.querySelector('.wr-context-menu-item__label')?.textContent ?? ''),
+        items.indexOf(document.activeElement as HTMLElement)
+      );
+      if (index === null) return;
+      event.preventDefault();
+      if (event.key === ' ') event.stopPropagation();
+      items[index]?.focus();
+    },
+    true
+  );
 }

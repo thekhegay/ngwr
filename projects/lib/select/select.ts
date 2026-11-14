@@ -58,7 +58,15 @@ import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { WrSpinner } from 'ngwr/spinner';
-import { wrIsComposing, wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
+import {
+  WR_LIVE_LOCALE,
+  wrIsComposing,
+  wrToClassList,
+  wrCheckStyles,
+  wrTypeahead,
+  type WrClassInput,
+  type WrTypeaheadItem,
+} from 'ngwr/utils';
 
 import { WrSelectLoadError } from './load-error';
 import { WrOption } from './option';
@@ -2094,6 +2102,22 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   protected onTriggerKey(event: KeyboardEvent): void {
     if (this.isDisabled() || this.isReadonly()) return;
 
+    // Only the button trigger gets here with a letter: a search field keeps its
+    // own typing, and Space joins a run only once one has started.
+    if (this.typeahead.type(event)) {
+      event.preventDefault();
+      if (this.isOpen()) {
+        this.applyTypeahead();
+      } else {
+        // A letter on the closed trigger opens the list on its match, as the
+        // select-only combobox pattern has it. Nothing is committed.
+        this.typeaheadPending = true;
+        this.seedActiveIndex();
+        this.openState.set(true);
+      }
+      return;
+    }
+
     if (!this.isOpen()) {
       if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
@@ -2210,6 +2234,22 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       selectedIdx = list.findIndex(o => o.value === this.value());
     }
     this.activeIndex.set(selectedIdx >= 0 ? selectedIdx : this.firstEnabled());
+  }
+
+  private readonly liveLocale = inject(WR_LIVE_LOCALE, { optional: true });
+  private readonly typeahead = wrTypeahead({ locale: () => this.liveLocale?.() });
+  /** A letter opened the panel: the match is found once its rows are there. */
+  private typeaheadPending = false;
+
+  /** Move the cursor to the option the typed letters point at. */
+  private applyTypeahead(): void {
+    const items: readonly (string | WrTypeaheadItem)[] = this.virtualActive()
+      ? this.filteredDynamicOptions().map(item => this.displayWith()(item))
+      : this.orderedRegistry().map(o => ({ label: o.label(), disabled: o.disabled || this.isOptionHidden(o) }));
+    const index = this.typeahead.find(items, this.activeIndex());
+    if (index < 0) return;
+    this.activeIndex.set(index);
+    this.ensureVisible(index);
   }
 
   private moveActive(delta: number): void {
@@ -2330,6 +2370,12 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
       else if (this.reseedOnAttach === 'first') this.activeIndex.set(this.firstEnabled());
     }
     this.reseedOnAttach = null;
+    if (this.typeaheadPending) {
+      this.typeaheadPending = false;
+      // The panel's own `[options]` rows have no label until they have rendered.
+      if (this.virtualActive()) this.applyTypeahead();
+      else afterNextRender(() => this.applyTypeahead(), { injector: this.injector });
+    }
 
     // Seed the projected panel's scroll onto the cursor the same way the virtual
     // one is seeded from its own effect: opening a select whose selected option

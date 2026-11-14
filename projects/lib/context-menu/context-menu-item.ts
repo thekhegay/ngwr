@@ -26,11 +26,11 @@ import type { Subscription } from 'rxjs';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WR_OVERLAY, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
-import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
+import { WR_LIVE_LOCALE, wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WrContextMenu } from './context-menu';
 import type { WrContextMenuPanel } from './context-menu-panel';
-import { wrFocusMenuItemAt, wrHandleMenuNavigation } from './menu-focus';
+import { wrFocusMenuItemAt, wrHandleMenuNavigation, wrListenForMenuTypeahead } from './menu-focus';
 
 /** Hover delay (ms) before a submenu opens. */
 const SUBMENU_OPEN_DELAY = 120;
@@ -107,6 +107,7 @@ export class WrContextMenuItem {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly liveLocale = inject(WR_LIVE_LOCALE, { optional: true });
 
   private submenuRef: OverlayRef | null = null;
   private submenuKeys: Subscription | null = null;
@@ -304,6 +305,7 @@ export class WrContextMenuItem {
       scrollStrategy: this.scrollStrategies.reposition(),
       panelClass: ['wr-context-menu-overlay', 'wr-context-menu-overlay--submenu'],
     });
+    wrListenForMenuTypeahead(this.submenuRef.overlayElement, () => this.liveLocale?.());
 
     // A cascade can be open across a direction flip, and neither the ref's frozen
     // direction nor the `isRtl()` read above would notice: the panes would keep
