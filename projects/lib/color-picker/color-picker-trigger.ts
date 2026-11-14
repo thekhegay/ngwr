@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { FocusMonitor } from '@angular/cdk/a11y';
+import { type FocusTrap, FocusMonitor, FocusTrapFactory } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
@@ -24,7 +24,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, type WrOverlayAutoFocus, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
 import { wrGetFocusableElements, wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrColorPicker } from './color-picker';
@@ -45,6 +45,8 @@ function tabLeavesPane(pane: HTMLElement, event: KeyboardEvent): boolean {
   if (event.key !== 'Tab' || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return false;
   const active = pane.ownerDocument.activeElement;
   if (!active || !pane.contains(active)) return false;
+  // The pane itself holds focus under `autoFocus="dialog"`, ahead of its content.
+  if (active === pane) return event.shiftKey;
   const all = wrGetFocusableElements(pane);
   const at = all.indexOf(active as HTMLElement);
   if (at < 0) return false;
@@ -79,6 +81,7 @@ function tabLeavesPane(pane: HTMLElement, event: KeyboardEvent): boolean {
   exportAs: 'wrColorPickerTrigger',
   host: {
     '(click)': 'toggle()',
+    '(keydown.tab)': 'onTriggerTab($event)',
     // The same two attributes `<wr-popover>`'s trigger carries: without them the
     // button gave no hint that it opens anything, and never said it was open.
     '[attr.aria-haspopup]': '"dialog"',
@@ -113,6 +116,15 @@ export class WrColorPickerTrigger {
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /**
+   * Where focus goes when the picker opens. `false` leaves it on the trigger,
+   * and Tab from there walks into the panel; `'first-tabbable'` puts it on the
+   * saturation surface; `'dialog'` on the panel itself, with no ring. Closing
+   * hands focus back to the trigger whenever it was inside.
+   * @default false
+   */
+  readonly autoFocus = input<WrOverlayAutoFocus>(false);
+
+  /**
    * Extra CSS classes for the picker panel's overlay pane.
    *
    * The pane is appended to the overlay container, not to this component, so
@@ -130,6 +142,7 @@ export class WrColorPickerTrigger {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly focusMonitor = inject(FocusMonitor);
+  private readonly focusTraps = inject(FocusTrapFactory);
   private readonly overlay = inject(WR_OVERLAY);
   private readonly outsideClick = inject(WrOutsideClick);
   private readonly vcr = inject(ViewContainerRef);
@@ -149,6 +162,7 @@ export class WrColorPickerTrigger {
   /** Whether the picker panel is open. Read-only: `open()` and `close()` change it. */
   readonly isOpen = this.openState.asReadonly();
   private overlayRef: OverlayRef | null = null;
+  private finder: FocusTrap | null = null;
 
   /** @internal Public so the host binding can read it. */
   protected readonly panelId = `wr-color-picker-panel-${++triggerUid}`;
@@ -209,21 +223,24 @@ export class WrColorPickerTrigger {
     ref.setInput('disabled', this.disabled());
     ref.setInput('value', this.value());
 
-    // Render now rather than next frame: the picker's surfaces have to exist
-    // before focus can move to one, and a deferred focus is the class of bug
-    // this repo keeps finding.
     ref.changeDetectorRef.detectChanges();
-    // Focus has to ENTER the panel. The overlay container sits at the end of
-    // `<body>`, so a Tab from the trigger went to the next thing on the PAGE and
-    // the saturation surface and both sliders — all `tabindex="0"`, all
+    // Focus has to be able to ENTER the panel. The overlay container sits at the
+    // end of `<body>`, so a Tab from the trigger went to the next thing on the
+    // PAGE and the saturation surface and both sliders — all `tabindex="0"`, all
     // `role="slider"` or `role="group"` — were unreachable from the keyboard for
-    // as long as the picker was open. The saturation surface is the first stop
-    // and the one that carries the colour's two main values.
+    // as long as the picker was open. Opening moves nothing unless `autoFocus`
+    // asks: Tab on the trigger walks in, see `onTriggerTab`. The saturation
+    // surface is the first stop and the one that carries the colour's two main
+    // values.
     //
     // Deliberately NOT a focus trap, matching `wr-popover` / `[wrPopconfirm]`:
     // this popup is non-modal, an outside click or Escape closes it, and
     // trapping would only make it harder to leave.
-    this.overlayRef.overlayElement.querySelector<HTMLElement>('.wr-color-picker__sv')?.focus();
+    //
+    // `deferAnchors`: the trap is only the finder `wrFocusOverlay` asks for. No
+    // anchors go into the page and nothing is trapped.
+    this.finder = this.focusTraps.create(this.overlayRef.overlayElement, true);
+    wrFocusOverlay(this.overlayRef.overlayElement, this.finder, this.autoFocus(), this.injector);
 
     // Bridge the inner picker's `value` model back to our two-way [(value)].
     ref.instance.value.subscribe((next: string) => this.value.set(next));
@@ -258,6 +275,24 @@ export class WrColorPickerTrigger {
     this.opened.emit();
   }
 
+  /**
+   * Tab on the trigger while the picker is open walks into it, as it would into
+   * a panel rendered beside the trigger.
+   *
+   * @internal
+   */
+  protected onTriggerTab(event: Event): void {
+    const surface = this.surface();
+    if (!surface || (event as KeyboardEvent).shiftKey || event.defaultPrevented) return;
+    if (event.target !== this.host.nativeElement) return;
+    event.preventDefault();
+    surface.focus();
+  }
+
+  private surface(): HTMLElement | null {
+    return this.overlayRef?.overlayElement.querySelector<HTMLElement>('.wr-color-picker__sv') ?? null;
+  }
+
   /** Close the picker. No-op if already closed. */
   close(): void {
     if (!this.isOpen()) return;
@@ -273,6 +308,8 @@ export class WrColorPickerTrigger {
   }
 
   private dispose(): void {
+    this.finder?.destroy();
+    this.finder = null;
     if (this.overlayRef) {
       this.overlayRef.dispose();
       this.overlayRef = null;

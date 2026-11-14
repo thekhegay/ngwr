@@ -2,6 +2,7 @@ import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import type { WrOverlayAutoFocus } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrColorPickerTrigger } from './color-picker-trigger';
@@ -9,12 +10,13 @@ import { WrColorPickerTrigger } from './color-picker-trigger';
 @Component({
   imports: [WrColorPickerTrigger],
   template: `
-    <button type="button" wrColorPickerTrigger [(value)]="brand">Brand</button>
+    <button type="button" wrColorPickerTrigger [autoFocus]="autoFocus()" [(value)]="brand">Brand</button>
     <button type="button" id="elsewhere">Something else</button>
   `,
 })
 class Host {
   readonly brand = signal('#ff0000');
+  readonly autoFocus = signal<WrOverlayAutoFocus>(false);
 }
 
 /**
@@ -53,6 +55,13 @@ describe('[wrColorPickerTrigger] focus', () => {
     click(trigger());
   };
 
+  /** The focus move on open waits for the render after it. */
+  const settle = async (): Promise<void> => {
+    await fixture.whenStable();
+    TestBed.tick();
+    await fixture.whenStable();
+  };
+
   beforeEach(() => {
     TestBed.resetTestingModule();
     fixture = TestBed.createComponent(Host);
@@ -61,24 +70,54 @@ describe('[wrColorPickerTrigger] focus', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('moves focus into the panel, onto the surface that carries the colour', () => {
+  it('leaves focus on the trigger when it opens', async () => {
     open();
+    await settle();
 
     expect(panel()).not.toBeNull();
+    expect(document.activeElement).toBe(trigger());
+  });
+
+  it('walks Tab on the trigger into the panel, onto the surface that carries the colour', () => {
+    open();
+    const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    trigger().dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
     expect(document.activeElement).toBe(surface());
   });
 
-  it('renders the picker before reaching for it', () => {
-    // The focus is synchronous with the open, not deferred to a frame — a
-    // deferred focus is the class of bug this repo keeps finding, and under
-    // zoneless CD it lands after the element it was aiming at has moved.
-    open();
+  it('moves focus onto the surface on open under autoFocus="first-tabbable"', async () => {
+    // jsdom lays nothing out, and the CDK passes over a control with no box.
+    const boxes = vi
+      .spyOn(HTMLElement.prototype, 'getClientRects')
+      .mockReturnValue([new DOMRect(0, 0, 120, 32)] as unknown as DOMRectList);
+    try {
+      fixture.componentInstance.autoFocus.set('first-tabbable');
+      fixture.detectChanges();
+      open();
+      await settle();
 
-    expect(document.activeElement).not.toBe(document.body);
+      expect(document.activeElement).toBe(surface());
+    } finally {
+      boxes.mockRestore();
+    }
+  });
+
+  it('moves focus onto the panel itself under autoFocus="dialog"', async () => {
+    fixture.componentInstance.autoFocus.set('dialog');
+    fixture.detectChanges();
+    open();
+    await settle();
+
+    const pane = document.querySelector<HTMLElement>('.wr-color-picker-overlay');
+    expect(document.activeElement).toBe(pane);
+    expect(pane!.tabIndex).toBe(-1);
   });
 
   it('hands focus back to the trigger when it closes', () => {
     open();
+    surface()!.focus();
     click(trigger());
 
     expect(panel()).toBeNull();
@@ -87,6 +126,7 @@ describe('[wrColorPickerTrigger] focus', () => {
 
   it('hands it back when Escape closes the panel', () => {
     open();
+    surface()!.focus();
     document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     fixture.detectChanges();
 
@@ -145,6 +185,7 @@ describe('[wrColorPickerTrigger] focus', () => {
 
     it('lets Tab move between the stops inside the panel', () => {
       open();
+      surface()!.focus();
 
       tab();
 
@@ -154,6 +195,7 @@ describe('[wrColorPickerTrigger] focus', () => {
 
     it('closes and leaves from the trigger on Shift+Tab before the first stop', () => {
       open();
+      surface()!.focus();
 
       tab(true);
 
