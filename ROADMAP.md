@@ -19,5 +19,3 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 - **`ngwr/kit` standalone utilities**: publish the internal signal utils,
   positioning, density, hotkey and storage helpers as a zero-dep package usable
   without the components.
-- **Ejectable components**: keep npm and `ng update`, and add a schematic that
-  copies a component's source into the user's repo.
