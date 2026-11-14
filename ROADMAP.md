@@ -11,6 +11,7 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 ## Low
 
 - **One intent name**: alert and toast say `type`, result and load-state say `status`, button and tag say `color`; a rename waits for a major.
+- **`wr-graph` selection and highlight**: pick a node and light up its links, after zoom and pan.
 
 ## Very low
 
