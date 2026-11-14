@@ -70,7 +70,9 @@ export const STATES: readonly State[] = [
   {
     id: 'dropdown/menu',
     route: `${REF}/dropdown`,
-    steps: [{ click: demo('.wr-dropdown-trigger') }],
+    // Opening leaves focus on the trigger: ArrowDown walks in, so the sweep
+    // still sees a focused row.
+    steps: [{ click: demo('.wr-dropdown-trigger') }, { press: 'ArrowDown' }],
     target: '.wr-dropdown-menu',
     scope: '.wr-dropdown-menu',
   },
@@ -84,10 +86,10 @@ export const STATES: readonly State[] = [
   {
     id: 'context-menu/open',
     route: `${REF}/context-menu`,
-    steps: [{ rightClick: demo('.wr-context-menu-host') }],
+    steps: [{ rightClick: demo('.wr-context-menu-host') }, { press: 'ArrowDown' }],
     target: '.wr-context-menu-item',
     scope: '.wr-context-menu',
-    note: 'Its :focus-visible twin can never match — items are tabindex="-1" and the menu holds focus.',
+    note: 'Opening moves no focus; ArrowDown anywhere on the page walks in at the first row.',
   },
   {
     id: 'context-menu/item-hover',
@@ -107,7 +109,7 @@ export const STATES: readonly State[] = [
   {
     id: 'cascader/panel',
     route: `${REF}/cascader`,
-    steps: [{ click: demo('.wr-cascader__trigger') }],
+    steps: [{ click: demo('.wr-cascader__trigger') }, { press: 'ArrowDown' }],
     target: '.wr-cascader__opt',
     scope: '.wr-cascader-panel',
   },
@@ -516,7 +518,7 @@ export const STATES: readonly State[] = [
   {
     id: 'tree/overlay-trigger',
     route: `${REF}/tree`,
-    steps: [{ click: demo('.wr-tree__trigger') }, { wait: 200 }],
+    steps: [{ click: demo('.wr-tree__trigger') }, { wait: 200 }, { press: 'ArrowDown' }],
     target: '.wr-tree__row',
     scope: '.wr-tree-overlay, .wr-tree',
   },
@@ -597,7 +599,7 @@ export const STATES: readonly State[] = [
   {
     id: 'tree/overlay-panel',
     route: `${REF}/tree`,
-    steps: [{ click: demo('.wr-tree__trigger') }, { wait: 200 }],
+    steps: [{ click: demo('.wr-tree__trigger') }, { wait: 200 }, { press: 'ArrowDown' }],
     target: '.wr-tree-panel .wr-tree__row',
     scope: '.wr-tree-panel',
   },
@@ -763,7 +765,10 @@ export const STATES: readonly State[] = [
     route: `${REF}/dropdown`,
     // The page has several dropdowns and they all say "Open", so the trigger is
     // reached through its own section rather than by position.
-    steps: [{ click: 'ngwr-doc-section:has(h2:text-is("Disabled item")) .wr-dropdown-trigger' }],
+    steps: [
+      { click: 'ngwr-doc-section:has(h2:text-is("Disabled item")) .wr-dropdown-trigger' },
+      { press: 'ArrowDown' },
+    ],
     target: '.wr-dropdown-item--disabled',
     scope: '.wr-dropdown-menu',
   },
@@ -772,7 +777,7 @@ export const STATES: readonly State[] = [
     route: `${REF}/context-menu`,
     // The Basic demo's menu has no nested item, and it comes first on the page —
     // so the host is reached through its own section, the way the dropdown is.
-    steps: [{ rightClick: '.ngwr-cm-demo:has-text("Right-click for nested options")' }],
+    steps: [{ rightClick: '.ngwr-cm-demo:has-text("Right-click for nested options")' }, { press: 'ArrowDown' }],
     target: '.wr-context-menu-item__chevron',
     scope: '.wr-context-menu',
   },
