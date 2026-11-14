@@ -499,6 +499,9 @@ export const wrJa: WrI18nCatalog = {
     label: 'グラフ',
     parents: '親：{{names}}。',
     children: '子：{{names}}。',
+    zoomIn: '拡大',
+    zoomOut: '縮小',
+    fit: '全体を表示',
   },
   progress: {
     label: '進行状況',

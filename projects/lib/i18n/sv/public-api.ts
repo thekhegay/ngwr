@@ -495,6 +495,9 @@ export const wrSv: WrI18nCatalog = {
     label: 'Graf',
     parents: 'Föräldrar: {{names}}.',
     children: 'Barn: {{names}}.',
+    zoomIn: 'Zooma in',
+    zoomOut: 'Zooma ut',
+    fit: 'Anpassa till vyn',
   },
   progress: {
     label: 'Förlopp',

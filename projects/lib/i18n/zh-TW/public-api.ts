@@ -499,6 +499,9 @@ export const wrZhTw: WrI18nCatalog = {
     label: '圖',
     parents: '父節點：{{names}}。',
     children: '子節點：{{names}}。',
+    zoomIn: '放大',
+    zoomOut: '縮小',
+    fit: '符合檢視',
   },
   progress: {
     label: '進度',

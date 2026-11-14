@@ -518,6 +518,9 @@ export const wrAr: WrI18nCatalog = {
     label: 'مخطط',
     parents: 'الآباء: {{names}}.',
     children: 'الأبناء: {{names}}.',
+    zoomIn: 'تكبير',
+    zoomOut: 'تصغير',
+    fit: 'ملاءمة العرض',
   },
   progress: {
     label: 'التقدم',

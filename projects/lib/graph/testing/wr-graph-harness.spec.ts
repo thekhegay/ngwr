@@ -412,3 +412,60 @@ describe('WrGraphHarness with an asynchronous layout', () => {
     plain.destroy();
   });
 });
+
+describe('WrGraphHarness with a zoomable graph', () => {
+  @Component({
+    imports: [WrGraph],
+    template: `<wr-graph zoomable [nodes]="nodes" [edges]="edges" [maxZoom]="1.25" />`,
+  })
+  class ZoomHost {
+    readonly nodes = NODES;
+    readonly edges = EDGES;
+  }
+
+  it('zooms through the buttons and reads the zoom the graph drew', async () => {
+    const fixture = TestBed.createComponent(ZoomHost);
+    const graph = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrGraphHarness);
+
+    expect(await graph.isZoomable()).toBe(true);
+    expect(await graph.getZoom()).toBe(1);
+
+    await graph.zoomOut();
+    expect(await graph.getZoom()).toBe(0.8);
+
+    await graph.zoomIn();
+    await graph.zoomIn();
+    expect(await graph.getZoom()).toBe(1.25);
+
+    // Past the bound: the button is still there, and the zoom stays.
+    await graph.zoomIn();
+    expect(await graph.getZoom()).toBe(1.25);
+  });
+
+  it('fits to a viewport box the spec supplies', async () => {
+    const fixture = TestBed.createComponent(ZoomHost);
+    const graph = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrGraphHarness);
+    const viewport = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-graph__viewport')!;
+    const stage = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-graph__stage')!;
+    const width = Number.parseFloat(stage.style.width);
+    const height = Number.parseFloat(stage.style.height);
+    // Half the drawing's width, and all the height it needs.
+    viewport.getBoundingClientRect = () => new DOMRect(0, 0, width / 2, height * 2);
+
+    await graph.zoomIn();
+    await graph.fit();
+
+    expect(await graph.getZoom()).toBe(0.5);
+  });
+
+  it('refuses every zoom method on a graph that is not zoomable', async () => {
+    const fixture = TestBed.createComponent(Host);
+    const graph = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrGraphHarness);
+
+    expect(await graph.isZoomable()).toBe(false);
+    await expect(graph.zoomIn()).rejects.toThrow(/zoomIn\(\): the graph is not zoomable/);
+    await expect(graph.zoomOut()).rejects.toThrow(/zoomOut\(\): the graph is not zoomable/);
+    await expect(graph.fit()).rejects.toThrow(/fit\(\): the graph is not zoomable/);
+    await expect(graph.getZoom()).rejects.toThrow(/getZoom\(\): the graph is not zoomable/);
+  });
+});

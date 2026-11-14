@@ -518,6 +518,9 @@ export const wrPl: WrI18nCatalog = {
     label: 'Graf',
     parents: 'Rodzice: {{names}}.',
     children: 'Dzieci: {{names}}.',
+    zoomIn: 'Powiększ',
+    zoomOut: 'Pomniejsz',
+    fit: 'Dopasuj do widoku',
   },
   progress: {
     label: 'Postęp',

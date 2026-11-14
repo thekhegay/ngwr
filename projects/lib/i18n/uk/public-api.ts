@@ -516,6 +516,9 @@ export const wrUk: WrI18nCatalog = {
     label: 'Граф',
     parents: 'Батьки: {{names}}.',
     children: 'Діти: {{names}}.',
+    zoomIn: 'Збільшити',
+    zoomOut: 'Зменшити',
+    fit: 'Показати повністю',
   },
   progress: {
     label: 'Хід виконання',

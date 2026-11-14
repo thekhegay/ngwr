@@ -508,6 +508,9 @@ export const wrRu: WrI18nCatalog = {
     label: 'Граф',
     parents: 'Родители: {{names}}.',
     children: 'Дети: {{names}}.',
+    zoomIn: 'Увеличить',
+    zoomOut: 'Уменьшить',
+    fit: 'Показать целиком',
   },
   progress: {
     label: 'Прогресс',

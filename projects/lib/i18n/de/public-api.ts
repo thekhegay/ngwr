@@ -513,6 +513,9 @@ export const wrDe: WrI18nCatalog = {
     label: 'Graph',
     parents: 'Übergeordnet: {{names}}.',
     children: 'Untergeordnet: {{names}}.',
+    zoomIn: 'Vergrößern',
+    zoomOut: 'Verkleinern',
+    fit: 'Einpassen',
   },
   progress: {
     label: 'Fortschritt',

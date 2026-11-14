@@ -6,11 +6,18 @@
  */
 
 import { Directionality } from '@angular/cdk/bidi';
-import { NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import {
   Component,
+  DestroyRef,
+  type ElementRef,
   LOCALE_ID,
+  PLATFORM_ID,
+  type Signal,
   ViewEncapsulation,
+  afterNextRender,
+  afterRenderEffect,
+  booleanAttribute,
   computed,
   contentChild,
   effect,
@@ -18,17 +25,30 @@ import {
   input,
   isDevMode,
   linkedSignal,
+  model,
   output,
   signal,
+  untracked,
+  viewChild,
 } from '@angular/core';
 
 import { WrI18n, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { WrPlatform } from 'ngwr/platform';
 import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 import { WrGraphNodeTemplate } from './graph-node-template';
 import { WrLayeredGraphLayout } from './internal/layout/layered-layout';
 import { WrGraphLayout } from './internal/layout/types';
 import type { WrGraphLayoutInput, WrGraphLayoutResult, WrGraphPoint } from './internal/layout/types';
+import {
+  type GraphFrame,
+  type GraphTransform,
+  IDENTITY,
+  clampPan,
+  clampZoom,
+  fitTransform,
+  zoomAround,
+} from './internal/view';
 import type { WrGraphEdge, WrGraphNode } from './types';
 
 /** What a size falls back to when neither the node nor the graph supplies a usable one. */
@@ -41,6 +61,27 @@ const DEFAULT_NODE_HEIGHT = 48;
  * thicker `--wr-graph-edge-width` never shrinks the arrow off its lead-in.
  */
 const ARROW_SIZE = 6;
+
+const DEFAULT_MIN_ZOOM = 0.25;
+const DEFAULT_MAX_ZOOM = 4;
+/** One press of a zoom button or key. */
+const ZOOM_STEP = 1.25;
+/** One press of an arrow key, in pixels. */
+const PAN_STEP = 40;
+/** How far a pointer travels before a press becomes a drag, so a click on a node stays a click. */
+const DRAG_THRESHOLD = 3;
+/** Zoom per wheel pixel, as an exponent, and the most one wheel event may count for. */
+const WHEEL_RATE = 0.01;
+const WHEEL_MAX = 24;
+/** Pixels in one line of a wheel that reports lines. */
+const WHEEL_LINE = 16;
+
+/**
+ * What a press must not start a pan on: anything that takes a click or focus of
+ * its own inside a node. The viewport matches too, and is told apart at the call.
+ */
+const INTERACTIVE =
+  'a[href], button, input, select, textarea, summary, [tabindex], [contenteditable], [draggable="true"]';
 
 /**
  * Instance counter for the arrowhead marker id. Several graphs share one page
@@ -132,6 +173,18 @@ interface GraphView<TData> {
   readonly height: number;
   readonly nodes: readonly DrawnNode<TData>[];
   readonly edges: readonly DrawnEdge[];
+}
+
+/** The viewport as measured: its box on screen, and where the stage starts inside it. */
+interface MeasuredFrame extends GraphFrame {
+  readonly left: number;
+  readonly top: number;
+}
+
+const NO_FRAME: MeasuredFrame = { left: 0, top: 0, width: 0, height: 0, originX: 0, originY: 0 };
+
+function sameTransform(a: GraphTransform, b: GraphTransform): boolean {
+  return a.x === b.x && a.y === b.y && a.k === b.k;
 }
 
 function isSize(value: unknown): value is number {
@@ -236,7 +289,8 @@ function layoutProblems(graph: PreparedGraph<unknown>, result: WrGraphLayoutResu
 /**
  * A graph of blocks joined by parent-child links, laid out in layers from top to
  * bottom. Display only: nothing is selectable, and the graph scrolls inside its
- * own viewport rather than the page.
+ * own viewport rather than the page. With `zoomable` the viewport zooms and pans
+ * instead of scrolling.
  *
  * The layout runs in a `computed` with no DOM and no measuring, so the sizes are
  * the consumer's: `nodeWidth` / `nodeHeight` for every node, or `width` /
@@ -267,6 +321,8 @@ function layoutProblems(graph: PreparedGraph<unknown>, result: WrGraphLayoutResu
   host: {
     class: 'wr-graph',
     '[class.wr-graph--pending]': 'layoutPending()',
+    '[class.wr-graph--zoomable]': 'zoomable()',
+    '[class.wr-graph--panning]': 'panning()',
   },
 })
 export class WrGraph<TData = unknown> {
@@ -303,6 +359,57 @@ export class WrGraph<TData = unknown> {
   readonly ariaLabel = input<string | null>(null);
 
   /**
+   * Lets the viewport zoom and pan instead of scrolling: `Ctrl` or `⌘` with the
+   * wheel, a pinch, a drag on the field, the keyboard and three buttons. The
+   * drawing is fitted on first draw and whenever the layout changes its size,
+   * until the view is moved by hand. A touch drag on the graph then pans it
+   * rather than scrolling the page.
+   *
+   * @default false
+   */
+  readonly zoomable = input(false, { transform: booleanAttribute });
+
+  /**
+   * Lets a plain wheel zoom, with no modifier key. The page then no longer
+   * scrolls while the pointer is over the graph.
+   *
+   * @default false
+   */
+  readonly wheelZoom = input(false, { transform: booleanAttribute });
+
+  /**
+   * The zoom, where `1` is 100%. Two-way: it follows every gesture, and a value
+   * written to it zooms around the middle of the viewport, kept inside
+   * `minZoom` and `maxZoom`. Ignored unless `zoomable`.
+   *
+   * @default 1
+   */
+  readonly zoom = model(1);
+
+  /**
+   * The smallest zoom.
+   *
+   * @default 0.25
+   */
+  readonly minZoom = input(DEFAULT_MIN_ZOOM, { transform: wrNumAttr(DEFAULT_MIN_ZOOM) });
+
+  /**
+   * The largest zoom. Never below `minZoom`.
+   *
+   * @default 4
+   */
+  readonly maxZoom = input(DEFAULT_MAX_ZOOM, { transform: wrNumAttr(DEFAULT_MAX_ZOOM) });
+
+  /** Accessible name of the zoom-in button. Falls back to `graph.zoomIn`, then `'Zoom in'`. */
+  readonly zoomInLabel = input<string | null>(null);
+
+  /** Accessible name of the zoom-out button. Falls back to `graph.zoomOut`, then `'Zoom out'`. */
+  readonly zoomOutLabel = input<string | null>(null);
+
+  /** Accessible name of the fit button. Falls back to `graph.fit`, then `'Fit to view'`. */
+  readonly fitLabel = input<string | null>(null);
+
+  /**
    * An asynchronous layout rejected. Carries the rejection as thrown. The last
    * picture stays on screen, and a run that was aborted never reports here.
    */
@@ -314,7 +421,13 @@ export class WrGraph<TData = unknown> {
   private readonly parentsText = useI18nFormatter('graph.parents', 'Parents: {{names}}.');
   private readonly childrenText = useI18nFormatter('graph.children', 'Children: {{names}}.');
 
+  protected readonly zoomInText = useI18nText(this.zoomInLabel, 'graph.zoomIn', 'Zoom in');
+  protected readonly zoomOutText = useI18nText(this.zoomOutLabel, 'graph.zoomOut', 'Zoom out');
+  protected readonly fitText = useI18nText(this.fitLabel, 'graph.fit', 'Fit to view');
+
   protected readonly nodeTemplate = contentChild(WrGraphNodeTemplate);
+  private readonly viewportRef = viewChild<ElementRef<HTMLElement>>('viewport');
+  private readonly stageRef = viewChild<ElementRef<HTMLElement>>('stage');
 
   /** `url(#…)` for every edge's `marker-end`. */
   protected readonly markerId = `wr-graph-${graphUid++}-arrow`;
@@ -327,6 +440,8 @@ export class WrGraph<TData = unknown> {
   private readonly dir = inject(Directionality, { optional: true });
   private readonly i18n = inject(WrI18n, { optional: true });
   private readonly localeId = inject(LOCALE_ID);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly reducedMotion = inject(WrPlatform).prefersReducedMotion;
 
   private readonly isRtl = computed(() => this.dir?.valueSignal() === 'rtl');
   private readonly locale = computed(() => this.i18n?.locale() ?? this.localeId);
@@ -476,6 +591,61 @@ export class WrGraph<TData = unknown> {
     };
   });
 
+  /** The zoom bounds, cleaned: a positive minimum, and a maximum never under it. */
+  private readonly bounds = computed(() => {
+    const min = isSize(this.minZoom()) ? this.minZoom() : DEFAULT_MIN_ZOOM;
+    const max = isSize(this.maxZoom()) ? this.maxZoom() : DEFAULT_MAX_ZOOM;
+    return { min, max: Math.max(min, max) };
+  });
+
+  /** Where the drawing is. The one write per frame that moves it. */
+  private readonly at = signal<GraphTransform>(IDENTITY);
+
+  /**
+   * How far the drawing sits from its natural place, in pixels. Moves with every
+   * pan and with a zoom around a point. `{ x: 0, y: 0 }` until the view is fitted
+   * or moved.
+   */
+  readonly pan: Signal<WrGraphPoint> = computed(
+    () => {
+      const { x, y } = this.at();
+      return { x, y };
+    },
+    { equal: (a, b) => a.x === b.x && a.y === b.y }
+  );
+
+  /** The size of the drawing, which a fit answers to. Equal sizes are one value. */
+  private readonly size = computed(
+    () => {
+      const { width, height } = this.view();
+      return { width, height };
+    },
+    { equal: (a, b) => a.width === b.width && a.height === b.height }
+  );
+
+  /** One `transform` on the stage. Absent at 100% in its natural place, which is also what a prerender ships. */
+  protected readonly stageTransform = computed(() => {
+    const at = this.at();
+    if (!this.zoomable() || sameTransform(at, IDENTITY)) return null;
+    return `translate(${px(at.x)}px, ${px(at.y)}px) scale(${at.k})`;
+  });
+
+  protected readonly atMinZoom = computed(() => this.at().k <= this.bounds().min);
+  protected readonly atMaxZoom = computed(() => this.at().k >= this.bounds().max);
+
+  /** A drag or a pinch is under way: the host carries `wr-graph--panning`. */
+  protected readonly panning = signal(false);
+  /** The move in flight came from a button or a key, so the stage eases to it. */
+  protected readonly animated = signal(false);
+
+  /** The view was moved by hand, so a new layout no longer fits it. */
+  private moved = false;
+  /** Pointer and wheel moves wait here for the next frame. */
+  private queued: GraphTransform | null = null;
+  private frameId: number | null = null;
+  private readonly pointers = new Map<number, { x: number; y: number }>();
+  private dragging = false;
+
   /**
    * The visually hidden sentence per node id: its parents, then its children, as
    * name lists. Never a count — the catalogs have no plural forms. A neighbour
@@ -543,6 +713,69 @@ export class WrGraph<TData = unknown> {
       );
     });
 
+    // A zoom written from outside. The component's own moves write `zoom` and the
+    // transform together, so they read as equal here and pass through.
+    effect(() => {
+      const zoom = this.zoom();
+      const { min, max } = this.bounds();
+      if (!this.zoomable()) return;
+      untracked(() => {
+        const from = this.current();
+        const k = clampZoom(zoom, min, max);
+        if (k !== from.k) {
+          const frame = this.frame();
+          this.moved = true;
+          this.commit(this.bounded(zoomAround(from, k, frame.width / 2, frame.height / 2, frame), frame));
+        } else if (k !== zoom) {
+          this.zoom.set(k);
+        }
+      });
+    });
+
+    // Wheel, pointers and keys, bound by hand: only in a browser and only while
+    // `zoomable`, so a graph that does not zoom carries no wheel listener to
+    // hold up the page's scrolling.
+    effect(onCleanup => {
+      const viewport = this.viewportRef()?.nativeElement;
+      if (!this.isBrowser || !viewport || !this.zoomable()) return;
+      const controller = new AbortController();
+      const { signal: stop } = controller;
+      viewport.addEventListener('wheel', event => this.onWheel(event), { signal: stop, passive: false });
+      viewport.addEventListener('keydown', event => this.onKeydown(event), { signal: stop });
+      viewport.addEventListener('pointerdown', event => this.onPointerDown(event, viewport), { signal: stop });
+      viewport.addEventListener('pointermove', event => this.onPointerMove(event, viewport), { signal: stop });
+      viewport.addEventListener('pointerup', event => this.onPointerEnd(event, viewport), { signal: stop });
+      viewport.addEventListener('pointercancel', event => this.onPointerEnd(event, viewport), { signal: stop });
+      onCleanup(() => {
+        controller.abort();
+        this.pointers.clear();
+        this.dragging = false;
+        untracked(() => this.panning.set(false));
+      });
+    });
+
+    // Fits the first drawing and every one of another size, the result of an
+    // asynchronous layout included. Once the view was moved by hand it is kept,
+    // and only pulled back if the new drawing would leave it empty.
+    afterRenderEffect(() => {
+      this.size();
+      if (!this.zoomable()) return;
+      untracked(() => this.settle());
+    });
+
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      const viewport = this.viewportRef()?.nativeElement;
+      if (!viewport || typeof ResizeObserver === 'undefined') return;
+      // A viewport that was hidden or resized: the fit is for the box it has now.
+      const observer = new ResizeObserver(() => {
+        if (this.zoomable()) this.settle();
+      });
+      observer.observe(viewport);
+      destroyRef.onDestroy(() => observer.disconnect());
+    });
+    destroyRef.onDestroy(() => this.cancelFrame());
+
     if (isDevMode()) {
       effect(() => {
         const graph = this.prepared();
@@ -581,5 +814,261 @@ export class WrGraph<TData = unknown> {
         if (problems.length) warn(`the layout result cannot be drawn faithfully: ${problems.join('; ')}.`);
       });
     }
+  }
+
+  /**
+   * Shows the whole drawing, centred, at the largest zoom that fits and never
+   * above 100%. The view follows the layout again afterwards: a result of
+   * another size is fitted too. Does nothing unless `zoomable`.
+   */
+  fit(): void {
+    this.fitView(false);
+  }
+
+  /**
+   * Puts the drawing back in its natural place at 100%. Counts as moving the
+   * view, so a later layout does not fit it. Does nothing unless `zoomable`.
+   */
+  resetView(): void {
+    if (!this.zoomable()) return;
+    this.moved = true;
+    this.commit(IDENTITY);
+  }
+
+  protected zoomIn(): void {
+    this.zoomBy(ZOOM_STEP);
+  }
+
+  protected zoomOut(): void {
+    this.zoomBy(1 / ZOOM_STEP);
+  }
+
+  protected fitView(animate: boolean): void {
+    if (!this.zoomable()) return;
+    this.moved = false;
+    const fitted = this.fitted();
+    if (fitted) this.commit(fitted, animate);
+  }
+
+  /** The viewport's box and where the stage starts in it. All zeros before the first render and on the server. */
+  private frame(): MeasuredFrame {
+    const viewport = this.viewportRef()?.nativeElement;
+    const stage = this.stageRef()?.nativeElement;
+    if (!this.isBrowser || !viewport || !stage) return NO_FRAME;
+    const rect = viewport.getBoundingClientRect();
+    return {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height,
+      // `offsetLeft` ignores the transform, and is where a stage wider than the
+      // viewport starts under RTL: left of it.
+      originX: viewport.clientLeft + stage.offsetLeft,
+      originY: viewport.clientTop + stage.offsetTop,
+    };
+  }
+
+  /** The fitted transform, or `null` while there is nothing to fit or no box to fit it in. */
+  private fitted(): GraphTransform | null {
+    const viewport = this.viewportRef()?.nativeElement;
+    const frame = this.frame();
+    const { width, height } = this.size();
+    if (!viewport || !frame.width || !frame.height || !width || !height) return null;
+    const style = getComputedStyle(viewport);
+    const inset = (value: string): number => Number.parseFloat(value) || 0;
+    const { min, max } = this.bounds();
+    return fitTransform(
+      frame,
+      {
+        top: inset(style.paddingTop),
+        right: inset(style.paddingRight),
+        bottom: inset(style.paddingBottom),
+        left: inset(style.paddingLeft),
+      },
+      width,
+      height,
+      min,
+      max
+    );
+  }
+
+  /** After a new drawing or a new box: fit it, or keep a view moved by hand within reach. */
+  private settle(): void {
+    if (!this.moved) {
+      const fitted = this.fitted();
+      if (fitted) this.commit(fitted);
+      return;
+    }
+    this.commit(this.bounded(this.current(), this.frame()));
+  }
+
+  /** The transform the next frame will show. */
+  private current(): GraphTransform {
+    return this.queued ?? this.at();
+  }
+
+  private bounded(at: GraphTransform, frame: GraphFrame): GraphTransform {
+    const { width, height } = this.size();
+    return clampPan(at, frame, width, height);
+  }
+
+  private commit(next: GraphTransform, animate = false): void {
+    this.cancelFrame();
+    if (sameTransform(next, this.at())) return;
+    this.animated.set(animate && !this.reducedMotion());
+    this.at.set(next);
+    this.zoom.set(next.k);
+  }
+
+  /** A move from a pointer or the wheel: many may arrive in one frame, and one is drawn. */
+  private schedule(next: GraphTransform): void {
+    if (sameTransform(next, this.current())) return;
+    this.moved = true;
+    this.queued = next;
+    this.frameId ??= requestAnimationFrame(() => {
+      this.frameId = null;
+      const queued = this.queued;
+      if (queued) this.commit(queued);
+    });
+  }
+
+  private cancelFrame(): void {
+    if (this.frameId !== null) cancelAnimationFrame(this.frameId);
+    this.frameId = null;
+    this.queued = null;
+  }
+
+  /** A step from a button or a key, around the middle of the viewport. */
+  private zoomBy(factor: number): void {
+    const frame = this.frame();
+    const from = this.current();
+    const { min, max } = this.bounds();
+    const k = clampZoom(from.k * factor, min, max);
+    if (k === from.k) return;
+    this.moved = true;
+    this.commit(this.bounded(zoomAround(from, k, frame.width / 2, frame.height / 2, frame), frame), true);
+  }
+
+  private panBy(dx: number, dy: number): void {
+    const from = this.current();
+    const next = this.bounded({ k: from.k, x: from.x + dx, y: from.y + dy }, this.frame());
+    if (sameTransform(next, from)) return;
+    this.moved = true;
+    this.commit(next, true);
+  }
+
+  private onWheel(event: WheelEvent): void {
+    if (!event.ctrlKey && !event.metaKey && !this.wheelZoom()) return;
+    // Taken even at a bound, or the browser would zoom the page instead.
+    event.preventDefault();
+    const frame = this.frame();
+    const unit = event.deltaMode === 1 ? WHEEL_LINE : event.deltaMode === 2 ? frame.height : 1;
+    const delta = Math.min(WHEEL_MAX, Math.max(-WHEEL_MAX, event.deltaY * unit));
+    const from = this.current();
+    const { min, max } = this.bounds();
+    const k = clampZoom(from.k * Math.exp(-delta * WHEEL_RATE), min, max);
+    if (k === from.k) return;
+    this.schedule(
+      this.bounded(zoomAround(from, k, event.clientX - frame.left, event.clientY - frame.top, frame), frame)
+    );
+  }
+
+  private onKeydown(event: KeyboardEvent): void {
+    // Only the viewport's own keys: a field inside a node keeps its arrows, and
+    // `Ctrl` with `+` stays the browser's.
+    if (event.target !== event.currentTarget || event.ctrlKey || event.metaKey || event.altKey) return;
+    // An arrow moves the view, as it scrolls a page: the drawing goes the other
+    // way, and left is left under RTL too.
+    switch (event.key) {
+      case '+':
+      case '=':
+        this.zoomIn();
+        break;
+      case '-':
+      case '_':
+        this.zoomOut();
+        break;
+      case '0':
+        this.fitView(true);
+        break;
+      case 'ArrowLeft':
+        this.panBy(PAN_STEP, 0);
+        break;
+      case 'ArrowRight':
+        this.panBy(-PAN_STEP, 0);
+        break;
+      case 'ArrowUp':
+        this.panBy(0, PAN_STEP);
+        break;
+      case 'ArrowDown':
+        this.panBy(0, -PAN_STEP);
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+  }
+
+  private onPointerDown(event: PointerEvent, viewport: HTMLElement): void {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    const target = event.target instanceof Element ? event.target.closest(INTERACTIVE) : null;
+    if (target && target !== viewport) return;
+    this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    // A second finger makes it a pinch at once; one pointer waits for the threshold.
+    if (this.pointers.size === 2) this.startDrag(viewport);
+    else if (this.pointers.size > 2) this.pointers.delete(event.pointerId);
+  }
+
+  private onPointerMove(event: PointerEvent, viewport: HTMLElement): void {
+    const last = this.pointers.get(event.pointerId);
+    if (!last) return;
+    // A mouse released outside the viewport before the drag began sends no `pointerup` here.
+    if (event.pointerType === 'mouse' && event.buttons === 0) {
+      this.onPointerEnd(event, viewport);
+      return;
+    }
+    const dx = event.clientX - last.x;
+    const dy = event.clientY - last.y;
+    if (!this.dragging) {
+      if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
+      this.startDrag(viewport);
+    }
+
+    const frame = this.frame();
+    const from = this.current();
+    const point = { x: event.clientX, y: event.clientY };
+    const other = [...this.pointers].find(([id]) => id !== event.pointerId)?.[1];
+    this.pointers.set(event.pointerId, point);
+    if (!other) {
+      this.schedule(this.bounded({ k: from.k, x: from.x + dx, y: from.y + dy }, frame));
+      return;
+    }
+
+    // A pinch: the zoom follows the distance between the two fingers, around
+    // where their middle was, and the drawing then follows the middle.
+    const before = Math.hypot(last.x - other.x, last.y - other.y);
+    const after = Math.hypot(point.x - other.x, point.y - other.y);
+    const { min, max } = this.bounds();
+    const k = before > 0 ? clampZoom((from.k * after) / before, min, max) : from.k;
+    const midX = (last.x + other.x) / 2;
+    const midY = (last.y + other.y) / 2;
+    const zoomed = zoomAround(from, k, midX - frame.left, midY - frame.top, frame);
+    this.schedule(this.bounded({ k, x: zoomed.x + dx / 2, y: zoomed.y + dy / 2 }, frame));
+  }
+
+  private onPointerEnd(event: PointerEvent, viewport: HTMLElement): void {
+    if (!this.pointers.delete(event.pointerId)) return;
+    if (this.dragging && viewport.hasPointerCapture?.(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
+    if (this.pointers.size) return;
+    this.dragging = false;
+    this.panning.set(false);
+  }
+
+  /** Capture goes to the viewport only now, so a press that never moved still clicks what it pressed. */
+  private startDrag(viewport: HTMLElement): void {
+    this.dragging = true;
+    this.panning.set(true);
+    this.animated.set(false);
+    for (const id of this.pointers.keys()) viewport.setPointerCapture?.(id);
   }
 }

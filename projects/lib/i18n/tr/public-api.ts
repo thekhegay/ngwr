@@ -520,6 +520,9 @@ export const wrTr: WrI18nCatalog = {
     label: 'Çizge',
     parents: 'Üst öğeler: {{names}}.',
     children: 'Alt öğeler: {{names}}.',
+    zoomIn: 'Yakınlaştır',
+    zoomOut: 'Uzaklaştır',
+    fit: 'Görünüme sığdır',
   },
   progress: {
     label: 'İlerleme',

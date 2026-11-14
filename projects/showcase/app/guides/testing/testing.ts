@@ -2268,6 +2268,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<{ from: string; to: string }[]>',
     },
     {
+      name: 'isZoomable() / zoomIn() / zoomOut() / fit() / getZoom()',
+      description:
+        'A `zoomable` graph, through its own buttons; the zoom is `1` at 100%. They throw on a graph that is not. A fit needs a stubbed viewport box.',
+      type: 'Promise<…>',
+    },
+    {
       name: 'Node: getText() / getRelationText()',
       description: '`WrGraphNodeHarness`: the drawn text, and the parents and children sentence.',
       type: 'Promise<…>',
