@@ -150,9 +150,7 @@ export const wrUk: WrI18nCatalog = {
   fileUpload: {
     browse: 'Натисніть, щоб вибрати',
     dropZone: 'або перетягніть файли сюди',
-    removeFile: 'Вилучити файл',
-    invalid: 'Тип файлу не підтримується',
-    tooBig: 'Файл завеликий',
+    removeFile: 'Вилучити {{name}}',
     size: '{{value}} {{unit}}',
     unitByte: 'Б',
     unitKb: 'КБ',

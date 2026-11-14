@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="File Upload"
-  updated="16.3.0"
+  updated="16.4.0"
   description="Pick files by dropping them on a zone or browsing."
   [keywords]="['file', 'upload', 'drop zone', 'wr-file-upload']"
   [labels]="['Signal Forms']"
@@ -98,6 +98,18 @@
         helperText="Focus the zone, then paste a screenshot or a copied file"
       />
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <ul>
+      <li>
+        Each row's remove button is named after its file, "Remove report.pdf", from the
+        <code>fileUpload.removeFile</code> catalog key. <code>removeFileLabel</code> overrides it, and its
+        <code ngNonBindable>{{name}}</code> is the file name.
+      </li>
+      <li>The Try again button of a failed row is described by the file name.</li>
+      <li>Upload states are announced through one polite live region for the whole list.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Types">

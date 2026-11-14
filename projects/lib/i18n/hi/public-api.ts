@@ -140,9 +140,7 @@ export const wrHi: WrI18nCatalog = {
   fileUpload: {
     browse: 'चुनने के लिए क्लिक करें',
     dropZone: 'या फ़ाइलें यहां छोड़ें',
-    removeFile: 'फ़ाइल हटाएं',
-    invalid: 'असमर्थित फ़ाइल प्रकार',
-    tooBig: 'फ़ाइल बहुत बड़ी है',
+    removeFile: '{{name}} हटाएं',
     size: '{{value}} {{unit}}',
     unitByte: 'बाइट',
     unitKb: 'केबी',

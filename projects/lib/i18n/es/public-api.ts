@@ -140,9 +140,7 @@ export const wrEs: WrI18nCatalog = {
   fileUpload: {
     browse: 'Haz clic para seleccionar',
     dropZone: 'o arrastra los archivos aquí',
-    removeFile: 'Quitar archivo',
-    invalid: 'Tipo de archivo no admitido',
-    tooBig: 'Archivo demasiado grande',
+    removeFile: 'Quitar {{name}}',
     size: '{{value}} {{unit}}',
     unitByte: 'B',
     unitKb: 'KB',

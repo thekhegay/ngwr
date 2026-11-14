@@ -568,8 +568,6 @@ describe('the shipped catalogs', () => {
       ['date.months.oct', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
       ['date.months.nov', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
       ['date.months.dec', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
-      ['fileUpload.invalid', 'validation copy a host supplies its own message for'],
-      ['fileUpload.tooBig', 'validation copy a host supplies its own message for'],
       ['select.empty', 'the empty state is projected content; this is a default a host can reach for'],
       [
         'pagination.pageOf',

@@ -140,9 +140,7 @@ export const wrZhTw: WrI18nCatalog = {
   fileUpload: {
     browse: '點選以瀏覽檔案',
     dropZone: '或將檔案拖放至此',
-    removeFile: '移除檔案',
-    invalid: '不支援的檔案類型',
-    tooBig: '檔案過大',
+    removeFile: '移除 {{name}}',
     size: '{{value}} {{unit}}',
     unitByte: 'B',
     unitKb: 'KB',

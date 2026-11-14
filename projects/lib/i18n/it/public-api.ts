@@ -142,9 +142,7 @@ export const wrIt: WrI18nCatalog = {
   fileUpload: {
     browse: 'Fai clic per scegliere',
     dropZone: 'oppure trascina i file qui',
-    removeFile: 'Rimuovi file',
-    invalid: 'Tipo di file non supportato',
-    tooBig: 'File troppo grande',
+    removeFile: 'Rimuovi {{name}}',
     size: '{{value}} {{unit}}',
     unitByte: 'B',
     unitKb: 'KB',

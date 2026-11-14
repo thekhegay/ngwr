@@ -145,9 +145,7 @@ export const wrTr: WrI18nCatalog = {
   fileUpload: {
     browse: 'Seçmek için tıklayın',
     dropZone: 'veya dosyaları buraya bırakın',
-    removeFile: 'Dosyayı kaldır',
-    invalid: 'Desteklenmeyen dosya türü',
-    tooBig: 'Dosya çok büyük',
+    removeFile: '{{name}} dosyasını kaldır',
     size: '{{value}} {{unit}}',
     unitByte: 'B',
     unitKb: 'KB',

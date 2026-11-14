@@ -142,9 +142,7 @@ export const wrRu: WrI18nCatalog = {
   fileUpload: {
     browse: 'Нажмите, чтобы выбрать',
     dropZone: 'или перетащите файлы сюда',
-    removeFile: 'Удалить файл',
-    invalid: 'Неподдерживаемый тип файла',
-    tooBig: 'Файл слишком большой',
+    removeFile: 'Удалить {{name}}',
     size: '{{value}} {{unit}}',
     unitByte: 'Б',
     unitKb: 'КБ',
