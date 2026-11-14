@@ -12,6 +12,9 @@ const UNMEASURED: WrChartSize = { width: 0, height: 0 };
 /** What each observed element reports to, on the one observer every chart shares. */
 const listeners = new WeakMap<Element, (size: WrChartSize) => void>();
 
+/** The marks {@link wrChartDim} lit last, per host, so the next call clears them without a scan. */
+const litMarks = new WeakMap<Element, Element[]>();
+
 let observer: ResizeObserver | null = null;
 
 /** The constructor `observer` was built with: a page has one, a test suite swaps it. */
@@ -115,12 +118,15 @@ export interface WrChartHoverHandlers {
  * @internal
  */
 export function wrChartDim(host: Element, key: string | null): void {
-  for (const mark of host.querySelectorAll('.wr-chart-mark--on')) mark.classList.remove('wr-chart-mark--on');
+  for (const mark of litMarks.get(host) ?? []) mark.classList.remove('wr-chart-mark--on');
   host.classList.toggle('wr-chart--dim', key !== null);
-  if (key === null) return;
-  for (const mark of host.querySelectorAll(`[data-wr-series="${CSS.escape(key)}"]`)) {
-    mark.classList.add('wr-chart-mark--on');
+  if (key === null) {
+    litMarks.delete(host);
+    return;
   }
+  const marks = [...host.querySelectorAll(`[data-wr-series="${CSS.escape(key)}"]`)];
+  for (const mark of marks) mark.classList.add('wr-chart-mark--on');
+  litMarks.set(host, marks);
 }
 
 /**
