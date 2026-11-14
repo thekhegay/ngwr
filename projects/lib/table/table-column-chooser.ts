@@ -9,7 +9,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import { WrCheckbox } from 'ngwr/checkbox';
 import { useI18nText } from 'ngwr/i18n';
-import type { WrSafeAny } from 'ngwr/utils';
+import { type WrSafeAny, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrTable } from './table';
 
@@ -49,6 +49,10 @@ import type { WrTable } from './table';
   imports: [WrCheckbox],
 })
 export class WrTableColumnChooser {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('table');
+  }
+
   /** The table whose columns the list shows and hides. */
   readonly table = input.required<WrTable<WrSafeAny>>();
 
