@@ -6,31 +6,44 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
-  type ElementRef,
+  ElementRef,
   LOCALE_ID,
   ViewEncapsulation,
+  afterRenderEffect,
   computed,
   effect,
   inject,
   input,
   isDevMode,
   model,
-  viewChildren,
+  signal,
+  untracked,
+  viewChild,
 } from '@angular/core';
 
-import { WrChartLegend, type WrChartLegendItem } from 'ngwr/charts/chart-legend';
+import { WrChartLegend, type WrChartLegendItem, type WrChartLegendPosition } from 'ngwr/charts/chart-legend';
 import {
+  WrChartState,
   WrChartTable,
   type WrChartMarkerShape,
   type WrChartTableData,
+  useChartHover,
+  useChartNumbers,
+  useChartSize,
+  useChartState,
+  wrChartAxis,
   wrChartColor,
   wrChartDash,
+  wrChartLabelStep,
+  wrChartLongest,
   wrChartMarker,
   wrChartMarkerExtent,
   wrChartMarkerPath,
-  useChartNumbers,
+  wrChartNumberFormat,
+  wrChartRound,
 } from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, type WrChartTooltipTarget, useChartTooltip } from 'ngwr/popover';
@@ -39,10 +52,16 @@ import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 import type { WrBarChartDatum, WrBarLine, WrBarOrientation, WrBarSeries } from './types';
 
 /** A share of the value axis for an inline style: four decimals, `-0` folded to `0`. */
-const short = (value: number): number => Math.round(value * 1e4) / 1e4 || 0;
+const short = (value: number): number => wrChartRound(value, 4);
 
 /** A share as a percentage of a line's box, to two decimals, `-0` folded to `0`. */
-const percent = (share: number): number => Math.round(share * 1e4) / 100 || 0;
+const percent = (share: number): number => wrChartRound(share * 100, 2);
+
+/** How many of the longest printed strings a gutter or a room is measured from. */
+const PROBES = 3;
+
+/** The least room between two category names under the bars, in px, before they are thinned. */
+const LABEL_GAP = 8;
 
 /**
  * How large a line's point is, in px: the radius of the circle every marker shape has
@@ -56,8 +75,14 @@ interface SeriesBar {
   /** The series' position in `series`, which is what the bar is tracked by. */
   readonly series: number;
   readonly color: string;
-  /** The outline's `stroke-dasharray`, `''` for a solid one. */
+  /** The series' own dash, `''` for a solid one: the `stroke-dasharray` its key in the legend had before bars were solid. */
   readonly dash: string;
+  /**
+   * Under `stacked`, how far down its side's paint order the bar sits, as a `z-index`: the
+   * bar nearest zero is on top, and each one past it under the one before, since every
+   * bar of a pile is drawn from zero to its own end. `null` side by side.
+   */
+  readonly layer: number | null;
   /** Where the bar starts along the value axis, as a share of it from its minimum. */
   readonly start: number;
   /** How much of the value axis the bar covers. */
@@ -86,7 +111,10 @@ interface EndLabel {
  */
 interface Lane {
   readonly key: number;
-  readonly bars: readonly SeriesBar[];
+  /** The bars that grow up from zero (or along from it), nearest zero first. */
+  readonly up: readonly SeriesBar[];
+  /** The bars that grow down from zero, nearest zero first. */
+  readonly down: readonly SeriesBar[];
   readonly ends: readonly EndLabel[];
 }
 
@@ -94,6 +122,26 @@ interface Lane {
 interface Category {
   readonly label: string;
   readonly lanes: readonly Lane[];
+  /** How far the category's bars reach along the value axis, as shares of it: what its tooltip points at. */
+  readonly from: number;
+  readonly to: number;
+}
+
+/** One tick of the value axis: its place, and the label printed beside it. */
+interface Tick {
+  readonly value: number;
+  /** Where the tick is along the value axis, as a share of it from its minimum. */
+  readonly at: number;
+  readonly text: string;
+}
+
+/** The value axis: its two ends, and the ticks a grid and a scale are drawn at. */
+interface Scale {
+  readonly lo: number;
+  readonly hi: number;
+  /** The ticks, from the top down. Empty when neither the grid nor the axis is drawn. */
+  readonly ticks: readonly number[];
+  readonly step: number;
 }
 
 /**
@@ -114,12 +162,6 @@ interface LinePoint extends LinePosition {
   readonly name: string;
 }
 
-/** One straight run of a line, between the points of two neighbouring categories. */
-interface LineSegment {
-  readonly from: LinePosition;
-  readonly to: LinePosition;
-}
-
 /** One line of `lines`, as the chart draws it. */
 interface LineLayer {
   /** The line's position in `lines`, which is what it is tracked by. */
@@ -133,16 +175,26 @@ interface LineLayer {
   readonly d: string;
   /** How many categories the line's box spans, which the stylesheet sizes the box from. */
   readonly count: number;
-  readonly segments: readonly LineSegment[];
+  /**
+   * The whole line as one path, in the 0 to 100 box the stylesheet stretches over the
+   * line's own: a move to the first point of each run and a line to each one after it.
+   * `''` for a line of lone points.
+   */
+  readonly path: string;
+  /** How many straight runs `path` holds: one fewer than its points, less one for each break. */
+  readonly segments: number;
   readonly points: readonly LinePoint[];
+  /** The line's row in the legend, which is what the hover dims by. */
+  readonly key: number;
 }
 
 /**
  * Bar chart. Pass `[data]` for one series — each datum becomes a bar — or `[series]`
  * with `[categories]` for several, drawn side by side or, with `stacked`, piled on each
  * other. Vertical by default; `orientation="horizontal"` lays the bars along the inline
- * axis with the category names in a gutter beside them. Axis-free: the values are
- * printed at the bars. No external dependency.
+ * axis with the category names in a gutter beside them. A grid and a value axis by
+ * default (`showGrid`, `showAxis`), and the values printed at the bars on request
+ * (`showValues`). No external dependency.
  *
  * @example
  * ```html
@@ -165,11 +217,21 @@ interface LineLayer {
  * **Several series.** Every category gets a bar per series shown, in series order —
  * or, with `stacked`, one pile, positive values up from zero and negative ones down
  * from it, each sign on its own, as `wr-line-chart` stacks. A negative value draws
- * below the zero line, which `series` draws wherever zero falls. Each series takes its
- * colour and its own dash: the bar's body is a tint of the colour and its outline the
- * colour itself, in the series' dash, the first one solid. The default palette's
- * colours sit within about 1.06:1 of each other in luminance, so the dash is what tells
- * two series apart without hue, and the legend keys each series by the same dash.
+ * below the zero line, which `series` draws wherever zero falls. Each series is a solid
+ * fill in the next colour of the chart palette (`--wr-chart-1` to `--wr-chart-8`), whose
+ * neighbours alternate between a deep and a mid tone, so two series side by side differ
+ * in lightness as well as in hue; the segments of a pile are parted by a 1px line in
+ * `--wr-chart-separator`. Hovering a bar or a legend row dims every other series.
+ *
+ * **Grid, axis and values.** The value axis is snapped to round numbers and drawn as
+ * gridlines across the plot (`showGrid`) with a scale beside it (`showAxis`), both on by
+ * default; `showValues` prints each value past the end of its bar, and is off by
+ * default, since the scale already reads them. With the grid and the axis both off the
+ * axis is fitted to the data instead, so the longest bar reaches the end of the plot.
+ *
+ * **Empty, loading, error.** With nothing to draw the chart keeps its frame and says
+ * "No data"; `loading` and `error` put their own message there in place of the bars.
+ * Each message has a `*Label` input over the catalog's `chart.*` keys.
  *
  * **`data` is unchanged**: one series, a bar per datum, a negative value drawn as an
  * empty bar with its number still printed — except beside `lines`, whose axis can reach
@@ -207,7 +269,10 @@ interface LineLayer {
   templateUrl: './bar-chart.html',
   encapsulation: ViewEncapsulation.None,
   host: {
-    class: 'wr-bar-chart',
+    // `wr-chart--legend`: the shared rule that keeps the legend's room from the plot.
+    class: 'wr-bar-chart wr-chart--legend',
+    '[class.wr-chart--legend-side]': 'legendShown() && legendSide()',
+    '[class.wr-bar-chart--axis]': 'showAxis()',
     '[class.wr-bar-chart--horizontal]': 'horizontal()',
     '[class.wr-bar-chart--series]': 'seriesMode()',
     '[class.wr-bar-chart--stacked]': 'seriesMode() && stacked()',
@@ -219,7 +284,7 @@ interface LineLayer {
     // a share of the track by it, so a long list keeps its bars rather than gaps alone.
     '[style.--wr-bar-chart-categories]': 'categoryTotal() || null',
   },
-  imports: [WrChartLegend, WrChartTable],
+  imports: [NgTemplateOutlet, WrChartLegend, WrChartState, WrChartTable],
 })
 export class WrBarChart {
   /**
@@ -320,19 +385,40 @@ export class WrBarChart {
   private readonly datumText = useI18nFormatter('barChart.datum', '{{label}}: {{value}}');
 
   /** A category with no name of its own, by its position from 1 in the reader's own digits. */
-  private readonly ordinals = new Intl.NumberFormat(inject(LOCALE_ID));
+  private readonly ordinals = wrChartNumberFormat(inject(LOCALE_ID));
 
-  /** Default bar colour when a datum has none. `data` only. @default 'var(--wr-color-primary)' */
-  readonly color = input<string>('var(--wr-color-primary)');
+  /**
+   * Default bar colour when a datum has none: the chart palette's first colour, which is
+   * the brand colour unless `--wr-chart-1` says otherwise. `data` only.
+   * @default 'var(--wr-chart-1)'
+   */
+  readonly color = input<string>(wrChartColor(0));
+
+  /**
+   * Draw the gridlines: one across the plot at every tick of the value axis, level
+   * standing up and upright lying down. Their colour is `--wr-bar-chart-grid-color`,
+   * which defaults to the chart theme's `--wr-chart-grid`. With the grid or the axis on,
+   * the value axis is snapped to round numbers; with both off it is fitted to the data.
+   * @default true
+   */
+  readonly showGrid = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Print the value axis' scale: a number at every tick, in a gutter at inline start
+   * standing up and under the plot lying down, written compact (`1.2K`) or through
+   * `valueFormat`. Decoration: the bars' names carry the values. @default true
+   */
+  readonly showAxis = input(true, { transform: coerceBooleanProperty });
 
   /**
    * Show value labels at each bar, past its end: above a bar standing up, beyond its end
    * lying down — below (or before) a negative `series` bar, and the pile's total for each
    * sign with `stacked`. A value too wide for a `series` bar standing up is left out
    * rather than cut, since a cut number reads as another one; the tooltip and each bar's
-   * name carry it whole. @default true
+   * name carry it whole. Off by default, since the axis already reads the values.
+   * @default false
    */
-  readonly showValues = input(true, { transform: coerceBooleanProperty });
+  readonly showValues = input(false, { transform: coerceBooleanProperty });
 
   /**
    * Pixel height of the chart area. With `orientation="horizontal"` it is the least the
@@ -355,8 +441,43 @@ export class WrBarChart {
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
-  /** Show the legend above the chart. With `series`, or beside `lines`, which it then lists. @default true */
-  readonly showLegend = input(true, { transform: coerceBooleanProperty });
+  /**
+   * Show the legend. With `series`, or beside `lines`, which it then lists. `'auto'`
+   * shows it when there is something to tell apart - two series or more, or any line -
+   * and leaves it out for a single series, which has nothing to key; `true` shows it
+   * for one series too. @default 'auto'
+   */
+  readonly showLegend = input<boolean | 'auto', unknown>('auto', {
+    transform: (value: unknown): boolean | 'auto' => (value === 'auto' ? 'auto' : coerceBooleanProperty(value)),
+  });
+
+  /**
+   * Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or
+   * `end` of it as a column, or `none` for no legend at all - `hiddenSeries` and
+   * `hiddenLines` still hide a series from outside. @default 'bottom'
+   */
+  readonly legendPosition = input<WrChartLegendPosition>('bottom');
+
+  /**
+   * A request for the chart's data is in flight: the bars give way to the loading
+   * message, over the grid and the axis the chart had. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The chart's data failed to load: the bars give way to the error message. `loading`
+   * wins while both are set. @default false
+   */
+  readonly error = input(false, { transform: coerceBooleanProperty });
+
+  /** The message shown when there is nothing to draw. Falls back to `chart.empty`, then `'No data'`. */
+  readonly emptyLabel = input<string | null>(null);
+
+  /** The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`. */
+  readonly loadingLabel = input<string | null>(null);
+
+  /** The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`. */
+  readonly errorLabel = input<string | null>(null);
 
   /**
    * Make each legend row a toggle button that shows and hides its series, through
@@ -419,15 +540,37 @@ export class WrBarChart {
    */
   private readonly numbers = useChartNumbers(this.valueFormat);
 
-  private readonly barEls = viewChildren<ElementRef<HTMLElement>>('barEl');
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
-  private readonly categoryEls = viewChildren<ElementRef<HTMLElement>>('categoryEl');
+  /** The track every bar, the grid and each line is drawn in: the box of the value axis. */
+  private readonly trackEl = viewChild<ElementRef<HTMLElement>>('trackEl');
 
-  /** Every point of every line, in the order {@link lineLayers} lists them. */
-  private readonly pointEls = viewChildren<ElementRef<SVGSVGElement>>('pointEl');
+  /** The row of category names under the bars, standing up: what the names are thinned against. */
+  private readonly labelsEl = viewChild<ElementRef<HTMLElement>>('labelsEl');
+
+  /** How wide the row of category names is, in px: 0 until it is laid out, and lying down. */
+  private readonly labelsSize = useChartSize(this.labelsEl);
+
+  /** How wide the longest category name is, in px: 0 until it is measured. */
+  private readonly labelWidth = signal(0);
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/bar-chart');
+    // One listener pair for the whole chart: a section is whatever carries `data-wr-index`.
+    useChartHover({ enter: index => this.tip.enter(index), leave: event => this.tip.leave(event) });
+    // The longest names, from the hidden copies the label row keeps: read after each
+    // render that may have changed them, and written only when the width moved.
+    afterRenderEffect(() => {
+      const row = this.labelsEl()?.nativeElement;
+      this.labelProbes();
+      this.labelsSize();
+      if (!row) return;
+      let width = 0;
+      for (const probe of row.querySelectorAll('.wr-bar-chart__label-probe')) {
+        width = Math.max(width, probe.getBoundingClientRect().width);
+      }
+      if (width !== untracked(this.labelWidth)) this.labelWidth.set(width);
+    });
     // Two inputs that each describe the whole chart: drawing one and silently dropping
     // the other looks like data that failed to load.
     if (isDevMode()) {
@@ -512,7 +655,7 @@ export class WrBarChart {
   });
 
   protected readonly bars = computed(() => {
-    const { lo, hi } = this.dataScale();
+    const { lo, hi } = this.scale();
     // Zero is the axis minimum until a line or, beside lines, a bar goes below it; the bars
     // stand on it, and a bar's share is of the whole axis, so it can reach no further than
     // the top. Beside `lines` a negative bar hangs from zero down to its value; without
@@ -538,19 +681,19 @@ export class WrBarChart {
         text,
         color: d.color ?? this.color(),
         /**
-         * The bar's share of the plot, from 0 to 1, written as its `flex-grow` — see
-         * the stylesheet for why a grow factor and not a `height` percentage.
+         * How much of the value axis the bar covers, from 0 to 1. The stylesheet draws
+         * the bar from it and from `start`, as a transform.
          */
-        share,
+        share: short(share),
         /** Whether the bar hangs below zero, beside `lines`: its value is printed past its lower end. */
         below,
         /**
          * Where the bar starts along the value axis, from its minimum: zero, or the bar's
-         * own end for one below it. Beside `lines`, the share the spacer under it takes.
+         * own end for one below it.
          */
         start: below ? short(zero - share) : zero,
         /** Where the bar ends along the value axis, from its minimum: what the value printed past it is placed by. */
-        at: below ? short(zero - share) : zero + share,
+        at: below ? short(zero - share) : short(zero + share),
         /**
          * The bar's accessible name. The label and the value sit in separate
          * rows, so a screen reader read every number and then every label with
@@ -653,8 +796,49 @@ export class WrBarChart {
     return { lo, hi };
   });
 
-  /** The value axis the chart draws on: `series`' or `data`'s. */
-  private readonly scale = computed(() => (this.seriesMode() ? this.seriesScale() : this.dataScale()));
+  /**
+   * The value axis the chart draws on: `series`' or `data`'s, and the ticks its grid and
+   * its scale are drawn at.
+   *
+   * With the grid or the axis shown, the ends are snapped outward to a round step (1, 2,
+   * 2.5 or 5 times a power of ten), so every gridline is a number a reader can do
+   * arithmetic against. The top stops at the data's peak when that is already a tick: a
+   * bar ending on the top gridline is not cut off, the way a line ending on the frame
+   * reads. An explicit `max` is the top as given, with the ticks that fit under it. With
+   * neither shown there is nothing to snap for, and the axis is the data's own extent,
+   * so the longest bar reaches the end of the plot.
+   */
+  private readonly scale = computed<Scale>(() => {
+    const { lo, hi } = this.seriesMode() ? this.seriesScale() : this.dataScale();
+    if (!this.showGrid() && !this.showAxis()) return { lo, hi, ticks: [], step: hi - lo };
+    const axis = wrChartAxis(lo, hi, { includeZero: true });
+    const fixed = this.max() > 0;
+    // A tick is a whole multiple of the step, so a sliver of one is tolerance enough for
+    // "the peak is on this tick" and for "this tick is under the top".
+    const slack = axis.step * 1e-6;
+    const top = fixed ? hi : (axis.ticks.find(tick => Math.abs(tick - hi) <= slack) ?? axis.max);
+    return {
+      lo: axis.min,
+      hi: top,
+      ticks: axis.ticks.filter(tick => tick <= top + slack),
+      step: axis.step,
+    };
+  });
+
+  /** The ticks of the value axis, from the top down: where each is, and the label beside it. */
+  protected readonly ticks = computed<readonly Tick[]>(() => {
+    const { ticks, step } = this.scale();
+    const labels = this.showAxis() ? this.numbers.ticks(ticks, step) : [];
+    return ticks.map((value, index) => ({ value, at: short(this.at(value)), text: labels[index] ?? '' }));
+  });
+
+  /** The longest tick labels, as hidden copies the axis gutter takes its width from. */
+  protected readonly tickProbes = computed(() =>
+    wrChartLongest(
+      this.ticks().map(tick => tick.text),
+      PROBES
+    )
+  );
 
   /** A value's place along the value axis, as a share of it from its minimum, held to the axis. */
   private at(value: number): number {
@@ -674,62 +858,71 @@ export class WrBarChart {
     const series = this.visibleSeries();
     const labels = this.categories();
     const values = this.showValues();
+    const stacked = this.stacked();
     const zero = this.at(0);
     const name = (label: string, value: number): string => this.name(label, value);
 
     return Array.from({ length: this.categoryCount() }, (_, c): Category => {
       const label = labels[c] ?? this.ordinals.format(c + 1);
-      if (!this.stacked()) {
+      let from = zero;
+      let to = zero;
+      const reach = (start: number, size: number): void => {
+        from = Math.min(from, start);
+        to = Math.max(to, start + size);
+      };
+      if (!stacked) {
         const lanes = series.map((s): Lane => {
           const v = s.data[c];
-          if (v === null || v === undefined) return { key: s.index, bars: [], ends: [] };
+          if (v === null || v === undefined) return { key: s.index, up: [], down: [], ends: [] };
           const end = this.at(v);
-          const bar = {
+          const bar: SeriesBar = {
             series: s.index,
             color: s.color,
             dash: s.dash,
+            layer: null,
             start: short(Math.min(zero, end)),
             size: short(Math.abs(end - zero)),
             name: name(s.label, v),
           };
+          reach(bar.start, bar.size);
           return {
             key: s.index,
-            bars: [bar],
+            up: v < 0 ? [] : [bar],
+            down: v < 0 ? [bar] : [],
             ends: values ? [{ text: this.numbers.label(v), at: short(end), below: v < 0, name: null }] : [],
           };
         });
-        return { label, lanes };
+        return { label, lanes, from: short(from), to: short(to) };
       }
 
-      let up = 0;
-      let down = 0;
-      let rises = false;
-      let falls = false;
-      const bars = series.flatMap((s): SeriesBar[] => {
+      let rise = 0;
+      let fall = 0;
+      const up: SeriesBar[] = [];
+      const down: SeriesBar[] = [];
+      for (const s of series) {
         const v = s.data[c];
-        if (v === null || v === undefined) return [];
-        const base = v < 0 ? down : up;
+        if (v === null || v === undefined) continue;
+        const side = v < 0 ? down : up;
+        const base = v < 0 ? fall : rise;
         const top = base + v;
-        if (v < 0) {
-          down = top;
-          falls = true;
-        } else {
-          up = top;
-          rises = true;
-        }
-        const from = this.at(base);
-        const to = this.at(top);
-        return [
-          {
-            series: s.index,
-            color: s.color,
-            dash: s.dash,
-            start: short(Math.min(from, to)),
-            size: short(Math.abs(to - from)),
-            name: name(s.label, v),
-          },
-        ];
-      });
+        if (v < 0) fall = top;
+        else rise = top;
+        const start = this.at(base);
+        const end = this.at(top);
+        const bar: SeriesBar = {
+          series: s.index,
+          color: s.color,
+          dash: s.dash,
+          // Every bar of a pile is drawn from zero to its own end, so the one nearest zero
+          // lies over the ones past it.
+          layer: -side.length,
+          start: short(Math.min(start, end)),
+          size: short(Math.abs(end - start)),
+          name: name(s.label, v),
+        };
+        reach(bar.start, bar.size);
+        side.push(bar);
+      }
       // A pile's total is printed, and no bar's own name carries it, so the printed value
       // announces itself — with the whole figure, as a bar's name does.
       const total = (value: number, below: boolean): EndLabel => ({
@@ -739,9 +932,9 @@ export class WrBarChart {
         name: name(this.totalText(), value),
       });
       const ends: EndLabel[] = [];
-      if (values && rises) ends.push(total(up, false));
-      if (values && falls) ends.push(total(down, true));
-      return { label, lanes: [{ key: 0, bars, ends }] };
+      if (values && up.length > 0) ends.push(total(rise, false));
+      if (values && down.length > 0) ends.push(total(fall, true));
+      return { label, lanes: [{ key: 0, up, down, ends }], from: short(from), to: short(to) };
     });
   });
 
@@ -757,25 +950,43 @@ export class WrBarChart {
   protected readonly zero = computed(() => short(this.at(0)));
 
   /**
-   * The values printed past the bars, sorted by the end they go past: the room the plot
-   * keeps beyond each end of the axis is a hidden copy of these, so it is exactly as
-   * large as the largest, in the value's own font. Each text once.
+   * The longest values printed past each end of the axis: the room the plot keeps beyond
+   * that end is a hidden copy of these, so it is as large as the largest, in the value's
+   * own font. The few longest by length, not every value: ten thousand bars used to
+   * keep ten thousand hidden copies to learn the width of one.
    */
   protected readonly rooms = computed(() => {
     if (!this.showValues()) return { max: [], min: [] };
-    if (!this.seriesMode()) {
-      const bars = this.bars();
-      return {
-        max: [...new Set(bars.filter(b => !b.below && !b.missing).map(b => b.display))],
-        min: [...new Set(bars.filter(b => b.below && !b.missing).map(b => b.display))],
-      };
-    }
-    const ends = this.seriesCategories().flatMap(c => c.lanes.flatMap(lane => lane.ends));
+    const ends = this.seriesMode()
+      ? this.seriesCategories().flatMap(c => c.lanes.flatMap(lane => lane.ends))
+      : this.bars()
+          .filter(bar => !bar.missing)
+          .map(bar => ({ text: bar.display, below: bar.below }));
     return {
-      max: [...new Set(ends.filter(e => !e.below).map(e => e.text))],
-      min: [...new Set(ends.filter(e => e.below).map(e => e.text))],
+      max: wrChartLongest(
+        ends.filter(end => !end.below).map(end => end.text),
+        PROBES
+      ),
+      min: wrChartLongest(
+        ends.filter(end => end.below).map(end => end.text),
+        PROBES
+      ),
     };
   });
+
+  /** The longest category names, as hidden copies the label row is thinned against. */
+  protected readonly labelProbes = computed(() =>
+    this.horizontal() ? [] : wrChartLongest(this.categoryLabels(), PROBES)
+  );
+
+  /**
+   * How many categories each printed name stands for, standing up: 1 while the longest
+   * name fits its own band, 2 to print every second one, and so on, so a long list
+   * keeps whole names rather than a row of ellipses. 1 until the row is measured.
+   */
+  protected readonly labelStep = computed(() =>
+    wrChartLabelStep(this.categoryTotal(), this.labelsSize().width, this.labelWidth(), LABEL_GAP)
+  );
 
   /**
    * Every line shown, as the chart draws it: its segments and its points, placed in the
@@ -796,21 +1007,24 @@ export class WrBarChart {
       return horizontal ? { x: percent(at), y: along(c) } : { x: along(c), y: percent(1 - at) };
     };
 
+    const offset = this.resolvedSeries().length;
     return this.visibleLines().map((line): LineLayer => {
-      const segments: LineSegment[] = [];
       const points: LinePoint[] = [];
-      let previous: LinePosition | null = null;
+      let path = '';
+      let segments = 0;
+      let drawing = false;
       for (let c = 0; c < count; c++) {
         const value = line.data[c];
         if (value === null || value === undefined) {
           // A missing value breaks the line: the next point starts a new run.
-          previous = null;
+          drawing = false;
           continue;
         }
         const position = place(c, value);
-        if (previous) segments.push({ from: previous, to: position });
+        path += `${drawing ? 'L' : 'M'}${position.x} ${position.y}`;
+        if (drawing) segments++;
         points.push({ ...position, category: c, name: this.name(labels[c] ?? this.ordinals.format(c + 1), value) });
-        previous = position;
+        drawing = true;
       }
       return {
         index: line.index,
@@ -820,8 +1034,11 @@ export class WrBarChart {
         marker: line.marker,
         d: wrChartMarkerPath(line.marker, POINT_RADIUS),
         count,
+        // A run of one point draws nothing, so a line of lone points has no path at all.
+        path: segments > 0 ? path : '',
         segments,
         points,
+        key: offset + line.index,
       };
     });
   });
@@ -840,17 +1057,55 @@ export class WrBarChart {
       const extent = wrChartMarkerExtent(line.marker, POINT_RADIUS);
       reach = Math.max(reach, horizontal ? extent.side : Math.max(extent.top, extent.bottom));
     }
-    return Math.round(reach * 1000) / 1000;
+    return wrChartRound(reach, 3);
   });
 
   /**
-   * The legend's rows: every series, keyed by its own dash, then every line, keyed by its
-   * dash and its marker — hidden ones included.
+   * The legend's rows: every series, keyed by a dot in its colour, then every line, keyed
+   * by its dash and its marker - hidden ones included.
    */
   protected readonly legendItems = computed<readonly WrChartLegendItem[]>(() => [
-    ...this.resolvedSeries().map(({ label, color, dash }) => ({ label, color, dash })),
+    ...this.resolvedSeries().map(({ label, color }) => ({ label, color })),
     ...this.resolvedLines().map(({ label, color, dash, marker }) => ({ label, color, dash, marker })),
   ]);
+
+  /**
+   * Whether the chart draws its legend: with `series` or beside `lines`, unless
+   * `legendPosition` is `none` or `showLegend` is off. Under `showLegend="auto"` a single
+   * series with no line has nothing to tell apart, and draws none.
+   */
+  protected readonly legendShown = computed(() => {
+    const show = this.showLegend();
+    const rows = this.legendItems().length;
+    if (show === false || rows === 0 || this.legendPosition() === 'none') return false;
+    if (!this.seriesMode() && !this.hasLines()) return false;
+    return show === true || rows > 1 || this.hasLines();
+  });
+
+  /** Whether the legend comes before the plot, in the DOM as on screen: above it, or at inline start. */
+  protected readonly legendFirst = computed(() => {
+    const position = this.legendPosition();
+    return position === 'top' || position === 'start';
+  });
+
+  /** Whether the legend sits beside the plot rather than above or below it. */
+  protected readonly legendSide = computed(() => {
+    const position = this.legendPosition();
+    return position === 'start' || position === 'end';
+  });
+
+  /** Whether the chart has nothing to draw: no datum, or no category. */
+  private readonly empty = computed(() => this.categoryTotal() === 0);
+
+  /** What the chart shows in place of its bars, or `null` while it draws them. */
+  protected readonly state = useChartState({
+    loading: this.loading,
+    error: this.error,
+    empty: this.empty,
+    emptyLabel: this.emptyLabel,
+    loadingLabel: this.loadingLabel,
+    errorLabel: this.errorLabel,
+  });
 
   /**
    * The legend's hidden rows. Its rows are the series and then the lines, so a hidden
@@ -912,21 +1167,23 @@ export class WrBarChart {
    * One tooltip for the whole chart, with the whole figure — the label above the bar
    * may be compact, and the tooltip is where a reader goes for the exact one.
    *
-   * With `data` it points at the top edge of the BAR — above it, below it when there is
-   * no room — rather than at the column, which is the full height of the plot and
-   * would put the chip above every bar alike. A bar with nothing to draw (zero, or a
-   * negative value without `lines`) keeps its 1px floor on the baseline, so its chip
-   * points there; a missing value opens none, unless a line has a value in its category.
-   * The bar is the anchor element itself, so an open chip follows it through the
-   * height transition a data change starts.
+   * With `data` it points at the END of the bar - above it standing up, below it when
+   * there is no room - rather than at the column, which is the full height of the plot
+   * and would put the chip above every bar alike. A bar with nothing to draw (zero, or a
+   * negative value without `lines`) points at the zero line; a missing value opens none,
+   * unless a line has a value in its category.
    *
    * With `series` it is one chip per category: the category's name and a row per series
-   * shown with a value there, pointing at the top of the box round the category's bars.
-   * A category no series shown has a value in opens none.
+   * shown with a value there, pointing at the end of the longest of its bars. A category
+   * no series shown has a value in opens none.
    *
    * Each line shown with a value in the category adds a row after the bars', and the box
    * the chip points at takes in the line's point too, so the chip covers neither. Beside
    * `data`, the chip keeps the bar's label and value as its heading, over the lines' rows.
+   *
+   * The box is worked out from the shares the chart wrote and the track's own box, not
+   * read off the bars: a bar is moved by a transform, and its box mid-transition is not
+   * where it is going. Two measurements per hover, however many bars the category has.
    */
   protected readonly tip = useChartTooltip(this.tooltip, index =>
     this.seriesMode() ? this.categoryTip(index) : this.barTip(index)
@@ -934,16 +1191,15 @@ export class WrBarChart {
 
   private barTip(index: number): WrChartTooltipTarget | null {
     const bar = this.bars()[index];
-    const anchor = this.barEls()[index]?.nativeElement;
-    if (!bar || !anchor) return null;
+    if (!bar || this.state()) return null;
     const rows = this.lineRows(index);
     // A missing value has nothing to say but its label, which is already under the bar.
-    if (rows.length === 0)
-      return bar.missing ? null : { datum: { label: bar.label, value: bar.text, color: bar.color }, anchor };
-    return {
-      datum: { label: bar.label, value: bar.text, color: bar.color, rows },
-      anchor: WrBarChart.around([anchor.getBoundingClientRect(), ...this.pointBoxes(index)]),
-    };
+    if (rows.length === 0 && bar.missing) return null;
+    const anchor = this.sectionBox(index, bar.start, bar.start + bar.share);
+    if (!anchor) return null;
+    return rows.length === 0
+      ? { datum: { label: bar.label, value: bar.text, color: bar.color }, anchor }
+      : { datum: { label: bar.label, value: bar.text, color: bar.color, rows }, anchor };
   }
 
   /** A row per line shown with a value in category `index`, after the bars' rows. */
@@ -956,28 +1212,47 @@ export class WrBarChart {
     });
   }
 
-  /** The box round each line's point in category `index`: the marker, not the 1px viewport it is drawn from. */
-  private pointBoxes(index: number): DOMRect[] {
-    const categories = this.lineLayers().flatMap(line => line.points.map(point => point.category));
-    return this.pointEls().flatMap((el, i) => {
-      const marker = el.nativeElement.firstElementChild;
-      return categories[i] === index && marker ? [marker.getBoundingClientRect()] : [];
-    });
-  }
-
-  /** The box round several, as a tooltip anchor. */
-  private static around(boxes: readonly DOMRect[]): { x: number; y: number; width: number; height: number } {
-    const left = Math.min(...boxes.map(box => box.left));
-    const top = Math.min(...boxes.map(box => box.top));
-    const right = Math.max(...boxes.map(box => box.right));
-    const bottom = Math.max(...boxes.map(box => box.bottom));
-    return { x: left, y: top, width: right - left, height: bottom - top };
+  /**
+   * The box round a stretch of the value axis in category `index`, in viewport px, as a
+   * tooltip anchor: across, the category's own box; along the value axis, from share
+   * `from` to share `to` of the track, widened to every line's point in the category and
+   * by how far a marker reaches past its point. `null` while the category is not drawn.
+   */
+  private sectionBox(
+    index: number,
+    from: number,
+    to: number
+  ): { x: number; y: number; width: number; height: number } | null {
+    const track = this.trackEl()?.nativeElement;
+    const section = this.host.querySelector(`[data-wr-index="${index}"]`);
+    if (!track || !section) return null;
+    let reach = 0;
+    for (const line of this.visibleLines()) {
+      const value = line.data[index];
+      if (value === null || value === undefined) continue;
+      const at = this.at(value);
+      from = Math.min(from, at);
+      to = Math.max(to, at);
+      // The marker's own reach, and the ring round it.
+      reach = this.lineReach() + 1;
+    }
+    const axis = track.getBoundingClientRect();
+    const across = section.getBoundingClientRect();
+    if (!this.horizontal()) {
+      const top = axis.bottom - to * axis.height - reach;
+      const bottom = axis.bottom - from * axis.height + reach;
+      return { x: across.left, y: top, width: across.width, height: bottom - top };
+    }
+    // Lying down the bars grow along the inline axis: leftwards under RTL.
+    const rtl = getComputedStyle(track).direction === 'rtl';
+    const left = rtl ? axis.right - to * axis.width - reach : axis.left + from * axis.width - reach;
+    const right = rtl ? axis.right - from * axis.width + reach : axis.left + to * axis.width + reach;
+    return { x: left, y: across.top, width: right - left, height: across.height };
   }
 
   private categoryTip(index: number): WrChartTooltipTarget | null {
     const category = this.seriesCategories()[index];
-    const element = this.categoryEls()[index]?.nativeElement;
-    if (!category || !element) return null;
+    if (!category || this.state()) return null;
     const rows = [
       ...this.visibleSeries().flatMap(s => {
         const value = s.data[index];
@@ -990,12 +1265,9 @@ export class WrBarChart {
     if (rows.length === 0) return null;
     // The box round the bars the category draws and its lines' points, so the chip points
     // at the end of the longest of them rather than at the top of the plot.
-    const boxes = [
-      ...[...element.querySelectorAll('.wr-bar-chart__series-bar')].map(bar => bar.getBoundingClientRect()),
-      ...this.pointBoxes(index),
-    ];
-    if (boxes.length === 0) return null;
-    return { datum: { label: category.label, value: '', rows }, anchor: WrBarChart.around(boxes) };
+    const anchor = this.sectionBox(index, category.from, category.to);
+    if (!anchor) return null;
+    return { datum: { label: category.label, value: '', rows }, anchor };
   }
 }
 
