@@ -42,6 +42,14 @@ describe('WrCopyValue', () => {
   const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-copy-value')!;
   const text = (): HTMLElement | null => host().querySelector<HTMLElement>('.wr-copy-value__text');
   const button = (): HTMLButtonElement | null => host().querySelector<HTMLButtonElement>('.wr-copy-value__button');
+  const tooltip = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-tooltip-overlay');
+
+  /** Hover the button and let the tooltip's show delay run out. */
+  const hover = async (): Promise<void> => {
+    button()!.dispatchEvent(new MouseEvent('mouseenter'));
+    await vi.advanceTimersByTimeAsync(200);
+    fixture.detectChanges();
+  };
   const status = (): HTMLElement | null => host().querySelector<HTMLElement>('.wr-copy-value__status');
 
   /** Click, then let the awaited write settle and the signal it sets reach the DOM. */
@@ -73,7 +81,7 @@ describe('WrCopyValue', () => {
       expect(text()!.textContent).toBe('ORD-1042');
       expect(button()!.type).toBe('button');
       expect(button()!.getAttribute('aria-label')).toBe('Copy');
-      expect(button()!.getAttribute('title')).toBe('Copy');
+      expect(button()!.hasAttribute('title')).toBe(false);
     });
 
     it('renders a number, zero included', () => {
@@ -124,7 +132,6 @@ describe('WrCopyValue', () => {
       expect(writeText).toHaveBeenCalledExactlyOnceWith('ORD-1042');
       expect(host().classList.contains('wr-copy-value--copied')).toBe(true);
       expect(status()!.textContent).toBe('Copied');
-      expect(button()!.getAttribute('title')).toBe('Copied');
       // The name stays what the button DOES: the status region carries the news.
       expect(button()!.getAttribute('aria-label')).toBe('Copy');
       expect(fixture.componentInstance.copied).toEqual(['ORD-1042']);
@@ -149,7 +156,6 @@ describe('WrCopyValue', () => {
       fixture.detectChanges();
       expect(host().classList.contains('wr-copy-value--copied')).toBe(false);
       expect(status()!.textContent).toBe('');
-      expect(button()!.getAttribute('title')).toBe('Copy');
     });
 
     it('restarts the timeout on a second copy', async () => {
@@ -174,7 +180,6 @@ describe('WrCopyValue', () => {
       expect(writeText).toHaveBeenCalledOnce();
       expect(host().classList.contains('wr-copy-value--copied')).toBe(false);
       expect(status()!.textContent).toBe('');
-      expect(button()!.getAttribute('title')).toBe('Copy');
       expect(fixture.componentInstance.copied).toEqual([]);
       expect(fixture.componentInstance.failed).toBe(1);
     });
@@ -191,7 +196,53 @@ describe('WrCopyValue', () => {
     });
   });
 
+  describe('tooltip', () => {
+    it('shows the copy label in an ngwr tooltip on hover, not a native title', async () => {
+      await hover();
+
+      expect(tooltip()!.textContent).toContain('Copy');
+      expect(button()!.hasAttribute('title')).toBe(false);
+    });
+
+    it('reads the copied label right after a copy', async () => {
+      await hover();
+      await clickCopy();
+
+      expect(tooltip()!.textContent).toContain('Copied');
+
+      await vi.advanceTimersByTimeAsync(1500);
+      fixture.detectChanges();
+      expect(tooltip()!.textContent).toContain('Copy');
+      expect(tooltip()!.textContent).not.toContain('Copied');
+    });
+  });
+
   describe('wrap', () => {
+    it('puts the last word and the button inside one tail, the rest in the text', () => {
+      fixture.componentInstance.value.set('Long supplier name ltd');
+      fixture.componentInstance.wrap.set(true);
+      fixture.detectChanges();
+
+      const tail = host().querySelector<HTMLElement>('.wr-copy-value__tail')!;
+      expect(text()!.textContent).toBe('Long supplier name ');
+      expect(tail.firstChild!.textContent).toBe('ltd');
+      expect(tail.querySelector('.wr-copy-value__button')).toBe(button());
+      expect(host().textContent).toContain('Long supplier name ltd');
+    });
+
+    it('keeps a one-word value whole in the tail', () => {
+      fixture.componentInstance.wrap.set(true);
+      fixture.detectChanges();
+
+      expect(text()!.textContent).toBe('');
+      expect(host().querySelector('.wr-copy-value__tail')!.textContent).toContain('ORD-1042');
+    });
+
+    it('leaves the tail empty and the full text in the text span when not wrapping', () => {
+      expect(host().querySelector('.wr-copy-value__tail')!.firstChild!.textContent).toBe('');
+      expect(text()!.textContent).toBe('ORD-1042');
+    });
+
     it('truncates by default and keeps the full value in the title', () => {
       expect(host().classList.contains('wr-copy-value--wrap')).toBe(false);
       expect(text()!.getAttribute('title')).toBe('ORD-1042');
@@ -215,11 +266,9 @@ describe('WrCopyValue', () => {
       fixture.componentInstance.copiedLabel.set('Order id copied');
       fixture.detectChanges();
       expect(button()!.getAttribute('aria-label')).toBe('Copy order id');
-      expect(button()!.getAttribute('title')).toBe('Copy order id');
 
       await clickCopy();
       expect(status()!.textContent).toBe('Order id copied');
-      expect(button()!.getAttribute('title')).toBe('Order id copied');
     });
   });
 });

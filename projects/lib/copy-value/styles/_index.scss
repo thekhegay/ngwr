@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@use '../../popover/styles' as popover-styles; // WrPopover
 
 @include theme.loaded('copy-value');
 
@@ -92,13 +93,31 @@
   }
 
   &--wrap {
-    // The button stays on the first line of a value that runs over several.
-    align-items: flex-start;
+    // Inline flow, not a flex row: a flex text block keeps the width it was
+    // offered, so the button would sit at the far edge of a two-line value.
+    display: block;
   }
 
   &--wrap &__text {
+    display: inline;
     overflow: visible;
     white-space: normal;
     overflow-wrap: anywhere;
+  }
+
+  // Empty outside `wrap`, so the button stays a flex item of the host.
+  &__tail {
+    display: contents;
+  }
+
+  // The last word and the button never part.
+  &--wrap &__tail {
+    display: inline;
+    white-space: nowrap;
+  }
+
+  &--wrap &__button {
+    margin-inline-start: var(--wr-copy-value-gap);
+    vertical-align: middle;
   }
 }
