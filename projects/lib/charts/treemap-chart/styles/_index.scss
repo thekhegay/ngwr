@@ -62,10 +62,16 @@
   position: relative;
   font-family: var(--wr-treemap-chart-font-family);
 
-  // What the state message is laid over: the plot's own box.
+  // What the state message is laid over: the plot's own box, which an empty chart fills
+  // with the track, so the words sit on the surface.
   &__body {
     position: relative;
     min-width: 0;
+
+    > .wr-chart-state {
+      --wr-chart-state-label-bg: var(--wr-color-surface);
+      --wr-chart-state-label-padding: 0 var(--wr-space-xs);
+    }
   }
 
   // The tiles are positioned in percentages of this box, which is as wide as the chart
