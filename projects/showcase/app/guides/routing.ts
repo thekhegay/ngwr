@@ -28,6 +28,7 @@ export default [
   { path: guides.ssr.path, loadComponent: () => import('./ssr/ssr') },
   { path: guides.testing.path, loadComponent: () => import('./testing/testing') },
   { path: guides.csp.path, loadComponent: () => import('./csp/csp') },
+  { path: guides.eject.path, loadComponent: () => import('./eject/eject') },
   // These three are multi-page clusters, but they deliberately do NOT declare
   // their own `data.sidebar`: the sidebar resolves from the deepest activated
   // route, so a child sidebar would replace the guides nav on entry. They nest

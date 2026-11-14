@@ -42,6 +42,25 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   `withDates()` are not offered: each carries a value only the app knows.
 - `ng g ngwr:icon-set` / `ngwr:component-style` / `ngwr:page` — icon barrel /
   per-component `@use` / starter pages.
+- `ng g ngwr:eject <entry>` — copies one component's source into the app
+  (`--path`, default `src/app/ngwr/<entry>`), a generator only: nothing runs on
+  `ng update`, and the copy is out of its reach from then on. The tarball ships
+  compiled output, and shipping the sources too would grow it by about 29%
+  unpacked, so they are fetched one file at a time from
+  `raw.githubusercontent.com` at the tag `v<installed version>`, read from the
+  manifest the schematic shipped in; `--from <dir>` reads a local checkout
+  instead. No directory is listed: the walk starts at `public-api.ts`,
+  `index.ts` and the entry's `sass` condition and follows relative imports,
+  `templateUrl`, `styleUrl` and Sass loads, which is what keeps specs and
+  harnesses out. A load that leaves the entry point becomes the package path of
+  the entry point it names (`../utils` reads `ngwr/utils`, `../../theme/styles`
+  reads `ngwr/theme`); one with no public path (`animations/internal`,
+  `overlay/styles/arrow`, a theme partial under a `styleUrl` sheet) is left as
+  written and printed as a warning with file and line. The name is checked
+  against the `exports` map (no `*/testing`, `*/router`, `i18n/*`), then the
+  sources must declare a `@Component` or `@Directive`, which is what refuses
+  `ngwr/utils`. `source.ts` holds all of that with no tree and no network, so
+  the spec drives it over the repo's own `projects/lib` and a fake `fetch`.
 - `ng update ngwr@<latest major>` — ONE command from any earlier major. The CLI
   installs the target, then runs every migration in the TARGET's
   `migrations.json` whose version is above the installed one and at or below

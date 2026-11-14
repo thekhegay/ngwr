@@ -130,6 +130,7 @@ export const ROUTES = {
     ssr: { path: 'ssr', title: 'Server-side rendering' },
     testing: { path: 'testing', title: 'Testing' },
     csp: { path: 'csp', title: 'Content Security Policy' },
+    eject: { path: 'eject', title: 'Eject a component' },
     tokens: {
       path: 'tokens',
       title: 'Design tokens',
