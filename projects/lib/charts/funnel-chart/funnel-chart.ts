@@ -17,7 +17,16 @@ import {
   viewChildren,
 } from '@angular/core';
 
-import { WrChartTable, type WrChartTableData, useChartNumbers } from 'ngwr/charts/core';
+import {
+  WrChartState,
+  WrChartTable,
+  type WrChartTableData,
+  useChartHover,
+  useChartNumbers,
+  useChartState,
+  wrChartNumberFormat,
+  wrChartRound,
+} from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
 import { wrClamp, wrCheckStyles } from 'ngwr/utils';
@@ -25,7 +34,7 @@ import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 import type { WrFunnelConversion, WrFunnelStage } from './types';
 
 /** A number for an inline style, to three decimals with `-0` folded to `0`, so the style stays short. */
-const short = (value: number): number => Math.round(value * 1000) / 1000 || 0;
+const short = (value: number): number => wrChartRound(value, 3);
 
 /**
  * `value` as a share of `reference`, or `null` where no share means anything: either
@@ -99,6 +108,11 @@ interface Stage {
  * the same figures as a table a reader can walk cell by cell. No part of the chart is a
  * tab stop.
  *
+ * **On the chart theme.** The bars are the first colour of the chart palette, the band
+ * between two of them the theme's track, and the corners the theme's radius. Hovering a
+ * stage dims the others. With no stage the chart keeps a box and says "No data";
+ * `loading` and `error` put their own message there in place of the stages.
+ *
  * Under RTL the labels and the figures swap sides; the bars and the bands are centred,
  * so they read the same in both directions. A label takes its direction from its own
  * text, so a Latin one is ellipsised at its end on an RTL page, and a figure from its
@@ -111,11 +125,14 @@ interface Stage {
   templateUrl: './funnel-chart.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-funnel-chart' },
-  imports: [WrChartTable],
+  imports: [WrChartState, WrChartTable],
 })
 export class WrFunnelChart {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/funnel-chart');
+    // One pair of listeners on the host, not two on every stage: the stage under the
+    // pointer is the nearest element up from it carrying `data-wr-index`.
+    useChartHover({ enter: index => this.tip.enter(index), leave: event => this.tip.leave(event) });
   }
 
   /**
@@ -136,10 +153,11 @@ export class WrFunnelChart {
   /**
    * The colour of a stage with no `color` of its own. One colour by default, because the
    * stages are one quantity measured along a sequence, not categories: every stage is
-   * named in text beside its bar, so colour tells nothing apart here.
-   * @default 'var(--wr-color-primary)'
+   * named in text beside its bar, so colour tells nothing apart here. The first colour of
+   * the chart palette, which is the brand colour unless the theme says otherwise.
+   * @default 'var(--wr-chart-1)'
    */
-  readonly color = input<string>('var(--wr-color-primary)');
+  readonly color = input<string>('var(--wr-chart-1)');
 
   /**
    * The value of a full-width bar. `0` makes it the largest stage shown; a value above
@@ -178,6 +196,27 @@ export class WrFunnelChart {
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
   /**
+   * A request for the chart's data is in flight: the stages give way to the loading
+   * message. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The chart's data failed to load: the stages give way to the error message. `loading`
+   * wins while both are set. @default false
+   */
+  readonly error = input(false, { transform: coerceBooleanProperty });
+
+  /** The message shown when there is no stage. Falls back to `chart.empty`, then `'No data'`. */
+  readonly emptyLabel = input<string | null>(null);
+
+  /** The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`. */
+  readonly loadingLabel = input<string | null>(null);
+
+  /** The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`. */
+  readonly errorLabel = input<string | null>(null);
+
+  /**
    * Writes every value the chart shows: beside the bars, in the tooltip, in the accessible
    * names and in the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.
    */
@@ -208,9 +247,9 @@ export class WrFunnelChart {
   private readonly numbers = useChartNumbers(this.valueFormat);
 
   private readonly locale = inject(LOCALE_ID);
-  private readonly percents = new Intl.NumberFormat(this.locale, { style: 'percent', maximumFractionDigits: 1 });
+  private readonly percents = wrChartNumberFormat(this.locale, { style: 'percent', maximumFractionDigits: 1 });
   /** Below 1%, by significant digits, which keep 0.0004 from printing as `0%`. */
-  private readonly smallPercents = new Intl.NumberFormat(this.locale, {
+  private readonly smallPercents = wrChartNumberFormat(this.locale, {
     style: 'percent',
     maximumSignificantDigits: 2,
   });
@@ -307,8 +346,11 @@ export class WrFunnelChart {
         label: stage.label,
         value: stage.value,
         color: stage.color,
-        /** The bar's inline width, a percentage of the track. */
-        width: `${short(stage.width * 100)}%`,
+        /**
+         * The bar's length as a share of the track, 0 to 1: the bar is as wide as the
+         * track and scaled to this, so a new value moves a transform and lays nothing out.
+         */
+        scale: wrChartRound(stage.width, 5),
         valueText,
         previousText,
         firstText,
@@ -321,6 +363,16 @@ export class WrFunnelChart {
         bandFrom: above.color,
       };
     });
+  });
+
+  /** What the chart shows in place of its stages, or `null` while it draws them. */
+  protected readonly state = useChartState({
+    loading: this.loading,
+    error: this.error,
+    empty: computed(() => this.stages().length === 0),
+    emptyLabel: this.emptyLabel,
+    loadingLabel: this.loadingLabel,
+    errorLabel: this.errorLabel,
   });
 
   /**

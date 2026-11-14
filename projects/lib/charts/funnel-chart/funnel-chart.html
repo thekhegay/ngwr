@@ -2,11 +2,20 @@
 @let first = showFirst();
 @let values = showValues();
 @let active = activeStage();
+@let shown = state();
 <!-- A named `group` of one named `img` per stage, as the bar chart's columns are. Not one
      `img` round the whole funnel: `img` makes everything inside it presentational, and
      WebKit drops such a subtree, so every stage's own name would go with it. -->
-<div class="wr-funnel-chart__plot" role="group" [attr.aria-label]="resolvedAriaLabel()">
-  @for (row of rows(); track $index) {
+<div
+  class="wr-funnel-chart__plot"
+  role="group"
+  [class.wr-funnel-chart__plot--idle]="!!shown"
+  [attr.aria-label]="resolvedAriaLabel()"
+>
+  @if (shown) {
+    <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
+  }
+  @for (row of shown ? [] : rows(); track $index) {
     @if (!$first) {
       <!-- The band between two bars and the share of the stage above, both repeated in the
            stage's own name, so hidden here. -->
@@ -25,23 +34,31 @@
       </div>
     }
     <!-- Its label, its value and both conversions in its name: the text inside is drawn for
-         the eye, and the `img` role makes it presentational. -->
+         the eye, and the `img` role makes it presentational. `data-wr-index` is what the
+         chart's one hover listener reads the stage off, and `data-wr-series` what dims the
+         other stages while the pointer is on this one. -->
     <div
       #stageEl
       class="wr-funnel-chart__stage"
       [class.wr-funnel-chart__stage--active]="active === $index"
       role="img"
       [attr.aria-label]="row.name"
-      (mouseenter)="tip.enter($index)"
-      (mouseleave)="tip.leave($event)"
+      [attr.data-wr-index]="$index"
+      [attr.data-wr-series]="`s${$index}`"
     >
       <!-- The host's own text, in whatever language it is, so it takes its direction from
            that text and is ellipsised at its own end, not at the page's. -->
       <span class="wr-funnel-chart__label" dir="auto">{{ row.label }}</span>
       <span class="wr-funnel-chart__track">
-        <!-- A missing stage draws no bar at all; zero and below keep a hairline. -->
+        <!-- A missing stage draws no bar at all; zero and below keep a hairline. The bar is
+             as wide as the track and scaled to its share, so its length is a transform. -->
         @if (row.value !== null) {
-          <span class="wr-funnel-chart__bar" [style.width]="row.width" [style.background]="row.color"></span>
+          <span
+            class="wr-funnel-chart__bar"
+            [class.wr-funnel-chart__bar--hairline]="row.scale === 0"
+            [style.--wr-funnel-chart-bar-scale]="row.scale"
+            [style.background]="row.color"
+          ></span>
         }
       </span>
       <span class="wr-funnel-chart__figures">

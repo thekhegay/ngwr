@@ -9,8 +9,8 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import type { WrFunnelChartHarnessFilters, WrFunnelChartHarnessStage, WrFunnelChartTableRow } from './types';
 
-/** The `width: <n>%` the component writes onto a bar, out of its inline `style`. */
-const BAR_WIDTH = /(?:^|;)\s*width\s*:\s*([\d.]+)%/;
+/** The share of the track the component writes onto a bar, 0 to 1, out of its inline `style`. */
+const BAR_SCALE = /(?:^|;)\s*--wr-funnel-chart-bar-scale\s*:\s*([\d.]+)/;
 
 /**
  * One stage row, so its label, its figures and its bar are read off the row they sit in
@@ -37,15 +37,15 @@ class StageHarness extends ComponentHarness {
 
   /** Parse a bar's declared width. See the class note on {@link WrFunnelChartHarness} for why this is not `getCssValue()`. */
   private static widthOf(style: string | null): number {
-    const match = BAR_WIDTH.exec(style ?? '');
+    const match = BAR_SCALE.exec(style ?? '');
     if (!match) {
       throw new Error(
-        `WrFunnelChartHarness.getStages(): a bar carries no inline width percentage (style: "${style ?? ''}"). ` +
+        `WrFunnelChartHarness.getStages(): a bar carries no inline share of the track (style: "${style ?? ''}"). ` +
           'The component writes one for every bar it draws, a stage of zero included, so its absence is the bug — ' +
           'reporting 0 would read as a stage of zero.'
       );
     }
-    return Number.parseFloat(match[1]);
+    return Math.round(Number.parseFloat(match[1]) * 1e5) / 1e3;
   }
 }
 
