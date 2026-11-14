@@ -283,6 +283,14 @@ one component folder. Reach for them instead of hand-rolling:
   `viewProviders` (the legend reads it with `host: true`), so their old public
   `.wr-<block>__legend-item` classes stay on the same elements; a new chart
   provides nothing, and gets no legacy classes it never had.
+  A chart with a colour scale (heatmap, calendar heatmap) draws `wr-chart-scale`
+  in the legend's place, from the same entry point: the steps of the scale
+  between its two ends, each painted with the paint the chart hands it. Marks
+  that lie over one another (treemap tiles over their group, meter bands over
+  the next) opt out of the opacity dim and take a veil of the surface instead,
+  so no layer shows through a faded one. The reading cell's ring on the
+  heatmap, the calendar and the treemap is a class set by hand on that one
+  element, never a binding on every cell.
 - **Scheduling** (`ngwr/event-calendar`) — `wr-event-calendar` is month / week /
   day in one component. `events` is an input it never mutates: a drag emits
   `eventChange` and the host applies it, so an unhandled output is a cancelled
