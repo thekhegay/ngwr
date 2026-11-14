@@ -1109,7 +1109,7 @@ export const CSS_VARS = {
       { name: "--wr-date-stamp-gap", default: "0", scope: ".wr-date-stamp" },
       { name: "--wr-date-stamp-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-date-stamp" },
       { name: "--wr-date-stamp-time-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-date-stamp" },
-      { name: "--wr-date-stamp-time-font-size", default: "var(--wr-text-sm)", scope: ".wr-date-stamp" },
+      { name: "--wr-date-stamp-time-font-size", default: "min(var(--wr-text-sm), 1em)", scope: ".wr-date-stamp" },
     ],
   },
   "reference/components/descriptions": {
