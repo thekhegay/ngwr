@@ -170,6 +170,11 @@ export default class TreemapChartPageComponent {
 
 <!-- Names only -->
 <wr-treemap-chart ariaLabel="Repository by lines of code" [data]="repo" [showValues]="false" />`,
+    legend: `<wr-treemap-chart ariaLabel="Budget by department" [data]="budget" showLegend />
+<wr-treemap-chart ariaLabel="Budget by department" [data]="budget" showLegend legendPosition="end" />`,
+    states: `<wr-treemap-chart [data]="[]" />
+<wr-treemap-chart [data]="budget" loading />
+<wr-treemap-chart [data]="budget" error errorLabel="Budget is unavailable" />`,
     format: `<wr-treemap-chart
   ariaLabel="Budget by department"
   [data]="budget"

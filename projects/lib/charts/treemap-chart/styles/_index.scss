@@ -4,36 +4,58 @@
 // Styles for the entry points this component's own markup renders. With `dataTable`, the
 // figures render as a `<wr-chart-table>` beside the drawing, which its own sheet clips
 // out of sight.
-@use '../../core/styles' as core-styles; // WrChartTable
+@use '../../core/styles' as core-styles; // WrChartTable, WrChartState
+@use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
 @include theme.loaded('charts/treemap-chart');
+
+// A tile's paint: its colour (`--wr-treemap-chart-tile-color`, which the component writes
+// on every tile), by default whole. The share is a hook, so an app that wants the tints
+// the chart had before 16.5 sets it back; it mixes toward the chart's background.
+@function fill($share) {
+  @return color-mix(in srgb, var(--wr-treemap-chart-tile-color, var(--wr-chart-1)) $share, var(--wr-treemap-chart-bg));
+}
+
+// The share of white the text on a tile takes, 1 or 0, from the tile's luminance `y`
+// (see `__tile`). A string, so Sass passes the relative-colour channel name through.
+$white: 'clamp(0, (0.17913 - y) * infinity, 1)';
+
+// Black or white, whichever reads better on `$fill`: the pick the theme's `-contrast`
+// tokens make, made per tile because a tile's colour is the palette's or the consumer's.
+// The paint's `y` in XYZ (D65) is the relative luminance WCAG measures, and the two
+// candidates score the same, about 4.58:1, against a luminance of 0.17913. Below it white
+// wins, above it black; the difference is scaled to ±infinity and clamped, so nothing
+// between the two is drawn. The heatmap picks its printed values the same way.
+@function ink($fill) {
+  @return color(from #{$fill} xyz-d65 calc(0.9505 * #{$white}) #{$white} calc(1.0891 * #{$white}));
+}
 
 .wr-treemap-chart {
   --wr-treemap-chart-font-family: var(--wr-font-family-base);
-  // What the tiles' tints mix towards, and what shows behind them.
+  // What shows behind the tiles, and what a tile's colour mixes toward below a whole share.
   --wr-treemap-chart-bg: var(--wr-color-surface);
   // The gap round every tile: an inset line in the surface colour on each, so two
   // neighbours sit twice this apart. Drawn as an inset shadow, never a border or a margin:
   // a margin takes area from the layout, and a border on a `border-box` tile is a floor
   // under its size, so a sliver worth a fraction of a pixel would be drawn two wide and
-  // cover its group's edge. A faint separator by default, not a 3:1 boundary: the names,
-  // the nesting and the data table carry the reading, and `prefers-contrast: more` below
-  // turns it into a line that is one.
+  // cover its group's edge. The chart theme's separator: the surface, which every palette
+  // colour holds 3:1 against, so the line between two solid tiles is one a reader can see.
   --wr-treemap-chart-gap: 1px;
-  --wr-treemap-chart-gap-color: var(--wr-color-surface);
-  --wr-treemap-chart-radius: var(--wr-border-radius-sm);
-  // How much of its colour a tile carries, mixed into the surface: a leaf more than a
-  // group, so the leaves stand on their group's strip and edge. Tints rather than the
-  // solid colour, so the names on them read in `on-surface` whatever the colour — a
-  // node's own `color` can be anything — and in both schemes, since the surface they mix
-  // into is a `light-dark()` pair.
-  --wr-treemap-chart-leaf-tint: 34%;
-  --wr-treemap-chart-group-tint: 14%;
+  --wr-treemap-chart-gap-color: var(--wr-chart-separator);
+  --wr-treemap-chart-radius: var(--wr-chart-bar-radius);
+  // How much of its colour a tile carries: all of it, the fill every chart on the theme
+  // draws. They were 34% and 14% tints, which went murky on a dark surface. The text on a
+  // tile is picked against the paint these make (see `__tile`), so a tint still reads.
+  --wr-treemap-chart-leaf-tint: 100%;
+  --wr-treemap-chart-group-tint: 100%;
+  // The box the chart keeps while it has no tiles to draw: empty, loading, a failed load.
+  --wr-treemap-chart-idle-bg: var(--wr-chart-track);
   // The names and values written inside the tiles. The layout leaves a tile its name
   // only from about 36 × 22 px, and its value under it from 38 px tall, measured for
   // this type and padding; a larger type is clipped by the tile rather than spilling.
   --wr-treemap-chart-label-font-size: var(--wr-text-xs);
   --wr-treemap-chart-label-line-height: var(--wr-text-xs-leading);
-  --wr-treemap-chart-label-color: var(--wr-color-on-surface);
+  // The fallback text colour, where the per-tile pick is not supported (see `__tile`).
+  --wr-treemap-chart-fallback-color: var(--wr-color-on-surface);
   --wr-treemap-chart-label-font-weight: var(--wr-font-weight-medium);
   --wr-treemap-chart-header-font-weight: var(--wr-font-weight-semibold);
   --wr-treemap-chart-value-font-weight: var(--wr-font-weight-regular);
@@ -41,7 +63,9 @@
   --wr-treemap-chart-header-gap: var(--wr-space-xs);
   --wr-treemap-chart-label-padding-x: var(--wr-space-xs);
   --wr-treemap-chart-label-padding-y: calc(var(--wr-space-xs) / 2);
-  // The tile the tooltip is about, ringed inside its own edge so it covers no neighbour.
+  // The tile the tooltip is about, ringed inside its own edge so it covers no neighbour:
+  // a ring in the text colour with a line of the surface inside it, so one of the two
+  // shows on a tile of any colour.
   --wr-treemap-chart-active-ring: var(--wr-color-on-surface);
   --wr-treemap-chart-active-ring-width: 2px;
 
@@ -52,6 +76,12 @@
   position: relative;
   font-family: var(--wr-treemap-chart-font-family);
 
+  // What the state message is laid over: the plot's own box.
+  &__body {
+    position: relative;
+    min-width: 0;
+  }
+
   // The tiles are positioned in percentages of this box, which is as wide as the chart
   // and as tall as `height`.
   &__plot {
@@ -60,6 +90,10 @@
     overflow: hidden;
     border-radius: var(--wr-treemap-chart-radius);
     background: var(--wr-treemap-chart-bg);
+
+    &--idle {
+      background: var(--wr-treemap-chart-idle-bg);
+    }
   }
 
   &__tile {
@@ -77,27 +111,49 @@
     // it. The text carries its own padding, below, and the gap is a shadow inside the edge.
     border-radius: var(--wr-treemap-chart-radius);
     box-shadow: inset 0 0 0 var(--wr-treemap-chart-gap) var(--wr-treemap-chart-gap-color);
-    background: color-mix(
-      in srgb,
-      var(--wr-treemap-chart-tile-color, var(--wr-color-primary)) var(--wr-treemap-chart-leaf-tint),
-      var(--wr-treemap-chart-bg)
-    );
-    color: var(--wr-treemap-chart-label-color);
+    background: fill(var(--wr-treemap-chart-leaf-tint));
+    // `--wr-treemap-chart-label-color` is not set by default: the text is picked per
+    // tile. Set it to paint every name and value in one colour instead.
+    color: var(--wr-treemap-chart-label-color, #{ink(fill(var(--wr-treemap-chart-leaf-tint)))});
     font-size: var(--wr-treemap-chart-label-font-size);
     line-height: var(--wr-treemap-chart-label-line-height);
+    // The shared hover-dim fades a mark by its opacity, and a tile lies over its group:
+    // two faded layers would show through each other. A tile stays whole and takes a veil
+    // of the background instead (`::after`, below), which reads the same and stacks clean.
+    opacity: 1;
 
     &--group {
-      background: color-mix(
-        in srgb,
-        var(--wr-treemap-chart-tile-color, var(--wr-color-primary)) var(--wr-treemap-chart-group-tint),
-        var(--wr-treemap-chart-bg)
-      );
+      background: fill(var(--wr-treemap-chart-group-tint));
+      color: var(--wr-treemap-chart-label-color, #{ink(fill(var(--wr-treemap-chart-group-tint)))});
     }
 
+    // Set by hand on the one tile the tooltip is about, never bound on every tile.
     &--active {
-      outline: var(--wr-treemap-chart-active-ring-width) solid var(--wr-treemap-chart-active-ring);
-      outline-offset: calc(-1 * var(--wr-treemap-chart-active-ring-width));
+      box-shadow:
+        inset 0 0 0 var(--wr-treemap-chart-active-ring-width) var(--wr-treemap-chart-active-ring),
+        inset 0 0 0 calc(var(--wr-treemap-chart-active-ring-width) + var(--wr-treemap-chart-gap))
+          var(--wr-treemap-chart-gap-color);
     }
+  }
+
+  // Where relative colour syntax is missing - Firefox before 128, inside the documented
+  // floor - the pick above is dropped. There the text sits on a chip of the background in
+  // the chart's text colour, which reads on a tile of any colour and in either scheme.
+  @supports not (color: color(from red xyz-d65 calc(0.9505 * #{$white}) #{$white} calc(1.0891 * #{$white}))) {
+    &__tile {
+      color: var(--wr-treemap-chart-label-color, var(--wr-treemap-chart-fallback-color));
+    }
+
+    &__label,
+    &__value {
+      background: var(--wr-treemap-chart-bg);
+    }
+  }
+
+  // The legend's room from the plot, on whichever side it sits.
+  &__legend {
+    --wr-treemap-chart-legend-space: var(--wr-space-md);
+    --wr-chart-legend-space: var(--wr-treemap-chart-legend-space);
   }
 
   // A group's name and figure, in the strip the layout left above its children. Its
@@ -182,27 +238,33 @@
   }
 }
 
-// A reader who asked for more contrast gets the gap as a line rather than a separator:
-// the muted ink, which the theme deepens under the same query. Measured in Chromium on
-// every tile of the docs page's charts, against the tile's own tint: 4.64:1 at the lowest
-// in light and 3.47:1 in dark — the warning tint, the brightest there — where the
-// surface-coloured gap reads 1.08–1.73:1 and 1.12–2.39:1. That holds for the palette and
-// the theme's own colours; a node's `color` can be anything. Not the theme's hairline:
-// it is solved against the page and its lightest fill, a tint is darker than either, and
-// it measured 1.97:1 and 1.49:1 on the same tiles.
-@media (prefers-contrast: more) {
-  .wr-treemap-chart {
-    --wr-treemap-chart-gap-color: var(--wr-color-on-surface-muted);
+// Hover. The shared rule dims by opacity, which a tile opts out of (see `__tile`): every
+// tile outside the top-level node under the pointer, or outside a hovered legend row's,
+// takes a veil of the background at the theme's dim instead. A pseudo-element that exists
+// only while the chart is dimmed, so a thousand tiles at rest carry no extra box; it
+// fades in where the browser can start a transition from `@starting-style`.
+.wr-chart--dim .wr-treemap-chart__tile:not(.wr-chart-mark--on)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--wr-treemap-chart-bg);
+  opacity: calc(1 - var(--wr-chart-dim));
+  pointer-events: none;
+  transition: opacity var(--wr-chart-duration-short) var(--wr-chart-ease);
+
+  @starting-style {
+    opacity: 0;
   }
 }
 
-// Forced colors resets every tile's tinted background to `Canvas`, and that is left to
+// Forced colors resets every tile's background to `Canvas`, and that is left to
 // happen rather than opted out of, as the bars are: a bar painted as the page vanishes,
 // while a tile keeps its edge, its name and its place inside its group, which are what
 // tell the groups apart anyway. The edge is what has to survive, and the shadow that
 // draws the gap is dropped here, so it is an inset OUTLINE in the text colour — an outline
 // because, like the shadow, it takes no room and sets no floor under a tile's size. The
-// tile the tooltip is about keeps its wider outline, in the highlight colour.
+// tile the tooltip is about keeps its wider outline, in the highlight colour. The veil of
+// a dimmed tile would be `Canvas` over `Canvas`, and is dropped.
 @media (forced-colors: active) {
   .wr-treemap-chart__tile {
     outline: var(--wr-treemap-chart-gap) solid CanvasText;
@@ -212,5 +274,9 @@
   .wr-treemap-chart__tile--active {
     outline: var(--wr-treemap-chart-active-ring-width) solid Highlight;
     outline-offset: calc(-1 * var(--wr-treemap-chart-active-ring-width));
+  }
+
+  .wr-chart--dim .wr-treemap-chart__tile:not(.wr-chart-mark--on)::after {
+    content: none;
   }
 }
