@@ -6,13 +6,14 @@
 >
   <ngwr-doc-section
     title="Basic"
-    description="Give the carousel a height: the slides fill it. `autoplay` adds a pause button."
+    description="Give the carousel a height: the slides fill it. `autoplay` moves the slides, `pauseButton` adds a button to stop them."
   >
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-carousel
         [(active)]="idx"
         autoplay
+        pauseButton
         style="width: 100%; aspect-ratio: 16 / 9; border-radius: 0.5rem; overflow: hidden"
       >
         @for (slide of slides; track $index) {
@@ -41,8 +42,9 @@
   <ngwr-doc-section title="Accessibility">
     <ul>
       <li>
-        Autoplay renders a pause button, the carousel's first tab stop, named <code>pauseLabel</code> or
-        <code>playLabel</code> for what a press does next.
+        With <code>autoplay</code>, turn on <code>pauseButton</code>: WCAG 2.2.2 asks for a way to pause moving content.
+        The button is the carousel's first tab stop, named <code>pauseLabel</code> or <code>playLabel</code> for what a
+        press does next.
       </li>
       <li>
         The pointer over the carousel and focus inside it hold the slides, and leaving resumes them. A press on pause

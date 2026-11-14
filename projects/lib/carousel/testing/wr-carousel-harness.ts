@@ -332,17 +332,22 @@ export class WrCarouselHarness extends ComponentHarness {
 
   // Autoplay
 
+  /** Whether the pause button is on the page: `autoplay` and `pauseButton` on, two slides or more. */
+  async hasPauseButton(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-carousel__toggle')()) !== null;
+  }
+
   /**
    * The name of the pause button, which says what a press does next: the pause
    * label while autoplay is on, the play label while it is off, held or not.
-   * Throws when the carousel has no such button, which is every carousel
-   * without `autoplay`.
+   * Throws when the button is not drawn, which is every carousel without
+   * `autoplay` and `pauseButton`.
    */
   async getAutoplayLabel(): Promise<string | null> {
     return (await this.autoplayButton('getAutoplayLabel')).getAttribute('aria-label');
   }
 
-  /** Press the pause button. Throws without `autoplay`. */
+  /** Press the pause button. Throws when the button is not drawn. */
   async toggleAutoplay(): Promise<void> {
     return (await this.autoplayButton('toggleAutoplay')).click();
   }
@@ -367,7 +372,7 @@ export class WrCarouselHarness extends ComponentHarness {
 
   /**
    * Put keyboard focus on the first control the carousel renders — the pause
-   * button under `autoplay`, else the previous arrow, or the first dot when the
+   * button under `autoplay` with `pauseButton`, else the previous arrow, or the first dot when the
    * arrows are hidden.
    *
    * This is the keyboard half of the autoplay hold: WCAG 2.2.2 wants a way to stop
@@ -459,7 +464,7 @@ export class WrCarouselHarness extends ComponentHarness {
     if (!button) {
       throw new Error(
         `WrCarouselHarness.${method}(): this carousel renders no pause button, which it does only with ` +
-          '[autoplay] on and two slides or more.'
+          '[autoplay] and [pauseButton] on and two slides or more.'
       );
     }
     return button;
