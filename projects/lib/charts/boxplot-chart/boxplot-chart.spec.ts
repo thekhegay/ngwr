@@ -1,7 +1,7 @@
 import { Component, LOCALE_ID, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { wrChartLegacyColor } from 'ngwr/charts/core';
+import { wrChartColor } from 'ngwr/charts/core';
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { compileSass } from '../../spec-sass';
@@ -32,6 +32,7 @@ const GROUPS: readonly WrBoxplotGroup[] = [
       [color]="color()"
       [height]="height()"
       [showGrid]="showGrid()"
+      [showAxis]="showAxis()"
       [tooltip]="tooltip()"
       [dataTable]="dataTable()"
     />
@@ -43,9 +44,10 @@ class Host {
   readonly xLabel = signal<string | null>(null);
   readonly yLabel = signal<string | null>(null);
   readonly valueFormat = signal<((value: number) => string) | null>(null);
-  readonly color = signal('var(--wr-color-primary)');
+  readonly color = signal(wrChartColor(0));
   readonly height = signal<number>(240);
   readonly showGrid = signal(true);
+  readonly showAxis = signal(true);
   readonly tooltip = signal(true);
   readonly dataTable = signal(false);
 }
@@ -130,12 +132,8 @@ describe('WrBoxplotChart', () => {
     });
 
     it("writes each group's numbers beside its placement, and an outlier's on its dot", () => {
-      const read = (group: HTMLElement): (string | null)[] =>
-        ['min', 'q1', 'median', 'q3', 'max'].map(name => group.getAttribute(`data-${name}`));
-      expect(groups().map(read)).toEqual([
-        ['1', '3.5', '6', '8.5', '10'],
-        ['4', '8', '12', '16', '20'],
-      ]);
+      // One attribute for the five, lower whisker first: nothing but the harness reads them.
+      expect(groups().map(group => group.getAttribute('data-box'))).toEqual(['1 3.5 6 8.5 10', '4 8 12 16 20']);
       expect(root().querySelector('.wr-boxplot-chart__outlier')!.getAttribute('data-value')).toBe('30');
     });
 
@@ -145,14 +143,14 @@ describe('WrBoxplotChart', () => {
       ]);
       render();
 
-      expect(groups()[0].getAttribute('data-median')).toBe('30');
+      expect(groups()[0].getAttribute('data-box')).toBe('10 20 30 40 50');
     });
 
     it("paints every group in the chart's colour unless it has its own", () => {
       // The input keeps the literal default the docs print; this holds it to the palette.
       expect(groups().map(group => group.style.getPropertyValue('--wr-boxplot-chart-group-color'))).toEqual([
-        wrChartLegacyColor(0),
-        wrChartLegacyColor(0),
+        wrChartColor(0),
+        wrChartColor(0),
       ]);
 
       host().color.set('var(--wr-color-success)');
@@ -180,7 +178,7 @@ describe('WrBoxplotChart', () => {
       ]);
       expect(root().querySelectorAll('.wr-boxplot-chart__box')).toHaveLength(1);
       expect(groups()[1].children).toHaveLength(0);
-      expect(groups()[1].hasAttribute('data-median')).toBe(false);
+      expect(groups()[1].hasAttribute('data-box')).toBe(false);
       expect(texts('.wr-boxplot-chart__x-label')).toEqual(['Values', 'Nothing', 'Not finite']);
       expect(prop(groups()[2], 'slot-start')).toBeCloseTo(66.667, 3);
     });
@@ -272,11 +270,16 @@ describe('WrBoxplotChart', () => {
       expect(placed(groups()[0]).median).toBe(50);
     });
 
-    it('drops the gridlines and the tick labels with `showGrid` off, and keeps the group names', () => {
+    it('drops the gridlines with `showGrid` off and the tick labels with `showAxis` off, and keeps the group names', () => {
       host().showGrid.set(false);
       render();
 
       expect(root().querySelector('.wr-boxplot-chart__grid-line')).toBeNull();
+      // The scale is `showAxis`' now, on its own.
+      expect(texts('.wr-boxplot-chart__y-tick')).toEqual(['40', '30', '20', '10', '0']);
+
+      host().showAxis.set(false);
+      render();
       expect(root().querySelector('.wr-boxplot-chart__y-axis')).toBeNull();
       expect(texts('.wr-boxplot-chart__x-label')).toEqual(['North', 'South']);
     });
@@ -398,7 +401,8 @@ describe('WrBoxplotChart', () => {
     const chipTexts = (selector: string): string[] =>
       [...(chip()?.querySelectorAll(selector) ?? [])].map(element => element.textContent.trim());
     const hover = (group: HTMLElement): void => {
-      group.dispatchEvent(new MouseEvent('mouseenter'));
+      // One listener on the chart, which hears the slot through a bubbling `mouseover`.
+      group.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
       render();
     };
 
@@ -417,9 +421,7 @@ describe('WrBoxplotChart', () => {
       // The outliers row lists VALUES, as the data table's column of the same name does:
       // North's one outlier is 30, which a count would have written as 1.
       expect(chipTexts('.wr-chart-tooltip__row-value')).toEqual(['10', '8.5', '6', '3.5', '1', '30']);
-      expect(chip()!.querySelector<HTMLElement>('.wr-chart-tooltip__swatch')!.style.background).toBe(
-        wrChartLegacyColor(0)
-      );
+      expect(chip()!.querySelector<HTMLElement>('.wr-chart-tooltip__swatch')!.style.background).toBe(wrChartColor(0));
       expect(groups()[0].classList).toContain('wr-boxplot-chart__group--active');
     });
 
@@ -522,7 +524,7 @@ describe('WrBoxplotChart tooltip anchor', () => {
 
   it('points at the top of everything the group draws, centred on it', () => {
     const group = (fixture.nativeElement as HTMLElement).querySelector('.wr-boxplot-chart__group')!;
-    group.dispatchEvent(new MouseEvent('mouseenter'));
+    group.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
 
     const style = document.querySelector<HTMLElement>('.wr-tooltip-overlay')!.parentElement!.style;
@@ -619,9 +621,9 @@ describe('WrBoxplotChart stylesheet', () => {
 
   it('washes the slot being read see-through, so the gridlines read across it', () => {
     // The groups are drawn over the gridlines, and the theme's hover fill is opaque.
-    expect(css).toMatch(
-      /--wr-boxplot-chart-active-bg: color-mix\(in srgb, var\(--wr-color-on-surface\) 6%, transparent\)/
-    );
+    // The chart theme's band, which is 6% of the text colour over nothing.
+    expect(css).toMatch(/--wr-boxplot-chart-active-bg: var\(--wr-chart-band\)/);
+    expect(css).toMatch(/--wr-chart-band: color-mix\(in srgb, var\(--wr-color-on-surface\) 6%, transparent\)/);
     expect(rule(css, '.wr-boxplot-chart__group--active')).toMatch(/background: var\(--wr-boxplot-chart-active-bg\)/);
   });
 

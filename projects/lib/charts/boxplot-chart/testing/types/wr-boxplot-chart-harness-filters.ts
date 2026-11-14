@@ -24,7 +24,7 @@ export interface WrBoxplotChartHarnessStats {
   readonly q3: number;
   /** Where the upper whisker ends. */
   readonly max: number;
-  /** The outliers drawn, ascending. */
+  /** The outliers drawn, ascending: a group with more than a hundred on one side of its box draws a sample of them. */
   readonly outliers: readonly number[];
 }
 

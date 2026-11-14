@@ -8,7 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
-  type ElementRef,
+  ElementRef,
   LOCALE_ID,
   ViewEncapsulation,
   computed,
@@ -16,15 +16,25 @@ import {
   inject,
   input,
   isDevMode,
-  viewChildren,
 } from '@angular/core';
 
-import { WrChartTable, type WrChartTableData, wrChartAxis, useChartNumbers } from 'ngwr/charts/core';
+import {
+  WrChartState,
+  WrChartTable,
+  type WrChartTableData,
+  useChartHover,
+  useChartNumbers,
+  useChartState,
+  wrChartAxis,
+  wrChartColor,
+  wrChartNumberFormat,
+  wrChartRound,
+} from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
-import { boxplotStats } from './internal/stats';
+import { boxplotStats, drawnOutliers, sortedFinite } from './internal/stats';
 import type { WrBoxplotGroup, WrBoxplotStats } from './types';
 
 /** How many gaps the value axis aims for: `wrChartAxis`'s own default, on a plot tall enough for them. */
@@ -40,8 +50,15 @@ const TICK_ROOM = 40;
  */
 const TOOLTIP_OUTLIERS = 3;
 
+/**
+ * How many of a group's outliers its data table cell lists. Past that the cell names the
+ * lowest and the highest and counts the rest: a cell of two hundred thousand figures is
+ * megabytes of text nobody reads to the end of.
+ */
+const TABLE_OUTLIERS = 50;
+
 /** A percentage to three decimals, so an inline style stays short. */
-const percent = (value: number): number => Math.round(value * 1000) / 1000;
+const percent = (value: number): number => wrChartRound(value, 3);
 
 /** A group's summary as the chart reads it: every number finite, the outliers ascending. */
 type Summary = Required<WrBoxplotStats>;
@@ -57,6 +74,7 @@ interface DrawnBox {
   readonly max: number;
   readonly median: number;
   readonly min: number;
+  /** The outliers drawn: every one of a group with few, a sample of each side past a hundred. */
   readonly outliers: readonly { readonly value: number; readonly top: number }[];
   /** Everything the group draws, outliers included: what the tooltip points at. */
   readonly extent: { readonly top: number; readonly bottom: number };
@@ -70,6 +88,10 @@ interface DrawnGroup {
   readonly color: string;
   /** Its summary, or `null` when it has nothing to draw. */
   readonly stats: Summary | null;
+  /** The slot's classes, in one binding: its own, and `--active` or `--empty`, which never meet. */
+  readonly classes: string;
+  /** Its five numbers, lower whisker first, in one attribute for the harness; `null` with nothing drawn. */
+  readonly figures: string | null;
   /**
    * Where its slot starts, as a percentage of the drawing's width from its inline start:
    * the left, or the right under RTL.
@@ -95,8 +117,7 @@ function summarise(group: WrBoxplotGroup): Summary | null {
   if (given) {
     const { min, q1, median, q3, max } = given;
     if (![min, q1, median, q3, max].every(value => Number.isFinite(value))) return null;
-    const outliers = (given.outliers ?? []).filter(value => Number.isFinite(value)).sort((a, b) => a - b);
-    return { min, q1, median, q3, max, outliers };
+    return { min, q1, median, q3, max, outliers: given.outliers ? Array.from(sortedFinite(given.outliers)) : [] };
   }
   return group.values ? boxplotStats(group.values) : null;
 }
@@ -125,7 +146,10 @@ function summarise(group: WrBoxplotGroup): Summary | null {
  * worked out elsewhere goes in `stats` and is drawn exactly as given.
  *
  * The value axis is fitted to every number drawn, outliers included, with no zero forced
- * in — a box plot has no baseline — and snapped outward to a readable step. The groups
+ * in — a box plot has no baseline — and snapped outward to a readable step: gridlines
+ * across the plot (`showGrid`) and a scale beside it (`showAxis`), both on by default.
+ * With no group to draw the chart keeps that frame and says "No data"; `loading` and
+ * `error` put their own message there in place of the boxes. The groups
  * share the drawing's width in equal slots under their names, in reading order: left to
  * right, and right to left under RTL, as the bar chart's columns are, so the first group
  * stands beside the value axis either way.
@@ -134,14 +158,21 @@ function summarise(group: WrBoxplotGroup): Summary | null {
  * numbers and the outliers past them, is pointer only. `dataTable` renders every group's
  * numbers as a table only assistive technology reaches.
  *
+ * A group of raw `values` is sorted once, in a typed array, and a group with more than a
+ * hundred outliers on one side of its box draws a hundred of them there, the farthest
+ * and the nearest included: the tooltip still counts every one.
+ *
  * @see https://ngwr.dev/charts/boxplot-chart
  */
 @Component({
   selector: 'wr-boxplot-chart',
   templateUrl: './boxplot-chart.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-boxplot-chart' },
-  imports: [WrChartTable],
+  host: {
+    class: 'wr-boxplot-chart',
+    '[class.wr-boxplot-chart--axis]': 'showAxis()',
+  },
+  imports: [WrChartState, WrChartTable],
 })
 export class WrBoxplotChart {
   /**
@@ -167,7 +198,7 @@ export class WrBoxplotChart {
    */
   readonly xLabel = input<string | null>(null);
 
-  /** What the values measure, with their unit. Drawn above the value axis only when given. */
+  /** What the values measure, with their unit. Drawn along the value axis, reading upwards, only when given. */
   readonly yLabel = input<string | null>(null);
 
   protected readonly xName = useI18nText(this.xLabel, 'boxplotChart.group', 'Group');
@@ -192,7 +223,7 @@ export class WrBoxplotChart {
   private readonly locale = inject(LOCALE_ID);
 
   /** How many outliers the tooltip leaves unwritten, in the reader's own digits: a count, never a value to format. */
-  private readonly counts = new Intl.NumberFormat(this.locale);
+  private readonly counts = wrChartNumberFormat(this.locale);
 
   /** The tooltip's tail for the outliers past the first few it writes out. */
   private readonly moreOutliers = useI18nFormatter('boxplotChart.moreOutliers', '+{{count}} more');
@@ -204,8 +235,11 @@ export class WrBoxplotChart {
    */
   private readonly list = new Intl.ListFormat(this.locale, { type: 'conjunction', style: 'narrow' });
 
-  /** The colour of every group with no `color` of its own. Any CSS colour. @default 'var(--wr-color-primary)' */
-  readonly color = input<string>('var(--wr-color-primary)');
+  /**
+   * The colour of every group with no `color` of its own. Any CSS colour. Defaults to the
+   * first colour of the chart palette, `--wr-chart-1`. @default 'var(--wr-chart-1)'
+   */
+  readonly color = input<string>(wrChartColor(0));
 
   /**
    * The plot's height in px, at least 80. Under 160 the value axis aims for fewer ticks,
@@ -213,26 +247,59 @@ export class WrBoxplotChart {
    */
   readonly height = input(240, { transform: (v: unknown): number => Math.max(80, coerceNumberProperty(v, 240)) });
 
-  /** Show the gridlines and the value axis' tick labels. @default true */
+  /**
+   * Draw the gridlines: one across the plot at every tick of the value axis. Their colour
+   * is `--wr-boxplot-chart-grid-color`, which defaults to the chart theme's
+   * `--wr-chart-grid`; the one at zero, when the axis reaches it, is the stronger
+   * `--wr-boxplot-chart-zero-color`. @default true
+   */
   readonly showGrid = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Draw the value axis' scale: a number at every tick, beside the plot. Decoration, as
+   * the tooltip and the data table carry every figure. @default true
+   */
+  readonly showAxis = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * A request for the chart's data is in flight: the boxes give way to the loading
+   * message, over the grid and the axis the chart keeps. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The chart's data failed to load: the boxes give way to the error message. `loading`
+   * comes first when both are set. @default false
+   */
+  readonly error = input(false, { transform: coerceBooleanProperty });
+
+  /** The message shown when no group has anything to draw. Falls back to `chart.empty`, then `'No data'`. */
+  readonly emptyLabel = input<string | null>(null);
+
+  /** The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`. */
+  readonly loadingLabel = input<string | null>(null);
+
+  /** The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`. */
+  readonly errorLabel = input<string | null>(null);
 
   /**
    * Show a tooltip with the hovered group's five numbers — the whiskers' ends, the
    * quartiles and the median — and its outliers' values, the lowest three, then how many
-   * more there are. Pointer only. @default true
+   * more there are: every outlier is counted, drawn or not. Pointer only. @default true
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
   /**
    * Render every group's numbers as a table only assistive technology reaches, beside the
    * drawing: a row per group, a column for each of the five numbers from the lower
-   * whisker up and, when a group has any, one listing its outliers. The drawing is one
+   * whisker up and, when a group has any, one listing its outliers - all of them up to
+   * fifty, and past that the lowest, the highest and how many more. The drawing is one
    * named image, so without it the numbers are nowhere a screen reader can walk.
    * @default false
    */
   readonly dataTable = input(false, { transform: coerceBooleanProperty });
 
-  private readonly groupEls = viewChildren<ElementRef<HTMLElement>>('group');
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
   /** Every group with its colour and its summary, in order. */
   private readonly resolvedGroups = computed(() =>
@@ -259,7 +326,10 @@ export class WrBoxplotChart {
     let max = Number.NEGATIVE_INFINITY;
     for (const { stats } of this.resolvedGroups()) {
       if (!stats) continue;
-      for (const value of [stats.min, stats.q1, stats.median, stats.q3, stats.max, ...stats.outliers]) {
+      // The outliers are ascending, so their two ends stand for all of them: a spread of
+      // every one overflowed the stack past about 120k.
+      const ends = stats.outliers.length > 0 ? [stats.outliers[0], stats.outliers[stats.outliers.length - 1]] : [];
+      for (const value of [stats.min, stats.q1, stats.median, stats.q3, stats.max, ...ends]) {
         if (value < min) min = value;
         if (value > max) max = value;
       }
@@ -268,8 +338,12 @@ export class WrBoxplotChart {
     return wrChartAxis(min, max, { symmetric: true, tickCount });
   });
 
-  /** The groups as drawn: an equal slot each across the drawing, and their marks placed on the axis. */
-  protected readonly drawnGroups = computed<readonly DrawnGroup[]>(() => {
+  /**
+   * The groups as placed: an equal slot each across the drawing, and their marks on the
+   * axis. Hovering rebuilds none of it: the hovered slot's class is added in
+   * {@link drawnGroups}.
+   */
+  private readonly placedGroups = computed(() => {
     const groups = this.resolvedGroups();
     const { min, max } = this.axis();
     const top = (value: number): number => percent(((max - value) / (max - min)) * 100);
@@ -278,8 +352,14 @@ export class WrBoxplotChart {
       const s = group.stats;
       let marks: DrawnBox | null = null;
       if (s) {
-        const outliers = s.outliers.map(value => ({ value, top: top(value) }));
-        const all = [s.max, s.q3, s.median, s.q1, s.min, ...s.outliers].map(top);
+        const outliers = drawnOutliers(s.outliers, s.median).map(value => ({ value, top: top(value) }));
+        // The five numbers and the two farthest outliers, which the drawn ones always include.
+        let highest = Math.min(top(s.max), top(s.q3), top(s.median), top(s.q1), top(s.min));
+        let lowest = Math.max(top(s.max), top(s.q3), top(s.median), top(s.q1), top(s.min));
+        if (outliers.length > 0) {
+          highest = Math.min(highest, outliers[0].top, outliers[outliers.length - 1].top);
+          lowest = Math.max(lowest, outliers[0].top, outliers[outliers.length - 1].top);
+        }
         marks = {
           upper: span(top(s.max), top(s.q3)),
           lower: span(top(s.q1), top(s.min)),
@@ -288,18 +368,60 @@ export class WrBoxplotChart {
           median: top(s.median),
           min: top(s.min),
           outliers,
-          extent: { top: Math.min(...all), bottom: Math.max(...all) },
+          extent: { top: highest, bottom: lowest },
         };
       }
-      return { ...group, start: percent(group.index * slot), slot: percent(slot), marks };
+      const figures = s ? `${s.min} ${s.q1} ${s.median} ${s.q3} ${s.max}` : null;
+      return { ...group, start: percent(group.index * slot), slot: percent(slot), marks, figures };
     });
+  });
+
+  /** The groups as drawn: placed, each with its slot's classes, the hovered one's among them. */
+  protected readonly drawnGroups = computed<readonly DrawnGroup[]>(() => {
+    const active = this.activeGroup();
+    return this.placedGroups().map(group => ({
+      ...group,
+      classes: `wr-boxplot-chart__group${
+        !group.marks
+          ? ' wr-boxplot-chart__group--empty'
+          : active === group.index
+            ? ' wr-boxplot-chart__group--active'
+            : ''
+      }`,
+    }));
   });
 
   /** The value axis' ticks, top to bottom: each value's label and its gridline's distance from the top, in percent. */
   protected readonly yTicks = computed(() => {
     const { min, max, step, ticks } = this.axis();
     const labels = this.numbers.ticks(ticks, step);
-    return ticks.map((value, i) => ({ label: labels[i], top: percent(((max - value) / (max - min)) * 100) }));
+    return ticks.map((value, i) => ({
+      label: labels[i],
+      top: percent(((max - value) / (max - min)) * 100),
+      zero: value === 0,
+    }));
+  });
+
+  /** Whether the chart has nothing to draw: no group, or none with a summary. */
+  private readonly empty = computed(() => this.resolvedGroups().every(group => !group.stats));
+
+  /** What the chart shows in place of its boxes, or `null` while it draws them. */
+  protected readonly state = useChartState({
+    loading: this.loading,
+    error: this.error,
+    empty: this.empty,
+    emptyLabel: this.emptyLabel,
+    loadingLabel: this.loadingLabel,
+    errorLabel: this.errorLabel,
+  });
+
+  /**
+   * Whether the slots are drawn: always, but under `loading` and `error`. With nothing to
+   * draw each group still keeps its slot and its name, under the "No data" message.
+   */
+  protected readonly slotsShown = computed(() => {
+    const kind = this.state()?.kind;
+    return kind !== 'loading' && kind !== 'error';
   });
 
   /**
@@ -307,13 +429,15 @@ export class WrBoxplotChart {
    * the five numbers top to bottom, the way the box is drawn, and its outliers when it has
    * any — their VALUES, as the data table's column of the same name lists them: the lowest
    * three a row each under the one label, so a long figure never shares a line with
-   * another and pushes past the chip, then a row counting the rest. It points at the top
-   * of everything the group draws, so the chip covers none of its marks.
+   * another and pushes past the chip, then a row counting the rest - every outlier of the
+   * summary, the ones a crowded group does not draw included. It points at the top of
+   * everything the group draws, so the chip covers none of its marks.
    */
   protected readonly tip = useChartTooltip(this.tooltip, index => {
-    const group = this.drawnGroups()[index];
-    const anchor = this.groupEls()[index]?.nativeElement.querySelector('.wr-boxplot-chart__extent') ?? null;
-    if (!group?.stats || !anchor) return null;
+    const group = this.placedGroups()[index];
+    if (!group?.stats || !this.slotsShown()) return null;
+    const anchor = this.host.querySelector(`[data-wr-index="${index}"] .wr-boxplot-chart__extent`);
+    if (!anchor) return null;
     const { stats } = group;
     const rows: WrChartTooltipRow[] = [
       { label: this.upperName(), value: this.numbers.value(stats.max) },
@@ -323,7 +447,11 @@ export class WrBoxplotChart {
       { label: this.lowerName(), value: this.numbers.value(stats.min) },
     ];
     if (stats.outliers.length > 0) {
-      const shown = stats.outliers.slice(0, TOOLTIP_OUTLIERS).map(value => this.numbers.value(value));
+      // The lowest few, read off the front of the list rather than a copy of all of it.
+      const shown: string[] = [];
+      for (let i = 0; i < Math.min(TOOLTIP_OUTLIERS, stats.outliers.length); i++) {
+        shown.push(this.numbers.value(stats.outliers[i]));
+      }
       const rest = stats.outliers.length - shown.length;
       if (rest > 0) shown.push(this.moreOutliers({ count: this.counts.format(rest) }));
       shown.forEach((value, i) => rows.push({ label: i === 0 ? this.outliersName() : '', value }));
@@ -334,15 +462,16 @@ export class WrBoxplotChart {
   /** The group the tooltip is reading, washed in the drawing. Never one with nothing drawn. */
   protected readonly activeGroup = computed(() => {
     const index = this.tip.active();
-    return index !== null && this.drawnGroups()[index]?.marks ? index : null;
+    return index !== null && this.placedGroups()[index]?.marks ? index : null;
   });
 
   /**
    * The figures for `dataTable`: the chart's name as the caption, a row per group headed
    * by its name, and its five numbers ascending, as a five-number summary reads, written
    * as the tooltip writes them. The outliers column appears once any group has an
-   * outlier, and lists that group's ascending. A group with nothing to draw has a row of
-   * empty cells.
+   * outlier, and lists that group's ascending: all of them up to fifty, and past that
+   * the lowest, the highest and a count of the rest. A group with nothing to draw has a
+   * row of empty cells.
    */
   protected readonly tableData = computed<WrChartTableData>(() => {
     const groups = this.resolvedGroups();
@@ -359,7 +488,7 @@ export class WrBoxplotChart {
           rows: groups.map(({ label, stats }) => {
             if (!stats) return { header: label, cells: columns.map(() => '') };
             const cells = [stats.min, stats.q1, stats.median, stats.q3, stats.max].map(value);
-            if (withOutliers) cells.push(this.list.format(stats.outliers.map(value)));
+            if (withOutliers) cells.push(this.outlierList(stats.outliers));
             return { header: label, cells };
           }),
         },
@@ -367,8 +496,28 @@ export class WrBoxplotChart {
     };
   });
 
+  /** A group's outliers in one data table cell: every one of a few, the two ends and a count of many. */
+  private outlierList(outliers: readonly number[]): string {
+    if (outliers.length <= TABLE_OUTLIERS) return this.list.format(outliers.map(v => this.numbers.value(v)));
+    return this.list.format([
+      this.numbers.value(outliers[0]),
+      this.numbers.value(outliers[outliers.length - 1]),
+      this.moreOutliers({ count: this.counts.format(outliers.length - 2) }),
+    ]);
+  }
+
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/boxplot-chart');
+    // One listener pair for the whole chart: a slot is whatever carries `data-wr-index`.
+    // A group with nothing drawn reads as leaving, so a chip open on its neighbour closes
+    // after the usual grace rather than at once.
+    useChartHover({
+      enter: index => {
+        if (this.placedGroups()[index]?.marks) this.tip.enter(index);
+        else this.tip.leave();
+      },
+      leave: event => this.tip.leave(event),
+    });
     // A summary is drawn as given, so one whose numbers are out of order draws a whisker
     // inside its box, and one with a number that is not finite draws nothing at all —
     // both of which read on screen as data, not as a mistake.
@@ -392,15 +541,6 @@ export class WrBoxplotChart {
         }
       });
     }
-  }
-
-  /**
-   * The pointer entered a group's slot. A group with nothing drawn reads as leaving, so a
-   * chip open on its neighbour closes after the usual grace rather than at once.
-   */
-  protected onEnter(index: number, event: MouseEvent): void {
-    if (this.drawnGroups()[index]?.marks) this.tip.enter(index);
-    else this.tip.leave(event);
   }
 }
 
