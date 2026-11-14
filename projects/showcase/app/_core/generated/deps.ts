@@ -309,7 +309,7 @@ export const DEMO_RELATED: Readonly<Record<string, readonly string[]>> = {
   "reference/components/select": ["avatar","form"],
   "reference/components/sidebar": ["icon"],
   "reference/components/speed-dial": ["icon"],
-  "reference/components/table": ["badge","copy-value","input-number","select"],
+  "reference/components/table": ["badge","copy-value","input","input-number","popover","select"],
   "reference/components/tree": ["input"],
   "reference/components/window": ["badge"],
   "reference/services/clipboard": ["input"],

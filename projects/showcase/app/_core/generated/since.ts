@@ -155,7 +155,7 @@ export const UPDATED = {
   "reference/components/sortable-list": "16.2.0",
   "reference/components/stepper": "16.3.0",
   "reference/components/switch": "15.0.0",
-  "reference/components/table": "16.3.0",
+  "reference/components/table": "16.4.0",
   "reference/components/tabs": "16.0.0",
   "reference/components/textarea": "16.3.0",
   "reference/components/timeline": "15.0.0",

@@ -1529,6 +1529,12 @@ export const API = {
     { name: "wrTableCell", description: "Column key the template applies to.", type: "K", required: true },
     { name: "wrTableCellOf", description: "The rows the template draws, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.", type: "readonly T[] | null | undefined", default: "undefined" },
   ],
+  // <wr-table-column-chooser>
+  WrTableColumnChooser: [
+    { name: "table", description: "The table whose columns the list shows and hides.", type: "WrTable<WrSafeAny>", required: true },
+    { name: "showAllLabel", description: "Text of the \"Show all\" row. Falls back to `table.showAllColumns`.", type: "string | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the list. Falls back to `table.columns`.", type: "string | null", default: "null" },
+  ],
   // <[wrTableEditCell]>
   WrTableEditCell: [
     { name: "wrTableEditCell", description: "Column key the editor applies to.", type: "K", required: true },
