@@ -17,7 +17,7 @@ import {
 } from 'ngwr/charts/chart-legend';
 import { WrChartState, useChartHover, useChartNumbers, useChartState, wrChartColor } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
-import { useChartTooltip } from 'ngwr/popover';
+import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrDonutSegment } from './types';
@@ -82,6 +82,7 @@ const MAX_HIT_ANGLE = Math.PI / 12;
     // `wr-chart--legend`: the shared rule that keeps the legend's room from the drawing.
     class: 'wr-donut-chart wr-chart--legend',
     '[class.wr-donut-chart--pie]': 'pie()',
+    '[class.wr-donut-chart--gapless]': 'gapless()',
     '[class.wr-chart--legend-side]': 'legendShown() && legendSide()',
   },
   imports: [NgTemplateOutlet, WrChartLegend, WrChartState],
@@ -137,6 +138,15 @@ export class WrDonutChart {
    * back to `donutChart.pieLabel`. @default false
    */
   readonly pie = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Draw the slices edge to edge, with no gap between them: each is stroked in its own
+   * colour rather than the surface's, and the host takes the `wr-donut-chart--gapless`
+   * modifier. The gap is a shape that tells two neighbours apart without hue, so with it
+   * off only the colour change divides them; keep the legend or the tooltip on where the
+   * chart has to read without hue. @default false
+   */
+  readonly gapless = input(false, { transform: coerceBooleanProperty });
 
   /**
    * Show the legend. `'auto'` shows it when there is something to tell apart - two
@@ -215,17 +225,21 @@ export class WrDonutChart {
   );
 
   /**
-   * Show a tooltip with the slice's label and value on hover. Pointer only — the
-   * legend prints the same numbers, and with `showLegend` off `ariaLabel` is where
-   * to say them. With `pie`, a slice too thin to land a pointer on, a sliver of a few
-   * degrees, is hovered over a wider strip than it draws, through an invisible
-   * `.wr-donut-chart__hit` over the pie: widened toward 12px of outer arc (15° on a chart
-   * under about 92px) out of what the wider slices beside it can spare, each of which keeps
-   * that much of its own. A sliver whose neighbours are slivers too, or have little to
-   * spare, gets a narrower target or none, and is read in the legend. The ring draws no
-   * such target. @default true
+   * Show a tooltip with the slice's label and value on hover. Pointer only — the legend
+   * prints the same numbers, and with `showLegend` off `ariaLabel` is where to say
+   * them. With `pie`, a slice too thin to land a pointer on, a sliver of a few degrees,
+   * is hovered over a wider strip than it draws, through an invisible
+   * `.wr-donut-chart__hit` over the pie: widened toward 12px of outer arc (15° on a
+   * chart under about 92px) out of what the wider slices beside it can spare, each of
+   * which keeps that much of its own. A sliver whose neighbours are slivers too, or
+   * have little to spare, gets a narrower target or none, and is read in the legend.
+   * The ring draws no such target.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Writes every value in the legend and the tooltip. `null` uses `Intl.NumberFormat`

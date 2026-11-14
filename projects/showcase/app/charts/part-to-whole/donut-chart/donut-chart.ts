@@ -49,7 +49,8 @@ export default class DonutChartPageComponent {
 
   protected readonly snippets = {
     basic: `<wr-donut-chart [segments]="segments" centerLabel="Disk" centerValue="60%" />`,
-    pie: `<wr-donut-chart [segments]="devices" pie />`,
+    pie: `<wr-donut-chart [segments]="devices" pie />
+<wr-donut-chart [segments]="devices" pie gapless />`,
     tooltip: `<wr-donut-chart [segments]="segments" />
 <wr-donut-chart [segments]="segments" [tooltip]="false" />`,
     legend: `<wr-donut-chart [segments]="sources" legendPosition="end" />

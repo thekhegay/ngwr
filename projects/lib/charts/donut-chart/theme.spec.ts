@@ -23,6 +23,7 @@ const SEGMENTS: readonly WrDonutSegment[] = [
       [segments]="segments()"
       [size]="size()"
       [pie]="pie()"
+      [gapless]="gapless()"
       [showLegend]="showLegend()"
       [legendPosition]="legendPosition()"
       [toggleableLegend]="toggleable()"
@@ -41,6 +42,7 @@ class Host {
   readonly segments = signal<readonly WrDonutSegment[]>(SEGMENTS);
   readonly size = signal(200);
   readonly pie = signal(false);
+  readonly gapless = signal(false);
   readonly showLegend = signal<boolean | 'auto'>('auto');
   readonly legendPosition = signal<WrChartLegendPosition>('bottom');
   readonly toggleable = signal(false);
@@ -117,6 +119,18 @@ describe('WrDonutChart on the chart theme', () => {
         }
       }
     });
+  });
+
+  it('draws the slices edge to edge with gapless, each stroked in its own colour', () => {
+    expect(chart().classList).not.toContain('wr-donut-chart--gapless');
+
+    set(h => h.gapless.set(true));
+    expect(chart().classList).toContain('wr-donut-chart--gapless');
+    expect(slices().map(slice => slice.style.getPropertyValue('--wr-donut-chart-slice-color'))).toEqual([
+      'var(--wr-chart-1)',
+      'var(--wr-chart-2)',
+      'var(--wr-chart-3)',
+    ]);
   });
 
   describe('hover', () => {
@@ -389,6 +403,17 @@ describe('WrDonutChart stylesheet on the chart theme', { timeout: COMPILE_TIMEOU
     const slice = rule('.wr-donut-chart__slice');
     expect(slice).toMatch(/stroke: var\(--wr-donut-chart-slice-gap-color\)/);
     expect(slice).toMatch(/stroke-width: var\(--wr-donut-chart-slice-gap-width\)/);
+  });
+
+  it('strokes a gapless slice in its own colour, which closes the seam between two fills', () => {
+    expect(rule('.wr-donut-chart--gapless .wr-donut-chart__slice')).toMatch(
+      /stroke: var\(--wr-donut-chart-slice-color\)/
+    );
+  });
+
+  it('centres the value on the ring, with the label on the row under it', () => {
+    expect(rule('.wr-donut-chart__center')).toMatch(/grid-template-rows: minmax\(0, 1fr\) auto minmax\(0, 1fr\)/);
+    expect(rule('.wr-donut-chart__center-value ~ .wr-donut-chart__center-label')).toMatch(/grid-row: 3/);
   });
 
   it('paints the empty ring in the track hook, and in a system colour under forced colors', () => {
