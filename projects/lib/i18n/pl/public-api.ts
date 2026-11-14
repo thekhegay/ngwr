@@ -364,6 +364,7 @@ export const wrPl: WrI18nCatalog = {
   carousel: {
     label: 'Karuzela',
     goToSlide: 'Przejdź do slajdu {{index}}',
+    position: 'Slajd {{current}} z {{total}}',
     prev: 'Poprzedni slajd',
     next: 'Następny slajd',
     pagination: 'Paginacja karuzeli',

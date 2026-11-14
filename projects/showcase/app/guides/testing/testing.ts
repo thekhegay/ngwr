@@ -2497,8 +2497,18 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'focus() / blur() / isFocused()',
       description:
-        'Focus on the first arrow or dot, which also holds autoplay. `blur()` throws when none of them is focused.',
+        'Focus on the first control, the pause button under `autoplay`, which also holds autoplay. `blur()` throws when none of them is focused.',
       type: 'Promise<void> | Promise<boolean>',
+    },
+    {
+      name: 'getAutoplayLabel() / toggleAutoplay()',
+      description: 'The pause button, named for what a press does next. Both throw without `autoplay`.',
+      type: 'Promise<string | null> | Promise<void>',
+    },
+    {
+      name: 'getAnnouncement() / getLivePoliteness()',
+      description: 'What the last move said, empty after an autoplay tick, and `off` while the slides advance.',
+      type: 'Promise<string> | Promise<string | null>',
     },
     {
       name: 'getRole() / getRoleDescription() / getSlideRoleDescriptions() / getAccessibleName() / getTrackOffsetPercent()',

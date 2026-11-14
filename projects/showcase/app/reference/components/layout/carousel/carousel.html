@@ -1,11 +1,12 @@
 <ngwr-doc-page
   title="Carousel"
   description="Slides with previous and next buttons, dots and optional autoplay."
+  updated="16.4.0"
   [keywords]="['carousel', 'slider', 'wr-carousel']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="Give the carousel a height: the slides fill it. Autoplay pauses on hover and focus, and does not run while the reader prefers reduced motion."
+    description="Give the carousel a height: the slides fill it. `autoplay` adds a pause button."
   >
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -35,6 +36,29 @@
         }
       </wr-carousel>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <ul>
+      <li>
+        Autoplay renders a pause button, the carousel's first tab stop, named <code>pauseLabel</code> or
+        <code>playLabel</code> for what a press does next.
+      </li>
+      <li>
+        The pointer over the carousel and focus inside it hold the slides, and leaving resumes them. A press on pause
+        holds them until a press on play.
+      </li>
+      <li>Under <code>prefers-reduced-motion</code> autoplay waits for a press on play.</li>
+      <li>
+        A move by an arrow, a dot, a swipe or <code>next()</code>, <code>prev()</code> and <code>goTo()</code> is
+        announced as "Slide 3 of 5", from the <code>carousel.position</code> catalog key. An autoplay tick is not, and
+        the live region is <code>aria-live="off"</code> while the slides advance on their own.
+      </li>
+      <li>
+        The dots sit 24px apart, centre to centre, and each takes a press up to 8px around it. A smaller
+        <code>--wr-carousel-dots-gap</code> gives that up.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

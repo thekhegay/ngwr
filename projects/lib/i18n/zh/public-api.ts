@@ -342,6 +342,7 @@ export const wrZh: WrI18nCatalog = {
   carousel: {
     label: '轮播图',
     goToSlide: '转到第 {{index}} 张幻灯片',
+    position: '第 {{current}} 张幻灯片，共 {{total}} 张',
     prev: '上一张幻灯片',
     next: '下一张幻灯片',
     pagination: '轮播分页',

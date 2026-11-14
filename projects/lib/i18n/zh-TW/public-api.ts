@@ -349,6 +349,7 @@ export const wrZhTw: WrI18nCatalog = {
   carousel: {
     label: '輪播',
     goToSlide: '前往第 {{index}} 張投影片',
+    position: '第 {{current}} 張投影片，共 {{total}} 張',
     prev: '上一張投影片',
     next: '下一張投影片',
     pagination: '輪播分頁',

@@ -156,8 +156,9 @@
   @include focus-ring;
 }
 
-// Carousel nav + dots
+// Carousel nav, pause button + dots
 .wr-carousel__nav:focus-visible,
+.wr-carousel__toggle:focus-visible,
 .wr-carousel__dot:focus-visible {
   @include focus-ring;
 }

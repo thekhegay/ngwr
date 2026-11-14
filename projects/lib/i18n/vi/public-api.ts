@@ -359,6 +359,7 @@ export const wrVi: WrI18nCatalog = {
   carousel: {
     label: 'Băng chuyền',
     goToSlide: 'Đến trang chiếu {{index}}',
+    position: 'Trang chiếu {{current}} trên {{total}}',
     prev: 'Trang chiếu trước',
     next: 'Trang chiếu sau',
     pagination: 'Phân trang băng chuyền',

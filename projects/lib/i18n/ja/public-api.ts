@@ -351,6 +351,7 @@ export const wrJa: WrI18nCatalog = {
   carousel: {
     label: 'カルーセル',
     goToSlide: 'スライド{{index}}へ移動',
+    position: 'スライド {{total}} 枚中 {{current}} 枚目',
     prev: '前のスライド',
     next: '次のスライド',
     pagination: 'カルーセルのページ送り',
