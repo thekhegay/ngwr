@@ -2,6 +2,7 @@
   <li
     class="wr-chart-legend__item"
     [class.wr-chart-legend__item--hidden]="isHidden($index)"
+    [attr.data-wr-series]="$index"
     [wrChartLegendPart]="part('legend-item')"
   >
     @if (toggleable()) {

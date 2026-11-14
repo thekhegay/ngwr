@@ -11,6 +11,12 @@
  */
 type WrChartMarker = 'circle' | 'square' | 'triangle' | 'diamond' | 'cross' | 'triangle-down';
 
+/**
+ * Where a legend sits beside its chart: above or below it as a wrapping row, at inline
+ * start or end as a column, or `none` to draw nothing.
+ */
+type WrChartLegendPosition = 'top' | 'bottom' | 'start' | 'end' | 'none';
+
 /** One row of a `ul[wr-chart-legend]`: the key, the name, and optionally a value. */
 interface WrChartLegendItem {
   /** The series' name. Printed as the row's text, and the toggle's name when the legend is `toggleable`. */
@@ -44,4 +50,4 @@ interface WrChartLegendToggle {
   readonly hidden: boolean;
 }
 
-export type { WrChartLegendItem, WrChartLegendToggle, WrChartMarker };
+export type { WrChartLegendItem, WrChartLegendPosition, WrChartLegendToggle, WrChartMarker };

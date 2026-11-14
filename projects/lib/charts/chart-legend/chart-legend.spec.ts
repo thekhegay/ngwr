@@ -296,7 +296,12 @@ describe('WrChartLegend inside a chart', () => {
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
 
-    expect([...root.querySelector('ul')!.classList].sort()).toEqual(['wr-chart-legend', 'wr-demo-chart__legend']);
+    // Its own block, the modifier of the position it takes by default, and the chart's class.
+    expect([...root.querySelector('ul')!.classList].sort()).toEqual([
+      'wr-chart-legend',
+      'wr-chart-legend--bottom',
+      'wr-demo-chart__legend',
+    ]);
     const row = root.querySelector('li')!;
     expect(row.classList).toContain('wr-chart-legend__item');
     expect(row.classList).toContain('wr-demo-chart__legend-item');
