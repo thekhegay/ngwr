@@ -1,20 +1,26 @@
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
 @use '../../../theme/styles/loaded' as theme;
+
+// The chart theme the line's colour and the marker's ring default to.
+@use '../../core/styles' as core-styles;
 @include theme.loaded('charts/sparkline');
 
 .wr-sparkline {
   // How much of the line's colour the `showArea` fill takes, and the ring round the hover
   // marker: the surface the sparkline sits on, so the marker reads on the line under it.
   --wr-sparkline-area-opacity: 0.15;
-  --wr-sparkline-marker-ring: var(--wr-color-surface);
+  --wr-sparkline-marker-ring: var(--wr-chart-separator);
 
   display: inline-block;
   // The hover marker is placed from this box's padding edge, measured off the drawing.
   position: relative;
   line-height: 0;
 
+  // The padding is the component's, the tip dot's radius: inside the box, so the drawing
+  // is `width` by `height` whatever the dot's size and the dot never reaches past it.
   svg {
     display: block;
+    box-sizing: border-box;
     overflow: visible;
   }
 
