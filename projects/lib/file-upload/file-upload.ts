@@ -221,7 +221,11 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
    */
   readonly dropZoneLabel = input<string | null>(null);
 
-  /** Remove-file button aria-label. Falls back to `fileUpload.removeFile`. */
+  /**
+   * Name of each row's remove button. `{{name}}` is the row's file name, so the
+   * buttons of a list are told apart. Falls back to `fileUpload.removeFile`,
+   * "Remove {{name}}" in English.
+   */
   readonly removeFileLabel = input<string | null>(null);
 
   /** Retry button text on a failed row. Falls back to `fileUpload.retry`. */
@@ -238,7 +242,13 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
 
   protected readonly resolvedPick = useI18nText(this.pickLabel, 'fileUpload.browse', 'Click to browse');
   protected readonly resolvedDrop = useI18nText(this.dropLabel, 'fileUpload.dropZone', 'or drop files here');
-  protected readonly resolvedRemove = useI18nText(this.removeFileLabel, 'fileUpload.removeFile', 'Remove file');
+  private readonly removeText = useI18nFormatter('fileUpload.removeFile', 'Remove {{name}}');
+
+  /** The remove button of one row, named after its file. */
+  protected removeName(name: string): string {
+    const given = this.removeFileLabel();
+    return given ? given.replace(/\{\{\s*name\s*\}\}/g, () => name) : this.removeText({ name });
+  }
 
   protected readonly resolvedRetry = useI18nText(this.retryLabel, 'fileUpload.retry', 'Try again');
   protected readonly resolvedUploading = useI18nText(this.uploadingLabel, 'fileUpload.uploading', 'Uploading');

@@ -66,4 +66,5 @@ export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
   wrLink(ROUTES.guides, ROUTES.guides.ssr),
   wrLink(ROUTES.guides, ROUTES.guides.testing),
   wrLink(ROUTES.guides, ROUTES.guides.csp),
+  wrLink(ROUTES.guides, ROUTES.guides.eject),
 ];

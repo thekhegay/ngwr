@@ -55,8 +55,8 @@ export { wrNoop, wrDebounce, wrThrottle } from './fn';
 export type { WrDebouncedFn, WrThrottledFn } from './fn';
 
 // Keyboard
-export { WR_KEYS, WR_KEY_LABELS, wrHasModifier, wrIsComposing, wrIsPrintableKey } from './keyboard';
-export type { WrKey } from './keyboard';
+export { WR_KEYS, WR_KEY_LABELS, wrHasModifier, wrIsComposing, wrIsPrintableKey, wrTypeahead } from './keyboard';
+export type { WrKey, WrTypeahead, WrTypeaheadItem, WrTypeaheadOptions } from './keyboard';
 
 // Log
 export { wrBadgeError, wrBadgeLog, wrBadgeWarn } from './log';

@@ -1,0 +1,73 @@
+<ngwr-doc-page
+  title="wrTypeahead"
+  since="16.4.0"
+  description="Type-to-jump for a list: the letters typed in a row select the next row that starts with them."
+  [keywords]="['wrTypeahead', 'typeahead', 'type to jump', 'listbox', 'menu', 'tree', 'keyboard', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="It holds the letters typed so far. Pass the labels and the current row with each `keydown`, and move your own cursor to the index that comes back. `wr-select`, `wr-dropdown`, `wr-tree`, `wr-context-menu` and `wr-cascader` run on it."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rules">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Typed</th>
+            <th scope="col">Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">One letter</th>
+            <td>The next row after the current one that starts with it, wrapping past the end.</td>
+          </tr>
+          <tr>
+            <th scope="row">The same letter again</th>
+            <td>The next row that starts with it, so the letter cycles.</td>
+          </tr>
+          <tr>
+            <th scope="row">More letters</th>
+            <td>The row that starts with the whole run. The current row stays while it still matches.</td>
+          </tr>
+          <tr>
+            <th scope="row">A pause of <code>resetMs</code></th>
+            <td>The next key starts a new run.</td>
+          </tr>
+          <tr>
+            <th scope="row">Space</th>
+            <td>Joins a run that has started. As the first key it is left to you.</td>
+          </tr>
+          <tr>
+            <th scope="row">Ctrl, Meta or Alt, an IME key, a key in a text field</th>
+            <td>Left to you: <code>handleKey</code> returns <code>null</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Disabled rows and language"
+    description="A row passed as `{ label, disabled: true }` is never a match. Case is folded in `locale`, which can be a function, so it follows a language switch."
+  >
+    <ngwr-doc-code [code]="itemsSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Key now, search later"
+    description="`type()` takes the key and `find()` searches, for a list that is not there yet when the key arrives. `wr-select` opens on a letter this way."
+  >
+    <ngwr-doc-code [code]="splitSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

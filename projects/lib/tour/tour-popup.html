@@ -1,12 +1,12 @@
 @let step = tour.step();
 
-<p class="wr-tour-popup__progress">{{ progressText() }}</p>
+<p class="wr-tour-popup__progress" [id]="progressId">{{ progressText() }}</p>
 
 @if (step?.title; as title) {
-  <h2 class="wr-tour-popup__title">{{ title }}</h2>
+  <h2 class="wr-tour-popup__title" [id]="titleId">{{ title }}</h2>
 }
 
-<p class="wr-tour-popup__content">{{ step?.content }}</p>
+<p class="wr-tour-popup__content" [id]="contentId">{{ step?.content }}</p>
 
 <div class="wr-tour-popup__actions">
   <!-- The three buttons are told apart by a class rather than by their position in
@@ -37,12 +37,15 @@
       {{ backLabel() }}
     </button>
   }
+  <!-- Focus opens on the button that walks the tour, not on Skip, the first in the
+       row: the focus trap reads `cdkFocusInitial`, as the confirm dialog has it. -->
   <button
     wr-btn
     type="button"
     size="sm"
     color="primary"
     class="wr-tour-popup__action wr-tour-popup__action--next"
+    [attr.cdkFocusInitial]="''"
     (click)="tour.next()"
   >
     {{ isLast() ? doneLabel() : nextLabel() }}

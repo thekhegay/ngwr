@@ -103,7 +103,7 @@
         <button
           type="button"
           class="wr-file-upload__remove"
-          [attr.aria-label]="resolvedRemove()"
+          [attr.aria-label]="removeName(row.file.name)"
           [disabled]="disabled() || readonly()"
           (click)="removeAt($index)"
         >

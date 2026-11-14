@@ -16,7 +16,7 @@
  *   migrations.json
  *   package.json              — pins the folder to CommonJS
  *   <generator>/              — ng-add, use, provider, icon-set,
- *     index.js                  component-style, page
+ *     index.js                  component-style, page, eject
  *     schema.json
  *   use/symbol-map.json       — generated from a public-api scan
  *   utility/global-styles.js  — shared by component-style, page, use and
@@ -58,6 +58,7 @@ const ASSETS = [
   ['provider/schema.json', 'provider/schema.json'],
   ['component-style/schema.json', 'component-style/schema.json'],
   ['page/schema.json', 'page/schema.json'],
+  ['eject/schema.json', 'eject/schema.json'],
 ] as const;
 
 requireBuiltLib('build:schematics');

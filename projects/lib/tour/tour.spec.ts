@@ -91,7 +91,11 @@ describe('WrTour', () => {
     expect(popup()!.getAttribute('role')).toBe('dialog');
     expect(popup()!.getAttribute('aria-modal')).toBe('true');
     // The name carries both the step title and where the user is.
-    expect(popup()!.getAttribute('aria-label')).toBe('First — Step 1 of 2');
+    const named = popup()!.getAttribute('aria-labelledby')!.split(' ');
+    expect(named.map(id => popup()!.querySelector(`[id="${id}"]`)!.textContent.trim())).toEqual([
+      'First',
+      'Step 1 of 2',
+    ]);
     expect(title()).toBe('First');
     expect(progress()).toBe('Step 1 of 2');
 

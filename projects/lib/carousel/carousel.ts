@@ -117,6 +117,18 @@ export class WrCarousel implements WrCarouselContext {
   // English template, so a localized app got two languages in one pagination strip.
   protected readonly slideLabel = useI18nFormatter('carousel.goToSlide', 'Go to slide {{index}}');
 
+  /** Name of the autoplay button while the slides advance. Falls back to `marquee.pause`, "Pause" in English. */
+  readonly pauseLabel = input<string | null>(null);
+
+  /** Name of the autoplay button while the slides stand. Falls back to `marquee.play`, "Play" in English. */
+  readonly playLabel = input<string | null>(null);
+
+  // The marquee's pair: the same two words on the same kind of button.
+  protected readonly resolvedPauseLabel = useI18nText(this.pauseLabel, 'marquee.pause', 'Pause');
+  protected readonly resolvedPlayLabel = useI18nText(this.playLabel, 'marquee.play', 'Play');
+
+  private readonly positionText = useI18nFormatter('carousel.position', 'Slide {{current}} of {{total}}');
+
   /** Active slide index. Two-way bindable. @default 0 */
   readonly active = model(0);
 
@@ -127,10 +139,9 @@ export class WrCarousel implements WrCarouselContext {
   readonly showDots = input(true, { transform: coerceBooleanProperty });
 
   /**
-   * Auto-advance slides. Held while the pointer or keyboard focus is inside the
-   * carousel and during a swipe, and does not run at all while the reader prefers
-   * reduced motion — followed live, so turning the setting on mid-session stops
-   * the slides and turning it off starts them. @default false
+   * Auto-advance slides, with a pause / play button. Held while the pointer or
+   * keyboard focus is inside the carousel and during a swipe. While the reader
+   * prefers reduced motion it does not start until they press play. @default false
    */
   readonly autoplay = input(false, { transform: coerceBooleanProperty });
 
@@ -213,10 +224,28 @@ export class WrCarousel implements WrCarouselContext {
    * `prefers-reduced-motion` asks a page to drop: the stylesheet already switches
    * slides in place under it, and a panel that still changed every four seconds
    * was the half that stylesheet cannot reach. A signal, so the preference is
-   * followed while the page is open. There is no play control to restart it, so
-   * the arrows and dots are how a reader with the preference on pages through.
+   * followed while the page is open, until the reader presses the button: a
+   * press is an explicit answer and outranks the preference.
    */
   private readonly reducedMotion = inject(WrPlatform).prefersReducedMotion;
+
+  /** What the reader last asked of the pause button, `null` until it is pressed. */
+  private readonly asked = signal<'play' | 'pause' | null>(null);
+
+  /** Whether autoplay is switched on, holds aside: what the button's name and glyph follow. */
+  protected readonly playing = computed(() => {
+    const asked = this.asked();
+    return this.autoplay() && (asked === null ? !this.reducedMotion() : asked === 'play');
+  });
+
+  /** The slides are advancing on their own right now. */
+  protected readonly rotating = computed(() => this.isBrowser && this.playing() && !this.paused() && this.count() > 1);
+
+  /**
+   * Text of the live region: the position after a move the reader made. Empty
+   * after an autoplay tick, so the same position can be said again later.
+   */
+  protected readonly announcement = signal('');
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -228,9 +257,12 @@ export class WrCarousel implements WrCarouselContext {
       this.timer = null;
       // `isBrowser` first: without it the prerender ran the timer too, doing work
       // nobody will ever see on a slide index that then gets serialized.
-      if (!this.isBrowser || !this.autoplay() || this.paused() || this.reducedMotion() || this.count() < 2) return;
+      if (!this.rotating()) return;
       const interval = this.intervalMs();
-      this.timer = setInterval(() => this.next(), interval);
+      this.timer = setInterval(() => {
+        this.move(this.active() + 1);
+        this.announcement.set('');
+      }, interval);
     });
 
     // `active` is a plain `model`, so `[(active)]` and a shrinking slide list both
@@ -264,9 +296,33 @@ export class WrCarousel implements WrCarouselContext {
     this.focusWithin.set(false);
   }
 
+  /**
+   * The pause button. Play also lets go of the hover and focus holds in force:
+   * the press came from inside the carousel, so they would keep the slides still
+   * after the reader asked for them to move. Each hold comes back with the next
+   * `focusin` or `mouseenter`.
+   */
+  protected toggleAutoplay(): void {
+    if (this.playing()) {
+      this.asked.set('pause');
+      return;
+    }
+    this.asked.set('play');
+    this.hovered.set(false);
+    this.focusWithin.set(false);
+  }
+
   // Imperative
 
+  /** Show a slide, and announce its position: an autoplay tick is the only silent move. */
   goTo(index: number): void {
+    const before = this.active();
+    this.move(index);
+    const current = this.active();
+    if (current !== before) this.announcement.set(this.positionText({ current: current + 1, total: this.count() }));
+  }
+
+  private move(index: number): void {
     const max = this.count() - 1;
     if (max < 0) return;
     if (this.loop()) {

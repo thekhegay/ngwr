@@ -9,7 +9,7 @@ import { Component, InjectionToken, ViewEncapsulation, computed, inject } from '
 
 import { WrButton } from 'ngwr/button';
 import { wrReadI18nText, useI18nFormatter } from 'ngwr/i18n';
-import { wrCheckStyles } from 'ngwr/utils';
+import { wrCheckStyles, wrRandomId } from 'ngwr/utils';
 
 import type { WrTourStep } from './types';
 
@@ -49,7 +49,13 @@ export const WR_TOUR_STEP = new InjectionToken<WrTourController>('WR_TOUR_STEP')
   selector: 'wr-tour-popup',
   templateUrl: './tour-popup.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-tour-popup', role: 'dialog', 'aria-modal': 'true', '[attr.aria-label]': 'ariaLabel()' },
+  host: {
+    class: 'wr-tour-popup',
+    role: 'dialog',
+    'aria-modal': 'true',
+    '[attr.aria-labelledby]': 'labelledBy()',
+    '[attr.aria-describedby]': 'contentId',
+  },
   imports: [WrButton],
 })
 export class WrTourPopup {
@@ -66,7 +72,7 @@ export class WrTourPopup {
   protected readonly doneLabel = wrReadI18nText('tour.done', 'Done');
   protected readonly skipLabel = wrReadI18nText('tour.skip', 'Skip tour');
 
-  /** `Step {{current}} of {{total}}` — also the dialog's accessible name. */
+  /** `Step {{current}} of {{total}}`, the second half of the dialog's name. */
   protected readonly progress = useI18nFormatter('tour.progress', 'Step {{current}} of {{total}}');
 
   // From the service, not `index() >= total() - 1`: a trailing step whose target is
@@ -82,8 +88,17 @@ export class WrTourPopup {
     this.progress({ current: this.tour.index() + 1, total: this.tour.total() })
   );
 
-  protected readonly ariaLabel = computed(() => {
-    const title = this.tour.step()?.title;
-    return title ? `${title} — ${this.progressText()}` : this.progressText();
-  });
+  protected readonly titleId = wrRandomId('wr-tour-title');
+  protected readonly progressId = wrRandomId('wr-tour-progress');
+  protected readonly contentId = wrRandomId('wr-tour-content');
+
+  /**
+   * The dialog is named by its title and the progress line, or by the progress
+   * line alone for an untitled step, and described by the step's text: a screen
+   * reader reads a dialog's name and description when focus enters it, and
+   * nothing else of what it holds.
+   */
+  protected readonly labelledBy = computed(() =>
+    this.tour.step()?.title ? `${this.titleId} ${this.progressId}` : this.progressId
+  );
 }

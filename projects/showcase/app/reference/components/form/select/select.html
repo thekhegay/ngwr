@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Select"
-  updated="16.3.0"
+  updated="16.4.0"
   description="Pick one or several values from a list, with search and free-text tags."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'CDK Overlay']"
@@ -339,8 +339,44 @@
 
   <ngwr-doc-section
     title="Keyboard"
-    description="Arrow keys move the highlight, Home and End jump to the ends, Enter picks, Escape closes. Focus stays on the trigger. A select-all row is the first stop: Home lands on it and Enter or Space toggles it."
-  />
+    description="Focus stays on the trigger. A select-all row is the first stop: Home lands on it and Enter or Space toggles it."
+  >
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Enter, Space, ArrowDown, ArrowUp</th>
+            <td>Opens the panel. Once open, the arrows move the highlight, wrapping.</td>
+          </tr>
+          <tr>
+            <th scope="row">Home, End</th>
+            <td>Moves to the first or last option.</td>
+          </tr>
+          <tr>
+            <th scope="row">Type a letter</th>
+            <td>
+              Moves to the next option that starts with what you typed, and opens a closed select there. The same letter
+              again cycles. Not on a select with a search field, which filters instead.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Enter, Space</th>
+            <td>Picks the highlighted option. Space types into a search field instead.</td>
+          </tr>
+          <tr>
+            <th scope="row">Escape, Tab</th>
+            <td>Closes the panel without picking.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Virtual scroll"
@@ -446,6 +482,24 @@
     description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only. `isOpen()` reads the state, for an `aria-expanded` on your own trigger."
   >
     <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <ul>
+      <li>
+        A search select announces what its panel shows through one polite live region beside the field: loading, a
+        failed load, no results, and the number of options once a query has changed it.
+      </li>
+      <li>
+        It waits half a second after the last change, so typing is not interrupted and a load that answers sooner is
+        announced by its result alone. A count that did not change is not said again.
+      </li>
+      <li>
+        The sentences are <code>loadingText</code>, <code>loadErrorText</code>, <code>noResultsText</code> and
+        <code>resultsText</code>, whose <code ngNonBindable>{{count}}</code> is the number, from the
+        <code>select.results</code> catalog key.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Select API">

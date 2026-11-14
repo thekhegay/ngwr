@@ -96,6 +96,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'docs/skills': ['docs/mcp-server', 'docs/installation'],
 
   'guides/csp': ['guides/ssr', 'docs/installation', 'guides/theming', 'reference/services/theme'],
+  'guides/eject': ['guides/theming', 'docs/installation', 'docs/migration'],
   'guides/forms': [
     'reference/components/form-field',
     'reference/components/schema-form',
@@ -978,6 +979,12 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/overlay',
     'reference/components/dialog',
     'reference/components/drawer',
+  ],
+  'reference/utils/wr-typeahead': [
+    'reference/utils/wr-keys',
+    'reference/components/select',
+    'reference/components/tree',
+    'reference/components/dropdown',
   ],
 
   'reference/validators/card-number': [

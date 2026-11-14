@@ -120,10 +120,16 @@ guess gets backwards.
   \`wr-btn\`, not \`wr-button\`. Check \`references/catalog.md\` before writing a tag.
 - **Check for a MODE before reaching for another component.** The catalog is
   deliberately consolidated: \`wr-select\` covers single / multi / search / tag,
-  \`wr-date-picker\` covers date / time / datetime, \`wr-popover\` has a tooltip
+  \`wr-date-picker\` covers date / time / datetime and, through the same
+  \`mode\`, a week, month, quarter or year held as its first day,
+  \`wr-popover\` has a tooltip
   mode, \`wr-drawer\` doubles as a bottom sheet (and, with \`hasBackdrop\` off,
   a non-modal side panel), \`wr-table\` owns pinning,
-  resizing, grouping, tree rows, CSV export and virtual scroll. The charts too:
+  resizing, grouping, tree rows, CSV export, virtual scroll, hidden columns,
+  a bulk-action bar and inline cell editing, \`wr-tree\` owns lazy children
+  (\`loadChildren\`), a \`filter\`, cascading checks (\`cascade\`) and drag and
+  drop (\`draggable\`), \`wr-select\` in multi mode has \`selectAll\`, and
+  \`wr-graph\` zooms and pans with \`zoomable\`. The charts too:
   a pie is \`wr-donut-chart\` with \`pie\`, an area chart \`wr-line-chart\` with
   \`showArea\` (and \`stacked\` for a stacked area), a polar area chart
   \`wr-radar-chart\` with \`variant="polar-area"\`, a stacked, horizontal or
@@ -144,6 +150,24 @@ guess gets backwards.
   claims, \`<wr-form-field>\` shows the validator's own message
   (\`required(path.email, { message: '…' })\`), else \`validation.<key>\` from the
   APP's i18n catalog. With neither, nothing renders and only dev mode warns.
+- **A data view reports a change and never writes your data.** \`(cellEdit)\`
+  on \`wr-table\`, \`(nodeMove)\` on \`wr-tree\` (apply it with
+  \`wrMoveTreeNode\` from \`ngwr/tree\`), \`(eventChange)\` on
+  \`wr-event-calendar\`: update \`items\`, \`nodes\` or \`events\` in the
+  handler, or the screen keeps the old value. \`wr-file-upload\` does not
+  upload either: the app does, and reports each file through \`[status]\`.
+- **Table extras are templates and one state object.** A cell editor is
+  \`<ng-template wrTableEditCell="price" let-value let-set="set">\` inside the
+  table, and it is what makes the column editable. Bulk actions go in
+  \`<ng-template wrTableSelectionBar let-rows let-clear="clear">\`. Columns hide
+  through \`[(hiddenColumns)]\`, with \`columnChooser\` for the built-in button
+  or \`<wr-table-column-chooser [table]="table" />\` in a menu of your own. A
+  saved view is the \`WrTableState\` that \`(stateChange)\` emits, restored
+  through \`[state]\` with a new object each time.
+- **A click on a \`wr-tree\` branch row opens it** (\`expandOnClick\`, on by
+  default since 16.3). \`[expandOnClick]="false"\` leaves that to the arrow.
+- **There is no input mask.** Put \`ngx-mask\` on the same \`<input wrInput>\`;
+  do not look for a \`wrMask\`.
 - **\`<wr-checkbox>\` group identity is \`checkboxValue\`, not \`value\`.**
   \`value\` is reserved for the form value, so a leftover \`value="x"\` lands on the
   host as a plain DOM attribute, every box in the group keeps the default
@@ -190,12 +214,15 @@ guess gets backwards.
 ng add ngwr                                          # prompts, installs peers, prints bootstrap
 ng g ngwr:use WrSelect --path src/app/some.ts        # adds the import AND the @Component entry
 ng g ngwr:provider icons                             # splices a provider into bootstrap
+ng g ngwr:eject select                               # copies the component's source into src/app/ngwr/select
 \`\`\`
 
 \`--path\` is a NAMED option on \`ngwr:use\`; only the symbol is positional, and
 passing the path bare fails with \`Unknown argument\`. It takes declarables only:
 a service such as \`WrDialog\` is refused, since the import line would compile and
-the \`imports\` entry would not — \`inject()\` it instead.
+the \`imports\` entry would not — \`inject()\` it instead. \`ngwr:eject\` is for
+a component you need to change beyond its inputs and \`--wr-*\` hooks: the copy
+is yours, and \`ng update\` no longer reaches it.
 
 ### Providers a component cannot work without
 

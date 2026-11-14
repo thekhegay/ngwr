@@ -53,6 +53,7 @@ export const wrHe: WrI18nCatalog = {
     search: 'חיפוש',
     reset: 'איפוס',
     columns: 'עמודות',
+    showAllColumns: 'הצג הכול',
     selected: '{{count}} נבחרו',
     clearSelection: 'ניקוי הבחירה',
   },
@@ -111,6 +112,7 @@ export const wrHe: WrI18nCatalog = {
     clearSelection: 'ניקוי הבחירה',
     removeItem: 'הסרת {{label}}',
     noResults: 'אין תוצאות',
+    results: 'תוצאות שנמצאו: {{count}}',
     loading: 'טוען…',
     loadError: 'לא ניתן לטעון את התוצאות',
     retry: 'ניסיון חוזר',
@@ -143,9 +145,7 @@ export const wrHe: WrI18nCatalog = {
   fileUpload: {
     browse: 'לחצו לבחירת קובץ',
     dropZone: 'או גררו קבצים לכאן',
-    removeFile: 'הסרת הקובץ',
-    invalid: 'סוג קובץ לא נתמך',
-    tooBig: 'הקובץ גדול מדי',
+    removeFile: 'הסרת {{name}}',
     size: '{{value}} {{unit}}',
     // יחידות הגודל נכתבות באותיות לטיניות, כמו ב-CLDR של עברית וכמו בכל מערכת
     // הפעלה בעברית — «12.4 MB», לא «12.4 מ״ב». רק «בייט» מתורגם, וגם זו הצורה
@@ -362,6 +362,7 @@ export const wrHe: WrI18nCatalog = {
   carousel: {
     label: 'קרוסלה',
     goToSlide: 'מעבר לשקופית {{index}}',
+    position: 'שקופית {{current}} מתוך {{total}}',
     prev: 'השקופית הקודמת',
     next: 'השקופית הבאה',
     pagination: 'ניווט בין שקופיות',
@@ -516,6 +517,9 @@ export const wrHe: WrI18nCatalog = {
     label: 'גרף',
     parents: 'הורים: {{names}}.',
     children: 'ילדים: {{names}}.',
+    zoomIn: 'הגדלה',
+    zoomOut: 'הקטנה',
+    fit: 'התאמה לתצוגה',
   },
   progress: {
     label: 'התקדמות',

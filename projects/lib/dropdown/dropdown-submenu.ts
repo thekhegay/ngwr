@@ -14,7 +14,7 @@ import { DestroyRef, Directive, ElementRef, Injector, ViewContainerRef, inject, 
 import type { Subscription } from 'rxjs';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { wrCheckStyles, wrNumAttr, wrRestoreFocus } from 'ngwr/utils';
+import { WR_LIVE_LOCALE, wrCheckStyles, wrNumAttr, wrRestoreFocus } from 'ngwr/utils';
 
 import {
   type WrDropdownLevel,
@@ -98,6 +98,7 @@ export class WrDropdownSubmenu {
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly injector = inject(Injector);
+  private readonly liveLocale = inject(WR_LIVE_LOCALE, { optional: true });
 
   private readonly openState = signal(false);
 
@@ -207,7 +208,7 @@ export class WrDropdownSubmenu {
     // overlay that listens, and the root menu answers for every level.
     this.overlayRef = ref;
     this.level = { pane, parent, child: null, close: () => this.close() };
-    wrDropdownRegisterLevel(this.level);
+    wrDropdownRegisterLevel(this.level, () => this.liveLocale?.());
     this.openState.set(true);
   }
 

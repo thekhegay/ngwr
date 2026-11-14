@@ -1,0 +1,100 @@
+<ngwr-doc-page
+  title="Eject a component"
+  since="16.4.0"
+  description="Copy one component's source into your app and own it. The rest stays on npm."
+  [keywords]="['eject', 'copy', 'source', 'schematic', 'fork', 'customize', 'own the code']"
+>
+  <ngwr-doc-section
+    title="When to eject"
+    description="When a token, a hook or a template slot cannot get you there. Try those first: a copy stops getting updates."
+  >
+    <p>
+      Eject one component, not the library. A changed template, a different DOM structure or behaviour the inputs do not
+      cover are good reasons. A colour or a size is not: see
+      <a routerLink="/guides/theming">Theming</a>.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The command"
+    description="It reads the installed version and copies the sources of that release."
+  >
+    <ngwr-doc-code [code]="snippets.command" language="bash" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Option</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (o of options; track o.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ o.name }}</code>
+              </th>
+              <td>{{ o.does }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <ngwr-doc-code [code]="snippets.options" language="bash" />
+    <p>
+      The npm package ships compiled code, so the sources come from GitHub, at the tag of your version. Offline, pass
+      <code>--from</code>
+      with a local checkout.
+    </p>
+    <p>Then import the copy, and load its stylesheet instead of the package's.</p>
+    <ngwr-doc-code [code]="snippets.use" language="typescript" />
+    <ngwr-doc-code [code]="snippets.styles" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="What changes">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">What</th>
+            <th scope="col">After eject</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of changes; track c.what) {
+            <tr>
+              <th scope="row">{{ c.what }}</th>
+              <td>{{ c.after }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Never import the copy and the package's component into the same template: both match the same selector. To use
+      both, rename the selector and the
+      <code>.wr-*</code>
+      classes in the copy.
+    </p>
+    <p>
+      A few components read private files of ngwr that no package path exposes. The command copies those too, into
+      <code>_ngwr-internal</code>
+      beside the ejected folder. Components ejected side by side share it, and a file already there is left as it is.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Going back" description="Delete the folder and import from the package again.">
+    <ngwr-doc-code [code]="snippets.back" language="bash" />
+    <p>
+      Point the imports back at
+      <code>ngwr/button</code>
+      and restore
+      <code>&#64;use 'ngwr/button';</code>
+      in the stylesheet. Updates reach the component again. Once no ejected component is left, delete
+      <code>_ngwr-internal</code>
+      too.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

@@ -3,7 +3,10 @@
 
 .wr-carousel {
   --wr-carousel-font-family: var(--wr-font-family-base);
-  --wr-carousel-dots-gap: var(--wr-space-sm);
+  // Between two dots. With the 0.5rem dot it puts neighbouring centres 24px
+  // apart, which is what WCAG 2.5.8 asks of a target under 24px: a smaller gap
+  // fails it.
+  --wr-carousel-dots-gap: var(--wr-space-lg);
   // The pill the active dot stretches into. The resting dot is a circle, which
   // is a percentage and off the radius scale.
   --wr-carousel-dot-active-radius: var(--wr-border-radius-pill);
@@ -118,6 +121,46 @@
     }
   }
 
+  // The pause button: the arrows' chrome, smaller, in the corner the dots and
+  // the arrows leave free.
+  &__toggle {
+    position: absolute;
+    z-index: 1;
+    inset-block-end: 0.5rem;
+    inset-inline-end: 0.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--wr-color-surface) 85%, transparent);
+    color: var(--wr-color-on-surface);
+    cursor: pointer;
+    box-shadow: var(--wr-shadow-sm);
+    backdrop-filter: blur(4px);
+    transition: background var(--wr-transition-base);
+
+    &:hover {
+      background: var(--wr-color-surface);
+    }
+  }
+
+  // The live region: read out, never drawn.
+  &__live {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   &__dots {
     position: absolute;
     bottom: 0.75rem;
@@ -129,6 +172,7 @@
   }
 
   &__dot {
+    position: relative;
     width: 0.5rem;
     height: 0.5rem;
     border: 0;
@@ -148,6 +192,14 @@
       width var(--wr-transition-base),
       background var(--wr-transition-base);
     padding: 0;
+
+    // The hit area: half the gap to each side and 24px tall, so a press beside
+    // the 8px dot still lands, and two neighbours' areas meet without overlapping.
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -0.5rem calc(var(--wr-carousel-dots-gap) / -2);
+    }
 
     &--active {
       width: 1.25rem;

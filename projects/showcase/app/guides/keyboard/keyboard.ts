@@ -74,6 +74,7 @@ export default class KeyboardGuidePage {
       rows: [
         { keys: ['Enter', 'Space', '↓', '↑'], does: 'open the panel' },
         { keys: ['↑', '↓', 'Home', 'End'], does: 'move through the options' },
+        { keys: ['A letter'], does: 'jumps to the next option that starts with it, when there is no search field' },
         { keys: ['Enter'], does: 'selects (`Space` too, when there is no search field)' },
         { keys: ['Esc', 'Tab'], does: 'close without selecting' },
         { keys: ['Backspace'], does: 'removes the last chip, or clears an empty `clearable` search' },
@@ -85,6 +86,7 @@ export default class KeyboardGuidePage {
       rows: [
         { keys: ['Enter', 'Space', '↓', '↑'], does: 'open and focus the first item' },
         { keys: ['↑', '↓', 'Home', 'End'], does: 'move focus' },
+        { keys: ['A letter'], does: 'jumps to the next item of that menu that starts with it' },
         { keys: ['→', '←'], does: 'open / close a context-menu submenu' },
         { keys: ['Esc'], does: 'closes one level and returns focus' },
       ],
@@ -106,7 +108,12 @@ export default class KeyboardGuidePage {
         { keys: ['→'], does: 'expands, or steps into the first child' },
         { keys: ['←'], does: 'collapses, or jumps to the parent' },
         { keys: ['Home', 'End'], does: 'first / last visible row' },
+        { keys: ['A letter'], does: 'jumps to the next visible row that starts with it' },
         { keys: ['Enter', 'Space'], does: 'select; hold `Ctrl` / `⌘` to add' },
+        {
+          keys: ['Alt', 'Enter'],
+          does: 'picks a row up when `draggable`: the arrows move it, `Enter` drops it, `Esc` puts it back',
+        },
       ],
     },
     {
@@ -123,6 +130,31 @@ export default class KeyboardGuidePage {
       rows: [
         { keys: ['Tab'], does: 'walks the sort, filter, selection and expand controls' },
         { keys: ['↑', '↓', 'PgUp', 'PgDn'], does: 'scroll a `virtualScroll` body' },
+        {
+          keys: ['↑', '↓', '←', '→', 'Home', 'End'],
+          does: 'move between cells, when a column has a `wrTableEditCell` editor',
+        },
+        { keys: ['Enter', 'F2'], does: 'open the cell editor; a typed character opens it with that character' },
+        { keys: ['Enter', 'Tab'], does: 'keep the edit; `Tab` goes on to the next editable cell' },
+        { keys: ['Esc'], does: 'drops the edit, or cancels a column drag' },
+      ],
+    },
+    {
+      component: 'Sortable list',
+      url: '/reference/components/sortable-list',
+      rows: [
+        { keys: ['Space', 'Enter'], does: 'pick a row up, then drop it' },
+        { keys: ['↑', '↓'], does: 'move the held row; `←` / `→` in a horizontal list' },
+        { keys: ['Esc'], does: 'puts the row back, also during a pointer drag' },
+      ],
+    },
+    {
+      component: 'Graph',
+      url: '/reference/components/graph',
+      rows: [
+        { keys: ['+', '-'], does: 'zoom in / out, when `zoomable`' },
+        { keys: ['0'], does: 'fits the graph' },
+        { keys: ['↑', '↓', '←', '→'], does: 'pan the view' },
       ],
     },
   ];
@@ -132,6 +164,7 @@ export default class KeyboardGuidePage {
     { name: 'wrIsComposing', url: '/reference/utils/wr-is-composing', use: 'An input method is still converting.' },
     { name: 'wrIsPrintableKey', url: '/reference/utils/wr-is-printable-key', use: 'The key types a character.' },
     { name: 'wrHasModifier', url: '/reference/utils/wr-has-modifier', use: 'Ctrl, Cmd, Alt or Shift is held.' },
+    { name: 'wrTypeahead', url: '/reference/utils/wr-typeahead', use: 'Typed letters jump to the row they start.' },
   ];
 
   protected readonly snippets = {

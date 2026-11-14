@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Context Menu"
+  updated="16.4.0"
   description="A right-click menu for any element."
   [keywords]="['context menu', 'right click', 'menu', 'submenu', 'wr-context-menu']"
   [labels]="['Overlay']"
@@ -105,6 +106,53 @@
     description="Export the trigger as `wrContextMenuTrigger` to close the menu from another control."
   >
     <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Keyboard" description="The arrows that open and close a submenu swap under RTL.">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">ArrowDown, ArrowUp</th>
+            <td>Next or previous item, wrapping.</td>
+          </tr>
+          <tr>
+            <th scope="row">Home, End</th>
+            <td>First or last item.</td>
+          </tr>
+          <tr>
+            <th scope="row">Type a letter</th>
+            <td>Next item of that menu that starts with what you typed; the same letter again cycles.</td>
+          </tr>
+          <tr>
+            <th scope="row">ArrowRight</th>
+            <td>Opens the item's submenu, focus on its first item.</td>
+          </tr>
+          <tr>
+            <th scope="row">ArrowLeft</th>
+            <td>Closes the submenu, focus back on its item.</td>
+          </tr>
+          <tr>
+            <th scope="row">Enter, Space</th>
+            <td>Chooses the item, or opens its submenu.</td>
+          </tr>
+          <tr>
+            <th scope="row">Escape</th>
+            <td>Closes one level: a submenu, then the menu.</td>
+          </tr>
+          <tr>
+            <th scope="row">Tab</th>
+            <td>Closes the menu and moves on from where it was opened.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Directive API">

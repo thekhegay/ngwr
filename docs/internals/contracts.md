@@ -198,3 +198,15 @@ because it is guidance rather than a plan.
   prerender. Destroying the app aborts the run. While a newer run is pending
   the graph draws the OLD nodes and edges, not the new inputs: a result travels
   with the graph it was computed for, so the picture on screen is always whole.
+- `wr-graph` with `zoomable` leaves a plain wheel to the page: only `Ctrl` or
+  `⌘` with the wheel (a trackpad pinch arrives that way) zooms, unless
+  `wheelZoom` is set. A graph that swallowed the wheel would trap a page
+  scrolling past it. `zoomable` is off by default, because it replaces the
+  viewport's scrolling and takes touch drags from the page. A fit never goes
+  above 100%. Once the view was moved by hand, by a gesture, a key, a button or
+  a write to `zoom`, a new layout result is no longer fitted, an asynchronous
+  one included; `fit()` hands the view back to the layout and `resetView()`
+  does not. The arrow keys move the view physically, as they scroll a page, so
+  they do not flip under RTL. A press becomes a drag only after three pixels,
+  and only then takes pointer capture, so a click inside a node still reaches
+  it.

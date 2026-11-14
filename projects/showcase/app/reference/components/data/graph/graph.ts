@@ -1,4 +1,4 @@
-import { Component, Directive, signal } from '@angular/core';
+import { Component, Directive, computed, signal } from '@angular/core';
 
 import { WrAvatar } from 'ngwr/avatar';
 import { WrButton } from 'ngwr/button';
@@ -105,6 +105,30 @@ const PACKAGE_EDGES: readonly WrGraphEdge[] = [
   { from: 'ui', to: 'tokens' },
 ];
 
+// A larger graph for the zoom demo: an entry point, its services, and what each one calls.
+const SERVICE_TREE: readonly (readonly [string, readonly string[]])[] = [
+  ['Gateway', ['Accounts', 'Catalog', 'Orders', 'Search', 'Reports']],
+  ['Accounts', ['Sessions', 'Profiles', 'Mailer']],
+  ['Catalog', ['Pricing', 'Media', 'Stock']],
+  ['Orders', ['Pricing', 'Stock', 'Payments', 'Shipping', 'Mailer']],
+  ['Search', ['Indexer', 'Catalog cache']],
+  ['Reports', ['Warehouse', 'Exports']],
+  ['Payments', ['Ledger', 'Fraud check']],
+  ['Shipping', ['Carriers', 'Labels']],
+  ['Indexer', ['Queue']],
+  ['Exports', ['Queue', 'Media']],
+];
+
+const serviceId = (label: string): string => label.toLowerCase().replaceAll(' ', '-');
+
+const SERVICE_NODES: readonly WrGraphNode[] = [
+  ...new Set(SERVICE_TREE.flatMap(([parent, children]) => [parent, ...children])),
+].map(label => ({ id: serviceId(label), label }));
+
+const SERVICE_EDGES: readonly WrGraphEdge[] = SERVICE_TREE.flatMap(([parent, children]) =>
+  children.map(child => ({ from: serviceId(parent), to: serviceId(child) }))
+);
+
 /** The built-in layout, answered late: what a worker or a server would do. */
 class DelayedLayout extends WrGraphLayout {
   private readonly layered = new WrLayeredGraphLayout();
@@ -153,6 +177,11 @@ export default class GraphPageComponent {
 
   protected readonly reviewNodes = signal<readonly WrGraphNode[]>(WORKFLOW_NODES);
   protected readonly reviewEdges = signal<readonly WrGraphEdge[]>(WORKFLOW_EDGES);
+
+  protected readonly serviceNodes = SERVICE_NODES;
+  protected readonly serviceEdges = SERVICE_EDGES;
+  protected readonly zoom = signal(1);
+  protected readonly zoomPercent = computed(() => Math.round(this.zoom() * 100));
 
   /** Puts one more review between the draft and publishing. */
   protected addReview(): void {
@@ -503,6 +532,69 @@ export class WorkerLayout extends WrGraphLayout {
     },
   ];
 
+  protected readonly zoomFiles: readonly DocCodeFile[] = [
+    {
+      label: 'HTML',
+      language: 'angular-html',
+      code: `<wr-btn size="sm" (click)="graph.resetView()">100%</wr-btn>
+<wr-btn size="sm" (click)="graph.fit()">Fit</wr-btn>
+<span>{{ percent() }}%</span>
+
+<wr-graph
+  #graph
+  zoomable
+  class="map"
+  [nodes]="nodes"
+  [edges]="edges"
+  [nodeWidth]="144"
+  ariaLabel="Service map"
+  [(zoom)]="zoom"
+/>`,
+    },
+    {
+      label: 'TS',
+      language: 'angular-ts',
+      code: `import { Component, computed, signal } from '@angular/core';
+
+import { WrButton } from 'ngwr/button';
+import { WrGraph, type WrGraphEdge, type WrGraphNode } from 'ngwr/graph';
+
+@Component({
+  selector: 'app-service-map',
+  templateUrl: './service-map.html',
+  imports: [WrGraph, WrButton],
+  styles: \`
+    /* The drawing is fitted to this box. */
+    .map {
+      height: 24rem;
+    }
+  \`,
+})
+export class ServiceMap {
+  protected readonly nodes: readonly WrGraphNode[] = [
+    { id: 'gateway', label: 'Gateway' },
+    { id: 'accounts', label: 'Accounts' },
+    { id: 'orders', label: 'Orders' },
+    { id: 'payments', label: 'Payments' },
+    { id: 'ledger', label: 'Ledger' },
+    // …
+  ];
+
+  protected readonly edges: readonly WrGraphEdge[] = [
+    { from: 'gateway', to: 'accounts' },
+    { from: 'gateway', to: 'orders' },
+    { from: 'orders', to: 'payments' },
+    { from: 'payments', to: 'ledger' },
+    // …
+  ];
+
+  // 1 is 100%. Follows every gesture, and a write zooms the graph.
+  protected readonly zoom = signal(1);
+  protected readonly percent = computed(() => Math.round(this.zoom() * 100));
+}`,
+    },
+  ];
+
   protected readonly api = API.WrGraph;
 
   protected readonly stateRows: readonly DocApiRow[] = [
@@ -511,6 +603,24 @@ export class WorkerLayout extends WrGraphLayout {
       description:
         'Whether an asynchronous layout is running for the current inputs. Always `false` with a synchronous one.',
       type: 'Signal<boolean>',
+      default: '—',
+    },
+    {
+      name: 'pan()',
+      description: 'How far the drawing sits from its natural place, in pixels. Only moves while `zoomable`.',
+      type: 'Signal<WrGraphPoint>',
+      default: '{ x: 0, y: 0 }',
+    },
+    {
+      name: 'fit()',
+      description: 'Shows the whole drawing, centred, never above 100%. The view follows the layout again afterwards.',
+      type: '() => void',
+      default: '—',
+    },
+    {
+      name: 'resetView()',
+      description: 'Puts the drawing back in its natural place at 100%, and keeps it there through a new layout.',
+      type: '() => void',
       default: '—',
     },
   ];

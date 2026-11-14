@@ -1,3 +1,27 @@
+<!--
+  First in the DOM, so it is the first tab stop of the carousel: the way to stop
+  the slides comes before the slides. Named for what a press does next.
+-->
+@if (autoplay() && count() > 1) {
+  <button
+    type="button"
+    class="wr-carousel__toggle"
+    [attr.aria-label]="playing() ? resolvedPauseLabel() : resolvedPlayLabel()"
+    (click)="toggleAutoplay()"
+  >
+    @if (playing()) {
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <rect x="5" y="4" width="5" height="16" rx="1" />
+        <rect x="14" y="4" width="5" height="16" rx="1" />
+      </svg>
+    } @else {
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M6 4.5a1 1 0 0 1 1.52-.86l12 7.5a1 1 0 0 1 0 1.72l-12 7.5A1 1 0 0 1 6 19.5z" />
+      </svg>
+    }
+  </button>
+}
+
 <div
   #viewport
   class="wr-carousel__viewport"
@@ -53,3 +77,11 @@
     }
   </div>
 }
+
+<!--
+  One live region for the whole carousel, in the DOM before its text changes.
+  Off while the slides advance on their own, as the WAI-ARIA carousel pattern has it.
+-->
+<div class="wr-carousel__live" aria-atomic="true" [attr.aria-live]="rotating() ? 'off' : 'polite'">
+  {{ announcement() }}
+</div>

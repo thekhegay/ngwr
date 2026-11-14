@@ -19,7 +19,8 @@ ngwr.dev has six sections:
   (`provideWr()`), migration, the agent skill and the MCP server.
   e.g. https://ngwr.dev/docs/installation
 - `/guides/*` — how to use a subsystem: theming, tokens, forms, overlays,
-  translations, SSR, testing. e.g. https://ngwr.dev/guides/forms
+  translations, SSR, testing, keyboard, ejecting a component.
+  e.g. https://ngwr.dev/guides/forms
 - `/reference/<kind>/<name>` — one page per public API; `<kind>` is
   components, directives, pipes, services, utils, validators or interfaces.
   e.g. https://ngwr.dev/reference/components/select
@@ -195,6 +196,12 @@ one element at a time; a step whose target is missing is skipped, not floated.
   Every component a template renders needs its line. A name from before v15
   (`bar-chart`) lands on its nested entry point (`ngwr/charts/bar-chart`).
 - `ng g ngwr:page <form|table|dashboard>` — starter page wired with ngwr.
+- `ng g ngwr:eject <entry>` — copies one component's source into
+  `src/app/ngwr/<entry>` (`--path` to change it), fetched from GitHub at the tag
+  of the installed version, or from a local checkout with `--from <dir>`.
+  Imports of other entry points become package paths, private files it reads
+  go to `_ngwr-internal` beside it; `ng update` no longer updates the copy.
+  Guide: `/guides/eject`.
 - `ng update ngwr` — runs upgrade migrations.
 
 ## Upgrading
@@ -245,7 +252,8 @@ list.
   `provideWrFormErrors()` are gone, with `WR_CONFIG`, `useConfigValue()`,
   `WR_RESPONSIVE_OVERLAYS`, `wrPresentAsSheet`, `WR_FORM_ERRORS` and
   `WR_FORM_ERROR_FALLBACKS`.
-- 15.6: the `bits` family of animation components is gone, with no replacement.
+- 15.6: the `bits` family of animation components is gone, with no rename to
+  follow. The effects at `ngwr/animations/<name>` (15.7) are new components.
 - v15, paths: every chart entry point is nested, so
   `ngwr/bar-chart` is `ngwr/charts/bar-chart`; `ngwr/drag-drop` is `ngwr/sortable-list`, and the list no
   longer owns its loop — write your own, one `<wr-sortable-item>` per row, with
@@ -351,34 +359,56 @@ The catalog is large: prefer an ngwr component, util, pipe, or validator over ra
 markup, custom logic, or another library. e.g. use `wr-file-upload`, not a bare
 `<input type="file">`; reach for `ngwr/utils`, `ngwr/pipes`, `ngwr/validators`
 before writing your own. Full catalog: https://ngwr.dev/reference/components.
+Type-ahead for a list of your own is `wrTypeahead()` from `ngwr/utils`, the
+helper behind select, dropdown, context menu, tree and cascader:
+https://ngwr.dev/reference/utils/wr-typeahead
 
 ## Common components (selector — import)
 
 - **Form** — `wr-btn` (ngwr/button), `wr-speed-dial`, `wrInput` (ngwr/input),
   `wr-textarea`, `wr-select` (ngwr/select; modes single/multi/search/tag, plus
-  `searchable` for a multi-with-typeahead and `(searchChange)` for server-side
-  search), `wr-checkbox` (form state is `[(checked)]`; inside
+  `searchable` for a multi-with-typeahead, `(searchChange)` for server-side
+  search and `selectAll` for a "Select all" row in multi mode), `wr-checkbox` (form state is `[(checked)]`; inside
   `<wr-checkbox-group>` the identity input is `checkboxValue`, NOT `value`),
   `wr-radio-group` (ngwr/radio), `wr-switch`, `wr-slider`, `wr-segmented`,
   `wr-rating`, `wr-knob`, `wr-input-number`, `wr-input-otp`, `wr-date-picker`
-  (date/time/datetime) and `wr-date-range-picker` (both in ngwr/date-picker; the
-  range value is `[start, end]`, hence a separate component), `wr-cascader` (the
+  (`mode` is date/time/datetime, or a period held as its first day:
+  week/month/quarter/year) and `wr-date-range-picker` (both in
+  ngwr/date-picker; the range value is `[start, end]`, hence a separate
+  component; its `mode` is date/datetime/month/quarter/year, and a range of
+  periods ends on the last day of the end period), `wr-cascader` (the
   value is the whole path), `[wrMention]` (ngwr/mention, on a textarea or input),
-  `wr-file-upload`, `wr-form-field` (in ngwr/form), `wr-color-picker`,
+  `wr-file-upload` (it never uploads: the app does, and reports each file
+  through `[status]` for a progress bar, a done mark or an error with
+  `(retry)`; `previews` and `acceptPaste` are opt-in), `wr-form-field` (in
+  ngwr/form), `wr-color-picker`,
   `wr-transfer` (dual listbox; the value is the RIGHT pane), `wr-editor`
   (ngwr/editor — rich text on ProseMirror, an optional peer; the value is the
   document as a JSON tree, `null` when empty, validated against the schema; a
   value it cannot read is refused and the editor keeps its document; an app that
   stores HTML or markdown converts at its own boundary), `wr-schema-form`
   (ngwr/schema-form; draws a form from the `WR_FIELD` metadata on a Signal Forms
-  schema, and skips a field that carries none).
+  schema, and skips a field that carries none; field kinds, sections and
+  repeating groups come from the same metadata). There is no input mask: put
+  `ngx-mask` on the same `<input wrInput>`.
 - **Data** — `wr-table` (column pin/resize/drag-reorder, row selection,
   expandable rows, grouping, tree rows (`childrenKey`), summary rows,
-  CSV export, virtualized body),
-  `wr-pagination`, `wr-tree`, `wr-list`, `wr-timeline`, `wr-calendar`,
+  CSV export, virtualized body; `[(hiddenColumns)]` with `columnChooser` for
+  the built-in button or `<wr-table-column-chooser [table]>` in your own menu;
+  `ng-template wrTableSelectionBar` for bulk actions over the selection;
+  `ng-template wrTableEditCell="<key>"` for an inline editor, whose commit
+  emits `(cellEdit)` and writes nothing; `(stateChange)` emits one
+  `WrTableState` (sort, filters, page, page size, column order, hidden
+  columns) and `[state]` restores it),
+  `wr-pagination`, `wr-tree` (a click on a branch row opens it unless
+  `[expandOnClick]="false"`; `loadChildren` for lazy children, `filter`,
+  `cascade` for cascading checks, `draggable` with `(nodeMove)`, applied by
+  `wrMoveTreeNode`, since the tree never writes `nodes`), `wr-list`, `wr-timeline`, `wr-calendar`,
   `wr-event-calendar` (see Scheduling below), `wr-graph` (read-only layered
   diagram: `nodes` plus `{ from, to }` parent-to-child `edges`, each node a
-  default card or an `ng-template wrGraphNode`), `wr-virtual-scroll`,
+  default card or an `ng-template wrGraphNode`; `zoomable` swaps scrolling
+  for zoom and pan; a provided `WrGraphLayout` replaces the layout and may
+  answer with a Promise), `wr-virtual-scroll`,
   `wr-sortable-list` (drag-to-reorder, one `<wr-sortable-item>` per row from
   your own loop, with `[wrDragHandle]` — all in ngwr/sortable-list).
 - **Charts** — `wr-line-chart` (`showArea` makes it an area chart and
@@ -535,25 +565,28 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   Every control, every overlay and every chart has one: the form controls
   (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
   `input-number`, `input-otp`, `slider`, `rating`, `file-upload`, `color-picker`,
-  `knob`, `segmented`, `editor`, and `form` for `<wr-form-field>`), the overlays
-  (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`,
-  `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`,
-  `mention`), the data views (`table`, `tree`, `graph`), the navigation and
-  disclosure set (`tabs`, `stepper`, `carousel`, `pagination`, `collapse`,
-  `transfer`), `splitter`, `speed-dial`, `lightbox`, `tour`,
-  `calendar`, `event-calendar`, `window`, `image-cropper`, and every bit but
-  three. `WrCalendarDayHarness` ships under two entry points, since a date
-  picker's popup IS a calendar. `aurora`, `click-spark`, `confetti` and
-  `virtual-scroll` deliberately have none: what they do is a canvas or a measured
-  viewport, so every honest method would read the same for a working component
-  and a broken one.
+  `knob`, `segmented`, `editor`, `form` for `<wr-form-field>` and
+  `schema-form`), the overlays (`date-picker`, `dropdown`, `popover`, `dialog`,
+  `drawer`, `toast`, `context-menu`, `popconfirm`, `command-palette`,
+  `cascader`, `mention`), the data views (`table`, `tree`, `graph`,
+  `sortable-list`), the navigation and disclosure set (`tabs`, `stepper`,
+  `carousel`, `pagination`, `collapse`, `transfer`, `sidebar`, `breadcrumbs`,
+  `burger`), and `alert`, `load-state`, `comment`, `compare`, `copy-value`,
+  `date-stamp`, `resizable`, `pull-to-refresh`, `splitter`, `speed-dial`,
+  `lightbox`, `tour`, `calendar`, `event-calendar`, `window` and
+  `image-cropper`. `WrCalendarDayHarness` ships under two entry points, since a
+  date picker's popup IS a calendar. The animation effects and
+  `virtual-scroll` have none: what they do is a canvas, a transition or a
+  measured viewport, so every honest method would read the same for a working
+  component and a broken one.
   Load them with `TestbedHarnessEnvironment` and narrow with
   `WrButtonHarness.with({ text: 'Save' })` instead of querying ngwr's markup.
   Dialog, toast and a service-opened drawer render outside the fixture — load
   those from `documentRootLoader()`; everything else is an element in your
   template, and where its panel is in the overlay the harness reaches it for you,
   scoped to that instance by the id the trigger publishes.
-  Many are families: `WrTableHarness` + row / cell / header-cell, `WrTreeHarness`
+  Many are families: `WrTableHarness` + row / cell / header-cell / column
+  chooser, `WrSchemaFormHarness` + section / field / array, `WrTreeHarness`
   + node, `WrCascaderHarness` + column / option, `WrCommandPaletteHarness` +
   group / item, `WrRadioGroupHarness` + radio, `WrSliderHarness` + thumb,
   `WrInputOtpHarness` + box, `WrRatingHarness` + item, `WrContextMenuHarness` +

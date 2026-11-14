@@ -108,6 +108,7 @@
     >
       <path d="m6 9 6 6 6-6" />
     </svg>
+    <ng-container [ngTemplateOutlet]="statusTpl" />
   </div>
 } @else if (isTag() || hasChipSearch()) {
   <!-- Chip trigger — tag mode, or a searchable multi. A focusable input lives
@@ -251,6 +252,7 @@
       >
         <path d="m6 9 6 6 6-6" />
       </svg>
+      <ng-container [ngTemplateOutlet]="statusTpl" />
     }
   </div>
 } @else {
@@ -381,6 +383,14 @@
     </svg>
   </button>
 }
+
+<!-- The one live region for the search status, drawn by whichever of the two
+     search triggers is up, in the DOM before its text changes. Not in the panel,
+     since the listbox may own only options, and inside the trigger, which stays
+     the host's only element. -->
+<ng-template #statusTpl>
+  <span class="wr-select__status" role="status" aria-live="polite">{{ announcement() }}</span>
+</ng-template>
 
 <ng-template #panelTpl>
   <div

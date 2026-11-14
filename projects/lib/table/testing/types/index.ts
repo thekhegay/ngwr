@@ -1,5 +1,6 @@
 export type {
   WrTableCellHarnessFilters,
+  WrTableColumnChooserHarnessFilters,
   WrTableHarnessFilters,
   WrTableHeaderCellHarnessFilters,
   WrTableRowHarnessFilters,

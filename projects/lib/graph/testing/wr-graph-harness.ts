@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
+import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
 import type { WrGraphHarnessFilters, WrGraphNodeHarnessFilters } from './types';
 import { WrGraphNodeHarness } from './wr-graph-node-harness';
@@ -17,6 +17,7 @@ import { WrGraphNodeHarness } from './wr-graph-node-harness';
  */
 const VIEWPORT = ':scope > .wr-graph__viewport';
 const STAGE = `${VIEWPORT} > .wr-graph__stage`;
+const CONTROL = ':scope > .wr-graph__controls > .wr-graph__control';
 const EDGE = `${STAGE} > .wr-graph__edges > .wr-graph__edge`;
 const NODE = `${STAGE} > .wr-graph__nodes > .wr-graph__node`;
 
@@ -67,6 +68,12 @@ function describeFilters(filters: WrGraphNodeHarnessFilters): string {
  *   are both 0 for a graph that fits and for one ten times wider. The viewport's
  *   `tabindex` is no proxy either — it is always `0`, precisely so the tab stop never
  *   depends on a measurement.
+ *
+ * A `zoomable` graph is driven through its own three buttons, and its zoom is read off
+ * the `scale()` the component wrote on the stage. The pan is not readable here for the
+ * reason node positions are not: its pixels depend on a viewport box jsdom does not
+ * have. Gestures have no method either, since the wheel, a drag and a pinch all read
+ * that box.
  *
  * An empty graph and a graph whose layout drew nothing render the same DOM, so the
  * harness cannot tell them apart. {@link getNodes} answers `[]` for both, which is the
@@ -180,6 +187,57 @@ export class WrGraphHarness extends ComponentHarness {
         }
         return { from, to };
       })
+    );
+  }
+
+  /** Whether the graph zooms and pans, from the host's `wr-graph--zoomable`. */
+  async isZoomable(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-graph--zoomable');
+  }
+
+  /** Clicks the zoom-in button: one step, around the middle of the viewport. Throws unless `zoomable`. */
+  async zoomIn(): Promise<void> {
+    await (await this.control('zoom-in', 'zoomIn')).click();
+  }
+
+  /** Clicks the zoom-out button: one step, around the middle of the viewport. Throws unless `zoomable`. */
+  async zoomOut(): Promise<void> {
+    await (await this.control('zoom-out', 'zoomOut')).click();
+  }
+
+  /**
+   * Clicks the fit button. Throws unless `zoomable`.
+   *
+   * A fit needs the viewport's box, and jsdom gives every element a 0×0 one, so there
+   * the click changes nothing. A spec that asserts the fitted zoom has to stub
+   * `getBoundingClientRect` on the `.wr-graph__viewport` element first.
+   */
+  async fit(): Promise<void> {
+    await (await this.control('fit', 'fit')).click();
+  }
+
+  /**
+   * The zoom the component drew, where `1` is 100%: the `scale()` in the stage's inline
+   * `transform`, or `1` when it wrote none. Throws unless `zoomable`, where no zoom is
+   * ever drawn and `1` would be vacuously true.
+   */
+  async getZoom(): Promise<number> {
+    if (!(await this.isZoomable())) throw new Error(this.notZoomable('getZoom'));
+    const style = (await (await this.locatorFor(STAGE)()).getAttribute('style')) ?? '';
+    const scale = /scale\(([\d.]+)\)/.exec(style);
+    return scale ? Number(scale[1]) : 1;
+  }
+
+  private async control(name: string, method: string): Promise<TestElement> {
+    const button = await this.locatorForOptional(`${CONTROL}--${name}`)();
+    if (!button) throw new Error(this.notZoomable(method));
+    return button;
+  }
+
+  private notZoomable(method: string): string {
+    return (
+      `WrGraphHarness.${method}(): the graph is not zoomable, so it draws no zoom buttons and never zooms — ` +
+      'bind `zoomable` on <wr-graph> first.'
     );
   }
 }

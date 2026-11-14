@@ -302,6 +302,7 @@ describe('the surfaces that draw it', () => {
       'wrInitials',
       'wrResolveCssColor',
       'wrToClassList',
+      'wrTypeahead',
       'wrAction',
       'wrDecimal',
       'wrDownloadBlob',
@@ -312,6 +313,7 @@ describe('the surfaces that draw it', () => {
       'wrFeature',
       'WR_LIVE_LOCALE',
       'Scrollbar',
+      'Eject a component',
     ]);
   });
 

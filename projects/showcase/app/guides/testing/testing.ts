@@ -919,6 +919,12 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     { name: 'clear()', description: 'Clicks the clear control.', type: 'Promise<void>' },
     {
+      name: 'hasSelectAll() / toggleSelectAll() / isAllSelected() / getSelectAllState()',
+      description:
+        "The `selectAll` row of a multi select, which covers the options on offer, so the matches under a search. `toggleSelectAll()` opens if needed and throws with no row; the state is `'checked'`, `'mixed'` or `'unchecked'`. Since v16.3.",
+      type: "Promise<boolean> | Promise<void> | Promise<'checked' | 'mixed' | 'unchecked'>",
+    },
+    {
       name: 'getNoResultsText() / isLoading()',
       description: 'The empty and loading rows.',
       type: 'Promise<string | null> | Promise<boolean>',
@@ -1568,8 +1574,9 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'getMonths() / getYears() / selectChip(label)',
-      description: 'The month and year views; throws in the day view.',
+      name: 'getMonths() / getQuarters() / getYears() / selectChip(label)',
+      description:
+        'The month, quarter and year views; each throws off its own view. Only `granularity="quarter"` has a quarter view.',
       type: 'Promise<…>',
     },
     {
@@ -1578,8 +1585,9 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<void>',
     },
     {
-      name: 'getWeekdayNames() / getWeekCount() / getGridRole() / getPreviousLabel() / getNextLabel() / getMode() / isDisabled() / isReadonly()',
-      description: 'Shape and labels.',
+      name: 'getWeekdayNames() / getWeekCount() / getGridRole() / getPreviousLabel() / getNextLabel() / getMode() / getGranularity() / isDisabled() / isReadonly()',
+      description:
+        'Shape and labels. `getGranularity()` is what one pick names: a day, a week, a month, a quarter or a year.',
       type: 'Promise<…>',
     },
     {
@@ -1606,8 +1614,9 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<string>',
     },
     {
-      name: 'isShowing() / isModal() / getAccessibleName()',
-      description: '`isShowing()` turns false when the step is torn down.',
+      name: 'isShowing() / isModal() / getAccessibleName() / getDescription()',
+      description:
+        '`isShowing()` turns false when the step is torn down. The name is the title and the progress line; the description is the step’s text.',
       type: 'Promise<…>',
     },
   ];
@@ -1766,6 +1775,11 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'getColumnChooser()',
+      description: 'The list in the column chooser panel, opened as needed. Since v16.4.',
+      type: 'Promise<WrTableColumnChooserHarness>',
+    },
+    {
       name: 'hasSelectionBar() / getSelectionBarText() / clearSelection() / getSelectionBarLoader()',
       description: 'The selection bar; the loader reaches the harnesses of your own actions.',
       type: 'Promise<…>',
@@ -1807,6 +1821,17 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'Cell: getText() / getColumnTitle() / getPin() / isEditable() / isEditing()',
       description: '`WrTableCellHarness`: text, column title, pinned edge and the edit state.',
       type: 'Promise<…>',
+    },
+    {
+      name: 'Column chooser: getColumns() / isChecked(title) / isLocked(title) / toggle(title)',
+      description:
+        '`WrTableColumnChooserHarness`, for `<wr-table-column-chooser>`. Inside a popover of your own, open it and query the document root loader. `toggle()` throws on a locked column. Since v16.4.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Column chooser: showAll() / getShowAllState() / getShowAllText()',
+      description: "The Show all row: `'all'`, `'some'` (mixed) or `'none'`. `showAll()` presses it.",
+      type: "Promise<void> | Promise<'all' | 'some' | 'none'> | Promise<string>",
     },
     {
       name: 'Header cell: getText() / getPin() / isSortable() / sort() / getSortDirection() / getSortIndicator() / getSortOrder() / isFilterable()',
@@ -2244,6 +2269,29 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'isMixed(label)',
+      description: 'Whether a node of a `cascade` tree is partly checked. Throws when no such node shows. Since v16.3.',
+      type: 'Promise<boolean>',
+    },
+    {
+      name: 'grabActive() / moveHeld(direction) / dropHeld() / cancelHeld()',
+      description:
+        "The keyboard move of a `draggable` tree: Alt+Enter, the arrows, Enter, Escape. `direction` is `'up'`, `'down'`, `'in'` or `'out'`. `grabActive()` throws when the row was not picked up. A drop emits `nodeMove` and moves nothing. Since v16.3.",
+      type: 'Promise<void>',
+    },
+    {
+      name: 'getHeldLabel() / getDropMark() / getAnnouncement()',
+      description:
+        'The held row, where it would drop as `{ label, position }` with `before`, `after` or `inside`, and what the live region last said.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Node: isLoading() / isMixed() / isDraggable()',
+      description:
+        'A branch waiting on `loadChildren`, a partly checked `cascade` node, and a row that can be dragged now. Since v16.3.',
+      type: 'Promise<boolean>',
+    },
+    {
       name: 'Node: getLabel() / getLevel() / getPosInSet() / getSetSize() / getIndex() / isExpandable() / isExpanded() / expand() / collapse() / isSelected() / isDisabled() / isActive() / click() / ctrlClick()',
       description: '`WrTreeNodeHarness`. Set size and position are per sibling group.',
       type: 'Promise<…>',
@@ -2266,6 +2314,18 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'getEdges()',
       description: '`{ from, to }` per line, by node id. Throws on a graph with no nodes.',
       type: 'Promise<{ from: string; to: string }[]>',
+    },
+    {
+      name: 'isPending()',
+      description:
+        'Whether an asynchronous layout still runs. The graph draws the previous picture meanwhile, so wait for `false` before reading nodes. Since v16.3.',
+      type: 'Promise<boolean>',
+    },
+    {
+      name: 'isZoomable() / zoomIn() / zoomOut() / fit() / getZoom()',
+      description:
+        'A `zoomable` graph, through its own buttons; the zoom is `1` at 100%. They throw on a graph that is not. A fit needs a stubbed viewport box.',
+      type: 'Promise<…>',
     },
     {
       name: 'Node: getText() / getRelationText()',
@@ -2475,8 +2535,18 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'focus() / blur() / isFocused()',
       description:
-        'Focus on the first arrow or dot, which also holds autoplay. `blur()` throws when none of them is focused.',
+        'Focus on the first control, the pause button under `autoplay`, which also holds autoplay. `blur()` throws when none of them is focused.',
       type: 'Promise<void> | Promise<boolean>',
+    },
+    {
+      name: 'getAutoplayLabel() / toggleAutoplay()',
+      description: 'The pause button, named for what a press does next. Both throw without `autoplay`.',
+      type: 'Promise<string | null> | Promise<void>',
+    },
+    {
+      name: 'getAnnouncement() / getLivePoliteness()',
+      description: 'What the last move said, empty after an autoplay tick, and `off` while the slides advance.',
+      type: 'Promise<string> | Promise<string | null>',
     },
     {
       name: 'getRole() / getRoleDescription() / getSlideRoleDescriptions() / getAccessibleName() / getTrackOffsetPercent()',

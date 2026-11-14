@@ -3,6 +3,7 @@
   description="A guided tour that highlights one element at a time and explains it."
   [keywords]="['tour', 'onboarding', 'walkthrough', 'spotlight', 'wr-tour']"
   [labels]="['Service']"
+  updated="16.4.0"
 >
   <ngwr-doc-section
     title="Run a tour"
@@ -29,6 +30,17 @@
 
   <ngwr-doc-section title="Reading the state" description="Progress is exposed as signals.">
     <ngwr-doc-code [code]="snippets.state" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <ul>
+      <li>
+        Each step is a modal <code>dialog</code> named by its title and the progress line, and described by its text, so
+        a screen reader reads all three when the step opens.
+      </li>
+      <li>Focus opens on the Next button, or Done on the last step, and is trapped in the card.</li>
+      <li>Escape ends the tour, and focus returns to where it was.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

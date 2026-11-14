@@ -82,6 +82,7 @@ export const wrEn: WrI18nCatalog = {
     search: 'Search',
     reset: 'Reset',
     columns: 'Columns',
+    showAllColumns: 'Show all',
     selected: '{{count}} selected',
     clearSelection: 'Clear selection',
   },
@@ -155,6 +156,7 @@ export const wrEn: WrI18nCatalog = {
     clearSelection: 'Clear selection',
     removeItem: 'Remove {{label}}',
     noResults: 'No results',
+    results: 'Results available: {{count}}',
     loading: 'Loading…',
     loadError: 'Could not load results',
     retry: 'Try again',
@@ -198,9 +200,7 @@ export const wrEn: WrI18nCatalog = {
   fileUpload: {
     browse: 'Click to browse',
     dropZone: 'or drop files here',
-    removeFile: 'Remove file',
-    invalid: 'Unsupported file type',
-    tooBig: 'File too large',
+    removeFile: 'Remove {{name}}',
     // File size, as a template plus a unit table. The number itself goes through
     // `Intl.NumberFormat`, so the decimal separator follows `LOCALE_ID`; what a
     // catalog owns here is the unit abbreviation and whether a space sits before
@@ -452,6 +452,7 @@ export const wrEn: WrI18nCatalog = {
   carousel: {
     label: 'Carousel',
     goToSlide: 'Go to slide {{index}}',
+    position: 'Slide {{current}} of {{total}}',
     prev: 'Previous slide',
     next: 'Next slide',
     pagination: 'Carousel pagination',
@@ -626,6 +627,9 @@ export const wrEn: WrI18nCatalog = {
     // the two joined by a single space, and adds no punctuation of its own.
     parents: 'Parents: {{names}}.',
     children: 'Children: {{names}}.',
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out',
+    fit: 'Fit to view',
   },
   progress: {
     label: 'Progress',

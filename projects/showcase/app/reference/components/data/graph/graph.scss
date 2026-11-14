@@ -90,3 +90,30 @@
     }
   }
 }
+
+.zoom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wr-space-md);
+  width: 100%;
+
+  &__bar {
+    display: flex;
+    gap: var(--wr-space-sm);
+    align-items: center;
+  }
+
+  &__value {
+    font-size: var(--wr-text-sm);
+    font-variant-numeric: tabular-nums;
+    color: var(--wr-color-on-surface-muted);
+  }
+
+  // A zoomable graph fits its drawing to the box it is given.
+  &__graph {
+    width: 100%;
+    height: 24rem;
+    border: 1px solid var(--wr-border-base);
+    border-radius: var(--wr-border-radius-base);
+  }
+}

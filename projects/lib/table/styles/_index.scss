@@ -1460,3 +1460,27 @@ html.wr-table-dragging--blocked * {
     transform: translateX(250%);
   }
 }
+
+// --- Column chooser ---------------------------------------------------------
+// The column list, in the built-in panel or in a menu of the consumer's own.
+// Its hooks are declared on itself: wherever it is placed, it inherits nothing
+// from the table.
+.wr-table-column-chooser {
+  --wr-table-column-chooser-gap: var(--wr-space-sm);
+  --wr-table-column-chooser-divider: var(--wr-border-base);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--wr-table-column-chooser-gap);
+
+  // "Show all" stands apart from the columns it acts on.
+  &__all {
+    padding-block-end: var(--wr-table-column-chooser-gap);
+    border-block-end: 1px solid var(--wr-table-column-chooser-divider);
+  }
+}
+
+// The built-in panel keeps the gap it had before the list was a component.
+.wr-table__columns > .wr-table-column-chooser {
+  --wr-table-column-chooser-gap: var(--wr-table-columns-gap);
+}

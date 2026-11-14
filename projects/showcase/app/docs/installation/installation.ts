@@ -78,6 +78,10 @@ export default class InstallationPageComponent {
     },
     { command: 'ng g ngwr:icon-set', does: 'Writes a tree-shaken icon barrel' },
     { command: 'ng g ngwr:page', does: 'Scaffolds a form, table or dashboard page' },
+    {
+      command: 'ng g ngwr:eject <entry>',
+      does: "Copies a component's source into the app, where ng update no longer reaches it",
+    },
     { command: `ng update ${NGWR_PACKAGE}`, does: 'Updates from any earlier major and runs its migrations' },
   ];
 

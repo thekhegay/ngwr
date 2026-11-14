@@ -130,6 +130,7 @@ export const ROUTES = {
     ssr: { path: 'ssr', title: 'Server-side rendering' },
     testing: { path: 'testing', title: 'Testing' },
     csp: { path: 'csp', title: 'Content Security Policy' },
+    eject: { path: 'eject', title: 'Eject a component' },
     tokens: {
       path: 'tokens',
       title: 'Design tokens',
@@ -328,6 +329,7 @@ export const ROUTES = {
       wrHasModifier: { path: 'wr-has-modifier', title: 'wrHasModifier' },
       wrIsComposing: { path: 'wr-is-composing', title: 'wrIsComposing' },
       wrIsPrintableKey: { path: 'wr-is-printable-key', title: 'wrIsPrintableKey' },
+      wrTypeahead: { path: 'wr-typeahead', title: 'wrTypeahead' },
       wrNoop: { path: 'wr-noop', title: 'wrNoop' },
       wrBadgeLog: { path: 'wr-badge-log', title: 'wrBadgeLog' },
       wrDebounce: { path: 'wr-debounce', title: 'wrDebounce' },
