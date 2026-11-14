@@ -53,6 +53,7 @@ export const wrPl: WrI18nCatalog = {
     search: 'Szukaj',
     reset: 'Resetuj',
     columns: 'Kolumny',
+    showAllColumns: 'Pokaż wszystkie',
     selected: 'Zaznaczono: {{count}}',
     clearSelection: 'Wyczyść zaznaczenie',
   },

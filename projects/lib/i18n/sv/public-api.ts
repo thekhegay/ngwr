@@ -50,6 +50,7 @@ export const wrSv: WrI18nCatalog = {
     search: 'Sök',
     reset: 'Återställ',
     columns: 'Kolumner',
+    showAllColumns: 'Visa alla',
     selected: '{{count}} valda',
     clearSelection: 'Rensa markering',
   },

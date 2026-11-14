@@ -50,6 +50,7 @@ export const wrRu: WrI18nCatalog = {
     search: 'Поиск',
     reset: 'Сбросить',
     columns: 'Столбцы',
+    showAllColumns: 'Показать все',
     selected: 'Выбрано: {{count}}',
     clearSelection: 'Снять выделение',
   },

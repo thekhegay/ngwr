@@ -1,5 +1,6 @@
 export { WrTable } from './table';
 export { WrTableCell } from './table-cell';
+export { WrTableColumnChooser } from './table-column-chooser';
 export { WrTableEditCell } from './table-edit-cell';
 export { WrTableExpand } from './table-expand';
 export { WrTableGroupHeader } from './table-group-header';
@@ -10,6 +11,7 @@ export { wrReadField, wrSortRows } from './sort-rows';
 export type {
   WrTableCellContext,
   WrTableCellEdit,
+  WrTableChooserColumn,
   WrTableColumn,
   WrTableColumnAlign,
   WrTableColumns,

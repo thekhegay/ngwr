@@ -53,6 +53,7 @@ export const wrHe: WrI18nCatalog = {
     search: 'חיפוש',
     reset: 'איפוס',
     columns: 'עמודות',
+    showAllColumns: 'הצג הכול',
     selected: '{{count}} נבחרו',
     clearSelection: 'ניקוי הבחירה',
   },

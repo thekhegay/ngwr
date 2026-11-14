@@ -15,6 +15,7 @@ import {
 
 import type { WrTableHarnessFilters, WrTableHeaderCellHarnessFilters, WrTableRowHarnessFilters } from './types';
 import type { WrTableCellHarness } from './wr-table-cell-harness';
+import { WrTableColumnChooserHarness } from './wr-table-column-chooser-harness';
 import { wrTableHarnessText } from './wr-table-harness-text';
 import { WrTableHeaderCellHarness } from './wr-table-header-cell-harness';
 import { WrTableRowHarness } from './wr-table-row-harness';
@@ -410,16 +411,32 @@ export class WrTableHarness extends ComponentHarness {
   }
 
   /**
-   * The chooser's rows, opening it first. The panel is a popover in the overlay
-   * container, found through the id its trigger publishes while open.
+   * The list inside the column chooser's panel, with its "Show all" row. Opens
+   * the chooser and leaves it open.
    */
-  private async chooserEntries(): Promise<{ title: string; box: TestElement }[]> {
+  async getColumnChooser(): Promise<WrTableColumnChooserHarness> {
+    const panelId = await this.openChooser();
+    return this.documentRootLocatorFactory().locatorFor(
+      WrTableColumnChooserHarness.with({ ancestor: `#${panelId}` })
+    )();
+  }
+
+  /** Opens the chooser's panel and answers its id, which the trigger publishes while open. */
+  private async openChooser(): Promise<string> {
     const button = await this.chooserButton();
     if (!button) {
       throw new Error('WrTableHarness: this table has no column chooser — set `columnChooser`.');
     }
     if ((await button.getAttribute('aria-expanded')) !== 'true') await button.click();
-    const panelId = await button.getAttribute('aria-controls');
+    return (await button.getAttribute('aria-controls'))!;
+  }
+
+  /**
+   * The chooser's rows, opening it first. The panel is a popover in the overlay
+   * container, found through the id its trigger publishes while open.
+   */
+  private async chooserEntries(): Promise<{ title: string; box: TestElement }[]> {
+    const panelId = await this.openChooser();
     const root = this.documentRootLocatorFactory();
     const items = await root.locatorForAll(`#${panelId} .wr-table__columns-item`)();
     const boxes = await root.locatorForAll(`#${panelId} .wr-table__columns-item input.wr-checkbox__input`)();

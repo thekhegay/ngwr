@@ -292,7 +292,11 @@ one component folder. Reach for them instead of hand-rolling:
   `displayColumns`, the one list every measurement keys off, so pins, widths
   and colspans follow a hidden column with no code of their own; `columnChooser`
   adds a toolbar strip above the scroll area (the table had no place for a
-  control of its own, and a header cell is gone in card mode). A
+  control of its own, and a header cell is gone in card mode). The list in
+  its panel is `<wr-table-column-chooser [table]>`, exported for a menu of the
+  consumer's own; it holds no state and goes through the table's
+  `chooserColumns`, `toggleColumn` and `setHiddenColumns`, which is where the
+  `hideable` and last-visible rules live. Don't write a second list. A
   `[wrTableSelectionBar]` template draws a bar over the header while rows are
   selected: it sits in a box of no height in front of the scroll area, so it
   needs no sticky rule in any mode, leaves the select-all cell uncovered and

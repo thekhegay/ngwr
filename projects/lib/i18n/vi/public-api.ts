@@ -50,6 +50,7 @@ export const wrVi: WrI18nCatalog = {
     search: 'Tìm kiếm',
     reset: 'Đặt lại',
     columns: 'Cột',
+    showAllColumns: 'Hiển thị tất cả',
     selected: 'Đã chọn {{count}}',
     clearSelection: 'Bỏ chọn',
   },

@@ -19,6 +19,9 @@ export interface WrTableHarnessFilters extends BaseHarnessFilters {
   readonly tree?: boolean;
 }
 
+/** Narrows which `<wr-table-column-chooser>` a harness query matches. */
+export type WrTableColumnChooserHarnessFilters = BaseHarnessFilters;
+
 /** Narrows which body row a harness query matches. */
 export interface WrTableRowHarnessFilters extends BaseHarnessFilters {
   /** Match a row where ANY data cell's text matches. A string is exact, a RegExp is tested. */

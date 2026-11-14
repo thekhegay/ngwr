@@ -50,6 +50,7 @@ export const wrId: WrI18nCatalog = {
     search: 'Cari',
     reset: 'Atur ulang',
     columns: 'Kolom',
+    showAllColumns: 'Tampilkan semua',
     selected: '{{count}} dipilih',
     clearSelection: 'Hapus pilihan',
   },
