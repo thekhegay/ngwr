@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Drawer"
-  updated="16.1.0"
+  updated="16.5.0"
   description="A side panel that slides in from any edge of the screen."
   [keywords]="['drawer', 'wr-drawer', 'panel', 'overlay', 'sheet']"
   [labels]="['Component', 'Service', 'Directives', 'CDK Overlay']"
@@ -38,8 +38,8 @@
     </ngwr-doc-snippet>
 
     <p>
-      Focus still moves into the panel on open. Escape closes it unless you have moved on to the page, and closing
-      returns focus to the opener unless you have moved on likewise.
+      Focus still moves into the panel on open (see <em>Initial focus</em>). Escape closes it unless you have moved on
+      to the page, and closing returns focus to the opener unless you have moved on likewise.
     </p>
 
     <wr-drawer [(open)]="panelOpen" [hasBackdrop]="false" width="18rem">
@@ -72,9 +72,42 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Focus and lifetime"
-    description="Mark the field to focus with `cdkFocusInitial`. Without it, `<wr-drawer>` focuses its ✕ and `WrDrawerManager` the first control."
+    title="Initial focus"
+    description="`autoFocus` decides where focus goes on open. The default is `'dialog'`: the panel itself, with no ring, so the first Tab reaches the first control."
   >
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">autoFocus</th>
+            <th scope="col">Focus on open</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>'dialog'</code> (default)</th>
+            <td>The panel itself, no ring</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>'first-tabbable'</code></th>
+            <td>The first tabbable element, ring included</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>false</code></th>
+            <td>Stays where it was</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      A <code>cdkFocusInitial</code> in your own content wins in every mode. Set <code>autoFocus</code> on
+      <code>&lt;wr-drawer&gt;</code> or in the <code>WrDrawerManager</code> open options. A modal drawer still traps
+      Tab, and closing returns focus to the opener.
+    </p>
+    <ngwr-doc-code [code]="snippets.autoFocus" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Focus and lifetime" description="Mark the field to focus with `cdkFocusInitial`.">
     <ngwr-doc-code [code]="snippets.focus" language="angular-html" />
     <p>
       A drawer from <code>WrDrawerManager</code> outlives its opener: close the ref in

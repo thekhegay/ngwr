@@ -157,6 +157,11 @@ export default class MigrationPageComponent {
       after:
         'An `autoplay` `<wr-carousel>` draws a pause / play button. A letter typed on a select with no search field, a dropdown, a context menu or a tree jumps to the next row that starts with it.',
     },
+    {
+      before: '16.5',
+      after:
+        "Dialogs and drawers no longer focus their first control on open: the panel takes focus, with no ring. `confirm()` and `alert()` no longer focus their button. Set `autoFocus: 'first-tabbable'` to keep it.",
+    },
   ];
 
   /** What `migration-v15` does, before the tables say it per row. */

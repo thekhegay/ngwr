@@ -10,6 +10,14 @@ import type { WrClassInput } from 'ngwr/utils';
 import type { WrDrawerPosition } from './drawer-position';
 
 /**
+ * What a drawer does with focus when it opens: `'first-tabbable'` focuses the
+ * first tabbable element, `'dialog'` focuses the panel itself (no ring, so the
+ * first Tab reaches the first control), `false` moves nothing. An element with
+ * `cdkFocusInitial` wins in every mode.
+ */
+export type WrDrawerAutoFocus = 'first-tabbable' | 'dialog' | false;
+
+/**
  * Options accepted by `WrDrawerManager.open()`.
  *
  * Mirrors the `<wr-drawer>` inputs, plus `data` and `closeOnNavigation` and
@@ -79,4 +87,15 @@ export interface WrDrawerOptions<D = unknown> {
    * @default 'above'
    */
   readonly toasts?: 'above' | 'below';
+  /**
+   * Where focus goes when the drawer opens. `'dialog'` focuses the panel itself,
+   * with no ring, so the first Tab goes to the first control. `'first-tabbable'`
+   * focuses the first tabbable element, which lights the focus ring on a button
+   * when the user pressed nothing. `false` leaves focus where it was. The default is `'dialog'`: a modal that moves no focus strands keyboard
+   * users, and `'first-tabbable'` is the explicit opt-in. An
+   * element marked `cdkFocusInitial` wins in every mode. The trap of a modal
+   * drawer and the return of focus on close do not change.
+   * @default 'dialog'
+   */
+  readonly autoFocus?: WrDrawerAutoFocus;
 }

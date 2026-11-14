@@ -49,6 +49,7 @@ export class WrDialogConfirm {
   protected readonly color =
     this.data.confirmColor ?? (this.alert || !this.intent ? 'primary' : (INTENT_COLORS[this.intent] ?? 'primary'));
   protected readonly danger = this.color === 'danger';
+  protected readonly focusInitial = this.data.focusInitial === true;
 
   protected readonly confirmLabel = useI18nText(signal(this.data.confirmLabel ?? null), 'common.ok', 'OK');
   protected readonly cancelLabel = useI18nText(signal(this.data.cancelLabel ?? null), 'common.cancel', 'Cancel');
