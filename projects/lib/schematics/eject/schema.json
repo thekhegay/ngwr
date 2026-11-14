@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "ngwr-eject",
+  "title": "ngwr eject",
+  "type": "object",
+  "properties": {
+    "entry": {
+      "type": "string",
+      "description": "The component's path under `ngwr/`, nested ones included — e.g. `button`, `select`, `charts/bar-chart`.",
+      "$default": { "$source": "argv", "index": 0 },
+      "x-prompt": "Which component? (e.g. button, select, charts/bar-chart)"
+    },
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "Folder the copy is written to, from the workspace root. Defaults to `src/app/ngwr/<entry>`."
+    },
+    "from": {
+      "type": "string",
+      "description": "A local checkout of the ngwr repository (its root, or its `projects/lib`) to copy from, instead of fetching the sources of the installed version from GitHub."
+    }
+  },
+  "required": ["entry"]
+}

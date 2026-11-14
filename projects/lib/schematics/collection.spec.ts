@@ -63,7 +63,9 @@ describe('collection.json', () => {
   it('reads at least the generators the docs name', () => {
     // A floor, so a path change that empties the table fails here rather than
     // passing every case below vacuously.
-    expect(generators.map(([name]) => name)).toEqual(expect.arrayContaining(['ng-add', 'use', 'provider', 'page']));
+    expect(generators.map(([name]) => name)).toEqual(
+      expect.arrayContaining(['ng-add', 'use', 'provider', 'page', 'eject'])
+    );
   });
 
   it.each(generators)('ng g ngwr:%s takes at most one positional, at index 0', (_name, { schema }) => {
