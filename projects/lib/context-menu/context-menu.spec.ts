@@ -40,6 +40,21 @@ class Host {
   readonly copyDisabled = signal(false);
 }
 
+/** The opt-in: the first item takes focus as the menu opens. */
+@Component({
+  imports: [WrContextMenu, WrContextMenuPanel, WrContextMenuItem],
+  template: `
+    <div class="target" [wrContextMenu]="menu" [autoFocus]="true">
+      <button class="child" type="button">Open</button>
+    </div>
+    <wr-context-menu #menu>
+      <wr-context-menu-item>Cut</wr-context-menu-item>
+      <wr-context-menu-item>Copy</wr-context-menu-item>
+    </wr-context-menu>
+  `,
+})
+class AutoFocusHost {}
+
 /**
  * A context menu is the APG menu pattern delivered through an overlay, so what
  * has to hold is the ARIA shape (`role="menu"` owning `role="menuitem"`
@@ -63,6 +78,12 @@ describe('WrContextMenu', () => {
 
   const rightClick = (): void => {
     target().dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  /** ArrowDown on the page, which walks into the open menu at its first item. */
+  const walkIn = (): void => {
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
     fixture.detectChanges();
   };
 
@@ -271,17 +292,85 @@ describe('WrContextMenu', () => {
       fixture.detectChanges();
     };
 
-    it('moves the cursor onto the first item as the menu opens', () => {
+    it('leaves focus where it was when the menu opens', () => {
       expect(document.activeElement).toBe(document.body);
+      rightClick();
+      expect(document.activeElement).toBe(document.body);
+      type('Escape');
+      vi.advanceTimersByTime(400);
 
+      // Shift+F10 and the Menu key fire `contextmenu` at the focused control.
+      const child = target().querySelector<HTMLElement>('.child')!;
+      child.focus();
+      child.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      expect(menus()).toHaveLength(1);
+      expect(document.activeElement).toBe(child);
+    });
+
+    it('walks in from anywhere on the page: ArrowDown at the first item, ArrowUp at the last', () => {
+      const child = target().querySelector<HTMLElement>('.child')!;
+      child.focus();
       rightClick();
 
+      const down = press(child, 'ArrowDown');
+      expect(down.defaultPrevented).toBe(true);
+      expect(focused()).toBe('Cut');
+
+      type('Escape');
+      expect(document.activeElement).toBe(child);
+      vi.advanceTimersByTime(400);
+
+      rightClick();
+      press(child, 'ArrowUp');
+      expect(focused()).toBe('More');
+    });
+
+    it('jumps to an item by a letter typed outside the menu', () => {
+      const child = target().querySelector<HTMLElement>('.child')!;
+      child.focus();
+      rightClick();
+
+      expect(press(child, 'm').defaultPrevented).toBe(true);
+      expect(focused()).toBe('More');
+    });
+
+    it('closes on Escape and on Tab without moving focus that never entered', async () => {
+      const child = target().querySelector<HTMLElement>('.child')!;
+      child.focus();
+      rightClick();
+      type('Escape');
+      await settle();
+      expect(menus()).toHaveLength(0);
+      expect(document.activeElement).toBe(child);
+
+      rightClick();
+      expect(press(child, 'Tab').defaultPrevented).toBe(false);
+      await settle();
+      expect(menus()).toHaveLength(0);
+      expect(document.activeElement).toBe(child);
+    });
+
+    it('focuses the first item as the menu opens under autoFocus', async () => {
+      fixture.destroy();
+      fixture = TestBed.createComponent(AutoFocusHost) as unknown as typeof fixture;
+      fixture.detectChanges();
+      const child = target().querySelector<HTMLElement>('.child')!;
+      child.focus();
+
+      rightClick();
       expect(document.activeElement).toBe(itemFor('Cut'));
+
+      type('Escape');
+      await settle();
+      expect(document.activeElement).toBe(child);
     });
 
     it('roves the cursor with the arrows, Home and End', () => {
       rightClick();
 
+      type('ArrowDown');
+      expect(focused()).toBe('Cut');
       type('ArrowDown');
       expect(focused()).toBe('Copy');
 
@@ -305,6 +394,7 @@ describe('WrContextMenu', () => {
       rightClick();
 
       type('ArrowDown');
+      type('ArrowDown');
 
       // Copy sits between them and cannot be activated, so it is not a stop.
       expect(focused()).toBe('More');
@@ -319,6 +409,7 @@ describe('WrContextMenu', () => {
      */
     it('hands the keyboard back to the target when the menu closes', async () => {
       rightClick();
+      walkIn();
       expect(document.activeElement).toBe(itemFor('Cut'));
 
       type('Escape');
@@ -331,6 +422,7 @@ describe('WrContextMenu', () => {
 
     it('gives the borrowed tabindex back when the target loses focus', async () => {
       rightClick();
+      walkIn();
       type('Escape');
       await settle();
       expect(target().getAttribute('tabindex')).toBe('-1');
@@ -356,6 +448,7 @@ describe('WrContextMenu', () => {
 
       child.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
       fixture.detectChanges();
+      walkIn();
       expect(document.activeElement).toBe(itemFor('Cut'));
 
       type('Escape');
@@ -495,6 +588,7 @@ describe('WrContextMenu', () => {
 
     it('leaves the cursor where it was when hover opens the submenu', async () => {
       rightClick();
+      walkIn();
       expect(document.activeElement).toBe(itemFor('Cut'));
 
       itemFor('More')!.dispatchEvent(new MouseEvent('mouseenter'));
@@ -515,6 +609,7 @@ describe('WrContextMenu', () => {
      */
     it('walks the level the caret is on while a hover-opened submenu is up', async () => {
       rightClick();
+      walkIn();
       itemFor('More')!.dispatchEvent(new MouseEvent('mouseenter'));
       await settle();
       expect(menus().length).toBeGreaterThanOrEqual(2);
@@ -529,6 +624,7 @@ describe('WrContextMenu', () => {
 
     it('closes a hover-opened submenu on Escape without moving the caret', async () => {
       rightClick();
+      walkIn();
       itemFor('More')!.dispatchEvent(new MouseEvent('mouseenter'));
       await settle();
 

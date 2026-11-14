@@ -53,10 +53,10 @@ const OUTSIDE_GUARD_MS = 250;
  *   `clickItem()` leaves it closed.
  * - Submenus are a first-class input here rather than a nested trigger, so they
  *   are driven from {@link WrContextMenuItemHarness}.
- * - Focus moves in on EVERY open, where a dropdown's does so only when a
- *   keyboard opened it. There is no hover trigger here — a right-click, Shift+F10
- *   or a long-press is always a deliberate request for the menu — so
- *   `getFocusedItemText()` answers straight after `open()`.
+ * - Opening leaves focus where it was unless the trigger sets `autoFocus`, as a
+ *   dropdown's does. ArrowDown anywhere on the page walks in while the menu is
+ *   open: `(await menu.host()).sendKeys(TestKey.DOWN_ARROW)`, and
+ *   `getFocusedItemText()` answers from there.
  *
  * **Timing.** The waits are real: a 500ms `setTimeout` for the long-press hold and
  * another 220ms one for the exit animation the pane is held alive through, plus the
@@ -294,9 +294,10 @@ export class WrContextMenuHarness extends ContentContainerComponentHarness {
    * The label of the item that currently holds focus, or `null` when the
    * keyboard is elsewhere.
    *
-   * The menu roves focus rather than drawing a cursor — it lands on the first
-   * ENABLED item as the pane renders, and the arrows walk it over the enabled
-   * items only — so this is the only way to ask where the keyboard is. It answers
+   * The menu roves focus rather than drawing a cursor — ArrowDown lands on the
+   * first ENABLED item (opening alone moves nothing unless `autoFocus` is set),
+   * and the arrows walk it over the enabled items only — so this is the only way
+   * to ask where the keyboard is. It answers
    * `null` once a submenu has taken the cursor: that pane is a separate overlay,
    * and its own rows are reached through `WrContextMenuItemHarness`.
    */
