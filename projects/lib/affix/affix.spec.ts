@@ -451,6 +451,13 @@ describe('WrAffix', () => {
   describe('in a flex or grid parent', () => {
     let resizeObservers: { targets: Element[]; fire: () => void; disconnected: boolean }[];
     const natural = { top: 120, left: 40 };
+    // jsdom's own getters, which live on `HTMLElement.prototype`: deleting the stub would delete them too.
+    const realOffsetTop = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetTop');
+    const realOffsetLeft = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetLeft');
+    const restoreOffset = (key: 'offsetTop' | 'offsetLeft', real: PropertyDescriptor | undefined): void => {
+      if (real) Object.defineProperty(HTMLElement.prototype, key, real);
+      else Reflect.deleteProperty(HTMLElement.prototype, key);
+    };
 
     const layout = (): HTMLElement => root().querySelector<HTMLElement>('.layout')!;
 
@@ -494,8 +501,8 @@ describe('WrAffix', () => {
     };
 
     afterEach(() => {
-      Reflect.deleteProperty(HTMLElement.prototype, 'offsetTop');
-      Reflect.deleteProperty(HTMLElement.prototype, 'offsetLeft');
+      restoreOffset('offsetTop', realOffsetTop);
+      restoreOffset('offsetLeft', realOffsetLeft);
       natural.top = 120;
       natural.left = 40;
     });
