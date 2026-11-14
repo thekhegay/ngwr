@@ -1,13 +1,14 @@
 <ngwr-doc-page
   title="Funnel Chart"
   since="15.1.0"
+  updated="16.5.0"
   description="How many reached each stage of a sequence, and how many of them went on to the next."
   [keywords]="['funnel-chart', 'funnel', 'conversion', 'wr-funnel-chart']"
   [labels]="['Component']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="One centred bar per stage, as wide as its share of the largest. Between two bars, the share of the stage above; under each value, the share of the first."
+    description="One centred bar per stage, as wide as its share of the largest, in the first colour of the chart palette. Between two bars, the share of the stage above; under each value, the share of the first. Hover a stage to dim the others."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -76,6 +77,32 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With no stage the chart keeps a box and says so. `loading` and `error` put their message in place of the stages. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">No data</p>
+          <wr-funnel-chart [stages]="[]" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-funnel-chart [stages]="[]" loading />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-funnel-chart [stages]="[]" error errorLabel="Funnel is unavailable" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
     title="Data table"
     description="`dataTable` adds a table only screen readers reach: a row per stage, with its value and both conversions. Nothing changes on screen."
   >
@@ -110,6 +137,13 @@
           <tr>
             <th scope="row">Colour</th>
             <td>Carries nothing. Every stage is named in text, so one colour is the default.</td>
+          </tr>
+          <tr>
+            <th scope="row">States</th>
+            <td>
+              The empty and loading messages are a <code>role="status"</code>; a failed load is a
+              <code>role="alert"</code>.
+            </td>
           </tr>
           <tr>
             <th scope="row">Keyboard</th>
