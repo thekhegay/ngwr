@@ -1,1 +1,1 @@
-export type { WrTourPlacement, WrTourStep } from './tour-step';
+export type { WrTourOptions, WrTourPlacement, WrTourStep } from './tour-step';
