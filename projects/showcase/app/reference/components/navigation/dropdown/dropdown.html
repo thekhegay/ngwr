@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Dropdown"
-  updated="16.4.0"
+  updated="16.5.0"
   description="A menu that opens from any trigger."
   [keywords]="['dropdown', 'menu', 'wr-dropdown', 'overlay']"
   [labels]="['Directive', 'Components', 'CDK Overlay']"
@@ -165,7 +165,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Keyboard" description="The arrows that open and close a submenu swap under RTL.">
+  <ngwr-doc-section
+    title="Keyboard"
+    description="Opening leaves focus on the trigger, and ArrowDown there walks into the menu. Bind `[autoFocus]` to `true` to focus the first item on open. The arrows that open and close a submenu swap under RTL."
+  >
     <div class="ngwr-table">
       <table>
         <thead>
@@ -178,22 +181,22 @@
         <tbody>
           <tr>
             <th scope="row">Enter, Space</th>
-            <td>Opens the menu, focus on the first item</td>
+            <td>Opens the menu, focus stays on the trigger; closes an open one</td>
             <td>Chooses the item, or opens its submenu</td>
           </tr>
           <tr>
             <th scope="row">ArrowDown, ArrowUp</th>
-            <td>Opens the menu, focus on the first item</td>
+            <td>Opens the menu; once it is open, moves focus to its first or last item</td>
             <td>Next or previous item, wrapping</td>
           </tr>
           <tr>
             <th scope="row">Home, End</th>
-            <td></td>
+            <td>Open menu: focus to its first or last item</td>
             <td>First or last item</td>
           </tr>
           <tr>
             <th scope="row">Type a letter</th>
-            <td></td>
+            <td>Open menu: focus to the first item that starts with it</td>
             <td>Next item of that menu that starts with what you typed; the same letter again cycles</td>
           </tr>
           <tr>
@@ -208,12 +211,12 @@
           </tr>
           <tr>
             <th scope="row">Escape</th>
-            <td></td>
+            <td>Closes the menu, focus stays on the trigger</td>
             <td>Closes one level: a submenu, then the menu, focus back on what opened it</td>
           </tr>
           <tr>
             <th scope="row">Tab</th>
-            <td></td>
+            <td>Closes the menu and moves on</td>
             <td>Closes every level and moves on from the trigger</td>
           </tr>
         </tbody>

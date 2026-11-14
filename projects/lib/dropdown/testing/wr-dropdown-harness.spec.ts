@@ -1,3 +1,4 @@
+import { TestKey } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -234,8 +235,10 @@ describe('WrDropdownHarness', () => {
 
     const [copy, remove] = await dropdown.getItems();
 
-    // Focus lands on the first item as the menu renders — every arrow key measures
-    // its next target from there.
+    // Opening leaves focus on the trigger; ArrowDown there walks in at the first
+    // item, and every arrow key measures its next target from there.
+    expect(await dropdown.getFocusedItemText()).toBeNull();
+    await (await dropdown.host()).sendKeys(TestKey.DOWN_ARROW);
     expect(await dropdown.getFocusedItemText()).toBe('Copy');
     expect(await copy.isFocused()).toBe(true);
     expect(await remove.isFocused()).toBe(false);
@@ -244,6 +247,7 @@ describe('WrDropdownHarness', () => {
   it('answers where the focus actually is, not where it started', async () => {
     const dropdown = await loader.getHarness(WrDropdownHarness);
     await dropdown.open();
+    await (await dropdown.host()).sendKeys(TestKey.DOWN_ARROW);
 
     // The harness offers no arrow-key method on purpose — menu keydown is delivered
     // by the CDK's keyboard dispatcher to the TOP-MOST overlay, so a per-instance one
