@@ -129,7 +129,7 @@ export default class HeatmapChartPageComponent {
   [rows]="stores"
   [columns]="days"
   [data]="sales"
-  color="var(--wr-color-success)"
+  color="var(--wr-chart-2)"
   ariaLabel="Sales by store and day"
   noDataLabel="Closed"
   showValues
