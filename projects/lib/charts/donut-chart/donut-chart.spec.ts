@@ -98,13 +98,11 @@ describe('WrDonutChart', () => {
   });
 
   it('uses the given colour and falls back through the palette', () => {
-    // The fallback list is four intents and the neutral role, in that order.
-    // `info` is deliberately not in it — it is the same blue as `primary` to
-    // every reader — so index 2 is `warning`, where it used to be `success`
-    // behind the `secondary` v15 removed.
+    // The fallback is the chart theme's palette, by the slice's own position: a slice
+    // with a colour of its own still takes its place in the order.
     expect(paths()[1].getAttribute('fill')).toBe('#123456');
-    expect(paths()[0].getAttribute('fill')).toBe('var(--wr-color-primary)');
-    expect(paths()[2].getAttribute('fill')).toBe('var(--wr-color-warning)');
+    expect(paths()[0].getAttribute('fill')).toBe('var(--wr-chart-1)');
+    expect(paths()[2].getAttribute('fill')).toBe('var(--wr-chart-3)');
   });
 
   it("starts the first slice at twelve o'clock and runs clockwise", () => {
@@ -129,7 +127,8 @@ describe('WrDonutChart', () => {
     fixture.detectChanges();
 
     expect(legend()).toBeNull();
-    expect(paths()).toEqual([]);
+    // No slice: the one path left is the track the empty chart keeps.
+    expect(root().querySelectorAll('.wr-donut-chart__slice')).toHaveLength(0);
   });
 
   it('drops the legend when asked, and keeps the ring', () => {
@@ -244,7 +243,7 @@ describe('WrDonutChart tooltip', () => {
     chip()?.querySelector<HTMLElement>(`.wr-chart-tooltip__${name}`) ?? null;
 
   const hover = (el: Element): void => {
-    el.dispatchEvent(new MouseEvent('mouseenter'));
+    el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
   };
 
@@ -333,7 +332,7 @@ describe('WrDonutChart tooltip anchor', () => {
     };
   };
   const hover = (label: string): void => {
-    paths()[COMPASS.findIndex(s => s.label === label)].dispatchEvent(new MouseEvent('mouseenter'));
+    paths()[COMPASS.findIndex(s => s.label === label)].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
   };
   /** The arc's outer edge at `degrees`, clockwise from twelve o'clock. */
@@ -450,7 +449,9 @@ describe('WrDonutChart number format', () => {
   const legendValues = (): string[] =>
     [...root().querySelectorAll('.wr-donut-chart__legend-value')].map(el => el.textContent.trim());
   const tooltipValue = (index: number): string => {
-    root().querySelectorAll('.wr-donut-chart__surface path')[index].dispatchEvent(new MouseEvent('mouseenter'));
+    root()
+      .querySelectorAll('.wr-donut-chart__surface path')
+      [index].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
     return document.querySelector('.wr-chart-tooltip__value')!.textContent.trim();
   };

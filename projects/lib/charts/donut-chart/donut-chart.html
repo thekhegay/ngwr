@@ -1,45 +1,74 @@
+@let shown = state();
+
+<!-- The legend, drawn before the drawing or after it so it is in the DOM where it is on
+     screen: a toggleable legend's rows are tab stops, and their order follows it. The key
+     is `aria-hidden`: the row's text is its name, and the dot carries no word of its own. -->
+<ng-template #legend>
+  <ul
+    wr-chart-legend
+    class="wr-donut-chart__legend"
+    [items]="legendItems()"
+    [position]="legendPosition()"
+    [toggleable]="toggleableLegend()"
+    [(hiddenSeries)]="hiddenSegments"
+  ></ul>
+</ng-template>
+
+@if (legendShown() && legendFirst()) {
+  <ng-container [ngTemplateOutlet]="legend" />
+}
+
 <div class="wr-donut-chart__surface" [style.width.px]="size()">
   <!-- The name sits on the DRAWING, not on this wrapper. `img` is a
        children-presentational role, so with it out here WebKit dropped the whole
        subtree — including the centre value and label, which are real text and are
        the headline datum the legend does not carry. -->
   <svg #svg viewBox="0 0 100 100" role="img" [attr.aria-label]="resolvedAriaLabel()">
+    @if (track(); as ring) {
+      <!-- The frame the chart keeps with no slice to draw: the ring itself, as a track. -->
+      <path class="wr-donut-chart__track" [attr.d]="ring" />
+    }
     <!-- Every slice is stroked in the SURFACE colour (`--wr-donut-chart-slice-gap-color`,
          from the stylesheet), so adjacent arcs are separated by a visible gap rather than
          by the boundary between two fills. Without it the only thing dividing two slices
-         is the colour change itself, and the default palette's entries sit within about
-         1.06:1 of each other in relative luminance — for a reader who cannot separate
-         hue, two neighbours merge into one arc and the chart reads as having fewer slices
-         than it has. A gap is a shape, and it survives greyscale, printing and a
-         monochrome display. -->
-    @for (slice of slices(); track $index) {
-      <!-- A hidden slice draws nothing at all; the index stays the slice's own, which is
-           what the tooltip looks it up by. -->
-      @if (!slice.hidden) {
+         is the colour change itself, and for a reader who cannot separate hue two
+         neighbours merge into one arc and the chart reads as having fewer slices than it
+         has. A gap is a shape, and it survives greyscale, printing and a monochrome
+         display. The stroke does not scale with the drawing, so the gap is the same
+         pixels at any `size`; its width is the stylesheet's. -->
+    @if (!shown) {
+      @for (slice of slices(); track $index) {
+        <!-- A hidden slice draws nothing at all; the index stays the slice's own, which is
+             what the tooltip looks it up by. `data-wr-index` is what the chart's one hover
+             listener reads, and `data-wr-series` the slice's legend row, which the hover
+             dims by. -->
+        @if (!slice.hidden) {
+          <path
+            class="wr-donut-chart__slice"
+            [attr.d]="slice.path"
+            [attr.fill]="slice.color"
+            [attr.data-wr-index]="$index"
+            [attr.data-wr-series]="$index"
+            stroke-linejoin="round"
+            vector-effect="non-scaling-stroke"
+          />
+        }
+      }
+      <!-- A sliver's wider hover target in a pie, filled with nothing: see `hits`, which is
+           empty for the ring and with the tooltip off. Last, so it wins the pointer over the
+           slices it reaches into; `fill`, so the unpainted stroke is not hit-tested and the
+           edges stay where `hits` put them. It carries its slice's index and legend row, so
+           the hover reads it as the slice. -->
+      @for (hit of hits(); track hit.index) {
         <path
-          class="wr-donut-chart__slice"
-          [attr.d]="slice.path"
-          [attr.fill]="slice.color"
-          stroke-width="1"
-          stroke-linejoin="round"
-          (mouseenter)="tip.enter($index)"
-          (mouseleave)="tip.leave($event)"
+          class="wr-donut-chart__hit"
+          [attr.d]="hit.path"
+          [attr.data-wr-index]="hit.index"
+          [attr.data-wr-series]="hit.index"
+          fill="none"
+          pointer-events="fill"
         />
       }
-    }
-    <!-- A sliver's wider hover target in a pie, filled with nothing: see `hits`, which is
-         empty for the ring and with the tooltip off. Last, so it wins the pointer over the
-         slices it reaches into; `fill`, so the unpainted stroke is not hit-tested and the
-         edges stay where `hits` put them. -->
-    @for (hit of hits(); track hit.index) {
-      <path
-        class="wr-donut-chart__hit"
-        [attr.d]="hit.path"
-        fill="none"
-        pointer-events="fill"
-        (mouseenter)="tip.enter(hit.index)"
-        (mouseleave)="tip.leave($event)"
-      />
     }
   </svg>
   <!-- Never with `pie`: a pie has no hole to print in. -->
@@ -53,16 +82,12 @@
       }
     </div>
   }
+  @if (shown) {
+    <!-- Empty, loading or failed: the message, over the track the chart keeps. -->
+    <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
+  }
 </div>
 
-@if (showLegend() && slices().length > 0) {
-  <!-- The key is `aria-hidden`: the row's text is its name, and the dot carries no word
-       of its own. -->
-  <ul
-    wr-chart-legend
-    class="wr-donut-chart__legend"
-    [items]="legendItems()"
-    [toggleable]="toggleableLegend()"
-    [(hiddenSeries)]="hiddenSegments"
-  ></ul>
+@if (legendShown() && !legendFirst()) {
+  <ng-container [ngTemplateOutlet]="legend" />
 }

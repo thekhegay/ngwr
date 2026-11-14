@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Donut Chart"
-  updated="15.1.0"
+  updated="16.5.0"
   description="Parts of a whole as a ring or a pie."
   [keywords]="['donut-chart', 'pie', 'wr-donut-chart']"
   [labels]="['Component']"
@@ -19,6 +19,54 @@
     <ngwr-doc-code [code]="snippets.pie" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-donut-chart [segments]="devices" pie />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Legend"
+    description="`legendPosition` puts the legend at `bottom` (default), `top`, `start` or `end`, or leaves it out with `none`. A single segment has no legend unless `showLegend` asks for one. Hovering a row or a slice dims the others."
+  >
+    <ngwr-doc-code [code]="snippets.legend" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="end"</code>
+          </p>
+          <wr-donut-chart [segments]="sources" [size]="160" legendPosition="end" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="top"</code>
+          </p>
+          <wr-donut-chart [segments]="sources" [size]="160" legendPosition="top" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With no data the chart keeps its ring as a track and says so. `loading` and `error` put their message in place of the slices. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">No data</p>
+          <wr-donut-chart [segments]="[]" [size]="160" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-donut-chart [segments]="segments" [size]="160" showLegend="false" loading />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-donut-chart [segments]="segments" [size]="160" showLegend="false" error errorLabel="Unavailable" />
+        </div>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
   <ngwr-doc-section title="Tooltip" description='Set `[tooltip]="false"` to turn it off.'>
@@ -71,7 +119,14 @@
           </tr>
           <tr>
             <th scope="row">Slices</th>
-            <td>A gap in the surface colour parts every two, so neighbours differ without hue.</td>
+            <td>A 1px line in the surface colour parts every two, so neighbours differ without hue.</td>
+          </tr>
+          <tr>
+            <th scope="row">States</th>
+            <td>
+              The empty and loading messages are a <code>role="status"</code>; a failed load is a
+              <code>role="alert"</code>.
+            </td>
           </tr>
           <tr>
             <th scope="row">Keyboard</th>
