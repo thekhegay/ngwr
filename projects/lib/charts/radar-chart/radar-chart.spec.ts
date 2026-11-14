@@ -71,7 +71,11 @@ describe('WrRadarChart', () => {
   const svg = (): SVGSVGElement => root().querySelector<SVGSVGElement>('.wr-radar-chart__svg')!;
   const lines = (): SVGPathElement[] => all<SVGPathElement>('.wr-radar-chart__line');
   const areas = (): SVGPathElement[] => all<SVGPathElement>('.wr-radar-chart__area');
-  const dots = (): SVGPathElement[] => all<SVGPathElement>('.wr-radar-chart__dot');
+  /** Every dot drawn: a series' dots are one path, a subpath each. */
+  const dots = (): string[] =>
+    all<SVGPathElement>('.wr-radar-chart__dot').flatMap(path =>
+      (path.getAttribute('d')!.match(/M [^M]+/g) ?? []).map(d => d.trim())
+    );
   const rings = (): SVGPathElement[] => all<SVGPathElement>('.wr-radar-chart__ring');
   const text = (selector: string): string[] => all<HTMLElement>(selector).map(el => el.textContent.trim());
   const set = (change: (h: Host) => void): void => {
@@ -103,11 +107,11 @@ describe('WrRadarChart', () => {
     expect(lines().every(line => line.getAttribute('d')!.endsWith('Z'))).toBe(true);
     expect(areas()).toHaveLength(2);
     // The palette first, then the series' own colour.
-    expect(lines()[0].getAttribute('stroke')).toBe('var(--wr-color-primary)');
+    expect(lines()[0].getAttribute('stroke')).toBe('var(--wr-chart-1)');
     expect(lines()[1].getAttribute('stroke')).toBe('#123456');
     expect(areas()[1].getAttribute('fill')).toBe('#123456');
-    // The first series is solid, the second dashed: the palette's colours sit within
-    // about 1.06:1 of each other, so the dash is what tells two outlines apart.
+    // The first series is solid, the second dashed: the dash is what tells two outlines
+    // apart without hue.
     expect(lines()[0].hasAttribute('stroke-dasharray')).toBe(false);
     expect(lines()[1].getAttribute('stroke-dasharray')).toBe('7 4');
     // Every fill under every outline.
@@ -142,10 +146,11 @@ describe('WrRadarChart', () => {
     // 55..90 snaps to a step of 25 from zero, and the peak lands below the top.
     expect(text('.wr-radar-chart__ring-label')).toEqual(['100', '75', '50', '25']);
     expect(rings()).toHaveLength(4);
-    // Each ring value hangs at the height of its ring on the first axis.
+    // Each ring value sits on its ring between two spokes: with five axes, straight down
+    // from the centre, on the middle of the ring's bottom edge, cos 36° of its radius out.
     expect(
       all<HTMLElement>('.wr-radar-chart__ring-label').map(el => el.style.getPropertyValue('--wr-radar-chart-y'))
-    ).toEqual(['0', '12.5', '25', '37.5']);
+    ).toEqual(['90.4508', '80.3381', '70.2254', '60.1127']);
   });
 
   it('rings a fixed max on a readable step that divides it, the count nearest `rings`', () => {
@@ -242,9 +247,13 @@ describe('WrRadarChart', () => {
 
   it('writes no NaN into any path, whatever the data', () => {
     set(h => h.series.set([{ label: 'A', data: [Number.NaN, Number.NaN, Number.NaN, Number.NaN, Number.NaN] }]));
-    // A series with no value at all draws nothing, and the scale is the empty 0..1 frame.
+    // A series with no value at all draws nothing, and the scale is the empty 0..1 frame:
+    // its four rings, under the "No data" the chart now says, which the ring values give
+    // way to.
     expect(lines()).toHaveLength(0);
-    expect(text('.wr-radar-chart__ring-label')).toEqual(['1', '0.75', '0.5', '0.25']);
+    expect(rings()).toHaveLength(4);
+    expect(text('.wr-radar-chart__ring-label')).toEqual([]);
+    expect(text('wr-chart-state')).toEqual(['No data']);
     for (const path of all('path')) expect(path.getAttribute('d') ?? '').not.toContain('NaN');
   });
 
@@ -414,7 +423,11 @@ describe('WrRadarChart polar area', () => {
   const all = <T extends Element>(selector: string): T[] => [...root().querySelectorAll<T>(selector)];
   const lines = (): SVGPathElement[] => all<SVGPathElement>('.wr-radar-chart__line');
   const areas = (): SVGPathElement[] => all<SVGPathElement>('.wr-radar-chart__area');
-  const dots = (): SVGPathElement[] => all<SVGPathElement>('.wr-radar-chart__dot');
+  /** Every dot drawn: a series' dots are one path, a subpath each. */
+  const dots = (): string[] =>
+    all<SVGPathElement>('.wr-radar-chart__dot').flatMap(path =>
+      (path.getAttribute('d')!.match(/M [^M]+/g) ?? []).map(d => d.trim())
+    );
   const rings = (): SVGPathElement[] => all<SVGPathElement>('.wr-radar-chart__ring');
   const text = (selector: string): string[] => all<HTMLElement>(selector).map(el => el.textContent.trim());
   const set = (change: (h: Host) => void): void => {
@@ -487,9 +500,11 @@ describe('WrRadarChart polar area', () => {
     expect(radii(rings()[3].getAttribute('d')!)[0]).toBe(25);
     expect(text('.wr-radar-chart__ring-label')).toEqual(['100', '75', '50', '25']);
     // A ring labelled 25 out of 100 sits at half the radius, so the labels bunch outward.
+    // They run a quarter of a slice past the first axis, 22.5° off it with four axes,
+    // between the dot on the wedge's arc and the spoke at its edge.
     expect(
       all<HTMLElement>('.wr-radar-chart__ring-label').map(el => el.style.getPropertyValue('--wr-radar-chart-y'))
-    ).toEqual(['0', '6.6987', '14.6447', '25']);
+    ).toEqual(['3.806', '9.9948', '17.3359', '26.903']);
   });
 
   it('leaves out a ring value closer than a line to the last one kept, and keeps every ring', () => {
@@ -508,13 +523,15 @@ describe('WrRadarChart polar area', () => {
     expect(rings()).toHaveLength(5);
     expect(text('.wr-radar-chart__ring-label')).toEqual(['100', '60', '20']);
 
-    // The polygon's rings are evenly spaced, and `rings` is how a host spaces them.
+    // The polygon's values sit on the middle of an edge, between two spokes, where ten
+    // rings of a square are 9.9px apart: every second one is kept, and every ring drawn.
     set(h => {
       h.variant.set('polygon');
       h.rings.set(10);
       h.size.set(280);
     });
-    expect(text('.wr-radar-chart__ring-label')).toHaveLength(10);
+    expect(rings()).toHaveLength(10);
+    expect(text('.wr-radar-chart__ring-label')).toEqual(['100', '80', '60', '40', '20']);
   });
 
   it('runs the spokes between the wedges rather than through them', () => {
@@ -556,7 +573,7 @@ describe('WrRadarChart polar area', () => {
     expect(lines()[1].getAttribute('stroke-dasharray')).toBe('7 4');
     // A dot on the middle of each wedge's arc, none for the missing ones.
     expect(dots()).toHaveLength(6);
-    expect(dots()[0].getAttribute('d')).toBe('M 50.00 5.28 h 0');
+    expect(dots()[0]).toBe('M 50.00 5.28 h 0');
 
     set(h => h.showArea.set(false));
     expect(areas()).toHaveLength(0);
@@ -636,27 +653,39 @@ describe('WrRadarChart polar area', () => {
  * smaller than `size` on a phone — and the line box it measures.
  */
 describe('WrRadarChart polar area measured', () => {
-  type Callback = (entries: { contentRect: { width: number; height: number } }[]) => void;
-  let observed: { callback: Callback; disconnected: boolean } | null = null;
+  interface Entry {
+    target: Element;
+    contentRect: { width: number; height: number };
+  }
+
+  /** The charts share one observer, so this stands in for it: what it watches, and a hand to deliver with. */
+  class FakeObserver {
+    static latest: FakeObserver | null = null;
+    readonly targets = new Set<Element>();
+
+    readonly deliver: (entries: Entry[]) => void;
+
+    constructor(deliver: (entries: Entry[]) => void) {
+      this.deliver = deliver;
+      FakeObserver.latest = this;
+    }
+
+    observe(target: Element): void {
+      this.targets.add(target);
+    }
+
+    unobserve(target: Element): void {
+      this.targets.delete(target);
+    }
+
+    disconnect(): void {
+      this.targets.clear();
+    }
+  }
 
   beforeEach(() => {
-    observed = null;
-    vi.stubGlobal(
-      'ResizeObserver',
-      class {
-        private readonly record: { callback: Callback; disconnected: boolean };
-        constructor(callback: Callback) {
-          this.record = { callback, disconnected: false };
-          observed = this.record;
-        }
-        observe(): void {
-          // The callback is driven by hand below.
-        }
-        disconnect(): void {
-          this.record.disconnected = true;
-        }
-      }
-    );
+    FakeObserver.latest = null;
+    vi.stubGlobal('ResizeObserver', FakeObserver);
   });
 
   afterEach(() => {
@@ -671,34 +700,38 @@ describe('WrRadarChart polar area measured', () => {
     fixture.componentInstance.max.set(100);
     fixture.detectChanges();
     await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
     const labels = (): string[] =>
-      [...(fixture.nativeElement as HTMLElement).querySelectorAll('.wr-radar-chart__ring-label')].map(el =>
-        el.textContent.trim()
-      );
+      [...el.querySelectorAll('.wr-radar-chart__ring-label')].map(label => label.textContent.trim());
+    const drawing = el.querySelector('.wr-radar-chart__svg')!;
+    const line = el.querySelector('.wr-radar-chart__ring-label')!;
+    const measure = (width: number, height?: number): void => {
+      const entries: Entry[] = [{ target: drawing, contentRect: { width, height: width } }];
+      if (height !== undefined) entries.push({ target: line, contentRect: { width: 20, height } });
+      FakeObserver.latest!.deliver(entries);
+      fixture.detectChanges();
+    };
 
     // Assumed 280px: the four values sit 18.8px apart at the closest.
     expect(labels()).toEqual(['100', '75', '50', '25']);
-    expect(observed).not.toBeNull();
+    // The drawing and one ring value, on the observer every chart shares.
+    expect([...FakeObserver.latest!.targets]).toEqual([drawing, line]);
 
     // A phone lays the same drawing out at 148px, where 75 sits 9.9px under 100.
-    observed!.callback([{ contentRect: { width: 148, height: 148 } }]);
-    fixture.detectChanges();
+    measure(148);
     expect(labels()).toEqual(['100', '50']);
-    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.wr-radar-chart__ring')).toHaveLength(4);
+    expect(el.querySelectorAll('.wr-radar-chart__ring')).toHaveLength(4);
 
     // A host that sets a taller line gets more room between the values it keeps.
-    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 24, 24));
-    observed!.callback([{ contentRect: { width: 280, height: 280 } }]);
-    fixture.detectChanges();
+    measure(280, 24);
     expect(labels()).toEqual(['100', '50', '25']);
 
     // A hidden chart measures 0, and keeps the last reading rather than thin to nothing.
-    observed!.callback([{ contentRect: { width: 0, height: 0 } }]);
-    fixture.detectChanges();
+    measure(0, 0);
     expect(labels()).toEqual(['100', '50', '25']);
 
     fixture.destroy();
-    expect(observed!.disconnected).toBe(true);
+    expect([...FakeObserver.latest!.targets]).toEqual([]);
   });
 });
 

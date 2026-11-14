@@ -50,6 +50,8 @@ export default class RadarChartPageComponent {
     { label: 'East', data: [66, 59, 70, 83, 77] },
   ];
 
+  protected readonly single: readonly WrRadarSeries[] = [{ label: 'North', data: [72, 64, 81, 58, 69] }];
+
   protected readonly directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
 
   protected readonly wind: readonly WrRadarSeries[] = [
@@ -73,6 +75,13 @@ export default class RadarChartPageComponent {
 
 <!-- Fixed: a rating out of 5, one ring per point -->
 <wr-radar-chart [axes]="skills" [series]="ratings" [max]="5" />`,
+    legend: `<wr-radar-chart [axes]="axes" [series]="teams" legendPosition="top" />
+
+<!-- One series: no legend, unless showLegend asks for it -->
+<wr-radar-chart [axes]="axes" [series]="single" />`,
+    states: `<wr-radar-chart [axes]="axes" [series]="[]" />
+<wr-radar-chart [axes]="axes" [series]="models" loading />
+<wr-radar-chart [axes]="axes" [series]="models" error errorLabel="Unavailable" />`,
     polar: `<wr-radar-chart variant="polar-area" [axes]="directions" [series]="wind" toggleableLegend />`,
     polarTs: `directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
 

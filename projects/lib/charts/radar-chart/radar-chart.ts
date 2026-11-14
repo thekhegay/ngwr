@@ -6,31 +6,34 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
-  DestroyRef,
-  ElementRef,
+  type ElementRef,
   ViewEncapsulation,
-  afterNextRender,
   computed,
   effect,
-  inject,
   input,
   isDevMode,
+  linkedSignal,
   model,
-  signal,
   viewChild,
 } from '@angular/core';
 
-import { WrChartLegend, type WrChartLegendItem } from 'ngwr/charts/chart-legend';
+import { WrChartLegend, type WrChartLegendItem, type WrChartLegendPosition } from 'ngwr/charts/chart-legend';
 import {
   type WrChartAxis,
+  WrChartState,
   WrChartTable,
   type WrChartTableData,
-  wrChartAxis,
-  wrChartLegacyColor,
-  wrChartDash,
+  useChartHover,
   useChartNumbers,
+  useChartSize,
+  useChartState,
+  wrChartAxis,
+  wrChartColor,
+  wrChartDash,
+  wrChartRound,
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
@@ -107,9 +110,19 @@ interface Axis {
 const fixed = (value: number): string => value.toFixed(2);
 
 /** A number for an inline style, to four decimals with `-0` folded to `0`, so the style stays short. */
-const short = (value: number): number => Math.round(value * 1e4) / 1e4 || 0;
+const short = (value: number): number => wrChartRound(value, 4);
 
 const at = (point: Point): string => `${fixed(point.x)} ${fixed(point.y)}`;
+
+/** A zero-length line at a point, which a round cap paints as a dot of the stroke's width. */
+const dot = (point: Point): string => `M ${at(point)} h 0`;
+
+/**
+ * A stand-in for the angle the ring values run along while there is no polygon to place
+ * them by, fewer than three axes: up and to the right, clear of a spoke at twelve, three,
+ * six or nine o'clock.
+ */
+const FREE_RAY = -Math.PI / 4;
 
 const along = (axis: Axis, r: number): Point => ({ x: CENTRE + r * axis.cos, y: CENTRE + r * axis.sin });
 
@@ -205,9 +218,14 @@ function outline(points: readonly (Point | null)[]): string {
  * **The geometry.** The first axis points to twelve o'clock and the rest follow
  * clockwise, evenly spaced. The scale runs from the centre to the outer ring and
  * includes zero, its rings on readable steps (`max` and `rings`), and every series is a
- * polygon in its colour and its own dash: the default palette's colours sit within
- * about 1.06:1 of each other in luminance, so a dash is what tells two outlines apart
+ * polygon in its colour and its own dash: a dash is what tells two outlines apart
  * without hue, the line chart's remedy. The fills sit under every outline.
+ *
+ * **The look is the chart theme's.** A series with no `color` takes the next colour of
+ * the shared palette (`--wr-chart-1` to `--wr-chart-8`); the web is drawn in
+ * `--wr-chart-grid`, the outlines at `--wr-chart-stroke` and the dots at
+ * `--wr-chart-marker`, all in pixels at any `size`. Hovering an outline, a dot or a
+ * legend row dims every other series.
  *
  * **A missing value is a gap, never a guess.** A `null`, a value that is not a finite
  * number, or one a shorter `data` does not reach, breaks the outline on either side of
@@ -233,8 +251,12 @@ function outline(points: readonly (Point | null)[]): string {
  * **Labels are HTML beside the drawing**, so they keep their size at any `size`: the axis
  * names sit outside the outer ring, in a gutter round the drawing, each aligned away from
  * the centre and ellipsised past the room it has — the tooltip and the data table carry
- * the whole name. The ring values sit beside the first axis and are `aria-hidden`, as an
- * axis' ticks are on every chart here. The drawing keeps its clockwise order under RTL,
+ * the whole name. The ring values sit on their rings BETWEEN two spokes, where no dot is
+ * drawn and no axis name is near — straight down from the centre when the axes are odd in
+ * number, between the first two when they are even, and a quarter of a slice past the
+ * first axis in the polar-area variant — and are `aria-hidden`, as an axis' ticks are on
+ * every chart here. One closer than a line to the last one kept is left out, and its ring
+ * still drawn. The drawing keeps its clockwise order under RTL,
  * as every SVG chart here keeps its own — the HTML layouts (bar, bullet, treemap) are the
  * ones that mirror — and the labels follow the drawing.
  *
@@ -248,8 +270,13 @@ function outline(points: readonly (Point | null)[]): string {
  * With fewer than three axes there is no polygon to draw: the chart draws the grid
  * alone and says so in dev mode.
  *
- * The legend is a `ul[wr-chart-legend]` (`ngwr/charts/chart-legend`), and with
+ * **The legend** is a `ul[wr-chart-legend]` (`ngwr/charts/chart-legend`), placed by
+ * `legendPosition` and left out for a single series unless `showLegend` asks for it. With
  * `toggleableLegend` its rows show and hide their series through `hiddenSeries`.
+ *
+ * **Empty, loading, error.** With no value to draw the chart keeps its web and its axis
+ * names and says "No data"; `loading` and `error` put their own message there in place of
+ * the series.
  *
  * @see https://ngwr.dev/charts/radar-chart
  */
@@ -258,11 +285,13 @@ function outline(points: readonly (Point | null)[]): string {
   templateUrl: './radar-chart.html',
   encapsulation: ViewEncapsulation.None,
   host: {
-    class: 'wr-radar-chart',
+    // `wr-chart--legend`: the shared rule that keeps the legend's room from the drawing.
+    class: 'wr-radar-chart wr-chart--legend',
     '[class.wr-radar-chart--polygon]': '!polar()',
     '[class.wr-radar-chart--polar-area]': 'polar()',
+    '[class.wr-chart--legend-side]': 'legendShown() && legendSide()',
   },
-  imports: [WrChartLegend, WrChartTable],
+  imports: [NgTemplateOutlet, WrChartLegend, WrChartState, WrChartTable],
 })
 export class WrRadarChart {
   /**
@@ -272,8 +301,9 @@ export class WrRadarChart {
   readonly axes = input<readonly string[]>([]);
 
   /**
-   * One polygon per series. A series with no `color` takes the next entry from the
-   * chart's palette, and each takes the next dash, the first one solid.
+   * One polygon per series. A series with no `color` takes the next colour of the chart
+   * palette, `--wr-chart-1` to `--wr-chart-8`, and each takes the next dash, the first
+   * one solid.
    */
   readonly series = input<readonly WrRadarSeries[]>([]);
 
@@ -347,8 +377,42 @@ export class WrRadarChart {
   /** Show the rings, the spokes and the ring values. The axis names stay. @default true */
   readonly showGrid = input(true, { transform: coerceBooleanProperty });
 
-  /** Show the legend under the chart. @default true */
-  readonly showLegend = input(true, { transform: coerceBooleanProperty });
+  /**
+   * Show the legend. `'auto'` shows it when there is something to tell apart - two
+   * series or more - and leaves it out for a single one; `true` shows it for one series
+   * too. @default 'auto'
+   */
+  readonly showLegend = input<boolean | 'auto', unknown>('auto', {
+    transform: (value: unknown): boolean | 'auto' => (value === 'auto' ? 'auto' : coerceBooleanProperty(value)),
+  });
+
+  /**
+   * Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or
+   * `end` of it as a column, or `none` for no legend at all - `hiddenSeries` still hides
+   * a series from outside. @default 'bottom'
+   */
+  readonly legendPosition = input<WrChartLegendPosition>('bottom');
+
+  /**
+   * A request for the chart's data is in flight: the series give way to the loading
+   * message, over the web and the axis names the chart had. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The chart's data failed to load: the series give way to the error message. `loading`
+   * wins while both are set. @default false
+   */
+  readonly error = input(false, { transform: coerceBooleanProperty });
+
+  /** The message shown when there is nothing to draw. Falls back to `chart.empty`, then `'No data'`. */
+  readonly emptyLabel = input<string | null>(null);
+
+  /** The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`. */
+  readonly loadingLabel = input<string | null>(null);
+
+  /** The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`. */
+  readonly errorLabel = input<string | null>(null);
 
   /**
    * Make each legend row a toggle button that shows and hides its series, through
@@ -417,38 +481,41 @@ export class WrRadarChart {
 
   private readonly svg = viewChild<ElementRef<SVGSVGElement>>('svg');
 
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** The first ring value laid out, whose box is one line of them. */
+  private readonly ringLabel = viewChild<ElementRef<HTMLElement>>('ringLabel');
+
+  /** The drawing's box and one ring value's, on the one observer every chart shares. Both 0 until laid out. */
+  private readonly drawingSize = useChartSize(this.svg);
+  private readonly ringLabelSize = useChartSize(this.ringLabel);
 
   /**
    * The drawing's laid-out width and a ring value's line box, both in CSS pixels, once a
    * browser has measured them: the drawing shrinks below `size` in a narrow container, and
-   * how close two ring values may sit is a question of pixels, not of the viewBox.
+   * how close two ring values may sit is a question of pixels, not of the viewBox. `null`
+   * on the server and until the first measurement, which assume `size` and a 16px line.
+   *
+   * A hidden chart measures nothing, and keeps the last reading rather than thin to it;
+   * no value laid out — `showGrid` off — measures no line, and keeps the line already known.
    */
-  private readonly measured = signal<{ readonly width: number; readonly line: number } | null>(null);
+  private readonly measured = linkedSignal<
+    { readonly width: number; readonly height: number },
+    { readonly width: number; readonly line: number } | null
+  >({
+    source: () => ({ width: this.drawingSize().width, height: this.ringLabelSize().height }),
+    computation: ({ width, height }, previous) => {
+      const last = previous?.value ?? null;
+      if (width <= 0) return last;
+      const line = height > 0 ? height : (last?.line ?? LABEL_LINE);
+      return last?.width === width && last.line === line ? last : { width, line };
+    },
+  });
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/radar-chart');
-    const destroyRef = inject(DestroyRef);
-    // Measured after render, so the server and the first paint assume `size` and a 16px
-    // line, and nothing here touches the DOM before a browser has one.
-    afterNextRender(() => {
-      const svg = this.svg()?.nativeElement;
-      if (!svg || typeof ResizeObserver === 'undefined') return;
-      const observer = new ResizeObserver(([entry]) => {
-        const width = entry.contentRect.width;
-        // A hidden chart measures nothing; keep the last reading rather than thin to it.
-        if (width <= 0) return;
-        const label = this.host.nativeElement.querySelector('.wr-radar-chart__ring-label');
-        // No value laid out — `showGrid` off — measures 0: keep the line already known.
-        const height = label?.getBoundingClientRect().height ?? 0;
-        const last = this.measured();
-        const line = height > 0 ? height : (last?.line ?? LABEL_LINE);
-        if (last?.width === width && last.line === line) return;
-        this.measured.set({ width, line });
-      });
-      observer.observe(svg);
-      destroyRef.onDestroy(() => observer.disconnect());
-    });
+    // The shared hover-dim: every series' marks and its legend row carry `data-wr-series`.
+    // The tooltip is not driven from here: it reads the axis nearest the pointer by
+    // position, anywhere over the web, so no mark is a section.
+    useChartHover({ enter: () => undefined, leave: () => undefined });
 
     // A radar of two axes is a line and one of one a point, so neither can hold a
     // polygon; the chart draws the grid and nothing else, which on screen looks like
@@ -495,7 +562,7 @@ export class WrRadarChart {
     return this.series().map((s, index) => ({
       index,
       label: s.label,
-      color: s.color ?? wrChartLegacyColor(index),
+      color: s.color ?? wrChartColor(index),
       dash: wrChartDash(index),
       values: Array.from({ length: count }, (_, a): number | null => {
         const value = s.data[a];
@@ -529,15 +596,23 @@ export class WrRadarChart {
       const ticks = Array.from({ length: count + 1 }, (_, i) => wrRound(explicit - i * step, 6));
       return { min: 0, max: explicit, step, ticks };
     }
-    const values = this.visibleSeries().flatMap(s => s.values.filter((v): v is number => v !== null));
-    if (values.length === 0) return wrChartAxis(Number.NaN, Number.NaN);
-    const peak = Math.max(...values);
+    // A loop rather than `Math.max(...values)`: a spread passes every value as an argument.
+    let low = Number.POSITIVE_INFINITY;
+    let peak = Number.NEGATIVE_INFINITY;
+    for (const s of this.visibleSeries()) {
+      for (const value of s.values) {
+        if (value === null) continue;
+        if (value < low) low = value;
+        if (value > peak) peak = value;
+      }
+    }
+    if (low > peak) return wrChartAxis(Number.NaN, Number.NaN);
     if (this.polar()) {
       return peak > 0
         ? wrChartAxis(0, peak, { includeZero: true, tickCount: rings })
         : wrChartAxis(Number.NaN, Number.NaN);
     }
-    return wrChartAxis(Math.min(...values), peak, { includeZero: true, tickCount: rings });
+    return wrChartAxis(low, peak, { includeZero: true, tickCount: rings });
   });
 
   /**
@@ -556,8 +631,10 @@ export class WrRadarChart {
 
   /**
    * The shapes, one per series shown that has at least one value: its outline, whether
-   * that outline is closed, and the point at each axis (`null` where the value is missing).
-   * Nothing at all with fewer than three axes.
+   * that outline is closed, the point at each axis (`null` where the value is missing),
+   * and every dot of the series as ONE path, a subpath each - a path per dot was a
+   * series' worth of elements for each series, and its `d` a string rebuilt for every
+   * dot on every hover. Nothing at all with fewer than three axes.
    *
    * A polygon is closed only with a value on every axis. In the polar-area variant the
    * outline is the silhouette of the series' wedges, which always closes, and the point
@@ -581,6 +658,7 @@ export class WrRadarChart {
           points,
           closed: polar || points.every(p => p !== null),
           d: polar ? silhouette(axes, half, radii) : outline(points),
+          dots: points.flatMap(p => (p ? [dot(p)] : [])).join(' '),
         },
       ];
     });
@@ -616,26 +694,54 @@ export class WrRadarChart {
   });
 
   /**
-   * The ring values, from the outer ring in, each with the height of its ring as a
-   * percentage of the drawing, where the first axis crosses it. Decided for the whole
+   * The ray the ring values are laid out along: its angle, and how far along it a ring
+   * of radius 1 is crossed. Always BETWEEN two spokes, so no value sits on a spoke, on a
+   * dot or under an axis name, which is where they sat while they ran up the first axis.
+   *
+   * - A polygon's rings are polygons too, and the middle of an edge is the point of a
+   *   ring farthest from its spokes: `cos(π / n)` of the radius out, on the bisector of
+   *   two axes. Of the bisectors the steepest is taken, so the values stack rather than
+   *   run sideways into each other: straight down for an odd count of axes, where the
+   *   bottom edge is level, and between the first two axes for an even one, where straight
+   *   down is a spoke.
+   * - The polar-area rings are circles, and the spokes run between the wedges, so the
+   *   bisector is taken: the ray is a quarter of a slice past the first axis, half way
+   *   between the dot on the wedge's arc and the spoke at its edge.
+   * - With fewer than three axes there is no polygon: the rings are circles, and the ray
+   *   is `FREE_RAY`.
+   */
+  private readonly labelRay = computed(() => {
+    const count = this.axes().length;
+    if (count < 3) return { angle: FREE_RAY, reach: 1 };
+    const half = Math.PI / count;
+    if (this.polar()) return { angle: -Math.PI / 2 + half / 2, reach: 1 };
+    return { angle: count % 2 === 1 ? Math.PI / 2 : -Math.PI / 2 + half, reach: Math.cos(half) };
+  });
+
+  /**
+   * The ring values, from the outer ring in, each with the point of its ring it sits on
+   * as percentages of the drawing (`x`, `y`), along `labelRay`. Decided for the whole
    * scale, as an axis' ticks are (`useChartNumbers().ticks`).
    *
-   * In the polar-area variant the rings sit at square-root radii, which bunch towards the
-   * outer ring, so a value closer than one line to the last one kept is left out, walking
-   * inwards from the outer ring — whose value always stays — while its ring is still
-   * drawn. The distance is in pixels of the drawing as laid out (`measured`), or of `size`
-   * until a browser has measured it. The polygon's rings are evenly spaced, and `rings`
-   * is how a host spaces them.
+   * A value closer than one line to the last one kept is left out, walking inwards from
+   * the outer ring — whose value always stays — while its ring is still drawn: the
+   * polar-area rings sit at square-root radii, which bunch towards the outer ring, and a
+   * polygon's values are closer together along an edge's bisector than its rings are
+   * along a spoke. The distance is in pixels of the drawing as laid out (`measured`), or
+   * of `size` until a browser has measured it.
    */
   protected readonly ringLabels = computed(() => {
     const { min, ticks, step } = this.scale();
     const texts = this.numbers.ticks(ticks, step);
+    const { angle, reach } = this.labelRay();
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
     const labels = ticks.flatMap((tick, i) => {
       if (tick <= min) return [];
-      const r = this.radius(tick);
-      return [{ text: texts[i], r, y: short(CENTRE - r) }];
+      // How far along the ray the ring is crossed, in the viewBox's units.
+      const r = this.radius(tick) * reach;
+      return [{ text: texts[i], r, x: short(CENTRE + r * cos), y: short(CENTRE + r * sin) }];
     });
-    if (!this.polar()) return labels;
     const { width, line } = this.measured() ?? { width: this.size(), line: LABEL_LINE };
     // One line, in the viewBox's units: the drawing is 100 of them wide.
     const room = (line / width) * 100;
@@ -668,6 +774,46 @@ export class WrRadarChart {
   protected readonly legendItems = computed<readonly WrChartLegendItem[]>(() =>
     this.resolvedSeries().map(({ label, color, dash }) => ({ label, color, dash }))
   );
+
+  /**
+   * Whether the chart draws its legend: unless `legendPosition` is `none` or `showLegend`
+   * is off, and under `showLegend="auto"` only with two series or more, since a single
+   * series has nothing to tell apart.
+   */
+  protected readonly legendShown = computed(() => {
+    const show = this.showLegend();
+    const rows = this.legendItems().length;
+    if (show === false || rows === 0 || this.legendPosition() === 'none') return false;
+    return show === true || rows > 1;
+  });
+
+  /** Whether the legend comes before the drawing, in the DOM as on screen: above it, or at inline start. */
+  protected readonly legendFirst = computed(() => {
+    const position = this.legendPosition();
+    return position === 'top' || position === 'start';
+  });
+
+  /** Whether the legend sits beside the drawing rather than above or below it. */
+  protected readonly legendSide = computed(() => {
+    const position = this.legendPosition();
+    return position === 'start' || position === 'end';
+  });
+
+  /**
+   * Whether the chart has nothing to draw: no series, or none with a value on any axis.
+   * A series hidden from the legend still counts, so hiding every series is not "No data".
+   */
+  private readonly empty = computed(() => this.resolvedSeries().every(s => s.values.every(v => v === null)));
+
+  /** What the chart shows in place of its series, or `null` while it draws them. */
+  protected readonly state = useChartState({
+    loading: this.loading,
+    error: this.error,
+    empty: this.empty,
+    emptyLabel: this.emptyLabel,
+    loadingLabel: this.loadingLabel,
+    errorLabel: this.errorLabel,
+  });
 
   /**
    * The figures for `dataTable`: the drawing's name as the caption, a column per series
@@ -707,7 +853,8 @@ export class WrRadarChart {
     index => {
       const axis = this.axisGeometry()[index];
       const svg = this.svg()?.nativeElement;
-      if (!this.drawable() || !axis || !svg) return null;
+      // No series is drawn under a state, so a chip open on an axis lets go.
+      if (!this.drawable() || !axis || !svg || this.state()) return null;
       const box = svg.getBoundingClientRect();
       const { cos, sin } = axis;
       // The drawing's y runs downwards, so a positive sine is the lower half.
@@ -732,16 +879,16 @@ export class WrRadarChart {
   );
 
   /**
-   * What the open tooltip marks on the drawing: its axis' spoke, and a ring round every
-   * series' value on it.
+   * What the open tooltip marks on the drawing: its axis' spoke, and a ringed dot on every
+   * series' value on it. Worked out when the hovered axis changes, never per render.
    */
   protected readonly hover = computed(() => {
     const index = this.tip.active();
     const axis = index === null ? undefined : this.axisGeometry()[index];
-    if (index === null || !axis || !this.drawable()) return null;
+    if (index === null || !axis || !this.drawable() || this.state()) return null;
     const points = this.shapes().flatMap(s => {
       const point = s.points[index];
-      return point ? [{ index: s.index, color: s.color, d: this.dotPath(point) }] : [];
+      return point ? [{ index: s.index, color: s.color, d: dot(point) }] : [];
     });
     // No crosshair without a value on it to mark, as there is no chip.
     if (points.length === 0) return null;
@@ -759,11 +906,6 @@ export class WrRadarChart {
     else this.tip.enter(index);
   }
 
-  /** A zero-length line at a point, which a round cap paints as a dot of the stroke's width. */
-  protected dotPath(point: Point): string {
-    return `M ${at(point)} h 0`;
-  }
-
   /**
    * The axis nearest a viewport point by angle, measured from the drawing's centre, or
    * `null` past the outer ring (with room for its dots), with nothing drawn, with no box
@@ -773,7 +915,7 @@ export class WrRadarChart {
   private axisAt(clientX: number, clientY: number): number | null {
     const count = this.axes().length;
     const svg = this.svg()?.nativeElement;
-    if (!this.drawable() || !svg) return null;
+    if (!this.drawable() || !svg || this.state()) return null;
     const box = svg.getBoundingClientRect();
     if (box.width <= 0 || box.height <= 0) return null;
     const dx = clientX - (box.left + box.width / 2);
