@@ -6,18 +6,19 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  Component,
-  type ElementRef,
-  ViewEncapsulation,
-  computed,
-  effect,
-  input,
-  isDevMode,
-  viewChildren,
-} from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, isDevMode } from '@angular/core';
 
-import { WrChartTable, type WrChartTableData, wrChartAxis, useChartNumbers } from 'ngwr/charts/core';
+import {
+  WrChartState,
+  WrChartTable,
+  type WrChartTableData,
+  useChartHover,
+  useChartNumbers,
+  useChartState,
+  wrChartAxis,
+  wrChartColor,
+  wrChartRound,
+} from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
@@ -45,7 +46,7 @@ const MINUS = '−';
 const isolate = (text: string): string => `⁨${text}⁩`;
 
 /** A percentage to three decimals with `-0` folded to `0`, so an inline style stays short. */
-const percent = (value: number): number => Math.round(value * 1000) / 1000 || 0;
+const percent = (value: number): number => wrChartRound(value, 3);
 
 /**
  * A running total with the float noise of its additions taken off: 0.1 + 0.2 is
@@ -84,6 +85,8 @@ interface DrawnStep {
   readonly display: string;
   /** Whether that figure goes under the bar — a change down, a total below zero — rather than over it. */
   readonly below: boolean;
+  /** The running totals before and after the step, as one attribute: what the harness reads. */
+  readonly figures: string;
   /** The change in full with its sign, `''` on a total. */
   readonly changeText: string;
   /** The running total after the step, in full. */
@@ -123,21 +126,29 @@ interface DrawnStep {
  * a finite number counts as zero.
  *
  * **Colour is not the only channel.** An increase is `increaseColor`, a decrease
- * `decreaseColor` and a total `totalColor` — success, danger and primary unless told
- * otherwise — and each is also told apart without hue: a change runs UP or DOWN from the
- * thin connector that carries the previous running total to it, and its figure is printed
- * on the side it runs to, with its sign (`+1,800`, `−350`); a total stands on the zero
- * line, its figure has no `+` and its label is set in a heavier weight. A change of zero
+ * `decreaseColor` and a total `totalColor` — success, danger and the first colour of the
+ * chart palette unless told otherwise — and each is also told apart without hue: a change
+ * runs UP or DOWN from the thin connector that carries the previous running total to it,
+ * its bar is rounded on the end it runs to, and with `showValues` its figure is printed on
+ * that side, with its sign (`+1,800`, `−350`); a total stands on the zero line, its figure
+ * has no `+` and its label is set in a heavier weight. A change of zero
  * — or of a value that is not a finite number — is neither: a hairline at the running
  * total in the neutral `--wr-waterfall-chart-flat-color`, printed `0` with no sign, and
  * classed `--flat` rather than as an increase.
  *
- * Those cues are the figures and the connectors, so turning BOTH `showValues` and
- * `showConnectors` off leaves colour alone to tell a change up from a change down on
- * screen: a +100 and a following −100 float over the same span. Each step's name and the
- * data table still carry the change; keep one of the two on wherever the chart has to
- * read without hue. On a narrow chart a figure too wide for its column is left out (see
- * `showValues`), and there the connectors are the cue that stays.
+ * Those cues are the figures and the connectors. The figures are off by default, as on
+ * every chart of the family, so the connectors are the cue a chart keeps unconfigured:
+ * turning `showConnectors` off with `showValues` off leaves colour, and the 2px of
+ * rounding, to tell a change up from a change down on screen - a +100 and a following
+ * −100 float over the same span. Each step's name, the tooltip and the data table still
+ * carry the change; keep one of the two on wherever the chart has to read without hue. On
+ * a narrow chart a figure too wide for its column is left out (see `showValues`), and
+ * there the connectors are the cue that stays.
+ *
+ * **The frame.** Gridlines across the plot (`showGrid`) with a scale beside it
+ * (`showAxis`), both on by default, and the zero line either way. With no step the chart
+ * keeps that frame and says "No data"; `loading` and `error` put their own message there
+ * in place of the bars.
  *
  * Every figure below zero is written with `−` (U+2212 MINUS SIGN) in front of its
  * magnitude — a change, a running total, a total and a tick alike — so a name reads
@@ -152,9 +163,10 @@ interface DrawnStep {
  * The value axis always includes zero, so a total is a bar from the zero line and a
  * running total that goes negative hangs below it. Under RTL the steps run from the
  * right, with the value axis at the inline start, as every part of the layout is logical.
- * The gap between two bars is `--wr-waterfall-chart-gap`, held to a quarter of one step's
- * share of the drawing, so a chart of many steps narrows its gaps with its bars rather
- * than running out of room.
+ * The gap between two bars is `--wr-waterfall-chart-gap`, a share of one step's band
+ * (`--wr-chart-gap` by default) and never more than half of it, so a chart of many steps
+ * narrows its gaps with its bars rather than running out of room. A bar moves to a new
+ * value by a transform, so an update lays nothing out.
  *
  * @see https://ngwr.dev/charts/waterfall-chart
  */
@@ -164,13 +176,14 @@ interface DrawnStep {
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-waterfall-chart',
+    '[class.wr-waterfall-chart--axis]': 'showAxis()',
     // Room over and under the drawing for the figure printed past a bar's end.
     '[class.wr-waterfall-chart--values]': 'showValues()',
     // How many columns share the drawing: what the stylesheet holds the gap to, so many
-    // steps narrow it with their bars rather than run out of room (see `$gap-in-row`).
+    // steps narrow it with their bars rather than run out of room.
     '[style.--wr-waterfall-chart-steps]': 'steps().length || 1',
   },
-  imports: [WrChartTable],
+  imports: [WrChartState, WrChartTable],
 })
 export class WrWaterfallChart {
   /**
@@ -194,14 +207,25 @@ export class WrWaterfallChart {
   /** The colour of a change down. Any CSS colour. @default 'var(--wr-color-danger)' */
   readonly decreaseColor = input<string>('var(--wr-color-danger)');
 
-  /** The colour of a total. Any CSS colour. @default 'var(--wr-color-primary)' */
-  readonly totalColor = input<string>('var(--wr-color-primary)');
+  /**
+   * The colour of a total. Any CSS colour. The first colour of the chart palette, which is
+   * the brand colour until `--wr-chart-1` is set: a total is neither a gain nor a loss, so
+   * it takes no status colour. @default 'var(--wr-chart-1)'
+   */
+  readonly totalColor = input<string>(wrChartColor(0));
 
   /** The plot's height in px, at least 80. @default 240 */
   readonly height = input(240, { transform: (v: unknown): number => Math.max(80, coerceNumberProperty(v, 240)) });
 
-  /** Show the gridlines and the value axis' tick labels. @default true */
+  /**
+   * Draw the gridlines: one across the plot at every tick of the value axis, in
+   * `--wr-waterfall-chart-grid-color` (the chart theme's `--wr-chart-grid`). The zero line
+   * is drawn either way. @default true
+   */
   readonly showGrid = input(true, { transform: coerceBooleanProperty });
+
+  /** Print the value axis' scale beside the plot: a number at every tick. @default true */
+  readonly showAxis = input(true, { transform: coerceBooleanProperty });
 
   /**
    * Print each step's figure past the end of its bar: a change with its sign, over the bar
@@ -216,9 +240,10 @@ export class WrWaterfallChart {
    *
    * The sign is one of the two cues besides colour that tell a change up from a change
    * down; the connectors are the other. Off together with `showConnectors`, colour is the
-   * only one left on screen. @default true
+   * only one left on screen. Off by default, as on every chart of the family: the scale,
+   * the tooltip and each step's name already carry the figures. @default false
    */
-  readonly showValues = input(true, { transform: coerceBooleanProperty });
+  readonly showValues = input(false, { transform: coerceBooleanProperty });
 
   /**
    * Draw the thin line that carries each running total across the gap to the next bar,
@@ -237,6 +262,27 @@ export class WrWaterfallChart {
    * only — each step's accessible name already carries both. @default true
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * A request for the chart's data is in flight: the bars give way to the loading
+   * message, over the grid and the scale the chart keeps. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The chart's data failed to load: the bars give way to the error message. `loading`
+   * wins while both are set. @default false
+   */
+  readonly error = input(false, { transform: coerceBooleanProperty });
+
+  /** The message shown with no step to draw. Falls back to `chart.empty`, then `'No data'`. */
+  readonly emptyLabel = input<string | null>(null);
+
+  /** The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`. */
+  readonly loadingLabel = input<string | null>(null);
+
+  /** The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`. */
+  readonly errorLabel = input<string | null>(null);
 
   /**
    * Render the chart's figures as a table only assistive technology reaches, beside the
@@ -279,10 +325,12 @@ export class WrWaterfallChart {
   );
   private readonly totalStepName = useI18nFormatter('waterfallChart.totalStep', '{{label}}: total {{total}}');
 
-  private readonly barEls = viewChildren<ElementRef<HTMLElement>>('barEl');
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/waterfall-chart');
+    // One listener pair for the whole chart: a step is whatever carries `data-wr-index`.
+    useChartHover({ enter: index => this.tip.enter(index), leave: event => this.tip.leave(event) });
     // A total whose figure the steps above do not add up to is drawn at what they DO add
     // up to, which on screen is a chart that looks right about data that is not.
     if (isDevMode()) {
@@ -410,6 +458,7 @@ export class WrWaterfallChart {
             ? this.written(step.end, v => this.numbers.label(v, 'label'))
             : this.signed(step.change, v => this.numbers.label(v, 'label')),
         below: step.kind === 'decrease' || (step.kind === 'total' && step.end < 0),
+        figures: `${step.start} ${step.end}`,
         changeText,
         totalText,
         name:
@@ -419,6 +468,35 @@ export class WrWaterfallChart {
         connector: connected ? this.level(step.end) : null,
       };
     });
+  });
+
+  /**
+   * Each step's classes, as ONE binding: its kind, `--down` where its bar runs down from
+   * where it starts (a change down, a total below zero), which is the end the stylesheet
+   * rounds, and `--active` on the step the tooltip is about. Five bindings a step were
+   * five comparisons a step on every hover change; this is one string each.
+   */
+  protected readonly classes = computed<readonly string[]>(() => {
+    const active = this.tip.active();
+    return this.kinds().map((kind, index) => (index === active ? `${kind} wr-waterfall-chart__step--active` : kind));
+  });
+
+  /** The part of a step's classes a hover does not change. */
+  private readonly kinds = computed<readonly string[]>(() =>
+    this.drawn().map(
+      step =>
+        `wr-waterfall-chart__step wr-waterfall-chart__step--${step.kind}${step.below ? ' wr-waterfall-chart__step--down' : ''}`
+    )
+  );
+
+  /** What the chart shows in place of its bars, or `null` while it draws them. */
+  protected readonly state = useChartState({
+    loading: this.loading,
+    error: this.error,
+    empty: computed(() => this.steps().length === 0),
+    emptyLabel: this.emptyLabel,
+    loadingLabel: this.loadingLabel,
+    errorLabel: this.errorLabel,
   });
 
   /**
@@ -440,11 +518,18 @@ export class WrWaterfallChart {
    * height of the plot; a change of zero keeps its hairline to point at, and no swatch,
    * since its neutral paint says nothing. Each figure is isolated (see `isolate`), so a
    * sign stays in front of its digits in an RTL document.
+   *
+   * The bar's box is worked out from the two ends the chart wrote and the column's own
+   * box, not read off the bar: a bar is moved by a transform inside a box that clips it,
+   * so its own box is neither where it is drawn nor, mid-transition, where it is going.
    */
   protected readonly tip = useChartTooltip(this.tooltip, index => {
-    const step = this.drawn()[index];
-    const anchor = this.barEls()[index]?.nativeElement;
-    if (!step || !anchor) return null;
+    const step = this.state() ? undefined : this.drawn()[index];
+    const column = this.host.querySelector(`[data-wr-index="${index}"]`);
+    if (!step || !column) return null;
+    const box = column.getBoundingClientRect();
+    const top = box.bottom - (step.hi / 100) * box.height;
+    const anchor = { x: box.left, y: top, width: box.width, height: ((step.hi - step.lo) / 100) * box.height };
     const rows: WrChartTooltipRow[] = [];
     if (step.kind !== 'total') rows.push({ label: this.changeName(), value: isolate(step.changeText) });
     rows.push({ label: this.runningTotalName(), value: isolate(step.totalText) });

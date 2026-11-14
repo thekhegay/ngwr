@@ -1,10 +1,11 @@
-@let active = tip.active();
 @let values = showValues();
+@let shown = state();
+@let stepClasses = classes();
 @let connectors = showConnectors();
 <!-- Two columns: the value axis' tick labels at inline start and the plot beside them,
      with the step labels under the plot only, so their slots are the plot's columns. -->
 <div class="wr-waterfall-chart__body">
-  @if (showGrid()) {
+  @if (showAxis()) {
     <!-- HTML beside the plot rather than inside it, in flow, so the column is exactly as
          wide as the longest label; each one hands the stylesheet the y of its own
          gridline. Hidden: every figure is in a step's own name, and the axis is the eye's. -->
@@ -37,41 +38,47 @@
         }
       }
 
-      @for (step of drawn(); track $index) {
-        <!-- Its change and the running total after it in its name: the figure inside is
-             drawn for the eye, and the `img` role makes it presentational. The bar's two
-             ends are handed to the stylesheet; the running totals before and after it ride
-             along as data, beside the name that says them in words. -->
-        <div
-          class="wr-waterfall-chart__step"
-          [class.wr-waterfall-chart__step--increase]="step.kind === 'increase'"
-          [class.wr-waterfall-chart__step--decrease]="step.kind === 'decrease'"
-          [class.wr-waterfall-chart__step--flat]="step.kind === 'flat'"
-          [class.wr-waterfall-chart__step--total]="step.kind === 'total'"
-          [class.wr-waterfall-chart__step--active]="active === $index"
-          role="img"
-          [attr.aria-label]="step.name"
-          [attr.data-start]="step.start"
-          [attr.data-end]="step.end"
-          [style.--wr-waterfall-chart-lo]="step.lo"
-          [style.--wr-waterfall-chart-hi]="step.hi"
-          (mouseenter)="tip.enter($index)"
-          (mouseleave)="tip.leave($event)"
-        >
-          <!-- A change of zero writes no paint: its neutral hairline is the stylesheet's hook. -->
-          <span #barEl class="wr-waterfall-chart__bar" [style.background]="step.color"></span>
-          @if (values) {
-            <!-- A line one figure tall that the figure joins only where it fits whole; one
-                 that does not wraps out of sight below it (see the stylesheet). -->
-            <span class="wr-waterfall-chart__value" [class.wr-waterfall-chart__value--below]="step.below"
-              ><span class="wr-waterfall-chart__value-text">{{ step.display }}</span></span
-            >
-          }
-          @if (connectors && step.connector !== null) {
-            <!-- Across the gap to the next bar, at the running total that bar starts from. -->
-            <span class="wr-waterfall-chart__connector" [style.--wr-waterfall-chart-level]="step.connector"></span>
-          }
-        </div>
+      @if (shown) {
+        <!-- Empty, loading or failed: the message, over the grid and the scale the chart keeps. -->
+        <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
+      } @else {
+        @for (step of drawn(); track $index) {
+          <!-- Its change and the running total after it in its name: the figure inside is
+               drawn for the eye, and the `img` role makes it presentational. The bar's two
+               ends are handed to the stylesheet; `data-wr-index` is what the chart's one
+               hover listener reads, and `data-step` the running totals before and after,
+               beside the name that says them in words. -->
+          <div
+            role="img"
+            [class]="stepClasses[$index]"
+            [attr.aria-label]="step.name"
+            [attr.data-wr-index]="$index"
+            [attr.data-step]="step.figures"
+            [style.--wr-waterfall-chart-lo]="step.lo"
+            [style.--wr-waterfall-chart-hi]="step.hi"
+          >
+            <!-- The bar is the part of the painted box its clip lets through: both are moved
+                 by a transform, so a new value lays nothing out. A change of zero writes no
+                 paint: its neutral hairline is the stylesheet's hook. -->
+            <span class="wr-waterfall-chart__clip"
+              ><span class="wr-waterfall-chart__bar" [style.background]="step.color"></span
+            ></span>
+            @if (values) {
+              <!-- The slot carries the figure to the end of the bar by a transform. In it, a
+                   line one figure tall that the figure joins only where it fits whole; one
+                   that does not wraps out of sight below it (see the stylesheet). -->
+              <span class="wr-waterfall-chart__value-slot" [class.wr-waterfall-chart__value-slot--below]="step.below"
+                ><span class="wr-waterfall-chart__value" [class.wr-waterfall-chart__value--below]="step.below"
+                  ><span class="wr-waterfall-chart__value-text">{{ step.display }}</span></span
+                ></span
+              >
+            }
+            @if (connectors && step.connector !== null) {
+              <!-- Across the gap to the next bar, at the running total that bar starts from. -->
+              <span class="wr-waterfall-chart__connector" [style.--wr-waterfall-chart-level]="step.connector"></span>
+            }
+          </div>
+        }
       }
 
       <!-- After the bars, so it is drawn over them where zero runs through the plot. -->
@@ -89,7 +96,7 @@
   </div>
 </div>
 
-@if (dataTable()) {
+@if (dataTable() && !shown) {
   <!-- The figures for a screen reader who wants to move cell by cell, beside the steps
        rather than inside an `img`. Clipped to nothing by its own stylesheet, so it takes no
        room and draws nothing. -->

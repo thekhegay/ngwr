@@ -18,17 +18,20 @@ function styleNumber(style: string | null, name: string): number | null {
   return Number.isFinite(value) ? value : null;
 }
 
-/** A finite number off one attribute, or a sentence saying which one the element lacks. */
-async function numberAttribute(element: TestElement, name: string, method: string): Promise<number> {
-  const raw = await element.getAttribute(name);
-  const value = raw === null ? Number.NaN : Number.parseFloat(raw);
-  if (!Number.isFinite(value)) {
+/**
+ * The running totals before and after a step, off the one `data-step="start end"` the
+ * component writes, or a sentence saying what the step carries instead.
+ */
+async function runningTotals(element: TestElement, method: string): Promise<[start: number, end: number]> {
+  const raw = await element.getAttribute('data-step');
+  const [start, end] = (raw ?? '').split(' ').map(part => Number.parseFloat(part));
+  if (!Number.isFinite(start) || !Number.isFinite(end)) {
     throw new Error(
-      `WrWaterfallChartHarness.${method}(): a step carries ${name}="${raw ?? ''}", which the component writes as a ` +
-        'finite number on every step it draws.'
+      `WrWaterfallChartHarness.${method}(): a step carries data-step="${raw ?? ''}", which the component writes as ` +
+        'two finite numbers on every step it draws.'
     );
   }
-  return value;
+  return [start, end];
 }
 
 /**
@@ -53,13 +56,14 @@ class StepHarness extends ComponentHarness {
           'reporting 0 would read as a bar on the frame.'
       );
     }
+    const [start, end] = await runningTotals(host, 'getSteps');
     return {
       label,
       kind: await StepHarness.kindOf(host, label),
       name: await host.getAttribute('aria-label'),
       value: value ? await value.text() : null,
-      start: await numberAttribute(host, 'data-start', 'getSteps'),
-      end: await numberAttribute(host, 'data-end', 'getSteps'),
+      start,
+      end,
       bottomPercent: bottom,
       topPercent: top,
       connected: connector !== null,
@@ -201,7 +205,21 @@ export class WrWaterfallChartHarness extends ComponentHarness {
     return (await this.locatorForOptional('.wr-waterfall-chart__grid-line')()) !== null;
   }
 
-  /** The value axis' tick labels, top to bottom; `[]` with `showGrid` off. */
+  /** Whether the value axis' scale is printed beside the plot (`showAxis`). */
+  async hasAxis(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-waterfall-chart__y-axis')()) !== null;
+  }
+
+  /**
+   * The message the chart shows in place of its bars: "No data" with no step, or the
+   * loading or error message. `null` while it draws its bars.
+   */
+  async getStateLabel(): Promise<string | null> {
+    const state = await this.locatorForOptional('.wr-chart-state')();
+    return state ? (await state.text()).trim() : null;
+  }
+
+  /** The value axis' tick labels, top to bottom; `[]` with `showAxis` off. */
   async getYTicks(): Promise<string[]> {
     const ticks = await this.locatorForAll('.wr-waterfall-chart__tick')();
     return Promise.all(ticks.map(tick => tick.text()));
