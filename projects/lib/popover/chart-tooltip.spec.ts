@@ -53,6 +53,8 @@ class Host {
   readonly firstValue = signal<string | null>(null);
   /** The first section's paint. */
   readonly firstColor = signal<string | undefined>('rgb(1, 2, 3)');
+  /** A class of the chart's own on the first section's chip. */
+  readonly firstClass = signal<string | undefined>(undefined);
   /**
    * How far the page has scrolled since the box was taken. A plain field, not a signal:
    * a scroll changes a box anchor's numbers without telling any signal, so only the
@@ -74,6 +76,7 @@ class Host {
         value: index === 0 ? (this.firstValue() ?? String(row.value)) : String(row.value),
         color: index === 0 ? this.firstColor() : 'rgb(1, 2, 3)',
         rows: index === 0 ? this.firstRows() : undefined,
+        className: index === 0 ? this.firstClass() : undefined,
       },
       anchor: box
         ? { x: box.x, y: box.y - this.scrolled, width: 0, height: 20 }
@@ -265,6 +268,21 @@ describe('useChartTooltip', () => {
 
     expect(chip()!.querySelector('.wr-chart-tooltip__head')).toBeNull();
     expect(chip()!.firstElementChild!.className).toBe('wr-chart-tooltip__row');
+  });
+
+  it("takes the chart's own class beside its own, and drops it on a section that names none", () => {
+    fixture.componentInstance.firstClass.set('wr-demo-chart__tooltip');
+    settle();
+    enter(sections()[0]);
+
+    expect([...chip()!.classList]).toEqual(
+      expect.arrayContaining(['wr-tooltip', 'wr-chart-tooltip', 'wr-demo-chart__tooltip'])
+    );
+
+    leave(sections()[0]);
+    enter(sections()[1]);
+    expect(chip()!.classList).not.toContain('wr-demo-chart__tooltip');
+    expect(chip()!.classList).toContain('wr-chart-tooltip');
   });
 
   it('goes back to one line when the next section has no rows', () => {

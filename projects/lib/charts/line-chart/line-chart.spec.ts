@@ -97,35 +97,27 @@ describe('WrLineChart', () => {
     expect(plot.getAttribute('aria-label')).toBe('Line chart');
   });
 
-  it('hands the hover tooltip the x of its point, so it can stay inside the chart at either end', () => {
+  it('draws the crosshair on the x under the pointer, from one end of the drawing to the other', () => {
     // jsdom lays nothing out, so the plot's box is stubbed: 600px wide at the origin
-    // makes a clientX read as a viewBox x. Where the box then lands is CSS — centred on
-    // its point, clamped at the ends — measured in a browser; what the clamp is computed
-    // from is this number and the layer its `cqw` resolves against.
+    // makes a clientX read as a viewBox x. The readout is the shared chip, in an overlay,
+    // which places itself; what the chart draws is the crosshair, on its point.
     svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
-    const tooltipAt = (clientX: number): HTMLElement => {
+    const crosshairAt = (clientX: number): number => {
       svg().dispatchEvent(new MouseEvent('mousemove', { clientX, bubbles: true }));
       fixture.detectChanges();
-      return root().querySelector<HTMLElement>('.wr-line-chart__tooltip')!;
+      return Number(root().querySelector('.wr-line-chart__crosshair')!.getAttribute('x1'));
     };
-    const tooltipX = (clientX: number): number =>
-      Number.parseFloat(tooltipAt(clientX).style.getPropertyValue('--wr-line-chart-x'));
 
-    // The drawing runs edge to edge of the 600 viewBox: the first point is at 0%, the last
-    // at 100%, and the tooltip carries the same number as the x label under it.
-    expect(tooltipX(0)).toBeCloseTo(0, 5);
-    expect(tooltipX(600)).toBeCloseTo(100, 5);
-    expect(tooltipX(600)).toBeCloseTo(xLabelProps('--wr-line-chart-x')[2], 5);
-
-    // The query container is a layer of its own spanning the plot, not the plot: on the
-    // plot, the containment would take the drawing out of the chart's intrinsic width.
-    const layer = tooltipAt(300).parentElement!;
-    expect(layer.classList).toContain('wr-line-chart__tooltip-layer');
-    expect(layer.parentElement!.classList).toContain('wr-line-chart__plot');
+    expect(crosshairAt(0)).toBe(0);
+    expect(crosshairAt(600)).toBe(600);
+    expect(crosshairAt(290)).toBe(300);
+    // No readout inside the chart: the chip is in the overlay, under the chart's own class.
+    expect(root().querySelector('.wr-line-chart__tooltip, .wr-line-chart__tooltip-layer')).toBeNull();
+    expect(document.querySelector('.wr-chart-tooltip')!.classList).toContain('wr-line-chart__tooltip');
   });
 
   it('uses the given colour and falls back through the palette', () => {
-    expect(lines()[0].getAttribute('stroke')).toBe('var(--wr-color-primary)');
+    expect(lines()[0].getAttribute('stroke')).toBe('var(--wr-chart-1)');
     expect(lines()[1].getAttribute('stroke')).toBe('#abcdef');
   });
 
@@ -345,8 +337,8 @@ describe('WrLineChart', () => {
     fixture.componentInstance.showGrid.set(false);
     fixture.detectChanges();
     expect(root().querySelectorAll('.wr-line-chart__grid-line').length).toBe(0);
-    // The labels go with their lines, gutter and all, so the drawing takes the width.
-    expect(root().querySelector('.wr-line-chart__y-axis')).toBeNull();
+    // The scale is its own input, `showAxis`: the numbers stay without their lines.
+    expect(ticks()).toHaveLength(5);
   });
 
   it('writes the y labels as text beside the drawing, never inside it', () => {
@@ -426,7 +418,7 @@ describe('WrLineChart', () => {
     const valueAt = (clientX: number): string => {
       svg().dispatchEvent(new MouseEvent('mousemove', { clientX, bubbles: true }));
       fixture.detectChanges();
-      return root().querySelector('.wr-line-chart__tooltip-value')!.textContent.trim();
+      return document.querySelector('.wr-chart-tooltip__row-value')!.textContent.trim();
     };
 
     expect(valueAt(0)).toBe('0.0004');
@@ -443,7 +435,7 @@ describe('WrLineChart', () => {
     expect(ticks()).toEqual(['40 ms', '30 ms', '20 ms', '10 ms', '0 ms']);
     svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 300, bubbles: true }));
     fixture.detectChanges();
-    expect([...root().querySelectorAll('.wr-line-chart__tooltip-value')].map(el => el.textContent.trim())).toEqual([
+    expect([...document.querySelectorAll('.wr-chart-tooltip__row-value')].map(el => el.textContent.trim())).toEqual([
       '20 ms',
       '2 ms',
     ]);
@@ -456,25 +448,25 @@ describe('WrLineChart', () => {
     const plot = root().querySelector<HTMLElement>('.wr-line-chart__plot')!;
     plot.dispatchEvent(new MouseEvent('mousemove', { clientX: 2, bubbles: true }));
     fixture.detectChanges();
-    expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('Mon');
+    expect(document.querySelector('.wr-chart-tooltip__label')!.textContent.trim()).toBe('Mon');
 
     plot.dispatchEvent(new MouseEvent('mousemove', { clientX: 614, bubbles: true }));
     fixture.detectChanges();
-    expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('Wed');
+    expect(document.querySelector('.wr-chart-tooltip__label')!.textContent.trim()).toBe('Wed');
   });
 
   it('reads out the x under the pointer, and drops the whole readout with `tooltip` off', () => {
     // jsdom lays nothing out, so the plot's box is stubbed: 600px wide at the origin makes
     // a clientX read as a viewBox x. x = 300 is the middle of the three points.
     svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
-    const readout = (): Element | null => root().querySelector('.wr-line-chart__tooltip');
+    const readout = (): Element | null => document.querySelector('.wr-line-chart__tooltip');
     const move = (): void => {
       svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 310, bubbles: true }));
       fixture.detectChanges();
     };
 
     move();
-    expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('Tue');
+    expect(document.querySelector('.wr-chart-tooltip__label')!.textContent.trim()).toBe('Tue');
     expect(root().querySelector('.wr-line-chart__crosshair')).not.toBeNull();
 
     // Off while the pointer is still on it: the readout goes, it does not wait for a leave.
@@ -511,7 +503,7 @@ describe('WrLineChart', () => {
     svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 310, bubbles: true }));
     fixture.detectChanges();
 
-    expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('Tue');
+    expect(document.querySelector('.wr-chart-tooltip__label')!.textContent.trim()).toBe('Tue');
   });
 
   it('closes the readout on Escape without the pointer moving, and keeps it closed on that point', () => {
@@ -523,7 +515,7 @@ describe('WrLineChart', () => {
       svg().dispatchEvent(new MouseEvent('mousemove', { clientX, bubbles: true }));
       fixture.detectChanges();
     };
-    const readout = (): Element | null => root().querySelector('.wr-line-chart__tooltip');
+    const readout = (): Element | null => document.querySelector('.wr-line-chart__tooltip');
 
     move(310);
     expect(readout()).not.toBeNull();
@@ -537,7 +529,7 @@ describe('WrLineChart', () => {
     expect(readout()).toBeNull();
 
     move(590);
-    expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('Wed');
+    expect(document.querySelector('.wr-chart-tooltip__label')!.textContent.trim()).toBe('Wed');
   });
 
   it('keeps the svg stretchable', () => {
@@ -562,7 +554,7 @@ describe('WrLineChart', () => {
     svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 0, bubbles: true }));
     fixture.detectChanges();
 
-    expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('1');
+    expect(document.querySelector('.wr-chart-tooltip__label')!.textContent.trim()).toBe('1');
   });
 });
 
@@ -588,69 +580,6 @@ describe('WrLineChart with a very long series', () => {
     expect(root.querySelector('.wr-line-chart__tick')!.textContent.trim()).toBe('1K');
     expect(root.querySelector('.wr-line-chart__line')!.getAttribute('d')!.length).toBeGreaterThan(0);
     fixture.destroy();
-  });
-});
-
-/**
- * The readout sits at the top of the plot unless that covers a marker it reads; then at the
- * bottom, or beside the crosshair. jsdom lays nothing out, so the plot and its drawing are
- * given a 600 × 300 box at the origin, and the readout a 100 × 60 one, 8px inside whichever
- * edge its modifier puts it at — which is what the stylesheet does.
- */
-describe('WrLineChart readout placement', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
-  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
-  const tooltip = (): HTMLElement => root().querySelector<HTMLElement>('.wr-line-chart__tooltip')!;
-  const modifiers = (): string[] =>
-    [...tooltip().classList].filter(name => name.startsWith('wr-line-chart__tooltip--'));
-
-  beforeEach(() => {
-    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
-      if (this.classList.contains('wr-line-chart__plot')) return new DOMRect(0, 0, 600, 300);
-      if (!this.classList.contains('wr-line-chart__tooltip')) return new DOMRect(0, 0, 0, 0);
-      return new DOMRect(250, this.classList.contains('wr-line-chart__tooltip--below') ? 232 : 8, 100, 60);
-    });
-    TestBed.resetTestingModule();
-    fixture = TestBed.createComponent(Host);
-    // One series reaching 38 of a 0–40 axis at Wed: its marker sits 15px from the top.
-    fixture.componentInstance.series.set([{ label: 'Visits', data: [10, 20, 38] }]);
-    fixture.detectChanges();
-    root().querySelector<SVGSVGElement>('.wr-line-chart__svg')!.getBoundingClientRect = () =>
-      new DOMRect(0, 0, 600, 300);
-  });
-
-  afterEach(() => {
-    fixture.destroy();
-    vi.restoreAllMocks();
-  });
-
-  const hoverAt = async (clientX: number): Promise<void> => {
-    root()
-      .querySelector('.wr-line-chart__svg')!
-      .dispatchEvent(new MouseEvent('mousemove', { clientX, bubbles: true }));
-    fixture.detectChanges();
-    await fixture.whenStable();
-  };
-
-  it('moves to the bottom over a marker in the band the top would cover, and back up when the top is clear', async () => {
-    await hoverAt(600);
-    expect(modifiers()).toEqual(['wr-line-chart__tooltip--below']);
-
-    // Mon's 10 sits at 225px, clear of the top band.
-    await hoverAt(0);
-    expect(modifiers()).toEqual([]);
-  });
-
-  it('sits beside the crosshair, on the side with room, where the top and the bottom each cover a marker', async () => {
-    // At Wed one marker is 15px from the top and the other 15px from the bottom.
-    fixture.componentInstance.series.set([
-      { label: 'Visits', data: [10, 20, 38] },
-      { label: 'Signups', data: [0, 5, 2] },
-    ]);
-    fixture.detectChanges();
-    await hoverAt(600);
-    // Wed is at the right end of the plot, so the room is on its left.
-    expect(modifiers()).toEqual(['wr-line-chart__tooltip--left']);
   });
 });
 
@@ -700,8 +629,8 @@ describe('WrLineChart x labels', () => {
       Number.parseFloat(el.style.getPropertyValue('--wr-line-chart-x'))
     );
     expect(xs[1]).toBeCloseTo((100 * 3) / 29, 6);
-    // The probe the widest is measured against holds every label, a line each.
-    expect(root().querySelector('.wr-line-chart__x-probe')!.textContent).toBe(days.join('\n'));
+    // The probe the widest is measured against holds the longest few labels, a line each.
+    expect(root().querySelector('.wr-line-chart__x-probe')!.textContent).toBe('Jan 10\nJan 11\nJan 12');
   });
 
   it('thins against the widest label and the drawing as a browser lays them out', async () => {
@@ -741,7 +670,7 @@ describe('WrLineChart in another locale', () => {
     svg.getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
     svg.dispatchEvent(new MouseEvent('mousemove', { clientX: 0, bubbles: true }));
     fixture.detectChanges();
-    expect(root.querySelector('.wr-line-chart__tooltip-value')!.textContent.trim()).toBe('1.234,5');
+    expect(document.querySelector('.wr-chart-tooltip__row-value')!.textContent.trim()).toBe('1.234,5');
 
     fixture.destroy();
   });
@@ -759,7 +688,7 @@ describe('WrLineChart in another locale', () => {
     svg.getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
     svg.dispatchEvent(new MouseEvent('mousemove', { clientX: 0, bubbles: true }));
     fixture.detectChanges();
-    expect(root.querySelector('.wr-line-chart__tooltip-value')!.textContent.trim()).toBe('1234.50');
+    expect(document.querySelector('.wr-chart-tooltip__row-value')!.textContent.trim()).toBe('1234.50');
 
     fixture.destroy();
   });

@@ -203,8 +203,7 @@ function boxOf(anchor: Anchor): Box {
  * pointer that keeps on going up a heatmap's column is moving onto the chip, so it
  * passes over it and the days under it read out only once it comes out the far side.
  *
- * **Why an overlay and not a positioned child, the way `wr-line-chart` draws its
- * own.** A child is clipped by every `overflow` between it and the page, and a
+ * **Why an overlay and not a positioned child.** A child is clipped by every `overflow` between it and the page, and a
  * chart sits inside those constantly: `wr-calendar-heatmap` IS a scroll
  * container, and a sparkline in a `wr-table` cell sits under two more.
  *

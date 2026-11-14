@@ -78,8 +78,8 @@ describe('WrLineChart area, stack and data table', () => {
     render();
   };
   const tooltipValues = (): string[] =>
-    [...root().querySelectorAll('.wr-line-chart__tooltip-value')].map(el => el.textContent.trim());
-  /** The hover rings: a coloured one and a white one per point, both drawn at the marker. */
+    [...document.querySelectorAll('.wr-chart-tooltip__row-value')].map(el => el.textContent.trim());
+  /** The hover markers: one per point, in the series' colour, over a ring of the surface. */
   const rings = (): string[] =>
     [...drawing().querySelectorAll('path.wr-line-chart__hover-dot')].map(p => p.getAttribute('d')!);
 
@@ -111,7 +111,7 @@ describe('WrLineChart area, stack and data table', () => {
         'M 0.00 225.00 L 300.00 150.00 L 600.00 75.00 L 600.00 300.00 L 300.00 300.00 L 0.00 300.00 Z',
         'M 0.00 292.50 L 300.00 285.00 L 600.00 277.50 L 600.00 300.00 L 300.00 300.00 L 0.00 300.00 Z',
       ]);
-      expect(areas().map(a => a.getAttribute('fill'))).toEqual(['var(--wr-color-primary)', 'var(--wr-color-success)']);
+      expect(areas().map(a => a.getAttribute('fill'))).toEqual(['var(--wr-chart-1)', 'var(--wr-chart-2)']);
       // The colour alone is the path's; its share is the stylesheet's hook.
       for (const area of areas()) expect(area.hasAttribute('fill-opacity')).toBe(false);
     });
@@ -162,7 +162,7 @@ describe('WrLineChart area, stack and data table', () => {
       host().hidden.set([0]);
       render();
       expect(areas()).toHaveLength(1);
-      expect(areas()[0].getAttribute('fill')).toBe('var(--wr-color-success)');
+      expect(areas()[0].getAttribute('fill')).toBe('var(--wr-chart-2)');
     });
   });
 
@@ -319,22 +319,25 @@ describe('wr-line-chart area stylesheet', { timeout: COMPILE_TIMEOUT }, () => {
     expect(rule(source, '.wr-line-chart--stacked')).toMatch(/--wr-line-chart-area-opacity:\s*0\.3/);
   });
 
-  it('paints the grid, the crosshair and the hover centre through hooks, and gives forced colors its own', () => {
+  it('paints the grid, the crosshair and the hover ring through hooks, and gives forced colors its own', () => {
     // They were presentation attributes holding theme colours, which forced colors keeps
     // as written: on a dark forced canvas the gridlines measured about 1.3:1.
     const source = css();
     expect(rule(source, '.wr-line-chart__grid-line')).toMatch(/stroke:\s*var\(--wr-line-chart-grid-color\)/);
     expect(rule(source, '.wr-line-chart__crosshair')).toMatch(/stroke:\s*var\(--wr-line-chart-crosshair-color\)/);
-    expect(rule(source, '.wr-line-chart__hover-dot-center')).toMatch(/stroke:\s*var\(--wr-line-chart-hover-center\)/);
+    expect(rule(source, '.wr-line-chart__hover-dot-ring')).toMatch(/stroke:\s*var\(--wr-line-chart-hover-center\)/);
     const forced = /@media \(forced-colors: active\)\s*\{([\s\S]*?)\n\}/.exec(source)?.[1] ?? '';
     expect(rule(forced.replace(/^ {2}/gm, ''), '.wr-line-chart__grid-line')).toMatch(/stroke:\s*GrayText/);
-    expect(rule(forced.replace(/^ {2}/gm, ''), '.wr-line-chart__crosshair')).toMatch(/stroke:\s*CanvasText/);
-    expect(rule(forced.replace(/^ {2}/gm, ''), '.wr-line-chart__hover-dot-center')).toMatch(/stroke:\s*Canvas\b/);
+    expect(forced).toMatch(
+      /\.wr-line-chart__grid-line--zero,\s*\.wr-line-chart__crosshair\s*\{\s*stroke:\s*CanvasText/
+    );
+    expect(rule(forced.replace(/^ {2}/gm, ''), '.wr-line-chart__hover-dot-ring')).toMatch(/stroke:\s*Canvas\b/);
   });
 
   it('keeps the sign of a tick and of a tooltip value before its digits on an RTL page', () => {
     const source = css();
-    for (const selector of ['.wr-line-chart__tick', '.wr-line-chart__tooltip-value', '.wr-line-chart__x-label']) {
+    // The tooltip's value is the shared chip's row value now, which the chart's sheet loads.
+    for (const selector of ['.wr-line-chart__tick', '.wr-chart-tooltip__row-value', '.wr-line-chart__x-label']) {
       expect(rule(source, selector), selector).toMatch(/unicode-bidi:\s*plaintext/);
     }
     // Shrunk to its text, so following its own direction does not move a tick off the plot's side.

@@ -30,6 +30,12 @@ export interface WrChartTooltipDatum {
    * always been.
    */
   readonly rows?: readonly WrChartTooltipRow[];
+  /**
+   * A class the chip takes beside its own, so the chart that opened it can restyle its
+   * own chip: the chip is drawn in an overlay, outside the chart, where no hook set on
+   * the chart reaches it.
+   */
+  readonly className?: string;
 }
 
 /**

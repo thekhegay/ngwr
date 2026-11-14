@@ -5,11 +5,14 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ComponentHarness, HarnessPredicate, parallel } from '@angular/cdk/testing';
+import { ComponentHarness, HarnessPredicate, type TestElement, parallel } from '@angular/cdk/testing';
 
 import { WrChartLegendHarness } from 'ngwr/charts/chart-legend/testing';
 
 import type { WrLineChartHarnessFilters, WrLineChartTableRow, WrLineChartTooltipRow } from './types';
+
+/** The chart's tooltip: the shared chip, under the class the chart gives it. */
+const CHIP = '.wr-chart-tooltip.wr-line-chart__tooltip';
 
 /**
  * One body row of the chart's data table, so its header and cells are read off the row
@@ -41,6 +44,11 @@ class TableRowHarness extends ComponentHarness {
  * {@link getTooltipRows} reads the tooltip once something else has opened it: a
  * browser-run harness, or a spec that gives the drawing a box (`getBoundingClientRect`)
  * and dispatches the move itself.
+ *
+ * **The tooltip is read off the document.** It is the chip every chart shares, drawn in
+ * an overlay outside the chart under the chart's own class, `.wr-line-chart__tooltip`.
+ * One chip is up at a time for a pointer, so with several line charts on a page the
+ * tooltip readers answer for whichever of them opened it.
  *
  * @example
  * ```ts
@@ -75,7 +83,7 @@ export class WrLineChartHarness extends ComponentHarness {
     return (await this.locatorFor('.wr-line-chart__plot')()).getAttribute('aria-label');
   }
 
-  /** Whether the legend is rendered (`showLegend`, and at least one series). */
+  /** Whether the legend is rendered: `showLegend`, which leaves it out for a single series unless it is `true`. */
   async hasLegend(): Promise<boolean> {
     return (await this.locatorForOptional('.wr-line-chart__legend')()) !== null;
   }
@@ -189,7 +197,21 @@ export class WrLineChartHarness extends ComponentHarness {
     return (await this.locatorForOptional('.wr-line-chart__grid-line')()) !== null;
   }
 
-  /** The y-axis tick labels, top to bottom as drawn. */
+  /** Whether the y axis' scale is printed beside the plot (`showAxis`). */
+  async hasAxis(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-line-chart__y-axis')()) !== null;
+  }
+
+  /**
+   * The message the chart shows in place of its lines: "No data" with nothing to draw,
+   * or the loading or error message. `null` while it draws its lines.
+   */
+  async getStateLabel(): Promise<string | null> {
+    const state = await this.locatorForOptional('.wr-chart-state')();
+    return state ? (await state.text()).trim() : null;
+  }
+
+  /** The y-axis tick labels, top to bottom as drawn. `[]` with `showAxis` off. */
   async getYTicks(): Promise<string[]> {
     const ticks = await this.locatorForAll('.wr-line-chart__tick')();
     return Promise.all(ticks.map(tick => tick.text()));
@@ -207,19 +229,20 @@ export class WrLineChartHarness extends ComponentHarness {
 
   /** Whether the hover tooltip is showing. */
   async hasTooltip(): Promise<boolean> {
-    return (await this.locatorForOptional('.wr-line-chart__tooltip')()) !== null;
+    return (await this.chip()) !== null;
   }
 
   /** The tooltip's heading — the x label of the hovered point — or `null` while it is closed. */
   async getTooltipLabel(): Promise<string | null> {
-    const label = await this.locatorForOptional('.wr-line-chart__tooltip-label')();
+    const label = await this.documentRootLocatorFactory().locatorForOptional(`${CHIP} .wr-chart-tooltip__label`)();
     return label ? label.text() : null;
   }
 
   /** The tooltip's rows, one per series shown with a reading at that x, or `[]` while it is closed. */
   async getTooltipRows(): Promise<WrLineChartTooltipRow[]> {
-    const names = await this.locatorForAll('.wr-line-chart__tooltip-name')();
-    const values = await this.locatorForAll('.wr-line-chart__tooltip-value')();
+    const page = this.documentRootLocatorFactory();
+    const names = await page.locatorForAll(`${CHIP} .wr-chart-tooltip__row-label`)();
+    const values = await page.locatorForAll(`${CHIP} .wr-chart-tooltip__row-value`)();
 
     return Promise.all(
       names.map(async (name, index) => ({
@@ -227,6 +250,11 @@ export class WrLineChartHarness extends ComponentHarness {
         value: (await values[index]?.text()) ?? '',
       }))
     );
+  }
+
+  /** The chart's chip in the overlay, or `null` while it is closed. */
+  private chip(): Promise<TestElement | null> {
+    return this.documentRootLocatorFactory().locatorForOptional(CHIP)();
   }
 
   private async assertDataTable(method: string): Promise<void> {

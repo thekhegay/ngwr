@@ -20,7 +20,22 @@ import { API } from '#core/generated/api';
 export default class LineChartPageComponent {
   protected readonly series: readonly WrLineSeries[] = [
     { label: 'Visits', data: [12, 18, 9, 22, 30, 27, 35] },
-    { label: 'Signups', data: [3, 5, 4, 8, 11, 9, 14], color: 'var(--wr-color-success)' },
+    { label: 'Signups', data: [3, 5, 4, 8, 11, 9, 14] },
+  ];
+
+  protected readonly visits: readonly WrLineSeries[] = [this.series[0]];
+
+  protected readonly balance: readonly WrLineSeries[] = [{ label: 'Balance', data: [14, 6, -8, -12, 4, 18, 9] }];
+
+  /** Four thousand readings: several times more points than the plot has pixels. */
+  protected readonly load: readonly WrLineSeries[] = [
+    {
+      label: 'Load',
+      data: Array.from(
+        { length: 4000 },
+        (_, i) => 50 + 30 * Math.sin(i / 400) + 12 * Math.sin(i / 23) + ((i * 7919) % 11)
+      ),
+    },
   ];
 
   protected readonly xLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -53,6 +68,25 @@ export default class LineChartPageComponent {
 
   protected readonly snippets = {
     basic: `<wr-line-chart [series]="series" [xLabels]="labels" />`,
+    grid: `<wr-line-chart [series]="series" [xLabels]="labels" [showGrid]="false" />
+<wr-line-chart [series]="series" [xLabels]="labels" [showAxis]="false" />`,
+    legend: `<wr-line-chart [series]="series" [xLabels]="labels" legendPosition="top" />
+<wr-line-chart [series]="series" [xLabels]="labels" legendPosition="end" />
+<wr-line-chart [series]="visits" [xLabels]="labels" showLegend />`,
+    states: `<wr-line-chart [series]="[]" />
+<wr-line-chart [series]="series" loading />
+<wr-line-chart [series]="series" error errorLabel="Traffic is unavailable" />`,
+    decimate: `<wr-line-chart [series]="load" [showDots]="false" />
+<wr-line-chart [series]="load" [showDots]="false" [decimate]="false" />`,
+    theme: `.wr-line-chart {
+  --wr-line-chart-line-width: 3px;
+  --wr-line-chart-dot-size: 8px;
+}
+
+/* The tooltip is drawn in an overlay: style it by its own class. */
+.wr-line-chart__tooltip {
+  --wr-line-chart-tooltip-radius: var(--wr-border-radius-base);
+}`,
     area: `<wr-line-chart [series]="series" [xLabels]="labels" showArea />`,
     stacked: `<wr-line-chart [series]="channels" [xLabels]="labels" showArea stacked />`,
     dataTable: `<wr-line-chart [series]="series" [xLabels]="labels" ariaLabel="Weekly traffic" dataTable />`,
