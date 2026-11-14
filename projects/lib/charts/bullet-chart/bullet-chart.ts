@@ -31,7 +31,7 @@ import {
   wrChartRound,
 } from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { useChartTooltip } from 'ngwr/popover';
+import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrClamp, wrRound, wrCheckStyles } from 'ngwr/utils';
 
 /**
@@ -206,10 +206,14 @@ export class WrBulletChart {
   readonly showScale = input(true, { transform: coerceBooleanProperty });
 
   /**
-   * Show a tooltip with the label, the value and the target while the pointer is over the
-   * drawing. Pointer only: the accessible name says the same. @default true
+   * Show a tooltip with the label, the value and the target while the pointer is over
+   * the drawing. Pointer only: the accessible name says the same.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * A request for the measure is in flight: the bands, the bar and the marker give way to

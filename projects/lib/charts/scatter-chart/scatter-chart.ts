@@ -40,7 +40,7 @@ import {
   wrChartRound,
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
-import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
+import { type WrChartTooltipRow, useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import { wrScatterHit, wrScatterIndex } from './internal/hit';
@@ -345,8 +345,15 @@ export class WrScatterChart {
    */
   readonly hiddenSeries = model<readonly number[]>([]);
 
-  /** Show a tooltip with the series, x, y and size of the point under the pointer. Pointer only. @default true */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  /**
+   * Show a tooltip with the series, x, y and size of the point under the pointer.
+   * Pointer only.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
+   */
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Render every point's values as a table only assistive technology reaches, beside the

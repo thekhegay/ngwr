@@ -36,7 +36,7 @@ import {
   wrChartRound,
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
-import { useChartTooltip } from 'ngwr/popover';
+import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrHeatmapMatrix } from './types';
@@ -309,11 +309,15 @@ export class WrHeatmapChart {
   readonly errorLabel = input<string | null>(null);
 
   /**
-   * Show a tooltip for the cell under the pointer: its row's name, its column's name and
-   * its value, or `noDataLabel` for an empty cell. Pointer only — the data table is where
-   * the same numbers are for a keyboard or a screen reader. @default true
+   * Show a tooltip for the cell under the pointer: its row's name, its column's name
+   * and its value, or `noDataLabel` for an empty cell. Pointer only — the data table is
+   * where the same numbers are for a keyboard or a screen reader.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Writes every number the chart shows: the values in the cells, the legend, the tooltip

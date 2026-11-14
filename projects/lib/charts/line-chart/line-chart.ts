@@ -46,7 +46,7 @@ import {
   wrChartNumberFormat,
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
-import { type WrChartTooltipTarget, useChartTooltip } from 'ngwr/popover';
+import { type WrChartTooltipTarget, useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_LINE_CHART_BREAK, wrLineChartCrowded, wrLineChartKeep } from './internal/decimate';
@@ -369,9 +369,12 @@ export class WrLineChart {
    * Show the hover readout: the crosshair, the point markers and the tooltip, which is
    * the chip every chart shares, with the x label as its heading and a row per series.
    * Off drops all three, since a crosshair with no values beside it points at nothing.
-   * @default true
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Drawn edge to edge in a 600×300 viewBox that stretches to the plot. Nothing in it is

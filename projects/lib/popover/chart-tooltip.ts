@@ -6,6 +6,7 @@
  */
 
 import { Directionality } from '@angular/cdk/bidi';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import type { ConnectedPosition, FlexibleConnectedPositionStrategy, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { ViewportRuler } from '@angular/cdk/scrolling';
@@ -191,8 +192,15 @@ function boxOf(anchor: Anchor): Box {
  * then point at a neighbour. The measurement is written to
  * `--wr-chart-tooltip-arrow` on the chip, and the stylesheet puts the arrow there.
  *
- * **A chip at its section sits over the sections beside it**, and it is hoverable
- * (below), so the way onto it can cross another section: straight up from a heatmap
+ * **The chip lets the pointer through by default.** It belongs to the chart, not to a
+ * hint a reader has to reach: the pointer passes under it to the sections it covers, so
+ * moving to the bar beside one switches at once, and off the chart it closes. That
+ * fails WCAG 1.4.13's "hoverable", on purpose and by the maintainer's call: every value
+ * the chip shows is also the section's accessible name and the chart's data table.
+ * `tooltip="hoverable"` brings the hoverable chip back, described next.
+ *
+ * **A hoverable chip at its section sits over the sections beside it**, so the way onto
+ * it can cross another section: straight up from a heatmap
  * day runs through the day above. Switching the moment that day reported itself
  * would move the chip away from a pointer on its way to it — WCAG 1.4.13 with extra
  * steps. So the strip between the anchor and the chip is a bridge: another section
@@ -219,7 +227,8 @@ function boxOf(anchor: Anchor): Box {
  *
  * Call from an injection context — a chart's field initialiser.
  *
- * @param enabled The chart's `tooltip` input. Turning it off closes an open tooltip.
+ * @param enabled The chart's `tooltip` input: `true` for the chip the pointer passes
+ *   under, `'hoverable'` for one it can rest on. Turning it off closes an open tooltip.
  * @param resolve What to show for section `index`, and where. It runs after
  *   render, so it may read the DOM the section just drew; the signals it reads
  *   are tracked, so a data change under an open tooltip re-reads it, and a
@@ -239,7 +248,7 @@ function boxOf(anchor: Anchor): Box {
  * @internal
  */
 export function useChartTooltip(
-  enabled: Signal<boolean>,
+  enabled: Signal<boolean | 'hoverable'>,
   resolve: (index: number) => WrChartTooltipTarget | null,
   sectionAt?: (x: number, y: number) => number | null
 ): WrChartTooltip {
@@ -252,6 +261,8 @@ export function useChartTooltip(
 
   const hovered = signal<number | null>(null);
   const active = computed(() => (enabled() ? hovered() : null));
+  /** Whether the pointer may rest on the chip: see the modes above. */
+  const hoverable = (): boolean => untracked(enabled) === 'hoverable';
 
   /**
    * The section Escape dismissed. It stays shut for as long as the pointer stays
@@ -355,7 +366,7 @@ export function useChartTooltip(
       cancelGrace();
       return;
     }
-    if (showing !== null && inBridge()) {
+    if (showing !== null && hoverable() && inBridge()) {
       defer(index);
       return;
     }
@@ -438,6 +449,12 @@ export function useChartTooltip(
     const scrubbed = sectionAt && ours ? sectionAt(x, y) : null;
     if (scrubbed !== null) {
       enter(scrubbed);
+      return;
+    }
+    // A chip the pointer passes under is never reached: off the drawing of a chart
+    // scrubbed by position, nothing is hovered (see below), and that is all.
+    if (!hoverable()) {
+      if (sectionAt && graceTimer === null) defer(null);
       return;
     }
     // On the chip: its own `mouseenter` cancels whatever is pending. Asked of the
@@ -535,11 +552,13 @@ export function useChartTooltip(
 
       const pane = overlayRef.overlayElement;
       pane.setAttribute('aria-hidden', 'true');
-      // Hoverable: the pointer may move onto the chip without losing it, and a switch
-      // or a hide it was racing is off. Leaving it starts the same grace a section
-      // does; landing back on a section decides through `enter()`.
-      pane.addEventListener('mouseenter', cancelGrace);
-      pane.addEventListener('mouseleave', () => defer(null));
+      if (hoverable()) {
+        // The pointer may move onto the chip without losing it, and a switch or a hide
+        // it was racing is off. Leaving it starts the same grace a section does; landing
+        // back on a section decides through `enter()`.
+        pane.addEventListener('mouseenter', cancelGrace);
+        pane.addEventListener('mouseleave', () => defer(null));
+      }
 
       // Escape reaches the topmost overlay wherever focus is — the CDK's keyboard
       // dispatcher routes it — which is what makes a tooltip nothing can focus
@@ -552,6 +571,9 @@ export function useChartTooltip(
       });
 
       panel = overlayRef.attach(new ComponentPortal(WrChartTooltipPanel, null, injector));
+      // After `attach`, which sets the pane's own `pointer-events` back to its default.
+      // The chip inherits it.
+      if (!hoverable()) pane.style.pointerEvents = 'none';
     } else if (wanted !== side) {
       side = wanted;
       strategy?.withPositions(chartTooltipPositions(side, overlayRef.getDirection() === 'rtl'));
@@ -590,8 +612,17 @@ export function useChartTooltip(
       // Straight onto the chip: its own `mouseenter` would cancel the grace a
       // moment later anyway, and not arming it is what removes the race.
       const to = event?.relatedTarget;
-      if (to instanceof Node && overlayRef?.overlayElement.contains(to)) return;
+      if (hoverable() && to instanceof Node && overlayRef?.overlayElement.contains(to)) return;
       defer(null);
     },
   };
+}
+
+/**
+ * A chart's `tooltip` input: `'hoverable'` as it is, anything else as a boolean attribute.
+ *
+ * @internal
+ */
+export function wrCoerceChartTooltip(value: unknown): boolean | 'hoverable' {
+  return value === 'hoverable' ? 'hoverable' : coerceBooleanProperty(value);
 }

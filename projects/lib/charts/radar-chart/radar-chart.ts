@@ -36,7 +36,7 @@ import {
   wrChartRound,
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
-import { useChartTooltip } from 'ngwr/popover';
+import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrClamp, wrRound, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrRadarSeries, WrRadarVariant } from './types';
@@ -453,9 +453,13 @@ export class WrRadarChart {
   /**
    * Show a tooltip for the axis nearest the pointer: its name, and every series' value
    * on it; an axis no series shown has a value on opens none. Pointer only — the data
-   * table is where the same numbers are for a keyboard or a screen reader. @default true
+   * table is where the same numbers are for a keyboard or a screen reader.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Writes every number the chart shows: the ring values, the tooltip and the data

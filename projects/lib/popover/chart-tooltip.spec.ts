@@ -36,7 +36,7 @@ class Host {
     { label: 'Mon', value: 12 },
     { label: 'Tue', value: 18 },
   ]);
-  readonly enabled = signal(true);
+  readonly enabled = signal<boolean | 'hoverable'>(true);
   readonly anchored = signal(true);
   /** The second section opens below its anchor, the way a donut's lower half does. */
   readonly lowerSecond = signal(false);
@@ -523,6 +523,7 @@ describe('useChartTooltip', () => {
    * as wide as the chip, is the way onto it.
    */
   const bridge = (): void => {
+    fixture.componentInstance.enabled.set('hoverable');
     layout(new DOMRect(50, 250, 100, 30));
     fixture.componentInstance.box.set({ x: 100, y: 300 });
     settle();
@@ -599,6 +600,8 @@ describe('useChartTooltip', () => {
   });
 
   it('stays up while the pointer is on the chip itself (WCAG 1.4.13, hoverable)', () => {
+    fixture.componentInstance.enabled.set('hoverable');
+    settle();
     enter(sections()[0]);
     const pane = panes()[0];
 
@@ -615,6 +618,26 @@ describe('useChartTooltip', () => {
     expect(panes()).toHaveLength(1);
 
     pane.dispatchEvent(new MouseEvent('mouseleave'));
+    tick(110);
+    expect(panes()).toHaveLength(0);
+  });
+
+  it('lets the pointer through by default: the next section answers at once and the chip holds nothing', () => {
+    layout(new DOMRect(50, 250, 100, 30));
+    fixture.componentInstance.box.set({ x: 100, y: 300 });
+    settle();
+    enter(sections()[0]);
+    const pane = panes()[0];
+    expect(pane.style.pointerEvents).toBe('none');
+
+    // From inside the strip toward the chip, where a hoverable chip would hold the switch.
+    pointer(100, 292);
+    enter(sections()[1]);
+    expect(text('label')).toBe('Tue');
+
+    // Nothing on the chip keeps it: off the chart it closes after the usual grace.
+    pane.dispatchEvent(new MouseEvent('mouseenter'));
+    leave(sections()[1], pane);
     tick(110);
     expect(panes()).toHaveLength(0);
   });

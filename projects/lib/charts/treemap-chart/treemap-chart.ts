@@ -37,7 +37,7 @@ import {
   wrChartRound,
 } from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
-import { useChartTooltip } from 'ngwr/popover';
+import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import { type WrTreemapRect, squarify } from './internal/squarify';
@@ -416,11 +416,15 @@ export class WrTreemapChart {
   readonly errorLabel = input<string | null>(null);
 
   /**
-   * Show a tooltip for the tile under the pointer: its path from the top-level node, its
-   * value, and its share of the whole. Pointer only — the data table is where the same
-   * figures are for a keyboard or a screen reader. @default true
+   * Show a tooltip for the tile under the pointer: its path from the top-level node,
+   * its value, and its share of the whole. Pointer only — the data table is where the
+   * same figures are for a keyboard or a screen reader.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Writes every value the chart shows: inside the tiles, in the tooltip and in the data

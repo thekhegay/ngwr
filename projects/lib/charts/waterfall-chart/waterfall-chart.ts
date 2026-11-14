@@ -20,7 +20,7 @@ import {
   wrChartRound,
 } from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
+import { type WrChartTooltipRow, useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrWaterfallStep, WrWaterfallValueContext } from './types';
@@ -258,10 +258,14 @@ export class WrWaterfallChart {
   readonly showConnectors = input(true, { transform: coerceBooleanProperty });
 
   /**
-   * Show a tooltip with the step's change and the running total after it on hover. Pointer
-   * only — each step's accessible name already carries both. @default true
+   * Show a tooltip with the step's change and the running total after it on hover.
+   * Pointer only — each step's accessible name already carries both.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * A request for the chart's data is in flight: the bars give way to the loading

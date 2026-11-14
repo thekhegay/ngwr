@@ -31,7 +31,7 @@ import {
   wrChartRound,
 } from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
+import { type WrChartTooltipRow, useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import { boxplotStats, drawnOutliers, sortedFinite } from './internal/stats';
@@ -284,10 +284,14 @@ export class WrBoxplotChart {
 
   /**
    * Show a tooltip with the hovered group's five numbers — the whiskers' ends, the
-   * quartiles and the median — and its outliers' values, the lowest three, then how many
-   * more there are: every outlier is counted, drawn or not. Pointer only. @default true
+   * quartiles and the median — and its outliers' values, the lowest three, then how
+   * many more there are: every outlier is counted, drawn or not. Pointer only.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Render every group's numbers as a table only assistive technology reaches, beside the

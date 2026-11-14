@@ -36,7 +36,7 @@ import {
   wrChartRound,
 } from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
-import { useChartTooltip } from 'ngwr/popover';
+import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 import { wrCandlestickDigits, wrCandlestickMerge, wrCandlestickPer } from './internal/merge';
@@ -292,8 +292,15 @@ export class WrCandlestickChart {
   /** The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`. */
   readonly errorLabel = input<string | null>(null);
 
-  /** Show a tooltip with the period's open, high, low and close under the pointer. Pointer only. @default true */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  /**
+   * Show a tooltip with the period's open, high, low and close under the pointer.
+   * Pointer only.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
+   */
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Render every period's prices as a table only assistive technology reaches, beside

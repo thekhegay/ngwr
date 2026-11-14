@@ -46,7 +46,7 @@ import {
   wrChartRound,
 } from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { type WrChartTooltipRow, type WrChartTooltipTarget, useChartTooltip } from 'ngwr/popover';
+import { type WrChartTooltipRow, type WrChartTooltipTarget, useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrBarChartDatum, WrBarLine, WrBarOrientation, WrBarSeries } from './types';
@@ -437,9 +437,13 @@ export class WrBarChart {
   /**
    * Show a tooltip with the bar's label and value on hover — with `series`, the
    * category's name and a row per series shown. Pointer only — the accessible names
-   * already carry every value. @default true
+   * already carry every value.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Show the legend. With `series`, or beside `lines`, which it then lists. `'auto'`
