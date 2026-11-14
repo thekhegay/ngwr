@@ -56,7 +56,7 @@ const DEFAULT_NODE_WIDTH = 160;
 const DEFAULT_NODE_HEIGHT = 48;
 
 /**
- * The arrowhead's size in pixels, and the length of the straight lead-in under it.
+ * The arrowhead's size in pixels, and the length of the straight lead-in before it.
  * A fixed user-space size rather than a multiple of the stroke, so a thinner or
  * thicker `--wr-graph-edge-width` never shrinks the arrow off its lead-in.
  */
@@ -544,11 +544,14 @@ export class WrGraph<TData = unknown> {
     // leaves a parent vertically and runs through a bend without a corner — a
     // reversed edge too, whose stretches simply climb.
     //
-    // The last `ARROW_SIZE` pixels are a straight lead-in. A marker takes its angle
-    // from the tangent at the very end, but it covers several pixels of line, and on
-    // a curve those already point elsewhere — the line came out of the side of the
-    // arrowhead. On a straight piece the triangle and the line agree. A self-loop is
-    // one cubic out to its reserved side with the same lead-in coming back level.
+    // The line stops at the arrowhead's base, one `ARROW_SIZE` short of the route's
+    // end, and the marker carries on from there to the tip. A stroke that ran to the
+    // tip would be wider than the triangle there and show beside and past it.
+    //
+    // The stretch before the base is a straight lead-in. A marker takes its angle
+    // from the tangent at the line's end, and a line that arrived on a curve would
+    // come out of the side of the arrowhead. A self-loop is one cubic out to its
+    // reserved side with the same lead-in coming back level.
     //
     // Only `+`, `-`, `/`, `abs`, `min` and `max`, so the server and the browser
     // write the same numbers.
@@ -557,18 +560,25 @@ export class WrGraph<TData = unknown> {
       const end = points[points.length - 1];
       if (loop) {
         const right = Math.max(...points.map(point => point.x));
-        const lead = Math.min(ARROW_SIZE, (right - end.x) / 2);
+        const head = Math.min(ARROW_SIZE, right - end.x);
+        const lead = Math.min(ARROW_SIZE, (right - end.x - head) / 2);
         const outer = x(right);
-        return `M${at(start)} C${outer} ${px(start.y)} ${outer} ${px(end.y)} ${x(end.x + lead)} ${px(end.y)} L${at(end)}`;
+        const base = x(end.x + head);
+        return `M${at(start)} C${outer} ${px(start.y)} ${outer} ${px(end.y)} ${x(end.x + head + lead)} ${px(end.y)} L${base} ${px(end.y)}`;
       }
       const stretches = points.slice(1).map((to, i) => {
         const from = points[i];
-        const last = i === points.length - 2;
-        const lead = last ? Math.min(ARROW_SIZE, Math.abs(to.y - from.y) / 2) : 0;
-        const toY = to.y < from.y ? to.y + lead : to.y - lead;
+        if (i < points.length - 2) {
+          const middle = px((from.y + to.y) / 2);
+          return `C${x(from.x)} ${middle} ${x(to.x)} ${middle} ${at(to)}`;
+        }
+        const run = Math.abs(to.y - from.y);
+        const head = Math.min(ARROW_SIZE, run);
+        const lead = Math.min(ARROW_SIZE, (run - head) / 2);
+        const back = to.y < from.y ? 1 : -1;
+        const toY = to.y + back * (head + lead);
         const middle = px((from.y + toY) / 2);
-        const bend = `C${x(from.x)} ${middle} ${x(to.x)} ${middle} ${x(to.x)} ${px(toY)}`;
-        return last ? `${bend} L${at(to)}` : bend;
+        return `C${x(from.x)} ${middle} ${x(to.x)} ${middle} ${x(to.x)} ${px(toY)} L${x(to.x)} ${px(to.y + back * head)}`;
       });
       return [`M${at(start)}`, ...stretches].join(' ');
     };

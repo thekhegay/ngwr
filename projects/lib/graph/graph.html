@@ -25,10 +25,11 @@
       [attr.height]="graph.height"
     >
       <defs>
+        <!-- `refX` is the triangle's base: the line ends there and the arrowhead alone reaches the node. -->
         <marker
           [attr.id]="markerId"
           viewBox="0 0 10 10"
-          refX="10"
+          refX="0"
           refY="5"
           markerUnits="userSpaceOnUse"
           [attr.markerWidth]="arrowSize"
