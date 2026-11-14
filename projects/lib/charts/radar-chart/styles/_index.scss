@@ -4,9 +4,10 @@
 // Styles for the entry points this component's own markup renders. The legend is a
 // `ul[wr-chart-legend]`, so `@use 'ngwr/charts/radar-chart'` alone draws it styled.
 @use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
-// With `dataTable`, the figures render as a `<wr-chart-table>` beside the drawing, which
-// its own sheet clips out of sight.
-@use '../../core/styles' as core-styles; // WrChartTable
+// The chart theme every hook below defaults to (`--wr-chart-*`), the hover-dim rule, the
+// empty / loading / error message, and the `<wr-chart-table>` that `dataTable` renders
+// beside the drawing, which its own rule clips out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable, WrChartState
 @include theme.loaded('charts/radar-chart');
 
 .wr-radar-chart {
@@ -17,35 +18,39 @@
   // as wide as a name may run beside it and as tall as one line above and below it; a
   // name longer than its room is ellipsised, and the tooltip and the data table carry it
   // whole.
-  --wr-radar-chart-label-font-size: var(--wr-text-xs);
+  --wr-radar-chart-label-font-size: var(--wr-chart-label-size);
   --wr-radar-chart-label-line-height: var(--wr-text-xs-leading);
-  --wr-radar-chart-label-color: var(--wr-color-on-surface);
-  // Far enough out that the name at twelve o'clock clears the outer ring's value, which
-  // sits half a line above that ring beside the same spoke.
+  // Muted, as the category names along every chart's axis are.
+  --wr-radar-chart-label-color: var(--wr-chart-label);
+  // How far past the end of its spoke a name starts: clear of a dot on the outer ring.
   --wr-radar-chart-label-gap: var(--wr-space-sm);
   --wr-radar-chart-label-max-width: 10rem;
   --wr-radar-chart-gutter-x: 5rem;
   --wr-radar-chart-gutter-y: calc(var(--wr-radar-chart-label-line-height) + var(--wr-radar-chart-label-gap));
-  // The ring values beside the first axis, muted as every axis' ticks are, with a halo of
-  // the surface round each glyph: the first axis carries every series' first value, so an
-  // outline leaving it crosses the values more often than not, and the halo keeps a number
-  // readable where a line runs behind it while the line still shows round it. A chip with
-  // a wash of the surface veiled the outlines under it instead, and on a phone took a
-  // large part of a quadrant.
-  --wr-radar-chart-ring-label-color: var(--wr-color-on-surface-muted);
-  --wr-radar-chart-ring-label-halo: var(--wr-color-surface);
-  --wr-radar-chart-ring-label-offset: var(--wr-space-sm);
-  // The web, as faint as the line chart's gridlines.
-  --wr-radar-chart-grid-color: color-mix(in srgb, var(--wr-border-base) 70%, transparent);
+  // The ring values, each on its own ring between two spokes, muted as every axis' ticks
+  // are, with a halo of the surface round each glyph: a series' outline crosses the gap
+  // between two spokes somewhere, and the halo keeps a number readable where a line runs
+  // behind it while the line still shows round it. A chip with a wash of the surface
+  // veiled the outlines under it instead, and on a phone took a large part of a quadrant.
+  --wr-radar-chart-ring-label-color: var(--wr-chart-label);
+  --wr-radar-chart-ring-label-halo: var(--wr-chart-separator);
+  // The web, at the contrast of every chart's gridlines.
+  --wr-radar-chart-grid-color: var(--wr-chart-grid);
   --wr-radar-chart-grid-width: 1px;
-  // The series: an outline, a faint fill under it, and a dot at every value. In pixels,
+  // The series: an outline, a tint under it, and a dot at every value. In pixels,
   // whatever the drawing's size, since every stroke here does not scale.
-  --wr-radar-chart-line-width: 2px;
+  --wr-radar-chart-line-width: var(--wr-chart-stroke);
+  --wr-radar-chart-dot-size: var(--wr-chart-marker);
+  // How much of the series' colour the tint keeps. More on a dark surface: the same
+  // share of a colour over a dark page is a darker tint, not a lighter one, and at the
+  // light scheme's share two series over each other read as one murky patch.
   --wr-radar-chart-area-opacity: 0.15;
-  --wr-radar-chart-dot-size: 6px;
-  // What the open tooltip marks: its axis' spoke, and a ring round each value on it.
-  --wr-radar-chart-crosshair-color: var(--wr-color-on-surface-muted);
-  --wr-radar-chart-hover-center: var(--wr-color-surface);
+  --wr-radar-chart-area-opacity-dark: 0.24;
+  // What the open tooltip marks: its axis' spoke, and each value on it as a larger dot
+  // inside a ring of the surface.
+  --wr-radar-chart-crosshair-color: var(--wr-chart-axis);
+  --wr-radar-chart-hover-ring: var(--wr-chart-separator);
+  --wr-radar-chart-hover-ring-width: 2px;
 
   display: inline-flex;
   // The containing block of the out-of-flow `dataTable` copy, as on the line chart: a
@@ -54,7 +59,8 @@
   position: relative;
   flex-direction: column;
   align-items: center;
-  gap: var(--wr-radar-chart-gap);
+  // No `gap`: the room between the drawing and the legend is the legend's own margin, on
+  // whichever side `legendPosition` puts it. See `&__legend`.
   max-width: 100%;
   font-family: var(--wr-radar-chart-font-family);
   color: var(--wr-radar-chart-color);
@@ -85,10 +91,21 @@
     stroke-width: var(--wr-radar-chart-grid-width);
   }
 
+  // The tint under a series: its own colour, which the template hands over, at the share
+  // the scheme asks for. Over the `fill` attribute, which is the colour itself. Never
+  // hittable: the fills lie over each other, so the one on top would answer for all of
+  // them, and the outline and the dots are what the hover-dim reads.
   &__area {
-    fill-opacity: var(--wr-radar-chart-area-opacity);
+    $color: var(--wr-radar-chart-series-color, currentColor);
+
+    fill: light-dark(
+      color-mix(in srgb, $color calc(var(--wr-radar-chart-area-opacity) * 100%), transparent),
+      color-mix(in srgb, $color calc(var(--wr-radar-chart-area-opacity-dark) * 100%), transparent)
+    );
+    pointer-events: none;
   }
 
+  // The opacity transition for the hover-dim is the shared rule's, on `data-wr-series`.
   &__line {
     stroke-width: var(--wr-radar-chart-line-width);
   }
@@ -97,19 +114,24 @@
     stroke-width: var(--wr-radar-chart-dot-size);
   }
 
+  // Solid and stronger than the web, over the spoke it marks. Neither it nor the hovered
+  // dots are hittable, so the outline or the dot under them still answers the pointer.
   &__crosshair {
     stroke: var(--wr-radar-chart-crosshair-color);
     stroke-width: 1px;
-    stroke-dasharray: 3 3;
+    pointer-events: none;
   }
 
+  // A hovered value: 2px larger than a dot at rest, inside a ring of the surface.
   &__hover-dot {
-    stroke-width: calc(var(--wr-radar-chart-dot-size) * 2);
+    stroke: var(--wr-radar-chart-hover-ring);
+    stroke-width: calc(var(--wr-radar-chart-dot-size) + 2px + 2 * var(--wr-radar-chart-hover-ring-width));
+    pointer-events: none;
   }
 
   &__hover-dot-center {
-    stroke: var(--wr-radar-chart-hover-center);
-    stroke-width: calc(var(--wr-radar-chart-dot-size) * 4 / 3);
+    stroke-width: calc(var(--wr-radar-chart-dot-size) + 2px);
+    pointer-events: none;
   }
 
   // Both layers cover the drawing exactly, so a label's percentages are the drawing's.
@@ -123,18 +145,17 @@
     line-height: var(--wr-radar-chart-label-line-height);
   }
 
-  // Beside the first axis, just past its spoke and level with its ring, so a value reads
-  // against the line it names. Past the spoke rather than on it, because the first
-  // axis' dots are on the spoke and a value laid over one would hide it. `top` in
-  // percent is the layer's height, which is the drawing's. A fitted scale can run below
+  // Centred on the point of its ring the component hands over, between two spokes, so a
+  // value reads against the line it names and lies on no spoke, no dot and no axis name.
+  // The percentages are the layer's, which is the drawing's. A fitted scale can run below
   // zero, and a value has no strong character of its own, so `plaintext` keeps the sign
   // of `-20` before its digits on an RTL page.
   &__ring-label {
     position: absolute;
-    // rtl-ok: beside the first axis' spoke, which the drawing does not mirror
-    left: 50%;
+    // rtl-ok: a point of the drawing, which does not mirror with `direction`
+    left: calc(var(--wr-radar-chart-x, 50) * 1%);
     top: calc(var(--wr-radar-chart-y, 0) * 1%);
-    transform: translate(var(--wr-radar-chart-ring-label-offset), -50%);
+    transform: translate(-50%, -50%);
     color: var(--wr-radar-chart-ring-label-color);
     text-shadow:
       0 0 2px var(--wr-radar-chart-ring-label-halo),
@@ -183,14 +204,35 @@
     unicode-bidi: plaintext;
   }
 
+  // The room between the legend and the drawing, on whichever side `legendPosition` puts
+  // it: the shared legend rule reads `--wr-chart-legend-space`, and `--wr-radar-chart-gap`
+  // is the chart's own name for it, from when the legend was always below.
   &__legend {
-    justify-content: center;
+    --wr-chart-legend-space: var(--wr-radar-chart-gap);
+  }
+}
+
+// Beside the legend the chart is a row: the drawing keeps its `size` and the legend is
+// centred against it. The shared side rule makes the host a block-level flex box whose
+// body takes the rest of the row, which suits a plot that fills its container; this
+// drawing has a size of its own, so the chart stays as wide as its parts, and the
+// drawing still shrinks before the page scrolls. The class is doubled as the shared rule
+// doubles it, and the chart's own name outweighs it.
+.wr-radar-chart.wr-chart--legend-side.wr-chart--legend-side {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+
+  > .wr-radar-chart__surface {
+    flex: 0 1 auto;
+    min-width: 0;
   }
 }
 
 // Forced colors keeps the SVG strokes as written, so the strokes written in theme colours
 // would keep colours the forced palette no longer has: the web would vanish on a dark
-// canvas, and the hovered dot's surface-coloured centre would be a disc of the old page.
+// canvas, and the surface-coloured ring round a hovered dot would be a ring of the old
+// page.
 @media (forced-colors: active) {
   .wr-radar-chart__ring,
   .wr-radar-chart__spoke {
@@ -201,7 +243,7 @@
     stroke: CanvasText;
   }
 
-  .wr-radar-chart__hover-dot-center {
+  .wr-radar-chart__hover-dot {
     stroke: Canvas;
   }
 }
