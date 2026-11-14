@@ -34,7 +34,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { wrIsPrintableKey, wrToClassList, type WrClassInput } from 'ngwr/utils';
+import { WR_LIVE_LOCALE, wrIsPrintableKey, wrToClassList, wrTypeahead, type WrClassInput } from 'ngwr/utils';
 
 import type { WrCascaderOption } from './types';
 
@@ -59,9 +59,6 @@ function tabLeavesPane(pane: HTMLElement, event: KeyboardEvent): boolean {
   const active = pane.ownerDocument.activeElement;
   return !!active && pane.contains(active);
 }
-
-/** How long a pause ends a type-ahead run, in milliseconds — the figure APG's examples use. */
-const TYPEAHEAD_MS = 500;
 
 /**
  * Multi-level select — drills down through hierarchical categories
@@ -272,9 +269,9 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     return first ? { col: 0, value: first.value } : null;
   });
 
+  private readonly liveLocale = inject(WR_LIVE_LOCALE, { optional: true });
   /** Letters typed in quick succession, for type-ahead. */
-  private typeahead = '';
-  private typeaheadAt = 0;
+  private readonly typeahead = wrTypeahead({ locale: () => this.liveLocale?.() });
 
   /** Panel id used by the trigger's `aria-controls`. */
   protected readonly panelId = `wr-cascader-panel-${++panelUid}`;
@@ -484,7 +481,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     if (!column) return;
     // Before the modifier check, because Shift is how a capital letter is typed.
     if (wrIsPrintableKey(event) && event.key !== ' ') {
-      this.typeAhead(column, current, event.key);
+      this.typeAhead(column, current, event);
       event.preventDefault();
       return;
     }
@@ -558,35 +555,15 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
 
   /**
    * Move to the next enabled option in `column` whose label starts with the letters
-   * typed so far. A pause of {@link TYPEAHEAD_MS} starts a new run. One letter
-   * pressed again cycles through the options that start with it; a longer run keeps
-   * the option it already matches, so `g` then `e` stays on "Germany".
+   * typed so far: {@link wrTypeahead} over the column's labels.
    */
-  private typeAhead(column: HTMLElement, current: HTMLElement, key: string): void {
-    const now = Date.now();
-    this.typeahead = now - this.typeaheadAt > TYPEAHEAD_MS ? key : this.typeahead + key;
-    this.typeaheadAt = now;
-
-    const typed = this.typeahead.toLocaleLowerCase();
-    const repeated = [...typed].every(ch => ch === typed[0]);
-    const search = repeated ? typed[0] : typed;
+  private typeAhead(column: HTMLElement, current: HTMLElement, event: KeyboardEvent): void {
     const enabled = [...column.querySelectorAll<HTMLElement>('[role="treeitem"]')].filter(
       o => o.getAttribute('aria-disabled') !== 'true'
     );
-    const from = enabled.indexOf(current);
-    // A fresh letter (or a repeated one) starts AFTER the current option; a longer
-    // run starts AT it, so the option that matched the first letters can keep the
-    // match.
-    const start = search.length === 1 ? from + 1 : Math.max(from, 0);
-    const label = (o: HTMLElement): string =>
-      (o.querySelector('.wr-cascader__opt-label')?.textContent ?? '').trim().toLocaleLowerCase();
-    for (let i = 0; i < enabled.length; i++) {
-      const candidate = enabled[(start + i) % enabled.length];
-      if (label(candidate).startsWith(search)) {
-        candidate.focus();
-        return;
-      }
-    }
+    const labels = enabled.map(o => o.querySelector('.wr-cascader__opt-label')?.textContent ?? '');
+    const index = this.typeahead.handleKey(event, labels, enabled.indexOf(current));
+    if (index !== null && index >= 0) enabled[index].focus();
   }
 
   protected clearSelection(event: Event): void {
