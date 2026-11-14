@@ -826,7 +826,7 @@ export const CSS_VARS = {
     subpath: "ngwr/carousel",
     vars: [
       { name: "--wr-carousel-dot-active-radius", default: "var(--wr-border-radius-pill)", scope: ".wr-carousel" },
-      { name: "--wr-carousel-dots-gap", default: "var(--wr-space-sm)", scope: ".wr-carousel" },
+      { name: "--wr-carousel-dots-gap", default: "var(--wr-space-lg)", scope: ".wr-carousel" },
       { name: "--wr-carousel-font-family", default: "var(--wr-font-family-base)", scope: ".wr-carousel" },
     ],
   },
