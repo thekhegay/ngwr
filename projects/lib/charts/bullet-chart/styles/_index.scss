@@ -138,6 +138,11 @@
     align-self: start;
     position: relative;
     block-size: var(--wr-bullet-chart-track-height);
+    // The marker is a box as wide as the track moved by a transform, so its box runs past
+    // the track's end and gave the page a horizontal scroll. Clipped inline, with room for
+    // the marker's ring at either end.
+    overflow-x: clip;
+    overflow-clip-margin: var(--wr-bullet-chart-target-ring-width);
   }
 
   &__ranges {
@@ -231,12 +236,18 @@
 
   // The message of an empty, loading or failed chart, laid over the track.
   &__status {
-    --wr-chart-state-gap: var(--wr-space-xs);
-    --wr-chart-state-font-size: var(--wr-chart-label-size);
-
     grid-area: track;
     position: relative;
     block-size: var(--wr-bullet-chart-track-height);
+
+    // On the message itself: the shared sheet declares these on it, which would win over
+    // a value inherited from here.
+    .wr-chart-state {
+      --wr-chart-state-gap: var(--wr-space-xs);
+      --wr-chart-state-font-size: var(--wr-chart-label-size);
+      --wr-chart-state-label-bg: var(--wr-color-surface);
+      --wr-chart-state-label-padding: 0 var(--wr-space-xs);
+    }
   }
 
   // As wide as the drawing, so a tick's share is of the drawing too. Every tick is out of

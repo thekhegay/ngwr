@@ -144,6 +144,11 @@
   --wr-chart-state-error-color: var(--wr-color-danger-ink);
   --wr-chart-state-spinner-size: 1em;
   --wr-chart-state-spinner-color: var(--wr-chart-1);
+  // What the words sit on: nothing, unless a chart lays the message over a filled track,
+  // where `prefers-contrast: more` deepens the fill until the muted and error colours
+  // drop under 4.5:1. Such a chart sets the surface, which both are measured against.
+  --wr-chart-state-label-bg: transparent;
+  --wr-chart-state-label-padding: 0;
 
   position: absolute;
   inset: 0;
@@ -160,6 +165,12 @@
 
   &--error {
     color: var(--wr-chart-state-error-color);
+  }
+
+  &__label {
+    padding: var(--wr-chart-state-label-padding);
+    border-radius: var(--wr-border-radius-sm);
+    background: var(--wr-chart-state-label-bg);
   }
 
   // A ring with one arc of it painted, turning. Still under reduced motion, where the
