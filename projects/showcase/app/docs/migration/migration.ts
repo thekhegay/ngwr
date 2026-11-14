@@ -162,6 +162,11 @@ export default class MigrationPageComponent {
       after:
         "Dialogs and drawers no longer focus their first control on open: the panel takes focus, with no ring. `confirm()` and `alert()` no longer focus their button. Set `autoFocus: 'first-tabbable'` to keep it.",
     },
+    {
+      before: '16.5',
+      after:
+        "Nothing else focuses a control on open either. `[wrPopconfirm]`, `WrTour`, `<wr-lightbox>` and a window focus their panel, with no ring; `[wrPopover]` and `[wrColorPickerTrigger]` leave focus on the trigger, and Tab from it walks into the panel; a pointer press on the calendar button of `<wr-date-picker>` and `<wr-date-range-picker>` leaves focus on the button. Set `autoFocus` (`'first-tabbable'`, or `true` on the date pickers) to keep the old focus; on a tour it is the second argument of `start()`.",
+    },
   ];
 
   /** What `migration-v15` does, before the tables say it per row. */
