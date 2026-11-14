@@ -302,6 +302,7 @@ describe('the surfaces that draw it', () => {
       'wrInitials',
       'wrResolveCssColor',
       'wrToClassList',
+      'wrTypeahead',
       'wrAction',
       'wrDecimal',
       'wrDownloadBlob',
