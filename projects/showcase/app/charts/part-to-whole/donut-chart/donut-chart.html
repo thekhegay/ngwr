@@ -14,11 +14,20 @@
 
   <ngwr-doc-section
     title="Pie"
-    description="`pie` fills every slice to the centre. A pie prints no centre text. A thin slice gets a wider hover target where the slices beside it can spare the arc. The legend lists every slice."
+    description="`pie` fills every slice to the centre. A pie prints no centre text. A thin slice gets a wider hover target where the slices beside it can spare the arc. The legend lists every slice. `gapless` draws the slices edge to edge, on a ring or a pie."
   >
     <ngwr-doc-code [code]="snippets.pie" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-donut-chart [segments]="devices" pie />
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>pie</code></p>
+          <wr-donut-chart [segments]="devices" pie />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>pie gapless</code></p>
+          <wr-donut-chart [segments]="devices" pie gapless />
+        </div>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
   <ngwr-doc-section

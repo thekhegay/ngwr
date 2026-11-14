@@ -47,6 +47,7 @@
             class="wr-donut-chart__slice"
             [attr.d]="slice.path"
             [attr.fill]="slice.color"
+            [style.--wr-donut-chart-slice-color]="slice.color"
             [attr.data-wr-index]="$index"
             [attr.data-wr-series]="$index"
             stroke-linejoin="round"

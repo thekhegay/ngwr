@@ -49,17 +49,30 @@
     stroke-width: var(--wr-donut-chart-slice-gap-width);
   }
 
+  // `gapless`: each slice stroked in its own colour, which closes the hairline seam that
+  // anti-aliasing leaves between two fills meeting edge to edge.
+  &--gapless &__slice {
+    stroke: var(--wr-donut-chart-slice-color);
+  }
+
+  // The outer half of that stroke lies past the drawing's box, which would flatten the
+  // ring where it touches the box's edges.
+  &--gapless svg {
+    overflow: visible;
+  }
+
   &__track {
     fill: var(--wr-donut-chart-track-color);
   }
 
+  // The value sits on the middle row, so it is centred on the ring both ways, and the
+  // label on the row under it. A label alone takes the middle row itself.
   &__center {
     position: absolute;
     inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+    justify-items: center;
     text-align: center;
     // The box covers the whole drawing, so it took every pointer event meant for
     // the arcs under it and no slice could be hovered. Only the text itself is
@@ -69,7 +82,13 @@
 
   &__center-value,
   &__center-label {
+    grid-row: 2;
     pointer-events: auto;
+  }
+
+  &__center-value ~ &__center-label {
+    grid-row: 3;
+    align-self: start;
   }
 
   &__center-value {
