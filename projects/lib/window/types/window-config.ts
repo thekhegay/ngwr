@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { WrOverlayAutoFocus } from 'ngwr/overlay';
 import type { WrClassInput } from 'ngwr/utils';
 
 import type { WrWindowBounds } from './window-bounds';
@@ -105,19 +106,21 @@ export interface WrWindowConfig<D = unknown> {
    */
   readonly closeOnEscape?: boolean;
   /**
-   * Move focus into the window when it opens (since v15): to the element
-   * marked `cdkFocusInitial`, else the first control in its body, else the
-   * window itself. Closing it sends focus back to where it was when `open()`
-   * was called, if that element is still on the page.
+   * Where focus goes when the window opens. `'dialog'` (or `true`) puts it on
+   * the window itself, with no ring, so the keyboard is inside and no control
+   * is lit; an element marked `cdkFocusInitial` in the body takes it instead.
+   * `'first-tabbable'` puts it on the first control in the body, as every
+   * window did before 16.5. Closing sends focus back to where it was when
+   * `open()` was called, if that element is still on the page.
    *
-   * `false` leaves focus where it is — for a window opened in the background,
-   * or one that opens without a user asking for it. Windows that
-   * `restoreLayout()` re-opens default to `false`, so putting a workspace back
-   * does not walk focus through every window in it; pass `true` from the
-   * opener callback to override.
-   * @default true
+   * `false` leaves focus where it is, `cdkFocusInitial` or not — for a window
+   * opened in the background, or one that opens without a user asking for it.
+   * Windows that `restoreLayout()` re-opens default to `false`, so putting a
+   * workspace back does not walk focus through every window in it; pass a mode
+   * from the opener callback to override.
+   * @default 'dialog'
    */
-  readonly autoFocus?: boolean;
+  readonly autoFocus?: WrOverlayAutoFocus | true;
   /** Snap-on-drag mode. @default 'none' */
   readonly snap?: WrWindowSnap;
   /**
