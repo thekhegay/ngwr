@@ -12,6 +12,28 @@ import {
 } from '#core/components';
 import { API } from '#core/generated/api';
 
+/** Two clouds of 3,000 points each: latency against payload for cached and uncached requests. */
+function requests(): WrScatterSeries[] {
+  let state = 20;
+  const next = (): number => {
+    state = (state * 1664525 + 1013904223) % 2 ** 32;
+    return state / 2 ** 32;
+  };
+  // The sum of three draws: a bell near enough, with no trigonometry.
+  const bell = (): number => (next() + next() + next()) / 1.5 - 1;
+  const cloud = (label: string, x: number, y: number, spreadX: number, spreadY: number): WrScatterSeries => ({
+    label,
+    data: Array.from({ length: 3000 }, () => {
+      const along = bell();
+      return {
+        x: Math.round(x + along * spreadX),
+        y: Math.round((y + along * spreadY * 0.6 + bell() * spreadY) * 10) / 10,
+      };
+    }),
+  });
+  return [cloud('Cached', 120, 40, 90, 30), cloud('Uncached', 420, 95, 220, 60)];
+}
+
 @Component({
   selector: 'ngwr-scatter-chart-page',
   templateUrl: './scatter-chart.html',
@@ -91,6 +113,9 @@ export default class ScatterChartPageComponent {
     },
   ];
 
+  /** Six thousand points in two clouds, from a seeded generator so the server and the browser draw the same ones. */
+  protected readonly requests: readonly WrScatterSeries[] = requests();
+
   protected readonly hiddenSeries = signal<readonly number[]>([]);
 
   private readonly usdFormat = new Intl.NumberFormat('en-US', {
@@ -130,6 +155,17 @@ export default class ScatterChartPageComponent {
 
 format = (value: number, axis: WrScatterAxis): string =>
   axis === 'x' ? usd.format(value) : value.toFixed(1) + ' ★';`,
+    grid: `<wr-scatter-chart [series]="devices" [showGrid]="false" />
+<wr-scatter-chart [series]="devices" [showAxis]="false" />`,
+    gridScss: `.wr-scatter-chart {
+  --wr-scatter-chart-grid-x-color: var(--wr-scatter-chart-grid-color);
+}`,
+    legend: `<wr-scatter-chart [series]="devices" legendPosition="top" />
+<wr-scatter-chart [series]="devices" legendPosition="end" />`,
+    states: `<wr-scatter-chart [series]="[]" />
+<wr-scatter-chart [series]="devices" loading />
+<wr-scatter-chart [series]="devices" error errorLabel="Devices are unavailable" />`,
+    many: `<wr-scatter-chart xLabel="Latency, ms" yLabel="Payload, kB" [series]="requests" />`,
     toggle: `<wr-scatter-chart [series]="devices" toggleableLegend [(hiddenSeries)]="hidden" />`,
     toggleTs: `hidden = signal<readonly number[]>([]);`,
     table: `<wr-scatter-chart ariaLabel="Weight against battery life" dataTable [series]="devices" />`,

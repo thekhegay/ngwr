@@ -1,6 +1,7 @@
 <ngwr-doc-page
   title="Scatter Chart"
   since="15.1.0"
+  updated="16.5.0"
   description="Points on two numeric axes. An optional size per point makes it a bubble chart."
   [keywords]="['scatter-chart', 'scatter', 'bubble-chart', 'wr-scatter-chart']"
   [labels]="['Component']"
@@ -17,7 +18,7 @@
 
   <ngwr-doc-section
     title="Several series"
-    description="Each series takes the next palette colour and the next marker shape, so the shape tells them apart too."
+    description="Each series takes the next colour of the chart palette and the next marker shape, so the shape tells them apart too. Hover a marker or a legend row to dim the other series."
   >
     <ngwr-doc-code [code]="snippets.series" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -39,6 +40,94 @@
         sizeLabel="Floor area, m²"
         [series]="stores"
       />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Grid and axes"
+    description="Gridlines run across the plot at the y ticks, the one at zero stronger. `showGrid` and `showAxis` turn the lines and the scales off, each on its own. `--wr-scatter-chart-grid-x-color` draws the lines at the x ticks too."
+  >
+    <ngwr-doc-code [code]="snippets.grid" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.gridScss" language="scss" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Grid and axes (default)</p>
+          <wr-scatter-chart [series]="devices" [height]="180" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showGrid]="false"</code>
+          </p>
+          <wr-scatter-chart [series]="devices" [height]="180" [showGrid]="false" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showAxis]="false"</code>
+          </p>
+          <wr-scatter-chart [series]="devices" [height]="180" [showAxis]="false" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>--wr-scatter-chart-grid-x-color</code>
+          </p>
+          <wr-scatter-chart
+            style="--wr-scatter-chart-grid-x-color: var(--wr-scatter-chart-grid-color)"
+            [series]="devices"
+            [height]="180"
+          />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Legend position"
+    description="`legendPosition` puts the legend at `bottom` (default), `top`, `start` or `end`, or leaves it out with `none`. A single series has no legend unless `showLegend` asks for one."
+  >
+    <ngwr-doc-code [code]="snippets.legend" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="top"</code>
+          </p>
+          <wr-scatter-chart yLabel="Battery, h" [series]="devices" [height]="180" legendPosition="top" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="end"</code>
+          </p>
+          <wr-scatter-chart yLabel="Battery, h" [series]="devices" [height]="180" legendPosition="end" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With no point to draw the chart keeps its frame and says so. `loading` and `error` put their message in place of the points. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">No data</p>
+          <wr-scatter-chart [series]="[]" [height]="140" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-scatter-chart [series]="devices" [height]="140" loading />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-scatter-chart [series]="devices" [height]="140" error errorLabel="Devices are unavailable" />
+        </div>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -108,7 +197,14 @@
           </tr>
           <tr>
             <th scope="row">Series</th>
-            <td>Told apart by marker shape as well as colour.</td>
+            <td>Told apart by marker shape as well as colour. Hover dims the others.</td>
+          </tr>
+          <tr>
+            <th scope="row">States</th>
+            <td>
+              Empty and loading are a <code>role="status"</code> beside the plot; an error is a
+              <code>role="alert"</code>.
+            </td>
           </tr>
           <tr>
             <th scope="row">Tooltip</th>
@@ -125,8 +221,13 @@
 
   <ngwr-doc-section
     title="Many points"
-    description="Hover measures every point. Keep a chart to a few thousand points, or bin them first."
-  />
+    description="The pointer finds its point through a grid over the drawing: one lookup a move at any count. Past 2,000 points shown each series is one path instead of an element per point; bubbles are then drawn series by series."
+  >
+    <ngwr-doc-code [code]="snippets.many" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-scatter-chart style="width: 100%" xLabel="Latency, ms" yLabel="Payload, kB" [series]="requests" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

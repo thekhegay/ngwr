@@ -6,11 +6,14 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
+  DestroyRef,
   type ElementRef,
   LOCALE_ID,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   inject,
   input,
@@ -18,28 +21,38 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { WrChartLegend, type WrChartLegendItem } from 'ngwr/charts/chart-legend';
+import { WrChartLegend, type WrChartLegendItem, type WrChartLegendPosition } from 'ngwr/charts/chart-legend';
 import {
   type WrChartAxis,
   type WrChartMarkerExtent,
   type WrChartMarkerShape,
+  WrChartState,
   WrChartTable,
   type WrChartTableData,
-  wrChartAxis,
-  wrChartLegacyColor,
-  wrChartMarker,
-  wrChartMarkerExtent,
-  wrChartMarkerPath,
+  useChartHover,
   useChartNumbers,
+  useChartSize,
+  useChartState,
+  wrChartAxis,
+  wrChartColor,
+  wrChartMarker,
+  wrChartNumberFormat,
+  wrChartRound,
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
-import { wrRound, wrCheckStyles } from 'ngwr/utils';
+import { wrCheckStyles } from 'ngwr/utils';
 
+import { wrScatterHit, wrScatterIndex } from './internal/hit';
+import { wrScatterDensePath, wrScatterMarkerCache } from './internal/markers';
 import type { WrScatterAxis, WrScatterSeries } from './types';
 
-/** The radius, in px, of a point with no `size`: a marker as large as a 10px circle. */
-const POINT_RADIUS = 5;
+/**
+ * The radius, in px, of a point with no `size`: a marker as large as a 6px circle, the
+ * chart theme's `--wr-chart-marker`. A length in the script rather than the token, since
+ * the marker's path, its reach and the pointer's hit test are all worked out from it.
+ */
+const POINT_RADIUS = 3;
 
 /** The smallest radius a sized point is drawn at, in px, however small its size: still a mark, still hoverable. */
 const MIN_RADIUS = 4;
@@ -47,11 +60,27 @@ const MIN_RADIUS = 4;
 /** How far from a marker's centre, in px, the pointer still reads that point — or as far as the marker reaches, if farther. */
 const HIT_RADIUS = 16;
 
-/** How far outside its marker the hovered point's ring is drawn, in px. */
-const HALO_GAP = 3;
+/** How much larger the hovered point is drawn, in px of radius: a plain 6px point reads at 8px. */
+const HOVER_GROW = 1;
+
+/**
+ * How far past its marker the hovered point reaches, in px: what it grows by, and the
+ * 2px ring of the surface round it (`--wr-scatter-chart-halo-width`).
+ */
+const HALO_GAP = HOVER_GROW + 2;
+
+/**
+ * How many points shown the chart draws a node each for. Past it every series is ONE
+ * path holding a subpath per marker: ten thousand points were twenty thousand elements,
+ * and are as many paths as there are series.
+ */
+const DENSE_FROM = 2000;
+
+/** The drawing's width in CSS px, assumed until a browser has measured it: what a path of many markers is first written for. */
+const ASSUMED_WIDTH = 560;
 
 /** A percentage to three decimals, so an attribute stays short. */
-const percent = (value: number): number => Math.round(value * 1000) / 1000;
+const percent = (value: number): number => wrChartRound(value, 3);
 
 /** One point as the chart draws it: its data, where it sits and how large it is. */
 interface DrawnPoint {
@@ -75,8 +104,21 @@ interface DrawnPoint {
   readonly r: number;
   /** Its marker's path about the origin. */
   readonly d: string;
+  /** The same path in relative commands, for a path of many markers. */
+  readonly relative: string;
+  /** Its `x`, `y` and radius, and its `size` when it has one, as one attribute: what a test harness reads a point by. */
+  readonly values: string;
   /** How far its hover ring reaches from its centre, in px: what the tooltip points at and the pointer reads. */
   readonly halo: WrChartMarkerExtent;
+}
+
+/** A stretch of consecutive points of one series, in drawing order: one group in the drawing. */
+interface Run {
+  readonly key: string;
+  readonly series: number;
+  readonly color: string;
+  readonly marker: WrChartMarkerShape;
+  readonly points: readonly DrawnPoint[];
 }
 
 /**
@@ -97,8 +139,9 @@ interface DrawnPoint {
  * ```
  *
  * Each series is told apart by its marker's SHAPE as well as its colour — a circle, a
- * square, a triangle, a diamond, a cross, a downward triangle — since the palette's
- * colours sit too close in lightness to be read alone. Neither axis is forced to include
+ * square, a triangle, a diamond, a cross, a downward triangle — so colour is never the
+ * only thing that tells two series apart. Each takes the next colour of the chart
+ * palette (`--wr-chart-1` to `--wr-chart-8`). Neither axis is forced to include
  * zero: each is fitted to its data and snapped outward to a readable step, so no point
  * lands exactly on the frame, and a single value sits in the middle with a step either
  * side. A point can still sit a hair inside the frame, so the plot's padding grows to
@@ -106,11 +149,23 @@ interface DrawnPoint {
  *
  * The drawing is one named `role="img"` and takes no tab stop; the tooltip is pointer
  * only. `dataTable` renders every value as a table only assistive technology reaches.
- * The legend is a `ul[wr-chart-legend]` (`ngwr/charts/chart-legend`), and with
- * `toggleableLegend` its rows show and hide their series through `hiddenSeries`.
+ * The legend is a `ul[wr-chart-legend]` (`ngwr/charts/chart-legend`), placed by
+ * `legendPosition` and left out for a single series; with `toggleableLegend` its rows
+ * show and hide their series through `hiddenSeries`. Hovering a marker or a legend row
+ * dims every other series.
  *
- * Hovering finds the nearest point by measuring every one, so a chart meant for more
- * than a few thousand points is better served by binning them first.
+ * **Grid and axes.** Gridlines run across the plot at every y tick (`showGrid`), the
+ * one at zero stronger, and both axes print their scale (`showAxis`). The gridlines up
+ * the plot at the x ticks are in the DOM and painted `transparent`:
+ * `--wr-scatter-chart-grid-x-color` draws them.
+ *
+ * **Empty, loading, error.** With no point to draw the chart keeps its frame and says
+ * "No data"; `loading` and `error` put their own message there in place of the points.
+ *
+ * **Many points.** The pointer finds the nearest point through a grid over the drawing,
+ * one lookup a move whatever the count. Up to two thousand points shown each is an
+ * element of its own, drawn largest first; past that every series is one path holding
+ * all its markers, drawn series by series.
  *
  * @see https://ngwr.dev/charts/scatter-chart
  */
@@ -119,7 +174,10 @@ interface DrawnPoint {
   templateUrl: './scatter-chart.html',
   encapsulation: ViewEncapsulation.None,
   host: {
-    class: 'wr-scatter-chart',
+    // `wr-chart--legend`: the shared rule that keeps the legend's room from the plot.
+    class: 'wr-scatter-chart wr-chart--legend',
+    '[class.wr-chart--legend-side]': 'legendShown() && legendSide()',
+    '[class.wr-scatter-chart--axis]': 'showAxis()',
     // A bubble chart's markers overlap as a rule, so they are drawn see-through.
     '[class.wr-scatter-chart--bubbles]': 'sized()',
     // How far the largest marker reaches, ring included: the stylesheet grows the plot's
@@ -127,11 +185,30 @@ interface DrawnPoint {
     '[style.--wr-scatter-chart-reach-x]': 'reach().x',
     '[style.--wr-scatter-chart-reach-y]': 'reach().y',
   },
-  imports: [WrChartLegend, WrChartTable],
+  imports: [NgTemplateOutlet, WrChartLegend, WrChartState, WrChartTable],
 })
 export class WrScatterChart {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/scatter-chart');
+    // The shared hover-dim: every run of a series' markers and its legend row carry
+    // `data-wr-series`. A point is found by position, not by the element under the
+    // pointer, so the section handlers have nothing to do.
+    useChartHover({ enter: () => undefined, leave: () => undefined });
+
+    // One native listener pair on the plot: a move runs no change detection unless it
+    // lands on another point.
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      const plot = this.plot().nativeElement;
+      const move = (event: MouseEvent): void => this.onPointerMove(event);
+      const leave = (event: MouseEvent): void => this.tip.leave(event);
+      plot.addEventListener('mousemove', move);
+      plot.addEventListener('mouseleave', leave);
+      destroyRef.onDestroy(() => {
+        plot.removeEventListener('mousemove', move);
+        plot.removeEventListener('mouseleave', leave);
+      });
+    });
   }
 
   /**
@@ -188,16 +265,64 @@ export class WrScatterChart {
   private readonly numbers = useChartNumbers<[WrScatterAxis]>(this.valueFormat);
 
   /** The row headers of points with no `label`, which number them in the reader's own digits. */
-  private readonly ordinals = new Intl.NumberFormat(inject(LOCALE_ID));
+  private readonly ordinals = wrChartNumberFormat(inject(LOCALE_ID));
 
   /** The plot's height in px, at least 80. @default 240 */
   readonly height = input(240, { transform: (v: unknown): number => Math.max(80, coerceNumberProperty(v, 240)) });
 
-  /** Show the gridlines and the tick labels of both axes. @default true */
+  /**
+   * Draw the gridlines: one across the plot at every tick of the y axis, in
+   * `--wr-scatter-chart-grid-color`, which defaults to the chart theme's
+   * `--wr-chart-grid`; the one at zero is drawn in `--wr-scatter-chart-zero-color`. The
+   * lines up the plot at the x ticks are drawn `transparent` unless
+   * `--wr-scatter-chart-grid-x-color` gives them a colour. The scales' numbers are
+   * `showAxis`. @default true
+   */
   readonly showGrid = input(true, { transform: coerceBooleanProperty });
 
-  /** Show the legend above the chart. @default true */
-  readonly showLegend = input(true, { transform: coerceBooleanProperty });
+  /**
+   * Print both axes' scales: a number beside the plot at every y tick and under it at
+   * every x tick. Off, the gutter and the strip go and the drawing takes their room.
+   * The axes' names are `xLabel` and `yLabel`. @default true
+   */
+  readonly showAxis = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Show the legend. `'auto'` shows it when there is something to tell apart - two
+   * series or more - and leaves it out for a single series, which has nothing to key;
+   * `true` shows it for one series too. @default 'auto'
+   */
+  readonly showLegend = input<boolean | 'auto', unknown>('auto', {
+    transform: (value: unknown): boolean | 'auto' => (value === 'auto' ? 'auto' : coerceBooleanProperty(value)),
+  });
+
+  /**
+   * Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or
+   * `end` of it as a column, or `none` for no legend at all - `hiddenSeries` still hides
+   * a series from outside. @default 'bottom'
+   */
+  readonly legendPosition = input<WrChartLegendPosition>('bottom');
+
+  /**
+   * A request for the chart's data is in flight: the points give way to the loading
+   * message, over the grid and the axes the chart keeps. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The chart's data failed to load: the points give way to the error message. `loading`
+   * wins over it. @default false
+   */
+  readonly error = input(false, { transform: coerceBooleanProperty });
+
+  /** The message shown with nothing to draw. Falls back to `chart.empty`, then `'No data'`. */
+  readonly emptyLabel = input<string | null>(null);
+
+  /** The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`. */
+  readonly loadingLabel = input<string | null>(null);
+
+  /** The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`. */
+  readonly errorLabel = input<string | null>(null);
 
   /**
    * Make each legend row a toggle button that shows and hides its series, through
@@ -243,6 +368,14 @@ export class WrScatterChart {
 
   private readonly svg = viewChild<ElementRef<SVGSVGElement>>('svg');
 
+  private readonly plot = viewChild.required<ElementRef<HTMLElement>>('plot');
+
+  /** The drawing's box, on the observer every chart shares: what a path of many markers is written for. */
+  private readonly drawingSize = useChartSize(this.svg);
+
+  /** Each marker's path and reach, built once per shape and radius. */
+  private readonly markerOf = wrScatterMarkerCache();
+
   /**
    * Every series, resolved: its palette colour, its marker shape, and its points with
    * every one dropped whose `x` or `y` is not a finite number. Hidden ones included, since
@@ -257,7 +390,7 @@ export class WrScatterChart {
     this.series().map((s, index) => ({
       index,
       label: s.label,
-      color: s.color ?? wrChartLegacyColor(index),
+      color: s.color ?? wrChartColor(index),
       marker: wrChartMarker(index),
       points: s.data.flatMap((p, i) =>
         Number.isFinite(p.x) && Number.isFinite(p.y)
@@ -279,6 +412,43 @@ export class WrScatterChart {
   protected readonly legendItems = computed<readonly WrChartLegendItem[]>(() =>
     this.resolvedSeries().map(({ label, color, marker }) => ({ label, color, marker }))
   );
+
+  /**
+   * Whether the chart draws its legend: with a series to list, unless `legendPosition`
+   * is `none` or `showLegend` is off. Under `showLegend="auto"` a single series has
+   * nothing to tell apart, and draws none.
+   */
+  protected readonly legendShown = computed(() => {
+    const show = this.showLegend();
+    const rows = this.legendItems().length;
+    if (show === false || rows === 0 || this.legendPosition() === 'none') return false;
+    return show === true || rows > 1;
+  });
+
+  /** Whether the legend comes before the plot, in the DOM as on screen: above it, or at inline start. */
+  protected readonly legendFirst = computed(() => {
+    const position = this.legendPosition();
+    return position === 'top' || position === 'start';
+  });
+
+  /** Whether the legend sits beside the plot rather than above or below it. */
+  protected readonly legendSide = computed(() => {
+    const position = this.legendPosition();
+    return position === 'start' || position === 'end';
+  });
+
+  /** Whether the chart has nothing to draw: no series, or none with a point it can place. Hidden ones count as data. */
+  private readonly empty = computed(() => this.resolvedSeries().every(s => s.points.length === 0));
+
+  /** What the chart shows in place of its points, or `null` while it draws them. */
+  protected readonly state = useChartState({
+    loading: this.loading,
+    error: this.error,
+    empty: this.empty,
+    emptyLabel: this.emptyLabel,
+    loadingLabel: this.loadingLabel,
+    errorLabel: this.errorLabel,
+  });
 
   /** The series drawn, read and fitted to: every one `hiddenSeries` does not name. */
   protected readonly visibleSeries = computed(() => {
@@ -325,7 +495,7 @@ export class WrScatterChart {
           p.size === null || maxSize === null
             ? POINT_RADIUS
             : Math.max(MIN_RADIUS, maxRadius * Math.sqrt(maxSize > 0 ? p.size / maxSize : 0));
-        const halo = wrChartMarkerExtent(s.marker, r + HALO_GAP);
+        const marker = this.markerOf(s.marker, r);
         return {
           key: `${s.index}:${p.n}`,
           series: s.index,
@@ -340,13 +510,89 @@ export class WrScatterChart {
           left: percent(((p.x - x.min) / (x.max - x.min)) * 100),
           top: percent(((y.max - p.y) / (y.max - y.min)) * 100),
           r,
-          d: wrChartMarkerPath(s.marker, r),
-          halo,
+          d: marker.d,
+          relative: marker.relative,
+          values: p.size === null ? `${p.x} ${p.y} ${r}` : `${p.x} ${p.y} ${r} ${p.size}`,
+          halo: this.markerOf(s.marker, r + HALO_GAP).extent,
         };
       })
     );
     return drawn.sort((a, b) => b.r - a.r);
   });
+
+  /** Whether there are too many points shown for a node each: every series is then one path. */
+  protected readonly dense = computed(() => this.points().length > DENSE_FROM);
+
+  /**
+   * The points as groups: each stretch of consecutive points of one series, in drawing
+   * order. A plain scatter is a group per series; a bubble chart, whose points are drawn
+   * largest first across series so no small bubble is buried, breaks a series into as
+   * many groups as its sizes interleave with the others'. The group carries what its
+   * points share - the colour, the shape and the legend row the hover dims by - so a
+   * point carries only its own place and path. None once the chart is {@link dense}.
+   */
+  protected readonly runs = computed<readonly Run[]>(() => {
+    if (this.dense()) return [];
+    const runs: { key: string; series: number; color: string; marker: WrChartMarkerShape; points: DrawnPoint[] }[] = [];
+    for (const point of this.points()) {
+      const last = runs[runs.length - 1];
+      if (last?.series === point.series) last.points.push(point);
+      else {
+        runs.push({
+          key: point.key,
+          series: point.series,
+          color: point.color,
+          marker: point.marker,
+          points: [point],
+        });
+      }
+    }
+    return runs;
+  });
+
+  /** The box a path of many markers is written for, in px: the drawing's, once a browser has measured it. */
+  private readonly denseSize = computed(() => {
+    const { width, height } = this.drawingSize();
+    return width > 0 && height > 0 ? { width, height } : { width: ASSUMED_WIDTH, height: this.height() };
+  });
+
+  /** The `viewBox` of the paths of many markers: the size they were written for, so nothing stretches once measured. */
+  protected readonly denseBox = computed(() => `0 0 ${this.denseSize().width} ${this.denseSize().height}`);
+
+  /**
+   * Past {@link DENSE_FROM} points shown, every series as ONE path, a subpath per marker,
+   * largest first within the series. A path takes no percentage, so it is written in px
+   * for the drawing's measured size and again when that changes; until a browser has
+   * measured it, for an assumed one the `viewBox` stretches to fit. Series are drawn in
+   * order, so across series a large bubble can cover a smaller one of an earlier series -
+   * the price of one element a series, and bubbles are see-through.
+   */
+  protected readonly densePaths = computed(() => {
+    if (!this.dense()) return [];
+    const { width, height } = this.denseSize();
+    const bySeries = new Map<number, DrawnPoint[]>();
+    for (const point of this.points()) {
+      const list = bySeries.get(point.series);
+      if (list) list.push(point);
+      else bySeries.set(point.series, [point]);
+    }
+    return [...bySeries.entries()]
+      .sort(([a], [b]) => a - b)
+      .map(([series, points]) => ({
+        series,
+        color: points[0].color,
+        marker: points[0].marker,
+        count: points.length,
+        d: wrScatterDensePath(points, width, height),
+      }));
+  });
+
+  /** The points bucketed over the drawing, for the pointer: built once per change to the points. */
+  private readonly index = computed(() =>
+    wrScatterIndex(
+      this.points().map(({ left, top, halo }) => ({ left, top, reach: Math.max(HIT_RADIUS, halo.radius) }))
+    )
+  );
 
   /**
    * How far the largest marker drawn reaches past its centre, in px, sideways and up or
@@ -367,14 +613,21 @@ export class WrScatterChart {
       x = Math.max(x, halo.side);
       y = Math.max(y, halo.top, halo.bottom);
     }
-    return { x: wrRound(x, 3), y: wrRound(Math.min(y, this.height() / 4), 3) };
+    return { x: wrChartRound(x, 3), y: wrChartRound(Math.min(y, this.height() / 4), 3) };
   });
 
-  /** The y ticks, top to bottom: each value's label and its gridline's distance from the top, in percent. */
+  /**
+   * The y ticks, top to bottom: each value's label, its gridline's distance from the top
+   * in percent, and whether it is the line at zero, which is drawn stronger.
+   */
   protected readonly yTicks = computed(() => {
     const { min, max, step, ticks } = this.yAxis();
     const labels = this.numbers.ticks(ticks, step, 'y');
-    return ticks.map((value, i) => ({ label: labels[i], top: percent(((max - value) / (max - min)) * 100) }));
+    return ticks.map((value, i) => ({
+      label: labels[i],
+      top: percent(((max - value) / (max - min)) * 100),
+      zero: value === 0,
+    }));
   });
 
   /** The x ticks, left to right: each value's label and its gridline's distance from the left, in percent. */
@@ -403,14 +656,16 @@ export class WrScatterChart {
    *
    * Points are found by POSITION — the nearest within 16px of the pointer, or anywhere a
    * larger marker reaches — so a point under the open chip can still be reached by
-   * moving onto it, the way a sparkline is scrubbed.
+   * moving onto it, the way a sparkline is scrubbed. The point is the one the pointer's
+   * own lookup found: this reads it by its position in `points`, and measures the drawing
+   * once to say where it is.
    */
   protected readonly tip = useChartTooltip(
     this.tooltip,
     index => {
       const point = this.points()[index];
       const svg = this.svg()?.nativeElement;
-      if (!point || !svg) return null;
+      if (!point || !svg || this.state()) return null;
       const box = svg.getBoundingClientRect();
       const x = box.left + (point.left / 100) * box.width;
       const y = box.top + (point.top / 100) * box.height;
@@ -432,16 +687,19 @@ export class WrScatterChart {
     (x, y) => this.pointAt(x, y)
   );
 
-  /** The point the tooltip is reading, ringed in the drawing. */
+  /** The point the tooltip is reading, drawn again over the rest. None under a state, which has no point to read. */
   protected readonly activePoint = computed(() => {
     const index = this.tip.active();
-    return index === null ? null : (this.points()[index] ?? null);
+    return index === null || this.state() ? null : (this.points()[index] ?? null);
   });
 
-  /** The ring round the hovered point: its own shape, a little larger. */
+  /**
+   * The hovered point's marker: its own shape a little larger, which the stylesheet rings
+   * in the surface, so the reading stands clear of the points it overlaps.
+   */
   protected readonly haloPath = computed(() => {
     const point = this.activePoint();
-    return point ? wrChartMarkerPath(point.marker, point.r + HALO_GAP) : '';
+    return point ? this.markerOf(point.marker, point.r + HOVER_GROW).d : '';
   });
 
   /**
@@ -471,9 +729,12 @@ export class WrScatterChart {
    * The point under the pointer. A MOUSE event, as every chart's is: a tap fires the
    * compatibility `mousemove` and no `pointermove`. Off every point, the open tooltip
    * starts its grace period.
+   *
+   * Only while no chip is up: an open chip follows the pointer by itself, through
+   * `pointAt`, so each move is looked up once.
    */
-  protected onPointerMove(event: MouseEvent): void {
-    if (!this.tooltip()) return;
+  private onPointerMove(event: MouseEvent): void {
+    if (!this.tooltip() || this.tip.active() !== null) return;
     const index = this.pointAt(event.clientX, event.clientY);
     if (index === null) this.tip.leave(event);
     else this.tip.enter(index);
@@ -483,26 +744,21 @@ export class WrScatterChart {
    * The point nearest a viewport position: within 16px of its centre, or within the
    * circle its hover ring fits in where that is larger — a triangle's point or a
    * diamond's tips reach past its radius — and the nearest centre where several qualify.
-   * A drawing with no box (nothing laid out yet) answers nothing.
+   * A drawing with no box (nothing laid out yet) answers nothing. One layout read, and a
+   * look in the few cells of the index the pointer can reach rather than at every point.
    */
   private pointAt(clientX: number, clientY: number): number | null {
     const svg = this.svg()?.nativeElement;
-    if (!svg) return null;
+    if (!svg || this.state()) return null;
     const box = svg.getBoundingClientRect();
     if (box.width <= 0 || box.height <= 0) return null;
-    let best: number | null = null;
-    let nearest = Number.POSITIVE_INFINITY;
-    this.points().forEach((point, index) => {
-      const distance = Math.hypot(
-        box.left + (point.left / 100) * box.width - clientX,
-        box.top + (point.top / 100) * box.height - clientY
-      );
-      if (distance <= Math.max(HIT_RADIUS, point.halo.radius) && distance < nearest) {
-        nearest = distance;
-        best = index;
-      }
-    });
-    return best;
+    return wrScatterHit(
+      this.index(),
+      ((clientX - box.left) / box.width) * 100,
+      ((clientY - box.top) / box.height) * 100,
+      box.width,
+      box.height
+    );
   }
 
   /** One axis over the points shown: `wrChartAxis` with both ends kept off the data, and one value centred. */

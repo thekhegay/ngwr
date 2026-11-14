@@ -82,18 +82,24 @@ describe('WrScatterChart', () => {
   const drawing = (): SVGSVGElement => root().querySelector<SVGSVGElement>('.wr-scatter-chart__svg')!;
   const texts = (selector: string): string[] =>
     [...root().querySelectorAll(selector)].map(element => element.textContent.trim());
+  // A point carries its x, y and radius, and its size when it has one, in `data-point`;
+  // the group it is drawn in carries its series, its shape and its fill.
   const points = (): Drawn[] =>
-    [...root().querySelectorAll<SVGSVGElement>('.wr-scatter-chart__point')].map(point => ({
-      series: point.getAttribute('data-series'),
-      x: point.getAttribute('data-x'),
-      y: point.getAttribute('data-y'),
-      size: point.getAttribute('data-size'),
-      radius: point.getAttribute('data-radius'),
-      marker: point.getAttribute('data-marker'),
-      left: point.getAttribute('x'),
-      top: point.getAttribute('y'),
-      fill: point.querySelector('.wr-scatter-chart__marker')!.getAttribute('fill'),
-    }));
+    [...root().querySelectorAll<SVGSVGElement>('.wr-scatter-chart__point')].map(point => {
+      const group = point.closest('.wr-scatter-chart__series')!;
+      const [x, y, radius, size] = point.getAttribute('data-point')!.split(' ');
+      return {
+        series: group.getAttribute('data-wr-series'),
+        x,
+        y,
+        size: size ?? null,
+        radius,
+        marker: group.getAttribute('data-marker'),
+        left: point.getAttribute('x'),
+        top: point.getAttribute('y'),
+        fill: group.getAttribute('fill'),
+      };
+    });
 
   beforeEach(() => {
     TestBed.resetTestingModule();
@@ -106,9 +112,9 @@ describe('WrScatterChart', () => {
   describe('drawing', () => {
     it('draws a marker per point, each series in its own shape and palette colour', () => {
       expect(points().map(({ series, marker, fill }) => [series, marker, fill])).toEqual([
-        ['0', 'circle', 'var(--wr-color-primary)'],
-        ['0', 'circle', 'var(--wr-color-primary)'],
-        ['1', 'square', 'var(--wr-color-success)'],
+        ['0', 'circle', 'var(--wr-chart-1)'],
+        ['0', 'circle', 'var(--wr-chart-1)'],
+        ['1', 'square', 'var(--wr-chart-2)'],
       ]);
     });
 
@@ -234,12 +240,12 @@ describe('WrScatterChart', () => {
         // The largest at `maxRadius`; a quarter of the size is a quarter of the area, half the radius.
         ['2', '100', '20'],
         ['1', '25', '10'],
-        // No size, or one that is not a finite number at or above zero: the plain point.
-        ['3', null, '5'],
-        ['5', null, '5'],
-        ['6', null, '5'],
         // A size of nothing is still a mark, at the 4px floor.
         ['4', '0', '4'],
+        // No size, or one that is not a finite number at or above zero: the plain 3px point.
+        ['3', null, '3'],
+        ['5', null, '3'],
+        ['6', null, '3'],
       ]);
     });
 
@@ -259,14 +265,14 @@ describe('WrScatterChart', () => {
 
       host().maxRadius.set(1);
       render();
-      // Every sized point is at the floor now, under the plain points, which draw first.
+      // Every sized point is at the floor now, over which the plain 3px points draw.
       expect(points().map(({ x, radius }) => [x, radius])).toEqual([
-        ['3', '5'],
-        ['5', '5'],
-        ['6', '5'],
         ['1', '4'],
         ['2', '4'],
         ['4', '4'],
+        ['3', '3'],
+        ['5', '3'],
+        ['6', '3'],
       ]);
     });
 
@@ -276,8 +282,8 @@ describe('WrScatterChart', () => {
         chart().style.getPropertyValue('--wr-scatter-chart-reach-x'),
         chart().style.getPropertyValue('--wr-scatter-chart-reach-y'),
       ];
-      // The 20px circle and its ring 3px out: the plot's padding grows to 23px plus the
-      // ring's stroke, so the bubble stays inside the plot wherever it sits.
+      // The 20px circle, a pixel larger when it is read, and the 2px ring round that: the
+      // plot's padding grows to 23px, so the bubble stays inside the plot wherever it sits.
       expect(reach()).toEqual(['23', '23']);
 
       // A triangle's point reaches 1.56 times its radius up, past the circle of that radius.
@@ -294,10 +300,10 @@ describe('WrScatterChart', () => {
       render();
       expect(reach()).toEqual(['30.976', '20']);
 
-      // The plain 5px point reaches its ring, 8px out.
+      // The plain 3px point reaches its ring, 6px out.
       host().series.set(SERIES);
       render();
-      expect(reach()).toEqual(['8', '8']);
+      expect(reach()).toEqual(['6', '6']);
 
       host().series.set([]);
       render();
@@ -378,13 +384,13 @@ describe('WrScatterChart', () => {
       expect(texts('.wr-scatter-chart__y-title')).toEqual(['Rating']);
     });
 
-    it('drops the gridlines and the tick labels with `showGrid` off', () => {
+    it('drops the gridlines with `showGrid` off, and keeps the scales, which are `showAxis`', () => {
       host().showGrid.set(false);
       render();
 
       expect(root().querySelector('.wr-scatter-chart__grid-line')).toBeNull();
-      expect(root().querySelector('.wr-scatter-chart__x-tick')).toBeNull();
-      expect(root().querySelector('.wr-scatter-chart__y-tick')).toBeNull();
+      expect(texts('.wr-scatter-chart__x-tick')).toHaveLength(7);
+      expect(texts('.wr-scatter-chart__y-tick')).toHaveLength(7);
       expect(points()).toHaveLength(3);
     });
 

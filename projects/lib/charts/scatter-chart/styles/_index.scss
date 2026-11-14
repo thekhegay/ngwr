@@ -4,9 +4,10 @@
 // Styles for the entry points this component's own markup renders. The legend is a
 // `ul[wr-chart-legend]`, so `@use 'ngwr/charts/scatter-chart'` alone draws it styled.
 @use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
-// With `dataTable`, the figures render as a `<wr-chart-table>` beside the plot, which
-// its own sheet clips out of sight.
-@use '../../core/styles' as core-styles; // WrChartTable
+// The chart theme every hook below defaults to (`--wr-chart-*`), the hover-dim rule, the
+// empty / loading / error message, and the `<wr-chart-table>` that `dataTable` renders
+// beside the plot, which its own rule clips out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable, WrChartState
 @include theme.loaded('charts/scatter-chart');
 
 .wr-scatter-chart {
@@ -19,18 +20,25 @@
   --wr-scatter-chart-plot-inset-x: var(--wr-space-md);
   --wr-scatter-chart-plot-inset-y: var(--wr-space-sm);
   --wr-scatter-chart-legend-margin-bottom: var(--wr-space-md);
-  --wr-scatter-chart-grid-color: color-mix(in srgb, var(--wr-border-base) 70%, transparent);
-  --wr-scatter-chart-tick-gap: var(--wr-space-xs);
-  --wr-scatter-chart-tick-font-size: var(--wr-text-xs);
+  // The gridlines across the plot and the one at zero: the chart theme's, as on every
+  // chart. The ones up the plot, at the x ticks, are not painted: values are read across,
+  // and a second set of lines is a cage round the points. Give this hook a colour, the
+  // grid's own for one, to draw them.
+  --wr-scatter-chart-grid-color: var(--wr-chart-grid);
+  --wr-scatter-chart-zero-color: var(--wr-chart-zero);
+  --wr-scatter-chart-grid-x-color: transparent;
+  --wr-scatter-chart-tick-gap: var(--wr-space-sm);
+  --wr-scatter-chart-tick-font-size: var(--wr-chart-label-size);
   --wr-scatter-chart-tick-line-height: var(--wr-text-xs-leading);
-  --wr-scatter-chart-tick-color: var(--wr-color-on-surface-muted);
-  --wr-scatter-chart-title-font-size: var(--wr-text-xs);
-  --wr-scatter-chart-title-font-weight: var(--wr-font-weight-medium);
-  --wr-scatter-chart-title-color: var(--wr-color-on-surface-muted);
+  --wr-scatter-chart-tick-color: var(--wr-chart-label);
+  // An axis' name: the scale's size, heavier and in full ink, so it reads as the name of
+  // the numbers beside it.
+  --wr-scatter-chart-title-font-size: var(--wr-chart-label-size);
+  --wr-scatter-chart-title-font-weight: var(--wr-font-weight-semibold);
+  --wr-scatter-chart-title-color: var(--wr-color-on-surface);
   --wr-scatter-chart-title-gap: var(--wr-space-xs);
   // Every marker is ringed in the surface colour, so two that touch stay two shapes
-  // rather than one blot: the palette's colours sit within about 1.06:1 of each other,
-  // and a ring is a shape that survives greyscale.
+  // rather than one blot, and a ring is a shape that survives greyscale.
   //
   // A plain point is drawn solid. Drawn at 0.7, the primary marker measured 2.9:1 against
   // the light surface and 2.6:1 against the dark one, under the 3:1 WCAG 1.4.11 asks of a
@@ -39,8 +47,11 @@
   // every smaller one behind it, which costs more than the contrast does.
   --wr-scatter-chart-point-opacity: 1;
   --wr-scatter-chart-bubble-opacity: 0.7;
-  --wr-scatter-chart-point-ring: var(--wr-color-surface);
+  --wr-scatter-chart-point-ring: var(--wr-chart-separator);
   --wr-scatter-chart-point-ring-width: 1px;
+  // The point being read is drawn again a little larger, inside a ring of the surface
+  // this wide, which parts it from the points it overlaps.
+  --wr-scatter-chart-halo-color: var(--wr-chart-separator);
   --wr-scatter-chart-halo-width: 2px;
 
   // The plot's padding: the inset tokens, or as far as the largest marker drawn reaches
@@ -49,8 +60,8 @@
   // exactly on it, so one a fraction of a step inside sits a few px from it, and a 20px
   // bubble there would paint over the tick labels and past the chart's own box, where an
   // `overflow: hidden` ancestor cuts it off.
-  $reach-x: calc(var(--wr-scatter-chart-reach-x, 0) * 1px + var(--wr-scatter-chart-halo-width) / 2);
-  $reach-y: calc(var(--wr-scatter-chart-reach-y, 0) * 1px + var(--wr-scatter-chart-halo-width) / 2);
+  $reach-x: calc(var(--wr-scatter-chart-reach-x, 0) * 1px);
+  $reach-y: calc(var(--wr-scatter-chart-reach-y, 0) * 1px);
   $inset: max(var(--wr-scatter-chart-plot-inset-x), $reach-x);
   $inset-y: max(var(--wr-scatter-chart-plot-inset-y), $reach-y);
 
@@ -72,47 +83,93 @@
   font-family: var(--wr-scatter-chart-font-family);
   color: var(--wr-scatter-chart-color);
 
+  // The legend is the shared one, placed by `legendPosition`. The room between it and
+  // the plot, on whichever side that is: the shared rule reads `--wr-chart-legend-space`,
+  // and the hook is the chart's own name for it, from when the legend was always above.
   &__legend {
-    margin-block-end: var(--wr-scatter-chart-legend-margin-bottom);
+    --wr-chart-legend-space: var(--wr-scatter-chart-legend-margin-bottom);
   }
 
-  // The y labels at inline start, the plot beside them, and the x labels under the plot
-  // alone. A grid follows `direction`, so the gutter is on the right under RTL with no
-  // rule of its own; the drawing itself keeps its x axis running left to right, as every
-  // SVG chart here does — the HTML layouts (bar, bullet, treemap) are the ones that mirror.
+  // The y axis' name, the y labels and the plot, and the x labels and the x axis' name
+  // under the plot alone. A grid follows `direction`, so the gutter is on the right under
+  // RTL with no rule of its own; the drawing itself keeps its x axis running left to
+  // right, as every SVG chart here does — the HTML layouts (bar, bullet, treemap) are the
+  // ones that mirror.
   &__body {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto auto minmax(0, 1fr);
   }
 
-  // The axes' names, set horizontally: the y one above the plot at the gutter's side,
-  // where a reader looks first, and the x one centred under its ticks. A name turned on
-  // its side reads in neither direction comfortably. A name is the host's own text, in
-  // whatever language, so it takes its direction from that text (`plaintext`): on an RTL
-  // page "Revenue, k$" read "$Revenue, k", its trailing sign carried to the page's start.
+  // The top tick is centred on the top gridline, which sits the plot's block padding
+  // below the top of the chart: half a line of the number needs at least that much room,
+  // or it hangs out of the chart's own box and a card that clips cuts it. Nothing at the
+  // defaults, where the padding is exactly half a line.
+  &--axis &__body {
+    padding-block-start: max(
+      0px,
+      calc(var(--wr-scatter-chart-tick-line-height) / 2 - var(--wr-scatter-chart-plot-inset-y))
+    );
+  }
+
+  // Empty, loading or failed: the shared message, over the plot. A grid item in the
+  // plot's own cell rather than a child of it, since the plot is an `img`; the shared
+  // rule's `inset` has nothing to resolve against here and the cell sizes it instead.
+  &__body > .wr-chart-state {
+    position: relative;
+    inset: auto;
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  // The axes' names. A name is the host's own text, in whatever language, so it takes its
+  // direction from that text (`plaintext`): on an RTL page "Revenue, k$" read
+  // "$Revenue, k", its trailing sign carried to the page's start.
   &__y-title,
   &__x-title {
     font-size: var(--wr-scatter-chart-title-font-size);
     font-weight: var(--wr-scatter-chart-title-font-weight);
     color: var(--wr-scatter-chart-title-color);
-    overflow-wrap: anywhere;
     unicode-bidi: plaintext;
   }
 
-  // Shrunk to its text at the gutter's side, so following its own direction does not move
-  // it across the chart.
+  // The y axis' name runs ALONG its axis, reading upwards, in a column of its own outside
+  // the scale. Set level above the plot it sat where a legend row sits and read as an
+  // entry of one; turned, it is the name of the axis it lies along and of nothing else.
+  // Written vertically and turned half a turn, with every glyph laid on its side, so a
+  // name in any script reads bottom to top. One line: the column is as wide as a line is
+  // tall, and a name longer than the plot is tall is cut with an ellipsis rather than
+  // growing the plot - it contributes no height to its row (`height: 0`) and then takes
+  // the row's (`min-height: 100%`).
   &__y-title {
-    grid-column: 1 / -1;
+    grid-column: 1;
     grid-row: 1;
-    justify-self: start;
-    margin-block-end: var(--wr-scatter-chart-title-gap);
-    text-align: start;
+    justify-self: center;
+    height: 0;
+    min-height: 100%;
+    // In a vertical line the block axis runs across the page: this is the room between
+    // the name and the scale, on the name's plot side.
+    margin-block-start: var(--wr-scatter-chart-title-gap);
+    overflow: hidden;
+    line-height: var(--wr-scatter-chart-tick-line-height);
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    text-orientation: sideways;
+    transform: rotate(180deg);
+
+    // The gutter is on the other side of the plot, and so is the room.
+    &:dir(rtl) {
+      margin-block-start: 0;
+      margin-block-end: var(--wr-scatter-chart-title-gap);
+    }
   }
 
   &__x-title {
-    grid-column: 2;
-    grid-row: 4;
+    grid-column: 3;
+    grid-row: 3;
     margin-block-start: var(--wr-scatter-chart-title-gap);
+    overflow-wrap: anywhere;
     text-align: center;
   }
 
@@ -122,8 +179,8 @@
   // the drawing, inside the plot's block padding, then up by half itself — the line
   // chart's y axis, for the same reasons.
   &__y-axis {
-    grid-column: 1;
-    grid-row: 2;
+    grid-column: 2;
+    grid-row: 1;
     display: grid;
     grid-template-rows: minmax(0, 1fr);
     padding-inline-end: var(--wr-scatter-chart-tick-gap);
@@ -149,8 +206,8 @@
   }
 
   &__plot {
-    grid-column: 2;
-    grid-row: 2;
+    grid-column: 3;
+    grid-row: 1;
     position: relative;
     padding: $inset-y $inset;
   }
@@ -170,6 +227,15 @@
     stroke-width: 1px;
   }
 
+  // Zero, wherever it falls on the y axis: the line the values are read against.
+  &__grid-line--zero {
+    stroke: var(--wr-scatter-chart-zero-color);
+  }
+
+  &__grid-line--x {
+    stroke: var(--wr-scatter-chart-grid-x-color);
+  }
+
   &--bubbles {
     --wr-scatter-chart-point-opacity: var(--wr-scatter-chart-bubble-opacity);
   }
@@ -181,17 +247,22 @@
     stroke-linejoin: round;
   }
 
-  // Never hittable: it is drawn under the pointer, and the points it rings are found
-  // by position rather than by what is under the pointer.
+  // The point being read: its marker again, solid whatever the chart draws its points at,
+  // inside a ring of the surface. The ring is a stroke twice its width painted UNDER the
+  // fill, so all of it that shows is outside the marker. Never hittable: it is drawn
+  // under the pointer, and the point it marks is found by position rather than by what
+  // is under the pointer.
   &__halo {
     pointer-events: none;
-    stroke-width: var(--wr-scatter-chart-halo-width);
+    stroke: var(--wr-scatter-chart-halo-color);
+    stroke-width: calc(2 * var(--wr-scatter-chart-halo-width));
     stroke-linejoin: round;
+    paint-order: stroke;
   }
 
   &__x-axis {
-    grid-column: 2;
-    grid-row: 3;
+    grid-column: 3;
+    grid-row: 2;
     position: relative;
     margin-block-start: var(--wr-scatter-chart-tick-gap);
     font-size: var(--wr-scatter-chart-tick-font-size);
@@ -241,6 +312,8 @@
 @media (forced-colors: active) {
   .wr-scatter-chart {
     --wr-scatter-chart-point-ring: Canvas;
+    --wr-scatter-chart-halo-color: Canvas;
     --wr-scatter-chart-grid-color: GrayText;
+    --wr-scatter-chart-zero-color: CanvasText;
   }
 }

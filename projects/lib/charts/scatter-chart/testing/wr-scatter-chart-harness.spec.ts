@@ -28,6 +28,7 @@ const SERIES: readonly WrScatterSeries[] = [
       [yLabel]="yLabel()"
       [showLegend]="showLegend()"
       [showGrid]="showGrid()"
+      [showAxis]="showAxis()"
       [dataTable]="dataTable()"
       [toggleableLegend]="toggleable()"
       [(hiddenSeries)]="hidden"
@@ -41,6 +42,7 @@ class Host {
   readonly yLabel = signal<string | null>(null);
   readonly showLegend = signal(true);
   readonly showGrid = signal(true);
+  readonly showAxis = signal(true);
   readonly dataTable = signal(false);
   readonly toggleable = signal(false);
   readonly hidden = signal<readonly number[]>([]);
@@ -75,7 +77,7 @@ describe('WrScatterChartHarness', () => {
     const points = await (await chart()).getPoints();
 
     // Largest first: the 16 is drawn at the full 20px, the 4 at half of it, and the
-    // point with no size at the plain 5px.
+    // point with no size at the plain 3px.
     expect(points).toEqual([
       {
         series: 0,
@@ -83,7 +85,7 @@ describe('WrScatterChartHarness', () => {
         y: 140,
         size: 16,
         marker: 'circle',
-        color: 'var(--wr-color-primary)',
+        color: 'var(--wr-chart-1)',
         radius: 20,
         left: 83.333,
         top: 16.667,
@@ -94,7 +96,7 @@ describe('WrScatterChartHarness', () => {
         y: 100,
         size: 4,
         marker: 'circle',
-        color: 'var(--wr-color-primary)',
+        color: 'var(--wr-chart-1)',
         radius: 10,
         left: 16.667,
         top: 83.333,
@@ -105,25 +107,33 @@ describe('WrScatterChartHarness', () => {
         y: 120,
         size: null,
         marker: 'square',
-        color: 'var(--wr-color-success)',
-        radius: 5,
+        color: 'var(--wr-chart-2)',
+        radius: 3,
         left: 50,
         top: 50,
       },
     ]);
   });
 
-  it('reads the ticks of both axes, and none without the grid', async () => {
+  it('reads the ticks of both axes, and none without the axis', async () => {
     const harness = await chart();
 
     expect(await harness.hasGrid()).toBe(true);
     expect(await harness.getXTicks()).toEqual(['5', '10', '15', '20', '25', '30', '35']);
     expect(await harness.getYTicks()).toEqual(['150', '140', '130', '120', '110', '100', '90']);
 
+    expect(await harness.hasAxis()).toBe(true);
+
     host().showGrid.set(false);
     await fixture.whenStable();
 
-    expect([await harness.hasGrid(), await harness.getXTicks(), await harness.getYTicks()]).toEqual([false, [], []]);
+    // The scales are `showAxis`, and stay without the gridlines.
+    expect([await harness.hasGrid(), (await harness.getXTicks()).length]).toEqual([false, 7]);
+
+    host().showAxis.set(false);
+    await fixture.whenStable();
+
+    expect([await harness.hasAxis(), await harness.getXTicks(), await harness.getYTicks()]).toEqual([false, [], []]);
   });
 
   it('reads the axis names the chart draws, and none it does not', async () => {
@@ -175,6 +185,27 @@ describe('WrScatterChartHarness', () => {
     await fixture.whenStable();
     expect(await harness.hasLegend()).toBe(false);
     await expect(harness.getLegendHarness()).rejects.toThrow(/draws no legend/);
+  });
+
+  it('reads the message the chart shows in place of its points', async () => {
+    const harness = await chart();
+    expect(await harness.getStateLabel()).toBeNull();
+
+    host().series.set([]);
+    await fixture.whenStable();
+    expect(await harness.getStateLabel()).toBe('No data');
+  });
+
+  it('counts the points of a chart that draws a path per series, and has no element to read them off', async () => {
+    host().series.set([
+      { label: 'Many', data: Array.from({ length: 2001 }, (_, i) => ({ x: i, y: i })) },
+      { label: 'Few', data: [{ x: 1, y: 2 }] },
+    ]);
+    await fixture.whenStable();
+    const harness = await chart();
+
+    expect(await harness.getPointCount()).toBe(2002);
+    expect(await harness.getPoints()).toEqual([]);
   });
 
   it('reads the plot height off the style the chart wrote', async () => {

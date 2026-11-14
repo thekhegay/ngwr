@@ -1,26 +1,37 @@
 @let active = activePoint();
-@if (showLegend() && resolvedSeries().length > 0) {
-  <!-- Every row keys its series by the series' own marker shape, the channel that tells
-       the points apart where the colours do not. Rows are tracked by position, so two
-       series that share a label are two rows. -->
+@let shown = state();
+
+<!-- The legend, drawn before the body or after it so it is in the DOM where it is on
+     screen: a toggleable legend's rows are tab stops, and their order follows it. Every
+     row keys its series by the series' own marker shape, the channel that tells the
+     points apart where the colours do not. Rows are tracked by position, so two series
+     that share a label are two rows. -->
+<ng-template #legend>
   <ul
     wr-chart-legend
     class="wr-scatter-chart__legend"
     [items]="legendItems()"
+    [position]="legendPosition()"
     [toggleable]="toggleableLegend()"
     [(hiddenSeries)]="hiddenSeries"
   ></ul>
+</ng-template>
+
+@if (legendShown() && legendFirst()) {
+  <ng-container [ngTemplateOutlet]="legend" />
 }
 
-<!-- Two columns: the y tick labels at inline start and the drawing beside them, with the
-     y axis' name above and the x tick labels and the x axis' name under the drawing
-     only, so their percentages are the drawing's. -->
+<!-- Three columns: the y axis' name turned along the axis, the y tick labels, and the
+     drawing, with the x tick labels and the x axis' name under the drawing only, so
+     their percentages are the drawing's. -->
 <div class="wr-scatter-chart__body">
   @if (yLabel()) {
+    <!-- Along its axis, beside the scale it names: set level above the plot it read as an
+         entry of a legend placed there. -->
     <div class="wr-scatter-chart__y-title">{{ yLabel() }}</div>
   }
 
-  @if (showGrid()) {
+  @if (showAxis()) {
     <!-- HTML beside the drawing rather than `<text>` inside it, in flow, so the column is
          exactly as wide as the longest label; each one hands the stylesheet the y of its
          own gridline. Hidden, as the drawing is one image: its name is what is announced,
@@ -32,13 +43,14 @@
     </div>
   }
 
+  <!-- The pointer is heard on the plot by one native listener pair the component adds,
+       and a point is found by position. -->
   <div
+    #plot
     class="wr-scatter-chart__plot"
     role="img"
     [attr.aria-label]="resolvedAriaLabel()"
     [style.height.px]="height()"
-    (mousemove)="onPointerMove($event)"
-    (mouseleave)="tip.leave($event)"
   >
     <!-- No viewBox: every position is a PERCENTAGE of the drawing, so nothing stretches.
          A viewBox with `preserveAspectRatio="none"` would squash each marker with the
@@ -50,8 +62,10 @@
     <svg #svg class="wr-scatter-chart__svg" aria-hidden="true">
       @if (showGrid()) {
         @for (tick of yTicks(); track $index) {
+          <!-- The line at zero takes the stronger `--wr-scatter-chart-zero-color`. -->
           <line
             class="wr-scatter-chart__grid-line"
+            [class.wr-scatter-chart__grid-line--zero]="tick.zero"
             x1="0"
             x2="100%"
             [attr.y1]="`${tick.top}%`"
@@ -59,6 +73,8 @@
           />
         }
         @for (tick of xTicks(); track $index) {
+          <!-- Painted `transparent` by default: a chart reads its values across. The
+               lines stay so that `--wr-scatter-chart-grid-x-color` can draw them. -->
           <line
             class="wr-scatter-chart__grid-line wr-scatter-chart__grid-line--x"
             [attr.x1]="`${tick.left}%`"
@@ -69,39 +85,83 @@
         }
       }
 
-      @for (p of points(); track p.key) {
-        <!-- A nested `<svg>` placed by percentage, its marker drawn about its origin in
-             px: an SVG's `x` and `y` take a percentage where a `transform` does not, so
-             the marker sits on its point at any size and keeps its own. Its viewport is
-             the drawing's whole box, painted nowhere, and `overflow` lets the marker
-             reach outside it. -->
-        <svg
-          class="wr-scatter-chart__point"
-          [attr.x]="`${p.left}%`"
-          [attr.y]="`${p.top}%`"
-          overflow="visible"
-          [attr.data-series]="p.series"
-          [attr.data-x]="p.x"
-          [attr.data-y]="p.y"
-          [attr.data-size]="p.size"
-          [attr.data-radius]="p.r"
-          [attr.data-marker]="p.marker"
-        >
-          <path class="wr-scatter-chart__marker" [attr.d]="p.d" [attr.fill]="p.color" />
-        </svg>
+      @if (!shown) {
+        @for (run of runs(); track run.key) {
+          <!-- A stretch of one series' points, in drawing order. The group carries what
+               they share: the fill, the shape, and `data-wr-series`, the series' row in
+               the legend, which the shared hover dims by. -->
+          <g
+            class="wr-scatter-chart__series"
+            [attr.fill]="run.color"
+            [attr.data-wr-series]="run.series"
+            [attr.data-marker]="run.marker"
+          >
+            @for (p of run.points; track p.key) {
+              <!-- A nested `<svg>` placed by percentage, its marker drawn about its origin
+                   in px: an SVG's `x` and `y` take a percentage where a `transform` does
+                   not, so the marker sits on its point at any size and keeps its own. Its
+                   viewport is the drawing's whole box, painted nowhere, and `overflow`
+                   lets the marker reach outside it. `data-point` is the point's x, y and
+                   radius, and its size when it has one: what a test harness reads. -->
+              <svg
+                class="wr-scatter-chart__point"
+                [attr.x]="`${p.left}%`"
+                [attr.y]="`${p.top}%`"
+                overflow="visible"
+                [attr.data-point]="p.values"
+              >
+                <path class="wr-scatter-chart__marker" [attr.d]="p.d" />
+              </svg>
+            }
+          </g>
+        }
+
+        @if (dense()) {
+          <!-- Too many points for a node each: every series is one path, a subpath per
+               marker, in px of the drawing's measured size. The `viewBox` is that size, so
+               nothing is scaled once it is measured; before that, and between a resize and
+               the path written for it, the markers stretch with the box. -->
+          <svg
+            class="wr-scatter-chart__dense"
+            [attr.viewBox]="denseBox()"
+            preserveAspectRatio="none"
+            width="100%"
+            height="100%"
+            overflow="visible"
+          >
+            @for (s of densePaths(); track s.series) {
+              <path
+                class="wr-scatter-chart__points wr-scatter-chart__marker"
+                vector-effect="non-scaling-stroke"
+                [attr.d]="s.d"
+                [attr.fill]="s.color"
+                [attr.data-wr-series]="s.series"
+                [attr.data-marker]="s.marker"
+                [attr.data-count]="s.count"
+              />
+            }
+          </svg>
+        }
       }
 
       @if (active) {
-        <!-- A ring of the point's own shape just outside it, so the reading is marked by
-             outline as well as by the tooltip's arrow. -->
+        <!-- The point being read, drawn again over the rest: its own shape a little
+             larger, solid, inside a ring of the surface. -->
         <svg class="wr-scatter-chart__halo" [attr.x]="`${active.left}%`" [attr.y]="`${active.top}%`" overflow="visible">
-          <path [attr.d]="haloPath()" fill="none" [attr.stroke]="active.color" />
+          <path [attr.d]="haloPath()" [attr.fill]="active.color" />
         </svg>
       }
     </svg>
   </div>
 
-  @if (showGrid()) {
+  @if (shown) {
+    <!-- Empty, loading or failed: the message, over the grid and the axes the chart keeps.
+         Beside the plot, in its grid cell, and not inside it: the plot is an `img`, which
+         makes everything it holds presentational, and the message is a live region. -->
+    <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
+  }
+
+  @if (showAxis()) {
     <!-- The strip is as wide as the plot, and hands the stylesheet the distance between
          two ticks; each label hands it the x of its gridline, as a percentage of the
          drawing's width. -->
@@ -117,7 +177,11 @@
   }
 </div>
 
-@if (dataTable()) {
+@if (legendShown() && !legendFirst()) {
+  <ng-container [ngTemplateOutlet]="legend" />
+}
+
+@if (dataTable() && !shown) {
   <!-- The figures for a screen reader, beside the plot's `img` and never inside it:
        `img` makes everything it holds presentational. Clipped to nothing by its own
        stylesheet, so it takes no room and draws nothing. -->
