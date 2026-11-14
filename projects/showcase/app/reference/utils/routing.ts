@@ -28,6 +28,7 @@ export default [
   { path: utils.wrHasModifier.path, loadComponent: () => import('./wr-has-modifier/wr-has-modifier') },
   { path: utils.wrIsComposing.path, loadComponent: () => import('./wr-is-composing/wr-is-composing') },
   { path: utils.wrIsPrintableKey.path, loadComponent: () => import('./wr-is-printable-key/wr-is-printable-key') },
+  { path: utils.wrTypeahead.path, loadComponent: () => import('./wr-typeahead/wr-typeahead') },
   { path: utils.wrNoop.path, loadComponent: () => import('./wr-noop/wr-noop') },
   { path: utils.wrBadgeLog.path, loadComponent: () => import('./wr-badge-log/wr-badge-log') },
   { path: utils.wrDebounce.path, loadComponent: () => import('./wr-debounce/wr-debounce') },

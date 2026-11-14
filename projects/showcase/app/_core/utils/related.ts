@@ -980,6 +980,12 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/dialog',
     'reference/components/drawer',
   ],
+  'reference/utils/wr-typeahead': [
+    'reference/utils/wr-keys',
+    'reference/components/select',
+    'reference/components/tree',
+    'reference/components/dropdown',
+  ],
 
   'reference/validators/card-number': [
     'reference/validators/cvc',
