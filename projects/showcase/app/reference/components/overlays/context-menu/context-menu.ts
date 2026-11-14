@@ -115,7 +115,7 @@ export default class ContextMenuPageComponent {
       description: 'Menu to open on right-click. Required.',
     },
     {
-      name: 'autoFocus',
+      name: 'wrContextMenuAutoFocus',
       type: 'boolean',
       default: 'false',
       description: 'Focus the first item when the menu opens. Off, focus stays where it was and ArrowDown walks in.',

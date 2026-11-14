@@ -90,9 +90,13 @@ because it is guidance rather than a plan.
   page for a context menu, through the CDK keyboard dispatcher, which listens
   only while an overlay is open), a letter typed there goes to the panel's
   typeahead, and Tab walks into the cascader and the tree, whose panels hold a
-  tab stop; a menu has none, so Tab closes it. `[autoFocus]="true"` restores
-  the focus on open; bind it, since a bare `autoFocus` attribute is also the
-  native `autofocus`. Roving arrows, Home / End, typeahead, a submenu opened by
+  tab stop; a menu has none, so Tab closes it. `autoFocus` restores the focus on
+  open. On a DIRECTIVE the input is prefixed (`wrDropdownAutoFocus`,
+  `wrContextMenuAutoFocus`, `wrPopoverAutoFocus`, `wrPopconfirmAutoFocus`,
+  `wrColorPickerTriggerAutoFocus`): it sits on the consumer's own element,
+  where a static `autoFocus` also lands as the native `autofocus` and the
+  browser focuses the trigger at page load. A component with its own,
+  unfocusable host keeps the bare name. Roving arrows, Home / End, typeahead, a submenu opened by
   its arrow, the editor of an inline edit and the hand-back of focus on close
   are the user's own moves and stay.
 - Three overlays still take focus on open, each because the open IS a request

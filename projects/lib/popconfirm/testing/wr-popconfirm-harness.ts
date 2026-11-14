@@ -195,7 +195,7 @@ export class WrPopconfirmHarness extends ContentContainerComponentHarness {
 
   /**
    * Which action holds keyboard focus, by label, or `null` when focus is
-   * elsewhere: on the panel itself right after it opens, unless `autoFocus` is
+   * elsewhere: on the panel itself right after it opens, unless `wrPopconfirmAutoFocus` is
    * `'first-tabbable'`.
    */
   async getFocusedActionLabel(): Promise<string | null> {

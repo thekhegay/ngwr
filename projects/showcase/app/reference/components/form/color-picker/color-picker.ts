@@ -174,7 +174,7 @@ const back = wrToHex(rgb!, true);         // '#3969e2ff'`,
     { name: 'size', description: 'Forwarded to the inner picker.', type: 'WrColorPickerSize', default: "'md'" },
     { name: 'disabled', description: 'Disable the trigger itself.', type: 'boolean', default: 'false' },
     {
-      name: 'autoFocus',
+      name: 'wrColorPickerTriggerAutoFocus',
       description:
         'Where focus goes when the picker opens: nowhere, the saturation surface, or the panel itself. Tab on the trigger walks in either way.',
       type: "'first-tabbable' | 'dialog' | false",

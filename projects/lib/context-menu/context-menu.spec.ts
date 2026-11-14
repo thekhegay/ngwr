@@ -44,7 +44,7 @@ class Host {
 @Component({
   imports: [WrContextMenu, WrContextMenuPanel, WrContextMenuItem],
   template: `
-    <div class="target" [wrContextMenu]="menu" [autoFocus]="true">
+    <div class="target" [wrContextMenu]="menu" wrContextMenuAutoFocus>
       <button class="child" type="button">Open</button>
     </div>
     <wr-context-menu #menu>
@@ -351,10 +351,12 @@ describe('WrContextMenu', () => {
       expect(document.activeElement).toBe(child);
     });
 
-    it('focuses the first item as the menu opens under autoFocus', async () => {
+    it('focuses the first item as the menu opens under wrContextMenuAutoFocus', async () => {
       fixture.destroy();
       fixture = TestBed.createComponent(AutoFocusHost) as unknown as typeof fixture;
       fixture.detectChanges();
+      // The static, prefixed input leaves no native `autofocus` on the consumer's element.
+      expect(target().hasAttribute('autofocus')).toBe(false);
       const child = target().querySelector<HTMLElement>('.child')!;
       child.focus();
 

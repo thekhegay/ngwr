@@ -139,12 +139,12 @@ export class WrDropdown {
    * at its first / last item; a letter jumps to the item it starts. A pointer
    * hovering a `trigger="hover"` menu never moves focus.
    *
-   * Bind it, `[autoFocus]="true"`: a bare `autoFocus` attribute is also the
-   * native `autofocus`, which focuses the trigger as the page loads.
+   * Prefixed because the directive sits on your own element, where an
+   * `autoFocus` attribute would also be the native `autofocus`.
    *
    * @default false
    */
-  readonly autoFocus = input(false, { transform: coerceBooleanProperty });
+  readonly autoFocus = input(false, { alias: 'wrDropdownAutoFocus', transform: coerceBooleanProperty });
 
   /**
    * Extra CSS classes for the menu's overlay pane.
@@ -263,10 +263,10 @@ export class WrDropdown {
   /**
    * Whether the pointer, rather than the keyboard, opened the current menu.
    *
-   * A hover-opened menu must not take focus, even under `autoFocus` — the APG
+   * A hover-opened menu must not take focus, even under `wrDropdownAutoFocus` — the APG
    * shows a menu on hover and leaves the caret where it was. The trigger MODE
    * cannot answer that on its own: a `trigger="hover"` menu is still openable
-   * with Enter, and that open follows `autoFocus`.
+   * with Enter, and that open follows `wrDropdownAutoFocus`.
    */
   private openedByPointer = false;
 
@@ -403,7 +403,7 @@ export class WrDropdown {
     };
     this.typeInMenu = wrDropdownRegisterLevel(this.level, () => this.liveLocale?.());
 
-    // Opening moves no focus unless `autoFocus` asks: the trigger keeps it, and
+    // Opening moves no focus unless `wrDropdownAutoFocus` asks: the trigger keeps it, and
     // the arrows typed there walk in through `handleMenuKeydown`. A POINTER
     // hovering a `trigger="hover"` menu never moves it, or merely sweeping the
     // cursor over the trigger yanks the caret out of whatever the user is typing.
@@ -490,7 +490,7 @@ export class WrDropdown {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       // Opened from the keyboard — including on a `hover` trigger, which stays
-      // keyboard-operable — so `autoFocus` applies.
+      // keyboard-operable — so `wrDropdownAutoFocus` applies.
       this.openedByPointer = false;
       this.open();
     }

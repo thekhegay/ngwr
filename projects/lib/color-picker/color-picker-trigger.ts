@@ -45,7 +45,7 @@ function tabLeavesPane(pane: HTMLElement, event: KeyboardEvent): boolean {
   if (event.key !== 'Tab' || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return false;
   const active = pane.ownerDocument.activeElement;
   if (!active || !pane.contains(active)) return false;
-  // The pane itself holds focus under `autoFocus="dialog"`, ahead of its content.
+  // The pane itself holds focus under `wrColorPickerTriggerAutoFocus="dialog"`, ahead of its content.
   if (active === pane) return event.shiftKey;
   const all = wrGetFocusableElements(pane);
   const at = all.indexOf(active as HTMLElement);
@@ -120,9 +120,12 @@ export class WrColorPickerTrigger {
    * and Tab from there walks into the panel; `'first-tabbable'` puts it on the
    * saturation surface; `'dialog'` on the panel itself, with no ring. Closing
    * hands focus back to the trigger whenever it was inside.
+   *
+   * Prefixed because the directive sits on your own element, where an
+   * `autoFocus` attribute would also be the native `autofocus`.
    * @default false
    */
-  readonly autoFocus = input<WrOverlayAutoFocus>(false);
+  readonly autoFocus = input<WrOverlayAutoFocus>(false, { alias: 'wrColorPickerTriggerAutoFocus' });
 
   /**
    * Extra CSS classes for the picker panel's overlay pane.
@@ -228,7 +231,7 @@ export class WrColorPickerTrigger {
     // end of `<body>`, so a Tab from the trigger went to the next thing on the
     // PAGE and the saturation surface and both sliders — all `tabindex="0"`, all
     // `role="slider"` or `role="group"` — were unreachable from the keyboard for
-    // as long as the picker was open. Opening moves nothing unless `autoFocus`
+    // as long as the picker was open. Opening moves nothing unless `wrColorPickerTriggerAutoFocus`
     // asks: Tab on the trigger walks in, see `onTriggerTab`. The saturation
     // surface is the first stop and the one that carries the colour's two main
     // values.
