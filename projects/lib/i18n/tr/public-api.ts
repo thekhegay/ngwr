@@ -50,6 +50,7 @@ export const wrTr: WrI18nCatalog = {
     search: 'Ara',
     reset: 'Sıfırla',
     columns: 'Sütunlar',
+    showAllColumns: 'Tümünü göster',
     selected: '{{count}} seçildi',
     clearSelection: 'Seçimi temizle',
   },

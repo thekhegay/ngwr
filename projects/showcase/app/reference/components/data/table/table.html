@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="16.3.0"
+  updated="16.4.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
@@ -564,6 +564,59 @@
     <ul>
       <li>A hidden column keeps its sort and its filter, and <code>toCsv()</code> leaves it out.</li>
       <li><code>hideable: false</code> keeps a column on screen. The last visible column cannot be hidden.</li>
+      <li>
+        <strong>Show all</strong>, the first row of the list, shows every column. Pressed again, it hides every column
+        that can be hidden. Since v16.4.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Your own column menu"
+    description="`<wr-table-column-chooser [table]>` is the same list without the toolbar: put it in a popover, a dropdown or a drawer of your own. Since v16.4."
+  >
+    <ngwr-doc-snippet [code]="snippets.ownMenu">
+      <div style="width: 100%">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem">
+          <input
+            #menuSearch
+            wrInput
+            type="search"
+            size="sm"
+            placeholder="Search"
+            aria-label="Search staff"
+            style="flex: 1"
+            [value]="menuQuery()"
+            (input)="menuQuery.set(menuSearch.value)"
+          />
+          <button wr-btn type="button" size="sm" outlined (click)="menuTable.exportCsv({ filename: 'staff.csv' })">
+            Export
+          </button>
+          <button wr-btn type="button" size="sm" outlined position="bottom-end" [wrPopover]="columnMenu">
+            Columns
+          </button>
+        </div>
+        <ng-template #columnMenu>
+          <div style="min-width: 11rem; padding: var(--wr-space-md)">
+            <wr-table-column-chooser [table]="menuTable" />
+          </div>
+        </ng-template>
+        <wr-table #menuTable [(hiddenColumns)]="menuHidden" [columns]="chooserColumns" [items]="menuRows()" />
+        <div style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+          hidden: <strong>{{ menuHidden().join(', ') || 'none' }}</strong>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        Every toggle writes <code>hiddenColumns</code>, so <code>stateChange</code> fires as it does from the built-in
+        chooser.
+      </li>
+      <li><code>showAllLabel</code> renames the first row. The list follows the table's columns when they change.</li>
+      <li>
+        For a menu drawn by hand, the table has <code>chooserColumns()</code>, <code>toggleColumn(key)</code> and
+        <code>setHiddenColumns(keys)</code>.
+      </li>
     </ul>
   </ngwr-doc-section>
 
@@ -753,6 +806,10 @@
 
   <ngwr-doc-section title="Helpers">
     <ngwr-doc-api [rows]="helpersApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="&lt;wr-table-column-chooser&gt;">
+    <ngwr-doc-api [rows]="chooserApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="&lt;wr-table-filter&gt;">

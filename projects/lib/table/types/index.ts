@@ -15,6 +15,7 @@ export type {
 } from './table-columns';
 export type { WrTableCellContext } from './table-cell-context';
 export type { WrTableCellEdit } from './table-cell-edit';
+export type { WrTableChooserColumn } from './table-chooser-column';
 export type { WrTableEditCellContext } from './table-edit-cell-context';
 export type { WrTableEditable } from './table-editable';
 export type { WrTableCsvOptions } from './table-csv-options';

@@ -4,10 +4,13 @@ import { RouterLink } from '@angular/router';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrCopyValue } from 'ngwr/copy-value';
+import { WrInput } from 'ngwr/input';
 import { WrInputNumber } from 'ngwr/input-number';
+import { WrPopover } from 'ngwr/popover';
 import { WrOption, WrSelect } from 'ngwr/select';
 import {
   WrTableCell,
+  WrTableColumnChooser,
   WrTableEditCell,
   WrTableExpand,
   WrTableGroupHeader,
@@ -148,11 +151,14 @@ const WIDE_ROWS: readonly Record<string, unknown>[] = [
     RouterLink,
     WrTable,
     WrTableCell,
+    WrTableColumnChooser,
     WrTableEditCell,
     WrTableExpand,
     WrTableGroupHeader,
     WrTableSelectionBar,
+    WrInput,
     WrInputNumber,
+    WrPopover,
     WrSelect,
     WrOption,
     WrTag,
@@ -365,6 +371,14 @@ export default class TablePageComponent {
     location: { title: 'Location' },
     joined: { title: 'Joined' },
   };
+
+  protected readonly menuHidden = signal<readonly string[]>(['location']);
+  protected readonly menuQuery = signal('');
+  protected readonly menuRows = computed(() => {
+    const query = this.menuQuery().trim().toLowerCase();
+    if (!query) return WIDE_ROWS;
+    return WIDE_ROWS.filter(row => Object.values(row).some(value => String(value).toLowerCase().includes(query)));
+  });
 
   protected readonly bulkSelected = signal<readonly unknown[]>([]);
   protected readonly bulkRows = signal<readonly Row[]>(RAW_ROWS);
@@ -583,6 +597,17 @@ effect(() => {
 readonly hidden = signal<readonly string[]>(['joined']);
 
 <wr-table columnChooser [(hiddenColumns)]="hidden" [columns]="columns" [items]="rows" />`,
+    ownMenu: `<header>
+  <input #search wrInput type="search" aria-label="Search staff" (input)="query.set(search.value)" />
+  <button wr-btn type="button" (click)="table.exportCsv()">Export</button>
+  <button wr-btn type="button" position="bottom-end" [wrPopover]="menu">Columns</button>
+</header>
+
+<ng-template #menu>
+  <wr-table-column-chooser [table]="table" />
+</ng-template>
+
+<wr-table #table [(hiddenColumns)]="hidden" [columns]="columns" [items]="rows()" />`,
     selectionBar: `<wr-table rowSelection="multiple" rowKey="email" [(selection)]="selected" [columns]="columns" [items]="rows()">
   <ng-template wrTableSelectionBar [wrTableSelectionBarOf]="rows()" let-rows let-clear="clear">
     <button wr-btn type="button" size="sm" color="danger" (click)="remove(rows, clear)">Delete</button>
@@ -882,6 +907,27 @@ const columns: WrTableColumns = {
       default: '—',
     },
     {
+      name: 'chooserColumns()',
+      description:
+        'One entry per column in column order, hidden ones included: `key`, `title`, `hidden`, `hideable`, `locked`. A signal. Since v16.4.',
+      type: 'Signal<readonly WrTableChooserColumn[]>',
+      default: '—',
+    },
+    {
+      name: 'toggleColumn(key)',
+      description:
+        'Hide a shown column or show a hidden one, as its checkbox in the chooser does. A locked column stays. Since v16.4.',
+      type: '(string) => void',
+      default: '—',
+    },
+    {
+      name: 'setHiddenColumns(keys)',
+      description:
+        'Write `hiddenColumns` as a reader action, so `stateChange` reports it. Leaves out a `hideable: false` column, and the first column when the list would hide every one. Since v16.4.',
+      type: '(readonly string[]) => void',
+      default: '—',
+    },
+    {
       name: 'exportCsv(options?)',
       description: 'Download the rows as a CSV file (options: filename, selectedOnly, delimiter).',
       type: '(WrTableCsvOptions) => void',
@@ -923,6 +969,8 @@ const columns: WrTableColumns = {
       default: '-',
     },
   ];
+
+  protected readonly chooserApi = API.WrTableColumnChooser;
 
   protected readonly filterApi = API.WrTableFilter;
 

@@ -58,6 +58,7 @@ export const wrUk: WrI18nCatalog = {
     search: 'Пошук',
     reset: 'Скинути',
     columns: 'Стовпці',
+    showAllColumns: 'Показати всі',
     selected: 'Вибрано: {{count}}',
     clearSelection: 'Скасувати вибір',
   },

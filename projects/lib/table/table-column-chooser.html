@@ -1,0 +1,21 @@
+@if (columns().length > 0) {
+  <wr-checkbox
+    class="wr-table-column-chooser__all"
+    size="sm"
+    [checked]="showAllState() === 'all'"
+    [indeterminate]="showAllState() === 'some'"
+    [disabled]="showAllDisabled()"
+    (checkedChange)="toggleShowAll()"
+    >{{ resolvedShowAll() }}</wr-checkbox
+  >
+}
+@for (entry of columns(); track entry.key) {
+  <wr-checkbox
+    class="wr-table-column-chooser__item wr-table__columns-item"
+    size="sm"
+    [checked]="!entry.hidden"
+    [disabled]="entry.locked"
+    (checkedChange)="table().toggleColumn(entry.key)"
+    >{{ entry.title }}</wr-checkbox
+  >
+}

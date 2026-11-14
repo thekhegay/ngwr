@@ -50,6 +50,7 @@ export const wrKo: WrI18nCatalog = {
     search: '검색',
     reset: '초기화',
     columns: '열',
+    showAllColumns: '모두 표시',
     selected: '{{count}}개 선택됨',
     clearSelection: '선택 해제',
   },

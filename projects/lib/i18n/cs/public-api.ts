@@ -50,6 +50,7 @@ export const wrCs: WrI18nCatalog = {
     search: 'Hledat',
     reset: 'Resetovat',
     columns: 'Sloupce',
+    showAllColumns: 'Zobrazit vše',
     selected: 'Vybráno: {{count}}',
     clearSelection: 'Zrušit výběr',
   },

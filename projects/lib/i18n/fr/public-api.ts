@@ -50,6 +50,7 @@ export const wrFr: WrI18nCatalog = {
     search: 'Rechercher',
     reset: 'Réinitialiser',
     columns: 'Colonnes',
+    showAllColumns: 'Tout afficher',
     selected: '{{count}} sélectionnées',
     clearSelection: 'Effacer la sélection',
   },

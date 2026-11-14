@@ -50,6 +50,7 @@ export const wrAr: WrI18nCatalog = {
     search: 'بحث',
     reset: 'إعادة تعيين',
     columns: 'الأعمدة',
+    showAllColumns: 'إظهار الكل',
     selected: 'تم تحديد {{count}}',
     clearSelection: 'مسح التحديد',
   },

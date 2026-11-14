@@ -25,16 +25,7 @@
     </button>
     <ng-template #chooser>
       <div class="wr-table__columns">
-        @for (entry of chooserColumns(); track entry.key) {
-          <wr-checkbox
-            class="wr-table__columns-item"
-            size="sm"
-            [checked]="entry.visible"
-            [disabled]="entry.locked"
-            (checkedChange)="setColumnVisible(entry.key, $event)"
-            >{{ entry.title }}</wr-checkbox
-          >
-        }
+        <wr-table-column-chooser [table]="this" [ariaLabel]="resolvedColumnsLabel()" />
       </div>
     </ng-template>
   </div>

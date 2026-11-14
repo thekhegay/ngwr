@@ -50,6 +50,7 @@ export const wrNl: WrI18nCatalog = {
     search: 'Zoeken',
     reset: 'Wissen',
     columns: 'Kolommen',
+    showAllColumns: 'Alles tonen',
     selected: '{{count}} geselecteerd',
     clearSelection: 'Selectie wissen',
   },

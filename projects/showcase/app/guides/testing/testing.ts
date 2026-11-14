@@ -1766,6 +1766,11 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'getColumnChooser()',
+      description: 'The list in the column chooser panel, opened as needed. Since v16.4.',
+      type: 'Promise<WrTableColumnChooserHarness>',
+    },
+    {
       name: 'hasSelectionBar() / getSelectionBarText() / clearSelection() / getSelectionBarLoader()',
       description: 'The selection bar; the loader reaches the harnesses of your own actions.',
       type: 'Promise<…>',
@@ -1807,6 +1812,17 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'Cell: getText() / getColumnTitle() / getPin() / isEditable() / isEditing()',
       description: '`WrTableCellHarness`: text, column title, pinned edge and the edit state.',
       type: 'Promise<…>',
+    },
+    {
+      name: 'Column chooser: getColumns() / isChecked(title) / isLocked(title) / toggle(title)',
+      description:
+        '`WrTableColumnChooserHarness`, for `<wr-table-column-chooser>`. Inside a popover of your own, open it and query the document root loader. `toggle()` throws on a locked column. Since v16.4.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Column chooser: showAll() / getShowAllState() / getShowAllText()',
+      description: "The Show all row: `'all'`, `'some'` (mixed) or `'none'`. `showAll()` presses it.",
+      type: "Promise<void> | Promise<'all' | 'some' | 'none'> | Promise<string>",
     },
     {
       name: 'Header cell: getText() / getPin() / isSortable() / sort() / getSortDirection() / getSortIndicator() / getSortOrder() / isFilterable()',

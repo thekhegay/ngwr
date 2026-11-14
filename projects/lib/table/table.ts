@@ -65,6 +65,7 @@ import {
 } from 'ngwr/utils';
 
 import { WrTableCell } from './table-cell';
+import { WrTableColumnChooser } from './table-column-chooser';
 import { WrTableEditCell } from './table-edit-cell';
 import { WrTableExpand } from './table-expand';
 import { WrTableFilter, markFilterSelectionChanged } from './table-filter';
@@ -74,6 +75,7 @@ import { WrTableSort } from './table-sort';
 import type {
   WrTableCellContext,
   WrTableCellEdit,
+  WrTableChooserColumn,
   WrTableColumn,
   WrTableColumns,
   WrTableCsvOptions,
@@ -341,6 +343,7 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
     WrButton,
     WrCheckbox,
     WrPagination,
+    WrTableColumnChooser,
     WrPopover,
     WrSpinner,
     WrTableSort,
@@ -1077,26 +1080,51 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     return shown.length > 0 ? shown : ordered.slice(0, 1);
   });
 
-  /** One row of the column chooser per column, hidden ones included. */
-  protected readonly chooserColumns = computed(() => {
+  /**
+   * One entry per column in column order, hidden ones included: what a column
+   * chooser lists. `<wr-table-column-chooser>` reads it, and so can a menu of
+   * your own.
+   */
+  readonly chooserColumns = computed<readonly WrTableChooserColumn[]>(() => {
     const shown = new Set(this.displayColumns().map(c => c.key));
     return this.orderedColumns().map(({ key, column }) => {
-      const visible = shown.has(key);
+      const hidden = !shown.has(key);
       return {
         key,
         title: column.title || (column.headerHint ?? key),
-        visible,
-        locked: column.hideable === false || (visible && shown.size === 1),
+        hidden,
+        hideable: column.hideable !== false,
+        locked: column.hideable === false || (!hidden && shown.size === 1),
       };
     });
   });
 
-  protected setColumnVisible(key: string, visible: boolean): void {
-    const shown = this.displayColumns();
-    if (visible === shown.some(c => c.key === key)) return;
-    if (!visible && shown.length === 1) return;
+  /**
+   * Hide a shown column or show a hidden one, as its checkbox in the column
+   * chooser does: it writes `hiddenColumns` and reports a `stateChange`. A
+   * locked column (`hideable: false`, or the last one shown) stays as it is.
+   */
+  toggleColumn(key: string): void {
+    const entry = this.chooserColumns().find(c => c.key === key);
+    if (!entry || entry.locked) return;
     const hidden = this.hiddenColumns().filter(k => k !== key);
-    this.hiddenColumns.set(visible ? hidden : [...hidden, key]);
+    this.hiddenColumns.set(entry.hidden ? hidden : [...hidden, key]);
+    this.readerChanges.update(n => n + 1);
+  }
+
+  /**
+   * Write `hiddenColumns` as a reader action, so `stateChange` reports it. A
+   * `hideable: false` column is left out of the list, and so is the first
+   * column when the list would hide every one.
+   */
+  setHiddenColumns(keys: readonly string[]): void {
+    const asked = new Set(keys);
+    const ordered = this.orderedColumns();
+    const hideable = ordered.filter(c => c.column.hideable !== false);
+    const next = hideable.filter(c => asked.has(c.key)).map(c => c.key);
+    if (ordered.length > 0 && next.length === ordered.length) next.shift();
+    if (sameList(next, this.hiddenColumns())) return;
+    this.hiddenColumns.set(next);
     this.readerChanges.update(n => n + 1);
   }
 

@@ -50,6 +50,7 @@ export const wrHi: WrI18nCatalog = {
     search: 'खोजें',
     reset: 'रीसेट करें',
     columns: 'कॉलम',
+    showAllColumns: 'सभी दिखाएँ',
     selected: '{{count}} चयनित',
     clearSelection: 'चयन साफ़ करें',
   },

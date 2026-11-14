@@ -82,6 +82,7 @@ export const wrEn: WrI18nCatalog = {
     search: 'Search',
     reset: 'Reset',
     columns: 'Columns',
+    showAllColumns: 'Show all',
     selected: '{{count}} selected',
     clearSelection: 'Clear selection',
   },
