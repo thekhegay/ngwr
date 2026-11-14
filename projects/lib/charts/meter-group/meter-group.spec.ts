@@ -45,7 +45,11 @@ describe('WrMeterGroup', () => {
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const bar = (): HTMLElement => root().querySelector<HTMLElement>('.wr-meter-group__bar')!;
   const slices = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-meter-group__slice')];
-  const widths = (): string[] => slices().map(slice => slice.style.width);
+  /** Each band's share of the bar as a percentage: the component writes it as a share from 0 to 1. */
+  const widths = (): string[] =>
+    slices().map(
+      slice => `${Math.round(Number(slice.style.getPropertyValue('--wr-meter-group-slice-size')) * 1e5) / 1e3}%`
+    );
   const legendLabels = (): string[] =>
     [...root().querySelectorAll('.wr-meter-group__legend-label')].map(el => el.textContent.trim());
   const legendValues = (): string[] =>
@@ -152,13 +156,15 @@ describe('WrMeterGroup', () => {
   it('takes the colour from the segment, then cycles the palette', () => {
     expect(slices()[1].style.background).toBe('rgb(171, 205, 239)');
 
-    fixture.componentInstance.segments.set(['a', 'b', 'c', 'd', 'e', 'f'].map(label => ({ label, value: 1 })));
+    fixture.componentInstance.segments.set(
+      ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'].map(label => ({ label, value: 1 }))
+    );
     fixture.detectChanges();
 
-    // Six segments over five palette entries: the sixth starts the cycle again
-    // rather than rendering with no colour at all.
-    expect(slices()[5].style.background).toBe(slices()[0].style.background);
-    expect(slices()[5].style.background).toBeTruthy();
+    // Nine segments over the chart palette's eight entries: the ninth starts the cycle
+    // again rather than rendering with no colour at all.
+    expect(slices()[8].style.background).toBe(slices()[0].style.background);
+    expect(slices()[8].style.background).toBeTruthy();
   });
 
   it('takes a name from the consumer over the catalog', () => {
@@ -211,7 +217,7 @@ describe('WrMeterGroup tooltip', () => {
     chip()?.querySelector<HTMLElement>(`.wr-chart-tooltip__${name}`) ?? null;
 
   const hover = (el: HTMLElement): void => {
-    el.dispatchEvent(new MouseEvent('mouseenter'));
+    el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
   };
 
@@ -269,7 +275,9 @@ describe('WrMeterGroup number format', () => {
   const legendValues = (): string[] =>
     [...root().querySelectorAll('.wr-meter-group__legend-value')].map(el => el.textContent.trim());
   const tooltipValue = (index: number): string => {
-    root().querySelectorAll('.wr-meter-group__slice')[index].dispatchEvent(new MouseEvent('mouseenter'));
+    root()
+      .querySelectorAll('.wr-meter-group__slice')
+      [index].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
     return document.querySelector('.wr-chart-tooltip__value')!.textContent.trim();
   };

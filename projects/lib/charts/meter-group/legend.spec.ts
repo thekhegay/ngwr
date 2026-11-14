@@ -13,7 +13,7 @@ import type { WrMeterSegment } from './types';
  * rest share the bar, while an explicit `max` is a capacity and stays. The bar announces
  * what it draws.
  *
- * The shares are read off the inline `width` the component writes, and the total off
+ * The shares are read off the share of the bar the component writes inline, and the total off
  * the `progressbar`'s own ARIA.
  */
 const SEGMENTS: readonly WrMeterSegment[] = [
@@ -53,7 +53,10 @@ describe('WrMeterGroup legend', () => {
   const bar = (): HTMLElement => root().querySelector<HTMLElement>('.wr-meter-group__bar')!;
   const bands = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-meter-group__slice')];
   const shares = (): [string | null, string][] =>
-    bands().map(band => [band.getAttribute('data-label'), band.style.width]);
+    bands().map(band => [
+      band.getAttribute('data-label'),
+      `${Math.round(Number(band.style.getPropertyValue('--wr-meter-group-slice-size')) * 1e5) / 1e3}%`,
+    ]);
   const aria = (): (string | null)[] =>
     ['aria-valuenow', 'aria-valuemax', 'aria-valuetext'].map(name => bar().getAttribute(name));
   const chip = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-chart-tooltip');
@@ -153,14 +156,14 @@ describe('WrMeterGroup legend', () => {
     host().hidden.set([0]);
     render();
 
-    expect(bands().map(band => band.style.background)).toEqual(['var(--wr-color-success)', 'var(--wr-color-warning)']);
+    expect(bands().map(band => band.style.background)).toEqual(['var(--wr-chart-2)', 'var(--wr-chart-3)']);
   });
 
   it('points the tooltip at the right band after a hidden one', () => {
     host().hidden.set([1]);
     render();
 
-    bands()[1].dispatchEvent(new MouseEvent('mouseenter'));
+    bands()[1].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     render();
 
     expect(chip()?.querySelector('.wr-chart-tooltip__label')?.textContent.trim()).toBe('Free');
@@ -168,7 +171,7 @@ describe('WrMeterGroup legend', () => {
   });
 
   it('closes an open tooltip when its band is hidden under it', async () => {
-    bands()[2].dispatchEvent(new MouseEvent('mouseenter'));
+    bands()[2].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     render();
     expect(chip()?.querySelector('.wr-chart-tooltip__label')?.textContent.trim()).toBe('Free');
 
