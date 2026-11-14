@@ -153,8 +153,8 @@
   &__baseline {
     position: absolute;
     inset-inline: 0;
-    // Centred on its level, as the tick label beside it is.
-    transform: translateY(50%);
+    // On the pixel just above its level, inside the plot: a bar that reaches the level
+    // covers it, and a bar of 0 is no bar at all.
     pointer-events: none;
   }
 

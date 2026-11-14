@@ -339,7 +339,8 @@ $fill-down: '(var(--wr-bar-chart-zero, 0) - var(--wr-bar-chart-start, 0)) / max(
 
   // The gridlines, under the bars: one at every tick of the value axis. Each is a border
   // rather than a background, which forced colors would reset to the page's own colour,
-  // and sits just past its tick, as the baseline sits just past zero.
+  // and sits on the pixel just above its tick, as the baseline does at zero, so a bar that
+  // reaches a line covers it.
   &__grid {
     position: absolute;
     inset: 0;
@@ -351,20 +352,18 @@ $fill-down: '(var(--wr-bar-chart-zero, 0) - var(--wr-bar-chart-start, 0)) / max(
     inset-inline: 0;
     bottom: calc(var(--wr-bar-chart-at, 0) * 100%);
     height: 0;
-    margin-bottom: -1px;
     border-bottom: 1px solid var(--wr-bar-chart-grid-color);
   }
 
   // Zero, wherever it falls: the bottom of the plot until a value goes below it. Drawn as
   // a border rather than a background, which forced colors would reset to the page's own
-  // colour, and just past zero, so a bar standing on it is not overlapped. The colour is
-  // the plot's own hook.
+  // colour, on the pixel just above zero and under the bars, so a bar standing on it
+  // covers it and a 0 draws nothing. The colour is the plot's own hook.
   &__baseline {
     position: absolute;
     inset-inline: 0;
     bottom: calc(var(--wr-bar-chart-zero, 0) * 100%);
     height: 0;
-    margin-bottom: -1px;
     border-bottom: 1px solid var(--wr-bar-chart-plot-border);
     pointer-events: none;
   }
@@ -384,7 +383,8 @@ $fill-down: '(var(--wr-bar-chart-zero, 0) - var(--wr-bar-chart-start, 0)) / max(
   }
 
   // The category under the pointer, banded: one bar among forty is hard to follow down
-  // to its name otherwise. Behind the gridlines and the bars.
+  // to its name otherwise. Behind the gridlines and the bars. Set by the shared hover
+  // rather than `:hover`, so it stays while the pointer crosses the gap to the next one.
   &__category,
   &__column {
     // `opacity` is the shared hover-dim, which a column takes too.
@@ -392,7 +392,7 @@ $fill-down: '(var(--wr-bar-chart-zero, 0) - var(--wr-bar-chart-start, 0)) / max(
       background-color var(--wr-chart-duration-short) var(--wr-chart-ease),
       opacity var(--wr-chart-duration-short) var(--wr-chart-ease);
 
-    &:hover {
+    &.wr-chart-section--on {
       background-color: var(--wr-bar-chart-band);
     }
   }
@@ -717,7 +717,6 @@ $fill-down: '(var(--wr-bar-chart-zero, 0) - var(--wr-bar-chart-start, 0)) / max(
     width: 0;
     height: auto;
     margin: 0;
-    margin-inline-start: -1px;
     border-bottom: 0;
     border-inline-start: 1px solid var(--wr-bar-chart-grid-color);
   }
@@ -729,7 +728,6 @@ $fill-down: '(var(--wr-bar-chart-zero, 0) - var(--wr-bar-chart-start, 0)) / max(
     width: 0;
     height: auto;
     margin: 0;
-    margin-inline-start: -1px;
     border-bottom: 0;
     border-inline-start: 1px solid var(--wr-bar-chart-plot-border);
   }
