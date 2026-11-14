@@ -1,7 +1,7 @@
 @if (empty()) {
   <span class="wr-copy-value__empty">{{ resolvedEmptyLabel() }}</span>
 } @else {
-  <!-- In `wrap` mode the last word and the button share one unbreakable tail, so
+  <!-- In `wrap` mode the last character and the button share one unbreakable tail, so
        the button follows the text inline and never wraps onto a line of its own.
        Otherwise the tail is empty and `display: contents`. -->
   <span class="wr-copy-value__text" [attr.title]="wrap() ? null : text()">{{ parts().head }}</span><span

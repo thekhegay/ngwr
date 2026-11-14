@@ -55,7 +55,7 @@ export class WrCopyValueHarness extends ComponentHarness {
   async getValue(): Promise<string | null> {
     const text = await this.text();
     if (text === null) return null;
-    // Under `wrap` the last word sits in the tail, beside the button.
+    // Under `wrap` the last character sits in the tail, beside the button.
     const tail = await this.locatorFor('.wr-copy-value__tail')();
     const raw = async (el: typeof text): Promise<string> => (await el.getProperty<string>('textContent')) ?? '';
     return ((await raw(text)) + (await raw(tail))).trim();

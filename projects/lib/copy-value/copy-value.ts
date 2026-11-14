@@ -83,11 +83,17 @@ export class WrCopyValue {
   protected readonly resolvedEmptyLabel = useI18nText(this.emptyLabel, 'copyValue.empty', '-');
 
   protected readonly text = computed(() => String(this.value() ?? ''));
-  /** In `wrap` mode the text up to its last word and that word with any trailing space; else the whole text and nothing. */
+  /**
+   * In `wrap` mode the text up to its last character and that character with any trailing space; else the whole text and nothing.
+   * Only one character stays with the button, so a long unbroken value can still break inside the head.
+   */
   protected readonly parts = computed(() => {
-    if (!this.wrap()) return { head: this.text(), tail: '' };
-    const [, head = '', tail = ''] = /^([\s\S]*?)(\S*\s*)$/.exec(this.text()) ?? [];
-    return { head, tail };
+    const text = this.text();
+    if (!this.wrap()) return { head: text, tail: '' };
+    const trimmed = text.trimEnd();
+    const last = Array.from(new Intl.Segmenter().segment(trimmed), part => part.segment).at(-1) ?? '';
+    const cut = trimmed.length - last.length;
+    return { head: text.slice(0, cut), tail: text.slice(cut) };
   });
 
   protected readonly empty = computed(() => this.text() === '');
