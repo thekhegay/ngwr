@@ -11,8 +11,8 @@ import { WrChartLegendHarness } from 'ngwr/charts/chart-legend/testing';
 
 import type { WrMeterGroupHarnessFilters, WrMeterGroupSlice } from './types';
 
-/** The `width: <n>%` the component writes onto a band, out of its inline `style`. */
-const SLICE_WIDTH = /(?:^|;)\s*width\s*:\s*([\d.]+)%/;
+/** The share of the bar the component writes onto a band, 0 to 1, out of its inline `style`. */
+const SLICE_SIZE = /(?:^|;)\s*--wr-meter-group-slice-size\s*:\s*([\d.]+)/;
 
 /**
  * Test harness for `<wr-meter-group>` — one bar divided into labelled bands.
@@ -106,15 +106,15 @@ export class WrMeterGroupHarness extends ComponentHarness {
 
   /** Parse one band's declared share. See the class note on why this is not `getCssValue()`. */
   private static percentOf(label: string | null, style: string | null): number {
-    const match = SLICE_WIDTH.exec(style ?? '');
+    const match = SLICE_SIZE.exec(style ?? '');
     if (!match) {
       throw new Error(
         `WrMeterGroupHarness.getSlices(): the band ${label === null ? '(untitled)' : `"${label}"`} carries no ` +
-          `inline width percentage (style: "${style ?? ''}"). The component writes one for every band, since the ` +
+          `inline share of the bar (style: "${style ?? ''}"). The component writes one for every band, since the ` +
           'total always falls back to 1 — so its absence is the bug, and reporting 0 would read as an empty band.'
       );
     }
-    return Number.parseFloat(match[1]);
+    return Math.round(Number.parseFloat(match[1]) * 1e5) / 1e3;
   }
 
   /** Whether the legend is rendered (`showLegend`, and at least one band). */

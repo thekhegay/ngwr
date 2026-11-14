@@ -6,10 +6,32 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, type ElementRef, ViewEncapsulation, computed, input, model, viewChildren } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import {
+  Component,
+  type ElementRef,
+  ViewEncapsulation,
+  computed,
+  input,
+  model,
+  viewChild,
+  viewChildren,
+} from '@angular/core';
 
-import { WR_CHART_LEGEND_BLOCK, WrChartLegend, type WrChartLegendItem } from 'ngwr/charts/chart-legend';
-import { wrChartLegacyColor, useChartNumbers } from 'ngwr/charts/core';
+import {
+  WR_CHART_LEGEND_BLOCK,
+  WrChartLegend,
+  type WrChartLegendItem,
+  type WrChartLegendPosition,
+} from 'ngwr/charts/chart-legend';
+import {
+  WrChartState,
+  useChartHover,
+  useChartNumbers,
+  useChartState,
+  wrChartColor,
+  wrChartRound,
+} from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
@@ -35,6 +57,13 @@ import type { WrMeterSegment } from './types';
  *
  * The legend is a `ul[wr-chart-legend]` (`ngwr/charts/chart-legend`), and with
  * `toggleableLegend` its rows show and hide their segments through `hiddenSegments`.
+ * `legendPosition` puts it under the bar, over it or beside it.
+ *
+ * **On the chart theme.** A segment with no `color` takes the next colour of the chart
+ * palette (`--wr-chart-1` to `-8`), solid, and a 1px line in the surface parts two
+ * segments. Hovering a segment or its legend row dims the others. With no segment the
+ * bar is an empty track with "No data" under it; `loading` and `error` put their own
+ * message there.
  *
  * @see https://ngwr.dev/charts/meter-group
  */
@@ -42,8 +71,12 @@ import type { WrMeterSegment } from './types';
   selector: 'wr-meter-group',
   templateUrl: './meter-group.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-meter-group' },
-  imports: [WrChartLegend],
+  host: {
+    // `wr-chart--legend`: the shared rule that keeps the legend's room from the bar.
+    class: 'wr-meter-group wr-chart--legend',
+    '[class.wr-chart--legend-side]': 'legendShown() && legendSide()',
+  },
+  imports: [NgTemplateOutlet, WrChartLegend, WrChartState],
   // The legend's rows keep the classes this chart drew before it drew them through
   // `WrChartLegend`: `.wr-meter-group__legend-item`, `__swatch`, `__legend-label` and
   // `__legend-value`.
@@ -52,6 +85,9 @@ import type { WrMeterSegment } from './types';
 export class WrMeterGroup {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/meter-group');
+    // One pair of listeners on the host, not two on every band: the band under the pointer
+    // is the nearest element up from it carrying `data-wr-index`, its segment's position.
+    useChartHover({ enter: index => this.tip.enter(index), leave: event => this.tip.leave(event) });
   }
 
   /** Accessible name — the role needs one. Falls back to `meterGroup.label`. */
@@ -69,8 +105,42 @@ export class WrMeterGroup {
   /** Explicit total, a capacity the segments fill. `0` (default) uses the sum of the segments shown. @default 0 */
   readonly max = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
 
-  /** Show the labelled legend under the bar. @default true */
-  readonly showLegend = input(true, { transform: coerceBooleanProperty });
+  /**
+   * Show the labelled legend. `'auto'` leaves it out for a single segment, which has
+   * nothing to tell apart; `true` shows it for one too, since the row carries the value.
+   * @default true
+   */
+  readonly showLegend = input<boolean | 'auto', unknown>(true, {
+    transform: (value: unknown): boolean | 'auto' => (value === 'auto' ? 'auto' : coerceBooleanProperty(value)),
+  });
+
+  /**
+   * Where the legend sits: `bottom` or `top` of the bar as a wrapping row, `start` or
+   * `end` of it as a column, or `none` for no legend at all - `hiddenSegments` still
+   * hides a segment from outside. @default 'bottom'
+   */
+  readonly legendPosition = input<WrChartLegendPosition>('bottom');
+
+  /**
+   * A request for the meter's data is in flight: the bar empties and the loading message
+   * takes the legend's place. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The meter's data failed to load: the bar empties and the error message takes the
+   * legend's place. `loading` wins while both are set. @default false
+   */
+  readonly error = input(false, { transform: coerceBooleanProperty });
+
+  /** The message shown when there is no segment. Falls back to `chart.empty`, then `'No data'`. */
+  readonly emptyLabel = input<string | null>(null);
+
+  /** The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`. */
+  readonly loadingLabel = input<string | null>(null);
+
+  /** The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`. */
+  readonly errorLabel = input<string | null>(null);
 
   /** Show each segment's value in the legend, next to its label. @default true */
   readonly showValues = input(true, { transform: coerceBooleanProperty });
@@ -118,6 +188,7 @@ export class WrMeterGroup {
   /** Each value as the legend, the tooltip and the bar print it: never compact, in `LOCALE_ID` unless `valueFormat` is given. */
   private readonly numbers = useChartNumbers(this.valueFormat);
 
+  private readonly barEl = viewChild.required<ElementRef<HTMLElement>>('bar');
   private readonly sliceEls = viewChildren<ElementRef<HTMLElement>>('slice');
 
   /**
@@ -170,7 +241,7 @@ export class WrMeterGroup {
       // The legend keeps a negative value visible — it is data the caller gave
       // us — but not a non-finite one, which reads as the literal text `NaN`.
       text: this.numbers.value(Number.isFinite(segment.value) ? segment.value : 0),
-      color: segment.color ?? wrChartLegacyColor(i),
+      color: segment.color ?? wrChartColor(i),
       hidden: hidden.has(i),
       percent: hidden.has(i) ? 0 : (WrMeterGroup.amount(segment.value) / max) * 100,
     }));
@@ -181,7 +252,27 @@ export class WrMeterGroup {
    * out rather than drawn at zero width, since a zero band still lays its gap over the
    * boundary and would leave a double one.
    */
-  protected readonly bands = computed(() => this.slices().filter(slice => !slice.hidden));
+  protected readonly bands = computed(() => {
+    const shown = this.slices().filter(slice => !slice.hidden);
+    let end = 0;
+    return shown.map((slice, at) => {
+      const size = slice.percent / 100;
+      end = Math.min(1, end + size);
+      return {
+        ...slice,
+        /** Its share of the bar, 0 to 1. */
+        size: wrChartRound(size, 5),
+        /**
+         * Where it ends, as a share of the bar from its start. Every band is as wide as the
+         * bar and slid back so that it ends here, under the bands before it: its length on
+         * screen is then a transform, and a new value lays nothing out.
+         */
+        end: wrChartRound(end, 5),
+        /** Its place in the pile: the first band on top, so each covers the start of the next. */
+        layer: shown.length - at,
+      };
+    });
+  });
 
   /** The legend's rows: every segment, hidden ones included, with its value unless `showValues` is off. */
   protected readonly legendItems = computed<readonly WrChartLegendItem[]>(() => {
@@ -195,10 +286,53 @@ export class WrMeterGroup {
    * only the shown ones, so the band is found among them by that position.
    */
   protected readonly tip = useChartTooltip(this.tooltip, index => {
-    const slice = this.slices()[index];
-    if (!slice || slice.hidden) return null;
-    const el = this.sliceEls()[this.bands().indexOf(slice)]?.nativeElement;
-    if (!el) return null;
-    return { datum: { label: slice.label, value: slice.text, color: slice.color }, anchor: el };
+    const at = this.bands().findIndex(band => band.index === index);
+    const band = this.bands()[at];
+    const el = this.sliceEls()[at]?.nativeElement;
+    if (!band || !el) return null;
+    // The band's own box is as wide as the bar, most of it out of sight under the bands
+    // before it, so the chip points at the part of the bar the band shows.
+    const bar = this.barEl().nativeElement;
+    const box = bar.getBoundingClientRect();
+    const rtl = getComputedStyle(bar).direction === 'rtl';
+    const width = band.size * box.width;
+    const x = rtl ? box.right - band.end * box.width : box.left + band.end * box.width - width;
+    return {
+      datum: { label: band.label, value: band.text, color: band.color },
+      anchor: { x, y: box.top, width, height: box.height },
+    };
+  });
+
+  /**
+   * Whether the meter draws its legend: unless `showLegend` is off, `legendPosition` is
+   * `none`, or there is no segment. Under `showLegend="auto"` a single segment draws none.
+   */
+  protected readonly legendShown = computed(() => {
+    const show = this.showLegend();
+    const rows = this.slices().length;
+    if (show === false || rows === 0 || this.legendPosition() === 'none') return false;
+    return show === true || rows > 1;
+  });
+
+  /** Whether the legend comes before the bar, in the DOM as on screen: above it, or at inline start. */
+  protected readonly legendFirst = computed(() => {
+    const position = this.legendPosition();
+    return position === 'top' || position === 'start';
+  });
+
+  /** Whether the legend sits beside the bar rather than above or below it. */
+  protected readonly legendSide = computed(() => {
+    const position = this.legendPosition();
+    return position === 'start' || position === 'end';
+  });
+
+  /** What the meter shows in place of its legend, or `null` while it draws its segments. */
+  protected readonly state = useChartState({
+    loading: this.loading,
+    error: this.error,
+    empty: computed(() => this.segments().length === 0),
+    emptyLabel: this.emptyLabel,
+    loadingLabel: this.loadingLabel,
+    errorLabel: this.errorLabel,
   });
 }

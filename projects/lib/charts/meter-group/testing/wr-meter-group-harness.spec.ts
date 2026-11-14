@@ -90,7 +90,7 @@ describe('WrMeterGroupHarness', () => {
 
     // The total falls back to 1 rather than 0, so every band always DECLARES a share —
     // which is what lets the missing case throw instead of reporting a plausible nothing.
-    await expect(harness.getSlices()).rejects.toThrow(/band "Apps" carries no inline width percentage/);
+    await expect(harness.getSlices()).rejects.toThrow(/band "Apps" carries no inline share of the bar/);
   });
 
   it('lists the bands in the legend, with their values', async () => {

@@ -1,4 +1,25 @@
+@let shown = state();
+
+<!-- The legend, drawn before the bar or after it so it is in the DOM where it is on
+     screen: a toggleable legend's rows are tab stops, and their order follows it. A row's
+     position is its segment's, which is the `data-wr-series` the segment's band carries. -->
+<ng-template #legend>
+  <ul
+    wr-chart-legend
+    class="wr-meter-group__legend"
+    [items]="legendItems()"
+    [position]="legendPosition()"
+    [toggleable]="toggleableLegend()"
+    [(hiddenSeries)]="hiddenSegments"
+  ></ul>
+</ng-template>
+
+@if (!shown && legendShown() && legendFirst()) {
+  <ng-container [ngTemplateOutlet]="legend" />
+}
+
 <div
+  #bar
   class="wr-meter-group__bar"
   role="progressbar"
   [attr.aria-label]="resolvedAriaLabel()"
@@ -9,27 +30,32 @@
 >
   <!-- Only the shown segments draw a band; each keeps its segment's own position, which
        is what the tooltip looks it up by. `data-label` is what the harness reads a band's
-       label from; the `title` it used to read is only written while the tooltip is off. -->
-  @for (slice of bands(); track slice.index) {
-    <span
-      #slice
-      class="wr-meter-group__slice"
-      [attr.title]="tooltip() ? null : slice.label"
-      [attr.data-label]="slice.label"
-      [style.width.%]="slice.percent"
-      [style.background]="slice.color"
-      (mouseenter)="tip.enter(slice.index)"
-      (mouseleave)="tip.leave($event)"
-    ></span>
+       label from; the `title` it used to read is only written while the tooltip is off.
+       A band is as wide as the bar and slid back to end at `--wr-meter-group-slice-end`,
+       under the bands before it, so its length is a transform; `-size` is its own share. -->
+  @if (!shown || shown.kind === 'empty') {
+    @for (slice of bands(); track slice.index) {
+      <span
+        #slice
+        class="wr-meter-group__slice"
+        [attr.title]="tooltip() ? null : slice.label"
+        [attr.data-label]="slice.label"
+        [attr.data-wr-index]="slice.index"
+        [attr.data-wr-series]="slice.index"
+        [style.--wr-meter-group-slice-size]="slice.size"
+        [style.--wr-meter-group-slice-end]="slice.end"
+        [style.z-index]="slice.layer"
+        [style.background]="slice.color"
+      ></span>
+    }
   }
 </div>
 
-@if (showLegend() && slices().length > 0) {
-  <ul
-    wr-chart-legend
-    class="wr-meter-group__legend"
-    [items]="legendItems()"
-    [toggleable]="toggleableLegend()"
-    [(hiddenSeries)]="hiddenSegments"
-  ></ul>
+@if (shown) {
+  <!-- In the legend's place: a bar is too thin to carry a message over it. -->
+  <div class="wr-meter-group__status">
+    <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
+  </div>
+} @else if (legendShown() && !legendFirst()) {
+  <ng-container [ngTemplateOutlet]="legend" />
 }
