@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
+import type { WrOverlayAutoFocus } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrLightbox } from './lightbox';
@@ -17,6 +18,7 @@ import { WrLightbox } from './lightbox';
       [openLabel]="openLabel()"
       [caption]="caption()"
       [disablePreview]="disablePreview()"
+      [autoFocus]="autoFocus()"
     />
   `,
 })
@@ -25,6 +27,7 @@ class Host {
   readonly openLabel = signal<string | null>(null);
   readonly caption = signal('');
   readonly disablePreview = signal(false);
+  readonly autoFocus = signal<WrOverlayAutoFocus>('dialog');
 }
 
 /**
@@ -136,6 +139,63 @@ describe('WrLightbox', () => {
     expect(viewer()!.getAttribute('aria-label')).toBe('A photo of a cat');
     expect(full().getAttribute('src')).toBe('/full.jpg');
     expect(host().classList.contains('wr-lightbox--open')).toBe(true);
+  });
+
+  describe('focus on open', () => {
+    /** The focus move on open waits for the render after it. */
+    const settle = async (): Promise<void> => {
+      await fixture.whenStable();
+      TestBed.tick();
+      await fixture.whenStable();
+    };
+
+    beforeEach(() => {
+      // jsdom lays nothing out, and the CDK passes over a control with no box.
+      vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+        new DOMRect(0, 0, 120, 32),
+      ] as unknown as DOMRectList);
+    });
+    afterEach(() => vi.restoreAllMocks());
+
+    it('lands on the viewer itself by default, not on the Close button', async () => {
+      trigger()!.focus();
+      open();
+      await settle();
+
+      expect(document.activeElement).toBe(viewer());
+      expect(viewer()!.getAttribute('tabindex')).toBe('-1');
+    });
+
+    it('lands on the Close button under autoFocus="first-tabbable"', async () => {
+      fixture.componentInstance.autoFocus.set('first-tabbable');
+      fixture.detectChanges();
+      trigger()!.focus();
+      open();
+      await settle();
+
+      expect(document.activeElement).toBe(closeBtn());
+    });
+
+    it('stays on the thumbnail under [autoFocus]="false"', async () => {
+      fixture.componentInstance.autoFocus.set(false);
+      fixture.detectChanges();
+      trigger()!.focus();
+      open();
+      await settle();
+
+      expect(document.activeElement).toBe(trigger());
+    });
+
+    it('hands focus back to the thumbnail when Escape closes it', async () => {
+      trigger()!.focus();
+      open();
+      await settle();
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      fixture.detectChanges();
+
+      expect(viewer()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+    });
   });
 
   it('closes from the close button and hands focus back', () => {

@@ -32,7 +32,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, type WrOverlayAutoFocus, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
 import { wrToClassList, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrLightboxGroups } from './lightbox-groups';
@@ -132,6 +132,16 @@ export class WrLightbox {
    * paint. @default null
    */
   readonly aspectRatio = input<string | number | null>(null);
+
+  /**
+   * Where focus goes when the viewer opens. `'dialog'` puts it on the viewer
+   * itself, with no ring, so the keyboard is inside and no button is lit;
+   * `'first-tabbable'` puts it on the Close button; `false` leaves it on the
+   * thumbnail. The viewer traps Tab in every mode, and closing returns focus to
+   * the thumbnail.
+   * @default 'dialog'
+   */
+  readonly autoFocus = input<WrOverlayAutoFocus>('dialog');
 
   /**
    * Extra CSS classes for the viewer's overlay pane.
@@ -418,8 +428,16 @@ export class WrLightbox {
     // Tab walks straight out of the viewer into the page behind the backdrop.
     const active = document.activeElement;
     this.previouslyFocused = active instanceof HTMLElement ? active : null;
-    this.focusTrap = this.focusTrapFactory.create(this.overlayRef.overlayElement);
-    void this.focusTrap.focusInitialElementWhenReady();
+    const pane = this.overlayRef.overlayElement;
+    this.focusTrap = this.focusTrapFactory.create(pane);
+    // Onto the viewer itself by default, the element that carries the dialog
+    // role: the keyboard is inside and the Close button is not lit.
+    wrFocusOverlay(
+      pane.querySelector<HTMLElement>('.wr-lightbox-viewer') ?? pane,
+      this.focusTrap,
+      this.autoFocus(),
+      this.injector
+    );
 
     this.overlayRef
       .backdropClick()
