@@ -1,7 +1,6 @@
 import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { wrChartLegacyColor } from 'ngwr/charts/core';
 import { WR_DATE_LOCALE } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
@@ -162,9 +161,9 @@ describe('WrCalendarHeatmap', () => {
     expect(monthLabels().some(label => /[а-яА-Я]/.test(label))).toBe(true);
   });
 
-  it("paints an active day in the shared palette's first colour unless told otherwise", () => {
-    // The input keeps the literal default the docs print; this holds it to the palette.
-    expect(cellFor('2025-08-12')!.style.background).toBe(wrChartLegacyColor(0));
+  it('paints the largest day with the highest step of the sequential scale unless told otherwise', () => {
+    // The step is the chart's own hook, which the stylesheet points at `--wr-chart-seq-5`.
+    expect(cellFor('2025-08-12')!.style.background).toBe('var(--wr-calendar-heatmap-step-5)');
   });
 
   it('keeps one non-finite day from flattening the whole map', () => {
@@ -179,8 +178,8 @@ describe('WrCalendarHeatmap', () => {
     fixture.detectChanges();
 
     // The tallest day still paints the colour, and the mid day still scales against it.
-    expect(cellFor('2025-08-12')!.style.background).toBe('var(--wr-color-primary)');
-    expect(cellFor('2025-08-11')!.style.background).toBe('var(--wr-color-primary)');
+    expect(cellFor('2025-08-12')!.style.background).toBe('var(--wr-calendar-heatmap-step-5)');
+    expect(cellFor('2025-08-11')!.style.background).toBe('var(--wr-calendar-heatmap-step-3)');
     // The bad day loses only itself — and it reports a number, not the word NaN.
     // Asserted on BOTH halves: `data-value` is what a spec and a harness read,
     // and the tooltip is what a person sees, so `NaN` leaking into either is the
@@ -206,7 +205,7 @@ describe('WrCalendarHeatmap', () => {
 
     const negative = cellFor('2025-08-12')!;
     const light = cellFor('2025-08-13')!;
-    expect(negative.style.background).toBe('color-mix(in srgb, var(--wr-border-base) 50%, transparent)');
+    expect(negative.style.background).toBe('var(--wr-calendar-heatmap-empty)');
     expect(negative.style.background).not.toBe(light.style.background);
   });
 
