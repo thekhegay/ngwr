@@ -69,6 +69,15 @@ class OverlayHost {
   readonly picked = signal<unknown>(undefined);
 }
 
+/** The opt-in: the panel takes focus as it opens. */
+@Component({
+  imports: [WrTree],
+  template: `<wr-tree openOn="overlay" [autoFocus]="true" [nodes]="nodes" />`,
+})
+class AutoFocusOverlayHost {
+  readonly nodes = NODES;
+}
+
 @Component({
   imports: [WrTree],
   template: `<wr-tree [openOn]="openOn()" [size]="size()" [nodes]="nodes" />`,
@@ -795,11 +804,23 @@ describe('WrTree in overlay mode', () => {
     const labels = (): string[] =>
       [...document.querySelectorAll<HTMLElement>('.wr-tree__label')].map(el => (el.textContent ?? '').trim());
 
-    const open = async (): Promise<void> => {
+    const openOnly = async (): Promise<void> => {
+      trigger().focus();
       trigger().click();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
+    };
+    const pressTrigger = (key: string, init: KeyboardEventInit = {}): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
+      trigger().dispatchEvent(event);
+      fixture.detectChanges();
+      return event;
+    };
+    /** Open, then ArrowDown on the trigger: focus is on the cursor row. */
+    const open = async (): Promise<void> => {
+      await openOnly();
+      pressTrigger('ArrowDown');
     };
 
     const pressActive = async (key: string): Promise<void> => {
@@ -809,12 +830,67 @@ describe('WrTree in overlay mode', () => {
       fixture.detectChanges();
     };
 
-    it('hands focus to the roving row instead of leaving it on the trigger', async () => {
-      await open();
+    it('leaves focus on the trigger when a click or a key opens the panel', async () => {
+      await openOnly();
+      expect(list()).not.toBeNull();
+      expect(document.activeElement).toBe(trigger());
 
-      const row = document.querySelector<HTMLElement>('[data-tree-index="0"]')!;
-      expect(document.activeElement).toBe(row);
-      expect(document.activeElement).not.toBe(trigger());
+      pressTrigger('Escape');
+      await fixture.whenStable();
+      expect(list()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+
+      for (const key of ['ArrowDown', 'ArrowUp']) {
+        pressTrigger(key);
+        await fixture.whenStable();
+        fixture.detectChanges();
+        expect(list(), key).not.toBeNull();
+        expect(document.activeElement, key).toBe(trigger());
+        pressTrigger('Escape');
+        await fixture.whenStable();
+      }
+    });
+
+    it('moves to the roving row on ArrowDown, ArrowUp or Tab from the trigger', async () => {
+      for (const key of ['ArrowDown', 'ArrowUp', 'Tab']) {
+        await openOnly();
+        const event = pressTrigger(key);
+        await fixture.whenStable();
+
+        expect(event.defaultPrevented, key).toBe(true);
+        expect(list(), key).not.toBeNull();
+        expect(document.activeElement, key).toBe(document.querySelector<HTMLElement>('[data-tree-index="0"]'));
+
+        await pressActive('Escape');
+        expect(document.activeElement, key).toBe(trigger());
+      }
+    });
+
+    it('closes on Shift+Tab from the trigger and lets the browser move on', async () => {
+      await openOnly();
+      const event = pressTrigger('Tab', { shiftKey: true });
+      await fixture.whenStable();
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(list()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+    });
+
+    it('jumps to a row by a letter typed on the trigger', async () => {
+      await openOnly();
+      expect(pressTrigger('r').defaultPrevented).toBe(true);
+      await fixture.whenStable();
+
+      expect((document.activeElement?.textContent ?? '').trim()).toBe('README.md');
+    });
+
+    it('focuses the roving row as the panel opens under autoFocus', async () => {
+      fixture.destroy();
+      fixture = TestBed.createComponent(AutoFocusOverlayHost) as unknown as typeof fixture;
+      fixture.detectChanges();
+      await openOnly();
+
+      expect(document.activeElement).toBe(document.querySelector<HTMLElement>('[data-tree-index="0"]'));
     });
 
     it('expands a branch from the keyboard', async () => {

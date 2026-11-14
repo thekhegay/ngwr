@@ -291,8 +291,7 @@ export class WrTreeHarness extends ContentContainerComponentHarness {
    * prove the pointer path and nothing more.
    *
    * The key is honoured only on the CLOSED trigger, so an open panel is closed
-   * first with Escape — the step a keyboard user takes too, since focus sits in
-   * the panel while it is up.
+   * first with Escape — the step a keyboard user takes too.
    *
    * Does nothing, rather than throwing, where the component does nothing —
    * nothing selected, disabled or read-only — so a spec asserts the outcome on
