@@ -36,6 +36,21 @@ class Host {
   readonly picked: string[] = [];
 }
 
+/** The opt-in: the first item takes focus on open. */
+@Component({
+  imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+  template: `
+    <button type="button" [autoFocus]="true" [wrDropdown]="menu" [trigger]="how()">Actions</button>
+    <wr-dropdown-menu #menu>
+      <wr-dropdown-item>Copy</wr-dropdown-item>
+      <wr-dropdown-item>Rename</wr-dropdown-item>
+    </wr-dropdown-menu>
+  `,
+})
+class AutoFocusHost {
+  readonly how = signal<WrDropdownTrigger>('click');
+}
+
 /** Same menu, on a trigger the consumer gave no `id` of their own. */
 @Component({
   imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
@@ -227,7 +242,70 @@ describe('WrDropdown', () => {
     expect(fixture.componentInstance.picked).toEqual([]);
   });
 
-  it('moves focus onto the first item once the menu has rendered', async () => {
+  it('leaves focus on the trigger when a click or a key opens the menu', async () => {
+    trigger().focus();
+    click(trigger());
+    await fixture.whenStable();
+    expect(menu()).not.toBeNull();
+    expect(document.activeElement).toBe(trigger());
+    expect(trigger().getAttribute('aria-expanded')).toBe('true');
+
+    click(trigger());
+    for (const name of ['Enter', ' ', 'ArrowDown', 'ArrowUp']) {
+      key(trigger(), name);
+      await fixture.whenStable();
+      expect(menu(), `${name} did not open`).not.toBeNull();
+      expect(document.activeElement, `${name} moved focus`).toBe(trigger());
+      key(trigger(), 'Escape');
+    }
+  });
+
+  it('walks in from the trigger: ArrowDown at the first item, ArrowUp at the last', async () => {
+    trigger().focus();
+    click(trigger());
+    await fixture.whenStable();
+
+    expect(key(trigger(), 'ArrowDown').defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(items()[0]);
+
+    key(items()[0], 'Escape');
+    expect(document.activeElement).toBe(trigger());
+
+    click(trigger());
+    await fixture.whenStable();
+    expect(key(trigger(), 'ArrowUp').defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(items()[2]);
+  });
+
+  it('jumps to an item by a letter typed on the trigger', async () => {
+    trigger().focus();
+    click(trigger());
+    await fixture.whenStable();
+
+    expect(key(trigger(), 'r').defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(items()[2]);
+  });
+
+  it('closes on Escape and on Tab from the trigger and keeps focus there', async () => {
+    trigger().focus();
+    click(trigger());
+    await fixture.whenStable();
+    key(trigger(), 'Escape');
+    expect(menu()).toBeNull();
+    expect(document.activeElement).toBe(trigger());
+
+    click(trigger());
+    await fixture.whenStable();
+    // No tab stop in a menu: Tab closes it and the browser moves on from the trigger.
+    expect(key(trigger(), 'Tab').defaultPrevented).toBe(false);
+    expect(menu()).toBeNull();
+    expect(document.activeElement).toBe(trigger());
+  });
+
+  it('moves focus onto the first item once the menu has rendered, under autoFocus', async () => {
+    fixture.destroy();
+    fixture = TestBed.createComponent(AutoFocusHost) as unknown as typeof fixture;
+    fixture.detectChanges();
     // The initial focus is queued in a microtask, so it lands after the synchronous
     // `detectChanges` an event triggers — worth pinning, because every arrow key
     // measures its next target from `document.activeElement`.
@@ -236,13 +314,19 @@ describe('WrDropdown', () => {
 
     await Promise.resolve();
     expect(document.activeElement).toBe(items()[0]);
+
+    key(items()[0], 'Escape');
+    key(trigger(), 'Enter');
+    await Promise.resolve();
+    expect(document.activeElement).toBe(items()[0]);
   });
 
   it('skips a disabled item when the arrows walk the menu', async () => {
     click(trigger());
     await Promise.resolve();
+    key(trigger(), 'ArrowDown');
 
-    // Focus starts on the first item; ArrowDown must land on 'Rename', not 'Delete'.
+    // Focus is on the first item; ArrowDown must land on 'Rename', not 'Delete'.
     key(menu()!, 'ArrowDown');
     expect(document.activeElement).toBe(items()[2]);
 
@@ -283,6 +367,7 @@ describe('WrDropdown', () => {
       trigger().focus();
       trigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
       await fixture.whenStable();
+      trigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
       expect(document.activeElement).toBe(items()[0]);
 
       const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
@@ -303,8 +388,7 @@ describe('WrDropdown', () => {
   it('runs the whole menu-button round trip from the keyboard alone', async () => {
     // No synchronous `detectChanges` anywhere in this one: under zoneless CD a
     // keystroke schedules the render in a macrotask, and a `detectChanges` after
-    // the event paints the DOM before the deferred focus runs — which hides
-    // exactly the "focus stays on the trigger" defect this pins.
+    // the event paints the DOM before any deferred work runs.
     const press = async (el: EventTarget, name: string): Promise<KeyboardEvent> => {
       const event = new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true });
       el.dispatchEvent(event);
@@ -316,6 +400,8 @@ describe('WrDropdown', () => {
     trigger().focus();
     await press(trigger(), 'Enter');
     expect(menu()).not.toBeNull();
+    expect(document.activeElement).toBe(trigger());
+    await press(trigger(), 'ArrowDown');
     expect(focused()).toBe('Copy');
 
     // Both ends wrap, and the disabled row is never a stop.
@@ -469,9 +555,21 @@ describe('WrDropdown', () => {
     }
   });
 
-  it('still focuses the first item when the KEYBOARD opens it', async () => {
+  it('focuses the first item when the KEYBOARD opens a hover menu under autoFocus, never for the pointer', async () => {
+    fixture.destroy();
+    fixture = TestBed.createComponent(AutoFocusHost) as unknown as typeof fixture;
     fixture.componentInstance.how.set('hover');
     fixture.detectChanges();
+
+    trigger().focus();
+    trigger().dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    fixture.detectChanges();
+    await Promise.resolve();
+    expect(menu()).not.toBeNull();
+    expect(document.activeElement).toBe(trigger());
+    trigger().dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+    fixture.detectChanges();
+    expect(menu()).toBeNull();
 
     key(trigger(), 'ArrowDown');
     await Promise.resolve();

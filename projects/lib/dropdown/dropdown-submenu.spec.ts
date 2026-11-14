@@ -94,10 +94,11 @@ describe('WrDropdownSubmenu', () => {
     fixture.detectChanges();
   };
 
-  /** Open the root from the keyboard, so focus is on its first item. */
+  /** Open the root from the keyboard and walk in, so focus is on its first item. */
   const openRoot = async (): Promise<void> => {
     key(trigger(), 'ArrowDown');
     await Promise.resolve();
+    key(trigger(), 'ArrowDown');
   };
 
   beforeEach(() => {

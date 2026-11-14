@@ -55,9 +55,11 @@ describe('WrDropdown typeahead', () => {
   const type = (name: string, init: KeyboardEventInit = {}): KeyboardEvent => key(document.activeElement!, name, init);
   const focused = (): string => document.activeElement?.textContent.trim() ?? '';
 
+  /** Open the root and walk in, so focus is on its first item. */
   const openRoot = async (): Promise<void> => {
     key(trigger(), 'ArrowDown');
     await Promise.resolve();
+    key(trigger(), 'ArrowDown');
   };
 
   beforeEach(() => {

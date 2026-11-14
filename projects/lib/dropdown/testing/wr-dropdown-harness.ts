@@ -148,7 +148,8 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
 
   /**
    * Open the menu from the keyboard — ArrowDown on the trigger, the APG
-   * menu-button path (ArrowUp / Enter / Space do the same).
+   * menu-button path (ArrowUp / Enter / Space do the same). Focus stays on the
+   * trigger unless the dropdown sets `autoFocus`.
    *
    * Worth its own method rather than an argument to `open()`: it is the only way
    * to get TWO dropdowns open at once, because clicking a second trigger is an
@@ -268,10 +269,12 @@ export class WrDropdownHarness extends ContentContainerComponentHarness {
    * The label of the item that currently holds focus, or `null` when focus is
    * elsewhere.
    *
-   * The menu roves focus rather than moving a visual cursor — it lands on the
-   * first ENABLED item as the menu renders, and the arrow keys walk it from there
-   * over the enabled items only (a disabled one is not a stop) — so this is the
-   * only way to ask where the keyboard is.
+   * The menu roves focus rather than moving a visual cursor, so this is the only
+   * way to ask where the keyboard is. Opening leaves focus on the trigger unless
+   * the dropdown sets `autoFocus`: send ArrowDown to the host
+   * (`(await dropdown.host()).sendKeys(TestKey.DOWN_ARROW)`) to walk in at the
+   * first ENABLED item, and the arrow keys walk from there over the enabled
+   * items only (a disabled one is not a stop).
    */
   async getFocusedItemText(): Promise<string | null> {
     for (const item of await this.getItems()) {

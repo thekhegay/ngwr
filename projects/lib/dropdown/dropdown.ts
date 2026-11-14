@@ -134,6 +134,19 @@ export class WrDropdown {
   readonly disabled = input(false, { alias: 'wrDropdownDisabled', transform: coerceBooleanProperty });
 
   /**
+   * Focus the first item when a click, a key or `open()` opens the menu. Off,
+   * focus stays on the trigger and ArrowDown / ArrowUp there walk into the menu
+   * at its first / last item; a letter jumps to the item it starts. A pointer
+   * hovering a `trigger="hover"` menu never moves focus.
+   *
+   * Bind it, `[autoFocus]="true"`: a bare `autoFocus` attribute is also the
+   * native `autofocus`, which focuses the trigger as the page loads.
+   *
+   * @default false
+   */
+  readonly autoFocus = input(false, { transform: coerceBooleanProperty });
+
+  /**
    * Extra CSS classes for the menu's overlay pane.
    *
    * The pane is appended to the overlay container, not to this component, so
@@ -205,6 +218,9 @@ export class WrDropdown {
   /** The root menu's link to the submenus open below it. */
   private level: WrDropdownLevel | null = null;
 
+  /** The open root menu's type-ahead, for a letter typed on the trigger. */
+  private typeInMenu: ((event: KeyboardEvent) => void) | null = null;
+
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('dropdown');
     // The host view carrying `[wrDropdown]` can be destroyed while the menu is
@@ -247,10 +263,10 @@ export class WrDropdown {
   /**
    * Whether the pointer, rather than the keyboard, opened the current menu.
    *
-   * A hover-opened menu must not take focus — the APG shows a menu on hover and
-   * leaves the caret where it was — while a keyboard-opened one must. The
-   * trigger MODE cannot answer that on its own: a `trigger="hover"` menu is
-   * still openable with Enter, and that open should focus the first item.
+   * A hover-opened menu must not take focus, even under `autoFocus` — the APG
+   * shows a menu on hover and leaves the caret where it was. The trigger MODE
+   * cannot answer that on its own: a `trigger="hover"` menu is still openable
+   * with Enter, and that open follows `autoFocus`.
    */
   private openedByPointer = false;
 
@@ -385,15 +401,13 @@ export class WrDropdown {
       close: () => this.close(),
       pointerLeft: related => this.onMenusLeave(related),
     };
-    wrDropdownRegisterLevel(this.level, () => this.liveLocale?.());
+    this.typeInMenu = wrDropdownRegisterLevel(this.level, () => this.liveLocale?.());
 
-    // Focus the first menu item after the menu renders — unless a POINTER
-    // opened it. This used to be unconditional, so merely sweeping the cursor
-    // over a `trigger="hover"` menu yanked the caret out of whatever the user
-    // was typing; the APG's own rule is that hover shows a menu and does not
-    // move focus into it. A keyboard open (Enter / Space / ArrowDown) still
-    // focuses the first item, on a hover trigger too.
-    if (!this.openedByPointer) queueMicrotask(() => this.focusItemAt(0));
+    // Opening moves no focus unless `autoFocus` asks: the trigger keeps it, and
+    // the arrows typed there walk in through `handleMenuKeydown`. A POINTER
+    // hovering a `trigger="hover"` menu never moves it, or merely sweeping the
+    // cursor over the trigger yanks the caret out of whatever the user is typing.
+    if (this.autoFocus() && !this.openedByPointer) queueMicrotask(() => this.focusItemAt(0));
 
     this.outsideClick
       .outsidePointerEvents(this.overlayRef)
@@ -449,6 +463,7 @@ export class WrDropdown {
       this.level.child?.close();
       wrDropdownReleaseLevel(this.level);
       this.level = null;
+      this.typeInMenu = null;
     }
     this.overlayRef.dispose();
     this.overlayRef = null;
@@ -460,13 +475,22 @@ export class WrDropdown {
 
   // Keyboard handling
 
-  /** @internal Trigger keydown — ArrowDown/Up/Enter/Space open the menu. */
+  /**
+   * @internal Trigger keydown — ArrowDown/Up/Enter/Space open the menu. While
+   * it is open the arrows reach `handleMenuKeydown` through the overlay, and a
+   * letter goes to the menu's type-ahead.
+   */
   protected onKeydown(event: KeyboardEvent): void {
-    if (this.disabled() || this.isOpen() || this.trigger() === 'manual') return;
+    if (this.disabled()) return;
+    if (this.isOpen()) {
+      this.typeInMenu?.(event);
+      return;
+    }
+    if (this.trigger() === 'manual') return;
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       // Opened from the keyboard — including on a `hover` trigger, which stays
-      // keyboard-operable — so the first item SHOULD take focus.
+      // keyboard-operable — so `autoFocus` applies.
       this.openedByPointer = false;
       this.open();
     }
