@@ -60,7 +60,8 @@
     [attr.aria-expanded]="overlayOpen()"
     [attr.aria-controls]="overlayOpen() ? panelId : null"
     [disabled]="disabled()"
-    (click)="toggleOverlay()"
+    (click)="toggleOverlay($event)"
+    (keydown.arrowDown)="onTriggerArrow($event)"
   >
     @if (isTime()) {
       <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
