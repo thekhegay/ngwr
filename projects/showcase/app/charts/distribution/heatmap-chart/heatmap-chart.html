@@ -1,13 +1,14 @@
 <ngwr-doc-page
   title="Heatmap Chart"
   since="15.1.0"
+  updated="16.5.0"
   description="A matrix of values, each cell a level of one colour, where two categories meet."
   [keywords]="['heatmap-chart', 'heatmap', 'matrix', 'wr-heatmap-chart']"
   [labels]="['Component']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="One array per row, one value per column. The scale runs from the lowest value to the highest, cut into five levels."
+    description="One array per row, one value per column. The scale runs from the lowest value to the highest, cut into five levels: the five steps of the chart theme's sequential scale, `--wr-chart-seq-1` to `-5`. The key under the matrix shows them."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-code [code]="snippets.basicTs" language="angular-ts" />
@@ -99,7 +100,7 @@
 
   <ngwr-doc-section
     title="Colour"
-    description="`color` is the highest level. Every lower level is mixed from it toward the surface."
+    description="With no `color` the levels are the theme's sequential scale. `color` sets the highest level, and the lower ones are stepped from it toward the surface in the same shares."
   >
     <ngwr-doc-code [code]="snippets.color" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -113,6 +114,56 @@
         noDataLabel="Closed"
         showValues
       />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Scale key"
+    description="`legendPosition` puts the key at `bottom` (default), `top`, `start` or `end`, or leaves it out with `none`. `showLegend` turns it off too."
+  >
+    <ngwr-doc-code [code]="snippets.legend" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="top"</code>
+          </p>
+          <wr-heatmap-chart [rows]="stores" [columns]="days" [data]="sales" legendPosition="top" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="end"</code>
+          </p>
+          <wr-heatmap-chart [rows]="stores" [columns]="days" [data]="sales" legendPosition="end" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="A matrix with no row or column keeps a box and says so. `loading` and `error` put their message in place of the cells, beside the names. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">No data</p>
+          <wr-heatmap-chart [data]="[]" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-heatmap-chart [rows]="stores" [columns]="days" [data]="sales" loading />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-heatmap-chart [rows]="stores" [columns]="days" [data]="sales" error errorLabel="Sales are unavailable" />
+        </div>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -174,6 +225,17 @@
           <tr>
             <th scope="row">Legend</th>
             <td>Hidden from screen readers, like an axis. The table has the figures.</td>
+          </tr>
+          <tr>
+            <th scope="row">Lowest level</th>
+            <td>A tint of the surface. Every cell has a faint edge, so it still reads as a cell on a dark page.</td>
+          </tr>
+          <tr>
+            <th scope="row">States</th>
+            <td>
+              The empty and loading messages are a <code>role="status"</code>; a failed load is a
+              <code>role="alert"</code>.
+            </td>
           </tr>
           <tr>
             <th scope="row">Keyboard</th>

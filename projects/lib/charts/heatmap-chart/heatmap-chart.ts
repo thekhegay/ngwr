@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { isPlatformBrowser } from '@angular/common';
+import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import {
   Component,
   DestroyRef,
@@ -17,13 +17,24 @@ import {
   afterNextRender,
   afterRenderEffect,
   computed,
+  effect,
   inject,
   input,
   signal,
   viewChild,
 } from '@angular/core';
 
-import { WrChartTable, type WrChartTableData, useChartNumbers } from 'ngwr/charts/core';
+import { WrChartScale, type WrChartLegendPosition } from 'ngwr/charts/chart-legend';
+import {
+  WrChartState,
+  WrChartTable,
+  type WrChartTableData,
+  useChartNumbers,
+  useChartSize,
+  useChartState,
+  wrChartNumberFormat,
+  wrChartRound,
+} from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { wrClamp, wrCheckStyles } from 'ngwr/utils';
@@ -59,8 +70,41 @@ interface Cell {
    * rounded so the inline style stays short. `null` for an empty cell.
    */
   readonly level: number | null;
+  /** Its level's paint, a step of the sequential scale or a mix of two. `null` for an empty cell. */
+  readonly paint: string | null;
   /** The number printed in the cell with `showValues`, compact from a thousand; `''` when it prints none. */
   readonly text: string;
+}
+
+/**
+ * The steps of the sequential scale a level is painted from, lowest first: the chart's own
+ * hooks, which the stylesheet points at `--wr-chart-seq-1` to `-5`. Written out, so each
+ * hook is read by name.
+ */
+const STEPS = [
+  'var(--wr-heatmap-chart-step-1)',
+  'var(--wr-heatmap-chart-step-2)',
+  'var(--wr-heatmap-chart-step-3)',
+  'var(--wr-heatmap-chart-step-4)',
+  'var(--wr-heatmap-chart-step-5)',
+] as const;
+
+/**
+ * The paint of a level at `place` on the scale, 0 to 1: the step of the sequential scale
+ * it lands on, or between two steps a mix of them in the share it sits at. With the five
+ * `levels` of the default each level IS a step, `--wr-chart-seq-1` to `-5` unless the
+ * chart is given a colour of its own; with more levels than steps the ones between are
+ * mixed, so ten levels are still ten paints.
+ */
+function paintAt(place: number): string {
+  const at = wrClamp(place, 0, 1) * (STEPS.length - 1);
+  const lower = Math.min(STEPS.length - 2, Math.floor(at + 1e-9));
+  const share = wrChartRound((at - lower) * 100, 2);
+  const from = STEPS[lower];
+  const to = STEPS[lower + 1];
+  if (share <= 0) return from;
+  if (share >= 100) return to;
+  return `color-mix(in srgb, ${to} ${share}%, ${from})`;
 }
 
 /** A value as the scale reads it: a finite number, or `null` for an empty cell. */
@@ -74,7 +118,7 @@ const boundOf = (v: unknown): number | null => {
 };
 
 /** A level to four decimals, with `-0` folded to `0`, so the inline style stays short. */
-const short = (value: number): number => Math.round(value * 1e4) / 1e4 || 0;
+const short = (value: number): number => wrChartRound(value, 4);
 
 /**
  * Heatmap chart: a matrix of values, a row per category on one side and a column per
@@ -98,13 +142,20 @@ const short = (value: number): number => Math.round(value * 1e4) / 1e4 || 0;
  * ```
  *
  * **The scale.** It runs from `min` to `max`, each the data's own unless given, and is cut
- * into `levels` equal bands. A cell takes its band's level: the lowest is a faint tint of
- * `color` and the highest is `color` itself, every level between mixed from the two in
- * OKLab, whose lightness moves evenly, so the levels look evenly spaced in either colour
- * scheme. A value outside a given `min` or `max` takes the end level; the tooltip and the
- * data table still give its own figure. A legend under the matrix keys the levels from the
- * scale's minimum to its maximum. A scale with no span — every value the same, an
- * all-zero matrix included — has one level, the lowest, and the legend keys that one.
+ * into `levels` equal bands. A cell takes its band's level, painted from the chart
+ * theme's sequential scale: `--wr-chart-seq-1`, a tint of the first palette colour, for
+ * the lowest, up to `--wr-chart-seq-5`, the colour itself, for the highest. Five levels
+ * are the five steps; more are mixed between two steps. `color` paints the same five
+ * steps from a colour of the chart's own. Every cell carries a faint edge, so the lowest
+ * level still reads as a cell on a dark surface. A value outside a given `min` or `max`
+ * takes the end level; the tooltip and the data table still give its own figure. A scale
+ * key (`legendPosition`: under the matrix, over it or beside it) keys the levels from
+ * the scale's minimum to its maximum. A scale with no span — every value the same, an
+ * all-zero matrix included — has one level, the lowest, and the key shows that one.
+ *
+ * **Empty, loading, error.** A matrix with no row or no column keeps a box and says
+ * "No data"; `loading` and `error` put their own message over the row and column names
+ * in place of the cells.
  *
  * **An empty cell is no data, never zero.** A `null`, a value that is not a finite number,
  * or one a shorter row does not reach is drawn hatched and outlined, not as the lowest
@@ -140,12 +191,15 @@ const short = (value: number): number => Math.round(value * 1e4) / 1e4 || 0;
   templateUrl: './heatmap-chart.html',
   encapsulation: ViewEncapsulation.None,
   host: {
-    class: 'wr-heatmap-chart',
-    // The highest level's colour, which every lower level is mixed from: read by the cells
-    // and the legend's swatches.
+    // `wr-chart--legend`: the shared rule that keeps the scale key's room from the matrix.
+    class: 'wr-heatmap-chart wr-chart--legend',
+    '[class.wr-chart--legend-side]': 'legendShown() && legendSide()',
+    // A colour of the chart's own for the highest level, which the stylesheet then steps
+    // the lower ones from. Without one the levels are the chart theme's sequential scale.
+    '[class.wr-heatmap-chart--tinted]': 'color() !== null',
     '[style.--wr-heatmap-chart-scale-color]': 'color()',
   },
-  imports: [WrChartTable],
+  imports: [NgTemplateOutlet, WrChartScale, WrChartState, WrChartTable],
 })
 export class WrHeatmapChart {
   /**
@@ -176,10 +230,11 @@ export class WrHeatmapChart {
 
   /**
    * The colour of the highest level: any CSS colour, `var(--wr-…)` included. Every lower
-   * level is mixed from it toward the surface, the lowest a faint tint.
-   * @default 'var(--wr-color-primary)'
+   * level is stepped from it toward the surface, as the chart theme steps its own scale.
+   * `null` paints the levels with the theme's sequential scale, `--wr-chart-seq-1` to
+   * `-5`, which an app retints for every chart at once. @default null
    */
-  readonly color = input<string>('var(--wr-color-primary)');
+  readonly color = input<string | null>(null);
 
   /**
    * The value of the lowest level. `null` takes the lowest value in `data`; a value given
@@ -220,8 +275,38 @@ export class WrHeatmapChart {
    */
   readonly showValues = input(false, { transform: coerceBooleanProperty });
 
-  /** Show the colour-scale legend under the matrix, from `min` to `max`, with a key for an empty cell while there is one. @default true */
+  /** Show the scale key, from `min` to `max`, with a key for an empty cell while there is one. @default true */
   readonly showLegend = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Where the scale key sits: `bottom` or `top` of the matrix, `start` or `end` of it, or
+   * `none` for no key at all. @default 'bottom'
+   */
+  readonly legendPosition = input<WrChartLegendPosition>('bottom');
+
+  /**
+   * A request for the chart's data is in flight: the cells give way to the loading
+   * message, beside the row and column names the chart had. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The chart's data failed to load: the cells give way to the error message. `loading`
+   * wins while both are set. @default false
+   */
+  readonly error = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The message shown for a matrix with no row or no column. Falls back to `chart.empty`,
+   * then `'No data'`. An empty CELL is `noDataLabel`'s.
+   */
+  readonly emptyLabel = input<string | null>(null);
+
+  /** The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`. */
+  readonly loadingLabel = input<string | null>(null);
+
+  /** The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`. */
+  readonly errorLabel = input<string | null>(null);
 
   /**
    * Show a tooltip for the cell under the pointer: its row's name, its column's name and
@@ -270,14 +355,17 @@ export class WrHeatmapChart {
   private readonly numbers = useChartNumbers(this.valueFormat);
 
   /** A row or column with no name is named by its position, written in `LOCALE_ID`. */
-  private readonly positions = new Intl.NumberFormat(inject(LOCALE_ID));
+  private readonly positions = wrChartNumberFormat(inject(LOCALE_ID));
 
   private readonly grid = viewChild<ElementRef<HTMLElement>>('grid');
 
   private readonly columnStrip = viewChild<ElementRef<HTMLElement>>('columnStrip');
 
-  /** The column names' strip's width, as last observed: what measures the names again on a resize. */
-  private readonly stripWidth = signal(0);
+  /**
+   * The column names' strip's box, as last observed: what measures the names again on a
+   * resize. On the observer every chart shares.
+   */
+  private readonly stripSize = useChartSize(this.columnStrip);
 
   /**
    * Which column names are drawn. Every one until the browser has measured them, so the
@@ -353,18 +441,27 @@ export class WrHeatmapChart {
     const scale = this.scale();
     const levels = this.levels();
     const print = this.showValues();
+    // One paint per level, shared by every cell on it: a string built `levels` times, not
+    // once a cell.
+    const paints = Array.from({ length: levels }, (_, k) => paintAt(k / (levels - 1)));
     return this.values().flatMap((row, r) =>
       row.map((value, c): Cell => {
-        if (value === null || scale === null) return { row: r, column: c, value, level: null, text: '' };
+        if (value === null || scale === null) {
+          return { row: r, column: c, value, level: null, paint: null, text: '' };
+        }
         const span = scale.max - scale.min;
         // The epsilon keeps a value ON a band's edge in the band above it: 0.3 × 10 is
         // 2.9999999999999996 in floating point.
-        const band = span === 0 ? 0 : Math.floor(wrClamp((value - scale.min) / span, 0, 1) * levels + 1e-9);
+        const band = Math.min(
+          levels - 1,
+          span === 0 ? 0 : Math.floor(wrClamp((value - scale.min) / span, 0, 1) * levels + 1e-9)
+        );
         return {
           row: r,
           column: c,
           value,
-          level: short(Math.min(band, levels - 1) / (levels - 1)),
+          level: short(band / (levels - 1)),
+          paint: paints[band],
           text: print ? this.numbers.label(value) : '',
         };
       })
@@ -383,13 +480,43 @@ export class WrHeatmapChart {
   protected readonly legend = computed(() => {
     const scale = this.scale();
     if (scale === null) return null;
-    if (scale.min === scale.max) return { min: this.numbers.label(scale.min), max: null, levels: [0] };
+    if (scale.min === scale.max) return { min: this.numbers.label(scale.min), max: null, steps: [paintAt(0)] };
     const levels = this.levels();
     return {
       min: this.numbers.label(scale.min),
       max: this.numbers.label(scale.max),
-      levels: Array.from({ length: levels }, (_, k) => short(k / (levels - 1))),
+      steps: Array.from({ length: levels }, (_, k) => paintAt(k / (levels - 1))),
     };
+  });
+
+  /**
+   * Whether the chart draws its scale key: with `showLegend`, unless `legendPosition` is
+   * `none`, and while there is a scale or an empty cell to key.
+   */
+  protected readonly legendShown = computed(
+    () => this.showLegend() && this.legendPosition() !== 'none' && (this.legend() !== null || this.hasEmpty())
+  );
+
+  /** Whether the key comes before the matrix, in the DOM as on screen: above it, or at inline start. */
+  protected readonly legendFirst = computed(() => {
+    const position = this.legendPosition();
+    return position === 'top' || position === 'start';
+  });
+
+  /** Whether the key sits beside the matrix rather than above or below it. */
+  protected readonly legendSide = computed(() => {
+    const position = this.legendPosition();
+    return position === 'start' || position === 'end';
+  });
+
+  /** What the chart shows in place of its cells, or `null` while it draws them. */
+  protected readonly state = useChartState({
+    loading: this.loading,
+    error: this.error,
+    empty: computed(() => this.shape().rowCount === 0 || this.shape().columnCount === 0),
+    emptyLabel: this.emptyLabel,
+    loadingLabel: this.loadingLabel,
+    errorLabel: this.errorLabel,
   });
 
   /**
@@ -447,20 +574,41 @@ export class WrHeatmapChart {
     if (!isPlatformBrowser(inject(PLATFORM_ID))) return;
 
     afterRenderEffect(() => {
-      this.stripWidth();
+      // The strip's width is what decides how many names fit. A hidden chart reports 0
+      // and draws every name, and showing it again is a change of width, so it is
+      // measured afresh even where its width is the one it was hidden at.
+      this.stripSize();
       this.columnLabels();
       this.thinning.set(this.measureColumnNames());
     });
 
-    // The strip's width is what decides how many names fit. A hidden chart reports 0 and
-    // draws every name, and showing it again is a change of width, so it is measured afresh
-    // even where its width is the one it was hidden at.
+    // The pointer, heard on the matrix by two listeners of the chart's own rather than the
+    // template's: a template listener checks the whole chart again on every event, and a
+    // move across a cell is hundreds of them. These run nothing unless the cell changes.
     afterNextRender(() => {
-      const strip = this.columnStrip()?.nativeElement;
-      if (!strip || typeof ResizeObserver === 'undefined') return;
-      const observer = new ResizeObserver(([entry]) => this.stripWidth.set(entry.contentRect.width));
-      observer.observe(strip);
-      destroyRef.onDestroy(() => observer.disconnect());
+      const grid = this.grid()?.nativeElement;
+      if (!grid) return;
+      const move = (event: MouseEvent): void => this.onPointerMove(event);
+      const leave = (event: MouseEvent): void => this.tip.leave(event);
+      grid.addEventListener('mousemove', move);
+      grid.addEventListener('mouseleave', leave);
+      destroyRef.onDestroy(() => {
+        grid.removeEventListener('mousemove', move);
+        grid.removeEventListener('mouseleave', leave);
+      });
+    });
+
+    // The ring round the cell the tooltip reads, set by hand on that one element. Bound as
+    // a class on every cell, it was compared again for every cell on every hover change:
+    // 2,500 compares a move on a 50 × 50 matrix.
+    let ringed: Element | null = null;
+    effect(() => {
+      const active = this.tip.active();
+      const next = active === null ? null : (this.grid()?.nativeElement.children.item(active) ?? null);
+      if (next === ringed) return;
+      ringed?.classList.remove('wr-heatmap-chart__cell--active');
+      next?.classList.add('wr-heatmap-chart__cell--active');
+      ringed = next;
     });
   }
 
@@ -498,7 +646,7 @@ export class WrHeatmapChart {
    * tap fires the compatibility `mousemove` and no `pointermove`. Over the gap between two
    * cells it is on none, and the tooltip starts to leave.
    */
-  protected onPointerMove(event: MouseEvent): void {
+  private onPointerMove(event: MouseEvent): void {
     if (!this.tooltip()) return;
     const cell = (event.target as Element | null)?.closest?.<HTMLElement>('.wr-heatmap-chart__cell');
     const row = Number(cell?.dataset['row']);
