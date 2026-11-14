@@ -193,6 +193,15 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   readonly separator = input<string>('/');
 
   /**
+   * Focus the selected option, or the first one, when the panel opens. Off,
+   * focus stays on the trigger: ArrowDown, ArrowUp or Tab there move into the
+   * panel, and a letter jumps to the option it starts.
+   *
+   * @default false
+   */
+  readonly autoFocus = input(false, { transform: coerceBooleanProperty });
+
+  /**
    * Extra CSS classes for the column panel's overlay pane.
    *
    * The pane is appended to the overlay container, not to this component, so
@@ -412,11 +421,15 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
    * and the shape `wr-dropdown`'s trigger uses. Enter and Space need no branch: the
    * trigger is a real `<button>`, so the browser turns them into the click above.
    *
-   * Only while closed. Once the panel is up the caret is inside it, and its options
-   * own their own keys.
+   * Opening leaves the caret here unless `autoFocus` asks, so while the panel is
+   * up the trigger is the way in: see {@link enterPanelFromTrigger}.
    */
   protected onTriggerKeydown(event: KeyboardEvent): void {
-    if (this.disabled() || this.readonly() || this.isOpen()) return;
+    if (this.disabled() || this.readonly()) return;
+    if (this.isOpen()) {
+      this.enterPanelFromTrigger(event);
+      return;
+    }
 
     // Backspace is the × from the keyboard, and it has to be: the × is a
     // `tabindex="-1"` span INSIDE this button, and a keydown goes to the focused
@@ -437,6 +450,36 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     event.preventDefault();
     this.activePath.set(this.path());
     this.openState.set(true);
+  }
+
+  /**
+   * Keys on the trigger while the panel is open. The arrows and Tab move to the
+   * panel's tab stop: the pane sits at the end of `<body>`, where the browser's
+   * own Tab would not find it. A letter jumps to the option of that column it
+   * starts. Shift+Tab, or Tab with nothing to land on, closes the panel and
+   * moves on through the page.
+   */
+  private enterPanelFromTrigger(event: KeyboardEvent): void {
+    const pane = this.overlayRef?.overlayElement;
+    if (!pane || event.defaultPrevented) return;
+    const stop = pane.querySelector<HTMLElement>('[role="treeitem"][tabindex="0"]');
+
+    if (wrIsPrintableKey(event) && event.key !== ' ') {
+      const column = stop?.closest<HTMLElement>('[role="group"]');
+      if (column && this.typeAhead(column, null, event)) event.preventDefault();
+      return;
+    }
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === 'Tab') {
+      if (event.shiftKey || !stop) {
+        this.openState.set(false);
+        return;
+      }
+    } else if (event.shiftKey || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) {
+      return;
+    }
+    event.preventDefault();
+    stop?.focus();
   }
 
   protected onOptionClick(colIndex: number, opt: WrCascaderOption<T>, event: Event): void {
@@ -555,15 +598,20 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
 
   /**
    * Move to the next enabled option in `column` whose label starts with the letters
-   * typed so far: {@link wrTypeahead} over the column's labels.
+   * typed so far: {@link wrTypeahead} over the column's labels. `current` is
+   * `null` when the caret is not in the column yet.
+   *
+   * @returns whether the caret moved.
    */
-  private typeAhead(column: HTMLElement, current: HTMLElement, event: KeyboardEvent): void {
+  private typeAhead(column: HTMLElement, current: HTMLElement | null, event: KeyboardEvent): boolean {
     const enabled = [...column.querySelectorAll<HTMLElement>('[role="treeitem"]')].filter(
       o => o.getAttribute('aria-disabled') !== 'true'
     );
     const labels = enabled.map(o => o.querySelector('.wr-cascader__opt-label')?.textContent ?? '');
-    const index = this.typeahead.handleKey(event, labels, enabled.indexOf(current));
-    if (index !== null && index >= 0) enabled[index].focus();
+    const index = this.typeahead.handleKey(event, labels, current ? enabled.indexOf(current) : -1);
+    if (index === null || index < 0) return false;
+    enabled[index].focus();
+    return true;
   }
 
   protected clearSelection(event: Event): void {
@@ -659,17 +707,15 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);
 
-    // Move the caret into the panel it just opened. Nothing did, and the pane is
-    // appended to `<body>`, so an opened cascader left focus on the trigger and its
-    // options were reachable only by tabbing past the whole rest of the page —
-    // `wr-tree` and `wr-context-menu` were the same defect. `closeOverlay` below
-    // already assumes this is where the caret lives.
+    // Opening moves no focus unless `autoFocus` asks. The pane is appended to
+    // `<body>`, where Tab from the trigger would not find it, so the trigger's
+    // own arrows and Tab walk in: see `enterPanelFromTrigger`.
     //
     // `afterNextRender`, NOT `queueMicrotask`: under zoneless CD change detection runs
     // in a macrotask, so a microtask queued here fires before the columns are in the
     // DOM — the trap that once left `wr-calendar`'s ring and its real focus on
     // different days.
-    afterNextRender(() => this.focusPanelOption(), { injector: this.injector });
+    if (this.autoFocus()) afterNextRender(() => this.focusPanelOption(), { injector: this.injector });
 
     this.outsideClick
       .outsidePointerEvents(this.overlayRef)
@@ -709,9 +755,8 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   /** `notify: false` is the destroy path: an output cannot emit from a destroyed view. */
   private closeOverlay(notify = true): void {
     if (!this.overlayRef) return;
-    // Opening moves the caret onto the panel's tab stop and every option commits
-    // on Enter, so on the keyboard the caret is INSIDE the pane by design — and
-    // the ordinary way to finish choosing (`onOptionClick` on a leaf) closes it.
+    // Every option commits on Enter, so on the keyboard the caret is INSIDE the
+    // pane when a choice is made — and the ordinary way to finish choosing (`onOptionClick` on a leaf) closes it.
     // Disposing without handing focus back dropped it on `<body>` on the SUCCESS
     // path, not merely on dismissal: a keyboard user who had just picked a value
     // then had to Tab from the top of the document to get back to the control.

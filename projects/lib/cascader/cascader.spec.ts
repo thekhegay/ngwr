@@ -49,6 +49,16 @@ class Host {
   readonly clearable = signal(true);
 }
 
+/** The opt-in: the panel takes focus as it opens. */
+@Component({
+  imports: [WrCascader],
+  template: `<wr-cascader ariaLabel="Place" [autoFocus]="true" [options]="options" [(value)]="picked" />`,
+})
+class AutoFocusHost {
+  readonly options = OPTIONS;
+  readonly picked = signal<unknown>(['as']);
+}
+
 /**
  * A cascader is a combobox whose popup is a `role="tree"`, drawn as one
  * `role="group"` COLUMN per level, and
@@ -142,13 +152,17 @@ describe('WrCascader', () => {
    * working component and a broken one.
    */
   describe('the keyboard way in', () => {
-    // `afterNextRender`, so the fixture has to settle before the caret has moved —
-    // a synchronous `detectChanges()` alone is exactly what would hide a microtask bug.
-    const openAndSettle = async (): Promise<void> => {
+    const openOnly = async (): Promise<void> => {
+      trigger().focus();
       trigger().click();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
+    };
+    /** Open, then ArrowDown on the trigger: the caret is on the panel's tab stop. */
+    const openAndSettle = async (): Promise<void> => {
+      await openOnly();
+      press('ArrowDown');
     };
 
     const press = (key: string, init: KeyboardEventInit = {}): KeyboardEvent => {
@@ -200,11 +214,58 @@ describe('WrCascader', () => {
       expect(press('Backspace').defaultPrevented).toBe(false);
     });
 
-    it('moves the caret into the panel rather than leaving it on the trigger', async () => {
-      await openAndSettle();
+    it('leaves the caret on the trigger when a click or a key opens the panel', async () => {
+      await openOnly();
+      expect(panel()).not.toBeNull();
+      expect(document.activeElement).toBe(trigger());
+      expect(trigger().getAttribute('aria-expanded')).toBe('true');
 
-      expect(document.activeElement).toBe(optionFor('Europe'));
-      expect(document.activeElement).not.toBe(trigger());
+      press('Escape');
+      expect(panel()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+
+      for (const key of ['ArrowDown', 'ArrowUp']) {
+        press(key);
+        await fixture.whenStable();
+        fixture.detectChanges();
+        expect(panel(), key).not.toBeNull();
+        expect(document.activeElement, key).toBe(trigger());
+        press('Escape');
+      }
+    });
+
+    it('moves into the open panel on ArrowDown, ArrowUp or Tab from the trigger', async () => {
+      for (const key of ['ArrowDown', 'ArrowUp', 'Tab']) {
+        await openOnly();
+        const event = press(key);
+        expect(event.defaultPrevented, key).toBe(true);
+        expect(document.activeElement, key).toBe(optionFor('Europe'));
+        press('Escape');
+        expect(document.activeElement, key).toBe(trigger());
+      }
+    });
+
+    it('closes on Shift+Tab from the trigger and lets the browser move on', async () => {
+      await openOnly();
+      const event = press('Tab', { shiftKey: true });
+      expect(event.defaultPrevented).toBe(false);
+      expect(panel()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+    });
+
+    it('jumps to an option by a letter typed on the trigger', async () => {
+      await openOnly();
+      expect(press('a').defaultPrevented).toBe(true);
+      expect(document.activeElement).toBe(optionFor('Asia'));
+    });
+
+    it('focuses the chosen option as the panel opens under autoFocus', async () => {
+      fixture.destroy();
+      fixture = TestBed.createComponent(AutoFocusHost) as unknown as typeof fixture;
+      fixture.detectChanges();
+
+      await openOnly();
+      expect(document.activeElement).toBe(optionFor('Asia'));
     });
 
     it('lands on the option already chosen, not on the first one', async () => {
@@ -234,6 +295,8 @@ describe('WrCascader', () => {
       fixture.detectChanges();
 
       expect(panel()).not.toBeNull();
+      expect(document.activeElement).not.toBe(optionFor('Europe'));
+      press('ArrowDown');
       expect(document.activeElement).toBe(optionFor('Europe'));
     });
 
@@ -611,6 +674,7 @@ describe('WrCascader', () => {
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
+      trigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
 
       // One stop, on the first root while nothing is chosen.
       expect(stops()).toEqual(['Europe']);
