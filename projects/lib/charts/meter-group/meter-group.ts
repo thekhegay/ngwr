@@ -33,7 +33,7 @@ import {
   wrChartRound,
 } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
-import { useChartTooltip } from 'ngwr/popover';
+import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrMeterSegment } from './types';
@@ -172,11 +172,15 @@ export class WrMeterGroup {
   readonly hiddenSegments = model<readonly number[]>([]);
 
   /**
-   * Show a tooltip with the segment's label and value on hover. It replaces the
-   * band's `title`, which is written only while this is off — or the browser would
-   * open a second copy a moment later. @default true
+   * Show a tooltip with the segment's label and value on hover. It replaces the band's
+   * `title`, which is written only while this is off — or the browser would open a
+   * second copy a moment later.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Writes every value in the legend and the tooltip, and the total the bar announces

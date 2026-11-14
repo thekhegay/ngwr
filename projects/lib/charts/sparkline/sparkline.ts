@@ -9,7 +9,7 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, ElementRef, ViewEncapsulation, computed, inject, input, viewChild } from '@angular/core';
 
 import { useChartNumbers } from 'ngwr/charts/core';
-import { useChartTooltip } from 'ngwr/popover';
+import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
 /**
@@ -81,10 +81,14 @@ export class WrSparkline {
   readonly height = input<string>('2rem');
 
   /**
-   * Show a tooltip with the value of the point nearest the pointer, marking that
-   * point, and named by `ariaLabel` when one is given. Pointer only. @default true
+   * Show a tooltip with the value of the point nearest the pointer, marking that point,
+   * and named by `ariaLabel` when one is given. Pointer only.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Writes the value in the tooltip. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.

@@ -24,7 +24,7 @@ import { WrChartScale, type WrChartLegendPosition } from 'ngwr/charts/chart-lege
 import { WrChartState, WrChartTable, type WrChartTableData, useChartNumbers, useChartState } from 'ngwr/charts/core';
 import { wrDateLocale } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { useChartTooltip } from 'ngwr/popover';
+import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrHeatmapDatum } from './types';
@@ -273,11 +273,15 @@ export class WrCalendarHeatmap {
   readonly showLabels = input(true, { transform: coerceBooleanProperty });
 
   /**
-   * Show a tooltip with the day and its count on hover. It is the sentence the
-   * square's `title` carried, so the `title` is written only while this is off —
-   * or the browser would open a second copy a moment later. @default true
+   * Show a tooltip with the day and its count on hover. It is the sentence the square's
+   * `title` carried, so the `title` is written only while this is off — or the browser
+   * would open a second copy a moment later.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Writes each day's count in the tooltip, the `title` and the data table. `null` uses

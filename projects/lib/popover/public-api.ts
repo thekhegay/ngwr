@@ -1,4 +1,4 @@
-export { useChartTooltip } from './chart-tooltip';
+export { useChartTooltip, wrCoerceChartTooltip } from './chart-tooltip';
 export { WrPopover } from './popover';
 export { type WrTextTooltip, wrUseTextTooltip } from './text-tooltip';
 export type {

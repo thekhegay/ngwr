@@ -47,7 +47,8 @@
 // hint at 400% zoom has to be able to reach the text — and an inert pane makes
 // the `mouseenter` that keeps it open impossible to fire. It does mean the chip
 // now intercepts what is under it, which is the area it draws on and no more;
-// the one part of that worth avoiding is the arrow, opted back out below.
+// the one part of that worth avoiding is the arrow, opted back out below. A chart's
+// chip is the exception, by default: see `useChartTooltip()`.
 
 .wr-tooltip {
   // Follows the theme instead of inverting against it: on a dark canvas the

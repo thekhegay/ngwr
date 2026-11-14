@@ -28,7 +28,7 @@ import {
   wrChartRound,
 } from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { type WrChartTooltipRow, useChartTooltip } from 'ngwr/popover';
+import { type WrChartTooltipRow, useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrFunnelConversion, WrFunnelStage } from './types';
@@ -191,9 +191,13 @@ export class WrFunnelChart {
 
   /**
    * Show a tooltip with the stage's label, value and both conversions on hover. Pointer
-   * only — each stage's accessible name already carries the same figures. @default true
+   * only — each stage's accessible name already carries the same figures.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * A request for the chart's data is in flight: the stages give way to the loading

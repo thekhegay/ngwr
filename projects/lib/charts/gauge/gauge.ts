@@ -10,7 +10,7 @@ import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChi
 
 import { WrChartState, useChartNumbers, useChartState, wrChartRound } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
-import { useChartTooltip } from 'ngwr/popover';
+import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrClamp, wrCheckStyles } from 'ngwr/utils';
 
 /**
@@ -124,10 +124,14 @@ export class WrGauge {
   readonly errorLabel = input<string | null>(null);
 
   /**
-   * Show a tooltip with the reading on hover, named by `ariaLabel` when one is
-   * given. Pointer only — the meter announces the same reading. @default true
+   * Show a tooltip with the reading on hover, named by `ariaLabel` when one is given.
+   * Pointer only — the meter announces the same reading.
+   *
+   * By default the pointer passes under the chip to the chart, so the next section
+   * answers at once and the chip closes off the chart; `'hoverable'` lets the pointer
+   * rest on the chip instead, as WCAG 1.4.13 asks of a hint. @default true
    */
-  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+  readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
    * Writes the reading in the centre, the tooltip and `aria-valuetext`, before
