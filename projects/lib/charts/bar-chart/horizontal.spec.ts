@@ -21,6 +21,8 @@ const DATA: readonly WrBarChartDatum[] = [
       [categories]="categories"
       [orientation]="orientation()"
       [showValues]="showValues()"
+      [showGrid]="false"
+      [showAxis]="false"
       [height]="160"
     />
   `,
@@ -96,7 +98,11 @@ describe('WrBarChart horizontal', () => {
         ['img', 'Refund: -4'],
       ]);
       // A negative value is still an empty bar with its number printed, as standing up.
-      expect(all('.wr-bar-chart__bar').map(b => b.style.flexGrow)).toEqual(['0.5', '1', '0']);
+      expect(all('.wr-bar-chart__bar').map(b => b.style.getPropertyValue('--wr-bar-chart-size'))).toEqual([
+        '0.5',
+        '1',
+        '0',
+      ]);
       expect(
         root().querySelector<HTMLElement>('.wr-bar-chart__track')!.style.getPropertyValue('--wr-bar-chart-zero')
       ).toBe('0');
@@ -119,11 +125,12 @@ describe('WrBarChart horizontal', () => {
       expect(all('.wr-bar-chart__value')).toEqual([]);
     });
 
-    it('goes back to the vertical markup when the orientation does', () => {
+    it('moves the names back under the plot when the orientation goes back to vertical', () => {
       set(h => h.orientation.set('vertical'));
 
       expect(chart().classList).not.toContain('wr-bar-chart--horizontal');
-      expect(all('.wr-bar-chart__track')).toEqual([]);
+      // One layout either way: the track stays, and only the names move.
+      expect(all('.wr-bar-chart__track')).toHaveLength(1);
       expect(plot().querySelector('.wr-bar-chart__labels')).toBeNull();
       expect(plot().nextElementSibling!.classList).toContain('wr-bar-chart__labels');
     });

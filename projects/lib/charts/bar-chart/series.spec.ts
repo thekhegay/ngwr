@@ -27,6 +27,8 @@ const SERIES: readonly WrBarSeries[] = [
       [stacked]="stacked()"
       [max]="max()"
       [showValues]="showValues()"
+      [showGrid]="false"
+      [showAxis]="false"
       [showLegend]="showLegend()"
       [toggleableLegend]="toggleable()"
       [dataTable]="dataTable()"
@@ -53,6 +55,9 @@ class Host {
  * Every position is a share of the value axis from its minimum, written inline as a
  * custom property, which jsdom reports verbatim — so the geometry is checkable without
  * layout. A bar is read as `[start, size]`.
+ *
+ * The host turns the grid and the scale off, which leaves the axis fitted to the data:
+ * the longest bar is the whole of it. What the snapped axis does is in `theme.spec.ts`.
  */
 describe('WrBarChart series', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -119,15 +124,13 @@ describe('WrBarChart series', () => {
     expect(root().querySelector('.wr-bar-chart__labels')!.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('gives each series its colour and its own dash, the first one solid', () => {
+  it('gives each series its colour, and keeps its own dash for an outline, the first one solid', () => {
     const [north, south] = bars(categories()[0]);
     expect(prop(north, 'color')).toBe(wrChartColor(0));
     expect(prop(south, 'color')).toBe('#123456');
-    const edge = (bar: HTMLElement, attr: string): string | null =>
-      bar.querySelector('.wr-bar-chart__edge rect')!.getAttribute(attr);
-    expect([edge(north, 'stroke-dasharray'), edge(south, 'stroke-dasharray')]).toEqual([null, WR_CHART_DASHES[1]]);
-    // The outline is the series' colour itself; the body is a tint of it.
-    expect([edge(north, 'stroke'), edge(south, 'stroke')]).toEqual([wrChartColor(0), '#123456']);
+    // A bar is a solid fill now; the dash is what its outline takes when
+    // `--wr-bar-chart-series-edge-width` gives it one, and what the harness reads.
+    expect([north.dataset['dash'], south.dataset['dash']]).toEqual(['', WR_CHART_DASHES[1]]);
   });
 
   it('prints each bar its own value past its end', () => {
@@ -136,11 +139,12 @@ describe('WrBarChart series', () => {
     expect(ends.slice(0, 2)).toEqual([0.3333, 1]);
   });
 
-  it('keeps a room past each end of the axis, from a copy of each value printed there', () => {
+  it('keeps a room past each end of the axis, from a copy of the longest values printed there', () => {
     const room = (end: 'max' | 'min'): string[] =>
       all(`.wr-bar-chart__room--${end} .wr-bar-chart__value`).map(v => v.textContent.trim());
-    // Each text once: the room is as large as the largest, so a repeat adds nothing.
-    expect(room('max')).toEqual(['10', '30', '20', '5', '15']);
+    // The three longest, each once: the room is as large as the largest, and a copy of
+    // every value was a hidden span per bar.
+    expect(room('max')).toEqual(['10', '30', '20']);
     expect(room('min')).toEqual([]);
     for (const el of all('.wr-bar-chart__room')) expect(el.getAttribute('aria-hidden')).toBe('true');
 
@@ -261,14 +265,20 @@ describe('WrBarChart series', () => {
       );
 
       // The axis runs from -20 to 20; zero is half way. A sits on zero, C on A; B hangs
-      // from zero and D from B — no band crosses another.
+      // from zero and D from B - no band crosses another. A pile is drawn a side of zero
+      // at a time, each side nearest zero first, so the bars above it come before the ones
+      // below.
       expect(geometry()).toEqual([
         [0.5, 0.25],
-        [0.375, 0.125],
         [0.75, 0.25],
+        [0.375, 0.125],
         [0, 0.375],
       ]);
-      expect(names()).toEqual(['A: 10', 'B: -5', 'C: 10', 'D: -15']);
+      expect(names()).toEqual(['A: 10', 'C: 10', 'B: -5', 'D: -15']);
+      expect(all('.wr-bar-chart__side').map(side => side.classList.contains('wr-bar-chart__side--down'))).toEqual([
+        false,
+        true,
+      ]);
       // One total for each sign, past the end of its own pile.
       expect(printed()).toEqual(['20', '-20']);
       const values = all('.wr-bar-chart__lane > .wr-bar-chart__value');
@@ -299,13 +309,17 @@ describe('WrBarChart series', () => {
     const legend = (): HTMLElement | null => root().querySelector('.wr-bar-chart__legend');
     const rows = (): string[] => all('.wr-chart-legend__label').map(l => l.textContent.trim());
 
-    it('keys every series by its dash in a legend above the plot', () => {
+    it('keys every series by a dot in its colour, in a legend below the plot', () => {
       expect(legend()!.matches('ul[wr-chart-legend]')).toBe(true);
       expect(rows()).toEqual(['North', 'South']);
-      const lines = all<SVGLineElement>('.wr-chart-legend__swatch--line line');
-      expect(lines.map(l => l.getAttribute('stroke-dasharray'))).toEqual([null, WR_CHART_DASHES[1]]);
+      // A solid bar is keyed by a solid dot: no line key, which belongs to `lines`.
+      expect(all('.wr-chart-legend__swatch--line')).toEqual([]);
+      expect(all('.wr-chart-legend__swatch--dot').map(dot => dot.style.background)).toEqual([
+        wrChartColor(0),
+        'rgb(18, 52, 86)',
+      ]);
       expect(legend()!.compareDocumentPosition(root().querySelector('.wr-bar-chart__plot')!)).toBe(
-        Node.DOCUMENT_POSITION_FOLLOWING
+        Node.DOCUMENT_POSITION_PRECEDING
       );
 
       set(h => h.showLegend.set(false));
@@ -427,7 +441,7 @@ describe('WrBarChart series tooltip', () => {
   ];
   const chip = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-chart-tooltip');
   const hover = (el: HTMLElement): void => {
-    el.dispatchEvent(new MouseEvent('mouseenter'));
+    el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
   };
 
@@ -492,7 +506,7 @@ describe('WrBarChart names from the catalog', () => {
   @Component({
     imports: [WrBarChart],
     template: `
-      <wr-bar-chart [categories]="['Q1']" [series]="series" [lines]="lines" stacked />
+      <wr-bar-chart [categories]="['Q1']" [series]="series" [lines]="lines" stacked showValues />
       <wr-bar-chart [data]="data" />
     `,
   })

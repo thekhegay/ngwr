@@ -16,7 +16,15 @@ const DATA: readonly WrBarChartDatum[] = [
 @Component({
   imports: [WrBarChart],
   template: `
-    <wr-bar-chart [data]="data()" [max]="max()" [height]="height()" [showValues]="showValues()" [color]="color()" />
+    <wr-bar-chart
+      [data]="data()"
+      [max]="max()"
+      [height]="height()"
+      [showValues]="showValues()"
+      [color]="color()"
+      [showGrid]="false"
+      [showAxis]="false"
+    />
   `,
 })
 class Host {
@@ -28,9 +36,12 @@ class Host {
 }
 
 /**
- * A bar's share of the plot is written inline as its `flex-grow`, which jsdom
+ * A bar's share of the value axis is written inline as `--wr-bar-chart-size`, which jsdom
  * reports verbatim — so the scale is checkable without layout. The interesting half of
  * this component is what the scale does when the data is not what it promised.
+ *
+ * The host turns the grid and the scale off, which leaves the axis fitted to the data:
+ * the tallest bar is the whole of it. What the snapped axis does is in `theme.spec.ts`.
  */
 describe('WrBarChart', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -38,10 +49,11 @@ describe('WrBarChart', () => {
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const columns = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-bar-chart__column')];
   const bars = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-bar-chart__bar')];
-  const shares = (): string[] => bars().map(bar => bar.style.flexGrow);
+  const shares = (): string[] => bars().map(bar => bar.style.getPropertyValue('--wr-bar-chart-size'));
   const names = (): (string | null)[] => columns().map(column => column.getAttribute('aria-label'));
   const labels = (): string[] => [...root().querySelectorAll('.wr-bar-chart__label')].map(el => el.textContent.trim());
-  const values = (): string[] => [...root().querySelectorAll('.wr-bar-chart__value')].map(el => el.textContent.trim());
+  const values = (): string[] =>
+    [...root().querySelectorAll('.wr-bar-chart__column > .wr-bar-chart__value')].map(el => el.textContent.trim());
 
   beforeEach(() => {
     TestBed.resetTestingModule();
@@ -73,13 +85,16 @@ describe('WrBarChart', () => {
     expect(shares()).toEqual(['0.5', '1', '0.25']);
   });
 
-  it('scales the bar against what the column has left under its value, not the whole column', () => {
-    // A `height` percentage resolved against the whole column, value label included,
-    // so the tallest bars overflowed it and flex-shrink squashed them alone: 24 drew at
-    // 183px beside 12 at 99.5px, and 22 at the same height as 24. A grow factor below 1
-    // takes that share of the space left after the value. The pixels are measured in a
-    // browser; what jsdom can hold is that no height percentage is written any more.
-    for (const bar of bars()) expect(bar.style.height).toBe('');
+  it('writes a share for a transform to draw, never a height or a grow factor', () => {
+    // A `height` percentage resolved against the whole column, value label included, so
+    // the tallest bars overflowed it; a grow factor fixed that and still moved by layout.
+    // The bar is now as large as its side and placed by a transform the stylesheet works
+    // out from the share. The pixels are measured in a browser; what jsdom can hold is
+    // that nothing a layout pass reads is written on the bar any more.
+    for (const bar of bars()) {
+      expect(bar.style.height).toBe('');
+      expect(bar.style.flexGrow).toBe('');
+    }
   });
 
   it('scales against an explicit max instead', () => {
@@ -165,12 +180,14 @@ describe('WrBarChart', () => {
     expect(shares()).toEqual(['0', '0']);
   });
 
-  it('renders nothing at all for an empty data set', () => {
+  it('draws no bar and no name for an empty data set, and keeps the plot', () => {
     fixture.componentInstance.data.set([]);
     fixture.detectChanges();
 
     expect(bars()).toEqual([]);
     expect(labels()).toEqual([]);
+    // The frame stays, with the message in it: see `theme.spec.ts`.
+    expect(root().querySelector('.wr-bar-chart__plot')).not.toBeNull();
   });
 
   it('takes the colour from the datum, then from the input', () => {
@@ -216,7 +233,7 @@ describe('WrBarChart tooltip', () => {
     chip()?.querySelector<HTMLElement>(`.wr-chart-tooltip__${name}`) ?? null;
 
   const hover = (el: HTMLElement): void => {
-    el.dispatchEvent(new MouseEvent('mouseenter'));
+    el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
   };
 
@@ -276,18 +293,19 @@ describe('WrBarChart tooltip', () => {
 })
 class AnchorHost {
   readonly data: readonly WrBarChartDatum[] = [
-    { label: 'Mon', value: 10 },
+    { label: 'Mon', value: 15 },
     { label: 'Off', value: 0 },
     { label: 'Refund', value: -4 },
+    { label: 'Top', value: 20 },
   ];
 }
 
 /**
- * Where the chip points. jsdom lays nothing out, so each column and each bar is given a
- * box — the columns the full 200px of the plot from y = 100, the bars from their top down
- * to the baseline at y = 300 — and the case reads the box the CDK lays the pane out in,
- * whose bottom edge is the anchor's top. That the chip paints there is measured in a
- * browser.
+ * Where the chip points. jsdom lays nothing out, so the track and each column are given
+ * a box - the full 200px of the plot from y = 100 down to the baseline at y = 300 - and
+ * the chart works the bar's own box out from the share it wrote. The case reads the box
+ * the CDK lays the pane out in, whose bottom edge is the anchor's top. That the chip
+ * paints there is measured in a browser.
  */
 describe('WrBarChart tooltip anchor', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<AnchorHost>>;
@@ -299,7 +317,7 @@ describe('WrBarChart tooltip anchor', () => {
   const style = (): CSSStyleDeclaration =>
     document.querySelector<HTMLElement>('.wr-tooltip-overlay')!.parentElement!.style;
   const hover = (el: HTMLElement): void => {
-    el.dispatchEvent(new MouseEvent('mouseenter'));
+    el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
   };
 
@@ -310,15 +328,13 @@ describe('WrBarChart tooltip anchor', () => {
     fixture = TestBed.createComponent(AnchorHost);
     fixture.detectChanges();
 
-    // Mon is 150px tall; the other two have nothing to draw and keep their 1px floor.
-    const tops = [150, 299, 299];
+    // The axis runs from 0 to 20, so Mon (15) is three quarters of the track: 150px tall.
+    // The next two have nothing to draw, and sit on the zero line.
     vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-      const column = columns().findIndex(c => c === this || c.querySelector('.wr-bar-chart__bar') === this);
+      if (this.classList.contains('wr-bar-chart__track')) return new DOMRect(100, 100, 230, 200);
+      const column = columns().indexOf(this as HTMLElement);
       if (column < 0) return this.classList.contains('cdk-overlay-pane') ? new DOMRect(0, 0, 90, 26) : new DOMRect();
-      const left = 100 + column * 60;
-      return this.classList.contains('wr-bar-chart__column')
-        ? new DOMRect(left, 100, 50, 200)
-        : new DOMRect(left, tops[column], 50, 300 - tops[column]);
+      return new DOMRect(100 + column * 60, 100, 50, 200);
     });
   });
 
@@ -337,19 +353,19 @@ describe('WrBarChart tooltip anchor', () => {
     expect(Number.parseFloat(style().left) + Number.parseFloat(style().width) / 2).toBeCloseTo(125, 3);
   });
 
-  it('points a bar with nothing to draw at its floor on the baseline', () => {
+  it('points a bar with nothing to draw at the zero line', () => {
     hover(columns()[1]);
-    expect(768 - Number.parseFloat(style().bottom)).toBeCloseTo(299, 3);
+    expect(768 - Number.parseFloat(style().bottom)).toBeCloseTo(300, 3);
 
     hover(columns()[2]);
-    expect(768 - Number.parseFloat(style().bottom)).toBeCloseTo(299, 3);
+    expect(768 - Number.parseFloat(style().bottom)).toBeCloseTo(300, 3);
     expect(Number.parseFloat(style().left) + Number.parseFloat(style().width) / 2).toBeCloseTo(245, 3);
   });
 });
 
 @Component({
   imports: [WrBarChart],
-  template: `<wr-bar-chart [data]="data()" [valueFormat]="valueFormat()" />`,
+  template: `<wr-bar-chart [data]="data()" [valueFormat]="valueFormat()" showValues />`,
 })
 class FormatHost {
   readonly data = signal<readonly WrBarChartDatum[]>([
@@ -369,11 +385,12 @@ describe('WrBarChart number format', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<FormatHost>>;
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
-  const values = (): string[] => [...root().querySelectorAll('.wr-bar-chart__value')].map(el => el.textContent.trim());
+  const values = (): string[] =>
+    [...root().querySelectorAll('.wr-bar-chart__column > .wr-bar-chart__value')].map(el => el.textContent.trim());
   const columns = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-bar-chart__column')];
   const names = (): (string | null)[] => columns().map(column => column.getAttribute('aria-label'));
   const tooltipValue = (index: number): string => {
-    columns()[index].dispatchEvent(new MouseEvent('mouseenter'));
+    columns()[index].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
     return document.querySelector('.wr-chart-tooltip__value')!.textContent.trim();
   };

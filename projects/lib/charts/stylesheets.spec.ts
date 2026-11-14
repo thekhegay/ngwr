@@ -116,11 +116,14 @@ describe('chart geometry', { timeout: COMPILE_TIMEOUT }, () => {
     expect(rule(compile('chart-legend'), 'wr-chart-legend__swatch--marker')).toMatch(/overflow: visible/);
   });
 
-  it('grows a bar from nothing by the share the component writes, not by a height', () => {
-    // The share is the bar's `flex-grow`; a basis of 0 and no shrink are what make it
-    // exactly that share of what the column has left under the value.
+  it('moves a bar to its value by a transform, never by a height or a grow factor', () => {
+    // The share was the bar's `flex-grow`, and before that a `height`: both are layout,
+    // and a transition on either re-laid the plot out every frame for every bar. The bar
+    // is as large as its side now and translated along the value axis.
     const bar = rule(compile('bar-chart'), 'wr-bar-chart__bar');
-    expect(bar).toMatch(/flex: 0 0 0/);
+    expect(bar).toMatch(/transform: translateY\(calc\(/);
+    expect(bar).toMatch(/transition:\s*transform var\(--wr-bar-chart-duration\)/);
+    expect(bar).not.toMatch(/flex/);
     expect(bar).not.toMatch(/(?:^|[\s;])height:/);
   });
 });

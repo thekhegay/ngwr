@@ -19,7 +19,7 @@ export interface WrBarChartHarnessFilters extends BaseHarnessFilters {
 export interface WrBarChartBar {
   /** The label printed under the column, or in the gutter lying down — decoration, and `aria-hidden`. */
   readonly label: string;
-  /** The value printed at the bar, or `null` when `showValues` is off. */
+  /** The value printed at the bar, or `null` when `showValues` is off, which is the default. */
   readonly value: string | null;
   /** What the column announces: the label and the value in one string. */
   readonly name: string | null;
@@ -53,7 +53,10 @@ export interface WrBarChartSeriesBar {
   readonly sizePercent: number;
   /** The colour the component wrote on the bar: its series' own, or the palette's. */
   readonly color: string | null;
-  /** The `stroke-dasharray` of the bar's outline, `''` for a solid one. */
+  /**
+   * The series' own dash, `''` for the first: the pattern its outline takes when
+   * `--wr-bar-chart-series-edge-width` gives the bars one. Bars are solid fills by default.
+   */
   readonly dash: string;
 }
 

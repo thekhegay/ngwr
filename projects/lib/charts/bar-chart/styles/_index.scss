@@ -4,13 +4,15 @@
 // Styles for the entry points this component's own markup renders. With `series` the
 // legend is a `ul[wr-chart-legend]`, so `@use 'ngwr/charts/bar-chart'` alone draws it styled.
 @use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
-// With `dataTable`, the figures render as a `<wr-chart-table>` beside the plot, which
-// its own sheet clips out of sight.
-@use '../../core/styles' as core-styles; // WrChartTable
+// The chart theme every hook below defaults to (`--wr-chart-*`), the hover-dim rule, the
+// empty / loading / error message, and the `<wr-chart-table>` that `dataTable` renders
+// beside the plot, which its own rule clips out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable, WrChartState
 @include theme.loaded('charts/bar-chart');
 
-// The gap between two categories standing up: the plot's gap, but never more than a
-// quarter of the track shared out among the gaps. A fixed gap took the whole track once
+// The gap between two categories standing up: the plot's gap - by default a share of one
+// band, `--wr-chart-gap` - but never more than a quarter of the track shared out among
+// the gaps. A fixed gap took the whole track once
 // there were enough categories — measured in Chromium, forty on a phone left every bar
 // 0.77px wide and a hundred left none at all, with nothing to say so. The component writes
 // how many categories there are; below about one per 32px of track the hook's own gap is
@@ -49,17 +51,60 @@ $point-ring: 2px;
 // card would cut it. Geometry, like the inset above, so a Sass value rather than a hook.
 $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
 
+// A bar's place along the value axis, as a share of the SIDE it is drawn in: 0 with
+// nothing to show and 1 reaching the end of the axis. The component writes where the bar
+// starts and how much of the whole axis it covers, and the track where zero is; a side
+// runs from zero to one end of the axis, so the share of it is worked out here.
+$fill-up: '(var(--wr-bar-chart-start, 0) + var(--wr-bar-chart-size, 0) - var(--wr-bar-chart-zero, 0)) / max(1 - var(--wr-bar-chart-zero, 0), 0.0001)';
+$fill-down: '(var(--wr-bar-chart-zero, 0) - var(--wr-bar-chart-start, 0)) / max(var(--wr-bar-chart-zero, 0), 0.0001)';
+
+// What every bar shares, `data`'s and `series`': as large as its side, and moved along
+// the value axis by a TRANSFORM, so that a new value is a compositor animation rather
+// than a layout pass per frame per bar, which a `height` transition was. The side clips
+// what is past zero. Nothing is scaled, so the rounded end keeps its shape while it moves.
+@mixin bar {
+  position: absolute;
+  inset: 0;
+  border-start-start-radius: var(--wr-bar-chart-bar-radius);
+  border-start-end-radius: var(--wr-bar-chart-bar-radius);
+  transform: translateY(calc((1 - #{$fill-up}) * 100%));
+  // `opacity` is the shared hover-dim, which a `transition` of this element's own would
+  // otherwise switch off.
+  transition:
+    transform var(--wr-bar-chart-duration) var(--wr-chart-ease),
+    opacity var(--wr-chart-duration-short) var(--wr-chart-ease);
+  // The bar is an inline `background`, which forced colors resets to `Canvas`: every
+  // bar vanished into the page. The SVG charts keep their fills there, so the HTML
+  // marks do too.
+  forced-color-adjust: none;
+}
+
 .wr-bar-chart {
   --wr-bar-chart-font-family: var(--wr-font-family-base);
   --wr-bar-chart-text-color: var(--wr-color-on-surface);
   // The gap between two categories, which the label row under the bars keeps too, so each
-  // name stays under its bar. Declared here rather than on the plot, so one override on
-  // the chart moves both rows.
-  --wr-bar-chart-plot-gap: var(--wr-space-sm);
+  // name stays under its bar. A share of one band standing up, so the bars keep their
+  // proportion at any width and any count; lying down it is a length (see below).
+  // Declared here rather than on the plot, so one override on the chart moves both rows.
+  --wr-bar-chart-plot-gap: calc(var(--wr-chart-gap) / var(--wr-bar-chart-categories, 1));
+  // The widest a bar is drawn: past it the bar stays this wide in the middle of its band,
+  // so three bars on a wide page are not three slabs.
+  --wr-bar-chart-bar-max-size: 3rem;
   // Beside `lines`: the ring round each point and the halo behind each printed value, so a
   // point reads on the bar under it and a number stays readable where a line crosses it.
   // The surface the chart sits on, by default.
-  --wr-bar-chart-halo: var(--wr-color-surface);
+  --wr-bar-chart-halo: var(--wr-chart-separator);
+  // The 1px line between two segments of a pile.
+  --wr-bar-chart-separator: var(--wr-chart-separator);
+  --wr-bar-chart-grid-color: var(--wr-chart-grid);
+  // The band behind the category under the pointer.
+  --wr-bar-chart-band: var(--wr-chart-band);
+  // The value axis' scale: its numbers, and their room from the plot.
+  --wr-bar-chart-tick-font-size: var(--wr-chart-label-size);
+  --wr-bar-chart-tick-color: var(--wr-chart-label);
+  --wr-bar-chart-axis-gap: var(--wr-space-sm);
+  // How long a bar takes to reach a new value. 0s under reduced motion, with the token.
+  --wr-bar-chart-duration: var(--wr-chart-duration);
 
   display: block;
   // The containing block of the out-of-flow `dataTable` copy, as on the line chart: a
@@ -69,8 +114,25 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
   font-family: var(--wr-bar-chart-font-family);
   color: var(--wr-bar-chart-text-color);
 
+  // Everything but the legend. Two columns, the value axis' gutter and the rest: the plot
+  // spans both and lays its own parts out on them (a subgrid), so the label row under it
+  // starts where the track does, however wide the scale's numbers are.
+  &__body {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    min-width: 0;
+  }
+
+  // ── The plot ──────────────────────────────────────────────────────────────────────
+  //
+  // A grid: the scale's gutter, the TRACK the bars run along, and past each end of the
+  // value axis a ROOM for the values printed there. Every position on the track is a
+  // share of the value axis from its minimum, which the component writes inline - zero
+  // for the baseline, where a bar starts and how much it covers, where a value or a
+  // gridline goes - so the stylesheet places each part from one number at any size.
   &__plot {
-    --wr-bar-chart-plot-border: var(--wr-border-base);
+    // The zero line, which every bar stands on.
+    --wr-bar-chart-plot-border: var(--wr-chart-zero);
     // Lying down, the least each bar's row takes — a category's, or a series' lane in it:
     // one line of the small text the values and the names are set in. The rows share the
     // plot's `height`, so without a floor a long list thinned every bar to a hairline, or
@@ -78,32 +140,64 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     // more grow the plot past `height`.
     --wr-bar-chart-row-min-size: var(--wr-text-xs-leading);
 
-    display: flex;
-    align-items: flex-end;
-    gap: $plot-gap;
-    border-bottom: 1px solid var(--wr-bar-chart-plot-border);
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    // The room for the values printed above the bars, the track, the room for those
+    // printed below the ones under zero. A room with nothing to hold is no height at all.
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  // The scale: a number at every tick, each centred on its gridline. The gutter is as
+  // wide as the longest of them, from hidden copies in flow; the numbers themselves are
+  // out of flow, placed by the share the component writes.
+  &__axis {
+    position: relative;
+    grid-column: 1;
+    grid-row: 2;
+    display: grid;
+    padding-inline-end: var(--wr-bar-chart-axis-gap);
+  }
+
+  &__tick {
+    position: absolute;
+    inset-inline-end: var(--wr-bar-chart-axis-gap);
+    bottom: calc(var(--wr-bar-chart-at, 0) * 100%);
+    transform: translateY(50%);
+    font-size: var(--wr-bar-chart-tick-font-size);
+    line-height: 1;
+    color: var(--wr-bar-chart-tick-color);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    // As a value: the minus of `-3` stays before the digits on an RTL page.
+    unicode-bidi: plaintext;
+  }
+
+  &__tick--probe {
+    position: static;
+    grid-area: 1 / 1;
+    block-size: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transform: none;
   }
 
   &__column {
+    // How far a datum's value sits past the end of its bar, standing up.
     --wr-bar-chart-column-gap: var(--wr-space-xs);
 
+    position: relative;
     flex: 1 1 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    height: 100%;
-    gap: var(--wr-bar-chart-column-gap);
     min-width: 0;
+    min-height: 0;
   }
 
   &__value {
-    --wr-bar-chart-value-font-size: var(--wr-text-xs);
+    --wr-bar-chart-value-font-size: var(--wr-chart-label-size);
     --wr-bar-chart-value-line-height: var(--wr-leading-none);
-    // How far a value sits past the end of its bar where it is placed there rather than
-    // stacked on the bar: with `series`, and in the horizontal layout.
+    // How far a value sits past the end of its bar.
     --wr-bar-chart-value-offset: var(--wr-space-xs);
-    --wr-bar-chart-value-color: var(--wr-color-on-surface-muted);
+    --wr-bar-chart-value-color: var(--wr-chart-label);
 
     flex: none;
     // Bounded by its column and ellipsised, as the label under it is. With no bound,
@@ -124,32 +218,19 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     unicode-bidi: plaintext;
   }
 
-  // The component writes the bar's share of the plot as its `flex-grow`, from 0
-  // to 1. Factors that sum to less than 1 hand out only that fraction of the free
-  // space, so the bar gets exactly its share of what the column has left after
-  // the value above it, and the value rides on the bar's top. It was a `height`
-  // percentage of the WHOLE column, so the tallest bars plus their value
-  // overflowed it and flex-shrink took the difference out of them alone:
-  // measured in Chromium, WebKit and Firefox, 24 drew at 183px beside 12 at
-  // 99.5px, and 22 at 182.4px — the same height as 24.
+  // One datum's bar. Its colour is the inline `background` the component writes.
   &__bar {
-    --wr-bar-chart-bar-radius: var(--wr-border-radius-sm);
+    --wr-bar-chart-bar-radius: var(--wr-chart-bar-radius);
 
-    flex: 0 0 0;
-    width: 100%;
-    border-radius: var(--wr-bar-chart-bar-radius) var(--wr-bar-chart-bar-radius) 0 0;
-    transition: flex-grow var(--wr-duration-slow) var(--wr-ease-out);
-    min-height: 1px;
-    // The bar is an inline `background`, which forced colors resets to `Canvas`:
-    // every bar vanished into the page and left its value floating over the
-    // baseline. The SVG charts keep their fills there, so the HTML marks do too.
-    forced-color-adjust: none;
+    @include bar;
   }
 
   &__labels {
     --wr-bar-chart-labels-gap: var(--wr-bar-chart-plot-gap);
     --wr-bar-chart-labels-margin-top: var(--wr-space-sm);
 
+    position: relative;
+    grid-column: 2;
     display: flex;
     // Held as the plot's gap is (`$plot-gap`), against the same width, so each name stays
     // under its bar however many there are.
@@ -157,45 +238,69 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     margin-top: var(--wr-bar-chart-labels-margin-top);
   }
 
-  &__label {
-    --wr-bar-chart-label-font-size: var(--wr-text-xs);
+  &__label,
+  &__label-probe {
+    --wr-bar-chart-label-font-size: var(--wr-chart-label-size);
     // The widest a category name runs in the horizontal layout's gutter before it is
     // ellipsised; the gutter is as wide as the longest name up to this.
     --wr-bar-chart-label-max-width: 10rem;
-    --wr-bar-chart-label-color: var(--wr-color-on-surface-muted);
+    --wr-bar-chart-label-color: var(--wr-chart-label);
 
-    flex: 1 1 0;
-    text-align: center;
     font-size: var(--wr-bar-chart-label-font-size);
     color: var(--wr-bar-chart-label-color);
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
     // A name is the host's own text, in whatever language: it takes its direction from
     // that text, so a Latin name on an RTL page keeps a trailing `$` or `%` at its end.
     unicode-bidi: plaintext;
   }
 
-  &__legend {
-    --wr-bar-chart-legend-margin-bottom: var(--wr-space-md);
-
-    margin: 0 0 var(--wr-bar-chart-legend-margin-bottom);
+  &__label {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  // ── The layout `series` and the horizontal orientation share ──────────────────────
-  //
-  // The plot is a grid: the TRACK the bars run along, and past each end of the value
-  // axis a ROOM for the values printed there. Every position on the track is a share of
-  // the value axis from its minimum, which the component writes inline — zero for the
-  // baseline, where a bar starts and how much it covers, where a value goes — so the
-  // stylesheet places each part from one number at any size.
+  // Thinned: the longest name no longer fits its own band, so only every few are printed
+  // and each may run over the empty slots beside it, centred on its own bar. A flex box
+  // centres text wider than itself, where `text-align` would start it at the edge.
+  &__label--wide {
+    display: flex;
+    justify-content: center;
+    overflow: visible;
+  }
 
-  // A hidden copy of every value printed past one end of the axis, all in one grid cell:
-  // the cell is as large as the largest, in the value's own font and with its own offset,
-  // so the value past the longest bar has exactly the room it needs and no guess is made
-  // about how wide a number is. Hidden by `visibility`, which takes it out of the
+  // Left out by the thinning, and still in its slot, so the names printed keep their bars.
+  &__label--skipped {
+    visibility: hidden;
+  }
+
+  // A hidden copy of one of the longest names, at its natural width: what the thinning
+  // measures. Out of flow, so it takes no slot.
+  &__label-probe {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  // The room between the legend and the plot, on whichever side `legendPosition` puts it:
+  // the shared legend rule reads `--wr-chart-legend-space`, and this hook is the chart's
+  // own name for it, from when the legend was always above.
+  &__legend {
+    --wr-bar-chart-legend-margin-bottom: var(--wr-space-md);
+    --wr-chart-legend-space: var(--wr-bar-chart-legend-margin-bottom);
+  }
+
+  // A hidden copy of the longest values printed past one end of the axis, all in one grid
+  // cell: the cell is as large as the largest, in the value's own font and with its own
+  // offset, so the value past the longest bar has exactly the room it needs and no guess
+  // is made about how wide a number is. Hidden by `visibility`, which takes it out of the
   // accessibility tree too.
   &__room {
+    grid-column: 2;
     display: grid;
     visibility: hidden;
     pointer-events: none;
@@ -206,12 +311,48 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     }
   }
 
+  &__room--max {
+    grid-row: 1;
+
+    > .wr-bar-chart__value {
+      padding-block-end: var(--wr-bar-chart-value-offset);
+    }
+  }
+
+  &__room--min {
+    grid-row: 3;
+
+    > .wr-bar-chart__value {
+      padding-block-start: var(--wr-bar-chart-value-offset);
+    }
+  }
+
   &__track {
     position: relative;
+    grid-column: 2;
+    grid-row: 2;
     display: flex;
     gap: $plot-gap;
     min-width: 0;
     min-height: 0;
+  }
+
+  // The gridlines, under the bars: one at every tick of the value axis. Each is a border
+  // rather than a background, which forced colors would reset to the page's own colour,
+  // and sits just past its tick, as the baseline sits just past zero.
+  &__grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  &__grid-line {
+    position: absolute;
+    inset-inline: 0;
+    bottom: calc(var(--wr-bar-chart-at, 0) * 100%);
+    height: 0;
+    margin-bottom: -1px;
+    border-bottom: 1px solid var(--wr-bar-chart-grid-color);
   }
 
   // Zero, wherever it falls: the bottom of the plot until a value goes below it. Drawn as
@@ -230,10 +371,11 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
 
   // One category of `series`: a lane per series shown, or one lane under `stacked`.
   &__category {
-    --wr-bar-chart-category-gap: calc(var(--wr-space-xs) / 2);
+    --wr-bar-chart-category-gap: var(--wr-space-xs);
 
     display: flex;
     flex: 1 1 0;
+    justify-content: center;
     // Standing up, never more than a tenth of the category, for the reason `$plot-gap`
     // gives: grouped bars on a phone are a few pixels wide, and fixed gaps took them all.
     gap: min(var(--wr-bar-chart-category-gap), 10%);
@@ -241,77 +383,138 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     min-height: 0;
   }
 
+  // The category under the pointer, banded: one bar among forty is hard to follow down
+  // to its name otherwise. Behind the gridlines and the bars.
+  &__category,
+  &__column {
+    // `opacity` is the shared hover-dim, which a column takes too.
+    transition:
+      background-color var(--wr-chart-duration-short) var(--wr-chart-ease),
+      opacity var(--wr-chart-duration-short) var(--wr-chart-ease);
+
+    &:hover {
+      background-color: var(--wr-bar-chart-band);
+    }
+  }
+
   // The strip one bar runs along, the containing block of its bars and its values.
   &__lane {
     position: relative;
     flex: 1 1 0;
+    max-inline-size: var(--wr-bar-chart-bar-max-size);
     min-width: 0;
     min-height: 0;
   }
 
-  // A series' bar: a tint of the series' colour, outlined in the colour itself and the
-  // series' dash. The tint is what lets the outline read against the body; the outline is
-  // what tells two series apart without hue. The body takes the colour from the inline
-  // `--wr-bar-chart-color` and the outline as an SVG stroke; both are kept under forced
-  // colors, as every chart mark here is.
-  &__series-bar {
-    // How much of its series' colour a bar's body takes.
-    --wr-bar-chart-series-tint: 35%;
-    // The outline's width, in pixels, whatever the bar's size.
-    --wr-bar-chart-series-edge-width: 2px;
-
+  // One side of zero in a lane: the box from zero to the top of the axis, which clips the
+  // bars drawn in it - each is as large as the side and moved into place, so the part of
+  // it past zero has to be cut off. Its own stacking context, so the order a pile is
+  // painted in (the component's `z-index` on each bar) stays inside it.
+  &__side {
     position: absolute;
+    inset-block: 0 calc(var(--wr-bar-chart-zero, 0) * 100%);
     inset-inline: 0;
-    bottom: calc(var(--wr-bar-chart-start, 0) * 100%);
-    height: calc(var(--wr-bar-chart-size, 0) * 100%);
-    // A zero keeps a 1px floor on the baseline, as a `data` bar does.
-    min-height: 1px;
+    overflow: clip;
+    isolation: isolate;
+  }
+
+  // From zero down to the bottom of the axis, for the bars that grow below it.
+  &__side--down {
+    inset-block: calc((1 - var(--wr-bar-chart-zero, 0)) * 100%) 0;
+  }
+
+  // A datum's column has no lane of its own, so its side keeps the bar's widest.
+  &__column > &__side {
+    inset-inline: max(0px, calc((100% - var(--wr-bar-chart-bar-max-size)) / 2));
+  }
+
+  // A series' bar: a solid fill in the series' colour, which the component writes inline
+  // as `--wr-bar-chart-color`. Kept under forced colors, as every chart mark here is.
+  &__series-bar {
+    --wr-bar-chart-bar-radius: var(--wr-chart-bar-radius);
+    // How much of its series' colour a bar's body takes, over the surface: all of it. A
+    // lower share with an edge (below) is the tinted, outlined bar the chart drew before
+    // the chart theme.
+    --wr-bar-chart-series-tint: 100%;
+    // An outline in the series' colour, inside the bar: none by default. Given a width, it
+    // is solid for the first series and dashed or dotted for the ones after it.
+    --wr-bar-chart-series-edge-width: 0px;
+
+    @include bar;
+
     background: color-mix(
       in srgb,
       var(--wr-bar-chart-color, currentColor) var(--wr-bar-chart-series-tint),
-      transparent
+      var(--wr-bar-chart-halo)
     );
-    forced-color-adjust: none;
-    transition:
-      bottom var(--wr-duration-slow) var(--wr-ease-out),
-      height var(--wr-duration-slow) var(--wr-ease-out);
+    outline: var(--wr-bar-chart-series-edge-width) solid var(--wr-bar-chart-color, currentColor);
+    outline-offset: calc(-1 * var(--wr-bar-chart-series-edge-width));
+
+    &:not([data-dash='']) {
+      outline-style: dashed;
+    }
+
+    &:is([data-dash='2 3'], [data-dash='1 4']) {
+      outline-style: dotted;
+    }
   }
 
-  // The outline covers the bar and draws its stroke centred on the bar's edge at twice the
-  // width, so the half inside is the outline and the half outside is clipped: every dash
-  // lies within the bar, and two bars that meet in a pile keep their own.
-  &__edge {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    pointer-events: none;
-    stroke-width: calc(var(--wr-bar-chart-series-edge-width) * 2);
+  // A pile: every bar is drawn from zero to its own end, the one nearest zero on top. Only
+  // the last, the outermost, shows its end, so only it is rounded; each of the others
+  // carries the 1px line that parts it from the next, just past its end.
+  &__side > &__series-bar:not(:last-child) {
+    border-radius: 0;
+    box-shadow: 0 -1px 0 0 var(--wr-bar-chart-separator);
+  }
+
+  // Below zero the bars hang from it: the end is the lower one.
+  &__side--down > &__bar,
+  &__side--down > &__series-bar {
+    border-radius: 0;
+    border-end-start-radius: var(--wr-bar-chart-bar-radius);
+    border-end-end-radius: var(--wr-bar-chart-bar-radius);
+    transform: translateY(calc((#{$fill-down} - 1) * 100%));
+  }
+
+  &__side--down > &__series-bar:not(:last-child) {
+    border-radius: 0;
+    box-shadow: 0 1px 0 0 var(--wr-bar-chart-separator);
   }
 
   // A value past the end of its bar: above it, or below one that grows below zero. As
   // wide as its lane and centred; standing up, left out where it does not fit (below).
-  &__lane > &__value {
+  // Out of flow, placed from the share the component writes.
+  &__lane > &__value,
+  &__column > &__value {
     position: absolute;
     inset-inline: 0;
     bottom: calc(var(--wr-bar-chart-at, 0) * 100% + var(--wr-bar-chart-value-offset));
     text-align: center;
   }
 
-  &__lane > &__value--below {
+  &__lane > &__value--below,
+  &__column > &__value--below {
     top: calc((1 - var(--wr-bar-chart-at, 0)) * 100% + var(--wr-bar-chart-value-offset));
     bottom: auto;
   }
 
+  // A datum's value keeps the hook it was spaced by when it rode on its bar.
+  &__column > &__value {
+    bottom: calc(var(--wr-bar-chart-at, 0) * 100% + var(--wr-bar-chart-column-gap));
+  }
+
+  &__column > &__value--below {
+    top: calc((1 - var(--wr-bar-chart-at, 0)) * 100% + var(--wr-bar-chart-column-gap));
+    bottom: auto;
+  }
+
   // One of `lines`, over the bars: an SVG box from the middle of the first category to the
-  // middle of the last, every position in it a percentage the component writes, so nothing
-  // stretches and a dash or a marker keeps its size at any width. Out of the pointer's
-  // way, so a point over a category still opens that category's tooltip. Its strokes and
-  // fills are kept under forced colors, as every chart mark here is.
+  // middle of the last, every position in it a percentage the component writes. Out of the
+  // pointer's way, so a point over a category still opens that category's tooltip. Its
+  // strokes and fills are kept under forced colors, as every chart mark here is.
   &__line {
     // How wide the line is drawn, in pixels whatever the plot's size.
-    --wr-bar-chart-line-width: 2px;
+    --wr-bar-chart-line-width: var(--wr-chart-stroke);
 
     position: absolute;
     inset-block-start: 0;
@@ -330,9 +533,12 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     }
   }
 
+  // The whole line is one path in a box stretched over the line's own. Its stroke does
+  // not scale with the box (`vector-effect`), so the width and the dash are in pixels.
   &__line-segment {
     stroke-width: var(--wr-bar-chart-line-width);
     stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   // A point's marker, ringed: the stroke is painted first and half covered by the fill, so
@@ -344,15 +550,48 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
   }
 }
 
-// Beside `lines`, room at each end of the value axis for the largest marker: a margin rather
-// than a padding, so the track's own box — which every bar, the baseline and each line's box
-// are placed in — stays the axis. Kept while every line is hidden, as the layout is.
-.wr-bar-chart--combo:not(.wr-bar-chart--horizontal) .wr-bar-chart__track {
-  margin-block: $line-reach;
+// A value whole or not at all, standing up. Grouped bars on a phone leave a lane a few
+// pixels wide, and an ellipsis needs a glyph and itself: below that Chromium draws the
+// first digit and nothing else, so 1.2K read as `1`. The value wraps instead, beside an
+// empty first item one line tall, onto a second line its own height clips away - so a
+// value that does not fit its lane is left out, and the tooltip and the bar's name carry it.
+.wr-bar-chart:not(.wr-bar-chart--horizontal) .wr-bar-chart__lane > .wr-bar-chart__value {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: center;
+  block-size: 1lh;
+  text-overflow: clip;
+
+  &::before {
+    content: '';
+    flex: none;
+    block-size: 1lh;
+  }
 }
 
-.wr-bar-chart--combo.wr-bar-chart--horizontal .wr-bar-chart__track {
-  margin-inline: $line-reach;
+// The scale's numbers are centred on their gridlines, so the top one stands half its
+// height above the plot: the body keeps that much room, and the chart's box holds it.
+.wr-bar-chart--axis:not(.wr-bar-chart--horizontal) .wr-bar-chart__body {
+  padding-block-start: calc(var(--wr-bar-chart-tick-font-size) / 2);
+}
+
+// Beside `lines`, room at each end of the value axis for the largest marker: a margin rather
+// than a padding, so the track's own box - which every bar, the grid, the baseline and each
+// line's box are placed in - stays the axis. The scale beside it keeps the same margin, so
+// each number stays on its gridline. Kept while every line is hidden, as the layout is.
+.wr-bar-chart--combo:not(.wr-bar-chart--horizontal) {
+  .wr-bar-chart__track,
+  .wr-bar-chart__axis {
+    margin-block: $line-reach;
+  }
+}
+
+.wr-bar-chart--combo.wr-bar-chart--horizontal {
+  .wr-bar-chart__track,
+  .wr-bar-chart__axis {
+    margin-inline: $line-reach;
+  }
 }
 
 // The SVG keeps its fills and strokes under forced colors, so the lines and their points keep
@@ -362,62 +601,7 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
 @media (forced-colors: active) {
   .wr-bar-chart {
     --wr-bar-chart-halo: Canvas;
-  }
-}
-
-// `series`, vertical — or `data` beside `lines`: three rows — the room for the values
-// printed above the bars, the track, the room for those printed below the ones under
-// zero. A room with nothing to hold is no height at all.
-:is(.wr-bar-chart--series, .wr-bar-chart--combo):not(.wr-bar-chart--horizontal) {
-  .wr-bar-chart__plot {
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    grid-template-columns: minmax(0, 1fr);
-    // The track fills its row: the plot's own `flex-end` would shrink it to its content,
-    // and every bar in it is out of flow.
-    align-items: stretch;
-    gap: 0;
-    border-bottom: 0;
-  }
-
-  .wr-bar-chart__room--max {
-    grid-row: 1;
-
-    > .wr-bar-chart__value {
-      padding-block-end: var(--wr-bar-chart-value-offset);
-    }
-  }
-
-  .wr-bar-chart__track {
-    grid-row: 2;
-  }
-
-  .wr-bar-chart__room--min {
-    grid-row: 3;
-
-    > .wr-bar-chart__value {
-      padding-block-start: var(--wr-bar-chart-value-offset);
-    }
-  }
-
-  // A value whole or not at all. Grouped bars on a phone leave a lane a few pixels wide,
-  // and an ellipsis needs a glyph and itself: below that Chromium draws the first digit
-  // and nothing else, so 1.2K read as `1`. The value wraps instead, beside an empty
-  // first item one line tall, onto a second line its own height clips away — so a value
-  // that does not fit its lane is left out, and the tooltip and the bar's name carry it.
-  .wr-bar-chart__lane > .wr-bar-chart__value {
-    display: flex;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    justify-content: center;
-    block-size: 1lh;
-    text-overflow: clip;
-
-    &::before {
-      content: '';
-      flex: none;
-      block-size: 1lh;
-    }
+    --wr-bar-chart-separator: Canvas;
   }
 }
 
@@ -432,69 +616,23 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     0 0 1px var(--wr-bar-chart-halo);
 }
 
-// `data` beside `lines`, standing up: its columns stand in the track above, the one the
-// lines are drawn over, so the bars and the lines share one value axis. The value is taken
-// out of flow and placed past the bar from the same share, as it is lying down: in flow it
-// took its own height out of the column and scaled every bar against a shorter one. The
-// bar stands on zero, which is the axis minimum until a line goes below it, on a spacer
-// that takes zero's share of the column.
-.wr-bar-chart--combo:not(.wr-bar-chart--series, .wr-bar-chart--horizontal) {
-  .wr-bar-chart__column {
-    position: relative;
-    gap: 0;
-
-    &::after {
-      content: '';
-      flex: 0 0 0;
-      flex-grow: var(--wr-bar-chart-start, var(--wr-bar-chart-zero, 0));
-      transition: flex-grow var(--wr-duration-slow) var(--wr-ease-out);
-
-      // Here rather than in the block at the end, which these selectors outrank.
-      @media (prefers-reduced-motion: reduce) {
-        transition: none;
-      }
-    }
-  }
-
-  .wr-bar-chart__column > .wr-bar-chart__value {
-    position: absolute;
-    inset-inline: 0;
-    bottom: calc(var(--wr-bar-chart-at, 0) * 100% + var(--wr-bar-chart-value-offset));
-    text-align: center;
-    transition:
-      bottom var(--wr-duration-slow) var(--wr-ease-out),
-      top var(--wr-duration-slow) var(--wr-ease-out);
-
-    @media (prefers-reduced-motion: reduce) {
-      transition: none;
-    }
-  }
-
-  // A bar below zero hangs from it, on a spacer that takes its own end's share, so its
-  // rounded corners are at the bottom and its value is printed under it.
-  .wr-bar-chart__column > .wr-bar-chart__value--below {
-    top: calc((1 - var(--wr-bar-chart-at, 0)) * 100% + var(--wr-bar-chart-value-offset));
-    bottom: auto;
-  }
-
-  .wr-bar-chart__bar--below {
-    border-radius: 0 0 var(--wr-bar-chart-bar-radius) var(--wr-bar-chart-bar-radius);
-  }
-}
-
 // Horizontal, with `data` or `series`: four columns — the category names, the room for
 // the values printed before the bars that grow below zero, the track, and the room for
-// those printed past the rest. A grid follows `direction`, and every position along the
-// track is a logical inset, so under RTL the names are on the right and the bars grow
-// leftwards with no rule of their own.
+// those printed past the rest - and under the track, the scale. A grid follows
+// `direction`, and every position along the track is a logical inset, so under RTL the
+// names are on the right and the bars grow leftwards.
 .wr-bar-chart--horizontal {
+  // Between two rows: a length, since a share of the track's height has nothing to
+  // resolve against while the rows are still growing it.
+  --wr-bar-chart-plot-gap: var(--wr-space-sm);
+
+  .wr-bar-chart__body {
+    display: block;
+  }
+
   .wr-bar-chart__plot {
-    display: grid;
     grid-template-columns: auto auto minmax(0, 1fr) auto;
-    grid-template-rows: minmax(0, 1fr);
-    align-items: stretch;
-    gap: 0;
-    border-bottom: 0;
+    grid-template-rows: minmax(0, 1fr) auto;
   }
 
   // One row per category, on the same rows as the track's: equal shares of the plot's
@@ -526,6 +664,7 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     grid-row: 1;
 
     > .wr-bar-chart__value {
+      padding-block: 0;
       padding-inline-end: var(--wr-bar-chart-value-offset);
     }
   }
@@ -542,8 +681,45 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     grid-row: 1;
 
     > .wr-bar-chart__value {
+      padding-block: 0;
       padding-inline-start: var(--wr-bar-chart-value-offset);
     }
+  }
+
+  // The scale runs under the track: one line of numbers, each centred on its gridline.
+  // The last one stands half its width past the track, which the body keeps room for.
+  .wr-bar-chart__axis {
+    grid-column: 3;
+    grid-row: 2;
+    display: block;
+    block-size: calc(var(--wr-bar-chart-tick-font-size) + var(--wr-bar-chart-axis-gap));
+    padding: 0;
+  }
+
+  .wr-bar-chart__tick {
+    inset-block: auto 0;
+    inset-inline: calc(var(--wr-bar-chart-at, 0) * 100%) auto;
+    // rtl-ok: centres the number on its gridline; the `:dir(rtl)` rule below mirrors it.
+    transform: translateX(-50%);
+
+    &:dir(rtl) {
+      transform: translateX(50%);
+    }
+  }
+
+  .wr-bar-chart__tick--probe {
+    display: none;
+  }
+
+  .wr-bar-chart__grid-line {
+    inset-block: 0;
+    inset-inline: calc(var(--wr-bar-chart-at, 0) * 100%) auto;
+    width: 0;
+    height: auto;
+    margin: 0;
+    margin-inline-start: -1px;
+    border-bottom: 0;
+    border-inline-start: 1px solid var(--wr-bar-chart-grid-color);
   }
 
   .wr-bar-chart__baseline {
@@ -567,23 +743,82 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
   }
 
   .wr-bar-chart__lane {
+    max-inline-size: none;
+    max-block-size: var(--wr-bar-chart-bar-max-size);
     min-height: var(--wr-bar-chart-row-min-size);
   }
 
-  .wr-bar-chart__series-bar {
-    inset-block: 0;
-    inset-inline-start: calc(var(--wr-bar-chart-start, 0) * 100%);
-    inset-inline-end: auto;
-    height: auto;
-    min-height: 0;
-    inline-size: calc(var(--wr-bar-chart-size, 0) * 100%);
-    min-inline-size: 1px;
-    transition:
-      inset-inline-start var(--wr-duration-slow) var(--wr-ease-out),
-      inline-size var(--wr-duration-slow) var(--wr-ease-out);
+  // `data`, sideways: each datum's column is a row.
+  .wr-bar-chart__column {
+    min-height: var(--wr-bar-chart-row-min-size);
   }
 
-  .wr-bar-chart__lane > .wr-bar-chart__value {
+  // A side runs along the inline axis: from zero to the far end of it, or back to its start.
+  .wr-bar-chart__side {
+    inset-block: 0;
+    inset-inline: calc(var(--wr-bar-chart-zero, 0) * 100%) 0;
+  }
+
+  .wr-bar-chart__side--down {
+    inset-inline: 0 calc((1 - var(--wr-bar-chart-zero, 0)) * 100%);
+  }
+
+  .wr-bar-chart__column > .wr-bar-chart__side {
+    inset-block: max(0px, calc((100% - var(--wr-bar-chart-bar-max-size)) / 2));
+  }
+
+  // The bar's end is at inline end, and it is moved along the inline axis: a transform is
+  // physical, so the direction it moves in is mirrored by hand.
+  .wr-bar-chart__bar,
+  .wr-bar-chart__series-bar {
+    border-radius: 0;
+    border-start-end-radius: var(--wr-bar-chart-bar-radius);
+    border-end-end-radius: var(--wr-bar-chart-bar-radius);
+    // rtl-ok: the `:dir(rtl)` rule below moves it the other way.
+    transform: translateX(calc((#{$fill-up} - 1) * 100%));
+
+    &:dir(rtl) {
+      transform: translateX(calc((1 - #{$fill-up}) * 100%));
+    }
+  }
+
+  .wr-bar-chart__side--down > .wr-bar-chart__bar,
+  .wr-bar-chart__side--down > .wr-bar-chart__series-bar {
+    border-radius: 0;
+    border-start-start-radius: var(--wr-bar-chart-bar-radius);
+    border-end-start-radius: var(--wr-bar-chart-bar-radius);
+    // rtl-ok: the `:dir(rtl)` rule below moves it the other way.
+    transform: translateX(calc((1 - #{$fill-down}) * 100%));
+
+    &:dir(rtl) {
+      transform: translateX(calc((#{$fill-down} - 1) * 100%));
+    }
+  }
+
+  // The line that parts two segments of a pile is past the inner one's end: at inline end,
+  // or at inline start below zero.
+  .wr-bar-chart__side > .wr-bar-chart__series-bar:not(:last-child) {
+    border-radius: 0;
+    // rtl-ok: a shadow's offset is physical; the `:dir(rtl)` rule below mirrors it.
+    box-shadow: 1px 0 0 0 var(--wr-bar-chart-separator);
+
+    &:dir(rtl) {
+      box-shadow: -1px 0 0 0 var(--wr-bar-chart-separator);
+    }
+  }
+
+  .wr-bar-chart__side--down > .wr-bar-chart__series-bar:not(:last-child) {
+    // rtl-ok: a shadow's offset is physical; the `:dir(rtl)` rule below mirrors it.
+    box-shadow: -1px 0 0 0 var(--wr-bar-chart-separator);
+
+    &:dir(rtl) {
+      box-shadow: 1px 0 0 0 var(--wr-bar-chart-separator);
+    }
+  }
+
+  // A value past the end of its bar, level with the middle of its row.
+  .wr-bar-chart__lane > .wr-bar-chart__value,
+  .wr-bar-chart__column > .wr-bar-chart__value {
     top: 50%;
     bottom: auto;
     inset-inline-start: calc(var(--wr-bar-chart-at, 0) * 100% + var(--wr-bar-chart-value-offset));
@@ -593,42 +828,10 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
     text-align: start;
   }
 
-  .wr-bar-chart__lane > .wr-bar-chart__value--below {
+  .wr-bar-chart__lane > .wr-bar-chart__value--below,
+  .wr-bar-chart__column > .wr-bar-chart__value--below {
     inset-inline-start: auto;
     inset-inline-end: calc((1 - var(--wr-bar-chart-at, 0)) * 100% + var(--wr-bar-chart-value-offset));
-  }
-
-  // `data`, sideways: each datum's column is a row, and its bar still grows by the share
-  // written as its `flex-grow` — the only thing in flow, so the share is of the whole
-  // row. The value is taken out of flow and placed past the bar's end from the same
-  // share, since in flow beside the bar it would take its own width out of the row and
-  // scale every bar against a different length.
-  .wr-bar-chart__column {
-    position: relative;
-    flex-direction: row;
-    align-items: stretch;
-    justify-content: flex-start;
-    height: auto;
-    min-height: var(--wr-bar-chart-row-min-size);
-    gap: 0;
-  }
-
-  .wr-bar-chart__bar {
-    width: auto;
-    min-width: 1px;
-    min-height: 0;
-    border-radius: 0;
-    border-start-end-radius: var(--wr-bar-chart-bar-radius);
-    border-end-end-radius: var(--wr-bar-chart-bar-radius);
-  }
-
-  .wr-bar-chart__column > .wr-bar-chart__value {
-    position: absolute;
-    top: 50%;
-    inset-inline-start: calc(var(--wr-bar-chart-at, 0) * 100% + var(--wr-bar-chart-value-offset));
-    max-width: none;
-    transform: translateY(-50%);
-    transition: inset-inline-start var(--wr-duration-slow) var(--wr-ease-out);
   }
 
   // Lying down, a line's box runs down the rows, from the middle of the first to the
@@ -641,56 +844,44 @@ $line-reach: calc(var(--wr-bar-chart-reach, 0) * 1px + #{$point-ring} / 2);
   }
 }
 
-// `data` beside `lines`, lying down: the bar starts at zero, on a spacer at inline start
-// that takes zero's share of the row — nothing until a value goes below zero. A bar below
-// zero starts at its own end and runs to zero, its value printed before it and its rounded
-// corners at inline start.
-.wr-bar-chart--combo.wr-bar-chart--horizontal:not(.wr-bar-chart--series) {
-  .wr-bar-chart__column::before {
-    content: '';
-    flex: 0 0 0;
-    flex-grow: var(--wr-bar-chart-start, var(--wr-bar-chart-zero, 0));
-    transition: flex-grow var(--wr-duration-slow) var(--wr-ease-out);
+.wr-bar-chart--axis.wr-bar-chart--horizontal .wr-bar-chart__body {
+  padding-inline-end: var(--wr-space-md);
+}
 
-    @media (prefers-reduced-motion: reduce) {
-      transition: none;
-    }
+// A bar entering the page grows from zero, where the browser can start a transition from
+// a style of its own (`@starting-style`); elsewhere it is simply drawn at its value.
+@starting-style {
+  .wr-bar-chart__bar,
+  .wr-bar-chart__series-bar {
+    transform: translateY(100%);
   }
 
-  .wr-bar-chart__column > .wr-bar-chart__value {
-    transition:
-      inset-inline-start var(--wr-duration-slow) var(--wr-ease-out),
-      inset-inline-end var(--wr-duration-slow) var(--wr-ease-out);
-
-    @media (prefers-reduced-motion: reduce) {
-      transition: none;
-    }
+  .wr-bar-chart__side--down > .wr-bar-chart__bar,
+  .wr-bar-chart__side--down > .wr-bar-chart__series-bar {
+    transform: translateY(-100%);
   }
 
-  .wr-bar-chart__column > .wr-bar-chart__value--below {
-    inset-inline-start: auto;
-    inset-inline-end: calc((1 - var(--wr-bar-chart-at, 0)) * 100% + var(--wr-bar-chart-value-offset));
+  .wr-bar-chart--horizontal .wr-bar-chart__bar,
+  .wr-bar-chart--horizontal .wr-bar-chart__series-bar {
+    // rtl-ok: an entry from inline start; under RTL the bar grows from its own end instead.
+    transform: translateX(-100%);
   }
 
-  .wr-bar-chart__bar--below {
-    border-radius: 0;
-    border-start-start-radius: var(--wr-bar-chart-bar-radius);
-    border-end-start-radius: var(--wr-bar-chart-bar-radius);
+  .wr-bar-chart--horizontal .wr-bar-chart__side--down > .wr-bar-chart__bar,
+  .wr-bar-chart--horizontal .wr-bar-chart__side--down > .wr-bar-chart__series-bar {
+    // rtl-ok: as above, from the other side of zero.
+    transform: translateX(100%);
   }
 }
 
-// Every layout's movement is a bar growing to its value; with reduced motion it lands there
-// at once. A `data` bar lying down — or standing beside `lines` — lands with the value
-// placed past its end, which would otherwise jump ahead and leave the bar sliding up to
-// it; beside `lines` the value and the spacer the bar stands on stop where they are
-// declared. The lines move at once regardless.
+// Every movement here is a bar going to its value; with reduced motion it lands there at
+// once. The chart theme already sets its durations to 0s; this holds for an app that
+// gave `--wr-bar-chart-duration` a length of its own.
 @media (prefers-reduced-motion: reduce) {
   .wr-bar-chart__bar,
   .wr-bar-chart__series-bar,
-  .wr-bar-chart--horizontal .wr-bar-chart__series-bar,
-  .wr-bar-chart--horizontal .wr-bar-chart__bar,
-  .wr-bar-chart--horizontal .wr-bar-chart__column > .wr-bar-chart__value,
-  .wr-bar-chart--combo .wr-bar-chart__bar {
+  .wr-bar-chart__category,
+  .wr-bar-chart__column {
     transition: none;
   }
 }
