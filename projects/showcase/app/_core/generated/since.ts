@@ -83,6 +83,7 @@ export const SINCE = {
   "reference/utils/wr-query-param": "15.5.0",
   "reference/utils/wr-resolve-css-color": "15.0.0",
   "reference/utils/wr-to-class-list": "14.11.0",
+  "reference/utils/wr-typeahead": "16.4.0",
 } satisfies Record<string, string>;
 
 /** The version each page's subject last changed its public API in, a moved entry point included. */
@@ -126,11 +127,12 @@ export const UPDATED = {
   "reference/components/collapse": "15.8.0",
   "reference/components/color-picker": "16.3.0",
   "reference/components/command-palette": "15.0.0",
+  "reference/components/context-menu": "16.4.0",
   "reference/components/date-picker": "16.3.0",
   "reference/components/date-stamp": "16.2.0",
   "reference/components/dialog": "16.1.0",
   "reference/components/drawer": "16.1.0",
-  "reference/components/dropdown": "16.3.0",
+  "reference/components/dropdown": "16.4.0",
   "reference/components/editor": "15.0.0",
   "reference/components/event-calendar": "16.3.0",
   "reference/components/file-upload": "16.4.0",
@@ -163,7 +165,7 @@ export const UPDATED = {
   "reference/components/timeline": "15.0.0",
   "reference/components/toast": "16.1.0",
   "reference/components/transfer": "16.3.0",
-  "reference/components/tree": "16.3.0",
+  "reference/components/tree": "16.4.0",
   "reference/components/window": "15.1.0",
   "reference/directives/copy-to-clipboard": "16.1.0",
   "reference/directives/typography": "15.0.0",
