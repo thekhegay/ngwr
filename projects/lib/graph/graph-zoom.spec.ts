@@ -40,6 +40,9 @@ const inRow = (input: WrGraphLayoutInput): WrGraphLayoutResult => ({
   height: 48,
 });
 
+/** The same row on a drawing 1500 tall: at 100% it overflows the viewport both ways. */
+const onSheet = (input: WrGraphLayoutInput): WrGraphLayoutResult => ({ ...inRow(input), height: 1500 });
+
 @Component({
   imports: [WrGraph, WrGraphNodeTemplate],
   template: `
@@ -134,6 +137,30 @@ describe('WrGraph zoom and pan', () => {
     const event = new WheelEvent('wheel', { bubbles: true, cancelable: true, ...init });
     viewport().dispatchEvent(event);
     return event;
+  };
+
+  /** A Safari gesture event, which jsdom does not have: a plain event carrying the three fields the graph reads. */
+  const gesture = (type: string, scale: number, x: number, y: number): Event => {
+    const event = Object.assign(new Event(type, { bubbles: true, cancelable: true }), {
+      scale,
+      clientX: x,
+      clientY: y,
+    });
+    viewport().dispatchEvent(event);
+    return event;
+  };
+
+  /** Ten nodes on the sheet, 2000 by 1500, at 100% in the viewport's corner: room to scroll right and down. */
+  const createSheet = (setup?: (host: Host) => void): void => {
+    create({
+      layout: onSheet,
+      setup: h => {
+        h.nodes.set(nodes(10));
+        setup?.(h);
+      },
+    });
+    graph().resetView();
+    render();
   };
 
   const key = (name: string, init: KeyboardEventInit = {}, target: HTMLElement = viewport()): KeyboardEvent => {
@@ -446,14 +473,25 @@ describe('WrGraph zoom and pan', () => {
       expect(placement().k).toBeCloseTo(Math.exp(-0.1), 3);
     });
 
-    it('leaves a plain wheel to the page by default', () => {
+    it('lets every plain wheel through when the whole drawing is in view', () => {
       create();
       const before = placement();
+      const asked = requested;
 
-      const event = wheel({ deltaY: -10, clientX: 300, clientY: 350 });
+      const events = [
+        wheel({ deltaY: -10, clientX: 300, clientY: 350 }),
+        wheel({ deltaY: 10 }),
+        wheel({ deltaX: -10 }),
+        wheel({ deltaX: 10 }),
+        wheel({ deltaX: 40, deltaY: 40 }),
+        wheel({ deltaY: 3, deltaMode: 1 }),
+        wheel({ deltaY: -1, deltaMode: 2 }),
+        wheel({ deltaY: 10, shiftKey: true }),
+      ];
+      expect(requested).toBe(asked);
       frame();
 
-      expect(event.defaultPrevented).toBe(false);
+      expect(events.map(event => event.defaultPrevented)).toEqual(events.map(() => false));
       expect(placement()).toEqual(before);
     });
 
@@ -483,6 +521,279 @@ describe('WrGraph zoom and pan', () => {
       for (let i = 0; i < 40; i++) wheel({ ctrlKey: true, deltaY: 100, clientX: 500, clientY: 350 });
       frame();
       expect(placement().k).toBe(0.5);
+    });
+  });
+
+  describe('a plain wheel', () => {
+    it('pans the drawing against the scroll while there is room, one update per frame', () => {
+      createSheet();
+      expect(placement()).toEqual({ x: 0, y: 0, k: 1 });
+
+      const first = wheel({ deltaX: 30, deltaY: 50 });
+      const asked = requested;
+      const second = wheel({ deltaX: 10, deltaY: 20 });
+      // The second event shares the first one's frame.
+      expect(requested).toBe(asked);
+      fixture.detectChanges();
+
+      expect(first.defaultPrevented).toBe(true);
+      expect(second.defaultPrevented).toBe(true);
+      // Nothing is drawn until the frame.
+      expect(placement()).toEqual({ x: 0, y: 0, k: 1 });
+
+      frame();
+      expect(placement()).toEqual({ x: -40, y: -70, k: 1 });
+      // The zoom is untouched.
+      expect(fixture.componentInstance.zoom()).toBe(1);
+    });
+
+    it('keeps a view it moved through the next layout', () => {
+      createSheet();
+      graph().fit();
+      render();
+      graph().resetView();
+      render();
+      wheel({ deltaY: 50 });
+      frame();
+
+      fixture.componentInstance.nodes.set(nodes(12));
+      render();
+
+      expect(placement()).toEqual({ x: 0, y: -50, k: 1 });
+    });
+
+    it('leaves the event to the page at the bound, so the scroll chains on', () => {
+      createSheet();
+
+      // Already at the top and at the left.
+      const up = wheel({ deltaY: -50 });
+      const left = wheel({ deltaX: -50 });
+      expect(up.defaultPrevented).toBe(false);
+      expect(left.defaultPrevented).toBe(false);
+      frame();
+      expect(placement()).toEqual({ x: 0, y: 0, k: 1 });
+
+      // Further than there is: it stops with the far edges flush, 800 - 2000 and 600 - 1500.
+      expect(wheel({ deltaY: 5000 }).defaultPrevented).toBe(true);
+      expect(wheel({ deltaX: 5000 }).defaultPrevented).toBe(true);
+      // Still in the same frame, the bound already counts.
+      const down = wheel({ deltaY: 50 });
+      const right = wheel({ deltaX: 50 });
+      frame();
+
+      expect(down.defaultPrevented).toBe(false);
+      expect(right.defaultPrevented).toBe(false);
+      expect(placement()).toEqual({ x: -1200, y: -900, k: 1 });
+      // And back the other way it is the graph's again.
+      expect(wheel({ deltaY: -50 }).defaultPrevented).toBe(true);
+    });
+
+    it('answers to the larger delta, so sideways drift at a vertical bound does not hold the page', () => {
+      createSheet();
+
+      // At the top, with room to the right: a swipe up that drifts right is the page's.
+      const drift = wheel({ deltaX: 5, deltaY: -50 });
+      frame();
+
+      expect(drift.defaultPrevented).toBe(false);
+      expect(placement()).toEqual({ x: 0, y: 0, k: 1 });
+
+      // A swipe right that drifts up is the graph's.
+      const across = wheel({ deltaX: 50, deltaY: -5 });
+      frame();
+
+      expect(across.defaultPrevented).toBe(true);
+      expect(placement()).toEqual({ x: -50, y: 0, k: 1 });
+    });
+
+    it('stops at the viewport padding, as a scroll container does', () => {
+      createSheet();
+      viewport().style.padding = '20px 100px';
+
+      wheel({ deltaX: -500, deltaY: -500 });
+      frame();
+      expect(placement()).toEqual({ x: 100, y: 20, k: 1 });
+
+      wheel({ deltaX: 5000, deltaY: 5000 });
+      frame();
+      // 800 - 100 - 2000, and 600 - 20 - 1500.
+      expect(placement()).toEqual({ x: -1300, y: -920, k: 1 });
+    });
+
+    it('reads lines as 16 pixels and pages as the viewport', () => {
+      createSheet();
+
+      wheel({ deltaY: 3, deltaMode: 1 });
+      frame();
+      expect(placement()).toEqual({ x: 0, y: -48, k: 1 });
+
+      wheel({ deltaX: 2, deltaMode: 1 });
+      frame();
+      expect(placement()).toEqual({ x: -32, y: -48, k: 1 });
+
+      graph().resetView();
+      render();
+      wheel({ deltaY: 1, deltaMode: 2 });
+      frame();
+      expect(placement()).toEqual({ x: 0, y: -600, k: 1 });
+
+      wheel({ deltaX: 1, deltaMode: 2 });
+      frame();
+      expect(placement()).toEqual({ x: -800, y: -600, k: 1 });
+    });
+
+    it('pans sideways with Shift, and leaves axes the browser already swapped', () => {
+      createSheet();
+
+      const event = wheel({ deltaY: 100, shiftKey: true });
+      frame();
+      expect(event.defaultPrevented).toBe(true);
+      expect(placement()).toEqual({ x: -100, y: 0, k: 1 });
+
+      wheel({ deltaX: 60, shiftKey: true });
+      frame();
+      expect(placement()).toEqual({ x: -160, y: 0, k: 1 });
+    });
+
+    it('brings back a view dragged past the scroll range, and never pushes it further', () => {
+      createSheet();
+      // A drag reaches where a scroll does not: the drawing 300 right and 200 down of its corner.
+      pointer('pointerdown', 1, 300, 300);
+      pointer('pointermove', 1, 600, 500);
+      pointer('pointerup', 1, 600, 500);
+      frame();
+      expect(placement()).toEqual({ x: 300, y: 200, k: 1 });
+
+      const further = wheel({ deltaY: -50 });
+      const back = wheel({ deltaY: 500 });
+      frame();
+
+      expect(further.defaultPrevented).toBe(false);
+      expect(back.defaultPrevented).toBe(true);
+      expect(placement()).toEqual({ x: 300, y: -300, k: 1 });
+    });
+
+    it('leaves an event it cannot cancel alone: the page is already scrolling with it', () => {
+      createSheet();
+
+      const event = new WheelEvent('wheel', { bubbles: true, cancelable: false, deltaY: 50 });
+      viewport().dispatchEvent(event);
+      frame();
+
+      expect(placement()).toEqual({ x: 0, y: 0, k: 1 });
+    });
+
+    it('zooms instead with wheelZoom, and with Ctrl, and never pans then', () => {
+      createSheet(h => h.wheelZoom.set(true));
+      graph().resetView();
+      render();
+
+      // Around the stage's corner, so a zoom leaves the pan at zero.
+      const plain = wheel({ deltaY: -10, deltaX: 40, clientX: 100, clientY: 50 });
+      frame();
+      expect(plain.defaultPrevented).toBe(true);
+      expect(placement().k).toBeCloseTo(Math.exp(0.1), 3);
+      expect(placement().x).toBeCloseTo(0, 5);
+      expect(placement().y).toBeCloseTo(0, 5);
+
+      fixture.componentInstance.wheelZoom.set(false);
+      render();
+      const held = wheel({ ctrlKey: true, deltaY: -10, clientX: 100, clientY: 50 });
+      frame();
+      expect(held.defaultPrevented).toBe(true);
+      expect(placement().k).toBeCloseTo(Math.exp(0.2), 3);
+      expect(placement().x).toBeCloseTo(0, 5);
+    });
+  });
+
+  describe('a Safari pinch', () => {
+    // Safari alone has the constructor, which is what the graph looks for.
+    beforeEach(() => vi.stubGlobal('GestureEvent', class {}));
+
+    it('zooms by the scale of the gesture around its point, one update per frame, and takes the events', () => {
+      create();
+      const before = placement();
+      // Viewport-relative point: (500 - 100, 350 - 50).
+      const under = { x: (400 - before.x) / before.k, y: (300 - before.y) / before.k };
+
+      const start = gesture('gesturestart', 1, 500, 350);
+      const first = gesture('gesturechange', 2, 500, 350);
+      const asked = requested;
+      // The scale counts from the start of the gesture, not from the last event.
+      const second = gesture('gesturechange', 1.5, 500, 350);
+      expect(requested).toBe(asked);
+      fixture.detectChanges();
+      expect(placement()).toEqual(before);
+
+      frame();
+      const after = placement();
+
+      expect([start, first, second].map(event => event.defaultPrevented)).toEqual([true, true, true]);
+      expect(after.k).toBe(1.5);
+      expect(after.x + after.k * under.x).toBeCloseTo(400, 1);
+      expect(after.y + after.k * under.y).toBeCloseTo(300, 1);
+      expect(fixture.componentInstance.zoom()).toBe(1.5);
+
+      expect(gesture('gestureend', 1.5, 500, 350).defaultPrevented).toBe(true);
+
+      // The next pinch starts from where this one ended.
+      gesture('gesturestart', 1, 500, 350);
+      gesture('gesturechange', 2, 500, 350);
+      frame();
+      expect(placement().k).toBe(3);
+    });
+
+    it('stays inside minZoom and maxZoom, and ignores a scale that is no number', () => {
+      create({ setup: h => h.maxZoom.set(2) });
+
+      gesture('gesturestart', 1, 500, 350);
+      gesture('gesturechange', Number.NaN, 500, 350);
+      frame();
+      expect(placement().k).toBe(1);
+
+      gesture('gesturechange', 9, 500, 350);
+      frame();
+      expect(placement().k).toBe(2);
+
+      gesture('gesturechange', 0.01, 500, 350);
+      frame();
+      expect(placement().k).toBe(0.25);
+    });
+
+    it('takes the events and leaves the zoom to the pointers while fingers are on a touch screen', () => {
+      create();
+      captureStub();
+      const touch = { pointerType: 'touch' } as const;
+      pointer('pointerdown', 1, 450, 350, touch);
+      pointer('pointerdown', 2, 550, 350, touch);
+
+      const start = gesture('gesturestart', 1, 500, 350);
+      const change = gesture('gesturechange', 3, 500, 350);
+      frame();
+
+      expect(start.defaultPrevented).toBe(true);
+      expect(change.defaultPrevented).toBe(true);
+      expect(placement().k).toBe(1);
+    });
+
+    it('stops listening when zoomable is turned off', () => {
+      create();
+      fixture.componentInstance.zoomable.set(false);
+      render();
+
+      expect(gesture('gesturestart', 1, 500, 350).defaultPrevented).toBe(false);
+    });
+  });
+
+  describe('without gesture events', () => {
+    it('adds no gesture listener where the browser has no GestureEvent', () => {
+      create();
+
+      expect('GestureEvent' in window).toBe(false);
+      expect(gesture('gesturestart', 1, 500, 350).defaultPrevented).toBe(false);
+      gesture('gesturechange', 2, 500, 350);
+      frame();
+      expect(placement().k).toBe(1);
     });
   });
 

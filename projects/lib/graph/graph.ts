@@ -42,11 +42,13 @@ import { WrGraphLayout } from './internal/layout/types';
 import type { WrGraphLayoutInput, WrGraphLayoutResult, WrGraphPoint } from './internal/layout/types';
 import {
   type GraphFrame,
+  type GraphInsets,
   type GraphTransform,
   IDENTITY,
   clampPan,
   clampZoom,
   fitTransform,
+  scrollPan,
   zoomAround,
 } from './internal/view';
 import type { WrGraphEdge, WrGraphNode } from './types';
@@ -75,6 +77,13 @@ const WHEEL_RATE = 0.01;
 const WHEEL_MAX = 24;
 /** Pixels in one line of a wheel that reports lines. */
 const WHEEL_LINE = 16;
+
+/** Safari's trackpad pinch, which is not in `lib.dom`. `scale` is relative to the start of the gesture. */
+interface SafariGestureEvent extends UIEvent {
+  readonly scale: number;
+  readonly clientX: number;
+  readonly clientY: number;
+}
 
 /**
  * What a press must not start a pan on: anything that takes a click or focus of
@@ -360,18 +369,21 @@ export class WrGraph<TData = unknown> {
 
   /**
    * Lets the viewport zoom and pan instead of scrolling: `Ctrl` or `⌘` with the
-   * wheel, a pinch, a drag on the field, the keyboard and three buttons. The
-   * drawing is fitted on first draw and whenever the layout changes its size,
-   * until the view is moved by hand. A touch drag on the graph then pans it
-   * rather than scrolling the page.
+   * wheel, a pinch, a drag on the field, the keyboard and three buttons. A plain
+   * wheel or a two-finger scroll pans while the drawing has more to show that
+   * way, and scrolls the page once it has none. The drawing is fitted on first
+   * draw and whenever the layout changes its size, until the view is moved by
+   * hand. A touch drag on the graph then pans it rather than scrolling the page.
    *
    * @default false
    */
   readonly zoomable = input(false, { transform: booleanAttribute });
 
   /**
-   * Lets a plain wheel zoom, with no modifier key. The page then no longer
-   * scrolls while the pointer is over the graph.
+   * Lets a plain wheel zoom, with no modifier key. The wheel then never pans,
+   * and the page no longer scrolls while the pointer is over the graph. Without
+   * it a plain wheel pans the drawing, and scrolls the page once the drawing has
+   * nothing more to show in that direction.
    *
    * @default false
    */
@@ -655,6 +667,8 @@ export class WrGraph<TData = unknown> {
   private frameId: number | null = null;
   private readonly pointers = new Map<number, { x: number; y: number }>();
   private dragging = false;
+  /** The zoom a Safari pinch started from, while one is under way. */
+  private pinchFrom: number | null = null;
 
   /**
    * The visually hidden sentence per node id: its parents, then its children, as
@@ -756,10 +770,19 @@ export class WrGraph<TData = unknown> {
       viewport.addEventListener('pointermove', event => this.onPointerMove(event, viewport), { signal: stop });
       viewport.addEventListener('pointerup', event => this.onPointerEnd(event, viewport), { signal: stop });
       viewport.addEventListener('pointercancel', event => this.onPointerEnd(event, viewport), { signal: stop });
+      // Safari reports a trackpad pinch as gesture events, never as a wheel with `Ctrl`.
+      if ('GestureEvent' in window) {
+        const on = (type: string, handler: (event: SafariGestureEvent) => void): void =>
+          viewport.addEventListener(type, event => handler(event as SafariGestureEvent), { signal: stop });
+        on('gesturestart', event => this.onGestureStart(event));
+        on('gesturechange', event => this.onGestureChange(event));
+        on('gestureend', event => this.onGestureEnd(event));
+      }
       onCleanup(() => {
         controller.abort();
         this.pointers.clear();
         this.dragging = false;
+        this.pinchFrom = null;
         untracked(() => this.panning.set(false));
       });
     });
@@ -884,22 +907,20 @@ export class WrGraph<TData = unknown> {
     const frame = this.frame();
     const { width, height } = this.size();
     if (!viewport || !frame.width || !frame.height || !width || !height) return null;
+    const { min, max } = this.bounds();
+    return fitTransform(frame, this.insets(viewport), width, height, min, max);
+  }
+
+  /** The viewport's padding, which a fit and a scroll both stop at. */
+  private insets(viewport: HTMLElement): GraphInsets {
     const style = getComputedStyle(viewport);
     const inset = (value: string): number => Number.parseFloat(value) || 0;
-    const { min, max } = this.bounds();
-    return fitTransform(
-      frame,
-      {
-        top: inset(style.paddingTop),
-        right: inset(style.paddingRight),
-        bottom: inset(style.paddingBottom),
-        left: inset(style.paddingLeft),
-      },
-      width,
-      height,
-      min,
-      max
-    );
+    return {
+      top: inset(style.paddingTop),
+      right: inset(style.paddingRight),
+      bottom: inset(style.paddingBottom),
+      left: inset(style.paddingLeft),
+    };
   }
 
   /** After a new drawing or a new box: fit it, or keep a view moved by hand within reach. */
@@ -968,7 +989,10 @@ export class WrGraph<TData = unknown> {
   }
 
   private onWheel(event: WheelEvent): void {
-    if (!event.ctrlKey && !event.metaKey && !this.wheelZoom()) return;
+    if (!event.ctrlKey && !event.metaKey && !this.wheelZoom()) {
+      this.onWheelPan(event);
+      return;
+    }
     // Taken even at a bound, or the browser would zoom the page instead.
     event.preventDefault();
     const frame = this.frame();
@@ -981,6 +1005,57 @@ export class WrGraph<TData = unknown> {
     this.schedule(
       this.bounded(zoomAround(from, k, event.clientX - frame.left, event.clientY - frame.top, frame), frame)
     );
+  }
+
+  /**
+   * A plain wheel or a two-finger scroll, handled as a scroll container handles
+   * it: the drawing moves while it has more to show that way and the event is
+   * taken; once it has none the event is left alone and the page scrolls on.
+   */
+  private onWheelPan(event: WheelEvent): void {
+    const viewport = this.viewportRef()?.nativeElement;
+    // Not cancelable means the browser is already scrolling the page with this gesture.
+    if (!viewport || !event.cancelable) return;
+    const frame = this.frame();
+    // A mouse has one wheel: with `Shift` it scrolls sideways. Some browsers swap the axes themselves.
+    const sideways = event.shiftKey && event.deltaX === 0;
+    const unit = (page: number): number => (event.deltaMode === 1 ? WHEEL_LINE : event.deltaMode === 2 ? page : 1);
+    const dx = (sideways ? event.deltaY : event.deltaX) * unit(frame.width);
+    const dy = (sideways ? 0 : event.deltaY) * unit(frame.height);
+    const from = this.current();
+    const { width, height } = this.size();
+    // The drawing goes the other way, as content does under a scroll.
+    const next = scrollPan(from, frame, this.insets(viewport), width, height, -dx, -dy);
+    // The gesture's main axis decides whose scroll it is, so the sideways drift of
+    // a vertical swipe over a wide graph does not hold the page.
+    if (Math.abs(dx) > Math.abs(dy) ? next.x === from.x : next.y === from.y) return;
+    event.preventDefault();
+    this.schedule(next);
+  }
+
+  private onGestureStart(event: SafariGestureEvent): void {
+    // Taken, or Safari would zoom the page.
+    event.preventDefault();
+    // On a touch screen the same pinch arrives as two pointers, which already zoom.
+    this.pinchFrom = this.pointers.size ? null : this.current().k;
+  }
+
+  private onGestureChange(event: SafariGestureEvent): void {
+    event.preventDefault();
+    if (this.pinchFrom === null || this.pointers.size || !isSize(event.scale)) return;
+    const frame = this.frame();
+    const from = this.current();
+    const { min, max } = this.bounds();
+    const k = clampZoom(this.pinchFrom * event.scale, min, max);
+    if (k === from.k) return;
+    this.schedule(
+      this.bounded(zoomAround(from, k, event.clientX - frame.left, event.clientY - frame.top, frame), frame)
+    );
+  }
+
+  private onGestureEnd(event: SafariGestureEvent): void {
+    event.preventDefault();
+    this.pinchFrom = null;
   }
 
   private onKeydown(event: KeyboardEvent): void {
