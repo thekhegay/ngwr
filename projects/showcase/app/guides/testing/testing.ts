@@ -1606,8 +1606,9 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<string>',
     },
     {
-      name: 'isShowing() / isModal() / getAccessibleName()',
-      description: '`isShowing()` turns false when the step is torn down.',
+      name: 'isShowing() / isModal() / getAccessibleName() / getDescription()',
+      description:
+        '`isShowing()` turns false when the step is torn down. The name is the title and the progress line; the description is the step’s text.',
       type: 'Promise<…>',
     },
   ];

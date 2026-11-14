@@ -94,10 +94,12 @@ describe('WrTourHarness', () => {
     const first = await start();
 
     expect(await first.isModal()).toBe(true);
-    expect(await first.getAccessibleName()).toBe('First — Step 1 of 3');
+    expect(await first.getAccessibleName()).toBe('First Step 1 of 3');
+    expect(await first.getDescription()).toBe('Look here');
 
     await first.next();
     expect(await (await card()).getAccessibleName()).toBe('Step 2 of 3');
+    expect(await (await card()).getDescription()).toBe('Then here');
   });
 
   it('walks forward and back, and hides Back on the first step', async () => {
