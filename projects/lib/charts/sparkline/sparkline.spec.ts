@@ -1,8 +1,10 @@
 import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { wrChartLegacyColor } from 'ngwr/charts/core';
+import { wrChartColor } from 'ngwr/charts/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { COMPILE_TIMEOUT, compileSass } from '../../spec-sass';
 
 import { WrSparkline } from './sparkline';
 
@@ -135,8 +137,8 @@ describe('WrSparkline', () => {
     // The colour a multi-series chart gives its first series, so a sparkline beside one
     // matches it. The input keeps the literal default the docs print; this holds the two
     // together.
-    expect(line()!.getAttribute('stroke')).toBe(wrChartLegacyColor(0));
-    expect(tip()!.getAttribute('stroke')).toBe(wrChartLegacyColor(0));
+    expect(line()!.getAttribute('stroke')).toBe(wrChartColor(0));
+    expect(tip()!.getAttribute('stroke')).toBe(wrChartColor(0));
   });
 
   it('is decorative until the consumer gives it a name', () => {
@@ -205,9 +207,10 @@ describe('WrSparkline tooltip', () => {
 
     expect(part('value')!.textContent.trim()).toBe('9');
     expect(part('swatch')!.style.background).toBe('rgb(18, 52, 86)');
-    // x = 50 of 100, and 9 is the minimum, so it sits on the floor of the plot: y = 38 of 40.
+    // x = 50 of 100, and 9 is the minimum, so it sits on the floor of the plot: y = 38 of
+    // 40, inside the 2.25px the drawing keeps clear of its box for the tip dot.
     expect(marker()!.style.left).toBe('50px');
-    expect(marker()!.style.top).toBe('38px');
+    expect(marker()!.style.top).toBe(`${2.25 + (38 / 40) * (40 - 4.5)}px`);
     expect(marker()!.getAttribute('aria-hidden')).toBe('true');
   });
 
@@ -222,10 +225,11 @@ describe('WrSparkline tooltip', () => {
     svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 245 }));
     fixture.detectChanges();
 
-    // The last point is at x = 98 and y = 2 of the 100 × 40 drawing.
+    // The last point is at x = 98 and y = 2 of the 100 × 40 drawing, which is the SVG's
+    // box less the 2.25px it keeps clear on every side.
     expect(part('value')!.textContent.trim()).toBe('21');
-    expect(marker()!.style.left).toBe(`${20 + 0.98 * 128}px`);
-    expect(marker()!.style.top).toBe(`${0.05 * 32}px`);
+    expect(marker()!.style.left).toBe(`${20 + 2.25 + 0.98 * (128 - 4.5)}px`);
+    expect(marker()!.style.top).toBe(`${2.25 + 0.05 * (32 - 4.5)}px`);
   });
 
   it('snaps to the ends rather than running off them', () => {
@@ -396,5 +400,69 @@ describe('WrSparkline number format', () => {
     fixture.componentInstance.valueFormat.set(value => `€${value.toFixed(2)}`);
     fixture.detectChanges();
     expect(tooltipValue(0)).toBe('€1234.50');
+  });
+});
+
+/**
+ * The tip dot is three times the line's width across, and the last point sits on the edge
+ * of the plot, so the dot used to hang over the sparkline's box, where a table cell or a
+ * card cut it. The drawing is inset by the dot's radius instead.
+ */
+describe('WrSparkline inset', () => {
+  @Component({
+    imports: [WrSparkline],
+    template: `<wr-sparkline [data]="[1, 5, 3, 9]" [showTip]="showTip()" [strokeWidth]="strokeWidth()" />`,
+  })
+  class InsetHost {
+    readonly showTip = signal(true);
+    readonly strokeWidth = signal(1.5);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<InsetHost>>;
+  const svg = (): SVGSVGElement => (fixture.nativeElement as HTMLElement).querySelector<SVGSVGElement>('svg')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(InsetHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps the drawing clear of its box by the radius of the tip dot', () => {
+    expect(svg().style.padding).toBe('2.25px');
+
+    fixture.componentInstance.strokeWidth.set(3);
+    fixture.detectChanges();
+    expect(svg().style.padding).toBe('4.5px');
+  });
+
+  it('keeps clear by half the line with no dot to hold', () => {
+    fixture.componentInstance.showTip.set(false);
+    fixture.detectChanges();
+    expect(svg().style.padding).toBe('0.75px');
+  });
+
+  it('reads the pointer off the drawing, not off the box round it', () => {
+    // A 100px box: the drawing is the 95.5px inside its padding. At 2px, on the padding,
+    // the nearest point is still the first.
+    svg().getBoundingClientRect = () => new DOMRect(0, 0, 100, 40);
+    svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 2 }));
+    fixture.detectChanges();
+    const marker = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-sparkline__marker')!;
+    expect(marker.style.left).toBe(`${2.25 + 0.02 * 95.5}px`);
+  });
+});
+
+describe('WrSparkline stylesheet', { timeout: COMPILE_TIMEOUT }, () => {
+  const css = (): string => compileSass(`@use 'charts/sparkline/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
+
+  it('sizes the drawing with its padding inside the box, so `width` and `height` hold', () => {
+    expect(css()).toMatch(/\.wr-sparkline svg\s*\{[^}]*box-sizing: border-box/);
+  });
+
+  it('loads the chart theme its colour defaults to, and rings the marker with the separator', () => {
+    expect(css()).toMatch(/--wr-chart-1:/);
+    expect(css()).toMatch(/--wr-sparkline-marker-ring: var\(--wr-chart-separator\)/);
   });
 });

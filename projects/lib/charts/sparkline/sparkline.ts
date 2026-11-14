@@ -16,6 +16,11 @@ import { wrCheckStyles } from 'ngwr/utils';
  * Tiny inline trend line. SVG path drawn from `[data]: number[]` — no
  * axes, no labels, just the shape. Optional area fill + tip dot.
  *
+ * The line is the first colour of the chart palette (`--wr-chart-1`) unless `color`
+ * says otherwise. The drawing is inset from its box by the tip dot's radius, so the dot
+ * on a last point at the edge, or on the highest or lowest one, stays inside `width` by
+ * `height` and no ancestor that clips at the box cuts it.
+ *
  * @example
  * ```html
  * <wr-sparkline [data]="[12, 14, 9, 17, 21, 18, 23]" />
@@ -48,8 +53,11 @@ export class WrSparkline {
    */
   readonly ariaLabel = input<string | null>(null);
 
-  /** Stroke colour. @default 'var(--wr-color-primary)' */
-  readonly color = input<string>('var(--wr-color-primary)');
+  /**
+   * Stroke colour. The first colour of the chart palette, which is the brand colour
+   * unless the theme says otherwise. @default 'var(--wr-chart-1)'
+   */
+  readonly color = input<string>('var(--wr-chart-1)');
 
   /**
    * Line thickness in CSS pixels — `vector-effect="non-scaling-stroke"` keeps it at
@@ -162,6 +170,26 @@ export class WrSparkline {
   protected readonly viewBox = `0 0 ${this.vbW} ${this.vbH}`;
 
   /**
+   * How far the drawing sits in from the edge of its box, in px: the radius of the tip
+   * dot, three times the line's width across, or half the line's width with no dot. It is
+   * the SVG's padding, so the viewport the points are scaled into is that much smaller on
+   * every side and nothing drawn at an edge reaches past `width` by `height`. The dot of
+   * a last point used to hang over the box, where a table cell or a card cut it off.
+   */
+  protected readonly inset = computed(() => (this.showTip() ? this.strokeWidth() * 1.5 : this.strokeWidth() / 2));
+
+  /** The box the viewBox is stretched over: the SVG's box, less its padding. */
+  private drawing(box: DOMRect): { left: number; top: number; width: number; height: number } {
+    const inset = this.inset();
+    return {
+      left: box.left + inset,
+      top: box.top + inset,
+      width: Math.max(0, box.width - 2 * inset),
+      height: Math.max(0, box.height - 2 * inset),
+    };
+  }
+
+  /**
    * One tooltip, pointing at the hovered point: above its marker, below it when there
    * is no room. The marker is the anchor element itself, drawn for the point the
    * tooltip reads — it renders before this runs, since both follow `tip.active()`.
@@ -211,7 +239,7 @@ export class WrSparkline {
     if (!point || !svg) return null;
     const host = this.host.nativeElement;
     const outer = host.getBoundingClientRect();
-    const box = svg.getBoundingClientRect();
+    const box = this.drawing(svg.getBoundingClientRect());
     return {
       x: box.left - outer.left - host.clientLeft + (point.x / this.vbW) * box.width,
       y: box.top - outer.top - host.clientTop + (point.y / this.vbH) * box.height,
@@ -230,9 +258,10 @@ export class WrSparkline {
    */
   private indexAt(clientX: number, box: DOMRect): number | null {
     const count = this.points().length;
-    if (count === 0 || box.width <= 0) return null;
+    const drawing = this.drawing(box);
+    if (count === 0 || drawing.width <= 0) return null;
     if (count === 1) return 0;
-    const x = ((clientX - box.left) / box.width) * this.vbW;
+    const x = ((clientX - drawing.left) / drawing.width) * this.vbW;
     const step = (this.vbW - this.padding * 2) / (count - 1);
     return Math.min(count - 1, Math.max(0, Math.round((x - this.padding) / step)));
   }
